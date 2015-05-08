@@ -11,12 +11,14 @@ import ast
 import json
 import os
 import traceback
+from simplejson import dumps
 
 import logging
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfExceptions import TransformAMIException
 from PyJobTransforms.trfDefaultFiles import getInputFileName, getOutputFileName
+from PyJobTransforms.trfUtils import convertToStr
 
 from PyJobTransforms.trfExitCodes import trfExit
 AMIerrorCode=trfExit.nameToCode('TRF_AMI_ERROR')
@@ -101,12 +103,13 @@ class TrfConfig:
                         # Special intermediate treatment for pre/postExec from prodsys
                         string += " " + k + " " + " ".join(["'"+element.replace("'", "\\'")+"'" for element in v])
                     else:
-                        string += " " + k + "=" + "'" + ",".join(v).replace("'", "\\'") + "'"
+                        string += " " + k + "=" + " ".join(["'" + element.replace("'", "\\'") + "'" for element in v])
                 else:
                     # Assume some vanilla value
                     string +=" "+k+" "+"'"+str(v).replace("'", "\\'")+"'"
             else:
                 string +=" "+k+"="+"'"+str(v).replace("'", "\\'")+"'"
+#            string += '\n'
         return string
 
 ## @brief Back convert a pre/postExec dictionary into a set of command 
@@ -125,21 +128,61 @@ def _parseIncludeDict(substep, value, joinWithChar = ","):
     string += substep + ":" + joinWithChar.join(value).replace("'", "\\'")+"'"
     return string
 
+def isNewAMITag(tag):
+    newTagDict = {
+        'a' : 764,
+        'b' : 545,
+        'c' : 864,
+        'd' : 1351,
+        'e' : 3764,
+        'f' : 557,
+        'g' : 46,
+        'h' : 32,
+        'j' : 46,
+        'k' : 34,
+        'm' : 1377,
+        'o' : 4741,
+        'p' : 2295,
+        'q' : 430,
+        'r' : 6382,
+        's' : 2559,
+        't' : 597,
+        'u' : 51,
+        'v' : 139,
+        'w' : 501,
+        'x' : 302,
+    }
+
+    if tag[0] in newTagDict.keys():
+        if int(tag[1:]) > newTagDict[tag[0]]:
+            msg.debug('it is a new tag')
+            return True
+
+    msg.debug('it is NOT a new tag')
+    return False
+
+
 ## @brief Stores the information about a given tag.
 class TagInfo:
-    def __init__(self,tag):
+    def __init__(self, tag, suppressNonJobOptions = True):
         self._tag=tag
+        self._isNewTag = isNewAMITag(tag)
         self._isProdSys=None
         self._trfs=None
+        self._suppressNonJobOptions = suppressNonJobOptions
 
     @property    
     def isProdSys(self):
         if self._isProdSys is None:
-            prodtags=getProdSysTagsCharacters()
-            if self._tag[0] in prodtags:
-                self._isProdSys=True
+            if self._isNewTag:
+                #probably false, as we need to get stuff from ami
+                self._isProdSys = False
             else:
-                self._isProdSys=False
+                prodtags=getProdSysTagsCharacters()
+                if self._tag[0] in prodtags:
+                    self._isProdSys=True
+                else:
+                    self._isProdSys=False
         return self._isProdSys
 
 
@@ -149,7 +192,7 @@ class TagInfo:
             if self.isProdSys:
                 self._trfs=getTrfConfigFromPANDA(self._tag)
             else:    
-                self._trfs=getTrfConfigFromAMI(self._tag)
+                self._trfs = getTrfConfigFromAMI(self._tag, self._suppressNonJobOptions)
         return self._trfs
 
 
@@ -334,21 +377,57 @@ def getTrfConfigFromPANDA(tag):
     return listOfTrfs
 
 
+'''
+directly copied from pyAMI.atlas 5 API
+should be removed once suppressNonJobOptions is in official release
+'''
+def get_ami_tag(client, tag, suppressNonJobOptions = True):
+        '''Get AMI-tag information.
+
+        Args:
+            :client: the pyAMI client [ pyAMI.client.Client ]
+            :tag: the AMI-tag [ str ]
+
+        Returns:
+            an array of python dictionnaries.
+        '''
+
+        command = [
+                'AMIGetAMITagInfo',
+                '-amiTag="%s"' % tag,
+        ]
+
+        if suppressNonJobOptions:
+            command += ['-suppressNonJobOptions']
+
+        msg.debug(command)
+
+        return client.execute(command, format = 'dom_object').get_rows('amiTagInfo')
+
+def remove_enclosing_quotes(s):
+    try:
+        if s[0] == s[-1] and s[0] in ('"', "'"):
+            s = s[1:-1]
+    except:
+        pass
+    return s
+
 ## @brief Get information about a T0 tag from AMI
 #  @param tag Tag for which information is requested
 #  @returns list of PyJoCbTransforms.trfAMI.TRFConfig instances
-def getTrfConfigFromAMI(tag):
+def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
     msg.debug('Using AMI to get info about tag %s' % tag)
 
     try:
-        import pyAMI.atlas.api
+#        import pyAMI.atlas.api
         import pyAMI.exception
     except ImportError, e:
         raise TransformAMIException(AMIerrorCode, 'Import of pyAMI modules failed ({0})'.format(e))
         
     try:
         amiclient=getAMIClient()
-        result=pyAMI.atlas.api.get_ami_tag(amiclient, tag)
+#        result = pyAMI.atlas.api.get_ami_tag(amiclient, tag)
+        result = get_ami_tag(amiclient, tag, suppressNonJobOptions)
     except pyAMI.exception.Error, e:
         msg.warning('An exception occured when connecting to primary AMI: {0}'.format(e))
         msg.debug('Exception: {0}'.format(e))
@@ -361,33 +440,91 @@ def getTrfConfigFromAMI(tag):
         msg.debug("Error may not be fatal - will try AMI replica catalog")
         try:
             amiclient.config.endpoint = 'atlas-replica'
-            result=pyAMI.atlas.api.get_ami_tag(amiclient, tag)
+#            result = pyAMI.atlas.api.get_ami_tag(amiclient, tag)
+            result = get_ami_tag(amiclient, tag, suppressNonJobOptions)
         except pyAMI.exception.Error, e:
             msg.error('An exception occured when connecting to the AMI replica catalog: {0}'.format(e))
             raise TransformAMIException(AMIerrorCode, 'Getting tag info from AMI failed (tried both primary and replica). '
                                         'See logfile for exception details.')
 
-    msg.debug('Raw result from AMI is: %s ' % result)
-
     try:
         trf = TrfConfig()
-        trf.name=result[0]['transformationName']
+        trf.name = result[0]['transformation']
         trf.inputs=result[0].get('inputs', {})
         trf.outputs=result[0].get('outputs', {})
-        trf.release=result[0]['groupName'] + "," + result[0]['cacheName']
-        trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
+        trf.release = result[0]['SWReleaseCache'].replace('_', ',')
+
+        if 'phconfig' in result[0].keys():
+            trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
+        else:
+            physics = {}
+            for k, v in result[0].iteritems():
+                if 'Exec' in k:
+                    execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
+                    physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
+                elif '" "' in v:
+                    msg.info('found quote space quaote (" ") in parameter value for %s, converting to list' % k)
+                    subStrList = [subStr for subStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
+                    physics[convertToStr(k)] = [remove_enclosing_quotes(subStr).replace('\\"', '"') for subStr in subStrList]
+                else:
+                    physics[convertToStr(k)] = convertToStr(remove_enclosing_quotes(v))
+
+            msg.debug('Result from AMI after string cleaning:')
+            msg.debug('%s' % dumps(physics, indent = 4))
+
+            if suppressNonJobOptions:
+                for k in physics.keys():
+                    if k in ['productionStep', 'transformation', 'SWReleaseCache']:
+                        physics.pop(k)
+
+            for k, v in physics.iteritems():
+                if 'triggerConfig' in k or 'triggerConfigByRun' in k:
+                    if ' ' in v:
+                        physics[k] = v.replace(' ', ',')
+                        msg.warning('Attempted to correct illegal trigger configuration string: {0} -> {1}'.format(v, physics[k]))
+
+            msg.debug("Checking for pseudo-argument internal to ProdSys...")
+            if 'extraParameter' in physics:
+                val = physics.pop('extraParameter')
+                msg.debug("Removed extraParamater=%s from arguments." % val)
+
+            msg.debug("Checking for input/output file arguments...")
+            for arg in physics.keys():
+                if arg.lstrip('-').startswith('input') and arg.endswith('File'):
+                    value = physics.pop(arg)
+                    msg.debug("Found input file argument %s=%s." % (arg, value))
+                    fmt = arg.lstrip('-').replace('input', '').replace('File', '')
+                    trf.inFiles[arg] = getInputFileName(arg)
+                elif arg.lstrip('-').startswith('output') and arg.endswith('File'):
+                    value = physics.pop(arg)
+                    msg.debug("Found output file argument %s=%s." % (arg, value))
+                    fmt = arg.lstrip('-').replace('output', '').replace('File', '')
+                    trf.outFiles[arg] = getOutputFileName(fmt)
+
+            msg.debug("Checking for not set arguments...")
+            for arg, value in physics.items():
+                if value == "NONE" or value == "none" or value == ["NONE"]:
+                    val = physics.pop(arg)
+                    msg.debug("Removed %s=%s from arguments." % (arg, val))
+
+            trf.physics = physics
+
         if not isinstance(trf.physics, dict):
             raise TransformAMIException(AMIerrorCode, "Bad result for tag's phconfig: {0}".format(trf.physics))
-        trf.inFiles=deserialiseFromAMIString(result[0]['inputs'])
-        for inFileType, inFileName in trf.inFiles.iteritems():
-            # Not all AMI tags actually have a working filename, so fallback to trfDefaultFiles
-            # if necessary
-            if inFileName == '' or inFileName =={} or inFileName == [] or inFileName == '{}':
-                trf.inFiles[inFileType] = getInputFileName(inFileType, tag)
-        print trf.inFiles
-        outputs=deserialiseFromAMIString(result[0]['outputs'])
-        trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
-        trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
+
+        if trf.inFiles == {}:
+            if 'inputs' in result[0].keys():
+                trf.inFiles=deserialiseFromAMIString(result[0]['inputs'])
+                for inFileType, inFileName in trf.inFiles.iteritems():
+                    # Not all AMI tags actually have a working filename, so fallback to trfDefaultFiles
+                    # if necessary
+                    if inFileName == '' or inFileName =={} or inFileName == [] or inFileName == '{}':
+                        trf.inFiles[inFileType] = getInputFileName(inFileType, tag)
+
+        if 'outputs' in result[0].keys():
+            outputs=deserialiseFromAMIString(result[0]['outputs'])
+            trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
+            trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
     except KeyError as e:
         raise TransformAMIException(AMIerrorCode, "Missing key in AMI data: {0}".format(e))
     except Exception as e:

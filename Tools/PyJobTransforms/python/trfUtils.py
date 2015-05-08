@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 634420 2014-12-08 13:38:04Z graemes $
+# @version $Id: trfUtils.py 665892 2015-05-08 14:54:36Z graemes $
 
 import os
 import os.path as path
@@ -503,6 +503,7 @@ def setupDBRelease(setup):
 def cvmfsDBReleaseCheck(dbrelease):
     dbsetup = None
     dbdMatch = re.match(r'([\d\.]+|current)$', dbrelease)
+    msg.debug('Attempting to setup DBRelease {0} from cvmfs'.format(dbrelease))
     if dbdMatch:
         if 'VO_ATLAS_SW_DIR' in os.environ:
             msg.debug('Found site defined path to ATLAS software: {0}'.format(os.environ['VO_ATLAS_SW_DIR']))

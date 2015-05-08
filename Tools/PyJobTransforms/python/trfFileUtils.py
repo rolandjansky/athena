@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 652372 2015-03-06 22:13:05Z graemes $
+# @version $Id: trfFileUtils.py 665892 2015-05-08 14:54:36Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -22,6 +22,8 @@ from PyJobTransforms.trfDecorators import timelimited
 athFileInterestingKeys = ['beam_energy', 'beam_type', 'conditions_tag', 'file_size',
                           'file_guid', 'file_type', 'geometry', 'lumi_block', 'nentries', 'run_number', 
                           'AODFixVersion']
+# Stripped down key list for files which are inputs
+inpFileInterestingKeys = ['file_size', 'file_guid', 'file_type', 'nentries']
 
 ## @brief Determines metadata of BS, POOL or TAG file.
 #  @details Trivial wrapper around PyUtils.AthFile.
