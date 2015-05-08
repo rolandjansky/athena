@@ -14,6 +14,9 @@ use CaloG4Sim       CaloG4Sim-*      	Calorimeter
 use LArGeoCode      LArGeoCode-*     	LArCalorimeter/LArGeoModel
 use Identifier      Identifier-*        DetectorDescription
 
+# Add the compiler macro definitions for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="add_definitions(-DLARG4NOROOT)"
+
 # Build the library (and export the headers)
 library LArG4Code *.cc
 apply_pattern installed_library
@@ -26,6 +29,5 @@ use GaudiInterface  GaudiInterface-* 	External
 use LArG4RunControl LArG4RunControl-*   LArCalorimeter/LArG4
 use MCTruth         MCTruth-*           Simulation/G4Sim
 use StoreGate       StoreGate-*      	Control
-use ISF_Event       ISF_Event-*         Simulation/ISF/ISF_Core
 
 macro_append LArG4Code_cppflags  " -DLARG4NOROOT "
