@@ -18,7 +18,6 @@ Modified :
                                
 ********************************************************************/                               
 
-#include "GaudiKernel/MsgStream.h"                               
 #include "StoreGate/StoreGateSvc.h"
 
 #include "HepMC/GenEvent.h"
@@ -37,7 +36,7 @@ using namespace HepMC;
 //  CONSTRUCTOR:                               
                                    
 ZVertexFromKine::ZVertexFromKine(const std::string& name, ISvcLocator* pSvcLocator):                                
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
 
   declareProperty("McEventCollectionName", m_mcEventCollectionName="GEN_EVENT");
@@ -54,16 +53,6 @@ ZVertexFromKine::~ZVertexFromKine()
                                       
 StatusCode ZVertexFromKine::initialize()                               
 {                               
-  MsgStream athenaLog(msgSvc(), name());
-
-                               
-  StatusCode sc = service("StoreGateSvc", m_StoreGate);                               
-  if (sc.isFailure())  {                               
-    athenaLog << MSG::ERROR                               
-	      << "Unable to get pointer to StoreGate Service" << endreq;                               
-    return sc;                               
-  } 
-
   return StatusCode::SUCCESS;                               
 }                               
                                
@@ -78,16 +67,15 @@ StatusCode ZVertexFromKine::finalize() { return StatusCode::SUCCESS; }
 StatusCode ZVertexFromKine::execute()                               
 {                                
                                
-  MsgStream athenaLog(msgSvc(), name());
-  athenaLog << MSG::DEBUG << "Executing ZVertexFromKine" << endreq;     
+   ATH_MSG_DEBUG("Executing ZVertexFromKine");
 
   //  Get the collection generator events (physics and pile-up) making up this event 
   
   const McEventCollection* mcEvents;
-  StatusCode sc = m_StoreGate->retrieve( mcEvents, m_mcEventCollectionName );
+  StatusCode sc = evtStore()->retrieve( mcEvents, m_mcEventCollectionName );
   if( sc.isFailure() ) {
-    athenaLog << MSG::INFO <<"Could not retrieve mcEventCollection with key " << m_mcEventCollectionName << endreq; 
-    return StatusCode::SUCCESS; 
+     ATH_MSG_INFO( "Could not retrieve mcEventCollection with key " << m_mcEventCollectionName); 
+     return StatusCode::SUCCESS; 
   };
 
   McEventCollection::const_iterator  event = mcEvents->begin();
@@ -97,11 +85,11 @@ StatusCode ZVertexFromKine::execute()
   TrigVertex* zvert = new TrigVertex( vertex->position().z() );
   zinfo->push_back(zvert);
 
-  if( m_StoreGate->record( zinfo, "TrueTrigVertexColl" ) ) {
-    athenaLog << MSG::DEBUG <<"Stored TrueTrigVertexColl" << endreq;
+  if( evtStore()->record( zinfo, "TrueTrigVertexColl" ) ) {
+     ATH_MSG_DEBUG("Stored TrueTrigVertexColl");
   }
   else {
-    athenaLog << MSG::WARNING << "Failed to Store TrueTrigVertexColl" << endreq;
+     ATH_MSG_WARNING("Failed to Store TrueTrigVertexColl");
   }
 
   return StatusCode::SUCCESS;
