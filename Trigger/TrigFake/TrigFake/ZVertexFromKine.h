@@ -7,30 +7,22 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"                               
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-
-class StoreGateSvc;
-
-using namespace std;
-
-class ZVertexFromKine : public Algorithm 
+class ZVertexFromKine : public AthAlgorithm 
 {
- public:
+public:
   
-  ZVertexFromKine(const std::string& name, ISvcLocator* pSvcLocator);
-  ~ZVertexFromKine();
+   ZVertexFromKine(const std::string& name, ISvcLocator* pSvcLocator);
+   ~ZVertexFromKine();
   
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+   StatusCode initialize();
+   StatusCode execute();
+   StatusCode finalize();
 
- private:
+private:
 
-  StoreGateSvc* m_StoreGate;
-
-  std::string m_mcEventCollectionName;
+   std::string m_mcEventCollectionName;
 };
 
 

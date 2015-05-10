@@ -69,7 +69,7 @@ std::pair<double,double> Trajectory::etaPhiAtCylinder(double rC_mm, double zC_mm
   // Calculate intercept with cylinder
   
   double phiC = 0;
-  double etaC = 0;
+  // double etaC = 0; // etaC is not being used -> compiler warnings
   if (rC > 0  && fabs(zC) > 0 && m_pT != 0 && fabs(m_z0) < zC) {
 
     /* r, z of intersection with cylinder */
@@ -83,10 +83,13 @@ std::pair<double,double> Trajectory::etaPhiAtCylinder(double rC_mm, double zC_mm
       r = fabs(r);   /* NOT SURE IF -ve r is handled correctly */
     } else r = rC;      /* hits barrel of cylinder */
     
-    double theta = atan2(r, fabs(z)) / 2.;
-    if (z > 0) etaC = -log(tan(theta));
-    else etaC = log(tan(theta));
-    
+    /* etaC is not being used -> compiler warnings
+       double theta = atan2(r, fabs(z)) / 2.;
+
+       if (z > 0) etaC = -log(tan(theta));
+       else etaC = log(tan(theta));
+    */
+
     /* Now calculate phiC */
 
     if (m_q == 0) {                /* Neutral Track */

@@ -8,6 +8,7 @@ use     TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
 use     TrigSteering        TrigSteering-*          Trigger/TrigSteer
 use     TrigInDetEvent      TrigInDetEvent-*        Trigger/TrigEvent
 #use     EventInfo           EventInfo-*            Event
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 
 private
 use     AtlasCLHEP          AtlasCLHEP-*            External
