@@ -7,6 +7,8 @@
 
 #include <string>
 #include <vector>
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/MsgStream.h"
 #include "TrigSteering/LvlConverter.h"
 
 #define DEFAULT_RoIBRDOLocation "/RoIB/RoIBRDOLocation"
@@ -34,8 +36,11 @@ class FakeLvl1RoIfromKine : public HLT::LvlConverter {
 
  private:
 
+  MsgStream* m_log;
   unsigned int m_roiId;
 
+  StoreGateSvc* m_StoreGate;
+  StoreGateSvc* m_DetectorStore;
   std::string m_mcEventCollectionName;
   double m_emTauRoiPtMin;
   double m_emTauRoiEtaMax;
