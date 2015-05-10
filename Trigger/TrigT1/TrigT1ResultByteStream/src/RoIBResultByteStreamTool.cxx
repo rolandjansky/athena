@@ -150,7 +150,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
   for (unsigned int mid: m_l1TopoModuleID){ 
     topoModulesString << L1Topo::formatHex4(mid) << " ";
   }
-  ATH_MSG_DEBUG( "    L1Topo                               = " << topoModulesString.str());
+  ATH_MSG_DEBUG( "    L1Topo                               = " << topoModulesString);
 
   return StatusCode::SUCCESS;
 }
