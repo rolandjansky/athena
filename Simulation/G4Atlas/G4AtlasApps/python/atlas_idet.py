@@ -28,6 +28,7 @@ class Pixel(object):
         if SimFlags.PhysicsList.get_Value().endswith("_EMV"):
           self.atlas_pixel.add_MaxStepInVolumes('Pixel::siBLayLog', 0.050)
           self.atlas_pixel.add_MaxStepInVolumes('Pixel::siLog', 0.050)
+          self.atlas_pixel.add_MaxStepInVolumes('Pixel::dbmDiamondLog', 0.050)
 
     def _initSD(self):
         """ Describes the sensitive detector, including BCM and BLM.
@@ -46,6 +47,7 @@ class Pixel(object):
         self.atlas_pixel_PhysReg=PyG4Atlas.PhysicsReg('Pixel')
         self.atlas_pixel_PhysReg.add_Volumes('Pixel::siLog')
         self.atlas_pixel_PhysReg.add_Volumes('Pixel::siBLayLog')
+        self.atlas_pixel_PhysReg.add_Volumes('Pixel::dbmDiamondLog')
         self.atlas_pixel_PhysReg.add_Cuts('e-',0.05)
         self.atlas_pixel_PhysReg.add_Cuts('e+',0.05)
         self.atlas_pixel_PhysReg.add_Cuts('gamma',0.05)

@@ -676,6 +676,16 @@ class ISFRun(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class SimBarcodeOffset(JobProperty):
+    """
+    The offset used by simulation to distinguish successive
+    generations of truth GenParticles.
+    """
+    statusOn = False
+    allowedTypes = ['int']
+    StoredValue = 200000
+
+
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
     """

@@ -296,21 +296,38 @@ class AtlasSimSkeleton(SimSkeleton):
           from G4AtlasApps import AtlasG4Eng,PyG4Atlas
           actions = AtlasG4Eng.G4Eng.menu_UserActions()
 
+          ##hack to allow for different named Configurations of the UserActions
+          def UserActionPath(basename):
+               actionString=''
+               for t in ToolSvc.getAllChildren():
+                   if basename in t.getName():
+                       actionString = 'ToolSvc.'+t.getName()
+                       break
+               from G4AtlasApps import AtlasG4Eng
+               if ''==actionString:
+                   AtlasG4Eng.G4Eng.log.error('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
+                   raise SystemExit('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
+               else:
+                   AtlasG4Eng.G4Eng.log.info('ISF_AtlasSimSkeleton::do_UserActions: Found a ' + basename + ' instance called ' + actionString)
+               return actionString
+
           # TrackProcessorUserAction
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_G4TrackProcessor')
-          ISF_G4TrackProcessor = PyG4Atlas.UserAction('ISF_Geant4Tools','ToolSvc.ISFG4TrackProcessorUserAction',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+          actionString = UserActionPath('TrackProcessorUserAction')
+          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_G4TrackProcessorUserAction instance called ' + actionString)
+          ISF_G4TrackProcessor = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
           actions.add_UserAction(ISF_G4TrackProcessor)
 
           # MCTruthUserAction
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_MCTruthUserAction')
-          ISF_MCTruthUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools','ToolSvc.ISFMCTruthUserAction',['Step'])
+          actionString = UserActionPath('MCTruthUserAction')
+          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_MCTruthUserAction instance called ' + actionString)
+          ISF_MCTruthUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['Step'])
           actions.add_UserAction(ISF_MCTruthUserAction)
-
 
           # SDActivateUserAction : deactivates SD classes so Begin/EndOfEvent
           # won't be called by G4 (called by SimHitSvc instead)
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add SDActivateUserAction')
-          ISF_SDActivateUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools','ToolSvc.ISFSDActivateUserAction',['BeginOfEvent','EndOfEvent'])
+          actionString = UserActionPath('SDActivateUserAction')
+          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add SDActivateUserAction instance called ' + actionString)
+          ISF_SDActivateUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['BeginOfEvent','EndOfEvent'])
           actions.add_UserAction(ISF_SDActivateUserAction)
 
 
@@ -466,16 +483,17 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Forward Region
         if simFlags.ForwardDetectors.statusOn:
 
+            # Construct the det facility
+            from atlas_forward import ForwardRegion
+            atlasForwardRegion = ForwardRegion()
+            fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
+            AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
+
             checkFwdRegion = getattr(DetFlags.geometry, 'FwdRegion_on', None) #back-compatibility
             if checkFwdRegion is not None and checkFwdRegion(): #back-compatibility
 
-                from atlas_forward import ForwardRegion
-                atlasForwardRegion = ForwardRegion()
                 # Set up Twiss Files
                 atlasForwardRegion.setupTwissFiles()
-
-                fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
-                AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
 
                 from atlas_forward import FwdRegion
                 atlasFwdRegion = FwdRegion()
