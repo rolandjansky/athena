@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////
 //
 //      2014-05-21 Author: Remi Lafaye (Annecy) 
-//
+//      2015-02-28 Author: Bertrand LAFORGE (LPNHE Paris)
 //      NAME:    egammaMonToolBase.cxx
 //      PACKAGE: offline/Reconstruction/egamma/egammaPerformance
 //      PURPOSE: Provides basic functionalities to egammaMonTool clsees
@@ -23,9 +23,22 @@
 #include "TH2F.h"
 #include "TProfile.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+#include <string>
+
 egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string & name, const IInterface* parent)
-  :  ManagedMonitorToolBase(type,name,parent)
+  :  ManagedMonitorToolBase(type,name,parent), m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"), m_UseTrigger(false)
 {
+
+  // trigger tool
+                                                                                                                                                  
+  declareProperty("EgUseTrigger", m_UseTrigger);
+  declareProperty("EgTrigDecisionTool", m_trigdec);
+
+  // Name of trigger (automatic configuration)                                                          
+                                                                      
+  declareProperty("EgTrigger", m_Trigger, "Name of Trigger in express stream");
+
   m_region.resize(NREGION,"");
   m_region[BARREL]="BARREL";
   m_region[CRACK]="CRACK";
@@ -50,6 +63,17 @@ StatusCode egammaMonToolBase::initialize()
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Unable to locate Service StoreGateSvc" );
   }
+
+  if (m_UseTrigger) {
+    sc = m_trigdec.retrieve();
+    if (!sc.isFailure()){
+      ATH_MSG_DEBUG("TriggerTool found");
+    } 
+    else {
+      ATH_MSG_FATAL("Unable to retrieve TriggerTool" );
+    }
+  }
+
   return sc;
 }
 
@@ -200,24 +224,57 @@ void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
   }
 
   for(int i=0;i<=nbins+1;i++){
-    double eps     = 0;
-    double err     = 0;
+    double eps     = 0.;
+    double err     = 0.;
     double Yref    = href->GetBinContent(i);
     if(Yref>0) {
       double A   = h->GetBinContent(i);
-      double dA  = sqrt(A);
-      double B   = Yref;
-      double dB  = sqrt(B);
       eps = A/Yref;
-      // eps = A/(A+B) -> d(A/(A+B))/dA=B/(A+B)^2 & d(A/(A+B))/dB=-1/(A+B)^2
-      // err = sqrt( (dA*B/(A+B)^2)^2 + (dB*-1/(A+B)^2)^2 )
-      double AB2 = Yref*Yref;
-      double wA  =  dA*B/AB2;
-      double wB  = -dB/AB2;
-      err = sqrt( wA*wA + wB*wB);
+      err = sqrt(eps*(1-eps)/Yref);
     }
     h->SetBinContent(i,eps);
     h->SetBinError(i,err);
   }
   return;
+}
+
+bool egammaMonToolBase::hasGoodTrigger(std::string comment){
+
+  if (!m_UseTrigger) {
+    ATH_MSG_DEBUG("No Trigger request for that monitoring tool");
+    return true; // return true if no trigger selection is expected
+  }
+
+  ATH_MSG_DEBUG( "Size of " << comment << " Trigger vector = "<< m_Trigger.size() );
+  bool triggerfound = false;
+  for (unsigned int i = 0 ; i < m_Trigger.size() ; ++i){
+    ATH_MSG_DEBUG(comment << " Trigger " << m_Trigger.at(i)  << " for that event ?");
+    if (m_trigdec->isPassed(m_Trigger.at(i)))
+    {
+      triggerfound=true;
+      ATH_MSG_DEBUG(comment << " Trigger " << m_Trigger.at(i)  << " found for that event");
+    }
+  }
+  
+  if (!triggerfound)  ATH_MSG_DEBUG("No " << comment << " Trigger found for that event");
+
+  // Alternative code if we need to get a list of avalaible triggers in the stream
+  if (!m_trigdec.retrieve().isFailure()){
+    const std::vector<std::string>& vec = m_trigdec->getListOfTriggers();
+    ATH_MSG_DEBUG( "Size of Trigger vector in xAOD file = "<< vec.size());
+    for (unsigned int i=0 ; i < vec.size() ; ++i) {
+      if (m_trigdec->isPassed(vec[i])) {
+	ATH_MSG_DEBUG("Active Trigger found : " << vec[i] );
+      }
+      else {
+	ATH_MSG_DEBUG("Passive Trigger found : " << vec[i] );
+      }
+    } 
+  }
+  else {
+    ATH_MSG_DEBUG("Trigger m_trigdec is null !!!");
+  }
+  
+  // only fill histograms if the event has been correctly triggered or if no trigger is expected.
+  return triggerfound;
 }

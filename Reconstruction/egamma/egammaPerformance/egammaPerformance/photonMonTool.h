@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////
 //
 //      2014-05-21 Author: Remi Lafaye (Annecy) 
+//      2015-02-15 Author: Bertrand Laforge (LPNHE Paris)
 //
 /////////////////////////////////////////////////////////////
 
@@ -35,17 +36,26 @@ class photonMonTool : public egammaMonToolBase
   TH1 * m_hEta;     // Histogram for photon eta
   TH1 * m_hPhi;     // Histogram for photon phi
   TH2 * m_hEtaPhi;  // Histogram for photon eta,phi
+  TH1 * m_hTopoEtCone40; // Histogram for calo based isolation energy
+  TH1 * m_hPtCone20; // Histogram for track based isolation energy
+  TH1 * m_hTime;         // Histogram for photon cluster time
 
-  // Track panel histograms
-  TH1 * m_hTightN;       // Histogram for number of electrons
-  TH1 * m_hTightEt;      // Histogram for electron transverse energies
+  // Tight photon histograms
+  TH1 * m_hTightN;       // Histogram for number of photons
+  TH1 * m_hTightEt;      // Histogram for photon transverse energies
   TH1 * m_hTightEta;     // Histogram for photon eta
   TH1 * m_hTightPhi;     // Histogram for photon phi
   TH2 * m_hTightEtaPhi;  // Histogram for photon eta,phi
+  TH1 * m_hTightTopoEtCone40; // Histogram for calo based isolation energy
+  TH1 * m_hTightPtCone20; // Histogram for track based isolation energy
+
   std::vector<TH1*> m_hvTightNOfTRTHits;    
   std::vector<TH1*> m_hvTightConvType;
+  std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for photon calo-based isolation transverse energies
+  std::vector<TH1*> m_hvPtCone20;  // Histograms for photon track-based isolation transverse energies
+  std::vector<TH1*> m_hvTime;  // Histograms for photon times
 
-  // 1D Histograms Loose electrons
+  // 1D Histograms Loose photons
   std::vector<TH1*> m_hvN;   // Histograms for number of photons
   std::vector<TH1*> m_hvEt;  // Histograms for photon transverse energies
   std::vector<TH1*> m_hvEta; // Histograms for photon transverse eta
@@ -69,6 +79,7 @@ class photonMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvTightEt;  // Histograms for photon transverse energies
   std::vector<TH1*> m_hvTightEta; // Histograms for photon transverse eta
   std::vector<TH1*> m_hvTightPhi; // Histograms for photon transverse phi
+
   std::vector<TH1*> m_hvTightConvTrkMatch1;
   std::vector<TH1*> m_hvTightConvTrkMatch2;
 };

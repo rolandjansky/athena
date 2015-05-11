@@ -13,6 +13,7 @@
 
 #include <vector>
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 class TH1;
 class TH2;
@@ -47,9 +48,14 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   void fillTH1FperRegion(std::vector<TH1*> &vhist, unsigned int ir, float x);
   void fillTH2FperRegion(std::vector<TH2*> &vhist, unsigned int ir, float x, float y);
   void fillEfficiencies(TH1* h, TH1* href);
+  bool hasGoodTrigger(std::string comment);
 
   // Data members
   StoreGateSvc * m_storeGate;
+
+  std::vector<std::string> m_Trigger; // generic Trigger Name
+  ToolHandle<Trig::TrigDecisionTool> m_trigdec; // Trigger Decision Tool Handle
+  bool m_UseTrigger; // Use Trigger ?
 
  private:
 
