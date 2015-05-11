@@ -34,7 +34,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_initialisePerRun(true),
      m_firstRun(true),
      m_keepAllEvents(false),
-     m_fileopen(false)
+     m_fileopen(false),
+     m_requireDecision(false)
 {
   msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endreq;
 
@@ -82,6 +83,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
 
   declareProperty( "InitialisePerRun", m_initialisePerRun = false );
 
+  declareProperty( "RequireDecision", m_requireDecision = false );
+
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
 
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
@@ -125,6 +128,7 @@ StatusCode TrigTestMonToolAC::init() {
 						      m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 						      m_keepAllEvents ) );
     m_sequences.back()->releaseData(m_releaseMetaData);
+    if ( m_requireDecision ) m_sequences.back()->setRequireDecision(true);
     if ( m_mcTruth ) m_sequences.back()->setMCTruth(m_mcTruth);
   }  
   

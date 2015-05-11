@@ -18,12 +18,12 @@ void Analysis_Tier0::initialise() {
 
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
 
-  h_pTeff   = new TProfile ("Eff_pT",  "pT efficiency",  100, 0., 100.);
-  h_etaeff  = new TProfile("Eff_Eta", "eta efficiency",  100, -2.5, 2.5);
-  h_phieff  = new TProfile("Eff_Phi", "phi  efficiency",  100, -3.142, 3.142);
-  h_d0eff   = new TProfile ("Eff_d0",  "d0 efficiency",  100, -5., 5.);
-  h_z0eff   = new TProfile ("Eff_z0",  "z0 efficiency",  100, -200., 200.);
-  h_nVtxeff = new TProfile ("Eff_nVtx",  "nVtx efficiency",  30, 0., 30.);
+  h_pTeff   = new TProfile ("Eff_pT",  "pT efficiency",     25,    0.,  100.);
+  h_etaeff  = new TProfile("Eff_Eta", "eta efficiency",     25,   -2.5,   2.5);
+  h_phieff  = new TProfile("Eff_Phi", "phi  efficiency",    25,   -3.142, 3.142);
+  h_d0eff   = new TProfile ("Eff_d0",  "d0 efficiency",     50,  -10.,   10.);
+  h_z0eff   = new TProfile ("Eff_z0",  "z0 efficiency",     50, -225.,  225.);
+  h_nVtxeff = new TProfile ("Eff_nVtx",  "nVtx efficiency", 41,   -0.5,  40.5);
 
   addHistogram(h_total_efficiency);
   addHistogram(h_pTeff);
@@ -33,11 +33,11 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_d0eff);
   addHistogram(h_nVtxeff);
 
-  h_pTres  = new TProfile("Res_pT", "pT residual", 100, 0., 100.);
-  h_etares = new TProfile("Res_eta", "Eta residual", 100, -2.5, 2.5);
-  h_phires = new TProfile("Res_phi", "Phi residual", 100, -3.142, 3.142);
-  h_d0res  = new TProfile("Res_d0", "d0 residual", 100, -5., 5.);
-  h_z0res  = new TProfile("Res_z0", "z0 residual", 100, -200., 200.);
+  h_pTres  = new TProfile("Res_pT", "pT residual",   25,    0.,   100.);
+  h_etares = new TProfile("Res_eta", "Eta residual", 25,   -2.5,    2.5);
+  h_phires = new TProfile("Res_phi", "Phi residual", 25,   -3.142,  3.142);
+  h_d0res  = new TProfile("Res_d0", "d0 residual",   50,  -10.,    10.);
+  h_z0res  = new TProfile("Res_z0", "z0 residual",   50, -225.,   225.);
 
   addHistogram(h_pTres);
   addHistogram(h_etares);
@@ -46,17 +46,30 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_z0res);
 
 
-  h_trkpT  = new TH1D("reftrk_pT" , "Reference track pT", 100, 0., 100.);
-  h_trkphi = new TH1D("reftrk_phi", "Reference track Phi", 100, -3.142, 3.142);
-  h_trketa = new TH1D("reftrk_eta", "Reference track Eta", 100, -2.5, 2.5) ;
-  h_trkd0  = new TH1D("reftrk_d0" , "Reference track d0", 100, -5., 5.);
-  h_trkz0  = new TH1D("reftrk_z0" , "Reference track z0", 100, -200., 200.);
+  h_trkpT  = new TH1D("reftrk_pT" , "Reference track pT",  25,    0.,    100.);
+  h_trkphi = new TH1D("reftrk_phi", "Reference track Phi", 25,   -3.142,   3.142);
+  h_trketa = new TH1D("reftrk_eta", "Reference track Eta", 25,   -2.5,     2.5) ;
+  h_trkd0  = new TH1D("reftrk_d0" , "Reference track d0",  50,  -10.,     10.);
+  h_trkz0  = new TH1D("reftrk_z0" , "Reference track z0",  50, -225.,    225.);
 
   addHistogram(h_trkpT);
   addHistogram(h_trkphi);
   addHistogram(h_trketa);
   addHistogram(h_trkd0);
   addHistogram(h_trkz0);
+
+
+  h_trkpT_rec  = new TH1D("testtrk_pT" , "Test track pT",  25,    0.,   100.);
+  h_trkphi_rec = new TH1D("testtrk_phi", "Test track Phi", 25,   -3.142,  3.142);
+  h_trketa_rec = new TH1D("testtrk_eta", "Test track Eta", 25,   -2.5,    2.5) ;
+  h_trkd0_rec  = new TH1D("testtrk_d0" , "Test track d0",  50,  -10.,    10.);
+  h_trkz0_rec  = new TH1D("testtrk_z0" , "Test track z0",  50, -225.,   225.);
+
+  addHistogram(h_trkpT_rec);
+  addHistogram(h_trkphi_rec);
+  addHistogram(h_trketa_rec);
+  addHistogram(h_trkd0_rec);
+  addHistogram(h_trkz0_rec);
   
 }
 
@@ -106,6 +119,14 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
       h_phires->Fill( referencePhi, phi(test->phi() - referencePhi) );
       h_d0res->Fill( referenceD0, test->a0() - referenceD0 );
       h_z0res->Fill( referenceZ0, test->z0() - referenceZ0  );
+
+      /// reference tracks values for tracks with a reference track match (not test track values) 
+      h_trkpT_rec->Fill(referencePT*0.001 );
+      h_trketa_rec->Fill(referenceEta);
+      h_trkphi_rec->Fill(referencePhi);
+      h_trkd0_rec->Fill(referenceD0);
+      h_trkz0_rec->Fill(referenceZ0);
+      
     }
 
   }

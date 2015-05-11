@@ -129,6 +129,8 @@ public:
 
   bool m_fileopen;
 
+  bool m_requireDecision;
+  
 };
 
 

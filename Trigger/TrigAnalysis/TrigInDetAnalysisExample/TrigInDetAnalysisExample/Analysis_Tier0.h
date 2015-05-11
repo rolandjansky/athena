@@ -75,6 +75,12 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_trkd0;
   TH1D* h_trkz0;
 
+  TH1D* h_trkpT_rec;
+  TH1D* h_trketa_rec;
+  TH1D* h_trkphi_rec;
+  TH1D* h_trkd0_rec;
+  TH1D* h_trkz0_rec;
+
   // Efficiency plateau cuts
   double m_pTCut;
   double m_etaCut;

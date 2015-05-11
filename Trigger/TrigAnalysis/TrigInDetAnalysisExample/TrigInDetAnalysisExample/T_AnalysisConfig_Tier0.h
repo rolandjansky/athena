@@ -445,9 +445,16 @@ protected:
 
       const std::string& key = m_chainNames[ichain].tail();
 
-      unsigned decisiontype;
-      if ( m_chainNames[ichain].passed() ) decisiontype = TrigDefs::Physics;
+      unsigned _decisiontype = TrigDefs::Physics;
+      unsigned  decisiontype;
+     
+      if ( this->requireDecision() ) _decisiontype =  TrigDefs::requireDecision;
+      
+      
+      if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
       else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
+
+      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\n\nSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
 
 
       /// and the index of the collection (if any)
