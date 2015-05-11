@@ -5,7 +5,24 @@
 
 #ifdef  XAODTRACKING_TRACKPARTICLE_H
 
-bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Electron& /*elec*/ ) { return true; }
+bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Electron& elec, const unsigned int selection) { // 0 take all; 1,4 tight; 2,5 medium; 3,6 loose; <4 cut based, >3 likelihood
+  if (selection == 1)
+    return elec.passSelection("Tight");
+  if (selection == 2)
+    return elec.passSelection("Medium");
+  if (selection == 3)
+    return elec.passSelection("Loose");
+
+  if (selection == 4)
+    return elec.passSelection("LHTight");  
+  if (selection == 5)
+    return elec.passSelection("LHMedium");
+  if (selection == 6)
+    return elec.passSelection("LHLoose");
+
+  return true; 
+}
+
 bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Muon& /*muon*/ ) { return true; } 
 bool TrigInDetAnalysis::IsGoodOffline(const xAOD::TauJet& /*tau*/, bool /*doThreeProng*/, double /*tauEtCutOffline*/) { return true; }
 

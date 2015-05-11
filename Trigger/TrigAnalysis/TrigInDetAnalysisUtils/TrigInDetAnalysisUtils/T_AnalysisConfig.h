@@ -81,7 +81,8 @@ public:
     m_releaseData(""),
     m_keepAllEvents(false),
     m_useHighestPT(false),
-    m_filterOnRoi(true)
+    m_filterOnRoi(true),
+    m_requireDecision(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -139,7 +140,8 @@ public:
     m_genericFlag(true),
     m_releaseData(""),
     m_keepAllEvents(false),
-    m_filterOnRoi(true)
+    m_filterOnRoi(true),
+    m_requireDecision(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -266,7 +268,9 @@ public:
   bool filterOnRoi()          const { return m_filterOnRoi; }
   bool setFilterOnRoi(bool b)       { return m_filterOnRoi=b; }
 
-
+  void       setRequireDecision(bool b) { m_requireDecision=b; } 
+  bool requireDecision() const          { return m_requireDecision; } 
+  
 protected:
 
   virtual void loop() = 0;
@@ -407,7 +411,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -459,7 +463,7 @@ protected:
       //	       << endreq;
 
 
-      if (TrigInDetAnalysis::IsGoodOffline(*(*elec))) selectorRef.selectTrack( (*elec)->trackParticle() );
+      if (TrigInDetAnalysis::IsGoodOffline(*(*elec), selection)) selectorRef.selectTrack( (*elec)->trackParticle() );
 
     }
 
@@ -641,6 +645,8 @@ protected:
   bool                   m_useHighestPT;
 
   bool                   m_filterOnRoi;
+
+  bool                   m_requireDecision;
 
 };
 
