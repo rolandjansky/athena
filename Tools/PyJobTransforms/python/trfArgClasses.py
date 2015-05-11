@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 652369 2015-03-06 21:56:11Z graemes $
+# @version $Id: trfArgClasses.py 666344 2015-05-11 20:18:27Z graemes $
 
 import argparse
 import bz2
@@ -497,10 +497,12 @@ class argFile(argList):
     #  for digitisation)
     #  @param mergeTargetSize Target merge size if this instance supports a selfMerge method. Value is in bytes, with the
     #  special values: @c -1 Always merge to a single file, @c 0 never merge these files 
+    #  @param auxiliaryFile Is set to @c True then all validation for this file is disabled - used for
+    #  non-primary input files, e.g., pileup inputs
     #  @note When used in argument parser, set nargs='+' to get auto-concatenation of multiple arguments (should be used
     #  when @c multipleOK is @c True)
-    def __init__(self, value=list(), type=None, subtype=None, io = 'output', splitter=',', runarg = True, guid = None, 
-                 multipleOK = None, name=None, executor=list(), mergeTargetSize=-1):
+    def __init__(self, value=list(), type=None, subtype=None, io = 'output', splitter=',', runarg=True, guid=None, 
+                 multipleOK = None, name=None, executor=list(), mergeTargetSize=-1, auxiliaryFile=False):
         # Set these values before invoking super().__init__ to make sure they can be
         # accessed in our setter 
         self._dataset = None
@@ -509,6 +511,7 @@ class argFile(argList):
         self._subtype = subtype
         self._guid = guid
         self._mergeTargetSize = mergeTargetSize
+        self._auxiliaryFile = auxiliaryFile
         
         # User setter to get valid value check
         self.io = io
@@ -853,6 +856,9 @@ class argFile(argList):
         else:
             msg.debug("ArgFile name setter did not match against '{0}'".format(value))
 
+    @property
+    def auxiliaryFile(self):
+        return self._auxiliaryFile
     
     ## @brief Returns the whole kit and kaboodle...
     #  @note Populates the whole metadata dictionary for this instance
@@ -1165,9 +1171,10 @@ class argFile(argList):
 #  @details Never used directly, but is the parent of concrete classes
 class argAthenaFile(argFile):
     def __init__(self, value = list(), type=None, subtype=None, io = 'output', splitter=',', runarg=True, multipleOK = None, 
-                 name=None, executor=list(), mergeTargetSize=-1):
+                 name=None, executor=list(), mergeTargetSize=-1, auxiliaryFile=False):
         super(argAthenaFile, self).__init__(value=value, subtype=subtype, io=io, type=type, splitter=splitter, runarg=runarg, 
-                                            multipleOK=multipleOK, name=name, executor=executor, mergeTargetSize=mergeTargetSize)
+                                            multipleOK=multipleOK, name=name, executor=executor, mergeTargetSize=mergeTargetSize,
+                                            auxiliaryFile=auxiliaryFile)
 
         # Extra metadata known for athena files:
         for key in athFileInterestingKeys:
@@ -1462,9 +1469,9 @@ class argHISTFile(argFile):
     integrityFunction = "returnIntegrityOfHISTFile"
 
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', runarg=True, countable=True, multipleOK = None,
-                 name=None):
+                 name=None, auxiliaryFile=False):
         super(argHISTFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK,
-                                          name=name)
+                                          name=name, auxiliaryFile=auxiliaryFile)
 
         # Make events optional for HISTs (can be useful for HIST_AOD, HIST_ESD before hist merging)
         if countable:
@@ -1498,9 +1505,9 @@ class argNTUPFile(argFile):
     integrityFunction = "returnIntegrityOfNTUPFile"
 
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', treeNames=None, runarg=True, multipleOK = None, 
-                 name=None, mergeTargetSize=-1):
+                 name=None, mergeTargetSize=-1, auxiliaryFile=False):
         super(argNTUPFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK, 
-                                          name=name, mergeTargetSize=mergeTargetSize)
+                                          name=name, mergeTargetSize=mergeTargetSize, auxiliaryFile=auxiliaryFile)
         self._treeNames=treeNames
 
         self._metadataKeys.update({

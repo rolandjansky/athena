@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 634639 2014-12-09 08:56:18Z graemes $
+# @version $Id: trfValidation.py 666344 2015-05-11 20:18:27Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -498,6 +498,8 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
+                continue
+            if arg.auxiliaryFile:
                 continue
             
             msg.info('Validating data type %s...' % key)

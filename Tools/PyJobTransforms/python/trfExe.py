@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 634766 2014-12-09 15:18:50Z graemes $
+# @version $Id: trfExe.py 666344 2015-05-11 20:18:27Z graemes $
 
 import copy
 import math
@@ -350,6 +350,68 @@ class transformExecutor(object):
         self.postExecute()
         self.validate()
 
+## @brief Special executor that will enable a logfile scan as part of its validation 
+class logscanExecutor(transformExecutor):
+    def __init__(self, name = 'Logscan'):
+        super(logscanExecutor, self).__init__(name=name)
+        self._errorMaskFiles = None
+        self._logFileName = None
+
+    def preExecute(self, input = set(), output = set()):
+        msg.info('Preexecute for %s' % self._name)
+        if 'logfile' in self.conf.argdict:
+            self._logFileName = self.conf.argdict['logfile'].value
+        
+    def validate(self):
+        msg.info("Starting validation for {0}".format(self._name))
+        if self._logFileName:
+            ## TODO: This is  a cut'n'paste from the athenaExecutor
+            #  We really should factorise this and use it commonly
+            if 'ignorePatterns' in self.conf.argdict:
+                igPat = self.conf.argdict['ignorePatterns'].value
+            else:
+                igPat = []
+            if 'ignoreFiles' in self.conf.argdict:
+                ignorePatterns = trfValidation.ignorePatterns(files = self.conf.argdict['ignoreFiles'].value, extraSearch=igPat)
+            elif self._errorMaskFiles is not None:
+                ignorePatterns = trfValidation.ignorePatterns(files = self._errorMaskFiles, extraSearch=igPat)
+            else:
+                ignorePatterns = trfValidation.ignorePatterns(files = athenaExecutor._defaultIgnorePatternFile, extraSearch=igPat)
+            
+            # Now actually scan my logfile
+            msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
+            self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
+            worstError = self._logScan.worstError()
+    
+            # In general we add the error message to the exit message, but if it's too long then don't do
+            # that and just say look in the jobReport
+            if worstError['firstError']:
+                if len(worstError['firstError']['message']) > athenaExecutor._exitMessageLimit:
+                    if 'CoreDumpSvc' in worstError['firstError']['message']:
+                        exitErrorMessage = "Core dump at line {0} (see jobReport for further details)".format(worstError['firstError']['firstLine'])
+                    elif 'G4Exception' in worstError['firstError']['message']:
+                        exitErrorMessage = "G4 exception at line {0} (see jobReport for further details)".format(worstError['firstError']['firstLine'])
+                    else:
+                        exitErrorMessage = "Long {0} message at line {1} (see jobReport for further details)".format(worstError['level'], worstError['firstError']['firstLine'])
+                else:
+                    exitErrorMessage = "Logfile error in {0}: \"{1}\"".format(self._logFileName, worstError['firstError']['message'])
+            else:
+                exitErrorMessage = "Error level {0} found (see athena logfile for details)".format(worstError['level'])
+            
+            # Very simple: if we get ERROR or worse, we're dead, except if ignoreErrors=True
+            if worstError['nLevel'] == stdLogLevels['ERROR'] and ('ignoreErrors' in self.conf.argdict and self.conf.argdict['ignoreErrors'].value is True):
+                msg.warning('Found ERRORs in the logfile, but ignoring this as ignoreErrors=True (see jobReport for details)')
+            elif worstError['nLevel'] >= stdLogLevels['ERROR']:
+                self._isValidated = False
+                msg.error('Fatal error in athena logfile (level {0})'.format(worstError['level']))
+                raise trfExceptions.TransformLogfileErrorException(trfExit.nameToCode('TRF_EXEC_LOGERROR'), 
+                                                                       'Fatal error in athena logfile: "{0}"'.format(exitErrorMessage))
+
+        # Must be ok if we got here!
+        msg.info('Executor {0} has validated successfully'.format(self.name))
+        self._isValidated = True
+        self._errMsg = ''        
+
 
 class echoExecutor(transformExecutor):
     def __init__(self, name = 'Echo', trf = None):
@@ -482,18 +544,23 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
-        p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-        while p.poll() is None:
-            line = p.stdout.readline()
-            if line:
+        try:
+            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            while p.poll() is None:
+                line = p.stdout.readline()
+                if line:
+                    self._echologger.info(line.rstrip())
+            # Hoover up remaining buffered output lines
+            for line in p.stdout:
                 self._echologger.info(line.rstrip())
-        # Hoover up remaining buffered output lines
-        for line in p.stdout:
-            self._echologger.info(line.rstrip())
-
-        self._rc = p.returncode
-        msg.info('%s executor returns %d' % (self._name, self._rc))
-        self._exeStop = os.times()
+    
+            self._rc = p.returncode
+            msg.info('%s executor returns %d' % (self._name, self._rc))
+            self._exeStop = os.times()
+        except OSError as e:
+            errMsg = 'Execution of {0} failed and raised OSError: {1}'.format(self._cmd[0], e)
+            msg.error(errMsg)
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC'), errMsg)
 
         
     def postExecute(self):
@@ -595,7 +662,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 634766 2014-12-09 15:18:50Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 666344 2015-05-11 20:18:27Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -682,6 +749,8 @@ class athenaExecutor(scriptExecutor):
         dbrelease = dbsetup = None
         if 'DBRelease' in self.conf.argdict:
             dbrelease = self.conf.argdict['DBRelease'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+            if path.islink(dbrelease):
+                dbrelease = path.realpath(dbrelease)
             if dbrelease:
                 # Classic tarball - filename format is DBRelease-X.Y.Z.tar.gz
                 dbdMatch = re.match(r'DBRelease-([\d\.]+)\.tar\.gz', path.basename(dbrelease))
@@ -1138,6 +1207,20 @@ class athenaExecutor(scriptExecutor):
             else:
                 ## We want to parallelise this part!
                 fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
+
+## @brief Athena executor where failure is not consisered fatal
+class optionalAthenaExecutor(athenaExecutor):
+
+    # Here we validate, but will suppress any errors
+    def validate(self):
+        try:
+            super(optionalAthenaExecutor, self).validate()
+        except trfExceptions.TransformValidationException, e:
+            # In this case we hold this exception until the logfile has been scanned
+            msg.warning('Validation failed for {0}: {1}'.format(self._name, e))
+            self._isValidated = False
+            self._errMsg = e.errMsg
+            self._rc = e.errCode
 
 
 class hybridPOOLMergeExecutor(athenaExecutor):
