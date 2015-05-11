@@ -65,8 +65,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
 ## Commenting in/out Trigger for now
 
         #MyDoTrigger = True
-        #MyDoTrigger = False
-        MyDoTrigger = DQMonFlags.useTrigger()
+        MyDoTrigger = False
+        #MyDoTrigger = DQMonFlags.useTrigger()
         
 #        print "EGamma Monitoring : use trigger ?", MyDoTrigger
 

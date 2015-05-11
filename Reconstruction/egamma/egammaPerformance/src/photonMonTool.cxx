@@ -113,8 +113,8 @@ StatusCode photonMonTool::bookHistograms()
   bookTH2F(m_hEtaPhi,     photonGroup,"photonEtaPhi",      "LOOSE photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hEta,        photonGroup,"photonEta",         "LOOSE photon #eta", 64, -3.2, 3.2);
   bookTH1F(m_hPhi,        photonGroup,"photonPhi",         "LOOSE photon #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTopoEtCone40, photonGroup,"photonTopoEtcone40", "LOOSE photon Isolation Energy TopoEtCone40", 64, -10000., 20000.);
-  bookTH1F(m_hPtCone20,     photonGroup,"photonPtcone20",     "LOOSE photon Isolation Energy PtCone20", 64, -10000., 20000.);
+  bookTH1F(m_hTopoEtCone40, photonGroup,"photonTopoEtcone40", "LOOSE photon Isolation Energy TopoEtCone40", 64, -10000., 30000.);
+  bookTH1F(m_hPtCone20,     photonGroup,"photonPtcone20",     "LOOSE photon Isolation Energy PtCone20", 64, -10000., 30000.);
   bookTH1F(m_hTightN,     photonGroup,"photonTightN",      "Number of TIGHT photons",40, 0.0, 40.0);
   bookTH1F(m_hTightEt,    photonGroup,"photonTightEt",     "TIGHT photon transverse energy [MeV]",100, -1000.0, 250000.0);
   bookTH1F(m_hTightEta,   photonGroup,"photonTightEta",    "TIGHT photon #eta", 64, -3.2, 3.2);
@@ -125,9 +125,9 @@ StatusCode photonMonTool::bookHistograms()
   bookTH1F(m_hTime, photonGroup,"photonTime", "Time associated with the LOOSE photon cluster [ns]", 90, -30., 60.);
 
   bookTH1FperRegion(m_hvEt, photonGroup,  "photonEt",      "LOOSE photon transverse energy [MeV]",  100, -1000.0, 250000.0,start,end); // Don't make plots for forward photons
-  bookTH1FperRegion(m_hvTopoEtCone40, photonGroup,"photonTopoEtCone40", "LOOSE photon Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 20000.,start,end);
-  bookTH1FperRegion(m_hvPtCone20, photonGroup,"photonPtcone20", "LOOSE photon Isolation Energy PtCone20 [MeV]", 64, -10000., 20000.,start,end);
-  bookTH1FperRegion(m_hvTime,photonGroup,"forwardElectronTime", "LOOSE photon time [ns]",90, -30.0, 60.0,start,end);
+  bookTH1FperRegion(m_hvTopoEtCone40, photonGroup,"photonTopoEtCone40", "LOOSE photon Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 30000.,start,end);
+  bookTH1FperRegion(m_hvPtCone20, photonGroup,"photonPtcone20", "LOOSE photon Isolation Energy PtCone20 [MeV]", 64, -10000., 30000.,start,end);
+  bookTH1FperRegion(m_hvTime,photonGroup,"photonTime", "LOOSE photon time [ns]",90, -30.0, 60.0,start,end);
   // TRACK PANEL
   bookTH1FperRegion(m_hvTightConvType,       photonTrkGroup, "photonTightConvType",   "TIGHT photon conv type; Nevents",4, 0, 4,start,end);
   bookTH1FperRegion(m_hvTightNOfTRTHits    , photonTrkGroup, "photonTightNOfTRTHits", "TIGHT photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);

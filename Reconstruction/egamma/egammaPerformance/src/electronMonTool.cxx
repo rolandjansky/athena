@@ -133,21 +133,21 @@ StatusCode electronMonTool::bookHistograms()
   bookTH2F(m_hEtaPhi,            electronGroup,"electronEtaPhi",            "MEDIUM electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hEta,               electronGroup,"electronEta",               "MEDIUM electron #eta", 64, -3.2, 3.2);
   bookTH1F(m_hPhi,               electronGroup,"electronPhi",               "MEDIUM electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTopoEtCone40,      electronGroup,"electronTopoEtcone40",      "MEDIUM electron Isolation Energy TopoEtCone40", 64, -10000., 20000.);
-  bookTH1F(m_hPtCone20,          electronGroup,"electronPtcone20",          "MEDIUM electron Isolation Energy PtCone20", 64, -10000., 20000.);
+  bookTH1F(m_hTopoEtCone40,      electronGroup,"electronTopoEtcone40",      "MEDIUM electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
+  bookTH1F(m_hPtCone20,          electronGroup,"electronPtcone20",          "MEDIUM electron Isolation Energy PtCone20", 64, -10000., 40000.);
   bookTH1F(m_hTightN,            electronGroup,"electronTightN",            "Number of TIGHT electrons",40, 0.0, 40.0);
   bookTH1F(m_hTightEt,           electronGroup,"electronTightEt",           "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0);
   bookTH2F(m_hTightEtaPhi,       electronGroup,"electronTightEtaPhi",       "TIGHT electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hTightEta,          electronGroup,"electronTightEta",          "TIGHT electron #eta", 64, -3.2, 3.2);
   bookTH1F(m_hTightPhi,          electronGroup,"electronTightPhi",          "TIGHT electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTightTopoEtCone40, electronGroup,"electronTightTopoEtcone40", "TIGHT electron Isolation Energy TopoEtCone40", 64, -10000., 200000.);
-  bookTH1F(m_hTightPtCone20,     electronGroup,"electronTightPtcone20",     "TIGHT electron Isolation Energy PtCone20", 64, -10000., 20000.);
+  bookTH1F(m_hTightTopoEtCone40, electronGroup,"electronTightTopoEtcone40", "TIGHT electron Isolation Energy TopoEtCone40", 64, -10000., 30000.);
+  bookTH1F(m_hTightPtCone20,     electronGroup,"electronTightPtcone20",     "TIGHT electron Isolation Energy PtCone20", 64, -10000., 30000.);
   bookTH1F(m_hTime, electronGroup,"electronTime", "Time associated with the MEDIUM electron cluster [ns]", 90, -30., 60.);
 
   bookTH1FperRegion(m_hvEt, electronGroup,"electronEt", "MEDIUM electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
-  bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"electronTopoEtCone40", "Medium electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 20000.,start,end);
-  bookTH1FperRegion(m_hvPtCone20, electronGroup,"electronPtcone20", "Medium electron Isolation Energy PtCone20 [MeV]", 64, -10000., 20000.,start,end);
-  bookTH1FperRegion(m_hvTime,electronGroup,"forwardElectronTime", "LOOSE electron time [ns]",90, -30.0, 60.0,start,end);
+  bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"electronTopoEtCone40", "Medium electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
+  bookTH1FperRegion(m_hvPtCone20, electronGroup,"electronPtcone20", "Medium electron Isolation Energy PtCone20 [MeV]", 64, -10000., 40000.,start,end);
+  bookTH1FperRegion(m_hvTime,electronGroup,"electronTime", "MEDIUM electron time [ns]",90, -30.0, 60.0,start,end);
 
   // TRACK PANEL
   bookTH1FperRegion(m_hvTightNOfBLayerHits,electronTrkGroup,"electronTightNOfBLayerHits",  "TIGHT electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);

@@ -224,21 +224,13 @@ void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
   }
 
   for(int i=0;i<=nbins+1;i++){
-    double eps     = 0;
-    double err     = 0;
+    double eps     = 0.;
+    double err     = 0.;
     double Yref    = href->GetBinContent(i);
     if(Yref>0) {
       double A   = h->GetBinContent(i);
-      double dA  = sqrt(A);
-      double B   = Yref;
-      double dB  = sqrt(B);
       eps = A/Yref;
-      // eps = A/(A+B) -> d(A/(A+B))/dA=B/(A+B)^2 & d(A/(A+B))/dB=-1/(A+B)^2
-      // err = sqrt( (dA*B/(A+B)^2)^2 + (dB*-1/(A+B)^2)^2 )
-      double AB2 = Yref*Yref;
-      double wA  =  dA*B/AB2;
-      double wB  = -dB/AB2;
-      err = sqrt( wA*wA + wB*wB);
+      err = sqrt(eps*(1-eps)/Yref);
     }
     h->SetBinContent(i,eps);
     h->SetBinError(i,err);
