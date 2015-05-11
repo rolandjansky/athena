@@ -321,7 +321,7 @@ dqm_algorithms::tools::GetFitResult (const TF1 * func, const dqm_core::Algorithm
   if ( ait != greenthresh.end()  ) {
     params["Chi2_per_NDF"]=func->GetChisquare()/ func->GetNDF();
   } 
-  double subtractfrommean = GetFirstFromMap( "SubtractFromMean", config.getParameters() );
+  double subtractfrommean = GetFirstFromMap( "SubtractFromMean", config.getParameters(), 0 );
     
   params["Mean"] = params["Mean"] - subtractfrommean;
   dqm_core::Result * result;
