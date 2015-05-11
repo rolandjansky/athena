@@ -468,7 +468,7 @@ namespace Trk {
     double                         m_maxSteps;
     double                         m_layXmax;
 
-    mutable const Trk::AlignableTrackingVolume* m_aliTV;
+    //mutable const Trk::AlignableTrackingVolume* m_aliTV;
     mutable const Trk::BinnedMaterial*   m_binMat;    
     mutable std::vector<const Trk::TrackStateOnSurface*>*      m_matstates; //!< cache of TrackStateOnSurfaces
     mutable std::vector<std::pair<const Trk::TrackParameters*,int> >*  m_identifiedParameters; //!< cache of intersections

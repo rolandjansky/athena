@@ -70,7 +70,6 @@ Trk::STEP_Propagator::STEP_Propagator
   m_maxSteps(10000),          //Maximum number of allowed steps (to avoid infinite loops).
   m_layXmax(1.),              // maximal layer thickness for multiple scattering calculations
   m_simulation(false),        //flag for simulation mode 
-  m_simMatUpdator(0),         // secondary interactions (brem photon emission)            
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
@@ -985,9 +984,10 @@ const Trk::TrackParameters*
   }
 
   if (m_matPropOK && errorPropagation && m_straggling) m_stragglingVariance = 0.;
+  m_combinedCovariance.setZero();
+  m_covariance.setZero();
+
   if (errorPropagation || m_matstates)  {
-    m_combinedCovariance.setZero();
-    m_covariance.setZero();
     // this needs debugging
     m_inputThetaVariance = trackParameters->covariance() ? (*trackParameters->covariance())(3,3) : 0.;
     m_combinedEloss.set(0.,0.,0.,0.,0.,0.);
@@ -1022,8 +1022,8 @@ const Trk::TrackParameters*
   // Common transformation for all surfaces (angles and momentum)
   double localp[5];
   double Jacobian[21];
-  std::vector<DestSurf>::iterator surfIter = targetSurfaces.begin();
-  std::vector<DestSurf>::iterator surfBeg  = targetSurfaces.begin();
+  //std::vector<DestSurf>::iterator surfIter = targetSurfaces.begin();
+  //std::vector<DestSurf>::iterator surfBeg  = targetSurfaces.begin();
   while ( validStep ) { 
     // propagation to next surface
     validStep = propagateWithJacobian( errorPropagation, targetSurfaces, P, propagationDirection, solutions, path, totalPath);
@@ -1275,8 +1275,8 @@ bool
   // binned material ?
   m_binMat = 0;
   if (m_trackingVolume) {
-    const Trk::AlignableTrackingVolume* m_aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_trackingVolume);
-    if (m_aliTV) m_binMat = m_aliTV->binnedMaterial();
+    const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_trackingVolume);
+    if (aliTV) m_binMat = aliTV->binnedMaterial();
   }
 
 // closest distance estimate
