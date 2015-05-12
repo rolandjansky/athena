@@ -1,0 +1,2 @@
+export TESTDATA=/afs/cern.ch/atlas/offline/ProdData/17.2.X
+export JODIR=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest
