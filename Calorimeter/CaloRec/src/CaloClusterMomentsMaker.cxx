@@ -23,6 +23,7 @@
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "LArTools/LArHVFraction.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -75,6 +76,7 @@ MomentName moment_names[] = {
   { "DELTA_PHI",         xAOD::CaloCluster::DELTA_PHI },
   { "DELTA_THETA",       xAOD::CaloCluster::DELTA_THETA },
   { "ENG_BAD_CELLS",     xAOD::CaloCluster::ENG_BAD_CELLS },
+  { "ENG_BAD_HV_CELLS",  xAOD::CaloCluster::ENG_BAD_HV_CELLS },
   { "ENG_FRAC_CORE",     xAOD::CaloCluster::ENG_FRAC_CORE },
   { "ENG_FRAC_EM",       xAOD::CaloCluster::ENG_FRAC_EM },
   { "ENG_FRAC_MAX",      xAOD::CaloCluster::ENG_FRAC_MAX },
@@ -86,6 +88,7 @@ MomentName moment_names[] = {
   { "LATERAL",           xAOD::CaloCluster::LATERAL },
   { "LONGITUDINAL",      xAOD::CaloCluster::LONGITUDINAL },
   { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
+  { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
   { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
   { "SECOND_ENG_DENS",   xAOD::CaloCluster::SECOND_ENG_DENS },
   { "SECOND_LAMBDA",     xAOD::CaloCluster::SECOND_LAMBDA },
@@ -124,10 +127,12 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
     m_minBadLArQuality(4000),
     m_calculateSignificance(false),
     m_calculateIsolation(false),
+    m_calculateLArHVFraction(false),
     m_usePileUpNoise(true),
     m_twoGaussianNoise(false),
     m_caloDepthTool("CaloDepthTool",this),
-    m_noiseTool("CaloNoiseTool")
+    m_noiseTool("CaloNoiseTool"),
+    m_larHVScaleRetriever("LArHVScaleRetriever")
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
   // Name(s) of Moments to calculate
@@ -156,6 +161,7 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   // use 2-gaussian noise for Tile
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
+  declareProperty("LArHVScaleRetriever",m_larHVScaleRetriever,"Tool Handle for LAr HV Scale Retriever Tool");
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
@@ -223,6 +229,8 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
       case xAOD::CaloCluster::ISOLATION:
         m_calculateIsolation = true;
         break;
+      case xAOD::CaloCluster::ENG_BAD_HV_CELLS:
+        m_calculateLArHVFraction = true;
       default:
         break;
       }
@@ -278,6 +286,17 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     }  
     else {
       msg(MSG::INFO) << "Noise Tool retrieved" << endreq;
+    }
+  }
+
+  if (m_calculateLArHVFraction) {
+    
+    if(m_larHVScaleRetriever.retrieve().isFailure()){
+      msg(MSG::WARNING)
+	  << "Unable to find LAr HV Scale Retriever Tool" << endreq;
+    }  
+    else {
+      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endreq;
     }
   }
 
@@ -359,6 +378,12 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
     }
   }
 
+  // setup LAr HV Fraction class in case the corresponding moments are
+  // requested
+  if ( m_calculateLArHVFraction ) {
+    m_larHVFraction = new LArHVFraction(m_larHVScaleRetriever.operator->());
+  }
+  
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
   // each time through the loop.
@@ -379,7 +404,8 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
     double eBad(0),ebad_dac(0),ePos(0),eBadLArQ(0),sumSig2(0),maxAbsSig(0);
     double eLAr2(0),eLAr2Q(0);
     double eTile2(0),eTile2Q(0);
-    int nbad(0),nbad_dac(0);
+    double eBadLArHV(0);
+    int nbad(0),nbad_dac(0),nBadLArHV(0);
     unsigned int ncell(0),i,nSigSampl(0);
     unsigned int theNumOfCells = theCluster->size();
     
@@ -446,6 +472,12 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
 	}
 	if ( ene > 0 ) {
 	  ePos += ene*weight;
+	}
+	if ( m_calculateLArHVFraction ) {
+	  if ( m_larHVFraction->isHVAffected(pCell) ) {
+	    eBadLArHV += ene*weight;
+	    nBadLArHV ++;
+	  }
 	}
 	if ( m_calculateSignificance ) {
 	  double sigma = 0;
@@ -889,6 +921,12 @@ StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusC
             break;
 	  case xAOD::CaloCluster::AVG_TILE_Q:
 	    myMoments[iMoment] = eTile2Q/(eTile2>0?eTile2:1);
+            break;
+	  case xAOD::CaloCluster::ENG_BAD_HV_CELLS:
+	    myMoments[iMoment] = eBadLArHV;
+	    break;
+	  case xAOD::CaloCluster::N_BAD_HV_CELLS:
+	    myMoments[iMoment] = nBadLArHV;
             break;
 	  default:
 	    // nothing to be done for other moments

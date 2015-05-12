@@ -170,6 +170,7 @@ class CaloClusterTopoGetter ( Configured )  :
 
             DMCalib += LCDeadMaterial
 
+        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
         # correction tools not using tools
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
         TopoMoments.MaxAxisAngle = 20*deg
@@ -177,6 +178,7 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
+        TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
         TopoMoments.MomentsNames = ["FIRST_PHI" 
                                     ,"FIRST_ETA"
                                     ,"SECOND_R" 
@@ -204,6 +206,8 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"BAD_CELLS_CORR_E"
                                     ,"BADLARQ_FRAC"
                                     ,"ENG_POS"
+                                    ,"ENG_BAD_HV_CELLS"
+                                    ,"N_BAD_HV_CELLS"
                                     ,"SIGNIFICANCE"
                                     ,"CELL_SIGNIFICANCE"
                                     ,"CELL_SIG_SAMPLING"
