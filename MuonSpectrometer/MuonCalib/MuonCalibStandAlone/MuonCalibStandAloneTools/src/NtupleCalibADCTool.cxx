@@ -562,7 +562,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 	                	m_MDT_residual_vs_radius[0][station_identifier]->Fill(r0,fabs(r0)-fabs(d0),1.0);
 										}
 	 
-	segment_fitter->fit(*(segments[k])) ;
+	if( !(segment_fitter->fit(*(segments[k])) ) ) log << MSG::WARNING << "Segment fit failed. Just going on." << endreq;
 	Double_t oldchi2 =  segments[k]->chi2() ;
         m_MDT_segment_hits[1][station_identifier]->Fill(segment_fitter->numberOfTrackHits(), 1.0);
 	m_MDT_segment_chi2[1][station_identifier]->Fill(segments[k]->chi2(),1.0);

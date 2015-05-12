@@ -89,7 +89,9 @@ class HitCounter
 			};
 //==============================================================================
 	/** default constructor */
-		inline HitCounter() : m_is_initialized(false), p_hits_per_segments(NULL), p_wd(NULL)
+		inline HitCounter() : m_is_initialized(false), m_per_chamber(0), n_dead_tubes(0),
+			n_dead_mezz(0), n_dead_ml(0), m_fit_by_int(0), p_hits_per_segments(NULL),
+			p_wd(NULL)
 			{
 			}
 	/** initialize class */
