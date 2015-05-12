@@ -131,7 +131,7 @@ namespace MuonCalib{
   inline void   TimedSegment::setSigmaTimeHit(unsigned int i, double sigmaTime ){
     if(i>m_sigmaTimesHit.size()){
       std::cout << "m_sTimesHit has a too small size" << std::endl;
-      m_timesHit.insert(m_timesHit.begin()+i, sigmaTime); 
+      m_sigmaTimesHit.insert(m_timesHit.begin()+i, sigmaTime); 
     }
     else m_sigmaTimesHit.at(i) = sigmaTime;
     //    std::cout << i << " set " << sigmaTime << " in the sdt_vector, " << m_sigmaTimesHit.at(i) << std::endl; 

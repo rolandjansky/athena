@@ -67,6 +67,10 @@ namespace MuonCalib {
 
   TimedSegment& TimedSegment::operator=( const TimedSegment& rhs ){
     if(this!=&rhs) {
+      std::for_each( hitsBegin(), hitsEnd(), DeleteObject() ) ;
+      m_tHitVec.clear();
+      m_timesHit.clear();
+      m_sigmaTimesHit.clear();
       TimedHitVec temp_tHitVec ;
       THitVecCit it = rhs.hitsBegin() ;
       THitVecCit it_end = rhs.hitsEnd() ;
@@ -78,9 +82,15 @@ namespace MuonCalib {
 	++i;
       }
       m_tHitVec = temp_tHitVec ;
+      m_time = rhs.time();
+      m_sigma_time = rhs.sigmaTime();
+      m_radiiHit = rhs.m_radiiHit;
+      m_mlHit = rhs.m_mlHit;
+      if(m_segment) delete m_segment;
+      m_segment = new MuonCalibSegment( *rhs.segment() );
+      if(m_segment_original) delete m_segment_original;
+      m_segment_original = new MuonCalibSegment( *rhs.originalSegment() );
     }
-    m_time = rhs.time();
-    m_sigma_time = rhs.sigmaTime();
     
     return (*this) ;
   }

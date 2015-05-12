@@ -1,3 +1,12 @@
+2015-05-12 Jochen Meyer <jomeyer@mail.cern.ch>
+	* addressing coverity defect 12434 (again)
+	* copy-paste bug fix
+	* Tagged as CalibNtupleUtils-00-00-23
+
+2015-05-04 Jochen Meyer <jomeyer@mail.cern.ch>
+	* addressing coverity defects 12674, 12434
+	* Tagged as CalibNtupleUtils-00-00-22
+
 2014-09-17 Jochen Meyer <jomeyer@mail.cern.ch>
         * fixing compiler warning
         * Tagged as CalibNtupleUtils-00-00-21
