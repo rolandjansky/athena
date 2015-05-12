@@ -28,14 +28,16 @@ using namespace std;
 
 class TimeAndAdcFitter {
 public:
-  TimeAndAdcFitter() {};  
-  ~TimeAndAdcFitter() {}; 
+  TimeAndAdcFitter() : m_verbose(0) {};  
+  ~TimeAndAdcFitter() {};
   void doTimeFit(TH1F * h, const int nParams, double * pfit, double * errfit, double* chi2, int* ndof ) ;
   // void doTimeFit(TH1F * h);
   void doAdcFit(TH1F * h, const int nAdcParams, double * Adcpfit, double * errAdcpfit, double* chi2Adc, int* ndofAdc ) ;
   void searchParams(TH1 * h, double * p, int np);
+  void setVerbose(int lvl) { m_verbose = lvl; }
 
 private:
+  int m_verbose;
   
 };
 

@@ -19,8 +19,6 @@
 void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, double * errfit, double* pchi2, int* pndof ) {
 
     // TMinuit *gMinuit = new TMinuit();
-    
-    int verbose = 0 ;
 
     // const int nParams = 8 ;
 
@@ -126,7 +124,7 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
       //Double_t entries=h->GetEntries();
 
 
-      if( verbose > 0) cout <<" histogram "<<h->GetName()
+      if( m_verbose > 0) cout <<" histogram "<<h->GetName()
                             <<" "<<h->GetTitle()
                             <<" entries="<<h->GetEntries() <<endl;
 
@@ -155,14 +153,14 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
          TimeSpectrum->SetLineColor(3) ;
 	 for (int i=0;i<nParams;i++) {
 //	     pfit[i]=*(pdefault++);
-	     if ( verbose >=1 ) 
+	     if ( m_verbose >=1 ) 
 	          cout <<"TimeAndAdcFitter::doTimeFit initial parameter "
 		       <<i<< " = " << pfit[i] << endl;
          }
          //	if ( !m_settings->initParamFlag() ) {}
 	 
          searchParams(h,&pfit[0],nParams);  
-	 if ( verbose>=1 ) {
+	 if ( m_verbose>=1 ) {
 	   cout<<" doTimeFit parameters after searchParams " << endl;
 	   for(int i=0;i<nParams;++i) { cout << "i,pfit(i) "<<i<<" "<<pfit[i]<< endl;}
          }
@@ -207,11 +205,11 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
         // THE NEW HISTOGRAM HAS BEEN FITTED 
 
 
-	 if ( verbose>=1 ) {
+	 if ( m_verbose>=1 ) {
 	   cout<<" doTimeFit FINAL parameters : " << endl;
 	   for(int i=0;i<nParams;++i) { cout << "i,pfit(i) "<<i<<" "<<pfit[i]<< endl;}
          }
-	if( verbose>=1 ) cout<<" fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<std::endl; 
+	if( m_verbose>=1 ) cout<<" fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<std::endl; 
 
 /*
 	if(chi2/ndof < m_settings->chi2max()) {
@@ -260,7 +258,7 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
 
 //       } else {
 // 
-//         if ( verbose>=1) cout << " Too few entries " << endl ;
+//         if ( m_verbose>=1) cout << " Too few entries " << endl ;
 //	stc.statusCode=2; // too few entries 
 //      }
 
@@ -269,7 +267,7 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
 	
     *pchi2 = chi2 ;
     *pndof = ndof ;
-    if ( verbose>=1) cout<<" ENDING doTimeFit "<< endl;
+    if ( m_verbose>=1) cout<<" ENDING doTimeFit "<< endl;
     return;
 
 }
@@ -277,14 +275,13 @@ void TimeAndAdcFitter::doTimeFit(TH1F * h, const int nParams, double * pfit, dou
 
 void  TimeAndAdcFitter::doAdcFit(TH1F * h, const int /*nAdcParams*/, double * Adcpfit, double * errAdcpfit, double* /*chi2Adc*/, int* /*ndofAdc*/ ) {
 
-    int verbose=0;
     double chi2;
     int ndof;
     double adcThreshold = 50. ;
     double minAdc = 80.;
     double maxAdc = 300.;
 
-    if( verbose > 0) cout <<" histogram "<<h->GetName()
+    if( m_verbose > 0) cout <<" histogram "<<h->GetName()
                           <<" "<<h->GetTitle()
                           <<" entries="<<h->GetEntries() <<endl;
 
@@ -311,7 +308,7 @@ void  TimeAndAdcFitter::doAdcFit(TH1F * h, const int /*nAdcParams*/, double * Ad
 	  Adcpfit[i] = AdcSpectrum->GetParameter(i);
 	  errAdcpfit[i] = AdcSpectrum->GetParError(i);
      }
-     if (verbose>0)
+     if (m_verbose>0)
 	           std::cout<<"chi2/ndof="<<chi2/ndof<<" "<<"Mean="<<m<<" "<<"RMS="<<r
 		   <<" par 0 1 2 3 " << Adcpfit[0] <<" "<<Adcpfit[1]<<" "<<Adcpfit[2]<< " "<<Adcpfit[3]<< std::endl;
 
