@@ -27,8 +27,8 @@ CaloNoiseToolDB::CaloNoiseToolDB(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent) 
   : AthAlgTool(type, name, parent),
-    m_cacheValid(false)
-
+    m_cacheValid(false),
+    m_cacheUpdateCounter(0)
 {
   declareInterface<ICaloNoiseTool>(this);
   declareInterface<ICalorimeterNoiseTool>(this);
@@ -39,6 +39,8 @@ CaloNoiseToolDB::CaloNoiseToolDB(const std::string& type,
   declareProperty("SpeedTwoGauss",m_speedTwoGauss=true);
   declareProperty("FolderNames",m_folderNames);
   declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
+  declareProperty("LArHVCellCorrTool",m_larHVCellCorrTool);
+  declareProperty("RescaleForHV",m_rescaleForHV=false);
 }
  
 //////////////////////////////////////////////////
@@ -83,6 +85,7 @@ CaloNoiseToolDB::initialize()
     }
   }
 
+  
 
   return sc;
 }
@@ -91,8 +94,8 @@ CaloNoiseToolDB::initialize()
 StatusCode 
 CaloNoiseToolDB::finalize()
 {
-  msg(MSG::INFO)
-      << "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size() <<endreq;
+  msg(MSG::INFO) << "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size() <<endreq;
+  msg(MSG::INFO) << "Cache was recomputed " <<  m_cacheUpdateCounter << " times" << endreq;
 
   //=== delete old CaloCondBlobFlt (which does not own the blob)
   std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it = m_noiseBlobMap.begin();
@@ -162,10 +165,35 @@ CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
      }
   }
 
-  msg(MSG::INFO) << "CaloNoiseToolDB initialize() end" << endreq;
+  if (m_rescaleForHV) {
+    sc=m_larHVCellCorrTool.retrieve();
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to retrieve LArHVCellCorrTool " << m_larHVCellCorrTool << endreq;
+      return StatusCode::FAILURE;
+    }
+    msg(MSG::INFO) << "Retrieved " << m_larHVCellCorrTool << " for on-the-fly noise rescaling" << endreq;
+    sc=detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to install callback to LArHVCellCorrTool::LoadCalibration " << endreq;
+      return StatusCode::FAILURE;
+    }
+    msg(MSG::INFO) << "Regestered callback on ILArCellHVCorrTool::LoadCalibration" << endreq;
+  }
+
+  msg(MSG::INFO) << "CaloNoiseToolDB geoInit() end" << endreq;
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode
+CaloNoiseToolDB::clearCache( IOVSVC_CALLBACK_ARGS ) {
+  if (m_rescaleForHV && m_larHVCellCorrTool->updateOnLastCallback()) {
+    msg(MSG::INFO) << "Change of HV situation encountered. Invalidating cached noise" << endreq;
+    m_cacheValid=false;
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 //______________________________________________________________________________________
 StatusCode
@@ -214,7 +242,7 @@ CaloNoiseToolDB::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
   std::set<unsigned> channelsFound;
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    msg(MSG::INFO) <<  " updateMap callback for kye " << *itr << endreq;
+    msg(MSG::INFO) <<  " updateMap callback for key " << *itr << endreq;
     const CondAttrListCollection* noiseAttrListColl;
     StatusCode sc=detStore()->retrieve(noiseAttrListColl,*itr);
     if (sc.isFailure()) {
@@ -256,9 +284,10 @@ CaloNoiseToolDB::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
     }//end iColl
   }
   
-  if (m_noiseBlobMap.size()==7) {
-     this->updateCache();
-  }
+  //if (m_noiseBlobMap.size()==7) {
+  //   this->updateCache();
+  //}
+  m_cacheValid=false;
   return StatusCode::SUCCESS;
 }
 //_______________________________________________________________________________________
@@ -271,6 +300,15 @@ CaloNoiseToolDB::updateCache()
   //
 {
  msg(MSG::INFO) << " in update Cache " << endreq;
+
+ if (m_noiseBlobMap.size()!=7) {
+   msg(MSG::ERROR) << "Not all necessary COOL channels loaded yet. Got only channels [";
+   for (auto& mapitem : m_noiseBlobMap) 
+     msg(MSG::ERROR) << mapitem.first << " ";
+   msg(MSG::ERROR) << "]" << endreq;
+   //throw .... 
+   return;
+ }
 
   // Cache, what noise to return
   m_CachedGetNoiseCDDE=NULL;
@@ -322,11 +360,12 @@ CaloNoiseToolDB::updateCache()
     ++ ncellEM[sys];
   }
 
-  msg(MSG::INFO) << " starting cell hash in EM calo " << m_firstSysHash[EMECZNEG] << " " << m_firstSysHash[EMBZNEG]  << " " << m_firstSysHash[EMBZPOS] << " " << m_firstSysHash[EMECZPOS] << endreq;
-  msg(MSG::INFO) << " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS] << endreq;
-  msg(MSG::INFO) << " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
+  if (m_cacheUpdateCounter==0) {
+    msg(MSG::INFO) << " starting cell hash in EM calo " << m_firstSysHash[EMECZNEG] << " " << m_firstSysHash[EMBZNEG]  << " " << m_firstSysHash[EMBZPOS] << " " << m_firstSysHash[EMECZPOS] << endreq;
+    msg(MSG::INFO) << " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS] << endreq;
+    msg(MSG::INFO) << " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
                    << m_noiseBlobMap[EMBZPOS]->getNChans() << " " << m_noiseBlobMap[EMECZPOS]->getNChans() << endreq;
-
+  }
   const int MaxGains = 4;  // make sure that code below does not exceed this size
   // m_noise is quite large and memory layout is important; profiling shows that
   // [MaxGains][m_ncell] ordering makes fewer cache misses than opposite order.
@@ -339,7 +378,8 @@ CaloNoiseToolDB::updateCache()
   for (int i=0;i<m_ncell;i++) {
       IdentifierHash idHash = i;
       int ngain=3;
-      if (m_calo_id->is_tile(idHash)) {
+      bool isTile=m_calo_id->is_tile(idHash);
+      if (isTile) {
           ngain=4;
           if (tile_not_found) {
               tile_not_found = false;
@@ -354,7 +394,7 @@ CaloNoiseToolDB::updateCache()
       }
       for (int igain=0;igain<ngain;igain++) {
          CaloGain::CaloGain caloGain=CaloGain::INVALIDGAIN;;
-         if (!m_calo_id->is_tile(idHash)) caloGain = static_cast<CaloGain::CaloGain> (igain);
+         if (!isTile) caloGain = static_cast<CaloGain::CaloGain> (igain);
          else {
            if (igain==0) caloGain=CaloGain::TILELOWLOW;
            if (igain==1) caloGain=CaloGain::TILELOWHIGH;
@@ -362,18 +402,25 @@ CaloNoiseToolDB::updateCache()
            if (igain==3) caloGain=CaloGain::TILEHIGHHIGH;
          }
          if (m_cached==ICalorimeterNoiseTool::TOTALNOISE) {
-           float noise = this->getDBNoise(i,caloGain,lumi);
+	   float hvcorr=1.0;
+	   if (m_rescaleForHV && !isTile) hvcorr=m_larHVCellCorrTool->getCorrection(m_calo_id->cell_id(i));
+           float noise = this->getDBNoise(i,caloGain,lumi,hvcorr);
            m_noise[igain][i] = noise;
-           if (i==0) {
+           if (i==0 &&  m_cacheUpdateCounter==0) {
             msg(MSG::INFO) << " NoiseDB parameters for first cell at gain " << igain << endreq;
             msg(MSG::INFO) << " a  " << this->getA(i,caloGain) << endreq;
             msg(MSG::INFO) << " b  " << this->getB(i,caloGain) << endreq;
             msg(MSG::INFO) << " lumi " << lumi << endreq;
             msg(MSG::INFO) << " noise " << noise << endreq;
+	    if (m_rescaleForHV)  msg(MSG::INFO) << " HV corr " << hvcorr << endreq;
            }
          }
          if (m_cached==ICalorimeterNoiseTool::ELECTRONICNOISE) {
            float noise = this->getA(i,caloGain);
+	   if (m_rescaleForHV) {
+	     const Identifier id= m_calo_id->cell_id(i); //convert hash to identifier  
+	     noise*=m_larHVCellCorrTool->getCorrection(id); 
+	   }
            m_noise[igain][i] = noise;
          }
          if (m_cached==ICalorimeterNoiseTool::PILEUPNOISE) {
@@ -383,17 +430,19 @@ CaloNoiseToolDB::updateCache()
       }
   }
   m_cacheValid = true; 
+  m_cacheUpdateCounter++;
 }
 
 //_______________________________________________________________________________________
 float 
 CaloNoiseToolDB::getDBNoise(unsigned int cellHash,
-                             CaloGain::CaloGain caloGain, 
-                             float lumi) const
+			    CaloGain::CaloGain caloGain, 
+			    float lumi,
+			    float hvcorr) const
 {
  unsigned int subHash;
  SYSTEM sysId = this->caloSystem(cellHash,subHash);
- return this->getDBNoise(sysId, subHash, caloGain, lumi);
+ return this->getDBNoise(sysId, subHash, caloGain, lumi, hvcorr);
 }
 
 
@@ -531,13 +580,22 @@ CaloNoiseToolDB::checkObjLength(unsigned int cellHash) const
 //_______________________________________________________________________________________
 float 
 CaloNoiseToolDB::getDBNoise(SYSTEM sysId, 
-                             unsigned int cellHash, 
-                             CaloGain::CaloGain caloGain, 
-                             float lumi) const
+			    unsigned int cellHash, 
+			    CaloGain::CaloGain caloGain, 
+			    float lumi,
+			    float hvcorr) const
 {
   const CaloCondBlobFlt* const flt = m_noiseBlobMap.find(sysId)->second;
   unsigned int dbGain = CaloCondUtils::getDbCaloGain(caloGain);
-  return flt->getCalib(cellHash, dbGain, lumi);
+  //return flt->getCalib(cellHash, dbGain, lumi);
+  const float a=flt->getData(cellHash,dbGain,0)*hvcorr;
+  const float b=flt->getData(cellHash,dbGain,1);
+
+  if (flt->getObjVersion()!=1) 
+    msg(MSG::ERROR) << "Encountered unexpected object version " << flt->getObjVersion() << endreq;
+
+ 
+  return std::sqrt(a*a + b*b*lumi);
 }
 
 
@@ -754,7 +812,10 @@ CaloNoiseToolDB::elecNoiseRMS(const CaloCell* caloCell,
     return m_noise[igain][i];
   }
   else 
-    return this->getA(i,calogain);
+    if (m_rescaleForHV && !caloCell->caloDDE()->is_tile())
+      return m_larHVCellCorrTool->getCorrection(id) * this->getA(i,calogain);
+    else
+      return this->getA(i,calogain);
 }
 
 //////////////////////////////////////////////////
@@ -777,7 +838,10 @@ CaloNoiseToolDB::elecNoiseRMSHighestGain(const CaloCell* caloCell,
  if (i>m_ncell) return -1;
  const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
  CaloGain::CaloGain highestgain=m_highestGain[caloDDE->getSubCalo()];
- return this->getA(i,highestgain);
+ if (m_rescaleForHV)
+   return m_larHVCellCorrTool->getCorrection(caloDDE->identify()) * this->getA(i,highestgain);
+ else
+   return this->getA(i,highestgain);
 }
 
 //////////////////////////////////////////////////
@@ -826,7 +890,10 @@ CaloNoiseToolDB::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
     return m_noise[igain][i];
   }
   else
-    return this->getA(i,gain);
+    if (m_rescaleForHV &&  !caloDDE->is_tile())
+      return m_larHVCellCorrTool->getCorrection(caloDDE->identify()) * this->getA(i,gain);
+    else
+      return this->getA(i,gain);
 }
 
 //////////////////////////////////////////////////
@@ -843,9 +910,14 @@ CaloNoiseToolDB::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
   if (i>m_ncell) return -1;
   unsigned int subHash;
   SYSTEM sysId = this->caloSystem(i,subHash);
+  float hvcorr=1.0;
+  if (sysId!=TILE && m_rescaleForHV) {
+    hvcorr=m_larHVCellCorrTool->getCorrection(caloDDE->identify());
+  }
   const CaloCondBlobFlt* const flt = m_noiseBlobMap.find(sysId)->second;
   unsigned int dbGain = CaloCondUtils::getDbCaloGain(gain);
   if (flt->getObjSizeUint32() > 4) { // need at least 5 elements in a vector for 2G noise
+    //This clause is only executed for Tile -> no LAr HV Correction
     double sigma1 = flt->getData(subHash,dbGain,2);
     double sigma2 = flt->getData(subHash,dbGain,3);
     double ratio  = flt->getData(subHash,dbGain,4);
@@ -857,7 +929,7 @@ CaloNoiseToolDB::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
       return m_noise[dbGain][i];
     }
     else {
-      return flt->getData(subHash,dbGain,0);
+      return flt->getData(subHash,dbGain,0)*hvcorr;
     }
   }
 }
@@ -958,7 +1030,11 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
     return m_noise[igain][i];
   } else {
     float lumi = (Nminbias>0) ? Nminbias/2.3 : m_lumi0;
-    return this->getDBNoise(i,gain,lumi);
+
+    float hvcorr=1.0;
+    if (m_rescaleForHV && !caloDDE->is_tile()) hvcorr=m_larHVCellCorrTool->getCorrection(caloDDE->identify()); 
+
+    return this->getDBNoise(i,gain,lumi,hvcorr);
   }
 }
 
@@ -974,7 +1050,7 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
   float lumi = (Nminbias>0) ? Nminbias/2.3 : m_lumi0;
   float x;
   float a = elecNoiseRMS(caloDDE,gain,Nminbias,energy,
-			 ICaloNoiseToolStep::CELLS);
+			 ICaloNoiseToolStep::CELLS); //Includes HV correction is applicable
   float b = this->getB(i,gain);
 
   int objver = m_noiseBlobMap[TILE]->getObjVersion();
@@ -1050,7 +1126,10 @@ CaloNoiseToolDB::pileupNoiseRMS(const CaloDetDescrElement* caloDDE,
 //////////////////////////////////////////////////
 
 float 
-CaloNoiseToolDB::totalNoiseRMS(const CaloCell* caloCell, const float Nminbias) 
+CaloNoiseToolDB::totalNoiseRMS(const CaloCell* caloCell, const float Nminbias)  {
+
+  return this->totalNoiseRMS(caloCell->caloDDE(),caloCell->gain(),Nminbias);
+/*
 {
   if (!m_cacheValid) this->updateCache();
   Identifier id = caloCell->ID();
@@ -1065,15 +1144,15 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloCell* caloCell, const float Nminbias)
     return this->getDBNoise(i,calogain,lumi);
   }
 
-
+*/
 }
 
 //////////////////////////////////////////////////
 
 float 
 CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE, 
-			     const CaloGain::CaloGain gain, 
-			     const float Nminbias)
+			       const CaloGain::CaloGain gain, 
+			       const float Nminbias)
 {
   if (!m_cacheValid) this->updateCache();
   int i = (int)(caloDDE->calo_hash());
@@ -1083,16 +1162,19 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
     return m_noise[igain][i];
   } else {
     float lumi = (Nminbias>0) ? Nminbias/2.3 : m_lumi0;
-    return this->getDBNoise(i,gain,lumi);
+    
+    float hvcorr=1.0;
+    if (m_rescaleForHV && !caloDDE->is_tile()) hvcorr=m_larHVCellCorrTool->getCorrection(caloDDE->identify()); 
+    return this->getDBNoise(i,gain,lumi,hvcorr);
   }
-
+  
 }
 
 //////////////////////////////////////////////////
 
 float 
 CaloNoiseToolDB::totalNoiseRMSHighestGain(const CaloCell* caloCell, 
-					const float Nminbias)
+					  const float Nminbias)
 {
   return this->totalNoiseRMSHighestGain(caloCell->caloDDE(),Nminbias);
 }

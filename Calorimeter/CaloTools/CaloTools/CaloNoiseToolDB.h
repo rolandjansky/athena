@@ -28,6 +28,8 @@
 #include "StoreGate/DataHandle.h"
 #include <string>
 #include <boost/multi_array.hpp>
+#include "GaudiKernel/ToolHandle.h"
+#include "LArElecCalib/ILArCellHVCorrTool.h"
 
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
@@ -269,20 +271,20 @@ private:
   StatusCode initialize();
   StatusCode finalize();
   
-// provate methods to access database
+// private methods to access database
   float getA(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const;
   float getB(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getC(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getD(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getE(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
-  float getDBNoise(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain, float lumi) const;
+  float getDBNoise(SYSTEM sysId, unsigned int cellHash, CaloGain::CaloGain caloGain, float lumi, float HVCorr=1.0) const;
 
   float getA(unsigned int cellHash, CaloGain::CaloGain caloGain) const;
   float getB(unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getC(unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getD(unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
   float getE(unsigned int cellHash, CaloGain::CaloGain caloGain) const ;
-  float getDBNoise(unsigned int cellHash, CaloGain::CaloGain caloGain, float lumi) const;
+  float getDBNoise(unsigned int cellHash, CaloGain::CaloGain caloGain, float lumi, float HVCorr=1.0) const;
 
   int checkObjLength(unsigned int cellHash) const;
 
@@ -295,6 +297,8 @@ private:
     //=== callback function for luminosity storate
     virtual StatusCode updateLumi(IOVSVC_CALLBACK_ARGS);
 
+    //=== callback function for HV changes
+    virtual StatusCode clearCache(IOVSVC_CALLBACK_ARGS);
 
     //=== blob storage
     std::vector<DataHandle<CondAttrListCollection> > m_noiseAttrListColl;
@@ -316,6 +320,12 @@ private:
 
   std::vector<std::string> m_folderNames;//jobOption
   std::string m_lumiFolderName;
+
+
+  ToolHandle<ILArCellHVCorrTool> m_larHVCellCorrTool;
+  bool m_rescaleForHV;
+
+  unsigned m_cacheUpdateCounter;
 };
 
 #endif

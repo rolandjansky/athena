@@ -6,8 +6,12 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
 
+from CaloRec.CaloCellFlags import jobproperties
+
 # import the base class
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
+
+
 
 class CaloNoiseToolDBData(CaloNoiseToolDB) :
 
@@ -48,7 +52,8 @@ class CaloNoiseToolDBData(CaloNoiseToolDB) :
             #The noise for runs before 2012 is a different folder:
             if conddb.dbdata=="COMP200":
                 folders.append(("CALO_OFL","/CALO/Ofl/Noise/CellNoise")),
-                
+            
+
             for (db,fldr) in folders:
                 conddb.addFolder(db,fldr)
             CaloNoiseToolDB.FolderNames=[f[1] for f in folders]
@@ -68,4 +73,13 @@ class CaloNoiseToolDBData(CaloNoiseToolDB) :
                     conddb.addFolder('TRIGGER_ONL',lumiFolder);
                     mlog.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
                 CaloNoiseToolDB.LumiFolderName = lumiFolder
+
+            #In run 2 we automatically rescale the noise for HV changes
+            if  conddb.dbdata=="CONDBR2": #or True 
+                if jobproperties.CaloCellFlags.doLArHVCorr():
+                    mlog.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
+                    CaloNoiseToolDB.RescaleForHV=True
+                    from LArCellRec.LArCellHVCorrDefault import LArCellHVCorrDefault
+                    CaloNoiseToolDB.LArHVCellCorrTool=LArCellHVCorrDefault()
+
 
