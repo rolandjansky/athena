@@ -43,4 +43,5 @@ def LArHVCorrToolDefault (name="LArHVCorrToolDefault", **kw):
     else:
         mlog.info("in MC case")
 
+    ToolSvc+=tool
     return tool

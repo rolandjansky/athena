@@ -232,21 +232,21 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
   //Retrieve all ingeredients from Detector Store
   sc=detStore()->retrieve(m_dd_ADC2DAC,m_keyADC2DAC);
   if (sc.isFailure()) {
-    ATH_MSG_ERROR("Cannot load LArADC2DAC object with key << m_keyADC2DAC");
+    ATH_MSG_ERROR("Cannot load LArADC2DAC object with key " << m_keyADC2DAC);
     ATH_MSG_ERROR("Check jobOption IOVDbSvc.Folders!"); 
     return StatusCode::FAILURE;
   }
  
   sc=detStore()->retrieve(m_dd_DAC2uA,m_keyDAC2uA);
   if (sc.isFailure()) {
-    ATH_MSG_ERROR("Cannot load LArDAC2uA object with key << m_keyDAC2uA");
+    ATH_MSG_ERROR("Cannot load LArDAC2uA object with key " <<   m_keyDAC2uA);
     ATH_MSG_ERROR("Check jobOption IOVDbSvc.Folders!"); 
     return StatusCode::FAILURE;
   }
   
   sc=detStore()->retrieve(m_dd_uA2MeV,m_keyuA2MeV);
   if (sc.isFailure()) {
-    ATH_MSG_ERROR("Cannot load LAruA2MeV object with key << m_keyuA2MeV");
+    ATH_MSG_ERROR("Cannot load LAruA2MeV object with key " << m_keyuA2MeV);
     ATH_MSG_ERROR("Check jobOption IOVDbSvc.Folders!"); 
     return StatusCode::FAILURE;
   }
@@ -262,7 +262,7 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
   if (m_useHVScaleCorr) {
     sc=detStore()->retrieve(m_dd_HVScaleCorr,m_keyHVScaleCorr);
     if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot load LArHVScaleCorr object with key << m_keyHVScaleCorr");
+      ATH_MSG_ERROR("Cannot load LArHVScaleCorr object with key " << m_keyHVScaleCorr);
       ATH_MSG_ERROR("Check jobOption IOVDbSvc.Folders!"); 
       return StatusCode::FAILURE;
     }
@@ -308,7 +308,7 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
     const HWIdentifier id  = *it;
     const IdentifierHash idhash = m_lar_on_id->channel_Hash( *it );
     bool flagBadValue = false;
-    ATH_MSG_VERBOSE("*** Channel 0x" << MSG::hex << id.get_compact() << MSG::dec);
+    ATH_MSG_VERBOSE("*** Channel 0x" << MSG::hex << id.get_identifier32().get_compact() << MSG::dec);
     
     if(m_cablingService->isOnlineConnected(id)) {
       if(m_MCSym) {

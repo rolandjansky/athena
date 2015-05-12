@@ -57,9 +57,13 @@ class LArHVCorrTool: public AthAlgTool,
     return ILArHVCorrTool::interfaceID();}
 
   StatusCode record();
+
+  bool updateOnLastCallback() const {return m_updateOnLastCallback;}
+
  private:
 
   mutable bool m_cacheFilled;
+  mutable bool m_updateOnLastCallback;
 
   const LArOnlineID*    m_lar_on_id; 	
   const CaloCell_ID*    m_calocell_id;	

@@ -16,19 +16,23 @@ def LArHVScaleRetrieverDefault(name="LArHVScaleRetrieverDefault", **kw):
         return getattr(ToolSvc,name)
     
 
-    # call base class constructor
-    from AthenaCommon import CfgMgr
+    tool=LArHVScaleRetriever(name)
     from AthenaCommon.GlobalFlags import globalflags 
-
-    # if not provided in kw, get the defaut LArHVCorrTool
-    if 'LArHVCorrTool' not in kw:
-        from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-        kw['LArHVCorrTool'] = LArHVCorrToolDefault()
-    kw['name'] = name
-    kw.setdefault('IsMC', globalflags.DataSource()!='data' )
-    tool = CfgMgr.LArHVScaleRetriever(**kw)
-
-    mlog.info('configured for MC : '+ str(kw['IsMC']))
+    from AthenaCommon import CfgMgr
+    if (globalflags.DataSource()!='data'):
+        tool.IsMC=True
+        mlog.info("%s configured for MC" % name)
+    else:
+        #Data case, need also LArHVCorrTool
+        tool.IsMC=False
+        mlog.info("%s configured for real data" % name)
+        if 'LArHVCorrTool' in kw:
+            tool.LArHVCorrTool= kw['LArHVCorrTool']
+        else:
+            from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
+            theLArHVCorrTool=LArHVCorrToolDefault()
+            tool.LArHVCorrTool=theLArHVCorrTool
+            pass
 
     ToolSvc += tool
     return tool

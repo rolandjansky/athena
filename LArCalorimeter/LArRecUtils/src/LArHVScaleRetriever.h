@@ -77,6 +77,8 @@ class LArHVScaleRetriever
   
   virtual StatusCode record() ;
 
+  bool updateOnLastCallback() const;
+
  private: 
 
   /// Default constructor: 
