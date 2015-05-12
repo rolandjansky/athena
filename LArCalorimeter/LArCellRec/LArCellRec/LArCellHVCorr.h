@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+//Dear emacs, this is -*-c++-*-
+
 #ifndef LARCELLREC_LArCellHVCorr_H
 #define LARCELLREC_LArCellHVCorr_H
 
@@ -10,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArElecCalib/ILArCellHVCorrTool.h"
 #include "StoreGate/DataHandle.h"  
 
 class CaloCell;
@@ -24,7 +27,7 @@ ToolSvc.CaloCellContainerCorrectorTool.CaloNums=[0] #LAr EM only
 
 */
 
-class LArCellHVCorr : public CaloCellCorrection {
+class LArCellHVCorr : public CaloCellCorrection, virtual public ILArCellHVCorrTool {
 
 public:
   
@@ -34,14 +37,20 @@ public:
   ~LArCellHVCorr();
   virtual StatusCode initialize(); 
 
-  void MakeCorrection(CaloCell* theCell);    
+  void MakeCorrection(CaloCell* theCell); //Implements the CaloCellCorrection interface    
+
+  float getCorrection(const Identifier id); //Implements the ILArCellHVCorrTool interface
+
+  StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+
+  bool updateOnLastCallback() {return m_updateOnLastCallback;}
 
  private: 
 
  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
  std::string m_keyHVScaleCorr;
  bool m_undoHVonline;
-
+ bool m_updateOnLastCallback;
  const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
 
 };

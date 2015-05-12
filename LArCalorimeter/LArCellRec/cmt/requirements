@@ -44,7 +44,7 @@ use GeoModelInterfaces GeoModelInterfaces-*          DetectorDescription/GeoMode
 use GeneratorObjects GeneratorObjects-*     Generators
 use CaloTriggerTool  CaloTriggerTool-*      Calorimeter
 use LArRecEvent      LArRecEvent-*          LArCalorimeter
-use LArRecUtils      LArRecUtils-*          LArCalorimeter
+#use LArRecUtils      LArRecUtils-*          LArCalorimeter
 use LArTools         LArTools-*             LArCalorimeter
 # for deadOTX correction using L1 energies (These packages are in AtlasConditions and AtlasEvent)
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
