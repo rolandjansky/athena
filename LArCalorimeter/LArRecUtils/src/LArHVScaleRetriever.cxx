@@ -82,3 +82,7 @@ StatusCode LArHVScaleRetriever::record() {
   return StatusCode::FAILURE;
 }
 
+bool LArHVScaleRetriever::updateOnLastCallback() const {
+  if(!m_isMC) return m_ilarhvcorrtool->updateOnLastCallback();
+  return false;
+}

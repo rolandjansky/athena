@@ -178,6 +178,7 @@ StatusCode LArHVCorrTool::initialize() {
 
 StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_DEBUG("LArHVCorrTool LoadCalibration()"); 
+  m_updateOnLastCallback=false;
   if (m_updateIfChanged) {
     const std::vector<HWIdentifier>& updatedElectrodes=m_hvtool->getUpdatedElectrodes();
     if (updatedElectrodes.size()) {
@@ -189,7 +190,7 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
       }
     }
     else {
-      ATH_MSG_DEBUG("No real voltage change, no update necessary");
+      ATH_MSG_INFO("No real voltage change, no update necessary");
       return StatusCode::SUCCESS;
     }
   }//end if updateIfChanges
@@ -466,7 +467,7 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
     }// end loop over cells 
   }//end loop over ranges'
   m_cacheFilled=true;
-
+  m_updateOnLastCallback=true;
   ATH_MSG_DEBUG("(re)computed HV scale corrections for " << nChannelsUpdates << " channels");
   return StatusCode::SUCCESS;  
 }
