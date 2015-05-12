@@ -30,12 +30,13 @@ class NtupleStationId
 	public:
 	/** Default constructor */
 		inline NtupleStationId(): m_station(-1), m_eta(-99), m_phi(-1), m_ml(0), m_author(0), region_hash(0), n_ml(-1), geom_ok(false), m_region_id_valid(false)
-		 {}
+		 { ResetVectors(); }
 	/** Initializing Constructor
 		@param id MuonFixedId identifier
 	*/
 		inline NtupleStationId(const MuonFixedId &id): region_hash(0), n_ml(-1)
 			{
+			ResetVectors();
 			Initialize(id);
 			}
 	/** Initializing Constructor
@@ -69,6 +70,17 @@ class NtupleStationId
 			m_author=author;
 			m_region_id_valid = false;
 			geom_ok=false;
+			}
+		inline void ResetVectors()
+			{
+			for(unsigned int ii=0; ii<2; ii++){
+			  n_layer[ii] = -1;
+			  n_tubes[ii] = -1;
+			  layer_min[ii] = -1;
+			  layer_max[ii] = -1;
+			  tube_min[ii] = -1;
+			  tube_max[ii] = -1;
+			}
 			}
 	/** initialize function
 		@param station station name
