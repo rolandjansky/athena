@@ -22,7 +22,7 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 # Prodsys hack...
-ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--AMIConfig', '--AMITag', '--AddCaloDigi', '--CosmicFilterVolume', '--CosmicFilterVolume2', '--CosmicPtSlice', '--DBRelease', '--DataRunNumber', '--FwdRegionOn', '--LucidOn', '--ReadByteStream', '--ZDCOn', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--cscCondOverride', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--enableLooperKiller', '--env', '--eventAcceptanceEfficiency', '--eventIdFile', '--execOnly', '--fSampltag', '--fileValidation', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputBSFile', '--inputBS_SKIMFile', '--inputEVNTFile', '--inputEVNT_CAVERNFile', '--inputEVNT_COSMICSFile', '--inputFileValidation', '--inputHITSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--muonForceUse', '--orphanKiller', '--outputBS_SKIMFile', '--outputEVNT_CAVERNTRFile', '--outputEVNT_COSMICSTRFile', '--outputFileValidation', '--outputHITSFile', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_SGNLFile', '--overlayConfigFile', '--parallelFileValidation', '--physicsList', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--showGraph', '--showPath', '--showSteps', '--simulator', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--tmpRDO', '--tmpRDO_FILT', '--triggerBit', '--truthStrategy', '--useISF', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
+ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--AMIConfig', '--AMITag', '--AddCaloDigi', '--CosmicFilterVolume', '--CosmicFilterVolume2', '--CosmicPtSlice', '--DBRelease', '--DataRunNumber', '--FwdRegionOn', '--LucidOn', '--ReadByteStream', '--ZDCOn', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--enableLooperKiller', '--env', '--eventAcceptanceEfficiency', '--eventIdFile', '--execOnly', '--fSampltag', '--fileValidation', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputBS_SKIMFile', '--inputEVNTFile', '--inputEVNT_CAVERNFile', '--inputEVNT_COSMICSFile', '--inputFileValidation', '--inputHITSFile', '--inputZeroBiasBSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputBS_SKIMFile', '--outputEVNT_CAVERNTRFile', '--outputEVNT_COSMICSTRFile', '--outputFileValidation', '--outputHITSFile', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_SGNLFile', '--overlayConfigFile', '--parallelFileValidation', '--physicsList', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--showGraph', '--showPath', '--showSteps', '--simulator', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--tmpRDO', '--tmpRDO_FILT', '--triggerBit', '--truthStrategy', '--useISF', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -40,18 +40,20 @@ def main():
 
 def getTransform():
     executorSet = set()
-    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlay_BSSubstep, addOverlayBSFilterArguments, addOverlay_BSArguments, addOverlayChainOverrideArguments
+    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlay_BSSubstep, addCommonOverlayArguments, addUniqueOverlayBSFilterArguments, addUniqueOverlay_BSArguments, addOverlayChainOverrideArguments
     from SimuJobTransforms.SimTransformUtils import addSimulationSubstep, addSimulationArguments
     addOverlayBSFilterSubstep(executorSet)
     addSimulationSubstep(executorSet, overlayTransform = True)
     addOverlay_BSSubstep(executorSet)
     trf = transform(executor = executorSet, description = 'Full Overlay Chain')
+
     addOverlayChainOverrideArguments(trf.parser)
     addAthenaArguments(trf.parser, maxEventsDefaultSubstep='all')
     addDetectorArguments(trf.parser)
-    addOverlayBSFilterArguments(trf.parser)
+    addCommonOverlayArguments(trf.parser)
+    addUniqueOverlayBSFilterArguments(trf.parser)
     addSimulationArguments(trf.parser)
-    addOverlay_BSArguments(trf.parser)
+    addUniqueOverlay_BSArguments(trf.parser)
 
     return trf
 

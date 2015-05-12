@@ -42,9 +42,9 @@ if hasattr(runArgs,"preInclude"):
 # Job definition parameters:
 #==============================================================
 
-if hasattr(runArgs,"inputBSFile"):
-    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputBSFile )
-    DataInputCollections=runArgs.inputBSFile # Remove this line
+if hasattr(runArgs,"inputBS_SKIMFile"):
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputBS_SKIMFile )
+    DataInputCollections=runArgs.inputBS_SKIMFile # Remove this line
 else:
     raise RuntimeError ("No input BS file defined")
 

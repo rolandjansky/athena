@@ -21,7 +21,7 @@ BSFilterLog.info( '**** ByteStreamInputSvc configuration' )
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
 # ByteStreamInputSvc.FullFileName = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
-ByteStreamInputSvc.FullFileName = runArgs.inputBSFile
+ByteStreamInputSvc.FullFileName = runArgs.inputZeroBiasBSFile
 
 print ByteStreamInputSvc
 
