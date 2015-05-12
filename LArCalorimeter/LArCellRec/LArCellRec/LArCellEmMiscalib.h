@@ -61,8 +61,6 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
 
-  StoreGateSvc * m_detStore;
-
   IAtRndmGenSvc* m_AtRndmGenSvc;
   CLHEP::HepRandomEngine* m_engine;
 
