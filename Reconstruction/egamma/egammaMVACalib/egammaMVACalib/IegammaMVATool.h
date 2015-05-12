@@ -14,10 +14,8 @@
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
-#include "xAODEgamma/EgammaEnums.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/VertexFwd.h"
-
 
 class IegammaMVATool : virtual public asg::IAsgTool{
   /// Declare the interface that the class provides
@@ -31,7 +29,6 @@ public:
   virtual StatusCode finalize() = 0;
  /** @brief execute method*/
   virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg)=0;
-  virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::EgammaParameters::EgammaType egType)=0;
   virtual StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType)=0;
 };
 
