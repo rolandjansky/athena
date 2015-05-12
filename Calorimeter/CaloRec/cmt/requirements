@@ -25,6 +25,8 @@ use xAODCaloEvent  xAODCaloEvent-*     Event/xAOD
 use AtlasCLHEP AtlasCLHEP-* External
 use CaloDetDescr   CaloDetDescr-*      Calorimeter
 use CaloGeoHelpers CaloGeoHelpers-*    Calorimeter
+use LArElecCalib   LArElecCalib-*      LArCalorimeter
+
 
 private
 use AtlasROOT      AtlasROOT-*         External
@@ -38,6 +40,7 @@ use FourMom        FourMom-*           Event
 use NavFourMom     NavFourMom-*        Event
 use AtlasEigen	   AtlasEigen-*        External
 use EventKernel    EventKernel-*       Event
+use LArTools       LArTools-*          LArCalorimeter
 
 end_private
 

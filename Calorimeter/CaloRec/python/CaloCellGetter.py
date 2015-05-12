@@ -543,27 +543,9 @@ class CaloCellGetter (Configured)  :
        
 
         if doHVCorr:
-
-            try:
-                from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-                theLArHVCorrTool = LArHVCorrToolDefault()
-            except:
-                mlog.error("could not get handle to LArHVCorrToolDefault Quit")
-                print traceback.format_exc()
-                return False
-            ToolSvc += theLArHVCorrTool
-
-            try:
-                from LArCellRec.LArCellRecConf import LArCellHVCorr
-                theLArCellHVCorr = LArCellHVCorr("LArCellHVCorr")
-                theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
-            except:
-                mlog.error("could not get handle to LArCellHVCorr Quit")
-                print traceback.format_exc()
-                return False
-            ToolSvc += theLArCellHVCorr
-
-
+            from LArCellRec.LArCellHVCorrDefault import LArCellHVCorrDefault
+            theLArCellHVCorr=LArCellHVCorrDefault()
+            
             try:
                 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloIdentifier import SUBCALO 

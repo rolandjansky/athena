@@ -35,11 +35,13 @@ class ICalorimeterNoiseTool;
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class CaloCell_ID;
+class LArHVFraction;
 
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
+#include "LArElecCalib/ILArHVCorrTool.h"
 #include <string>
 #include <vector>
 
@@ -112,6 +114,9 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   /// Set to true if cluster isolation is to be calculated
   bool m_calculateIsolation;
 
+  /// Set to true to calculate E and N of cells affected by LAr HV corrections
+  bool m_calculateLArHVFraction;
+
   /**
    * @brief switch to use the pile-up noise CaloNoiseTool 
    *
@@ -128,6 +133,12 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  ToolHandle<ILArHVCorrTool> m_larHVScaleRetriever;
+
+  /**
+   * @brief HV fraction is need to check for HV affected LAr cells
+   */
+  LArHVFraction * m_larHVFraction;
 
   /// Not used anymore (with xAOD), but required to when configured from 
   /// COOL via CaloRunClusterCorrections.
@@ -136,7 +147,6 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   /// Not used by this tool, but required to use this
   /// with CaloRunClusterCorrections.
   int m_order;
-  
 };
 
 #endif // CALOCLUSTERMOMENTSMAKER_H
