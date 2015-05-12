@@ -7,9 +7,7 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
-# from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
-from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -20,16 +18,15 @@ from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorat
 # }
 # isolation cuts: check xAODPrimitives/xAODPrimitives/IsolationType.h for definitions
 orTriggers_run1 = ['EF_mu6_Trk_Jpsi_loose','EF_2mu4T_Jpsimumu_IDTrkNoCut','EF_mu4Tmu6_Jpsimumu_IDTrkNoCut']
-orTriggers_run2 = ['HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose']
+orTriggers_run2 = ['HLT_mu6_bJpsi_Trkloose']
 andTriggers_run1 = ['EF_mu24i_tight', 'EF_mu24i_tight_MuonEF', 'EF_mu24i_tight_MG', 'EF_mu24i_tight_l2muonSA']
-andTriggers_run2 = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
+andTriggers_run2 = ['HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
 orTriggers = orTriggers_run2
-andTriggers = andTriggers_run2
-# andTriggers = []
+# andTriggers = andTriggers_run2
+andTriggers = []
 brPrefix = 'MUON2'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON2AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON2AugmentTool1",
-                                                           IDTrackCaloDepoDecoTool = GetIDTrackCaloDepositsDecorator(),
                                                            OrTrigs = orTriggers,
                                                            AndTrigs = andTriggers,
                                                            Mu1PtMin = 4*Units.GeV,
@@ -53,15 +50,6 @@ MUON2AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON2AugmentT
 
 ToolSvc += MUON2AugmentTool1
 print MUON2AugmentTool1
-
-
-from DerivationFrameworkMuons.TrackIsolationDecorator import MUON2IDTrackDecorator as MUON2AugmentTool2
-ToolSvc += MUON2AugmentTool2
-print MUON2AugmentTool2
-
-from DerivationFrameworkMuons.TrackIsolationDecorator import MUON2MSTrackDecorator as MUON2AugmentTool3
-ToolSvc += MUON2AugmentTool3
-print MUON2AugmentTool3
 
 #====================================================================
 # SKIMMING
@@ -97,24 +85,12 @@ MUON2ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name        
                                                                     ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON2ThinningTool2
-
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-    DerivationFrameworkJob += MUONSeq
-
-    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-        MUONSeq += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
-
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON2Kernel",
-                                                                       AugmentationTools = [MUON2AugmentTool1, MUON2AugmentTool2, MUON2AugmentTool3],
+                                                                       AugmentationTools = [MUON2AugmentTool1],
                                                                        SkimmingTools = [MUON2SkimmingTool1],
                                                                        ThinningTools = [MUON2ThinningTool1, MUON2ThinningTool2]
                                                                        )

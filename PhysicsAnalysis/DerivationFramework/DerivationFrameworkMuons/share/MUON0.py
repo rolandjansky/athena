@@ -8,7 +8,6 @@
 # include("DerivationFrameworkCore/DerivationFrameworkMaster.py")
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
-# from DerivationFrameworkJetEtMiss.METCommon import *
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -16,31 +15,18 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #====================================================================
 # STRING BASED SKIMMING TOOL 
 #====================================================================
-MUON0_skimming_tools = []
+from DerivationFrameworkMuons.MUON0_triggers import get_MUON0_trigs, get_MUON0_trigs_run2
+# triggerList = get_MUON0_trigs()
+triggerList = get_MUON0_trigs_run2()
 
-### trigger seleciton
-triggerList = ['HLT_.*mu.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-MUON0SkimmingTool0a = DerivationFramework__TriggerSkimmingTool(name = "MUON0SkimmingTool0a",
-                                                              TriggerListOR = triggerList,
-                                                              TriggerListAND = [])
-ToolSvc += MUON0SkimmingTool0a
-
-### muon selection
-expression = 'count(Muons.pt>30*GeV)>0'
+# expression = 'EventInfo.eventTypeBitmask==1||'+'||'.join(triggerList)
+expression = '||'.join(triggerList)
+expression += '||count(Muons.pt>30*GeV)>0'
+print expression
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-MUON0SkimmingTool0b = DerivationFramework__xAODStringSkimmingTool(name = "MUON0SkimmingTool0b",
+MUON0SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "MUON0SkimmingTool1",
                                                                  expression = expression)
-ToolSvc += MUON0SkimmingTool0b
-
-### OR combination
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-MUON0SkimmingTool0 = DerivationFramework__FilterCombinationOR(name="MUON0SkimmingTool0",
-                                                              FilterList=[MUON0SkimmingTool0a, MUON0SkimmingTool0b])
-ToolSvc += MUON0SkimmingTool0
-
-### adding the combined tool
-MUON0_skimming_tools.append(MUON0SkimmingTool0)
+ToolSvc += MUON0SkimmingTool1
 #====================================================================
 # THINNING TOOL 
 #====================================================================
@@ -55,22 +41,10 @@ MUON0ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name        
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.4,
-                                                                    ApplyAnd                = False,
+                                                                    ApplyAnd                = True,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON0ThinningTool2
 MUON0_thinning_tools.append(MUON0ThinningTool2)
-
-### also for forward tracks
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-# MUON0ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON0ThinningTool2f",
-#                                                                     ThinningService         = "MUON0ThinningSvc",
-#                                                                     MuonKey                 = "Muons",
-#                                                                     SelectionString         = thinning_expression2,
-#                                                                     ConeSize                = 0.4,
-#                                                                     ApplyAnd                = False,
-#                                                                     InDetTrackParticlesKey  = "InDetForwardTrackParticles")
-# ToolSvc += MUON0ThinningTool2f
-# MUON0_thinning_tools.append(MUON0ThinningTool2f)
 
 ## keep tracks pt>2GeV
 # thinning_expression3 = "InDetTrackParticles.pt > 2*GeV"
@@ -89,7 +63,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON0Kernel",
 # 									AugmentationTools = [],
                                                                         ThinningTools = MUON0_thinning_tools,
-                                                                        SkimmingTools = MUON0_skimming_tools
+                                                                        SkimmingTools = [MUON0SkimmingTool1]
                                                                       )
 #====================================================================
 # SET UP STREAM   

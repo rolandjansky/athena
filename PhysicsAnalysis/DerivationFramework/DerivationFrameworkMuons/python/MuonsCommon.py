@@ -20,10 +20,6 @@ DFCommonMuonToolWrapperTools = []
 
 ### IDHits
 DFCommonMuonsSelector = CP__MuonSelectionTool(name = "DFCommonMuonsSelector")
-DFCommonMuonsSelector.MaxEta = 3.
-DFCommonMuonsSelector.MuQuality = 3
-# turn of the momentum correction which is not needed for IDHits cut and Preselection
-DFCommonMuonsSelector.TurnOffMomCorr = True
 ToolSvc += DFCommonMuonsSelector
 print DFCommonMuonsSelector
 
@@ -36,28 +32,123 @@ ToolSvc += DFCommonMuonToolWrapper
 print DFCommonMuonToolWrapper
 DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapper)
 
-### Preselection
-DFCommonMuonsSelectorPreselection = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorPreselection")
-DFCommonMuonsSelectorPreselection.MaxEta = 3.
-DFCommonMuonsSelectorPreselection.MuQuality = 3
-# turn of the momentum correction which is not needed for IDHits cut and Preselection
-DFCommonMuonsSelectorPreselection.TurnOffMomCorr = True
-ToolSvc += DFCommonMuonsSelectorPreselection
-print DFCommonMuonsSelectorPreselection
+### Loose
+DFCommonMuonsSelectorLoose = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorLoose")
+DFCommonMuonsSelectorLoose.MuQuality = 2
+ToolSvc += DFCommonMuonsSelectorLoose
+print DFCommonMuonsSelectorLoose
 
-DFCommonMuonToolWrapperPreselection = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperPreselection",
-                                                                        AsgSelectionTool = DFCommonMuonsSelectorPreselection,
-                                                                        CutType = "Preselection",
-                                                                        StoreGateEntryName = "DFCommonMuonsPreselection",
+DFCommonMuonToolWrapperLoose = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperLoose",
+                                                                        AsgSelectionTool = DFCommonMuonsSelectorLoose,
+                                                                        CutType = "Quality",
+                                                                        StoreGateEntryName = "DFCommonMuonsLoose",
                                                                         ContainerName = "Muons")
-ToolSvc += DFCommonMuonToolWrapperPreselection
-print DFCommonMuonToolWrapperPreselection
-DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperPreselection)
+ToolSvc += DFCommonMuonToolWrapperLoose
+print DFCommonMuonToolWrapperLoose
+DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperLoose)
 
-#############
-#  Add tools
-#############
+### Medium
+DFCommonMuonsSelectorMedium = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorMedium")
+DFCommonMuonsSelectorMedium.MuQuality = 1
+ToolSvc += DFCommonMuonsSelectorMedium
+print DFCommonMuonsSelectorMedium
+
+DFCommonMuonToolWrapperMedium = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperMedium",
+                                                                        AsgSelectionTool = DFCommonMuonsSelectorMedium,
+                                                                        CutType = "Quality",
+                                                                        StoreGateEntryName = "DFCommonMuonsMedium",
+                                                                        ContainerName = "Muons")
+ToolSvc += DFCommonMuonToolWrapperMedium
+print DFCommonMuonToolWrapperMedium
+DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperMedium)
+
+### Tight
+DFCommonMuonsSelectorTight = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorTight")
+DFCommonMuonsSelectorTight.MuQuality = 0
+ToolSvc += DFCommonMuonsSelectorTight
+print DFCommonMuonsSelectorTight
+
+DFCommonMuonToolWrapperTight = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonMuonToolWrapperTight",
+                                                                        AsgSelectionTool = DFCommonMuonsSelectorTight,
+                                                                        CutType = "Quality",
+                                                                        StoreGateEntryName = "DFCommonMuonsTight",
+                                                                        ContainerName = "Muons")
+ToolSvc += DFCommonMuonToolWrapperTight
+print DFCommonMuonToolWrapperTight
+DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperTight)
+
+##====================================================================
+## FOR MUON ISOLATION
+##====================================================================
+##WARNING: duplicate with the EventDensityTool in EGammaCommon.py
+##This should be handled in a better way
+#run_EDEgamma = False
+#if not hasattr (ToolSvc, 'EDEgammaCentralTool'):
+#    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+#    from JetRec.JetRecStandard import jtm
+#    tc=configEventDensityTool("EDEgammaCentralTool", jtm.emget,
+#                              radius          = 0.5,
+#                              AbsRapidityMin  = 0.0,
+#                              AbsRapidityMax  = 1.5,
+#                              OutputContainer = "DensityForEgammaCentral",
+#                              OutputLevel     = 3
+#                              )
+#    ToolSvc += tc
+#    tf=configEventDensityTool("EDEgammaForwardTool", jtm.emget,
+#                              radius          = 0.5,
+#                              AbsRapidityMin  = 1.5,
+#                              AbsRapidityMax  = 3.0,
+#                              OutputContainer = "DensityForEgammaForward",
+#                              OutputLevel     = 3
+#                              )
+#    ToolSvc += tf
+#    run_EDEgamma = True
+#
+##if not hasattr (ToolSvc, 'DFIsoTrackSelectorTool'):
+##bug with this: "NameError: name 'tit' is not defined" ==> NOT USED FOR NOW
+##Track selection
+#from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+#IsoTrackSelectorTool_Muons = InDet__InDetDetailedTrackSelectorTool(
+#    name    = "DFIsoTrackSelectorTool_Muons",
+#    pTMin       = 1000.,
+#    nHolesPixel = 0,
+#    nHitSi      = 9,
+#    IPz0Max     = 3.,
+#    IPd0Max     = 999999.,
+#    etaMax = 2.5,
+#    nHitBLayer = 0,
+#    nHitPix = 0,
+#    nHitSiPhysical = 0,
+#    TrackSummaryTool = ToolSvc.InDetTrackSummaryTool,
+#    Extrapolator     = ToolSvc.InDetExtrapolator
+#    )
+#ToolSvc +=IsoTrackSelectorTool_Muons
+#
+##Track isolation tool
+#from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
+#tit_Muons = xAOD__TrackIsolationTool(
+#    name               = "DFTrackIsolationTool_Muons",
+#    TrackSelectionTool = IsoTrackSelectorTool_Muons
+#    )
+#ToolSvc += tit_Muons
+#
+#from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__IsolationAugmentationToolMuons
+#DFCommonIsolationMuons = DerivationFramework__IsolationAugmentationToolMuons(name               = "DFCommonIsolationMuons",
+#                                                                             TrackIsolationTool = tit_Muons,
+#                                                                             OutputLevel        = 3
+#                                                                             )
+#ToolSvc += DFCommonIsolationMuons
+#
+##=======================================
+## CREATE THE DERIVATION KERNEL ALGORITHM   
+##=======================================
+#if run_EDEgamma:
+#    DerivationFrameworkJob += EventDensityAlg("EDEgammaCentralAlg", EventDensityTool = tc)
+#    DerivationFrameworkJob += EventDensityAlg("EDEgammaForwardAlg", EventDensityTool = tf)
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFCommonMuonsKernel",
+                                                                         #AugmentationTools = [DFCommonMuonToolWrapper,DFCommonIsolationMuons]
+#                                                                          AugmentationTools = [DFCommonMuonToolWrapper]
                                                                          AugmentationTools = DFCommonMuonToolWrapperTools
                                                                         )

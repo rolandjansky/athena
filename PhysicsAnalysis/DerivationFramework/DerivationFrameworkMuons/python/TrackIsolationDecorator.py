@@ -32,7 +32,6 @@ CaloIsoTool.HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE]
 CaloIsoTool.UseEMScale  = True
 CaloIsoTool.UseCaloExtensionCaching = False
 CaloIsoTool.saveOnlyRequestedCorrections = True
-# CaloIsoTool.OutputLevel = 2
 ToolSvc += CaloIsoTool
 
 
@@ -41,9 +40,9 @@ PyCintex.loadDictionary('xAODCoreRflxDict')
 PyCintex.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 
-deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30]
-deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone20]
-deco_prefix = 'MUON_'
+deco_ptcones = [isoPar.ptcone40]
+deco_topoetcones = [isoPar.topoetcone40]
+deco_prefix = 'MUON1_'
 
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__isolationDecorator
 MUON1IDTrackDecorator = DerivationFramework__isolationDecorator(name = "MUON1IDTrackDecorator",
@@ -69,30 +68,4 @@ MUON1MSTrackDecorator = DerivationFramework__isolationDecorator(name = "MUON1MST
                                                                 ptcones = deco_ptcones,
                                                                 topoetcones = deco_topoetcones,
                                                                 Prefix = deco_prefix
-                                                               )
-
-deco_prefix2 = 'MUON_'
-MUON2IDTrackDecorator = DerivationFramework__isolationDecorator(name = "MUON2IDTrackDecorator",
-                                                                TrackIsolationTool = TrackIsoTool,
-                                                                CaloIsolationTool = CaloIsoTool,
-                                                                TargetContainer = "InDetTrackParticles",
-#                                                                 SelectionString = "DIMU_trkStatus>0",
-                                                                SelectionString = "",
-                                                                SelectionFlag = "MUON2DIMU_Status",
-                                                                SelectionFlagValue = 1000,
-                                                                ptcones = deco_ptcones,
-                                                                topoetcones = deco_topoetcones,
-                                                                Prefix = deco_prefix2
-                                                               )
-
-MUON2MSTrackDecorator = DerivationFramework__isolationDecorator(name = "MUON2MSTrackDecorator",
-                                                                TrackIsolationTool = TrackIsoTool,
-                                                                CaloIsolationTool = CaloIsoTool,
-                                                                TargetContainer = "ExtrapolatedMuonTrackParticles",
-                                                                SelectionString = "",
-                                                                SelectionFlag = "",
-                                                                SelectionFlagValue = 1000,
-                                                                ptcones = deco_ptcones,
-                                                                topoetcones = deco_topoetcones,
-                                                                Prefix = deco_prefix2
                                                                )

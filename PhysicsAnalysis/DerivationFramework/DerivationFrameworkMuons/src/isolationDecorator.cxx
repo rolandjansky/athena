@@ -20,7 +20,6 @@
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 
 // #include "xAODTruth/TruthParticleContainer.h"
-static int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
 
 // Constructor
 DerivationFramework::isolationDecorator::isolationDecorator(const std::string& t,
@@ -65,15 +64,13 @@ StatusCode DerivationFramework::isolationDecorator::initialize()
   }
 
   m_trkCorrList.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
-  m_caloCorrList.calobitset.set(static_cast<unsigned int>(xAOD::Iso::coreCone));
-  m_caloCorrList.calobitset.set(static_cast<unsigned int>(xAOD::Iso::pileupCorrection));
+  m_caloCorrList.calobitset.set(static_cast<unsigned int>(xAOD::Iso::coreCone) | static_cast<unsigned int>(xAOD::Iso::pileupCorrection));
 
   /// create decorator list
   m_ptconeTypes.clear();
   for(auto c: m_ptcones){
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
     m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
-    m_decorators[c+NDIFF] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(static_cast<xAOD::Iso::IsolationType>(c+NDIFF)));
     m_ptconeTypes.push_back(t);
   }
   m_topoetconeTypes.clear();
@@ -132,6 +129,8 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
       }
   }
 
+
+
   /// Loop over tracks
   int ipar=0;
   for(auto particle : *toDecorate) {
@@ -144,17 +143,12 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
       if(dec_trkFlag(*particle)!=m_selFlagValue) continue;
      }
 
-    /// check if decorated already
-    static SG::AuxElement::Decorator< bool > dec_isoDecoDone(m_prefix+"IsoDecoDone");
-    if(dec_isoDecoDone.isAvailable(*particle) && dec_isoDecoDone(*particle)) continue;
-    dec_isoDecoDone(*particle) = true;
-
     /// track isolation
     xAOD::TrackIsolation resultTrack;
     if (m_trackIsolationTool->trackIsolation(resultTrack, *particle, m_ptconeTypes, m_trkCorrList)){
         for(unsigned int i=0; i<m_ptcones.size(); i++){
-          (*(m_decorators[m_ptcones[i]]))(*particle) = resultTrack.ptcones[i];
-          (*(m_decorators[m_ptcones[i]+NDIFF]))(*particle) = resultTrack.ptvarcones_10GeVDivPt[i];
+//           (*(m_decorators[static_cast<int>(m_ptcones[i])]))(*particle) = resultTrack.ptcones.at(i);
+          (*(m_decorators[m_ptcones[i]]))(*particle) = resultTrack.ptcones.at(i);
         }
     }else{
         ATH_MSG_WARNING("Failed to apply the track isolation for a particle");
@@ -164,7 +158,8 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
     xAOD::CaloIsolation resultCalo; 
     if (m_caloIsolationTool->caloTopoClusterIsolation(resultCalo, *particle, m_topoetconeTypes, m_caloCorrList)){
         for(unsigned int i=0; i<m_topoetcones.size(); i++){
-          (*(m_decorators[m_topoetcones[i]]))(*particle) = resultCalo.etcones[i];
+//           (*(m_decorators[static_cast<int>(m_topoetcones[i])]))(*particle) = resultCalo.etcones.at(i);
+          (*(m_decorators[m_topoetcones[i]]))(*particle) = resultCalo.etcones.at(i);
         }
     }else {
         ATH_MSG_WARNING("Failed to apply the calo isolation for a particle");

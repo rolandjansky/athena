@@ -7,10 +7,7 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
-# from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
-
-from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -23,14 +20,12 @@ from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorat
 brPrefix = 'MUON1'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON1AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1",
-#                                                            MuonTPExtrapoTool = CommonMuonTPConfig.
-                                                           IDTrackCaloDepoDecoTool = GetIDTrackCaloDepositsDecorator(),
                                                            Mu1PtMin = 24*Units.GeV,
                                                            Mu1AbsEtaMax = 2.5,
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {},
-                                                           Mu2PtMin = 4*Units.GeV,
+                                                           Mu2PtMin = 8*Units.GeV,
                                                            Mu2AbsEtaMax = 9999.,
                                                            Mu2Types = [],
                                                            Mu2Trigs = [],
@@ -105,27 +100,16 @@ MUON1ThinningTools.append(MUON1ThinningTool2)
 # MUON1ThinningTools.append(MUON1ThinningTool3)
 
 # keep topoclusters around muons
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
                                                               ThinningService         = "MUON1ThinningSvc",
                                                               SGKey                   = "Muons",
-                                                              SelectionString         = "Muons.pt>4*GeV",
+                                                              SelectionString         = "Muons.pt>9*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                               ConeSize                = 0.5)
 ToolSvc += MUON1ThinningTool4
 print MUON1ThinningTool4
 MUON1ThinningTools.append(MUON1ThinningTool4)
-
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-    DerivationFrameworkJob += MUONSeq
-
-    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-        MUONSeq += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
@@ -137,7 +121,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON1Ker
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
