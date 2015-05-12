@@ -58,7 +58,7 @@ path_prepend LATEXINPUTS "$(Rivet_texmf)/tex"
 path_append TEXMFHOME $colon
 path_append TEXMFCNF $colon
 path_append TEXINPUTS $colon
-path_prepend LATEXINPUTS $colon
+path_append LATEXINPUTS $colon
 
 macro Rivet_pp_cppflags "-isystem $(Rivet_dir)/include "
 
