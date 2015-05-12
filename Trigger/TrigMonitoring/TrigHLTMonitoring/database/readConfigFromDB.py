@@ -11,7 +11,7 @@ def readSliceConfigFromDB(dbconnection, MCK, runtype, slice_name, reco_step, *va
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
 
@@ -54,7 +54,7 @@ def readAllConfigFromDB(dbconnection, MCK, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
 
@@ -181,7 +181,7 @@ def readAllConfigFromDB(dbconnection, MCK, *vargs, **kwargs):
 #   if dbconnection=='oracle':
 #       import sys
 #       import cx_Oracle
-#       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+#       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
 #       c = conn.cursor()
 #       c.execute("SELECT * FROM master_table, mt2type, type_table, type2sig, sig_config WHERE type_table.tt_name=:my_runtype and type2sig.sig_config_id=sig_config.sc_id and type2sig.type_id2=type_table.tt_id and mt2type.master_id=:my_masterkey and mt2type.type_id1=type_table.tt_id and sig_config.sc_name=:my_slice_name and sig_config.recostep=:my_reco_step",my_runtype=runtype, my_masterkey=masterkey, my_slice_name=slice_name, my_reco_step=reco_step)
 #       #c.execute("SELECT * FROM master_table, mt2type, type_table, type2sig, sig_config WHERE type_table.tt_name=? and type2sig.sig_config_id=sig_config.sc_id and type2sig.type_id2=type_table.tt_id and mt2type.master_id=? and mt2type.type_id1=type_table.tt_id and sig_config.sc_name=? and sig_config.recostep=?", (runtype, masterkey, slice_name, reco_step))

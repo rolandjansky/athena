@@ -3,7 +3,7 @@
 #import sqlite3
 import hashlib
 import cx_Oracle
-conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
 print conn.version
 #conn.close()
 

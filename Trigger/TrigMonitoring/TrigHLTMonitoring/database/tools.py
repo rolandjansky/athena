@@ -25,7 +25,7 @@ def getMaxMCK(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       c.execute("SELECT max(mt_id) FROM master_table")
@@ -42,7 +42,7 @@ def getMaxTypeId(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       c.execute("SELECT max(tt_id) FROM type_table")
@@ -58,7 +58,7 @@ def getMaxConfigId(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       c.execute("SELECT max(sc_id) FROM sig_config")
@@ -75,7 +75,7 @@ def getActiveKeyMCK(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       # get first active key from COOL
@@ -104,7 +104,7 @@ def getConfigForMCK(dbconnection, MCK, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
 
@@ -171,7 +171,7 @@ def getTypeIDForMCK(dbconnection, MCK, RunType, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       TypeID=[]
@@ -196,7 +196,7 @@ def getAvailableTypeIDsForGivenConfig(dbconnection, config_id, run_type, *vargs,
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
      
       TypeID=[]
@@ -337,7 +337,7 @@ def searchSimilarConfigsInDB(dbconnection, slice_name, reco_step, config_code, c
     if dbconnection=='oracle':
        import cx_Oracle
        import sys
-       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
        c = conn.cursor()
 
        #c.execute("SELECT * FROM master_table, mt2type, type_table, type2sig, sig_config WHERE mt_id=:my_MCK and type2sig.sig_config_id=sig_config.sc_id and type2sig.type_id2=type_table.tt_id and mt2type.type_id1=type_table.tt_id", my_MCK=MCK)
@@ -381,7 +381,7 @@ def printConfig(dbconnection, MCK, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       if MCK=='ACTIVE_KEY':
@@ -455,7 +455,7 @@ def printAllConfig(dbconnection, MCK, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
       if MCK=='ACTIVE_KEY':
@@ -554,7 +554,7 @@ def printDB(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
 
@@ -678,7 +678,7 @@ def printMCKandTypes(dbconnection, *vargs, **kwargs):
   if dbconnection=='oracle':
       import cx_Oracle
       import sys
-      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+      conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
       c = conn.cursor()
 
 
@@ -823,7 +823,7 @@ def searchSimilarTypeIdInDB(dbconnection, run_type, configIdList, *vargs, **kwar
     if dbconnection=='oracle':
        import cx_Oracle
        import sys
-       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
        c = conn.cursor()
        #print "configIdList", configIdList
 
@@ -906,7 +906,7 @@ def getMCKforTypeID(dbconnection, run_type_id, *vargs, **kwargs):
     if dbconnection=='oracle':
        import cx_Oracle
        import sys
-       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
        c = conn.cursor()
 
        c.execute("SELECT * FROM master_table, mt2type, type_table WHERE tt_id=:my_run_type_id and mt2type.type_id1=type_table.tt_id and mt2type.master_id=mt_id", my_run_type_id=run_type_id)
@@ -928,7 +928,7 @@ def makeActive(dbconnection, MCK, *vargs, **kwargs):
     if dbconnection=='oracle':
        import cx_Oracle
        import sys
-       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
        c = conn.cursor()
 
  
@@ -975,7 +975,7 @@ def printActiveMCKTable(dbconnection, *vargs, **kwargs):
     if dbconnection=='oracle':
        import cx_Oracle
        import sys
-       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+       conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
        c = conn.cursor()
 
        c.execute("SELECT * FROM activeMCK_table")

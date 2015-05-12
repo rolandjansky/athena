@@ -234,8 +234,7 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
   std::vector<std::string>::iterator chItr;
 
   addMonGroup(new MonGroup(this,monpath,run));
-  std::vector<std::string> lvl = {getTDT()->getListOfTriggers("HLT_"+regex.substr(8,regex.length()-8))
-  };                                 //^^^ MAGIC NUMBERS AT WORK HERE ^^^
+  std::vector<std::string> lvl = {getTDT()->getListOfTriggers(regex)};
   
   //create helper strings
   std::stringstream tmp_histname;  
@@ -247,14 +246,17 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
       tmp_histname.str("");//reset
       tmp_histname << level << "_" << name << triggerstatus[j];
       ATH_MSG_DEBUG("\tbooking --> " << tmp_histname.str());
-      addHistogram(new TH1F(tmp_histname.str().c_str(),name.c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
+      //      addHistogram(new TH1F(tmp_histname.str().c_str(),name.c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
+      addHistogram(new TH1F(tmp_histname.str().c_str(),tmp_histname.str().c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
       
       for (chItr=lvl.begin(); chItr!=lvl.end(); chItr++)
 	hist(tmp_histname.str(),monpath)->GetXaxis()->SetBinLabel(chItr-lvl.begin()+1,chItr->c_str());
     }
   
   //add a roi histo
-  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),tmp_histname.str().c_str(),100,-5,5,64,-3.2,3.2),monpath);
+  //  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),tmp_histname.str().c_str(),100,-5,5,64,-3.2,3.2),monpath);
+  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),std::string(name+"RoIs").c_str(),100,-5,5,64,-3.2,3.2),monpath);
+
   
   monpath+="/Rates";
   addMonGroup(new MonGroup(this,monpath,run));
@@ -392,7 +394,7 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
       for (rsIt=results.begin();rsIt!=results.end(); rsIt ++){ if (rsIt->second) {
 	  ATH_MSG_DEBUG(chain << " passed " << rsIt->first << " and matches " << *sIt);
 	  const std::string monpath = basepath+sIt->first;
-	  const std::string name = chain.substr(0,3)+sIt->first+rsIt->first;
+	  const std::string name = chain.substr(0,4)+sIt->first+rsIt->first;
 	  
 	  // ------------ Standard Fill ---------------------
 	  hist(name,monpath)->Fill(chain.c_str(),1);
