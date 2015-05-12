@@ -17,11 +17,11 @@ svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/offline/test/daq.
 
 from AthenaCommon.AlgSequence import AthSequencer
 topSequence = AthSequencer("AthAlgSeq")
-from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODReader__EventInfoReaderAlg
-alg = xAODReader__EventInfoReaderAlg()
+#from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODReader__EventInfoReaderAlg
+#alg = xAODReader__EventInfoReaderAlg()
 #alg.SGKey = "ByteStreamxAODEventInfo"
-alg.OutputLevel = 2
-topSequence += alg
+#alg.OutputLevel = 2
+#topSequence += alg
 
 
 #include("AthenaPoolTools/EventCount_jobOptions.py")

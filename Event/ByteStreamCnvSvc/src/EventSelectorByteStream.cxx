@@ -122,6 +122,13 @@ StatusCode EventSelectorByteStream::initialize() {
                      ATH_MSG_INFO("Retrieved InputCollections from InputSvc");
                   }
                }
+               StringProperty temp2;
+               if ((*ii)->name() == "EventStore") {
+                  if ((*ii)->load(temp2)) {
+                     m_evtStore = ServiceHandle<StoreGateSvc>(temp2.value(),this->name());
+                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp);
+                  }
+               }
                ++ii;
             }
          } else {
@@ -500,8 +507,8 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          ATH_MSG_WARNING("Continue with bad event");
       }
       // Set RE for rob data provider svc
-      m_robProvider->setNextEvent(pre);
-      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
+      //m_robProvider->setNextEvent(pre);
+      //m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
