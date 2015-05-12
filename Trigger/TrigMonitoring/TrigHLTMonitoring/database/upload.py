@@ -97,7 +97,7 @@ def upload(MakeActive='False'):
 # rewrite connecting table mt2type
 
   import cx_Oracle
-  conn = cx_Oracle.connect('tklimk/IiUTYhtOYL955!@devdb11')
+  conn = cx_Oracle.connect('tklimk/IiUTYhtOYL956!@devdb11')
   c = conn.cursor()
   
   checkPhysics=0
