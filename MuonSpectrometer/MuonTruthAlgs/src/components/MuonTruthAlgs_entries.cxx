@@ -9,6 +9,7 @@
 #include "../MuonTruthDecorationAlg.h"
 #include "../MuonTruthAssociationAlg.h"
 #include "../MuonSegmentTruthAssociationAlg.h"
+#include "../MuonTruthSummaryAlg.h"
 
 
 using namespace Muon;
@@ -21,6 +22,7 @@ DECLARE_ALGORITHM_FACTORY( TrackParticleTruthMaker )
 DECLARE_ALGORITHM_FACTORY( MuonTruthDecorationAlg )
 DECLARE_ALGORITHM_FACTORY( MuonTruthAssociationAlg )
 DECLARE_ALGORITHM_FACTORY( MuonSegmentTruthAssociationAlg )
+DECLARE_ALGORITHM_FACTORY( MuonTruthSummaryAlg )
 
 DECLARE_TOOL_FACTORY( MuonTrackTruthTool )
 DECLARE_TOOL_FACTORY( MuonDecayTruthTrajectoryBuilder )
@@ -28,6 +30,7 @@ DECLARE_TOOL_FACTORY( DetailedMuonPatternTruthBuilder )
 
 DECLARE_FACTORY_ENTRIES( MuonTruthAlgs ) 
 {
+  DECLARE_ALGORITHM( MuonTruthSummaryAlg );
   DECLARE_ALGORITHM( MuonPRD_MultiTruthMaker )
   DECLARE_ALGORITHM( MuonDetailedTrackTruthMaker )
   DECLARE_ALGORITHM( MuonPatternCombinationDetailedTrackTruthMaker )

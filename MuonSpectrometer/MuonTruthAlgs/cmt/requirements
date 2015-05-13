@@ -37,6 +37,7 @@ use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEven
 use  TrkPrepRawData             TrkPrepRawData-*                Tracking/TrkEvent
 use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
 use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
+use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonTrackMakerUtils        MuonTrackMakerUtils-*           MuonSpectrometer/MuonReconstruction/MuonTrackMakers
 use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
 use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation
@@ -45,12 +46,14 @@ use  TrkParameters              TrkParameters-*                 Tracking/TrkEven
 use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
 use  TrkGeometry                TrkGeometry-*                   Tracking/TrkDetDescr
 use  xAODTruth                  xAODTruth-*                     Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use  Particle                   Particle-*                      Reconstruction
 use  ParticleTruth              ParticleTruth-*                 Reconstruction
 use  GeneratorObjects           GeneratorObjects-*              Generators
 use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis 
 use  EventPrimitives            EventPrimitives-*               Event
+use AthenaBaseComps AthenaBaseComps-* Control
 
 public
 apply_pattern component_library
