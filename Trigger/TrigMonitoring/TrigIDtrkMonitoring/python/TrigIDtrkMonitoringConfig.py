@@ -190,14 +190,16 @@ def TrigIDtrkMonitoringTool():
 		tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
 		tidabjet.ntupleChainNames += [
 			"Offline",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_EFID",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
-			"HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_EFID",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID"
+			# jet based chains
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			# muon based chains
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
 		ToolSvc += tidabjet;
 		list += [ "TrigTestBase/IDBjetTool" ]
@@ -210,8 +212,8 @@ def TrigIDtrkMonitoringTool():
 		tidabjetshift.SliceTag = "HLT/TRIDT/Bjet/Shifter"
 		tidabjetshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_IDTrig",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_FTF"
+			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
 		ToolSvc += tidabjetshift;
 		list += [ "TrigTestBase/IDBjetShifterTool" ]
