@@ -75,11 +75,13 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
     m_phiHalfWidth(0.1),
     m_etaHalfWidth(0.1),
     m_doFullScan(false),
-    m_maxCaloEta(2.),
+    m_maxCaloEta(1.7),
     m_roadWidth(4.),
-    m_nBinCoarse(10.),
-    m_nBinFine(10.),
-    m_wedgeMinEta(0.)
+    m_nBinCoarse(14),
+    m_nBinFine(14),
+    m_wedgeMinEta(0),
+    m_roadMaxEta(1.06),
+    m_wedgeNBin(5)
 {
   
   declareProperty( "TRT_DC_ContainerName",   m_trtDCContainerName = "Trig_OfflineDriftCircles" );
@@ -91,6 +93,8 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("nBinCoarse",              m_nBinCoarse);
   declareProperty("nBinFine",              m_nBinFine);
   declareProperty("WedgeMinEta",              m_wedgeMinEta);
+  declareProperty("RoadMaxEta",              m_roadMaxEta);
+  declareProperty("WedgeNBin",              m_wedgeNBin);
 
 }
 
@@ -138,8 +142,13 @@ HLT::ErrorCode TrigTRTHTHCounter::hltInitialize() {
 
   //
 
-  m_trththits.assign(2,0.);
+  float hitInit[5]={0,-999,0,-999,-999};
+  m_trththits.clear();
+  for (int i=0; i<5; i++) {
+  m_trththits.push_back(hitInit[i]);
+  }
 
+ 
 
 
   return HLT::OK;  
@@ -169,8 +178,10 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   //
   m_listOfTrtIds.clear();
 
-  for (size_t iw=0; iw<2; iw++){
-    m_trththits[iw] = 0.;
+  float hitInit[5]={0,-999,0,-999,-999};
+  m_trththits.clear();
+  for (int i=0; i<5; i++) {
+  m_trththits.push_back(hitInit[i]);
   }
 
 //count_httrt and count_tottrt are vectors of size 20, since we have 20 bins of 0.01 around the roi phi. At each bin (vector position) we look at the number of high threshold as well as the total number of TRT hits, which get stored in count_httrt and count_tottrt respectively. These values will be eventually transferred into the trththits arrays. 
@@ -178,8 +189,8 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<int> count_tottrt_c(m_nBinCoarse);
   
  
-  std::vector<int> count_httrt(m_nBinFine);
-  std::vector<int> count_tottrt(m_nBinFine);
+  std::vector<int> count_httrt(3*m_nBinFine);
+  std::vector<int> count_tottrt(3*m_nBinFine);
 
 
   std::vector<TRT_hit> hit;
@@ -337,7 +348,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     int countbin=0;	
     if(hth_delta_phi(hit[v].phi, center_pos_phi) < 0.01)
       {
-      for(float roibincenter=center_pos_phi-m_phiHalfWidth/m_nBinCoarse+((m_phiHalfWidth/m_nBinCoarse)/m_nBinFine); roibincenter < (center_pos_phi+m_phiHalfWidth/m_nBinCoarse); roibincenter+=2*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine)
+      for(float roibincenter=center_pos_phi-3*m_phiHalfWidth/m_nBinCoarse+((m_phiHalfWidth/m_nBinCoarse)/m_nBinFine); roibincenter < (center_pos_phi+3*m_phiHalfWidth/m_nBinCoarse); roibincenter+=2*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine)
         {	
         if (hth_delta_phi(hit[v].phi,roibincenter)<=(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine)
           {
@@ -364,7 +375,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     pos = pos + 1; 
     }
 
-  center_pos_phi+=(2*(int)dist+1-m_nBinFine)*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine;
+  center_pos_phi+=(2*(int)dist+1-3*m_nBinFine)*(m_phiHalfWidth/m_nBinCoarse)/m_nBinFine;
 
 
   int trthit=0, trthit_ht=0;
@@ -377,40 +388,33 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     }
   }
 
-  if (trthit!=0)
-  m_trththits[0] = trthit + (double)trthit_ht/trthit;
+  if (trthit!=0&&(fabs(roi->eta())<=m_roadMaxEta)){
+  m_trththits[0] = trthit_ht;
+  m_trththits[1] = (double)trthit_ht/trthit;
+  }
 
   trthit=trthit_ht=0;
 
-  if (dist>0&&dist<count_httrt.size()-1){
-    for (int k=0;k<3;k++){
-      trthit+= count_tottrt[dist+k-1];
-      trthit_ht+=count_httrt[dist+k-1];
+  for (int k=0;k<(2*m_wedgeNBin+1);k++){
+    if (((int)dist+k-(int)m_wedgeNBin)>=0&&((int)dist+k-(int)m_wedgeNBin)<(int)count_httrt.size()){
+      trthit+= count_tottrt[(int)dist+k-(int)m_wedgeNBin];
+      trthit_ht+=count_httrt[(int)dist+k-(int)m_wedgeNBin];
     }
   }
 
-
-  if (dist==0){
-    for (int k=1;k<3;k++){
-      trthit+= count_tottrt[dist+k-1];
-      trthit_ht+=count_httrt[dist+k-1];
-    }
+  if (trthit!=0&&(fabs(roi->eta())>=m_wedgeMinEta)){
+    m_trththits[2] = trthit_ht;
+    m_trththits[3] = (double)trthit_ht/trthit;
   }
 
-  if (dist==count_httrt.size()-1){
-    for (int k=0;k<2;k++){
-      trthit+= count_tottrt[dist+k-1];
-      trthit_ht+=count_httrt[dist+k-1];
-    }
-  }
-
-  if (trthit!=0&&(fabs(roi->eta())>=m_wedgeMinEta))
-    m_trththits[1] = trthit + (double)trthit_ht/trthit;
+  m_trththits[4]=roi->eta();
 
 
-
-  ATH_MSG_VERBOSE ( "trththits with road algorithm : " << m_trththits[0]);
-  ATH_MSG_VERBOSE ( "trththits with wedge algorithm : " << m_trththits[1]);
+  ATH_MSG_VERBOSE ( "trthits with road algorithm : " << m_trththits[0]);
+  ATH_MSG_VERBOSE ( "fHT with road algorithm : " << m_trththits[1]);
+  ATH_MSG_VERBOSE ( "trthits with wedge algorithm : " << m_trththits[2]);
+  ATH_MSG_VERBOSE ( "fHT with wedge algorithm : " << m_trththits[3]);
+  ATH_MSG_VERBOSE ( "ROI eta : " << m_trththits[4]);
   
   //Writing to xAOD
   rnnOutput->auxdata< std::vector<float>  >("trththits") = m_trththits;// decoration for now.
