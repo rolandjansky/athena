@@ -40,8 +40,8 @@ ParticleContentAnalysis::~ParticleContentAnalysis()
 void ParticleContentAnalysis::InitPlots()
 {
   //declaration of histograms
-  m_evtnr =         new TH1D( "EventNumber",   "Event number" , 1000, 0., 1000. );
-  m_evtweight = new TH1D("EventWeight",  "event weight",  10000, -5000000.0, 5000000.0);
+  m_evtnr =         new TH1D( "EventNumber",   "Event number" , 100, 0., 1000. );
+  m_evtweight = new TH1D("EventWeight",  "event weight",  1000, -5000000.0, 5000000.0);
   m_evtweight_zoom = new TH1D("EventWeight_Zoom",  "event weight",  41, -20.5, 20.5);
 
   //all particles in the event
@@ -90,7 +90,7 @@ void ParticleContentAnalysis::InitPlots()
   m_Tau_decay_multiplicity =             new TH1D(  "Tau_decay_multiplicity" ,            "multiplicity of tau decay" ,     11., -0.5, 10.5 );
   m_Tau_decay_charged_multiplicity =     new TH1D(  "Tau_charged_decay_multiplicity" ,            "charged multiplicity of tau decay" ,     11., -0.5, 10.5 );
   m_Tau_cos_theta =                      new TH1D(  "Tau_cos_theta" ,                     "cos(#theta)" ,      80., -1.0, 1.0   );
-  m_Tau_charged_energy_fraction =        new TH1D(  "Tau_charged_energy_fraction" ,            "charged energy fraction" ,      80., -1.0, 1.0 );
+  m_Tau_charged_energy_fraction =        new TH1D(  "Tau_charged_energy_fraction" ,            "charged energy fraction" ,      40., -1.0, 1.0 );
   m_Tau_flightlength =                   new TH1D(  "Tau_FlightLength" ,   "flight length of tau" ,    100., -0.05, 150.05 );
 
   m_uquark_mass =  new TH1D(  "uquark_mass" ,      "mass of u-quark" ,     101., -0.25, 50.25 );
@@ -178,8 +178,8 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_outputRootDir = "PartCont";
 
   //declaration of histograms
-  m_evtnr =         initHist( string( "EventNumber" ), string( "Event number" ), string("Eventnumber"),1000, 0., 1000. );
-  m_evtweight =     initHist( string( "EventWeight"),  string( "event weight"), string("weight"),  10000, -5000000.0, 5000000.0);
+  m_evtnr =         initHist( string( "EventNumber" ), string( "Event number" ), string("Eventnumber"), 100, 0., 1000. );
+  m_evtweight =     initHist( string( "EventWeight"),  string( "event weight"), string("weight"),  1000, -5000000.0, 5000000.0);
   m_evtweight_zoom = initHist(string("EventWeight_Zoom"),  string("event weight"), string("weight"),  41, -20.5, 20.5);
 
   //all particles in the event
@@ -227,7 +227,7 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_Tau_decay_multiplicity =             initHist(  string( "Tau_decay_multiplicity") ,            string("multiplicity of tau decay") ,   string("N" ),    11., -0.5, 10.5 );
   m_Tau_decay_charged_multiplicity =     initHist(  string( "Tau_charged_decay_multiplicity") ,    string("charged multiplicity of tau decay") ,   string("N" ),    11., -0.5, 10.5 );
   m_Tau_cos_theta =                      initHist(  string( "Tau_cos_theta") ,                     string("cos(#theta)") ,            string("cos(#theta)") ,          80., -1.0, 1.0  );
-  m_Tau_charged_energy_fraction =        initHist(  string( "Tau_charged_energy_fraction") ,       string("charged energy fraction") , string("E_{charged}/E") ,      80., -1.0, 1.0 );
+  m_Tau_charged_energy_fraction =        initHist(  string( "Tau_charged_energy_fraction") ,       string("charged energy fraction") , string("E_{charged}/E") ,      40., -1.0, 1.0 );
   m_Tau_flightlength =                   initHist(  string( "Tau_FlightLength") ,   string( "flight length of tau") ,  string( "length" ),    100., -0.05, 150.05 );
 
   m_uquark_mass =  initHist( string( "uquark_mass" ),      string( "mass of u-quark" ),  string( "mass [GeV]" ),   101., -0.25, 50.25 );
