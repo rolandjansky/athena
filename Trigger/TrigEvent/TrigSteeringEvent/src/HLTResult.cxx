@@ -330,8 +330,9 @@ unsigned int HLTResult::estimateSize() {
 
 unsigned int HLTResult::estimateSize_DS(const unsigned int mod_id ) {
   // Check size for Scouting data
-  std::vector<uint32_t> raw;
-  std::back_insert_iterator< std::vector<uint32_t> > appendIterator(raw);
+  unsigned int chainSize(1);    
+  unsigned int navigationSize(4);
+  unsigned int extraSize(0);
 
   std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::iterator map_it = m_modID_id_name.begin();
   map_it = m_modID_id_name.find(mod_id);
@@ -350,9 +351,8 @@ unsigned int HLTResult::estimateSize_DS(const unsigned int mod_id ) {
 	
 	std::vector<uint32_t>::iterator starting_point = m_navigationResult.begin()+starting_bin; 
 	std::vector<uint32_t>::iterator ending_point = m_navigationResult.begin()+ending_bin; 
-	
-	raw.reserve(ending_bin - starting_bin);
-	copy(starting_point, ending_point, appendIterator); // headerblob + datablob
+
+	navigationSize += ending_bin-starting_bin;
       }
     }
     
@@ -366,12 +366,16 @@ unsigned int HLTResult::estimateSize_DS(const unsigned int mod_id ) {
 	    std::vector<uint32_t>::iterator starting_point = m_navigationResult_DSonly.begin()+starting_bin; 
 	    std::vector<uint32_t>::iterator ending_point = m_navigationResult_DSonly.begin()+ending_bin; 
 	    
-	    raw.reserve(ending_bin - starting_bin);
-	    copy(starting_point, ending_point, appendIterator); // headerblob + datablob
+	    navigationSize += ending_bin-starting_bin;
 	  }
 	}
     }
-    return raw.size() + 1; // size(one word) and payload
+
+    // the returned size is one word more than actually used. This follows the same convention as estimateSize() 
+    return (IndNumOfFixedBit
+	  + chainSize + 1      // size(one word) and payload
+	  + navigationSize + 1 
+	  + extraSize +1 +1);
   }
   else{
     std::cerr << "ROB module ID " << mod_id << " not found as key of the map from ScoutingInfo. HLTResult::estimateSize_DS() Returns 0 as expected size."<< std::endl; 
@@ -414,12 +418,30 @@ bool HLTResult::packForStorage( std::vector<uint32_t>& raw, const unsigned int m
 
     std::vector<uint32_t> result;
     std::back_insert_iterator< std::vector<uint32_t> > appendIteratorResult(result);    
-        
+    
     if (map_it != m_modID_id_name.end()){
       
-      raw.reserve( estimateSize_DS(mod_id) ); // this is size + payload
-      result.reserve( estimateSize_DS(mod_id)-1); // this is only payload
+      raw.reserve( estimateSize_DS(mod_id) );    // this is for the total serialized result
+      result.reserve( estimateSize_DS(mod_id) - IndNumOfFixedBit - 4 ); // this is for the navigation information
+
+      // add header data 
+      copy(m_headerResult.begin(), m_headerResult.end(), appendIterator ); // fixed header
+
+      // add dummy chain result
+      std::vector<uint32_t> dummyChainResult;
+      dummyChainResult.reserve(1);
+      dummyChainResult.push_back(0);
+      raw.push_back( dummyChainResult.size() );
+      copy( dummyChainResult.begin(), dummyChainResult.end(), appendIterator ); // chains
+
+      // add navigation header information 
+      result.push_back( 4 ); // navigation version
+      result.push_back( 0 ); // navigation size placeholer
+      // No TEs are saved for DS
+      result.push_back(4); // length of nav header 2+2(for TE)
+      result.push_back(0); // number of TEs
       
+      // add feature data
       // map from ScoutingInfo for ROB ID rob_id
       std::set<std::pair<CLID, std::string> >& collectionsForStorage = (*map_it).second;
       
@@ -455,9 +477,13 @@ bool HLTResult::packForStorage( std::vector<uint32_t>& raw, const unsigned int m
 	}
       }
       
+      // add navigation to raw result
+      result[1] = result.size(); // store length of complete navigation information in second word
       raw.push_back( result.size() );  // size
       copy( result.begin(), result.end(), appendIterator ); // payload
 
+      // No extra data are stored
+      raw.push_back(0);
       return HLT::OK;
     }
     else{
