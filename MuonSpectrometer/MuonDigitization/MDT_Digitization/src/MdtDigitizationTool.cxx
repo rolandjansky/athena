@@ -1037,7 +1037,7 @@ bool MdtDigitizationTool::createDigits(){
       deposits.push_back(deposit);
       MuonSimData tempSDO(deposits,0);
       const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
-      Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,elementId);
+      Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
       m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
