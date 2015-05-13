@@ -87,6 +87,10 @@ namespace MuGirlNS
         StauCalibration::layer_bin_calibration_map* m_pCalibration;
 
         CLHEP::HepRandomEngine& m_randEngine;
+
+        // fake assignment operator and copy constructor to make coverity happy
+        StauTileCal & operator=(const StauTileCal &right);
+        StauTileCal(const StauTileCal&); 
     };
 
 } // end of namespace

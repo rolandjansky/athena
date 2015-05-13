@@ -78,8 +78,12 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
                 m_pStau(pStauTool),
                 m_log(log),
                 m_pTrkParticle(NULL),
+                m_beta(StauBetaDefault),
+                m_avgBeta(StauBetaDefault),
+                m_rmsBeta(-1.),
                 m_pCaloCells(NULL),
                 m_hasCells(false),
+                m_pCalibration(nullptr),
                 m_randEngine(randEngine)
 {
     m_pCaloCells = new StauTileCalCells();

@@ -369,7 +369,10 @@ void StauTool::fillStauContainer()
     //add a container for this candidate
     auto cont = new StauContainer();
     //m_pCollection->push_back(cont);
-    cont->setHasRpcHits(m_pStauRPC->hasHits());
+    if (m_pStauRPC)
+        cont->setHasRpcHits(m_pStauRPC->hasHits());
+    else
+        cont->setHasRpcHits(false);
     if (m_pIdTrack)
         cont->setReconstructionParameters(StauContainer::RP_ID);
     else
@@ -401,7 +404,10 @@ void StauTool::fillStauContainer()
     cont->setIdTrk(m_pIdTrack);
     cont->setMuonTrk(m_pMuonRefittedTrack);
     cont->setStauTrk(m_pRefittedTrack);
-    cont->setRpcHitsByStation(m_pStauRPC->rpcHitsByStations());
+    if (m_pStauRPC)
+        cont->setRpcHitsByStation(m_pStauRPC->rpcHitsByStations());
+    else
+        cont->setRpcHitsByStation(NULL);
     cont->setMfP(m_trigP);
     if (m_pMuonRefittedTrack != NULL)
       {
@@ -805,7 +811,10 @@ StatusCode StauTool::fillStauExtras(const CandidateSummary* stauSummary, StauExt
     stauExtras->betaAll = m_techBetaChi2[ALL_TECHS].beta;
     stauExtras->betaAllt = m_techBetaChi2[ALLT_TECHS].beta;
     stauExtras->numRpcHitsInSeg = stauSummary->numRpcHitsInSeg;
-    stauExtras->numCaloCells = m_pStauTileCal->caloCells()->size();
+    if (m_pStauTileCal != NULL)
+        stauExtras->numCaloCells = m_pStauTileCal->caloCells()->size();
+    else
+        stauExtras->numCaloCells = 0;
     stauExtras->rpcBetaAvg = m_techBetaAvg[RPC_TECH].beta;
     stauExtras->rpcBetaRms = m_techBetaAvg[RPC_TECH].rms;
     stauExtras->rpcBetaChi2 = m_techContribution2Chi2[RPC_TECH].chi2;
@@ -1112,6 +1121,7 @@ StatusCode StauTool::processStauCosmic(const xAOD::TrackParticle* trkParticle,
 {
     //if(NULL!=trkParticle->originalTrack()) ATH_MSG_VERBOSE(  "processStau()" );
     ATH_MSG_VERBOSE( (trkParticle != NULL ? "entered" : "no ID track") );
+    if (trkParticle == NULL) return StatusCode::SUCCESS;
     //clear the candidate
     clearCandidate();
     //double trigMomentum;
@@ -1233,7 +1243,7 @@ bool StauTool::selectRangeTTrack(double& min, double& max)
     }
     if (bestRange.size() == 1)
     {
-        if (loc < 2 || loc > firstSteps.size() - 2) return false;
+        if (loc > firstSteps.size() - 2) return false;
         loc = bestRange.i_minChi2;
         double locChi2 = firstSteps[loc]->chi2;
         double prevChi2 = firstSteps[loc - 1]->chi2;

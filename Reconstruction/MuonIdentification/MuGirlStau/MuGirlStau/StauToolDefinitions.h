@@ -288,13 +288,6 @@ namespace MuGirlNS
             if (r2.size() < 2) return true;
             return (this->nHits > r2.nHits);
 
-            double diffChi2 = this->minChi2 - r2.minChi2;
-            double extraHits = this->nHits - r2.nHits;
-
-            //std::cout << "E123: dc " << diffChi2 << " eh " << extraHits << " dc/eh < 15 " << (diffChi2 / extraHits < 15)
-            // << " mc this: " << this->minChi2 << "mc that: " << r2.minChi2 <<  std::endl;
-            return (diffChi2 / extraHits < 15);
-            //return (this->nHits > r2.nHits && diffChi2 / extraHits < 15 );
         }
         int size()
         {

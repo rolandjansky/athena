@@ -43,8 +43,8 @@ StauMDTT::MDTT::MDTT(StauTool* pStau, MsgStream&, const Muon::MdtDriftCircleOnTr
 
 StauMDTT::StauMDTT(StauTool* pStau, MsgStream& log,
                    CLHEP::HepRandomEngine& randEngine) :
-        m_pStau(pStau), m_log(log), m_pTrack(NULL), m_avgBeta(StauBetaDefault), m_rmsBeta(-1.),
-        m_randEngine (randEngine)
+        m_pStau(pStau), m_log(log), m_pTrack(NULL), m_baseBeta(-1.), m_avgBeta(StauBetaDefault),
+        m_rmsBeta(-1.), m_pCalibration(nullptr), m_randEngine (randEngine)
 {
     if (m_pStau->doCalibration()) m_pCalibration = m_pStau->calibration().getMdtCalibration();
 }
