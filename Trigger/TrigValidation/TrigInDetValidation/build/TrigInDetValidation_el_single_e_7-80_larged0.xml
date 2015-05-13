@@ -19,7 +19,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>TIDAdata11-rtt-larged0.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
+                <argvalue>TIDAdata11-rtt-larged0-el.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
               </arg>
             </action>
 

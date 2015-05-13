@@ -65,7 +65,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -79,7 +79,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots-electron  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots-electron  </argvalue>
               </arg>
             </action>
 
@@ -93,7 +93,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -106,7 +106,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-electron-lowpt  </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-electron-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -119,7 +119,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_EFID -d HLTEF-plots-muon </argvalue>
               </arg>
             </action>
 
@@ -132,7 +132,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-all.root HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots-muon </argvalue>
+                <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root  HLT_mu24_idperf_TrigFastTrackFinder_Muon HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots-muon </argvalue>
               </arg>
             </action>
 	   
@@ -145,7 +145,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-all.root data-all.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-plots-tau </argvalue>
+               <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID  -d HLTEF-plots-tau </argvalue>
              </arg>
            </action> 
 	   
@@ -159,7 +159,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-all.root data-all.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots-tau </argvalue>
+               <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots-tau </argvalue>
              </arg>
            </action> 
 	   
@@ -172,7 +172,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-all.root data-all.root HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots-tau </argvalue>
+               <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots-tau </argvalue>
              </arg>
            </action> 
 
@@ -185,7 +185,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-all.root data-all.root HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots-bjet </argvalue>
+                    <argvalue>data-all.root data-all_ttbar_pu46_run2-reference.root HLT_j55_bperf_TrigFastTrackFinder_Jet HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_EFID_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID  -d HLTEF-plots-bjet </argvalue>
                 </arg>
             </action>
 
@@ -285,7 +285,6 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-            <auxFilePattern>data-all_ttbar_pu46_run2-reference.root</auxFilePattern>
             <auxFilePattern>data-all_ttbar_pu46_run2-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-all_ttbar_pu46_run2-ref.root</auxFilePattern>
 
@@ -530,7 +529,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>TIDAdata11-rtt-larged0.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
+                <argvalue>TIDAdata11-rtt-larged0-el.dat -f data-electron-IBL.root -p 11 -b Test_bin.dat </argvalue>
               </arg>
             </action>
 
@@ -4542,10 +4541,35 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-merging.root   HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_EFID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_TrigSplitJet HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-merging.root   HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
+            <action position="3">   
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-merging.root   HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTEF-plots_PrmVtx </argvalue>
+                </arg>
+            </action>
+
+            <action position="4">   
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet-pileup-merging.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID  -d HLT-FTF-plots </argvalue>
+                </arg>
+            </action>
 
 
 

@@ -164,16 +164,16 @@ def bjetChains(runMergedChain):
       ] 
   else :
     idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
+##    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
     idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
     tidaAnalysischains += [
-      'HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID',
+      'HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig',
       #
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig:roi=forID',
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
       'HLT_j55_bperf_split:key=TrigFastTrackFinder_Jet:roi=forID',
       #
-      'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi'
+      'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi'
       #
       ]
   return (idTrigChainlist, tidaAnalysischains)
