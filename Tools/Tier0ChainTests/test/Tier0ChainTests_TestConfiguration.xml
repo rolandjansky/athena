@@ -2092,6 +2092,37 @@
                             </jobTransform>
                         </chainElement>
                         
+                        <!-- Standard reco test job q223 -->
+                        <chainElement>
+                            <jobTransform userJobId="q223">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>q223</jobTransformJobName>
+                                <jobTransformCmd>
+                                    Reco_tf.py --AMI=q223
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>q223.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+
                         <!-- Standard reco test job q220 with Athena MP -->
                         <chainElement>
                             <jobTransform userJobId="q220_MP">
@@ -2184,6 +2215,37 @@
                                 </test>
                             </jobTransform>
                         </chainElement>
+
+                        <!-- Standard reco test job q223 with Athena MP -->
+                        <chainElement>
+                            <jobTransform userJobId="q223_MP">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>q223_MP</jobTransformJobName>
+                                <jobTransformCmd>
+                                    Reco_tf.py --AMI=q223 --athenaopts='--nprocs=2' --maxEvents=100
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>q223_MP.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
                         
 			<!-- MC15 reco test job -->
                         <chainElement>
@@ -2259,7 +2321,7 @@
                                     <doc>Run digitization on a fixed HITS file</doc>
                                     <jobTransformJobName>DigitizationTest</jobTransformJobName>
                                     <jobTransformCmd>
-                                        Digi_tf.py --inputHitsFile=/afs/cern.ch/atlas/groups/validation/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1 --preExec='HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata=["SimLayout","PhysicsList"]' --digiSeedOffset1=1 --digiSeedOffset2=2 --geometryVersion=ATLAS-R2-2015-02-01-00_VALIDATION --conditionsTag=OFLCOND-RUN12-SDR-22 --DataRunNumber=222525 --maxEvents=50 --outputRDOFile=MCtest_ttbar.digit.pool.root
+				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-02-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-22' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
                                     </jobTransformCmd> 
                                     <group>TCTTransform</group>
                                     <queue>short</queue>
