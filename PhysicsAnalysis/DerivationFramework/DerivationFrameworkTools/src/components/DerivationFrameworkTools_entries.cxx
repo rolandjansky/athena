@@ -4,6 +4,8 @@
 #include "DerivationFrameworkTools/InvariantMassTool.h"
 #include "DerivationFrameworkTools/DeltaRTool.h"
 #include "DerivationFrameworkTools/AsgSelectionToolWrapper.h"
+#include "DerivationFrameworkTools/FilterCombinationAND.h"
+#include "DerivationFrameworkTools/FilterCombinationOR.h"
 
 using namespace DerivationFramework;
 
@@ -12,6 +14,8 @@ DECLARE_TOOL_FACTORY( NTUPStringSkimmingTool )
 DECLARE_TOOL_FACTORY( InvariantMassTool )
 DECLARE_TOOL_FACTORY( DeltaRTool )
 DECLARE_TOOL_FACTORY( AsgSelectionToolWrapper )
+DECLARE_TOOL_FACTORY( FilterCombinationAND )
+DECLARE_TOOL_FACTORY( FilterCombinationOR )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
    DECLARE_TOOL( xAODStringSkimmingTool )
@@ -19,5 +23,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
    DECLARE_TOOL( InvariantMassTool )
    DECLARE_TOOL( DeltaRTool )
    DECLARE_TOOL( AsgSelectionToolWrapper )
+   DECLARE_TOOL( FilterCombinationAND )
+   DECLARE_TOOL( FilterCombinationOR )
 }
 

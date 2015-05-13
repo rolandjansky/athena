@@ -24,16 +24,23 @@ namespace DerivationFramework {
       const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_expression("true"),
+    m_expression2(""), 
     m_parser(0),
+    m_parser2(0),
     m_sgName(""),
     m_massHypothesis(0.0),
-    m_containerName("")
+    m_massHypothesis2(0.0),
+    m_containerName(""),
+    m_containerName2("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ObjectRequirements", m_expression);
+    declareProperty("SecondObjectRequirements", m_expression2);
     declareProperty("StoreGateEntryName", m_sgName);
     declareProperty("MassHypothesis", m_massHypothesis);
+    declareProperty("SecondMassHypothesis", m_massHypothesis2);
     declareProperty("ContainerName", m_containerName);
+    declareProperty("SecondContainerName", m_containerName2);
   }
 
   StatusCode InvariantMassTool::initialize()
@@ -43,11 +50,14 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
+    if (m_expression2=="") m_expression2 = m_expression;
     ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
     proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
     proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
     m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
     m_parser->loadExpression(m_expression);
+    m_parser2 = new ExpressionParsing::ExpressionParser(proxyLoaders);
+    m_parser2->loadExpression(m_expression2);
 
     return StatusCode::SUCCESS;
   }
@@ -57,6 +67,10 @@ namespace DerivationFramework {
     if (m_parser) {
       delete m_parser;
       m_parser = 0;
+    }
+    if (m_parser2) {
+      delete m_parser2;
+      m_parser2 = 0;
     }
     return StatusCode::SUCCESS;
   }
@@ -90,42 +104,92 @@ namespace DerivationFramework {
         ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName );
         return StatusCode::FAILURE;
     }
- 
+    
+    bool from2Collections(false);
+    const xAOD::IParticleContainer* particles2(0); 
+    if (m_containerName2!="" && m_containerName2!=m_containerName) {
+      particles2 = evtStore()->retrieve< const xAOD::IParticleContainer >( m_containerName2 );
+      if( ! particles2 ) {
+        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_containerName2 );
+        return StatusCode::FAILURE;
+      }
+      from2Collections = true;
+    }
+
+
     // get the positions of the elements which pass the requirement
     std::vector<int> entries =  m_parser->evaluateAsVector();
+    std::vector<int> entries2 =  m_parser2->evaluateAsVector();
     unsigned int nEntries = entries.size();
+    unsigned int nEntries2 = entries2.size();
 
     // check the sizes are compatible
-    if (particles->size() != nEntries ) { 
-      ATH_MSG_WARNING("Branch sizes incompatible - returning zero");
-      masses->push_back(0.0);
-      return StatusCode::FAILURE;
-    } 
+    if (!from2Collections) {
+      if ( (particles->size() != nEntries) || (particles->size() != nEntries2) || (nEntries!=nEntries2) ) { 
+        ATH_MSG_ERROR("Branch sizes incompatible - returning zero. Check your selection strings.");
+        masses->push_back(0.0);
+        return StatusCode::FAILURE;
+      } 
+    }
+    if (from2Collections) {
+      if ( (particles->size() != nEntries) || (particles2->size() != nEntries2) ) {
+        ATH_MSG_ERROR("Branch sizes incompatible - returning zero. Check your selection strings.");
+        masses->push_back(0.0);
+        return StatusCode::FAILURE;
+      }
+    }    
 
-    // Double loop to get the pairs for which the mass should be calculated	
+    // Double loop to get all possible index pairs
     unsigned int outerIt, innerIt;
     std::vector<std::vector<int> > pairs;
-    for (outerIt=0; outerIt<nEntries; ++outerIt) {
-      for (innerIt=outerIt+1; innerIt<nEntries; ++innerIt) {
-        std::vector<int> tmpPair;
-        if (entries[outerIt]==1 && entries[innerIt]==1) {
+    // Loop for case where both legs are from the same container
+    if (!from2Collections) {
+      for (outerIt=0; outerIt<nEntries; ++outerIt) {
+        for (innerIt=outerIt+1; innerIt<nEntries; ++innerIt) {
+          std::vector<int> tmpPair;
+          tmpPair.push_back(outerIt); tmpPair.push_back(innerIt);
+          pairs.push_back(tmpPair);
+        }
+      }    
+      // Select the pairs for which the mass should be calculated, and then calculate it	
+      std::vector<std::vector<int> >::iterator pairIt;
+      for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
+        unsigned int first = (*pairIt)[0];
+        unsigned int second = (*pairIt)[1];    
+        if ( (entries[first]==1 && entries2[second]==1) || (entries2[first]==1 && entries[second]==1) ) {
+          float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles)[second])->p4().Px();
+          float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles)[second])->p4().Py();
+          float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles)[second])->p4().Pz();
+          float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis);
+          masses->push_back(mass);
+        }
+      }  
+    }
+    
+    // Loop for case where both legs are from different containers
+    if (from2Collections) {
+      for (outerIt=0; outerIt<nEntries; ++outerIt) {
+        if (entries[outerIt]==0) continue;
+        for (innerIt=0; innerIt<nEntries2; ++innerIt) {
+          if (entries2[innerIt]==0) continue;
+          std::vector<int> tmpPair;
           tmpPair.push_back(outerIt); tmpPair.push_back(innerIt);
           pairs.push_back(tmpPair);
         }
       }
-    }
+      // Select the pairs for which the mass should be calculated, and then calculate it        
+      std::vector<std::vector<int> >::iterator pairIt;
+      for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
+        unsigned int first = (*pairIt)[0];
+        unsigned int second = (*pairIt)[1];
+        float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles2)[second])->p4().Px();
+        float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles2)[second])->p4().Py();
+        float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles2)[second])->p4().Pz();
+        float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis,m_massHypothesis2);
+        masses->push_back(mass);
+      }
+    } 
 
-    // Loop over the pairs; calculate the mass; put into vector and return
-    std::vector<std::vector<int> >::iterator pairIt;
-    for (pairIt=pairs.begin(); pairIt!=pairs.end(); ++pairIt) {
-      unsigned int first = (*pairIt)[0];
-      unsigned int second = (*pairIt)[1];
-      float px1 = ((*particles)[first])->p4().Px(); float px2 = ((*particles)[second])->p4().Px();
-      float py1 = ((*particles)[first])->p4().Py(); float py2 = ((*particles)[second])->p4().Py();
-      float pz1 = ((*particles)[first])->p4().Pz(); float pz2 = ((*particles)[second])->p4().Pz();
-      float mass = calculateInvariantMass(px1,px2,py1,py2,pz1,pz2,m_massHypothesis);
-      masses->push_back(mass);	
-    }
     return StatusCode::SUCCESS; 
 
   }
@@ -141,5 +205,17 @@ namespace DerivationFramework {
     float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );   	   
     return invariantMass;
   }        
+
+  float InvariantMassTool::calculateInvariantMass(float px1, float px2, float py1, float py2, float pz1, float pz2, float massH, float massH2) const
+  {
+    float e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + massH*massH);
+    float e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + massH2*massH2);
+    float eSum = e1+e2;
+    float pxSum = px1+px2;
+    float pySum = py1+py2;
+    float pzSum = pz1+pz2;
+    float invariantMass = sqrt( (eSum*eSum)-(pxSum*pxSum)-(pySum*pySum)-(pzSum*pzSum) );
+    return invariantMass;
+  } 
 
 }
