@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.h 636390 2014-12-16 21:52:18Z cranshaw $
+// $Id: EventInfo_v1.h 658946 2015-04-03 14:17:17Z ssnyder $
 #ifndef XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 #define XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 636390 $
-   /// $Date: 2014-12-16 22:52:18 +0100 (Tue, 16 Dec 2014) $
+   /// $Revision: 658946 $
+   /// $Date: 2015-04-03 16:17:17 +0200 (Fri, 03 Apr 2015) $
    ///
    class EventInfo_v1 : public SG::AuxElement {
 
@@ -423,10 +423,12 @@ namespace xAOD {
 
    }; // class EventInfo_v1
 
-} // namespace xAOD
+
 
 /// A helper operator to be able to print debug messages easily
 std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei );
+
+} // namespace xAOD
 
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"

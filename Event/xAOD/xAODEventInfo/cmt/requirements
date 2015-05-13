@@ -19,4 +19,5 @@ use AtlasReflex   AtlasReflex-*   External
 use AtlasROOT     AtlasROOT-*     External
 
 apply_pattern lcgdict dict=xAODEventInfo selectionfile=selection.xml \
-                      headerfiles="../xAODEventInfo/xAODEventInfoDict.h"
+                      headerfiles="../xAODEventInfo/xAODEventInfoDict.h" \
+                      extraselection="selectionAthSuppress.xml"

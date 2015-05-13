@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventAuxInfo_v1.cxx 667437 2015-05-15 20:10:40Z cohm $
+// $Id: EventAuxInfo_v1.cxx 657675 2015-03-30 01:36:11Z ssnyder $
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"

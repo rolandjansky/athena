@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 612503 2014-08-19 11:58:04Z krasznaa $ -->
+<!-- $Id: selection.xml 652717 2015-03-09 16:06:05Z mnowak $ -->
 <lcgdict>
 
   <class name="xAOD::EventInfo_v1"
@@ -48,7 +48,7 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::EventInfoContainer_v1> > >" />
 
   <!-- Additional dictionaries for the payload: -->
-  <class name="std::pair<std::string,std::string>" />
+  <!-- MN: removing class name="std::pair<std::string,std::string>" as it is already in RELAX -->
   <class name="std::vector<std::pair<std::string,std::string> >" />
   <class name="std::vector<std::vector<std::pair<std::string,std::string> > >" />
   <class name="std::set<uint32_t>" />
