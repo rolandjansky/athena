@@ -80,6 +80,7 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
+
     return StatusCode::SUCCESS;
   }
 
@@ -156,10 +157,11 @@ namespace Muon {
 	  const MuonSimDataCollection* col = 0;
 	  if( evtStore()->retrieve(col, name).isSuccess()) {
 	    if( col && !col->empty() ) {
-	      ATH_MSG_DEBUG("MuonSimDataCollection retrieved at " << name);
 	      Identifier id = col->begin()->first;
-	      unsigned int index = m_idHelper->mdtIdHelper().technology(id);
-	      if( index >= sdoCollections.size() ){
+	      int index = m_idHelper->technologyIndex(id);
+              
+	      ATH_MSG_DEBUG("MuonSimDataCollection retrieved at " << name << " index " << index << " size " << col->size() << " tgcIndex " << m_idHelper->tgcIdHelper().technology(id));
+	      if( index >= (int)sdoCollections.size() ){
 		ATH_MSG_WARNING("SDO collection index out of range " << index << "  " << m_idHelper->toStringChamber(id) );
 	      }else{
 		sdoCollections[index] = col;
@@ -285,7 +287,7 @@ namespace Muon {
 	if( measPhi ) {
 	  if( isCsc ) phiLayers.insert( m_idHelper->gasGap(id) ); // ++nphiLayers;
 	  else        phiLayers.insert( m_idHelper->gasGap(id) );
-          ATH_MSG_VERBOSE("gasgap " << m_idHelper->gasGap(id) << " phiLayers size " << phiLayers.size() );
+          //ATH_MSG_VERBOSE("gasgap " << m_idHelper->gasGap(id) << " phiLayers size " << phiLayers.size() );
 	}else{
 	  if( !isTrig ) {
 	    if( !chId.is_valid() ) chId = id; // use first precision hit in list
@@ -294,7 +296,7 @@ namespace Muon {
             } else {
               int iid =  10*m_idHelper->mdtIdHelper().multilayer(id) + m_idHelper->mdtIdHelper().tubeLayer(id);
               precLayers.insert( iid );
-              ATH_MSG_VERBOSE("iid " << iid << " precLayers size " << precLayers.size() );
+              //ATH_MSG_VERBOSE("iid " << iid << " precLayers size " << precLayers.size() );
             } 
 	  }else{
 	    etaLayers.insert( m_idHelper->gasGap(id) );
@@ -305,13 +307,12 @@ namespace Muon {
 	  Amg::Vector3D gpos(0.,0.,0.);
 	  bool ok = false;
 	  if( !isCsc ){
-	    index = m_idHelper->mdtIdHelper().technology(id);
+	    int index = m_idHelper->technologyIndex(id);
 	    if( index < (int)sdoCollections.size() && sdoCollections[index] != 0 ) {
 	      auto pos = sdoCollections[index]->find(id);
 	      if( pos != sdoCollections[index]->end() ) {
 		gpos = pos->second.globalPosition();
 		if( gpos.perp() > 0.1 ) ok = true; // sanity check
-                else ATH_MSG_VERBOSE("No global position found for " << m_idHelper->toString(id) );
 	      }
 	    }
 	  } 
@@ -323,9 +324,9 @@ namespace Muon {
 	      else           return p1.perp() < p2.perp(); 
 	    };
 	    if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
-	    else if( !secondPos ){
+            else if( !secondPos ){
 	      secondPos = new Amg::Vector3D(gpos);
-	      if( isSmaller(gpos,*firstPos) ) std::swap(firstPos,secondPos);
+	      if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
 	    }else{
 	      // update position if we can increase the distance between the two positions
 	      if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
@@ -337,7 +338,7 @@ namespace Muon {
       if( precLayers.size() > 2 ){
 	matchMap[lay.first] = index;
 	if( !phiLayers.empty() ) nphiLayers = phiLayers.size();
-	ntrigEtaLayers = etaLayers.size();
+	ntrigEtaLayers = etaLayers.size(); 
 	nprecLayers = precLayers.size();
 	ATH_MSG_DEBUG(" total counts: precision " << static_cast<int>(nprecLayers) 
 		      << " phi layers " << static_cast<int>(nphiLayers) 
@@ -362,9 +363,9 @@ namespace Muon {
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());
           segment->setDirection(gdir.x(),gdir.y(),gdir.z());
 	}
+	delete firstPos;
+	delete secondPos;
       }
-      delete firstPos;
-      delete secondPos;
     }
   }
 

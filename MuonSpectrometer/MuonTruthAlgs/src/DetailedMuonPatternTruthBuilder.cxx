@@ -87,7 +87,7 @@ const MuonSimDataCollection* retrieveTruthCollection( std::string colName );
 const MuonSimData::Deposit* getDeposit( const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart, const Identifier& id );
 
 struct DetectorLayer {
-  DetectorLayer() : minPos(1e9),maxPos(-1e9),nnsw(0),nmdtS(0),nmdtL(0),nphi(0) {}
+  DetectorLayer() : stIndex(Muon::MuonStationIndex::StUnknown), isEndcap(false), minPos(1e9),maxPos(-1e9),nnsw(0),nmdtS(0),nmdtL(0),nphi(0) {}
   Muon::MuonStationIndex::StIndex stIndex;
   bool isEndcap;
   double minPos; // flag whether first and second globalpos have been filled
@@ -740,7 +740,9 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         continue;
       }
 
-      double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
+      // double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
+      // micormegas are always endcap
+      double val = fabs(gpos->z());
       // nasty comparisons to figure out which MDT hit comes first
       if( val < detLayer.minPos ){
         if( detLayer.maxPos < -1e8 && detLayer.minPos < 1e8 ){
@@ -785,7 +787,8 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       // skip pads in outer most two chambers as here the wires are more precise
       if( m_idHelperTool->stgcIdHelper().channelType(id) == 0 && abs(m_idHelperTool->stationEta(id)) > 2 ) continue;
 
-      if( !stgcSimDataMap ) continue;
+      // there is already a check for this at the beginning of the method
+      // if( !stgcSimDataMap ) continue;
      
       const MuonSimData::Deposit* deposit = 0;
       for (std::list<const HepMC::GenParticle*>::const_iterator it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
@@ -804,7 +807,9 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         continue;
       }
 
-      double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
+      // double val = isEndcap ? fabs(gpos->z()) : gpos->perp();
+      // stgcs are always endcap
+      double val = fabs(gpos->z());
       // // nasty comparisons to figure out which STGC hit comes first
       if( val < detLayer.minPos ){
         if( detLayer.maxPos < -1e8 && detLayer.minPos < 1e8 ){
