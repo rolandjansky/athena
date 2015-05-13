@@ -10,12 +10,18 @@ eiLog.info( '****************** STARTING POOL->EI MAKING *****************' )
 
 ## Input
 
-if hasattr(runArgs,"inputPOOLFile"):
-    In=runArgs.inputPOOLFile
-    if type(In) == type(''):
-        In = [In]
-else:
-    raise RuntimeError("No POOL input file given")
+inputFileGiven=0
+for filetype in ('POOL', 'AOD', 'ESD', 'EVNT', 'HITS', 'RDO', 'AOD_MRG'):
+    if hasattr(runArgs,"input"+filetype+"File"):
+        In=getattr(runArgs,"input"+filetype+"File")
+        if type(In) == type(''):
+            In = [In]
+        inputFileGiven+=1
+
+if inputFileGiven == 0:
+    raise RuntimeError("No input file given")
+if inputFileGiven > 1:
+    raise RuntimeError("Only one input file format is allowed")
 
 
 ## Output

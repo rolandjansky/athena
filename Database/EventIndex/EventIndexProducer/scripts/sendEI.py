@@ -155,7 +155,7 @@ class EI5(object):
 
     
     def setEvtCommon(self,ec):
-        ecnames=[('JobID','a'),('TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e'),('InputDsName','f')]
+        ecnames=[('JobID','a'),('TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e'),('InputDsName','f'),('GUID','g')]
         ecn = dict(ecnames)
         self._ec_next={}              # valid starting from next append
         for k,v in ec.iteritems():
@@ -167,6 +167,12 @@ class EI5(object):
         if self._ec_next is not None:
             self._ec = self._ec_next
             self._ec_next = None
+
+        if e is None:
+            # empty event
+            self._lastevt={}
+            self._evtlist.append({})
+            return 0
 
         evt=dict(zip(self._schema, e))
 
@@ -258,7 +264,10 @@ class EI5(object):
         
         # fill data
         bd["ec"]=self._ec
-        bd['el']=self._evtlist
+        if len(self._evtlist[0]) != 0:
+            bd['el']=self._evtlist
+        else:
+            bd['el']=[]                    # empty event
 
         # build block
         eb={}
@@ -637,6 +646,8 @@ def eimrun(logger,opt):
             evtcommon['ProjName']=eif['ProjName_{:d}'.format(nf)]
         if "TrigStream_{:d}".format(nf) in eif:
             evtcommon['TrigStream']=eif['TrigStream_{:d}'.format(nf)]
+        if "GUID_{:d}".format(nf) in eif:
+            evtcommon['GUID']=eif["GUID_{:d}".format(nf)]
             
         evtcommon['TaskID']=eif['TaskID']
         evtcommon['JobID']=eif['JobID']
@@ -698,6 +709,14 @@ def eimrun(logger,opt):
             stats.nmsg += 1
             stats.tot_size += msz
 
+    # patch: if files has no events at all, send empty message
+    if nf == 0 and nevents == 0:
+        ei5.append(None)            # add empty event
+        blk = ei5.getEvtBlock()
+        mbroker.addBlock(blk)
+        msz = mbroker.sendMSG(last=True)
+        stats.nmsg += 1
+        stats.tot_size += msz
 
     # at this point, buffer should be empty
     blk = ei5.getEvtBlock()
