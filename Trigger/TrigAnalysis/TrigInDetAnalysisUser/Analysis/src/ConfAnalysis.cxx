@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 663185 2015-04-27 10:16:03Z hartj $
+//   $Id: ConfAnalysis.cxx 666039 2015-05-10 06:33:11Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -586,6 +586,14 @@ void ConfAnalysis::initialiseInternal() {
   rd0resPull.push_back( new Resplot("rd0Pull_vs_ABS_pt", ptnbins, ptbinlims, factor*8*a0resBins,   -5,5));//-wfactor*a0resMax,  wfactor*a0resMax  ) ); 
   
 
+  /// Roi - track residuals
+
+  rRoi_deta_vs_eta = new Resplot( "rRoi_deta_vs_eta", 20, -2.5, 2.5, 101,  -0.5,  0.5 );
+  rRoi_dphi_vs_eta = new Resplot( "rRoi_dphi_vs_eta", 20, -2.5, 2.5, 101,  -0.5,  0.5 );
+  rRoi_dzed_vs_eta = new Resplot( "rRoi_dzed_vs_eta", 20, -2.5, 2.5, 401, -30.0, 30.0 );
+
+  //  std::cout << "ROI RESPLOTS " <<  rRoi_deta_vs_eta->Name() << " " << rRoi_dphi_vs_eta->Name() << std::endl;
+
 
   // hit occupancies
 
@@ -873,6 +881,22 @@ void ConfAnalysis::finalise() {
     delete hphivsDa0res[ih];
   }  
 
+  /// roi residuals 
+
+  rRoi_deta_vs_eta->Finalise(Resplot::FitNull95);
+  rRoi_dphi_vs_eta->Finalise(Resplot::FitNull95);
+  rRoi_dzed_vs_eta->Finalise(Resplot::FitNull95);
+  
+  rRoi_deta_vs_eta->Write();
+  rRoi_dphi_vs_eta->Write();
+  rRoi_dzed_vs_eta->Write();
+
+  delete  rRoi_deta_vs_eta;
+  delete  rRoi_dphi_vs_eta;
+  delete  rRoi_dzed_vs_eta;
+
+  /// standard residuals
+
   for ( unsigned i=retares.size() ; i-- ; ) { 
 
 #if 1
@@ -964,6 +988,12 @@ extern int NvtxCount;
 /// fill all the histograms - matched histograms, efficiencies etc
 
 
+double wrapphi( double phi ) { 
+  if ( phi<-M_PI ) phi += 2*M_PI;
+  if ( phi> M_PI ) phi -= 2*M_PI;
+  return phi;
+} 
+
 
 void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
 			   const std::vector<TrigInDetAnalysis::Track*>& testtracks,
@@ -1011,6 +1041,22 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
   for ( int i=reftracks.size() ; i-- ; ) { 
 
+    /// fill roi residuals
+
+
+
+
+    if ( groi!=0 ) { 
+      //  std::cout << "ConfAnalysis::Fill() groi " << *groi << std::endl;
+
+      double deta = reftracks[i]->eta() - groi->eta();
+      double dphi = wrapphi( reftracks[i]->phi() - groi->phi() );
+      double dzed = reftracks[i]->z0() - groi->zed();
+      
+      rRoi_deta_vs_eta->Fill( groi->eta(), deta );
+      rRoi_dphi_vs_eta->Fill( groi->eta(), dphi );
+      rRoi_dzed_vs_eta->Fill( groi->eta(), dzed );
+    }
 
     /// kinematics
     double ipTt = 1./(reftracks[i]->pT()/1000.);     

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 623908 2014-10-24 14:25:15Z smh $
+//   $Id: ConfAnalysis.h 666037 2015-05-10 06:23:39Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -249,7 +249,9 @@ private:
 
   /// Residuals 
   
-
+  Resplot* rRoi_deta_vs_eta;
+  Resplot* rRoi_dphi_vs_eta;
+  Resplot* rRoi_dzed_vs_eta;
 
   /// flag to print out the matched tracks etc
   bool m_print;

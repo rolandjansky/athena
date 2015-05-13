@@ -150,12 +150,13 @@ testChains = {
 
     "HLT_j55_bperf:TrigFastTrackFinder_Jet",
     "HLT_j55_bperf:InDetTrigParticleCreation_Bjet_EFID",
-    "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
+    "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 
     "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
     "HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi",
 
     "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
