@@ -44,9 +44,6 @@ namespace xAODMaker {
 		declareProperty( "EMClusterTool", m_EMClusterTool, "EMClusterTool" );
 
   }
-
-
-
   
   StatusCode ElectronCnvTool::initialize() {
 
@@ -196,10 +193,6 @@ namespace xAODMaker {
     checkAndSetParameter(egammaParameters::emaxs1      ,   xAOD::EgammaParameters::emaxs1      ,  aodel,   xaodel);
     checkAndSetParameter(egammaParameters::r33over37allcalo ,   xAOD::EgammaParameters::r33over37allcalo,  aodel,   xaodel);
     checkAndSetParameter(egammaParameters::ecore       ,   xAOD::EgammaParameters::ecore       ,  aodel,   xaodel);
-    checkAndSetParameter(egammaParameters::zvertex     ,   xAOD::EgammaParameters::zvertex     ,  aodel,   xaodel);
-    checkAndSetParameter(egammaParameters::errz        ,   xAOD::EgammaParameters::errz        ,  aodel,   xaodel);
-    checkAndSetParameter(egammaParameters::etap        ,   xAOD::EgammaParameters::etap        ,  aodel,   xaodel);
-    checkAndSetParameter(egammaParameters::depth       ,   xAOD::EgammaParameters::depth       ,  aodel,   xaodel);
   }
   
   void ElectronCnvTool::checkAndSetParameter(egammaParameters::ParamDef aodParameter,

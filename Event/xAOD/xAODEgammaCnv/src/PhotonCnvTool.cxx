@@ -153,10 +153,6 @@ namespace xAODMaker {
     checkAndSetParameter(egammaParameters::emaxs1      ,   xAOD::EgammaParameters::emaxs1      ,  aodph,   xaodph);
     checkAndSetParameter(egammaParameters::r33over37allcalo ,   xAOD::EgammaParameters::r33over37allcalo,  aodph,   xaodph);
     checkAndSetParameter(egammaParameters::ecore       ,   xAOD::EgammaParameters::ecore       ,  aodph,   xaodph);
-    checkAndSetParameter(egammaParameters::zvertex     ,   xAOD::EgammaParameters::zvertex     ,  aodph,   xaodph);
-    checkAndSetParameter(egammaParameters::errz        ,   xAOD::EgammaParameters::errz        ,  aodph,   xaodph);
-    checkAndSetParameter(egammaParameters::etap        ,   xAOD::EgammaParameters::etap        ,  aodph,   xaodph);
-    checkAndSetParameter(egammaParameters::depth       ,   xAOD::EgammaParameters::depth       ,  aodph,   xaodph);
   }
   
   void PhotonCnvTool::checkAndSetParameter(egammaParameters::ParamDef aodParameter,xAOD::EgammaParameters::ShowerShapeType xaodParameter, const egamma& aodph, xAOD::Photon& xaodph) const {
