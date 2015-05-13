@@ -12,15 +12,17 @@ TrigTRTHTHhypo::TrigTRTHTHhypo(const std::string& name, ISvcLocator* pSvcLocator
   m_minHTratioRoad(0.),
   m_minTRTHTHitsWedge(0),
   m_minHTratioWedge(0.),
-  m_doWedge(1),
+  m_doWedge(0),
+  m_doRoad(0),
   m_minCaloE(0.)
 {
   declareProperty("AcceptAll",     m_acceptAll = false ); 
-  declareProperty("MinTRTHTHitsRoad",  m_minTRTHTHitsRoad = 20); // Changed from 40 to 20
-  declareProperty("MinHTRatioRoad",    m_minHTratioRoad = 0.37); // Changed from 0.2 to 0.37 with new algo
-  declareProperty("MinTRTHTHitsWedge",  m_minTRTHTHitsWedge = 20); // Changed from 40 to 20
-  declareProperty("MinHTRatioWedge",    m_minHTratioWedge = 0.37); // Changed from 0.2 to 0.37 with new algo
+  declareProperty("MinTRTHTHitsRoad",  m_minTRTHTHitsRoad = 20); 
+  declareProperty("MinHTRatioRoad",    m_minHTratioRoad = 0.4); 
+  declareProperty("MinTRTHTHitsWedge",  m_minTRTHTHitsWedge = 20); 
+  declareProperty("MinHTRatioWedge",    m_minHTratioWedge = 0.45);
   declareProperty("DoWedge",    m_doWedge=1);
+  declareProperty("DoRoad", m_doRoad=0);
 }
 
 //-----------------------------------------------------------------------------
@@ -72,18 +74,21 @@ HLT::ErrorCode TrigTRTHTHhypo::hltExecute(const HLT::TriggerElement* outputTE,
 
 
 
-  float trththits_road = vec.at(0);  //Changed to cut on the number httrt and fraction httrt in the cone size of 0.015 in phi
-  float trththits_wedge = vec.at(1);
+  float fHT_road = vec.at(1);
+  float fHT_wedge = vec.at(3);
+  float trththits_road = vec.at(0);
+  float trththits_wedge = vec.at(2);
+
   ATH_MSG_DEBUG ( "trththits_road: " << trththits_road);
   ATH_MSG_DEBUG ( "trththits_wedge: " << trththits_wedge);
-  
-  float ratio_road = trththits_road - floor(trththits_road);
-  float ratio_wedge = trththits_wedge - floor(trththits_wedge);
-  if (ratio_road > m_minHTratioRoad){
+  ATH_MSG_DEBUG ( "fHT_road: " << fHT_road); 
+  ATH_MSG_DEBUG ( "fHT_wedge: " << fHT_wedge);
+
+  if (fHT_road > m_minHTratioRoad && m_doRoad){
     if (trththits_road>m_minTRTHTHitsRoad)
       pass = true;
   }
-  else if (ratio_wedge > m_minHTratioWedge && m_doWedge){
+  if (fHT_wedge > m_minHTratioWedge && m_doWedge){
     if (trththits_wedge>m_minTRTHTHitsWedge)
       pass = true;
   }
