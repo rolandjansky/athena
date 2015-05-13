@@ -17,8 +17,8 @@ bool MUGIRLNS_STAUMDT_DO_CALIBRATION = false;
 MuGirlNS::StauMDT::StauMDT(StauTool* pStauTool, MsgStream& log,
                            CLHEP::HepRandomEngine& randEngine,
         const MuGirlNS::MdtSegmentMakerInfoList& mdtSegmentMakerInfoList) :
-        m_pStau(pStauTool), m_log(log), m_beta(-1.), m_segmentNumber(-1), m_chamberNumber(-1),
-        m_randEngine (randEngine)
+        m_pStau(pStauTool), m_log(log), m_beta(-1.), m_pCalibration(nullptr),
+        m_segmentNumber(-1), m_chamberNumber(-1), m_randEngine (randEngine)
 {
     m_pMdtSegmentMakerInfoList = &mdtSegmentMakerInfoList;
 
@@ -337,8 +337,13 @@ void MuGirlNS::StauMDT::bestMdtSegment(MdtSegments* pSegments,
         }
         else if (pMuonSegment->numberOfContainedROTs() == numHits)
         {
-            if (pMuonSegment->fitQuality()->chiSquared()
+            if (pBestSegment)
+            {
+                if (pMuonSegment->fitQuality()->chiSquared()
                     <= pBestSegment->fitQuality()->chiSquared()) pBestSegment = pMuonSegment;
+            }
+            else
+              m_log << MSG::WARNING << "There is no best Segment to compare with - doing nothing." << endreq;
         }
     }
 

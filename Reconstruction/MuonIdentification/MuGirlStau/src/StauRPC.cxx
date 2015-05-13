@@ -18,6 +18,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                 m_avgBeta(StauBetaDefault),
                 m_rmsBeta(-1.),
                 m_hasHits(false),
+                m_pCalibration(nullptr),
                 m_randEngine (randEngine)
 {
     m_pMuonMgr = pStauTool->muonMgr();
@@ -43,6 +44,10 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
         {
             auto pPrepData = pRpcRIO->prepRawData();
             auto pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
+            if (pRpcPrepData == NULL){ 
+              LOG_DEBUG << "Cannot convert PrepRawData to RpcPrepData - continuing" << endreq; 
+              continue; 
+            } 
             bool b_isEta = !pIdHelper->measuresPhi(pRpcRIO->identify());
             auto pos = pRpcRIO->globalPosition();
 
