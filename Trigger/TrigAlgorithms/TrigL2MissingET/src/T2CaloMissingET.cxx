@@ -275,7 +275,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   int k_n[30];
   for (int p=0; p<30; p++) k_n[p]=0;
 
-  if ( debug ) (*m_log) << MSG::INFO << "Size of detid:" << m_detid.size() << endreq;
+  if ( debug ) (*m_log) << MSG::DEBUG << "Size of detid:" << m_detid.size() << endreq;
 
   //bool BSerrors = false;
   //if (m_data->report_error()) BSerrors = true;
