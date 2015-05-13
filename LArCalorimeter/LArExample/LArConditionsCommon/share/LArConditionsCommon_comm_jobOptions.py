@@ -47,15 +47,35 @@ rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
-                            
+
+
 if not larCondFlags.LoadElecCalib.is_locked():
     larCondFlags.LoadElecCalib.set_Value(rec.readRDO()) 
 
 
+#For run 2 we use cool-inline storage in online database COOLONL_LAR/CONDBR2:
+haveElecCalibInline=(conddb.dbdata=="CONDBR2")
+
+
+if (haveElecCalibInline):
+    # Run 2 case:
+    #This service creates a objects in the DetectorStore that wrap the AttributeListCollections 
+    #with the inline representation of the electronic calibration and makes them accessible through the
+    #ILArRamp, ILArOFC, etc. abstract interfaces
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
+    theLArCondSvc=LArFlatConditionSvc()
+    svcMgr+=theLArCondSvc
+    svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]   
+
+
+#Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
+if (haveElecCalibInline):
+    conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/HVScaleCorr"+forceRN+sqlDB)
+    theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
+
+
 #Load Electronic Calibration folders:
 if larCondFlags.LoadElecCalib():
-  #For run 2 we use cool-inline storage in online database COOLONL_LAR/CONDBR2:
-  haveElecCalibInline=(conddb.dbdata=="CONDBR2")
     
   #Some examples based on ExtendedFTGrouping, not duely tested.
   #Always use correction channels
@@ -69,17 +89,8 @@ if larCondFlags.LoadElecCalib():
     pass
 
 
-  if (haveElecCalibInline): # Run 2 case:
-
-      #This service creates a objects in the DetectorStore that wrap the AttributeListCollections 
-      #with the inline representation of the electronic calibration and makes them accessible through the
-      #ILArRamp, ILArOFC, etc. abstract interfaces
-      from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
-      theLArCondSvc=LArFlatConditionSvc()
-      svcMgr+=theLArCondSvc
-      svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]   
-
-      
+  if (haveElecCalibInline):
+      # Run 2 case:
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
           conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/uA2MeV"+forceRN)
@@ -111,9 +122,9 @@ if larCondFlags.LoadElecCalib():
           conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.MphysOverMcalFolder()+forceRN+sqlDB)
           pass
 
-      #6. HVScaleCorr
-      conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/HVScaleCorr"+forceRN+sqlDB)
-      theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
+      #6. HVScaleCorr -> moved outside of the if loadElecCalib clause b/c it's now used by the CaloNoiseTool
+      #conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/HVScaleCorr"+forceRN+sqlDB)
+      #theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
 
       #7. OFCs
       if larCondFlags.OFCShapeFolder()=="":
@@ -175,7 +186,7 @@ if larCondFlags.LoadElecCalib():
           conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.MphysOverMcalFolder()+forceRN)
           pass
 
-      #6. HVScaleCorr
+      #6. HVScaleCorr 
       conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/HVScaleCorr"+forceRN)
 
       #7. OFCs
