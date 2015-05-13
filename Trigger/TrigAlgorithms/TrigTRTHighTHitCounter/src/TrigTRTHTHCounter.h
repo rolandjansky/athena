@@ -64,6 +64,9 @@ class TrigTRTHTHCounter: public HLT::FexAlgo {
   int m_nBinCoarse;
   int m_nBinFine;
   float m_wedgeMinEta;
+  float m_roadMaxEta;
+  int m_wedgeNBin;
+
   std::vector<float> m_trththits;
 };
 
