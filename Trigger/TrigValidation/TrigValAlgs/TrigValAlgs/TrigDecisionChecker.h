@@ -20,8 +20,6 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // core stuff
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Trigger includes
@@ -85,8 +83,6 @@ class TrigDecisionChecker : public AthAlgorithm
   
   uint32_t m_smKey; //!< Super Master Key number to select (0=ignore)
   
-  ServiceHandle<StoreGateSvc> m_storeGate; //!< std StoreGate handle
-
   /// The trigger configuration service to get the information from
   ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
   /// Handle used (sometimes) when reading MC files

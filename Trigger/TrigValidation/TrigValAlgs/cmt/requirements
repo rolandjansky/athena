@@ -13,7 +13,6 @@ use TestPolicy          	TestPolicy-*
 
 # for TrigDecisionTool test
 use GaudiInterface     		GaudiInterface-*   	External
-use StoreGate      		StoreGate-*  		Control
 
 # for TrigCountDumper
 use  AtlasXercesC               AtlasXercesC-*                  External

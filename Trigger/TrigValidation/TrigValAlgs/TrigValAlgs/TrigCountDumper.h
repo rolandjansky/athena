@@ -256,8 +256,6 @@ class TrigCountDumper : public AthAlgorithm {
  private:
   /// Handle to access the trigger decision tool
   ToolHandle<Trig::TrigDecisionTool> _trigDec;
-  /// Handle to access the store gate data service
-  ServiceHandle<StoreGateSvc> _storeGate;
   /// The trigger configuration service to get the information from
   ServiceHandle< TrigConf::ITrigConfigSvc > _configSvc;
   /// Handle used (sometimes) when reading MC files
