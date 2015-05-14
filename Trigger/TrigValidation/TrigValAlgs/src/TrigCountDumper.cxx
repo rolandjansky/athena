@@ -168,7 +168,6 @@ namespace trigcount {
 TrigCountDumper::TrigCountDumper(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     _trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    _storeGate("StoreGateSvc", name),
     _configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     _dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name) {
   declareProperty("OutputFile",_ofname="trigger_counts.xml","Name of the output file");
@@ -181,8 +180,6 @@ TrigCountDumper::TrigCountDumper(const std::string &name, ISvcLocator *pSvcLocat
 StatusCode TrigCountDumper::initialize(void) {
   ATH_MSG_INFO("Initializing Trigger Count dump algorithm");
   ATH_MSG_INFO("Outputfile : " << _ofname);
-  // Get the handle to the StoreGate service
-  CHECK(_storeGate.retrieve());
   // Get the handle to the trigger configuration service
   CHECK(_configSvc.retrieve());
   // Get the handle to the trigger decision tool
@@ -362,9 +359,9 @@ StatusCode TrigCountDumper::execute(void) {
   const EventInfo *eventInfo;
   StatusCode  sc;
   if (_eventInfoName == "") {
-    sc=_storeGate->retrieve(eventInfo);
+    sc=evtStore()->retrieve(eventInfo);
   } else {
-    sc=_storeGate->retrieve(eventInfo ,_eventInfoName);
+    sc=evtStore()->retrieve(eventInfo ,_eventInfoName);
   }
   // Check for a null point or failure code because the call can succeed but not
   // find a valid event info object pointer
