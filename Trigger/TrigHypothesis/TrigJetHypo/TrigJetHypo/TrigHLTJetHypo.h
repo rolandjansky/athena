@@ -70,7 +70,7 @@ class Condition{
   double m_threshold;
 };
 
-std::ostream& operator<< (ostream& os, const Condition& c){
+std::ostream& operator<< (std::ostream& os, const Condition& c){
   return os << "Condition: etaMin "
             << c.etaMin() 
             << " etaMax " 
