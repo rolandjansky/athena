@@ -20,35 +20,21 @@ TrigSlimValAlg::TrigSlimValAlg(const std::string& name, ISvcLocator *pSvcLocator
 
 StatusCode TrigSlimValAlg::initialize() {
 
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
   // load the trig decision tool
   if( !m_trigDecisionTool.empty() ) {
-    sc = m_trigDecisionTool.retrieve();
-    if( !sc.isSuccess() ) {
-      log << MSG::ERROR << "Unable to retrieve the TrigDecisionTool!" << endreq;
-      return sc;
-    }
-    log << MSG::INFO << "Successfully retrived the TrigDecisionTool!" << endreq;
+    ATH_CHECK( m_trigDecisionTool.retrieve() );
   }
   else {
-    log << MSG::ERROR << "Could not retrive the TrigDecisionTool as it was not specified!" << endreq;
+    ATH_MSG_ERROR ("Could not retrive the TrigDecisionTool as it was not specified!" );
     return StatusCode::FAILURE;
   }
   
   // load the slimming tool
   if( !m_slimmingTool.empty() ) {
-    sc = m_slimmingTool.retrieve();
-    if( !sc.isSuccess() ) {
-      log << MSG::ERROR << "Unable to retrieve the TrigNavigationSlimmingTool!" << endreq;
-      return sc;
-    }
-    log << MSG::INFO << "Successfully retrieved the TrigNavigationSlimmingTool!" << endreq;
+    ATH_CHECK( m_slimmingTool.retrieve() );
   }
   else {
-    log << MSG::ERROR << 
-      "Could not retrive the TrigNavigationSlimmingTool as it was not specified!" << endreq;
+    ATH_MSG_ERROR ("Could not retrive the TrigNavigationSlimmingTool as it was not specified!" );
     return StatusCode::FAILURE;
   }
   
@@ -71,8 +57,6 @@ StatusCode TrigSlimValAlg::execute() {
     m_eventSeen = 1;
   }
   
-  MsgStream log(msgSvc(), name());
-
   // grab the navigation
   Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
   navAccess->enable();
@@ -80,13 +64,13 @@ StatusCode TrigSlimValAlg::execute() {
   HLT::NavigationCore *navigation = const_cast<HLT::NavigationCore*>(cnav);
 
   if(navigation == 0) {
-    log << MSG::WARNING << "Could not get navigation from Trigger Decision Tool" << endreq;
-    log << MSG::WARNING << "Navigation will not be slimmed in this event" << endreq;
+    ATH_MSG_WARNING ("Could not get navigation from Trigger Decision Tool" );
+    ATH_MSG_WARNING ("Navigation will not be slimmed in this event" );
     return StatusCode::SUCCESS;
   }
 
   // print the TrigSlimValidation header
-  log << MSG::INFO << "REGTEST  " << "======== START of TrigSlimValidation DUMP ========" << endreq;
+  ATH_MSG_INFO ("REGTEST  " << "======== START of TrigSlimValidation DUMP ========" );
 
   // store some needed information from the navigation structure
   std::map<std::string, int> *featureOccurrences = m_slimmingTool->getFeatureOccurrences(navigation);
@@ -110,30 +94,30 @@ StatusCode TrigSlimValAlg::execute() {
   MaxUpdate *maxUpdate = new MaxUpdate();
   MinUpdate *minUpdate = new MinUpdate();
 
-  log << MSG::INFO << "REGTEST  " << "Number of trigger elements: " 
-    << recursiveCount( navigation, numberCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of distinct features: "
-    << featureOccurrences->size() << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of intermediate trigger elements: " 
-    << recursiveCount( navigation, intermediateCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of featureless trigger elements: " 
-    << recursiveCount( navigation, featurelessCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of ghost trigger elements: " 
-    << recursiveCount( navigation, ghostCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of RoIs: " 
-    << recursiveCount( navigation, roICounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Longest chain: " 
-    << recursiveCount( navigation, numberCounter, maxUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Shortest chain: " 
-    << recursiveCount( navigation, numberCounter, minUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of feature links: " 
-    << recursiveCount( navigation, featureCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of seeds relations: " 
-    << recursiveCount( navigation, seedsRelationCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of seeded by relations: " 
-    << recursiveCount( navigation, seededByRelationCounter, sumUpdate ) << endreq;
-  log << MSG::INFO << "REGTEST  " << "Number of same RoI relations: " 
-    << recursiveCount( navigation, sameRoIRelationCounter, sumUpdate ) << endreq;
+  ATH_MSG_INFO ("REGTEST  " << "Number of trigger elements: " 
+                << recursiveCount( navigation, numberCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of distinct features: "
+                << featureOccurrences->size() );
+  ATH_MSG_INFO ("REGTEST  " << "Number of intermediate trigger elements: " 
+                << recursiveCount( navigation, intermediateCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of featureless trigger elements: " 
+                << recursiveCount( navigation, featurelessCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of ghost trigger elements: " 
+                << recursiveCount( navigation, ghostCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of RoIs: " 
+                << recursiveCount( navigation, roICounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Longest chain: " 
+                << recursiveCount( navigation, numberCounter, maxUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Shortest chain: " 
+                << recursiveCount( navigation, numberCounter, minUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of feature links: " 
+                << recursiveCount( navigation, featureCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of seeds relations: " 
+                << recursiveCount( navigation, seedsRelationCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of seeded by relations: " 
+                << recursiveCount( navigation, seededByRelationCounter, sumUpdate ) );
+  ATH_MSG_INFO ("REGTEST  " << "Number of same RoI relations: " 
+                << recursiveCount( navigation, sameRoIRelationCounter, sumUpdate ) );
 
   // delete counters
   delete numberCounter; numberCounter = 0;
@@ -154,8 +138,8 @@ StatusCode TrigSlimValAlg::execute() {
   // print the feature information
   for(std::map<std::string, int>::const_iterator iter = featureOccurrences->begin();
       iter != featureOccurrences->end(); ++iter)
-    log << MSG::INFO << "REGTEST  " << "Occurrences of feature " << (*iter).first
-      << ": " << (*iter).second << endreq;
+    ATH_MSG_INFO ("REGTEST  " << "Occurrences of feature " << (*iter).first
+                  << ": " << (*iter).second );
 
   // print the stream information
  
@@ -170,15 +154,15 @@ StatusCode TrigSlimValAlg::execute() {
       this->getTEsFromChainGroup(m_trigDecisionTool->getChainGroup(std::string("STREAM_") + *streamIter));
     associatedElements.insert(streamElements->begin(), streamElements->end());
 
-    log << MSG::INFO << "REGTEST  " << "Elements associated with stream " << *streamIter 
-      << ": " << streamElements->size() << endreq;
+    ATH_MSG_INFO ("REGTEST  " << "Elements associated with stream " << *streamIter 
+                  << ": " << streamElements->size() );
 
     delete streamElements;
 
   }
 
-  log << MSG::INFO << "REGTEST  " << "Elements unassociated with any stream: "
-    << allTriggerElements->size() - associatedElements.size() << endreq;
+  ATH_MSG_INFO ("REGTEST  " << "Elements unassociated with any stream: "
+                << allTriggerElements->size() - associatedElements.size() );
 
   // print the group information
   // store elements unassociated with any group.  Note that by changing
@@ -192,22 +176,22 @@ StatusCode TrigSlimValAlg::execute() {
       this->getTEsFromChainGroup(m_trigDecisionTool->getChainGroup(std::string("GROUP_") + *groupIter));
     associatedElements.insert(groupElements->begin(), groupElements->end());
 
-    log << MSG::INFO << "REGTEST  " << "Elements associated with group " << (*groupIter)
-      << ": " << groupElements->size() << endreq;
+    ATH_MSG_INFO ("REGTEST  " << "Elements associated with group " << (*groupIter)
+                  << ": " << groupElements->size() );
 
     delete groupElements;
 
   }
 
-  log << MSG::INFO << "REGTEST  " << "Elements unassociated with any group: "
-    << allTriggerElements->size() - associatedElements.size() << endreq;
+  ATH_MSG_INFO ("REGTEST  " << "Elements unassociated with any group: "
+                << allTriggerElements->size() - associatedElements.size() );
   
   // clean up and finish
   delete allTriggerElements; allTriggerElements = 0;
   delete featureOccurrences; featureOccurrences = 0;
   
   // print the TrigSlimValidation footer
-  log << MSG::INFO << "REGTEST  " << "======== END of TrigSlimValidation DUMP ========" << endreq;
+  ATH_MSG_INFO ("REGTEST  " << "======== END of TrigSlimValidation DUMP ========" );
 
   return StatusCode::SUCCESS;
 

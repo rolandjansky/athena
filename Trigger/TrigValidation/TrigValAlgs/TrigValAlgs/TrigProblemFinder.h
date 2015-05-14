@@ -9,10 +9,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-class MsgStream;
 namespace HLT {
   class HLTResult;
 }
@@ -30,9 +28,7 @@ public:
   virtual StatusCode finalize();
 
  private:
-  MsgStream* m_log;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; 
-  ServiceHandle<StoreGateSvc> m_storeGate;
    
   bool m_checkHeaders; 
   bool m_checkChains;

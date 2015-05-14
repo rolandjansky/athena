@@ -8,7 +8,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -49,8 +48,6 @@ class TrigEDMChecker : public AthAlgorithm  {
 
 
    /** a handle on Store Gate for access to the Event Store */
-   StoreGateSvc* m_storeGate;
-
    bool doDumpAll;
 
    bool doDumpLVL1_ROI;

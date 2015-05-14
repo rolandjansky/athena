@@ -8,8 +8,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
 #include "AnalysisTriggerEvent/EnergySum_ROI.h"
@@ -93,7 +91,7 @@
 
 #include <iostream>
 
-static const int  MAX_PARTICLES = 20;
+//static const int  MAX_PARTICLES = 20;
 
 static  int trackWarningNum;
 static  int vertexWarningNum;
@@ -105,7 +103,6 @@ static  int  maxRepWarnings;
 //   m_analysisTools(0) {
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_storeGate(0),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
 
@@ -162,17 +159,6 @@ StatusCode TrigEDMChecker::initialize() {
 	MsgStream mLog( messageService(), name() );
 
 	mLog << MSG::DEBUG << "Initializing TrigEDMChecker" << endreq;
-
-	/** get a handle of StoreGate for access to the Event Store */
-	StatusCode sc = service("StoreGateSvc", m_storeGate);
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR
-		<< "Unable to retrieve pointer to StoreGateSvc"
-		<< endreq;
-		return sc;
-	}
-
-
 
 	mLog << MSG::INFO << "REGTEST Initializing..." << endreq;
 	mLog << MSG::INFO << "REGTEST doDumpAll                     = " <<  doDumpAll  << endreq;
@@ -256,7 +242,7 @@ StatusCode TrigEDMChecker::execute() {
 
 	mLog << MSG::DEBUG << "in execute()" << endreq;
 
-	if(doDumpAll || doDumpTrackParticleContainer){
+	if(doDumpTrackParticleContainer){
 		StatusCode sc = dumpTrackParticleContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrackParticleContainer() failed" << endreq;
@@ -532,7 +518,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(doDumpAll || doDumpTrigInDetTrackCollection){
+	if(doDumpTrigInDetTrackCollection){
 		StatusCode sc = dumpTrigInDetTrackCollection();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigInDetTrackCollection() failed" << endreq;
@@ -608,7 +594,7 @@ void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 	std::string METTag="HLT_xAOD__TrigSpacePointCountsContainer_spacepoints";
 
 	const xAOD::TrigSpacePointCountsContainer* SpacePointCountsCont=0;
-	StatusCode sc = m_storeGate->retrieve(SpacePointCountsCont,METTag);
+	StatusCode sc = evtStore()->retrieve(SpacePointCountsCont,METTag);
 
 	if (sc.isFailure())
 	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
@@ -675,7 +661,7 @@ void TrigEDMChecker::dumpTrigT2MBTSBits(MsgStream &mLog){
 	std::string METTag="HLT_xAOD__TrigT2MbtsBitsContainer_T2Mbts";
 
 	const xAOD::TrigT2MbtsBitsContainer* T2MbtsBitsCont=0;
-	StatusCode sc = m_storeGate->retrieve(T2MbtsBitsCont,METTag);
+	StatusCode sc = evtStore()->retrieve(T2MbtsBitsCont,METTag);
 
 	if (sc.isFailure())
 	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
@@ -709,7 +695,7 @@ void TrigEDMChecker::dumpTrigVertexCounts(MsgStream &mLog){
 	std::string METTag="HLT_xAOD__TrigVertexCountsContainer_vertexcounts";
 
 	const xAOD::TrigVertexCountsContainer* T2VertexCountsCont=0;
-	StatusCode sc = m_storeGate->retrieve(T2VertexCountsCont,METTag);
+	StatusCode sc = evtStore()->retrieve(T2VertexCountsCont,METTag);
 
 	if (sc.isFailure())
 	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
@@ -743,7 +729,7 @@ void TrigEDMChecker::dumpTrigTrackCounts(MsgStream &mLog){
 	std::string METTag="HLT_xAOD__TrigTrackCountsContainer_trackcounts";
 
 	const xAOD::TrigTrackCountsContainer* T2TrackCountsCont=0;
-	StatusCode sc = m_storeGate->retrieve(T2TrackCountsCont,METTag);
+	StatusCode sc = evtStore()->retrieve(T2TrackCountsCont,METTag);
 
 	if (sc.isFailure())
 	         mLog << MSG::INFO << "failed to retrieve " << METTag << endreq;
@@ -913,7 +899,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 	/// >= 14.2.10 /// ----------------------------
 	for (int itag=0; itag < ntag; itag++) { // loop over L2, EF
 		const TrigMissingETContainer* trigMETcont;
-		StatusCode sc=m_storeGate->retrieve(trigMETcont , METTags[itag]);
+		StatusCode sc=evtStore()->retrieve(trigMETcont , METTags[itag]);
 		if( sc.isFailure() ){
 			mLog << MSG::INFO << "Failed to retrieve TrigMissingETContainer with key " << METTags[itag] << endreq;
 			continue;
@@ -986,7 +972,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
 	mLog <<MSG::INFO << "Trying to fetch TrigMissingET objects from older releases" << endreq;
 
 	const DataHandle<TrigMissingET> trigMETfirst ,trigMETlast;
-	StatusCode sc=m_storeGate->retrieve(trigMETfirst ,trigMETlast);
+	StatusCode sc=evtStore()->retrieve(trigMETfirst ,trigMETlast);
 	if( sc.isFailure() ){
 		mLog << MSG::INFO << "Failed to retrieve TrigMissingET (rel. <= 14.2.0)" << endreq;
 	}
@@ -1083,7 +1069,7 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 
 	for (int itag=0; itag<ntag; itag++){
 		const Rec::TrackParticleContainer*  pTrackParticleC;
-		StatusCode sc = m_storeGate->retrieve(pTrackParticleC, trackPtags[itag]);
+		StatusCode sc = evtStore()->retrieve(pTrackParticleC, trackPtags[itag]);
 		if (sc.isFailure()) {
 			mLog << MSG::INFO << "REGTEST No TrackParticleContainer found with tag " << trackPtags[itag] << endreq;
 			continue;
@@ -1184,7 +1170,7 @@ StatusCode TrigEDMChecker::dumpLVL1_ROI() {
 	mLog <<MSG::INFO << "REGTEST ==========START of LVL1_ROI DUMP===========" << endreq;
 
 	const LVL1_ROI * lvl1ROI;
-	StatusCode sc = m_storeGate->retrieve(lvl1ROI);
+	StatusCode sc = evtStore()->retrieve(lvl1ROI);
 	if (sc.isFailure() )
 	{
 		mLog << MSG::INFO << "REGTEST No LVL1_ROI found" << endreq;
@@ -1231,7 +1217,7 @@ StatusCode TrigEDMChecker::dumpTrigPhotonContainer() {
 	const DataHandle< TrigPhotonContainer > trigPhoton;
 	const DataHandle< TrigPhotonContainer > lastTrigPhoton;
 
-	StatusCode sc = m_storeGate->retrieve(trigPhoton,lastTrigPhoton);
+	StatusCode sc = evtStore()->retrieve(trigPhoton,lastTrigPhoton);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigPhotonContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -1320,7 +1306,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFContainer() {
 	const DataHandle< TrigMuonEFContainer > trigMuon;
 	const DataHandle< TrigMuonEFContainer > lastTrigMuon;
 
-	StatusCode sc = m_storeGate->retrieve(trigMuon,lastTrigMuon);
+	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigMuonEFContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -1393,7 +1379,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
 	const DataHandle< TrigMuonEFInfoContainer > trigMuon;
 	const DataHandle< TrigMuonEFInfoContainer > lastTrigMuon;
 
-	StatusCode sc = m_storeGate->retrieve(trigMuon,lastTrigMuon);
+	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigMuonEFInfoContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -1511,7 +1497,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer() {
 	const DataHandle< TrigMuonEFIsolationContainer > trigMuon;
 	const DataHandle< TrigMuonEFIsolationContainer > lastTrigMuon;
 
-	StatusCode sc = m_storeGate->retrieve(trigMuon,lastTrigMuon);
+	StatusCode sc = evtStore()->retrieve(trigMuon,lastTrigMuon);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigMuonEFIsolationContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -1630,7 +1616,7 @@ StatusCode TrigEDMChecker::dumpTrigElectronContainer() {
 	const DataHandle< TrigElectronContainer > trigElec;
 	const DataHandle< TrigElectronContainer > lastTrigElec;
 
-	StatusCode sc = m_storeGate->retrieve(trigElec,lastTrigElec);
+	StatusCode sc = evtStore()->retrieve(trigElec,lastTrigElec);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigelectronContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -1835,13 +1821,13 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
           ATH_MSG_INFO(" REGTEST: isEMVLoose " << eg->selectionisEM(isEMbit,"isEMVLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMVLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMVLoose bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
-          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
-          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: LHValue " << eg->likelihoodValue("LHValue"));
           ATH_MSG_INFO(" REGTEST: LHCaloValue " << eg->likelihoodValue("LHCaloValue"));
           ATH_MSG_INFO(" REGTEST: LHVLoose " << eg->passSelection("LHVLoose"));
@@ -1849,13 +1835,13 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: LHMedium " << eg->passSelection("LHMedium"));
           ATH_MSG_INFO(" REGTEST: LHTight " << eg->passSelection("LHTight"));
           ATH_MSG_INFO(" REGTEST: isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLHVLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHVLoose bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLHLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHLoose bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMLHMedium " << eg->selectionisEM(isEMbit,"isEMLHMedium"));
-          ATH_MSG_INFO(" REGTEST: isEMLHMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHMedium bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMLHTight " << eg->selectionisEM(isEMbit,"isEMLHTight"));
-          ATH_MSG_INFO(" REGTEST: isEMLHTight bit " << std::hex << isEMbit); 
+          ATH_MSG_INFO(" REGTEST: isEMLHTight bit " << std::hex << isEMbit << std::dec);
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer" );
           return StatusCode::SUCCESS;
@@ -1962,11 +1948,11 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
           ATH_MSG_INFO(" REGTEST: isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
-          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit << std::dec);
           ATH_MSG_INFO(" REGTEST: isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
-          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit << std::dec);
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer" );
           return StatusCode::SUCCESS;
@@ -2039,7 +2025,7 @@ StatusCode TrigEDMChecker::dumpTrigTauContainer() {
 	const DataHandle< TrigTauContainer > trigTau;
 	const DataHandle< TrigTauContainer > lastTrigTau;
 
-	StatusCode sc = m_storeGate->retrieve(trigTau,lastTrigTau);
+	StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigTauContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -2085,7 +2071,7 @@ StatusCode TrigEDMChecker::dumpTrigTauTracksInfo() {
 	const DataHandle< TrigTauTracksInfo > trigTau;
 	const DataHandle< TrigTauTracksInfo > lastTrigTau;
 
-	StatusCode sc = m_storeGate->retrieve(trigTau,lastTrigTau);
+	StatusCode sc = evtStore()->retrieve(trigTau,lastTrigTau);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigTauTracksInfo found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -2136,7 +2122,7 @@ StatusCode TrigEDMChecker::dumpHLTResult() {
 	mLog <<MSG::INFO << "REGTEST ==========START of HLTResult DUMP===========" << endreq;
 
 	const HLT::HLTResult* hltResult = 0;
-	StatusCode sc=m_storeGate->retrieve( hltResult, "HLTResult_L2");
+	StatusCode sc=evtStore()->retrieve( hltResult, "HLTResult_L2");
 	if( sc.isFailure()  ||  !hltResult ) {
 		mLog << MSG::INFO
 		<< "No HLTResult_L2 found in TDS"
@@ -2194,9 +2180,9 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
 	const TrigInDetTrackTruthMap* pTruthMap(nullptr);
 	bool gotTruthMap = false;
 
-	if (m_storeGate->contains<TrigInDetTrackTruthMap>("TrigInDetTrackTruthMap"))
+	if (evtStore()->contains<TrigInDetTrackTruthMap>("TrigInDetTrackTruthMap"))
    	{
-         	StatusCode sc=m_storeGate->retrieve(pTruthMap,"TrigInDetTrackTruthMap");
+         	StatusCode sc=evtStore()->retrieve(pTruthMap,"TrigInDetTrackTruthMap");
 		if (sc.isFailure())
        		{
 			mLog << MSG::WARNING << " could not retrieve TrackTruthMap with key TrigInDetTruthMap" << endreq;
@@ -2211,7 +2197,7 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
 
 	for (int iTag=0; iTag < ntag; iTag++) {
 		const TrigInDetTrackCollection* trigInDetTrackCollection;
-		StatusCode sc = m_storeGate->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
+		StatusCode sc = evtStore()->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
 		if (sc.isFailure()) {
 			mLog << MSG::DEBUG << "REGTEST No TrigInDetTrackCollection found with key " << TrigInDetTrackTags[iTag] << endreq;
 			continue;
@@ -2325,7 +2311,7 @@ StatusCode TrigEDMChecker::dumpTrigVertexCollection() {
 	const DataHandle< TrigVertexCollection > trigVertex;
 	const DataHandle< TrigVertexCollection > lastTrigVertex;
 
-	StatusCode sc = m_storeGate->retrieve(trigVertex,lastTrigVertex);
+	StatusCode sc = evtStore()->retrieve(trigVertex,lastTrigVertex);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigVertexCollection found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -2399,7 +2385,7 @@ StatusCode TrigEDMChecker::dumpTrigEFBphysContainer() {
 
 	for (int itag=0; itag<ntag; itag++){
 		const xAOD::TrigBphysContainer*  trigEFBphys;
-		StatusCode sc = m_storeGate->retrieve(trigEFBphys, EFBphysTags[itag]);
+		StatusCode sc = evtStore()->retrieve(trigEFBphys, EFBphysTags[itag]);
 		if (sc.isFailure()) {
 			mLog << MSG::INFO << "REGTEST No TrigEFBphysContainer found with tag " << EFBphysTags[itag] << endreq;
 			continue;
@@ -2500,7 +2486,7 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 
 	for (int itag=0; itag<ntag; itag++){
 		const xAOD::TrigBphysContainer*  trigL2Bphys;
-		StatusCode sc = m_storeGate->retrieve(trigL2Bphys, L2BphysTags[itag]);
+		StatusCode sc = evtStore()->retrieve(trigL2Bphys, L2BphysTags[itag]);
 		if (sc.isFailure()) {
 			mLog << MSG::INFO << "REGTEST No TrigL2BphysContainer found with tag " << L2BphysTags[itag] << endreq;
 			continue;
@@ -2634,7 +2620,12 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
     for (int icont=0; icont<30; ++icont) {
         //retrieve jet collection
         const xAOD::JetContainer* jetCont = 0;
-        ATH_CHECK( evtStore()->retrieve( jetCont, containerName[icont]) );
+        StatusCode sc = evtStore()->retrieve(jetCont, containerName[icont]) ;
+        
+        if (sc.isFailure()) {
+            ATH_MSG_WARNING("REGTEST Cannot retrieve jet container");
+            continue;
+        }
         
         int jetContsize = jetCont->size();
         ATH_MSG_INFO("REGTEST Got jet container " << containerName[icont] << ", size: " << jetContsize);
@@ -2694,8 +2685,8 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
                         //                                ATH_MSG_INFO( "REGTEST        constituent type (CaloCluster: 1, Jet: 2, ...): " << thisconstit->type() );
                         //                            }
                         //                            else{
-                        //                                ATH_MSG_ERROR("REGTEST Problem with constituent pointer");
-                        //                                return StatusCode::FAILURE;
+                        //                                ATH_MSG_WARNING("REGTEST Problem with constituent pointer");
+                        //                                return StatusCode::SUCCESS;
                         //                            }
                         //                        }
                         //                        ATH_MSG_INFO("REGTEST        size of constituent vector == number of displayed constituents: "<< (constitContsize == j) );
@@ -2902,8 +2893,8 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
                     //                                            //checks only one associated variable, just making sure getting the object worked
                     //                                            if (thistrack) ATH_MSG_INFO("REGTEST        z0 for GhostTrack #" << j << ": " << thistrack->z0());
                     //                                            else{
-                    //                                                ATH_MSG_ERROR("REGTEST Problem with attribute pointer");
-                    //                                                return StatusCode::FAILURE;
+                    //                                                ATH_MSG_WARNING("REGTEST Problem with attribute pointer");
+                    //                                                return StatusCode::SUCCESS;
                     //                                            }
                     //                                        }
                     //                                        ATH_MSG_INFO("REGTEST        size of associated object vector == number of displayed attributes: " << (vecsize == j) );
@@ -2912,8 +2903,8 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
                     //                                }
                 }
                 else{
-                    ATH_MSG_ERROR("REGTEST Problem with jet pointer");
-                    return StatusCode::FAILURE;
+                    ATH_MSG_WARNING("REGTEST Problem with jet pointer");
+                    return StatusCode::SUCCESS;
                 }
             }
             
@@ -2922,7 +2913,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
         }
     }
     
-    if (!onefilled) ATH_MSG_ERROR("There was no filled jet containers");
+    if (!onefilled) ATH_MSG_DEBUG("There was no filled jet containers");
     
     ATH_MSG_INFO("REGTEST ==========END of xAOD::JetContainer DUMP===========");
     
@@ -2944,7 +2935,7 @@ StatusCode TrigEDMChecker::dumpTrigEFBjetContainer() {
 	const DataHandle< TrigEFBjetContainer > trigEFBjet;
 	const DataHandle< TrigEFBjetContainer > lastTrigEFBjet;
 
-	StatusCode sc = m_storeGate->retrieve(trigEFBjet,lastTrigEFBjet);
+	StatusCode sc = evtStore()->retrieve(trigEFBjet,lastTrigEFBjet);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigEFBjetContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3003,7 +2994,7 @@ StatusCode TrigEDMChecker::dumpTrigL2BjetContainer() {
 	const DataHandle< TrigL2BjetContainer > trigL2Bjet;
 	const DataHandle< TrigL2BjetContainer > lastTrigL2Bjet;
 
-	StatusCode sc = m_storeGate->retrieve(trigL2Bjet,lastTrigL2Bjet);
+	StatusCode sc = evtStore()->retrieve(trigL2Bjet,lastTrigL2Bjet);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigL2BjetContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3061,7 +3052,7 @@ StatusCode TrigEDMChecker::dumpMuonFeature() {
 	const DataHandle< MuonFeature > MuFeature;
 	const DataHandle< MuonFeature > lastMuFeature;
 
-	StatusCode sc = m_storeGate->retrieve(MuFeature,lastMuFeature);
+	StatusCode sc = evtStore()->retrieve(MuFeature,lastMuFeature);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No MuonFeature found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3107,7 +3098,7 @@ StatusCode TrigEDMChecker::dumpCombinedMuonFeature() {
 	const DataHandle< CombinedMuonFeature > CombMuon;
 	const DataHandle< CombinedMuonFeature > lastCombMuon;
 
-	StatusCode sc = m_storeGate->retrieve(CombMuon,lastCombMuon);
+	StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No CombinedMuonFeature found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3167,7 +3158,7 @@ StatusCode TrigEDMChecker::dumpCombinedMuonFeatureContainer() {
 	const DataHandle< CombinedMuonFeatureContainer > CombMuon;
 	const DataHandle< CombinedMuonFeatureContainer > lastCombMuon;
 
-	StatusCode sc = m_storeGate->retrieve(CombMuon,lastCombMuon);
+	StatusCode sc = evtStore()->retrieve(CombMuon,lastCombMuon);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No CombinedMuonFeatureContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3228,7 +3219,7 @@ StatusCode TrigEDMChecker::dumpTrigEMCluster() {
 	const DataHandle< TrigEMCluster > EMCluster;
 	const DataHandle< TrigEMCluster > lastEMCluster;
 
-	StatusCode sc = m_storeGate->retrieve(EMCluster,lastEMCluster);
+	StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigEMCluster found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3272,7 +3263,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigEMCluster() {
         const DataHandle< xAOD::TrigEMCluster > EMCluster;
         const DataHandle< xAOD::TrigEMCluster > lastEMCluster;
 
-        StatusCode sc = m_storeGate->retrieve(EMCluster,lastEMCluster);
+        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
         if (sc.isFailure()) {
                 mLog << MSG::INFO << "REGTEST No xAOD::TrigEMCluster found" << endreq;
                 return  StatusCode::SUCCESS;
@@ -3318,7 +3309,7 @@ StatusCode TrigEDMChecker::dumpTrigTauClusterContainer() {
 	const DataHandle< TrigTauClusterContainer > TauCluster;
 	const DataHandle< TrigTauClusterContainer > lastTauCluster;
 
-	StatusCode sc = m_storeGate->retrieve(TauCluster,lastTauCluster);
+	StatusCode sc = evtStore()->retrieve(TauCluster,lastTauCluster);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TrigTauClusterContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3369,7 +3360,7 @@ StatusCode TrigEDMChecker::dumpTrigTauClusterContainer() {
 	int nDetails = 0;
 	const DataHandle< TrigTauClusterDetailsContainer > TauDetailsCluster;
 	const DataHandle< TrigTauClusterDetailsContainer > lastTauDetailsCluster;
-	sc = m_storeGate->retrieve(TauDetailsCluster,lastTauDetailsCluster);
+	sc = evtStore()->retrieve(TauDetailsCluster,lastTauDetailsCluster);
 	if (sc.isFailure()) {
 	        mLog << MSG::INFO << "REGTEST No TrigTauDetailsClusterContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3432,7 +3423,7 @@ StatusCode TrigEDMChecker::dumpTrigEMClusterContainer() {
         const DataHandle< TrigEMClusterContainer > EMCluster;
         const DataHandle< TrigEMClusterContainer > lastEMCluster;
 
-        StatusCode sc = m_storeGate->retrieve(EMCluster,lastEMCluster);
+        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
         if (sc.isFailure()) {
                 mLog << MSG::INFO << "REGTEST No TrigEMClusterContainer found" << endreq;
                 return  StatusCode::SUCCESS;
@@ -3481,7 +3472,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigEMClusterContainer() {
         const DataHandle< xAOD::TrigEMClusterContainer > EMCluster;
         const DataHandle< xAOD::TrigEMClusterContainer > lastEMCluster;
 
-        StatusCode sc = m_storeGate->retrieve(EMCluster,lastEMCluster);
+        StatusCode sc = evtStore()->retrieve(EMCluster,lastEMCluster);
         if (sc.isFailure()) {
                 mLog << MSG::INFO << "REGTEST No xAOD::TrigEMClusterContainer found" << endreq;
                 return  StatusCode::SUCCESS;
@@ -3531,7 +3522,7 @@ StatusCode TrigEDMChecker::dumpTileMuFeatureContainer() {
 	const DataHandle< TileMuFeatureContainer > TileMu;
 	const DataHandle< TileMuFeatureContainer > lastTileMu;
 
-	StatusCode sc = m_storeGate->retrieve(TileMu, lastTileMu);
+	StatusCode sc = evtStore()->retrieve(TileMu, lastTileMu);
 	if (sc.isFailure()) {
 		mLog << MSG::INFO << "REGTEST No TileMuFeatureContainer found" << endreq;
 		return  StatusCode::SUCCESS;
@@ -3573,7 +3564,7 @@ mLog <<MSG::INFO << "REGTEST ==========START of TileTrackMuFeatureContainer DUMP
 const DataHandle< TileTrackMuFeatureContainer > TileTrackMu;
 const DataHandle< TileTrackMuFeatureContainer > lastTileTrackMu;
 
-StatusCode sc = m_storeGate->retrieve(TileTrackMu, lastTileTrackMu);
+StatusCode sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
 if (sc.isFailure()) {
 	mLog << MSG::INFO << "REGTEST No TileTrackMuFeatureContainer found" << endreq;
 	return StatusCode::SUCCESS;
@@ -3792,7 +3783,7 @@ StatusCode TrigEDMChecker::dumpTauJetContainer() {
 	std::string TauContainerTags[]={"HLT_TrigTauRecMerged"};
 	for (int itag=0; itag < ntag; itag++) {
 	  const TauJetContainer* TauJetcont;
-	  sCode=m_storeGate->retrieve(TauJetcont , TauContainerTags[itag]);
+	  sCode=evtStore()->retrieve(TauJetcont , TauContainerTags[itag]);
 	  if( sCode.isFailure() ){
 	    mLog << MSG::INFO << "Failed to retrieve TauJetContainer  with key " << TauContainerTags[itag] << endreq;
 	    continue;
@@ -3923,7 +3914,7 @@ StatusCode TrigEDMChecker::dumpTauJetContainer() {
 
 	const DataHandle< TauJetContainer > TauJet;
 	const DataHandle< TauJetContainer > lastTauJet;
-	StatusCode sc = m_storeGate->retrieve(TauJet, lastTauJet);
+	StatusCode sc = evtStore()->retrieve(TauJet, lastTauJet);
 	if (sc.isFailure()) {
 	  mLog << MSG::INFO << "REGTEST No TauJetContainer found" << endreq;
 	  return StatusCode::FAILURE;

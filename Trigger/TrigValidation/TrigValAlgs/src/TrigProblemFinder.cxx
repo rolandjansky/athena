@@ -12,9 +12,7 @@
 
 TrigProblemFinder::TrigProblemFinder(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_log(0),
-    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_storeGate("StoreGateSvc", name)
+    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("checkHeaders", m_checkHeaders=true, "Checks error words in the HLT Result headers");
   declareProperty("checkChains", m_checkChains=true,   "Checks error words in the HLT chains");
@@ -28,18 +26,8 @@ TrigProblemFinder::~TrigProblemFinder() {}
 // IAlgorithm virtual methods to implement
 StatusCode TrigProblemFinder::initialize() {
   
-  m_log = new MsgStream(messageService(), name());
-  StatusCode sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_trigDec.retrieve() );
 
-  sc = m_trigDec.retrieve();
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
-    return sc;
-  }
   // enable expert access to item and chain info
   m_trigDec->ExperimentalAndExpertMethods()->enable();
   return StatusCode::SUCCESS; 
@@ -52,11 +40,7 @@ StatusCode TrigProblemFinder::execute() {
   // headers
   if ( m_checkHeaders ) {
     const DataHandle<TrigDec::TrigDecision> td;
-    StatusCode sc = m_storeGate->retrieve(td);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::FATAL << "Could not find TrigDecision object" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve(td) );
     checkHeader(&(td->getL2Result()));
     checkHeader(&(td->getEFResult()));
   }
@@ -78,22 +62,22 @@ StatusCode TrigProblemFinder::finalize() {
 
 void TrigProblemFinder::checkAndPrintErrorCode(HLT::ErrorCode ec, const std::string& context) {
   if ( ec != HLT::OK ) {
-    (*m_log) << MSG::WARNING << std::setw(50) << context << " " << strErrorCode(ec) << endreq;
-    (*m_log) << MSG::DEBUG   << std::setw(50) << context << " " << strErrorCode(ec) << endreq;
+    ATH_MSG_WARNING (std::setw(50) << context << " " << strErrorCode(ec) );
+    ATH_MSG_DEBUG   (std::setw(50) << context << " " << strErrorCode(ec) );
   } 
 }
 
 
 void TrigProblemFinder::checkHeader(const HLT::HLTResult* r) {
-  (*m_log) << MSG::DEBUG << "HLTResult Header: starting check" << endreq;  
+  ATH_MSG_DEBUG ("HLTResult Header: starting check" );
 
   if (r == 0){
-    (*m_log) << MSG::WARNING << std::setw(50) <<"HLTResult: missing" << endreq;
+    ATH_MSG_WARNING (std::setw(50) <<"HLTResult: missing" );
     return;
   }
 
   if ( r->isCreatedOutsideHLT() ) {
-    (*m_log) << MSG::WARNING << "HLTResult Header: careated outside HLT"  << endreq;
+    ATH_MSG_WARNING ("HLTResult Header: careated outside HLT"  );
   }
 
 
@@ -103,12 +87,12 @@ void TrigProblemFinder::checkHeader(const HLT::HLTResult* r) {
     unsigned int chainCounter=0xffffffff;
     unsigned int step=0;
     const_cast<HLT::HLTResult*>(r)->getErrorCoordinates(chainCounter, step);
-    (*m_log) << MSG::WARNING << std::setw(50) <<"HLTResult Header: most severe chain"  << chainCounter << endreq;
-    (*m_log) << MSG::WARNING << std::setw(50) <<"HLTResult Header: last step"  << step << endreq;
+    ATH_MSG_WARNING (std::setw(50) <<"HLTResult Header: most severe chain"  << chainCounter );
+    ATH_MSG_WARNING (std::setw(50) <<"HLTResult Header: last step"  << step );
     return;
   }
   if ( r->isHLTResultTruncated() ) {
-    (*m_log) << MSG::WARNING << "HLTResult Header: truncated"  << endreq;
+    ATH_MSG_WARNING ("HLTResult Header: truncated"  );
     return;
   }   
 }
@@ -117,7 +101,7 @@ void TrigProblemFinder::checkHeader(const HLT::HLTResult* r) {
 
 void TrigProblemFinder::checkChains() {
 
-  (*m_log) << MSG::DEBUG << "L2 and EF chains: starting check" << endreq;  
+  ATH_MSG_DEBUG ("L2 and EF chains: starting check" );
   Trig::ExpertMethods* em = m_trigDec->ExperimentalAndExpertMethods();
   std::vector<std::string> chains( m_trigDec->getListOfTriggers("L2_.*, EF_.*"));
   for (std::vector<std::string>::iterator it = chains.begin(); it != chains.end(); ++it ) {
@@ -134,14 +118,14 @@ void TrigProblemFinder::checkTE(const HLT::TriggerElement* te, HLT::NavigationCo
   const TrigRoiDescriptor* roi = roif.cptr();
   if ( te->getErrorState() ) {
     if (roi)
-      (*m_log) << MSG::WARNING << "Navigation: TE marked as seeing error " << roif.label() << " " << *roi << endreq;
+      ATH_MSG_WARNING ("Navigation: TE marked as seeing error " << roif.label() << " " << *roi );
     else 
-      (*m_log) << MSG::WARNING << "Navigation: TE marked as seeing error " << roif.label() <<  ", no RoI attributed" << endreq;    
+      ATH_MSG_WARNING ("Navigation: TE marked as seeing error " << roif.label() <<  ", no RoI attributed" );
   } else {
     if (roi)
-      (*m_log) << MSG::DEBUG << "Navigation: TE " << roif.label()  << " " << *roi << endreq;
+      ATH_MSG_DEBUG ("Navigation: TE " << roif.label()  << " " << *roi );
     else 
-      (*m_log) << MSG::DEBUG << "Navigation: TE " << roif.label()  << " " << "no RoI attributed" << endreq;    
+      ATH_MSG_DEBUG ("Navigation: TE " << roif.label()  << " " << "no RoI attributed" );
   }
   
 
@@ -154,7 +138,7 @@ void TrigProblemFinder::checkTE(const HLT::TriggerElement* te, HLT::NavigationCo
 	       
 
 void TrigProblemFinder::checkNavigation() {
-  (*m_log) << MSG::DEBUG << "Navigation: starting check" << endreq;  
+  ATH_MSG_DEBUG ("Navigation: starting check" );
   using namespace HLT;
   const NavigationCore* cnav = m_trigDec->ExperimentalAndExpertMethods()->getNavigation();
   NavigationCore* nav = const_cast<NavigationCore*>(cnav);
