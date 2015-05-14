@@ -72,30 +72,23 @@ AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
 
 StatusCode AthMpEvtLoopMgr::initialize()
 {
-  msg(MSG::DEBUG) << "in initialize() ... " << endreq;
+  ATH_MSG_DEBUG("in initialize() ... ");
 
   if(m_strategy=="TokenScatterer" && m_nEventsBeforeFork!=0) {
-    msg(MSG::ERROR) << "The TokenScatterer strategy cannot run with non-zero value for EventsBeforeFork" << endreq;
+    ATH_MSG_ERROR("The TokenScatterer strategy cannot run with non-zero value for EventsBeforeFork");
     return StatusCode::FAILURE;
   }
 
   if(m_isPileup) {
     m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    msg(MSG::INFO) << "ELM: The job running in pileup mode" << endreq;
+    ATH_MSG_INFO("ELM: The job running in pileup mode");
   }
   else {
-    msg(MSG::INFO) << "ELM: The job running in non-pileup mode" << endreq;
+    ATH_MSG_INFO("ELM: The job running in non-pileup mode");
   }
 
-  if(m_evtProcessor.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Unable to get the wrapped event loop manager" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  if(m_tools.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Unable to initialize tools" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_evtProcessor.retrieve());
+  ATH_CHECK(m_tools.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -133,24 +126,23 @@ StatusCode AthMpEvtLoopMgr::executeEvent(void* par)
 
 StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 {
-  msg(MSG::DEBUG) << "in executeRun()" << endreq;
+  ATH_MSG_DEBUG("in executeRun()");
 
   // Generate random component of the Shared Memory and Shared Queue names
   srand(time(NULL));
   std::ostringstream randStream;
   randStream << rand();
 
-  StoreGateSvc* pDetStore(0);
-  if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
-    msg(MSG::FATAL) << "Unable to access Detector Store" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ServiceHandle<StoreGateSvc> pDetStore("DetectorStore",name());
+  ATH_CHECK(pDetStore.retrieve());
 
   // Create Shared Event queue if necessary and make it available to the tools
-  if(m_strategy=="SharedQueue" || m_strategy=="SharedReader") {
+  if(m_strategy=="SharedQueue" 
+     || m_strategy=="SharedReader"
+     || m_strategy=="RoundRobin") {
     AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
-      msg(MSG::FATAL) << "Unable to record the pointer to the Shared Event queue into Detector Store" << endreq;
+      ATH_MSG_FATAL("Unable to record the pointer to the Shared Event queue into Detector Store");
       delete evtQueue;
       return StatusCode::FAILURE;
     }
@@ -161,7 +153,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   if(m_strategy=="TokenScatterer") {
     AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
     if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
-      msg(MSG::FATAL) << "Unable to record the pointer to the Failed PID queue into Detector Store" << endreq;
+      ATH_MSG_FATAL("Unable to record the pointer to the Failed PID queue into Detector Store");
       delete failedPidQueue;
       return StatusCode::FAILURE;
     }
@@ -190,11 +182,11 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 	randname << rand();
 	std::string backupDir = (m_workerTopDir.rfind("/")==(m_workerTopDir.size()-1)?m_workerTopDir.substr(0,m_workerTopDir.size()-1):m_workerTopDir)+std::string("-bak-")+randname.str(); 
 
-	msg(MSG::WARNING) << "The top directory " << m_workerTopDir << " already exists" << endreq;
-	msg(MSG::WARNING) << "The job will attempt to save it with the name " << backupDir <<  " and create new top directory from scratch" << endreq;
+	ATH_MSG_WARNING("The top directory " << m_workerTopDir << " already exists");
+	ATH_MSG_WARNING("The job will attempt to save it with the name " << backupDir <<  " and create new top directory from scratch");
 
 	if(rename(m_workerTopDir.c_str(),backupDir.c_str())!=0) {
-	  msg(MSG::ERROR) << "Unable to make backup directory! " << strerror(errno) << endreq;
+	  ATH_MSG_ERROR("Unable to make backup directory! " << strerror(errno));
 	  return StatusCode::FAILURE;
 	}
 
@@ -203,7 +195,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       }
     default:
       {
-	msg(MSG::ERROR) << "Unable to make top directory " << m_workerTopDir << " for children processes! " << strerror(errno) << endreq;
+	ATH_MSG_ERROR("Unable to make top directory " << m_workerTopDir << " for children processes! " << strerror(errno));
 	return StatusCode::FAILURE;
       }
     }
@@ -211,10 +203,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // When forking before 1st event, fire BeforeFork incident in non-pileup jobs
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-  if(incSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Unable to retrieve IncidentSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(incSvc.retrieve());
 
   if(m_nEventsBeforeFork==0 && !m_isPileup) {
     incSvc->fireIncident(Incident(name(),"BeforeFork"));
@@ -227,26 +216,18 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     StatusCode scEvtProc = m_evtProcessor->nextEvent(nEventsToProcess);
     if(!scEvtProc.isSuccess()) {
       if(nEventsToProcess)
-	msg(MSG::FATAL) << "Unable to process first " << nEventsToProcess << " events in the master" << endreq;
+	ATH_MSG_FATAL("Unable to process first " << nEventsToProcess << " events in the master");
       else
-	msg(MSG::FATAL) << "Unable to process first event in the master" << endreq;
+	ATH_MSG_FATAL("Unable to process first event in the master");
       return scEvtProc;
     }
   }
 
   // Finalize I/O (close input files) by IoComponents
   ServiceHandle<IIoComponentMgr> ioMgr("IoComponentMgr",name());
-  if(ioMgr.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Unable to retrieve IoComponentMgr" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if(ioMgr->io_finalize().isFailure()) {
-    msg(MSG::FATAL) << "Unable to finalize I/O before forking" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    msg(MSG::DEBUG) << "Successfully finalized I/O before forking" << endreq;
-  }
+  ATH_CHECK(ioMgr.retrieve());
+  ATH_CHECK(ioMgr->io_finalize());
+  ATH_MSG_DEBUG("Successfully finalized I/O before forking");
 
   // Extract process file descriptors
   boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
@@ -265,7 +246,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
     int nChildren = (*it)->makePool(maxevt,m_nWorkers,m_workerTopDir);
     if(nChildren==-1) {
-      msg(MSG::FATAL) << "makePool failed for " << (*it)->name() << endreq;
+      ATH_MSG_FATAL("makePool failed for " << (*it)->name());
       return StatusCode::FAILURE;
     }
     else {
@@ -274,14 +255,14 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   if(m_nChildProcesses==0) {
-    msg(MSG::ERROR) << "No child processes were created" << endreq;
+    ATH_MSG_ERROR("No child processes were created");
     return StatusCode::FAILURE;
   }
 
   // Assign work to child processes
   for(it=m_tools.begin(); it!=itLast; ++it) {
     if((*it)->exec().isFailure()) {
-      msg(MSG::FATAL) << "Unable to submit work to the tool " << (*it)->name() <<  endreq;
+      ATH_MSG_FATAL("Unable to submit work to the tool " << (*it)->name());
       return StatusCode::FAILURE;
     }
   }
@@ -289,16 +270,16 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   StatusCode sc = wait();
 
   if(m_nMemSamplingInterval>0) {
-    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
-    msg(MSG::INFO) << "*** MAX PSS  "  << (*std::max_element(m_samplesPss.cbegin(),m_samplesPss.cend()))/1024 << "MB" << endreq;
-    msg(MSG::INFO) << "*** MAX RSS  "  << (*std::max_element(m_samplesRss.cbegin(),m_samplesRss.cend()))/1024 << "MB" << endreq;
-    msg(MSG::INFO) << "*** MAX SIZE " << (*std::max_element(m_samplesSize.cbegin(),m_samplesSize.cend()))/1024 << "MB" << endreq;
-    msg(MSG::INFO) << "*** MAX SWAP " << (*std::max_element(m_samplesSwap.cbegin(),m_samplesSwap.cend()))/1024 << "MB" << endreq;
-    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
+    ATH_MSG_INFO("*** *** Memory Usage *** ***");
+    ATH_MSG_INFO("*** MAX PSS  "  << (*std::max_element(m_samplesPss.cbegin(),m_samplesPss.cend()))/1024 << "MB");
+    ATH_MSG_INFO("*** MAX RSS  "  << (*std::max_element(m_samplesRss.cbegin(),m_samplesRss.cend()))/1024 << "MB");
+    ATH_MSG_INFO("*** MAX SIZE " << (*std::max_element(m_samplesSize.cbegin(),m_samplesSize.cend()))/1024 << "MB");
+    ATH_MSG_INFO("*** MAX SWAP " << (*std::max_element(m_samplesSwap.cbegin(),m_samplesSwap.cend()))/1024 << "MB");
+    ATH_MSG_INFO("*** *** Memory Usage *** ***");
   }
 
   if(m_collectSubprocessLogs) {
-    msg(MSG::INFO) << "BEGIN collecting sub-process logs" << endreq;
+    ATH_MSG_INFO("BEGIN collecting sub-process logs");
     std::vector<std::string> logs;
     for(it=m_tools.begin(); it!=itLast; ++it) {
       (*it)->subProcessLogs(logs);
@@ -314,7 +295,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 	log.close();
       }
     }
-    msg(MSG::INFO) << "END collecting sub-process logs" << endreq;
+    ATH_MSG_INFO("END collecting sub-process logs");
   }
 
   // Restart the event selector in order to avoid segfault at stop()
@@ -322,18 +303,11 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   if(prpMgr.isValid()) {
     std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
     IService* evtSelector(0);
-    StatusCode scSvcLoc = serviceLocator()->service(evtSelName,evtSelector);
-    if(scSvcLoc.isFailure()||evtSelector==0) {
-      msg(MSG::ERROR) << "Failed to retrieve EventSelector" << endreq;
-      return StatusCode::FAILURE;
-    }
-    if(evtSelector->start().isFailure()) {
-      msg(MSG::ERROR) << "Failed to restart the Event Selector" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
+    ATH_CHECK(evtSelector->start());
   }
   else {
-    msg(MSG::ERROR) << "Failed to get hold of the Property Manager" << endreq;
+    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
     return StatusCode::FAILURE;
   }
 
@@ -360,7 +334,7 @@ StatusCode AthMpEvtLoopMgr::stopRun()
 //
 StatusCode AthMpEvtLoopMgr::wait()
 {
-  msg(MSG::INFO) << "Waiting for sub-processes" << endreq;
+  ATH_MSG_INFO("Waiting for sub-processes");
   ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
     itLast = m_tools.end();
   pid_t pid(0);
@@ -372,7 +346,7 @@ StatusCode AthMpEvtLoopMgr::wait()
     for(it = m_tools.begin(); it!=itLast; ++it) {
       if((*it)->wait_once(pid).isFailure()) {
 	all_ok = false;
-	msg(MSG::ERROR) << "Failure in waiting or sub-process finished abnormally" << endreq;
+	ATH_MSG_ERROR("Failure in waiting or sub-process finished abnormally");
 	break;
       }
       else {
@@ -392,7 +366,7 @@ StatusCode AthMpEvtLoopMgr::wait()
 	unsigned long swap(0);
 
 	if(athenaMP_MemHelper::getPss(getpid(), pss, swap, rss, size, msgLvl(MSG::DEBUG)))
-	  msg(MSG::WARNING) << "Unable to get memory sample" << endreq;
+	  ATH_MSG_WARNING("Unable to get memory sample");
 	else {
 	  m_samplesRss.push_back(rss);
 	  m_samplesPss.push_back(pss);
@@ -418,7 +392,7 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
   std::ofstream ofs;
   ofs.open(m_outputReportName.c_str());
   if(!ofs) {
-    msg(MSG::ERROR) << "Unable to open AthenaMPOutputs for writing!" << endreq;
+    ATH_MSG_ERROR("Unable to open AthenaMPOutputs for writing!");
     return StatusCode::FAILURE;
   }
   else {
@@ -483,7 +457,7 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
 
 boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
 {
-  msg(MSG::DEBUG) << "Extracting file descriptors" << endreq;
+  ATH_MSG_DEBUG("Extracting file descriptors");
   using namespace boost::filesystem;
   boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry(new AthenaInterprocess::FdsRegistry());
 
@@ -519,24 +493,24 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
             }
 	  }
           if(exclude) {
-	    msg(MSG::DEBUG) << realpath.string() << " Excluded from the registry by the pattern" << endreq;
+	    ATH_MSG_DEBUG(realpath.string() << " Excluded from the registry by the pattern");
 	  }
           else {
             registry->push_back(AthenaInterprocess::FdsRegistryEntry(fd,realpath.string()));
 	  }
         }
         else {
-	  msg(MSG::DEBUG) << realpath.string() << " is not a regular file" << endreq; // TODO: deal with these?
+	  ATH_MSG_DEBUG(realpath.string() << " is not a regular file"); // TODO: deal with these?
 	}
       } // File exists
     }
     else
-      msg(MSG::WARNING) << "UNEXPECTED. " << fdIt->path().string() << " Not a symlink" << endreq;
+      ATH_MSG_WARNING("UNEXPECTED. " << fdIt->path().string() << " Not a symlink");
   } // Directory iteration
 
-  msg(MSG::DEBUG) << "Fds Reistry created. Contents:" << endreq;
+  ATH_MSG_DEBUG("Fds Reistry created. Contents:");
   for(size_t ii(0); ii<registry->size(); ++ii)
-    msg(MSG::DEBUG) << (*registry)[ii].fd << " " << (*registry)[ii].name << endreq;
+    ATH_MSG_DEBUG((*registry)[ii].fd << " " << (*registry)[ii].name);
 
   return registry;
 }

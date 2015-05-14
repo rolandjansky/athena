@@ -57,7 +57,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
         chunk_size = jp.AthenaMPFlags.ChunkSize()
 
-        if strategy=='SharedQueue':
+        if strategy=='SharedQueue' or strategy=='RoundRobin':
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
             self.Tools += [ SharedEvtQueueProvider(PreCountedEvents=precounted_events,
                                                    IsPileup=pileup,
@@ -67,6 +67,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
             self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,
                                                    IsPileup=pileup,
+                                                   IsRoundRobin=(strategy=='RoundRobin'),
                                                    EventsBeforeFork=events_beore_fork) ]
 
             # Enable seeking
