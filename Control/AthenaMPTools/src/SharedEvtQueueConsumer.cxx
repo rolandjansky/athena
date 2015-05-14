@@ -34,6 +34,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
   , m_isPileup(false)
+  , m_isRoundRobin(false)
   , m_nEventsBeforeFork(0)
   , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
@@ -46,6 +47,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 
   declareProperty("UseSharedReader",m_useSharedReader);
   declareProperty("IsPileup",m_isPileup);
+  declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
 
   m_subprocDirPrefix = "worker_";
@@ -222,12 +224,13 @@ void SharedEvtQueueConsumer::subProcessLogs(std::vector<std::string>& filenames)
   }
 }
 
-AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::bootstrap_func()
 {
-  int* errcode = new int(1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -351,22 +354,41 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
   p_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_rankId,getpid(),name()));
 
   // Declare success and return
-  *errcode = 0;
+  *(int*)(outwork->data) = 0;
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
 
   bool all_ok(true);
+
+  // Get the value of SkipEvent
+  int skipEvents(0);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(propertyServer==0) {
+    msg(MSG::ERROR) << "Unable to cast event selector to IProperty" << endreq;
+    all_ok = false;
+  }
+  else {
+    std::string propertyName("SkipEvents");
+    IntegerProperty skipEventsProp(propertyName,skipEvents);
+    if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
+      msg(MSG::INFO) << "Event Selector does not have SkipEvents property" << endreq;
+    }
+    else {
+      skipEvents = skipEventsProp.value();
+    }
+  }
+
 
   // ________________________ This is needed only for PileUp jobs __________________________________
   // **
   // If either EventsBeforeFork or SkipEvents is nonzero, first we need to advance the event selector
   // by EventsBeforeFork+SkipEvents and only after that start seeking on the PileUpEventLoopMgr
   // **
-  if(m_isPileup) {
+  if(m_isPileup && all_ok) {
     IEventSeek* evtSeek(0);
     StatusCode sc = serviceLocator()->service(m_evtSelName,evtSeek);
     if(sc.isFailure() || evtSeek==0) {
@@ -374,28 +396,10 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
       all_ok = false;
     }
     else {
-      IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
-      if(propertyServer==0) {
-	msg(MSG::ERROR) << "Unable to cast event selector to IProperty" << endreq;
+      if((m_nEventsBeforeFork+skipEvents)
+	 && evtSeek->seek(m_nEventsBeforeFork+skipEvents).isFailure()) {
+	msg(MSG::ERROR) << "Unable to seek to " << m_nEventsBeforeFork+skipEvents << endreq;    
 	all_ok = false;
-      }
-      else  {
-	std::string propertyName("SkipEvents");
-	int skipEvents(0);
-	IntegerProperty skipEventsProp(propertyName,skipEvents);
-	sc = propertyServer->getProperty(&skipEventsProp);
-	if(sc.isFailure()) {
-	  msg(MSG::INFO) << "Event Selector does not have SkipEvents property" << endreq;
-	}
-	else {
-	  skipEvents = skipEventsProp.value();
-	}
-	
-	if((m_nEventsBeforeFork+skipEvents)
-	   && evtSeek->seek(m_nEventsBeforeFork+skipEvents).isFailure()) {
-	  msg(MSG::ERROR) << "Unable to seek to " << m_nEventsBeforeFork+skipEvents << endreq;    
-	  all_ok = false;
-	}
       }
     }
   }
@@ -415,27 +419,43 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
   int* shmemCountFinal = shmemCountedEvts+1;
   msg(MSG::DEBUG) << "Counted events " << *shmemCountedEvts << " and the count is final " << *shmemCountFinal << endreq;
 
-  m_chronoStatSvc->chronoStart("AthenaMP_getEvent");
+  unsigned evtCounter(0);
+  int evtnum(0), chunkSize(1);
+
   if(all_ok) {
     while(true) {
-      if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
-	// The event queue is empty, but we should check whether there are more events to come or not
-	msg(MSG::DEBUG) << "Event queue is empty"; 
-	if(*shmemCountFinal) {
-	  msg(MSG::DEBUG) << " and no more events are expected" << endreq;
-	  break;
+      if(m_isRoundRobin) {
+	evtnum = skipEvents + m_nprocs*evtCounter + m_rankId; 
+	if(evtnum>=*shmemCountedEvts+skipEvents) { 
+	  if(*shmemCountFinal) {
+	    break;
+	  }
+	  else {
+	    usleep(100);
+	    continue;
+	  }
 	}
-	else {
-	  msg(MSG::DEBUG) << " but more events are expected" << endreq;
-	  usleep(1);
-	  continue;
-	}
+	evtCounter++;
       }
-      msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
-      m_chronoStatSvc->chronoStop("AthenaMP_getEvent");
-      int chunkSize = evtnumAndChunk >> (sizeof(int)*8);
-      int evtnum = evtnumAndChunk & intmask;
-      msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
+      else {
+	if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
+	  // The event queue is empty, but we should check whether there are more events to come or not
+	  msg(MSG::DEBUG) << "Event queue is empty"; 
+	  if(*shmemCountFinal) {
+	    msg(MSG::DEBUG) << " and no more events are expected" << endreq;
+	    break;
+	  }
+	  else {
+	    msg(MSG::DEBUG) << " but more events are expected" << endreq;
+	    usleep(1);
+	    continue;
+	  }
+	}
+	msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
+	chunkSize = evtnumAndChunk >> (sizeof(int)*8);
+	evtnum = evtnumAndChunk & intmask;
+	msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
+      }
       nEvt+=chunkSize;
       StatusCode sc;
       if(m_useSharedReader) {
@@ -474,10 +494,8 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
 	break;
       }
       m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
-      m_chronoStatSvc->chronoStart("AthenaMP_getEvent");
     }
   }
-  m_chronoStatSvc->chronoStop("AthenaMP_getEvent");
 
   if(all_ok) {
     if(m_evtProcessor->executeRun(0).isFailure()) {
@@ -485,21 +503,22 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
       all_ok=false;
     }
     else {
-      msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted" << endreq; 
-      if(m_evtSeek->seek(*shmemCountedEvts).isFailure()) 
-	msg(MSG::DEBUG) << "Seek past maxevt=" << *shmemCountedEvts << " returned failure. As expected..." << endreq;
+      msg(MSG::DEBUG) << *shmemCountedEvts << " is the max event counted and SkipEvents=" << skipEvents << endreq; 
+      if(m_evtSeek->seek(*shmemCountedEvts+skipEvents).isFailure()) 
+	msg(MSG::DEBUG) << "Seek past maxevt to " << *shmemCountedEvts+skipEvents << " returned failure. As expected..." << endreq;
     }
   }
 
-  int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
-  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+
   // Return value: "ERRCODE|Func_Flag|NEvt"
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  memcpy(outdata,&errcode,sizeof(int));
+  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEventsProcessed,sizeof(int));
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
+
   outwork->data = outdata;
   outwork->size = outsize;
   // ...
@@ -509,7 +528,7 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::fin_func()
 {
   msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -526,16 +545,17 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::fin_func()
     }
   }
 
-  int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
-  int nEvt = -1;
-  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+
   // Return value: "ERRCODE|Func_Flag|NEvt"  (Here NEvt=-1)
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  memcpy(outdata,&errcode,sizeof(int));
+  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
+  int nEvt = -1;
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEvt,sizeof(int));
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
+
   outwork->data = outdata;
   outwork->size = outsize;
 

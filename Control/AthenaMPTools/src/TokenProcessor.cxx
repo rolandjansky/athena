@@ -176,7 +176,13 @@ StatusCode TokenProcessor::wait_once(pid_t& pid)
       return sc;
     }
 
-    // Otherwise try to start a new process
+    // If the process failed at finalization, then remove pid from the finQueue
+    if(pid==m_finQueue.front()) {
+      msg(MSG::DEBUG) << "Removing failed PID=" << pid << " from the finalization queue" << endreq;
+      m_finQueue.pop();
+    }
+
+    // Try to start a new process
     if(startProcess().isSuccess()) {
       msg(MSG::INFO) << "Successfully started new process" << endreq;
       pid=0;
@@ -238,11 +244,11 @@ AthenaMP::AllWorkerOutputs_ptr TokenProcessor::generateOutputReport()
   return jobOutputs;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenProcessor::bootstrap_func()
 {
-  int* errcode = new int(1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
@@ -353,11 +359,11 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::bootstrap_func()
   }
 
   // Declare success and return
-  *errcode = 0;
+  *(int*)(outwork->data) = 0;
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenProcessor::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -462,13 +468,14 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       // Process the event
       m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
       StatusCode sc = m_evtProcessor->nextEvent(nEvt++);
-      nEventsProcessed++;
       if(sc.isFailure()){
 	msg(MSG::ERROR) << "Unable to process the event" << endreq;
 	all_ok=false;
       }
-      else
+      else {
 	msg(MSG::DEBUG)<< "Event processed" << endreq;
+	nEventsProcessed++;
+      }
       m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
 
       // Get the response posted by the event selector
@@ -526,15 +533,16 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
     }
   }
 
-  int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
-  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+
   // Return value: "ERRCODE|Func_Flag|NEvt"
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  memcpy(outdata,&errcode,sizeof(int));
+  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEventsProcessed,sizeof(int));
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
+
   outwork->data = outdata;
   outwork->size = outsize;
   // ...
@@ -547,7 +555,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenProcessor::fin_func()
 {
   msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -576,16 +584,17 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::fin_func()
     socket2Scatterer->send(message2scatterer,outputFileReport.size());
   }
 
-  int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
-  int nEvt = -1;
-  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+
   // Return value: "ERRCODE|Func_Flag|NEvt"  (Here NEvt=-1)
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  memcpy(outdata,&errcode,sizeof(int));
+  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
+  int nEvt = -1;
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEvt,sizeof(int));
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
+
   outwork->data = outdata;
   outwork->size = outsize;
 
@@ -678,11 +687,6 @@ StatusCode TokenProcessor::startProcess()
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP,pid)
      || mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC,pid)) {
     msg(MSG::WARNING) << "Unable to map work on the new process" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  if(m_processGroup->map_async(0,0,pid)){
-    msg(MSG::WARNING) << "Unable to set exit to the new process" << endreq;
     return StatusCode::FAILURE;
   }
 
