@@ -5,7 +5,7 @@
 #ifndef CLASS_TRIG_SLIM_VALIDATION_H
 #define CLASS_TRIG_SLIM_VALIDATION_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
