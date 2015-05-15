@@ -16,6 +16,8 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "CxxUtils/make_unique.h"
 
 
 namespace InDet
@@ -40,16 +42,38 @@ namespace InDet
 
    StatusCode InDetVxLinksToTrackParticles::execute()
    {
+     const SG::DataProxy* proxy =
+       evtStore()->proxy (ClassID_traits<xAOD::TrackParticleContainer>::ID(),
+                          m_tracksName);
+     if (!proxy) {
+       ATH_MSG_WARNING( "No xAOD::TrackParticleContainer "
+                        << "with key \"" << m_tracksName << "\" found" );
+       return StatusCode::SUCCESS;
+     }
 
-      //non-const access to the container
-      xAOD::TrackParticleContainer* trackParticleCollection( 0 );
-      if( ! evtStore()->transientContains< xAOD::TrackParticleContainer >( m_tracksName ) ) {
-         ATH_MSG_WARNING( "No modifyable xAOD::TrackParticleContainer "
-                          << "with key \"" << m_tracksName << "\" found" );
-         return StatusCode::SUCCESS;
-      }
-      ATH_CHECK( evtStore()->retrieve( trackParticleCollection,
-                                       m_tracksName ) );
+     xAOD::TrackParticleContainer* trackParticleCollection = nullptr;
+     if (proxy->isConst()) {
+       const xAOD::TrackParticleContainer* ccoll = nullptr;
+       ATH_CHECK( evtStore()->retrieve (ccoll,
+                                        m_tracksName) );
+       trackParticleCollection = new xAOD::TrackParticleContainer;
+       auto store = CxxUtils::make_unique<xAOD::TrackParticleAuxContainer>();
+       trackParticleCollection->setStore (store.get());
+       for (const xAOD::TrackParticle* p : *ccoll) {
+         trackParticleCollection->push_back (new xAOD::TrackParticle);
+         *trackParticleCollection->back() = *p;
+       }
+       CHECK( evtStore()->overwrite (trackParticleCollection,
+                                     m_tracksName,
+                                     true, false) );
+       CHECK( evtStore()->overwrite (std::move(store),
+                                     m_tracksName + "Aux.",
+                                     true, false) );
+     }
+     else {
+       ATH_CHECK( evtStore()->retrieve (trackParticleCollection,
+                                        m_tracksName) );
+     }
 
       const xAOD::VertexContainer* vertexCollection( 0 ); 
       if( ! evtStore()->contains< xAOD::VertexContainer >( m_verticesName ) ) {
