@@ -38,8 +38,10 @@ namespace Muon
        m_widthOut(0.), 
        m_delta(0), 
        m_roi(0), 
-       m_pt(0), 
-       m_sub(0), 
+       m_pt(0),
+       m_veto(false),
+       m_sub(0),
+       m_tile(0),
        m_isPositiveDeltaR(false) 
        {}
      // base
