@@ -7,13 +7,13 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_Tools/GenericParticleOrderingTool.h"
+#include "GenericParticleOrderingTool.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 
 /** Constructor **/
-ISF::GenericParticleOrderingTool::GenericParticleOrderingTool(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::GenericParticleOrderingTool::GenericParticleOrderingTool(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_geoIDorder(),
   m_simIDorder()
@@ -72,4 +72,3 @@ ISF::ParticleOrder ISF::GenericParticleOrderingTool::computeOrder(const ISFParti
   // NB: fUndefinedSimID(==0) will get order 0
   return m_geoIDorder[geoID]*simID;
 }
-

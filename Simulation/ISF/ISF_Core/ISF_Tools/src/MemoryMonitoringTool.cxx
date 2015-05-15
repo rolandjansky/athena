@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_Tools/MemoryMonitoringTool.h"
+#include "MemoryMonitoringTool.h"
 
 // stl includes
 #include <fstream>
@@ -15,7 +15,7 @@
 /** Constructor **/
 ISF::MemoryMonitoringTool::MemoryMonitoringTool( const std::string& t,
                                                  const std::string& n,
-                                                 const IInterface* p ) : 
+                                                 const IInterface* p ) :
   AthAlgTool(t,n,p),
   m_numCalls(0),
   m_prevCallMemUsage(0),
@@ -47,19 +47,19 @@ ISF::MemoryMonitoringTool::~MemoryMonitoringTool() {
 /** Athena algtool Hooks */
 StatusCode  ISF::MemoryMonitoringTool::initialize()
 {
-    ATH_MSG_VERBOSE("initialize() ...");
+  ATH_MSG_VERBOSE("initialize() ...");
 
-    ATH_MSG_VERBOSE("initialize() successful");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("initialize() successful");
+  return StatusCode::SUCCESS;
 }
 
 
 /** Athena algtool Hook */
 StatusCode  ISF::MemoryMonitoringTool::finalize()
 {
-    ATH_MSG_VERBOSE("finalize() ...");
-    ATH_MSG_VERBOSE("finalize() successful");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("finalize() ...");
+  ATH_MSG_VERBOSE("finalize() successful");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -115,7 +115,7 @@ void ISF::MemoryMonitoringTool::recordCurrent( const char *infoStr) {
 void ISF::MemoryMonitoringTool::dumpSummary(const char *desc) const {
 
   ATH_MSG_INFO("*****************************************************"<<endreq<<
-	             "*  (VmMem) MEMORY SUMMARY: (kBytes)");
+               "*  (VmMem) MEMORY SUMMARY: (kBytes)");
 
   // loop over all (infoStr,memUsage) pairs and print them
   InfoUsagePairVector::const_iterator it    = m_table.begin();
@@ -126,7 +126,7 @@ void ISF::MemoryMonitoringTool::dumpSummary(const char *desc) const {
 
     ATH_MSG_INFO("*  Memory Usage " << curInfo << "\t\t: " << curUsage);
   }
-  
+
   if (m_numCalls) {
     if (!desc) desc = "MemoryMonitor call";
     ATH_MSG_INFO( "*  Average memory per " << desc << " : "
@@ -162,4 +162,3 @@ int ISF::MemoryMonitoringTool::computeCurMemoryUsage() const {
   // finally return the memory size
   return int(memsize);
 }
-
