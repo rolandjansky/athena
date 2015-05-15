@@ -24,6 +24,7 @@
 
 // normal includes
 #include "TrkTrack/TrackCollection.h"
+#include "VxVertex/VxContainer.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
@@ -114,13 +115,8 @@ namespace InDet
   StatusCode InDetPriVxFinder::execute()
   {
     m_numEventsProcessed++;
-
-    //VxContainer* theVxContainer ( 0 );
-
-    xAOD::VertexContainer* theXAODContainer = 0;
-    xAOD::VertexAuxContainer* theXAODAuxContainer = 0;
-    std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> theXAODContainers
-	= std::make_pair( theXAODContainer, theXAODAuxContainer );
+    VxContainer* theVxContainer ( 0 );
+    std::pair<xAOD::VertexContainer *, xAOD::VertexAuxContainer*> theXAODContainer;
 
     //---- First try if m_tracksName is a TrackCollection -----------------//
     if ( evtStore()->contains<TrackCollection> ( m_tracksName ) )
@@ -131,7 +127,7 @@ namespace InDet
         if (msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endreq;
         return StatusCode::SUCCESS;
       }
-      theXAODContainers = m_VertexFinderTool->findVertex ( trackTES );
+      theVxContainer = m_VertexFinderTool->findVertex ( trackTES );
     }
     //---- Second try if m_tracksName is a xAOD::TrackParticleContainer ----//
     else if ( evtStore()->contains<xAOD::TrackParticleContainer> ( m_tracksName ) )
@@ -142,7 +138,7 @@ namespace InDet
         if (msgLvl(MSG::DEBUG)) msg() << "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate." << endreq;
         return StatusCode::SUCCESS;
       }
-      theXAODContainers = m_VertexFinderTool->findVertex ( trackParticleCollection );
+      theXAODContainer = m_VertexFinderTool->findVertex ( trackParticleCollection );
     }
     //---- Third try if m_tracksName is a TrackParticleBaseCollection ----//
     else if ( evtStore()->contains<Trk::TrackParticleBaseCollection> ( m_tracksName ) )
@@ -154,78 +150,98 @@ namespace InDet
         return StatusCode::SUCCESS;
       }
 
-      theXAODContainers = m_VertexFinderTool->findVertex ( trackParticleBaseCollection );
+      theVxContainer = m_VertexFinderTool->findVertex ( trackParticleBaseCollection );
     }
     else
     {
-      ATH_MSG_WARNING("Neither a TrackCollection nor a xAOD::TrackParticleContainer nor a TrackParticleBaseCollection with key " << m_tracksName << " exists in StoreGate. No vertexing possible.");
+      ATH_MSG_WARNING("Neither a TrackCollection nor a xAOD::TrackParticleContainer nor a TrackParticleBaseCollection with key " << m_tracksName << " exists in StoreGate. Mp vertexing possible.");
       return StatusCode::SUCCESS;
     }
 
     // now  re-merge and resort the vertex container and store to SG
-    xAOD::VertexContainer* myVertexContainer = 0;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers
-	= std::make_pair( myVertexContainer, myVertexAuxContainer );
-
-    //VxContainer* MyTrackVxContainer = 0;
-
-    if (theXAODContainers.first) {
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainer;
+    VxContainer* MyTrackVxContainer = 0;
+    if (theXAODContainer.first) {
       //sort xAOD::Vertex container
 
-      if(m_doVertexMerging && theXAODContainers.first->size() > 1) {
-        myVxContainers = m_VertexMergingTool->mergeVertexContainer( *theXAODContainers.first );
+      if(m_doVertexMerging && theXAODContainer.first->size() > 1) {
+        myVxContainer = m_VertexMergingTool->mergeVertexContainer( *theXAODContainer.first );
         //now delete and copy over theXAODContainer so sorting will still work
-        delete theXAODContainers.first; //also cleans up the aux store
-        delete theXAODContainers.second; 
-        theXAODContainers = myVxContainers;
+        delete theXAODContainer.first; //also cleans up the aux store
+        delete theXAODContainer.second; 
+        theXAODContainer = myVxContainer;
       }
       
-      if (m_doVertexSorting && theXAODContainers.first->size() > 1) {	
-	myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
-	delete theXAODContainers.first; //also cleans up the aux store
-        delete theXAODContainers.second; 
+      if (m_doVertexSorting && theXAODContainer.first->size() > 1) {	
+	myVxContainer = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainer.first);
+	delete theXAODContainer.first; //also cleans up the aux store
+        delete theXAODContainer.second; 
       } else {
-	myVxContainers.first = theXAODContainers.first;
-	myVxContainers.second = theXAODContainers.second;
+	myVxContainer.first = theXAODContainer.first;
+	myVxContainer.second = theXAODContainer.second;
       }
 
-      if (myVxContainers.first == 0) {
+      if (myVxContainer.first == 0) {
 	ATH_MSG_WARNING("Vertex container has no associated store.");
 	return StatusCode::SUCCESS;
       }
 
-      if (not myVxContainers.first->hasStore()) {
+      if (not myVxContainer.first->hasStore()) {
 	ATH_MSG_WARNING("Vertex container has no associated store.");
 	return StatusCode::SUCCESS;
       }
 
-      m_totalNumVerticesWithoutDummy += (myVxContainers.first->size()-1); 
+      m_totalNumVerticesWithoutDummy += (myVxContainer.first->size()-1); 
       
       std::string vxContainerAuxName = m_vxCandidatesOutputName + m_vxCandidatesOutputNameAuxPostfix;
       //---- Recording section: write the results to StoreGate ---//
      
       if (evtStore()->contains<xAOD::VertexContainer>(m_vxCandidatesOutputName)) {   
-	CHECK( evtStore()->overwrite( myVxContainers.first, m_vxCandidatesOutputName,true,false) );
-	CHECK( evtStore()->overwrite( myVxContainers.second, vxContainerAuxName,true,false) );	
-	ATH_MSG_DEBUG( "Overwrote Vertices with key: " << m_vxCandidatesOutputName);
+	CHECK( evtStore()->overwrite( myVxContainer.first, m_vxCandidatesOutputName,true,false) );
+	CHECK( evtStore()->overwrite( myVxContainer.second, vxContainerAuxName,true,false) );	
+	ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_vxCandidatesOutputName);
       }
       else{
-	CHECK(evtStore()->record ( myVxContainers.first, m_vxCandidatesOutputName,false ));
-	CHECK(evtStore()->record ( myVxContainers.second, vxContainerAuxName ));
-	ATH_MSG_DEBUG( "Recorded Vertices with key: " << m_vxCandidatesOutputName );
+	CHECK(evtStore()->record ( myVxContainer.first, m_vxCandidatesOutputName,false ));
+	CHECK(evtStore()->record ( myVxContainer.second, vxContainerAuxName ));
+	ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_vxCandidatesOutputName );
+      }
+      
+    } else if (theVxContainer) {
+
+      if( m_doVertexMerging && theVxContainer->size() > 1 ) {
+        MyTrackVxContainer = m_VertexMergingTool->mergeVxContainer( * theVxContainer );
+        delete theVxContainer;
+        //reassign so sorting can still run;
+        theVxContainer = MyTrackVxContainer;
+      }
+
+      //sort Trk::Track container (or Rec::TrackParticle)
+      if (m_doVertexSorting && theVxContainer->size() > 1) {
+	MyTrackVxContainer = m_VertexCollectionSortingTool->sortVxContainer(*theVxContainer);
+	delete theVxContainer;
+      } else {
+	MyTrackVxContainer = theVxContainer;
+      }
+      if (MyTrackVxContainer!=0) m_totalNumVerticesWithoutDummy += (MyTrackVxContainer->size()-1);
+      
+      //---- Recording section: write the results to StoreGate ---// 
+      if(evtStore()->contains<VxContainer>(m_vxCandidatesOutputName)){
+	CHECK (evtStore()->overwrite( MyTrackVxContainer,m_vxCandidatesOutputName,true,false ));
+	ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_vxCandidatesOutputName);
+      }
+      else{
+	CHECK (evtStore()->record( MyTrackVxContainer,m_vxCandidatesOutputName,false ));
+	ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_vxCandidatesOutputName );
       }
     }
-    else { //theXAODContainer is valid
+    else { //nor theVxContainer or theXAODContainer are valid
       ATH_MSG_ERROR("Unexpected error. Invalid output containers.");
       return StatusCode::FAILURE;
     }
-
-    if( myVxContainers.first != 0 )
-    {
-      ATH_MSG_DEBUG("Successfully reconstructed " << myVxContainers.first->size()-1 << " vertices (excluding dummy)");
-    }
-
+    
+    ATH_MSG_DEBUG("Successfully reconstructed " << myVxContainer.first->size()-1 << " vertices (excluding dummy)");
+       
     return StatusCode::SUCCESS;
   } 
   
