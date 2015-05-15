@@ -7,37 +7,24 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_Geant4Tools/TransportTool.h"
-#include "ISF_Geant4Tools/G4AtlasRunManager.h"
+#include "TransportTool.h"
 
-#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
-#include "ISF_Geant4Interfaces/ITrackProcessorUserAction.h"
-#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
-#include "ISF_Geant4Interfaces/ISDActivateUserAction.h"
+//package includes
+#include "ISF_Geant4Tools/G4AtlasRunManager.h"
 
 // ISF classes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/ISFParticleVector.h"
 
+#include "ISF_Geant4Interfaces/IPhysicsValidationUserAction.h"
+#include "ISF_Geant4Interfaces/ITrackProcessorUserAction.h"
+#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
+#include "ISF_Geant4Interfaces/ISDActivateUserAction.h"
+
 #include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
-#include "HepMC/GenParticle.h"
-
 // Athena classes
-//#include "G4AtlasAlg/AthenaTrackingAction.h"
-#include "G4AtlasAlg/PreEventActionManager.h"
-#include "G4AtlasAlg/AthenaStackingAction.h"
-//#include "G4AtlasAlg/TruthHepMCEventConverter.h"
-
-#include "MCTruth/PrimaryParticleInformation.h"
-#include "MCTruth/EventInformation.h"
-
-#include "GeneratorObjects/McEventCollection.h"
-
-//#include "AthenaPython/PyAthenaTool.h"
-
-// FADS classes
 #include "FadsActions/FadsRunAction.h"
 #include "FadsActions/FadsEventAction.h"
 #include "FadsActions/FadsSteppingAction.h"
@@ -46,7 +33,16 @@
 #include "FadsPhysics/PhysicsListCatalog.h"
 #include "FadsGeometry/FadsDetectorConstruction.h"
 
+#include "G4AtlasAlg/PreEventActionManager.h"
+#include "G4AtlasAlg/AthenaStackingAction.h"
+
+#include "GeneratorObjects/McEventCollection.h"
+
 #include "MCTruth/PrimaryParticleInformation.h"
+#include "MCTruth/EventInformation.h"
+
+// HepMC classes
+#include "HepMC/GenParticle.h"
 
 // Geant4 classes
 #include "G4UImanager.hh"
@@ -102,6 +98,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   declareProperty( "MCTruthUserAction",         m_mcTruthUserAction);
   declareProperty( "SDActivateUserAction",      m_sdActivateUserAction);
   declareProperty( "G4RunManagerHelper",        m_g4RunManagerHelper);
+  declareProperty( "QuasiStableParticlesIncluded", m_quasiStableParticlesIncluded);
 
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
@@ -428,6 +425,9 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
   G4PrimaryParticle* particle =
     new G4PrimaryParticle(particle_definition,px,py,pz);
 
+  // The only way we get here is if we are running quasi-stable particle sim
+  particle->SetTrackID( gp.barcode() );
+
   if (gp.end_vertex()){
     // Add all necessary daughter particles
     for (HepMC::GenVertex::particles_out_const_iterator iter=gp.end_vertex()->particles_out_const_begin();
@@ -508,6 +508,9 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
     const ISF::HepMC_TruthBinding *mctruth = dynamic_cast<const ISF::HepMC_TruthBinding* >(truth);
     if (mctruth) {
       HepMC::GenParticle* genpart= &(mctruth->truthParticle());
+
+      // Set the track ID in G4 - this will be used to pass around the barcodes
+      particle->SetTrackID( genpart->barcode() );
 
       ppi->SetParticle(genpart);
       ppi->SetRegenerationNr(0); // // *AS* this may not be true if this is not a real primary particle

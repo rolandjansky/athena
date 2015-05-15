@@ -2,21 +2,30 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////////////////////////////////////////////////
+// ISFTrajectory.cxx, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+// class header
+#include "ISFTrajectory.h"
+
+// package includes
+#include "Geant4TruthIncident.h"
+
 // ISF includes
-#include "ISF_Geant4Tools/ISFTrajectory.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Geant4Tools/Geant4TruthIncident.h"
 #include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-#include "HepMC/GenParticle.h"
 
+
+// Athena includes
 #include "FadsActions/TrackingAction.h"
-
-
-// G4 includes
 
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackHelper.h"
+
+//HepMC includes
+#include "HepMC/GenParticle.h"
 
 #undef _ISFTRAJECTORY_DEBUG_
 
@@ -95,7 +104,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       if ( trackInfo && trackInfo->GetReturnedToISF()==true ) {
         // make sure that the TruthBinding of the ISFParticle points to the newest
         // HepMC::GenParticle instance
-        HepMC::GenParticle *newGenPart = truth.primaryParticleAfterIncident(Barcode::fUndefinedBarcode, false);
+        HepMC::GenParticle *newGenPart = truth.parentParticleAfterIncident(Barcode::fUndefinedBarcode, false);
         ISF::ITruthBinding *newTruthBinding = new ISF::HepMC_TruthBinding(*newGenPart);
         parent->setTruthBinding( newTruthBinding );
         Barcode::ParticleBarcode newBarcode = newGenPart->barcode();

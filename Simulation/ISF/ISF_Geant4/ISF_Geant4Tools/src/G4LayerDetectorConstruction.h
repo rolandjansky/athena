@@ -16,8 +16,7 @@ class G4VPhysicalVolume;
 // Geant4
 #include "G4VUserDetectorConstruction.hh"
 // Trk
-#include "TrkParameters/TrackParameters.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h" // for Amg::Vector3D
 
 namespace Trk {
   class MaterialProperties;
