@@ -1,5 +1,5 @@
-#ifndef TRIGHYPOCOMMONTOOLS_L1INFOHYPO_HXX
-#define TRIGHYPOCOMMONTOOLS_L1INFOHYPO_HXX
+#ifndef __L1InfoHypo_hxx__
+#define __L1InfoHypo_hxx__
 /*
   L1InfoHypo
 */
@@ -46,18 +46,18 @@ protected:
 
   // JobOption properties
 
-  bool m_alwaysPass;
-  bool m_invertSelection;
-  bool m_invertBitMaskSelection;
-  bool m_invertL1ItemNameSelection;
-  bool m_useBeforePrescaleBit;
-  std::vector<std::string> m_L1ItemNames;
+  bool mAlwaysPass;
+  bool mInvertSelection;
+  bool mInvertBitMaskSelection;
+  bool mInvertL1ItemNameSelection;
+  bool mUseBeforePrescaleBit;
+  std::vector<std::string> mL1ItemNames;
 
-  unsigned int m_triggerTypeBitMask;
-  unsigned int m_L1TriggerBitMask;
+  unsigned int mTriggerTypeBitMask;
+  unsigned int mL1TriggerBitMask;
 
-  unsigned int m_triggerTypeBit;
-  unsigned int m_L1TriggerBit;
+  unsigned int mTriggerTypeBit;
+  unsigned int mL1TriggerBit;
 
   // Output object
 
@@ -67,7 +67,7 @@ protected:
 
 
 private:
-  ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;
+  ToolHandle<HLT::ILvl1ResultAccessTool> mlvl1Tool;
 };
 
-#endif // TRIGHYPOCOMMONTOOLS_L1INFOHYPO_HXX
+#endif // __L1InfoHypo_hxx__
