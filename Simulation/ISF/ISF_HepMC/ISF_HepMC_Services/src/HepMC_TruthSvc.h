@@ -77,6 +77,14 @@ namespace ISF {
     StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
   private:
+    /** Record the given truth incident to the MC Truth */
+    void recordIncidentToMCTruth( ITruthIncident& truthincident);
+    /** Record and end vertex to the MC Truth for the parent particle */
+    HepMC::GenVertex *recordVertexToMCTruth( ITruthIncident& truthincident);
+
+    /** Set shared barcode for child particles */
+    void setSharedChildParticleBarcode( ITruthIncident& truthincident);
+
     StoreGateSvc                             *m_storeGate;            //!< The storegate svc
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
     Barcode::IBarcodeSvc                     *m_barcodeSvcQuick;      //!< The Barcode service for quick access
@@ -92,8 +100,8 @@ namespace ISF {
     unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
 
     /** MCTruth steering */
-    bool                                      m_skipIfNoSecondaries;    //!< do not record incident if numSecondaries==0
-    bool                                      m_skipIfNoPrimaryBarcode; //!< do not record if primaryBarcode==fUndefinedBarcode
+    bool                                      m_skipIfNoChildren;       //!< do not record incident if numChildren==0
+    bool                                      m_skipIfNoParentBarcode;  //!< do not record if parentBarcode==fUndefinedBarcode
     bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
 
     std::string                               m_screenOutputPrefix;
@@ -101,6 +109,8 @@ namespace ISF {
 
     bool                                      m_storeExtraBCs;
     bool                                      m_passWholeVertex;
+    bool                                      m_alwaysAttachDeadParentEndVertex; //!< attach end vertex to all parent particles if they die
+    bool                                      m_quasiStableParticlesIncluded; //!< does this job simulate quasi-stable particles.
   };
 }
 
