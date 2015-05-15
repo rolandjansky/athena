@@ -134,6 +134,7 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
    persObj->m_delta = transObj->m_delta; 
    persObj->m_roi = transObj->m_roi; 
    persObj->m_pt = transObj->m_pt; 
+   persObj->m_veto = transObj->m_veto; 
    persObj->m_tile = transObj->m_tile; 
 
    persObj->m_sub = transObj->m_sub; 

@@ -18,7 +18,9 @@ namespace Muon
     class CscPrepData_p1
     {
     public:
-        CscPrepData_p1() {}
+        CscPrepData_p1()
+         : m_charge(0), m_time(0.), m_status(0)
+         {}
      // base
         TPObjRef            m_prd;
         
