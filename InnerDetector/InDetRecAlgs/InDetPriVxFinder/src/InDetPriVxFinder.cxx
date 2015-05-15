@@ -180,14 +180,7 @@ namespace InDet
 	myVxContainer.first = theXAODContainer.first;
 	myVxContainer.second = theXAODContainer.second;
       }
-      if (myVxContainer.first!=0) m_totalNumVerticesWithoutDummy += (myVxContainer.first->size()-1);      
 
-      //---- Recording section: write the results to StoreGate ---//
-      if ( evtStore()->record ( myVxContainer.first, m_vxCandidatesOutputName,false ).isFailure() ) {
-	ATH_MSG_ERROR("Unable to record xAOD::VertexContainer in StoreGate");
-	return StatusCode::FAILURE;
-      }      
-      
       if (myVxContainer.first == 0) {
 	ATH_MSG_WARNING("Vertex container has no associated store.");
 	return StatusCode::SUCCESS;
@@ -198,11 +191,22 @@ namespace InDet
 	return StatusCode::SUCCESS;
       }
 
+      m_totalNumVerticesWithoutDummy += (myVxContainer.first->size()-1); 
+      
       std::string vxContainerAuxName = m_vxCandidatesOutputName + m_vxCandidatesOutputNameAuxPostfix;
-      if ( evtStore()->record ( myVxContainer.second, vxContainerAuxName ).isFailure() ) {
-	ATH_MSG_ERROR("Unable to record xAOD::VertexAuxContainer in StoreGate");
-	return StatusCode::FAILURE;
+      //---- Recording section: write the results to StoreGate ---//
+     
+      if (evtStore()->contains<xAOD::VertexContainer>(m_vxCandidatesOutputName)) {   
+	CHECK( evtStore()->overwrite( myVxContainer.first, m_vxCandidatesOutputName,true,false) );
+	CHECK( evtStore()->overwrite( myVxContainer.second, vxContainerAuxName,true,false) );	
+	ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_vxCandidatesOutputName);
       }
+      else{
+	CHECK(evtStore()->record ( myVxContainer.first, m_vxCandidatesOutputName,false ));
+	CHECK(evtStore()->record ( myVxContainer.second, vxContainerAuxName ));
+	ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_vxCandidatesOutputName );
+      }
+      
     } else if (theVxContainer) {
 
       if( m_doVertexMerging && theVxContainer->size() > 1 ) {
@@ -220,17 +224,22 @@ namespace InDet
 	MyTrackVxContainer = theVxContainer;
       }
       if (MyTrackVxContainer!=0) m_totalNumVerticesWithoutDummy += (MyTrackVxContainer->size()-1);
-
-      //---- Recording section: write the results to StoreGate ---//
-      if ( evtStore()->record ( MyTrackVxContainer, m_vxCandidatesOutputName,false ).isFailure() ) {
-	ATH_MSG_ERROR("Unable to record Vx Container in TDS");
-	return StatusCode::FAILURE;
+      
+      //---- Recording section: write the results to StoreGate ---// 
+      if(evtStore()->contains<VxContainer>(m_vxCandidatesOutputName)){
+	CHECK (evtStore()->overwrite( MyTrackVxContainer,m_vxCandidatesOutputName,true,false ));
+	ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_vxCandidatesOutputName);
       }
-    } else { //nor theVxContainer or theXAODContainer are valid
+      else{
+	CHECK (evtStore()->record( MyTrackVxContainer,m_vxCandidatesOutputName,false ));
+	ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_vxCandidatesOutputName );
+      }
+    }
+    else { //nor theVxContainer or theXAODContainer are valid
       ATH_MSG_ERROR("Unexpected error. Invalid output containers.");
       return StatusCode::FAILURE;
     }
-
+    
     ATH_MSG_DEBUG("Successfully reconstructed " << myVxContainer.first->size()-1 << " vertices (excluding dummy)");
        
     return StatusCode::SUCCESS;
