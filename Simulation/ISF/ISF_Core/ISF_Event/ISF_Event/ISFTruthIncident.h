@@ -45,8 +45,8 @@ namespace ISF {
 
   class ISFTruthIncident : public ITruthIncident {
   public:
-    ISFTruthIncident( ISF::ISFParticle &primary,
-                      const ISFParticleVector &secondary,
+    ISFTruthIncident( ISF::ISFParticle &parent,
+                      const ISFParticleVector &children,
                       Barcode::PhysicsProcessCode process,
                       AtlasDetDescr::AtlasRegion geoID,
                       ISF::KillPrimary killsPrimary = ISF::fPrimarySurvives,
@@ -54,77 +54,66 @@ namespace ISF {
     ~ISFTruthIncident();
 
     /** Return HepMC position of the truth vertex */
-    const HepMC::FourVector&  position() const;
-    /** Return Physics process code of the truth incident */
-    Barcode::PhysicsProcessCode physicsProcessCode() const;
+    const HepMC::FourVector&  position() const override final;
+    /** Return category of the physics process represented by the truth incident (eg hadronic, em, ..) */
+    int                       physicsProcessCategory() const override final;
+    /** Return specific physics process code of the truth incident (eg ionisation, bremsstrahlung, ..)*/
+    Barcode::PhysicsProcessCode physicsProcessCode() const override final;
 
-    /** Return p^2 of the primary particle */
-    double                    primaryP2() const;
-    /** Return pT^2 of the primary particle */
-    double                    primaryPt2() const;
-    /** Return Ekin of the primary particle */
-    double                    primaryEkin() const;
-    /** Return the PDG Code of the primary particle */
-    int                       primaryPdgCode() const;
-    /** Return the primary particle as a HepMC particle type
+    /** Return p^2 of the parent particle */
+    double                    parentP2() const override final;
+    /** Return pT^2 of the parent particle */
+    double                    parentPt2() const override final;
+    /** Return Ekin of the parent particle */
+    double                    parentEkin() const override final;
+    /** Return the PDG Code of the parent particle */
+    int                       parentPdgCode() const override final;
+    /** Return the parent particle as a HepMC particle type
         (usually only called for particles that will enter the HepMC truth event) */
-    HepMC::GenParticle*       primaryParticle(bool setPersistent) const;
-    /** Return the barcode of the primary particle */
-    Barcode::ParticleBarcode  primaryBarcode() const;
-    /** Return the extra barcode of the primary particle */
-    Barcode::ParticleBarcode  primaryExtraBarcode() const;
-    /** Return the primary particle after the TruthIncident vertex (and give
+    HepMC::GenParticle*       parentParticle(bool setPersistent) const override final;
+    /** Return the barcode of the parent particle */
+    Barcode::ParticleBarcode  parentBarcode() const override final;
+    /** Return the extra barcode of the parent particle */
+    Barcode::ParticleBarcode  parentExtraBarcode() const override final;
+    /** Return a boolean whether or not the parent particle survives the incident */
+    bool                      parentSurvivesIncident() const override final;
+    /** Return the parent particle after the TruthIncident vertex (and give
         it a new barcode) */
-    HepMC::GenParticle*       primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                           bool setPersistent);
+    HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
+                                                         bool setPersistent) override final;
 
-    /** Return total number of secondary particles */
-    unsigned short            numberOfSecondaries() const;
-    /** Return p^2 of the i-th secondary particle */
-    double                    secondaryP2(unsigned short index) const;
-    /** Return pT^2 of the i-th secondary particle */
-    double                    secondaryPt2(unsigned short index) const;
-    /** Return Ekin of the i-th secondary particle */
-    double                    secondaryEkin(unsigned short index) const;
-    /** Return the PDG Code of the i-th secondary particle */
-    int                       secondaryPdgCode(unsigned short index) const;
-    /** Return the i-th secondary as a HepMC particle type and assign the given
+    /** Return p^2 of the i-th child particle */
+    double                    childP2(unsigned short index) const override final;
+    /** Return pT^2 of the i-th child particle */
+    double                    childPt2(unsigned short index) const override final;
+    /** Return Ekin of the i-th child particle */
+    double                    childEkin(unsigned short index) const override final;
+    /** Return the PDG Code of the i-th child particle */
+    int                       childPdgCode(unsigned short index) const override final;
+    /** Return the i-th child as a HepMC particle type and assign the given
         Barcode to the simulator particle (usually only called for particles that
         will enter the HepMC truth event) */
-    HepMC::GenParticle*       secondaryParticle(unsigned short index,
-                                                Barcode::ParticleBarcode bc,
-                                                bool setPersistent) const;
-    /** Set the the barcode of all secondary particles to the given bc */
-    void                      setAllSecondaryBarcodes(Barcode::ParticleBarcode bc);
-    /** Set the the extra barcode of all secondary particles to the given bc */
-    void                      setAllSecondaryExtraBarcodes(Barcode::ParticleBarcode bc);
-    /** Set the the extra barcode of a secondary particles to the given bc */
-    void                      setSecondaryExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc);
-    /** Record that a particular secondary passed a check */
-    inline void                      setSecondaryPassed(unsigned short index) const;
-    /** Should a particular secondary be written out to the GenEvent */
-    inline bool                      writeOutSecondary(unsigned short index) const;
+    HepMC::GenParticle*       childParticle(unsigned short index,
+                                            Barcode::ParticleBarcode bc,
+                                            bool setPersistent) const override final;
+    /** Set the the barcode of all child particles to the given bc */
+    void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
+    /** Set the the extra barcode of all child particles to the given bc */
+    void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode bc) override final;
+    /** Set the the extra barcode of a child particles to the given bc */
+    void                      setChildExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) override final;
   private:
     ISFTruthIncident();
     inline HepMC::GenParticle* convert( ISF::ISFParticle *particle,
                                         bool setPersistent) const;
 
-    ISF::ISFParticle&                  m_primary;
-    const ISFParticleVector&           m_secondary;
+    ISF::ISFParticle&                  m_parent;
+    const ISFParticleVector&           m_children;
     const Barcode::PhysicsProcessCode  m_process;
     const ISF::KillPrimary             m_killsPrimary;
     mutable const HepMC::FourVector   *m_position;
     mutable std::vector<bool>          m_passedFilters;
   };
-
-  void ISF::ISFTruthIncident::setSecondaryPassed(unsigned short index) const {
-    m_passedFilters[index] = m_passedFilters[index] || true;
-    return;
-  }
-
-  bool ISF::ISFTruthIncident::writeOutSecondary(unsigned short index) const {
-    return m_wholeVertexPassed || m_passedFilters[index];
-  }
 
 } // end of namespace
 

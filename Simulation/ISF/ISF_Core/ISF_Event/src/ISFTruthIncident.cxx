@@ -17,19 +17,18 @@
 #include "HepMC/SimpleVector.h"
 #include "HepMC/GenParticle.h"
 
-ISF::ISFTruthIncident::ISFTruthIncident( ISF::ISFParticle &primary,
-                                         const ISFParticleVector& secondary,
+ISF::ISFTruthIncident::ISFTruthIncident( ISF::ISFParticle &parent,
+                                         const ISFParticleVector& children,
                                          Barcode::PhysicsProcessCode process,
                                          AtlasDetDescr::AtlasRegion geoID,
                                          ISF::KillPrimary killsPrimary,
                                          const HepMC::FourVector *position) :
-  ITruthIncident(geoID),
-  m_primary(primary),
-  m_secondary(secondary),
+  ITruthIncident(geoID, children.size()),
+  m_parent(parent),
+  m_children(children),
   m_process(process),
   m_killsPrimary(killsPrimary),
-  m_position(position),
-  m_passedFilters(secondary.size(), false)
+  m_position(position)
 {
 }
 
@@ -41,10 +40,10 @@ const HepMC::FourVector& ISF::ISFTruthIncident::position() const {
 
   if ( !m_position) {
     // no position was given, compute it
-    //  (1.) try retrieve the position from the first secondary particle
-    //  (2.) if no secondaries given -> get position from primary particle
-    const ISF::ISFParticle *particle = m_secondary.front();
-    if ( !particle) particle = &m_primary;
+    //  (1.) try retrieve the position from the first child particle
+    //  (2.) if no child particles given -> get position from parent particle
+    const ISF::ISFParticle *particle = m_children.front();
+    if ( !particle) particle = &m_parent;
     const Amg::Vector3D &pos = particle->position();
 
     double time = 0.;  //<! TODO: FIXME
@@ -54,79 +53,87 @@ const HepMC::FourVector& ISF::ISFTruthIncident::position() const {
   return *m_position;
 }
 
+int ISF::ISFTruthIncident::physicsProcessCategory() const {
+  return -1;
+}
+
 Barcode::PhysicsProcessCode ISF::ISFTruthIncident::physicsProcessCode() const {
   return m_process;
 }
 
-double ISF::ISFTruthIncident::primaryP2() const {
-  return m_primary.momentum().mag2();
+double ISF::ISFTruthIncident::parentP2() const {
+  return m_parent.momentum().mag2();
 }
 
-double ISF::ISFTruthIncident::primaryPt2() const {
-  return m_primary.momentum().perp2();
+double ISF::ISFTruthIncident::parentPt2() const {
+  return m_parent.momentum().perp2();
 }
 
-double ISF::ISFTruthIncident::primaryEkin() const {
-  return m_primary.ekin();
+double ISF::ISFTruthIncident::parentEkin() const {
+  return m_parent.ekin();
 }
 
-int ISF::ISFTruthIncident::primaryPdgCode() const {
-  return m_primary.pdgCode();
+int ISF::ISFTruthIncident::parentPdgCode() const {
+  return m_parent.pdgCode();
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::primaryParticle(bool setPersistent) const {
-  return convert( &m_primary, setPersistent);
+HepMC::GenParticle* ISF::ISFTruthIncident::parentParticle(bool setPersistent) const {
+  return convert( &m_parent, setPersistent);
 }
 
-Barcode::ParticleBarcode ISF::ISFTruthIncident::primaryBarcode() const {
-  return m_primary.barcode();
+Barcode::ParticleBarcode ISF::ISFTruthIncident::parentBarcode() const {
+  return m_parent.barcode();
 }
 
-Barcode::ParticleBarcode ISF::ISFTruthIncident::primaryExtraBarcode() const {
-  return m_primary.getExtraBC();
+Barcode::ParticleBarcode ISF::ISFTruthIncident::parentExtraBarcode() const {
+  return m_parent.getExtraBC();
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
+bool ISF::ISFTruthIncident::parentSurvivesIncident() const {
+  if (m_killsPrimary == ISF::fKillsPrimary) {
+      return false;
+  } else {
+      return true;
+  }
+}
+
+HepMC::GenParticle* ISF::ISFTruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
                                                                         bool setPersistent) {
-  // if primary is killed in the interaction -> return 0
+  // if parent is killed in the interaction -> return 0
   if (m_killsPrimary==ISF::fKillsPrimary) return 0;
 
-  // only update the primary particle, if it survived the interaction:
+  // only update the parent particle, if it survived the interaction:
 
   // set a new barcode
-  m_primary.setBarcode( newBC);
-  // return the updated primary particle
-  return primaryParticle(setPersistent);
+  m_parent.setBarcode( newBC);
+  // return the updated parent particle
+  return parentParticle(setPersistent);
 }
 
-unsigned short ISF::ISFTruthIncident::numberOfSecondaries() const {
-  return m_secondary.size();
+double ISF::ISFTruthIncident::childP2(unsigned short index) const {
+  return m_children[index]->momentum().mag2();
 }
 
-double ISF::ISFTruthIncident::secondaryP2(unsigned short index) const {
-  return m_secondary[index]->momentum().mag2();
+double ISF::ISFTruthIncident::childPt2(unsigned short index) const {
+  return m_children[index]->momentum().perp2();
 }
 
-double ISF::ISFTruthIncident::secondaryPt2(unsigned short index) const {
-  return m_secondary[index]->momentum().perp2();
-}
-
-double ISF::ISFTruthIncident::secondaryEkin(unsigned short index) const {
-  return m_secondary[index]->ekin();
+double ISF::ISFTruthIncident::childEkin(unsigned short index) const {
+  return m_children[index]->ekin();
 }
 
 
-int ISF::ISFTruthIncident::secondaryPdgCode(unsigned short index) const {
-  return m_secondary[index]->pdgCode();
+int ISF::ISFTruthIncident::childPdgCode(unsigned short index) const {
+  return m_children[index]->pdgCode();
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::secondaryParticle(unsigned short index,
+HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
                                                              Barcode::ParticleBarcode bc,
                                                              bool setPersistent) const {
-  // the secondary particle
-  ISF::ISFParticle *sec = m_secondary[index];
+  // the child particle
+  ISF::ISFParticle *sec = m_children[index];
 
-  // set particle barcode of the secondary particle
+  // set particle barcode of the child particle
   if (bc) {
     sec->setBarcode( bc);
   }
@@ -135,11 +142,11 @@ HepMC::GenParticle* ISF::ISFTruthIncident::secondaryParticle(unsigned short inde
   return convert( sec, setPersistent);
 }
 
-void ISF::ISFTruthIncident::setAllSecondaryBarcodes(Barcode::ParticleBarcode bc) {
-  unsigned short numSec = numberOfSecondaries();
+void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) {
+  unsigned short numSec = numberOfChildren();
   for (unsigned short i=0; i<numSec; i++) {
     // the current particle
-    ISF::ISFParticle *p = m_secondary[i];
+    ISF::ISFParticle *p = m_children[i];
 
     // set a new barcode
     p->setBarcode( bc);
@@ -149,19 +156,19 @@ void ISF::ISFTruthIncident::setAllSecondaryBarcodes(Barcode::ParticleBarcode bc)
 }
 
 
-void ISF::ISFTruthIncident::setAllSecondaryExtraBarcodes(Barcode::ParticleBarcode bc) 
+void ISF::ISFTruthIncident::setAllChildrenExtraBarcodes(Barcode::ParticleBarcode bc) 
 {
-  unsigned short numSec = numberOfSecondaries();
+  unsigned short numSec = numberOfChildren();
   for (unsigned short i=0; i<numSec; i++) {
-     setSecondaryExtraBarcode(i,bc);
+     setChildExtraBarcode(i,bc);
   }
   return;
 }
 
 
-void ISF::ISFTruthIncident::setSecondaryExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) 
+void ISF::ISFTruthIncident::setChildExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) 
 {
-  ISF::ISFParticle *p = m_secondary[index];
+  ISF::ISFParticle *p = m_children[index];
 
   // MB : this can be removed at some point
   if (p->getUserInformation()==0) {

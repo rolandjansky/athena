@@ -25,13 +25,20 @@ namespace ISF {
 
   /** @class ITruthIncident
 
-      @TODO: class description
+      ISF interface class for TruthIncidents. Information regarding
+      interactions that occur inside simulators are wrapped into
+      dedicated TruthIncident implemenations. The ITruthIncident
+      interface offers a layer of abstraction to the ISF framework,
+      in order to build a MC truth record of the simulated event.
 
       @author Elmar.Ritsch -at- cern.ch
   */
   class ITruthIncident {
   public:
-    ITruthIncident(AtlasDetDescr::AtlasRegion geoID):m_geoID(geoID),m_passWholeVertex(true),m_wholeVertexPassed(false) { };
+    ITruthIncident(AtlasDetDescr::AtlasRegion geoID, unsigned short numChildren): m_geoID(geoID),
+                                                                          m_numChildren(numChildren),
+                                                                          m_passWholeVertex(true),
+                                                                          m_childPassedFilters(numChildren,false) { };
 
     /** Return the SimGeoID corresponding to the vertex of the truth incident */
     AtlasDetDescr::AtlasRegion geoID() { return m_geoID; };
@@ -39,122 +46,134 @@ namespace ISF {
     /** Return HepMC position of the truth vertex */
     virtual const HepMC::FourVector&  position() const = 0;
 
-    /** Return Physics process code of the truth incident */
+    /** Return category of the physics process represented by the truth incident (eg hadronic, em, ..) */
+    virtual int                       physicsProcessCategory() const = 0;
+    /** Return specific physics process code of the truth incident (eg ionisation, bremsstrahlung, ..)*/
     virtual Barcode::PhysicsProcessCode physicsProcessCode() const = 0;
 
-    /** Return p^2 of the primary particle */
-    virtual double                    primaryP2() const = 0;
-    /** Return pT^2 of the primary particle */
-    virtual double                    primaryPt2() const = 0;
-    /** Return Ekin of the primary particle */
-    virtual double                    primaryEkin() const = 0;
-    /** Return the PDG Code of the primary particle */
-    virtual int                       primaryPdgCode() const = 0;
-    /** Return the primary particle as a HepMC particle type
+    /** Return p^2 of the parent particle */
+    virtual double                    parentP2() const = 0;
+    /** Return pT^2 of the parent particle */
+    virtual double                    parentPt2() const = 0;
+    /** Return Ekin of the parent particle */
+    virtual double                    parentEkin() const = 0;
+    /** Return the PDG Code of the parent particle */
+    virtual int                       parentPdgCode() const = 0;
+    /** Return the parent particle as a HepMC particle type
         (only called for particles that will enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       primaryParticle(bool setPersistent=false) const = 0;
-    /** Return the barcode of the primary particle */
-    virtual Barcode::ParticleBarcode  primaryBarcode() const = 0;
-    /** Return the extra barcode of the primary particle */
-    virtual Barcode::ParticleBarcode  primaryExtraBarcode() const { return 0; }
-    /** Return the primary particle after the TruthIncident vertex (and assign
+    virtual HepMC::GenParticle*       parentParticle(bool setPersistent=false) const = 0;
+    /** Return the barcode of the parent particle */
+    virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
+    /** Return the extra barcode of the parent particle */
+    virtual Barcode::ParticleBarcode  parentExtraBarcode() const { return 0; }
+    /** Return a boolean whether or not the parent particle survives the incident */
+    virtual bool                      parentSurvivesIncident() const = 0;
+    /** Return the parent particle after the TruthIncident vertex (and assign
         a new barcode to it) */
-    virtual HepMC::GenParticle*       primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                                   bool setPersistent=false) = 0;
+    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
+                                                                  bool setPersistent=false) = 0;
 
-    /** Return total number of secondary particles */
-    virtual unsigned short            numberOfSecondaries() const = 0;
-    /** Return p^2 of the i-th secondary particle */
-    virtual double                    secondaryP2(unsigned short index) const = 0;
-    /** Return pT^2 of the i-th secondary particle */
-    virtual double                    secondaryPt2(unsigned short index) const = 0;
-    /** Return Ekin of the i-th secondary particle */
-    virtual double                    secondaryEkin(unsigned short index) const = 0;
-    /** Return the PDG Code of the i-th secondary particle */
-    virtual int                       secondaryPdgCode(unsigned short index) const = 0;
-    /** Return true if at least one secondary particle passes the given p^2 cut
-        (= at least one secondary with p^2 >= pt2cut) */
-    inline bool                       secondaryP2Pass(double p2cut) const;
-    /** Return true if at least one secondary particle passes the given pT^2 cut
-        (= at least one secondary with pT^2 >= pt2cut) */
-    inline bool                       secondaryPt2Pass(double pt2cut) const;
-    /** Return true if at least one secondary particle passes the given Ekin cut
-        (= at least one secondary with Ekin >= ekincut) */
-    inline bool                       secondaryEkinPass(double ekincut) const;
-    /** Return the i-th secondary as a HepMC particle type and assign the given
+    /** Return total number of child particles */
+    inline unsigned short             numberOfChildren() const;
+    /** Return p^2 of the i-th child particle */
+    virtual double                    childP2(unsigned short index) const = 0;
+    /** Return pT^2 of the i-th child particle */
+    virtual double                    childPt2(unsigned short index) const = 0;
+    /** Return Ekin of the i-th child particle */
+    virtual double                    childEkin(unsigned short index) const = 0;
+    /** Return the PDG Code of the i-th child particle */
+    virtual int                       childPdgCode(unsigned short index) const = 0;
+    /** Return true if at least one child particle passes the given p^2 cut
+        (= at least one child with p^2 >= pt2cut) */
+    inline bool                       childrenP2Pass(double p2cut);
+    /** Return true if at least one child particle passes the given pT^2 cut
+        (= at least one child with pT^2 >= pt2cut) */
+    inline bool                       childrenPt2Pass(double pt2cut);
+    /** Return true if at least one child particle passes the given Ekin cut
+        (= at least one child with Ekin >= ekincut) */
+    inline bool                       childrenEkinPass(double ekincut);
+    /** Return the i-th child as a HepMC particle type and assign the given
         Barcode to the simulator particle (only called for particles that will
         enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       secondaryParticle(unsigned short index,
+    virtual HepMC::GenParticle*       childParticle(unsigned short index,
                                                         Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
                                                         bool setPersistent=false) const = 0;
-    /** Set the the barcode of all secondary particles to the given bc */
-    virtual void                      setAllSecondaryBarcodes(Barcode::ParticleBarcode bc) = 0;
-    /** Set the the extra barcode of all secondary particles to the given bc */
-    virtual void                      setAllSecondaryExtraBarcodes(Barcode::ParticleBarcode /*bc*/) {};
-    /** Set the the extra barcode of a secondary particles to the given bc */
-    virtual void                      setSecondaryExtraBarcode(unsigned short /*index*/, Barcode::ParticleBarcode /*bc*/) {};
-    /** Record that a particular secondary passed a check */
-    virtual void                      setSecondaryPassed(unsigned short index) const = 0;
-    /** Should a particular secondary be written out to the GenEvent */
-    virtual bool                      writeOutSecondary(unsigned short index) const = 0;
-    /** Set whether this TruthIncident should pass the vertex as a whole or individual secondaries */
+    /** Set the the barcode of all child particles to the given bc */
+    virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
+    /** Set the the extra barcode of all child particles to the given bc */
+    virtual void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode /*bc*/) {};
+    /** Set the the extra barcode of a child particles to the given bc */
+    virtual void                      setChildExtraBarcode(unsigned short /*index*/, Barcode::ParticleBarcode /*bc*/) {};
+
+    /** Record that a particular child passed a check */
+    inline void                       setChildPassedFilters(unsigned short index);
+    /** Should a particular child be written out to the GenEvent */
+    inline bool                       childPassedFilters(unsigned short index) const;
+    /** Set whether this TruthIncident should pass the vertex as a whole or individual children */
     inline void                       setPassWholeVertices(bool passWholeVertex);
 
   private:
-    AtlasDetDescr::AtlasRegion                     m_geoID;
+    AtlasDetDescr::AtlasRegion        m_geoID; //!< region that the TruthIncident is located in
   protected:
-    bool m_passWholeVertex;
-    mutable bool m_wholeVertexPassed; //FIXME clean up logic so that
-                                      //this doesn't need to be
-                                      //mutable.
+    int                               m_numChildren;
+    bool                              m_passWholeVertex;
+    std::vector<bool>                 m_childPassedFilters;
+
   };
 
   //
   // inline methods :
   //
 
-  // default loops to check a given cut for all secondary particles
+  unsigned short ISF::ITruthIncident::numberOfChildren() const {
+    return m_numChildren;
+  }
 
-  // loop over secondaries to find out whether the momentum cut is passed or not
-  bool ISF::ITruthIncident::secondaryP2Pass(double p2cut) const {
-    unsigned short numSec = numberOfSecondaries();
+  // default loops to check a given cut for all child particles
+
+  // loop over children to find out whether the momentum cut is passed or not
+  bool ISF::ITruthIncident::childrenP2Pass(double p2cut) {
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
-      bool thispassed = (secondaryP2(i) >= p2cut);
-      if(thispassed) { setSecondaryPassed(i); }
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<m_numChildren); ++i) {
+      bool thispassed = (childP2(i) >= p2cut);
+      if(thispassed) { setChildPassedFilters(i); }
       pass |= thispassed;
     }
-    m_wholeVertexPassed=m_passWholeVertex && pass;
     return pass;
   }
 
-  // loop over secondaries to find out whether the transverse momentum cut is passed or not
-  bool ISF::ITruthIncident::secondaryPt2Pass(double pt2cut) const {
-    unsigned short numSec = numberOfSecondaries();
+  // loop over children to find out whether the transverse momentum cut is passed or not
+  bool ISF::ITruthIncident::childrenPt2Pass(double pt2cut) {
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
-      bool thispassed = (secondaryPt2(i) >= pt2cut);
-      if(thispassed) { setSecondaryPassed(i); }
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<m_numChildren); ++i) {
+      bool thispassed = (childPt2(i) >= pt2cut);
+      if(thispassed) { setChildPassedFilters(i); }
       pass |= thispassed;
     }
-    m_wholeVertexPassed=m_passWholeVertex && pass;
     return pass;
   }
 
-  // loop over secondaries to find out whether the transverse momentum cut is passed or not
-  bool ISF::ITruthIncident::secondaryEkinPass(double ekincut) const {
-    unsigned short numSec = numberOfSecondaries();
+  // loop over children to find out whether the transverse momentum cut is passed or not
+  bool ISF::ITruthIncident::childrenEkinPass(double ekincut) {
     bool pass = false; // true if cut passed
     // as soon as at a particle passes the cut -> end loop and return true
-    for ( unsigned short i=0; (!pass && m_passWholeVertex) && (i<numSec); ++i) {
-      bool thispassed = (secondaryEkin(i) >= ekincut);
-      if(thispassed) { setSecondaryPassed(i); }
+    for ( unsigned short i=0; !(pass && m_passWholeVertex) && (i<m_numChildren); ++i) {
+      bool thispassed = (childEkin(i) >= ekincut);
+      if(thispassed) { setChildPassedFilters(i); }
       pass |= thispassed;
     }
-    m_wholeVertexPassed=m_passWholeVertex && pass;
     return pass;
+  }
+
+  void ISF::ITruthIncident::setChildPassedFilters(unsigned short index) {
+    m_childPassedFilters[index] = true;
+    return;
+  }
+
+  bool ISF::ITruthIncident::childPassedFilters(unsigned short index) const {
+    return m_childPassedFilters[index];
   }
 
   void ISF::ITruthIncident::setPassWholeVertices(bool passWholeVertex) {

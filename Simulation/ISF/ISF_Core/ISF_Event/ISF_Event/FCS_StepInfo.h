@@ -43,7 +43,7 @@ namespace ISF_FCS_Parametrization {
   public:
 
     //! empty default constructor
-    FCS_StepInfo() {}
+    FCS_StepInfo(): m_pos(), m_valid(false), m_detector(-1) {}
 
     FCS_StepInfo(CLHEP::Hep3Vector l_vec, Identifier l_cell, double l_energy, double l_time, bool l_valid, int l_detector): TileHit(l_cell,l_energy, l_time) { m_pos = l_vec; m_valid = l_valid, m_detector = l_detector; } 
 
@@ -68,6 +68,7 @@ namespace ISF_FCS_Parametrization {
     //! set identifier
     //inline void setIdentifier(const Identifier id) { m_ID = id; }
 
+    inline void setDetector(const int det) { m_detector = det; }
     //! return spacial position
     inline CLHEP::Hep3Vector position() const { return m_pos; }
     //! return x position
