@@ -34,6 +34,15 @@ def getMC12BarcodeSvc(name="Barcode_MC12BarcodeSvc", **kwargs):
     from BarcodeServices.BarcodeServicesConf import Barcode__LegacyBarcodeSvc
     return Barcode__LegacyBarcodeSvc(name, **kwargs)
 
+def getMC12PlusBarcodeSvc(name="Barcode_MC12PlusBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
+def getMC15aPlusBarcodeSvc(name="Barcode_MC15aPlusBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
+def getMC15aBarcodeSvc(name="Barcode_MC15aBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
 def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwargs):
     kwargs.setdefault("EncodePhysicsProcessInVertexBC",  False  )
     kwargs.setdefault("FirstVertexBarcode"            , -200000 )
