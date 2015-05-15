@@ -70,6 +70,7 @@ namespace ISF {
       /** loop over McEventCollection */
       StatusCode  processMergedColls(ISF::ISFParticleContainer& particleColl) const;
       StatusCode  processSingleColl(ISF::ISFParticleContainer& particleColl) const;
+      StatusCode  processPileupColl(ISF::ISFParticleContainer& particleColl) const;
       StatusCode  mcEventCollLooper(ISF::ISFParticleContainer& particleColl, McEventCollection* mcCollection, int nPileupCounter=0) const;
 
       /** ParticlePropertyService and ParticleDataTable */
@@ -78,6 +79,8 @@ namespace ISF {
 
       std::string                           m_inputMcEventCollection;   //!< name of input McEventCollection
       std::string                           m_outputMcEventCollection;  //!< name of output McEventCollection
+      std::string                           m_pileupMcEventCollection;  //!< name of additional Pileup McEventCollection
+      std::string                           m_outputPileupMcEventCollection;  //!< name of additional Pileup output McEventCollection
       bool                                  m_recordOnlySimulated;      //!< record only simulated particles in output truth collection
       bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
 

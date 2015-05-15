@@ -77,10 +77,14 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) cons
   if (particle.production_vertex() && m_qs){
     for (HepMC::GenVertex::particle_iterator it = particle.production_vertex()->particles_begin(HepMC::parents);
                                              it != particle.production_vertex()->particles_end(HepMC::parents); ++it){
+      // Loop breaker
       if ( (*it)->barcode() == particle.barcode() ) continue;
-      so_far_so_good = so_far_so_good && !std::binary_search( m_pdgId.begin() , m_pdgId.end() , (*it)->pdg_id() ) && !MC::PID::isNucleus( particle.pdg_id() );
-    } // Loop over daughters
-  } // particle had daughters
+      // Check this particle
+      vertices.clear();
+      bool parent_all_clear = pass( **it , vertices );
+      so_far_so_good = so_far_so_good && !parent_all_clear;
+    } // Loop over parents
+  } // particle had parents
 
   return so_far_so_good;
 }
@@ -92,13 +96,14 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
   bool passFilter = std::binary_search( m_pdgId.begin() , m_pdgId.end() , particle.pdg_id() ) || MC::PID::isNucleus( particle.pdg_id() );
 
   // Test all daughter particles
-  if (particle.end_vertex() && m_qs){
+  if (particle.end_vertex() && m_qs && passFilter){
     // Break loops
     if ( std::find( used_vertices.begin() , used_vertices.end() , particle.end_vertex()->barcode() )==used_vertices.end() ){
       used_vertices.push_back( particle.end_vertex()->barcode() );
-      for (HepMC::GenVertex::particle_iterator it = particle.end_vertex()->particles_begin(HepMC::descendants);
-                                               it != particle.end_vertex()->particles_end(HepMC::descendants); ++it){
+      for (HepMC::GenVertex::particle_iterator it = particle.end_vertex()->particles_begin(HepMC::children);
+                                               it != particle.end_vertex()->particles_end(HepMC::children); ++it){
         passFilter = passFilter && pass( **it , used_vertices );
+        if (!passFilter) break;
       } // Loop over daughters
     } // Break loops
   } // particle had daughters

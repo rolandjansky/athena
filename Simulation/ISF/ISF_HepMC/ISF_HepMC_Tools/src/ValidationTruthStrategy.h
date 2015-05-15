@@ -38,11 +38,11 @@ namespace ISF {
      StatusCode  finalize();
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( const ITruthIncident& incident) const;
+     bool pass( ITruthIncident& incident) const;
 
 	  private:
-     /** cuts on the primary particle */
-     double                          m_minPrimaryP2;  //!< minimum primary particle momentum ^ 2
+     /** cuts on the parent particle */
+     double                          m_minParentP2;  //!< minimum parent particle momentum ^ 2
 
    }; 
   

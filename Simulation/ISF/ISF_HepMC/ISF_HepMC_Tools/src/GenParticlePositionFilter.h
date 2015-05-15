@@ -11,6 +11,7 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -49,6 +50,7 @@ namespace ISF {
 	  
 	private:
       ServiceHandle<IGeoIDSvc>          m_geoIDSvc;
+      std::vector<int>                  m_checkRegion;
   }; 
   
 }

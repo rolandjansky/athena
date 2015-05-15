@@ -16,12 +16,12 @@
 /** Constructor **/
 ISF::ValidationTruthStrategy::ValidationTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_minPrimaryP2(0.)
+  m_minParentP2(0.)
 {
     declareInterface<ISF::ITruthStrategy>(this);
 
-    // primary particle minimum momentum
-    declareProperty("PrimaryMinP"        , m_minPrimaryP2     );
+    // parent particle minimum momentum
+    declareProperty("ParentMinP"        , m_minParentP2     );
 }
 
 /** Destructor **/
@@ -34,9 +34,9 @@ StatusCode  ISF::ValidationTruthStrategy::initialize()
 {
     ATH_MSG_VERBOSE("Initializing ...");
 
-    // (*) setup primary particle cuts
+    // (*) setup parent particle cuts
     // -> compute p^2 for fast comparison
-    m_minPrimaryP2 *= m_minPrimaryP2;
+    m_minParentP2 *= m_minParentP2;
 
     return StatusCode::SUCCESS;
 }
@@ -47,10 +47,10 @@ StatusCode  ISF::ValidationTruthStrategy::finalize()
     return StatusCode::SUCCESS;
 }
 
-bool ISF::ValidationTruthStrategy::pass( const ITruthIncident& ti) const {
+bool ISF::ValidationTruthStrategy::pass( ITruthIncident& ti) const {
 
-  // primary particle check
-  bool pass =  ( ti.primaryP2() >= m_minPrimaryP2 );
+  // parent particle check
+  bool pass =  ( ti.parentP2() >= m_minParentP2 );
 
   return pass;
 }

@@ -66,10 +66,41 @@ def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc')
+    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc'    )
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticlePositionFilter
     return ISF__GenParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1 ] )  # only ID, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3 ] )  # ID+Fwd+Calo, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4  ] )  # ID+Fwd+Calo+MS, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterWorld(name="ISF_ParticlePositionFilterWorld", **kwargs):
+    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4, 5 ] ) # ISF+Fwd+Calo+MS+Cavern, see AtlasDetDescr/AtlasRegion.h
+    return getParticlePositionFilter(name, **kwargs)
+
+def getParticlePositionFilterDynamic(name="ISF_ParticlePositionFilterDynamic", **kwargs):
+    # automatically choose the best fitting filter region
+    if DetFlags.Muon_on():
+      return getParticlePositionFilterWorld(name, **kwargs)
+    elif DetFlags.Calo_on():
+      return getParticlePositionFilterCalo(name, **kwargs)
+    elif DetFlags.ID_on():
+      return getParticlePositionFilterID(name, **kwargs)
+    else:
+      return getParticlePositionFilterWorld(name, **kwargs)
+
+def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **kwargs):
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleInteractingFilter
+    return ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
     # EtaPhiFilter
@@ -88,8 +119,9 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
 ## Stack Fillers
 def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
     kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
-                                                    'ISF_ParticlePositionFilter',
-                                                    'ISF_EtaPhiFilter' ] )
+                                                    'ISF_ParticlePositionFilterDynamic',
+                                                    'ISF_EtaPhiFilter',
+                                                    'ISF_GenParticleInteractingFilter', ] )
     return getStackFiller(name, **kwargs)
 
 
@@ -105,6 +137,7 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
                                                                            'ISF_ParticleFinalStateFilter',
+                                                                           'ISF_GenParticleInteractingFilter',
                                                                           ])
     else:
         kwargs.setdefault("GenEventManipulators"                        , [
@@ -113,8 +146,9 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
                                                                            'ISF_ParticleFinalStateFilter',
-                                                                           'ISF_ParticlePositionFilter',
+                                                                           'ISF_ParticlePositionFilterDynamic',
                                                                            'ISF_EtaPhiFilter',
+                                                                           'ISF_GenParticleInteractingFilter',
                                                                           ])
     kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
     kwargs.setdefault("PileUpMergeService"                                  , '')
@@ -137,8 +171,8 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
 # G4 HadInt sub types:
 #  http://www-geant4.kek.jp/lxr/source//processes/hadronic/management/include/G4HadronicProcessType.hh#L46
 def getTruthStrategyGroupID_MC15(name="ISF_MCTruthStrategyGroupID_MC15", **kwargs):
-    kwargs.setdefault('PrimaryMinPt'        , 100.*MeV)
-    kwargs.setdefault('SecondaryMinPt'      , 300.*MeV)
+    kwargs.setdefault('ParentMinPt'         , 100.*MeV)
+    kwargs.setdefault('ChildMinPt'          , 300.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
@@ -148,8 +182,8 @@ def getTruthStrategyGroupID_MC15(name="ISF_MCTruthStrategyGroupID_MC15", **kwarg
 
 
 def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
-    kwargs.setdefault('PrimaryMinPt'        , 100.*MeV)
-    kwargs.setdefault('SecondaryMinPt'      , 100.*MeV)
+    kwargs.setdefault('ParentMinPt'         , 100.*MeV)
+    kwargs.setdefault('ChildMinPt'          , 100.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
@@ -159,46 +193,46 @@ def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
 
 
 def getTruthStrategyGroupIDHadInt_MC15(name="ISF_MCTruthStrategyGroupIDHadInt_MC15", **kwargs):
-    kwargs.setdefault('PrimaryMinPt'                      , 100.*MeV)
-    kwargs.setdefault('SecondaryMinPt'                    , 300.*MeV)
+    kwargs.setdefault('ParentMinPt'                       , 100.*MeV)
+    kwargs.setdefault('ChildMinPt'                        , 300.*MeV)
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
-    kwargs.setdefault('AllowSecondaryOrPrimaryPassKineticCuts' , True)
+    kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 
 def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwargs):
-    kwargs.setdefault('PrimaryMinPt'                      , 100.*MeV)
-    kwargs.setdefault('SecondaryMinPt'                    , 100.*MeV)
+    kwargs.setdefault('ParentMinPt'                       , 100.*MeV)
+    kwargs.setdefault('ChildMinPt'                        , 100.*MeV)
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
-    kwargs.setdefault('AllowSecondaryOrPrimaryPassKineticCuts' , True)
+    kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 
 def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBrem_MC15", **kwargs):
-    kwargs.setdefault('PrimaryMinEkin'      , 500.*MeV)
-    kwargs.setdefault('SecondaryMinEkin'    , 300.*MeV)
+    kwargs.setdefault('ParentMinEkin'       , 500.*MeV)
+    kwargs.setdefault('ChildMinEkin'        , 300.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3 ])
-    kwargs.setdefault('PrimaryPDGCodes'     , [ 13, -13 ])
+    kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
-    kwargs.setdefault('PrimaryMinEkin'      , 500.*MeV)
-    kwargs.setdefault('SecondaryMinEkin'    , 100.*MeV)
+    kwargs.setdefault('ParentMinEkin'       , 500.*MeV)
+    kwargs.setdefault('ChildMinEkin'        , 100.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3 ])
-    kwargs.setdefault('PrimaryPDGCodes'     , [ 13, -13 ])
+    kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
-    kwargs.setdefault('PrimaryMinEkin'      , 1000.*MeV)
-    kwargs.setdefault('SecondaryMinEkin'    , 500.*MeV)
+    kwargs.setdefault('ParentMinEkin'       , 1000.*MeV)
+    kwargs.setdefault('ChildMinEkin'        , 500.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
@@ -207,8 +241,8 @@ def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
-    kwargs.setdefault('PrimaryMinPt'        , 1000.*MeV)
-    kwargs.setdefault('SecondaryMinPt'      , 500.*MeV)
+    kwargs.setdefault('ParentMinPt'         , 1000.*MeV)
+    kwargs.setdefault('ChildMinPt'          , 500.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
@@ -217,7 +251,7 @@ def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **k
     return ISF__GenericTruthStrategy(name, **kwargs);
 
 def getValidationTruthStrategy(name="ISF_ValidationTruthStrategy", **kwargs):
-    kwargs.setdefault('PrimaryMinP'        , 50.*MeV)
+    kwargs.setdefault('ParentMinP'          , 50.*MeV)
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__ValidationTruthStrategy
     return ISF__ValidationTruthStrategy(name, **kwargs);

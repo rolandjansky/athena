@@ -32,6 +32,10 @@ use PathResolver                PathResolver-*           Tools
 use PileUpTools                 PileUpTools-*            Control
 use TruthUtils                  TruthUtils-*             Generators
 
+# For TF1
+use AtlasROOT                   AtlasROOT-*              External
+apply_tag rootGraphicsLibs
+
 public
 library ISF_HepMC_Tools *.cxx components/*.cxx
 apply_pattern component_library

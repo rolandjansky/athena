@@ -43,7 +43,7 @@ namespace ISF {
      StatusCode  finalize();
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( const ITruthIncident& incident) const;
+     bool pass( ITruthIncident& incident) const;
 
 	  private:
      double                 m_ri;    //!< inner cylinder radius
