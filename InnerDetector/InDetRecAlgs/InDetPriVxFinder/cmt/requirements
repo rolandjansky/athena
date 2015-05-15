@@ -7,6 +7,7 @@ use AthenaBaseComps    AthenaBaseComps-*   Control
 use GaudiInterface     GaudiInterface-*    External
 
 private
+use CxxUtils           CxxUtils-*          Control
 use VxVertex           VxVertex-*          Tracking/TrkEvent
 use TrkTrack           TrkTrack-*          Tracking/TrkEvent
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
