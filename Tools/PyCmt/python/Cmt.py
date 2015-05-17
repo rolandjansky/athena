@@ -719,13 +719,11 @@ class CmtMgr(object):
             [defaults]
             #default32 = True
             opt = True
-            gcc43default = True
             lang = C
             hastest = True           # to prepend pwd to cmtpath
             pedantic = True
             runtime = True
             setup = True
-            os = slc5
             #project = AtlasOffline  # offline is already the default
             save = True
             #standalone = False   # prefer build area instead of kit-release
