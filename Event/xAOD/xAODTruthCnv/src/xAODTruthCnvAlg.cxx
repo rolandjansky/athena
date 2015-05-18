@@ -105,12 +105,16 @@ namespace xAODMaker {
       xTruthEventContainer->setStore( xTruthEventAuxContainer );
       ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerName );
       // Pile-up events
-      xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
-      CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
-      xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
-      CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
-      xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
-      ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+      xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = 0;
+      xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = 0;
+      if (m_doAllPileUp || m_doInTimePileUp) {
+	xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
+	CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
+	xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
+	CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
+	xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
+	ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+      }
       // Particles
       xAOD::TruthParticleContainer* xTruthParticleContainer = new xAOD::TruthParticleContainer();
       CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
