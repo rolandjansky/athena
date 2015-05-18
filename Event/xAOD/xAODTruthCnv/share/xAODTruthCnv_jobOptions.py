@@ -2,13 +2,10 @@ printMCOutput = False
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = ["evnt.pool.root"]
-
+ 
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
-
-# Create the xAOD::EventInfo object:
-theJob += CfgMgr.xAODMaker__EventInfoCnvAlg( "EventInfoCnvAlg" )
 
 # Run the xAOD truth builder
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
@@ -19,6 +16,7 @@ alg.WriteAllPileUpTruth = False
 alg.AODContainerName = "GEN_EVENT"
 alg.OutputLevel = INFO  
 theJob += alg
+
 
 # Output
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -37,9 +35,7 @@ xaodStream.AddItem( "xAOD::TruthVertexContainer#*" )
 xaodStream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
 xaodStream.AddItem( "xAOD::TruthParticleContainer#*" ) 
 xaodStream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
-
-xaodStream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
-
+ 
 # Check what happened to the stream:
 xaodStream.Print()
 
