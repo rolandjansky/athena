@@ -13,7 +13,7 @@
     <refRelease>15.5.0</refRelease>
 
     <jobList>
-
+      
       <classification>
         <displayClass>OfflineValidation</displayClass>
         <displayProcess>Reco</displayProcess>
@@ -28,16 +28,19 @@
 	</jobTransformCmd>
 	<group>TrfRecPerf_CheckFile_PerfMon</group>
 	<queue>atlasrttperf</queue>
-      </jobTransform>
 
-      <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
-	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
-	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
-	<jobTransformCmd>
-	  Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=False;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>atlasrttperf</queue>
+	<action position="1" runInAtlasEnv="y">
+          <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+            <argname>exeName</argname>
+            <argvalue>checkxAOD.py</argvalue>
+	  </arg>
+	  <arg>
+            <argname>exeParamString</argname>
+            <argvalue>myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt </argvalue>
+	  </arg>
+	</action>
       </jobTransform>
 
 
@@ -59,6 +62,19 @@
 	</jobTransformCmd>
 	<group>TrfRecPerf_CheckFile_PerfMon</group>
 	<queue>atlasrttperf</queue>
+	<action position="1" runInAtlasEnv="y">
+          <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+            <argname>exeName</argname>
+            <argvalue>checkxAOD.py</argvalue>
+	  </arg>
+	  <arg>
+            <argname>exeParamString</argname>
+            <argvalue>myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt </argvalue>
+	  </arg>
+	</action>
+
       </jobTransform>
 
       <jobTransform userJobId="monitoring_reco_data12_egamma">
@@ -69,6 +85,18 @@
 	</jobTransformCmd>
 	<group>TrfRecPerf_CheckFile_PerfMon</group>
 	<queue>atlasrttperf</queue>
+	<action position="1" runInAtlasEnv="y">
+          <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+            <argname>exeName</argname>
+            <argvalue>checkxAOD.py</argvalue>
+	  </arg>
+	  <arg>
+            <argname>exeParamString</argname>
+            <argvalue>myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt </argvalue>
+	  </arg>
+	</action>
       </jobTransform>
 
       <jobTransform userJobId="monitoring_reco_data12_muons">
@@ -79,6 +107,18 @@
 	</jobTransformCmd>
 	<group>TrfRecPerf_CheckFile_PerfMon</group>
 	<queue>atlasrttperf</queue>
+	<action position="1" runInAtlasEnv="y">
+          <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+            <argname>exeName</argname>
+            <argvalue>checkxAOD.py</argvalue>
+	  </arg>
+	  <arg>
+            <argname>exeParamString</argname>
+            <argvalue>myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt </argvalue>
+	  </arg>
+	</action>
       </jobTransform>
 
 
@@ -113,54 +153,55 @@
       </jobTransform>
       
     </jobList>
-    
-    <jobGroups>
 
+
+    <jobGroups>
       <jobGroup name="TrfRecPerf" parent="Transform">
 	<!-- keep everything which is not huge -->
-        <keepFilePattern>*.pmon.gz</keepFilePattern>
-        <keepFilePattern>*.log</keepFilePattern>
-        <keepFilePattern>*.xml</keepFilePattern>
-        <keepFilePattern>*.py</keepFilePattern>
-        <keepFilePattern>*.pdf</keepFilePattern>
-        <keepFilePattern>*.txt</keepFilePattern>
-        <keepFilePattern>*.png</keepFilePattern>
-        <keepFilePattern>*.out</keepFilePattern>
-        <keepFilePattern>*.ascii</keepFilePattern>
-        <keepFilePattern>last*</keepFilePattern>
-        <keepFilePattern>*pickle</keepFilePattern>
-        <keepFilePattern>jobReport*</keepFilePattern>
-        <keepFilePattern>runargs*</keepFilePattern>
-        <keepFilePattern>ntuple*perfmon*</keepFilePattern>
-        <keepFilePattern>pmb-callgrind*log</keepFilePattern>
-        <keepFilePattern>callgrind*bz2</keepFilePattern>
+	<keepFilePattern>*.checkfile.txt</keepFilePattern>
+	<keepFilePattern>*.pmon.gz</keepFilePattern>
+	<keepFilePattern>*.log</keepFilePattern>
+	<keepFilePattern>*.xml</keepFilePattern>
+	<keepFilePattern>*.py</keepFilePattern>
+	<keepFilePattern>*.pdf</keepFilePattern>
+	<keepFilePattern>*.txt</keepFilePattern>
+	<keepFilePattern>*.png</keepFilePattern>
+	<keepFilePattern>*.out</keepFilePattern>
+	<keepFilePattern>*.ascii</keepFilePattern>
+	<keepFilePattern>last*</keepFilePattern>
+	<keepFilePattern>*pickle</keepFilePattern>
+	<keepFilePattern>jobReport*</keepFilePattern>
+	<keepFilePattern>runargs*</keepFilePattern>
+	<keepFilePattern>ntuple*perfmon*</keepFilePattern>
+	<keepFilePattern>pmb-callgrind*log</keepFilePattern>
+	<keepFilePattern>callgrind*bz2</keepFilePattern>
 	<keepFilePattern>log.RAWtoESD</keepFilePattern>
 	<keepFilePattern>log.ESDtoAOD</keepFilePattern>
-	<keepFilePattern>log.AODtodAOD</keepFilePattern>
+	<keepFilePattern>log.AODtoDAOD</keepFilePattern>
       </jobGroup>
-
-
+      
+      
       <jobGroup name="TrfRecPerf_NoCheckFile_PerfMon" parent="TrfRecPerf">
-        <test>
-          <modulename>RttLibraryTools</modulename>
-          <testname>PerfMonRunner</testname>
-          <arg>
-            <argname>fileName</argname>
-            <argvalue>ntuple_RAW*.pmon.gz</argvalue>
-          </arg>
-        </test>
-
-        <testToRemove>
-          <jobGroupName>Top</jobGroupName>
-          <testidentifier>CheckFileRunner0</testidentifier>
-        </testToRemove>
-      </jobGroup>
-
-
-      <jobGroup name="TrfRecPerf_NoCheckFile_NoPerfMon" parent="TrfRecPerf">
-        <test>
-          <modulename>RttLibraryTools</modulename>
-          <testname>PerfMonRunner</testname>
+	<test>
+        <modulename>RttLibraryTools</modulename>
+        <testname>PerfMonRunner</testname>
+        <arg>
+          <argname>fileName</argname>
+          <argvalue>ntuple_RAW*.pmon.gz</argvalue>
+        </arg>
+      </test>
+      
+      <testToRemove>
+        <jobGroupName>Top</jobGroupName>
+        <testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+    </jobGroup>
+    
+    
+    <jobGroup name="TrfRecPerf_NoCheckFile_NoPerfMon" parent="TrfRecPerf">
+      <test>
+        <modulename>RttLibraryTools</modulename>
+        <testname>PerfMonRunner</testname>
           <arg>
             <argname>fileName</argname>
             <argvalue>ntuple_RAW*.pmon.gz</argvalue>
@@ -188,6 +229,8 @@
         </test-->
 
       </jobGroup>
+
+
 
     </jobGroups>
 
