@@ -355,3 +355,69 @@ class AthTagFile(object):
             self._metadata['file_size'] = os.stat(self._filename)[6]
         except IOError:
             self._metadata['file_size'] = None
+
+
+class AthInpFile(object):
+    def __init__(self, filename):
+        self._filename = filename
+        self._metadata = _create_file_info_template()
+
+        self.fopen()
+
+    def fopen(self):
+        self._process_inp_file()
+        self._metadata['file_type'] = 'pool'
+        self._metadata['file_size'] = _get_file_size(self._filename)
+
+    @property
+    def fileinfo(self):
+        return self._metadata
+
+    def _process_inp_file(self):
+        pool_guid = None
+        nentries = 0
+        try:
+            from PyUtils.RootUtils import import_root
+            root = import_root()
+            f = root.TFile.Open(self._filename, 'READ')
+
+            if f:
+                # FIXME EventStreamInfo is more autoritative source for nentries
+                tree = f.Get('POOLContainer')
+                if not tree: # support for old files
+                    tree = f.Get("POOLContainer_DataHeader")
+                if tree:
+                    nentries = tree.GetEntriesFast()
+                del tree
+
+                # _get_guid() code from FilePeeker class by Sebastian Binet
+                pool = f.Get('##Params')
+                if pool:
+                    pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
+                                            r'[[]VALUE=(?P<value>.*?)[]]').match
+                    params = []
+                    for i in xrange(pool.GetEntries()):
+                        if pool.GetEntry(i)>0:
+                            match = pool_token(pool.db_string)
+                            if not match:
+                                continue
+                            d = match.groupdict()
+                            params.append((d['name'], d['value']))
+                            if d['name'].lower() == 'fid':
+                                pool_guid = d['value']
+                del pool
+            f.Close()
+            del f
+
+            self._metadata['file_guid'] = pool_guid
+            self._metadata['nentries'] = nentries
+        except Exception, e:
+            print >>sys.stderr, "Exception raised when processing POOL file {0}: {1}".format(self._filename, e)
+            raise
+
+    def _getSize(self):
+        # FIXME Probably need to use ROOT for non-posix fs
+        try:
+            self._metadata['file_size'] = os.stat(self._filename)[6]
+        except IOError:
+            self._metadata['file_size'] = None

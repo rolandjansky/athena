@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 664272 $"
+__version__ = "$Revision: 664271 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
