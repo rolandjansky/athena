@@ -1,0 +1,27 @@
+package xAODForwardAthenaPool
+
+author Libor Nozka <libor.nozka@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+# Base package(s):
+use AtlasPolicy        AtlasPolicy-*
+
+private
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODForward    	xAODForward-*	      Event/xAOD
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
+
+# Declare the pool converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::ALFADataContainer\
+					  xAOD::ALFADataAuxContainer" \
+                      files="-s=${xAODForward_root}/xAODForward \
+                             ALFADataContainer.h \
+			     ALFADataAuxContainer.h" \
+                      cnv_pfx="xAOD" 
