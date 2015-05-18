@@ -17,6 +17,8 @@ def retrieveAODList():
 
     def saveThisObject(o):
         # return True if o is of a desired type
+        if  "HLT_" in o:
+            return False
         return any( o.startswith( typ ) for typ in typeToSave )
 
     esdjets = [ o for o in inputcontent if saveThisObject(o) ]
