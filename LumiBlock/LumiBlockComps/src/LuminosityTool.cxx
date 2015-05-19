@@ -9,9 +9,10 @@
 #include "EventInfo/EventType.h"
 
 #include "CoolKernel/IObject.h"
-#include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+
+#include "CoolLumiUtilities/BunchLumisUtil.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -33,7 +34,8 @@ LuminosityTool::LuminosityTool(const std::string& type,
     m_lblbFolderName(""), ///TRIGGER/LUMI/LBLB"),
     m_recalcPerBCIDLumi(true),
     m_preferredChannel(0),
-    m_luminousBunches(0)
+    m_luminousBunches(0),
+    m_bunchInstLumiBlob(NULL)
 {
   declareInterface<ILuminosityTool>(this);
   declareProperty("LumiFolderName", m_lumiFolderName);
@@ -250,6 +252,7 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
   m_LBAvEvtsPerBX = 0.;
   m_Valid = 0xFFFFFFFF;
   m_preferredChannel = 0;
+  m_bunchInstLumiBlob = NULL;
 
   // Check if we have anything to do
   // Shouldn't actually get a callback if this folder doesn't exist...
@@ -288,16 +291,36 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     return StatusCode::SUCCESS;
   }
 
-  // Check validity
+  // Check validity (don't bother continuing if invalid)
   cool::UInt32 m_Valid = attrList["Valid"].data<cool::UInt32>();
-  if (m_Valid & 0x03) {
-    ATH_MSG_WARNING( " Invalid luminosity ... set lumi to 0" );
+  if (m_Valid & 0x01) {
+    ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
     return StatusCode::SUCCESS;
   }
 
   // Get preferred channel (needed for per-BCID calculation)
   if (m_lumiChannel == 0) {
-    m_preferredChannel = (m_Valid >> 22);
+
+    // Check if we have a payload for this (Run2 only)      
+    bool hasAlgorithmID = false;
+    for (coral::AttributeList::const_iterator attr = attrList.begin();
+	 attr != attrList.end(); ++attr) {
+      //const std::string& name = attr->specification().name();
+      if (attr->specification().name() == "AlgorithmID") {
+	hasAlgorithmID = true;
+	break;
+      }
+    }
+
+    if (hasAlgorithmID) {
+      // In Run2, channel 0 should be good.  Leave as is
+      m_preferredChannel = m_lumiChannel;
+
+    } else {
+      // In Run1, we need to recalculate from the actual channel number
+      m_preferredChannel = (m_Valid >> 22);
+    }
+
   } else {
     m_preferredChannel = m_lumiChannel;
   }
@@ -317,8 +340,31 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
   }
 
   // Also update muToLumi as this may have changed with the channel number
-  if (!m_onlineLumiCalibrationTool.empty())
+  if (!m_onlineLumiCalibrationTool.empty()) {
     m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_preferredChannel);
+  } else if (m_LBAvEvtsPerBX > 0.) {
+    m_MuToLumi = m_LBAvInstLumi / m_LBAvEvtsPerBX;
+  } else {
+    m_MuToLumi = 0.;
+  } 
+
+  // Check validity of per-BCID luminosity (will issue warning in recalcPerBCIDLumi
+  int perBcidValid = (m_Valid/10) % 10;
+  if (perBcidValid > 0) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Also save per-BCID blob if it exists
+  for (coral::AttributeList::const_iterator attr = attrList.begin();
+       attr != attrList.end(); ++attr) {
+    //const std::string& name = attr->specification().name();
+    if (attr->specification().name() == "BunchInstLumi") {
+      if (!attrList["BunchInstLumi"].isNull())
+	m_bunchInstLumiBlob = &attrList["BunchInstLumi"].data<coral::Blob>();
+
+      break;
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -377,106 +423,174 @@ LuminosityTool::recalculatePerBCIDLumi()
   m_LBInstLumi.assign(TOTAL_LHC_BCIDS, 0.);
 
   // Make some sanity checks that we have everyting we need
-  if (m_preferredChannel == 0) return;
-  if (m_LBAvInstLumi == 0.) return;
-
-  // Nothing to do if we don't have the ingredients
-  if (m_onlineLumiCalibrationTool.empty()) {
-    ATH_MSG_DEBUG( "OnlineLumiCalibrationTool.empty() is TRUE, skipping..." );
+  if (m_lumiFolderName.empty()) {
+    ATH_MSG_INFO( "LumiFolderName is empty in recalculatePerBCIDLumi()!");
     return;
   }
-  if (m_bunchLumisTool.empty()) {
-    ATH_MSG_DEBUG( "BunchLumisTool.empty() is TRUE, skipping..." );
+  int perBcidValid = (m_Valid/10) % 10;
+  if ((m_Valid & 0x03) || (perBcidValid > 0)) {  // Skip if either per-BCID or LBAv is invalid
+    ATH_MSG_WARNING( " Invalid per-BCID luminosity found!" );
     return;
   }
-  if (m_bunchGroupTool.empty()) {
-    ATH_MSG_DEBUG( "BunchGroupTool.empty() is TRUE, skipping..." );
-    return;
-  }
-  if (m_fillParamsTool.empty()) {
-    ATH_MSG_DEBUG( "FillParamsTool.empty() is TRUE, skipping..." );
+  if (m_LBAvInstLumi <= 0.) {
+    ATH_MSG_INFO( "LBAvInstLumi is zero or negative in recalculatePerBCIDLumi():" << m_LBAvInstLumi);
     return;
   }
 
-  // Update data from FillParamsTool
-  m_luminousBunches = m_fillParamsTool->nLuminousBunches();
-  m_luminousBunchesVec = m_fillParamsTool->luminousBunches();
+  // Check here if we want to do this the Run1 way (hard) or the Run2 way (easy)
 
-  ATH_MSG_DEBUG( "N LuminousBunches:" << m_luminousBunches );
-  //ATH_MSG_DEBUG( m_luminousBunchesVec[0] << " " <<  m_luminousBunchesVec[1] );
+  if (m_bunchInstLumiBlob != NULL) { // Run2 way, easy
+    ATH_MSG_DEBUG( "starting Run2 recalculatePerBCIDLumi() for alg: " << m_preferredChannel );
 
-  // Get the raw data for the preferred channel
-  m_bunchLumisTool->setChannel(m_preferredChannel);
-  std::vector<float> rawLumiVec = m_bunchLumisTool->rawLuminosity();
-
-
-  //
-  // Calibration step
-  //
-
-  //  Here we want to go through and calibrate raw values in the luminous bunches only.
-  // This is what the OL adds up, and since these are online calibrations, we want to rescale the total
-  // to agree to whatever offline tag we are using.
-  std::vector<float> calLumiVec(TOTAL_LHC_BCIDS, 0.);
-
-  // Update muToLumi while we are at it (also check that calibration exists)
-  m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_preferredChannel);
-  if (m_MuToLumi <= 0.) {
-    ATH_MSG_WARNING( " dont have calibration information for preferred channel " << m_preferredChannel << "!" );
-    return;
-  }
-
-  double lumiSum = 0.;
-  for (unsigned int i = 0; i<m_luminousBunches; i++) {
-    unsigned int bcid = m_luminousBunchesVec[i];
-
-    // Don't waste time on zero lumi 
-    if (rawLumiVec[bcid] <= 0.) {
-      ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> skipping" );
-      continue;
+    // Check that the length isn't zero
+    if (m_bunchInstLumiBlob->size() == 0) {
+      ATH_MSG_WARNING("BunchInstLumi blob found with zero length!");
+      return;
     }
 
-    // Calibrate
-    if (!m_onlineLumiCalibrationTool->calibrateLumi(m_preferredChannel, rawLumiVec[bcid], calLumiVec[bcid])) {
-      ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> calibration failed!" );
-      ATH_MSG_WARNING( "Per-BCID calibration failed for bcid " << bcid << " with raw lumi = " << rawLumiVec[bcid] );
-      continue;
+    // Utility class to do the work
+    //BunchLumisUtil lumiUtil;
+    //if (!lumiUtil.unpackBlob(m_bunchInstLumiBlob)) {
+    //  ATH_MSG_WARNING( "Failed to unpack blob: " << lumiUtil.error );
+    //  return;
+    //}
+
+    //m_LBInstLumi = lumiUtil.bunchLumis();
+
+    // Hardcode the Run2 BLOB decoding (should use CoolLumiUtilities...)
+    const char* pchar = static_cast<const char*>(m_bunchInstLumiBlob->startingAddress()); // First byte holds storage size and mode
+    unsigned int bss = ((*pchar) % 100) / 10;  // Byte storage size
+    unsigned int smod = ((*pchar) % 10);       // Storage mode
+
+    ATH_MSG_DEBUG( "BunchInstLumi blob found with storage mode " << smod << " and byte storage size " << bss );
+
+    // Make sure we have what we think we have
+    if (bss != 4 || smod != 1) {
+      ATH_MSG_WARNING( "BunchInstLumi blob found with storage mode " << smod << " and byte storage size " << bss << " - Unknown!");
+      return;
     }
 
-    lumiSum += calLumiVec[bcid];
+    unsigned int nbcids = TOTAL_LHC_BCIDS;
+    unsigned int bloblength = bss * nbcids + 1;
 
-    ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> " << calLumiVec[bcid] );
-  }
-
-  // Work out scale factor between offline and online estimate
-  float offlineOnlineRatio = 1.;
-  if (lumiSum > 0.) offlineOnlineRatio = m_LBAvInstLumi / lumiSum;
-
-  ATH_MSG_DEBUG( " Offline/Online scale factor: " << m_LBAvInstLumi << " / " << lumiSum << " = " << offlineOnlineRatio );
-
-  // Make sure we have values for all BCIDs in the physics bunch group
-  // std::vector<unsigned int> m_bgBunchesVec = m_bunchGroupTool->bunchGroup1();
-  for (unsigned int i = 0; i<m_bunchGroupTool->nBunchGroup1(); i++) {
-    unsigned int bcid = m_bunchGroupTool->bunchGroup1()[i];
-
-    // Don't repeat if value already exists
-    if (calLumiVec[bcid] > 0.) continue;
-    if (rawLumiVec[bcid] <= 0.) continue;
-
-    // Calibrate
-    if (!m_onlineLumiCalibrationTool->calibrateLumi(m_preferredChannel, rawLumiVec[bcid], calLumiVec[bcid])) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " -> Calibration failed!" << endreq;
-      ATH_MSG_WARNING( "Per-BCID calibration failed for bcid " << bcid << " with raw lumi = " << rawLumiVec[bcid] );
-      continue;
+    if (static_cast<cool::UInt32>(m_bunchInstLumiBlob->size()) != bloblength) {
+      ATH_MSG_WARNING( "BunchRawInstLumi blob found with length" << m_bunchInstLumiBlob->size() << "in storage mode" << smod <<  ", expecting " << bloblength << "!" );
+      return;
     }
+
+    // Length is correct, read raw data according to packing scheme
+    // This is absolute luminosity, so just unpack values into our array
+    
+    ATH_MSG_DEBUG( "Unpacking lumi value from blob");
+    const float* p4 = (const float*) ++pchar;  // Points to next char after header
+    for (unsigned int i=0; i<nbcids; i++, p4++) {
+      m_LBInstLumi[i] = *p4;
+      ATH_MSG_DEBUG( "Bcid: " << i << " Lumi: " << *p4 );
+    }
+    
+  } else { // Run1 way, hard!
+    ATH_MSG_DEBUG( "starting Run1 recalculatePerBCIDLumi() for alg: " << m_preferredChannel );
+    
+    if (m_preferredChannel == 0) return;
+
+    // Nothing to do if we don't have the ingredients
+    if (m_onlineLumiCalibrationTool.empty()) {
+      ATH_MSG_DEBUG( "OnlineLumiCalibrationTool.empty() is TRUE, skipping..." );
+      return;
+    }
+    if (m_bunchLumisTool.empty()) {
+      ATH_MSG_DEBUG( "BunchLumisTool.empty() is TRUE, skipping..." );
+      return;
+    }
+    if (m_bunchGroupTool.empty()) {
+      ATH_MSG_DEBUG( "BunchGroupTool.empty() is TRUE, skipping..." );
+      return;
+    }
+    if (m_fillParamsTool.empty()) {
+      ATH_MSG_DEBUG( "FillParamsTool.empty() is TRUE, skipping..." );
+      return;
+    }
+
+    // Update data from FillParamsTool
+    m_luminousBunches = m_fillParamsTool->nLuminousBunches();
+    m_luminousBunchesVec = m_fillParamsTool->luminousBunches();
+
+    ATH_MSG_DEBUG( "N LuminousBunches:" << m_luminousBunches );
+    //ATH_MSG_DEBUG( m_luminousBunchesVec[0] << " " <<  m_luminousBunchesVec[1] );
+
+    // Get the raw data for the preferred channel
+    m_bunchLumisTool->setChannel(m_preferredChannel);
+    std::vector<float> rawLumiVec = m_bunchLumisTool->rawLuminosity();
+
+
+    //
+    // Calibration step
+    //
+    
+    //  Here we want to go through and calibrate raw values in the luminous bunches only.
+    // This is what the OL adds up, and since these are online calibrations, we want to rescale the total
+    // to agree to whatever offline tag we are using.
+    std::vector<float> calLumiVec(TOTAL_LHC_BCIDS, 0.);
+    
+    // Update muToLumi while we are at it (also check that calibration exists)
+    m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_preferredChannel);
+    if (m_MuToLumi <= 0.) {
+      ATH_MSG_WARNING( " dont have calibration information for preferred channel " << m_preferredChannel << "!" );
+      return;
+    }
+
+    double lumiSum = 0.;
+    for (unsigned int i = 0; i<m_luminousBunches; i++) {
+      unsigned int bcid = m_luminousBunchesVec[i];
+      
+      // Don't waste time on zero lumi 
+      if (rawLumiVec[bcid] <= 0.) {
+	ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> skipping" );
+	continue;
+      }
+
+      // Calibrate
+      if (!m_onlineLumiCalibrationTool->calibrateLumi(m_preferredChannel, rawLumiVec[bcid], calLumiVec[bcid])) {
+	ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> calibration failed!" );
+	ATH_MSG_WARNING( "Per-BCID calibration failed for bcid " << bcid << " with raw lumi = " << rawLumiVec[bcid] );
+	continue;
+      }
+      
+      lumiSum += calLumiVec[bcid];
+      
+      ATH_MSG_DEBUG( "Calibrate BCID " << bcid << " with raw " << rawLumiVec[bcid] << " -> " << calLumiVec[bcid] );
+    }
+
+    // Work out scale factor between offline and online estimate
+    float offlineOnlineRatio = 1.;
+    if (lumiSum > 0.) offlineOnlineRatio = m_LBAvInstLumi / lumiSum;
+    
+    ATH_MSG_DEBUG( " Offline/Online scale factor: " << m_LBAvInstLumi << " / " << lumiSum << " = " << offlineOnlineRatio );
+
+    // Make sure we have values for all BCIDs in the physics bunch group
+    // std::vector<unsigned int> m_bgBunchesVec = m_bunchGroupTool->bunchGroup1();
+    for (unsigned int i = 0; i<m_bunchGroupTool->nBunchGroup1(); i++) {
+      unsigned int bcid = m_bunchGroupTool->bunchGroup1()[i];
+      
+      // Don't repeat if value already exists
+      if (calLumiVec[bcid] > 0.) continue;
+      if (rawLumiVec[bcid] <= 0.) continue;
+      
+      // Calibrate
+      if (!m_onlineLumiCalibrationTool->calibrateLumi(m_preferredChannel, rawLumiVec[bcid], calLumiVec[bcid])) {
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " -> Calibration failed!" << endreq;
+	ATH_MSG_WARNING( "Per-BCID calibration failed for bcid " << bcid << " with raw lumi = " << rawLumiVec[bcid] );
+	continue;
+      }
+    }
+
+    // Almost done, now we apply the scale factor to all BCIDs
+    for (unsigned int i=0; i<calLumiVec.size(); i++) 
+      calLumiVec[i] *= offlineOnlineRatio;
+    
+    // And finally assign this vector to our final data location
+    m_LBInstLumi = calLumiVec;
   }
-
-  // Almost done, now we apply the scale factor to all BCIDs
-  for (unsigned int i=0; i<calLumiVec.size(); i++) 
-    calLumiVec[i] *= offlineOnlineRatio;
-
-  // And finally assign this vector to our final data location
-  m_LBInstLumi = calLumiVec;
 
   ATH_MSG_DEBUG( "finished recalculatePerBCIDLumi() for alg: " << m_preferredChannel );
   return;
