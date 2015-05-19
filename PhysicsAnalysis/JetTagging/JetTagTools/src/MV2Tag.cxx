@@ -76,6 +76,7 @@ namespace Analysis {
   
   StatusCode MV2Tag::initialize() {
     m_disableAlgo=false;
+    m_useEgammaMethodMV2=false;
     m_warnCounter=0;
 
     m_treeName = "BDT";
@@ -102,8 +103,7 @@ namespace Analysis {
   StatusCode MV2Tag::finalize() {
     ATH_MSG_DEBUG("#BTAG# Finalizing MV2.");
     if (m_useEgammaMethodMV2) {
-      std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator posBDT = m_egammaBDTs.begin();
-      for( ; posBDT != m_egammaBDTs.end(); ++posBDT ) delete posBDT->second;
+      for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     }
     else {
       // delete readers:
