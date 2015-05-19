@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfArgClasses.py 668503 2015-05-19 19:16:29Z graemes $
 
 import argparse
 import bz2
@@ -21,10 +21,11 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize, inpFileInterestingKeys
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
+from PyJobTransforms.trfAMI import getAMIClient
 
 
 ## @class argFactory
@@ -1192,6 +1193,10 @@ class argAthenaFile(argFile):
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
 
+        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files
+        if aftype == 'POOL' and self._io == 'input':
+            retrieveKeys = inpFileInterestingKeys
+
         # N.B. Could parallelise here            
         for fname in myFiles:
             # athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys, timeout=240+30*len(myFiles), defaultrc=None)
@@ -2062,6 +2067,63 @@ class argSubstepSteering(argSubstep):
                                                           'Failed to convert string {0!s} to argSubstepSteering'.format(subvalue))
             retvalue.append((matchedParts.group(1), matchedParts.group(2), matchedParts.group(3)))
         return retvalue
+
+
+## @brief Substep class for conditionsTag 
+class argSubstepConditions(argSubstep):
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        msg.debug('Attempting to set argSubstepConditions from {0!s} (type {1}'.format(value, type(value)))
+        client = getAMIClient()
+        if value is None:
+            self._value = {}
+        elif isinstance(value, str):
+            subStep, subStepValue = self._parseStringAsSubstep(value)
+            if "CurrentMC" in subStepValue:
+                self._value = {subStep: self._amiLookUp(client)}
+            else:
+                self._value = {subStep: subStepValue}
+        elif isinstance(value, (list, tuple)):
+            self._value = {}
+            for item in value:
+                if not isinstance(item, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
+                subStep, subStepValue = self._parseStringAsSubstep(item)
+                if "CurrentMC" in subStepValue:
+                    self._value[subStep] = self._amiLookUp(client)
+                else:
+                    self._value[subStep] = subStepValue
+        elif isinstance(value, dict):
+            self._value = {}
+            for k, v in value.iteritems():
+                if not isinstance(k, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Dictionary key {0!s} for substep is not a string'.format(k))
+                if not isinstance(v, str): 
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                              'Dictionary value {0!s} for substep is not a string'.format(k))
+                if "CurrentMC" in v:
+                    self._value[k] = self._amiLookUp(client)
+                else:
+                    self._value[k] = v
+        else:
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
+                                                      'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+
+    def _amiLookUp(self, client):
+        cmd = "COMAGetGlobalTagNameByCurrentState --state=CurrentMC"
+        return str(client.execute(cmd, format = 'dom_object').get_rows().pop()['globalTag'])
+    
+    @property
+    def prodsysDescription(self):
+        desc = {'type': 'substep', 'substeptype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
+        return desc
 
         
 class trfArgParser(argparse.ArgumentParser):

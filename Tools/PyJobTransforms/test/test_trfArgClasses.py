@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 648031 2015-02-19 09:57:41Z graemes $
+#  @version $Id: test_trfArgClasses.py 668503 2015-05-19 19:16:29Z graemes $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -16,6 +16,7 @@ msg = logging.getLogger(__name__)
 # Allowable to import * from the package for which we are the test suite
 from PyJobTransforms.trfArgClasses import *
 from PyJobTransforms.trfUtils import cmpMetadata
+from PyJobTransforms.trfAMI import getAMIClient
 
 ## Unittests for this module
 class trfArgumentTests(unittest.TestCase):
@@ -371,6 +372,51 @@ class argSteeringTests(unittest.TestCase):
         steer = argSubstepSteering('doRDO_TRIG')
         self.assertEqual(len(steer.value), 1)
         self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]})
+
+
+class argConditionsTests(unittest.TestCase):
+    def setup(self):
+        # store getAMIClient and fake a new one
+        # fake client with execute function, returning fake dom_object
+        class client(object):
+            def execute(self, cmd, format):
+                return dom()
+        # fake dom_object with get_rows function
+        class dom(object):
+            def get_rows(self):
+                return [{'globalTag': 'TEST'}]
+        def getFakeClient():
+            return client
+        amiClient = argSubstepConditions.value.fset.func_globals['getAMIClient']
+        argSubstepConditions.value.fset.func_globals['getAMIClient'] = getFakeClient()
+        return amiClient
+        
+    def test_condStr(self):
+        client = self.setup()
+        cond1 = argSubstepConditions('CurrentMC')
+        cond2 = argSubstepConditions('step:CurrentMC')
+        cond3 = argSubstepConditions('step:OFLCOND-RUN12-SDR-28')
+        self.assertEqual(cond1.value, {'all': 'TEST'})
+        self.assertEqual(cond2.value, {'step': 'TEST'})
+        self.assertEqual(cond3.value, {'step': 'OFLCOND-RUN12-SDR-28'})
+        self.tear_down(client)
+    def test_condList(self):
+        client = self.setup()
+        cond = argSubstepConditions(['CurrentMC', 'one:something'])
+        self.assertEqual(cond.value, {'all': 'TEST', 'one': 'something'})
+        self.tear_down(client)
+    def test_condDict(self):
+        client = self.setup()
+        d1 = {'all': 'other', 'one': 'CurrentMC'}
+        d2 = {'one': 'apples', 'two': 'bananas'}
+        cond1 = argSubstepConditions(d1)
+        cond2 = argSubstepConditions(d2)
+        self.assertEqual(cond1.value, {'all': 'other', 'one': 'TEST'})
+        self.assertEqual(cond2.value, {'one': 'apples', 'two': 'bananas'})
+        self.tear_down(client)
+    def tear_down(self, client):
+        argSubstepConditions.value.fset.func_globals['getAMIClient'] = client
+        
 
 
 class argFileTests(unittest.TestCase):

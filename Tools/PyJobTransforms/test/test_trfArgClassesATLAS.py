@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClassesATLAS.py 628398 2014-11-14 12:54:56Z graemes $
+#  @version $Id: test_trfArgClassesATLAS.py 667158 2015-05-14 16:14:07Z vanyash $
 #  @note Tests of ATLAS specific file formats (that thus rely on other
 #  parts of Athena) live here
 
@@ -16,6 +16,9 @@ from PyJobTransforms.trfLogger import msg
 
 # Allowable to import * from the package for which we are the test suite
 from PyJobTransforms.trfArgClasses import *
+
+# Stripped down key list for files which are inputs 
+from PyJobTransforms.trfFileUtils import inpFileInterestingKeys
 
 class argFileEOSTests(unittest.TestCase):
     def test_SimExpansion(self):
@@ -48,6 +51,8 @@ class argPOOLFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             esdFile = argPOOLFile(testFile, io = 'input', type='esd')
+            self.assertEqual(esdFile.getMetadata(metadataKeys =  tuple(inpFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'nentries': 10L, 'file_size': 17033381}})
+            esdFile = argPOOLFile(testFile, io = 'output', type='esd')
             self.assertEqual(esdFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'run_number': [182796L], 'beam_energy': [3500000.0], 'file_type': 'pool', 'AODFixVersion': '', 'file_size': 17033381L, 'geometry': 'ATLAS-GEO-16-00-01', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'beam_type': ['collisions'], 'lumi_block': [300L], 'conditions_tag': 'COMCOND-BLKPST-004-00', 'integrity': True, 'nentries': 10L}}) 
             self.assertEqual(esdFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}})
             self.assertEqual(esdFile.prodsysDescription['type'],'file')
@@ -60,6 +65,8 @@ class argPOOLFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             aodFile = argPOOLFile(testFile, io = 'input', type='aod')
+            self.assertEqual(aodFile.getMetadata(metadataKeys = tuple(inpFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'nentries': 10L, 'file_size': 4673269}})
+            aodFile = argPOOLFile(testFile, io = 'output', type='aod')
             self.assertEqual(aodFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'run_number': [182796L], 'beam_energy': [3500000.0], 'file_type': 'pool', 'AODFixVersion': '', 'file_size': 4673269L, 'geometry': 'ATLAS-GEO-16-00-01', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'beam_type': ['collisions'], 'lumi_block': [300L], 'conditions_tag': 'COMCOND-BLKPST-004-00', 'integrity': True, 'nentries': 10L}}) 
             self.assertEqual(aodFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}}) 
             self.assertEqual(aodFile.prodsysDescription['type'],'file')
