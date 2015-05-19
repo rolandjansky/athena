@@ -17,5 +17,5 @@ class CKKWDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'ckkwscalup', 1, desc='(default 0, use Powheg scalup) compute the scalup scale for subsequent shower using the smallest kt in the final state (CKKW)' )
+    self.decorated.add_parameter( 'ckkwscalup', 1, desc='(default 1) 0:use Powheg scalup; 1:compute scalup scale for subsequent shower using the smallest kt in the final state (CKKW)' )
 

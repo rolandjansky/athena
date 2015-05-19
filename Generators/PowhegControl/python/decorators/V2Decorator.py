@@ -38,7 +38,7 @@ class V2Decorator(object) :
     self.decorated.add_parameter( 'ncall2rm', None,                             desc='(default None) number of calls for computing the integral and finding upper bound for the remnant.' )
     self.decorated.add_parameter( 'noevents', -1 )
     self.decorated.add_parameter( 'novirtual', -1 )
-    self.decorated.fix_parameter( 'parallelstage', -1,                          desc='(default -1, disabled) 1...4, which stage to perform in parallel.' )
+    self.decorated.add_parameter( 'parallelstage', -1,                          desc='(default -1, disabled) 1...4, which stage to perform in parallel.' )
     self.decorated.add_parameter( 'stage2init', -1 )
     self.decorated.add_parameter( 'storemintupb', 1,                            desc='(default 1, enabled) cache cross section calls to ease building of upper bounding envelope in later parallel stage.' )
     ## Add radiation for NLO processes
@@ -61,4 +61,4 @@ class V2Decorator(object) :
     if self.decorated.ncall2rm is None : self.decorated.ncall2rm = self.decorated.ncall2
 
     ## Fix integration parameters before printing list for user
-    [ self.decorated.fix_parameter( parameter ) for parameter in ('itmx1rm', 'itmx2rm', 'ncall1rm', 'ncall2rm') ]
+    [ self.decorated.fix_parameter( parameter ) for parameter in ('itmx1rm', 'itmx2rm', 'ncall1rm', 'ncall2rm', 'parallelstage') ]

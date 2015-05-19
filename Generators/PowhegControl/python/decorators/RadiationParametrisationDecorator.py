@@ -17,5 +17,5 @@ class RadiationParametrisationDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'fullphsp', -1,      desc='(default 0, disabled) enable ISR/FSR phase space parametrization' )
+    self.decorated.add_parameter( 'fullphsp', -1,      desc='(default -1, disabled) enable ISR/FSR phase space parametrization' )
     self.decorated.add_parameter( 'raisingscales', -1 )

@@ -24,7 +24,7 @@ class HiggsDecayPropertiesDecorator(object) :
     self.decorated.add_parameter( 'use_massive_c', True, desc='(default True) enable charm quark mass' )
     self.decorated.add_parameter( 'hdecaywidth', 0,      desc='(default 0) 0:use hwidth; 1:read total decay width from HDECAY sm.br2 file' )
     self.decorated.add_parameter( 'masswindow', 10.0,    desc='(default 10) number of widths around hmass in the BW for an off-shell Higgs boson' )
-    self.decorated.add_parameter( 'nnlo', -1 )
+    self.decorated.add_parameter( 'nnlo', -1,            desc='(default -1, disabled) enable NNLO rescaling' )
 
 
   def finalise(self) :
