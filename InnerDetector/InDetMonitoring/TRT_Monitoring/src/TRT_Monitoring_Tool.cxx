@@ -2098,17 +2098,18 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           } else if (i>2*s_numberOfBarrelStacks) {
             nclass=2;
           }
+	  int LLocc_index = index_tmp-32*nclass;
 
           if (nclass>=0) {
             if (ibe==0) {
-              m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass]);
+              m_LLOcc[ibe][LLocc_index] += float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass]);
               m_hAvgLLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
               m_hAvgLLOccMod_side[ibe][iside]->Fill(i, (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOccMod_side[ibe][iside]->Fill(i, (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
             } else if (ibe==1) {
-	      if (index_tmp-32*nclass<64) { 
-		m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
+	      if (LLocc_index<64) { 
+		m_LLOcc[ibe][LLocc_index] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
 	      } else {
 		ATH_MSG_WARNING("m_LLOcc index out of bounds!"); // To satisfy Coverity defect CID 16514 which we believe is a false report.
 	      }
@@ -2505,7 +2506,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: "<<testLayer[1]<<" m_straw_layer: "<<m_nearest_straw_layer[1]<<" (in the EndCaps).");
     }
     bool trackfound[2][64];//trackfound[64] 
-    for (int i =1; i<2 ;i++) std::fill(trackfound[i], trackfound[i] + 64, false);
+    for (int i =0; i<2 ;i++) std::fill(trackfound[i], trackfound[i] + 64, false);//fix for ATLASRECTS-2019
     //for (int iside=0; iside<2; iside++) { //another for loop we got rid of
     for (TSOSItBegin=TSOSItBegin0; TSOSItBegin!=TSOSItEnd; ++TSOSItBegin) {
       //select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations 
@@ -3483,31 +3484,33 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       bool isHighLevel= RawDriftCircle->highLevel();
 
       //Barrel Plots
-      bool A1 = false;
-      bool C1 = false;
-      bool A2 = false;
-      bool C2 = false;
-      bool A3 = false;
-      bool C3 = false;
+      // bool A1 = false;
+      // bool C1 = false;
+      // bool A2 = false;
+      // bool C2 = false;
+      // bool A3 = false;
+      // bool C3 = false;
       bool shortStraw = false;
+      int InputBar = 0;
 
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) C1=true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&C1==false)A1= true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30))) C2 = true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&C2==false)A2= true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&phi_module%2!=0)C3 = true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&C3==false)A3 = true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) InputBar = 1;//C1=true;
+      else if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)/*&&C1==false*/) InputBar = 0;//A1= true;
+      else if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30))) InputBar = 1;//C2 = true;
+      else if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)/*&&C2==false*/)InputBar = 0;//A2= true;
+      else if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&phi_module%2!=0)InputBar = 1;//C3 = true;
+      else if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)/*&&C3==false*/)InputBar = 0;//A3 = true;
+      else{ATH_MSG_WARNING("Should not pass here"); continue;}
       if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&straw_layer<9.)shortStraw = true;
-
+      /*
       int InputBar = -1;
       if(A1||A2||A3)InputBar=0;
       if(C1||C2||C3)InputBar=1;
-
+      
       if(InputBar==-1&&Ba_Ec==0) { //Coverity CID 25096
 	ATH_MSG_WARNING("The variable \"InputBar\" is -1!.");
 	continue;
       }
-
+      */
 
 
       //Fill Barrel Plots
