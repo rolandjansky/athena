@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 652372 2015-03-06 22:13:05Z graemes $
+#  @version $Id: trfArgs.py 666495 2015-05-12 11:29:59Z lerrenst $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def addDetectorArguments(parser):
     parser.defineArgGroup('Detector', 'General detector configuration options, for simulation and reconstruction')
     parser.add_argument('--DBRelease', group = 'Detector', type=argFactory(trfArgClasses.argSubstep, runarg=False), metavar='substep:DBRelease',  nargs='+',
                         help='Use DBRelease instead of ORACLE. Give either a DBRelease tarball file (e.g., DBRelease-21.7.1.tar.gz) or cvmfs DBRelease directory (e.g., 21.7.1 or current')
-    parser.add_argument('--conditionsTag', group='Detector', type=argFactory(trfArgClasses.argSubstep), metavar='substep:CondTag',  nargs='+',
+    parser.add_argument('--conditionsTag', group='Detector', type=argFactory(trfArgClasses.argSubstepConditions), metavar='substep:CondTag',  nargs='+',
                         help='Conditions tag to set')
     parser.add_argument('--geometryVersion', group='Detector', type=argFactory(trfArgClasses.argSubstep), metavar='substep:GeoVersion',  nargs='+',
                         help='ATLAS geometry version tag')

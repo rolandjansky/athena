@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfFileUtils.py 667041 2015-05-14 05:34:26Z vanyash $
 # @todo make functions timelimited
 
 import logging
@@ -118,7 +118,11 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
     from subprocess import CalledProcessError 
 
     if filetype == 'POOL':
-        from PyUtils.AthFileLite import AthPoolFile as AthFileLite
+        # retrieve GUID and nentries without runMiniAthena subprocess
+        if set(retrieveKeys) == set(inpFileInterestingKeys):
+            from PyUtils.AthFileLite import AthInpFile as AthFileLite
+        else:
+            from PyUtils.AthFileLite import AthPoolFile as AthFileLite
     elif filetype == 'BS':
         from PyUtils.AthFileLite import AthBSFile as AthFileLite
     elif filetype == 'TAG':
