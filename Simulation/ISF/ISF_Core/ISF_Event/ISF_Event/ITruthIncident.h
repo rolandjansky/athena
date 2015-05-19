@@ -12,8 +12,8 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Barcode includes
-#include "BarcodeEvent/Barcode.h"
-#include "BarcodeEvent/PhysicsProcessCode.h"
+#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeInterfaces/PhysicsProcessCode.h"
 
 // forward declarations
 namespace HepMC {
@@ -61,16 +61,17 @@ namespace ISF {
     virtual int                       parentPdgCode() const = 0;
     /** Return the parent particle as a HepMC particle type
         (only called for particles that will enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       parentParticle() const = 0;
+    virtual HepMC::GenParticle*       parentParticle(bool setPersistent=false) const = 0;
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
     /** Return the extra barcode of the parent particle */
-    virtual Barcode::ParticleBarcode  parentBCID() const = 0;
+    virtual Barcode::ParticleBarcode  parentExtraBarcode() const { return 0; }
     /** Return a boolean whether or not the parent particle survives the incident */
     virtual bool                      parentSurvivesIncident() const = 0;
     /** Return the parent particle after the TruthIncident vertex (and assign
         a new barcode to it) */
-    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) = 0;
+    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
+                                                                  bool setPersistent=false) = 0;
 
     /** Return total number of child particles */
     inline unsigned short             numberOfChildren() const;
@@ -95,9 +96,14 @@ namespace ISF {
         Barcode to the simulator particle (only called for particles that will
         enter the HepMC truth event) */
     virtual HepMC::GenParticle*       childParticle(unsigned short index,
-                                                    Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
+                                                        Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
+                                                        bool setPersistent=false) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
+    /** Set the the extra barcode of all child particles to the given bc */
+    virtual void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode /*bc*/) {};
+    /** Set the the extra barcode of a child particles to the given bc */
+    virtual void                      setChildExtraBarcode(unsigned short /*index*/, Barcode::ParticleBarcode /*bc*/) {};
 
     /** Record that a particular child passed a check */
     inline void                       setChildPassedFilters(unsigned short index);

@@ -11,25 +11,10 @@
 
 /** constructor */
 ISF::ParticleUserInformation::ParticleUserInformation() 
-  : m_process(0)
+  : m_extrabc(0)
+  , m_process(0)
   , m_generation(0)
-  , m_matInfo(nullptr)
+  , m_matInfo(0)
 {
 }
 
-bool ISF::ParticleUserInformation::operator==(const ISF::ParticleUserInformation& rhs) const
-{
-  bool pass = true;
-  pass &= m_process == rhs.process();
-  pass &= m_generation == rhs.generation();
-
-  {
-    const auto rhsMatPtr = rhs.materialLimit();
-    if (m_matInfo && rhsMatPtr) {
-      pass &= *m_matInfo == *rhsMatPtr;
-    } else {
-      pass &= m_matInfo == rhsMatPtr; // must be both nullptr to pass
-    }
-  }
-  return pass;
-}

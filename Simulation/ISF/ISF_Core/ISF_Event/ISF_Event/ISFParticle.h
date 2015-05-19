@@ -11,10 +11,8 @@
 
 // Gaudi Kernel
 #include "GaudiKernel/MsgStream.h"
-// Barcode includes
-#include "BarcodeEvent/Barcode.h"
 // ISF include
-#include "ISF_Event/TruthBinding.h"
+#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/SimSvcID.h"
 #include "ISF_Event/ParticleOrder.h"
 #include "ISF_Event/ParticleUserInformation.h"
@@ -44,9 +42,6 @@ namespace ISF {
   class ISFParticle {
 
   public:
-    /** disallow default constructor */
-    ISFParticle() = delete;
-
     /** use this constructor whenever possible */
     ISFParticle(const Amg::Vector3D& pos,
                 const Amg::Vector3D& mom,
@@ -56,7 +51,7 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                ITruthBinding* truth = 0 );
 
     /** CLHEP-compatible constructor */
     ISFParticle(const HepGeom::Point3D<double>& pos,
@@ -67,7 +62,7 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                ITruthBinding* truth = 0 );
 
     /** this constructor should only be used for event read-in */
     ISFParticle(const Amg::Vector3D& pos,
@@ -77,15 +72,22 @@ namespace ISF {
                 int pdgCode,
                 double time,
                 const DetRegionSvcIDPair &origin,
-                int bcid,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                TruthBinding* truth = nullptr );
+                ITruthBinding* truth = 0 );
+
+    /** CLHEP-compatible constructor (this constructor should only be used for event read-in) */
+    ISFParticle(const HepGeom::Point3D<double>& pos,
+                const HepGeom::Vector3D<double>& mom,
+                double mass,
+                double charge,
+                int pdgCode,
+                double time,
+                const DetRegionSvcIDPair &origin,
+                Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
+                ITruthBinding* truth = 0 );
 
     /** Copy constructor */
     ISFParticle(const ISFParticle& isfp);
-
-    /** Move copy constructor */
-    ISFParticle(ISFParticle&& isfp);
 
     /** Destructor */
     ~ISFParticle();
@@ -93,19 +95,11 @@ namespace ISF {
     /** Assignment operator */
     ISFParticle& operator=(const ISFParticle& rhs);
 
-    /** Move assignment operator */
-    ISFParticle& operator=(ISFParticle&& rhs);
-
-    /** Comparisons */
-    bool operator==(const ISFParticle& rhs) const;
-    bool isEqual(const ISFParticle& rhs) const;
-    bool isIdent(const ISFParticle& rhs) const;
-
     /** The current momentum vector of the ISFParticle */
-    const Amg::Vector3D& momentum() const;
+    const Amg::Vector3D&              momentum() const;
 
     /** The current position of the ISFParticle */
-    const Amg::Vector3D& position() const;
+    const Amg::Vector3D&              position() const;
 
     /** Update the position of the ISFParticle */
     void updatePosition(const Amg::Vector3D& position);
@@ -143,9 +137,9 @@ namespace ISF {
     /** the next simulation service the particle will be sent to */
     SimSvcID                    nextSimID() const;
     /** register the next AtlasDetDescr::AtlasRegion */
-    void                        setNextGeoID(AtlasDetDescr::AtlasRegion geoID);
+    void                        setNextGeoID( AtlasDetDescr::AtlasRegion geoID);
     /** register the next SimSvcID */
-    void                        setNextSimID(SimSvcID simID);
+    void                        setNextSimID( SimSvcID simID);
 
     /** the barcode */
     Barcode::ParticleBarcode barcode() const;
@@ -153,29 +147,39 @@ namespace ISF {
     /** set a new barcode */
     void setBarcode(Barcode::ParticleBarcode bc);
 
-    /** bunch-crossing identifier */
-    int getBCID() const;
+    /** extra barcode */
+    Barcode::ParticleBarcode getExtraBC() const;
 
-    /** set bunch-crossing identifier */
-    void setBCID(int bcid);
+    /** set extra barcode */
+    void setExtraBC(const Barcode::ParticleBarcode& bc) const; // MB: const hack, but need to be able to set this in const function
 
     /** pointer to the simulation truth - optional, can be 0 */
-    TruthBinding* getTruthBinding() const;
-    void          setTruthBinding(TruthBinding *truth);
+    ITruthBinding* truthBinding() const;
+
+    /** set the simulation truth */
+    void setTruthBinding(ITruthBinding *truth);
+
+    /** dynamic routing behaviour: is the particle allowed to modify the
+        dynamic simulation selectors  */
+    bool allowsSelectorUpdates(   AtlasDetDescr::AtlasRegion geoID) const;
+    void disallowSelectorUpdates( AtlasDetDescr::AtlasRegion geoID);
 
     /** return the particle order (eg used to assure ID->Calo->MS simulation order) */
     ParticleOrder  getOrder() const;
-    void           setOrder(ParticleOrder order);
+    void           setOrder( ParticleOrder order);
 
     /** get/set ParticleUserInformation */
     ParticleUserInformation *getUserInformation() const;
     void                     setUserInformation(ParticleUserInformation *userInfo);
 
     /** Dump methods to be used by the overloaded stream operator (inheritance!) */
-    MsgStream&    dump(MsgStream& out) const;
-    std::ostream& dump(std::ostream& out) const;
+    MsgStream&    dump( MsgStream& out ) const;
+    std::ostream& dump( std::ostream& out ) const;
 
   private :
+    /** Private default constructor */
+    ISFParticle() {}
+
     Amg::Vector3D                m_position;
     Amg::Vector3D                m_momentum;
     double                       m_mass;
@@ -184,10 +188,10 @@ namespace ISF {
     double                       m_tstamp;
     ParticleHistory              m_history;
     Barcode::ParticleBarcode     m_barcode;
-    int                          m_bcid;                  //!< bunch-crossing identifier
-    TruthBinding*                m_truth;
-    ParticleOrder                m_order;                 //!< particle simulation order
-    mutable ParticleUserInformation *m_userInfo;          //!< user information stored with the ISFParticle
+    ITruthBinding*               m_truth;
+    bool                         m_allowSelectorUpdates[AtlasDetDescr::fNumAtlasRegions]; //!< allowed to update dynamic simulation selectors?
+    ParticleOrder                m_order;                                      //!< particle simulation order
+    mutable ParticleUserInformation *m_userInfo;                               //!< user information stored with the ISFParticle
   };
 
   // Overload of << operator for MsgStream for debug output

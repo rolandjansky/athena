@@ -13,17 +13,20 @@
 #include <vector>
 
 // Barcode include
-#include "BarcodeEvent/PhysicsProcessCode.h"
+#include "BarcodeInterfaces/PhysicsProcessCode.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleVector.h"
 #include "ISF_Event/ITruthIncident.h"
+#include "ISF_Event/ITruthBinding.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
 
 namespace ISF {
   class ISFParticle;
+
+  typedef TruthBindingT<HepMC::GenParticle>   GenParticleTruth;
 
   /** @enum KillPrimary
       Basically only a boolean, which helps making the code more readable
@@ -35,7 +38,7 @@ namespace ISF {
 
   /** @class ISFTruthIncident
 
-      Interface class for all truth incidents handled by the ISF.
+      @TODO: class description
 
       @author Elmar.Ritsch@cern.ch
   */
@@ -67,16 +70,17 @@ namespace ISF {
     int                       parentPdgCode() const override final;
     /** Return the parent particle as a HepMC particle type
         (usually only called for particles that will enter the HepMC truth event) */
-    HepMC::GenParticle*       parentParticle() const override final;
+    HepMC::GenParticle*       parentParticle(bool setPersistent) const override final;
     /** Return the barcode of the parent particle */
     Barcode::ParticleBarcode  parentBarcode() const override final;
-    /** Return the bunch-crossing identifier of the parent particle */
-    int                       parentBCID() const override final;
+    /** Return the extra barcode of the parent particle */
+    Barcode::ParticleBarcode  parentExtraBarcode() const override final;
     /** Return a boolean whether or not the parent particle survives the incident */
     bool                      parentSurvivesIncident() const override final;
     /** Return the parent particle after the TruthIncident vertex (and give
         it a new barcode) */
-    HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
+    HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
+                                                         bool setPersistent) override final;
 
     /** Return p^2 of the i-th child particle */
     double                    childP2(unsigned short index) const override final;
@@ -90,17 +94,18 @@ namespace ISF {
         Barcode to the simulator particle (usually only called for particles that
         will enter the HepMC truth event) */
     HepMC::GenParticle*       childParticle(unsigned short index,
-                                            Barcode::ParticleBarcode bc) const override final;
+                                            Barcode::ParticleBarcode bc,
+                                            bool setPersistent) const override final;
     /** Set the the barcode of all child particles to the given bc */
     void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
+    /** Set the the extra barcode of all child particles to the given bc */
+    void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode bc) override final;
+    /** Set the the extra barcode of a child particles to the given bc */
+    void                      setChildExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) override final;
   private:
     ISFTruthIncident();
-
-    /** return attached truth particle */
-    inline HepMC::GenParticle* getHepMCTruthParticle( const ISF::ISFParticle& particle ) const;
-
-    /** convert ISFParticle to GenParticle and attach to ISFParticle's TruthBinding */
-    inline HepMC::GenParticle* updateHepMCTruthParticle( ISF::ISFParticle& particle, const ISF::ISFParticle* parent=nullptr ) const;
+    inline HepMC::GenParticle* convert( ISF::ISFParticle *particle,
+                                        bool setPersistent) const;
 
     ISF::ISFParticle&                  m_parent;
     const ISFParticleVector&           m_children;
