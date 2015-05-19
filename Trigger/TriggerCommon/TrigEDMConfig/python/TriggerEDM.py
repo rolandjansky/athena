@@ -247,28 +247,28 @@ TriggerHLTList = [
     ('xAOD::TrackParticleAuxContainer#HLT_MuTagIMO_EF_ExtrapTrackParticlesAux'+RemoveIDVariables, 'BS ESD AODFULL AODSLIM', 'Muon'),#fp
 
     #MET
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingETAux.',                          'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_noiseSupp',                       '',                                      'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_noiseSupp',                       '',                                      'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_noiseSuppAux.',                '',                                      'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_FEBAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl',                          'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_topocl',                          'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topoclAux.',                   'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_PS',                       'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_topocl_PS',                       'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_PSAux.',                'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_EFJetEtSum',                                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_EFJetEtSum',                                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_EFJetEtSumAux.',                               'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_T2MissingET',                                     'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_T2MissingET',                                     'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_T2MissingETAux.',                              'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_PUC',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_topocl_PUC',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_PUCAux.',               'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_EFMissingET_Fex_2sidednoiseSupp_PUC',             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUC',             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUCAux.',      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mhtAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
-    ('xAOD::TrigMissingET#HLT_TrigL2MissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_TrigL2MissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigL2MissingET_FEBAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
     #tracking
@@ -589,7 +589,7 @@ TriggerHLTList = [
     ('CaloCellContainer#HLT_TrigT2CaloEgammaCells',                       'BS ESD',   'Egamma'), 
     ('CaloCellContainer#HLT_TrigT2CaloTauCells',                          'BS ESD',   'Tau'), 
 
-    #('CaloClusterCellLinkContainer#HLT_TrigCaloClusterMaker_Link',        'BS ESD', 'Calo'),
+    ('CaloClusterCellLinkContainer#HLT_TrigCaloClusterMaker_Link',        'BS ESD', 'Calo'),
 
     ('MuonFeatureDetails#HLT',                                            'BS ESD AODFULL AODSLIM',  'Muon'),
 
@@ -681,7 +681,7 @@ TriggerHLTList = [
     ('CaloCellContainer#HLT_TrigCaloCellMaker_eGamma',                    'BS ESD',                  'Calo'), 
     ('CaloCellContainer#HLT_TrigCaloCellMaker_tau',                       'BS ESD',                  'Calo'),  
     ('CaloCellContainer#HLT_TrigCaloCellLoF',                             'BS ESD',                  'Calo'),        # category?  
-    #('CaloCellContainer#HLT_TrigCaloCellMaker', 			  'BS ESD', 		     'Calo'),
+    ('CaloCellContainer#HLT_TrigCaloCellMaker', 			  'BS ESD', 		     'Calo'),
     # == end of L2+EF lists
 
 ]
@@ -814,7 +814,7 @@ EDMDetails[ "JetMomentMap" ]              = {'persistent':"JetMomentMapCollectio
 EDMDetails[ "JetCollection" ]             = {'persistent':"JetCollection_tlp6",                   'typealias':'JetColl' }
 #EDMDetails[ "JetCollection" ]             = {'persistent':"JetCollection_tlp5",                   'typealias':'JetColl' }
 
-#EDMDetails[ "CaloClusterCellLinkContainer"] = {'persistent':"CaloClusterCellLinkContainer",       'typealias':''}
+EDMDetails[ "CaloClusterCellLinkContainer"] = {'persistent':"CaloClusterCellLinkContainer",       'typealias':''}
 EDMDetails[ "CaloClusterContainer" ]      = {'persistent':"CaloClusterContainer_p4",              'typealias':'CaloCl' }
 EDMDetails[ "CaloCellLinkContainer" ]     = {'persistent':"CaloCellLinkContainer_p2",             'typealias':'CaloLk' }
 EDMDetails[ "CaloShowerContainer" ]       = {'persistent':"CaloShowerContainer_p2",               'typealias':'CaloSh' }
@@ -946,7 +946,6 @@ EDMDetails["xAOD::TrigTrackCountsAuxContainer" ]          = {'persistent':"",   
 EDMDetails["xAOD::TrigT2ZdcSignals" ]                     = {'persistent':"",   'typealias':'', 'collection':"xAOD::TrigT2ZdcSignalsContainer"}
 EDMDetails["xAOD::TrigT2ZdcSignalsAuxContainer" ]         = {'persistent':"",   'typealias':'', 'parent': 'xAOD::TrigT2ZdcSignalsContainer'}
 
-EDMDetails["xAOD::TrigMissingET"]              = {'persistent':"",              'typealias':'', 'collection':"xAOD::TrigMissingETContainer"}
 EDMDetails["xAOD::TrigMissingETContainer"]     = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::TrigMissingETAuxContainer"]  = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigMissingETContainer'}
 

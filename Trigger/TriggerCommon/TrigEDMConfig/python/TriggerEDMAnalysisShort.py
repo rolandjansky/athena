@@ -138,15 +138,12 @@ TriggerDerivationConfig['met'] = [
 
 
 
+
+
+
 TriggerDerivationConfig['level1'] = [
     'xAOD::MuonRoIContainer#LVL1MuonRoIs',
     'xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' + '.'.join(['thrValue', 'eta', 'phi', 'RoI']),
-    'xAOD::EmTauRoIContainer#LVL1EmTauRoIs',
-    'xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux.',
-    'xAOD::JetRoIContainer#LVL1JetRoIs',
-    'xAOD::JetRoIAuxContainer#LVL1JetRoIsAux.',
-    'xAOD::JetEtRoI#LVL1JetEtRoI',
-    'xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.',
     'xAOD::EnergySumRoI#LVL1EnergySumRoI',
     'xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.',
     ]
