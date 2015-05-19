@@ -89,6 +89,9 @@ class EnergyLoss {
   //update from mean values
   void update(double ioni, double sigi, double rad, double sigr, bool mpv=false) const; 
   
+  //update 
+  void update( EnergyLoss&, bool mpv=false ) const; 
+  
   //set
   void set(double eLoss, double sigde, double ioni, double sigi, double rad, double sigr) const; 
   
@@ -154,6 +157,16 @@ class EnergyLoss {
    m_deltaE += mpv ? 0.9*ioni+0.15*rad : ioni+rad; 
    m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
  }
+
+ inline void EnergyLoss::update(EnergyLoss& eloss, bool mpv) const
+ { m_mean_ioni += eloss.meanIoni();
+   m_mean_rad += eloss.meanRad();
+   m_sig_ioni += eloss.sigmaIoni(); 
+   m_sig_rad  += eloss.sigmaRad(); 
+   m_deltaE += mpv ? 0.9*eloss.meanIoni()+0.15*eloss.meanRad() : eloss.meanIoni()+eloss.meanRad(); 
+   m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
+ }
+
  inline void EnergyLoss::set(double eloss, double sigde, double ioni, double sigi, double rad, double sigr) const
  { m_mean_ioni = ioni;
    m_mean_rad = rad;
