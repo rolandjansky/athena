@@ -110,6 +110,7 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
  // }
 
   // determine jet scale to use
+  m_useEMScale=true;
   xAOD::JetScale scale = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
 
   unsigned int AnyBadJet = 0x0;
