@@ -50,12 +50,6 @@ namespace MuonCombined {
 
     /** access of a given type tag */
     const TagBase*                     lastCombinedDataTag( TagBase::Type type ) const;
-    
-    /** Returns true if this candidate was formed from a special far forward InDet track.*/
-    bool isSiliconAssociated() const;
-    
-    /** Pass true if this candiate was created from a special far forward InDet track.*/
-    void setSiliconAssociated(bool);
 
     /** print candidate to string */
     std::string toString() const;
@@ -69,9 +63,6 @@ namespace MuonCombined {
 
     /** vector of tags */
     std::vector<const TagBase*> m_tags;
-    
-    /** Was this created using a special far forward indet track*/
-    bool m_siAssociated;
     
   };
 
@@ -103,9 +94,7 @@ namespace MuonCombined {
     return 0;
   }
 
-  inline bool InDetCandidate::isSiliconAssociated() const { return m_siAssociated; }
-  
-  inline void InDetCandidate::setSiliconAssociated( bool value ) { m_siAssociated=value; }
+
 }
 
 
