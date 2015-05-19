@@ -21,98 +21,81 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-class KinkedTrack_do2010Skim(JobProperty):
+class KinkedTrack_containerFlags(JobProperty):
     statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
+    jetCollectionName = "AntiKt4LCTopoJets"
+    electronCollectionName = "Electrons"
+    muonCollectionName = "Muons"
+    #METCollectionName = "MET_LocHadTopo"
+    METCollectionName = "MET_Reference_AntiKt4LCTopo"
+    egClusterCollectionName = "egammaClusters"
+    msTrackCollectionName = "MuonSpectrometerTracks"
     pass
-primRPVLLDESDM.add_JobProperty(KinkedTrack_do2010Skim)
-
-class KinkedTrack_do2011Skim(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-    pass
-primRPVLLDESDM.add_JobProperty(KinkedTrack_do2011Skim)
-
-class KinkedTrack_triggerFilterFlags2010(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    TriggerNames = []
-    EgammaTriggerNames = []
-    JetTauEtmissTriggerNames = [
-        "EF_j75_jetNoEF_EFxe25_noMu",
-        "EF_xe55_noMu"
-    ]
-    MuonsTriggerNames = []
-    pass
-primRPVLLDESDM.add_JobProperty(KinkedTrack_triggerFilterFlags2010)
-
-class KinkedTrack_triggerFilterFlags2011(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    TriggerNames = []
-    EgammaTriggerNames = []
-    JetTauEtmissTriggerNames = [
-        #"EF_j75_a4_EFFS_xe45_loose_noMu",
-        #"EF_j75_a4_EFFS_xe55_loose_noMu",
-        #"EF_j75_a4tc_EFFS_xe45_loose_noMu",
-        #"EF_j75_a4tc_EFFS_xe55_loose_noMu",
-        #"EF_j75_a4tc_EFFS_xe55_noMu",
-        #"EF_j55_a4tc_EFFS_xe55_medium_noMu_dphi2j30xe10",
-        #"EF_j65_a4tc_EFFS_xe65_medium_noMu_dphi2j30xe10",
-        #"EF_j70_a4tc_EFFS_xe70_medium_noMu_dphi2j30xe10",
-        #"EF_j80_a4tc_EFFS_xe60_noMu",
-        "EF_j80_a4tchad_xe100_tclcw",
-        "EF_j80_a4tchad_xe100_tclcw_loose",
-        "EF_j80_a4tchad_xe100_tclcw_veryloose",
-        "EF_j80_a4tchad_xe80_tclcw",
-        "EF_j110_a4tchad_xe90_tclcw_loose",
-        "EF_j110_a4tchad_xe90_tclcw_veryloose",
-        "EF_j110_a4tchad_xe100_tclcw",
-        "EF_j110_a4tchad_xe100_tclcw_veryloose",
-        "EF_j110_a4tchad_xe75_tclcw",    
-        "EF_j170_a4tchad_EFxe70_tclcw",
-        "EF_j170_a4tchad_EFxe80_tclcw",
-        "EF_j80_a4tchad_xe70_tclcw_dphi2j45xe10",
-        "EF_j80_a4tchad_xe85_tclcw_dphi2j45xe10"
-        ]
-    MuonsTriggerNames = []
-    pass
-primRPVLLDESDM.add_JobProperty(KinkedTrack_triggerFilterFlags2011)
-
+primRPVLLDESDM.add_JobProperty(KinkedTrack_containerFlags)
 
 class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue  = True
-    jetCollectionName = "AntiKt4LCTopoJets"
-    cutEt1Min = 85.0*Units.GeV
-    cutEta1Max = 3.2
-    cutEt2Min = 50.0*Units.GeV
-    cutEta2Max = 3.2
-    doSecondJetVeto = False
-    requireMet = True
-    metCollectionNames = ["MET_LocHadTopo","MET_RefFinal","MET_RefFinal_em"]
-    cutMetMin = 85.0*Units.GeV
+    triggerNames = [
+        "j80_xe80_dphi1_L1J40_DPHI-J20s2XE50",
+        "j80_xe80_dphi1_L1J40_DPHI-J20XE50",
+        "j80_xe80_dphi1_L1J40_DPHI-Js2XE50",
+        "j80_xe80_dphi1_L1J40_DPHI-CJ20XE50"
+        ]
+    cutEtMin = 120.0*Units.GeV
+    cutEtaMax = 3.2
+    doLeptonVeto = True
+    electronIDKey = "Tight"
+    muonIDKey = "Tight"
+    leptonPtMax = 20.0*Units.GeV
+    leptonEtaMax = 2.5
+    cutMetMin = 0  # no cut
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 
-
-class KinkedTrack_multiJetMetFilterFlags(JobProperty):
+class KinkedTrack_ZeeFilterFlags(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue  = True
-    jetCollectionType = "JetCollection"
-    jetCollectionName = "AntiKt4LCTopoJets"
-    cutsEtMin = [ 100.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV ]
-    cutEtaMax = 3.2
-    doSecondJetVeto = False
-    requireMet = True
-    metCollectionType = "MissingET"
-    metCollectionNames = ["MET_LocHadTopo","MET_RefFinal","MET_RefFinal_em"]
-    cutMetMin = 100.0*Units.GeV
+    triggerNames = [
+        "HLT_e24_medium_iloose",
+        "HLT_e24_tight_iloose",
+        "HLT_e26_tight_iloose",
+        "HLT_e28_tight_iloose"
+        ]
+    doTriggerMatch = False
+    electronPtMin = 40*Units.GeV
+    electronEtaMax = 2.5
+    electronIDKeys = ["Tight", "Medium"]
+    clusterEtMin = 15*Units.GeV
+    clusterEtaMax = 2.5
+    diElectronMassLow = (91.1876-40)*Units.GeV
+    diElectronMassHigh = (91.1876+40)*Units.GeV
+    deltaPhiMax = 1.5
     pass
-primRPVLLDESDM.add_JobProperty(KinkedTrack_multiJetMetFilterFlags)
+primRPVLLDESDM.add_JobProperty(KinkedTrack_ZeeFilterFlags)
+
+class KinkedTrack_ZmumuFilterFlags(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+    triggerNames = [
+        "HLT_mu20_iloose",
+        "HLT_mu24_iloose",
+        "HLT_mu24_imedium",
+        "HLT_mu26_imedium"
+        ]
+    doTriggerMatch = False
+    muonPtMin = 40*Units.GeV
+    muonEtaMax = 2.5
+    muonIDKeys = ["Tight"]
+    trackPtMin = 15*Units.GeV
+    trackEtaMax = 2.5
+    diMuonMassLow = (91.1876-40)*Units.GeV
+    diMuonMassHigh = (91.1876+40)*Units.GeV
+    deltaPhiMax = 1.5
+    pass
+primRPVLLDESDM.add_JobProperty(KinkedTrack_ZmumuFilterFlags)
+
+

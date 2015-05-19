@@ -46,38 +46,52 @@ filtersToBookkeep+=["Stopped_CombinedTriggerFilter"]
 #    Stopped_CombinedTriggerFilter && (jet && (muon or prescale) )
 ##
 
+from EventUtils.EventUtilsConf import CutAlg
+
 ## configure a jet filter
 flags = primRPVLLDESDM.Stopped_jetFilterFlags
 jetFilterName = "Stopped_JetFilter"
 
-from D2PDMaker.D2PDMakerConf import D2PDJetSelector
-topSequence += D2PDJetSelector(jetFilterName)
-topSequence.Stopped_JetFilter.etMin = flags.cutEtMin
-topSequence.Stopped_JetFilter.etMax = flags.cutEtMax
-topSequence.Stopped_JetFilter.absEtaMin = flags.cutEtaMin
-topSequence.Stopped_JetFilter.absEtaMax = flags.cutEtaMax
-topSequence.Stopped_JetFilter.jetPSFractionMax = flags.cutPSFracMax
-topSequence.Stopped_JetFilter.inputCollection = flags.jetCollectionName
-topSequence.Stopped_JetFilter.minNumberPassed=1
+cutString= "count( "
+cutString+= flags.jetCollectionName
+cutString+=".pt > "
+cutString+= str(flags.cutEtMin)
+cutString+=" && "
+cutString+= flags.jetCollectionName
+cutString+=".pt < "
+cutString+= str(flags.cutEtMax)
+cutString+=" && abs("
+cutString+= flags.jetCollectionName
+cutString+=".eta) < "
+cutString+= str(flags.cutEtaMax)
+cutString+=" && abs("
+cutString+= flags.jetCollectionName
+cutString+=".eta) > "
+cutString+= str(flags.cutEtaMin)
+cutString+=") >= 1"
+topSequence += CutAlg(jetFilterName,
+                      Cut=cutString)
+filtersToBookkeep+=[jetFilterName]
 
+# NB: Does not have the max jet presampler fraction (flags.cutPSFracMax)
 
 ## configure a muon segment filter
-from LongLivedParticleDPDMaker.MuonSegmentFilter import MuonSegmentFilter
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import MuonSegmentFilterAlg
 segFilterName = "Stopped_MuonSegmentFilter"
-segmentFilter = MuonSegmentFilter(segFilterName)
+segmentFilter = MuonSegmentFilterAlg(segFilterName)
 flags = primRPVLLDESDM.Stopped_muonSegmentFilterFlags
 
-segmentFilter.minNumberSegments                 = flags.cutNsegMin
-segmentFilter.maxNumberSegments                 = flags.cutNsegMax
-segmentFilter.muonSegmentContainerName  = flags.muonSegmentCollectionName
+segmentFilter.minNumberSegments    = flags.cutNsegMin
+segmentFilter.maxNumberSegments    = flags.cutNsegMax
+segmentFilter.muonSegmentContainer = flags.muonSegmentCollectionName
 topSequence += segmentFilter
 
 if primRPVLLDESDM.Stopped_muonSegmentFilterFlags.addPrescaledLooseFilter:
     looseMuSegFilterName = "Stopped_looseMuSegFilter"
-    looseMuSegFilter = MuonSegmentFilter(looseMuSegFilterName)
+    looseMuSegFilter = MuonSegmentFilterAlg(looseMuSegFilterName)
     looseMuSegFilter.maxNumberSegments=flags.cutNsegMaxLoose
     looseMuSegFilter.minNumberSegments=flags.cutNsegMinLoose
-    looseMuSegFilter.muonSegmentContainerName=flags.muonSegmentCollectionName
+    looseMuSegFilter.muonSegmentContainer=flags.muonSegmentCollectionName
     topSequence += looseMuSegFilter
     
     from PrimaryDPDMaker.PrimaryDPDMakerConf import PrimaryDPDPrescaler

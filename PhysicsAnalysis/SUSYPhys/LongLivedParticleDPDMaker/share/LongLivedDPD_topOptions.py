@@ -38,7 +38,6 @@ primRPVLLDESDM.doDV=True
 primRPVLLDESDM.doSmpCaloId=True
 primRPVLLDESDM.doSmpMs=True
 primRPVLLDESDM.doKinkedTrack=True
-primRPVLLDESDM.doNonPointing=True
 primRPVLLDESDM.doHips=True
 primRPVLLDESDM.doStopped=True
 primRPVLLDESDM.doHV=True

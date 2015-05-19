@@ -31,143 +31,107 @@ jobproperties.add_Container(PrimaryDPDFlags_RPVLLStream)
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-import SmpCaloIdFlags
+import DiLepFlags
 import DVFlags
-import VH_DVFlags
-import SmpMsFlags
-import HipsFlags
-import NonPointingFlags
 import KinkedTrackFlags
 import StoppedFlags
-import HVFlags
+import VH_DVFlags
 import QuirksFlags
-import DiLepFlags
-import StealthFlags
+import HipsFlags
+import HVFlags
+import SmpCaloIdFlags
+import SmpMsFlags
 
 #===============================================================
 # Set specific properties for each of the analysis selections
 #===============================================================
 
-class doStealth(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = True 
-    ForceToRun = False 
-    TriggerStreams = ["JetTauEtmiss"]    
-    pass
-primRPVLLDESDM.add_JobProperty(doStealth)
-
 class doDiLep(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
     StoredValue=True
-    ForceToRun=False
-    TriggerStreams=["Egamma"]
+    ForceToRun=True
     pass
 primRPVLLDESDM.add_JobProperty(doDiLep)
     
-class doQuirks(JobProperty):
-    statusOn=True
-    allowedTypes = ["bool"]
-    StoredValue=True
-    ForceToRun=False
-    TriggerStreams=["JetTauEtmiss"]
-    pass
-primRPVLLDESDM.add_JobProperty(doQuirks)
-
-class doSmpCaloId(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = True
-    ForceToRun = False
-    TriggerStreams = ["JetTauEtmiss", "Muons"]
-    pass
-primRPVLLDESDM.add_JobProperty(doSmpCaloId)
-
 class doDV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    ForceToRunMuonsSel=False
-    ForceToRunEgammaSel=False
-    ForceToRunJetTauEtmissSel=False    
-    TriggerStreams = ["Egamma","JetTauEtmiss"] #### NB for late 2013 reprocessing don't rerun on Muons
     pass
 primRPVLLDESDM.add_JobProperty(doDV)
-
-class doVH_DV(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = True
-    ForceToRun = False
-    TriggerStreams = ["Muons", "Egamma"]
-    pass
-primRPVLLDESDM.add_JobProperty(doVH_DV)
-
-class doSmpMs(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this
-    ForceToRun = False
-    TriggerStreams = ["Muons"]
-    pass
-primRPVLLDESDM.add_JobProperty(doSmpMs)
-
-class doNonPointing(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this
-    ForceToRun = False
-    TriggerStreams = ["Egamma"]
-    pass
-primRPVLLDESDM.add_JobProperty(doNonPointing)
 
 class doKinkedTrack(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this
+    StoredValue = False
     ForceToRun = False
-    TriggerStreams = ["JetTauEtmiss"]
     pass
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
-
-class doHips(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this
-    ForceToRun = False
-    TriggerStreams = ["Egamma"]
-    pass
-primRPVLLDESDM.add_JobProperty(doHips)
 
 class doStopped(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this
+    StoredValue = False
     ForceToRun = False
-    TriggerStreams = ["JetTauEtmiss"]
     pass
 primRPVLLDESDM.add_JobProperty(doStopped)
+
+class doVH_DV(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+    ForceToRun = False
+    pass
+primRPVLLDESDM.add_JobProperty(doVH_DV)
+
+class doQuirks(JobProperty):
+    statusOn=True
+    allowedTypes = ["bool"]
+    StoredValue=False
+    ForceToRun=False
+    pass
+primRPVLLDESDM.add_JobProperty(doQuirks)
+
+class doHips(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    ForceToRun = False
+    pass
+primRPVLLDESDM.add_JobProperty(doHips)
+
+class doHnl(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    ForceToRun = False
+    pass
+primRPVLLDESDM.add_JobProperty(doHnl)
 
 class doHV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False #### NB for late 2013 reprocessing don't rerun this 
+    StoredValue = True
     ForceToRun = False
-#    TriggerStreams = ["JetTauEtmiss", "Muons", "Egamma"]
-#    TriggerStreams = ["JetTauEtmiss", "Muons"]    
-    TriggerStreams = ["JetTauEtmiss"]    
     pass
 primRPVLLDESDM.add_JobProperty(doHV)
 
-# other switches (old - remove some?)
-
-class UseAODTruth(JobProperty):
+class doSmpCaloId(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
+    ForceToRun = False
     pass
-primRPVLLDESDM.add_JobProperty(UseAODTruth)
+primRPVLLDESDM.add_JobProperty(doSmpCaloId)
+
+class doSmpMs(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+    ForceToRun = False
+    pass
+primRPVLLDESDM.add_JobProperty(doSmpMs)
 
 class prescaleFlags(JobProperty):
     statusOn = True
@@ -176,11 +140,4 @@ class prescaleFlags(JobProperty):
     applyPrescale = False
     prescaleFactor=1.0
 primRPVLLDESDM.add_JobProperty(prescaleFlags)
-
-class doCaloCellThinning(JobProperty):
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False
-    pass
-primRPVLLDESDM.add_JobProperty(doCaloCellThinning)
 

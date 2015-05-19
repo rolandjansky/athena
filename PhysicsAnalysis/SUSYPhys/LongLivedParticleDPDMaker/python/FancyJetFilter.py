@@ -29,7 +29,7 @@ from PrimaryDPDMaker import PrimaryDPDHelpers
 
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
-from ROOT import JetCollectionHelper
+
 
 ## Import the module that allows to use named units, e.g. GeV
 import AthenaCommon.SystemOfUnits as Units
@@ -40,11 +40,11 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
     jet which fulfills a certain set of criteria.  All energies below
     are uncalibrated (EM scale).  The possible criteria are (with
     default values):
-    jetCollectionType       = "JetCollection"
-    jetCollectionName       = "AntiKt4TowerJets"
+    jetCollectionType       = "xAOD::JetCollection"
+    jetCollectionName       = "AntiKt4LCTopoJets"
     useUncalibratedJets     = True
     cutEtMin                = 0.0*Units.GeV
-    cutEtMax                = 14.0*Units.GeV
+    cutEtMax                = 14.0*Units.TeV
     cutEtaMin               = 0
     cutEtaMax               = 2.5
     cutSumPtTrkMax          = -1.0
@@ -67,11 +67,11 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
         super(FancyJetFilter, self).__init__(**kw)
 
         ## Define the cuts
-        self.jetCollectionType       = kw.get('jetCollectionType', "JetCollection")
-        self.jetCollectionName       = kw.get('jetCollectionName', "AntiKt4TowerJets")
+        self.jetCollectionType       = kw.get('jetCollectionType', "xAOD::JetContainer")
+        self.jetCollectionName       = kw.get('jetCollectionName', "AntiKt4LCTopoJets")
         self.useUncalibratedJets     = kw.get('useUncalibratedJets', True)
         self.cutEtMin                = kw.get('cutEtMin', 0.0*Units.GeV)
-        self.cutEtMax                = kw.get('cutEtMax', 14.0*Units.GeV)
+        self.cutEtMax                = kw.get('cutEtMax', 14.0*Units.TeV)
         self.cutEtaMin               = kw.get('cutEtaMin', 0.0)
         self.cutEtaMax               = kw.get('cutEtaMax', 2.5)
         self.cutSumPtTrkMax          = kw.get('cutSumPtTrkMax', -1.0)
@@ -171,34 +171,7 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
             self.msg.warning( 'Collection %s not found' % self.jetCollectionName )           
             self.setFilterPassed(True)
             return StatusCode.Success   
-        
-        
-        # Load the lepton collections from the input file
-        self.msg.debug( 'Going to load the leptons of type %s and key %s.' % (self.leptonContainerTypeList, self.leptonContainerNameList) )
-        leptonList = []
-        if self.leptonContainerTypeList.__len__() == self.leptonContainerNameList.__len__() :
-            for i in range( self.leptonContainerTypeList.__len__() ) :
-                try:
-                    lepColl = self.storeGateSvc.retrieve( self.leptonContainerTypeList[i],
-                                                          self.leptonContainerNameList[i] )
-                    self.msg.debug( 'Loading the lepton collection %s from the input file.'
-                                    % self.leptonContainerNameList[i] )
-                    for lep in lepColl :
-                        leptonList.append(lep)
-                        pass
-                    pass
-                except LookupError:
-                    self.msg.warning( 'Collection %s not found' % self.leptonContainerNameList[i] )           
-                    self.setFilterPassed(True)
-                    return StatusCode.Success   
-                pass
-            pass
-        else :
-            self.msg.error( 'List of leptons type %s and key %s has different lenght!'
-                            % (self.leptonContainerTypeList, self.leptonContainerNameList) )
-            pass
-
-
+   
         ## Turn all jets into uncalibrated state
         if self.useUncalibratedJets :
             self.jss.setSignalState( PyAthena.P4SignalState.UNCALIBRATED)
@@ -284,13 +257,6 @@ class FancyJetFilter( PyAthena.AthFilterAlgorithm ):
 
         releaseObject()
 
-
-        ## Record the good jets into StoreGate so that they can be retrieved by other algorithms
-        if self.recordGoodJets :
-            if JetCollectionHelper.record_jets( self.storeGateSvc, goodJets, self.goodJetCollectionName ).isFailure() :
-                self.msg.error( 'Could not record the goodJets into StoreGate with the key = %s' % self.goodJetCollectionName )
-                pass
-            pass
 
         ## Check if the event is accepted
         if  goodJets.__len__() >= self.minNumberPassed and leadEt <= self.cutEtMax :

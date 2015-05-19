@@ -37,7 +37,7 @@ class VH_DV_electronFilterFlags(JobProperty):
     cutEtaMax = 2.5
     cutAuthor = 'Electron'
     cutIsEM = 'Medium'
-    electronCollectionName='ElectronCollection'
+    electronCollectionName='Electrons'
     pass
 primRPVLLDESDM.add_JobProperty(VH_DV_electronFilterFlags)
 
@@ -49,7 +49,7 @@ class VH_DV_DielectronFilterFlags(JobProperty):
     cutEtaMax = 2.5
     cutAuthor = 'Electron'
     cutIsEM = 'Medium'
-    electronCollectionName='ElectronCollection'
+    electronCollectionName='Electrons'
     pass
 primRPVLLDESDM.add_JobProperty(VH_DV_DielectronFilterFlags)
 

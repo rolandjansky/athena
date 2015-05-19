@@ -11,26 +11,34 @@ use GaudiInterface              GaudiInterface-*                External
 use AthenaBaseComps             AthenaBaseComps-*               Control
 use AtlasROOT                   AtlasROOT-*                     External
 use AtlasAnalysisRunTime        AtlasAnalysisRunTime-*
-use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+##use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
+use TrigDecisionTool            TrigDecisionTool-*              Trigger/TrigAnalysis
+use TrigObjectMatching          TrigObjectMatching-*            Trigger/TrigAnalysis
+use xAODMuon                    xAODMuon-*                      Event/xAOD
+use xAODTracking                xAODTracking-*                 	Event/xAOD
+use xAODEgamma	                xAODEgamma-*                 	Event/xAOD
+use xAODCaloEvent               xAODCaloEvent-*                	Event/xAOD
 
 private
+use AthenaKernel                AthenaKernel-*                  Control
+use AtlasCLHEP                  AtlasCLHEP-*                    External
+use xAODEventInfo               xAODEventInfo-*			Event/xAOD
+use xAODJet                     xAODJet-*                       Event/xAOD
+use xAODMissingET      		xAODMissingET-*			Event/xAOD
 
-use  Particle                   Particle-*                      Reconstruction
 
-use egammaEvent                 egammaEvent-*                   Reconstruction/egamma
-use muonEvent					muonEvent-*	  			      	Reconstruction/MuonIdentification
-use CaloEvent                   CaloEvent-*                     Calorimeter
 use EventBookkeeperMetaData     EventBookkeeperMetaData-*       Event
 use EventInfo                   EventInfo-*                     Event
 
-use InDetPrepRawData            InDetPrepRawData-*              InnerDetector/InDetRecEvent
-use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+##use InDetPrepRawData            InDetPrepRawData-*              InnerDetector/InDetRecEvent
+##use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 
-use TRT_DriftFunctionTool       TRT_DriftFunctionTool-*         InnerDetector/InDetRecTools
-use Identifier                  Identifier-*                    DetectorDescription
-use VxVertex            		VxVertex-*              		Tracking/TrkEvent
-use ITrackToVertex              ITrackToVertex-*                Reconstruction/RecoTools
-use EventPrimitives		EventPrimitives-* 		Event
+##use TRT_DriftFunctionTool       TRT_DriftFunctionTool-*         InnerDetector/InDetRecTools
+##use Identifier                  Identifier-*                    DetectorDescription
+
+##use ITrackToVertex              ITrackToVertex-*                Reconstruction/RecoTools
+##use EventPrimitives		EventPrimitives-* 		Event
 
 
 ## declare the directories CMT should know about
