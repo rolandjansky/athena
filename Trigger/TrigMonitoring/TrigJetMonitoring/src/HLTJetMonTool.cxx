@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <algorithm> 
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -255,15 +256,17 @@ StatusCode HLTJetMonTool::init() {
 
   ATH_MSG_INFO( "in HLTJetMonTool::init()" );
 
-  //Weights
+  //Luminosity information
 
   lumi_weight=1.;
+  m_lumiBlock=-1;
+  std::vector<int> v_lbn;
 
   // Monitoring trigger names specified through the congfiguration file or menu database, for menu-aware monitoring
   if(m_monitoring_l1jet.empty()) m_monitoring_l1jet.push_back("L1_J15");
   if(m_monitoring_jet.empty())   m_monitoring_jet.push_back("j60");
   if(m_primary_l1jet.empty())    m_primary_l1jet.push_back("L1_J15");
-  if(m_primary_l1jet.empty())    m_monitoring_l1jet.push_back("j60");
+  // if(m_primary_l1jet.empty())    m_monitoring_l1jet.push_back("j60");
 
   // Fill triggers for L1 basic plots. String pairs of the form ("MonGroup name","L1 Trigger Name")
   unsigned int k = 0; 
@@ -559,7 +562,7 @@ void HLTJetMonTool::bookJetHists() {
   // bookBasicHists - 
   // L1 histograms in m_L1dir
   levels.push_back("L1");
-  varlist = "n;et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar";
+  varlist = "n;et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
 
   // create path to L1 and HLT dirs
   std::string L1dir = m_monBase + m_L1dir;
@@ -588,7 +591,7 @@ void HLTJetMonTool::bookJetHists() {
   unsigned int k = 0; 
   for(JetSigIter hj= m_HLTJetKeys.begin(); hj != m_HLTJetKeys.end(); ++hj, k++) {
     // book histograms for each HLT jet container 
-    varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar";
+    varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
     nvar = basicKineVar(varlist,bookvars);
     if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -618,7 +621,7 @@ void HLTJetMonTool::bookJetHists() {
   //
 
   // L1 Chains
-  varlist="et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;";
+  varlist="et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;";
   nvar = basicKineVar(varlist,bookvars);
   if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
   levels.clear(); levels.push_back("L1");
@@ -647,7 +650,7 @@ void HLTJetMonTool::bookJetHists() {
 
   // HLT Chains
   // HLT basic histograms
-  varlist="et;eta;phi;phi_vs_eta;emfrac;hecfrac;e_vs_eta;e_vs_phi;";
+  varlist="et;eta;phi;phi_vs_eta;emfrac;hecfrac;e_vs_eta;e_vs_phi;sigma_vs_lb;";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); levels.push_back("L1");
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
@@ -658,7 +661,8 @@ void HLTJetMonTool::bookJetHists() {
     setCurrentMonGroup(theDir);
     bookBasicHists(levels,bookvars);
   }
-  
+ 
+  /* 
   // L1 only
   varlist="roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;eta_unmatched;";  // L1 prefix
   nvar = basicKineVar(varlist,bookvars);
@@ -675,6 +679,7 @@ void HLTJetMonTool::bookJetHists() {
     setCurrentMonGroup(m_monGroups[(*k).first]);
     bookBasicHists(levels,bookvars);
   }
+  */
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Offline Jets - 
@@ -687,7 +692,7 @@ void HLTJetMonTool::bookJetHists() {
     k = 0; // FIXME
     for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj, k++) {
       // book histograms for each offline jet container 
-      varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar";
+      varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
       nvar = basicKineVar(varlist,bookvars);
       if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -753,6 +758,7 @@ void HLTJetMonTool::bookJetHists() {
 
 void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet) {
 
+ 
   if(item.size() == 0 ) return;
   JetSigIter it0 = item.begin();
   std::string itPfx = (*it0).first, itlvl = "NO";
@@ -764,8 +770,8 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
   unsigned int k = 0;
   for(JetSigIter it = item.begin(); it != item.end(); ++it, k++) {
 
-    int nbinsEt = (  (itlvl == "L1")  ? m_l1nbinsEt[k]*2 : 
-                  (  (itlvl == "HLT") ? m_hltnbinsEt[k]*2 : m_jEtnbins[0]*2 ));
+    int nbinsEt = (  (itlvl == "L1")  ? m_l1nbinsEt[k]*4 : 
+                  (  (itlvl == "HLT") ? m_hltnbinsEt[k]*4 : m_jEtnbins[0]*4 ));
 
     float binloEt = ( (itlvl == "L1")  ? m_l1binloEt[k] : 
                     ( (itlvl == "HLT") ? m_hltbinloEt[k] : m_jEtbinlo[0] ));
@@ -797,6 +803,9 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_pt_den",trigName.Data());
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
 
+    hname = Form("%s_Eff_vs_pt",trigName.Data());
+    addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
+  
     // eff vs. Et
     htitle = Form("%s : %s Efficiency w.r.t %s vs. E_{T}; E_{T}^{jet} [GeV]; Efficiency", ContainerName.Data(), trigItem.Data(), ofjet.c_str());
     hname = Form("%s_Eff_vs_Et_num",trigName.Data());
@@ -816,6 +825,9 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_eta_den",trigName.Data());
     addHistogram(new TH1F(hname, htitle,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
 
+    hname = Form("%s_Eff_vs_eta",trigName.Data());
+    addHistogram(new TH1F(hname, htitle,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
+
     // eff vs. phi
     htitle = Form("%s : %s Efficiency w.r.t %s vs. #varphi; #varphi^{jet} [rad]; Efficiency",ContainerName.Data(),trigItem.Data(), ofjet.c_str());
     hname = Form("%s_Eff_vs_phi_num",trigName.Data());
@@ -823,6 +835,9 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     addHistogram(new TH1F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
 
     hname = Form("%s_Eff_vs_phi_den",trigName.Data());
+    addHistogram(new TH1F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
+
+    hname = Form("%s_Eff_vs_phi",trigName.Data());
     addHistogram(new TH1F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
 
 
@@ -1095,6 +1110,16 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
         hname = "Jet_l1phi_vs_hltphi";
         addHistogram(new TH2F(hname, htitle, m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0], m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
       }
+
+      //******************************LUMINOSITY HISTOS****************************************************************
+ 
+      if(*var == "sigma_vs_lb") {
+	htitle = Form("%s #sigma vs. LumiBlock; N. LumiBlock; N/L",title.Data());
+	hname = Form("%sSigma_vs_LB",lvl.Data());
+	addHistogram(new TH1F(hname, htitle,10000,0,10000));
+      }
+
+      //***************************************************************************************************************
       
     } // for chain
 
@@ -1114,6 +1139,8 @@ void HLTJetMonTool::setHistProperties(TH1* h) {
   h->SetTitleSize(0.037,"Y");
   h->SetLabelSize(0.033,"X");
   h->SetLabelSize(0.033,"Y");
+  h->Sumw2();
+  h->SetOption("hist");
 
 } // end setHistProperties
 
@@ -1179,6 +1206,21 @@ StatusCode HLTJetMonTool::retrieveContainers() {
 
 // ------------------------------------------------------------------------------------
 
+int HLTJetMonTool::retrieveLumiBlock(){
+  
+  const xAOD::EventInfo* eventInfo = 0; 
+  
+  StatusCode sc=m_storeGate->retrieve(eventInfo,"EventInfo"); 
+  if (sc.isFailure() || 0 == eventInfo ){
+    ATH_MSG_ERROR("Could not retrieve EventInfo. LumiBlock set to -1");
+    return -1;
+  }
+   
+  return eventInfo->lumiBlock();
+}
+
+
+
 StatusCode HLTJetMonTool::fill() {
 
   if (m_debuglevel) 
@@ -1209,6 +1251,16 @@ StatusCode HLTJetMonTool::fill() {
 // ------------------------------------------------------------------------------------
 
 StatusCode HLTJetMonTool::fillJetHists() {
+
+
+  // if (lbLumiWeight()>0 && m_doLumiWeight){//get weight from luminosity of the corresponding BCID
+  //  lumi_weight=1/lbLumiWeight();
+  // }
+
+  m_lumiBlock=retrieveLumiBlock(); //get lb number
+  v_lbn.push_back(m_lumiBlock);
+
+  // ATH_MSG_DEBUG("lbLumiWeight() = "<<lbLumiWeight()<<" lumi_weight = "<<lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<v_lbn.front()<<" last v_lbn = "<<v_lbn.back());
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = fillBasicHists();
@@ -1271,10 +1323,16 @@ StatusCode HLTJetMonTool::fillBasicHists() {
           ATH_MSG_DEBUG( "found L1Jet_Et" ); 
         h->Fill(et,lumi_weight); 
       }
-      if((h = hist("L1Jet_eta")))  h->Fill(eta,lumi_weight);
-      if((h = hist("L1Jet_phi")))  h->Fill(phi,lumi_weight);
-      if((h2 = hist2("L1Jet_E_vs_eta")))  h2->Fill(eta,ene,lumi_weight);
-      if((h2 = hist2("L1Jet_E_vs_phi")))  h2->Fill(phi,ene,lumi_weight);
+      if((h  = hist("L1Jet_eta")))          h->Fill(eta,lumi_weight);
+      if((h  = hist("L1Jet_phi")))          h->Fill(phi,lumi_weight);
+
+      if((h  = hist("L1Sigma_vs_LB"))){      
+	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	h->Fill(m_lumiBlock,lumi_weight);
+      }
+
+      if((h2 = hist2("L1Jet_E_vs_eta")))    h2->Fill(eta,ene,lumi_weight);
+      if((h2 = hist2("L1Jet_E_vs_phi")))    h2->Fill(phi,ene,lumi_weight);
       if((h2 = hist2("L1Jet_phi_vs_eta")))  h2->Fill(eta,phi,lumi_weight);
     } // end for it_L1
 
@@ -1351,14 +1409,20 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	double  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
         if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 
-        if((h = hist( Form("%sJet_Et",lvl.c_str()))))  h->Fill(et,lumi_weight);
-        if((h = hist(Form("%sJet_eta",lvl.c_str()))))  h->Fill(eta,lumi_weight);
-        if((h = hist(Form("%sJet_phi",lvl.c_str()))))  h->Fill(phi,lumi_weight);
-        if((h = hist(Form("%sJet_emfrac",lvl.c_str()))))  h->Fill(emfrac,lumi_weight);
-	if((h = hist(Form("%sJet_hecfrac",lvl.c_str()))))  h->Fill(hecfrac,lumi_weight);
+        if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,lumi_weight);
+        if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,lumi_weight);
+        if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,lumi_weight);
+        if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,lumi_weight);
+	if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,lumi_weight);
+
+	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
+	  h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	  h->Fill(m_lumiBlock,lumi_weight);
+	}
+
         if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi,lumi_weight);
-        if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))  h2->Fill(eta,e,lumi_weight);
-        if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))  h2->Fill(phi,e,lumi_weight);
+        if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))    h2->Fill(eta,e,lumi_weight);
+        if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))    h2->Fill(phi,e,lumi_weight);
 
         // note: if this histogram turns out to be empty, it means:
         // emfraction is always 0 because the energies for different 
@@ -1418,14 +1482,20 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	    double  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac);
             if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 
-            if((h = hist( Form("%sJet_Et",lvl.c_str()))))  h->Fill(et,lumi_weight);
-            if((h = hist(Form("%sJet_eta",lvl.c_str()))))  h->Fill(eta,lumi_weight);
-            if((h = hist(Form("%sJet_phi",lvl.c_str()))))  h->Fill(phi,lumi_weight);
-            if((h = hist(Form("%sJet_emfrac",lvl.c_str()))))  h->Fill(emfrac,lumi_weight);
-	    if((h = hist(Form("%sJet_hecfrac",lvl.c_str()))))  h->Fill(hecfrac,lumi_weight);
+            if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,lumi_weight);
+            if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,lumi_weight);
+            if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,lumi_weight);
+            if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,lumi_weight);
+	    if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,lumi_weight);
+
+	    if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){      
+	       h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	       h->Fill(m_lumiBlock,lumi_weight);
+	    }
+
             if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi,lumi_weight);
-            if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))  h2->Fill(eta,e,lumi_weight);
-            if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))  h2->Fill(phi,e,lumi_weight);
+            if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))    h2->Fill(eta,e,lumi_weight);
+            if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))    h2->Fill(phi,e,lumi_weight);
 
             // note: if this histogram turns out to be empty, it means:
             // emfraction is alwasy 0 because the energies for different 
@@ -1502,6 +1572,12 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   if((h  = hist("HLTJet_phi")))           h->Fill(phi,     lumi_weight);
 	   if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  lumi_weight);
 	   if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, lumi_weight);
+
+	   if((h  = hist("HLTSigma_vs_LB"))){
+	     h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	     h->Fill(m_lumiBlock,lumi_weight);
+	   }
+
 	   if((h2 = hist2("HLTJet_phi_vs_eta")))   h2->Fill(eta,phi,lumi_weight);  
 	   if((h2 = hist2("HLTJet_E_vs_eta")))     h2->Fill(eta,e,lumi_weight); 
 	   if((h2 = hist2("HLTJet_E_vs_phi")))     h2->Fill(phi,e,lumi_weight); 
@@ -1581,6 +1657,12 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
               if((h  = hist("L1Jet_Et")))           h->Fill(et,lumi_weight);
               if((h  = hist("L1Jet_eta")))          h->Fill(eta,lumi_weight);
               if((h  = hist("L1Jet_phi")))          h->Fill(phi,lumi_weight);
+	      
+	      if((h  = hist("L1Sigma_vs_LB"))){
+		h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+		h->Fill(m_lumiBlock,lumi_weight);
+	      }
+	      
               if((h2 = hist2("L1Jet_phi_vs_eta")))  h2->Fill(eta,phi,lumi_weight);
 	      if((h2 = hist2("L1Jet_E_vs_eta")))    h2->Fill(eta,ene,lumi_weight);
 	      if((h2 = hist2("L1Jet_E_vs_phi")))    h2->Fill(phi,ene,lumi_weight);
@@ -1703,7 +1785,7 @@ bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, 
 
 StatusCode HLTJetMonTool::fillOfflineHists() {
 
-  ATH_MSG_INFO("Filling Efficiency Plots");
+  ATH_MSG_DEBUG("Filling Efficiency Plots");
 
   TH1 *h(0);
   TH2 *h2(0);
@@ -1727,6 +1809,8 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
       TLorentzVector v_trigjet_tmp;
 
       for(const auto & jet : *jetcoll) {
+
+	ATH_MSG_DEBUG("Offline Jet Collection Loop");
 
 	mFoundL1.clear();
 	mFoundHLT.clear();
@@ -1805,8 +1889,8 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 		if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
 		if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
 		if((h2 = hist2(Form("%s_pt_vs_OF_pt",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
-		 
-		
+
+
 	      } // if this L1 item passed
 	    } // if trigeff  
 
@@ -1925,6 +2009,10 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 	} // isLeadingJet
       } // for loop over OF jet
+
+
+      //Here should be fill turn-on curves
+
     } // if jetcoll
   } // for k (loop over all ref coll's)
 
@@ -2110,7 +2198,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 
 StatusCode HLTJetMonTool::proc( ) {
 
-  if (m_debuglevel) 
+  // if (m_debuglevel) 
     ATH_MSG_INFO( "in HLTJetMonTool::proc()" );
 
 // LS 24 Jan 2014 - Interval checking now managed in ManagedMonitorTool so do nothing.
@@ -2119,7 +2207,112 @@ StatusCode HLTJetMonTool::proc( ) {
 //  if(isEndOfRun) {
 //  }
 
-  return StatusCode::SUCCESS;
+    TH1 *h(0);
+    TH1 *hnum(0);
+    TH1 *hden(0);
+    
+    JetSigIter lIt;
+    
+    unsigned int Nelem = m_OFJetC.size();
+    for(unsigned int k = 0; k < Nelem; k++ ) {
+      const xAOD::JetContainer *jetcoll = m_OFJetC[k];
+      if(jetcoll) {
+	std::string malg = Form("%s%d",m_OFpfx.c_str(),k);
+	std::string mgrp = m_monGroups[malg];
+	std::string mgrp_eff = m_monGroups[Form("%s%dEff",m_OFpfx.c_str(),k)];
+
+	setCurrentMonGroup(mgrp_eff);
+	
+	//**************************************** FILL TURN-ON CURVES********************************************************************
+	
+	for(lIt = m_L1Items.begin(); lIt != m_L1Items.end(); ++lIt) {
+	  std::string L1itemName = (*lIt).first;       
+	  
+	  if((h = hist(Form("%s_Eff_vs_pt", L1itemName.c_str()))))  {
+	    if((hnum=hist(Form("%s_Eff_vs_pt_num",L1itemName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_pt_den",L1itemName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }
+	    }
+	  }
+	  if((h = hist(Form("%s_Eff_vs_eta",L1itemName.c_str())))) {
+	    if((hnum=hist(Form("%s_Eff_vs_eta_num",L1itemName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_eta_den",L1itemName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }
+	    }
+	  }
+	  if((h = hist(Form("%s_Eff_vs_phi",L1itemName.c_str())))) {
+	    if((hnum=hist(Form("%s_Eff_vs_phi_num",L1itemName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_phi_den",L1itemName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }	  
+	    }
+	  }
+	} //End Loop over L1
+	
+	for(lIt = m_HLTChains.begin(); lIt != m_HLTChains.end(); ++lIt) {
+	  std::string HLTchainName = (*lIt).first;
+	  
+	  if((h = hist(Form("%s_Eff_vs_pt", HLTchainName.c_str()))))  {
+	    if((hnum=hist(Form("%s_Eff_vs_pt_num",HLTchainName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_pt_den",HLTchainName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }
+	    }
+	  }
+	  if((h = hist(Form("%s_Eff_vs_eta",HLTchainName.c_str())))) {
+	    if((hnum=hist(Form("%s_Eff_vs_eta_num",HLTchainName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_eta_den",HLTchainName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }
+	    }
+	  }
+	  if((h = hist(Form("%s_Eff_vs_phi",HLTchainName.c_str())))) {
+	    if((hnum=hist(Form("%s_Eff_vs_phi_num",HLTchainName.c_str())))){
+	      if((hden=hist(Form("%s_Eff_vs_phi_den",HLTchainName.c_str())))){
+		h->Divide(hnum,hden,1,1,"B");
+		h->SetMarkerColor(kBlack);
+		h->SetLineColor(kBlack);
+		h->SetMarkerSize(0.9);
+		h->SetMarkerStyle(20);
+		h->SetOption("err");
+	      }		
+	    }
+	  }
+	} //End Loop over HLT
+	
+	//*******************************************************************************************************************************
+	
+      }//if jetcoll
+    }//loop over jetcoll 
+    
+    return StatusCode::SUCCESS;
 } // end proc
 
 // ------------------------------------------------------------------------------------

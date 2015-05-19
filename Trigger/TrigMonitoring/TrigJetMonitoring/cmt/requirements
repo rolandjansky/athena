@@ -13,6 +13,8 @@ use AnalysisTriggerEvent        AnalysisTriggerEvent-*      PhysicsAnalysis/Anal
 use xAODJet                     xAODJet-*                   Event/xAOD
 use xAODTrigger			xAODTrigger-*               Event/xAOD
 
+use xAODEventInfo               xAODEventInfo-*             Event/xAOD
+
 private
 use EventKernel                 EventKernel-*               Event
 use AtlasBoost                  AtlasBoost-*                External

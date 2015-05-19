@@ -102,8 +102,8 @@ def TrigJetMonitoringTool():
             DoL1Efficiency       = True,         # w.r.t offline
 	    DoOfflineJets        = True,         # fill offline jet plots
             DoHLTEfficiency      = True,         # w.r.t offline (HLT eff = L1 & HLT)
-            # EnableLumi         = True,         # Enable Luminosity Tool
-            # DoLumiWeight       = False,        # Decide to apply luminosity weights                       
+         #   EnableLumi           = True,        # Enable Luminosity Tool
+         #   DoLumiWeight         = False,        # Decide to apply luminosity weights                       
             # SG Keys for L1, EF, OF Jets
             L1xAODJetKey         = "LVL1JetRoIs",
             HLTJetKeys           = hlt_JetKeys,
@@ -242,11 +242,11 @@ def TrigJetMonitoringTool():
   from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
 
-  #from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-  #ToolSvc+=LuminosityToolDefault()
+ # from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
+ # ToolSvc+=LuminosityToolDefault()
    
-  #from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-  #ToolSvc+=TrigLivefractionToolDefault()
+ # from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
+ # ToolSvc+=TrigLivefractionToolDefault()
   
   ToolSvc += HLTJetMon;
 

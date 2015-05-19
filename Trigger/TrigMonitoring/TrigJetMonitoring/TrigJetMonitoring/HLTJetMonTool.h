@@ -26,6 +26,7 @@
 #include "xAODTrigger/JetRoI.h"
 #include "xAODTrigger/JetRoIContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
@@ -118,7 +119,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
-    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
+    bool m_doLumiWeight, m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
@@ -130,6 +131,8 @@ class HLTJetMonTool : public IHLTMonTool {
     int m_MaxNJet /*, m_n90Cut*/ ;
 
     double lumi_weight;
+    int m_lumiBlock;
+    std::vector<int> v_lbn;
 
     std::string m_p4State;
    
@@ -160,6 +163,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // SG retrieval method
     StatusCode retrieveContainers();
+    int retrieveLumiBlock();
 
     // book methods
     void bookJetHists();  // this method calls all other book methods
