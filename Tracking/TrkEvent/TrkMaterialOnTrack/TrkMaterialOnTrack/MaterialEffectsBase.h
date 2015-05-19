@@ -14,10 +14,6 @@
 
 class MsgStream;
 class TrackCollectionCnv;
-class MaterialEffectsBaseCnv_p1;
-class MaterialEffectsBaseCnv_p2;
-class MaterialEffectsOnTrackCnv_p2;
-class ScatteringAngleOnTrackCnv_p1;
 
 namespace Trk {
 
@@ -34,6 +30,7 @@ class Surface;
 */
 class MaterialEffectsBase
 {
+  friend class ::TrackCollectionCnv;
  public:
   
   enum MaterialEffectsType
@@ -106,11 +103,6 @@ class MaterialEffectsBase
   virtual void setValues(const Surface* assocSurface);
 
  private:
-  friend class ::MaterialEffectsBaseCnv_p1;
-  friend class ::MaterialEffectsBaseCnv_p2;
-  friend class ::MaterialEffectsOnTrackCnv_p2;
-  friend class ::TrackCollectionCnv;
-  friend class ::ScatteringAngleOnTrackCnv_p1;
 
   //! @f$ t/X_0    @f$  - the traversed thickness in RadiationLengths
   double  m_tInX0;

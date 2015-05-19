@@ -99,17 +99,17 @@ std::string Trk::MaterialEffectsBase::dumpType() const{
 MsgStream& Trk::MaterialEffectsBase::dump ( MsgStream& sl ) const
 {
 	std::string name("MaterialEffects ");
-	sl << name<<"type        : " << dumpType() <<endmsg;
-	sl << name<<"thickness/X0: " << thicknessInX0()<<endmsg;
+	sl << name<<"type        : " << dumpType() <<endreq;
+	sl << name<<"thickness/X0: " << thicknessInX0()<<endreq;
     sl << name<<"Surface     : " ;
     if (m_associatedSurface==NULL) {
       sl << "NULL";
     } else {
       if (m_associatedSurface->associatedDetectorElement()!=NULL)
         sl << "from detector Element";
-      else sl << associatedSurface() << endmsg;
+      else sl << associatedSurface() << endreq;
     }
-    sl << endmsg;
+    sl << endreq;
 	return sl; 
 }
 //Overload of << operator for std::ostream for debug output
