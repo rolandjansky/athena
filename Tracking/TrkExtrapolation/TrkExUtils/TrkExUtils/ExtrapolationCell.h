@@ -15,10 +15,12 @@
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkExUtils/TransportJacobian.h"
+#include "TrkDetDescrUtils/GeometrySignature.h"
+#include "TrkMaterialOnTrack/EnergyLoss.h"
 
 #ifndef TRKEXUTILS_CHECKPATHMACRO
 #define TRKEXUTILS_CHECKPATHMACRO
-#define reachedLimit(current, limit, tolerance) ( limit > 0 && (current-limit)*(current-limit)/(limit*limit) < tolerance*tolerance )
+#define reachedLimit(current, limit, tolerance) ( limit > 0 && ((current<limit) ? (current-limit)*(current-limit)/(limit*limit) < tolerance*tolerance : true))
 #endif
 
 namespace Trk {
@@ -133,6 +135,9 @@ namespace Trk {
         /** return success */
         bool isSuccess() const { return (code > InProgress && code < Recovered); }  
         
+        /** return sucess other than destination reached */
+        bool isSuccessBeforeDestination() const { return (code > SuccessDestination && code < Recovered); }  
+        
         /** return success or recovered */
         bool isSuccessOrRecovered() const { return (code > InProgress && code <= FailureDestination); }  
         
@@ -166,6 +171,7 @@ namespace Trk {
         double                      materialScaling;        //!< scale factor for the material as calculated
         const TransportJacobian*    transportJacobian;      //!< the transport jacobian from the last step
         double                      pathLength;             //!< the path length from the last step
+        float                       time;                   //!< timing info   
         
         ExtrapolationStep(const T* pars = 0,
                           const Surface* sf = 0,  
@@ -209,9 +215,11 @@ namespace Trk {
             const TrackingVolume*                   leadVolume;             //!< the lead Volume - carrying the navigation stream
             const Layer*                            leadLayer;              //!< the lead Layer  - carrying the navigation stream
             const Surface*                          leadLayerSurface;       //!< if the lead layer has sub structure that is the first one to start with
-                                                    
+	                                                        
             const T*                                lastBoundaryParameters; //!< this is the last boundary surface to prevent loops
             const Surface*                          lastBoundarySurface;    //!< this is the last boundary surface to prevent loops
+            
+            GeometrySignature                       nextGeometrySignature;  //!< when a boundary is reached the geometry signature is updated to the next volume one
                                                     
             int                                     navigationStep;         //!< a counter of the navigation Step
             double                                  pathLength;             //!< the path length accumulated
@@ -233,9 +241,15 @@ namespace Trk {
             std::vector< ExtrapolationStep<T> >     extrapolationSteps;     //!< parameters on sensitive detector elements
                 
             ExtrapolationConfig                     extrapolationConfiguration; //!< overall global configuration
+
+            float                                   time;                    // timing info 
+            EnergyLoss*                             eLoss;                   // cumulated energy loss     
+            float                                   zOaTrX;                  //! z/A*rho*dInX0 (for average calculations)
+            float                                   zX;                      //! z*dInX0 (for average calculations)
+  
             
         
-          /** start parameters are compulory to be given */  
+          /** start parameters are compulsory  */  
           ExtrapolationCell(const T& sParameters, unsigned int econfig=1) :
             startParameters(&sParameters),
             startVolume(0),
@@ -250,6 +264,7 @@ namespace Trk {
             leadLayerSurface(0),
             lastBoundaryParameters(0),
             lastBoundarySurface(0),
+            nextGeometrySignature(Trk::Unsigned),
             navigationStep(0),
             pathLength(0.),
             pathLimit(-1),
@@ -264,7 +279,10 @@ namespace Trk {
             navigationCurvilinear(true),
             sensitiveCurvilinear(false),
             destinationCurvilinear(false),
-            extrapolationConfiguration(econfig)
+	    extrapolationConfiguration(econfig),
+	    eLoss(0),
+	    zOaTrX(0.),
+	    zX(0.)
         {}
 
           /** add a configuration mode */
@@ -288,10 +306,14 @@ namespace Trk {
           /** fill transport information - path length and TransportJacobian 
               - jacobians need to be cleared */
           void stepTransport(const Surface& sf, double pathLength=0., const TransportJacobian* tjac=0);
+
+          /** fill or attach material, jacobian, step length 
+              - material is just a pointer copy */
+          void addMaterial(double sfactor, const MaterialProperties* mprop=nullptr);
           
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
-          void stepMaterial(const Surface& sf, const Layer* lay, const Amg::Vector3D& position, double sfactor, const MaterialProperties* mprop=0);
+          void stepMaterial(const Surface& sf, const Layer* lay, const Amg::Vector3D& position, double sfactor, const MaterialProperties* mprop=nullptr);
             
           /** check if this is the initial volume */
           bool initialVolume() const { return (leadVolume==startVolume); }    
@@ -301,13 +323,13 @@ namespace Trk {
 
           /** the materialLimitReached */
           bool pathLimitReached(double tolerance=0.001) const { 
-              return (checkConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit) && reachedLimit(pathLength,pathLimit,tolerance) );
+	      return (checkConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit) && reachedLimit(pathLength,pathLimit,tolerance) );
           }
           
           /** the materialLimitReached */
           bool materialLimitReached(double tolerance=0.001) const { 
-              return ( (checkConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0) && reachedLimit(materialX0,materialLimitX0,tolerance) ) ||
-                       (checkConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0) && reachedLimit(materialL0,materialLimitL0,tolerance) ) );
+	      return ( (checkConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0) && reachedLimit(materialX0,materialLimitX0,tolerance) ) ||
+	  	       (checkConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0) && reachedLimit(materialL0,materialLimitL0,tolerance) ) );
           }
           
           
@@ -316,7 +338,7 @@ namespace Trk {
           
           /** finalize call - this one is called by the ExtrapoaltionEngine */
           void finalize(const ExtrapolationCode& ec);
-          
+
           /** memory cleanup */
           void emptyGarbageBin(const ExtrapolationCode& ec);
 
@@ -324,8 +346,8 @@ namespace Trk {
 	  void setParticleHypothesis(const ParticleHypothesis& hypo) {
 	    pHypothesis = hypo;
 	  }
-
-        private :
+       
+      private :
            mutable std::vector<const T*>    m_garbageCollection; 
         
     };
@@ -350,26 +372,34 @@ namespace Trk {
         pathLength                  = 0.;
         materialX0                  = 0.;
         materialL0                  = 0.;
+        if (eLoss) eLoss->set(0.,0.,0.,0.,0.,0.);
         // clear the vector
         extrapolationSteps.clear();        
     }
 
     template <class T> void ExtrapolationCell<T>::finalize(const ExtrapolationCode& ec) { 
       // set the leadParameters to the endParameters if anything happened here and the code wass succesful
-      if (ec.isSuccessOrRecovered() && leadParameters != startParameters) 
-          endParameters = leadParameters;
-      // now do the cleanup
+      if (ec.isSuccessOrRecovered() && leadParameters != startParameters){ 
+          // end parameters are the last lead parameters 
+	endParameters = leadParameters->clone();
+      }
+      // now do the cleanup - will delete the step content if eCode is failure
       emptyGarbageBin(ec); 
+      delete eLoss;
     }
 
     template <class T> void ExtrapolationCell<T>::emptyGarbageBin(const ExtrapolationCode& ec) 
-    { for (auto bC : m_garbageCollection) delete bC;
+    { 
+      for (auto bC : m_garbageCollection) delete bC;
+      m_garbageCollection.clear();
       // in case of failure of the extrapolation stream, clear all the caches
       if (ec.isFailure()) {
           for (auto es : extrapolationSteps) {
               delete es.parameters;
               delete es.transportJacobian;      
          }
+         // now clear the vector
+         extrapolationSteps.clear();
       }
     }
     
@@ -390,7 +420,7 @@ namespace Trk {
        if (cssf != lssf)
            extrapolationSteps.push_back(ExtrapolationStep<T>());
        // fill the parameters, the surface and add the mode
-       extrapolationSteps[extrapolationSteps.size()-1].parameters = parameters;
+       extrapolationSteps[extrapolationSteps.size()-1].parameters = parameters->clone();
        extrapolationSteps[extrapolationSteps.size()-1].surface    = cssf;
        extrapolationSteps[extrapolationSteps.size()-1].stepConfiguration.addMode(fillMode);
     }
@@ -425,6 +455,19 @@ namespace Trk {
        }
     }
     
+    
+    template <class T>  void ExtrapolationCell<T>::addMaterial(double sfactor,
+                                                               const MaterialProperties* mprop)
+    {  
+    
+       // fill the material if there
+       if (mprop){
+           // the overal material
+           materialX0 += sfactor * mprop->thicknessInX0();
+           materialL0 += sfactor * mprop->thicknessInL0();
+       }
+    }
+    
     template <class T>  void ExtrapolationCell<T>::stepMaterial(const Surface& sf,
                                                                 const Layer* lay,
                                                                 const Amg::Vector3D& mposition,
@@ -432,6 +475,8 @@ namespace Trk {
                                                                 const MaterialProperties* mprop)
     {  
     
+       // add material to the global counter
+       addMaterial(sfactor,mprop);
        // find out if you want to attach or you need a new one 
        // current step surface
        const Surface* cssf = &sf;
@@ -445,9 +490,6 @@ namespace Trk {
        extrapolationSteps[extrapolationSteps.size()-1].layer      = lay;
        // fill the material if there
        if (mprop){
-           // the overal material
-           materialX0 += sfactor * mprop->thicknessInX0();
-           materialL0 += sfactor * mprop->thicknessInL0();
            // record the step information
            extrapolationSteps[extrapolationSteps.size()-1].material = mprop;
            extrapolationSteps[extrapolationSteps.size()-1].stepConfiguration.addMode(Trk::ExtrapolationMode::CollectMaterial);

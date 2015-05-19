@@ -16,12 +16,12 @@
 #include <iomanip>
 
 // initialize static serial number
-unsigned	Trk::TrackSurfaceIntersection::s_serialNumber = 0;
+unsigned long long	Trk::TrackSurfaceIntersection::s_serialNumber = 0;
 
 // constructor
 Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const Amg::Vector3D&	pos,
-							                            const Amg::Vector3D&	dir,
-							                            double				path)
+							const Amg::Vector3D&	dir,
+							double			path)
 {
     m_serialNumber	= ++s_serialNumber;
     m_position		= pos;

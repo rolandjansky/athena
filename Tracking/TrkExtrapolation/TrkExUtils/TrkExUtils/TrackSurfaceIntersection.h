@@ -27,30 +27,30 @@ namespace Trk {
         */
       class TrackSurfaceIntersection {
        
-       public:
-        /**Constructor*/
-        TrackSurfaceIntersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double path);
-        /**Destructor*/
-        virtual ~TrackSurfaceIntersection();
+      public:
+	  /**Constructor*/
+	  TrackSurfaceIntersection(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double path);
+	  /**Destructor*/
+	  virtual ~TrackSurfaceIntersection();
 
-        /** Method to retrieve the position of the Intersection */
-        const Amg::Vector3D& position() const;
+	  /** Method to retrieve the position of the Intersection */
+	  const Amg::Vector3D& position() const;
         
-        /** Method to retrieve the direction at the Intersection */
-        const Amg::Vector3D& direction() const;
+	  /** Method to retrieve the direction at the Intersection */
+	  const Amg::Vector3D& direction() const;
         
-        /** Method to retrieve the pathlength propagated till the Intersection */
-        double pathlength() const;
+	  /** Method to retrieve the pathlength propagated till the Intersection */
+	  double pathlength() const;
         
-        /** Method to retrieve the object serial number (needed for speed optimization) */
-        unsigned serialNumber() const;
+	  /** Method to retrieve the object serial number (needed for speed optimization) */
+	  unsigned long long serialNumber() const;
 
       private:
-	    static unsigned	s_serialNumber;
-	    unsigned		m_serialNumber;
-        Amg::Vector3D	m_position;
-        Amg::Vector3D	m_direction;
-        double		    m_pathlength;
+	  static unsigned long long	s_serialNumber;
+	  unsigned long long		m_serialNumber;
+	  Amg::Vector3D			m_position;
+	  Amg::Vector3D			m_direction;
+	  double			m_pathlength;
                   
       };
 
@@ -63,7 +63,7 @@ namespace Trk {
   inline double TrackSurfaceIntersection::pathlength() const
   { return m_pathlength; }
   
-  inline unsigned TrackSurfaceIntersection::serialNumber() const
+  inline unsigned long long TrackSurfaceIntersection::serialNumber() const
   { return m_serialNumber; }
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
