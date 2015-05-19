@@ -1358,24 +1358,44 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::handle(const Incident& inc)
   // the cluster ambiguity map
   if ( inc.type() == IncidentType::BeginEvent ){
     // record the Split ambiguity map
-    if (!m_splitClusterMap){
+    if (!m_splitClusterMap){  
+      
+      SG::DataProxy* dp = evtStore()->proxy(ClassID_traits<InDet::PixelGangedClusterAmbiguities>::ID(), m_splitClusterMapName);
 
-      const bool alreadyHaveMap(evtStore()->contains<InDet::PixelGangedClusterAmbiguities>(m_splitClusterMapName));
-      if(alreadyHaveMap && evtStore()->retrieve(m_splitClusterMap,m_splitClusterMapName).isFailure() ) 
-        ATH_MSG_ERROR("Could not retrive split cluster ambiguity map. from StoreGate");
-          
-      if(!m_splitClusterMap){
-        m_splitClusterMap = new InDet::PixelGangedClusterAmbiguities;
-        if ( evtStore()->record(m_splitClusterMap,m_splitClusterMapName).isFailure()){
-          ATH_MSG_WARNING("Could not record split cluster ambiguity map."); 
-          delete m_splitClusterMap; m_splitClusterMap = 0;
-        } else
-            ATH_MSG_VERBOSE("Cluster split ambiguity map recorded as '" << m_splitClusterMapName <<"'.");
+      const bool alreadyHaveDPMap(dp); 
+      
+      if(alreadyHaveDPMap && dp->isConst()){
+	ATH_MSG_VERBOSE("Only const retrieve of split cluster ambiguity map possible - therefore overwrite with non-const map");
+	const InDet::PixelGangedClusterAmbiguities * constSplitClusterMap = nullptr;
+	if (evtStore()->retrieve( constSplitClusterMap,m_splitClusterMapName).isFailure() )  ATH_MSG_ERROR("Could not retrive const split cluster ambiguity map. from StoreGate"); 
+	else{
+	  m_splitClusterMap = new InDet::PixelGangedClusterAmbiguities;
+	  for(std::pair<const InDet::SiCluster* const, const InDet::SiCluster*> it : *constSplitClusterMap ) {
+	    m_splitClusterMap->insert(it);
+	   
+	  }
+	  if ( evtStore()->overwrite(m_splitClusterMap,m_splitClusterMapName,true, false).isFailure()){ 
+	    ATH_MSG_WARNING("Could not overwrite split cluster ambiguity map.");
+	  }
+	}
       }
-    } 
+      //Not sure why this is necessary in addition to the dataProxy, but it seems to work differently somehow...
+      const bool alreadyHaveMap(evtStore()->contains<InDet::PixelGangedClusterAmbiguities>(m_splitClusterMapName));
+
+      if(alreadyHaveMap && evtStore()->retrieve(m_splitClusterMap,m_splitClusterMapName).isFailure() )  
+	ATH_MSG_ERROR("Could not retrive split cluster ambiguity map. from StoreGate"); 
+
+      if(!m_splitClusterMap){ 
+	m_splitClusterMap = new InDet::PixelGangedClusterAmbiguities; 
+	if ( evtStore()->record(m_splitClusterMap,m_splitClusterMapName).isFailure()){ 
+	  ATH_MSG_WARNING("Could not record split cluster ambiguity map.");  
+	  delete m_splitClusterMap; m_splitClusterMap = 0; 
+	} else 
+	  ATH_MSG_VERBOSE("Cluster split ambiguity map recorded as '" << m_splitClusterMapName <<"'."); 
+      } 
+    }  
   }
-
-
+  
   if ( inc.type() == IncidentType::EndEvent ){
     ATH_MSG_VERBOSE("'EndEvent' incident caught. Refreshing Cache.");
     m_splitClusterMap = 0;    
