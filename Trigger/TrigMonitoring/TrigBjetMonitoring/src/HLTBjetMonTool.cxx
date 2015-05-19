@@ -75,7 +75,8 @@ namespace Analysis { class MuonContainer; }
 
 HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & name, const IInterface* parent) :
   IHLTMonTool(type, name, parent),
-  m_trackJetFinderTool("TrigTrackJetFinderTool")
+  m_trackJetFinderTool("TrigTrackJetFinderTool"),
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty ("monitoring_bjet",       m_TriggerChainBjet);          
   declareProperty ("monitoring_mujet",      m_TriggerChainMujet);          
@@ -282,100 +283,111 @@ StatusCode HLTBjetMonTool::book(){
     // Get online pv - histo
     const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_histo = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
     ATH_MSG_INFO("RETRIEVED PV (H) -   size: " << onlinepvs_histo.size());
-    const xAOD::VertexContainer* onlinepv_histo = onlinepvs_histo[0].cptr();
-    ATH_MSG_INFO("                 -   nVert: " << onlinepv_histo->size());
-    hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_histo->size());
-    if(onlinepv_histo->size()) {
-      hist("PVx_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->x());
-      hist("PVy_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->y());
-      hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z());
-      hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z()-offlinepvz);
-      ATH_MSG_INFO("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());
-    }  // if
+    if ( onlinepvs_histo.size() ) {
+      const xAOD::VertexContainer* onlinepv_histo = onlinepvs_histo[0].cptr();
+      ATH_MSG_INFO("                 -   nVert: " << onlinepv_histo->size());
+      hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_histo->size());
+      if(onlinepv_histo->size()) {
+	hist("PVx_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->x());
+	hist("PVy_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->y());
+	hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z());
+	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z()-offlinepvz);
+	ATH_MSG_INFO("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());
+      }  // if
+    } // onlinepvs_histo.size
 
 #else
     // Get online pv - id tracking
     const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_id = comb.get<xAOD::VertexContainer>("xPrimVx");
     ATH_MSG_INFO("RETRIEVED PV (I) -   size: " << onlinepvs_id.size());
-    const xAOD::VertexContainer* onlinepv_id = onlinepvs_id[0].cptr();
-    ATH_MSG_INFO("                 -   nVert: " << onlinepv_id->size());
-    hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_id->size());
-    if(onlinepv_id->size()) {
-      hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z());
-      hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z()-offlinepvz);
-      ATH_MSG_INFO("          Online PV - id tracking   -   z[0]: " << (*(onlinepv_id))[0]->z());
-    } // if
+    if(onlinepvs_id->size()) {
+      const xAOD::VertexContainer* onlinepv_id = onlinepvs_id[0].cptr();
+      ATH_MSG_INFO("                 -   nVert: " << onlinepv_id->size());
+      hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_id->size());
+      if(onlinepv_id->size()) {
+	hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z());
+	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z()-offlinepvz);
+	ATH_MSG_INFO("          Online PV - id tracking   -   z[0]: " << (*(onlinepv_id))[0]->z());
+      } // if
+    } // onlinepvs_id.size
 #endif
 
 
     // Get online jet
     const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>();
     ATH_MSG_INFO("RETRIEVED JETS   -   size: " << onlinejets.size());
-    const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
-    ATH_MSG_INFO("                 -   nJet: " << onlinejet->size());
-    int nJet = onlinejet->size();
-    hist("nJet","HLT/BjetMon/Shifter")->Fill(nJet);
-    for(const auto* jet : *onlinejet) {
-      ATH_MSG_INFO("                 -   pt/eta/phi: " << jet->pt() << " / " << jet->eta() << " / " << jet->phi());
-      hist("jetPt","HLT/BjetMon/Shifter")->Fill((jet->pt())*1.e-3);
-      hist2("jetEtaPhi","HLT/BjetMon/Shifter")->Fill(jet->eta(),jet->phi());
-    } // for online jet
-
+    if(onlinejets.size()) {
+      const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
+      ATH_MSG_INFO("                 -   nJet: " << onlinejet->size());
+      int nJet = onlinejet->size();
+      hist("nJet","HLT/BjetMon/Shifter")->Fill(nJet);
+      for(const auto* jet : *onlinejet) {
+	ATH_MSG_INFO("                 -   pt/eta/phi: " << jet->pt() << " / " << jet->eta() << " / " << jet->phi());
+	hist("jetPt","HLT/BjetMon/Shifter")->Fill((jet->pt())*1.e-3);
+	hist2("jetEtaPhi","HLT/BjetMon/Shifter")->Fill(jet->eta(),jet->phi());
+      } // for online jet
+    }//onlinejets.size
 
 
     // Get online track particles
     const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>();
     ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
-    const xAOD::TrackParticleContainer* onlinetrack = onlinetracks[0].cptr();
-    ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
-    int nTrack = onlinetrack->size();
-    hist("nTrack","HLT/BjetMon/Shifter")->Fill(nTrack);
-    for(const auto* trk : *onlinetrack) {
-      ATH_MSG_INFO("     pT: " << trk->pt() << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
-      hist("d0","HLT/BjetMon/Shifter")->Fill(trk->d0());
-      hist("z0","HLT/BjetMon/Shifter")->Fill(trk->z0());
-      hist("ed0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
-      hist("ez0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
-      hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()-offlinepvz);
-      float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
-      if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()-offlinepvz)/errz0 );
-      hist("trkPt","HLT/BjetMon/Shifter")->Fill(trk->pt());
-      hist2("trkEtaPhi","HLT/BjetMon/Shifter")->Fill(trk->eta(),trk->phi());
-    } // for online track particles
+    if ( onlinetracks.size()>0 ) { 
+      const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
+      ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
+      int nTrack = onlinetrack->size();
+      hist("nTrack","HLT/BjetMon/Shifter")->Fill(nTrack);
+      for(const auto* trk : *onlinetrack) {
+	ATH_MSG_INFO("     pT: " << trk->pt() << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
+	hist("d0","HLT/BjetMon/Shifter")->Fill(trk->d0());
+	hist("z0","HLT/BjetMon/Shifter")->Fill(trk->z0());
+	hist("ed0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
+	hist("ez0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
+	hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()-offlinepvz);
+	float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
+	if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()-offlinepvz)/errz0 );
+	hist("trkPt","HLT/BjetMon/Shifter")->Fill(trk->pt());
+	hist2("trkEtaPhi","HLT/BjetMon/Shifter")->Fill(trk->eta(),trk->phi());
+      } // for online track particles
+    } // onlinetracks.size
 
    
     // Get online bjet from xAOD BTaggingContainer
     const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
     ATH_MSG_INFO("RETRIEVED BJETS  -   size: " << onlinebjets.size());
-    const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
-    ATH_MSG_INFO("                 -   nBjet: " << onlinebjet->size());
-    for(const auto* bjet : *onlinebjet) {
-      double wIP3D, wSV1, wCOMB, wMV1 = 0.;
-      bjet->loglikelihoodratio("IP3D", wIP3D);
-      bjet->loglikelihoodratio("SV1", wSV1);
-      wCOMB = wIP3D+wSV1;
-      wMV1 = bjet->MV1_discriminant();
-      ATH_MSG_INFO("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc());
-      hist("IP3D_pu_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pu());
-      hist("IP3D_pb_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pb());
-      hist("IP3D_pc_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pc());
-      ATH_MSG_INFO("                 -   IP3D / SV1 / IP3D+SV1 / MV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB << " / " << wMV1);
-      hist("wIP3D_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wIP3D);
-      hist("wSV1_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wSV1);
-      hist("wCOMB_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wCOMB);
-      hist("wMV1_tr","HLT/BjetMon/Shifter")->Fill(wMV1);
-    } // for online bjet
- 
+    if(onlinebjets.size()) {
+      const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
+      ATH_MSG_INFO("                 -   nBjet: " << onlinebjet->size());
+      for(const auto* bjet : *onlinebjet) {
+	double wIP3D, wSV1, wCOMB, wMV1 = 0.;
+	bjet->loglikelihoodratio("IP3D", wIP3D);
+	bjet->loglikelihoodratio("SV1", wSV1);
+	wCOMB = wIP3D+wSV1;
+	wMV1 = bjet->MV1_discriminant();
+	ATH_MSG_INFO("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc());
+	hist("IP3D_pu_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pu());
+	hist("IP3D_pb_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pb());
+	hist("IP3D_pc_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pc());
+	ATH_MSG_INFO("                 -   IP3D / SV1 / IP3D+SV1 / MV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB << " / " << wMV1);
+	hist("wIP3D_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wIP3D);
+	hist("wSV1_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wSV1);
+	hist("wCOMB_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wCOMB);
+	hist("wMV1_tr","HLT/BjetMon/Shifter")->Fill(wMV1);
+      } // for online bjet
+    } // onlinebjets.size
+
     // Get online bjet from TrigEFBjetContainer                                                                                                                               
     const std::vector< Trig::Feature<TrigEFBjetContainer> > EFonlinebjets = comb.get<TrigEFBjetContainer>();
     ATH_MSG_INFO("RETRIEVED BJETS  -   size: " << EFonlinebjets.size());
-    const TrigEFBjetContainer* EFonlinebjet = EFonlinebjets[0].cptr();
-    ATH_MSG_INFO("                 -   nBjet: " << EFonlinebjet->size());
-    for(const auto* bjet : *EFonlinebjet) {
-      ATH_MSG_INFO("                 -   MVTX / EVTX / NVTX: " << bjet->xMVtx() << " / " << bjet->xEVtx() << " / " << bjet->xNVtx());
-      hist("xMVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xMVtx());
-      hist("xNVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xNVtx());
-    } //EFonlinebjet 
+    if(EFonlinebjets.size()) {
+      const TrigEFBjetContainer* EFonlinebjet = EFonlinebjets[0].cptr();
+      ATH_MSG_INFO("                 -   nBjet: " << EFonlinebjet->size());
+      for(const auto* bjet : *EFonlinebjet) {
+	ATH_MSG_INFO("                 -   MVTX / EVTX / NVTX: " << bjet->xMVtx() << " / " << bjet->xEVtx() << " / " << bjet->xNVtx());
+	hist("xMVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xMVtx());
+	hist("xNVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xNVtx());
+      } //EFonlinebjet 
+    } // EFonlinebjets.size
 
   } // for bjetComb
 
