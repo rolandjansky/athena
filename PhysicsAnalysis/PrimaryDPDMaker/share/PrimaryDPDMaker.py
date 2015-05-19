@@ -289,6 +289,14 @@ if primDPD.MakePrimaryDPD():
     except(AttributeError):
         pass
 
+    ## Include the Muon DESDM Output Stream
+    ##=======================================================
+    if primDPD.WriteMuonStream():
+        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDESD_MS.py")
+        pass
+    ##=======================================================
+
+
     ##################################################################################
     ## Commissioning DPD
 

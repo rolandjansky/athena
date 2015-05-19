@@ -162,6 +162,19 @@ class WriteEGammaStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteEGammaStream)
 listESDtoDPD.append(WriteEGammaStream.StreamName)
 
+class WriteDESDM_MSPerfStream(JobProperty):
+    """ Produce the primary DESDM for Muon Alignment and Trigger commissioning."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESDM_MSPerf"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "PrimaryDPDMaker/PerfDESDM_MS.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESDM_MSPerfStream)
+listESDtoDPD.append(WriteDESDM_MSPerfStream.StreamName)
+
 class WritePhotonJetStream(JobProperty):
     """ Produce the primary DPD Photon-Jet DPD."""
     statusOn     = True
@@ -977,7 +990,7 @@ class WriteRAWPerfDPD_ZMUMU(JobProperty):
     FileName       = ""
     Prescale       = 1
     isVirtual      = False
-    DPDMakerScript = "PrimaryDPDMaker/RAWPerfDPD_Zmumu.py"
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_ZMUMU.py"
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWPerfDPD_ZMUMU)
 listRAWtoDPD.append(WriteRAWPerfDPD_ZMUMU.StreamName)
@@ -1008,6 +1021,33 @@ class WriteRAWCommDPD_IDPROJ(JobProperty):
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWCommDPD_IDPROJ)
 listRAWtoDPD.append(WriteRAWCommDPD_IDPROJ.StreamName)
+
+class WriteDRAW_EGCALIB(JobProperty):
+    """ Produce the DRAW for EGamma calibration."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_EGCALIB"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_EGCALIB.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EGCALIB)
+listRAWtoDPD.append(WriteDRAW_EGCALIB.StreamName)
+
+class WriteDRAW_TAUMUH(JobProperty):
+    """ Produce the DRAW for TAUWG Z->tau(mu)tau(had) T&P."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_TAUMUH"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_TAUMUH.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_TAUMUH)
+listRAWtoDPD.append(WriteDRAW_TAUMUH.StreamName)
+
 
 ##--------------------------------------------
 ## Skimmed AOD
@@ -1206,7 +1246,18 @@ class WriteD2ESD_JPSIUPSMMStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteD2ESD_JPSIUPSMMStream)
 listESDtoDPD.append(WriteD2ESD_JPSIUPSMMStream.StreamName)
 
-
+class WriteDESD_DEDX(JobProperty):
+    """ Produce pixel dE/dx ESD """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESD_DEDX"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DESD_DEDX.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESD_DEDX)
+listESDtoDPD.append(WriteDESD_DEDX.StreamName)
 
 
 
