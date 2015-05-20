@@ -13,8 +13,9 @@
 
 // STL includes
  
-#include "AthLinks/AssociationMap.h"
-#include "AthLinks/DataLink.h"
+// DataModel includes
+#include "DataModel/AssociationMap.h"
+#include "DataModel/DataLink.h"
 
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"
@@ -97,14 +98,6 @@ public:
   }  
   
   void addAssocStore( const DataLink<INav4MomToTrackParticleAssocs>& assocStore );
-
-  /// Look up an associated store.  For testing.
-  DataLink<INav4MomToTrackParticleAssocs>
-  assocStore (const std::string& name) const;
-
-  /// Number of associated stores.
-  size_t nAssocStores() const;
-
   
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

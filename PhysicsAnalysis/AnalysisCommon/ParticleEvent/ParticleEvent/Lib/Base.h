@@ -29,7 +29,7 @@
 
 // AthenaBarCode includes
 #include "Navigation/AthenaBarCodeImpl.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ElementLink.h"
 
 // Forward declaration
 
@@ -113,7 +113,6 @@ class Base
   void set_origin( const VxContainer* theContainer, int index );
   void set_origin( const VxContainer* theContainer, 
                    const Trk::VxCandidate * vertex );
-  void set_origin( const ElementLink<VxContainer>& origin );
 
   AthenaBarCodeImpl& getAthenaBarCodeImpl() {return m_abc;}
   /////////////////////////////////////////////////////////////////// 
@@ -283,13 +282,6 @@ Base::set_origin( const VxContainer* theContainer,
   m_origin = ElementLink< VxContainer >
     ( const_cast<Trk::VxCandidate*> (vertex),
       *theContainer );
-}
-
-inline
-void 
-Base::set_origin( const ElementLink<VxContainer>& origin )
-{
-  m_origin = origin;
 }
 
 } //> end namespace ParticleEvent

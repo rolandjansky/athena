@@ -10,7 +10,8 @@
 #ifndef PARTICLEEVENT_PARTICLESHALLOWCLONE_H
 #define PARTICLEEVENT_PARTICLESHALLOWCLONE_H 1
 
-#include "AthLinks/ElementLink.h"
+// DataModel includes
+#include "DataModel/ElementLink.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/IParticleContainer.h"
 #include "FourMom/P4PxPyPzE.h"

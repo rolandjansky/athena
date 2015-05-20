@@ -35,7 +35,7 @@
 ////////////////////////////////////////////////////////////////////
 #include <vector>
 #include<string>
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ElementLink.h"
 #include "SGTools/CLASS_DEF.h"
 
 template<class Container>

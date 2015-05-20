@@ -40,7 +40,6 @@
     </class>
     <class name="CompositeParticle::Base_t">
       <method pattern="ParticleImpl*"/>
-      <method pattern="ParticleSigStateImpl*"/>
     </class>
   </exclusion>
 
@@ -51,6 +50,9 @@
        Disable dictionary generation for these. -->
   <exclusion>
     <class name="ParticleSigStateImpl<Navigable<DataVector<INavigable4Momentum>,double,std::vector<std::pair<ElementLink<DataVector<INavigable4Momentum> >,double> > >,P4ImplPxPyPzE,ParticleEvent::Base>">
+      <method pattern="ParticleSigStateImpl*"/>
+    </class>
+    <class name="CompositeParticle::Base_t">
       <method pattern="ParticleSigStateImpl*"/>
     </class>
   </exclusion>
