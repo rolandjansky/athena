@@ -286,10 +286,10 @@ StatusCode TestHepMC::execute() {
 
         HepMC::GenVertex::particle_iterator par = (*vitr)->particles_begin(HepMC::parents);
         for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
-          std::cout << "Outgoing particle : " << std::endl;
+	  std::cout << "Outgoing particle : " << std::endl;
           (*par)->print();
-          std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
-          std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
+	  std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
+	  std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
           std::cout << "parents info: " << std::endl;
           if ((*par)->production_vertex()) {
             HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
@@ -427,6 +427,7 @@ StatusCode TestHepMC::execute() {
       }
 
       // Sum final state mom/energy, and note negative energy / tachyonic particles
+      //     std::cout << "status " << pstatus << " e " << pmom.e() << " pz " << pmom.pz()<< std::endl;
       if ( pstatus == 1 && !(*pitr)->end_vertex() ) {
         totalPx += pmom.px();
         totalPy += pmom.py();
@@ -524,7 +525,10 @@ StatusCode TestHepMC::execute() {
     double lostE = fabs(totalE - cmenergy);
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
-      //if (m_dumpEvent || lostE > m_max_energy_diff) (*itr)->print();
+      if (m_dumpEvent || lostE > m_energy_diff) {
+          (*itr)->print();
+	  std::cout << "balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE << std::endl;
+      }
      if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
      }
