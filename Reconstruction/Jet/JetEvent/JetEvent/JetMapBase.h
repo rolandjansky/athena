@@ -7,7 +7,7 @@
 #ifndef JETEVENT_JETMAPBASE_H
 #define JETEVENT_JETMAPBASE_H
 
-#include "AthContainers/OwnershipPolicy.h"
+#include "DataModel/OwnershipPolicy.h"
 #include <vector>
 #include <map>
 #include <memory>

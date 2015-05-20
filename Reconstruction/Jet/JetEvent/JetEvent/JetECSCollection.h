@@ -11,7 +11,7 @@
 
 // INCLUDE HEADER FILES:
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "JetEvent/JetECS.h"

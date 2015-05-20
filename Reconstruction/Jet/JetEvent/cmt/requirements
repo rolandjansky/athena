@@ -7,8 +7,7 @@ public
 
 use SGTools         SGTools-*             Control
 use CLIDSvc       	CLIDSvc-*      		Control
-use AthContainers     	AthContainers-*    	Control
-use AthLinks            AthLinks-*              Control
+use DataModel     	DataModel-*    		Control
 use Navigation    	Navigation-*   		Control
 use StoreGate           StoreGate-*             Control
 

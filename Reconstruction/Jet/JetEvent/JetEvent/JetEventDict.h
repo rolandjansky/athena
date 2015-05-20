@@ -14,7 +14,7 @@
 #include "JetEvent/JetKeyDescriptorCollection.h"
 #include "JetEvent/JetMomentMap.h"
 #include "JetEvent/JetMomentMapCollection.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 #include "JetEvent/JetConstituentIterator.h"
 
 struct temp

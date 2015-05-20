@@ -9,7 +9,7 @@
 
 #include "CLIDSvc/CLASS_DEF.h"
 
-#include "AthLinks/ElementLinkVector.h"
+#include "DataModel/ElementLinkVector.h"
 
 #include "JetEvent/JetMapBase.h"
 #include "JetEvent/JetMoment.h"
