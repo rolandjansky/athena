@@ -74,7 +74,8 @@ StatusCode T2CaloJetConeTool::execute()
 
 
 //StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax)
-StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet,double /*etamin*/, double /*etamax*/, double /*phimin*/, double /*phimax*/)
+//StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet,double /*etamin*/, double /*etamax*/, double /*phimin*/, double /*phimax*/)
+StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& roi )
 {
 
   MsgStream mLog(msgSvc(), name());
