@@ -17,7 +17,6 @@
 //#include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 
 #include "TrigT2CaloJet/T2CaloJetBaseTool.h"
 #include "TrigT2CaloJet/T2CaloJet.h"
@@ -177,16 +176,10 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   const IRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode hltStatus;
 
-  if ( m_useCompositeRoi ) { 
-    const TrigSuperRoi* _roiDescriptor = 0;
-    hltStatus = getFeature(inputTE, _roiDescriptor);
-    roiDescriptor = _roiDescriptor;
-  }
-  else { 
-    const TrigRoiDescriptor* _roiDescriptor = 0;
-    hltStatus = getFeature(inputTE, _roiDescriptor);
-    roiDescriptor = _roiDescriptor;
-  }
+  const TrigRoiDescriptor* _roiDescriptor = 0;
+  hltStatus = getFeature(inputTE, _roiDescriptor);
+  roiDescriptor = _roiDescriptor;
+
 
   if ( hltStatus == HLT::OK ) {
     if(msgLvl() <= MSG::DEBUG)

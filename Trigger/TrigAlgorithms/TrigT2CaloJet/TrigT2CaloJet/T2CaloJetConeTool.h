@@ -38,7 +38,8 @@ class T2CaloJetConeTool : public T2CaloJetBaseTool
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
-  virtual StatusCode execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax);
+  //virtual StatusCode execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax);
+  virtual StatusCode execute(TrigT2Jet* jet, const IRoiDescriptor& roi);
 
   void coneIteration(TrigT2Jet* jet, int coneIter);
   

@@ -144,8 +144,10 @@ StatusCode T2CaloJetGridFromCells::execute()
 }
 
 
+//StatusCode T2CaloJetGridFromCells::execute(TrigT2Jet
+//* jet,double etamin, double etamax, double phimin, double phimax)
 StatusCode T2CaloJetGridFromCells::execute(TrigT2Jet
-* jet,double etamin, double etamax, double phimin, double phimax)
+* jet,const IRoiDescriptor& roi  )
 {
 
   int outputLevel = msgSvc()->outputLevel( name() );
@@ -165,7 +167,7 @@ StatusCode T2CaloJetGridFromCells::execute(TrigT2Jet
   //m_gridElement = new Trig3Momentum();
   // add all cells to grid
 
-  StatusCode sc = addAllCells(etamin,etamax, phimin, phimax, grid);
+  StatusCode sc = addAllCells(roi.etaMinus(),roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), grid);
   if(sc.isFailure()){
     if(outputLevel <= MSG::DEBUG) 
       (*m_log) << MSG::DEBUG << " Failure of addAllCells. Empty grid! " << endreq;

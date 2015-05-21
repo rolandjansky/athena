@@ -23,12 +23,12 @@ from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import T2SampCalibTool
 from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import T2JESCalibTool
 from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import T2GSCalibTool
 
-import JetCalibTools.EtaMassEnergyFactors        as EtaMassEnergyFactors
-import JetCalibTools.Tile1FractionConstants      as Tile1FractionConstants
-import JetCalibTools.HEC0FractionConstants       as HEC0FractionConstants
-import JetCalibTools.EM3FractionConstants        as EM3FractionConstants
-import JetCalibTools.FCAL1FractionConstants      as FCAL1FractionConstants
-import JetCalibTools.PresamplerFractionConstants as PresamplerFractionConstants 
+#import JetCalibTools.EtaMassEnergyFactors        as EtaMassEnergyFactors
+#import JetCalibTools.Tile1FractionConstants      as Tile1FractionConstants
+#import JetCalibTools.HEC0FractionConstants       as HEC0FractionConstants
+#import JetCalibTools.EM3FractionConstants        as EM3FractionConstants
+#import JetCalibTools.FCAL1FractionConstants      as FCAL1FractionConstants
+#import JetCalibTools.PresamplerFractionConstants as PresamplerFractionConstants 
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaPython import PyAthena # for L1.5 enums
@@ -158,7 +158,7 @@ class T2CaloFastJet_CC_JESCalib (T2CaloFastJet_CC):
         t2jescalibtool.MinEtCut = 1 
         # Jet calibration factors
         energyCorr = [ [ ] ]
-        energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM'] # as a test, eventually we'll have our own constants
+#        energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM'] # as a test, eventually we'll have our own constants
         t2jescalibtool.JES_Factors = str(energyCorr)
         t2calojetcalibtool = T2CaloJetCalibTool()
         t2calojetcalibtool.T2JetCalibTool = t2jescalibtool
@@ -472,7 +472,7 @@ class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
         t2jescalibtool.MinEtCut = 1 
         # Jet calibration factors
         energyCorr = [ [ ] ]
-        energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM'] # as a test, eventually we'll have our own constants
+        #energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM'] # as a test, eventually we'll have our own constants
         t2jescalibtool.JES_Factors = str(energyCorr)
         t2calojetcalibtool = T2CaloJetCalibTool()
         t2calojetcalibtool.T2JetCalibTool = t2jescalibtool
@@ -650,8 +650,8 @@ class T2CaloJetBase (T2CaloJet):
         # really the best thing to do would be for T2CaloJet
         # to determine the jet size *itself*, perhaps even on
         # a jet-by-jet basis
-        self.EtaIDWidth = 0.2
-        self.PhiIDWidth = 0.2
+        #self.EtaIDWidth = 0.2
+        #self.PhiIDWidth = 0.2
 
 ### Classes for non-calibrated L2 jets ####
 
@@ -738,7 +738,7 @@ class T2CaloJet_Jet_JESCalib (T2CaloJetBase):
         t2jescalibtool.MinEtCut = 1 
         # Jet calibration factors
         energyCorr = [ [ ] ]
-        energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM']
+        #energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM']
         t2jescalibtool.JES_Factors = str(energyCorr)
 
         t2calojetcalibtool = T2CaloJetCalibTool()
@@ -832,7 +832,7 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
         t2jescalibtool.MinEtCut = 1 
         energyCorr = [ [ ] ]
-        energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM']
+        #energyCorr = EtaMassEnergyFactors.energyCorrDict['AntiKt4TopoJets_EM']
         t2jescalibtool.JES_Factors = str(energyCorr)
 
         t2gscalibtooltile1 = T2GSCalibTool("T2GSCalibToolTile1_Jet")
@@ -840,10 +840,10 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         etabins       = []
         ptbins        = []
         layerFracBins = []
-        etaFit        = Tile1FractionConstants.tile1EtaFitDict['AntiKt4TopoJets']
-        etabins       = Tile1FractionConstants.tile1EtaBinsDict['AntiKt4TopoJets']
-        ptbins        = Tile1FractionConstants.tile1PtBinsDict['AntiKt4TopoJets']
-        layerFracBins = Tile1FractionConstants.tile1LayerFracBinsDict['AntiKt4TopoJets']
+        #etaFit        = Tile1FractionConstants.tile1EtaFitDict['AntiKt4TopoJets']
+        #etabins       = Tile1FractionConstants.tile1EtaBinsDict['AntiKt4TopoJets']
+        #ptbins        = Tile1FractionConstants.tile1PtBinsDict['AntiKt4TopoJets']
+        #layerFracBins = Tile1FractionConstants.tile1LayerFracBinsDict['AntiKt4TopoJets']
         t2gscalibtooltile1.CalibConstants  = str(etaFit)
         t2gscalibtooltile1.EtaBins         = etabins
         t2gscalibtooltile1.EtaMin          = -1.7
@@ -857,10 +857,10 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         etabins       = []
         ptbins        = []
         layerFracBins = []
-        etaFit        = FCAL1FractionConstants.fcal1EtaFitDict['AntiKt4TopoJets']
-        etabins       = FCAL1FractionConstants.fcal1EtaBinsDict['AntiKt4TopoJets']
-        ptbins        = FCAL1FractionConstants.fcal1PtBinsDict['AntiKt4TopoJets']
-        layerFracBins = FCAL1FractionConstants.fcal1LayerFracBinsDict['AntiKt4TopoJets']
+        #etaFit        = FCAL1FractionConstants.fcal1EtaFitDict['AntiKt4TopoJets']
+        #etabins       = FCAL1FractionConstants.fcal1EtaBinsDict['AntiKt4TopoJets']
+        #ptbins        = FCAL1FractionConstants.fcal1PtBinsDict['AntiKt4TopoJets']
+        #layerFracBins = FCAL1FractionConstants.fcal1LayerFracBinsDict['AntiKt4TopoJets']
         t2gscalibtoolfcal1.CalibConstants  = str(etaFit)
         t2gscalibtoolfcal1.EtaBins         = etabins
         t2gscalibtoolfcal1.EtaMin          = -4.4
@@ -877,10 +877,10 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         etabins       = []
         ptbins        = []
         layerFracBins = []
-        etaFit        = EM3FractionConstants.em3EtaFitDict['AntiKt4TopoJets']
-        etabins       = EM3FractionConstants.em3EtaBinsDict['AntiKt4TopoJets']
-        ptbins        = EM3FractionConstants.em3PtBinsDict['AntiKt4TopoJets']
-        layerFracBins = EM3FractionConstants.em3LayerFracBinsDict['AntiKt4TopoJets']
+        #etaFit        = EM3FractionConstants.em3EtaFitDict['AntiKt4TopoJets']
+        #etabins       = EM3FractionConstants.em3EtaBinsDict['AntiKt4TopoJets']
+        #ptbins        = EM3FractionConstants.em3PtBinsDict['AntiKt4TopoJets']
+        #layerFracBins = EM3FractionConstants.em3LayerFracBinsDict['AntiKt4TopoJets']
         t2gscalibtoolem3bar.CalibConstants  = str(etaFit)
         t2gscalibtoolem3bar.EtaBins         = etabins
         t2gscalibtoolem3bar.EtaMin          = -1.2
@@ -903,10 +903,10 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         etabins       = []
         ptbins        = []
         layerFracBins = []
-        etaFit        = HEC0FractionConstants.hec0EtaFitDict['AntiKt4TopoJets']
-        etabins       = HEC0FractionConstants.hec0EtaBinsDict['AntiKt4TopoJets']
-        ptbins        = HEC0FractionConstants.hec0PtBinsDict['AntiKt4TopoJets']
-        layerFracBins = HEC0FractionConstants.hec0LayerFracBinsDict['AntiKt4TopoJets']
+        #etaFit        = HEC0FractionConstants.hec0EtaFitDict['AntiKt4TopoJets']
+        #etabins       = HEC0FractionConstants.hec0EtaBinsDict['AntiKt4TopoJets']
+        #ptbins        = HEC0FractionConstants.hec0PtBinsDict['AntiKt4TopoJets']
+        #layerFracBins = HEC0FractionConstants.hec0LayerFracBinsDict['AntiKt4TopoJets']
         t2gscalibtoolhec0.CalibConstants  = str(etaFit)
         t2gscalibtoolhec0.EtaBins         = etabins
         t2gscalibtoolhec0.EtaMin          = -3.0
@@ -922,10 +922,10 @@ class T2CaloJet_Jet_GSCalib (T2CaloJetBase):
         etabins       = []
         ptbins        = []
         layerFracBins = []
-        etaFit        = PresamplerFractionConstants.presEtaFitDict['AntiKt4TopoJets']
-        etabins       = PresamplerFractionConstants.presEtaBinsDict['AntiKt4TopoJets']
-        ptbins        = PresamplerFractionConstants.presPtBinsDict['AntiKt4TopoJets']
-        layerFracBins = PresamplerFractionConstants.presLayerFracBinsDict['AntiKt4TopoJets']
+        #etaFit        = PresamplerFractionConstants.presEtaFitDict['AntiKt4TopoJets']
+        #etabins       = PresamplerFractionConstants.presEtaBinsDict['AntiKt4TopoJets']
+        #ptbins        = PresamplerFractionConstants.presPtBinsDict['AntiKt4TopoJets']
+        #layerFracBins = PresamplerFractionConstants.presLayerFracBinsDict['AntiKt4TopoJets']
         t2gscalibtoolpsbar.CalibConstants  = str(etaFit)
         t2gscalibtoolpsbar.EtaBins         = etabins
         t2gscalibtoolpsbar.EtaMin          = -1.7
