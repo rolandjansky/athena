@@ -94,7 +94,7 @@ GeneratorName third_generator(const int& index) {
     gen1 = 1000000*(index/1000000);
     gen2 = index - gen1;
     gen2 = 100000*(gen2/100000);
-    int gen3 = index - gen1 - gen2;
+    gen3 = index - gen1 - gen2;
     gen3 = 10000*(gen3/10000);
   }
   return generator_name(gen3);
