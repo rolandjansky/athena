@@ -47,7 +47,8 @@ StatusCode MuonTruthSummaryAlg::execute() {
     for (auto seg : *segments) {
       const Trk::Segment* tseg = seg;
       const Muon::MuonSegment* muonSeg = dynamic_cast<const Muon::MuonSegment*>(tseg);
-    	m_truthSummaryTool->add(*muonSeg,2);
+      if(muonSeg) m_truthSummaryTool->add(*muonSeg,2);
+      else ATH_MSG_WARNING ("Trk::Segment cannot be casted in Muon::MuonSegment.");
     }
   }
   
