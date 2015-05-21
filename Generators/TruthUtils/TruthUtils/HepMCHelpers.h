@@ -74,6 +74,7 @@ namespace MC {
     if (p->status() % 1000 == 1) { //< Isn't this implied by isGenStable?
       if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true;
       if (apid == 39 || apid == 1000039 || apid == 5000039) return true;
+      if (apid == 3000015) return true;
     }
     return false;
   }
