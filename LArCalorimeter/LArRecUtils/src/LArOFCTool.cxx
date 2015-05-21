@@ -4,6 +4,7 @@
 
 #include "LArRecUtils/LArOFCTool.h"
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
@@ -17,8 +18,8 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArTools/LArCablingService.h"
+#include "LArTools/LArSuperCellCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
@@ -31,14 +32,7 @@ LArOFCTool::LArOFCTool(const std::string& type,
 		       const std::string& name, 
 		       const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
-    m_lar_on_id(nullptr),
-    m_cablingService(nullptr),
     m_larmcsym("LArMCSymTool"),
-    m_calo_id_man(nullptr),
-    m_lar_em_id(nullptr),
-    m_lar_hec_id(nullptr),
-    m_lar_fcal_id(nullptr),
-    m_calo_dd_man(nullptr),
     m_keyShape("LArShape"), m_keyOFC("LArOFC"), 
     m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"),
     m_autocorrTool("LArAutoCorrTotalTool"),
@@ -72,17 +66,25 @@ LArOFCTool::LArOFCTool(const std::string& type,
 
 StatusCode LArOFCTool::initialize()
 {
-  ATH_MSG_DEBUG( "LArOFCTool initialize() begin"  );
+  MsgStream log( msgSvc(), name() );
+  
+  log << MSG::DEBUG << "LArOFCTool initialize() begin" << endreq;
 
+  StatusCode sc;
   if ( m_isSC ){
     const LArOnline_SuperCellID * ll;
-    ATH_CHECK(  detStore()->retrieve(ll,"LArOnline_SuperCellID") );
+    sc = detStore()->retrieve(ll,"LArOnline_SuperCellID");
     m_lar_on_id = (const LArOnlineID_Base*)ll;
   }
   else{
     const LArOnlineID * ll;
-    ATH_CHECK( detStore()->retrieve(ll,"LArOnlineID") );
+    sc = detStore()->retrieve(ll,"LArOnlineID");
     m_lar_on_id = (const LArOnlineID_Base*)ll;
+  }
+  if (sc.isFailure()) {
+    log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" 
+	 << endreq;
+    return StatusCode::FAILURE;
   }
 
   //retrieves helpers for LArCalorimeter
@@ -96,32 +98,56 @@ StatusCode LArOFCTool::initialize()
   m_lar_hec_id  = m_calo_id_man->getHEC_ID();
   m_lar_fcal_id = m_calo_id_man->getFCAL_ID();
   }
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK(  service( "ToolSvc",toolSvc ) );
-  if ( m_isSC ) {
+  IToolSvc* toolSvc;
+  sc = service( "ToolSvc",toolSvc );
+  if(sc.isSuccess()) 
+  {
+    if ( m_isSC ) {
     ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
-    ATH_CHECK( tool.retrieve() );
-    m_cablingService = (LArCablingBase*)& (*tool);
-  } else {
+    if(tool.retrieve().isFailure()){
+      log << MSG::ERROR << "Unable to get CablingService " << endreq;
+      return StatusCode::FAILURE;
+    } else m_cablingService = (LArCablingBase*)& (*tool);
+    } else {
     ToolHandle<LArCablingService> tool("LArCablingService");
-    ATH_CHECK( tool.retrieve() );
-    m_cablingService = (LArCablingBase*)& (*tool);
+    if(tool.retrieve().isFailure()){
+      log << MSG::ERROR << "Unable to get CablingService " << endreq;
+      return StatusCode::FAILURE;
+    } else m_cablingService = (LArCablingBase*)& (*tool);
+    }
+    // retrieve the symmetrisation tool
+    if(m_MCSym) {
+      if(m_larmcsym.retrieve().isFailure()){
+       log << MSG::ERROR << "Unable to get LArMCSymTool " << endreq;
+       return sc;
+      }
+    }
+    // retrieve LArAutoCorrTotalTool
+    if (m_autocorrTool.retrieve().isFailure()) {
+      log << MSG::ERROR
+	  << "Unable to find tool for LArAutoCorrTotalTool" << endreq;
+    }
+  } 
+  else 
+  {
+     log << MSG::ERROR << "Could not retrieve ToolSvc " << endreq;
+     return sc;
   }
-  if(m_MCSym) {
-    ATH_CHECK( m_larmcsym.retrieve() );
-  }
-  ATH_CHECK( m_autocorrTool.retrieve() );
   
   // retrieve CaloDetDescrManager only for m_delta=3
   if (m_useDelta == 3 ){
     if ( m_isSC ){
       const CaloSuperCellDetDescrManager* cc;
-      ATH_CHECK(  detStore()->retrieve(cc) );
+      sc = detStore()->retrieve(cc); 
       m_calo_dd_man = (const CaloDetDescrManager_Base*) cc;
     }else{
       const CaloDetDescrManager* cc;
-      ATH_CHECK(  detStore()->retrieve(cc) );
+      sc = detStore()->retrieve(cc); 
       m_calo_dd_man = (const CaloDetDescrManager_Base*) cc;
+    }
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "failed to CaloDetDescrManager " << endreq;
+      return sc;
     }
   }  
 
@@ -131,9 +157,9 @@ StatusCode LArOFCTool::initialize()
       // for OFC
       if (StatusCode::SUCCESS==detStore()->regFcn(&ILArOFCTool::LoadCalibration,
 						  dynamic_cast<ILArOFCTool*>(this),m_dd_ofc,m_keyOFC)) {
-	ATH_MSG_INFO( "Registered callback for key: " <<m_keyOFC  );
+	log << MSG::INFO << "Registered callback for key: " <<m_keyOFC << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyOFC  );
+	log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyOFC << endreq;
       }
     }
   else
@@ -142,9 +168,9 @@ StatusCode LArOFCTool::initialize()
       // for Shape
       if (StatusCode::SUCCESS==detStore()->regFcn(&ILArOFCTool::LoadCalibration,
 						  dynamic_cast<ILArOFCTool*>(this),m_dd_shape,m_keyShape)) {
-	ATH_MSG_INFO( "Registered callback for key: " <<m_keyShape  );
+	log << MSG::INFO << "Registered callback for key: " <<m_keyShape << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyShape  );
+	log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyShape << endreq;
       }
 
       // if running on MC, noise is obtained from LArNoise
@@ -153,31 +179,31 @@ StatusCode LArOFCTool::initialize()
 	// for Noise
 	if (StatusCode::SUCCESS==detStore()->regFcn(&ILArOFCTool::LoadCalibration,
 						    dynamic_cast<ILArOFCTool*>(this),m_dd_noise,m_keyNoise)) {
-	  ATH_MSG_INFO( "Registered callback for key: " << m_keyNoise  );
+	  log << MSG::INFO << "Registered callback for key: " << m_keyNoise << endreq;
 	} else {
-	  ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyNoise  );
+	  log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyNoise << endreq;
 	}
       }else{
 	// for Pedestal
 	if (StatusCode::SUCCESS==detStore()->regFcn(&ILArOFCTool::LoadCalibration,
 						    dynamic_cast<ILArOFCTool*>(this),m_dd_pedestal,m_keyPedestal)) {
-	  ATH_MSG_INFO( "Registered callback for key: " << m_keyPedestal  );
+	  log << MSG::INFO << "Registered callback for key: " << m_keyPedestal << endreq;
 	} else {
-	  ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyPedestal  );
+	  log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyPedestal << endreq;
 	}
       }
     }
   // force calling first callback function of LArAutoCorrTotalTool, and then callback of LArOFCTool  
   if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,dynamic_cast<ILArAutoCorrTotalTool*>(&(*m_autocorrTool)),
 					      &ILArOFCTool::LoadCalibration,dynamic_cast<ILArOFCTool*>(this))) {
-    ATH_MSG_INFO( "Registered callback for LArOFCTool/LArAutoCorrTotalTool"  );
+    log << MSG::INFO << "Registered callback for LArOFCTool/LArAutoCorrTotalTool" << endreq;
   } else {
-    ATH_MSG_ERROR( "Cannot register testCallback function for LArOFCTool/LArAutoCorrTotalTool"  );
+    log << MSG::ERROR << "Cannot register testCallback function for LArOFCTool/LArAutoCorrTotalTool" << endreq;
   }
 
 
   //
-  ATH_MSG_DEBUG( "LArOFCTool initialize() end"  );
+  log << MSG::DEBUG << "LArOFCTool initialize() end" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -195,7 +221,9 @@ StatusCode LArOFCTool::finalize()
 StatusCode LArOFCTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 {
 
-  ATH_MSG_DEBUG( "Callback invoked for " << keys.size() << " keys"  );
+  MsgStream log( msgSvc(), name() );
+
+  log << MSG::DEBUG << "Callback invoked for " << keys.size() << " keys" << endreq;
   
   m_cacheValid = false; 
 
@@ -208,7 +236,10 @@ StatusCode LArOFCTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 // *** compute OFC *** 
 StatusCode LArOFCTool::getOFC(StatusCode databaseRetrieved)
 {
-  ATH_MSG_DEBUG( "in getOFC"  );
+  
+  MsgStream log( msgSvc(), name() );
+
+  log << MSG::DEBUG << "in getOFC" << endreq;
 
   // get HWIdentifier iterator
   std::vector<HWIdentifier>::const_iterator it   =m_lar_on_id->channel_begin();
@@ -222,7 +253,7 @@ StatusCode LArOFCTool::getOFC(StatusCode databaseRetrieved)
   int count = 0;
   int count2 = 0;
   // loop over em Identifiers
-  ATH_MSG_DEBUG( "start loop over cells in LArOFCTool"  );
+  log << MSG::DEBUG << "start loop over cells in LArOFCTool" << endreq;
   for(;it!=it_e;++it)
   {    
     count ++;
@@ -253,8 +284,8 @@ StatusCode LArOFCTool::getOFC(StatusCode databaseRetrieved)
       }
     }     
   }
-  ATH_MSG_INFO( "LArOFCTool: number of cells   " << count  );
-  ATH_MSG_INFO( "LArOFCTool: number of cells after sym " << count2  );
+  log<< MSG::INFO << "LArOFCTool: number of cells   " << count << endreq;
+  log<< MSG::INFO << "LArOFCTool: number of cells after sym " << count2 << endreq;
 
   m_cacheValid=true;
   return StatusCode::SUCCESS;  
@@ -287,7 +318,8 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
           Identifier ofl_id = m_cablingService->cnvToIdentifier(CellID);
           const CaloDetDescrElement* dde = m_calo_dd_man->get_element(ofl_id);
           if (!dde) {
-            ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< CellID << " "<< ofl_id  );
+            MsgStream log(msgSvc(), name());
+            log << MSG::ERROR << " dde = 0 , onl_id, ofl_id= "<< CellID << " "<< ofl_id << endreq; 
             return (m_OFCtmp);
           }
           CaloCell_ID::CaloSample sampling = dde->getSampling();
@@ -342,8 +374,9 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
         m_autocorrTool->samplRMS(CellID,igain_autocorr,Nminbias);
       unsigned int nsamples2 = rmsSampl.size();
       if (nsamples2 != nsamples_AC_OFC) {
-        ATH_MSG_WARNING( " bad size for rmsSampl "  );
-        return (m_OFCtmp);  // return empty vector
+          MsgStream log(msgSvc(), name());
+          log << MSG::WARNING << " bad size for rmsSampl " << endreq;
+          return (m_OFCtmp);  // return empty vector
       }
       //:::::::::::::::::::::::::::::::
       //unsigned int iBeginOfNSamples=findTheNSamples(Shape,
@@ -367,8 +400,9 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	  ;
 	else
         {
-	  ATH_MSG_WARNING(" PedestalRMS vector empty for "
-                          <<CellID<<" at gain "<<igain );
+	  MsgStream log(msgSvc(), name());
+	  log << MSG::WARNING <<" PedestalRMS vector empty for "
+	      <<CellID<<" at gain "<<igain<<endreq;
 	}	
       }
       //:::::::::::::::::::::::::::::::
@@ -376,8 +410,10 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
       //:::::::::::::::::::::::::::::::
       if(Shape.size()==0 || ShapeDer.size()==0 || AutoCorr.size()==0)
       {
-	ATH_MSG_WARNING("Some data are missing -> OFC will be empty for "
-                        <<CellID<<" at gain "<<igain );
+	MsgStream log(msgSvc(), name());
+	log << MSG::WARNING 
+	    <<"Some data are missing -> OFC will be empty for "
+	    <<CellID<<" at gain "<<igain<<endreq;
 	return (m_OFCtmp);
 	//returns an empty vector
       }
@@ -467,8 +503,13 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	    std::cout<<std::endl;
 	  }
       } else { // OPTIMIZATION WRT NOISE AND PEDESTAL SHIFTS
-	ATH_MSG_DEBUG( " Computing pulse averages for " 
-                       << CellID << " at gain " << igain );
+
+
+	MsgStream log( msgSvc(), name() );
+
+	log << MSG::DEBUG << " Computing pulse averages for " 
+	    << CellID << " at gain " << igain 
+	    << endreq;
 
 	std::vector<float> averages = getShapeAverages(nsamples_AC_OFC,m_deltaBunch,Shape.asVector(),firstSample);
 
@@ -482,8 +523,9 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	  gDelta[c]     = averages[c];
 	}
 
-	ATH_MSG_DEBUG( " Computing OFC optimized for noise and offsets for " 
-                       << CellID << " at gain " << igain );
+	log << MSG::DEBUG << " Computing OFC optimized for noise and offsets for " 
+	    << CellID << " at gain " << igain 
+	    << endreq;
 
 	HepMatrix isol(3,3); 
 
@@ -601,7 +643,10 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const HWIdentifier& CellID,
     sc = this2->getOFC(sc);
     if (sc.isFailure()) 
       {
-	ATH_MSG_ERROR( "getOFC failed " );
+	MsgStream log( msgSvc(), name() );
+	log << MSG::ERROR
+	    << "getOFC failed "
+	    << endreq;
 	throw LArConditionsException("Could not compute in  LArOFCTool::OFC_a");
       }
   }
@@ -620,7 +665,10 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const HWIdentifier& CellID,
     MAP::const_iterator it = (m_OFCa[thisgain]).find(id32) ; 
     if(it == (m_OFCa[thisgain]).end())
     {
-      ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_OFCa" );
+      MsgStream log( msgSvc(), name() );
+      log << MSG::ERROR
+	  << "Unable to find ID = " << CellID << " in m_OFCa" 
+	  << endreq;
       static std::vector<float> empty; 
       return empty;       
     }
@@ -653,7 +701,10 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const HWIdentifier& CellID,
     sc = this2->getOFC(sc);
     if (sc.isFailure()) 
       {
-	ATH_MSG_ERROR( "getOFC failed " );
+	MsgStream log( msgSvc(), name() );
+	log << MSG::ERROR
+	    << "getOFC failed "
+	    << endreq;
 	throw LArConditionsException("Could not compute in  LArOFCTool::OFC_b");
       }
   }
@@ -672,7 +723,10 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const HWIdentifier& CellID,
     MAP::const_iterator it = (m_OFCb[thisgain]).find(id32) ; 
     if(it == (m_OFCb[thisgain]).end())
     {
-      ATH_MSG_ERROR( "Unable to findID = " << CellID << " in m_OFCb" );
+      MsgStream log( msgSvc(), name() );
+      log << MSG::ERROR
+	  << "Unable to findID = " << CellID << " in m_OFCb" 
+	  << endreq;
       static std::vector<float> empty; 
       return empty; 
     }  
@@ -694,14 +748,18 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const Identifier& CellID,
 
 
 void LArOFCTool::handle(const Incident&) {
-     ATH_MSG_DEBUG( "In Incident-handle"  );
+     MsgStream log( msgSvc(), name() );
+     log << MSG::DEBUG << "In Incident-handle" << endreq;
 
      if(!m_cacheValid){
        StatusCode  sc = this->condDataReady();
        sc = this->getOFC(sc);
        if (sc.isFailure()) 
 	 {
-	   ATH_MSG_ERROR( "getTerms failed " );
+	   MsgStream log( msgSvc(), name() );
+	   log << MSG::ERROR
+	       << "getTerms failed "
+	       << endreq;
 	   throw LArConditionsException("Could not getOFC in LArOFCTool::handle ");
 	 }
      }
@@ -711,6 +769,9 @@ void LArOFCTool::handle(const Incident&) {
 
 StatusCode LArOFCTool::condDataReady() 
 {
+
+  MsgStream log( msgSvc(), name() );
+
   bool ready=true;
   if(m_FromDB)
     {
@@ -718,9 +779,9 @@ StatusCode LArOFCTool::condDataReady()
       ready = valid; 
       // for OFC
       if (valid) {
-	ATH_MSG_DEBUG( " LArOFC valid "  );
+	log << MSG::DEBUG << " LArOFC valid " << endreq;
       } else {
-	ATH_MSG_ERROR( " LArOFC not valid "  );
+	log << MSG::ERROR << " LArOFC not valid " << endreq;
       }
 
 
@@ -733,9 +794,9 @@ StatusCode LArOFCTool::condDataReady()
       // for Shape
       if (valid)
 	{
-	  ATH_MSG_DEBUG( " shape valid "  );
+	  log << MSG::DEBUG << " shape valid " << endreq;
 	} else {
-          ATH_MSG_ERROR( " shape not valid "  );
+	  log << MSG::ERROR << " shape not valid " << endreq;
 	}
       
       // if running on MC, noise is obtained from LArNoise
@@ -747,9 +808,9 @@ StatusCode LArOFCTool::condDataReady()
 	ready = ready && valid ; 
 	if (valid) 
 	  {
-	    ATH_MSG_INFO( " noise valid "  );
+	    log << MSG::INFO << " noise valid " << endreq;
 	  } else {
-            ATH_MSG_ERROR( " noise not valid "  );
+	    log << MSG::ERROR << " noise not valid " << endreq;
 	  }
       }else{
 	// for Pedestal
@@ -757,9 +818,9 @@ StatusCode LArOFCTool::condDataReady()
 	ready = ready&&valid;
 	if (valid)
 	  {
-	    ATH_MSG_DEBUG( " Pedestal valid "  );
+	    log << MSG::DEBUG << " Pedestal valid " << endreq;
 	  } else {
-            ATH_MSG_ERROR( " Pedestal NOT valid "  );
+	    log << MSG::ERROR << " Pedestal NOT valid " << endreq;
 	  }
       }
     }
@@ -768,7 +829,7 @@ StatusCode LArOFCTool::condDataReady()
 
   if(ready) return StatusCode::SUCCESS ;
   // else 
-  ATH_MSG_ERROR( " condDataReady failed "  );
+  log << MSG::ERROR << " condDataReady failed " << endreq;
   return StatusCode::FAILURE;
 }
 

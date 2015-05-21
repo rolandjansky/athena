@@ -104,7 +104,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //StoreGate keys for conditions objects for SuperCells
   declareProperty("AutoCorrSCOutput",   m_objInfo[8].m_outputKey="LArAutoCorrSC");
-  declareProperty("uA2MeVSCOutput",       m_objInfo[9].m_outputKey="LAruA2MeVSC");
+  declareProperty("uA2MeVOutput",       m_objInfo[9].m_outputKey="LAruA2MeVSC");
   declareProperty("DAC2uAVSCOutput",    m_objInfo[10].m_outputKey="LArDAC2uASC");
   declareProperty("fSamplSCOutput",     m_objInfo[11].m_outputKey="LARfSamplSC");
   declareProperty("NoiseSCOutput",      m_objInfo[12].m_outputKey="LArNoiseSC");
@@ -126,7 +126,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
 
   //Folder names for flat conditions data for SuperCells
   declareProperty("AutoCorrSCInput",    m_objInfo[8].m_inputKey="/LAR/ElecCalibMCSC/AutoCorr");
-  declareProperty("uA2MeVSCInput",      m_objInfo[9].m_inputKey="/LAR/ElecCalibMCSC/uA2MeV");    
+  declareProperty("uA2MeVInput",        m_objInfo[9].m_inputKey="/LAR/ElecCalibMCSC/uA2MeV");    
   declareProperty("DAC2uAVSCInput",     m_objInfo[10].m_inputKey="/LAR/ElecCalibMCSC/DAC2uA");    
   declareProperty("fSamplSCInput",      m_objInfo[11].m_inputKey="/LAR/ElecCalibMCSC/fSampl");    
   declareProperty("NoiseSCInput",       m_objInfo[12].m_inputKey="/LAR/ElecCalibMCSC/Noise");     
@@ -149,26 +149,26 @@ StatusCode LArFlatConditionSvc::initialize() {
   /*
   StatusCode sc=m_clidSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve " << m_clidSvc << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve " << m_clidSvc << endreq;
     return sc;
   }
   
   
   sc=m_IOVSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve " << m_IOVSvc << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve " << m_IOVSvc << endreq;
     return sc;
   }
   */
 
   if (m_doSuperCells==false && m_doRegularCells==false) {
-    msg(MSG::WARNING) << "Both DoSuperCells and DoRegularCells set to false. Do nothing ?!?" << endmsg;
+    msg(MSG::WARNING) << "Both DoSuperCells and DoRegularCells set to false. Do nothing ?!?" << endreq;
   }
 
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
   StatusCode sc=incSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endmsg;
+    msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -206,7 +206,7 @@ StatusCode LArFlatConditionSvc::preLoadAddresses(StoreID::type storeID,tadList& 
     tad->setTransientID(m_objInfo[i].m_sclid);
     StatusCode sc=m_IOVSvc->preLoadTAD(tad,"DetectorStore");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "IOVSvc failed to preLoadTAD" << endmsg;
+      msg(MSG::ERROR) << "IOVSvc failed to preLoadTAD" << endreq;
       return sc;
     }
    // Add TAD to Storegate
@@ -251,7 +251,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   const CondAttrListCollection* attrlist;
   StatusCode sc=m_detStore->retrieve(attrlist,objIt->m_inputKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve a CondAttrListCollection with key " << objIt->m_inputKey << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve a CondAttrListCollection with key " << objIt->m_inputKey << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -260,7 +260,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   IOVRange range;
   sc=m_IOVSvc->getRange(m_attrListClid,objIt->m_inputKey,range);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to get IOV range for CondAttrListCollection with key " << objIt->m_inputKey << " from IOVSvc" << endmsg;
+    msg(MSG::ERROR) << "Failed to get IOV range for CondAttrListCollection with key " << objIt->m_inputKey << " from IOVSvc" << endreq;
     return sc;
   }
 
@@ -269,7 +269,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 0: 
     {
       if (this->createFlatObj<LAruA2MeVFlat>(attrlist,tad)==0) {
-      	msg(MSG::ERROR) << "Problem creating LAruA2MeVFlat object" << endmsg;
+      	msg(MSG::ERROR) << "Problem creating LAruA2MeVFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -278,7 +278,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 1:
     {
       if (this->createFlatObj<LArDAC2uAFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArDAC2uAFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArDAC2uAFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -286,7 +286,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 2:
     {
       if (this->createFlatObj<LArHVScaleCorrFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArHVScaleCorrFlat object " << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArHVScaleCorrFlat object " << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -294,7 +294,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 3:
     {
       if (this->createFlatObj<LArPedestalFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArPedestalFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArPedestalFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -302,7 +302,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 4:
     {
       if (this->createFlatObj<LArRampFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArRampFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArRampFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -310,7 +310,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 5:
     {
       if (this->createFlatObj<LArMphysOverMcalFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArMphysOverMcalFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArMphysOverMcalFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -318,7 +318,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 6:
     {
       if (this->createFlatObj<LArOFCFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArOFCFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArOFCFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -326,7 +326,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 7:      
     {
       if (this->createFlatObj<LArShapeFlat>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArShapeFlat object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArShapeFlat object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -336,7 +336,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 8:      
     {
       if (this->createFlatObj<LArAutoCorrSC>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArAutoCorrSC object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArAutoCorrSC object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -344,7 +344,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 9:      
     {
       if (this->createFlatObj<LAruA2MeVSC>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LAruA2MeVSC object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LAruA2MeVSC object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -352,7 +352,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 10:      
     {
       if (this->createFlatObj<LArDAC2uASC>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArDAC2uASC object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArDAC2uASC object" << endreq;
 	return StatusCode::FAILURE; 
       }
     }
@@ -360,55 +360,55 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
     
   case 11:      
       if (this->createFlatObj<LArfSamplSC>(attrlist,tad)==0) {
-	msg(MSG::ERROR) << "Problem creating LArfSamplSC object" << endmsg;
+	msg(MSG::ERROR) << "Problem creating LArfSamplSC object" << endreq;
 	return StatusCode::FAILURE; 
       }
     break;
 
   case 12:      
     if (this->createFlatObj<LArNoiseSC>(attrlist,tad)==0) {
-      msg(MSG::ERROR) << "Problem creating LArNoiseSC object" << endmsg;
+      msg(MSG::ERROR) << "Problem creating LArNoiseSC object" << endreq;
       return StatusCode::FAILURE; 
     }
     break;
 
   case 13:      
     if (this->createFlatObj<LArPedestalSC>(attrlist,tad)==0) {
-      msg(MSG::ERROR) << "Problem creating LArPedestal object" << endmsg;
+      msg(MSG::ERROR) << "Problem creating LArPedestal object" << endreq;
       return StatusCode::FAILURE; 
     }
     break;
     
   case 14:      
     if (this->createFlatObj<LArRampSC>(attrlist,tad)==0) {
-      msg(MSG::ERROR) << "Problem creating LArRampSC object" << endmsg;
+      msg(MSG::ERROR) << "Problem creating LArRampSC object" << endreq;
       return StatusCode::FAILURE; 
     }
     break;
 
   case 15:      
     if (this->createFlatObj<LArShapeSC>(attrlist,tad)==0) {
-      msg(MSG::ERROR) << "Problem creating LArShapeSC object" << endmsg;
+      msg(MSG::ERROR) << "Problem creating LArShapeSC object" << endreq;
       return StatusCode::FAILURE; 
     }
     break;
 
   case 16:      
     if (this->createFlatObj<LArMinBiasSC>(attrlist,tad)==0) {
-      msg(MSG::ERROR) << "Problem creating LArMinBiasSC object" << endmsg;
+      msg(MSG::ERROR) << "Problem creating LArMinBiasSC object" << endreq;
       return StatusCode::FAILURE; 
     }
     break;
     
 
   default:
-    msg(MSG::ERROR) << "Something screwed up at " << __FILE__ << " line " << __LINE__ << endmsg;
+    msg(MSG::ERROR) << "Something screwed up at " << __FILE__ << " line " << __LINE__ << endreq;
     return StatusCode::FAILURE;
   }
 
   sc=m_IOVSvc->setRange(objIt->m_clid,objIt->m_outputKey,range);//,"DetectorStore");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set IOV range for object " << objIt->m_classname << " with key " << objIt->m_outputKey << endmsg;
+    msg(MSG::ERROR) << "Failed to set IOV range for object " << objIt->m_classname << " with key " << objIt->m_outputKey << endreq;
     return sc;
   }
   
@@ -438,7 +438,7 @@ T* LArFlatConditionSvc::createFlatObj(const CondAttrListCollection* attr,  SG::T
   T* flat=new T(attr);
   if (!flat->good()) {
     msg(MSG::ERROR) << "Failed to covert AthenaAttributeList to flat LAr conditions object with clid/key " 
-		    << clid << "/" << key << endmsg;
+		    << clid << "/" << key << endreq;
     delete flat;
     return 0;
   }
@@ -461,7 +461,7 @@ void LArFlatConditionSvc::printCheckSums(const objInfo_t& objInfo, const CondAtt
 
   boost::crc_32_type crc32;
 
-  msg(MSG::INFO) << "Loading " << objInfo.m_classname << " from folder " << objInfo.m_inputKey << endmsg;
+  msg(MSG::INFO) << "Loading " << objInfo.m_classname << " from folder " << objInfo.m_inputKey << endreq;
 
   CondAttrListCollection::const_iterator it=attrListColl->begin();
   CondAttrListCollection::const_iterator it_e=attrListColl->end();
@@ -481,7 +481,7 @@ void LArFlatConditionSvc::printCheckSums(const objInfo_t& objInfo, const CondAtt
 	crc32.reset();
       }//end if blob
     }//end loop over attributes
-    msg(MSG::INFO) << endmsg;
+    msg(MSG::INFO) << endreq;
   }//end loop over gains
   
 

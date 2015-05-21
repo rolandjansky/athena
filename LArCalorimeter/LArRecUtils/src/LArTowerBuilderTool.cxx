@@ -3,6 +3,7 @@
 */
 
 
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -24,6 +25,9 @@ LArTowerBuilderTool::~LArTowerBuilderTool()
 
 StatusCode LArTowerBuilderTool::initializeTool()
 {
+  // services
+  MsgStream log(msgSvc(),name());
+
   // allow only LAREM and LARHEC cells!
   for ( size_t iCalos=0; iCalos<m_includedCalos.size(); iCalos++ )
     {
@@ -37,10 +41,12 @@ StatusCode LArTowerBuilderTool::initializeTool()
 	}
       else if ( m_includedCalos[iCalos] == "LARFCAL" )
 	{
-	  ATH_MSG_INFO( "use LArFCalTowerBuilderTool for the FCal - request ignored" );
+	  log << MSG::INFO
+	      << "use LArFCalTowerBuilderTool for the FCal - request ignored"
+	      << endreq;
 	}
     }
 
   // check setup
-  return this->checkSetup(msg());
+  return this->checkSetup(log);
 }

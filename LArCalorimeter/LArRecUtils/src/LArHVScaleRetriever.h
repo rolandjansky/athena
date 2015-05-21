@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // LArElecCalib includes
@@ -87,8 +86,11 @@ class LArHVScaleRetriever
 
 
   ToolHandle<ILArHVCorrTool> m_ilarhvcorrtool;
-  SG::ReadCondHandleKey<ILArHVScaleCorr> m_keyHVScaleCorr;
+  const DataHandle<ILArHVScaleCorr> m_ilarhvscalecorr;
+  std::string m_keyHVScaleCorr;
   bool m_isMC;
+    
+
 }; 
 
 // I/O operators

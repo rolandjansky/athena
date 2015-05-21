@@ -4,6 +4,7 @@
 
 #include "LArRecUtils/LArHVCorrTool.h"
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -75,20 +76,20 @@ StatusCode LArHVCorrTool::initialize() {
   
   StatusCode sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
 
   sc=detStore()->retrieve(m_calocell_id,"CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve  CaloCellID from DetectorStore" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve  CaloCellID from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
 // retrieve LArEM id helper
 
   sc = detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endmsg;
+   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
    return sc;
   }
 
@@ -97,38 +98,38 @@ StatusCode LArHVCorrTool::initialize() {
   m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
 
   if(m_cablingService.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Unable to get CablingService " << endmsg;
+    msg(MSG::ERROR) << "Unable to get CablingService " << endreq;
     return StatusCode::FAILURE;
   }
 
   sc = detStore()->retrieve(m_calodetdescrmgr);                
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get CaloDetDescrManager" << endmsg;
+    msg(MSG::ERROR) << "Unable to get CaloDetDescrManager" << endreq;
     return StatusCode::FAILURE;                              
   } 
 
 
   sc=detStore()->retrieve(m_electrodeID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get LArElectrodeID helper" << endmsg;
+    msg(MSG::ERROR) << "Unable to get LArElectrodeID helper" << endreq;
     return sc;
   }
 
   if (m_hvtool.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Unable to find tool for LArHVTool" << endmsg; 
+    msg(MSG::ERROR) << "Unable to find tool for LArHVTool" << endreq; 
     return StatusCode::FAILURE;
   }
 
   sc = detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(&(*m_hvtool)),
 			  &ILArHVCorrTool::LoadCalibration,dynamic_cast<ILArHVCorrTool*>(this));
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "canot register callback " << endmsg;
+    msg(MSG::ERROR) << "canot register callback " << endreq;
     return sc;
   }
 
   sc = this->buildFixHVList();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot build list to fix HV corrections " << endmsg; 
+    msg(MSG::ERROR) << " cannot build list to fix HV corrections " << endreq; 
     return StatusCode::FAILURE;
   }
 
@@ -161,14 +162,14 @@ StatusCode LArHVCorrTool::initialize() {
   m_vScale.resize(182468,(float)1.0);
 
   if (m_updateIfChanged) 
-    msg(MSG::INFO) << "Will re-compute HV correction for channels with updated voltage" << endmsg;
+    msg(MSG::INFO) << "Will re-compute HV correction for channels with updated voltage" << endreq;
   else {
     if (m_allCallBack) 
-      msg(MSG::INFO) << "Will re-compute HV corrections for all channels on each callback" << endmsg;
+      msg(MSG::INFO) << "Will re-compute HV corrections for all channels on each callback" << endreq;
     else {
       if (m_deltatupdate) 
-	msg(MSG::INFO) << "Will re-compute HV corrections after " << m_deltatupdate <<" seconds." << endmsg;
-      msg(MSG::INFO) << "Will re-compute HV corrections for each new LumiBlock" << endmsg;
+	msg(MSG::INFO) << "Will re-compute HV corrections after " << m_deltatupdate <<" seconds." << endreq;
+      msg(MSG::INFO) << "Will re-compute HV corrections for each new LumiBlock" << endreq;
     }
   }
 
@@ -185,12 +186,12 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
       const HASHRANGEVEC hashranges=this->electrodeIDsToPartition(updatedElectrodes);
       StatusCode sc=this->getScale(hashranges);
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << " LArHVCorrTool::LoadCalibration error in getScale" << endmsg;
+	msg(MSG::ERROR) << " LArHVCorrTool::LoadCalibration error in getScale" << endreq;
 	return sc;
       }
     }
     else {
-      ATH_MSG_DEBUG("No real voltage change, no update necessary");
+      ATH_MSG_INFO("No real voltage change, no update necessary");
       return StatusCode::SUCCESS;
     }
   }//end if updateIfChanges
@@ -200,7 +201,7 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
     static unsigned int run_old = 0;
     const xAOD::EventInfo* eventInfo;
     if (evtStore()->retrieve(eventInfo).isFailure()) {
-      msg(MSG::WARNING) << " Cannot access to event info " << endmsg;
+      msg(MSG::WARNING) << " Cannot access to event info " << endreq;
       return StatusCode::SUCCESS;
     }
     const unsigned int lumiblock = eventInfo->lumiBlock();
@@ -221,22 +222,22 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
 
       const std::vector<HWIdentifier>& updatedElectrodes=m_hvtool->getUpdatedElectrodes();
       if (updatedElectrodes.size()) {
-	IChronoStatSvc* chrono;
-	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , chrono )) {
+	IChronoStatSvc* m_chrono;
+	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , m_chrono )) {
 	  msg(MSG::ERROR) <<"cannot find chronostat " << std::endl;
 	  return StatusCode::FAILURE;
 	}
 	std::string chronoName = "LArHVCorrTool";
-	chrono -> chronoStart( chronoName); 
+	m_chrono -> chronoStart( chronoName); 
 	StatusCode sc=this->getScale(m_completeRange);
 	if (sc.isFailure()) {
-	  msg(MSG::ERROR) << " LArHVCorrTool::LoadCalibration error in getScale" << endmsg;
+	  msg(MSG::ERROR) << " LArHVCorrTool::LoadCalibration error in getScale" << endreq;
 	  return sc;
 	}
-	chrono -> chronoStop( chronoName );
+	m_chrono -> chronoStop( chronoName );
 	ATH_MSG_DEBUG("LArHVCorrTool Chrono stop : delta " 
-		      << chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
-		      * (microsecond / second) << " second ");
+		      << m_chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
+		      * microsecond / second << " second ");
 
       }
     }//end if 
@@ -257,11 +258,11 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
   if (m_doTdrift && m_Tdrift==NULL) {
     m_Tdrift = new LArTdriftComplete();
     if( (m_Tdrift->setGroupingType("ExtendedSubDetector",msg())).isFailure()) {
-      msg(MSG::ERROR) << " cannot setGroupingType " << endmsg;
+      msg(MSG::ERROR) << " cannot setGroupingType " << endreq;
       return StatusCode::FAILURE;
     }
     if( (m_Tdrift->initialize()).isFailure()) {
-      msg(MSG::ERROR) << "cannot initialize tdrift " << endmsg;
+      msg(MSG::ERROR) << "cannot initialize tdrift " << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -291,7 +292,7 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
       unsigned int layer=99;
       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(oflHash);
       if (!calodde) {
-	msg(MSG::WARNING) << "No DDE found for cell " << oflHash << endmsg;
+	msg(MSG::WARNING) << "No DDE found for cell " << oflHash << endreq;
         continue;
       }
       const Identifier offid=calodde->identify();
@@ -384,7 +385,7 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
 	mycorr=1.;
 	mynorm=1.;
 	mySum=0.;
-	msg(MSG::WARNING) << " HV value no found for cell " << m_larem_id->show_to_string(offid) << endmsg;
+	msg(MSG::WARNING) << " HV value no found for cell " << m_larem_id->show_to_string(offid) << endreq;
       }
 
       else {
@@ -403,10 +404,10 @@ StatusCode LArHVCorrTool::getScale(const HASHRANGEVEC& hashranges) const {
 	  //           log << MSG::DEBUG << " " << hvlist[i].hv;
 	  if (hvlist[i].hv<-10000) notfound=true;
 	}
-	//        log << MSG::DEBUG << endmsg;
+	//        log << MSG::DEBUG << endreq;
 
 	if (notfound) {
-	  msg(MSG::WARNING) << " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) << endmsg;
+	  msg(MSG::WARNING) << " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) << endreq;
 	}
 
 	mycorr=0.;
@@ -616,12 +617,12 @@ float LArHVCorrTool::Scale(const IdentifierHash& hash) const {
   if (!m_cacheFilled) {
     StatusCode sc=this->getScale(m_completeRange);
     if (sc.isFailure())  {
-      msg(MSG::ERROR) << " cannot compute HV correction values ... " << endmsg;
+      msg(MSG::ERROR) << " cannot compute HV correction values ... " << endreq;
       return 1;
     }
   }
   if (hash>m_vScale.size()) {
-    msg(MSG::ERROR) << "Cell outside hash range! hash=" << hash << " range=" << m_vScale.size() << endmsg;
+    msg(MSG::ERROR) << "Cell outside hash range! hash=" << hash << " range=" << m_vScale.size() << endreq;
     return 1;
   }
   return m_vScale[hash];
@@ -632,7 +633,7 @@ StatusCode LArHVCorrTool::record()  {
   if (!m_cacheFilled) {
     StatusCode sc=this->getScale(m_completeRange);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << " cannot compute HV correction values ... " << endmsg;
+      msg(MSG::ERROR) << " cannot compute HV correction values ... " << endreq;
       return sc;
     }
   }
@@ -661,7 +662,7 @@ StatusCode LArHVCorrTool::record()  {
 
   StatusCode sc=detStore()->record(coll,m_folderName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record CondAttrListCollection with key " << m_folderName << endmsg;
+    msg(MSG::ERROR) << " cannot record CondAttrListCollection with key " << m_folderName << endreq;
     delete coll;
     return sc;
   }
@@ -669,7 +670,7 @@ StatusCode LArHVCorrTool::record()  {
   LArHVScaleCorrFlat* flatHVScale=new LArHVScaleCorrFlat(coll);
   sc=detStore()->record(flatHVScale,m_keyOutput);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to record LArHVScaleCorrFlat with key " << m_keyOutput << endmsg;
+    msg(MSG::ERROR) << "Failed to record LArHVScaleCorrFlat with key " << m_keyOutput << endreq;
     delete flatHVScale;
     return sc;
   }
@@ -678,7 +679,7 @@ StatusCode LArHVCorrTool::record()  {
   if (m_doTdrift) {
     sc=detStore()->record(m_Tdrift,m_keyOutputTd);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << " cannot record LArTdrift in detStore " << endmsg;
+      msg(MSG::ERROR) << " cannot record LArTdrift in detStore " << endreq;
       return sc;
     }
   }
@@ -687,7 +688,7 @@ StatusCode LArHVCorrTool::record()  {
   if (m_doTdrift) {
     sc=detStore()->symLink(m_Tdrift, (ILArTdrift*)m_Tdrift);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to symlink LArTdrift object" << endmsg;
+      msg(MSG::ERROR) << "Failed to symlink LArTdrift object" << endreq;
       return sc;
     }
   }
@@ -720,7 +721,7 @@ StatusCode LArHVCorrTool::buildFixHVList() {
     m_HVfix.push_back(myfix);
   }
 
-  msg(MSG::INFO) << "  Number of regions with overwritten HV corrections from jobOptions " << m_HVfix.size() << endmsg;
+  msg(MSG::INFO) << "  Number of regions with overwritten HV corrections from jobOptions " << m_HVfix.size() << endreq;
 
 
   return StatusCode::SUCCESS;

@@ -19,7 +19,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "LArIdentifier/LArHVCellID.h" 
-//#include "LArCabling/LArHVCablingTool.h" 
+//#include "LArTools/LArHVCablingTool.h" 
 #include "Identifier/HWIdentifier.h"
 
 class StoreGateSvc; 
@@ -37,10 +37,10 @@ class LArCellFakeProbElectronics :  public AthAlgTool, virtual public ICellWeigh
 		    const IInterface* parent) ;
   
   /*! Constructor */
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize() ; 
   
   /*! implementation of ICellWeightTool weighting method */ 
-  virtual double wtCell(const CaloCell * theCell) const override;
+  virtual double wtCell(const CaloCell * theCell) ;
 
 
   
@@ -48,6 +48,9 @@ class LArCellFakeProbElectronics :  public AthAlgTool, virtual public ICellWeigh
 
   /*! process jobOptions and add affected cells to list */
   StatusCode add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel, double weight);
+
+  /*! pointer to CaloIDManager */
+  const CaloCell_ID*    m_idHelper;
 
   /*! pointer to LArCablingService */
   LArCablingService* m_cablingService;

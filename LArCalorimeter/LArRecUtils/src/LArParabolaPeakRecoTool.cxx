@@ -6,6 +6,7 @@
 
 #include "PathResolver/PathResolver.h"
 
+#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 #include <algorithm>
@@ -19,13 +20,13 @@ LArParabolaPeakRecoTool::LArParabolaPeakRecoTool(const std::string& type, const 
 						 const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
     m_correctBias(true), 
-    m_fileShapeName("parabola_Shape.dat"), 
-    m_fileADCcorName("parabola_adccor.dat")
+    m_fileShape("parabola_Shape.dat"), 
+    m_fileADCcor("parabola_adccor.dat")
 
 {
   declareProperty("correctBias",m_correctBias);
-  declareProperty("fileShape",m_fileShapeName);
-  declareProperty("fileADCcor",m_fileADCcorName);
+  declareProperty("fileShape",m_fileShape);
+  declareProperty("fileADCcor",m_fileADCcor);
   declareInterface<LArParabolaPeakRecoTool>(this);
 }
 
@@ -37,37 +38,37 @@ StatusCode LArParabolaPeakRecoTool::initialize()
     std::cout << "LArParabolaPeakRecoTool: correctBias flag is ON " << std::endl;
     // if want to correct bias, open files
 
-    m_fileShapeName = PathResolver::find_file (m_fileShapeName, "DATAPATH");
-    m_fileADCcorName = PathResolver::find_file (m_fileADCcorName, "DATAPATH");
+    m_fileShape = PathResolver::find_file (m_fileShape, "DATAPATH");
+    m_fileADCcor = PathResolver::find_file (m_fileADCcor, "DATAPATH");
 
-    m_fileShape = fopen(m_fileShapeName.c_str(),"r");
-    m_fileADCcor = fopen(m_fileADCcorName.c_str(),"r");
+    fileShape = fopen(m_fileShape.c_str(),"r");
+    fileADCcor = fopen(m_fileADCcor.c_str(),"r");
     int idelay, ilayer;
     float timeValue, adccorValue;
     
     // fill correction table
-    while( fscanf(m_fileShape,"%80d %80d %80f",&idelay,&ilayer,&timeValue) != EOF )
+    while( fscanf(fileShape,"%d %d %f",&idelay,&ilayer,&timeValue) != EOF )
       {
 	if ( ilayer >= 0 && ilayer < 4 && idelay >= 0 && idelay < 25 )
 	  {
-	    m_QT_Shape[ilayer][idelay] = timeValue;
+	    QT_Shape[ilayer][idelay] = timeValue;
 	    
-	    if ( idelay == 0 && m_QT_Shape[ilayer][0] != 0. )
+	    if ( idelay == 0 && QT_Shape[ilayer][0] != 0. )
 	      {
-		m_QT_Shape[ilayer][25]  = m_QT_Shape[ilayer][0] + 25;
+		QT_Shape[ilayer][25]  = QT_Shape[ilayer][0] + 25;
 	      }
 	  }
       }
     
-    while( fscanf(m_fileADCcor,"%80d %80d %80f",&idelay,&ilayer,&adccorValue) != EOF )
+    while( fscanf(fileADCcor,"%d %d %f",&idelay,&ilayer,&adccorValue) != EOF )
       {
 	if ( ilayer >= 0 && ilayer < 4 && idelay >= 0 && idelay < 25 )
 	  {
-	    m_QT_ADCcor[ilayer][idelay] = adccorValue;
+	    QT_ADCcor[ilayer][idelay] = adccorValue;
 	  }
       }
-    fclose(m_fileADCcor);
-    fclose(m_fileShape);
+    fclose(fileADCcor);
+    fclose(fileShape);
   }
 
   return StatusCode::SUCCESS;
@@ -106,14 +107,15 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<short>& samp
 
 std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samples, int layer, float pedestal) const 
 {//const float dt=25.0;//ns
+  MsgStream log(msgSvc(), name());
   static std::vector<float> solution; 
   solution.clear();
 
   const std::vector<float>::const_iterator it_max=max_element(samples.begin(),samples.end());
-  if (it_max==samples.end()) {
-    ATH_MSG_ERROR( "Maximum ADC sample not found!"  );
+  if (it_max==samples.end())
+    {log << MSG::ERROR << "Maximum ADC sample not found!" << endreq;
     return solution; 
-  }
+    }
   if (it_max==samples.begin() || it_max==samples.end()-1)
     {
       solution.push_back(*it_max);
@@ -148,13 +150,13 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samp
     traw += ( it_max-samples.begin() - 3 )*25.;
     
     if(layer < 0 || layer > 3) {
-      ATH_MSG_ERROR( "Layer index is wrong ! Layer = " << layer  );
+      log << MSG::ERROR << "Layer index is wrong ! Layer = " << layer << endreq;
       return solution;
     }else{
       // get true time 
       trec = ParabolaRawToTrueTime(traw, layer);
       // get true ADC
-      if(pedestal<0) ATH_MSG_ERROR( "Pedestal is wrong ! Ped = " << pedestal  );
+      if(pedestal<0) log << MSG::ERROR << "Pedestal is wrong ! Ped = " << pedestal << endreq;
       retval =  ParabolaRawToTrueADC(trec, beta[1], pedestal, layer);
     }
   }
@@ -200,13 +202,13 @@ float LArParabolaPeakRecoTool::ParabolaRawToTrueTime(float& QT_fittime, int& lay
    * the input value to the nominal regime and correct
    * afterwards
    */
-  while ( QT_fittime < m_QT_Shape[ilayer][0] )
+  while ( QT_fittime < QT_Shape[ilayer][0] )
     {
       QT_fittime +=25;
       iOffset++;
     }
   
-  while ( QT_fittime > m_QT_Shape[ilayer][25] )
+  while ( QT_fittime > QT_Shape[ilayer][25] )
     {
       QT_fittime -= 25;
       iOffset--;
@@ -218,12 +220,12 @@ float LArParabolaPeakRecoTool::ParabolaRawToTrueTime(float& QT_fittime, int& lay
   
   for ( idelay=0; idelay < 25; idelay++ )
     {
-      if ( QT_fittime >= m_QT_Shape[ilayer][idelay] 
-	   && QT_fittime < m_QT_Shape[ilayer][idelay+1])
+      if ( QT_fittime >= QT_Shape[ilayer][idelay] 
+	   && QT_fittime < QT_Shape[ilayer][idelay+1])
 	{
 	  QT_true_lower = (float) (idelay - iOffset * 25.);
-	  QT_raw_lower  = m_QT_Shape[ilayer][idelay];
-	  QT_raw_upper  = m_QT_Shape[ilayer][idelay+1];
+	  QT_raw_lower  = QT_Shape[ilayer][idelay];
+	  QT_raw_upper  = QT_Shape[ilayer][idelay+1];
 	}
     }
   
@@ -285,13 +287,13 @@ float LArParabolaPeakRecoTool::ParabolaRawToTrueADC(float& QT_true_time, double&
   if ( ilayer >=0 && ilayer< 4 ) 
     {
       if ( ichoosedelay < 25 - 1 ){
-	QT_correct_ADC= m_QT_ADCcor[ilayer][ichoosedelay] 
-	  + (m_QT_ADCcor[ilayer][ichoosedelay+1]-m_QT_ADCcor[ilayer][ichoosedelay]) 
+	QT_correct_ADC= QT_ADCcor[ilayer][ichoosedelay] 
+	  + (QT_ADCcor[ilayer][ichoosedelay+1]-QT_ADCcor[ilayer][ichoosedelay]) 
 	  * (QT_true_time - (int) QT_true_time);
       }
       else {
-	QT_correct_ADC= m_QT_ADCcor[ilayer][ichoosedelay] 
-	  + (m_QT_ADCcor[ilayer][0]-m_QT_ADCcor[ilayer][ichoosedelay]) 
+	QT_correct_ADC= QT_ADCcor[ilayer][ichoosedelay] 
+	  + (QT_ADCcor[ilayer][0]-QT_ADCcor[ilayer][ichoosedelay]) 
 	  * (QT_true_time - (int) QT_true_time);
       }
     }

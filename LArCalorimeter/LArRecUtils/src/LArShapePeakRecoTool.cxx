@@ -3,6 +3,7 @@
 */
 
 #include "LArRecUtils/LArShapePeakRecoTool.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <algorithm>
 #include <cmath>
@@ -31,6 +32,8 @@ StatusCode LArShapePeakRecoTool::finalize()
 // input vector of samples must be pedestal substracted
 std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples, const std::vector<double>& wave ) const 
 {
+  MsgStream log(msgSvc(), name());
+
   static std::vector<float> solution; 
   solution.clear();
 
@@ -45,7 +48,7 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
   // find maximum of delay profile
   const std::vector<double>::const_iterator wave_max=max_element(wave.begin(),wave.end());
   if (wave_max==wave.end())
-    {ATH_MSG_ERROR( "Maximum of Delay Profile not found!"  );
+    {log << MSG::ERROR << "Maximum of Delay Profile not found!" << endreq;
     return solution; 
     }
   shape_max = *wave_max;
@@ -63,7 +66,7 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
   
   const std::vector<float>::const_iterator it_max=max_element(samples.begin(),samples.end());
   if (it_max==samples.end())
-    {ATH_MSG_ERROR( "Maximum ADC sample not found!"  );
+    {log << MSG::ERROR << "Maximum ADC sample not found!" << endreq;
     return solution; 
     }
   adc_max    = *it_max;

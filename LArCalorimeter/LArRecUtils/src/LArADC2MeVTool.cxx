@@ -9,8 +9,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
-#include "LArCabling/LArCablingService.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArTools/LArCablingService.h"
+#include "LArTools/LArSuperCellCablingTool.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 
@@ -21,8 +21,7 @@ LArADC2MeVTool::LArADC2MeVTool(const std::string& type,
 			       const IInterface* parent) 
   : 
     AthAlgTool(type, name, parent) ,
-    m_lar_on_id(nullptr),
-    m_cablingService(nullptr),
+    m_cablingService(NULL),
     m_larmcsym("LArMCSymTool"),
     m_IOVDbSvc("IOVDbSvc",name),
     m_keyADC2DAC("LArRamp"),	
@@ -362,13 +361,13 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
 	
         // ###
 	 if (msgLvl(MSG::VERBOSE)) {
-	   msg( MSG::VERBOSE) << " Gain = " << igain << endmsg ;
+	   msg( MSG::VERBOSE) << " Gain = " << igain << endreq ;
 	   if ( ADC2DAC.size() > 0 ) {
-	     msg(MSG::VERBOSE) << " DAC2uA   = " << DAC2uA << endmsg ;
-	     msg(MSG::VERBOSE) << " uA2MeV   = " << uA2MeV << endmsg ;
+	     msg(MSG::VERBOSE) << " DAC2uA   = " << DAC2uA << endreq ;
+	     msg(MSG::VERBOSE) << " uA2MeV   = " << uA2MeV << endreq ;
 	   } 
 	   else 
-	     msg(MSG::VERBOSE) << " has empty ramps" << endmsg ;
+	     msg(MSG::VERBOSE) << " has empty ramps" << endreq ;
 	 }//end if VERBOSE
 	 // ###	
       

@@ -3,6 +3,8 @@
 */
 
 #include "LArRecUtils/LArAutoCorrNoiseTool.h"
+#include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -16,8 +18,6 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
 					   const IInterface* parent) 
   : AthAlgTool(type, name, parent),
     m_Nsampl(5),m_MCSym(true), 
-    m_lar_on_id(nullptr),
-    m_lar_scon_id(nullptr),
     m_cablingService("LArCablingService"),
     m_larmcsym("LArMCSymTool"),
     m_keyAutoCorr("LArAutoCorr"),
@@ -39,39 +39,73 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
 
 StatusCode LArAutoCorrNoiseTool::initialize()
 {
-  ATH_MSG_DEBUG( "LArAutoCorrNoiseTool initialize() begin"  );
+  MsgStream log( msgSvc(), name() );
+  
+  log << MSG::DEBUG << "LArAutoCorrNoiseTool initialize() begin" << endreq;
   
   if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrNoiseTool::LoadCalibration,
                                               dynamic_cast<ILArAutoCorrNoiseTool*>(this),m_dd_autocorr,m_keyAutoCorr)) {
-    ATH_MSG_INFO( "Registered callback for key: " << m_keyAutoCorr  );
+    log << MSG::INFO << "Registered callback for key: " << m_keyAutoCorr << endreq;
   } else {
-    ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyAutoCorr  );
+    log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyAutoCorr << endreq;
   }
   
   if ( m_isSC ){
-    ATH_CHECK(  detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID") );
-    ATH_CHECK( m_cablingSCService.retrieve() );
+    StatusCode sc = detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      log  << MSG::ERROR << "Unable to retrieve  LArOnline_SuperCellID from DetectorStore" 
+           << endreq;
+      return StatusCode::FAILURE;
+    }
+  
+    if(m_cablingSCService.retrieve().isFailure())
+    {
+      log << MSG::ERROR << "Unable to get SCCablingService " << endreq;
+      return StatusCode::FAILURE;
+    }
+
+
   } // m_isSC
   else {
-    ATH_CHECK(  detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
-    ATH_CHECK( m_cablingService.retrieve() );
-    if (m_MCSym) {
-      ATH_CHECK( m_larmcsym.retrieve() );
+
+    StatusCode sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
+    if (sc.isFailure()) {
+      log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore"
+           << endreq;
+      return StatusCode::FAILURE;
     }
+
+    if(m_cablingService.retrieve().isFailure())
+    {
+      log << MSG::ERROR << "Unable to get CablingService " << endreq;
+      return StatusCode::FAILURE;
+    }
+    if (m_MCSym) {
+      if (m_larmcsym.retrieve().isFailure()){
+        log << MSG::ERROR << "Unable to get LArMCSym Tool " << endreq;
+        return StatusCode::FAILURE;
+      }
+    }
+
   }
   
   if (m_loadAtBegin) {
-    ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run"  );
+    log << MSG::DEBUG << "Setting callback function to load calibration at begin of run" << endreq;
     // Incident Service: 
-    IIncidentSvc* incSvc = nullptr;
-    ATH_CHECK(  service("IncidentSvc", incSvc) );
+    IIncidentSvc* incSvc;
+    StatusCode sc = service("IncidentSvc", incSvc);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to retrieve pointer to IncidentSvc "
+	  << endreq;
+      return sc;
+    }
     
     //start listening to "BeginRun". The incident should be fired AFTER the IOV callbacks and only once.
     const long priority=std::numeric_limits<long>::min(); //Very low priority
     incSvc->addListener(this, "BeginRun", priority ,false,true); //single-shot incident
   }
   
-  ATH_MSG_DEBUG( "LArAutoCorrNoiseTool initialize() end"  );
+  log << MSG::DEBUG << "LArAutoCorrNoiseTool initialize() end" << endreq;
   
   return StatusCode::SUCCESS;
 }
@@ -87,7 +121,17 @@ StatusCode LArAutoCorrNoiseTool::finalize()
 // *** retrieves needed data from the DB *** 
 StatusCode LArAutoCorrNoiseTool::LoadCalibration(IOVSVC_CALLBACK_ARGS)
 {
+  
+#if 0
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "in LoadCalibration " << endreq;
+  
+  log << MSG::DEBUG << "Callback invoked for " << keys.size() << " keys" << endreq;
+#endif
+  
   m_cacheValid = false; 
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -98,7 +142,9 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
 {
   
 #ifndef NDEBUG
-  ATH_MSG_DEBUG( "in getAutoCorrNoise::getTerms"  );
+  MsgStream log( msgSvc(), name() );
+
+  log << MSG::DEBUG << "in getAutoCorrNoise::getTerms" << endreq;
 #endif
 
   // get HWIdentifier iterator
@@ -126,7 +172,7 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
   int count2 = 0;
   // loop over em Identifiers
 #ifndef NDEBUG
-  ATH_MSG_DEBUG( "start loop over cells in getAutoCorrNoise"  );
+  log << MSG::DEBUG << "start loop over cells in getAutoCorrNoise" << endreq;
 #endif
   for(;it!=it_e;++it)
   {    
@@ -190,9 +236,9 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
 
   }
 #ifndef NDEBUG
-  ATH_MSG_INFO( "LArAutoCorrNoise Ncell " << count  );
-  ATH_MSG_INFO( "LArAutoCorrNoise Nsymcell " << count2  );
-  ATH_MSG_DEBUG( "end of loop over cells "  );
+  log << MSG::INFO  << "LArAutoCorrNoise Ncell " << count << endreq;
+  log << MSG::INFO  << "LArAutoCorrNoise Nsymcell " << count2 << endreq;
+  log << MSG::DEBUG << "end of loop over cells " << endreq;
 #endif
 
   m_cacheValid = true;
@@ -210,7 +256,10 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
     StatusCode  sc = this->getTerms();
     if (sc.isFailure()) 
       {
-	ATH_MSG_ERROR( "getTerms failed " );
+	MsgStream log( msgSvc(), name() );
+	log << MSG::ERROR
+	    << "getTerms failed "
+	    << endreq;
 	throw LArConditionsException("Could not compute in LArAutoCorrNoiseTool::autoCorrSqrt");
       }
   }
@@ -218,7 +267,8 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
   if (Nsampl>0 && Nsampl != m_Nsampl) {
     m_Nsampl = Nsampl;
     if ( (this->getTerms()).isFailure() ){
-      ATH_MSG_ERROR( "getTerms failed"  );
+	MsgStream log( msgSvc(), name() ); 
+	log << MSG::ERROR << "getTerms failed" << endreq; 
     }
   }
 
@@ -231,7 +281,10 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
   
   MAP::const_iterator it = (m_terms[gain]).find(id32) ; 
   if(it == (m_terms[gain]).end()){
-    ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_terms" );
+     MsgStream log( msgSvc(), name() );
+    log << MSG::ERROR
+	<< "Unable to find ID = " << CellID << " in m_terms" 
+	<< endreq;
     static std::vector<float> empty; 
     return empty; 
   }
@@ -250,7 +303,10 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
     StatusCode  sc = this->getTerms();
     if (sc.isFailure()) 
       {
-	ATH_MSG_ERROR( "getTerms failed " );
+	MsgStream log( msgSvc(), name() );
+	log << MSG::ERROR
+	    << "getTerms failed "
+	    << endreq;
 	throw LArConditionsException("Could not compute in LArAutoCorrNoiseTool::autoCorrSqrt");
       }
   }
@@ -263,7 +319,10 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
 
   MAP::const_iterator it = (m_terms[gain]).find(id32) ; 
   if(it == (m_terms[gain]).end()){
-    ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_terms" );
+     MsgStream log( msgSvc(), name() );
+    log << MSG::ERROR
+        << "Unable to find ID = " << CellID << " in m_terms" 
+        << endreq; 
     static std::vector<float> empty;  
     return empty;  
   }
@@ -274,13 +333,17 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
 
 
 void LArAutoCorrNoiseTool::handle(const Incident&) {
-     ATH_MSG_DEBUG( "In Incident-handle"  );
+     MsgStream log( msgSvc(), name() );
+     log << MSG::DEBUG << "In Incident-handle" << endreq;
 
      if(!m_cacheValid){
        StatusCode  sc = this->getTerms();
        if (sc.isFailure()) 
 	 {
-	   ATH_MSG_ERROR( "getTerms failed " );
+	   MsgStream log( msgSvc(), name() );
+	   log << MSG::ERROR
+	       << "getTerms failed "
+	       << endreq;
 	   throw LArConditionsException("Could not getTerms in LArAutoCorrNoiseTool::handle");
 	 }
      }

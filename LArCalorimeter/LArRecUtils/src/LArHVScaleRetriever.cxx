@@ -52,7 +52,7 @@ StatusCode LArHVScaleRetriever::initialize()
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   if( m_isMC ) {
-    ATH_CHECK( m_keyHVScaleCorr.initialize() );
+    CHECK(  detStore()->regHandle(m_ilarhvscalecorr,m_keyHVScaleCorr) );
   }else {
     CHECK( m_ilarhvcorrtool.retrieve() ) ;  
   }
@@ -62,18 +62,12 @@ StatusCode LArHVScaleRetriever::initialize()
 
 
 float LArHVScaleRetriever::Scale(const HWIdentifier& id)  const  {
-  if(m_isMC) {
-    SG::ReadCondHandle<ILArHVScaleCorr> corr (m_keyHVScaleCorr);
-    return (*corr)->HVScaleCorr(id) ;
-  }
+  if(m_isMC) return m_ilarhvscalecorr->HVScaleCorr(id) ;
   return m_ilarhvcorrtool->Scale(id);
 }
 
 float LArHVScaleRetriever::Scale(const Identifier& id)  const  {
-  if(m_isMC) {
-    SG::ReadCondHandle<ILArHVScaleCorr> corr (m_keyHVScaleCorr);
-    return (*corr)->HVScaleCorr(id) ;
-  }
+  if(m_isMC) return m_ilarhvscalecorr->HVScaleCorr(id) ;
   return m_ilarhvcorrtool->Scale(id);
 }
 

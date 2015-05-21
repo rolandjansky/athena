@@ -31,7 +31,7 @@
 #include "LArElecCalib/ILArFEBConfigReader.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingBase.h"
+#include "LArTools/LArCablingBase.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
 
