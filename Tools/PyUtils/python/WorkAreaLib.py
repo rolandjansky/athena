@@ -251,6 +251,7 @@ def _translate_runtimepkg_name(n):
         'hlt': 'AtlasHLT',
         'manacore': 'ManaCore',
         'detcommon': 'DetCommon',
+        'AthAnalysisBase': 'AthAnalysisBase'
         }
     if n in db:
         return db[n]
