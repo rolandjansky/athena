@@ -105,6 +105,27 @@ StatusCode PrintMC::execute() {
       std::cout << " Entries this event: " << evt->vertices_size() << " vertices, "
                 << evt->particles_size() << " particles.\n";
 
+      if (evt->heavy_ion()) {
+        std::cout << " HeavyIon: jatt=" << evt->heavy_ion()->Ncoll_hard()
+                  << " np=" << evt->heavy_ion()->Npart_proj()
+                  << " nt=" << evt->heavy_ion()->Npart_targ()
+                  << " ncoll=" << evt->heavy_ion()->Ncoll()
+                  << " specn=" << evt->heavy_ion()->spectator_neutrons()
+                  << " specp=" << evt->heavy_ion()->spectator_protons()
+                  << " n01=" << evt->heavy_ion()->N_Nwounded_collisions()
+                  << " n10=" << evt->heavy_ion()->Nwounded_N_collisions()
+                  << " n11=" << evt->heavy_ion()->Nwounded_Nwounded_collisions()
+                  << " impact=" << evt->heavy_ion()->impact_parameter()
+                  << " evplane=" << evt->heavy_ion()->event_plane_angle()
+                  << " ecc=" << evt->heavy_ion()->eccentricity()
+                  << " sigmaNNinel=" << evt->heavy_ion()->sigma_inel_NN()
+		  << std::endl;
+      }
+      else {
+        std::cout << "HeavyIon: EMPTY"
+		  << std::endl;
+      }
+
       // Random State
       //	std::cout << " RndmState(" << evt->random_states().size() << ")=";
       //for ( std::vector<long int>::const_iterator rs
@@ -132,7 +153,8 @@ StatusCode PrintMC::execute() {
 		  << std::endl;
       }
       else {
-        std::cout << "PdfInfo: EMPTY";
+        std::cout << "PdfInfo: EMPTY"
+		  << std::endl;
       }
 
       // Print a legend to describe the particle info
