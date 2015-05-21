@@ -71,8 +71,8 @@ if l1caloRawMon:
         #  Want Full PPrStabilityMon to run alone
         #=================================================================================
 
-        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPrStabilityMon
-        L1PPrStabilityMonTool = PPrStabilityMon(
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrStabilityMon
+        L1PPrStabilityMonTool = LVL1__PPrStabilityMon(
             name = "L1PPrStabilityMonTool",
             doFineTimeMonitoring = doFineTime,
             doPedestalMonitoring = LVL1CaloMonFlags.doPedestalMonitoring(),
@@ -94,8 +94,8 @@ if l1caloRawMon:
             #=================================================================================
             #============== PPrStabilityMon without individual channel plots =================
             #=================================================================================
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPrStabilityMon
-            L1PPrStabilityMonTool = PPrStabilityMon(
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrStabilityMon
+            L1PPrStabilityMonTool = LVL1__PPrStabilityMon(
                 name = "L1PPrStabilityMonTool",
                 doFineTimeMonitoring = doFineTime,
                 doEtCorrelationMonitoring = isCalo,
@@ -112,9 +112,9 @@ if l1caloRawMon:
         #=================================================================================
         #================================= PPr ===========================================
         #=================================================================================
-        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import PPrMon
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrMon
         from AthenaCommon.JobProperties import jobproperties
-        L1PPrMonTool = PPrMon(
+        L1PPrMonTool = LVL1__PPrMon(
             name = "L1PPrMonTool",
             BS_TriggerTowerContainer = "TriggerTowers",
             LUTHitMap_ThreshVec = [0,1,2,3,4,5,6,7,10,15,20,33,45,50],
@@ -146,8 +146,8 @@ if l1caloRawMon:
             #ToolSvc.L1TriggerTowerTool.OutputLevel = DEBUG
             
             #--------------------------------- PPM Spare Channels----------------------------
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1_PPrSpareMon
-            L1PPrSpareMonTool = LVL1_PPrSpareMon(
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrSpareMon
+            L1PPrSpareMonTool = LVL1__PPrSpareMon(
                 name = "L1PPrSpareMonTool",
                 BS_TriggerTowerContainer = "TriggerTowersSpare",
                 ADCHitMap_Thresh = 40,
@@ -259,8 +259,8 @@ if l1caloRawMon:
             #=================================================================================
             #===================================== ROD =======================================
             #=================================================================================
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__RodMonV1
-            L1BSRODMonTool = LVL1__RodMonV1 (
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__RODMonV1
+            L1BSRODMonTool = LVL1__RODMonV1 (
                 name = "L1BSRODMonTool",
                 #OnlineTest = True,
                 #OutputLevel = DEBUG,
