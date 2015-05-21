@@ -210,7 +210,16 @@ StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_temp = atrc_temp->begin(); itrx_temp !=atrc_temp->end(); ++itrx_temp){ 
 	CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
 	const coral::AttributeList& atr_temp = itrx_temp->second; 
-	float temperaturedata = atr_temp[par_temperatureField.c_str()].data<float>();
+        float temperaturedata;
+	
+        //if(atr_temp["temperaturepar_temperatureField.c_str()"].isNull()){
+        if(atr_temp[par_temperatureField.c_str()].isNull()){
+	 temperaturedata = -999.;
+         msg(MSG::DEBUG) << " Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata << endreq;
+	}else{
+	 temperaturedata = atr_temp[par_temperatureField.c_str()].data<float>();
+         msg(MSG::DEBUG) << " Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata << endreq;
+	}
 	
 	(*m_pixelDCSData)[channum_temp]->setTemperature(temperaturedata);
       }
@@ -233,8 +242,17 @@ StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_hv = atrc_hv->begin(); itrx_hv !=atrc_hv->end(); ++itrx_hv){ 
 	CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
 	const coral::AttributeList& atr_hv = itrx_hv->second; 
-	float hvdata = atr_hv[par_HVField.c_str()].data<float>();
+	float hvdata;
 	
+        //if(atr_hv["hv"par_HVField.c_str()].isNull()){
+        if(atr_hv[par_HVField.c_str()].isNull()){
+	 hvdata = -999.;
+         msg(MSG::DEBUG) << " Id_hash = " << channum_hv << " ** HV =  "  << hvdata << endreq;
+	}else{
+  	 hvdata = atr_hv[par_HVField.c_str()].data<float>();
+         msg(MSG::DEBUG) << " Id_hash = " << channum_hv << " ** HV =  "  << hvdata << endreq;
+	}
+
 	(*m_pixelDCSData)[channum_hv]->setHV(hvdata);
 
       }
@@ -257,7 +275,15 @@ StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_fsmstatus = atrc_fsmstatus->begin(); itrx_fsmstatus !=atrc_fsmstatus->end(); ++itrx_fsmstatus){ 
 	CondAttrListCollection::ChanNum channum_fsmstatus = itrx_fsmstatus->first;
 	const coral::AttributeList& atr_fsmstatus = itrx_fsmstatus->second; 
-	std::string fsmstatusdata = atr_fsmstatus[par_FSMStatusField.c_str()].data<std::string>();
+	std::string fsmstatusdata;
+
+        if(atr_fsmstatus[par_FSMStatusField.c_str()].isNull()){
+	 fsmstatusdata = "ERROR";
+         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata << endreq;
+	}else{
+  	 fsmstatusdata = atr_fsmstatus[par_FSMStatusField.c_str()].data<std::string>();
+         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata << endreq;
+	}
 
 	(*m_pixelDCSData)[channum_fsmstatus]->setFSMStatus(fsmstatusdata);
 
@@ -282,6 +308,14 @@ StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	CondAttrListCollection::ChanNum channum_fsmstate = itrx_fsmstate->first;
 	const coral::AttributeList& atr_fsmstate = itrx_fsmstate->second; 
 	std::string fsmstatedata = atr_fsmstate[par_FSMStateField.c_str()].data<std::string>();
+
+        if(atr_fsmstate[par_FSMStateField.c_str()].isNull()){
+	 fsmstatedata = "UNDEFINED";
+         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata << endreq;
+	}else{
+  	 fsmstatedata = atr_fsmstate[par_FSMStateField.c_str()].data<std::string>();
+         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata << endreq;
+	}
 
 	(*m_pixelDCSData)[channum_fsmstate]->setFSMState(fsmstatedata);
 

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "SpecialPixelMapSvc.h"
 
 // Athena
@@ -467,14 +468,16 @@ StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 	  return StatusCode::FAILURE;
 	}
       }
+
+      if (overlay){
 	
       DetectorSpecialPixelMap* maskOverlay = 0;	
-      
+
       if(m_detStore->contains<DetectorSpecialPixelMap>("MaskingOverlay")){
-	sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+	sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");// using "internal" key
 	if( sc.isSuccess() ){
 	  ATH_MSG_DEBUG( "Old DetectorSpecialPixelMap at MaskingOverlay retrieved" );
-	  sc = m_detStore->remove(maskOverlay);
+	  sc = m_detStore->remove(maskOverlay);//remove old overlay to be replaced with new one in det store
 	  if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to remove old Masking Overlay!" );return StatusCode::FAILURE;}
 	}
 	else{
@@ -483,17 +486,24 @@ StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 	}
       }
 
-      sc = createMaskingOverlay();
+       sc = createMaskingOverlay("MaskingOverlay");
 
       if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to create new Masking Overlay!" );return StatusCode::FAILURE;}
       
-      sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+      sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");//get newly created masking overlay back from detector store
 
       if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to retrieve new Masking Overlay!" );return StatusCode::FAILURE;}
       
-	  
-      overlay->merge(maskOverlay);	  
-      
+       overlay->merge(maskOverlay);//an old overlay exists, merge the new one with it	  
+
+	}
+
+      else{
+	sc = createMaskingOverlay(m_overlayKey);//no old overlay exists, just add the new one with the expected key
+
+	if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to create new Masking Overlay!" );return StatusCode::FAILURE;}
+
+      }
 
     }
       
@@ -1200,13 +1210,13 @@ StatusCode SpecialPixelMapSvc::createDeadModuleList() const{
   return StatusCode::SUCCESS;
 }
 
-StatusCode SpecialPixelMapSvc::createMaskingOverlay() const{
+StatusCode SpecialPixelMapSvc::createMaskingOverlay(const std::string internalKey) const{
 
   DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap;
 
   spm->resize(m_pixelID->wafer_hash_max());
 
-  StatusCode sc = m_detStore->record(spm, "MaskingOverlay");
+  StatusCode sc = m_detStore->record(spm, internalKey);
   if (sc.isFailure()) {
     ATH_MSG_FATAL( "Unable to record SpecialPixelMap" );
     return StatusCode::FAILURE;

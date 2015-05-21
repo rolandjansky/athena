@@ -68,7 +68,7 @@ public:
   //!< create special pixel map objects using data from the offline COOL database
   StatusCode createDeadModuleList() const;
   //!<create PixelMapOverlap by randomly killing some fraction of modules
-  StatusCode createMaskingOverlay() const;
+  StatusCode createMaskingOverlay(const std::string internalKey) const;
   StatusCode create() const; 
   //!< create special pixel map objects using the data source specified in the job options
   StatusCode print() const; 
