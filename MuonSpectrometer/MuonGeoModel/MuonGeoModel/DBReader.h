@@ -1733,7 +1733,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		      Station* stat = mysql->GetStation(name);
 		      if (stat == NULL)
 			{
-			if( c!= NULL ) delete c; c = NULL;
+			delete c; c = NULL;
 			log<<MSG::ERROR<<" station "
 			   <<name<<" not found! "<<endreq;
 			continue;

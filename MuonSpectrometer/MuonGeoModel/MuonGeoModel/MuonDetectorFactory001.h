@@ -47,7 +47,7 @@ public:
   inline void setCutoutsBogFlag(int );
   inline void setCtbBisFlag(int );
   inline void setRDBAccess(IRDBAccessSvc* access);    
-  inline void setAltAsciiDBMap(const AltAsciiDBMap* asciidbmap);
+  inline void setAltAsciiDBMap(const AltAsciiDBMap asciidbmap);
   inline void setUseRDB(int rdb);    
   inline void setControlAlines(int cA);
   inline void setMinimalGeoFlag(int minimalGeo);
@@ -98,7 +98,7 @@ private:
   MuonDetectorManager*   m_manager;
   StoreGateSvc*          m_pDetStore;
   IRDBAccessSvc*         m_pRDBAccess;
-  const AltAsciiDBMap*   m_altAsciiDBMap;
+  AltAsciiDBMap          m_altAsciiDBMap;
 
 };
 
@@ -113,7 +113,7 @@ void MuonDetectorFactory001::setCutoutsBogFlag(int flag) {m_includeCutoutsBog = 
 void MuonDetectorFactory001::setCtbBisFlag(int flag) {m_includeCtbBis = flag;}
 void MuonDetectorFactory001::setUseRDB(int rdb) {m_rdb = rdb;}
 void MuonDetectorFactory001::setRDBAccess(IRDBAccessSvc* access) {m_pRDBAccess = access;}
-void MuonDetectorFactory001::setAltAsciiDBMap(const AltAsciiDBMap* asciidbmap) {m_altAsciiDBMap = asciidbmap;}
+void MuonDetectorFactory001::setAltAsciiDBMap(AltAsciiDBMap asciidbmap) { std::swap(m_altAsciiDBMap,asciidbmap); }
 void MuonDetectorFactory001::setControlAlines(int cA) {m_controlAlines = cA;}
 void MuonDetectorFactory001::setMinimalGeoFlag(int minimalGeo) {m_minimalGeoFlag = minimalGeo;}
 void MuonDetectorFactory001::setControlCscIntAlines(int cA) {m_controlCscIntAlines = cA;}

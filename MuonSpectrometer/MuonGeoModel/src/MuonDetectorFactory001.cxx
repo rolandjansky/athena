@@ -89,7 +89,7 @@ namespace MuonGM {
       m_minimalGeoFlag(0), m_controlCscIntAlines(0), m_dumpAlines(false), m_dumpCscIntAlines(false),
       m_useCscIntAlinesFromGM(true), m_caching(0), m_cacheFillingFlag(0), m_mdtDeformationFlag(0),
       m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_muon(NULL), m_manager(NULL),
-      m_pDetStore(pDetStore), m_pRDBAccess(0), m_altAsciiDBMap(0)
+      m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
     MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
@@ -419,7 +419,7 @@ namespace MuonGM {
       //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
 
       if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"calling RDBReaderAtlas with m_altAsciiDBMap"<<endreq;
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, m_altAsciiDBMap);
+      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
       RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
       thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
      

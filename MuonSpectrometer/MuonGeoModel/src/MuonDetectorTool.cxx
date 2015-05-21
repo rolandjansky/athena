@@ -238,7 +238,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
     msg(MSG::INFO)<<"Keys for Muon Switches are  (key) "  << detectorKey  << " (node) " << detectorNode << endreq;
 
-    std::map<std::string,std::string>* altAsciiDBMap=0;
+    std::map<std::string,std::string> altAsciiDBMap = std::map<std::string,std::string>();
     if ( MuonVersion == "CUSTOM" ) 
         msg( MSG::WARNING )<< "Detector Information coming from a custom configuration !!" << endreq; 
     else
@@ -263,11 +263,10 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         // use ascii file to read in ASZT parameters
         if (m_altAsztFile != "" || m_altCscIntAlinesFile != "" ) 
 	{
-            altAsciiDBMap=new std::map<std::string,std::string>;
 	    if (m_altAsztFile != "" )
-		altAsciiDBMap->insert(std::make_pair("ASZT",m_altAsztFile));  	
+		altAsciiDBMap.insert(std::make_pair("ASZT",m_altAsztFile));  	
 	    if (m_altCscIntAlinesFile != "") 
-		altAsciiDBMap->insert(std::make_pair("IACSC",m_altCscIntAlinesFile));  	
+		altAsciiDBMap.insert(std::make_pair("IACSC",m_altCscIntAlinesFile));  	
         }
     }
   
@@ -278,7 +277,6 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     DataHandle<GeoModelExperiment> theExpt; 
     if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" ))
     { 
-        if( altAsciiDBMap != NULL ) { delete altAsciiDBMap; altAsciiDBMap = NULL; }
         msg(MSG::ERROR) 
             << "Could not find GeoModelExperiment ATLAS" 
             << endreq; 
@@ -312,7 +310,6 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
                             << " **** SelectedStJzz    size =" << m_selectedStations.size()<<endreq
                             << " **** SelectedStJff    size =" << m_selectedStations.size()<<endreq
                             << " **** while StationSelection = 1"<< endreq;
-            if( altAsciiDBMap != NULL ) { delete altAsciiDBMap; altAsciiDBMap = NULL; }
             return( StatusCode::FAILURE );
         }
         for (unsigned int i=0; i<m_selectedStations.size() ; i++){
@@ -485,11 +482,6 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         //     std::string afn = m_condDataTool->aLineFolderName();
         //     log << MSG::INFO << "A-line folder name is "<<afn << endreq;
 
-        if (altAsciiDBMap) 
-        {
-            delete altAsciiDBMap;
-            altAsciiDBMap = 0;
-        }
     }
 
     if (m_dumpMemoryBreakDown)
