@@ -164,8 +164,6 @@ if DetFlags.Forward_on():
         simFlags.ForwardDetectors = 1
         atlasG4log.info( 'FwdRegion switched on, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
     elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
-        atlasG4log.info( 'Temoporary Measure: Switching off Magnetic Field for Forward Detector simulation.' )
-        simFlags.MagneticField.set_Off()
         ## Use the ForwardTransport package to do the beam transport
         atlasG4log.info( 'FwdRegion switched off, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
         simFlags.ForwardDetectors = 2
