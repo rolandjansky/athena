@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: COOLUtils.py 449595 2011-07-20 08:14:52Z gwilliam $
+# $Id: COOLUtils.py 667995 2015-05-19 06:01:05Z mhance $
 """
 Miscellaneous utilities related to COOL.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: COOLUtils.py 449595 2011-07-20 08:14:52Z gwilliam $'
+__version__ = '$Id: COOLUtils.py 667995 2015-05-19 06:01:05Z mhance $'
 
 import os, time,sys
 
@@ -124,13 +124,13 @@ class COOLQuery:
     """Utility to query COOL to retrieve start and end time of run and LBs."""
     def __init__(self,useOracle=True,debug=True):
 
-        self.tdaqdbname='COOLONL_TDAQ/COMP200'
+        self.tdaqdbname='COOLONL_TDAQ/CONDBR2'
         self.coolpath='/TDAQ/RunCtrl'
 
-        self.trigdbname='COOLONL_TRIGGER/COMP200'
+        self.trigdbname='COOLONL_TRIGGER/CONDBR2'
         self.coollbpath='/TRIGGER/LUMI/LBLB'
 
-        self.dcsdbname = 'COOLOFL_DCS/COMP200'
+        self.dcsdbname = 'COOLOFL_DCS/CONDBR2'
         self.coollhcpath = '/LHC/DCS/FILLSTATE'
 
         self.oracle = useOracle
@@ -191,7 +191,7 @@ class COOLQuery:
         """Get end time of run in Unix time (seconds since epoch)."""
         iov=runnr << 32
         if (iov>cool.ValidityKeyMax): iov=cool.ValidityKeyMax
-        folderEOR_Params = self.cooldb.getFolder(self.coolpath+'/EOR_Params')
+        folderEOR_Params = self.cooldb.getFolder(self.coolpath+'/EOR')
         itr = folderEOR_Params.browseObjects(iov, iov, cool.ChannelSelection.all())
         try:
             itr.goToNext()
@@ -258,7 +258,7 @@ def resolveNextAlias(tagtype='ST'):
     return alias.replace('*', tagtype)
 
 
-def resolveCurrentBeamSpotFolder(db = 'COOLOFL_INDET/COMP200', folder = '/Indet/Beampos'):
+def resolveCurrentBeamSpotFolder(db = 'COOLOFL_INDET/CONDBR2', folder = '/Indet/Beampos'):
     """
     Resolve the beamspot folder tag for the current BLK tag alisa
     """
@@ -266,7 +266,7 @@ def resolveCurrentBeamSpotFolder(db = 'COOLOFL_INDET/COMP200', folder = '/Indet/
     tag = resolveCurrentAlias()
     return resolveBLKTag(tag)
 
-def resolveNextBeamSpotFolder(db = 'COOLOFL_INDET/COMP200', folder = '/Indet/Beampos'):
+def resolveNextBeamSpotFolder(db = 'COOLOFL_INDET/CONDBR2', folder = '/Indet/Beampos'):
     """
     Resolve the beamspot folder tag for the next BLK tag alias
     """
@@ -276,7 +276,7 @@ def resolveNextBeamSpotFolder(db = 'COOLOFL_INDET/COMP200', folder = '/Indet/Bea
     
     return resolveBLKTag(tag)
 
-def resolveBLKTag(blktag, db = 'COOLOFL_INDET/COMP200', folder = '/Indet/Beampos'):
+def resolveBLKTag(blktag, db = 'COOLOFL_INDET/CONDBR2', folder = '/Indet/Beampos'):
     """
     Resolve a global tag into the corresponding tag for given folder in the database specified
     """

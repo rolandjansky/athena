@@ -5,12 +5,13 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 654065 2015-03-13 20:50:56Z btamadio $'
+__version__ = '$Id: beamspotnt.py 667995 2015-05-19 06:01:05Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
 
 dump                  Dump contents of a beam spot ntuple
+maketable             Make LaTeX table of selected entries
 inspect               Inspect ntuple and provide summary of contents
 merge SRCNT           Merge source beam spot ntuple into master ntuple
                       (use --srcnt to specify type if not BeamSpotFinderNt)
@@ -48,7 +49,7 @@ from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('-f', '--nt', dest='ntname', default='beamspotnt.root', help='master ntuple file name or COOL tag (default: beamspotnt.root)')
 parser.add_option('-t', '--type', dest='type', default='BeamSpotNt', help='master ntuple type (default: BeamSpotNt)')
-parser.add_option('-s', '--srctype', dest='srctype', default='BeamSpotFinderNt', help='source ntuple type for merging (default: BeamSpotFinderNt)')
+parser.add_option('-s', '--srctype', dest='srctype', default='BeamSpotNt', help='source ntuple type for merging (default: BeamSpotNt)')
 parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='verbose output')
 parser.add_option('-d', '--debug', dest='debug', action='store_true', default=False, help='debug output')
 parser.add_option('-q', '--quiet', dest='quiet', action='store_true', default=False, help='reduce output')
@@ -113,6 +114,9 @@ parser.add_option('', '--adatefmt', dest='adatefmt', default='', help='axis date
 parser.add_option('', '--plegend', dest='plegend', default='fit to groups of LBs', help='legend text for points')
 parser.add_option('', '--alegend', dest='alegend', default='average of data shown:', help='legend text for average')
 parser.add_option('', '--maxlegends', dest='maxlegends', type='int', default=10, help='maximum number of legend entries')
+parser.add_option('', '--omitfill', dest='omitfill', action='store_true', default=False, help='remove any fill info from legend')
+parser.add_option('', '--omitrun', dest='omitrun', action='store_true', default=False, help='remove any run info from legend')
+parser.add_option('', '--omittime', dest='omittime', action='store_true', default=False, help='remove any time info from legend')
 parser.add_option('', '--public', dest='public', action='store_true', default=False, help='use labelling for public plots')
 parser.add_option('', '--prelim', dest='prelim', action='store_true', default=False, help='add ATLAS Preliminary to figure')
 parser.add_option('', '--approval', dest='approval', action='store_true', default=False, help='Label figure ATLAS for approval')
@@ -279,17 +283,17 @@ class Plots(ROOTUtils.PlotLibrary):
             comments.append(otherComment)
         if options.comment:
             comments.append(options.comment)
-        if showRuns:
+        if showRuns and not options.omitrun:
             if self.nt.selRunMin==self.nt.selRunMax:
                 comments.append('Run %i' % self.nt.selRunMin)
             else:
                 comments.append('Runs %i - %i' % (self.nt.selRunMin,self.nt.selRunMax))
-        if showFills:
+        if showFills and not options.omitfill:
             if self.nt.selFillMin==self.nt.selFillMax:
                 comments.append('Fill %i' % self.nt.selFillMin)
             else:
                 comments.append('Fills %i - %i' % (self.nt.selFillMin,self.nt.selFillMax))
-        if showTime:
+        if showTime and not options.omittime:
             if options.public:
                 t1 = time.strftime(options.datefmt,time.localtime(self.nt.selTimeMin))
                 t2 = time.strftime(options.datefmt,time.localtime(self.nt.selTimeMax))
@@ -448,8 +452,9 @@ class Plots(ROOTUtils.PlotLibrary):
                 print "OUTLIER ", b.run, b.lbStart, b.lbEnd, b.sigmaX, b.sigmaY
             if not b.bcid in grDict:
                 grDict[b.bcid] = BeamSpotGraph(timeAxis=options.timeaxis, separationAxis=options.separation)
-            if b.timeStart>0 and b.timeEnd>0:
-                grDict[b.bcid].add(b,what,arescale)
+            # What was this for? Why ignore if no time info available?
+            #if b.timeStart>0 and b.timeEnd>0:
+            grDict[b.bcid].add(b,what,arescale)
             if options.ave:
                 calc.add(b)
 
@@ -902,6 +907,66 @@ if cmd=='dump' and len(args)==1:
     cmdOk = True
 
 
+#
+# Make LaTeX table of results
+#
+
+tableTemplate = r"""
+\documentclass[12pt,twoside]{article}
+\usepackage[landscape]{geometry}
+\RequirePackage{xspace}
+\def\lumposx    {\ensuremath{\overline{x}_{\mathcal{L}}}\xspace}
+\def\lumposy    {\ensuremath{\overline{y}_{\mathcal{L}}}\xspace}
+\def\lumposz    {\ensuremath{\overline{z}_{\mathcal{L}}}\xspace}
+\def\lumsigx    {\ensuremath{\sigma_{x{\mathcal L}}}\xspace} 
+\def\lumsigy    {\ensuremath{\sigma_{y{\mathcal L}}}\xspace} 
+\def\lumsigz    {\ensuremath{\sigma_{z{\mathcal L}}}\xspace} 
+\def\lumtiltx   {\ensuremath{\overline{x}_{\mathcal{L}}'}\xspace}
+\def\lumtilty   {\ensuremath{\overline{y}_{\mathcal{L}}'}\xspace}
+\def\lumrhoxy   {\ensuremath{\rho_{xy}}\xspace}
+\begin{document}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{%s}
+\hline \hline
+%s \\
+\hline \hline
+
+%s
+
+\hline \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{document}
+"""
+
+if cmd=='maketable' and len(args)==1:
+    if options.varlist is None:
+        #varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','k']
+        varList = ['status','posX','posY','posZ','sigmaX','sigmaY','sigmaZ','k']
+    else:
+        varList = options.varlist.split(',')
+    nt = getNt()
+    rows = []
+    for b in nt:
+        cols = []
+        for v in varList:
+            try:
+                cols.append('%s $\pm$ %s' % (fmtVal(v,getattr(b,v),True,useAlternate=True),
+                                             fmtVal(v,getattr(b,v+'Err'),True,useAlternate=True)))
+            except:
+                cols.append('%10s' % (fmtVal(v,getattr(b,v),True,useAlternate=True)))
+        rows.append('%s \\\\' % ' & '.join(cols))
+    print
+    print tableTemplate % (len(varList)*'c',
+                           ' & '.join(['%s' % varDef(n,'latexheader',useAlternate=True) for n in varList]),
+                           '\n'.join(rows))
+    print
+    cmdOk = True
+
 
 #
 # Dump beam spot ntuple
@@ -921,7 +986,7 @@ if cmd=='inspect' and len(args)==1:
                 'hasCOOL' : False
             }
         if runInfo[r]['lbStart'] is None or b.lbStart<runInfo[r]['lbStart']: runInfo[r]['lbStart'] = b.lbStart
-        if runInfo[r]['lbEnd'] is None or b.lbEnd<runInfo[r]['lbEnd']: runInfo[r]['lbEnd'] = b.lbEnd
+        if runInfo[r]['lbEnd'] is None or b.lbEnd>runInfo[r]['lbEnd']: runInfo[r]['lbEnd'] = b.lbEnd
         runInfo[r]['status'].add(b.status)
         if b.timeStart and b.timeEnd and b.fill: runInfo[r]['hasCOOL'] = True
         if b.posXErr: runInfo[r]['hasErrors'] = True
@@ -1010,28 +1075,28 @@ if cmd=='ave' and len(args)==1:
                       range(options.splittable,len(calc.varList)) ]
     else:
         varRanges = [ range(len(calc.varList)) ]
-    for r in varRanges:
-        try:
-            iTable += 1
-        except:
-            iTable = 1
-        latexheader = 'Period '
-        latexrow = '%s' % options.period.replace('_','\_')
-        print '\nAverage beam spot parameters (part %i):\n' % iTable
-        for i in r:
-            parName = calc.varList[i]
-            print '%7s:  %s +- %s %-3s     (RMS = %s)' % (parName,
-                                                          fmtVal(parName,ave[i]),
-                                                          fmtVal(parName,err[i]),
-                                                          varDef(parName,'units'),
-                                                          fmtVal(parName,rms[i]))
-            latexheader += '& %s ' % varDef(parName,'latexheader',parName,useAlternate=True)
-            if options.rms:
-                latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,rms[i],useAlternate=True))
-            else:
-                latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,err[i],useAlternate=True))
-        print
-        if options.latex:
+    if options.latex:
+        for r in varRanges:
+            try:
+                iTable += 1
+            except:
+                iTable = 1
+            latexheader = 'Period '
+            latexrow = '%s' % options.period.replace('_','\_')
+            print '\nAverage beam spot parameters (part %i):\n' % iTable
+            for i in r:
+                parName = calc.varList[i]
+                print '%7s:  %s +- %s %-3s     (RMS = %s)' % (parName,
+                                                              fmtVal(parName,ave[i]),
+                                                              fmtVal(parName,err[i]),
+                                                              varDef(parName,'units'),
+                                                              fmtVal(parName,rms[i]))
+                latexheader += '& %s ' % varDef(parName,'latexheader',parName,useAlternate=True)
+                if options.rms:
+                    latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,rms[i],useAlternate=True))
+                else:
+                    latexrow += ' & %s $\pm$ %s' % (fmtVal(parName,ave[i],useAlternate=True),fmtVal(parName,err[i],useAlternate=True))
+            print
             print '\nLaTeX code for table %i:\n' % iTable
             print '\\begin{table}[htbp]\n\\begin{center}\n\\begin{tabular}{l%s}' % (len(r)*'c')
             print '\hline \hline'
@@ -1067,6 +1132,34 @@ if cmd=='ave' and len(args)==1:
                            tiltXErr=err[calc.varList.index('tiltX')],
                            tiltYErr=err[calc.varList.index('tiltY')],
                            sigmaXYErr=err[calc.varList.index('sigmaXY')])
+
+        print 'Copying beam spot data from',options.ntname
+        for b in nt:
+            if options.lbMin and options.lbMin>b.lbStart:
+                continue
+            if options.lbMax and options.lbMax<b.lbEnd+1:
+                continue
+            try:
+                runEndInt = b.runEnd
+            except AttributeError:
+                runEndInt = b.run
+                
+            if b.status in nt.statusList:
+                writeBeamSpotEntry(folderHandle,tag=options.cooltag,
+                                   runMin=b.run, 
+                                   runMax=runEndInt,
+                                   lbMin=b.lbStart, 
+                                   lbMax=b.lbEnd,    # Beware - lbMax is inclusive
+                                   status=b.status,
+                                   posX=b.posX, posY=b.posY, posZ=b.posZ,
+                                   sigmaX=b.sigmaX, sigmaY=b.sigmaY, sigmaZ=b.sigmaZ,
+                                   tiltX=b.tiltX, tiltY=b.tiltY,
+                                   sigmaXY=b.rhoXY*b.sigmaX*b.sigmaY,
+                                   posXErr=b.posXErr, posYErr=b.posYErr, posZErr=b.posZErr,
+                                   sigmaXErr=b.sigmaXErr, sigmaYErr=b.sigmaYErr, sigmaZErr=b.sigmaZErr,
+                                   tiltXErr=b.tiltXErr, tiltYErr=b.tiltYErr,
+                                   sigmaXYErr=sqrt( (b.sigmaX*b.sigmaX) * (b.sigmaY*b.sigmaY) * (b.rhoXYErr*b.rhoXYErr) +(b.sigmaX*b.sigmaX) * (b.sigmaYErr*b.sigmaYErr) * (b.rhoXY*b.rhoXY) + (b.sigmaXErr*b.sigmaXErr) * (b.sigmaY*b.sigmaY) * (b.rhoXY*b.rhoXY) ) )
+
     cmdOk = True
 
 

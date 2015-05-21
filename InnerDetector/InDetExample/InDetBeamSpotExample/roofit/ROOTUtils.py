@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 654065 2015-03-13 20:50:56Z btamadio $
+# $Id: ROOTUtils.py 644342 2015-02-05 01:57:35Z beringer $
 """
 Miscellaneous utilities for PyROOT.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: ROOTUtils.py 654065 2015-03-13 20:50:56Z btamadio $'
+__version__ = '$Id: ROOTUtils.py 644342 2015-02-05 01:57:35Z beringer $'
 
 
 import ROOT

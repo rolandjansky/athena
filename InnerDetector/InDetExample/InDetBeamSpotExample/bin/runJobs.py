@@ -4,7 +4,7 @@
 # Front-end script to run JobRunner jobs
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: runJobs.py 582277 2014-02-08 00:30:39Z beringer $'
+__version__ = '$Id: runJobs.py 665939 2015-05-08 18:25:18Z atlidbs $'
 __usage__   = """%prog [options] JOBOPTIONTEMPLATE DATASET TASK INPUTDATA
 
 Templates:  - InDetBeamSpotExample/ESDToDPDTemplate.py
@@ -45,7 +45,7 @@ cmd = ' '.join(qargv)
 from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('', '--bytestream', dest='bytestream', action='store_true', default=False, help='input files are bytestream instead of ROOT/POOL files')
-parser.add_option('-m', '--mc', dest='isMc', action='store_true', default=False, help='input data is from Monte-Carlo instead of data (automatically chooses between COMP200 and OFLP200 conditions DBs)')
+parser.add_option('-m', '--mc', dest='isMc', action='store_true', default=False, help='input data is from Monte-Carlo instead of data (automatically chooses between COMP200 and OFLP200 / CONDBR2 conditions DBs)')
 parser.add_option('-d', '--dpd', dest='runoverdpd', action='store_true', default=False, help='run over DPD (single job, INPUTDATA is DPD task name)')
 parser.add_option('-j', '--maxjobs', dest='maxjobs', type='int', default=0, help='max number of jobs (default: 0 ie no maximum)')
 parser.add_option('-n', '--nfiles', dest='nfiles', type='int', default=1, help='number of files per job (default: 1, set to 0 for single job over all files)') 

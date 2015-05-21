@@ -98,7 +98,7 @@ class IDBSDefectWriter:
         """
 
         # Create an IOV set covering the entire run(s)
-        run_lbs = fetch_iovs("EOR_Params", runs=(runMin, runMax), what=[], with_channel=False)
+        run_lbs = fetch_iovs("EOR", runs=(runMin, runMax), what=[], with_channel=False)
     
 
         #         run_lbs = IOVSet()
@@ -209,7 +209,7 @@ class IDBSDefectData:
                       'ID_BS_NOBEAMSPOT', 'ID_BS_2010RED', 'LUMI_VDM']
     
 
-    def __init__(self, database='COOLOFL_GLOBAL/COMP200', tag='HEAD', debug=False):
+    def __init__(self, database='COOLOFL_GLOBAL/CONDBR2', tag='HEAD', debug=False):
     #def __init__(self, database='dqflags.db/IDBSDQ', tag='nominal', debug=False):        
         """
         Initialise database connection 

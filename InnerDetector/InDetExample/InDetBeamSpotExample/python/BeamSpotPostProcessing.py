@@ -75,7 +75,6 @@ class JobPostProcessing(PostProcessingStep):
 
 class T0VertexDefaultProcessing(PostProcessingStep):
     def run(self):
-        #postProcSteps = 'PlotBeamSpotMon MergeNt PlotBeamSpot LinkResults AveBeamSpot CheckT0Status UploadBeamSpot RunMonJob'
         postProcSteps = 'PlotBeamSpotMon MergeNt BeamSpotNt PlotBeamSpot LinkResults PlotOnlineOfflineCompare AveBeamSpot CheckT0Status UploadBeamSpot DQBeamSpot UploadDataQuality BeamSpotGlobalNt '
         for step in postProcSteps.split():
             self.log('Running postprocessing step:  %s' % step)
@@ -194,11 +193,11 @@ class MergeNt(PostProcessingStep):
 
 class PlotBeamSpot(PostProcessingStep):
     def run(self):
-        ntFileName = self.getFileName('-nt.root','MergeNt')
+        ntFileName = self.getFileName('-nt.root','BeamSpotNt')
         outFileNameGIF = self.getFileName('.gif')
         outFileNamePDF = self.getFileName('.pdf')
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            self.logExec('cd %s; plotBeamSpot.py -b -o %s,%s %s' % (self.taskDir,outFileNameGIF,outFileNamePDF,ntFileName))
+            self.logExec('cd %s; beamspotnt.py -b -o %s,%s -f %s summary' % (self.taskDir,outFileNameGIF,outFileNamePDF,ntFileName))
             self.addResult(outFileNameGIF)
             self.addResult(outFileNamePDF)
         else:
@@ -226,7 +225,7 @@ class LinkResults(PostProcessingStep):
 class AveBeamSpot(PostProcessingStep):
     def run(self):
         ntFileName              = self.getFileName('-nt.root','MergeNt')
-        beamSpotDbFileName      = self.getFileName('-beamspot.db')
+        beamSpotDbFileName      = self.getFileName('-beamspot')
         #dataQualityDbFileName   = self.getFileName('-dqflags.db')
 
         if os.path.exists('/'.join([self.taskDir,beamSpotDbFileName])):
@@ -235,7 +234,8 @@ class AveBeamSpot(PostProcessingStep):
         #   self.logExec('cd %s; rm -f %s' % (self.taskDir,dataQualityDbFileName))
 
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            cmd = 'cd %s; aveBeamSpot.py -b -o %s %s' % (self.taskDir,beamSpotDbFileName,ntFileName)
+            cmd = 'cd %s; beamspotnt.py --tag=%s -f %s ave' % (self.taskDir,beamSpotDbFileName,ntFileName)
+            #cmd = 'cd %s; aveBeamSpot.py -b -o %s %s' % (self.taskDir,beamSpotDbFileName,ntFileName)
             #cmd = 'cd %s; aveBeamSpot.py -b -o %s -d %s %s' % (self.taskDir,beamSpotDbFileName,dataQualityDbFileName,ntFileName)            
             status = self.logExec(cmd,doPrint=True,abortOnError=False)
             if status and status!=2 and status!=3:
@@ -398,21 +398,6 @@ class UploadDataQuality(PostProcessingStep):
         else:
             self.log(text='ERROR: No beam spot DQ flag SQLite file %s\n       Nothing to upload - was DQ determination successful?\n' % dqDbFileName,doPrint=True)
         
-
-# class RunMonJob(PostProcessingStep):
-#     """Run monitoring job in order to validate the uploaded beam spot."""
-#     def run(self):
-#         cooltags = self.taskDict['COOLTAGS']
-#         if not cooltags: cooltags = ''
-#         if beamspottag in cooltags.split():
-#             ptag = self.dsName.split('.')[0]
-#             stream = self.dsName.split('.')[2]
-#             datatag = self.taskName.split('.')[-1].split('_')[0]
-#             cmd = 'beamspotman.py -p %s -s %s -t %s --montaskname %s runMon %i %s' % (ptag,stream,beamspottag,'MON.'+self.taskName,int(self.taskDict['RUNNR']),datatag)
-#             self.logExec(cmd,doPrint=True)
-#         else:
-#             self.log(text='ERROR: Beam spot not (yet) uploaded to tag %s - no job submitted\n' % beamspottag,doPrint=True)
-
 
 class BeamSpotNt(PostProcessingStep):
     def run(self):

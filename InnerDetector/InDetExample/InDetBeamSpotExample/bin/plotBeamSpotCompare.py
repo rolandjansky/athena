@@ -110,7 +110,7 @@ elif tag1.find('.csv') > -1:
 else :
     # It's a COOL tag
     if options.online1:
-        BSData1 = BeamSpotCOOL(tag1, 'COOLONL_INDET/COMP200', '/Indet/Onl/Beampos') #, "sqlite://;schema=beamspot.db;dbname=BEAMSPOT")
+        BSData1 = BeamSpotCOOL(tag1, 'COOLONL_INDET/CONDBR2', '/Indet/Onl/Beampos') #, "sqlite://;schema=beamspot.db;dbname=BEAMSPOT")
     else:
         BSData1 = BeamSpotCOOL(tag1)
     fromDB = True
@@ -128,7 +128,7 @@ elif tag2.find('.csv') > -1:
 else :
     # COOL
     if options.online2:
-        BSData2 = BeamSpotCOOL(tag2, 'COOLONL_INDET/COMP200', '/Indet/Onl/Beampos')
+        BSData2 = BeamSpotCOOL(tag2, 'COOLONL_INDET/CONDBR2', '/Indet/Onl/Beampos')
     else:
         BSData2 = BeamSpotCOOL(tag2)
     fromDB = True

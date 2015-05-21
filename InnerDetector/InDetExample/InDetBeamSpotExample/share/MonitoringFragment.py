@@ -1,11 +1,11 @@
-# $Id: MonitoringFragment.py 452329 2011-08-05 09:09:52Z gwilliam $
+# $Id: MonitoringFragment.py 668583 2015-05-20 03:57:41Z mhance $
 #
 # Job option fragment to add beam spot monitoring to JobRunner templates.
 # NOTE: You should configure the beam spot service as desired when using this fragment.
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 452329 2011-08-05 09:09:52Z gwilliam $"
+print "InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 668583 2015-05-20 03:57:41Z mhance $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -13,8 +13,8 @@ if not 'jobConfig' in dir():                              jobConfig = {}
 if not 'outputfileprefix' in jobConfig:                   jobConfig['outputfileprefix'] = ''
 if not 'monfile' in jobConfig:                            jobConfig['monfile'] = jobConfig['outputfileprefix']+'beamspotmonitoring.root'
 if not 'doMonitoringGlobal' in jobConfig:                 jobConfig['doMonitoringGlobal'] = False
-if not 'TrackContainer' in jobConfig:                     jobConfig['TrackContainer'] = 'TrackParticleCandidate'
-if not 'VertexContainer' in jobConfig:                    jobConfig['VertexContainer'] = 'VxPrimaryCandidate'
+if not 'TrackContainer' in jobConfig:                     jobConfig['TrackContainer'] = InDetKeys.xAODTrackParticleContainer()
+if not 'VertexContainer' in jobConfig:                    jobConfig['VertexContainer'] = InDetKeys.xAODVertexContainer()
 if not 'VertexContainerWithBeamConstraint' in jobConfig:  jobConfig['VertexContainerWithBeamConstraint'] = False
 if not 'MinTracksPerVtx' in jobConfig:                    jobConfig['MinTracksPerVtx'] = 5
 if not 'MinTrackPt' in jobConfig:                         jobConfig['MinTrackPt'] = 500.

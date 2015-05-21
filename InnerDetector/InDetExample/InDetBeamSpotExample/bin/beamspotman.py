@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 622207 2014-10-16 17:54:05Z mhance $'
+__version__ = '$Id: beamspotman.py 668583 2015-05-20 03:57:41Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -70,12 +70,13 @@ from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('-t', '--beamspottag', dest='beamspottag', default=beamspottag, help='beam spot tag')
 parser.add_option('-c', '--castorpath', dest='castorpath', default='/castor/cern.ch/grid/atlas/tzero/prod1/perm', help='castor path (excluding project and stream name)')
+parser.add_option('-e', '--eospath', dest='eospath', default='/eos/atlas/atlastier0/rucio', help='eos path (excluding project and stream name)')
 parser.add_option('-p', '--project', dest='project', default='data10_7TeV', help='project name')
 parser.add_option('-s', '--stream', dest='stream', default='expres_express', help='stream name')
 parser.add_option('-f', '--filter', dest='filter', default='.*\.ESD\..*', help='regular expression to filter input files')
 parser.add_option('-d', '--dbconn', dest='dbconn', default='', help='task manager database connection string (default: check TASKDB, otherwise use sqlite_file:taskdata.db)')
 parser.add_option('', '--proddir', dest='proddir', default=proddir, help='production directory (default: %s' % proddir)
-parser.add_option('', '--destdbname', dest='destdbname', default='COMP200', help='destination database instance name (default: COMP200)')
+parser.add_option('', '--destdbname', dest='destdbname', default='CONDBR2', help='destination database instance name (default: CONDBR2)')
 parser.add_option('', '--srcdbname', dest='srcdbname', default='BEAMSPOT', help='source database instance name (default: BEAMSPOT)')
 parser.add_option('', '--srctag', dest='srctag', default='nominal', help='source tag (default: nominal)')
 parser.add_option('-r', '--runjoboptions', dest='runjoboptions', default='InDetBeamSpotExample/VertexTemplate.py', help='template to run beam spot jobs')
@@ -99,7 +100,7 @@ parser.add_option('', '--params', dest='params', default='', help='job option pa
 parser.add_option('-z', '--postprocsteps', dest='postprocsteps', default='JobPostProcessing', help='Task-level postprocessing steps (Default: JobPostProcessing)')
 parser.add_option('', '--srcdqtag', dest='srcdqtag', default='nominal', help='source DQ tag (default: nominal)')
 parser.add_option('', '--dqtag', dest='dqtag', default='HEAD', help='beam spot DQ tag')
-parser.add_option('', '--destdqdbname', dest='destdqdbname', default='COMP200', help='DQ destination database instance name (default: COMP200)')
+parser.add_option('', '--destdqdbname', dest='destdqdbname', default='CONDBR2', help='DQ destination database instance name (default: CONDBR2)')
 parser.add_option('', '--srcdqdbname', dest='srcdqdbname', default='IDBSDQ', help='DQ source database instance name (default: IDBSDQT)')
 parser.add_option('', '--dslist', dest='dslist', default='', help='Exclude running cmd with runCmd if the dataset is not in this file')
 parser.add_option('', '--nominbias', dest='nominbias', action='store_true', default=False, help='overwrite MinBias_physics in DSNAME with express_express')
@@ -136,8 +137,14 @@ else:
 #
 # Utilities
 #
+def getFullEosPath(run):
+    eosPath = '/'.join([options.eospath,options.project,options.stream])
+    return os.path.normpath('/'.join([eosPath,'%08i' % int(run)])) + '/'
+
 def getFullCastorPath(run):
     """Return full castor path given a run number."""
+    if run>240000:
+        return getFullEosPath(run)
     castorPath = '/'.join([options.castorpath,options.project,options.stream])
     return os.path.normpath('/'.join([castorPath,'%08i' % int(run)])) + '/'   # Run numbers are now 8 digits in castor paths
     #return '/'.join([castorPath,'%07i' % int(run)])   # For now, run numbers are 7 digits in castor paths
@@ -720,14 +727,22 @@ if cmd=='runMonJobs' and len(args)<3:
             t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
         print '\nRunning monitoring job for run %s:' % runnr
 
-        print '... Querying T0 database for replication of %s' % t0dsname
-        cur = oracle.cursor()
-        cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
-        r = cur.fetchall()
-        if not r:
-            print '    WARNING: input data not yet replicated - please retry later'
-        else:
-            print '   ',r
+        submitjob=True
+        # for old runs we would need to check if the dataset had been replicated at Tier-0.  
+        # with EOS this is no longer necessary.
+        r=[]
+        if int(runnr)<240000:
+            print '... Querying T0 database for replication of %s' % t0dsname
+            cur = oracle.cursor()
+            cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
+            r = cur.fetchall()
+            if not r:
+                print '    WARNING: input data not yet replicated - please retry later'
+                submitjob=False
+
+        if submitjob:
+            if int(runnr)<240000:
+                print '   ',r
             print '... Submitting monitoring task'
             cmd = 'beamspotman.py -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
             print '    %s' % cmd
