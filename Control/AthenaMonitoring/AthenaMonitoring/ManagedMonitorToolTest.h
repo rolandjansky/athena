@@ -55,6 +55,8 @@ class ManagedMonitorToolTest : public ManagedMonitorToolBase
       TH1*               m_managedHist_eventsBlock;
       TH1*               m_managedHist_run;
 
+      TH1*               m_Lumi;
+
       TGraph*            m_graph;
       TGraph*            m_managedGraph;
       TTree*             m_ntuple;

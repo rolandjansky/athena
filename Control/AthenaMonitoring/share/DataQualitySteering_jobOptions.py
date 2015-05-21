@@ -7,7 +7,6 @@
 # disable InDetPerformanceMonitoring, JetMonitoring until further notice 
 # - PUEO 20140401
 TRTELEMON=False
-IDPERFMON=False
 
 local_logger = logging.getLogger('DataQualitySteering_jobOptions')
 
@@ -101,7 +100,7 @@ if DQMonFlags.doMonitoring():
    #----------------#
    # ID performance #
    #----------------#
-   if DQMonFlags.doInDetPerfMon() and IDPERFMON:
+   if DQMonFlags.doInDetPerfMon():
       try:
          include("InDetPerformanceMonitoring/IDPerfMon_jobOptions.py")
          IDPerfMonManager = topSequence.IDPerfMonManager

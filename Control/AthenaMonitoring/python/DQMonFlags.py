@@ -178,7 +178,7 @@ class doMuonTrackMon(JobProperty):
     """ Switch for muon track monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 list+=[doMuonTrackMon]
 
 class doMuonAlignMon(JobProperty):
@@ -227,7 +227,7 @@ class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[doStreamAwareMon]
 
 class monType(JobProperty):

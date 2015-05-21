@@ -1410,12 +1410,12 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
       return StatusCode::FAILURE;
 
    if (!m_bookHistogramsInitial) {
-           ATH_MSG_INFO("Yura: very first time");
+           ATH_MSG_DEBUG("Yura: very first time");
 	   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
 
-               ATH_MSG_INFO("Yura: we have managed histograms");
+               ATH_MSG_DEBUG("Yura: we have managed histograms");
 	       if (m_supportedIntervalsForRebooking.count(group.interval())) {
-                       ATH_MSG_INFO("        Yura: adding histogram" << h->GetName());
+                       ATH_MSG_DEBUG("        Yura: adding histogram" << h->GetName());
 		       m_templateLWHistograms[group.interval()].push_back( MgmtParams<LWHist>(h, group) );
 	       } else {
 		       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
@@ -1771,7 +1771,9 @@ lbAverageInteractionsPerCrossing()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbAverageInteractionsPerCrossing();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1789,7 +1791,9 @@ lbInteractionsPerCrossing()
 
         return instmu;
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1802,7 +1806,9 @@ lbAverageLuminosity()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbAverageLuminosity();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1815,7 +1821,9 @@ lbLuminosityPerBCID()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbLuminosityPerBCID();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1832,7 +1840,9 @@ lbAverageLivefraction()
     if ( m_hasRetrievedLumiTool ) {
         return m_liveTool->lbAverageLivefraction();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1848,7 +1858,9 @@ livefractionPerBCID()
     if ( m_hasRetrievedLumiTool ) {
         return m_liveTool->livefractionPerBCID();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1861,7 +1873,9 @@ lbLumiWeight()
     if ( m_hasRetrievedLumiTool ) {
         return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
     } else{
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1875,7 +1889,9 @@ lbDuration()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbDuration();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
