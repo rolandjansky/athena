@@ -265,6 +265,39 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     // Set the generator id
     evt->set_signal_process_id(HIJING + m_iap);
 
+    // Store collision parameters
+    int np = m_himain1.np();
+    int nt = m_himain1.nt();
+    int n0 = m_himain1.n0();
+    int n01 = m_himain1.n01();
+    int n10 = m_himain1.n10();
+    int n11 = m_himain1.n11();
+    //int natt = m_himain1.natt();
+    int jatt = m_himain1.jatt();
+    float b = m_hiparnt.hint1(19);
+    float bphi = m_hiparnt.hint1(20);
+
+    float sigmainel =  m_hiparnt.hint1(12);
+ 
+    HepMC::HeavyIon ion
+      (			
+       static_cast<int>(jatt), // Ncoll_hard
+       static_cast<int>(np),   // Npart_proj
+       static_cast<int>(nt),   // Npart_targ 
+       static_cast<int>(n0+n10+n01+n11), // Ncoll
+       static_cast<int>(-1),   // spectator_neutrons
+       static_cast<int>(-1),   // spectator_protons
+       static_cast<int>(n01),  // N_Nwounded_collisions
+       static_cast<int>(n10),  // Nwounded_N_collisions
+       static_cast<int>(n11),  // Nwounded_Nwounded_collisions
+       b,                      // impact_parameter
+       bphi,                   // event_plane_angle
+       -1,                     // eccentricity
+       sigmainel     );        // sigma_inel_NN
+
+    evt->set_heavy_ion(ion); 
+    std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
+
     //  Did we keep decay history?
     //
     bool keptHistory = (m_hiparnt.ihpr2(21) == 1);
