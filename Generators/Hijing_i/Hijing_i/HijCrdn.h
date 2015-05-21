@@ -23,42 +23,42 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	lenI() const {return s_lenI;}
-    inline int	lenJ() const {return s_lenJ;}
+    inline int	lenI() const {return _lenI;}
+    inline int	lenJ() const {return _lenJ;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int s_lenI	= 3;
-    static const int s_lenJ	= 300;
+    static const int _lenI	= 3;
+    static const int _lenJ	= 300;
 
     struct HIJCRDN;
     friend struct HIJCRDN;
 
     struct HIJCRDN
     {
-	float  	yp	[s_lenJ][s_lenI];
-	float  	yt	[s_lenJ][s_lenI];
+	float  	yp	[_lenJ][_lenI];
+	float  	yt	[_lenJ][_lenI];
     };
 
-    int  m_dummy;
-    float  m_realdummy;
+    int  _dummy;
+    float  _realdummy;
 
-    static HIJCRDN* s_hijcrdn;
+    static HIJCRDN* _hijcrdn;
 };
 
 // set pointer to zero at start
-HijCrdn::HIJCRDN* HijCrdn::s_hijcrdn =0;
+HijCrdn::HIJCRDN* HijCrdn::_hijcrdn =0;
 
 inline void
 HijCrdn::init(void)
-{ if (!s_hijcrdn) s_hijcrdn = static_cast<HIJCRDN*>(hijcrdn_address_()); }
+{ if (!_hijcrdn) _hijcrdn = static_cast<HIJCRDN*>(hijcrdn_address_()); }
 
 // Constructor
 inline
 HijCrdn::HijCrdn()
-    : m_dummy		(-999),
-      m_realdummy	(-999.)
+    : _dummy		(-999),
+      _realdummy	(-999.)
 {}
 
 // Destructor
@@ -71,9 +71,9 @@ HijCrdn::yp	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return m_realdummy;
+	j < 1 || j > lenJ() ) return _realdummy;
 
-    return s_hijcrdn->yp[j-1][i-1];
+    return _hijcrdn->yp[j-1][i-1];
 }
 
 inline float&
@@ -81,9 +81,9 @@ HijCrdn::yt	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return m_realdummy;
+	j < 1 || j > lenJ() ) return _realdummy;
 
-    return s_hijcrdn->yt[j-1][i-1];
+    return _hijcrdn->yt[j-1][i-1];
 }
 
 #endif
