@@ -19,7 +19,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
-#include "egammaInterfaces/IEMAmbiguityTool.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"

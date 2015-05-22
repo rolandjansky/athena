@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="ICaloCluster_OnTrackBuilder" />
-  <class name="IEMAmbiguityTool" />
   <class name="IEMBremCollectionBuilder" />
   <class name="IEMClusterTool" />
   <class name="IEMConversionBuilder" />
