@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "TrigEgammaMonitoring/HLTEgammaNavMonTool.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -53,6 +52,7 @@ HLTEgammaNavMonTool::HLTEgammaNavMonTool(const std::string & type, const std::st
   : HLTEgammaFEXBaseTool(type,name,parent){
   m_firstTimeStamp = m_lastTimeStamp = 0;
   declareProperty("signatures",m_signatures);
+  declareProperty("categories",m_categories);
 }
 
 StatusCode HLTEgammaNavMonTool::init() {
@@ -80,71 +80,27 @@ HLTEgammaNavMonTool::~HLTEgammaNavMonTool() {
 
 StatusCode HLTEgammaNavMonTool::book() {
 
+  std::vector<std::string> runningSignatures = getTDT()->getListOfTriggers(".*");
+  if(find_relevant_signatures(m_signatures, m_categories, runningSignatures).isFailure()){
+    (*m_log) << MSG::WARNING << "Signature list size does not equal category list size. Code will not proceed." << endreq;
+    return StatusCode::FAILURE ;
+  }
 
-	std::vector<std::string> signs_that_exist;
-	const std::vector<std::string> TrigHLTItems = getTDT()->getListOfTriggers(".*");
-
-	for(std::vector<std::string>::const_iterator i = m_signatures.begin();
-		i!=m_signatures.end();++i){
-           std::string EF_part("HLT_");  EF_part+=(*i);
-           bool found = false;
-	   for(std::vector<std::string>::const_iterator j = TrigHLTItems.begin();
-		j!=TrigHLTItems.end();++j){
-		if ( EF_part == (*j) ) {
-			signs_that_exist.push_back((*i));
-			found = true;
-		}
-	   }
-	   if ( !found )
-	   *m_log << MSG::DEBUG << "Did not find this one : " << (*i) << endreq;
-	}
-	
-	m_signatures.clear();
-	//loop through existing signatures, monitor only one signature of each trigger type
-	//there are 3 trigger types being monitored
-	//"single_e_no_iso","single_e_iso","photon"
-	bool e_no_iso_found = false; bool e_iso_found = false; bool g_found = false;
-	for(std::vector<std::string>::const_iterator i = signs_that_exist.begin();
-		i!=signs_that_exist.end();++i){
-	  HLTEgammaNavMonTool::trigger_description(*i,trigDesc);
-	  if(trigDesc=="single_e_no_iso" && !e_no_iso_found){
-	    e_no_iso_found = true;
-	    m_signatures.push_back((*i));
-	  }else if(trigDesc=="single_e_no_iso" && e_no_iso_found){
-	    ATH_MSG_INFO("Non-iso electron chain ignored due to redundancy: "<<*i);
-	  }else if(trigDesc=="single_e_iso" && !e_iso_found){
-	    e_iso_found = true;
-	    m_signatures.push_back((*i));
-	  }else if(trigDesc=="single_e_iso" && e_iso_found){
-	    ATH_MSG_INFO("Iso electron chain ignored due to redundancy: "<<*i);
-	  }else if(trigDesc=="photon" && !g_found){
-	    g_found = true;
-	    m_signatures.push_back((*i));
-	  }else if(trigDesc=="photon" && g_found){
-	    ATH_MSG_INFO("Photon chain ignored due to redundancy: "<<*i);
-	  }
-	}
-	signs_that_exist.clear();
-	for(std::vector<std::string>::const_iterator i = m_signatures.begin();
-		i!=m_signatures.end();++i){
-			*m_log << MSG::INFO << "Found this one " << (*i) << endreq;
-			*m_log << MSG::INFO << "Will book histograms for it" << endreq;
-			if ( book_per_signature((*i)).isFailure() ) return StatusCode::FAILURE;
-			// prepare new table with counters
-			for(size_t ii=0;ii<9;++ii)
-			  m_counters[(*i)].push_back(0);
-	}
-
+  for(std::vector<std::string>::const_iterator i = m_signatures.begin(); i!=m_signatures.end(); ++i){
+    (*m_log) << MSG::INFO << "Found this one " << (*i) << ". Booking histograms for it." << endreq;
+    if ( book_per_signature((*i)).isFailure() ) return StatusCode::FAILURE;
+    // prepare new table with counters
+    for(size_t ii=0;ii<9;++ii) {m_counters[(*i)].push_back(0);}
+  }
 
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode HLTEgammaNavMonTool::book_per_signature(const std::string signature) {
 
     *m_log << MSG::DEBUG << "Configuring signature : " << signature << std::endl;
     
-    trigger_description(signature,trigDesc);
+    trigger_description(signature,trigDesc,m_signatures,m_categories);
     std::string BasicPath("HLT/Egamma/");
     BasicPath+=trigDesc;
     addMonGroup(new MonGroup(this,BasicPath,run));
@@ -273,7 +229,7 @@ StatusCode HLTEgammaNavMonTool::fill() {
 StatusCode HLTEgammaNavMonTool::fill_per_signature(const std::string signature) {
 
   // First prepare path
-  trigger_description(signature,trigDesc);
+  trigger_description(signature,trigDesc,m_signatures,m_categories);
   std::string BasicPath("HLT/Egamma/");
   BasicPath+=trigDesc;
 
@@ -489,7 +445,7 @@ StatusCode HLTEgammaNavMonTool::rate_per_signature(const std::string signature) 
   }
 
   // First prepare path
-  trigger_description(signature,trigDesc);
+  trigger_description(signature,trigDesc,m_signatures,m_categories);
   std::string BasicPathRates("HLT/Egamma/");
   BasicPathRates+=trigDesc;
   BasicPathRates+="/Rates";
@@ -643,7 +599,7 @@ StatusCode HLTEgammaNavMonTool::proc_per_signature(const std::string signature) 
       float factor = 1.0/fabsf((float) (m_lastTimeStamp - m_firstTimeStamp)); // Get rates! (no idea of what happens to SIMULATED data! Should work well on real data)
 
       // First prepare path
-      trigger_description(signature,trigDesc);
+      trigger_description(signature,trigDesc,m_signatures,m_categories);
       std::string BasicPathRates("HLT/Egamma/");
       BasicPathRates+=trigDesc;
       BasicPathRates+="/Rates";
@@ -698,14 +654,41 @@ StatusCode HLTEgammaNavMonTool::proc_per_signature(const std::string signature) 
   return StatusCode::SUCCESS;
 }
 
-void HLTEgammaNavMonTool::trigger_description(const std::string signature, std::string& trigDesc) {
-  if(signature.find("_i") != std::string::npos){
-    trigDesc="single_e_iso";
-  }else if(signature.at(0) == 'g'){
-    trigDesc="photon";
-  }else{
-    trigDesc="single_e_no_iso";
+//First checks that the number of signatures equals the number of categories
+//This is essential, because they need to be in 1 to 1 correspondence for trigger_description to work
+//Then removes signatures (and associated categories) that are not present in run
+StatusCode HLTEgammaNavMonTool::find_relevant_signatures(std::vector<std::string>& signatures, std::vector<std::string>& categories, std::vector<std::string> allSignatures) {
+  if(signatures.size()!=categories.size()){
+    signatures.clear(); categories.clear();
+    return StatusCode::FAILURE;
   }
+  std::vector<std::string> signatures_that_exist;
+  std::vector<std::string> categories_that_exist;
+  for(uint i = 0; i < signatures.size(); i++){
+    std::string hltName("HLT_");  hltName+=signatures.at(i);
+    //bool found = false;
+    for(uint j = 0; j < allSignatures.size();j++){
+      if(hltName == allSignatures.at(j)){
+	signatures_that_exist.push_back(signatures.at(i));
+	categories_that_exist.push_back(categories.at(i));
+	//found = true;
+	break;
+      }
+    }
+    //if (!found) (*m_log) << MSG::INFO << "Signature " << signatures.at(i) << " is not running. Will ignore it." << endreq;
+  }
+  signatures = signatures_that_exist;
+  categories = categories_that_exist;
+  signatures_that_exist.clear();
+  categories_that_exist.clear();
+  return StatusCode::SUCCESS;
+}
+
+//Looks through signatures vector to find signature 
+//Sets as trigDesc the category that the signature corresponds to
+void HLTEgammaNavMonTool::trigger_description(const std::string signature, std::string& trigDesc, std::vector<std::string> signatures, std::vector<std::string> categories) {
+  int index = find(signatures.begin(), signatures.end(), signature) - signatures.begin();
+  trigDesc = categories.at(index);
   return;
 }
 

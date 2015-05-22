@@ -2,8 +2,8 @@
 
 primary_single_ele = ['e24_lhmedium_L1EM18VH']
 primary_single_ele_cutbased = ['e24_medium_L1EM18VH'] 
-primary_double_ele = ['2e12_lhloose']
-primary_double_ele_cutbased = ['2e12_loose']
+primary_double_ele = ['2e12_lhloose_L12EM10VH']
+primary_double_ele_cutbased = ['2e12_loose_L12EM10VH']
 monitoring_ele_idperf = ['e24_lhmedium_idperf_L1EM20VH']
 monitoring_ele_idperf_cutbased = ['e24_medium_idperf_L1EM20VH']
 monitoring_Zee = ['e24_lhtight_L1EM20VH_e15_etcut_Zee']

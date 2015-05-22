@@ -12,6 +12,7 @@ def HLTEgammaMonitoringTool():
   from TrigEgammaMonitoring.TrigEgammaMonitoringConf import HLTEgammaNavMonTool
   HLTEgammaNavMon = HLTEgammaNavMonTool(name = 'HLTEgammaNavMon', histoPathBase = "/Trigger/HLT")
   HLTEgammaNavMon.signatures = hltmonList.monitoring_egamma
+  HLTEgammaNavMon.categories = ['primary_single_ele' , 'primary_single_ele_cutbased' , 'primary_double_ele' , 'primary_double_ele_cutbased' , 'monitoring_ele_idperf' , 'monitoring_ele_idperf_cutbased' , 'monitoring_Zee' , 'monitoring_Jpsiee' , 'primary_single_pho' , 'primary_double_pho'] 
   #HLTEgammaNavMon.signatures = ['e5_NoCut','e5_medium1','e10_loose','e20_loose_IdScan']
   #HLTEgammaNavMon.signatures +=['e5_NoCut_cosmic','e10_loose_cosmic','e10_medium_cosmic']
   #HLTEgammaNavMon.doExtrapol=False
@@ -24,6 +25,7 @@ def HLTEgammaMonitoringTool():
   #---Electron Signatures for Collisions:
   #HLTEgammaNavSigTEMon.signatures = ['e28_tight_iloose']
   HLTEgammaNavSigTEMon.signatures = hltmonList.monitoring_egamma
+  HLTEgammaNavSigTEMon.categories = ['primary_single_ele' , 'primary_single_ele_cutbased' , 'primary_double_ele' , 'primary_double_ele_cutbased' , 'monitoring_ele_idperf' , 'monitoring_ele_idperf_cutbased' , 'monitoring_Zee' , 'monitoring_Jpsiee' , 'primary_single_pho' , 'primary_double_pho']
   #HLTEgammaNavSigTEMon.signatures +=['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA']
   #HLTEgammaNavSigTEMon.signatures += ['e24vh_medium1']
   #HLTEgammaNavSigTEMon.signatures +=['e24vhi_medium1']

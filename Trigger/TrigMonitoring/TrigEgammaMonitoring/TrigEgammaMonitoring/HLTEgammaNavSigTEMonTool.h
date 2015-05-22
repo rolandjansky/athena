@@ -182,9 +182,6 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
   //vector holding lumiblocks already processed (to avoid double counting?)
   vector<unsigned long int> m_lumiblocknbr_vect;
 
-  //signatures to run the monitoring off
-  vector<string> m_signatures;
-
   //string to store trigger description
   string trigDesc;
   
