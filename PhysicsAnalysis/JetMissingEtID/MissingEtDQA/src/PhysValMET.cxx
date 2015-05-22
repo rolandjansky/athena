@@ -29,6 +29,10 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticle.h"
+
 using xAOD::MissingETContainer;
 using xAOD::MissingETComposition;
 using xAOD::MissingET;
@@ -46,16 +50,9 @@ namespace MissingEtDQA {
 			  const std::string& name, 
 			  const IInterface* parent ) : 
     ManagedMonitorToolBase( type, name, parent ),
-    m_MET_RefFinal(0), m_MET_RefEle(0), m_MET_RefGamma(0), m_MET_RefTau(0), m_MET_RefJet(0), m_MET_Muons(0), m_MET_SoftClus(0), m_MET_PVSoftTrk(0),
-    m_MET_RefFinal_x(0), m_MET_RefEle_x(0), m_MET_RefGamma_x(0), m_MET_RefTau_x(0), m_MET_RefJet_x(0), m_MET_Muons_x(0), m_MET_SoftClus_x(0), m_MET_PVSoftTrk_x(0),
-    m_MET_RefFinal_y(0), m_MET_RefEle_y(0), m_MET_RefGamma_y(0), m_MET_RefTau_y(0), m_MET_RefJet_y(0), m_MET_Muons_y(0), m_MET_SoftClus_y(0), m_MET_PVSoftTrk_y(0),
-    m_MET_RefFinal_phi(0), m_MET_RefEle_phi(0), m_MET_RefGamma_phi(0), m_MET_RefTau_phi(0), m_MET_RefJet_phi(0), m_MET_Muons_phi(0), m_MET_SoftClus_phi(0), m_MET_PVSoftTrk_phi(0),
-    m_SET_RefFinal(0), m_SET_RefEle(0), m_SET_RefGamma(0), m_SET_RefTau(0), m_SET_RefJet(0), m_SET_Muons(0), m_SET_SoftClus(0), m_SET_PVSoftTrk(0),
     m_Resolution_TruthNonInt_RefFinal_METx(0), m_Resolution_TruthNonInt_RefFinal_METy(0),
-    m_MET_Track(0), m_MET_TrackPV(0), m_MET_Track_x(0), m_MET_TrackPV_x(0), m_MET_Track_y(0), m_MET_TrackPV_y(0), m_MET_Track_phi(0), m_MET_TrackPV_phi(0), m_SET_Track(0), m_SET_TrackPV(0),
-    m_MET_RefFinal_TST(0), m_MET_RefFinal_TST_x(0), m_MET_RefFinal_TST_y(0),
     m_dPhi_leadJetMET(0), m_dPhi_subleadJetMET(0), m_dPhi_LepMET(0),
-    m_MET_significance(0)
+    m_MET_significance(0) 
   {
     
     declareProperty( "METContainerName", m_metName = "MET_Reference_AntiKt4LCTopo" );
@@ -98,109 +95,90 @@ namespace MissingEtDQA {
 	// TODO: loop over available MET terms
 	//for (MissingETContainer::iterator it = met_Simple->begin(); it != met_Simple-> end(); it++) (*it)->name()
 
-	std::string name_met = "MET_RefFinal"; 
-	std::string dir_met("MET/" + name_met + "/");
-	ATH_CHECK(regHist(m_MET_RefFinal = new TH1D("MET_RefFinal", (name_met + " MET_RefFinal; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefFinal_x = new TH1D("MET_RefFinal_x", (name_met + " MET_RefFinal_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefFinal_y = new TH1D("MET_RefFinal_y", (name_met + " MET_RefFinal_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefFinal_phi = new TH1D("MET_RefFinal_phi", (name_met + " MET_RefFinal_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_RefFinal = new TH1D("SET_RefFinal", (name_met + " SET_RefFinal; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+	//std::string name_met = "MET_RefFinal";
+	std::string name_met = m_metName;
+	const xAOD::MissingETContainer* met_RefFinal = 0;
+	ATH_CHECK( evtStore()->retrieve(met_RefFinal, m_metName) );
 
-	name_met = "MET_RefEle"; 
-	dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_RefEle = new TH1D("MET_RefEle", (name_met + " MET_RefEle; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0, m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefEle_x = new TH1D("MET_RefEle_x", (name_met + " MET_RefEle_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefEle_y = new TH1D("MET_RefEle_y", (name_met + " MET_RefEle_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefEle_phi = new TH1D("MET_RefEle_phi", (name_met + " MET_RefEle_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_RefEle = new TH1D("SET_RefEle", (name_met + " SET_RefEle; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/10.), dir_met, all));
+	for(const auto& it : *met_RefFinal) {
+	  m_MET_RefFinal.push_back( new  TH1D((it->name()).c_str(), (name_met + " " + it->name() + "; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi) );
+	  m_MET_RefFinal_x.push_back( new  TH1D((it->name()+"_x").c_str(), (name_met + " " + it->name() + "_x; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy) );
+	  m_MET_RefFinal_y.push_back( new  TH1D((it->name()+"_y").c_str(), (name_met + " " + it->name() + "_y; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy) );
+	  m_MET_RefFinal_phi.push_back( new  TH1D((it->name()+"_phi").c_str(), (name_met + " " + it->name() + "_phi; E_{T}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi) );
+	  m_MET_RefFinal_sum.push_back( new  TH1D((it->name()+"_sum").c_str(), (name_met + " " + it->name() + "_sum; E_{T}^{miss}; Entries").c_str(), m_nbinE, m_lowET, m_suET) );
+	  dir_met.push_back("MET/" + name_met + "/" + it->name() + "/");
+	}
 
-	name_met = "MET_RefGamma";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_RefGamma = new TH1D("MET_RefGamma", (name_met + " MET_RefGamma; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0, m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefGamma_x = new TH1D("MET_RefGamma_x", (name_met + " MET_RefGamma_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefGamma_y = new TH1D("MET_RefGamma_y", (name_met + " MET_RefGamma_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefGamma_phi = new TH1D("MET_RefGamma_phi", (name_met + " MET_RefGamma_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_RefGamma = new TH1D("SET_RefGamma", (name_met + " SET_RefGamma; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/10.), dir_met, all));
+	for(std::vector<TH1D*>::size_type i = 0; i < m_MET_RefFinal.size(); ++i) {
+          ATH_CHECK(regHist(m_MET_RefFinal[i],dir_met[i],all));
+	  ATH_CHECK(regHist(m_MET_RefFinal_x[i],dir_met[i],all));
+	  ATH_CHECK(regHist(m_MET_RefFinal_y[i],dir_met[i],all));
+	  ATH_CHECK(regHist(m_MET_RefFinal_phi[i],dir_met[i],all));
+	  ATH_CHECK(regHist(m_MET_RefFinal_sum[i],dir_met[i],all));
+        }
 
-	name_met = "MET_RefTau";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_RefTau = new TH1D("MET_RefTau", (name_met + " MET_RefTau; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0, m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefTau_x = new TH1D("MET_RefTau_x", (name_met + " MET_RefTau_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefTau_y = new TH1D("MET_RefTau_y", (name_met + " MET_RefTau_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefTau_phi = new TH1D("MET_RefTau_phi", (name_met + " MET_RefTau_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_RefTau = new TH1D("SET_RefTau", (name_met + " SET_RefTau; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/10.), dir_met, all));
 
-	name_met = "MET_RefJet";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_RefJet = new TH1D("MET_RefJet", (name_met + " MET_RefJet; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefJet_x = new TH1D("MET_RefJet_x", (name_met + " MET_RefJet_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefJet_y = new TH1D("MET_RefJet_y", (name_met + " MET_RefJet_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_RefJet_phi = new TH1D("MET_RefJet_phi", (name_met + " MET_RefJet_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_RefJet = new TH1D("SET_RefJet", (name_met + " SET_RefJet; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+	name_met = "MET_Reference_AntiKt4EMTopo";
+        const xAOD::MissingETContainer* met_EM = 0;
+        ATH_CHECK( evtStore()->retrieve(met_EM, name_met) );
 
-	name_met = "MET_Muons";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_Muons = new TH1D("MET_Muons", (name_met + " MET_Muons; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0, m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Muons_x = new TH1D("MET_Muons_x", (name_met + " MET_Muons_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Muons_y = new TH1D("MET_Muons_y", (name_met + " MET_Muons_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Muons_phi = new TH1D("MET_Muons_phi", (name_met + " MET_Muons_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_Muons = new TH1D("SET_Muons", (name_met + " SET_Muons; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/10.), dir_met, all));
+	dir_met.clear();
+        for(const auto& it : *met_EM) {
+          m_MET_EM.push_back( new  TH1D((it->name()).c_str(), (name_met + " " + it->name() + "; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi) );
+          m_MET_EM_x.push_back( new  TH1D((it->name()+"_x").c_str(), (name_met + " " + it->name() + "_x; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy) );
+          m_MET_EM_y.push_back( new  TH1D((it->name()+"_y").c_str(), (name_met + " " + it->name() + "_y; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy) );
+          m_MET_EM_phi.push_back( new  TH1D((it->name()+"_phi").c_str(), (name_met + " " + it->name() + "_phi; E_{T}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi) );
+          m_MET_EM_sum.push_back( new  TH1D((it->name()+"_sum").c_str(), (name_met + " " + it->name() + "_sum; E_{T}^{miss}; Entries").c_str(), m_nbinE, m_lowET, m_suET) );
+          dir_met.push_back("MET/" + name_met + "/" + it->name() + "/");
+        }
 
-	name_met = "MET_SoftClus";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_SoftClus = new TH1D("MET_SoftClus", (name_met + " MET_SoftClus; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_SoftClus_x = new TH1D("MET_SoftClus_x", (name_met + " MET_SoftClus_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_SoftClus_y = new TH1D("MET_SoftClus_y", (name_met + " MET_SoftClus_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_SoftClus_phi = new TH1D("MET_SoftClus_phi", (name_met + " MET_SoftClus_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_SoftClus = new TH1D("SET_SoftClus", (name_met + " SET_SoftClus; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/2.), dir_met, all));
+	for(std::vector<TH1D*>::size_type i = 0; i < m_MET_EM.size(); ++i) {
+          ATH_CHECK(regHist(m_MET_EM[i],dir_met[i],all));
+          ATH_CHECK(regHist(m_MET_EM_x[i],dir_met[i],all));
+          ATH_CHECK(regHist(m_MET_EM_y[i],dir_met[i],all));
+          ATH_CHECK(regHist(m_MET_EM_phi[i],dir_met[i],all));
+          ATH_CHECK(regHist(m_MET_EM_sum[i],dir_met[i],all));
+        }
 
-	name_met = "MET_PVSoftTrk";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_PVSoftTrk = new TH1D("MET_PVSoftTrk", (name_met + " MET_PVSoftTrk; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi/2.), dir_met, all));
-	ATH_CHECK(regHist(m_MET_PVSoftTrk_x = new TH1D("MET_PVSoftTrk_x", (name_met + " MET_PVSoftTrk_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_PVSoftTrk_y = new TH1D("MET_PVSoftTrk_y", (name_met + " MET_PVSoftTrk_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_PVSoftTrk_phi = new TH1D("MET_PVSoftTrk_phi", (name_met + " MET_PVSoftTrk_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_PVSoftTrk = new TH1D("SET_PVSoftTrk", (name_met + " SET_PVSoftTrk; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET/2.), dir_met, all));
+		
+	name_met = "MET_Track";
+	std::string dir = "MET/" + name_met + "/";
 
-	name_met = "MET_RefFinal_TST";
-	dir_met = "MET/" + name_met + "/";
-        ATH_CHECK(regHist(m_MET_RefFinal_TST = new TH1D("MET_RefFinal_TST", (name_met + " MET_RefFinal_TST; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
-        ATH_CHECK(regHist(m_MET_RefFinal_TST_x = new TH1D("MET_RefFinal_TST_x", (name_met + " MET_RefFinal_TST_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-        ATH_CHECK(regHist(m_MET_RefFinal_TST_y = new TH1D("MET_RefFinal_TST_y", (name_met + " MET_RefFinal_TST_y; E_{Ty}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-        //ATH_CHECK(regHist(m_MET_RefFinal_TST_phi = new TH1D("MET_RefFinal_TST_phi", (name_met + " MET_RefFinal_TST_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-        //ATH_CHECK(regHist(m_SET_RefFinal_TST = new TH1D("SET_RefFinal_TST", (name_met + " SET_RefFinal_TST; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+	ATH_CHECK(regHist(m_MET_Track = new  TH1D("Track", (name_met + " Track; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir, all));
+	ATH_CHECK(regHist(m_MET_Track_x = new  TH1D("Track_x", (name_met + " Track_x; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_Track_y = new  TH1D("Track_y", (name_met + " Track_y; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_Track_phi = new  TH1D("Track_phi", (name_met + " Track_phi; E_{T}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir, all));
+        ATH_CHECK(regHist(m_MET_Track_sum = new  TH1D("Track_sum", (name_met + " Track_sum; E_{T}^{miss}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir, all));
+
+	ATH_CHECK(regHist(m_MET_PVTrack_Nominal = new TH1D("PVTrack_Nominal", (name_met + " PVTrack_Nominal; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir, all));
+	ATH_CHECK(regHist(m_MET_PVTrack_Nominal_x = new  TH1D("PVTrack_Nominal_x", (name_met + " PVTrack_Nominal_x; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Nominal_y = new  TH1D("PVTrack_Nominal_y", (name_met + " PVTrack_Nominal_y; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Nominal_phi = new  TH1D("PVTrack_Nominal_phi", (name_met + " PVTrack_Nominal_phi; E_{T}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Nominal_sum = new  TH1D("PVTrack_Nominal_sum", (name_met + " PVTrack_Nominal_sum; E_{T}^{miss}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir, all));
+
+	ATH_CHECK(regHist(m_MET_PVTrack_Pileup = new  TH1D("PVTrack_Pileup", (name_met + " PVTrack_Pileup; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir, all));
+	ATH_CHECK(regHist(m_MET_PVTrack_Pileup_x = new  TH1D("PVTrack_Pileup_x", (name_met + " PVTrack_Pileup_x; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Pileup_y = new  TH1D("PVTrack_Pileup_y", (name_met + " PVTrack_Pileup_y; E_{T}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Pileup_phi = new  TH1D("PVTrack_Pileup_phi", (name_met + " PVTrack_Pileup_phi; E_{T}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir, all));
+        ATH_CHECK(regHist(m_MET_PVTrack_Pileup_sum = new  TH1D("PVTrack_Pileup_sum", (name_met + " PVTrack_Pileup_sum; E_{T}^{miss}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir, all));
+
 
 	name_met = "MET_Resolution";
-	dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METx = new TH1D("m_Resolution_TruthNonInt_RefFinal_METx", (name_met + " Resolution_TruthNonInt_RefFinal_METx; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METy = new TH1D("m_Resolution_TruthNonInt_RefFinal_METy", (name_met + " Resolution_TruthNonInt_RefFinal_METy; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir_met, all));
-
-	name_met = "MET_Track";
-        dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_Track = new TH1D("MET_Track", (name_met + " MET_Track; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Track_x = new TH1D("MET_Track_x", (name_met + " MET_Track_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Track_y = new TH1D("MET_Track_y", (name_met + " MET_Track_y; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-	ATH_CHECK(regHist(m_MET_Track_phi = new TH1D("MET_Track_phi", (name_met + " MET_Track_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-	ATH_CHECK(regHist(m_SET_Track = new TH1D("SET_Track", (name_met + " SET_Track; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
-
-	name_met = "MET_TrackPV";
-        dir_met = "MET/" + name_met + "/";
-        ATH_CHECK(regHist(m_MET_TrackPV = new TH1D("MET_TrackPV", (name_met + " MET_TrackPV; E_{T}^{miss}; Entries").c_str(), m_nbinp, 0., m_suptmi), dir_met, all));
-        ATH_CHECK(regHist(m_MET_TrackPV_x = new TH1D("MET_TrackPV_x", (name_met + " MET_TrackPV_x; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-        ATH_CHECK(regHist(m_MET_TrackPV_y = new TH1D("MET_TrackPV_y", (name_met + " MET_TrackPV_y; E_{Tx}^{miss}; Entries").c_str(), m_nbinpxy, -m_suptmixy, m_suptmixy), dir_met, all));
-        ATH_CHECK(regHist(m_MET_TrackPV_phi = new TH1D("MET_TrackPV_phi", (name_met + " MET_TrackPV_phi; E_{Tphi}^{miss}; Entries").c_str(), m_nbinphi,-m_binphi,m_binphi), dir_met, all));
-        ATH_CHECK(regHist(m_SET_TrackPV = new TH1D("SET_TrackPV", (name_met + " SET_TrackPV; E_{T}^{sum}; Entries").c_str(), m_nbinE, m_lowET, m_suET), dir_met, all));
+        dir = "MET/" + name_met + "/";
+        ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METx = new TH1D("m_Resolution_TruthNonInt_RefFinal_METx", (name_met + " Resolution_TruthNonInt_RefFinal_METx; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir, all));
+        ATH_CHECK(regHist(m_Resolution_TruthNonInt_RefFinal_METy = new TH1D("m_Resolution_TruthNonInt_RefFinal_METy", (name_met + " Resolution_TruthNonInt_RefFinal_METy; Resolution; Entries").c_str(), 1.5*m_nbinpxy, -1.5*m_suptmixy, 1.5*m_suptmixy), dir, all));
 
 	name_met = "MET_Significance";
-	dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_MET_significance = new TH1D("MET_Significance", (name_met + " MET_Significance; MET/sqrt(SET); Entries").c_str(), m_nbinp, 0., 200.), dir_met, all));
+        dir = "MET/" + name_met + "/";
+        ATH_CHECK(regHist(m_MET_significance = new TH1D("MET_Significance", (name_met + " MET_Significance; MET/sqrt(SET); Entries").c_str(), m_nbinp, 0., 200.), dir, all));
 
-	name_met = "MET_dPhi";
-	dir_met = "MET/" + name_met + "/";
-	ATH_CHECK(regHist(m_dPhi_leadJetMET = new TH1D("dPhi_leadJetMET", (name_met + " dPhi_leadJetMET; #Delta#Phi(leadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
-	ATH_CHECK(regHist(m_dPhi_subleadJetMET = new TH1D("dPhi_subleadJetMET", (name_met + " dPhi_subleadJetMET; #Delta#Phi(subleadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
-	ATH_CHECK(regHist(m_dPhi_LepMET = new TH1D("dPhi_LepMET", (name_met + " dPhi_LepMET; #Delta#Phi(Lep,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir_met, all));
-	
+        name_met = "MET_dPhi";
+        dir = "MET/" + name_met + "/";
+        ATH_CHECK(regHist(m_dPhi_leadJetMET = new TH1D("dPhi_leadJetMET", (name_met + " dPhi_leadJetMET; #Delta#Phi(leadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir, all));
+        ATH_CHECK(regHist(m_dPhi_subleadJetMET = new TH1D("dPhi_subleadJetMET", (name_met + " dPhi_subleadJetMET; #Delta#Phi(subleadJet,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir, all));
+        ATH_CHECK(regHist(m_dPhi_LepMET = new TH1D("dPhi_LepMET", (name_met + " dPhi_LepMET; #Delta#Phi(Lep,MET); Entries").c_str(), m_nbinphi, 0., 3.14), dir, all));
+
+
       }
 
       return StatusCode::SUCCESS;      
@@ -212,14 +190,17 @@ namespace MissingEtDQA {
 
     // Retrieve MET container: 
     //m_metName = "MET_Reference_AntiKt4LCTopo";
+    
     const xAOD::MissingETContainer* met_RefFinal = 0;
     ATH_CHECK( evtStore()->retrieve(met_RefFinal, m_metName) );
-    //ATH_CHECK( evtStore()->retrieve(met_RefFinal, "MET_RefFinal") );
  
    if (!met_RefFinal) {
       ATH_MSG_ERROR ("Couldn't retrieve MET Final");
       return StatusCode::FAILURE;                   
     } 
+
+   const xAOD::MissingETContainer* met_EM = 0;
+   ATH_CHECK( evtStore()->retrieve(met_EM,"MET_Reference_AntiKt4EMTopo") );
 
     const xAOD::MissingETContainer* met_Truth = 0;
     ATH_CHECK( evtStore()->retrieve(met_Truth,"MET_Truth") );
@@ -227,87 +208,29 @@ namespace MissingEtDQA {
     const xAOD::MissingETContainer* met_Track = 0;
     ATH_CHECK( evtStore()->retrieve(met_Track,"MET_Track") );
        
-
-        
-    ATH_MSG_INFO( "  MET magnitude:" );
-
-    //m_MET_RefFinal_phi->Fill((*met_RefFinal)["Final"]->phi(), 1.);  Types::bitmask_t total
-    //m_MET_RefFinal->Fill((*met_RefFinal)[MissingETBase::Source::total()]->met()/1000., 1.);
-    m_MET_RefFinal->Fill((*met_RefFinal)["FinalClus"]->met()/1000., 1.);
-    m_MET_RefEle->Fill((*met_RefFinal)["RefEle"]->met()/1000., 1.);
-    m_MET_RefGamma->Fill((*met_RefFinal)["RefGamma"]->met()/1000., 1.);
-    m_MET_RefTau->Fill((*met_RefFinal)["RefTau"]->met()/1000., 1.);
-    m_MET_RefJet->Fill((*met_RefFinal)["RefJet"]->met()/1000., 1.);
-    m_MET_Muons->Fill((*met_RefFinal)["Muons"]->met()/1000., 1.);
-    m_MET_SoftClus->Fill((*met_RefFinal)["SoftClus"]->met()/1000., 1.);
-    m_MET_PVSoftTrk->Fill((*met_RefFinal)["PVSoftTrk"]->met()/1000., 1.);
     
+            
+    ATH_MSG_INFO( "  MET_RefFinal:" );
+
+    for(std::vector<TH1D*>::size_type i = 0; i < m_MET_RefFinal.size(); ++i) {
+      m_MET_RefFinal[i]->Fill((*met_RefFinal)[m_MET_RefFinal[i]->GetName()]->met()/1000., 1.);
+      m_MET_RefFinal_x[i]->Fill((*met_RefFinal)[m_MET_RefFinal[i]->GetName()]->mpx()/1000., 1.);
+      m_MET_RefFinal_y[i]->Fill((*met_RefFinal)[m_MET_RefFinal[i]->GetName()]->mpy()/1000., 1.);
+      m_MET_RefFinal_phi[i]->Fill((*met_RefFinal)[m_MET_RefFinal[i]->GetName()]->phi(), 1.);
+      m_MET_RefFinal_sum[i]->Fill((*met_RefFinal)[m_MET_RefFinal[i]->GetName()]->sumet()/1000., 1.);
+    }
+
     m_MET_significance->Fill((*met_RefFinal)["FinalClus"]->met()/sqrt((*met_RefFinal)["FinalClus"]->sumet()/sqrt(1000.)), 1.);
 
+    for(std::vector<TH1D*>::size_type i = 0; i < m_MET_EM.size(); ++i) {
+      m_MET_EM[i]->Fill((*met_EM)[m_MET_EM[i]->GetName()]->met()/1000., 1.);
+      m_MET_EM_x[i]->Fill((*met_EM)[m_MET_EM[i]->GetName()]->mpx()/1000., 1.);
+      m_MET_EM_y[i]->Fill((*met_EM)[m_MET_EM[i]->GetName()]->mpy()/1000., 1.);
+      m_MET_EM_phi[i]->Fill((*met_EM)[m_MET_EM[i]->GetName()]->phi(), 1.);
+      m_MET_EM_sum[i]->Fill((*met_EM)[m_MET_EM[i]->GetName()]->sumet()/1000., 1.);
+    }
 
-    ATH_MSG_INFO( "  MET x-component:" );
-
-    m_MET_RefFinal_x->Fill((*met_RefFinal)["FinalClus"]->mpx()/1000., 1.);
-    m_MET_RefEle_x->Fill((*met_RefFinal)["RefEle"]->mpx()/1000., 1.);
-    m_MET_RefGamma_x->Fill((*met_RefFinal)["RefGamma"]->mpx()/1000., 1.);
-    m_MET_RefTau_x->Fill((*met_RefFinal)["RefTau"]->mpx()/1000., 1.);
-    m_MET_RefJet_x->Fill((*met_RefFinal)["RefJet"]->mpx()/1000., 1.);
-    m_MET_Muons_x->Fill((*met_RefFinal)["Muons"]->mpx()/1000., 1.);
-    m_MET_SoftClus_x->Fill((*met_RefFinal)["SoftClus"]->mpx()/1000., 1.);
-    m_MET_PVSoftTrk_x->Fill((*met_RefFinal)["PVSoftTrk"]->mpx()/1000., 1.);
-    
-
-    ATH_MSG_INFO( "  MET y-component:" );
-
-    m_MET_RefFinal_y->Fill((*met_RefFinal)["FinalClus"]->mpy()/1000., 1.);
-    m_MET_RefEle_y->Fill((*met_RefFinal)["RefEle"]->mpy()/1000., 1.);
-    m_MET_RefGamma_y->Fill((*met_RefFinal)["RefGamma"]->mpy()/1000., 1.);
-    m_MET_RefTau_y->Fill((*met_RefFinal)["RefTau"]->mpy()/1000., 1.);
-    m_MET_RefJet_y->Fill((*met_RefFinal)["RefJet"]->mpy()/1000., 1.);
-    m_MET_Muons_y->Fill((*met_RefFinal)["Muons"]->mpy()/1000., 1.);
-    m_MET_SoftClus_y->Fill((*met_RefFinal)["SoftClus"]->mpy()/1000., 1.);
-    m_MET_PVSoftTrk_y->Fill((*met_RefFinal)["PVSoftTrk"]->mpy()/1000., 1.);
-
-
-    ATH_MSG_INFO( "  MET phi-component:" );
-
-    m_MET_RefFinal_phi->Fill((*met_RefFinal)["FinalClus"]->phi(), 1.);
-    m_MET_RefEle_phi->Fill((*met_RefFinal)["RefEle"]->phi(), 1.);
-    m_MET_RefGamma_phi->Fill((*met_RefFinal)["RefGamma"]->phi(), 1.);
-    m_MET_RefTau_phi->Fill((*met_RefFinal)["RefTau"]->phi(), 1.);
-    m_MET_RefJet_phi->Fill((*met_RefFinal)["RefJet"]->phi(), 1.);
-    m_MET_Muons_phi->Fill((*met_RefFinal)["Muons"]->phi(), 1.);
-    m_MET_SoftClus_phi->Fill((*met_RefFinal)["SoftClus"]->phi(), 1.);
-    m_MET_PVSoftTrk_phi->Fill((*met_RefFinal)["PVSoftTrk"]->phi(), 1.);
-
-
-    ATH_MSG_INFO( "  SumET magnitude:" );
-
-    m_SET_RefFinal->Fill((*met_RefFinal)["FinalClus"]->sumet()/1000., 1.);
-    m_SET_RefEle->Fill((*met_RefFinal)["RefEle"]->sumet()/1000., 1.);
-    m_SET_RefGamma->Fill((*met_RefFinal)["RefGamma"]->sumet()/1000., 1.);
-    m_SET_RefTau->Fill((*met_RefFinal)["RefTau"]->sumet()/1000., 1.);
-    m_SET_RefJet->Fill((*met_RefFinal)["RefJet"]->sumet()/1000., 1.);
-    m_SET_Muons->Fill((*met_RefFinal)["Muons"]->sumet()/1000., 1.);
-    m_SET_SoftClus->Fill((*met_RefFinal)["SoftClus"]->sumet()/1000., 1.);
-    m_SET_PVSoftTrk->Fill((*met_RefFinal)["PVSoftTrk"]->sumet()/1000., 1.);
-    
-    
-    ATH_MSG_INFO( "  MET_RefFinal_TST :" );
-
-    double MET_TST_x, MET_TST_y;
-    MET_TST_x = (*met_RefFinal)["RefEle"]->mpx() + (*met_RefFinal)["RefGamma"]->mpx()
-               + (*met_RefFinal)["RefTau"]->mpx() + (*met_RefFinal)["RefJet"]->mpx()
-	       + (*met_RefFinal)["Muons"]->mpx() + (*met_RefFinal)["PVSoftTrk"]->mpx();
-    MET_TST_y = (*met_RefFinal)["RefEle"]->mpy() + (*met_RefFinal)["RefGamma"]->mpy()
-               + (*met_RefFinal)["RefTau"]->mpy() + (*met_RefFinal)["RefJet"]->mpy()
-               + (*met_RefFinal)["Muons"]->mpy() + (*met_RefFinal)["PVSoftTrk"]->mpy();
-
-    m_MET_RefFinal_TST_x->Fill(MET_TST_x/1000.);
-    m_MET_RefFinal_TST_y->Fill(MET_TST_y/1000.);
-    m_MET_RefFinal_TST->Fill(std::sqrt(MET_TST_x*MET_TST_x + MET_TST_y*MET_TST_y)/1000.);
-
-    
+       
     ATH_MSG_INFO( "  Resolution:" );
 
     m_Resolution_TruthNonInt_RefFinal_METx->Fill(((*met_RefFinal)["FinalClus"]->mpx()-(*met_Truth)["NonInt"]->mpx())/1000., 1.);
@@ -320,15 +243,31 @@ namespace MissingEtDQA {
     m_MET_Track_x->Fill((*met_Track)["Track"]->mpx()/1000., 1.);
     m_MET_Track_y->Fill((*met_Track)["Track"]->mpy()/1000., 1.);
     m_MET_Track_phi->Fill((*met_Track)["Track"]->phi(), 1.);
-    m_SET_Track->Fill((*met_Track)["Track"]->sumet()/1000., 1.);
-            
-    //m_MET_TrackPV->Fill((*met_Track)["TrackPV"]->met()/1000., 1.);
-    //m_MET_TrackPV_x->Fill((*met_Track)["TrackPV"]->mpx()/1000., 1.);
-    //m_MET_TrackPV_y->Fill((*met_Track)["TrackPV"]->mpy()/1000., 1.);
-    //m_MET_TrackPV_phi->Fill((*met_Track)["TrackPV"]->phi(), 1.);
-    //m_SET_TrackPV->Fill((*met_Track)["TrackPV"]->sumet()/1000., 1.);
+    m_MET_Track_sum->Fill((*met_Track)["Track"]->sumet()/1000., 1.);
     
-
+    const xAOD::VertexContainer *vxCont = 0;
+    ATH_CHECK( evtStore()->retrieve(vxCont, "PrimaryVertices") );
+    for(const auto& vx : *vxCont) {
+      int N = vx->index();
+      const std::string name = "PVTrack_vx"+std::to_string(N);
+      if(vx->vertexType()!=xAOD::VxType::NoVtx) {
+	if(vx->vertexType()==xAOD::VxType::PriVtx) {
+	  m_MET_PVTrack_Nominal->Fill((*met_Track)[name]->met()/1000., 1.);
+	  m_MET_PVTrack_Nominal_x->Fill((*met_Track)[name]->mpx()/1000., 1.);
+	  m_MET_PVTrack_Nominal_y->Fill((*met_Track)[name]->mpy()/1000., 1.);
+	  m_MET_PVTrack_Nominal_phi->Fill((*met_Track)[name]->phi(), 1.);
+	  m_MET_PVTrack_Nominal_sum->Fill((*met_Track)[name]->sumet()/1000., 1.);
+	} else { 
+	  m_MET_PVTrack_Pileup->Fill((*met_Track)[name]->met()/1000., 1.);
+	  m_MET_PVTrack_Pileup_x->Fill((*met_Track)[name]->mpx()/1000., 1.);
+	  m_MET_PVTrack_Pileup_y->Fill((*met_Track)[name]->mpy()/1000., 1.);
+	  m_MET_PVTrack_Pileup_phi->Fill((*met_Track)[name]->phi(), 1.);
+	  m_MET_PVTrack_Pileup_sum->Fill((*met_Track)[name]->sumet()/1000., 1.);
+	}
+      }
+    }
+    
+    
 
     ATH_MSG_INFO( "  MET_Angles :" );
 
@@ -399,7 +338,7 @@ namespace MissingEtDQA {
 
     m_dPhi_LepMET->Fill( -remainder( leadPhi - (*met_RefFinal)["FinalClus"]->phi(), 2*M_PI ) );
 
-
+   
 
     return StatusCode::SUCCESS;
     //return StatusCode::FAILURE;
