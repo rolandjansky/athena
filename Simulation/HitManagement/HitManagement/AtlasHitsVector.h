@@ -54,9 +54,9 @@ public:
 #else
   AtlasHitsVector<T>(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
   {
-    IMessageSvc* msgSvc(Athena::getMessageSvc());
-    MsgStream log(msgSvc, "AtlasHitsVector");
-    log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endmsg;
+    IMessageSvc* m_msgSvc(Athena::getMessageSvc());
+    MsgStream log(m_msgSvc, "AtlasHitsVector");
+    log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endreq;
 
     m_name = collectionName;
     m_hitvector.reserve(mySize);
@@ -75,13 +75,13 @@ public:
   {
     m_hitvector.push_back(h);
   }
-  void Insert(T&& h)
+  void Insert(const T&& h)
   {
-    m_hitvector.push_back( std::move(h) );
+    m_hitvector.push_back(h);
   }
   template <class... Args> void Emplace(Args&&... args)
   {
-    m_hitvector.emplace_back( std::forward<Args>(args)... );
+    m_hitvector.emplace_back(args...);
   }
   int  Size() const
   {
@@ -121,7 +121,7 @@ public:
   void setName(const std::string& name) {m_name = name;}
   //
   // vector methods.
-  const std::vector<T>& getVector() const {return m_hitvector;}
+  const std::vector<T>& getVector() {return m_hitvector;}
 
   bool empty() const { return m_hitvector.empty(); }
 
@@ -163,14 +163,11 @@ protected:
 
 
 public:
-  // Hide from cling to avoid crash in 6.08.00.  cf. ROOT-8499.
-#ifndef __CLING__
   // Used to ensure that the DVLInfo gets registered
   // when the dictionary for this class is loaded.
   static const std::type_info* initHelper()
   { return DataModel_detail::DVLInfo<AtlasHitsVector<T> >::initHelper(); }
   static const std::type_info* s_info;
-#endif
 };
 
 
@@ -189,12 +186,10 @@ void dvl_makecontainer (size_t nreserve, AtlasHitsVector<T>*& cont)
 }
 
 
-#ifndef __CLING__
 // Ensure that the DVLInfo gets registered
 // when the dictionary for this class is loaded.
 template <class T>
 const std::type_info* AtlasHitsVector<T>::s_info = AtlasHitsVector<T>::initHelper();
-#endif
 
 
 #endif
