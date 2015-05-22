@@ -594,7 +594,7 @@
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>yesterday.root</argvalue>
+                  <argvalue>yesterday.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>localRefFile</argname>
@@ -602,9 +602,9 @@
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
-                  <argvalue>today.root</argvalue>
+                  <argvalue>today.truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
               </test>
               <test position="2">
                 <modulename>RttLibraryTools</modulename>
