@@ -28,13 +28,13 @@ public:
 	AGDDSimpleMaterial* GetMaterial(std::string);
 	AGDDElement* GetElement(std::string);
 		
-	int NumberOfMaterials() {return m_nrOfMaterials;}
-	int NumberOfElements()  {return m_nrOfElements;}
+	int NumberOfMaterials() {return nrOfMaterials;}
+	int NumberOfElements()  {return nrOfElements;}
 	
-	MaterialIterator MaterialBegin() {return m_theMaterials.begin();}
-	MaterialIterator MaterialEnd() {return m_theMaterials.end();}
-	ElementIterator ElementBegin() {return m_theElements.begin();}
-	ElementIterator ElementEnd() {return m_theElements.end();}
+	MaterialIterator MaterialBegin() {return theMaterials.begin();}
+	MaterialIterator MaterialEnd() {return theMaterials.end();}
+	ElementIterator ElementBegin() {return theElements.begin();}
+	ElementIterator ElementEnd() {return theElements.end();}
 	
 	
 	void PrintElementNames();
@@ -44,11 +44,11 @@ public:
 	
 private:
 	AGDDMaterialStore();
-	AGDDMaterialMap m_theMaterials;
-	AGDDElementMap m_theElements;
+	AGDDMaterialMap theMaterials;
+	AGDDElementMap theElements;
 	
-	int m_nrOfMaterials;
-	int m_nrOfElements;
+	int nrOfMaterials;
+	int nrOfElements;
 
 };
 

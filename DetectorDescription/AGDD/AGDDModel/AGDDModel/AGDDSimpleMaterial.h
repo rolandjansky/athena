@@ -14,27 +14,27 @@ class AGDDSimpleMaterial {
 	friend std::ostream& operator <<(std::ostream&, const AGDDSimpleMaterial &);
 public:
 	AGDDSimpleMaterial(std::string n, double d):
-		m_name(n),m_density(d),m_created(false),m_theMaterial(0)
+		_name(n),_density(d),_created(false),theMaterial(0)
 	{
-		m_mType=Undefined;
+		mType=Undefined;
 		RegisterToStore(this);
 	}
 	virtual ~AGDDSimpleMaterial() {}
 	void RegisterToStore(AGDDSimpleMaterial*);
 	std::string GetName();
-	double GetDensity() {return m_density;}
-	material_type GetMaterialType() {return m_mType;}
-	void Created(bool b) {m_created=b;}
-	bool Extant() {return m_created;}
-	void* GetMaterial() {return m_theMaterial;}
-	void SetMaterial(void* mat) {m_theMaterial=mat;}
+	double GetDensity() {return _density;}
+	material_type GetMaterialType() {return mType;}
+	void Created(bool b) {_created=b;}
+	bool Extant() {return _created;}
+	void* GetMaterial() {return theMaterial;}
+	void SetMaterial(void* mat) {theMaterial=mat;}
 protected:
-	std::string m_name;
-	double m_density;
-	bool m_created;
+	std::string _name;
+	double _density;
+	bool _created;
 	
-	material_type m_mType;
-	void* m_theMaterial;
+	material_type mType;
+	void* theMaterial;
 };
 
 #endif

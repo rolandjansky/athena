@@ -9,8 +9,8 @@
 
 std::ostream& operator <<(std::ostream& os, const AGDDElement &obj)
 {
-	os<<"- Element "<<obj.m_name<<" symbol="<<obj.m_symbol<<
-		" Z="<<obj.m_z<<" A="<<obj.m_a<<std::endl;
+	os<<"- Element "<<obj._name<<" symbol="<<obj._symbol<<
+		" Z="<<obj._z<<" A="<<obj._a<<std::endl;
 	return os;
 }
 
@@ -21,10 +21,10 @@ void AGDDElement::RegisterToStore(AGDDElement *e)
 
 std::string AGDDElement::GetName() const
 {
-	return m_name;
+	return _name;
 }
 
 std::string AGDDElement::GetSymbol() const
 {
-	return m_symbol;
+	return _symbol;
 }
