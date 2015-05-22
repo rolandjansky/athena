@@ -655,9 +655,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     nameaxis = name + "; pt bins; efficiency";
     addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
     TH1 *h = hist(name, histdireff);
-    h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
-    // h->GetXaxis()->SetBinLabel(3, "100-300 GeV MSonly_barrel-tagged");
+    h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+    h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
     
     ATH_MSG_DEBUG("end bookChainDQA_MSonly for chain=" << chainName );
 
@@ -1357,7 +1356,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     for (int ies = 0; ies <= m_maxESbr; ies++) {
       if(!CB_mon_ESbr[ies])continue; 
       name = chainName + "_highpt_effsummary_by" + m_triggerES[ies]; // for generic: make summary for all histograms
-      nameaxis = name + "; Algorithm ; Express efficiency 40-80GeV"; 
+      nameaxis = name + "; Algorithm ; Express efficiency 40-100GeV"; 
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 0.5+fEFCB), histdireff); // for generic
       TH1 *h = hist(name, histdireff);
       h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
@@ -1366,28 +1365,19 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       // h->GetXaxis()->SetBinLabel(iMuGirl+1, "MuGirl");
     }
 
-    // L1 efficiency summary from ES independent triggers: standard chains only
-    name = chainName + "_L1plateau_wrtOffline_by_ESindep";
-    nameaxis = name + "; region; efficiency";
-    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-    TH1 *h = hist(name, histdireff);
-    h->GetXaxis()->SetBinLabel(1, "Barrel 40-80 GeV indep trig");
-    h->GetXaxis()->SetBinLabel(2, "Endcap 40-80 GeV indep trig");
-
-    // High-pt 3-bin summary: 2bins if it is for mu24i
+    // High-pt 3-bin summary: always 2bins now 
     if (!isIsoOffline) {
       name = chainName + "_highpt3bins_effwrtL1";
       nameaxis = name + "; pt bins; efficiency";
-      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 2.5), histdireff);
-      h = hist(name, histdireff);
-      h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-      h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
-      h->GetXaxis()->SetBinLabel(3, "100-300 GeV MSonly_barrel-tagged");
+      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
+      TH1 *h = hist(name, histdireff);
+      h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+      h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
     } else {
       name = chainName + "_highpt3bins_effwrtL1";
       nameaxis = name + "; pt bins; efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-      h = hist(name, histdireff);
+      TH1 *h = hist(name, histdireff);
       h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
       h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
     }      
@@ -1396,7 +1386,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     name = chainName + "_highptL1plateau_wrtOffline";
     nameaxis = name + "; region; efficiency";
     addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-    h = hist(name, histdireff);
+    TH1 *h = hist(name, histdireff);
     h->GetXaxis()->SetBinLabel(1, "Barrel 30-100 GeV Z T&P");
     h->GetXaxis()->SetBinLabel(2, "Endcap 30-100 GeV Z T&P");
 
@@ -1861,7 +1851,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
   FeatureContainer fHLT = getTDT()->features("HLT_"+chainName,TrigDefs::alsoDeactivateTEs);
 
   std::vector<Combination> combsHLT = fHLT.getCombinations();
-  ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());
+  ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());  
   for(std::vector<Combination>::const_iterator it=combsHLT.begin(); it!=combsHLT.end(); it++) {
     ATH_MSG_DEBUG("..." << *it );
   }
@@ -2166,11 +2156,16 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	  for ( ; fIt != ef.end() ; ++fIt) {
 	    const xAOD::MuonContainer* ef_cont = (*fIt);
 	    if (ef_cont) {
-	      ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	      ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size()); 
 	      
-	      for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-		const xAOD::TrackParticle *ef_ms_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+	      xAOD::MuonContainer::const_iterator iCont = ef_cont->begin();
+	      for(; iCont != ef_cont->end(); iCont++) {
+		const xAOD::TrackParticle *ef_ms_trk;
+		ef_ms_trk = (*iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
 
+	        ef_ms_pt  = (*iCont)->pt();
+	        ef_ms_eta = (*iCont)->eta();
+	        ef_ms_phi = (*iCont)->phi(); // YY
 	        if( ef_ms_trk ){
 	          if( ef_ms_trk->pt() <= 0.){
 	            ef_ms_pt  = -1.;
@@ -2187,7 +2182,10 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	          ATH_MSG_DEBUG("No MS track found for last_step " << last_step); 
 	        }
 
-	        if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone && ef_cont->at(iCont)->muonType()!=xAOD::Muon::Combined){
+	        ef_sa_pt  = (*iCont)->pt();
+	        ef_sa_eta = (*iCont)->eta();
+	        ef_sa_phi = (*iCont)->phi(); // YY
+	        if( (*iCont)->muonType()!=xAOD::Muon::MuonStandAlone && (*iCont)->muonType()!=xAOD::Muon::Combined){
 	          ef_sa_pt  = -1.;
 	          ef_sa_eta = 0.;
 	          ef_sa_phi = 0.; // YY
@@ -2197,11 +2195,11 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	            ef_sa_eta = ef_ms_trk->eta();
 	            ef_sa_phi = ef_ms_trk->phi(); // YY
 	          }
-	          ATH_MSG_DEBUG("           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
 	          ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
 	        }else{
 	          ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
 	        }
+	        ATH_MSG_DEBUG("           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); 
 	      }
 	    }
 	  }
@@ -2220,12 +2218,16 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	    for ( ; fIt != ef.end() ; ++fIt) {
 	      const xAOD::MuonContainer* ef_cont = (*fIt);
 	      if (ef_cont) {
-	        ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	        ATH_MSG_DEBUG(" FS ef_contContainter size:"<<ef_cont->size()); 
 	        
-	        for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-	          const xAOD::TrackParticle *ef_ms_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+		xAOD::MuonContainer::const_iterator iCont = ef_cont->begin();
+	        for(; iCont != ef_cont->end(); iCont++) {
+		  const xAOD::TrackParticle *ef_ms_trk;
+		  ef_ms_trk = (*iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
 
-
+	          ef_ms_pt  = (*iCont)->pt();
+	          ef_ms_eta = (*iCont)->eta();
+	          ef_ms_phi = (*iCont)->phi(); // YY
 	          if( ef_ms_trk ){
 	            if( ef_ms_trk->pt() <= 0.){
 	              ef_ms_pt  = -1.;
@@ -2249,7 +2251,10 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	            ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
 	          }
 	          
-	          if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone && ef_cont->at(iCont)->muonType()!=xAOD::Muon::Combined){
+	          ef_sa_pt  = (*iCont)->pt();
+	          ef_sa_eta = (*iCont)->eta();
+	          ef_sa_phi = (*iCont)->phi(); // YY
+	          if( (*iCont)->muonType()!=xAOD::Muon::MuonStandAlone && (*iCont)->muonType()!=xAOD::Muon::Combined){
 	            ef_sa_pt  = -1.;
 	            ef_sa_eta = 0.;
 	            ef_sa_phi = 0.; // YY
@@ -2266,7 +2271,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	                ef_sa_phi = ef_sa_phi_tmp;
 	              }      
 	            }
-	            ATH_MSG_DEBUG("FS           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
+	            ATH_MSG_DEBUG("FS           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); 
 	            ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
 	          }else{
 	            ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
@@ -2786,7 +2791,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 
     if (!m_RecMuonCB_isGoodCB[i_rec]) {  
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision. attention
+      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision. 
     }
 
     float rec_eta = m_RecMuonCB_eta[i_rec];
@@ -3189,11 +3194,17 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  for ( ; fIt != ef.end() ; ++fIt) {
 	    const xAOD::MuonContainer* ef_cont = (*fIt);
 	    if (ef_cont) {
-	      ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	      ATH_MSG_DEBUG(" CB ef_contContainter size:"<<ef_cont->size()); 
 	      
-	      for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-		const xAOD::TrackParticle *ef_cb_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+	      xAOD::MuonContainer::const_iterator iCont = ef_cont->begin();
+	      for(; iCont != ef_cont->end(); iCont++) {
+		const xAOD::TrackParticle *ef_cb_trk;
+		ef_cb_trk = (*iCont)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
 		
+		ef_cb_pt = (*iCont)->pt();
+		ef_cb_eta = (*iCont)->eta();
+		ef_cb_phi = (*iCont)->phi();
+		ef_cb_mtype = (*iCont)->type();
 		if( ef_cb_trk){
 		  if( ef_cb_trk->pt() == 0.){
 		    ef_cb_pt  = -1.;
@@ -3204,13 +3215,14 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 		    ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
 		    ef_cb_eta = ef_cb_trk->eta();
 		    ef_cb_phi = ef_cb_trk->phi(); // YY
-		    ef_cb_mtype = ef_cont->at(iCont)->type();
+		    ef_cb_mtype = (*iCont)->type();
 		  }
 		  ATH_MSG_DEBUG("CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
 		  ATH_MSG_DEBUG("CB track found for last_step " << last_step);
 		}else{
 		  ATH_MSG_DEBUG("No CB track found for last_step " << last_step);
 		}
+		ATH_MSG_DEBUG("CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
 	      }
 	    }
 	  }
@@ -3411,7 +3423,7 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	}
 
 	if (ibin_holx >= 0) {
-	  std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(3);
+	  std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(4);
 	  ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
 	  hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
 	  hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
@@ -3810,7 +3822,7 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	if (0 == alg || 1 == alg || 2 == alg) {
 	  // if (ESID == i || ESINDEP == i) {
 	  double sumd, sumn, sumeff, sumerr;
-	  sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
+	  sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);  // 40 - 100 GeV
 	  sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
 	  if (sumd == 0.) {
 	    sumeff = 0.;
@@ -3994,7 +4006,9 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	// at the moment it is not correct if we run the algorithm # 4: mu40_MSonly_barrel .
 	double sumeff, sumerr;
 	double sumn = hist(histZtpNum, hdirztp)->Integral(ibin, ibin);
+	if(isBarrelMon[ialg] || isMSbMon[ialg]) sumn = hist(histZtpNum, hdirztp)->Integral(ibin+1, ibin+1);
 	double sumd = hist(histZtpDen, hdirztp)->Integral(ibin, ibin);
+	if(isBarrelMon[ialg] || isMSbMon[ialg]) sumd = hist(histZtpDen, hdirztp)->Integral(ibin+1, ibin+1);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -4006,8 +4020,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	hist(sumhist, histdireff)->SetBinError(ibin-1, sumerr);
       }
 
-      /* 3. Picking up chainDQ MSonly graph */
-      /* EF efficiency wrt L1, as for the ztp graph = overall HLT efficiency wrt L1: not possible, wrt offline */
+      /* 3. Picking up chainDQ MSonly graph   abandoned!!! */   
+      /* EF efficiency wrt L1, as for the ztp graph = overall HLT efficiency wrt L1: not possible, wrt offline 
       if (isMSbMon[ialg]) {  // skip muIso and MSonly !!!
 	std::string histChNum = chainName + m_MSchainName + MoniAlg + "_Turn_On_Curve_Numerator";
 	// std::string histChDen = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
@@ -4027,6 +4041,7 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	hist(sumhist, histdireff)->SetBinContent(3, sumeff);
 	hist(sumhist, histdireff)->SetBinError(3, sumerr);
       }
+      */	
 
       // 4. Fill L1 summary histograms // to be put in the postprocessor!!
       if (monL1[ialg]) { // MUST skip muGirl, muIso and MSonly as histograms are not defined!!!
@@ -4218,7 +4233,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   
   // Offline
   
-  const float ZERO_LIMIT  = 0.0001;
+  //const float ZERO_LIMIT  = 0.0001;
 
   const float SA_PT_CUT   = 2.5; // GeV
   const float SA_ETA_CUT  = 2.4;
@@ -4305,7 +4320,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	}
       }
       
-      if( fabs(d0) > ZERO_LIMIT || fabs(z0) > ZERO_LIMIT ) { // remove extrapolation-failed tracks
+      //if( fabs(d0) > ZERO_LIMIT || fabs(z0) > ZERO_LIMIT ) { // remove extrapolation-failed tracks, current value d0,z0 seem wrong
         if( fabs(eta) < SA_ETA_CUT &&  fabs(pt) > SA_PT_CUT && fabs(z0) < SA_Z0_CUT ) {
           m_RecMuonSA_pt.push_back(pt);
           m_RecMuonSA_eta.push_back(eta);
@@ -4317,7 +4332,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	  m_RecMuonSA_isGoodCB.push_back(isGoodCB);
 	  ATH_MSG_DEBUG("HLTMuonMon: SA: isgood " << isGoodCB << " pt " << pt);  
         }
-      }
+      //}
     }
 		  
     // if((*muonItr)->isLowPtReconstructedMuon()) nOFLLPT++;  // YY method deprecated
@@ -4366,6 +4381,9 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	float m_ptcone20;
 	(*muonItr)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
 	m_RecMuonCB_ptcone.push_back( m_ptcone20 );
+	float m_etcone20;
+	(*muonItr)->isolation(m_etcone20, xAOD::Iso::etcone20);
+	m_RecMuonCB_etcone.push_back( m_etcone20 );
 	float m_etcone30;
 	(*muonItr)->isolation(m_etcone30, xAOD::Iso::etcone30);
 	m_RecMuonCB_etcone30.push_back( m_etcone30 );

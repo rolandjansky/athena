@@ -118,22 +118,22 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
     addHistogram( new TH1F("muFast_MDT_N_barrel",   "muFast barrel MDT number of hits; MDT nhits; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_N_endcap",   "muFast endcap MDT number of hits; MDT nhits; Entries",  40, 0, 40), histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel",   "muFast barrel MDT Inner  station residual; MDT Inner barrel residual [cm]; Entries",  100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel",   "muFast barrel MDT Middle station residual; MDT Middle barrel residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel",   "muFast barrel MDT Outer  station residual; MDT Outer barrel residual [cm]; Entries",  100, -10, 10), histdirmufast ); 
-	 addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel_OffMatch",   "muFast barrel MDT Inner  station residual matched with Offline; MDT Inner barrel residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-	 addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel_OffMatch",   "muFast barrel MDT Middle station residual matched with Offline; MDT Middle barrel residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-	 addHistogram( new TH1F("muFast_MDT_Out_residual_barrel_OffMatch",   "muFast barrel MDT Outer  station residual matched with Offline; MDT Outer barrel residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel",   "muFast barrel MDT Inner  station residual; MDT Inner barrel residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel",   "muFast barrel MDT Middle station residual; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel",   "muFast barrel MDT Outer  station residual; MDT Outer barrel residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel_OffMatch",   "muFast barrel MDT Inner  station residual matched with Offline; MDT Inner barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel_OffMatch",   "muFast barrel MDT Middle station residual matched with Offline; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel_OffMatch",   "muFast barrel MDT Outer  station residual matched with Offline; MDT Outer barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Inn_N_barrel",   "muFast barrel MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Mid_N_barrel",   "muFast barrel MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Out_N_barrel",   "muFast barrel MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap",   "muFast endcap MDT Inner  station residual; MDT Inner endcap residual [cm]; Entries",  100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap",   "muFast endcap MDT Middle station residual; MDT Middle endcap residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap",   "muFast endcap MDT Outer  station residual; MDT Outer endcap residual [cm]; Entries",  100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap_OffMatch",   "muFast endcap MDT Inner  station residual matched with Offline; MDT Inner endcap residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap_OffMatch",   "muFast endcap MDT Middle station residual matched with Offline; MDT Middle endcap residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap_OffMatch",   "muFast endcap MDT Outer  station residual matched with Offline; MDT Outer endcap residual [cm]; Entries", 100, -10, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap",   "muFast endcap MDT Inner  station residual; MDT Inner endcap residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap",   "muFast endcap MDT Middle station residual; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap",   "muFast endcap MDT Outer  station residual; MDT Outer endcap residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap_OffMatch",   "muFast endcap MDT Inner  station residual matched with Offline; MDT Inner endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap_OffMatch",   "muFast endcap MDT Middle station residual matched with Offline; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap_OffMatch",   "muFast endcap MDT Outer  station residual matched with Offline; MDT Outer endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Inn_N_endcap",   "muFast endcap MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Mid_N_endcap",   "muFast endcap MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Out_N_endcap",   "muFast endcap MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
