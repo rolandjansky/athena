@@ -152,6 +152,8 @@ public:
 public:
   // Used to ensure that the DVLInfo gets registered
   // when the dictionary for this class is loaded.
+  static const std::type_info* initHelper()
+  { return DataModel_detail::DVLInfo<AthenaHitsVector<T> >::initHelper(); };
   static const std::type_info* s_info;
 };
 
@@ -175,8 +177,7 @@ void dvl_makecontainer (size_t nreserve, AthenaHitsVector<T>*& cont)
 // Ensure that the DVLInfo gets registered
 // when the dictionary for this class is loaded.
 template <class T>
-const std::type_info* AthenaHitsVector<T>::s_info =
-  DataModel_detail::DVLInfo<AthenaHitsVector<T> >::initHelper();
+const std::type_info* AthenaHitsVector<T>::s_info = AthenaHitsVector<T>::initHelper();
 
 
 #endif
