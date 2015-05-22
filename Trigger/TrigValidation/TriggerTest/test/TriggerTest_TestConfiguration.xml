@@ -1,6 +1,6 @@
 <?xml version="1.0"?> 
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
-<!-- NB validate this file here before commiting to svn:
+<!-- NB validate this file here before committing to svn:
  
  python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TriggerTest_TestConfiguration.xml
  
@@ -12,13 +12,50 @@
  This xml file is divided into the suites 
  "tapm_val"   : includes tests dependent on each other 
  "tapm_menu"  : independent menu test
- "tapm_long"  : blackholes
  "tapm_slice" : slice tests
+ 
+ to improve parallel running - split further into:
+ tapm_val_pureNewSteering
+ tapm_val_pureNewSteering_ecodes
+ tapm_val_pureNewSteering_prescaling
+ tapm_val_pureNewSteering_merged
+ tapm_val_RDO
+ tapm_val_leakcheck
+ tapm_val_noFPE
+ tapm_val_SC
+ tapm_menu_MC
+ tapm_menu_Phys
+ tapm_val_BS_standalone
+ tapm_val_standalone_Physics
+ tapm_slice_L1CTP
+ tapm_slice_ID
+ tapm_slice_ID_preRTT
+ tapm_slice_egamma
+ tapm_slice_muon
+ tapm_slice_jet
+ tapm_slice_tau
+ tapm_slice_met
+ tapm_slice_bphys
+ tapm_slice_bjet
+ tapm_slice_minbias
+ tapm_slice_egamma_mc
+ tapm_slice_muon_mc
+ tapm_slice_jet_mc
+ tapm_slice_tau_mc
+ tapm_slice_met_mc
+ tapm_slice_bphys_mc
+ tapm_slice_bjet_mc
+ tapm_slice_minbias_mc
+ tapm_slice_minbias_enhanced
+ tapm_menu_heavyion
+ tapm_val_chainorder
+ tapm_val_BS_L2EFMerging
+ 
  -->
 
 <unifiedTestConfiguration>
     <atn>
-        <TEST name="pureNewSteering" type="script" suite="tapm_val">
+        <TEST name="pureNewSteering" type="script" suite="tapm_val_pureNewSteering">
             <options_atn>trigtest.pl --test pureNewSteering --run pureNewSteering --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
             <timelimit>10</timelimit>
             <author>TAPM validation</author>
@@ -29,7 +66,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_ecodes" type="script" suite="tapm_val">
+        <!--TEST name="pureNewSteering_ecodes" type="script" suite="tapm_val_pureNewSteering_ecodes"-->
+        <TEST name="pureNewSteering_ecodes" type="script" suite="tapm_val_pureNewSteering">
             <options_atn>trigtest.pl --test pureNewSteering_ecodes --run pureNewSteering_ecodes --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
             <timelimit>10</timelimit>
             <author>TAPM validation</author>
@@ -40,8 +78,21 @@
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_prescaling" type="script" suite="tapm_val">
+        <!--TEST name="pureNewSteering_prescaling" type="script" suite="tapm_val_pureNewSteering_prescaling"-->
+        <TEST name="pureNewSteering_prescaling" type="script" suite="tapm_val_pureNewSteering">
             <options_atn>trigtest.pl --test pureNewSteering_prescaling --run pureNewSteering_prescaling --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
+            <timelimit>10</timelimit>
+            <author>TAPM validation</author>
+            <nightly_exclude>17.1.X.Y</nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <!--TEST name="pureNewSteering_merged" type="script" suite="tapm_val_pureNewSteering_merged"-->
+        <TEST name="pureNewSteering_merged" type="script" suite="tapm_val_pureNewSteering">
+            <options_atn>trigtest.pl --test pureNewSteering_merged --run pureNewSteering_merged --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
             <timelimit>10</timelimit>
             <author>TAPM validation</author>
             <nightly_exclude>17.1.X.Y</nightly_exclude>
@@ -61,18 +112,22 @@
          </expectations>
          </TEST-->
         
-        <TEST name="AthenaTrigRDO" type="script" suite="tapm_val"> 
-            <options_atn>trigtest.pl --test AthenaTrigRDO --run AthenaTrigRDO --conf TriggerTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TAPM validation</author>
-            <nightly_exclude>17.1.X.Y</nightly_exclude>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
+        <!--NOTE always keep this used as reference for some others -->
+        <TEST name="AthenaTrigRDO" type="script" suite="tapm_val_RDO">  
+         <options_atn>trigtest.pl --test AthenaTrigRDO --run AthenaTrigRDO --conf TriggerTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>17.1.X.Y</nightly_exclude>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST> 
         
-        <TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tapm_val"> 
+        
+        <!--NOTE this has to be in the same suite/group as AthenaTrigRDO and executed afterwards -->
+        <!--TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tapm_val_leakcheck"--> 
+        <TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tapm_val_RDO"> 
             <options_atn>export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so;trigtest.pl --test AthenaTrigRDO_leakcheck --run AthenaTrigRDO_leakcheck --conf TriggerTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TAPM validation</author>
@@ -95,6 +150,8 @@
          </expectations> 
          </TEST--> 
         
+        
+        <!--TEST name="AthenaTrigRDO_noFPE" type="script" suite="tapm_val_noFPE"--> 
         <TEST name="AthenaTrigRDO_noFPE" type="script" suite="tapm_val"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_noFPE --run AthenaTrigRDO_noFPE --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit>
@@ -119,6 +176,7 @@
          </expectations> 
          </TEST--> 
         
+        <!--TEST name="AthenaTrigRDO_StatusCodes" type="script" suite="tapm_val_SC"--> 
         <TEST name="AthenaTrigRDO_StatusCodes" type="script" suite="tapm_val"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_StatusCodes --run AthenaTrigRDO_StatusCodes --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -131,6 +189,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="AthenaTrigRDO_MC_pp_v5" type="script" suite="tapm_menu_MC"-->
         <TEST name="AthenaTrigRDO_MC_pp_v5" type="script" suite="tapm_menu">
             <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v5 --run AthenaTrigRDO_MC_pp_v5 --conf TriggerTest.conf</options_atn>
             <timelimit>45</timelimit>
@@ -141,6 +200,7 @@
             </expectations>
         </TEST>
         
+        <!--TEST name="AthenaTrigRDO_Physics_pp_v5" type="script" suite="tapm_menu_Phys"-->
         <TEST name="AthenaTrigRDO_Physics_pp_v5" type="script" suite="tapm_menu">
             <options_atn>trigtest.pl --test AthenaTrigRDO_Physics_pp_v5 --run AthenaTrigRDO_Physics_pp_v5 --conf TriggerTest.conf</options_atn>
             <timelimit>45</timelimit>
@@ -163,7 +223,9 @@
          </expectations> 
          </TEST> 
          --> 
-        <TEST name="AthenaTrigBS_standalone" type="script" suite="tapm_val"> 
+        
+        <!--TEST name="AthenaTrigBS_standalone" type="script" suite="tapm_val_BS_standalone"--> 
+        <TEST name="AthenaTrigBS_standalone" type="script" suite="tapm_val_BS"> 
             <options_atn>trigtest.pl --test AthenaTrigBS_standalone --run AthenaTrigBS_standalone --conf TriggerTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TAPM validation</author>
@@ -175,17 +237,18 @@
         </TEST> 
         
         
-        <TEST name="MC_pp_v5_standalone" type="script" suite="tapm_val"> 
-            <options_atn>trigtest.pl --test MC_pp_v5_standalone --run MC_pp_v5_standalone --conf TriggerTest.conf</options_atn> 
-            <timelimit>45</timelimit> 
-            <author>TAPM validation</author>
-            <nightly_exclude>17.1.X.Y</nightly_exclude> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>         
+        <!--TEST name="MC_pp_v5_standalone" type="script" suite="tapm_val"> 
+         <options_atn>trigtest.pl - -test MC_pp_v5_standalone - -run MC_pp_v5_standalone - -conf TriggerTest.conf</options_atn> 
+         <timelimit>45</timelimit> 
+         <author>TAPM validation</author>
+         <nightly_exclude>17.1.X.Y</nightly_exclude> 
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST-->         
         
+        <!--TEST name="AthenaTrigRDO_standalone" type="script" suite="tapm_val_RDO_standalone"-->
         <TEST name="AthenaTrigRDO_standalone" type="script" suite="tapm_val"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_standalone --run AthenaTrigRDO_standalone --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -198,9 +261,9 @@
         </TEST> 
         
         
-        
+        <!--TEST name="standalone_Physics" type="script" suite="tapm_val_standalone_Physics"-->         
         <TEST name="standalone_Physics" type="script" suite="tapm_val"> 
-            <options_atn>trigtest.pl - -test standalone_Physics - -run standalone_Physics - -conf TriggerTest.conf</options_atn> 
+            <options_atn>trigtest.pl --test standalone_Physics --run standalone_Physics --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TAPM validation</author>
             <nightly_exclude>17.1.X.Y</nightly_exclude> 
@@ -210,6 +273,8 @@
             </expectations> 
         </TEST> 
         
+        
+        <!--TEST name="LVL1CTPAthenaTrigRDO" type="script" suite="tapm_slice_L1CTP"--> 
         <TEST name="LVL1CTPAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test LVL1CTPAthenaTrigRDO --run LVL1CTPAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -221,6 +286,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="IDAthenaTrigRDO" type="script" suite="tapm_slice_ID"-->
         <TEST name="IDAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test IDAthenaTrigRDO --run IDAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -234,6 +300,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="IDAthenaTrigRDO_preRTTtest" type="script" suite="tapm_slice_ID_preRTT"--> 
         <TEST name="IDAthenaTrigRDO_preRTTtest" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test IDAthenaTrigRDO_preRTTtest --run IDAthenaTrigRDO_preRTTtest --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -245,6 +312,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="ElectronSliceAthenaTrigRDO" type="script" suite="tapm_slice_egamma"-->         
         <TEST name="ElectronSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test ElectronSliceAthenaTrigRDO --run ElectronSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -256,6 +324,7 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
+        
         <!--
          <TEST name="PhotonSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
          <options_atn>trigtest.pl - -test PhotonSliceAthenaTrigRDO - -run PhotonSliceAthenaTrigRDO - -conf TriggerTest.conf</options_atn> 
@@ -269,6 +338,8 @@
          </expectations> 
          </TEST> 
          -->
+        
+        <!--TEST name="MuonSliceAthenaTrigRDO" type="script" suite="tapm_slice_muon"--> 
         <TEST name="MuonSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test MuonSliceAthenaTrigRDO --run MuonSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -280,6 +351,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="JetSliceAthenaTrigRDO" type="script" suite="tapm_slice_jet"--> 
         <TEST name="JetSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test JetSliceAthenaTrigRDO --run JetSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -291,6 +363,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="TauSliceAthenaTrigRDO" type="script" suite="tapm_slice_tau"--> 
         <TEST name="TauSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test TauSliceAthenaTrigRDO --run TauSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -302,6 +375,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="METSliceAthenaTrigRDO" type="script" suite="tapm_slice_met"--> 
         <TEST name="METSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test METSliceAthenaTrigRDO --run METSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -314,6 +388,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="BphysicsSliceAthenaTrigRDO" type="script" suite="tapm_slice_bphys"--> 
         <TEST name="BphysicsSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test BphysicsSliceAthenaTrigRDO --run BphysicsSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -325,20 +400,8 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-        <!--
-         <TEST name="BphysicsSliceAthenaTrigRDO_Kstar" type="script" suite="tapm_slice"> 
-         <options_atn>trigtest.pl - -test BphysicsSliceAthenaTrigRDO_Kstar - -run BphysicsSliceAthenaTrigRDO_Kstar - -conf TriggerTest.conf</options_atn> 
-         <timelimit>20</timelimit> 
-         <author>TAPM validation</author>
-         <mailto> j.kirk@rl.ac.uk </mailto> 
-         <nightly_exclude>16.1.X.Y</nightly_exclude>
-         <nightly_exclude>17.1.X.Y</nightly_exclude>
-         <expectations> 
-         <errorMessage>FAILURE </errorMessage> 
-         <returnValue>0</returnValue> 
-         </expectations> 
-         </TEST>
-         --> 
+        
+        <!--TEST name="BjetSliceAthenaTrigRDO" type="script" suite="tapm_slice_bjet"--> 
         <TEST name="BjetSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test BjetSliceAthenaTrigRDO --run BjetSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
@@ -351,6 +414,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="MinBiasSliceAthenaTrigRDO" type="script" suite="tapm_slice_minbias"--> 
         <TEST name="MinBiasSliceAthenaTrigRDO" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO --run MinBiasSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -408,7 +472,8 @@
         
         <!-- MC tests coming -->
         
-        <TEST name="ElectronSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="ElectronSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_egamma_mc"--> 
+        <TEST name="ElectronSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test ElectronSliceAthenaTrigRDO_MC --run ElectronSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -420,7 +485,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="MuonSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="MuonSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_muon_mc"-->
+        <TEST name="MuonSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test MuonSliceAthenaTrigRDO_MC --run MuonSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -431,7 +497,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="JetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="JetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_jet_mc"--> 
+        <TEST name="JetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test JetSliceAthenaTrigRDO_MC --run JetSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -442,7 +509,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TauSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="TauSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_tau_mc"--> 
+        <TEST name="TauSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test TauSliceAthenaTrigRDO_MC --run TauSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -453,7 +521,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="METSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="METSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_met_mc"--> 
+        <TEST name="METSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test METSliceAthenaTrigRDO_MC --run METSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -465,7 +534,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="BphysicsSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="BphysicsSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_bphys_mc"--> 
+        <TEST name="BphysicsSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test BphysicsSliceAthenaTrigRDO_MC --run BphysicsSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -477,7 +547,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="BjetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="BjetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_bjet_mc"--> 
+        <TEST name="BjetSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test BjetSliceAthenaTrigRDO_MC --run BjetSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>15</timelimit> 
             <author>TAPM validation</author>
@@ -489,7 +560,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="MinBiasSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice"> 
+        <!--TEST name="MinBiasSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_minbias_mc"--> 
+        <TEST name="MinBiasSliceAthenaTrigRDO_MC" type="script" suite="tapm_slice_mc"> 
             <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO_MC --run MinBiasSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
             <timelimit>20</timelimit> 
             <author>TAPM validation</author>
@@ -500,6 +572,7 @@
             </expectations> 
         </TEST> 
         
+        <!--TEST name="MinBiasSliceAthenaTrigRDO_Enhanced" type="script" suite="tapm_slice_minbias_enhanced"--> 
         <TEST name="MinBiasSliceAthenaTrigRDO_Enhanced" type="script" suite="tapm_slice"> 
             <options_atn>trigtest.pl --test MinBiasSliceAthenaTrigRDO_Enhanced --run MinBiasSliceAthenaTrigRDO_Enhanced --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -511,8 +584,7 @@
             </expectations> 
         </TEST> 
         
-        
-        
+        <!--TEST name="AthenaTrigRDO_Physics_HI_v3" type="script" suite="tapm_menu_heavyion"-->
         <TEST name="AthenaTrigRDO_Physics_HI_v3" type="script" suite="tapm_menu">
             <options_atn>trigtest.pl --test AthenaTrigRDO_Physics_HI_v3 --run AthenaTrigRDO_Physics_HI_v3 --conf TriggerTest.conf</options_atn>
             <timelimit>45</timelimit>
@@ -524,7 +596,7 @@
         </TEST>
         
         <!-- test chain execution order -->
-        <TEST name="AthenaTrigRDO_chainOrderAscend" type="script" suite="tapm_val"> 
+        <TEST name="AthenaTrigRDO_chainOrderAscend" type="script" suite="tapm_val_chainorder"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrderAscend --run AthenaTrigRDO_chainOrderAscend --conf TriggerTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TAPM validation</author>
@@ -536,7 +608,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigRDO_chainOrderDescend" type="script" suite="tapm_val"> 
+        <TEST name="AthenaTrigRDO_chainOrderDescend" type="script" suite="tapm_val_chainorder"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrderDescend --run AthenaTrigRDO_chainOrderDescend --conf TriggerTest.conf</options_atn> 
             <timelimit>45</timelimit> 
             <author>TAPM validation</author>
@@ -548,7 +620,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigRDO_chainOrder_compare" type="script" suite="tapm_val"> 
+        <TEST name="AthenaTrigRDO_chainOrder_compare" type="script" suite="tapm_val_chainorder"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_chainOrder_compare --run AthenaTrigRDO_chainOrder_compare --conf TriggerTest.conf</options_atn> 
             <timelimit>10</timelimit> 
             <author>TAPM validation</author>
@@ -562,6 +634,7 @@
         
         
         <!-- Merged L2EF -->
+        <!--TEST name="AthenaTrigBS_L2EFMerging" type="script" suite="tapm_val_BS_L2EFMerging"-->         
         <TEST name="AthenaTrigBS_L2EFMerging" type="script" suite="tapm_val"> 
             <options_atn>trigtest.pl --test AthenaTrigBS_L2EFMerging --run AthenaTrigBS_L2EFMerging --conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
@@ -574,27 +647,54 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="pureNewSteering_merged" type="script" suite="tapm_val">
-            <options_atn>trigtest.pl --test pureNewSteering_merged --run pureNewSteering_merged --conf $ATN_PACKAGE/Testing/TriggerTest.conf</options_atn>
-            <timelimit>10</timelimit>
-            <author>TAPM validation</author>
-            <nightly_exclude>17.1.X.Y</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
+        
         
         <!-- Summary table -->
-        <TEST name="atn_timeline" type="script" suite="tapm_index">
+        <TEST name="atn_timeline" type="script" suite="tapm_index0">
             <doc>ATN timeline</doc>
             <options_atn>atn_timeline.py --atn -p TriggerTest </options_atn>
             <timelimit>10</timelimit>
             <author>Frank Winklmeier</author>
+            <!--prerequisite>tapm_val_pureNewSteering</prerequisite>
+             <prerequisite>tapm_val_pureNewSteering_ecodes</prerequisite>
+             <prerequisite>tapm_val_pureNewSteering_prescaling</prerequisite>
+             <prerequisite>tapm_val_pureNewSteering_merged</prerequisite>
+             <prerequisite>tapm_val_leakcheck</prerequisite>
+             <prerequisite>tapm_val_noFPE</prerequisite>
+             <prerequisite>tapm_val_SC</prerequisite>
+             <prerequisite>tapm_menu_MC</prerequisite>
+             <prerequisite>tapm_menu_Phys</prerequisite>
+             <prerequisite>tapm_val_BS_standalone</prerequisite>
+             <prerequisite>tapm_val_standalone_Physics</prerequisite>
+             <prerequisite>tapm_slice_L1CTP</prerequisite>
+             <prerequisite>tapm_slice_ID</prerequisite>
+             <prerequisite>tapm_slice_ID_preRTT</prerequisite>
+             <prerequisite>tapm_slice_egamma</prerequisite>
+             <prerequisite>tapm_slice_muon</prerequisite>
+             <prerequisite>tapm_slice_jet</prerequisite>
+             <prerequisite>tapm_slice_tau</prerequisite>
+             <prerequisite>tapm_slice_met</prerequisite>
+             <prerequisite>tapm_slice_bphys</prerequisite>
+             <prerequisite>tapm_slice_bjet</prerequisite>
+             <prerequisite>tapm_slice_minbias</prerequisite>
+             <prerequisite>tapm_slice_egamma_mc</prerequisite>
+             <prerequisite>tapm_slice_muon_mc</prerequisite>
+             <prerequisite>tapm_slice_jet_mc</prerequisite>
+             <prerequisite>tapm_slice_tau_mc</prerequisite>
+             <prerequisite>tapm_slice_met_mc</prerequisite>
+             <prerequisite>tapm_slice_bphys_mc</prerequisite>
+             <prerequisite>tapm_slice_bjet_mc</prerequisite>
+             <prerequisite>tapm_slice_minbias_mc</prerequisite>
+             <prerequisite>tapm_slice_minbias_enhanced</prerequisite>
+             <prerequisite>tapm_menu_heavyion</prerequisite>
+             <prerequisite>tapm_val_chainorder</prerequisite>
+             <prerequisite>tapm_val_BS_L2EFMerging</prerequisite-->
+            <prerequisite>tapm_val_pureNewSteering</prerequisite>
             <prerequisite>tapm_val</prerequisite>
+            <prerequisite>tapm_val_chainorder</prerequisite>
             <prerequisite>tapm_menu</prerequisite>
             <prerequisite>tapm_slice</prerequisite>
-            <prerequisite>tapm_long</prerequisite>
+            <prerequisite>tapm_slice_mc</prerequisite>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -604,10 +704,7 @@
             <options_atn>atn_summary.pl</options_atn>
             <timelimit>10</timelimit>
             <author>TAPM validation</author>
-            <prerequisite>tapm_val</prerequisite>
-            <prerequisite>tapm_menu</prerequisite>
-            <prerequisite>tapm_slice</prerequisite>
-            <prerequisite>tapm_long</prerequisite>
+            <prerequisite>tapm_index0</prerequisite>  
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -617,10 +714,7 @@
             <options_atn>echo $ATN_PACKAGE | mail -s "TriggerTest ATN done" "czodrows@cern.ch" </options_atn>
             <timelimit>2</timelimit>
             <author>TAPM validation</author>
-            <prerequisite>tapm_val</prerequisite>
-            <prerequisite>tapm_menu</prerequisite>
-            <prerequisite>tapm_slice</prerequisite>
-            <prerequisite>tapm_long</prerequisite>
+            <prerequisite>tapm_index0</prerequisite>  
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -697,35 +791,35 @@
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False );jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 | sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False );jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 | sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TriggerTest</modulename>
-                    <testname>ValGrindPostScript_TriggerTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
-                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test-->
+                 <modulename>ValGrindPostScript_TriggerTest</modulename>
+                 <testname>ValGrindPostScript_TriggerTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                 <testname>ValgrindAnalysisScript_TriggerTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
                 </testToRemove>
                 <testToRemove>
-                    <jobGroupName>TriggerTestMonitorHistos</jobGroupName>
+                    <jobGroupName>AthenaTriggerTestMonitorHistos</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
                 <alwaysRunPostProc />
@@ -737,29 +831,29 @@
                 </doc>
                 <jobTransformJobName>Valgrind_Physics_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TriggerTest</modulename>
-                    <testname>ValGrindPostScript_TriggerTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
-                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test--> 
+                 <modulename>ValGrindPostScript_TriggerTest</modulename>
+                 <testname>ValGrindPostScript_TriggerTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                 <testname>ValgrindAnalysisScript_TriggerTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test--> 
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -777,29 +871,29 @@
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v5_tight_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TriggerTest/testAthenaTrigRDO.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestMonitorHistos</group>
                 <queue>long</queue>
                 <!--test position="10">
-                    <modulename>ValGrindPostScript_TriggerTest</modulename>
-                    <testname>ValGrindPostScript_TriggerTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
-                    </arg>
-                    <noalarm />
-                </test>
-                <test position="11">
-                    <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
-                    <testname>ValgrindAnalysisScript_TriggerTest</testname>
-                    <testdoc>Create a shortened Valgrind log file</testdoc>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
-                    </arg>
-                    <noalarm />
-                </test-->
+                 <modulename>ValGrindPostScript_TriggerTest</modulename>
+                 <testname>ValGrindPostScript_TriggerTest</testname>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>sed -e '/    definitely lost: / { N; d; }' Valgrind_*_log > Valgrind_test_log_1 </argvalue>
+                 </arg>
+                 <noalarm />
+                 </test>
+                 <test position="11">
+                 <modulename>ValgrindAnalysisScript_TriggerTest</modulename>
+                 <testname>ValgrindAnalysisScript_TriggerTest</testname>
+                 <testdoc>Create a shortened Valgrind log file</testdoc>
+                 <arg>
+                 <argname>command</argname>
+                 <argvalue>python ValgrindAnalysisScript_TriggerTest.py</argvalue>
+                 </arg>
+                 <noalarm />
+                 </test-->
                 <testToRemove>
                     <jobGroupName>RTT:Athena</jobGroupName>
                     <testidentifier>Athena_FileGrepper</testidentifier>
@@ -856,24 +950,24 @@
             </jobTransform>
             
             <!--jobTransform userJobId="LeakCheck_default_repeated_igprof" >
-                <doc>
-                    Memory leak check default menu on same file 4 times
-                </doc>
-                <jobTransformJobName>LeakCheck_default_repeated_igprof</jobTransformJobName>
-                <jobTransformCmd>
-                    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py - -stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(50);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;memFreeze=True;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20];repeatN=4' TriggerTest/testAthenaTrigRDO.py
-                </jobTransformCmd>
-                <group>TriggerTestMonitorHistos</group>
-                <queue>long</queue>
-                <test position="6">
-                    <modulename>CreateIgprofReport_TriggerTest</modulename>
-                    <testname>CreateIgprofReport_TriggerTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>export IGPROFBINDIR=/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/ ; mkdir -p cgi-bin/data ; cp ${IGPROFBINDIR}igprof-navigator cgi-bin ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_live.sql3 ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_total.sql3</argvalue>
-                    </arg>
-                </test>
-            </jobTransform-->
+             <doc>
+             Memory leak check default menu on same file 4 times
+             </doc>
+             <jobTransformJobName>LeakCheck_default_repeated_igprof</jobTransformJobName>
+             <jobTransformCmd>
+             export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/lib:/afs/cern.ch/atlas/offline/external/libunwind/1.1/x86_64-slc6-gcc47-opt/lib;export PATH=${PATH}:/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin; /afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/igprof -d -mp -z -o igprof.mp.gz -t python athena.py - -stdcmalloc -c 'checkLeak=True;testPhysicsV5=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(50);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;memFreeze=True;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20];repeatN=4' TriggerTest/testAthenaTrigRDO.py
+             </jobTransformCmd>
+             <group>TriggerTestMonitorHistos</group>
+             <queue>long</queue>
+             <test position="6">
+             <modulename>CreateIgprofReport_TriggerTest</modulename>
+             <testname>CreateIgprofReport_TriggerTest</testname>
+             <arg>
+             <argname>command</argname>
+             <argvalue>export IGPROFBINDIR=/afs/cern.ch/atlas/offline/external/igprof/5.9.10/x86_64-slc6-gcc47-opt/bin/ ; mkdir -p cgi-bin/data ; cp ${IGPROFBINDIR}igprof-navigator cgi-bin ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_LIVE igprof.mp.gz | sqlite3 cgi-bin/data/igreport_live.sql3 ; ${IGPROFBINDIR}igprof-analyse - -sqlite -d -v -g -r MEM_TOTAL igprof.mp.gz | sqlite3 cgi-bin/data/igreport_total.sql3</argvalue>
+             </arg>
+             </test>
+             </jobTransform-->
             
             <!--
              dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00';fileRange=[1,20]  from AthenaCommon.GlobalFlags import jobproperties;jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-01-01-00';from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;import glob;athenaCommonFlags.FilesInput=glob.glob('/afs/cern.ch/user/p/physval/validafs/disk2/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e2928_s1982_s2008_r5787_tid01606245_00/*') -->
@@ -1048,20 +1142,20 @@
                 <alwaysRunPostProc />
             </athena>
             
-            <athena userJobId="MC_pp_v5_standalone" doMonitoring="True">
-                <doc>
-                    MC_pp_v5_standalone on ttbar RDO 
-                </doc>
-                <displayName>MC_pp_v5_standalone</displayName>
-                <commandLineFlags>
-                    useCONDBR2=False;setGlobalTag='COMCOND-HLTP-004-03';setDetDescr='ATLAS-R1-2012-02-01-00';EvtMax=1000;rerunLVL1=1;testMCV5=True;BSRDOInput='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/DC14_test.00105200.Single_Stream.daq.RAW._lb0001._MC_pp_v5._0001.data'
-                </commandLineFlags>
-                <options>TriggerRelease/runHLT_standalone.py</options>
-                <package>Trigger/TrigValidation/TriggerTest</package>
-                <group>TriggerTestMonitorHistos</group>
-                <queue>long</queue>
-                <alwaysRunPostProc />
-            </athena>
+            <!--athena userJobId="MC_pp_v5_standalone" doMonitoring="True">
+             <doc>
+             MC_pp_v5_standalone on ttbar RDO 
+             </doc>
+             <displayName>MC_pp_v5_standalone</displayName>
+             <commandLineFlags>
+             useCONDBR2=False;setGlobalTag='COMCOND-HLTP-004-03';setDetDescr='ATLAS-R1-2012-02-01-00';EvtMax=1000;rerunLVL1=1;testMCV5=True;BSRDOInput='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/DC14_test.00105200.Single_Stream.daq.RAW._lb0001._MC_pp_v5._0001.data'
+             </commandLineFlags>
+             <options>TriggerRelease/runHLT_standalone.py</options>
+             <package>Trigger/TrigValidation/TriggerTest</package>
+             <group>TriggerTestMonitorHistos</group>
+             <queue>long</queue>
+             <alwaysRunPostProc />
+             </athena-->
             
             
             
@@ -1298,7 +1392,7 @@
                 </test>
                 
                 <test position="2">
-                    <modulename>RttLibraryTools</modulename>
+                    <modulename>PerfMonRunner</modulename>
                     <testname>PerfMonRunner</testname>
                     <testidentifier>PerfMonRunner</testidentifier>
                     <arg>
