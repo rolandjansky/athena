@@ -55,6 +55,8 @@
 
 #include "xAODTracking/TrackParticle.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 
@@ -236,6 +238,13 @@ StatusCode HLTBjetMonTool::book(){
 
  Fired:
 
+  const xAOD::EventInfo* eventInfo = 0;
+  //  CHECK( evtStore()->retrieve( eventInfo) );
+  CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );
+  bool MCflag = true;
+  if ( !eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) MCflag = false;
+
+
   /////////////////////////////////////////
   //
   // Carlo's method, see /Trigger/TrigAnalysis/TrigBtagAnalysis/trunk/src/TrigBtagValidation.cxx
@@ -247,9 +256,12 @@ StatusCode HLTBjetMonTool::book(){
   ATH_MSG_INFO("PROCESSING TRIGITEM  -  " << trigItem);
 
   // Get truth jets
-  const xAOD::JetContainer* truthjets = 0;
-  ATH_CHECK( evtStore()->retrieve(truthjets,"AntiKt4TruthJets") );
-  ATH_MSG_INFO("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
+  if (MCflag) {
+    const xAOD::JetContainer* truthjets = 0;
+    ATH_CHECK( evtStore()->retrieve(truthjets,"AntiKt4TruthJets") );
+    ATH_MSG_INFO("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
+  } // MCflag
+
 
   // Get offline PV
   const xAOD::VertexContainer* offlinepv = 0;
