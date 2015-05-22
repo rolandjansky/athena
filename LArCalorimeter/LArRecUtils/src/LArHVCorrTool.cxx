@@ -45,6 +45,7 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
   m_keyOutput = "LArHVScaleCorr";
   m_keyOutputTd = "LArTdrift";
   m_cacheFilled = false;
+  m_updateOnLastCallback=true;
   m_doTdrift = true;
   m_deltatupdate = 0;
   m_T0 = 90.371;   // parameter for vdrift
