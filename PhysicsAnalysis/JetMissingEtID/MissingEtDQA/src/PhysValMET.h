@@ -74,16 +74,24 @@ class PhysValMET
 
   // Hists
   // TODO: use map (each one for met, set, mpx, ...)
-  TH1D *m_MET_RefFinal, *m_MET_RefEle, *m_MET_RefGamma, *m_MET_RefTau, *m_MET_RefJet, *m_MET_Muons, *m_MET_SoftClus, *m_MET_PVSoftTrk; 
-  TH1D *m_MET_RefFinal_x, *m_MET_RefEle_x, *m_MET_RefGamma_x, *m_MET_RefTau_x, *m_MET_RefJet_x, *m_MET_Muons_x, *m_MET_SoftClus_x, *m_MET_PVSoftTrk_x;
-  TH1D *m_MET_RefFinal_y, *m_MET_RefEle_y, *m_MET_RefGamma_y, *m_MET_RefTau_y, *m_MET_RefJet_y, *m_MET_Muons_y, *m_MET_SoftClus_y, *m_MET_PVSoftTrk_y;
-  TH1D *m_MET_RefFinal_phi, *m_MET_RefEle_phi, *m_MET_RefGamma_phi, *m_MET_RefTau_phi, *m_MET_RefJet_phi, *m_MET_Muons_phi, *m_MET_SoftClus_phi, *m_MET_PVSoftTrk_phi;
-  TH1D *m_SET_RefFinal, *m_SET_RefEle, *m_SET_RefGamma, *m_SET_RefTau, *m_SET_RefJet, *m_SET_Muons, *m_SET_SoftClus, *m_SET_PVSoftTrk;
   TH1D *m_Resolution_TruthNonInt_RefFinal_METx, *m_Resolution_TruthNonInt_RefFinal_METy;
-  TH1D *m_MET_Track, *m_MET_TrackPV, *m_MET_Track_x, *m_MET_TrackPV_x, *m_MET_Track_y, *m_MET_TrackPV_y, *m_MET_Track_phi, *m_MET_TrackPV_phi, *m_SET_Track, *m_SET_TrackPV;
-  TH1D *m_MET_RefFinal_TST, *m_MET_RefFinal_TST_x, *m_MET_RefFinal_TST_y;
+  TH1D *m_MET_Track, *m_MET_Track_x, *m_MET_Track_y, *m_MET_Track_phi, *m_MET_Track_sum;
+  TH1D *m_MET_PVTrack_Nominal, *m_MET_PVTrack_Nominal_x, *m_MET_PVTrack_Nominal_y, *m_MET_PVTrack_Nominal_phi, *m_MET_PVTrack_Nominal_sum;
+  TH1D *m_MET_PVTrack_Pileup, *m_MET_PVTrack_Pileup_x, *m_MET_PVTrack_Pileup_y, *m_MET_PVTrack_Pileup_phi, *m_MET_PVTrack_Pileup_sum;
   TH1D *m_dPhi_leadJetMET, *m_dPhi_subleadJetMET, *m_dPhi_LepMET;
   TH1D *m_MET_significance;
+  
+  std::vector<TH1D*> m_MET_RefFinal;
+  std::vector<TH1D*> m_MET_RefFinal_x;
+  std::vector<TH1D*> m_MET_RefFinal_y;
+  std::vector<TH1D*> m_MET_RefFinal_phi;
+  std::vector<TH1D*> m_MET_RefFinal_sum;
+  std::vector<TH1D*> m_MET_EM;
+  std::vector<TH1D*> m_MET_EM_x;
+  std::vector<TH1D*> m_MET_EM_y;
+  std::vector<TH1D*> m_MET_EM_phi;
+  std::vector<TH1D*> m_MET_EM_sum;
+  std::vector<std::string> dir_met;
 }; 
 
 // I/O operators
