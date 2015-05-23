@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 636390 2014-12-16 21:52:18Z cranshaw $
+// $Id: EventInfo_v1.cxx 669514 2015-05-23 17:45:07Z tcorneli $
 
 // System include(s):
 #include <iostream>
@@ -728,3 +728,5 @@ std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei ) {
    // Return the stream:
    return out;
 }
+
+
