@@ -59,9 +59,6 @@
 #include "muonEvent/CaloEnergy.h"
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "TrkTrackSummary/MuonTrackSummary.h"
-#include "TrkTrackSummary/TrackSummary.h"
 
 namespace Rec
 {
@@ -84,7 +81,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_magFieldSvc			("AtlasFieldSvc",name),
 	m_materialAllocator		(""),
 	m_mdtRotCreator			(""),
-	m_muonErrorOptimizer		("Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool"),
+	m_muonErrorOptimizer		(""),
 	m_muonHoleRecovery		("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
 	m_propagator            	("Trk::IntersectorWrapper/IntersectorWrapper"),
 	m_propagatorSL			("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
@@ -2515,21 +2512,9 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
     // quit if fit has failed
     if (! fittedTrack)	return 0;
 
-
-   // track cleaning
+    // track cleaning
     if (runOutlier)
     {
-    // fit with optimized spectrometer errors
-
-        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
-	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
-	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
-	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
-	  }
-        }
- 
 	// chi2 before clean
 	double chi2Before	= normalizedChi2(*fittedTrack);
 
@@ -2633,17 +2618,6 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
     // track cleaning
     if (runOutlier)
     {
-    // fit with optimized spectrometer errors
-
-        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
-	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
-	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
-	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
-	  }
-        }
-    
 	// chi2 before clean
 	double chi2Before	= normalizedChi2(*fittedTrack);
 	
@@ -2740,17 +2714,6 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     // track cleaning
     if (runOutlier)
     {
-    // fit with optimized spectrometer errors
-
-        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && optimizeErrors(fittedTrack)) {
-	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
-	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
-	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
-	  }
-        }
-    
 	// chi2 before clean
 	double chi2Before	= normalizedChi2(*fittedTrack);
 	
@@ -2795,61 +2758,8 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     
     return fittedTrack;
 }
-
+    
 /*   private methods follow */
-
-bool CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const
-{
-     const Trk::MuonTrackSummary* muonSummary = 0; 
-     const Trk::TrackSummary* summary = track->trackSummary();
-     if ( summary ) {
-       muonSummary = summary->muonTrackSummary();
-     } else { 
-       m_trackSummary->updateTrack(*track);
-       summary = track->trackSummary();
-       muonSummary = summary->muonTrackSummary();
-     }
-     if(!muonSummary) return false;
-
-     typedef Trk::MuonTrackSummary::ChamberHitSummary    ChamberHitSummary;  
-     const std::vector<ChamberHitSummary>& chamberHitSummary = muonSummary->chamberHitSummary();
-     std::vector<ChamberHitSummary>::const_iterator chit = chamberHitSummary.begin();
-     std::vector<ChamberHitSummary>::const_iterator chit_end = chamberHitSummary.end();
-     int optimize = 0;
-     int nBarrel = 0;
-     int nEndcap = 0;
-     int nSmall = 0;
-     int nLarge = 0;
-     for( ;chit!=chit_end;++chit ){
-       const Identifier& id = chit->chamberId();
-       bool isMdt = m_idHelperTool->isMdt(id);
-       if(!isMdt) continue; 
-       Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(id);
-       
-       if( stIndex == Muon::MuonStationIndex::BE ) { 
-         optimize = 1; 
-       }
-       if( stIndex == Muon::MuonStationIndex::BI && m_idHelperTool->chamberIndex(id) == Muon::MuonStationIndex::BIS && abs(m_idHelperTool->stationEta(id)) > 6 ){
-        optimize = 2; 
-       }
-       if( stIndex == Muon::MuonStationIndex::BI || stIndex == Muon::MuonStationIndex::BM || stIndex == Muon::MuonStationIndex::BO || stIndex == Muon::MuonStationIndex::BE) {     
-         nBarrel++;
-       }
-       if( stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || stIndex == Muon::MuonStationIndex::EO || stIndex == Muon::MuonStationIndex::EE) {     
-         nEndcap++;
-       }
-       if( m_idHelperTool->isSmallChamber(id)) {     
-         nSmall++;
-       } else { 
-         nLarge++; 
-       }
-     }
-     if(nBarrel>0&&nEndcap>0) optimize += 10;
-     if(nSmall>0&&nLarge>0) optimize += 100;   
-     if(optimize>0) ATH_MSG_DEBUG( " OptimizeErrors with value " << optimize );
-     if(optimize>0) return true;
-     return false;
-}
 
 Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 {

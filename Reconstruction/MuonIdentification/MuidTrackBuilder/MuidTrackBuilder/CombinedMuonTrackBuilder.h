@@ -156,7 +156,6 @@ namespace Rec
  
     private:
 	// private methods
-        bool optimizeErrors(Trk::Track* track) const;
         Trk::Track* addIDMSerrors(Trk::Track* track) const; 
 	void						appendSelectedTSOS(
 	    DataVector<const Trk::TrackStateOnSurface>&			trackStateOnSurfaces,

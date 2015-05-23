@@ -378,18 +378,6 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		track,
     // track cleaning
     if (runOutlier)
     {
-
-    // fit with optimized spectrometer errors
-        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
-	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
-  	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
-	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
-	  }
-        }
- 
-
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
         Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
@@ -458,16 +446,6 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
     // track cleaning
     if (runOutlier)
     {
-
-    // fit with optimized spectrometer errors
-        if (! m_muonErrorOptimizer.empty() && ! fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
-	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
-  	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
-	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
-	  }
-        }
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
         Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
