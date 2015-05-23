@@ -12,6 +12,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include "GaudiKernel/SystemOfUnits.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "MuidTrackBuilder/MuonTrackQuery.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
@@ -39,9 +40,6 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "muonEvent/CaloEnergy.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include "AthenaKernel/Units.h"
-
-namespace Units = Athena::Units;
 
 namespace Rec
 {
@@ -284,7 +282,7 @@ MuonTrackQuery::fieldIntegral (const Trk::Track& track) const
 						       cosTheta);
 	    }
 	}
-	Amg::Vector3D momentumKick	=  startMomentum.cross(endDirection)/(0.3*Units::GeV);	    
+	Amg::Vector3D momentumKick	=  startMomentum.cross(endDirection)/(0.3*Gaudi::Units::GeV);	    
 	integratedMomentumKick			+= momentumKick;
 
 	// accumulate abs(Bdl) between measurements (distinguish indet and spectrometer)
@@ -704,45 +702,45 @@ MuonTrackQuery::momentumBalanceSignificance (const Trk::Track& track) const
 		{
 		    ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
 				   << " momentum balance  "	<< std::setw(6) << std::setprecision(2)
-				   << energyBalance/Units::GeV
+				   << energyBalance/Gaudi::Units::GeV
 				   << "   significance " 	<< std::setw(6) << std::setprecision(1)
 				   << energyBalance/energyLoss->sigmaDeltaE()
 				   << "  p before/after calo"	<< std::setw(7) << std::setprecision(2)
-				   << previousParameters->momentum().mag()/Units::GeV
+				   << previousParameters->momentum().mag()/Gaudi::Units::GeV
 				   << " /"			<< std::setw(7) << std::setprecision(2)
-				   << (**s).trackParameters()->momentum().mag()/Units::GeV
+				   << (**s).trackParameters()->momentum().mag()/Gaudi::Units::GeV
 				   << "   energy deposit sigma  " 
-				   << energyLoss->sigmaDeltaE()/Units::GeV << " GeV");
+				   << energyLoss->sigmaDeltaE()/Gaudi::Units::GeV << " GeV");
 		    energyBalance /= energyLoss->sigmaDeltaE();
 		}
 		else if (energyBalance < 0.)
 		{
 		    ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
 				   << " momentum balance  "	<< std::setw(6) << std::setprecision(2)
-				   << energyBalance/Units::GeV
+				   << energyBalance/Gaudi::Units::GeV
 				   << "   significance "	<< std::setw(6) << std::setprecision(1)
 				   << energyBalance/energyLoss->sigmaDeltaE()
 				   << "  p before/after calo"	<< std::setw(7) << std::setprecision(2)
-				   << previousParameters->momentum().mag()/Units::GeV
+				   << previousParameters->momentum().mag()/Gaudi::Units::GeV
 				   << " /"			<< std::setw(7) << std::setprecision(2)
-				   << (**s).trackParameters()->momentum().mag()/Units::GeV
+				   << (**s).trackParameters()->momentum().mag()/Gaudi::Units::GeV
 				   << "   energy deposit sigma- " 
-				   << energyLoss->sigmaMinusDeltaE()/Units::GeV << " GeV");
+				   << energyLoss->sigmaMinusDeltaE()/Gaudi::Units::GeV << " GeV");
 		    energyBalance /= energyLoss->sigmaMinusDeltaE();
 		}
 		else
 		{
 		    ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
 				   << " momentum balance  "	<< std::setw(6) << std::setprecision(2)
-				   << energyBalance/Units::GeV
+				   << energyBalance/Gaudi::Units::GeV
 				   << "   significance " 	<< std::setw(6) << std::setprecision(1)
 				   << energyBalance/energyLoss->sigmaDeltaE()
 				   << "  p before/after calo"	<< std::setw(7) << std::setprecision(2)
-				   << previousParameters->momentum().mag()/Units::GeV
+				   << previousParameters->momentum().mag()/Gaudi::Units::GeV
 				   << " /"			<< std::setw(7) << std::setprecision(2)
-				   << (**s).trackParameters()->momentum().mag()/Units::GeV
+				   << (**s).trackParameters()->momentum().mag()/Gaudi::Units::GeV
 				   << "   energy deposit sigma+ " 
-				   << energyLoss->sigmaPlusDeltaE()/Units::GeV << " GeV");
+				   << energyLoss->sigmaPlusDeltaE()/Gaudi::Units::GeV << " GeV");
 		    energyBalance /= energyLoss->sigmaPlusDeltaE();
 		}	
 		break;
@@ -1247,7 +1245,7 @@ MuonTrackQuery::spectrometerPhiQuality (const Trk::Track& track) const
     // FIXME: check separation between phi meas
     double separation	= (leadingPhiMeasurement->trackParameters()->position() -
 			   trailingPhiMeasurement->trackParameters()->position()).mag();
-    if (separation < 2.*Units::meter)	return 1;
+    if (separation < 2.*Gaudi::Units::meter)	return 1;
     return 0;
 }
     

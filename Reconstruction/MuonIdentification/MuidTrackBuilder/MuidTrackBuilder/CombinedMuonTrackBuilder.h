@@ -98,13 +98,11 @@ namespace Rec
 	/**ICombinedMuonTrackBuilder interface:
 	   propagate to perigee adding calo energy-loss and material to MS track */
 	Trk::Track*		standaloneFit	(const Trk::Track&	spectrometerTrack,
-						 const Trk::Vertex*	vertex,
-                                                 float bs_x, float bs_y, float bs_z ) const;
+						 const Trk::Vertex*	vertex) const;
 
 	/**ICombinedMuonTrackBuilder interface:
 	   refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack,
-                                                 float bs_x, float bs_y, float bs_z ) const;
+	Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack) const;
 	
 	/**ITrackFitter interface:
 	   refit a track */
@@ -158,7 +156,6 @@ namespace Rec
  
     private:
 	// private methods
-        bool optimizeErrors(Trk::Track* track) const;
         Trk::Track* addIDMSerrors(Trk::Track* track) const; 
 	void						appendSelectedTSOS(
 	    DataVector<const Trk::TrackStateOnSurface>&			trackStateOnSurfaces,
@@ -222,8 +219,7 @@ namespace Rec
 	    const Trk::RecVertex*					vertex) const;
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
-        int countAEOTs(const Trk::Track* track, std::string txt ) const;
-        bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
+
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
@@ -286,10 +282,10 @@ namespace Rec
 	mutable const Trk::TrackingVolume*		m_spectrometerEntrance;
 	
 	// vertex region and phi modularity for pseudo-measurement constraints
-	mutable Trk::RecVertex*					m_beamAxis;
-	mutable Trk::PerigeeSurface*				m_perigeeSurface;
+	Trk::RecVertex*					m_beamAxis;
+	Trk::PerigeeSurface*				m_perigeeSurface;
 	double						m_sigmaPhiSector;
-	mutable Trk::RecVertex*					m_vertex;
+	Trk::RecVertex*					m_vertex;
 
 	// counters
 	mutable unsigned				m_countAcceptedStandaloneFit;
