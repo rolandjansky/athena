@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 667437 2015-05-15 20:10:40Z cohm $
+// $Id: EventInfo_v1.cxx 669514 2015-05-23 17:45:07Z tcorneli $
 
 // System include(s):
 #include <iostream>
@@ -17,7 +17,7 @@
 #include "xAODEventInfo/EventInfoContainer.h"
 #include "EventInfoAccessors_v1.h"
 
-namespace xAODEventInfoPrivate {
+namespace {
 
    // Forward declaration(s):
    template< typename T >
@@ -48,7 +48,6 @@ namespace xAODEventInfoPrivate {
 } // private namespace
 
 namespace xAOD {
-using xAODEventInfoPrivate::operator<<;
 
    EventInfo_v1::EventInfo_v1()
       : SG::AuxElement(), m_streamTags(), m_updateStreamTags( false ),
@@ -681,6 +680,8 @@ using xAODEventInfoPrivate::operator<<;
       return;
    }
 
+} // namespace xAOD
+
 /// This operator is provided to make it convenient to print debug messages
 /// including information about the current event. With something like:
 ///
@@ -728,5 +729,4 @@ std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei ) {
    return out;
 }
 
-} // namespace xAOD
 
