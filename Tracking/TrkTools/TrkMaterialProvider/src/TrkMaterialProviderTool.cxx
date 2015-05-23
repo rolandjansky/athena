@@ -20,6 +20,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "muonEvent/CaloEnergy.h"
 
@@ -71,6 +72,7 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_DetID(0),
 	m_calorimeterVolume(0),
 	m_indetVolume(0),
+        m_magFieldSvc           ("AtlasFieldSvc",n),
 	m_maxNTracksIso(2),
 	m_paramPtCut(15.0*Gaudi::Units::GeV),
 	m_useCaloEnergyMeasurement(true),
@@ -88,6 +90,7 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
   declareProperty("CaloMeasTool",		m_caloMeasTool);
   declareProperty("CaloParamTool",		m_caloParamTool);
   declareProperty("TrackIsolationTool",	m_trackIsolationTool);
+  declareProperty("MagFieldSvc",                      m_magFieldSvc);
   declareProperty("MaxNTracksIso", m_maxNTracksIso);
   declareProperty("ParamPtCut", m_paramPtCut);
   declareProperty("UseCaloEnergyMeasurement", m_useCaloEnergyMeasurement);
@@ -119,6 +122,8 @@ Trk::TrkMaterialProviderTool::initialize()
     }
   }
   ATH_CHECK(m_trackIsolationTool.retrieve());
+
+  ATH_CHECK(m_magFieldSvc.retrieve());
 
   // need an Atlas id-helper to identify sub-detectors, take the one from detStore
   if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
@@ -480,7 +485,8 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   double Eloss = 0.; 
   // get calorimeter TSOS from TG
   DataVector<const Trk::TrackStateOnSurface>* caloTSOS = this->getCaloTSOS (*(*lastIDwP)->trackParameters(),
-									    msTrack,
+									    // idTrack,
+									    m_magFieldSvc->toroidOn() ? msTrack : idTrack,
 									    (*firstMSnotPerigee)->surface(),
 									    Trk::alongMomentum, 
 									    Trk::muon,
