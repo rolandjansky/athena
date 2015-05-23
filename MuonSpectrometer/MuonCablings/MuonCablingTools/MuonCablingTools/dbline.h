@@ -268,19 +268,9 @@
 #include <typeinfo>
 #include <stdint.h>
 
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    #include <sstream>
-    typedef std::ostringstream __osstream;
-    typedef std::istringstream __isstream;
-#else
-    // put your gcc 2.95 specific code here
-    #include <strstream>
-    typedef ostrstream __osstream;
-    typedef istrstream __isstream;
-#endif
-
+#include <sstream>
+typedef std::ostringstream __osstream;
+typedef std::istringstream __isstream;
 
 typedef enum result_extraction {not_extracted,extracted} DBstatus;
 
@@ -305,6 +295,7 @@ class DBline: virtual public std::ios
     bool                   m_fail;
     bool                   m_empty;
     DBstatus               m_extraction;
+    int                    m_base;
 
 
     // Private member functions for setting internal status
@@ -323,6 +314,7 @@ class DBline: virtual public std::ios
 
     // Private member functions for extracting data
     template <class type> void GetValue(type &value);
+    void GetValue(std::string &value);
     quote check_quote(std::string &);
     void GetStr(std::string &);
 

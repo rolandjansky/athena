@@ -20,7 +20,7 @@ const char RPCdecoder::value_descriptions[4][15] =
         {{"strip_type"},{"logic_sector"},{"lvl1_station"},{"rpc_layer"}};
 
 ///////////////////////////////////////////////////////////////////////////////
-RPCdecoder::RPCdecoder() {this->reset_status();}
+RPCdecoder::RPCdecoder() {this->reset();}
 
 RPCdecoder::RPCdecoder(unsigned int code)
 {
@@ -53,7 +53,7 @@ RPCdecoder::RPCdecoder(const RPCdecoder& deco)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RPCdecoder RPCdecoder::operator = (const RPCdecoder& deco)
+RPCdecoder& RPCdecoder::operator = (const RPCdecoder& deco)
 {
     this->reset();
     this->set_indexes(deco.code());
@@ -89,15 +89,7 @@ RPCdecoder::reset_status()
 void
 RPCdecoder::fault_decoding(int value,value_type type)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
     disp << " RPC decoder error: received " << value_descriptions[type]
          << " = " << value << "  (min = " << value_boundaries[type][0]
          << ", max = " << value_boundaries[type][1] << ")"<< endl;

@@ -45,12 +45,7 @@ enum ObjectType {Logic,Data,Hardware,Monitoring};
 class MessageStream
 {
     private:
-#if (__GNUC__) && (__GNUC__ > 2)     // put your gcc 3.2 specific code here
     __osstream* m_display;
-#else                                // put your gcc 2.95 specific code here
-    char* m_buffer_display;
-    __osstream* m_display;
-#endif
     public:
     void init_message(void);
     void delete_message(void);  
@@ -79,7 +74,7 @@ class BaseObject
     BaseObject (const BaseObject&);
     ~BaseObject();
 
-    BaseObject operator = (const BaseObject&);
+    BaseObject& operator = (const BaseObject&);
 
     ObjectType  tag(void)  const {return m_tag;}
     std::string name(void) const {return m_name;}

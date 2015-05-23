@@ -15,29 +15,13 @@ using namespace std;
 void
 MessageStream::init_message()
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     m_display = new __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    const int buffer_length=10000;
-    m_buffer_display = new char[buffer_length];
-    for(int i=0;i<buffer_length;++i) m_buffer_display[i]='\0';
-    m_display = new __osstream(m_buffer_display,buffer_length);
-#endif
 }
 
 void
 MessageStream::delete_message()
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     delete m_display;
-#else
-    // put your gcc 2.95 specific code here
-    delete []m_buffer_display;
-    delete m_display;
-#endif
 }
 
 
@@ -157,10 +141,14 @@ BaseObject::unlock() const
     pthread_mutex_unlock(&StopDisplayStream);
 }
 
-BaseObject
+BaseObject&
 BaseObject::operator=(const BaseObject& obj)
 {
-    m_tag  = obj.tag();
-    m_name = obj.name();
+    if(this!=&obj) {
+      m_tag  = obj.m_tag;
+      m_name = obj.m_name;
+      delete m_message;
+      m_message = new MessageStream;
+    }
     return*this;
 }

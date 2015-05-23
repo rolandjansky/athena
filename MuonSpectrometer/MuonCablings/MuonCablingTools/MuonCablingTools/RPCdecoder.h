@@ -6,21 +6,9 @@
 #define RPCDECODER_H
 
 #include "MuonCablingTools/RPCdef.h"
-
 #include <iostream>
-
-
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    #include <sstream>
-    typedef std::ostringstream __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    #include <strstream>
-    typedef ostrstream __osstream;
-#endif
-
+#include <sstream>
+typedef std::ostringstream __osstream;
 
 class RPCdecoder
 {
@@ -59,7 +47,7 @@ class RPCdecoder
     RPCdecoder(ViewType,int,int,int,int,int);
 
     RPCdecoder(const RPCdecoder& deco);
-    RPCdecoder operator = (const RPCdecoder& deco);
+    RPCdecoder& operator = (const RPCdecoder& deco);
 
     ~RPCdecoder() {}
 
@@ -95,17 +83,7 @@ class RPCdecoder
 template <class X> X& operator<<(X& stream,const RPCdecoder& decoder)
 {
 
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[10000];
-    for (int i=0;i<10000;++i) buffer[i] = '\0';
-    __osstream display(buffer,10000);
-#endif
-
     decoder.Print(display,false);
     stream << display.str();
     return stream;

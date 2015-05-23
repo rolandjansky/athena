@@ -7,17 +7,8 @@
 
 #include <iostream>
 
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    #include <sstream>
-    typedef std::ostringstream __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    #include <strstream>
-    typedef ostrstream __osstream;
-#endif
-
+#include <sstream>
+typedef std::ostringstream __osstream;
 
 template <class Type>
 class ShowRequest
@@ -53,16 +44,7 @@ template <class Type> std::ostream& operator<<
     (std::ostream& stream,const ShowRequest<Type>& print)
 {
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[50000];
-    for (int i=0;i<50000;++i) buffer[i] = '\0';
-    __osstream display(buffer,50000);
-#endif
-
     print.m_object->Print(display,print.m_detail);
     stream << display.str();
     return stream;
@@ -74,17 +56,7 @@ template <class Type> std::ostream& operator<<
 template <class Type> MsgStream& operator<<
     (MsgStream& stream,const ShowRequest<Type>& print)
 {
-
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[50000];
-    for (int i=0;i<50000;++i) buffer[i] = '\0';
-    __osstream display(buffer,50000);
-#endif
-
     print.m_object->Print(display,print.m_detail);
     stream << display.str();
     return stream;

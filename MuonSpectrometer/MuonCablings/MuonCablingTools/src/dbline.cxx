@@ -3,6 +3,7 @@
 */
 
 #include "MuonCablingTools/dbline.h"
+#include <type_traits>
 
 using namespace std;
 
@@ -72,17 +73,46 @@ template <class type> void
 DBline::GetValue(type &value)
 {
     if (!m_extraction||m_fail) return;
-    unsigned long int start = m_data.find_first_not_of(" ",m_pos);
+    std::string::size_type start = m_data.find_first_not_of(" ",m_pos);
     if(start == string::npos) {BadExtraction();return;}
-    unsigned long int stop = m_data.find_first_of(" ",start+1) - 1;
+    std::string::size_type stop = m_data.find_first_of(" ",start+1);
+    if (stop == std::string::npos) stop = m_data.size();
 
-    __isstream tmp(m_data.substr(start,stop).c_str());
+//    __isstream tmp(m_data.substr(start,stop).c_str());
 
-    tmp.flags(flags());
-    tmp >> value;
+//    tmp.flags(flags());
+//    tmp >> value;
+    
+    if (typename std::is_unsigned<type>::type()) {
+      unsigned long temp=std::stoul(m_data.substr(start,stop-start),nullptr,m_base);
+      value = temp;
+    }
+    else {
+      int temp=std::stoi(m_data.substr(start,stop-start),nullptr,m_base);
+      value=temp;
+    }
 
-    unsigned long int del = (stop - start) + (start - m_pos) + 1;
-    m_data.erase(m_pos,del);
+    m_data.erase(m_pos,stop-m_pos);
+    check_data();
+}
+
+void
+DBline::GetValue(std::string &value)
+{
+    if (!m_extraction||m_fail) return;
+    std::string::size_type start = m_data.find_first_not_of(" ",m_pos);
+    if(start == string::npos) {BadExtraction();return;}
+    std::string::size_type stop = m_data.find_first_of(" ",start+1);
+    if (stop == std::string::npos) stop = m_data.size();
+
+//    __isstream tmp(m_data.substr(start,stop).c_str());
+
+//    tmp.flags(flags());
+//    tmp >> value;
+	
+    value = m_data.substr(start,stop-start);
+
+    m_data.erase(m_pos,stop-m_pos);
     check_data();
 }
 
@@ -91,7 +121,7 @@ DBline::GetStr(string &str)
 {
     GetValue(str);
     quote pos = check_quote(str);
-    if(!pos) {return;}
+    if(pos == no_quote) {return;}
     if(pos == begin_quote)
     {
 	unsigned long int pos = m_data.find('"',m_pos);
@@ -188,15 +218,8 @@ DBline::token(const string &str, type t)
     if (pos != string::npos)
     {
       __osstream tmp;
-#if (__GNUC__) && (__GNUC__ > 2) 
-      // put your gcc 3.2 specific code here
       tmp << t ;
       string rep = tmp.str();
-#else
-      // put your gcc 2.95 specific code here
-      tmp << t << ends;
-      string rep(tmp.str());
-#endif
 
       new_token.replace(pos,rep.length(),rep);
       token(new_token);
@@ -214,15 +237,8 @@ DBline::token(const string &str, type t, int /*size*/)
     if (pos != string::npos)
     {
       __osstream tmp;
-#if (__GNUC__) && (__GNUC__ > 2) 
-      // put your gcc 3.2 specific code here
       tmp << setw(2) << setfill('0') << t ;
       string rep = tmp.str();
-#else
-      // put your gcc 2.95 specific code here
-      tmp << t << ends;
-      string rep(tmp.str());
-#endif
 
       new_token.replace(pos,rep.length(),rep);
       token(new_token);
@@ -257,10 +273,10 @@ const char* DBline::dump(void) {return m_store.c_str();}
 //////////////////////// FUNCTIONS TO SET THE I/O FORMAT //////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-DBline& DBline::hex(void){setf(ios::hex,ios::basefield);return*this;}
-DBline& DBline::dec(void){setf(ios::dec,ios::basefield);return*this;}
-DBline& DBline::oct(void){setf(ios::dec,ios::basefield);return*this;}
-DBline& DBline::reset_fmt(void) {flags(m_default);return*this;}
+DBline& DBline::hex(void){m_base=16;setf(ios::hex,ios::basefield);return*this;}
+DBline& DBline::dec(void){m_base=10;setf(ios::dec,ios::basefield);return*this;}
+DBline& DBline::oct(void){m_base=8; setf(ios::dec,ios::basefield);return*this;}
+DBline& DBline::reset_fmt(void) {m_base=10;flags(m_default);return*this;}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -298,6 +314,10 @@ DBline& DBline::operator>> (uint64_t &i64)        {GetValue(i64);return*this;}
 
 DBline& DBline::operator>> (DBfmt* f) {
   flags(f->flags());
+  const std::ios_base::fmtflags fmt = f->flags() & std::ios_base::basefield;
+  if (fmt == std::ios::hex) m_base = 16;
+  else if (fmt == std::ios::oct) m_base = 8;
+  else m_base = 10;
   if(del_dbfmt)delete f;
   return*this;
 }
@@ -376,7 +396,8 @@ DBline::operator()(const string& str, int n, int s) {token(str,n,s);return*this;
 DBline::DBline(): 
   m_file(0),m_stream(0),m_data(""),m_backup(""),m_store(""),
   m_pos(0), m_line(0), 
-  m_fail(false),m_empty(false),m_extraction(extracted)
+  m_fail(false),m_empty(false),m_extraction(extracted),
+  m_base(10)
 {
   this->setf  (std::ios::unitbuf |
                std::ios::dec     );
@@ -406,7 +427,8 @@ DBline::DBline():
 DBline::DBline(ifstream& file): 
   m_file(&file),m_stream(0),m_data(""),m_backup(""),m_store(""),
   m_pos(0), m_line(0), 
-  m_fail(false),m_empty(false),m_extraction(extracted)
+  m_fail(false),m_empty(false),m_extraction(extracted),
+  m_base(10)
 {
   this->setf  (std::ios::unitbuf |
                std::ios::dec     );
@@ -437,7 +459,8 @@ DBline::DBline(ifstream& file):
 DBline::DBline(istream& stream): 
   m_file(0),m_stream(&stream),m_data(""),m_backup(""),m_store(""),
   m_pos(0), m_line(0), 
-  m_fail(false),m_empty(false),m_extraction(extracted)
+  m_fail(false),m_empty(false),m_extraction(extracted),
+  m_base(10)
 {
   this->setf  (std::ios::unitbuf |
                std::ios::dec     );
