@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventAuxInfo_v1.cxx 638431 2015-01-09 00:56:12Z ssnyder $
+// $Id: EventAuxInfo_v1.cxx 667437 2015-05-15 20:10:40Z cohm $
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
@@ -11,9 +11,32 @@ namespace xAOD {
 
    EventAuxInfo_v1::EventAuxInfo_v1()
      : AuxInfoBase(),
+       runNumber(0),
+       eventNumber(0),
+       lumiBlock(0),
+       timeStamp(0),
+       timeStampNSOffset(0),
+       bcid(0),
+       detectorMask0(0),
+       detectorMask1(0),
        detectorMask2(0),
        detectorMask3(0),
        eventTypeBitmask(0),
+       statusElement(0),
+       extendedLevel1ID(0),
+       level1TriggerType(0),
+       actualInteractionsPerCrossing(0),
+       averageInteractionsPerCrossing(0),
+       pixelFlags(0),
+       sctFlags(0),
+       trtFlags(0),
+       larFlags(0),
+       tileFlags(0),
+       muonFlags(0),
+       forwardDetFlags(0),
+       coreFlags(0),
+       backgroundFlags(0),
+       lumiFlags(0),
        beamPosX(0),
        beamPosY(0),
        beamPosZ(0),
