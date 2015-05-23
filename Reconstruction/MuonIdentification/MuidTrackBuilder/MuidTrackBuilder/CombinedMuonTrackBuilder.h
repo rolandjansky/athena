@@ -31,11 +31,8 @@
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace MagField {
-	class IMagFieldSvc;
+    class IMagFieldSvc;
 }
-
-
-
 
 class CaloEnergy;
 class MessageHelper;
