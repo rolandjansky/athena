@@ -14,6 +14,7 @@
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkSurfaces/Surface.h"
@@ -25,6 +26,11 @@
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
+
+namespace MagField {
+  class IMagFieldSvc;
+}
 
 namespace Trk {
   class IExtrapolator; 
@@ -176,6 +182,8 @@ namespace Trk{
     const AtlasDetectorID *m_DetID;
     const Trk::Volume* m_calorimeterVolume;
     const Trk::Volume* m_indetVolume;
+
+    ServiceHandle<MagField::IMagFieldSvc>           m_magFieldSvc;
 
     bool m_applyTGScaling;
     bool m_repositionTSOS;
