@@ -695,32 +695,46 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	  }
       }
     
-    // create a muon track without perigee in case of non-optimal precision -
-    //   such as need to replace calorimeter material or presence of pseudomeasurements
+
     Trk::Track* muonTrack = 0;
-    if (! surface)		// extrapolate outwards to associate calorimeter material effects
-    {
-      ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-      muonTrack = createMuonTrack(extrapolatedTrack,
+
+//    if (m_trackQuery->isLineFit(extrapolatedTrack) || !m_magFieldSvc->toroidOn()) {
+    if (!m_magFieldSvc->toroidOn()) {
+        ATH_MSG_VERBOSE(" SL MS track: Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
+        muonTrack = createMuonTrack(indetTrack,
 				  indetTrack.perigeeParameters(),
 				  0,
 				  extrapolatedTrack.trackStateOnSurfaces()->begin(),
 				  extrapolatedTrack.trackStateOnSurfaces()->end(),
 				  extrapolatedTrack.trackStateOnSurfaces()->size());
-    }
-    else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1)	// remove pseudo meas
-    {
-      ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
-      muonTrack = createMuonTrack(extrapolatedTrack,
+
+    } else {
+    // create a muon track without perigee in case of non-optimal precision -
+    //   such as need to replace calorimeter material or presence of pseudomeasurements
+      if (! surface)		// extrapolate outwards to associate calorimeter material effects
+      {
+        ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
+        muonTrack = createMuonTrack(extrapolatedTrack,
+				  indetTrack.perigeeParameters(),
+				  0,
+				  extrapolatedTrack.trackStateOnSurfaces()->begin(),
+				  extrapolatedTrack.trackStateOnSurfaces()->end(),
+				  extrapolatedTrack.trackStateOnSurfaces()->size());
+      }
+      else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1)	// remove pseudo meas
+      {
+        ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
+        muonTrack = createMuonTrack(extrapolatedTrack,
 				  0,
 				  0,
 				  extrapolatedTrack.trackStateOnSurfaces()->begin(),
 				  extrapolatedTrack.trackStateOnSurfaces()->end(),
 				  extrapolatedTrack.trackStateOnSurfaces()->size());
-    }
-    else			// otherwise can just copy the extrapolated track
-    {
+      }
+      else			// otherwise can just copy the extrapolated track
+      {
 	muonTrack = new Trk::Track(extrapolatedTrack);
+      }
     }
 
     // no combined muon when failure to intersect calo
