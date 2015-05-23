@@ -12,6 +12,7 @@ use TrkEventUtils       TrkEventUtils-*      Tracking/TrkEvent
 use EventPrimitives     EventPrimitives-*    Event
 use AtlasDetDescr       AtlasDetDescr-*      DetectorDescription
 use Identifier          Identifier-*         DetectorDescription 
+use MagFieldInterfaces          MagFieldInterfaces-*            MagneticField
 use muonEvent           muonEvent-*          Reconstruction/MuonIdentification
 
 use MuidEvent           MuidEvent-*          Reconstruction/MuonIdentification
