@@ -78,7 +78,7 @@ typedef map_det_th2ptr::const_iterator citer_det_th2ptr;
 //typedef std::map<Sampling, std::deque<Region> > sam_region_map_t;
 
 
-static const double coarse_pi = 3.2;
+//static const double coarse_pi = 3.2;
 
 
 /*----------------------------------------------------------------------------*/
@@ -670,8 +670,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
 	if ( _monitor_burst){
 	  //	if ( _monitor_positive_noise ) {
-	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
-	    " with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma";
+	  std::string his_title    = "Yield of channels with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma -"+ detector_str( det );
 	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
 	  factory_ptr->SetXTitle("Percent of Channels");
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
@@ -681,8 +680,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
 	if ( _monitor_burst){
 	  //	if ( _monitor_negative_noise ) {
-	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
-	    " with -E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma";
+	  std::string his_title    = "Yield of channels with -E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma - " + detector_str( det );
 	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
 	  factory_ptr->SetXTitle("Percent of Channels");
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
@@ -692,8 +690,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	// Noise fraction (Positive only) histogram when not flagged by LArNoisyROAlg_W 
 	if ( _monitor_burst){
 	  //	if ( _monitor_negative_noise ) {
-	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
-	    " with Wheighted Flag > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma";
+	  std::string his_title    = "Yield of channels with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma (no LArNoisyRO_StdOpt) -"+ detector_str( det );
 	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
 	  factory_ptr->SetXTitle("Percent of Channels");
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
@@ -704,8 +701,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	// Noise fraction (Positive only) histogram when not flagged by LArNoisyROAlg
 	if ( _monitor_burst){
 	  //	if ( _monitor_positive_noise ) {
-	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
-	    " with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma (Events with No Bursty FEBs)";
+	  std::string his_title    = "Yield of channels with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma (no LArNoisyRO_Std) -"+ detector_str( det );
 	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
 	  factory_ptr->SetXTitle("Percent of Channels");
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
@@ -715,8 +711,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	// Noise fraction (Positive only) histogram when flagged by LArNoisyROAlg but without time bit set (time veto)
 	if ( _monitor_burst){
 	  //	if ( _monitor_positive_noise ) {
-	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
-	    " with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma (Events with no LArEventInfo::ERROR )";
+	  std::string his_title    = "Yield of channels with +E > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma (time vetoed) -"+ detector_str( det );
 	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
 	  factory_ptr->SetXTitle("Percent of Channels");
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
@@ -724,18 +719,15 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	}
 
 	if ( _monitor_signal ) {
-	  std::string his_title    = "Sum of the energy (MeV) in all channels of the " + detector_str( det ) + " (no LArEventInfo::ERROR)";
+	  std::string his_title    = "Energy sum (time vetoed) " + detector_str( det );
 	  factory_ptr.reset(new LWHistProfileFactory(his_title.c_str(),_n_lumi_blocks, 0.5, double(_n_lumi_blocks)+0.5 ));
 	  factory_ptr->SetXTitle("Luminosity Block");
-	  factory_ptr->SetYTitle("Mean total energy per lumi block (MeV)");
+	  factory_ptr->SetYTitle("Mean total energy(MeV)");
           det_histogram_factories[det][pedestal_evolution_h] = factory_ptr;
 	}
 
 	if ( _monitor_burst ) {
-	  std::string his_title    = "Number Of Events With More Than " +
-	    std::string( Form( "%.2f", _noise_burst_percent_thresholds[det]) ) +
-	    " % Of All Channels In The " + detector_str(det) + " Reporting |E| > " +
-	    lexical_cast<std::string>( _noise_threshold ) + "#sigma";
+	  std::string his_title    = "# of Events With Y_{3#sigma}>" + std::string( Form( "%.2f", _noise_burst_percent_thresholds[det]) ) + " % - " + detector_str(det);
 	  //	  TH1F graft( ("det_burst_graft"+detector_str(det)).c_str(), his_title.c_str(), 1440, -0.5, 1439.5 );
           factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),_n_lumi_blocks, 0.5, double(_n_lumi_blocks)+0.5));
           factory_ptr->SetXTitle("Luminosity Block");
@@ -745,10 +737,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
 	// With Time Veto
 	if ( _monitor_burst ) {
-	  std::string his_title    = "Number Of Events (after LArNoisyRO Time Veto) With More Than " +
-	    std::string( Form( "%.2f", _noise_burst_percent_thresholds[det]) ) +
-	    " % Of All Channels In The " + detector_str(det) + " Reporting |E| > " +
-	    lexical_cast<std::string>( _noise_threshold ) + "#sigma";
+	  std::string his_title    = "# of Events With Y_{3#sigma}>" + std::string( Form( "%.2f", _noise_burst_percent_thresholds[det]) ) + " % (time vetoed)- " + detector_str(det);
 	  //	  TH1F graft( ("det_burst_graft"+detector_str(det)).c_str(), his_title.c_str(), 1440, -0.5, 1439.5 );
           factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),_n_lumi_blocks, 0.5, double(_n_lumi_blocks)+0.5));
           factory_ptr->SetXTitle("Luminosity Block");
@@ -801,7 +790,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	}
 
 	if ( _monitor_signal ) {
-	  std::string his_title    = "Sum of the energy (MeV) in all channels of the " + detector_str( det ) + " per bunch crossing ";
+	  std::string his_title    = "Energy sum per bunch crossing - " + detector_str( det );
 	  factory_ptr.reset(new LWHistProfileFactory(his_title.c_str(),3564, 0.5, 3564.5 ));
 	  factory_ptr->SetXTitle("Bunch Crossing Number");
 	  factory_ptr->SetYTitle("Mean total energy (MeV)");

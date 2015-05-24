@@ -123,6 +123,23 @@ LArDigitMon::~LArDigitMon()
 {
 }
 
+StatusCode 
+LArDigitMon::finalize()
+{
+  msg(MSG::INFO)<<"Finalize LArDigitMon" << endreq;
+  DeleteHist(BarrelA);
+  DeleteHist(BarrelC);
+  DeleteHist(EmecA);
+  DeleteHist(EmecC);
+  DeleteHist(HecA);
+  DeleteHist(HecC);
+  DeleteHist(FcalA);
+  DeleteHist(FcalC);
+  
+  return StatusCode::SUCCESS;
+ 
+}
+
 /*---------------------------------------------------------*/
 StatusCode 
 LArDigitMon::initialize()
@@ -494,6 +511,7 @@ LArDigitMon::fillHistograms()
     
   }/** End of loop on LArDigit*/
   
+  // Loop on all partition histograms to renormalise by the number of channels
   ScalePartition(BarrelA);
   ScalePartition(BarrelC);
   ScalePartition(EmecA);
@@ -523,14 +541,14 @@ StatusCode LArDigitMon::procHistograms()
     FillSumary(FcalC);
     /** Properly Delete the LW hists*/
     if(endOfRun){
-      DeleteHist(BarrelA);
-      DeleteHist(BarrelC);
-      DeleteHist(EmecA);
-      DeleteHist(EmecC);
-      DeleteHist(HecA);
-      DeleteHist(HecC);
-      DeleteHist(FcalA);
-      DeleteHist(FcalC);
+      EndOfRun(BarrelA);
+      EndOfRun(BarrelC);
+      EndOfRun(EmecA);
+      EndOfRun(EmecC);
+      EndOfRun(HecA);
+      EndOfRun(HecC);
+      EndOfRun(FcalA);
+      EndOfRun(FcalC);
     }
     
     return StatusCode::SUCCESS;
@@ -592,13 +610,17 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   
   
   /** Book histograms*/
+
+  // For 3 the types of errors (saturation, null, outOfRange), 3 histograms are booked but only 2 saved:
+  // m_[Type]Digit : (FT,slot) histogram. Number of errors per FEB. Histograms not saved as it needs to be normalized
+  // by the number of channels per FEB (128)
+  // m_P[Type]Digit : (FT,slot) histogram. Derived by m_[Type]Digit after normalization by the number of channels
+  // m_[Type]DigitChan : (FT+Slot; chan) histogram. Number of errors per channel.
+
   std::string  hName = "tSaturation_";
   hName =hName+PartitionName;
   std::string hTitle=titlesat+PartitionName; 
   sub.m_SatDigit = TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
-  //    ExpertGroupEff.regHist(sub.m_SatDigit).ignore();
-  //    m_strHelper->definePartitionSummProp(sub.m_SatDigit).ignore();   
-  
   hName = "Saturation_";
   hName =hName+PartitionName;
   hTitle=titlesat+PartitionName; 
@@ -610,25 +632,17 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   hName =hName+PartitionName;
   hTitle=titlenull+PartitionName; 
   sub.m_NullDigit= TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
-  //    ExpertGroupEff.regHist(sub.m_NullDigit).ignore();
-  //    m_strHelper->definePartitionSummProp(sub.m_NullDigit).ignore();
-  
   hName = "NullDigit_";
   hName =hName+PartitionName;
   hTitle=titlenull+PartitionName;
   sub.m_PNullDigit = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   ExpertGroup.regHist(sub.m_PNullDigit).ignore();
   m_strHelper->definePartitionSummProp(sub.m_PNullDigit).ignore();
-  
-  
+    
   hName = "tOutOfRange_";
   hName =hName+PartitionName;   
   hTitle=titleout;
   sub.m_OutDigit = TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
-  //    ExpertGroupEff.regHist(sub.m_OutDigit).ignore();
-  //    m_strHelper->definePartitionSummProp(sub.m_OutDigit).ignore();
-  
-  
   hName = "OutOfRange_";
   hName =hName+PartitionName;
   hTitle=titleout;
@@ -657,7 +671,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   ExpertGroupEff.regHist(sub.m_OutDigitChan).ignore();
   m_strHelper->definePartitionSummProp2(sub.m_OutDigitChan).ignore();  
   
-  
+  // Booking of histograms monitoring the highest sample position  
   hName = "AvePosMaxDig_";
   hName =hName+PartitionName;
   hTitle=titlemaxdi+PartitionName+cutadc+expectedSamp;
@@ -673,7 +687,6 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   sub.m_EnTime = TH2F_LW::create(hName.c_str(),hTitle.c_str(),32,-0.5,31.5, 300, 0., 3000.);
   sub.m_EnTime->GetXaxis()->SetTitle("Sample Number");
   sub.m_EnTime->GetYaxis()->SetTitle("Energy [ADC]");
-  //Not supported in LWHists: sub.m_EnTime->GetYaxis()->SetTitleOffset(1.2);
   ExpertGroup.regHist(sub.m_EnTime).ignore();
   
   
@@ -716,7 +729,8 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   sub.m_AverTempPos_PerStream->GetYaxis()->SetBinLabel(nStreams+1,"others");
   ShiftGroup.regHist(sub.m_AverTempPos_PerStream).ignore();
   
-  
+  // In online, we need to have a temp histogram to record the number of errors. And periodically, these histograms are dumped
+  // in the regular histograms after normalisation by the current number of events.
   if(m_IsOnline)
   {
     sub.m_Temp_NullDigitChan=TH2I_LW::create(("temp_NullDigit_"+PartitionName).c_str(), "",crates,crates_low,crates_up,chan,chan_low,chan_up);
@@ -886,16 +900,23 @@ void LArDigitMon::FillSumary(partition& sub)
 }
 /*---------------------------------------------------------*/
 void LArDigitMon::ScalePartition(partition& sub)
+// 
 {
-  DumpHisto(sub.m_NullDigit,sub.m_PNullDigit);
-  DumpHisto(sub.m_SatDigit,sub.m_PSatDigit);
-  DumpHisto(sub.m_OutDigit,sub.m_POutDigit);
+  //DumpHisto(sub.m_NullDigit,sub.m_PNullDigit);
+  //DumpHisto(sub.m_SatDigit,sub.m_PSatDigit);
+  //DumpHisto(sub.m_OutDigit,sub.m_POutDigit);
   
   if(m_IsOnline){
     DumpOnlineHisto(sub.m_Temp_NullDigitChan,sub.m_NullDigitChan);
     DumpOnlineHisto(sub.m_Temp_SatDigitChan,sub.m_SatDigitChan);
     DumpOnlineHisto(sub.m_Temp_OutDigitChan,sub.m_OutDigitChan);
   }
+  // BT on 10/4/2015 : originally the DumpHisto was 4 lines before (see comments above).
+  // I have the feeling that the online normalisation was wrong.
+  DumpHisto(sub.m_NullDigit,sub.m_PNullDigit);
+  DumpHisto(sub.m_SatDigit,sub.m_PSatDigit);
+  DumpHisto(sub.m_OutDigit,sub.m_POutDigit);
+
   ATH_MSG_DEBUG("End of Scale Histograms " );
 }
 
@@ -931,6 +952,8 @@ void LArDigitMon::ComputeError(LWHist2D* hist,int& events)
 }
 /*---------------------------------------------------------*/
 void LArDigitMon::DumpHisto(LWHist2D* hist1,TProfile2D_LW* hist2)
+// At the end of run/processing, renormalize the (FT,Slot) histograms
+// by the number of FEB channels (128)
 {
   unsigned xbin, ybin;
   
@@ -986,7 +1009,47 @@ int LArDigitMon::GetNumberCells(TProfile2D_LW* hist1,double treshold)
   return sum;
 }
 /*---------------------------------------------------------*/
+void LArDigitMon::EndOfRun(partition& sub)
+// This method was formerly named DeleteHists.
+// Renamed by BT on 10/4/2015 as it does more than this, e.g:
+// Normalisation by the number of events.
+{
+  if(sub.m_OutDigit){
+    sub.m_OutDigit->Reset();
+  }
+  
+  if(sub.m_NullDigit){
+    sub.m_NullDigit->Reset();
+  }
+  
+  if(sub.m_SatDigit){
+    sub.m_SatDigit->Reset() ;
+  }  
+  
+  if(m_IsOnline)
+  {
+    if(sub.m_Temp_NullDigitChan){
+      sub.m_Temp_NullDigitChan->Reset(); 
+    } 
+    
+    if(sub.m_Temp_SatDigitChan){
+      sub.m_Temp_SatDigitChan->Reset();
+    } 
+    
+    if(sub.m_Temp_OutDigitChan){
+      sub.m_Temp_OutDigitChan->Reset();
+    } 
+  }
+  else{
+    ScaleHisto(sub.m_NullDigitChan,m_eventsCounter);
+    ScaleHisto(sub.m_SatDigitChan,m_eventsCounter);
+    ScaleHisto(sub.m_OutDigitChan,m_eventsCounter);
+  }
+}
+
+
 void LArDigitMon::DeleteHist(partition& sub)
+// deleting local histograms 
 {
   if(sub.m_OutDigit){
     LWHist::safeDelete(sub.m_OutDigit);
@@ -1020,9 +1083,7 @@ void LArDigitMon::DeleteHist(partition& sub)
       sub.m_Temp_OutDigitChan=0;
     } 
   }
-  else{
-    ScaleHisto(sub.m_NullDigitChan,m_eventsCounter);
-    ScaleHisto(sub.m_SatDigitChan,m_eventsCounter);
-    ScaleHisto(sub.m_OutDigitChan,m_eventsCounter);
-  }
+
 }
+
+

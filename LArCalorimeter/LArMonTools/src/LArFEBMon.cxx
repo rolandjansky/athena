@@ -50,8 +50,10 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_currentFebStatus(false),
     m_eventTime(0),
     m_eventTime_ns(0),
+    m_l1Trig(0),
     m_strHelper(0),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+    m_trigok(false),
     m_barrelCSummary(),
     m_barrelASummary(),
     m_emecCSummary(),
@@ -92,9 +94,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
   m_rejectedLBProfile	= NULL;
   m_rejBitsHisto	= NULL;
   
-  m_eventsTime		= NULL;
   m_eventsLB		= NULL;
-  m_rejectedYieldTime	= NULL;
   m_rejectedYieldLB	= NULL;
   m_rejectedYieldLBout	= NULL;
   m_eventSizeLB		= NULL;
@@ -168,10 +168,11 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
     sc = sc && summaryGroup.regHist(m_rejectedHisto);
     
-    m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Offline rejection yield (at least one error)",3,0.5,3.5);
+    m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
     (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
     (m_rejectedYield->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedYield->GetXaxis())->SetBinLabel(3,"Accepted");
+    (m_rejectedYield->GetYaxis())->SetTitle("Yield(%)");
     sc = sc && summaryGroupW.regHist(m_rejectedYield);
     
     if (m_isOnline){ // Histo useless offline -> switch off in order to avoid merging warning
@@ -186,7 +187,7 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejBitsHisto->GetYaxis())->SetTitle("Number of (rejected) events");
     sc = sc && summaryGroup.regHist(m_rejBitsHisto);
     
-    m_LArAllErrors_dE = TH2I_LW::create("NbOfLArFEBMonErrors_dE","Nb of (LArFEBMon errors)",13,0.5,13.5,8,-0.5,7.5);
+    m_LArAllErrors_dE = TH2I_LW::create("NbOfLArFEBMonErrors_dE","# of data corruption errors",13,0.5,13.5,8,-0.5,7.5);
     (m_LArAllErrors_dE->GetXaxis())->SetBinLabel(1,"Parity");
     (m_LArAllErrors_dE->GetXaxis())->SetBinLabel(2,"BCID");
     (m_LArAllErrors_dE->GetXaxis())->SetBinLabel(3,"Sample Header");
@@ -209,45 +210,28 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_LArAllErrors_dE->GetYaxis())->SetBinLabel(8,"FCALA");
     (m_LArAllErrors_dE->GetYaxis())->SetBinLabel(7,"FCALC");
     sc = sc && summaryGroup.regHist(m_LArAllErrors_dE);    
-    
-    // Number of events per minute vs time
-    m_eventsTime = TH1I_LW::create("NbOfEventsVsTime","Nb of events per minutes",1440,0,1440);
-    for (int iLab = 1; iLab < 24 ; iLab++){
-      int label = iLab * 60;
-      (m_eventsTime->GetXaxis())->SetBinLabel(label,Form("%.0d",iLab));
-      (m_eventsTime->GetXaxis())->SetTitle("UTC");
-    }
-    sc = sc && summaryGroup.regHist(m_eventsTime);
-    
-    // Number of events rejected per minute vs time
-    m_rejectedYieldTime = TProfile_LW::create("YieldOfRejectedEventsVsTime","Yield(%) of rejected events per mn",1440,0,1440);
-    for (int iLab = 1; iLab < 24 ; iLab++){
-      int label = iLab * 60;
-      (m_rejectedYieldTime->GetXaxis())->SetBinLabel(label,Form("%.0d",iLab));
-      (m_rejectedYieldTime->GetXaxis())->SetTitle("UTC");
-    }
-    sc = sc && summaryGroup.regHist(m_rejectedYieldTime);
-    
+        
     // Number of events per minute vs LB
     m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",1500,-0.5,1499.5);
-    (m_eventsLB->GetXaxis())->SetTitle("LB");
+    (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
     sc = sc && summaryGroup.regHist(m_eventsLB);
     
     // Number of events rejected per LB
-    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield(%) of corrupted events per LB",1500,-0.5,1499.5);
-    (m_rejectedYieldLB->GetXaxis())->SetTitle("LB");
+    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",1500,-0.5,1499.5);
+    (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
+    (m_rejectedYieldLB->GetYaxis())->SetTitle("Yield(%)");
     m_rejectedYieldLB->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLB);
     
     // Number of events rejected per LB outside time veto window
-    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield(%) of corrupted events per LB outside a time veto window",1500,-0.5,1499.5);
-    (m_rejectedYieldLBout->GetXaxis())->SetTitle("LB");
+    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",1500,-0.5,1499.5);
+    (m_rejectedYieldLBout->GetXaxis())->SetTitle("Luminosity Block");
     m_rejectedYieldLBout->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLBout);
     
     // Mean event size per LB
-    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size per LB (w/o ROS headers)",1500,-0.5,1499.5);
-    (m_eventSizeLB->GetXaxis())->SetTitle("LB");
+    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",1500,-0.5,1499.5);
+    (m_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_eventSizeLB->GetYaxis())->SetTitle("Megabytes");
     sc = sc && summaryGroup.regHist(m_eventSizeLB);
 
@@ -256,7 +240,7 @@ StatusCode LArFEBMon::bookHistograms() {
        int nStreams = m_streams.size();
        if(nStreams > 0) {
           m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
-          (m_stream_eventSizeLB->GetXaxis())->SetTitle("LB");
+          (m_stream_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
           for (int str = 0; str < nStreams; str++) {
              (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
           }
@@ -267,7 +251,7 @@ StatusCode LArFEBMon::bookHistograms() {
    
     
     // All nb of readout FEB per partition in one TH2
-    m_nbOfEvts2D = TH2I_LW::create("NbOfEvts2d","# of readout FEB (DSP header check only)",500,-20.5,479.5,4,-0.5,3.5);    
+    m_nbOfEvts2D = TH2I_LW::create("NbOfEvts2d","# of readout FEB/DSP header",500,-20.5,479.5,4,-0.5,3.5);    
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(2,"Barrel A");
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(1,"Barrel C");
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(4,"Endcap A");
@@ -275,15 +259,15 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && perPartitionDataGroup.regHist(m_nbOfEvts2D);
     
     // Global nb of readout FEB
-    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB in whole LAr(DSP header check only)",FEBnbins,FEBmin,FEBmax);
+    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",FEBnbins,FEBmin,FEBmax);
     sc = sc && perPartitionDataGroup.regHist(m_nbOfFebBlocksTotal);
     
     // DSP threshold
-    m_dspThresholds_ADC = TH1I_LW::create("dspThresholdsADC","DSP ADC thresholds - Only in physics",2000,-100.5,1899.5);
+    m_dspThresholds_ADC = TH1I_LW::create("dspThresholdsADC","DSP thresholds to readout samples",2000,-100.5,1899.5);
     m_dspThresholds_ADC->GetYaxis()->SetTitle("Number of cells");
     m_dspThresholds_ADC->GetXaxis()->SetTitle("Cell threshold in ADC counts");
     sc = sc && perPartitionDataGroupLowerLB.regHist(m_dspThresholds_ADC);
-    m_dspThresholds_qtime = TH1I_LW::create("dspThresholds_qfactortime","DSP qfactor+time thresholds - Only in physic",2000,-100.5,1899.5);
+    m_dspThresholds_qtime = TH1I_LW::create("dspThresholds_qfactortime","DSP thresholds to readout (qfactor+time)",2000,-100.5,1899.5);
     m_dspThresholds_qtime->GetYaxis()->SetTitle("Number of cells");
     m_dspThresholds_qtime->GetXaxis()->SetTitle("Cell threshold in ADC counts");
     sc = sc && perPartitionDataGroupLowerLB.regHist(m_dspThresholds_qtime);
@@ -303,23 +287,27 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && perPartitionDataGroup.regHist(m_hTriggerType);
     m_hTriggerTypeAllDSP = TH1I_LW::create("TriggerWordAllDSP","Number L1 trigger word per DSP (8 bits)", 256, -0.5, 255.5);
     m_hTriggerTypeAllDSP->GetXaxis()->SetTitle("L1 trigger word");
+    (m_hTriggerTypeAllDSP->GetYaxis())->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_hTriggerTypeAllDSP);
     
     // Nb of samples
-    m_nbOfSamples = TH1I_LW::create("NbOfSamples","Nb of samples (1st readout FEB) - Only in raw data / physic",35,-1.5,33.5);
+    m_nbOfSamples = TH1I_LW::create("NbOfSamples","# of samples (1st readout FEB)",35,-1.5,33.5);
+    (m_nbOfSamples->GetYaxis())->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_nbOfSamples);
     
     // Nb of cells above DSP samples threshold
-    m_totNbSw2 = TH1I_LW::create("NbOfSw2","Total nb of cells above DSP ADC threshold",2000,-1000,199000);
+    m_totNbSw2 = TH1I_LW::create("NbOfSw2","# of cells with samples readout",2000,-1000,199000);
+    (m_totNbSw2->GetXaxis())->SetTitle("Number of cells");
+    (m_totNbSw2->GetYaxis())->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_totNbSw2);
     
     // Book per partition set of histograms
-    sc = sc && bookNewPartitionSumm(m_barrelCSummary,"BarrelC");
-    sc = sc && bookNewPartitionSumm(m_barrelASummary,"BarrelA");
-    sc = sc && bookNewPartitionSumm(m_emecCSummary,"EmecC");
-    sc = sc && bookNewPartitionSumm(m_emecASummary,"EmecA");
-    sc = sc && bookNewPartitionSumm(m_hecCSummary,"HecC");
-    sc = sc && bookNewPartitionSumm(m_hecASummary,"HecA");
+    sc = sc && bookNewPartitionSumm(m_barrelCSummary,"EMBC");
+    sc = sc && bookNewPartitionSumm(m_barrelASummary,"EMBA");
+    sc = sc && bookNewPartitionSumm(m_emecCSummary,"EMECC");
+    sc = sc && bookNewPartitionSumm(m_emecASummary,"EMECA");
+    sc = sc && bookNewPartitionSumm(m_hecCSummary,"HECC");
+    sc = sc && bookNewPartitionSumm(m_hecASummary,"HECA");
     sc = sc && bookNewPartitionSumm(m_fcalCSummary,"FcalC");
     sc = sc && bookNewPartitionSumm(m_fcalASummary,"FcalA");
     
@@ -345,6 +333,7 @@ StatusCode LArFEBMon::bookHistograms() {
     m_CorruptTree->Branch("time",&m_eventTime,"time/i");
     m_CorruptTree->Branch("time_ns",&m_eventTime_ns,"time_ns/i");
     m_CorruptTree->Branch("febHwId",&m_febInErrorTree);
+    m_CorruptTree->Branch("febErrorType",&m_febErrorTypeTree);
     summaryGroup.regTree(m_CorruptTree).ignore();
     //  }
   
@@ -365,6 +354,7 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventRejected = false;
   m_rejectionBits.reset();
   m_febInErrorTree.clear();
+  m_febErrorTypeTree.clear();
   
   m_eventsCounter++;
 
@@ -384,8 +374,6 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime=thisEvent->timeStamp();
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
-  int offset = m_eventTime/(24*3600); 
-  float running_time = float(m_eventTime - (offset*24*3600))/60;
   unsigned lumi_block = thisEvent->lumiBlock();
   
   //msg(MSG::INFO) << "LArFEBMon Lumi block: "<<lumi_block<<endreq;
@@ -414,7 +402,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
   // At 1st event, retrieve DSP thresholds and fill histogram with values for all channels
   if (m_eventsCounter == 1 && firstEventType == 4) {
-    m_dspThresholds_ADC->SetTitle(Form("DSP thresholds for E calculation (only in physics) - LB %4d",lumi_block));
+    m_dspThresholds_ADC->SetTitle(Form("DSP thresholds for ADC-sample transmission (only in physics) - LB %4d",lumi_block));
     m_dspThresholds_qtime->SetTitle(Form("DSP thresholds for qfactor+time calculation (only in physics) - LB %4d",lumi_block));
     if (m_keyDSPThresholds.size()>0) { 
       if (detStore()->contains<LArDSPThresholdsComplete>(m_keyDSPThresholds)) {
@@ -608,7 +596,10 @@ StatusCode LArFEBMon::fillHistograms() {
 	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
       }
-      if (m_currentFebStatus && m_febInErrorTree.size()<29) m_febInErrorTree.push_back(febid.get_identifier32().get_compact());
+      if (m_currentFebStatus && m_febInErrorTree.size()<29){
+	m_febInErrorTree.push_back(febid.get_identifier32().get_compact());
+	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
+      }
     }  
   }
   // Check and reset the rejected histo per partition
@@ -697,7 +688,6 @@ StatusCode LArFEBMon::fillHistograms() {
   }
   
     
-  m_eventsTime->Fill(running_time);    
   m_eventsLB->Fill(lumi_block);    
   m_totNbSw2->Fill(totNbOfSweet2);
   larEventSize = larEventSize/262144;
@@ -710,7 +700,6 @@ StatusCode LArFEBMon::fillHistograms() {
   }
     
   if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
-    m_rejectedYieldTime->Fill(running_time,100);
     m_rejectedYieldLB->Fill(lumi_block,100);
     if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
       m_rejectedYieldLBout->Fill(lumi_block,100);
@@ -720,7 +709,6 @@ StatusCode LArFEBMon::fillHistograms() {
     m_CorruptTree->Fill();
   }
   else{
-    m_rejectedYieldTime->Fill(running_time,0); 
     m_rejectedYieldLB->Fill(lumi_block,0);
     m_rejectedYieldLBout->Fill(lumi_block,0);
     if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
@@ -1035,13 +1023,13 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   sc = sc && perPartitionDataGroup.regHist(summ.nbOfEvts);
   
   hName = "NbOfSweet1PerFEB"+summName;
-  hTitle = "Average nb of cells above DSP qfactor+time threshold  - Physic only - " + summName;    
+  hTitle = "Average # of cells with (qfactor+time) readout - " + summName;    
   summ.nbOfSweet1 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
   sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet1);
   sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet1);
   
   hName = "NbOfSweet2PerFEB"+summName;
-  hTitle = "Average nb of cells above DSP ADC threshold - Physic only - " + summName;    
+  hTitle = "Average # of cells with samples readout - " + summName;    
   summ.nbOfSweet2 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
   sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet2);
   sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet2);
@@ -1057,7 +1045,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
     hName = "eventSizeStreamVsLB"+summName;
     hTitle = "LAr event size per stream per LB (w/o ROS headers)" + summName;  
     summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
-    (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("LB");
+    (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     for (int str = 0; str < nStreams; str++) {
          (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
     }
@@ -1067,7 +1055,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
     hName = "eventSizeVsLB"+summName;
     hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
     summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5);
-    (summ.eventSizeLB)->GetXaxis()->SetTitle("LB");
+    (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
   }
 

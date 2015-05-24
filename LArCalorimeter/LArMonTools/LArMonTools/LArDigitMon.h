@@ -54,6 +54,7 @@ public:
   
   
   StatusCode initialize();
+  StatusCode finalize();
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode procHistograms();
@@ -179,6 +180,7 @@ private:
   void FillSignShape(partition& sub, int& i,float nrj,float sample_max);
   void FillNullHisto(partition& sub);
   void ScalePartition(partition& sub);
+  void EndOfRun(partition& sub);
   void DeleteHist(partition& sub);
   void ScaleHisto(LWHist2D * h,int& events);
   void ComputeError(LWHist2D* hist,int& events);
