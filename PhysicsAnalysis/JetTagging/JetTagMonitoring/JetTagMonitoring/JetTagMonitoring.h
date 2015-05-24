@@ -85,7 +85,7 @@ private:
 
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
-    //void fillSuspectJetHistos(const xAOD::Jet *jet);
+    void fillSuspectJetHistos(const xAOD::Jet *jet);
     void fillDetailedHistograms(const xAOD::Jet *jet);
     //void fillElectronHistograms(const xAOD::Jet *jet);
     //void fillMuonHistograms(const xAOD::Jet *jet);
@@ -119,16 +119,10 @@ private:
     double m_jet_pt_cut;
     double m_jet_eta_cut;
     unsigned int m_trk_n;
-    double m_sv0_weight_cut;
-    double m_sv1_weight_cut;
-    double m_sv2_weight_cut;
-
-    double m_ip1d_weight_cut;
-    double m_ip2d_weight_cut;
-    double m_ip3d_weight_cut;
-
     double m_sv1ip3d_weight_cut;
-    double m_jfcnn_weight_cut;
+    double m_mv2c20_50_weight_cut;
+    double m_mv2c20_70_weight_cut;
+    double m_mv2c20_80_weight_cut;    
 
     /* From the twiki: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopCommonObjects#B_tagging
      * As a starting point we recommend to use the 70% working point (also for the acceptance and yields challenges)
@@ -145,84 +139,52 @@ private:
     bool m_use_trigdectool;
 
 
-    /** @brief To monitor likelihood weight based on transverse impact parameter. */
-    TH1F_LW* m_tag_ip1d_w;
-    /** @brief To monitor likelihood weight based on longitudinal impact parameter. */
-    TH1F_LW* m_tag_ip2d_w;
     /** @brief To monitor number of tracks used to evaluate IP2D weight. */
     TH1F_LW* m_tag_ip2d_n;
     /** @brief To monitor jet likelihood value if coming from b decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_b;
     /** @brief To monitor jet likelihood value if coming from u decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_u;
-    /** @brief To monitor likelihood weight based on combination of impact parameters. */
-    TH1F_LW* m_tag_ip3d_w;
-    /** @brief To monitor number of tracks used to evaluate IP3D weight. */
+    /** @brief To monitor jet likelihood value if coming from c decay for IP2D tagger. */
+    TH1F_LW* m_tag_ip2d_c;
+     /** @brief To monitor jet log likelihood ratio for IP2D tagger. */
+    TH1F_LW* m_tag_ip2d_llr;   
+    /** @brief To monitor number of tracks used to evaluate IP3D weight. */   
     TH1F_LW* m_tag_ip3d_n;
     /** @brief To monitor jet likelihood value if coming from b decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_b;
     /** @brief To monitor jet likelihood value if coming from u decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_u;
-    /** @brief To monitor likelihood weight based on SV0 tagger. */
-    TH1F_LW* m_tag_sv0_w;
-    /** @brief To monitor likelihood weight based on SV1 tagger. */
-    TH1F_LW* m_tag_sv1_w;
-    /** @brief To monitor likelihood weight based on SV2 tagger. */
-    TH1F_LW* m_tag_sv2_w;
-    /** @brief To monitor likelihood weight based on LF2D tagger. */
-    TH1F_LW* m_tag_lf2d_w;
-    /** @brief To monitor likelihood weight based on SVBU tagger. */
-    TH1F_LW* m_tag_svbu_w;
-    /** @brief To monitor likelihood weight based on LHSIG tagger. */
-    TH1F_LW* m_tag_lhsig_w;
-    /** @brief To monitor likelihood weight based on SOFTM tagger. */
-    TH1F_LW* m_tag_softm_w;
-    /** @brief To monitor likelihood weight based on SOFTE tagger. */
-    TH1F_LW* m_tag_softe_w;
+    /** @brief To monitor jet likelihood value if coming from c decay for IP3D tagger. */
+    TH1F_LW* m_tag_ip3d_c;   
+     /** @brief To monitor jet log likelihood ratio for IP3D tagger. */
+    TH1F_LW* m_tag_ip3d_llr;     
+    /** @brief To monitor jet 3D significance of SV0 tagger. */
+    TH1F_LW* m_tag_sv0_sig3d;
+    /** @brief To monitor jet likelihood value if coming from b decay for SV1 tagger. */
+    TH1F_LW* m_tag_sv1_b;
+    /** @brief To monitor jet likelihood value if coming from u decay for SV1 tagger. */
+    TH1F_LW* m_tag_sv1_u;
+     /** @brief To monitor jet likelihood value if coming from c decay for SV1 tagger. */
+    TH1F_LW* m_tag_sv1_c;    
+      /** @brief To monitor jet log likelihood ratio for SV1 tagger. */
+    TH1F_LW* m_tag_sv1_llr;    
+    /** @brief To monitor log likelihood ratio for JetFitter. */
+    TH1F_LW* m_tag_jetfitter_llr;    
+    /** @brief To monitor log likelihood ratio for combined tagger JetFitterCOMBNN. */
+    TH1F_LW* m_tag_jfcnn_llr;
+    
     /** @brief To monitor likelihood weight based on combined tagger (IP3D+SV1). */
-    TH1F_LW* m_tag_comb_w;
-    /** @brief To monitor likelihood weight based on combined tagger JetFitterCOMBNN. */
-    TH1F_LW* m_tag_jfcnn_w;
+    TH1F_LW* m_tag_sv1ip3d_w;
+    TH1F_LW* m_tag_sv1ip3d_w_sj;
     /** @brief To monitor likelihood weight based on combined tagger MV1 (based on IP3D tagging weight, SV1 tagging weight,
      * JetFitterCombNN tagging weight, jet pT (in MeV) and jet eta.).
      */
     TH1F_LW* m_tag_mv1_w;
-    /*
-    TH1F_LW* m_tag_sv0_w_sj;
-    TH1F_LW* m_tag_comb_w_sj;
-    TH1F_LW* m_tag_jfcnn_w_sj;
-
-    TH1F_LW* m_tag_sv0_w_DMZ1;
-    TH1F_LW* m_tag_comb_w_DMZ1;
-    TH1F_LW* m_tag_jfcnn_w_DMZ1;
-    TH1F_LW* m_tag_ip3d_w_DMZ1;
-
-    TH1F_LW* m_tag_sv0_w_DMZ2;
-    TH1F_LW* m_tag_comb_w_DMZ2;
-    TH1F_LW* m_tag_jfcnn_w_DMZ2;
-    TH1F_LW* m_tag_ip3d_w_DMZ2;
-
-    TH1F_LW* m_tag_sv0_w_DMZ3;
-    TH1F_LW* m_tag_comb_w_DMZ3;
-    TH1F_LW* m_tag_jfcnn_w_DMZ3;
-    TH1F_LW* m_tag_ip3d_w_DMZ3;
-
-    TH1F_LW* m_tag_ip3d_w_DMZ2_x1;
-    TH1F_LW* m_tag_ip3d_w_DMZ2_x2;
-    TH1F_LW* m_tag_ip3d_w_DMZ2_x4;
-    TH1F_LW* m_tag_ip3d_w_DMZ2_x8;
-
-    TH1F_LW* m_tag_ip3d_w_DMZ3_x1;
-    TH1F_LW* m_tag_ip3d_w_DMZ3_x2;
-    TH1F_LW* m_tag_ip3d_w_DMZ3_x4;
-    TH1F_LW* m_tag_ip3d_w_DMZ3_x8;
-    */
-
-    /** @brief To monitor likelihood weight based on TrackCounting tagger. */
-    TH1F_LW* m_tag_trkcnt_w;
-    /** @brief To monitor likelihood weight based on JetProb tagger. */
-    TH1F_LW* m_tag_jetprob_w;
-
+    TH1F_LW* m_tag_mv1_w_sj;    
+    /** @brief To monitor likelihood weight based on MV2c20 tagger. */
+    TH1F_LW* m_tag_mv2c20_w;
+    TH1F_LW* m_tag_mv2c20_w_sj;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n;
     /** @brief To monitor number of TrackParticles. */
@@ -248,8 +210,6 @@ private:
     /** @brief To monitor number of TRT hits in TrackParticle. */
     TH1F_LW* m_global_TRTHits;
 
-    /** @brief To monitor number of tags of the reconstructed jet. */
-    TH1F_LW* m_jet_nTag;
     /** @brief To monitor eta of the reconstructed jet. */
     TH1F_LW* m_jet_eta;
     /** @brief To monitor phi of the reconstructed jet. */
@@ -292,7 +252,7 @@ private:
     /** @brief 2D map of track selector efficiency. */
     TH2F_LW* m_track_selector_eff;
     TH2F_LW* m_track_selector_eff_LS;
-    //TH2F_LW* m_track_selector_suspect;
+    TH2F_LW* m_track_selector_suspect;
     TH2F_LW* m_track_selector_all;
     TH2F_LW* m_track_selector_all_LS;
 
@@ -302,30 +262,16 @@ private:
     TH2F_LW* m_jet_2D_kinematic;
     TH2F_LW* m_jet_2D_kinematic_LS;
     TH2F_LW* m_jet_2D_quality;
-    //TH2F_LW* m_jet_2D_suspect;
+    TH2F_LW* m_jet_2D_suspect;
 
     /** @brief 2D map of tag rates. */
-    TH2F_LW* m_sv0_tag_pos_rate_2D;
-    TH2F_LW* m_sv0_tag_neg_rate_2D;
-    TH2F_LW* m_sv1_tag_pos_rate_2D;
-    TH2F_LW* m_sv1_tag_neg_rate_2D;
-    TH2F_LW* m_sv2_tag_pos_rate_2D;
-    TH2F_LW* m_sv2_tag_neg_rate_2D;
-
-    TH2F_LW* m_ip1d_tag_pos_rate_2D;
-    TH2F_LW* m_ip1d_tag_neg_rate_2D;
-    TH2F_LW* m_ip2d_tag_pos_rate_2D;
-    TH2F_LW* m_ip2d_tag_neg_rate_2D;
-    TH2F_LW* m_ip3d_tag_pos_rate_2D;
-    TH2F_LW* m_ip3d_tag_neg_rate_2D;
-    TH2F_LW* m_ip3d_tag_def_rate_2D;
-    TH2F_LW* m_ip3d_tag_def_rate_2D_LS;
-
     TH2F_LW* m_sv1ip3d_tag_pos_rate_2D;
     TH2F_LW* m_sv1ip3d_tag_neg_rate_2D;
 
-    TH2F_LW* m_jfcnn_tag_pos_rate_2D;
-    TH2F_LW* m_jfcnn_tag_neg_rate_2D;
+    TH2F_LW* m_mv2c20_tag_50_2D;
+    TH2F_LW* m_mv2c20_tag_70_2D;
+    TH2F_LW* m_mv2c20_tag_80_2D;   
+    TH2F_LW* m_mv2c20_tag_80_2D_LS;    
 
     enum Cuts_t { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax,
                   nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
