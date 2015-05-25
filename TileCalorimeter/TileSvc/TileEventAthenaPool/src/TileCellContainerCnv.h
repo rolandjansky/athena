@@ -32,7 +32,7 @@ public:
 
 private:
     // vector of Collections.
-    TileCellVec m_vecCell;
+    std::map<std::string,TileCellVec> m_vecCellAll;
     StoreGateSvc* m_storeGate; 
     const TileTBID* m_tileTBID;
     const MbtsDetDescrManager* m_mbtsMgr;

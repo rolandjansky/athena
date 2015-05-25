@@ -18,7 +18,7 @@
 TileCellContainerCnv::TileCellContainerCnv(ISvcLocator* svcloc)
   : TileCellContainerCnvBase::T_AthenaPoolCustCnv(svcloc)
  // Must create DataVector that does NOT own elements
-  , m_vecCell()
+  , m_vecCellAll()
   , m_storeGate(0)
   , m_tileTBID(0)
   , m_mbtsMgr(0)
@@ -131,12 +131,19 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     bool lDebug = (logLevel<=MSG::DEBUG);
     bool lVerbose = (logLevel<=MSG::VERBOSE);
 
-    if (lDebug) log << MSG::DEBUG << "storing TileCells in POOL" << endreq;
+    std::string name = m_storeGate->proxy(cont)->name();
+    if ( m_vecCellAll.find(name) == m_vecCellAll.end()) {
+      m_vecCellAll.insert(std::pair<std::string,TileCellVec>(name,TileCellVec()));
+    }
+    TileCellVec & m_vecCell = m_vecCellAll[name];
+
+    if (lDebug) log << MSG::DEBUG << "storing TileCells from " << name << " in POOL" << endreq;
 
     // Clear vector from previous write
     m_vecCell.clear();
 
     m_vecCell.push_back(m_version);
+    int nMBTSfound=0;
 
     std::vector<const TileCell *> allCells;
     
@@ -179,14 +186,18 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           int phi  = m_tileTBID->module(id);
           int eta  = m_tileTBID->channel(id);
           int ind  = cell_index(side,phi,eta);
-          if (ind < nCellMBTS)
+          if (eta<nEta && phi<nPhi && ind < nCellMBTS) {
             allCells[ind] = cell;
-          else
+            ++nMBTSfound;
+          } else {
             allCells.push_back(cell);
+          }
         } else {
           allCells.push_back(cell);
         }
       }
+
+     if (nMBTSfound>0) {
 
       // save first 32 cells (MBTS) without identifiers, 2 words per cell, put zeros for empty cells
       // if MBTS energy is in pCb, then LSB corresponds to 1/12 ADC count of high gain
@@ -251,6 +262,11 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         }
       }
 
+     } else {
+
+       m_vecCell[0] = 1; // no MBTS found - use version 1 for packing 
+     }
+
       // keep all other cells (if any) with identifiers, 3 words per cell
       for (unsigned int ind=nCellMBTS; ind<allCells.size(); ++ind) {
         
@@ -287,6 +303,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
       return StatusCode::FAILURE;
     }
 
+    if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << m_vecCellAll[name].size() << " with version " << m_vecCellAll[name][0] << endreq;
     persObj = &m_vecCell;
 
     return StatusCode::SUCCESS; 
