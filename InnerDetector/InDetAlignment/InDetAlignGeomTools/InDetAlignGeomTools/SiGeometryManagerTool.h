@@ -14,6 +14,9 @@
 
 #include "TrkAlignEvent/AlignModuleList.h"
 
+#include <TGeoManager.h>
+
+
 /**
   @file SiGeometryManagerTool.h
   @class SiGeometryManagerTool
@@ -138,6 +141,7 @@ namespace InDet
     std::vector<unsigned long long> m_moduleSelection;
 
     bool m_dumpGeometry;
+    bool m_actualGeom;
 
   }; // end class
 

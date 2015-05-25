@@ -803,6 +803,7 @@ void TRTGeometryManagerTool::buildL2Endcaps()
                if(!moduleSelected(mod)) {
                   ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
                   delete mod;
+                  mod=nullptr;
                   continue;
                }
 
@@ -828,11 +829,13 @@ void TRTGeometryManagerTool::buildL2Endcaps()
          }
       }
 
+      if (!mod) throw std::logic_error("No AlignmentModule");
+
       // for the last ring we have to explicitly set the alignment
       // frame add it to the list of modules here, at the end of
       // loop over wheels
       ATH_MSG_DEBUG("Setting frame for ring : "<<iRing);
-
+      
       // for endcap we move the CoG with no additional rotation
       Amg::Translation3D translation(mod->centerOfGravity());      
       Amg::Transform3D localToGlobal = translation * Amg::RotationMatrix3D::Identity();
@@ -1008,6 +1011,7 @@ void TRTGeometryManagerTool::buildL3Barrel()
                     if(!moduleSelected(mod)) {
                        ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
                        delete mod;
+                       mod=nullptr;
                        continue;
                     }
 
@@ -1123,6 +1127,7 @@ void TRTGeometryManagerTool::buildL3Endcap()
                  if(!moduleSelected(mod)) {
                     ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
                     delete mod;
+                    mod=nullptr;
                     continue;
                  }
 

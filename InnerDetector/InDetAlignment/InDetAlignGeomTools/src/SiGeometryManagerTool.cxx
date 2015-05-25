@@ -75,6 +75,7 @@ namespace InDet {
     declareProperty("ModuleSelection",    m_moduleSelection);
 
     declareProperty("DumpGeometry",       m_dumpGeometry = true);
+    declareProperty("ActualGeometry",     m_actualGeom = false);
 
     m_hashCounter = 0;
     m_logStream = 0;
@@ -563,6 +564,64 @@ namespace InDet {
   //________________________________________________________________________
   void SiGeometryManagerTool::dumpGeometry()
   {
+
+    ATH_MSG_INFO("---------------------------------------------------");
+    ATH_MSG_INFO("Try to write an Si geom root file:");
+    TGeoManager*  gm=new  TGeoManager("Silicon","Silicon");
+    TGeoMaterial* mat=new TGeoMaterial("Vacuum",0,0,0);
+    TGeoMedium*   med=new TGeoMedium("Vacuum",1,mat);
+    TGeoVolume*   top = gm->MakeBox("Silicon",med,2000.,2000.,10000.);
+    gm->SetTopVolume(top);
+    TGeoVolume*   Si_cog[22000];
+    TGeoVolume*   Si[22000];
+    int           Si_count=0; 
+    TGeoTranslation* tr[22000];
+    TGeoRotation*    ro[22000];
+    TGeoCombiTrans*  mx[22000];
+
+    TGeoTranslation* nulltrans=new TGeoTranslation(0.0,0.0,0.0);
+    TGeoRotation*    nullrota=new TGeoRotation();
+    nullrota->SetAngles(0.0,0.0,0.0);    // Euler angles                                                     
+    TGeoRotation*    fliprota=new TGeoRotation();
+    fliprota->SetAngles(0.0,-90.0,0.0);    // Euler angles (rotation around X)
+    TGeoCombiTrans*  donothing=new TGeoCombiTrans(*nulltrans,*nullrota);
+    TGeoCombiTrans*  swapaxes=new TGeoCombiTrans(*nulltrans,*fliprota);
+
+    Amg::Vector3D ea;
+    Amg::Vector3D xyz;
+
+    // First prepare the higher level (L1, L2) structures:
+    TGeoVolume*   L0_A = gm->MakeTube("L0_A",med,0.0,1100.0,5000.0);
+    L0_A->SetVisibility(kFALSE);
+    top->AddNodeOverlap(L0_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_IBL_A = gm->MakeTube("L1_IBL_A",med,20.0,40.0,700.0);
+    L1_IBL_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_IBL_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_DBM_A = gm->MakeTube("L1_DBM_A",med,20.0,40.0,1000.0);
+    L1_DBM_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_DBM_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_PIX_A = gm->MakeTube("L1_PIX_A",med,40.0,150.0,700.0);
+    L1_PIX_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_PIX_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_SCTA_A = gm->MakeTube("L1_SCTA_A",med,250.0,550.0,3000.0);
+    L1_SCTA_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_SCTA_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_SCTB_A = gm->MakeTube("L1_SCTB_A",med,250.0,550.0,3000.0);
+    L1_SCTB_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_SCTB_A,Si_count,donothing);
+    Si_count++;
+    TGeoVolume*   L1_SCTC_A = gm->MakeTube("L1_SCTC_A",med,250.0,550.0,3000.0);
+    L1_SCTC_A->SetVisibility(kFALSE);
+    L0_A->AddNodeOverlap(L1_SCTC_A,Si_count,donothing);
+    Si_count++;
+
+
+
     ATH_MSG_INFO("---------------------------------------------------");
     ATH_MSG_INFO("Summary of the alignment geometry");
     ATH_MSG_INFO("Number of alignable objects: "<< m_alignModuleList.size());
@@ -572,16 +631,141 @@ namespace InDet {
       ATH_MSG_INFO("   - identifier:     "<<module->identify());
       ATH_MSG_INFO("   - identifierHash: "<<module->identifyHash());
 
-      int npix(0);
-      int nsct(0);
+      unsigned int npix(0);
+      unsigned int nsct(0);
+      unsigned int nSi(0);
+      bool isPix(false);
+      bool isSCT(false);
       if(module->detElementCollection(Trk::AlignModule::Pixel)) {
         npix = module->detElementCollection(Trk::AlignModule::Pixel)->size();
+        nSi  = npix;   isPix = true;
         ATH_MSG_INFO("   - has "<<npix<<" Pixel modules");
       }
       if(module->detElementCollection(Trk::AlignModule::SCT)) {
         nsct = module->detElementCollection(Trk::AlignModule::SCT)->size();
+        nSi  = nsct;   isSCT = true;
         ATH_MSG_INFO("   - has "<<nsct<<" SCT modules");
       }
+      if(!isPix && !isSCT) ATH_MSG_INFO("   UNKNOWN module found:     "<<module->identify());
+
+      // Loop over all detector elements of this align module:
+      for(unsigned int j=0;j<nSi;j++) {
+        const SiDetectorElement * element=0;
+        if(isPix) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::Pixel)->at(j)); 
+	if(isSCT) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::SCT)->at(j)); 
+        const Identifier element_id = element->identify();
+	int det,bec,layer,ring,sector,side;
+	// in the future, the InDetAlignDBTool::idToDetSet should be directly used !                                              
+	bool resok=false;
+	if (m_pixHelper->is_pixel(element_id)) {
+	  det=1;
+	  bec=m_pixHelper->barrel_ec(element_id);
+	  layer=m_pixHelper->layer_disk(element_id);
+	  ring=m_pixHelper->eta_module(element_id);
+	  sector=m_pixHelper->phi_module(element_id);
+	  side=0;
+	  resok=true;
+	} else if (m_sctHelper->is_sct(element_id)) {
+	  det=2;
+	  bec=m_sctHelper->barrel_ec(element_id);
+	  layer=m_sctHelper->layer_disk(element_id);
+	  ring=m_sctHelper->eta_module(element_id);
+	  sector=m_sctHelper->phi_module(element_id);
+	  side=m_sctHelper->side(element_id);
+	  resok=true;
+	}
+	if(!resok) ATH_MSG_INFO("   UNRESOLVED module found:     "<<element_id);
+
+        if(resok && !(element->isStereo())) {      // take only phi SCT modules and Pixels
+	  // extract the transformation parameters from Eigen:
+          if( m_actualGeom ) {
+            xyz = element->transform().translation();                   // translation (actual)
+            ea  = element->transform().rotation().eulerAngles(2, 0, 2); // Euler angles (actual)
+	  } else {
+            xyz = element->defTransform().translation();                   // translation (nominal)
+            ea  = element->defTransform().rotation().eulerAngles(2, 0, 2); // Euler angles (nominal)
+	  }
+
+	  ATH_MSG_INFO(">>> Element ident,det,bec,layer,ring,sector,side:      "<<element_id<<", "<<det<<", "<<bec<<", "<<layer<<", "<<ring<<", "<<sector<<", "<<side);
+          ATH_MSG_INFO(">>> Element length/width/thickness:      "<<element->length()<<",  "<<element->width()<<",  "<<element->thickness());
+          if(element->isSCT() && element->isEndcap()) 
+            ATH_MSG_INFO(">>> SCT Endcap wedge,  min/max         "<<element->minWidth()<<" / "<<element->maxWidth());
+          ATH_MSG_INFO(">>> Center position:                   "<<element->center());
+          ATH_MSG_INFO(">>> Default transformation:            ");
+          ATH_MSG_INFO(">>>            translation:            "<<xyz);
+          ATH_MSG_INFO(">>>           Euler angles:            Phi="<<57.2957*ea[0]<<"  Theta="<<57.2957*ea[1]<<"  Psi="<<57.2957*ea[2]);
+
+
+	  ATH_MSG_INFO("Adding a volume to the Silicon geometry:");
+	  TString nname = "Si_COG_";
+	  TString mname = "Si_MOD_";
+          TString undsc = "_";
+	  //	  std::stringstream ss;
+	  //      ss << Si_count;
+          //      nname += ss.str();
+          //      mname += ss.str();
+          std::stringstream det_str;            det_str << det;
+	  std::stringstream bec_str;            bec_str << bec;
+	  std::stringstream layer_str;        layer_str << layer;
+	  std::stringstream ring_str;          ring_str << ring;
+	  std::stringstream sector_str;      sector_str << sector;
+          nname += TString(det_str.str())+undsc+TString(bec_str.str())+undsc+TString(layer_str.str())+undsc+TString(ring_str.str())+undsc+TString(sector_str.str());
+          mname += TString(det_str.str())+undsc+TString(bec_str.str())+undsc+TString(layer_str.str())+undsc+TString(ring_str.str())+undsc+TString(sector_str.str());
+
+          Si_cog[Si_count] = gm->MakeSphere(nname,med,0.0,element->length(),0.0,180.0,0.0,360.0);    // invisible container
+	  Si_cog[Si_count]->SetVisibility(kFALSE);
+	  // create a wedge for SCT Endcap, otherwise a box:
+          if(element->isSCT() && element->isEndcap())  {
+            Si[Si_count] = gm->MakeTrd1(mname,med,0.5*element->minWidth(),0.5*element->maxWidth(),0.5*element->thickness(),0.5*element->length());    // this is a wedge!
+	  }  else  {
+            Si[Si_count] = gm->MakeBox(mname,med,0.5*element->width(),0.5*element->thickness(),0.5*element->length());    // creator takes the half-lengths!
+	  }
+          tr[Si_count] = new TGeoTranslation(); 
+          tr[Si_count]->SetTranslation(xyz[0],xyz[1],xyz[2]);
+          ro[Si_count] = new TGeoRotation();
+          ro[Si_count]->SetAngles(57.2957*ea[0],57.2957*ea[1],57.2957*ea[2]);
+          mx[Si_count] = new TGeoCombiTrans(*tr[Si_count],*ro[Si_count]);
+
+	  TGeoVolume*   parrent_elem = 0; 
+	  switch(det)
+	    {
+	    case 1:
+	      if(bec==0 && layer==0) parrent_elem = L1_IBL_A;   
+              else if(abs(bec)==4)   parrent_elem = L1_DBM_A;
+	      else                   parrent_elem = L1_PIX_A;
+	      break;
+	    case 2:
+	      switch(bec)
+		{
+		case -2:
+		  parrent_elem = L1_SCTC_A;
+		  break;
+		case  0:
+                  parrent_elem = L1_SCTB_A;
+		  break;
+		case  2:
+                  parrent_elem = L1_SCTA_A;
+		  break;
+		default:
+                  break;
+		}
+	      break;
+	    default:
+	      break;
+	    }
+          if(parrent_elem) {
+	    //            parrent_elem->AddNode(Si_cog[Si_count],Si_count,mx[Si_count]);
+	    //            top->AddNode(Si_cog[Si_count],Si_count,mx[Si_count]);
+            top->AddNode(Si_cog[Si_count],0,mx[Si_count]);
+  	    //            Si_cog[Si_count]->AddNode(Si[Si_count],Si_count,gGeoIdentity);
+	    //            Si_cog[Si_count]->AddNode(Si[Si_count],side,swapaxes);
+	    Si_cog[Si_count]->AddNode(Si[Si_count],0,swapaxes);
+  	    Si_count++;
+	  }
+	}
+      }
+
+
       if(npix && nsct)
         ATH_MSG_INFO("   - has "<<npix+nsct<<" Silicon modules in total");
 
@@ -593,8 +777,14 @@ namespace InDet {
       ATH_MSG_DEBUG("   - number of active transform parameters: "<<npars);
       for(int j=0;j<npars;j++)
          ATH_MSG_DEBUG("      * par "<<j<<": sigma = "<<(*pars)[j]->sigma());
+
     }
-    ATH_MSG_INFO("---------------------------------------------------");
+
+
+    // close geometry end write the geometry root file:
+    gm->CloseGeometry();
+    gm->Export("Silicon.root","Silicon","v");
+
   }
 
   //________________________________________________________________________
