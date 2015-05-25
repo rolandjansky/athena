@@ -9,6 +9,7 @@ use  DataModel                  DataModel-*                     Control
 use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment
 use  TrkAlignInterfaces         TrkAlignInterfaces-*            Tracking/TrkAlignment
 use  TrkAlignGenTools           TrkAlignGenTools-*              Tracking/TrkAlignment
+use  AtlasROOT                  AtlasROOT-*                     External
 
 private
 use  GaudiInterface             GaudiInterface-*                External
@@ -23,3 +24,4 @@ public
 library InDetAlignGeomTools *.cxx components/*.cxx
 apply_pattern component_library
 
+macro_append InDetAlignGeomTools_shlibflags  "-L$(ROOTSYS)/lib -lGeom -lCore -lm -ldl -lpthread -rdynamic"

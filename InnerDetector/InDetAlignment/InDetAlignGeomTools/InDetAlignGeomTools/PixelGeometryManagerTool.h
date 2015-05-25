@@ -93,7 +93,7 @@ namespace InDet
     /** creates L1 AlignModules for Pixel : full Pixel*/
     void buildL1();
 
-    /** creates IBL as 1 module and old-pixel as 1 module **/
+    /** creates L11 IBL as 1 module and old-pixel as 1 module **/
     void buildL11();
     
     /** creates L12 AlignModules for Pixel Barrel : whole barrel as 1 module */
@@ -105,6 +105,9 @@ namespace InDet
     /** creates L15 AlignModules for Pixel Barrel : 2 half-shells */
     void buildL15Barrel();
 
+    /** creates L16 AlignModules for Pixel Barrel :  IBL staves , remainder of barrel 1 Module*/
+    void buildL16Barrel();
+
     /** creates L2 AlignModules for Pixel Barrel : 3 layers*/
     void buildL2Barrel();
 
@@ -113,6 +116,9 @@ namespace InDet
 
     /** creates L22 AlignModules for Pixel Barrel : 6 half-layers */
     void buildL22Barrel();
+
+    /** creates L26 AlignModules for Pixel Barrel : IBL staves remainder at L2 */
+    void buildL26Barrel();
 
     /** creates L27 AlignModules for Pixel Barrel : 112 staves (ladders) */
     void buildL27Barrel();
@@ -178,6 +184,8 @@ namespace InDet
     bool m_alignBarrelRotX;
     bool m_alignBarrelRotY;
     bool m_alignBarrelRotZ;
+    bool m_alignBarrelBowX;
+
 
     bool m_alignEndcapX;
     bool m_alignEndcapY;
@@ -192,6 +200,7 @@ namespace InDet
     double m_sigmaBarrelRotX;
     double m_sigmaBarrelRotY;
     double m_sigmaBarrelRotZ;
+    double m_sigmaBarrelBowX;
 
     double m_sigmaEndcapX;
     double m_sigmaEndcapY;
@@ -206,6 +215,7 @@ namespace InDet
     double m_softcutBarrelRotX;
     double m_softcutBarrelRotY;
     double m_softcutBarrelRotZ;
+    double m_softcutBarrelBowX;
 
     double m_softcutEndcapX;
     double m_softcutEndcapY;
