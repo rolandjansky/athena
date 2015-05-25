@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -102,7 +102,7 @@ namespace InDet {
 
     // retrieve AlignModuleTool
     if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
+      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -110,7 +110,7 @@ namespace InDet {
 
     // retrieve Pixel helper
     if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -118,7 +118,7 @@ namespace InDet {
 
     // retrieve SCT helper
     if ( detStore()->retrieve(m_sctHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -126,7 +126,7 @@ namespace InDet {
 
     // retrieve silicon helper
     if ( detStore()->retrieve(m_idHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -134,7 +134,7 @@ namespace InDet {
       
     // retrieve SCT detector manager
     if ( detStore()->retrieve(m_sctDetManager, "SCT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -142,7 +142,7 @@ namespace InDet {
 
     // retrieve PIX detector manager
     if ( detStore()->retrieve(m_pixelDetManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endreq;
       return StatusCode::FAILURE;
     }
     else
@@ -150,15 +150,15 @@ namespace InDet {
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
+      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endreq;
       for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
+        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endreq;
     }
 
     // retrieve PixelGeometryManagerTool
     if ( !m_pixelGeoManager.empty() ) {
       if ( m_pixelGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_pixelGeoManager << endmsg;
+        msg(MSG::FATAL)<<"Could not get " << m_pixelGeoManager << endreq;
         return StatusCode::FAILURE;
       }
       else
@@ -168,7 +168,7 @@ namespace InDet {
     // retrieve SCTGeometryManagerTool
     if ( !m_sctGeoManager.empty() ) {
       if ( m_sctGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_sctGeoManager << endmsg;
+        msg(MSG::FATAL)<<"Could not get " << m_sctGeoManager << endreq;
         return StatusCode::FAILURE;
       }
       else
@@ -176,13 +176,13 @@ namespace InDet {
     }
 
     if(!m_alignPixel && !m_alignSCT) {
-      msg(MSG::FATAL)<<"Alignment of both Pixel and SCT turned off. Aborting."<<endmsg;
+      msg(MSG::FATAL)<<"Alignment of both Pixel and SCT turned off. Aborting."<<endreq;
       return StatusCode::FAILURE;
     }
 
     // check allowed alignment level
     if(!checkAlignLevel()) {
-      msg(MSG::FATAL)<<"Wrong alignment level."<<endmsg;
+      msg(MSG::FATAL)<<"Wrong alignment level."<<endreq;
       return StatusCode::FAILURE;
     }
 
@@ -211,8 +211,8 @@ namespace InDet {
         // for levels 1,2,3 we need the managers and we have to
         // set the levels in them
         if( (m_pixelGeoManager.empty() && m_alignPixel) || (m_sctGeoManager.empty() && m_alignSCT) ) {
-          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endmsg;
+          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endreq;
+          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endreq;
           return false;
         }
 
@@ -229,14 +229,14 @@ namespace InDet {
         // if level is not set here (i.e. it is equal to -1) we need the Pixel and SCT
         // managers but we trust their setup, we don't need to check it
         if( (m_pixelGeoManager.empty() && m_alignPixel) || (m_sctGeoManager.empty() && m_alignSCT) ) {
-          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endmsg;
+          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endreq;
+          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endreq;
           return false;
         }
         break;
 
       default:
-        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endmsg;
+        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endreq;
         return false;
 
     }
@@ -399,9 +399,9 @@ namespace InDet {
         // add to the pixel structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_pixHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... Pixel barrel element"<<endmsg;
+            msg(MSG::DEBUG)<<"... Pixel barrel element"<<endreq;
           else
-            msg(MSG::DEBUG)<<"... Pixel endcap element"<<endmsg;
+            msg(MSG::DEBUG)<<"... Pixel endcap element"<<endreq;
         }
         silicon->addDetElement(Trk::AlignModule::Pixel,element,transform);
 
@@ -441,9 +441,9 @@ namespace InDet {
         // add to the sct barrel structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_sctHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... SCT barrel element"<<endmsg;
+            msg(MSG::DEBUG)<<"... SCT barrel element"<<endreq;
           else
-            msg(MSG::DEBUG)<<"... SCT endcap element"<<endmsg;
+            msg(MSG::DEBUG)<<"... SCT endcap element"<<endreq;
         }
         silicon->addDetElement(Trk::AlignModule::SCT,element,transform);
 

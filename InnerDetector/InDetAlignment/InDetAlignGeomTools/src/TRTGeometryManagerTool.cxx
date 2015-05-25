@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
@@ -126,7 +126,7 @@ StatusCode TRTGeometryManagerTool::initialize()
 
    // retrieve AlignModuleTool
    if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
+      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endreq;
       return StatusCode::FAILURE;
    }
    else
@@ -134,7 +134,7 @@ StatusCode TRTGeometryManagerTool::initialize()
 
    // retrieve TRT ID helper
    if ( detStore()->retrieve(m_idHelper, "TRT_ID").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper " << endreq;
       return StatusCode::FAILURE;
    }
    else
@@ -142,7 +142,7 @@ StatusCode TRTGeometryManagerTool::initialize()
 
    // retrieve TRT detector manager
    if ( detStore()->retrieve(m_trtDetManager).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT Detector Manager " << endmsg;
+      msg(MSG::FATAL) << " Cannot retrieve TRT Detector Manager " << endreq;
       return StatusCode::FAILURE;
    }
    else
@@ -150,9 +150,9 @@ StatusCode TRTGeometryManagerTool::initialize()
 
    // dump module selection
    if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
+      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endreq;
       for(unsigned int i=0;i<m_moduleSelection.size();i++)
-         msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
+         msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endreq;
    }
 
    // check the allowed geometry levels
@@ -217,7 +217,7 @@ bool TRTGeometryManagerTool::checkAlignLevelBarrel()
          ATH_MSG_INFO("Alignment level for TRT Barrel is "<<m_alignLevelBarrel);
          return true;
       default:
-         msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for TRT Barrel"<<endmsg;
+         msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for TRT Barrel"<<endreq;
          return false;
    }
 }
@@ -234,7 +234,7 @@ bool TRTGeometryManagerTool::checkAlignLevelEndcaps()
          ATH_MSG_INFO("Alignment level for TRT Endcaps is "<<m_alignLevelEndcaps);
          return true;
       default:
-         msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for TRT Endcaps"<<endmsg;
+         msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for TRT Endcaps"<<endreq;
          return false;
    }
 }
@@ -385,9 +385,9 @@ void TRTGeometryManagerTool::buildL0()
          // add to the Inner Detector structure
          if(msgLvl(MSG::DEBUG)) {
             if (m_idHelper->is_barrel(id))
-               msg(MSG::DEBUG)<<"... TRT barrel element"<<endmsg;
+               msg(MSG::DEBUG)<<"... TRT barrel element"<<endreq;
             else
-               msg(MSG::DEBUG)<<"... TRT endcap element"<<endmsg;
+               msg(MSG::DEBUG)<<"... TRT endcap element"<<endreq;
          }
          trt->addDetElement(Trk::AlignModule::TRT,element,transform);
 

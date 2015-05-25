@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETALIGNGEOMTOOLS_INDETGEOMETRYMANAGERTOOL_H
+#ifndef INDETALIGNGEOMTOOLS_INDELGEOMETRYMANAGERTOOL_H
 #define INDETALIGNGEOMTOOLS_INDETGEOMETRYMANAGERTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "TrkAlignInterfaces/IGeometryManagerTool.h"
 #include "TrkAlignInterfaces/IAlignModuleTool.h"

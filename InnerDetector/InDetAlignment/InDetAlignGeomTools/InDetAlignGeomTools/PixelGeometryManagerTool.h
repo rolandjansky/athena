@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "TrkAlignInterfaces/IGeometryManagerTool.h"
 #include "TrkAlignInterfaces/IAlignModuleTool.h"
