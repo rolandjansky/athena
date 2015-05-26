@@ -254,28 +254,28 @@ LArRODMonTool::bookHistograms()
     LArOnlineIDStrHelper strHelper(m_LArOnlineIDHelper);
     strHelper.setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
 
-    // Barrel A and C
-    MonGroup generalGroupBarrel( this, "/LAr/DSPMonitoring/Barrel", run, ATTRIB_MANAGED );
+    // EMB A and C
+    MonGroup generalGroupBarrel( this, "/LAr/DSPMonitoring/EMB", run, ATTRIB_MANAGED );
     MonGroup generalGroupEndcap( this, "/LAr/DSPMonitoring/Emec", run, ATTRIB_MANAGED );
     MonGroup generalGroupHec( this, "/LAr/DSPMonitoring/Hec", run, ATTRIB_MANAGED );
     MonGroup generalGroupFcal( this, "/LAr/DSPMonitoring/Fcal", run, ATTRIB_MANAGED );
 
-    m_histos[EMBA].m_partName="BarrelA";
+    m_histos[EMBA].m_partName="EMBA";
     m_histos[EMBA].m_monGroup=&generalGroupBarrel;
 
-    m_histos[EMBC].m_partName="BarrelC";
+    m_histos[EMBC].m_partName="EMBC";
     m_histos[EMBC].m_monGroup=&generalGroupBarrel;
 
-    m_histos[EMECA].m_partName="EmecA";
+    m_histos[EMECA].m_partName="EMECA";
     m_histos[EMECA].m_monGroup=&generalGroupEndcap;
 
-    m_histos[EMECC].m_partName="EmecC";
+    m_histos[EMECC].m_partName="EMECC";
     m_histos[EMECC].m_monGroup=&generalGroupEndcap;
 
-    m_histos[HECA].m_partName="HecA";
+    m_histos[HECA].m_partName="HECA";
     m_histos[HECA].m_monGroup=&generalGroupHec;
 
-    m_histos[HECC].m_partName="HecC";
+    m_histos[HECC].m_partName="HECC";
     m_histos[HECC].m_monGroup=&generalGroupHec;
 
     m_histos[FCALA].m_partName="FcalA";
@@ -289,34 +289,34 @@ LArRODMonTool::bookHistograms()
       HistGroup& hg=m_histos[p];
       const std::string& Part = hg.m_partName;
       hName = "DE_" + Part;
-      hTitle = "E_{offline} - E_{online} distribution" + Part;
+      hTitle = "E_{offline} - E_{online}-" + Part;
       hg.m_hDE = new TH1F(hName.c_str(), hTitle.c_str(),400,-40.,40.);
-      hg.m_hDE->GetXaxis()->SetTitle("E_{offline} - E_{online} (MeV)");
+      hg.m_hDE->GetXaxis()->SetTitle("E_{offline} - E_{online}");
       CHECK(hg.m_monGroup->regHist(hg.m_hDE));
       
       hName = "DT_" + Part;
-      hTitle = "T_{offline} - T_{online} distribution" + Part;
+      hTitle = "T_{offline} - T_{online}-" + Part;
       hg.m_hDT = new TH1F(hName.c_str(), hTitle.c_str(),400,-800.,800.);
-      hg.m_hDT->GetXaxis()->SetTitle("T_{offline} - T_{online} (ps)");
+      hg.m_hDT->GetXaxis()->SetTitle("T_{offline} - T_{online}");
       CHECK(hg.m_monGroup->regHist(hg.m_hDT));
   
       hName = "DQ_" + Part;
-      hTitle = "Q_{offline} - Q_{online} / #sqrt{Q_{offline}} distribution" + Part;
+      hTitle = "Q_{offline} - Q_{online} / #sqrt{Q_{offline}}-" + Part;
       hg.m_hDQ = new TH1F(hName.c_str(), hTitle.c_str(),400,-3000.,1000.);
       hg.m_hDQ->GetXaxis()->SetTitle("Q_{offline} - Q_{online} / #sqrt{Q_{offline}}");
       CHECK(hg.m_monGroup->regHist(hg.m_hDQ));
 
       hName = "Out_E_FT_vs_SLOT_" + Part;
-      hTitle = "Cells with E_{offline} - E_{online} > numerical precision ";
+      hTitle = "# of cells with E_{offline} - E_{online} > numerical precision ";
       hTitle = hTitle + Part;
       hg.m_hOut_E_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_E_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
-      hg.m_hOut_E_FT_vs_SLOT->GetYaxis()->SetTitle("FT");
+      hg.m_hOut_E_FT_vs_SLOT->GetYaxis()->SetTitle("Feedthrough");
       sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_E_FT_vs_SLOT);   
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_E_FT_vs_SLOT));
 
       hName = "Out_T_FT_vs_SLOT_" + Part;
-      hTitle = "Cells with T_{offline} - T_{online} > numerical precision ";
+      hTitle = "# of cells with T_{offline} - T_{online} > numerical precision ";
       hTitle = hTitle + Part;
       hg.m_hOut_T_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_T_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
@@ -325,7 +325,7 @@ LArRODMonTool::bookHistograms()
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_T_FT_vs_SLOT)); 
 
       hName = "Out_Q_FT_vs_SLOT_" + Part;
-      hTitle = "Cells with Q_{offline} - Q_{online} / #sqrt{Q_{offline}} > numerical precision ";
+      hTitle = "# of cells with Q_{offline} - Q_{online} / #sqrt{Q_{offline}} > numerical precision ";
       hTitle = hTitle + Part;
       hg.m_hOut_Q_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_Q_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
@@ -334,21 +334,21 @@ LArRODMonTool::bookHistograms()
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_Q_FT_vs_SLOT)); 
 
       hName = "Eon_VS_Eoff_" + Part;
-      hTitle = "E_{online} VS E_{offline} (MeV) " + Part;
+      hTitle = "E_{online} VS E_{offline}-" + Part;
       hg.m_hEon_VS_Eoff = new TH2F(hName.c_str(), hTitle.c_str(),300,-20000.,20000.,300,-20000.,20000.);
       hg.m_hEon_VS_Eoff->GetXaxis()->SetTitle("E_{offline} (MeV)");
       hg.m_hEon_VS_Eoff->GetYaxis()->SetTitle("E_{online} (MeV)");
       CHECK(hg.m_monGroup->regHist(hg.m_hEon_VS_Eoff));
       
       hName = "Ton_VS_Toff_" + Part;
-      hTitle = "T_{online} VS T_{offline} (ps) " + Part;
+      hTitle = "T_{online} VS T_{offline}-" + Part;
       hg.m_hTon_VS_Toff = new TH2F(hName.c_str(), hTitle.c_str(),300,-80000.,80000.,300,-80000.,80000.);
       hg.m_hTon_VS_Toff->GetXaxis()->SetTitle("T_{offline} (ps)");
       hg.m_hTon_VS_Toff->GetYaxis()->SetTitle("T_{online} (ps)");
       CHECK(hg.m_monGroup->regHist(hg.m_hTon_VS_Toff));
       
       hName = "Qon_VS_Qoff_" + Part;
-      hTitle = "Q_{online} VS Q_{offline} " + Part;
+      hTitle = "Q_{online} VS Q_{offline}-" + Part;
       hg.m_hQon_VS_Qoff = new TH2F(hName.c_str(), hTitle.c_str(),300,0.,66000.,300,0.,66000.);
       hg.m_hQon_VS_Qoff->GetXaxis()->SetTitle("Q_{offline}");
       hg.m_hQon_VS_Qoff->GetYaxis()->SetTitle("Q_{online}");
@@ -367,15 +367,15 @@ LArRODMonTool::bookHistograms()
     hName = "Summary_E";
     hTitle = "Summary of errors on Energy per partition and per gain";
     m_hSummaryErrors_Energy = new TH2F(hName.c_str(),hTitle.c_str(),8,0.,8.,3,0.,3.);
-    m_hSummaryErrors_Energy->GetXaxis()->SetTitle("Sub Detector");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(1,"Barrel C");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(2,"Barrel A");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(3,"Emec C");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(4,"Emec A");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(5,"Hec C");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(6,"Hec A");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(7,"Fcal C");
-    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(8,"Fcal A");
+    m_hSummaryErrors_Energy->GetXaxis()->SetTitle("Partition");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(1,"EMBC");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(2,"EMBA");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(3,"EMECC");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(4,"EMECA");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(5,"HECC");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(6,"HECA");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(7,"FcalC");
+    m_hSummaryErrors_Energy->GetXaxis()->SetBinLabel(8,"FcalA");
     m_hSummaryErrors_Energy->GetYaxis()->SetTitle("Gain");
     m_hSummaryErrors_Energy->GetYaxis()->SetBinLabel(3,"Low Gain");
     m_hSummaryErrors_Energy->GetYaxis()->SetBinLabel(2,"Medium Gain");
@@ -385,15 +385,15 @@ LArRODMonTool::bookHistograms()
     hName = "Summary_T";
     hTitle = "Summary of errors on Time per partition and per gain";
     m_hSummaryErrors_Time = new TH2F(hName.c_str(),hTitle.c_str(),8,0.,8.,3,0.,3.);
-    m_hSummaryErrors_Time->GetXaxis()->SetTitle("Sub Detector");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(1,"Barrel C");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(2,"Barrel A");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(3,"Emec C");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(4,"Emec A");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(5,"Hec C");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(6,"Hec A");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(7,"Fcal C");
-    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(8,"Fcal A");
+    m_hSummaryErrors_Time->GetXaxis()->SetTitle("Partition");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(1,"EMBC");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(2,"EMBA");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(3,"EMECC");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(4,"EMECA");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(5,"HECC");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(6,"HECA");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(7,"FcalC");
+    m_hSummaryErrors_Time->GetXaxis()->SetBinLabel(8,"FcalA");
     m_hSummaryErrors_Time->GetYaxis()->SetTitle("Gain");
     m_hSummaryErrors_Time->GetYaxis()->SetBinLabel(3,"Low Gain");
     m_hSummaryErrors_Time->GetYaxis()->SetBinLabel(2,"Medium Gain");
@@ -403,15 +403,15 @@ LArRODMonTool::bookHistograms()
     hName = "Summary_Q";
     hTitle = "Summary of errors on Quality per partition and per gain";
     m_hSummaryErrors_Quality = new TH2F(hName.c_str(),hTitle.c_str(),8,0.,8.,3,0.,3.);
-    m_hSummaryErrors_Quality->GetXaxis()->SetTitle("Sub Detector");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(1,"Barrel C");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(2,"Barrel A");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(3,"Emec C");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(4,"Emec A");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(5,"Hec C");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(6,"Hec A");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(7,"Fcal C");
-    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(8,"Fcal A");
+    m_hSummaryErrors_Quality->GetXaxis()->SetTitle("Partition");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(1,"EMBC");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(2,"EMBA");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(3,"EMECC");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(4,"EMECA");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(5,"HECC");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(6,"HECA");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(7,"FcalC");
+    m_hSummaryErrors_Quality->GetXaxis()->SetBinLabel(8,"FcalA");
     m_hSummaryErrors_Quality->GetYaxis()->SetTitle("Gain");
     m_hSummaryErrors_Quality->GetYaxis()->SetBinLabel(3,"Low Gain");
     m_hSummaryErrors_Quality->GetYaxis()->SetBinLabel(2,"Medium Gain");
@@ -471,43 +471,43 @@ LArRODMonTool::bookHistograms()
     hName = "EErrorsPerLB";
     hTitle = "Nb of errors in E per LB and per partition";
     m_hEErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(1,"Barrel C");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(2,"Barrel A");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(3,"Emec C");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(4,"Emec A");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(5,"Hec C");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(6,"Hec A");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(7,"Fcal C");
-    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(8,"Fcal A");
-    m_hEErrors_LB_part->GetXaxis()->SetTitle("LumiBlock");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(5,"HECC");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(6,"HECA");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(7,"FcalC");
+    m_hEErrors_LB_part->GetYaxis()->SetBinLabel(8,"FcalA");
+    m_hEErrors_LB_part->GetXaxis()->SetTitle("Luminosity Block");
     CHECK(infosGroup.regHist(m_hEErrors_LB_part));
 
     hName = "TErrorsPerLB";
     hTitle = "Nb of errors in T per LB and per partition";
     m_hTErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(1,"Barrel C");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(2,"Barrel A");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(3,"Emec C");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(4,"Emec A");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(5,"Hec C");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(6,"Hec A");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(7,"Fcal C");
-    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(8,"Fcal A");
-    m_hTErrors_LB_part->GetXaxis()->SetTitle("LumiBlock");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(5,"HECC");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(6,"HECA");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(7,"FcalC");
+    m_hTErrors_LB_part->GetYaxis()->SetBinLabel(8,"FcalA");
+    m_hTErrors_LB_part->GetXaxis()->SetTitle("Luminosity Block");
     CHECK(infosGroup.regHist(m_hTErrors_LB_part));
 
     hName = "QErrorsPerLB";
     hTitle = "Nb of errors in Q per LB and per partition";
     m_hQErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(1,"Barrel C");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(2,"Barrel A");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(3,"Emec C");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(4,"Emec A");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(5,"Hec C");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(6,"Hec A");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(7,"Fcal C");
-    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(8,"Fcal A");
-    m_hQErrors_LB_part->GetXaxis()->SetTitle("LumiBlock");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(5,"HECC");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(6,"HECA");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(7,"FcalC");
+    m_hQErrors_LB_part->GetYaxis()->SetBinLabel(8,"FcalA");
+    m_hQErrors_LB_part->GetXaxis()->SetTitle("Luminosity Block");
     CHECK(infosGroup.regHist(m_hQErrors_LB_part));
 
     int nStreams = m_streams.size();

@@ -37,7 +37,7 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
 						 const std::string& name,
 						 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
-    m_lumi_blocks( 1000 ),
+    m_lumi_blocks( 1500 ),
     m_ECTimeDiff(0),
     m_ECTimeAvg(0),
     m_timeCut(5.0),

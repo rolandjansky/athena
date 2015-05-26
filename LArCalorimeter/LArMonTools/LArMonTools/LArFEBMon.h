@@ -77,6 +77,7 @@ private:
   unsigned int m_l1Trig;
   
   std::vector<int> m_febInErrorTree;
+  std::vector<int> m_febErrorTypeTree;
   
   // a handle on StoreGate 
   //   StoreGateSvc* m_storeGate;
@@ -171,10 +172,8 @@ private:
   TProfile_LW* m_rejectedLBProfile;
   TH1I_LW* m_rejBitsHisto;
   
-  TH1I_LW* m_eventsTime;
   TH1I_LW* m_eventsLB;
   //   TH1I_LW* m_rejectedEventsTime;
-  TProfile_LW* m_rejectedYieldTime;
   TProfile_LW* m_rejectedYieldLB;
   TProfile_LW* m_rejectedYieldLBout;
   TProfile_LW* m_eventSizeLB;
