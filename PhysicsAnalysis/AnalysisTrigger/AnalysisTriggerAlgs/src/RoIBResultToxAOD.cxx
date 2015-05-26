@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 644158 2015-02-04 16:01:21Z ssnyder $
+// $Id: RoIBResultToxAOD.cxx 669988 2015-05-26 17:36:24Z watsona $
 
 // STL include(s):
 #include <algorithm>
@@ -29,7 +29,7 @@
 #include "TrigT1Result/CTPResult.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetTools.h"
-#include "TrigT1CaloEvent/CPMTowerCollection.h"
+#include "xAODTrigL1Calo/CPMTowerContainer.h"
 #include "TrigT1CaloEvent/JetElementCollection.h"
 #include "TrigT1CaloEvent/JetInput.h"
 #include "TrigConfL1Data/L1DataDef.h"
@@ -412,10 +412,10 @@ StatusCode RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result ) {
 
    // Tool to reconstruct EM/tau cluster & isolation sums
    //   - need to form tower map for RoI reconstruction
-   const DataVector< LVL1::CPMTower >* storedTTs;
-   std::map< int, LVL1::CPMTower* > cpmtowers;
+   const DataVector< xAOD::CPMTower >* storedTTs;
+   std::map< int, xAOD::CPMTower* > cpmtowers;
    if( m_retrievedEmTauTool ) {
-      if( evtStore()->contains< CPMTowerCollection >( m_CPMTowerLocation ) ) {
+      if( evtStore()->contains< xAOD::CPMTowerContainer >( m_CPMTowerLocation ) ) {
          StatusCode sc = evtStore()->retrieve( storedTTs, m_CPMTowerLocation );
          if( sc.isSuccess() ) m_EmTauTool->mapTowers( storedTTs, &cpmtowers );
          else ATH_MSG_WARNING( "Error retrieving CPMTowers" );
