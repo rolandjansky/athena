@@ -36,6 +36,7 @@ public:
   virtual ~LArNoisyROMon();
   
   StatusCode initialize();
+  StatusCode finalize();
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode checkHists(bool fromFinalize);

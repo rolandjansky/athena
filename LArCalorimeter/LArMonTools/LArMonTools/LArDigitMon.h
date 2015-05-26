@@ -54,6 +54,7 @@ public:
   
   
   StatusCode initialize();
+  StatusCode finalize();
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode procHistograms();
@@ -86,6 +87,29 @@ private:
   
   /** Define the monitoring histograms used for each partitions of the LArCalorimeter*/
   struct partition {
+  partition():
+    m_NullDigit(0),
+      m_SatDigit(0),
+      m_OutDigit(0),
+      m_NullDigitChan(0),
+      m_SatDigitChan(0),
+      m_OutDigitChan(0),
+      m_Temp_NullDigitChan(0),
+      m_Temp_SatDigitChan(0),
+      m_Temp_OutDigitChan(0),
+      m_PNullDigit(0),
+      m_PSatDigit(0),
+      m_POutDigit(0),
+      m_AverDig(0),
+      m_AverTempPos_PerStream(0),
+      m_EnTime(0),
+      m_SignShape(0),
+      m_MaxVsTime(0),
+      m_TriggerType(0),
+      sumpos(0)
+    {
+    }; 
+
     TH2I_LW* m_NullDigit;
     TH2I_LW* m_SatDigit;
     TH2I_LW* m_OutDigit;
@@ -179,6 +203,7 @@ private:
   void FillSignShape(partition& sub, int& i,float nrj,float sample_max);
   void FillNullHisto(partition& sub);
   void ScalePartition(partition& sub);
+  void EndOfRun(partition& sub);
   void DeleteHist(partition& sub);
   void ScaleHisto(LWHist2D * h,int& events);
   void ComputeError(LWHist2D* hist,int& events);
