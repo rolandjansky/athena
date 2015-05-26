@@ -8,6 +8,7 @@
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "RVersion.h"
 #include <string>
 
 /** @class JobInfo
@@ -39,6 +40,7 @@ class JobInfo : public AthAlgorithm
 
  private:
   
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   int m_events;
   
   int m_last_entries;
@@ -46,6 +48,7 @@ class JobInfo : public AthAlgorithm
   int m_max_entries;
   
   bool m_no_warnings;
+#endif
   
   bool m_printFATAL;
 };

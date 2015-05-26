@@ -24,12 +24,12 @@ namespace G__functionscope {
 JobInfo::JobInfo(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthAlgorithm(name,pSvcLocator),
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   m_events(0),
   m_last_entries(0),
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   m_max_entries(G__functionscope::sm_tagdefining),
-#endif
   m_no_warnings(true),
+#endif
   m_printFATAL(false)
 {
   declareProperty("PrintFATAL", m_printFATAL,"flag to decide if a FATAL should be printed - protection for Tier0");
