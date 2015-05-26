@@ -16,7 +16,7 @@ use StoreGate             StoreGate-*               Control
 use EventInfo             EventInfo-*               Event
 use xAODTrigger		  xAODTrigger-*		    Event/xAOD
 use xAODTriggerCnv	  xAODTriggerCnv-*	    Event/xAOD
-
+use xAODTrigL1Calo        xAODTrigL1Calo-*          Event/xAOD
 
 # LVL1 simulation packages:
 use TrigT1Interfaces      TrigT1Interfaces-*        Trigger/TrigT1

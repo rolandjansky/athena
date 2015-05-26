@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToAOD.cxx 644158 2015-02-04 16:01:21Z ssnyder $
+// $Id: RoIBResultToAOD.cxx 644157 2015-02-04 16:01:16Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
