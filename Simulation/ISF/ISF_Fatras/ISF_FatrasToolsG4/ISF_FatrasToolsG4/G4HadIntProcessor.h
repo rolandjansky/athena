@@ -42,6 +42,8 @@ class G4LayerTrackingAction;
 class G4Step;
 class G4StepPoint;
 class G4AtlasRunManager;
+class G4Material;
+class G4MaterialCutsCouple;
 
 namespace Trk {
   class Layer;
@@ -112,6 +114,9 @@ namespace iFatras {
       //!< Initialize inleastic hadronic Geant4 processes 
       std::map<int,G4VProcess*>::iterator  initProcessPDG(int pdg) const;
 
+      //!< choose for list of predefined (pure) materials
+      std::pair<G4Material*,G4MaterialCutsCouple*> retrieveG4Material(const Trk::Material* ematprop) const;
+    
       //!< retrieve TrackingGeometry (almost callback ready!)
       StatusCode                           updateTrackingGeometry() const;
 
@@ -140,14 +145,16 @@ namespace iFatras {
       G4LayerPrimaryGeneratorAction*       m_g4generatorAction;
       G4LayerTrackingAction*               m_g4trackingAction;
 
-      //!< Geant4 processes <PDGcode, process>
-      mutable std::map<int, G4VProcess*>   m_g4HadrProcesses;
-      mutable std::map<int, G4VProcess*>   m_g4HadrProcesses_Elastic;
+      //!< Geant4 processes <PDGcode, process>  TODO : fission, capture
+      mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;
+      mutable std::map<int, G4VProcess*>   m_g4HadrElasticProcesses;
+
       //!< locally stored Geant4 instances (speeds up processing)
       mutable G4DynamicParticle*           m_g4dynPar;
       mutable const G4ThreeVector*         m_g4zeroPos;
       mutable G4Step*                      m_g4step;
       mutable G4StepPoint*                 m_g4stepPoint;
+      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;
 
       /** Tracking Geometry setup */
       mutable const Trk::TrackingGeometry*      m_trackingGeometry;       //!< the tracking geometry owned by the navigator
