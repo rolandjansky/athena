@@ -14,9 +14,11 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include <stdexcept>
+
 
 /**
- *  Author: James Monk (jmonk@hep.ucl.ac.uk)
+ *  Author: James Monk (jmonk@cern.ch)
 */
 
 using std::string;
@@ -58,6 +60,13 @@ public:
   Pythia8_i(const string &name, ISvcLocator *pSvcLocator);
   
   ~Pythia8_i();
+
+  class CommandException : public std::runtime_error{
+  public:
+    
+  CommandException(const string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
+    }
+  };
   
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
@@ -80,6 +89,8 @@ private:
   
 //  StoreGateSvc* m_sGateService;
 //  string m_mcEventKey;
+
+  static std::string findValue(const std::string &command, const std::string &key);
   
   int m_internal_event_number;
   
@@ -100,6 +111,10 @@ private:
   std::string m_beam2;
 
   std::string m_lheFile;
+  
+  bool m_doCKKWLAcceptance;
+  double m_nAccepted;
+  double m_nMerged;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -125,6 +140,8 @@ private:
 
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
+  
+  static int s_allowedTunes(double version);
   
 };
 
