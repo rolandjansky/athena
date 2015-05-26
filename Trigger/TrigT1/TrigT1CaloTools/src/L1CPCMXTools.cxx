@@ -6,8 +6,10 @@
 #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/DataError.h"
-#include "TrigT1CaloEvent/CMXCPHits.h"
-#include "TrigT1CaloEvent/CMXCPTob.h"
+//#include "xAODTrigL1Calo/CMXCPTob.h"
+//#include "xAODTrigL1Calo/CMXCPHits.h"
+//#include "xAODTrigL1Calo/CMXCPTobContainer.h"
+//#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloEvent/EmTauROI.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
@@ -199,7 +201,7 @@ void L1CPCMXTools::unpackTauIsol(int /*energy*/, int isol, unsigned int& emIsol,
 /** form CMX-CP TOBs from RoIs - single slice */
 
 void L1CPCMXTools::formCMXCPTob(const DataVector<CPMTobRoI>* cpmRoiVec,
-                                      DataVector<CMXCPTob>*  cmxTobVec) const
+				xAOD::CMXCPTobContainer*  cmxTobVec) const
 {
   std::vector<const DataVector<CPMTobRoI>*> cpmRoiColls(1, cpmRoiVec);
   formCMXCPTob(cpmRoiColls, cmxTobVec, 0);
@@ -209,10 +211,10 @@ void L1CPCMXTools::formCMXCPTob(const DataVector<CPMTobRoI>* cpmRoiVec,
 
 void L1CPCMXTools::formCMXCPTob(
                     const std::vector<const DataVector<CPMTobRoI>*>& cpmRoiColls,
-		    DataVector<CMXCPTob>* cmxTobVec, int peak) const
+		    xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const
 {
   std::map<uint32_t, const CPMTobRoI*> cpmRoiMap;
-  std::map<int, CMXCPTob*>    cmxTobMap;
+  std::map<int, xAOD::CMXCPTob*>    cmxTobMap;
   DataVector<CPMTobRoI>::const_iterator it;
   int timeslices = cpmRoiColls.size();
   for (int slice = 0; slice < timeslices; ++slice) {
@@ -258,23 +260,23 @@ void L1CPCMXTools::formCMXCPTob(
 	error = err.error();
       }
       const int key = (((((((crate<<1)|cmx)<<4)|cpm)<<4)|chip)<<2)|loc;
-      CMXCPTob* tob = 0;
-      std::map<int, CMXCPTob*>::iterator xit = cmxTobMap.find(key);
+      xAOD::CMXCPTob* tob = 0;
+      std::map<int, xAOD::CMXCPTob*>::iterator xit = cmxTobMap.find(key);
       if (xit == cmxTobMap.end()) {
-        tob = new CMXCPTob(crate, cmx, cpm, chip, loc);
-	if (timeslices > 1) {
-	  std::vector<int> vecI(timeslices);
-	  std::vector<unsigned int> vecU(timeslices);
-	  tob->addTob(vecI, vecI, vecI, vecU);
-	  tob->setPeak(peak);
-        }
+	tob = new xAOD::CMXCPTob();
+	tob->makePrivateStore();  //make temp store
+        tob->initialize(crate, cmx, cpm, chip, loc);
+        std::vector<uint8_t> vecI(timeslices);
+        std::vector<uint16_t> vecU(timeslices);
+        tob->addTob(vecI, vecI, vecI, vecU);
+        tob->setPeak(peak);
 	cmxTobMap.insert(std::make_pair(key, tob));
 	cmxTobVec->push_back(tob);
       } else tob = xit->second;
-      std::vector<int> energyVec(tob->energyVec());
-      std::vector<int> isolationVec(tob->isolationVec());
-      std::vector<int> errorVec(tob->errorVec());
-      std::vector<unsigned int> presenceMapVec(tob->presenceMapVec());
+      std::vector<uint8_t> energyVec(tob->energyVec());
+      std::vector<uint8_t> isolationVec(tob->isolationVec());
+      std::vector<uint8_t> errorVec(tob->errorVec());
+      std::vector<uint16_t> presenceMapVec(tob->presenceMapVec());
       energyVec[slice] = energy;
       isolationVec[slice] = isolation;
       errorVec[slice] = error;
@@ -286,12 +288,12 @@ void L1CPCMXTools::formCMXCPTob(
 
 /** form complete CMX-CP hits from CMX-CP TOBs */
 
-void L1CPCMXTools::formCMXCPHits(const DataVector<CMXCPTob>* cmxTobVec,
-                                 DataVector<CMXCPHits>* cmxHitsVec) const
+  void L1CPCMXTools::formCMXCPHits(const xAOD::CMXCPTobContainer* cmxTobVec,
+				   xAOD::CMXCPHitsContainer* cmxHitsVec) const
 {
-  DataVector<CMXCPHits>* cmxHitsCrate = new DataVector<CMXCPHits>;
-  DataVector<CMXCPHits>* cmxHitsSys   = new DataVector<CMXCPHits>;
-  DataVector<CMXCPHits>* cmxHitsTopo  = new DataVector<CMXCPHits>;
+  xAOD::CMXCPHitsContainer* cmxHitsCrate = new xAOD::CMXCPHitsContainer;
+  xAOD::CMXCPHitsContainer* cmxHitsSys   = new xAOD::CMXCPHitsContainer;
+  xAOD::CMXCPHitsContainer* cmxHitsTopo  = new xAOD::CMXCPHitsContainer;
   formCMXCPHitsCrate(cmxTobVec, cmxHitsCrate);
   formCMXCPHitsSystem(cmxHitsCrate, cmxHitsSys);
   formCMXCPHitsTopo(cmxTobVec, cmxHitsTopo);
@@ -305,22 +307,22 @@ void L1CPCMXTools::formCMXCPHits(const DataVector<CMXCPTob>* cmxTobVec,
 
 /** form partial CMX-CP hits (crate) from CMX-CP TOBs */
 
-void L1CPCMXTools::formCMXCPHitsCrate(const DataVector<CMXCPTob>* cmxTobVec,
-                                      DataVector<CMXCPHits>* cmxHitsCrate) const
+  void L1CPCMXTools::formCMXCPHitsCrate(const xAOD::CMXCPTobContainer* cmxTobVec,
+					xAOD::CMXCPHitsContainer* cmxHitsCrate) const
 {
-  int peakm = 0;
+  uint8_t peakm = 0;
   std::vector<HitsVector> hitVec(4*m_crates);
   std::vector<ErrorVector> errVec(4*m_crates); // Need overflow for neutral format
   HitsVector hit0;
   HitsVector hit1;
-  DataVector<CMXCPTob>::const_iterator pos  = cmxTobVec->begin();
-  DataVector<CMXCPTob>::const_iterator pose = cmxTobVec->end();
+  xAOD::CMXCPTobContainer::const_iterator pos  = cmxTobVec->begin();
+  xAOD::CMXCPTobContainer::const_iterator pose = cmxTobVec->end();
   for (; pos != pose; ++pos) {
-    const CMXCPTob* tob = *pos;
-    const int crate = tob->crate();
-    const int cmx = tob->cmx();
+    const xAOD::CMXCPTob* tob = *pos;
+    uint8_t crate = tob->crate();
+    uint8_t cmx = tob->cmx();
     const int index = (crate*2 + cmx)*2;
-    const std::vector<int>& error(tob->errorVec());
+    const std::vector<uint8_t>& error(tob->errorVec());
     hit0.clear();
     hit1.clear();
     getHits(tob, hit0, hit1);
@@ -328,18 +330,18 @@ void L1CPCMXTools::formCMXCPHitsCrate(const DataVector<CMXCPTob>* cmxTobVec,
     addCMXCPHits(hitVec[index+1], hit1);
     addOverflow(errVec[index],   error);
     addOverflow(errVec[index+1], error);
-    const int peak = tob->peak();
+    uint8_t peak = tob->peak();
     if (peak > peakm) peakm = peak;
   }
   // Save non-zero crate totals
-  for (int crate = 0; crate < m_crates; ++crate) {
-    for (int cmx = 0; cmx < 2; ++cmx) {
+  for (uint8_t crate = 0; crate < m_crates; ++crate) {
+    for (uint8_t cmx = 0; cmx < 2; ++cmx) {
       const int index = (crate*2 + cmx)*2;
       saveCMXCPHits(cmxHitsCrate, hitVec[index], hitVec[index+1],
                     errVec[index], errVec[index+1],
-                    crate, cmx, CMXCPHits::LOCAL, peakm);
+                    crate, cmx, xAOD::CMXCPHits::LOCAL, peakm);
       if (crate != m_sysCrate) { // REMOTE totals
-        const int source = crate;
+	uint8_t source = crate;
         saveCMXCPHits(cmxHitsCrate, hitVec[index], hitVec[index+1],
                       errVec[index], errVec[index+1],
 	              m_sysCrate, cmx, source, peakm);
@@ -350,12 +352,12 @@ void L1CPCMXTools::formCMXCPHitsCrate(const DataVector<CMXCPTob>* cmxTobVec,
 
 /** Temporary for testing, mostly lifted from CPAlgorithm */
 
-void L1CPCMXTools::getHits(const CMXCPTob* tob,
+  void L1CPCMXTools::getHits(const xAOD::CMXCPTob* tob,
 			   HitsVector& hit0, HitsVector& hit1) const
 {
   using namespace TrigConf;
-  const std::vector<int>& energy(tob->energyVec());
-  const std::vector<int>& isolation(tob->isolationVec());
+  const std::vector<uint8_t>& energy(tob->energyVec());
+  const std::vector<uint8_t>& isolation(tob->isolationVec());
   const int type = 1 - tob->cmx();
   const int timeslices = energy.size();
   hit0.assign(timeslices, 0);
@@ -467,65 +469,65 @@ void L1CPCMXTools::addOverflow(ErrorVector& hitErr, const ErrorVector& tobErr) c
 /** form partial CMX-CP hits (system) from crate CMX-CP hits */
 
 void L1CPCMXTools::formCMXCPHitsSystem(
-                                const DataVector<CMXCPHits>* cmxHitsCrate,
-				DataVector<CMXCPHits>* cmxHitsSys) const
+				       const xAOD::CMXCPHitsContainer* cmxHitsCrate,
+				       xAOD::CMXCPHitsContainer* cmxHitsSys) const
 {
-  int peakm = 0;
+  uint8_t peakm = 0;
   std::vector<HitsVector> systemHit0(2);
   std::vector<HitsVector> systemHit1(2);
   std::vector<ErrorVector> systemErr0(2);
   std::vector<ErrorVector> systemErr1(2);
-  DataVector<CMXCPHits>::const_iterator pos  = cmxHitsCrate->begin();
-  DataVector<CMXCPHits>::const_iterator pose = cmxHitsCrate->end();
+  DataVector<xAOD::CMXCPHits>::const_iterator pos  = cmxHitsCrate->begin();
+  DataVector<xAOD::CMXCPHits>::const_iterator pose = cmxHitsCrate->end();
   for (; pos != pose; ++pos) {
-    const CMXCPHits* hits = *pos;
+    const xAOD::CMXCPHits* hits = *pos;
     if (hits->crate() != m_sysCrate) continue;
-    const int source = hits->source();
-    if (source != CMXCPHits::LOCAL    &&
-        source != CMXCPHits::REMOTE_0 &&
-        source != CMXCPHits::REMOTE_1 &&
-	source != CMXCPHits::REMOTE_2) continue;
-    const int peak   = hits->peak();
+    uint8_t source = hits->sourceComponent();
+    if (source != xAOD::CMXCPHits::LOCAL    &&
+        source != xAOD::CMXCPHits::REMOTE_0 &&
+        source != xAOD::CMXCPHits::REMOTE_1 &&
+	source != xAOD::CMXCPHits::REMOTE_2) continue;
+    const uint8_t peak = hits->peak();
     if (peak > peakm) peakm = peak;
     HitsVector hits0(hits->hitsVec0());
     HitsVector hits1(hits->hitsVec1());
     ErrorVector err0(hits->errorVec0());
     ErrorVector err1(hits->errorVec1());
-    const int cmx = hits->cmx();
+    uint8_t cmx = hits->cmx();
     addCMXCPHits(systemHit0[cmx], hits0);
     addCMXCPHits(systemHit1[cmx], hits1);
     addOverflow(systemErr0[cmx], err0);
     addOverflow(systemErr1[cmx], err1);
   }
   // Save non-zero system totals
-  for (int cmx = 0; cmx < 2; ++cmx) {
+  for (uint8_t cmx = 0; cmx < 2; ++cmx) {
     saveCMXCPHits(cmxHitsSys, systemHit0[cmx], systemHit1[cmx],
                               systemErr0[cmx], systemErr1[cmx],
-			      m_sysCrate, cmx, CMXCPHits::TOTAL, peakm);
+			      m_sysCrate, cmx, xAOD::CMXCPHits::TOTAL, peakm);
   }
 }
 
 /** form partial CMX-CP hits (topo) from CMX-CP TOBs */                   // Temporary for testing
 
-void L1CPCMXTools::formCMXCPHitsTopo(const DataVector<CMXCPTob>* cmxTobVec,
-                                     DataVector<CMXCPHits>* cmxHitsTopo) const
+  void L1CPCMXTools::formCMXCPHitsTopo(const xAOD::CMXCPTobContainer* cmxTobVec,
+				       xAOD::CMXCPHitsContainer* cmxHitsTopo) const
 {
-  int peakm = 0;
+  uint8_t peakm = 0;
   int timeslices = 0;
   std::vector<HitsVector> hitVec(8*m_crates);
-  DataVector<CMXCPTob>::const_iterator pos  = cmxTobVec->begin();
-  DataVector<CMXCPTob>::const_iterator pose = cmxTobVec->end();
+  xAOD::CMXCPTobContainer::const_iterator pos  = cmxTobVec->begin();
+  xAOD::CMXCPTobContainer::const_iterator pose = cmxTobVec->end();
   for (; pos != pose; ++pos) {
-    const CMXCPTob* tob = *pos;
-    const int crate = tob->crate();
-    const int cmx = tob->cmx();
-    const int cpm = tob->cpm();
-    const int chip = tob->chip()>>1;
-    const int loc = ((tob->chip()&0x1)<<2)|tob->location();
+    const xAOD::CMXCPTob* tob = *pos;
+    uint8_t crate = tob->crate();
+    uint8_t cmx = tob->cmx();
+    const uint8_t cpm = tob->cpm();
+    const uint8_t chip = tob->chip()>>1;
+    const uint8_t loc = ((tob->chip()&0x1)<<2)|tob->location();
     const int index = (crate*2 + cmx)*4;
-    const std::vector<int>& energy(tob->energyVec());
-    const std::vector<int>& isolation(tob->isolationVec());
-    const std::vector<int>& error(tob->errorVec());
+    const std::vector<uint8_t>& energy(tob->energyVec());
+    const std::vector<uint8_t>& isolation(tob->isolationVec());
+    const std::vector<uint8_t>& error(tob->errorVec());
     timeslices = energy.size();
     HitsVector& checksum(hitVec[index]);
     HitsVector& map(hitVec[index+1]);
@@ -552,24 +554,24 @@ void L1CPCMXTools::formCMXCPHitsTopo(const DataVector<CMXCPTob>* cmxTobVec,
         countsHigh[slice] += (1<<(3*(cpm-8)));
       }
     }
-    const int peak = tob->peak();
+    uint8_t peak = tob->peak();
     if (peak > peakm) peakm = peak;
   }
   // Save non-zero crate totals
   HitsVector dummy(timeslices);
-  std::vector<int> dummyE(timeslices);
-  for (int crate = 0; crate < m_crates; ++crate) {
-    for (int cmx = 0; cmx < 2; ++cmx) {
+  std::vector<uint8_t> dummyE(timeslices);
+  for (uint8_t crate = 0; crate < m_crates; ++crate) {
+    for (uint8_t cmx = 0; cmx < 2; ++cmx) {
       const int index = (crate*2 + cmx)*4;
       saveCMXCPHits(cmxHitsTopo, hitVec[index], dummy,
 		    dummyE, dummyE,
-                    crate, cmx, CMXCPHits::TOPO_CHECKSUM, peakm);
+                    crate, cmx, xAOD::CMXCPHits::TOPO_CHECKSUM, peakm);
       saveCMXCPHits(cmxHitsTopo, hitVec[index+1], dummy,
 		    dummyE, dummyE,
-                    crate, cmx, CMXCPHits::TOPO_OCCUPANCY_MAP, peakm);
+                    crate, cmx, xAOD::CMXCPHits::TOPO_OCCUPANCY_MAP, peakm);
       saveCMXCPHits(cmxHitsTopo, hitVec[index+2], hitVec[index+3],
 		    dummyE, dummyE,
-                    crate, cmx, CMXCPHits::TOPO_OCCUPANCY_COUNTS, peakm);
+                    crate, cmx, xAOD::CMXCPHits::TOPO_OCCUPANCY_COUNTS, peakm);
     }
   }
 }
@@ -634,13 +636,13 @@ unsigned int L1CPCMXTools::addHits(unsigned int hitMult,
 
 /** Merge CMX-CP hits vectors */
 
-void L1CPCMXTools::mergeCMXCPHits(DataVector<CMXCPHits>* cmxHitsVec1,
-                                  DataVector<CMXCPHits>* cmxHitsVec2) const
+  void L1CPCMXTools::mergeCMXCPHits(xAOD::CMXCPHitsContainer* cmxHitsVec1,
+				    xAOD::CMXCPHitsContainer* cmxHitsVec2) const
 {
   int size = cmxHitsVec2->size();
   for (int index = 0; index < size; ++index) {
-    CMXCPHits* hitsIn  = 0;
-    CMXCPHits* hitsOut = 0;
+    xAOD::CMXCPHits* hitsIn  = 0;
+    xAOD::CMXCPHits* hitsOut = 0;
     cmxHitsVec2->swapElement(index, hitsIn, hitsOut);
     cmxHitsVec1->push_back(hitsOut);
   }
@@ -649,17 +651,19 @@ void L1CPCMXTools::mergeCMXCPHits(DataVector<CMXCPHits>* cmxHitsVec1,
 
 /** Save non-zero CMX-CP hits */
 
-void L1CPCMXTools::saveCMXCPHits(DataVector<CMXCPHits>* cmxHitsVec,
+  void L1CPCMXTools::saveCMXCPHits(xAOD::CMXCPHitsContainer* cmxHitsVec,
                                  const HitsVector& hits0,
 				 const HitsVector& hits1,
 				 const ErrorVector& err0,
 				 const ErrorVector& err1,
-				 int crate, int cmx, int source, int peak) const
+				 uint8_t crate, uint8_t cmx, uint8_t source, uint8_t peak) const
 {
   if (std::accumulate(hits0.begin(), hits0.end(), 0) ||
       std::accumulate(hits1.begin(), hits1.end(), 0)) {
-    cmxHitsVec->push_back(new CMXCPHits(crate, cmx, source, hits0, hits1,
-                                                       err0, err1, peak));
+    xAOD::CMXCPHits* cmxCpHits = new xAOD::CMXCPHits();
+    cmxCpHits->makePrivateStore();
+    cmxCpHits->initialize(crate, cmx, source, hits0, hits1, err0, err1, peak);
+    cmxHitsVec->push_back(cmxCpHits);
   }
 }
 

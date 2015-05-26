@@ -4,7 +4,10 @@
 
 #include "TrigT1CaloTools/L1EtTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
 
 namespace LVL1 {
 
@@ -71,14 +74,14 @@ void L1EtTools::fillMaskedOutMap() {
 
   /** Fill map of JE masked out of TE trigger */
   m_TEMasks = new std::map<int, int>;
-  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold*>::const_iterator it;
-  L1DataDef def;
+  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+  std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
+  TrigConf::L1DataDef def;
   /// Loop over all thresholds. For each TE threshold check whether the "turn-off" value has been set for any eta bin
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.teType() ) {
       for (int ieta = -49; ieta < 49; ++ieta) {
-        TriggerThresholdValue* tv = (*it)->triggerThresholdValue(ieta,0);       
+        TrigConf::TriggerThresholdValue* tv = (*it)->triggerThresholdValue(ieta,0);       
         if (tv != 0) {
           int thresholdValue = (*tv).thresholdValueCount();
           if (thresholdValue >= 0x3fff) {

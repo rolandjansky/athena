@@ -14,27 +14,27 @@
 #ifndef L1TRIGGERTOWERTOOL_H
 #define L1TRIGGERTOWERTOOL_H
 
+#include <boost/any.hpp>
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/CaloLVL1_ID.h"
-#include "CaloTriggerTool/CaloTriggerTowerService.h"
-// #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
-#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
 
-#include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefsContainer.h"
+class CaloIdManager;
+class CaloLVL1_ID;
+class CaloTriggerTowerService;
+class Incident;
+class L1CaloCondSvc;
+class L1CaloPpmFineTimeRefsContainer;
 
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+namespace TrigConf { class ILVL1ConfigSvc; }
 
 namespace LVL1
 {
+  class IL1CaloMappingTool;
+  class IL1CaloTTIdTools;
   class IL1DynamicPedestalProvider;
 
   /** @class L1TriggerTowerTool
@@ -70,11 +70,11 @@ namespace LVL1
       virtual void process(const std::vector<int> &digits,
                            double eta, double phi, int layer,
                            std::vector<int> &et, std::vector<int> &bcidResults,
-                           std::vector<int> &bcidDecisions);
+                           std::vector<int> &bcidDecisions, bool useJepLut = true);
        
       virtual void process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
                            std::vector<int> &et, std::vector<int> &bcidResults,
-                           std::vector<int> &bcidDecisions);
+                           std::vector<int> &bcidDecisions, bool useJepLut = true);
 
       virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
                                       int bcid, float mu, std::vector<int_least16_t>& correctionOut);
@@ -96,12 +96,16 @@ namespace LVL1
       virtual void bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const std::vector<unsigned int> &mask, std::vector<int> &output);
       virtual void lut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
+      virtual void cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
+      virtual void jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void lut(const std::vector<int> &fir, int slope, int offset, int cut, int ped, int strategy, bool disabled, std::vector<int> &output);
       virtual void applyEtRange(const std::vector<int>& lut, const std::vector<int>& range, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void firParams(const L1CaloCoolChannelId& channelId, std::vector<int> &firCoeffs);
       virtual void bcidParams(const L1CaloCoolChannelId& channelId, int &energyLow, int &energyHigh, int &decisionSource, std::vector<unsigned int> &decisionConditions,
                               unsigned int &peakFinderStrategy, int &satLow, int &satHigh, int &satLevel);
       virtual void lutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled);
+      virtual void cpLutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled);
+      virtual void jepLutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled);
       virtual Identifier identifier(double eta, double phi, int layer);
       virtual HWIdentifier hwIdentifier(const Identifier& id);
       virtual HWIdentifier hwIdentifier(double eta, double phi, int layer);
@@ -125,8 +129,6 @@ namespace LVL1
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
 
       bool              m_debug;
-      /** pointer to StoreGate service */
-      StoreGateSvc* m_detStore;
     
       /// Id managers
       const CaloIdManager* m_caloMgr;
@@ -135,15 +137,19 @@ namespace LVL1
       const CaloLVL1_ID* m_lvl1Helper;
 //       L1CaloTTIdTools* m_l1CaloTTIdTools;
       ToolHandle<LVL1::IL1CaloTTIdTools> m_l1CaloTTIdTools;
-      CaloTriggerTowerService* m_ttSvc;
+      ToolHandle<CaloTriggerTowerService> m_ttSvc;
       
       /// and mappings
-      ToolHandle<IL1CaloMappingTool> m_mappingTool;
+      ToolHandle<LVL1::IL1CaloMappingTool> m_mappingTool;
 
       /// L1Calo conditions
-      L1CaloCondSvc* m_l1CondSvc;
-      L1CaloPprConditionsContainer* m_conditionsContainer;
-      L1CaloPprDisabledChannelContainer* m_DisabledChannelContainer;
+      ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+
+      // one of L1CaloPprConditionsContainer{,Run2}*
+      bool m_isRun2;
+      boost::any m_conditionsContainer;
+      // one of L1CaloPprDisabledChannelContainer{,Run2}*
+      boost::any m_disabledChannelContainer;
       
       /// For the fine time monitoring
       L1CaloPpmFineTimeRefsContainer* m_dbFineTimeRefsTowers; 

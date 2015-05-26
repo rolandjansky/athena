@@ -16,7 +16,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
-#include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloUtils/CPMTobAlgorithm.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
@@ -25,7 +24,7 @@
 class AtlasDetectorID;
 class Identifier;
 
-namespace LVL1 
+namespace LVL1
 {
 
   /** @class L1CPMTools
@@ -45,8 +44,8 @@ namespace LVL1
   class L1CPMTools : virtual public IL1CPMTools, public AthAlgTool
     {
     public:
-      typedef DataVector<CPMTower>         CPMTCollection ;
-      typedef std::map<int, CPMTower*>*    CPMTContainer;
+      typedef DataVector<xAOD::CPMTower>         CPMTCollection ;
+      typedef std::map<int, xAOD::CPMTower*>*    CPMTContainer;
       
       L1CPMTools(const std::string&,const std::string&,const IInterface*);
 
@@ -61,34 +60,34 @@ namespace LVL1
       /** Tool-based EM/tau algorithm implementation */
       
       /** Map CPMTowers from user-supplied DataVector of inputs */
-      virtual void mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CPMTower*>* towers);
+      virtual void mapTowers(const DataVector<xAOD::CPMTower>* cpmts, std::map<int, xAOD::CPMTower*>* towers);
        
       /** Find RoIs in user-supplied map of input towers */
-      virtual void findRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
+      virtual void findRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
       
       /** Find RoIs in user-supplied DataVector of input towers */
-      virtual void findRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
+      virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1);
      
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPMTobRoI>* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobRoI>* rois, int slice = -1);
      
       /** Form CPM results for specified crate/module using user-supplied vector of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPMTobRoI>* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobRoI>* rois, int slice = -1);
       
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version adds to DataVector of CPMTobRoI and returns backplane data words*/
-      virtual void findCPMResults(const std::map<int, CPMTower*>* towers, int crate, int module,
+      virtual void findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                   std::vector<unsigned int>& tauCMXData, int slice = -1);
       
       /** Return RoI object for a specified location */
-      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) ;
+      virtual CPMTobAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
       
       /** Form cluster/isolation sums for a given RoI location */
-      virtual void formSums(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice = -1) ;
-      virtual void formSums(uint32_t roiWord, const std::map<int, CPMTower*>* towers, int slice = -1) ;
+      virtual void formSums(double RoIeta, double RoIphi, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
+      virtual void formSums(uint32_t roiWord, const std::map<int, xAOD::CPMTower*>* towers, int slice = -1) ;
       /** Methods to return the cluster/isolation ET values */
       virtual int Core() const;
       virtual int EMCore() const;

@@ -18,23 +18,24 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DataModel/DataVector.h"
 #include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
+//#include "xAODTrigL1Calo/CMXCPTob.h"
+//#include "xAODTrigL1Calo/CMXCPHits.h"
+#include "xAODTrigL1Calo/CMXCPTobContainer.h"
+#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
 namespace TrigConf
 {
-class ITrigConfigSvc;
+  class ITrigConfigSvc;
 }
 
 namespace LVL1 
 {
-
-class CMXCPHits;
-class CPAlgorithm;
-class CMXCPTob;
-class CPMTobRoI;
-class EmTauROI;
-
+  class CPAlgorithm;
+  class CPMTobRoI;
+  class EmTauROI;
+  
   /** @class L1CPCMXTools
-
+      
       This is a tool to reconstruct the L1 CMX-CP TOBs and hits
       from RoIs.
       Used for offline monitoring and trigger reconstruction.
@@ -70,28 +71,28 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
                                   DataVector<CPMTobRoI>*   cpmRoiVec) const;
      /** form CMX-CP TOBs from RoIs - single slice */
     virtual void formCMXCPTob(const DataVector<CPMTobRoI>*   cpmRoiVec,
-                                    DataVector<CMXCPTob>* cmxTobVec) const;
+			      xAOD::CMXCPTobContainer* cmxTobVec) const;
      /** form CMX-CP TOBs from RoIs - multiple slices */
     virtual void formCMXCPTob(
                  const std::vector<const DataVector<CPMTobRoI>*>& cpmRoiColls,
-                 DataVector<CMXCPTob>* cmxTobVec, int peak) const;
+                 xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const;
      /** form complete CMX-CP hits from CMX-CP TOBs */
-    virtual void formCMXCPHits(const DataVector<CMXCPTob>*  cmxTobVec,
-                                     DataVector<CMXCPHits>* cmxHitsVec) const;
+    virtual void formCMXCPHits(const xAOD::CMXCPTobContainer*  cmxTobVec,
+                                     xAOD::CMXCPHitsContainer* cmxHitsVec) const;
      /** form partial CMX-CP hits (crate) from CMX-CP TOBs */
-    virtual void formCMXCPHitsCrate(const DataVector<CMXCPTob>* cmxTobVec,
-                                    DataVector<CMXCPHits>* cmxHitsCrate) const;
+    virtual void formCMXCPHitsCrate(const xAOD::CMXCPTobContainer* cmxTobVec,
+				    xAOD::CMXCPHitsContainer* cmxHitsCrate) const;
      /** form partial CMX-CP hits (system) from crate CMX-CP hits */
-    virtual void formCMXCPHitsSystem(const DataVector<CMXCPHits>* cmxHitsCrate,
-                                     DataVector<CMXCPHits>* cmxHitsSys) const;
+    virtual void formCMXCPHitsSystem(const xAOD::CMXCPHitsContainer* cmxHitsCrate,
+                                     xAOD::CMXCPHitsContainer* cmxHitsSys) const;
      /** form partial CMX-CP hits (topo) from CMX-CP TOBs */
-    virtual void formCMXCPHitsTopo(const DataVector<CMXCPTob>* cmxTobVec,
-                                   DataVector<CMXCPHits>* cmxHitsTopo) const;
+    virtual void formCMXCPHitsTopo(const xAOD::CMXCPTobContainer* cmxTobVec,
+                                   xAOD::CMXCPHitsContainer* cmxHitsTopo) const;
       
   private:
       
-    typedef std::vector<unsigned int>   HitsVector;
-    typedef std::vector<int>            ErrorVector;
+    typedef std::vector<uint8_t>   HitsVector;
+    typedef std::vector<uint8_t>   ErrorVector;
 
     /** Temporary for testing until CPAlgorithm and EmTauROI are updated */
     std::pair<uint32_t,uint32_t> roiWord(const EmTauROI* roi) const;
@@ -103,7 +104,7 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
                       unsigned int& hadIsol, unsigned int& hadVeto) const;
     void unpackTauIsol(int energy, int isol, unsigned int& emIsol,
                        unsigned int& hadIsol) const;
-    void getHits(const CMXCPTob* tob,
+    void getHits(const xAOD::CMXCPTob* tob,
 		 HitsVector& hit0, HitsVector& hit1) const;
     void addOverflow(ErrorVector& hitErr, const ErrorVector& tobErr) const;
 
@@ -113,13 +114,13 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
     unsigned int addHits(unsigned int hitMult, unsigned int hitVec,
                                   int multBits, int vecBits) const;
     /** Merge CMX-CP hits vectors */
-    void mergeCMXCPHits(DataVector<CMXCPHits>* cmxHitsVec1,
-                        DataVector<CMXCPHits>* cmxHitsVec2) const;
+    void mergeCMXCPHits(xAOD::CMXCPHitsContainer* cmxHitsVec1,
+                        xAOD::CMXCPHitsContainer* cmxHitsVec2) const;
     /** Save non-zero CMX-CP hits */
-    void saveCMXCPHits(DataVector<CMXCPHits>* cmxHitsVec,
+    void saveCMXCPHits(xAOD::CMXCPHitsContainer* cmxHitsVec,
                        const HitsVector& hits0, const HitsVector& hits1,
                        const ErrorVector& err0, const ErrorVector& err1,
-		       int crate, int cmx, int source, int peak) const;
+		       uint8_t crate, uint8_t cmx, uint8_t source, uint8_t peak) const;
 
     /** Trigger configuration service */
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
