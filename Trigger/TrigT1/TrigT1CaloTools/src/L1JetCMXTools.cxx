@@ -1,4 +1,3 @@
-
 #include <map>
 #include <numeric>
 #include <algorithm>
@@ -12,6 +11,7 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
+#include "TrigConfL1Data/JetThresholdValue.h"
 
 #include "TrigT1CaloEvent/CMXJetTob.h"
 #include "TrigT1CaloEvent/CMXJetHits.h"
@@ -474,7 +474,7 @@ void L1JetCMXTools::getHits(const CMXJetTob* tob,
           if (passes) {
 	    if (forward) {
 	      if (threshNum < 8) hit0[slice] |= (1<<(threshNum*2));
-	      else               hit1[slice] |= (1<<((threshNum-8)*2));
+	      else if(TrigT1CaloDefs::numOfJetThresholds < 8) hit1[slice] |= (1<<((threshNum-8)*2)); // for coverity issue # 29171
             } else {
 	      if (threshNum < 5) hit0[slice] |= (1<<(threshNum*3));
 	      else               hit1[slice] |= (1<<((threshNum-5)*3));
