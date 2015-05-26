@@ -40,14 +40,15 @@ class IL1TriggerTowerTool : virtual public IAlgTool  {
           
     virtual StatusCode retrieveConditions() = 0;
 
+    // the useJepLut parameters is ignored for Run-1 data
     virtual void process(const std::vector<int> &digits,
                          double eta, double phi, int EmHad,
                          std::vector<int> &et, std::vector<int> &bcidResults,
-                         std::vector<int> &bcidDecisions) = 0;
-    
+                         std::vector<int> &bcidDecisions, bool useJepLut = true) = 0;
+
     virtual void process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
                          std::vector<int> &et, std::vector<int> &bcidResults,
-                         std::vector<int> &bcidDecisions) = 0;
+                         std::vector<int> &bcidDecisions, bool useJepLut = true) = 0;
 
     virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
                                     int bcid, float mu, std::vector<int_least16_t>& correctionOut) = 0;
@@ -70,12 +71,16 @@ class IL1TriggerTowerTool : virtual public IAlgTool  {
     virtual void bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
     virtual void bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const std::vector<unsigned int> &mask, std::vector<int> &output) = 0;
     virtual void lut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
+    virtual void cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
+    virtual void jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
     virtual void lut(const std::vector<int> &fir, int slope, int offset, int cut, int ped, int strategy, bool disabled, std::vector<int> &output) = 0;
     virtual void applyEtRange(const std::vector<int>& lut, const std::vector<int>& range, const L1CaloCoolChannelId& channelId, std::vector<int>& output) = 0;
     virtual void firParams(const L1CaloCoolChannelId& channelId, std::vector<int>& firCoeffs) = 0;
     virtual void bcidParams(const L1CaloCoolChannelId& channelId, int &energyLow, int &energyHigh, int &decisionSource, std::vector<unsigned int>& decisionConditions,
                             unsigned int &peakFinderStrategy, int &satLow, int &satHigh, int &satLevel) = 0;
     virtual void lutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled) = 0;
+    virtual void cpLutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled) = 0;
+    virtual void jepLutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled) = 0;
     virtual Identifier identifier(double eta, double phi, int layer) = 0;
     virtual HWIdentifier hwIdentifier(double eta, double phi, int layer) = 0;
     virtual HWIdentifier hwIdentifier(const Identifier& id) = 0;

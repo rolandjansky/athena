@@ -10,21 +10,20 @@
 
 #include "GaudiKernel/IAlgTool.h"
 //#include "TrigT1CaloUtils/CPAlgorithm.h"
+#include "xAODTrigL1Calo/CMXCPTobContainer.h"
+#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
 namespace LVL1 
 {
-
-class CMXCPHits;
-class CPAlgorithm;
-class CMXCPTob;
-class CPMTobRoI;
-class EmTauROI;
-
-/**
-Interface definition for L1CPCMXTools
-*/
+  class CPAlgorithm;
+  class CPMTobRoI;
+  class EmTauROI;
+  
+  /**
+     Interface definition for L1CPCMXTools
+  */
   static const InterfaceID IID_IL1CPCMXTools("LVL1::IL1CPCMXTools", 1, 0);
-
+  
   class IL1CPCMXTools : virtual public IAlgTool {
   public:
     static const InterfaceID& interfaceID( ) ;
@@ -35,18 +34,18 @@ Interface definition for L1CPCMXTools
     virtual void formCPMTobRoI(const DataVector<EmTauROI>* emTauRoiVec,
                                   DataVector<CPMTobRoI>*   cpmRoiVec) const = 0;
     virtual void formCMXCPTob(const DataVector<CPMTobRoI>*   cpmRoiVec,
-                              DataVector<CMXCPTob>* cmxTobVec) const = 0;
+                              xAOD::CMXCPTobContainer* cmxTobVec) const = 0;
     virtual void formCMXCPTob(
                  const std::vector<const DataVector<CPMTobRoI>*>& cpmRoiColls,
-                 DataVector<CMXCPTob>* cmxTobVec, int peak) const = 0;
-    virtual void formCMXCPHits(const DataVector<CMXCPTob>*  cmxTobVec,
-                               DataVector<CMXCPHits>* cmxHitsVec) const = 0;
-    virtual void formCMXCPHitsCrate(const DataVector<CMXCPTob>* cmxTobVec,
-                               DataVector<CMXCPHits>* cmxHitsCrate) const = 0;
-    virtual void formCMXCPHitsSystem(const DataVector<CMXCPHits>* cmxHitsCrate,
-                               DataVector<CMXCPHits>* cmxHitsSys) const = 0;
-    virtual void formCMXCPHitsTopo(const DataVector<CMXCPTob>* cmxTobVec,
-                               DataVector<CMXCPHits>* cmxHitsTopo) const = 0;
+                 xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const = 0;
+    virtual void formCMXCPHits(const xAOD::CMXCPTobContainer*  cmxTobVec,
+                               xAOD::CMXCPHitsContainer* cmxHitsVec) const = 0;
+    virtual void formCMXCPHitsCrate(const xAOD::CMXCPTobContainer* cmxTobVec,
+				    xAOD::CMXCPHitsContainer* cmxHitsCrate) const = 0;
+    virtual void formCMXCPHitsSystem(const xAOD::CMXCPHitsContainer* cmxHitsCrate,
+				     xAOD::CMXCPHitsContainer* cmxHitsSys) const = 0;
+    virtual void formCMXCPHitsTopo(const xAOD::CMXCPTobContainer* cmxTobVec,
+                               xAOD::CMXCPHitsContainer* cmxHitsTopo) const = 0;
       
   };
 
