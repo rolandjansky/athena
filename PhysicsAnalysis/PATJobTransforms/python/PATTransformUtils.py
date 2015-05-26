@@ -88,7 +88,7 @@ def addDAODMergerSubsteps(executorSet):
     DAODTypes = knownDAODTypes()
     for DAOD in DAODTypes:
         executorSet.add(hybridPOOLMergeExecutor(name = DAOD.lstrip("DAOD_") + 'Merge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                        inData = [DAOD], outData = [DAOD+'_MRG'], perfMonFile = 'ntuple_POOLMerge.pmon.gz', )
+                        inData = [DAOD], outData = [DAOD+'_MRG'])
                         )
 
 def knownDAODTypes():

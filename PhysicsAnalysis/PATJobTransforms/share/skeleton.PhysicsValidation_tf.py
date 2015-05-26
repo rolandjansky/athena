@@ -8,7 +8,7 @@
 # ==============================================================================
 # Load your input file that you want to process
 # ==============================================================================
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 from AthenaCommon.Logging import logging
 skelLog = logging.getLogger('PhysicsValidaiton')
@@ -107,18 +107,6 @@ for validationType, enabled in validationDict.iteritems():
             rec.UserAlgs += [JOFile]
         else:
             skelLog.warning("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
-
-
-# Set up trigger for All tools
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-ToolSvc += tdt
-    
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList = ['ds']
-
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg =  TriggerConfigGetter("ReadPool")
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):

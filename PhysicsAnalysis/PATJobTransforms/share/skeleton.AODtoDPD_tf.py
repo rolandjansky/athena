@@ -6,7 +6,7 @@
 #==============================================================
 
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 rec.doAOD=False
 
 from AthenaCommon.Logging import logging
