@@ -1,19 +1,41 @@
 //////////////////////////////////////////////////////////////////////
 //  L1TriggerTowerTool.cxx (c) Alan Watson
 ///////////////////////////////////////////////////////////////////////
+#include "TrigT1CaloTools/L1TriggerTowerTool.h"
 
+#include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
-#include "TrigT1CaloTools/L1TriggerTowerTool.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloLVL1_ID.h"
+#include "CaloTriggerTool/CaloTriggerTowerService.h"
+
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfL1Data/ThresholdConfig.h"
+
+#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "TrigT1CaloCalibConditions/ChanCalibErrorCode.h"
 #include "TrigT1CaloCalibConditions/ChanDeadErrorCode.h"
 #include "TrigT1CaloCalibConditions/FineTimeErrorCode.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannel.h"
 #include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefs.h"
+#include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefsContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainerRun2.h"
+
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
+#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
 
 #include <cstdint>
+#include <tuple>
 
 namespace LVL1 
 {
@@ -32,13 +54,11 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_caloMgr(0),
   m_lvl1Helper(0),
-//   m_l1CaloTTIdTools(0),
   m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-  m_ttSvc(0),
+  m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
   m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
-  m_l1CondSvc(0),
-  m_conditionsContainer(0),
-  m_DisabledChannelContainer(0),
+  m_l1CondSvc("L1CaloCondSvc", n),
+  m_isRun2(false),
   m_dbFineTimeRefsTowers(0),
   m_correctFir(false)
 {
@@ -59,55 +79,25 @@ L1TriggerTowerTool::~L1TriggerTowerTool()
 StatusCode L1TriggerTowerTool::initialize()
 {
   m_debug = msgLvl(MSG::VERBOSE); // May want to make this VERBOSE!
-    
-  ///get a pointer to DetectorStore services
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot access DetectorStore" );
-      return sc;
-  }
 
-  /// and the L1CaloCondSvc
-  ///  - note: may use tools without DB, so don't abort if fail here
-  sc = service("L1CaloCondSvc", m_l1CondSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Could not retrieve L1CaloCondSvc" );
-  }
 
-  /// Retrieve tools for computing identifiers
-  sc = m_l1CaloTTIdTools.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot get L1CaloTTIdTools !");
-  }
-  
-  IToolSvc* toolSvc;
-  StatusCode scTools = service( "ToolSvc",toolSvc );
-//   IAlgTool *algtool;
+  CHECK(m_l1CondSvc.retrieve());
+  CHECK(m_l1CaloTTIdTools.retrieve());
 
-  if (scTools.isSuccess()) {
-//      sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-//      if (sc!=StatusCode::SUCCESS) {
-//        ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !" );
-//      }
-//      m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
-
-    sc = toolSvc->retrieveTool("CaloTriggerTowerService", m_ttSvc);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING( "Could not retrieve CaloTriggerTowerService Tool" );
-      //return StatusCode::FAILURE;
-    }
+  if(!m_ttSvc.retrieve().isSuccess()) {
+    ATH_MSG_WARNING( "Could not retrieve CaloTriggerTowerService Tool" );
   } else {
-    ATH_MSG_WARNING( "Unable to retrieve ToolSvc" );
+    ATH_MSG_INFO("Retrieved Tool " << m_ttSvc);
   }
   
-  StatusCode scID = m_detStore->retrieve(m_caloMgr);
+  StatusCode scID = detStore()->retrieve(m_caloMgr);
   if (scID.isFailure()) {
     ATH_MSG_WARNING( "Cannot retrieve m_caloMgr" );
   } else {
     m_lvl1Helper = m_caloMgr->getLVL1_ID();
   }
  
-  sc = m_mappingTool.retrieve(); 
+  StatusCode sc = m_mappingTool.retrieve(); 
   if (sc.isFailure()) { 
     ATH_MSG_WARNING( "Failed to retrieve tool " << m_mappingTool ); 
   } else {
@@ -118,19 +108,14 @@ StatusCode L1TriggerTowerTool::initialize()
   IIncidentSvc* incSvc = 0;
   sc = service("IncidentSvc", incSvc);
   if (sc.isFailure()) {
-     ATH_MSG_WARNING( "Unable to retrieve pointer to IncidentSvc " );
-     //return StatusCode::FAILURE;
+    ATH_MSG_WARNING( "Unable to retrieve pointer to IncidentSvc " );
+    //return StatusCode::FAILURE;
   }
 
   // Pedestal Correction
   if (m_correctFir) {
-      sc = m_dynamicPedestalProvider.retrieve();
-      if (sc.isFailure()) { 
-          ATH_MSG_WARNING( "Failed to retrieve L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
-          return StatusCode::FAILURE;
-      } else {
-          ATH_MSG_INFO( "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
-      }
+    CHECK(m_dynamicPedestalProvider.retrieve());
+    ATH_MSG_INFO( "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
   }
 
   //start listening to "BeginRun"
@@ -156,43 +141,64 @@ void L1TriggerTowerTool::handle(const Incident& inc)
     ATH_MSG_DEBUG( "Resetting mapping table at start of run" );
    
     m_idTable.clear();
+
+    // determine whether this is Run-1 or Run-2 to get the correct conditions later on
+    auto e = dynamic_cast<const EventIncident&>(inc);
+    EventID* pei = e.eventInfo().event_ID();
+    EventType* pet = e.eventInfo().event_type();
+    if(pet->test(EventType::IS_SIMULATION) || pei->run_number() >= 253377) {
+        m_isRun2 = true;
+    } else {
+        m_isRun2 = false;
+    }
+    ATH_MSG_INFO("Determined run to be from " << (m_isRun2 ? "Run-2" : "Run-1"));
   }
   return;
 }
 
 //================= Now the actual user calls ===================================
 
-/** Retrieve pointers to the L1Calo conditions containers */
+namespace { // helper function
+  template<class T>
+  StatusCode retrieveGeneric(ServiceHandle<L1CaloCondSvc>& svc, boost::any& target) {
+    T* C = nullptr;
+    CHECK_WITH_CONTEXT(svc->retrieve(C), "L1TriggerTowerTool");
+    target = C;
+    return StatusCode::SUCCESS;
+  }
+} // anonymous namespace
 
+/** Retrieve pointers to the L1Calo conditions containers */
 StatusCode L1TriggerTowerTool::retrieveConditions()
 {
-  StatusCode sc;
-
-  m_conditionsContainer = 0;
-  m_DisabledChannelContainer = 0;
-
+  ATH_MSG_VERBOSE("L1TriggerTowerTool::retrieveConditions");
   if (m_l1CondSvc) {
     ATH_MSG_VERBOSE( "Retrieving Conditions Containers" );
     bool verbose = msgLvl(MSG::VERBOSE);
 
-    sc = m_l1CondSvc->retrieve(m_conditionsContainer);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING( "Could not retrieve ConditionsContainer" );
-      return sc;
+    if(m_isRun2) {
+      CHECK(retrieveGeneric<L1CaloPprConditionsContainerRun2>(m_l1CondSvc, m_conditionsContainer));
+      CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainerRun2>(m_l1CondSvc, m_disabledChannelContainer));
+    } else {
+      CHECK(retrieveGeneric<L1CaloPprConditionsContainer>(m_l1CondSvc, m_conditionsContainer));
+      CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainer>(m_l1CondSvc, m_disabledChannelContainer));
     }
     ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
-    if (verbose) m_conditionsContainer->dump();
-
-    sc = m_l1CondSvc->retrieve(m_DisabledChannelContainer);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING( "Could not retrieve DisabledChannelContainer" );
-      return sc;
+    if(verbose) {
+      if(m_isRun2) boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
+      else boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer)->dump();
     }
+
     ATH_MSG_VERBOSE( "Retrieved DisabledChannelContainer" );
-    if (verbose) m_DisabledChannelContainer->dump();
+    if (verbose) {
+      if(m_isRun2)
+        boost::any_cast<L1CaloPprDisabledChannelContainerRun2*>(m_disabledChannelContainer)->dump();
+      else
+        boost::any_cast<L1CaloPprDisabledChannelContainer*>(m_disabledChannelContainer)->dump();
+    }
 
   } else {
-    ATH_MSG_WARNING( "Could not retrieve Conditions Containers" );
+    ATH_MSG_ERROR("Could not retrieve Conditions Containers");
     return StatusCode::FAILURE;
   }
   
@@ -204,21 +210,21 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
     
 void L1TriggerTowerTool::process(const std::vector<int> &digits, double eta, double phi, int layer,
              std::vector<int> &et, std::vector<int> &bcidResults,
-             std::vector<int> &bcidDecisions)
+             std::vector<int> &bcidDecisions, bool useJepLut /* = true */)
 {
   /// Find channelID for this tower
   L1CaloCoolChannelId id = channelID(eta, phi, layer);
 
   /// then process the tower
-  process(digits, id, et, bcidResults, bcidDecisions);
+  process(digits, id, et, bcidResults, bcidDecisions, useJepLut);
 }
 
 /** All-in-one routine - give it the ADC counts and TT identifier, and
     it returns the results */
     
 void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
-             std::vector<int> &et, std::vector<int> &bcidResults,
-             std::vector<int> &bcidDecisions)
+                                 std::vector<int> &et, std::vector<int> &bcidResults,
+                                 std::vector<int> &bcidDecisions, bool useJepLut /* = true */)
 {
   if (m_debug) {
     ATH_MSG_VERBOSE( "::process: ==== Entered Process ====" );
@@ -256,7 +262,12 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
 
   /// LUT ET calculation
   std::vector<int> lutOutput;
-  lut(lutInput, channelId, lutOutput);
+  if(m_isRun2) {
+    if(useJepLut) jepLut(lutInput, channelId, lutOutput);
+    else cpLut(lutInput, channelId, lutOutput);
+  } else {
+    lut(lutInput, channelId, lutOutput);
+  }
 
   ATH_MSG_VERBOSE( "::process: ---- use ET range ----" );
 
@@ -359,32 +370,42 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
   }
 }
 
+namespace { // helper function
+  template<class T>
+  const std::vector<short int>* getFirCoefficients(unsigned int coolId, boost::any& C) {
+    auto settings = boost::any_cast<T*>(C)->pprConditions(coolId);
+    if(!settings) return nullptr;
+    return &(settings->firCoefficients());
+  }
+} // anonymous namespace
+
 /** This FIR simulation produces a vector of same length as digit vector,
     with peak positions corresponding. However, first 2 and last 2 FIR
     sums will be incomplete, and so are zeroed here */
-
 void L1TriggerTowerTool::fir(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
   /// Get coefficients from COOL DB
   std::vector<int> firCoeffs;
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) {
-      const std::vector<short int>& hwCoeffs(settings->firCoefficients());
-
+  if(!m_conditionsContainer.empty()) {
+    const std::vector<short int>* hwCoeffs;
+    if(m_isRun2)
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+    else
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainer>(channelId.id(), m_conditionsContainer);
+    if(hwCoeffs) {
       /** Ordering of coeffs in hw makes sense for hw implementation, but is
           not most natural for processing vectors in software. So reverse order
           here before using */
-      firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
-      for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
+      firCoeffs.reserve(hwCoeffs->size()); // avoid frequent reallocations
+      for (int i = hwCoeffs->size()-1; i >= 0; --i) firCoeffs.push_back((*hwCoeffs)[i]);
 
-    } else ATH_MSG_VERBOSE( "::fir: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::fir: No Conditions Container retrieved" );
+    } else ATH_MSG_WARNING( "::fir: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::fir: No Conditions Container retrieved" );
 
   if (m_debug) {
     ATH_MSG_VERBOSE( "::fir: FIR coefficients: ");
     printVec(firCoeffs);
-   ATH_MSG_VERBOSE(" ");
+    ATH_MSG_VERBOSE(" ");
   }
 
   fir(digits, firCoeffs, output);
@@ -425,13 +446,24 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<i
    ATH_MSG_VERBOSE(" ");
   }
 }
+
+namespace {
+  template<typename T>
+  unsigned int getStrategy(boost::any& C) {
+    return boost::any_cast<T*>(C)->peakFinderCond();
+  }
+}
+
 /** Peak finder BCID */
 void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, const L1CaloCoolChannelId& /*channelId*/, std::vector<int> &output)
 {
   unsigned int strategy = 0;
-  if (m_conditionsContainer) {
-    strategy = m_conditionsContainer->peakFinderCond();
-  } else ATH_MSG_VERBOSE( "::peakBcid: No Conditions Container retrieved" );
+  if(!m_conditionsContainer.empty()) {
+    if(m_isRun2)
+      strategy = getStrategy<L1CaloPprConditionsContainerRun2>(m_conditionsContainer);
+    else
+      strategy = getStrategy<L1CaloPprConditionsContainer>(m_conditionsContainer);
+  } else ATH_MSG_WARNING( "::peakBcid: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::peakBcid: peak-finder strategy: " << strategy );
   
@@ -464,21 +496,30 @@ void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, unsigned int stra
   }
 }
 
-/** Saturated pulse BCID */
+namespace { // helper function
+  template<class T>
+  std::tuple<bool, int, int, int> getSaturation(unsigned int coolId, boost::any& C) {
+    auto settings = boost::any_cast<T*>(C)->pprConditions(coolId);
+    if(!settings) return std::make_tuple(false, 0, 0, 0);
+    return std::make_tuple(true, settings->satBcidLevel(), settings->satBcidThreshLow(), 
+                           settings->satBcidThreshHigh());
+  }
+} // anonymous namespace
 
+/** Saturated pulse BCID */
 void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {  
   int satLevel = 0;
   int satLow   = 0;
   int satHigh  = 0;
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) {
-      satLevel = settings->satBcidLevel();
-      satLow   = settings->satBcidThreshLow();
-      satHigh  = settings->satBcidThreshHigh();
-    } else ATH_MSG_VERBOSE( "::satBcid: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::satBcid: No Conditions Container retrieved" );
+  if (!m_conditionsContainer.empty()) {
+    bool available = false;
+    if(m_isRun2)
+      std::tie(available, satLevel, satLow, satHigh) = getSaturation<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+    else
+      std::tie(available, satLevel, satLow, satHigh) = getSaturation<L1CaloPprConditionsContainer>(channelId.id(), m_conditionsContainer);
+    if(!available) ATH_MSG_WARNING( "::satBcid: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::satBcid: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::satBcid: satLevel: " << satLevel
       << " satLow: "  << satLow
@@ -534,13 +575,21 @@ void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, int satLow, int
 }
 
 /** Evaluate BCID decision range */
+namespace {
+  template<typename T>
+  unsigned int getDecisionSource(boost::any& C) {
+    return boost::any_cast<T*>(C)->decisionSource();
+  }
+}
 
 void L1TriggerTowerTool::bcidDecisionRange(const std::vector<int>& lutInput, const std::vector<int>& digits, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {
   int decisionSource = 0;
-  if (m_conditionsContainer) {
-    decisionSource = m_conditionsContainer->decisionSource();
-  } else ATH_MSG_VERBOSE( "::bcidDecisionRange: No Conditions Container retrieved" );
+  if (!m_conditionsContainer.empty()) {
+    if(m_isRun2) decisionSource = getDecisionSource<L1CaloPprConditionsContainerRun2>(m_conditionsContainer);
+    else decisionSource = getDecisionSource<L1CaloPprConditionsContainer>(m_conditionsContainer);
+
+  } else ATH_MSG_WARNING( "::bcidDecisionRange: No Conditions Container retrieved" );
 
   if (!decisionSource&0x1) etRange(digits, channelId, output);
   else                     etRange(lutInput, channelId, output);
@@ -553,17 +602,24 @@ void L1TriggerTowerTool::bcidDecisionRange(const std::vector<int>& lutInput, con
 }
 
 /** Evaluate BCID decision based on BCID word, ET range and channel ID */
-
+namespace { // helper function
+  template<class T>
+  std::tuple<unsigned int, unsigned int, unsigned int> getBcidDecision(boost::any& C) {
+    auto CC = boost::any_cast<T*>(C);
+    return std::make_tuple(CC->bcidDecision1(), CC->bcidDecision2(), CC->bcidDecision3());
+  }
+} // anonymous namespace
 void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const L1CaloCoolChannelId& /*channelId*/, std::vector<int> &output)
 {
   unsigned int decision1 = 0;
   unsigned int decision2 = 0;
   unsigned int decision3 = 0;
-  if (m_conditionsContainer) {
-    decision1 = m_conditionsContainer->bcidDecision1();
-    decision2 = m_conditionsContainer->bcidDecision2();
-    decision3 = m_conditionsContainer->bcidDecision3();
-  } else ATH_MSG_VERBOSE( "::bcidDecision: No Conditions Container retrieved" );
+  if(!m_conditionsContainer.empty()) {
+    if(m_isRun2)
+      std::tie(decision1, decision2, decision3) = getBcidDecision<L1CaloPprConditionsContainerRun2>(m_conditionsContainer);
+    else
+      std::tie(decision1, decision2, decision3) = getBcidDecision<L1CaloPprConditionsContainer>(m_conditionsContainer);
+  } else ATH_MSG_WARNING( "::bcidDecision: No Conditions Container retrieved" );
 
   // Reverse the order! (see elog 97082 9/06/10)
   std::vector<unsigned int> mask = { decision3, decision2, decision1 };
@@ -597,7 +653,6 @@ void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const
 }
 
 /** LUT simulation: pedestal subtraction, energy calibration and threshold */
-
 void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
   int strategy = 0;
@@ -605,16 +660,23 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
   int slope    = 0;
   int cut      = 0;
   int ped      = 0;
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
+
+  if(m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::lut: Run-2 data - behaviour undefined!");
+  }
+
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer);
+    const L1CaloPprConditions* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
       strategy = settings->lutStrategy();
       offset   = settings->lutOffset();
       slope    = settings->lutSlope();
       cut      = settings->lutNoiseCut();
       ped      = settings->pedValue();
-    } else ATH_MSG_VERBOSE( "::lut: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::lut: No Conditions Container retrieved" );
+    } else ATH_MSG_WARNING( "::lut: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::lut: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::lut: LUT strategy/offset/slope/cut/ped: "
           << strategy << " " << offset << " " << slope << " " << cut << " " << ped << " " );
@@ -624,6 +686,92 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
   if (noiseCut > 0) cut = noiseCut;
 
   lut(fir, slope, offset, cut, ped, strategy, disabled, output);
+}
+
+// TODO implement scale
+void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
+{   
+  int strategy = 0;
+  int offset   = 0;
+  int slope    = 0;
+  int cut      = 0;
+  unsigned short scale = 0;
+  int ped      = 0;
+
+  if(!m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::cpLut: Run-1 data - behaviour undefined!");
+  }
+
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
+    const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
+    if (settings) {
+      strategy = settings->lutCpStrategy();
+      offset   = settings->lutCpOffset();
+      slope    = settings->lutCpSlope();
+      cut      = settings->lutCpNoiseCut();
+      scale    = settings->lutCpScale();
+      ped      = settings->pedValue();
+    } else ATH_MSG_WARNING( "::cpLut: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::cpLut: No Conditions Container retrieved" );
+
+  ATH_MSG_VERBOSE( "::cpLut: LUT strategy/offset/slope/cut/ped: "
+          << strategy << " " << offset << " " << slope << " " << cut << " " << ped << " " );
+
+  unsigned int noiseCut = 0;
+  bool disabled = disabledChannel(channelId, noiseCut);
+  if (noiseCut > 0) cut = noiseCut;
+
+  if(strategy == 2) {
+    // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
+    lut(fir, scale*slope, scale*offset, scale*cut, ped, 1, disabled, output);
+  } else if(strategy == 1 || strategy == 0){
+    lut(fir, slope, offset, cut, ped, strategy, disabled, output);
+  } else ATH_MSG_WARNING(" ::cpLut: Unknown stragegy: " << strategy);
+}
+
+void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
+{   
+  int strategy = 0;
+  int offset   = 0;
+  int slope    = 0;
+  int cut      = 0;
+  unsigned short scale = 0;
+
+  int ped      = 0;
+
+  if(!m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::jepLut: Run-1 data - behaviour undefined!");
+  }
+
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
+    const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
+    if (settings) {
+      strategy = settings->lutJepStrategy();
+      offset   = settings->lutJepOffset();
+      slope    = settings->lutJepSlope();
+      cut      = settings->lutJepNoiseCut();
+      scale    = settings->lutJepScale();
+      ped      = settings->pedValue();
+    } else ATH_MSG_WARNING( "::jepLut: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::jepLut: No Conditions Container retrieved" );
+
+  ATH_MSG_VERBOSE( "::jepLut: LUT strategy/offset/slope/cut/ped: "
+          << strategy << " " << offset << " " << slope << " " << cut << " " << ped << " " );
+
+  unsigned int noiseCut = 0;
+  bool disabled = disabledChannel(channelId, noiseCut);
+  if (noiseCut > 0) cut = noiseCut;
+
+  if(strategy == 2) {
+    // take the global scale into account - translate strategy to 1 for Run-1 compatible treatment
+    lut(fir, scale*slope, scale*offset, scale*cut, ped, 1, disabled, output);
+  }else if(strategy == 1 || strategy == 0) {
+    lut(fir, slope, offset, cut, ped, strategy, disabled, output);
+  } else ATH_MSG_WARNING(" ::jepLut: Unknown stragegy: " << strategy);
 }
 
 /** LUT simulation: pedestal subtraction, energy calibration and threshold */
@@ -676,18 +824,28 @@ void L1TriggerTowerTool::applyEtRange(const std::vector<int>& lut, const std::ve
 }
 
 /** Identify BCID decision range */
+namespace { // helper function
+  template<class T>
+  std::tuple<bool, int, int> getBcidEnergyRange(unsigned int coolId, boost::any& C) {
+    auto settings = boost::any_cast<T*>(C)->pprConditions(coolId);
+    if(!settings) return std::make_tuple(false, 0, 0);
+    return std::make_tuple(true, settings->bcidEnergyRangeLow(), settings->bcidEnergyRangeHigh());
+  }
+} // anonymous namespace
 
 void L1TriggerTowerTool::etRange(const std::vector<int> &et, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {
   int energyLow  = 0;
   int energyHigh = 0;
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) {
-      energyLow  = settings->bcidEnergyRangeLow();
-      energyHigh = settings->bcidEnergyRangeHigh();
-    } else ATH_MSG_VERBOSE( "::etRange: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::etRange: No Conditions Container retrieved" );
+  if (!m_conditionsContainer.empty()) {
+    bool available = false;
+    if(m_isRun2)
+      std::tie(available, energyLow, energyHigh) = getBcidEnergyRange<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+    else
+      std::tie(available, energyLow, energyHigh) = getBcidEnergyRange<L1CaloPprConditionsContainer>(channelId.id(), m_conditionsContainer);
+    
+    if(!available) ATH_MSG_WARNING("::etRange: No L1CaloPprConditions found");
+  } else ATH_MSG_WARNING("::etRange: No Conditions Container retrieved");
 
   ATH_MSG_VERBOSE( "::etRange: energyLow: " << energyLow
                           << " energyHigh: "          << energyHigh);
@@ -714,15 +872,26 @@ void L1TriggerTowerTool::etRange(const std::vector<int> &et, int energyLow, int 
 }
 
 /** Truncate FIR results for LUT input */
+namespace { // helper function
+  template<class T>
+  std::tuple<bool, int> getFirStartBit(unsigned int coolId, boost::any& C) {
+    auto settings = boost::any_cast<T*>(C)->pprConditions(coolId);
+    if(!settings) return std::make_tuple(false, 0);
+    return std::make_tuple(true, settings->firStartBit());
+  }
+} // anonymous namespace
 
 void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {
   unsigned int start = 0;
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) start = settings->firStartBit();
-    else ATH_MSG_VERBOSE( "::dropBits: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::dropBits: No Conditions Container retrieved" );
+  if(!m_conditionsContainer.empty()) {
+    bool available = false;
+    if(m_isRun2)
+      std::tie(available, start) = getFirStartBit<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+    else
+      std::tie(available, start) = getFirStartBit<L1CaloPprConditionsContainer>(channelId.id(), m_conditionsContainer);
+    if(!available)ATH_MSG_WARNING( "::dropBits: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::dropBits: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::dropBits: firStartBit: " << start );
   
@@ -754,24 +923,26 @@ void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, unsigned int star
 }
 
 /** Return FIR filter parameters for a channel */
-
 void L1TriggerTowerTool::firParams(const L1CaloCoolChannelId& channelId, std::vector<int> &firCoeffs)
 {   
   /// Get coefficients from COOL DB
   firCoeffs.clear();
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) {
-      const std::vector<short int>& hwCoeffs(settings->firCoefficients());
+  if(!m_conditionsContainer.empty()) {
+    const std::vector<short int>* hwCoeffs = nullptr;
+    if(m_isRun2)
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+    else
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainer>(channelId.id(), m_conditionsContainer);
 
+    if(hwCoeffs) {
       /** Ordering of coeffs in hw makes sense for hw implementation, but is
           not most natural for processing vectors in software. So reverse order
           here before using */
-      firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
-      for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
+      firCoeffs.reserve(hwCoeffs->size()); // avoid frequent reallocations
+      for (int i = hwCoeffs->size()-1; i >= 0; --i) firCoeffs.push_back((*hwCoeffs)[i]);
 
-    } else ATH_MSG_VERBOSE( "::firParams: No L1CaloPprConditions found" );
-  } else ATH_MSG_VERBOSE( "::firParams: No Conditions Container retrieved" );
+    } else ATH_MSG_WARNING( "::firParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::firParams: No Conditions Container retrieved" );
 
   if (m_debug) {
     ATH_MSG_VERBOSE( "::fir: FIR coefficients: ");
@@ -781,7 +952,6 @@ void L1TriggerTowerTool::firParams(const L1CaloCoolChannelId& channelId, std::ve
 }
 
 /** Return BCID parameters for a channel */
-
 void L1TriggerTowerTool::bcidParams(const L1CaloCoolChannelId& channelId, int &energyLow, int &energyHigh, int &decisionSource, std::vector<unsigned int> &decisionConditions,
                                     unsigned int &peakFinderStrategy, int &satLow, int &satHigh, int &satLevel)
 {
@@ -794,34 +964,48 @@ void L1TriggerTowerTool::bcidParams(const L1CaloCoolChannelId& channelId, int &e
   satLow             = 0;
   satHigh            = 0;
   
-  if (m_conditionsContainer) {
-    unsigned int decision1 = m_conditionsContainer->bcidDecision1();
-    unsigned int decision2 = m_conditionsContainer->bcidDecision2();
-    unsigned int decision3 = m_conditionsContainer->bcidDecision3();
-    decisionConditions = { decision3, decision2, decision1 }; // reverse order
-    peakFinderStrategy = m_conditionsContainer->peakFinderCond();
-    decisionSource = m_conditionsContainer->decisionSource();
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
-    if (settings) {
-      energyLow  = settings->bcidEnergyRangeLow();
-      energyHigh = settings->bcidEnergyRangeHigh();
-      satLevel = settings->satBcidLevel();
-      satLow   = settings->satBcidThreshLow();
-      satHigh  = settings->satBcidThreshHigh();
+  if(!m_conditionsContainer.empty()) {
+    using std::get;
+    std::tuple<unsigned int, unsigned int, unsigned int> bcidDecision;
+    std::tuple<bool, int, int> bcidEnergyRange;
+    std::tuple<bool, int, int, int> saturation;
+    if(m_isRun2) {
+      using Cont = L1CaloPprConditionsContainerRun2;
+      bcidDecision = getBcidDecision<Cont>(m_conditionsContainer);
+      peakFinderStrategy = getStrategy<Cont>(m_conditionsContainer);
+      decisionSource = getDecisionSource<Cont>(m_conditionsContainer);
+      bcidEnergyRange = getBcidEnergyRange<Cont>(channelId.id(), m_conditionsContainer);
+      saturation = getSaturation<Cont>(channelId.id(), m_conditionsContainer);
+    } else {
+      using Cont = L1CaloPprConditionsContainer;
+      bcidDecision = getBcidDecision<Cont>(m_conditionsContainer);
+      peakFinderStrategy = getStrategy<Cont>(m_conditionsContainer);
+      decisionSource = getDecisionSource<Cont>(m_conditionsContainer);
+      bcidEnergyRange = getBcidEnergyRange<Cont>(channelId.id(), m_conditionsContainer);
+      saturation = getSaturation<Cont>(channelId.id(), m_conditionsContainer);
+    }
 
-    } else ATH_MSG_WARNING( "::bcidParams: No L1CaloPprConditions found" );
+    decisionConditions = { get<2>(bcidDecision), 
+                           get<1>(bcidDecision),
+                           get<0>(bcidDecision) }; // reverse order
+    if(get<0>(bcidEnergyRange)) {
+      std::tie(std::ignore, energyLow, energyHigh);
+    } else ATH_MSG_WARNING( "::bcidParams: No BcidEnergyRange found" );
+
+    if(get<0>(saturation)) {
+      std::tie(std::ignore, satLevel, satLow, satHigh) = saturation;
+    } else ATH_MSG_WARNING( "::bcidParams: No Saturation found" );
   } else ATH_MSG_WARNING( "::bcid:Params No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::bcidParams: satLevel: " << satLevel
-                        << " satLow: "  << satLow << " satHigh: " << satHigh << endreq
-                        << " energyLow: " << energyLow << " energyHigh: " << energyHigh << endreq
-                        << " decisionSource: " << decisionSource << " peakFinderStrategy: "
-                        << peakFinderStrategy );
+                   << " satLow: "  << satLow << " satHigh: " << satHigh << endreq
+                   << " energyLow: " << energyLow << " energyHigh: " << energyHigh << endreq
+                   << " decisionSource: " << decisionSource << " peakFinderStrategy: "
+                   << peakFinderStrategy );
 
 }
 
 /** Return LUT parameters for a channel */
-
 void L1TriggerTowerTool::lutParams(const L1CaloCoolChannelId& channelId, int &startBit, int &slope, int &offset, int &cut, int &pedValue, float &pedMean, int &strategy, bool &disabled)
 {
   startBit = 0;
@@ -833,8 +1017,15 @@ void L1TriggerTowerTool::lutParams(const L1CaloCoolChannelId& channelId, int &st
   pedMean  = 0.;
   disabled = true;
   
-  if (m_conditionsContainer) {
-    const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
+  if(m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::lutParams: Run-2 data - behaviour undefined!");
+  }
+ 
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer);
+
+    const L1CaloPprConditions* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
       startBit = settings->firStartBit();
       strategy = settings->lutStrategy();
@@ -847,6 +1038,82 @@ void L1TriggerTowerTool::lutParams(const L1CaloCoolChannelId& channelId, int &st
   } else ATH_MSG_WARNING( "::lutParams: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::lutParams: LUT startBit/strategy/offset/slope/cut/pedValue/pedMean: "
+          << startBit << " " << strategy << " " << offset << " " << slope << " " << cut << " " << pedValue << " " << pedMean );
+  unsigned int noiseCut = 0;
+  disabled = disabledChannel(channelId, noiseCut);
+  if (noiseCut > 0) cut = noiseCut;
+}
+
+void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& startBit, int& slope, int& offset, int& cut, int& pedValue, float& pedMean, int& strategy, bool& disabled)
+{
+  startBit = 0;
+  strategy = 0;
+  offset   = 0;
+  slope    = 0;
+  cut      = 0;
+  pedValue = 0;
+  pedMean  = 0.;
+  disabled = true;
+  
+  if(!m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::cpLutParams: Run-1 data - behaviour undefined!");
+  }
+
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
+
+    const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
+    if(settings) {
+      startBit = settings->firStartBit();
+      strategy = settings->lutCpStrategy();
+      offset   = settings->lutCpOffset();
+      slope    = settings->lutCpSlope();
+      cut      = settings->lutCpNoiseCut();
+      pedValue = settings->pedValue();
+      pedMean  = settings->pedMean();
+    } else ATH_MSG_WARNING( "::cpLutParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::cpLutParams: No Conditions Container retrieved" );
+
+  ATH_MSG_VERBOSE( "::cpLutParams: LUT startBit/strategy/offset/slope/cut/pedValue/pedMean: "
+          << startBit << " " << strategy << " " << offset << " " << slope << " " << cut << " " << pedValue << " " << pedMean );
+  unsigned int noiseCut = 0;
+  disabled = disabledChannel(channelId, noiseCut);
+  if (noiseCut > 0) cut = noiseCut;
+}
+
+void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int& startBit, int& slope, int& offset, int& cut, int& pedValue, float& pedMean, int& strategy, bool& disabled)
+{
+  startBit = 0;
+  strategy = 0;
+  offset   = 0;
+  slope    = 0;
+  cut      = 0;
+  pedValue = 0;
+  pedMean  = 0.;
+  disabled = true;
+  
+  if(!m_isRun2) {
+    // assert instead ?!
+    ATH_MSG_WARNING("::jepLutParams: Run-1 data - behaviour undefined!");
+  }
+
+  if(!m_conditionsContainer.empty()) {
+    auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
+
+    const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
+    if(settings) {
+      startBit = settings->firStartBit();
+      strategy = settings->lutJepStrategy();
+      offset   = settings->lutJepOffset();
+      slope    = settings->lutJepSlope();
+      cut      = settings->lutJepNoiseCut();
+      pedValue = settings->pedValue();
+      pedMean  = settings->pedMean();
+    } else ATH_MSG_WARNING( "::jepLutParams: No L1CaloPprConditions found" );
+  } else ATH_MSG_WARNING( "::jepLutParams: No Conditions Container retrieved" );
+
+  ATH_MSG_VERBOSE( "::jepLutParams: LUT startBit/strategy/offset/slope/cut/pedValue/pedMean: "
           << startBit << " " << strategy << " " << offset << " " << slope << " " << cut << " " << pedValue << " " << pedMean );
   unsigned int noiseCut = 0;
   disabled = disabledChannel(channelId, noiseCut);
@@ -875,7 +1142,7 @@ HWIdentifier L1TriggerTowerTool::hwIdentifier(const Identifier& id)
 {
    HWIdentifier hwId(0);
    if (m_ttSvc) {
-     try   { hwId = m_ttSvc->createTTChannelID(id); }
+     try   { hwId = m_ttSvc->createTTChannelID(id, false); }
      catch (CaloID_Exception) { hwId = HWIdentifier(0); }
    }
    return hwId;
@@ -940,16 +1207,28 @@ L1CaloCoolChannelId L1TriggerTowerTool::channelID(const Identifier& id)
 }
 
 /** Return saturation override flag for given channel & et range */
+namespace { // helper function
+  template<class T>
+  std::tuple<bool, bool, bool> getSatOverride(boost::any& C) {
+    auto CC = boost::any_cast<T*>(C);
+    return std::make_tuple(CC->satOverride1(), CC->satOverride2(), CC->satOverride3());
+  }
+} // anonymous namespace
 
 bool L1TriggerTowerTool::satOverride(int range, const L1CaloCoolChannelId& /*channelId*/)
 {
   bool override = false;
-  if (m_conditionsContainer) {
+  if(!m_conditionsContainer.empty()) {
+    std::tuple<bool, bool, bool> satOverride;
+    if(m_isRun2)
+      satOverride = getSatOverride<L1CaloPprConditionsContainerRun2>(m_conditionsContainer);
+    else
+      satOverride = getSatOverride<L1CaloPprConditionsContainer>(m_conditionsContainer);
     // NB Reverse order as for bcidDecision1/2/3
-    if (range == 0) override = m_conditionsContainer->satOverride3();
-    if (range == 1) override = m_conditionsContainer->satOverride2();
-    if (range == 2) override = m_conditionsContainer->satOverride1();
-  } else ATH_MSG_VERBOSE( "::satOverride: No Conditions Container retrieved" );
+    if (range == 0) override = std::get<2>(satOverride);
+    if (range == 1) override = std::get<1>(satOverride);
+    if (range == 2) override = std::get<0>(satOverride);
+  } else ATH_MSG_WARNING( "::satOverride: No Conditions Container retrieved" );
 
   ATH_MSG_VERBOSE( "::satOverride: range " << range
           << " has saturation override flag " << override );
@@ -966,13 +1245,15 @@ bool L1TriggerTowerTool::disabledChannel(const L1CaloCoolChannelId& channelId)
 }
 
 /** Check for disabled channel with noise cut */
-
 bool L1TriggerTowerTool::disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut)
 {
   bool isDisabled = false;
   noiseCut = 0;
-  if (m_DisabledChannelContainer) {
-    const L1CaloPprDisabledChannel* disabledChan = m_DisabledChannelContainer->pprDisabledChannel(channelId.id());
+  if(!m_disabledChannelContainer.empty()) {
+    const L1CaloPprDisabledChannel* disabledChan = nullptr;
+    if(m_isRun2) disabledChan = boost::any_cast<L1CaloPprDisabledChannelContainerRun2*>(m_disabledChannelContainer)->pprDisabledChannel(channelId.id());
+    else disabledChan = boost::any_cast<L1CaloPprDisabledChannelContainer*>(m_disabledChannelContainer)->pprDisabledChannel(channelId.id());
+
     if (disabledChan) {
       if (!disabledChan->disabledBits()) {
         ChanCalibErrorCode calibError(disabledChan->calibErrorCode());
@@ -994,7 +1275,7 @@ bool L1TriggerTowerTool::disabledChannel(const L1CaloCoolChannelId& channelId, u
       ATH_MSG_VERBOSE( "::disabledChannel: No L1CaloPprDisabledChannel found" );
     }
   } else {
-    ATH_MSG_VERBOSE( "::disabledChannel: No DisabledChannel Container retrieved" );
+    ATH_MSG_WARNING( "::disabledChannel: No DisabledChannel Container retrieved" );
   }
   if (isDisabled && m_debug) ATH_MSG_VERBOSE( "::disabledChannel: Channel is disabled" );
 
@@ -1055,7 +1336,9 @@ double L1TriggerTowerTool::FCalTTeta(const L1CaloCoolChannelId& channelId)
   double eta;
   double phi;
   int layer;
-  m_mappingTool->mapping(crate, module, channel, eta, phi, layer);
+  if(!m_mappingTool->mapping(crate, module, channel, eta, phi, layer)) {
+    ATH_MSG_WARNING("::FCalTTeta: could not map 0x" << std::hex << channelId.id() << std::dec);
+  }
 
   /// for FCAL, convert nominal eta to physical
   return FCalTTeta(eta, phi, layer);
