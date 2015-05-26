@@ -113,7 +113,6 @@ private:
   std::string m_lheFile;
   
   bool m_doCKKWLAcceptance;
-  int m_lheSubProcId;
   double m_nAccepted;
   double m_nMerged;
   

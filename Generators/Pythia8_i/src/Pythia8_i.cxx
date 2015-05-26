@@ -33,7 +33,6 @@ m_pythia(xmlpath()),
 m_internal_event_number(0),
 m_version(-1.),
 m_atlasRndmEngine(0),
-m_lheSubProcId(-999),
 m_nAccepted(0.),
 m_nMerged(0.),
 m_failureCount(0),
@@ -331,17 +330,6 @@ StatusCode Pythia8_i::callGenerator(){
   }
 
   m_failureCount = 0;
-  
-  if(m_pythia.info.isLHA() && m_pythia.info.hasSub() && m_doCKKWLAcceptance){
-    if(m_lheSubProcId == -999){
-      m_lheSubProcId = m_pythia.info.codeSub();
-    }else{
-      if(m_lheSubProcId != m_pythia.info.codeSub() ){
-        // don't know how to handle this, so give up
-        return StatusCode::FAILURE;
-      }
-    }
-  }
   
   m_nAccepted += 1.;
   // some CKKWL merged events have zero weight (or unfilled event). 
