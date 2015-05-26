@@ -18,7 +18,7 @@
 
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalHitsMonTool.h"
+#include "InDetGlobalHitsMonTool.h"
 //Framework
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"

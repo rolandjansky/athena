@@ -16,7 +16,7 @@
 ****************************************************************************/
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 //Root
 #include "TH1.h"
 #include "LWHists/TH1I_LW.h"

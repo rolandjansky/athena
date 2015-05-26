@@ -18,8 +18,8 @@
  *****************************************************************************/
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalSynchMonTool.h"
-#include "InDetGlobalMonitoring/InDetGlobalMotherTrigMonTool.h"
+#include "InDetGlobalSynchMonTool.h"
+#include "InDetGlobalMotherTrigMonTool.h"
 
 //Framework
 #include "InDetRawData/InDetTimeCollection.h"

@@ -18,8 +18,8 @@
  *****************************************************************************/
 
 //Framework
-#include "InDetGlobalMonitoring/InDetGlobalManager.h"
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalManager.h"
+#include "InDetGlobalMotherMonTool.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ISvcLocator.h"

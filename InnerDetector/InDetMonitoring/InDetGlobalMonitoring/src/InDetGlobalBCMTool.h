@@ -16,7 +16,7 @@
 #define InDetGlobalBCMTool_H
 
 //Local includes
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 //Standard c++
 #include <string>
 //Predeclarations

@@ -18,7 +18,7 @@
  ****************************************************************************/
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalTrackMonTool.h"
+#include "InDetGlobalTrackMonTool.h"
 //Framework
 #include "TrkTrack/TrackCollection.h"
 
@@ -72,6 +72,7 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       c_etaRangeTRT(2.0),
       c_range_LB(1000),
       c_detector_labels{ "IBL", "PIX", "SCT", "TRT" },
+      m_IBLParameterSvc("IBLParameterSvc",name),
       m_holes_search_tool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
       m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
       m_CombinedTracksName("Tracks"),
@@ -150,6 +151,15 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
       m_doHitMaps = false;
   }
 
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+      return StatusCode::FAILURE;
+  } else {
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endreq;
+  }
+  
+  m_doIBL = m_IBLParameterSvc->containsIBL();
+  
   ATH_CHECK( m_loosePri_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
   
@@ -177,19 +187,19 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     // Eta-phi maps
     registerManHist( m_Trk_eta_phi_LoosePrimary_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_LoosePrimary_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Loose Primary selection",
-                     20, -2, 2,
+                     20, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
 
     registerManHist( m_Trk_eta_phi_Tight_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Tight selection",
-                     20, -2, 2,
+                     20, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
     
     registerManHist( m_Trk_eta_phi_noTRText_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_eta_phi_ratio","Distribution of eta vs phi for combined tracks with no TRT extension",
-		     20, -2, 2, 
+		     20, -c_etaRange, c_etaRange, 
 		     m_nBinsPhi, -M_PI, M_PI,
 		     "eta", "#phi_{0}" ).ignore();
     
@@ -304,12 +314,15 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 		     "Trk_nTight_LB","Average number of tight tracks per event in LB",
 		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tight tracks per event in LB").ignore();
-
-    registerManHist( m_Trk_noIBLhits_LB, "InDetGlobal/Track", detailsInterval,
-		     "Trk_noIBLhits_LB","Average number of tracks with missing IBL hit per event in LB",
-		     c_range_LB,0,c_range_LB,
-		     "LB #", "Average number of tracks with missing IBL hit per event in LB").ignore();
-
+    
+    if ( m_doIBL )
+    {
+	registerManHist( m_Trk_noIBLhits_LB, "InDetGlobal/Track", detailsInterval,
+			 "Trk_noIBLhits_LB","Average number of tracks with missing IBL hit per event in LB",
+			 c_range_LB,0,c_range_LB,
+			 "LB #", "Average number of tracks with missing IBL hit per event in LB").ignore();
+    }
+    
     registerManHist( m_Trk_noBLhits_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noBLhits_LB","Average number of tracks with missing b-layer hit per event in LB",
 		     c_range_LB,0,c_range_LB,
@@ -522,17 +535,18 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	    nLP++;
 	if ( m_tight_selTool->accept(*track) )
 	    nTight++;
-	if ( m_doIBL )
-	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-		nNoIBL++;
 
 	if ( m_doIBL )
 	{
+	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+		nNoIBL++;
 	    if ( summary->get( Trk::expectNextToInnermostPixelLayerHit ) && !summary->get( Trk::numberOfNextToInnermostPixelLayerHits ) )
 		nNoBL++;
-	    else
-		if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-		    nNoBL++;
+	}
+	else
+	{
+	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+		nNoBL++;
 	}
 
 	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTDeadStraws) == 0 )
@@ -635,7 +649,7 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
 
     m_trk_hits_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],trtHits );
     m_trk_disabled_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
-				     ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfTRTDeadStraws) : 0 );
+				     ( summary->get(Trk::numberOfTRTDeadStraws) >= 0 ) ? summary->get(Trk::numberOfTRTDeadStraws) : 0 );
     m_trk_hits_LB[3]->Fill( m_manager->lumiBlockNumber(), trtHits );
 } 
 

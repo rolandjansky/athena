@@ -28,7 +28,7 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "InDetGlobalMonitoring/InDetGlobalBeamSpotMonTool.h"
+#include "InDetGlobalBeamSpotMonTool.h"
 
 
 InDetGlobalBeamSpotMonTool::InDetGlobalBeamSpotMonTool( const std::string & type, const std::string & name, const IInterface* parent )
@@ -112,12 +112,13 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
   if( newRun ) {
 
     // Histograms for track-based beam spot monitoring
-    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (#mum)",100,-3.5,3.5,100,-500,500);
+    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (mm)",100,-3.5,3.5,100,-10,10);
     m_hTrPt         = makeAndRegisterTH1F(al_beamspot_expert,"trkPt","Track Pt;P_{t} (GeV)",100,0,20);
     m_hTrNPt        = makeAndRegisterTH1F(al_beamspot_expert,"trkNPt","Number of Tracks per event (after Pt cut);Number of tracks",100,0,1000);
 
     // Histograms of assumed beam spot position
     if (m_useBeamspot) {
+      m_hTrDPhiCorr   = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhiCorr","DCA vs Phi wrt Beamspot;#varphi (rad);d_{0} (#mum)",100,-3.5,3.5,100,-500,500); 
       m_hBsX          = makeAndRegisterTH1F(al_beamspot_shift,"bsX","Beam spot position: x;x (mm)",100,-10,10);
       m_hBsY          = makeAndRegisterTH1F(al_beamspot_shift,"bsY","Beam spot position: y;y (mm)",100,-10,10);
       m_hBsZ          = makeAndRegisterTH1F(al_beamspot_shift,"bsZ","Beam spot position: z;z (mm)",100,-500,500);
@@ -214,6 +215,7 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     float theta = perigee->parameters()[Trk::theta];
     float qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);
     float charge = perigee->charge();
+    float z0 = perigee->parameters()[Trk::z0];
     float phi0 = perigee->parameters()[Trk::phi0];
     float d0 = perigee->parameters()[Trk::d0];
     if ( qOverPt != 0 ){
@@ -226,7 +228,17 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     }
 
     nTracks++;
-    m_hTrDPhi->Fill(phi0,d0*1000.);
+    m_hTrDPhi->Fill(phi0,d0);
+
+    // Currently we do the direct calculation of d0corr. We could
+    // also use an extrapolator to calculate d0 wrt a
+    // Trk::StraightLineSurface constructed along the beam line.
+    if(m_useBeamspot){
+      float beamX = beamSpotX + tan(beamTiltX) * (z0-beamSpotZ);
+      float beamY = beamSpotY + tan(beamTiltY) * (z0-beamSpotZ);
+      float d0corr = d0 - ( -sin(phi0)*beamX + cos(phi0)*beamY );
+      m_hTrDPhiCorr->Fill(phi0,d0corr*1e3);
+    }
   }
   m_hTrNPt->Fill(nTracks);
 
@@ -283,17 +295,16 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
       m_hPvYZ->Fill(z,y);
       m_hPvYX->Fill(x,y);
 
-      if (!((*vxIter)->vxTrackAtVertexAvailable())) continue;
-      
-      std::vector<Trk::VxTrackAtVertex> vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
-      m_hPvNTracksAll->Fill( vxTrackAtVertex.size() );
-
       // Histograms on original tracks used for primary vertex
-      std::vector<Trk::VxTrackAtVertex>::iterator trkIter;
-      for (trkIter=vxTrackAtVertex.begin(); trkIter!=vxTrackAtVertex.end(); ++trkIter) {
-	  const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>(trkIter->initialPerigee());
-	  m_hPvTrackEta->Fill(measuredPerigee!=0 ? measuredPerigee->eta() : -999.);
-	  m_hPvTrackPt->Fill(measuredPerigee!=0 ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
+      for (unsigned int trkIter=0; trkIter!=(*vxIter)->nTrackParticles(); ++trkIter) {
+	const xAOD::TrackParticle* tp = (*vxIter)->trackParticle(trkIter);
+	if(!tp){
+	  ATH_MSG_DEBUG ("Could not retrieve track particle.");
+	  continue;
+	}
+	const Trk::Perigee measuredPerigee = tp->perigeeParameters();
+	m_hPvTrackEta->Fill(measuredPerigee.eta());
+	m_hPvTrackPt->Fill(measuredPerigee.pT()/1000.);   // Histo is in GeV, not MeV
       }
     }
     m_hPvNPriVtx->Fill(nPriVtx);

@@ -19,7 +19,7 @@
 
 #define ETA_MAX 2.5
 //Local includes
-//#include "InDetGlobalMonitoring/InDetGlobalManagedMonitorToolBase.h"
+//#include "InDetGlobalManagedMonitorToolBase.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 

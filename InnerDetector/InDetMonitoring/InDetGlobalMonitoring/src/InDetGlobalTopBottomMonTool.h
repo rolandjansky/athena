@@ -20,7 +20,7 @@
 #define InDetGlobalTopBottomMonTool_H
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 //Standard c++
 #include <string>
 //Predeclarations

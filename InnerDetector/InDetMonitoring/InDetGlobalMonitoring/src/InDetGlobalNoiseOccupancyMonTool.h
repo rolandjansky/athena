@@ -20,7 +20,7 @@
 #define InDetGlobalNoiseOccupancyMonTool_H
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 //Standard C++
 #include <string>
 #include <vector>

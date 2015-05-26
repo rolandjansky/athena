@@ -19,7 +19,7 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "InDetGlobalMonitoring/InDetGlobalPrimaryVertexMonTool.h"
+#include "InDetGlobalPrimaryVertexMonTool.h"
 
 InDetGlobalPrimaryVertexMonTool::InDetGlobalPrimaryVertexMonTool( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
