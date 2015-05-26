@@ -25,4 +25,19 @@
 	<class name="L1CaloRampStep" />
 
 	<class name="IL1CaloPersistenceCapable" transient="true" />
+
+	<class name="L1CaloPprDisabledChannelContainer" id="7C17003D-D55C-44CD-80CC-9F4B81BA5499" />
+	<class name="L1CaloPprDisabledChannelContainerRun2" id="E168DD02-2FBD-4185-9ED4-34E38FC0BB64" />
+	<class name="L1CaloPprDisabledChannel" />
+	<class name="L1CaloPprConditionsContainer" id="CDC75AED-FE0B-41AD-957B-94CD6A75B4EF" />
+	<class name="L1CaloPprConditions" />
+	<class name="L1CaloPprConditionsContainerRun2" id="CDC75AED-FE0B-41AD-957B-94CD6A75B4EF" />
+<!--	<class name="L1CaloPprConditionsRun2" /> -->
+
+	<class name="ChanCalibErrorCode" />
+	<class name="ChanDeadErrorCode" />
+	<class name="L1CaloCoolChannelId" />
+
+	<class name="std::map<unsigned int, L1CaloPprDisabledChannel>" />
+	<class name="std::map<unsigned int, L1CaloPprDisabledChannel>::const_iterator" />
 </lcgdict>

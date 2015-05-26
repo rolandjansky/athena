@@ -27,7 +27,7 @@ class string;
 
 typedef std::map<unsigned int, L1CaloPprDisabledChannel> L1CaloPprDisabledChannelMap;
 
-class L1CaloPprDisabledChannelContainer: public DataObject, public AbstractL1CaloPersistentCondition {
+class L1CaloPprDisabledChannelContainer : public virtual DataObject, public virtual AbstractL1CaloPersistentCondition {
 
 private:
 	enum eAttrSpecification { eChanDeadErrorCode, eChanCalibErrorCode, eCaloDisableMask, eEtaDisableMask, ePhiDisableMask, eChanDisableMask, eNoiseCut, eDisabledBits };
@@ -62,7 +62,7 @@ public:
 	void dump() const;
 
 private:
-	std::string coolFolderKey(L1CaloPprDisabledChannelContainer::eCoolFolders efolder) const;
+	virtual std::string coolFolderKey(L1CaloPprDisabledChannelContainer::eCoolFolders efolder) const;
 
 	L1CaloPprDisabledChannelMap m_mPprDisabledChannelMap;
 	std::map<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string> m_mCoolFoldersKeysMap;

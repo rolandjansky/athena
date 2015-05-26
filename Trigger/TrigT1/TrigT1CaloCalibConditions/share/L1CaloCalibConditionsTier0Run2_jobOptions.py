@@ -11,6 +11,7 @@ L1CaloFolderList = []
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"]
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"]
 L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Configuration/PprChanDefaults"]
+L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
 
 # In new version:
 #L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
