@@ -12,6 +12,7 @@
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "TrigT1CaloEvent/CPMTower.h"
+#include "xAODTrigL1Calo/CPMTower.h"
 #include <map>
 
 namespace LVL1 
@@ -30,6 +31,7 @@ Interface definition for L1CPMTowerTools
     // enter declaration of your interface-defining member functions here
     virtual void makeCPMTowers(const DataVector<TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress = true) = 0;
     virtual void makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress = true) = 0;
+    virtual void makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<xAOD::CPMTower>* cpmTowers, bool zeroSuppress = true) = 0;
     
   };
 
