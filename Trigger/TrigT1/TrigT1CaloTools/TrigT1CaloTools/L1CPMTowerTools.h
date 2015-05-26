@@ -53,6 +53,9 @@ namespace LVL1
 
       /** Fill DataVector of CPMTowers from user-supplied xAOD::TriggerTowers */
       virtual void makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress = true);
+
+      /** Fill DataVector of CPMTowers from user-supplied xAOD::TriggerTowers */
+      virtual void makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<xAOD::CPMTower>* cpmTowers, bool zeroSuppress = true);
             
     private:
 
