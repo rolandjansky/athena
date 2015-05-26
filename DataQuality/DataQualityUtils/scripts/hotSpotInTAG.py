@@ -33,7 +33,7 @@ import ROOT
 from ROOT import *
 from ROOT import gROOT, gDirectory
 from ROOT import gStyle, TCanvas, TString
-from ROOT import TFile, TTree, TRFIOFile
+from ROOT import TFile, TTree
 from ROOT import TH1F,TH2F,TBrowser
 from ROOT import TPaveText
 
@@ -115,12 +115,14 @@ if ("MET" in objectType):
 print '\n'
 print '---------------------------------'
 print "Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag
-listOfFiles = pathExtract.returnTAGPath(run,stream,amiTag)
+listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag)
+
+#listOfFiles=["root://eosatlas//eos/atlas/atlastier0/rucio/data15_comm/express_express/00265573/data15_comm.00265573.express_express.merge.TAG.f581_m1423_m1425/data15_comm.00265573.express_express.merge.TAG.f581_m1423_m1425._0001.1"]
 
 tree = TChain("POOLCollectionTree")
 
 for files in listOfFiles:
-  tree.AddFile(files)
+  tree.AddFile("root://eosatlas/%s"%(files))
 
 entries = tree.GetEntries()
 #entries = 100
@@ -155,7 +157,7 @@ nLB_offending = []
 lowerLB = 2000
 upperLB = 0
 for i in range(nLB):
-  if nbHitInHot[i]>minInLB:
+  if nbHitInHot[i]>=minInLB:
     print "LB: %d -> %d hits (LAr flag in this LB : %d veto / In these events : %d Std / %d SatTight)"%(i,nbHitInHot[i],nbNoiseBurstVeto[i],nbLArNoisyRO_Std[i],nbLArNoisyRO_SatTight[i])
     nLB_offending.append(i)
     if i<lowerLB : lowerLB = i

@@ -79,8 +79,11 @@ public:
   virtual bool drawH1(TCanvas* canv,TH1* hist,TH1* reference,std::string &drawopt,std::string &display,std::string &AlgoName);
   virtual bool drawReference(TCanvas* canv,TH1* hRef,TH1 *h,std::string &drawopt,std::string &display,std::string& AlgoName);
   // virtual bool drawGraph(TCanvas* canv,TGraph* g,std::string &drawopt,std::string &display);
+  virtual void ratioplot(TCanvas* myC_main ,TH1* h,TH1* href,std::string str);
   virtual void attachFits(TH1* hist,std::string &drawopt,std::string &display);
+
   virtual void setupCanvas(std::string &drawopt,std::string &display);
+  virtual void polynomial( TCanvas* c, std::string str,TH1* h ) ;
 
   virtual void displayExtra( TCanvas* c, std::string str ) ;
   virtual void axisOption( std::string str, TH1* h )  ;

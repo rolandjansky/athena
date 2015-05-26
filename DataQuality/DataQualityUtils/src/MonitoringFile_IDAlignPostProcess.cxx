@@ -585,6 +585,12 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
     if (!CheckHistogram(f,(path+"/sct_b1_Oyresxvsmodetaphi_3d").c_str())) return;
     if (!CheckHistogram(f,(path+"/sct_b2_Oyresxvsmodetaphi_3d").c_str())) return;
     if (!CheckHistogram(f,(path+"/sct_b3_Oyresxvsmodetaphi_3d").c_str())) return;
+
+    //Check if the bowing histograms exist.
+
+    if (!CheckHistogram(f,(path+"/pix_b0_resXvsetaLumiBlock").c_str())) return;
+    if (!CheckHistogram(f,(path+"/pix_b0_resXvsetaLumiBlock_planars").c_str())) return;
+    
   }
   //else std::cout << "no overlap residual histograms found - will not process overlap residuals" << std::endl;
 
@@ -624,7 +630,15 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   TH3F* m_sct_b2_xresvsmodetaphi_3d = (TH3F*)(f->Get((path+"/sct_b2_xresvsmodetaphi_3d").c_str()));
   TH3F* m_sct_b3_xresvsmodetaphi_3d = (TH3F*)(f->Get((path+"/sct_b3_xresvsmodetaphi_3d").c_str()));
   
+  // Get the 2DProfiles
 
+  //TProfile2D* m_pix_b0_resXvsetaLumiBlock         = (TProfile2D*) (f->Get((path+"/pix_b0_resXvsetaLumiBlock").c_str()));
+  //TProfile2D* m_pix_b0_resXvsetaLumiBlock_planars = (TProfile2D*) (f->Get((path+"/pix_b0_resXvsetaLumiBlock_planars").c_str()));
+
+  //TH1F* m_pix_b0_mag_vs_lb = new TH1F("pix_b0_mag_vs_lb","pix_b0_mag_vs_lb",1024,0,1024);
+  //TH1F* m_pix_b0_base_vs_lb = new TH1F("pix_b0_base_vs_lb","pix_b0_base_vs_lb",1024,0,1024);
+
+  //MakeBowingFit(m_pix_b0_resXvsetaLumiBlock,m_pix_b0_mag_vs_lb,m_pix_b0_base_vs_lb);
 
   // Ideally we would like to clone the existing histograms from the file instead of recreating them here
   // but there seems to be no way to then persistify the cloned histograms (i.e. write them back to the file)
@@ -738,7 +752,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
 
   //x residual mean as a function of ring in the Pixel barrel
   
-  TH1F* m_pix_b0_xresvsmodeta = new TH1F("pix_b0_xresvsmodeta","X Residual Mean vs Eta-ID Pixel Barrel L0",21,-10.5,10.5);
+  TH1F* m_pix_b0_xresvsmodeta = new TH1F("pix_b0_xresvsmodeta","X Residual Mean vs Eta-ID Pixel Barrel L0",20,-10.5,9.5);
   m_pix_b0_xresvsmodeta->GetYaxis()->SetTitle("Mean Residual X [mm]");
   m_pix_b0_xresvsmodeta->GetXaxis()->SetTitle("Module Eta-ID");
   TH1F* m_pix_b1_xresvsmodeta = new TH1F("pix_b1_xresvsmodeta","X Residual Mean vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
@@ -765,7 +779,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   plots->Clear();
 
   //x residual width as a function of ring in the Pixel barrel
-  TH1F* m_pix_b0_xresvsmodeta_width = new TH1F("pix_b0_xresvsmodeta_width","X Residual Width vs Eta-ID Pixel Barrel L0",21,-10.5,10.5);
+  TH1F* m_pix_b0_xresvsmodeta_width = new TH1F("pix_b0_xresvsmodeta_width","X Residual Width vs Eta-ID Pixel Barrel L0",20,-10.5,9.5);
   m_pix_b0_xresvsmodeta_width->GetYaxis()->SetTitle("Width Residual X [mm]");
   m_pix_b0_xresvsmodeta_width->GetXaxis()->SetTitle("Module Eta-ID");
   TH1F* m_pix_b1_xresvsmodeta_width = new TH1F("pix_b1_xresvsmodeta_width","X Residual Width vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
@@ -791,7 +805,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   plots->Clear();
 
   //y residual mean as a function of ring in the Pixel barrel
-  TH1F* m_pix_b0_yresvsmodeta = new TH1F("pix_b0_yresvsmodeta","Y Residual Mean vs Eta-ID Pixel Barrel L0",21,-10.5,10.5);
+  TH1F* m_pix_b0_yresvsmodeta = new TH1F("pix_b0_yresvsmodeta","Y Residual Mean vs Eta-ID Pixel Barrel L0",20,-10.5,9.5);
   m_pix_b0_yresvsmodeta->GetYaxis()->SetTitle("Mean Residual Y [mm]");
   m_pix_b0_yresvsmodeta->GetXaxis()->SetTitle("Module Eta-ID");
   TH1F* m_pix_b1_yresvsmodeta = new TH1F("pix_b1_yresvsmodeta","Y Residual Mean vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
@@ -817,7 +831,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   plots->Clear();
 
   //y residual width as a function of ring in the Pixel barrel
-  TH1F* m_pix_b0_yresvsmodeta_width = new TH1F("pix_b0_yresvsmodeta_width","Y Residual Width vs Eta-ID Pixel Barrel L0",21,-10.5,10.5);
+  TH1F* m_pix_b0_yresvsmodeta_width = new TH1F("pix_b0_yresvsmodeta_width","Y Residual Width vs Eta-ID Pixel Barrel L0",20,-10.5,9.5);
   m_pix_b0_yresvsmodeta_width->GetYaxis()->SetTitle("Width Residual Y [mm]");
   m_pix_b0_yresvsmodeta_width->GetXaxis()->SetTitle("Module Eta-ID");
   TH1F* m_pix_b1_yresvsmodeta_width = new TH1F("pix_b1_yresvsmodeta_width","Y Residual Width vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
@@ -1085,7 +1099,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
 
 
   //2-d residual map histograms - pixel barrel residual mean
-  TH2F* m_pix_b0_xresvsmodetaphi_mean = new TH2F("pix_b0_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",21,-10.5,10.5,14,0,14);
+  TH2F* m_pix_b0_xresvsmodetaphi_mean = new TH2F("pix_b0_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_xresvsmodetaphi_mean->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_xresvsmodetaphi_mean->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_xresvsmodetaphi_mean = new TH2F("pix_b1_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
@@ -1100,7 +1114,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   
 
 
-  TH2F* m_pix_b0_yresvsmodetaphi_mean = new TH2F("pix_b0_yresvsmodetaphi_mean","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",21,-10.5,10.5,14,0,14);
+  TH2F* m_pix_b0_yresvsmodetaphi_mean = new TH2F("pix_b0_yresvsmodetaphi_mean","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_yresvsmodetaphi_mean->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_yresvsmodetaphi_mean->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_yresvsmodetaphi_mean = new TH2F("pix_b1_yresvsmodetaphi_mean","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
@@ -1122,7 +1136,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   meanRMSProjections3D(m_pix_b3_yresvsmodetaphi_3d,m_pix_b3_yresvsmodetaphi_mean,2);
 
   //2-d residual map histograms - pixel barrel residual width
-  TH2F* m_pix_b0_xresvsmodetaphi_rms = new TH2F("pix_b0_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",21,-10.5,10.5,14,0,14);
+  TH2F* m_pix_b0_xresvsmodetaphi_rms = new TH2F("pix_b0_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_xresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_xresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_xresvsmodetaphi_rms = new TH2F("pix_b1_xresvsmodetaphi_rms","X Residual Width vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
@@ -1134,7 +1148,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   TH2F* m_pix_b3_xresvsmodetaphi_rms = new TH2F("pix_b3_xresvsmodetaphi_rms","X Residual Width vs Module Eta-Phi-ID Pixel Barrel L3",13,-6.5,6.5,52,-0.5,51.5);
   m_pix_b3_xresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b3_xresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
-  TH2F* m_pix_b0_yresvsmodetaphi_rms = new TH2F("pix_b0_yresvsmodetaphi_rms","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",21,-10.5,10.5,14,0,14);
+  TH2F* m_pix_b0_yresvsmodetaphi_rms = new TH2F("pix_b0_yresvsmodetaphi_rms","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_yresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_yresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_yresvsmodetaphi_rms = new TH2F("pix_b1_yresvsmodetaphi_rms","Y Residual Width vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
@@ -1622,6 +1636,13 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   m_sct_b_residualfiterrors->Write("",TObject::kOverwrite);
 
   f->Write();
+
+  //m_pix_b0_mag_vs_lb->Write();
+  //m_pix_b0_base_vs_lb->Write();
+  
+  //f->Write();
+
+  
   
 
 
@@ -1659,7 +1680,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
    
 
     //XOverlap residual X mean as a function of ring in the pixel barrel (sensitive to ring-expansion,contraction distortions)
-    TH1F* m_pix_b0_Oxresxvsmodeta_mean = new TH1F("pix_b0_Oxresxvsmodeta_mean","X-Overlap X Residual Mean vs Eta-ID Pixel Barrel IBL",21,-10.5,10.5);
+    TH1F* m_pix_b0_Oxresxvsmodeta_mean = new TH1F("pix_b0_Oxresxvsmodeta_mean","X-Overlap X Residual Mean vs Eta-ID Pixel Barrel IBL",20,-10.5,9.5);
     TH1F* m_pix_b1_Oxresxvsmodeta_mean = new TH1F("pix_b1_Oxresxvsmodeta_mean","X-Overlap X Residual Mean vs Eta-ID Pixel Barrel L0",13,-6.5,6.5);
     TH1F* m_pix_b2_Oxresxvsmodeta_mean = new TH1F("pix_b2_Oxresxvsmodeta_mean","X-Overlap X Residual Mean vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
     TH1F* m_pix_b3_Oxresxvsmodeta_mean = new TH1F("pix_b3_Oxresxvsmodeta_mean","X-Overlap X Residual Mean vs Eta-ID Pixel Barrel L2",13,-6.5,6.5);
@@ -1685,7 +1706,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
     plots->Clear();
 
     //XOverlap residual X width as a function of ring in the pixel barrel (sensitive to ring-expansion,contraction distortions)
-    TH1F* m_pix_b0_Oxresxvsmodeta_width = new TH1F("pix_b0_Oxresxvsmodeta_width","X-Overlap X Residual Width vs Eta-ID Pixel Barrel IBL",21,-10.5,10.5);
+    TH1F* m_pix_b0_Oxresxvsmodeta_width = new TH1F("pix_b0_Oxresxvsmodeta_width","X-Overlap X Residual Width vs Eta-ID Pixel Barrel IBL",20,-10.5,9.5);
     TH1F* m_pix_b1_Oxresxvsmodeta_width = new TH1F("pix_b1_Oxresxvsmodeta_width","X-Overlap X Residual Width vs Eta-ID Pixel Barrel L0",13,-6.5,6.5);
     TH1F* m_pix_b2_Oxresxvsmodeta_width = new TH1F("pix_b2_Oxresxvsmodeta_width","X-Overlap X Residual Width vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
     TH1F* m_pix_b3_Oxresxvsmodeta_width = new TH1F("pix_b3_Oxresxvsmodeta_width","X-Overlap X Residual Width vs Eta-ID Pixel Barrel L2",13,-6.5,6.5);
@@ -1711,7 +1732,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
     plots->Clear();
 
     //XOverlap residual Y mean as a function of ring in the pixel barrel (sensitive to ring shear distortions)
-    TH1F* m_pix_b0_Oxresyvsmodeta_mean = new TH1F("pix_b0_Oxresyvsmodeta_mean","X-Overlap Y Residual Mean vs Eta-ID Pixel Barrel IBL",21,-10.5,10.5);
+    TH1F* m_pix_b0_Oxresyvsmodeta_mean = new TH1F("pix_b0_Oxresyvsmodeta_mean","X-Overlap Y Residual Mean vs Eta-ID Pixel Barrel IBL",20,-10.5,9.5);
     TH1F* m_pix_b1_Oxresyvsmodeta_mean = new TH1F("pix_b1_Oxresyvsmodeta_mean","X-Overlap Y Residual Mean vs Eta-ID Pixel Barrel L0",13,-6.5,6.5);
     TH1F* m_pix_b2_Oxresyvsmodeta_mean = new TH1F("pix_b2_Oxresyvsmodeta_mean","X-Overlap Y Residual Mean vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
     TH1F* m_pix_b3_Oxresyvsmodeta_mean = new TH1F("pix_b3_Oxresyvsmodeta_mean","X-Overlap Y Residual Mean vs Eta-ID Pixel Barrel L2",13,-6.5,6.5);
@@ -1738,7 +1759,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
     plots->Clear();
 
     //XOverlap residual X width as a function of ring in the pixel barrel (sensitive to ring shear distortions)
-    TH1F* m_pix_b0_Oxresyvsmodeta_width = new TH1F("pix_b0_Oxresyvsmodeta_width","X-Overlap Y Residual Width vs Eta-ID Pixel Barrel IBL",21,-10.5,10.5);
+    TH1F* m_pix_b0_Oxresyvsmodeta_width = new TH1F("pix_b0_Oxresyvsmodeta_width","X-Overlap Y Residual Width vs Eta-ID Pixel Barrel IBL",20,-10.5,9.5);
     TH1F* m_pix_b1_Oxresyvsmodeta_width = new TH1F("pix_b1_Oxresyvsmodeta_width","X-Overlap Y Residual Width vs Eta-ID Pixel Barrel L0",13,-6.5,6.5);
     TH1F* m_pix_b2_Oxresyvsmodeta_width = new TH1F("pix_b2_Oxresyvsmodeta_width","X-Overlap Y Residual Width vs Eta-ID Pixel Barrel L1",13,-6.5,6.5);
     TH1F* m_pix_b3_Oxresyvsmodeta_width = new TH1F("pix_b3_Oxresyvsmodeta_width","X-Overlap Y Residual Width vs Eta-ID Pixel Barrel L2",13,-6.5,6.5);
@@ -1843,7 +1864,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
 
     //YOverlap residual X width as a function of stave in the pixel barrel (sensitive to stave-shear distortions)
     
-    TH1F* m_pix_b0_Oyresxvsmodphi_width = new TH1F("pix_b0_Oyresxvsmodphi_width","Y-Overlap X Residual Width vs Phi-ID Pixel Barrel IBL",22,-0.5,21.5);
+    TH1F* m_pix_b0_Oyresxvsmodphi_width = new TH1F("pix_b0_Oyresxvsmodphi_width","Y-Overlap X Residual Width vs Phi-ID Pixel Barrel IBL",14,-0.5,13.5);
     TH1F* m_pix_b1_Oyresxvsmodphi_width = new TH1F("pix_b1_Oyresxvsmodphi_width","Y-Overlap X Residual Width vs Phi-ID Pixel Barrel L0",22,-0.5,21.5);
     TH1F* m_pix_b2_Oyresxvsmodphi_width = new TH1F("pix_b2_Oyresxvsmodphi_width","Y-Overlap X Residual Width vs Phi-ID Pixel Barrel L1",38,-0.5,37.5);
     TH1F* m_pix_b3_Oyresxvsmodphi_width = new TH1F("pix_b3_Oyresxvsmodphi_width","Y-Overlap X Residual Width vs Phi-ID Pixel Barrel L2",52,-0.5,51.5);
@@ -2883,6 +2904,65 @@ fillGaussianMeanOrWidth(TH2F* h2d, TH1F* h, float fitMin, float fitMax, int iopt
   return;
 
 }
+/*
+void MonitoringFile::MakeStaveShapeFit(float& mag, float& mag_er, float& base, float& base_er, TH1D* projection)
+{
+  TGraphErrors* g = ConvertHistoInGraph(projection);
+  TF1 *fit;
+  fit = new TF1("fit", "[0]-[1]*(x+[2]) * (4.0*[2]*(x+[2])**2 - (x+[2])**3 - (2.0*[2])**3)", -m_z_fix, m_z_fix );
+  fit->FixParameter(2, m_z_fix);
+  fit->SetParameter(1, 5.e-12);
+  TFitResultPtr r = g->Fit(fit,"EX0SQ");
+  mag       =  5.0 * fit->GetParameter(1) * (m_z_fix*m_z_fix*m_z_fix*m_z_fix);
+  mag_er    =  5.0 * fit->GetParError(1)  * (m_z_fix*m_z_fix*m_z_fix*m_z_fix);
+  base     =fit->GetParameter(0);
+  base_er  =fit->GetParError(0);
+  
+  delete g;
+  return;
+}
+
+TGraphErrors* MonitoringFile::ConvertHistoInGraph(TH1D* histo)
+{
+  TGraphErrors* graph = new TGraphErrors();
+  std::vector<int> filled_bins;
+  for (int etabin=1;etabin < 21;++etabin)
+    {
+      if (histo->GetBinContent(etabin) != 0.)
+	{
+	  filled_bins.push_back(etabin);
+	}
+    }
+  
+  for (int ibin=0;ibin < (int) filled_bins.size();++ibin)
+    {
+      graph->Set(ibin+1);
+      graph->SetPoint(ibin,z_axis[filled_bins.at(ibin)-1],histo->GetBinContent(filled_bins.at(ibin)));
+      graph->SetPointError(ibin,0,histo->GetBinError(filled_bins.at(ibin)));
+    }
+  
+  graph->GetXaxis()->SetRangeUser(-m_z_fix,m_z_fix);
+  return graph;
+  
+}
+*/
+/*
+void MonitoringFile::MakeBowingFit(TProfile2D* p2d, TH1F* hm, TH1F* hb)
+{
+  for (int lumibin=1;lumibin <= p2d->GetXaxis()->GetNbins();++lumibin)
+    {
+      TH1D* projection_lumiblock = p2d->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+      MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
+      m_pix_b0_mag_vs_lb->SetBinContent(lumibin,mag);
+      m_pix_b0_mag_vs_lb->SetBinError(lumibin,mag_er);
+      m_pix_b0_base_vs_lb->SetBinContent(lumibin,base);
+      m_pix_b0_base_vs_lb->SetBinError(lumibin,base_er);
+      delete projection_lumiblock;
+    }
+  
+  return;
+}
+*/
 
 void 
 MonitoringFile::
