@@ -19,7 +19,7 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 #include "boost/foreach.hpp"

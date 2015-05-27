@@ -13,6 +13,7 @@
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 
