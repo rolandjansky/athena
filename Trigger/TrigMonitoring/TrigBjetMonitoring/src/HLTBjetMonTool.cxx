@@ -243,7 +243,7 @@ StatusCode HLTBjetMonTool::book(){
   CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );
   bool MCflag = true;
   if ( !eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) MCflag = false;
-
+  *m_log << MSG::INFO << " MCflag: " << MCflag << endreq;
 
   /////////////////////////////////////////
   //
