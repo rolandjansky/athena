@@ -61,8 +61,6 @@ public:
   unsigned int etMissHits();
   unsigned int etSumHits();
   unsigned int metSigHits();
-  /** Debug information */
-  float metSig();
   /** RoI words */
   unsigned int roiWord0();
   unsigned int roiWord1();
@@ -81,13 +79,10 @@ private:
   unsigned int m_etMissHits;
   unsigned int m_etSumHits;
   unsigned int m_metSigHits;
-  int m_etMiss;
-  unsigned int m_metRange;
-  float m_metSig;
-  static const unsigned int m_numExyBits=6;
+  uint32_t m_etMissQ;
   static const unsigned int m_sumBits=15;
-  static const int m_maxEtSumThr=16383;
-  static const int m_etSumOverflow=32767;
+  static const int m_maxEtSumThr=0x3fff;
+  static const int m_etSumOverflow=0x7fff;
   bool m_debug;
 
 private:
