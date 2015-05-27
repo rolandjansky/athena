@@ -10,6 +10,12 @@
 echo "***Start time***"
 date
 
+# test categories
+# X1 = BS - BS
+# X2 = BS - BS and reco/cost
+# X3 = debug style jobs
+# X4 = use dumpOptions to compare
+
 # list of tests - current status (set runTestXX argument to false)
 # 01 athenaHLT BSRDO->BS - works for all files
 # 11 as 01 but with release swap for first step - works correctly uses runtranslate JO
@@ -19,15 +25,17 @@ runTest11=false
 runTest21=false
 # 02 adds reco steps (otherwise as 01) - works for all files
 # 12 adds costmon (otherwise as 01, although runs not from DB) - works makes costmon files
+# 22 costmon not from DB and checks tmp.BS - works
 runTest02=false
 runTest12=false
+runTest22=false
 # 03 run via a JSON file (otherwise as 01) - works
 # 13 as 03 but with debug stream=True - works (BS file renaming to be finalised)
 runTest03=false
 runTest13=false
 # 04 uses dumpOptions to show that athenaopts gives the same as DB args as in 01 - works
 runTest04=false
-# 05 run using testPhysicsV5 instead of from DB - works
+# 05 run using testPhysicsV5 instead of from DB - works - should move to be test31
 runTest05=false
 
 if [ "$*" == "" ]; then
@@ -37,6 +45,7 @@ if [ "$*" == "" ]; then
     runTest21=true
     runTest02=true
     runTest12=true
+    runTest22=true
     runTest03=true
     runTest13=true
     runTest04=true
@@ -66,6 +75,11 @@ fi
 if [ "$1" == "12" ]; then
     echo "***Selected: runTest12***"
     runTest12=true
+fi
+
+if [ "$1" == "22" ]; then
+    echo "***Selected: runTest22***"
+    runTest22=true
 fi
 
 if [ "$1" == "03" ]; then
@@ -107,7 +121,7 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 > log.txt 2>&1
 
 #may also want to make use of dumpoptions or testing a real precommand
@@ -118,7 +132,7 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS completed***"
+echo "***runTest01: BSRDO->BS completed***"
 
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
@@ -126,14 +140,16 @@ echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
 grep Processed log.BSRDOtoRAW
 echo "---test smkey (46) hltpskey (33) lvlkey (14) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
 grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
-echo "---test BS file created---$ ls thetestBS.RAW.data"
-ls thetestBS.RAW.data
+echo "---test BS file created---$ ls RAW.05530098._000001.pool.root.1"
+ls RAW.05530098._000001.pool.root.1
 echo "---test MON file created---$ ls HIST_HLTMON.04854087._000852.pool.root.1"
 ls HIST_HLTMON.04854087._000852.pool.root.1
 echo "---test metadata---$ grep lfn metadata.xml"
 grep lfn metadata.xml
 
 cd ..
+
+echo "************"
 
 fi
 
@@ -156,7 +172,7 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 --asetup b2r:AtlasP1HLT,20.1.3.1 \
 > log.txt 2>&1
 
@@ -164,7 +180,7 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS completed***"
+echo "***runTest11: BSRDO->BS completed***"
 
 echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines=\"Run arguments file auto-generated\""
 diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines="Run arguments file auto-generated"
@@ -178,14 +194,16 @@ echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
 grep Processed log.BSRDOtoRAW
 echo "---test smkey (46) hltpskey (33) lvlkey (14) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
 grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
-echo "---test BS file created---$ ls thetestBS.RAW.data"
-ls thetestBS.RAW.data
+echo "---test BS file created---$ ls RAW.05530098._000001.pool.root.1"
+ls RAW.05530098._000001.pool.root.1
 echo "---test MON file created---$ ls HIST_HLTMON.04854087._000852.pool.root.1"
 ls HIST_HLTMON.04854087._000852.pool.root.1
 echo "---test metadata---$ grep lfn metadata.xml"
 grep lfn metadata.xml
 
 cd ..
+
+echo "************"
 
 fi
 
@@ -209,7 +227,7 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 > log.txt 2>&1
 
 #for additional testing can also add a different DB extra to check lvl1key gets added
@@ -219,7 +237,7 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS completed***"
+echo "***runTest21: BSRDO->BS completed***"
 
 echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines=\"Run arguments file auto-generated\""
 diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines="Run arguments file auto-generated"
@@ -233,14 +251,16 @@ echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
 grep Processed log.BSRDOtoRAW
 echo "---test smkey (46) hltpskey (33) lvlkey (14) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
 grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
-echo "---test BS file created---$ ls thetestBS.RAW.data"
-ls thetestBS.RAW.data
+echo "---test BS file created---$ ls RAW.05530098._000001.pool.root.1"
+ls RAW.05530098._000001.pool.root.1
 echo "---test MON file created---$ ls HIST_HLTMON.04854087._000852.pool.root.1"
 ls HIST_HLTMON.04854087._000852.pool.root.1
 echo "---test metadata---$ grep lfn metadata.xml"
 grep lfn metadata.xml
 
 cd ..
+
+echo "************"
 
 fi
 
@@ -266,7 +286,7 @@ Trig_reco_tf.py \
 --asetup r2e:AtlasProduction,20.1.4.2 e2a:AtlasProduction,20.1.4.2  \
 --geometryVersion 'ATLAS-R2-2015-02-00-00' --conditionsTag 'CONDBR2-ES1PA-2014-01' --beamType 'cosmics' --autoConfiguration 'everything' \
 --preExec r2e:'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;' \
---outputBSFile='thetestBS.RAW.data' \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 --outputESDFile='thetestESD.pool.root' \
 --outputAODFile='thetestAOD.pool.root'  \
 --outputHISTFile='thetestHIST.root' \
@@ -280,14 +300,14 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS->ESD->AOD->HIST completed***"
+echo "***runTest02: BSRDO->BS->ESD->AOD->HIST completed***"
 
 echo "---test triggerConfig---$ grep TriggerFlags log.RAWtoESD | grep triggerConfig: log.RAWtoESD"
 grep TriggerFlags log.RAWtoESD | grep triggerConfig: log.RAWtoESD
 echo "---test metadata---$ grep lfn metadata.xml"
 grep lfn metadata.xml
-echo "---test BS file created---$ ls thetestBS.RAW.data"
-ls thetestBS.RAW.data
+echo "---test BS file created---$ ls RAW.05530098._000001.pool.root.1"
+ls RAW.05530098._000001.pool.root.1
 echo "---test MON file created---$ ls HIST_HLTMON.04854087._000852.pool.root.1"
 ls HIST_HLTMON.04854087._000852.pool.root.1
 echo "---test ESD file created---$ ls thetestESD.pool.root"
@@ -299,64 +319,47 @@ ls thetestHIST.root
 
 cd ..
 
+echo "************"
+
 fi
 
 ##############################################################################
 
 if $runTest12 ; then
 
-echo -e "\n******runTest12: BSRDO->BS->COST->RECO with costmon******"
+echo -e "\n******runTest12: BSRDO->BS->COST->RECO with costmon in DB******"
 
 rm -rf runTest12_BSRDO_COST
 mkdir runTest12_BSRDO_COST
 cd runTest12_BSRDO_COST
 
-#version not from DB
+#version from DB (note test uses data12!)
 Trig_reco_tf.py \
---inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
---precommand "testPhysicsV5=True;enableCostForCAF=True;enableCostMonitoring=True" \
---ignoreErrors="True" --runNumber="253010" \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data \
+--jobOptionSvcType TrigConf::HLTJobOptionsSvc \
+--useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
+--DBsmkey 64 --DBhltpskey 44 --DBextra "{'lvl1key': 21}" \
+--ignoreErrors="True" --runNumber="212967" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---asetup r2c:AtlasProduction,20.1.4.2 r2e:AtlasProduction,20.1.4.2 e2a:AtlasProduction,20.1.4.2 \
+--asetup r2c:AtlasProduction,20.1.4.8 r2e:AtlasProduction,20.1.4.8 e2a:AtlasProduction,20.1.4.8 \
 --outputNTUP_TRIGCOSTFile="NTUP_TRIGCOST.04854087._000852.root.1" \
 --outputNTUP_TRIGRATEFile="NTUP_TRIGRATE.04854087._000852.root.1" \
 --outputNTUP_TRIGEBWGHTFile="NTUP_TRIGEBWGHT.04854087._000852.root.1" \
---geometryVersion 'ATLAS-R2-2015-02-00-00' --conditionsTag 'CONDBR2-ES1PA-2014-01' --beamType 'cosmics' --autoConfiguration 'everything' \
---preExec r2e:'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;' \
+--geometryVersion 'ATLAS-R1-2012-02-00-00' --conditionsTag 'COMCOND-BLKPA-RUN1-07' --beamType 'collisions' --autoConfiguration 'everything' \
+--preExec "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(2);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False" "ESDtoAOD:DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doTau=False" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 --outputESDFile='thetestESD.pool.root' \
 --outputAODFile='thetestAOD.pool.root'  \
 --outputHISTFile='thetestHIST.root' \
---triggerConfig=DATARECO:REPR \
+--triggerConfig=MCRECO:DB:TRIGGERDBREPR:64,21,44 \
 > log.txt 2>&1
-
-#version from DB once enableCostForCAF is set in a smk
-#Trig_reco_tf.py \
-#--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
-#--jobOptionSvcType TrigConf::HLTJobOptionsSvc \
-#--useDB TRUE --DBtype Coral --DBserver TRIGGERDBREPR \
-#--DBsmkey 46 --DBhltpskey 33 --DBextra "{'lvl1key': 14}" \
-#--ignoreErrors="True" --runNumber="253010" \
-#--maxEvents=1 --skipEvents=2 \
-#--outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
-#--asetup b2r:20.2.0.2,AtlasP1HLT r2c:AtlasProduction,20.1.4.2 r2e:AtlasProduction,20.1.4.2 e2a:AtlasProduction,20.1.4.2 \
-#--outputNTUP_TRIGCOSTFile="trig_cost.root" \
-#--outputNTUP_TRIGRATEFile="trig_rate.root" \
-# --geometryVersion 'ATLAS-R2-2015-02-00-00' --conditionsTag 'CONDBR2-ES1PA-2014-01' --beamType 'cosmics' --autoConfiguration 'everything' \
-# --preExec r2e:'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;' \
-# --outputESDFile='thetestESD.pool.root' \
-# --outputAODFile='thetestAOD.pool.root'  \
-# --outputHISTFile='thetestHIST.root' \
-# --triggerConfig=MCRECO:DB:TRIGGERDBREPR:46,14,33 \
-#> log.txt 2>&1
-
-#--outputNTUP_TRIGEBWEIGHTFile="trig_ebweight.root" \
 
 echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS->COST->RECO completed***"
+echo "***runTest12: BSRDO->BS->COST->RECO completed***"
 
 echo "---check costForCAF enabled in BS->BS---$ grep costForCAF log.BSRDOtoRAW"
 grep costForCAF log.BSRDOtoRAW
@@ -368,6 +371,60 @@ echo "---test metadata---$ grep lfn metadata.xml"
 grep lfn metadata.xml
 
 cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+
+if $runTest22 ; then
+
+echo -e "\n******runTest22: BSRDO->BS->COST costmon not DB + tmp.BS******"
+
+rm -rf runTest22_BSRDO_COST
+mkdir runTest22_BSRDO_COST
+cd runTest22_BSRDO_COST
+
+#version not from DB
+Trig_reco_tf.py \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--precommand "testPhysicsV5=True;enableCostForCAF=True;enableCostMonitoring=True" \
+--ignoreErrors="True" --runNumber="253010" \
+--maxEvents=1 --skipEvents=2 \
+--outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
+--asetup r2c:AtlasProduction,20.1.4.2  \
+--outputNTUP_TRIGCOSTFile="NTUP_TRIGCOST.04854087._000852.root.1" \
+--outputNTUP_TRIGRATEFile="NTUP_TRIGRATE.04854087._000852.root.1" \
+--outputNTUP_TRIGEBWGHTFile="NTUP_TRIGEBWGHT.04854087._000852.root.1" \
+> log.txt 2>&1
+
+# For more reco steps would need
+#   --triggerConfig=DATARECO:REPR \
+# along with all the other reco info...
+#   --asetup r2c:AtlasProduction,20.1.4.2 r2e:AtlasProduction,20.1.4.2 e2a:AtlasProduction,20.1.4.2 \
+#   --geometryVersion ....
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***runTest22: BSRDO->BS->COST completed***"
+
+echo "---check costForCAF enabled in BS->BS---$ grep costForCAF log.BSRDOtoRAW"
+grep costForCAF log.BSRDOtoRAW
+echo "---costmon summary---$ grep TrigCostRun log.RAWtoCOST | grep POST_HLT"
+grep TrigCostRun log.RAWtoCOST | grep POST_HLT
+echo "---test tmp.BS created---$ ls tmp.BS"
+ls tmp.BS
+echo "---test costmon ntups created---$ ls NTUP_TRIG*"
+ls NTUP_TRIG*
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+echo "************"
 
 fi
 
@@ -382,7 +439,7 @@ mkdir runTest03_BSRDO_BS_JSON
 cd runTest03_BSRDO_BS_JSON
 
 echo "{\
-\"outputBSFile\": \"thetestBS.RAW.data\", \
+\"outputBSFile\": \"RAW.05530098._000001.pool.root.1\", \
 \"inputBS_RDOFile\": [\"root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1\"], \
 \"jobOptionSvcType\": \"TrigConf::HLTJobOptionsSvc\", \
 \"useDB\": \"TRUE\", \"DBtype\": \"Coral\", \"DBserver\": \"TRIGGERDBREPR\", \
@@ -404,7 +461,7 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS via JSON completed***"
+echo "***runTest03: BSRDO->BS completed***"
 
 echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines=\"Run arguments file auto-generated\""
 diff -s ../runTest01_BSRDO_BS/runargs.BSRDOtoRAW.py runargs.BSRDOtoRAW.py --ignore-matching-lines="Run arguments file auto-generated"
@@ -419,6 +476,8 @@ diff -s ../runTest01_BSRDO_BS/runtranslate.BSRDOtoRAW.py runtranslate.BSRDOtoRAW
 #diff ../runTest01_BSRDO_BS/jobReport.txt jobReport.txt
 
 cd ..
+
+echo "************"
 
 fi
 
@@ -459,7 +518,7 @@ echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->Debug completed***"
+echo "***runTest13: BSRDO->BS completed***"
 
 echo "---test BS file created---$ ls data15_cos.00263146.debugrec_hlt.reproc.RAW.g17._0005"
 ls data15_cos.00263146.debugrec_hlt.reproc.RAW.g17._0005
@@ -484,6 +543,8 @@ grep lfn metadata.xml
 
 cd ..
 
+echo "************"
+
 fi
 
 ##############################################################################
@@ -505,7 +566,7 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 --dumpOptions=True \
 > logDBargs.txt 2>&1
 
@@ -525,7 +586,7 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 --dumpOptions=True \
 > logAthenaOpts.txt 2>&1
 
@@ -536,10 +597,14 @@ cat runwrapper.BSRDOtoRAW.sh
 
 . ./runwrapper.BSRDOtoRAW.sh > dumpAthenaOpts.txt 2>&1
 
+echo "***runTest04: BSRDO->BS completed***"
+
 echo "---compare dump with/without athenaopts---$ diff -s dumpDBargs.txt dumpAthenaOpts.txt --ignore-matching-lines=\"# User \""
 diff -s dumpDBargs.txt dumpAthenaOpts.txt --ignore-matching-lines="# User "
 
 cd ..
+
+echo "************"
 
 fi
 
@@ -559,14 +624,14 @@ Trig_reco_tf.py \
 --ignoreErrors="True" --runNumber="253010" \
 --maxEvents=1 --skipEvents=2 \
 --outputHIST_HLTMONFile="HIST_HLTMON.04854087._000852.pool.root.1" \
---outputBSFile="thetestBS.RAW.data" \
+--outputBSFile="RAW.05530098._000001.pool.root.1" \
 > log.txt 2>&1
 
 echo "***trf command***"
 grep "command line was" log.txt
 echo "***trf end status***"
 tail log.txt -n 1
-echo "***BSRDO->BS completed***"
+echo "***runTest05: BSRDO->BS completed***"
 
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
@@ -574,8 +639,8 @@ echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
 grep Processed log.BSRDOtoRAW
 echo "---test menu (PhysicsV5)---$ grep setMenu log.BSRDOtoRAW"
 grep setMenu log.BSRDOtoRAW
-echo "---test BS file created---$ ls thetestBS.RAW.data"
-ls thetestBS.RAW.data
+echo "---test BS file created---$ ls RAW.05530098._000001.pool.root.1"
+ls RAW.05530098._000001.pool.root.1
 echo "---test MON file created---$ ls HIST_HLTMON.04854087._000852.pool.root.1"
 ls HIST_HLTMON.04854087._000852.pool.root.1
 echo "---test metadata---$ grep lfn metadata.xml"
@@ -583,9 +648,11 @@ grep lfn metadata.xml
 
 cd ..
 
+echo "************"
+
 fi
 
 ##############################################################################
 
-echo -e "***End time***"
+echo -e "\n***End time***"
 date

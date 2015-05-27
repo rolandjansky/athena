@@ -228,14 +228,11 @@ class trigRecoExecutor(athenaExecutor):
             #create expected string by taking only some of input
             # removes uncertainty of which parts of the filename are used by athenaHLT
             split_argInDict = argInDict.value[0].split('.')
-            #try to drop at least the last parts of the input string
-            # to remove any potential ._####.data already in argInDict
-            # otherwise just take first element
-            if(len(split_argInDict)>3):
-               expectedOutputFileName = '.'.join(split_argInDict[0:len(split_argInDict)-3])
-            else:
-               expectedOutputFileName = split_argInDict[0]
-            #expect file from athenaHLT to end _###.data so add .data ending
+            #drop most of the input string to remove any potential ._####.data 
+            # already in argInDict - so just take first element from input
+            expectedOutputFileName = split_argInDict[0]
+            #expect file from athenaHLT to end _###.data so add ending
+            #TODO make better ending check to be *_???.data
             expectedOutputFileName+='*.data'
             #keep dataset in case need to update argument
             dataset_argInDict = argInDict._dataset
