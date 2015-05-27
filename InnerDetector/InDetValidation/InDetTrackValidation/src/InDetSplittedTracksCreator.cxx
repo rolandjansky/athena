@@ -46,27 +46,30 @@ StatusCode InDet::InDetSplittedTracksCreator::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode InDet::InDetSplittedTracksCreator::execute() {
    ATH_MSG_DEBUG("InDetSplittedTracksCreator execute()");
+   ATH_MSG_DEBUG("Input Track Collection: " << m_TrackCol);
 
    //return if no input collection is found
    const TrackCollection* trks = 0;
-   if (evtStore()->contains<TrackCollection>(m_TrackCol) &&
+   if ((not evtStore()->contains<TrackCollection>(m_TrackCol)) or
         (evtStore()->retrieve(trks,m_TrackCol)).isFailure()){
       ATH_MSG_ERROR(" Could not retrieve the track collection" <<m_TrackCol);
       return StatusCode::SUCCESS;
    }
 
    TrackCollection* splittedTracks=0;
-   if (evtStore()->contains<TrackCollection>(m_OutputTrackCol) &&
-        (evtStore()->retrieve(splittedTracks,m_OutputTrackCol)).isFailure()){
-   } else {
+   if ((not evtStore()->contains<TrackCollection>(m_OutputTrackCol)) or
+       (evtStore()->retrieve(splittedTracks,m_OutputTrackCol)).isFailure()) {
      splittedTracks = new TrackCollection;
+   } else {
+     ATH_MSG_WARNING("Output split track collection already exists: " << m_OutputTrackCol << ". Quitting.");
+     return StatusCode::SUCCESS;
    }
 
    //loop over tracks and split them in upper and lower part
    TrackCollection::const_iterator it = trks->begin();
    TrackCollection::const_iterator itE = trks->end();
    for (; it != itE; ++it){
-     
+     ATH_MSG_VERBOSE("Splitting Track");
      std::pair<Trk::Track*, Trk::Track*> splitTracks =  std::pair<Trk::Track*, Trk::Track*> (0,0);
      if (m_makeSiOnlyTracks){
        splitTracks = m_trackSplitterTool->splitInUpperLowerTrack(**it,true); //use Si only hits
