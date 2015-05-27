@@ -161,32 +161,24 @@ StatusCode PPrMon::initialize()
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endreq;
 
-  StatusCode sc;
+  CHECK(ManagedMonitorToolBase::initialize());
+  CHECK(m_errorTool.retrieve());
+  CHECK(m_histTool.retrieve());
+  CHECK(m_ttTool.retrieve());
+  CHECK(m_bunchCrossingTool.retrieve());
 
-  sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure()) return sc;
-
-  sc = m_errorTool.retrieve();
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
-    return sc;
-  }
-
-  sc = m_histTool.retrieve();
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
-    return sc;
-  }
-
-  sc = m_ttTool.retrieve();
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1TriggerTowerTool" << endreq;
-    return sc;
-  }
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  CHECK(incSvc.retrieve());
+  incSvc->addListener(this, "BunchConfig");
 
   return StatusCode::SUCCESS;
+}
+
+void PPrMon::handle(const Incident& I)
+{
+  if(I.type() != "BunchConfig") return;
+
+  parseBeamIntensityPattern();
 }
 
 /*---------------------------------------------------------*/
@@ -467,9 +459,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 
     if (m_BeamType == "collisions") {
       //-------------------------Pedestal---------------------------------------
-
-      parseBeamIntensityPattern();
-
       m_histTool->setMonGroup(&TT_Pedestal);
 
       m_h_ppm_em_2d_pedestal_BCN_Lumi =
@@ -900,10 +889,10 @@ StatusCode PPrMon::fillHistograms()
 
           //fill pedestal histogram averaged over all detector regions
 
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             m_h_ppm_em_2d_pedestal_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             m_h_ppm_em_2d_pedestal_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
           }
 
@@ -924,10 +913,10 @@ StatusCode PPrMon::fillHistograms()
                                                         detectorRegionString.data()),
                                                     2000, 0, 2000, 77, 0, 154);
 
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
               anLWProfile2DHistEmPed->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
             }
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
               anLWProfile2DHistEmPed->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
             }
 
@@ -937,10 +926,10 @@ StatusCode PPrMon::fillHistograms()
           }
           else
           {
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
               part_itr->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
             }
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
               part_itr->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
             }
           }
@@ -957,10 +946,10 @@ StatusCode PPrMon::fillHistograms()
         pedestalCorrection /= static_cast<double>(nSlices);
 
         //fill pedestal histogram averaged over all detector regions
-        if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
           m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
         }
-        if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
           m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
         }
 
@@ -981,10 +970,10 @@ StatusCode PPrMon::fillHistograms()
                    detectorRegionString.data()),
               2000, 0, 2000, 77, 0, 154);
 
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             anLWProfile2DHistEmPedCorr->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             anLWProfile2DHistEmPedCorr->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
           }
 
@@ -994,10 +983,10 @@ StatusCode PPrMon::fillHistograms()
         }
         else
         {
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             part_itr2->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             part_itr2->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
           }
         }
@@ -1198,10 +1187,10 @@ StatusCode PPrMon::fillHistograms()
           pedestal /= static_cast<double>(nSlices);
 
           //fill pedestal histogram averaged over all detector regions
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             m_h_ppm_had_2d_pedestal_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             m_h_ppm_had_2d_pedestal_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
           }
 
@@ -1223,10 +1212,10 @@ StatusCode PPrMon::fillHistograms()
                                                         detectorRegionString.data()),
                                                     2000, 0, 2000, 77, 0, 154);
 
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
               anLWProfile2DHistEmPed->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
             }
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
               anLWProfile2DHistEmPed->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
             }
 
@@ -1236,10 +1225,10 @@ StatusCode PPrMon::fillHistograms()
           }
           else
           {
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
               part_itr->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
             }
-            if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
               part_itr->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
             }
           }
@@ -1258,10 +1247,10 @@ StatusCode PPrMon::fillHistograms()
         pedestalCorrection /= static_cast<double>(nSlices);
 
         //fill pedestal histogram averaged over all detector regions
-        if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
           m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
         }
-        if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
           m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
         }
 
@@ -1282,10 +1271,10 @@ StatusCode PPrMon::fillHistograms()
                    detectorRegionString.data()),
               2000, 0, 2000, 77, 0, 154);
 
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             anLWProfile2DHistEmPedCorr->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             anLWProfile2DHistEmPedCorr->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
           }
 
@@ -1295,10 +1284,10 @@ StatusCode PPrMon::fillHistograms()
         }
         else
         {
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
             part_itr2->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
           }
-          if (m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
+          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
             part_itr2->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
           }
         }
@@ -1514,9 +1503,23 @@ void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& res
 // "Parse" the beam intensity pattern to get the bunch train structure.
 void PPrMon::parseBeamIntensityPattern()
 {
-  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
   auto BC = Trig::IBunchCrossingTool::BunchCrossings;
   m_distanceFromHeadOfTrain.assign(MAX_BCID, std::make_pair(false, -10));
+
+  // special case to work around problem in BunchCrossingToolBase
+  ATH_MSG_INFO("NOB: " << m_bunchCrossingTool->numberOfFilledBunches());
+  if(m_bunchCrossingTool->numberOfFilledBunches() <= 1) {
+    // find bcid of filled bunch
+    for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
+      if (m_bunchCrossingTool->isFilled(bcid)) {
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(true, 0);
+        break;
+      }
+    }
+    return;
+  }
+
+  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
   for (bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
     if (m_bunchCrossingTool->isFilled(bcid)) {
       m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(bcid) > 250,

@@ -21,6 +21,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StlVectorClids.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include "TrigT1CaloEvent/TriggerTower.h"
@@ -45,6 +48,7 @@ PPMSimBSMon::PPMSimBSMon(const std::string & type,
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_debug(false), m_events(0),
     m_histBooked(false),
+    m_isRun2(false),
     m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData(0),
     m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData(0),
     m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData(0),
@@ -293,14 +297,30 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate LUT data from FADC data" << endreq;
 
+  unsigned int currentRunNo = 0;
+  const EventInfo* evInfo = 0;
+
   StatusCode sc = m_ttTool->retrieveConditions();
   if (sc.isFailure()) return;
+  sc = evtStore()->retrieve(evInfo);
+  if (sc.isFailure() || !evInfo) {
+    if (m_debug) msg(MSG::DEBUG) << "No EventInfo found" << endreq;
+  } else {
+    const EventID* evID = evInfo->event_ID();
+    if (evID)
+    {
+      currentRunNo = evID->run_number();
+      if (currentRunNo >= 230000) {m_isRun2 = true;}
+    }
+  }
 
   const int nCrates = 8;
   ErrorVector crateError(nCrates);
   ErrorVector moduleError(nCrates);
 
   std::vector<int> Lut;
+  std::vector<int> LutCp;
+  std::vector<int> LutJep;
   std::vector<int> BcidR;
   std::vector<int> BcidD;
 
@@ -323,6 +343,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     const int Peak = tt->adcPeak();
     int simCp = 0;
     int simJep = 0;
+    bool useJepLut = true;
 
     bool keep = true;
     if (datCp == 0) {
@@ -342,21 +363,33 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       BcidR.clear();
       BcidD.clear();
       const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
-      m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, Lut, BcidR, BcidD);
-      if (Slices < 7 || BcidD[Peak]) simCp = Lut[Peak];
+      useJepLut = false;
+      m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutCp, BcidR, BcidD, useJepLut);
+      if (Slices < 7 || BcidD[Peak]) simCp = LutCp[Peak];
       if (m_debug && simCp != datCp && (Slices >= 7 || datCp != 0)) { // mismatch - repeat with debug on
-        std::vector<int> Lut2;
+        std::vector<int> LutCp2;
         std::vector<int> BcidR2;
         std::vector<int> BcidD2;
         m_ttTool->setDebug(true);
-        m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, Lut2, BcidR2, BcidD2);
+        m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutCp2, BcidR2, BcidD2);
         m_ttTool->setDebug(false);
+      }      
+      if (m_isRun2) {
+        useJepLut = true;
+        m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutJep, BcidR, BcidD, useJepLut);
+        if (Slices < 7 || BcidD[Peak]) simJep = LutJep[Peak];
+        if (m_debug && simJep != datJep && (Slices >= 7 || datJep != 0)) { // mismatch - repeat with debug on
+          std::vector<int> LutJep2;
+          std::vector<int> BcidR2;
+          std::vector<int> BcidD2;
+          m_ttTool->setDebug(true);
+          m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutJep2, BcidR2, BcidD2);
+          m_ttTool->setDebug(false);
+        }
       }
     }
 
     if (!simCp && !datCp) continue;
-
-    simJep = simCp * 2;
 
     //=====================FOR ELECTROMAGNETIC LAYER============================
     if (tt->layer() == 0) {

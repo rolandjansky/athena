@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class TH1F_LW;
@@ -151,7 +152,7 @@ class TrigT1CaloLWHistogramTool;
  *
  */
 
-class PPrMon: public ManagedMonitorToolBase
+ class PPrMon: public ManagedMonitorToolBase, public virtual IIncidentListener
 {
 
 public:
@@ -164,6 +165,8 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
+
+  virtual void handle(const Incident& I);
 private:
 
   /// Subdetector partitions
