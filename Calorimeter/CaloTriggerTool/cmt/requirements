@@ -10,12 +10,12 @@ use AthenaKernel        AthenaKernel-*         Control
 use AthenaBaseComps     AthenaBaseComps-*      Control
 use Identifier 		Identifier-*           DetectorDescription
 use CaloIdentifier 	CaloIdentifier-*       Calorimeter
+use CaloDetDescr        CaloDetDescr-*         Calorimeter
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 
 use AtlasReflex		AtlasReflex-* 			External  -no_auto_imports
 
 private
-use AtlasBoost          AtlasBoost-*           External
 use AthenaBaseComps     AthenaBaseComps-*      Control
 use LArTools 	        LArTools-*             LArCalorimeter
 use LArIdentifier 	LArIdentifier-*        LArCalorimeter
@@ -28,13 +28,3 @@ apply_pattern declare_joboptions files="*.py"
 # Make dict for the tools
 apply_pattern lcgdict dict=CaloTriggerTool selectionfile=selection.xml headerfiles="../CaloTriggerTool/CaloTriggerToolDict.h"
 
-private
-use TestPolicy                TestPolicy-*
-use TestTools                 TestTools-*         AtlasTest  -no_auto_imports
-
-
-apply_pattern athenarun_test \
-   name="CaloSuperCellIDTool_test" \
-   options="CaloTriggerTool/CaloSuperCellIDTool_test.py" \
-   pre_script="../cmt/setup.sh" \
-   post_script="${TESTTOOLSROOT}/share/post.sh CaloSuperCellIDTool_test $(q)[0-9] [A-Z]+ 20[123][0-9]|^TClass::Init:0: RuntimeWarning: no dictionary for class|RuntimeWarning: creating converter for unknown type|ret = py_sg_getitem\(self, key\)|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|^IoComponentMgr +INFO|duplicate entry|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|runbatch|INFO [sS]top|including file|oflcond|loading cache from|^[^ ]+ +INFO|XMLFileCatalog Info|already loaded|^RalSessionMgr Info|RDBMS technology$(q)"

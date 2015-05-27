@@ -18,7 +18,5 @@
   <class name="std::vector<CaloTTPpmRxId_P::CaloTTPpmRxId_P_t>" />
   <class name="CaloTTPpmRxId_P" id="869AE421-3864-4B12-8609-D1C91B75D9B2" />
 
-  <class name="ICaloSuperCellIDTool"/>
-
 </lcgdict>
 

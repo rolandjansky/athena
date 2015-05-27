@@ -28,6 +28,5 @@
 #include "CaloTriggerTool/CaloTTPpmRxId_P.h"
 #include "CaloTriggerTool/CaloTriggerToolDict.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
 
 #endif // CALOTRIGGERTOOL_CALOTRIGGERTOOLDICT_H
