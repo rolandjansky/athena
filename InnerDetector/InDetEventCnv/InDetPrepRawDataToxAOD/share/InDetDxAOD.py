@@ -1,6 +1,9 @@
 #################
 ### Steering options
 #################
+## Load common flags
+from AthenaCommon.JobProperties import jobproperties as athCommonFlags
+
 # Select active sub-systems
 dumpPixInfo=True
 dumpSctInfo=True
@@ -9,12 +12,24 @@ dumpTrtInfo=False
 # Bytestream errors (for sub-systems who have implemented it)
 dumpBytestreamErrors=True
 
+# Unassociated hits decorations
+dumpUnassociatedHits=True
+
+# Add LArCollisionTime augmentation tool
+dumpLArCollisionTime=True
+
 # Force to do not dump truth info if set to False
 #  (otherwise determined by autoconf below)
 dumpTruthInfo=True
 
+# Saves partial trigger information in the output stream (none otherwise)
+dumpTriggerInfo=True
+
 # Print settings for main tools
 printIdTrkDxAODConf = True
+
+# Create split-tracks if running on cosmics
+makeSplitTracks = True and athCommonFlags.Beam.beamType() == 'cosmics'
 
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
@@ -23,9 +38,6 @@ if (globalflags.DataSource == 'geant4'):
 
 if ( 'dumpTruthInfo' in dir() ):
     dumpTruthInfo = dumpTruthInfo and isIdTrkDxAODSimulation
-
-print "isIdTrkDxAODSimulation=", isIdTrkDxAODSimulation
-print "dumpTruthInfo=", dumpTruthInfo
 
 if InDetFlags.doSLHC():
     dumpTrtInfo=False
@@ -52,6 +64,7 @@ if dumpTrtInfo:
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
     ToolSvc += TRT_dEdx_Tool
 
+#Setup charge->ToT back-conversion to restore ToT info as well
 if dumpPixInfo: 
     from AthenaCommon.AlgSequence import AlgSequence 
     topSequence = AlgSequence() 
@@ -61,6 +74,57 @@ if dumpPixInfo:
     if (printIdTrkDxAODConf):
         print PixelChargeToTConversionSetter
         print PixelChargeToTConversionSetter.properties()
+
+#Setup SCT extension efficiency algorithm if running pixel tracklets
+#if InDetFlags.doTrackSegmentsPixel():
+#    include ("SCTExtension/SCTExtensionAlg.py")
+
+#Setup split-tracks reconstruction in cosmic-mode and produce xAOD::TrackParticles
+if makeSplitTracks:
+    # Set input/output container names
+    # Setup algorithm to create split tracks
+    from InDetTrackSplitterTool.InDetTrackSplitterToolConf import InDet__InDetTrackSplitterTool
+    splittertoolcomb= InDet__InDetTrackSplitterTool(name="SplitterTool",
+                                                    TrackFitter=ToolSvc.InDetTrackFitter,
+                                                    OutputUpperTracksName = "TracksUpperSplit",
+                                                    OutputLowerTracksName = "TracksLowerSplit") 
+    ToolSvc += splittertoolcomb
+
+    from InDetTrackValidation.InDetTrackValidationConf import InDet__InDetSplittedTracksCreator
+    splittercomb=InDet__InDetSplittedTracksCreator(name='CombinedTrackSplitter',
+    TrackSplitterTool     = splittertoolcomb,
+    TrackCollection       = "Tracks",
+    OutputTrackCollection = "Tracks_split")
+    topSequence+=splittercomb
+    if (printIdTrkDxAODConf):
+        print splittercomb
+        print splittercomb.properties()
+
+    # Create xAOD::TrackParticles out of them
+    from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+    InDetxAODSplitParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetSplitxAODParticleCreatorTool", 
+                                                                      Extrapolator            = InDetExtrapolator,
+                                                                      TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                                      ForceTrackSummaryUpdate = False,
+                                                                      KeepParameters          = True)
+    ToolSvc += InDetxAODSplitParticleCreatorTool
+    # The following adds truth information, but needs further testing
+    #include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+    #if isIdTrkDxAODSimulation:
+    #    InDetSplitTracksTruth = ConfiguredInDetTrackTruth("Tracks_split",'SplitTrackDetailedTruth','SplitTrackTruth')
+
+    xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg('InDetSplitTrackParticles')
+    xAODSplitTrackParticleCnvAlg.xAODContainerName = 'InDetSplitTrackParticles'
+    xAODSplitTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = 'InDetSplitTrackParticles'
+    xAODSplitTrackParticleCnvAlg.TrackParticleCreator = InDetxAODSplitParticleCreatorTool
+    xAODSplitTrackParticleCnvAlg.TrackContainerName = 'Tracks_split'
+    xAODSplitTrackParticleCnvAlg.ConvertTrackParticles = False
+    xAODSplitTrackParticleCnvAlg.ConvertTracks = True
+    xAODSplitTrackParticleCnvAlg.AddTruthLink = False #isIdTrkDxAODSimulation
+    if (isIdTrkDxAODSimulation):
+        xAODSplitTrackParticleCnvAlg.TrackTruthContainerName = 'SplitTrackTruth'
+    xAODSplitTrackParticleCnvAlg.PrintIDSummaryInfo = True
+    topSequence += xAODSplitTrackParticleCnvAlg
 
 
 #################
@@ -151,6 +215,22 @@ if (printIdTrkDxAODConf):
     print DFTSOS
     print DFTSOS.properties()
 
+# If requested, decorate also split tracks (for cosmics)
+if makeSplitTracks:
+    DFTSOS_SplitTracks = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFSplitTracksTrackStateOnSurfaceDecorator",
+                                                          ContainerName = "InDetSplitTrackParticles",
+                                                          DecorationPrefix = prefixName,
+                                                          StoreTRT   = dumpTrtInfo,
+                                                          TrtMsosName = 'TRT_SplitTracks_MSOSs',
+                                                          StoreSCT   = dumpSctInfo,
+                                                          SctMsosName = 'SCT_SplitTracks_MSOSs',
+                                                          StorePixel = dumpPixInfo,
+                                                          PixelMsosName = 'Pixel_SplitTracks_MSOSs',
+                                                          IsSimulation = isIdTrkDxAODSimulation,
+                                                          OutputLevel = INFO)
+    ToolSvc += DFTSOS_SplitTracks
+    augmentationTools += [DFTSOS_SplitTracks]
+
 # Add BS error augmentation tool
 if dumpBytestreamErrors:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoBSErrDecorator
@@ -163,6 +243,52 @@ if dumpBytestreamErrors:
     if (printIdTrkDxAODConf):
         print DFEI
         print DFEI.properties()
+
+# Add Unassociated hits augmentation tool
+if dumpUnassociatedHits:
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool 
+    unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'unassociatedHitsGetter',
+                                                                                  TrackCollection = "Tracks",
+                                                                                  PixelClusters = "PixelClusters",
+                                                                                  SCTClusterContainer = "SCT_Clusters",
+                                                                                  TRTDriftCircleContainer = "TRT_DriftCircles")
+    ToolSvc += unassociatedHitsGetterTool
+    if (printIdTrkDxAODConf):
+        print unassociatedHitsGetterTool
+        print unassociatedHitsGetterTool.properties()
+
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
+    unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='unassociatedHitsDecorator',
+                                                                                UnassociatedHitsGetter = unassociatedHitsGetterTool,
+                                                                                ContainerName = "EventInfo",
+                                                                                DecorationPrefix = prefixName,
+                                                                                OutputLevel =INFO)
+    ToolSvc += unassociatedHitsDecorator
+    augmentationTools+=[unassociatedHitsDecorator]
+    if (printIdTrkDxAODConf):
+        print unassociatedHitsDecorator
+        print unassociatedHitsDecorator.properties()
+
+# Add LArCollisionTime augmentation tool
+if dumpLArCollisionTime:
+    from LArCellRec.LArCollisionTimeGetter import LArCollisionTimeGetter
+    from RecExConfig.ObjKeyStore           import cfgKeyStore
+    # We can only do this if we have the cell container.
+    if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
+        LArCollisionTimeGetter (topSequence)
+
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
+        lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='lArCollisionTimeDecorator',
+                                                                                    ContainerName = "EventInfo",
+                                                                                    DecorationPrefix = prefixName+"LArCollTime_",
+                                                                                    OutputLevel =INFO)
+        ToolSvc += lArCollisionTimeDecorator
+        augmentationTools+=[lArCollisionTimeDecorator]
+        if (printIdTrkDxAODConf):
+            print lArCollisionTimeDecorator
+            print lArCollisionTimeDecorator.properties()
+
+
 
 # Add the derivation job to the top AthAlgSeqeuence
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -185,20 +311,32 @@ streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+
 # Add generic event information
 IDTRKVALIDStream.AddItem("xAOD::EventInfo#*")
 IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
-# Add track particles collection
+
+# Add track particles collection and traclets (if available)
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
+if InDetFlags.doTrackSegmentsPixel():
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPixelTrackParticlesAux."+excludedAuxData)
+# Add split tracks, if requested
+if makeSplitTracks:
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetSplitTrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetSplitTrackParticlesAux."+excludedAuxData)
+
 # Add vertices
 IDTRKVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
 IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+
 # Add links and measurements
 IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
+
 # Add info about electrons and muons (are small containers)
 IDTRKVALIDStream.AddItem("xAOD::MuonContainer#Muons")
 IDTRKVALIDStream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
@@ -206,6 +344,7 @@ IDTRKVALIDStream.AddItem("xAOD::ElectronContainer#Electrons")
 IDTRKVALIDStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+excludedAuxData)
+
 # Add truth-related information
 if dumpTruthInfo:
   IDTRKVALIDStream.AddItem("xAOD::TruthParticleContainer#*")
@@ -214,6 +353,20 @@ if dumpTruthInfo:
   IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
   IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
   IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
+
+# Add trigger information
+if dumpTriggerInfo:
+    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TrigDecision#xTrigDecision")
+    IDTRKVALIDStream.AddItem("BCM_RDO_Container#BCM_RDOs")
+    IDTRKVALIDStream.AddItem("xAOD::TrigNavigation#TrigNavigation")
+    IDTRKVALIDStream.AddItem("xAOD::TrigConfKeys#TrigConfKeys")
+    IDTRKVALIDStream.AddItem("HLT::HLTResult#HLTResult_HLT")
+    IDTRKVALIDStream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
+    IDTRKVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
+    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBits#HLT_T2Mbts")
+    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsAuxContainer#HLT_T2MbtsAux.")
+    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsAuxContainer#HLT_xAOD__TrigT2MbtsBitsContainer_T2MbtsAux.")
 
 if (printIdTrkDxAODConf):
     print IDTRKVALIDStream
