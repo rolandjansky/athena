@@ -23,15 +23,15 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
 
-#include "TrigT1CaloEvent/CPMTower.h"
+#include "xAODTrigL1Calo/CPMTower.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
+
+namespace TrigConf {
+   class TriggerThreshold;
+}
+
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
@@ -51,7 +51,7 @@ The CPMTobAlgorithm:<br>
 class CPMTobAlgorithm {
 public: 
   
-  CPMTobAlgorithm(double eta, double phi, const std::map<int, CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPMTobAlgorithm(double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
 
   ~CPMTobAlgorithm();
   
@@ -130,15 +130,15 @@ private: //atribs
   static const double m_maxEta;
 
   /** threshold values */
-  int m_ClusterThreshold;
-  int m_emRingIsolationThreshold;
-  int m_hadRingIsolationThreshold;
-  int m_hadCoreIsolationThreshold;
+  /* vscharf 2015-04-22: not used anymore causing Coverity issue 19609 */
+  /* int m_ClusterThreshold; */
+  /* int m_emRingIsolationThreshold; */
+  /* int m_hadRingIsolationThreshold; */
+  /* int m_hadCoreIsolationThreshold; */
 
 private:  // methods
   void setRoICoord(double eta, double phi);
   void testEtMax(const std::vector<unsigned int>& cores);
-  void getThresholds(TrigConf::TriggerThreshold* thresh);
   void emAlgorithm();
   void tauAlgorithm();
   CPMTobRoI* createTobRoI(int type);

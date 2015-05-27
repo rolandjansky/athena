@@ -24,16 +24,13 @@
  // Include for the configuration service:
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
+
+
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
 */
 namespace LVL1 {
-using namespace TrigConf;
 
 /**SystemEnergy class declaration  Simulates behaviour of the Crate-CMM
 System CMM logic is done in EnergyTrigger*/
@@ -64,8 +61,6 @@ public:
   unsigned int etMissHits();
   unsigned int etSumHits();
   unsigned int metSigHits();
-  /** Debug information */
-  float metSig();
   /** RoI words */
   unsigned int roiWord0();
   unsigned int roiWord1();
@@ -84,13 +79,10 @@ private:
   unsigned int m_etMissHits;
   unsigned int m_etSumHits;
   unsigned int m_metSigHits;
-  int m_etMiss;
-  unsigned int m_metRange;
-  float m_metSig;
-  static const unsigned int m_numExyBits=6;
+  uint32_t m_etMissQ;
   static const unsigned int m_sumBits=15;
-  static const int m_maxEtSumThr=16383;
-  static const int m_etSumOverflow=32767;
+  static const int m_maxEtSumThr=0x3fff;
+  static const int m_etSumOverflow=0x7fff;
   bool m_debug;
 
 private:

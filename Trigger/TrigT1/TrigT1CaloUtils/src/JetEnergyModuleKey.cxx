@@ -130,19 +130,9 @@ unsigned int LVL1::JetEnergyModuleKey::row(const Coordinate& coord) const{
   double phi=coord.phi();
   double rowHeight=TrigT1CaloDefs::jemPhiSize/8.0;
 
-  unsigned int rowsPerJEM=static_cast<unsigned int>( 8 );
+  unsigned int rowsPerJEM = 8u;
   int rowNum=static_cast<int>(phi/rowHeight);
   rowNum=rowNum%rowsPerJEM;
-  if ((rowNum<0)||(rowNum>7)){
-    std::cerr << "ERROR!!! JetEnergyModuleKey::phiRow exceeds allowed range. Row, "<<rowNum
-         <<" will be set to zero"<<std::endl
-         << "rowHeight :"<<rowHeight<<std::endl
-         << "rowsPerJEM :"<<rowsPerJEM<<std::endl
-         << "rowNum :"<<rowNum<<std::endl
-         << "phi : "<<phi<<std::endl
-         << "(phi/rowHeight) : "<<(phi/rowHeight)<<std::endl;
-    rowNum=0;
-  }
   return rowNum;
 }
 
