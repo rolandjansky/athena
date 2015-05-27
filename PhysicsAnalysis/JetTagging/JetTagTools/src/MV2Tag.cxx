@@ -76,6 +76,7 @@ namespace Analysis {
   
   StatusCode MV2Tag::initialize() {
     m_disableAlgo=false;
+    m_useEgammaMethodMV2=false;
     m_warnCounter=0;
 
     m_treeName = "BDT";
@@ -102,8 +103,7 @@ namespace Analysis {
   StatusCode MV2Tag::finalize() {
     ATH_MSG_DEBUG("#BTAG# Finalizing MV2.");
     if (m_useEgammaMethodMV2) {
-      std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator posBDT = m_egammaBDTs.begin();
-      for( ; posBDT != m_egammaBDTs.end(); ++posBDT ) delete posBDT->second;
+      for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     }
     else {
       // delete readers:
@@ -489,13 +489,10 @@ namespace Analysis {
 
     int jf_nvtx_tmp=0;
     int jf_nvtx1t_tmp=0;
-    bool jfitok=false;
-    status &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp);
-    status &= BTag->variable<int>(m_jftNN_infosource, "nSingleTracks",  jf_nvtx1t_tmp);
-    //std::cout << jf_nvtx_tmp << std::endl;
-    if(jf_nvtx_tmp>0 ||  jf_nvtx1t_tmp>0){
-      jfitok=true;
-    }
+    bool jfitok=true; 
+    jfitok &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp); 
+    jfitok &= BTag->variable<int>(m_jftNN_infosource, "nSingleTracks",  jf_nvtx1t_tmp); 
+    jfitok &= jf_nvtx_tmp>0 or jf_nvtx1t_tmp>0;
 
     if(jfitok){
       if("JetFitter" == m_jftNN_infosource){
@@ -525,8 +522,22 @@ namespace Analysis {
     }
     
     if (!status) {
-      ATH_MSG_WARNING("#BTAG# Missing input data: cannot compute desired results");
-      // return StatusCode::SUCCESS;
+      ATH_MSG_WARNING("#BTAG# Missing input data: cannot compute desired results. Assigning default light values."); 
+ 	 
+      double defaultB=1e-10; 
+      double defaultC=1e-10; 
+      double defaultL=1.-defaultB-defaultC; 
+
+      if(m_runModus=="analysis") { 
+        if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", -1); 
+        else { 
+          BTag->setVariable<double>(m_xAODBaseName, "pb", defaultB); 
+          BTag->setVariable<double>(m_xAODBaseName, "pu", defaultL); 
+          BTag->setVariable<double>(m_xAODBaseName, "pc", defaultC); 
+        } 
+      } 
+ 
+      return StatusCode::SUCCESS; 
     }
 
     m_sv0 = sv0;
