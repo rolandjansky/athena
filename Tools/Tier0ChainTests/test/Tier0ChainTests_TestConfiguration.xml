@@ -2123,6 +2123,37 @@
                             </jobTransform>
                         </chainElement>
 
+                        <!-- Standard reco test job q431 -->
+                        <chainElement>
+                            <jobTransform userJobId="q431">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>q431</jobTransformJobName>
+                                <jobTransformCmd>
+                                    Reco_tf.py --AMI=q431
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>q431.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+			
                         <!-- Standard reco test job q220 with Athena MP -->
                         <chainElement>
                             <jobTransform userJobId="q220_MP">
@@ -2246,6 +2277,37 @@
                                 </test>
                             </jobTransform>
                         </chainElement>
+			
+                      <!-- Standard reco test job q431 with Athena MP -->
+                        <chainElement>
+                            <jobTransform userJobId="q431_MP">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>q431_MP</jobTransformJobName>
+                                <jobTransformCmd>
+                                    Reco_tf.py --AMI=q431 --athenaopts='--nprocs=2' --maxEvents=100
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>q431_MP.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>			
                         
 			<!-- MC15 reco test job -->
                         <chainElement>
@@ -2253,7 +2315,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Reco_MC15_13TeV</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="300" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="AOD_13TeV_PhysVal.pool.root" --outputESDFile="ESD.pool.root" --outputRDOFile="RDO.pool.root" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
+                                    Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="300" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root" --outputTAGFile=myTAG.root --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>long</queue>
