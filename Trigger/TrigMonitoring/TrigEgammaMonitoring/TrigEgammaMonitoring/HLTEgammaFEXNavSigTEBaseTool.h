@@ -438,6 +438,7 @@ class HLTEgammaFEXNavSigTEBaseTool : public IHLTMonTool {
   //signatures (and their categories) to run the monitoring off of
   vector<string> m_signatures;
   vector<string> m_categories;
+  vector<int> m_sigsPerCategory;
 
   //TODO check that at least one of these is true at init()
   bool m_doActiveChain;

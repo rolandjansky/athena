@@ -168,13 +168,13 @@ StatusCode HLTEgammaNavSigTEMonTool::init()
 StatusCode HLTEgammaNavSigTEMonTool::book() {
 
   std::vector<std::string> runningSignatures = getTDT()->getListOfTriggers(".*");
-  if(HLTEgammaNavMonTool::find_relevant_signatures(m_signatures, m_categories, runningSignatures).isFailure()){
-    ATH_MSG_WARNING("Signature list size does not equal category list size. Code will not proceed.");
+  if(HLTEgammaNavMonTool::find_relevant_signatures(m_signatures, m_categories, m_sigsPerCategory, runningSignatures).isFailure()){
+    ATH_MSG_WARNING("Incompatibility between signature list and category list. Code will not proceed.");
     return(StatusCode::FAILURE);
   }
 
   for(std::vector<std::string>::const_iterator i = m_signatures.begin(); i!=m_signatures.end(); ++i){
-    ATH_MSG_INFO("Found this one "<< (*i) <<". Booking histograms for it.");
+    ATH_MSG_INFO("Found " << (*i) << " which is of category "<<m_categories.at(i-m_signatures.begin())<<". Booking histograms for it.");
     if ( book_per_signature((*i)).isFailure() ) return StatusCode::FAILURE;
     // prepare new table with counters
     for(size_t ii=0;ii<9;++ii) {m_counters[(*i)].push_back(0);}

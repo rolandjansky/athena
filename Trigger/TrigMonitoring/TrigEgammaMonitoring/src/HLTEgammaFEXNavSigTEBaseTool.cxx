@@ -97,6 +97,7 @@ HLTEgammaFEXNavSigTEBaseTool::HLTEgammaFEXNavSigTEBaseTool(const string & type, 
 
     declareProperty("signatures",m_signatures);
     declareProperty("categories",m_categories);
+    declareProperty("sigsPerCategory",m_sigsPerCategory);
 
     declareProperty("doActiveChain", m_doActiveChain = true);
     declareProperty("doActiveTe", m_doActiveTe = false);
@@ -2118,7 +2119,9 @@ bool HLTEgammaFEXNavSigTEBaseTool::isPhotonSignature(string signature)
   ATH_MSG_DEBUG("Checking whether "<<signature<<" is a photon chain.");  
 
   bool isPhoton = false;
+  if(signature.find("g") != string::npos && signature.find("tight") == string::npos) isPhoton = true;
 
+  /*
   //loop through characters in string
   for(string::size_type pos = 0; pos<signature.size() ; ++pos) {
 
@@ -2136,12 +2139,13 @@ bool HLTEgammaFEXNavSigTEBaseTool::isPhotonSignature(string signature)
     }
     else{break;}    
   }//for loop
+  */
 
   //all done
   ATH_MSG_DEBUG("Done checking: It is"<<(isPhoton ? "." : " not."));
   return(isPhoton);
 }
-//END OF PHOTON CHAIN IDENTIGICATION
+//END OF PHOTON CHAIN IDENTIFICATION
 
 
 /* FETCH PASS-STATES

@@ -53,6 +53,7 @@ HLTEgammaNavMonTool::HLTEgammaNavMonTool(const std::string & type, const std::st
   m_firstTimeStamp = m_lastTimeStamp = 0;
   declareProperty("signatures",m_signatures);
   declareProperty("categories",m_categories);
+  declareProperty("sigsPerCategory",m_sigsPerCategory);
 }
 
 StatusCode HLTEgammaNavMonTool::init() {
@@ -81,13 +82,13 @@ HLTEgammaNavMonTool::~HLTEgammaNavMonTool() {
 StatusCode HLTEgammaNavMonTool::book() {
 
   std::vector<std::string> runningSignatures = getTDT()->getListOfTriggers(".*");
-  if(find_relevant_signatures(m_signatures, m_categories, runningSignatures).isFailure()){
-    (*m_log) << MSG::WARNING << "Signature list size does not equal category list size. Code will not proceed." << endreq;
+  if(find_relevant_signatures(m_signatures, m_categories, m_sigsPerCategory, runningSignatures).isFailure()){
+    (*m_log) << MSG::WARNING << "Incompatibility between signature list and category list. Code will not proceed." << endreq;
     return StatusCode::FAILURE ;
   }
 
   for(std::vector<std::string>::const_iterator i = m_signatures.begin(); i!=m_signatures.end(); ++i){
-    (*m_log) << MSG::INFO << "Found this one " << (*i) << ". Booking histograms for it." << endreq;
+    (*m_log) << MSG::INFO << "Found " << (*i) << " which is of category "<<m_categories.at(i-m_signatures.begin())<<". Booking histograms for it." << endreq;
     if ( book_per_signature((*i)).isFailure() ) return StatusCode::FAILURE;
     // prepare new table with counters
     for(size_t ii=0;ii<9;++ii) {m_counters[(*i)].push_back(0);}
@@ -654,28 +655,43 @@ StatusCode HLTEgammaNavMonTool::proc_per_signature(const std::string signature) 
   return StatusCode::SUCCESS;
 }
 
-//First checks that the number of signatures equals the number of categories
-//This is essential, because they need to be in 1 to 1 correspondence for trigger_description to work
-//Then removes signatures (and associated categories) that are not present in run
-StatusCode HLTEgammaNavMonTool::find_relevant_signatures(std::vector<std::string>& signatures, std::vector<std::string>& categories, std::vector<std::string> allSignatures) {
-  if(signatures.size()!=categories.size()){
+//First checks that the number of signatures equals the sum of number of signatures per category
+//Simultaneously checks that the number of categories equals the size of the sigsPerCategory vector
+//Keeps only 1 running signature per category
+//If no running signature from category exists, category is removed 
+//This is essential, because signatures and categories need to be in 1 to 1 correspondence for trigger_description to work
+StatusCode HLTEgammaNavMonTool::find_relevant_signatures(std::vector<std::string>& signatures, std::vector<std::string>& categories, std::vector<int> sigsPerCategory, std::vector<std::string> allSignatures) {
+  uint numSigs = 0;
+  for(uint i = 0; i < sigsPerCategory.size(); i++){
+    numSigs+=sigsPerCategory.at(i);
+  }
+  if(sigsPerCategory.size()!=categories.size() || signatures.size()!=numSigs){
     signatures.clear(); categories.clear();
     return StatusCode::FAILURE;
   }
   std::vector<std::string> signatures_that_exist;
   std::vector<std::string> categories_that_exist;
-  for(uint i = 0; i < signatures.size(); i++){
-    std::string hltName("HLT_");  hltName+=signatures.at(i);
-    //bool found = false;
-    for(uint j = 0; j < allSignatures.size();j++){
-      if(hltName == allSignatures.at(j)){
-	signatures_that_exist.push_back(signatures.at(i));
-	categories_that_exist.push_back(categories.at(i));
-	//found = true;
+  int startingPoint = 0;
+  int endingPoint = 0;
+  for(uint i = 0; i < sigsPerCategory.size(); i++){
+    endingPoint+=sigsPerCategory.at(i);
+    bool foundSigForCategory = false;
+    for(int j = startingPoint; j < endingPoint; j++){
+      std::string hltName("HLT_");  hltName+=signatures.at(j);
+      for(uint k = 0; k < allSignatures.size(); k++){
+	if(hltName == allSignatures.at(k)){
+	  foundSigForCategory = true;
+	  signatures_that_exist.push_back(signatures.at(j));
+	  categories_that_exist.push_back(categories.at(i));
+	  break;
+	}
+      }
+      if(foundSigForCategory){
+	startingPoint = endingPoint;
 	break;
       }
     }
-    //if (!found) (*m_log) << MSG::INFO << "Signature " << signatures.at(i) << " is not running. Will ignore it." << endreq;
+    startingPoint = endingPoint;
   }
   signatures = signatures_that_exist;
   categories = categories_that_exist;

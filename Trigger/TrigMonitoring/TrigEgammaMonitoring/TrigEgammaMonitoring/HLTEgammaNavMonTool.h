@@ -63,7 +63,7 @@ class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
 	of the valid requested signatures. Only used for the rates */
   StatusCode proc(); // called by procHistograms
   StatusCode proc_per_signature(const std::string signature); // called by procHistograms
-  static StatusCode find_relevant_signatures(std::vector<std::string>& signatures, std::vector<std::string>& categories, std::vector<std::string> allSignatures); //used to remove signatures that are not present in run
+  static StatusCode find_relevant_signatures(std::vector<std::string>& signatures, std::vector<std::string>& categories, std::vector<int> sigsPerCategory, std::vector<std::string> allSignatures); //used to remove signatures that are not present in run, and only keep first signature for each category
   static void trigger_description(const std::string signature, std::string& trigDesc, std::vector<std::string> signatures, std::vector<std::string> categories); //called by *_per_signature
 
   private:
@@ -71,6 +71,7 @@ class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
   unsigned int m_firstTimeStamp; // timestamp of the first event
   std::vector<std::string> m_signatures; // list of signatures to be used
   std::vector<std::string> m_categories; // list of categories to be used
+  std::vector<int> m_sigsPerCategory; // list of signatures per category 
   unsigned int m_fill_condition;
   unsigned int m_rate_condition;
   std::map< std::string, std::vector<unsigned int> > m_counters;
