@@ -32,4 +32,6 @@
   <class name="std::vector<CaloDetDescrElement*>::const_iterator"/>
   <function proto_pattern="*operator==*CaloDetDescrElement*"/>
   <function proto_pattern="*operator!=*CaloDetDescrElement*"/>
+
+  <class name="ICaloSuperCellIDTool"/>
 </lcgdict>
