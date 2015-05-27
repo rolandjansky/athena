@@ -22,6 +22,11 @@
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/IsolationParam.h"
 #include "TrigConfL1Data/CaloInfo.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/Menu.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
+#include "TrigConfL1Data/ClusterThresholdValue.h"
 
 
 #include <math.h>
@@ -46,7 +51,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
-LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, CPMTower *>* ttContainer,
+LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer,
                                 ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice ):
   m_configSvc(config),
   m_Core(0),
@@ -105,7 +110,7 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<i
     for (int phiOffset = -1; phiOffset <= 2; phiOffset++) {
       double tempPhi = m_refPhi + phiOffset*M_PI/32;
       int key = get.ttKey(tempPhi, tempEta);
-      std::map<int, CPMTower*>::const_iterator tt = ttContainer->find(key);
+      std::map<int, xAOD::CPMTower*>::const_iterator tt = ttContainer->find(key);
       if (tt != ttContainer->end() && fabs(tempEta) < m_maxEta) {
         // Get the TT ET values once here, rather than repeat function calls
         int emTT = 0;
@@ -231,31 +236,36 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   unsigned int emIsolMask  = ( (1<<m_emLUT_EMIsolNBits) -1 )<<m_emLUT_EMIsolFirstBit;
   unsigned int hadIsolMask = ( (1<<m_emLUT_HadVetoNBits)-1 )<<m_emLUT_HadVetoFirstBit;
   
-  int clus    = ( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask );
-  int emIsol  = ( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask );
-  int hadVeto = ( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask );
+  // For consistency with LUT filling and menu parameters, convert ET sums to 100 MeV units
+  int clus    = (( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask ) * 10)/scale;
+  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
+  int hadVeto = (( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask ) * 10)/scale;
   
   /** Disable isolation by default, then set cut if defined and in range.
-    * Expect parameters to be on GeV scale whatever the digit scale, s need to rescale if
-      digit scale differs. */
+    * Expect parameters to be on 100 MeV scale whatever the digit scale, so need to rescale if
+      digit scale differs.
+    * Also must rescale ET sums to same scale for comparison */
   std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForEMthr();
   std::vector<int> emisolcuts;
   emisolcuts.assign(5,m_noIsol);
   
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-    //if ((*it).isDefined()) {
-      float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.;
-      float mincut = (*it).mincut()/10.*scale;
-      int upperlimit = (*it).upperlimit()*scale;
+      // Offset & Mincut are in 100 MeV units. Slope = 10* the actual slope, but we will stick with integers here
+      int offset = (*it).offset();
+      int slope  = (*it).slope();
+      int mincut = (*it).mincut();
+      
+      // Upperlimit is in GeV, so convert that to 100 MeV steps
+      int upperlimit = (*it).upperlimit()*10;
+      
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        int cut = offset + (slope != 0 ? clus/slope : 0);
+        // As "slope" = 10* slope, rescale clus too to get fraction right.
+        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         emisolcuts[bit-1] = cut;
       }
-    //}
   }
   
   std::vector<IsolationParam> hadIsolParams = caloInfo.isolationHAIsoForEMthr();  
@@ -263,41 +273,23 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   hadisolcuts.assign(5,m_noIsol); 
   
   for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
-    //if ((*it).isDefined()) {
-      float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.;
-      float mincut = (*it).mincut()/10.*scale;
-      int upperlimit = (*it).upperlimit()*scale;
+      int offset = (*it).offset();
+      int slope  = (*it).slope();
+      int mincut = (*it).mincut();
+      int upperlimit = (*it).upperlimit()*10;
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        int cut = offset + (slope != 0 ? clus/slope : 0);
+        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         hadisolcuts[bit-1] = cut;
       }
-    //}
   }
 
   // Set isolation bits
   for (unsigned int isol = 0; isol < 5; ++isol) 
     if (emIsol <= emisolcuts[isol] && hadVeto <= hadisolcuts[isol]) m_EMIsolWord += (1 << isol);
     
-  // Temporary: some debug/analystic printout
-  /*
-  std::cout << "CPMTobAlgorithm: TOB parameter printout:" << std::endl
-            << "  EM MinTobPt = " << caloInfo.minTobEM().ptmin << std::endl
-            << "  EM MinTobPt range " << caloInfo.minTobEM().etamin << " -> " << caloInfo.minTobEM().etamax
-            << ", Priority = " << caloInfo.minTobEM().priority << std::endl;
-  std::cout << "EM Isolation parameters:" << std::endl;
-  for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {
-    std::cout << "  Defined " << (*it).isDefined() << "; Slope " << (*it).slope() << "; Offset " << (*it).offset()
-              << "; MinCut " << (*it).mincut() << "; UpperLimit " << (*it).upperlimit() << "; isoBit " << (*it).isobit()
-              << "; Range " << (*it).etamin() << " -> " << (*it).etamax()
-              << "; Priority = " << (*it).priority() << std::endl;
-  }
-  */
-            
-
 }
 
 
@@ -327,8 +319,9 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   unsigned int clusMask    = ( (1<<m_tauLUT_ClusterNBits)-1 )<<m_tauLUT_ClusterFirstBit;
   unsigned int emIsolMask  = ( (1<<m_tauLUT_EMIsolNBits) -1 )<<m_tauLUT_EMIsolFirstBit;
   
-  int clus    = ( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask );
-  int emIsol  = ( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask );
+  // Convert to 100 MeV units to match parameters
+  int clus    = (( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask ) * 10)/scale;
+  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
   
   // Get isolation values from menu (placeholder code - example logic)
   std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForTAUthr();
@@ -337,14 +330,16 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
     if ((*it).isDefined()) {
-      float offset = (*it).offset()/10.*scale;
-      float slope  = (*it).slope()/10.;
-      float mincut = (*it).mincut()/10.*scale;
-      int upperlimit = (*it).upperlimit()*scale;
+      float offset = (*it).offset();
+      float slope  = (*it).slope();
+      float mincut = (*it).mincut();
+      // upperlimit is in GeV, so convert to 100 MeV units
+      int upperlimit = (*it).upperlimit()*10;
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        int cut = offset + (slope != 0 ? clus/slope : 0);
+        // slope parameter is 10* actual slope, so correct for that here
+        int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         emisolcuts[bit-1] = cut;
       }
@@ -354,41 +349,6 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   // Set isolation bits
   for (unsigned int isol = 0; isol < 5; ++isol) 
     if (emIsol <= emisolcuts[isol]) m_TauIsolWord += (1 << isol);
-
-}
-
-/** Get threshold values for RoI eta/phi */
-void LVL1::CPMTobAlgorithm::getThresholds(TriggerThreshold* thresh) {
-
-  m_ClusterThreshold = 999;      // Set impossible default in case no threshold found
-  m_emRingIsolationThreshold = 0;
-  m_hadRingIsolationThreshold = 0;
-  m_hadCoreIsolationThreshold = 0;
-
-  /** eta bins run from -49 -> 49
-     "reference tower" coordinate should ensure correct RoI->module association.
-      Firmware upgrade will allow variation of threshold values at full eta granularity,
-      but phi granularity is still that of the module*/
-  int ieta = int(m_refEta/0.1) + ((m_refEta>0) ? 0 : -1);
-  int iphi = int(m_refPhi*32/M_PI);
-  // quantise by module
-  //if (ieta > 0) ieta = 4*(ieta/4) + 2;
-  //else          ieta = 4*((ieta-3)/4) + 2;
-  iphi = 16*(iphi/16) + 8;
-
-  TriggerThresholdValue* tv = thresh->triggerThresholdValue(ieta,iphi);
-
-  // cluster/isolation ET in counts, not GeV, so get values in same units
-  if (tv != 0) { 
-    ClusterThresholdValue* ctv;
-    ctv = dynamic_cast<ClusterThresholdValue*> (tv);
-    if (ctv) {
-      m_ClusterThreshold = ctv->thresholdValueCount();
-      m_emRingIsolationThreshold = ctv->emIsolationCount();
-      m_hadRingIsolationThreshold = ctv->hadIsolationCount();
-      m_hadCoreIsolationThreshold = ctv->hadVetoCount();
-    }
-  }
 
 }
 
