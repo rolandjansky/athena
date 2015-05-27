@@ -934,13 +934,20 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 serviceCodeCounter = decodeServiceCodeCounter_IBL(rawDataWord); // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
                 serviceCode = decodeServiceCode_IBL(rawDataWord); // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
 
-                // Treatment of the FE flag serviceCode and serviceCodeCounter
-                // Returns encoded uint32_t to be added to errorcode
-                uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
+                // Treat the service code only if its meaning is valid (i.e. value < 31)
+                if (serviceCode < 32) {
 
-                // Insert service codes into errorcode
-                // CCC CCCC CCCC CCCC CCCC EPpl bzhv
-                errorcode = errorcode | (encodedServiceCodes << 8);
+                    // Treatment of the FE flag serviceCode and serviceCodeCounter
+                    // Returns encoded uint32_t to be added to errorcode
+                    uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
+
+                    // Insert service codes into errorcode
+                    // CCC CCCC CCCC CCCC CCCC EPpl bzhv
+                    errorcode = errorcode | (encodedServiceCodes << 8);
+                }
+                else {
+                    generalwarning("Got out-of-bounds service code: " << serviceCode << " (counter: " << serviceCodeCounter << "), ignored");
+                }
 
 
                 // Temporarily removed, as the data format is not clear yet (Franconi, 08.07.2014)
