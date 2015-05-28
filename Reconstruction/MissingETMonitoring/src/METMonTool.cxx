@@ -62,6 +62,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_etabin(100),
     m_phibin(100),
     m_etbin(800),
+    m_met_cut(0.0),
     m_etrange(400.),
     m_etrangeSumFactor(10.),
     m_doFillNegativeSumEt(false),
@@ -107,6 +108,9 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_regStrings.push_back("Central");
     m_regStrings.push_back("EndCap");
     m_regStrings.push_back("Forward");
+
+    m_met_cut_80 = false;
+
     float etRegFactors[] = { 0.1, 0.1, 0.1 };
     m_etrangeRegFactors.assign(etRegFactors, etRegFactors + 3);
 
@@ -121,9 +125,12 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     declareProperty("eleColKey", m_eleColKey);
     declareProperty("muoColKey", m_muoColKey);
 
+    declareProperty("doMetCut80", m_met_cut_80);
+
     declareProperty("nEtBins", m_etbin);
     declareProperty("nEtaBins", m_etabin);
     declareProperty("nPhiBins", m_phibin);
+    declareProperty("metCut", m_met_cut);
 
     declareProperty("EtRange", m_etrange);
     declareProperty("SumEtRangeFactor", m_etrangeSumFactor);
@@ -906,6 +913,31 @@ StatusCode METMonTool::fillHistograms()
 
 StatusCode METMonTool::fillSourcesHistograms()
 {
+
+    // MET > 80 cut
+
+    const xAOD::MissingETContainer* xMissEt80 = 0;
+
+    if (m_met_cut > 0) {
+        m_met_cut_80 = true;
+    }
+
+    if (m_met_cut_80) {
+        if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
+            ATH_CHECK(evtStore()->retrieve(xMissEt80, "MET_Reference_AntiKt4LCTopo"));
+
+            // ATH_MSG_WARNING("MONTOOL DOING 80 GeV Cut!!");
+
+            if (!xMissEt80) {
+                ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Reference_AntiKt4LCTopo");
+            }
+            else {
+                float sumet = (*xMissEt80)["FinalClus"]->met() / CLHEP::GeV;
+                if (sumet < 80.0) return StatusCode::SUCCESS;
+            }
+        }
+    }
+
     //msg_info// ATH_MSG_INFO("METMonTool::880");
     //msg_info// ATH_MSG_INFO("METMonTool::880");
     //msg_info// ATH_MSG_INFO("METMonTool::880");
@@ -913,7 +945,6 @@ StatusCode METMonTool::fillSourcesHistograms()
     ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
     const xAOD::Jet* xjet = 0;
-
     if (m_jetColKey != "")
     {
 
@@ -1136,57 +1167,57 @@ StatusCode METMonTool::fillSourcesHistograms()
         std::string xaod_subkey = "";
         if (m_metKeys[i].compare("MET_RefFinal") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "FinalClus"; // add track
         }
         else if (m_metKeys[i].compare("MET_RefEle") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "RefEle";
         }
         else if (m_metKeys[i].compare("MET_RefGamma") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "RefGamma";
         }
         else if (m_metKeys[i].compare("MET_RefTau") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "RefTau";
         }
 
         else if (m_metKeys[i].compare("MET_SoftClus") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "SoftClus";
         }
 
         else if (m_metKeys[i].compare("MET_SoftTrk") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "FinalTrk";
         }
 
         else if (m_metKeys[i].compare("MET_PVSoftTrk") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "PVSoftTrk";
         }
 
         else if (m_metKeys[i].compare("MET_RefJet_JVFCut") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "RefJet"; // RefJet_JVFCut
         }
 
         else if (m_metKeys[i].compare("MET_RefJet") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "RefJet";
         }
         else if (m_metKeys[i].compare("MET_Muon") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4EMPFlow";
+            xaod_key = "MET_Reference_AntiKt4LCTopo";
             xaod_subkey = "Muons";
         }
         else if (m_metKeys[i].compare("MET_PFlow_RefFinal") == 0)
