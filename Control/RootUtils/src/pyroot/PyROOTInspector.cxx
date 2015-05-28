@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 665413 2015-05-06 18:35:57Z ssnyder $
+// $Id: PyROOTInspector.cxx 670666 2015-05-28 16:09:29Z mnowak $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -313,7 +313,7 @@ recurse_pyinspect(PyObject *pyobj,
       size_t i = 0;
       if (iter) {
         while (PyObject* item = PyIter_Next(iter)) {
-          PyObject *pyidx = PyLong_FromLong(i);
+          PyObject *pyidx = PyLong_FromLong(i++);
           PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
           recurse_pyinspect(item, itr_name, pystack, persistentOnly);
           Py_XDECREF(itr_name);
