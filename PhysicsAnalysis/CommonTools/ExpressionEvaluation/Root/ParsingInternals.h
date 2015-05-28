@@ -148,15 +148,15 @@ namespace ExpressionParsing
   {
     public:
       VirtualMachine(unsigned stackSize = 4096)
-        : m_stack(stackSize), m_stack_ptr(m_stack.begin())
+        : stack(stackSize), stack_ptr(stack.begin())
       { }
 
-      StackElement top() const { return m_stack_ptr[-1]; };
+      StackElement top() const { return stack_ptr[-1]; };
       void execute(std::vector<StackElement> const& code);
 
     private:
-      std::vector<StackElement> m_stack;
-      std::vector<StackElement>::iterator m_stack_ptr;
+      std::vector<StackElement> stack;
+      std::vector<StackElement>::iterator stack_ptr;
   };
 
 
@@ -227,7 +227,27 @@ namespace ExpressionParsing
       using qi::on_error;
       using qi::fail;
 
-     
+      keywords.add ("true")
+                   ("false")
+                   ("sum")
+                   ("count")
+                   ("abs")
+                   ("sqrt")
+                   ("cbrt")
+                   ("sin")
+                   ("cos")
+                   ("tan")
+                   ("asin")
+                   ("acos")
+                   ("atan")
+                   ("sinh")
+                   ("cosh")
+                   ("tanh")
+                   ("asinh")
+                   ("acosh")
+                   ("atanh")
+                   ("log")
+                   ("exp");
 
 
       expression = logical_expr.alias();
@@ -269,28 +289,27 @@ namespace ExpressionParsing
             |   (qi::string("!") > unaryfunc_expr)
           ;
 
-      //moved primary_expr to end so that function matches happen first
-      unaryfunc_expr = 
-	   ((qi::string("sum") >> &char_('(')) > primary_expr)
-	|   ((qi::string("count") >> &char_('(')) > primary_expr)
-	|   ((qi::string("abs") >> &char_('(')) > primary_expr)
-	|   ((qi::string("sqrt") >> &char_('(')) > primary_expr)
-	|   ((qi::string("cbrt") >> &char_('(')) > primary_expr)
-	|   ((qi::string("asinh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("acosh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("atanh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("asin") >> &char_('(')) > primary_expr)
-	|   ((qi::string("acos") >> &char_('(')) > primary_expr)
-	|   ((qi::string("atan") >> &char_('(')) > primary_expr)
-	|   ((qi::string("sinh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("cosh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("tanh") >> &char_('(')) > primary_expr)
-	|   ((qi::string("sin") >> &char_('(')) > primary_expr)
-	|   ((qi::string("cos") >> &char_('(')) > primary_expr)
-	|   ((qi::string("tan") >> &char_('(')) > primary_expr)
-	|   ((qi::string("log") >> &char_('(')) > primary_expr)
-	|   ((qi::string("exp") >> &char_('(')) > primary_expr)
-        | primary_expr ;
+      unaryfunc_expr = primary_expr
+            |   (qi::string("sum") > primary_expr)
+            |   (qi::string("count") > primary_expr)
+            |   (qi::string("abs") > primary_expr)
+            |   (qi::string("sqrt") > primary_expr)
+            |   (qi::string("cbrt") > primary_expr)
+            |   (qi::string("asinh") > primary_expr)
+            |   (qi::string("acosh") > primary_expr)
+            |   (qi::string("atanh") > primary_expr)
+            |   (qi::string("asin") > primary_expr)
+            |   (qi::string("acos") > primary_expr)
+            |   (qi::string("atan") > primary_expr)
+            |   (qi::string("sinh") > primary_expr)
+            |   (qi::string("cosh") > primary_expr)
+            |   (qi::string("tanh") > primary_expr)
+            |   (qi::string("sin") > primary_expr)
+            |   (qi::string("cos") > primary_expr)
+            |   (qi::string("tan") > primary_expr)
+            |   (qi::string("log") > primary_expr)
+            |   (qi::string("exp") > primary_expr)
+          ;
 
 
       primary_expr =
@@ -298,7 +317,7 @@ namespace ExpressionParsing
         |   (uint_ >> !char_('.')) | double_ | bool_ | identifier 
         ;
 
-      identifier = lexeme[((alpha | char_('_') | char_('$') | char_('[') | char_(']') | char_('"') | char_('\''))
+      identifier = !keywords >> lexeme[((alpha | char_('_') | char_('$') | char_('[') | char_(']') | char_('"') | char_('\''))
           >> *(alnum | char_('.') |  char_('_') | char_('$') | char_('[') | char_(']') | char_('"') | char_('\'')))];
 
       // Debugging and error handling and reporting support.

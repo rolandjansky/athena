@@ -48,14 +48,14 @@ namespace ExpressionParsing {
 
   ExpressionParser::~ExpressionParser()
   {
-    if (m_vm) {
-      delete m_vm;
+    if (vm) {
+      delete vm;
     }
   }
 
   void ExpressionParser::setup()
   {
-    m_vm = new VirtualMachine();
+    vm = new VirtualMachine();
   }
 
   bool ExpressionParser::loadExpression(const std::string &expression)
@@ -63,7 +63,7 @@ namespace ExpressionParsing {
     std::string trimmedExpression = boost::algorithm::trim_copy_if(expression, boost::is_any_of("\""));
 
     ProxyLoaderSingleton::getInstance()->reset();
-    m_code.clear();
+    code.clear();
 
     Grammar<std::string::const_iterator> grammar;
     ast::expression expr;
@@ -80,15 +80,15 @@ namespace ExpressionParsing {
     
     if (!r) return false;
 
-    Compiler compiler(m_code, m_proxyLoader, m_unitInterpreter);
+    Compiler compiler(code, m_proxyLoader, m_unitInterpreter);
     compiler(expr);
     return true;
   }
 
   StackElement ExpressionParser::evaluate()
   {
-    m_vm->execute(m_code);
-    return m_vm->top();
+    vm->execute(code);
+    return vm->top();
   }
 
   bool ExpressionParser::evaluateAsBool()

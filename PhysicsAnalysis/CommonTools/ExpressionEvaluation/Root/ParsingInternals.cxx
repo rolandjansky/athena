@@ -12,12 +12,12 @@
 #include "ParsingInternals.h"
 
 #define VM_CASE_UNARY(OP) case op_ ## OP: \
-          m_stack_ptr[-1] = m_stack_ptr[-1]._ ## OP(); \
+          stack_ptr[-1] = stack_ptr[-1]._ ## OP(); \
           break
 
 #define VM_CASE_BINARY(OP) case op_ ## OP: \
-          --m_stack_ptr; \
-          m_stack_ptr[-1] = m_stack_ptr[-1]._ ## OP(m_stack_ptr[0]); \
+          --stack_ptr; \
+          stack_ptr[-1] = stack_ptr[-1]._ ## OP(stack_ptr[0]); \
           break
 
 #define VISITOR_UNARY(OP) else if (x.operator_ == #OP) code.push_back(op_ ## OP)
@@ -27,7 +27,7 @@ namespace ExpressionParsing {
   void VirtualMachine::execute(std::vector<StackElement> const& code)
   {
     std::vector<StackElement>::const_iterator pc = code.begin();
-    m_stack_ptr = m_stack.begin();
+    stack_ptr = stack.begin();
 
     while (pc != code.end())
     {
@@ -35,11 +35,11 @@ namespace ExpressionParsing {
       switch (pc[-1].asInt())
       {
         case op_neg:
-          m_stack_ptr[-1] = -m_stack_ptr[-1];
+          stack_ptr[-1] = -stack_ptr[-1];
           break;
 
         case op_not:
-          m_stack_ptr[-1] = !m_stack_ptr[-1];
+          stack_ptr[-1] = !stack_ptr[-1];
           break;
 
         VM_CASE_UNARY(sum);
@@ -72,35 +72,35 @@ namespace ExpressionParsing {
         VM_CASE_BINARY(lte);
 
         case op_add:
-          --m_stack_ptr;
-          m_stack_ptr[-1] += m_stack_ptr[0];
+          --stack_ptr;
+          stack_ptr[-1] += stack_ptr[0];
           break;
 
         case op_sub:
-          --m_stack_ptr;
-          m_stack_ptr[-1] -= m_stack_ptr[0];
+          --stack_ptr;
+          stack_ptr[-1] -= stack_ptr[0];
           break;
 
         VM_CASE_BINARY(pow);
 
         case op_mul:
-          --m_stack_ptr;
-          m_stack_ptr[-1] *= m_stack_ptr[0];
+          --stack_ptr;
+          stack_ptr[-1] *= stack_ptr[0];
           break;
 
         case op_div:
-          --m_stack_ptr;
-          m_stack_ptr[-1] /= m_stack_ptr[0];
+          --stack_ptr;
+          stack_ptr[-1] /= stack_ptr[0];
           break;
 
         case op_val:
-          *m_stack_ptr++ = *pc++;
-          if (m_stack_ptr[-1].isProxy()) m_stack_ptr[-1].setValueFromProxy();
+          *stack_ptr++ = *pc++;
+          if (stack_ptr[-1].isProxy()) stack_ptr[-1].setValueFromProxy();
           break;
       }
     }
 
-    if ((m_stack_ptr - m_stack.begin()) != 1){
+    if ((stack_ptr - stack.begin()) != 1){
       throw std::runtime_error("ExpressionEvaluation: Virtual machine finished in undefined state. Is expression valid?");
     }
   }

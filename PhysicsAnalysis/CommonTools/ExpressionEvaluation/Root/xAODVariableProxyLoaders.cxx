@@ -42,29 +42,19 @@
 } while(0)
 
 #define TRY_TMETHOD_WRAPPER() do { \
-  auto container = m_auxElement->container(); \
-  const std::type_info &containerTypeinfo = typeid(*container); \
+  const std::type_info &containerTypeinfo = typeid(*(m_auxElement->container())); \
   TClass *containerClass = TClass::GetClass(containerTypeinfo); \
   if (!containerClass) { \
     containerClass = TClass::GetClass(SG::normalizedTypeinfoName(containerTypeinfo).c_str()); \
   } \
   if (containerClass) { \
-    TMethodWrapper* accWrap(0);						\
-    if( !strcmp(containerClass->GetName(),"SG::AuxElementStandaloneData") ) { /* special case where the element type is the aux element */ \
-      accWrap = new TMethodWrapper( typeid(*m_auxElement) , varname ); \
-    } else {							\
-      TVirtualCollectionProxy* collProxy = containerClass->GetCollectionProxy(); \
-      if(collProxy) { \
-	const std::type_info &elementTypeinfo = *(collProxy->GetValueClass()->GetTypeInfo()); \
-	std::cout << " element type = " << System::typeinfoName( elementTypeinfo ) << std::endl; \
-	accWrap = new TMethodWrapper(elementTypeinfo, varname); \
-      }									\
-    }								\
+    const std::type_info &elementTypeinfo = *(containerClass->GetCollectionProxy()->GetValueClass()->GetTypeInfo()); \
+    TMethodWrapper *accWrap = new TMethodWrapper(elementTypeinfo, varname); \
     if (accWrap && accWrap->isValid(m_auxElement)) { \
       m_accessorCache[varname] = accWrap;  \
       return accWrap->variableType(); \
     } \
-    else if(accWrap) delete accWrap;		\
+    else delete accWrap; \
   } \
 } while(0)
 

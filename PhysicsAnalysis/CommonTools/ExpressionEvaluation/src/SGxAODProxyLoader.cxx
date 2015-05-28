@@ -62,7 +62,6 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODParticleEvent/CompositeParticleContainer.h"
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -172,7 +171,6 @@ namespace ExpressionParsing {
     TRY_VECTOR(xAOD::PFOContainer);
     TRY_VECTOR(xAOD::ParticleContainer);
     TRY_VECTOR(xAOD::CompositeParticleContainer);
-    TRY_VECTOR(xAOD::TrackMeasurementValidationContainer);
 
     TRY_SCALAR(xAOD::EventInfo); 
     TRY_SCALAR(xAOD::EventShape);
