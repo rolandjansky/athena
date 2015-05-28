@@ -174,11 +174,13 @@ StatusCode ClusterSamplingFillerTool::fill (const CaloCluster& p)
  */
 StatusCode ClusterSamplingFillerTool::fill (const xAOD::CaloCluster& p)
 {
-  std::vector<double> eSamp (NSAMP);
-  std::vector<double> etaSamp (NSAMP);
-  std::vector<double> phiSamp (NSAMP);
 
-  for (unsigned int i=0; i < NSAMP; i++) {
+  const size_t nsamp=m_samplings.size();
+  std::vector<double> eSamp (nsamp);
+  std::vector<double> etaSamp (nsamp);
+  std::vector<double> phiSamp (nsamp);
+
+  for (unsigned int i=0; i < nsamp; i++) {
     eSamp[i] = p.eSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
     etaSamp[i] = p.etaSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
     phiSamp[i] = p.phiSample (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]));
