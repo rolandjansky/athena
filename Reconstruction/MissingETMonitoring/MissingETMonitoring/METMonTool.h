@@ -78,10 +78,12 @@ class METMonTool : public ManagedMonitorToolBase
     std::vector<int> m_regIndices;
     std::vector<std::string>                   m_calStrings;
     std::vector<std::string>                   m_regStrings;
-    
+    bool m_met_cut_80;
+
     int   m_etabin;
     int   m_phibin;
     int   m_etbin;
+    float   m_met_cut;
     float              m_etrange;
     float              m_etrangeSumFactor;
     std::vector<float> m_etrangeCalFactors;
