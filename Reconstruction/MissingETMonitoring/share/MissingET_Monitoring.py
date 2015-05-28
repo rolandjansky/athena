@@ -140,6 +140,29 @@ for trigger in triggerList:
     ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
+    
+    # Tool for MET > 80 GeV monitoring
+    metMonTool = METMonTool(name = "METMonTool_cut80_"+triggerName)
+    metMonTool.NameSuffix   = "cut80"
+    if triggerName != "":
+        metMonTool.NameSuffix += "_"+triggerName
+    metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
+    metMonTool.metFinKey    = ""
+    metMonTool.metCalKey    = ""
+    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.eleColKey    = ""
+    metMonTool.muoColKey    = ""
+    metMonTool.metCut       = 80
+    metMonTool.TriggerChain = trigger
+    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+    metMonTool.FilterTools.append(monbadlb)
+    if trigger != "":
+        metMonTool.TrigDecisionTool = monTrigDecTool
+    ToolSvc += metMonTool
+    monManETmiss.AthenaMonTools += [ metMonTool ]
+    
+    
+    
 # Monitoring for Random trigger
 # If trigger is off, run anyway without trigger (useful for Random stream)
 if DQMonFlags.useTrigger():
@@ -156,6 +179,7 @@ metMonTool.metCalKey         = "MET_Topo"
 metMonTool.jetColKey         = "AntiKt4LCTopoJets"
 metMonTool.eleColKey         = ""
 metMonTool.muoColKey         = ""
+metMonTool.doMetCut80        = False
 metMonTool.nEtBins           = 100
 metMonTool.EtRange           = 10.0
 metMonTool.SumEtRangeFactor  = 2.0
