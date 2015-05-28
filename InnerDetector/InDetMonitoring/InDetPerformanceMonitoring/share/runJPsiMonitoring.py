@@ -14,16 +14,11 @@
 #
 #   1) Specify the input in here
 #      - One file
-#PoolInput = ["/afs/cern.ch/work/s/sthenkel/work/testarea/20.1.0.6/MCsets/valid1.167824.Sherpa_CT10_ZmumuMassiveCBPt280_500_BFilter.recon.ESD.e3099_s1982_s1964_r6006_tid04628773_00/ESD.04628773._000033.pool.root.1"]
-PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid3.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3099_s2578_r6588_tid05292497_00/ESD.05292497._000150.pool.root.1"]
+PoolInput = ["/home/wdic/data15_comm.00264034.physics_MinBias.recon.ESD.x322._lb0805._SFO-1._0001.1"]
 #   2) Feed files when executing the script
 #if 'inputFiles' in dir():
 #  print inputFiles
 #PoolInput = inputFiles
-
-
-#      - Multiple files
-#PoolInput = ["root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._007903.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._007027.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005086.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005166.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005436.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005561.pool.root.1"]
 
 # number of event to process
 EvtMax=-1
@@ -127,50 +122,62 @@ from IOVDbSvc.CondDB import conddb
 if not conddb.folderRequested('PIXEL/PixReco'):
   conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
 
-#if readPool :
-#	conddb.blockFolder("/Indet/Align")
-#	conddb.blockFolder("/TRT/Align")
-#	from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
-#	from AthenaCommon.AppMgr import ServiceMgr
-#	ServiceMgr += CondProxyProvider()
-#	ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-#	# set this to the file containing AlignableTransform objects
-#	ServiceMgr.CondProxyProvider.InputCollections += inputCollections
-#	ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-#	print ServiceMgr.CondProxyProvider
-#	# this preload causes callbacks for read in objects to be activated,
-#	# allowing GeoModel to pick up the transforms
-#	ServiceMgr.IOVSvc.preLoadData=True
-#	ServiceMgr.IOVSvc.OutputLevel=INFO
+if readPool :
+	conddb.blockFolder("/Indet/Align")
+	conddb.blockFolder("/TRT/Align")
+	from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
+	from AthenaCommon.AppMgr import ServiceMgr
+	ServiceMgr += CondProxyProvider()
+	ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
+	# set this to the file containing AlignableTransform objects
+	ServiceMgr.CondProxyProvider.InputCollections += inputCollections
+	ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
+	print ServiceMgr.CondProxyProvider
+	# this preload causes callbacks for read in objects to be activated,
+	# allowing GeoModel to pick up the transforms
+	ServiceMgr.IOVSvc.preLoadData=True
+	ServiceMgr.IOVSvc.OutputLevel=INFO
 
 include ("InDetRecExample/InDetRecConditionsAccess.py")
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+from InDetDiMuonMonitoring.InDetDiMuonMonitoringConf import DiMuMon
+varsVSmeanJpsi = ["eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"]
+varsVSwidthJpsi = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg","etaDiff","phiDiff","crtDiff"]
+varsDistrJpsi = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
+JpsiMon = DiMuMon(name = "JpsiMon_NoTrig",
+                  resonName = "Jpsi",
+                  minInvmass = 2.5,
+                  maxInvmass = 3.5,
+                  nMassBins = 50,
+                  triggerChainName = "NoTrig",
+                  regions = ["All","BB","EAEA","ECEC"],
+                  varsVSmean = varsVSmeanJpsi,
+                  varsVSwidth = varsVSwidthJpsi,
+                  varsDistr = varsDistrJpsi,
+                  doFits = True,
+                  doSaveFits = False,
+                  OutputLevel = VERBOSE)
+
+ToolSvc += JpsiMon
+
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+IDPerfMonManager = AthenaMonManager(name                = "IDPerfMonManager",
+                                    FileKey             = DQMonFlags.monManFileKey(),
+                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
+                                    DataType            = DQMonFlags.monManDataType(),
+                                    Environment         = "user",
+                                    ManualRunLBSetup    = True,
+                                    Run                 = 1,
+                                    LumiBlock           = 1)
+IDPerfMonManager.AthenaMonTools += [ JpsiMon ]
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["ZmumuValidation DATAFILE='ZmumuValidationOut.root' OPT='RECREATE'"]
-include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
+ServiceMgr.THistSvc.Output += ["DiMuMon DATAFILE='./DiMuMon.root' OPT='RECREATE'"]
+IDPerfMonManager.FileKey = "DiMuMon"
 
-from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
-iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
-                                     ReFitterTool1 = MuonRefitterTool,
-                                     ReFitterTool2 = MuonRefitterTool2,
-				     OutputTracksName =  "SelectedMuons",
-				     isMC = True,
-
-#				     isMC = False,
-				     doIsoSelection = False,
-                                     OutputLevel= 1)
-
-
-#ToolSvc += funIDPerfMonZmumu
-job += iDPerfMonZmumu
-
-trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
-
-#StoreGateSvc = Service("StoreGateSvc")
-#StoreGateSvc.Dump = True
-include ("InDetPerformanceMonitoring/TrackMonitoring.py")
+topSequence += IDPerfMonManager

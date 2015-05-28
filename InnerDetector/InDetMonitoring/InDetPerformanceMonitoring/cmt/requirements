@@ -23,6 +23,8 @@ use TrkEventPrimitives 		TrkEventPrimitives-* 		Tracking/TrkEvent
 use TrkV0Vertex 	       	TrkV0Vertex-*	       		Tracking/TrkEvent
 use TrkParameters         	TrkParameters-*   		Tracking/TrkEvent
 
+use  EventPrimitives            EventPrimitives-*               Event
+
 #packages needed for IDPerfMonZmumu
 use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
 

@@ -3,29 +3,29 @@ IDPerfMonDoOutput = False
 
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZee
 IDPerfMonZee_noTrig = IDPerfMonZee (name = "IDPerfMonZee_noTrig",
-                                    tracksName = InDetKeys.TrackParticles())
+                                   tracksName=InDetKeys.xAODTrackParticleContainer())# tracksName = "InDetTrackParticles")#InDetKeys.TrackParticles())
 ToolSvc += IDPerfMonZee_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print IDPerfMonZee_noTrig
 
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonWenu
 IDPerfMonWenu_noTrig = IDPerfMonWenu (name = "IDPerfMonWenu_noTrig",
-                                      tracksName = InDetKeys.TrackParticles())
+                                      tracksName=InDetKeys.xAODTrackParticleContainer()) #     tracksName = "InDetTrackParticles")#InDetKeys.TrackParticles())
 ToolSvc += IDPerfMonWenu_noTrig
 if (InDetFlags.doPrintConfigurables()):
     print IDPerfMonWenu_noTrig
 
 #include( "TrackIsolationTools/TrackIsolationTool_jobOptions.py" )
 
-from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonKshort
-IDPerfMonKshort_noTrig = IDPerfMonKshort (name = "IDPerfMonKshort_noTrig",
-                                         VxContainerName = InDetKeys.SecVertices(),
-                                          tracksName = InDetKeys.TrackParticles(),
-                                          VxPrimContainerName = InDetKeys.PrimaryVertices())
+#from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonKshort
+#IDPerfMonKshort_noTrig = IDPerfMonKshort (name = "IDPerfMonKshort_noTrig",
+#                                         VxContainerName = InDetKeys.xAODV0VertexContainer(),#"SecVertices",#InDetKeys.SecVertices(),
+#                                          tracksName=InDetKeys.xAODTrackParticleContainer(),#       tracksName = "InDetTrackParticles", #InDetKeys.TrackParticles(),
+#                                          VxPrimContainerName = InDetKeys.xAODVertexContainer())#"PrimaryVertices")#InDetKeys.PrimaryVertices())
 
-ToolSvc += IDPerfMonKshort_noTrig
-if (InDetFlags.doPrintConfigurables()):
-    print IDPerfMonKshort_noTrig
+#ToolSvc += IDPerfMonKshort_noTrig
+#if (InDetFlags.doPrintConfigurables()):
+#    print IDPerfMonKshort_noTrig
 
 ## only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
 if not hasattr(ToolSvc, 'monTrigDecTool'):
@@ -34,31 +34,31 @@ else:
     print 'IDPerfMon_jobOptions.py : following express stream trigger menu (pp_v5_menu) -> https://twiki.cern.ch/twiki/bin/view/Atlas/ExpressStream#Run_2_Physics_Physics_pp_v5_menu'
     print 'IDPerfMon_jobOptions.py : lowLumi Zee triggers'
     IDPerfMonZee_2e12_loose = IDPerfMonZee (name = "IDPerfMonZee_2e12_loose",
-                                            tracksName = InDetKeys.TrackParticles(),
+                                            tracksName=InDetKeys.xAODTrackParticleContainer(),#    tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                             triggerChainName = "2e12_loose")
 
     IDPerfMonZee_e24_medium_L1EM18VH = IDPerfMonZee (name = "IDPerfMonZee_e24_medium_L1EM18VH",
-                                                     tracksName = InDetKeys.TrackParticles(),
+                                                     tracksName=InDetKeys.xAODTrackParticleContainer(),#         tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                                      triggerChainName = "e24_medium_L1EM18VH")
 
     print 'IDPerfMon_jobOptions.py : highLumi Zee triggers'
     IDPerfMonZee_2e15_loose = IDPerfMonZee (name = "IDPerfMonZee_2e15_loose",
-                                            tracksName = InDetKeys.TrackParticles(),
+                                            tracksName=InDetKeys.xAODTrackParticleContainer(),#            tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                             triggerChainName = "2e15_loose")
 
     IDPerfMonZee_e24_tight_L1EM20VH  = IDPerfMonZee (name = "IDPerfMonZee_e24_tight_L1EM20VH",
-                                                     tracksName = InDetKeys.TrackParticles(),
+                                                     tracksName=InDetKeys.xAODTrackParticleContainer(),#       tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                                      triggerChainName = "e24_tight_L1EM20VH")
 
     print 'IDPerfMon_jobOptions.py : Wenu triggers'
 #    IDPerfMonWenu_g25_loose_xe35 = IDPerfMonWenu (name = "IDPerfMonWenu_g25_loose_xe35",
 #                                            tracksName = InDetKeys.TrackParticles())
     IDPerfMonWenu_e24_medium_L1EM18VH = IDPerfMonWenu (name = "IDPerfMonWenu_e24_medium_L1EM18VH",
-                                                       tracksName = InDetKeys.TrackParticles(),
+                                                       tracksName=InDetKeys.xAODTrackParticleContainer(),#     tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                                        triggerChainName = "e24_medium_L1EM18VH")
 
     IDPerfMonWenu_e24_tight_L1EM20VH  = IDPerfMonWenu (name = "IDPerfMonWenu_e24_tight_L1EM20VH",
-                                                       tracksName = InDetKeys.TrackParticles(),
+                                                       tracksName=InDetKeys.xAODTrackParticleContainer(),#   tracksName = "InDetTrackParticles",#InDetKeys.TrackParticles(),
                                                        triggerChainName = "e24_tight_L1EM20VH")
 
 
@@ -118,7 +118,7 @@ IDPerfMonManager = AthenaMonManager( name = "IDPerfMonManager",
                                       LumiBlock           = 1)
 IDPerfMonManager.AthenaMonTools += [ IDPerfMonZee_noTrig ]
 IDPerfMonManager.AthenaMonTools += [ IDPerfMonWenu_noTrig ]
-IDPerfMonManager.AthenaMonTools += [ IDPerfMonKshort_noTrig ]
+#IDPerfMonManager.AthenaMonTools += [ IDPerfMonKshort_noTrig ]
 if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "IDPerfMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:

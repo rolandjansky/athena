@@ -95,6 +95,8 @@ StatusCode IDPerfMonKshort::initialize()
 
 StatusCode IDPerfMonKshort::bookHistograms()
 {
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
 
   MonGroup al_kshort_mon ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run);
@@ -311,7 +313,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TH1* histo) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
@@ -321,7 +323,7 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TH1* histo) {
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TProfile* histo) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
@@ -330,7 +332,7 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TProfile* histo) {
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   StatusCode sc = mon.regGraph(graph);
   if (sc.isFailure() ) {
@@ -341,6 +343,8 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
 
 StatusCode IDPerfMonKshort::fillHistograms()
 {
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort fillHistogram() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
   const xAOD::TrackParticleContainer* tracks(0);
   StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
@@ -351,29 +355,32 @@ StatusCode IDPerfMonKshort::fillHistograms()
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<<m_tracksName<<" found in StoreGate" << endreq;
   }
 
-const xAOD::VertexContainer* PrimVxContainer(0);
- if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
-      if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
-	ATH_MSG_DEBUG("No Collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
-	return false;
-      }
- }
- else {
-	ATH_MSG_DEBUG("Collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
-	return StatusCode::SUCCESS;
- }
- xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
-
-
+  const xAOD::VertexContainer* PrimVxContainer(0);
+  if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
+    if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
+      ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
+      return false;
+    }
+    else
+      ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxPrimContainerName);
+  }
+  else {
+    ATH_MSG_DEBUG("No collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
+    return StatusCode::SUCCESS;
+  }
+  xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
 
 const xAOD::VertexContainer* SecVxContainer(0);
  if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){
    if (evtStore()->retrieve(SecVxContainer,m_VxContainerName).isFailure()) {
-     ATH_MSG_DEBUG("No Collection with name "<<m_VxContainerName<<" found in StoreGate");
+     ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxContainerName<<" found in StoreGate");
      return false;
    }
- } else {
-   ATH_MSG_DEBUG("Collection with name "<<m_VxContainerName<<" found in StoreGate");
+   else
+     ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxContainerName);
+ } 
+ else {
+   ATH_MSG_DEBUG("No collection with name "<<m_VxContainerName<<" found in StoreGate");
    return StatusCode::SUCCESS;
  }
 
@@ -389,6 +396,8 @@ const xAOD::VertexContainer* SecVxContainer(0);
  for ( v0Itr=SecVxContainer->begin(); v0Itr!=SecVxContainer->end(); ++v0Itr ) {
    // for (const auto* secVx_elem : *SecVxContainer) {
    //theVxCandidate = secVx_elem;
+
+   ATH_MSG_VERBOSE("Looping over SecVxContainer");
 
    xAOD::Vertex* theVxCandidate = (*v0Itr);
    double ksMass = myV0Tools->invariantMass(theVxCandidate,piMass,piMass);
@@ -581,6 +590,8 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
 StatusCode IDPerfMonKshort::procHistograms()
 {
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort procHistograms() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
 
   if( endOfLowStat || endOfLumiBlock ) {

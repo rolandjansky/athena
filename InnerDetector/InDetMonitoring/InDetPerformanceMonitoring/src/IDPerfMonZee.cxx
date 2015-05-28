@@ -429,6 +429,7 @@ StatusCode IDPerfMonZee::fillHistograms()
       return StatusCode::SUCCESS;
     }
   }
+  ATH_MSG_DEBUG("This event contains " << electrons->size() << " electrons.");
 
   // get photon container from storegate
   const xAOD::PhotonContainer* photons = 0;
@@ -445,6 +446,7 @@ StatusCode IDPerfMonZee::fillHistograms()
       return StatusCode::SUCCESS;
     }
   }
+  ATH_MSG_DEBUG("This event contains " << photons->size() << " photons.");
 
   // get emcluster container from storegate
   const xAOD::CaloClusterContainer* emclusters = 0;
@@ -509,6 +511,9 @@ StatusCode IDPerfMonZee::fillHistograms()
 
   const xAOD::CaloCluster* LeadingEMcluster = getLeadingEMcluster(photons, electrons);
   const xAOD::CaloCluster* SecondLeadingEMcluster = getLeadingEMcluster(photons, electrons, LeadingEMcluster);
+  
+  ATH_MSG_DEBUG("LeadingEMcluster address: " << LeadingEMcluster << " SecondLeadingEMcluster address: " << SecondLeadingEMcluster);
+
   if (LeadingEMcluster != 0 && SecondLeadingEMcluster != 0) {
     int leading_eta_region = etaRegion(LeadingEMcluster->etaBE(2));
     int second_leading_eta_region = etaRegion(SecondLeadingEMcluster->etaBE(2));
@@ -522,10 +527,12 @@ StatusCode IDPerfMonZee::fillHistograms()
     // Fill event histograms
     // *********************
     double cluster_invmass = InvMass(LeadingEMcluster,SecondLeadingEMcluster);
+     ATH_MSG_DEBUG("Cluster invariant mass: " << cluster_invmass);
     if (cluster_invmass > 0.) m_Zee_invmass->Fill(cluster_invmass);
     double track_invmass = 0.;
     if (track_leading_emcluster != 0 && track_second_leading_emcluster != 0) {
       track_invmass = InvMass(track_leading_emcluster,track_second_leading_emcluster);
+      ATH_MSG_DEBUG("Track invariant mass: " << track_invmass);
       if (track_invmass > 0.) m_Zee_trk_invmass->Fill(track_invmass);
     }
     int selected = isZee(LeadingEMcluster,SecondLeadingEMcluster);
@@ -668,7 +675,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
   for (; photonItr != photonItrEnd; ++photonItr) {
     const xAOD::Photon* ph = (*photonItr);
     //if (int(ph->isem()&0x7FF3) != 0) continue; // medium (with no track req but with cluster iso)
-    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) != 0) continue; // medium (with no track req but with cluster iso)
+    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) == 0) continue; // medium (with no track req but with cluster iso)
     const xAOD::CaloCluster* cl = ph->caloCluster();
     if (cl == omitCluster) continue;
     double deltaR = !omitCluster ? 1.0 : sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
@@ -679,10 +686,11 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
       max_pt = cl->pt();
     }
   }
+
   for (; electronItr != electronItrEnd; ++electronItr) {
     const xAOD::Electron* em = (*electronItr);
     //if (int(em->isem()&0x7FF3) != 0) continue; // medium (with no track req but with cluster iso)
-    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) != 0) continue; // medium (with no track req but with cluster iso)
+    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) == 0) continue; // medium (with no track req but with cluster iso)
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
     double deltaR = !omitCluster ? 1.0 : sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
@@ -786,7 +794,7 @@ double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClust
     invmass = (particle1+particle2).Mag();
   }
 
-  return invmass;
+   return invmass;
 
 }
 

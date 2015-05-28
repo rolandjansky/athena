@@ -551,12 +551,13 @@ StatusCode IDPerfMonWenu::procHistograms()
       makeEffHisto(m_Wenu_trackmatched_tightEopmatched_eta[region],m_Wenu_trackmatched_eta[region],m_Wenu_tightEopmatch_eff_vs_eta[region]);
       makeEffHisto(m_Wenu_trackmatched_tightEopmatched_phi[region],m_Wenu_trackmatched_phi[region],m_Wenu_tightEopmatch_eff_vs_phi[region]);
 
-      //m_Wenu_Eopdiff[region]->Add(m_Wenu_Eop_plus[region],m_Wenu_Eop_minus[region],1.,-1);
-      //m_Wenu_Eopdiff_vs_p[region]->Add(m_Wenu_meanEop_vs_p_plus[region],m_Wenu_meanEop_vs_p_minus[region],1.,-1);
-      //m_Wenu_Eopdiff_vs_invp[region]->Add(m_Wenu_meanEop_vs_invp_plus[region],m_Wenu_meanEop_vs_invp_minus[region],1.,-1);
-      //m_Wenu_Eopdiff_vs_E[region]->Add(m_Wenu_meanEop_vs_E_plus[region],m_Wenu_meanEop_vs_E_minus[region],1.,-1);
-      //m_Wenu_Eopdiff_vs_phi[region]->Add(m_Wenu_meanEop_vs_phi_plus[region],m_Wenu_meanEop_vs_phi_minus[region],1.,-1);
-      //m_Wenu_Eopdiff_vs_eta[region]->Add(m_Wenu_meanEop_vs_eta_plus[region],m_Wenu_meanEop_vs_eta_minus[region],1.,-1);
+      // commented out for some reason?
+      m_Wenu_Eopdiff[region]->Add(m_Wenu_Eop_plus[region],m_Wenu_Eop_minus[region],1.,-1);
+      m_Wenu_Eopdiff_vs_p[region]->Add(m_Wenu_meanEop_vs_p_plus[region],m_Wenu_meanEop_vs_p_minus[region],1.,-1);
+      m_Wenu_Eopdiff_vs_invp[region]->Add(m_Wenu_meanEop_vs_invp_plus[region],m_Wenu_meanEop_vs_invp_minus[region],1.,-1);
+      m_Wenu_Eopdiff_vs_E[region]->Add(m_Wenu_meanEop_vs_E_plus[region],m_Wenu_meanEop_vs_E_minus[region],1.,-1);
+      m_Wenu_Eopdiff_vs_phi[region]->Add(m_Wenu_meanEop_vs_phi_plus[region],m_Wenu_meanEop_vs_phi_minus[region],1.,-1);
+      m_Wenu_Eopdiff_vs_eta[region]->Add(m_Wenu_meanEop_vs_eta_plus[region],m_Wenu_meanEop_vs_eta_minus[region],1.,-1);
 
       makeEffHisto(m_Wenu_Eop_lt1_vs_eta[region],m_Wenu_eta[region],m_Wenu_frac_Eop_lt1_vs_eta[region]);
       makeEffHisto(m_Wenu_Eop_lt1_vs_phi[region],m_Wenu_phi[region],m_Wenu_frac_Eop_lt1_vs_phi[region]);
@@ -606,7 +607,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
   float max_pt = 0.;
   for (; photonItr != photonItrEnd; ++photonItr) {
     const xAOD::Photon* ph = (*photonItr);
-    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) != 0) continue; // medium (with no track req but with cluster iso)
+    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) == 0) continue; // medium (with no track req but with cluster iso)
     const xAOD::CaloCluster* cl = ph->caloCluster();
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
@@ -616,7 +617,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
   }
   for (; electronItr != electronItrEnd; ++electronItr) {
     const xAOD::Electron* em = (*electronItr);
-    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) != 0) continue; // medium (with no track req but with cluster iso)
+    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) == 0) continue; // medium (with no track req but with cluster iso)
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;

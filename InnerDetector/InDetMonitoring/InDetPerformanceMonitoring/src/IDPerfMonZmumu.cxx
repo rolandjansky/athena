@@ -21,7 +21,7 @@
 //#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 
-
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 //For extrapolation
 
 // ATLAS headers
@@ -154,12 +154,16 @@ StatusCode IDPerfMonZmumu::initialize()
     m_defaultTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_defaultTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_defaultTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_defaultTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_defaultTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
 
     m_defaultTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_defaultTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_defaultTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_defaultTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_defaultTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_defaultTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_defaultTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_refit1Tree == 0){
@@ -175,12 +179,17 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit1Tree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_refit1Tree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_refit1Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_refit1Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_refit1Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
 
     m_refit1Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit1Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_refit1Tree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_refit1Tree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_refit1Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_refit1Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_refit1Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_refit2Tree == 0){
@@ -196,12 +205,18 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit2Tree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_refit2Tree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_refit2Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_refit2Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_refit2Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
+
 
     m_refit2Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit2Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_refit2Tree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_refit2Tree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_refit2Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_refit2Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_refit2Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
    }
 
   //  if( m_meStacoTree == 0){
@@ -238,12 +253,17 @@ StatusCode IDPerfMonZmumu::initialize()
     m_combStacoTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_combStacoTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_combStacoTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_combStacoTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_combStacoTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
 
     m_combStacoTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_combStacoTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_combStacoTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_combStacoTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_combStacoTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_combStacoTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_combStacoTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
 
@@ -260,12 +280,18 @@ StatusCode IDPerfMonZmumu::initialize()
     m_combMuidTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_combMuidTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_combMuidTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_combMuidTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_combMuidTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
+
 
     m_combMuidTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_combMuidTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_combMuidTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_combMuidTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_combMuidTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_combMuidTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_combMuidTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_isMC && m_truthTree == 0){
@@ -281,12 +307,16 @@ StatusCode IDPerfMonZmumu::initialize()
     m_truthTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_truthTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_truthTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_truthTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_truthTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
 
     m_truthTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_truthTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_truthTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_truthTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_truthTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_truthTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_truthTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
     // now register the Trees
@@ -548,12 +578,18 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     return;
   }
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
+  const AmgSymMatrix(5)* covariance = trkPerigee ? trkPerigee->covariance() : NULL;
+  if (covariance == NULL) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq;
+  }
 
   double px = 0;
   double py = 0;
   double pz = 0;
   double d0 = 0;
   double z0 = 0;
+  double d0_err = 0;
+  double z0_err = 0;
 
   if(trkPerigee){
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
@@ -575,6 +611,8 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
       pz = atBL->momentum().z();
       z0 = atBL->parameters()[Trk::z0];
       d0 = atBL->parameters()[Trk::d0];
+      z0_err = Amg::error(*trkPerigee->covariance(),Trk::z0);
+      d0_err = Amg::error(*trkPerigee->covariance(),Trk::d0);
     }
   }
 
@@ -585,12 +623,16 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     m_positive_pz = pz;
     m_positive_z0 = z0;
     m_positive_d0 = d0;
+    m_positive_z0_err = z0_err;
+    m_positive_d0_err = d0_err;
   } else  if (charge == -1) {
     m_negative_px = px;
     m_negative_py = py;
     m_negative_pz = pz;
     m_negative_z0 = z0;
     m_negative_d0 = d0;
+    m_negative_z0_err = z0_err;
+    m_negative_d0_err = d0_err;
   }
 
   return;
@@ -654,6 +696,11 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* track)
     else if ( HEPparticle->pdg_id() == -13 ) charge = 1.;
 
     Trk::Perigee* candidatePerigee  = new Trk::Perigee(pos,mom,charge,pos);
+    const AmgSymMatrix(5)* covariance = candidatePerigee ? candidatePerigee->covariance() : NULL;
+
+    if (covariance == NULL) {
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq;
+    }
 
     if (charge == 1) {
 
@@ -664,16 +711,21 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* track)
 	m_positive_pz = HEPparticle->momentum().z();
 	m_positive_z0 = candidatePerigee->parameters()[Trk::z0];
 	m_positive_d0 = candidatePerigee->parameters()[Trk::d0];
+	m_positive_z0_err = Amg::error(*candidatePerigee->covariance(),Trk::z0);
+	m_positive_d0_err = Amg::error(*candidatePerigee->covariance(),Trk::z0);
       }
     } else  if (charge == -1) {
 
       double qOverP   = candidatePerigee->parameters()[Trk::qOverP];
       if (qOverP) {
-	m_positive_px = HEPparticle->momentum().x();
-	m_positive_py = HEPparticle->momentum().y();
-	m_positive_pz = HEPparticle->momentum().z();
+	m_negative_px = HEPparticle->momentum().x();
+	m_negative_py = HEPparticle->momentum().y();
+	m_negative_pz = HEPparticle->momentum().z();
 	m_negative_z0 = candidatePerigee->parameters()[Trk::z0];
 	m_negative_d0 = candidatePerigee->parameters()[Trk::d0];
+	m_negative_z0_err = Amg::error(*candidatePerigee->covariance(),Trk::z0);
+	m_negative_d0_err = Amg::error(*candidatePerigee->covariance(),Trk::z0);
+
       }
     }
   }
