@@ -12,6 +12,7 @@
 #include "deletePointers.h"
 #include "SCT_NameFormatter.h"
 #include <cmath>
+#include <type_traits>
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -36,42 +37,28 @@ using namespace std;
 using namespace Rec;
 using namespace SCT_Monitoring;
 
-namespace{ //anon. namespace for file-scoped functions
-
-  template<class T, int Size1> 
-  int byte_extent( T (&)[Size1]){
-    return Size1*sizeof(T);
-  }
-
-  // Simple method for initalizing arrays of pointers to null
-  template <class T, int Size1>
-  void clear(T (&parray)[Size1]){
-    memset(parray,0,byte_extent(parray)); 
-  }
-
-}
-
 //====================================================================================================
 /** Constructor, calls base class constructor with parameters
 *
 *  several properties are "declared" here, allowing selection
-*  of the filepath for histograms, the first and second plane
-*  numbers to be used, and the timebin.
+*  of the filepath for histograms etc
 */
 //====================================================================================================
 SCTLorentzMonTool::SCTLorentzMonTool(const string & type,const string & name,const IInterface* parent):SCTMotherTrigMonTool(type, name, parent),
-m_trackToVertexTool("Reco::TrackToVertex") //for TrackToVertexTool
+  m_trackToVertexTool("Reco::TrackToVertex"), //for TrackToVertexTool
+  m_phiVsNstrips{},
+  m_phiVsNstrips_100{},
+  m_phiVsNstrips_111{},
+  m_phiVsNstrips_Side{},
+  m_phiVsNstrips_Side_100{},
+  m_phiVsNstrips_Side_111{},
+  m_pSCTHelper(nullptr),
+  m_sctmgr(nullptr)
 {
   declareProperty("histoPathBase", m_stream = "/stat");
   declareProperty("tracksName",m_tracksName="CombinedInDetTracks"); //this recommended
   declareProperty("TrackToVertexTool",m_trackToVertexTool); //for TrackToVertexTool
   m_numberOfEvents=0;
-  clear(m_phiVsNstrips);
-  clear(m_phiVsNstrips_Side);
-  clear(m_phiVsNstrips_100);
-  clear(m_phiVsNstrips_Side_100);
-  clear(m_phiVsNstrips_111);
-  clear(m_phiVsNstrips_Side_111);
 }
 
 //====================================================================================================
@@ -106,8 +93,8 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
 {
   m_path= "";
   m_numberOfEvents=0;                                                                                                                                  // hidetoshi 14.01.21
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize being called" << endreq;
-  detStore()->retrieve(m_pSCTHelper,"SCT_ID");
+  ATH_MSG_DEBUG( "initialize being called" );
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   ATH_CHECK( detStore()->retrieve(m_sctmgr,"SCT"));
   ATH_MSG_DEBUG( "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" );
    /* Retrieve TrackToVertex extrapolator tool */
@@ -124,10 +111,15 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
 /// This is the real workhorse, called for each event. It retrieves the data each time
 //====================================================================================================
 StatusCode SCTLorentzMonTool::fillHistograms(){
-
-  int layer100[] = {2,2,3,2,2,2,0,2,3,2,0,2,3,2,3,2,0,2,3,0,2,0,2,3,2,2,2,0,0,0,0,0,0,3,0,3,2,0,2,2,0,3,3,3,0,2,2,2,2,2,2,2,3,2,2,3,3,2,2,2,2,2,3,3,2,3,2,2,2,3,3,3,2,2,2,2,3,3,2,3,2,3,3,2,3,2,2,2,2,2,2,2};
-  int phi100[] = {29,29,6,13,23,13,14,29,9,29,14,29,9,29,39,32,21,32,13,22,32,22,32,13,32,32,32,20,20,20,20,20,20,13,21,17,33,5,33,33,31,6,19,47,21,37,37,37,37,33,37,37,24,33,33,47,19,33,33,37,37,37,55,9,38,24,37,38,8,9,9,26,38,38,38,38,39,39,38,11,45,54,54,24,31,14,47,45,47,47,47,47};
-  int eta100[] = {3,-4,-6,2,6,3,-5,-1,6,-2,-6,-5,5,-3,2,6,-3,5,5,3,4,2,2,2,-1,-3,-4,1,-1,-2,-3,-4,4,-1,-5,6,2,4,3,1,6,-2,6,3,-6,-1,2,1,3,-5,4,5,-3,-4,-3,-5,-2,-1,-2,-3,-2,-4,-3,2,3,-6,-5,4,6,1,-6,1,1,-5,-4,-3,-3,-5,-2,1,5,5,4,4,5,4,-1,-5,3,4,1,-5};
+  //should use database for this!
+  constexpr int layer100[] = {2,2,3,2,2,2,0,2,3,2,0,2,3,2,3,2,0,2,3,0,2,0,2,3,2,2,2,0,0,0,0,0,0,3,0,3,2,0,2,2,0,3,3,3,0,2,2,2,2,2,2,2,3,2,2,3,3,2,2,2,2,2,3,3,2,3,2,2,2,3,3,3,2,2,2,2,3,3,2,3,2,3,3,2,3,2,2,2,2,2,2,2};
+  constexpr int phi100[] = {29,29,6,13,23,13,14,29,9,29,14,29,9,29,39,32,21,32,13,22,32,22,32,13,32,32,32,20,20,20,20,20,20,13,21,17,33,5,33,33,31,6,19,47,21,37,37,37,37,33,37,37,24,33,33,47,19,33,33,37,37,37,55,9,38,24,37,38,8,9,9,26,38,38,38,38,39,39,38,11,45,54,54,24,31,14,47,45,47,47,47,47};
+  constexpr int eta100[] = {3,-4,-6,2,6,3,-5,-1,6,-2,-6,-5,5,-3,2,6,-3,5,5,3,4,2,2,2,-1,-3,-4,1,-1,-2,-3,-4,4,-1,-5,6,2,4,3,1,6,-2,6,3,-6,-1,2,1,3,-5,4,5,-3,-4,-3,-5,-2,-1,-2,-3,-2,-4,-3,2,3,-6,-5,4,6,1,-6,1,1,-5,-4,-3,-3,-5,-2,1,5,5,4,4,5,4,-1,-5,3,4,1,-5};
+  constexpr unsigned int layer100_n = sizeof(layer100)/sizeof(*layer100);
+  constexpr unsigned int phi100_n = sizeof(phi100)/sizeof(*phi100);
+  constexpr unsigned int eta100_n = sizeof(eta100)/sizeof(*eta100);
+  constexpr bool theseArraysAreEqualInLength = ((layer100_n == phi100_n) and (phi100_n == eta100_n));
+  static_assert(theseArraysAreEqualInLength,"Coordinate arrays for <100> wafers are not of equal length");
   
   ATH_MSG_DEBUG("enters fillHistograms");
  
@@ -161,10 +153,9 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
     }
 
     const Trk::TrackSummary* summary = track->trackSummary();
-    if (not summary) 
-      {
-	      msg(MSG::WARNING)<<" null trackSummary"<<endreq;
-	      continue;
+    if (not summary) {
+        msg(MSG::WARNING)<<" null trackSummary"<<endreq;
+        continue;
       }
     
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit=trackStates->end();
@@ -185,23 +176,22 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
             bool in100 = false;
             if(bec!=0) continue; //We only care about the barrel
             //wtf is this?
-            for (int i=0 ; i<184 ; i++){
-                if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){ 
-                    in100=true;
-                    break;
-                }
+            for (unsigned int i=0 ; i<layer100_n ; i++){
+							if (layer100[i]==layer && eta100[i]==eta && phi100[i]==phi){ 
+								in100=true;
+								break;
+							}
             }
             // find cluster size
             const std::vector<Identifier>& rdoList = RawDataClus->rdoList();
             int nStrip = rdoList.size();
             const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters*>( (*it)->trackParameters() );
-	    //            const Trk::MeasuredTrackParameters *mtrkp = dynamic_cast<const Trk::MeasuredTrackParameters*>( (*it)->trackParameters() );
-	    if (not trkp) {
-	      msg(MSG::WARNING)<<" Null pointer to MeasuredTrackParameters"<<endreq;
-	      continue;
-	    }
+						if (not trkp) {
+							msg(MSG::WARNING)<<" Null pointer to MeasuredTrackParameters"<<endreq;
+							continue;
+						}
 
-	    const Trk::Perigee* perigee = track->perigeeParameters();
+            const Trk::Perigee* perigee = track->perigeeParameters();
 
             if (perigee){
               //Get angle to wafer surface
@@ -219,21 +209,19 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 
               bool passesCuts = true;
 
-              if( (AthenaMonManager::dataType() ==  AthenaMonManager::cosmics) &&		  
-		  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
-		 (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
-                  ){
-                passesCuts=true;	       
-	      }//01.02.2015
-
+              if( (AthenaMonManager::dataType() ==  AthenaMonManager::cosmics) &&     
+                (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
+                (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+                ){
+                passesCuts=true;         
+              }//01.02.2015
               else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm 
-		  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
-		 (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
-                //(summary->get(Trk::numberOfPixelHits) > 1 ) // #pixelHits >1
-              ){
-                passesCuts=true;	       
+                     (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
+                     (fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm 
+                     (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
+                     (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+                     ){
+                passesCuts=true;         
               }else{ 
                 passesCuts=false;
               }
@@ -243,23 +231,19 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
                 m_phiVsNstrips[layer]->Fill(phiToWafer,nStrip,1.);
                 m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer,nStrip,1.);
                
-              if (in100){	
-                    //cout << "This event is going to 100" << endl;	
+              if (in100){ 
+                    //cout << "This event is going to 100" << endl; 
                     m_phiVsNstrips_100[layer]->Fill(phiToWafer,nStrip,1.);
                     m_phiVsNstrips_Side_100[layer][side]->Fill(phiToWafer,nStrip,1.);
-                    //cout << "bec: " << bec << " Layer: " << layer << " Eta: " << eta << " Phi: " << phi << endl;
-
                 }else{
-                   //cout << "This event is going to 111" << endl; 
                    m_phiVsNstrips_111[layer]->Fill(phiToWafer,nStrip,1.);
                    m_phiVsNstrips_Side_111[layer][side]->Fill(phiToWafer,nStrip,1.);
-                  //cout << "bec: " << bec << " Layer: " << layer << " Eta: " << eta << " Phi: " << phi << endl;
                
               }
  
               }// end if passesCuts
             }// end if mtrkp
-	    //            delete perigee;perigee = 0;
+      //            delete perigee;perigee = 0;
           } // end if SCT..
         } // end if(clus)
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
@@ -276,20 +260,16 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 //====================================================================================================
 //                             SCTLorentzMonTool :: procHistograms
 //====================================================================================================
-//  StatusCode  SCTLorentzMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool isEndOfRun){//suppress 'unused' compiler warning    // hidetoshi 14.01.21 
-  StatusCode  SCTLorentzMonTool::procHistograms(){                                                                                                                 // hidetoshi 14.01.21
-    
-    //    if(isEndOfRun){                                                                                                                                          // hidetoshi 14.01.21
-    if(endOfRun){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "finalHists()" << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total Rec Event Number: " << m_numberOfEvents<<endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling checkHists(true); true := end of run" << endreq ;
-      if (checkHists(true).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in checkHists(true)" << endreq ;
-      }
+StatusCode  SCTLorentzMonTool::procHistograms(){                                                                                                                 // hidetoshi 14.01.21
+  if(endOfRun){
+    ATH_MSG_DEBUG("finalHists()");
+    ATH_MSG_DEBUG( "Total Rec Event Number: " << m_numberOfEvents);
+    ATH_MSG_DEBUG( "Calling checkHists(true); true := end of run" );
+    if (checkHists(true).isFailure()){
+      ATH_MSG_WARNING( "Error in checkHists(true)" );
     }
-    
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Exiting finalHists" << endreq;
+  }
+  ATH_MSG_DEBUG( "Exiting finalHists" );
   return StatusCode::SUCCESS;
 }
 
@@ -302,9 +282,7 @@ StatusCode  SCTLorentzMonTool::checkHists(bool /*fromFinalize*/){
 //====================================================================================================
 //                              SCTLorentzMonTool :: bookLorentzHistos
 //====================================================================================================
-//StatusCode SCTLorentzMonTool::bookLorentzHistos(bool isNewRun,bool /*isNewLumiBlock*/){                                                                          // hidetoshi 14.01.22
 StatusCode SCTLorentzMonTool::bookLorentzHistos(){                                                                                                                 // hidetoshi 14.01.22
-  //  if(isNewRun){                                                                                                                                                // hidetoshi 14.01.22
     const int nLayers(4);
     const int nSides(2);
     string stem=m_path+"/SCT/GENERAL/lorentz/";
@@ -337,8 +315,8 @@ StatusCode SCTLorentzMonTool::bookLorentzHistos(){                              
         m_phiVsNstrips_Side_111[l][side] = pFactory("h_phiVsNstrips_111_"+hNum[l]+"Side"+hNumS[side],"111 - Inc. Angle vs nStrips for Layer Side "+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
         m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips"+hNum[l]+"Side"+hNumS[side],"Inc. Angle vs nStrips for Layer Side"+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
 
-	m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
-	m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
+        m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+        m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
 
         m_phiVsNstrips_Side_100[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
         m_phiVsNstrips_Side_100[l][side]->GetYaxis()->SetTitle("Num of Strips");

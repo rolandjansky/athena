@@ -60,6 +60,8 @@
 #include "TrkEventUtils/RoT_Extractor.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h" //?
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" //?
+#include "cArrayUtilities.h"
+
 typedef Trk::SpacePoint SpacePoint;
 using namespace std;
 using namespace SCT_Monitoring;
@@ -126,7 +128,64 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string & type,
 const std::string & name,
 const IInterface* parent)
   :SCTMotherTrigMonTool(type, name, parent),
-   m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name)
+  m_nSP(nullptr),
+  nSP_buf(nullptr),
+  nSP_pos(0),
+  m_nHits(nullptr),
+  nHits_buf(nullptr),
+  nHits_pos(0),
+  m_nmaxHits(nullptr),
+  nmaxHits_buf(nullptr),
+  nmaxModule_buf(nullptr),
+  m_nminHits(nullptr),
+  nminHits_buf(nullptr),
+  nminModule_buf(nullptr),
+  m_numBarrelHitsPerLumiBlock(nullptr),
+  m_numHitsPerLumiBlockECp(nullptr),
+  m_numHitsPerLumiBlockECm(nullptr),
+  m_numBarrelSPPerLumiBlock(nullptr),
+  m_numSPPerLumiBlockECp(nullptr),
+  m_numSPPerLumiBlockECm(nullptr),
+  rioMap(nullptr),
+  m_barrelNOdistribution(nullptr),
+  m_barrelNOdistributionTrigger(nullptr),
+  m_ECmNOdistribution(nullptr),
+  m_ECmNOdistributionTrigger(nullptr),
+  m_ECpNOdistribution(nullptr),
+  m_ECpNOdistributionTrigger(nullptr),
+  m_SCTNOdistribution(nullptr),
+  m_SCTNOdistributionTrigger(nullptr),
+  m_MaxOccupancyStripHist(nullptr),
+  m_MinOccupancyStripHist(nullptr),
+  m_clusize(nullptr),
+  m_clusizeRecent(nullptr),
+  m_hitsvstrigger(nullptr),
+  m_hitsvsL1ID(nullptr),
+  m_ncluHisto(nullptr),
+  coincidenceHist(nullptr),
+  m_numberOfEvents(0),
+  m_numberOfEventsTrigger(0),
+  m_numberOfEventsRecent(0),
+  m_skipEvents(0),
+  m_booltxscan(false),
+  m_current_lb(0),
+  m_last_reset_lb(0),
+  m_tracks(nullptr),
+  m_tbinHisto(nullptr),
+  m_tbinHistoECp(nullptr),
+  m_tbinHistoECm(nullptr),
+  m_tbinHistoRecent(nullptr),
+  m_tbinHistoRecentECp(nullptr),
+  m_tbinHistoRecentECm(nullptr),
+  m_tbinmod(nullptr),
+  m_tbinmodECp(nullptr),
+  m_tbinmodECm(nullptr),
+  m_tbinfracVsLB(nullptr),
+  m_tbinfracVsLBECp(nullptr),
+  m_tbinfracVsLBECm(nullptr),
+  m_initialize(false),
+  m_pSCTHelper(nullptr),
+  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name)
 {
   //declareInterface<IMonitorToolBase>(this);
   declareProperty("histoPathBase", m_stream = "/stat");
@@ -149,21 +208,10 @@ const IInterface* parent)
   declareProperty("doLogXNoise", m_doLogXNoise=true);
   declareProperty("conditionsService", m_ConfigurationSvc);
 
-  m_initialize=false;
-  m_numberOfEvents=0;
-  m_numberOfEventsTrigger=0;
-  m_numberOfEventsRecent=0;
-  m_current_lb=0;
-  m_last_reset_lb=0;
-  m_skipEvents=0;
-  nHits_pos=0;
-  nSP_pos=0;
-  nHits_buf=NULL;
-  nSP_buf=NULL;
-  nmaxHits_buf=NULL; 
-  nminHits_buf=NULL; 
-  nmaxModule_buf=NULL;  
-  nminModule_buf=NULL;  
+  clear1D(m_tbinfrac);
+  clear1D(m_tbinfracECp);
+  clear1D(m_tbinfracECm);
+
 }
 
 //====================================================================================================
@@ -378,6 +426,14 @@ StatusCode
 SCTHitsNoiseMonTool::generalHistsandNoise(){  
   typedef SCT_RDORawData SCTRawDataType;
   const SCT_RDO_Container* p_rdocontainer;
+  //Modified shirabe
+  const EventInfo* pEvent(0);
+  if( evtStore()->retrieve(pEvent).isFailure() ){
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info!" <<endreq;
+    return StatusCode::FAILURE;
+  }
+  unsigned int current_lb = pEvent->event_ID()->lumi_block();
+  //END Modified
   if(evtStore()->retrieve(p_rdocontainer,m_dataObjectName).isFailure()) return StatusCode::FAILURE;
   //Get the space point container
   const SpacePointContainer* sctContainer;
@@ -491,6 +547,21 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
               m_tbinHisto->Fill(tbin,1.);
               m_tbinHistoVector[ thisLayerDisk ]->Fill(tbin,1.);
               m_ptrackhitsHistoVector[thisElement]->Fill(thisEta,thisPhi);
+	      //modify shirabe
+	      int eta_num = (thisEta+6)*2;
+	      int phi_num = thisPhi*N_ETA_BINS*2;
+	      int layerdisk_num = thisLayerDisk*N_PHI_BINS*N_ETA_BINS*2;
+	      int mod_num = layerdisk_num + phi_num + eta_num + thisSide;
+	      m_tbinmod->Fill(mod_num,tbin);
+	      int layersidenum = thisLayerDisk*2 + thisSide;
+	      if(tbin==2 || tbin==3){
+		m_tbinfrac[layersidenum]->Fill(thisEta,thisPhi,1.);
+		m_tbinfracVsLB->Fill(current_lb,1.0);
+	      }else{
+		m_tbinfrac[layersidenum]->Fill(thisEta,thisPhi,0.);
+		m_tbinfracVsLB->Fill(current_lb,0.0);
+	      }
+	      //end modify
 	      if(m_environment==AthenaMonManager::online) {
 		m_tbinHistoRecent->Fill(tbin,1.);
 		m_tbinHistoVectorRecent[ thisLayerDisk ]->Fill(tbin,1.);
@@ -501,6 +572,21 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
               m_tbinHistoECp->Fill(tbin,1.);
               m_tbinHistoVectorECp[ thisLayerDisk ]->Fill(tbin,1.);
               m_ptrackhitsHistoVectorECp[thisElement]->Fill(thisEta,thisPhi);
+	      //modify shirabe
+	      int eta_num = thisEta*2;
+	      int phi_num = thisPhi*N_ETA_BINS_EC*2;
+	      int layerdisk_num = thisLayerDisk*N_PHI_BINS_EC*N_ETA_BINS_EC*2;
+	      int mod_num = layerdisk_num + phi_num + eta_num + thisSide;
+	      m_tbinmodECp->Fill(mod_num,tbin);
+	      int layersidenum = thisLayerDisk*2 + thisSide;
+	      if(tbin==2 || tbin==3){
+		m_tbinfracECp[layersidenum]->Fill(thisEta,thisPhi,1.);
+		m_tbinfracVsLBECp->Fill(current_lb,1.0);
+	      }else{
+		m_tbinfracECp[layersidenum]->Fill(thisEta,thisPhi,0.);
+		m_tbinfracVsLBECp->Fill(current_lb,0.0);
+	      }
+	      //end modify
 	      if(m_environment==AthenaMonManager::online) {
 		m_tbinHistoRecentECp->Fill(tbin,1.);
 		m_tbinHistoVectorRecentECp[ thisLayerDisk ]->Fill(tbin,1.);
@@ -511,6 +597,21 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
 	      m_tbinHistoECm->Fill(tbin,1.);
               m_tbinHistoVectorECm[ thisLayerDisk ]->Fill(tbin,1.);
               m_ptrackhitsHistoVectorECm[thisElement]->Fill(thisEta,thisPhi);
+	      //modify shirabe
+	      int eta_num = thisEta*2;
+	      int phi_num = thisPhi*N_ETA_BINS_EC*2;
+	      int layerdisk_num = thisLayerDisk*N_PHI_BINS_EC*N_ETA_BINS_EC*2;
+	      int mod_num = layerdisk_num + phi_num + eta_num + thisSide;
+	      m_tbinmodECm->Fill(mod_num,tbin);
+	      int layersidenum = thisLayerDisk*2 + thisSide;
+	      if(tbin==2 || tbin==3){
+		m_tbinfracECm[layersidenum]->Fill(thisEta,thisPhi,1.);
+		m_tbinfracVsLBECm->Fill(current_lb,1.0);
+	      }else{
+		m_tbinfracECm[layersidenum]->Fill(thisEta,thisPhi,0.);
+		m_tbinfracVsLBECm->Fill(current_lb,0.0);
+	      }
+	      //end modify
 	      if(m_environment==AthenaMonManager::online) {
 		m_tbinHistoRecentECm->Fill(tbin,1.);
 		m_tbinHistoVectorRecentECm[ thisLayerDisk ]->Fill(tbin,1.);
@@ -614,7 +715,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
 	  int npos  = nHits_pos - s; 
 	  int nppos = nHits_pos - s - 1; 
 	  if (npos < 0) npos = m_evtsbins + npos;
-	  if (nppos < 0) npos = m_evtsbins + nppos;
+	  //copy-and-paste error? coverity id 29910
+	  if (nppos < 0) nppos = m_evtsbins + nppos;
 	  if (nmaxModule_buf[npos] == nmaxModule_buf[nppos]) badmodule = true;
 	  else badmodule = false;
 	}
@@ -1520,11 +1622,25 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
     std::string histoTitle="RDO Track TimeBin for "+names[systemIndex];
     std::string histoNameRecent="TrackTimeBinRecent"+abbreviations[systemIndex];
     std::string histoTitleRecent="RDO Track TimeBin from recent events for "+names[systemIndex];
+    // modify shirabe
+    std::string histoName2="TimeBinModules"+abbreviations[systemIndex];
+    std::string histoTitle2="TimeBin for each modules"+names[systemIndex];
+    //end modify
     switch(systemIndex){
       case 0:{
         m_tbinHistoECm=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
+	int n_mod = N_ETA_BINS_EC*N_PHI_BINS_EC*N_ENDCAPSx2;
+	m_tbinmodECm = h2IFactory(histoName2,histoTitle2,timeGroup,n_mod,0,n_mod,8,-0.5,7.5);
+	std::string disksidenameECm[] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
+	for(int i=0; i<18; i++){
+	  std::string nameECmfrac = "TBinFracEC_"+disksidenameECm[i];
+	  std::string titleECmfrac = "fraction of 01X in EndcapC"+disksidenameECm[i];
+	  m_tbinfracECm[i]=prof2DFactory(nameECmfrac,titleECmfrac,timeGroup,3,0,2,52,0,51); 
+	}
+	m_tbinfracVsLBECm = profFactory("TBinFrac01XVsLBEC","fraction of 01X vs LumiBlock in EndcapC",timeGroup,2000,0,2000);
 	for (unsigned int bin(0); bin<nBins; bin++) {
 	  m_tbinHistoECm->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  m_tbinmodECm->GetYaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
 	}
 	m_tbinHistoECm->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
@@ -1538,8 +1654,18 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
       }
       case 1:{
         m_tbinHisto=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
+	int n_mod = N_ETA_BINS*N_PHI_BINS*N_BARRELSx2;
+	m_tbinmod = h2IFactory(histoName2,histoTitle2,timeGroup,n_mod,0,n_mod,8,-0.5,7.5);
+	std::string layersidenameB[] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1"};
+	for(int i=0; i<8; i++){
+	  std::string nameBfrac = "TBinFrac_"+layersidenameB[i];
+	  std::string titleBfrac = "fraction of 01X in Barrel"+layersidenameB[i];
+	  m_tbinfrac[i]=prof2DFactory(nameBfrac,titleBfrac,timeGroup,13,-6,6,56,0,55); 
+	}
+	m_tbinfracVsLB = profFactory("TBinFrac01XVsLB","fraction of 01X vs LumiBlock in Barrel",timeGroup,2000,0,2000);
 	for (unsigned int bin(0); bin<nBins; bin++) {
 	  m_tbinHisto->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  m_tbinmod->GetYaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
 	}
 	m_tbinHisto->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
@@ -1553,8 +1679,18 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
       }
       case 2:{
         m_tbinHistoECp=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
+	int n_mod = N_ETA_BINS_EC*N_PHI_BINS_EC*N_ENDCAPSx2;
+	m_tbinmodECp = h2IFactory(histoName2,histoTitle2,timeGroup,n_mod,0,n_mod,8,-0.5,7.5);
+	std::string disksidenameECp[] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
+	for(int i=0; i<18; i++){
+	  std::string nameECpfrac = "TBinFracEA_"+disksidenameECp[i];
+	  std::string titleECpfrac = "fraction of 01X in EndcapA"+disksidenameECp[i];
+	  m_tbinfracECp[i]=prof2DFactory(nameECpfrac,titleECpfrac,timeGroup,3,0,2,52,0,51); 
+	}
+	m_tbinfracVsLBECp = profFactory("TBinFrac01XVsLBEA","fraction of 01X vs LumiBlock in EndcapA",timeGroup,2000,0,2000);
 	for (unsigned int bin(0); bin<nBins; bin++) {
 	  m_tbinHistoECp->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  m_tbinmodECp->GetYaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
 	}
 	m_tbinHistoECp->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
@@ -1630,6 +1766,38 @@ SCTHitsNoiseMonTool::h2Factory(const std::string & name, const std::string & tit
   storageVector.push_back(tmp);
   return success?tmp:NULL;
 }
+
+//modify shirabe
+SCTHitsNoiseMonTool::H2I_t
+SCTHitsNoiseMonTool::h2IFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, double xlo, double xhi, int nbiny, double ylo, double yhi){
+
+  H2I_t tmp = new TH2I(TString(name), TString(title),nbinx,xlo,xhi,nbiny,ylo,yhi);
+  tmp->SetXTitle("module #");
+  tmp->SetYTitle("Time bin");
+  bool success( registry.regHist(tmp).isSuccess());
+  if (not success)  msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
+  return success?tmp:NULL;
+}
+SCTHitsNoiseMonTool::Prof2_t
+SCTHitsNoiseMonTool::prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, int xlo, int xhi, int nbiny, int ylo, int yhi){
+  Prof2_t tmp = new TProfile2D(TString(name), TString(title),nbinx,xlo-0.5,xhi+0.5,nbiny,ylo-0.5,yhi+0.5);
+  tmp->SetXTitle("Index in the direction of #eta");
+  tmp->SetYTitle("Index in the direction of #phi");
+  bool success( registry.regHist(tmp).isSuccess());
+  if (not success)  msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
+  return success?tmp:NULL;
+}
+
+SCTHitsNoiseMonTool::Prof_t
+SCTHitsNoiseMonTool::profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, int lo, int hi){
+  Prof_t tmp = new TProfile(TString(name), TString(title),nbin,lo,hi);
+  tmp->SetXTitle("LumiBlock");
+  tmp->SetYTitle("Fraction of 01X");
+  bool success( registry.regHist(tmp).isSuccess());
+  if (not success)  msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
+  return success?tmp:NULL;
+}
+//end modify
 
 SCTHitsNoiseMonTool::Prof2_t
 SCTHitsNoiseMonTool::prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector){
