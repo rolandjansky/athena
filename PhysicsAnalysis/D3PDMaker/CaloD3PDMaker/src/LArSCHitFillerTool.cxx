@@ -21,7 +21,7 @@
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 
 #include <vector>
 #include <list>
