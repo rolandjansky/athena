@@ -56,6 +56,11 @@ class PixelCablingData
    // destructor
    virtual ~PixelCablingData();
 
+   // avoid default copy ctor / assignment operator
+   PixelCablingData(const PixelCablingData &other) = delete;
+   PixelCablingData& operator= (const PixelCablingData &other) = delete;
+
+
    void add_entry_onoff(const uint64_t, const Identifier);   // add entries to m_idMap_onoff
    void add_entry_offon(const Identifier, const uint64_t);   // add entries in m_idMap_offon
    void add_entry_offrob(const Identifier, const uint32_t);   // add entries in m_idMap_offrob
@@ -93,6 +98,7 @@ class PixelCablingData
 
 
  private:
+
 
    boost::unordered_map<uint64_t, Identifier> m_idMap_onoff;   // offline identifier -> online identifier map
    boost::unordered_map<Identifier, uint64_t> m_idMap_offon;   // online identifier -> offline identifier map
