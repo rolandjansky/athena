@@ -119,13 +119,16 @@ PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string
 // Assignment operator
 ////////////////////////
 PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
-    m_mappingType = other.m_mappingType;
-    m_final_mapping_file = other.m_final_mapping_file;
-    m_bandwidth = other.m_bandwidth;
-    m_coraldbconnstring = other.m_coraldbconnstring;
-    m_dictTag = other.m_dictTag;
-    m_connTag = other.m_connTag;
-    m_key = other.m_key;
+
+    if (&other != this) {
+        m_mappingType = other.m_mappingType;
+        m_final_mapping_file = other.m_final_mapping_file;
+        m_bandwidth = other.m_bandwidth;
+        m_coraldbconnstring = other.m_coraldbconnstring;
+        m_dictTag = other.m_dictTag;
+        m_connTag = other.m_connTag;
+        m_key = other.m_key;
+    }
     return *this;
 }
 
@@ -217,7 +220,8 @@ StatusCode PixelCablingSvc::initialize( )
         // Hybrid IBL with DBM
         if (m_IBLpresent && m_isHybrid && m_DBMpresent) {
             //m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat";
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_M7.dat";
+            //m_final_mapping_file = "Pixels_Atlas_IdMapping_M7.dat";
+            m_final_mapping_file = "Pixels_Atlas_IdMapping_Run2.dat";
         }
         // Homogeneous IBL with DBM
         else if (m_IBLpresent && !m_isHybrid && m_DBMpresent) {
