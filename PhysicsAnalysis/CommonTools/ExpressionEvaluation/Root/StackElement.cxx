@@ -2,539 +2,895 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////
-// StackElement.cxx, (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////
-// Author: Thomas Gillam (thomas.gillam@cern.ch)
-// ExpressionParsing library
-/////////////////////////////////////////////////////////////////
+// $Id$
 
+// System include(s):
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
+
+// Local include(s):
 #include "ExpressionEvaluation/StackElement.h"
-#include "ExpressionEvaluation/IProxyLoader.h"
 
-#define UNARY_MATH_FUNCTION(FUNC, BASEFUNC) StackElement StackElement::FUNC() const \
-  { \
-    StackElement temp(*this); \
-    temp.makeDouble(); \
-    if (temp.type == SE_DOUBLE) { \
-      temp.doubleval = BASEFUNC(temp.doubleval); \
-      return temp; \
-    } else if (temp.type == SE_VECDOUBLE) { \
-      for (std::vector<double>::iterator it = temp.vecdoubleval.begin(); it != temp.vecdoubleval.end(); ++it) { \
-        *it = BASEFUNC(*it); \
-      } \
-      return temp; \
-    } else { \
-      return 0; \
-    } \
-  }
+namespace {
 
-#define IMPL_ASSIGN_OP(OP) template <> StackElement &StackElement::operator OP(const StackElement &rhs) \
-  { \
-    makeVectorIfNecessary(rhs); \
-    makeDoubleIfNecessary(rhs); \
-    if (type == SE_INT)            intval     OP rhs.scalarValue<int>(); \
-    else if (type == SE_DOUBLE)    doubleval  OP rhs.scalarValue<double>(); \
-    else if (type == SE_VECINT)    *this      OP rhs.vectorValue<int>(vecintval.size()); \
-    else if (type == SE_VECDOUBLE) *this      OP rhs.vectorValue<double>(vecdoubleval.size()); \
-    else                        throw std::runtime_error("StackElement ill-defined in " #OP); \
-    return *this; \
-  }
+   template< typename T >
+   std::ostream& operator <<( std::ostream& os, const std::vector< T >& vec ) {
 
-#define IMPL_BINARY_COMPARISON_OP(OP, BASEOP) template <> StackElement StackElement::OP(const StackElement &other) const \
-  { \
-    if (isScalar() && other.isScalar()) { \
-      if ((type == StackElement::SE_INT) && (other.type == StackElement::SE_INT)) { \
-        return (scalarValue<int>() BASEOP other.scalarValue<int>()); \
-      } else { \
-        return (scalarValue<double>() BASEOP other.scalarValue<double>()); \
-      } \
-    } else if (isVector() && other.isVector()) { \
-      if ((type == StackElement::SE_VECINT) && (other.type == StackElement::SE_VECINT)) { \
-        return (this->OP(other.vectorValue<int>())); \
-      } else { \
-        return (this->OP(other.vectorValue<double>())); \
-      } \
-    } else if (isVector() && other.isScalar()) { \
-      if ((type == StackElement::SE_VECINT) && (other.type == StackElement::SE_INT)) { \
-        return (this->OP(other.vectorValue<int>(vecintval.size()))); \
-      } else { \
-        return (this->OP(other.vectorValue<double>(vectorValue<int>().size()))); \
-      } \
-    } else if (isScalar() && other.isVector()) { \
-      if (other.type == StackElement::SE_INT) { \
-        return (this->OP(other.vectorValue<int>())); \
-      } else { \
-        return (this->OP(other.vectorValue<double>())); \
-      } \
-    }  else { \
-      throw std::runtime_error("ERROR: Can't operate on SE_UNK StackElements"); \
-    } \
-  }
+      os << '[';
+      for( std::size_t i = 0; i < vec.size(); ++i ) {
+         os << vec[ i ];
+         if( ( i + 1 ) < vec.size() ) {
+            os << ", ";
+         }
+      }
+      os << ']';
+
+      return os;
+   }
+
+} // private namespace
 
 namespace ExpressionParsing {
 
-  StackElement::StackElement()
-    : type(SE_UNK),
-      intval(0),
-      doubleval(0),
-      m_proxyLoader(nullptr),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(unsigned int val)
-    : type(SE_INT),
-      intval(val), 
-      doubleval(0),
-      m_proxyLoader(nullptr),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(int val)
-    : type(SE_INT),
-      intval(val),
-      doubleval(0),
-      m_proxyLoader(nullptr),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(double val)
-    : type(SE_DOUBLE),
-      intval(0),
-      doubleval(val),
-      m_proxyLoader(nullptr),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::vector<int> &val)
-    : type(SE_VECINT),
-      intval(0),
-      doubleval(0),
-      vecintval(val),
-      m_proxyLoader(0),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::vector<double> &val)
-    : type(SE_VECDOUBLE),
-      intval(0),
-      doubleval(0),
-      vecdoubleval(val),
-      m_proxyLoader(0),
-      m_variableType(),
-      m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::string &val, IProxyLoader *proxyLoader)
-    : type(SE_UNK),
-      intval(0),
-      doubleval(0),
-      varname(val),
-      m_proxyLoader(proxyLoader),
-      m_variableType(),
-      m_determinedVariableType(false) { }
+   StackElement::StackElement()
+      : m_type( SE_UNK ),
+        m_intVal( 0 ),
+        m_doubleVal( 0 ),
+        m_vecIntVal(),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
 
-  StackElement StackElement::operator =(const int &rhs)
-  {
-    type = SE_INT; intval = rhs;
-    return *this;
-  }
+   }
 
-  StackElement StackElement::operator =(const double &rhs)
-  {
-    type = SE_DOUBLE; doubleval = rhs; 
-    return *this;
-  }
+   StackElement::StackElement( unsigned int val )
+      : m_type( SE_INT ),
+        m_intVal( val ), 
+        m_doubleVal( 0 ),
+        m_vecIntVal(),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
 
-  StackElement StackElement::operator =(const std::vector<int> &rhs)
-  {
-    type = SE_VECINT; vecintval = rhs;
-    return *this;
-  }
+   }
 
-  StackElement StackElement::operator =(const std::vector<double> &rhs)
-  {
-    type = SE_VECDOUBLE; vecdoubleval = rhs;
-    return *this;
-  }
+   StackElement::StackElement( int val )
+      : m_type( SE_INT ),
+        m_intVal( val ),
+        m_doubleVal( 0 ),
+        m_vecIntVal(),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
 
-  StackElement StackElement::operator !() const
-  {
-    StackElement temp(*this);
-    if (type == SE_INT)         temp.intval    = !intval;
-    else if (type == SE_DOUBLE) {
-      temp.makeInt();
-      temp.intval = !doubleval;
-    } else if (type == SE_VECINT) {
-      for (std::vector<int>::iterator it = temp.vecintval.begin(); it != temp.vecintval.end(); ++it) {
-        *it = !(*it);
+   }
+
+   StackElement::StackElement( double val )
+      : m_type( SE_DOUBLE ),
+        m_intVal( 0 ),
+        m_doubleVal( val ),
+        m_vecIntVal(),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
+
+   }
+
+   StackElement::StackElement( const std::vector< int >& val )
+      : m_type( SE_VECINT ),
+        m_intVal( 0 ),
+        m_doubleVal( 0 ),
+        m_vecIntVal( val ),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
+
+      for( auto& value : m_vecIntVal ) {
+         m_vecDoubleHelper.push_back( value );
       }
-    } else if (type == SE_VECDOUBLE) {
-      temp.makeInt();
-      for (size_t i = 0; i < temp.vecintval.size(); ++i) {
-        temp.vecintval[i] = !temp.vecdoubleval[i];
-      }
-    }
-    return temp;
-  }
+   }
 
-  StackElement StackElement::operator -() const
-  {
-    StackElement temp(*this);
-    if (type == SE_INT)         temp.intval    = -intval;
-    else if (type == SE_DOUBLE) temp.doubleval = -doubleval;
-    else if (type == SE_VECINT) {
-      for (std::vector<int>::iterator it = temp.vecintval.begin(); it != temp.vecintval.end(); ++it) {
-        *it = -(*it);
+   StackElement::StackElement( const std::vector< double >& val )
+      : m_type( SE_VECDOUBLE ),
+        m_intVal( 0 ),
+        m_doubleVal( 0 ),
+        m_vecIntVal(),
+        m_vecDoubleVal( val ),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName(),
+        m_proxyLoader( nullptr ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
+
+      for( auto& value : m_vecDoubleVal ) {
+         m_vecIntHelper.push_back( value );
       }
-    } else if (type == SE_VECDOUBLE) {
-      for (std::vector<double>::iterator it = temp.vecdoubleval.begin(); it != temp.vecdoubleval.end(); ++it) {
-        *it = -(*it);
-      }
-    }
-    return temp;
-  }
+   }
+
+   StackElement::StackElement( const std::string &val,
+                               IProxyLoader* proxyLoader )
+      : m_type( SE_UNK ),
+        m_intVal( 0 ),
+        m_doubleVal( 0 ),
+        m_vecIntVal(),
+        m_vecDoubleVal(),
+        m_vecIntHelper(),
+        m_vecDoubleHelper(),
+        m_varName( val ),
+        m_proxyLoader( proxyLoader ),
+        m_variableType( IProxyLoader::VT_UNK ),
+        m_determinedVariableType( false ) {
+
+   }
+
+   StackElement& StackElement::operator=( int rhs ) {
+
+      m_type = SE_INT;
+      m_intVal = rhs;
+      m_doubleVal = 0;
+      m_vecIntVal.clear();
+      m_vecDoubleVal.clear();
+      m_vecIntHelper.clear();
+      m_vecDoubleHelper.clear();
+
+      return *this;
+   }
+
+   StackElement& StackElement::operator=( double rhs ) {
+
+      m_type = SE_DOUBLE;
+      m_intVal = 0;
+      m_doubleVal = rhs;
+      m_vecIntVal.clear();
+      m_vecDoubleVal.clear();
+      m_vecIntHelper.clear();
+      m_vecDoubleHelper.clear();
+
+      return *this;
+   }
 
 
-  StackElement StackElement::_sum() const
-  {
-    if (type == SE_INT) return intval;
-    else if (type == SE_DOUBLE) return doubleval;
-    else if (type == SE_VECINT) {
-      int total = 0;
-      for (std::vector<int>::const_iterator it = vecintval.begin(); it != vecintval.end(); ++it) {
-        total += *it;
-      }
-      return total;
-    } else if (type == SE_VECDOUBLE) {
-      double total = 0.;
-      for (std::vector<double>::const_iterator it = vecdoubleval.begin(); it != vecdoubleval.end(); ++it) {
-        total += *it;
-      }
-      return total;
-    } else {
-      return 0;
-    }
-  }
+   StackElement& StackElement::operator=( const std::vector< int >& rhs ) {
 
-  StackElement StackElement::_count() const
-  {
-    if (type == SE_INT) return !!intval;
-    else if (type == SE_DOUBLE) return !!doubleval;
-    else if (type == SE_VECINT) {
-      int total = 0;
-      for (std::vector<int>::const_iterator it = vecintval.begin(); it != vecintval.end(); ++it) {
-        total += !!*it;
-      }
-      return total;
-    } else if (type == SE_VECDOUBLE) {
-      int total = 0;
-      for (std::vector<double>::const_iterator it = vecdoubleval.begin(); it != vecdoubleval.end(); ++it) {
-        total += !!*it;
-      }
-      return total;
-    } else {
-      return 0;
-    }
-  }
+      m_type = SE_VECINT;
+      m_intVal = 0;
+      m_doubleVal = 0;
+      m_vecIntVal = rhs;
+      m_vecDoubleVal.clear();
+      m_vecIntHelper.clear();
+      m_vecDoubleHelper.clear();
 
-  StackElement StackElement::_abs() const
-  {
-    if (type == SE_INT) {
-      if (intval < 0) return -intval;
-      else return intval;
-    } else if (type == SE_DOUBLE) {
-      return fabs(doubleval);
-    } else if (type == SE_VECINT) {
-      std::vector<int> temp;
-      for (std::vector<int>::const_iterator it = vecintval.begin(); it != vecintval.end(); ++it) {
-        if (*it < 0) temp.push_back(-*it);
-        else         temp.push_back(*it);
+      for( auto& value : m_vecIntVal ) {
+         m_vecDoubleHelper.push_back( value );
       }
+
+      return *this;
+   }
+
+   StackElement& StackElement::operator=( const std::vector< double >& rhs ) {
+
+      m_type = SE_VECDOUBLE;
+      m_intVal = 0;
+      m_doubleVal = 0;
+      m_vecIntVal.clear();
+      m_vecDoubleVal = rhs;
+      m_vecIntHelper.clear();
+      m_vecDoubleHelper.clear();
+
+      for( auto& value : m_vecDoubleVal ) {
+         m_vecIntHelper.push_back( value );
+      }
+
+      return *this;
+   }
+
+   StackElement StackElement::operator!() const {
+
+      // Create a copy of the object:
+      StackElement temp( *this );
+
+      // ...and modify its payload appropriately:
+      switch( m_type ) {
+
+      case SE_INT:
+         temp.m_intVal = !( this->m_intVal );
+         break;
+
+      case SE_DOUBLE:
+         temp.makeInt();
+         temp.m_intVal = !( this->m_doubleVal );
+         break;
+
+      case SE_VECINT:
+         for( std::size_t i = 0; i < temp.m_vecIntVal.size(); ++i ) {
+            temp.m_vecIntVal[ i ] = !( temp.m_vecIntVal[ i ] );
+         }
+         break;
+
+      case SE_VECDOUBLE:
+         temp.makeInt();
+         for( std::size_t i = 0; i < temp.m_vecIntVal.size(); ++i ) {
+            temp.m_vecIntVal[ i ] = !( temp.m_vecDoubleVal[ i ] );
+         }
+         break;
+
+      default:
+         throw std::runtime_error( "! operator called on unknown "
+                                   "variable type" );
+         break;
+      }
+
+      // Return the negated object:
       return temp;
-    } else if (type == SE_VECDOUBLE) {
-      std::vector<double> temp;
-      for (std::vector<double>::const_iterator it = vecdoubleval.begin(); it != vecdoubleval.end(); ++it) {
-        temp.push_back(fabs(*it));
+   }
+
+   StackElement StackElement::operator-() const {
+
+      // Create a copy of the object:
+      StackElement temp( *this );
+
+      // ...and modify its payload appropriately:
+      switch( m_type ) {
+
+      case SE_INT:
+         temp.m_intVal = -( this->m_intVal );
+         break;
+
+      case SE_DOUBLE:
+         temp.m_doubleVal = -( this->m_doubleVal );
+         break;
+
+      case SE_VECINT:
+         for( std::size_t i = 0; i < temp.m_vecIntVal.size(); ++i ) {
+            temp.m_vecIntVal[ i ] = -( temp.m_vecIntVal[ i ] );
+         }
+         break;
+
+      case SE_VECDOUBLE:
+         for( std::size_t i = 0; i < temp.m_vecDoubleVal.size(); ++i ) {
+            temp.m_vecDoubleVal[ i ] = -( temp.m_vecDoubleVal[ i ] );
+         }
+         break;
+
+      default:
+         throw std::runtime_error( "- operator called on unknown "
+                                   "variable type" );
+         break;
       }
+
+      // Return the inverted object:
       return temp;
-    } else {
-      return 0;
-    }
-  }
+   }
 
+/// Helper macro implementing the assignment operator specialisations
+#define IMPL_ASSIGN_OP( OP )                                            \
+   template <>                                                          \
+   StackElement& StackElement::operator OP( const StackElement& rhs ) { \
+      makeVectorIfNecessary( rhs );                                     \
+      makeDoubleIfNecessary( rhs );                                     \
+      switch( m_type ) {                                                \
+      case SE_INT:                                                      \
+         m_intVal OP rhs.scalarValue< int >();                          \
+         break;                                                         \
+      case SE_DOUBLE:                                                   \
+         m_doubleVal OP rhs.scalarValue< double >();                    \
+         break;                                                         \
+      case SE_VECINT:                                                   \
+         *this OP rhs.vectorValue< int >( m_vecIntVal.size() );         \
+         break;                                                         \
+      case SE_VECDOUBLE:                                                \
+         *this OP rhs.vectorValue< double >( m_vecDoubleVal.size() );   \
+         break;                                                         \
+      default:                                                          \
+         throw std::runtime_error( "StackElement ill-defined in "       \
+                                   #OP );                               \
+         break;                                                         \
+      }                                                                 \
+      return *this;                                                     \
+   }
 
-  IMPL_BINARY_COMPARISON_OP(_eq, ==)
-  IMPL_BINARY_COMPARISON_OP(_neq, !=)
-  IMPL_BINARY_COMPARISON_OP(_and, &&)
-  IMPL_BINARY_COMPARISON_OP(_or, ||)
-  IMPL_BINARY_COMPARISON_OP(_gt, >)
-  IMPL_BINARY_COMPARISON_OP(_gte, >=)
-  IMPL_BINARY_COMPARISON_OP(_lt, <)
-  IMPL_BINARY_COMPARISON_OP(_lte, <=)
+   IMPL_ASSIGN_OP( -= )
+   IMPL_ASSIGN_OP( += )
+   IMPL_ASSIGN_OP( *= )
+   IMPL_ASSIGN_OP( /= )
 
-  IMPL_ASSIGN_OP(-=)
-  IMPL_ASSIGN_OP(+=)
-  IMPL_ASSIGN_OP(*=)
-  IMPL_ASSIGN_OP(/=)
+/// The macro is not needed anymore:
+#undef IMPL_ASSIGN_OP
 
-  template <> StackElement StackElement::_pow(const StackElement &n) const
-  {
-    if (n.isVector()) throw std::runtime_error("Can't use vector as exponent");
-    else return _pow(n.scalarValue<double>());
-  }
+   StackElement::ElementType StackElement::getType() const {
 
-  UNARY_MATH_FUNCTION(_sqrt, sqrt)
-  UNARY_MATH_FUNCTION(_cbrt, cbrt)
-  UNARY_MATH_FUNCTION(_sin, sin)
-  UNARY_MATH_FUNCTION(_cos, cos)
-  UNARY_MATH_FUNCTION(_tan, tan)
-  UNARY_MATH_FUNCTION(_asin, asin)
-  UNARY_MATH_FUNCTION(_acos, acos)
-  UNARY_MATH_FUNCTION(_atan, atan)
-  UNARY_MATH_FUNCTION(_sinh, sinh)
-  UNARY_MATH_FUNCTION(_cosh, cosh)
-  UNARY_MATH_FUNCTION(_tanh, tanh)
-  UNARY_MATH_FUNCTION(_asinh, asinh)
-  UNARY_MATH_FUNCTION(_acosh, acosh)
-  UNARY_MATH_FUNCTION(_atanh, atanh)
-  UNARY_MATH_FUNCTION(_log, log)
-  UNARY_MATH_FUNCTION(_exp, exp)
+      return m_type;
+   }
 
-  StackElement::ElementType StackElement::getType() const
-  {
-    return type;
-  }
+   bool StackElement::isScalar() const {
 
-  bool StackElement::isScalar() const
-  {
-    return (type == SE_INT || type == SE_DOUBLE);
-  }
+      return ( ( m_type == SE_INT ) || ( m_type == SE_DOUBLE ) );
+   }
 
-  bool StackElement::isVector() const
-  {
-    return (type == SE_VECINT || type == SE_VECDOUBLE);
-  }
+   bool StackElement::isVector() const {
 
-  bool StackElement::isProxy() const
-  {
-    return (varname.length() > 0);
-  }
+      return ( ( m_type == SE_VECINT ) || ( m_type == SE_VECDOUBLE ) );
+   }
 
+   bool StackElement::isProxy() const {
 
-  void StackElement::setValueFromProxy()
-  {
-    if (!isProxy()) return;
+      return ( m_varName.length() > 0 );
+   }
 
-    if (!m_determinedVariableType) {
-      m_variableType = m_proxyLoader->variableTypeFromString(varname);
-      m_determinedVariableType = true;
-    }
-    switch (m_variableType) {
+   int StackElement::asInt() const {
+
+      if( m_type != SE_INT ) {
+         throw std::runtime_error( "asInt() only valid for SE_INT" );
+      }
+
+      return scalarValue< int >();
+   }
+
+   bool StackElement::asBool() const {
+
+      if( ! ( ( m_type == SE_INT ) || ( m_type == SE_DOUBLE ) ) ) {
+         throw std::runtime_error( "asBool() only valid for non-vector types" );
+      }
+
+      return scalarValue< bool >();
+   }
+
+   template<>
+   const std::vector< int >&
+   StackElement::vectorValue( std::size_t sizeIfScalar ) const {
+
+      switch( m_type ) {
+
+      case SE_VECINT:
+         return m_vecIntVal;
+         break;
+
+      case SE_VECDOUBLE:
+         return m_vecIntHelper;
+         break;
+
+      case SE_INT:
+         m_vecIntHelper.clear();
+         m_vecIntHelper.resize( sizeIfScalar, m_intVal );
+         return m_vecIntHelper;
+         break;
+
+      case SE_DOUBLE:
+         m_vecIntHelper.clear();
+         m_vecIntHelper.resize( sizeIfScalar,
+                                static_cast< int >( m_doubleVal ) );
+         return m_vecIntHelper;
+         break;
+
+      default:
+         throw std::runtime_error( "(int) vectorValue(): Unsupported "
+                                   "StackElement" );
+         break;
+      }
+   }
+
+   template<>
+   const std::vector< double >&
+   StackElement::vectorValue( size_t sizeIfScalar ) const {
+
+      switch( m_type ) {
+
+      case SE_VECINT:
+         return m_vecDoubleHelper;
+         break;
+
+      case SE_VECDOUBLE:
+         return m_vecDoubleVal;
+         break;
+
+      case SE_INT:
+         m_vecDoubleHelper.clear();
+         m_vecDoubleHelper.resize( sizeIfScalar,
+                                   static_cast< double >( m_intVal ) );
+         return m_vecDoubleHelper;
+         break;
+
+      case SE_DOUBLE:
+         m_vecDoubleHelper.clear();
+         m_vecDoubleHelper.resize( sizeIfScalar, m_doubleVal );
+         return m_vecDoubleHelper;
+         break;
+
+      default:
+         throw std::runtime_error( "(dbl) vectorValue(): Unsupported "
+                                   "StackElement" );
+         break;
+      }
+   }
+
+   void StackElement::makeInt() {
+
+      if( m_type == SE_DOUBLE ) {
+         m_type = SE_INT;
+         m_intVal = m_doubleVal;
+      } else if( m_type == SE_VECDOUBLE ) {
+         m_type = SE_VECINT;
+         m_vecIntVal.clear();
+         m_vecDoubleHelper.clear();
+         for( auto& value : m_vecDoubleVal ) {
+            m_vecIntVal.push_back( static_cast< int >( value ) );
+            m_vecDoubleHelper.push_back( static_cast< int >( value ) );
+         }
+      }
+
+      return;
+   }
+
+   void StackElement::makeDouble() {
+
+      if( m_type == SE_INT ) {
+         m_type = SE_DOUBLE;
+         m_doubleVal = m_intVal;
+      } else if( m_type == SE_VECINT ) {
+         m_type = SE_VECDOUBLE;
+         m_vecDoubleVal.clear();
+         m_vecIntHelper.clear();
+         for( auto& value : m_vecIntVal ) {
+            m_vecDoubleVal.push_back( static_cast< double >( value ) );
+            m_vecIntHelper.push_back( value );
+         }
+      }
+
+      return;
+   }
+
+   void StackElement::makeVector( std::size_t n ) {
+
+      if( isVector() ) {
+         return;
+      }
+
+      if( m_type == SE_INT ) {
+         m_type = SE_VECINT;
+         m_vecIntVal.clear();
+         m_vecIntVal.resize( n, m_intVal );
+         m_vecDoubleHelper.clear();
+         m_vecDoubleHelper.resize( n, static_cast< double >(  m_intVal ) );
+      } else if( m_type == SE_DOUBLE ) {
+         m_type = SE_VECDOUBLE;
+         m_vecDoubleVal.clear();
+         m_vecDoubleVal.resize( n, m_doubleVal );
+         m_vecIntHelper.clear();
+         m_vecIntHelper.resize( n, static_cast< int >( m_doubleVal ) );
+      }
+
+      return;
+   }
+
+   void StackElement::setValueFromProxy() {
+
+      if( ! isProxy() ) {
+         return;
+      }
+
+      if( ! m_determinedVariableType ) {
+         m_variableType = m_proxyLoader->variableTypeFromString( m_varName );
+         m_determinedVariableType = true;
+      }
+
+      switch( m_variableType ) {
+
       case IProxyLoader::VT_INT:
-        type = SE_INT;
-        intval = m_proxyLoader->loadIntVariableFromString(varname);
-        break;
+         m_type = SE_INT;
+         m_intVal = m_proxyLoader->loadIntVariableFromString( m_varName );
+         break;
+
       case IProxyLoader::VT_DOUBLE:
-        type = SE_DOUBLE;
-        doubleval = m_proxyLoader->loadDoubleVariableFromString(varname);
-        break;
+         m_type = SE_DOUBLE;
+         m_doubleVal = m_proxyLoader->loadDoubleVariableFromString( m_varName );
+         break;
+
       case IProxyLoader::VT_VECINT:
-        type = SE_VECINT;
-        vecintval = m_proxyLoader->loadVecIntVariableFromString(varname);
-        break;
+         m_type = SE_VECINT;
+         m_vecIntVal = m_proxyLoader->loadVecIntVariableFromString( m_varName );
+         for( auto& value : m_vecIntVal ) {
+            m_vecDoubleHelper.push_back( static_cast< double >( value ) );
+         }
+         break;
+
       case IProxyLoader::VT_VECDOUBLE:
-        type = SE_VECDOUBLE;
-        vecdoubleval = m_proxyLoader->loadVecDoubleVariableFromString(varname);
-        break;
+         m_type = SE_VECDOUBLE;
+         m_vecDoubleVal =
+            m_proxyLoader->loadVecDoubleVariableFromString( m_varName );
+         for( auto& value : m_vecDoubleVal ) {
+            m_vecIntHelper.push_back( static_cast< int >( value ) );
+         }
+         break;
+
       case IProxyLoader::VT_UNK:
       default:
-        throw std::runtime_error("Got VT_UNK - unknown identifier: " + varname);
-        break;
-    }
-  }
-
-  void StackElement::clearValueFromProxy()
-  {
-    if (!isProxy()) return;
-    type = SE_UNK;
-    intval = 0;
-    doubleval = 0.;
-    vecintval.clear();
-    vecdoubleval.clear();
-  }
-
-  int StackElement::asInt() const
-  {
-    if (type != SE_INT) {
-      throw std::runtime_error("asInt() only valid for SE_INT");
-    }
-    return scalarValue<int>();
-  }
-
-  bool StackElement::asBool() const
-  {
-    if (!((type == SE_INT) || (type == SE_DOUBLE))) {
-      throw std::runtime_error("asInt() only valid for non-vector types");
-    }
-    return scalarValue<bool>();
-  }
-
-  void StackElement::makeInt()
-  {
-    if (type == SE_DOUBLE) {
-      type = SE_INT;
-      intval = doubleval;
-    } else if (type == SE_VECDOUBLE) {
-      type = SE_VECINT;
-      vecintval.clear();
-      for (std::vector<double>::const_iterator it = vecdoubleval.begin(); it != vecdoubleval.end(); ++it) {
-        vecintval.push_back((int) *it);
+         throw std::runtime_error( "Got VT_UNK - unknown identifier: " +
+                                   m_varName );
+         break;
       }
-    }
-  }
 
-  void StackElement::makeDouble()
-  {
-    if (type == SE_INT) {
-      type = SE_DOUBLE;
-      doubleval = intval;
-    } else if (type == SE_VECINT) {
-      type = SE_VECDOUBLE;
-      vecdoubleval.clear();
-      for (std::vector<int>::const_iterator it = vecintval.begin(); it != vecintval.end(); ++it) {
-        vecdoubleval.push_back((double) *it);
+      return;
+   }
+
+   void StackElement::clearValueFromProxy() {
+
+      if( ! isProxy() ) {
+         return;
       }
-    }
-  }
 
-  void StackElement::makeVector(size_t n)
-  {
-    if (isVector()) return;
+      m_type = SE_UNK;
+      m_intVal = 0;
+      m_doubleVal = 0.;
+      m_vecIntVal.clear();
+      m_vecDoubleVal.clear();
+      m_vecIntHelper.clear();
+      m_vecDoubleHelper.clear();
 
-    if (type == SE_INT) {
-      type = SE_VECINT;
-      vecintval.clear();
-      vecintval.resize(n, intval);
-    } else if (type == SE_DOUBLE) {
-      type = SE_VECDOUBLE;
-      vecdoubleval.clear();
-      vecdoubleval.resize(n, doubleval);
-    }
-  }
+      return;
+   }
 
-  void StackElement::makeVectorIfNecessary(const StackElement &other)
-  {
-    if (isVector()) return;
-    if (other.isVector()) {
-      makeVector(other.vectorValue<int>().size());
-    }
-  }
+/// Helper function for implementing the binary comparison specialisations
+#define IMPL_BINARY_COMPARISON_OP( OP, BASEOP )                         \
+   template <>                                                          \
+   StackElement StackElement::OP( const StackElement& other ) const {   \
+      if( isScalar() && other.isScalar() ) {                            \
+         if( ( m_type == SE_INT ) && ( other.m_type == SE_INT ) ) {     \
+            return ( scalarValue< int >() BASEOP                        \
+                     other.scalarValue< int >() );                      \
+         } else {                                                       \
+            return ( scalarValue< double >() BASEOP                     \
+                     other.scalarValue< double >() );                   \
+         }                                                              \
+      } else if( isVector() && other.isVector() ) {                     \
+         if( ( m_type == SE_VECINT ) &&                                 \
+             ( other.m_type == SE_VECINT ) ) {                          \
+            return ( this->OP( other.vectorValue< int >() ) );          \
+         } else {                                                       \
+            return ( this->OP( other.vectorValue< double >() ) );       \
+         }                                                              \
+      } else if( isVector() && other.isScalar() ) {                     \
+         if( ( m_type == SE_VECINT ) && ( other.m_type == SE_INT ) ) {  \
+            const std::size_t size = m_vecIntVal.size();                \
+            return ( this->OP( other.vectorValue< int >( size ) ) );    \
+         } else {                                                       \
+            const std::size_t size = vectorValue< int >().size();       \
+            return ( this->OP( other.vectorValue< double >( size ) ) ); \
+         }                                                              \
+      } else if( isScalar() && other.isVector() ) {                     \
+         if( other.m_type == SE_VECINT ) {                              \
+            return ( this->OP( other.vectorValue< int >() ) );          \
+         } else {                                                       \
+            return ( this->OP( other.vectorValue< double >() ) );       \
+         }                                                              \
+      } else {                                                          \
+         throw std::runtime_error( "ERROR: Can't operate on SE_UNK "    \
+                                   "StackElements");                    \
+      }                                                                 \
+   }
 
-  void StackElement::makeVectorIfNecessary(const std::vector<int> &other)
-  {
-    if (isVector()) return;
-    makeVector(other.size());
-  }
+   IMPL_BINARY_COMPARISON_OP( _eq, == )
+   IMPL_BINARY_COMPARISON_OP( _neq, != )
+   IMPL_BINARY_COMPARISON_OP( _and, && )
+   IMPL_BINARY_COMPARISON_OP( _or, || )
+   IMPL_BINARY_COMPARISON_OP( _gt, > )
+   IMPL_BINARY_COMPARISON_OP( _gte, >= )
+   IMPL_BINARY_COMPARISON_OP( _lt, < )
+   IMPL_BINARY_COMPARISON_OP( _lte, <= )
 
-  void StackElement::makeVectorIfNecessary(const std::vector<double> &other)
-  {
-    if (isVector()) return;
-    makeVector(other.size());
-  }
+/// The macro is not needed anymore:
+#undef IMPL_BINARY_COMPARISON_OP
 
-  void StackElement::makeDoubleIfNecessary(const StackElement &other) 
-  {
-    if ((type == SE_INT) && (other.type == SE_DOUBLE)) {
-      makeDouble();
-    } else if ((type == SE_VECINT) && (other.type == SE_VECDOUBLE)) {
-      makeDouble();
-    }
-  }
+   template <>
+   StackElement StackElement::_pow( const StackElement& n ) const {
 
-  void StackElement::makeDoubleIfNecessary(const int &)
-  {
-  }
-
-  void StackElement::makeDoubleIfNecessary(const double &)
-  {
-    if (this->type == SE_INT) {
-      makeDouble();
-    }
-  }
-
-  void StackElement::makeDoubleIfNecessary(const std::vector<int> &)
-  {
-  }
-
-  void StackElement::makeDoubleIfNecessary(const std::vector<double> &)
-  {
-    if (this->type == SE_VECINT) {
-      makeDouble();
-    }
-  }
-
-  void StackElement::ensureCompatible(const StackElement &other) const
-  {
-    if (this->type != other.type) {
-      throw std::runtime_error("Incompatible stack elements");
-    }
-  }
-
-  template <> std::vector<int> StackElement::vectorValue(size_t sizeIfScalar) const
-  {
-    if (type == SE_VECINT) {
-      return vecintval;
-    } else if (type == SE_VECDOUBLE) {
-      std::vector<int> retval;
-      for (std::vector<double>::const_iterator it = vecdoubleval.begin(); it != vecdoubleval.end(); ++it) {
-        retval.push_back((int) *it);
+      if( n.isVector() ) {
+         throw std::runtime_error( "Can't use vector as exponent" );
+      } else {
+         return _pow( n.scalarValue< double >() );
       }
-      return retval;
-    } else if (type == SE_INT) {
-      return std::vector<int>(sizeIfScalar, intval);
-    } else if (type == SE_DOUBLE) {
-      return std::vector<int>(sizeIfScalar, doubleval);
-    } else {
-      std::cerr << "ERROR: Shouldn't be here! Throwing. SE: " << *this << std::endl;
-      throw std::runtime_error("(int) vectorValue(): Unsupported StackElement");
-    }
-  }
+   }
 
-  template <> std::vector<double> StackElement::vectorValue(size_t sizeIfScalar) const
-  {
-    if (type == SE_VECDOUBLE) {
-      return vecdoubleval;
-    } else if (type == SE_VECINT) {
-      std::vector<double> retval;
-      for (std::vector<int>::const_iterator it = vecintval.begin(); it != vecintval.end(); ++it) {
-        retval.push_back((double) *it);
+   StackElement StackElement::_sum() const {
+
+      switch( m_type ) {
+
+      case SE_INT:
+         return m_intVal;
+         break;
+
+      case SE_DOUBLE:
+         return m_doubleVal;
+         break;
+
+      case SE_VECINT:
+         {
+            int total = 0;
+            for( int value : m_vecIntVal ) {
+               total += value;
+            }
+            return total;
+         }
+         break;
+
+      case SE_VECDOUBLE:
+         {
+            double total = 0.0;
+            for( double value : m_vecDoubleVal ) {
+               total += value;
+            }
+            return total;
+         }
+         break;
+
+      default:
+         return 0;
+         break;
       }
-      return retval;
-    } else if (type == SE_INT) {
-      return std::vector<double>(sizeIfScalar, intval);
-    } else if (type == SE_DOUBLE) {
-      return std::vector<double>(sizeIfScalar, doubleval);
-    } else {
-      std::cerr << "ERROR: Shouldn't be here! Throwing. SE: " << *this << std::endl;
-      throw std::runtime_error("(dbl) vectorValue(): Unsupported StackElement");
-    }
-  }
+   }
 
+   StackElement StackElement::_count() const {
 
-  template <> void StackElement::ensureCompatibleVectors(const StackElement &other) const
-  {
-    if (isScalar()) return;
-    size_t ourlen = vectorValue<int>().size();
-    if (ourlen != other.vectorValue<int>().size()) {
-      throw std::runtime_error("Incompatible vectors - different length");
-    }
-  }
+      switch( m_type ) {
 
-  std::ostream &operator <<(std::ostream &os, const StackElement &el)
-  {
-    switch (el.type) {
-      case StackElement::SE_INT: os  << "(int)" << el.intval; break;
-      case StackElement::SE_DOUBLE: os << "(double)" << el.doubleval; break;
-      case StackElement::SE_VECINT: os << "(vec<int>)" << el.vecintval; break;
-      case StackElement::SE_VECDOUBLE: os << "(vec<double>)" << el.vecdoubleval; break;
-      case StackElement::SE_UNK: os << "SE_UNK"; break;
-      default: break;
-    }
-    return os;
-  }
+      case SE_INT:
+         return !!( m_intVal );
+         break;
 
-}
+      case SE_DOUBLE:
+         return !!( m_doubleVal );
+         break;
+
+      case SE_VECINT:
+         {
+            int total = 0;
+            for( int value : m_vecIntVal ) {
+               total += !!value;
+            }
+            return total;
+         }
+         break;
+
+      case SE_VECDOUBLE:
+         {
+            int total = 0;
+            for( double value : m_vecDoubleVal ) {
+               total += !!value;
+            }
+            return total;
+         }
+         break;
+
+      default:
+         return 0;
+         break;
+      }
+   }
+
+   StackElement StackElement::_abs() const {
+
+      switch( m_type ) {
+
+      case SE_INT:
+         return std::abs( m_intVal );
+         break;
+
+      case SE_DOUBLE:
+         return std::abs( m_doubleVal );
+         break;
+
+      case SE_VECINT:
+         {
+            std::vector< int > temp;
+            for( int value : m_vecIntVal ) {
+               temp.push_back( std::abs( value ) );
+            }
+            return temp;
+         }
+         break;
+
+      case SE_VECDOUBLE:
+         {
+            std::vector< double > temp;
+            for( double value : m_vecDoubleVal ) {
+               temp.push_back( std::abs( value ) );
+            }
+            return temp;
+         }
+         break;
+
+      default:
+         return 0;
+         break;
+      }
+   }
+
+/// Helper macro for implementing many of the mathematical functions
+#define UNARY_MATH_FUNCTION( FUNC, BASEFUNC )                           \
+   StackElement StackElement::FUNC() const {                            \
+      StackElement temp( *this );                                       \
+      temp.makeDouble();                                                \
+      if( temp.m_type == SE_DOUBLE ) {                                  \
+         temp.m_doubleVal = BASEFUNC( temp.m_doubleVal );               \
+         return temp;                                                   \
+      } else if( temp.m_type == SE_VECDOUBLE ) {                        \
+         temp.m_vecIntHelper.clear();                                   \
+         for( double& value : temp.m_vecDoubleVal ) {                   \
+            value = BASEFUNC( value );                                  \
+            temp.m_vecIntHelper.push_back( value );                     \
+         }                                                              \
+         return temp;                                                   \
+      } else {                                                          \
+         return 0;                                                      \
+      }                                                                 \
+   }
+
+   UNARY_MATH_FUNCTION( _sqrt, sqrt )
+   UNARY_MATH_FUNCTION( _cbrt, cbrt )
+   UNARY_MATH_FUNCTION( _sin, sin )
+   UNARY_MATH_FUNCTION( _cos, cos )
+   UNARY_MATH_FUNCTION( _tan, tan )
+   UNARY_MATH_FUNCTION( _asin, asin )
+   UNARY_MATH_FUNCTION( _acos, acos )
+   UNARY_MATH_FUNCTION( _atan, atan )
+   UNARY_MATH_FUNCTION( _sinh, sinh )
+   UNARY_MATH_FUNCTION( _cosh, cosh )
+   UNARY_MATH_FUNCTION( _tanh, tanh )
+   UNARY_MATH_FUNCTION( _asinh, asinh )
+   UNARY_MATH_FUNCTION( _acosh, acosh )
+   UNARY_MATH_FUNCTION( _atanh, atanh )
+   UNARY_MATH_FUNCTION( _log, log )
+   UNARY_MATH_FUNCTION( _exp, exp )
+
+/// The macro is not needed anymore:
+#undef UNARY_MATH_FUNCTION
+
+   void StackElement::makeVectorIfNecessary( const StackElement& other ) {
+
+      if( isVector() ) {
+         return;
+      }
+      if( other.isVector() ) {
+         makeVector( other.vectorValue< int >().size() );
+      }
+
+      return;
+   }
+
+   void StackElement::makeVectorIfNecessary(const std::vector< int >& other ) {
+
+      if( isVector() ) {
+         return;
+      }
+      makeVector( other.size() );
+
+      return;
+   }
+
+   void
+   StackElement::makeVectorIfNecessary( const std::vector< double >& other ) {
+
+      if( isVector() ) {
+         return;
+      }
+      makeVector( other.size() );
+
+      return;
+   }
+
+   void StackElement::makeDoubleIfNecessary( const StackElement& other ) {
+
+      if( ( m_type == SE_INT ) && ( other.m_type == SE_DOUBLE ) ) {
+         makeDouble();
+      } else if( ( m_type == SE_VECINT ) && ( other.m_type == SE_VECDOUBLE ) ) {
+         makeDouble();
+      }
+
+      return;
+   }
+
+   void StackElement::makeDoubleIfNecessary( int ) {
+
+      return;
+   }
+
+   void StackElement::makeDoubleIfNecessary( double ) {
+
+      if( m_type == SE_INT ) {
+         makeDouble();
+      }
+
+      return;
+   }
+
+   void StackElement::makeDoubleIfNecessary( const std::vector< int >& ) {
+
+      return;
+   }
+
+   void StackElement::makeDoubleIfNecessary( const std::vector< double >& ) {
+
+      if( m_type == SE_VECINT ) {
+         makeDouble();
+      }
+
+      return;
+   }
+
+   void StackElement::ensureCompatible( const StackElement& other ) const {
+
+      if( this->m_type != other.m_type ) {
+         throw std::runtime_error( "Incompatible stack elements" );
+      }
+
+      return;
+   }
+
+   template<>
+   void
+   StackElement::ensureCompatibleVectors( const StackElement& other ) const {
+
+      if( isScalar() ) {
+         return;
+      }
+
+      const std::size_t ourlen = vectorValue< int >().size();
+      if( ourlen != other.vectorValue< int >().size() ) {
+         throw std::runtime_error( "Incompatible vectors - different length" );
+      }
+   }
+
+   std::ostream &operator<<( std::ostream& os,
+                             const StackElement& el ) {
+
+      switch( el.m_type ) {
+
+      case StackElement::SE_INT:
+         os << "(int)" << el.m_intVal;
+         break;
+
+      case StackElement::SE_DOUBLE:
+         os << "(double)" << el.m_doubleVal;
+         break;
+
+      case StackElement::SE_VECINT:
+         os << "(vec<int>)" << el.m_vecIntVal;
+         break;
+
+      case StackElement::SE_VECDOUBLE:
+         os << "(vec<double>)" << el.m_vecDoubleVal;
+         break;
+
+      case StackElement::SE_UNK:
+         os << "SE_UNK";
+         break;
+
+      default:
+         break;
+      }
+
+      return os;
+   }
+
+} // namespace ExpressionParsing
