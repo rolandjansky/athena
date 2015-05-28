@@ -6,15 +6,15 @@
 #include "TrigParticleTPCnv/TrigTauContainerCnv_tlp1.h"
 #include "TrigParticleTPCnv/TrigTauContainerCnv_p3.h"
 
-static TrigTauContainerCnv_tlp1 TPConverter_tlp1;
+static TrigTauContainerCnv_tlp1 m_TPConverter_tlp1;
 static TrigTauContainerCnv_p3   TPConverter;
 
 //createPersistent 
 TrigTauContainer_PERS * TrigTauContainerCnv::createPersistent( TrigTauContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigTauContainerConverter" );
+  MsgStream mlog(messageService(), "TrigTauContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigTauContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTauContainerCnv::createPersistent called" << endreq;
 
   TrigTauContainer_PERS * p_TauCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -25,9 +25,9 @@ TrigTauContainer_PERS * TrigTauContainerCnv::createPersistent( TrigTauContainer 
 //createTransient
 TrigTauContainer * TrigTauContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigTauContainerConverter" );
+  MsgStream mlog(messageService(), "TrigTauContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTauContainerCnv::createTransient called" << endreq;
 
   static pool::Guid p3_guid( "32FE95F3-F85E-481E-9DD6-7BBA08ABDBD7" );
   static pool::Guid tlp1_guid( "1551CECC-52C7-4B5B-876C-27005A8DCCC8" );
@@ -38,7 +38,7 @@ TrigTauContainer * TrigTauContainerCnv::createTransient()
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
         std::auto_ptr< TrigTauContainer_tlp1 > col_vect( poolReadObject< TrigTauContainer_tlp1 >() );
-        return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+        return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigTauContainer" ); }
    
 }//end of create transient method

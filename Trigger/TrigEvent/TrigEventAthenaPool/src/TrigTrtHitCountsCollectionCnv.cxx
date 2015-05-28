@@ -9,15 +9,15 @@
 #include "TrigInDetEventTPCnv/TrigTrtHitCountsCollection_p2.h"
 #include "TrigInDetEventTPCnv/TrigTrtHitCountsCollectionCnv_p2.h"
 
-static TrigTrtHitCountsCollectionCnv_tlp1 TPConverter_tlp1;
+static TrigTrtHitCountsCollectionCnv_tlp1 m_TPConverter;
 static TrigTrtHitCountsCollectionCnv_p2   TPConverter;
 
 //createPersistent 
 TrigTrtHitCountsCollection_PERS * TrigTrtHitCountsCollectionCnv::createPersistent( TrigTrtHitCountsCollection *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigTrtHitCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTrtHitCountsCollectionConverter" );
 
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createPersistent" << endmsg;
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createPersistent" << endreq;
 
   TrigTrtHitCountsCollection_PERS* persObj = TPConverter.createPersistent( transObj, mlog );
  
@@ -28,9 +28,9 @@ TrigTrtHitCountsCollection_PERS * TrigTrtHitCountsCollectionCnv::createPersisten
 //createTransient
 TrigTrtHitCountsCollection* TrigTrtHitCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigTrtHitCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTrtHitCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createTransient" << endmsg;
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createTransient" << endreq;
 
   static pool::Guid p2_guid( "47CBB4D9-381C-423E-A560-A7B5C325A5DD" );
   static pool::Guid tlp1_guid( "A0763CCA-553C-4365-8091-04CA2036FD97" );
@@ -46,7 +46,7 @@ TrigTrtHitCountsCollection* TrigTrtHitCountsCollectionCnv::createTransient()
 
          std::auto_ptr< TrigTrtHitCountsCollection_tlp1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+         return m_TPConverter.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
          std::auto_ptr< TrigTrtHitCountsCollection_p1 > col_vect( poolReadObject< TrigTrtHitCountsCollection_p1 >() );

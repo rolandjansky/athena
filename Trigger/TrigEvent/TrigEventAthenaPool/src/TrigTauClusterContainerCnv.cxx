@@ -23,9 +23,9 @@ static TrigTauClusterContainerCnv_p5     TPconverter5;
 //createPersistent 
 TrigTauClusterContainer_PERS* TrigTauClusterContainerCnv::createPersistent(TrigTauClusterContainer *transObj)
 {
-    MsgStream mlog(msgSvc(), "TrigTauClusterContainerConverter");
+    MsgStream mlog(messageService(), "TrigTauClusterContainerConverter");
 
-    mlog << MSG::DEBUG << "TrigTauClusterContainerCnv::createPersistent called" << endmsg;
+    mlog << MSG::DEBUG << "TrigTauClusterContainerCnv::createPersistent called" << endreq;
 
     TrigTauClusterContainer_PERS* p_TauClusterCont = TPconverter5.createPersistent(transObj, mlog);
 
@@ -37,9 +37,9 @@ TrigTauClusterContainer_PERS* TrigTauClusterContainerCnv::createPersistent(TrigT
 //createTransient
 TrigTauClusterContainer* TrigTauClusterContainerCnv::createTransient()
 {
-    MsgStream mlog(msgSvc(), "TrigTauClusterContainerConverter");
+    MsgStream mlog(messageService(), "TrigTauClusterContainerConverter");
 
-    mlog << MSG::DEBUG << "TrigTauClusterContainerCnv::createTransient called" << endmsg;
+    mlog << MSG::DEBUG << "TrigTauClusterContainerCnv::createTransient called" << endreq;
 
     static pool::Guid p5_guid("8384F60B-952E-4DE4-B307-1AC1C405E156");
     static pool::Guid p4_guid("D41E29BA-0FE8-4319-85F4-93EA68AD9195");

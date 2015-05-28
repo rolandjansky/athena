@@ -6,15 +6,15 @@
 #include "TrigInDetEventTPCnv/TrigTauTracksInfoCollectionCnv_tlp1.h"
 #include "TrigInDetEventTPCnv/TrigTauTracksInfoCollectionCnv_p2.h"
 
-static TrigTauTracksInfoCollectionCnv_tlp1 TPConverter_tlp1;
+static TrigTauTracksInfoCollectionCnv_tlp1 m_TPConverter;
 static TrigTauTracksInfoCollectionCnv_p2   TPConverter;
 
 //createPersistent 
 TrigTauTracksInfoCollection_PERS * TrigTauTracksInfoCollectionCnv::createPersistent( TrigTauTracksInfoCollection *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigTauTracksInfoCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTauTracksInfoCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createPersistent called" << endreq;
   
   TrigTauTracksInfoCollection_PERS * p_cont = TPConverter.createPersistent( transObj, mlog );
   
@@ -26,9 +26,9 @@ TrigTauTracksInfoCollection_PERS * TrigTauTracksInfoCollectionCnv::createPersist
 //createTransient
 TrigTauTracksInfoCollection * TrigTauTracksInfoCollectionCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigTauTracksInfoCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTauTracksInfoCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createTransient called" << endreq;
   
   static pool::Guid p2_guid( "1AF8C4E5-4862-4625-B9B6-D9B53E716B17" );
   static pool::Guid p1_guid( "8A208FA7-C52F-4CD3-AE20-EF1C99FC92A6" );
@@ -39,7 +39,7 @@ TrigTauTracksInfoCollection * TrigTauTracksInfoCollectionCnv::createTransient()
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( p1_guid ) ) {
          std::auto_ptr< TrigTauTracksInfoCollection_tlp1 > col_vect( poolReadObject< TrigTauTracksInfoCollection_tlp1 >() );
-         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+         return m_TPConverter.createTransient( col_vect.get(), mlog );
   } else if( compareClassGuid( p0_guid ) ){
       return poolReadObject< TrigTauTracksInfoCollection >();
   } else  throw std::runtime_error( "Unsupported persistent version of TrigTauTracksInfoCollection" );

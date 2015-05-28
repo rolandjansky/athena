@@ -22,8 +22,8 @@ FTK_RawTrackContainerCnv::~FTK_RawTrackContainerCnv()
 
 //create persistent
 FTK_RawTrackContainer_PERS* FTK_RawTrackContainerCnv::createPersistent(FTK_RawTrackContainer* transObj) {
-    MsgStream mlog(msgSvc(), "FTK_RawTrackContainerConverter" );
-    mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::createPersistent" << endmsg;
+    MsgStream mlog(messageService(), "FTK_RawTrackContainerConverter" );
+    mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::createPersistent" << endreq;
 
     FTK_RawTrackContainer_PERS* persObj = m_tlp_Converter->createPersistent( transObj, mlog );
 
@@ -33,18 +33,18 @@ FTK_RawTrackContainer_PERS* FTK_RawTrackContainerCnv::createPersistent(FTK_RawTr
 //create transient
 FTK_RawTrackContainer* FTK_RawTrackContainerCnv::createTransient() {
   
-  MsgStream mlog(msgSvc(), "FTK_RawTrackContainerConverter" );
-  mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::createTransient " << endmsg;
+  MsgStream mlog(messageService(), "FTK_RawTrackContainerConverter" );
+  mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::createTransient " << endreq;
 
   static pool::Guid tlp1_guid("C1A5436E-8520-4399-82FC-E6828B19688D");
   
   FTK_RawTrackContainer  *transObj = 0;
   if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::reading tlp1 persistent object" << endmsg;
-    FTK_RawTrackContainerCnv_tlp1 tlp1_Converter;
-    poolReadObject< FTK_RawTrackContainer_tlp1 >( tlp1_Converter );
-    transObj = tlp1_Converter.createTransient( mlog );
+    mlog << MSG::DEBUG << "FTK_RawTrackContainerCnv::reading tlp1 persistent object" << endreq;
+    FTK_RawTrackContainerCnv_tlp1 m_tlp1_Converter;
+    poolReadObject< FTK_RawTrackContainer_tlp1 >( m_tlp1_Converter );
+    transObj = m_tlp1_Converter.createTransient( mlog );
   } else {
     throw std::runtime_error("Unsupported persistent version of Data container");
   }

@@ -24,8 +24,8 @@ TrigEMClusterCnv::~TrigEMClusterCnv()
 
 TrigEMCluster_PERS* TrigEMClusterCnv::createPersistent(TrigEMCluster* transCont) 
 {
-  MsgStream mlog(msgSvc(), "TrigEMClusterConverter" );
-  mlog << MSG::DEBUG << "TrigEMClusterCnv::createPersistent" << endmsg;
+  MsgStream mlog(messageService(), "TrigEMClusterConverter" );
+  mlog << MSG::DEBUG << "TrigEMClusterCnv::createPersistent" << endreq;
 
   TrigEMCluster_PERS *persObj = m_impl->m_TPConverter2.createPersistent( transCont, mlog );
   
@@ -35,8 +35,8 @@ TrigEMCluster_PERS* TrigEMClusterCnv::createPersistent(TrigEMCluster* transCont)
 
 TrigEMCluster* TrigEMClusterCnv::createTransient() 
 {
-  MsgStream mlog(msgSvc(), "TrigEMClusterConverter" );
-  mlog << MSG::DEBUG << "TrigEMClusterCnv::createTransient " << endmsg;
+  MsgStream mlog(messageService(), "TrigEMClusterConverter" );
+  mlog << MSG::DEBUG << "TrigEMClusterCnv::createTransient " << endreq;
   
   static pool::Guid tlp2_guid("61D02BB3-0F97-4809-AC93-72B2DC2DF624");
   static pool::Guid tlp1_guid("EF5124F2-7B9C-4CBE-8D7F-1AD368A8A125");
@@ -46,20 +46,20 @@ TrigEMCluster* TrigEMClusterCnv::createTransient()
   
   if( compareClassGuid(tlp2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp2 persistent object" << endmsg;
+    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp2 persistent object" << endreq;
     std::auto_ptr< TrigEMCluster_tlp2 >   col_vect( this->poolReadObject< TrigEMCluster_tlp2 >() );
     trans_cont = m_impl->m_TPConverter2.createTransient( col_vect.get(), mlog );
 
   } else if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp1 persistent object" << endmsg;
+    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp1 persistent object" << endreq;
     std::auto_ptr< TrigEMCluster_tlp1 >   col_vect( this->poolReadObject< TrigEMCluster_tlp1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
 
   }
   else if( compareClassGuid(p0_guid) ) {
 
-    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading p0 persistent object" << endmsg;
+    mlog << MSG::DEBUG << "TrigEMClusterCnv::reading p0 persistent object" << endreq;
     // old version from before TP separation, just return it
     trans_cont = this->poolReadObject<TrigEMCluster>();
 

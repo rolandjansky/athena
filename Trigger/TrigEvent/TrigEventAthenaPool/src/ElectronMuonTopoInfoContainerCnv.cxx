@@ -10,9 +10,9 @@ static ElectronMuonTopoInfoContainerCnv_p1   TPConverter;
 //createPersistent 
 ElectronMuonTopoInfoContainer_PERS * ElectronMuonTopoInfoContainerCnv::createPersistent( ElectronMuonTopoInfoContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "ElectronMuonTopoInfoContainerConverter" );
+  MsgStream mlog(messageService(), "ElectronMuonTopoInfoContainerConverter" );
 
-  mlog << MSG::DEBUG << "ElectronMuonTopoInfoContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "ElectronMuonTopoInfoContainerCnv::createPersistent called" << endreq;
 
   ElectronMuonTopoInfoContainer_PERS * p_emTopoCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -23,9 +23,9 @@ ElectronMuonTopoInfoContainer_PERS * ElectronMuonTopoInfoContainerCnv::createPer
 //createTransient
 ElectronMuonTopoInfoContainer * ElectronMuonTopoInfoContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "ElectronMuonTopoInfoContainerConverter" );
+  MsgStream mlog(messageService(), "ElectronMuonTopoInfoContainerConverter" );
   
-  mlog << MSG::DEBUG << "ElectronMuonTopoInfoContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "ElectronMuonTopoInfoContainerCnv::createTransient called" << endreq;
 
   static pool::Guid p1_guid( "0A775717-3FC9-4FF4-A18B-3F520B2D4DAC" );
 

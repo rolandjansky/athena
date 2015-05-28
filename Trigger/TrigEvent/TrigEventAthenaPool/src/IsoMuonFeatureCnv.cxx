@@ -24,9 +24,9 @@ IsoMuonFeatureCnv::~IsoMuonFeatureCnv()
 IsoMuonFeature_PERS *
 IsoMuonFeatureCnv::createPersistent( IsoMuonFeature *transObj)
 {
-  MsgStream mlog(msgSvc(), "IsoMuonFeatureConverter" );
+  MsgStream mlog(messageService(), "IsoMuonFeatureConverter" );
   
-  mlog << MSG::DEBUG << "IsoMuonFeatureCnv::createPersistent" << endmsg;
+  mlog << MSG::DEBUG << "IsoMuonFeatureCnv::createPersistent" << endreq;
 
   IsoMuonFeature_PERS *persObj = m_TPConverter->createPersistent( transObj, mlog );
   
@@ -38,9 +38,9 @@ IsoMuonFeatureCnv::createPersistent( IsoMuonFeature *transObj)
 //-----------------------------------------------------------------------------
 IsoMuonFeature *IsoMuonFeatureCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "IsoMuonFeatureConverter" );
+  MsgStream mlog(messageService(), "IsoMuonFeatureConverter" );
   
-  mlog << MSG::DEBUG << "IsoMuonFeatureCnv::createTransient " << endmsg;
+  mlog << MSG::DEBUG << "IsoMuonFeatureCnv::createTransient " << endreq;
   
   IsoMuonFeature       *transObj(0);
   

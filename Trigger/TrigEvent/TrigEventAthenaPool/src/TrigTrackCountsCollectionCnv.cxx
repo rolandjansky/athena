@@ -20,9 +20,9 @@ TrigTrackCountsCollectionCnv::~TrigTrackCountsCollectionCnv()
 //createPersistent 
 TrigTrackCountsCollection_PERS * TrigTrackCountsCollectionCnv::createPersistent( TrigTrackCountsCollection *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigTrackCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTrackCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTrackCountsCollectionCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTrackCountsCollectionCnv::createPersistent called" << endreq;
   
   TrigTrackCountsCollection_PERS * p_cont = m_TPConverter->createPersistent( transObj, m_log );
   
@@ -34,9 +34,9 @@ TrigTrackCountsCollection_PERS * TrigTrackCountsCollectionCnv::createPersistent(
 //createTransient
 TrigTrackCountsCollection * TrigTrackCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigTrackCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigTrackCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTrackCountsCollectionCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigTrackCountsCollectionCnv::createTransient called" << endreq;
   
   static pool::Guid tlp1_guid( "FCEB4390-F8FB-4C93-9538-105BCABE487C" );
   static pool::Guid p0_guid( "7A4412AD-C11D-4EFD-AE15-D343D2CB28BC" );

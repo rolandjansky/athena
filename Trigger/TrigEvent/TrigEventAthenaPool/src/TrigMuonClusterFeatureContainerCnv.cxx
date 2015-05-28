@@ -21,9 +21,9 @@ TrigMuonClusterFeatureContainerCnv::~TrigMuonClusterFeatureContainerCnv()
 //createPersistent 
 TrigMuonClusterFeatureContainer_PERS * TrigMuonClusterFeatureContainerCnv::createPersistent( TrigMuonClusterFeatureContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigMuonClusterFeatureContainerConverter" );
+  MsgStream mlog(messageService(), "TrigMuonClusterFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonClusterFeatureContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigMuonClusterFeatureContainerCnv::createPersistent called" << endreq;
   
   TrigMuonClusterFeatureContainer_PERS * p_cont = m_TPConverter->createPersistent( transObj, m_log );
   
@@ -35,9 +35,9 @@ TrigMuonClusterFeatureContainer_PERS * TrigMuonClusterFeatureContainerCnv::creat
 //createTransient
 TrigMuonClusterFeatureContainer * TrigMuonClusterFeatureContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigMuonClusterFeatureContainerConverter" );
+  MsgStream mlog(messageService(), "TrigMuonClusterFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonClusterFeatureContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigMuonClusterFeatureContainerCnv::createTransient called" << endreq;
   
   static pool::Guid tlp1_guid( "036D8CC1-5FBD-4676-9D84-F233567F52D2" );
   static pool::Guid p0_guid( "5B09201A-D1CD-43BA-A1B5-786189444579" );

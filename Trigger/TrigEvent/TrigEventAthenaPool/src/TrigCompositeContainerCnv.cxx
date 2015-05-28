@@ -10,9 +10,9 @@ static TrigCompositeContainerCnv_p1   TPConverter;
 //createPersistent 
 TrigCompositeContainer_PERS * TrigCompositeContainerCnv::createPersistent( TrigCompositeContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigCompositeContainerConverter" );
+  MsgStream mlog(messageService(), "TrigCompositeContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigCompositeContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigCompositeContainerCnv::createPersistent called" << endreq;
 
   TrigCompositeContainer_PERS * p_CompositeCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -23,9 +23,9 @@ TrigCompositeContainer_PERS * TrigCompositeContainerCnv::createPersistent( TrigC
 //createTransient
 TrigCompositeContainer * TrigCompositeContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigCompositeContainerConverter" );
+  MsgStream mlog(messageService(), "TrigCompositeContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigCompositeContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigCompositeContainerCnv::createTransient called" << endreq;
 
   static pool::Guid p1_guid( "6D16EA6B-968C-41F0-B5E8-9CC6D5BD7F9A" );
 

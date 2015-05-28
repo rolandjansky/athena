@@ -6,16 +6,16 @@
 #include "TrigCaloEventTPCnv/TrigT2MbtsBitsContainerCnv_tlp1.h" 
 #include "TrigCaloEventTPCnv/TrigT2MbtsBitsContainerCnv_p3.h" 
 
-static TrigT2MbtsBitsContainerCnv_tlp1 TPConverter_tlp1;
+static TrigT2MbtsBitsContainerCnv_tlp1 m_TPConverter;
 static TrigT2MbtsBitsContainerCnv_p3   TPConverter;
 static TrigT2MbtsBitsContainerCnv_p1   TP1Converter;
 
 //createPersistent 
 TrigT2MbtsBitsContainer_PERS * TrigT2MbtsBitsContainerCnv::createPersistent( TrigT2MbtsBitsContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigT2MbtsBitsContainerConverter" );
+  MsgStream mlog(messageService(), "TrigT2MbtsBitsContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigT2MbtsBitsContainerCnv::createPersistent" << endmsg;
+  mlog << MSG::DEBUG << "TrigT2MbtsBitsContainerCnv::createPersistent" << endreq;
 
   TrigT2MbtsBitsContainer_PERS* persObj = TPConverter.createPersistent( transObj, mlog );
  
@@ -27,9 +27,9 @@ TrigT2MbtsBitsContainer_PERS * TrigT2MbtsBitsContainerCnv::createPersistent( Tri
 //createTransient
 TrigT2MbtsBitsContainer* TrigT2MbtsBitsContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigT2MbtsBitsContainerConverter" );
+  MsgStream mlog(messageService(), "TrigT2MbtsBitsContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigT2MbtsBitsContainerCnv::createTransient" << endmsg;
+  mlog << MSG::DEBUG << "TrigT2MbtsBitsContainerCnv::createTransient" << endreq;
 
   static pool::Guid p3_guid( "60BD805D-F64E-46DF-87CD-0B4443660C97" );
   static pool::Guid tlp1_guid( "82BAAC80-62FC-4E6D-9BD7-1619064FF7AC" );
@@ -46,7 +46,7 @@ TrigT2MbtsBitsContainer* TrigT2MbtsBitsContainerCnv::createTransient()
 
          std::auto_ptr< TrigT2MbtsBitsContainer_tlp1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+         return m_TPConverter.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
 

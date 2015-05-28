@@ -19,9 +19,9 @@ static IsoMuonFeatureContainerCnv_p3     TPconverter;
 //createPersistent 
 IsoMuonFeatureContainer_PERS * IsoMuonFeatureContainerCnv::createPersistent( IsoMuonFeatureContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "IsoMuonFeatureContainerConverter" );
+  MsgStream mlog(messageService(), "IsoMuonFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "IsoMuonFeatureContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "IsoMuonFeatureContainerCnv::createPersistent called" << endreq;
   
   IsoMuonFeatureContainer_PERS * p_cont = TPconverter.createPersistent( transObj, mlog );
   
@@ -32,9 +32,9 @@ IsoMuonFeatureContainer_PERS * IsoMuonFeatureContainerCnv::createPersistent( Iso
 //createTransient
 IsoMuonFeatureContainer * IsoMuonFeatureContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "IsoMuonFeatureContainerConverter" );
+  MsgStream mlog(messageService(), "IsoMuonFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "IsoMuonFeatureContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "IsoMuonFeatureContainerCnv::createTransient called" << endreq;
   
   static pool::Guid p3_guid( "291897DE-5380-424C-AE8F-FFE69DCC8F15" );  
   static pool::Guid p2_guid( "A9A660B1-DEFD-4B56-A10D-9F41178715BD" );  

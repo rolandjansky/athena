@@ -22,8 +22,8 @@ TrigRNNOutputCnv::~TrigRNNOutputCnv()
 
 TrigRNNOutput_PERS* TrigRNNOutputCnv::createPersistent(TrigRNNOutput* transCont) 
 {
-  MsgStream mlog(msgSvc(), "TrigRNNOutputConverter" );
-  mlog << MSG::DEBUG << "TrigRNNOutputCnv::createPersistent" << endmsg;
+  MsgStream mlog(messageService(), "TrigRNNOutputConverter" );
+  mlog << MSG::DEBUG << "TrigRNNOutputCnv::createPersistent" << endreq;
 
   TrigRNNOutput_PERS *persObj = m_impl->m_TPConverter.createPersistent( transCont, mlog );
   
@@ -33,15 +33,15 @@ TrigRNNOutput_PERS* TrigRNNOutputCnv::createPersistent(TrigRNNOutput* transCont)
 
 TrigRNNOutput* TrigRNNOutputCnv::createTransient() 
 {
-  MsgStream mlog(msgSvc(), "TrigRNNOutputConverter" );
-  mlog << MSG::DEBUG << "TrigRNNOutputCnv::createTransient " << endmsg;
+  MsgStream mlog(messageService(), "TrigRNNOutputConverter" );
+  mlog << MSG::DEBUG << "TrigRNNOutputCnv::createTransient " << endreq;
   
   static pool::Guid tlp1_guid("BA106EC3-F776-DE11-BCB3-000423DD5A1A");
   
   TrigRNNOutput       *trans_cont(0);
   
   if (compareClassGuid(tlp1_guid)) {
-    mlog << MSG::DEBUG << "TrigRNNOutputCnv::reading tlp1 persistent object" << endmsg;
+    mlog << MSG::DEBUG << "TrigRNNOutputCnv::reading tlp1 persistent object" << endreq;
     std::auto_ptr< TrigRNNOutput_tlp1 >   col_vect( this->poolReadObject< TrigRNNOutput_tlp1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
   }  else {

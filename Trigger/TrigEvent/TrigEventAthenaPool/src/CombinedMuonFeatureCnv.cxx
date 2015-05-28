@@ -25,9 +25,9 @@ CombinedMuonFeatureCnv::~CombinedMuonFeatureCnv()
 CombinedMuonFeature_PERS *
 CombinedMuonFeatureCnv::createPersistent( CombinedMuonFeature *transObj)
 {
-  MsgStream mlog(msgSvc(), "CombinedMuonFeatureConverter" );
+  MsgStream mlog(messageService(), "CombinedMuonFeatureConverter" );
   
-  mlog << MSG::DEBUG << "CombinedMuonFeatureCnv::createPersistent" << endmsg;
+  mlog << MSG::DEBUG << "CombinedMuonFeatureCnv::createPersistent" << endreq;
 
   CombinedMuonFeature_PERS *persObj = m_TPConverter->createPersistent( transObj, mlog );
   
@@ -39,9 +39,9 @@ CombinedMuonFeatureCnv::createPersistent( CombinedMuonFeature *transObj)
 //-----------------------------------------------------------------------------
 CombinedMuonFeature *CombinedMuonFeatureCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "CombinedMuonFeatureConverter" );
+  MsgStream mlog(messageService(), "CombinedMuonFeatureConverter" );
   
-  mlog << MSG::DEBUG << "CombinedMuonFeatureCnv::createTransient " << endmsg;
+  mlog << MSG::DEBUG << "CombinedMuonFeatureCnv::createTransient " << endreq;
   
   CombinedMuonFeature       *transObj(0);
   

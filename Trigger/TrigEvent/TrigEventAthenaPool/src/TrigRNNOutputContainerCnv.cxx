@@ -7,15 +7,15 @@
 #include "TrigCaloEventTPCnv/TrigRNNOutputContainer_p2.h"
 #include "TrigCaloEventTPCnv/TrigRNNOutputContainerCnv_p2.h"
 
-static TrigRNNOutputContainerCnv_tlp1   TPConverter_tlp1;
+static TrigRNNOutputContainerCnv_tlp1   m_TPConverter_tlp1;
 static TrigRNNOutputContainerCnv_p2     TPConverter;
 
 //createPersistent 
 TrigRNNOutputContainer_PERS * TrigRNNOutputContainerCnv::createPersistent( TrigRNNOutputContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigRNNOutputContainerConverter" );
+  MsgStream mlog(messageService(), "TrigRNNOutputContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createPersistent called" << endreq;
 
   TrigRNNOutputContainer_PERS * p_Cont = TPConverter.createPersistent( transObj, mlog );
  
@@ -27,9 +27,9 @@ TrigRNNOutputContainer_PERS * TrigRNNOutputContainerCnv::createPersistent( TrigR
 //createTransient
 TrigRNNOutputContainer * TrigRNNOutputContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigRNNOutputContainerConverter" );
+  MsgStream mlog(messageService(), "TrigRNNOutputContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createTransient called" << endreq;
 
   static pool::Guid tr_guid("FED72B55-6275-DE11-8F1B-000423DD5A1A");
   static pool::Guid tlp1_guid("86A89E9D-F776-DE11-B65D-000423DD5A1A");
@@ -41,7 +41,7 @@ TrigRNNOutputContainer * TrigRNNOutputContainerCnv::createTransient()
       return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if ( compareClassGuid( tlp1_guid ) ) {
       std::auto_ptr< TrigRNNOutputContainer_tlp1 > col_vect( poolReadObject< TrigRNNOutputContainer_tlp1 >() );
-      return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+      return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else if (compareClassGuid(tr_guid)) {
       // regular object from before the T/P separation
       return poolReadObject<TrigRNNOutputContainer>();

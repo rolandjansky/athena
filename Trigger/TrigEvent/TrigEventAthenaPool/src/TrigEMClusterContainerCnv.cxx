@@ -7,16 +7,16 @@
 #include "TrigCaloEventTPCnv/TrigEMClusterContainerCnv_p4.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterContainerCnv_p3.h"
 
-static TrigEMClusterContainerCnv_tlp1 TPConverter_tlp1;
+static TrigEMClusterContainerCnv_tlp1 m_TPConverter_tlp1;
 static TrigEMClusterContainerCnv_p4   TPConverter;
 static TrigEMClusterContainerCnv_p3   TPConverter_p3;
 
 //createPersistent 
 TrigEMClusterContainer_PERS * TrigEMClusterContainerCnv::createPersistent( TrigEMClusterContainer *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigEMClusterContainerConverter" );
+  MsgStream mlog(messageService(), "TrigEMClusterContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createPersistent called" << endreq;
 
   TrigEMClusterContainer_PERS * p_EMClusterCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -27,9 +27,9 @@ TrigEMClusterContainer_PERS * TrigEMClusterContainerCnv::createPersistent( TrigE
 //createTransient
 TrigEMClusterContainer * TrigEMClusterContainerCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigEMClusterContainerConverter" );
+  MsgStream mlog(messageService(), "TrigEMClusterContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createTransient called" << endreq;
 
   static pool::Guid p3_guid( "0BF627E6-52A0-4F10-9FFD-A513DF2DBC31" );
   static pool::Guid p4_guid( "7B430CA8-5D16-4E26-B0A4-461F983610EB" );
@@ -44,7 +44,7 @@ TrigEMClusterContainer * TrigEMClusterContainerCnv::createTransient()
          return TPConverter_p3.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
         std::auto_ptr< TrigEMClusterContainer_tlp1 > col_vect( poolReadObject< TrigEMClusterContainer_tlp1 >() );
-        return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+        return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigEMClusterContainer" ); }
    
 }//end of create transient method

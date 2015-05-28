@@ -8,15 +8,15 @@
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCollection_p4.h"
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCollectionCnv_p4.h"
 
-static TrigSpacePointCountsCollectionCnv_tlp1 TPConverter_tlp1;
+static TrigSpacePointCountsCollectionCnv_tlp1 m_TPConverter;
 static TrigSpacePointCountsCollectionCnv_p4   TPConverter;
 
 //createPersistent 
 TrigSpacePointCountsCollection_PERS * TrigSpacePointCountsCollectionCnv::createPersistent( TrigSpacePointCountsCollection *transObj)
 {
-  MsgStream mlog(msgSvc(), "TrigSpacePointCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigSpacePointCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createPersistent called" << endmsg;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createPersistent called" << endreq;
   
   TrigSpacePointCountsCollection_PERS * p_cont = TPConverter.createPersistent( transObj, mlog );
   
@@ -28,9 +28,9 @@ TrigSpacePointCountsCollection_PERS * TrigSpacePointCountsCollectionCnv::createP
 //createTransient
 TrigSpacePointCountsCollection * TrigSpacePointCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(msgSvc(), "TrigSpacePointCountsCollectionConverter" );
+  MsgStream mlog(messageService(), "TrigSpacePointCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createTransient called" << endmsg;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createTransient called" << endreq;
   
   static pool::Guid p4_guid( "ACEDF654-09D7-49F6-9054-8E2CEE767367" );
   static pool::Guid tlp1_guid( "55733D7E-0054-4785-ADA8-3EA70D7477F2" );
@@ -44,7 +44,7 @@ TrigSpacePointCountsCollection * TrigSpacePointCountsCollectionCnv::createTransi
   }  else if( compareClassGuid( tlp1_guid ) ) {
          std::auto_ptr< TrigSpacePointCountsCollection_tlp1 > col_vect( poolReadObject< TrigSpacePointCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+         return m_TPConverter.createTransient( col_vect.get(), mlog );
 
     } else if( compareClassGuid( p0_guid ) ) {
          return poolReadObject< TrigSpacePointCountsCollection >();
