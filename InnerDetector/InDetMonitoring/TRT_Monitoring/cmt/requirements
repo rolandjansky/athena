@@ -6,7 +6,7 @@ private
 
 use DataModel			DataModel-*			Control
 use AtlasROOT			AtlasROOT-*			External
-#use AtlasBoost			AtlasBoost-*			External
+use AtlasBoost			AtlasBoost-*			External
 use LWHists			LWHists-*			Tools
 use EventInfo			EventInfo-*			Event
 use AtlasDetDescr		AtlasDetDescr-*			DetectorDescription
