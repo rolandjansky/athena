@@ -34,6 +34,9 @@ atlasStyle.SetTitleFont(font,"y")
 atlasStyle.SetLabelFont(font,"z")
 atlasStyle.SetTitleFont(font,"z")
 
+atlasStyle.SetTitleOffset(1.2,"y")
+atlasStyle.SetTitleOffset(1.04,"x")
+
 atlasStyle.SetLabelSize(tsize,"x")
 atlasStyle.SetTitleSize(tsize,"x")
 atlasStyle.SetLabelSize(tsize,"y")
@@ -75,8 +78,8 @@ gStyle.SetOptFit(0)
 
 # overwrite atlas styles
 atlasStyle.SetMarkerSize(0.9)
-atlasStyle.SetPadLeftMargin(0.11)
-atlasStyle.SetPadRightMargin(0.06)    
-atlasStyle.SetPadBottomMargin(0.11)     
-atlasStyle.SetPadTopMargin(0.05) 
+atlasStyle.SetPadLeftMargin(0.12)
+atlasStyle.SetPadRightMargin(0.09)    
+atlasStyle.SetPadBottomMargin(0.12)     
+atlasStyle.SetPadTopMargin(0.06) 
 atlasStyle.SetFrameFillColor(0)

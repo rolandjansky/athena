@@ -7,7 +7,7 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
-#include "InDetAlignmentMonitoring/IDAlignMonNtuple.h"
+#include "IDAlignMonNtuple.h"
 
 #include <sstream>
 #include <math.h>

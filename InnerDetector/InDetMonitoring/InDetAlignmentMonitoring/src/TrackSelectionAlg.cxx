@@ -7,7 +7,7 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
-#include "InDetAlignmentMonitoring/TrackSelectionAlg.h"
+#include "TrackSelectionAlg.h"
 
 //#include "StoreGate/StoreGateSvc.h"
 //#include "GaudiKernel/MsgStream.h"

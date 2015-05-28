@@ -80,7 +80,7 @@ protected:
 
 
   //Histo for self beam spot calculation
-  TH2F* m_trk_d0_vs_phi0_z0;
+  TH3F* m_trk_d0_vs_phi0_z0;
 
   // barrel
   TH1F* m_trk_d0_barrel;
@@ -354,6 +354,9 @@ protected:
 
   TH1F* m_LumiBlock;
   TH1F* m_Tracks_per_LumiBlock;
+  TH1F* m_NPIX_per_LumiBlock;
+  TH1F* m_NSCT_per_LumiBlock;
+  TH1F* m_NTRT_per_LumiBlock;
 
   TH1F* m_trk_d0c_pos;
   TH1F* m_trk_d0c_neg;

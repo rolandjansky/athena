@@ -24,11 +24,15 @@
 #include "CommissionEvent/ComTime.h"
 #include "TFile.h"
 
+
+
 class TH1F;
 class TH1F_LW;
 class TH2F;
 class TH3F;
 class TProfile;
+class TProfile2D;
+class TGraphErrors;
 class ITRT_CalDbSvc;
 
 class AtlasDetectorID;
@@ -55,7 +59,9 @@ namespace Trk {
 }
 
 class IInDetAlignHitQualSelTool; 
-
+//namespace InDet {
+//  class IInDetTrackSelectionTool;
+//}
 
 
 class IDAlignMonResiduals : public ManagedMonitorToolBase
@@ -76,6 +82,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakePIXEndCapsHistograms (MonGroup& al_mon);
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
+
+  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1D* projection);
+  TGraphErrors* ConvertHistoInGraph(TH1D*);
 
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
@@ -101,7 +110,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void RegisterHisto(MonGroup& mon, TH1F_LW* histo);
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
-
+  void RegisterHisto(MonGroup& mon, TProfile2D* histo);
+  
   void InitializeHistograms();
 
 
@@ -141,6 +151,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   //Layer/Disk/Ring Gap for modified module histograms
   int m_gap_pix;
   int m_gap_sct;
+  int m_NLumiBlocksMon;
 
   float m_minTRTResWindow;
   float m_maxTRTResWindow;
@@ -178,6 +189,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   bool m_do3DOverlapHistos;
   bool m_doClusterSizeHistos;
   bool m_extendedPlots;
+  bool m_changedlumiblock;
+  int  m_oldlumiblock;
   int m_FinerBinningFactor;
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;
@@ -192,9 +205,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   ToolHandle<Trk::IUpdator>             m_iUpdator;
   ToolHandle<Trk::IPropagator>          m_propagator;
 
-  ToolHandle<InDetAlignMon::TrackSelectionTool>        m_trackSelection;
+  ToolHandle<InDetAlignMon::TrackSelectionTool>  m_trackSelection;
   ToolHandle<Trk::IResidualPullCalculator>    m_residualPullCalculator;   //!< The residual and pull calculator tool handle
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
+  //ToolHandle<InDet::IInDetTrackSelectionTool>   m_idtrackSelection;
 
   //histograms
   
@@ -226,6 +240,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH3F*> m_sct_ecc_s0_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_eca_s1_biased_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_ecc_s1_biased_xresvsmodetaphi_3ds;
+  
+  std::vector<TH3F*> m_sct_b_clustersizePhivsmodetaphi_3ds_s0;
+  std::vector<TH3F*> m_sct_b_clustersizePhivsmodetaphi_3ds_s1;
+
   std::vector<TH3F*> m_sct_eca_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_ecc_xresvsmodetaphi_3ds;
   
@@ -364,9 +382,22 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TProfile*> m_sct_eca_clustersizePhi_incidentAngle;
   std::vector<TProfile*> m_sct_ecc_clustersizePhi_incidentAngle;
   
+  std::vector<TH2F*> m_sct_b_residualsx_incidentAnglePhi_s0;
+  std::vector<TH2F*> m_sct_eca_residualsx_incidentAnglePhi_s0;
+  std::vector<TH2F*> m_sct_ecc_residualsx_incidentAnglePhi_s0;
 
+  std::vector<TH2F*> m_sct_b_residualsx_incidentAnglePhi_s1;
+  std::vector<TH2F*> m_sct_eca_residualsx_incidentAnglePhi_s1;
+  std::vector<TH2F*> m_sct_ecc_residualsx_incidentAnglePhi_s1;
 
+  std::vector<TH2F*> m_sct_b_residualsx_incidentAngle_s0;
+  std::vector<TH2F*> m_sct_eca_residualsx_incidentAngle_s0;
+  std::vector<TH2F*> m_sct_ecc_residualsx_incidentAngle_s0;
 
+  std::vector<TH2F*> m_sct_b_residualsx_incidentAngle_s1;
+  std::vector<TH2F*> m_sct_eca_residualsx_incidentAngle_s1;
+  std::vector<TH2F*> m_sct_ecc_residualsx_incidentAngle_s1;
+  
   std::vector<TProfile*> m_pix_b_clustersizePhi_incidentAnglePhi;
   std::vector<TProfile*> m_pix_b_clustersizeZ_incidentAnglePhi;
   std::vector<TProfile*> m_pix_b_clustersize_incidentAnglePhi;
@@ -386,13 +417,27 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
 
+  TH1F* m_mu_perEvent;
+  float  m_mu;
+  bool m_hasBeenCalledThisEvent;
+  int m_nBinsMuRange;
+  float m_muRangeMin;
+  float m_muRangeMax;
+  int nIBLHitsPerLB;
+  
+  
+  int lumiblock;
 
-
-
-
-
-
-
+  TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
+  TProfile2D*   m_pix_b0_resXvsetaLumiBlock_planars;
+  
+  
+  //IBL fit magnitude and baseline as a function of LumiBlock
+  //TGraphErrors* m_mag_vs_LB;
+  //TGraphErrors* m_base_vs_LB;
+  TH1D* m_mag_vs_LB;
+  TH1D* m_base_vs_LB;
+  
 
   // SCT
   TH2F* m_sct_b_pullx_pt;
@@ -810,6 +855,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F*  m_etapTWeight;
   std::string m_hWeightHistName;
 
+  //I don't like an itialisation here.
+  float z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
+  float m_z_fix;
   
 };
 

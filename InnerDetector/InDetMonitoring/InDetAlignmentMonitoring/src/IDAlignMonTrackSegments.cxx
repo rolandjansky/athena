@@ -15,12 +15,12 @@
 #include "TProfile.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "InDetAlignmentMonitoring/IDAlignMonTrackSegments.h"
+#include "IDAlignMonTrackSegments.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/TrackCollection.h"
 //#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
+#include "TrackSelectionTool.h"
 #include <iostream>
 using std::cout;
 using std::endl;

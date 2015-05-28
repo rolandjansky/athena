@@ -7,7 +7,7 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
-#include "InDetAlignmentMonitoring/IDAlignMonSivsTRT.h"
+#include "IDAlignMonSivsTRT.h"
 
 #include <sstream>
 #include <math.h>
@@ -26,7 +26,7 @@
 #include "TrkTrack/TrackCollection.h"
 
 #include "TrkTrackSummary/TrackSummary.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
+#include "TrackSelectionTool.h"
 
 
 

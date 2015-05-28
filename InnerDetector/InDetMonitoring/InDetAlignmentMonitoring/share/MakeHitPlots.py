@@ -98,8 +98,16 @@ DrawPlots(TRTB2HitEff, outputDir+"/"+"TRTB2HitEff."+oFext, "TRT Barrel Layer 2 H
 #          "Endcap C Wheel", 0.19, 0.41, "",
 #          canvasText,makeOutput,0.60,0.41,False)
 
-# SivsTRT
 
+PIXHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"PIXHitsvEta","noFit",rootFiles,nFiles, False)
+DrawPlots(PIXHits,outputDir+"/"+"NPIXvsETA.png","","Average PIX hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+SCTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"SCTHitsvEta","noFit",rootFiles,nFiles, False)
+DrawPlots(SCTHits,outputDir+"/"+"NSCTvsETA.png","","Average SCT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+TRTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"TRTHitsvEta","noFit",rootFiles,nFiles, False)
+DrawPlots(TRTHits,outputDir+"/"+"NTRTvsETA.png","","Average TRT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+
+
+# SivsTRT
 if siTRTDir[0] != "":
     TRTExtEffEta = MakePlots(siTRTDir,legendTitles,markerColors,markerStyles,"eff_trthits_eta0","noFit",rootFiles,nFiles,False)
     DrawPlots(TRTExtEffEta, outputDir+"/"+"TRTExtEffVsEta."+oFext, "TRT Extension Eff.", "TRT Extension Eff.",

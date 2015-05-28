@@ -80,7 +80,7 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
   Int_t RzColor = kAzure-1;
   Int_t TxColor = kRed+1;
   Int_t TyColor = kRed-2;
-  Int_t TzColor = kRed+1;
+  Int_t TzColor = kRed-1;
 
   std::cout << " -- StaveDraw -- Drawing modules type " << DetType 
 	    << " in layer " << layer 
@@ -164,7 +164,7 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
   for (Int_t idof=0; idof<6; idof++){
     if (idof == TX) {
       sprintf(VariablesName,"%f*tx:ComputeTz(%d,%d,ring):etx",TransScaleFactor,DetType,layer);
-      doPlot = true;
+      doPlot = false;
       Corrections->SetMarkerColor(TxColor);
       Corrections->SetMarkerStyle(20);
       sprintf(LegendText,"Tx");
@@ -177,10 +177,10 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
       sprintf(LegendText,"Ty");
     }
     if (idof == TZ) {
-      sprintf(VariablesName,"%f*tz:ring",TransScaleFactor);
-      doPlot = false;
+      sprintf(VariablesName,"%f*tz:ComputeTz(%d,%d,ring):etz",TransScaleFactor,DetType,layer);
+      doPlot = true;
       Corrections->SetMarkerColor(TzColor);
-      Corrections->SetMarkerStyle(22);
+      Corrections->SetMarkerStyle(26);
       sprintf(LegendText,"Tz");
     }
     if (idof == RX) {
@@ -197,11 +197,11 @@ void StaveDraw(TString nname,Int_t DetType= 1, Int_t layer= 0, Int_t sector= 0, 
       sprintf(LegendText,"Ry");
     }
     if (idof == RZ) {
-      sprintf(VariablesName,"%f*rz:ComputeTz(%d,%d,ring):erz/100",RotScaleFactor,DetType,layer);
-      doPlot = true;
+      sprintf(VariablesName,"%f*rz:ComputeTz(%d,%d,ring):erz/10",RotScaleFactor,DetType,layer);
+      doPlot = false;
       Corrections->SetMarkerColor(RzColor);
       Corrections->SetMarkerStyle(20);
-      sprintf(LegendText,"Rz");
+      sprintf(LegendText,"Rz (E/10)");
     }
     //
     if (doPlot) {

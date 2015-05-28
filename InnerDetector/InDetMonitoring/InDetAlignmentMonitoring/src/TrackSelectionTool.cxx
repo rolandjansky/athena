@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
-
+#include "TrackSelectionTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 
 #include "TrkTrack/Track.h"
@@ -23,10 +23,13 @@ InDetAlignMon::TrackSelectionTool::TrackSelectionTool( const std::string & type,
   :AthAlgTool( type, name, parent )
 {
   m_trackSelectorTool = ToolHandle<Trk::ITrackSelectorTool>("InDet::InDetDetailedTrackSelectorTool");
-
+  m_idtrackSelectionTool = ToolHandle<InDet::IInDetTrackSelectionTool>("InDetTrackSelectionTool/InDetTrackSelectionTool");
+  
   declareInterface<TrackSelectionTool>(this);
   declareProperty("PassAllTracks", m_passAllTracks = false);
   declareProperty("TrackSelectorTool", m_trackSelectorTool);
+  declareProperty("IDTrackSelectionTool",m_idtrackSelectionTool);
+  declareProperty("UseIDTrackSelectionTool",m_useIDTrackSelectionTool=false);
   declareProperty("DoEventPhaseCut", m_doEventPhaseCut=false);
   declareProperty("MinEventPhase", m_minEventPhase=5);
   declareProperty("MaxEventPhase", m_maxEventPhase=30);
@@ -48,14 +51,28 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
 {
   
   // get TrackSelectorTool
-  if ( m_trackSelectorTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectorTool << endreq;
-  }
 
-  msg(MSG::INFO) << "TrackSelectionTool initialized" << endreq;
+  
+  if ( ! m_useIDTrackSelectionTool )
+    {
+      if ( m_trackSelectorTool.retrieve().isFailure() ) {
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endreq;
+	return StatusCode::FAILURE;
+      } else {
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endreq;
+      }
+    }
+  else
+    {
+      if (   m_idtrackSelectionTool.retrieve().isFailure() ) {
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_idtrackSelectionTool << endreq;
+	return StatusCode::FAILURE;
+      } else {
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endreq;
+      }
+    }
+  
+  
 
   return StatusCode::SUCCESS;
 
@@ -137,13 +154,29 @@ DataVector<Trk::Track>* InDetAlignMon::TrackSelectionTool::selectTracks(const st
       bool trackPassed = false;
       if(pVtx){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using primary vertex in track selection" << endreq;
-	trackPassed = m_trackSelectorTool->decision(*track,pVtx);
+
+	
+	if (m_useIDTrackSelectionTool)
+	  {
+	    if (m_idtrackSelectionTool->accept(*track,pVtx))
+	      trackPassed = true;
+	  }
+	else
+	  trackPassed = m_trackSelectorTool->decision(*track,pVtx);
       }
       else {
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not using primary vertex in track selection" << endreq;
-	trackPassed = m_trackSelectorTool->decision(*track);
-      }
 
+	
+	if (m_useIDTrackSelectionTool)
+	  {
+	    if (m_idtrackSelectionTool->accept(*track))
+	    trackPassed = true;
+	  }
+	else
+	  trackPassed = m_trackSelectorTool->decision(*track);
+      }
+      
       if(m_doEventPhaseCut){
 	// cut on the TRT_Phase (ie: the Event Phase)
 	float eventPhase=-99.0;
