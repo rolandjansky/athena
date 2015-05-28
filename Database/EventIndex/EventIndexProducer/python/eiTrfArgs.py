@@ -10,22 +10,22 @@ import os
 from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argPOOLFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool
 
 def addEI_InputTypes_tfArgs(parser):
-    parser.add_argument('--inputPOOLFile',  ## nargs='+',
+    parser.add_argument('--inputPOOLFile', nargs='+',
                         type=argFactory(argPOOLFile, io='input'),
                         help='Input POOL file', group='Event Index')
-    parser.add_argument('--inputAODFile',  ## nargs='+',
+    parser.add_argument('--inputAODFile', nargs='+',
                         type=argFactory(argFile, type='AOD', io='input'),
                         help='Input AOD file', group='Event Index')
-    parser.add_argument('--inputESDFile',  ## nargs='+',
+    parser.add_argument('--inputESDFile', nargs='+',
                         type=argFactory(argFile, type='ESD', io='input'),
                         help='Input ESD file', group='Event Index')
-    parser.add_argument('--inputEVNTFile',  ## nargs='+',
+    parser.add_argument('--inputEVNTFile', nargs='+',
                         type=argFactory(argFile, type='EVNT', io='input'),
                         help='Input EVNT file', group='Event Index')
-    parser.add_argument('--inputHITSFile',  ## nargs='+',
+    parser.add_argument('--inputHITSFile', nargs='+',
                         type=argFactory(argFile, type='HITS', io='input'),
                         help='Input HITS file', group='Event Index')
-    parser.add_argument('--inputRDOFile',  ## nargs='+',
+    parser.add_argument('--inputRDOFile', nargs='+',
                         type=argFactory(argFile, type='RDO', io='input'),
                         help='Input RDO file', group='Event Index')
 
