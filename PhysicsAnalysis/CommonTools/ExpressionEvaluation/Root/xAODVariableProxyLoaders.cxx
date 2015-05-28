@@ -341,6 +341,17 @@ namespace ExpressionParsing {
   {
     TRY_TMETHOD_COLLECTION_WRAPPER();
     TRY_ALL_KNOWN_TYPES(m_auxVectorData, VT_VEC);
+
+    // Before giving up completely, check the size of the vector. If it's
+    // 0, it may be that it's empty on *all* events of the current input
+    // file. Meaning that dynamic variables will be missing from each event.
+    if( m_auxVectorData->size_v() == 0 ) {
+       // Let's claim a vector<double> type, that seems to be the safest bet.
+       // Even if the variable should actually be vector<int>, this is a
+       // simple conversion at least.
+       return VT_VECDOUBLE;
+    }
+
     return VT_UNK;
   }
 
@@ -361,7 +372,26 @@ namespace ExpressionParsing {
 
   std::vector<double> xAODVectorProxyLoader::loadVecDoubleVariableFromString(const std::string &varname)
   {
-    return m_accessorCache[varname]->getVecDoubleValue(m_auxVectorData);
+     // Check whether we have an accessor already:
+     std::map< std::string, BaseAccessorWrapper* >::iterator itr;
+     if( ( itr = m_accessorCache.find( varname ) ) == m_accessorCache.end() ) {
+        // For an empty container let's not bother too much:
+        if( m_auxVectorData->size_v() == 0 ) {
+           return std::vector< double >();
+        }
+        // If it's not empty, then let the variableTypeFromString function
+        // figure out the variable type, and create the accessor:
+        if( variableTypeFromString( varname ) == VT_UNK ) {
+           throw std::runtime_error( "Couldn't find variable type for " +
+                                     varname );
+        }
+        // Update the iterator:
+        itr = m_accessorCache.find( varname );
+     }
+     // Now do the "regular thing". Note that even if the type turns out
+     // to be an integer type, the accessor wrapper does the conversion
+     // reasonably anyway, behind the scenes.
+     return itr->second->getVecDoubleValue(m_auxVectorData);
   }
 
 }
