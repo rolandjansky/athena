@@ -1055,6 +1055,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
     MonGroup trackShift(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
     MonGroup trackShiftRebinned(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","mergeRebinned");
     MonGroup trackShiftTH1(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","weightedEff");
+    MonGroup trackAging(this, "TRT/Aging/"+barrel_or_endcap[ibe], lumiBlock,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
 
     if (newRun && DoShift) {
       if (ibe==0) {
@@ -1128,12 +1129,11 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 	  m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
         } //for (int iside=0; iside<2; iside++)
       } //else if (ibe==1)
+      m_hHitsOnTrack_Scatter[ibe]      = bookTH2F_LW(trackShift, "m_hHitsOnTrack_Scatter", "Hits per Track in Time Window in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 80, 0, 80, "Luminosity Block (mod 720)", "Number of Hits per Track in Stacks", scode);
+      m_hLLOcc_Scatter[ibe]            = bookTH2F_LW(trackShift, "m_hLLOcc_Scatter", "LL Occupancy in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 400, 0.0, 1.0, "Luminosity Block (mod 720)", "LL Occupancy in Stacks", scode);
+      m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 720)", "HL/LL Ratio in Stacks", scode);
+    }//if (newRun && DoShift)
 
-      if (DoShift) {
-        m_hHitsOnTrack_Scatter[ibe]      = bookTH2F_LW(trackShift, "m_hHitsOnTrack_Scatter", "Hits per Track in Time Window in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 80, 0, 80, "Luminosity Block (mod 720)", "Number of Hits per Track in Stacks", scode);
-        m_hLLOcc_Scatter[ibe]            = bookTH2F_LW(trackShift, "m_hLLOcc_Scatter", "LL Occupancy in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 400, 0.0, 1.0, "Luminosity Block (mod 720)", "LL Occupancy in Stacks", scode);
-        m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 720)", "HL/LL Ratio in Stacks", scode);
-      }
       //ToDo: Fix this
       //if (ibe==1) continue; //a dirty fix to double booking
       //Here begins the booking of offline efficiency histograms.
@@ -1151,34 +1151,32 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 	//End of offline efficiency histograms.
 	}*/
 
-      /**Initialize Aging  plots      ************************
-       */
-
+      //Initialize Aging plots
+    if (newLumiBlock && DoShift) {
       for(int iL = 0; iL<5;iL++){    
-	for(int iSide = 0; iSide<2; iSide++){
-	  if (ibe == 0) {
-	    if(iL<3){ 
-	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_All", "Number All Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of Hits", scode);           
-	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_HT", "Number HT Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of HT Hits", scode);           
-	    }
-	    if(iL==3){          
-	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of Hits", scode);           
-	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of HT Hits", scode);
-	    }
-	    if(iL==4){          
-	      m_trackz_All[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of Hits", scode);           
-	      m_trackz_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of HT Hits", scode);
-	    }
-	  } else if (ibe ==1) { // prevent double booking of histograms here
-	    if(iL<4){
-	      m_trackr_All[iL][iSide] = bookTH1F_LW(trackShift, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_All", "Number All Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of Hits", scode);           
-	      m_trackr_HT[iL][iSide] = bookTH1F_LW(trackShift, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_HT", "Number HT Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of HT Hits", scode);
-	    }
-	  }
-	}//Loop of iSide
+        for(int iSide = 0; iSide<2; iSide++){
+          if (ibe == 0) {
+            if(iL<3){
+              m_trackz_All[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_All", "Number All Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of Hits", scode);
+              m_trackz_HT[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_HT", "Number HT Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of HT Hits", scode);
+            }
+            if(iL==3){
+              m_trackz_All[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of Hits", scode);
+              m_trackz_HT[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of HT Hits", scode);
+            }
+            if(iL==4){
+              m_trackz_All[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of Hits", scode);
+              m_trackz_HT[iL][iSide] = bookTH1F_LW(trackAging, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of HT Hits", scode);
+            }
+          } else if (ibe ==1) { // prevent double booking of histograms here
+            if(iL<4){
+              m_trackr_All[iL][iSide] = bookTH1F_LW(trackAging, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_All", "Number All Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of Hits", scode);
+              m_trackr_HT[iL][iSide] = bookTH1F_LW(trackAging, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_HT", "Number HT Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of HT Hits", scode);
+            }
+          }
+        }//Loop of iSide
       }//Loop over Modules
-
-    }//if (newRun && DoShift)
+    }//(newLumiBlock && DoShift)
   }//for (int ibe=0; ibe<2; ibe++)
 
   return scode;
@@ -2098,17 +2096,18 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           } else if (i>2*s_numberOfBarrelStacks) {
             nclass=2;
           }
+	  int LLocc_index = index_tmp-32*nclass;
 
           if (nclass>=0) {
             if (ibe==0) {
-              m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass]);
+              m_LLOcc[ibe][LLocc_index] += float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass]);
               m_hAvgLLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
               m_hAvgLLOccMod_side[ibe][iside]->Fill(i, (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOccMod_side[ibe][iside]->Fill(i, (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
             } else if (ibe==1) {
-	      if (index_tmp-32*nclass<64) { 
-		m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
+	      if (LLocc_index<64) { 
+		m_LLOcc[ibe][LLocc_index] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
 	      } else {
 		ATH_MSG_WARNING("m_LLOcc index out of bounds!"); // To satisfy Coverity defect CID 16514 which we believe is a false report.
 	      }
@@ -2505,7 +2504,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: "<<testLayer[1]<<" m_straw_layer: "<<m_nearest_straw_layer[1]<<" (in the EndCaps).");
     }
     bool trackfound[2][64];//trackfound[64] 
-    for (int i =1; i<2 ;i++) std::fill(trackfound[i], trackfound[i] + 64, false);
+    for (int i =0; i<2 ;i++) std::fill(trackfound[i], trackfound[i] + 64, false);//fix for ATLASRECTS-2019
     //for (int iside=0; iside<2; iside++) { //another for loop we got rid of
     for (TSOSItBegin=TSOSItBegin0; TSOSItBegin!=TSOSItEnd; ++TSOSItBegin) {
       //select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations 
@@ -3133,8 +3132,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
     
     float m_p = 1.0e+08;
     if (perigee) {
-      m_p =  (perigee->parameters()[Trk::qOverP]!=0.)?
-	fabs(1./(perigee->parameters()[Trk::qOverP])) : 1.0e+08;
+      m_p =  (perigee->parameters()[Trk::qOverP]!=0.) ? fabs(1./(perigee->parameters()[Trk::qOverP])) : 1.0e+08;
     }
     // preselect tracks
 
@@ -3176,52 +3174,53 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
       int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
       int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
       if (ibe==0) {
-	if (isArgonStraw) {
-	  m_hefficiencyBarrel_locR_Ar->Fill(locR, 1.0);
-	} else {
-	  m_hefficiencyBarrel_locR->Fill(locR, 1.0);
-	}
+        if (isArgonStraw) {
+          m_hefficiencyBarrel_locR_Ar->Fill(locR, 1.0);
+        } else {
+          m_hefficiencyBarrel_locR->Fill(locR, 1.0);
+        }
       } else if (ibe==1) {
-	if (isArgonStraw) {
-	  m_hefficiencyEndCap_locR_Ar[iside]->Fill(locR, 1.0);
-	} else {
-	  m_hefficiencyEndCap_locR[iside]->Fill(locR, 1.0);
-	}
+        if (isArgonStraw) {
+          m_hefficiencyEndCap_locR_Ar[iside]->Fill(locR, 1.0);
+        } else {
+          m_hefficiencyEndCap_locR[iside]->Fill(locR, 1.0);
+        }
       }
       //if (fabs(locR) < 1.3) {
       if (fabs(locR) >= 1.3) continue; 
       int m_strawNumber = 0, m_chip = 0;
       if (ibe==0) {
-	m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
-	if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_B[m_phi_module][m_strawNumber];
-      } else if (ibe==1) {
-	m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
-	if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_E[m_phi_module][m_strawNumber];
-      }
+        m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+        if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe])
+          m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+        } else if (ibe==1) {
+          m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+          if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe])
+            m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+        }
 
-      m_hefficiencyMap[ibe]->Fill(m_strawNumber, 1.0);
+        m_hefficiencyMap[ibe]->Fill(m_strawNumber, 1.0);
 
-      if (DoExpert) {
-	if (iside == 0 ) {
-	  m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 1.0);
-	  m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 1.0);
-	} else if (iside == 1 )
-	  {
-	    m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 1.0);
-	    m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 1.0);
-	  }
-      } // Do Expert
-      m_hefficiency_eta->Fill(m_track_eta, 1.0);
-      m_hefficiency_phi->Fill(m_track_phi, 1.0);
-      m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 1.0);
-      m_hefficiency_z0->Fill(m_track_z0, 1.0);
-      //}//locR < 1.3
-      //}// is barrel(or endcap)
-      //}// for (int ibe=0; ibe<2; ibe++)
-      //}// if is trt
-      //}// if track_parameters
-      //}// if measurement
-    }// loop over track states
+        if (DoExpert) {
+          if (iside == 0 ) {
+            m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 1.0);
+            m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 1.0);
+          } else if (iside == 1 ) {
+            m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 1.0);
+            m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 1.0);
+          }
+        } // Do Expert
+        m_hefficiency_eta->Fill(m_track_eta, 1.0);
+        m_hefficiency_phi->Fill(m_track_phi, 1.0);
+        m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 1.0);
+        m_hefficiency_z0->Fill(m_track_z0, 1.0);
+        //}//locR < 1.3
+        //}// is barrel(or endcap)
+        //}// for (int ibe=0; ibe<2; ibe++)
+        //}// if is trt
+        //}// if track_parameters
+        //}// if measurement
+      }// loop over track states
 
     //use hole finder to find holes on this track !
 
@@ -3229,8 +3228,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
       const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(**track);
 
       if (!holes) {
-	ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
-	continue;
+        ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
+        continue;
       } else {
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = holes->begin(); it != holes->end(); ++it) {
 	  //if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
@@ -3314,20 +3313,20 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
       m_hefficiencyIntegral[ibe][iside]->Reset();
 
       for (int i = 0; i < 32; i++) {
-	for (int ibin = 0; ibin <= s_Straw_max[ibe]; ibin++) {
-	  if (DoExpert) {
-	    if (m_hefficiencyS[ibe][i+(32*iside)]->GetBinEntries(ibin) > m_min_tracks_straw)
-	      m_hefficiency[ibe][iside]->Fill(m_hefficiencyS[ibe][i+(32*iside)]->GetBinContent(ibin));
-	  }
-	} // loop ibin barrel
+        for (int ibin = 0; ibin <= s_Straw_max[ibe]; ibin++) {
+          if (DoExpert) {
+            if (m_hefficiencyS[ibe][i+(32*iside)]->GetBinEntries(ibin) > m_min_tracks_straw)
+              m_hefficiency[ibe][iside]->Fill(m_hefficiencyS[ibe][i+(32*iside)]->GetBinContent(ibin));
+          }
+        } // loop ibin barrel
       } // loop sectors
 
       n_BorE[ibe][iside] = m_hefficiency[ibe][iside]->GetEntries();
       total_BorE[ibe][iside] = 0.0;
 
       for (UInt_t ibin = 0; ibin <= m_hefficiency[ibe][iside]->GetXaxis()->GetNbins(); ibin++) {
-	total_BorE[ibe][iside] += m_hefficiency[ibe][iside]->GetBinContent(ibin);
-	m_hefficiencyIntegral[ibe][iside]->SetBinContent(ibin, n_BorE[ibe][iside]!= 0.0 ? total_BorE[ibe][iside]/n_BorE[ibe][iside] : 0.0);
+        total_BorE[ibe][iside] += m_hefficiency[ibe][iside]->GetBinContent(ibin);
+        m_hefficiencyIntegral[ibe][iside]->SetBinContent(ibin, n_BorE[ibe][iside]!= 0.0 ? total_BorE[ibe][iside]/n_BorE[ibe][iside] : 0.0);
       } // loop over ibin
     }//for (int iside=0; iside<2; iside++)
   }//for (int ibe=0; ibe<2; ibe++)
@@ -3395,7 +3394,6 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
     float track_p    = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1./(perigee->parameters()[Trk::qOverP])) : 10e7;
     //float track_pT  = perigee->pT();
 
-
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = (**p_trk).trackStateOnSurfaces();
     if (trackStates == 0) continue;
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
@@ -3426,9 +3424,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 
     if(!passCuts)continue;
 
-
     //Now we have hit informations
-
     const DataVector<const Trk::TrackStateOnSurface>* track_states = (*p_trk)->trackStateOnSurfaces();
     if (track_states) {
       ATH_MSG_DEBUG("This track has " << track_states->size() << " track states on surface.");
@@ -3451,7 +3447,6 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       if (!trtCircle) continue;
       if (!aTrackParam) continue;
 
-
       Identifier DCoTId = trtCircle->identify();
       barrel_ec_side  = m_pTRTHelper->barrel_ec(DCoTId);
       //BA:1 BC:-1 EA:2 EC:-2
@@ -3469,68 +3464,59 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       double zPos = trtCircle->globalPosition().z(); // global z coordinate
       double RPos = sqrt(xPos*xPos + yPos*yPos);
 
-
       Identifier surfaceID;
       surfaceID = trtCircle->identify();
       // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
       //const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good);//
       const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
       if(!RawDriftCircle){//coverity 25097 
-	//This shouldn't happen in normal conditions  because trtCircle is a TRT_DriftCircleOnTrack object
-	ATH_MSG_WARNING("RawDriftCircle object returned null");	
-	continue;
+        //This shouldn't happen in normal conditions  because trtCircle is a TRT_DriftCircleOnTrack object
+        ATH_MSG_WARNING("RawDriftCircle object returned null");
+        continue;
       }
       bool isHighLevel= RawDriftCircle->highLevel();
-
-      //Barrel Plots
-      bool A1 = false;
-      bool C1 = false;
-      bool A2 = false;
-      bool C2 = false;
-      bool A3 = false;
-      bool C3 = false;
       bool shortStraw = false;
+      int InputBar = 0;
 
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) C1=true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&C1==false)A1= true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30))) C2 = true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&C2==false)A2= true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&phi_module%2!=0)C3 = true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&C3==false)A3 = true;
-      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&straw_layer<9.)shortStraw = true;
-
-      int InputBar = -1;
-      if(A1||A2||A3)InputBar=0;
-      if(C1||C2||C3)InputBar=1;
-
-      if(InputBar==-1&&Ba_Ec==0) { //Coverity CID 25096
-	ATH_MSG_WARNING("The variable \"InputBar\" is -1!.");
-	continue;
+      if(fabs(track_eta)<2. && Ba_Ec==0.){
+        if((layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) InputBar = 1;//C1=true;
+        else if(layer_or_wheel==0 /*&&C1==false*/)
+          InputBar = 0;//A1= true;
+        else if((layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30)))
+          InputBar = 1;//C2 = true;
+        else if(layer_or_wheel==1 /*&&C2==false*/)
+          InputBar = 0;//A2= true;
+        else if(layer_or_wheel==2 && phi_module%2!=0)
+          InputBar = 1;//C3 = true;
+        else if(layer_or_wheel==2 /*&&C3==false*/)
+          InputBar = 0;//A3 = true;
+        else {
+          ATH_MSG_WARNING("Should not pass here");
+          continue;
+        }
+        if((layer_or_wheel==0)&&straw_layer<9.)
+          shortStraw = true;
       }
-
-
 
       //Fill Barrel Plots
-
       if((!shortStraw)&&(Ba_Ec==0.)){
-	m_trackz_All[layer_or_wheel][InputBar]->Fill(zPos);
-	if(isHighLevel)m_trackz_HT[layer_or_wheel][InputBar]->Fill(zPos);
+        m_trackz_All[layer_or_wheel][InputBar]->Fill(zPos);
+        if(isHighLevel)
+          m_trackz_HT[layer_or_wheel][InputBar]->Fill(zPos);
       }
+
       if(shortStraw){
-	if(zPos>0.){
-	  m_trackz_All[3][InputBar]->Fill(zPos);
-	  if(isHighLevel)m_trackz_HT[3][InputBar]->Fill(zPos);
-	}
-	else{
-	  m_trackz_All[4][InputBar]->Fill(zPos);
-	  if(isHighLevel)m_trackz_HT[4][InputBar]->Fill(zPos);
-	}
+        if(zPos>0.){
+          m_trackz_All[3][InputBar]->Fill(zPos);
+          if(isHighLevel)
+            m_trackz_HT[3][InputBar]->Fill(zPos);
+        }
+        else{
+          m_trackz_All[4][InputBar]->Fill(zPos);
+          if(isHighLevel)m_trackz_HT[4][InputBar]->Fill(zPos);
+        }
       }
-
-
-      //End of Barrel Plots
-
-      //Begin EC plots
+      //End of Barrel Plots, begin EC plots
 
       int WType = -1.;
 
@@ -3540,28 +3526,20 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       if((Ba_Ec==1)&&(layer_or_wheel>=6)&&((straw_layer>-1.&&straw_layer<4.)))WType=1.; //in_B Assuming Reversed in Type B
 
       if(WType<0&&Ba_Ec==1){//Coverity CID 25096 
-	ATH_MSG_WARNING("The variable  \"WType\" is less than zero!.");
-	continue;	
+        ATH_MSG_WARNING("The variable  \"WType\" is less than zero!.");
+        continue;
       }
 
       if(Ba_Ec==1){
-	m_trackr_All[WType][Side]->Fill(RPos);
-	if(isHighLevel)m_trackr_HT[WType][Side]->Fill(RPos);
+        m_trackr_All[WType][Side]->Fill(RPos);
+        if(isHighLevel)m_trackr_HT[WType][Side]->Fill(RPos);
       }
-
       //End of EC plots
-  
-
     } //for (;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
-
-
   }// for (p_trk = m_trkCollection->begin(); p_trk != m_trkCollection->end(); ++p_trk)
-
-
   return StatusCode::SUCCESS;
 
 }//Fill_TRT_HT()
-
 
 
 //-------------------------------------------------------------------------------------------------//
