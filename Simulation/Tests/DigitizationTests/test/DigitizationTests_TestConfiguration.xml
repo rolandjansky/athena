@@ -274,7 +274,7 @@
                     <chainElement>
                         <jobTransform userJobId="mc15_2015_ttbar_50ns_pileup">
                             <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-                            <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._*.pool.root.?' '--inputLowPtMinbiasHitsFile=HITS.05098374._*.pool.root.?' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py' --skipEvents="0"
+                            <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py' --skipEvents="0"
                             </jobTransformCmd>
                             <group>DigitizationTests:DigitizationTests_JobTransforms</group>
                             <queue>medium</queue>
@@ -305,8 +305,8 @@
                     <chainElement>
                         <jobTransform userJobId="mc15_2015_ttbar_50ns_pileup_Reg">
                             <doc>Regression test between releases</doc>
-                            <jobTransformJobName>mc15_2015_ttbar_no_pileup_Reg</jobTransformJobName>
-                            <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_15ns_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                            <jobTransformJobName>mc15_2015_ttbar_50ns_pileup_Reg</jobTransformJobName>
+                            <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_50ns_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
                             <group>DigitizationTests:DigitizationRegressionTests</group>
                             <queue>short</queue>
                         </jobTransform>
@@ -314,153 +314,261 @@
                     
                 </sequential>
             </chain>
-            
+
+
+
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_50ns_pileup_noNoise</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_50ns_pileup_noNoise">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1; Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 '--doAllNoise=False' --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py' --skipEvents="0"
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_pileup_noNoise.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_50ns_pileup_noNoise.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_50ns_pileup_noNoise_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_50ns_pileup_noNoise_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_50ns_pileup_noNoise mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_50ns_algs_pileup</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_50ns_algs_pileup">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py' --skipEvents="0"
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_algs_pileup.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_50ns_algs_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_50ns_algs_pileup_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_50ns_algs_pileup_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_50ns_algs_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
+
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_25ns_pileup</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_pileup">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' --skipEvents="0"
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_pileup.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_25ns_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_pileup_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_25ns_pileup_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_25ns_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_25ns_pileup_noNoise</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_pileup_noNoise">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 '--doAllNoise=False' --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' --skipEvents="0"
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_pileup_noNoise.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_25ns_pileup_noNoise.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_pileup_noNoise_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_25ns_pileup_noNoise_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_25ns_pileup_noNoise mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
+<chain>
+    <chainName>RegressionTest_mc15_2015_ttbar_25ns_algs_pileup</chainName>
+    <abortOnError />
+    <sequential>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_algs_pileup">
+                <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
+                <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1 HITS.05098374._000241.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1 HITS.05098374._000242.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000243.pool.root.1 HITS.05098374._000243.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000244.pool.root.1 HITS.05098374._000244.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000270.pool.root.1 HITS.05098374._000270.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000271.pool.root.1 HITS.05098374._000271.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000272.pool.root.1 HITS.05098374._000272.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000273.pool.root.1 HITS.05098374._000273.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000274.pool.root.1 HITS.05098374._000274.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000275.pool.root.1 HITS.05098374._000275.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000276.pool.root.1 HITS.05098374._000276.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000277.pool.root.1 HITS.05098374._000277.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000278.pool.root.1 HITS.05098374._000278.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000665.pool.root.1 HITS.05098387._000665.pool.root.1;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._000672.pool.root.1 HITS.05098387._000672.pool.root.1;Digi_tf.py '--inputHITSFile=HITS.04919495.*.pool.root.?' --conditionsTag=default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1=170 --digiSeedOffset2=170 --geometryVersion=ATLAS-R2-2015-03-01-00 '--inputHighPtMinbiasHitsFile=HITS.05098387._000665.pool.root.1,HITS.05098387._000672.pool.root.1' '--inputLowPtMinbiasHitsFile=HITS.05098374._000241.pool.root.1,HITS.05098374._000242.pool.root.1,HITS.05098374._000243.pool.root.1,HITS.05098374._000244.pool.root.1,HITS.05098374._000270.pool.root.1,HITS.05098374._000271.pool.root.1,HITS.05098374._000272.pool.root.1,HITS.05098374._000273.pool.root.1,HITS.05098374._000274.pool.root.1,HITS.05098374._000275.pool.root.1,HITS.05098374._000276.pool.root.1,HITS.05098374._000277.pool.root.1,HITS.05098374._000278.pool.root.1' --jobNumber=1 --maxEvents=25 --numberOfCavernBkg=0 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 '--outputRDOFile=mc15_2015_ttbar.RDO.pool.root' '--postExec="all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1"' '--postInclude=default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch=6 '--preExec="all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)"' '--preInclude=HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' --skipEvents="0"
+                </jobTransformCmd>
+                <group>DigitizationTests:DigitizationTests_JobTransforms</group>
+                <queue>medium</queue>
+                <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <arg>
+                        <argname>platformDependent</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>doDetailedChecks</argname>
+                        <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>fileName</argname>
+                        <argvalue>mc15_2015_ttbar.RDO.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFileName</argname>
+                        <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_algs_pileup.RDO.pool.root</argvalue>
+                    </arg>
+                    <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_mc15_2015_ttbar_25ns_algs_pileup.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+            </jobTransform>
+        </chainElement>
+        
+        <chainElement>
+            <jobTransform userJobId="mc15_2015_ttbar_25ns_algs_pileup_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>mc15_2015_ttbar_25ns_algs_pileup_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py mc15_2015_ttbar_25ns_algs_pileup mc15_2015_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
+                <group>DigitizationTests:DigitizationRegressionTests</group>
+                <queue>short</queue>
+            </jobTransform>
+        </chainElement>
+        
+    </sequential>
+</chain>
+
             <!-- BASIC MC12 JOBS -->
-            <chain>
-                <chainName>RegressionTest_mc12_ttbar_no_pileup</chainName>
-                <abortOnError />
-                <sequential>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_no_pileup">
-                            <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-                            <jobTransformCmd>Digi_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 --outputRDOFile=mc12_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-20-00-01 --conditionsTag=OFLCOND-MC12-SDR-06 --digiSeedOffset1=11 --digiSeedOffset2=22
-                            </jobTransformCmd>
-                            <group>DigitizationTests:DigitizationTests_JobTransforms</group>
-                            <queue>medium</queue>
-                            <test>
-                                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                                <testname>FlexibleDiffPoolFilesRunner</testname>
-                                <arg>
-                                    <argname>platformDependent</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>doDetailedChecks</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>fileName</argname>
-                                    <argvalue>mc12_ttbar.RDO.pool.root</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>refFileName</argname>
-                                    <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc12_ttbar_no_pileup.RDO.pool.root</argvalue>
-                                </arg>
-                                <keepFilePattern>mc12_ttbar.RDO.pool.root_mc12_ttbar_no_pileup.RDO.pool.root.diffPool</keepFilePattern>
-                            </test>
-                        </jobTransform>
-                    </chainElement>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_no_pileup_Reg">
-                            <doc>Regression test between releases</doc>
-                            <jobTransformJobName>mc12_ttbar_no_pileup_Reg</jobTransformJobName>
-                            <jobTransformCmd>sim_reg_test.py mc12_ttbar_no_pileup mc12_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-                            <group>DigitizationTests:DigitizationRegressionTests</group>
-                            <queue>short</queue>
-                        </jobTransform>
-                    </chainElement>
-                    
-                </sequential>
-            </chain>
-            <chain>
-                <chainName>RegressionTest_mc12_ttbar_with_pileup</chainName>
-                <abortOnError />
-                <sequential>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_with_pileup">
-                            <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-                            <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._014186.pool.root.1 HITS.743322._014186.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017085.pool.root.1 HITS.743322._017085.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017301.pool.root.1 HITS.743322._017301.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._019675.pool.root.1 HITS.743322._019675.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000029.pool.root.1 HITS.743321._000029.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000200.pool.root.1 HITS.743321._000200.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000614.pool.root.5 HITS.743321._000614.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000817.pool.root.5 HITS.743321._000817.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 HITS.782686._001790.pool.root.1; Digi_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 --outputRDOFile=mc12_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-20-00-01 --conditionsTag=OFLCOND-MC12-SDR-06 --digiSeedOffset1=11 --digiSeedOffset2=22 --preInclude=Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc12_v1.py --numberOfHighPtMinBias=0.045336 --numberOfLowPtMinBias=39.954664 '--inputLowPtMinbiasHitsFile=HITS.743321._000*.pool.root.?' '--inputHighPtMinbiasHitsFile=HITS.743322._01*.pool.root.?' --jobNumber=1
-                            </jobTransformCmd>
-                            <group>DigitizationTests_JobTransforms</group>
-                            <queue>medium</queue>
-                            <test>
-                                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                                <testname>FlexibleDiffPoolFilesRunner</testname>
-                                <arg>
-                                    <argname>platformDependent</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>doDetailedChecks</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>fileName</argname>
-                                    <argvalue>mc12_ttbar.RDO.pool.root</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>refFileName</argname>
-                                    <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc12_ttbar_with_pileup.RDO.pool.root</argvalue>
-                                </arg>
-                                <keepFilePattern>mc12_ttbar.RDO.pool.root_mc12_ttbar_algs_pileup.RDO.pool.root.diffPool</keepFilePattern>
-                            </test>
-                        </jobTransform>
-                    </chainElement>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_with_pileup_Reg">
-                            <doc>Regression test between releases</doc>
-                            <jobTransformJobName>mc12_ttbar_with_pileup_Reg</jobTransformJobName>
-                            <jobTransformCmd>sim_reg_test.py mc12_ttbar_with_pileup mc12_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-                            <group>DigitizationTests:DigitizationRegressionTests</group>
-                            <queue>short</queue>
-                        </jobTransform>
-                    </chainElement>
-                    
-                </sequential>
-            </chain>
             
-            <chain>
-                <chainName>RegressionTest_mc12_ttbar_algs_pileup</chainName>
-                <abortOnError />
-                <sequential>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_algs_pileup">
-                            <jobTransformJobName>DigitizationRTT_JobTransforms</jobTransformJobName>
-                            <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._014186.pool.root.1 HITS.743322._014186.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017085.pool.root.1 HITS.743322._017085.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._017301.pool.root.1 HITS.743322._017301.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e1119_s1469_s1471/HITS.743322._019675.pool.root.1 HITS.743322._019675.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000029.pool.root.1 HITS.743321._000029.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000200.pool.root.1 HITS.743321._000200.pool.root.1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000614.pool.root.5 HITS.743321._000614.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000817.pool.root.5 HITS.743321._000817.pool.root.5; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 HITS.782686._001790.pool.root.1; Digi_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.simul.HITS.e1193_s1469/HITS.782686._001790.pool.root.1 --outputRDOFile=mc12_ttbar.RDO.pool.root --maxEvents=25 --skipEvents=0 --geometryVersion=ATLAS-GEO-20-00-01 --conditionsTag=OFLCOND-MC12-SDR-06 --digiSeedOffset1=11 --digiSeedOffset2=22 --preInclude=SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc12_v1.py --numberOfHighPtMinBias=0.045336 --numberOfLowPtMinBias=39.954664 '--inputLowPtMinbiasHitsFile=HITS.743321._000*.pool.root.?' '--inputHighPtMinbiasHitsFile=HITS.743322._01*.pool.root.?' --jobNumber=1
-                            </jobTransformCmd>
-                            <group>DigitizationTests_JobTransforms</group>
-                            <queue>medium</queue>
-                            <test>
-                                <modulename>FlexibleDiffPoolFilesRunner</modulename>
-                                <testname>FlexibleDiffPoolFilesRunner</testname>
-                                <arg>
-                                    <argname>platformDependent</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>doDetailedChecks</argname>
-                                    <argvalue>True</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>fileName</argname>
-                                    <argvalue>mc12_ttbar.RDO.pool.root</argvalue>
-                                </arg>
-                                <arg>
-                                    <argname>refFileName</argname>
-                                    <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc12_ttbar_algs_pileup.RDO.pool.root</argvalue>
-                                </arg>
-                                <keepFilePattern>mc12_ttbar.RDO.pool.root_mc12_ttbar_with_pileup.RDO.pool.root.diffPool</keepFilePattern>
-                            </test>
-                        </jobTransform>
-                    </chainElement>
-                    
-                    <chainElement>
-                        <jobTransform userJobId="mc12_ttbar_algs_pileup_Reg">
-                            <doc>Regression test between releases</doc>
-                            <jobTransformJobName>mc12_ttbar_algs_pileup_Reg</jobTransformJobName>
-                            <jobTransformCmd>sim_reg_test.py mc12_ttbar_algs_pileup mc12_ttbar.RDO.pool.root RDO.pool</jobTransformCmd>
-                            <group>DigitizationTests:DigitizationRegressionTests</group>
-                            <queue>short</queue>
-                        </jobTransform>
-                    </chainElement>
-                    
-                </sequential>
-            </chain>
             
             
             
