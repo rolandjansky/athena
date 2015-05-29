@@ -30,7 +30,6 @@ def main():
 
     trf=getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
-    print '+++', trf._argdict
     trf.execute()
     trf.generateReport()
     sys.exit(trf.exitCode)

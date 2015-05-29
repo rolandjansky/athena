@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfValidation.py 668703 2015-05-20 12:53:05Z jchapman $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -291,11 +291,11 @@ class athenaLogFileReport(logFileReport):
                         continue
                     # Add the G4 exceptipon parsers
                     if 'G4Exception-START' in line > -1:
-                        msg.warning('Detected G4 9.4 exception report - activating G4 exception grabber')
-                        self.g4ExceptionParser(myGen, line, lineCounter)
+                        msg.warning('Detected G4 exception report - activating G4 exception grabber')
+                        self.g4ExceptionParser(myGen, line, lineCounter, 40)
                         continue
                     if '*** G4Exception' in line > -1:
-                        msg.warning('Detected G4 exception report - activating G4 exception grabber')
+                        msg.warning('Detected G4 9.4 exception report - activating G4 exception grabber')
                         self.g494ExceptionParser(myGen, line, lineCounter)
                         continue
                     # Add the python exception parser
@@ -449,7 +449,7 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
 
 
-    def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount):
+    def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount, g4ExceptionLineDepth):
         g4Report = firstline
         g4lines = 1
         for line, linecounter in lineGenerator:
@@ -458,7 +458,7 @@ class athenaLogFileReport(logFileReport):
             # Test for the closing string
             if 'G4Exception-END' in line:
                 break
-            if g4lines >= 25:
+            if g4lines >= g4ExceptionLineDepth:
                 msg.warning('G4 exception closing string not found within {0} log lines of line {1}'.format(g4lines, firstLineCount))
                 break
 

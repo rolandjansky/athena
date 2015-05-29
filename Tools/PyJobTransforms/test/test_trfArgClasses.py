@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 668503 2015-05-19 19:16:29Z graemes $
+#  @version $Id: test_trfArgClasses.py 670822 2015-05-29 09:20:49Z graemes $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -462,8 +462,7 @@ class argFileTests(unittest.TestCase):
         
     def test_argFileGlob(self):
         myInput = argFile('file?', io='input')
-        # Use set comparison as glob order is not guaranteed
-        self.assertEqual(set(myInput.value), set(['file1', 'file2', 'file3']))    
+        self.assertEqual(myInput.value, ['file1', 'file2', 'file3'])    
 
     def test_argFileProdsysGlob(self):
         myInput = argFile('prefix.prodsysfile._[001,002,003].suffix', io='input')

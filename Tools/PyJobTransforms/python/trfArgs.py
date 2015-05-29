@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 666495 2015-05-12 11:29:59Z lerrenst $
+#  @version $Id: trfArgs.py 670822 2015-05-29 09:20:49Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -398,8 +398,13 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_SUSYTRUTH', substeps=['a2d'], treeNames=['truth']))
     extraDPDs.append(dpdType('NTUP_HIGHMULT', substeps=['e2a'], treeNames=['MinBiasTree']))
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
-    
-    if not NTUPOnly:
+
+    # Trigger NTUPs (for merging only!)
+    if NTUPOnly:
+        extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGEBWGHT', treeNames=['trig_cost']))
+    else:
         extraDPDs.append(dpdType('DAOD_HSG2'))
         extraDPDs.append(dpdType('DESDM_ZMUMU'))
 
@@ -416,7 +421,7 @@ def getExtraDPDList(NTUPOnly = False):
 def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMergerArgs = False):
     parser.defineArgGroup('Additional DPDs', 'Extra DPD file types')
     
-    extraDPDs = getExtraDPDList()
+    extraDPDs = getExtraDPDList(NTUPOnly=NTUPMergerArgs)
     
     if NTUPMergerArgs:
         for dpd in extraDPDs:
