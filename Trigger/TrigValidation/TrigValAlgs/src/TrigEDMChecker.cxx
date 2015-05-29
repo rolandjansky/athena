@@ -2612,9 +2612,9 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
     float containerSizeParameter[29] = {0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4,
         1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; //no DSSelector
     int containerInputCalibration[29] = {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2,
-        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 11}; //no DSSelector
+        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 1}; //no DSSelector
     int containerSignalState[29] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1,
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1}; //no DSSelector
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0}; //no DSSelector
     bool onefilled = false;
     
     for (int icont=0; icont<30; ++icont) {
@@ -2643,6 +2643,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
                     ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
                     ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
                     ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
+                    ATH_MSG_INFO( "REGTEST    rapidity: " << thisjet->rapidity() );
                     ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
                     ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
                     ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );

@@ -83,10 +83,17 @@
 
 TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
-m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
-m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
+  m_smk(0),
+  m_l1psk(0),
+  m_hltpsk(0),
+  m_printout_file(""),
+  m_first_event(true),
+  m_event_number(0),
+  m_mu_sum(0.0),
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
+  m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
+  m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
     // default for muon chains
     m_muonItems.push_back("HLT_mu26_imedium");

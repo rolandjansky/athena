@@ -87,70 +87,70 @@ namespace trigcount {
     void setLower(const std::string &lower);
   private:
     /// Name of the trigger
-    std::string _name;
+    std::string m_name;
     /// Actual counts for this trigger
-    uint32_t _count;
+    uint32_t m_count;
     /// Raw counts for this trigger
-    uint32_t _raw;
+    uint32_t m_raw;
     /// Prescale factor for this trigger
-    float _prescale;
+    float m_prescale;
     /// Passthrough factor for this trigger
-    float _passthrough;
+    float m_passthrough;
     /// Lower chain name this trigger
-    std::string _lower;
+    std::string m_lower;
   };
   
   inline TriggerCount::TriggerCount(const std::string &name,float prescale,float passthrough) : 
-    _name(name), _count(0), _prescale(prescale), _passthrough(passthrough), _lower("") {
+    m_name(name), m_count(0), m_raw(0), m_prescale(prescale), m_passthrough(passthrough), m_lower("") {
   }
   
   inline TriggerCount::TriggerCount(const TriggerCount &src) : 
-    _name(src._name), _count(src._count), _prescale(src._prescale), 
-    _passthrough(src._passthrough), _lower(src._lower) {
+    m_name(src.m_name), m_count(src.m_count), m_raw(0), m_prescale(src.m_prescale), 
+    m_passthrough(src.m_passthrough), m_lower(src.m_lower) {
   }
   
   inline void TriggerCount::addEvent(bool actual) {
     // Increase the raw event count
-    ++_raw;
+    ++m_raw;
     // Only increase the actual event count if the flag is set
-    if(actual) ++_count;
+    if(actual) ++m_count;
   }
   
   inline float TriggerCount::projected(void) const {
-    if(_prescale!=0.) {
-      return static_cast<float>(_raw)/_prescale+static_cast<float>(_raw)*_passthrough
-      -static_cast<float>(_raw)*(_passthrough/_prescale);
+    if(m_prescale!=0.) {
+      return static_cast<float>(m_raw)/m_prescale+static_cast<float>(m_raw)*m_passthrough
+      -static_cast<float>(m_raw)*(m_passthrough/m_prescale);
     } else {
-      return static_cast<float>(_raw)*_passthrough;
+      return static_cast<float>(m_raw)*m_passthrough;
     }
   }
 
   inline uint32_t TriggerCount::raw(void) const {
-    return _raw;
+    return m_raw;
   }
   
   inline uint32_t TriggerCount::actual(void) const {
-    return _count;
+    return m_count;
   }
   
   inline float TriggerCount::prescale(void) const {
-    return _prescale;
+    return m_prescale;
   }
   
   inline float TriggerCount::passthrough(void) const {
-    return _passthrough;
+    return m_passthrough;
   }
   
   inline const std::string &TriggerCount::name(void) const {
-    return _name;
+    return m_name;
   }
   
   inline const std::string &TriggerCount::lower(void) const {
-    return _lower;
+    return m_lower;
   }
   
   inline void TriggerCount::setLower(const std::string &lower) {
-    _lower=lower;
+    m_lower=lower;
   }
   
 
@@ -192,25 +192,25 @@ namespace trigcount {
     std::iostream &operator<<(std::iostream &ostr) const;
   private:
     /// Super master key associated with this trigger list
-    uint32_t _smk;
+    uint32_t m_smk;
     /// Number of events which have been run with this trigger menu
-    uint32_t _count;
+    uint32_t m_count;
     /// Number of interactions in this menu's events: used to calculate mu
-    uint32_t _ninteractions;
+    uint32_t m_ninteractions;
   };
   
   inline TriggerMenu::TriggerMenu(uint32_t smk) : 
-    std::map<std::string,TriggerCount>(), _smk(smk), _count(0), _ninteractions(0) {
+    std::map<std::string,TriggerCount>(), m_smk(smk), m_count(0), m_ninteractions(0) {
   }
   
   inline TriggerMenu::TriggerMenu(const TriggerMenu &src) : 
-    std::map<std::string,TriggerCount>(src), _smk(src._smk), _count(src._count),
-    _ninteractions(0) {
+    std::map<std::string,TriggerCount>(src), m_smk(src.m_smk), m_count(src.m_count),
+    m_ninteractions(0) {
   }
   
   inline void TriggerMenu::addEvent(uint32_t nint) {
-    _count++;             // Increment the number of events
-    _ninteractions+=nint; // Add the number of interactions
+    m_count++;             // Increment the number of events
+    m_ninteractions+=nint; // Add the number of interactions
   }
 
   inline void TriggerMenu::addTrigger(const TriggerCount &tcount) {
@@ -218,7 +218,7 @@ namespace trigcount {
   }
 
   inline float TriggerMenu::mu(void) const {
-    return static_cast<float>(_ninteractions)/static_cast<float>(_count);
+    return static_cast<float>(m_ninteractions)/static_cast<float>(m_count);
   }
   
 } // end namespace
@@ -255,25 +255,25 @@ class TrigCountDumper : public AthAlgorithm {
   StatusCode finalize();
  private:
   /// Handle to access the trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> _trigDec;
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   /// The trigger configuration service to get the information from
-  ServiceHandle< TrigConf::ITrigConfigSvc > _configSvc;
+  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
   /// Handle used (sometimes) when reading MC files
-  ServiceHandle< TrigConf::ITrigConfigSvc > _dsSvc;
+  ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
   /// Type definition for the menu map
   typedef std::map<uint32_t,trigcount::TriggerMenu> MenuMap_t;
   /// Map of super master keys to trigger menus
-  MenuMap_t _menu;
+  MenuMap_t m_menu;
   /// Name of output file
-  std::string _ofname;
+  std::string m_ofname;
   /// Name of event info
-  std::string _eventInfoName;
+  std::string m_eventInfoName;
   /// Release name
-  std::string _release;
+  std::string m_release;
   /// Dataset name
-  std::string _dataset;
+  std::string m_dataset;
   /// Dataset labels
-  std::vector<std::string> _labels;
+  std::vector<std::string> m_labels;
 };
 
 inline TrigCountDumper::~TrigCountDumper(void) {

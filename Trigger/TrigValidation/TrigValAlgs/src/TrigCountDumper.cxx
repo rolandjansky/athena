@@ -58,10 +58,10 @@ namespace {
       */
       XStr(const char *toTranscode);
       ~XStr() {
-        xercesc::XMLString::release(&_unicode);
+        xercesc::XMLString::release(&m_unicode);
       }
       const XMLCh *unicode(void) const {
-        return _unicode;
+        return m_unicode;
       }
       /** Cast operator to allow this class to act as an XMLCh pointer.
        This cast operator means that a class instance can be used as a
@@ -74,23 +74,23 @@ namespace {
       */
       operator const XMLCh *(void) const;
     private :
-      XMLCh *_unicode;
+      XMLCh *m_unicode;
   };
 
   // Templated constructor
   template<typename T> inline XStr::XStr(T toTranscode) {
     std::stringstream ss;
     ss << toTranscode;
-    _unicode=xercesc::XMLString::transcode(ss.str().c_str());
+    m_unicode=xercesc::XMLString::transcode(ss.str().c_str());
   }
 
   // Constructor for const char pointers
   inline XStr::XStr(const char *toTranscode) {
-    _unicode=xercesc::XMLString::transcode(toTranscode);
+    m_unicode=xercesc::XMLString::transcode(toTranscode);
   }
   
   inline XStr::operator const XMLCh *(void) const {
-    return _unicode;
+    return m_unicode;
   }
 }
 // Use a pre-processor macro to define the conversion function because a
@@ -105,31 +105,31 @@ namespace trigcount {
     // Create the trigger element to contain the data
     DOMElement *top=doc->createElement(XStr("count"));
     // Add the trigger name as an attribute
-    top->setAttribute(XStr("trigger"), XStr(_name));
+    top->setAttribute(XStr("trigger"), XStr(m_name));
     // Add the prescale as an attribute
-    top->setAttribute(XStr("prescale"), XStr(_prescale));
+    top->setAttribute(XStr("prescale"), XStr(m_prescale));
     // Add the passthrough as an attribute
-    top->setAttribute(XStr("passthrough"), XStr(_passthrough));
+    top->setAttribute(XStr("passthrough"), XStr(m_passthrough));
     // Add the lower chain name as an attribute
-    top->setAttribute(XStr("lowerchain"), XStr(_lower));
+    top->setAttribute(XStr("lowerchain"), XStr(m_lower));
     // Create the trigger element to contain the raw count and put the
     // value attribute to the number of counts
     DOMElement *raw=doc->createElement(XStr("raw"));
-    raw->setAttribute(XStr("value"),XStr(_raw));
+    raw->setAttribute(XStr("value"),XStr(m_raw));
     // Add the raw count to the top element
     top->appendChild(raw);
     // Create the trigger element to contain the actual count and put the
     // value attribute to the number of counts
     DOMElement *actual=doc->createElement(XStr("actual"));
-    actual->setAttribute(XStr("value"),XStr(_count));
+    actual->setAttribute(XStr("value"),XStr(m_count));
     // Add the actual count to the top element
     top->appendChild(actual);
     return top;
   }
   
   std::iostream &TriggerCount::operator<<(std::iostream &ostr) const {
-    ostr << "<count trigger=\"" << _name << "\" count=\"" 
-    << _count << "\" prescale=\"" << _prescale << "\"/>" << std::endl;
+    ostr << "<count trigger=\"" << m_name << "\" count=\"" 
+    << m_count << "\" prescale=\"" << m_prescale << "\"/>" << std::endl;
     return ostr;
   }
 
@@ -141,8 +141,8 @@ namespace trigcount {
     DOMElement *top=doc->createElement(XStr("menu"));
     // Add the super master key, event count and mean pileup
     // as attributes to the top level element
-    top->setAttribute(XStr("smk"), XStr(_smk));
-    top->setAttribute(XStr("nevents"), XStr(_count));
+    top->setAttribute(XStr("smk"), XStr(m_smk));
+    top->setAttribute(XStr("nevents"), XStr(m_count));
     top->setAttribute(XStr("mu"), XStr(mu()));
     // Loop over all the triggers in the menu and add elements
     // for then as children of the menu element
@@ -153,8 +153,8 @@ namespace trigcount {
   }
   
   std::iostream &TriggerMenu::operator<<(std::iostream &ostr) const {
-    ostr << "<menu smk=\"" << _smk << "\" nevents=\"" 
-    << _count << "\" mu=\"" << mu() << "\">" << std::endl;
+    ostr << "<menu smk=\"" << m_smk << "\" nevents=\"" 
+    << m_count << "\" mu=\"" << mu() << "\">" << std::endl;
     for(TriggerMenu::const_iterator i=begin();i!=end();++i) {
       ostr << "  "; //<< i->second;
     }
@@ -167,25 +167,25 @@ namespace trigcount {
 
 TrigCountDumper::TrigCountDumper(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    _trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    _configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-    _dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name) {
-  declareProperty("OutputFile",_ofname="trigger_counts.xml","Name of the output file");
-  declareProperty("Release",_release="","Release version");
-  declareProperty("Dataset",_dataset="","Dataset name");
-  declareProperty("Labels",_labels,"Dataset labels");
-  declareProperty("EventInfoName",_eventInfoName="","The name of the EventInfo container" );
+    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+    m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name) {
+  declareProperty("OutputFile",m_ofname="trigger_counts.xml","Name of the output file");
+  declareProperty("Release",m_release="","Release version");
+  declareProperty("Dataset",m_dataset="","Dataset name");
+  declareProperty("Labels",m_labels,"Dataset labels");
+  declareProperty("EventInfoName",m_eventInfoName="","The name of the EventInfo container" );
 }
 
 StatusCode TrigCountDumper::initialize(void) {
   ATH_MSG_INFO("Initializing Trigger Count dump algorithm");
-  ATH_MSG_INFO("Outputfile : " << _ofname);
+  ATH_MSG_INFO("Outputfile : " << m_ofname);
   // Get the handle to the trigger configuration service
-  CHECK(_configSvc.retrieve());
+  CHECK(m_configSvc.retrieve());
   // Get the handle to the trigger decision tool
-  CHECK(_trigDec.retrieve());
+  CHECK(m_trigDec.retrieve());
   // Enable the expert methods for the trigger decision tool
-  _trigDec->ExperimentalAndExpertMethods()->enable();
+  m_trigDec->ExperimentalAndExpertMethods()->enable();
   return StatusCode::SUCCESS;
 }
 
@@ -225,12 +225,12 @@ StatusCode TrigCountDumper::finalize() {
   // Create the dataset element
   DOMElement *ds=doc->createElement(XStr("dataset"));
   // Add a name attribute to the dataset element
-  ds->setAttribute(XStr("name"),XStr(_dataset));
+  ds->setAttribute(XStr("name"),XStr(m_dataset));
   // Add a release attribute to the dataset element
-  ds->setAttribute(XStr("release"),XStr(_release));
+  ds->setAttribute(XStr("release"),XStr(m_release));
   // Loop over the configured labels and add these to the dataset
-  for(std::vector<std::string>::const_iterator i=_labels.begin();
-      i!=_labels.end();++i) {
+  for(std::vector<std::string>::const_iterator i=m_labels.begin();
+      i!=m_labels.end();++i) {
     // Create an element for the label
     DOMElement *label=doc->createElement(XStr("label"));
     // Create a text node containing the label text
@@ -243,7 +243,7 @@ StatusCode TrigCountDumper::finalize() {
   // Add the dataset element to the root
   rootElem->appendChild(ds);
   // Loop over all the menus found in the data so they can be added to the document
-  for(MenuMap_t::const_iterator i=_menu.begin();i!=_menu.end();++i) {
+  for(MenuMap_t::const_iterator i=m_menu.begin();i!=m_menu.end();++i) {
     rootElem->appendChild(i->second.xml(doc));
   }
   // At this point we have all the data stored in the XML document so now we
@@ -257,8 +257,8 @@ StatusCode TrigCountDumper::finalize() {
   serializer->setNewLine(XStr("\n"));
   // Create the output target
   XMLFormatTarget *target;
-  if(!_ofname.empty())
-    target=new LocalFileFormatTarget(XStr(_ofname));
+  if(!m_ofname.empty())
+    target=new LocalFileFormatTarget(XStr(m_ofname));
   else
     target=new StdOutFormatTarget();
   // Create a new empty output destination object
@@ -266,7 +266,7 @@ StatusCode TrigCountDumper::finalize() {
   // Tell the output stream to use the given file, or stdout, target
   output->setByteStream(target);
   // Tell everyone that we are about to write the XML data out
-  ATH_MSG_INFO("TrigCountDumper: Writing output to " << _ofname);
+  ATH_MSG_INFO("TrigCountDumper: Writing output to " << m_ofname);
   // Write the document to the output using the serializer
   serializer->write(doc,output);
   // Cleanup.
@@ -279,24 +279,24 @@ StatusCode TrigCountDumper::finalize() {
 
 StatusCode TrigCountDumper::execute(void) {
   // Get a reference to the expert interface
-  Trig::ExpertMethods &expert=*_trigDec->ExperimentalAndExpertMethods();
+  Trig::ExpertMethods &expert=*m_trigDec->ExperimentalAndExpertMethods();
   // Get the super master and pre-scale keys from the configuration service.
   // It is not clear that we will use the prescale keys but we'll retreive
   // them in case we need them in the future.
-  uint32_t smk    = _configSvc->masterKey();
-  uint32_t l1psk  = _configSvc->lvl1PrescaleKey();
-  uint32_t hltpsk = _configSvc->hltPrescaleKey();
+  uint32_t smk    = m_configSvc->masterKey();
+  uint32_t l1psk  = m_configSvc->lvl1PrescaleKey();
+  uint32_t hltpsk = m_configSvc->hltPrescaleKey();
   // If the keys returned by the configuration service don't seem to make sense,
   // use something else as the SMK. (Needed mostly for MC test jobs.)
   if(((smk==0) && (l1psk==0) && (hltpsk==0)) || (static_cast<int>(smk) < 0 ) ||
      (static_cast<int>(l1psk) < 0 ) || (static_cast<int>(hltpsk) < 0 ) ) {
     // See if we are reading an AOD:
-    if(!_dsSvc) {
+    if(!m_dsSvc) {
       ATH_MSG_FATAL("The trigger configuration keys don't seem to make sense, and we're not using "
         << "TrigConf::DSConfigSvc...");
       return StatusCode::FAILURE;
     }
-    TrigConf::DSConfigSvc *dsSvc=dynamic_cast<TrigConf::DSConfigSvc *>(_dsSvc.operator->());
+    TrigConf::DSConfigSvc *dsSvc=dynamic_cast<TrigConf::DSConfigSvc *>(m_dsSvc.operator->());
     if(!dsSvc) {
       ATH_MSG_FATAL("The trigger configuration keys don't seem to make sense, and we're not using "
         << "TrigConf::DSConfigSvc...");
@@ -311,16 +311,16 @@ StatusCode TrigCountDumper::execute(void) {
 
   // At this point we now have a super master key so check whether this is one we have
   // already seen or whether we need to create a new menu to count it
-  if(_menu.find(smk)==_menu.end()) {
+  if(m_menu.find(smk)==m_menu.end()) {
     ATH_MSG_INFO("Found new trigger menu with SMK=" << smk);
     // This super master key was not found so create a new menu entry
     // Note: this is inefficient in that it creates and then copies the trigger
     // menu into the map. However this should only ever be performed once or twice
     // per run so the overhead is minimal and it avoids have to worry about memory
     // management (so call me lazy!).
-    _menu[smk]=trigcount::TriggerMenu(smk);
+    m_menu[smk]=trigcount::TriggerMenu(smk);
     // Get a list of all the L1 triggers in this menu configuration
-    std::vector<std::string> trigs=_trigDec->getListOfTriggers("L1_.*");
+    std::vector<std::string> trigs=m_trigDec->getListOfTriggers("L1_.*");
     // Loop over all the L1 triggers and add them to the count menu
     for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
       ATH_MSG_DEBUG("Adding L1 trigger " << *i);
@@ -328,25 +328,25 @@ StatusCode TrigCountDumper::execute(void) {
       // Check that there is a valid L1 item pointer, if not then raise an error
       if(!l1) {
         ATH_MSG_ERROR("No Lvl1Item class found for " << *i << ", set prescale to -1");
-        _menu[smk].addTrigger(trigcount::TriggerCount(*i,-1.,0.));
+        m_menu[smk].addTrigger(trigcount::TriggerCount(*i,-1.,0.));
       } else {
-        _menu[smk].addTrigger(trigcount::TriggerCount(*i,l1->prescaleFactor(),0.));
+        m_menu[smk].addTrigger(trigcount::TriggerCount(*i,l1->prescaleFactor(),0.));
       }
     }
     // Get a list of all the HLT triggers in this menu configuration
-    trigs=_trigDec->getListOfTriggers("HLT_.*");
+    trigs=m_trigDec->getListOfTriggers("HLT_.*");
     // Loop over all the triggers and add them to the count menu
     for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
       ATH_MSG_DEBUG("Adding HLT trigger " << *i 
-                    << " with prescale " << _trigDec->getPrescale(*i));
+                    << " with prescale " << m_trigDec->getPrescale(*i));
       const TrigConf::HLTChain *ch=expert.getChainConfigurationDetails(*i);
       // Check for the expert chain interface
       if(!ch) {
         ATH_MSG_ERROR("No Chain class found for " << *i << ", set passthrough to -1");
-        _menu[smk].addTrigger(trigcount::TriggerCount(*i,_trigDec->getPrescale(*i),-1.));
+        m_menu[smk].addTrigger(trigcount::TriggerCount(*i,m_trigDec->getPrescale(*i),-1.));
       } else {
-        _menu[smk].addTrigger(trigcount::TriggerCount(*i,ch->prescale(),ch->pass_through()));
-        _menu[smk][*i].setLower(ch->lower_chain_name());
+        m_menu[smk].addTrigger(trigcount::TriggerCount(*i,ch->prescale(),ch->pass_through()));
+        m_menu[smk][*i].setLower(ch->lower_chain_name());
       }
     }
     ATH_MSG_DEBUG("Trigger menu configured");
@@ -354,19 +354,19 @@ StatusCode TrigCountDumper::execute(void) {
   
   // Now that we know we have a trigger menu for this event get a reference to it.
   // This avoids having to look it up in the map everytime we access it.
-  trigcount::TriggerMenu &menu=_menu[smk];
+  trigcount::TriggerMenu &menu=m_menu[smk];
   // Extract the event info object from store gate
   const EventInfo *eventInfo;
   StatusCode  sc;
-  if (_eventInfoName == "") {
+  if (m_eventInfoName == "") {
     sc=evtStore()->retrieve(eventInfo);
   } else {
-    sc=evtStore()->retrieve(eventInfo ,_eventInfoName);
+    sc=evtStore()->retrieve(eventInfo ,m_eventInfoName);
   }
   // Check for a null point or failure code because the call can succeed but not
   // find a valid event info object pointer
   if(sc.isFailure() || !eventInfo) {
-    ATH_MSG_INFO("EventInfo container '" << _eventInfoName
+    ATH_MSG_INFO("EventInfo container '" << m_eventInfoName
                  << "' could not be retrieved from StoreGate!");
     return StatusCode::SUCCESS;
   }
@@ -375,28 +375,28 @@ StatusCode TrigCountDumper::execute(void) {
   menu.addEvent(eventInfo->actualInteractionsPerCrossing());
   
   // Loop over all the HLT triggers to find which ones passed
-  std::vector<std::string> trigs=_trigDec->getListOfTriggers("HLT_.*");
+  std::vector<std::string> trigs=m_trigDec->getListOfTriggers("HLT_.*");
   for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
     // Check to see if the trigger passed regardless of any prescale value. If it does then
     // add this event to the count
-    if(_trigDec->isPassed(*i,TrigDefs::allowResurrectedDecision|TrigDefs::requireDecision)) {
+    if(m_trigDec->isPassed(*i,TrigDefs::allowResurrectedDecision|TrigDefs::requireDecision)) {
       // Access the actual pass value, with prescale implemented. If this is true then the
       // actual count will be incremented as well as the raw count
-      menu[*i].addEvent(_trigDec->isPassed(*i));
+      menu[*i].addEvent(m_trigDec->isPassed(*i));
     }
   }
 
   // Loop over all the L1 triggers to find which ones passed
-  trigs=_trigDec->getListOfTriggers("L1_.*");
+  trigs=m_trigDec->getListOfTriggers("L1_.*");
   for(std::vector<std::string>::const_iterator i=trigs.begin();i!=trigs.end();++i) {
     const LVL1CTP::Lvl1Item *l1=expert.getItemDetails(*i);
     // Check that there is a valid L1 item pointer, if not then raise an error
     if(!l1) {
       ATH_MSG_ERROR("No Lvl1Item class found for " << *i << ", using TrigDecision data only");
-      if(_trigDec->isPassed(*i,TrigDefs::allowResurrectedDecision|TrigDefs::requireDecision)) {
+      if(m_trigDec->isPassed(*i,TrigDefs::allowResurrectedDecision|TrigDefs::requireDecision)) {
         // Access the actual pass value, with prescale implemented. If this is true then the
         // actual count will be incremented as well as the raw count
-        menu[*i].addEvent(_trigDec->isPassed(*i));
+        menu[*i].addEvent(m_trigDec->isPassed(*i));
       }
     } else {
       // We have a Lvl1Item class so we use this to get the raw and prescaled counts
