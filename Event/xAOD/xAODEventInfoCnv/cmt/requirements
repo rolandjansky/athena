@@ -1,5 +1,5 @@
 package xAODEventInfoCnv
-# $Id: requirements 615394 2014-09-06 06:10:04Z dquarrie $
+# $Id: requirements 670837 2015-05-29 10:17:08Z krasznaa $
 
 author Attila Krasznahorkay
 
@@ -17,6 +17,7 @@ use AthenaKernel         AthenaKernel-*         Control
 
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
+use LumiBlockComps       LumiBlockComps-*       LumiBlock
 
 use EventInfo            EventInfo-*            Event
 
