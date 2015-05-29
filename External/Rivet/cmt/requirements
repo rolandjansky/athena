@@ -17,8 +17,8 @@ use YODA                       YODA-*                  External
 macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)/rivet"
 #macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
 macro Rivet_version "2.2.1"
-# NOTE "a" added to the version number to ensure that it is picked up for pcache build - to be removed by version update
-macro Rivet_native_version "$(Rivet_version)a_lcgcmt$(LCG_config_version)"
+# NOTE "b" added to the version number to ensure that it is picked up for pcache build - to be removed by version update
+macro Rivet_native_version "$(Rivet_version)b_lcgcmt$(LCG_config_version)"
 macro Rivet_dir "$(Rivet_home)/$(Rivet_version)/$(LCG_ext_system)"
 macro Rivet_lib "$(Rivet_dir)/lib"
 macro Rivet_share "$(Rivet_dir)/share"
@@ -58,7 +58,7 @@ path_prepend LATEXINPUTS "$(Rivet_texmf)/tex"
 path_append TEXMFHOME $colon
 path_append TEXMFCNF $colon
 path_append TEXINPUTS $colon
-path_prepend LATEXINPUTS $colon
+path_append LATEXINPUTS $colon
 
 macro Rivet_pp_cppflags "-isystem $(Rivet_dir)/include "
 
