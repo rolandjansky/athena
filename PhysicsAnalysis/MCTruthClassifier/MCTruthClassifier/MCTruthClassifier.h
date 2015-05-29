@@ -217,8 +217,9 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
 
    const HepPDT::ParticleDataTable* m_particleTable;
    
-
+#ifndef XAOD_ANALYSIS
    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+#endif
    ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
 //------------------------------------------------------------------------
 //      configurable data members
