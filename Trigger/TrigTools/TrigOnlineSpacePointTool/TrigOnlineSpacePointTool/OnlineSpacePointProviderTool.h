@@ -16,8 +16,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef TRIGONLINESPACEPOINTTOOL_ONLINESPACEPOINTPROVIDERTOOL_H
-#define TRIGONLINESPACEPOINTTOOL_ONLINESPACEPOINTPROVIDERTOOL_H
+#ifndef __ONLINE_SPACEPOINTPROVIDER_TOOL_H__
+#define __ONLINE_SPACEPOINTPROVIDER_TOOL_H__
 
 #include <string>
 #include <vector>
@@ -112,7 +112,8 @@ class OnlineSpacePointProviderTool: public AthAlgTool, virtual public ISpacePoin
   double m_spformationSCTTime;
   double m_l2DataTime;
   double m_regSelTime;
-  int m_nColl[4];
+  double m_minZ, m_maxZ;
+  int nColl[4];
   bool m_useStoreGate;
 
   bool m_useSctClustThreshold, m_usePixelClustThreshold;

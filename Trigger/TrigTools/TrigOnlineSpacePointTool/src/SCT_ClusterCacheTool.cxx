@@ -29,8 +29,6 @@ using eformat::helper::SourceIdentifier;
 
 #define MAXNUM_SCT_BS_ERRORS 14
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
@@ -182,9 +180,9 @@ StatusCode SCT_ClusterCacheTool::finalize()
   return sc;
 }
 
-StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& robFrags,
-                                                     const std::vector<IdentifierHash>& listOfSCTIds,
-                                                     std::vector<int>& errorVect, bool isFullScan)
+StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>& robFrags,
+                                                 std::vector<IdentifierHash> listOfSCTIds,
+						       std::vector<int>& errorVect, bool isFullScan)
 {
   if(m_timers) 
     {

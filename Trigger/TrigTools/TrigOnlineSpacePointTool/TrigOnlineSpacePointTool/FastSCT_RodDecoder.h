@@ -13,8 +13,8 @@
  *
  */ 
  
-#ifndef TRIGONLINESPACEPOINTTOOL_FASTSCTRODDECODER_H
-#define TRIGONLINESPACEPOINTTOOL_FASTSCTRODDECODER_H
+#ifndef __FAST_SCT_RODDECODER_H__
+#define __FAST_SCT_RODDECODER_H__
 
 #include <stdint.h>
 #include <vector>
@@ -35,6 +35,8 @@
 
 class FastSCT_Clusterization;
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 class FastSCT_RodDecoder : public AthAlgTool 
 {
 public: 
@@ -50,8 +52,7 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  bool fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob,
-                       uint32_t robid, ISCT_CablingSvc* cablingSvc, 
+  bool fillCollections(const ROBFragment* rob, uint32_t robid, ISCT_CablingSvc* cablingSvc, 
 		       std::vector<bool>&, FastSCT_Clusterization* );
 
   int addNewStrip(int strip, int, uint32_t onlineId, int ERRORS, float errorHit[20],
