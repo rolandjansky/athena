@@ -234,6 +234,7 @@ if DQMonFlags.doMonitoring():
    # Post-setup configuration #
    #--------------------------#
    monToolSet_after = set(ToolSvc.getChildren())
+   local_logger.debug('DQ Post-Setup Configuration')
    for tool in monToolSet_after-monToolSet_before:
       # if we have the FilterTools attribute, assume this is in fact a
       # monitoring tool
@@ -241,13 +242,16 @@ if DQMonFlags.doMonitoring():
       if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
          if 'EnableLumi' in dir(tool):
             tool.EnableLumi = False
-      if DQMonFlags.monToolPostExec():
-         local_logger.debug('DQ Post-Setup Configuration')
-         postprocfunc = eval(DQMonFlags.monToolPostExec())
-         if hasattr(tool, 'FilterTools'):
+      if hasattr(tool, 'FilterTools'):
+         # give all the tools the trigger translator
+         if DQMonFlags.useTrigger():
+            tool.TriggerTranslatorTool = monTrigTransTool
+
+         if DQMonFlags.monToolPostExec():
+            postprocfunc = eval(DQMonFlags.monToolPostExec())
             local_logger.debug('Applying postexec transform to  ===> %s', tool)
             postprocfunc(tool)
-         del postprocfunc
+            del postprocfunc
 
    del monToolSet_before, monToolSet_after
 

@@ -349,6 +349,13 @@ class nameTrigDecTool(JobProperty):
     StoredValue  = 'monTrigDecTool'
 list+=[nameTrigDecTool]
 
+class nameTrigTransTool(JobProperty):
+    """ name of trigger translator tool """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'monTrigTransTool'
+list+=[nameTrigTransTool]
+
 class monToolPostExec(JobProperty):
     """ MonManager environment """
     statusOn     = True

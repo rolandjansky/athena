@@ -692,6 +692,9 @@ initialize()
             msg(MSG::WARNING) << "Error parsing the trigger chain list, using empty list" << endreq;
             m_vTrigChainNames.clear();
          }
+	 if (!m_trigTranslator.empty()) {
+	   updateTriggersForGroups(m_vTrigChainNames);
+	 }
       }
       else {
 	ATH_MSG_DEBUG("  --> trigger chain list empty");
@@ -703,6 +706,9 @@ initialize()
             msg(MSG::WARNING) << "Error parsing the trigger group names list, using empty list" << endreq;
             m_vTrigGroupNames.clear();
          }
+	 if (!m_trigTranslator.empty()) {
+	   updateTriggersForGroups(m_vTrigChainNames);
+	 }
       }
       else {
 	ATH_MSG_DEBUG("  --> trigger group list empty");
@@ -912,13 +918,14 @@ fillHists()
       (!m_useTrigger
        || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
+     ATH_MSG_DEBUG("Passed trigger, presumably");
       d->benchPreFillHistograms();
       StatusCode sc3 = fillHistograms();
       m_haveClearedLastEventBlock = true;
       d->benchPostFillHistograms();
       sc3.setChecked();
       ++m_nEvents;
-   }
+   } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
 
    ++m_nEventsIgnoreTrigger;
    if( newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
@@ -2187,6 +2194,30 @@ parseList(const std::string& line, std::vector<std::string>& result) {
    return StatusCode::SUCCESS;
 }
 
+void
+ManagedMonitorToolBase::
+updateTriggersForGroups(std::vector<std::string>& vTrigChainNames) {
+  for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
+    std::string& thisName = vTrigChainNames[i];
+    if (thisName.substr(0, 6) == "CATEGORY_") {
+      ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". We will unpack it.");
+      std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(6,std::string::npos));
+      std::ostringstream oss;
+      oss << "(";
+      for (size_t itrig = 0; itrig < triggers.size(); ++itrig) {
+	if (itrig != 0) { 
+	  oss << "|";
+	}
+	oss << triggers[itrig];
+      }
+      oss << ")";
+      // replace with new value
+      std::string newval = oss.str();
+      ATH_MSG_DEBUG("Replaced with " << newval);
+      vTrigChainNames[i] = newval;
+    }
+  }
+}
 
 ManagedMonitorToolBase::StreamNameFcn*
 ManagedMonitorToolBase::
