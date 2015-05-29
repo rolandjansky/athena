@@ -14,18 +14,18 @@ sel_muon1  = 'Muons.pt > 25*GeV && Muons.ptcone40/Muons.pt < 0.3'
 sel_muon2  = 'Muons.pt > 7*GeV'  #  && Muons.ptcone40/Muons.pt < 0.4'
 
 # Event selection string
-draw_zmumu = '( count (  mumuMass > 70*GeV   &&  mumuMass < 110*GeV ) >= 1 )'
+draw_zmumu = '( count (  DRZmumuMass > 70*GeV   &&  DRZmumuMass < 110*GeV ) >= 1 )'
 
 # Invariant masses in various configurations
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__InvariantMassTool
-mumuMassTool = DerivationFramework__InvariantMassTool(name = "mumuMassTool",
+DRZmumuMassTool = DerivationFramework__InvariantMassTool(name = "DRZmumuMassTool",
                                                       ContainerName              = "Muons",
                                                       ObjectRequirements         = sel_muon1,
                                                       SecondObjectRequirements   = sel_muon2,
                                                       MassHypothesis             = 105.66,
                                                       SecondMassHypothesis       = 105.66,
-                                                      StoreGateEntryName         = "mumuMass")
-ToolSvc += mumuMassTool
+                                                      StoreGateEntryName         = "DRZmumuMass")
+ToolSvc += DRZmumuMassTool
 
 # Event selection tool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -38,7 +38,7 @@ print DRAW_ZMUMU_SkimmingTool
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DRAW_ZMUMU_Seq += CfgMgr.DerivationFramework__DerivationKernel("DRAW_ZMUMUKernel",
-                                                               AugmentationTools = [mumuMassTool],
+                                                               AugmentationTools = [DRZmumuMassTool],
                                                                SkimmingTools = [DRAW_ZMUMU_SkimmingTool]
                                                                )
 topSequence += DRAW_ZMUMU_Seq 

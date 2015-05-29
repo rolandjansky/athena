@@ -1022,18 +1022,31 @@ class WriteRAWCommDPD_IDPROJ(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWCommDPD_IDPROJ)
 listRAWtoDPD.append(WriteRAWCommDPD_IDPROJ.StreamName)
 
-class WriteDRAW_EGCALIB(JobProperty):
-    """ Produce the DRAW for EGamma calibration."""
+class WriteDRAW_EGZ(JobProperty):
+    """ Produce the DRAW for EGamma calibration in Z events."""
     statusOn       = True
     allowedTypes   = ['bool']
     StoredValue    = False
-    StreamName     = "StreamDRAW_EGCALIB"
+    StreamName     = "StreamDRAW_EGZ"
     FileName       = ""
     isVirtual      = False
-    DPDMakerScript = "PrimaryDPDMaker/DRAW_EGCALIB.py"
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_EGZ.py"
     pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EGCALIB)
-listRAWtoDPD.append(WriteDRAW_EGCALIB.StreamName)
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EGZ)
+listRAWtoDPD.append(WriteDRAW_EGZ.StreamName)
+
+class WriteDRAW_EGJPSI(JobProperty):
+    """ Produce the DRAW for EGamma calibration in JPSI events."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_EGJPSI"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_EGJPSI.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EGJPSI)
+listRAWtoDPD.append(WriteDRAW_EGJPSI.StreamName)
 
 class WriteDRAW_TAUMUH(JobProperty):
     """ Produce the DRAW for TAUWG Z->tau(mu)tau(had) T&P."""
@@ -1048,6 +1061,19 @@ class WriteDRAW_TAUMUH(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_TAUMUH)
 listRAWtoDPD.append(WriteDRAW_TAUMUH.StreamName)
 
+class WriteDRAW_EMU(JobProperty):
+    """ Produce the primary DPD e-mu in Byte Stream format."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_EMU"
+    FileName       = ""
+    Prescale       = 1
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_EMU.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDRAW_EMU)
+listRAWtoDPD.append(WriteDRAW_EMU.StreamName)
 
 ##--------------------------------------------
 ## Skimmed AOD
