@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 623865 2014-10-24 12:39:44Z graemes $
+# @version $Id: trfFileUtils.py 669117 2015-05-21 17:49:52Z vanyash $
 # @todo make functions timelimited
 
 import logging
@@ -22,6 +22,8 @@ from PyJobTransforms.trfDecorators import timelimited
 athFileInterestingKeys = ['beam_energy', 'beam_type', 'conditions_tag', 'file_size',
                           'file_guid', 'file_type', 'geometry', 'lumi_block', 'nentries', 'run_number', 
                           'AODFixVersion']
+# Stripped down key list for files which are inputs
+inpFileInterestingKeys = ['file_size', 'file_guid', 'file_type', 'nentries']
 
 ## @brief Determines metadata of BS, POOL or TAG file.
 #  @details Trivial wrapper around PyUtils.AthFile.
@@ -115,7 +117,11 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
     msg.debug('Calling AthenaLiteFileInfo for {0} (type {1})'.format(filename, filetype))
 
     if filetype == 'POOL':
-        from PyUtils.AthFileLite import AthPoolFile as AthFileLite
+        # retrieve GUID and nentries without runMiniAthena subprocess
+        if set(retrieveKeys) == set(inpFileInterestingKeys):
+            from PyUtils.AthFileLite import AthInpFile as AthFileLite
+        else:
+            from PyUtils.AthFileLite import AthPoolFile as AthFileLite
     elif filetype == 'BS':
         from PyUtils.AthFileLite import AthBSFile as AthFileLite
     elif filetype == 'TAG':
