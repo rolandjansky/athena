@@ -17,7 +17,6 @@
 
 #include "CoralKernel/Context.h"
 
-#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 
 #include "CollectionBase/CollectionFactory.h"
@@ -28,12 +27,10 @@
 
 #include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
-#include "PersistencySvc/ISession.h"
-#include "PersistencySvc/IDatabase.h"
-#include "PersistencySvc/IContainer.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "PersistencySvc/ITokenIterator.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
+#include "PersistencySvc/Placement.h"
 #include "StorageSvc/DbType.h"
 
 #include "RelationalAccess/ConnectionService.h"
@@ -159,24 +156,51 @@ StatusCode PoolSvc::initialize() {
       default: lvl = coral::Warning;
    };
    coral::MessageStream::setMsgVerbosity(lvl);
-
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
-   }
-   return reinit();
+   return(this->reinit());
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::reinit() {
    ATH_MSG_INFO("Re-initializing " << name());
    // Setup a catalog connection based on the value of $POOL_CATALOG
- 
+   m_catalog = createCatalog();
+   if (m_catalog != 0) {
+      m_catalog->start();
+   } else {
+      ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
+      return(StatusCode::FAILURE);
+   }
+   // Setup a persistency service
+   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
+   if (psfactory == 0) {
+      ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
+      return(StatusCode::FAILURE);
+   }
+   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
+   if (m_persistencySvcVec[IPoolSvc::kInputStream] == 0) {
+      ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
+   if (!connect(pool::ITransaction::READ).isSuccess()) {
+      ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
+   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == 0) {
+      ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
+   pool::DatabaseConnectionPolicy policy;
+   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
+   if (m_fileOpen.value() == "update") {
+      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
+   }
+   m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
    return(StatusCode::SUCCESS);
 }
-
 //__________________________________________________________________________
-StatusCode PoolSvc::io_reinit()
-{
+StatusCode PoolSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -212,70 +236,14 @@ StatusCode PoolSvc::io_reinit()
          m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
-   
-   if( !setupPersistencySvc().isSuccess() ) {
-      return StatusCode::FAILURE;
-   }
-   // MN: reinit: maybe needed, maybe not
-   return reinit();
-}
-
-//__________________________________________________________________________
-StatusCode PoolSvc::setupPersistencySvc()
-{
-   ATH_MSG_INFO("Setting up APR FileCatalog and Streams");
-   if( m_catalog ) {
-      m_catalog->commit();
-      delete m_catalog;
-   }
-   m_catalog = createCatalog();
-   if (m_catalog != 0) {
-      m_catalog->start();
-   } else {
-      ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
-      return(StatusCode::FAILURE);
-   }
-
-   // Setup a persistency service
    unsigned int streamId = 0;
    for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
 		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
       delete *iter;
    }
    m_persistencySvcVec.clear();
-
-   pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
-   if (psfactory == 0) {
-      ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
-      return(StatusCode::FAILURE);
-   }
-   
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Read Service
-   if (m_persistencySvcVec[IPoolSvc::kInputStream] == 0) {
-      ATH_MSG_FATAL("Failed to create Input PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   m_contextMaxFile.insert(std::pair<unsigned long, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
-   if (!connect(pool::ITransaction::READ).isSuccess()) {
-      ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   m_persistencySvcVec.push_back(psfactory->create("PersistencySvc", *m_catalog)); // Write Service
-   if (m_persistencySvcVec[IPoolSvc::kOutputStream] == 0) {
-      ATH_MSG_FATAL("Failed to create Output PersistencySvc.");
-      return(StatusCode::FAILURE);
-   }
-   pool::DatabaseConnectionPolicy policy;
-   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
-   if (m_fileOpen.value() == "update") {
-      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
-   }
-   m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
-
-   return StatusCode::SUCCESS;
+   return(this->reinit());
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::stop() {
    unsigned int streamId = 0;
@@ -291,15 +259,8 @@ StatusCode PoolSvc::stop() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::finalize() {
-   unsigned int streamId = 0;
-   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      delete *iter;
-   }
-   m_persistencySvcVec.clear();
-   if (m_catalog != 0) {
-      m_catalog->commit();
-      delete m_catalog; m_catalog = 0;
+   if (!this->io_finalize().isSuccess()) {
+      ATH_MSG_WARNING("Cannot io_finalize.");
    }
    if (!m_athenaSealSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release AthenaSealSvc");
@@ -314,7 +275,17 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   return(disconnect(IPoolSvc::kInputStream));
+   unsigned int streamId = 0;
+   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
+		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
+      delete *iter;
+   }
+   m_persistencySvcVec.clear();
+   if (m_catalog != 0) {
+      m_catalog->commit();
+      delete m_catalog; m_catalog = 0;
+   }
+   return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -328,7 +299,7 @@ StatusCode PoolSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-const Token* PoolSvc::registerForWrite(const Placement* placement,
+const Token* PoolSvc::registerForWrite(const pool::Placement* placement,
                                        const void* obj,
                                        const RootType& classDesc) const {
    Token* token = m_persistencySvcVec[IPoolSvc::kOutputStream]->registerForWrite(*placement, obj, classDesc);
@@ -734,6 +705,24 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
    return(value);
 }
 //_______________________________________________________________________
+long long int PoolSvc::getIOSize(const std::string& dbName, unsigned long contextId) const {
+   pool::ISession* sesH = 0;
+   pool::IDatabase* dbH = 0;
+   if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
+      ATH_MSG_DEBUG("getFileSize: Failed to get Session/DatabaseHandle to get POOL FileSize property.");
+      delete dbH; dbH = 0;
+      return(StatusCode::FAILURE);
+   }
+   long long int value = -1;
+   if (contextId == IPoolSvc::kOutputStream) {
+      value = dbH->technologySpecificAttributes().attribute<long long int>("IOBYTES_WRITE");
+   } else {
+      value = dbH->technologySpecificAttributes().attribute<long long int>("IOBYTES_READ");
+   }
+   delete dbH; dbH = 0;
+   return(value);
+}
+//_______________________________________________________________________
 StatusCode PoolSvc::getAttribute(const std::string& optName,
 		std::string& data,
 		long tech,
@@ -748,17 +737,16 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    }
    std::ostringstream oss;
    if (data == "DbLonglong") {
-      long long int value = sesH->technologySpecificAttributes(tech).attribute<long long int>(optName);
+      long long int value = getDomAttribute<long long int>(optName, sesH, tech);
       oss << std::dec << value;
    } else if (data == "double") {
-      double value = sesH->technologySpecificAttributes(tech).attribute<double>(optName);
+      double value = getDomAttribute<double>(optName, sesH, tech);
       oss << std::dec << value;
    } else {
-      int value = sesH->technologySpecificAttributes(tech).attribute<int>(optName);
+      int value = getDomAttribute<int>(optName, sesH, tech);
       oss << std::dec << value;
    }
    data = oss.str();
-   ATH_MSG_INFO("Domain attribute [" << optName << "]" << ": " << data);
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -786,19 +774,18 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    std::ostringstream oss;
    if (contName.empty()) {
       if (data == "DbLonglong") {
-         long long int value = dbH->technologySpecificAttributes().attribute<long long int>(optName);
+         long long int value = getDbAttribute<long long int>(optName, dbH);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = dbH->technologySpecificAttributes().attribute<double>(optName);
+         double value = getDbAttribute<double>(optName, dbH);
          oss << std::dec << value;
       } else if (data == "string") {
-         char* value = dbH->technologySpecificAttributes().attribute<char*>(optName);
+         char* value = getDbAttribute<char*>(optName, dbH);
          oss << value;
       } else {
-         int value = dbH->technologySpecificAttributes().attribute<int>(optName);
+         int value = getDbAttribute<int>(optName, dbH);
          oss << std::dec << value;
       }
-      ATH_MSG_INFO("Database (" << dbH->pfn() << ") attribute [" << optName << "]" << ": " << oss.str());
    } else {
       pool::IContainer* contH = 0;
       std::string objName;
@@ -809,17 +796,16 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
          return(StatusCode::FAILURE);
       }
       if (data == "DbLonglong") {
-         long long int value = contH->technologySpecificAttributes().attribute<long long int>(optName);
+         long long int value = getContAttribute<long long int>(optName, contName, contH);
          oss << std::dec << value;
       } else if (data == "double") {
-         double value = contH->technologySpecificAttributes().attribute<double>(optName);
+         double value = getContAttribute<double>(optName, contName, contH);
          oss << std::dec << value;
       } else {
-         int value = contH->technologySpecificAttributes().attribute<int>(optName);
+         int value = getContAttribute<int>(optName, contName, contH);
          oss << std::dec << value;
       }
       delete contH; contH = 0;
-      ATH_MSG_INFO("Container attribute [" << contName << "." << optName << "]: " << oss.str());
    }
    data = oss.str();
    delete dbH; dbH = 0;
