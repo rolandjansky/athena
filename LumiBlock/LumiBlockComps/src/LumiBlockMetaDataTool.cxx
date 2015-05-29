@@ -287,7 +287,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
      p_tempLBColl->push_back(iovr);
      ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
 		<< (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-		    << (*ilast)->eventsExpected() << " expected " << (*i)->eventsExpected());
+		    << (*ilast)->eventsSeen() << " expected " << (*i)->eventsExpected());
      i++;
      while (i != ie) {
        if( ((*i)->startRunNumber()==(*ilast)->startRunNumber()) &&
@@ -300,17 +300,23 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 	 	 		  << (*ilast)->eventsExpected() << " and " << (*i)->eventsExpected() );
 	 }
          else {
-	   ATH_MSG_INFO(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-	 	 		  << (*ilast)->eventsSeen() << "+" << (*i)->eventsSeen() << " and events expected "
-				  << (*ilast)->eventsExpected() );
+	   ATH_MSG_INFO(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() 
+			               << " events seen "  << iovr->eventsSeen() << "+" 
+                                       << (*i)->eventsSeen() << " and events expected "
+				       << iovr->eventsExpected() );
 
-	     iovr->setEventsSeen((*i)->eventsSeen()+(*ilast)->eventsSeen());
+	     iovr->setEventsSeen((*i)->eventsSeen()+iovr->eventsSeen());
 	 }
        }
        else {
          iovr = new xAOD::LumiBlockRange(*(*i));
-	 ATH_MSG_INFO(  "Push_back tmpLBColl with run  " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-	 	 		  << (*ilast)->eventsExpected() << "+" << (*i)->eventsExpected() );
+
+         ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
+		<< iovr->startRunNumber() << " LB " << iovr->startLumiBlockNumber() << " events seen "     
+		    << iovr->eventsSeen() << " expected " << iovr->eventsExpected());
+
+     //	 ATH_MSG_INFO(  "Push_back tmpLBColl with run  " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
+     //	 	 		  << (*ilast)->eventsExpected() << "+" << (*i)->eventsExpected() );
          p_tempLBColl->push_back(iovr);
          ilast = i;
        }

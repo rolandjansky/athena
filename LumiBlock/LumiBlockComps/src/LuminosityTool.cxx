@@ -292,7 +292,7 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
   }
 
   // Check validity (don't bother continuing if invalid)
-  cool::UInt32 m_Valid = attrList["Valid"].data<cool::UInt32>();
+  m_Valid = attrList["Valid"].data<cool::UInt32>();
   if (m_Valid & 0x01) {
     ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
     return StatusCode::SUCCESS;
@@ -429,7 +429,7 @@ LuminosityTool::recalculatePerBCIDLumi()
   }
   int perBcidValid = (m_Valid/10) % 10;
   if ((m_Valid & 0x03) || (perBcidValid > 0)) {  // Skip if either per-BCID or LBAv is invalid
-    ATH_MSG_WARNING( " Invalid per-BCID luminosity found!" );
+    ATH_MSG_WARNING( " Invalid per-BCID luminosity found: " << m_Valid << "!" );
     return;
   }
   if (m_LBAvInstLumi <= 0.) {
