@@ -1,4 +1,4 @@
-# $Id: atlas_error_mask.db 576626 2013-12-21 23:29:31Z graemes $
+# $Id: atlas_error_mask.db 670985 2015-05-29 16:57:43Z graemes $
 
 # Error mask file for new transforms
 # Each line contains 3 fields, separated by commas:
@@ -63,7 +63,7 @@ THistSvc.sysFinali,  FATAL,  Standard std::exception is caught
 ,ERROR, \(poolDb\):
 ,ERROR, \(pool\):
 ,ERROR, - G4Navigator::ComputeStep\(\)
-,,.*ERROR OCCURED DURING A SECONDARY SCATTER AND WAS
+,,.*OCCURED DURING A SECONDARY SCATTER AND WAS
 THistSvc        , ERROR, already registered an object with identifier .*
 ,ERROR, MuonDetectorManager::getCscReadoutElement stNameindex out of range .*
 muFast_\S+      , ERROR, CSM for Subsystem \d+, MrodId \d+, LinkId \d+ not found

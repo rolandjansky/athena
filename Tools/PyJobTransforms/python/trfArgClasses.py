@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 666344 2015-05-11 20:18:27Z graemes $
+# @version $Id: trfArgClasses.py 670985 2015-05-29 16:57:43Z graemes $
 
 import argparse
 import bz2
@@ -21,7 +21,8 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize, inpFileInterestingKeys
+
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
@@ -680,7 +681,9 @@ class argFile(argList):
                             newValue.extend(globbedNames)
                     else:
                         # Simple case
-                        newValue.extend(glob.glob(filename))
+                        globbedFiles = glob.glob(filename)
+                        globbedFiles.sort()
+                        newValue.extend(globbedFiles)
                 if len(self._value) > 0 and len(newValue) is 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
@@ -1192,6 +1195,10 @@ class argAthenaFile(argFile):
             aftype = 'BS'
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
+
+        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files
+        if aftype == 'POOL' and self._io == 'input':
+            retrieveKeys = inpFileInterestingKeys
 
         # N.B. Could parallelise here            
         for fname in myFiles:
