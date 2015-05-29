@@ -264,18 +264,22 @@ StatusCode HLTBjetMonTool::book(){
 
 
   // Get offline PV
+  float offlinepvz(0.);
   const xAOD::VertexContainer* offlinepv = 0;
-  ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
-  ATH_MSG_INFO("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
-  float offlinepvz = offlinepv->front()->z();
-  ATH_MSG_INFO(" 1st zPV a la Carlo: " << offlinepvz);
-  hist("nPV","HLT/BjetMon/Shifter")->Fill(offlinepv->size());
-  for (unsigned int j = 0; j<offlinepv->size(); j++){
-    hist("PVx","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->x());
-    hist("PVy","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->y());
-    hist("PVz","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->z());
-  }
-
+  if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) { 
+    ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
+    ATH_MSG_INFO("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
+    if ( offlinepv->size() ) {
+      offlinepvz = offlinepv->front()->z();
+      ATH_MSG_INFO(" 1st zPV a la Carlo: " << offlinepvz);
+      hist("nPV","HLT/BjetMon/Shifter")->Fill(offlinepv->size());
+      for (unsigned int j = 0; j<offlinepv->size(); j++){
+	hist("PVx","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->x());
+	hist("PVy","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->y());
+	hist("PVz","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->z());
+      } // j
+    } // if size
+  } // evtStore
 
   // Get online combinations
 
