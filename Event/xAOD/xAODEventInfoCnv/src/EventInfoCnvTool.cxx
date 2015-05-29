@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.cxx 636755 2014-12-18 14:59:03Z cranshaw $
+// $Id: EventInfoCnvTool.cxx 670837 2015-05-29 10:17:08Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -14,6 +14,7 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/PileUpEventInfo.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfoContainer.h"
 
@@ -25,18 +26,27 @@ namespace xAODMaker {
    /// Hard-coded location of the beam position information
    static const std::string INDET_BEAMPOS = "/Indet/Beampos";
 
+   /// Hard-coded location of the luminosity information
+   static const std::string LUMI_FOLDER_RUN11 = "/TRIGGER/OFLLUMI/LBLESTOFL";
+   static const std::string LUMI_FOLDER_RUN12 = "/TRIGGER/LUMI/LBLESTONL";
+   static const std::string LUMI_FOLDER_RUN21 = "/TRIGGER/OFLLUMI/OflPrefLumi";
+   static const std::string LUMI_FOLDER_RUN22 = "/TRIGGER/LUMI/OnlPrefLumi";
+
    EventInfoCnvTool::EventInfoCnvTool( const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent )
       : AthAlgTool( type, name, parent ),
         m_beamCondSvc( "BeamCondSvc", name ),
-        m_beamCondSvcAvailable( false ) {
+        m_beamCondSvcAvailable( false ),
+        m_lumiTool( "LuminosityTool" ),
+        m_lumiToolAvailable( false ) {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
 
       // Declare the tool's properties:
       declareProperty( "BeamCondSvc", m_beamCondSvc );
+      declareProperty( "LuminosityTool", m_lumiTool );
    }
 
    StatusCode EventInfoCnvTool::initialize() {
@@ -57,6 +67,24 @@ namespace xAODMaker {
       // Try to access the beam conditions service:
       if( m_beamCondSvcAvailable ) {
          CHECK( m_beamCondSvc.retrieve() );
+      }
+
+      // Check if the luminosity tool will be available or not:
+      if( detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN11 ) ||
+          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN12 ) ||
+          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN21 ) ||
+          detStore()->contains< CondAttrListCollection >( LUMI_FOLDER_RUN22 ) ) {
+         ATH_MSG_INFO( "Taking luminosity information from: " << m_lumiTool );
+         m_lumiToolAvailable = true;
+      } else {
+         ATH_MSG_INFO( "Luminosity information not available" );
+         ATH_MSG_INFO( "Will take information from the EventInfo object" );
+         m_lumiToolAvailable = false;
+      }
+
+      // Try to access the luminosity tool:
+      if( m_lumiToolAvailable ) {
+         CHECK( m_lumiTool.retrieve() );
       }
 
       // Return gracefully:
@@ -145,12 +173,23 @@ namespace xAODMaker {
          xaod->setStreamTags( streamTags );
       }
  
-      // Copy the pileup information:
+      // Copy/calculate the pileup information:
       if( ! pileUpInfo ) {
-         xaod->setActualInteractionsPerCrossing(
-            aod->actualInteractionsPerCrossing() );
-         xaod->setAverageInteractionsPerCrossing(
-            aod->averageInteractionsPerCrossing() );
+         if( m_lumiToolAvailable ) {
+            float actualMu = 0.0;
+            const float muToLumi = m_lumiTool->muToLumi();
+            if( std::abs( muToLumi ) > 0.00001 ) {
+               actualMu = m_lumiTool->lbLuminosityPerBCID() / muToLumi;
+            }
+            xaod->setActualInteractionsPerCrossing( actualMu );
+            xaod->setAverageInteractionsPerCrossing(
+               m_lumiTool->lbAverageInteractionsPerCrossing() );
+         } else {
+            xaod->setActualInteractionsPerCrossing(
+               aod->actualInteractionsPerCrossing() );
+            xaod->setAverageInteractionsPerCrossing(
+               aod->averageInteractionsPerCrossing() );
+         }
       }
 
       // Construct the maps for the flag copying:
@@ -186,7 +225,7 @@ namespace xAODMaker {
       for( ; sd_itr != sd_end; ++sd_itr ) {
 
          // Lumi does not store event flags, or an error state:
-         if( sd_itr->first == EventInfo::Lumi ) {
+        if( (int)sd_itr->first == (int)EventInfo::Lumi ) {
             continue;
          }
 
@@ -275,7 +314,7 @@ namespace xAODMaker {
       }
 
       // Finish with some printout:
-      ATH_MSG_VERBOSE( "Finished converting: " << *xaod );
+      ATH_MSG_VERBOSE( "Finished conversion" << *xaod );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

@@ -4,16 +4,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 603159 2014-06-23 13:53:47Z krasznaa $
+// $Id: EventInfoCnvTool.h 670837 2015-05-29 10:17:08Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Beam condition include(s):
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+
+// Luminosity include(s):
+#include "LumiBlockComps/ILuminosityTool.h"
 
 // Local include(s):
 #include "xAODEventInfoCnv/IEventInfoCnvTool.h"
@@ -28,8 +32,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 603159 $
-    * $Date: 2014-06-23 15:53:47 +0200 (Mon, 23 Jun 2014) $
+    * $Revision: 670837 $
+    * $Date: 2015-05-29 12:17:08 +0200 (Fri, 29 May 2015) $
     */
    class EventInfoCnvTool : public AthAlgTool,
                             public virtual IEventInfoCnvTool {
@@ -52,6 +56,11 @@ namespace xAODMaker {
       ServiceHandle< IBeamCondSvc > m_beamCondSvc;
       /// Internal flag for the availability of the beam conditions service
       bool m_beamCondSvcAvailable;
+
+      /// Connection to the luminosity tool
+      ToolHandle< ILuminosityTool > m_lumiTool;
+      /// Internal flag for the availability of the luminosity tool
+      bool m_lumiToolAvailable;
 
    }; // class EventInfoCnvTool
 

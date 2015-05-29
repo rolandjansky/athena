@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 634394 2014-12-08 11:10:34Z krasznaa $
+// $Id: EventInfoCnvAlg.cxx 644234 2015-02-04 17:24:51Z leggett $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -107,11 +107,13 @@ namespace xAODMaker {
 
    StatusCode EventInfoCnvAlg::beginRun() {
 
+#ifndef ATHENAHIVE
       // Let the user know what's happening:
       ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
 
       // Run the conversion using the execute function:
       CHECK( execute() );
+#endif
 
       // Return gracefully:
       return StatusCode::SUCCESS;
