@@ -15,6 +15,8 @@
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
@@ -35,8 +37,10 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ITHistSvc* histoSvc,
 			   true),
       m_l1CondSvc("L1CaloCondSvc", histoSvc->name()),
       m_conditionsContainer(0),
+      m_conditionsContainerRun2(0),
       m_pedestalMaxWidth(0.),
-      m_firstCall(true)
+      m_firstCall(true),
+      m_isRun2(false)
 {
 }
 
@@ -57,8 +61,10 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBas
 			   ""),
       m_l1CondSvc("L1CaloCondSvc", aMonObj->name()),
       m_conditionsContainer(0),
+      m_conditionsContainerRun2(0),
       m_pedestalMaxWidth(0.),
-      m_firstCall(true)
+      m_firstCall(true),
+      m_isRun2(false)
 
 {
 }
@@ -79,21 +85,39 @@ double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower
     const int nSlices = EtLut.size();
     double pedMean = 0;
 
+    if (m_currentRunNo >= 253377) {
+      m_isRun2 = true;
+    }
+
     if (m_firstCall) {
         this->loadConditionsContainer();
         m_firstCall = false;
     }
-
-    if (m_conditionsContainer)
-    {
-        const L1CaloPprConditions* ttConditions = m_conditionsContainer->pprConditions(coolID);
-	if (ttConditions)
-	{
-	    pedMean = ttConditions->pedMean();
+    
+    if (m_conditionsContainer || m_conditionsContainerRun2)
+    {   
+        if (m_isRun2 == false) {
+	  
+	  const L1CaloPprConditions* ttConditions = m_conditionsContainer->pprConditions(coolID);
+	  if (ttConditions)
+	  {
+	      pedMean = ttConditions->pedMean();
+	  }
+	  else
+	  {
+	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
+	  }
 	}
-	else
-	{
-	    *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
+	if (m_isRun2 == true) {
+	  const L1CaloPprConditionsRun2* ttConditions = m_conditionsContainerRun2->pprConditions(coolID);
+	  if (ttConditions)
+	  {
+	      pedMean = ttConditions->pedMean();
+	  }
+	  else
+	  {
+	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
+	  }
 	}
     }
     else
@@ -328,6 +352,124 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 
 // --------------------------------------------------------------------------
 
+/*virtual*/
+void L1CaloPprPedestalPlotManager::fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value)
+{
+    //Create fully differential plots
+    /****************************************************************************************************/
+    
+    std::map<unsigned int, TProfile_LW*>::iterator p_itr;
+    p_itr = m_map_online_coolIDProfile_ValueVsLumi.find(coolId);
+    
+    if(p_itr == m_map_online_coolIDProfile_ValueVsLumi.end())
+    {
+        double eta  = trigTower->eta();
+        std::string plotType = this->GetDetectorLayerString(theLayer);
+        CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
+        std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
+
+        ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
+        ManagedMonitorToolBase::MonGroup ADC_Channels(m_monObj, 
+						      m_pathInRootFile + Form("/%s",detectorRegionString.data()), 
+						      ManagedMonitorToolBase::run,
+                                                      attr);
+        m_histTool->setMonGroup(&ADC_Channels);
+
+        std::string titles;
+	if ( m_ppmAdcMinValue > 0 ) {
+	    titles=Form("Run:%d, %s Vs Lumi Profile for %sFADC >%d, Channel:%08x ;Lumi Block; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    plotType.data(),
+								    m_ppmAdcMinValue,
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+	else {
+	    titles=Form("Run:%d, %s Vs Lumi Profile, Channel:%08x ;Lumi Block; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+        TProfile_LW* anLWProfileHist = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%08x_%sVsLumi",
+								    plotType.data(),
+								    coolId,
+								    m_monitoringName.data()),
+							       titles,									
+							       m_lumiMax,
+							       0,
+							       m_lumiMax);
+	anLWProfileHist->Fill(m_lumiNo,value);
+	m_map_online_coolIDProfile_ValueVsLumi.insert ( std::pair<unsigned int,TProfile_LW*>(coolId,anLWProfileHist) );
+
+        m_histTool->unsetMonGroup();
+	
+    }
+    else
+    {
+        p_itr->second->Fill(m_lumiNo,value);
+    }
+
+    //Now for bunch crossing number:
+    std::map<unsigned int, TProfile_LW*>::iterator p_itr2;
+    p_itr2 = m_map_online_coolIDProfile_ValueVsBCN.find(coolId);
+    if(p_itr2 == m_map_online_coolIDProfile_ValueVsBCN.end())
+    {
+        double eta  = trigTower->eta();
+        std::string plotType = this->GetDetectorLayerString(theLayer);
+        CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
+        std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
+
+        ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
+        ManagedMonitorToolBase::MonGroup ADC_Channels(m_monObj, 
+						      m_pathInRootFile + Form("/%s",detectorRegionString.data()), 
+						      ManagedMonitorToolBase::run,
+                                                      attr);
+        m_histTool->setMonGroup(&ADC_Channels);
+
+        std::string titles;
+	if ( m_ppmAdcMinValue > 0 ) {
+	    titles=Form("Run:%d, %s Vs BCN Profile for %sFADC >%d, Channel:%08x ;BCN; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    plotType.data(),
+								    m_ppmAdcMinValue,
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+	else {
+	    titles=Form("Run:%d, %s Vs BCN Profile, Channel:%08x ;BCN; %s %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    coolId,
+								    m_monitoringTitle.data(),
+								    m_monitoringDimension.data());
+	}
+        TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%08x_%sVsBCN",
+								    plotType.data(),
+								    coolId,
+								    m_monitoringName.data()),
+							       titles,									
+							       0xdec, 0, 0xdec);
+	anLWProfileHist2->Fill(m_bunchCrossing,value);
+	m_map_online_coolIDProfile_ValueVsBCN.insert ( std::pair<unsigned int,TProfile_LW*>(coolId,anLWProfileHist2) );
+
+        m_histTool->unsetMonGroup();
+	
+    }
+    else
+    {
+        p_itr2->second->Fill(m_bunchCrossing,value);
+    }
+
+}
+
+// --------------------------------------------------------------------------
+
 bool L1CaloPprPedestalPlotManager::doMonitoring(double &value)
 {
     // check if default value (-1000.) has been determined
@@ -341,7 +483,13 @@ void L1CaloPprPedestalPlotManager::loadConditionsContainer()
     if (m_l1CondSvc)
     {
         *m_log<<MSG::DEBUG<< "Retrieving Conditions Container" << endreq;
-	StatusCode sc = m_l1CondSvc->retrieve(m_conditionsContainer);
+	StatusCode sc;
+	if (m_isRun2 == true) {
+	  sc = m_l1CondSvc->retrieve(m_conditionsContainerRun2);
+	}
+	else {
+	  sc = m_l1CondSvc->retrieve(m_conditionsContainer);
+	}
 	if (sc.isFailure()) 
 	{
 	    *m_log<<MSG::WARNING<< "Could not retrieve Conditions Container" << endreq;

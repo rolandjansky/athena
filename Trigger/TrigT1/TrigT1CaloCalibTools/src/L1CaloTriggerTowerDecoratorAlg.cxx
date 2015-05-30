@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 652902 2015-03-10 11:06:57Z morrisj $
+// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 664636 2015-05-04 09:16:44Z amazurov $
+
+// TrigT1 common definitions
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 // Local include(s):
 #include "TrigT1CaloCalibTools/L1CaloTriggerTowerDecoratorAlg.h"
@@ -15,16 +18,15 @@ namespace LVL1
 
   L1CaloTriggerTowerDecoratorAlg::L1CaloTriggerTowerDecoratorAlg( const std::string& name, ISvcLocator* svcLoc ) :
     AthAlgorithm( name, svcLoc ),
-    m_sgKey_TriggerTowers("xAODTriggerTowers"),
+    m_sgKey_TriggerTowers(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
     m_caloCellEnergy("CaloCellEnergy"),
     m_caloCellET("CaloCellET"),
     m_caloCellEnergyByLayer("CaloCellEnergyByLayer"),
-    m_caloCellETByLayer ("CaloCellETByLayer"),  
-    m_caloCellsQuality ("CaloCellQuality"),   
-    m_ttTools(nullptr)
+    m_caloCellETByLayer ("CaloCellETByLayer"),
+    m_caloCellsQuality ("CaloCellQuality")
   {  
-    declareProperty( "sgKey_TriggerTowers" , m_sgKey_TriggerTowers = "xAODTriggerTowers" );
-    
+    declareProperty( "sgKey_TriggerTowers" , m_sgKey_TriggerTowers = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation );
+ 
     declareProperty( "DecorName_caloCellEnergy" , m_caloCellEnergy = "CaloCellEnergy" );
     declareProperty( "DecorName_caloCellET" , m_caloCellET = "CaloCellET" );
     declareProperty( "DecorName_caloCellEnergyByLayer" , m_caloCellEnergyByLayer = "CaloCellEnergyByLayer" );

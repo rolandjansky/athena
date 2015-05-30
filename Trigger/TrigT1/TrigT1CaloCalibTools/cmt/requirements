@@ -46,6 +46,7 @@ use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
 use LArRawEvent                 LArRawEvent-*                   LArCalorimeter
 use LArTools                    LArTools-*                      LArCalorimeter
 use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
+use TrigT1Interfaces            TrigT1Interfaces-*              Trigger/TrigT1
 end_private
 
 apply_tag ROOTGraphicsLibs

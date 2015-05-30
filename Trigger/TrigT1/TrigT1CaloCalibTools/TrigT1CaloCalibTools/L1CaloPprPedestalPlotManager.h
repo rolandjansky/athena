@@ -29,6 +29,7 @@
 class ITHistSvc;
 class ManagedMonitorToolBase;
 class L1CaloPprConditionsContainer;
+class L1CaloPprConditionsContainerRun2;
 
 namespace LVL1 {
 class IL1CaloOfflineTriggerTowerTools;
@@ -62,16 +63,23 @@ private:
 
 	void fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
 	void fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value);
+        void fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
 
 	ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+	
 	L1CaloPprConditionsContainer* m_conditionsContainer;
+	
+	L1CaloPprConditionsContainerRun2* m_conditionsContainerRun2;
 
 	void loadConditionsContainer();
 
 	double m_pedestalMaxWidth; // plotting pedestal only if for every slice
 	// the deviation from the mean pedestal
 	// value is less
+	
 	bool m_firstCall;
+	
+	bool m_isRun2;
 
 };
 
