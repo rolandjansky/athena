@@ -191,8 +191,23 @@ LVL1CTP::CTPSimulation::initialize() {
 	
    ATH_MSG_INFO("Initializing - package version " << PACKAGE_VERSION);
 	
+   //
+   // Set up the CTP version
+   //
+
    // TrigConfigSvc for the trigger configuration
    CHECK(m_configSvc.retrieve());
+
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
+	
+   ATH_MSG_DEBUG("CTP version from the menu:" << ctpVersion);
+   
+   m_ctpDataformat = new CTPdataformatVersion(ctpVersion);
+   ATH_MSG_DEBUG("Going to use the following for the CTP (version " << ctpVersion << " ):\n" << m_ctpDataformat->dump());
+
+   m_countsBP.resize(m_ctpDataformat->getMaxTrigItems());
+   m_countsAP.resize(m_ctpDataformat->getMaxTrigItems());
+   m_countsAV.resize(m_ctpDataformat->getMaxTrigItems());
 
 	
    //
@@ -230,6 +245,14 @@ LVL1CTP::CTPSimulation::initialize() {
    if (m_doBPTX == false) {
       ATH_MSG_INFO("Inputs from LVL1 BPTX systems switched off");
    }
+   if (m_doPSCL == false) {
+      ATH_MSG_INFO("Inputs from LVL1 PSCL systems switched off");
+   } else {
+      if (ctpVersion>3) {
+         ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << ctpVersion << ") any more. Setting m_doPSCL to false.");
+         m_doPSCL = false;
+      }
+   }
    if (m_doRNDM == false) {
       ATH_MSG_INFO("Inputs from LVL1 RNDM systems switched off");
    }
@@ -247,6 +270,37 @@ LVL1CTP::CTPSimulation::initialize() {
    CHECK(m_histSvc.retrieve());
 
 	
+   // 
+   // Find configuration file with trigger offsets
+   // 
+   if(m_introduceArtificialTriggerOffsets) {
+      if( m_offsetConfigFile.find("/")==std::string::npos ){
+         const std::string packagePrefix("TrigT1CTP/");
+         m_offsetConfigFile.insert(0,packagePrefix);
+      }
+      m_offsetConfigFile = PathResolverFindDataFile(m_offsetConfigFile);
+      if (m_offsetConfigFile.empty()){
+         ATH_MSG_WARNING("Trigger offset configuration file not found!\n"
+                         << "Size of readout window will be 1");
+      }
+   } else {
+      m_offsetConfigFile = "";
+   }
+	
+   if (m_applyBunchGroup == true) { 
+      // registering callback for bunch group settings
+      const DataHandle<AthenaAttributeList>  m_dataHandle;
+      if(detStore()->contains<AthenaAttributeList>(m_BunchGroupLoc)){
+         ATH_MSG_DEBUG("Registering callback");
+         if (StatusCode::SUCCESS!=detStore()->regFcn(&CTPSimulation::callback, this,
+                                                     m_dataHandle, m_BunchGroupLoc))
+            ATH_MSG_DEBUG("Cannot register callback for bunchgroup content");
+      }
+      else{
+         if (StatusCode::SUCCESS!=LoadBunchGroups())
+            ATH_MSG_DEBUG("Unable to correctly load bunch groups");
+      }
+   }
    return StatusCode::SUCCESS;
 }
 
@@ -419,63 +473,7 @@ StatusCode
 LVL1CTP::CTPSimulation::beginRun() {
    ATH_MSG_INFO("beginRun()");
 
-   //
-   // Set up the CTP version - cant be done before, callback to DSConfigSvc needs to complete first
-   //
-
    unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
-	
-   ATH_MSG_INFO("CTP version from the menu: " << ctpVersion);
-   
-   m_ctpDataformat = new CTPdataformatVersion(ctpVersion);
-   ATH_MSG_DEBUG("Going to use the following for the CTP (version " << ctpVersion << " ):\n" << m_ctpDataformat->dump());
-
-   m_countsBP.resize(m_ctpDataformat->getMaxTrigItems());
-   m_countsAP.resize(m_ctpDataformat->getMaxTrigItems());
-   m_countsAV.resize(m_ctpDataformat->getMaxTrigItems());
-
-   // This printout can only be done here, as it relies on the CTP version
-   if (m_doPSCL == false) {
-      ATH_MSG_INFO("Inputs from LVL1 PSCL systems switched off");
-   } else {
-      if (ctpVersion>3) {
-         ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << ctpVersion << ") any more. Setting m_doPSCL to false.");
-         m_doPSCL = false;
-      }
-   }
-
-   // 
-   // Find configuration file with trigger offsets
-   // 
-   if(m_introduceArtificialTriggerOffsets) {
-      if( m_offsetConfigFile.find("/")==std::string::npos ){
-         const std::string packagePrefix("TrigT1CTP/");
-         m_offsetConfigFile.insert(0,packagePrefix);
-      }
-      m_offsetConfigFile = PathResolverFindDataFile(m_offsetConfigFile);
-      if (m_offsetConfigFile.empty()){
-         ATH_MSG_WARNING("Trigger offset configuration file not found!\n"
-                         << "Size of readout window will be 1");
-      }
-   } else {
-      m_offsetConfigFile = "";
-   }
-	
-   if (m_applyBunchGroup == true) { 
-      // registering callback for bunch group settings
-      const DataHandle<AthenaAttributeList>  m_dataHandle;
-      if(detStore()->contains<AthenaAttributeList>(m_BunchGroupLoc)){
-         ATH_MSG_DEBUG("Registering callback");
-         if (StatusCode::SUCCESS!=detStore()->regFcn(&CTPSimulation::callback, this,
-                                                     m_dataHandle, m_BunchGroupLoc))
-            ATH_MSG_DEBUG("Cannot register callback for bunchgroup content");
-      }
-      else{
-         if (StatusCode::SUCCESS!=LoadBunchGroups())
-            ATH_MSG_DEBUG("Unable to correctly load bunch groups");
-      }
-   }
-
 	
    // get random engine
    CLHEP::HepRandomEngine* rndmEngine=0;
