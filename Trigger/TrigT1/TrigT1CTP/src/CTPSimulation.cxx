@@ -1439,7 +1439,8 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
 
       else if ( thr->cableName() == "NIM1" ) {
 
-         if ( thr->type() == TrigConf::L1DataDef::mbtsType() ) {
+         if ( thr->type() == TrigConf::L1DataDef::mbtsType() ||
+              thr->type() == TrigConf::L1DataDef::mbtssiType() ) {
             // Don't know what to do in place of string matching
             int n_a=thr->name().find("MBTS_A");
             if (m_mbtsACTP.isValid() && n_a==0) {
@@ -1453,7 +1454,8 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
 
       else if ( thr->cableName() == "NIM2" ) {
 
-         if ( thr->type() == TrigConf::L1DataDef::mbtsType() ) {
+         if ( thr->type() == TrigConf::L1DataDef::mbtsType() ||
+              thr->type() == TrigConf::L1DataDef::mbtssiType() ) {
             // Don't know what to do in place of string matching
             int n_c=thr->name().find("MBTS_C");
             if (m_mbtsCCTP.isValid() && n_c==0) {
@@ -1493,7 +1495,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
       }    
 
       else if ( thr->cableName() == "ALFA" ) {
-	multiplicity = 1;
+         multiplicity = 1;
       }    
 		
       else if ( thr->cableName() == TrigConf::L1DataDef::nimType() ) {
