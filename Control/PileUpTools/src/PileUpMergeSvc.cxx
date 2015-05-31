@@ -2,27 +2,33 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/ITriggerTime.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "SGTools/DataProxy.h"
-#include "SGTools/DataStore.h"
-#include "PileUpTools/IPileUpXingFolder.h"
+#include <algorithm>  
+using std::make_pair;
+
+#include <cstdlib>  /* random */
+
+#include <functional>
+using std::bind1st;
+using std::mem_fun;
+
+#include <string>
+using std::string;
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/MsgStream.h"
-#include <algorithm>  
-#include <cstdlib>  /* random */
-#include <functional>
-#include <string>
 
-using std::make_pair;
-using std::bind1st;
-using std::mem_fun;
-using std::string;
+#include "AthenaKernel/ITriggerTime.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "SGTools/DataProxy.h"
+#include "SGTools/DataStore.h"
+
+#include "PileUpTools/IPileUpXingFolder.h"
+
+#include "PileUpTools/PileUpMergeSvc.h"
 
 /// Standard Constructor
 PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)
@@ -48,7 +54,7 @@ void PileUpMergeSvc::decodeIntervals() {
       const IPileUpXingFolder& xing(**iXing);
       if (msg().level() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "decodeIntervals: adding IPileUpXingFolder "
-	      << xing.name() << endmsg;
+	      << xing.name() << endreq;
       }
       IPileUpXingFolder::const_iterator 
 	item(xing.begin()), endItem(xing.end());
@@ -61,7 +67,7 @@ void PileUpMergeSvc::decodeIntervals() {
 		<< " key " << item->key() << " in the Xing range ["
 		<< xing.firstXing() << ", " << xing.lastXing() << ']' 
 		<< " with cache refresh frequency " 
-		<< xing.cacheRefreshFrequency() << endmsg;
+		<< xing.cacheRefreshFrequency() << endreq;
 	}
 	++item;
       }
@@ -75,13 +81,13 @@ void PileUpMergeSvc::decodeIntervals() {
 StatusCode 
 PileUpMergeSvc::initialize()    {
   msg() << MSG::INFO << "Initializing AthService " << name() 
-	<< " - package version " << PACKAGE_VERSION << endmsg ;
+	<< " - package version " << PACKAGE_VERSION << endreq ;
   // set up the SG service:
   if ( !(p_overStore.retrieve()).isSuccess() ) 
   {
       msg() << MSG::FATAL 
 	  << "Could not locate default store"
-          << endmsg;
+          << endreq;
       return StatusCode::FAILURE;
   }
   // set up the active store service:
@@ -89,14 +95,14 @@ PileUpMergeSvc::initialize()    {
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ActiveStoreSvc"
-          << endmsg;
+          << endreq;
       return StatusCode::FAILURE;
   }
   if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() ) 
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ITriggerTime tool"
-          << endmsg;
+          << endreq;
       return StatusCode::FAILURE;
   }
 
@@ -185,7 +191,7 @@ PileUpMergeSvc::clearDataCaches() {
 		      << "clearDataCachesByFolder: object with clid "
 		      << id << " and key " << key 
 		      << " removed from cache " 
-		      << iEvt->pSubEvtSG->name() << endmsg;
+		      << iEvt->pSubEvtSG->name() << endreq;
 	      }
 #endif
 	    }
@@ -200,7 +206,7 @@ PileUpMergeSvc::clearDataCaches() {
       if (msg().level() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE
 	      << "clearDataCachesByFolder: done with store " << iEvt->pSubEvtSG->name()
-	      << endmsg;
+	      << endreq;
       }
 #endif
       ++iEvt;	

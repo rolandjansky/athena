@@ -21,8 +21,8 @@ public:
   virtual float scaleFactor(unsigned int run, unsigned int lumi, bool & updated) = 0;
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID IID( "IBeamLuminosity", 1, 0 );
-    return IID;
+    static const InterfaceID _IID( "IBeamLuminosity", 1, 0 );
+    return _IID;
   }
 };
 #endif

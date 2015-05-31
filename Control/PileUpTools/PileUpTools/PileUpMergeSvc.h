@@ -23,7 +23,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "AthLinks/DataLink.h"
+#include "DataModel/DataLink.h"
 
 #include "PileUpTools/IPileUpXingFolder.h"
 

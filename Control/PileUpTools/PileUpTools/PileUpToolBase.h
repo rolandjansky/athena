@@ -20,32 +20,26 @@ public:
   PileUpToolBase(const std::string& name,
                  const std::string& type,
                  const IInterface* parent);
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-  virtual StatusCode initialize() override {
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode initialize() {
     return StatusCode::SUCCESS;
   }
   //@}
 
   ///the method this base class helps implementing
-  virtual bool toProcess(int bunchXing) const override {
+  virtual bool toProcess(int bunchXing) const {
     //closed interval [m_firstXing,m_lastXing]
     return !((m_firstXing > bunchXing) || (bunchXing > m_lastXing));
   }
   ///dummy implementation to allow compilation while all Digitization
   ///packages are migrated to use this new interface.
-  virtual StatusCode processAllSubEvents() override {
-    return StatusCode::SUCCESS;
-  }
-  virtual StatusCode
-  processBunchXing(int /*bunchXing*/,
-                   SubEventIterator /*bSubEvents*/,
-                   SubEventIterator /*eSubEvents*/) override {
+  virtual StatusCode processAllSubEvents() {
     return StatusCode::SUCCESS;
   }
   ///dummy implementation of passing filter
-  virtual bool filterPassed() const override { return m_filterPassed; }
+  virtual bool filterPassed() const { return m_filterPassed; }
   ///dummy implementation of filter reset
-  virtual void resetFilter() override { m_filterPassed=true; }
+  virtual void resetFilter() { m_filterPassed=true; }
 
 protected:
   int m_firstXing; ///>Property: first xing in which det is live
