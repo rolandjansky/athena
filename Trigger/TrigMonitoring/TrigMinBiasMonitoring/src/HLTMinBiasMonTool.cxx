@@ -791,10 +791,11 @@ void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHan
 			if (selTool->accept(*track)) ++goodTracks;
 		}
 		//hist("TriggerPuritiesAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
-		hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
+		//hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
 		hist("TriggerPuritiesPassed", "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > greaterThan)?1:0));
 		hist("PurityPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), ((goodTracks > greaterThan)?1:0));
 	}
+	hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
 }
 
 void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned histGroup)
