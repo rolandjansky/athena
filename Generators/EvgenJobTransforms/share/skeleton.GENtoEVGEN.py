@@ -244,14 +244,21 @@ gennames = sorted(evgenConfig.generators, key=gen_sortkey)
 ## Check that the actual generators, tune, and main PDF are consistent with the JO name
 if joparts[0].startswith("MC"): #< if this is an "official" JO
     genpart = jo_physshortparts[0]
+#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
     expectedgenpart = ''.join(gennames)
     ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Jimmy" label
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Jimmy")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
         return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, genpart))
+    def _norm2(s):
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        
+    def _short2(s):
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+     
+    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart:
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
         sys.exit(1)
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
