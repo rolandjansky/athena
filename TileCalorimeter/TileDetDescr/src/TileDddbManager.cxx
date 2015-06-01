@@ -17,142 +17,142 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 		                 std::string    version_tag,
 				 std::string    version_node,
                                  MsgStream *    log)
-  : m_n_cuts(0)
-  , m_n_saddle(0)
-  , m_currentTileGlob(0)
-  , m_currentTileMod(0)
-  , m_currentSection(0)
-  , m_currentGird(0)
-  , m_currentScin(0)
-  , m_currentTifg(0)
-  , m_currentTicg(0)
-  , m_currentTicl(0)
-  , m_currentCuts(0)
-  , m_currentSaddle(0)
-  , m_currentTiclInd(-1)
-  , m_tag(version_tag)
-  , m_node(version_node)
+  : n_cuts(0)
+  , n_saddle(0)
+  , currentTileGlob(0)
+  , currentTileMod(0)
+  , currentSection(0)
+  , currentGird(0)
+  , currentScin(0)
+  , currentTifg(0)
+  , currentTicg(0)
+  , currentTicl(0)
+  , currentCuts(0)
+  , currentSaddle(0)
+  , currentTiclInd(-1)
+  , mTag(version_tag)
+  , mNode(version_node)
 {
   m_verbose = (log->level()<=MSG::VERBOSE);
  
-  (*log) << MSG::INFO << "TileDddbManager: m_tag = " << m_tag << endmsg;
+  (*log) << MSG::INFO << "TileDddbManager: mTag = " << mTag << endreq;
 
-  m_tiglob = access->getRecordsetPtr("TileGlobals",m_tag,m_node);
-  m_n_tiglob = m_tiglob->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tiglob = " << m_n_tiglob << endmsg;
+  tiglob = access->getRecordsetPtr("TileGlobals",mTag,mNode);
+  n_tiglob = tiglob->size();
+  (*log) << MSG::INFO << "TileDddbManager: n_tiglob = " << n_tiglob << endreq;
  
-  if(access->getChildTag("TileModule",m_tag,m_node)!="") {
-   m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
+  if(access->getChildTag("TileModule",mTag,mNode)!="") {
+   timod = access->getRecordsetPtr("TileModule",mTag,mNode);
   } else {
-   m_timod = access->getRecordsetPtr("TileModules",m_tag,m_node);
+   timod = access->getRecordsetPtr("TileModules",mTag,mNode);
   }
-  m_n_timod = m_timod->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_timod = " << m_n_timod << endmsg;
+  n_timod = timod->size();
+  (*log) << MSG::INFO << "TileDddbManager: n_timod = " << n_timod << endreq;
   
-  if (access->getChildTag("TileCuts",m_tag,m_node)!="") 
+  if (access->getChildTag("TileCuts",mTag,mNode)!="") 
    { m_buildCuts = true;
-     m_cuts = access->getRecordsetPtr("TileCuts",m_tag,m_node);
-     m_n_cuts = m_cuts->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_cuts = " << m_n_cuts << endmsg;
+     cuts = access->getRecordsetPtr("TileCuts",mTag,mNode);
+     n_cuts = cuts->size();
+     (*log) << MSG::INFO << "TileDddbManager: n_cuts = " << n_cuts << endreq;
 
    } else {
      m_buildCuts = false;
    }
 
-  if (access->getChildTag("TileSaddleSup",m_tag,m_node)!="") 
+  if (access->getChildTag("TileSaddleSup",mTag,mNode)!="") 
    { m_buildSaddle = true;
-     m_saddle = access->getRecordsetPtr("TileSaddleSup",m_tag,m_node);
-     m_n_saddle = m_saddle->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_saddle = " << m_n_saddle << endmsg;
+     saddle = access->getRecordsetPtr("TileSaddleSup",mTag,mNode);
+     n_saddle = saddle->size();
+     (*log) << MSG::INFO << "TileDddbManager: n_saddle = " << n_saddle << endreq;
 
    } else {
      m_buildSaddle = false;
    }
 
-  m_tile = access->getRecordsetPtr("TILE",m_tag,m_node);
+  tile = access->getRecordsetPtr("TILE",mTag,mNode);
 
-  m_tilb = access->getRecordsetPtr("TILB",m_tag,m_node);
-  m_n_tilb = m_tilb->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tilb = " << m_n_tilb << endmsg;
+  tilb = access->getRecordsetPtr("TILB",mTag,mNode);
+  n_tilb = tilb->size();
+  (*log) << MSG::INFO << "TileDddbManager: n_tilb = " << n_tilb << endreq;
 
-  m_tigr = access->getRecordsetPtr("TIGR",m_tag,m_node);
-  m_n_tigr = m_tigr->size();
+  tigr = access->getRecordsetPtr("TIGR",mTag,mNode);
+  n_tigr = tigr->size();
 
-  m_scnt = access->getRecordsetPtr("SCNT",m_tag,m_node);
-  m_n_scnt = m_scnt->size();
+  scnt = access->getRecordsetPtr("SCNT",mTag,mNode);
+  n_scnt = scnt->size();
 
-  m_tifg = access->getRecordsetPtr("TIFG",m_tag,m_node);
-  m_n_tifg = m_tifg->size();
+  tifg = access->getRecordsetPtr("TIFG",mTag,mNode);
+  n_tifg = tifg->size();
 
-  m_ticg = access->getRecordsetPtr("TICG",m_tag,m_node);
-  m_n_ticg = m_ticg->size();
+  ticg = access->getRecordsetPtr("TICG",mTag,mNode);
+  n_ticg = ticg->size();
 
-  m_ticl = access->getRecordsetPtr("TICL",m_tag,m_node);
-  m_n_ticl = m_ticl->size();
+  ticl = access->getRecordsetPtr("TICL",mTag,mNode);
+  n_ticl = ticl->size();
 
-  m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
-  m_n_tileSwitches = m_tileSwitches->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endmsg;
+  tileSwitches = access->getRecordsetPtr("TileSwitches",mTag,mNode);
+  n_tileSwitches = tileSwitches->size();
+  (*log) << MSG::INFO << "TileDddbManager: n_tileswitches = " << n_tileSwitches << endreq;
 
 
-  m_EnvNum = 0;
-  m_EnvSize = 0;
-  m_EnvBegin = 0;
-  m_modTypes.clear();
+  EnvNum = 0;
+  EnvSize = 0;
+  EnvBegin = 0;
+  mModTypes.clear();
 }
 
 // ---------- T I L E -------------
 
 int TileDddbManager::TILEnmodul() const
 {
-  return (*m_tile)[0]->getInt("NMODUL");
+  return (*tile)[0]->getInt("NMODUL");
 }
 
 double TileDddbManager::TILErmim() const
 {
-  return (*m_tile)[0]->getDouble("RMIM");
+  return (*tile)[0]->getDouble("RMIM");
 }
 
 double TileDddbManager::TILErmam() const
 {
-  return (*m_tile)[0]->getDouble("RMAM");
+  return (*tile)[0]->getDouble("RMAM");
 }
 
 double TileDddbManager::TILEzmam() const
 {
-  return (*m_tile)[0]->getDouble("ZMAM");
+  return (*tile)[0]->getDouble("ZMAM");
 }
 
 double TileDddbManager::TILErmin() const
 {
-  return (*m_tile)[0]->getDouble("RMIN");
+  return (*tile)[0]->getDouble("RMIN");
 }
 
 double TileDddbManager::TILErmax() const
 {
-  return (*m_tile)[0]->getDouble("RMAX");
+  return (*tile)[0]->getDouble("RMAX");
 }
 
 double TileDddbManager::TILEzshift() const
 {
-  return (*m_tile)[0]->getDouble("ZSHIFT");
+  return (*tile)[0]->getDouble("ZSHIFT");
 }
 
 unsigned int TileDddbManager::GetNumTilb() const
 { 
-  return m_n_tilb;
+  return n_tilb;
 }
 
 //------------ TILE GLOBALS--------------------
 int TileDddbManager::GetNumberOfEnv() const
 {  
-  return m_n_tiglob;
+  return n_tiglob;
 }
 
 int TileDddbManager::GetEnvType() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getInt("PART");
+  if (currentTileGlob) {
+    return currentTileGlob->getInt("PART");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -162,34 +162,34 @@ int TileDddbManager::GetEnvType() const
 
 int TileDddbManager::SetCurrentEnvByType(unsigned int envelopeT)
 {
-  m_currentTileGlob = 0;
-  m_currentTileMod = 0;
-  m_currentSection = 0;
-  m_modTypes.clear();
+  currentTileGlob = 0;
+  currentTileMod = 0;
+  currentSection = 0;
+  mModTypes.clear();
 
   unsigned int ind2 = 0;
-  while (((*m_tiglob)[ind2]->getInt("PART") != static_cast<int>(envelopeT)) && (++ind2 < m_n_tiglob))
+  while (((*tiglob)[ind2]->getInt("PART") != static_cast<int>(envelopeT)) && (++ind2 < n_tiglob))
     {
     }
-  if (ind2 < m_n_tiglob) {
-    m_currentTileGlob = (*m_tiglob)[ind2];
-    m_EnvSize = m_currentTileGlob->getInt("NMODULES");
+  if (ind2 < n_tiglob) {
+    currentTileGlob = (*tiglob)[ind2];
+    EnvSize = currentTileGlob->getInt("NMODULES");
     unsigned int ind3 = 0;
-    while (((*m_timod)[ind3]->getInt("PART") != static_cast<int>(envelopeT)) && (++ind3 < m_n_timod))
+    while (((*timod)[ind3]->getInt("PART") != static_cast<int>(envelopeT)) && (++ind3 < n_timod))
       {
       }
-    if (ind3 < m_n_timod) {
-        m_EnvBegin = ind3;
+    if (ind3 < n_timod) {
+        EnvBegin = ind3;
         return 1;
     }
     else {
-      m_EnvSize = 0;
-      m_EnvBegin = 0;
+      EnvSize = 0;
+      EnvBegin = 0;
       std::cerr << "TileDddbManager couldn't return begin of modules\n";
       return 0;
     }
   } else {
-    m_currentTileGlob = 0;
+    currentTileGlob = 0;
     std::cerr << "TileDddbManager couldn't return Envelope\n";
     return 0;
   } 
@@ -197,40 +197,40 @@ int TileDddbManager::SetCurrentEnvByType(unsigned int envelopeT)
 
 int TileDddbManager::SetCurrentEnvByIndex(unsigned int envelopeI)
 {
-  m_currentTileGlob = 0;
-  m_currentTileMod = 0;
-  m_currentSection = 0;
-  m_modTypes.clear();
+  currentTileGlob = 0;
+  currentTileMod = 0;
+  currentSection = 0;
+  mModTypes.clear();
 
-  if (envelopeI < m_n_tiglob) {
-    m_currentTileGlob = (*m_tiglob)[envelopeI];
-    m_EnvNum = m_currentTileGlob->getInt("PART");
-    m_EnvSize = m_currentTileGlob->getInt("NMODULES");
+  if (envelopeI < n_tiglob) {
+    currentTileGlob = (*tiglob)[envelopeI];
+    EnvNum = currentTileGlob->getInt("PART");
+    EnvSize = currentTileGlob->getInt("NMODULES");
     unsigned int ind1 = 0;
-//    while (((*m_timod)[ind1]->getInt("PART") != static_cast<int>(m_EnvNum)) && (++ind1 < m_n_timod)) 
+//    while (((*timod)[ind1]->getInt("PART") != static_cast<int>(EnvNum)) && (++ind1 < n_timod)) 
 //      {
 //      }
     // FIXME: temporary fix for wrong PART in modules table
-    for ( ; ind1 < m_n_timod; ++ind1) {
-      int part = (*m_timod)[ind1]->getInt("PART");
-      if ( m_tag == "TileCal-02" ) {
+    for ( ; ind1 < n_timod; ++ind1) {
+      int part = (*timod)[ind1]->getInt("PART");
+      if ( mTag == "TileCal-02" ) {
         if (part == 3) part = 5;
         else if (part == 2) part = 3;
       }
-      if ( part == static_cast<int>(m_EnvNum)) break;
+      if ( part == static_cast<int>(EnvNum)) break;
     }
-    if (ind1 < m_n_timod) {
-      m_EnvBegin = ind1;
+    if (ind1 < n_timod) {
+      EnvBegin = ind1;
       return 1;
     }
     else {
-      m_EnvSize = 0;
-      m_EnvBegin = 0;
+      EnvSize = 0;
+      EnvBegin = 0;
       std::cerr << "TileDddbManager couldn't return begin of modules\n";
       return 0;
     }
   } else {
-    m_currentTileGlob = 0;
+    currentTileGlob = 0;
     std::cerr << "TileDddbManager couldn't return Envelope\n";
     return 0;
   }
@@ -239,8 +239,8 @@ int TileDddbManager::SetCurrentEnvByIndex(unsigned int envelopeI)
  
 int TileDddbManager::GetEnvSide() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getInt("SIDE");
+  if (currentTileGlob) {
+    return currentTileGlob->getInt("SIDE");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -250,8 +250,8 @@ int TileDddbManager::GetEnvSide() const
 
 int TileDddbManager::GetEnvNModules() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getInt("NMODULES");
+  if (currentTileGlob) {
+    return currentTileGlob->getInt("NMODULES");
     //sb return 1;
   }
   else {
@@ -262,8 +262,8 @@ int TileDddbManager::GetEnvNModules() const
 
 double TileDddbManager::GetEnvRin() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("RIN");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("RIN");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -273,8 +273,8 @@ double TileDddbManager::GetEnvRin() const
 
 double TileDddbManager::GetEnvRout() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("ROUT");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("ROUT");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -284,12 +284,12 @@ double TileDddbManager::GetEnvRout() const
 
 double TileDddbManager::GetEnvZLength() const
 {
-  if (m_currentTileGlob) {
-//    return m_currentTileGlob->getDouble("ZLENGTH");
+  if (currentTileGlob) {
+//    return currentTileGlob->getDouble("ZLENGTH");
     // FIXME: temporary correction for finger length
     //        all fingers for the testbeam are "small fingers"
-    double len =m_currentTileGlob->getDouble("ZLENGTH");
-    if (len > 564 + 37.7*2 && m_tag == "TileCal-02") {
+    double len =currentTileGlob->getDouble("ZLENGTH");
+    if (len > 564 + 37.7*2 && mTag == "TileCal-02") {
       len = 564 + 37.7*2;
     }
     return len;
@@ -302,11 +302,11 @@ double TileDddbManager::GetEnvZLength() const
 
 double TileDddbManager::GetEnvDPhi() const
 {
-  if (m_currentTileGlob) {
-//    return m_currentTileGlob->getDouble("DPHI");
+  if (currentTileGlob) {
+//    return currentTileGlob->getDouble("DPHI");
     // FIXME: temporary fix for wrong dphi in table
-    double dphi = m_currentTileGlob->getDouble("DPHI");
-    if ( dphi != 0 && m_tag == "TileCal-02") {
+    double dphi = currentTileGlob->getDouble("DPHI");
+    if ( dphi != 0 && mTag == "TileCal-02") {
       dphi -= 360.0/64.0/2.;
     }
     return dphi;
@@ -319,12 +319,12 @@ double TileDddbManager::GetEnvDPhi() const
 
 double TileDddbManager::GetEnvDZ() const
 {
-  if (m_currentTileGlob) {
-//    return m_currentTileGlob->getDouble("DZ");
+  if (currentTileGlob) {
+//    return currentTileGlob->getDouble("DZ");
     // FIXME: temporary correction for finger length
     //        all fingers for the testbeam are "small fingers"
-    double dz = m_currentTileGlob->getDouble("DZ");
-    if ( dz > 20 && m_tag == "TileCal-02") {
+    double dz = currentTileGlob->getDouble("DZ");
+    if ( dz > 20 && mTag == "TileCal-02") {
       dz += 43.05 - 37.7;
     }
     return dz;
@@ -337,8 +337,8 @@ double TileDddbManager::GetEnvDZ() const
 
 double TileDddbManager::GetEnvDX() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("DX");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("DX");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -348,8 +348,8 @@ double TileDddbManager::GetEnvDX() const
 
 double TileDddbManager::GetEnvDY() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("DY");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("DY");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -359,8 +359,8 @@ double TileDddbManager::GetEnvDY() const
 
 double TileDddbManager::GetEnvDPsi() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("DPSI");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("DPSI");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -370,8 +370,8 @@ double TileDddbManager::GetEnvDPsi() const
 
 double TileDddbManager::GetEnvDTheta() const
 {
-  if (m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("DTHETA");
+  if (currentTileGlob) {
+    return currentTileGlob->getDouble("DTHETA");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -381,8 +381,8 @@ double TileDddbManager::GetEnvDTheta() const
 
 double TileDddbManager::GetEnvZShift() const
 {
-  if(m_currentTileGlob) {
-    return m_currentTileGlob->getDouble("ZSHIFT");
+  if(currentTileGlob) {
+    return currentTileGlob->getDouble("ZSHIFT");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Envelope not set, returning -999\n";
@@ -394,18 +394,18 @@ double TileDddbManager::GetEnvZShift() const
 //------------ TILE MODULES -------------------
 int TileDddbManager::SetCurrentModuleByIndex(unsigned int Id)
 {
-  m_currentTileMod = 0;
-  m_currentSection = 0;
-  m_modTypes.clear();
+  currentTileMod = 0;
+  currentSection = 0;
+  mModTypes.clear();
   
-  if (m_currentTileGlob) {
+  if (currentTileGlob) {
   //Modules enumerated from zero, so SetCurrentModuleByIndex(0) gives the first module in the Envelope
-    if(Id >= m_EnvSize) { 
+    if(Id >= EnvSize) { 
       std::cerr <<"\nTileDddbManager: module number is out of range\n";
       return 0;
     }
     else {
-      m_currentTileMod = (*m_timod)[Id + m_EnvBegin];
+      currentTileMod = (*timod)[Id + EnvBegin];
       FillModTypes();
       return 1;
     }
@@ -418,24 +418,24 @@ int TileDddbManager::SetCurrentModuleByIndex(unsigned int Id)
 
 int TileDddbManager::SetCurrentModuleByNumber(unsigned int Number)
 {
-  m_currentTileMod = 0;
-  m_currentSection = 0;
-  m_modTypes.clear();
+  currentTileMod = 0;
+  currentSection = 0;
+  mModTypes.clear();
 
-  if (m_currentTileGlob) {
+  if (currentTileGlob) {
     //Input here number from column "MODNUM"
-    unsigned int ind4 = m_EnvBegin;
-    unsigned int EnvEnd = m_EnvBegin + m_EnvSize;
-    while (((*m_timod)[ind4]->getInt("MODNUM") != static_cast<int>(Number))&&(++ind4 < EnvEnd))
+    unsigned int ind4 = EnvBegin;
+    unsigned int EnvEnd = EnvBegin + EnvSize;
+    while (((*timod)[ind4]->getInt("MODNUM") != static_cast<int>(Number))&&(++ind4 < EnvEnd))
       {
       }
     if(ind4 < EnvEnd){
-      m_currentTileMod = (*m_timod)[ind4];
+      currentTileMod = (*timod)[ind4];
       FillModTypes();
       return 1;
     }
     else{
-      m_currentTileMod = 0;
+      currentTileMod = 0;
       std::cerr << "TileDddbManager couldn't return Module\n";
       return 0;
     }
@@ -448,8 +448,8 @@ int TileDddbManager::SetCurrentModuleByNumber(unsigned int Number)
 
 int TileDddbManager::GetModNumber() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getInt("MODNUM");
+  if (currentTileMod) {
+    return currentTileMod->getInt("MODNUM");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -459,8 +459,8 @@ int TileDddbManager::GetModNumber() const
 
 int TileDddbManager::GetModType() const
 {
-  if(m_currentTileMod) {
-    return m_currentTileMod->getInt("TYP");
+  if(currentTileMod) {
+    return currentTileMod->getInt("TYP");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -470,8 +470,8 @@ int TileDddbManager::GetModType() const
 
 double TileDddbManager::GetModDX() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DX");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DX");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -481,8 +481,8 @@ double TileDddbManager::GetModDX() const
 
 double TileDddbManager::GetModDY() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DY");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DY");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -492,8 +492,8 @@ double TileDddbManager::GetModDY() const
 
 double TileDddbManager::GetModDZ() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DZ");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DZ");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -503,8 +503,8 @@ double TileDddbManager::GetModDZ() const
 
 double TileDddbManager::GetModDPhi() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DPHI");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DPHI");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -514,8 +514,8 @@ double TileDddbManager::GetModDPhi() const
 
 double TileDddbManager::GetModDPsi() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DPSI");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DPSI");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -525,8 +525,8 @@ double TileDddbManager::GetModDPsi() const
 
 double TileDddbManager::GetModDTheta() const
 {
-  if (m_currentTileMod) {
-    return m_currentTileMod->getDouble("DTHETA");
+  if (currentTileMod) {
+    return currentTileMod->getDouble("DTHETA");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Module not set, returning -999\n";
@@ -538,11 +538,11 @@ double TileDddbManager::GetModDTheta() const
 //------------ TILE MODULE TYPES -------------------
 int TileDddbManager::SetCurrentTypeByIndex(unsigned int Id)
 {
-  if (Id < m_modTypes.size()) {
-    return SetCurrentSection(m_modTypes[Id]);
+  if (Id < mModTypes.size()) {
+    return SetCurrentSection(mModTypes[Id]);
   } else {
-    std::cerr << "ERROR: type index (" << Id << ") is out of range (" << m_modTypes.size() << ")" << std::endl;
-    m_currentSection = 0;
+    std::cerr << "ERROR: type index (" << Id << ") is out of range (" << mModTypes.size() << ")" << std::endl;
+    currentSection = 0;
     return 0;
   }
 }
@@ -554,8 +554,8 @@ int TileDddbManager::SetCurrentTypeByNumber(unsigned int Number)
 
 unsigned int TileDddbManager::GetModType(unsigned int Id) const
 {
-  if (Id < m_modTypes.size()) {
-    return m_modTypes[Id];
+  if (Id < mModTypes.size()) {
+    return mModTypes[Id];
   } else {
     return 999;
   }
@@ -563,18 +563,18 @@ unsigned int TileDddbManager::GetModType(unsigned int Id) const
 
 unsigned int TileDddbManager::GetModTypeSize() const
 {
-  return m_modTypes.size();
+  return mModTypes.size();
 }
 
 void TileDddbManager::FillModTypes()
 {
-  m_modTypes.clear();
+  mModTypes.clear();
 
   int fullType = GetModType();
   
   while (fullType > 0) {
     unsigned int subType = fullType%100;
-    m_modTypes.push_back(subType);
+    mModTypes.push_back(subType);
     fullType /= 100;
   }
   SetCurrentTypeByIndex(0);
@@ -586,13 +586,13 @@ void TileDddbManager::FillModTypes()
 
 int TileDddbManager::SetCurrentSectionByIndex(unsigned int IdSection)
 {
-  if (IdSection < m_n_tilb) {
-    m_currentSection = (*m_tilb)[IdSection];
+  if (IdSection < n_tilb) {
+    currentSection = (*tilb)[IdSection];
     return 1;
   }
   else {
-    std::cerr << "ERROR: section index (" << IdSection << ") is out of range (" << m_n_tilb << ")" << std::endl;
-    m_currentSection = 0;
+    std::cerr << "ERROR: section index (" << IdSection << ") is out of range (" << n_tilb << ")" << std::endl;
+    currentSection = 0;
     return 0;
   }
 }
@@ -606,25 +606,25 @@ int TileDddbManager::SetCurrentSection(unsigned int section, bool print)
 {
   unsigned int ind = 0;
 
-  while (((*m_tilb)[ind]->getInt("SECTION") != static_cast<int>(section)) && (++ind < m_n_tilb)) 
+  while (((*tilb)[ind]->getInt("SECTION") != static_cast<int>(section)) && (++ind < n_tilb)) 
   {
   }
 
-  if(ind >= m_n_tilb) {
+  if(ind >= n_tilb) {
     if (print) std::cerr << "\nTileDddbManager::SetCurrentSection ERROR! Unable to find the section\n";
-    m_currentSection = 0;
+    currentSection = 0;
     return 0;
   }
   else {
-    m_currentSection = (*m_tilb)[ind];
+    currentSection = (*tilb)[ind];
     return 1;
   }
 }
 
 int TileDddbManager::TILBsection() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("SECTION");
+  if (currentSection) {
+    return currentSection->getInt("SECTION");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -634,8 +634,8 @@ int TileDddbManager::TILBsection() const
 
 int TileDddbManager::TILBnperiod() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NPERIOD");
+  if (currentSection) {
+    return currentSection->getInt("NPERIOD");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -645,8 +645,8 @@ int TileDddbManager::TILBnperiod() const
 
 int TileDddbManager::TILBnmodul() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NMODUL");
+  if (currentSection) {
+    return currentSection->getInt("NMODUL");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -656,8 +656,8 @@ int TileDddbManager::TILBnmodul() const
 
 double TileDddbManager::TILBrmin() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("RMIN");
+  if (currentSection) {
+    return currentSection->getDouble("RMIN");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -667,8 +667,8 @@ double TileDddbManager::TILBrmin() const
 
 double TileDddbManager::TILBrmax() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("RMAX");
+  if (currentSection) {
+    return currentSection->getDouble("RMAX");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -678,8 +678,8 @@ double TileDddbManager::TILBrmax() const
 
 double TileDddbManager::TILBrminimal() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("RMINIMAL");
+  if (currentSection) {
+    return currentSection->getDouble("RMINIMAL");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -689,8 +689,8 @@ double TileDddbManager::TILBrminimal() const
 
 double TileDddbManager::TILBrmaximal() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("RMAXIMAL");
+  if (currentSection) {
+    return currentSection->getDouble("RMAXIMAL");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -700,8 +700,8 @@ double TileDddbManager::TILBrmaximal() const
 
 double TileDddbManager::TILBdzperio() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZPERIO");
+  if (currentSection) {
+    return currentSection->getDouble("DZPERIO");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -711,8 +711,8 @@ double TileDddbManager::TILBdzperio() const
 
 double TileDddbManager::TILBdrfront() const
 {
-  if(m_currentSection) {
-    return m_currentSection->getDouble("DRFRONT");
+  if(currentSection) {
+    return currentSection->getDouble("DRFRONT");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -722,8 +722,8 @@ double TileDddbManager::TILBdrfront() const
 
 double TileDddbManager::TILBdzend() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZEND");
+  if (currentSection) {
+    return currentSection->getDouble("DZEND");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -733,8 +733,8 @@ double TileDddbManager::TILBdzend() const
 
 double TileDddbManager::TILBflangex() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("FLANGEX");
+  if (currentSection) {
+    return currentSection->getDouble("FLANGEX");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -744,8 +744,8 @@ double TileDddbManager::TILBflangex() const
 
 double TileDddbManager::TILBflangey() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("FLANGEY");
+  if (currentSection) {
+    return currentSection->getDouble("FLANGEY");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -755,8 +755,8 @@ double TileDddbManager::TILBflangey() const
 
 double TileDddbManager::TILBzoffset() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("ZOFFSET");
+  if (currentSection) {
+    return currentSection->getDouble("ZOFFSET");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -766,8 +766,8 @@ double TileDddbManager::TILBzoffset() const
 
 double TileDddbManager::TILBphigap() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("PHIGAP");
+  if (currentSection) {
+    return currentSection->getDouble("PHIGAP");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -777,8 +777,8 @@ double TileDddbManager::TILBphigap() const
 
 double TileDddbManager::TILBisci_st() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("ISCI_ST");
+  if (currentSection) {
+    return currentSection->getInt("ISCI_ST");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -788,8 +788,8 @@ double TileDddbManager::TILBisci_st() const
 
 double TileDddbManager::TILBdzmodul() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZMODUL");
+  if (currentSection) {
+    return currentSection->getDouble("DZMODUL");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -799,8 +799,8 @@ double TileDddbManager::TILBdzmodul() const
 
 double TileDddbManager::TILBdzmast() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZMAST");
+  if (currentSection) {
+    return currentSection->getDouble("DZMAST");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -810,8 +810,8 @@ double TileDddbManager::TILBdzmast() const
 
 double TileDddbManager::TILBdzspac() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZSPAC");
+  if (currentSection) {
+    return currentSection->getDouble("DZSPAC");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -821,8 +821,8 @@ double TileDddbManager::TILBdzspac() const
 
 double TileDddbManager::TILBdzend1() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZEND1");
+  if (currentSection) {
+    return currentSection->getDouble("DZEND1");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -832,8 +832,8 @@ double TileDddbManager::TILBdzend1() const
 
 double TileDddbManager::TILBdzend2() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZEND2");
+  if (currentSection) {
+    return currentSection->getDouble("DZEND2");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999.9\n";
@@ -843,8 +843,8 @@ double TileDddbManager::TILBdzend2() const
 
 int TileDddbManager::TILBngirder() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NGIRDER");
+  if (currentSection) {
+    return currentSection->getInt("NGIRDER");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -854,8 +854,8 @@ int TileDddbManager::TILBngirder() const
 
 int TileDddbManager::TILBnscin() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NSCIN");
+  if (currentSection) {
+    return currentSection->getInt("NSCIN");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -865,8 +865,8 @@ int TileDddbManager::TILBnscin() const
 
 int TileDddbManager::TILBfingpattern() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("FINGPATTERN");
+  if (currentSection) {
+    return currentSection->getInt("FINGPATTERN");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -876,8 +876,8 @@ int TileDddbManager::TILBfingpattern() const
 
 int TileDddbManager::TILBnpercutpos() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NPERCUTPOS");
+  if (currentSection) {
+    return currentSection->getInt("NPERCUTPOS");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -887,8 +887,8 @@ int TileDddbManager::TILBnpercutpos() const
 
 int TileDddbManager::TILBnpercutneg() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getInt("NPERCUTNEG");
+  if (currentSection) {
+    return currentSection->getInt("NPERCUTNEG");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -899,11 +899,11 @@ int TileDddbManager::TILBnpercutneg() const
 
 int TileDddbManager::TILBcurscint() const
 {
-  if(m_currentSection) {
-    if(m_currentSection->isFieldNull("CURSCINT"))
+  if(currentSection) {
+    if(currentSection->isFieldNull("CURSCINT"))
       return 0;
     else
-      return m_currentSection->getInt("CURSCINT");
+      return currentSection->getInt("CURSCINT");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -913,8 +913,8 @@ int TileDddbManager::TILBcurscint() const
 
 double TileDddbManager::TILBdzgir() const
 {
-  if (m_currentSection) {
-    return m_currentSection->getDouble("DZGIR");
+  if (currentSection) {
+    return currentSection->getDouble("DZGIR");
   }
   else {
     std::cerr <<"\nTileDddbManager ERROR! Current Section not set, returning -999\n";
@@ -927,26 +927,26 @@ int TileDddbManager::SetCurrentScin(int item)
 {
   unsigned int ind = 0;
 
-  while (((*m_scnt)[ind]->getInt("ITEM") != item) && (++ind < m_n_scnt)) 
+  while (((*scnt)[ind]->getInt("ITEM") != item) && (++ind < n_scnt)) 
   {
   }
 
-  if(ind >= m_n_scnt)
+  if(ind >= n_scnt)
   {
     std::cerr << "\nTileDddbManager::SetCurrentScin ERROR! Unable to find the scintillator, item = " << item << "\n";
     return 0;
   }
   else
   {
-    m_currentScin = (*m_scnt)[ind];
+    currentScin = (*scnt)[ind];
     return 1;
   }
 }
 
 int TileDddbManager::SCNTitem() const
 {
-  if(m_currentScin)
-    return m_currentScin->getInt("ITEM");
+  if(currentScin)
+    return currentScin->getInt("ITEM");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999\n";
@@ -956,8 +956,8 @@ int TileDddbManager::SCNTitem() const
 
 double TileDddbManager::SCNTdr() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("DR");
+  if(currentScin)
+    return currentScin->getDouble("DR");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -967,8 +967,8 @@ double TileDddbManager::SCNTdr() const
 
 double TileDddbManager::SCNTrc() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("RC");
+  if(currentScin)
+    return currentScin->getDouble("RC");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -978,8 +978,8 @@ double TileDddbManager::SCNTrc() const
 
 double TileDddbManager::SCNTzp() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("ZP");
+  if(currentScin)
+    return currentScin->getDouble("ZP");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -989,8 +989,8 @@ double TileDddbManager::SCNTzp() const
 
 double TileDddbManager::SCNTdrw() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("DRW");
+  if(currentScin)
+    return currentScin->getDouble("DRW");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -1000,8 +1000,8 @@ double TileDddbManager::SCNTdrw() const
 
 double TileDddbManager::SCNTdt() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("DT");
+  if(currentScin)
+    return currentScin->getDouble("DT");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -1011,8 +1011,8 @@ double TileDddbManager::SCNTdt() const
 
 double TileDddbManager::SCNTdtw() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("DTW");
+  if(currentScin)
+    return currentScin->getDouble("DTW");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -1022,8 +1022,8 @@ double TileDddbManager::SCNTdtw() const
 
 double TileDddbManager::SCNTdphi() const
 {
-  if(m_currentScin)
-    return m_currentScin->getDouble("DPHI");
+  if(currentScin)
+    return currentScin->getDouble("DPHI");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Scintillator not set, returning -999.9\n";
@@ -1040,16 +1040,16 @@ int TileDddbManager::SetCurrentCuts(std::string input)
     {std::string name(input);
      unsigned int ind = 0;
 
-     while (((*m_cuts)[ind]->getString("VOLUME") != name) && (++ind < m_n_cuts)) 
+     while (((*cuts)[ind]->getString("VOLUME") != name) && (++ind < n_cuts)) 
      { 
      }
 
-     if(ind >= m_n_cuts)
-     { std::cerr << "\nTileDddbManager::SetCuts ERROR! Unable to find the m_currentCuts volume name = " << name << "\n";
+     if(ind >= n_cuts)
+     { std::cerr << "\nTileDddbManager::SetCuts ERROR! Unable to find the currentCuts volume name = " << name << "\n";
        return 0;
      }
      else
-     { m_currentCuts = (*m_cuts)[ind];
+     { currentCuts = (*cuts)[ind];
        return 1;
      }
     }
@@ -1068,8 +1068,8 @@ bool TileDddbManager::BoolCuts()
 
 std::string TileDddbManager::CutsName() const
 {std::string output ="-999.9";
-   if (m_currentCuts)
-     return m_currentCuts->getString("VOLUME");
+   if (currentCuts)
+     return currentCuts->getString("VOLUME");
    else
    { std::cerr << "\nTileDddbManager ERROR! Current VOLUME dimension not set, returning -999.9\n";
      return output;
@@ -1078,8 +1078,8 @@ std::string TileDddbManager::CutsName() const
 
 double TileDddbManager::CutsDX1() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("DX1");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("DX1");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current dX1 dimension not set, returning -999.9\n";
     return -999.9;
@@ -1088,8 +1088,8 @@ double TileDddbManager::CutsDX1() const
 
 double TileDddbManager::CutsDX2() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("DX2");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("DX2");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current dX2 dimension not set, returning -999.9\n";
     return -999.9;
@@ -1098,8 +1098,8 @@ double TileDddbManager::CutsDX2() const
 
 double TileDddbManager::CutsDY1() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("DY1");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("DY1");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current dY1 dimension not set, returning -999.9\n";
     return -999.9;
@@ -1108,8 +1108,8 @@ double TileDddbManager::CutsDY1() const
 
 double TileDddbManager::CutsDY2() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("DY2");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("DY2");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current dY2 dimension not set, returning -999.9\n";
     return -999.9;
@@ -1118,8 +1118,8 @@ double TileDddbManager::CutsDY2() const
 
 double TileDddbManager::CutsDZ1() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("DZ1");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("DZ1");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current dZ1 dimension not set, returning -999.9\n";
     return -999.9;
@@ -1128,8 +1128,8 @@ double TileDddbManager::CutsDZ1() const
 
 double TileDddbManager::CutsXpos() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("XPOS");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("XPOS");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current Xpos dimension not set, returning -999.9\n";
     return -999.9;
@@ -1138,8 +1138,8 @@ double TileDddbManager::CutsXpos() const
 
 double TileDddbManager::CutsYpos() const
 {
-  if (m_currentCuts)
-    return (double)m_currentCuts->getFloat("YPOS");
+  if (currentCuts)
+    return (double)currentCuts->getFloat("YPOS");
   else
   { std::cerr << "\nTileDddbManager ERROR! Current Ypos dimension not set, returning -999.9\n";
     return -999.9;
@@ -1151,11 +1151,11 @@ double TileDddbManager::CutsYpos() const
 int TileDddbManager::SetCurrentSaddle(unsigned int index)
 {
   if (m_buildSaddle) 
-   { if(index >= m_n_saddle)
+   { if(index >= n_saddle)
      { return 0;
      }
       else
-     { m_currentSaddle = (*m_saddle)[index];
+     { currentSaddle = (*saddle)[index];
        return 1;
      }
    }
@@ -1174,8 +1174,8 @@ bool TileDddbManager::BoolSaddle()
 
 double TileDddbManager::DzSaddleSupport() const
 {
-  if (m_currentSaddle)
-    return (double)m_currentSaddle->getFloat("DZSADDLESUPPORT");
+  if (currentSaddle)
+    return (double)currentSaddle->getFloat("DZSADDLESUPPORT");
   else
   { std::cerr << "\nTileDddbManager ERROR! DzSaddleSupport dimension not set, returning -999.9\n";
     return -999.9;
@@ -1184,8 +1184,8 @@ double TileDddbManager::DzSaddleSupport() const
 
 double TileDddbManager::RadiusSaddle() const
 {
-  if (m_currentSaddle)
-    return (double)m_currentSaddle->getFloat("RADIUSSADDLE");
+  if (currentSaddle)
+    return (double)currentSaddle->getFloat("RADIUSSADDLE");
   else
   { std::cerr << "\nTileDddbManager ERROR! RadiusSaddle dimension not set, returning -999.9\n";
     return -999.9;
@@ -1197,26 +1197,26 @@ int TileDddbManager::SetCurrentGird(int item)
 {
   unsigned int ind = 0;
 
-  while (((*m_tigr)[ind]->getInt("ITEM") != item) && (++ind < m_n_tigr)) 
+  while (((*tigr)[ind]->getInt("ITEM") != item) && (++ind < n_tigr)) 
   {
   }
 
-  if(ind >= m_n_tigr)
+  if(ind >= n_tigr)
   {
     //std::cerr << "\nTileDddbManager::SetCurrentGird ERROR! Unable to find the girder element,item= " << item << "\n";
     return 0;
   }
   else
   {
-    m_currentGird = (*m_tigr)[ind];
+    currentGird = (*tigr)[ind];
     return 1;
   }
 }
 
 int TileDddbManager::TIGRitem() const
 {
-  if(m_currentGird)
-    return m_currentGird->getInt("ITEM");
+  if(currentGird)
+    return currentGird->getInt("ITEM");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999\n";
@@ -1226,8 +1226,8 @@ int TileDddbManager::TIGRitem() const
 
 int TileDddbManager::TIGRmaterial() const
 {
-  if(m_currentGird)
-    return m_currentGird->getInt("MATERIAL");
+  if(currentGird)
+    return currentGird->getInt("MATERIAL");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999\n";
@@ -1237,8 +1237,8 @@ int TileDddbManager::TIGRmaterial() const
 
 double TileDddbManager::TIGRrc() const
 {
-  if(m_currentGird)
-    return m_currentGird->getDouble("RC");
+  if(currentGird)
+    return currentGird->getDouble("RC");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999.9\n";
@@ -1248,8 +1248,8 @@ double TileDddbManager::TIGRrc() const
 
 double TileDddbManager::TIGRdr() const
 {
-  if(m_currentGird)
-    return m_currentGird->getDouble("DR");
+  if(currentGird)
+    return currentGird->getDouble("DR");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999.9\n";
@@ -1259,8 +1259,8 @@ double TileDddbManager::TIGRdr() const
 
 double TileDddbManager::TIGRdw() const
 {
-  if(m_currentGird)
-    return m_currentGird->getDouble("DW");
+  if(currentGird)
+    return currentGird->getDouble("DW");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999.9\n";
@@ -1270,8 +1270,8 @@ double TileDddbManager::TIGRdw() const
 
 double TileDddbManager::TIGRoff() const
 {
-  if(m_currentGird)
-    return m_currentGird->getDouble("OFF");
+  if(currentGird)
+    return currentGird->getDouble("OFF");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current Girder element not set, returning -999.9\n";
@@ -1284,26 +1284,26 @@ int TileDddbManager::SetCurrentTifg(int section)
 {
   unsigned int ind = 0;
 
-  while (((*m_tifg)[ind]->getInt("SECTION") != section) && (++ind < m_n_tifg)) 
+  while (((*tifg)[ind]->getInt("SECTION") != section) && (++ind < n_tifg)) 
   {
   }
 
-  if(ind >= m_n_tifg)
+  if(ind >= n_tifg)
   {
     //    std::cerr << "\nTileDddbManager::SetCurrentTifg ERROR! Unable to find the finger, section = " << section << "\n";
     return 0;
   }
   else
   {
-    m_currentTifg = (*m_tifg)[ind];
+    currentTifg = (*tifg)[ind];
     return 1;
   }
 }
 
 int TileDddbManager::TIFGsection() const
 {
-  if(m_currentTifg)
-    return m_currentTifg->getInt("SECTION");
+  if(currentTifg)
+    return currentTifg->getInt("SECTION");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TIFG not set, returning -999\n";
@@ -1313,8 +1313,8 @@ int TileDddbManager::TIFGsection() const
 
 int TileDddbManager::TIFGnelem() const
 {
-  if(m_currentTifg)
-    return m_currentTifg->getInt("NELEM");
+  if(currentTifg)
+    return currentTifg->getInt("NELEM");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TIFG not set, returning -999\n";
@@ -1324,8 +1324,8 @@ int TileDddbManager::TIFGnelem() const
 
 double TileDddbManager::TIFGdz() const
 {
-  if(m_currentTifg)
-    return m_currentTifg->getDouble("DZ");
+  if(currentTifg)
+    return currentTifg->getDouble("DZ");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TIFG not set, returning -999.9\n";
@@ -1338,26 +1338,26 @@ int TileDddbManager::SetCurrentTicg(int item)
 {
   unsigned int ind = 0;
 
-  while (((*m_ticg)[ind]->getInt("ITEM") != item) && (++ind < m_n_ticg)) 
+  while (((*ticg)[ind]->getInt("ITEM") != item) && (++ind < n_ticg)) 
   {
   }
 
-  if(ind >= m_n_ticg)
+  if(ind >= n_ticg)
   {
     //    std::cerr << "\nTileDddbManager::SetCurrentTicg ERROR! Unable to find the finger element, item = " << item << "\n";
     return 0;
   }
   else
   {
-    m_currentTicg = (*m_ticg)[ind];
+    currentTicg = (*ticg)[ind];
     return 1;
   }
 }
 
 int TileDddbManager::TICGitem() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getInt("ITEM");
+  if(currentTicg)
+    return currentTicg->getInt("ITEM");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999\n";
@@ -1367,8 +1367,8 @@ int TileDddbManager::TICGitem() const
 
 int TileDddbManager::TICGmaterial() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getInt("MATERIAL");
+  if(currentTicg)
+    return currentTicg->getInt("MATERIAL");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999\n";
@@ -1378,8 +1378,8 @@ int TileDddbManager::TICGmaterial() const
 
 int TileDddbManager::TICGshape() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getInt("SHAPE");
+  if(currentTicg)
+    return currentTicg->getInt("SHAPE");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999\n";
@@ -1389,8 +1389,8 @@ int TileDddbManager::TICGshape() const
 
 double TileDddbManager::TICGrc() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("RC");
+  if(currentTicg)
+    return currentTicg->getDouble("RC");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1400,8 +1400,8 @@ double TileDddbManager::TICGrc() const
 
 double TileDddbManager::TICGdr() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("DR");
+  if(currentTicg)
+    return currentTicg->getDouble("DR");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1411,8 +1411,8 @@ double TileDddbManager::TICGdr() const
 
 double TileDddbManager::TICGdx1() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("DX1");
+  if(currentTicg)
+    return currentTicg->getDouble("DX1");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1422,8 +1422,8 @@ double TileDddbManager::TICGdx1() const
 
 double TileDddbManager::TICGdx2() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("DX2");
+  if(currentTicg)
+    return currentTicg->getDouble("DX2");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1433,8 +1433,8 @@ double TileDddbManager::TICGdx2() const
 
 double TileDddbManager::TICGoff() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("OFF");
+  if(currentTicg)
+    return currentTicg->getDouble("OFF");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1444,8 +1444,8 @@ double TileDddbManager::TICGoff() const
 
 double TileDddbManager::TICGdz() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("DZ");
+  if(currentTicg)
+    return currentTicg->getDouble("DZ");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1455,8 +1455,8 @@ double TileDddbManager::TICGdz() const
 
 double TileDddbManager::TICGzc() const
 {
-  if(m_currentTicg)
-    return m_currentTicg->getDouble("ZC");
+  if(currentTicg)
+    return currentTicg->getDouble("ZC");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICG not set, returning -999.9\n";
@@ -1466,7 +1466,7 @@ double TileDddbManager::TICGzc() const
 
 unsigned int TileDddbManager::GetNumTicl() const
 { 
-  return m_n_ticl;
+  return n_ticl;
 }
 
 // -------------------- T I C L  ---------------------
@@ -1475,11 +1475,11 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
   unsigned int detector_ind = 0;
 
   // Looking for the first cell of given detector
-  while (((*m_ticl)[detector_ind]->getInt("DETECTOR") != detector) && (++detector_ind < m_n_ticl)) 
+  while (((*ticl)[detector_ind]->getInt("DETECTOR") != detector) && (++detector_ind < n_ticl)) 
   {
   }
 
-  if(detector_ind >= m_n_ticl)
+  if(detector_ind >= n_ticl)
   {
     //    std::cerr << "\nTileDddbManager::SetCurrentTicl ERROR! Unable to find any cell for the detector = " 
     //	      << detector << "\n";
@@ -1490,11 +1490,11 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
     // Looking for the first cell in given sample of given detector
     unsigned int sample_ind = detector_ind;
 
-    while (((*m_ticl)[sample_ind]->getInt("SAMPLE") != sample) && (++sample_ind < m_n_ticl)) 
+    while (((*ticl)[sample_ind]->getInt("SAMPLE") != sample) && (++sample_ind < n_ticl)) 
     {
     }
 
-    if(sample_ind >= m_n_ticl)
+    if(sample_ind >= n_ticl)
     {
       //      std::cerr << "\nTileDddbManager::SetCurrentTicl ERROR! Unable to find any cell for sample = " 
       //		<< sample << " in the detector = " << detector << "\n";
@@ -1505,11 +1505,11 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
       // Looking for the cell with give tower inside found sample
       unsigned int ind = sample_ind;
 
-      while (((*m_ticl)[ind]->getInt("TOWER") != tower) && (++ind < m_n_ticl))
+      while (((*ticl)[ind]->getInt("TOWER") != tower) && (++ind < n_ticl))
       {
       }
 
-      if(ind >= m_n_ticl)
+      if(ind >= n_ticl)
       {
 	//	std::cerr << "\nTileDddbManager::SetCurrentTicl ERROR! Unable to find any cell for tower = " 
 	//		  << tower << " in the detector = " << detector << " and sample = " << sample << "\n";
@@ -1517,8 +1517,8 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
       }
       else
       {
-	m_currentTicl = (*m_ticl)[ind];
-	m_currentTiclInd = ind;
+	currentTicl = (*ticl)[ind];
+	currentTiclInd = ind;
 	return 1;
       }
     }
@@ -1527,7 +1527,7 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
 int TileDddbManager::SetCurrentTicl(unsigned int index)
 {
-  if(index >= m_n_ticl)
+  if(index >= n_ticl)
   {
     //    std::cerr << "\nTileDddbManager::SetCurrentTicl ERROR! The requested index = "  
     //	      << index << " out of range.\n";
@@ -1535,8 +1535,8 @@ int TileDddbManager::SetCurrentTicl(unsigned int index)
   }
   else
   {
-    m_currentTicl = (*m_ticl)[index];
-    m_currentTiclInd = index;
+    currentTicl = (*ticl)[index];
+    currentTiclInd = index;
     return 1;
   }
 }
@@ -1546,15 +1546,15 @@ int TileDddbManager::SetFirstTiclInDet(int detector)
   unsigned int ind = 0;
 
   // Looking for the first cell of given detector
-  while (((*m_ticl)[ind]->getInt("DETECTOR") != detector) && (++ind < m_n_ticl)) 
+  while (((*ticl)[ind]->getInt("DETECTOR") != detector) && (++ind < n_ticl)) 
   {
   }
 
-  if(ind >= m_n_ticl)
+  if(ind >= n_ticl)
     return 0;  // FAILURE
 
-  m_currentTicl = (*m_ticl)[ind];
-  m_currentTiclInd = ind;
+  currentTicl = (*ticl)[ind];
+  currentTiclInd = ind;
   return 1;  // SUCCESS
 
 }
@@ -1564,69 +1564,69 @@ int TileDddbManager::SetFirstTiclInDetSamp(int detector, double sample)
   unsigned int detector_ind = 0;
 
   // Looking for the first cell of given detector
-  while (((*m_ticl)[detector_ind]->getInt("DETECTOR") != detector) && (++detector_ind < m_n_ticl)) 
+  while (((*ticl)[detector_ind]->getInt("DETECTOR") != detector) && (++detector_ind < n_ticl)) 
   {
   }
 
-  if(detector_ind >= m_n_ticl)
+  if(detector_ind >= n_ticl)
     return 0;  // FAILURE
   else
   {
     // Looking for the first cell in given sample of given detector
     unsigned int sample_ind = detector_ind;
 
-    while (((*m_ticl)[sample_ind]->getInt("SAMPLE") != sample) && (++sample_ind < m_n_ticl)) 
+    while (((*ticl)[sample_ind]->getInt("SAMPLE") != sample) && (++sample_ind < n_ticl)) 
     {
     }
 
-    if(sample_ind >= m_n_ticl)
+    if(sample_ind >= n_ticl)
       return 0;  // FAILURE
 
-    m_currentTicl = (*m_ticl)[sample_ind];
-    m_currentTiclInd = sample_ind;
+    currentTicl = (*ticl)[sample_ind];
+    currentTiclInd = sample_ind;
     return 1;  // SUCCESS
   }
 }
 
 int TileDddbManager::SetNextTiclInDet()
 {
-  if(m_currentTiclInd<0) return 0; // FAILURE
+  if(currentTiclInd<0) return 0; // FAILURE
 
-  int currentDetector = (*m_ticl)[m_currentTiclInd]->getInt("DETECTOR");
+  int currentDetector = (*ticl)[currentTiclInd]->getInt("DETECTOR");
 
-  if((++m_currentTiclInd == static_cast<int>(m_n_ticl))||((*m_ticl)[m_currentTiclInd]->getInt("DETECTOR") != currentDetector))
+  if((++currentTiclInd == static_cast<int>(n_ticl))||((*ticl)[currentTiclInd]->getInt("DETECTOR") != currentDetector))
   {
-    m_currentTiclInd--;
+    currentTiclInd--;
     return 0;  // FAILURE
   }
 
-  m_currentTicl = (*m_ticl)[m_currentTiclInd];
+  currentTicl = (*ticl)[currentTiclInd];
   return 1;
 }
 
 int TileDddbManager::SetNextTiclInDetSamp()
 {
-  if(m_currentTiclInd<0) return 0; // FAILURE
+  if(currentTiclInd<0) return 0; // FAILURE
 
-  int currentDetector = (*m_ticl)[m_currentTiclInd]->getInt("DETECTOR");
-  float currentSample = (*m_ticl)[m_currentTiclInd]->getInt("SAMPLE");
+  int currentDetector = (*ticl)[currentTiclInd]->getInt("DETECTOR");
+  float currentSample = (*ticl)[currentTiclInd]->getInt("SAMPLE");
 
-  if((++m_currentTiclInd == static_cast<int>(m_n_ticl))||
-     ((*m_ticl)[m_currentTiclInd]->getInt("DETECTOR") != currentDetector)||
-     ((*m_ticl)[m_currentTiclInd]->getInt("SAMPLE") != currentSample))
+  if((++currentTiclInd == static_cast<int>(n_ticl))||
+     ((*ticl)[currentTiclInd]->getInt("DETECTOR") != currentDetector)||
+     ((*ticl)[currentTiclInd]->getInt("SAMPLE") != currentSample))
   {
-    m_currentTiclInd--;
+    currentTiclInd--;
     return 0;  // FAILURE
   }
 
-  m_currentTicl = (*m_ticl)[m_currentTiclInd];
+  currentTicl = (*ticl)[currentTiclInd];
   return 1;
 }
 
 int TileDddbManager::TICLdetector() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("DETECTOR");
+  if(currentTicl)
+    return currentTicl->getInt("DETECTOR");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999\n";
@@ -1636,8 +1636,8 @@ int TileDddbManager::TICLdetector() const
 
 double TileDddbManager::TICLncell() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("NCELL");
+  if(currentTicl)
+    return currentTicl->getInt("NCELL");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1647,8 +1647,8 @@ double TileDddbManager::TICLncell() const
 
 double TileDddbManager::TICLtower() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("TOWER");
+  if(currentTicl)
+    return currentTicl->getInt("TOWER");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1658,8 +1658,8 @@ double TileDddbManager::TICLtower() const
 
 double TileDddbManager::TICLsample() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("SAMPLE");
+  if(currentTicl)
+    return currentTicl->getInt("SAMPLE");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1669,8 +1669,8 @@ double TileDddbManager::TICLsample() const
 
 double TileDddbManager::TICLeta() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getDouble("ETA");
+  if(currentTicl)
+    return currentTicl->getDouble("ETA");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1680,8 +1680,8 @@ double TileDddbManager::TICLeta() const
 
 double TileDddbManager::TICLdeta() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getDouble("DETA");
+  if(currentTicl)
+    return currentTicl->getDouble("DETA");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1691,8 +1691,8 @@ double TileDddbManager::TICLdeta() const
 
 double TileDddbManager::TICLfirstrow() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("FIRSTROW");
+  if(currentTicl)
+    return currentTicl->getInt("FIRSTROW");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1702,8 +1702,8 @@ double TileDddbManager::TICLfirstrow() const
 
 double TileDddbManager::TICLlastrow() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("LASTROW");
+  if(currentTicl)
+    return currentTicl->getInt("LASTROW");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1713,8 +1713,8 @@ double TileDddbManager::TICLlastrow() const
 
 double TileDddbManager::TICLntilesrow(unsigned int ind) const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("NTILESROW",ind);
+  if(currentTicl)
+    return currentTicl->getInt("NTILESROW",ind);
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning 9999\n";
@@ -1724,8 +1724,8 @@ double TileDddbManager::TICLntilesrow(unsigned int ind) const
 
 double TileDddbManager::TICLnpmt() const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("NPMT");
+  if(currentTicl)
+    return currentTicl->getInt("NPMT");
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning -999.9\n";
@@ -1735,8 +1735,8 @@ double TileDddbManager::TICLnpmt() const
 
 double TileDddbManager::TICLholes(unsigned int ind) const
 {
-  if(m_currentTicl)
-    return m_currentTicl->getInt("HOLES",ind);
+  if(currentTicl)
+    return currentTicl->getInt("HOLES",ind);
   else
   {
     std::cerr << "\nTileDddbManager ERROR! Current TICL not set, returning 9999\n";
@@ -1746,16 +1746,16 @@ double TileDddbManager::TICLholes(unsigned int ind) const
 
 bool TileDddbManager::addPlatesToCell() const
 {
-  if (m_tileSwitches)
+  if (tileSwitches)
     {
-      if ((*m_tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
+      if ((*tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
         {
           // std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
           return true;
         }
       else
 	{  
-	  return (*m_tileSwitches)[0]->getInt("ADDPLATESTOCELL");
+	  return (*tileSwitches)[0]->getInt("ADDPLATESTOCELL");
 	}
     }
   else
@@ -1767,17 +1767,17 @@ bool TileDddbManager::addPlatesToCell() const
 
 int TileDddbManager::Ushape() const
 {
-  if (m_tileSwitches)
+  if (tileSwitches)
     {
         try {
-          if ((*m_tileSwitches)[0]->isFieldNull("USHAPE"))
+          if ((*tileSwitches)[0]->isFieldNull("USHAPE"))
             {
               // std::cerr << "\nTileDddbManager   WARNING TileSwitches(USHAPE) is EMPTY, returning Ushape= 0\n\n";
               return 0;
             }
           else
 	    {  
-	      return (*m_tileSwitches)[0]->getInt("USHAPE");
+	      return (*tileSwitches)[0]->getInt("USHAPE");
 	    }
         } catch (std::exception& e) {
           std::cout << "\nTileDddbManager   WARNING TileSwitches table does not contain field USHAPE, returning Ushape= 0 \n\n";

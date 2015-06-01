@@ -16,7 +16,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cmath>
 
 
 // 23-feb-2005
@@ -134,7 +133,7 @@ void TileDetDescrManager::print() const
 
 void TileDetDescrManager::create_elements(MsgStream *log)
 {
-  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endmsg;
+  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endreq;
 
   // resize vectors :
   m_tile_module_vec.resize( (int) m_tile_id->module_hash_max(),0);
@@ -166,7 +165,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     int etasign = descr->sign_eta();
     if (side != etasign) {
       (*log) << MSG::ERROR  << "side and eta sign in TileDetDescriptor[" << n_regions 
-             << "] do not match" << endmsg;
+             << "] do not match" << endreq;
     }
     ++n_regions;
     
@@ -268,7 +267,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
       }
 
       double deta    = 0.1;
-      int    neta    = (int)((emax-emin)*(1./deta)+0.001);
+      int    neta    = (int)((emax-emin)/deta+0.001);
       depth_in[0] = zmin;
       depth_out[0] = zmax;
       CaloCell_ID::CaloSample sample = CaloCell_ID::TileGap3;
@@ -358,7 +357,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         (*log) << MSG::ERROR  << "can't build module ID from ("
                << section << ","
                << side << ","
-               << module << ")" << endmsg;
+               << module << ")" << endreq;
         continue;
       }
       
@@ -389,7 +388,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 //                     << section << "," << side << "," << module << ","
 //                     << tower << "," << sample << ") ("
 //                     << eta*etasign << "," << phi  << "," << rcenter << ") ("
-//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endmsg;
+//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endreq;
 
               TileDetectorElement* elt = new TileDetectorElement(
                 idhash, TileHWID::NOT_VALID_HASH, TileHWID::NOT_VALID_HASH, modDescr);
@@ -485,7 +484,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
                 // come out to ~ 1e-14, the exact value varying depending
                 // on platform.  For reproducibility, force very small
                 // numbers to 0.
-                if (std::abs(z) < 1e-8 * CLHEP::mm) z = 0;
+                if (abs(z) < 1e-8 * CLHEP::mm) z = 0;
 
                 double dz = 0.5 * fabs(cell_dim->getZMax(0)     // special 
                                        -cell_dim->getZMin(0)    // calculations
@@ -664,7 +663,6 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 			  {
 			    double deltax = 38.7*std::cos(25.3125*CLHEP::deg); 
 			    double pstan  = std::tan(25.3125*CLHEP::deg);
-                            double inv_pstan = 1. / pstan;
 			    if ( ( 15 == tower ) )
 			      {
 				if ( iRow < 2 ) 
@@ -690,7 +688,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 				rowVolume  = (radMax  + radMin) * Radius2HL;
 				rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
 				rowVolume *= 0.5 * (radMax - radMin) ;
-				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
+				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) / pstan;
 				rowVolume *= deltaZ;
 			      }
 
@@ -842,7 +840,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
             } catch ( TileID_Exception ) {
               (*log) << MSG::ERROR << "can't build cell ID from ("
                      << section << "," << side << "," << module << ","
-                     << tower << "," << sample << ")" << endmsg;
+                     << tower << "," << sample << ")" << endreq;
             }
             eta += deta;
           }
@@ -856,7 +854,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
          << n_cells << " cells and " 
          << n_modules << " half-modules were created for " 
          << n_regions << " Tile Regions" 
-         << endmsg;
+         << endreq;
 }
 
 
@@ -926,7 +924,6 @@ void TileDetDescrManager::add_cellDim(int section, int side, int tower, int samp
 TileCellDim* TileDetDescrManager::get_cell_dim(const Identifier& cell_id) const
 {
   int section = m_tile_id->section(cell_id);
-  if (section == Tile_Base_ID::AUXDET) return NULL;
   int side = m_tile_id->side(cell_id);
   int tower = m_tile_id->tower(cell_id);
   int sample = m_tile_id->sample(cell_id);
