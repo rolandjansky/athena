@@ -28,8 +28,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::MuonAuxContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 643853 $
- * $Date: 2015-02-03 16:27:45 +0100 (Tue, 03 Feb 2015) $
+ * $Revision: 671383 $
+ * $Date: 2015-06-01 16:41:07 +0200 (Mon, 01 Jun 2015) $
  */
 class xAODMuonAuxContainerCnv :
    public xAODMuonAuxContainerCnvBase {
@@ -46,10 +46,6 @@ protected:
    createPersistent( xAOD::MuonAuxContainer* trans );
    /// Function reading in the object from the input file
    virtual xAOD::MuonAuxContainer* createTransient();
-
-   /// Function to get the primary track particle, so we can set the charge from this...
-   const ElementLink< xAOD::TrackParticleContainer >& getPrimaryTrackParticleLink(xAOD::MuonAuxContainer* aux,size_t i);
-
 
 }; // class xAODMuonAuxContainerCnv
 

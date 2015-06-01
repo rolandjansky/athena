@@ -40,13 +40,6 @@ createPersistent( xAOD::MuonContainer* trans ) {
     new xAOD::MuonContainer( trans->begin(), trans->end(),
     SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-  xAOD::MuonContainer::iterator itr = result->begin();
-  xAOD::MuonContainer::iterator end = result->end();
-  for( ; itr != end; ++itr ) {
-    toPersistent( *itr );
-  }
-
    // Return the new container:
   return result;
 }
@@ -84,32 +77,4 @@ xAOD::MuonContainer* xAODMuonContainerCnv::createTransient() {
   throw std::runtime_error( "Unsupported version of "
     "xAOD::MuonContainer found" );
   return 0;
-}
-
-void xAODMuonContainerCnv::
-toPersistent( xAOD::Muon* muon ) const {
-  using namespace xAOD;
-  const_cast<ElementLink< TrackParticleContainer >&>(muon->inDetTrackParticleLink()).toPersistent();
-  const_cast<ElementLink< TrackParticleContainer >&>(muon->muonSpectrometerTrackParticleLink()).toPersistent();
-  const_cast<ElementLink< TrackParticleContainer >&>(muon->combinedTrackParticleLink()).toPersistent();
-  const_cast<ElementLink< CaloClusterContainer >&>  (muon->clusterLink()).toPersistent();
-
-  /// FIXME - guess this try/catch isn't needed any more, but it doesn't hurt... EJWM
-  try {
-
-     typedef const std::vector< ElementLink< xAOD::MuonSegmentContainer > > segLinks_t;
-     segLinks_t::const_iterator it = muon->muonSegmentLinks().begin();
-     segLinks_t::const_iterator itEnd = muon->muonSegmentLinks().end();
-     for (;it!=itEnd;++it){
-        segLinks_t::reference el = const_cast<segLinks_t::reference>(*it);
-        el.toPersistent();
-     }
-
-  } catch( const SG::ExcBadAuxVar& ) {
-     // Sometimes, very rarely, the dynamically defined ElementLink doesn't
-     // exist. The code should not die in that case, but just continue.
-     // The I/O system should be fine with the element links missing...
-  }
-
-  return;
 }
