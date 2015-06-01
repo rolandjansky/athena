@@ -99,6 +99,7 @@ EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcL
   declareProperty("userSelMu2MaxEta", m_userSelMu2MaxEta=102.5);
   declareProperty("userSelMinDimuMass", m_userSelMinDimuMass=0.);
   declareProperty("userSelMaxDimuMass", m_userSelMaxDimuMass=-1.); // set to negative to not apply cut
+  declareProperty("isfHerwig", m_isfHerwig=false); 
 
   m_atRndmGenSvc = 0;
   m_mcEvtColl = 0;
@@ -275,7 +276,11 @@ StatusCode EvtInclusiveDecay::execute() {
     for (McEventCollection::const_iterator evt = m_mcEvtColl->begin(); evt != m_mcEvtColl->end(); ++evt) {
       newmcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
     }
+    m_mcEvtColl->clear();
+    delete m_mcEvtColl;
+    m_mcEvtColl=NULL;
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -475,7 +480,7 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
   // Ignore documentation lines
   if (stat == 3) return false;
   // And any particles that aren't stable or decayed
-  if(stat>2) return false;
+  if(!m_isfHerwig && stat>2) return false;
 
   // Particularly for Herwig, try to ignore particles that really should
   // be flagged as documentation lines

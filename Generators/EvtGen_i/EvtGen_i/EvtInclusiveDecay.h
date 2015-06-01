@@ -150,7 +150,7 @@ class EvtInclusiveDecay:public GenBase {
     double m_userSelMu2MaxEta;
     double m_userSelMinDimuMass;
     double m_userSelMaxDimuMass;
-    
+    bool m_isfHerwig;    
 };
 
 #endif
