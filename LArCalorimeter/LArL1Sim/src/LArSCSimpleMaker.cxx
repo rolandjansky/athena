@@ -71,13 +71,16 @@ StatusCode LArSCSimpleMaker::execute()
   const Tile_SuperCell_ID * tile_sc_id  =  m_calo_id_manager->getTile_SuperCell_ID(); 
   const TileID * tile_cell_id           =  m_calo_id_manager->getTileID(); 
 
+  MsgStream  msglog(messageService(),name());
+
   DataPool<CaloCell> dataPool;
   if (dataPool.allocated()==0)
     dataPool.reserve (calo_sc_id->calo_cell_hash_max());
 
   const DataHandle<CaloCellContainer> cells;
   CHECK( evtStore()->retrieve(cells, m_cellContainer) );
-  ATH_MSG_DEBUG( "Got container Size : " << cells->size()  );
+  if ( msgLvl (MSG::DEBUG) )
+    msg(MSG::DEBUG) << "Got container Size : " << cells->size() << endreq;
   
   int hash_max = calo_sc_id->calo_cell_hash_max(); 
   std::vector<float> energies (hash_max,0);
@@ -91,7 +94,7 @@ StatusCode LArSCSimpleMaker::execute()
     Identifier sCellID  = m_scidtool->offlineToSuperCellID (cell_id);
 
     if (!sCellID.is_valid()) {
-      // ATH_MSG_WARNING( " SC ID not valid  " << sCellID.get_identifier32().get_compact() << " offline id = " << cell->ID().get_identifier32().get_compact() );
+      // msg(MSG::WARNING) << " SC ID not valid  " << sCellID.get_identifier32().get_compact() << " offline id = " << cell->ID().get_identifier32().get_compact()<< endreq;
       // calo_sc_id->print(cell->ID()); 
       continue;
     }
@@ -179,7 +182,7 @@ StatusCode LArSCSimpleMaker::execute()
 
     const CaloDetDescrElement* dde = m_sem_mgr->get_element (i);
     if (!dde) {
-      // ATH_MSG_WARNING( " Not valid DDE, hash index =  "<< i  );
+      // msg(MSG::WARNING) << " Not valid DDE, hash index =  "<< i << endreq;
       continue;
     }
 

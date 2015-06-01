@@ -10,7 +10,7 @@ use AthenaBaseComps             AthenaBaseComps-*               Control
 use LArDigitization	        LArDigitization-* 	        LArCalorimeter
 use LArElecCalib        	LArElecCalib-*       	        LArCalorimeter
 use AthenaKernel                AthenaKernel-*                  Control
-use AthAllocators               AthAllocators-*                 Control
+use DataModel                   DataModel-*                     Control
 
 private
 use AtlasCLHEP                  AtlasCLHEP-*                    External
@@ -25,7 +25,7 @@ use CaloTriggerTool		CaloTriggerTool-*		Calorimeter
 use CaloDetDescr                CaloDetDescr-*                  Calorimeter
 use CaloEvent                   CaloEvent-*                     Calorimeter
 use LArIdentifier      		LArIdentifier-*     		LArCalorimeter
-use LArCabling			LArCabling-*			LArCalorimeter
+use LArTools			LArTools-*			LArCalorimeter
 use LArSimEvent	 		LArSimEvent-* 		        LArCalorimeter
 use LArRawEvent 		LArRawEvent-* 		        LArCalorimeter
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
