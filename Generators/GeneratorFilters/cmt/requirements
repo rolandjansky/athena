@@ -18,6 +18,8 @@ use TruthUtils          TruthUtils-*          Generators
 use MissingETEvent      MissingETEvent-*      Reconstruction
 use McParticleEvent     McParticleEvent-*     PhysicsAnalysis/TruthParticleID
 use ParticleEvent       ParticleEvent-*       PhysicsAnalysis/AnalysisCommon
+use xAODTruth           xAODTruth-*           Event/xAOD
+use xAODJet             xAODJet-*             Event/xAOD
 end_private
 
 apply_tag ROOTMathLibs

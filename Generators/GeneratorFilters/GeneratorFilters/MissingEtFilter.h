@@ -15,9 +15,13 @@ public:
   MissingEtFilter(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode filterEvent();
 
+  bool fromTau( const HepMC::GenParticle* tp ) const;
+  bool fromWZ( const HepMC::GenParticle* tp ) const;
+
  private:
 
   double m_METmin;
+  bool m_useHadronicNu;
 
 };
 
