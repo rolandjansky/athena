@@ -5,7 +5,7 @@
 # @author Alexandre Vaniachine <vaniachine@anl.gov>
 # @date May 2015
 
-__version__= "$Revision: 667440 $"
+__version__= "$Revision: 667927 $"
 __author__ = "Alexandre Vaniachine <vaniachine@anl.gov>"
 __doc__ = "peek into APR files to read in-file metadata"
 
@@ -37,7 +37,7 @@ class FilePeekerTool():
             (os.getpid(), uuid.uuid4())
             )
         stdout = open(stdout_fname, "w")
-        print >> stdout,"Extracting in-file metadata without athena sub-process"
+        print >> stdout,"Extracting in-file metadata without athena sub-process from file", self.f.GetName()
         print >> stdout,"="*80
         stdout.flush()
 
@@ -306,7 +306,7 @@ class FilePeekerTool():
         metadata_items = []
 
         for l in meta.GetListOfLeaves():
-            clName = l.GetTypeName().split('_')[0]
+            clName = l.GetTypeName().split('_p')[0]
             flName = l.GetName()
             if l.GetTypeName() == 'IOVMetaDataContainer_p1':
                 k = l.GetName()
