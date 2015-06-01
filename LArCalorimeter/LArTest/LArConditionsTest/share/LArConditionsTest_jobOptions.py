@@ -50,8 +50,6 @@ theApp.Dlls += [ "LArConditionsTest" ]
 include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 
 
-theApp.TopAlg = [ "LArConditionsTestAlg" ]
-
 #--------------------------------------------------------------
 # Set output level threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
@@ -59,8 +57,14 @@ MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel      = 3
 MessageSvc.debugLimit       = 100000
 MessageSvc.infoLimit        = 100000
-LArConditionsTestAlg = Algorithm( "LArConditionsTestAlg" )
+
+from LArConditionsTest import LArConditionsTestConf
+LArConditionsTestAlg = LArConditionsTestConf.LArConditionsTestAlg()
 LArConditionsTestAlg.OutputLevel    = 2
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+topSequence += LArConditionsTestAlg
 
 #--------------------------------------------------------------
 #

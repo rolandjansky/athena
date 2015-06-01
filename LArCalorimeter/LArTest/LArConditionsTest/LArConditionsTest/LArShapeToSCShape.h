@@ -9,7 +9,7 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "LArTools/LArSuperCellCablingTool.h"
 
 #include "GaudiKernel/ToolHandle.h"

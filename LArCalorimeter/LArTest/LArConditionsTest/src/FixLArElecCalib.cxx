@@ -79,7 +79,7 @@
 #include "LArRawConditions/LArRampMC.h"
 #include "LArRawConditions/LArAutoCorrMC.h"
 
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 
 #include <fstream>
 
@@ -1101,12 +1101,12 @@ StatusCode FixLArElecCalib::fix6() {
 
        std::vector<float> v_m ;
        v_m.push_back(0);
-       v_m.push_back(ramp_val/9.96);
+       v_m.push_back(ramp_val*(1./9.96));
        ramp1.m_vRamp=v_m;
 
        std::vector<float> v_l ;
        v_l.push_back(0);
-       v_l.push_back(ramp_val/9.96/9.67);
+       v_l.push_back(ramp_val*(1./9.96/9.67));
        ramp2.m_vRamp=v_l;
 
        const LAruA2MeVComplete::LArCondObj& ua2MeV0_c = ua2MeV->get(hid,0) ;
