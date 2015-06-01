@@ -158,7 +158,8 @@ RecExCommonFlags = {
       'LoadGeometry' : True, # loads ATLAS detector geometry and magnetic field
       'UserAlgs' : [],
       'DPDMakerScripts' : [],
-      'AMITag' : ""
+      'AMITag' : "",
+      'doESDReconstruction' : False
       } # user algorithm(s) e.g  ["MyPackage/MyAlg_jobOptions.py"]
 
 
