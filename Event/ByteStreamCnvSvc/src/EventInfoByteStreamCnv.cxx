@@ -56,29 +56,29 @@ StatusCode EventInfoByteStreamCnv::initialize() {
     return sc;
   }
 
-  MsgStream log(msgSvc(), "EventInfoByteStreamCnv");
-  log << MSG::DEBUG << " initialize" << endmsg;
+  MsgStream log(messageService(), "EventInfoByteStreamCnv");
+  log << MSG::DEBUG << " initialize" << endreq;
 
   // Check ByteStreamCnvSvc
   IService* svc;
   sc = serviceLocator()->getService("ByteStreamCnvSvc", svc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Cant get ByteStreamCnvSvc " << endmsg;
+    log << MSG::ERROR << " Cant get ByteStreamCnvSvc " << endreq;
     return sc;
   }
   m_ByteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamCnvSvc == 0) {
-    log << MSG::ERROR << " Cant cast to ByteStreamCnvSvc" << endmsg;
+    log << MSG::ERROR << " Cant cast to ByteStreamCnvSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
    if (!m_robDataProvider.retrieve().isSuccess()) {
-    log << MSG::ERROR << " Cant get ROBDataProviderSvc" << endmsg;
+    log << MSG::ERROR << " Cant get ROBDataProviderSvc" << endreq;
     //  ATH_MSG_FATAL("Cannot get ROBDataProviderSvc");
       return(StatusCode::FAILURE);
    }
    if (!m_mdSvc.retrieve().isSuccess()) {
-    log << MSG::ERROR << " Cant get InputMetaDataStore" << endmsg;
+    log << MSG::ERROR << " Cant get InputMetaDataStore" << endreq;
     //  ATH_MSG_FATAL("Cannot get InputMetaDataStore");
       return(StatusCode::FAILURE);
    }
@@ -88,9 +88,9 @@ StatusCode EventInfoByteStreamCnv::initialize() {
   sc = m_ByteStreamCnvSvc->getProperty(&propUserType);
   if (sc.isSuccess()) {
     m_userType = propUserType.value();
-    log << MSG::INFO << "UserType : " << m_userType << endmsg;
+    log << MSG::INFO << "UserType : " << m_userType << endreq;
   } else {
-    log << MSG::ERROR << "could not get UserType" << endmsg;
+    log << MSG::ERROR << "could not get UserType" << endreq;
     return sc;
   }
 
@@ -98,9 +98,9 @@ StatusCode EventInfoByteStreamCnv::initialize() {
   sc = m_ByteStreamCnvSvc->getProperty(&propIsSimulation);
   if (sc.isSuccess()) {
     m_isSimulation = propIsSimulation.value();
-    log << MSG::INFO << "IsSimulation : " << m_isSimulation << endmsg;
+    log << MSG::INFO << "IsSimulation : " << m_isSimulation << endreq;
   } else {
-    log << MSG::ERROR << "could not get IsSimulation" << endmsg;
+    log << MSG::ERROR << "could not get IsSimulation" << endreq;
     return sc;
   }
 
@@ -108,9 +108,9 @@ StatusCode EventInfoByteStreamCnv::initialize() {
   sc = m_ByteStreamCnvSvc->getProperty(&propIsTestbeam);
   if (sc.isSuccess()) {
     m_isTestbeam = propIsTestbeam.value();
-    log << MSG::INFO << "IsTestbeam : " << m_isTestbeam << endmsg;
+    log << MSG::INFO << "IsTestbeam : " << m_isTestbeam << endreq;
   } else {
-    log << MSG::ERROR << "could not get IsTestbeam" << endmsg;
+    log << MSG::ERROR << "could not get IsTestbeam" << endreq;
     return sc;
   }
 
@@ -118,40 +118,40 @@ StatusCode EventInfoByteStreamCnv::initialize() {
   sc = m_ByteStreamCnvSvc->getProperty(&propIsCalibration);
   if (sc.isSuccess()) {
     m_isCalibration = propIsCalibration.value();
-    log << MSG::INFO << "IsCalibration : " << m_isCalibration << endmsg;
+    log << MSG::INFO << "IsCalibration : " << m_isCalibration << endreq;
   } else {
-    log << MSG::ERROR << "could not get IsCalibration" << endmsg;
+    log << MSG::ERROR << "could not get IsCalibration" << endreq;
     return sc;
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode EventInfoByteStreamCnv::finalize() {
-  MsgStream log(msgSvc(), "EventInfoByteStreamCnv");
-  log << MSG::INFO << "finalize " << endmsg;
+  MsgStream log(messageService(), "EventInfoByteStreamCnv");
+  log << MSG::INFO << "finalize " << endreq;
 
   StatusCode status = Converter::finalize();
   if (status.isFailure()) {
-    log << MSG::WARNING << "Converter::finalize() failed" << endmsg;
+    log << MSG::WARNING << "Converter::finalize() failed" << endreq;
   }
   return(status);
 }
 
 StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-  MsgStream log(msgSvc(), "EventInfoByteStreamCnv");
+  MsgStream log(messageService(), "EventInfoByteStreamCnv");
 
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
   if (!pRE_Addr) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq;
     return StatusCode::FAILURE;
   }
-  log << MSG::DEBUG << " Creating Objects" << endmsg;
+  log << MSG::DEBUG << " Creating Objects" << endreq;
 
   // get RawEvent
   const RawEvent* re = m_robDataProvider->getEvent();
   if (re == 0) {
-    log << MSG::ERROR << " Can not get RawEvent " << endmsg;
+    log << MSG::ERROR << " Can not get RawEvent " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -176,10 +176,10 @@ StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
       uint32_t temp = bc_time_ns;
       bc_time_ns = bc_time_sec;
       bc_time_sec= temp;
-      log << MSG::DEBUG << " bc_time  second/nanosecond swapped, sec/ns = " << bc_time_sec << " " << bc_time_ns << endmsg;
+      log << MSG::DEBUG << " bc_time  second/nanosecond swapped, sec/ns = " << bc_time_sec << " " << bc_time_ns << endreq;
     } else { // for later runs, the nanosecond clock sometimes is not reset, making it overrun 1e9.
       // round it off to 1e9
-      log << MSG::WARNING << " bc_time nanosecond number larger than 1e9, it is " << bc_time_ns << ", reset it to 1 sec" << endmsg;
+      log << MSG::WARNING << " bc_time nanosecond number larger than 1e9, it is " << bc_time_ns << ", reset it to 1 sec" << endreq;
       bc_time_ns = 1000000000;
     }
   }
@@ -195,7 +195,7 @@ StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
   const ByteStreamMetadata* metadata = 0;
   StatusCode status = m_mdSvc->retrieve(metadata, "ByteStreamMetadata");
   if (!status.isSuccess()) {
-    log << MSG::WARNING << "Unable to retrieve Input MetaData for ByteStream" << endmsg;
+    log << MSG::WARNING << "Unable to retrieve Input MetaData for ByteStream" << endreq;
   } else {
     uint64_t detectorMask = metadata->getDetectorMask();
     detMask0 = (unsigned int)(detectorMask & 0x00000000FFFFFFFF);
@@ -287,15 +287,15 @@ StatusCode EventInfoByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
   pObj = StoreGateSvc::asStorable(evtInfo);
 
   log << MSG::DEBUG << " New EventInfo made, run/event= " << runNumber << " " << eventNumber
-      << " Time stamp  = " << ascTime(bc_time_sec) << endmsg;
+      << " Time stamp  = " << ascTime(bc_time_sec) << endreq;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode EventInfoByteStreamCnv::createRep(DataObject* /*pObj*/, IOpaqueAddress*& /*pAddr*/) {
   StatusCode sc = StatusCode::SUCCESS;
-  MsgStream log(msgSvc(), "EventInfoByteStreamCnv");
-  log << MSG::DEBUG << " Nothing to be done for EventInfo createReps" << endmsg;
+  MsgStream log(messageService(), "EventInfoByteStreamCnv");
+  log << MSG::DEBUG << " Nothing to be done for EventInfo createReps" << endreq;
   return sc;
 }
 

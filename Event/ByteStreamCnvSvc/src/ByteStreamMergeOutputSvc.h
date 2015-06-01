@@ -36,13 +36,16 @@ public:
 
 private:
    uint32_t reducedROBid(uint32_t);
+   int m_EventCounter;
 
-   Gaudi::Property<std::string> m_inSvcName;
-   Gaudi::Property<std::string> m_outSvcName;
+   RawEvent* m_re;
+
+   StringProperty m_inSvcName;
+   StringProperty m_outSvcName;
    ByteStreamInputSvc*  m_inSvc;
    ByteStreamOutputSvc* m_outSvc;
-   Gaudi::Property<std::string> m_bsOutputStreamName; //!< stream name for multiple output
-   Gaudi::Property<bool> m_overwriteHeader;
+   StringProperty m_bsOutputStreamName; //!< stream name for multiple output
+   BooleanProperty m_overwriteHeader;
 };
 
 #endif

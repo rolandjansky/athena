@@ -57,7 +57,7 @@ private:
    const RawEvent* m_rawEvent;
 
    /// type and name of the objects to create the address for.
-   Gaudi::Property<std::vector<std::string>> m_typeNames;
+   StringArrayProperty m_typeNames;
 
    typedef ServiceHandle<ActiveStoreSvc> ActiveStoreSvc_t;
    ActiveStoreSvc_t m_activeStoreSvc;

@@ -100,7 +100,7 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
    if (m_keys.size()>0) {
      StatusCode sc = m_attlistsvc->readInit(m_keys);
      if (sc.isFailure()) {
-       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endmsg;
+       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endreq;
      }
    }
 
@@ -223,7 +223,7 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
   if (m_keys.size()>0) {
     StatusCode sc = m_attlistsvc->fromBSMetadata(m_keys);
     if (sc.isFailure()) {
-       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
+       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endreq;
     }
   }
 
@@ -300,12 +300,17 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
   if (m_dump) {
     DumpFrags::dump(m_re);
   }
+  // Build a DH for use by other components
+  StatusCode rec_sg = generateDataHeader();
+  if (rec_sg != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
+  }
   return(m_re);
 }
 //------------------------------------------------------------------------------
 // Read the next event.
 const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
-
+ 
   // Load data buffer from file
   char *buf;
   unsigned int eventSize;
@@ -373,6 +378,11 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
   // dump
   if (m_dump) {
     DumpFrags::dump(m_re);
+  }
+  // Build a DH for use by other components
+  StatusCode rec_sg = generateDataHeader();
+  if (rec_sg != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
   }
   return(m_re);
 }
@@ -520,7 +530,7 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     if (ioc.isSuccess()) {
       const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
       if (ptmp !=0) {
-        DataHeaderElement DheEI(ptmp->transientAddress(), 0, "ByteStreamEventInfo");
+        DataHeaderElement DheEI(ptmp->transientAddress(),"ByteStreamEventInfo");
         Dh->insert(DheEI);
       }
       //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
@@ -596,7 +606,7 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    ++m_fileCount;
 
    // enable sequentialReading if multiple files
-   if (m_sequential) {
+   if (m_sequential > 1) {
       bool test = setSequentialRead();
       if (!test) return -1;
    }

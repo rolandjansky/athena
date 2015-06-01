@@ -32,7 +32,6 @@ use EventInfo             EventInfo-*             Event
 use PersistentDataModel   PersistentDataModel-*   Database
 use AthenaPoolUtilities   AthenaPoolUtilities-*   Database/AthenaPOOL
 use AthenaPoolKernel      AthenaPoolKernel-*      Database/AthenaPOOL
-use ByteStreamCnvSvcLegacy ByteStreamCnvSvcLegacy-*  Event
 
 # Setup automatic testing which runs with gmake check
 
@@ -101,4 +100,3 @@ macro_append AtlCopyBSEvent3_utest_dependencies AtlCopyBSEvent1_utest
 macro_append AtlFindBSEvent4_utest_dependencies AtlCopyBSEvent3_utest
 macro_append AtlCopyBSEvent5_utest_dependencies AtlFindBSEvent4_utest
 macro_append AtlCopyBSEvent6_utest_dependencies AtlFindBSEvent4_utest
-

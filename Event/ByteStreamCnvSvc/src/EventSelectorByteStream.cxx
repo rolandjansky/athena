@@ -42,7 +42,6 @@ EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLo
         m_evtStore( "StoreGateSvc", name ),
         m_firstFileFired(false),
         m_beginFileFired(false),
-	m_inputCollectionsFromIS(false),
 	m_NumEvents(0),
  	m_eventStreamingTool("", this),
         m_helperTools(this),
@@ -113,20 +112,19 @@ StatusCode EventSelectorByteStream::initialize() {
          std::vector<const Property*>::const_iterator ii = esProps->begin();
          if (esProps != 0) {
             while (ii != esProps->end()) {
+               StringArrayProperty temp;
                if ((*ii)->name() == "FullFileName") {
-                  StringArrayProperty temp;
                   if ((*ii)->load(temp)) {
                      retrieve = true;
-                     m_inputCollectionsProp.assign(temp);
-                     m_inputCollectionsFromIS = true;
+                     m_inputCollectionsProp = temp;
                      ATH_MSG_INFO("Retrieved InputCollections from InputSvc");
                   }
                }
+               StringProperty temp2;
                if ((*ii)->name() == "EventStore") {
-                  StringProperty temp2;
                   if ((*ii)->load(temp2)) {
                      m_evtStore = ServiceHandle<StoreGateSvc>(temp2.value(),this->name());
-                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp2);
+                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp);
                   }
                }
                ++ii;
@@ -264,7 +262,7 @@ StatusCode EventSelectorByteStream::reinit() {
    m_NumEvents = 0;
    bool retError = false;
    if (!m_helperTools.empty()) {
-      for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
+      for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
            last = m_helperTools.end(); iter != last; iter++) {
          if (!(*iter)->postInitialize().isSuccess()) {
             ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
@@ -332,7 +330,7 @@ StatusCode EventSelectorByteStream::finalize() {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
    }
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
+   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
         last = m_helperTools.end(); iter != last; iter++) {
       if (!(*iter)->preFinalize().isSuccess()) {
          ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
@@ -430,7 +428,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          return(StatusCode::FAILURE);
       }
       m_eventSource->setEvent(static_cast<char*>(source), status);
-      return(StatusCode::SUCCESS);
+      return(m_eventStreamingTool->unlockEvent());
    }
    // Call all selector tool preNext before starting loop
    for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
@@ -454,7 +452,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          this->nextFile();
          if (this->openNewRun().isFailure()) {
             ATH_MSG_DEBUG("Event source found no more valid files left in input list");
-            m_NumEvents = -1;
             return StatusCode::FAILURE; 
          }
       }
@@ -496,11 +493,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 }
          ATH_MSG_WARNING("Continue with bad event");
       }
-      // Build a DH for use by other components
-      StatusCode rec_sg = m_eventSource->generateDataHeader();
-        if (rec_sg != StatusCode::SUCCESS) {
-           ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
-      }
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
@@ -532,32 +524,32 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
             }
             break;
          }
-
-         // Validate the event
-         try {
-            m_eventSource->validateEvent();
-         }
-         catch (ByteStreamExceptions::badFragmentData) { 
-            ATH_MSG_ERROR("badFragment data encountered");
-
-            ++n_bad_events;
-            ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
-
-            bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
-	    if (toomany) {ATH_MSG_FATAL("too many bad events ");}
-            if (!m_procBadEvent || toomany) {
-               // End of file
-	       it = *m_endIter;
-	       return(StatusCode::FAILURE);
-   	    }
-            ATH_MSG_WARNING("Continue with bad event");
-         }
       } else {
          if (!m_skipEventSequence.empty() && m_NumEvents == m_skipEventSequence.front()) {
             m_skipEventSequence.erase(m_skipEventSequence.begin());
          }
          ATH_MSG_DEBUG("Skipping event " << m_NumEvents - 1);
 	 m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
+      }
+
+      // Validate the event
+      try {
+         m_eventSource->validateEvent();
+      }
+      catch (ByteStreamExceptions::badFragmentData) { 
+         ATH_MSG_ERROR("badFragment data encountered");
+
+         ++n_bad_events;
+         ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
+
+         bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
+	 if (toomany) {ATH_MSG_FATAL("too many bad events ");}
+         if (!m_procBadEvent || toomany) {
+            // End of file
+	    it = *m_endIter;
+	    return(StatusCode::FAILURE);
+	 }
+         ATH_MSG_WARNING("Continue with bad event");
       }
    } // for loop
    return(StatusCode::SUCCESS);
@@ -566,23 +558,14 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
-      if ( m_NumEvents+jump != m_SkipEvents) {
-         // Save initial event count
-         unsigned int cntr = m_NumEvents;
-         // In case NumEvents increments multiple times in a single next call
-         while (m_NumEvents+1 <= cntr + jump) {
-            if (!next(ctxt).isSuccess()) {
-               return(StatusCode::FAILURE);
-            }
+      for (int i = 0; i < jump; ++i) {
+         if (!next(ctxt).isSuccess()) {
+            return(StatusCode::FAILURE);
          }
       }
-      else ATH_MSG_DEBUG("Jump covered by skip event " << m_SkipEvents);
       return(StatusCode::SUCCESS);
    }
-   else { 
-      ATH_MSG_WARNING("Called jump next with non-multiple jump");
-   }
-   return(StatusCode::SUCCESS);
+   return(StatusCode::FAILURE);
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) const {
@@ -630,13 +613,6 @@ StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) co
        }
        ATH_MSG_WARNING("Continue with bad event");
     }
-
-    // Build a DH for use by other components
-    StatusCode rec_sg = m_eventSource->generateDataHeader();
-      if (rec_sg != StatusCode::SUCCESS) {
-         ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
-    }
-
     return StatusCode::SUCCESS;
 }
 //________________________________________________________________________________
@@ -906,7 +882,7 @@ StatusCode EventSelectorByteStream::share(int evtNum) {
    if (m_eventStreamingTool->isClient()) {
       StatusCode sc = m_eventStreamingTool->lockEvent(evtNum);
       while (sc.isRecoverable()) {
-         usleep(1000);
+         usleep(100000);
          sc = m_eventStreamingTool->lockEvent(evtNum);
       }
       return(sc);
@@ -919,17 +895,12 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   ATH_MSG_VERBOSE("Called read Event " << maxevt);
-   for (int i = 0; i < maxevt || maxevt == -1; ++i) {
+   for (int i = 0; i < maxevt; ++i) {
       //const RawEvent* pre = m_eventSource->nextEvent();
       const RawEvent* pre = 0;
       if (this->next(*m_beginIter).isSuccess()) {
          pre = m_eventSource->currentEvent();
       } else {
-         if (m_NumEvents == -1) {
-            ATH_MSG_VERBOSE("Called read Event and read last event from input: " << i);
-            break;
-         }
          ATH_MSG_ERROR("Unable to retrieve next event for " << i << "/" << maxevt);
          return(StatusCode::FAILURE);
       }
@@ -937,7 +908,7 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
          // End of file, wait for last event to be taken
          StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
          while (sc.isRecoverable()) {
-            usleep(1000);
+            usleep(100000);
             sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
          }
          if (!sc.isSuccess()) {
@@ -948,7 +919,7 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
       if (m_eventStreamingTool->isServer()) {
          StatusCode sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
          while (sc.isRecoverable()) {
-            usleep(1000);
+            usleep(100000);
             sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
          }
          if (!sc.isSuccess()) {
@@ -1009,20 +980,6 @@ StatusCode EventSelectorByteStream::io_reinit() {
       ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
       return(StatusCode::FAILURE);
    }
-   if (m_inputCollectionsFromIS) {
-      /*   MN: don't copy the FullFileName again - rely on FileSchedulingTool
-           to modify the EventSelector Input property directly
-      IProperty* propertyServer = dynamic_cast<IProperty*>(m_eventSource);
-      std::vector<std::string> vect;
-      StringArrayProperty inputFileList("FullFileName", vect);
-      StatusCode sc = propertyServer->getProperty(&inputFileList);
-      if(sc.isFailure()) {
-         ATH_MSG_FATAL("Unable to retrieve ByteStreamInputSvc");
-         return(StatusCode::FAILURE);
-      }
-      m_inputCollectionsProp = inputFileList;
-      */
-   }
    std::vector<std::string> inputCollections = m_inputCollectionsProp.value();
    for (std::size_t i = 0, imax = inputCollections.size(); i != imax; ++i) {
       ATH_MSG_INFO("I/O reinitialization, file = "  << inputCollections[i]);
@@ -1038,7 +995,6 @@ StatusCode EventSelectorByteStream::io_reinit() {
    }
    // all good... copy over.
    m_beginFileFired = false;
-   m_inputCollectionsProp = inputCollections;
    
    return(this->reinit());
 }

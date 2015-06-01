@@ -34,29 +34,29 @@ ByteStreamOutputStreamCopyTool::~ByteStreamOutputStreamCopyTool() {
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::initialize() {
    MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
+   log << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
 
    StatusCode status = ::AlgTool::initialize();
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to initialize AlgTool base class." << endmsg;
+      log << MSG::ERROR << "Unable to initialize AlgTool base class." << endreq;
       return(status);
    }
 
    // retrieve services 
    status = m_inputSvc.retrieve();
    if (status.isFailure()) {
-      log << MSG::ERROR << "Unable to locate ByteStreamInputSvc " << endmsg;
+      log << MSG::ERROR << "Unable to locate ByteStreamInputSvc " << endreq;
       return(status);
    } else {
-      log << MSG::DEBUG << "Found ByteStreamInputSvc." << endmsg;
+      log << MSG::DEBUG << "Found ByteStreamInputSvc." << endreq;
    }
 
    status = m_outputSvc.retrieve();
    if (status.isFailure()) {
-      log << MSG::ERROR << "Unable to locate ByteStreamOutputSvc " << endmsg;
+      log << MSG::ERROR << "Unable to locate ByteStreamOutputSvc " << endreq;
       return(status);
    } else {
-      log << MSG::DEBUG << "Found ByteStreamOutputSvc." << endmsg;
+      log << MSG::DEBUG << "Found ByteStreamOutputSvc." << endreq;
    }
 
    return(StatusCode::SUCCESS);
@@ -66,7 +66,7 @@ StatusCode ByteStreamOutputStreamCopyTool::finalize() {
    StatusCode status = m_outputSvc.release();
    if (status.isFailure()) {
       MsgStream log(msgSvc(), name());
-      log << MSG::WARNING << "Cannot release the ByteStreamOutputSvc" << endmsg;
+      log << MSG::WARNING << "Cannot release the ByteStreamOutputSvc" << endreq;
    }
    return(::AlgTool::finalize());
 }
@@ -85,19 +85,19 @@ StatusCode ByteStreamOutputStreamCopyTool::connectOutput(const std::string& /*ou
 //__________________________________________________________________________
 StatusCode ByteStreamOutputStreamCopyTool::commitOutput() {
    MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "In commitOutput" << endmsg;
+   log << MSG::DEBUG << "In commitOutput" << endreq;
    const RawEvent* re_c = m_inputSvc->currentEvent() ; 
    if(!re_c){
-     log << MSG::ERROR << " failed to get the current event from ByteStreamInputSvc  " << endmsg; 
+     log << MSG::ERROR << " failed to get the current event from ByteStreamInputSvc  " << endreq; 
      return StatusCode::FAILURE ; 
    }
    RawEvent* re =  const_cast<RawEvent*>(re_c); 
    if( ! m_outputSvc->putEvent(re) ) {
 
-     log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc  " << endmsg; 
+     log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc  " << endreq; 
      return StatusCode::FAILURE ; 
    }
-   log << MSG::DEBUG << " done in commitOutput  " << endmsg;
+   log << MSG::DEBUG << " done in commitOutput  " << endreq;
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -108,7 +108,7 @@ StatusCode ByteStreamOutputStreamCopyTool::finalizeOutput() {
 StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys) {
    if (typeKeys.size() != 0){
      MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;
+     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endreq;
    }
    return(StatusCode::SUCCESS);
 }
@@ -116,7 +116,7 @@ StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  ty
 StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects) {
    if (dataObjects.size() != 0){
      MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;
+     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endreq;
    }
    return(StatusCode::SUCCESS);
 }
@@ -124,7 +124,7 @@ StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const DataObjectVec& da
 StatusCode ByteStreamOutputStreamCopyTool::fillObjectRefs(const DataObjectVec& dataObjects) {
    if (dataObjects.size() != 0){
      MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " fillObjectRefs is not supported.  The whole input event is written out" << endmsg;
+     log << MSG::WARNING << " fillObjectRefs is not supported.  The whole input event is written out" << endreq;
    }
    return(StatusCode::SUCCESS);
 }

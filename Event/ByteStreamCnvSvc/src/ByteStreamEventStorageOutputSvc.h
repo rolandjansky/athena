@@ -10,10 +10,8 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include <memory>
-
+#include "EventStorage/DataWriter.h"
 #include "EventStorage/EventStorageRecords.h"
-#include "ByteStreamDataWriter.h"
 
 #include "ByteStreamCnvSvc/ByteStreamOutputSvc.h"
 #include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
@@ -22,6 +20,9 @@
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+namespace EventStorage {
+   class DataWriter;
+}
 class EventInfo;
 class ByteStreamMetadata;
 
@@ -59,29 +60,27 @@ private: // internal member functions
 
 private: // data
    int                m_totalEventCounter; //!< number of event counter
-   std::unique_ptr<ByteStreamDataWriter> m_dataWriter; //!< pointer to DataWriter
+   EventStorage::DataWriter* m_dataWriter; //!< pointer to DataWriter
 
 private: // properties
-   Gaudi::Property<std::string>        m_inputDir;       //!< directory for the data files
-   Gaudi::Property<std::string>        m_projectTag;     //!< Project Tag
-   Gaudi::Property<std::string>        m_appName;        //!< Application Name
-   Gaudi::Property<std::string>        m_fileTag;        //!< File Tag
-   Gaudi::Property<std::string>        m_streamType;     //!< stream type
-   Gaudi::Property<std::string>        m_streamName;     //!< stream name
-   Gaudi::Property<int>       m_lumiBlockNumber;//!< luminosity block number
-   Gaudi::Property<int>       m_run;	           //!< run number
+   StringProperty        m_inputDir;       //!< directory for the data files
+   StringProperty        m_projectTag;     //!< Project Tag
+   StringProperty        m_appName;        //!< Application Name
+   StringProperty        m_fileTag;        //!< File Tag
+   StringProperty        m_streamType;     //!< stream type
+   StringProperty        m_streamName;     //!< stream name
+   IntegerProperty       m_lumiBlockNumber;//!< luminosity block number
+   IntegerProperty       m_run;	           //!< run number
 
-   Gaudi::Property<bool>       m_dump;	   //!< Dump fragments
-   Gaudi::Property<bool>       m_writeEventless; //!< Write eventless files
-   Gaudi::Property<bool>       m_compressEvents; //!< Compress events
+   BooleanProperty       m_dump;	   //!< Dump fragments
+   BooleanProperty       m_writeEventless; //!< Write eventless files
+   BooleanProperty       m_compressEvents; //!< Compress events
 
-   Gaudi::Property<unsigned int> m_maxFileMB;    //!< number of MB per file
-   Gaudi::Property<unsigned int> m_maxFileNE;    //!< number of events per file
+   UnsignedIntegerProperty m_maxFileMB;    //!< number of MB per file
+   UnsignedIntegerProperty m_maxFileNE;    //!< number of events per file
 
-   Gaudi::Property<std::string>     m_eformatVersion;    //!< eformat event version to produce, "v40" for run1, or "current"
-   Gaudi::Property<std::string>     m_eventStorageVersion;  //!< EventStorage BS version to produce, "v5" for run1, or "current"
-   Gaudi::Property<std::string>     m_bsOutputStreamName;//!< stream name for multiple output
-   Gaudi::Property<std::string>     m_simpleFileName;    //!< use this string for filename, not from the "AgreedFileName"
+   StringProperty     m_bsOutputStreamName;//!< stream name for multiple output
+   StringProperty     m_simpleFileName;    //!< use this string for filename, not from the "AgreedFileName"
    std::vector<std::string> m_keys;
 
    ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc;

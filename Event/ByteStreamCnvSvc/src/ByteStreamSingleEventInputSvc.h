@@ -52,7 +52,7 @@ private: // data
    std::string        m_currentFilename; //!< name of the currently opened file
 
 private: // properties
-   Gaudi::Property<bool>    m_dump;	      //!< Dump fragments
+   BooleanProperty    m_dump;	      //!< Dump fragments
 };
 
 #endif
