@@ -94,7 +94,7 @@ else:
                                       varsDistr = varsDistrJpsi,
                                       doFits = doFits,
                                       doSaveFits = doSaveFits)
-        JpsiMon_XpressTrig_idperf.TriggerChain = "Jpsimumu_idperf"
+        JpsiMon_XpressTrig_idperf.TriggerChain = "HLT_Jpsimumu_idperf"
         JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
         ToolSvc += JpsiMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
@@ -113,7 +113,7 @@ else:
                                       varsDistr = varsDistrJpsi,
                                       doFits = doFits,
                                       doSaveFits = doSaveFits)
-        JpsiMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        JpsiMon_XpressTrig_2mu.TriggerChain = "HLT_2mu14"
         JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
         ToolSvc += JpsiMon_XpressTrig_2mu
         if (InDetFlags.doPrintConfigurables()):
@@ -134,7 +134,7 @@ else:
                                        varsDistr = varsDistrZmumu,
                                        doFits = doFits,
                                        doSaveFits = doSaveFits)
-        ZmumuMon_XpressTrig_idperf.TriggerChain = "Zmumu_idperf"
+        ZmumuMon_XpressTrig_idperf.TriggerChain = "HLT_Zmumu_idperf"
         ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
         ToolSvc += ZmumuMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
@@ -154,7 +154,7 @@ else:
                                        varsDistr = varsDistrZmumu,
                                        doFits = doFits,
                                        doSaveFits = doSaveFits)
-        ZmumuMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        ZmumuMon_XpressTrig_2mu.TriggerChain = "HLT_2mu14"
         ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
         ToolSvc += ZmumuMon_XpressTrig_2mu
         if (InDetFlags.doPrintConfigurables()):
