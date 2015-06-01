@@ -44,8 +44,6 @@ public:
    virtual xAOD::MuonContainer* createTransient();
 
 private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::Muon* cluster ) const;
 
    /// StoreGate key of the container just being created
    std::string m_key;
