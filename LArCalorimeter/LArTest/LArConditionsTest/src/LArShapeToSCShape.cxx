@@ -9,7 +9,7 @@
 
 // LArConditionsTest includes
 #include "LArConditionsTest/LArShapeToSCShape.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArCOOLConditions/LArShapeSC.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"

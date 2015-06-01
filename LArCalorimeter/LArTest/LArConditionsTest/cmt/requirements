@@ -17,7 +17,7 @@ use CaloInterface        CaloInterface-*           Calorimeter
 use Identifier Identifier-* DetectorDescription 
 use CaloIdentifier CaloIdentifier-*  Calorimeter
 use LArIdentifier  LArIdentifier-*   LArCalorimeter
-use CaloTriggerTool      CaloTriggerTool-*      Calorimeter	
+use CaloDetDescr   CaloDetDescr-*    Calorimeter	
 
 
 # Test infrastructure
@@ -52,7 +52,7 @@ apply_pattern declare_joboptions files="*.py"
 
 private
 use AthenaKernel   AthenaKernel-*    Control
-use EventInfo      EventInfo-*       Event 
+use xAODEventInfo  xAODEventInfo-*   Event/xAOD 
 use CaloDetDescr   CaloDetDescr-*    Calorimeter 
 use CaloEvent      CaloEvent-*       Calorimeter 
 use CaloIdentifier CaloIdentifier-*  Calorimeter

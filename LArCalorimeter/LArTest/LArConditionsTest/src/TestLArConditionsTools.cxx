@@ -11,7 +11,7 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
@@ -58,7 +58,7 @@ StatusCode TestLArConditionsTools::initialize() {
   ATH_CHECK( retrieveTools() );
   ATH_CHECK( detStore()->retrieve( m_idHelper) );
 
-  const EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = 0;
   StatusCode sc = evtStore()->retrieve( evtInfo);
   if(sc!=StatusCode::SUCCESS){ 
     ATH_MSG_WARNING ( " Can not retrieve EventInfo " );
