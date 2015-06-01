@@ -17,13 +17,19 @@
 PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIBL, bool errorHist)
 
 {
-  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(),("IBL 3D modules " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(),("IBL planar modules " + title + ";shifted eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  B0 = TH2F_LW::create((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = TH2F_LW::create((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = TH2F_LW::create((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = TH2F_LW::create((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C  = TH2F_LW::create((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  std::string setatext = ";shifted eta index of module";
+  std::string etatext = ";eta index of module";
+  std::string phitext = ";phi index of module";
+  std::string disktext = ";disk number";
+
+  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), ("IBL 3D modules " + title + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), ("IBL planar modules " + title + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  IBL   = TH2F_LW::create((name+"_IBL").c_str(), ("IBL " + title + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  B0 = TH2F_LW::create((name+"_B0").c_str(),("Barrel layer 0 " + title + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1 = TH2F_LW::create((name+"_B1").c_str(),("Barrel layer 1 " + title + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2 = TH2F_LW::create((name+"_B2").c_str(),("Barrel layer 2 " + title + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A  = TH2F_LW::create((name+"_A" ).c_str(),("ECA "            + title + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+  C  = TH2F_LW::create((name+"_C" ).c_str(),("ECC "            + title + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
 
   formatHist(doIBL,errorHist);
 }
@@ -32,6 +38,7 @@ PixelMon2DMapsLW::~PixelMon2DMapsLW()
 {
    LWHist::safeDelete(IBL3D);
    LWHist::safeDelete(IBL2D);
+   LWHist::safeDelete(IBL);
    LWHist::safeDelete(B0);
    LWHist::safeDelete(B1);
    LWHist::safeDelete(B2);
@@ -62,15 +69,25 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,boo
 	 B2->Fill(em,pm);
        }
        else if(ld ==-1 && doIBL && !errorHist){
+	 int feid = 0;
+	 int emf = 0;
+    bool copy = false;
 	 if(em<6 && em>-7){
+	   if(pixID->eta_index(id) >= 80) feid = 1;
+	   emf = 2 * em + feid; 
 	   IBL2D->Fill(em,pm);
+      copy = true;
 	 }
 	 else if(em<-6){
+	   emf = em - 6;
 	   IBL3D->Fill(em+10,pm); 
 	 }
 	 else{
+	   emf = em + 6;
 	   IBL3D->Fill(em-2,pm); 
 	 }
+	 IBL->Fill(emf,pm);
+    if(copy) IBL->Fill(emf+1, pm);
        }
      }
 }   
@@ -97,9 +114,18 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    const int nmod = 13;
    const int nmodIBL2D = 12;
    const int nmodIBL3D = 8;
+   const int nmodIBL = 32;
    const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
    const char *modIBL2D[nmodIBL2D] = { "M3_C6", "M3_C5", "M2_C4", "M1_C3", "M1_C2", "M1_C1", "M1_A1", "M1_A2", "M2_A3", "M2_A4", "M3_A5", "M3_A6" } ;
    const char *modIBL3D[nmodIBL3D] = {"M4_C8_2","M4_C8_1","M4_C7_2","M4_C7_1","M4_A7_1","M4_A7_2","M4_A8_1","M4_A8_2"};
+   const char *modIBL[nmodIBL] = {"C8","","C7","",
+				  "C6","","C5","",
+				  "C4","","C3","",
+				  "C2","","C1","",
+				  "A1","","A2","",
+				  "A3","","A4","",
+				  "A5","","A6","",
+				  "A7","","A8",""};
    const int nstaveb = 14;
    const char *staveb[nstaveb] = {
      "S01", "S02", "S03", "S04", "S05", "S06","S07",
@@ -166,6 +192,14 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
    if(doIBL && !errorHist){
+     for (int i=0; i<nmodIBL; i++)
+       {
+         IBL->GetXaxis()->SetBinLabel( i+1, modIBL[i] );
+       }
+     for (int i=0; i<nstaveb; i++)
+     {
+        IBL->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+     }
      for (int i=0; i<nmodIBL2D; i++)
        {
 	 IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
@@ -198,10 +232,13 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    }
 
    if(doIBL && !errorHist){
+     IBL->GetYaxis()->SetLabelSize(0.03);
      IBL2D->GetYaxis()->SetLabelSize(0.03);
      IBL3D->GetYaxis()->SetLabelSize(0.03);
+     IBL->SetOption("colz");
      IBL2D->SetOption("colz");
      IBL3D->SetOption("colz");
+     IBL->SetMinimum(0.);
      IBL2D->SetMinimum(0.);
      IBL3D->SetMinimum(0.);
    }
@@ -246,6 +283,7 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
 StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist)
 {
   if(doIBL && !errorHist){
+    sc = group.regHist(IBL);
     sc = group.regHist(IBL2D);
     sc = group.regHist(IBL3D);
   }

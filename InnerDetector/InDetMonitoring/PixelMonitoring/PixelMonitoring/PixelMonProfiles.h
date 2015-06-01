@@ -24,6 +24,7 @@ class PixelMonProfiles
       ~PixelMonProfiles();
       TProfile2D* IBL2D;
       TProfile2D* IBL3D;
+      TProfile2D* IBL;
       TProfile2D* B0;
       TProfile2D* B1;
       TProfile2D* B2;

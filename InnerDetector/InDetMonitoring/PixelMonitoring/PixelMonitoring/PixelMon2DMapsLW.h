@@ -24,6 +24,7 @@ class PixelMon2DMapsLW
    public:
   PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist);
       ~PixelMon2DMapsLW();
+      TH2F_LW* IBL;
       TH2F_LW* IBL2D;
       TH2F_LW* IBL3D;
       TH2F_LW* B0;

@@ -139,6 +139,14 @@ class PixelMainMon:public ManagedMonitorToolBase
       int m_LBstartTime;
       int m_LBendTime;
       int m_runNum;
+      int m_nGood_IBL2D;
+      int m_nGood_IBL3D;
+      int m_nGood_B0;
+      int m_nGood_B1;
+      int m_nGood_B2;
+      int m_nGood_ECC;
+      int m_nGood_ECA;
+
       const AtlasDetectorID* m_idHelper;      
 
       std::vector<Identifier> m_RDOIDs;                  ///////Make class scope 
@@ -214,8 +222,18 @@ class PixelMainMon:public ManagedMonitorToolBase
       TProfile_LW*          m_hits_per_lumi_B0;
       TProfile_LW*          m_hits_per_lumi_B1;
       TProfile_LW*          m_hits_per_lumi_B2;         
+
+      TProfile_LW*          m_avgocc_per_lumi;
+      TProfile_LW*          m_avgocc_per_lumi_ECA;
+      TProfile_LW*          m_avgocc_per_lumi_ECC;
+      TProfile_LW*          m_avgocc_per_lumi_IBL;
+      TProfile_LW*          m_avgocc_per_lumi_B0;
+      TProfile_LW*          m_avgocc_per_lumi_B1;
+      TProfile_LW*          m_avgocc_per_lumi_B2;         
+
       TH1F_LW*              m_hit_ToT_ECA;
       TH1F_LW*              m_hit_ToT_ECC;
+      TH1F_LW*              m_hit_ToT_IBL;
       TH1F_LW*              m_hit_ToT_IBL2D;
       TH1F_LW*              m_hit_ToT_IBL3D;
       TH1F_LW*              m_hit_ToT_B0;
@@ -266,6 +284,7 @@ class PixelMainMon:public ManagedMonitorToolBase
       PixelMon2DMaps*       m_occupancy;
       DBMMon2DMaps*         m_occupancyDBM;
       PixelMon2DMaps*       m_average_occupancy;
+      PixelMon2DMaps*       m_average_pixocc;
       PixelMonModules1D*    m_FE_chip_hit_summary;
       TH1F_LW*              m_ecA_occupancy_summary_low;    
       TH1F_LW*              m_ecC_occupancy_summary_low;    
@@ -566,37 +585,45 @@ class PixelMainMon:public ManagedMonitorToolBase
       //ROD Error histograms
       TH1F_LW*              m_error1;            
       TH1F_LW*              m_errorTypes;        
+      TProfile_LW*          m_errors_per_lumi_IBL;
       TProfile_LW*          m_errors_per_lumi_PIX;
       TProfile_LW*          m_errors_per_lumi_ECA;
       TProfile_LW*          m_errors_per_lumi_ECC;
-      TProfile_LW*          m_errors_per_lumi_IBL;
       TProfile_LW*          m_errors_per_lumi_B0;
       TProfile_LW*          m_errors_per_lumi_B1;
       TProfile_LW*          m_errors_per_lumi_B2;   
+      TProfile_LW*          m_Errors_per_lumi_IBL[32]; 
+      TProfile_LW*          m_otherROD_per_lumi_IBL; 
+      TProfile_LW*          m_chip_per_lumi_IBL; 
+      TProfile_LW*          m_SyncErrors_per_lumi_IBL; 
       TProfile_LW*          m_SyncErrors_per_lumi_PIX; 
       TProfile_LW*          m_SyncErrors_per_lumi_ECA; 
       TProfile_LW*          m_SyncErrors_per_lumi_ECC; 
       TProfile_LW*          m_SyncErrors_per_lumi_B0; 
       TProfile_LW*          m_SyncErrors_per_lumi_B1; 
       TProfile_LW*          m_SyncErrors_per_lumi_B2; 
+      TProfile_LW*          m_OpticalErrors_per_lumi_IBL; 
       TProfile_LW*          m_OpticalErrors_per_lumi_PIX; 
       TProfile_LW*          m_OpticalErrors_per_lumi_ECA; 
       TProfile_LW*          m_OpticalErrors_per_lumi_ECC; 
       TProfile_LW*          m_OpticalErrors_per_lumi_B0; 
       TProfile_LW*          m_OpticalErrors_per_lumi_B1; 
       TProfile_LW*          m_OpticalErrors_per_lumi_B2; 
+      TProfile_LW*          m_SEU_Errors_per_lumi_IBL; 
       TProfile_LW*          m_SEU_Errors_per_lumi_PIX; 
       TProfile_LW*          m_SEU_Errors_per_lumi_ECA; 
       TProfile_LW*          m_SEU_Errors_per_lumi_ECC; 
       TProfile_LW*          m_SEU_Errors_per_lumi_B0; 
       TProfile_LW*          m_SEU_Errors_per_lumi_B1; 
       TProfile_LW*          m_SEU_Errors_per_lumi_B2; 
+      TProfile_LW*          m_TruncationErrors_per_lumi_IBL; 
       TProfile_LW*          m_TruncationErrors_per_lumi_PIX; 
       TProfile_LW*          m_TruncationErrors_per_lumi_ECA; 
       TProfile_LW*          m_TruncationErrors_per_lumi_ECC; 
       TProfile_LW*          m_TruncationErrors_per_lumi_B0; 
       TProfile_LW*          m_TruncationErrors_per_lumi_B1; 
       TProfile_LW*          m_TruncationErrors_per_lumi_B2; 
+      TProfile_LW*          m_TimeoutErrors_per_lumi_IBL; 
       TProfile_LW*          m_TimeoutErrors_per_lumi_PIX; 
       TProfile_LW*          m_TimeoutErrors_per_lumi_ECA; 
       TProfile_LW*          m_TimeoutErrors_per_lumi_ECC; 
@@ -608,10 +635,12 @@ class PixelMainMon:public ManagedMonitorToolBase
       TProfile*             m_error_time3;       
       PixelMonModules1D*    m_errors;
       PixelMon2DMapsLW*       m_IBLModErrors;
-      PixelMon2DMapsLW*       m_IBLRODErrors;
+      PixelMon2DMapsLW*       m_IBLSyncErrors;
+      PixelMon2DMapsLW*       m_IBLotherRODErrors;
       PixelMon2DMapsLW*       m_OpticalErrors;
       PixelMon2DMapsLW*       m_SEU_Errors;
       PixelMon2DMapsLW*       m_TimeoutErrors;
+      TH2F_LW*                m_SyncErrorsIBL; 
       PixelMon2DMapsLW*       m_SyncErrors;  //to be removed ?
       PixelMon2DMapsLW*       m_TruncationErrors;  //to be removed ?
       PixelMon2DMapsLW*       m_SyncErrors_mod;
@@ -731,13 +760,14 @@ class PixelMainMon:public ManagedMonitorToolBase
       TProfile_LW*          m_FEwarning_per_lumi_B1;
       TProfile_LW*          m_FEwarning_per_lumi_B2;
       TH1I_LW*              m_bad_mod_errors_PIX;
+      TH1I_LW*              m_bad_mod_errors_IBL;
       TH1I_LW*              m_bad_mod_errors_ECA;
       TH1I_LW*              m_bad_mod_errors_ECC;
-      TH1I_LW*              m_mod_errors_IBL;
-      TH1I_LW*              m_ROD_errors_IBL;
       TH1I_LW*              m_bad_mod_errors_B0;
       TH1I_LW*              m_bad_mod_errors_B1;
       TH1I_LW*              m_bad_mod_errors_B2;
+      TH1I_LW*              m_mod_errors_IBL;
+      TH1I_LW*              m_ROD_errors_IBL;
       
       PixelMon2DLumiProfiles*    m_sync_mod_BCID1_per_LB;
       PixelMon2DLumiMaps*        m_sync_mod_BCID1_int_LB;

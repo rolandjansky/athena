@@ -8,6 +8,7 @@
 
 #include "PixelMonitoring/PixelMainMon.h"
 #include "InDetRawData/InDetTimeCollection.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 //#include "TrkSpacePoint/SpacePointContainer.h"
 //#include "InDetPrepRawData/PixelClusterContainer.h"         
 //#include "TrkParameters/MeasuredAtaPlane.h"
@@ -68,10 +69,19 @@ StatusCode PixelMainMon::BookHitsMon(void)
    sc = rdoExpert.regHist(m_hits_per_lumi_B0  = TProfile_LW::create("Hits_per_lumi_B0", ("Number of pixel hits per event per LB, barrel layer 0" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    sc = rdoExpert.regHist(m_hits_per_lumi_B1  = TProfile_LW::create("Hits_per_lumi_B1", ("Number of pixel hits per event per LB, barrel layer 1" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    sc = rdoExpert.regHist(m_hits_per_lumi_B2  = TProfile_LW::create("Hits_per_lumi_B2", ("Number of pixel hits per event per LB, barrel layer 2" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
+
+   if(m_doIBL){sc = rdoExpert.regHist(m_avgocc_per_lumi_IBL  = TProfile_LW::create("AvgOcc_per_lumi_IBL", ("Average pixel occupancy per event per LB, IBL" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));}
+   sc = rdoShift.regHist(m_avgocc_per_lumi      = TProfile_LW::create("AvgOcc_per_lumi",    ("Average pixel occupancy per event per LB" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
+   sc = rdoExpert.regHist(m_avgocc_per_lumi_ECA = TProfile_LW::create("AvgOcc_per_lumi_ECA",("Average pixel occupancy per event per LB, endcap A" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
+   sc = rdoExpert.regHist(m_avgocc_per_lumi_ECC = TProfile_LW::create("AvgOcc_per_lumi_ECC",("Average pixel occupancy per event per LB, endcap C" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
+   sc = rdoExpert.regHist(m_avgocc_per_lumi_B0  = TProfile_LW::create("AvgOcc_per_lumi_B0", ("Average pixel occupancy per event per LB, barrel layer 0" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
+   sc = rdoExpert.regHist(m_avgocc_per_lumi_B1  = TProfile_LW::create("AvgOcc_per_lumi_B1", ("Average pixel occupancy per event per LB, barrel layer 1" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
+   sc = rdoExpert.regHist(m_avgocc_per_lumi_B2  = TProfile_LW::create("AvgOcc_per_lumi_B2", ("Average pixel occupancy per event per LB, barrel layer 2" + m_histTitleExt + ";lumi block;(average occupancy)/event").c_str(),2500,-0.5,2499.5));
    
    sc = rdoExpert.regHist(m_hit_ToT_ECA    = TH1F_LW::create("Hit_ToT_ECA",("Hit ToT: endcap A" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
    sc = rdoExpert.regHist(m_hit_ToT_ECC    = TH1F_LW::create("Hit_ToT_ECC",("Hit ToT: endcap C" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
    if(m_doIBL){
+     sc = rdoExpert.regHist(m_hit_ToT_IBL       = TH1F_LW::create("Hit_ToT_IBL"  , ("Hit ToT: IBL" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
      sc = rdoExpert.regHist(m_hit_ToT_IBL2D     = TH1F_LW::create("Hit_ToT_IBL2D", ("Hit ToT: IBL planar modules" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
      sc = rdoExpert.regHist(m_hit_ToT_IBL3D     = TH1F_LW::create("Hit_ToT_IBL3D", ("Hit ToT: IBL 3D modules" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
    }
@@ -138,6 +148,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
    {
      m_occupancy = new PixelMon2DMaps("Occupancy", ("hit occupancy" + m_histTitleExt).c_str());
      sc = m_occupancy->regHist(rdoShift);
+     m_average_pixocc = new PixelMon2DMaps("Average_PixOcc", ("average pixel occupancy" + m_histTitleExt).c_str());
+     sc = m_average_pixocc->regHist(rdoShift);
      m_average_occupancy = new PixelMon2DMaps("Average_Occupancy", ("average hit occupancy" + m_histTitleExt).c_str());
      sc = m_average_occupancy->regHist(rdoShift);
      m_occupancyDBM = new DBMMon2DMaps("OccupancyDBM", ("hit occupancy DBM" + m_histTitleExt).c_str());
@@ -275,14 +287,14 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   if(newLumiBlock && m_mu_vs_lumi){
     if(m_lumiTool){
       float mu = m_lumiTool->lbAverageInteractionsPerCrossing();
-      m_mu_vs_lumi->Fill(m_lumiBlockNum,mu);
+      m_mu_vs_lumi->Fill(m_manager->lumiBlockNumber(),mu);
     }
     else{
       msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endreq;
     }
   }
-  
-    //  m_mu_LB->Fill(m_lumiBlockNum,managed->lbAverageInteractionsPerCrossing();
+
+     //  m_mu_LB->Fill(m_manager->lumiBlockNumber(),managed->lbAverageInteractionsPerCrossing();
 
   // get ROD BCID
    const InDetTimeCollection *Pixel_BCIDColl = 0;  
@@ -370,14 +382,22 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	 }
      }//end doModules
 
-   int nhits=0;
-   int nhits_ECA=0;
-   int nhits_ECC=0;
-   int nhits_IBL=0;
-   int nhits_B0=0;
-   int nhits_B1=0;
-   int nhits_B2=0;
+   double nhits=0;
+   double nhits_ECA=0;
+   double nhits_ECC=0;
+   double nhits_IBL=0;
+   double nhits_B0=0;
+   double nhits_B1=0;
+   double nhits_B2=0;
    Identifier rdoID;
+
+   double nactivechannels_ECA = 46080*m_nGood_ECA;
+   double nactivechannels_ECC = 46080*m_nGood_ECC;
+   double nactivechannels_IBL = 26880*m_nGood_IBL3D+26880*2*m_nGood_IBL2D;
+   double nactivechannels_B0 = 46080*m_nGood_B0;
+   double nactivechannels_B1 = 46080*m_nGood_B1;
+   double nactivechannels_B2 = 46080*m_nGood_B2;
+   double nactivechannels = nactivechannels_ECA+nactivechannels_ECC+nactivechannels_IBL+nactivechannels_B0+nactivechannels_B1+nactivechannels_B2;
 
    // retrieve Pixel RDO container from storegate
    sc=evtStore()->retrieve(m_rdocontainer,m_Pixel_RDOName);
@@ -421,7 +441,10 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	 if(m_occupancy) m_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
 	 if(m_occupancyDBM && m_doIBL) m_occupancyDBM->Fill(rdoID, m_pixelid);
          if(m_average_occupancy) m_average_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
-   
+         if(m_average_pixocc){
+	   m_average_pixocc->Fill(rdoID, m_pixelid, m_doIBL);
+	 }
+
 	 if(m_Lvl1A){ 
 	   m_Lvl1A->Fill((*p_rdo)->getLVL1A());                  
 	   if(m_pixelid->barrel_ec(rdoID)==2) m_Lvl1A_ECA->Fill((*p_rdo)->getLVL1A()); 
@@ -434,7 +457,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	   } 
 	 } 
 
-	 if(isIBL && m_Lvl1ID_IBL) m_Lvl1ID_IBL->Fill((*p_rdo)->getLVL1ID());
+	 if(isIBL && m_Lvl1ID_IBL) m_Lvl1ID_IBL->Fill((*p_rdo)->getLVL1ID()%32);
 	 if(!isIBL && m_Lvl1ID_PIX) m_Lvl1ID_PIX->Fill((*p_rdo)->getLVL1ID());
 
          const EventInfo* thisEventInfo;
@@ -445,8 +468,10 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          {
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
          }else{        
-	   int difflvl1id = (int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID());
-	   	   
+	   int lvl1idMOD = (int)(*p_rdo)->getLVL1ID();
+	   int lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf);
+	   int difflvl1id = lvl1idATLAS - lvl1idMOD%32;
+	   
 	   if(m_Lvl1ID_diff_mod_ATLAS_ECA && m_pixelid->barrel_ec(rdoID)==2) m_Lvl1ID_diff_mod_ATLAS_ECA->Fill(difflvl1id); 
 	   if(m_Lvl1ID_diff_mod_ATLAS_ECC && m_pixelid->barrel_ec(rdoID)==-2) m_Lvl1ID_diff_mod_ATLAS_ECC->Fill(difflvl1id); 
 	   if (m_pixelid->barrel_ec(rdoID)==0) { 
@@ -457,8 +482,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	   } 
 	   
 	   //	   int lvl1id = (thisEventInfo->trigger_info()->extendedLevel1ID())&0xf;
-	   if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_lumiBlockNum,rdoID,m_pixelid,(int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID()),m_doIBL,false);
-	   if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_lumiBlockNum,rdoID,m_pixelid,fabs((int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID())),m_doIBL,false);
+	   if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,difflvl1id,m_doIBL,false);
+	   if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,fabs(difflvl1id),m_doIBL,false);
          }
          
          if(m_BCID) m_BCID->Fill((*p_rdo)->getBCID());
@@ -505,16 +530,17 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 
 	 if(m_hiteff_mod){
 	   if(OnTrack(rdoID,false)){
-	     m_hiteff_mod->Fill(m_lumiBlockNum,1.,rdoID,m_pixelid,m_doIBL);
+	     m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),1.,rdoID,m_pixelid,m_doIBL);
 	   }
 	   else{
-	     m_hiteff_mod->Fill(m_lumiBlockNum,0.,rdoID,m_pixelid,m_doIBL);
+	     m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),0.,rdoID,m_pixelid,m_doIBL);
 	   }
 	 }
 	    
 	 if(m_pixelid->barrel_ec(rdoID)==2) m_hit_ToT_ECA->Fill((*p_rdo)->getToT());
 	 if(m_pixelid->barrel_ec(rdoID)==-2) m_hit_ToT_ECC->Fill((*p_rdo)->getToT());
 	 if (m_pixelid->barrel_ec(rdoID)==0) {
+	   if(m_doIBL && m_hit_ToT_IBL && m_pixelid->layer_disk(rdoID)==0) m_hit_ToT_IBL->Fill((*p_rdo)->getToT()); //added
 	   if(m_doIBL && m_hit_ToT_IBL2D && m_pixelid->layer_disk(rdoID)==0 && m_pixelid->eta_module(rdoID)<6 && m_pixelid->eta_module(rdoID)>-7) m_hit_ToT_IBL2D->Fill((*p_rdo)->getToT());
 	   if(m_doIBL && m_hit_ToT_IBL3D && m_pixelid->layer_disk(rdoID)==0 && !(m_pixelid->eta_module(rdoID)<6 && m_pixelid->eta_module(rdoID)>-7)) m_hit_ToT_IBL3D->Fill((*p_rdo)->getToT());
 	   if(m_hit_ToT_B0 && m_pixelid->layer_disk(rdoID)==0+m_doIBL) m_hit_ToT_B0->Fill((*p_rdo)->getToT());
@@ -589,14 +615,37 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
        FillSummaryHistos(m_occupancy,m_ecA_occupancy_summary_low,m_ecC_occupancy_summary_low,m_bar_layI_occupancy_summary_low,m_bar_lay0_occupancy_summary_low,m_bar_lay1_occupancy_summary_low,m_bar_lay2_occupancy_summary_low);
      }//end of doOnline loop processing                                  
    
+   if(m_hits_per_lumi)    m_hits_per_lumi->Fill(m_manager->lumiBlockNumber(),nhits);     
+   if(m_hits_per_lumi_ECA)m_hits_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nhits_ECA);
+   if(m_hits_per_lumi_ECC)m_hits_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nhits_ECC);
+   if(m_hits_per_lumi_IBL) m_hits_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nhits_IBL);
+   if(m_hits_per_lumi_B0) m_hits_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nhits_B0);
+   if(m_hits_per_lumi_B1) m_hits_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nhits_B1);
+   if(m_hits_per_lumi_B2) m_hits_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nhits_B2);
 
-   if(m_hits_per_lumi)    m_hits_per_lumi->Fill(m_lumiBlockNum,nhits);     
-   if(m_hits_per_lumi_ECA)m_hits_per_lumi_ECA->Fill(m_lumiBlockNum,nhits_ECA);
-   if(m_hits_per_lumi_ECC)m_hits_per_lumi_ECC->Fill(m_lumiBlockNum,nhits_ECC);
-   if(m_hits_per_lumi_IBL) m_hits_per_lumi_IBL->Fill(m_lumiBlockNum,nhits_IBL);
-   if(m_hits_per_lumi_B0) m_hits_per_lumi_B0->Fill(m_lumiBlockNum,nhits_B0);
-   if(m_hits_per_lumi_B1) m_hits_per_lumi_B1->Fill(m_lumiBlockNum,nhits_B1);
-   if(m_hits_per_lumi_B2) m_hits_per_lumi_B2->Fill(m_lumiBlockNum,nhits_B2);
+   double avgocc = 0;
+   double avgocc_ECA= 0; 
+   double avgocc_ECC= 0;
+   double avgocc_IBL= 0;
+   double avgocc_B0= 0;
+   double avgocc_B1= 0;
+   double avgocc_B2= 0;
+  
+   if(nactivechannels>0)   avgocc = nhits/nactivechannels;
+   if(nactivechannels_ECA>0)   avgocc_ECA= nhits_ECA/nactivechannels_ECA;
+   if(nactivechannels_ECC>0)   avgocc_ECC= nhits_ECC/nactivechannels_ECC;
+   if(nactivechannels_IBL>0)   avgocc_IBL= nhits_IBL/nactivechannels_IBL;
+   if(nactivechannels_B0>0)   avgocc_B0= nhits_B0/nactivechannels_B0;
+   if(nactivechannels_B1>0)   avgocc_B1= nhits_B1/nactivechannels_B1;
+   if(nactivechannels_B2>0)   avgocc_B2= nhits_B2/nactivechannels_B2;
+
+   if(m_avgocc_per_lumi)    m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(),avgocc);     
+   if(m_avgocc_per_lumi_ECA)m_avgocc_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),avgocc_ECA);
+   if(m_avgocc_per_lumi_ECC)m_avgocc_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),avgocc_ECC);
+   if(m_avgocc_per_lumi_IBL) m_avgocc_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),avgocc_IBL);
+   if(m_avgocc_per_lumi_B0) m_avgocc_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),avgocc_B0);
+   if(m_avgocc_per_lumi_B1) m_avgocc_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),avgocc_B1);
+   if(m_avgocc_per_lumi_B2) m_avgocc_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),avgocc_B2);
 
    if(m_occupancy_time1&&m_occupancy_time2&&m_occupancy_time3) FillTimeHisto(double(nhits/(1744.0+280*m_doIBL)),m_occupancy_time1, m_occupancy_time2, m_occupancy_time3,10.,60.,360. );
 
@@ -710,6 +759,11 @@ StatusCode PixelMainMon::ProcHitsMon(void)
    if(m_average_occupancy) {  //scale to get average occupancies
      m_average_occupancy->Scale(events);  
    }
+   if(m_average_pixocc) {  
+     m_average_pixocc->ScaleByNChannels(m_nGood_IBL2D, m_nGood_IBL3D, m_nGood_B0, m_nGood_B1, m_nGood_B2, m_nGood_ECA, m_nGood_ECC);
+     m_average_pixocc->Scale(events);  
+   }
+
   return StatusCode::SUCCESS;
 }
 

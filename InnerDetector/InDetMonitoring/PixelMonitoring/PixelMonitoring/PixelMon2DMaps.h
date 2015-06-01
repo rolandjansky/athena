@@ -26,6 +26,7 @@ class PixelMon2DMaps
       ~PixelMon2DMaps();
       TH2F* IBL2D;
       TH2F* IBL3D;
+      TH2F* IBL;
       TH2F* B0;
       TH2F* B1;
       TH2F* B2;
@@ -33,6 +34,7 @@ class PixelMon2DMaps
       TH2F* C;
       void Fill(Identifier &id, const PixelID* pixID, bool doIBL);
       void Scale(double number);
+      void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       StatusCode sc;

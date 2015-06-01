@@ -129,6 +129,15 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_hits_per_lumi_B0 = 0;
    m_hits_per_lumi_B1 = 0;
    m_hits_per_lumi_B2 = 0;         
+
+   m_avgocc_per_lumi = 0;
+   m_avgocc_per_lumi_ECA = 0;
+   m_avgocc_per_lumi_ECC = 0;
+   m_avgocc_per_lumi_IBL = 0;
+   m_avgocc_per_lumi_B0 = 0;
+   m_avgocc_per_lumi_B1 = 0;
+   m_avgocc_per_lumi_B2 = 0;         
+
    m_hit_ToT_ECA = 0;
    m_hit_ToT_ECC = 0;
    m_hit_ToT_IBL2D = 0;
@@ -181,6 +190,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_occupancy = 0;
    m_occupancyDBM = 0;
    m_average_occupancy = 0;
+   m_average_pixocc = 0;
    m_FE_chip_hit_summary = 0;
    m_ecA_occupancy_summary_low = 0;    
    m_ecC_occupancy_summary_low = 0;    
@@ -457,6 +467,9 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_errors_per_lumi_B0 = 0;
    m_errors_per_lumi_B1 = 0;
    m_errors_per_lumi_B2 = 0;   
+   m_SyncErrors_per_lumi_IBL = 0; 
+   m_otherROD_per_lumi_IBL = 0; 
+   m_chip_per_lumi_IBL = 0; 
    m_SyncErrors_per_lumi_PIX = 0; 
    m_SyncErrors_per_lumi_ECA = 0; 
    m_SyncErrors_per_lumi_ECC = 0; 
@@ -492,10 +505,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time3 = 0;       
    m_errors = 0;
    m_IBLModErrors = 0; 
-   m_IBLRODErrors = 0; 
+   m_IBLSyncErrors = 0; 
+   m_IBLotherRODErrors = 0; 
    m_OpticalErrors = 0;
    m_SEU_Errors = 0;
    m_TimeoutErrors = 0;
+   m_SyncErrorsIBL = 0; 
    m_SyncErrors = 0; 
    m_TruncationErrors = 0;
    m_SyncErrors_mod = 0;
@@ -619,6 +634,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_bad_mod_errors_ECC = 0;
    m_mod_errors_IBL = 0;
    m_ROD_errors_IBL = 0;
+   m_bad_mod_errors_IBL = 0;
    m_bad_mod_errors_B0 = 0;
    m_bad_mod_errors_B1 = 0;
    m_bad_mod_errors_B2 = 0;
@@ -691,6 +707,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Pixel_clcontainer =0;
    m_Pixel_spcontainer =0;
    m_tracks =0;
+
+   m_nGood_ECA=0;
+   m_nGood_ECC=0;
+   m_nGood_IBL2D=0;
+   m_nGood_IBL3D=0;
+   m_nGood_B0=0;
+   m_nGood_B1=0;
+   m_nGood_B2=0;
 }
    
 PixelMainMon::~PixelMainMon()
@@ -711,7 +735,8 @@ StatusCode PixelMainMon::initialize()
       return StatusCode::FAILURE;
    }
 
-   // Get the dictionary manager from the detector store                                                                                                          
+   // Get the dictionary manager from the detector store
+
    sc = detStore()->retrieve(m_idHelper, "AtlasID");
    if (sc.isFailure()) {
      msg(MSG::ERROR) << "Could not get ID helper !" << endreq;
@@ -792,6 +817,7 @@ StatusCode PixelMainMon::bookHistograms()
    }
    else {
      m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
+
      if(m_doOnline){
        m_runNum = thisEventInfo->event_ID()->run_number();
        std::stringstream m_runNumStr;
@@ -927,7 +953,6 @@ StatusCode PixelMainMon::bookHistograms()
 StatusCode PixelMainMon::fillHistograms() //get called twice per event 
 {
    //Get required services, we want to repeat as little as possible in the function calls
-
    // Part 1: Get the messaging service, print where you are                
 
    m_event++;       
@@ -943,6 +968,46 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
 
    }
 
+   PixelID::const_id_iterator idIt       = m_pixelid->wafer_begin();
+   PixelID::const_id_iterator idItEnd    = m_pixelid->wafer_end();
+
+   m_nGood_ECA=0;
+   m_nGood_ECC=0;
+   m_nGood_IBL2D=0;
+   m_nGood_IBL3D=0;
+   m_nGood_B0=0;
+   m_nGood_B1=0;
+   m_nGood_B2=0;
+
+   for (; idIt != idItEnd; ++idIt)
+     {
+       Identifier WaferID = *idIt;
+       IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
+
+       int Index;
+       if(m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true ) {Index=0;}
+       else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {Index=2;}
+       else {Index=1;}
+       
+       if(Index==0){
+	 int em  = m_pixelid->eta_module(WaferID);
+	 if(m_pixelid->barrel_ec(WaferID)==2)  m_nGood_ECA++;
+	 if(m_pixelid->barrel_ec(WaferID)==-2) m_nGood_ECC++;
+	 if (m_pixelid->barrel_ec(WaferID)==0) {
+	   if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL){
+	     if(em<6 && em>-7){
+	       m_nGood_IBL2D++;
+	     }
+	     else{
+	       m_nGood_IBL3D++;
+	     }
+	   }
+	   if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_nGood_B0++;
+	   if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_nGood_B1++;
+	   if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_nGood_B2++;
+	 }
+       }
+     }
    ////////////////////////////////////////////////////////////////
    //fill methods go here
 
