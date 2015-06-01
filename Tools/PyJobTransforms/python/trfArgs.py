@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 666495 2015-05-12 11:29:59Z lerrenst $
+#  @version $Id: trfArgs.py 671521 2015-06-01 20:13:43Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -398,8 +398,13 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_SUSYTRUTH', substeps=['a2d'], treeNames=['truth']))
     extraDPDs.append(dpdType('NTUP_HIGHMULT', substeps=['e2a'], treeNames=['MinBiasTree']))
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
-    
-    if not NTUPOnly:
+
+    # Trigger NTUPs (for merging only!)
+    if NTUPOnly:
+        extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGEBWGHT', treeNames=['trig_cost']))
+    else:
         extraDPDs.append(dpdType('DAOD_HSG2'))
         extraDPDs.append(dpdType('DESDM_ZMUMU'))
 
@@ -416,7 +421,7 @@ def getExtraDPDList(NTUPOnly = False):
 def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMergerArgs = False):
     parser.defineArgGroup('Additional DPDs', 'Extra DPD file types')
     
-    extraDPDs = getExtraDPDList()
+    extraDPDs = getExtraDPDList(NTUPOnly=NTUPMergerArgs)
     
     if NTUPMergerArgs:
         for dpd in extraDPDs:
@@ -457,13 +462,6 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
 
 def addFileValidationArguments(parser):
     parser.defineArgGroup('File Validation', 'Standard file validation switches')
-    parser.add_argument('--skipFileValidation', '--omitFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --fileValidation BOOL instead')
-    parser.add_argument('--skipInputFileValidation', '--omitInputFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --inputFileValidation BOOL instead')
-    parser.add_argument('--skipOutputFileValidation', '--omitOutputFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --outputFileValidation BOOL instead')
-
     parser.add_argument('--fileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
                         group='File Validation', help='If FALSE skip both input and output file validation (default TRUE; warning - do not use this option in production jobs!)')
     parser.add_argument('--inputFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',

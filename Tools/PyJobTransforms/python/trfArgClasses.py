@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 668503 2015-05-19 19:16:29Z graemes $
+# @version $Id: trfArgClasses.py 670822 2015-05-29 09:20:49Z graemes $
 
 import argparse
 import bz2
@@ -680,7 +680,9 @@ class argFile(argList):
                             newValue.extend(globbedNames)
                     else:
                         # Simple case
-                        newValue.extend(glob.glob(filename))
+                        globbedFiles = glob.glob(filename)
+                        globbedFiles.sort()
+                        newValue.extend(globbedFiles)
                 if len(self._value) > 0 and len(newValue) is 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
