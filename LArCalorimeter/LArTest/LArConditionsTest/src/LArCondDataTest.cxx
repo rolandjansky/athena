@@ -17,7 +17,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArCabling/LArCablingService.h" 
+#include "LArTools/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -252,17 +252,17 @@ StatusCode LArCondDataTest::execute()
 		} else 
 		{
                   if (msgLvl(MSG::VERBOSE)) {
-                    msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endmsg;
+                    msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
                     msg()<<MSG::VERBOSE<<" Shape= " ;
                     for (unsigned int i=0; i < vShape.size(); ++i){
                       msg()<<" " << vShape[i] ; 
                     }
-                    msg()<<endmsg;
+                    msg()<<endreq;
                     msg()<<MSG::VERBOSE<<" ShapeDer=" ;
                     for (unsigned int i=0; i < vShapeDer.size(); ++i){
                       msg()<<" " << vShapeDer[i] ; 
                     }
-                    msg()<<endmsg;
+                    msg()<<endreq;
                   }
 		}
 

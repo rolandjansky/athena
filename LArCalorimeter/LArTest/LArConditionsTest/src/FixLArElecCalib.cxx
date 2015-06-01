@@ -63,7 +63,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h" 
+#include "LArTools/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -215,9 +215,8 @@ StatusCode FixLArElecCalib::fix1() {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-            // Removed disconnected channels: 03/2016 RDS   
-         //  ATH_MSG_DEBUG(" disconnected strip ");
- 	 // id = em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+          ATH_MSG_DEBUG(" disconnected strip ");
+ 	 id = em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -600,9 +599,8 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-            // Removed disconnected channels: 03/2016 RDS   
-         //  ATH_MSG_INFO(" disconnected strip ");
- 	 // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+          ATH_MSG_INFO(" disconnected strip ");
+ 	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -674,9 +672,8 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-            // Removed disconnected channels: 03/2016 RDS   
-         //  ATH_MSG_DEBUG(" disconnected strip ");
- 	 // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+          ATH_MSG_DEBUG(" disconnected strip ");
+ 	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -816,7 +813,7 @@ StatusCode FixLArElecCalib::fix5() {
        }
        
        int mod,phi,eta;
-       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
          ATH_MSG_DEBUG(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
@@ -871,11 +868,11 @@ StatusCode FixLArElecCalib::fix5() {
 	  int phi2 = m_fcal_idhelper->phi(id);
 
 	  HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
-	  log<<MSG::INFO<<" mod, phi,eta"<<module<<" "<<phi2<<" "<<eta2<<endmsg;
+	  log<<MSG::INFO<<" mod, phi,eta"<<module<<" "<<phi2<<" "<<eta2<<endreq;
 	  ++n2;
 
 	}
-     log<<MSG::INFO<<" number of channels in idhelper ="<<n2<<endmsg;
+     log<<MSG::INFO<<" number of channels in idhelper ="<<n2<<endreq;
 
      */
 
@@ -921,9 +918,8 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-            // Removed disconnected channels: 03/2016 RDS   
-           // ATH_MSG_INFO(" disconnected strip ");
-	   // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+           ATH_MSG_INFO(" disconnected strip ");
+	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
 	  {
 	    if (tp==1){
@@ -1061,7 +1057,7 @@ StatusCode FixLArElecCalib::fix6() {
        }
 
        int mod,phi,eta;
-       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
           ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
@@ -1227,9 +1223,8 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 	{
 	  if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-            // Removed disconnected channels: 03/2016 RDS   
-           // ATH_MSG_DEBUG(" disconnected strip ");
-	   // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+           ATH_MSG_DEBUG(" disconnected strip ");
+	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
 	  }else
 	    id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 	}else //HEC
@@ -1275,7 +1270,7 @@ void FixLArElecCalib::print_object(const std::string& s, const LArAutoCorrMC::LA
       msg()<<MSG::DEBUG<<" LArAutoCorrMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vAutoCorr.size();++i)
 	msg()<< " " << obj.m_vAutoCorr[i];
-      msg()<<endmsg; 
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1305,7 +1300,7 @@ void FixLArElecCalib::print_object(const std::string& s, const LArRampMC::LArCon
       msg()<<MSG::DEBUG<<" LArRampMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vRamp.size();++i)
 	msg()<< " " << obj.m_vRamp[i];
-      msg()<<endmsg; 
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1334,12 +1329,12 @@ void FixLArElecCalib::print_object(const std::string& s, const LArShape32MC::LAr
       msg()<<MSG::DEBUG<<" LArShape" << s ;
       for (unsigned int i =0 ; i<obj.m_vShape.size();++i)
 	msg()<< " " << obj.m_vShape[i];
-      msg()<<endmsg; 
+      msg()<<endreq; 
 
       msg()<<MSG::DEBUG<<" LArShapeDer" << s ;
       for (unsigned int i =0 ; i<obj.m_vShapeDer.size();++i)
 	msg()<< " " << obj.m_vShapeDer[i];
-      msg()<<endmsg; 
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1444,7 +1439,7 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
        }
 
        int mod,phi,eta;
-       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
           ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
@@ -1995,10 +1990,6 @@ StatusCode FixLArElecCalib::fix13() {
     blobOnOff.resize(onlHashMax*sizeof(uint32_t));
     uint32_t* pBlobOnOff=static_cast<uint32_t*>(blobOnOff.startingAddress());
     unsigned nConn=0;
-
-    spec_onOff->release();
-    // cppcheck-suppress memleak
-    spec_onOff = nullptr;
 
     const uint32_t emptyId=Identifier().get_identifier32().get_compact();
     for(size_t ii=0;ii<onlHashMax;ii++) {

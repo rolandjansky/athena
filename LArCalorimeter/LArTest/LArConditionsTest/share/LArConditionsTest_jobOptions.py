@@ -113,10 +113,9 @@ AthenaSealSvc.OutputLevel     = 3
 #EventPersistencySvc = Service( "EventPersistencySvc" )
 #EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:Catalog1.xml"
+#Explicitly specify the output file catalog
+#PoolSvc = Service( "PoolSvc" )
+#PoolSvc.WriteCatalog = "file:Catalog1.xml"
 
 #ProxyProviderSvc = Service( "ProxyProviderSvc" )
 #ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]

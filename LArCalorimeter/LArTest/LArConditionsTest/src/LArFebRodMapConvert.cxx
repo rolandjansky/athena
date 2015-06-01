@@ -35,20 +35,20 @@ StatusCode LArFebRodMapConvert::initialize() {
 
   StatusCode sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
   /*
   sc = detStore()->retrieve(m_caloCellID, "CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   */
   sc=m_cablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService!" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArCablingService!" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -75,10 +75,6 @@ StatusCode LArFebRodMapConvert::execute() {
   blobFebRod.resize(onlHashMax*sizeof(uint32_t));
   uint32_t* pBlobFebRod=static_cast<uint32_t*>(blobFebRod.startingAddress());
 
-  spec_febrod->release();
-  // cppcheck-suppress memleak
-  spec_febrod = nullptr;
-
   size_t index=0;
 
   std::ofstream outfile("febrod.txt");
@@ -100,12 +96,12 @@ StatusCode LArFebRodMapConvert::execute() {
   
   outfile.close();
 
-  msg(MSG::INFO) << "BlobSize OnOffId:" << index << endmsg;
+  msg(MSG::INFO) << "BlobSize OnOffId:" << index << endreq;
 
 
   StatusCode sc=detStore()->record(al_febrod,"/LAR/Identifier/FebRodMap");
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Failed to record LArFebRodMap" << endmsg;
+    msg(MSG::ERROR) << "Failed to record LArFebRodMap" << endreq;
     return sc;
   }
   return StatusCode::SUCCESS;

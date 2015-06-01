@@ -35,19 +35,19 @@ StatusCode LArIdMapConvert::initialize() {
 
   StatusCode sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
   sc = detStore()->retrieve(m_caloCellID, "CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get CaloCell_ID helper !" << endreq;
     return StatusCode::FAILURE;
   }
 
   sc=m_cablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService!" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArCablingService!" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -73,10 +73,6 @@ StatusCode LArIdMapConvert::execute() {
   (*al_onOff)["version"].setValue(0U);
   blobOnOff.resize(onlHashMax*sizeof(uint32_t));
 
-  spec_onOff->release();
-  // cppcheck-suppress memleak
-  spec_onOff = nullptr;
-
   coral::AttributeListSpecification* spec_calib = new coral::AttributeListSpecification();
   spec_calib->extend("OnlineHashToCalibIds", "blob");
   spec_calib->extend<unsigned>("version");
@@ -84,10 +80,6 @@ StatusCode LArIdMapConvert::execute() {
   coral::Blob& blobCalib=(*al_calib)["OnlineHashToCalibIds"].data<coral::Blob>();
   (*al_calib)["version"].setValue(0U);
   blobCalib.resize(onlHashMax*sizeof(uint32_t)*3); //Bigger than necessary 
-
-  spec_calib->release();
-  // cppcheck-suppress memleak
-  spec_calib = nullptr;
 
   uint32_t* pBlobOnOff=static_cast<uint32_t*>(blobOnOff.startingAddress());
   uint32_t* pBlobCalib=static_cast<uint32_t*>(blobCalib.startingAddress());
@@ -120,22 +112,22 @@ StatusCode LArIdMapConvert::execute() {
   
   outfile.close();
 
-  msg(MSG::INFO) << "BlobSize OnOffId:" << index << endmsg;
-  msg(MSG::INFO) << "BlobSize CalibId:" << calibIndex << endmsg;
+  msg(MSG::INFO) << "BlobSize OnOffId:" << index << endreq;
+  msg(MSG::INFO) << "BlobSize CalibId:" << calibIndex << endreq;
   msg(MSG::INFO) << "nCalib[i] ";
   for (unsigned j=0;j<5;++j) 
     msg() << calibHist[j] << "/";
-  msg() << endmsg;
+  msg() << endreq;
 
   StatusCode sc=detStore()->record(al_onOff,"/LAR/Identifier/OnOffIdMap");
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Failed to record LArCablingMap" << endmsg;
+    msg(MSG::ERROR) << "Failed to record LArCablingMap" << endreq;
     return sc;
   }
 
   sc=detStore()->record(al_calib,"/LAR/Identifier/CalibIdMap");
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Failed to record LArCablingMap" << endmsg;
+    msg(MSG::ERROR) << "Failed to record LArCablingMap" << endreq;
     return sc;
   }
   

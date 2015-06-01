@@ -184,7 +184,7 @@ quadrant:
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h" 
+#include "LArTools/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArOnOffIdMap.h"
 #include "LArTools/LArFebRodMap.h"
@@ -193,7 +193,7 @@ quadrant:
 #include <fstream>
 
 FixLArIdMap::FixLArIdMap(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name,pSvcLocator) ,m_fixFlag(0), m_dumpIds(false)
+  Algorithm(name,pSvcLocator) ,m_fixFlag(0), m_dumpIds(false)
 { 
 
     declareProperty("FixFlag",      m_fixFlag);
@@ -210,15 +210,20 @@ StatusCode FixLArIdMap::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode FixLArIdMap::execute()
-{
-  ATH_MSG_DEBUG(" in execute, fix = "<<m_fixFlag );
+StatusCode FixLArIdMap::execute() {
+
+  MsgStream  log(messageService(),name());
+
+  log<<MSG::DEBUG<<" in execute, fix = "<<m_fixFlag<<endreq;
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode FixLArIdMap::finalize()
-{
-    ATH_MSG_INFO(" in finalize, fix = "<<m_fixFlag );
+StatusCode FixLArIdMap::finalize() {
+
+    MsgStream  log(messageService(),name());
+
+    log<<MSG::INFO<<" in finalize, fix = "<<m_fixFlag<<endreq;
 
     if(m_dumpIds) dumpId(); 
 
@@ -264,17 +269,31 @@ StatusCode FixLArIdMap::finalize()
 
 void FixLArIdMap::dumpId()
 {
+
+  MsgStream  log(messageService(),name());
   // Fix the FCal Map.
   // The jobs should be run with LAr IdDict for the new Identifier
   // definition, i.e.,   No slot=8 for FCAL (1-7, 9-15). 
 
   // fix calibLine for Strip eta=0 in barrel
 
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return ;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+
+
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -287,22 +306,23 @@ void FixLArIdMap::dumpId()
    VONOFF::const_iterator it = onOffId_P->m_v.begin(); 
    VONOFF::const_iterator it_e = onOffId_P->m_v.end(); 
 
-   ATH_MSG_DEBUG("  Dump of OnOffIdMap"  );
-   ATH_MSG_DEBUG(" Persistent LArOnOffId_P version = "<<onOffId_P->m_version );
+   log<<MSG::DEBUG<<"  Dump of OnOffIdMap" <<endreq; 
+   log<<MSG::DEBUG<<" Persistent LArOnOffId_P version = "<<onOffId_P->m_version<<endreq;
    for (; it!=it_e;++it)
       {
 	const LArOnOffId_P::LArOnOffId_P_t& t = *it;	
-	ATH_MSG_DEBUG(" det="<<t.det
-                      <<" pn="<<t.pn 
-                      <<" sample="<<t.sample
-                      <<" region="<<t.region
-                      <<" eta="<<t.eta
-                      <<" phi="<<t.phi
-                      <<" ft="<<t.ft_num
-                      <<" slot="<<t.feb_slot
-                      <<" chan="<<t.feb_chan
-                      <<" calib_slot="<<t.calib_slot
-                      <<" calib_line="<<t.calib_line );
+	log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
       } 
 
 
@@ -311,7 +331,7 @@ void FixLArIdMap::dumpId()
    const LArFebRodMap * febRodMap_c;
    sc=detStore->retrieve(febRodMap_c); 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArFebRodMap" );
+     log<< MSG::ERROR<<" Can not find LArFebRodMap"<<endreq;
   	// return sc;
    }
 
@@ -325,23 +345,24 @@ void FixLArIdMap::dumpId()
    VFEBROD::const_iterator it2 = febRod_P->m_v.begin(); 
    VFEBROD::const_iterator it2_e = febRod_P->m_v.end(); 
 
-   ATH_MSG_DEBUG("  Dump of LArFebRodMap"  );
-   ATH_MSG_DEBUG(" Persistent LArFebRod_P version = "<< febRod_P->m_version );
+   log<<MSG::DEBUG<<"  Dump of LArFebRodMap" <<endreq; 
+   log<<MSG::DEBUG<<" Persistent LArFebRod_P version = "<< febRod_P->m_version<<endreq;
 
    for (; it2!=it2_e;++it2)
       {
 	const LArFebRod_P::LArFebRod_P_t& t = *it2;	
-	ATH_MSG_DEBUG(" hashid="<<t.hashid
-                      <<" det="<<t.det 
-                      <<" rosfrag="<<t.rosfrag
-                      <<" robfrag="<<t.robfrag
-                      <<" rodfrag="<<t.rodfrag
-                      <<" rodcrate="<<t.rodcrate
-                      <<" rodslot="<<t.rodslot
-                      <<" ft_det="<<t.ft_det
-                      <<" ft_pn="<<t.ft_pn
-                      <<" ft_num="<<t.ft_num
-                      <<" ft_slot="<<t.ft_slot );
+	log<<MSG::DEBUG<<" hashid="<<t.hashid
+             <<" det="<<t.det 
+	     <<" rosfrag="<<t.rosfrag
+	     <<" robfrag="<<t.robfrag
+  	     <<" rodfrag="<<t.rodfrag
+	     <<" rodcrate="<<t.rodcrate
+	     <<" rodslot="<<t.rodslot
+	     <<" ft_det="<<t.ft_det
+	     <<" ft_pn="<<t.ft_pn
+	     <<" ft_num="<<t.ft_num
+	     <<" ft_slot="<<t.ft_slot
+	     <<endreq;
       } 
 
    return; 
@@ -351,11 +372,25 @@ void FixLArIdMap::dumpId()
 StatusCode FixLArIdMap::fix1() {
 
 
+    MsgStream  log(messageService(),name());
   // Fix the FCal Map.
   // The jobs should be run with LAr IdDict for the new Identifier
   // definition, i.e.,   No slot=8 for FCAL (1-7, 9-15). 
 
   // fix calibLine for Strip eta=0 in barrel
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+
+
 
 /*
     // retrieve LArOnlineID
@@ -364,22 +399,22 @@ StatusCode FixLArIdMap::fix1() {
     if (sc.isFailure()) {
  	log << MSG::ERROR
  	    << "Unable to retrieve pointer to LArOnlineID  "
- 	    << endmsg;
+ 	    << endreq;
  	return sc;
     }
-    log << MSG::DEBUG << "Retrieved LArOnlineID" << endmsg;
+    log << MSG::DEBUG << "Retrieved LArOnlineID" << endreq;
 
     // retrieve DetDescrManager and LArCablingService
     IToolSvc* toolSvc;
     if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endmsg;     
+	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
 	// return StatusCode::FAILURE ; 
 	return; 
     }
 
 
     if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
-	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endmsg;     
+	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
 	// return StatusCode::FAILURE ; 
 	return; 
     }
@@ -387,9 +422,9 @@ StatusCode FixLArIdMap::fix1() {
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -400,8 +435,8 @@ StatusCode FixLArIdMap::fix1() {
 
 
    if( onOffId_P->m_version!=0){ 
-     ATH_MSG_ERROR(" The FCAL Fix should only be done toversion=0" );
-     ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
+    	 log<<MSG::ERROR<<" The FCAL Fix should only be done toversion=0"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
 	 return StatusCode::FAILURE; 
     }
 
@@ -418,69 +453,73 @@ StatusCode FixLArIdMap::fix1() {
         ){ 
 	unsigned int feb = t.feb_slot ; 
 	if(feb>=8) { 
-	  ATH_MSG_INFO(" Fixing this FCAL channel, before and after" );
+	  log <<MSG::INFO<<" Fixing this FCAL channel, before and after"<<endreq;
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
 
 	  // The fix. shift it by one.  
 	  t.feb_slot=t.feb_slot+1; 
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
 
 	} 
       } // FCAL
 
       if( t.det==9 && abs(t.pn)==1 && t.sample==1 && t.region==0 && t.eta==0 ) {
 
-        ATH_MSG_INFO(" Fixing this Barrel Strip channel, before and after" );
-        
-        ATH_MSG_DEBUG(" det="<<t.det
-                      <<" pn="<<t.pn 
-                      <<" sample="<<t.sample
-                      <<" region="<<t.region
-                      <<" eta="<<t.eta
-                      <<" phi="<<t.phi
-                      <<" ft="<<t.ft_num
-                      <<" slot="<<t.feb_slot
-                      <<" chan="<<t.feb_chan
-                      <<" calib_slot="<<t.calib_slot
-                      <<" calib_line="<<t.calib_line );
+	  log <<MSG::INFO<<" Fixing this Barrel Strip channel, before and after"<<endreq;
+
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
 
 	  // this disconnected channel is pulsed . 
 	  t.calib_slot=15;
 	  t.calib_line=0;
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
 
        } // barrel strip 
 
@@ -490,9 +529,9 @@ StatusCode FixLArIdMap::fix1() {
   
    // LArFebRodMap
    const LArFebRodMap * febRodMap_c;
-   sc=detStore()->retrieve(febRodMap_c); 
+   sc=detStore->retrieve(febRodMap_c); 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArFebRodMap" );
+     log<< MSG::ERROR<<" Can not find LArFebRodMap"<<endreq;
   	// return sc;
    }
 
@@ -507,8 +546,8 @@ StatusCode FixLArIdMap::fix1() {
 
    if(febRod_P->m_version!=0){ 
 
-     ATH_MSG_ERROR(" wrong Persistent LArFebRod_P version = "<< febRod_P->m_version );
-     ATH_MSG_ERROR(" this fix should only fix version 0 " );
+    log<<MSG::ERROR<<" wrong Persistent LArFebRod_P version = "<< febRod_P->m_version<<endreq;
+    log<<MSG::ERROR<<" this fix should only fix version 0 "<<endreq;
     return StatusCode::FAILURE; 
    }
 
@@ -523,32 +562,34 @@ StatusCode FixLArIdMap::fix1() {
         if( (t.det ==71 || t.det ==72 ) && t.ft_slot>=8 )
         { 
 
-          ATH_MSG_INFO( " Fixing FEB slot number, before and after "  );
+	log<< MSG::INFO<< " Fixing FEB slot number, before and after " << endreq; 
 
-          ATH_MSG_DEBUG(" hashid="<<t.hashid
-                        <<" det="<<t.det 
-                        <<" rosfrag="<<t.rosfrag
-                        <<" robfrag="<<t.robfrag
-                        <<" rodfrag="<<t.rodfrag
-                        <<" rodcrate="<<t.rodcrate
-                        <<" rodslot="<<t.rodslot
-                        <<" ft_det="<<t.ft_det
-                        <<" ft_pn="<<t.ft_pn
-                        <<" ft_num="<<t.ft_num
-                        <<" ft_slot="<<t.ft_slot );
+	log<<MSG::DEBUG<<" hashid="<<t.hashid
+             <<" det="<<t.det 
+	     <<" rosfrag="<<t.rosfrag
+	     <<" robfrag="<<t.robfrag
+  	     <<" rodfrag="<<t.rodfrag
+	     <<" rodcrate="<<t.rodcrate
+	     <<" rodslot="<<t.rodslot
+	     <<" ft_det="<<t.ft_det
+	     <<" ft_pn="<<t.ft_pn
+	     <<" ft_num="<<t.ft_num
+	     <<" ft_slot="<<t.ft_slot
+	     <<endreq;
 
         t.ft_slot=t.ft_slot+1; 
-	ATH_MSG_DEBUG(" hashid="<<t.hashid
-                      <<" det="<<t.det 
-                      <<" rosfrag="<<t.rosfrag
-                      <<" robfrag="<<t.robfrag
-                      <<" rodfrag="<<t.rodfrag
-                      <<" rodcrate="<<t.rodcrate
-                      <<" rodslot="<<t.rodslot
-                      <<" ft_det="<<t.ft_det
-                      <<" ft_pn="<<t.ft_pn
-                      <<" ft_num="<<t.ft_num
-                      <<" ft_slot="<<t.ft_slot );
+	log<<MSG::DEBUG<<" hashid="<<t.hashid
+             <<" det="<<t.det 
+	     <<" rosfrag="<<t.rosfrag
+	     <<" robfrag="<<t.robfrag
+  	     <<" rodfrag="<<t.rodfrag
+	     <<" rodcrate="<<t.rodcrate
+	     <<" rodslot="<<t.rodslot
+	     <<" ft_det="<<t.ft_det
+	     <<" ft_pn="<<t.ft_pn
+	     <<" ft_num="<<t.ft_num
+	     <<" ft_slot="<<t.ft_slot
+	     <<endreq;
 	}
   
       } 
@@ -562,8 +603,24 @@ StatusCode FixLArIdMap::fix1() {
 
 
 StatusCode FixLArIdMap::fix2() {
+
+
+    MsgStream  log(messageService(),name());
   // Fix the EMEC mapping
   // both calibration channel, and signal. 
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+
+
 
 /*
     // retrieve LArOnlineID
@@ -572,22 +629,22 @@ StatusCode FixLArIdMap::fix2() {
     if (sc.isFailure()) {
  	log << MSG::ERROR
  	    << "Unable to retrieve pointer to LArOnlineID  "
- 	    << endmsg;
+ 	    << endreq;
  	return sc;
     }
-    log << MSG::DEBUG << "Retrieved LArOnlineID" << endmsg;
+    log << MSG::DEBUG << "Retrieved LArOnlineID" << endreq;
 
     // retrieve DetDescrManager and LArCablingService
     IToolSvc* toolSvc;
     if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endmsg;     
+	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
 	// return StatusCode::FAILURE ; 
 	return; 
     }
 
 
     if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
-	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endmsg;     
+	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
 	// return StatusCode::FAILURE ; 
 	return; 
     }
@@ -595,12 +652,12 @@ StatusCode FixLArIdMap::fix2() {
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    std::vector<int> nfixes;
    nfixes.resize(30,0); 
 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -611,9 +668,9 @@ StatusCode FixLArIdMap::fix2() {
 
 
     if( onOffId_P->m_version!=1){ 
-      ATH_MSG_ERROR(" This should only fix map with version=1" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version=1"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -754,19 +811,20 @@ StatusCode FixLArIdMap::fix2() {
       if(ifix != 0) { 
 	  nfixes[ifix-1] +=1; 
 
-	  ATH_MSG_INFO(" Fix number " << ifix );
+	  log <<MSG::INFO<<" Fix number " << ifix<<endreq ;
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
       } 
 
 
@@ -774,7 +832,7 @@ StatusCode FixLArIdMap::fix2() {
 
 
    for(unsigned int i=0;i<30;++i){
-     ATH_MSG_INFO( nfixes[i] << " fixes for " << i+1  );
+	log <<MSG::INFO<< nfixes[i] << " fixes for " << i+1 <<endreq ;
    }
   
    return StatusCode::SUCCESS;
@@ -782,16 +840,29 @@ StatusCode FixLArIdMap::fix2() {
 
 StatusCode FixLArIdMap::fix3() {
 
+    MsgStream  log(messageService(),name());
   // Fix the EMEC inner wheel channel swapping
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    std::vector<int> nfixes;
    nfixes.resize(16,0); 
 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -802,9 +873,9 @@ StatusCode FixLArIdMap::fix3() {
 
 
     if( onOffId_P->m_version!=2){ 
-      ATH_MSG_ERROR(" This should only fix map with version=2" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version=2"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -907,26 +978,27 @@ StatusCode FixLArIdMap::fix3() {
       if(ifix != -1) { 
 	  nfixes[ifix] +=1; 
 
-	  ATH_MSG_INFO(" Fix number " << ifix );
+	  log <<MSG::INFO<<" Fix number " << ifix<<endreq ;
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
       } 
 
 
     }//channel loop
 
    for(unsigned int i=0;i<nfixes.size();++i){
-     ATH_MSG_INFO( nfixes[i] << " fixes for " << i  );
+	log <<MSG::INFO<< nfixes[i] << " fixes for " << i <<endreq ;
    }
 
    return StatusCode::SUCCESS;
@@ -934,17 +1006,29 @@ StatusCode FixLArIdMap::fix3() {
 
 StatusCode FixLArIdMap::fix4() {
 
+    MsgStream  log(messageService(),name());
     // Fix the FCAL mapping
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
 
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    std::vector<int> nfixes;
    nfixes.resize(8,0); 
 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -954,9 +1038,9 @@ StatusCode FixLArIdMap::fix4() {
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
     if( onOffId_P->m_version!=3){ 
-      ATH_MSG_ERROR(" This should only fix map with version=3" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version=3"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -1039,26 +1123,27 @@ StatusCode FixLArIdMap::fix4() {
       if(ifix != -1) { 
 	  nfixes[ifix] +=1; 
 
-	  ATH_MSG_INFO(" Fix number " << ifix );
+	  log <<MSG::INFO<<" Fix number " << ifix<<endreq ;
 
-	  ATH_MSG_DEBUG(" det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+	  log<<MSG::DEBUG<<" det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
       } 
 
 
     }//channel loop
 
    for(unsigned int i=0;i<nfixes.size();++i){
-     ATH_MSG_INFO( nfixes[i] << " fixes for " << i  );
+	log <<MSG::INFO<< nfixes[i] << " fixes for " << i <<endreq ;
    }
 
    return StatusCode::SUCCESS;
@@ -1067,15 +1152,29 @@ StatusCode FixLArIdMap::fix4() {
 
 StatusCode FixLArIdMap::fix5() {
 
+    MsgStream  log(messageService(),name());
     // Fix the FCAL mapping
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+
+   log << MSG::INFO << "Retrieved DetectorStore" << endreq;
+
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    int nfixes = 0; 
 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -1085,9 +1184,9 @@ StatusCode FixLArIdMap::fix5() {
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
     if( onOffId_P->m_version!=3){ 
-      ATH_MSG_ERROR(" This should only fix map with version=3" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version=3"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -1106,7 +1205,7 @@ StatusCode FixLArIdMap::fix5() {
 	t.calib_slot = 16; 
 	++nfixes ; 
 	int q = t.feb_chan/32 ; 
-	if (q==0 || q==2){ 
+	if (q==0 or q==2){ 
 	  int r = t.feb_chan%2 ; 
 	  if (r==0) t.calib_line = t.feb_chan+1; 
 	  else      t.calib_line = t.feb_chan-1; 
@@ -1119,7 +1218,7 @@ StatusCode FixLArIdMap::fix5() {
        }// FCAL 
     }//channel loop
 
-    ATH_MSG_INFO( " Number of fixes:" << nfixes  );
+    log <<MSG::INFO<< " Number of fixes:" << nfixes <<endreq ;
 
     return StatusCode::SUCCESS;
 }
@@ -1128,11 +1227,25 @@ StatusCode FixLArIdMap::fix5() {
 
 StatusCode FixLArIdMap::fix6() {
 
+    MsgStream  log(messageService(),name());
     // Fix the HEC Calib mapping
+
+    // Pointer to StoreGate 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+
+   log << MSG::INFO << "Retrieved DetectorStore" << endreq;
+
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   sc=detStore()->retrieve(onOffIdMap_c); 
+   sc=detStore->retrieve(onOffIdMap_c); 
    std::vector<int> nfixes;
    nfixes.resize(44,0); 
 
@@ -1185,7 +1298,7 @@ StatusCode FixLArIdMap::fix6() {
        8     ,     111 ,        115           ,        117   };
 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArOnOffIdMap" );
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
   	// return sc;
    }
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
@@ -1195,9 +1308,9 @@ StatusCode FixLArIdMap::fix6() {
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
     if( onOffId_P->m_version!=5){ 
-      ATH_MSG_ERROR(" This should only fix map with version 5" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version 5"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -1240,26 +1353,27 @@ StatusCode FixLArIdMap::fix6() {
 	      if(ifix != -1) { 
 		nfixes[ifix] +=1; 
 		
-		ATH_MSG_INFO(" Fix number " << ifix );
+		log <<MSG::INFO<<" Fix number " << ifix<<endreq ;
 		
-		ATH_MSG_DEBUG(" det="<<t.det
-                              <<" pn="<<t.pn 
-                              <<" sample="<<t.sample
-                              <<" region="<<t.region
-                              <<" eta="<<t.eta
-                              <<" phi="<<t.phi
-                              <<" ft="<<t.ft_num
-                              <<" slot="<<t.feb_slot
-                              <<" chan="<<t.feb_chan
-                              <<" calib_slot="<<t.calib_slot
-                              <<" calib_line="<<t.calib_line );
+		log<<MSG::DEBUG<<" det="<<t.det
+		   <<" pn="<<t.pn 
+		   <<" sample="<<t.sample
+		   <<" region="<<t.region
+		   <<" eta="<<t.eta
+		   <<" phi="<<t.phi
+		   <<" ft="<<t.ft_num
+		   <<" slot="<<t.feb_slot
+		   <<" chan="<<t.feb_chan
+		   <<" calib_slot="<<t.calib_slot
+		   <<" calib_line="<<t.calib_line
+		   <<endreq;
 	      } 
 	    }
 	} //HEC
     }//channel loop
     
     for(int i=0;i<nentries;++i){
-      ATH_MSG_INFO( nfixes[i] << " fixes for " << i+1  );
+      log <<MSG::INFO<< nfixes[i] << " fixes for " << i+1 <<endreq ;
     }
 
     return StatusCode::SUCCESS;
@@ -1268,11 +1382,30 @@ StatusCode FixLArIdMap::fix6() {
 
 StatusCode FixLArIdMap::fix7() {
 
+    MsgStream  log(messageService(),name());
     // Fix the FCAL mapping
 
 
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+
     const LArFCAL_ID* fcal_id ; 
-    ATH_CHECK( detStore()->retrieve(fcal_id) );
+    sc = detStore->retrieve(fcal_id);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve LArFCAL_ID"
+	    << endreq;
+	return sc;
+    }
+    log << MSG::DEBUG << "Retrieved LArFCAL_ID " << endreq;
+    
 
     // read in the map from file
     std::ifstream fcal_map("FCal-online-map-disc.txt"); 
@@ -1295,14 +1428,14 @@ StatusCode FixLArIdMap::fix7() {
   int nread=0 ; 
   while ( fcal_map>>side>>module>>phi>>eta>>slot>>chan>> group >>trig_eta>>trig_phi)
   { 
-    ATH_MSG_DEBUG("side="<<side<< "module= "<<module 
-                  << " phi "<<phi
-                  << " eta "<<eta
-                  << " slot "<<slot
-                  << " chan "<<chan
-                  << " group "<<group
-                  << " trig_eta "<<trig_eta
-                  << " trig_phi "<<trig_phi  );
+    log<<MSG::DEBUG <<"side="<<side<< "module= "<<module 
+	<< " phi "<<phi
+	<< " eta "<<eta
+	<< " slot "<<slot
+	<< " chan "<<chan
+	<< " group "<<group
+	<< " trig_eta "<<trig_eta
+	<< " trig_phi "<<trig_phi << endreq;
 
     if(side=="A"){ 
       tt.pn= 2; 
@@ -1310,15 +1443,15 @@ StatusCode FixLArIdMap::fix7() {
     if(side=="C") {
       tt.pn= -2; 
     } else {
-      ATH_MSG_WARNING(" unknown side "<<side );
-      return StatusCode::FAILURE ;  
+      log<<MSG::WARNING <<" unknown side "<<side<<endreq;
+	return StatusCode::FAILURE ;  
     }
 
     try{
       /*Identifier id = */fcal_id->channel_id(tt.pn,tt.sample,tt.eta,tt.phi); 
     } catch (LArID_Exception& ex)
     {
-      ATH_MSG_DEBUG( " LArID_Exception" << ex.message()  );
+	log<<MSG::DEBUG<< " LArID_Exception" << ex.message() <<endreq;
     } 
     tt.region=module;     
     tt.sample=module; 
@@ -1329,7 +1462,7 @@ StatusCode FixLArIdMap::fix7() {
 
     tt.calib_slot = 16; 
     int q = tt.feb_chan/32 ; 
-    if (q==0 || q==2){ 
+    if (q==0 or q==2){ 
        int r = tt.feb_chan%2 ; 
        if (r==0) tt.calib_line = tt.feb_chan+1; 
        else      tt.calib_line = tt.feb_chan-1; 
@@ -1352,14 +1485,19 @@ StatusCode FixLArIdMap::fix7() {
     
   }
 
-  ATH_MSG_DEBUG(" read number of entries "   << nread
-                <<" number of disconnected channels= "	<< nread_disc 
-                <<" number of unique="	<< t_set.size()  );
+  log<<MSG::DEBUG<<" read number of entries "   << nread
+	 <<" number of disconnected channels= "	<< nread_disc 
+	 <<" number of unique="	<< t_set.size() << endreq;
 
 
    // LArOnOffIdMap
    const LArOnOffIdMap * onOffIdMap_c;
-   ATH_CHECK( detStore()->retrieve(onOffIdMap_c) );
+   sc=detStore->retrieve(onOffIdMap_c); 
+
+   if(sc!=StatusCode::SUCCESS){ 
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+     return sc;
+   }
 
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
 
@@ -1368,9 +1506,9 @@ StatusCode FixLArIdMap::fix7() {
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
     if( onOffId_P->m_version!=6){ 
-      ATH_MSG_ERROR(" This should only fix map with version 6" );
-      ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-      return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version 6"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -1394,25 +1532,26 @@ StatusCode FixLArIdMap::fix7() {
 	{
 	  if (t.det==2) ++n_conn;
 	  if (t.det==7) ++n_disc;
-          
-	  ATH_MSG_DEBUG(" Dropping FCAL det="<<t.det
-                        <<" pn="<<t.pn 
-                        <<" sample="<<t.sample
-                        <<" region="<<t.region
-                        <<" eta="<<t.eta
-                        <<" phi="<<t.phi
-                        <<" ft="<<t.ft_num
-                        <<" slot="<<t.feb_slot
-                        <<" chan="<<t.feb_chan
-                        <<" calib_slot="<<t.calib_slot
-                        <<" calib_line="<<t.calib_line );
+
+	  log<<MSG::DEBUG<<" Dropping FCAL det="<<t.det
+             <<" pn="<<t.pn 
+	     <<" sample="<<t.sample
+	     <<" region="<<t.region
+  	     <<" eta="<<t.eta
+	     <<" phi="<<t.phi
+	     <<" ft="<<t.ft_num
+	     <<" slot="<<t.feb_slot
+	     <<" chan="<<t.feb_chan
+	     <<" calib_slot="<<t.calib_slot
+	     <<" calib_line="<<t.calib_line
+	     <<endreq;
 
 	} else 
         new_v.push_back(t); 
 
     }
-    ATH_MSG_INFO(" Number of connected channels removed"<<n_conn );
-    ATH_MSG_INFO(" Number of disconnected channels removed"<<n_disc );
+    log<<MSG::INFO<<" Number of connected channels removed"<<n_conn<<endreq;
+    log<<MSG::INFO<<" Number of disconnected channels removed"<<n_disc<<endreq;
 
     std::set<LArOnOffId_P::LArOnOffId_P_t>::const_iterator it2 =t_set.begin();
     std::set<LArOnOffId_P::LArOnOffId_P_t>::const_iterator it2_e =t_set.end();
@@ -1421,10 +1560,10 @@ StatusCode FixLArIdMap::fix7() {
 	new_v.push_back(*it2);
     }
 
-    ATH_MSG_INFO(" number of old channels "<<onOffId_P->m_v.size() );
+    log<<MSG::INFO<<" number of old channels "<<onOffId_P->m_v.size()<<endreq;
 
     onOffId_P->m_v = new_v;
-    ATH_MSG_INFO(" number of new channels "<<onOffId_P->m_v.size() );
+    log<<MSG::INFO<<" number of new channels "<<onOffId_P->m_v.size()<<endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -1484,44 +1623,69 @@ bool operator < (const LArOnOffId_P::LArOnOffId_P_t & t1,
 
 StatusCode FixLArIdMap::fix8() 
 {
+
+    MsgStream  log(messageService(),name());
     // Import new FEB ROD map
 
-    ATH_MSG_INFO(" In fix8()"  );
+    log<< MSG::INFO <<" In fix8()" <<endreq;     
+
+    StoreGateSvc * detStore; 
+    StatusCode sc = service("DetectorStore", detStore);
+    if (sc.isFailure()) {
+	log << MSG::ERROR
+	    << "Unable to retrieve pointer to DetectorStore "
+	    << endreq;
+	return sc;
+    }
+
 
     // retrieve DetDescrManager and LArCablingService
-    IToolSvc* toolSvc = nullptr;
-    ATH_CHECK( service("ToolSvc", toolSvc) );
+    IToolSvc* toolSvc;
+    if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
+	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
+	return StatusCode::FAILURE ; 
+    }
 
-    LArCablingService* cablingSvc = nullptr;
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",cablingSvc) );
+
+    LArCablingService* cablingSvc ;
+    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",cablingSvc) ) {
+	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
+	return StatusCode::FAILURE ; 
+    }
+
+
 
     // WARNING:  LArFebRodMap should not have been retrieved before this call.
     // so far it will be created by LArCablingService from file.
     if (m_febToRodMap.empty()) {
 
-      ATH_MSG_ERROR(" FEBtoRODMap filename is empty. Please specify through jobOpt"  );
-      return StatusCode::FAILURE ; 
+	log<< MSG::ERROR <<" FEBtoRODMap filename is empty. Please specify through jobOpt" <<endreq;     
+	return StatusCode::FAILURE ; 
 
     }
 
-    ATH_MSG_DEBUG(" FEBtoRODMap filename is " << m_febToRodMap );
+    log<< MSG::DEBUG <<" FEBtoRODMap filename is " << m_febToRodMap<<endreq;     
 
     int flag = cablingSvc->fillFEB_RODmap(m_febToRodMap) ;
     
     if (flag!=0) {      
-      ATH_MSG_ERROR(" Fail load the map file"  );
-      return StatusCode::FAILURE ; 
+	log<< MSG::ERROR <<" Fail load the map file" << endreq ;
+	return StatusCode::FAILURE ; 
     }
 
     // LArFebRodMap
-    LArFebRodMap * febRodMap = nullptr;
-    ATH_CHECK( detStore()->retrieve(febRodMap,"LArFebRodMapAtlas") );
+    LArFebRodMap * febRodMap;
+    sc=detStore->retrieve(febRodMap,"LArFebRodMapAtlas"); 
+    if(sc!=StatusCode::SUCCESS){ 
+      log<< MSG::ERROR<<" Can not find LArFebRodMap"<<endreq;
+      return sc;
+    }
 
     LArFebRod_P* febRod_P = febRodMap->getP(); 
     febRod_P->m_version = 4; 
 
-    ATH_MSG_INFO(" Number of entries in new map"<< febRod_P->m_v.size() );
-    ATH_MSG_INFO(" Set LArFebRodMap version to "<<febRod_P->m_version  );
+    log<< MSG::INFO<<" Number of entries in new map"<< febRod_P->m_v.size()<<endreq;
+    log<< MSG::INFO<<" Set LArFebRodMap version to "<<febRod_P->m_version <<endreq;
 
     return StatusCode::SUCCESS ;    
 }
@@ -1530,13 +1694,31 @@ StatusCode FixLArIdMap::fix8()
 
 StatusCode FixLArIdMap::fix9() 
 {
+
+   MsgStream  log(messageService(),name());
    // Import new FEB ROD map
    
-   ATH_MSG_INFO(" In fix9()  Barrel Cabling Fix"  );
+   log<< MSG::INFO <<" In fix9()  Barrel Cabling Fix" <<endreq;     
+   
+   StoreGateSvc * detStore; 
+   StatusCode sc = service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+     log << MSG::ERROR
+	 << "Unable to retrieve pointer to DetectorStore "
+	 << endreq;
+     return sc ;
+   }
+
+   log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
    
    // LArOnOffIdMap
-   const LArOnOffIdMap * onOffIdMap_c = nullptr;
-   ATH_CHECK( detStore()->retrieve(onOffIdMap_c) );
+   const LArOnOffIdMap * onOffIdMap_c;
+   sc=detStore->retrieve(onOffIdMap_c); 
+
+   if(sc!=StatusCode::SUCCESS){ 
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+  	return sc;
+   }
 
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
 
@@ -1549,12 +1731,12 @@ StatusCode FixLArIdMap::fix9()
 
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
-   ATH_MSG_INFO(" LArOnOffIdMap version "<<onOffId_P->m_version );
+   log<<MSG::INFO<<" LArOnOffIdMap version "<<onOffId_P->m_version<< endreq;
 
    if( onOffId_P->m_version!=7){ 
-     ATH_MSG_ERROR(" This should only fix map with version 7" );
-     ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-     return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version 7"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
     VONOFF::iterator it = onOffId_P->m_v.begin(); 
@@ -1633,7 +1815,7 @@ StatusCode FixLArIdMap::fix9()
     }//channel loop
     
     for(unsigned int i=0;i<ntype;++i){
-      ATH_MSG_INFO( nfixes[i] << " fixes for type " <<  i  );
+      log <<MSG::INFO<< nfixes[i] << " fixes for type " <<  i <<endreq ;
     }
 
     return StatusCode::SUCCESS;
@@ -1642,13 +1824,31 @@ StatusCode FixLArIdMap::fix9()
 
 StatusCode FixLArIdMap::fix10() 
 {
+
+   MsgStream  log(messageService(),name());
    // Fix HEC FEB Swapping run 0-56450 
    
-  ATH_MSG_INFO(" In fix10()  HEC-C Cabling Fix"  );
+   log<< MSG::INFO <<" In fix10()  HEC-C Cabling Fix" <<endreq;     
+   
+   StoreGateSvc * detStore; 
+   StatusCode sc = service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+     log << MSG::ERROR
+	 << "Unable to retrieve pointer to DetectorStore "
+	 << endreq;
+     return sc ;
+   }
+
+   log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
    
    // LArOnOffIdMap
-   const LArOnOffIdMap * onOffIdMap_c = nullptr;
-   ATH_CHECK( detStore()->retrieve(onOffIdMap_c) );
+   const LArOnOffIdMap * onOffIdMap_c;
+   sc=detStore->retrieve(onOffIdMap_c); 
+
+   if(sc!=StatusCode::SUCCESS){ 
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+  	return sc;
+   }
 
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
 
@@ -1657,13 +1857,13 @@ StatusCode FixLArIdMap::fix10()
    
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
-   ATH_MSG_INFO(" LArOnOffIdMap version "<<onOffId_P->m_version );
+   log<<MSG::INFO<<" LArOnOffIdMap version "<<onOffId_P->m_version<< endreq;
 
    if( onOffId_P->m_version!=8){ 
-     ATH_MSG_ERROR(" This should only fix map with version 8" );
-     ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-     return StatusCode::FAILURE; 
-   }
+    	 log<<MSG::ERROR<<" This should only fix map with version 8"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
+    }
 
     //     set the version to .
     onOffId_P->m_version = 9 ; 
@@ -1696,7 +1896,7 @@ StatusCode FixLArIdMap::fix10()
 	}
     }
 
-    log<<MSG::INFO<" number of HEC-C channels"<<n<<endmsg;
+    log<<MSG::INFO<" number of HEC-C channels"<<n<<endreq;
 
    */
     std::map<int,int> nfixes ; 
@@ -1736,7 +1936,7 @@ StatusCode FixLArIdMap::fix10()
     std::map<int,int>::const_iterator map_it=nfixes.begin();
     std::map<int,int>::const_iterator map_it_e=nfixes.end();
     for (;map_it!=map_it_e;++map_it){
-      log<<" slot and nfixes "<<(*map_it).first<<" " <<(*map_it).second <<endmsg;
+      log<<" slot and nfixes "<<(*map_it).first<<" " <<(*map_it).second <<endreq;
     }
 
     return StatusCode::SUCCESS;
@@ -1745,13 +1945,31 @@ StatusCode FixLArIdMap::fix10()
 
 StatusCode FixLArIdMap::fix11() 
 {
+
+   MsgStream  log(messageService(),name());
    // Fix EMEC-C Cabling 
    
-   ATH_MSG_INFO(" In fix11()  EMEC  Cabling Fix"  );
+   log<< MSG::INFO <<" In fix11()  EMEC  Cabling Fix" <<endreq;     
+   
+   StoreGateSvc * detStore; 
+   StatusCode sc = service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+     log << MSG::ERROR
+	 << "Unable to retrieve pointer to DetectorStore "
+	 << endreq;
+     return sc ;
+   }
+
+   log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
    
    // LArOnOffIdMap
-   const LArOnOffIdMap * onOffIdMap_c = nullptr;
-   ATH_CHECK( detStore->retrieve(onOffIdMap_c) );
+   const LArOnOffIdMap * onOffIdMap_c;
+   sc=detStore->retrieve(onOffIdMap_c); 
+
+   if(sc!=StatusCode::SUCCESS){ 
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+  	return sc;
+   }
 
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
 
@@ -1759,12 +1977,12 @@ StatusCode FixLArIdMap::fix11()
    
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
-   log<<MSG::INFO<<" LArOnOffIdMap version "<<onOffId_P->m_version<< endmsg;
+   log<<MSG::INFO<<" LArOnOffIdMap version "<<onOffId_P->m_version<< endreq;
 
    if( onOffId_P->m_version!=9){ 
-     ATH_MSG_ERROR(" This should only fix map with version 9" );
-     ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-     return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version 9"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
 
@@ -1803,17 +2021,17 @@ StatusCode FixLArIdMap::fix11()
     std::map<int,int>::const_iterator map_it=nfixes.begin();
     std::map<int,int>::const_iterator map_it_e=nfixes.end();
     for (;map_it!=map_it_e;++map_it){
-      ATH_MSG_VERBOSE(" slot and nfixes "<<(*map_it).first<<" "<< (*map_it).second  );
+      log<<" slot and nfixes "<<(*map_it).first<<" "<< (*map_it).second <<endreq;
     }
 
 
     // Fix FEB ROD map
 
    // LArFebRodMap
-   const LArFebRodMap * febRodMap_c = nullptr;
+   const LArFebRodMap * febRodMap_c;
    sc=detStore->retrieve(febRodMap_c); 
    if(sc!=StatusCode::SUCCESS){ 
-     ATH_MSG_ERROR(" Can not find LArFebRodMap" );
+     log<< MSG::ERROR<<" Can not find LArFebRodMap"<<endreq;
   	// return sc;
    }
 
@@ -1828,8 +2046,8 @@ StatusCode FixLArIdMap::fix11()
 
    if(febRod_P->m_version!=2){ 
 
-     ATH_MSG_ERROR(" wrong Persistent LArFebRod_P version = "<< febRod_P->m_version );
-     ATH_MSG_ERROR(" this fix should only fix version 2 " );
+    log<<MSG::ERROR<<" wrong Persistent LArFebRod_P version = "<< febRod_P->m_version<<endreq;
+    log<<MSG::ERROR<<" this fix should only fix version 2 "<<endreq;
     return StatusCode::FAILURE; 
    }
 
@@ -1853,38 +2071,62 @@ StatusCode FixLArIdMap::fix11()
 	    fixed=true;
 	    t.ft_slot=5;
 	  }
-	ATH_MSG_INFO( " Fixing FEB slot number, before and after "  );
+	log<< MSG::INFO<< " Fixing FEB slot number, before and after " << endreq; 
 	    
 	if(fixed) {
 	  ++nfix;
-	  ATH_MSG_DEBUG(" fixed: hashid="<<t.hashid
-                        <<" det="<<t.det 
-                        <<" rosfrag="<<t.rosfrag
-                        <<" robfrag="<<t.robfrag
-                        <<" rodfrag="<<t.rodfrag
-                        <<" rodcrate="<<t.rodcrate
-                        <<" rodslot="<<t.rodslot
-                        <<" ft_det="<<t.ft_det
-                        <<" ft_pn="<<t.ft_pn
-                        <<" ft_num="<<t.ft_num
-                        <<" ft_slot="<<t.ft_slot );
+	  log<<MSG::DEBUG<<" fixed: hashid="<<t.hashid
+	     <<" det="<<t.det 
+	     <<" rosfrag="<<t.rosfrag
+	     <<" robfrag="<<t.robfrag
+  	     <<" rodfrag="<<t.rodfrag
+	     <<" rodcrate="<<t.rodcrate
+	     <<" rodslot="<<t.rodslot
+	     <<" ft_det="<<t.ft_det
+	     <<" ft_pn="<<t.ft_pn
+	     <<" ft_num="<<t.ft_num
+	     <<" ft_slot="<<t.ft_slot
+	     <<endreq;
 
 	}
   
       } 
 
+
+
+
+
     return StatusCode::SUCCESS;
+
 }
 
 StatusCode FixLArIdMap::fix12() 
 {
+
+   MsgStream  log(messageService(),name());
    // Fix EMEC-A Cabling 
    
-  ATH_MSG_INFO(" In fix12()  EMEC  Cabling Fix"  );
+   log<< MSG::INFO <<" In fix12()  EMEC  Cabling Fix" <<endreq;     
+   
+   StoreGateSvc * detStore; 
+   StatusCode sc = service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+     log << MSG::ERROR
+	 << "Unable to retrieve pointer to DetectorStore "
+	 << endreq;
+     return sc ;
+   }
+
+   log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
    
    // LArOnOffIdMap
-   const LArOnOffIdMap * onOffIdMap_c = nullptr;
-   ATH_CHECK( detStore()->retrieve(onOffIdMap_c) );
+   const LArOnOffIdMap * onOffIdMap_c;
+   sc=detStore->retrieve(onOffIdMap_c); 
+
+   if(sc!=StatusCode::SUCCESS){ 
+     log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+  	return sc;
+   }
 
    LArOnOffIdMap* onOffIdMap=const_cast<LArOnOffIdMap*>(onOffIdMap_c); 
 
@@ -1892,11 +2134,11 @@ StatusCode FixLArIdMap::fix12()
    
    typedef std::vector<LArOnOffId_P::LArOnOffId_P_t> VONOFF; 
 
-   ATH_MSG_INFO(" LArOnOffIdMap version "<<onOffId_P->m_version );
+   log<<MSG::INFO<<" LArOnOffIdMap version "<<onOffId_P->m_version<< endreq;
    if( onOffId_P->m_version!=10){ 
-     ATH_MSG_ERROR(" This should only fix map with version 10" );
-     ATH_MSG_ERROR(" This LArOnOffId_P's version is "<<onOffId_P->m_version );
-     return StatusCode::FAILURE; 
+    	 log<<MSG::ERROR<<" This should only fix map with version 10"<<endreq;
+    	 log<<MSG::ERROR<<" This LArOnOffId_P's version is "<<onOffId_P->m_version<<endreq;
+	 return StatusCode::FAILURE; 
     }
 
 
@@ -1935,7 +2177,7 @@ StatusCode FixLArIdMap::fix12()
     std::map<int,int>::const_iterator map_it=nfixes.begin();
     std::map<int,int>::const_iterator map_it_e=nfixes.end();
     for (;map_it!=map_it_e;++map_it){
-      ATH_MSG_VERBOSE(" slot and nfixes "<<(*map_it).first<<" "<< (*map_it).second  );
+      log<<" slot and nfixes "<<(*map_it).first<<" "<< (*map_it).second <<endreq;
     }
 
     return StatusCode::SUCCESS;

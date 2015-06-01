@@ -16,7 +16,7 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include <iostream>
 

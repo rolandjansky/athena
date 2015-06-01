@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xv
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares 
 # its output with a reference (if available).
@@ -11,10 +11,6 @@
 # **/
 test=$1
 select=$2
-#verbose="1"
-if [ "$select" = "" ]; then
-  select="LArConditionsTe"
-fi
 #echo "args 1> $1 2> $2 "
 #if [ -z "$status" ]
 #    then
@@ -24,19 +20,15 @@ fi
     joblog=${test}.log
 #    if [ "$status" = 0 ]
 #	then 
-          if [ "$verbose" != "" ]; then
-	      echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
-          fi
-	reflog=../share/${test}.ref
+	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	reflog=../test/${test}.ref
 	if [ -r $reflog ]
 	    then
             # If select string is non-zero, use it for the comparison,
             # otherwise do standard diff with exclusions
 	    if [ -n "${select}" ]
 		then
-                if [ "$verbose" != "" ]; then
-		      echo "Selecting on: ${select}"
-                fi
+		echo "Selecting on: ${select}"
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
@@ -48,8 +40,7 @@ fi
 	        egrep -a -v 'seal.opts' |\
 	        egrep -a -v 'release' |\
 		egrep -a -v 'getRegistryEntries' |\
-		egrep -a -v 'is not writable' |\
-                egrep -a -v 'DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :'
+		egrep -a -v 'is not writable'
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
 		diff -a -b -B  $joblog $reflog |\
@@ -109,16 +100,14 @@ fi
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 
 		then
-		echo "post.sh> ERROR: $joblog and $reflog differ [m"
-		exit 1
+		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
+#		exit 1
 	    else
-                if [ "$verbose" != "" ]; then
-		    echo "post.sh> OK: $joblog and $reflog identical [m"
-                fi
+		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
-	    echo "post.sh> WARNING: reference output $reflog not available [m"
+	    echo "[93;1m post.sh> WARNING: reference output $reflog not available [m"
 	    echo  " post.sh> Please check ${PWD}/$joblog"
 	fi
 #    else
@@ -130,6 +119,7 @@ fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
+echo 
 
 exit $status
 
