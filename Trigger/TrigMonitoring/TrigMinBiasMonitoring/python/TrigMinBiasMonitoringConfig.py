@@ -34,8 +34,8 @@ def TrigMinBiasMonitoringTool():
 										  MinBiasPurCuts = 			   [LOOSEPRIMARY],
 										  IsPassedCondtitions = 	   [PHYSICS, 	  PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS, 		PHYSICS, 	  PHYSICS],
 										  
-                                          MBTS_countsSideA = 16,
-                                          MBTS_countsSideC = 16
+                                          MBTS_countsSideA = 12,
+                                          MBTS_countsSideC = 12
                                           );
 	ToolSvc += HLTMinBiasMon;
 	list = [ "HLTMinBiasMonTool/HLTMinBiasMon" ];
