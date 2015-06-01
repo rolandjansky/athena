@@ -60,10 +60,6 @@ private:
 
   /// Entry point for calorimeter ID helpers.
   const CaloIdManager* m_calo_id_manager;
-
-  /// Data Pool
-  DataPool<CaloCell> m_dataPool;
-
 };
 
 

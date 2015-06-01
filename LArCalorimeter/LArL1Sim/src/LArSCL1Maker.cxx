@@ -38,7 +38,7 @@
 #include "LArTools/LArCablingService.h"
 #include "LArTools/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 //
 // ........ Event Header Files:
@@ -117,7 +117,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   m_BeginRunPriority      = 100;
 
-  m_cablingSCSvc          = 0;
   //m_ttSvc                 = 0;
   m_scHelper            = 0;
 
@@ -571,7 +570,7 @@ void LArSCL1Maker::printConditions(const HWIdentifier& hwSC){
 		const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(hwSC,0,m_nSamples));
                 std::stringstream ss; ss << "Auto : ";
 		for(size_t ii=0;ii<m_nSamples;++ii) ss << CorrGen->at(ii) << " ";
-                ATH_MSG_VERBOSE(ss) ;
+                ATH_MSG_VERBOSE(ss.str()) ;
 
 	  }
 }
@@ -615,7 +614,7 @@ void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::Calo
 
  // Atlas like mode where we use 25ns binned pulse shape and derivative to deal with time offsets
 // shift between reference shape and this time
-      int ishift=(int)(rint(time/25.));
+      int ishift=(int)(rint(time*(1./25)));
       double dtime=time-25.*((double)(ishift));
 
       for (i=0;i<(int)m_nSamples;i++)

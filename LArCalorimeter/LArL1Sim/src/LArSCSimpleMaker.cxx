@@ -14,7 +14,7 @@
 //
 #include "LArL1Sim/LArSCSimpleMaker.h"
 //#include "LArRawEvent/LArRawChannelContainer.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -73,8 +73,9 @@ StatusCode LArSCSimpleMaker::execute()
 
   MsgStream  msglog(messageService(),name());
 
-  if (m_dataPool.allocated()==0)
-    m_dataPool.reserve (calo_sc_id->calo_cell_hash_max());
+  DataPool<CaloCell> dataPool;
+  if (dataPool.allocated()==0)
+    dataPool.reserve (calo_sc_id->calo_cell_hash_max());
 
   const DataHandle<CaloCellContainer> cells;
   CHECK( evtStore()->retrieve(cells, m_cellContainer) );
@@ -185,7 +186,7 @@ StatusCode LArSCSimpleMaker::execute()
       continue;
     }
 
-    CaloCell* ss = m_dataPool.nextElementPtr();
+    CaloCell* ss = dataPool.nextElementPtr();
     ss->setCaloDDE( m_sem_mgr->get_element (i));
     ss->setEnergy( energies[i] );
     ss->setTime(  0.  );

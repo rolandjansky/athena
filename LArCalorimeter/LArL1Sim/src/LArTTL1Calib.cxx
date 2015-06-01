@@ -216,7 +216,7 @@ StatusCode LArTTL1Calib::execute()
       //      ttOnlId = (*ttl1iter)->ttOnlineID();
       ttOffId = (*ttl1iter)->ttOfflineID();
       std::vector<float> sampleV = (*ttl1iter)->samples();
-      float e = sampleV[3] / 1000. ; // go to GeV 
+      float e = sampleV[3] * 1e-3 ; // go to GeV 
       int reg = m_lvl1Helper->region(ttOffId);
       int eta = m_lvl1Helper->eta(ttOffId);
       int bec=99;
