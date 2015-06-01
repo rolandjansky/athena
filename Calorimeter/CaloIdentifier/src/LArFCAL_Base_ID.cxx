@@ -30,6 +30,49 @@ LArFCAL_Base_ID::LArFCAL_Base_ID(const std::string& name, bool supercell)
   m_two_sym_sides = 1;
 }
 
+bool LArFCAL_Base_ID::is_connected ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
+{
+  bool result=false;
+  // Check that id is within allowed range
+  // Fill expanded id
+  ExpandedIdentifier expId(lar_fcal_exp());
+  expId << pos_neg << module << eta << phi << m_slar ;
+
+  if( expId.last_error () != ExpandedIdentifier::none) {
+    std::string errorMessage =
+      "Error in LArFCAL_Base_ID::is_connected, " +
+      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
+                 pos_neg , module , eta , phi);
+    throw LArID_Exception(errorMessage , 10);
+  }
+
+  if (m_full_channel_range.match(expId)) { 
+    result = true;
+  }
+  return(result);
+}
+
+bool LArFCAL_Base_ID::is_disconnected ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
+{
+  bool result=false;
+  // Check that id is within allowed range
+  // Fill expanded id
+  ExpandedIdentifier expId(lar_exp());
+  expId << -3 << pos_neg << module << eta << phi << m_slar ;
+
+  if( expId.last_error () != ExpandedIdentifier::none) {
+    std::string errorMessage =
+      "Error in LArFCAL_Base_ID::is_disconnected, " + 
+      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
+                 pos_neg , module , eta , phi);
+    throw LArID_Exception(errorMessage , 10);
+  }
+
+  if (m_full_disc_channel_range.match(expId)) { 
+    result = true;
+  }
+  return(result);
+}
 
 bool LArFCAL_Base_ID::is_supercell (const Identifier id)const
 {
@@ -130,6 +173,16 @@ int LArFCAL_Base_ID::phi_max(const Identifier modId) const
   return (-999);  // default
 }
 
+int         LArFCAL_Base_ID::disc_eta             (const Identifier id)const
+{
+  return(m_eta_impl.unpack(id));
+}
+
+int         LArFCAL_Base_ID::disc_phi             (const Identifier id)const
+{
+  return(m_phi_impl.unpack(id));
+}
+
 IdContext	
 LArFCAL_Base_ID::module_context 		(void) const
 {
@@ -143,15 +196,15 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
   MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
 
   std::string strg =  "initialize_from_dictionary";
-  log << MSG::DEBUG << strg << endmsg;
+  log << MSG::DEBUG << strg << endreq;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
   // init base object
@@ -174,7 +227,7 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
       strg = "Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary " 
       + strm.str();
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endmsg;
+	log << MSG::ERROR << strg << endreq;
       }
       else {
 	std::cout << strg << std::endl;
@@ -191,7 +244,7 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
       strg = "Could not get value for label 'LArFCAL' of field 'part' in dictionary " 
       + strm.str();
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endmsg;
+	log << MSG::ERROR << strg << endreq;
       }
       else {
 	std::cout << strg << std::endl;
@@ -199,8 +252,25 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
       return (1);
     }
 
+  // Find value for the field LArFCALdisc
+    int larFcalDiscField   = -1;
+    if (dict()->get_label_value("part", "LArFCALdisc", larFcalDiscField)) {
+      std::stringstream strm ;
+      strm <<  atlasDict->m_name ;
+      strg = "Could not get value for label 'LArFCALdisc' of field 'part' in dictionary " 
+      + strm.str();
+      if(m_msgSvc) {
+	log << MSG::ERROR << strg << endreq;
+      }
+      else {
+	std::cout << strg << std::endl;
+      }
+        return (1);
+    }
+
     // Set up id for region and range prefix
 
+    // (1) Connected channels
     ExpandedIdentifier region_id;
     region_id.add(larField);
     region_id.add(larFcalField);
@@ -208,22 +278,40 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
     m_full_channel_range = dict()->build_multirange(region_id, group_name, prefix);
     m_full_module_range = dict()->build_multirange(region_id, group_name, prefix, "module");
 
+    // (2) disconnected channels
+    ExpandedIdentifier region_id2;
+    region_id2.add(larField);
+    region_id2.add(larFcalDiscField);
+    Range prefix2;
+
+    m_full_disc_channel_range = dict()->build_multirange(region_id2, group_name, prefix2);
+    m_full_disc_module_range = dict()->build_multirange(region_id2, group_name, prefix2, "module");
+
     std::string strg0 = " initialize_from_dict : " ;
     std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
     std::string strg2 = " module range -> "  + (std::string)m_full_module_range;
+    std::string strg3 = " disconnected channel range -> "  + (std::string)m_full_disc_channel_range;
+    std::string strg4 = " disconnected module range -> "  + (std::string)m_full_disc_module_range;
     if(m_msgSvc) {
-      log << MSG::DEBUG << strg0 << endmsg;
-      log << MSG::DEBUG << strg1 << endmsg;
-      log << MSG::DEBUG << strg2 << endmsg;
+      log << MSG::DEBUG << strg0 << endreq;
+      log << MSG::DEBUG << strg1 << endreq;
+      log << MSG::DEBUG << strg2 << endreq;
+      log << MSG::DEBUG << strg3 << endreq;
+      log << MSG::DEBUG << strg4 << endreq;
     }
     else {
       std::cout << strg0 << std::endl;
       std::cout << strg1 << std::endl;
       std::cout << strg2 << std::endl;
+      std::cout << strg3 << std::endl;
+      std::cout << strg4 << std::endl;
     }
 
     // Setup the hash tables
     if(init_hashes()) return (1);
+
+    // Setup the disc hash tables
+    if(init_disc_hashes()) return (1);
 
     // initilize m_two_sym_sides
     m_two_sym_sides = ( dictionaryVersion() == "fullAtlas" );
@@ -314,6 +402,74 @@ void   LArFCAL_Base_ID::channel_id_checks   (const Identifier moduleId,
   }
 }
 
+void LArFCAL_Base_ID::disc_module_id_checks ( int pos_neg, int module ) const throw(LArID_Exception)
+{
+	
+  // Check that id is within allowed range
+  // Fill expanded id
+  ExpandedIdentifier expId(lar_exp());
+  expId << -3 << pos_neg << module;
+
+  if(  expId.last_error () != ExpandedIdentifier::none ){
+    std::string errorMessage  =
+      "Error in LArFCAL_Base_ID::module_id, " +
+      strformat ("pos_neg: %d , module: %d", pos_neg , module);
+    throw LArID_Exception(errorMessage , 9);
+  }
+
+  if (!m_full_disc_module_range.match(expId)) { 
+    std::string errorMessage = "LArFCAL_Base_ID::module_id() result is not OK: ID, range = "
+      + std::string(expId) + " , " + (std::string)m_full_disc_module_range;
+    throw LArID_Exception(errorMessage , 6);
+  }
+}
+
+void LArFCAL_Base_ID::disc_channel_id_checks ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
+{
+	
+  // Check that id is within allowed range
+  // Fill expanded id
+  ExpandedIdentifier expId(lar_exp());
+  expId << -3 << pos_neg << module << eta << phi << m_slar ;
+
+  if( expId.last_error () != ExpandedIdentifier::none) {
+    std::string errorMessage =
+      "Error in LArFCAL_Base_ID::channel_id, " + 
+      strformat ("pos_neg: %d , module: %d, eta: %d, phi: %d ",
+                 pos_neg , module , eta , phi);
+    throw LArID_Exception(errorMessage , 10);
+  }
+
+  if (!m_full_disc_channel_range.match(expId)) { 
+    std::string errorMessage = "LArFCAL_Base_ID::channel_id() result is not OK: ID, range = "
+      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
+    throw LArID_Exception(errorMessage , 10);
+  }
+}
+
+void   LArFCAL_Base_ID::disc_channel_id_checks   (const Identifier moduleId,
+					     int eta, int phi) const throw(LArID_Exception)
+{
+  // Check that id is within allowed range
+  // Fill expanded id
+  ExpandedIdentifier expId; 
+
+  IdContext context = module_context();
+  if (get_disc_expanded_id(moduleId, expId, &context)) {
+    std::string errorMessage = "LArFCAL_Base_ID::channel_id(modId) result is not OK: ID = "
+      + show_to_string(moduleId) ;
+    throw LArID_Exception(errorMessage , 10);
+  }
+
+  expId << eta << phi << m_slar ;
+
+  if (!m_full_disc_channel_range.match(expId)) { 
+    std::string errorMessage = "LArFCAL_Base_ID::channel_id(modId) result is not OK: ID, range = "
+      + std::string(expId) + " , " + (std::string)m_full_disc_channel_range;
+    throw LArID_Exception(errorMessage , 10);
+  }
+}
+
 int  LArFCAL_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
 {
     // We assume that the context is >= region
@@ -334,6 +490,26 @@ int  LArFCAL_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier
     return (0);
 }
 
+int  LArFCAL_Base_ID::get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
+{
+    // We assume that the context is >= region
+    exp_id.clear();
+    exp_id << lar_field_value()
+      	   << -3
+	   << pos_neg(id)
+	   << module(id);
+    if(context && context->end_index() >= m_ETA_INDEX) {
+	exp_id << eta(id);
+	if(context->end_index() >= m_PHI_INDEX) {
+	    exp_id << phi(id);
+	    if (context->end_index() >= m_SLAR_INDEX) {
+	      exp_id << (unsigned)is_supercell(id);
+	    }
+	}
+    }
+    return (0);
+}
+
 int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*/)
 {
   MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
@@ -341,7 +517,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   if(!dict()) {
     std::string strg = "initLevelsFromDict - dictionary NOT initialized ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -368,7 +544,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
     std::string strg = "initLevelsFromDict - unable to find fcal region index: id, reg "  
       +  (std::string)id + strm.str();
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -383,7 +559,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     std::string strg = "initLevelsFromDict - unable to find 'subdet' field ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -398,7 +574,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     std::string strg = "initLevelsFromDict - unable to find 'part' field ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -413,7 +589,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     std::string strg = "initLevelsFromDict - unable to find 'barrel-endcap' field ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -429,7 +605,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
     std::string strg = "initLevelsFromDict - unable to find 'module' field ";
     if(dictionaryVersion() != "H8TestBeam" ) {
       if(m_msgSvc) {
-	log << MSG::ERROR << strg << endmsg;
+	log << MSG::ERROR << strg << endreq;
       }
       else {
 	std::cout << strg << std::endl;
@@ -445,7 +621,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     std::string strg = "initLevelsFromDict - unable to find 'eta' field ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -460,7 +636,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     std::string strg = "initLevelsFromDict - unable to find 'phi' field ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endmsg;
+      log << MSG::ERROR << strg << endreq;
     }
     else {
       std::cout << strg << std::endl;
@@ -475,7 +651,7 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'is-slar-fcal' field "
-          << endmsg;
+          << endreq;
     }
     else {
       std::cout << "LArFCAL_Base_ID::initLevelsFromDict - unable to find 'is-slar-fcal' field "
@@ -506,14 +682,14 @@ int         LArFCAL_Base_ID::initLevelsFromDict(const std::string& /*group_name*
   m_slar_impl     = region.m_implementation[m_SLAR_INDEX]; 
 
   if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "fcal "  << m_fcal_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "pn   "  << m_pn_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "mod  "  << m_module_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
+    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "fcal "  << m_fcal_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "pn   "  << m_pn_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "mod  "  << m_module_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endreq;
   }
   else {
     std::cout << "decode index and bit fields for each level: " << std::endl;
@@ -546,6 +722,23 @@ int         LArFCAL_Base_ID::init_hashes(void)
   return (0);
 }
 
+int         LArFCAL_Base_ID::init_disc_hashes(void) 
+{
+  if (m_disc_channels.init (*this, "channels",
+                            m_full_disc_channel_range,
+                            &LArFCAL_Base_ID::disc_channel_id,
+                            m_SLAR_INDEX))
+    return 1;
+  if (m_disc_modules.init (*this, "regions",
+                           m_full_disc_module_range,
+                           &LArFCAL_Base_ID::disc_module_id,
+                           m_MODULE_INDEX))
+    return 1;
+
+  return (0);
+}
+
+
 int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbours::neighbourOption& option, 
 				 std::vector<IdentifierHash>& neighbourList) const
 {
@@ -556,7 +749,7 @@ int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbou
   if(!m_do_neighbours) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
-      log << MSG::WARNING << "neighbours not initialized !!! returning empty list" << endmsg;
+      log << MSG::WARNING << "neighbours not initialized !!! returning empty list" << endreq;
     }
     else {
       std::cout << " neighbours not initialized !!! returning empty list " << std::endl;
@@ -567,12 +760,10 @@ int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbou
   if(id>=channel_hash_max()) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
-      log << MSG::WARNING << "neighbours requested for  non-existing channel -- id/max " << id << "/"
-          << channel_hash_max() << endmsg;
+      log << MSG::WARNING << "neighbours requested for unconnected channel -- this is not implemented" << endreq;
     }
     else {
-      std::cout << " neighbours requested for non-existing channel -- id/max " << id << "/"
-                << channel_hash_max() << std::endl;
+      std::cout << " neighbours requested for unconnected channel -- this is not implemente" << std::endl;
     }
     return result;
   }
@@ -606,7 +797,7 @@ int   LArFCAL_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbou
   } else {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
-      log << MSG::WARNING << " NO FCAL neighbours (yet) in the context of " << dictionaryVersion() << endmsg;
+      log << MSG::WARNING << " NO FCAL neighbours (yet) in the context of " << dictionaryVersion() << endreq;
     }
     else {
       std::cout << " NO FCAL neighbours (yet) in the context of " << dictionaryVersion() << std::endl;
@@ -619,17 +810,17 @@ int         LArFCAL_Base_ID::init_neighbours_from_file(std::string filename, std
 {
   MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
 
-  log << MSG::DEBUG << "init_neighbours_from_file" << endmsg;
+  log << MSG::DEBUG << "init_neighbours_from_file" << endreq;
   // Find the full path to filename:
   std::string file = PathResolver::find_file (filename, "DATAPATH");
-  log << MSG::INFO << "Reading file " << file << endmsg;
+  log << MSG::INFO << "Reading file " << file << endreq;
   std::ifstream fin;
   if (file != "") {
     fin.open(file.c_str());
   }
   else {
     if(m_msgSvc) {
-      log << MSG::ERROR << "Could not find input file " << filename << endmsg;
+      log << MSG::ERROR << "Could not find input file " << filename << endreq;
     }
     else {
       std::cout << "LarFCal_Base_ID::Could not find input file " << filename <<  std::endl;
@@ -638,7 +829,7 @@ int         LArFCAL_Base_ID::init_neighbours_from_file(std::string filename, std
   }
   if (fin.bad()) {
     if(m_msgSvc) {
-      log << MSG::ERROR << "Could not open file " << file << endmsg;
+      log << MSG::ERROR << "Could not open file " << file << endreq;
     }
     else {
       std::cout << "LarFCal_Base_ID::Could not open file " << file << std::endl;
@@ -697,7 +888,7 @@ LArFCAL_Base_ID::init_neighbours(const IdDictMgr& dict_mgr)
     
     MsgStream log(m_msgSvc, "LArFCAL_Base_ID" );
     if(m_msgSvc) {
-        log << MSG::DEBUG << "init_neighbours" << endmsg;
+        log << MSG::DEBUG << "init_neighbours" << endreq;
     }
     else {
         std::cout << "LarFCal_Base_ID::init_neighbours " << std::endl;
@@ -720,7 +911,7 @@ LArFCAL_Base_ID::init_neighbours(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             log << MSG::ERROR << "init_neighbours: cannot find neighbours files: " 
                 << " f2d: " << f2d << " f3dnext: " << f3dnext << " f3dprev: " << f3dprev
-                << endmsg;
+                << endreq;
         }
         else {
             std::cout << "LarFCal_Base_ID::init_neighbours cannot find neighbours files: " 
@@ -737,7 +928,7 @@ LArFCAL_Base_ID::init_neighbours(const IdDictMgr& dict_mgr)
         status = init_neighbours_3d_prev(f3dprev);
 
     if(m_msgSvc) {
-        log << MSG::DEBUG << "init_neighbours status: " << status << endmsg;
+        log << MSG::DEBUG << "init_neighbours status: " << status << endreq;
     }
     else {
         std::cout << "LarFCal_Base_ID::init_neighbours status: " << status << std::endl;

@@ -31,15 +31,15 @@ int  LArHEC_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   MsgStream log(m_msgSvc, "LArHEC_ID" );
   
   std::string strg = "initialize_from_dictionary";
-  log << MSG::DEBUG << strg << endmsg;
+  log << MSG::DEBUG << strg << endreq;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
   // init base object

@@ -76,27 +76,27 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
   // Find the full path to filename:
   std::string file = PathResolver::find_file (filename, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endmsg;
+  log << MSG::INFO << "Reading file  " << file << endreq;
   std::ifstream fin;
   if (file != "") {
     fin.open(file.c_str());
   }
   else {
-    log << MSG::ERROR << "Could not find input file " << filename <<  endmsg;
+    log << MSG::ERROR << "Could not find input file " << filename <<  endreq;
     return 1;
   }
   if (fin.bad()) {
-    log << MSG::ERROR << "Could not open file " << file << endmsg;
+    log << MSG::ERROR << "Could not open file " << file << endreq;
     return 1;
   }
 
   //
   // Parse the input file
   //
-  unsigned int line=0, record=0;              // file line number, record number
+  unsigned int line=0, record=0, error=0;              // file line number, record number
   char token[MAX_TOKEN_SIZE];                 // input token
 
-  log << MSG::VERBOSE << "Parsing input file:" << endmsg;
+  log << MSG::VERBOSE << "Parsing input file:" << endreq;
     
   std::vector<Cell> allCells;
 
@@ -131,7 +131,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
     fin.ignore(MAX_TOKEN_SIZE, '\n'); // skip to eol
 
-    log << endmsg;
+    log << endreq;
     allCells.push_back(newCell);
     record++;				     // count input records
     
@@ -139,7 +139,9 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
  
   fin.close();
 
-  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endmsg;
+  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records";
+  if ( error > 0 ) log << ", " << error << " of them are ignored." << endreq;
+  else log << "." << endreq;
 
   unsigned int curSize = allCells.size();
   for (unsigned int i=0; i<curSize; ++i) {
@@ -196,7 +198,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
         log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for cell id. nids= " << nids
             << " compact Id  " << tileID->show_to_string(id)
-            << endmsg;
+            << endreq;
       }
       nids++;
     }
@@ -238,7 +240,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
                   << nb_name[j] << k << " "
                   << allCells[i].neighbours[j][k] << " "
                   << allCells[i].neighbours_ind[j][k] << " "
-                  << endmsg;
+                  << endreq;
             }
             break;
           }
@@ -384,7 +386,7 @@ int TileNeighbour::fill_phi_vec  (std::set<std::pair<IdentifierHash,int> > & ids
     log << MSG::ERROR << "fill_phi_vec "
         << " Error: set size NOT EQUAL to hash max. size " << ids.size()
         << " hash max " << hash_max
-        << endmsg;
+        << endreq;
     return (1);
   }
 
@@ -583,7 +585,7 @@ void TileNeighbour::get_id(std::string & strName, Identifier & id, const Tile_Ba
     std::string::size_type pos = strName.find( "-", 0 );
     if ( std::string::npos != pos ) sd = -1; else sd = 1;
 
-    sscanf(name+2,"%80d",&tw);
+    sscanf(name+2,"%d",&tw);
     if (tw<0) tw *= -1;
 
     switch ( name[0] ) {
@@ -667,7 +669,7 @@ void TileNeighbour::get_name(Identifier & id, std::string & strSection,
             break;
     }
       
-    char name[15];
+    char name[5];
     if (s1>0) snprintf(name,sizeof(name),"%c%c%c%d",sm,s1,sd,tw);
     else      snprintf(name,sizeof(name),"%c%c%d",  sm,sd,tw);
     strCell = name;
@@ -697,11 +699,11 @@ void TileNeighbour::print_list(std::vector<IdentifierHash> & nb_list,
 //  memset(space,32,size);
 //  space[size]=0;
   for (unsigned int j=0; j<size; ++j) {
-    log << MSG::VERBOSE << endmsg;
+    log << MSG::VERBOSE << endreq;
     log << MSG::VERBOSE << "\t";
     tileID->get_id (nb_list[j], id, context);
     get_name(id,strSection,module,strCell,tileID,log,suff);
   }
-  log << endmsg;
+  log << endreq;
 //  delete [] space;
 }

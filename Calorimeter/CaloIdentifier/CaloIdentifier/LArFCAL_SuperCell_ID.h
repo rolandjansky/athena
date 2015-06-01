@@ -39,6 +39,8 @@
 *
 * 384 connected cells in total  <br>
 *
+* No disconnected channels are defined for supercells.
+*
 * @author RD Schaffer, Denis Oliveira Damazio, scott snyder, naoko kanaya
 */  
 

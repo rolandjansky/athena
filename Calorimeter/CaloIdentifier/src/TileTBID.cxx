@@ -360,7 +360,7 @@ int  TileTBID::get_id     (const IdentifierHash& hash_id, Identifier& id, const 
       } else {
 	MsgStream log(m_msgSvc, "TileTBID" );
 	log << MSG::ERROR << "get_id: channel hash_id is out of range " << hash_id
-            << " => " << m_channel_vec.size() << endmsg;
+            << " => " << m_channel_vec.size() << endreq;
       }
     } else if ( m_MODULE_INDEX == end ) {
       if (hash_id < (unsigned int)(m_module_vec.end() - m_module_vec.begin())) {
@@ -369,7 +369,7 @@ int  TileTBID::get_id     (const IdentifierHash& hash_id, Identifier& id, const 
       } else {
 	MsgStream log(m_msgSvc, "TileTBID" );
 	log << MSG::ERROR << "get_id: module hash_id is out of range "
-            << hash_id << " => " << m_module_vec.size() << endmsg;
+            << hash_id << " => " << m_module_vec.size() << endreq;
       }
     } else if ( m_TYPE_INDEX == end ) {
       if (hash_id < (unsigned int)(m_type_vec.end() - m_type_vec.begin())) {
@@ -378,7 +378,7 @@ int  TileTBID::get_id     (const IdentifierHash& hash_id, Identifier& id, const 
       } else {
 	MsgStream log(m_msgSvc, "TileTBID" );
 	log << MSG::ERROR << "get_id: TYPE hash_id is out of range " << hash_id
-            << " => " << m_type_vec.size() << endmsg;
+            << " => " << m_type_vec.size() << endreq;
       }
     }
   }
@@ -423,18 +423,18 @@ int  TileTBID::get_hash  (const Identifier& id, IdentifierHash& hash_id, const I
 int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 {
   MsgStream log(m_msgSvc, "TileTBID" );
-  log << MSG::INFO << "initialize_from_dictionary " << endmsg;
+  log << MSG::INFO << "initialize_from_dictionary " << endreq;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    log << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
-  log << MSG::DEBUG << "calling base initialize_from_dictionary" << endmsg;
+  log << MSG::DEBUG << "calling base initialize_from_dictionary" << endreq;
 
   // init base object
   if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
@@ -444,7 +444,7 @@ int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   m_dict = dict_mgr.find_dictionary ("TileCalorimeter"); 
   if(!m_dict) {
-    log << MSG::ERROR << "cannot access TileCalorimeter dictionary " << endmsg;
+    log << MSG::ERROR << "cannot access TileCalorimeter dictionary " << endreq;
     return 1;
   }
   
@@ -458,7 +458,7 @@ int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if (atlasDict->get_label_value("subdet", "TileCalorimeter", tileField)) {
     log << MSG::ERROR << "Could not get value for label 'TileCalorimeter' of field 'subdet' in dictionary " 
         << atlasDict->m_name
-        << endmsg;
+        << endreq;
     return (1);
   }
 
@@ -467,14 +467,14 @@ int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if (m_dict->get_label_value("section", "Testbeam", tiletbField)) {
     log << MSG::ERROR << "Could not get value for label 'Testbeam' of field 'section' in dictionary " 
         << m_dict->m_name
-        << endmsg;
+        << endreq;
     return (1);
   }
 
   /*
   log << MSG::DEBUG << "TileTB_ID::initialize_from_dict - found field values: TileTB " 
       << TileTBField
-      << endmsg;
+      << endreq;
   */
 
   // Set up id for region and range prefix
@@ -487,10 +487,10 @@ int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_module_range = m_dict->build_multirange(reg_id, prefix, "tbmodule");
   m_full_type_range   = m_dict->build_multirange(reg_id, prefix, "type");
 
-  log << MSG::DEBUG << "initialize_from_dict : "                                 << endmsg;
-  log << MSG::DEBUG << " type range -> "    << (std::string)m_full_type_range    << endmsg;
-  log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range  << endmsg;
-  log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endmsg;
+  log << MSG::DEBUG << "initialize_from_dict : "                                 << endreq;
+  log << MSG::DEBUG << " type range -> "    << (std::string)m_full_type_range    << endreq;
+  log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range  << endreq;
+  log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endreq;
 
   // Setup the hash tables
   if(init_hashes()) return (1);
@@ -526,7 +526,7 @@ int TileTBID::initLevelsFromDict(void)
 
   if(!m_dict) {
     log << MSG::ERROR << "initLevelsFromDict - dictionary NOT initialized "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -543,7 +543,7 @@ int TileTBID::initLevelsFromDict(void)
   if (m_dict->find_region(expId,m_tile_region_index)){
     log << MSG::ERROR << "initLevelsFromDict - unable to find tile region index: expId, reg "  
         << (std::string)expId << " " << m_tile_region_index
-        << endmsg;
+        << endreq;
     return (1);
   }
 
@@ -554,7 +554,7 @@ int TileTBID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'subdet' field "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -564,7 +564,7 @@ int TileTBID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'section' field "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -574,7 +574,7 @@ int TileTBID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'type' field "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -584,7 +584,7 @@ int TileTBID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'tbmodule' field "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -594,7 +594,7 @@ int TileTBID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'tbchannel' field "
-        << endmsg ;
+        << endreq ;
     return (1);
   }
 
@@ -611,12 +611,12 @@ int TileTBID::initLevelsFromDict(void)
   m_system_impl.pack  (tile_field_value(),m_base_tile_type);
   m_section_impl.pack (TileTBID::TILE_TESTBEAM,m_base_tile_type);
 
-  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
-  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
-  log << MSG::DEBUG << " type     [" << m_TYPE_INDEX     << "]  " << m_type_impl.show_to_string()     << endmsg ;
-  log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endmsg ;
+  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endreq ;
+  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endreq ;
+  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endreq ;
+  log << MSG::DEBUG << " type     [" << m_TYPE_INDEX     << "]  " << m_type_impl.show_to_string()     << endreq ;
+  log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endreq ;
+  log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endreq ;
 
   return(0) ;
 }
@@ -639,7 +639,7 @@ int TileTBID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for type id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endmsg;
+            << endreq;
       }
       nids++;
     }
@@ -662,7 +662,7 @@ int TileTBID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for module id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endmsg;
+            << endreq;
       }
       nids++;
     }
@@ -686,7 +686,7 @@ int TileTBID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for channel id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endmsg;
+            << endreq;
       }
       nids++;
     }
@@ -707,7 +707,7 @@ int TileTBID::fill_vec  (std::set<Identifier> & ids,
     log << MSG::ERROR << "fill_vec "
         << " Error: set size NOT EQUAL to hash max. size " << ids.size()
         << " hash max " << hash_max
-        << endmsg;
+        << endreq;
 
     return (1);
   }

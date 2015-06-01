@@ -42,6 +42,52 @@ LArEM_Base_ID::~LArEM_Base_ID(void)
   for (; first != last; ++first) delete (*first);
 }
 
+
+bool LArEM_Base_ID::is_connected  ( int barrel_ec, int sampling, int region, int eta, int phi )  const throw(LArID_Exception)
+{  
+  bool result = false;
+
+    // Fill expanded id
+    ExpandedIdentifier expId(lar_em_exp());
+    expId << barrel_ec << sampling << region << eta << phi << m_slar;
+
+    if( expId.last_error () != ExpandedIdentifier::none) {
+	std::string errorMessage = 
+          "Error in LArEM_Base_ID::is_connected(field values), " +
+          strformat ("barrel_ec: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
+                     barrel_ec , sampling , region, eta, phi);
+	throw LArID_Exception(errorMessage , 6);
+    }
+
+    if (m_full_em_range.match(expId)) { 
+      result = true;
+    }
+    return (result);
+}
+
+bool LArEM_Base_ID::is_disconnected  ( int barrel_ec, int sampling, int region, int eta, int phi )  const throw(LArID_Exception)
+{  
+  bool result = false;
+
+    // Fill expanded id
+    ExpandedIdentifier expId(lar_exp());
+    expId << -1 << barrel_ec << sampling << region << eta << phi << m_slar;
+
+    if( expId.last_error () != ExpandedIdentifier::none) {
+	std::string errorMessage = 
+          "Error in LArEM_Base_ID::is_disconnected(field values), " +
+          strformat ("barrel_ec: %d , sampling: %d, region: %d , eta: %d , phi: %d ",
+                     barrel_ec , sampling , region, eta, phi);
+	throw LArID_Exception(errorMessage , 6);
+    }
+
+    if (m_full_disc_em_range.match(expId)) { 
+      result = true;
+    }
+    return (result);
+}
+
+
 bool LArEM_Base_ID::is_supercell (const Identifier id)const
 {
   return(m_slar_impl.unpack(id)) != 0;
@@ -142,6 +188,16 @@ int LArEM_Base_ID::phi_max(const Identifier regId) const
   return (-999);  // default
 }
 
+int         LArEM_Base_ID::disc_eta             (const Identifier id)const
+{
+  return(m_eta_impl.unpack(id));
+}
+
+int         LArEM_Base_ID::disc_phi             (const Identifier id)const
+{
+  return(m_phi_impl.unpack(id));
+}
+
 void LArEM_Base_ID::region_id_checks   ( int barrel_ec, int sampling, int region ) const throw(LArID_Exception)
 {
   // Check that id is within allowed range
@@ -215,6 +271,77 @@ void LArEM_Base_ID::channel_id_checks   ( const Identifier regionId,
 }
 
 
+void LArEM_Base_ID::disc_region_id_checks   ( int barrel_ec, int sampling, int region ) const throw(LArID_Exception)
+{
+  // Check that id is within allowed range
+
+  // Fill expanded id
+  ExpandedIdentifier expId(lar_exp());
+  expId << -1 << barrel_ec << sampling << region;
+
+  if(  expId.last_error () != ExpandedIdentifier::none ){
+    std::string errorMessage = 
+      "Error in LArEM_Base_ID::region_id_checks, " +
+      strformat ("barrel_ec: %d , sampling: %d, region: %d ",
+                 barrel_ec , sampling , region);
+    throw LArID_Exception(errorMessage , 5);
+  }
+  
+  if (!m_full_disc_region_range.match(expId)) { 
+    std::string errorMessage = "LArEM_Base_ID::region_id_checks() result is not OK: ID, range = "
+      + std::string(expId) + " , " + (std::string)m_full_disc_region_range;
+    throw LArID_Exception(errorMessage , 5);
+  }
+}
+
+
+void LArEM_Base_ID::disc_channel_id_checks   ( int barrel_ec, int sampling, int region,
+                                               int eta,       int phi ) const throw(LArID_Exception)
+{  
+    // Check that id is within allowed range
+
+    // Fill expanded id
+    ExpandedIdentifier expId(lar_exp());
+    expId << -1 << barrel_ec << sampling << region << eta << phi << m_slar ;
+
+    if( expId.last_error () != ExpandedIdentifier::none) {
+	std::string errorMessage =
+          "Error in LArEM_Base_ID::disc_channel_id_checks(field values), " +
+          strformat ("barrel_ec: %d , sampling: %d, region: %d , eta: %d , phi: %d ", 
+                     barrel_ec , sampling , region, eta, phi);
+	throw LArID_Exception(errorMessage , 6);
+    }
+
+    if (!m_full_disc_em_range.match(expId)) { 
+	std::string errorMessage = "LArEM_Base_ID::disc_channel_id_checks() result is not OK: ID, range = "
+	    + std::string(expId) + " , " + (std::string)m_full_disc_em_range;
+	throw LArID_Exception(errorMessage , 6);
+    }
+}
+
+void LArEM_Base_ID::disc_channel_id_checks   ( const Identifier regionId,
+                                               int eta,       int phi ) const throw(LArID_Exception) 
+{
+  // Check that id is within allowed range
+
+  // Fill expanded id
+    ExpandedIdentifier expId; 
+
+    IdContext context = region_context();
+    if (get_disc_expanded_id(regionId, expId, &context)) {
+	std::string errorMessage = "LArEM_Base_ID::disc_channel_id_checks(regId) result is not OK: ID = "
+	    + show_to_string(regionId) ;
+	throw LArID_Exception(errorMessage , 6);
+    }
+
+    expId << eta << phi << m_slar;
+
+    if (!m_full_disc_em_range.match(expId)) { 
+	std::string errorMessage = "LArEM_Base_ID::disc_channel_id_checks(regId) result is not OK: ID, range = "
+	    + std::string(expId) + " , " + (std::string)m_full_disc_em_range;
+	throw LArID_Exception(errorMessage , 6);
+    }
+}
 
 
 int  LArEM_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
@@ -238,13 +365,36 @@ int  LArEM_Base_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier& 
     return (0);
 }
 
+
+int  LArEM_Base_ID::get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const
+{
+  // We assume that the context is >= region
+  exp_id.clear();
+  exp_id << lar_field_value()
+         << -1
+         << barrel_ec(id)
+         << sampling(id)
+         << region(id);
+  if(context && context->end_index() >= m_ETA_INDEX) {
+    exp_id << eta(id);
+    if(context->end_index() >= m_PHI_INDEX) {
+      exp_id << phi(id);
+      if (context->end_index() >= m_SLAR_INDEX) {
+        exp_id << (unsigned)is_supercell(id);
+      }
+    }
+  }
+  return (0);
+}
+
+
 int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
 {
   MsgStream log(m_msgSvc, "LArEM_Base_ID" );
   if(!dict()) {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - dictionary NOT initialized "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - dictionary NOT initialized "
@@ -272,7 +422,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'subdet' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'subdet' field "
@@ -288,7 +438,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'part' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'part' field "
@@ -304,7 +454,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'barrel-endcap' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'barrel-endcap' field "
@@ -320,7 +470,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'sampling' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'sampling' field "
@@ -336,7 +486,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'region' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'region' field "
@@ -352,7 +502,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'eta' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'eta' field "
@@ -368,7 +518,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'phi' field "
-	  << endmsg;
+	  << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'phi' field "
@@ -384,7 +534,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   else {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - unable to find 'is-slar' field "
-          << endmsg;
+          << endreq;
     }
     else {
       std::cout << "LArEM_Base_ID::initLevelsFromDict - unable to find 'is-slar' field "
@@ -398,7 +548,7 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   IdDictGroup* group = dict()->find_group(group_name);
   if ( !group ){
     log << MSG::ERROR << "initLevelsFromDict - cannot find " << group_name 
-        << " group' field " << endmsg;
+        << " group' field " << endreq;
   }
   else {
 	m_em_region_index = group->regions()[0]->m_index;
@@ -415,15 +565,15 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   m_slar_impl     = region.m_implementation[m_SLAR_INDEX]; 
 
   if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "em   "   << m_em_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "bec  "  << m_bec_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "samp " << m_sampling_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
+    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "em   "   << m_em_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "bec  "  << m_bec_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "samp " << m_sampling_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endreq;
   }
   else {
     std::cout << "decode index and bit fields for each level: " << std::endl;
@@ -457,6 +607,18 @@ int         LArEM_Base_ID::init_hashes(void)
 }
 
 
+int LArEM_Base_ID::init_disc_hashes(void) 
+{
+  if (m_disc_channels.init (*this, "channels",
+                            m_full_disc_em_range,
+                            &LArEM_Base_ID::disc_channel_id,
+                            m_SLAR_INDEX))
+    return 1;
+
+  return (0);
+}
+
+
 int
 LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
                                                 const std::string& group_name)
@@ -464,15 +626,15 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
 {
   MsgStream log(m_msgSvc, "LArEM_Base_ID" );
 
-  log << MSG::DEBUG << "initialize_base_from_dictionary" << endmsg;
+  log << MSG::DEBUG << "initialize_base_from_dictionary" << endreq;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
   // init base object
@@ -493,7 +655,7 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
       if(m_msgSvc) {
 	log << MSG::ERROR << "Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary " 
 	    << atlasDict->m_name
-	    << endmsg;
+	    << endreq;
       }
       else {
         std::cout << "Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary " 
@@ -509,10 +671,26 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
       if(m_msgSvc) {
 	log << MSG::ERROR << "Could not get value for label 'LArEM' of field 'part' in dictionary " 
 	    << dict()->m_name
-	    << endmsg;
+	    << endreq;
       }
       else {
         std::cout << "Could not get value for label 'LArEM' of field 'part' in dictionary " 
+                  << dict()->m_name
+                  << std::endl;
+      }
+      return (1);
+    }
+
+    int larEmDiscField   = -1;
+    // Find value for the field LArEMdisc
+    if (dict()->get_label_value("part", "LArEMdisc", larEmDiscField)) {
+      if(m_msgSvc) {
+        log << MSG::ERROR << "Could not get value for label 'LArEMdisc' of field 'part' in dictionary " 
+            << dict()->m_name
+            << endreq;
+      }
+      else {
+        std::cout << "Could not get value for label 'LArEMdisc' of field 'part' in dictionary " 
                   << dict()->m_name
                   << std::endl;
       }
@@ -524,17 +702,30 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
     reg_id.add(larField);
     reg_id.add(larEmField);
     Range prefix;	
+    ExpandedIdentifier reg_id2;
+    reg_id2.add(larField);
+    reg_id2.add(larEmDiscField);
+    Range prefix2;
 
+    // (1) Connected channels
     m_full_em_range = dict()->build_multirange(reg_id, group_name, prefix);
     m_full_region_range = dict()->build_multirange(reg_id, group_name, prefix, "region");  
     
+    // (2) disconnected channels
+    m_full_disc_em_range = dict()->build_multirange(reg_id2,group_name, prefix2);
+    m_full_disc_region_range = dict()->build_multirange(reg_id2,group_name, prefix2, "region");
+
     if(m_msgSvc) {
       log << MSG::DEBUG << " initialize_from_dict : " 
-	  << endmsg;
+	  << endreq;
       log << MSG::DEBUG << " region range -> "  << (std::string)m_full_region_range
-	  << endmsg;
+	  << endreq;
       log << MSG::DEBUG << " channel range -> "  << (std::string)m_full_em_range
-	  << endmsg;
+	  << endreq;
+      log << MSG::DEBUG << " disconected region range -> "  << (std::string)m_full_disc_region_range
+	  << endreq;
+      log << MSG::DEBUG << " disconnected channel range -> "  << (std::string)m_full_disc_em_range
+	  << endreq;
     }
     else {
       std::cout << " LArEM_Base_ID::initialize_from_dict : " 
@@ -542,6 +733,10 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
       std::cout << " region range -> "  << (std::string)m_full_region_range
 		<< std::endl;
       std::cout << " channel range -> "  << (std::string)m_full_em_range
+		<< std::endl;
+      std::cout << " disconected region range -> "  << (std::string)m_full_disc_region_range
+		<< std::endl;
+      std::cout << " disconnected channel range -> "  << (std::string)m_full_disc_em_range
 		<< std::endl;
     }
    
@@ -636,7 +831,7 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
 		<< i << " "
 		<< show_to_string(min) << " " 
 		<< m_bec_reg_impl.unpack(min) << " " 
-		<< endmsg;
+		<< endreq;
 	  }
 	  else {
 	    std::cout << "min > 255 " 
@@ -682,7 +877,7 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
 	      << show_to_string(id) << " " 
 	      << channel_hash(id) << " " 
 	      << i
-	      << endmsg;
+	      << endreq;
 	}
 	else {
 	  std::cout << " *****  Error ";
@@ -695,6 +890,8 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
       }
     }
     
+    if(init_disc_hashes()) return (1);
+
     // Setup hash tables for finding neighbors (at the end of initialisation, 
     // to benefit from optimization
     if(m_do_neighbours) {
@@ -715,7 +912,7 @@ int   LArEM_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbours
   if(!m_do_neighbours) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArEM_Base_ID" );
-      log << MSG::WARNING << "neighbours not initialized !!! returning empty list" << endmsg;
+      log << MSG::WARNING << "neighbours not initialized !!! returning empty list" << endreq;
     }
     else {
       std::cout << " WARNING: neighbours not initialized !!! returning empty list " << std::endl;
@@ -723,15 +920,13 @@ int   LArEM_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbours
     return result;
   }
 
-  if(id >= channel_hash_max()) {
+  if(id>=channel_hash_max()) {
     if(m_msgSvc) {
       MsgStream log(m_msgSvc, "LArEM_Base_ID" );
-      log << MSG::WARNING << "neighbours requested for non-existing channel -- id/max " << id << "/"
-          << channel_hash_max() << endmsg;
+      log << MSG::WARNING << "neighbours requested for unconnected channel -- this is not implemented" << endreq;
     }
     else {
-      std::cout << " neighbours requested for non-existing channel -- id/max " << id << "/"
-                << channel_hash_max() << std::endl;
+      std::cout << " neighbours requested for unconnected channel -- this is not implemented" << std::endl;
     }
     return result;
   }
@@ -899,7 +1094,7 @@ int   LArEM_Base_ID::get_neighbours(const IdentifierHash id, const LArNeighbours
     } else {
       if(m_msgSvc) {
         MsgStream log(m_msgSvc, "LArEM_Base_ID" );
-	log << MSG::WARNING << " more than 22 neighbours for this cell, NONE will be retained" << endmsg;
+	log << MSG::WARNING << " more than 22 neighbours for this cell, NONE will be retained" << endreq;
       }
       else {
 	std::cout << "WARNING: more than 22 neighbours for this cell, NONE will be retained " << neighbourIndex << std::endl;
@@ -1303,7 +1498,7 @@ int         LArEM_Base_ID::init_neighbors(void)
 {
   MsgStream log(m_msgSvc, "LArEM_Base_ID" );
   if(m_msgSvc) {
-    log << MSG::DEBUG << "init_neighbors" << endmsg;
+    log << MSG::DEBUG << "init_neighbors" << endreq;
   }
   else {
     std::cout << " LArEM_Base_ID::init_neighbors " << std::endl;
@@ -1340,7 +1535,7 @@ int         LArEM_Base_ID::init_neighbors(void)
 	  if(m_msgSvc) {
 	    log << MSG::ERROR << " LArId exception " 
 		<< (std::string)except
-		<< endmsg;
+		<< endreq;
 	  }
 	  else {
 	    std::cout 
@@ -1356,7 +1551,7 @@ int         LArEM_Base_ID::init_neighbors(void)
 	if(m_msgSvc) {
 	  log << MSG::WARNING << " could not find non negative etaMin and phiMin for region " 
 	      << show_to_string(regId)
-	      << endmsg;
+	      << endreq;
 	}
 	else {
 	  std::cout << "WARNING !! could not find non negative etaMin and phiMin for region " 
@@ -1489,7 +1684,7 @@ int         LArEM_Base_ID::init_neighbors(void)
 	if ((short int)hashReg != reg) {
 	  if(m_msgSvc) {
 	    log << MSG::ERROR << " init_neighbors: problem reg, hashReg = " << reg << " " << hashReg 
-		<< endmsg;
+		<< endreq;
 	  }
 	  else {
 	    std::cout << " init_neighbors: problem reg, hashReg = " << reg << " " << hashReg 

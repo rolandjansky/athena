@@ -51,7 +51,7 @@ int CaloIDHelper::HashGroup::init (const std::string& name,
   if (full_range && full_range->cardinality() != ids.size()) {
     MsgStream log (msgSvc, "CaloIDHelper");
     log << MSG::ERROR  << name << " set size " << ids.size()
-        << " not equal to hash max " << full_range->cardinality() << endmsg;
+        << " not equal to hash max " << full_range->cardinality() << endreq;
     return 1;
   }
   m_id_vec.assign (ids.begin(), ids.end());
@@ -243,7 +243,7 @@ CaloIDHelper::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
   if(!m_dict) {
     MsgStream log(m_msgSvc, "CaloIDHelper" );
     log << MSG::ERROR << " cannot access " << dict_name <<  "dictionary"
-        << endmsg;
+        << endreq;
     return 1;
   }
   return 0;

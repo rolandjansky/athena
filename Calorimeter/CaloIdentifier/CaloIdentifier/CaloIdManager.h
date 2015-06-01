@@ -30,8 +30,6 @@ class LArHEC_SuperCell_ID;
 class TileID;
 class Tile_SuperCell_ID;
 class TTOnlineID;
-class JTower_ID;
-class GTower_ID;
 
 
 /**
@@ -67,8 +65,6 @@ public:
     const LArHEC_SuperCell_ID*  getHEC_SuperCell_ID      (void) const;
     const LArFCAL_SuperCell_ID* getFCAL_SuperCell_ID     (void) const;
     const Tile_SuperCell_ID*    getTile_SuperCell_ID     (void) const;
-    const JTower_ID*            getJTower_ID             (void) const;
-    const GTower_ID*            getGTower_ID             (void) const;
 
     void                        initialize               (void);
     bool                        isInitialized            (void) const;
@@ -90,8 +86,6 @@ public:
     void set_helper (const LArHEC_SuperCell_ID* idHelper);
     void set_helper (const LArFCAL_SuperCell_ID* idHelper);
     void set_helper (const Tile_SuperCell_ID* idHelper);
-    void set_helper (const JTower_ID* idHelper);
-    void set_helper (const GTower_ID* idHelper);
 
 private:
 
@@ -112,8 +106,6 @@ private:
     const LArHEC_SuperCell_ID*  m_hec_supercell_id;
     const LArFCAL_SuperCell_ID*  m_fcal_supercell_id;
     const Tile_SuperCell_ID*  m_tile_supercell_id;
-    const JTower_ID*     m_jTower_id;
-    const GTower_ID*     m_gTower_id;
 
 };
 

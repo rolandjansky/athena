@@ -13,21 +13,21 @@
 #undef NDEBUG
 
 #include "CaloIdentifier/TileID.h"
+#include "IdDictParser/IdDictParser.h"
 #include "Identifier/IdentifierHash.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 
 #include "tile_id_test_common.cxx"
 
 
-std::unique_ptr<TileID> make_helper (bool do_neighbours = false)
+TileID* make_helper (bool do_neighbours = false)
 {
-  auto idhelper = CxxUtils::make_unique<TileID>();
-  IdDictParser parser;
-  parser.register_external_entity ("TileCalorimeter",
-                                   "IdDictTileCalorimeter.xml");
-  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
+  TileID* idhelper = new TileID;
+  IdDictParser* parser = new IdDictParser;
+  parser->register_external_entity ("TileCalorimeter",
+                                    "IdDictTileCalorimeter.xml");
+  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
   idd.add_metadata("TILENEIGHBORS",       "TileNeighbour_reduced.txt");  
   idhelper->set_do_neighbours (do_neighbours);
   assert (idhelper->initialize_from_dictionary (idd) == 0);
@@ -95,12 +95,8 @@ void test_neighbors (const TileID& idhelper)
 
 int main()
 {
-  idDictType = "TileCalorimeter";
-  idDictXmlFile = "IdDictTileCalorimeter.xml";
-  IdDictMgr& idd = getDictMgr();
-  idd.add_metadata("TILENEIGHBORS",       "TileNeighbour_reduced.txt");  
-  std::unique_ptr<TileID> idhelper = make_helper<TileID>();
-  std::unique_ptr<TileID> idhelper_n = make_helper<TileID>(true);
+  TileID* idhelper = make_helper();
+  TileID* idhelper_n = make_helper(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);

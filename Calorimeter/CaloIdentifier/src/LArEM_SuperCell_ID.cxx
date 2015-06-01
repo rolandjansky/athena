@@ -40,15 +40,15 @@ int  LArEM_SuperCell_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 {
   MsgStream log(m_msgSvc, "LArEM_SuperCell_ID" );
 
-  log << MSG::DEBUG << "initialize_from_dictionary" << endmsg;
+  log << MSG::DEBUG << "initialize_from_dictionary" << endreq;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
   // init base object
