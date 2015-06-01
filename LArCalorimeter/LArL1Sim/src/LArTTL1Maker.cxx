@@ -63,6 +63,12 @@
 using CLHEP::RandGaussZiggurat;
 
 
+namespace {
+const double crossingTime = 25 /* nanosecond */;
+const double crossingRate = 1. / crossingTime;
+}
+
+
 LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
   , m_atRndmGenSvc("AtRndmGenSvc",name)
@@ -466,8 +472,8 @@ StatusCode LArTTL1Maker::execute()
   int ttSumEvecSize=0;
   int refTime = 0;
   if(!m_PileUp) {
-    ttSumEvecSize=2*25-1;
-    refTime = 25-1;
+    ttSumEvecSize=2*crossingTime-1;
+    refTime = crossingTime-1;
   } else {
     ttSumEvecSize=s_MAXSAMPLES+s_NBSAMPLES-1;
     refTime = s_MAXSAMPLES-1;
@@ -539,7 +545,8 @@ StatusCode LArTTL1Maker::execute()
 	  // ....... determine the sampling fraction
 	  //........ and the relative (layer) gains for this cellId
 	  //	
-	  float cellSampFraction = m_dd_fSampl->FSAMPL(cellId);
+	  const float cellSampFraction = m_dd_fSampl->FSAMPL(cellId);
+          const float inv_cellSampFraction = 1. / cellSampFraction;
 	  //	  std::cout << "cellid, SF= " << m_lvl1Helper->show_to_string(cellId) << " " << cellSampFraction << std::endl;
 	  float relGain = 0.;
 	  float sinTheta = 0.;
@@ -633,7 +640,7 @@ StatusCode LArTTL1Maker::execute()
 	    } else {
 	      // round to 25ns
 	      //iShift = (int)(hitTime/25.+0.5);
-	      iShift = static_cast<int>(floor(hitTime/25.+0.5));
+	      iShift = static_cast<int>(floor(hitTime*crossingRate+0.5));
 	    }
 	    //
 	    // ....make time positive to allow using it as an index
@@ -648,14 +655,14 @@ StatusCode LArTTL1Maker::execute()
 		// standard case
 		// ....... make the energy sum
 		ttSumE = sumEnergy[ttHash];
-		ttSumE[iTime]         += hitEnergy / cellSampFraction * sinTheta * relGain;
+		ttSumE[iTime]         += hitEnergy * inv_cellSampFraction * sinTheta * relGain;
 		sumEnergy[ttHash] = ttSumE;
 	      }
 	      else  {
 		// ec part of barrel-end or FCAL3
 		// ....... make the energy sum
 		ttSumE = sumEnergy2[ttHash];
-		ttSumE[iTime]          += hitEnergy / cellSampFraction * sinTheta * relGain;
+		ttSumE[iTime]          += hitEnergy * inv_cellSampFraction * sinTheta * relGain;
 		sumEnergy2[ttHash] = ttSumE;
 	      }
 	      //	      msglog << MSG::VERBOSE << "applied relative layer gain " << relGain 
@@ -1072,9 +1079,9 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
 		int hitTime = iTime - refTime;
 		// go to 25 ns sampling
 		//int time = (int)(hitTime/25.+0.5) ;
-		int time = static_cast<int>(floor(hitTime/25.+0.5));
+		int time = static_cast<int>(floor(hitTime*crossingRate+0.5));
 		// ....determine fine shift within 25ns 
-		float dTime = (float)(hitTime - 25*time);
+		float dTime = (float)(hitTime - crossingTime*time);
 		int j= iSamp - time ;
 		if(j >=0 && j < s_MAXSAMPLES) {
 		  bareSignal[iSamp] += (pulseShape[j] - pulseShapeDer[j]*dTime) * theEnergy ;
@@ -1117,9 +1124,9 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
 	  int hitTime = iTime - refTime;
 	  // go to 25 ns sampling
 	  //int time = (int)(hitTime/25.+0.5) ;
-	  int time = static_cast<int>(floor(hitTime/25.+0.5));
+	  int time = static_cast<int>(floor(hitTime*crossingRate+0.5));
 	  // ....determine fine shift within 25ns 
-	  float dTime = (float)(hitTime - 25*time);
+	  float dTime = (float)(hitTime - crossingTime*time);
 	  int j= iSamp - time ;
 	  if(j >=0 && j < s_MAXSAMPLES) {
 	    bareSignal[iSamp] += (pulseShape[j] - pulseShapeDer[j]*dTime) * theEnergy ;
@@ -1169,9 +1176,9 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
 	  int hitTime = iTime - refTime;
 	  // go to 25 ns sampling
 	  //int time = (int)(hitTime/25.+0.5) ;
-	  int time = static_cast<int>(floor(hitTime/25.+0.5));
+	  int time = static_cast<int>(floor(hitTime*crossingRate+0.5));
 	  // ....determine fine shift within 25ns 
-	  float dTime = (float)(hitTime - 25*time);
+	  float dTime = (float)(hitTime - crossingTime*time);
 	  int j= iSamp - time ;
 	  if(j >=0 && j < s_MAXSAMPLES) {
 	    bareSignal[iSamp] += (pulseShape[j] - pulseShapeDer[j]*dTime) * theEnergy ;
@@ -1294,38 +1301,39 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
   // .... now compute the noise 'signal'
   //
 
-  float c11,c21,c31,c41,c51,c22,c32,c33,c42,c43,c44,c52,c53,c54,c55;
-  float c61,c62,c63,c64,c65,c66,c71,c72,c73,c74,c75,c76,c77;
-
-  c11 =  sigmaNoise*(*autoC)[0];
-  c21 =  sigmaNoise*(*autoC)[1];
-  c31 =  sigmaNoise*(*autoC)[2];
-  c41 =  sigmaNoise*(*autoC)[3];
-  c51 =  sigmaNoise*(*autoC)[4];
-  c61 =  sigmaNoise*(*autoC)[5];
-  c71 =  sigmaNoise*(*autoC)[6];
+  const float c11 =  sigmaNoise*(*autoC)[0];
+  const float c21 =  sigmaNoise*(*autoC)[1];
+  const float c31 =  sigmaNoise*(*autoC)[2];
+  const float c41 =  sigmaNoise*(*autoC)[3];
+  const float c51 =  sigmaNoise*(*autoC)[4];
+  const float c61 =  sigmaNoise*(*autoC)[5];
+  const float c71 =  sigmaNoise*(*autoC)[6];
 //
-  c22 = sqrt(c11*c11-c21*c21);
-  c32 = (c21*c11-c21*c31)/c22;
-  c33 = sqrt(c11*c11-c31*c31-c32*c32);
-  c42 = (c31*c11-c21*c41)/c22;
-  c43 = (c21*c11-c31*c41-c32*c42)/c33;
-  c44 = sqrt(c11*c11-c41*c41-c42*c42-c43*c43);
-  c52 = (c41*c11-c21*c51)/c22;
-  c53 = (c31*c11-c31*c51-c32*c52)/c33;
-  c54 = (c21*c11-c41*c51-c42*c52-c43*c53)/c44;
-  c55 = sqrt(c11*c11-c51*c51-c52*c52-c53*c53-c54*c54);
-  c62 = (c51*c11-c21*c61)/c22;
-  c63 = (c41*c11-c31*c61-c32*c62)/c33;
-  c64 = (c31*c11-c41*c61-c42*c62-c43*c63)/c44;
-  c65 = (c21*c11-c51*c61-c52*c62-c53*c63-c54*c64)/c55;
-  c66 = sqrt(c11*c11-c61*c61-c62*c62-c63*c63-c64*c64-c65*c65);
-  c72 = (c61*c11-c21*c71)/c22;
-  c73 = (c51*c11-c31*c71-c32*c72)/c33;
-  c74 = (c41*c11-c41*c71-c42*c72-c43*c73)/c44;
-  c75 = (c31*c11-c51*c71-c52*c72-c53*c73-c54*c74)/c55;
-  c76 = (c21*c11-c61*c71-c62*c72-c63*c73-c64*c74-c65*c75)/c66;
-  c77 = sqrt(c11*c11-c71*c71-c72*c72-c73*c73-c74*c74-c75*c75-c76*c76);
+  const float c22 = sqrt(c11*c11-c21*c21);
+  const float inv_c22 = 1. / c22;
+  const float c32 = (c21*c11-c21*c31)*inv_c22;
+  const float c33 = sqrt(c11*c11-c31*c31-c32*c32);
+  const float inv_c33 = 1. / c33;
+  const float c42 = (c31*c11-c21*c41)*inv_c22;
+  const float c43 = (c21*c11-c31*c41-c32*c42) * inv_c33;
+  const float c44 = sqrt(c11*c11-c41*c41-c42*c42-c43*c43);
+  const float inv_c44 = 1. / c44;
+  const float c52 = (c41*c11-c21*c51) * inv_c22;
+  const float c53 = (c31*c11-c31*c51-c32*c52) * inv_c33;
+  const float c54 = (c21*c11-c41*c51-c42*c52-c43*c53) * inv_c44;
+  const float c55 = sqrt(c11*c11-c51*c51-c52*c52-c53*c53-c54*c54);
+  const float inv_c55 = 1. / c55;
+  const float c62 = (c51*c11-c21*c61) * inv_c22;
+  const float c63 = (c41*c11-c31*c61-c32*c62) * inv_c33;
+  const float c64 = (c31*c11-c41*c61-c42*c62-c43*c63) * inv_c44;
+  const float c65 = (c21*c11-c51*c61-c52*c62-c53*c63-c54*c64) * inv_c55;
+  const float c66 = sqrt(c11*c11-c61*c61-c62*c62-c63*c63-c64*c64-c65*c65);
+  const float c72 = (c61*c11-c21*c71) * inv_c22;
+  const float c73 = (c51*c11-c31*c71-c32*c72) * inv_c33;
+  const float c74 = (c41*c11-c41*c71-c42*c72-c43*c73) * inv_c44;
+  const float c75 = (c31*c11-c51*c71-c52*c72-c53*c73-c54*c74) * inv_c55;
+  const float c76 = (c21*c11-c61*c71-c62*c72-c63*c73-c64*c74-c65*c75)/c66;
+  const float c77 = sqrt(c11*c11-c71*c71-c72*c72-c73*c73-c74*c74-c75*c75-c76*c76);
   
   double rndm[s_NBSAMPLES];
   RandGaussZiggurat::shootArray(m_rndmEngine,(int)s_NBSAMPLES,rndm,0.,1.);
