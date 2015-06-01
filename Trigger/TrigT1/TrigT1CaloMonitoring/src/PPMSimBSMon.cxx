@@ -310,7 +310,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     if (evID)
     {
       currentRunNo = evID->run_number();
-      if (currentRunNo >= 230000) {m_isRun2 = true;}
+      if (currentRunNo >= 253377) {m_isRun2 = true;}
     }
   }
 
@@ -371,7 +371,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         std::vector<int> BcidR2;
         std::vector<int> BcidD2;
         m_ttTool->setDebug(true);
-        m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutCp2, BcidR2, BcidD2);
+        m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutCp2, BcidR2, BcidD2, useJepLut);
         m_ttTool->setDebug(false);
       }      
       if (m_isRun2) {
@@ -383,7 +383,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
           std::vector<int> BcidR2;
           std::vector<int> BcidD2;
           m_ttTool->setDebug(true);
-          m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutJep2, BcidR2, BcidD2);
+          m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, LutJep2, BcidR2, BcidD2, useJepLut);
           m_ttTool->setDebug(false);
         }
       }
