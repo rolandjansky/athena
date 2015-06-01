@@ -56,7 +56,7 @@ def main():
     #
 
     msg.info("now build [%s] file", pfc)
-    newfile = '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958_10evt.pool.root'
+    newfile = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6699_10evt.pool.root'
     if osp.isfile(newfile):
         # new file exists
         rdo_fname = newfile

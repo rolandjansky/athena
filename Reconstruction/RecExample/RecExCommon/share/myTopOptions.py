@@ -21,7 +21,7 @@ InDetFlags.doSecVertexFinder.set_Value_and_Lock(False)
 #if athenaCommonFlags.FilesInput.isDefault(): # check if not already set upstream
 #    athenaCommonFlags.FilesInput=["LFN:top_GEO-02-01-00_RDO_extract.pool"] 
 
-athenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.e3099_s2578/RDO.04919495._000958_10evt.pool.root"]
+athenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6699_10evt.pool.root"]
 
 #athenaCommonFlags.jp.AthenaCommonFlags.EvtMax=-1   # number of events to process run on all file
 

@@ -116,6 +116,10 @@ if (rec.doRecoTiming() and
         logRecExCommon_topOptions.info("Could not instantiate MemoryAlg")
 
 
+if rec.doESDReconstruction():
+    from RecAlgs.RecAlgsConf import EventInfoUnlocker
+    topSequence+=EventInfoUnlocker("UnlockEventInfo")
+
 try:
     if rec.abortOnUncheckedStatusCode():
       svcMgr.StatusCodeSvc.AbortOnError=True
@@ -1035,12 +1039,10 @@ if rec.doFileMetaData():
         from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
         svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
     else:

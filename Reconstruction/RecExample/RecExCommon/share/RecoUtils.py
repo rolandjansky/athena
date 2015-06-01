@@ -187,9 +187,9 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
 #increase the number of letter reserved to the alg/tool name from 18 to 30
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
-ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
+#ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
 ServiceMgr.MessageSvc.useColors = False
-ServiceMgr.MessageSvc.defaultLimit=1000000
+ServiceMgr.MessageSvc.defaultLimit=500
 
 # write out a list of all Storegate collection with their keys and
 # lock/unlock state. Very useful for debugging purpose
