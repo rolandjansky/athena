@@ -63,9 +63,11 @@ class CaloTopoTowerBuilderToolBase : public AthAlgTool,
   // Store and Services //
   ////////////////////////
 
+  StoreGateSvc* m_storeGate;
+
   CaloTowerSeg m_theTowerSeg;
 
-  //bool m_cacheValid;
+  bool m_cacheValid;
 
   ToolHandle<IGeoAlignTool> m_caloAlignTool;
   

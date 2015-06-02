@@ -20,7 +20,7 @@
 
 #include "CaloInterface/IClusterCellWeightTool.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
-#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/DataHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWeightTool
@@ -29,8 +29,10 @@ class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWei
 
   virtual ~CaloLCOutOfClusterTool();
 
-  virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
-  virtual StatusCode initialize() override;
+  StatusCode weight(xAOD::CaloCluster* theCluster);
+  StatusCode initialize();
+
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
 
   CaloLCOutOfClusterTool(const std::string& type, 
 			 const std::string& name,
@@ -40,7 +42,7 @@ class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWei
 
   /**
    * @brief name of the key for out-of-cluster weights */
-  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_key;
+  std::string m_key;
 
   /**
    * @brief look for em-probability moment and apply relative weight only
@@ -73,6 +75,13 @@ class CaloLCOutOfClusterTool : public AthAlgTool, virtual public IClusterCellWei
    * This set is created according to the names given in the property
    * m_invalidSamplingNames.  */
   std::set<int> m_invalidSamplings;                    
+
+  /**
+   * @brief data object containing the out-of-cluster constants
+   *
+   * This object contains the actual data used for calibration. */
+
+  const DataHandle<CaloLocalHadCoeff> m_data;
 
   /**
    * @brief interpolate correction coefficients */

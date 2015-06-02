@@ -22,7 +22,6 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include "StoreGate/DataHandle.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 
@@ -32,10 +31,10 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
 
   virtual ~CaloLCClassificationTool();
 
-  virtual
-  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster)
-    const override;
-  virtual StatusCode initialize() override;
+  CaloRecoStatus::StatusIndicator classify(xAOD::CaloCluster* thisCluster);
+  StatusCode initialize();
+
+  virtual StatusCode LoadConditionsData(IOVSVC_CALLBACK_ARGS);
 
   CaloLCClassificationTool(const std::string& type, 
 			   const std::string& name,
@@ -45,7 +44,14 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
   
   /**
    * @brief name of the key for em fraction data */
-  SG::ReadCondHandleKey<CaloLocalHadCoeff> m_key;
+  std::string m_key;
+
+  /**
+   * @brief data object containing the em probabilities
+   *
+   * This object contains the actual data used for classification. */
+
+  const DataHandle<CaloLocalHadCoeff> m_data;
 
   /**
    * @brief if set to true the spread of EM probabilities in each bin is

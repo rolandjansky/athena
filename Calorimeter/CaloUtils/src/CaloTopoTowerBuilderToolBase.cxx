@@ -4,6 +4,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -26,7 +27,25 @@ CaloTopoTowerBuilderToolBase::~CaloTopoTowerBuilderToolBase()
 
 StatusCode CaloTopoTowerBuilderToolBase::initialize()
 {
-  return this->initializeTool();
+  ///////////////////////
+  // Allocate Services //
+  ///////////////////////
+
+  // StoreGate
+  StatusCode checkOut = service("StoreGateSvc",m_storeGate);
+  if ( checkOut.isFailure() )
+    {
+      msg(MSG::ERROR)
+	  << "cannot allocate StoreGate service"
+	  << endreq;
+    }
+  // invoke internal initialization
+  else 
+    {
+      checkOut = this->initializeTool();
+    }
+ 
+  return checkOut;
 }
 
 void CaloTopoTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg)
@@ -40,7 +59,7 @@ void CaloTopoTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg)
 StatusCode CaloTopoTowerBuilderToolBase::LoadCalibration(IOVSVC_CALLBACK_ARGS)
 {
   /* MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << " in CaloTopoTowerBuilderToolBase::LoadCalibration " << endmsg;
+  log << MSG::DEBUG << " in CaloTopoTowerBuilderToolBase::LoadCalibration " << endreq;
   m_cacheValid=false;*/
   return StatusCode::SUCCESS;
 }

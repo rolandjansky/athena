@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -40,16 +41,7 @@ CaloTopoTowerBuilderTool::CaloTopoTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
   : CaloTopoTowerBuilderToolBase(name,type,parent),
-    m_minimumCellEnergy(0),
-    m_minimumClusterEnergy(0),
-    m_useCellWeights(false),
-    m_useNoiseTool(false),
-    m_usePileUpNoise(false),
-    m_noiseSigma(0),
-    m_cellESignificanceThreshold(0),
-    m_caloSelection(false),
-    m_calo_dd_man(nullptr),
-    m_calo_id(nullptr)
+    m_useNoiseTool(false)
 {
   declareInterface<ICaloTopoTowerBuilderToolBase>(this);    
 }
@@ -65,7 +57,7 @@ CaloTopoTowerBuilderTool::~CaloTopoTowerBuilderTool()
 // protected!
 StatusCode CaloTopoTowerBuilderTool::initializeTool()
 {
-  ATH_MSG_INFO( "Initializing CaloTopoTowerAlg"  );
+  msg(MSG::INFO) << "Initializing CaloTopoTowerAlg" << endreq;
 
   m_calo_dd_man  = CaloDetDescrManager::instance();
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
@@ -92,7 +84,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
     if (!towerContainer) msg(MSG::WARNING) << " no tower ";
     if (!clusters) msg(MSG::WARNING) << " no TopoClusters ";
     if (!Cells) msg(MSG::WARNING) << " no Cells ";
-    msg(MSG::WARNING) << "  .. no CaloTopoTowers are made " << endmsg;
+    msg(MSG::WARNING) << "  .. no CaloTopoTowers are made " << endreq;
     return StatusCode::SUCCESS;
   }
   const CaloCell2ClusterMap*  cellToClusterMap=theTowers->GetCellToClusterMap();
@@ -101,9 +93,12 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
     cellToClusterMap=CreateCaloCell2ClusterMap(clusters);
     delete_cellToClusterMap=true;
   }
-  ATH_MSG_DEBUG( "Tower size "   << towerContainer->size()  );
-  ATH_MSG_DEBUG( "Cluster size " << clusters->size()  );
-  ATH_MSG_DEBUG( "Cell size "    << Cells->size()  );
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << "Tower size "   << towerContainer->size() <<  endreq;
+    msg(MSG::DEBUG) << "Cluster size " << clusters->size() << endreq;
+    msg(MSG::DEBUG) << "Cell size "    << Cells->size() << endreq;
+  }
+
 
   m_minimumCellEnergy=theTowers->GetMinimumCellEnergy();
   m_minimumClusterEnergy=theTowers->GetMinimumClusterEnergy();
@@ -120,7 +115,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 
 
   if (m_useNoiseTool) {
-    ATH_MSG_WARNING( " Using noise tool in CaloTopoTowerBuilderTool no supported. give up => No CaloTopoTowers are made"  );
+    msg(MSG::WARNING) << " Using noise tool in CaloTopoTowerBuilderTool no supported. give up => No CaloTopoTowers are made" << endreq;
     if(delete_cellToClusterMap){
       ATH_MSG_DEBUG("Deleting cellToClusterMap Pointer");
       delete cellToClusterMap;
@@ -162,7 +157,9 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
   // Make sure the cluster container is not NULL
   if ( clusterContainer == 0 ) {
     if (Cells->size() >0 ) {  
-      ATH_MSG_WARNING( "No cluster found from  CaloCell2ClusterMap, tool unusable" );
+      msg(MSG::WARNING)
+	   << "No cluster found from  CaloCell2ClusterMap, tool unusable"
+	   << endreq;
     }
     else {
       ATH_MSG_DEBUG(" empty calorimeter event .. return ");
@@ -222,7 +219,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 	
 	size_t globalIndex=0;
 	if (!(tower->getCellIndex(cell,globalIndex)) ) {
-	  ATH_MSG_WARNING( " cannot find back cell index "  );
+	  msg(MSG::WARNING) << " cannot find back cell index " << endreq;
 	  continue;
 	}
 	
@@ -247,10 +244,12 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 	}
 	
 	// WARNINGGING
-        ATH_MSG_VERBOSE( "         Cell has E = " << signedE << "  eta,phi " << cell->eta() << " " << cell->phi()  );
-        ATH_MSG_VERBOSE( "Cell has E in tower = " << cellEnergy  );
-        ATH_MSG_VERBOSE( "   Cell noise sigma = " << noiseSigma  );
-        ATH_MSG_VERBOSE( "  Cell noise signif = " << signedRatio  );
+	if (msgLvl(MSG::VERBOSE)) {
+	  msg(MSG::VERBOSE) << "         Cell has E = " << signedE << "  eta,phi " << cell->eta() << " " << cell->phi() << endreq;
+	  msg(MSG::VERBOSE) << "Cell has E in tower = " << cellEnergy << endreq;
+	  msg(MSG::VERBOSE) << "   Cell noise sigma = " << noiseSigma << endreq;
+	  msg(MSG::VERBOSE) << "  Cell noise signif = " << signedRatio << endreq;
+	}
 	/// Require that the cell have a minimum energy and energy significance
 	if ( (signedE > m_minimumCellEnergy) && ( fabs(signedRatio) > m_cellESignificanceThreshold) ){
 	  // find clusters associated to this cell using the hash ID
@@ -303,14 +302,14 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
       
       // Report some information about this Topo-Tower
       if (msgLvl(MSG::VERBOSE)) {
-	msg() << endmsg;
-	ATH_MSG_VERBOSE( "Old/ new TopoTower energy from all cells               = " << tower->e() << " " << newTower->e()  );
-	ATH_MSG_VERBOSE( "TopoTower energy adding all cells in clusters = " << energyTower  );
-	ATH_MSG_VERBOSE( "Total attached cluster energy                 = " << totalAttachedClusterEnergy  );
-	ATH_MSG_VERBOSE( "Total number of attached clusters             = " << numberOfClustersInTower  );
-	ATH_MSG_VERBOSE( "Number of cells in attached clusters          = " << totalNumberOfCellsInAttachedClusters  );
-	ATH_MSG_VERBOSE( "Total number of cells originally in tower     = " << numberOfCellsInTower  );
-	ATH_MSG_VERBOSE( "Total number of cells from clusters           = " << numberOfAttachedCellsInTower  );
+	msg() << endreq;
+	msg(MSG::VERBOSE) << "Old/ new TopoTower energy from all cells               = " << tower->e() << " " << newTower->e() << endreq;
+	msg(MSG::VERBOSE) << "TopoTower energy adding all cells in clusters = " << energyTower << endreq;
+	msg(MSG::VERBOSE) << "Total attached cluster energy                 = " << totalAttachedClusterEnergy << endreq;
+	msg(MSG::VERBOSE) << "Total number of attached clusters             = " << numberOfClustersInTower << endreq;
+	msg(MSG::VERBOSE) << "Number of cells in attached clusters          = " << totalNumberOfCellsInAttachedClusters << endreq;
+	msg(MSG::VERBOSE) << "Total number of cells originally in tower     = " << numberOfCellsInTower << endreq;
+	msg(MSG::VERBOSE) << "Total number of cells from clusters           = " << numberOfAttachedCellsInTower << endreq;
 	
 	CaloTower::cell_iterator cellInTowerIter(newTower->cell_begin());
 	CaloTower::cell_iterator lastCellInTower(newTower->cell_end());
@@ -321,7 +320,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
 	  if (!cell) continue;
 	  msg(MSG::VERBOSE) << cell->e()*weight << " " << cell->eta() << " " << cell->phi() << " / ";
 	}
-	msg(MSG::VERBOSE) << endmsg;
+	msg(MSG::VERBOSE) << endreq;
       }
       
    } // tower loop
