@@ -39,7 +39,7 @@ public:
  private:
 
   int         m_pdg;
-  double      m_cm_energy;
+  double      m_cm_energy, m_cme_diff;
   double      m_energy_diff, m_max_energy_diff;
   bool        m_dumpEvent;
   double      m_max_dist_trans, m_max_dist, m_min_tau, m_nonG4_energy_threshold;

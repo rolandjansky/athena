@@ -18,6 +18,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("MaxVtxDisp",       m_max_dist = 1000.); // mm;
   declareProperty("EnergyDifference", m_energy_diff = 1000.); // MeV
   declareProperty("EnergyDifferenceError", m_max_energy_diff = 100000.); // MeV
+  declareProperty("CmeDifference", m_cme_diff = 1.); // MeV
   declareProperty("DumpEvent",        m_dumpEvent = false);
   declareProperty("MinTau",           m_min_tau = 1/300.); // ns; corresponds to 1mm
   declareProperty("MaxNonG4Energy",   m_nonG4_energy_threshold = 100.); //MeV
@@ -234,7 +235,8 @@ StatusCode TestHepMC::execute() {
       const double sumE = beams.first->momentum().e() + beams.second->momentum().e();
       const double sumP = beams.first->momentum().pz() + beams.second->momentum().pz();
       cmenergy = sqrt(sumE*sumE - sumP*sumP);
-      if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > 1) {
+
+      if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > m_cme_diff) {
         ATH_MSG_FATAL("Beam particles have incorrect energy: " << m_cm_energy/1000. << " GeV expected, vs. " << cmenergy/1000. << " GeV found");
         setFilterPassed(false);
        if (m_doHist){
@@ -531,6 +533,7 @@ StatusCode TestHepMC::execute() {
       }
      if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
+      //     std::cout << "hidt filled " << std::endl;
      }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
