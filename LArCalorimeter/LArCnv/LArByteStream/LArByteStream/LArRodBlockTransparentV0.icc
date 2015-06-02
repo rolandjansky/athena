@@ -13,7 +13,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) logstr<<MSG::DEBUG<<text<<endmsg
+#define LARBSDBG(text) logstr<<MSG::DEBUG<<text<<endreq
 #else
 #define LARBSDBG(text)
 #endif
@@ -77,17 +77,17 @@ LArRodBlockTransparentV0<DSPHEADER>::initializeFragment(std::vector<uint32_t>& f
     unsigned int sizeRead=0;
     //Store existing data in the FEB-Map
     while (sizeRead<fragment.size()) {
-      std::vector<uint32_t>::iterator FebIter;
-      FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
-      m_FebBlock=&(*FebIter); //Set m_FebBlock in order to use getHeader-functions.
+      std::vector<uint32_t>::iterator m_FebIter;
+      m_FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
+      m_FebBlock=&(*m_FebIter); //Set m_FebBlock in order to use getHeader-functions.
       uint32_t currFEBid=getHeader32(DSPHEADER::FEBID);   //Get this FEB-ID
       uint16_t currFebSize=getHeader32(DSPHEADER::NWTot); //Size of this FEB-Block
-      if (FebIter+currFebSize>fragment.end()) {
+      if (m_FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
-	logstr << MSG::ERROR << "initializeFragment: Got inconsistent ROD-Fragment!" << endmsg; 
+	logstr << MSG::ERROR << "initializeFragment: Got inconsistent ROD-Fragment!" << endreq; 
 	return;
       }
-      m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
+      m_mFebBlocks[currFEBid].assign(m_FebIter,m_FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
       sizeRead+=currFebSize+m_MiddleHeaderSize;
       LARBSDBG("Found FEB-id "<< currFEBid << "in existing ROD-Fragment");
     } // end while
@@ -111,7 +111,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
 {   
   MsgStream logstr(Athena::getMessageSvc(), BlockType());
   if (channel>=m_channelsPerFEB) {
-    logstr << MSG::ERROR << "Attempt to write Raw Data for channel "<< channel << endmsg; 
+    logstr << MSG::ERROR << "Attempt to write Raw Data for channel "<< channel << endreq; 
     return; //Return error
   }
  // Expected Gain values: 
@@ -119,7 +119,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
  //1..medium gain
  //2..low gain
  if (gain>2)
-   {logstr << MSG::ERROR << "Attempt to write raw data with gain "<< gain << endmsg; 
+   {logstr << MSG::ERROR << "Attempt to write raw data with gain "<< gain << endreq; 
     return;
    }
  unsigned int nsamples = getVectorHeader16(DSPHEADER::NSamples) & 0xff;
@@ -127,7 +127,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
  if(samples.size() != nsamples) {
    logstr << MSG::ERROR << "Number of samples mismatch!\n";
    logstr << "  nsamples       =" << nsamples;
-   logstr << "  samples.size() =" << samples.size() << endmsg;
+   logstr << "  samples.size() =" << samples.size() << endreq;
    exit(0);
  }
  //std::cout << "Size of Raw Data block # " << febgain << " = " << m_RawDataBlock.size();

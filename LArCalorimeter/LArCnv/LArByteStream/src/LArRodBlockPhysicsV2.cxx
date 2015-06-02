@@ -21,7 +21,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endmsg
+#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endreq
 #else
 #define LARBSDBG(text)
 #endif
@@ -44,19 +44,19 @@ m_logstr(Athena::getMessageSvc(), BlockType())
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
  StatusCode sc =svcLoc->service( "DetectorStore", detStore );
  if (sc.isFailure()) {
-   m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
+   m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
    exit(1);
  } else {
-   m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
+   m_logstr << MSG::INFO << "Successfully located DetectorStore" << endreq;
  }     
  sc = detStore->retrieve(online_id, "LArOnlineID");
  if (sc.isFailure()) {
-   m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
+   m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
    exit(1);
  } 
  else {
    m_onlineHelper=online_id;
-   m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
+   m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
  }
 
  m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
@@ -185,7 +185,7 @@ void LArRodBlockPhysicsV2::setNextEnergy(const int channel, const int32_t energy
  //In the latter case, we fill up the missing  channels with zero
  if (rcNb<m_EIndex) {
    m_logstr << MSG::ERROR  << "LArRODBlockStructure ERROR: Internal error. Channels not ordered correctly. rcNb=" << rcNb
-	     << " m_EIndex=" << m_EIndex << endmsg;;
+	     << " m_EIndex=" << m_EIndex << endreq;;
    return;
  }
  //Fill up missing channels with zeros:
@@ -200,7 +200,7 @@ void LArRodBlockPhysicsV2::setNextEnergy(const int32_t energy, const int32_t tim
 {
  if (m_EIndex>=m_channelsPerFEB)        //Use m_EIndex to count total number of channels
   {m_logstr << MSG::ERROR  << "LArRodBlockStructure ERROR: Attempt to write Energy for channel " 
-	  << m_EIndex << " channels into a FEB!" <<endmsg;;
+	  << m_EIndex << " channels into a FEB!" <<endreq;;
    return;
   }
  LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EIndex << ". E=" << energy); 
@@ -251,14 +251,14 @@ void LArRodBlockPhysicsV2::setRawData(const int channel, const std::vector<short
  //int rcNb=(channel>>3) + ((channel&0x7)<<4);
  int rcNb=FebToRodChannel(channel);
  if (rcNb>=m_channelsPerFEB) 
-   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endmsg;
+   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endreq;
     return;
    } 
  unsigned int nsamples = LE_getVectorHeader16(NGainNSamples) & 0x00FF;
  if(samples.size() != nsamples) {
    m_logstr << MSG::ERROR << "Number of samples mismatch!\n";
    m_logstr << "  nsamples       =" << nsamples;
-   m_logstr << "  samples.size() =" << samples.size() << endmsg;
+   m_logstr << "  samples.size() =" << samples.size() << endreq;
    exit(0);
  }
  
@@ -286,18 +286,18 @@ void LArRodBlockPhysicsV2::initializeFragment(std::vector<uint32_t>& fragment)
     unsigned int sizeRead=0;
     //Store existing data in the FEB-Map
     while (sizeRead<fragment.size()) {
-      std::vector<uint32_t>::iterator FebIter;
-      FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
-      m_FebBlock=&(*FebIter); //Set m_FebBlock in order to use getHeader-functions.
+      std::vector<uint32_t>::iterator m_FebIter;
+      m_FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
+      m_FebBlock=&(*m_FebIter); //Set m_FebBlock in order to use getHeader-functions.
       uint32_t currFEBid=getHeader32(FEBID); //Get this FEB-ID
       uint16_t currFebSize=getNumberOfWords(); //Size of this FEB-Block
       //std::cout << "FebID=" << currFEBid << " FEBSize=" << currFebSize << " Vector size=" << fragment.size() << std::endl;
-      if (FebIter+currFebSize>fragment.end()) {
+      if (m_FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
-	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endmsg; 
+	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endreq; 
 	return;
       }
-      m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
+      m_mFebBlocks[currFEBid].assign(m_FebIter,m_FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
       sizeRead+=currFebSize+m_MiddleHeaderSize;//6 is the middle header size
       LARBSDBG("Found FEB-id " << currFEBid << " in existing ROD-Fragment");
     } // end while
@@ -637,9 +637,8 @@ uint32_t LArRodBlockPhysicsV2::getRadd(uint32_t /*adc*/, uint32_t sample)  const
 { 
   int index=LE_getHeader16(RawDataBlkOffset)-3+(sample+1)/2;
   uint32_t x=m_FebBlock[index];
-  //if(sample&0x1) x=x&0xffff;
-  //else 
-  x=x&0xffff;
+  if(sample&0x1) x=x&0xffff;
+  else x=x&0xffff;
   return x;
 }
 

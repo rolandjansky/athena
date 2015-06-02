@@ -48,19 +48,19 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
     m_onlineHelper(0),
     m_doBadChanMasking(false),
     m_badChannelMasker(0),
-    m_rodTranspV0(0),
-    m_rodCalibV0(0),
-    m_rodCalibV1(0),
-    m_rodCalibV2(0),
-    m_rodCalibV3(0),
-    m_rodAccumV3(0),
-    m_rodPhysicsV0(0),
-    m_rodPhysicsV1(0),
-    m_rodPhysicsV2(0),
-    m_rodPhysicsV3(0),
-    m_rodPhysicsV4(0),
-    m_rodPhysicsV5(0),
-    m_rodPhysicsV6(0),
+    rodTranspV0(0),
+    rodCalibV0(0),
+    rodCalibV1(0),
+    rodCalibV2(0),
+    rodCalibV3(0),
+    rodAccumV3(0),
+    rodPhysicsV0(0),
+    rodPhysicsV1(0),
+    rodPhysicsV2(0),
+    rodPhysicsV3(0),
+    rodPhysicsV4(0),
+    rodPhysicsV5(0),
+    rodPhysicsV6(0),
     m_robFrag(0),
     m_larCellFromDigit(0),
     m_error(0)
@@ -105,26 +105,26 @@ LArRodDecoder::initialize()
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return sc;
   } 
 
   IToolSvc* toolSvc;
   sc = service( "ToolSvc",toolSvc);
   if (sc.isFailure())
-    {msg(MSG::ERROR) << "Unable to get ToolSvc" << endmsg;
+    {msg(MSG::ERROR) << "Unable to get ToolSvc" << endreq;
     return sc;
    }
   
   sc=m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endreq;
     return StatusCode::FAILURE;
   }
   
  sc = toolSvc->retrieveTool("LArBadChannelMasker/LArRodDecoder_Masker", m_badChannelMasker);
  if(sc.isFailure()) {
-   msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endmsg;
+   msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endreq;
    return sc;
  }
  m_doBadChanMasking = m_badChannelMasker->isMaskingOn();
@@ -137,14 +137,14 @@ LArRodDecoder::initialize()
     CaloCellCorrection* corr; 
     ListItem li(*it);
     if((toolSvc->retrieveTool(li.type(), li.name(), tool)).isFailure() ) 
-      {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endmsg;
+      {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endreq;
       //std::cout << " Can't get AlgTool for CaloCellCorrection\n ";
        return StatusCode::FAILURE; 
       }
 
     corr = dynamic_cast<CaloCellCorrection*> (tool); 
     if(!corr  ) 
-      {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endmsg;
+      {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endreq;
       //std::cout << " Can't d-cast to CaloCellCorrection* \n";
        return StatusCode::FAILURE; 
       }
@@ -154,7 +154,7 @@ LArRodDecoder::initialize()
  if(m_larCell) {  
    LArRoI_Map* roiMap;
    if((toolSvc->retrieveTool("LArRoI_Map", roiMap )).isFailure() )
-     {msg(MSG::ERROR) << " Can't get AlgTool LArRoI_Map " << endmsg;
+     {msg(MSG::ERROR) << " Can't get AlgTool LArRoI_Map " << endreq;
       return StatusCode::FAILURE; 
      }
      m_makeCell.setThreshold(m_LArCellEthreshold);
@@ -164,100 +164,100 @@ LArRodDecoder::initialize()
    //Fill Map for RodBlockStructure/Version number
    m_BlStructArray.resize(12); //Reserve space for 11 block types some of the do not (yet) exist.
 
-   m_rodTranspV0  = (LArRodBlockStructure *) new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
-   m_rodCalibV0   = (LArRodBlockStructure *) new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
-   m_rodCalibV1   = (LArRodBlockStructure *) new LArRodBlockCalibrationV1;
-   m_rodCalibV2   = (LArRodBlockStructure *) new LArRodBlockCalibrationV2;
-   m_rodCalibV3   = (LArRodBlockStructure *) new LArRodBlockCalibrationV3;
-   m_rodAccumV3   = (LArRodBlockStructure *) new LArRodBlockAccumulatedV3;
-   m_rodPhysicsV0 = (LArRodBlockStructure *) new LArRodBlockPhysicsV0;
-   m_rodPhysicsV1 = (LArRodBlockStructure *) new LArRodBlockPhysicsV1;
-   m_rodPhysicsV2 = (LArRodBlockStructure *) new LArRodBlockPhysicsV2;
-   m_rodPhysicsV3 = (LArRodBlockStructure *) new LArRodBlockPhysicsV3;
-   m_rodPhysicsV4 = (LArRodBlockStructure *) new LArRodBlockPhysicsV4;
-   m_rodPhysicsV5 = (LArRodBlockStructure *) new LArRodBlockPhysicsV5;
-   m_rodPhysicsV6 = (LArRodBlockStructure *) new LArRodBlockPhysicsV6;
+   rodTranspV0  = (LArRodBlockStructure *) new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
+   rodCalibV0   = (LArRodBlockStructure *) new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
+   rodCalibV1   = (LArRodBlockStructure *) new LArRodBlockCalibrationV1;
+   rodCalibV2   = (LArRodBlockStructure *) new LArRodBlockCalibrationV2;
+   rodCalibV3   = (LArRodBlockStructure *) new LArRodBlockCalibrationV3;
+   rodAccumV3   = (LArRodBlockStructure *) new LArRodBlockAccumulatedV3;
+   rodPhysicsV0 = (LArRodBlockStructure *) new LArRodBlockPhysicsV0;
+   rodPhysicsV1 = (LArRodBlockStructure *) new LArRodBlockPhysicsV1;
+   rodPhysicsV2 = (LArRodBlockStructure *) new LArRodBlockPhysicsV2;
+   rodPhysicsV3 = (LArRodBlockStructure *) new LArRodBlockPhysicsV3;
+   rodPhysicsV4 = (LArRodBlockStructure *) new LArRodBlockPhysicsV4;
+   rodPhysicsV5 = (LArRodBlockStructure *) new LArRodBlockPhysicsV5;
+   rodPhysicsV6 = (LArRodBlockStructure *) new LArRodBlockPhysicsV6;
    // Only implemented for physics V5
    if (m_requiredPhysicsNSamples > 0) {
-	((LArRodBlockPhysicsV5*)m_rodPhysicsV5)->setRequiredNSamples(m_requiredPhysicsNSamples);
-	((LArRodBlockPhysicsV6*)m_rodPhysicsV6)->setRequiredNSamples(m_requiredPhysicsNSamples);
+	((LArRodBlockPhysicsV5*)rodPhysicsV5)->setRequiredNSamples(m_requiredPhysicsNSamples);
+	((LArRodBlockPhysicsV6*)rodPhysicsV6)->setRequiredNSamples(m_requiredPhysicsNSamples);
    }
    //m_BlStructArray[0].push_back();                               // obsolete old type
    //m_BlStructArray[1] does not exists
 
    // RodBlockType 2 = Transparent mode only
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //0  Transparent mode v0 05.01.2004
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //1  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //2  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //3  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodTranspV0);  //4  Transparent mode v0
-   m_BlStructArray[2].push_back(m_rodCalibV1);   //5  Calibration (Transparent mode) v1 17.01.2006
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //6  Calibration (Transparent mode) v3 31.05.2006
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //7  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //8  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //9  Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //10 Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //11 Calibration (Transparent mode) v3
-   m_BlStructArray[2].push_back(m_rodCalibV3);   //12 Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodTranspV0);  //0  Transparent mode v0 05.01.2004
+   m_BlStructArray[2].push_back(rodTranspV0);  //1  Transparent mode v0
+   m_BlStructArray[2].push_back(rodTranspV0);  //2  Transparent mode v0
+   m_BlStructArray[2].push_back(rodTranspV0);  //3  Transparent mode v0
+   m_BlStructArray[2].push_back(rodTranspV0);  //4  Transparent mode v0
+   m_BlStructArray[2].push_back(rodCalibV1);   //5  Calibration (Transparent mode) v1 17.01.2006
+   m_BlStructArray[2].push_back(rodCalibV3);   //6  Calibration (Transparent mode) v3 31.05.2006
+   m_BlStructArray[2].push_back(rodCalibV3);   //7  Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodCalibV3);   //8  Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodCalibV3);   //9  Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodCalibV3);   //10 Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodCalibV3);   //11 Calibration (Transparent mode) v3
+   m_BlStructArray[2].push_back(rodCalibV3);   //12 Calibration (Transparent mode) v3
 
    // RodBlockType 3 = Test mode
-   m_BlStructArray[3].push_back(m_rodTranspV0);  //Test mode (same output as above)
+   m_BlStructArray[3].push_back(rodTranspV0);  //Test mode (same output as above)
 
    // RodBlockType 4 = Physics mode
-   m_BlStructArray[4].push_back(m_rodPhysicsV0); //0  Physics mode v0 05.01.2004 first draft
-   m_BlStructArray[4].push_back(m_rodPhysicsV1); //1  Physics mode v1 19.08.2004 only small differences
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //3  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //4  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //5  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //6  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //7  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV2); //8  Physics mode v2 
-   m_BlStructArray[4].push_back(m_rodPhysicsV4); //9  Physics mode v4 10.07.2007 for commissioning
-   m_BlStructArray[4].push_back(m_rodPhysicsV5); //10 Physics mode v5 16.06.2008 for LHC 
-   m_BlStructArray[4].push_back(m_rodPhysicsV5); //11 Physics mode v5 16.06.2008 for LHC 
-   m_BlStructArray[4].push_back(m_rodPhysicsV6); //12 Physics mode v5 09.03.2011 for LHC 
+   m_BlStructArray[4].push_back(rodPhysicsV0); //0  Physics mode v0 05.01.2004 first draft
+   m_BlStructArray[4].push_back(rodPhysicsV1); //1  Physics mode v1 19.08.2004 only small differences
+   m_BlStructArray[4].push_back(rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
+   m_BlStructArray[4].push_back(rodPhysicsV2); //3  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV2); //4  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV2); //5  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV2); //6  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV2); //7  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV2); //8  Physics mode v2 
+   m_BlStructArray[4].push_back(rodPhysicsV4); //9  Physics mode v4 10.07.2007 for commissioning
+   m_BlStructArray[4].push_back(rodPhysicsV5); //10 Physics mode v5 16.06.2008 for LHC 
+   m_BlStructArray[4].push_back(rodPhysicsV5); //11 Physics mode v5 16.06.2008 for LHC 
+   m_BlStructArray[4].push_back(rodPhysicsV6); //12 Physics mode v5 09.03.2011 for LHC 
 
    // RodBlockType 5 = Physics simulation mode
-   m_BlStructArray[5].push_back(m_rodPhysicsV3); //0  Physics mode v3 11.04.2005 for simulation
+   m_BlStructArray[5].push_back(rodPhysicsV3); //0  Physics mode v3 11.04.2005 for simulation
 
    // RodBlockType 6 = Physics test mode
-   m_BlStructArray[6].push_back(m_rodPhysicsV0); //1  Physics mode v0 05.01.2004 first draft
-   m_BlStructArray[6].push_back(m_rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
-   m_BlStructArray[6].push_back(m_rodPhysicsV2); //3  Physics mode v2
+   m_BlStructArray[6].push_back(rodPhysicsV0); //1  Physics mode v0 05.01.2004 first draft
+   m_BlStructArray[6].push_back(rodPhysicsV2); //2  Physics mode v2 05.10.2004 adapted to real DSP data
+   m_BlStructArray[6].push_back(rodPhysicsV2); //3  Physics mode v2
 
    // RodBlockType 7 = Calibration mode
-   m_BlStructArray[7].push_back(m_rodCalibV0);  //0  Calibration mode v0  05.01.2004
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //1  Calibration mode v1  17.01.2006
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //2  Calibration mode v1 
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //3  Calibration mode v1
-   m_BlStructArray[7].push_back(m_rodCalibV1);  //4  Calibration mode v1
-   m_BlStructArray[7].push_back(m_rodCalibV2);  //5  Calibration mode v2  26.04.2006
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //6  Calibration mode v3  31.05.2006
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //7  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //8  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //9  Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //10 Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //11 Calibration mode v3
-   m_BlStructArray[7].push_back(m_rodCalibV3);  //12 Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV0);  //0  Calibration mode v0  05.01.2004
+   m_BlStructArray[7].push_back(rodCalibV1);  //1  Calibration mode v1  17.01.2006
+   m_BlStructArray[7].push_back(rodCalibV1);  //2  Calibration mode v1 
+   m_BlStructArray[7].push_back(rodCalibV1);  //3  Calibration mode v1
+   m_BlStructArray[7].push_back(rodCalibV1);  //4  Calibration mode v1
+   m_BlStructArray[7].push_back(rodCalibV2);  //5  Calibration mode v2  26.04.2006
+   m_BlStructArray[7].push_back(rodCalibV3);  //6  Calibration mode v3  31.05.2006
+   m_BlStructArray[7].push_back(rodCalibV3);  //7  Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV3);  //8  Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV3);  //9  Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV3);  //10 Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV3);  //11 Calibration mode v3
+   m_BlStructArray[7].push_back(rodCalibV3);  //12 Calibration mode v3
 
    //m_BlStructArray[8] does not exists
    //m_BlStructArray[9] does not exists
 
    // RodBlockType 10 = Accumulated mode (used for pre-processed pedestal runs)
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //0  Accumulated mode v3 10.06.2008
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //1  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //2  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //3  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //4  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //5  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //6  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //7  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //8  Accumulated mode v3
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //9  Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //10 Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //11 Accumulated mode v3 
-   m_BlStructArray[10].push_back(m_rodAccumV3);  //12 Accumulated mode v3 
+   m_BlStructArray[10].push_back(rodAccumV3);  //0  Accumulated mode v3 10.06.2008
+   m_BlStructArray[10].push_back(rodAccumV3);  //1  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //2  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //3  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //4  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //5  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //6  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //7  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //8  Accumulated mode v3
+   m_BlStructArray[10].push_back(rodAccumV3);  //9  Accumulated mode v3 
+   m_BlStructArray[10].push_back(rodAccumV3);  //10 Accumulated mode v3 
+   m_BlStructArray[10].push_back(rodAccumV3);  //11 Accumulated mode v3 
+   m_BlStructArray[10].push_back(rodAccumV3);  //12 Accumulated mode v3 
 
    m_larblockstruct = (LArRodBlockStructure*)NULL;
 
@@ -265,18 +265,18 @@ LArRodDecoder::initialize()
      IAlgTool* algTool;
      sc=toolSvc->retrieveTool("LArCellBuilderDriver",algTool);
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Unable to retrieve LArCellBuilderDriver" << endmsg;
-       msg(MSG::ERROR) << "No LArDigit to LArCell conversion" << endmsg;
+       msg(MSG::ERROR) << "Unable to retrieve LArCellBuilderDriver" << endreq;
+       msg(MSG::ERROR) << "No LArDigit to LArCell conversion" << endreq;
        // This should not prevent the tool to be initialized
        sc = StatusCode::SUCCESS;
      } else {
        if(!(m_larCellFromDigit=dynamic_cast<LArCellBuilderDriver*>(algTool))){
-	 msg(MSG::ERROR) << "Unable to dynamic cast LArCellBuilderDriver" <<endmsg;
+	 msg(MSG::ERROR) << "Unable to dynamic cast LArCellBuilderDriver" <<endreq;
 	 return StatusCode::FAILURE;
        }
        sc = m_larCellFromDigit->initialize();
        if (sc.isFailure()) {
-	 msg(MSG::ERROR) << "Unable to initialize LArCellBuilderDriver" << endmsg;
+	 msg(MSG::ERROR) << "Unable to initialize LArCellBuilderDriver" << endreq;
        }
        // Warn the tools that they are not supposed to fill
        // the LArRawChannelCollection
@@ -308,8 +308,8 @@ LArRodDecoder::initialize()
    }//end if something set
    else {
      if (m_vBEPreselection.size() ||  m_vPosNegPreselection.size() || m_vFTPreselection.size()) {
-       msg(MSG::ERROR) << "Feedthrough preselection: jobOption inconsistency! "<< endmsg;
-       msg(MSG::ERROR) << "Need to set all three jobOptions BEPreselection PNPreselecton and FTPreselection" << endmsg;
+       msg(MSG::ERROR) << "Feedthrough preselection: jobOption inconsistency! "<< endreq;
+       msg(MSG::ERROR) << "Need to set all three jobOptions BEPreselection PNPreselecton and FTPreselection" << endreq;
        return StatusCode::FAILURE;
      }
      ATH_MSG_DEBUG("No feedthrough preselection by jobOptions.");
@@ -321,19 +321,19 @@ LArRodDecoder::initialize()
 
 StatusCode LArRodDecoder::finalize()
 { // Clean up matrix of RodBlockStructures
- delete m_rodTranspV0 ;
- delete m_rodCalibV0  ;
- delete m_rodCalibV1  ;
- delete m_rodCalibV2  ;
- delete m_rodCalibV3  ;
- delete m_rodAccumV3  ;
- delete m_rodPhysicsV0;
- delete m_rodPhysicsV1;
- delete m_rodPhysicsV2;
- delete m_rodPhysicsV3;
- delete m_rodPhysicsV4;
- delete m_rodPhysicsV5;
- delete m_rodPhysicsV6;
+ delete rodTranspV0 ;
+ delete rodCalibV0  ;
+ delete rodCalibV1  ;
+ delete rodCalibV2  ;
+ delete rodCalibV3  ;
+ delete rodAccumV3  ;
+ delete rodPhysicsV0;
+ delete rodPhysicsV1;
+ delete rodPhysicsV2;
+ delete rodPhysicsV3;
+ delete rodPhysicsV4;
+ delete rodPhysicsV5;
+ delete rodPhysicsV6;
 
  ATH_MSG_VERBOSE("Cleanup of LArRodBlockStructures finished");
  return StatusCode::SUCCESS;
@@ -362,7 +362,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
-	msg(MSG::WARNING) << "Invalid FEB identifer 0x" << std::hex << fId32 << std::dec << ". Skipping" << endmsg;
+	msg(MSG::WARNING) << "Invalid FEB identifer 0x" << std::hex << fId32 << std::dec << ". Skipping" << endreq;
 	continue;
       }
       // std::cout << "digit FEBID=" << std::hex<<  " " <<fId32 << std::dec<<std::endl;
@@ -396,7 +396,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
 	  continue;
 	}
       }
@@ -405,9 +405,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
 	const uint32_t onsum  = BlStruct->onlineCheckSum();
 	const uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error for FEB: " << MSG::hex << fId32 << endmsg;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << MSG::dec << endmsg;
+	  msg(MSG::WARNING) << "Checksum error for FEB: " << MSG::hex << fId32 << endreq;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << MSG::dec << endreq;
 	  continue;
 	}
       }
@@ -463,7 +463,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
-	msg(MSG::WARNING) << "Invalid FEB identifer " << std::hex << fId32 << std::dec << ". Skipping" << endmsg;
+	msg(MSG::WARNING) << "Invalid FEB identifer " << std::hex << fId32 << std::dec << ". Skipping" << endreq;
 	continue;
       }
       // std::cout << "rawChan FEBID=" << std::hex <<fId32 << std::dec<<std::endl;
@@ -495,7 +495,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
 	  continue;
 	}
       }
@@ -505,9 +505,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
 	const uint32_t onsum  = BlStruct->onlineCheckSum();
 	const uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
+	  msg(MSG::WARNING) << "Checksum error:" << endreq;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
 	  continue;
 	}
       }
@@ -589,7 +589,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
 	if(do_check) {
 	  //WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	  if (BlStruct->getStatus() & m_StatusNMask) {
-	    msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
+	    msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
 	    continue;
 	  }
 	}
@@ -598,9 +598,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
 	  uint32_t onsum  = BlStruct->onlineCheckSum();
 	  uint32_t offsum = BlStruct->offlineCheckSum();
 	  if(onsum!=offsum) {
-	    msg(MSG::WARNING) << "Checksum error:" << endmsg;
-	    msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	    msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
+	    msg(MSG::WARNING) << "Checksum error:" << endreq;
+	    msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
+	    msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
 	    continue;
 	  }
 	}
@@ -649,7 +649,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
     const DataHandle<LArCalibParams> calibParams;
     StatusCode sc=detStore()->retrieve(calibParams);
     if (sc.isFailure())
-      {msg(MSG::ERROR) << "Cannot load LArCalibParams from DetStore!" << endmsg;
+      {msg(MSG::ERROR) << "Cannot load LArCalibParams from DetStore!" << endreq;
       return;
       }
     //2st step, get Event number
@@ -699,7 +699,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
       while ( (!m_larCablingSvc->isOnlineConnected(cId) || calibChannelIDs->size()==0) && fcNb<128); // This is the right  conditions to exit the loop!
       
       if ( calibChannelIDs->size()==0 ) {
-	msg(MSG::ERROR) << "Cannot get calibration Channel ID for FEB " << std::hex << fId32 << std::dec << endmsg;
+	msg(MSG::ERROR) << "Cannot get calibration Channel ID for FEB " << std::hex << fId32 << std::dec << endreq;
 	return;
       }
 
@@ -799,7 +799,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
 	  continue;
 	}
       }
@@ -808,9 +808,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
 	uint32_t onsum  = BlStruct->onlineCheckSum();
 	uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
+	  msg(MSG::WARNING) << "Checksum error:" << endreq;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
 	  continue;
 	}
       }
@@ -915,7 +915,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
 	  continue;
 	}
       }
@@ -924,9 +924,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
 	uint32_t onsum  = BlStruct->onlineCheckSum();
 	uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
+	  msg(MSG::WARNING) << "Checksum error:" << endreq;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
 	  continue;
 	}
       }
@@ -987,7 +987,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
     FEBID=HWIdentifier(Identifier32(BlStruct->getFEBID()));
     unsigned int FEBID32 = FEBID.get_identifier32().get_compact();
     if (!m_onlineHelper->isValidId(FEBID)) {
-      msg(MSG::WARNING) << "Invalid FEB identifer " << std:: hex << FEBID32 << std::dec << ". Skipping" << endmsg;
+      msg(MSG::WARNING) << "Invalid FEB identifer " << std:: hex << FEBID32 << std::dec << ". Skipping" << endreq;
       continue;
     }
 
@@ -1068,12 +1068,12 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   ATH_MSG_DEBUG("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
   //if (n<2) //Avoid segmentation fault
-  //  {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
+  //  {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endreq;
   //   return NULL;
   //  }  
   //uint32_t blocksize=p[0]; //First word contains block size
   //if (blocksize>n)
-  //  {(*m_log) << MSG::ERROR << "Got truncated ROD Fragment!" << endmsg;
+  //  {(*m_log) << MSG::ERROR << "Got truncated ROD Fragment!" << endreq;
   //   return NULL;
   //  }
   //Get version and blocktype form header
@@ -1081,11 +1081,11 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   const uint16_t rodMinorVersion=ver.minor_version();
   const uint32_t rodBlockType=m_robFrag->rod_detev_type()&0xff;
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endmsg;
+    {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endreq;
      return NULL;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType << "known." << endmsg;
+    {msg(MSG::ERROR) << "No version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType << "known." << endreq;
     return NULL;
     }
 #ifndef NDEBUG
@@ -1098,10 +1098,10 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   if (!BlStruct->setFragment(p,n)) {
     static int nMess = 1, maxMess = 100;
     if (nMess < maxMess) {
-      msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endmsg;
+      msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endreq;
       nMess++;
       if (nMess == maxMess)
-        msg(MSG::ERROR) << "This message will not be repeated" << endmsg;
+        msg(MSG::ERROR) << "This message will not be repeated" << endreq;
     }
     return NULL;
   }

@@ -36,7 +36,7 @@ LArRodEncoder::LArRodEncoder()
     StatusCode sc = Gaudi::svcLocator()->service( "MessageSvc", msgSvc  );
     MsgStream log(msgSvc, "LArRodEncoder");
     if ( log.level() <= MSG::DEBUG )
-      log << MSG::DEBUG << "initialize" << endmsg;
+      log << MSG::DEBUG << "initialize" << endreq;
     // Cabling Service
     IToolSvc* toolSvc;
     sc   = Gaudi::svcLocator()->service( "ToolSvc",toolSvc  );
@@ -46,7 +46,7 @@ LArRodEncoder::LArRodEncoder()
 	  toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
       } else {  // check if it fails
         // what do you want to do if it fails...
-	log << MSG::FATAL << "Could not get LArCablingService !" << endmsg;
+	log << MSG::FATAL << "Could not get LArCablingService !" << endreq;
 	exit(1);
       }
     //m_cablingSvc = LArCablingService::getInstance(); 
@@ -55,21 +55,21 @@ LArRodEncoder::LArRodEncoder()
     StoreGateSvc* detStore = 0;
     sc =Gaudi::svcLocator()->service( "DetectorStore", detStore );
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
+      log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
       exit(1);
     } else {
       if ( log.level() <= MSG::INFO ) 
-        log << MSG::INFO << "Successfully located DetectorStore" << endmsg;
+        log << MSG::INFO << "Successfully located DetectorStore" << endreq;
     }     
     sc = detStore->retrieve(online_id, "LArOnlineID");
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
+      log << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
       exit(1);
     } 
     else {
       m_onlineHelper=online_id;
       if ( log.level() <= MSG::DEBUG ) 
-        log << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
+        log << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
     }
   }
 
@@ -124,7 +124,7 @@ void LArRodEncoder::clear()
 void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, ICaloNoiseTool* calonoisetool, double nsigma)
 {
  if (!m_BlStruct)
-  {logstr << MSG::ERROR << "No LArRodBlockStructure defined! Can't encode fragment!" << endmsg; 
+  {logstr << MSG::ERROR << "No LArRodBlockStructure defined! Can't encode fragment!" << endreq; 
    return;
   }
  //int febcounter=0; 

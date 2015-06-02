@@ -51,12 +51,12 @@ StatusCode Hid2RESrcID::initialize()
     {
       sc = toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
       if (sc.isFailure()) {
-	log << MSG::FATAL << "Could not get LArCablingService !" << endmsg;
+	log << MSG::FATAL << "Could not get LArCablingService !" << endreq;
 	exit(1);
       }
     } else {  // check if it fails
         // what do you want to do if it fails...
-      log << MSG::FATAL << "Could not get ToolSvc !" << endmsg;
+      log << MSG::FATAL << "Could not get ToolSvc !" << endreq;
       exit(1);
     }
 
@@ -67,19 +67,19 @@ StatusCode Hid2RESrcID::initialize()
   StoreGateSvc* detStore = 0;
   sc =Gaudi::svcLocator()->service( "DetectorStore", detStore );
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
+    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
     exit(1);
   } else {
-    log << MSG::VERBOSE << "Successfully located DetectorStore" << endmsg;
+    log << MSG::VERBOSE << "Successfully located DetectorStore" << endreq;
   }     
   sc = detStore->retrieve(online_id, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
+    log << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
     exit(1);
   } 
   else {
     m_onlineHelper=online_id;
-    log << MSG::VERBOSE << " Found the LArOnlineID helper. " << endmsg;
+    log << MSG::VERBOSE << " Found the LArOnlineID helper. " << endreq;
   }
 
   // make internal maps 

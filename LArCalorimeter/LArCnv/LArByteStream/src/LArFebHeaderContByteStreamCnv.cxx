@@ -49,31 +49,31 @@ LArFebHeaderContByteStreamCnv::initialize()
    { 
     return sc; 
    } 
-   MsgStream log(msgSvc(), "LArFebHeaderContByteStreamCnv");
-   log << MSG::DEBUG<< " initialize " <<endmsg; 
+   MsgStream log(messageService(), "LArFebHeaderContByteStreamCnv");
+   log << MSG::DEBUG<< " initialize " <<endreq; 
    IService* svc;
   //Get ByteStreamCnvSvc
   if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
+    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
     return StatusCode::FAILURE;
   }
   m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamEventAccess==NULL)
     {
-      log<<MSG::ERROR<< "  LArFebHeaderContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endmsg; 
+      log<<MSG::ERROR<< "  LArFebHeaderContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endreq; 
       return StatusCode::FAILURE ;
     }
 
   //Get ByteStreamInputSvc (only necessary for reading of digits, not for writing and for channels)
   
   if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endmsg;
+    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endreq;
     m_rdpSvc=0;
   }
   else {
     m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
     if(m_rdpSvc == 0 ) {
-      log<<MSG::ERROR<< "  LArFebHeaderContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endmsg; 
+      log<<MSG::ERROR<< "  LArFebHeaderContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endreq; 
       return StatusCode::FAILURE;
     }
   }
@@ -82,7 +82,7 @@ LArFebHeaderContByteStreamCnv::initialize()
   IToolSvc* toolSvc;
 
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    log << MSG::ERROR << " Can't get ToolSvc " << endmsg;
+    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -90,7 +90,7 @@ LArFebHeaderContByteStreamCnv::initialize()
   std::string toolType = "LArRawDataContByteStreamTool" ; 
   if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
   {
-    log << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endmsg;
+    log << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -101,33 +101,33 @@ LArFebHeaderContByteStreamCnv::initialize()
 
 StatusCode LArFebHeaderContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {//Convert Digits from ByteStream to StoreGate
-  MsgStream log(msgSvc(), "LArFebHeaderContByteStreamCnv");
-  log << MSG::VERBOSE << "Executing CreateObj method for LArFebHeaderContainer " << endmsg;
+  MsgStream log(messageService(), "LArFebHeaderContByteStreamCnv");
+  log << MSG::VERBOSE << "Executing CreateObj method for LArFebHeaderContainer " << endreq;
   
 
   if (!m_rdpSvc)
-    {log << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endmsg;
+    {log << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endreq;
      return StatusCode::FAILURE;
     }
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
   if (!pRE_Addr)
-    {log << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endmsg;
+    {log << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endreq;
      return StatusCode::FAILURE;
     }
 
   const RawEvent* re = m_rdpSvc->getEvent();
   if (!re)
-    {log << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endmsg;
+    {log << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endreq;
      return StatusCode::FAILURE;
     }
 
   // Convert the RawEvent to  LArFebHeaderContainer
-  log << MSG::DEBUG << "Converting LArFebHeaders (from ByteStream)." << endmsg;
+  log << MSG::DEBUG << "Converting LArFebHeaders (from ByteStream)." << endreq;
   LArFebHeaderContainer *febHeaderContainer=new LArFebHeaderContainer;
   StatusCode sc=m_tool->convert(re,febHeaderContainer,(CaloGain::CaloGain)0);
   if (sc!=StatusCode::SUCCESS)
-    log << MSG::WARNING << "Conversion tool returned an error. LArFebHeaderContainer might be empty." << endmsg;
+    log << MSG::WARNING << "Conversion tool returned an error. LArFebHeaderContainer might be empty." << endreq;
     
   pObj = SG::asStorable(febHeaderContainer) ;
 
@@ -136,7 +136,7 @@ StatusCode LArFebHeaderContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataO
 
 StatusCode LArFebHeaderContByteStreamCnv::createRep(DataObject* /*pObj*/, IOpaqueAddress*& /*pAddr*/) 
 {// convert LArFebHeaders from StoreGate into ByteStream
-  MsgStream log(msgSvc(), "LArFebHeaderContByteStreamCnv");
-  log<< MSG::ERROR << "CreateRep method of LArFebHeaderContainer not implemented!" << endmsg;
+  MsgStream log(messageService(), "LArFebHeaderContByteStreamCnv");
+  log<< MSG::ERROR << "CreateRep method of LArFebHeaderContainer not implemented!" << endreq;
   return StatusCode::SUCCESS;
 }
