@@ -27,6 +27,41 @@ class DiLep_singlePhotonFilterFlags(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(DiLep_singlePhotonFilterFlags)
 
+class DiLep_singlePhotonFilterFlags_addph(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False    
+    cutEtMin     = 10*Units.GeV
+    cutEtaMax    = 2.5
+    cutd0Min     = None
+    cutIsEM      = 'Loose'
+    trigger      = None
+    pass
+primRPVLLDESDM.add_JobProperty(DiLep_singlePhotonFilterFlags_addph)
+
+class DiLep_singlePhotonFilterFlags_addel(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False    
+    cutEtMin     = 10*Units.GeV
+    cutEtaMax    = 2.5
+    cutd0Min     = 2.0*Units.mm
+    cutIsEM      = None
+    trigger      = None
+    pass
+primRPVLLDESDM.add_JobProperty(DiLep_singlePhotonFilterFlags_addel)
+
+class DiLep_singlePhotonFilterFlags_addmu(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False    
+    cutEtMin     = 10*Units.GeV
+    cutEtaMax    = 2.5
+    cutd0Min     = 1.5*Units.mm
+    trigger      = None
+    pass
+primRPVLLDESDM.add_JobProperty(DiLep_singlePhotonFilterFlags_addmu)
+
 class DiLep_singleElectronFilterFlags(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']

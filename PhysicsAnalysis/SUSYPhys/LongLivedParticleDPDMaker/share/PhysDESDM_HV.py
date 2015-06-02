@@ -3,30 +3,17 @@
 # ##########################################################################################
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool as skimtool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 
-def HVTriggerSelectionString(flags):
-    cutString=""
-    if flags.TriggerNames.__len__() >=1:
-        cutString+=flags.TriggerNames[0]
-        if flags.TriggerNames.__len__() >1:
-            for trigger in flags.TriggerNames[1:]:
-                cutString+=" || "+trigger
-                pass
-            pass
-        pass
-    return cutString
-    pass
 
 ###########################################################################################
 # HV Trigger Filter
 ###########################################################################################
 
-HVTriggerFilter = skimtool( name = "HVTriggerFilter",
-                                  expression = HVTriggerSelectionString(primRPVLLDESDM.HV_triggerFilterFlags)
-                                  )
-ToolSvc += HVTriggerFilter
-
+HVSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVSkimmingTool",
+                                                             TriggerListOR          = primRPVLLDESDM.HV_triggerFilterFlags.TriggerNames )
+ToolSvc += HVSkimmingTool
 topSequence += kernel( "RPVLL_HV_TriggerFilterKernel",
-                       SkimmingTools = [HVTriggerFilter],
+                       SkimmingTools = [HVSkimmingTool],
                        )
 RPVLLfilterNames.extend(["RPVLL_HV_TriggerFilterKernel"])

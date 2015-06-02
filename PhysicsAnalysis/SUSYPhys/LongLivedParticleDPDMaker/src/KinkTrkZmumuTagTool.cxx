@@ -72,7 +72,7 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::initialize()
       ATH_MSG_FATAL("Failed to retrieve tool: " << m_trigDecisionTool);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("TriggerDecitionTool: " << m_trigDecisionTool);
+    ATH_MSG_INFO("TriggerDecisionTool: " << m_trigDecisionTool);
 
     if (m_trigMatchTool.empty()) {
       ATH_MSG_FATAL("TrigMatchTool is not specified.");
@@ -98,7 +98,9 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::finalize()
 StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
 {
   std::vector<float> *diMuonTrkMass = new std::vector<float>();
-  std::string sgKey(m_sgKeyPrefix+"DiMuMass");
+  std::vector<float> *probeMuPt = new std::vector<float>();
+  std::string sgKey1(m_sgKeyPrefix+"DiMuMass");
+  std::string sgKey2(m_sgKeyPrefix+"ProbeMuPt");
 
   const xAOD::MuonContainer* muons(0);
   ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));	
@@ -112,15 +114,22 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
       if (!checkMSTrack(track)) continue;
       if (!checkMuonTrackPair(muon, track)) continue;
       diMuonTrkMass->push_back((muon->p4()+track->p4()).M());
+      probeMuPt->push_back(track->pt());
     }
   }
 
   // Writing to SG
-  if (evtStore()->contains< float >(sgKey)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey << "already exists.");
+  if (evtStore()->contains< float >(sgKey1)) {
+    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
     return StatusCode::FAILURE;
   }
-  CHECK(evtStore()->record(diMuonTrkMass, sgKey));
+  CHECK(evtStore()->record(diMuonTrkMass, sgKey1));
+
+  if (evtStore()->contains< float >(sgKey2)) {
+    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
+    return StatusCode::FAILURE;
+  }
+  CHECK(evtStore()->record(probeMuPt, sgKey2));
 
   return StatusCode::SUCCESS;
 }

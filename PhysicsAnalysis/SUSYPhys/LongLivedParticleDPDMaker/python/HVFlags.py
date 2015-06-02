@@ -16,9 +16,10 @@ class HV_triggerFilterFlags(JobProperty):
 	"HLT_j30_muvtx_noiso",
 	"HLT_j30_jes_PS_llp_L1TAU30",
 	"HLT_j30_jes_PS_llp_L1TAU60",
-#	"HLT_j30_jes_PS_llp_L1LLP-NOMATCH",
+	"HLT_j30_jes_PS_llp_L1LLP-NOMATCH",
 	"HLT_j30_jes_PS_llp_noiso_L1TAU60",
-#	"HLT_j30_jes_PS_llp_noiso_L1LLP-NOMATCH"
+	"HLT_j30_jes_PS_llp_noiso_L1LLP-NOMATCH",
+	"HLT_j100_xe80"
     ]
 
     pass

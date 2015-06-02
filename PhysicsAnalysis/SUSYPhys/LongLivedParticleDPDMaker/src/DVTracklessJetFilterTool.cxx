@@ -11,6 +11,7 @@
 #include <string>
 #include "xAODJet/JetContainer.h"
 
+
 // Constructor
 DerivationFramework::DVTracklessJetFilterTool::DVTracklessJetFilterTool( const std::string& t,
                                                  const std::string& n,
@@ -26,6 +27,7 @@ DerivationFramework::DVTracklessJetFilterTool::DVTracklessJetFilterTool( const s
     declareProperty("JetPtCut", m_ptCut);	
     declareProperty("JetEtaCut", m_etaCut);	
     declareProperty("sumPtTrkCut", m_sumPtTrkCut);	
+    declareProperty("nJetsRequired", m_nJetsRequired=1);
   }
   
 // Destructor
@@ -36,7 +38,9 @@ DerivationFramework::DVTracklessJetFilterTool::~DVTracklessJetFilterTool() {
 StatusCode DerivationFramework::DVTracklessJetFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     
      return StatusCode::SUCCESS;
+     
 }
 StatusCode DerivationFramework::DVTracklessJetFilterTool::finalize()
 {
@@ -50,6 +54,8 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
 {
   ++m_ntot;
   bool passesEvent=false;
+
+  int nJetsPassed=0;
   
   const xAOD::JetContainer* jetContainer(0);
   StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
@@ -68,12 +74,15 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
     if (sumPtTrkvec.size() > 0) {
       msg(MSG::DEBUG)<<"sumptTrk is "<<sumPtTrkvec.at(0)<<endreq;
       if (sumPtTrkvec.at(0) < m_sumPtTrkCut) {
-	passesEvent=true;
-	++m_npass;
-	return passesEvent;
+	nJetsPassed+=1;
       }    
     }
   }
+  if (nJetsPassed >=m_nJetsRequired) {
+    ++m_npass;
+    passesEvent=true;
+  }
+  
   return passesEvent;
   
 }  

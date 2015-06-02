@@ -10,6 +10,7 @@
 ##-----------------------------------------------------------------------------
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
@@ -24,7 +25,8 @@ msTrackContainer = primRPVLLDESDM.KinkedTrack_containerFlags.msTrackCollectionNa
 def KinkTrkTriggerFilterString(flags):
     selectionString = ''
     if flags.triggerNames:
-       selectionString += '(' + ' || '.join(flags.triggerNames) + ')'
+        triggers = list(set(flags.triggerNames))
+        selectionString += '(' + ' || '.join(triggers) + ')'
 
     return selectionString
 
@@ -33,8 +35,10 @@ def KinkTrkTriggerFilterString(flags):
 #====================================================================
 # Skimming tools
 #====================================================================
-KinkTrkJetTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
-                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags))
+#KinkTrkJetTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
+#                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags))
+KinkTrkJetTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
+                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.triggerNames)
 #print KinkTrkJetTriggerFilter
 ToolSvc += KinkTrkJetTriggerFilterTool
 
@@ -61,15 +65,16 @@ ToolSvc += KinkTrkSingleJetMetFilterTool
 
 KinkTrkJetFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkJetFilterTool",
                                                                  FilterList=[KinkTrkJetTriggerFilterTool, KinkTrkSingleJetMetFilterTool],
-                                                                 OutputLevel=DEBUG)
+                                                                 OutputLevel=INFO)
 ToolSvc+= KinkTrkJetFilterTool
 
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackJetFilterKernel",
+                                                     SkimmingTools = [KinkTrkJetFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 
 
-KinkTrkZeeTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
-                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZeeFilterFlags))
-ToolSvc += KinkTrkZeeTriggerFilterTool
 
+### Filters for Zll
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZeeTagTool
 KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 = "KinkTrkZeeTagTool",
                                                            Triggers             = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames,
@@ -90,20 +95,6 @@ KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 
 print KinkTrkZeeTagTool
 ToolSvc += KinkTrkZeeTagTool
 
-KinkTrkZeeStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeellStringSkimmingTool",
-                                                                           expression = 'count(abs(KinkTrkDiEleMass)>0)>=1')
-ToolSvc += KinkTrkZeeStringSkimmingTool
-
-KinkTrkZeeFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeFilterTool",
-                                                                 FilterList=[KinkTrkZeeTriggerFilterTool, KinkTrkZeeStringSkimmingTool],
-                                                                 OutputLevel=DEBUG)
-ToolSvc+= KinkTrkZeeFilterTool
-
-
-KinkTrkZmumuTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuTriggerFilterTool",
-                                                                            expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags))
-ToolSvc += KinkTrkZmumuTriggerFilterTool
-
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZmumuTagTool
 KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            = "KinkTrkZmumuTagTool",
                                                            Triggers            = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames,
@@ -117,12 +108,41 @@ KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            =
                                                            TrackPtMin          = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.trackPtMin,
                                                            TrackEtaMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.trackEtaMax,
                                                            DiMuonMassLow       = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassLow,
-                                                           DiMuonMassHigh       = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassHigh,
+                                                           DiMuonMassHigh      = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassHigh,
                                                            DeltaPhiMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.deltaPhiMax,
                                                            StoreGateKeyPrefix  = "KinkTrk")
 
 print KinkTrkZmumuTagTool
 ToolSvc += KinkTrkZmumuTagTool
+
+# Kernel for the augmentation tools
+topSequence += DerivationFramework__DerivationKernel( "KinkTrkAugmentationKernel",
+                                                      AugmentationTools = [KinkTrkZeeTagTool, KinkTrkZmumuTagTool])
+
+KinkTrkZeeTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
+                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZeeFilterFlags))
+#KinkTrkZeeTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
+#                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames)
+ToolSvc += KinkTrkZeeTriggerFilterTool
+
+KinkTrkZmumuTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuTriggerFilterTool",
+                                                                            expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags))
+#KinkTrkZmumuTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkZmumuTriggerFilterTool",
+#                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames)
+ToolSvc += KinkTrkZmumuTriggerFilterTool
+
+KinkTrkZeeStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeellStringSkimmingTool",
+                                                                           expression = 'count(abs(KinkTrkDiEleMass)>0)>=1')
+ToolSvc += KinkTrkZeeStringSkimmingTool
+
+KinkTrkZeeFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeFilterTool",
+                                                                 FilterList=[KinkTrkZeeTriggerFilterTool, KinkTrkZeeStringSkimmingTool],
+                                                                 OutputLevel=INFO)
+ToolSvc+= KinkTrkZeeFilterTool
+
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZeeFilterKernel",
+                                                     SkimmingTools = [KinkTrkZeeFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackZeeFilterKernel"])
 
 KinkTrkZmumuStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuStringSkimmingTool",
                                                                              expression = 'count(abs(KinkTrkDiMuMass)>0)>=1')
@@ -130,10 +150,10 @@ ToolSvc += KinkTrkZmumuStringSkimmingTool
 
 KinkTrkZmumuFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuFilterTool",
                                                                  FilterList=[KinkTrkZmumuTriggerFilterTool, KinkTrkZmumuStringSkimmingTool],
-                                                                 OutputLevel=DEBUG)
+                                                                 OutputLevel=INFO)
 ToolSvc+= KinkTrkZmumuFilterTool
 
-topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackFilterKernel",
-                                                     SkimmingTools = [KinkTrkJetFilterTool, KinkTrkZeeFilterTool, KinkTrkZmumuFilterTool])
-RPVLLfilterNames.extend(["RPVLL_KinkedTrackFilterKernel"])
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZmumuFilterKernel",
+                                                     SkimmingTools = [KinkTrkZmumuFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackZmumuFilterKernel"])
 

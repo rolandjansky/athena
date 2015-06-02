@@ -6,7 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # ##########################################################################################
 
 HipTriggerFilterTool = skimtool( name = "HipTriggerFilterTool",
-                                 expression = 'EF_g_nocut_hiptrtL2' )
+                                 expression = 'HLT_g0_hiptrt_L1EM18VH || HLT_g0_hiptrt_L1EM20VH || HLT_g0_hiptrt_L1EM20VHI || HLT_g0_hiptrt_L1EM22VHI' )
 
 ToolSvc += HipTriggerFilterTool
 topSequence += kernel( "RPVLL_HipTriggerFilterKernel",

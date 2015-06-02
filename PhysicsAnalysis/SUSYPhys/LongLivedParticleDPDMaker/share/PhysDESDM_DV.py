@@ -53,16 +53,43 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 
 
 ############################################################
-## Trackless jet filter
+## Trackless jet filters
 ###########################################################
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DVTracklessJetFilterTool
 
-DVTracklessJetFilterTool = DerivationFramework__DVTracklessJetFilterTool( name = "DVTracklessJetFilterTool",
-                                                                          JetContainerKey = jetContainer,
-                                                                          JetPtCut= primRPVLLDESDM.DV_TracklessJetFilterFlags.cutEtMin,
-                                                                          JetEtaCut= primRPVLLDESDM.DV_TracklessJetFilterFlags.cutEtaMax,
-                                                                          sumPtTrkCut = primRPVLLDESDM.DV_TracklessJetFilterFlags.cutSumPtTrkMax )
-ToolSvc+=DVTracklessJetFilterTool
+DVSingleTracklessJetFilterTool = DerivationFramework__DVTracklessJetFilterTool( name = "DVSingleTracklessJetFilterTool",
+                                                                                JetContainerKey = jetContainer,
+                                                                                JetPtCut= primRPVLLDESDM.DV_SingleTracklessJetFilterFlags.cutEtMin,
+                                                                                JetEtaCut= primRPVLLDESDM.DV_SingleTracklessJetFilterFlags.cutEtaMax,
+                                                                                sumPtTrkCut = primRPVLLDESDM.DV_SingleTracklessJetFilterFlags.cutSumPtTrkMax,
+                                                                                nJetsRequired = 1)
+
+ToolSvc+=DVSingleTracklessJetFilterTool
+
+DVDoubleTracklessJetFilterTool = DerivationFramework__DVTracklessJetFilterTool( name = "DVDoubleTracklessJetFilterTool",
+                                                                                JetContainerKey = jetContainer,
+                                                                                JetPtCut= primRPVLLDESDM.DV_DoubleTracklessJetFilterFlags.cutEtMin,
+                                                                                JetEtaCut= primRPVLLDESDM.DV_DoubleTracklessJetFilterFlags.cutEtaMax,
+                                                                                sumPtTrkCut = primRPVLLDESDM.DV_DoubleTracklessJetFilterFlags.cutSumPtTrkMax,
+                                                                                nJetsRequired = 2)
+
+ToolSvc+=DVDoubleTracklessJetFilterTool
+
+###### add a prescale tool - needs DerivationFrameworkTools-00-00-22 or later
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+DVPrescaleTool = DerivationFramework__PrescaleTool(name = "DVPrescaleTool",
+                                                   Prescale = primRPVLLDESDM.DV_PrescalerFlags.prescale
+                                                   )
+ToolSvc+=DVPrescaleTool
+
+DVCombinedTracklessJetFilterTool = DerivationFramework__FilterCombinationOR( name = "DVCombinedTracklessJetFilterTool",
+                                                                             FilterList = [DVSingleTracklessJetFilterTool,
+                                                                                           DVDoubleTracklessJetFilterTool,
+                                                                                           DVPrescaleTool],
+                                                                             OutputLevel=INFO
+                                                                             )
+ToolSvc+=DVCombinedTracklessJetFilterTool
 
 #======================================================================================================================================
 #######################################################################################################################################
@@ -180,7 +207,7 @@ ToolSvc += DV_multiJet_offlineJetFilter
 
 
 DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalFilter",
-                                                                    FilterList=[DV_multiJet_offlineJetFilter,DVTracklessJetFilterTool,DVMultiJetTriggerFilter],
+                                                                    FilterList=[DV_multiJet_offlineJetFilter,DVCombinedTracklessJetFilterTool,DVMultiJetTriggerFilter],
                                                                     OutputLevel=INFO
                                                                         )
 ToolSvc+= DV_MultiJetFinalFilter
@@ -210,7 +237,7 @@ DVMETFilterTool = DerivationFramework__DVMissingETFilterTool(name = "DVMETFilter
 ToolSvc+=DVMETFilterTool
 
 DV_METFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_METFinalFilter",
-                                                               FilterList=[DVMETFilterTool,DVTracklessJetFilterTool,DVMETTriggerFilter],
+                                                               FilterList=[DVMETFilterTool,DVCombinedTracklessJetFilterTool,DVMETTriggerFilter],
                                                                OutputLevel=INFO
                                                                )
 ToolSvc += DV_METFinalFilter
@@ -220,6 +247,24 @@ topSequence += kernel( "RPVLL_DV_METFilterKernel",
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_METFilterKernel"])
 
+#########################################################################
+### M_eff filter - use the MET trigger, but then cut on Meff, or MET/Meff
+#######################################################################
 
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DVMeffFilterTool
+DVMeffFilterTool = DerivationFramework__DVMeffFilterTool(name = "DVMeffFilterTool",
+                                                         METContainerKey = METContainer,
+                                                         MeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMeffMin,
+                                                         METoverMeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMin)
+ToolSvc += DVMeffFilterTool
 
+DV_MeffFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MEffFinalFilter",
+                                                               FilterList=[DVMeffFilterTool,DVMETTriggerFilter],
+                                                               OutputLevel=INFO
+                                                                )
+ToolSvc += DV_MeffFinalFilter
 
+topSequence += kernel( "RPVLL_DV_MeffFilterKernel",
+                       SkimmingTools = [DV_MeffFinalFilter],
+                       )
+RPVLLfilterNames.extend(["RPVLL_DV_MeffFilterKernel"])

@@ -118,6 +118,23 @@ topSequence += kernel( "RPVLL_DiLep_SinglePhotonFilterKernel",
 RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonFilterKernel"])
 
 # ##########################################################################################
+# Single photon + X filter
+# ##########################################################################################
+
+pString  = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags, photons, 1)
+apString = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addph, photons, 2) # 2 is not a bug! (double counting)
+aeString = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addel, electrons, 1)
+amString = MuonSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addmu, muons, 1)
+DiLepSinglePhotonXFilterTool = skimtool( name       = "DiLepSinglePhotonXFilterTool",
+                                         expression = pString + ' && (' + apString + ' || ' + aeString + ' || ' + amString + ')',
+                                       )
+ToolSvc     += DiLepSinglePhotonXFilterTool
+topSequence += kernel( "RPVLL_DiLep_SinglePhotonXFilterKernel",
+                       SkimmingTools = [DiLepSinglePhotonXFilterTool],
+                     )
+RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonXFilterKernel"])
+
+# ##########################################################################################
 # Single electron filter
 # ##########################################################################################
 

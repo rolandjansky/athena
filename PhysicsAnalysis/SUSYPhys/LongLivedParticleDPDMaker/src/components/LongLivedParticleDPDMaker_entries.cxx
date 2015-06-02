@@ -7,6 +7,7 @@
 #include "LongLivedParticleDPDMaker/HnlSkimmingTool.h"
 #include "LongLivedParticleDPDMaker/DVMissingETFilterTool.h"
 #include "LongLivedParticleDPDMaker/DVTracklessJetFilterTool.h"
+#include "LongLivedParticleDPDMaker/DVMeffFilterTool.h"
 #include "LongLivedParticleDPDMaker/KinkTrkSingleJetMetFilterTool.h"
 #include "LongLivedParticleDPDMaker/KinkTrkZmumuTagTool.h"
 #include "LongLivedParticleDPDMaker/KinkTrkZeeTagTool.h"
@@ -17,6 +18,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, RpvMuonMSTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, RpvEgammaIDTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, HnlSkimmingTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, DVMissingETFilterTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, DVMeffFilterTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, DVTracklessJetFilterTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkSingleJetMetFilterTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework, KinkTrkZmumuTagTool )
@@ -30,6 +32,7 @@ DECLARE_FACTORY_ENTRIES( LongLivedParticleDPDMaker ) {
   DECLARE_NAMESPACE_TOOL( DerivationFramework, RpvEgammaIDTool  );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, HnlSkimmingTool  );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, DVMissingETFilterTool  );
+  DECLARE_NAMESPACE_TOOL( DerivationFramework, DVMeffFilterTool  );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, DVTracklessJetFilterTool  );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkSingleJetMetFilterTool );
   DECLARE_NAMESPACE_TOOL( DerivationFramework, KinkTrkZmumuTagTool );

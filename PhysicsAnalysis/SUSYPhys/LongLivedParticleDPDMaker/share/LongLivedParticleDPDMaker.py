@@ -71,13 +71,6 @@ if llDPD.MakePrimaryDPD():
         include("LongLivedParticleDPDMaker/PhysDESDM_RPVLL.py")
         pass
         pass
-    ##=======================================================
-    ## Include the RPVLL CosmicCalo DESDM Output Stream
-    ##=======================================================
-    if llDPD.WriteRPVLL_CosmicCaloStream():
-        include("LongLivedParticleDPDMaker/PhysDESDM_RPVLL_CosmicCalo.py")
-        pass    
-
 
     #========================================================
     # Setting up the trigger decision tool. It will be only

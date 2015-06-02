@@ -86,12 +86,12 @@ if primRPVLLDESDM.doHV():
 # Second, filters I'm not sure of (move above this line if definitely needed)
 
 ## VH DV search based on displaced vertex finding in the ID along with a W or Z leptonic decay (contact: Andy Haas)
-if (primRPVLLDESDM.doVH_DV() and (rec.triggerStream() == "" or rec.triggerStream() in primRPVLLDESDM.doVH_DV.TriggerStreams)) or primRPVLLDESDM.doVH_DV.ForceToRun:
+if primRPVLLDESDM.doVH_DV():
     include("LongLivedParticleDPDMaker/PhysDESDM_VH_DV.py")
     pass
 
 ## Quirks search (contact: Jim Black)
-if (primRPVLLDESDM.doQuirks() and (rec.triggerStream() == "" or rec.triggerStream() in primRPVLLDESDM.doQuirks.TriggerStreams)) or primRPVLLDESDM.doQuirks.ForceToRun:
+if primRPVLLDESDM.doQuirks():
     include("LongLivedParticleDPDMaker/PhysDESDM_Quirks.py")
     pass
 

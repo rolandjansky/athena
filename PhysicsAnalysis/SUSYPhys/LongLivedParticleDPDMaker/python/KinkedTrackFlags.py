@@ -29,7 +29,7 @@ class KinkedTrack_containerFlags(JobProperty):
     #METCollectionName = "MET_LocHadTopo"
     METCollectionName = "MET_Reference_AntiKt4LCTopo"
     egClusterCollectionName = "egammaClusters"
-    msTrackCollectionName = "MuonSpectrometerTracks"
+    msTrackCollectionName = "MuonSpectrometerTrackParticles"
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_containerFlags)
 
@@ -38,10 +38,14 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        "j80_xe80_dphi1_L1J40_DPHI-J20s2XE50",
-        "j80_xe80_dphi1_L1J40_DPHI-J20XE50",
-        "j80_xe80_dphi1_L1J40_DPHI-Js2XE50",
-        "j80_xe80_dphi1_L1J40_DPHI-CJ20XE50"
+        "HLT_j80_xe80_dphi1_L1J40_DPHI-J20s2XE50",
+        "HLT_j80_xe80_dphi1_L1J40_DPHI-J20XE50",
+        "HLT_j80_xe80_dphi1_L1J40_DPHI-Js2XE50",
+        "HLT_j80_xe80_dphi1_L1J40_DPHI-CJ20XE50",
+        "HLT_j100_xe80_L1J40_DPHI-Js2XE50",
+        "HLT_j100_xe80_L1J40_DPHI-J20s2XE50",
+        "HLT_j100_xe80_L1J40_DPHI-J20XE50",
+        "HLT_j100_xe80_L1J40_DPHI-CJ20XE50"
         ]
     cutEtMin = 120.0*Units.GeV
     cutEtaMax = 3.2
@@ -62,7 +66,11 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
         "HLT_e24_medium_iloose",
         "HLT_e24_tight_iloose",
         "HLT_e26_tight_iloose",
-        "HLT_e28_tight_iloose"
+        "HLT_e28_tight_iloose",
+        "HLT_e24_tight_iloose_L1EM20VH",
+        "HLT_e24_lhmedium_iloose_L1EM20VH",
+        "HLT_e24_lhtight_iloose_L1EM20VH",
+        "HLT_e26_lhtight_iloose"
         ]
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
@@ -84,7 +92,9 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
         "HLT_mu20_iloose",
         "HLT_mu24_iloose",
         "HLT_mu24_imedium",
-        "HLT_mu26_imedium"
+        "HLT_mu26_imedium",
+        "HLT_mu20_iloose_L1MU15",
+        "HLT_mu24_iloose_L1MU15"
         ]
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV

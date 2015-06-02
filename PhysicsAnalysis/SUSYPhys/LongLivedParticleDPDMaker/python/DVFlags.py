@@ -94,7 +94,7 @@ class DV_METFilterFlags(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
-class DV_TracklessJetFilterFlags(JobProperty):
+class DV_SingleTracklessJetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
@@ -102,5 +102,33 @@ class DV_TracklessJetFilterFlags(JobProperty):
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
     pass
-primRPVLLDESDM.add_JobProperty(DV_TracklessJetFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_SingleTracklessJetFilterFlags)
 
+class DV_DoubleTracklessJetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=["bool"]
+    StoredValue=True
+    cutEtMin=50.0*Units.GeV
+    cutEtaMax=2.5
+    cutSumPtTrkMax=5.0*Units.GeV
+    pass
+primRPVLLDESDM.add_JobProperty(DV_DoubleTracklessJetFilterFlags)
+
+class DV_MeffFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutMeffMin=1.0*Units.TeV ##
+    cutMEToverMeffMin=0.3   ## note that these two cuts are ORed in the code!
+    cutJetPtMin=40000.
+    cutJetEtaMax=2.5
+    pass
+primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
+
+class DV_PrescalerFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    prescale=10
+    pass
+primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)

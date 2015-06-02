@@ -18,11 +18,9 @@ rec.AutoConfiguration=['everything']
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import *
 ## Include the job property flags for the physics DPDs in this package 
 from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import primRPVLLDESDM
-from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLL_CosmicCaloStream import primRPVLLCosmicCaloDESDM
 
 # Switch on the writing of the physics DPDs
 primDPD.WriteRPVLLStream = True
-primDPD.WriteRPVLL_CosmicCaloStream = False
 
 
 primDPD.OutputDirectoryName=""

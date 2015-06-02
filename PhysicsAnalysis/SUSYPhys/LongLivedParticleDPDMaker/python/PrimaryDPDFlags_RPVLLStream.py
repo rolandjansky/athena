@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 ##=============================================================================
 ## Name:        PrimaryDPDFlags_RPVLL_Stream
 ## Authors:     Nick Barlow (Cambridge), C. Ohm (Stockholm)
@@ -50,7 +51,6 @@ class doDiLep(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
     StoredValue=True
-    ForceToRun=True
     pass
 primRPVLLDESDM.add_JobProperty(doDiLep)
     
@@ -64,8 +64,7 @@ primRPVLLDESDM.add_JobProperty(doDV)
 class doKinkedTrack(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
-    ForceToRun = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 
@@ -73,7 +72,6 @@ class doStopped(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doStopped)
 
@@ -81,7 +79,6 @@ class doVH_DV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doVH_DV)
 
@@ -89,7 +86,6 @@ class doQuirks(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
     StoredValue=False
-    ForceToRun=False
     pass
 primRPVLLDESDM.add_JobProperty(doQuirks)
 
@@ -97,7 +93,6 @@ class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doHips)
 
@@ -105,7 +100,6 @@ class doHnl(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doHnl)
 
@@ -113,7 +107,6 @@ class doHV(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = True
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doHV)
 
@@ -121,7 +114,6 @@ class doSmpCaloId(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doSmpCaloId)
 
@@ -129,7 +121,6 @@ class doSmpMs(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    ForceToRun = False
     pass
 primRPVLLDESDM.add_JobProperty(doSmpMs)
 

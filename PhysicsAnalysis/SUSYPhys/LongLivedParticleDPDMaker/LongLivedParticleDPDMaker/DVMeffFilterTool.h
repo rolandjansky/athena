@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// Trackless jets
+// SkimmingToolExample.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_DVTRACKLESSJETFILTERTOOL_H
-#define DERIVATIONFRAMEWORK_DVTRACKLESSJETFILTERTOOL_H 
+#ifndef DERIVATIONFRAMEWORK_DVMEFFFILTERTOOL_H
+#define DERIVATIONFRAMEWORK_DVMEFFFILTERTOOL_H 
 
 #include<string>
 
@@ -19,21 +19,21 @@
 
 namespace DerivationFramework {
 
-  /** @class DVTracklessJetFilterTool
+  /** @class DVMeffFilterTool
   
       the code used in this implementation is kindly stolen from:
       atlasoff:: ISF/ISF_Core/ISF_Tools
 
       @author James Catmore -at- cern.ch
      */
-  class DVTracklessJetFilterTool : public AthAlgTool, public ISkimmingTool {
+  class DVMeffFilterTool : public AthAlgTool, public ISkimmingTool {
     
   public: 
     /** Constructor with parameters */
-    DVTracklessJetFilterTool( const std::string& t, const std::string& n, const IInterface* p );
+    DVMeffFilterTool( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~DVTracklessJetFilterTool();
+    ~DVMeffFilterTool();
     
     // Athena algtool's Hooks
     StatusCode  initialize();
@@ -45,14 +45,14 @@ namespace DerivationFramework {
   private:
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
-    std::string m_jetSGKey;
-    
+    std::string m_metSGKey;
+    std::string m_jetSGKey; 
+    double m_MeffCut;
+    double m_METoverMeffCut;
+    double m_jetPtCut;
+    double m_jetEtaCut;
 
-    double m_ptCut;
-    double m_etaCut;
-    double m_sumPtTrkCut;
-    int m_nJetsRequired;
-    
+
   }; 
   
 }

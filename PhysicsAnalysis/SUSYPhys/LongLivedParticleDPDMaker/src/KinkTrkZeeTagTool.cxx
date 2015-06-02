@@ -71,7 +71,7 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
       ATH_MSG_FATAL("Failed to retrieve tool: " << m_trigDecisionTool);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("TriggerDecitionTool: " << m_trigDecisionTool);
+    ATH_MSG_INFO("TriggerDecisionTool: " << m_trigDecisionTool);
 
     if (m_trigMatchTool.empty()) {
       ATH_MSG_FATAL("TrigMatchTool is not specified.");
@@ -97,6 +97,7 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::finalize()
 StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
 {
   std::vector<float> *diEleMass = new std::vector<float>();
+  std::vector<float> *probeEleEt = new std::vector<float>();
 
   const xAOD::ElectronContainer* electrons(0);
   ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
@@ -110,16 +111,24 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
       if (!checkCluster(clu)) continue;
       if (!checkEleClusPair(ele, clu)) continue;
       diEleMass->push_back((ele->p4()+clu->p4()).M());
+      probeEleEt->push_back(clu->et());
     }
   }
 
   // Writing to SG
-  std::string sgKey(m_sgKeyPrefix+"DiEleMass");
-  if (evtStore()->contains< float >(sgKey)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey << "already exists.");
+  std::string sgKey1(m_sgKeyPrefix+"DiEleMass");
+  if (evtStore()->contains< float >(sgKey1)) {
+    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
     return StatusCode::FAILURE;
   }
-  CHECK(evtStore()->record(diEleMass, sgKey));
+  CHECK(evtStore()->record(diEleMass, sgKey1));
+
+  std::string sgKey2(m_sgKeyPrefix+"ProbeEleEt");
+  if (evtStore()->contains< float >(sgKey2)) {
+    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
+    return StatusCode::FAILURE;
+  }
+  CHECK(evtStore()->record(probeEleEt, sgKey2));
 
   return StatusCode::SUCCESS;
 }

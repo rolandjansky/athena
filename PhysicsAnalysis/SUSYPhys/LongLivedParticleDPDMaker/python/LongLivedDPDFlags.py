@@ -46,19 +46,6 @@ class WriteRPVLLStream(JobProperty):
 primDPD.add_JobProperty(WriteRPVLLStream)
 listESDtoDPD.append(WriteRPVLLStream.StreamName)
 
-class WriteRPVLL_CosmicCaloStream(JobProperty):
-    """Produce empty BC RPV/LL DESD """
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False
-    StreamName = "StreamDESDM_RPVLLCC"
-    FileName = ""
-    TriggerNames = []
-    DPDMakerScript = "PrimaryDPDMaker/esdtodpd.py"    
-    pass
-primDPD.add_JobProperty(WriteRPVLL_CosmicCaloStream)
-listESDtoDPD.append(WriteRPVLL_CosmicCaloStream.StreamName)
-
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listESDtoDPD,listAllKnownDPD)
