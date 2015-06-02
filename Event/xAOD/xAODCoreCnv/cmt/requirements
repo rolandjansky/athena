@@ -1,5 +1,5 @@
 package xAODCoreCnv
-# $Id: requirements 583869 2014-02-18 11:31:09Z krasznaa $
+# $Id: requirements 654409 2015-03-16 15:48:18Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -14,6 +14,7 @@ private
 use GaudiInterface          GaudiInterface-*          External
 use AthenaBaseComps         AthenaBaseComps-*         Control
 use AthenaKernel            AthenaKernel-*            Control
+use AthContainers           AthContainers-*           Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
 use SGTools                 SGTools-*                 Control
 

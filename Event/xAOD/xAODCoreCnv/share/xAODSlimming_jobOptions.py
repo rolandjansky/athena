@@ -1,4 +1,4 @@
-# $Id: xAODSlimming_jobOptions.py 583869 2014-02-18 11:31:09Z krasznaa $
+# $Id: xAODSlimming_jobOptions.py 654409 2015-03-16 15:48:18Z krasznaa $
 #
 # This jobO is meant to test the capability of Athena to slim the contents
 # of an xAOD file.
@@ -20,30 +20,19 @@ alg.SGKeys = []
 alg.OutputLevel = DEBUG
 theJob += alg
 
-# Make sure that the event format metadata is created:
-from AthenaCommon.AppMgr import theApp
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-
 # Create a derived xAOD file:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-derivedStream = MSMgr.NewPoolStream( "StreamAOD", "DxAOD.pool.root" )
+derivedStream = MSMgr.NewPoolRootStream( "StreamAOD", "DxAOD.pool.root" )
 
 # Set up its contents:
-derivedStream.AddItem( "xAOD::EventInfo_v1#*" )
-derivedStream.AddItem( "xAOD::CaloClusterContainer_v1#*" )
+derivedStream.AddItem( "xAOD::EventInfo#*" )
+derivedStream.AddItem( "xAOD::CaloClusterContainer#*" )
 
+derivedStream.AddItem( "xAOD::AuxInfoBase#*" )
 derivedStream.AddItem( "xAOD::AuxContainerBase#*" )
-
-# This causes a crash at the moment... :-(
-#derivedStream.AddItem( "xAOD::AuxInfoBase#EventInfoAux." )
-
-derivedStream.AddMetaDataItem( "xAOD::EventFormat_v1#*" )
-
-# Set up the file writing's details:
-derivedStream.Stream.WritingTool.SubLevelBranchName = "<key>"
 
 # Some final tweaking:
 theApp.EvtMax = 10
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-#ServiceMgr.StoreGateSvc.Dump = True
+ServiceMgr.StoreGateSvc.Dump = True
