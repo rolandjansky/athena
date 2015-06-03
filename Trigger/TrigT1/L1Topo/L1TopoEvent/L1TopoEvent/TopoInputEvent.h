@@ -9,8 +9,6 @@
 #include <iostream>
 #include <vector>
 
-#include "TrigConfBase/TrigConfMessaging.h"
-
 #include "L1TopoEvent/ClusterTOBArray.h"
 #include "L1TopoEvent/JetTOBArray.h"
 #include "L1TopoEvent/MuonTOBArray.h"
@@ -18,13 +16,15 @@
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoCommon/Types.h"
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 namespace TCS {
    class TopoInputEvent;
 }
 
-std::ostream & operator<<(std::ostream &, const TCS::TopoInputEvent &);
-
 namespace TCS {
+
+  std::ostream & operator<<(std::ostream &, const TCS::TopoInputEvent &);
 
    class TopoInputEvent : public TrigConf::TrigConfMessaging {
    public:
@@ -65,7 +65,7 @@ namespace TCS {
       void print() const;
 
    private:
-      friend std::ostream & ::operator<<(std::ostream &, const TCS::TopoInputEvent &);
+      friend std::ostream & operator<<(std::ostream &, const TCS::TopoInputEvent &);
 
       // data is owned by the TopoInputEvent
       ClusterTOBArray   m_clusters;

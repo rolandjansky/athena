@@ -43,8 +43,8 @@ namespace TCS {
       double EtDouble() const { return m_EtDouble; }
       
       // setters
-      void setEx(int ex) { m_Ex = sizeCheck(ex, nBitsEx()); }
-      void setEy(int ey) { m_Ey = sizeCheck(ey, nBitsEy()); }
+      void setEx(int ex) { m_Ex = sizeCheckM(ex, nBitsEx()); }
+      void setEy(int ey) { m_Ey = sizeCheckM(ey, nBitsEy()); }
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       
       void setExDouble(double ex) { m_ExDouble = ex; }

@@ -23,9 +23,10 @@ namespace TCS {
 
    protected:
       int sizeCheck(int value, unsigned int size) const;
+      int sizeCheckM(int value, unsigned int size) const;
 
       unsigned int sizeCheck(unsigned int value, unsigned int size) const;
-
+      
 
    private:
       
@@ -33,8 +34,9 @@ namespace TCS {
 
    };
    
+std::ostream & operator<< (std::ostream & o, const TCS::BaseTOB&);
+
 } // end of namespace TCS
 
-std::ostream & operator<< (std::ostream & o, const TCS::BaseTOB&);
 
 #endif /* defined(__TopoCore__BaseTOB__) */

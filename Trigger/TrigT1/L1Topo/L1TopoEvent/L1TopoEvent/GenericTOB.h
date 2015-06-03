@@ -12,6 +12,7 @@
 #include "L1TopoEvent/JetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
+#include "L1TopoEvent/MetTOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -39,6 +40,8 @@ namespace TCS {
       // constructor from muon
       GenericTOB(const MuonTOB & muon);
       
+      // constructor from met
+      GenericTOB(const MetTOB & met);
 
       // destructor
       ~GenericTOB();
@@ -53,6 +56,9 @@ namespace TCS {
       unsigned int Et() const { return m_Et; }
       unsigned int EtWide() const { return m_EtWide; }
       unsigned int EtNarrow() const { return m_EtNarrow; }
+
+      int Ex() const { return m_Ex; }
+      int Ey() const { return m_Ey; }
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
@@ -74,6 +80,8 @@ namespace TCS {
       unsigned int m_EtNarrow { 0 };
       unsigned int m_EtWide { 0 };
 
+      int m_Ex { 0 };
+      int m_Ey { 0 };
 
       int m_eta { 0 };
       int m_phi { 0 };

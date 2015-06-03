@@ -143,6 +143,7 @@ TopoInputEvent::dumpFinish() {
 
 
 
+namespace TCS {
 
 
 std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
@@ -161,6 +162,8 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "MET input (" << evt.m_met.name() << "):" << endl << evt.m_met;
 
    return o;
+}
+
 }
 
 
