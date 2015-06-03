@@ -175,6 +175,17 @@ class ByteStreamUnpackGetter(Configured):
             extr.EFResultKey=""
             extr.HLTResultKey=""
 
+        #
+        # Configure DataScouting
+        #
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        if inputFileSummary['bs_metadata']['Stream'].startswith('calibration_DataScouting_'):
+            for stag in inputFileSummary['stream_tags']:
+                if (stag['stream_type'] == 'calibration') and (stag['stream_name'].startswith('DataScouting_')):
+                    ds_tag = stag['stream_name'][0:15]
+                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                    extr.DSResultKeys += [ ds_tag ]
+
         topSequence += extr
         
         from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
