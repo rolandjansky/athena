@@ -53,7 +53,7 @@ namespace TCS {
          // destroy object on previous 
          for(void * heap : m_heapCollection) {
             T * p = (T*)heap;
-            for(int t=0; t<m_originalCapacity; ++t)
+            for(unsigned int t=0; t<m_originalCapacity; ++t)
                (p++)->~T();
             free(heap); // destroy these
          }
@@ -75,7 +75,7 @@ namespace TCS {
 
       T* create(const T & obj) {
          //std::cout << "about to create size = " << size() << "  capacity = " << capacity() << " of heap " << m_heapname << std::endl;
-         if(  m_pos - (T*)m_heap == m_originalCapacity ) {
+        if(  (int)(m_pos - (T*)m_heap) == (int)m_originalCapacity ) {
             extend();
          }
          //std::cout << "Creating TOB on " << m_heapname << ", heap size " << size() << ", heap capacity " << capacity() << std::endl;

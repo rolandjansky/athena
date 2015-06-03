@@ -5,9 +5,16 @@
 
 #include "L1TopoEvent/DataArray.h"
 
+
+namespace TCS {
+
+
 std::ostream &
 operator<< (std::ostream & o, const TCS::DataArray& array) {
    array.print(o);
    return o;
 }
 
+
+
+}

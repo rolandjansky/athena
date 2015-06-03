@@ -35,6 +35,8 @@ TCS::GenericTOB::GenericTOB(const GenericTOB & other) :
    , m_Et(other.m_Et)
    , m_EtNarrow(other.EtNarrow())
    , m_EtWide(other.EtWide())
+   , m_Ex(other.m_Ex)
+   , m_Ey(other.m_Ey)
    , m_eta(other.m_eta)
    , m_phi(other.m_phi)
    , m_EtDouble(other.m_EtDouble)
@@ -88,6 +90,18 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
 {
     ++fg_instances;
 }
+
+// constr from met
+TCS::GenericTOB::GenericTOB(const MetTOB & met) :
+   BaseTOB(met)
+   , m_Et(met.Et())
+   , m_Ex(met.Ex())
+   , m_Ey(met.Ey())
+   , m_tobType(MET)
+{
+    ++fg_instances;
+}
+
 
 // destructor
 TCS::GenericTOB::~GenericTOB() {

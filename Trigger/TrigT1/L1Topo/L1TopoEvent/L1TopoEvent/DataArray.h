@@ -28,9 +28,10 @@ namespace TCS {
    private:
       std::string m_name;
    };
-}
 
 std::ostream & operator<< (std::ostream & o, const TCS::DataArray&);
+}
+
 
 
 #endif /* defined(__L1TopoEvent__DataArray__) */

@@ -19,8 +19,8 @@ TCS::MetTOB::MetTOB() : BaseTOB(0) {
 
 // constructor with initial values
 TCS::MetTOB::MetTOB(int ex, int ey, unsigned int et) : BaseTOB(0)
-   , m_Ex( sizeCheck(ex, nBitsEx()) )
-   , m_Ey( sizeCheck(ey, nBitsEy()) )
+   , m_Ex( sizeCheckM(ex, nBitsEx()) )
+   , m_Ey( sizeCheckM(ey, nBitsEy()) )
    , m_Et( sizeCheck(et, nBitsEt()) )
 {
    ++fg_instances;
