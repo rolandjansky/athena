@@ -400,8 +400,11 @@ def dq_combined_trf(picklefile):
         histmap = getFileMap(histfile, histdsname, nevts=nevts)
         outfiles = [histmap]
         dt += dt2
-        print 'Publishing to message service'
-        publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
+        if doWebDisplay == 'True':
+          print 'Publishing to message service'
+          publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
+        else:
+          print 'Web display off, not publishing to message service'
       else :
         txt = 'DQWebDisplay.py execution problem'  
         print "ERROR: DQWebDisplay.py execution problem!"
