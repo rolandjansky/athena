@@ -37,8 +37,8 @@ jetTagMonTool.nTrk_cuts = 1
 
 jetTagMonTool.SV1IP3D_weight_cut         = 0.0
 jetTagMonTool.MV2c20_50_cut=0.751629
-jetTagMonTool.MV2c20_50_cut=-0.10694
-jetTagMonTool.MV2c20_50_cut=-0.658252
+jetTagMonTool.MV2c20_70_cut=-0.10694
+jetTagMonTool.MV2c20_80_cut=-0.658252
 
 if not rec.doInDet:
     jetTagMonTool.UseTrackSelector = False

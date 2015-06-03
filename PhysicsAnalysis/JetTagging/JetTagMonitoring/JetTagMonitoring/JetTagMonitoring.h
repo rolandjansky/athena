@@ -124,11 +124,6 @@ private:
     double m_mv2c20_70_weight_cut;
     double m_mv2c20_80_weight_cut;    
 
-    /* From the twiki: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TopCommonObjects#B_tagging
-     * As a starting point we recommend to use the 70% working point (also for the acceptance and yields challenges)
-     * This corresponds to a cut at: weight > 0.601713 */
-    double m_mv1_weight_cut;
-
     /** @brief Master kill if no tools found. */
     bool m_switch_off;
 
@@ -177,11 +172,7 @@ private:
     /** @brief To monitor likelihood weight based on combined tagger (IP3D+SV1). */
     TH1F_LW* m_tag_sv1ip3d_w;
     TH1F_LW* m_tag_sv1ip3d_w_sj;
-    /** @brief To monitor likelihood weight based on combined tagger MV1 (based on IP3D tagging weight, SV1 tagging weight,
-     * JetFitterCombNN tagging weight, jet pT (in MeV) and jet eta.).
-     */
-    TH1F_LW* m_tag_mv1_w;
-    TH1F_LW* m_tag_mv1_w_sj;    
+   
     /** @brief To monitor likelihood weight based on MV2c20 tagger. */
     TH1F_LW* m_tag_mv2c20_w;
     TH1F_LW* m_tag_mv2c20_w_sj;
@@ -247,7 +238,7 @@ private:
 
     TH1F_LW* m_cutflow_jet;
 
-    TH2F_LW* m_priVtx_trks;
+    TH1F_LW* m_priVtx_trks;
 
     /** @brief 2D map of track selector efficiency. */
     TH2F_LW* m_track_selector_eff;
@@ -277,14 +268,6 @@ private:
                   nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
                   fitChi2, fitProb, fitChi2OnNdfMax, numCuts
                 };
-
-    /** @brief
-     * 2D map of MV1 tag rate
-     */
-    TH2F_LW* m_mv1_tag_pos_rate_2D;
-    TH2F_LW* m_mv1_tag_neg_rate_2D;
-    TH2F_LW* m_mv1_tag_def_rate_2D;
-    TH2F_LW* m_mv1_tag_def_rate_2D_LS;
 
 
     /** @brief 2D map of TrackSelectorTool cuts */

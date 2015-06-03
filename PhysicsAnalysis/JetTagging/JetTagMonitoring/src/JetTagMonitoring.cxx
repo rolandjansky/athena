@@ -231,19 +231,17 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_shift, m_tag_jetfitter_llr = TH1F_LW::create("tag_JetFitter_llr","JetFitter llr",160,-40.,40.));
     registerHist(*m_monGr_shift, m_tag_jfcnn_llr   = TH1F_LW::create("tag_JFCNN_llr","Combined weight JetFitterCOMBNN",160,-40.,40.));
     
-    registerHist(*m_monGr_shift, m_tag_mv1_w     = TH1F_LW::create("tag_MV1_w","Combined weight MV1 (quality jet)",100,-10.,10.));
     registerHist(*m_monGr_shift, m_tag_sv1ip3d_w = TH1F_LW::create("tag_SV1IP3D_w","Combined weight SV1IP3D (quality jet)",100,-10.,10.));
     registerHist(*m_monGr_shift, m_tag_mv2c20_w  = TH1F_LW::create("tag_MV2c20_w","Combined weight MV2c20 (quality jet)",100,-1.,1.));    
 
-    registerHist(*m_monGr_shift, m_tag_mv1_w_sj     = TH1F_LW::create("tag_MV1_w_sj","Combined weight MV1 (suspect jet)",100,-10.,10.));
     registerHist(*m_monGr_shift, m_tag_sv1ip3d_w_sj = TH1F_LW::create("tag_SV1IP3D_w_sj","Combined weight SV1IP3D (suspect jet)",100,-10.,10.));
     registerHist(*m_monGr_shift, m_tag_mv2c20_w_sj  = TH1F_LW::create("tag_MV2c20_w_sj","Combined weight MV2c20 (suspect jet)",100,-1.,1.));   
     
     registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","number of jets",20,0.,20.));
 
     registerHist(*m_monGr_shift, m_global_nPrimVtx = TH1F_LW::create("global_nPrimVtx","# primary vertex",30,0.,30.));
-    registerHist(*m_monGr_shift, m_global_xPrimVtx = TH1F_LW::create("global_xPrimVtx","x primary vertex",100,-0.5,0.5));
-    registerHist(*m_monGr_shift, m_global_yPrimVtx = TH1F_LW::create("global_yPrimVtx","y primary vertex",100,-1.2,1.2));
+    registerHist(*m_monGr_shift, m_global_xPrimVtx = TH1F_LW::create("global_xPrimVtx","x primary vertex",100,-5.0,5.0));
+    registerHist(*m_monGr_shift, m_global_yPrimVtx = TH1F_LW::create("global_yPrimVtx","y primary vertex",100,-5.0,5.0));
     registerHist(*m_monGr_shift, m_global_zPrimVtx = TH1F_LW::create("global_zPrimVtx","z primary vertex",100,-250.,250.));
 
     registerHist(*m_monGr_shift, m_global_BLayerHits = TH1F_LW::create("global_BLayerHits","# of BLayer hits on TrackParticle",5,0.,5.));
@@ -309,10 +307,8 @@ StatusCode JetTagMonitoring::bookHistograms() {
     m_cutflow->GetXaxis()->SetBinLabel(3,"PV present");
     m_cutflow->GetXaxis()->SetBinLabel(4,"PV ntrk");
 
-    registerHist(*m_monGr_shift, m_priVtx_trks = TH2F_LW::create("priVtx_trks","Tracks PV",21,-0.5,20.5,21,-0.5,20.5));
-
-    m_priVtx_trks->GetXaxis()->SetTitle("Primary Vertex 0");
-    m_priVtx_trks->GetYaxis()->SetTitle("Primary Vertex 1");
+    registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Tracks PV",100,-0.5,99.5));
+    m_priVtx_trks->GetXaxis()->SetTitle("Primary Vertex #trks");
 
 
     registerHist(*m_monGr_shift, m_cutflow_jet = TH1F_LW::create("Jet_Cutflow","Number of jets passed DQcuts",10,-0.5,9.5));
@@ -473,7 +469,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
     //* Primary vertex *//
     //////////////////////
 
-    unsigned int npv = 0, npv_trk = 0, nsv_trk = 0;
+    unsigned int npv = 0, npv_trk = 0;
     double xpv = 0., ypv = 0., zpv = 0.;
 
     const xAOD::VertexContainer* vxContainer(0);
@@ -490,7 +486,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
     npv = vxContainer->size();
     m_global_nPrimVtx->Fill((float)npv);
 
-    if (vxContainer->size() < 1) {
+    if (vxContainer->size() < 2) {
       ATH_MSG_WARNING("No primary vertices reconstructed");
       return StatusCode::SUCCESS;
     }
@@ -500,15 +496,15 @@ StatusCode JetTagMonitoring::fillHistograms() {
     bool foundVxTypePriVtx = false;
     m_priVtx = nullptr;
     for (xAOD::VertexContainer::const_iterator vtx = vxContainer->begin(); vtx != vxContainer->end(); ++vtx) {
-      if ((*vtx)->vertexType() == xAOD::VxType::PriVtx) {
+      if ((*vtx)->vertexType() == xAOD::VxType::PriVtx && (*vtx)->numberDoF() > 0 ) {
 	m_priVtx = *vtx;
 	foundVxTypePriVtx = true;
 	break;
       }
     }
     if ( ! foundVxTypePriVtx ) {
-      ATH_MSG_WARNING("xAOD::Vertex of type xAOD::VxType::PriVtx was not found in vertex container. Using first vertex!");
-      m_priVtx = vxContainer->at(0);
+      ATH_MSG_WARNING("xAOD::Vertex of type xAOD::VxType::PriVtx was not found in vertex container.");
+      return StatusCode::SUCCESS;
     }
 
     // if (m_priVtx->vxTrackAtVertexAvailable()) {
@@ -522,21 +518,17 @@ StatusCode JetTagMonitoring::fillHistograms() {
     ypv = m_priVtx->y();
     zpv = m_priVtx->z();
 
-    m_global_xPrimVtx->Fill(xpv);
-    m_global_yPrimVtx->Fill(ypv);
-    m_global_zPrimVtx->Fill(zpv);
+
 
     ATH_MSG_DEBUG("primary vertex: x = " << xpv << ", y = " << ypv << ", z = " << zpv);
 
     if (xpv == 0 && ypv == 0 && zpv == 0)
       ATH_MSG_WARNING("Primary Vertex is (0,0,0)");
-
-    /* store the number of tracks of the second PV candidate, if any */
-    if ( vxContainer->size() > 1 && vxContainer->at(1)->nTrackParticles()) {
-        nsv_trk = vxContainer->at(1)->nTrackParticles();
-    }
-
-    m_priVtx_trks->Fill(npv_trk, nsv_trk);
+    
+    m_global_xPrimVtx->Fill(xpv);
+    m_global_yPrimVtx->Fill(ypv);
+    m_global_zPrimVtx->Fill(zpv);
+    m_priVtx_trks->Fill(npv_trk);
 
 
     // check first PV > 4 tracks, if not, fail
@@ -944,11 +936,9 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
 
     const xAOD::BTagging* btag = jet->btagging();
 
-    double mv1    = btag->MV1_discriminant(); 
     double sv1ip3d = btag->SV1plusIP3D_discriminant();
     double mv2c20 = btag->auxdata<double>("MV2c20_discriminant");    
       
-    m_tag_mv1_w->Fill(mv1);
     m_tag_sv1ip3d_w->Fill(sv1ip3d);
     m_tag_mv2c20_w->Fill(mv2c20);   
 
@@ -971,7 +961,7 @@ bool JetTagMonitoring::isGoodJet(const xAOD::Jet *jet){
   float negE            = jet->getAttribute<float>(xAOD::JetAttribute::NegativeE);
   std::vector<float> SumPtTrkPt1000;
   jet->getAttribute(xAOD::JetAttribute::SumPtTrkPt1000,SumPtTrkPt1000);
-  float chf             = SumPtTrkPt1000.at(0)/jet->pt();
+  float chf             = SumPtTrkPt1000.size() > 0 ? SumPtTrkPt1000.at(0)/jet->pt() : -1;
   float emf             = jet->getAttribute<float>(xAOD::JetAttribute::EMFrac);
   float hecf            = jet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
   //int   SamplingMax     = CaloSampling::Unknown; 
@@ -1003,11 +993,9 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   
     const xAOD::BTagging* btag = jet->btagging();
 
-    double mv1    = btag->MV1_discriminant(); 
     double sv1ip3d = btag->SV1plusIP3D_discriminant();
     double mv2c20 = btag->auxdata<double>("MV2c20_discriminant");    
       
-    m_tag_mv1_w_sj->Fill(mv1);
     m_tag_sv1ip3d_w_sj->Fill(sv1ip3d);
     m_tag_mv2c20_w_sj->Fill(mv2c20);   
 
