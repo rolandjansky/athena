@@ -62,14 +62,19 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         proc_peek = open(card_loc,'r')
         for l in proc_peek.readlines():
             # Look for an output line 
-            if 'output' not in l.split('#')[0]: continue
-            # See if the first character of the last argument of the line is a dash
-            if l.split('#')[0].split()[-1][0]=='-': continue
-            # If it isn't, use that for the directory
-            if 'output'==l.strip().split()[0]:
-                thedir = l.split('#')[0].split()[-1]
+            if 'output' not in l.split('#')[0].split(): continue
+            # See if they have a '-f' in there
+            if '-f' not in l.split('#')[0].split(): continue
+            # Check how many things before the options start
+            tmplist = l.split('#')[0].split(' -')[0]
+            # if two things, second is the directory
+            if len(tmplist.split())==2: thedir = tmplist.split()[1]
+            # if three things, third is the directory (second is the format)
+            elif len(tmplist.split())==3: thedir = tmplist.split()[2]
+            # See if we got a directory
+            if ''!=thedir:
                 mglog.info('Saw that you asked for a special output directory: '+str(thedir))
-                break
+            break
         proc_peek.close()
 
     mglog.info('Started process generation at '+str(time.asctime()))
@@ -123,7 +128,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     if is_gen_from_gridpack(grid_pack):
         if gridpack_dir and nevents and random_seed:
             mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-            generate_from_gridpack(gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir)
+            generate_from_gridpack(gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir,param_card=param_card_loc)
             return
         else:
             mglog.info('Detected gridpack mode for generating events but asssuming old configuration (using sepatate generate_from_gridpack() call)')
@@ -301,7 +306,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
     else:
         LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
-    os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
+
+    if isNLO:
+        os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
         
     mglog.info('Path to LHAPDF install dir:%s'%LHAPATH)
     mglog.info('Path to LHAPDF data dir: %s'%LHADATAPATH)
@@ -655,7 +662,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     return 0
 
 
-def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None):
+def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None):
 
     isNLO=False
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
@@ -669,6 +676,10 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             isNLO=True
             break
     proccard.close()
+
+    if param_card is not None:
+        shutil.copy( param_card , gridpack_dir+'/Cards' )
+        mglog.info( 'Moved param card into place: '+str(param_card) )
 
     # Work in progress...
     #if card_check:
@@ -875,6 +886,9 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
             isNLO=True
             break
     proccard.close()
+
+    # Clean up in case a link or file was already there
+    if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
 
     mglog.info('Unzipping generated events.')
     if not isNLO:
@@ -1186,7 +1200,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generateing events from gridpack')
-            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed):
+            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
             thedir=gridpackDirName
@@ -1289,7 +1303,7 @@ output -f
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generateing events from gridpack')
-            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed):
+            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
             thedir=gridpackDirName
@@ -1315,47 +1329,127 @@ output -f
     return [xqcut,the_spot]
 
 
-def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={},extras={}):
-    """Build a new param_card.dat from an existing one."""
+def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={},extras={},params={}):
+    """Build a new param_card.dat from an existing one.
+    Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
+    Eventually params will replace the other arguments, but we need to keep them for backward compatibility for now."""
     # Grab the old param card and move it into place
     paramcard = subprocess.Popen(['get_files','-data',param_card_old])
     paramcard.wait()
     if not os.access(param_card_old,os.R_OK):
         mglog.info('Could not get param card '+param_card_old)
     if os.access(param_card_new,os.R_OK):
-        mglog.error('Old param card in the current directory. Dont want to clobber it. Please move it first.')
+        mglog.error('Old param card at'+str(param_card_new)+' in the current directory. Dont want to clobber it. Please move it first.')
         return -1
+
+    #ensure all blocknames and paramnames are upper case
+    for blockName in params:
+       params[blockName.upper()] = params.pop(blockName)
+       for paramName in params[blockName.upper()]:
+          params[blockName.upper()][paramName.upper()] = params[blockName.upper()].pop(paramName)
+
     oldcard = open(param_card_old,'r')
     newcard = open(param_card_new,'w')
-    edit = False
+    edit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
+    doneParams = {} #tracks which params have been done
     for line in oldcard:
         if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
                     and len(line.strip().split()) > 1: 
             if edit and blockName == 'DECAY': edit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
             blockName = line.strip().upper().split()[pos]
+        if edit: continue #skipping these lines because we are in an edit of the DECAY BR
+
         akey = None
-        if blockName in ['MASS','BSM'] and len(line.strip().split()) > 0:
+        if blockName != 'DECAY' and len(line.strip().split()) > 0:
             akey = line.strip().split()[0]
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
-        if   akey != None and blockName == 'MASS'  and masses.has_key(akey):
+        if akey==None:
+           newcard.write(line)
+           continue
+
+        if akey != None and blockName == 'MASS'  and akey in masses:
             newcard.write('   %s    %s  # \n'%(akey,str(masses[akey])))
             mglog.info('   %s    %s  #'%(akey,str(masses[akey])))
             edit = False
-        elif akey != None and blockName == 'BSM'   and extras.has_key(akey):
+            # Error checking
+            if 'MASS' in params:
+                mglog.error('Conflicting use of mass and params')
+                return -1
+            continue
+        elif akey != None and blockName == 'BSM'   and akey in extras:
             newcard.write('   %s    %s  # \n'%(akey,str(extras[akey])))
             mglog.info('   %s    %s  #'%(akey,str(extras[akey])))
             edit = False
-        elif akey != None and blockName == 'DECAY' and decays.has_key(akey):
+            # Error checking
+            if 'BSM' in params:
+                mglog.error('Conflicting use of extras for BSM and params')
+                return -1
+            continue
+        elif akey != None and blockName == 'DECAY' and akey in decays:
             for newline in decays[akey].splitlines():
                 newcard.write(newline+'\n')
                 mglog.info(newline)
             edit = True
-        elif not edit:
-            newcard.write(line)
-            #mglog.info(line)
+            # Error checking
+            if 'DECAY' in params:
+                mglog.error('Conflicting use of decay and params')
+                return -1
+            continue
+
+        #check if we have params for this block 
+        if not params.has_key(blockName):
+           newcard.write(line)
+           continue
+        blockParams = params[blockName]
+
+        # look for a string key, which would follow a # 
+        stringkey = None
+        if '#' in line: #ignores comment lines
+           stringkey = line.strip()[line.strip().find('#')+1:].strip()
+           if len(stringkey.split()) > 0: stringkey = stringkey.split()[0].upper()
+
+        if not akey in blockParams and not (stringkey != None and stringkey in blockParams):
+           newcard.write(line)
+           continue
+
+        if akey in blockParams and (stringkey != None and stringkey in blockParams):
+           mglog.error('Conflicting use of numeric and string keys %s and %s' % (akey,stringkey))
+           return -1
+        theParam = blockParams.get(akey,blockParams[stringkey])
+        if not blockName in doneParams: doneParams[blockName] = {}
+        if akey in blockParams: doneParams[blockName][akey]=True
+        elif stringkey != None and stringkey in blockParams: doneParams[blockName][stringkey]=True
+
+        #do special case of DECAY block
+        if blockName=="DECAY":
+           if theParam.splitlines()[0].split()[0]=="DECAY":
+               #specifying the full decay block
+               for newline in theParam.splitlines():
+                        newcard.write(newline+'\n')
+                        mglog.info(newline)
+               edit = True
+           else: #just updating the total width
+              newcard.write('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+              mglog.info('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+        else: #just updating the parameter
+           newcard.write('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+           mglog.info('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+        # Done editing the line!
+
+    #check that all specified parameters have been updated (helps to catch typos)
+    for blockName in params:
+       if not blockName in doneParams:
+          mglog.error('Did not find any of the parameters for block %s in param_card' % blockName)
+          return -1
+       for paramName in params[blockName]:
+          if not paramName in doneParams[blockName]:
+            mglog.error('Was not able to replace parameter %s in param_card' % paramName)
+            return -1
+
+    # Close up and return
     oldcard.close()
     newcard.close()
     return param_card_new
