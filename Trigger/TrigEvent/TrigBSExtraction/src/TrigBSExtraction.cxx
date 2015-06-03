@@ -4,48 +4,34 @@
 
 #include "TrigBSExtraction/TrigBSExtraction.h"
 #include "TrigSteeringEvent/HLTResult.h"
+#include "TrigSerializeCnvSvc/TrigSerializeConvHelper.h"
 
 TrigBSExtraction::TrigBSExtraction(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_navigationForEF("HLT::Navigation/Navigation", this),
-    m_navigationForL2("HLT::Navigation/NavigationForL2", this),
-    m_storeGate("StoreGateSvc", name)
+    m_navigationForL2("HLT::Navigation/NavigationForL2", this)
 {
   
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
   declareProperty("EFResultKey",     m_efResultKey = "HLTResult_EF");
   declareProperty("HLTResultKey",    m_hltResultKey = "HLTResult_HLT");
+  declareProperty("DSResultKeys",    m_dataScoutingKeys);
+
   declareProperty("Navigation",      m_navigationForEF);
-  declareProperty("NavigationForL2",      m_navigationForL2);
-  declareProperty("EvtStore", m_storeGate);
+  declareProperty("NavigationForL2", m_navigationForL2);
 }
 TrigBSExtraction::~TrigBSExtraction() {}
 
 StatusCode TrigBSExtraction::initialize() {
-  MsgStream log( msgSvc(), name());
-  if ( m_navigationForEF.retrieve().isFailure() ) {
-    log << MSG::FATAL << "failed to get navigation, can not retrieve navigation tool: "
-	<< m_navigationForEF << endreq;
-    return  StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "successfully retrieved navigation tool: "
-	<< m_navigationForEF << endreq;
-  }
+  ATH_CHECK( m_navigationForEF.retrieve() );
+  ATH_CHECK( m_navigationForL2.retrieve() );
 
-  if ( m_navigationForL2.retrieve().isFailure() ) {
-    log << MSG::FATAL << "failed to get navigation, can not retrieve navigation tool: "
-	<< m_navigationForL2 << endreq;
-    return  StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "successfully retrieved navigation tool: "
-	<< m_navigationForL2 << endreq;
-  }
-
-
-  if( m_storeGate.retrieve().isFailure() ) {
-    log << MSG::FATAL << "Unable to locate Service StoreGate!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  // Initialize the TrigSerializeConcHelper here so that all the additional streamerinfos are read in.
+  // In case of DataScouting this may give problems if the DS ROBs contain containers which
+  // were not compiled with navigation (the container type information is then not known
+  // for a gigen CLID).
+  ToolHandle<ITrigSerializeConvHelper> trigCnvHelper("TrigSerializeConvHelper",this);
+  ATH_CHECK( trigCnvHelper.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -55,31 +41,37 @@ StatusCode TrigBSExtraction::finalize() {
 }
 
 StatusCode TrigBSExtraction::execute() {
-  MsgStream log( msgSvc(), name());
-  log << MSG::DEBUG <<"has keys: HLTResult L2="<< m_l2ResultKey <<" EF=" <<m_efResultKey<<" HLT="<<m_hltResultKey<<endreq;
+  ATH_MSG_DEBUG("has keys: HLTResult L2="<< m_l2ResultKey <<" EF=" <<m_efResultKey<<" HLT="<<m_hltResultKey );
   if ( m_l2ResultKey != "" ) {
     m_nav = &*m_navigationForL2;
     if ( repackFeaturesToSG(m_l2ResultKey,  (m_efResultKey == "") ).isFailure() ) 
-      log << MSG::WARNING << "failed unpacking features from BS to SG for: " << m_l2ResultKey << endreq;
+      ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << m_l2ResultKey  );
     else
-      log << MSG::DEBUG << "success unpacking features from BS to SG for: " << m_l2ResultKey << endreq;
+      ATH_MSG_DEBUG( "success unpacking features from BS to SG for: " << m_l2ResultKey  );
   }
   
   m_nav = &*m_navigationForEF;
   if ( m_efResultKey != "" ) {
     if ( repackFeaturesToSG(m_efResultKey, true).isFailure() ) 
-      log << MSG::WARNING << "failed unpacking features from BS to SG for: " << m_efResultKey << endreq;
+      ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << m_efResultKey  );
     else
-      log << MSG::DEBUG << "success unpacking features from BS to SG for: " << m_efResultKey << endreq;
+      ATH_MSG_DEBUG( "success unpacking features from BS to SG for: " << m_efResultKey  );
   }
 
   if ( m_hltResultKey != "" ) {
     if ( repackFeaturesToSG(m_hltResultKey, true).isFailure() ) 
-      log << MSG::WARNING << "failed unpacking features from BS to SG for: " << m_hltResultKey << endreq;
+      ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << m_hltResultKey  );
     else
-      log << MSG::DEBUG << "success unpacking features from BS to SG for: " << m_hltResultKey << endreq;
+      ATH_MSG_DEBUG( "success unpacking features from BS to SG for: " << m_hltResultKey  );
   }
-  
+
+  for (const auto& ds_key : m_dataScoutingKeys.value()) {
+    if ( repackFeaturesToSG(ds_key, true).isFailure() ) 
+      ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << ds_key  );
+    else
+      ATH_MSG_DEBUG( "success unpacking features from BS to SG for: " << ds_key  );
+  }
+
   m_navigationForEF->reset();
   m_navigationForL2->reset();
 
@@ -90,40 +82,36 @@ StatusCode TrigBSExtraction::execute() {
 
 
 StatusCode TrigBSExtraction::repackFeaturesToSG(const std::string& key, bool equalize ) {
-  MsgStream log( msgSvc(), name());
   const HLT::HLTResult * constresult;
   HLT::HLTResult * result(0);
 
   // get HLT Result from SG for key
   //if (!m_storeGate->transientContains<HLT::HLTResult>(key)) {
 
-  log << MSG::DEBUG << "trying to deserialzie content of " << key << endreq;
-  if (m_storeGate->contains<HLT::HLTResult>(key)) {
-    m_storeGate->retrieve(constresult, key).ignore();
+  ATH_MSG_DEBUG( "trying to deserialzie content of " << key  );
+  if (evtStore()->contains<HLT::HLTResult>(key)) {
+    evtStore()->retrieve(constresult, key).ignore();
     result = const_cast<HLT::HLTResult*>(constresult);
     
-   log << MSG::DEBUG <<"HLTResult is level="<<result->getHLTLevel() << endreq; 
+    ATH_MSG_DEBUG("HLTResult is level="<<result->getHLTLevel()  );
     // reset navigation from previous event
     //    m_nav->reset();
 
     const std::vector<uint32_t>& navData = result->getNavigationResult();
     if ( navData.size() != 0 ) {
-      log << MSG::DEBUG << "navigation payload obtained from  " << key << " has size " << navData.size() << endreq;
+      ATH_MSG_DEBUG( "navigation payload obtained from  " << key << " has size " << navData.size()  );
       m_nav->deserialize( navData );
     } else {
-      log << MSG::WARNING << "navigation payload obtained from  " << key << " has size 0" << endreq;
+      ATH_MSG_WARNING( "navigation payload obtained from  " << key << " has size 0"  );
     }
 
   } else {
-    log << MSG::WARNING << "Trying to get HLT result, but not found with key " 
-	<< key << endreq;
+    ATH_MSG_WARNING( "Trying to get HLT result, but not found with key " 
+                     << key  );
   }
 
-  
-
   if ( equalize ) {
-    log << MSG::DEBUG << "Merging L2 and EF navigation structures " 
-	<< key << endreq;
+    ATH_MSG_DEBUG( "Merging L2 and EF navigation structures " << key  );
     m_nav->merge(*m_navigationForL2);
     m_nav->prepare();  
   }
@@ -133,12 +121,12 @@ StatusCode TrigBSExtraction::repackFeaturesToSG(const std::string& key, bool equ
   //feature access helpers to the new xAOD containers (that will be converted after this call)
   std::vector< HLT::TriggerElement* > testvec;
   m_nav->getAll(testvec,false);
-  log << MSG::DEBUG << "what's happening? " << testvec.size() << endreq;
+  ATH_MSG_DEBUG( "what's happening? " << testvec.size()  );
   
   // pack navigation back to the result
   result->getNavigationResult().clear();
   status = m_nav->serialize(result->getNavigationResult(), result->getNavigationResultCuts());
-  log << MSG::DEBUG << "new serialized navigation has size " << result->getNavigationResult().size() << endreq;
+  ATH_MSG_DEBUG( "new serialized navigation has size " << result->getNavigationResult().size()  );
 
   //  m_nav->reset();
   if ( status )
@@ -149,10 +137,9 @@ StatusCode TrigBSExtraction::repackFeaturesToSG(const std::string& key, bool equ
 // little templated utility
 template<class T>
 bool TrigBSExtraction::repackFeature() {
-  MsgStream log( msgSvc(), name());
   std::vector<const T*> v;
-  log << MSG::VERBOSE << "unpacking features of CLID: " << ClassID_traits<T>::ID() 
-      << " name: " << ClassID_traits<T>::typeName() << endreq;  
+  ATH_MSG_VERBOSE( "unpacking features of CLID: " << ClassID_traits<T>::ID() 
+                   << " name: " << ClassID_traits<T>::typeName()  );
   bool status = true;
   /*
   try {

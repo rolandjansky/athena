@@ -54,7 +54,7 @@
  */
 
 namespace BStoXAODHelper{
-  struct IHelper;
+  class IHelper;
 }
 
 class TrigBStoxAODTool : public AthAlgTool, public virtual ITrigBStoxAODTool {

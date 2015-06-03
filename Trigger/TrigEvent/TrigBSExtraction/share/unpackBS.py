@@ -52,6 +52,10 @@ ByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
 ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_L2" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_EF" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_HLT" ]
+# Address examples for DataScouting HLT results
+#ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/DataScouting_03" ]
+#ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/DataScouting_05" ]
+
 
 # proxy provider
 from SGComps.SGCompsConf import ProxyProviderSvc
@@ -68,6 +72,11 @@ from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
 extr = TrigBSExtraction()
 from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
 extr.Navigation = HLTNavigationOffline()
+# example for adding DataScouting results to decode
+#extr.DSResultKeys += [ "DataScouting_03" ]
+#extr.DSResultKeys += [ "DataScouting_05" ]
+
+
 
 from TrigSerializeResult.TrigSerializeResultConf import TrigTSerializer
 
