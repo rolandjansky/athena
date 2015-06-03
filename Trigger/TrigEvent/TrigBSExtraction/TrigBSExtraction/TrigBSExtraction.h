@@ -5,7 +5,7 @@
 #ifndef TRIGBSEXTRACTION_TRIGBSEXTRACTION_H
 #define TRIGBSEXTRACTION_TRIGBSEXTRACTION_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -21,7 +21,7 @@ namespace HLT {
  * @brief Top algorithms which unpacks objects from BS and places them in SG.
  */
 
-class TrigBSExtraction : public Algorithm {
+class TrigBSExtraction : public AthAlgorithm {
 public:
   TrigBSExtraction(const std::string& name, ISvcLocator* pSvcLocator);
   ~TrigBSExtraction();   
@@ -36,13 +36,11 @@ private:
   ToolHandle<HLT::Navigation> m_navigationForEF; //!< handle to Navigation tools
   ToolHandle<HLT::Navigation> m_navigationForL2; 
   HLT::Navigation* m_nav;
-  ServiceHandle<StoreGateSvc> m_storeGate;  //!< handle to SG
-  
 
   std::string m_l2ResultKey;  //!< key of HLTResult for L2
   std::string m_efResultKey;  //!< key of HLTResult for EF
   std::string m_hltResultKey;  //!< key of HLTResult for HLT P
-
+  StringArrayProperty m_dataScoutingKeys; //!< keys for DataScouting HLT Results
 };
 
 
