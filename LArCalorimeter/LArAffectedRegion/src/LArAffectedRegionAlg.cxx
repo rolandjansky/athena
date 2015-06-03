@@ -999,9 +999,9 @@ StatusCode LArAffectedRegionAlg::finalize() {
 float LArAffectedRegionAlg::HV_nominal(const char *identification,const float myparameter)
 {
   if (strcmp(identification,"EMBPS")==0) 
-    return 2000.;
+    return 1200.;
   else if (strcmp(identification,"EMECPS")==0)
-    return 2000.;
+    return 1600.;
   else if (strcmp(identification,"EMB")==0)
     return 2000.;
   else if (strcmp(identification,"EMEC")==0) {
