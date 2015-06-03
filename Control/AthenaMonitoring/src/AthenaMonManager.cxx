@@ -884,7 +884,11 @@ writeAndResetLWHist( const std::string& key, const std::string& streamName )
                 lwhist->setOwnsROOTHisto(true);//Since we deregistered
 
                 //LWHistAthMonWrapper::deleteLWHist(lwhist);
-                LWHistAthMonWrapper::removeCustomData(lwhist);
+                // Yuriy: commented out this line to make the code properly place  histograms
+                // in the offline environament; It has been a bug after I fixed online environment
+                // with a new approach; Basically inherited from writeAndDeletLWHist(...)
+                //LWHistAthMonWrapper::removeCustomData(lwhist);
+
                 lwhist->Reset();
 
                 lwhist=0;
