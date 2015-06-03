@@ -14,8 +14,8 @@ class CellQualityCut(JobProperty):
 class BadChanPerFEB(JobProperty):
     #Number of bad channels per Feb
     statusOn=True
-    allowedTypes=['float']
-    StoredValue=5
+    allowedTypes=['int']
+    StoredValue=30
     pass
 
 class BadFEBCut(JobProperty):
