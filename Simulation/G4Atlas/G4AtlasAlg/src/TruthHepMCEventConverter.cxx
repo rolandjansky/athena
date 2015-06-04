@@ -253,6 +253,14 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt,G4Event * anE
 // only those which have stable particles will be translated into G4PrimaryVertex
 // vertices will be displaced if their final position differs from the original
 
+  // set signal process vertex if currently unset
+  if( !newEvt->signal_process_vertex() ) {
+    HepMC::GenVertex *signalVertex = *(newEvt->vertices_begin());
+    newEvt->set_signal_process_vertex( signalVertex );
+  }
+  // Get the signal process vertex, just in case...
+  HepMC::FourVector old_signal_spot = newEvt->signal_process_vertex()->position();
+
 //  std::cout<<" primary vertex being processed "<<std::endl<<*(*(newEvt->vertices_begin()))<<std::endl;
 //  std::cout<<" primary vertex time set at: "<<vtxInfo->GetPrimaryVertexTime()<<"ns"<<std::endl;
   for ( Hv_iterator v = newEvt->vertices_begin();v != newEvt->vertices_end(); ++v )
@@ -383,6 +391,30 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt,G4Event * anE
   eventInfo->SetNrOfPrimaryVertices(n_vertices);
   eventInfo->SetHepMCEvent(newEvt);
   anEvent->SetUserInformation(eventInfo);
+
+  // Signal process vertex is a pointer.  There is some risk that the pointer points 
+  //  to a vertex somewhere else in the event, rather than a unique / new vertex, in
+  //  which case we will have already modified its position in the loop above.  That
+  //  is the reason for hanging on to an old position and seeing if we've moved...
+  // I would love it if HepMC had a minus operator defined for FourVectors... or
+  //  even a get for the three vector component :(
+  HepMC::FourVector why_no_minus( newEvt->signal_process_vertex()->position().x() - old_signal_spot.x() ,
+                                  newEvt->signal_process_vertex()->position().y() - old_signal_spot.y() ,
+                                  newEvt->signal_process_vertex()->position().z() - old_signal_spot.z() ,
+                                  newEvt->signal_process_vertex()->position().t() - old_signal_spot.t() );
+  if ( why_no_minus.rho() < 0.000001 && why_no_minus.m2() < 0.000001 ){
+    G4PrimaryVertex* g4pv = ConstructG4PrimaryVertex(newEvt->signal_process_vertex());
+    for (vit=gc->BeginVertexManipulator();vit!=gc->EndVertexManipulator();++vit)
+    {
+      if ((*vit).second->GetName()!="VertexRangeChecker" && (*vit).second->IsOn()){
+        (*vit).second->EditVertex(g4pv);
+        break;
+      }
+    }
+    double t0=g4pv->GetT0();
+    G4LorentzVector lv(g4pv->GetPosition().x(),g4pv->GetPosition().y(),g4pv->GetPosition().z(),t0*CLHEP::c_light)   ;
+    newEvt->signal_process_vertex()->set_position( lv );
+  } // Manipulated the signal process vertex
 
 // allow for event-by-event particle-level analysis
   for (eit=gc->BeginEventAnalyzer();eit!=gc->EndEventAnalyzer();eit++)
