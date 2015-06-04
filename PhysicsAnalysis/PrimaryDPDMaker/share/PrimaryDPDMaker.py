@@ -86,7 +86,6 @@ if primDPD.MakePrimaryDPD():
     ##=======================================================================    
     if primDPD.WriteSingleElectronStream() \
            or primDPD.WriteEGammaStream() \
-           or primDPD.WritePhotonJetStream() \
            or primDPD.WriteMuonStream() \
            or primDPD.WriteSingleMuonStream() \
            or primDPD.WriteJetStream() \
@@ -150,14 +149,6 @@ if primDPD.MakePrimaryDPD():
     ##=======================================================
     if primDPD.WriteEGammaStream():
         rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_EGamma.py")
-        pass
-
-
-    ##=======================================================
-    ## Include the Photon-Jet DPD Output Stream
-    ##=======================================================
-    if primDPD.WritePhotonJetStream():
-        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_PhotonJet.py")
         pass
 
 
