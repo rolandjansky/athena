@@ -257,11 +257,13 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractMdtPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const MdtPrepDataCollection*>& target ) const {
 
-    if (evtStore()->retrieve(m_mdtPrdContainer,m_key_mdt).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt);
-      return;
-    }
-      
+    if( evtStore()->contains<Muon::MdtPrepDataContainer>(m_key_mdt) ) {
+      if (evtStore()->retrieve(m_mdtPrdContainer,m_key_mdt).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt);
+        return;
+      }
+    }else return;
+
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
@@ -282,10 +284,13 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractRpcPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const RpcPrepDataCollection*>& target ) const {
 
-    if (evtStore()->retrieve(m_rpcPrdContainer,m_key_rpc).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc);
-      return;
-    }
+    if( evtStore()->contains<Muon::RpcPrepDataContainer>(m_key_rpc) ) {
+      if (evtStore()->retrieve(m_rpcPrdContainer,m_key_rpc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc);
+        return;
+      }
+    }else return;
+
       
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -309,10 +314,12 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractTgcPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const TgcPrepDataCollection*>& target ) const {
 
-    if (evtStore()->retrieve(m_tgcPrdContainer,m_key_tgc).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc);
-      return;
-    }
+    if( evtStore()->contains<Muon::TgcPrepDataContainer>(m_key_tgc) ) {
+      if (evtStore()->retrieve(m_tgcPrdContainer,m_key_tgc).isFailure()) {
+        ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc);
+        return;
+      }
+    }else return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
@@ -341,8 +348,7 @@ namespace Muon {
 	ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc);
 	return;
       }
-    }
-    else return;
+    }else return;
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
