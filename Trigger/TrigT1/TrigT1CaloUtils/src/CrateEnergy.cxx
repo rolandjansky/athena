@@ -191,7 +191,6 @@ CrateEnergy::CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
   m_overflowT(0),
   m_overflowX(0),
   m_overflowY(0),
-  m_restricted(false),
   m_debug(false)
 {
   /** Check crate in range */

@@ -108,28 +108,27 @@ void LVL1::CoordToHardware::fillRoILocalMap(){
 
 /** returns local RoI coordinate within FPGA */
 unsigned int LVL1::CoordToHardware::cpModuleLocalRoI(const Coordinate& coord){
-  if ( cpCoordIsValid(coord) ) {
-    double phi=coord.phi();
-    double eta=coord.eta();
-    // should be 32 FPGAs in 2*PI, and there are 2 local RoI locations in phi per FPGA
-    // so "temp" ranges from 0-63
-    unsigned int temp = static_cast<unsigned int>( (phi/m_cpFPGAPhiWidth)*2);
-    // so this (below) gives us the integer phi coordinate WITHIN the FPGA
-    unsigned int iLocalPhi= temp%2;
-    // There are 14 CPMs, each with 8 FPGAs that each span it completely in eta
-    // (i.e. one eta position for FPGAs in CPM) and there are 4 local RoI
-    // locations in eta per FPGA
+	if ( cpCoordIsValid(coord) ) {
+ 		double phi=coord.phi();
+		double eta=coord.eta();
+ 		// should be 32 FPGAs in 2*PI, and there are 2 local RoI locations in phi per FPGA
+		// so "temp" ranges from 0-63
+ 		unsigned int temp = static_cast<unsigned int>( (phi/m_cpFPGAPhiWidth)*2);
+ 		// so this (below) gives us the integer phi coordinate WITHIN the FPGA
+   	unsigned int iLocalPhi= temp%2;
+ 		// There are 14 CPMs, each with 8 FPGAs that each span it completely in eta (i.e. one eta position for FPGAs in CPM)
+		// and there are 4 local RoI locations in eta per FPGA
 
     temp=static_cast<unsigned int>( (eta+2.8)/0.1 );
 
-    //temp = static_cast<unsigned int>(  (eta+(m_cpmEtaMax+m_cpmEtaWidth)/m_cpmEtaWidth ) * 4);
-    unsigned int iLocalEta =   temp%4;
-    return m_roiLocalMap[iLocalPhi][iLocalEta];
-  }
-  // invalid coord
-  return m_error;
+		//temp = static_cast<unsigned int>(  (eta+(m_cpmEtaMax+m_cpmEtaWidth)/m_cpmEtaWidth ) * 4);
+		unsigned int iLocalEta =   temp%4;
+		if ((iLocalEta<4)&&(iLocalPhi<2)) return m_roiLocalMap[iLocalPhi][iLocalEta];
+		std::cerr << "Illegal local coordinate attempted in LVL1::CoordToHardware::cpModuleLocalRoI(Coordinate coord)"<<std::endl;
+	}
+	// invalid coord
+	return m_error;
 }
-
 /** returns false if Coord is outside permitted region */
 bool LVL1::CoordToHardware::cpCoordIsValid(const Coordinate& coord) const {
   double eta= coord.eta();

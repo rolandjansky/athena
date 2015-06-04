@@ -130,15 +130,15 @@ private: //atribs
   static const double m_maxEta;
 
   /** threshold values */
-  /* vscharf 2015-04-22: not used anymore causing Coverity issue 19609 */
-  /* int m_ClusterThreshold; */
-  /* int m_emRingIsolationThreshold; */
-  /* int m_hadRingIsolationThreshold; */
-  /* int m_hadCoreIsolationThreshold; */
+  int m_ClusterThreshold;
+  int m_emRingIsolationThreshold;
+  int m_hadRingIsolationThreshold;
+  int m_hadCoreIsolationThreshold;
 
 private:  // methods
   void setRoICoord(double eta, double phi);
   void testEtMax(const std::vector<unsigned int>& cores);
+  void getThresholds(TrigConf::TriggerThreshold* thresh);
   void emAlgorithm();
   void tauAlgorithm();
   CPMTobRoI* createTobRoI(int type);

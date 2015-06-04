@@ -17,6 +17,7 @@
 
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1Interfaces/L1METvalue.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/METSigParam.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -40,6 +41,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
   m_etMissHits(0),
   m_etSumHits(0),
   m_metSigHits(0),
+  m_metSig(0),
   m_debug(false)
   {
 
@@ -61,7 +63,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
     m_overflowX = m_overflowX|(*it)->exOverflow();
     m_overflowY = m_overflowY|(*it)->eyOverflow();
     m_overflowT = m_overflowT|(*it)->etOverflow();
-   
+    
     if ((*it)->restricted()) m_restricted = 1;
   }
   
@@ -109,6 +111,7 @@ SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC
   m_etMissHits(0),
   m_etSumHits(0),
   m_metSigHits(0),
+  m_metSig(0),
   m_debug(false)
 {
   m_systemEx = decodeTC(exTC);
@@ -187,6 +190,11 @@ unsigned int SystemEnergy::metSigHits() {
   return m_metSigHits;
 }
 
+/** return MEtSig value * 1000 */
+float SystemEnergy::metSig() {
+  return m_metSig;
+}
+
 /** return RoI word 0 (Ex value & overflow) */
 unsigned int SystemEnergy::roiWord0() {
   // Start by setting up header
@@ -240,41 +248,47 @@ unsigned int SystemEnergy::roiWord2() {
     See CMM specificiation from L1Calo web pages for details */
 void SystemEnergy::etMissTrigger() {
   /// Start cleanly
+  m_etMiss     = 0;
   m_etMissHits = 0;
   
-  /// Calculate MET^2
-  m_etMissQ = m_systemEx*m_systemEx + m_systemEy*m_systemEy;
-  
-  /// Ex or Ey overflow automatically fires all thresholds
+  /// Ex or Ey overflow automatically fires all thresholds, sets MET value to maximum
   if ( (m_overflowX != 0) || (m_overflowY != 0) ) {
+    m_metRange = 3;
+    m_etMiss = 63<<m_metRange;
     m_etMissHits = (1<<TrigT1CaloDefs::numOfMissingEtThresholds) - 1;
     return;
   }
   
-  /// Otherwise see which thresholds were passed
+  // Use L1METvalue tool to computer ETmiss with effective precision of LUT
+  L1METvalue METvalue;
+  bool overflow;
+  METvalue.calcL1MET(ex(),ey(),m_etMiss,m_metRange,overflow);
+
+  // LUT overflow also fires all thresholds
+  if (overflow) {
+    m_metRange = 3;
+    m_etMiss = 63<<m_metRange;
+    m_etMissHits = (1<<TrigT1CaloDefs::numOfMissingEtThresholds) - 1;
+    return;
+  }
+  
+  // Otherwise expand the MET value
+  int missingET = m_etMiss << m_metRange;  
   
   // Get thresholds
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
-  //float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+  float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
   
   // get Threshold values and test
-
   L1DataDef def;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.xeType() ) {
       TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0);       
-      int thresholdValue = (*tv).thresholdValueCount();
-      uint32_t tvQ = thresholdValue*thresholdValue;
+      int thresholdValue = (*tv).ptcut()*etScale;
       int threshNumber = (*it)->thresholdNumber();
-      if (m_restricted == 0 && threshNumber < 8) {
-        if ( m_etMissQ > tvQ )
+      if (missingET > thresholdValue )
            m_etMissHits = m_etMissHits|(1<<threshNumber);
-      }
-      else if (m_restricted != 0 && threshNumber >= 8) {
-	if ( m_etMissQ > tvQ )
-           m_etMissHits = m_etMissHits|(1<<(threshNumber-8));
-      }
     }
   }
 
@@ -296,7 +310,7 @@ void SystemEnergy::etSumTrigger() {
   // Get thresholds
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
-  //float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+  float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
   
   // get Threshold values and test
   // Since eta-dependent values are being used to disable TE in regions, must find lowest value for each threshold
@@ -307,18 +321,8 @@ void SystemEnergy::etSumTrigger() {
       int thresholdValue = m_maxEtSumThr;
       std::vector<TriggerThresholdValue*> tvv = (*it)->thresholdValueVector();
       for (std::vector<TriggerThresholdValue*>::const_iterator ittvv = tvv.begin(); ittvv != tvv.end(); ++ittvv) 
-	if ((*ittvv)->thresholdValueCount() < thresholdValue) thresholdValue = (*ittvv)->thresholdValueCount();
-
-      if (m_restricted == 0 && threshNumber < 8) {
-        if (static_cast<int>(m_systemEt) > thresholdValue )
-           m_etSumHits = m_etSumHits|(1<<threshNumber);
-      }
-      else if (m_restricted != 0 && threshNumber >= 8) {
-	if (static_cast<int>(m_systemEt) > thresholdValue )
-           m_etSumHits = m_etSumHits|(1<<(threshNumber-8));
-      }
-      
-
+	if ((*ittvv)->ptcut()*etScale < thresholdValue) thresholdValue = (*ittvv)->ptcut()*etScale;
+      if (static_cast<int>(m_systemEt) > thresholdValue ) m_etSumHits = m_etSumHits|(1<<threshNumber);
     }
   }
 
@@ -328,61 +332,46 @@ void SystemEnergy::etSumTrigger() {
 /** Test MEt Significance against METSig thresholds */
 void SystemEnergy::metSigTrigger() {
   /// Start cleanly
+  m_metSig     = 0.;
   m_metSigHits = 0;
-  
-  /// No restricted eta MET significance trigger
-  if (m_restricted != 0) return; 
   
   /// Obtain parameters from configuration service
   METSigParam params = m_configSvc->thresholdConfig()->caloInfo().metSigParam();
-  unsigned int Scale = params.xsSigmaScale();
-  unsigned int Offset = params.xsSigmaOffset();
-  unsigned int XEmin = params.xeMin();
-  unsigned int XEmax = params.xeMax();
+  float a = params.xsSigmaScale()/1000.;
+  float b = params.xsSigmaOffset()/1000.;
+  int XEmin = params.xeMin();
+  int XEmax = params.xeMax();
   int sqrtTEmin = params.teSqrtMin();
   int sqrtTEmax = params.teSqrtMax();
-
-  /// Start with overflow and range checks
-  if ( (m_overflowX > 0) || (m_overflowY > 0) || (m_etMissQ > XEmax*XEmax) ) {
-    m_metSigHits = (1<<TrigT1CaloDefs::numOfMEtSigThresholds) - 1;
-    return;
-  }
-  else if ( (m_etMissQ < XEmin*XEmin) || (m_systemEt < sqrtTEmin*sqrtTEmin) || (m_systemEt > sqrtTEmax*sqrtTEmax) ) {
-    return;
-  }
   
-  /// Perform threshold tests. Emulate firmware logic for this, so don't explicitly calculate XS
-  /// Prepare factors we wil re-use for each threshold.
-  /// Scale bQ to hardware precision
-  unsigned long aQ = Scale*Scale;
-  unsigned int bQ = ceil(Offset*Offset*1.e-6);
-  unsigned long fourbQTE = 4*bQ*m_systemEt;
+  /// Calculate MET Significance
+  L1METvalue METvalue;
+  int outOfRange = 0;
+  METvalue.calcL1METSig(m_etMiss, m_metRange, m_systemEt, a, b, XEmin, XEmax, sqrtTEmin, sqrtTEmax,
+               m_metSig, outOfRange);
 
-  // Get thresholds
-  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold*>::const_iterator it;
+  /// Check inputs within range and set hits accordingly
+  if (outOfRange >= 0) {
+    
+    // Get thresholds
+    std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+    std::vector<TriggerThreshold*>::const_iterator it;
   
-  /// get Threshold values and test
-  /// aQTiQ has to be scaled to hardware precision after product formed
-  L1DataDef def;
-  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
-    if ( (*it)->type() == def.xsType() ) {
-        TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0);
-	
-	int threshNumber = (*it)->thresholdNumber();
-	unsigned int Ti = (*tv).thresholdValueCount();
-	unsigned long aQTiQ = (0.5 + double(aQ*1.e-8)*Ti*Ti);
-
-        long left  = aQTiQ*aQTiQ*fourbQTE;
-        long right = aQTiQ*(m_systemEt+bQ) - m_etMissQ;
-	
-        if ( right < 0 || left > right*right ) m_metSigHits = m_metSigHits|(1<<threshNumber);
+    // get Threshold values and test
+    L1DataDef def;
+    for (it = thresholds.begin(); it != thresholds.end(); ++it) {
+      if ( (*it)->type() == def.xsType() ) {
+        TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0);       
+        float thresholdValue = float((*tv).thresholdValueCount())/10.;
+        int threshNumber = (*it)->thresholdNumber();
+        if ( m_metSig > thresholdValue || outOfRange > 0 ) m_metSigHits = m_metSigHits|(1<<threshNumber);
+      }
     }
+    
   }
   
   return;
 }
-
 /** encode int as 15-bit twos-complement format (hardware Ex/Ey format) */
 unsigned int SystemEnergy::encodeTC(int input) {
   unsigned int value;
