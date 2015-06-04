@@ -25,6 +25,7 @@
 #include "TDirectory.h"
 #include "TDirectoryFile.h"
 #include "TROOT.h"
+#include "TFile.h"
 #include "TDataType.h"
 #include "TPRegexp.h"
 #include <sstream>
@@ -83,7 +84,7 @@ char find_typecode (const std::type_info& ti)
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 487276 $
+ * $Revision: 672209 $
  * $Date$
  */
 class NameMatches : public std::unary_function< std::string,
@@ -619,8 +620,35 @@ RootD3PD::addDimensionedVariable (const std::string& /*name*/,
  */
 StatusCode RootD3PD::capture ()
 {
+  // Handle pending pool file association.
+  CHECK( attachPoolFile() );
+
   if (m_tree->Fill() < 0)
     return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Try to attach to a pool file, if we haven't yet done so.
+ */
+StatusCode RootD3PD::attachPoolFile()
+{
+  if (!m_poolFile.empty()) {
+    TIter next (gROOT->GetListOfFiles());
+    while (TFile* f = dynamic_cast<TFile*>(next())) {
+      if (std::string(f->GetName()) == m_poolFile) {
+        m_tree->SetDirectory (f);
+        m_poolFile.clear();
+        break;
+      }
+    }
+    if (!m_poolFile.empty()) {
+      REPORT_MESSAGE (MSG::ERROR) << "Can't find root file " << m_poolFile
+                                  << " to attach tree " << m_tree->GetName();
+      return StatusCode::FAILURE;
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -835,6 +863,23 @@ StatusCode RootD3PD::addFakeVariable (const std::string& name,
    REPORT_MESSAGE_WITH_CONTEXT( MSG::FATAL, "RootD3PD" )
       << "Couldn't create \"fake\" variable of type: " << ti.name();
    return StatusCode::FAILURE;
+}
+
+
+/**
+ * @brief Set the name of a pool file to which we should attach.
+ * @param poolFile The name of the pool file to which we should attach.
+ *
+ * If we want a D3PD tree to end up in a pool file, we can't in general
+ * do it from RootD3PDSvc::make, since the file usually won't have
+ * been opened yet.  Instead, call this method to have the RootD3PD
+ * object remember the name of the pool file.  On the first capture(),
+ * we'll look for the pool file in root's list of files and then
+ * associate the tree with it.
+ */
+void RootD3PD::setPoolFile (const std::string& poolFile)
+{
+  m_poolFile = poolFile;
 }
 
 

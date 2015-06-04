@@ -94,7 +94,7 @@ public:
                                   const std::type_info& ti,
                                   void* & ptr,
                                   const std::string& docstring = "",
-                                  const void* defval = 0);
+                                  const void* defval = 0) override;
 
 
   /**
@@ -119,23 +119,23 @@ public:
                           void* & ptr,
                           const std::string& dim,
                           const std::string& docstring = "",
-                          const void* defval = 0);
+                          const void* defval = 0) override;
 
 
   /**
    * @brief Capture the current state of all variables and write to the tuple.
    */
-  virtual StatusCode capture ();
+  virtual StatusCode capture () override;
 
 
   /**
    * @brief Clear all the tuple variables.
    */
-  virtual StatusCode clear ();
+  virtual StatusCode clear () override;
 
 
   /// Currently unimplemented --- see design note.
-  virtual StatusCode redim (const Dim_t* ptr);
+  virtual StatusCode redim (const Dim_t* ptr) override;
 
 
   /**
@@ -165,7 +165,27 @@ public:
    */
   virtual StatusCode addMetadata (const std::string& key,
                                   const void* obj,
-                                  const std::type_info& ti);
+                                  const std::type_info& ti) override;
+
+
+  /**
+   * @brief Set the name of a pool file to which we should attach.
+   * @param poolFile The name of the pool file to which we should attach.
+   *
+   * If we want a D3PD tree to end up in a pool file, we can't in general
+   * do it from RootD3PDSvc::make, since the file usually won't have
+   * been opened yet.  Instead, call this method to have the RootD3PD
+   * object remember the name of the pool file.  On the first capture(),
+   * we'll look for the pool file in root's list of files and then
+   * associate the tree with it.
+   */
+  void setPoolFile (const std::string& poolFile);
+
+  
+  /**
+   * @brief Try to attach to a pool file, if we haven't yet done so.
+   */
+  StatusCode attachPoolFile();
 
 
 private:
@@ -207,9 +227,12 @@ private:
   /// "Fake" variables, only kept in memory
   std::map< std::string, FakeProxy* > m_fakeVars;
 
+  /// If set, the name of a pool data file to which we should attach ourself.
+  std::string m_poolFile;
+
   // Disallow copying.
-  RootD3PD (const RootD3PD&);
-  RootD3PD& operator= (const RootD3PD&);
+  RootD3PD (const RootD3PD&) = delete;
+  RootD3PD& operator= (const RootD3PD&) = delete;
 };
 
 
