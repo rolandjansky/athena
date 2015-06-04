@@ -14,7 +14,6 @@
 #include "RootD3PDSvc.h"
 #include "RootD3PD.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TTree.h"
 #include "TROOT.h"
 #include "TFile.h"
@@ -117,7 +116,7 @@ StatusCode RootD3PDSvc::stop()
 {
   // Run through all the trees we've made.
   for (size_t i = 0; i < m_d3pds.size(); i++) {
-    RootD3PD* d3pd = m_d3pds[i].get();
+    RootD3PD* d3pd = m_d3pds[i];
 
     // Make an index if requested.
     if (!m_indexMajor.empty())
@@ -133,13 +132,12 @@ StatusCode RootD3PDSvc::stop()
         CHECK( m_histSvc->getTree (d3pd->master(), master) );
       if (master) {
         // Make an index for the master if needed.
-        if (!master->GetTreeIndex()) {
+        if (!master->GetTreeIndex())
           // AANTupleStream will leave branch addresses in the master
           // tree pointing at dead objects.
           master->ResetBranchAddresses();
 
           master->BuildIndex (m_indexMajor.c_str(), m_indexMinor.c_str());
-        }
 
         // Make this tree a friend of the master.
         master->AddFriend (d3pd->tree());
@@ -150,12 +148,11 @@ StatusCode RootD3PDSvc::stop()
       TDirectory::TContext ctx (gDirectory, d3pd->tree()->GetDirectory());
       d3pd->tree()->Write();
     }
+
+    // Get rid of the RootD3PD wrapper.
+    // (Doesn't delete the root tree itself.)
+    delete d3pd;
   }
-
-  // Get rid of the RootD3PD wrappers.
-  // (Doesn't delete the root trees themselves.)
-  m_d3pds.clear();
-
   return StatusCode::SUCCESS;
 }
 
@@ -204,18 +201,17 @@ StatusCode RootD3PDSvc::make (const std::string& name, ID3PD* & d3pd)
     tree->BranchRef();
   if (m_autoFlush != -1)
     tree->SetAutoFlush (m_autoFlush);
-  auto rd3pd = CxxUtils::make_unique<RootD3PD>
-    (tree, master,
-     m_allowedNames, m_vetoedNames,
-     m_basketSize, m_entryOffsetLen);
+  RootD3PD* rd3pd = new RootD3PD (tree, master,
+                                  m_allowedNames, m_vetoedNames,
+                                  m_basketSize, m_entryOffsetLen);
 
   if (!poolfile.empty())
     rd3pd->setPoolFile (poolfile);
   else
     CHECK( m_histSvc->regTree (name, tree) );
 
-  d3pd = rd3pd.get();
-  m_d3pds.push_back (std::move (rd3pd));
+  m_d3pds.push_back (rd3pd);
+  d3pd = rd3pd;
   return StatusCode::SUCCESS;
 }
 
