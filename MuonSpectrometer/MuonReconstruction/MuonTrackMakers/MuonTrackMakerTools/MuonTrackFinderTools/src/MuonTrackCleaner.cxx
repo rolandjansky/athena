@@ -101,7 +101,6 @@ namespace Muon {
     declareProperty("CleanCompROTs",  m_cleanCompROTs=true);
     declareProperty("OnlyUseHitErrorInRecovery", m_onlyUseHitErrorInRecovery = true );
     declareProperty("AdcCut", m_adcCut = 50 );
-    declareProperty("Iterate", m_iterate = true );
   }
 
 
@@ -199,7 +198,7 @@ namespace Muon {
 	  << "   Failed fit            " << m_counters.nhitFitFailed*norm << std::endl
 	  << "   End of cycles         " << m_counters.nhitEndOffCycle*norm << std::endl
 	  << "   Ave number of cycles  " << m_counters.nhitTotCycles*normHit << std::endl 
-	  << " Outlier cut             " << m_counters.noutlierCut*norm << endmsg;
+	  << " Outlier cut             " << m_counters.noutlierCut*norm << endreq;
 
     cleanUp();
     if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
@@ -355,17 +354,9 @@ namespace Muon {
 
     Trk::Track* cleanedTrack = outlierRecovery(*hitTrack);
     // do not discard tracks that fail outlierRecovery, check that the track is ok
-    //note that this also performs a useful check on the quality of the cleaning in general
-    if( !cleanedTrack || !m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty() ) {
+    if( !cleanedTrack || !m_chambersToBeRemoved.empty() || !m_largePullMeasuements.empty() ) {
       init(*hitTrack);
-      if(!m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty()){
-        ATH_MSG_DEBUG("Outlier recovery failure unrecoverable, reject track");
-        return 0;
-      }
-      else{
-        ATH_MSG_DEBUG("Outlier recovery failed but initial track is recoverable");
-        cleanedTrack = hitTrack;
-      }
+      cleanedTrack = hitTrack;
     }
     
     if( m_nhits < m_noutliers ){
@@ -388,10 +379,10 @@ namespace Muon {
 
     if( msgLvl(MSG::VERBOSE) ) {
       if( cleanedTrack == &track ){
-	msg() << MSG::VERBOSE << " track unchanged " << endmsg;
+	msg() << MSG::VERBOSE << " track unchanged " << endreq;
       }else{
 	msg() << MSG::VERBOSE << " new track " << m_printer->print( *cleanedTrack ) << std::endl
-	      << m_printer->printStations( *cleanedTrack ) <<endmsg;
+	      << m_printer->printStations( *cleanedTrack ) <<endreq;
       }
     }
 
@@ -468,7 +459,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
 	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
 
     // fit new track
@@ -551,7 +542,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
 	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
 
     // fit new track
@@ -568,7 +559,7 @@ namespace Muon {
 
   Trk::Track* MuonTrackCleaner::hitCleaning( Trk::Track& track ) const {
 
-    if( m_largePullMeasurements.empty() ) return &track;
+    if( m_largePullMeasuements.empty() ) return &track;
     ATH_MSG_DEBUG(" trying outlier removal " );
 
     Trk::Track* currentTrack = &track;
@@ -580,7 +571,7 @@ namespace Muon {
       ++m_counters.nhitTotCycles;
 
       // sanity check, should not remove too many hits
-      if( m_largePullMeasurements.size() > 10 ) {
+      if( m_largePullMeasuements.size() > 10 ) {
 	ATH_MSG_DEBUG(" Too many outlier, cannot perform cleaning " );
 	++m_counters.nhitTooManyOutliers;
 	return 0;
@@ -610,7 +601,7 @@ namespace Muon {
       InfoIt hit_end = m_measInfo.end();
       for( ;hit!=hit_end;++hit){
 	
-	bool remove = m_largePullMeasurements.count(hit->meas) || !hit->inBounds || hit->isNoise;
+	bool remove = m_largePullMeasuements.count(hit->meas) || !hit->inBounds || hit->isNoise;
 	// hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
 	if( !hit->useInFit || remove ){
 	  hit->useInFit = 0;
@@ -621,8 +612,8 @@ namespace Muon {
 	  if( msgLvl(MSG::DEBUG) && remove ) {
 	    msg() << MSG::DEBUG << "   removing hit " << m_idHelper->toString(hit->id) 
 		  << " pull " << hit->resPull->pull().front();
-	    if( hit->inBounds ) msg() << " inBounds" << endmsg;
-	    else                msg() << " outBounds" << endmsg;
+	    if( hit->inBounds ) msg() << " inBounds" << endreq;
+	    else                msg() << " outBounds" << endreq;
 	  }
 	  if( hit->inBounds ) {
 	    if( hit->cleanedCompROT ) {
@@ -641,7 +632,7 @@ namespace Muon {
 	}else{
 
 	  if( msgLvl(MSG::DEBUG) && hit->resPull ) msg() << MSG::DEBUG << "   keeping hit " << m_idHelper->toString(hit->id) 
-							   << " pull " << hit->resPull->pull().front() << endmsg;
+							   << " pull " << hit->resPull->pull().front() << endreq;
 	  
 	  if( hit->meas ) {
 	    ++nmeas;
@@ -694,7 +685,7 @@ namespace Muon {
 	msg() << MSG::DEBUG << " nremovedPhi " << nremovedPhi << " noverlaps " << noverlaps << " nid " << m_nIdHits; 
 	if( firstPhi ) msg() << " hasFirstPhi: " << m_idHelper->toString(firstPhi->id);
 	if( lastPhi )  msg() << " hasLastPhi: " << m_idHelper->toString(lastPhi->id);
-	msg() << endmsg;
+	msg() << endreq;
       }
       // only perform check on phi constraints if any phi hits were removed
       if( nremovedPhi > 0 ){
@@ -709,7 +700,7 @@ namespace Muon {
 	  if( distPhi > 450. ) hasPhiConstraint = true;
 	}
 	if( !hasPhiConstraint ){
-	  msg() << MSG::DEBUG << "Lost phi constraint during track cleaning, rejection track" << endmsg;
+	  msg() << MSG::DEBUG << "Lost phi constraint during track cleaning, rejection track" << endreq;
 	  delete tsos;
 	  ++m_counters.nhitTooFewHits;
 	  return 0;
@@ -728,7 +719,7 @@ namespace Muon {
 	if ( msgLvl(MSG::VERBOSE) ) {
 	  msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( *cleanedTrack );
 	}
-	msg() << endmsg;
+	msg() << endreq;
       }
       Trk::Track* newTrack = m_fitter->fit(*cleanedTrack,false,track.info().particleHypothesis());
 
@@ -744,8 +735,8 @@ namespace Muon {
 	init(*newTrack);
       }
 
-      if( m_largePullMeasurements.empty() ) {
-	ATH_MSG_DEBUG("   cleaning ended successfully after cycle " << n );
+      if( m_largePullMeasuements.empty() ) {
+	ATH_MSG_DEBUG("   cleaning ended successfullu after cycle " << n );
 	return newTrack;
       }
       currentTrack = newTrack;
@@ -877,12 +868,6 @@ namespace Muon {
       return 0;
     }
     std::stable_sort( cleaningResults.begin(),cleaningResults.end(),SortChamberRemovalResultByChi2Ndof());
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " chamberCleaning Results nr " << cleaningResults.size() << endmsg;
-    std::vector<ChamberRemovalOutput>::iterator itt= cleaningResults.begin();
-    std::vector<ChamberRemovalOutput>::iterator itt_end= cleaningResults.end();
-    for( ;itt!=itt_end;++itt ) {
-       if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " track " << m_printer->print(*(*itt).track ) << endmsg;
-    }
 
     ChamberRemovalOutput& finalResult = cleaningResults.front();
     Trk::Track* newtrack = finalResult.track;
@@ -893,7 +878,7 @@ namespace Muon {
       for( ;hit!=hit_end;++hit ) (*hit)->useInFit = 0;
     }
     
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " chamberCleaning:  track " << std::endl << m_printer->print( *newtrack ) << endmsg;
+    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " chamberCleaning:  track " << std::endl << m_printer->print( *newtrack ) << endreq;
 
     init(*newtrack);
     
@@ -901,7 +886,7 @@ namespace Muon {
     MuonStationIndex::ChIndex removedChamberIndex = m_idHelper->chamberIndex(finalResult.chId);
     Trk::Track* recoveredTrack = outlierRecovery(*newtrack,&removedChamberIndex);
     if( !recoveredTrack || recoveredTrack == newtrack ) return newtrack;
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " outlierRecovery successfully " << endmsg;
+    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " outlierRecovery successfully " << endreq;
     m_trackToBeDeleted.erase(newtrack);
     delete newtrack;
     init(*recoveredTrack);
@@ -940,7 +925,7 @@ namespace Muon {
         if( !hit->useInFit || remove ){
           hit->useInFit = 0;
           if( msgLvl(MSG::DEBUG) && remove ) msg() << MSG::DEBUG << "   removing hit " << m_idHelper->toString(hit->id) 
-						   << " pull " << hit->resPull->pull().front() << endmsg;
+						   << " pull " << hit->resPull->pull().front() << endreq;
           // add as outlier
           if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState,
                                                                                     *hit->meas,
@@ -974,7 +959,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
 	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
       }
-      msg() << endmsg;
+      msg() << endreq;
       if( !cleanedTrack->perigeeParameters() ){
         ATH_MSG_DEBUG("   track without perigee " );
       }
@@ -1015,7 +1000,7 @@ namespace Muon {
 	if( chit->first == MuonStationIndex::ChUnknown ) continue;
 	msg() << print(chit->second) << std::endl;
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
 
     std::set<MuonStationIndex::ChIndex> recoverableLayers;
@@ -1082,7 +1067,7 @@ namespace Muon {
 		  double rTrack = hit->pars->parameters()[Trk::locR];
 		  msg() << " flipped MDT: r_orig " << rDrift << " flip " << rDriftFlip << " rTrack " << rTrack;
 		}
-		msg() << endmsg;
+		msg() << endreq;
 	      }
 	      addedHits = true;
 	      const Trk::MeasurementBase* newMeas = hit->flippedMdt ? hit->flippedMdt : hit->meas;
@@ -1099,7 +1084,7 @@ namespace Muon {
 	  ++removedOutOfBoundsHits;
 	  if( msgLvl(MSG::DEBUG) ) {
 	    msg() << MSG::DEBUG << "   removing out of bounds outlier " << m_idHelper->toString(hit->id) 
-		  << " pull " << std::setw(7) << hit->pull << endmsg;
+		  << " pull " << std::setw(7) << hit->pull << endreq;
 	  }
 	}
       }else{
@@ -1108,7 +1093,7 @@ namespace Muon {
     }
 
     if( !addedHits && removedOutOfBoundsHits == 0 ){
-      if( msgLvl(MSG::DEBUG) ) msg() << " track unchanged " << endmsg;
+      if( msgLvl(MSG::DEBUG) ) msg() << " track unchanged " << endreq;
       delete tsos;
       return &track;
     }
@@ -1138,7 +1123,7 @@ namespace Muon {
       if ( msgLvl(MSG::VERBOSE) ) {
 	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
     Trk::Track* newTrack = m_fitter->fit(*cleanedTrack,false,track.info().particleHypothesis());
     if( newTrack ) {
@@ -1177,11 +1162,10 @@ namespace Muon {
     m_chambersToBeRemovedPhi.clear();
     m_pullSumPerChamber.clear();
     m_pullSumPerChamberPhi.clear();
-    m_pullSumPerChamberEta.clear();
     m_hitsPerChamber.clear();
     m_outBoundsPerChamber.clear();
     m_measInfo.clear();
-    m_largePullMeasurements.clear();
+    m_largePullMeasuements.clear();
     m_chamberLayerStatistics.clear();
     m_stations.clear();
     m_phiLayers.clear();
@@ -1533,14 +1517,14 @@ namespace Muon {
 	else if( isDelta )                                ++chamberStatistics.ndeltas;
 	else if( pull < 10 )                              ++chamberStatistics.noutliers;
 
-	if(!pseudo) ++m_noutliers; //don't count pseudos here
+	++m_noutliers;
 	info.useInFit = 0;
 	continue;
       }
       
       // if we get here could as hit
       ++chamberStatistics.nhits;
-      if(!pseudo) ++m_nhits; //pseudo's shouldn't count here
+      ++m_nhits;
 
       if( flipSign ) ++m_numberOfFlippedMdts;
       
@@ -1572,7 +1556,7 @@ namespace Muon {
 	
 	// pseudo measurements should be included in chamber hit removal so stop here
 	if( !isNoise && isOutlier ) {
-	  m_largePullPseudoMeasurements.insert( meas );
+	  m_largePullPseudoMeasuements.insert( meas );
 	}
 	continue;
 	
@@ -1592,7 +1576,7 @@ namespace Muon {
 	
 	// measurements with large pull
 	if( !(*tsit)->type(Trk::TrackStateOnSurface::Outlier) && isOutlier && !isMDT ) {
-	  m_largePullMeasurements.insert( meas );
+	  m_largePullMeasuements.insert( meas );
 	}
 	
 	// pulls per chamber
@@ -1609,7 +1593,6 @@ namespace Muon {
 	  if( pull > pullInfoCh.maxPull ) pullInfoCh.maxPull = pull;
 	}else{
 	  ChamberPullInfo& pullInfoTrig = measuresPhi ? m_pullSumPhi : m_pullSumTrigEta;
-          if(!measuresPhi) m_pullSumPerChamberEta[info.chId];
 	  pullInfoTrig.pullSum += pull;
 	  ++pullInfoTrig.nhits;
 	  if( pull > pullInfoTrig.maxPull ) pullInfoTrig.maxPull = pull;
@@ -1618,7 +1601,7 @@ namespace Muon {
     }
     
     // if the was an MDT outlier add it to the list of hits to be removed
-    if (mdtmeas) m_largePullMeasurements.insert( mdtmeas );
+    if (mdtmeas) m_largePullMeasuements.insert( mdtmeas );
 
     // check whether we have sufficient layers to savely clean the RPC/TGC comp rots
     unsigned int nphiLayers = rpcLayers.size() + tgcLayers.size();
@@ -1654,7 +1637,7 @@ namespace Muon {
       else               msg() << MSG::DEBUG << " Toroid Off";
       if( m_slFit )      msg() << MSG::DEBUG << " Use SL fit";
       else               msg() << MSG::DEBUG << " Use curved fit";
-      msg() << endmsg;
+      msg() << endreq;
     }
 
   
@@ -1766,8 +1749,8 @@ namespace Muon {
             << "  phi " << pull_phihits
             << "  measurements " << m_measInfo.size() << std::endl
             << "  precision chambers " << m_pullSumPerChamber.size() 
-            << "  hits with large pull " << m_largePullMeasurements.size() 
-            << "  pseudos with large pull " << m_largePullPseudoMeasurements.size() 
+            << "  hits with large pull " << m_largePullMeasuements.size() 
+            << "  pseudos with large pull " << m_largePullPseudoMeasuements.size() 
             << "  chambers to be removed " << m_chambersToBeRemoved.size()
             << "  phi " << m_chambersToBeRemovedPhi.size()
             << "  phi lay " << m_phiLayers.size()
@@ -1782,8 +1765,8 @@ namespace Muon {
       else {msg() << MSG::DEBUG << std::endl << " Track with no phi hits!! ";}
     }
 
-    // finally end with a endmsg
-    if ( msgLvl(MSG::DEBUG) ) msg() << endmsg;
+    // finally end with a endreq
+    if ( msgLvl(MSG::DEBUG) ) msg() << endreq;
 
   }
 
@@ -1797,12 +1780,8 @@ namespace Muon {
     if( msgLvl(MSG::DEBUG) ) {
       if ( pullSumPerChamber.size() ) msg() << MSG::DEBUG << "Chamber pulls " << pullSumPerChamber.size() << ":";
     }
-    int ndof = 0;
-    double pulltot = 0.;
     for( ;cit!=cit_end;++cit ){
       double avePull = cit->second.pullSum/cit->second.nhits;
-      pulltot += cit->second.pullSum;
-      ndof += cit->second.nhits;  
       double avePullReduced = cit->second.nhits > 1 ? (cit->second.pullSum-cit->second.maxPull)/(cit->second.nhits-1) : avePull;
       if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << std::endl << " chamber " << m_idHelper->toStringChamber(cit->first) 
 				       << "  pull sum " << cit->second.pullSum << " max pull " << cit->second.maxPull << " nhits " << cit->second.nhits 
@@ -1821,42 +1800,12 @@ namespace Muon {
 	}
       }
     }
-    if( msgLvl(MSG::DEBUG) ) msg() << endmsg;
-    bool dropMore = false;
-    if(dropMore&&pulltot*pulltot>2.*ndof*ndof) {
-      doCleaning = true;
-      if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << "  large pull per dof " << pulltot << " ndof " << ndof << endmsg;
-    }
-
-    if(doCleaning&&m_iterate) {
-      cit = pullSumPerChamber.begin();
-      for( ;cit!=cit_end;++cit ){
-        double avePull = cit->second.pullSum/cit->second.nhits;
-        if( !chambersToBeRemovedSet.count(cit->first) ) {
-          chambersToBeRemoved.push_back( std::make_pair(avePull,cit->first) );
-          chambersToBeRemovedSet.insert(cit->first);
-        }
-      }
-    }
-
-    if(dropMore&&doCleaning&&m_iterate) {
-// add trigger chambers
-      cit = m_pullSumPerChamberEta.begin();
-      cit_end = m_pullSumPerChamberEta.end();
-      for( ;cit!=cit_end;++cit ){
-        double avePull = cit->second.pullSum/cit->second.nhits;
-        if( !chambersToBeRemovedSet.count(cit->first) ) {
-          chambersToBeRemoved.push_back( std::make_pair(avePull,cit->first) );
-          chambersToBeRemovedSet.insert(cit->first);
-        }
-      }
-    }
+    if( msgLvl(MSG::DEBUG) ) msg() << endreq;
 
     return doCleaning;
   }
 
   bool MuonTrackCleaner::isOutsideOnTrackCut( const Identifier& id, double res, double pull, double cutScaleFactor ) const {
-
 
     
     bool isMdt = id.is_valid() ? m_idHelper->isMdt(id) : false;

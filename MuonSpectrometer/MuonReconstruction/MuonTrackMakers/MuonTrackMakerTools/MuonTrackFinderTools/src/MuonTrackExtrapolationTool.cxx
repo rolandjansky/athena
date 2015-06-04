@@ -173,20 +173,20 @@ namespace Muon {
     if( msgLvl(MSG::VERBOSE) ) {
       msg() << MSG::VERBOSE << " extrapolating to IP: " << m_printer->print(pars) << std::setprecision(2) 
 	    << " pos " << pars.position() << " dir " << pars.momentum().unit();
-      if( propDir == Trk::alongMomentum ) msg() << " going along momentum" << endmsg;
-      else if( propDir == Trk::oppositeMomentum ) msg() << " going opposite momentum" << endmsg;
-//      else msg() << " unknown direction" << endmsg;
+      if( propDir == Trk::alongMomentum ) msg() << " going along momentum" << endreq;
+      else if( propDir == Trk::oppositeMomentum ) msg() << " going opposite momentum" << endreq;
+//      else msg() << " unknown direction" << endreq;
     }
 
     // for cosmics try both directions
     const Trk::TrackParameters* entryPars = m_atlasExtrapolator->extrapolate(pars,persurf,propDir,false,particleHypo);
-    if( msgLvl(MSG::VERBOSE) && !entryPars ) msg() << MSG::VERBOSE << " failed to extrapolate to IP" << endmsg;
+    if( msgLvl(MSG::VERBOSE) && !entryPars ) msg() << MSG::VERBOSE << " failed to extrapolate to IP" << endreq;
     
     if( m_cosmics && !entryPars ) {
       // flip propagation direction and retry in other direction
       propDir = propDir == Trk::alongMomentum ? Trk::oppositeMomentum : Trk::alongMomentum;
       entryPars = m_atlasExtrapolator->extrapolate(pars,persurf,propDir,false,particleHypo);
-      if( msgLvl(MSG::VERBOSE) && !entryPars ) msg() << MSG::VERBOSE << " failed to extrapolate to IP in opposite direction" << endmsg;
+      if( msgLvl(MSG::VERBOSE) && !entryPars ) msg() << MSG::VERBOSE << " failed to extrapolate to IP in opposite direction" << endreq;
     }
 
     return entryPars;
@@ -257,7 +257,7 @@ namespace Muon {
 
 	    }
 	  } 
-	  msg() << MSG::VERBOSE << endmsg;
+	  msg() << MSG::VERBOSE << endreq;
 	}
 
       }
@@ -299,7 +299,7 @@ namespace Muon {
       ATH_MSG_DEBUG(" closest measured parameters: " << m_printer->print(*closestMeasPars));
       return closestMeasPars;
     }
-    if( msgLvl(MSG::DEBUG) && closestPars ) msg() << MSG::DEBUG << " closest parameters: " << m_printer->print(*closestPars) << endmsg;
+    if( msgLvl(MSG::DEBUG) && closestPars ) msg() << MSG::DEBUG << " closest parameters: " << m_printer->print(*closestPars) << endreq;
 
     return closestPars;
   }
@@ -427,8 +427,8 @@ namespace Muon {
     }
     
 
-    ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endmsg
-		  << " extrapolated pars " << m_printer->print(*exPars) << endmsg );
+    ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endreq
+		  << " extrapolated pars " << m_printer->print(*exPars) << endreq );
     // create new perigee
     const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(exPars);
     if( !perigee ){
@@ -481,8 +481,8 @@ namespace Muon {
 
     
     if( msgLvl(MSG::DEBUG)) {
-      msg() << MSG::DEBUG << " perigee pars:        "  << m_printer->print(*perigee) << endmsg;
-      if( secondPerigee ) msg() << MSG::DEBUG << " second perigee pars: "  << m_printer->print(*secondPerigee) << endmsg;
+      msg() << MSG::DEBUG << " perigee pars:        "  << m_printer->print(*perigee) << endreq;
+      if( secondPerigee ) msg() << MSG::DEBUG << " second perigee pars: "  << m_printer->print(*secondPerigee) << endreq;
     }
 
     // flag whether the perigees were inserted

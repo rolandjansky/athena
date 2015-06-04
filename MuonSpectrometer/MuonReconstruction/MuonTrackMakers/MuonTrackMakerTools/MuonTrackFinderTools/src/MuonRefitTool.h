@@ -68,14 +68,6 @@ namespace Muon {
     /** update errors on a muon track */
     Trk::Track* updateErrors( const Trk::Track& track, const Settings& settings ) const;
 
-    Trk::Track* updateMdtErrors( const Trk::Track& track, const Settings& settings ) const;
-
-    Trk::Track* updateAlignmentErrors( const Trk::Track& track, const Settings& settings ) const;
-
-    Trk::Track* makeAEOTs( const Trk::Track& track ) const;
-
-    Trk::Track* makeSimpleAEOTs( const Trk::Track& track ) const;
-
     const Trk::Track* removeOutliers( const Trk::Track& track,const Settings& settings ) const;
 
     bool removeMdtOutliers( const Trk::TrackParameters& pars, const std::vector<const MdtDriftCircleOnTrack*>& hits,   
@@ -105,13 +97,10 @@ namespace Muon {
     MuonDriftCircleErrorStrategy m_errorStrategyBEE;
     MuonDriftCircleErrorStrategy m_errorStrategyEE;
     MuonDriftCircleErrorStrategy m_errorStrategyBIS78;
-    MuonDriftCircleErrorStrategy m_errorStrategyBXE;
-    MuonDriftCircleErrorStrategy m_errorStrategyEEL1C05;
     MuonDriftCircleErrorStrategy m_errorStrategyBarEnd;
     MuonDriftCircleErrorStrategy m_errorStrategySL;
     MuonDriftCircleErrorStrategy m_errorStrategyTwoStations;
     MuonDriftCircleErrorStrategy m_errorStrategy;
-    MuonDriftCircleErrorStrategy m_muonErrorStrategy;
 
     mutable TrkDriftCircleMath::DCSLFitter    m_fitter;
     mutable TrkDriftCircleMath::SegmentFinder m_finder;
@@ -137,26 +126,12 @@ namespace Muon {
     mutable unsigned int m_ngoodUpdates;
     mutable unsigned int m_failedUpdates;
 
-    float m_alignmentDelta;
-    float m_alignmentAngle;
-    float m_alignmentDeltaError;
-    float m_alignmentAngleError;
-    bool  m_alignmentErrors;
-    bool  m_simpleAEOTs;
-    bool  m_addAll;
-    bool  m_addInner;
-    bool  m_addMiddle;
-    bool  m_addTwo;
-
     double m_minMuonMomentum;
     double m_fixedError;
     double m_flagT0FitRange;
     bool   m_deweightBEE;
     bool   m_deweightEE;
     bool   m_deweightBIS78;
-    bool   m_deweightBME;
-    bool   m_deweightBOE;
-    bool   m_deweightEEL1C05;
     bool   m_deweightTwoStationTracks;
   }; 
 }

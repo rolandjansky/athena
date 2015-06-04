@@ -355,12 +355,16 @@ namespace Muon {
       double eta    = pars->position().eta();
       double phi    = pars->position().phi();
       if( msgLvl(MSG::DEBUG) ){
-	msg() << "All State parameters: eta: " << eta << " ,phi: " << phi << " pos r " << rpos << " z " << zpos;
+	msg() << "State parameters: eta: " << eta << " ,phi: " << phi << " pos r " << rpos << " z " << zpos;
 	if( pars->covariance() ) msg() << MSG::DEBUG << " extrapolation error " << Amg::error(*pars->covariance(),Trk::locX);
-	msg() << endmsg;
+	msg() << endreq;
       }
       if( rpos < 2500 && zpos < 4000 ) continue;
       
+      if( eta > etamax ) etamax = eta;
+      if( eta < etamin ) etamin = eta;
+      if( phi > phimax ) phimax = phi;
+      if( phi < phimin ) phimin = phi; 
       // check whether state is a measurement
       const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
       if( !meas ) continue;
@@ -369,16 +373,6 @@ namespace Muon {
       bool pseudo = !id.is_valid();
       
       if( pseudo || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
-
-      if( eta > etamax ) etamax = eta;
-      if( eta < etamin ) etamin = eta;
-      if( phi > phimax ) phimax = phi;
-      if( phi < phimin ) phimin = phi; 
-      if( msgLvl(MSG::DEBUG) ){
-	msg() << "Selected State parameters: eta: " << eta << " ,phi: " << phi << " pos r " << rpos << " z " << zpos;
-	if( pars->covariance() ) msg() << MSG::DEBUG << " extrapolation error " << Amg::error(*pars->covariance(),Trk::locX);
-	msg() << endmsg;
-      }
 
       MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(id);
       if( stations.count(stIndex) ) continue;

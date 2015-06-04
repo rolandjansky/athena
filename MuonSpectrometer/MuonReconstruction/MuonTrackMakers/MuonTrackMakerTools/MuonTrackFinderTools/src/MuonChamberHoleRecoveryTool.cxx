@@ -204,7 +204,7 @@ namespace Muon {
       if( msgLvl(MSG::VERBOSE) ){
 	msg(MSG::VERBOSE) << std::endl << m_printer->printMeasurements( track );
       }
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
     // vector to store states, the boolean indicated whether the state was create in this routine (true) or belongs to the track (false)
     // If any new state is created, all states will be cloned and a new track will beformed from them.
@@ -219,8 +219,8 @@ namespace Muon {
     Identifier currentMdtChId;
     unsigned int nholes = 0;
     // loop over TSOSs
-    std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit = states.begin();
-    std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end = states.end();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states.begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states.end();
     for( ; tsit!=tsit_end ; ++tsit ){
       
       if( !*tsit ) continue; //sanity check
@@ -304,9 +304,9 @@ namespace Muon {
     return newTrack;      
   }
 
-std::vector<const Trk::TrackStateOnSurface*>::const_iterator 
-MuonChamberHoleRecoveryTool::insertClustersWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
-                                                           std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+  MuonChamberHoleRecoveryTool::insertClustersWithHoleSearch( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
+							     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
 							     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states
 							     ) const {
     // iterator should point to a valid element
@@ -383,7 +383,7 @@ MuonChamberHoleRecoveryTool::insertClustersWithHoleSearch( std::vector<const Trk
       if( msgLvl(MSG::VERBOSE) ) {
 	msg(MSG::VERBOSE) << " new hit " << m_idHelperTool->toString(id);
 	if( comp ) msg(MSG::VERBOSE) << " competing, layers: " << layIds.size();
-	msg(MSG::VERBOSE) << endmsg;
+	msg(MSG::VERBOSE) << endreq;
       }
       newStates.push_back( std::make_pair(false,*tsit) );
     }
@@ -407,9 +407,9 @@ MuonChamberHoleRecoveryTool::insertClustersWithHoleSearch( std::vector<const Trk
   }
 
 
-std::vector<const Trk::TrackStateOnSurface*>::const_iterator 
-MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit,
-                                                       std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit_end,
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+  MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
+							 DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
 							 std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states
 							 ) const {
     // iterator should point to a valid element
@@ -692,7 +692,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
       if( msgLvl(MSG::VERBOSE) ) {
 	if( pars.covariance() ) msg() << MSG::VERBOSE << " extrapolation error " << Amg::error(*pars.covariance(),Trk::locX);
       }
-      msg() << endmsg;
+      msg() << endreq;
     }
     std::vector<const Trk::TrackParameters*> parsToBeDeleted;
     parsToBeDeleted.reserve(prds.size()+10);
@@ -738,7 +738,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
       if( msgLvl(MSG::VERBOSE) ) {
 	msg() << MSG::VERBOSE << "  --- " << m_idHelperTool->toString(id) << " error " << Amg::error(clus.localCovariance(),Trk::locX);
 	if( exPars->covariance() ) msg() << MSG::VERBOSE << " measured parameters, error " << Amg::error(*exPars->covariance(),Trk::locX);
-	msg() << endmsg;
+	msg() << endreq;
       }
 
       const MuonClusterOnTrack* clusterOnTrack = 0;
@@ -1045,7 +1045,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
 	  if( hitFlag == 0 )  hitType = " ROT";
 	  else if( hitFlag == 2 ) hitType = " Out of Time";
 	  else if( hitFlag == 3 ) hitType = " Noise";
-	  msg(MSG::VERBOSE) << hitType << endmsg;
+	  msg(MSG::VERBOSE) << hitType << endreq;
 	}
 	delete resPull;
 	
