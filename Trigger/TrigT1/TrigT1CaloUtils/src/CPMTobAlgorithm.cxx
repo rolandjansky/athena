@@ -22,6 +22,11 @@
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/IsolationParam.h"
 #include "TrigConfL1Data/CaloInfo.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/Menu.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
+#include "TrigConfL1Data/ClusterThresholdValue.h"
 
 
 #include <math.h>
@@ -46,7 +51,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
-LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, CPMTower *>* ttContainer,
+LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer,
                                 ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice ):
   m_configSvc(config),
   m_Core(0),
@@ -105,7 +110,7 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<i
     for (int phiOffset = -1; phiOffset <= 2; phiOffset++) {
       double tempPhi = m_refPhi + phiOffset*M_PI/32;
       int key = get.ttKey(tempPhi, tempEta);
-      std::map<int, CPMTower*>::const_iterator tt = ttContainer->find(key);
+      std::map<int, xAOD::CPMTower*>::const_iterator tt = ttContainer->find(key);
       if (tt != ttContainer->end() && fabs(tempEta) < m_maxEta) {
         // Get the TT ET values once here, rather than repeat function calls
         int emTT = 0;

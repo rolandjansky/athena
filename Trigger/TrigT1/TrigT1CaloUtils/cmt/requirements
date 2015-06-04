@@ -7,9 +7,15 @@ use     DataModel       DataModel-*   Control
 use     CaloEvent       CaloEvent-*      Calorimeter
 use     GaudiInterface  GaudiInterface-* External
 use     TrigT1CaloEvent TrigT1CaloEvent-* Trigger/TrigT1
+use     xAODTrigL1Calo  xAODTrigL1Calo-* Event/xAOD
+
+private
+use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+use TrigConfL1Data  TrigConfL1Data-* Trigger/TrigConfiguration
+end_private
+
 #needed for config. of Trigger Menus
 use TrigConfInterfaces  TrigConfInterfaces-* Trigger/TrigConfiguration
-use TrigConfL1Data  TrigConfL1Data-* Trigger/TrigConfiguration
 
 #Interfaces between the different parts of level1
 use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1

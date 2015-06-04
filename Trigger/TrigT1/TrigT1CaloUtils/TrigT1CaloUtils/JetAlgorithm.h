@@ -23,15 +23,15 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/JetThresholdValue.h"
 
 #include "TrigT1CaloEvent/JetInput.h"
 #include "TrigT1CaloEvent/JetROI.h"
 #include "TrigT1CaloUtils/JetInputKey.h"
+
+
+namespace TrigConf {
+   class TriggerThreshold;
+}
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.

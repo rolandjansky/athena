@@ -23,15 +23,15 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
 
-#include "TrigT1CaloEvent/CPMTower.h"
+#include "xAODTrigL1Calo/CPMTower.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
+
+namespace TrigConf {
+   class TriggerThreshold;
+}
+
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
@@ -51,7 +51,7 @@ The CPMTobAlgorithm:<br>
 class CPMTobAlgorithm {
 public: 
   
-  CPMTobAlgorithm(double eta, double phi, const std::map<int, CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPMTobAlgorithm(double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
 
   ~CPMTobAlgorithm();
   

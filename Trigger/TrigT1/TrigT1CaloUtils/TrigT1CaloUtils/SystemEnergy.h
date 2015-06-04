@@ -24,16 +24,13 @@
  // Include for the configuration service:
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
+
+
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
 */
 namespace LVL1 {
-using namespace TrigConf;
 
 /**SystemEnergy class declaration  Simulates behaviour of the Crate-CMM
 System CMM logic is done in EnergyTrigger*/

@@ -20,6 +20,12 @@
 #include "TrigT1Interfaces/L1METvalue.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/METSigParam.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/Menu.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
+
+using namespace TrigConf;
 
 namespace LVL1 {
 

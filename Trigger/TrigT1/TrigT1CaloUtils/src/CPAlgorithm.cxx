@@ -16,7 +16,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "TrigT1CaloUtils/CPAlgorithm.h"
+
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
+#include "TrigConfL1Data/ClusterThresholdValue.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/Menu.h"
+
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
