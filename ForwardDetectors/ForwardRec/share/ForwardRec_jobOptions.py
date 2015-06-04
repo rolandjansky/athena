@@ -13,14 +13,12 @@ if (rec.doLucid):
 #  include ( "ZdcRec/ZdcRec_jobOptions.py" )
 
 if DetFlags.makeRIO.ZDC_on() and not rec.doWriteBS() : 
-  try:
-      #from ZdcRec.ZdcRawChannelGetter import ZdcRawChannelGetter
-      #ZdcRawChannelGetter()
-    from ZdcRec.ZdcModuleGetter import ZdcModuleGetter
-    ZdcModuleGetter()
-  except Exception:
-    treatException("Problem with ZdcModuleGetter. Switched off.")
-    DetFlags.makeRIO.ZDC_setOff()
+    try:
+        from ZdcRec.ZdcRawChannelGetter import ZdcRawChannelGetter
+        ZdcRawChannelGetter()
+    except Exception:
+        treatException("Problem with ZdcRawChannelGetter. Switched off.")
+        DetFlags.makeRIO.ZDC_setOff()
 
 if rec.doAlfa() and rec.doESD():
     if DetFlags.readRDOBS.ALFA_on():
@@ -42,15 +40,4 @@ if rec.doAlfa() and rec.doESD():
     include("ALFA_CLinkAlg/ALFA_CLinkAlg_joboption.py")        
 
 if rec.doAFP() and rec.doESD():
-  # Real-data reconstruction:
-  if DetFlags.readRDOBS.AFP_on():
-    from AFP_ByteStream2RawCnv.AFP_ByteStream2RawCnvConf import AFP_RawDataProvider
-    topSequence+=AFP_RawDataProvider()
-    
-    from AFP_Raw2Digi.AFP_Raw2DigiConf import AFP_Raw2Digi
-    
-    topSequence+=AFP_Raw2Digi()
-    pass
-
-  # tracks reconstruction
-  include("AFP_LocReco/AFP_LocReco_joboption.py")
+    include("AFP_LocReco/AFP_LocReco_joboption.py")
