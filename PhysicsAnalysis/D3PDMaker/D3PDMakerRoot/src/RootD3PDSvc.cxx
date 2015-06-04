@@ -105,6 +105,15 @@ StatusCode RootD3PDSvc::initialize()
  */
 StatusCode RootD3PDSvc::finalize()
 {
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Standard Gaudi stop method.
+ */
+StatusCode RootD3PDSvc::stop()
+{
   // Run through all the trees we've made.
   for (size_t i = 0; i < m_d3pds.size(); i++) {
     RootD3PD* d3pd = m_d3pds[i];
@@ -116,8 +125,11 @@ StatusCode RootD3PDSvc::finalize()
     // Was there a master tree specified?
     if (!d3pd->master().empty()) {
       // Yes --- try to find it
-      TTree* master = 0;
-      CHECK( m_histSvc->getTree (d3pd->master(), master) );
+      TDirectory* dir = d3pd->tree()->GetDirectory();
+      TTree* master =
+        dynamic_cast<TTree*> (dir->Get (d3pd->master().c_str()));
+      if (!master && d3pd->tree()->GetEntries() > 0)
+        CHECK( m_histSvc->getTree (d3pd->master(), master) );
       if (master) {
         // Make an index for the master if needed.
         if (!master->GetTreeIndex())
@@ -132,6 +144,11 @@ StatusCode RootD3PDSvc::finalize()
       }
     }
 
+    {
+      TDirectory::TContext ctx (gDirectory, d3pd->tree()->GetDirectory());
+      d3pd->tree()->Write();
+    }
+
     // Get rid of the RootD3PD wrapper.
     // (Doesn't delete the root tree itself.)
     delete d3pd;
@@ -144,7 +161,10 @@ StatusCode RootD3PDSvc::finalize()
  * @brief Create a new D3PD tree.
  * @param name The name of the new tree.
  *             If the name contains a slash, it is interpreted
- *             as STREAM/NAME.  If the stream name contains a colon,
+ *             as STREAM/NAME.  If the stream name is of the form
+ *             `pool:FILE', then this is a request to put the new tree
+ *             in the given pool file.  If the the stream name otherwise
+ *             contains a colon,
  *             then the part of the name before the colon is the
  *             `parent' stream name; this is used to locate the
  *             master tree.
@@ -155,18 +175,28 @@ StatusCode RootD3PDSvc::make (const std::string& name, ID3PD* & d3pd)
   std::string tname = name;
   std::string::size_type ipos = name.rfind ('/');
   std::string master = m_masterTree;
+  std::string poolfile;
   if (ipos != std::string::npos) {
     tname = name.substr (ipos+1);
     if (!master.empty()) {
       std::string sname = name.substr (0, ipos+1);
       std::string::size_type jpos = sname.find (':');
-      if (jpos != std::string::npos)
-        sname = sname.substr (0, jpos) + sname[sname.size()-1];
-      master = sname + master;
+      if (sname.substr (0, jpos) == "pool" ||
+          sname.substr (0, jpos) == "/pool")
+      {
+        poolfile = sname.substr (jpos+1, std::string::npos);
+        if (!poolfile.empty() && poolfile[poolfile.size()-1] == '/')
+          poolfile.erase (poolfile.size()-1);
+      }
+      else {
+        if (jpos != std::string::npos)
+          sname = sname.substr (0, jpos) + sname[sname.size()-1];
+        master = sname + master;
+      }
     }
   }
   TTree* tree = new TTree (tname.c_str(), tname.c_str());
-  CHECK( m_histSvc->regTree (name, tree) );
+
   if (m_doBranchRef)
     tree->BranchRef();
   if (m_autoFlush != -1)
@@ -174,6 +204,12 @@ StatusCode RootD3PDSvc::make (const std::string& name, ID3PD* & d3pd)
   RootD3PD* rd3pd = new RootD3PD (tree, master,
                                   m_allowedNames, m_vetoedNames,
                                   m_basketSize, m_entryOffsetLen);
+
+  if (!poolfile.empty())
+    rd3pd->setPoolFile (poolfile);
+  else
+    CHECK( m_histSvc->regTree (name, tree) );
+
   m_d3pds.push_back (rd3pd);
   d3pd = rd3pd;
   return StatusCode::SUCCESS;

@@ -46,12 +46,13 @@ public:
                ISvcLocator* svcloc);
 
   /// Standard Gaudi initialize method.
-  virtual StatusCode initialize();
-
+  virtual StatusCode initialize() override;
 
   /// Standard Gaudi finalize method.
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
+  /// Standard Gaudi stop method.
+  virtual StatusCode stop() override;
 
   /**
    * @brief Create a new D3PD tree.
@@ -63,7 +64,7 @@ public:
    *             master tree.
    * @param d3pd[out] The created tree.
    */
-  virtual StatusCode make (const std::string& name, ID3PD* & d3pd);
+  virtual StatusCode make (const std::string& name, ID3PD* & d3pd) override;
 
 
 private:
