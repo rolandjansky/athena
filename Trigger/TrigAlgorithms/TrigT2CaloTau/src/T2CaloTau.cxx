@@ -384,11 +384,12 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     // 
     // Get L1 RoiDescriptor
     const TrigRoiDescriptor* roiL1Descriptor = 0;
-    HLT::ErrorCode tmpStatus = getFeature( inputTE, roiL1Descriptor, "initialRoI" );
+    /*HLT::ErrorCode tmpStatus =*/ getFeature( inputTE, roiL1Descriptor, "initialRoI" );
 
     //Fill monitored variables
     const TrigTauClusterDetails* clusterDetails = ptrigTauCluster->clusterDetails();
-    double coshEta = cosh(ptrigTauCluster->eta());
+    const double coshEta = cosh(ptrigTauCluster->eta());
+    const double inv_coshEta = 1. / coshEta;
 
     m_EMRadius    = clusterDetails->EMRadius(2);
     m_EMRadius3S  = ptrigTauCluster->EMRadius3S();
@@ -405,7 +406,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
                 + clusterDetails->EMenergyWide(3)
                 + clusterDetails->HADenergyWide(0)
                 + clusterDetails->HADenergyWide(1)
-                + clusterDetails->HADenergyWide(2)) / coshEta;
+                + clusterDetails->HADenergyWide(2)) * inv_coshEta;
 
     //medium: cone 0.2 -> medium at TrigTauClusterDetails. In previus version of the code, Wide instead of Medium
     m_EMEnMedium = clusterDetails->EMenergyMedium(0)
@@ -425,13 +426,13 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
                   + clusterDetails->HADenergyNarrow(1)
                   + clusterDetails->HADenergyNarrow(2);
 
-    m_EtRawMediumEM0 = clusterDetails->EMenergyMedium(0) / coshEta;
-    m_EtRawMediumEM1 = clusterDetails->EMenergyMedium(1) / coshEta;
-    m_EtRawMediumEM2 = clusterDetails->EMenergyMedium(2) / coshEta;
-    m_EtRawMediumEM3 = clusterDetails->EMenergyMedium(3) / coshEta;
-    m_EtRawMediumHad0 = clusterDetails->HADenergyMedium(0) / coshEta;
-    m_EtRawMediumHad1 = clusterDetails->HADenergyMedium(1) / coshEta;
-    m_EtRawMediumHad2 = clusterDetails->HADenergyMedium(2) / coshEta;
+    m_EtRawMediumEM0 = clusterDetails->EMenergyMedium(0) * inv_coshEta;
+    m_EtRawMediumEM1 = clusterDetails->EMenergyMedium(1) * inv_coshEta;
+    m_EtRawMediumEM2 = clusterDetails->EMenergyMedium(2) * inv_coshEta;
+    m_EtRawMediumEM3 = clusterDetails->EMenergyMedium(3) * inv_coshEta;
+    m_EtRawMediumHad0 = clusterDetails->HADenergyMedium(0) * inv_coshEta;
+    m_EtRawMediumHad1 = clusterDetails->HADenergyMedium(1) * inv_coshEta;
+    m_EtRawMediumHad2 = clusterDetails->HADenergyMedium(2) * inv_coshEta;
 
     m_EtRawMedium = m_EtRawMediumEM0 + m_EtRawMediumEM1 + m_EtRawMediumEM2 + m_EtRawMediumEM3 + m_EtRawMediumHad0 + m_EtRawMediumHad1 + m_EtRawMediumHad2;
 
