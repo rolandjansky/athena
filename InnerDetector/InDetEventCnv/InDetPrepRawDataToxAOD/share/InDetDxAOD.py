@@ -356,7 +356,7 @@ if dumpTruthInfo:
 
 # Add trigger information
 if dumpTriggerInfo:
-    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsContainer#*")
+    IDTRKVALIDStream.AddItem("TileCellContainer#MBTSContainer")
     IDTRKVALIDStream.AddItem("xAOD::TrigDecision#xTrigDecision")
     IDTRKVALIDStream.AddItem("BCM_RDO_Container#BCM_RDOs")
     IDTRKVALIDStream.AddItem("xAOD::TrigNavigation#TrigNavigation")
@@ -364,9 +364,6 @@ if dumpTriggerInfo:
     IDTRKVALIDStream.AddItem("HLT::HLTResult#HLTResult_HLT")
     IDTRKVALIDStream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
     IDTRKVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
-    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBits#HLT_T2Mbts")
-    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsAuxContainer#HLT_T2MbtsAux.")
-    IDTRKVALIDStream.AddItem("xAOD::TrigT2MbtsBitsAuxContainer#HLT_xAOD__TrigT2MbtsBitsContainer_T2MbtsAux.")
 
 if (printIdTrkDxAODConf):
     print IDTRKVALIDStream
