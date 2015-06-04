@@ -116,6 +116,10 @@ if (rec.doRecoTiming() and
         logRecExCommon_topOptions.info("Could not instantiate MemoryAlg")
 
 
+if rec.doESDReconstruction():
+    from RecAlgs.RecAlgsConf import EventInfoUnlocker
+    topSequence+=EventInfoUnlocker("UnlockEventInfo")
+
 try:
     if rec.abortOnUncheckedStatusCode():
       svcMgr.StatusCodeSvc.AbortOnError=True
@@ -439,8 +443,8 @@ if rec.doContainerRemapping() and (rec.readESD() or rec.readAOD()):
         objKeyStore.isInInput("xAOD::TrackParticleContainer", "InDetTrackParticlesForward") or
         objKeyStore.isInInput("xAOD::CaloClusterContainer", "CaloCalTopoCluster")):
         include ("RecExCommon/ContainerRemapping.py")
-    
-        
+
+
 
 
 #if jivexml required and id is enabled, make sure space points are generated
@@ -1035,12 +1039,10 @@ if rec.doFileMetaData():
         from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
         svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool",
-                                                               OutputLevel = 1 )
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
     else:
@@ -1049,14 +1051,13 @@ if rec.doFileMetaData():
         pass
     #EventBookkeepers
     if not hasattr(svcMgr,"CutFlowSvc"):
-        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-        CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
-        #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-        #svcMgr+=CutFlowSvc()
+        svcMgr+=CfgMgr.CutFlowSvc()
+        logRecExCommon_topOptions.debug("Added CutFlowSvc as it wasn't yet in the svcMgr")
         pass
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
         theApp.CreateSvc+=['CutFlowSvc']
+        logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
         pass
 
     try:
@@ -1077,8 +1078,7 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthFilterSeq")
-        from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
-        seq+=EventCounterAlg("AllExecutedEvents")
+        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthFilterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
         seq+=topSequence.RoIBResultToAOD
         seq+=topSequence.TrigBSExtraction
@@ -1603,6 +1603,12 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             pass
 
         if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
+            # Add the needed stuff for cut-flow bookkeeping.
+            # Only the configurables that are not already present will be created
+            from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+            logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+            CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True )
+
             from RecExConfig.InputFilePeeker import inputFileSummary
             #Explicitely add file metadata from input and from transient store
             MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])

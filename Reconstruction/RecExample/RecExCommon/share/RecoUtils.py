@@ -154,8 +154,8 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
         # Increase Compression Level to 4, reducing filesize somewhat without hurting writespeed too much
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '4'" ]
-        # Optimize Basket Sizes to store data for 5 entries/events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '5'" ]
+        # Optimize Basket Sizes to store data for 100 entries/events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'" ]
         # Switch on splitting for the largest container (default off)
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/Tracks)'; CONTAINER_SPLITLEVEL = '99'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/CombinedInDetTracks)'; CONTAINER_SPLITLEVEL = '99'" ]
@@ -187,9 +187,9 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
 #increase the number of letter reserved to the alg/tool name from 18 to 30
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
-ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
+#ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
 ServiceMgr.MessageSvc.useColors = False
-ServiceMgr.MessageSvc.defaultLimit=1000000
+ServiceMgr.MessageSvc.defaultLimit=500
 
 # write out a list of all Storegate collection with their keys and
 # lock/unlock state. Very useful for debugging purpose
