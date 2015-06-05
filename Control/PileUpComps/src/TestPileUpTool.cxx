@@ -7,59 +7,48 @@
 #include "EventInfo/EventID.h"
 
 #include "TestPileUpTool.h"
-
-TestPileUpTool::TestPileUpTool(const std::string& type,
-                               const std::string& name,
-                               const IInterface* parent)
-  : PileUpToolBase(type, name, parent)
-  , m_doFiltering(false)
-  , m_maxInTimePileUp(4)
+TestPileUpTool::TestPileUpTool(const std::string& type, 
+			       const std::string& name,
+			       const IInterface* parent) : 
+  PileUpToolBase(type, name, parent)
 {
   declareInterface<IPileUpTool>(this);
-  declareProperty("DoFiltering", m_doFiltering, "");
-  declareProperty("MaxInTimePileUp", m_maxInTimePileUp, "");
 }
 
-StatusCode TestPileUpTool::prepareEvent(unsigned int nInputEvents)
-{
-  ATH_MSG_INFO( "prepareEvent: expect to process " << nInputEvents << " events this time." );
+StatusCode TestPileUpTool::prepareEvent(unsigned int nInputEvents) {
+
+  ATH_MSG_DEBUG( "prepareEvent: expect to process " << nInputEvents << " events this time." );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestPileUpTool::mergeEvent()
-{
-  for (const auto& bc : m_seen)
-    {
-      ATH_MSG_INFO( "mergeEvent: there are " << bc.first << " events in bunch xing " << bc.second );
-    }
+StatusCode TestPileUpTool::mergeEvent() {
+  std::vector<std::pair<unsigned int, int> >::iterator i(m_seen.begin()); 
+  std::vector<std::pair<unsigned int, int> >::iterator e(m_seen.end()); 
+  while (i != e) {
+    ATH_MSG_DEBUG( "mergeEvent: there are " << i->first << " events in bunch xing " << i->second ); 
+    ++i;
+  }
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestPileUpTool::processBunchXing(int bunchXing,
-                                            SubEventIterator bSubEvents,
-                                            SubEventIterator eSubEvents)
-{
+StatusCode
+TestPileUpTool::processBunchXing(int bunchXing,
+				 PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+				 PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
   m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
-  if(m_doFiltering && bunchXing==0)
-    {
-      if(m_maxInTimePileUp < m_seen.back().first)
-        {
-          ATH_MSG_INFO("Triggering filter as there were " << m_seen.back().first << " pile-up events in time.");
-          m_filterPassed = false;
-        }
-    }
-
-  SubEventIterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents)
-    {
-      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-      ATH_MSG_DEBUG("SubEvt EventInfo from StoreGate " << seStore.name() << "  : "
-                   << " bunch crossing : " << bunchXing
-                   << " time offset: " << iEvt->time()
-                   << " event: " << iEvt->ptr()->eventNumber()
-                   << " run: " << iEvt->ptr()->runNumber()
-                   );
-      ++iEvt;
-    }
+  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+  while (iEvt != eSubEvents) {
+    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+    const EventInfo* pEI(0);
+    if (seStore.retrieve(pEI).isSuccess()) {
+      ATH_MSG_VERBOSE 
+	("SubEvt EventInfo from StoreGate " << seStore.name() << "  : "
+	 << " time offset: " << iEvt->time()
+	 << " event: " << pEI->event_ID()->event_number() 
+	 << " run: " << pEI->event_ID()->run_number());
+      //FIXME << " contents: \n" << seStore.dump());
+    }       
+    ++iEvt;
+  }
   return StatusCode::SUCCESS;
 }

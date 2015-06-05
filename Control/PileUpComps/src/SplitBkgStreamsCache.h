@@ -89,7 +89,7 @@ public:
   /// meant to be used (mainly) via f_collDistr
   long collXing() { return m_meanCollisionsPerBunchCrossing; }
   long collXingPoisson();
-  /// meant to be used via m_f_numberOfBackgroundForBunchCrossing
+  /// meant to be used via f_numberOfBackgroundForBunchCrossing
   unsigned int numberOfBkgForBunchCrossingIgnoringBeamIntensity(unsigned int iXing) const;
   unsigned int numberOfBkgForBunchCrossingDefaultImpl(unsigned int iXing) const;
   unsigned int numberOfCavernBkgForBunchCrossing(unsigned int iXing) const;
@@ -127,36 +127,36 @@ private:
   /// @name Properties
   //@{
   /// # of collisions per bunch crossing (~beam intensity)
-  Gaudi::Property<float> m_meanCollisionsPerBunchCrossing;
+  FloatProperty m_meanCollisionsPerBunchCrossing;
   /// Fraction of cache1 collisions
-  Gaudi::Property<float> m_fractionOfCache1Collisions;
+  FloatProperty m_fractionOfCache1Collisions;
   /// The maximum fraction of bunch-crossings which will be occupied.
-  Gaudi::Property<float> m_occupationFraction;
+  FloatProperty m_occupationFraction;
   /// select collision distribution
-  Gaudi::Property<std::string> m_collDistrName;
+  StringProperty m_collDistrName;
   ServiceHandle<IEvtSelector> m_selecName1;
   ServiceHandle<IEvtSelector> m_selecName2;
   /// read downscale factor for cache1 (average number of times a min bias is reused)
-  Gaudi::Property<float> m_readDownscale1;
+  FloatProperty m_readDownscale1;
   /// read downscale factor for cache2 (average number of times a min bias is reused)
-  Gaudi::Property<float> m_readDownscale2;
+  FloatProperty m_readDownscale2;
   /// IAtRndmGenSvc controlling the distribution of bkg events per bunch crossing
   ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
   /// the IAtRndmGenSvc stream to generate number of bkg events per bunch crossing
-  Gaudi::Property<std::string> m_randomStreamName;
+  StringProperty m_randomStreamName;
   /// the type of events in this cache
-  Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
+  UnsignedShortProperty m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
   PileUpTimeEventIndex::PileUpType m_pileUpEventType;
   /// subtract from number of events at bunch xing = 0
-  Gaudi::Property<unsigned short> m_subtractBC0;
+  UnsignedShortProperty m_subtractBC0;
   /// ignore the PileUpEventLoopMgr beam intensity tool
-  Gaudi::Property<bool> m_ignoreBM;
+  BooleanProperty m_ignoreBM;
   /// bool apply scaling number of collisions per bunch crossing ?
-  Gaudi::Property<bool> m_ignoreSF;
+  BooleanProperty m_ignoreSF;
   /// Force events used in the central bunch crossing to be refreshed
-  Gaudi::Property<bool> m_forceReadForBC0;
+  BooleanProperty m_forceReadForBC0;
   //@}
   /// read a new event every downscaleFactor accesses from cache1
   CLHEP::RandFlat* m_readEventRand1;
@@ -172,10 +172,10 @@ private:
   CLHEP::RandPoisson* m_collXingPoisson;
   /// function returning the number of collisions per bunch crossing
   /// before bunch structure modulation
-  boost::function0< long > m_f_collDistr;
+  boost::function0< long > f_collDistr;
   /// function returning the number of bkg events per bunch crossing
   /// after bunch structure modulation
-  boost::function1< unsigned int, unsigned int > m_f_numberOfBackgroundForBunchCrossing;
+  boost::function1< unsigned int, unsigned int > f_numberOfBackgroundForBunchCrossing;
   /// float scaling number of collisions per bunch crossing 
   float m_collXingSF;
   /// offset of BC=0 xing

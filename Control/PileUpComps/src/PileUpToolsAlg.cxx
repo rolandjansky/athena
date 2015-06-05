@@ -2,146 +2,225 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Class header
-#include "PileUpToolsAlg.h"
-#include <algorithm>
+#include "EventInfo/EventID.h"
+
 #include "PileUpTools/IPileUpTool.h"
+
+#include "PileUpToolsAlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
-PileUpToolsAlg::PileUpToolsAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-  , m_puTools(/*this*/) // TODO make the PileUpTools private
+PileUpToolsAlg::PileUpToolsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator), m_puTools()
 {
   declareProperty("PileUpTools", m_puTools, "IPileUpTools to be run for each event");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode PileUpToolsAlg::initialize()
-{
-  ATH_MSG_DEBUG ("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+StatusCode PileUpToolsAlg::initialize(){
+  StatusCode sc(StatusCode::FAILURE);
+  msg() << MSG::DEBUG << "Initializing " << name()
+        << " - package version " << PACKAGE_VERSION << endreq ;
   //locate the pu tools and initialize them
-  ATH_CHECK(m_puTools.retrieve());
-  return StatusCode::SUCCESS;
+  if (!(sc=m_puTools.retrieve()).isSuccess()) {
+    ATH_MSG_ERROR ("Could not retrieve PileUpTools");
+  }
+  return sc;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool differentBunchXing (xAOD::EventInfo::SubEvent i, xAOD::EventInfo::SubEvent j)
-{
-  return (i.time()!=j.time());
-}
+StatusCode PileUpToolsAlg::execute() {
+
+  // An algorithm, like this one, retrieving an object from the StoreGate(SG)
+  // can either ask for:
+  //    i) the most recent (default) object of a given type
+  //   ii) a specific object of a given type
+  //  iii) all objects of a given type
+  //This example will show how to perform these three tasks
 
 
-StatusCode PileUpToolsAlg::execute()
-{
   ATH_MSG_DEBUG ("in execute()");
 
   /////////////////////////////////////////////////////////////////////
   // Get the overlaid event header, print out event and run number
 
-  const xAOD::EventInfo *evt(nullptr); //FIXME should we use a read-handle here?
-  ATH_CHECK_RECOVERABLE(evtStore()->retrieve(evt));
-  ATH_MSG_INFO ("Hard-scatter xAOD::EventInfo : " << " event: " << evt->eventNumber() << " run: " << evt->runNumber());
+  const PileUpEventInfo* evt;
+  if (StatusCode::SUCCESS == evtStore()->retrieve(evt))
+  {
+    ATH_MSG_INFO ("Overlaid EventInfo : "
+                  << " event: " << evt->event_ID()->event_number()
+                  << " run: " << evt->event_ID()->run_number());
+  }
+  else
+  {
+    ATH_MSG_ERROR (" Unable to retrieve OverlaidEventInfo from StoreGate ");
+    return StatusCode::RECOVERABLE;
+  }
+
+  //strictly speaking this should not be done once per event
+  ToolHandleArray<IPileUpTool>::iterator bPUT(m_puTools.begin());
+  ToolHandleArray<IPileUpTool>::iterator ePUT(m_puTools.end());
+
+  // Reset the filters
+  ToolHandleArray<IPileUpTool>::iterator iPUT(bPUT);
+  while (iPUT != ePUT){
+    (**iPUT).resetFilter();
+    ++iPUT;
+  }
 
   // access the sub events...
-  SubEventIterator iEvt(evt->subEvents().begin());
-  const SubEventIterator endEvt(evt->subEvents().end());
+  PileUpEventInfo::SubEvent::const_iterator iEvt = evt->beginSubEvt();
+  PileUpEventInfo::SubEvent::const_iterator endEvt = evt->endSubEvt();
 
-  ATH_MSG_DEBUG( "There are " << std::distance(iEvt,endEvt) << " subevents in this Event." );
+  // first and last event in a xing
+  PileUpEventInfo::SubEvent::const_iterator fEvt = evt->beginSubEvt();
+  PileUpEventInfo::SubEvent::const_iterator lEvt = fEvt;
+  int currXing(iEvt->time());
+  int lastXing(currXing);
 
-  // Group subevents by bunch-crossing and work out the number of
-  // subevents that each PileUpTools will need to process.
+  // give IPileUpTools a chance to setup for this event
+  iPUT=bPUT;
+  const unsigned int nInputEvents = std::distance(iEvt,endEvt);
+  ATH_MSG_DEBUG( "execute: There are " << nInputEvents << " subevents in this Event." );
+
   std::map<const IPileUpTool*, unsigned int> eventsToProcessByTool;
-  std::map<SubEventIterator, SubEventIterator> bunchCrossingRanges;
-  while (iEvt != endEvt)
-    {
-      const SubEventIterator fEvt(iEvt);
-      // find the next SubEvent where the SubEvent after it has a
-      // different bunch crossing time.
-      iEvt = std::adjacent_find(fEvt, endEvt, differentBunchXing);
-      const SubEventIterator lEvt = (iEvt==endEvt) ? iEvt : ++iEvt;
-      const unsigned int nEventsInXing = std::distance(fEvt,lEvt);
-      ATH_MSG_VERBOSE( "Found " << nEventsInXing << " consecutive subevents with a bunch crossing time of " << fEvt->time() << " ns." );
-      bunchCrossingRanges[lEvt]=fEvt; //FIXME storing range "backwards" as the first part of the pair is const when accessed later
-      // loop over PileUpTools to check if they will need to process
-      // the current bunch crossing
-      for(auto& puToolHandle : m_puTools)
-        {
-          if (puToolHandle->toProcess(fEvt->time()))
-            {
-              eventsToProcessByTool[&(*puToolHandle)] += nEventsInXing;
-            }
+  while (iEvt != endEvt) {
+    currXing = iEvt->time();
+    lEvt=iEvt;
+    //check if we are in a new xing
+    if (currXing != lastXing) {
+      //loop over PileUpTools for the last xing
+      iPUT = bPUT;
+      while (iPUT != ePUT) {
+        IPileUpTool *put(&(**iPUT));
+        if (put->toProcess(lastXing)) {
+          eventsToProcessByTool[put] += std::distance(fEvt,lEvt);
         }
+        ++iPUT;
+      }
+      lastXing=currXing;
+      fEvt=lEvt;
     }
-
-  // call prepareEvent for all PileUpTools to set nInputEvents
-  for(auto& puToolHandle : m_puTools)
-    {
-      // Reset the filters
-      puToolHandle->resetFilter();
-      ATH_MSG_VERBOSE ( puToolHandle->name() << " will get " << eventsToProcessByTool[&(*puToolHandle)] << " subevents to process." );
-      ATH_CHECK(puToolHandle->prepareEvent(eventsToProcessByTool[&(*puToolHandle)]));
+    ++iEvt;
+  }
+  //loop over the PileUpTools for the final xing
+  if (lEvt != endEvt) {
+    lEvt=endEvt;
+    iPUT = bPUT;
+    while (iPUT != ePUT) {
+      IPileUpTool *put(&(**iPUT));
+      if (put->toProcess(lastXing)) {
+        eventsToProcessByTool[put] += std::distance(fEvt,lEvt);
+      }
+      ++iPUT;
     }
+  }
+  //reset everything
+  iPUT = bPUT;
+  iEvt = evt->beginSubEvt();
+  fEvt = evt->beginSubEvt();
+  lEvt = evt->beginSubEvt();
+  currXing = (iEvt->time());
+  lastXing = (currXing);
+  //set nInputEvents
+  while (iPUT != ePUT && ((**(iPUT)).prepareEvent(eventsToProcessByTool[&(**iPUT)])).isSuccess())  {++iPUT;}
 
-  // Loop over bunch-crossings and call processBunchXing for each
-  // PileUpTool
-  for(auto& bunch : bunchCrossingRanges)
-    {
-      SubEventIterator fEvt(bunch.second);
-      const SubEventIterator lEvt(bunch.first);
-      const int bunchXing(fEvt->time());
-      ATH_MSG_DEBUG("Processing bunch-crossing at " << bunchXing << " ns.");
-      for(auto& puToolHandle : m_puTools)
-        {
-          if(puToolHandle->toProcess(bunchXing))
-            {
-              ATH_CHECK(puToolHandle->processBunchXing(bunchXing, fEvt, lEvt));
-            }
-          else
-            {
-              ATH_MSG_VERBOSE( "Skipping " << puToolHandle->name() << " for bunch crossing at " << bunchXing << " ns.");
-            }
+  while (iEvt != endEvt) {
+    ATH_MSG_DEBUG
+      ("SubEvt EventInfo : "
+       << " time offset: " << iEvt->time()
+       << " event: " << iEvt->pSubEvt->event_ID()->event_number()
+       << " run: " << iEvt->pSubEvt->event_ID()->run_number());
+    //FIXME       << " contents: \n" << iEvt->pSubEvtSG->dump());
+    currXing = iEvt->time();
+    lEvt=iEvt;
+    //check if we are in a new xing
+    if (currXing != lastXing) {
+
+      //loop over the PileUpTools for the last xing
+      iPUT = bPUT;
+      StatusCode sc(StatusCode::SUCCESS);
+      while (sc.isSuccess() && (iPUT != ePUT)) {
+        IPileUpTool& put(**iPUT);
+        if (put.toProcess(lastXing)) {
+          sc=put.processBunchXing(lastXing, fEvt, lEvt);
+        } else {
+          ATH_MSG_VERBOSE( "Skipping IPileUpTool " << put.name()
+                           << " for xing " << lastXing );
         }
-      // clear the bkg events from the bunch xing we have just processed.
-      ATH_CHECK(this->clearXing(fEvt, lEvt));
+        ++iPUT;
+      }
+      //clear the bkg events of previous xing.
+      if(!(this->clearXing(fEvt, lEvt).isSuccess())) return StatusCode::FAILURE;
+      lastXing=currXing;
+      fEvt=lEvt;
     }
+    ++iEvt;
+  }
+  //loop over the PileUpTools for the final xing
+  if (lEvt != endEvt) {
+    lEvt=endEvt;
+    iPUT = bPUT;
+    StatusCode sc(StatusCode::SUCCESS);
+    while (sc.isSuccess() && (iPUT != ePUT)) {
+      IPileUpTool& put(**iPUT);
+      if (put.toProcess(lastXing)) {
+        sc=put.processBunchXing(lastXing, fEvt, lEvt);
+      } else {
+        ATH_MSG_VERBOSE( "Skipping IPileUpTool " << put.name()
+                         << " for xing " << lastXing );
+      }
+      ++iPUT;
+    }
+    //clear the bkg events of previous xing.
+    if(!(this->clearXing(fEvt, lEvt).isSuccess())) return StatusCode::FAILURE;
+  }
 
-  // call mergeEvent for all PileUpTools
-  for(auto& puToolHandle : m_puTools)
-    {
-      ATH_CHECK(puToolHandle->mergeEvent());
-      // Check if the event was filtered out by the current PileUpTool.
-      if (!puToolHandle->filterPassed())
-        {
-          ATH_MSG_VERBOSE( "Filter " << puToolHandle->name() << " failed - will stop the event" );
-          this->setFilterPassed(false);
-        }
+  iPUT = bPUT;
+  while (iPUT != ePUT && ((**(iPUT++)).mergeEvent()).isSuccess()) ;
+
+  //final loop over the PileUpTools
+
+  // Bit wasteful, but see if we aborted here
+  iPUT=bPUT;
+  while (iPUT != ePUT){
+    if (!(**(iPUT)).filterPassed()){
+      ATH_MSG_VERBOSE( "Filter " << (**(iPUT)).name() << " failed - will stop the event" );
+      this->setFilterPassed(false);
+      break;
     }
+    ++iPUT;
+  }
 
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode PileUpToolsAlg::finalize()
-{
+StatusCode PileUpToolsAlg::finalize() {
+
   ATH_MSG_DEBUG ("in finalize()");
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode PileUpToolsAlg::clearXing(SubEventIterator& fEvt, const SubEventIterator& lEvt)
-{
-  SubEventIterator iClearEvt=fEvt;
-  while (iClearEvt != lEvt)
-    {
-      ATH_CHECK(iClearEvt->ptr()->evtStore()->clearStore());
+StatusCode PileUpToolsAlg::clearXing(PileUpEventInfo::SubEvent::const_iterator& fEvt, PileUpEventInfo::SubEvent::const_iterator& lEvt) {
+  PileUpEventInfo::SubEvent::const_iterator iClearEvt=fEvt;
+  StatusCode sc = StatusCode::SUCCESS;
+  while (sc.isSuccess() && (iClearEvt != lEvt)) {
+    if (!(sc = iClearEvt->pSubEvtSG->clearStore()).isSuccess()) {
+      msg() << MSG::ERROR
+            << "Can not clear store "
+            << iClearEvt->pSubEvtSG->name() << endreq;
+    } else {
 #ifndef NDEBUG
-      ATH_MSG_VERBOSE("Cleared store " << iClearEvt->ptr()->evtStore()->name());
+      msg() << MSG::VERBOSE
+            << "Cleared store " << iClearEvt->pSubEvtSG->name() << endreq;
 #endif
-      ++iClearEvt;
     }
-  return StatusCode::SUCCESS;
+    ++iClearEvt;
+  }
+  return sc;
 }

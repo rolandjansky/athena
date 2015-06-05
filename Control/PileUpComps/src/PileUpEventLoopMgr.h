@@ -10,36 +10,29 @@
     $Id: PileUpEventLoopMgr.h,v 1.9 2008-04-23 22:48:29 calaf Exp $
 */
 
-// Base class headers
-#include "AthenaKernel/IEventSeek.h"
-#include "GaudiKernel/MinimalEventLoopMgr.h"
+#ifndef _CPP_STRING
+#include <string>
+#endif
 
-// Athena headers
-#include "AthenaKernel/MsgStreamMember.h"
-#include "EventInfo/EventID.h"  /* for EventID::number_type */
-#include "PileUpTools/PileUpStream.h"
-
-// Gaudi headers
+// Framework include files
+#include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IAlgExecStateSvc.h"
-#include <string>
+#include "GaudiKernel/MinimalEventLoopMgr.h"
+#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "EventInfo/EventID.h"  /* number_type */
+#include "PileUpTools/PileUpStream.h"
 
 // Forward declarations
 class IBeamIntensity;
 class IBeamLuminosity;
-class IBkgStreamsCache;
-namespace xAODMaker
-{
-  class IEventInfoCnvTool;
-}
-class IEvtSelector;
 class IIncidentSvc;
 class ITimeKeeper;
 class PileUpMergeSvc;
 class StoreGateSvc;
-class EventContext;
+class IBkgStreamsCache;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
@@ -48,6 +41,7 @@ class EventContext;
 class PileUpEventLoopMgr : virtual public IEventSeek,
                            public MinimalEventLoopMgr   {
 public:
+  typedef IEvtSelector::Context EvtIterator;
 
   /// Standard Constructor
   PileUpEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
@@ -80,9 +74,6 @@ public:
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 
 private:
-  /// Reference to the Algorithm Execution State Svc
-  SmartIF<IAlgExecStateSvc>  m_aess;
-
   /// setup input and overlay selectors and iters
   StatusCode setupStreams();
 
@@ -102,16 +93,18 @@ private:
   }
 
   /// Incident Service
-  ServiceHandle<IIncidentSvc> m_incidentSvc;
+  IIncidentSvc* p_incidentSvc;
 
   /// PileUp Merge Service
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
+  PileUpMergeSvc* p_mergeSvc;
 
   /// Input Streams
   PileUpStream m_origStream;
 
+
+
   /// output store
-  ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
+  StoreGateSvc* p_SGOver;              // overlaid (output) event store
 
   //unsigned int m_nInputs;
   //unsigned int m_nStores;
@@ -123,39 +116,37 @@ private:
   /// BkgStreamsCaches managing background events
   ToolHandleArray<IBkgStreamsCache> m_caches;
   /// (max) minBias interactions per Xing, for setting MC luminosity
-  Gaudi::Property<float> m_maxCollPerXing;
+  FloatProperty m_maxCollPerXing;
 
   /// Xing frequency(ns);
-  Gaudi::Property<float> m_xingFreq;
+  FloatProperty m_xingFreq;
   /// first xing to be simulated (0th xing is 1st after trigger)
-  Gaudi::Property<int> m_firstXing;
+  IntegerProperty m_firstXing;
   /// last xing to be simulated (0th xing is 1st after trigger)
-  Gaudi::Property<int> m_lastXing;
+  IntegerProperty m_lastXing;
 
   /// property: TimeKeeper service instance
   ServiceHandle<ITimeKeeper> m_timeKeeper;
 
   /// property: allow sub evts EOF condition when maxevt==-1
-  Gaudi::Property<bool> m_allowSubEvtsEOF;
+  BooleanProperty m_allowSubEvtsEOF;
 
   /// property: process bkg events xing by xing without caching them
-  Gaudi::Property<bool> m_xingByXing;
+  BooleanProperty m_xingByXing;
 
   /// property: is this job running RDO+RDO overlay.
-  Gaudi::Property<bool> m_isEventOverlayJob;
+  BooleanProperty m_isEventOverlayJob;
 
   /// property: the run number from an EVNT file, used to set the mc_channel_number, for overlay
-  Gaudi::Property<int> m_mcRunNumber;
+  IntegerProperty m_mcRunNumber;
 
   /// property: control behaviour of event loop on algorithm failure
-  Gaudi::Property<int> m_failureMode;
+  IntegerProperty m_failureMode;
 
   /// property: beam intensity service handle for beam profile in local time
   ServiceHandle<IBeamIntensity> m_beamInt;
   /// property: beam intensity service handle for luminosity profile in iovtime
   ServiceHandle<IBeamLuminosity> m_beamLumi;
-  /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
-  ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
   //@}
 
   /// current run number
@@ -174,13 +165,11 @@ private:
   bool m_skipExecAlgs;
   bool m_loadProxies;
 
-  EventContext* m_eventContext;
-
   /// property: flag to control extra checks for embedding jobs.
-  Gaudi::Property<bool> m_isEmbedding;
+  BooleanProperty m_isEmbedding;
   /// property: Default true. When set to false, this will allow the
   /// code to reproduce serial output in an AthenaMP job, albeit with
   /// a significant performance penalty.
-  Gaudi::Property<bool> m_allowSerialAndMPToDiffer;
+  BooleanProperty m_allowSerialAndMPToDiffer;
 };
 #endif // PILEUPTOOLS_PILEUPEVENTLOOPMGR_H

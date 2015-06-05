@@ -93,7 +93,7 @@ public:
 
   virtual StatusCode queryInterface(const InterfaceID&, void**);
 
-  /// meant to be used (mainly) via m_f_collDistr
+  /// meant to be used (mainly) via f_collDistr
   long collXing() { return m_collXing * m_collXingSF; }
   long collXingPoisson();
 
@@ -164,29 +164,29 @@ private:
   /// @name Properties
   //@{
   /// # of collisions/xings (~beam intensity)
-  Gaudi::Property<float> m_collXing;
+  FloatProperty m_collXing;
   /// The maximum fraction of bunch-crossings which will be occupied.
-  Gaudi::Property<float> m_occupationFraction;
+  FloatProperty m_occupationFraction;
   /// select collision distribution
-  Gaudi::Property<std::string> m_collDistrName;
+  StringProperty m_collDistrName;
   ServiceHandle<IEvtSelector> m_selecName;
   /// read downscale factor (average number of times a min bias is reused)
-  Gaudi::Property<float> m_readDownscale;
+  FloatProperty m_readDownscale;
   /// IAtRndmGenSvc controlling the distribution of bkg events/xing
   ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
   /// the IAtRndmGenSvc stream to generate number of collisions/xing
-  Gaudi::Property<std::string> m_randomStreamName;
+  StringProperty m_randomStreamName;
   /// the type of events in this cache
-  Gaudi::CheckedProperty<unsigned short> m_pileUpEventTypeProp;
+  UnsignedShortProperty m_pileUpEventTypeProp;
   void PileUpEventTypeHandler(Property&);
   /// the type of events in this cache
   PileUpTimeEventIndex::PileUpType m_pileUpEventType;
   void RingsPropHandler(Property&);
   /// the list of rings to be used in the form "lowXing:hiXing"
-  Gaudi::Property<std::vector<std::string>> m_ringsProp;
+  StringArrayProperty m_ringsProp;
   /// Allow events in inner rings to be used in outer rings. 
   /// When false every ring is effectively a separate cache
-  Gaudi::Property<bool> m_allowRingMigProp;
+  BooleanProperty m_allowRingMigProp;
   //@}
   /// read a new event every downscaleFactor accesses
   CLHEP::RandFlat* m_readEventRand;
@@ -195,11 +195,11 @@ private:
   /// set number of collisions/xing (if Poisson distribution chosen)
   CLHEP::RandPoisson* m_collXingPoisson;
   /// function returning number of collisions/xing 
-  boost::function0< long > m_f_collDistr;
+  boost::function0< long > f_collDistr;
   /// float scaling number of collisions/xing 
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?
-  Gaudi::Property<bool> m_ignoreSF;
+  BooleanProperty m_ignoreSF;
 };
 
 #endif // PILEUPTOOLS_BKGSTREAMSCACHE_H

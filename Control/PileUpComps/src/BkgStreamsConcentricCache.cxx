@@ -56,7 +56,7 @@ BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type,
   m_readEventRand(0),
   m_chooseEventRand(0),
   m_collXingPoisson(0),
-  m_f_collDistr(0),
+  f_collDistr(0),
   m_collXingSF(1.0),
   m_ignoreSF(false)
 {   
@@ -186,8 +186,7 @@ void BkgStreamsConcentricCache::resetEvtsPerXingScaleFactor(float sf) {
 }
 
 long BkgStreamsConcentricCache::collXingPoisson(){ 
-  if (!m_collXingPoisson) return collXing();
-  return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
+  if (!m_collXingPoisson) return collXing(); return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
 }
 
 void BkgStreamsConcentricCache::newEvent() { 
@@ -287,27 +286,27 @@ bool BkgStreamsConcentricCache::canUse(StreamVector::size_type iS, unsigned curr
   //can use a stream if belongs to a ring inside the current one
   //if the stream has no ring assigned yet we can of course use it
   PileUpStream& stream(m_streams[iS]);
-  bool canUse(!stream.used() && 
+  bool _canUse(!stream.used() && 
 	       ( !stream.hasRing() ||
 		 (m_allowRingMigProp.value() ?
 		  currentRing>=stream.originalIRing() :
 		  currentRing==stream.originalIRing()) ) );
 #ifndef NDEBUG
   ATH_MSG_VERBOSE ( "canUse: stream " << iS  
-		    << (canUse ? " can" : " can not") << " be used in ring " << currentRing
+		    << (_canUse ? " can" : " can not") << " be used in ring " << currentRing
 		    << "\n Stream " <<(stream.used() ? "already" : "not yet") 
 		    << " used in this event. Stream originally used for ring "
 		    << stream.originalIRing()
 		    );
 #endif
-  if (canUse) {
+  if (_canUse) {
     stream.setUsed();
     stream.setOriginalIRing(currentRing);
 #ifdef DEBUG_PILEUP
     cout << "canUse: new stream status : used " << stream.used() << " original ring " << stream.originalIRing() << endl;
 #endif
   }    
-  return canUse;
+  return _canUse;
 } 
 
 PileUpStream* BkgStreamsConcentricCache::current() { 
@@ -348,12 +347,12 @@ StatusCode BkgStreamsConcentricCache::initialize() {
 
   // select collision distribution function
   if (m_collDistrName.value() == "Fixed") 
-    m_f_collDistr = boost::bind(&BkgStreamsConcentricCache::collXing, this);      
+    f_collDistr = boost::bind(&BkgStreamsConcentricCache::collXing, this);      
   else if (m_collDistrName.value() == "Poisson") {
     //pass collEng by reference. If Not CLHEP will take ownership...
     m_collXingPoisson = new CLHEP::RandPoisson(*(collEng), m_collXing);
-    // m_f_collDistr will call m_collXingPoisson->fire(m_collXing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
-    m_f_collDistr =  boost::bind(&BkgStreamsConcentricCache::collXingPoisson, this);
+    // f_collDistr will call m_collXingPoisson->fire(m_collXing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
+    f_collDistr =  boost::bind(&BkgStreamsConcentricCache::collXingPoisson, this);
   } else {
     ATH_MSG_ERROR (  m_collDistrName 
 		     << " is not a know collision distribution function" );
@@ -368,7 +367,7 @@ unsigned int BkgStreamsConcentricCache::nEvtsXing(unsigned int iXing) const {
 
 unsigned int BkgStreamsConcentricCache::setNEvtsXing(unsigned int iXing) {
   if (iXing + 1 > m_nEvtsXing.size())  m_nEvtsXing.resize(2 * iXing + 1);
-  m_nEvtsXing[iXing] = m_f_collDistr();
+  m_nEvtsXing[iXing] = f_collDistr();
   return m_nEvtsXing[iXing];
 }
 
