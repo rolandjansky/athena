@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## A simple RAWtoESD transform. 
-# @version $Id: RAWtoESD_tf.py 627717 2014-11-11 18:55:17Z graemes $ 
+# @version $Id: RAWtoESD_tf.py 670203 2015-05-27 13:19:01Z graemes $ 
 
 import os.path
 import sys
@@ -40,7 +40,7 @@ def main():
 
 def getTransform():
     trf = transform(executor = athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                              substep = 'r2e', perfMonFile = 'ntuple_RAWtoESD.pmon.gz',
+                                              substep = 'r2e',
                                               ))
     addAthenaArguments(trf.parser)
     addMyArgs(trf.parser)

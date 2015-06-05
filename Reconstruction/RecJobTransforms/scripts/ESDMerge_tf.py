@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## ESDMerge_tf.py - ESD merger
-# @version $Id: ESDMerge_tf.py 577133 2014-01-07 16:49:43Z graemes $ 
+# @version $Id: ESDMerge_tf.py 670203 2015-05-27 13:19:01Z graemes $ 
 
 import sys
 import time
@@ -41,7 +41,7 @@ def main():
 def getTransform():
     executorSet = set()
     executorSet.add(hybridPOOLMergeExecutor(name = 'ESDMerge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                   inData = ['ESD'], outData = ['ESD_MRG'], perfMonFile = 'ntuple_POOLMerge.pmon.gz'))
+                                   inData = ['ESD'], outData = ['ESD_MRG']))
 
     trf = transform(executor = executorSet)
     
