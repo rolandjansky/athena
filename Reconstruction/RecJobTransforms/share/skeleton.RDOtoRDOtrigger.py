@@ -5,7 +5,7 @@
 #===================================================================
 
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 # disable ESD object making, but still enable trigger
 rec.doESD.set_Value_and_Lock(False)
 rec.doCalo.set_Value_and_Lock(True)
@@ -29,13 +29,19 @@ if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+elif hasattr(runArgs,"inputRDO_FILTFile"):
+    rec.readRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FILTFile )
+else:
+     raise RuntimeError("No RDO input file specified")
 
 if hasattr(runArgs,"outputRDO_TRIGFile"):
     rec.doWriteRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_TRIGFile )
 else:
-    recoLog.warning("No RDO output file specified")
+    raise RuntimeError("No RDO_TRIG output file specified")
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -49,16 +55,25 @@ if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
-from TrigDecisionTool.TrigDecisionToolConf import *
-if not hasattr(ToolSvc, 'TrigDecisionTool'):
-   ToolSvc += Trig__TrigDecisionTool('TrigDecisionTool')
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# small hack, switching temporarily the ESD writing on, to allow writing of some trigger containers into the RDOTrigger file
+rec.doWriteESD = True 
+cfg = TriggerConfigGetter()
+rec.doWriteESD.set_Value_and_Lock( False )
+# end of hack. 
 
 #========================================================
 # Central topOptions (this is one is a string not a list)
 #========================================================
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
+
+if rec.doFileMetaData():
+   from RecExConfig.ObjKeyStore import objKeyStore
+   metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                 "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+   objKeyStore.addManyTypesMetaData( metadataItems )
 
 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
         RoIBResultToAOD
@@ -74,22 +89,20 @@ for i in topSequence.getAllChildren():
        from AthenaCommon.Logging import logging 
        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
        log.info('TrigDecision writing enabled')
-       makexAOD = WritexAODTrigDecision()
-    if "xAODMaker\:\:TrigDecisionCnvAlg" in i.getName():
-       i.AODKey = "TrigDecisionRdo"
-       i.xAODKey = "TrigDecisionRdo"
-    if "TrigDecMaker" in i.getName():
-       i.TrigDecisionKey = "TrigDecisionRdo"
+       from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
+       alg = xAODMaker__TrigDecisionCnvAlg()
+       alg.AODKey = "TrigDecision"
+       alg.xAODKey = "xTrigDecision"
+       topSequence.insert(idx+1, alg)
+       from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
+       topSequence.insert(idx+2, xAODMaker__TrigNavigationCnvAlg())
+
+from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
+from TrigDecisionTool.TrigDecisionToolConf import *
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
-    ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecisionRdo"
-
-for i in topSequence.getAllChildren():
-    if "TrigDecisionCnvAlg" in i.getName():
-       i.AODKey = "TrigDecisionRdo"
-       i.xAODKey = "TrigDecisionRdo"
-    if "TrigDecMaker" in i.getName():
-       i.TrigDecisionKey = "TrigDecisionRdo"
+    ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
+    ToolSvc.TrigDecisionTool.UseAODDecision = True
 
 # inform TD maker that some parts may be missing
 if TriggerFlags.dataTakingConditions()=='Lvl1Only':
@@ -121,7 +134,8 @@ def preplist(input):
    return triglist
 
 StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
-StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecisionRdo"]
+StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]
+StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
 StreamRDO.ItemList += preplist(_TriggerESDList)
 StreamRDO.ItemList += preplist(_TriggerAODList)
 from TrigEDMConfig.TriggerEDM import getLvl1ESDList
@@ -129,6 +143,7 @@ StreamRDO.ItemList += preplist(getLvl1ESDList())
 from TrigEDMConfig.TriggerEDM import getLvl1AODList
 StreamRDO.ItemList += preplist(getLvl1AODList())
 
+StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ] 
 StreamRDO.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]
 StreamRDO.ItemList += [ "TRT_RDO_Container#TRT_RDOs" ]
 StreamRDO.ItemList += [ "SCT_RDO_Container#SCT_RDOs" ]

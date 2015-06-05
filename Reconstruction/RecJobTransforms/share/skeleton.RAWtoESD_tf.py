@@ -53,15 +53,8 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
-    TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock( True )
-    rec.doTrigger.set_Value_and_Lock(True)
+    rec.doTrigger.set_Value_and_Lock(False)
     recAlgs.doTrigger.set_Value_and_Lock(False)
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-    hltoutput = HLTTriggerResultGetter()
-    from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
-    l1output = Lvl1ResultBuilderGetter()
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
     HLTMonFlags.doMonTier0 = False
     from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -69,6 +62,27 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     DQMonFlags.doHLTMon = False
     DQMonFlags.useTrigger = False
     DQMonFlags.doLVL1CaloMon = False
+    from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
+    _TriggerESDList = {}
+    _TriggerAODList = {}
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList 
+    _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+    _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+    from TrigEDMConfig.TriggerEDM import getLvl1ESDList
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
+    objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
+    objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
+    objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
+    objKeyStore.addManyTypesStreamESD( _TriggerESDList )  
+    objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
+    if rec.doFileMetaData():
+       metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                        "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+       objKeyStore.addManyTypesMetaData( metadataItems )
+
 if hasattr(runArgs,"inputRDO_FILTFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -151,9 +165,6 @@ if hasattr(runArgs, "outputTXT_FTKIPFile"):
     rec.doTrigger.set_Value_and_Lock(False)
     rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
     
-if hasattr(runArgs, "doRDOTrigger"):
-    TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock(True)
-
 # Event display tarballs    
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):
     jp.Rec.doJiveXML.set_Value_and_Lock(True)
@@ -179,11 +190,10 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
-if hasattr(runArgs,"inputRDO_TRIGFile") and hasattr(topSequence,'TrigDecMaker'):
-   topSequence.TrigDecMaker.doL1 = True
-   for i in topSequence.getAllChildren():
-       if "TrigDecisionCnvAlg" in i.getName():
-          i.AODKey = "TrigDecisionRdo"
+if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
+    ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+                              OutputLevel = 3 )
+    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

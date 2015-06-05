@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## A simple ESDtoAOD transform. 
-# @version $Id: ESDtoAOD_tf.py 571113 2013-11-18 21:45:05Z graemes $ 
+# @version $Id: ESDtoAOD_tf.py 670203 2015-05-27 13:19:01Z graemes $ 
 
 import os.path
 import sys
@@ -41,7 +41,7 @@ def main():
 
 def getTransform():
     trf = transform(executor = athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
-                                              substep = 'e2a', perfMonFile = 'ntuple_ESDtoAOD.pmon.gz'))
+                                              substep = 'e2a'))
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
     addCommonRecTrfArgs(trf.parser)

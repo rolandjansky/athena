@@ -4,7 +4,7 @@
 
 ## AODMerge_tf.py - AOD merger with optional TAG and DPD outputs
 #  N.B. Do need clarification as to if AODtoDPD is ever run in parallel with AOD merging 
-# @version $Id: AODMerge_tf.py 603486 2014-06-25 09:07:28Z graemes $ 
+# @version $Id: AODMerge_tf.py 670203 2015-05-27 13:19:01Z graemes $ 
 
 import sys
 import time
@@ -42,7 +42,7 @@ def main():
 def getTransform():
     executorSet = set()
     executorSet.add(hybridPOOLMergeExecutor(name = 'AODMerge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                   inData = ['AOD'], outData = ['AOD_MRG'], perfMonFile = 'ntuple_POOLMerge.pmon.gz'))
+                                   inData = ['AOD'], outData = ['AOD_MRG']))
     executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
                                    inData = ['AOD_MRG'], outData = ['TAG'],))
 
