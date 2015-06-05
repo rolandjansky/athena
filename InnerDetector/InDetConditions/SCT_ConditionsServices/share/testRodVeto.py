@@ -82,7 +82,7 @@ conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog")
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
 ServiceMgr += SCT_RODVetoSvc()
 SCT_RODVeto=ServiceMgr.SCT_RODVetoSvc
-SCT_RODVeto.BadRODIdentifiers=[0x24010a,0x240100]
+SCT_RODVeto.BadRODIdentifiers=[0x240100,0x240030]
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()
