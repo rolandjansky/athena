@@ -76,7 +76,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   declareProperty("CablingService",m_cabling);
   declareProperty("ConfigService",m_config);
   declareProperty("useDCSfromBS",m_useDCSfromBS=false);
-  declareProperty("UseRXRedundancyInfo",m_useRXredundancy=false);
+  declareProperty("UseRXRedundancyInfo",m_useRXredundancy=true);
   declareProperty("disableRODs",m_disableRODs=false);
   declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
 }
