@@ -85,7 +85,7 @@ private:
   ServiceHandle<ISCT_CablingSvc> m_cabling;
 
   //std::vector<std::string> m_badElements; //list of bad detector elements (= module sides)
-  IntegerArrayProperty m_badRODElements;
+  UnsignedIntegerArrayProperty m_badRODElements;
   std::set<Identifier> m_badIds;
   bool m_filled;
   const SCT_ID * m_pHelper;

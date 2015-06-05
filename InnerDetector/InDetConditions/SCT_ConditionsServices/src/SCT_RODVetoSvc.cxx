@@ -42,7 +42,6 @@ string2Vector(const std::string & s){
 SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
   m_cabling("SCT_CablingSvc",name),
-  //m_badElements(0),
   m_filled(false), 
   m_pHelper(0),
   m_detStore("DetectorStore", name){
@@ -113,14 +112,23 @@ SCT_RODVetoSvc::fillData(){
   }
   ATH_MSG_INFO(m_badRODElements.value().size() <<" RODs were declared bad");
   bool success(true);
-  for(int thisRod: m_badRODElements.value()){
+  
+  std::vector<unsigned int> allRods;
+  m_cabling->getAllRods(allRods);
+  
+  for(unsigned int thisRod: m_badRODElements.value()){
+    //check whether rod exists
+    if (std::find(allRods.begin(),allRods.end(),thisRod)==allRods.end()){
+    	ATH_MSG_WARNING("Your vetoed selection "<<std::hex<<"0x"<<thisRod<<" does not exist."<<std::dec);
+    	continue;
+    }
     std::vector<IdentifierHash> listOfHashes;
     m_cabling->getHashesForRod(listOfHashes,thisRod);
-    ATH_MSG_DEBUG("This rod is "<<thisRod);
+    ATH_MSG_DEBUG("This rod is "<<std::hex<<"0x"<<thisRod<<std::dec);
     //Two consecutive hashes may produce the same module id, since they will be two sides
     //of the same module. We avoid invalid inserts by guarding against this.
     Identifier previousId; //constructor produces an invalid one
-    for (IdentifierHash thisHash:listOfHashes){
+    for (const IdentifierHash &thisHash:listOfHashes){
       Identifier wafId = m_pHelper->wafer_id(thisHash);
       Identifier modId = m_pHelper->module_id(wafId);
       const bool alreadyInserted(modId==previousId);
