@@ -492,6 +492,9 @@ StatusCode JepByteStreamV1Tool::convert(const LVL1::JEPBSCollectionV1* const jep
         if (summing == CmmSubBlock::CRATE &&
             dataID != LVL1::CMMJetHits::LOCAL_MAIN &&
             dataID != LVL1::CMMJetHits::LOCAL_FORWARD) continue;
+        // coverity[mixed_enums : FALSE]
+        // coverity[switch_on_enum : FALSE]
+        // coverity[first_enum_type : FALSE]
         switch (dataID) {
         case LVL1::CMMJetHits::LOCAL_MAIN:
           source = CmmJetSubBlock::LOCAL_MAIN;
@@ -1130,6 +1133,9 @@ void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm)
         if (summing == CmmSubBlock::CRATE &&
             source != CmmJetSubBlock::LOCAL_MAIN     &&
             source != CmmJetSubBlock::LOCAL_FORWARD) continue;
+        // coverity[mixed_enums : FALSE]
+        // coverity[switch_on_enum : FALSE]
+        // coverity[first_enum_type : FALSE]
         switch (source) {
         case CmmJetSubBlock::LOCAL_MAIN:
           dataID = LVL1::CMMJetHits::LOCAL_MAIN;

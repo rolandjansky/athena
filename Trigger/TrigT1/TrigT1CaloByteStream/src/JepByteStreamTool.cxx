@@ -836,6 +836,9 @@ void JepByteStreamTool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
       if (source >= m_modules) {
         if (summing == CmmSubBlock::CRATE &&
             source != CmmEnergySubBlock::LOCAL) continue;
+        // coverity[mixed_enums : FALSE]
+        // coverity[switch_on_enum : FALSE]
+        // coverity[first_enum_type : FALSE]  
         switch (source) {
         case CmmEnergySubBlock::LOCAL:
           dataID = LVL1::CMMEtSums::LOCAL;
@@ -859,6 +862,9 @@ void JepByteStreamTool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
       LVL1::DataError exErrBits(ssError);
       LVL1::DataError eyErrBits(ssError);
       LVL1::DataError etErrBits(ssError);
+      // coverity[mixed_enums : FALSE]
+      // coverity[switch_on_enum : FALSE]
+      // coverity[first_enum_type : FALSE]
       if (dataID == LVL1::CMMEtSums::LOCAL ||
           dataID == LVL1::CMMEtSums::REMOTE ||
           dataID == LVL1::CMMEtSums::TOTAL) {
