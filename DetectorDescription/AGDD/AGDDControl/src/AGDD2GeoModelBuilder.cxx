@@ -128,7 +128,7 @@ GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
                                   std::cout<<"something is wrong, nmat=0!!!"<<std::endl;
                                   return 0;
                                 }
-				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*CLHEP::g/CLHEP::cm3);
+				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*(CLHEP::g/CLHEP::cm3));
 				AGDDElement *el=ms->GetElement(nmat->GetName());
 				if (el) 
 				{
@@ -146,7 +146,7 @@ GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
                                   std::cout<<"something is wrong, nmat=0!!!"<<std::endl;
                                   return 0;
                                 }
-				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*CLHEP::g/CLHEP::cm3);
+				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*(CLHEP::g/CLHEP::cm3));
 				for (int i=0;i<nmat->NComponents();i++)
 				{
 					AGDDElement *el=nmat->Element(i);
@@ -166,7 +166,7 @@ GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(std::string name)
 					std::cout<<"can't get the mixture, returning!"<<std::endl;
 					return 0;
 				}
-				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*CLHEP::g/CLHEP::cm3);
+				g4mat=new GeoMaterial(nmat->GetName(),nmat->GetDensity()*(CLHEP::g/CLHEP::cm3));
 				for (int i=0;i<nmat->NComponents();i++)
 				{
 					AGDDSimpleMaterial *el=nmat->Material(i);
