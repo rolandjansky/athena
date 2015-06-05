@@ -13,6 +13,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 
 
 // Constructor
@@ -147,7 +148,7 @@ float SCT_SiliconConditionsSvc::biasVoltage(const IdentifierHash& elementHash){
   if(m_useDB && !m_useGeoModel) {
     float hv = m_sctDCSSvc->modHV(elementHash);
     if (hv < 0.){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HV: "<< hv <<" <  0 " << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HV: "<< hv <<" <  0 " << endreq;
        return m_defaultBiasVoltage;
     }
     return hv;
@@ -180,12 +181,12 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
   bool useCondDB = false;
    
   if (m_rdbSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endmsg;
+    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endreq;
     return false;
   }
 
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
     return false;
   }
   m_rdbSvc->connect();
@@ -194,7 +195,7 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
 
   const IRDBRecordset * sctConditionsSet = m_rdbSvc->getRecordset("SctConditions",  versionKey.tag(), versionKey.node());
   if (sctConditionsSet->size()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endreq;
     const IRDBRecord * defaultConditions = (*sctConditionsSet)[0];
     m_geoModelTemperature = defaultConditions->getDouble("TEMPERATURE");
     m_geoModelBiasVoltage = defaultConditions->getDouble("BIASVOLT");

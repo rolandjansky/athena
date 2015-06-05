@@ -20,8 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "SGTools/CLASS_DEF.h"
 
 //Athena includes
 #include "Identifier/Identifier.h"
@@ -31,7 +29,7 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-
+ 
 
 //forward declarations
 template <class TYPE> class SvcFactory;
@@ -42,7 +40,6 @@ class StatusCode;
 class ISCT_CablingSvc;
 //class Identifier; < not fwd declared, used in a vector so need storage size
 // class Identifier;
-class SCT_RODVetoSvc_test;
 
 /**
  * @class SCT_RODVetoSvc
@@ -50,9 +47,6 @@ class SCT_RODVetoSvc_test;
 **/
 class SCT_RODVetoSvc: virtual public ISCT_ConditionsSvc, public AthService{
   friend class SvcFactory<SCT_RODVetoSvc>;
-  /** Allow the test class access to all methods */
-  friend class SCT_RODVetoSvc_test;
-
 public:
   //@name Service methods
   //@{
@@ -90,23 +84,10 @@ private:
 
   ServiceHandle<ISCT_CablingSvc> m_cabling;
 
-  
-
-
-  //UnsignedIntegerArrayProperty m_badRODElements;
-  
-
-  // The vector of bad rods should be kept in a threadsafe way so it can 
-  // be called and read safely.
-  SG::ReadHandleKey< std::vector<unsigned int> > m_badRODElements;
-
+  //std::vector<std::string> m_badElements; //list of bad detector elements (= module sides)
+  UnsignedIntegerArrayProperty m_badRODElements;
   std::set<Identifier> m_badIds;
-
-  // These are the read- and writehandle keys for the boolean that checks
-  // if the service has been filled. 
-  SG::WriteHandleKey<bool> m_wFilled;
-  SG::ReadHandleKey<bool>  m_rFilled;
-  
+  bool m_filled;
   const SCT_ID * m_pHelper;
   ServiceHandle<StoreGateSvc> m_detStore;
 };

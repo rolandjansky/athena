@@ -20,6 +20,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 // Athena includes
@@ -31,6 +32,7 @@
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 
+#include "SCT_ConditionsServices/ISCT_ReadoutTool.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 
 #include "SCT_Cabling/ISCT_CablingSvc.h" 

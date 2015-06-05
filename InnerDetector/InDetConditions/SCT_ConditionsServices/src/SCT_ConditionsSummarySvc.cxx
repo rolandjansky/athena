@@ -35,7 +35,7 @@ SCT_ConditionsSummarySvc::initialize(){
   m_noReports = m_reportingServices.value().empty();
   if (m_noReports){
     sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the SCT summary"<<endmsg;
+    msg(MSG::INFO)<<"No services were selected for the SCT summary"<<endreq;
   } else {
     vector<string>::const_iterator pSvcName= m_reportingServices.value().begin();
     vector<string>::const_iterator pLastName= m_reportingServices.value().end();
@@ -44,10 +44,10 @@ SCT_ConditionsSummarySvc::initialize(){
       ServiceHandle<ISCT_ConditionsSvc> thisSvc(*pSvcName,name());
       sc=thisSvc.retrieve();
       if (sc.isSuccess()){
-        msg(MSG::INFO)<<"Using "<<*pSvcName<<endmsg;
+        msg(MSG::INFO)<<"Using "<<*pSvcName<<endreq;
         m_svcHandles.push_back(thisSvc);
       } else {
-        msg(MSG::ERROR)<<"The service "<<*pSvcName<<" is not available."<<endmsg;
+        msg(MSG::ERROR)<<"The service "<<*pSvcName<<" is not available."<<endreq;
         successfulRetrieve=false;
       }
     }
@@ -59,7 +59,7 @@ SCT_ConditionsSummarySvc::initialize(){
 //Finalize
 StatusCode
 SCT_ConditionsSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the SCT_ConditionsSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
+  msg(MSG::INFO)<<"Thank-you for using the SCT_ConditionsSummarySvc, version "<<PACKAGE_VERSION<<endreq;
   //Code
   return StatusCode::SUCCESS;
 }
@@ -144,6 +144,6 @@ SCT_ConditionsSummarySvc::isGood(const IdentifierHash & /*elementHash*/, const I
 double 
 SCT_ConditionsSummarySvc::goodFraction(const IdentifierHash & /*elementHash*/, const Identifier & /*idStart*/, const Identifier & /*idEnd*/){
   double result(1.0);
-  msg(MSG::WARNING)<<"goodFraction is a deprecated function always returning 1.0 "<<endmsg;
+  msg(MSG::WARNING)<<"goodFraction is a deprecated function always returning 1.0 "<<endreq;
   return result;
 }

@@ -80,7 +80,7 @@ public:
 
   bool isRODSimulatedData();
 
-  void addError(IdentifierHash id, int errorType);
+  void addError(IdentifierHash& id, int errorType);
   void addErrorCount(int errorType);
 
   virtual void resetSets();
@@ -95,9 +95,6 @@ public:
 
   virtual void disableRODs();
 
-  virtual void setDecodedROD(const boost::uint32_t rodId);
-  virtual std::vector<boost::uint32_t> getRODOuts() const;
-
 private:
 
   const SCT_ID* m_sct_id;
@@ -109,11 +106,37 @@ private:
 
   bool m_filled;
   bool m_lookForSGErrContainer;
-  std::set<IdentifierHash>* m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
+  std::set<IdentifierHash>* m_timeOutErrors;
+  std::set<IdentifierHash>* m_bcIdErrors;
+  std::set<IdentifierHash>* m_lvl1IdErrors;
+  std::set<IdentifierHash>* m_preambleErrors;
+  std::set<IdentifierHash>* m_formatterErrors;
+  std::set<IdentifierHash>* m_trailerErrors;
+  std::set<IdentifierHash>* m_trailerOverflowErrors;
+  std::set<IdentifierHash>* m_headerTrailerLimitErrors;
+  std::set<IdentifierHash>* m_ABCDErrors;
+  std::set<IdentifierHash>* m_rawErrors;
+  std::set<IdentifierHash>* m_byteStreamParseErrors;
+  std::set<IdentifierHash>* m_maskedLinks;
+  std::set<IdentifierHash>* m_rodClockErrors;
+  std::set<IdentifierHash>* m_truncatedRod;
+  std::set<IdentifierHash>* m_robFragErrors;
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
-  int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
+  int m_numTimeOutErrors;
+  int m_numBCIDErrors;
+  int m_numLVL1IDErrors;
+  int m_numPreambleErrors;
+  int m_numFormatterErrors;
+  int m_numTrailerErrors;
+  int m_numABCDErrors;
+  int m_numRawErrors;
+  int m_numDecodingErrors;
+  int m_numMaskedLinks;
+  int m_numRodClockErrors;
+  int m_numTruncatedRod;
+  int m_numRobFragErrors;
 
   bool m_isRODSimulatedData;
 
@@ -127,9 +150,6 @@ private:
 
   bool m_disableRODs;
   double m_rodFailureFraction;
-  unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
-
-  std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 };
 
 #endif

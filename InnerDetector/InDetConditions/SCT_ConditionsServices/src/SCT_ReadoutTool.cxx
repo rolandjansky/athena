@@ -9,7 +9,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-//#include <iostream>
+#include <iostream>
 #include <cmath>
 
 // Helper functions to indicate whether a barrel module is modified.
@@ -27,12 +27,12 @@
 // 20220330200693 -> 175015936 has link1 modified
 
 static bool modified0 (Identifier moduleId) {
-  return ((moduleId==169922560) or (moduleId==170801152) or (moduleId==172556288) or (moduleId==172621824) or 
-	  (moduleId==174342144) or (moduleId==174610432) or (moduleId==174962688));
+  return (moduleId==169922560 or moduleId==170801152 or moduleId==172556288 or moduleId==172621824 or 
+	  moduleId==174342144 or moduleId==174610432 or moduleId==174962688);
 }
 
 static bool modified1 (Identifier moduleId) {
-  return ((moduleId==170983424) or (moduleId==173268992) or (moduleId==174301184) or (moduleId==175015936));
+  return (moduleId==170983424 or moduleId==173268992 or moduleId==174301184 or moduleId==175015936);
 }
 
 using namespace SCT_Parameters;
@@ -45,15 +45,8 @@ bool sortById(SCT_Chip* a, SCT_Chip* b) {
 // Constructor
 SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent) :
   AthAlgTool(type,name,parent),
-  m_sctId(nullptr),
-  m_cablingSvc("SCT_CablingSvc",name),
-  m_chips{},
-  m_chipMap{},
-  m_linkActive{},
-  m_chipInReadout{},
-  m_type{SCT_Parameters::BARREL},
-  m_chipsOnLink0{},
-  m_chipsOnLink1{}
+  m_sctId(0),
+  m_cablingSvc("SCT_CablingSvc",name)
 {
   declareInterface<ISCT_ReadoutTool>(this);
 }
@@ -61,10 +54,14 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &nam
 // Initialize
 StatusCode SCT_ReadoutTool::initialize() {
   ATH_MSG_DEBUG("Initialize SCT_ReadoutTool");
+
   // Retrieve cabling
-  ATH_CHECK(m_cablingSvc.retrieve());
+  if (m_cablingSvc.retrieve().isFailure()) return msg(MSG::ERROR) << "Can't get the cabling tool." << endreq, StatusCode::FAILURE;
+
   // Retrieve SCT helper
-  ATH_CHECK(detStore()->retrieve(m_sctId,"SCT_ID")) ;
+  if (detStore()->retrieve(m_sctId,"SCT_ID").isFailure()) 
+    return  msg(MSG::ERROR) << "Unable to retrieve SCT_ID" << endreq, StatusCode::FAILURE;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -76,8 +73,9 @@ StatusCode SCT_ReadoutTool::finalize() {
 
 void SCT_ReadoutTool::setModuleType(Identifier moduleId) {
   // Set module type as per the ModuleType enum
+
   int bec = m_sctId->barrel_ec(moduleId);
-  if (std::abs(bec) == 2) {
+  if (fabs(bec) == 2) {
     m_type = SCT_Parameters::ENDCAP;
   } else if (modified0(moduleId)) {
     m_type = SCT_Parameters::MODIFIED_0;
@@ -96,57 +94,57 @@ void SCT_ReadoutTool::setChipMap(ModuleType type) {
   m_chipMap.reserve(12);
 
   if (type == BARREL) {
-    m_chipMap.emplace_back(Chip1,  Chip2,  None ,  None);    
-    m_chipMap.emplace_back(Chip2,  Chip3,  Chip0,  Chip11);
-    m_chipMap.emplace_back(Chip3,  Chip4,  Chip1,  Chip0);
-    m_chipMap.emplace_back(Chip4,  Chip5,  Chip2,  Chip1);
-    m_chipMap.emplace_back(Chip5,  None ,  Chip3,  Chip2);
-    m_chipMap.emplace_back(None,   Chip7,  Chip4,  Chip3);   
-    m_chipMap.emplace_back(Chip7,  Chip8,  None,   None);
-    m_chipMap.emplace_back(Chip8,  Chip9,  Chip6,  Chip5);
-    m_chipMap.emplace_back(Chip9,  Chip10, Chip7,  Chip6);
-    m_chipMap.emplace_back(Chip10, Chip11, Chip8,  Chip7);
-    m_chipMap.emplace_back(Chip11, None,   Chip9,  Chip8);   
-    m_chipMap.emplace_back(None,   Chip1,  Chip10, Chip9);    
+    m_chipMap.push_back(SCT_PortMap(Chip1,  Chip2,  None ,  None));    
+    m_chipMap.push_back(SCT_PortMap(Chip2,  Chip3,  Chip0,  Chip11));
+    m_chipMap.push_back(SCT_PortMap(Chip3,  Chip4,  Chip1,  Chip0));
+    m_chipMap.push_back(SCT_PortMap(Chip4,  Chip5,  Chip2,  Chip1));
+    m_chipMap.push_back(SCT_PortMap(Chip5,  None ,  Chip3,  Chip2));
+    m_chipMap.push_back(SCT_PortMap(None,   Chip7,  Chip4,  Chip3));   
+    m_chipMap.push_back(SCT_PortMap(Chip7,  Chip8,  None,   None));
+    m_chipMap.push_back(SCT_PortMap(Chip8,  Chip9,  Chip6,  Chip5));
+    m_chipMap.push_back(SCT_PortMap(Chip9,  Chip10, Chip7,  Chip6));
+    m_chipMap.push_back(SCT_PortMap(Chip10, Chip11, Chip8,  Chip7));
+    m_chipMap.push_back(SCT_PortMap(Chip11, None,   Chip9,  Chip8));   
+    m_chipMap.push_back(SCT_PortMap(None,   Chip1,  Chip10, Chip9));    
   } else if (type == MODIFIED_0) {
-    m_chipMap.emplace_back(Chip1,  Chip2,  Chip5,  None);
-    m_chipMap.emplace_back(Chip2,  Chip3,  Chip0,  Chip11);
-    m_chipMap.emplace_back(Chip3,  Chip4,  Chip1,  Chip0);
-    m_chipMap.emplace_back(Chip4,  Chip5,  Chip2,  Chip1);
-    m_chipMap.emplace_back(Chip5,  None,   Chip3,  Chip2);
-    m_chipMap.emplace_back(Chip0,  Chip7,  Chip4,  Chip3);
-    m_chipMap.emplace_back(Chip7,  Chip8,  None,   None);
-    m_chipMap.emplace_back(Chip8,  Chip9,  Chip6,  Chip5);
-    m_chipMap.emplace_back(Chip9,  Chip10, Chip7,  Chip6);
-    m_chipMap.emplace_back(Chip10, Chip11, Chip8,  Chip7);
-    m_chipMap.emplace_back(Chip11, None,   Chip9,  Chip8);
-    m_chipMap.emplace_back(None,   Chip1,  Chip10, Chip9); 
+    m_chipMap.push_back(SCT_PortMap(Chip1,  Chip2,  Chip5,  None));
+    m_chipMap.push_back(SCT_PortMap(Chip2,  Chip3,  Chip0,  Chip11));
+    m_chipMap.push_back(SCT_PortMap(Chip3,  Chip4,  Chip1,  Chip0));
+    m_chipMap.push_back(SCT_PortMap(Chip4,  Chip5,  Chip2,  Chip1));
+    m_chipMap.push_back(SCT_PortMap(Chip5,  None,   Chip3,  Chip2));
+    m_chipMap.push_back(SCT_PortMap(Chip0,  Chip7,  Chip4,  Chip3));
+    m_chipMap.push_back(SCT_PortMap(Chip7,  Chip8,  None,   None));
+    m_chipMap.push_back(SCT_PortMap(Chip8,  Chip9,  Chip6,  Chip5));
+    m_chipMap.push_back(SCT_PortMap(Chip9,  Chip10, Chip7,  Chip6));
+    m_chipMap.push_back(SCT_PortMap(Chip10, Chip11, Chip8,  Chip7));
+    m_chipMap.push_back(SCT_PortMap(Chip11, None,   Chip9,  Chip8));
+    m_chipMap.push_back(SCT_PortMap(None,   Chip1,  Chip10, Chip9)); 
   } else if (type == MODIFIED_1) {  
-    m_chipMap.emplace_back(Chip1,  Chip2,  None,   None);
-    m_chipMap.emplace_back(Chip2,  Chip3,  Chip0,  Chip11);
-    m_chipMap.emplace_back(Chip3,  Chip4,  Chip1,  Chip0);
-    m_chipMap.emplace_back(Chip4,  Chip5,  Chip2,  Chip1);
-    m_chipMap.emplace_back(Chip5,  None ,  Chip3,  Chip2);
-    m_chipMap.emplace_back(None,   Chip7,  Chip4,  Chip3);
-    m_chipMap.emplace_back(Chip7,  Chip8,  Chip11, None);
-    m_chipMap.emplace_back(Chip8,  Chip9,  Chip6,  Chip5);
-    m_chipMap.emplace_back(Chip9,  Chip10, Chip7,  Chip6);
-    m_chipMap.emplace_back(Chip10, Chip11, Chip8,  Chip7);
-    m_chipMap.emplace_back(Chip11, None,   Chip9,  Chip8);
-    m_chipMap.emplace_back(Chip6,  Chip1,  Chip10, Chip9);    
+    m_chipMap.push_back(SCT_PortMap(Chip1,  Chip2,  None,   None));
+    m_chipMap.push_back(SCT_PortMap(Chip2,  Chip3,  Chip0,  Chip11));
+    m_chipMap.push_back(SCT_PortMap(Chip3,  Chip4,  Chip1,  Chip0));
+    m_chipMap.push_back(SCT_PortMap(Chip4,  Chip5,  Chip2,  Chip1));
+    m_chipMap.push_back(SCT_PortMap(Chip5,  None ,  Chip3,  Chip2));
+    m_chipMap.push_back(SCT_PortMap(None,   Chip7,  Chip4,  Chip3));
+    m_chipMap.push_back(SCT_PortMap(Chip7,  Chip8,  Chip11, None));
+    m_chipMap.push_back(SCT_PortMap(Chip8,  Chip9,  Chip6,  Chip5));
+    m_chipMap.push_back(SCT_PortMap(Chip9,  Chip10, Chip7,  Chip6));
+    m_chipMap.push_back(SCT_PortMap(Chip10, Chip11, Chip8,  Chip7));
+    m_chipMap.push_back(SCT_PortMap(Chip11, None,   Chip9,  Chip8));
+    m_chipMap.push_back(SCT_PortMap(Chip6,  Chip1,  Chip10, Chip9));    
   } else if (type == ENDCAP) {
-    m_chipMap.emplace_back(Chip1,  Chip2,  Chip11, None);
-    m_chipMap.emplace_back(Chip2,  Chip3,  Chip0,  Chip11);
-    m_chipMap.emplace_back(Chip3,  Chip4,  Chip1,  Chip0);
-    m_chipMap.emplace_back(Chip4,  Chip5,  Chip2,  Chip1);
-    m_chipMap.emplace_back(Chip5,  None,   Chip3,  Chip2);
-    m_chipMap.emplace_back(Chip6,  Chip7,   Chip4,  Chip3);
-    m_chipMap.emplace_back(Chip7,  Chip8,  Chip5,  None);
-    m_chipMap.emplace_back(Chip8,  Chip9,  Chip6,  Chip5);
-    m_chipMap.emplace_back(Chip9,  Chip10, Chip7,  Chip6);
-    m_chipMap.emplace_back(Chip10, Chip11, Chip8,  Chip7);
-    m_chipMap.emplace_back(Chip11, None,   Chip9,  Chip8);
-    m_chipMap.emplace_back(Chip0,  Chip1,   Chip10, Chip9);   
+    m_chipMap.push_back(SCT_PortMap(Chip1,  Chip2,  Chip11, None));
+    m_chipMap.push_back(SCT_PortMap(Chip2,  Chip3,  Chip0,  Chip11));
+    m_chipMap.push_back(SCT_PortMap(Chip3,  Chip4,  Chip1,  Chip0));
+    m_chipMap.push_back(SCT_PortMap(Chip4,  Chip5,  Chip2,  Chip1));
+    m_chipMap.push_back(SCT_PortMap(Chip5,  None,   Chip3,  Chip2));
+    m_chipMap.push_back(SCT_PortMap(Chip6,  Chip7,   Chip4,  Chip3));
+    m_chipMap.push_back(SCT_PortMap(Chip7,  Chip8,  Chip5,  None));
+    m_chipMap.push_back(SCT_PortMap(Chip8,  Chip9,  Chip6,  Chip5));
+    m_chipMap.push_back(SCT_PortMap(Chip9,  Chip10, Chip7,  Chip6));
+    m_chipMap.push_back(SCT_PortMap(Chip10, Chip11, Chip8,  Chip7));
+    m_chipMap.push_back(SCT_PortMap(Chip11, None,   Chip9,  Chip8));
+    m_chipMap.push_back(SCT_PortMap(Chip0,  Chip1,   Chip10, Chip9));   
   }
 }
 
@@ -164,11 +162,14 @@ StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, st
 
 StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) {
   // Determine which chips are in the module readout from Identifier
+
+
   ATH_MSG_DEBUG("Determining Readout for module ID = " << moduleId );
+
 
   // Make sure there are 12 chips
   if (chips.size() != 12) {
-    ATH_MSG_DEBUG ( "Readout must contain exactly 12 chips" );
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Readout must contain exactly 12 chips" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -180,7 +181,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::ve
   m_linkActive[0] = link0ok;
   m_linkActive[1] = link1ok;
 
-  // Determine module type (as per ModuleType enum) and set mapping
+  // Detemine module type (as per ModuleType enum) and set mapping
   setModuleType(moduleId);
   setChipMap(m_type);
 
@@ -212,16 +213,16 @@ void SCT_ReadoutTool::checkLink(int link) {
   bool linkSane = followReadoutUpstream(link, startChip);
 
   if (!linkSane) { 
-    std::vector<int>& chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
+    std::vector<int>& m_chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
 
     // Remove chips in that link from the readout
-    std::vector<int>::const_iterator linkItr(chipsOnThisLink.begin());
-    std::vector<int>::const_iterator linkEnd(chipsOnThisLink.end());
+    std::vector<int>::const_iterator linkItr(m_chipsOnThisLink.begin());
+    std::vector<int>::const_iterator linkEnd(m_chipsOnThisLink.end());
     
     for (; linkItr != linkEnd; ++linkItr) setChipOut(*m_chips.at(*linkItr));
 
     // We do not have ERROR/FAILURE if the readout is not sane as it possibly only affects one of the SCT modules
-    ATH_MSG_WARNING( "Readout for link " << link << " not sane" );    
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Readout for link " << link << " not sane" << endreq;    
   }
 }
 
@@ -238,7 +239,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (inChipId == None) {
 #ifndef NDEBUG
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is not an end but port " << chip.inPort() 
-				    << " is not mapped to anything" << endmsg;
+				    << " is not mapped to anything" << endreq;
 #endif
     return false;
   }
@@ -248,7 +249,7 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   if (m_chips.at(inChipId)->outPort() != chip.inPort()) {
     
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip" << chip.id() << " is not an end and is listening on Port " 
-				    << chip.inPort() << " but nothing is talking to it" << endmsg;
+				    << chip.inPort() << " but nothing is talking to it" << endreq;
     return false;
   }
   return true;
@@ -267,7 +268,7 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   
   for (; chipItr != chipEnd; ++chipItr) {
     if (outputChip(*(*chipItr)) == chip.id()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is configured as end but something is trying to talk to it" << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is configured as end but something is trying to talk to it" << endreq;
       return true;
     }
   }
@@ -277,11 +278,17 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
 void SCT_ReadoutTool::maskChipsNotInReadout() {
   // Mask chip (is set mask to 0 0 0 0) if not in readout
   // If the readout of a particular link is not sane mask all chips on that link
-  for (const auto & thisChip:m_chips) {
-    if(!isChipReadOut(*thisChip)) {
-      ATH_MSG_DEBUG( "Masking chip " <<  thisChip->id() );
+
+  std::vector<SCT_Chip*>::iterator chipItr(m_chips.begin());
+  std::vector<SCT_Chip*>::iterator chipEnd(m_chips.end());
+  
+  for (; chipItr != chipEnd; ++chipItr) {
+    if(!isChipReadOut(*(*chipItr))) {
+
+      ATH_MSG_INFO( "Masking chip " <<  (*chipItr)->id() );
+
       uint32_t masked = 0;
-      thisChip->initializeMaskFromInts(masked, masked, masked, masked);
+      (*chipItr)->initializeMaskFromInts(masked, masked, masked, masked);
     }
   }
 }
@@ -289,6 +296,7 @@ void SCT_ReadoutTool::maskChipsNotInReadout() {
 bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int remainingDepth) {
   // Follow the readout upstream (to input side).  Will return true if the readout is sane
   // The "error" cases are only warnings since they possibly only affect one module of the SCT
+
   // Have we gone though all 12 chips -> infinite loop
   if (remainingDepth < 0) {    
     ATH_MSG_WARNING( "Infinite loop detected in readout" );
@@ -312,7 +320,9 @@ bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 #ifndef NDEBUG
       ATH_MSG_DEBUG( "MasterChip" );
 #endif
+
       // Chip will be set in readout below
+      
     } else if (chip.id() == link*6) {      
       // Link is active but the master position for THAT link does not contain a master 
       // This can happen if everything is readout via other link, therefore the readout is still sane.
@@ -361,13 +371,13 @@ bool SCT_ReadoutTool::isLinkStandard(int link){
   // First, the link must be active
   if (!m_linkActive[link]) return false;
 
-  std::vector<int>& chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
+  std::vector<int>& m_chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
 
-  // Then it must have six chips being readout ...
-  if (chipsOnThisLink.size() != 6) return false;
+  // Then it must have six ships being readout ...
+  if (m_chipsOnThisLink.size() != 6) return false;
 
-  std::vector<int>::const_iterator linkItr(chipsOnThisLink.begin());
-  std::vector<int>::const_iterator linkEnd(chipsOnThisLink.end());
+  std::vector<int>::const_iterator linkItr(m_chipsOnThisLink.begin());
+  std::vector<int>::const_iterator linkEnd(m_chipsOnThisLink.end());
   
   // ... in the correct order
   for (int ichip(link*6); linkItr != linkEnd; ++linkItr, ++ichip) {
@@ -408,5 +418,5 @@ void SCT_ReadoutTool::printStatus(const Identifier& moduleId) {
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endmsg; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endreq; 
 }

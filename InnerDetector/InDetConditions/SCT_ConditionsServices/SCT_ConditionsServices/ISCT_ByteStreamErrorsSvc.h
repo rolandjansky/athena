@@ -43,17 +43,6 @@ namespace SCT_ByteStreamErrors {
     RODClockError,
     TruncatedROD,
     ROBFragmentError,
-    MissingLinkHeaderError,
-    MaskedROD,
-    ABCDError_Chip0,
-    ABCDError_Chip1,
-    ABCDError_Chip2,
-    ABCDError_Chip3,
-    ABCDError_Chip4,
-    ABCDError_Chip5,
-    ABCDError_Error1,
-    ABCDError_Error2,
-    ABCDError_Error4,
     NUM_ERROR_TYPES  // always have this one last, so we can use it as a loop index
   };
 }
@@ -83,7 +72,7 @@ public:
 
   virtual bool isRODSimulatedData()=0;
 
-  virtual void addError(IdentifierHash id, int errorType)=0;
+  virtual void addError(IdentifierHash& id, int errorType)=0;
   virtual void addErrorCount(int errorType)=0;
 
   virtual void resetSets()=0;
@@ -97,9 +86,6 @@ public:
   virtual void setCondensedReadout(bool isCondensed) = 0;
 
   virtual bool HVisOn() = 0;
-
-  virtual void setDecodedROD(const boost::uint32_t rodId) = 0;
-  virtual std::vector<boost::uint32_t> getRODOuts() const = 0;
 
 private:
 

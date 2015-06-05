@@ -13,13 +13,10 @@
 
 // STL includes
 #include <string>
-
-// These are in the base class header
-//#include <set>
-//#include <list>
-//#include <map>
-//this is in map
-//#include <utility>
+#include <set>
+#include <list>
+#include <map>
+#include <utility>
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -97,17 +94,17 @@ public:
   /**List of bad strips*/
   virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false); //  { return m_badChannelIds; }
   /**List of bad strips for a given module*/
-  virtual void                          badStrips(const Identifier & moduleId , std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false);
+  virtual void                          badStrips(Identifier moduleId, std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false);
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier & moduleId);                        
+  virtual std::pair<bool, bool>         badLinks(Identifier moduleId);                        
   /**Bad links for a given module*/
   virtual std::map<Identifier, std::pair<bool, bool> >* badLinks() {return m_badLinks;}
   /**List of bad chips*/
   virtual std::map<Identifier, unsigned int>*           badChips() {return m_badChips;}
   /**Bad chips for a given module*/
-  virtual unsigned int                  badChips(const Identifier & moduleId);
+  virtual unsigned int                  badChips(Identifier moduleId);
   /** Get the chip number containing a particular strip*/
-  int                                   getChip(const Identifier & stripId);
+  int                                   getChip(Identifier stripId);
 
 private:
   std::set<Identifier>*                 m_badChannelIds;                 //!< Set of bad strip identifiers (not those in bad strips)
@@ -143,7 +140,8 @@ private:
   bool                                  isStripInBadModule(const Identifier& stripId);
   /** Is a wafer in a bad module*/
   bool                                  isWaferInBadModule(const Identifier& waferId);
-  
+  /** Truncate a module serial nmuber*/
+  int                                   truncateSerialNumber(long long serialNumber);
   ///** Get the chip number containing a particular strip*/
   //int                                   getChip(Identifier stripId);
 

@@ -46,6 +46,7 @@
 #include <sstream>
 #include <iostream>
 #include <istream>
+#include <boost/lexical_cast.hpp>
 
 using std::string;
 using SCT_ConditionsServices::castId;
@@ -131,13 +132,13 @@ SCT_MonitorConditionsSvc::~SCT_MonitorConditionsSvc()
 
 StatusCode SCT_MonitorConditionsSvc::initialize(){
   if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
-    msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endmsg;
+    msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endreq;
     return StatusCode::FAILURE;
   }
 
   // Retrieve IOVDb service
   if (m_IOVDbSvc.retrieve().isFailure())
-    return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endmsg, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to retrieve IOVDbSvc " << endreq, StatusCode::FAILURE;
 
   // ------------------------------------------------------------
   // The following is requried for writing out something to COOL
@@ -151,24 +152,24 @@ StatusCode SCT_MonitorConditionsSvc::initialize(){
   if (m_writeCondObjs) {
     IToolSvc* toolSvc = 0;// Pointer to Tool Service
     StatusCode sc = service("ToolSvc", toolSvc);
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endmsg, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endreq, StatusCode::FAILURE;
     //different versions have different names for the tool?
     const std::string outputToolName=(m_version==0)?("AthenaOutputStreamTool"):("AthenaPoolOutputStreamTool");
     sc = toolSvc->retrieveTool(outputToolName,m_streamName, m_streamer);
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find "<<outputToolName << endmsg, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find "<<outputToolName << endreq, StatusCode::FAILURE;
   }
     
   // Get the IOVRegistrationSvc when needed
   if (m_regIOV) {
     StatusCode sc = service("IOVRegistrationSvc", m_regSvc);
     if (sc.isFailure()){
-       msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endmsg;
+       msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endreq;
        return StatusCode::FAILURE;
     }  
   }
   
   if (m_detStore->regFcn(&SCT_MonitorConditionsSvc::getAttrListCollection, this, m_DefectData, s_defectFolderName).isFailure())
-    return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
+    return msg(MSG:: ERROR)<< "Failed to register callback" << endreq, StatusCode::FAILURE;
   // This should not be here and causes a SG WARNING (CBG)
   //  m_IOVDbSvc->dropObject(s_defectFolderName,false);
   
@@ -271,36 +272,37 @@ SCT_MonitorConditionsSvc::addDefect(const string& defectlist,const int defectBeg
     return createDefectString(defectBeginChannel,defectEndChannel);
   }
   // adding another Defect in DefectList
-  std::string defect= defectlist + " " +std::to_string( defectBeginChannel);
+  std::ostringstream defect;
+  defect << defectlist << " " << defectBeginChannel;
   if (defectBeginChannel==defectEndChannel){
-     defect+= " ";
+     defect << " ";
   } else {
-    defect+= "-" +std::to_string( defectEndChannel) + " ";
+    defect << "-" << defectEndChannel << " ";
   }
-  return defect;
+  return defect.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 std::string
 SCT_MonitorConditionsSvc::createDefectString(const int defectBeginChannel,const int defectEndChannel) const{
-  std::string defect(" ");
-  defect += std::to_string(defectBeginChannel);
+  std::ostringstream defect;
+  defect << " " << defectBeginChannel;
   if (defectBeginChannel!=defectEndChannel) {
-    defect += "-" + std::to_string(defectEndChannel);
+    defect << "-" << defectEndChannel;
   }
-  defect += " ";
-  return defect;
+  defect << " ";
+  return defect.str();
 }
 StatusCode 
 SCT_MonitorConditionsSvc::setBasicListValues(coral::AttributeList & attrList0,
     const Identifier & module_id,
-    const SCT_ID* sctId,
+    const SCT_ID* m_sctId,
     const int samplesize,
     const bool camelCasedBec) const{
-  const int eta = sctId->eta_module(module_id);
-  const int phi = sctId->phi_module(module_id);
-  const int barrel_ec = sctId->barrel_ec(module_id);
-  const int layer = sctId->layer_disk(module_id);
+  const int eta = m_sctId->eta_module(module_id);
+  const int phi = m_sctId->phi_module(module_id);
+  const int barrel_ec = m_sctId->barrel_ec(module_id);
+  const int layer = m_sctId->layer_disk(module_id);
   const std::string becString=(camelCasedBec)?("BarrelEndcap"):("barrel_endcap");
   //coral::AttributeList & attrList0(*pattrList);
   attrList0["SampleSize"].setValue(static_cast<int>(samplesize));
@@ -315,7 +317,7 @@ SCT_MonitorConditionsSvc::setBasicListValues(coral::AttributeList & attrList0,
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_id,
-                   const SCT_ID* sctId,
+                   const SCT_ID* m_sctId,
                    const int samplesize,
                    const std::string & defectType,
                    const float threshold,
@@ -328,11 +330,11 @@ StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_
   attrSpec->extend("Threshold","float");
   attrSpec->extend("DefectList","string");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg, StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq, StatusCode::FAILURE;
 
   // Add attr list values
   coral::AttributeList  attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
   attrList0["Threshold"].setValue(static_cast<float>(threshold));
   attrList0["DefectList"].setValue(static_cast<std::string>(defectList));
@@ -346,18 +348,18 @@ StatusCode SCT_MonitorConditionsSvc::createCondObjects(const Identifier& module_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,const SCT_ID* sctId,const int samplesize, const float eff) const {
+StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,const SCT_ID* m_sctId,const int samplesize, const float eff) const {
   if(!m_writeCondObjs) {return StatusCode::SUCCESS;}
 
   const bool camelCasedBec=false;
   coral::AttributeListSpecification* attrSpec =basicAttrList(camelCasedBec);
   attrSpec->extend("Efficiency", "float");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg,StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq,StatusCode::FAILURE;
 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["Efficiency"].setValue(static_cast<float>(eff));
   
   std::ostringstream attrStr2;
@@ -369,17 +371,17 @@ StatusCode SCT_MonitorConditionsSvc::createListEff(const Identifier& module_id,c
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCT_MonitorConditionsSvc::createListNO(const Identifier& module_id,const SCT_ID* sctId,const int samplesize,const float noise_occ) const {
+StatusCode SCT_MonitorConditionsSvc::createListNO(const Identifier& module_id,const SCT_ID* m_sctId,const int samplesize,const float noise_occ) const {
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   const bool camelCasedBec=false;
   coral::AttributeListSpecification* attrSpec =basicAttrList(camelCasedBec);
   attrSpec->extend("NoiseOccupancy", "float");
  
-  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endmsg,StatusCode::FAILURE;
+  if (!attrSpec->size()) return msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq,StatusCode::FAILURE;
 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  if (setBasicListValues(attrList0,module_id,sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
+  if (setBasicListValues(attrList0,module_id,m_sctId,samplesize,camelCasedBec).isFailure()) return StatusCode::FAILURE;
   attrList0["NoiseOccupancy"].setValue(static_cast<float>(noise_occ));
   
   std::ostringstream attrStr2;
@@ -397,7 +399,7 @@ SCT_MonitorConditionsSvc::getList(const Identifier& imodule) const{
   //static const unsigned int defectlistIndex(7); //slightly faster, but less transparent than using the string name
   //to be completely robust, could use iter->index("DefectList") below (before the loop)
   if (not m_attrListCollection) {
-    msg(MSG::ERROR) << "In getList - no attrListCollection" << endmsg;
+    msg(MSG::ERROR) << "In getList - no attrListCollection" << endreq;
     return errorstring;
   }
   m_currentDefectList = "";
@@ -419,7 +421,7 @@ SCT_MonitorConditionsSvc::getAttrListCollectionByFolder(const string& foldername
     if (m_attrListCollectionMap.count(foldername) == 0) {
         StatusCode sc = m_detStore->retrieve(attrListCollection, foldername);
         if (sc.isFailure()) {
-            msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endmsg;
+            msg(MSG:: ERROR)<< "Could not retrieve " << foldername << endreq;
             return 0;
         }
         m_attrListCollectionMap.insert(make_pair(foldername, attrListCollection));
@@ -440,7 +442,7 @@ SCT_MonitorConditionsSvc::getAttrListCollection(int& /*i*/ , std::list<std::stri
 
   StatusCode sc = m_detStore->retrieve(m_attrListCollection, s_defectFolderName);
   if (sc.isFailure()) {
-    msg(MSG:: ERROR)<< "Could not retrieve " << s_defectFolderName << endmsg;
+    msg(MSG:: ERROR)<< "Could not retrieve " << s_defectFolderName << endreq;
     // Using COOL, is failure
     return StatusCode::FAILURE;
   }
@@ -480,7 +482,7 @@ SCT_MonitorConditionsSvc::getDeadThingList(const Identifier & imodule, const boo
         try {m_currentDefectList = (*iter).second[defectlistString].data<std::string>();}
         catch (const std::exception& e) {
           // Do Nothing
-        // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getDeadStripList catch : " << e.what()<< endmsg;
+        // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getDeadStripList catch : " << e.what()<< endreq;
         }
       }
       return m_currentDefectList;
@@ -576,11 +578,11 @@ bool SCT_MonitorConditionsSvc::inRange(const int theNumber, const std::string & 
   std::string::size_type p = stringRange.find(s_separator);
   if (p != std::string::npos) { //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min = std::stoi(stringRange.substr(0,len1));
-    int max = std::stoi(stringRange.substr(p,len2));
+    int min = boost::lexical_cast<int>(stringRange.substr(0,len1));
+    int max = boost::lexical_cast<int>(stringRange.substr(p,len2));
     return inRange(theNumber, min, max);
   } else { //assume its a single number
-    return std::stoi(stringRange) == theNumber;
+    return boost::lexical_cast<int>(stringRange) == theNumber;
   }
 }
 
@@ -611,12 +613,12 @@ SCT_MonitorConditionsSvc::nBlock(const int theNumber, const std::string& stringR
   std::string::size_type p=stringRange.find(s_separator);
   if (p!=std::string::npos){ //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min=std::stoi(stringRange.substr(0,len1));
-    int max=std::stoi(stringRange.substr(p,len2));
+    int min=boost::lexical_cast<int>(stringRange.substr(0,len1));
+    int max=boost::lexical_cast<int>(stringRange.substr(p,len2));
     if ( inRange(theNumber, min, max) )
       ndefect = max-min+one;
   } else { //assume its a single number
-    if ( std::stoi(stringRange) == theNumber )
+    if ( boost::lexical_cast<int>(stringRange) == theNumber )
       ndefect = 0;
   }
   return ndefect;
@@ -646,8 +648,8 @@ SCT_MonitorConditionsSvc::nBlock(const std::string& stringRange) const{
   std::string::size_type p = stringRange.find(s_separator);
   if (p != std::string::npos){ //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min=std::stoi(stringRange.substr(0,len1));
-    int max=std::stoi(stringRange.substr(p,len2));
+    int min=boost::lexical_cast<int>(stringRange.substr(0,len1));
+    int max=boost::lexical_cast<int>(stringRange.substr(p,len2));
     ndefect = max-min+one;
   } else { //assume its a single number
     ndefect = one;
@@ -678,7 +680,10 @@ SCT_MonitorConditionsSvc::inRange(const int x, const int min, const int max) con
 }
 // ===========================================================================
 
-
+int 
+SCT_MonitorConditionsSvc::stringToInt(const std::string& s) const {
+    return atoi(s.c_str());  
+}
 
 
 
@@ -688,16 +693,16 @@ StatusCode SCT_MonitorConditionsSvc::genericWrapUp(const CondAttrListCollection*
   if (m_writeCondObjs) {
     sc = m_detStore->record(theCollection,theFolderName);
     m_defectRecorded = true;
-    if (sc.isFailure()) return msg(MSG:: ERROR) << "Could not record "<<theFolderName << endmsg, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) << "Could not record "<<theFolderName << endreq, StatusCode::FAILURE;
  
     // Stream out and register objects here
     sc = streamOutCondObjects(theFolderName);
-    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not stream out "<<theFolderName <<endmsg, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not stream out "<<theFolderName <<endreq, StatusCode::FAILURE;
   }
 
   if (m_regIOV) {
     sc = registerCondObjects(theFolderName, theTag);
-    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not register "<<theFolderName <<endmsg, StatusCode::FAILURE;
+    if (sc.isFailure()) return msg(MSG:: ERROR) <<"Could not register "<<theFolderName <<endreq, StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
   
@@ -746,7 +751,7 @@ StatusCode
 SCT_MonitorConditionsSvc::streamOutCondObjects(const std::string& foldername) const{
   StatusCode sc = m_streamer->connectOutput();
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endmsg;
+    msg(MSG:: ERROR) <<"Could not connect stream to output" <<endreq;
     return( StatusCode::FAILURE);
   }
     
@@ -758,12 +763,12 @@ SCT_MonitorConditionsSvc::streamOutCondObjects(const std::string& foldername) co
     
   sc = m_streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endmsg;
+    msg(MSG:: ERROR) << "Could not stream out AttributeLists" << endreq;
     return StatusCode::FAILURE;
   }
   sc = m_streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG:: ERROR) << "Could not commit output stream" << endmsg;
+    msg(MSG:: ERROR) << "Could not commit output stream" << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -786,12 +791,12 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
         StoreGateSvc* pStoreGate;
         sc = service("StoreGateSvc",pStoreGate);
         if (sc.isFailure()) {
-          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
+          msg(MSG:: FATAL) << "StoreGate service not found !" << endreq;
           return StatusCode::FAILURE;
         }
         sc = pStoreGate->retrieve(m_evt);
         if (sc.isFailure()) {
-          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
+          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endreq;
           return sc;
         }
         beginRun = m_evt->event_ID()->run_number();
@@ -808,7 +813,7 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
         sc = m_regSvc->registerIOV("CondAttrListCollection",foldername,"",beginRun, endRun,beginLB, endLB);
       }
       if (sc.isFailure()) {
-        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endmsg;
+        msg(MSG:: ERROR) <<"Could not register in IOV DB for CondAttrListCollection" << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -859,7 +864,7 @@ SCT_MonitorConditionsSvc::no_module(const Identifier& id) const{
 //////////////////////////////////////////////////////////////////////////////
 
 std::string 
-SCT_MonitorConditionsSvc::badStripsAsString(const Identifier & moduleId) {
+SCT_MonitorConditionsSvc::badStripsAsString(Identifier moduleId) {
    return getList(moduleId);
 }
 
@@ -876,7 +881,7 @@ SCT_MonitorConditionsSvc::badStrips(std::set<Identifier>& strips) {
 }
 
 void 
-SCT_MonitorConditionsSvc::badStrips(const Identifier & moduleId, std::set<Identifier>& strips) {
+SCT_MonitorConditionsSvc::badStrips(Identifier moduleId, std::set<Identifier>& strips) {
   // Set of bad strip Identifers for a given module
   // Get defect string and check it is sensible, i.e. non-empty and contains numbers
   std::string defectStr = getList(moduleId);
@@ -898,7 +903,7 @@ SCT_MonitorConditionsSvc::badStrips(const Identifier & moduleId, std::set<Identi
                m_pHelper->phi_module(moduleId), m_pHelper->eta_module(moduleId),
                side, stripNum);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad Strip: Strip number in DB = " << *defectItr<< ", side/offline strip number = " << side << "/" << stripNum<< ", Identifier = " << stripId << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad Strip: Strip number in DB = " << *defectItr<< ", side/offline strip number = " << side << "/" << stripNum<< ", Identifier = " << stripId << endreq;
 
     strips.insert(stripId);
   }
@@ -926,22 +931,22 @@ void SCT_MonitorConditionsSvc::expandRange(const std::string& rangeStr, std::set
   if (sepPos != std::string::npos) { 
     // Extract min and max
     std::string::size_type len1(sepPos++), len2(rangeStr.size()-sepPos);
-    int min = std::stoi(rangeStr.substr(0,len1));
-    int max = std::stoi(rangeStr.substr(sepPos,len2));
+    int min = boost::lexical_cast<int>(rangeStr.substr(0,len1));
+    int max = boost::lexical_cast<int>(rangeStr.substr(sepPos,len2));
     // Add all strips in range to list
     while (min != (max+1)) rangeList.insert(min++);
   } else { 
     // Assume single number
-    rangeList.insert(std::stoi(rangeStr));
+    rangeList.insert(boost::lexical_cast<int>(rangeStr));
   }  
 }
 
 //////////////////////////////////////////////////////////////////////////////
-std::string SCT_MonitorConditionsSvc::deadStripsAsString(const Identifier & moduleId) {
+std::string SCT_MonitorConditionsSvc::deadStripsAsString(Identifier moduleId) {
   return getDeadStripList(moduleId);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-std::string SCT_MonitorConditionsSvc::deadChipsAsString(const Identifier & moduleId) {
+std::string SCT_MonitorConditionsSvc::deadChipsAsString(Identifier moduleId) {
   return getDeadChipList(moduleId);
 }

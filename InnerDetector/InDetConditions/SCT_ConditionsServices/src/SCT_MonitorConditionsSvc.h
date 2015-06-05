@@ -88,14 +88,14 @@ public:
   virtual void badStrips(std::set<Identifier>& strips);
   
   /// List of bad strip Identifiers for a given module
-  virtual void badStrips(const Identifier & moduleId, std::set<Identifier>& strips);
+  virtual void badStrips(Identifier moduleId, std::set<Identifier>& strips);
 
   /// String of bad strip numbers for a given module
-  virtual std::string badStripsAsString(const Identifier & moduleId);
+  virtual std::string badStripsAsString(Identifier moduleId);
 
   /// String of dead strip/chip numbers for a given module
-  virtual std::string deadStripsAsString(const Identifier & moduleId);
-  virtual std::string deadChipsAsString(const Identifier & moduleId);
+  virtual std::string deadStripsAsString(Identifier moduleId);
+  virtual std::string deadChipsAsString(Identifier moduleId);
 
   // ------------------------------------------------------------------------------------
   // local stuff 
@@ -115,7 +115,7 @@ private:
     const int defectEndChannel) const;
 
   StatusCode createCondObjects( const Identifier& wafer_id,
-    const SCT_ID* sctId,
+    const SCT_ID* m_sctId,
     const int samplesize,
     const std::string& defectType,
     const float threshold,
@@ -123,17 +123,17 @@ private:
     
   StatusCode setBasicListValues(coral::AttributeList & attrList,
     const Identifier & module_id,
-    const SCT_ID* sctId,
+    const SCT_ID* m_sctId,
     const int samplesize,
     const bool camelCasedBec) const;
 
   StatusCode createListEff( const Identifier& wafer_id,
-    const SCT_ID* sctId,
+    const SCT_ID* m_sctId,
     const int samplesize,
     const float eff ) const;
 
   StatusCode createListNO( const Identifier& wafer_id,
-    const SCT_ID* sctId,
+    const SCT_ID* m_sctId,
     const int samplesize,
     const float noise_occ ) const;
 
@@ -176,6 +176,8 @@ private:
   void expandRange(const std::string& rangeStr, std::set<int>& rangeList);
   
   void expandList(const std::string& defectStr, std::set<int>& defectList);
+
+  int stringToInt(const std::string& s) const;
 
   StatusCode printCondObjects(const std::string & foldername) const;
 

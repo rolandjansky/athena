@@ -42,7 +42,7 @@ class StatusCode;
  * @class SCT_ModuleVetoSvc
  * Service allowing one to manually get Vdep, crystal orientation and Mfr for a sensor(s)
 **/
-class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, virtual public AthService{
+class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, public AthService{
   friend class SvcFactory<SCT_SensorsSvc>;
 public:
 
@@ -56,10 +56,6 @@ public:
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   virtual void getSensorsData(std::vector<std::string> & userVector);
-  //virtual std::string getManufacturer(const IdentifierHash &hashId);
-  virtual std::string getManufacturer(unsigned int i);
-
-
   ///Callback for fill from database
   virtual StatusCode fillSensorsData(int&  i  , std::list<std::string>& keys);
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +65,6 @@ private:
   ServiceHandle<StoreGateSvc> m_detStore;
   const DataHandle<CondAttrListCollection> m_sensorsData;
   std::vector<std::string> m_sensorsValues;
-
-  std::map<CondAttrListCollection::ChanNum, std::string >* m_sensorsManufacturer;
 };
 
 inline const InterfaceID & SCT_SensorsSvc::interfaceID(){
