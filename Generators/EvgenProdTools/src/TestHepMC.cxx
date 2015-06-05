@@ -25,6 +25,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("TauEffThreshold",  m_tau_eff_threshold = 0.1); // fraction 
   declareProperty("EffWarnThreshold", m_eff_warn_threshold=0.99); // fraction
   declareProperty("EffFailThreshold", m_eff_fail_threshold=0.98); // fraction
+  declareProperty("AccuracyMargin",   m_accur_margin=0.); //MeV
 
   declareProperty("THistSvc", m_thistSvc);
 
@@ -437,7 +438,7 @@ StatusCode TestHepMC::execute() {
         totalE  += pmom.e();
         if (pmom.e() < 0) {negEnPart.push_back(pbarcode); ++m_negativeEnergyTachyonicCheckRate;}
         const double aener = fabs(pmom.e());
-        if ( aener < fabs(pmom.px()) || aener < fabs(pmom.py()) || aener < fabs(pmom.pz()) ) {
+        if ( aener+m_accur_margin < fabs(pmom.px()) || aener+m_accur_margin < fabs(pmom.py()) || aener+m_accur_margin < fabs(pmom.pz()) ) {
           tachyons.push_back(pbarcode);
           ++m_negativeEnergyTachyonicCheckRate;
         }
