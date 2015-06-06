@@ -53,6 +53,68 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("BarCodeFromMetadata", m_barcodeFromMetadata);
 }
 
+
+namespace {
+
+  class OriginHelper {
+    /// This helper is here to avoid infinite loop in fromWZ()
+    /// They implement the same selection as CopyTruthJetParticles::fromWZ CopyTruthJetParticles::fromTau
+    /// It's supposed to be a fast cache compatible fix to be used 
+    /// for the mc15 production. See  ATLASRECTS-2121.
+
+  public:
+    OriginHelper() {m_visited.reserve(4);}
+
+    bool fromWZ( const xAOD::TruthParticle* tp ) {
+      m_visited.clear();
+      int res = fromWZ_recc(tp);
+      if(res == -1 ){ 
+        return true;
+      }
+      return bool(res);
+    }
+
+    int fromWZ_recc(const xAOD::TruthParticle* tp ) {
+      // check tp was not already seen to avoid infinite loops
+      for(const xAOD::TruthParticle* p : m_visited) if( p == tp ) return -1;
+      // we've visited tp
+      m_visited.push_back(tp);
+
+      bool foundLoop =false;
+      if (!tp->hasProdVtx()) return 0;
+      for (size_t i=0;i<tp->prodVtx()->nIncomingParticles();++i){
+        if (MC::PID::isHadron( tp->prodVtx()->incomingParticle(i)->pdgId() ) ) return 0;
+        if ( abs( tp->prodVtx()->incomingParticle(i)->pdgId() ) < 9 ) return 1;
+        if ( tp->prodVtx()->incomingParticle(i)->pdgId() == tp->pdgId() ) {
+          int ret= fromWZ_recc( tp->prodVtx()->incomingParticle(i) );        
+          if( ret != -1) return ret;
+          foundLoop = true;
+        }
+      }
+      if ( foundLoop) return 1; // in this case we assume it's a W or Z decay. Is this correct ?
+      return 0;
+    }
+
+
+    bool fromTau( const xAOD::TruthParticle* tp ) {
+      if (!tp->hasProdVtx()) return false;
+      for (size_t i=0;i<tp->prodVtx()->nIncomingParticles();++i){
+        if ( abs( tp->prodVtx()->incomingParticle(i)->pdgId() ) == 15 ) return true;
+        if (MC::PID::isHadron( tp->prodVtx()->incomingParticle(i)->pdgId() ) ||
+            abs( tp->prodVtx()->incomingParticle(i)->pdgId() ) < 9 ) return false;
+        if ( tp->prodVtx()->incomingParticle(i)->pdgId() == tp->pdgId() ) return fromWZ( tp->prodVtx()->incomingParticle(i) );
+      }
+      return false;
+    
+    }
+
+  
+    std::vector<const xAOD::TruthParticle*> m_visited;
+  };
+
+}
+
+
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset) const {
 
   // Check if this thing is a candidate to be in a truth jet
@@ -65,17 +127,22 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   if (!m_includeNu && MC::isNonInteracting(tp->pdgId())) return false;
   if (!m_includeMu && abs(tp->pdgId())==13) return false;
 
-  // Cannot use the truth helper functions; they're written for HepMC
+  OriginHelper ohelp; // now using this helper to avoid infinite loops.
+
   // Last two switches only apply if the thing is a lepton and not a tau
   if (MC::PID::isLepton(tp->pdgId()) && abs(tp->pdgId())!=15 && tp->hasProdVtx()){
-    if (!m_includeWZ && fromWZ( tp )) return false;
-    if (!m_includeTau && fromTau( tp )) return false;
+    if (!m_includeWZ && ohelp.fromWZ( tp )) return false;
+    if (!m_includeTau && ohelp.fromTau( tp )) return false;
   }
 
   if(fabs(tp->eta())>m_maxAbsEta) return false;
   // Made it! 
   return true;
 }
+
+
+
+
 
 bool CopyTruthJetParticles::fromWZ( const xAOD::TruthParticle* tp ) const
 {
@@ -94,7 +161,9 @@ bool CopyTruthJetParticles::fromWZ( const xAOD::TruthParticle* tp ) const
   for (size_t i=0;i<tp->prodVtx()->nIncomingParticles();++i){
     if (MC::PID::isHadron( tp->prodVtx()->incomingParticle(i)->pdgId() ) ) return false;
     if ( abs( tp->prodVtx()->incomingParticle(i)->pdgId() ) < 9 ) return true;
-    if ( tp->prodVtx()->incomingParticle(i)->pdgId() == tp->pdgId() ) return fromWZ( tp->prodVtx()->incomingParticle(i) );
+    if ( tp->prodVtx()->incomingParticle(i)->pdgId() == tp->pdgId() ) {
+      return fromWZ( tp->prodVtx()->incomingParticle(i) );
+    }
   }
   return false;
 }
