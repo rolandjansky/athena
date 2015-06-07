@@ -29,6 +29,9 @@ public:
 		       r.phi(), r.phiMinus(), r.phiPlus(), 
 		       r.zed(), r.zedMinus(), r.zedPlus() )  
   {
+
+    this->m_fullscan =  r.isFullscan();
+    
     if ( r.size()>0 ) { 
       for ( unsigned i=0 ; i<r.size() ; i++ ) { 
 	const IRoiDescriptor* _r = r.at(i);
