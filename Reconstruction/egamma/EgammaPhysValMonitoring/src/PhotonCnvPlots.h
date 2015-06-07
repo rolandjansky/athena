@@ -31,14 +31,13 @@ class PhotonCnvPlots:public PlotBase {
 
       std::string m_sParticleType;
 
-      TH1* m_nParticles;
-      TH1* m_nVtx;
-      TH1* m_convR;
-      TH2* m_convRvsEta;
-      TH2* m_convRvsType;
-      TH1* m_convType;
-      TH1* m_convDeltaEta;
-      TH1* m_convDeltaPhi;
+      TH1* nParticles;
+      TH1* nVtx;
+      TH1* convR;
+      TH2* convRvsEta;
+      TH1* convType;
+      TH1* convDeltaEta;
+      TH1* convDeltaPhi;
 
     private:
       virtual void initializePlots();

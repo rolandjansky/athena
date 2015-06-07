@@ -35,7 +35,7 @@ class PhotonPlots:public PlotBase {
       
       std::string m_sParticleType;
 
-      TH1* m_nParticles;
+      TH1* nParticles;
 
     private:
       virtual void initializePlots();
