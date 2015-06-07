@@ -40,7 +40,12 @@ StatusCode TrigEgammaAnalysisAlg::initialize() {
   for ( unsigned int itool=0; itool<ntool; ++itool ) {
     ATH_MSG_INFO("    " << m_asgtools[itool]->name());
     m_asgtools[itool]->print();
+    sc = m_asgtools[itool]->book();
+    if ( ! sc.isSuccess() ) {
+        ATH_MSG_ERROR("Tool booking failed.");
+    }
   }
+  ATH_MSG_DEBUG("Initialize complete");
   return StatusCode::SUCCESS;
 }
 

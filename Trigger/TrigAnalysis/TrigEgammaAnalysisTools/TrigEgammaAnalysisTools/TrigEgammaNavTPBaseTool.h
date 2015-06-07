@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigEgammaNavZeeTPBaseTool_H
-#define TrigEgammaNavZeeTPBaseTool_H
+#ifndef TrigEgammaNavTPBaseTool_H
+#define TrigEgammaNavTPBaseTool_H
 
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -37,21 +37,20 @@ namespace Trig{
 }
 class IegammaMVATool;
 
-class TrigEgammaNavZeeTPBaseTool
+class TrigEgammaNavTPBaseTool
 : public TrigEgammaAnalysisBaseTool,
     virtual public ITrigEgammaAnalysisBaseTool {
-        ASG_TOOL_CLASS(TrigEgammaNavZeeTPBaseTool, ITrigEgammaAnalysisBaseTool)
+        ASG_TOOL_CLASS(TrigEgammaNavTPBaseTool, ITrigEgammaAnalysisBaseTool)
 
 public:
 
-  TrigEgammaNavZeeTPBaseTool( const std::string& myname );
-  ~TrigEgammaNavZeeTPBaseTool() {};
+  TrigEgammaNavTPBaseTool( const std::string& myname );
+  ~TrigEgammaNavTPBaseTool() {};
 
   StatusCode childInitialize();
+  StatusCode childBook();
   StatusCode childExecute();
   StatusCode childFinalize();
-  template<class T> const T* getFeature(const HLT::TriggerElement* te);
-  template<class T> bool ancestorPassed(const HLT::TriggerElement* te);
 protected:
   /*! things like LAr-error, Tile-error, etc, should come here */
   bool EventWiseSelection(); 
@@ -61,8 +60,10 @@ protected:
   StatusCode executeTandP(const std::string trigItem); 
   /*! Tag Electron selection */
   bool isTagElectron(const xAOD::Electron *el);
+  /*! Rerun offline selection */
+  bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
   /*! Probe selection */
-  bool isGoodProbeElectron(const xAOD::Electron *el,const std::string,const float); 
+  bool isGoodProbeElectron(const xAOD::Electron *el,const std::string,const float,const std::string); 
   /*! Event-wise trigger selection */
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
@@ -73,8 +74,14 @@ protected:
   std::vector<std::pair<const xAOD::Electron*,const HLT::TriggerElement*> > m_probeElectrons;
   /* vector of offline photon probe and matched TE */
   std::vector<std::pair<const xAOD::Photon*,const HLT::TriggerElement*> > m_probePhotons; 
+  /* vector of offline TP pair mass */
+  std::vector<float> m_mee;
+  /*! List of triggers from menu */
+  std::vector<std::string> m_trigInputList;
+ /*! List of trigger categories for MaM */
+  std::vector<std::string> m_categories; 
   /*! List of triggers to study */
-  std::vector<std::string> m_probeTrigList; 
+  std::vector<std::string> m_trigList; 
   /*! To apply MVA calibration -- TBD */
   bool m_applyMVACalib; 
   /*! dR matching between TE and offline probe */
@@ -91,7 +98,7 @@ private:
   // In python order will matter. Should always be tight, medium, loose
   // Order no longer important since using a map
   ///*! Offline isEM Selectors */
-  ToolHandleArray<IAsgElectronIsEMSelector> m_electronPPCutIDTool;
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
 
@@ -125,31 +132,10 @@ private:
   /*! Minimum probe Et */
   float m_probeMinEt;
   /*! Trigger for tag and event wise selection */
-  std::string m_tagTrigItem;
+  std::vector<std::string> m_tagTrigList;
   /*! Apply nearby jet selection */
   bool m_applyJetNearProbeSelection;
   
 };
 
-/** Main feature of the code 
- * templates the TE to get a feature
- * or find the passing TE
- * **********************/
-template<class T>
-const T*
-TrigEgammaNavZeeTPBaseTool::getFeature(const HLT::TriggerElement* te){
-    if ( te == NULL ) return NULL;
-    if ( (m_trigdec->ancestor<T>(te)).te() == NULL )
-        return NULL;
-    return ( (m_trigdec->ancestor<T>(te)).cptr() );
-}
-
-template<class T>
-bool
-TrigEgammaNavZeeTPBaseTool::ancestorPassed(const HLT::TriggerElement* te){
-    if ( te == NULL ) return NULL;
-    if ( (m_trigdec->ancestor<T>(te)).te() == NULL )
-        return false;
-    return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
-}
 #endif

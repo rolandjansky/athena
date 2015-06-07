@@ -9,6 +9,8 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IInterface.h"
+#include "TrigHLTMonitoring/IHLTMonTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 
 #include "TH1.h"
@@ -21,9 +23,12 @@ class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
 public:
 
   virtual StatusCode initialize()=0;
+  virtual StatusCode book()=0;
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
+  virtual void setParent(IHLTMonTool *)=0;
   virtual StatusCode childInitialize(){return StatusCode::SUCCESS;};
+  virtual StatusCode childBook(){return StatusCode::SUCCESS;};
   virtual StatusCode childExecute(){return StatusCode::SUCCESS;};
   virtual StatusCode childFinalize(){return StatusCode::SUCCESS;};
 

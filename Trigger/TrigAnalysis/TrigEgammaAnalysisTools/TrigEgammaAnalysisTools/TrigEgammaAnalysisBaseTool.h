@@ -9,13 +9,17 @@
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigEgammaAnalysisTools/ITrigEgammaMatchingTool.h"
+#include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
+#include "TrigHLTMonitoring/IHLTMonTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
+//class MonGroup;
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
   virtual public ITrigEgammaAnalysisBaseTool {
@@ -27,8 +31,12 @@ public:
   ~TrigEgammaAnalysisBaseTool() {};
 
   StatusCode initialize();
+  StatusCode book();
   StatusCode execute();
   StatusCode finalize();
+  template<class T> const T* getFeature(const HLT::TriggerElement* te);
+  template<class T> bool ancestorPassed(const HLT::TriggerElement* te);
+  void setParent(IHLTMonTool *parent){ m_parent = parent;};
 
   // Should be over-written
   //StatusCode childInitialize()=0;
@@ -47,41 +55,48 @@ public:
   TH1 *hist1(const std::string &histName, const std::string &dir = "");
   TH2 *hist2(const std::string &histName, const std::string &dir = "");
   TTree *tree(const std::string &treeName, const std::string &dir = "");
-
+  void setLabels(TH1* histo, const std::vector<std::string>& labels);
   void getHistsFromPath(const std::vector<std::string> &pattern, const std::vector<std::string> &notpattern, std::map<std::string, TH1 *> &ret);
   std::string getPath(const std::string &histName, const std::string &dir = "");
   virtual void print() const;
+  
+  //void setParent(const IHLTMonTool *);
 
 private:
   std::string m_msg;
+  
 protected:
-
-  //IToolSvc* m_toolSvc;
-  StoreGateSvc * m_storeGate;
-  std::string m_file;
-
-  // Histograms
-  ITHistSvc* m_histsvc;
-
-  // ToolHandles
-  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
-  ToolHandle<ITrigEgammaMatchingTool> m_matchTool;
-  // Infra-structure members
-  std::vector<std::string> m_dir; // maintain directories
-  std::map<std::string, TH1 *> m_hist1; // maintain histograms
-  std::map<std::string, TH2 *> m_hist2; // maintain histograms
-  std::map<std::string, TTree *> m_tree; // maintain trees
-
-  // Book-keeping the current mon group
-  std::string m_currentDir;
+  // Methods
   /*! Simple setter to pick up correct probe PID for given trigger */
   void parseTriggerName(const std::string,const std::string, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Creates static map to return L1 item from trigger name */
   std::string getL1Item(std::string trigger);
-  
+   
   std::string getProbePid(const std::string);// {return m_offProbeTightness;}
-  /*! String for offline container key */
-  std::string m_offElContKey;
+  /*! book common histograms for analysis */
+  void bookAnalysisHistos(const std::string);
+  /*! fill kinematic histograms, et,eta,phi,lumi */
+  void fillHistos(const std::string,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
+  /*! fill matched kinematic histograms, et,eta,phi,lumi */
+  void fillMatchHistos(const std::string,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
+
+
+  void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
+  void fillHLTShowerShapes(const std::string, const xAOD::Egamma *);
+  void fillHLTTracking(const std::string, const xAOD::Electron *);
+  void fillShowerShapes(const std::string, const xAOD::Egamma *);
+  void fillTracking(const std::string, const xAOD::Electron *);
+  void fillEFCalo(const std::string,const xAOD::CaloCluster *);
+  void fillL2Electron(const std::string,const xAOD::TrigElectron *);
+  void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
+ 
+  /*! Inefficiency analysis */
+  void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
+  
+  /*! Finalizes efficiency for kinematic histograms */
+  void finalizeEfficiency(std::string);
+ 
+  float dR(const float, const float, const float, const float);
 
   /*! Helper functions now part of base class */
   float getEta2(const xAOD::Egamma* eg);
@@ -89,21 +104,51 @@ protected:
   float getEtCluster37(const xAOD::Egamma* eg);
   float getDEmaxs1(const xAOD::Egamma *eg);
   float rTRT  (const xAOD::Electron* eg);
-
   float getSigmaD0(const xAOD::Electron *eg);
   float getD0sig(const xAOD::Electron *eg);
   float getEnergyBE0(const xAOD::Egamma *eg);
-
   float getEnergyBE1(const xAOD::Egamma *eg);
   float getEnergyBE2(const xAOD::Egamma *eg);
-
   float getEnergyBE3(const xAOD::Egamma *eg);
-
   float getEaccordion(const xAOD::Egamma *eg);
-
   float getE0Eaccordion(const xAOD::Egamma *eg);
-  /*! Macros for plotting */  
+  
+  //Class Members
+  // Athena services
+  StoreGateSvc * m_storeGate;
+  ITHistSvc* m_histsvc;
+  IHLTMonTool *m_parent;
 
+  // ToolHandles
+  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
+  /*! Offline Lumi tool */
+  //ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
+  /*! Online Lumi tool */
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
+
+  
+  // Infra-structure members
+  std::string m_file;
+  std::set<std::string> m_mongroups; // MonGroups for T0
+  std::vector<std::string> m_dir; // maintain directories
+  std::map<std::string, TH1 *> m_hist1; // maintain histograms
+  std::map<std::string, TH2 *> m_hist2; // maintain histograms
+  std::map<std::string, TTree *> m_tree; // maintain trees
+
+  // Book-keeping the current mon group
+  std::string m_currentDir;
+  /*! String for offline container key */
+  std::string m_offElContKey;
+  /*! String for offline container key */
+  std::string m_offPhContKey;
+  /*! IsEM Labels for histograms */
+  std::vector<std::string> m_labels;
+  // Common data members
+  /*! creates map of category and triggers for each category */
+  //std::map<std::string,std::vector<std::string>> m_mamMap;
+
+  /*! C Macros for plotting */  
 #define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Egamma* eg);
   GETTER(e011)
       GETTER(e132)    
@@ -202,5 +247,27 @@ protected:
       GETTER(deltaPhiRescaled3) 
 #undef GETTER    
 };
+/** Main feature of the code 
+ * templates the TE to get a feature
+ * or find the passing TE
+ * **********************/
+template<class T>
+const T*
+TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te){
+    if ( te == NULL ) return NULL;
+    if ( (m_trigdec->ancestor<T>(te)).te() == NULL )
+        return NULL;
+    return ( (m_trigdec->ancestor<T>(te)).cptr() );
+}
+
+template<class T>
+bool
+TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te){
+    if ( te == NULL ) return NULL;
+    if ( (m_trigdec->ancestor<T>(te)).te() == NULL )
+        return false;
+    return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
+}
+
 
 #endif

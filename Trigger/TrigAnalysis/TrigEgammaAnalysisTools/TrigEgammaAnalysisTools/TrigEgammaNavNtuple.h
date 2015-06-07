@@ -22,6 +22,7 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     ~TrigEgammaNavNtuple() {};
   
     StatusCode childInitialize ();
+    StatusCode childBook();
     StatusCode childExecute();
     StatusCode childFinalize();
  

@@ -9,13 +9,17 @@ using namespace std;
 
 TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgammaNavBaseTool(myname) 
 {
-  declareProperty("DirectoryPath",m_dir="NavNtuple");
+  //declareProperty("DirectoryPath",m_dir="NavNtuple");
   declareProperty("doRinger", m_doRinger=false);
 }
 
 
 StatusCode TrigEgammaNavNtuple::childInitialize(){
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigEgammaNavNtuple::childBook(){
   addDirectory(m_dir);
   for (int i = 0; i < (int) m_trigList.size(); i++) {
     
@@ -165,13 +169,13 @@ StatusCode TrigEgammaNavNtuple::childExecute(){
     TTree *t = tree( trigItem, m_dir);
     conect_branchs(t);
     
-    for(unsigned int i = 0; i != m_electronTriggerElementList.size(); ++i){
+    for(unsigned int i = 0; i != m_objTEList.size(); ++i){
       clear();
-      const xAOD::Electron *el = m_electronTriggerElementList[i].first;
-      const HLT::TriggerElement *feat = m_electronTriggerElementList[i].second;
+      const xAOD::Electron* el =static_cast<const xAOD::Electron*> (m_objTEList[i].first);
+      const HLT::TriggerElement *feat = m_objTEList[i].second;
 
       if(feat == NULL){
-        ATH_MSG_INFO("TriggerElement is NULL");
+        ATH_MSG_WARNING("TriggerElement is NULL");
         continue;
       }
 

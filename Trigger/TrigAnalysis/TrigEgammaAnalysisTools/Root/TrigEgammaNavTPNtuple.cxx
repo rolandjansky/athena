@@ -3,7 +3,7 @@
 */
 
 /**********************************************************************
- * AsgTool: TrigEgammaNavZeeTPNtuple
+ * AsgTool: TrigEgammaNavTPNtuple
  * Authors:
  *      Ryan Mackenzie White <ryan.white@cern.ch>
  *      Denis Damazio <denis.damazio@cern.ch>
@@ -15,24 +15,50 @@
  *     
  **********************************************************************/
 
-#include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPNtuple.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaNavTPNtuple.h"
 
 using namespace std;
 
-TrigEgammaNavZeeTPNtuple::TrigEgammaNavZeeTPNtuple( const std::string& myname ): TrigEgammaNavZeeTPBaseTool(myname) 
+TrigEgammaNavTPNtuple::TrigEgammaNavTPNtuple( const std::string& myname ): TrigEgammaNavTPBaseTool(myname) 
 {
   m_eventCounter = 0;
-  declareProperty("DirectoryPath",m_dir="NavZeeTPNtuple");
+  declareProperty("DirectoryPath",m_dir="NavTPNtuple");
   declareProperty("doRinger",m_doRinger=false);
 }
 
+StatusCode TrigEgammaNavTPNtuple::childInitialize(){
+  return StatusCode::SUCCESS;
+}
+StatusCode TrigEgammaNavTPNtuple::childBook(){
+    ATH_MSG_DEBUG("Now configuring chains for analysis");
+    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
+    for (int j = 0; j < (int) selectElectronChains.size(); j++) {
+        ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
+    }
+    std::vector<std::string> selectPhotonChains  = m_trigdec->getListOfTriggers("HLT_g.*");
 
-StatusCode TrigEgammaNavZeeTPNtuple::childInitialize(){
-
+    for (int i = 0; i < (int) m_trigInputList.size(); i++) {
+        std::string trigname = "HLT_"+m_trigInputList[i];
+        for (int j = 0; j < (int) selectElectronChains.size(); j++) {
+            size_t found = trigname.find(selectElectronChains[j]);
+            if(found != std::string::npos) {
+                m_trigList.push_back(m_trigInputList[i]);
+                break;
+            }
+        }
+        for (int j = 0; j < (int) selectPhotonChains.size(); j++) {
+            std::string trigname = "HLT_"+m_trigInputList[i];
+            size_t found = trigname.find(selectPhotonChains[j]);
+            if(found != std::string::npos) {
+                m_trigList.push_back(m_trigInputList[i]);
+                break;
+            }
+        }
+    }
   addDirectory(m_dir);
-  for (int i = 0; i < (int) m_probeTrigList.size(); i++) {
+  for (int i = 0; i < (int) m_trigList.size(); i++) {
     
-    std::string trigItem = m_probeTrigList[i];
+    std::string trigItem = m_trigList[i];
     TTree *t = new TTree( (trigItem).c_str(), "tree of Zee probes");
     t->Branch("RunNumber",        &m_runNumber);
     t->Branch("EventNumber",      &m_eventNumber);
@@ -126,10 +152,9 @@ StatusCode TrigEgammaNavZeeTPNtuple::childInitialize(){
   }
 
   alloc_space();
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
-
-StatusCode TrigEgammaNavZeeTPNtuple::childExecute(){
+StatusCode TrigEgammaNavTPNtuple::childExecute(){
 
   m_eventCounter++;
   m_eventInfo = 0;
@@ -168,10 +193,10 @@ StatusCode TrigEgammaNavZeeTPNtuple::childExecute(){
 
 
   // Event Wise Selection (independent of the required signatures)
-  if ( !TrigEgammaNavZeeTPBaseTool::EventWiseSelection() ) return StatusCode::SUCCESS;
+  if ( !TrigEgammaNavTPBaseTool::EventWiseSelection() ) return StatusCode::SUCCESS;
 
-  for(unsigned int ilist = 0; ilist != m_probeTrigList.size(); ++ilist) {
-    std::string trigItem = m_probeTrigList.at(ilist);
+  for(unsigned int ilist = 0; ilist != m_trigList.size(); ++ilist) {
+    std::string trigItem = m_trigList.at(ilist);
 
     if ( executeTandP(trigItem).isFailure() )
       return StatusCode::FAILURE;
@@ -182,7 +207,7 @@ StatusCode TrigEgammaNavZeeTPNtuple::childExecute(){
 
     for(unsigned int iprobe = 0; iprobe != m_probeElectrons.size(); ++iprobe){
 
-      ATH_MSG_INFO("dumping probe electron information...");
+      ATH_MSG_DEBUG("dumping probe electron information...");
 
       const xAOD::Electron *el = m_probeElectrons[iprobe].first;
       const HLT::TriggerElement *feat = m_probeElectrons[iprobe].second;
@@ -282,7 +307,7 @@ StatusCode TrigEgammaNavZeeTPNtuple::childExecute(){
         ATH_MSG_WARNING("Could not attach the likelihood information.");
       }
        
-      ATH_MSG_INFO("record probe information into the file.");
+      ATH_MSG_DEBUG("record probe information into the file.");
       t->Fill();
     }// loop over probes
   } // End loop over trigger list
@@ -291,12 +316,12 @@ StatusCode TrigEgammaNavZeeTPNtuple::childExecute(){
 }
 
 
-StatusCode TrigEgammaNavZeeTPNtuple::childFinalize(){
+StatusCode TrigEgammaNavTPNtuple::childFinalize(){
   //release_space();
   return StatusCode::SUCCESS;
 }
 
-bool TrigEgammaNavZeeTPNtuple::attach_monteCarlo(const xAOD::Electron *eg){
+bool TrigEgammaNavTPNtuple::attach_monteCarlo(const xAOD::Electron *eg){
 
   // find MC particle
   if(m_truthContainer){
@@ -341,7 +366,7 @@ bool TrigEgammaNavZeeTPNtuple::attach_monteCarlo(const xAOD::Electron *eg){
 }
 
 
-bool TrigEgammaNavZeeTPNtuple::attach_likelihood( const xAOD::Electron *eg ){
+bool TrigEgammaNavTPNtuple::attach_likelihood( const xAOD::Electron *eg ){
 
   if ( !eg ){
     ATH_MSG_DEBUG ("Failed, no egamma object.");
@@ -388,7 +413,7 @@ bool TrigEgammaNavZeeTPNtuple::attach_likelihood( const xAOD::Electron *eg ){
 }
 
 
-bool TrigEgammaNavZeeTPNtuple::attach_ringer( const HLT::TriggerElement *te ){
+bool TrigEgammaNavTPNtuple::attach_ringer( const HLT::TriggerElement *te ){
   
   const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(te);
   if(!emCluster)  return false;
@@ -409,7 +434,7 @@ bool TrigEgammaNavZeeTPNtuple::attach_ringer( const HLT::TriggerElement *te ){
 
 
 template <class T> 
-void TrigEgammaNavZeeTPNtuple::InitBranch(TTree* fChain, std::string branch_name, T* param, bool message){
+void TrigEgammaNavTPNtuple::InitBranch(TTree* fChain, std::string branch_name, T* param, bool message){
 
   std::string bname = branch_name;
   if (fChain->GetAlias(bname.c_str()))
@@ -424,7 +449,7 @@ void TrigEgammaNavZeeTPNtuple::InitBranch(TTree* fChain, std::string branch_name
 }
 
 
-void TrigEgammaNavZeeTPNtuple::conect_branchs(TTree *t){
+void TrigEgammaNavTPNtuple::conect_branchs(TTree *t){
  
   InitBranch(t, "RunNumber", &m_runNumber );
   InitBranch(t, "EventNumber", &m_eventNumber );
@@ -516,7 +541,7 @@ void TrigEgammaNavZeeTPNtuple::conect_branchs(TTree *t){
  
 }
 
-void TrigEgammaNavZeeTPNtuple::clear(){
+void TrigEgammaNavTPNtuple::clear(){
 
   m_runNumber             =  0; 
   m_eventNumber           =  0; 
@@ -605,7 +630,7 @@ void TrigEgammaNavZeeTPNtuple::clear(){
   m_trig_L2_el_trkClusDphi->clear(); 
 }
 
-void TrigEgammaNavZeeTPNtuple::alloc_space(){
+void TrigEgammaNavTPNtuple::alloc_space(){
 
   m_trig_L1_thrNames       = new std::vector<std::string>();
   m_trig_L2_calo_rings     = new std::vector<float>();
@@ -627,7 +652,7 @@ void TrigEgammaNavZeeTPNtuple::alloc_space(){
  
 }
 
-void TrigEgammaNavZeeTPNtuple::release_space(){
+void TrigEgammaNavTPNtuple::release_space(){
 
 
   delete m_trig_L1_thrNames       ;

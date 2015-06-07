@@ -3,10 +3,10 @@
 */
 
 
-#ifndef TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVZEETPNTUPLE_H
-#define TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVZEETPNTUPLE_H
+#ifndef TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
+#define TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
 
-#include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPBaseTool.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
@@ -14,17 +14,18 @@
 #include "xAODTracking/Vertex.h"
 
 
-class TrigEgammaNavZeeTPNtuple : public TrigEgammaNavZeeTPBaseTool,
+class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
                           virtual public ITrigEgammaAnalysisBaseTool
 {
-  ASG_TOOL_CLASS(TrigEgammaNavZeeTPNtuple, ITrigEgammaAnalysisBaseTool)
+  ASG_TOOL_CLASS(TrigEgammaNavTPNtuple, ITrigEgammaAnalysisBaseTool)
 
   public:
   
-    TrigEgammaNavZeeTPNtuple( const std::string& myname );
-    ~TrigEgammaNavZeeTPNtuple() {};
+    TrigEgammaNavTPNtuple( const std::string& myname );
+    ~TrigEgammaNavTPNtuple() {};
   
     StatusCode childInitialize();
+    StatusCode childBook();
     StatusCode childExecute();
     StatusCode childFinalize();
  
