@@ -49,9 +49,12 @@ TIDARoiParameters::TIDARoiParameters(double eta,  double etaMinus,   double etaP
 				     double zed,  double zedMinus,   double zedPlus ) : 
   m_eta(eta), m_phi(phi), m_zed(zed),
   m_etaMinus(etaMinus), m_etaPlus(etaPlus),
-  m_phiMinus(_phicheck(phiMinus)), m_phiPlus(_phicheck(phiPlus)),
+  //  m_phiMinus(_phicheck(phiMinus)), m_phiPlus(_phicheck(phiPlus)),
+  m_phiMinus(phiMinus), m_phiPlus(phiPlus),
   m_zedMinus(zedMinus), m_zedPlus(zedPlus)
-{  }
+{ 
+  //  std::cout << "TIDAParameters     phi: " << phiMinus << " -> " << m_phiMinus << " : " << phiPlus << " -> " <<  m_phiPlus << std::endl;  
+}
 
 
 TIDARoiParameters::TIDARoiParameters( const TIDARoiParameters& p ) 
@@ -60,7 +63,9 @@ TIDARoiParameters::TIDARoiParameters( const TIDARoiParameters& p )
   m_etaMinus(p.etaMinus()), m_etaPlus(p.etaPlus()),
   m_phiMinus(p.phiMinus()), m_phiPlus(p.phiPlus()),
   m_zedMinus(p.zedMinus()), m_zedPlus(p.zedPlus())
-{  }
+{
+  //  std::cout << "TIDAParameters roi phi: " << p.phiMinus() << " -> " << m_phiMinus << " : " << p.phiPlus() <<  m_phiPlus << std::endl;  
+}
 
 
 TIDARoiParameters::~TIDARoiParameters() { } 
