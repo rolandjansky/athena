@@ -1,6 +1,5 @@
 <lcgdict>
  
-  <class name="LArHitContainer_p1" id="ED1ECB80-B38C-46DE-94BF-22F9379796DB" />
   <class name="LArRawChannel_p1" />
   <class name="LArRawChannelCollection_p1" />
   <class name="std::vector<LArRawChannel_p1>" />
