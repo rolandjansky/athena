@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonG4SD/MicromegasSensitiveDetector.h"
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
+#include "MicromegasSensitiveDetector.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
+#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -14,29 +14,20 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <string>
-#include <iostream>
-#include <limits>
-
-// Initialize static data
-static FADS::SensitiveDetectorEntryT<MicromegasSensitiveDetector> mmsd("MicromegasSensitiveDetector");
-
-
 
 // construction/destruction
-MicromegasSensitiveDetector::MicromegasSensitiveDetector(std::string name)
-  : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
+MicromegasSensitiveDetector::MicromegasSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_GenericMuonHitCollection( hitCollectionName )
 {
-  //	ATH_MSG_INFO(" creating a MicromegasSensitiveDetector: "<<name);
   m_muonHelper = MicromegasHitIdHelper::GetHelper();
   m_muonHelper->PrintFields();
 }
 
-
 // Implemenation of memebr functions
 void MicromegasSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  //m_GenericMuonHitCollection=new GenericMuonSimHitCollection("MicromegasSensitiveDetector");
-  m_GenericMuonHitCollection = m_hitCollHelp.RetrieveNonconstCollection<GenericMuonSimHitCollection>("MicromegasSensitiveDetector");
+  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
 }
 
 G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
@@ -47,7 +38,7 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
 		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
-  //  ATH_MSG_INFO("\t\t MicromegasSD: Hit in a sensitive layer!!!!! ");
+  //  G4cout << "\t\t MicromegasSD: Hit in a sensitive layer!!!!! " << G4endl;
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   G4StepPoint* preStep=aStep->GetPreStepPoint();
@@ -74,11 +65,11 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   
   // int iDepth=touchHist->GetHistoryDepth();
-  //  ATH_MSG_INFO("\t\t\t\t Touchable history dump ");
+  //  G4cout << "\t\t\t\t Touchable history dump " << G4endl;
   int nLayer=touchHist->GetVolume(0)->GetCopyNo();
   std::string chName=touchHist->GetVolume(1)->GetLogicalVolume()->GetName();
   std::string subType=chName.substr(chName.find('-')+1);
-  if (subType[0]!='M') ATH_MSG_INFO(" something is wrong, this is no Micromegas!");
+  if (subType[0]!='M') G4cout << " something is wrong, this is no Micromegas!" << G4endl;
   std::string temp(&subType[1]);
   std::istringstream is(temp);
   int iRing;
@@ -99,36 +90,26 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   if (position.z()<0) iSide=-1;
   
   int mLayer= atoi((subType.substr(3,1)).c_str());
-  if (mLayer != 1 && mLayer !=2) ATH_MSG_INFO(" something is wrong - multilayer index is " << mLayer );
+  if (mLayer != 1 && mLayer !=2) G4cout << " something is wrong - multilayer index is " << mLayer << G4endl;
   
-  //  ATH_MSG_INFO("\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide);
+  //  G4cout << "\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide << G4endl;
   int MmId = m_muonHelper->BuildMicromegasHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
  
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
-  GenericMuonSimHit* aHit=new GenericMuonSimHit(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_GenericMuonHitCollection->Emplace(MmId, globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
-  //    ATH_MSG_INFO("MMs "<<m_muonHelper->GetStationName(MmId)
+  //    G4cout << "MMs "<<m_muonHelper->GetStationName(MmId)
   // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")
   // 	            << " "<<m_muonHelper->GetFieldValue("ZSector")
   // 	            << " "<<m_muonHelper->GetFieldValue("MultiLayer")
   // 	            << " "<<m_muonHelper->GetFieldValue("Layer")
-  // 	            << " "<<m_muonHelper->GetFieldValue("Side"));  	    
+  // 	            << " "<<m_muonHelper->GetFieldValue("Side") << G4endl;  	    
 
-  //ATH_MSG_INFO(m_muonHelper->GetStationName(MmId)<<" "<<aHit->print());
-  //  ATH_MSG_INFO(aHit->print());
-  m_GenericMuonHitCollection->Insert(*aHit);
-  delete aHit;
+  //G4cout << m_muonHelper->GetStationName(MmId)<<" "<<aHit->print() << G4endl;
+  //  G4cout << aHit->print() << G4endl;
 
   return true;
 }
-
-
-void MicromegasSensitiveDetector::EndOfEvent(G4HCofThisEvent* /*HCE*/) 
-{
-  if (!m_allowMods)
-    m_hitCollHelp.SetConstCollection<GenericMuonSimHitCollection>(m_GenericMuonHitCollection);
-} 
-
 

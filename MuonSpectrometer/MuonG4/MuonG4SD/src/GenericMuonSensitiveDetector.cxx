@@ -2,41 +2,33 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonG4SD/GenericMuonSensitiveDetector.h"
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
+#include "GenericMuonSensitiveDetector.h"
 #include "MCTruth/TrackHelper.h"
+#include "CxxUtils/make_unique.h" // For make unique
 
 #include "G4Track.hh"
 
 #include <string>
-#include <iostream>
-#include <limits>
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-// Initialize static data
-static FADS::SensitiveDetectorEntryT<GenericMuonSensitiveDetector> gensd("GenericMuonSensitiveDetector");
-
-
-
 // construction/destruction
-GenericMuonSensitiveDetector::GenericMuonSensitiveDetector(std::string name)
-  : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
+GenericMuonSensitiveDetector::GenericMuonSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_GenericMuonHitCollection( hitCollectionName )
 {
-  ATH_MSG_INFO(" creating a GenericMuonSensitiveDetector: "<<name);
+  G4cout << " creating a GenericMuonSensitiveDetector: "<<name << G4endl;
 }
-
 
 // Implemenation of memebr functions
 void GenericMuonSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  //m_GenericMuonHitCollection=new GenericMuonSimHitCollection("GenericMuonSensitiveDetector");
-  m_GenericMuonHitCollection = m_hitCollHelp.RetrieveNonconstCollection<GenericMuonSimHitCollection>("GenericMuonSensitiveDetector");
+  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
 }
 
 G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
 {
-  ATH_MSG_INFO("\t\t GenericMuonSensitiveDetector: Hit in a sensitive layer!!!!! ");
+  G4cout << "Hit in a sensitive layer!!!!! " << G4endl;
   G4Track* currentTrack = aStep->GetTrack();
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
@@ -62,20 +54,9 @@ G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistor
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
-  GenericMuonSimHit* aHit=new GenericMuonSimHit(0 /* HitID id generic*/,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
-
-  ATH_MSG_INFO(aHit->print());
-  m_GenericMuonHitCollection->Insert(*aHit);
-  delete aHit;
+  //G4cout << aHit->print() << G4endl;
+  m_GenericMuonHitCollection->Emplace( 0 /* HitID id generic*/,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
   return true;
 }
-
-
-void GenericMuonSensitiveDetector::EndOfEvent(G4HCofThisEvent* /*HCE*/) 
-{
-  if(!m_allowMods)
-    m_hitCollHelp.SetConstCollection<GenericMuonSimHitCollection>(m_GenericMuonHitCollection);
-} 
-
 

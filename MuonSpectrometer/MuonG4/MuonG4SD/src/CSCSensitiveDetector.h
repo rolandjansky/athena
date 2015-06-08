@@ -51,34 +51,27 @@ We describe in the following, how each field of the identifier is retrieved.
 #ifndef CSCSENSITIVEDETECTOR_H
 #define CSCSENSITIVEDETECTOR_H
 
-#include "globals.hh"
-
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
+#include "G4VSensitiveDetector.hh"
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/CscHitIdHelper.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
 
-
-
-class CSCSensitiveDetector : public FADS::FadsSensitiveDetector {
+class CSCSensitiveDetector : public G4VSensitiveDetector {
     
 public:
     /** construction/destruction */
-    CSCSensitiveDetector(std::string name);
+    CSCSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
     ~CSCSensitiveDetector() {}
-    
-    
+
     /** member functions */
-    void   Initialize(G4HCofThisEvent* HCE);
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist);
-    void   EndOfEvent(G4HCofThisEvent* HCE); 
+    void   Initialize(G4HCofThisEvent* HCE) override final;
+    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override final;
     
 private:
     /** member data */
-    CSCSimHitCollection*  myCSCHitColl;
+    SG::WriteHandle<CSCSimHitCollection>  myCSCHitColl;
     CscHitIdHelper* muonHelper;
-    AthenaHitsCollectionHelper m_hitCollHelp;
 };
 
 #endif

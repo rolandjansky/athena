@@ -56,28 +56,22 @@ We describe in the following, how each field of the identifier is retrieved.
 #ifndef CSCSensitiveDetectorCosmics_H
 #define CSCSensitiveDetectorCosmics_H
 
-#include "globals.hh"
-
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
+#include "G4VSensitiveDetector.hh"
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/CscHitIdHelper.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
 
-using namespace FADS;
-
-class CSCSensitiveDetectorCosmics : public FadsSensitiveDetector {
+class CSCSensitiveDetectorCosmics : public G4VSensitiveDetector {
     
 public:
     /** construction/destruction */
-    CSCSensitiveDetectorCosmics(std::string name);
+    CSCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);
     ~CSCSensitiveDetectorCosmics() {}
     
-    
     /** member functions */
-    void   Initialize(G4HCofThisEvent* HCE);
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist);
-    void   EndOfEvent(G4HCofThisEvent* HCE); 
+    void   Initialize(G4HCofThisEvent* HCE) override final;
+    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override final;
     
 private:
     Amg::Vector3D mom;           
@@ -88,9 +82,8 @@ private:
     double m_globalTime;
 
     /** member data */
-    CSCSimHitCollection*  myCSCHitColl;
+    SG::WriteHandle<CSCSimHitCollection>  myCSCHitColl;
     CscHitIdHelper* muonHelper;
-    AthenaHitsCollectionHelper m_hitCollHelp;
 };
 
 #endif

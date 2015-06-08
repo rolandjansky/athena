@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @class RPCSensitiveDetector
+/** @class RPCSensitiveDetectorCosmics
 	@author Andrea.DiSimone@cern.ch
 	
 	
-    @section RPCSensitiveDetector Class methods and properties
+    @section RPCSensitiveDetectorCosmics Class methods and properties
 
-The method RPCSensitiveDetector::ProcessHits is executed by the G4 kernel each
+The method RPCSensitiveDetectorCosmics::ProcessHits is executed by the G4 kernel each
 time a particle crosses one of the RPC gas gaps.
 Navigating with the touchableHistory method GetHistoryDepth()
 through the hierarchy of volumes crossed by the particle,
@@ -83,38 +83,38 @@ We describe here how each field of the identifier is determined.
 
 
 
-#ifndef RPCSensitiveDetector_H
-#define RPCSensitiveDetector_H
+#ifndef RPCSensitiveDetectorCosmics_H
+#define RPCSensitiveDetectorCosmics_H
 
-#include "globals.hh"
-
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
+#include "G4VSensitiveDetector.hh"
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
 
-class StoreGateSvc;
-
-class RPCSensitiveDetector : public FADS::FadsSensitiveDetector {
+class RPCSensitiveDetectorCosmics : public G4VSensitiveDetector {
 
 public:
     /** construction/destruction */
-    RPCSensitiveDetector(std::string name);
-    ~RPCSensitiveDetector() {}
+    RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);
+    ~RPCSensitiveDetectorCosmics() {}
 
     /** member functions */
-    void Initialize(G4HCofThisEvent*);
-    G4bool ProcessHits(G4Step*,G4TouchableHistory*);
-    void EndOfEvent(G4HCofThisEvent*); 
+    void Initialize(G4HCofThisEvent*) override final;
+    G4bool ProcessHits(G4Step*,G4TouchableHistory*) override final;
     
 private:
     /** member data */
-    RPCSimHitCollection*  myRPCHitColl;
+    SG::WriteHandle<RPCSimHitCollection>  myRPCHitColl;
     RpcHitIdHelper* muonHelper;
-    AthenaHitsCollectionHelper m_hitCollHelp;
-    StoreGateSvc*        m_sgSvc;
+    double                     m_globalTime;
     bool m_isGeoModel;
+    Amg::Vector3D mom;           
+    double momMag;           
+    Amg::Vector3D vertex; 
+    Amg::Vector3D currVertex;          
+    Amg::Vector3D globH;
+
 };
 
 #endif

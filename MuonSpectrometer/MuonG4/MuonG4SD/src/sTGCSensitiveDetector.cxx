@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonG4SD/sTGCSensitiveDetector.h"
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
+#include "sTGCSensitiveDetector.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
+#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -14,29 +14,20 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <string>
-#include <iostream>
-#include <limits>
-
-// Initialize static data
-static FADS::SensitiveDetectorEntryT<sTGCSensitiveDetector> stgcsd("sTGCSensitiveDetector");
-
-
 
 // construction/destruction
-sTGCSensitiveDetector::sTGCSensitiveDetector(std::string name)
-  : FadsSensitiveDetector(name), m_GenericMuonHitCollection(0)
+sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_GenericMuonHitCollection( hitCollectionName )
 {
-  //	ATH_MSG_INFO(" creating a sTGCSensitiveDetector: "<<name);
   m_muonHelper = sTgcHitIdHelper::GetHelper();
   m_muonHelper->PrintFields();
 }
 
-
 // Implemenation of memebr functions
 void sTGCSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  //m_GenericMuonHitCollection = new GenericMuonSimHitCollection("sTGCSensitiveDetector");
-  m_GenericMuonHitCollection = m_hitCollHelp.RetrieveNonconstCollection<GenericMuonSimHitCollection>("sTGCSensitiveDetector");
+  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
 }
 
 G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
@@ -48,7 +39,7 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
-  //  ATH_MSG_INFO("\t\t sTGCSD: Hit in a sensitive layer!!!!! ");
+  //  G4cout << "\t\t sTGCSD: Hit in a sensitive layer!!!!! " << G4endl;
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
   G4StepPoint* preStep=aStep->GetPreStepPoint();
@@ -75,13 +66,13 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
    
   // int iDepth=touchHist->GetHistoryDepth();
-  //  ATH_MSG_INFO("\t\t\t\t Touchable history dump ");
+  //  G4cout << "\t\t\t\t Touchable history dump "<<G4endl;
   int nLayer=touchHist->GetVolume(0)->GetCopyNo();
   std::string chName=touchHist->GetVolume(1)->GetLogicalVolume()->GetName();
-  //ATH_MSG_INFO("sTGCSensitiveDetector name: "<<chName);
+  //G4cout << "sTGCSensitiveDetector name: "<<chName<<G4endl;
   std::string subType=chName.substr(chName.find('-')+1);
-  //ATH_MSG_INFO("\t\t sType: "<<subType);
-  if (subType[0]!='T'&&subType[0]!='Q' ) ATH_MSG_INFO(" something is wrong, this is no sTGC!");
+  //G4cout << "\t\t sType: "<<subType);
+  if (subType[0]!='T'&&subType[0]!='Q' ) G4cout << " something is wrong, this is no sTGC!"<<G4endl;
   std::string temp(&subType[2]);
   std::istringstream is(temp);
   int iRing;
@@ -113,35 +104,14 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 	else if (subType[3]=='C') mLayer=2;
   }
   
-  if (mLayer != 1 && mLayer !=2) ATH_MSG_INFO(" something is wrong - multilayer index is " << mLayer );
+  if (mLayer != 1 && mLayer !=2) G4cout << " something is wrong - multilayer index is " << mLayer << G4endl;
   
-  //  ATH_MSG_INFO("\t\t Chamber "<<chName<<" subType "<<subType<<" layer nr. "<<nLayer<<" ring "<<iRing<<" sector "<<iPhi<<" side "<<iSide);
   int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide); 
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
-  GenericMuonSimHit* aHit=new GenericMuonSimHit(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
-
-  //    ATH_MSG_INFO("sTGC "<<m_muonHelper->GetStationName(sTgcId)
-  // 	            << " "<<m_muonHelper->GetFieldValue("PhiSector")
-  // 	            << " "<<m_muonHelper->GetFieldValue("ZSector")
-  // 	            << " "<<m_muonHelper->GetFieldValue("MultiLayer")
-  // 	            << " "<<m_muonHelper->GetFieldValue("Layer")
-  // 	            << " "<<m_muonHelper->GetFieldValue("Side"))  	    
-
-  //ATH_MSG_INFO(<m_muonHelper->GetStationName(sTgcId)<<" "<<aHit->print());
-  //  ATH_MSG_INFO(aHit->print());
-  m_GenericMuonHitCollection->Insert(*aHit);
-  delete aHit;
+  m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
 
   return true;
 }
-
-
-void sTGCSensitiveDetector::EndOfEvent(G4HCofThisEvent* /*HCE*/) 
-{
-  if(!m_allowMods)
-    m_hitCollHelp.SetConstCollection(m_GenericMuonHitCollection);
-} 
-
 

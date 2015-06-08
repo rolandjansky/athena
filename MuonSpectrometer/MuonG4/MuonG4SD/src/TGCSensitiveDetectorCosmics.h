@@ -63,43 +63,36 @@ We describe in the following, how each field of the identifier is retrieved.
 #ifndef TGCSensitiveDetectorCosmics_H
 #define TGCSensitiveDetectorCosmics_H
 
-
-#include "globals.hh"
-
-
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
+#include "G4VSensitiveDetector.hh"
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
 
-using namespace FADS;
+class TGCSensitiveDetectorCosmics: public G4VSensitiveDetector {
 
-class TGCSensitiveDetectorCosmics: public FadsSensitiveDetector {
+ public:
+  /** construction/destruction */
+  TGCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);
+  ~TGCSensitiveDetectorCosmics() {}
 
-public:
-    /** construction/destruction */
-    TGCSensitiveDetectorCosmics(std::string name);
-    ~TGCSensitiveDetectorCosmics() {}
-
-    /** member functions */
-    void Initialize(G4HCofThisEvent* HCE);
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROHist);
-    void EndOfEvent(G4HCofThisEvent* HCE); 
+  /** member functions */
+  void Initialize(G4HCofThisEvent* HCE) override final;
+  G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROHist) override final;
     
-private:
-    Amg::Vector3D mom;           
-    double momMag;           
-    Amg::Vector3D vertex; 
-    Amg::Vector3D currVertex;          
-    Amg::Vector3D globH;
-    double m_globalTime;
+ private:
+  Amg::Vector3D mom;           
+  double momMag;           
+  Amg::Vector3D vertex; 
+  Amg::Vector3D currVertex;          
+  Amg::Vector3D globH;
+  double m_globalTime;
 
-    /** member data */
-    TGCSimHitCollection*  myTGCHitColl;
-    TgcHitIdHelper* muonHelper;
-    AthenaHitsCollectionHelper m_hitCollHelp;
-    std::string m_layout;
+  /** member data */
+  enum layout { P03 , Q02 , Unknown };
+  SG::WriteHandle<TGCSimHitCollection>  myTGCHitColl;
+  TgcHitIdHelper* muonHelper;
+  layout m_layout;
 };
 
 #endif
