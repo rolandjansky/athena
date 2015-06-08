@@ -14,7 +14,6 @@ use SGTools              SGTools-*                 Control
 use StoreGate            StoreGate-*               Control
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*        Database/AthenaPOOL
 use CaloDetDescr         CaloDetDescr-*            Calorimeter
-use LArSimEvent          LArSimEvent-*             LArCalorimeter 
 use LArRawEvent          LArRawEvent-*             LArCalorimeter 
 use LArTPCnv             LArTPCnv-*                LArCalorimeter/LArCnv
 use LArRecEvent          LArRecEvent-*             LArCalorimeter 
@@ -23,8 +22,7 @@ end_private
 
 apply_pattern declare_joboptions files="*.txt *.py"
 
-macro converters "-s=${LArSimEvent_root}/LArSimEvent LArHitContainer.h LArHitFloatContainer.h "
-macro_append converters "-s=${LArRawEvent_root}/LArRawEvent LArRawChannelContainer.h LArDigitContainer.h LArTTL1Container.h LArFebErrorSummary.h "
+macro converters "-s=${LArRawEvent_root}/LArRawEvent LArRawChannelContainer.h LArDigitContainer.h LArTTL1Container.h LArFebErrorSummary.h "
 macro_append converters "-s=${LArRecEvent_root}/LArRecEvent LArNoisyROSummary.h "
 
 apply_pattern poolcnv files=${converters}
