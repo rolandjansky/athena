@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BCM_G4_SD/BCMExtra.h"
+#include "BCMExtra.h"
 
 void BCMExtra::SetVertex(double X, double Y, double Z)
 {

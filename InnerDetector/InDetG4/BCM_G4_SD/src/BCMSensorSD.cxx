@@ -7,58 +7,37 @@
 //   Bostjan Macek 15.may.2007
 //###############################################
 
-// BCM Sensitive Detector.
-#include <fstream>
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-//
-#include "BCM_G4_SD/BCMSensorSD.h"
-// Geant4 Stuff
-#include "G4HCofThisEvent.hh"
+// Class header
+#include "BCMSensorSD.h"
+
+// Package headers
+#include "BCMExtra.h"
+
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
+#include "MCTruth/TrackHelper.h"
+
+// Geant4 headers
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4RunManager.hh"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 
-// CLHEP transform
+// CLHEP headers
 #include "CLHEP/Geometry/Transform3D.h"
-// Units
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// to permit access to StoreGate
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "SimHelpers/DetectorGeometryHelper.h"
-#include "MCTruth/TrackHelper.h"
-
-// logging
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-//////////////////////////////////////////////////////////////////////////////////
-// Initialize static data
-///////////////////////////////////////////////////////////////////////////////
-
-static FADS::SensitiveDetectorEntryT<BCMSensorSD> mdtsd("BCMSensorSD");
-
-BCMSensorSD::BCMSensorSD(G4String name) :
-  FADS::FadsSensitiveDetector(name),
-  BCM_HitColl(0)
+BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_HitColl( hitCollectionName )
 {
 }
 
-BCMSensorSD::~BCMSensorSD()
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// Initialize from G4 - necessary to new the write handle for now
+void BCMSensorSD::Initialize(G4HCofThisEvent *)
 {
-}
-
-void BCMSensorSD::Initialize(G4HCofThisEvent* /*HCE*/)
-{
-  ATH_MSG_DEBUG("Initializing BCM_SD");
-  // Create a fresh map to store the hits
-  //BCM_HitColl = new SiHitCollection("BCMHits");
-  BCM_HitColl = m_hitCollHelp.RetrieveNonconstCollection<SiHitCollection>("BCMHits");
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
 }
 
 G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
@@ -122,35 +101,7 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmWallLog")
         produced_in_diamond = 3;
 
-      SiHit newBCMHit(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, myTouch->GetVolume(1)->GetCopyNo()-951, BEcopyNo - 11950, primaren, produced_in_diamond);
-      BCM_HitColl->Insert(newBCMHit);
+      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, myTouch->GetVolume(1)->GetCopyNo()-951, BEcopyNo - 11950, primaren, produced_in_diamond);
     }
   return true;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void BCMSensorSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
-{
-
-  /*
-  const G4PrimaryVertex* primarno=G4RunManager::GetRunManager()->GetCurrentEvent()->GetPrimaryVertex();
-  if ( primarno )
-    {
-      BCMExtra* extra_data = new BCMExtra;
-    extra_data->SetVertex(primarno->GetX0(), primarno->GetY0(), primarno->GetZ0());
-
-    StatusCode sc = evtStore()->record(extra_data, "BCM_Extra");
-    if (sc.isFailure())
-      {
-         ATH_MSG_ERROR("Could not register BCM_Extra");
-         return;
-      }
-  }
-  */
-
-  //std::cout << "Vertex: "<< G4RunManager::GetRunManager()->GetCurrentEvent()->GetPrimaryVertex()->GetZ0() << std::endl;
-  //exporting BCM hits
-  if (!m_allowMods)
-    m_hitCollHelp.SetConstCollection(BCM_HitColl);
 }
