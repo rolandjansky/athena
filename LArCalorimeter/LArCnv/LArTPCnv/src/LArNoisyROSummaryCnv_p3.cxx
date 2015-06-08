@@ -32,10 +32,7 @@ void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoi
   pers->m_BadFEBFlaggedPartitions = trans->m_BadFEBFlaggedPartitions;
   pers->m_SatMediumFlaggedPartitions = trans->m_SatMediumFlaggedPartitions;
   pers->m_SatTightFlaggedPartitions = trans->m_SatTightFlaggedPartitions;
-  pers->m_BadFEB_WFlaggedPartitions = trans->m_BadFEB_WFlaggedPartitions ;
-  pers->m_MNBLooseFlaggedPartitions = trans->m_MNBLooseFlaggedPartitions;
-  pers->m_MNBTightFlaggedPartitions = trans->m_MNBTightFlaggedPartitions;
-  
+  pers->m_BadFEB_WFlaggedPartitions = trans->m_BadFEB_WFlaggedPartitions ;  
 }
 
 void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArNoisyROSummary* trans, MsgStream & log ) 
@@ -65,8 +62,6 @@ void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArN
   trans->m_BadFEBFlaggedPartitions = pers->m_BadFEBFlaggedPartitions;
   trans->m_SatMediumFlaggedPartitions = pers->m_SatMediumFlaggedPartitions;
   trans->m_SatTightFlaggedPartitions = pers->m_SatTightFlaggedPartitions;
-  trans->m_BadFEB_WFlaggedPartitions = pers->m_BadFEB_WFlaggedPartitions;  
-  trans->m_MNBLooseFlaggedPartitions = pers->m_MNBLooseFlaggedPartitions;
-  trans->m_MNBTightFlaggedPartitions = pers->m_MNBTightFlaggedPartitions;
+  trans->m_BadFEB_WFlaggedPartitions = pers->m_BadFEB_WFlaggedPartitions ;  
 
 }
