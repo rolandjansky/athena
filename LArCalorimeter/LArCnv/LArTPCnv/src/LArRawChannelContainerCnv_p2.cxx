@@ -2,9 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArTPCnv/LArRawChannel_p1.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
+#undef private
+#undef protected
 
 
 // LArRawChannelContainerCnv_p2, used for T/P separation
@@ -18,7 +22,7 @@
 void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*transCont*/, LArRawChannelContainer_p2* /*persCont*/, MsgStream &log) 
 {
 
-  log << MSG::ERROR << "Writing LArRawChannelContainer_p2 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
+  log << MSG::ERROR << "Writing LArRawChannelContainer_p2 not supported any more. Current version is LArRawChannelContainer_p3" << endreq;
   return;
 }
 
@@ -68,7 +72,7 @@ void LArRawChannelContainerCnv_p2::transToPers(const LArRawChannelContainer* /*t
     }
 
 
-  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer" << endmsg;
+  log << MSG::DEBUG  << " ***  Writing LArRawChannelContainer" << endreq;
 }
 
 */
@@ -99,5 +103,5 @@ void LArRawChannelContainerCnv_p2::persToTrans(const LArRawChannelContainer_p2* 
   for (std::size_t i=0;i<nChannels;++i)
     m_larRawChannelCnv_p1.persToTrans(&(persCont->m_channels[i]),&(transCont->at(i)),log);
 
-  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endmsg;
+  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endreq;
 }

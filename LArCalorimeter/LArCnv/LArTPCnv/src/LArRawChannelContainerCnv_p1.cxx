@@ -2,7 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "LArRawEvent/LArRawChannelContainer.h"
+#undef private
+#undef protected
 
 // LArRawChannelContainerCnv_p1, used for T/P separation
 // author R.Seuster <seuster@cern.ch>
@@ -13,7 +17,7 @@
 void LArRawChannelContainerCnv_p1::transToPers(const LArRawChannelContainer*, LArRawChannelContainer_p1*, MsgStream &log) 
 {
   //LArRawChannelContainer_Cnvp1_base_t::transToPers(trans,pers,log);
-  log << MSG::ERROR  << " ***  Writing LArRawChannelContainer_p1 not supported any more. Current version is LArRawChannelContainer_p3" << endmsg;
+  log << MSG::ERROR  << " ***  Writing LArRawChannelContainer_p1 not supported any more. Current version is LArRawChannelContainer_p3" << endreq;
 }
 
 void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* pers, LArRawChannelContainer* trans, MsgStream &log) 
@@ -34,5 +38,5 @@ void LArRawChannelContainerCnv_p1::persToTrans(const LArRawChannelContainer_p1* 
       ++index;
     }
   }
-  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endmsg;
+  log << MSG::DEBUG  << " ***  Reading LArRawChannelContainer" << endreq;
 }
