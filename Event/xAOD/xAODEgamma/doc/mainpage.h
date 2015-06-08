@@ -11,8 +11,8 @@
    @author Anthony Morley <Anthony.Morley@cern.ch>
    @author Bruno Lenzi <Bruno.Lenzi@cern.ch>
 
-   $Revision: 636327 $
-   $Date: 2014-12-16 17:34:24 +0100 (Tue, 16 Dec 2014) $
+   $Revision: 672987 $
+   $Date: 2015-06-06 18:15:13 +0200 (Sat, 06 Jun 2015) $
 
    @section xAODEgammaOverivew Overview
 
@@ -52,13 +52,22 @@
    and CP tools. Users should request additions in case of need.
    
    The functions are split in 3 files: 
-   EgammaxAODHelpers, ElectronxAODHelpers, PhotonxAODHelpers, EgammaTruthxAODHelpers
-   but the users only need:
-   <code> #include "xAODEgamma/EgammaxAODHelpers.h" </code>
+   - EgammaxAODHelpers
+   - ElectronxAODHelpers
+   - PhotonxAODHelpers
+   - EgammaTruthxAODHelpers
+
+   They are all under this namespace
+   - xAOD::EgammaHelpers 
    
+   Including this:
+   <code> #include "xAODEgamma/EgammaxAODHelpers.h" </code>
+   makes all of them available
 
+   @section EgammaParameters Parameters
 
-
+   The Egamma parameters are under this namespace:
+   xAOD::EgammaParameters
    @htmlinclude used_packages.html
 
    @include requirements

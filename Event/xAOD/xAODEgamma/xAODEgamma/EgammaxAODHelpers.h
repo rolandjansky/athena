@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaxAODHelpers.h 636327 2014-12-16 16:34:24Z christos $
+// $Id: EgammaxAODHelpers.h 673480 2015-06-08 18:14:25Z christos $
 #ifndef XAOD_EGAMMAXAODHELPERS_H
 #define XAOD_EGAMMAXAODHELPERS_H
 #include "xAODEgamma/EgammaFwd.h"
@@ -20,6 +20,8 @@
 //other includes
 #include <cstddef>
 #include <set>
+#include <vector>
+
 
 namespace xAOD {
 
@@ -43,12 +45,20 @@ namespace xAOD {
     ///@brief return true if the cluster (or the majority of its energy) is in the barrel
     bool isBarrel(const xAOD::CaloCluster *cluster);
 
-    ///@bried Return a list of all or only the best TrackParticle associated to the object. 
-    /// (used for track isolation)
-    //// If useBremAssoc is set, get the original TrackParticle **/
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///If useBremAssoc is set, get the original TrackParticle 
+    ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
+    //isolation interface,
+    ///as it will re-order the elements in pointer order and not best match.
     const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Egamma *eg,
 								 bool useBremAssoc = true, bool allParticles = true);
 
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///If useBremAssoc is set, get the original TrackParticle 
+    ///This one returns a vector so as to be more "user friendly", as it retains the original
+    ///best match ordering
+    const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Egamma *eg,
+								       bool useBremAssoc = true, bool allParticles = true);
 
     ///@brief return the summary value for a TrackParticle or default value (-999)
     /// (to be used mostly in python where uint8_t is converted to char and the Tracking does not provide unprotected methods)

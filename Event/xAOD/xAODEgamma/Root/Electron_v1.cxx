@@ -15,7 +15,6 @@
 namespace xAOD {
 
   Electron_v1::Electron_v1() : Egamma_v1() {
-
   }
 
   Electron_v1::Electron_v1(const Electron_v1& el) : Egamma_v1(el){
@@ -34,7 +33,6 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( Electron_v1, float, charge, setCharge )
 
   Type::ObjectType Electron_v1::type() const {
-
     return Type::Electron;
   }
 
@@ -114,7 +112,6 @@ namespace xAOD {
     return true;
   }
 
-
   bool Electron_v1::trackParticleSummaryValue( uint8_t& value, const SummaryType information, int index ) const {
 
     const xAOD::TrackParticle* tempTrackParticle = trackParticle(index);
@@ -128,7 +125,6 @@ namespace xAOD {
     if (!tempTrackParticle) return false;
     return tempTrackParticle->summaryValue(value,information);
   }
-
   
   uint8_t Electron_v1::trackParticleSummaryIntValue( const SummaryType information, int index) const {
     const xAOD::TrackParticle* tempTrackParticle = trackParticle(index);
@@ -153,8 +149,7 @@ namespace xAOD {
     }
     return value;
   }
-
-  /////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////
 
 
 } // namespace xAOD

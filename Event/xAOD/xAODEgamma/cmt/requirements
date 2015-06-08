@@ -42,3 +42,6 @@ use AtlasReflex   AtlasReflex-*   External
 apply_pattern lcgdict dict=xAODEgamma selectionfile=selection.xml \
                       headerfiles="../xAODEgamma/xAODEgammaDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+
+apply_pattern do_genCLIDDB library=xAODEgamma

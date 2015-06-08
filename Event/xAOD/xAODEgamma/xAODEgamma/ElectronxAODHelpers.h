@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronxAODHelpers.h 646800 2015-02-13 15:56:31Z christos $
+// $Id: ElectronxAODHelpers.h 673480 2015-06-08 18:14:25Z christos $
 #ifndef XAOD_ELECTRONXAODHELPERS_H
 #define XAOD_ELECTRONXAODHELPERS_H
 
@@ -12,6 +12,7 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include <cstddef>
 #include <set>
+#include <vector>
 
 namespace xAOD {
 
@@ -26,13 +27,22 @@ namespace xAOD {
     ///@Brief return parameters for the last measurement for a GSF track particle
     float getLastMeasurementQoverP(const xAOD::TrackParticle *tp);
 
-    ///@Brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 
-    /// This is most useful when a std::set of the original track Particles is required (i.e isolation)
-    /// Otherwise use the method provided via the electon interface
-    /// el->trackParticle( size_t index )
+    ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
+    //isolation interface,
+    ///as it will re-order the elements in pointer order and not best match.
     const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Electron* el,
 								 bool useBremAssoc = true, bool allParticles = true);
+
+
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///If useBremAssoc is set, get the original TrackParticle 
+    ///This one returns a vector so as to be more "user friendly",as it retains the original
+    ///best match ordering
+    const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Electron* el,
+								       bool useBremAssoc = true, bool allParticles = true);
+
     
     ///@brief return the number of Si hits in the track particle
     std::size_t numberOfSiHits(const xAOD::TrackParticle *tp);

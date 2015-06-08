@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <set>
+#include <vector>
 
 namespace xAOD {
 
@@ -49,11 +50,21 @@ namespace xAOD {
     ///@brief return the momentum at the vertex (which can be 0)
     Amg::Vector3D momentumAtVertex(const xAOD::Vertex&, bool debug = false);
 
-    /** Return a list of all or only the best TrackParticle associated to the object. 
-      * (used for track isolation)
-      * If useBremAssoc is set, get the original TrackParticle **/
+
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///If useBremAssoc is set, get the original TrackParticle 
+    ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
+    //isolation interface,
+    ///as it will re-order the elements in pointer order and not best match.
     const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Photon* ph,
 								 bool useBremAssoc = true);
+
+    ///@brief Return a list of all or only the best TrackParticle associated to the object. 
+    ///If useBremAssoc is set, get the original TrackParticle 
+    ///This one returns a vector so as to be more "user friendly",as it retains the original
+    ///best match ordering
+    const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Photon* ph,
+								       bool useBremAssoc = true);
     
 
   } //namaspace EgammaHelpers

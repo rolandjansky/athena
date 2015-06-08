@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.cxx 619818 2014-10-03 12:34:09Z christos $
+// $Id: Photon_v1.cxx 667341 2015-05-15 14:39:34Z christos $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -32,7 +32,6 @@ namespace xAOD {
     // by convention, always return *this
     return *this;
   }  
-
 
    Type::ObjectType Photon_v1::type() const {
 

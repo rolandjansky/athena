@@ -122,16 +122,8 @@ namespace xAOD {
       Rhad1 = 42,
       /// @bried e2tsts1-emins1
       DeltaE =43,
-      /// @brief pointing z at vertex reconstructed from the cluster
-      zvertex = 44,
-      /// @brief error associated to zvertex 
-      errz = 45,
-      /// @brief pointing eta reconstructed from the cluster (first and second sampling)
-      etap = 46, 
-      /// @brief pointing depth of the shower as calculated in egammaqgcld
-      depth = 47,
       ///maximum number of enums 
-      NumberOfShowerShapes = 48 
+      NumberOfShowerShapes = 44
     };
     /// @}  
     

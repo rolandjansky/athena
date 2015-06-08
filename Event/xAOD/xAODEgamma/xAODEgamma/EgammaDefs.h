@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaDefs.h 634202 2014-12-06 15:00:49Z christos $
+// $Id: EgammaDefs.h 671120 2015-05-30 18:53:01Z christos $
 #ifndef XAODEGAMMA_EGAMMADEFS_H
 #define XAODEGAMMA_EGAMMADEFS_H
 
@@ -111,7 +111,7 @@ namespace xAOD {
 
   /** @brief */
   
-  const uint32_t BADCLUSELECTRON = 
+    const uint32_t BADCLUSELECTRON = 
     0x1 << MaskedCellCore |
     0x1 << MissingFEBCellCore |
     0x1 << MissingFEBCellEdgeS1 |
@@ -119,7 +119,7 @@ namespace xAOD {
     0x1 << DeadHVS1S2S3Core | 
     0x1 << DeadHVS1S2S3Edge ; 
   
- const uint32_t BADCLUSPHOTON = 
+    const uint32_t BADCLUSPHOTON = 
     0x1 << MaskedCellCore |
     0x1 << MissingFEBCellCore |
     0x1 << MissingFEBCellEdgeS1 |
@@ -128,8 +128,10 @@ namespace xAOD {
     0x1 << DeadHVS1S2S3Edge |
     0x1 << BadS1Core; 
   
-  const uint32_t ALLOQ= 0xFFFFFFFF;
+    const uint32_t ALLOQ= 0xFFFFFFFF;
 
+
+    struct ROOT6_NamespaceAutoloadHook{};
   }
 }
 

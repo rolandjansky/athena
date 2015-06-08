@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.cxx 630766 2014-11-25 00:34:26Z christos $
+// $Id: EgammaAccessors_v1.cxx 667007 2015-05-13 18:57:07Z christos $
 
 // System include(s):
 #include <iostream>
@@ -70,11 +70,6 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, Rhad );
         DEFINE_ACCESSOR( float, Rhad1 );
         DEFINE_ACCESSOR( float, DeltaE );
-	DEFINE_ACCESSOR( float, zvertex );
-	DEFINE_ACCESSOR( float, errz );
-	DEFINE_ACCESSOR( float, etap ); 
-	DEFINE_ACCESSOR( float, depth );
-
       default:                  
          std::cerr << "xAOD::Egamma  ERROR Unknown float ShowerShapeType ("
                    << type << ") requested" << std::endl;

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonContainer.h 615077 2014-09-04 13:42:41Z schaffer $
+// $Id: PhotonContainer.h 652975 2015-03-10 14:14:13Z christos $
 #ifndef XAODEGAMMA_PHOTONCONTAINER_H
 #define XAODEGAMMA_PHOTONCONTAINER_H
 
@@ -18,9 +18,7 @@ namespace xAOD {
 }
 
 // Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::PhotonContainer , 1105575213 , 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODEGAMMA_PHOTONCONTAINER_H

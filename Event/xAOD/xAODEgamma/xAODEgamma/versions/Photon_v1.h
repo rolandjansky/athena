@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.h 645853 2015-02-10 20:40:06Z blenzi $
+// $Id: Photon_v1.h 667341 2015-05-15 14:39:34Z christos $
 #ifndef XAODEGAMMA_VERSIONS_PHOTON_V1_H
 #define XAODEGAMMA_VERSIONS_PHOTON_V1_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 645853 $
-  /// $Date: 2015-02-10 21:40:06 +0100 (Tue, 10 Feb 2015) $
+  /// $Revision: 667341 $
+  /// $Date: 2015-05-15 16:39:34 +0200 (Fri, 15 May 2015) $
   ///
   class Photon_v1 :public xAOD::Egamma_v1 {
 
@@ -100,19 +100,16 @@ namespace xAOD {
     /// Will lead to an exception if the information is not available
     float vertexCaloMatchValue( const EgammaParameters::VertexCaloMatchType information ) const;
 
-
     ///@brief Set method for CaloMatch values.
     bool  setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information );
 
     ///@brief return the photon conversion type (see EgammaEnums)
-    xAOD::EgammaParameters::ConversionType conversionType()
-    {
+    xAOD::EgammaParameters::ConversionType conversionType() const{
       return xAOD::EgammaHelpers::conversionType(this);
     }
     
     ///@brief return the photon conversion radius
-    float conversionRadius()
-    {
+    float conversionRadius() const {
       return xAOD::EgammaHelpers::conversionRadius(this);
     }
     

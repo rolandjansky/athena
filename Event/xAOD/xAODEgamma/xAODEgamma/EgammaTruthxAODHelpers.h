@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaTruthxAODHelpers.h 643687 2015-02-03 04:35:51Z christos $
+// $Id: EgammaTruthxAODHelpers.h 668505 2015-05-19 19:23:05Z christos $
 #ifndef XAOD_EGAMMATRUTHXAODHELPERS_H
 #define XAOD_EGAMMATRUTHXAODHELPERS_H
 
@@ -38,15 +38,6 @@ namespace xAOD {
       return *link;
     }
     
-    ///@brief return the truthParticle associated to the given IParticle (if any)
-    const xAOD::TruthParticle* getTruthParticle(const xAOD::IParticle*);
-
-    ///@brief return the  particle's truth Type (as defined by the MC Truth Classifier) 
-    int getParticleTruthType(const xAOD::IParticle* particle);
-    
-    ///@brief return the  particle's Truth Origin (as defined by the MC Truth Classifier) 
-    int getParticleTruthOrigin(const xAOD::IParticle* particle);
-    
     ///@brief return the reco electron associated to the given TruthParticle (if any)
     const xAOD::Electron* getRecoElectron(const xAOD::TruthParticle*);
     
@@ -59,19 +50,22 @@ namespace xAOD {
     ///@brief is the true object a converted photon with R < maxRadius
     bool isTrueConvertedPhoton(const xAOD::TruthParticle* truePh, float maxRadius = 800.);
 
-    ///@brief Helper function for getting the Truth "Mother" electron for an existing electron
-    ///i.e for e->photon->e cases (brem) , or e->gamma+e (fsr),  
-    ///where we have matched the second electron as the best.
-    ///If the input is not a true electron or no Electron Mother is found
-    ///return null pointer.
-    const xAOD::TruthParticle* getMotherElectron(const xAOD::Electron* el);
+    ///@brief Helper wrapper function for calling the function below that accepts truth input
+    /// via a reco object
+    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::Electron* el);
 
-    ///@brief Helper function for getting the Truth "Mother" electron for a truth electron
-    ///i.e for e->photon->e cases (brem) , or e->gamma+e (fsr),  
-    ///where we have matched the second electron as the best.
-    ///If the input is not a true electron or no Electron Mother is found
-    /// return null pointer.
-    const xAOD::TruthParticle* getMotherElectron(const xAOD::TruthParticle* truthel);
+
+    ///@brief Helper function for getting the True "Mother" electron for an existing electron.
+    ///There are cases when an electron has  a  photon (or electron) mother, that in turn comes
+    /// from another particle (possible leading to a Z or W etc).
+    /// This method will navigate back up to the last electron or photon it can find
+    /// in the lineage of the original true electron.
+    /// Then the user just needs to check the mother of that last electron/photon, returned from the method.
+    /// To see if we have a loose matched isolated electron (its mother would be Z,W etc)
+    /// or background.
+    ///If it fails returns null pointer.
+    const xAOD::TruthParticle* getBkgElectronMother(const xAOD::TruthParticle* truthel);
+
 
         
   }// EgammaHelpers

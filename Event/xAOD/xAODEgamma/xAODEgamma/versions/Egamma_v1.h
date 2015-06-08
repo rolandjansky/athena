@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 637182 2014-12-20 01:55:15Z christos $
+// $Id: Egamma_v1.h 656759 2015-03-25 15:37:07Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
@@ -47,8 +47,8 @@ namespace xAOD {
   /// @author Anthony Morley
   /// @author Jovan Mitrevski
   ///
-  /// $Revision: 637182 $
-  /// $Date: 2014-12-20 02:55:15 +0100 (Sat, 20 Dec 2014) $
+  /// $Revision: 656759 $
+  /// $Date: 2015-03-25 16:37:07 +0100 (Wed, 25 Mar 2015) $
   ///
   class Egamma_v1 :public IParticle {
 
@@ -212,14 +212,31 @@ namespace xAOD {
     /// @{    
 
     /// @brief Accessor for Isolation values.
-    bool isolationValue(float& value,   const Iso::IsolationType information) const;
+    bool isolation(float& value,   const Iso::IsolationType information) const;
 
     /// @brief Accessor to Isolation values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
-    float isolationValue(const Iso::IsolationType information) const;
+    float isolation(const Iso::IsolationType information) const;
 
     /// @brief set method for Isolation values.
-    bool setIsolationValue(float value, const Iso::IsolationType information);
+    bool setIsolation(float value, const Iso::IsolationType information);
+
+
+    /// @brief old Accessor for Isolation values.
+    bool isolationValue(float& value,   const Iso::IsolationType information) const{
+
+      return isolation(value,information);
+    }
+    /// @brief old Accessor to Isolation values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationValue(const Iso::IsolationType information) const{
+
+      return isolation(information);
+    }
+    /// @brief old set method for Isolation values.
+    bool setIsolationValue(float value, const Iso::IsolationType information){
+      return setIsolation(value,information);
+    }
 
     /// @}
 
@@ -265,11 +282,11 @@ namespace xAOD {
 
 
     /// @brief Accessor for Isolation corection Bitset
-    bool isolationCorrectionBitset(uint32_t& value, const Iso::IsolationFlavour flavour ) const;
+    bool isolationCorrectionBitset(std::bitset<32>& value, const Iso::IsolationFlavour flavour ) const;
 
     /// @brief Accessor to Isolation corection Bitset , this just returns the bitset without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
-    uint32_t isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const;
+    std::bitset<32> isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const;
 
     /// @brief Set method for Isolation corection Bitset.
     bool setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour );

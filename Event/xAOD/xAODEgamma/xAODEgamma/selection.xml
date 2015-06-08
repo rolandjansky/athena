@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 645853 2015-02-10 20:40:06Z blenzi $ -->
+<!-- $Id: selection.xml 671120 2015-05-30 18:53:01Z christos $ -->
 <lcgdict>
 
   <!-- Egamma_v1 dictionaries: -->
@@ -78,7 +78,8 @@
 
   <!-- Objects from the namespace -->
   <variable pattern="xAOD::EgammaParameters::*" />
-  
+  <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />   
+
   <!-- Enums -->
   <enum pattern="xAOD::EgammaParameters::*" />
   
@@ -103,7 +104,7 @@
     <class pattern="xAOD::CaloCluster*" />
     <class pattern="DataVector<xAOD::CaloCluster*" />
     <class pattern="ElementLink<DataVector<xAOD::CaloCluster*" />
-    <function pattern="xAOD::EgammaHelpers::getLink" />  
+    <function pattern="xAOD::EgammaHelpers::getLink*" />  
   </exclusion>
 
 </lcgdict>

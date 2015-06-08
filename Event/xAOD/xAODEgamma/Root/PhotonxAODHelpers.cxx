@@ -35,11 +35,14 @@ xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const
     {return nSiHits1 ? xAOD::EgammaParameters::singleSi : xAOD::EgammaParameters::singleTRT;}
   
   if (nSiHits1 && nSiHits2){
-    return xAOD::EgammaParameters::doubleSi;}
+    return xAOD::EgammaParameters::doubleSi;
+  }
   else if (nSiHits1 || nSiHits2){
-    return xAOD::EgammaParameters::doubleSiTRT;}  
+    return xAOD::EgammaParameters::doubleSiTRT;
+  }  
   else{
-    return xAOD::EgammaParameters::doubleTRT;}
+    return xAOD::EgammaParameters::doubleTRT;
+  }
 }
 
 // ==================================================================
@@ -102,17 +105,27 @@ Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, 
 }
 
 // ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,
+const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,  
 										  bool useBremAssoc /* = true */){
+
   std::set<const xAOD::TrackParticle*> tps;
   if (!ph) return tps;
   const xAOD::Vertex* vx = ph->vertex();
-  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i)
-  {
+  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
     const xAOD::TrackParticle *tp = vx->trackParticle(i);
     tps.insert( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
   }
   return tps;
 }
-
-
+// ==================================================================
+const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Photon* ph,
+											bool useBremAssoc /* = true */){
+  std::vector<const xAOD::TrackParticle*> tps;
+  if (!ph) return tps;
+  const xAOD::Vertex* vx = ph->vertex();
+  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
+    const xAOD::TrackParticle *tp = vx->trackParticle(i);
+    tps.push_back( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
+  }
+  return tps;
+}

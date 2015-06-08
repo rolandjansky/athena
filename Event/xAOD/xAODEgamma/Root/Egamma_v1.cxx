@@ -149,9 +149,7 @@ namespace xAOD {
     static Accessor< uint16_t > acc( "author" );
     acc( *this) = newAuthor;
   }
-  
-
-  
+    
   /////////////// shower shapes
   bool Egamma_v1::showerShapeValue(float& value, const EgammaParameters::ShowerShapeType information)  const {
     xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
@@ -182,7 +180,7 @@ namespace xAOD {
   }
 
   ///////////////   Isolation value
-  bool  Egamma_v1::isolationValue(float& value, const Iso::IsolationType information)  const {
+  bool  Egamma_v1::isolation(float& value, const Iso::IsolationType information)  const {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
     if( !acc ) {
       return false;
@@ -195,13 +193,13 @@ namespace xAOD {
     return true;
   }
 
-  float Egamma_v1::isolationValue( const Iso::IsolationType information)  const {
+  float Egamma_v1::isolation( const Iso::IsolationType information)  const {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
     if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation type requested" );
     return  ( *acc )( *this );
   }
 
-  bool Egamma_v1::setIsolationValue(float value, const Iso::IsolationType information) {
+  bool Egamma_v1::setIsolation(float value, const Iso::IsolationType information) {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
     if( !acc ) return false;
     // Set the value:
@@ -262,7 +260,6 @@ namespace xAOD {
     return  ( *acc )( *this );
   }
 
-
   bool Egamma_v1::setIsolationCaloCorrection(float value, Iso::IsolationType type, Iso::IsolationCaloCorrection corr){
     SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(type,corr);
     if( !acc ) return false;
@@ -270,7 +267,6 @@ namespace xAOD {
     ( *acc )( *this ) = value;
     return true;
   }
-
 
   bool Egamma_v1::isolationTrackCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr) const{
     SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr);
@@ -300,7 +296,7 @@ namespace xAOD {
     return true;
   }
 
-  bool Egamma_v1::isolationCorrectionBitset(uint32_t& value, const Iso::IsolationFlavour flavour ) const{
+  bool Egamma_v1::isolationCorrectionBitset( std::bitset<32>& value, const Iso::IsolationFlavour flavour ) const{
    SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
     if( !acc ) {
       return false;
@@ -309,14 +305,14 @@ namespace xAOD {
       return  false;
     }
     // Retrieve the value:
-    value = ( *acc )( *this );
+    value =  std::bitset<32>(( *acc )( *this ));
     return true;
   }
 
-  uint32_t Egamma_v1::isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const{
+  std::bitset<32> Egamma_v1::isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const{
    SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
     if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation BitSet requested" );
-    return  ( *acc )( *this );
+    return   std::bitset<32>(( *acc )( *this ));
   }
 
   bool Egamma_v1::setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour ) {
@@ -326,8 +322,6 @@ namespace xAOD {
     ( *acc )( *this ) = value;
     return true;
   }
-
-
 
   ////////////////////////////////////////////////////
   /// Implementation of the CaloCluster accessor functions
@@ -414,7 +408,6 @@ namespace xAOD {
     return;
   }
 
-
   bool Egamma_v1::selectionisEM(unsigned int&  value, const xAOD::EgammaParameters::SelectionisEM isEM) const {
     SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
     if(!acc ) {
@@ -438,8 +431,8 @@ namespace xAOD {
     ( *acc )( *this )=value;
     return;
   }
-
-  ///Then with strings (full flexibility)
+  /////////////////////////////////////////////////////////////////////////
+  ///Then with strings (full flexibility when adding new menus dynamically)
   bool Egamma_v1::passSelection(bool&  value, const std::string& menu ) const {
     SG::AuxElement::Accessor< char > acc( menu );
     if(!acc.isAvailable( *this) ) { 
