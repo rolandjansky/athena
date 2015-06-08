@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 655939 2015-03-21 10:18:36Z sutt $
+//   $Id: Filters.h 672664 2015-06-05 10:27:54Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -198,6 +198,38 @@ public:
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
 
 
+  bool contains( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r ) const { 
+
+    if ( r==0 ) { 
+      std::cerr << "Filter_Combined::contains() called with null roidescriptor" << std::endl;
+      return true;
+    }
+
+    if ( r->composite() ) {       
+      for ( unsigned i=r->size() ; i-- ; )  if ( contains( t, r->at(i) ) ) return true;
+    }
+    else { 
+
+      if ( r->isFullscan() ) return true;
+
+      bool contained_phi = false;
+      
+      if ( r->phiMinus()<r->phiPlus() )  contained_phi = ( t->phi()>r->phiMinus() &&  t->phi()<r->phiPlus() );
+      else                               contained_phi = ( t->phi()>r->phiMinus() ||  t->phi()<r->phiPlus() );
+      
+      if ( ( t->eta()>r->etaMinus() &&  t->eta()<r->etaPlus() ) && 
+	   ( contained_phi ) &&
+	   ( t->z0()>r->zedMinus() &&  t->z0()<r->zedPlus() ) ) { 
+	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
+	return true;
+      }
+    }
+    
+    return false;
+
+  }
+
+
   bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r=0 ) {
 
     if ( r!=0 ) m_roi = r;
@@ -214,41 +246,7 @@ public:
 	std::cout << "\tFilter::filter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
       }
 
-#if 0
- 
-      double deta = t->eta() - m_roi->eta();
-      double dphi = t->phi() - m_roi->phi();
-
-      while ( dphi<-M_PI ) dphi += 2*M_PI; 
-      while ( dphi>M_PI  ) dphi -= 2*M_PI; 
-
-      if ( m_debugPrintout ) { 
-	std::cout << "\tFilter::deta : " << std::fabs(deta) << " (" << m_roi->etaHalfWidth() << ")"
-		  << "\tFilter::dphi : " << std::fabs(dphi) << " (" << m_roi->phiHalfWidth() << ") \t" << *t << std::endl;
-      }
-
-      if ( std::fabs(deta)<m_roi->etaHalfWidth() && 
-	   std::fabs(dphi)<m_roi->phiHalfWidth() ) { 
-	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
-	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
-      }
-      else  return false;
-
-#endif
-
-      if ( m_roi->isFullscan() ) return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
-
-      bool contained_phi = false;
-
-      if ( m_roi->phiMinus()<m_roi->phiPlus() )  contained_phi = ( t->phi()>m_roi->phiMinus() &&  t->phi()<m_roi->phiPlus() );
-      else                                       contained_phi = ( t->phi()>m_roi->phiMinus() ||  t->phi()<m_roi->phiPlus() );
-
-      if ( ( t->eta()>m_roi->etaMinus() &&  t->eta()<m_roi->etaPlus() ) && 
-	   ( contained_phi ) &&
-	   ( t->z0()>m_roi->zedMinus() &&  t->z0()<m_roi->zedPlus() ) ) { 
-	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
-	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
-      }
+      if ( contains( t, m_roi ) )  return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
       else  return false;
 
     }
