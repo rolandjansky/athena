@@ -58,35 +58,29 @@ We describe in the following, how each field of the identifier is retrieved.
 #ifndef TGCSENSITIVEDETECTOR_H
 #define TGCSENSITIVEDETECTOR_H
 
-
-#include "globals.hh"
-
-
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
+#include "G4VSensitiveDetector.hh"
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
 
+class TGCSensitiveDetector : public G4VSensitiveDetector {
 
-class TGCSensitiveDetector : public FADS::FadsSensitiveDetector {
+ public:
+  /** construction/destruction */
+  TGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
+  ~TGCSensitiveDetector() {}
 
-public:
-    /** construction/destruction */
-    TGCSensitiveDetector(std::string name);
-    ~TGCSensitiveDetector() {}
-
-    /** member functions */
-    void Initialize(G4HCofThisEvent* HCE);
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROHist);
-    void EndOfEvent(G4HCofThisEvent* HCE); 
+  /** member functions */
+  void Initialize(G4HCofThisEvent* HCE) override final;
+  G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROHist) override final;
     
-private:
-    /** member data */
-    TGCSimHitCollection*  myTGCHitColl;
-    TgcHitIdHelper* muonHelper;
-    AthenaHitsCollectionHelper m_hitCollHelp;
-    std::string m_layout;
+ private:
+  /** member data */
+  enum layout { P03 , Q02 , Unknown };
+  SG::WriteHandle<TGCSimHitCollection>  myTGCHitColl;
+  TgcHitIdHelper* muonHelper;
+  layout m_layout;
 };
 
 #endif
