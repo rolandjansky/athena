@@ -743,6 +743,8 @@ void JetTagMonitoring::fillJetHistograms() {
 	    
 	const xAOD::BTagging* btag =(*jetItr)->btagging();
 
+        if(!btag) continue; 
+
 	double sv1ip3d = btag->SV1plusIP3D_discriminant();
         double mv2c20 = btag->auxdata<double>("MV2c20_discriminant"); 
     
