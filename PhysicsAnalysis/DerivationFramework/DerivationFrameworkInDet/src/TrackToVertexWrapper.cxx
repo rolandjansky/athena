@@ -73,48 +73,66 @@ namespace DerivationFramework {
       // Do the decoration for each track
       SG::AuxElement::Decorator< float > decnD0(m_sgName+"_unbiased_d0");
       SG::AuxElement::Decorator< float > decnZ0(m_sgName+"_unbiased_z0");
+      SG::AuxElement::Decorator< float > decnZ0SinTheta(m_sgName+"_unbiased_z0SinTheta");
       SG::AuxElement::Decorator< float > decnD0Err(m_sgName+"_unbiased_d0Sigma");
       SG::AuxElement::Decorator< float > decnZ0Err(m_sgName+"_unbiased_z0Sigma");
+      SG::AuxElement::Decorator< float > decnZ0SinThetaErr(m_sgName+"_unbiased_z0SigmaSinTheta");
       SG::AuxElement::Decorator< float > decnPVD0Err(m_sgName+"_unbiased_PVd0Sigma");
       SG::AuxElement::Decorator< float > decnPVZ0Err(m_sgName+"_unbiased_PVz0Sigma");
+      SG::AuxElement::Decorator< float > decnPVZ0SinThetaErr(m_sgName+"_unbiased_PVz0SigmaSinTheta");
       if (iPandSigma) {
 	decnD0( **trItr ) = iPandSigma->IPd0;
 	decnZ0( **trItr ) = iPandSigma->IPz0;
+	decnZ0SinTheta( **trItr ) = iPandSigma->IPz0SinTheta;
 	decnD0Err( **trItr ) = iPandSigma->sigmad0;
 	decnZ0Err( **trItr ) = iPandSigma->sigmaz0;
+	decnZ0SinThetaErr( **trItr ) = iPandSigma->sigmaz0SinTheta;
 	decnPVD0Err (**trItr ) = iPandSigma->PVsigmad0;
 	decnPVZ0Err (**trItr ) = iPandSigma->PVsigmaz0;
+	decnPVZ0SinThetaErr (**trItr ) = iPandSigma->PVsigmaz0SinTheta;
 	delete iPandSigma;
       } else {
 	decnD0( **trItr ) = 999.;
 	decnZ0( **trItr ) = 999.;
+	decnZ0SinTheta( **trItr ) = 999.;
 	decnD0Err( **trItr ) = 999.;
 	decnZ0Err( **trItr ) = 999.;
+	decnZ0SinThetaErr( **trItr ) = 999.;
 	decnPVD0Err (**trItr ) = 999.;
 	decnPVZ0Err (**trItr ) = 999.;
+	decnPVZ0SinThetaErr (**trItr ) = 999.;
       }
 
       SG::AuxElement::Decorator< float > decn_b_D0(m_sgName+"_biased_d0");
       SG::AuxElement::Decorator< float > decn_b_Z0(m_sgName+"_biased_z0");
+      SG::AuxElement::Decorator< float > decn_b_Z0SinTheta(m_sgName+"_biased_z0SinTheta");
       SG::AuxElement::Decorator< float > decn_b_D0Err(m_sgName+"_biased_d0Sigma");
       SG::AuxElement::Decorator< float > decn_b_Z0Err(m_sgName+"_biased_z0Sigma");
+      SG::AuxElement::Decorator< float > decn_b_Z0SinThetaErr(m_sgName+"_biased_z0SigmaSinTheta");
       SG::AuxElement::Decorator< float > decn_b_PVD0Err(m_sgName+"_biased_PVd0Sigma");
       SG::AuxElement::Decorator< float > decn_b_PVZ0Err(m_sgName+"_biased_PVz0Sigma");
+      SG::AuxElement::Decorator< float > decn_b_PVZ0SinThetaErr(m_sgName+"_biased_PVz0SigmaSinTheta");
       if (iPandSigmaBiased) {
 	decn_b_D0( **trItr ) = iPandSigmaBiased->IPd0;
 	decn_b_Z0( **trItr ) = iPandSigmaBiased->IPz0;
+	decn_b_Z0SinTheta( **trItr ) = iPandSigmaBiased->IPz0SinTheta;
 	decn_b_D0Err( **trItr ) = iPandSigmaBiased->sigmad0;
 	decn_b_Z0Err( **trItr ) = iPandSigmaBiased->sigmaz0;
+	decn_b_Z0SinThetaErr( **trItr ) = iPandSigmaBiased->sigmaz0SinTheta;
 	decn_b_PVD0Err (**trItr ) = iPandSigmaBiased->PVsigmad0;
 	decn_b_PVZ0Err (**trItr ) = iPandSigmaBiased->PVsigmaz0;
+	decn_b_PVZ0SinThetaErr (**trItr ) = iPandSigmaBiased->PVsigmaz0SinTheta;
 	delete iPandSigmaBiased;
       } else {
 	decn_b_D0( **trItr ) = 999.;
 	decn_b_Z0( **trItr ) = 999.;
+	decn_b_Z0SinTheta( **trItr ) = 999.;
 	decn_b_D0Err( **trItr ) = 999.;
 	decn_b_Z0Err( **trItr ) = 999.;
+	decn_b_Z0SinThetaErr( **trItr ) = 999.;
 	decn_b_PVD0Err (**trItr ) = 999.;
 	decn_b_PVZ0Err (**trItr ) = 999.;
+	decn_b_PVZ0SinThetaErr (**trItr ) = 999.;
       }
     } // end of loop over tracks		 	 	  
     

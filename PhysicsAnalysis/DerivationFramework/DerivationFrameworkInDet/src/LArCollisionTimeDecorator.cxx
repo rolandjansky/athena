@@ -61,14 +61,18 @@ namespace DerivationFramework {
     const  LArCollisionTime* tps;
     CHECK( evtStore()->retrieve(tps,"LArCollisionTime") );
     
-    eventInfo->auxdecor< int >(m_sgName+"ncellA")     = tps->ncellA();
-    eventInfo->auxdecor< int >(m_sgName+"ncellC")     = tps->ncellC();
-    eventInfo->auxdecor< float >(m_sgName+"energyA")  = tps->energyA();
-    eventInfo->auxdecor< float >(m_sgName+"energyC")  = tps->energyC();
-    eventInfo->auxdecor< float >(m_sgName+"timeA")    = tps->timeA();
-    eventInfo->auxdecor< float >(m_sgName+"timeC")    = tps->timeC();
-    float LArECtimeDiff =   tps->timeA()-tps->timeC();
-    ATH_MSG_DEBUG("Decorating LAr time info, LArECTimeDiff = " << LArECtimeDiff);
+    if (tps) {
+      eventInfo->auxdecor< int >(m_sgName+"ncellA")     = tps->ncellA();
+      eventInfo->auxdecor< int >(m_sgName+"ncellC")     = tps->ncellC();
+      eventInfo->auxdecor< float >(m_sgName+"energyA")  = tps->energyA();
+      eventInfo->auxdecor< float >(m_sgName+"energyC")  = tps->energyC();
+      eventInfo->auxdecor< float >(m_sgName+"timeA")    = tps->timeA();
+      eventInfo->auxdecor< float >(m_sgName+"timeC")    = tps->timeC();
+      float LArECtimeDiff =   tps->timeA()-tps->timeC();
+      ATH_MSG_DEBUG("Decorating LAr time info, LArECTimeDiff = " << LArECtimeDiff);
+    }
+    else
+      ATH_MSG_WARNING("Missing LArCollisionTime information.");
     
     return StatusCode::SUCCESS;
   }  

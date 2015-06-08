@@ -61,22 +61,26 @@ namespace DerivationFramework {
     CHECK( evtStore()->retrieve( eventInfo, m_containerName ) );
 
     const MinBiasPRDAssociation* prdAssoc = m_UnassociatedHitsGetterTool->get();
-    eventInfo->auxdecor< int >(m_sgName+"nPixelUA")        = prdAssoc->nPixelUA;
-    eventInfo->auxdecor< int >(m_sgName+"nBlayerUA")       = prdAssoc->nBlayerUA;
-    eventInfo->auxdecor< int >(m_sgName+"nPixelBarrelUA")  = prdAssoc->nPixelBarrelUA;
-    eventInfo->auxdecor< int >(m_sgName+"nPixelEndCapAUA") = prdAssoc->nPixelEndCapAUA;
-    eventInfo->auxdecor< int >(m_sgName+"nPixelEndCapCUA") = prdAssoc->nPixelEndCapCUA;
-    eventInfo->auxdecor< int >(m_sgName+"nSCTUA")          = prdAssoc->nSCTUA;
-    eventInfo->auxdecor< int >(m_sgName+"nSCTBarrelUA")    = prdAssoc->nSCTBarrelUA;
-    eventInfo->auxdecor< int >(m_sgName+"nSCTEndCapAUA")   = prdAssoc->nSCTEndCapAUA;
-    eventInfo->auxdecor< int >(m_sgName+"nSCTEndCapCUA")   = prdAssoc->nSCTEndCapCUA;
-    eventInfo->auxdecor< int >(m_sgName+"nTRTUA")          = prdAssoc->nTRTUA;
-    eventInfo->auxdecor< int >(m_sgName+"nTRTBarrelUA")    = prdAssoc->nTRTBarrelUA;
-    eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapAUA")   = prdAssoc->nTRTEndCapAUA;
-    eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapCUA")   = prdAssoc->nTRTEndCapCUA;
-    m_UnassociatedHitsGetterTool->releaseObject(prdAssoc);
-    ATH_MSG_DEBUG("Decorating unassociated hits with nPixelBarrelUA = ");
-    ATH_MSG_DEBUG(prdAssoc->nPixelBarrelUA);
+    if (prdAssoc) {
+      eventInfo->auxdecor< int >(m_sgName+"nPixelUA")        = prdAssoc->nPixelUA;
+      eventInfo->auxdecor< int >(m_sgName+"nBlayerUA")       = prdAssoc->nBlayerUA;
+      eventInfo->auxdecor< int >(m_sgName+"nPixelBarrelUA")  = prdAssoc->nPixelBarrelUA;
+      eventInfo->auxdecor< int >(m_sgName+"nPixelEndCapAUA") = prdAssoc->nPixelEndCapAUA;
+      eventInfo->auxdecor< int >(m_sgName+"nPixelEndCapCUA") = prdAssoc->nPixelEndCapCUA;
+      eventInfo->auxdecor< int >(m_sgName+"nSCTUA")          = prdAssoc->nSCTUA;
+      eventInfo->auxdecor< int >(m_sgName+"nSCTBarrelUA")    = prdAssoc->nSCTBarrelUA;
+      eventInfo->auxdecor< int >(m_sgName+"nSCTEndCapAUA")   = prdAssoc->nSCTEndCapAUA;
+      eventInfo->auxdecor< int >(m_sgName+"nSCTEndCapCUA")   = prdAssoc->nSCTEndCapCUA;
+      eventInfo->auxdecor< int >(m_sgName+"nTRTUA")          = prdAssoc->nTRTUA;
+      eventInfo->auxdecor< int >(m_sgName+"nTRTBarrelUA")    = prdAssoc->nTRTBarrelUA;
+      eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapAUA")   = prdAssoc->nTRTEndCapAUA;
+      eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapCUA")   = prdAssoc->nTRTEndCapCUA;
+      m_UnassociatedHitsGetterTool->releaseObject(prdAssoc);
+      ATH_MSG_DEBUG("Decorating unassociated hits with nPixelBarrelUA = ");
+      ATH_MSG_DEBUG(prdAssoc->nPixelBarrelUA);
+    }
+    else
+      ATH_MSG_WARNING("Could not retrieve Unassociated hits information");
     
     return StatusCode::SUCCESS;
   }  
