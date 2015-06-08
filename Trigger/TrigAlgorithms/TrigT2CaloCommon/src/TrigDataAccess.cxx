@@ -374,9 +374,19 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
 	  m_pRegionSelector->DetHashIDList(FCALEM,0,tmproi,m_rIdsfcalem0);
           m_pRegionSelector->DetHashIDList(TILE,tmproi,m_rIdstile);
           m_alltile.clear();
-          for(unsigned int i=0;i<m_rIdstile.size();i++)
-          m_alltile.push_back(m_tilecell->find_rod(m_rIdstile[i]));
-          m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), m_alltile.begin(), m_alltile.end() );
+	  std::vector<uint32_t> tilelists;
+          //for(unsigned int i=0;i<m_rIdstile.size();i++)
+          //m_alltile.push_back(m_tilecell->find_rod(m_rIdstile[i]));
+          for(unsigned int i=0;i<m_rIdstile.size();i++){
+	   bool include=true;
+	   uint32_t tilerodid = m_tilecell->find_rod(m_rIdstile[i]);
+           m_alltile.push_back(tilerodid);
+	   for(unsigned int j=0;j<tilelists.size();j++)
+		if ( tilelists.at(j) == tilerodid ) include=false;
+           if ( include ) tilelists.push_back ( tilerodid );
+	  }
+          m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), tilelists.begin(), tilelists.end() );
+          tilelists.clear();
           // TTEM 
           m_rIdsem0.insert(m_rIdsem0.end(),m_rIdsem1.begin(),m_rIdsem1.end());
           m_rIdsem0.insert(m_rIdsem0.end(),m_rIdsem2.begin(),m_rIdsem2.end());
@@ -480,9 +490,9 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
 	  sort(m_full_vrodid32.begin(),m_full_vrodid32.end());
 
 	  m_full_vrodid32.erase(std::unique(m_full_vrodid32.begin(),m_full_vrodid32.end()),m_full_vrodid32.end());
-	  if ( fetchROBs ) m_robDataProvider->addROBData(m_full_vrodid32);
+	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();}
         } 
-	else if ( fetchROBs ) m_robDataProvider->addROBData(m_vrodid32);
+	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();}
 
 	if (msgLvl(MSG::DEBUG)) {
 	  msg(MSG::DEBUG) << "m_vrodid32.size() = " << m_vrodid32.size() << endreq;
@@ -813,6 +823,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
 	// Resets error flag
 	m_error=0;
         Begin=End=m_sel->end();
+	if ( detid == 0 ) {
+            m_robDataProvider->addROBData( m_vrodid32lar );
+            m_robDataProvider->getROBData( m_vrodid32lar, m_robFrags );
+            m_robFrags.clear();
+	}
 	m_robFrags.clear();
 	bool rob_miss=false;
 	size_t  checkSize = 0;
@@ -943,9 +958,16 @@ StatusCode TrigDataAccess::LoadFullCollections (
         m_error=0;
         m_robFrags.clear();
 
+	if ( sample == 0 ) {
+            m_robDataProvider->addROBData( m_alltile );
+            m_robDataProvider->getROBData( m_alltile, m_robFrags );
+            m_robFrags.clear();
+	}
+
         int i = sample;
         Begin=End;
-                m_tile[0] = m_tilecell->find_rod(m_rIdstile[i]);
+                //m_tile[0] = m_tilecell->find_rod(m_rIdstile[i]);
+                m_tile[0] = m_alltile[i];
 //              m_tile[0] = m_tilecell->find_rod(m_rIdstile[0]);
                 m_robDataProvider->addROBData(m_tile);
                 m_robDataProvider->getROBData(m_tile,m_robFrags);
@@ -1164,6 +1186,8 @@ StatusCode TrigDataAccess::LoadFullCollections (
         std::vector<uint32_t>* vrodids = &m_vrodid32em;
 
         m_robDataProvider->addROBData( m_vrodid32fullDet );
+        m_robDataProvider->getROBData( m_vrodid32fullDet, m_robFrags );
+        m_robFrags.clear();
         m_robDataProvider->getROBData( m_vrodid32lar, m_robFrags );
         checkSize = m_vrodid32lar.size();
 
@@ -1309,7 +1333,7 @@ void TrigDataAccess::handle(const Incident & inc ) {
 
 void TrigDataAccess::ROBList( const IRoiDescriptor& roi, std::vector<uint32_t>& vec){
         vec.clear();
-        this->RegionSelectorRobID( 2, roi, TTEM, false );
+        this->RegionSelectorRobID( 2, roi, TTEM, true );
         vec.insert(vec.end(),m_full_vrodid32.begin(),m_full_vrodid32.end()); 
 	return;
 }
