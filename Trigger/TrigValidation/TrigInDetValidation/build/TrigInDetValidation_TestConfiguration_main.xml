@@ -33,6 +33,7 @@
 <!-- #     include   "TrigInDetValidation_el_single_e_5_run2.xml" -->
 #     include   "TrigInDetValidation_el_Jpsiee_pu40_run2.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
+#     include   "TrigInDetValidation_el_single_e_7-80_larged0_PU.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml"
@@ -62,6 +63,7 @@
 
 #     include   "TrigInDetValidation_mu_single_mu_100_run2.xml"
 #     include   "TrigInDetValidation_mu_single_mu_larged0_run2.xml"
+#     include   "TrigInDetValidation_mu_single_mu_larged0_PU_run2.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_pu40.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_pu40_run2.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2.xml"
@@ -145,6 +147,8 @@
 
             <keepFilePattern>HLTL2-plots-bjet/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-bjet-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
           
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>

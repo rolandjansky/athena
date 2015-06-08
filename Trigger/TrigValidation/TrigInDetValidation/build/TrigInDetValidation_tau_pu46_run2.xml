@@ -32,7 +32,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau_pu46_run2-reference.root  HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau29_tracktwo_idperf_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 HLT_tau29_tracktwo_idperf_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau_pu46_run2-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig    HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3  -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 	   
@@ -46,7 +46,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau_pu46_run2-reference.root HLT_tau29_idperf_TrigFastTrackFinder_Tau HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau_pu46_run2-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
              </arg>
            </action> 
 	   
