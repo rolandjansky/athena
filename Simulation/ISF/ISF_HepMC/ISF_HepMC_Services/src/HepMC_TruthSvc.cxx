@@ -266,7 +266,8 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
     
     // attach parent particle end vertex if it gets killed by this interaction
     if (m_alwaysAttachDeadParentEndVertex && !ti.parentSurvivesIncident() ) {
-      recordVertexToMCTruth( ti);
+      HepMC::GenVertex *vtx = createGenVertexFromTruthIncident( ti);
+      m_mcEvent->add_vertex( vtx);
     }
 
     //  -> assign shared barcode to all child particles (if barcode service supports it)
@@ -290,7 +291,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   // record the GenVertex
-  HepMC::GenVertex *vtx = recordVertexToMCTruth(ti);
+  HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti);
 
   ATH_MSG_VERBOSE ( "Outgoing particles:" );
   // update parent barcode and add it to the vertex as outgoing particle
@@ -365,7 +366,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 }
 
 /** Record the given truth incident to the MC Truth */
-HepMC::GenVertex *ISF::HepMC_TruthSvc::recordVertexToMCTruth( ISF::ITruthIncident& ti) {
+HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();

@@ -60,18 +60,18 @@ namespace ISF {
     virtual ~HepMC_TruthSvc();
 
     /** Athena algorithm's interface method initialize() */
-    StatusCode  initialize();
+    StatusCode  initialize() override final;
     /** Athena algorithm's interface method finalize() */
-    StatusCode  finalize();
+    StatusCode  finalize() override final;
 
     /** Register a truth incident */
-    void registerTruthIncident( ITruthIncident& truthincident);
+    void registerTruthIncident( ITruthIncident& truthincident) override final;
 
     /** Initialize the Truth Svc at the beginning of each event */
-    StatusCode initializeTruthCollection();
+    StatusCode initializeTruthCollection() override final;
 
     /** Finalize the Truth Svc at the end of each event*/
-    StatusCode releaseEvent();
+    StatusCode releaseEvent() override final;
 
     /** Query the interfaces. **/
     StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
@@ -80,7 +80,7 @@ namespace ISF {
     /** Record the given truth incident to the MC Truth */
     void recordIncidentToMCTruth( ITruthIncident& truthincident);
     /** Record and end vertex to the MC Truth for the parent particle */
-    HepMC::GenVertex *recordVertexToMCTruth( ITruthIncident& truthincident);
+    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident);
 
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident);
