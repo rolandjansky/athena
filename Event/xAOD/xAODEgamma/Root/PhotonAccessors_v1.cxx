@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonAccessors_v1.cxx 741466 2016-04-19 20:21:49Z christos $
+// $Id: PhotonAccessors_v1.cxx 628253 2014-11-13 19:47:54Z christos $
 
 // System include(s):
 #include <iostream>
@@ -14,14 +14,14 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
   case xAOD::EgammaParameters::NAME:				   \
    {                                                               \
-     const static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
+     static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
      return &a;							   \
    }                                                               \
    break;
 
 namespace xAOD {
 
-   const SG::AuxElement::Accessor< float >*
+   SG::AuxElement::Accessor< float >*
    vertexCaloMatchAccessorV1( xAOD::EgammaParameters::VertexCaloMatchType type ) 
    {   
       switch( type ) {

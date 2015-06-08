@@ -14,14 +14,14 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
   case xAOD::EgammaParameters::NAME:				   \
    {                                                               \
-     const static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
+     static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
      return &a;							   \
    }                                                               \
    break;
 
 namespace xAOD {
 
-   const SG::AuxElement::Accessor< float >*
+   SG::AuxElement::Accessor< float >*
    trackCaloMatchAccessorV1( xAOD::EgammaParameters::TrackCaloMatchType type ) 
    {   
       switch( type ) {

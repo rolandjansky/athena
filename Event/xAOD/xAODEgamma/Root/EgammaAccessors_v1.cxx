@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.cxx 741489 2016-04-20 01:30:34Z christos $
+// $Id: EgammaAccessors_v1.cxx 667007 2015-05-13 18:57:07Z christos $
 
 // System include(s):
 #include <iostream>
@@ -14,7 +14,7 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
    case xAOD::EgammaParameters::NAME:                              \
    {                                                               \
-     static const SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
+     static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
      return &a;							   \
    }                                                               \
    break;
@@ -22,7 +22,7 @@
 namespace xAOD {
 
   /// Explicit Instantiation  of Template
-   const SG::AuxElement::Accessor< float >*
+   SG::AuxElement::Accessor< float >*
    showerShapeAccessorV1( xAOD::EgammaParameters::ShowerShapeType type ) 
    {   
       switch( type ) {
@@ -78,7 +78,7 @@ namespace xAOD {
    
    }  
 
-   const SG::AuxElement::Accessor< char >*
+   SG::AuxElement::Accessor< char >*
    selectionMenuAccessorV1( xAOD::EgammaParameters::SelectionMenu menu ) 
    {   
       switch( menu ) {
@@ -96,7 +96,7 @@ namespace xAOD {
       }
    }
 
-   const SG::AuxElement::Accessor< unsigned int >*
+   SG::AuxElement::Accessor< unsigned int >*
    selectionisEMAccessorV1( xAOD::EgammaParameters::SelectionisEM isEM ) 
    {   
       switch( isEM ) {

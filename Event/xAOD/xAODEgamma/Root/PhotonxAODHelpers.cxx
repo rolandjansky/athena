@@ -86,9 +86,9 @@ Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Photon *photon, 
 
 Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, bool debug){  
 
-  static const SG::AuxElement::Accessor<float> accPx("px");
-  static const SG::AuxElement::Accessor<float> accPy("py");
-  static const SG::AuxElement::Accessor<float> accPz("pz");
+  static SG::AuxElement::Accessor<float> accPx("px");
+  static SG::AuxElement::Accessor<float> accPy("py");
+  static SG::AuxElement::Accessor<float> accPz("pz");
   
   if (accPx.isAvailable(vertex) && 
       accPy.isAvailable(vertex) && 
@@ -110,13 +110,10 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
 
   std::set<const xAOD::TrackParticle*> tps;
   if (!ph) return tps;
-  for (unsigned int ivx = 0; ivx < ph->nVertices(); ++ivx)
-  {
-    const xAOD::Vertex* vx = ph->vertex(ivx);
-    for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
-      const xAOD::TrackParticle *tp = vx->trackParticle(i);
-      tps.insert( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
-    }
+  const xAOD::Vertex* vx = ph->vertex();
+  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
+    const xAOD::TrackParticle *tp = vx->trackParticle(i);
+    tps.insert( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
   }
   return tps;
 }
@@ -125,13 +122,10 @@ const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParti
 											bool useBremAssoc /* = true */){
   std::vector<const xAOD::TrackParticle*> tps;
   if (!ph) return tps;
-  for (unsigned int ivx = 0; ivx < ph->nVertices(); ++ivx)
-  {
-    const xAOD::Vertex* vx = ph->vertex(ivx);
-    for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
-      const xAOD::TrackParticle *tp = vx->trackParticle(i);
-      tps.push_back( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
-    }
+  const xAOD::Vertex* vx = ph->vertex();
+  for (unsigned int i=0; vx && i < vx->nTrackParticles(); ++i){
+    const xAOD::TrackParticle *tp = vx->trackParticle(i);
+    tps.push_back( useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp) : tp );
   }
   return tps;
 }
