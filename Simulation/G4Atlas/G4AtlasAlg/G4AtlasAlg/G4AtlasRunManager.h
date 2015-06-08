@@ -2,20 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef G4AtlasRunManager_h
-#define G4AtlasRunManager_h 1
+#define G4AtlasRunManager_h
 
 #include "G4RunManager.hh"
 #include "G4VUserPhysicsList.hh"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include <vector>
 
 class StoreGateSvc;
-#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
-#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
 
 class G4AtlasRunManager: public G4RunManager {
@@ -62,8 +61,8 @@ private:
   StoreGateSvc* m_sgSvc;
   bool m_releaseGeo;
 
-  ISensitiveDetectorSvc* m_senDetSvc;
-  IFastSimulationSvc* m_fastSimSvc;
+  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 };
 
 

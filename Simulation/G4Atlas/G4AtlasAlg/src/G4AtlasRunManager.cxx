@@ -26,7 +26,6 @@
 #include "FadsPhysics/DummyPhysicsList.h"
 #include "G4VUserPrimaryGeneratorAction.hh"
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -41,8 +40,8 @@
 #include "G4GeometryManager.hh"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
-#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
 
 G4AtlasRunManager::G4AtlasRunManager()
@@ -51,58 +50,96 @@ G4AtlasRunManager::G4AtlasRunManager()
     m_pl(NULL),
     m_sgSvc(NULL),
     m_releaseGeo(false),
-    m_senDetSvc(nullptr),
-    m_fastSimSvc(nullptr)
+    m_senDetTool("SensitiveDetectorMasterTool"),
+    m_fastSimTool("FastSimulationMasterTool")
 {  }
 
 
-G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager() {
+G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
+{
   static G4AtlasRunManager* thisManager=0;
-  if (!thisManager) thisManager=new G4AtlasRunManager;
+  if (!thisManager)
+    {
+      thisManager=new G4AtlasRunManager;
+    }
   return thisManager;
 }
 
 
-void G4AtlasRunManager::InitializeGeometry() {
+void G4AtlasRunManager::InitializeGeometry()
+{
   G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-  for (unsigned int i=0;i<lvs->size();++i){
-    if ( (*lvs)[i]->GetName() == "Muon::MuonSys" ){
-      (*lvs)[i]->SetSmartless( 0.1 );
-      ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
-    } else if ( (*lvs)[i]->GetName() == "LArMgr::LAr::EMB::STAC") {
-      (*lvs)[i]->SetSmartless( 0.5 );
-      ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
+  for (unsigned int i=0;i<lvs->size();++i)
+    {
+      if ( (*lvs)[i]->GetName() == "Muon::MuonSys" )
+        {
+          (*lvs)[i]->SetSmartless( 0.1 );
+          ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
+        }
+      else if ( (*lvs)[i]->GetName() == "LArMgr::LAr::EMB::STAC")
+        {
+          (*lvs)[i]->SetSmartless( 0.5 );
+          ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
+        }
     }
-  }
 
-  if (userDetector) {
-    G4RunManager::InitializeGeometry();
-  } else {
-    ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
-  }
+  if (userDetector)
+    {
+      G4RunManager::InitializeGeometry();
+    }
+  else
+    {
+      ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
+    }
 
   // Geometry has been initialized.  Now get services to add some stuff to the geometry.
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  if (svcLocator->service("SensitiveDetectorSvc",m_senDetSvc).isFailure()){
-    ATH_MSG_ERROR ( "Could not retrieve the SD service" );
-    throw "CouldNotRetrieveSDService";
-  }
-  if (svcLocator->service("FastSimulationSvc",m_fastSimSvc).isFailure()){
-    ATH_MSG_ERROR ( "Could not retrieve the FastSim service" );
-    throw "CouldNotRetrieveFastSimService";
-  }
-
+  if (m_senDetTool.retrieve().isFailure()) //svcLocator->service("SensitiveDetector",m_senDetSvc).isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
+      G4ExceptionDescription description;
+      description << "InitializeGeometry: Failed to retrieve ISensitiveDetectorMasterTool.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrieveSDMaster", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  if(m_senDetTool->initializeSDs().isFailure())
+    {
+      G4ExceptionDescription description;
+      description << "InitializeGeometry: Call to ISensitiveDetectorMasterTool::initializeSDs failed.";
+      G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  return;
 }
 
 
-void G4AtlasRunManager::EndEvent() {
+void G4AtlasRunManager::EndEvent()
+{
   ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
 }
 
 
-void G4AtlasRunManager::InitializePhysics() {
+void G4AtlasRunManager::InitializePhysics()
+{
   kernel->InitializePhysics();
   physicsInitialized = true;
+
+  // Fast simulations last
+  if (m_fastSimTool.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the FastSim master tool" );
+      G4ExceptionDescription description;
+      description << "InitializePhysics: Failed to retrieve IFastSimulationMasterTool.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrieveFastSimMaster", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  if(m_fastSimTool->initializeFastSims().isFailure())
+    {
+      G4ExceptionDescription description;
+      description << "InitializePhysics: Call to IFastSimulationMasterTool::initializeFastSims failed.";
+      G4Exception("G4AtlasRunManager", "FailedToInitializeFastSims", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  return;
 }
 
 
@@ -121,37 +158,55 @@ G4Event* G4AtlasRunManager::GenerateEvent(G4int i_event)
 bool G4AtlasRunManager::SimulateFADSEvent()
 {
 
-  //	std::cout<<" SimulateFADSEvent : start simulating one event "<<std::endl;
+  // std::cout<<" SimulateFADSEvent : start simulating one event "<<std::endl;
 
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
-  //      stateManager->SetNewState(G4State_EventProc);
+  // stateManager->SetNewState(G4State_EventProc);
 
   // Release GeoModel Geometry if necessary
-  if (m_releaseGeo){
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-    StoreGateSvc* m_detStore;
-    StatusCode sc=svcLocator->service("DetectorStore",m_detStore);
-    if (sc.isFailure()){
-      ATH_MSG_ERROR( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
-      abort();
+  if (m_releaseGeo)
+    {
+      ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+      StoreGateSvc* m_detStore;
+      if (svcLocator->service("DetectorStore",m_detStore).isFailure())
+        {
+          ATH_MSG_ERROR( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
+          G4ExceptionDescription description;
+          description << "SimulateFADSEvent: Attempt to access DetectorStore failed.";
+          G4Exception("G4AtlasRunManager", "CouldNotAccessDetStore", FatalException, description);
+          abort(); // to keep Coverity happy
+        }
+
+      IGeoModelSvc* geoModel = 0;
+      if(svcLocator->service("GeoModelSvc",geoModel).isFailure())
+        {
+          ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
+        }
+      else
+        {
+          if(geoModel->clear().isFailure())
+            {
+              ATH_MSG_WARNING( " ----> GeoModelSvc::clear() failed" );
+            }
+          else
+            {
+              ATH_MSG_INFO( " ----> GeoModelSvc::clear() succeeded " );
+            }
+        }
+      m_releaseGeo=false; // Don't do that again...
     }
 
-    IGeoModelSvc* geoModel = 0;
-    StatusCode status=svcLocator->service("GeoModelSvc",geoModel);
-    if(status.isFailure()) {
-      ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
-    } else {
-      status = geoModel->clear();
-      if(status.isFailure()) {
-        ATH_MSG_WARNING( " ----> GeoModelSvc::clear() failed" );
-      } else {
-        ATH_MSG_INFO( " ----> GeoModelSvc::clear() succeeded " );
-      }
+  if (m_senDetTool)
+    {
+      if(m_senDetTool->BeginOfAthenaEvent().isFailure())
+        {
+          G4ExceptionDescription description;
+          description << "SimulateFADSEvent: Call to ISensitiveDetectorMasterTool::BeginOfAthenaEvent failed.";
+          G4Exception("G4AtlasRunManager", "SDMasterBoAthEvtFailed", FatalException, description);
+          abort(); // to keep Coverity happy
+        }
     }
-    m_releaseGeo=false; // Don't do that again...
-  }
-
 
   currentEvent = GenerateEvent(1);
   if (currentEvent->IsAborted())
@@ -178,6 +233,27 @@ bool G4AtlasRunManager::SimulateFADSEvent()
     }
 
   //      stateManager->SetNewState(G4State_GeomClosed);
+  // Register all of the collections if there are any new-style SDs
+  if (m_senDetTool)
+    {
+      if(m_senDetTool->EndOfAthenaEvent().isFailure())
+        {
+          G4ExceptionDescription description;
+          description << "SimulateFADSEvent: Call to ISensitiveDetectorMasterTool::EndOfAthenaEvent failed.";
+          G4Exception("G4AtlasRunManager", "SDMasterEoAthEvtFailed", FatalException, description);
+          abort(); // to keep Coverity happy
+        }
+    }
+  if (m_fastSimTool)
+    {
+      if(m_fastSimTool->EndOfAthenaEvent().isFailure())
+        {
+          G4ExceptionDescription description;
+          description << "SimulateFADSEvent: Call to IFastSimulationMasterTool::EndOfAthenaEvent failed.";
+          G4Exception("G4AtlasRunManager", "FSMasterEoAthEvtFailed", FatalException, description);
+          abort(); // to keep Coverity happy
+        }
+    }
   StackPreviousEvent(currentEvent);
   bool abort=currentEvent->IsAborted();
   currentEvent = 0;
@@ -191,13 +267,18 @@ void  G4AtlasRunManager::RunTermination()
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
 #if G4VERSION_NUMBER < 1010
   for(size_t itr=0;itr<previousEvents->size();itr++)
-  { delete (*previousEvents)[itr]; }
+  {
+    delete (*previousEvents)[itr];
+  }
 #else
   this->CleanUpPreviousEvents();
 #endif
   previousEvents->clear();
 
-  if(userRunAction) userRunAction->EndOfRunAction(currentRun);
+  if(userRunAction)
+    {
+      userRunAction->EndOfRunAction(currentRun);
+    }
 
   delete currentRun;
   currentRun = 0;
