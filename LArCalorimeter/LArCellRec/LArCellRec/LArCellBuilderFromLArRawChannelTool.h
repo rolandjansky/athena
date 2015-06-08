@@ -23,14 +23,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "StoreGate/ReadHandleKey.h"
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "AthAllocators/DataPool.h"
 
 
 class CaloCellContainer ;
@@ -127,13 +125,10 @@ private:
    * @brief Converts one LArRawChannel into a LArCell
    * @param theRawChannel Pointer to a LArRawChannel
    * @param hash (output) Refernce to the hash index of the cell
-   * @param pool Memory pool for cell allocation.
    * @return LArCell object (owned by a DataPool). NULL if no DDE is found.
    *
    */
-  LArCell* getCell(const LArRawChannel& theRawChannel,
-                   IdentifierHash& hash,
-                   DataPool<LArCell>& pool);
+  LArCell* getCell(const LArRawChannel& theRawChannel, IdentifierHash& hash);
 
   /**
    * @brief Gets a CaloDetectorDescriptionElement
@@ -160,8 +155,7 @@ private:
   
   
   // Variables set by jobOptions
-  //std::string     m_rawChannelsName;        //!< rdo container name (jO)
-  SG::ReadHandleKey<LArRawChannelContainer>   m_rawChannelsKey;        //!< rdo container name (jO)
+  std::string     m_rawChannelsName;        //!< rdo container name (jO)
   bool            m_addDeadOTX;             //!< activate addition of missing cells from dead OTX
   int             m_initialDataPoolSize;    //!< Initial size of DataPool<LArCell>
 

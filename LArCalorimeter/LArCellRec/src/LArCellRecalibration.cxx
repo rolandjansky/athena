@@ -30,9 +30,20 @@ LArCellRecalibration::~LArCellRecalibration() {}
 
 
 StatusCode LArCellRecalibration::initialize() {
-  ATH_MSG_INFO( " initialization "  );
-  ATH_CHECK( m_adc2mevTool.retrieve() );
-  ATH_CHECK( m_adc2mevToolOnline.retrieve() );
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << " initialization " << endreq;
+
+  StatusCode  sc = m_adc2mevTool.retrieve();
+  if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to find tool for LArADC2MeVTool" << endreq;
+      return StatusCode::FAILURE;
+  }
+  sc = m_adc2mevToolOnline.retrieve();
+  if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to find tool for LArADC2MeVTool" << endreq; 
+      return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 

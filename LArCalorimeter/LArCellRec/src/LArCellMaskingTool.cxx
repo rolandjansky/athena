@@ -10,9 +10,15 @@ PACKAGE:  offline/Calorimeter/CaloRec
 ********************************************************************/
 
 #include "LArCellRec/LArCellMaskingTool.h"
+
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
+
 #include "CaloEvent/CaloCellContainer.h"
-#include "LArCabling/LArCablingService.h"
+
+#include "LArTools/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -23,10 +29,7 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_onlineID(nullptr),
-    m_offlineID(nullptr),
-    m_larCablingSvc(nullptr)
+  :AthAlgTool(type, name, parent)
 {
   declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.
@@ -58,7 +61,7 @@ StatusCode LArCellMaskingTool::initialize()
   ATH_MSG_DEBUG ("CaloCell Hash Max: " << m_offlinehashMax);
   
 //   m_onlinehashMax=m_onlineID->hash_max();
-//   (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endmsg;
+//   (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endreq;
   
   //Fill the bit map
   m_includedCellsMap.set(); // By default include all cells
@@ -114,7 +117,7 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
     if (haveFT) msg() << " FT=" << FT;
     if (haveSlot) msg() << " slot=" << slot; 
     if (haveChannel) msg() << " channel=" << channel;
-    msg() << endmsg;
+    msg() << endreq;
 
     unsigned nOnlExceptions=0;
     unsigned nOfflExceptions=0;

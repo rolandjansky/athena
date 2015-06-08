@@ -29,9 +29,15 @@
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/INTupleSvc.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ListItem.h"
+
 #include "StoreGate/StoreGateSvc.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "GaudiKernel/ListItem.h"
 
 
 using CLHEP::HepRandomEngine;
@@ -46,33 +52,20 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
 				      const std::string& name, 
 				      const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_priority(1000), 
-   m_caloNum(),
-   m_calo_dd_man(nullptr),
-   m_caloCID(nullptr),
-   m_atlas_id(nullptr),
-   m_emID(nullptr),
-   m_hecID(nullptr),
-   m_fcalID(nullptr),
-   m_applyHitEnergyThreshold(false),
-   m_eHitThreshold(-999999.), 
-   m_ThresholdOnE(-999999.), 
-   m_ThresholdOnAbsE(-999999.),
-   m_ThresholdOnEinSigma(-999999.), 
-   m_ThresholdOnAbsEinSigma(-999999.), 
-   m_ThresholdSelected(0),
-   m_ThresholdSelectedNotInSigma(0),
-   m_Windows(false), 
-   m_WindowsEtaSize(0.4),  
-   m_WindowsPhiSize(0.5),
-   m_AtRndmGenSvc(nullptr),
-   m_WithNoise(true),
-   m_WithElecNoise(true),
-   m_WithPileUpNoise(false),
-   m_NoiseToolName("CaloNoiseTool/calonoisetool"),
-   m_noisetool(nullptr),
-   m_WithMap(false),
-   m_mcEventName("GEN_EVENT")
+    m_priority(1000), 
+    m_eHitThreshold(-999999.), 
+    m_ThresholdOnE(-999999.), 
+    m_ThresholdOnAbsE(-999999.),
+    m_ThresholdOnEinSigma(-999999.), 
+    m_ThresholdOnAbsEinSigma(-999999.), 
+    m_Windows(false), 
+    m_WindowsEtaSize(0.4),  
+    m_WindowsPhiSize(0.5),
+    m_WithNoise(true),
+    m_WithElecNoise(true),
+    m_WithPileUpNoise(false),
+    m_NoiseToolName("CaloNoiseTool/calonoisetool"),
+    m_mcEventName("GEN_EVENT")
  
 {
   declareInterface<ICaloCellMakerTool>(this); 
@@ -446,7 +439,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 
       //FIXME
       //log << MSG::DEBUG << " Hit : " << m_atlas_id->show_to_string(id)
-      //	  << " energy " << e << endmsg ;
+      //	  << " energy " << e << endreq ;
       
       // WITH MAP
       if( m_WithMap )
@@ -479,7 +472,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 	  e/= m_dd_fSampl->FSAMPL(id);	  
 
 	  //FIXME
-	  //  log << MSG::DEBUG << " .. new e " << e << endmsg ;
+	  //  log << MSG::DEBUG << " .. new e " << e << endreq ;
 
 	  const double t  = hit->time(); 
 	  const double q  = 1. ;	  
@@ -527,7 +520,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       ++index;
       if (*it==0) {	
 	//log << MSG::WARNING << " hole in permanent collection " 
-	//    << index << endmsg ;
+	//    << index << endreq ;
 	continue;
       }
       
@@ -713,7 +706,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
     //check if no hole
     if (caloDDE==0) {
       //      log << MSG::WARNING << "hole detected calo num " 
-      // 	  << m_caloType << " index " << index << endmsg ;
+      // 	  << m_caloType << " index " << index << endreq ;
       ++nHole;
       continue;
     }
@@ -769,7 +762,7 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
   for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
     if (m_cellPermanentCollection[i]==0) {
       //log << MSG::WARNING 
-      //<< " one element missing in m_cellPermanentCollection " << i << endmsg;
+      //<< " one element missing in m_cellPermanentCollection " << i << endreq;
       ++nFailed;      
     }
   }
@@ -865,10 +858,10 @@ StatusCode LArCellBuilderFromLArHitTool::defineWindow()
   if (msgSvc()->outputLevel() <= MSG::DEBUG) {
     for(unsigned int iPart=0;iPart<m_etaPart.size();++iPart)
     {      
-      ATH_MSG_DEBUG( " Selected window" 
-                     << m_etaPart[iPart] << " phi=" << m_phiPart[iPart] 
-                     << " deta=" << m_WindowsEtaSize << " dphi="<< m_WindowsPhiSize 
-                     );
+      log << MSG::DEBUG << " Selected window" 
+	  << m_etaPart[iPart] << " phi=" << m_phiPart[iPart] 
+	  << " deta=" << m_WindowsEtaSize << " dphi="<< m_WindowsPhiSize 
+	  << endreq ;
     }
   }
   

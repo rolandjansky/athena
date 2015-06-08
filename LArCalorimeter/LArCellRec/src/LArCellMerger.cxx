@@ -23,7 +23,7 @@ PURPOSE:
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@ LArCellMerger::LArCellMerger(
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
    m_rawChannelContainerName("LArRawChannels_digits"),
-   m_calo_id(nullptr),
    m_evt(0),
    m_ncell(0)
 { 
@@ -58,7 +57,12 @@ StatusCode LArCellMerger::initialize()
 
    // callback to GeoModel to retrieve identifier helpers, etc..
   const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
+  StatusCode sc = service("GeoModelSvc", geoModel);
+  if(sc.isFailure())
+  {
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
+    return sc;
+  }
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -70,9 +74,14 @@ StatusCode LArCellMerger::initialize()
   }
   else
   {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &LArCellMerger::geoInit,this) );
+    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
+			    geoModel,
+			    &LArCellMerger::geoInit,this);
+    if(sc.isFailure())
+    {
+      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
+      return sc;
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -81,20 +90,33 @@ StatusCode LArCellMerger::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
   const  CaloIdManager* caloIdMgr;
-  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
+  StatusCode sc = detStore()->retrieve( caloIdMgr );
+  if (sc.isFailure()) {
+   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
+   return sc;
+  }
   m_calo_id = caloIdMgr->getCaloCell_ID();
-  ATH_CHECK( m_cablingService.retrieve() );
+
+
+  // translate offline ID into online ID
+  sc = m_cablingService.retrieve();
+  if(sc.isFailure()){
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endreq;
+    return sc;
+  }
+  
   return StatusCode::SUCCESS;
+
 }
 
 StatusCode LArCellMerger::finalize()
 {
-   ATH_MSG_INFO( "  ---- Summary from LArCellMerger "  );
-   ATH_MSG_INFO( "   Number of events processed                           " << m_evt  );
-   ATH_MSG_INFO( "   Number of cells from merged raw channel container    " << m_ncell  );
+   msg(MSG::INFO) << "  ---- Summary from LArCellMerger " << endreq;
+   msg(MSG::INFO) << "   Number of events processed                           " << m_evt << endreq;
+   msg(MSG::INFO) << "   Number of cells from merged raw channel container    " << m_ncell << endreq;
    float ratio=0.;
    if (m_evt>0) ratio=((float)(m_ncell))/((float)(m_evt));
-   ATH_MSG_INFO( "   Average number of cells per event                    " << ratio  );
+   msg(MSG::INFO) << "   Average number of cells per event                    " << ratio << endreq;
 
    return StatusCode::SUCCESS;
 }
@@ -109,7 +131,11 @@ StatusCode LArCellMerger::process(CaloCellContainer * theCont )
   ATH_MSG_DEBUG("in  LArCellMerger::process");
   
   const LArRawChannelContainer* rawColl;
-  ATH_CHECK( evtStore()->retrieve(rawColl,m_rawChannelContainerName) );
+  StatusCode sc = evtStore()->retrieve(rawColl,m_rawChannelContainerName);
+  if (sc.isFailure()) {
+    msg(MSG::WARNING) << " cannot retrieve raw channel container to merge " << m_rawChannelContainerName << "  Skip  LArCellMerger::process " << endreq;
+    return StatusCode::SUCCESS;
+  }
 
   // loop over raw channel container
   //   as this new container is supposed to contain only few cells, we do a simple loop and the basics onlineId to offlineId conversion
@@ -128,9 +154,9 @@ StatusCode LArCellMerger::process(CaloCellContainer * theCont )
           int index = theCont->findIndex(theCellHashID);
           if (index<0) {
                if (nwarnings<100) {
-                  ATH_MSG_WARNING( " cell " << hwid.get_compact() << " " << id.get_compact() << " is not in the container "  );
+                 msg(MSG::WARNING) << " cell " << hwid.get_compact() << " " << id.get_compact() << " is not in the container " << endreq;
                   nwarnings++;
-                  if (nwarnings==100) ATH_MSG_WARNING( "  will not print anymore warnings for this event... "  );
+                  if (nwarnings==100) msg(MSG::WARNING) << "  will not print anymore warnings for this event... " << endreq;
                } 
                continue;
           }

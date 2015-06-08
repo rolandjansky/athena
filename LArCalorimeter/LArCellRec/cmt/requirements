@@ -8,7 +8,7 @@ use AtlasPolicy      AtlasPolicy-*
 use AthenaKernel     AthenaKernel-*         Control
 use StoreGate        StoreGate-*            Control
 use AthenaBaseComps  AthenaBaseComps-*      Control
-use AthAllocators    AthAllocators-*        Control
+use CxxUtils         CxxUtils-*             Control
 
 use AtlasDetDescr    AtlasDetDescr-*        DetectorDescription
 use Identifier       Identifier-*           DetectorDescription
@@ -32,11 +32,11 @@ use LArElecCalib     LArElecCalib-*         LArCalorimeter
 use LArRecConditions LArRecConditions-*     LArCalorimeter
 
 #
-use xAODTrigL1Calo xAODTrigL1Calo-*      Event/xAOD
 
 private
 use AtlasHepMC       AtlasHepMC-*           External
 use AtlasROOT        AtlasROOT-*            External
+use DataModel 	     DataModel-*            Control
 use AthenaPoolUtilities     AthenaPoolUtilities-*     Database/AthenaPOOL
 use xAODEventInfo      xAODEventInfo-*      Event/xAOD
 #use EventInfo        EventInfo-*      	    Event
@@ -45,10 +45,11 @@ use GeneratorObjects GeneratorObjects-*     Generators
 use CaloTriggerTool  CaloTriggerTool-*      Calorimeter
 use LArRecEvent      LArRecEvent-*          LArCalorimeter
 #use LArRecUtils      LArRecUtils-*          LArCalorimeter
-use LArCabling       LArCabling-*           LArCalorimeter
+use LArTools         LArTools-*             LArCalorimeter
 # for deadOTX correction using L1 energies (These packages are in AtlasConditions and AtlasEvent)
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 # use TrigT1CaloEvent  TrigT1CaloEvent-*      Trigger/TrigT1
+use xAODTrigL1Calo xAODTrigL1Calo-*      Event/xAOD
 use TrigT1CaloCondSvc TrigT1CaloCondSvc-* Trigger/TrigT1 
 end_private
 

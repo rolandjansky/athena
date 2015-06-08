@@ -33,11 +33,15 @@
 
 #include "LArCellRec/LArCellDeadOTXCorr.h" //Needs to be changed to correct package
 
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/StatusCode.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "StoreGate/ReadHandle.h"
+
 
 #include "Identifier/IdentifierHash.h"
 
@@ -51,7 +55,7 @@
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 // #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
 //#include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -119,14 +123,7 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 		const std::string& type, 
 		const std::string& name, 
 		const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_caloMgr(nullptr),
-    m_lvl1Helper(nullptr),
-    m_calo_id(nullptr),
-    m_onlineID(nullptr),
-    m_TT_ID(nullptr),
-    m_l1CondSvc(nullptr),
-    m_ttSvc(nullptr)
+:AthAlgTool(type, name, parent)
 {
 	declareInterface<ICaloCellMakerTool>(this); 
 	declareProperty("triggerTowerLocation", m_TTLocation  = "xAODTriggerTowers");
@@ -193,8 +190,6 @@ StatusCode LArCellDeadOTXCorr::initialize()
 	const IGeoModelSvc *geoModel=0;
 	ATH_CHECK( service("GeoModelSvc", geoModel) );
 
-	ATH_CHECK(m_TTLocation.initialize());
-
 	if(m_useL1CaloDB)
 	{
                 ATH_MSG_INFO ("L1Calo database will be used to get the pedestal values.");
@@ -252,9 +247,9 @@ StatusCode LArCellDeadOTXCorr::geoInit(IOVSVC_CALLBACK_ARGS)
           IAlgTool *algtool;
 
           sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-          ATH_MSG_DEBUG("L1CaloTTIdTools retrieved" );
+          mLog<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
           if (sc!=StatusCode::SUCCESS) {
-          ATH_MSG_WARNING( " Cannot get L1CaloTTIdTools !"  );
+          mLog << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
           // m_bTTMapInitialized = false;
           }
           m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
@@ -280,13 +275,8 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 	//Retrieve Trigger Towers from SG
 	//const TriggerTowerCollection* storedTTs = 0; 
-	//const xAOD::TriggerTowerContainer* storedTTs = 0;
-	SG::ReadHandle<xAOD::TriggerTowerContainer> storedTTs(m_TTLocation);
-	if(!storedTTs.isValid()) { 
-	  ATH_MSG_ERROR("Could not read container " << m_TTLocation.key());
-	  return StatusCode::FAILURE;      
-	}  
-
+	const xAOD::TriggerTowerContainer* storedTTs = 0; 
+	ATH_CHECK( evtStore()->retrieve(storedTTs, m_TTLocation) );
 
 	bool getDBPedestal = m_useL1CaloDB;
 	L1CaloPprLutContainer* l1CaloPprLutContainer = 0;

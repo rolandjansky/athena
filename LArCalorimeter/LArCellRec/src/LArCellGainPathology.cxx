@@ -30,7 +30,7 @@ PURPOSE:
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -41,9 +41,8 @@ LArCellGainPathology::LArCellGainPathology(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_calo_id(nullptr),
-    m_onlineID(nullptr)
+  :AthAlgTool(type, name, parent)
+
 { 
   declareInterface<ICaloCellMakerTool>(this); 
 

@@ -3,7 +3,10 @@
 */
 
 #include "LArCellRec/LArCellHVCorr.h" 
+//#include "GaudiKernel/MsgStream.h"
+//#include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCell.h"
+//#include "LArRecUtils/LArHVCorrTool.h"
 
 
 LArCellHVCorr::LArCellHVCorr (const std::string& type, 
@@ -49,23 +52,27 @@ StatusCode LArCellHVCorr::queryInterface( const InterfaceID& riid, void** ppvIf 
 
 StatusCode LArCellHVCorr::initialize() {
 
-  ATH_CHECK( m_hvCorrTool.retrieve() );
+  StatusCode  sc = m_hvCorrTool.retrieve();
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Unable to find tool for LArHVCorrTool" << endreq; 
+    return StatusCode::FAILURE;
+  }
 
   // if (m_undoHVonline) {
   //   sc = detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
   //   if (sc.isFailure()) {
-  //     msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endmsg;
+  //     msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endreq;
   //     return StatusCode::FAILURE;
   //   }
   // }
 
   ATH_CHECK(detStore()->regFcn(&ILArHVCorrTool::LoadCalibration,&(*m_hvCorrTool),&ILArCellHVCorrTool::LoadCalibration,(ILArCellHVCorrTool*)this));
 
-  ATH_MSG_INFO( "Registered callback on ILArHVCorrTool"  );
+  msg(MSG::INFO) << "Registered callback on ILArHVCorrTool" << endreq;
 
   ATH_CHECK(detStore()->regFcn(&LArCellHVCorr::LoadCalibration,this,m_dd_HVScaleCorr,m_keyHVScaleCorr));
 
-  ATH_MSG_INFO( "Registered callback on DataHandle<ILArHVScaleCorr>"  );
+  msg(MSG::INFO) << "Registered callback on DataHandle<ILArHVScaleCorr>" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -73,10 +80,10 @@ StatusCode LArCellHVCorr::initialize() {
 
 StatusCode  LArCellHVCorr::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
   //Dummy callback method to forward callback on HV update to CaloNoiseTool
-  ATH_MSG_DEBUG( "LArCellHVCorr::LoadCalibration callback invoked"  );
+  msg(MSG::DEBUG) << "LArCellHVCorr::LoadCalibration callback invoked" << endreq;
   m_updateOnLastCallback=m_hvCorrTool->updateOnLastCallback();
   if (!m_updateOnLastCallback) 
-    ATH_MSG_DEBUG( "No real HV change, chaches remain valid"  );
+    msg(MSG::DEBUG) << "No real HV change, chaches remain valid" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -90,7 +97,7 @@ float LArCellHVCorr::getCorrection(const Identifier id) {
   }
 
  if (hvcorr<0.9) {
-   ATH_MSG_WARNING( "HV corr for cell with id " << id.get_identifier32().get_compact() << " = " << hvcorr  );
+   msg(MSG::WARNING) << "HV corr for cell with id " << id.get_identifier32().get_compact() << " = " << hvcorr << endreq; 
  }
 
 
