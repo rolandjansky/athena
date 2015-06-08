@@ -14,11 +14,19 @@
  * $Id: TriggerInfo.h,v 1.11 2008-09-13 21:11:41 efeld Exp $
  */
 
+//<<<<<< INCLUDES                                                       >>>>>>
+
 #include <vector>
 #include <set>
 #include <string>
 #include <iostream>
 
+//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
+//<<<<<< PUBLIC TYPES                                                   >>>>>>
+//<<<<<< PUBLIC VARIABLES                                               >>>>>>
+//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
+//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /**
  **  @class TriggerInfo
@@ -93,9 +101,6 @@ public:
                   bool obeysLumiblock,
                   const std::set<number_type>& robs = std::set<number_type>(),
                   const std::set<number_type>& dets = std::set<number_type>());
-        StreamTag(std::string&& name,
-                  std::string&& type,
-                  bool obeysLumiblock);
 
         const std::string&  name () const;
         const std::string&  type () const;
@@ -174,18 +179,14 @@ public:
     void setLevel1TriggerType (const number_type level1TriggerType);
     /// set level1 trigger info
     void setLevel1TriggerInfo (const std::vector<number_type>& level1TriggerInfo);
-    void setLevel1TriggerInfo (std::vector<number_type>&& level1TriggerInfo);
     /// set level2 trigger info
     void setLevel2TriggerInfo (const std::vector<number_type>& level2TriggerInfo);
-    void setLevel2TriggerInfo (std::vector<number_type>&& level2TriggerInfo);
     /// set event filter trigger info
     void setEventFilterInfo   (const std::vector<number_type>& eventFilterInfo);
-    void setEventFilterInfo   (std::vector<number_type>&& eventFilterInfo);
 
     /// \name Special setter for StreamTags - allows changes on const object
     //@{
     void setStreamTags(const std::vector<StreamTag>&   streamTags);
-    void setStreamTags(std::vector<StreamTag>&&   streamTags);
     //@}
 
     /// extraction operators
@@ -201,5 +202,9 @@ private:
     std::vector<StreamTag>    m_streamTags;
 };
 
+
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // EVENTINFO_TRIGGERINFO_H

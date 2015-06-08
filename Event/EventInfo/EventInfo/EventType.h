@@ -19,10 +19,10 @@
  * $Id: EventType.h,v 1.14 2009-05-18 08:31:07 schaffer Exp $
  */
 
+//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <vector>
 #include <string>
-#include <stdint.h>
 
 /**
  *   @class EventType
@@ -86,7 +86,7 @@
  * 
  *     The full set of characteristics is provided by static
  *     constants. One may add new event characteristics BOTH by adding
- *     more static constants AND by providing the corresponding new
+ *     more static constants AND by providing the cooresponding new
  *     boolean methods.
  */
 class EventType {
@@ -120,10 +120,7 @@ public:
     std::string         typeToString    () const;
 
     /// Access to user type
-    std::string   	user_type	(void) const;
-
-    /// Access to user type
-    const std::string&	user_type_raw	(void) const;
+    const std::string&	user_type	(void) const;
 
     /// Access DetDescr tags
     void                get_detdescr_tags(NameTagPairVec& pairs) const;
@@ -162,7 +159,6 @@ public:
     //@{
     BitMaskIterator 	bit_mask_begin	(void) const;
     BitMaskIterator 	bit_mask_end	(void) const;
-    const BitMask& bit_mask() const;
     //@}    
 
     /// \name Set characteristics:
@@ -198,5 +194,8 @@ private:
     uint64_t            m_mc_event_number;
 };
 
+
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // EVENTINFO_EVENTTYPE_H

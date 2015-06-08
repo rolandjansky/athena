@@ -35,7 +35,7 @@ public: // Constructor and Destructor
 
 public: // Non-static members
    /// Overloaded Assignment Operator
-   EventStreamInfo& operator=(const EventStreamInfo& rhs);
+   const EventStreamInfo& operator=(const EventStreamInfo& rhs);
 
    /// @return the Number of Events
    unsigned int getNumberOfEvents() const;
@@ -96,7 +96,7 @@ inline EventStreamInfo::EventStreamInfo(const EventStreamInfo& rhs) : m_numberOf
 inline EventStreamInfo::~EventStreamInfo() {}
 
 
-inline EventStreamInfo& EventStreamInfo::operator=(const EventStreamInfo& rhs) {
+inline const EventStreamInfo& EventStreamInfo::operator=(const EventStreamInfo& rhs) {
    if (this != &rhs) {
       m_numberOfEvents = rhs.m_numberOfEvents;
       m_runNumbers = rhs.m_runNumbers;
@@ -105,7 +105,7 @@ inline EventStreamInfo& EventStreamInfo::operator=(const EventStreamInfo& rhs) {
       m_itemList = rhs.m_itemList;
       m_eventTypes = rhs.m_eventTypes;
    }
-   return(*this);
+   return(rhs);
 }
 
 #include "SGTools/CLASS_DEF.h"

@@ -183,14 +183,14 @@ void
 TagInfo::printTags     (MsgStream& log) const
 {
     if (log.level() <= MSG::DEBUG) {
-	log << MSG::DEBUG << "TagInfo tag: " << m_myTag << endmsg;
-	log << MSG::DEBUG << "Current tags: "  << endmsg;
+	log << MSG::DEBUG << "TagInfo tag: " << m_myTag << endreq;
+	log << MSG::DEBUG << "Current tags: "  << endreq;
 	for (unsigned int i = 0; i < m_tags.size(); ++i) {
-	    log << MSG::DEBUG << "    " << m_tags[i].first << " " << m_tags[i].second << endmsg;
+	    log << MSG::DEBUG << "    " << m_tags[i].first << " " << m_tags[i].second << endreq;
 	}
-	log << MSG::DEBUG << "Input tags: "  << endmsg;
+	log << MSG::DEBUG << "Input tags: "  << endreq;
 	for (unsigned int i = 0; i < m_inputTags.size(); ++i) {
-	    log << MSG::DEBUG << "    " << m_inputTags[i].first << " " << m_inputTags[i].second << endmsg;
+	    log << MSG::DEBUG << "    " << m_inputTags[i].first << " " << m_inputTags[i].second << endreq;
 	}
     }
 }
