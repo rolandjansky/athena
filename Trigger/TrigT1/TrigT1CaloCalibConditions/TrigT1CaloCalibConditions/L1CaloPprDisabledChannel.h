@@ -13,7 +13,6 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 
 #include <iostream>
-#include <string>
 
 /**
  *  Transient conditions class for objects defined
@@ -21,6 +20,8 @@
  *
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
+
+class string;
 
 class L1CaloPprDisabledChannel {
     friend std::ostream& operator<<(std::ostream& output, const L1CaloPprDisabledChannel& r);
