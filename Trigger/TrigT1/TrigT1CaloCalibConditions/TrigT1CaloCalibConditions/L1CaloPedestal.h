@@ -20,9 +20,9 @@ public:
     L1CaloPedestal(unsigned int channelId, const L1CaloPedestalCumul& pedestalCumul);
     L1CaloPedestal(unsigned int channelId, double mean, double rms): m_channelId(channelId), m_Ped_Mean(mean), m_Ped_RMS(rms) {} ;
 
-    double get_mean() { return m_Ped_Mean; };
-    double get_rms() { return m_Ped_RMS; };
-    unsigned int channelId () { return m_channelId; };
+    double get_mean() const { return m_Ped_Mean; };
+    double get_rms() const { return m_Ped_RMS; };
+    unsigned int channelId () const { return m_channelId; };
 
 private:
     unsigned int m_channelId;

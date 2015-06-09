@@ -38,7 +38,7 @@ DataObject* L1CaloPedestalContainer::makePersistent() const {
 	L1CaloPedestalContainer::const_iterator pos_end = this->end();
 
 	for(;pos!=pos_end;++pos) {
-		L1CaloPedestal* ped = (*pos);
+		const L1CaloPedestal* ped = (*pos);
 
 		AthenaAttributeList attrList(*attrSpecification);
 
