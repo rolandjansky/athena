@@ -13,6 +13,9 @@
 // For the SD itself
 #include "BCMSensorSD.h"
 
+// Athena headers
+#include "SimHelpers/DetectorGeometryHelper.h"
+
 BCMSensorSDTool::BCMSensorSDTool(const std::string& type, const std::string& name, const IInterface *parent) :
   SensitiveDetectorBase(type,name,parent)
 {
