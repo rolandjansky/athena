@@ -9,8 +9,6 @@ use AtlasPolicy              AtlasPolicy-*
 use AthenaKernel             AthenaKernel-*             Control
 use AthenaBaseComps          AthenaBaseComps-*          Control
 use GaudiInterface           GaudiInterface-*           External
-use GeoPrimitives            GeoPrimitives-*            DetectorDescription
-
 
 ########## Barcode ##########################################################
 use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode/ 
@@ -26,8 +24,6 @@ use Geant4                   Geant4-*                   External
 
 ########## Tracking #########################################################
 use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
-use TrkParameters            TrkParameters-*            Tracking/TrkEvent
-
 
 private
 
@@ -42,8 +38,6 @@ use AtlasBoost               AtlasBoost-*               External
 
 ########## Tracking ############################################################
 use TrkGeometry              TrkGeometry-*              Tracking/TrkDetDescr
-use TrkSurfaces              TrkSurfaces-*              Tracking/TrkDetDescr
-use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*    Tracking/TrkDetDescr
 
 ########## ISF ##############################################################
 use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core   
