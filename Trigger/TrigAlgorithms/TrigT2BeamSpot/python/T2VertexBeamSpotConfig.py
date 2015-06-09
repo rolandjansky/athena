@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 648108 2015-02-19 13:15:50Z smh $
+# $Id: T2VertexBeamSpotConfig.py 673818 2015-06-09 19:27:01Z bartoldu $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -47,7 +47,7 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
         self.TrackMinPt          = 0.5      # Minimum track pT to be considered for vertexing
         self.TrackSeedPt         = 0.7      # Minimum track pT to be considered for seeding a vertex fit
         self.TrackClusterDZ      = 0.35      # Maximum distance between tracks considered as a cluster
-        self.TrackMaxZ0          = 100.0    # Maximum track Z0 to be considered for vertexing
+        self.TrackMaxZ0          = 200.0    # Maximum track Z0 to be considered for vertexing
         self.TrackMaxD0          = 10.0     # Maximum track d0 to be considered for vertexing
         self.TrackMaxZ0err       = 5.0      # Maximum track Z0 error to be considered for vertexing
         self.TrackMaxD0err       = 5.0      # Maximum track d0 error to be considered for vertexing
