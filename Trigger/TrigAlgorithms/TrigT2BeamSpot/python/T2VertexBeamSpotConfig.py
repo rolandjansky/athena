@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 775662 2016-09-28 15:46:38Z masik $
+# $Id: T2VertexBeamSpotConfig.py 673818 2015-06-09 19:27:01Z bartoldu $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -55,7 +55,7 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
         self.TrackMinQual        = 0.0      # Minimum track chi^2/NDF to be considered for vertexing
         self.TrackMaxQual        = 10.0     # Maximum track chi^2/NDF to be considered for vertexing
         self.TrackMinChi2Prob    = -10.0    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh 
-        self.TrackMinSiHits      = 7        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+        self.TrackMinSiHits      = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinPIXHits     = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinSCTHits     = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinTRTHits     = -10      # Minimum # track TRT hits to be considered for vertexing
@@ -229,25 +229,4 @@ class T2VertexBeamSpot_activeTE_FTF ( T2VertexBeamSpot_activeTE ) :
     __slots__ = []
     def __init__ (self, name="T2VertexBeamSpot_activeTE_FTF"):
         super(T2VertexBeamSpot_activeTE_FTF, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.FTF
-
- # Setup for using FTK tracks
-class T2VertexBeamSpot_FTK ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_FTK"):
-        super(T2VertexBeamSpot_FTK, self).__init__(name, detail=2)
-        self.TrackAlgoID    = AlgoId.FTF
- 
-# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeAllTE_FTK ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTK"):
-        super(T2VertexBeamSpot_activeAllTE_FTK, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.FTF
- 
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
-class T2VertexBeamSpot_activeTE_FTK ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTK"):
-        super(T2VertexBeamSpot_activeTE_FTK, self).__init__(name, detail=0)
         self.TrackAlgoID    = AlgoId.FTF

@@ -3,7 +3,7 @@
 */
 
 //
-// $Id: T2Vertex.cxx 793162 2017-01-20 03:48:25Z ssnyder $
+// $Id: T2Vertex.cxx 648108 2015-02-19 13:15:50Z smh $
 //
 
 // This class
@@ -11,15 +11,12 @@
 
 // Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkTrack/Track.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TMath.h"
+using Gaudi::Units::GeV;
 
 #include <functional>
 #include <numeric>
-#include <cmath>
-using Gaudi::Units::GeV;
 using std::unary_function;
 using std::binary_function;
 using std::accumulate;
@@ -51,7 +48,7 @@ namespace PESA
 
   struct TrackPt : public unary_function< TrigInDetTrack, double >
   {
-    double operator()( const TrigInDetTrack* track ) { return std::abs(track->param()->pT())/GeV; }
+    double operator()( const TrigInDetTrack* track ) { return abs(track->param()->pT())/GeV; }
   };
 
 
@@ -67,12 +64,6 @@ namespace PESA
     double operator()( double x, const TrigInDetTrack* track ) { return x + T()( track ); }
   };
 
-  template <class T>
-  struct TrkSumOf : public binary_function< double, Trk::Track, double >
-  {
-    double operator()( double x, const Trk::Track* track ) { return x + T()( track ); }
-  };
-
 
   double vertexSumPt( const TrackInVertexList& tracks )
   {
@@ -83,33 +74,6 @@ namespace PESA
   double vertexSumPt2( const TrackInVertexList& tracks )
   {
     return sqrt( accumulate( tracks.begin(), tracks.end(), 0., SumOf< TrackPt2 >() ) );
-  }
-
-  struct TrkTrackPt : public unary_function< Trk::Track, double >
-  {
-    double operator()( const Trk::Track* track ) {
-      const Trk::TrackParameters* params = track->perigeeParameters();
-      return std::abs(sin(params->parameters()[Trk::theta])/params->parameters()[Trk::qOverP])/GeV;
-    }
-  };
-
-
-  struct TrkTrackPt2 : public unary_function< Trk::Track, double >
-  {
-    double operator()( const Trk::Track* track ) { const double pT = TrkTrackPt()( track ); return pT*pT; }
-  };
-
-
-
-  double vertexSumPt( const TrackCollection& tracks )
-  {
-    return accumulate( tracks.begin(), tracks.end(), 0., TrkSumOf< TrkTrackPt >() );
-  }
-
-
-  double vertexSumPt2( const TrackCollection& tracks )
-  {
-    return sqrt( accumulate( tracks.begin(), tracks.end(), 0., TrkSumOf< TrkTrackPt2 >() ) );
   }
 
 //    double sumPt = 0.;

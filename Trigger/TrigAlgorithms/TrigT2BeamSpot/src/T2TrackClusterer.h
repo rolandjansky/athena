@@ -4,7 +4,7 @@
 
 /**********************************************************************************
  *
- * @version: $Id: T2TrackClusterer.h 793164 2017-01-20 03:59:26Z ssnyder $
+ * @version: $Id: T2TrackClusterer.h 648108 2015-02-19 13:15:50Z smh $
  *
  * @project: HLT, PESA algorithms
  * @package: TrigT2BeamSpot
@@ -24,12 +24,9 @@
 /// Externals
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "AthContainers/ConstDataVector.h"
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 #include "GaudiKernel/SystemOfUnits.h"
-//using Gaudi::Units::GeV;
-//using Gaudi::Units::mm;
+using Gaudi::Units::GeV;
+using Gaudi::Units::mm;
 
 #include <string>
 #include <vector>
@@ -43,7 +40,7 @@ namespace PESA
   public:
 
     // Constructor
-    T2TrackClusterer( double deltaZ = 10.*Gaudi::Units::mm, double minPT = 1.*Gaudi::Units::GeV, bool weightedZ = true, unsigned maxSize = 10000. )
+    T2TrackClusterer( double deltaZ = 10.*mm, double minPT = 1.*GeV, bool weightedZ = true, unsigned maxSize = 10000. )
       : m_deltaZ    ( deltaZ    )
       , m_minPT     ( minPT     )
       , m_weightedZ ( weightedZ )
@@ -56,17 +53,13 @@ namespace PESA
     double     seedZ0() const { return m_seedZ0    ; }
     double totalZ0Err() const { return m_totalZ0Err; }
 
-    const TrigInDetTrackCollection&      cluster_TIDT() const { return *m_cluster_TIDT.asDataVector();      }
-    const TrackCollection&               cluster() const { return *m_cluster.asDataVector();      }
-    const TrigInDetTrackCollection& unusedTracks_TIDT() const { return *m_unusedTracks_TIDT.asDataVector(); }
-    const TrackCollection&          unusedTracks() const { return *m_unusedTracks.asDataVector(); }
+    const TrigInDetTrackCollection&      cluster() const { return m_cluster;      }
+    const TrigInDetTrackCollection& unusedTracks() const { return m_unusedTracks; }
 
     // Methods
     double trackWeight( const TrigInDetTrack& track ) const;
-    double trackWeight( const Trk::Track& track ) const;
 
     const TrigInDetTrackCollection& cluster( const TrigInDetTrackCollection& tracks );
-    const TrackCollection& cluster( const TrackCollection& tracks );
 
   private:
     // Data members
@@ -78,10 +71,8 @@ namespace PESA
     double m_seedZ0;
     double m_totalZ0Err;
 
-    ConstDataVector<TrigInDetTrackCollection> m_cluster_TIDT;
-    ConstDataVector<TrackCollection> m_cluster;
-    ConstDataVector<TrigInDetTrackCollection> m_unusedTracks_TIDT;
-    ConstDataVector<TrackCollection> m_unusedTracks;
+    TrigInDetTrackCollection m_cluster;
+    TrigInDetTrackCollection m_unusedTracks;
   };
 
 } // end namespace
