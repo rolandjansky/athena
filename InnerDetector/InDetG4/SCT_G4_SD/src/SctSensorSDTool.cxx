@@ -10,7 +10,9 @@
 
 // package includes
 #include "SctSensorSD.h"
-#include "SctSensorGmxSD.h"
+
+// athena includes
+#include "SimHelpers/DetectorGeometryHelper.h"
 
 // STL includes
 #include <exception>
@@ -18,10 +20,9 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SctSensorSDTool::SctSensorSDTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : SensitiveDetectorBase( type , name , parent ),m_isGmxSensor(false)
+  : SensitiveDetectorBase( type , name , parent )
 {
   declareInterface<ISensitiveDetector>(this);
-  declareProperty("GmxSensor",m_isGmxSensor);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -29,13 +30,15 @@ SctSensorSDTool::SctSensorSDTool(const std::string& type, const std::string& nam
 G4VSensitiveDetector* SctSensorSDTool::makeSD()
 {
   ATH_MSG_DEBUG( "Initializing SD" );
-  if(m_isGmxSensor)
-    {
-      return new SctSensorGmxSD(name(), m_outputCollectionNames[0]);
-    }
-  else
-    {
-      return new SctSensorSD(name(), m_outputCollectionNames[0]);
-    }
+
+  DetectorGeometryHelper DGHelp;
+  if (DGHelp.GeometryType("SCT") == GeoModel){
+    ATH_MSG_DEBUG( "SCT Geometry is from GeoModel" );
+  } else {
+    ATH_MSG_ERROR( "SCT Geometry is from pure G4. NOT SUPPORTED!" );
+    throw std::runtime_error("DoNotSupportPureG4Geometry");
+  }
+
+  return new SctSensorSD(name(), m_outputCollectionNames[0]);
 }
 

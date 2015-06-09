@@ -31,7 +31,6 @@ class SctSensorSDTool : public SensitiveDetectorBase
 protected:
   // Make me an SD!
   G4VSensitiveDetector* makeSD() override final;
-  bool m_isGmxSensor;
 };
 
 #endif //SCT_G4_SD_SCTSENSORSDTOOL_H

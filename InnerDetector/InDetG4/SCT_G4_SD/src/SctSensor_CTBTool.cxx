@@ -4,12 +4,16 @@
 
 // SCT Sensitive Detector Tool.
 //
+//#define SCTSD_CTB_DEBUG
 
 //class header
 #include "SctSensor_CTBTool.h"
 
 //package includes
 #include "SctSensor_CTB.h"
+
+//helpers
+#include "SimHelpers/DetectorGeometryHelper.h"
 
 // STL includes
 #include <exception>
@@ -27,6 +31,14 @@ SctSensor_CTBTool::SctSensor_CTBTool(const std::string& type, const std::string&
 G4VSensitiveDetector* SctSensor_CTBTool::makeSD()
 {
   ATH_MSG_DEBUG( "Initializing SD" );
+
+  DetectorGeometryHelper DGHelp;
+  if(  DGHelp.GeometryType("SCT") == GeoModel ){
+    ATH_MSG_DEBUG( "SCT Geometry is from GeoModel" );
+  } else {
+    ATH_MSG_ERROR( "SCT Geometry is from pure G4" );
+    throw std::runtime_error("SCTGeometryFromPureG4");
+  }
 
   return new SctSensor_CTB(name(), m_outputCollectionNames[0]);
 }
