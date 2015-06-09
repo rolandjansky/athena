@@ -195,8 +195,8 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string,
       m_pprConditionsVec[index] = new L1CaloPprConditionsRun2(extBcidThreshold, satBcidThreshLow, satBcidThreshHigh,
                                                               satBcidLevel, bcidEnergyRangeLow, bcidEnergyRangeHigh,
                                                               firStartBit, firCoeff1, firCoeff2, firCoeff3, firCoeff4, firCoeff5,
-                                                              lutCpStrategy, lutCpOffset, lutCpSlope, lutCpNoiseCut, lutCpScale, lutCpPar1, lutCpPar2, lutCpPar3, lutCpPar4,
-                                                              lutJepStrategy, lutJepOffset, lutJepSlope, lutJepNoiseCut, lutJepScale, lutJepPar1, lutJepPar2, lutJepPar3, lutJepPar4,
+                                                              lutCpStrategy, lutCpOffset, lutCpSlope, lutCpNoiseCut, lutCpPar1, lutCpPar2, lutCpPar3, lutCpPar4, lutCpScale,
+                                                              lutJepStrategy, lutJepOffset, lutJepSlope, lutJepNoiseCut, lutJepPar1, lutJepPar2, lutJepPar3, lutJepPar4, lutJepScale,
                                                               pedValue, pedMean, pedFirSum);
     }
   }
