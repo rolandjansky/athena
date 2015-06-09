@@ -867,6 +867,47 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     return 0
 
 
+def add_lifetimes(process_dir=None,threshold=None):
+    """ Add lifetimes to the generated LHE file.  Should be
+    called after generate_events is called.
+    """
+    try:
+        from __main__ import opts
+        if opts.config_only:
+            mglog.info('Athena running on config only mode: not executing MadGraph')
+            return
+    except:
+        pass
+
+    from glob import glob
+    if process_dir==None:
+        from glob import glob
+        if len(glob('*PROC*'))<1:
+            mglog.error('Process directory could not be found!')
+        else:
+            process_dir = glob('*PROC*')[-1]
+    me_exec=process_dir+'/bin/madevent'
+    if len(glob(process_dir+'/Events/*'))<1:
+        mglog.error('Process dir %s does not contain events?'%process_dir)
+    run = glob(process_dir+'/Events/*')[0].split('/')[-1]
+
+    # Note : This slightly clunky implementation is needed for the time being
+    # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
+
+    tof_c = open('time_of_flight_exec_card','w')
+    tof_c.write('add_time_of_flight '+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
+    tof_c.close()
+
+    mglog.info('Started adding time of flight info '+str(time.asctime()))
+
+    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE)
+    generate.wait()
+
+    mglog.info('Finished adding time of flight information at '+str(time.asctime()))
+
+    return True
+
+
 def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None):
     try:
         from __main__ import opts
