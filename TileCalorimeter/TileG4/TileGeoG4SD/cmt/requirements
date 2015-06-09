@@ -1,12 +1,9 @@
 package TileGeoG4SD
-author Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch> 
-
-branches src cmt TileGeoG4SD
+author Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
 
 use AtlasPolicy            AtlasPolicy-*
 use AtlasDoxygen           AtlasDoxygen-*           Tools
 
-use AthenaBaseComps        AthenaBaseComps-*        Control
 use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
 use SimHelpers             SimHelpers-*             Simulation/G4Sim
 use CaloIdentifier         CaloIdentifier-*         Calorimeter
@@ -18,9 +15,7 @@ private
 use GaudiInterface         GaudiInterface-*         External
 use AtlasCLHEP             AtlasCLHEP-*             External
 use StoreGate              StoreGate-*              Control
-use AthenaKernel           AthenaKernel-*           Control
 use CxxUtils               CxxUtils-*               Control
-use EventContainers        EventContainers-*        Event
 
 use PathResolver           PathResolver-*           Tools
 use Geant4                 Geant4-*                 External
@@ -28,9 +23,6 @@ use GeoModelInterfaces     GeoModelInterfaces-*     DetectorDescription/GeoModel
 use GeoModelUtilities      GeoModelUtilities-*      DetectorDescription/GeoModel
 
 use CaloDetDescr           CaloDetDescr-*           Calorimeter
-use CaloEvent              CaloEvent-*              Calorimeter
-use ISF_Event              ISF_Event-*              Simulation/ISF/ISF_Core
-use TileConditions         TileConditions-*         TileCalorimeter
 use TileSimUtils           TileSimUtils-*           TileCalorimeter
 use TileGeoModel           TileGeoModel-*           TileCalorimeter
 
@@ -38,11 +30,8 @@ end_private
 
 include_dirs "$(TileGeoG4SD_root)" "$(TileGeoG4SD_root)/TileGeoG4SD"
 
-apply_pattern dual_use_library files="Tile*.cc"
-
-apply_pattern declare_joboptions files="*.py"
-
-apply_pattern declare_python_modules files="*.py"
+apply_pattern installed_library
+library TileGeoG4SD *.cc
 
 apply_pattern declare_runtime files="TileOpticalRatio.dat TileAttenuation.dat"
 
