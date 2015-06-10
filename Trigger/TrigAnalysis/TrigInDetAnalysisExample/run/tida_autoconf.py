@@ -59,7 +59,21 @@ from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "HLTMonManager")
 HLTMonManager = topSequence.HLTMonManager
 
+
+############ TrigIDtrkMonioting part ################################
+
+from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitingTool
+
+montools = TrigIDtrkMonitoringTool()
+
+print montools
+
+HLTMonManager.AthenaMonTools += montools
+
+
 ############ TrigInDetAnalysis part ################################
+
+
 
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestMonToolAC
 TestMonTool = TrigTestMonToolAC( name="TestMonToolAC")

@@ -32,6 +32,7 @@ public:
   std::string extra() { return mextra; }
   std::string element() { return melement; }
   std::string roi()     { return mroi; }
+  std::string vtx()     { return mvtx; }
 
   bool        passed()  { return mpassed; }
 
@@ -40,6 +41,8 @@ public:
   const std::string& extra() const { return mextra; }
   const std::string& element() const { return melement; }
   const std::string& roi()     const { return mroi; }
+  const std::string& vtx()     const { return mvtx; }
+
   const bool&        passed()  const { return mpassed; }
 
 protected:
@@ -106,6 +109,7 @@ private:
   std::string mextra;
   std::string melement;
   std::string mroi;
+  std::string mvtx;
 
   bool        mpassed;
 
