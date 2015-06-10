@@ -1571,7 +1571,8 @@ StatusCode HLTXAODBphysMonTool::fillContainers(){
         }
         //************ SHIFTER ************* //
         setCurrentMonGroup(m_base_path_shifter+"/Containers");
-        hist2((m_prefix+"_Containers_size").c_str())->Fill(containerItem.c_str(), trigBphysContainer->size(),1);
+        std::string containerNameAbbr = containerItem.substr(std::string("HLT_xAOD__TrigBphysContainer_").length(),-1);
+        hist2((m_prefix+"_Containers_size").c_str())->Fill(containerNameAbbr.c_str(), trigBphysContainer->size(),1);
 
         for ( auto bphys:  (*trigBphysContainer))  {
             fillTrigBphysHists(bphys,containerItem, m_prefix,"Containers/"+containerItem,containerItem);
