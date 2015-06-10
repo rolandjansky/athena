@@ -8,7 +8,7 @@
 #include "LArSimEvent/LArHitContainer.h"
 
 LArHitContainer_PERS* LArHitFloatContainerCnv::createPersistent(LArHitFloatContainer* transCont) {
-    MsgStream mlog(msgSvc(), "LArHitContainerConverter" );
+    MsgStream mlog(messageService(), "LArHitContainerConverter" );
     LArHitFloatContainerCnv_p2   converter;
     LArHitContainer_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ LArHitContainer_PERS* LArHitFloatContainerCnv::createPersistent(LArHitFloatConta
 
 
 LArHitFloatContainer* LArHitFloatContainerCnv::createTransient() {
-    MsgStream mlog(msgSvc(), "LArHitFloatContainerConverter" );
+    MsgStream mlog(messageService(), "LArHitFloatContainerConverter" );
     LArHitFloatContainerCnv_p1   converter_p1;
     LArHitFloatContainerCnv_p2   converter_p2;
 
