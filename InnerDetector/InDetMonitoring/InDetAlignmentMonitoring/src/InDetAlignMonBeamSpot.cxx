@@ -19,13 +19,17 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrack/TrackCollection.h"
-#include "VxVertex/VxTrackAtVertex.h"
-#include "VxVertex/VxContainer.h"
+//#include "VxVertex/VxTrackAtVertex.h"
+//#include "VxVertex/VxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "InDetAlignmentMonitoring/InDetAlignMonBeamSpot.h"
+#include "InDetAlignMonBeamSpot.h"
+
 
 
 InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const std::string & name, const IInterface* parent )
@@ -64,8 +68,8 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot( const std::string & type, const st
   declareProperty("extrapolator",m_extrapolator);
   declareProperty("beamCondSvc",m_beamCondSvc);
   declareProperty("useBeamspot",m_useBeamspot=true);
-  declareProperty("trackContainerName",m_trackContainerName="TrackParticleCandidate");
-  declareProperty("vxContainerName",m_vxContainerName="VxPrimaryCandidate");
+  declareProperty("trackContainerName",m_trackContainerName="InDetTrackParticles");
+  declareProperty("vxContainerName",m_vxContainerName="PrimaryVertices");
   declareProperty("vxContainerWithBeamConstraint",m_vxContainerWithBeamConstraint=false);
   declareProperty("minTracksPerVtx",m_minTracksPerVtx=10);
   declareProperty("minTrackPt",m_minTrackPt=1500);  // MeV
@@ -79,10 +83,10 @@ InDetAlignMonBeamSpot::~InDetAlignMonBeamSpot() {
 
 
 StatusCode InDetAlignMonBeamSpot::initialize() {
-  StatusCode sc;                                      
+  StatusCode sc;
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
-  
+
   if ( m_extrapolator.retrieve().isFailure() ) {
     ATH_MSG_WARNING ("Failed to retrieve tool "+m_extrapolator);
   } else {
@@ -104,7 +108,7 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
 StatusCode InDetAlignMonBeamSpot::bookHistograms() {
 
   MonGroup al_beamspot_mon( this, m_histFolder, run);
-  
+
 
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -113,7 +117,7 @@ StatusCode InDetAlignMonBeamSpot::bookHistograms() {
   if ( AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
     // book histograms that are only relevant for cosmics data...
   }
-  
+
   if ( newLowStat || newLumiBlock ) {
   }
 
@@ -137,7 +141,7 @@ StatusCode InDetAlignMonBeamSpot::bookHistograms() {
 
     // Histograms for vertex-based beam spot monitoring
     if (! m_vxContainerWithBeamConstraint) {
-
+      ATH_MSG_DEBUG("Container with Beam constraint");
       // The following histograms are made either relative to the current beamspot (from BeamCondSvc),
       // or relative to the nomial beamspot at (0,0,0) without any tilt.
       if (m_useBeamspot) {
@@ -174,17 +178,6 @@ StatusCode InDetAlignMonBeamSpot::bookHistograms() {
 
 StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 
-  const Trk::TrackParticleBaseCollection* trackParticleBaseCollection = 0;
-  if (evtStore()->contains<Trk::TrackParticleBaseCollection>(m_trackContainerName)) {
-    if (evtStore()->retrieve(trackParticleBaseCollection,m_trackContainerName).isFailure() ) {
-      ATH_MSG_DEBUG ("Could not retrieve TrackParticleBaseCollection container with key "+m_trackContainerName);
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_DEBUG ("StoreGate doesn't contain TrackParticleBaseCollection container with key "+m_trackContainerName);
-    return StatusCode::SUCCESS;
-  }
-    
   // Get beamspot information, if available
   float beamSpotX = 0.;
   float beamSpotY = 0.;
@@ -192,6 +185,7 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
   float beamTiltX = 0.;
   float beamTiltY = 0.;
   float scaleFactor = 1.;
+
   if (m_useBeamspot && m_hasBeamCondSvc) {
     Amg::Vector3D bpos = m_beamCondSvc->beamPos();
     beamSpotX = bpos.x();
@@ -210,73 +204,49 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 				  << ", tiltY = " << beamTiltY <<endreq;
   }
 
+  const xAOD::TrackParticleContainer* trackCollection = evtStore()->tryConstRetrieve<xAOD::TrackParticleContainer>(m_trackContainerName);
+  if(!trackCollection){
+    ATH_MSG_DEBUG ("Could not retrieve TrackParticleContainer container with key "+m_trackContainerName);
+    return StatusCode::SUCCESS;
+  }
+
+
+
+
+
   // Track monitoring
   int nTracks = 0;
-  for (Trk::TrackParticleBaseCollection::const_iterator trkItr = trackParticleBaseCollection->begin(); trkItr!=trackParticleBaseCollection->end(); ++trkItr) {
+  for (xAOD::TrackParticleContainer::const_iterator trkItr = trackCollection->begin(); trkItr!=trackCollection->end(); ++trkItr) {
 
-    const Trk::TrackParticleBase* tpb = *trkItr;
-    const Trk::Perigee* perigee = tpb->perigee();
-
-    // Check that perigee is given wrt (0,0,0); if not, recalculate by
-    // extrapolating from innermost hit
-    //const Trk::ParametersBase& defPb = tpb->definingParameters();
-    //const Trk::ParametersBase* extrapolatedPb = 0;
-
-    const Trk::TrackParameters&  defPb = tpb->definingParameters();
-    const Trk::TrackParameters*  extrapolatedPb = 0;
-
-
-
-
-    //const Trk::GlobalPosition& gpc = defPb.associatedSurface()->center();
-
-    const Amg::Vector3D& gpc = defPb.associatedSurface().center();
-
-    //if (gpc.distance2(Amg::Vector3D(0,0,0))>0.) {  //this should be just the squared norm of the vector
-    if (gpc.squaredNorm()>0.){
-      if (m_hasExtrapolator) {
-	ATH_MSG_DEBUG ("Recalculating perigee");
-	const Trk::TrackParameters* innerPb = tpb->trackParameters()[0];
-	Trk::PerigeeSurface psf(Amg::Vector3D(0,0,0));
-	extrapolatedPb = m_extrapolator->extrapolate(*innerPb, psf);
-	perigee = dynamic_cast<const Trk::Perigee*>(extrapolatedPb);
-      } else {
-	ATH_MSG_DEBUG ("Found track perigee not wrt (0,0,0) but could not find extrapolator to recalculate - DCA vs Phi may be not be what you expect!");
-      }
+    const xAOD::TrackParticle* tpb = *trkItr;
+    if (!tpb) {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to TrackParticleBase" << endreq;
+      continue;
     }
-    
-    float theta   = -999.;
-    float qOverPt = -999.;
-    float charge  = -999.;
-    float z0      = -999.;
-    float phi0    = -999.;
-    float d0      = -999.;
-    float pT      = -999.;
-
-    if ( perigee != NULL ){
-      theta   = perigee->parameters()[Trk::theta];		    
-      qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);  
-      charge  = perigee->charge();				    
-      z0      = perigee->parameters()[Trk::z0];		    
-      phi0    = perigee->parameters()[Trk::phi0];		    
-      d0      = perigee->parameters()[Trk::d0];		    
-      pT      = (1/qOverPt)*(charge);                           
+    const Trk::Perigee* perigee = &(tpb->perigeeParameters());
+    if (!perigee) {
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to track perigee" << endreq;
+      continue;
     }
 
-    delete extrapolatedPb;
+    float theta = perigee->parameters()[Trk::theta];
+    float qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);
+    float charge = perigee->charge();
+    float phi0 = perigee->parameters()[Trk::phi0];
+    float d0 = perigee->parameters()[Trk::d0];
+    float z0 = perigee->parameters()[Trk::z0];
+    if ( qOverPt != 0 ){
+      float pT = (1/qOverPt)*(charge);
+      // For all tracks
+      m_hTrPt->Fill(pT/1000.);
 
-    // For all tracks
-    m_hTrPt->Fill(pT/1000.);
-
-    // Select tracks to use for remaining histograms
-    if (pT<m_minTrackPt) continue;
+      // Select tracks to use for remaining histograms
+      if (pT<m_minTrackPt) continue;
+    }
 
     nTracks++;
-    m_hTrDPhi->Fill(phi0,d0);
+    m_hTrDPhi->Fill(phi0,d0*1000.);
 
-    // Currently we do the direct calculation of d0corr. We could
-    // also use the extrapolator to calculate d0 wrt a
-    // Trk::StraightLineSurface constructed along the beam line.
     float beamX = beamSpotX + tan(beamTiltX) * (z0-beamSpotZ);
     float beamY = beamSpotY + tan(beamTiltY) * (z0-beamSpotZ);
     float d0corr = d0 - ( -sin(phi0)*beamX + cos(phi0)*beamY );
@@ -284,12 +254,14 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
   }
   m_hTrNPt->Fill(nTracks);
 
+
+
   // Primary vertex monitoring - only if we have a primary vertex collection determined
   // without beam constraint
   if (! m_vxContainerWithBeamConstraint) {
 
-    const VxContainer* vxContainer = 0;
-    if (evtStore()->contains<VxContainer>(m_vxContainerName)) {
+    const xAOD::VertexContainer* vxContainer = 0;
+    if (evtStore()->contains<xAOD::VertexContainer>(m_vxContainerName)) {
       if (evtStore()->retrieve(vxContainer,m_vxContainerName).isFailure() ) {
 	ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
 	return StatusCode::SUCCESS;
@@ -302,23 +274,26 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
     m_hPvN->Fill(vxContainer->size()-1);  // exclude dummy vertex
     int nPriVtx = 0;
     int nPileupVtx = 0;
-    for (VxContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter) {
-      
-      // Count different types of vertices
-      if ((*vxIter)->vertexType() == Trk::PriVtx) nPriVtx++;
-      if ((*vxIter)->vertexType() == Trk::PileUp) nPileupVtx++;
-    
+  for(const auto* vx_elem : *vxContainer ) {
+    const xAOD::Vertex* vx = vx_elem;
+
+    //    for (VxContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter) {
+
+    // Count different types of vertices
+    if (vx->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
+    if (vx->vertexType() == xAOD::VxType::PileUp) nPileupVtx++;
+
       // Select good primary vertex
-      if ((*vxIter)->vertexType() != Trk::PriVtx) continue;
-      if ((*vxIter)->recVertex().fitQuality().numberDoF() <= 0) continue;
-      std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
-      m_hPvNTracksAll->Fill( vxTrackAtVertex!=0 ? vxTrackAtVertex->size() : -1. );
-      if (vxTrackAtVertex==0 || vxTrackAtVertex->size() < m_minTracksPerVtx) continue;
+    if (vx->vertexType() != xAOD::VxType::PriVtx) continue;
+      if (vx->numberDoF() <= 0) continue;
+      //      std::vector<Trk::VxTrackAtVertex*>* vxTrackAtVertex = (*vxIter)->vxTrackAtVertex();
+      m_hPvNTracksAll->Fill( vx->nTrackParticles()!=0 ? vx->nTrackParticles() : -1. );
+      if ( vx->nTrackParticles()==0 || vx->nTrackParticles() < m_minTracksPerVtx  ) continue;
 
       // Found good VxCandidate to monitor - now fill histograms
-      float x = (*vxIter)->recVertex().position().x();
-      float y = (*vxIter)->recVertex().position().y();
-      float z = (*vxIter)->recVertex().position().z();
+      float x = vx->position().x();
+      float y = vx->position().y();
+      float z = vx->position().z();
       float beamX = beamSpotX + tan(beamTiltX) * (z-beamSpotZ);
       float beamY = beamSpotY + tan(beamTiltY) * (z-beamSpotZ);
       float beamZ = beamSpotZ;
@@ -329,40 +304,46 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
       //m_hPvErrX->Fill( (*vxIter)->recVertex().errorPosition().error(Trk::x) );  //Check with Anthony
       //m_hPvErrY->Fill( (*vxIter)->recVertex().errorPosition().error(Trk::y) );
       //m_hPvErrZ->Fill( (*vxIter)->recVertex().errorPosition().error(Trk::z) );
-      
-      m_hPvErrX->Fill(sqrt((*vxIter)->recVertex().covariancePosition()(Trk::x,Trk::x)));
-      m_hPvErrY->Fill(sqrt((*vxIter)->recVertex().covariancePosition()(Trk::y,Trk::y)));
-      m_hPvErrZ->Fill(sqrt((*vxIter)->recVertex().covariancePosition()(Trk::z,Trk::z)));
-      
+
+      m_hPvErrX->Fill(sqrt(vx->covariancePosition()(Trk::x,Trk::x)));
+      m_hPvErrY->Fill(sqrt(vx->covariancePosition()(Trk::y,Trk::y)));
+      m_hPvErrZ->Fill(sqrt(vx->covariancePosition()(Trk::z,Trk::z)));
+
       //m_hPvErrX->Fill(Amg::error((*vxIter)->recVertex().covariancePosition(),Trk::x));   //Why this doesn't work?
       //m_hPvErrY->Fill(Amg::error((*vxIter)->recVertex().covariancePosition(),Trk::y));
       //m_hPvErrZ->Fill(Amg::error((*vxIter)->recVertex().covariancePosition(),Trk::z));
 
 
 
-      m_hPvChiSqDoF->Fill( (*vxIter)->recVertex().fitQuality().chiSquared() / (*vxIter)->recVertex().fitQuality().numberDoF() );
+      m_hPvChiSqDoF->Fill( vx->chiSquared() / vx->numberDoF() );
       //Coverity report. vxTrackAtVertex cannot be NULL. taking out the ? : and setting to thee vxTrackAtVertex->size() (pbutti: 28Jan15)
       //m_hPvNTracks->Fill( vxTrackAtVertex!=0 ? vxTrackAtVertex->size() : -1. );
 
-      m_hPvNTracks->Fill(vxTrackAtVertex->size());
+      m_hPvNTracks->Fill(vx->nTrackParticles());
 
       m_hPvXZ->Fill(z,x);
       m_hPvYZ->Fill(z,y);
       m_hPvYX->Fill(x,y);
 
       // Histograms on original tracks used for primary vertex
-      
-      std::vector<Trk::VxTrackAtVertex*>::iterator trkIter;
-      for (trkIter=vxTrackAtVertex->begin(); trkIter!=vxTrackAtVertex->end(); ++trkIter) {
-	//const Trk::ITrackLink* trkLink = (*trkIter)->trackOrParticleLink();
-	//const Trk::MeasuredPerigee* measuredPerigee = dynamic_cast<const Trk::MeasuredPerigee*>((*trkIter)->initialPerigee());
-	const Trk::TrackParameters* measuredPerigee = ((*trkIter)->initialPerigee());
-	const AmgSymMatrix(5)* covariance = measuredPerigee ? measuredPerigee->covariance() : NULL;
-	m_hPvTrackEta->Fill(measuredPerigee!=0 && covariance!=0 ? measuredPerigee->eta() : -999.);
-	m_hPvTrackPt->Fill(measuredPerigee!=0 && covariance ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
-	
+      const std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks =  vx->trackParticleLinks();
+      if(tpLinks.size() > 0) {
+	for(const auto& tp_elem : tpLinks ){
+	  const xAOD::TrackParticle* trkp = *tp_elem;
+	  const Trk::Track *trk = trkp->track();
+	  //      std::vector<Trk::VxTrackAtVertex*>::iterator trkIter;
+	  //      for (trkIter=vxTrackAtVertex->begin(); trkIter!=vxTrackAtVertex->end(); ++trkIter) {
+	  //	  const Trk::ITrackLink* trkLink = (*trkIter)->trackOrParticleLink();
+	  //	  const Trk::MeasuredPerigee* measuredPerigee = dynamic_cast<const Trk::MeasuredPerigee*>(trk->initialPerigee());
+	  //	  const Trk::TrackParameters* measuredPerigee = trk->initialPerigee();
+	  	  const Trk::TrackParameters* measuredPerigee = trk->perigeeParameters();
+	  	  const AmgSymMatrix(5)* covariance = measuredPerigee ? measuredPerigee->covariance() : NULL;
+	  	  m_hPvTrackEta->Fill(measuredPerigee!=0 && covariance!=0 ? measuredPerigee->eta() : -999.);
+	  	  m_hPvTrackPt->Fill(measuredPerigee!=0 && covariance ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
+
+	}
       }
-    }
+  }
     m_hPvNPriVtx->Fill(nPriVtx);
     m_hPvNPileupVtx->Fill(nPileupVtx);
   }
@@ -374,12 +355,12 @@ StatusCode InDetAlignMonBeamSpot::fillHistograms() {
 StatusCode InDetAlignMonBeamSpot::procHistograms()
 //bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 {
- 
+
 
   if( endOfLowStat || endOfLumiBlock ) { }
-  
+
   if( endOfRun ) { }
-  
+
   return StatusCode::SUCCESS;
 }
 

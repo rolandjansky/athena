@@ -7,7 +7,7 @@
 // AUTHORS: Beate Heinemann, Tobias Golling, Ben Cooper, John Alison, Pierfrancesco Butti
 // ***************************************************************************************
 
-#include "InDetAlignmentMonitoring/IDAlignMonResiduals.h"
+#include "IDAlignMonResiduals.h"
 
 #include <sstream>
 #include <math.h>
@@ -18,6 +18,16 @@
 #include "TH3.h"
 #include "TProfile.h"
 #include "TMath.h"
+#include "TProfile2D.h"
+#include "TGraphErrors.h"
+#include "TF1.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+
+
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
+
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -50,7 +60,13 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
+//#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
+#include "TrackSelectionTool.h"
+
+
+
+
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -99,6 +115,13 @@ struct IDAlignMonResiduals::TRTBarrelHistograms{
 	TH2F* residualR_pt[3];
 	TH2F* pullR_pt[3];
 	TH2F* pullR_notube_pt[3];
+
+  
+        /** Residuals and pulls vs mu in the TRT Barrel */
+	TH2F* residualR_mu[3];
+	TH2F* pullR_mu[3];
+	TH2F* pullR_notube_mu[3];
+
 	
 	/** L/R assignment */
 	TH1F_LW* lr[3];
@@ -114,6 +137,9 @@ struct IDAlignMonResiduals::TRTBarrelHistograms{
 			residualR_pt[lay] = 0;
 			pullR_pt[lay] = 0;
 			pullR_notube_pt[lay] = 0;
+			residualR_mu[lay] = 0;
+			pullR_mu[lay] = 0;
+			pullR_notube_mu[lay] = 0;
 			PredictedR[lay] = 0;
 			MeasuredR[lay] = 0;
 			rt[lay] = 0;
@@ -169,6 +195,11 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 	TH2F* residualR_pt[2];
 	TH2F* pullR_pt[2];
 	TH2F* pullR_notube_pt[2];
+
+        /** Residuals and pulls vs mu in the TRT Endcap */
+	TH2F* residualR_mu[2];
+	TH2F* pullR_mu[2];
+	TH2F* pullR_notube_mu[2];
 	
 	/** R(t) relation */
 	TH2F* rt[2];
@@ -196,7 +227,9 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 			residualR_pt[side] = 0;
 			pullR_pt[side] = 0;
 			pullR_notube_pt[side] = 0;
-			
+			residualR_mu[side] = 0;
+			pullR_mu[side] = 0;
+			pullR_notube_mu[side] = 0;
 			//The extra 1 is for the total
 			for(unsigned int ring=0; ring<41; ++ring){
 				residualR[side][ring] = 0;
@@ -217,17 +250,21 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
   m_comTimeObjectName("ComTime"),
   m_trtcaldbSvc("TRT_CalDbSvc",name),
   m_hWeightInFile(0),
-  m_etapTWeight(0) 
+  m_etapTWeight(0)
+  
 {
 	m_iUpdator               = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
 	m_propagator             = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
 	m_residualPullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 	m_trackSelection = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
-	m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
+	//m_idtrackSelection = ToolHandle<InDet::IInDetTrackSelectionTool>("InDetTrackSelectionTool/InDetTrackSelectionTool"); 
+	m_hitQualityTool       = ToolHandle<IInDetAlignHitQualSelTool>("");
 	m_trt_b_hist  = new TRTBarrelHistograms();
 	m_trt_ec_hist = new TRTEndcapHistograms();
 	m_tracksName  = "ExtendedTracks";
 	m_triggerChainName = "NoTriggerSelection";
+	m_z_fix = 366.5; // IBL Stave fixing screw position [mm]
+	m_NLumiBlocksMon = 1;
 	m_minTRTResWindow      = -0.1;   
 	m_maxTRTResWindow      = 0.1;  
 	m_minSiResMeanWindow   = -0.1;   
@@ -249,6 +286,9 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_IncidentPhiRange     = 0.8;
 	m_RangeOfPullHistos    = 10.; 
 	m_PtRange              = 20.;
+	m_nBinsMuRange         = 100.;
+	m_muRangeMin           = 0.;
+	m_muRangeMax           = 100;
 	m_nBinsPtRange         = 100;
 	m_mapSplit             = 1; // Create the residual maps splitting the modules in nxn pieces
 	m_do3DOverlapHistos     = false;
@@ -259,6 +299,13 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	
 	m_gap_pix = 4;
 	m_gap_sct = 4;
+	m_mu = 0.;
+	m_nBinsMuRange         = 100.;
+	m_muRangeMin           = 0.;
+	m_muRangeMax           = 100;
+	nIBLHitsPerLB          = 0;
+	m_minIBLhits           = -1;
+	m_hasBeenCalledThisEvent=false;
 
 	InitializeHistograms();
 	
@@ -271,6 +318,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	declareProperty("iUpdator"                  , m_iUpdator);
 	declareProperty("propagator"                , m_propagator);
 	declareProperty("trackSelection"            , m_trackSelection);
+	//declareProperty("idtrackSelection"          , m_idtrackSelection);   //For retreiving from jO
 	declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator);
 	declareProperty("HitQualityTool"            , m_hitQualityTool);
 	declareProperty("Pixel_Manager"             , m_Pixel_Manager);
@@ -312,6 +360,7 @@ void IDAlignMonResiduals::InitializeHistograms()
 {
   
   m_totalEvents = 0;
+  m_oldlumiblock = 0;
   m_sirescalcfailure =0;
   m_pix_eca_xresvsmodphidisk_3d = 0;
   m_pix_ecc_xresvsmodphidisk_3d = 0;
@@ -480,16 +529,16 @@ void IDAlignMonResiduals::InitializeHistograms()
   m_sct_b_biased_residualx_qoverp2 = 0;
   m_sct_b_unbiased_residualx_qoverp2 = 0;
   
-  m_sct_eca_biased_residualx = 0	;
-  m_sct_eca_biased_residualy = 0	;
-  m_sct_ecc_biased_residualx = 0	;
-  m_sct_ecc_biased_residualy = 0	;
+  m_sct_eca_biased_residualx = 0;
+  m_sct_eca_biased_residualy = 0;
+  m_sct_ecc_biased_residualx = 0;
+  m_sct_ecc_biased_residualy = 0;
   
-  m_sct_eca_biased_residualx_pt = 0	;
-  m_sct_ecc_biased_residualx_pt = 0	;
+  m_sct_eca_biased_residualx_pt = 0;
+  m_sct_ecc_biased_residualx_pt = 0;
 
-  m_sct_eca_residualx_pt = 0	;
-  m_sct_ecc_residualx_pt = 0	;
+  m_sct_eca_residualx_pt = 0;
+  m_sct_ecc_residualx_pt = 0;
   
   m_sct_eca_biased_residualx_qoverp2 =0 ;	
   m_sct_ecc_biased_residualx_qoverp2= 0;	
@@ -672,7 +721,9 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     // Pixel and SCT Shift Detail Histograms
     //
     //-----------------------------------
-		
+    
+
+
     //these go into the DQMF Shift Detail folder - DQMF tests are run on these histograms but the shifter 
     //does not look at them unless they fail
  					
@@ -823,11 +874,37 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     m_sct_bec_Oyresx_rms = new TProfile("sct_bec_Oyresx_rms","Y_Overlap Residual X RMS vs SCT Layer (ECC, Barrel, ECA)",24,-9.0,15.0,m_minSCTResFillRange,m_maxSCTResFillRange);
     RegisterHisto(al_mon,m_sct_bec_Oyresx_rms);
 	
-    
-    m_totalEvents  = new TH1F("TotalEvents","TotalEvents",2,0,2);
-    RegisterHisto(al_mon,m_totalEvents);
-    
+    //Special histograms
+    if (m_extendedPlots)
+      {
+	m_totalEvents  = new TH1F("TotalEvents","TotalEvents",2,0,2);
+	RegisterHisto(al_mon,m_totalEvents);
+      
+	m_mu_perEvent = new TH1F("mu_perEvent","<#mu> per event",m_nBinsMuRange,m_muRangeMin,m_muRangeMax);
+	RegisterHisto(al_mon,m_mu_perEvent);
+      }
+    //Lumi wise histo
 
+    //All modules
+    m_pix_b0_resXvsetaLumiBlock = new TProfile2D("pix_b0_resXvsetaLumiBlock","2D profile of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",1024,0,1024,20,-10,10,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock);
+    
+    //Only planars
+    
+    m_pix_b0_resXvsetaLumiBlock_planars = new TProfile2D("pix_b0_resXvsetaLumiBlock_planars","2D profile of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",1024,0,1024,12,-6,6,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_planars);
+    
+    
+    //mag + base as function of lb
+    
+    m_mag_vs_LB = new TH1D("mag_vs_LB","IBL 2pi averaged bowing magnitude vs LumiBlock;LumiBlock;Magnitude [#mum]",1024,0,1024);
+    RegisterHisto(al_mon,m_mag_vs_LB);
+    
+    m_base_vs_LB = new TH1D("base_vs_LB","IBL 2pi averaged bowing baseline vs LumiBlock;LumiBlock;Baseline [#mum]",1024,0,1024);
+    RegisterHisto(al_mon,m_base_vs_LB);
+
+    std::cout<<"INITIALIZED GENERALHISTOS FOR RESIDUALS"<<std::endl;
+    
     //PrintIBLGeometry();
     MakePIXBarrelHistograms (al_mon);
     MakePIXEndCapsHistograms(al_mon);  
@@ -838,6 +915,7 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     MakeTRTHistograms(al_mon);
 	
     MakeSiliconHistograms(al_mon);
+    std::cout<<"INITIALIZED GENERALHISTOS FOR RESIDUALS 2"<<std::endl;
     ++m_histosBooked;
   }
 	
@@ -884,6 +962,27 @@ TProfile* IDAlignMonResiduals::MakeProfile(const std::string& name, const std::s
   return profile;
 }
 
+
+
+
+
+void IDAlignMonResiduals::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
+  StatusCode sc = mon.regHist(histo);
+  if (sc.isFailure() ) {
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endreq;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 void IDAlignMonResiduals::RegisterHisto(MonGroup& mon, TH1* histo) {
   
   //histo->Sumw2(); this uses a lot of memory and isn't needed!
@@ -927,7 +1026,38 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 {
   
   ++m_events;
-  m_totalEvents->Fill(0);
+
+  m_hasBeenCalledThisEvent=false;
+  m_mu=0.;
+
+  const DataHandle<EventInfo> eventInfo;
+  if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
+    msg(MSG::ERROR) << "Cannot get event info." << endreq;
+  }
+  
+  
+  m_changedlumiblock = false;
+  lumiblock = eventInfo->event_ID()->lumi_block();
+  if (lumiblock!=m_oldlumiblock)
+    {
+      m_oldlumiblock=lumiblock;
+      m_changedlumiblock=true;
+    }
+  
+  if (!m_hasBeenCalledThisEvent)
+    {
+      m_mu = eventInfo->averageInteractionsPerCrossing();
+      m_hasBeenCalledThisEvent=true;
+    }
+  else
+    m_mu = -999;
+
+  
+  if (m_extendedPlots)
+    {
+      m_mu_perEvent->Fill(m_mu);
+      m_totalEvents->Fill(0);
+    }
   
   if (evtStore()->contains<ComTime>(m_comTimeObjectName)){
     if(evtStore()->retrieve(theComTime, m_comTimeObjectName).isFailure() ){
@@ -1444,6 +1574,10 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is a PIXEL hit " << hitId  << " - filling histograms" << endreq;
 				
 	if(barrelEC==0){//filling pixel barrel histograms
+	  
+	  if (layerDisk==0)
+	    nIBLHitsPerLB++;
+
 	  m_si_b_residualx -> Fill(residualX, hweight);
 	  int m_layerModEtaShift[4] = {10,30,48,65};       //HARDCODED!
 	  int m_layerModPhiShift[4] = {0,18,44,86};
@@ -1459,13 +1593,17 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_pix_b_residualsy[layerDisk]-> Fill(residualY, hweight); 
 	  m_pix_b_pullsx[layerDisk]    -> Fill(pullX    , hweight); 
 	  m_pix_b_pullsy[layerDisk]    -> Fill(pullY    , hweight); 
-	  m_pix_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi,residualX, hweight);
-	  m_pix_b_yresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi,residualY, hweight);
+	  m_pix_b0_resXvsetaLumiBlock->Fill(float(lumiblock),modEta,residualX, hweight);
+
+	  m_pix_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
+	  m_pix_b_yresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualY, hweight);
+
+	  if (modEta<=6 && modEta>=-6)
+	    m_pix_b0_resXvsetaLumiBlock_planars->Fill(float(lumiblock),modEta,residualX,hweight);
+
 	  if (foundXOverlap) {
 	    m_pix_bec_Oxresx_mean -> Fill(layerDisk+1.1,overlapXResidualX, hweight);
 	    m_pix_bec_Oxresy_mean -> Fill(layerDisk+1.1,overlapXResidualY, hweight);
-	    //std::cout<<"PBUTTI: CHECK ==14823== Conditional jump or move depends on uninitialised value(s). modEta: "   <<modEta<<std::endl;
-	    //std::cout<<"PBUTTI: CHECK ==14823== Conditional jump or move depends on uninitialised value(s). LayerDisk: "<<layerDisk<<" m_layerModEtaShift[layerDisk]: "<<m_layerModEtaShift[layerDisk]<<std::endl;
 	    m_pix_b_Oxresxvsmodeta-> Fill(modEta+m_layerModEtaShift[layerDisk],overlapXResidualX,     hweight);
 	    m_pix_b_Oxresxvsmodphi-> Fill(modPhi+m_layerModPhiShift[layerDisk],overlapXResidualX, hweight);
 	    if (m_do3DOverlapHistos){
@@ -1639,7 +1777,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
    
       // Extended pixel histograms
       if(m_extendedPlots){  
-	if (detType==0){		//Pixel histograms
+	if (detType==0){   //Pixel histograms
 	  if(barrelEC==0){ // barrel
 	    static int m_phiIdentifier_min[3]    = {0,-1 ,22};
 	    static int m_phiIdentifier_max[3]    = {11,20,49};// Barrel
@@ -1668,8 +1806,6 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      m_hiterror_y_ibl_b_WideRange      ->Fill(hitErrorX,hweight);
 	    }
 	    
-	  
-
 	    if(mlocalY >  PixelBarrelYSize / 2.05 )	mlocalY =  PixelBarrelYSize/2.05;
 	    if(mlocalY < -PixelBarrelYSize / 2.05 )	mlocalY = -PixelBarrelYSize/2.05;
 	    if(mlocalX >  PixelBarrelXSize / 2.05 )	mlocalX =  PixelBarrelXSize/2.05;
@@ -1700,12 +1836,18 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      m_pix_b_yoverlapresidualsx[layerDisk]-> Fill(overlapYResidualX          , hweight); 
 	      m_pix_b_yoverlapresidualsy[layerDisk]-> Fill(overlapYResidualY          , hweight); 
 	    }
+	    // SALVA
+	    int modoffset = 6.5;
+	    if (layerDisk == 0) modoffset = 10.;
 	    float ModCenterPosX = m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk]->GetXaxis()->GetXmin() 
-	      + (modEta+6.5)*PixelBarrelYSize;
+	      + (modEta+modoffset)*PixelBarrelYSize;
 	    float ModCenterPosY = m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk]->GetYaxis()->GetXmin() 
 	      + (modPhi+0.5)*PixelBarrelXSize;
-	    m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
-	    m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX,biasedResidualY, hweight);
+	    // biased 3d histos turned into detailed 3d histos (for the time being use unbiased residuals)
+	    //m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
+	    //m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX,biasedResidualY, hweight);
+	    m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualX, hweight);
+	    m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualY, hweight);
 	    
 	    // pixel B-layer halfshell phi identifier association
 		// Layer 0                  Layer 1                     Layer 2
@@ -1760,6 +1902,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 		m_pix_b_clustersizePhi_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizePhi,hweight);
 		m_pix_b_clustersizeZ_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSizeZ,hweight);
 		m_pix_b_clustersize_incidentAnglePhi[layerDisk]->Fill(incidencePhi,ClusSize,hweight);
+
 	      }
 	  }
 	  else if (barrelEC==2){ // Endcap A
@@ -1882,7 +2025,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  }
 	}
 	else if(detType==1) {
-	  if(barrelEC==0){
+	  if(barrelEC==0){ // barrel part
 	    m_sct_b_residualx_fine -> Fill(residualX      , hweight);
 	    m_sct_b_biased_residualx_pt     -> Fill(trkpt, biasedResidualX     , hweight);
 	    m_sct_b_residualx_pt            -> Fill(trkpt, residualX           , hweight);
@@ -1932,6 +2075,23 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 		m_sct_b_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,hweight);
 		m_sct_b_residualsx_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
 		m_sct_b_residualsx_clustersizePhiP[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
+
+		
+		
+		
+
+		if (sctSide==0) 
+		  {
+		    m_sct_b_residualsx_incidentAngle_s0 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_b_residualsx_incidentAnglePhi_s0[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		    m_sct_b_clustersizePhivsmodetaphi_3ds_s0[layerDisk] -> Fill(modEta,modPhi,ClusSizePhi, hweight);
+		  }
+		if (sctSide==1) 
+		  {
+		    m_sct_b_residualsx_incidentAngle_s1 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_b_residualsx_incidentAnglePhi_s1[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		    m_sct_b_clustersizePhivsmodetaphi_3ds_s1[layerDisk] -> Fill(modEta,modPhi,ClusSizePhi, hweight);
+		  }
 		m_sct_b_clustersizePhi_incidentAngle[layerDisk] ->Fill(incidenceTheta,ClusSizePhi,hweight);
 		m_sct_b_clustersizePhi_incidentAnglePhi[layerDisk] ->Fill(incidencePhi,ClusSizePhi,hweight);
 	      }
@@ -1943,9 +2103,19 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    float ModCenterPosY = m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->GetYaxis()->GetXmin() 
 	      + (modPhi+0.5)*SCTBarrelXSize;
 	    if(sctSide==0)
-	      m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
+	      {
+		// SALVA (13/May/2015) temporary fix.. used the biased histogram to store the unbiased residuals when modules divides in a Nsplit x Nsplit grid
+		// SALVA m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
+		m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX, residualX, hweight);
+		m_sct_b_s0_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
+	      }
 	    else
-	      m_sct_b_s1_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
+	      {
+		// SALVA m_sct_b_s1_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);		   
+		// SALVA (13/May/2015) temporary fix.. used the biased histogram to store the unbiased residuals when modules divides in a Nsplit x Nsplit grid
+		m_sct_b_s1_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX, residualX, hweight);
+		m_sct_b_s1_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
+	      }
 	  }
 	 
 	  else if(barrelEC==2) {//SCT endcap A
@@ -1969,9 +2139,21 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_sct_eca_residualsx_qoverp2[layerDisk]-> Fill(trkqoverp2, residualX      , hweight);
 	    m_sct_eca_xresvsmodphi_disks[layerDisk]           -> Fill(modPhi + RingShift[layerDisk],residualX, hweight);
 	    m_sct_eca_biased_xresvsmodphi_disks[layerDisk]    -> Fill(modPhi + RingShift[layerDisk],biasedResidualX, hweight);
+	   
 	    if (m_doClusterSizeHistos)
 	      {
 		m_sct_eca_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,hweight);
+		if (sctSide==0) 
+		  {
+		    m_sct_eca_residualsx_incidentAngle_s0 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_eca_residualsx_incidentAnglePhi_s0[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		  }
+		if (sctSide==1) 
+		  {
+		    m_sct_eca_residualsx_incidentAngle_s1 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_eca_residualsx_incidentAnglePhi_s1[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		  }
+		
 		m_sct_eca_residualsx_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
 		m_sct_eca_residualsx_clustersizePhiP[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
 		m_sct_eca_clustersizePhi_incidentAngle[layerDisk] ->Fill(incidenceTheta,ClusSizePhi,hweight);
@@ -2010,6 +2192,17 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_sct_ecc_biased_xresvsmodphi_disks[layerDisk]    -> Fill(modPhi    + RingShift[layerDisk], biasedResidualX, hweight);
 	    if (m_doClusterSizeHistos){
 	      m_sct_ecc_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,hweight);
+	      if (sctSide==0) 
+		  {
+		    m_sct_ecc_residualsx_incidentAngle_s0 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_ecc_residualsx_incidentAnglePhi_s0[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		  }
+		if (sctSide==1) 
+		  {
+		    m_sct_ecc_residualsx_incidentAngle_s1 [layerDisk] ->Fill(incidenceTheta,residualX,hweight);
+		    m_sct_ecc_residualsx_incidentAnglePhi_s1[layerDisk] ->Fill(incidencePhi,residualX,hweight);
+		  }
+	     
 	      m_sct_ecc_residualsx_clustersizePhi[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
 	      m_sct_ecc_residualsx_clustersizePhiP[layerDisk] ->Fill(ClusSizePhi,residualX,hweight);
 	      m_sct_ecc_clustersizePhi_incidentAngle[layerDisk] ->Fill(incidenceTheta,ClusSizePhi,hweight);
@@ -2036,11 +2229,62 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     ++nTracks;
 		
   } // end of loop on tracks
-	
-  delete tracks;
-	
+  
+  if (m_changedlumiblock)
+    {
+      
+      
+  //Making the fit for the IBL bowing. This has to be done at lowest time granularity possible: we will try to make it lumiBlock wise.
+  
+  //a) retrieve the LumiBlock wise 2D histogram! I need the time information. I don't want to integrate all over the time.  DONE
+  //b) Project  over 1D over eta, finding the bin relative to the lumi block that just ended. 
+  //c) Perform  the fit (quiet  mode to reduce the output at the minimum)
+  //d) Set the bin content/error with the fit parameters of the two TH1Ds
+  //e) Write the Histograms.
+  
+      int lumibin =lumiblock+1; //Checked.
+  
+      //If too less events I want to put those ones. 
+      float mag = -999., base = -999., mag_er=0.,base_er=0.;
+      //minimum numbers of entries per lumiblock to perform the fit: if -1 don't make the fit. Only for testing.
+      
+      
+      
+      if ( nIBLHitsPerLB > m_minIBLhits )
+	{
+	  TH1D* projection_lumiblock = m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+	  //if (projection_lumiblock->GetEntries() > min_entries)
+	  //{
+	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
+	  m_mag_vs_LB->SetBinContent(lumibin,mag);
+	  m_mag_vs_LB->SetBinError(lumibin,mag_er);
+	  m_base_vs_LB->SetBinContent(lumibin,base);
+	  m_base_vs_LB->SetBinError(lumibin,base_er);
+	  //}
+	  //else
+	  //  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Fit IBL Shape for LumiBlock : "<< lumiblock<<" disabled because of too few entries!  "<<projection_lumiblock->GetEntries() <<endreq;
+	  
+	  delete projection_lumiblock;
+	}
+      else
+	if(msgLvl(MSG::INFO)) 
+	  msg(MSG::INFO) << "Fit IBL Shape for LumiBlock : "<< lumiblock<<" disabled. Too Few hits"<<endreq; 
+  
+      
+
+      nIBLHitsPerLB=0;
+    }// End of lumiblock
+  //StatusCode sc = procHistograms();
+  //if (sc.isFailure())
+  //{if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Proc Histograms failed" << endreq;}
+  
+	  
+  
+  delete tracks;	
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of tracks : "<< nTracks << endreq;
-	
+  
+  
+  
   return StatusCode::SUCCESS;
 }
 
@@ -2052,9 +2296,9 @@ StatusCode IDAlignMonResiduals::procHistograms()
   if( endOfLowStat ) {
   }
   if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) { 
     
+      }
+  if( endOfRun ) { 
     for(unsigned int side=0;side<3;++side){
       
       //single TRT residuals
@@ -2082,9 +2326,7 @@ StatusCode IDAlignMonResiduals::procHistograms()
       SetMinWindow(m_trt_ec_hist->aveResVsRing[endcap], m_minTRTResWindow, m_maxTRTResWindow);
       SetMinWindow(m_trt_ec_hist->aveResVsPhiSec[endcap], m_minTRTResWindow, m_maxTRTResWindow);
       SetMinWindow(m_trt_ec_hist->aveResVsTrackEta[endcap], m_minTRTResWindow, m_maxTRTResWindow);
-      
     }
-    
     //overlap residuals
     fillRMSFromProfile(m_pix_bec_Oxresx_mean,m_pix_bec_Oxresx_rms);
     fillRMSFromProfile(m_pix_bec_Oxresy_mean,m_pix_bec_Oxresy_rms);
@@ -2097,6 +2339,7 @@ StatusCode IDAlignMonResiduals::procHistograms()
   
   return StatusCode::SUCCESS;
 }
+
 
 //__________________________________________________________________________
 StatusCode  IDAlignMonResiduals::getSiResiduals(const Trk::Track* track, const Trk::TrackStateOnSurface* tsos, bool unBias, double* results)
@@ -3032,20 +3275,20 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       totalPhiModules+=maxPhiModulesPerLayer;
       m_pix_b_residualsx.push_back( new TH1F(("pix_b"+intToString(iLayer)+"_residualx").c_str(),("UnBiased X Residual Pixel Barrel "+intToString(iLayer)).c_str(),100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
       RegisterHisto(al_mon,m_pix_b_residualsx[iLayer]);
-      m_pix_b_residualsy.push_back( new TH1F(("pix_b"+intToString(iLayer)+"_residualy").c_str(),("UnBiased X Residual Pixel Barrel "+intToString(iLayer)).c_str(),100*m_FinerBinningFactor,m_minPIXResYFillRange,m_maxPIXResYFillRange));
+      m_pix_b_residualsy.push_back( new TH1F(("pix_b"+intToString(iLayer)+"_residualy").c_str(),("UnBiased Y  Residual Pixel Barrel "+intToString(iLayer)).c_str(),100*m_FinerBinningFactor,m_minPIXResYFillRange,m_maxPIXResYFillRange));
       RegisterHisto(al_mon,m_pix_b_residualsy[iLayer]);     
       m_pix_b_pullsx.push_back(     new TH1F(("pix_b"+intToString(iLayer)+"_pullx").c_str(),("UnBiased X Pull Pixel Barrel "+intToString(iLayer)).c_str(),100*m_FinerBinningFactor,-m_RangeOfPullHistos, m_RangeOfPullHistos));
       RegisterHisto(al_mon,m_pix_b_pullsx[iLayer]);
       m_pix_b_pullsy.push_back(     new TH1F(("pix_b"+intToString(iLayer)+"_pully").c_str(),("UnBiased Y Pull Pixel Barrel "+intToString(iLayer)).c_str(),100*m_FinerBinningFactor,-m_RangeOfPullHistos, m_RangeOfPullHistos));
       RegisterHisto(al_mon,m_pix_b_pullsy[iLayer]);
       m_pix_b_xresvsmodetaphi_3ds.push_back( new TH3F(("pix_b"+intToString(iLayer)+"_xresvsmodetaphi_3d").c_str(),("X Residual Distbn vs Module Eta-Phi-ID Pixel Barrel "+intToString(iLayer)).c_str(),
-						      EtaModules*m_mapSplit, EtaModulesMin, EtaModulesMax, 
-						      maxPhiModulesPerLayer*m_mapSplit, -0.5, maxPhiModulesPerLayer-0.5,
+						      EtaModules, EtaModulesMin, EtaModulesMax, 
+						      maxPhiModulesPerLayer, -0.5, maxPhiModulesPerLayer-0.5,
 						      50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));  //I need a good idea for the x axis 
       RegisterHisto(al_mon,m_pix_b_xresvsmodetaphi_3ds[iLayer]);
       m_pix_b_yresvsmodetaphi_3ds.push_back( new TH3F(("pix_b"+intToString(iLayer)+"_yresvsmodetaphi_3d").c_str(),("Y Residual Distbn vs Module Eta-Phi-ID Pixel Barrel "+intToString(iLayer)).c_str(),
-						      EtaModules*m_mapSplit, EtaModulesMin, EtaModulesMax, 
-						      maxPhiModulesPerLayer*m_mapSplit,-0.5, maxPhiModulesPerLayer-0.5,
+						      EtaModules, EtaModulesMin, EtaModulesMax, 
+						      maxPhiModulesPerLayer,-0.5, maxPhiModulesPerLayer-0.5,
 						      50*m_FinerBinningFactor,m_minPIXResXFillRange, m_maxPIXResXFillRange));  //I need a good idea for the x axis 
       RegisterHisto(al_mon,m_pix_b_yresvsmodetaphi_3ds[iLayer]);
       
@@ -3570,18 +3813,18 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
 		      m_pix_ecc_residualsy_clustersizeZP.push_back( new TProfile(("pix_ecc_d"+intToString(iWheel)+"_residualy_clustersizeZ_p").c_str(),("Unbiased Y Residual Vs Cluster Z Size Pixel ECC Disk "+intToString(iWheel)+";Cluster Z Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 		      RegisterHisto(al_mon,m_pix_ecc_residualsy_clustersizeZP[iWheel]);
 		      
-		      m_pix_ecc_clustersize_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersize_incidentAngle").c_str(),("Cluster Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Theta Angle (rad);Cluster Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersize_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersize_incidentAngle").c_str(),("Cluster Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Theta Angle [rad];Cluster Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersize_incidentAngle[iWheel]);
-		      m_pix_ecc_clustersizePhi_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizePhi_incidentAngle").c_str(),("Cluster Phi Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Theta Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersizePhi_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizePhi_incidentAngle").c_str(),("Cluster Phi Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Theta Angle [rad];Cluster Phi Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersizePhi_incidentAngle[iWheel]);
-		      m_pix_ecc_clustersizeZ_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizeZ_incidentAngle").c_str(),("Cluster Z Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Theta Angle (rad);Cluster Z Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersizeZ_incidentAngle.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizeZ_incidentAngle").c_str(),("Cluster Z Size Pixel Vs Incident Theta Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Theta Angle [rad];Cluster Z Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersizeZ_incidentAngle[iWheel]);
 		      
-		      m_pix_ecc_clustersize_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersize_incidentAnglePhi").c_str(),("Cluster Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Phi Angle (rad);Cluster Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersize_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersize_incidentAnglePhi").c_str(),("Cluster Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Phi Angle [rad];Cluster Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersize_incidentAnglePhi[iWheel]);
-		      m_pix_ecc_clustersizePhi_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizePhi_incidentAnglePhi").c_str(),("Cluster Phi Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Phi Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersizePhi_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizePhi_incidentAnglePhi").c_str(),("Cluster Phi Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Phi Angle [rad];Cluster Phi Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersizePhi_incidentAnglePhi[iWheel]);
-		      m_pix_ecc_clustersizeZ_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizeZ_incidentAnglePhi").c_str(),("Cluster Z Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+"Incident Phi Angle (rad);Cluster Z Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+		      m_pix_ecc_clustersizeZ_incidentAnglePhi.push_back(new TProfile(("pix_ecc_d"+intToString(iWheel)+"_clustersizeZ_incidentAnglePhi").c_str(),("Cluster Z Size Pixel Vs Incident Phi Angle Pixel ECC Disk "+intToString(iWheel)+";Incident Phi Angle [rad];Cluster Z Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
 		      RegisterHisto(al_mon,m_pix_ecc_clustersizeZ_incidentAnglePhi[iWheel]);
 		      
 		      
@@ -3714,30 +3957,30 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       m_pix_ecc_pully_pt = new TH2F("pix_ecc_pully_pt","Y Pull Vs Pt Pixel EndCap C;Track pT (GeV);Y Pull",m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos);
       RegisterHisto(al_mon,m_pix_ecc_pully_pt);  
       // Hit Errors
-      m_hiterror_x_pix_b = new TH1F("m_hiterror_x_pix_b",   "Pixel Barrel X Hit Error;X Hit Error (mm);PIX Hits", 80, 0., 0.2);
+      m_hiterror_x_ibl_b = new TH1F("m_hiterror_x_ibl_b",   "Pixel Barrel X Hit Error;X Hit Error [mm];IBL Hits", 80, 0., 0.1);      
+      RegisterHisto(al_mon,m_hiterror_x_ibl_b);
+      m_hiterror_x_pix_b = new TH1F("m_hiterror_x_pix_b",   "Pixel Barrel X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., 0.1);
       RegisterHisto(al_mon,m_hiterror_x_pix_b);			
-      m_hiterror_x_pix_ec = new TH1F("m_hiterror_x_pix_ec", "Pixel Endcap X Hit Error;X Hit Error (mm);PIX Hits", 80, 0., 0.2);
+      m_hiterror_x_pix_ec = new TH1F("m_hiterror_x_pix_ec", "Pixel Endcap X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., 0.1);
       RegisterHisto(al_mon,m_hiterror_x_pix_ec);			
-      m_hiterror_y_pix_b = new TH1F("m_hiterror_y_pix_b",   "Pixel Barrel Y Hit Error;Y Hit Error (mm);PIX Hits", 80, 0., 0.4);
+      m_hiterror_y_ibl_b = new TH1F("m_hiterror_y_ibl_b",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];IBL Hits", 80, 0., 0.2); 
+      RegisterHisto(al_mon,m_hiterror_y_ibl_b);
+      m_hiterror_y_pix_b = new TH1F("m_hiterror_y_pix_b",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., 0.2);
       RegisterHisto(al_mon,m_hiterror_y_pix_b);			
-      m_hiterror_y_pix_ec = new TH1F("m_hiterror_y_pix_ec", "Pixel Endcap Y Hit Error;Y Hit Error (mm);PIX Hits", 80, 0., 0.4);
+      m_hiterror_y_pix_ec = new TH1F("m_hiterror_y_pix_ec", "Pixel Endcap Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., 0.2);
       RegisterHisto(al_mon,m_hiterror_y_pix_ec);
       // hit errors in broad range
-      m_hiterror_x_pix_b_WideRange = new TH1F("m_hiterror_x_pix_b_WideRange",   "Pixel Barrel X Hit Error;X Hit Error (mm);PIX Hits", 100, 0., 2.0);
-      RegisterHisto(al_mon,m_hiterror_x_pix_b_WideRange);
-      m_hiterror_x_ibl_b = new TH1F("m_hiterror_x_ibl_b",   "Pixel Barrel X Hit Error;X Hit Error (mm);IBL Hits", 200, 0., 0.2);      
-      RegisterHisto(al_mon,m_hiterror_x_ibl_b);
-      m_hiterror_y_ibl_b = new TH1F("m_hiterror_y_ibl_b",   "Pixel Barrel Y Hit Error;Y Hit Error (mm);IBL Hits", 200, 0., 0.2); 
-      RegisterHisto(al_mon,m_hiterror_y_ibl_b);
-      m_hiterror_x_ibl_b_WideRange = new TH1F("m_hiterror_x_ibl_b_WideRange",   "Pixel Barrel X Hit Error;X Hit Error (mm);IBL Hits", 100, 0., 2.0);
+      m_hiterror_x_ibl_b_WideRange = new TH1F("m_hiterror_x_ibl_b_WideRange",   "Pixel Barrel X Hit Error;X Hit Error [mm];IBL Hits", 100, 0., 1.0);
       RegisterHisto(al_mon,m_hiterror_x_ibl_b_WideRange);
-      m_hiterror_y_ibl_b_WideRange = new TH1F("m_hiterror_y_ibl_b_WideRange",   "Pixel Barrel Y Hit Error;Y Hit Error (mm);IBL Hits", 100, 0., 2.0);
-      RegisterHisto(al_mon,m_hiterror_y_ibl_b_WideRange);
-      m_hiterror_x_pix_ec_WideRange = new TH1F("m_hiterror_x_pix_ec_WideRange", "Pixel Endcap X Hit Error;X Hit Error (mm);PIX Hits", 100, 0., 2.0);
+      m_hiterror_x_pix_b_WideRange = new TH1F("m_hiterror_x_pix_b_WideRange",   "Pixel Barrel X Hit Error;X Hit Error [mm];PIX Hits", 100, 0., 1.0);
+      RegisterHisto(al_mon,m_hiterror_x_pix_b_WideRange);
+      m_hiterror_x_pix_ec_WideRange = new TH1F("m_hiterror_x_pix_ec_WideRange", "Pixel Endcap X Hit Error;X Hit Error [mm];PIX Hits", 100, 0., 1.0);
       RegisterHisto(al_mon,m_hiterror_x_pix_ec_WideRange);			
-      m_hiterror_y_pix_b_WideRange = new TH1F("m_hiterror_y_pix_b_WideRange",   "Pixel Barrel Y Hit Error;Y Hit Error (mm);PIX Hits", 100, 0., 2.0);
+      m_hiterror_y_ibl_b_WideRange = new TH1F("m_hiterror_y_ibl_b_WideRange",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];IBL Hits", 100, 0., 2.0);
+      RegisterHisto(al_mon,m_hiterror_y_ibl_b_WideRange);
+      m_hiterror_y_pix_b_WideRange = new TH1F("m_hiterror_y_pix_b_WideRange",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];PIX Hits", 100, 0., 2.0);
       RegisterHisto(al_mon,m_hiterror_y_pix_b_WideRange);			
-      m_hiterror_y_pix_ec_WideRange = new TH1F("m_hiterror_y_pix_ec_WideRange", "Pixel Endcap Y Hit Error;Y Hit Error (mm);PIX Hits", 100, 0., 2.0);
+      m_hiterror_y_pix_ec_WideRange = new TH1F("m_hiterror_y_pix_ec_WideRange", "Pixel Endcap Y Hit Error;Y Hit Error [mm];PIX Hits", 100, 0., 2.0);
       RegisterHisto(al_mon,m_hiterror_y_pix_ec_WideRange);
 
       }
@@ -3795,6 +4038,10 @@ void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
       //Used in post-prcessing to fill 2-d residual map histograms of each silicon layer
       m_sct_b_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_xresvsmodetaphi_3d").c_str(),("X Residual Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+";Mod Eta; Mod Phi").c_str(),EtaModules*m_mapSplit,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
       RegisterHisto(al_mon,m_sct_b_xresvsmodetaphi_3ds[iLayer]); 
+
+
+      
+
       if(m_do3DOverlapHistos) {
 	m_sct_b_Oxresxvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_Oxresxvsmodetaphi_3d").c_str(),("X_Overlap Residual X Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+";Mod Eta; Mod Phi").c_str(),EtaModules*m_mapSplit,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
 	RegisterHisto(al_mon,m_sct_b_Oxresxvsmodetaphi_3ds[iLayer]);
@@ -3811,47 +4058,82 @@ void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
       //m_sct_b0_s1_biased_xresvsmodetaphi_3d->SetXTitle("Phi module");
       //RegisterHisto(al_mon,m_sct_b0_s1_biased_xresvsmodetaphi_3d);  
       			 
-      if (m_extendedPlots)
-	{
-	  //3d histograms of biased residual distribution versus module eta/phi in barrel - eta on xaxis, phi on yaxis    - I am using the mapSplit here!!
-	  m_sct_b_s0_biased_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s0_biased_xresvsmodetaphi_3d").c_str(),("X Biased Residual Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side0;Eta module;Phi module").c_str(),EtaModules*m_mapSplit,-SCTBarrelYSize*6, SCTBarrelYSize*6,maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer*SCTBarrelXSize,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_s0_biased_xresvsmodetaphi_3ds[iLayer]);
-	  m_sct_b_s1_biased_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s1_biased_xresvsmodetaphi_3d").c_str(),("X Biased Residual Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side1;Eta module;Phi module").c_str(),EtaModules*m_mapSplit,-SCTBarrelYSize*6, SCTBarrelYSize*6,maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer*SCTBarrelXSize,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_s1_biased_xresvsmodetaphi_3ds[iLayer]);
-	  //unbiased vs pT
-	  m_sct_b_residualsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualx_pt").c_str(),("Unbiased X Residual Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Res (mm)").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_residualsx_pt[iLayer]);
-	  //Unbiased vs  qoverp2
-	  m_sct_b_residualsx_qoverp2.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_unbiased_residualx_qoverp2").c_str(),("Unbiased X Residual Vs Q/P^{2} SCT Barrel Layer "+intToString(iLayer)+";Track Q/P^{2} (GeV^{-2});SCT Res (mm)").c_str(),20,customaxis,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_residualsx_qoverp2[iLayer]);
-	  //Unbiased Pull vs pt
-	  m_sct_b_pullsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_pullx_pt").c_str(),("X Pull Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Pull").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos));
-	  RegisterHisto(al_mon,m_sct_b_pullsx_pt[iLayer]);
-	  //biased
-	  m_sct_b_biased_residualsx.push_back(new TH1F(("sct_b"+intToString(iLayer)+"_biased_residualx").c_str(),("Biased X Residual SCT Barrel Layer "+intToString(iLayer)+";Residual [mm]").c_str(),100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_biased_residualsx[iLayer]);
-	  //biased pull
-	  m_sct_b_biased_pullsx.push_back(new TH1F(("sct_b"+intToString(iLayer)+"_biased_pullx").c_str(),("Biased X Pull SCT Barrel Layer "+intToString(iLayer)).c_str(),100,-m_RangeOfPullHistos, m_RangeOfPullHistos));
-	  RegisterHisto(al_mon,m_sct_b_biased_pullsx[iLayer]);
-	  //biased vs  pT
-	  m_sct_b_biased_residualsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_biased_residualx_pt").c_str(),("Biased X Residual Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Res (mm)").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_biased_residualsx_pt[iLayer]);
-	  //biased vs  qoverp2
-	  m_sct_b_biased_residualsx_qoverp2.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_biased_residualx_qoverp2").c_str(),("Biased X Residual Vs Q/P^{2} SCT Barrel Layer "+intToString(iLayer)+";Track Q/P^{2} (GeV^{-2});SCT Res (mm)").c_str(),20,customaxis,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
-	  RegisterHisto(al_mon,m_sct_b_biased_residualsx_qoverp2[iLayer]);	 
+      if (m_extendedPlots){
+
+	  m_sct_b_s0_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s0_xresvsmodetaphi_3d").c_str(),("X Residual Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side 0;Mod Eta; Mod Phi").c_str(),EtaModules,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_s0_xresvsmodetaphi_3ds[iLayer]);
+
+      m_sct_b_s1_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s1_xresvsmodetaphi_3d").c_str(),("X Residual Distbn vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side 1;Mod Eta; Mod Phi").c_str(),EtaModules,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_s1_xresvsmodetaphi_3ds[iLayer]);
+
+      //3d histograms of biased residual distribution versus module eta/phi in barrel - eta on xaxis, phi on yaxis, residual in Z    - I am using the mapSplit here!!
+      // side 0
+      m_sct_b_s0_biased_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s0_biased_xresvsmodetaphi_3d").c_str(),("Detailed x-residual dist. vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side0;Eta module;Phi module").c_str(),EtaModules*m_mapSplit,-SCTBarrelYSize*6, SCTBarrelYSize*6,maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer*SCTBarrelXSize,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_s0_biased_xresvsmodetaphi_3ds[iLayer]);
+      // side 1
+      m_sct_b_s1_biased_xresvsmodetaphi_3ds.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_s1_biased_xresvsmodetaphi_3d").c_str(),("Detailed x-residual dist. vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side1;Eta module;Phi module").c_str(),EtaModules*m_mapSplit,-SCTBarrelYSize*6, SCTBarrelYSize*6,maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer*SCTBarrelXSize,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_s1_biased_xresvsmodetaphi_3ds[iLayer]);
+
+      //unbiased vs pT
+      m_sct_b_residualsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualx_pt").c_str(),("Unbiased X Residual Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Res (mm)").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_residualsx_pt[iLayer]);
+
+      //Unbiased vs  qoverp2
+      m_sct_b_residualsx_qoverp2.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_unbiased_residualx_qoverp2").c_str(),("Unbiased X Residual Vs Q/P^{2} SCT Barrel Layer "+intToString(iLayer)+";Track Q/P^{2} (GeV^{-2});SCT Res (mm)").c_str(),20,customaxis,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_residualsx_qoverp2[iLayer]);
+
+      //Unbiased Pull vs pt
+      m_sct_b_pullsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_pullx_pt").c_str(),("X Pull Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Pull").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos));
+      RegisterHisto(al_mon,m_sct_b_pullsx_pt[iLayer]);
+
+      //biased
+      m_sct_b_biased_residualsx.push_back(new TH1F(("sct_b"+intToString(iLayer)+"_biased_residualx").c_str(),("Biased X Residual SCT Barrel Layer "+intToString(iLayer)+";Residual [mm]").c_str(),100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_biased_residualsx[iLayer]);
+
+      //biased pull
+      m_sct_b_biased_pullsx.push_back(new TH1F(("sct_b"+intToString(iLayer)+"_biased_pullx").c_str(),("Biased X Pull SCT Barrel Layer "+intToString(iLayer)).c_str(),100,-m_RangeOfPullHistos, m_RangeOfPullHistos));
+      RegisterHisto(al_mon,m_sct_b_biased_pullsx[iLayer]);
+
+      //biased vs  pT
+      m_sct_b_biased_residualsx_pt.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_biased_residualx_pt").c_str(),("Biased X Residual Vs Pt SCT Barrel Layer "+intToString(iLayer)+";Track pT (GeV);SCT Res (mm)").c_str(),m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_biased_residualsx_pt[iLayer]);
+
+      //biased vs  qoverp2
+      m_sct_b_biased_residualsx_qoverp2.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_biased_residualx_qoverp2").c_str(),("Biased X Residual Vs Q/P^{2} SCT Barrel Layer "+intToString(iLayer)+";Track Q/P^{2} (GeV^{-2});SCT Res (mm)").c_str(),20,customaxis,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+      RegisterHisto(al_mon,m_sct_b_biased_residualsx_qoverp2[iLayer]);	 
 	  
 	  if (m_doClusterSizeHistos)
 	    {
+	      m_sct_b_residualsx_incidentAnglePhi_s0.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualsx_incidentAnglePhi_s0").c_str(),("Residuals X vs Incident Phi Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad) Side 0;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      RegisterHisto(al_mon,m_sct_b_residualsx_incidentAnglePhi_s0[iLayer]);
+	      m_sct_b_residualsx_incidentAngle_s0.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualsx_incidentAngle_s0").c_str(),("Residuals X vs Incident Theta Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad) Side 0;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      RegisterHisto(al_mon,m_sct_b_residualsx_incidentAngle_s0[iLayer]);
+
+	      m_sct_b_residualsx_incidentAnglePhi_s1.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualsx_incidentAnglePhi_s1").c_str(),("Residuals X vs Incident Phi Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      RegisterHisto(al_mon,m_sct_b_residualsx_incidentAnglePhi_s1[iLayer]);
+	      m_sct_b_residualsx_incidentAngle_s1.push_back(new TH2F(("sct_b"+intToString(iLayer)+"_residualsx_incidentAngle_s1").c_str(),("Residuals X vs Incident Theta Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      RegisterHisto(al_mon,m_sct_b_residualsx_incidentAngle_s1[iLayer]);
+
+	      
 	      m_sct_b_clustersizePhi.push_back(new TH1F(("sct_b"+intToString(iLayer)+"_clustersizePhi").c_str(),("Cluster Phi size SCT Barrel Layer "+intToString(iLayer)).c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange));
 	      RegisterHisto(al_mon,m_sct_b_clustersizePhi[iLayer]);
-	      m_sct_b_residualsx_clustersizePhi.push_back( new TH2F(("sct_b"+intToString(iLayer)+"_residualx_clustersizePhi").c_str(),("Unbiased X Residual Vs Cluster Phi Size SCT Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;SCT Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      m_sct_b_residualsx_clustersizePhi.push_back( new TH2F(("sct_b"+intToString(iLayer)+"_residualx_clustersizePhi").c_str(),("Unbiased X Residual Vs Cluster Phi Size SCT Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;SCT Res (mm)").c_str(),m_ClusterSizeRange+1,-0.5,m_ClusterSizeRange+0.5,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
 	      RegisterHisto(al_mon,m_sct_b_residualsx_clustersizePhi[iLayer]);
-	      m_sct_b_residualsx_clustersizePhiP.push_back( new TProfile(("sct_b"+intToString(iLayer)+"_residualx_clustersizePhi_p").c_str(),("Unbiased X Residual Vs Cluster Phi Size SCT Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;SCT Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minSCTResFillRange,m_maxSCTResFillRange));
+	      m_sct_b_residualsx_clustersizePhiP.push_back( new TProfile(("sct_b"+intToString(iLayer)+"_residualx_clustersizePhi_p").c_str(),("Unbiased X Residual Vs Cluster Phi Size SCT Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;SCT Res (mm)").c_str(),m_ClusterSizeRange+1,-0.5,m_ClusterSizeRange+0.5,m_minSCTResFillRange,m_maxSCTResFillRange));
 	      RegisterHisto(al_mon,m_sct_b_residualsx_clustersizePhiP[iLayer]);
 	      m_sct_b_clustersizePhi_incidentAngle.push_back(new TProfile(("sct_b"+intToString(iLayer)+"_clustersizePhi_incidentAngle").c_str(),("Cluster Phi Size vs Incident Theta Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
 	      RegisterHisto(al_mon,m_sct_b_clustersizePhi_incidentAngle[iLayer]);
 	      m_sct_b_clustersizePhi_incidentAnglePhi.push_back(new TProfile(("sct_b"+intToString(iLayer)+"_clustersizePhi_incidentAnglePhi").c_str(),("Cluster Phi Size vs Incident Phi Angle SCT Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
 	      RegisterHisto(al_mon,m_sct_b_clustersizePhi_incidentAnglePhi[iLayer]);
+
+	      m_sct_b_clustersizePhivsmodetaphi_3ds_s0.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_clustersizePhivsmodetaphi_3d_s0").c_str(),("ClustersizePhi Distribution vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side 0;Mod Eta; Mod Phi").c_str(),EtaModules*m_mapSplit,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer,m_ClusterSizeRange+1,-0.5,m_ClusterSizeRange+0.5));
+	      RegisterHisto(al_mon,m_sct_b_clustersizePhivsmodetaphi_3ds_s0[iLayer]); 
+	      
+	      m_sct_b_clustersizePhivsmodetaphi_3ds_s1.push_back(new TH3F(("sct_b"+intToString(iLayer)+"_clustersizePhivsmodetaphi_3d_s1").c_str(),("ClustersizePhi Distribution vs Module Eta-Phi-ID SCT Barrel L"+intToString(iLayer)+" Side 1;Mod Eta; Mod Phi").c_str(),EtaModules*m_mapSplit,-(EtaModules/2.),(EtaModules/2.),maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer,m_ClusterSizeRange+1,-0.5,m_ClusterSizeRange+0.5));
+	      RegisterHisto(al_mon,m_sct_b_clustersizePhivsmodetaphi_3ds_s1[iLayer]); 
+	      
+	      
+
 
 	      
 	    }
@@ -3916,10 +4198,10 @@ void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
       RegisterHisto(al_mon,m_sct_b_pullx_pt); 
 
       // Hit errors
-      m_hiterror_sct_b = new TH1F("m_hiterror_sct_b", "SCT Barrel Hit Error;Hit Error(mm);SCT Hits", 80, 0., 0.25);
+      m_hiterror_sct_b = new TH1F("m_hiterror_sct_b", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., 0.25);
       RegisterHisto(al_mon,m_hiterror_sct_b);
       // Hit errors wide range
-      m_hiterror_sct_b_WideRange = new TH1F("m_hiterror_sct_b_WideRange", "SCT Barrel Hit Error;Hit Error(mm);SCT Hits", 80, 0., 2.5);
+      m_hiterror_sct_b_WideRange = new TH1F("m_hiterror_sct_b_WideRange", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., 2.5);
       RegisterHisto(al_mon,m_hiterror_sct_b_WideRange);
     }
   
@@ -4020,6 +4302,18 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon){
 		
 		if (m_doClusterSizeHistos)
 		  {
+		    
+		    m_sct_eca_residualsx_incidentAnglePhi_s0.push_back(new TH2F(("sct_eca"+intToString(iWheel)+"_residualsx_incidentAnglePhi_s0").c_str(),("Residuals X vs Incident Phi Angle SCT ECA Disk "+intToString(iWheel)+"Incident Phi Angle (rad) Side 0;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_eca_residualsx_incidentAnglePhi_s0[iWheel]);
+		    m_sct_eca_residualsx_incidentAngle_s0.push_back(new TH2F(("sct_eca"+intToString(iWheel)+"_residualsx_incidentAngle_s0").c_str(),("Residuals X vs Incident Theta Angle SCT ECA Layer "+intToString(iWheel)+"Incident Theta Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_eca_residualsx_incidentAngle_s0[iWheel]);
+
+
+		    m_sct_eca_residualsx_incidentAnglePhi_s1.push_back(new TH2F(("sct_eca"+intToString(iWheel)+"_residualsx_incidentAnglePhi_s1").c_str(),("Residuals X vs Incident Phi Angle SCT ECA Disk "+intToString(iWheel)+"Incident Phi Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_eca_residualsx_incidentAnglePhi_s1[iWheel]);
+		    m_sct_eca_residualsx_incidentAngle_s1.push_back(new TH2F(("sct_eca"+intToString(iWheel)+"_residualsx_incidentAngle_s1").c_str(),("Residuals X vs Incident Theta Angle SCT ECA Layer "+intToString(iWheel)+"Incident Theta Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_eca_residualsx_incidentAngle_s1[iWheel]);
+
 		    m_sct_eca_clustersizePhi.push_back(new TH1F(("sct_eca_d"+intToString(iWheel)+"_clustersizePhi").c_str(),("Cluster Phi size SCT ECA Disk "+intToString(iWheel)).c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange));
 		    RegisterHisto(al_mon,m_sct_eca_clustersizePhi[iWheel]);
 		    	      
@@ -4081,6 +4375,18 @@ void IDAlignMonResiduals::MakeSCTEndcapsHistograms(MonGroup& al_mon){
 		if (m_doClusterSizeHistos)
 		  {
 		    
+		    m_sct_ecc_residualsx_incidentAnglePhi_s0.push_back(new TH2F(("sct_ecc"+intToString(iWheel)+"_residualsx_incidentAnglePhi_s0").c_str(),("Residuals X vs Incident Phi Angle SCT ECC Disk "+intToString(iWheel)+"Incident Phi Angle (rad) Side 0;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_ecc_residualsx_incidentAnglePhi_s0[iWheel]);
+		    m_sct_ecc_residualsx_incidentAngle_s0.push_back(new TH2F(("sct_ecc"+intToString(iWheel)+"_residualsx_incidentAngle_s0").c_str(),("Residuals X vs Incident Theta Angle SCT ECC Layer "+intToString(iWheel)+"Incident Theta Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_ecc_residualsx_incidentAngle_s0[iWheel]);
+
+
+		    m_sct_ecc_residualsx_incidentAnglePhi_s1.push_back(new TH2F(("sct_ecc"+intToString(iWheel)+"_residualsx_incidentAnglePhi_s1").c_str(),("Residuals X vs Incident Phi Angle SCT ECC Disk "+intToString(iWheel)+"Incident Phi Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_ecc_residualsx_incidentAnglePhi_s1[iWheel]);
+		    m_sct_ecc_residualsx_incidentAngle_s1.push_back(new TH2F(("sct_ecc"+intToString(iWheel)+"_residualsx_incidentAngle_s1").c_str(),("Residuals X vs Incident Theta Angle SCT ECC Layer "+intToString(iWheel)+"Incident Theta Angle (rad) Side 1;Local X Residual").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,100*m_FinerBinningFactor,m_minSCTResFillRange,m_maxSCTResFillRange));
+		    RegisterHisto(al_mon,m_sct_ecc_residualsx_incidentAngle_s1[iWheel]);
+		    
+		  
 		    m_sct_ecc_clustersizePhi.push_back(new TH1F(("sct_ecc_d"+intToString(iWheel)+"_clustersizePhi").c_str(),("Cluster Phi size SCT ECC Disk "+intToString(iWheel)).c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange));
 		    RegisterHisto(al_mon,m_sct_ecc_clustersizePhi[iWheel]);
 		    		    
@@ -4276,7 +4582,9 @@ void IDAlignMonResiduals::MakeTRTBarrelHistograms(MonGroup& al_mon){
     /** L/R assignment */
     m_trt_b_hist->lr[side] = MakeHist("trt_b_lr"+sideName[side],"|0= LRcor !isTube | 1= LRcor isTube| 2= !LRcor !isTube | 3= !LRcor isTube  "+sideName[side],4,0,4,"","Entries");
     RegisterHisto(al_mon,m_trt_b_hist->lr[side]);  
-		
+
+    
+    
     if(m_extendedPlots){
       /** Residuals and pulls vs pT*/
       m_trt_b_hist->residualR_pt[side] = MakeHist("trt_b_residualR_pt_"+sideName[side],"UnBiased Residual vs pT for the TRT Barrel "+sideName[side],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "Track p_{T} [GeV]","Residual [mm]");
@@ -4286,7 +4594,16 @@ void IDAlignMonResiduals::MakeTRTBarrelHistograms(MonGroup& al_mon){
       RegisterHisto(al_mon,m_trt_b_hist->pullR_pt[side]);  
 			
       m_trt_b_hist->pullR_notube_pt[side] = MakeHist("trt_b_pullRnotube_pt_"+sideName[side],"UnBiased Pull vs pT for the TRT Barrel (no tube hits)"+sideName[side],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
-      RegisterHisto(al_mon,m_trt_b_hist->pullR_notube_pt[side]);  
+      RegisterHisto(al_mon,m_trt_b_hist->pullR_notube_pt[side]);    
+			
+      /** Residuals and pulls vs mu*/
+      m_trt_b_hist->residualR_mu[side] = MakeHist("trt_b_residualR_mu_"+sideName[side],"UnBiased Residual vs mu for the TRT Barrel "+sideName[side],100,0,100,200,-1.0,1.0, "#mu","Residual [mm]");
+      RegisterHisto(al_mon,m_trt_b_hist->residualR_mu[side]);  
+      m_trt_b_hist->pullR_mu[side] = MakeHist("trt_b_pullR_mu_"+sideName[side],"UnBiased Pull vs mu for the TRT Barrel "+sideName[side],100,0,100,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      RegisterHisto(al_mon,m_trt_b_hist->pullR_mu[side]);
+      m_trt_b_hist->pullR_notube_mu[side] = MakeHist("trt_b_pullRnotube_mu_"+sideName[side],"UnBiased Pull vs mu for the TRT Barrel (no tube hits)"+sideName[side],100,0,100,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      RegisterHisto(al_mon,m_trt_b_hist->pullR_notube_mu[side]); 
+
     }
 		
     /** Over Barrel Layers*/
@@ -4357,6 +4674,16 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
 			
       m_trt_ec_hist->pullR_notube_pt[endcap] = MakeHist("trt_ec_pullRnotube_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT Barrel (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_notube_pt[endcap]);  
+
+      /** Residuals and pulls vs mu*/
+      m_trt_ec_hist->residualR_mu[endcap] = MakeHist("trt_ec_residualR_mu_"+endcapName[endcap],"UnBiased Residual vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "#mu ","Residual [mm]");
+      RegisterHisto(al_mon,m_trt_ec_hist->residualR_mu[endcap]);  
+			
+      m_trt_ec_hist->pullR_mu[endcap] = MakeHist("trt_ec_pullR_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      RegisterHisto(al_mon,m_trt_ec_hist->pullR_mu[endcap]);  
+			
+      m_trt_ec_hist->pullR_notube_mu[endcap] = MakeHist("trt_ec_pullRnotube_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT Barrel (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
+      RegisterHisto(al_mon,m_trt_ec_hist->pullR_notube_mu[endcap]);  
     }
 		
     for(unsigned int ring=0; ring<41; ++ring){//The "extra one is the total"
@@ -4513,7 +4840,12 @@ void IDAlignMonResiduals::fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_o
       m_trt_b_hist->residualR_pt[side]-> Fill(trkpt, residualR, hweight);
       m_trt_b_hist->pullR_pt[side]    -> Fill(trkpt, pullR    , hweight);
       if (!isTubeHit) m_trt_b_hist->pullR_notube_pt[side] -> Fill(trkpt,pullR, hweight);
+      m_trt_b_hist->residualR_mu[side]-> Fill(m_mu, residualR, hweight);
+      m_trt_b_hist->pullR_mu[side]    -> Fill(m_mu, pullR    , hweight);
+      if (!isTubeHit) m_trt_b_hist->pullR_notube_mu[side] -> Fill(m_mu,pullR, hweight);
     }
+    
+   
 		
     //There are different number of straw layers in the differnt types of module layers
     // and the TRT_Id helper returns the layer with the current module (not global the layer)
@@ -4593,7 +4925,14 @@ void IDAlignMonResiduals::fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_o
       m_trt_ec_hist->residualR_pt[endcap]-> Fill(trkpt, residualR, hweight);
       m_trt_ec_hist->pullR_pt[endcap]    -> Fill(trkpt, pullR    , hweight);
       if (!isTubeHit) m_trt_ec_hist->pullR_notube_pt[endcap] -> Fill(trkpt,pullR, hweight);
+
+      m_trt_ec_hist->residualR_mu[endcap]-> Fill(m_mu, residualR, hweight);
+      m_trt_ec_hist->pullR_mu[endcap]    -> Fill(m_mu, pullR    , hweight);
+      if (!isTubeHit) m_trt_ec_hist->pullR_notube_mu[endcap] -> Fill(m_mu,pullR, hweight);
+
     }
+
+   
 		
     if(LRcorrect  && !isTubeHit)      m_trt_ec_hist->lr[endcap] -> Fill(0.5, hweight);
     if(LRcorrect  && isTubeHit )      m_trt_ec_hist->lr[endcap] -> Fill(1.5, hweight);
@@ -4629,5 +4968,50 @@ unsigned int IDAlignMonResiduals::getRing(unsigned int wheel,unsigned int strawl
     return (16*6+8*(wheel-6) + strawlayer) /4;
 }
 
+
+void IDAlignMonResiduals::MakeStaveShapeFit(float& mag, float& mag_er, float& base, float& base_er, TH1D* projection)
+{
+  TGraphErrors* g = ConvertHistoInGraph(projection);
+  TF1 *fit;
+  //fit = new TF1("fit", "[0]-[1]*(x+[2]) * (4.0*[2]*(x+[2])**2 - (x+[2])**3 - (2.0*[2])**3)", -m_z_fix, m_z_fix );
+  fit = new TF1("fit", "[1] - ([2]*(x*x-[0]*[0]))/([0]*[0])",-m_z_fix,m_z_fix);
+  fit->FixParameter(0, m_z_fix);
+  TFitResultPtr r = g->Fit(fit,"EX0SQ");
+  //mag       =  5.0 * fit->GetParameter(1) * (m_z_fix*m_z_fix*m_z_fix*m_z_fix);
+  //mag_er    =  5.0 * fit->GetParError(1)  * (m_z_fix*m_z_fix*m_z_fix*m_z_fix);
+  
+  mag = fit->GetParameter(2);
+  mag_er = fit->GetParError(2);
+
+  base     =fit->GetParameter(1);
+  base_er  =fit->GetParError(1);
+  
+  delete g;
+  return;
+}
+
+TGraphErrors* IDAlignMonResiduals::ConvertHistoInGraph(TH1D* histo)
+{
+  TGraphErrors* graph = new TGraphErrors();
+  std::vector<int> filled_bins;
+  for (int etabin=1;etabin < 21;++etabin)
+    {
+      if (histo->GetBinContent(etabin) != 0.)
+	{
+	  filled_bins.push_back(etabin);
+	}
+    }
+  
+  for (int ibin=0;ibin < (int) filled_bins.size();++ibin)
+    {
+      graph->Set(ibin+1);
+      graph->SetPoint(ibin,z_axis[filled_bins.at(ibin)-1],histo->GetBinContent(filled_bins.at(ibin)));
+      graph->SetPointError(ibin,0,histo->GetBinError(filled_bins.at(ibin)));
+    }
+  
+  graph->GetXaxis()->SetRangeUser(-m_z_fix,m_z_fix);
+  return graph;
+  
+}
 
 

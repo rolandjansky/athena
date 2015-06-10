@@ -11,6 +11,7 @@
 /////////////////////////////////////////////////
 void EigenAna(char dirname[80]="noname", char SolveOpt[80]="wholeID", Int_t NRemoveModes=-1)
 {
+  //gROOT->SetBatch();
   StatusCode status = SUCCESS;
   SetPrintLevel(1);
 
@@ -69,7 +70,7 @@ StatusCode EigenAna_init(const char *dname)
   // Set weak mode removal strategy
   SetWeakModeRemovalStrategy(1);
 
-  SetNModesToRemove(3); // only for strategy 1, fixed number of weak modes to remove
+  SetNModesToRemove(0); // only for strategy 1, fixed number of weak modes to remove
   
   SetPullLimit(1.0); // for strategies 2 and above
 
@@ -280,11 +281,12 @@ StatusCode ReadTFile()
   int tmp_i=0;
   RowsUsed.ResizeTo(InputBigVector->GetNoElements());
   for(int i=0; i<InputBigVector->GetNoElements(); i++) {
-  		if((*InputHitmap)[tmp_i]<GetHitCut()) RowsUsed[i]=0;
-  		else RowsUsed[i]=1; 
-  		if(i<(InputBigVector->GetNoElements()-1) && (*InputIdentifier)[i]!=(*InputIdentifier)[i+1]) tmp_i++;
+    RowsUsed[i]=1; // by default rows are used
+    if((*InputHitmap)[tmp_i]<GetHitCut()) RowsUsed[i]=0;
+    // trick to align IBL only if(i>5) RowsUsed[i]=0;
+    if(i<(InputBigVector->GetNoElements()-1) && (*InputIdentifier)[i]!=(*InputIdentifier)[i+1]) tmp_i++;
   }
-  if (GetPrintLevel()>8) {
+  if (GetPrintLevel()>0) {
    	std::cout << " Input Hitmap: " << std::endl;
    	InputHitmap->Print();
 	std::cout << std::endl;
@@ -294,7 +296,7 @@ StatusCode ReadTFile()
    }  
   
   // Remove  rows / columns to remove in case of low statistics
-  // if(GetHitCut()>0) RemoveRows();
+  if(GetHitCut()>0) RemoveRows();
 
   if (GetPrintLevel()>=1) {
     std::cout << " <ea> ReadTFile <ea> big matrix size: " <<  BigMatrix.GetNcols() << " x " << BigMatrix.GetNrows() << std::endl;
@@ -1398,7 +1400,8 @@ Int_t GetNEigenPerCanvas()
 {
   Int_t n = AlignCorr.GetNoElements();
 
-  if (n>4) n=4;
+  //if (n>4) n=4;
+  if (n>6) n=6;
 
   return n;
 }

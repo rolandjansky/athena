@@ -21,6 +21,11 @@ namespace Trk{
   class Track;
 }
 
+namespace InDet {
+  class IInDetTrackSelectionTool;
+}
+
+
 namespace InDetAlignMon{
 
   static const InterfaceID IID_TrackSelectionTool("InDetAlignMon::TrackSelectionTool", 1, 0);
@@ -52,6 +57,7 @@ namespace InDetAlignMon{
     
     //Do we cut on the event phase
     bool m_doEventPhaseCut;
+    bool m_useIDTrackSelectionTool;
     float m_maxEventPhase;
     float m_minEventPhase;
     std::string m_commTimeName;
@@ -59,6 +65,8 @@ namespace InDetAlignMon{
   private:
     
     ToolHandle< Trk::ITrackSelectorTool > m_trackSelectorTool; //!<  Pointer to Trk::ITrackSelectorTool
+
+    ToolHandle<InDet::IInDetTrackSelectionTool>   m_idtrackSelectionTool; //!< Pointer to InDet::IInDetTraclSelectionTool>
 
     bool m_passAllTracks;//switch that enables track selection to be bypassed completely
 

@@ -13,21 +13,31 @@
 #include "TLegend.h"
 #include "TTree.h"
 #include "TPad.h"
+#include "TProfile.h"
 #include "TString.h"
 #include "TStyle.h"
 
 #include "iostream"
-enum {PIX=1, SCT=2};
+enum {PIX=1, SCT=2, TRT=3};
 #define Ndofs 6
 TString dofName[Ndofs] = {"Tx", "Ty", "Tz", "Rx", "Ry", "Rz"};
+TString unitsName[Ndofs] = {"[mm]", "[mm]", "[mm]", "[mrad]", "[mrad]", "[mrad]"};
 
 float ComputeTz(int detec, int layer, double ring);
 float ComputeEta(int detec, int ring);
+//values
 double tx, ty, tz;
 double rx, ry, rz;
+// errors
+double etx, ety, etz;
+double erx, ery, erz;
 
 
-void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
+float UpperRing = 9;
+float LowerRing = -10;
+float NRings = 20;
+
+void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float UserRange =-1)
 {
   int Sectors=0;
   float MaxT = -1;
@@ -73,15 +83,40 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
   if (DetType == PIX && Layer==1) Sectors = 21;
   if (DetType == PIX && Layer==2) Sectors = 37;
   if (DetType == PIX && Layer==3) Sectors = 51;
-  
+  if (DetType == PIX && Layer==0) {
+    UpperRing = 9;
+    LowerRing = -10;
+    NRings = 20;
+  }
+  if (DetType == PIX && Layer>0) {
+    UpperRing = 6;
+    LowerRing = -6;
+    NRings = 13;
+  }
+
   // sort out the stave for the SCT
   if (DetType == SCT && Layer==0) Sectors = 31;
   if (DetType == SCT && Layer==1) Sectors = 39;
   if (DetType == SCT && Layer==2) Sectors = 47;
   if (DetType == SCT && Layer==3) Sectors = 51;
 
+  if (DetType == SCT) {
+    UpperRing = 5;
+    LowerRing = -6;
+    NRings = 12;
+  }
+
+  // TRT 
+  if (DetType == TRT) {
+    // as there is only one ring, the 3 layers are drawn in the same histogram
+    Sectors = 32;
+  }
+
   TString hName, hTitle;
+  TString AxisTitle;
+
   TH2F* hAlignCorrectionsMap[Ndofs];
+  TProfile* hAlignCorrStaveProfile[Ndofs];
   // now let's create the alignment corrections maps:
   for (int dof=0; dof < Ndofs; dof++) {
     hName.Clear();
@@ -91,18 +126,55 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
     if (DetType == PIX && Layer==0) hTitle.Append("IBL ");
     if (DetType == PIX && Layer >0) hTitle.Append("PIX Layer ");
     if (DetType == SCT) hTitle.Append("SCT Layer ");
+    if (DetType == TRT) hTitle.Append("TRT Barrel ");
     if (!(DetType == PIX && Layer==0)) hTitle += Layer;
+    hTitle.Append(": ");
     hTitle.Append(dofName[dof].Data());
     hTitle.Append(" corrections");
 
-    hAlignCorrectionsMap[dof] = new TH2F (hName.Data(), hTitle.Data(), 20, -10.5, 9.5, Sectors, -0.5, Sectors-0.5);
+    if (DetType == PIX | DetType == SCT) 
+      hAlignCorrectionsMap[dof] = new TH2F (hName.Data(), hTitle.Data(), NRings, LowerRing-0.5, UpperRing+0.5, Sectors, -0.5, Sectors-0.5);
+    if (DetType == TRT) 
+      hAlignCorrectionsMap[dof] = new TH2F (hName.Data(), hTitle.Data(), Sectors, -0.5, Sectors-0.5, 3, -0.5, 2.5); // sectors and layers
+
     hAlignCorrectionsMap[dof]->SetStats(false);
     hAlignCorrectionsMap[dof]->SetXTitle("#eta ring");
     hAlignCorrectionsMap[dof]->SetYTitle("#phi sector");
+    if (DetType == SCT) { // set bin labels
+      TString BinName;
+      int thislabel = -6;
+      for (int bin=1; bin<=  hAlignCorrectionsMap[dof]->GetNbinsX(); bin++){
+	BinName.Clear(); 
+	BinName += thislabel++;
+	if (thislabel == 0) thislabel++;
+	hAlignCorrectionsMap[dof]->GetXaxis()->SetBinLabel(bin, BinName.Data());
+      }
+    }
+    if (DetType == TRT) {
+      hAlignCorrectionsMap[dof]->SetXTitle("#phi sector");
+      hAlignCorrectionsMap[dof]->SetYTitle("#layer");
+    }      
+    
+    // create stave profiles
+    hName.Append("_prof");
+    hTitle.Append(" profile");
+    if (DetType == PIX | DetType == SCT) 
+      hAlignCorrStaveProfile[dof] = new TProfile(hName.Data(), hTitle.Data(), NRings, LowerRing-0.5, UpperRing+0.5);
+    if (DetType == TRT) 
+      hAlignCorrStaveProfile[dof] = new TProfile (hName.Data(), hTitle.Data(), Sectors, -0.5, Sectors-0.5); // sectors and layers
+    hAlignCorrStaveProfile[dof]->SetMarkerStyle(20);
+    hAlignCorrStaveProfile[dof]->SetStats(false);
+    hAlignCorrStaveProfile[dof]->SetXTitle("#eta ring");
+    AxisTitle.Clear();
+    AxisTitle += dofName[dof];
+    AxisTitle += " ";
+    AxisTitle += unitsName[dof];
+    hAlignCorrStaveProfile[dof]->SetYTitle(AxisTitle.Data());
   }
 
   TTree* Corrections = (TTree *) f0->Get("Corrections"); 
   double AlignCorrValues[6];
+  double AlignCorrErrors[6];
   int type, bec, layer, sector, ring;
   Corrections->SetBranchAddress("type",  &type); 
   Corrections->SetBranchAddress("bec",   &bec); 
@@ -115,6 +187,12 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
   Corrections->SetBranchAddress("rx",    &AlignCorrValues[3]);
   Corrections->SetBranchAddress("ry",    &AlignCorrValues[4]);
   Corrections->SetBranchAddress("rz",    &AlignCorrValues[5]);
+  Corrections->SetBranchAddress("etx",   &AlignCorrErrors[0]);
+  Corrections->SetBranchAddress("ety",   &AlignCorrErrors[1]);
+  Corrections->SetBranchAddress("etz",   &AlignCorrErrors[2]);
+  Corrections->SetBranchAddress("erx",   &AlignCorrErrors[3]);
+  Corrections->SetBranchAddress("ery",   &AlignCorrErrors[4]);
+  Corrections->SetBranchAddress("erz",   &AlignCorrErrors[5]);
 
   int NAlignedStruct = Corrections->GetEntries();
   if (PrintLevel >= 3) std::cout << " -- ModuleAlingDraw -- Number of aligned structures: " << NAlignedStruct << std::endl;
@@ -128,11 +206,27 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
 				   << std::endl;
     if (type == DetType) { // is this entry for the detector we are asking ?
       if ( bec == 0) { // this is in the barrel 
-	if (layer == Layer) { // is for the same layer ?
-	  float LogicEtaRing = ComputeEta(DetType, ring);
+	if (DetType == PIX | DetType == SCT) { // PIX and SCT are filled in one way, while TRT in another
+	  if (layer == Layer) { // is for the same layer ?
+	    float LogicEtaRing = ComputeEta(DetType, ring);
+	    for (int dof = 0; dof < Ndofs; dof++) { // loop on all dofs
+	      hAlignCorrectionsMap[dof]->Fill(LogicEtaRing, sector, AlignCorrValues[dof]);
+	      // to set the error... it's a bit tricky
+	      int thebin = hAlignCorrectionsMap[dof]->FindBin(LogicEtaRing, sector);
+	      hAlignCorrectionsMap[dof]->SetBinError(thebin,AlignCorrErrors[dof]); 
+
+	      if (PrintLevel >= 5) std::cout << "    -- ModuleAlingDraw -- " << dofName[dof].Data() << " = " << AlignCorrValues[dof]
+					     << " thebin: " << thebin 
+					     << " Error: " << AlignCorrErrors[dof]
+					     << std::endl;
+	      // fill the profile
+	      hAlignCorrStaveProfile[dof]->Fill(LogicEtaRing, AlignCorrValues[dof]); 
+	    }
+	  }
+	} // PIX and SCT
+	if (DetType == TRT) { // filling TRT
 	  for (int dof = 0; dof < Ndofs; dof++) { // loop on all dofs
-	    hAlignCorrectionsMap[dof]->Fill(LogicEtaRing, sector, AlignCorrValues[dof]);
-	    if (PrintLevel >= 5) std::cout << "    -- ModuleAlingDraw -- " << dofName[dof].Data() << " = " << AlignCorrValues[dof] << std::endl;
+	    hAlignCorrectionsMap[dof]->Fill(sector, layer, AlignCorrValues[dof]);
 	  }
 	}
       }
@@ -141,7 +235,6 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
 
   // Now histograms are filled. First thing, make sure range is symmetric
   // and set the Z axis title
-  TString AxisTitle;
   for (int dof = 0; dof < Ndofs; dof++) { // loop on all dofs
     // axis title
     AxisTitle.Clear();
@@ -152,8 +245,15 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
     // range
     float maxValue = hAlignCorrectionsMap[dof]->GetMaximum();
     float minValue = hAlignCorrectionsMap[dof]->GetMinimum();
+
     if (fabs(maxValue)>fabs(minValue)) { maxValue = fabs(maxValue); minValue = -maxValue;}
     if (fabs(minValue)>fabs(maxValue)) { maxValue = fabs(minValue); minValue = -maxValue;}
+
+    if (UserRange>0) {
+      maxValue=  UserRange;
+      minValue= -UserRange;
+    }
+
     // check gap
     if (maxValue-minValue < 0.001) { maxValue = 0.001; minValue = -maxValue;}
     hAlignCorrectionsMap[dof]->SetMaximum(maxValue);
@@ -177,11 +277,24 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0)
     if (DetType == PIX && Layer >0) hTitle.Append("PIX_Layer_");
     if (DetType == SCT) hTitle.Append("SCT_Layer_");
     if (!(DetType == PIX && Layer==0)) hTitle += Layer;
+    if (DetType == TRT) {
+      hTitle.Clear();
+      hTitle.Append("TRT_Barrel_");
+    }
     hTitle.Append(dofName[dof].Data());
     hTitle.Append("_map.png");
     
     cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+
+    hTitle.ReplaceAll("_map.png","_prof.png");
+    hAlignCorrStaveProfile[dof]->Draw();
+    cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+    
+    
   }
+
+  
+
 
   return;
 
