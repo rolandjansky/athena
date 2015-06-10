@@ -14,7 +14,7 @@ DrawPlots(PIXY0, outputDir+"/"+"PIXIBL_Y."+oFext, "Pixel Barrel IBL", "Number of
 
 IBL_xRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
 DrawPlots(IBL_xRESvsETA, outputDir+"/"+"IBL_xRESvsETA."+oFext, "IBL", "Average local x residual",
-          "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.41,0.40, False)
+          "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60,0.88, False) # 0.41, 0.40
 
 IBL_yRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_yresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
 DrawPlots(IBL_yRESvsETA, outputDir+"/"+"IBL_yRESvsETA."+oFext, "IBL", "Average local y residual [mm]",

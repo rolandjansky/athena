@@ -69,12 +69,17 @@ def drawAllCorr(detector):
     from ROOT import TCanvas
     from ROOT import TH1F
     from ROOT import gPad
+    debug = True
+
+    if (debug): print " -- drawAllCorr -- starting for detector = ",detector
     showErrors = True
     Alldetector = TCanvas("AlignmentCorrections(All)","Alignment Corrections (All)")
     Alldetector.Divide(3,2)
     AllCorrections = {}
     yrange = [0,0,0,0,0,0]
+    if (debug): print " -- drawAllCorr -- finding out histogram ranges... "
     for i in range(6):
+        if (debug): print "  -- drawAllCorr --  range for dof:",i
         for det in detector:
             for bin in range(detector[det].nModules()):
                 #print " ** drawutils ** drawAllCorr ** det:",det,"  nModules = ",detector[det].nModules()
@@ -82,6 +87,7 @@ def drawAllCorr(detector):
                     yrange[i] = abs(detector[det].GetModule(bin).GetDoF(i)[1])
         yrange[i] *= 1.1
         
+    if (debug): print " -- drawAllCorr -- finding out colors ..."
     Color = AutoColors(len(detector))
     for det in detector:
         for i in range(6):
@@ -182,9 +188,9 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
             print " dof=", dof, " hname  = ", hname
             print "         htitle = ", htitle
         # this histogram is the main frame
-        hCorrectionsEvol[dof] = TH1F(hname, htitle, numOfIterations, -0.5, numOfIterations*1.-0.5)
+        hCorrectionsEvol[dof] = TH1F(hname, htitle, numOfIterations-1, -0.5, numOfIterations*1.-1.5)
         # set the x axis labels
-        for iter in range(numOfIterations):
+        for iter in range(numOfIterations-1): # -1 do not include the total sum in the plot
             hCorrectionsEvol[dof].GetXaxis().SetBinLabel(iter+1,'Iter_%d' % (iter))
             if (len(labelList)>iter): # use label given by user
                 hCorrectionsEvol[dof].GetXaxis().SetBinLabel(iter+1,labelList[iter])
@@ -211,7 +217,7 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
             hCorrectionsEvolStruct[dof][struct].SetStats(False)
             # once the histogram is created, fill it with the corrections of each iteration
             accumvalue=0
-            for iter in range(numOfIterations):
+            for iter in range(numOfIterations-1): # -1 to account for the overall integration
                 value = detector[iter].GetModule(struct).GetDoF(dof)[1]
                 accumvalue = accumvalue+value
                 if (doDebug): print " dof:",dof, "  struct:",struct,"  iter:",iter,"  delta=",value
@@ -220,6 +226,13 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
                 if (drawErrors): hCorrectionsEvolStruct[dof][struct].SetBinError(iter+1, detector[iter].GetModule(struct).GetDoFError(dof)[1])
                 # now draw the corrections for this structure
             if (doDebug): print "Accumulated", hname, ":", accumvalue
+            # store the accumulated    
+            if (dof == 0): detector[numOfIterations-1].GetModule(struct).setTx(accumvalue)
+            if (dof == 1): detector[numOfIterations-1].GetModule(struct).setTy(accumvalue)
+            if (dof == 2): detector[numOfIterations-1].GetModule(struct).setTz(accumvalue)
+            if (dof == 3): detector[numOfIterations-1].GetModule(struct).setRx(accumvalue)
+            if (dof == 4): detector[numOfIterations-1].GetModule(struct).setRy(accumvalue)
+            if (dof == 5): detector[numOfIterations-1].GetModule(struct).setRz(accumvalue)
             hCorrectionsEvolStruct[dof][struct].DrawCopy('same l')
             gPad.Update()
             if (dof == nUsedDofs-1 and False): 

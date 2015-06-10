@@ -19,7 +19,7 @@ normaliserHisto = 0 #histogram which other hists are normalised to if normalisat
 statsMethod = 3 #how width is calculated if don't use fit. 0 = plain RMS, 1 = RMS(95%), 2 = RMS within range (sigmaIterativeGaus), 3 = FWHM/2.35
 interpolateFWHM = True # use linear interpolation in FWHM estimation
 sigmaIterativeGaus = 1.5 #controls sigma range used for iterative single Gaussian fit
-ZmumuVal = True #flag for ZmumuValidation particular things (axes range etc)
+ZmumuVal = False #flag for ZmumuValidation particular things (axes range etc)
 pTmin = 0       #the minimum pT for ZmumuValidation
 pTmax = 100     #the maximum pT for ZmumuValidation
 MinEntriesPerModule = 5 #Min number of entries per module to compute the residual maps values
@@ -92,7 +92,7 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
 
     can = TCanvas(outputName,outputName,800,600)
     can.cd()
-    if (debug): print " <DrawPlots> cosmetics set and canvas already open" 
+    if (debug): print " <DrawPlots> cosmetics set and canvas already open :)" 
 
         
     # determining the max and min histograms
@@ -135,11 +135,12 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
         if hist.GetName()=="pix_b_residualy":
             hist.GetYaxis().SetRangeUser(minYVal,maxYVal*1.33)
         else:
+            thisMin = minYVal*0.7+0.01
+            thisMax = maxYVal*1.38
+            if (debug): print " <DrawPlots> DynamicRange = False --> user range from:",thisMin, " --> ", thisMax
             #hist.GetYaxis().SetRangeUser(minYVal*1.10,maxYVal*1.10)
-            hist.GetYaxis().SetRangeUser(minYVal*0.7+0.01,maxYVal*1.38)
+            hist.GetYaxis().SetRangeUser(thisMin, thisMax)
             
-    #hist.GetYaxis().SetRangeUser(-0.15,0.15)        
-                
             
     hist.GetXaxis().SetTitle(xAxisTitle)
     if hist.GetYaxis().GetTitle()!="Arbitrary units":
@@ -151,6 +152,7 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
     if "mean_" in hist.GetName():
         hist.Draw("histo")
     else:
+        if (debug): print " <DrawPlots> going to draw ",hist.GetName()
         hist.Draw()
 
     if (debug): print " <DrawPlots> drawn !!! "
@@ -270,8 +272,8 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
     if (len(inputTuple)) > 3:
         hist = inputTuple[3+1]
         histoTitle = hist.GetName()
-        if histoTitle.find('pT')!=-1  and ZmumuVal:
-            hist.GetXaxis().SetRangeUser(pTmin,pTmax)
+        if histoTitle.find('pT')!=-1 and ZmumuVal:
+           hist.GetXaxis().SetRangeUser(pTmin,pTmax)
         if "mean_" in hist.GetName():
             hist.Draw("histosame")
         else:
@@ -945,7 +947,7 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
         tempProf[i] = TH1F(thisName,"IBL staves residuals",histoGram[i].GetXaxis().GetNbins(),histoGram[i].GetXaxis().GetXmin(),histoGram[i].GetXaxis().GetXmin());
 
 
-    SubtractFisrHistoTest = False
+    SubtractFirstHistoTest = False
 
     
     for i in range(nFiles):
@@ -959,10 +961,10 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
             tempProf[i].SetBinContent(ring+1, residualsdist.GetMean())
             tempProf[i].SetBinError(ring+1, residualsdist.GetMeanError())
             
-        if (SubtractFisrHistoTest and i==0):
+        if (SubtractFirstHistoTest and i==0):
             #copy thishisto as reference
             RefHisto = tempProf[i].Clone()
-        if (SubtractFisrHistoTest):
+        if (SubtractFirstHistoTest):
             tempProf[i].Add(RefHisto,-1)
             tempProf[i].Fit("pol0")
 
@@ -973,8 +975,8 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
         if tempProf[i].GetMinimum() < -maxval:
             maxval = -tempProf[i].GetMinimum()
         maxval = 1.20 * maxval
-        maxval = 0.350
-        if (SubtractFisrHistoTest): maxval = 0.500
+        maxval = 0.175
+        if (SubtractFirstHistoTest): maxval = 0.500
         #if (maxval < 0.45): maxval = 0.450
         #if (maxval < 0.10): maxval = 0.100
 
@@ -3155,7 +3157,8 @@ def MakeHitEffMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pix
     return totalTuple #returning histograms and fits
 
 ######################################################################################################################################        
-def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels", barrelEndCap="BAR", coordinate=0, unifiedScale = True, zAxisRange= 25, Type = "mean",SeparateSides=True,IsRun1=False):
+def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels", barrelEndCap="BAR", coordinate=0, unifiedScale = True, zAxisRange= 25, 
+                     Type = "mean", SeparateSides=True, IsRun1=False):
     # The hit maps have to be plotted for each track collection
     # this gets histograms from the files, normalises if desired and makes fits
     # and returns histograms and fits
@@ -3197,12 +3200,26 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
     if (detecName=="SCT" and barrelEndCap=="ECA"): shortName = "sct_eca_d" 
     if (detecName=="SCT" and barrelEndCap=="ECC"): shortName = "sct_ecc_d" 
         
-        
+    if (Type == "clustersize"):
+        print " good clustersize :)"
+
+    if (Type == "detailed"):
+        print " detailed maps :) "
+                
     #first have to get all the histograms because they may be used to normalise each other etc     
     if (barrelEndCap == "BAR"):
         for i in range(nLayers):
             myHistoName = shortName + str(i) + "_" + myCoordinate +"resvsmodetaphi_3d"   
-            if (detecName=="SCT"): myHistoName = shortName + str(i) + "_" + "s"+str(coordinate) + "_" + myCoordinate +"resvsmodetaphi_3d"
+            if (detecName=="SCT"): 
+                myHistoName = shortName + str(i) + "_" + "s"+str(coordinate) + "_" + myCoordinate +"resvsmodetaphi_3d"
+                if (Type == "clustersize"): 
+                    myHistoName = shortName + str(i) + "_clustersizePhivsmodetaphi_3d_" + "s"+str(coordinate)
+                if (Type == "detailed"): 
+                    myHistoName = shortName + str(i) + "_" + "s"+str(coordinate) + "_biased_" + myCoordinate +"resvsmodetaphi_3d"
+            if (detecName=="PIX"):
+                myHistoName = shortName + str(i) + "_" + myCoordinate +"resvsmodetaphi_3d"            
+                if (Type == "detailed"): 
+                    myHistoName = shortName + str(i) + "_biased_" + myCoordinate +"resvsmodetaphi_3d"            
             myHistoName = Check3DHistoExists(rootFiles[fileID],histogramDir[fileID],myHistoName)
             if (debug): print " -- MakeResidualMaps -- fetching histogram names: detector ",detecName,"  layer/disk ",i,"   histo=",myHistoName 
             histoGram3D = GetHistogram(rootFiles[fileID],histogramDir[fileID],myHistoName,0,0) # retrieve the 3D histogram
@@ -3253,7 +3270,7 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
             histoGram[layer].SetMaximum(thismax)
             histoGram[layer].SetMinimum(-thismax)
                   
-    if (Type == "width"): 
+    if (Type == "width" or Type== "clustersize"): 
         for layer in range(nLayers):
             histoGram[layer].SetMinimum(0)
 
@@ -3324,7 +3341,7 @@ def getIBLResidualBySensorType(inputHisto, layer, draw3DSensors, drawPlanarSenso
 def get2DResidualMap(inputHisto, layer, thistype = "mean"):
     # the input histo is a 3D
     hname = inputHisto.GetName() + "_ResMean"
-    htitle = " residual map " + "(mean)" 
+    htitle = " residual map " + "(" + thistype +")"  
 
     # define the 2d map
     outputHisto = TH2F(hname, htitle, inputHisto.GetXaxis().GetNbins(), 
@@ -3336,7 +3353,7 @@ def get2DResidualMap(inputHisto, layer, thistype = "mean"):
     # fill the map
     for i in range (outputHisto.GetXaxis().GetNbins()):
         for j in range (outputHisto.GetYaxis().GetNbins()):
-            thisHisto = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j),i+1,i+1,j+1,j+1)
+            thisHisto = inputHisto.ProjectionZ(hname+"_zmean_"+str(layer)+str(i)+str(j),i+1,i+1,j+1,j+1)
             if (thisHisto.GetEntries() >= MinEntriesPerModule): # min number of entries
                 #FindMeanRMSUsingFWHM
                 meanFWHMTuple = findMeanRMSUsingFWHM(thisHisto)
@@ -3345,7 +3362,9 @@ def get2DResidualMap(inputHisto, layer, thistype = "mean"):
                 #outputHisto.SetBinContent(i+1,j+1,1000.*thisHisto.GetMean())
                 if (thistype == "mean"): outputHisto.SetBinContent(i+1,j+1,1000.*meanFWHMTuple[0])
                 if (thistype == "width"): outputHisto.SetBinContent(i+1,j+1,1000.*meanFWHMTuple[1])
-    
+                if (thistype == "clustersize"): outputHisto.SetBinContent(i+1,j+1, thisHisto.GetMean())#outputHisto.SetBinContent(i+1,j+1, meanFWHMTuple[0])
+                if (thistype == "detailed"): outputHisto.SetBinContent(i+1,j+1,1000.*meanFWHMTuple[0])
+
     return outputHisto
 
 ###########################################################################################################################
@@ -3445,20 +3464,26 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
     latexTitle.SetTextColor(1)
     gStyle.SetPaintTextFormat("4.0f")
     if ("eff") in zAxisTitle: gStyle.SetPaintTextFormat("4.2f")
+    if ("cluster" in zAxisTitle): gStyle.SetPaintTextFormat("4.1f")
 
     for i in range(nHist):
         can.cd(i+1)
+        myDrawOptions = "colz text"
+        if ("detailed" in inputTuple[i].GetTitle()): 
+            myDrawOptions = "colz" #do not print the values
+            print " detailed found --> no numbers "
+        print " histo ",i," title: ", inputTuple[i].GetTitle() 
         inputTuple[i].GetXaxis().SetTitle(xAxisTitle)
         inputTuple[i].GetYaxis().SetTitle(yAxisTitle)
         inputTuple[i].GetZaxis().SetTitle(zAxisTitle)
         # --> it is not working # gStyle.SetPadTickX(0) # hitmaps have a different axis on top
         if (debug): print " -- DrawHitMaps -- i=",i,"   detec=",detecName,"   Barrel/Endcap= ",barrelEndCap 
         if (detecName == "PIX" and barrelEndCap == "BAR"): 
-            inputTuple[i].Draw("colz text")    
+            inputTuple[i].Draw(myDrawOptions)    
             myTitle = "Pixel barrel layer " + str(i-1)
             if (i == 0): myTitle = " IBL " # special case   
         if (detecName == "SCT" and barrelEndCap == "BAR"): 
-            inputTuple[i].Draw("colz text")    
+            inputTuple[i].Draw(myDrawOptions)    
             myTitle = "SCT barrel layer " + str(i)
         if (detecName == "PIX" and barrelEndCap != "BAR"): 
             DrawPixelECMap(inputTuple[i])
@@ -3474,6 +3499,8 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
         if (debug): print " -- DrawHitMaps -- histogram title =",myTitle 
         latexTitle.DrawLatex(legendLeftX, legendUpperY, myTitle)
            
+        if ("detailed" in inputTuple[i].GetTitle()):
+            DrawModuleGrid ( detecName, inputTuple[i], i);    
             
             
     if (debug): print " -- DrawHitMaps -- completed -- "    
@@ -3482,6 +3509,55 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
 
     return
 
+###########################################################################################################################
+def DrawModuleGrid(detecName, inputHisto, layer=0):
+    debug = False
+    if (debug): print " -- DrawModuleGrid -- start -- for detect", detecName, " NbinsX:",inputHisto.GetNbinsX()
+
+    nbinsx = inputHisto.GetNbinsX()
+    nbinsy = inputHisto.GetNbinsY()
+    xmin = inputHisto.GetXaxis().GetBinLowEdge(1)    
+    xmax = inputHisto.GetXaxis().GetBinUpEdge(nbinsx)    
+    ymin = inputHisto.GetYaxis().GetBinLowEdge(1)    
+    ymax = inputHisto.GetYaxis().GetBinUpEdge(nbinsy)    
+    nCells = 1
+    firstRing = -6
+    nRings = 12
+
+    if (detecName == "SCT"): 
+        nCells = inputHisto.GetNbinsX()/12
+        print " -- DrawModuleGrid --  NbinsX:",inputHisto.GetNbinsX()," --> module cells:", nCells, "x", nCells
+    if (detecName == "PIX"): 
+        nCells = inputHisto.GetNbinsX()/13
+        firstRing = -6
+        nRings = 13
+        if (layer==0):
+            ncells = inputHisto.GetNbinsX()/20
+            firstRing = -10
+            nRings = 20
+            
+        print " -- DrawModuleGrid --  NbinsX:",inputHisto.GetNbinsX()," --> module cells:", nCells, "x", nCells
+
+    nSectors = inputHisto.GetNbinsY()/nCells
+    
+    for ring in range(nRings):
+        logicRing = firstRing+ring
+        thisx = inputHisto.GetXaxis().GetBinLowEdge((ring+1)*nCells+1) 
+        xline = TLine(thisx,ymin,thisx,ymax)
+        xline.SetLineColor(kBlue)
+        xline.Draw()    
+        print " ring: ",ring, "  logic ring: ",firstRing+ring," bin:",(ring+1)*nCells+1," x=",thisx
+        SetOwnership(xline, False)
+
+    for sector in range(nSectors):
+        thisy = inputHisto.GetYaxis().GetBinLowEdge((sector+1)*nCells+1) 
+        yline = TLine(xmin,thisy,xmax,thisy)
+        yline.Draw()    
+        print " sector: ", sector," bin:",sector*nCells+1," y=",thisy
+        SetOwnership(yline, False)
+    
+
+    return
 ###########################################################################################################################
 def DrawSCTECMap(inputHisto, disk):
     debug = False

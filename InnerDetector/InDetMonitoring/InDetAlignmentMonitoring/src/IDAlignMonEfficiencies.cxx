@@ -459,10 +459,10 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     for (int i=1;i<=12;i++) m_hits_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
     RegisterHisto(al_mon, m_hits_vs_layer_barrel);
 
-    m_hits_vs_layer_eca = new TH1F("hits_vs_layer_eca","possible hits vs. layer in the barrel eca",21,-0.5,21.5);   
+    m_hits_vs_layer_eca = new TH1F("hits_vs_layer_eca","possible hits vs. layer in the barrel eca",21,-0.5,20.5);   
     for (int i=2;i<=nx;i++) m_hits_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
     RegisterHisto(al_mon, m_hits_vs_layer_eca) ; 
-    m_hits_vs_layer_ecc = new TH1F("hits_vs_layer_ecc","possible hits vs. layer in the barrel ecc",21,-0.5,21.5);    
+    m_hits_vs_layer_ecc = new TH1F("hits_vs_layer_ecc","possible hits vs. layer in the barrel ecc",21,-0.5,20.5);    
     for (int i=2;i<=nx;i++) m_hits_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
     RegisterHisto(al_mon, m_hits_vs_layer_ecc) ; 
 
@@ -994,6 +994,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_hits_vs_LB_pix_b[layerDisk]  -> Fill(float(LumiBlock));
 	    m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  } //barrel
 	  else if (barrelEC==2){ 
@@ -1110,7 +1111,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    
 	    m_measurements_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  } // ECA
-	  else if (detType==0 && barrelEC == -2){ 
+	  else if (barrelEC == -2){ 
 	    
 	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endreq;
@@ -2371,13 +2372,13 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       
       //hit efficiency vs LB by layer
 
-      m_hits_vs_LB_pix_b.push_back(new TH1F(("hits_vs_LB_pix_b"+intToString(iLayer)).c_str(),("hits per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
+      m_hits_vs_LB_pix_b.push_back(new TH1F(("hits_vs_LB_pix_b"+intToString(iLayer)).c_str(),("possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_hits_vs_LB_pix_b[iLayer]); 
       
       m_measurements_vs_LB_pix_b.push_back(new TH1F(("measurements_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_pix_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
       RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_b[iLayer]);        
       
       
@@ -2527,7 +2528,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_pix_eca);  
   m_measurements_vs_LB_pix_eca  = new TH1F("measurements_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_pix_eca);
-  m_measurements_eff_vs_LB_pix_eca = new TProfile("measurements_eff_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB, 0.,1.);  
+  m_measurements_eff_vs_LB_pix_eca = new TProfile("measurements_eff_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_eca); 
   
   //vs LB
@@ -2536,7 +2537,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_pix_ecc);
   m_measurements_vs_LB_pix_ecc = new TH1F("measurements_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_pix_ecc);
-  m_measurements_eff_vs_LB_pix_ecc = new TProfile("measurements_eff_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB, 0.,1.); 
+  m_measurements_eff_vs_LB_pix_ecc = new TProfile("measurements_eff_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.); 
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_ecc); 
   
 
@@ -2578,7 +2579,7 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       m_measurements_vs_LB_sct_b.push_back(new TH1F(("measurements_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_sct_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
       RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_b[iLayer]); 
       
 
@@ -2773,7 +2774,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_eca); 	    
   m_measurements_vs_LB_sct_eca = new TH1F("measurements_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_eca); 
-  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.,1.);  
+  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_eca);
 
   //vs LB
@@ -2783,7 +2784,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_ecc); 
   m_measurements_vs_LB_sct_ecc = new TH1F("measurements_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_ecc); 
-  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.,1.);  
+  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_ecc); 
 }
 

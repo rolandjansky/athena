@@ -256,28 +256,28 @@ if (userExtended or True):
 
 if (userExtended):
     PIXX0vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_inciphi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX0vsINCANG,outputDir+"/"+"PIXIBL_XvsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX0vsINCANG,outputDir+"/"+"PIXIBL_XvsINCANG."+oFext,"IBL","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX1vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx_inciphi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX1vsINCANG,outputDir+"/"+"PIXX1vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX1vsINCANG,outputDir+"/"+"PIXX1vsINCANG."+oFext,"PIXEL Layer 0","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX2vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx_inciphi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX2vsINCANG,outputDir+"/"+"PIXX2vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX2vsINCANG,outputDir+"/"+"PIXX2vsINCANG."+oFext,"PIXEL Layer 1","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX3vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx_inciphi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX3vsINCANG,outputDir+"/"+"PIXX3vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX3vsINCANG,outputDir+"/"+"PIXX3vsINCANG."+oFext,"PIXEL Layer 2","Local x residual [mm]","Incident angle [radians]",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX0vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX0vsCLUSIZ,outputDir+"/"+"PIXX0vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX0vsCLUSIZ,outputDir+"/"+"PIXX0vsCLUSIZE."+oFext,"IBL","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
 
     PIXX1vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX1vsCLUSIZ,outputDir+"/"+"PIXX1vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX1vsCLUSIZ,outputDir+"/"+"PIXX1vsCLUSIZE."+oFext,"PIXEL Layer 0","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX2vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX2vsCLUSIZ,outputDir+"/"+"PIXX2vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX2vsCLUSIZ,outputDir+"/"+"PIXX2vsCLUSIZE."+oFext,"PIXEL Layer 1","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
     PIXX3vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
-    DrawPlots(PIXX3vsCLUSIZ,outputDir+"/"+"PIXX3vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
+    DrawPlots(PIXX3vsCLUSIZ,outputDir+"/"+"PIXX3vsCLUSIZE."+oFext,"PIXEL Layer 2","Local x residual [mm]","Cluster size",0.15,0.88,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
 
 	# SCT 
     SCTX0vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b0_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)

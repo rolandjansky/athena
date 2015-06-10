@@ -13,6 +13,7 @@
 #include "TLegend.h"
 #include "TTree.h"
 #include "TPad.h"
+#include "TProfile.h"
 #include "TString.h"
 #include "TStyle.h"
 
@@ -20,11 +21,17 @@
 enum {PIX=1, SCT=2, TRT=3};
 #define Ndofs 6
 TString dofName[Ndofs] = {"Tx", "Ty", "Tz", "Rx", "Ry", "Rz"};
+TString unitsName[Ndofs] = {"[mm]", "[mm]", "[mm]", "[mrad]", "[mrad]", "[mrad]"};
 
 float ComputeTz(int detec, int layer, double ring);
 float ComputeEta(int detec, int ring);
+//values
 double tx, ty, tz;
 double rx, ry, rz;
+// errors
+double etx, ety, etz;
+double erx, ery, erz;
+
 
 float UpperRing = 9;
 float LowerRing = -10;
@@ -106,7 +113,10 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
   }
 
   TString hName, hTitle;
+  TString AxisTitle;
+
   TH2F* hAlignCorrectionsMap[Ndofs];
+  TProfile* hAlignCorrStaveProfile[Ndofs];
   // now let's create the alignment corrections maps:
   for (int dof=0; dof < Ndofs; dof++) {
     hName.Clear();
@@ -144,10 +154,27 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
       hAlignCorrectionsMap[dof]->SetXTitle("#phi sector");
       hAlignCorrectionsMap[dof]->SetYTitle("#layer");
     }      
+    
+    // create stave profiles
+    hName.Append("_prof");
+    hTitle.Append(" profile");
+    if (DetType == PIX | DetType == SCT) 
+      hAlignCorrStaveProfile[dof] = new TProfile(hName.Data(), hTitle.Data(), NRings, LowerRing-0.5, UpperRing+0.5);
+    if (DetType == TRT) 
+      hAlignCorrStaveProfile[dof] = new TProfile (hName.Data(), hTitle.Data(), Sectors, -0.5, Sectors-0.5); // sectors and layers
+    hAlignCorrStaveProfile[dof]->SetMarkerStyle(20);
+    hAlignCorrStaveProfile[dof]->SetStats(false);
+    hAlignCorrStaveProfile[dof]->SetXTitle("#eta ring");
+    AxisTitle.Clear();
+    AxisTitle += dofName[dof];
+    AxisTitle += " ";
+    AxisTitle += unitsName[dof];
+    hAlignCorrStaveProfile[dof]->SetYTitle(AxisTitle.Data());
   }
 
   TTree* Corrections = (TTree *) f0->Get("Corrections"); 
   double AlignCorrValues[6];
+  double AlignCorrErrors[6];
   int type, bec, layer, sector, ring;
   Corrections->SetBranchAddress("type",  &type); 
   Corrections->SetBranchAddress("bec",   &bec); 
@@ -160,6 +187,12 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
   Corrections->SetBranchAddress("rx",    &AlignCorrValues[3]);
   Corrections->SetBranchAddress("ry",    &AlignCorrValues[4]);
   Corrections->SetBranchAddress("rz",    &AlignCorrValues[5]);
+  Corrections->SetBranchAddress("etx",   &AlignCorrErrors[0]);
+  Corrections->SetBranchAddress("ety",   &AlignCorrErrors[1]);
+  Corrections->SetBranchAddress("etz",   &AlignCorrErrors[2]);
+  Corrections->SetBranchAddress("erx",   &AlignCorrErrors[3]);
+  Corrections->SetBranchAddress("ery",   &AlignCorrErrors[4]);
+  Corrections->SetBranchAddress("erz",   &AlignCorrErrors[5]);
 
   int NAlignedStruct = Corrections->GetEntries();
   if (PrintLevel >= 3) std::cout << " -- ModuleAlingDraw -- Number of aligned structures: " << NAlignedStruct << std::endl;
@@ -178,7 +211,16 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
 	    float LogicEtaRing = ComputeEta(DetType, ring);
 	    for (int dof = 0; dof < Ndofs; dof++) { // loop on all dofs
 	      hAlignCorrectionsMap[dof]->Fill(LogicEtaRing, sector, AlignCorrValues[dof]);
-	      if (PrintLevel >= 5) std::cout << "    -- ModuleAlingDraw -- " << dofName[dof].Data() << " = " << AlignCorrValues[dof] << std::endl;
+	      // to set the error... it's a bit tricky
+	      int thebin = hAlignCorrectionsMap[dof]->FindBin(LogicEtaRing, sector);
+	      hAlignCorrectionsMap[dof]->SetBinError(thebin,AlignCorrErrors[dof]); 
+
+	      if (PrintLevel >= 5) std::cout << "    -- ModuleAlingDraw -- " << dofName[dof].Data() << " = " << AlignCorrValues[dof]
+					     << " thebin: " << thebin 
+					     << " Error: " << AlignCorrErrors[dof]
+					     << std::endl;
+	      // fill the profile
+	      hAlignCorrStaveProfile[dof]->Fill(LogicEtaRing, AlignCorrValues[dof]); 
 	    }
 	  }
 	} // PIX and SCT
@@ -193,7 +235,6 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
 
   // Now histograms are filled. First thing, make sure range is symmetric
   // and set the Z axis title
-  TString AxisTitle;
   for (int dof = 0; dof < Ndofs; dof++) { // loop on all dofs
     // axis title
     AxisTitle.Clear();
@@ -244,7 +285,16 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
     hTitle.Append("_map.png");
     
     cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+
+    hTitle.ReplaceAll("_map.png","_prof.png");
+    hAlignCorrStaveProfile[dof]->Draw();
+    cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+    
+    
   }
+
+  
+
 
   return;
 
