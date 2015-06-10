@@ -35,6 +35,9 @@ def TrigIDtrkMonitoringTool():
 		tidacos.AnalysisConfig = "Tier0"
 		tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
 		# tidacos.OutputLevel = DEBUG
+		tidacos.pixHitsOffline=-1
+		tidacos.sctHitsOffline=-1
+		tidacos.siHitsOffline=-1
 		tidacos.ntupleChainNames += [
 			"Offline",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
@@ -51,6 +54,9 @@ def TrigIDtrkMonitoringTool():
 		tidacosshift.AnalysisConfig = "Tier0"
 		tidacosshift.SliceTag = "HLT/TRIDT/Cosmic/Shifter"
 		# tidacos.OutputLevel = DEBUG
+		tidacosshift.pixHitsOffline=-1
+		tidacosshift.sctHitsOffline=-1
+		tidacosshift.siHitsOffline=-1
 		tidacosshift.ntupleChainNames += [
 			"Offline",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
@@ -152,6 +158,7 @@ def TrigIDtrkMonitoringTool():
 		tidatau.ntupleChainNames += [
 			"Offline",
 			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
@@ -190,14 +197,16 @@ def TrigIDtrkMonitoringTool():
 		tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
 		tidabjet.ntupleChainNames += [
 			"Offline",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_EFID",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_IDTrig:roi=forID",
-			"HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_EFID",
-			"HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_Bjet_FTF:roi=forID"
+			# jet based chains
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			# muon based chains
+			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
+			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
 		ToolSvc += tidabjet;
 		list += [ "TrigTestBase/IDBjetTool" ]
@@ -210,8 +219,10 @@ def TrigIDtrkMonitoringTool():
 		tidabjetshift.SliceTag = "HLT/TRIDT/Bjet/Shifter"
 		tidabjetshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_IDTrig",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_FTF"
+			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
 		ToolSvc += tidabjetshift;
 		list += [ "TrigTestBase/IDBjetShifterTool" ]
@@ -250,6 +261,43 @@ def TrigIDtrkMonitoringTool():
 			]
 		ToolSvc += tidabphysshift;
 		list += [ "TrigTestBase/IDBphysShifterTool" ]
+
+
+
+
+		##############################################################
+		# minBias instances
+		##############################################################
+		
+		# Expert instances 
+		tidaminbias = TrigTestBase(name = "IDminBiasTool",
+					histoPathBase = "/Trigger/HLT")
+		tidaminbias.AnalysisConfig = "Tier0"
+		tidaminbias.SliceTag = "HLT/TRIDT/minBias/Expert"
+		# tidabase.OutputLevel = DEBUG
+		tidaminbias.ntupleChainNames += [
+			"Offline",
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_EFID",
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
+			]
+		ToolSvc += tidaminbias;
+		list += [ "TrigTestBase/IDminBiasTool" ]
+
+
+		# Shifter instances 
+		tidaminbiasshift = TrigTestBase(name = "IDminBiasShifterTool",
+					histoPathBase = "/Trigger/HLT")
+		tidaminbiasshift.AnalysisConfig = "Tier0"
+		tidaminbiasshift.SliceTag = "HLT/TRIDT/minBias/Shifter"
+		tidaminbiasshift.ntupleChainNames += [
+			"Offline",
+			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
+			]
+		ToolSvc += tidaminbiasshift;
+		list += [ "TrigTestBase/IDminBiasShifterTool" ]
+
 
 
 
