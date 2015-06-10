@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 652609 2015-03-09 11:25:09Z mishitsu $
+// $Id: L2StandAloneMuon_v1.cxx 674051 2015-06-10 13:39:04Z mishitsu $
 
 // System include(s):
 #include <iostream>
@@ -1227,7 +1227,7 @@ namespace xAOD {
    /// Set size of L1 emulation storage
    void L2StandAloneMuon_v1::setLvl1EmuCapacity( int value ) {
  
-      static Accessor< int > lcapAcc( "lvl1Emuapacity" );
+      static Accessor< int > lcapAcc( "lvl1EmuCapacity" );
       lcapAcc( *this ) = value;
 
       if ( value > 0 ) {
