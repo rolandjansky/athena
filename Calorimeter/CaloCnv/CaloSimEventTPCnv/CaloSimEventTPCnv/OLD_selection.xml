@@ -1,0 +1,13 @@
+<lcgdict>
+
+  <!-- optimized version 3 -->
+  <class name="CaloCalibrationHit_p1" />
+  <class name="std::vector<CaloCalibrationHit_p1>" />
+  <class name="CaloCalibrationHitContainer_p1" id="185FEF89-2350-4D1E-A1A7-9CB5A357232E" />
+  <class name="CaloCalibrationHitContainer_p2" id="4942B9D4-F545-4C68-BD2D-A8E5923C29F3" />
+
+  <!-- optimized version 4 -->
+  <class name="CaloCalibrationHit_p2" />
+  <class name="CaloCalibrationHitContainer_p3" id="D4E51325-2A55-41E4-B163-5224F2FA27CB" />
+
+</lcgdict>
