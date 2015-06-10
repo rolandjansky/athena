@@ -172,9 +172,9 @@ bool add( const std::string& hname, TKey* tobj, const std::string depth="" ) {
       if ( basepath!="" ) out << depth << spacer <<  spacer << "output = " << head(basepath+"/"+hname) << "\n";
       else                out << depth << spacer <<  spacer << "output = " << head(hname) << "\n";
 
-      std::cerr << depth << spacer <<  spacer << "output = " << head(hname) << "\t\t " << basepath << " " << h0->GetName() << "\tFilled: " << hfilled( h0 ) << "\n";
+      std::cerr << depth << spacer <<  spacer << "output = " << head(hname) << "\t\t " << basepath << " " << h0->GetName() << "\tFilled: " << hfilled( h0 ) << "\t" << h0->GetEntries() << "\n";
 
-      out << depth << spacer << spacer << "weight = 0.0\n";
+      //      out << depth << spacer << spacer << "weight = 0.0\n";
       if ( hname.find("Eff_")==std::string::npos ) out << depth << spacer << spacer << "display = StatBox\n";    
     }
     out << depth << spacer << "}\n";
@@ -196,7 +196,7 @@ bool add( const std::string& hname, TKey* tobj, const std::string depth="" ) {
 
       T* h  = (T*)fptr[ifile]->Get(hname.c_str());
 
-      
+      if ( hname.find("Chain")!=std::string::npos ) std::cout << "events " << hname << "\tEntries " << ((TH1D*)h)->GetEntries() << std::endl; 
 
       if ( h==0 ) {
 	std::cerr << "h (add) " << h << "  " << hname << " can't be opened" << std::endl; 

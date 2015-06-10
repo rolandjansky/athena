@@ -35,6 +35,9 @@ def TrigIDtrkMonitoringTool():
 		tidacos.AnalysisConfig = "Tier0"
 		tidacos.SliceTag = "HLT/TRIDT/Cosmic/Expert"
 		# tidacos.OutputLevel = DEBUG
+		tidacos.pixHitsOffline=-1
+		tidacos.sctHitsOffline=-1
+		tidacos.siHitsOffline=-1
 		tidacos.ntupleChainNames += [
 			"Offline",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
@@ -51,6 +54,9 @@ def TrigIDtrkMonitoringTool():
 		tidacosshift.AnalysisConfig = "Tier0"
 		tidacosshift.SliceTag = "HLT/TRIDT/Cosmic/Shifter"
 		# tidacos.OutputLevel = DEBUG
+		tidacosshift.pixHitsOffline=-1
+		tidacosshift.sctHitsOffline=-1
+		tidacosshift.siHitsOffline=-1
 		tidacosshift.ntupleChainNames += [
 			"Offline",
 			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
@@ -152,6 +158,7 @@ def TrigIDtrkMonitoringTool():
 		tidatau.ntupleChainNames += [
 			"Offline",
 			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
+			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
 			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
@@ -270,9 +277,9 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaminbias.ntupleChainNames += [
 			"Offline",
-			"HLT_mb.*idperf.*:InDetTrigTrackingxAODCnv_minBiasics_EFID",
-			"HLT_mb.*idperf.*:InDetTrigTrackingxAODCnv_minBiasics_IDTrig",
-			"HLT_mb.*idperf.*:Bmumux.*:InDetTrigTrackingxAODCnv_minBiasics_FTF"
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_EFID",
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
 			]
 		ToolSvc += tidaminbias;
 		list += [ "TrigTestBase/IDminBiasTool" ]
@@ -285,8 +292,8 @@ def TrigIDtrkMonitoringTool():
 		tidaminbiasshift.SliceTag = "HLT/TRIDT/minBias/Shifter"
 		tidaminbiasshift.ntupleChainNames += [
 			"Offline",
-			"HLT_mb.*idperf*:InDetTrigTrackingxAODCnv_minBiasics_IDTrig",
-			"HLT_mb.*idperf.*:InDetTrigTrackingxAODCnv_minBiasics_FTF"
+			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
+			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
 			]
 		ToolSvc += tidaminbiasshift;
 		list += [ "TrigTestBase/IDminBiasShifterTool" ]
