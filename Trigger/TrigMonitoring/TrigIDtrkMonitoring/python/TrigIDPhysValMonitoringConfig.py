@@ -8,146 +8,121 @@ def TrigIDPhysValMonitoringTool():
     from AthenaMonitoring.DQMonFlags import DQMonFlags
   dataType = DQMonFlags.monManDataType()
 
-  from AthenaCommon.AppMgr import ToolSvc
 
   if not 'rec' in dir():
     from RecExConfig.RecFlags  import rec
 
-  list = []
+  outputlist = []
   if rec.doInDet:
     from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestPhysValMon
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
+    def makePhysvalMon(name, pdgid, chainnames, cosmic = False):
+      Monname = "TestIDPhysValMon" + name
+      TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
+      TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
+      TestIDPhysValMon.OutputLevel = INFO
 
+      try:
+        TestIDPhysValMon.EnableLumi = False
+      except:
+        pass
+
+      TestIDPhysValMon.buildNtuple = False
+      TestIDPhysValMon.AnalysisConfig = "Tier0" #T0 Analysis
+      # TestIDPhysValMon.AnalysisConfig = "nTuple" #nTuple Analysis
+
+      if (rec.doTruth == True):
+        TestIDPhysValMon.mcTruth = True
+        TestIDPhysValMon.ntupleChainNames = ['Truth']
+        TestIDPhysValMon.sctHitsOffline = -1
+        TestIDPhysValMon.pixHitsOffline = -1
+        if (pdgid != 0): TestIDPhysValMon.SelectTruthPdgId = pdgid
+      elif (cosmic):
+        TestIDPhysValMon.mcTruth = False
+        TestIDPhysValMon.ntupleChainNames = ['Offline']
+        TestIDPhysValMon.sctHitsOffline = -1
+        TestIDPhysValMon.pixHitsOffline = -1
+      else:
+        TestIDPhysValMon.mcTruth = False
+        TestIDPhysValMon.ntupleChainNames = ['Offline',name]
+        TestIDPhysValMon.sctHitsOffline = 1
+        TestIDPhysValMon.pixHitsOffline = 1
+
+
+      TestIDPhysValMon.ntupleChainNames += chainnames
+      TestIDPhysValMon.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
+
+      from AthenaCommon.AppMgr import ToolSvc
+      ToolSvc += TestIDPhysValMon
+      Monname = "TrigTestPhysValMon/" + Monname
+      return Monname
 
     ############### Electrons ###############
-    TestIDPhysValMonElectron = TrigTestPhysValMon(name="TestIDPhysValMonElectron")
-    TestIDPhysValMonElectron.OutputLevel = INFO
-
-    try:
-      TestIDPhysValMonElectron.EnableLumi = False
-    except:
-      pass
-
-    TestIDPhysValMonElectron.buildNtuple = False
-    TestIDPhysValMonElectron.AnalysisConfig = "Tier0" #T0 Analysis
-    # TestIDPhysValMonElectron.AnalysisConfig = "nTuple" #nTuple Analysis
-
-    if (rec.doTruth == True):
-      TestIDPhysValMonElectron.mcTruth = True
-      TestIDPhysValMonElectron.ntupleChainNames = ['Truth']
-      TestIDPhysValMonElectron.sctHitsOffline = -1
-      TestIDPhysValMonElectron.pixHitsOffline = -1
-      TestIDPhysValMonElectron.SelectTruthPdgId = 11
-    else:
-      TestIDPhysValMonElectron.mcTruth = False
-      TestIDPhysValMonElectron.ntupleChainNames = ['Offline','Electron']
-      TestIDPhysValMonElectron.sctHitsOffline = 1
-      TestIDPhysValMonElectron.pixHitsOffline = 1
-
-
-    TestIDPhysValMonElectron.ntupleChainNames += ['HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID']
-    TestIDPhysValMonElectron.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
-
-    ToolSvc += TestIDPhysValMonElectron
-    list += ["TrigTestPhysValMon/TestIDPhysValMonElectron"]
-
-
+    name = "Electron"
+    pdgid = 11
+    chainnames = [
+      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
 
     ############### Muons ###############
-    TestIDPhysValMonMuon = TrigTestPhysValMon(name="TestIDPhysValMonMuon")
-    TestIDPhysValMonMuon.OutputLevel = INFO
-
-    try:
-      TestIDPhysValMonMuon.EnableLumi = False
-    except:
-      pass
-
-    TestIDPhysValMonMuon.buildNtuple = False
-    TestIDPhysValMonMuon.AnalysisConfig = "Tier0" #T0 Analysis
-    # TestIDPhysValMonMuon.AnalysisConfig = "nTuple" #nTuple Analysis
-
-    if (rec.doTruth == True):
-      TestIDPhysValMonMuon.mcTruth = True
-      TestIDPhysValMonMuon.ntupleChainNames = ['Truth']
-      TestIDPhysValMonMuon.sctHitsOffline = -1
-      TestIDPhysValMonMuon.pixHitsOffline = -1
-      TestIDPhysValMonMuon.SelectTruthPdgId = 13
-    else:
-      TestIDPhysValMonMuon.mcTruth = False
-      TestIDPhysValMonMuon.ntupleChainNames = ['Offline','Muon']
-      TestIDPhysValMonMuon.sctHitsOffline = 1
-      TestIDPhysValMonMuon.pixHitsOffline = 1
-
-
-    TestIDPhysValMonMuon.ntupleChainNames += ['HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID']
-    TestIDPhysValMonMuon.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
-
-    ToolSvc += TestIDPhysValMonMuon
-    list += ["TrigTestPhysValMon/TestIDPhysValMonMuon"]
-
-
+    name = "Muon"
+    pdgid = 13
+    chainnames = [
+      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
+      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
 
     ############### Taus ###############
-    TestIDPhysValMonTau = TrigTestPhysValMon(name="TestIDPhysValMonTau")
-    TestIDPhysValMonTau.OutputLevel = INFO
+    name = "Tau"
+    pdgid = 15
+    chainnames = [
+      "HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
+      "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
 
-    try:
-      TestIDPhysValMonTau.EnableLumi = False
-    except:
-      pass
+    ############### Bjets ###############
+    name = "Bjet"
+    pdgid = 5
+    chainnames = [
+      "HLT_j.*bperf_split:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_IDTrig",
+      "HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_FTF",
+      "HLT_j.*bperf_split:InDetTrigTrackingxAOD_Bjet_EFID",
+      "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAOD_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_IDTrig",
+      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_EFID",
+      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAOD_Bjet_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
 
-    TestIDPhysValMonTau.buildNtuple = False
-    TestIDPhysValMonTau.AnalysisConfig = "Tier0" #T0 Analysis
-    # TestIDPhysValMonTau.AnalysisConfig = "nTuple" #nTuple Analysis
-
-    if (rec.doTruth == True):
-      TestIDPhysValMonTau.mcTruth = True
-      TestIDPhysValMonTau.ntupleChainNames = ['Truth']
-      TestIDPhysValMonTau.sctHitsOffline = -1
-      TestIDPhysValMonTau.pixHitsOffline = -1
-      TestIDPhysValMonTau.SelectTruthPdgId = 15
-    else:
-      TestIDPhysValMonTau.mcTruth = False
-      TestIDPhysValMonTau.ntupleChainNames = ['Offline','Tau']
-      TestIDPhysValMonTau.sctHitsOffline = 1
-      TestIDPhysValMonTau.pixHitsOffline = 1
-
-
-    TestIDPhysValMonTau.ntupleChainNames += ['HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID']
-    TestIDPhysValMonTau.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
-
-    ToolSvc += TestIDPhysValMonTau
-    list += ["TrigTestPhysValMon/TestIDPhysValMonTau"]
-
-
+    ############### Bphys ###############
+    name = "Bphys"
+    pdgid = 0 # Doesn't make sense
+    chainnames = [
+      "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+      "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
 
     ############### Cosmics ###############
-    TestIDPhysValMonCosmic = TrigTestPhysValMon(name="TestIDPhysValMonCosmic")
-    TestIDPhysValMonCosmic.OutputLevel = INFO
-
-    try:
-      TestIDPhysValMonCosmic.EnableLumi = False
-    except:
-      pass
-
-    TestIDPhysValMonCosmic.buildNtuple = False
-    TestIDPhysValMonCosmic.AnalysisConfig = "Tier0" #T0 Analysis
-    # TestIDPhysValMonCosmic.AnalysisConfig = "nTuple" #nTuple Analysis
-
-    TestIDPhysValMonCosmic.mcTruth = False
-    TestIDPhysValMonCosmic.ntupleChainNames = ['Offline']
-    TestIDPhysValMonCosmic.sctHitsOffline = -1
-    TestIDPhysValMonCosmic.pixHitsOffline = -1
+    name = "Cosmic"
+    pdgid = 0 # Not used for cosmic
+    chainnames = [
+      'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
+      'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID'
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, cosmic=True)]
 
 
-    TestIDPhysValMonCosmic.ntupleChainNames += ['HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
-                                              'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID']
-    TestIDPhysValMonCosmic.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
-
-    ToolSvc += TestIDPhysValMonCosmic
-    list += ["TrigTestPhysValMon/TestIDPhysValMonCosmic"]
-
-
-  return list
+  return outputlist
