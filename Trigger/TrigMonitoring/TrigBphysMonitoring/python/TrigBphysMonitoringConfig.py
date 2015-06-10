@@ -97,7 +97,11 @@ def TrigBphysMonitoringTool():
                                   DetailedChains_patterns = {"BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)',
                                                              "BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]',
                                                              "MultiMu": 'HLT_(3mu[0-9]+)_(b.*)',
-                                                             "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trkloose'
+                                                             "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trkloose',
+                                                             "BMuMu_express"  : 'HLT_2mu6_(bDimu|bJpsimumu)',
+                                                             "BMuMuX_express" : 'HLT_2mu6_bBmumuxv[23]',
+                                                             "MultiMu_express": 'HLT_3mu6_(b.*)',
+                                                             "MuTrack_express": 'HLT_mu6_(b.*)_Trkloose'
                                                             },
                                   DetailedL1TopoChains_patterns = {"L1BPH-2M"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-2M-2MU4",
                                                                    "L1BPH-4M8"    : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-4M8-2MU4",
@@ -105,7 +109,14 @@ def TrigBphysMonitoringTool():
                                                                    "L1BPH-DR-2M"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-DR-2MU4-BPH-2M-2MU4",
                                                                    "L1BPH-DR-4M8" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-DR-2MU4-BPH-4M8-2MU4",
                                                                    "L1BPH-B"      : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH.*-2MU4-B",
-                                                                   "L1BPH-BO"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH.*-2MU4-BO"
+                                                                   "L1BPH-BO"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH.*-2MU4-BO",
+                                                                   "L1BPH-2M_express"     : "HLT_2mu6_(b.*)_L1BPH-2M-2MU4",
+                                                                   "L1BPH-4M8_express"    : "HLT_2mu6_(b.*)_L1BPH-4M8-2MU4",
+                                                                   "L1BPH-DR_express"     : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4",
+                                                                   "L1BPH-DR-2M_express"  : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4-BPH-2M-2MU4",
+                                                                   "L1BPH-DR-4M8_express" : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4-BPH-4M8-2MU4",
+                                                                   "L1BPH-B_express"      : "HLT_2mu6_(b.*)_L1BPH.*-2MU4-B",
+                                                                   "L1BPH-BO_express"     : "HLT_2mu6_(b.*)_L1BPH.*-2MU4-BO"
                                                                   },
                                   EfficiencyChains_patterns = {"BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
                                                                "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]",
