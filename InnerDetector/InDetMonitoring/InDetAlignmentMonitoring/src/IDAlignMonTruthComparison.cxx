@@ -49,11 +49,11 @@
 // #include "VxVertex/VxTrackAtVertex.h"
 
 //#include "AthenaMonitoring/AthenaMonManager.h"
-#include "InDetAlignmentMonitoring/IDAlignMonTruthComparison.h"
+#include "IDAlignMonTruthComparison.h"
 
 //#include "TrkTruthToTrack/TruthToTrack.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
+#include "TrackSelectionTool.h"
 
 // *********************************************************************
 // Public Methods

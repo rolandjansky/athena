@@ -14,15 +14,17 @@
 # ./MakeAlignmentMonitoringPlots.py -c <configurationFile>
 #
 ##--------------------------
+userCosmetics = ""
 
 import sys, os
 from ROOT import *
 from utilities import *
+#import utilities 
 import AtlasStyle
 gStyle.SetOptStat(0)
 nMAXFiles = 3
 
-gROOT.SetBatch()
+#gROOT.SetBatch()
 
 
 ##########################################################
@@ -32,22 +34,31 @@ gROOT.SetBatch()
 def optParsing():
 	from optparse import OptionParser
 	parser = OptionParser()
-	parser.add_option("--ALL", dest="inputALL", help="Do plot all categories", action="store_true", default = False)
+	parser.add_option("--ALL", dest="inputALL", help="Do plot all categories apart from Track Segments", action="store_true", default = False)
+	parser.add_option("--BeamSpot", dest="inputBeamSpot", help="Plot beam spot related histograms", action="store_true",default=False)
+	parser.add_option("--Clusters", dest="inputClusters", help="Plot of cluster size and residuals vs cluster size", action="store_true",default=False)
+	parser.add_option("--Cosmetics", dest="inputCosmetics", help="choose among listed plot cosmetics (Default, ApprovedPlots...", default="")
+	parser.add_option("--eps", dest="inputEPS", help="output files saved as EPSs", action="store_true", default = False)
 	parser.add_option("--Extended", dest="inputExtended", help="Draw more plots", action="store_true", default = False)
 	parser.add_option("--HitErrors", dest="inputHitErrors", help="Do hit error plots for all systems", action="store_true",default=False)
 	parser.add_option("--HitMaps", dest="inputHitMaps", help="Do hit maps plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Hits", dest="inputHits", help="Do hit plots for all systems and layer by layer", action="store_true",default=False)
-	parser.add_option("--pdf", dest="inputPDF", help="output files saved as PDFs", action="store_true", default = False)
 	parser.add_option("--IBLresiduals", dest="inputIBL", help="print detailed residual distributions in IBL", action="store_true", default = False)
+	parser.add_option("--Modules", dest="inputResByModule", help="Print the residuals module by module", action="store_true", default=False)
+	parser.add_option("--pdf", dest="inputPDF", help="output files saved as PDFs", action="store_true", default = False)
 	parser.add_option("--Pulls", dest="inputPulls", help="Do pulls plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Residuals", dest="inputResiduals", help="Do residuals plots for all systems and then layer by layer", action="store_true",default=False)
+	parser.add_option("--Script", dest="inputScript", help="The user may provie its own script", default="")
+	parser.add_option("--SetBatch", dest="inputSetBatch", help="When SetBatch is used histogram displays are not open", action="store_true", default=True)
+	parser.add_option("--ShowPlots", dest="inputSetBatch", help="When ShowPlots is used the histogram display is open", action="store_false", default=True)
 	parser.add_option("--TrackParams", dest="inputTrackParams", help="Do track parameter plots", action="store_true",default=False)
 	parser.add_option("--TrackSegments", dest="inputTrackSegments", help="Do track segment matching plots", action="store_true",default=False)
     
 	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
 
 	return config
+
 
 ##########################################################
 #            dealing with the options                    #
@@ -64,6 +75,13 @@ userTrackParams = config.inputTrackParams
 userTrackSegments = config.inputTrackSegments
 userExtended = config.inputExtended
 userPDF = config.inputPDF
+userEPS = config.inputEPS
+userScript = config.inputScript
+userSetBatch = config.inputSetBatch 
+userResByModule = config.inputResByModule
+userBeamSpot = config.inputBeamSpot
+userClusters = config.inputClusters
+userCosmetics = config.inputCosmetics
 
 if (config.inputALL):
     userHitErrors = True
@@ -74,12 +92,18 @@ if (config.inputALL):
     userResidualMaps = True
     userResiduals = True
     userTrackParams = True
-    userTrackSegments = True
     userExtended = True
+    userResByModule = False # as this plots to many histograms, this can be only activated on purpose
+    userBeamSpot = True
+    userClusters = True
+
+
 
 #some initialization
 configFileName = ""
 makeOutput = True
+if (userSetBatch): 
+    gROOT.SetBatch()
 #
 doResiduals = False or userResiduals 
 doResidualProfiles = False 
@@ -91,7 +115,9 @@ doResidualMaps = False or userResidualMaps
 doHits = False or userHits
 doHitErrors = False or userHitErrors
 doIBL = False or userIBL
-doBeamSpot = False
+doBeamSpot = False or userBeamSpot
+doResByModule = False or userResByModule
+doClusters = False or userClusters
 
 print "\n ****************************"
 print " ** MakeMajorAlignMonPlots **"
@@ -109,9 +135,7 @@ if (configFileName == ""):
     print " -- MakeMajorAlignMonPlots -- using the default configuration file: ", configFileName
 
 # reading in configuration file
-fd = open(configFileName)
-config = fd.readlines()
-exec(''.join(config))
+execfile(configFileName) 
 
 print "Reading in from .root files:"
 print " -- MakeMajorAlignMonPlots -- List of input monitoring files: "
@@ -172,11 +196,23 @@ if (doHitErrors): execfile("MakeHitErrorPlots.py")
 # beam spot, lumiblocks etc
 if (doBeamSpot): execfile("MakeBeamSpotPlots.py") 
 
-# More distribution maker python scripts should follow.
-if (False): execfile("MakeResidualsPerModule.py") # Set to False --> developping stages
+# beam spot, lumiblocks etc
+if (doClusters): execfile("MakeClusterSizePlots.py") 
 
+# Residuals module by module
+if (doResByModule): execfile("MakeResidualsPerModule.py") 
+
+#user script
+if (len(userScript)>0):
+    if (os.path.isfile(userScript)):
+        execfile(userScript)
+    else:
+        print " -- MakeMajorAlignMonPlots -- user script ", userScript, " does not exist "
+    
+    
 # extract statistics:
 execfile("MakeStatisticsTable.py")
 
 print " -- MakeMajorAlignMonPlots -- Game over. Insert coin. -- "
+
 

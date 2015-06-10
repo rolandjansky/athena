@@ -32,6 +32,7 @@ class SCT_ID;
 class TRT_ID;
 class TH1F_LW;
 class TH2F_LW;
+class EventInfo;
 
 namespace InDetDD{
   class PixelDetectorManager;
@@ -321,6 +322,28 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   std::vector<TProfile*> m_measurements_eff_vs_Phi_pix_b;
   std::vector<TProfile*> m_measurements_eff_vs_Phi_sct_b;
   
+  std::vector<TProfile*> m_measurements_eff_vs_LB_pix_b;
+  std::vector<TH1F*> m_measurements_vs_LB_pix_b;
+  std::vector<TH1F*> m_hits_vs_LB_pix_b;
+
+  std::vector<TProfile*> m_measurements_eff_vs_LB_sct_b;
+  std::vector<TH1F*> m_measurements_vs_LB_sct_b;
+  std::vector<TH1F*> m_hits_vs_LB_sct_b;
+
+  TProfile* m_measurements_eff_vs_LB_pix_eca;
+  TH1F*     m_hits_vs_LB_pix_eca;
+  TH1F*     m_measurements_vs_LB_pix_eca;
+  TProfile* m_measurements_eff_vs_LB_sct_eca;
+  TH1F*     m_hits_vs_LB_sct_eca;
+  TH1F*     m_measurements_vs_LB_sct_eca;
+  TProfile* m_measurements_eff_vs_LB_pix_ecc;
+  TH1F*     m_hits_vs_LB_pix_ecc;
+  TH1F*     m_measurements_vs_LB_pix_ecc;
+  TProfile* m_measurements_eff_vs_LB_sct_ecc;
+  TH1F*     m_hits_vs_LB_sct_ecc;
+  TH1F*     m_measurements_vs_LB_sct_ecc;
+
+  
   std::vector<TProfile*> m_overlapX_eff_vs_Phi_pix_b;
   std::vector<TProfile*> m_overlapX_eff_vs_Phi_sct_b;
   
@@ -406,6 +429,9 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   int m_events;
   int m_histosBooked;
   bool m_doHitQuality;
+  float m_minLB;
+  float m_maxLB;
+  int m_nLB;
 
 };
 

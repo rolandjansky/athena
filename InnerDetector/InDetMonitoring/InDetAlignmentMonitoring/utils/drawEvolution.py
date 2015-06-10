@@ -4,118 +4,178 @@
 
 psname = "ConstantsEvolution.pdf"
 
-def drawCorr(detector):
-	NullCanvas = initPsFile()
-	Canvases = []
-	Histos = []
-	
-	tmpCan = d_utils.drawAllCorr(detector)
-	Canvases.append(tmpCan)
+def drawCorr(detector, labelList, drawErrors=False):
+    debug = True
+    NullCanvas = initPsFile()
+    Canvases = []
+    Histos = []
 
-	tmpCan, tmpGraph = d_utils.drawCorrVsHits(detector)
-	Canvases.append(tmpCan)
-	Histos.append(tmpGraph)
-	
-	tmpCan = d_utils.drawCorrEvolution(detector)
-	Canvases.append(tmpCan)
+    if (debug): print " -- drawCorr -- calling d_utils.drawAllCorr(",detector,")"
+    tmpCan = d_utils.drawAllCorr(detector)
+    Canvases.append(tmpCan)
+
+    tmpCan, tmpGraph = d_utils.drawCorrVsHits(detector)
+    Canvases.append(tmpCan)
+    Histos.append(tmpGraph)
     
-	if len(detector[0].ReturnPixelBarrelModules())>0:
-		tmpCan, tmpGraph = d_utils.drawPixBarrelCorrDistributions(detector)
-		Canvases.append(tmpCan)
-		Histos.append(tmpGraph)
-		
-	if len(detector[0].ReturnSctBarrelModules()):
-		tmpCan, tmpGraph = d_utils.drawSctBarrelCorrDistributions(detector)
-		Canvases.append(tmpCan)
-		Histos.append(tmpGraph)
-		
-#	level = detector[0].Level()
-#	
-#	if level != 3:
-#		tmpCan, tmpGraph = drawCor
-#		Canvases.append(tmpCan)
-#		Histos.append(tmpGraph)
-#	
-#	if level == 3:
-#		#Canvases.append(drawStaves(detector))
-#		tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,None)
-#		Canvases.append(tmpCan)
-#		Histos.append(tmpGraph)
-#		#tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,0)
-#		#Canvases.append(tmpCan)
-#		#Histos.append(tmpGraph)
-#		#if detector[0].HasEndcaps():
-#		#	tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,-1)
-#		#	Canvases.append(tmpCan)
-#		#	Histos.append(tmpGraph)
-#		#	tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,1)
-#		#	Canvases.append(tmpCan)
-#		#	Histos.append(tmpGraph)
-#	
-#		#tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,None)
-#		#Canvases.append(tmpCan)
-#		#Histos.append(tmpGraph)
-#		tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,0)
-#		Canvases.append(tmpCan)
-#		Histos.append(tmpGraph)
-#		#if detector[0].HasEndcaps():
-#		#	tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,-1)
-#		#	Canvases.append(tmpCan)
-#		#	Histos.append(tmpGraph)
-#		#	tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,1)
-#		#	Canvases.append(tmpCan)
-#		#	Histos.append(tmpGraph)
-	
-	for canvas in Canvases:
-		canvas.Print(psname)
+    tmpCan = d_utils.drawCorrEvolution(detector, labelList, drawErrors)
+    Canvases.append(tmpCan)
+    
+    if len(detector[0].ReturnPixelBarrelModules())>0:
+        tmpCan, tmpGraph = d_utils.drawPixBarrelCorrDistributions(detector)
+        Canvases.append(tmpCan)
+        Histos.append(tmpGraph)
+        
+    if len(detector[0].ReturnSctBarrelModules()):
+        tmpCan, tmpGraph = d_utils.drawSctBarrelCorrDistributions(detector)
+        Canvases.append(tmpCan)
+        Histos.append(tmpGraph)
+        
+#   
+#   if level == 3:
+#       #Canvases.append(drawStaves(detector))
+#       tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,None)
+#       Canvases.append(tmpCan)
+#       Histos.append(tmpGraph)
+#       #tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,0)
+#       #Canvases.append(tmpCan)
+#       #Histos.append(tmpGraph)
+#       #if detector[0].HasEndcaps():
+#       #   tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,-1)
+#       #   Canvases.append(tmpCan)
+#       #   Histos.append(tmpGraph)
+#       #   tmpCan, tmpGraph = drawL3CorrVsHits(detector,1,1)
+#       #   Canvases.append(tmpCan)
+#       #   Histos.append(tmpGraph)
+#   
+#       #tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,None)
+#       #Canvases.append(tmpCan)
+#       #Histos.append(tmpGraph)
+#       tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,0)
+#       Canvases.append(tmpCan)
+#       Histos.append(tmpGraph)
+#       #if detector[0].HasEndcaps():
+#       #   tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,-1)
+#       #   Canvases.append(tmpCan)
+#       #   Histos.append(tmpGraph)
+#       #   tmpCan, tmpGraph = drawL3CorrVsHits(detector,2,1)
+#       #   Canvases.append(tmpCan)
+#       #   Histos.append(tmpGraph)
+    
+    for canvas in Canvases:
+        canvas.Print(psname)
 
 
-	closePsFile(NullCanvas)
-	
-	return Canvases, Histos
-	
+    closePsFile(NullCanvas)
+    
+    return Canvases, Histos
+    
 def initPsFile():
-	NullCanvas = TCanvas()
-	NullCanvas.Print(psname+"[")
-	return NullCanvas
-	
+    NullCanvas = TCanvas()
+    NullCanvas.Print(psname+"[")
+    return NullCanvas
+    
 def closePsFile(NullCanvas):
-	NullCanvas.Print(psname+"]")	
-	
+    NullCanvas.Print(psname+"]")    
+    
 def wait():
-	rep = ''
-	while not rep in [ 'q', 'Q' ]:
-		rep = raw_input( 'enter "q" to quit: ' )
-		if 1 < len(rep):
-			rep = rep[0]
+    rep = ''
+    while not rep in [ 'q', 'Q' ]:
+        rep = raw_input( 'enter "q" to quit: ' )
+        if 1 < len(rep):
+            rep = rep[0]
+
+##########################################################
+#             Inline Options Definition                  #
+##########################################################
+
+def optParsing():
+    print " == optparsing == start == "
+    from optparse import OptionParser
+    parser = OptionParser()
+    #parser.add_option("--TrackSegments", dest="inputTrackSegments", help="Do track segment matching plots", action="store_true",default=False)
+    parser.add_option("--inputFiles", dest="inputLogFiles", help="In the case you want to use a specific set of initial constants write here the absolute path to the alignlogfile", default="")
+    parser.add_option("--fileLabels", dest="inputFileLabels", help="Label to be given to each file. Defaults are: Iter0, Iter1, ...", default="")
+    parser.add_option("--drawErrors", dest="inputDrawErrors", help="Constants evolution plot without errors", default=False)
+    parser.add_option("--SaveData", dest="inputSaveData", help="Define which of the input files is saved in the ntuple and txt file. Default the accumulative one", default = -1)
+    
+    (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
+
+    print " == optparsing == completed == "
+    return config
+
+##########################################################
+#             Main code                                  #
+##########################################################
 
 if __name__ == '__main__':
-	import sys
-	import os	
-	import imp
-	from ROOT import *
-	f_utils = imp.load_source('readConstants', 'include/fileutils.py')
-	#from drawutils import *
-	d_utils = imp.load_source('rootSetup', 'include/drawutils.py')
+    import sys
+    import os   
+    import imp
+    from ROOT import *
+    gROOT.SetBatch()
 
-	d_utils.rootSetup()	
-	if len(sys.argv) == 1:
-		detector = {}
-		detector[0] = f_utils.readConstants("alignlogfile.txt")				
-	else:
-		filelist = sys.argv[1:]
-		detector = {}
-		i = 0
-		for file in filelist:
-			detector[i] = f_utils.readConstants(file)
-			i = i+1
-	f_utils.writeCorr("alignment.txt",detector[0])
-	C,H = drawCorr(detector)
+    print " == drawEvolution == start == "
+    config = optParsing()
+    fileList = config.inputLogFiles
+    fileListGiven = True
+    if (len(fileList)>0): 
+        #print " == drawEvolution == fileList == ",fileList, " len= ", len(fileList)
+        fileList = fileList.split()
+        print " == drawEvolution == filelist == ",fileList
+    else:
+        print " == drawEvolution == NO fileList == "
+        fileListGiven = False
 
-	f_utils.saveConstants(detector[0],"output.root")
+    labelList = config.inputFileLabels
+    fileLabelsGiven = True
+    if (len(labelList)>0): 
+        #print " == drawEvolution == labelList == ",labelList, " len= ", len(labelList)
+        labelList = labelList.split()
+        print " == drawEvolution == LabelList == ",labelList
+    else:
+        print " == drawEvolution == NO labelList == "
+        labelListGiven = False
+
+    userSaveData = int(config.inputSaveData)
     
-	wait()
-	
+    ###############################    
+    #import file and draw utilities    
+    #
+    f_utils = imp.load_source('readConstants', 'include/fileutils.py')
+    d_utils = imp.load_source('rootSetup', 'include/drawutils.py')
+    d_utils.rootSetup() 
+    
+    if (len(sys.argv)==1 and not fileListGiven):
+        detector = {}
+        detector[0] = f_utils.readConstants("alignlogfile.txt")             
+    else:
+        if (not fileListGiven): 
+            print " -- old method --" 
+            fileList = sys.argv[1:]
+        print " fileList = ",fileList 
+        detector = {}
+        i = 0
+        for file in fileList:
+            print " == drawEvolution == file:", i, " --> ", file
+            detector[i] = f_utils.readConstants(file)
+            i = i+1
+
+    # create a final detector set for storing the accumulated values:
+    inewdet = len(detector)
+    detector[inewdet] = detector[inewdet-1]
+    if (userSaveData < 0): userSaveData = inewdet 
+    if (True): print " == drawEvolution == new detector[",inewdet,"] created for the accumulation"
+    
+    C,H = drawCorr(detector, labelList, config.inputDrawErrors)
+
+    if (True): print " == drawEvolution == saving detector[",userSaveData,"]"
+    f_utils.writeCorr("alignment.txt",detector[userSaveData])
+    f_utils.saveConstants(detector[userSaveData],"output.root")
+    
+    wait()
+    print " == drawEvolution == completed == "
 
 
-	
+
+    

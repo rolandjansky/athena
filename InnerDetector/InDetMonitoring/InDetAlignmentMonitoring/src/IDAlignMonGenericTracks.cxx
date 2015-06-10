@@ -46,11 +46,11 @@
 
 
 //#include "AthenaMonitoring/AthenaMonManager.h"
-#include "InDetAlignmentMonitoring/IDAlignMonGenericTracks.h"
+#include "IDAlignMonGenericTracks.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
-#include "InDetAlignmentMonitoring/TrackSelectionTool.h"
+#include "TrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 
@@ -695,10 +695,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_trk_z0c_asym_ecc);
     
     // histo for self beam spot calculation (using the data of the whole run... so nothing to do with the beam spot by Lumiblock)
-    m_trk_d0_vs_phi0_z0 = new TH2F("trk_d0_vs_phi0_z0","Track d_{0} vs #phi_{0} and z_{0}", 30, 0., 2*m_Pi, 50, -m_z0Range, m_z0Range);
+    m_trk_d0_vs_phi0_z0 = new TH3F("trk_d0_vs_phi0_z0","Track d_{0} vs #phi_{0} and z_{0}", 30, 0., 2*m_Pi, 20, -m_z0Range/2, m_z0Range/2, 30, -m_d0Range, m_d0Range);
     m_trk_d0_vs_phi0_z0->SetXTitle("Track #phi_{0} [rad]");
     m_trk_d0_vs_phi0_z0->SetYTitle("Track z_{0} [mm]");
     RegisterHisto(al_mon, m_trk_d0_vs_phi0_z0);
+
+
 
    //###############
  
@@ -861,22 +863,22 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       
       //hits
 
-      m_trk_PIXvSCTHits = new TH2F ("PIXvSCTHits", "Hits On track", 30, -0.5, 30-0.5, 15, -0.5,  15-0.5);
+      m_trk_PIXvSCTHits = new TH2F ("PIXvSCTHits", "Hits On track", 30, -0.5, 30-0.5, 11, -0.5,  11-0.5);
       RegisterHisto(al_mon,m_trk_PIXvSCTHits) ;
       m_trk_PIXvSCTHits->GetXaxis()->SetTitle("# SCT hits on track");
       m_trk_PIXvSCTHits->GetYaxis()->SetTitle("# PIX hits on track");
       
-      m_trk_PIXHitsvEta = new TH2F ("PIXHitsvEta", "PIX Hits On track", 50, -3., 3., 15, -0.5,  15-0.5);
+      m_trk_PIXHitsvEta = new TH2F ("PIXHitsvEta", "PIX Hits On track", 50, -3., 3., 11, -0.5,  11-0.5);
       RegisterHisto(al_mon,m_trk_PIXHitsvEta) ;
       m_trk_PIXHitsvEta->GetXaxis()->SetTitle("#eta");
       m_trk_PIXHitsvEta->GetYaxis()->SetTitle("# PIX hits on track");
       
-      m_trk_SCTHitsvEta = new TH2F ("SCTHitsvEta", "SCT Hits On track", 50, -3., 3., 30, -0.5,  30-0.5);
+      m_trk_SCTHitsvEta = new TH2F ("SCTHitsvEta", "SCT Hits On track", 50, -3., 3., 21, -0.5,  21-0.5);
       RegisterHisto(al_mon,m_trk_SCTHitsvEta) ;
       m_trk_SCTHitsvEta->GetXaxis()->SetTitle("#eta");
       m_trk_SCTHitsvEta->GetYaxis()->SetTitle("# SCT hits on track");
       
-      m_trk_TRTHitsvEta= new TH2F ("TRTHitsvEta", "TRT Hits On track", 50, -3., 3., 30, -0.5,  30-0.5);
+      m_trk_TRTHitsvEta= new TH2F ("TRTHitsvEta", "TRT Hits On track", 50, -3., 3., 51, -0.5,  51-0.5);
       RegisterHisto(al_mon,m_trk_TRTHitsvEta) ;
       m_trk_TRTHitsvEta->GetXaxis()->SetTitle("#eta");
       m_trk_TRTHitsvEta->GetYaxis()->SetTitle("# TRT hits on track");
@@ -962,75 +964,75 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_errThetaVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errThetaVsEta->GetYaxis()->SetTitle("Track #delta(#theta)"); 
       
-      m_errD0 = new TH1F("errD0", "Error of d0", 50,0,0.15);
+      m_errD0 = new TH1F("errD0", "Error of d0", 60,0,0.30);
       RegisterHisto(al_mon,m_errD0);
       m_errD0->GetXaxis()->SetTitle("d0 error (mm)"); 
       
-      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50,-m_d0Range,m_d0Range,50,0 ,0.25);
+      m_errD0VsD0BS = new TH2F("errD0VsD0BS", "Error of d0 vs d0BS", 50,-m_d0Range,m_d0Range,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsD0BS);
       m_errD0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errD0VsD0BS->GetYaxis()->SetTitle("d0 error (mm)");
       
-      m_errD0VsPt = new TH2F("errD0VsPt", "Error of d0 vs Pt", 50,0,40,50,0 ,0.15);
+      m_errD0VsPt = new TH2F("errD0VsPt", "Error of d0 vs Pt", 50,0,40,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsPt);
       m_errD0VsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
       m_errD0VsPt->GetYaxis()->SetTitle("d0 error (mm)");
       
-      m_errD0VsP = new TH2F("errD0VsP", "Error of d0 vs P", 50,0,40,50,0 ,0.15);
+      m_errD0VsP = new TH2F("errD0VsP", "Error of d0 vs P", 50,0,40,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsP);
       m_errD0VsP->GetXaxis()->SetTitle("P (GeV/c)"); 
       m_errD0VsP->GetYaxis()->SetTitle("d0 error (mm)");
         
-      m_errD0VsPhi = new TH2F("errD0VsPhi", "Error of d0 vs Phi", 50,0,2*m_Pi,50,0 ,0.15);
+      m_errD0VsPhi = new TH2F("errD0VsPhi", "Error of d0 vs Phi", 90,0,2*m_Pi,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsPhi);
       m_errD0VsPhi->GetXaxis()->SetTitle("#phi0 (rad)");  
       m_errD0VsPhi->GetYaxis()->SetTitle("d0 error (mm)");   
       
-      m_errD0VsPhiBarrel = new TH2F("errD0VsPhiBarrel", "Error of d0 vs Phi (Barrel)", 50,0,2*m_Pi,50,0 ,0.15);
+      m_errD0VsPhiBarrel = new TH2F("errD0VsPhiBarrel", "Error of d0 vs Phi (Barrel)", 90,0,2*m_Pi,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsPhiBarrel);
       m_errD0VsPhiBarrel->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_errD0VsPhiBarrel->GetYaxis()->SetTitle("d0 error (mm)");  
       
-      m_errD0VsPhiECA = new TH2F("errD0VsPhiECA", "Error of d0 vs Phi (ECA)", 50,0,2*m_Pi,50,0 ,0.15);
+      m_errD0VsPhiECA = new TH2F("errD0VsPhiECA", "Error of d0 vs Phi (ECA)", 90,0,2*m_Pi,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsPhiECA);
       m_errD0VsPhiECA->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_errD0VsPhiECA->GetYaxis()->SetTitle("d0 error (mm)");  
       
-      m_errD0VsPhiECC = new TH2F("errD0VsPhiECC", "Error of d0 vs Phi (ECC)", 50,0,2*m_Pi,50,0 ,0.15);
+      m_errD0VsPhiECC = new TH2F("errD0VsPhiECC", "Error of d0 vs Phi (ECC)", 90,0,2*m_Pi,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsPhiECC);
       m_errD0VsPhiECC->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_errD0VsPhiECC->GetYaxis()->SetTitle("d0 error (mm)");  
       
-      m_errD0VsEta = new TH2F("errD0VsEta", "Error of d0 vs Eta", 50,-3.,3.,50,0 ,0.15);
+      m_errD0VsEta = new TH2F("errD0VsEta", "Error of d0 vs Eta", 50,-3.,3.,100,0 ,0.50);
       RegisterHisto(al_mon,m_errD0VsEta);
       m_errD0VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errD0VsEta->GetYaxis()->SetTitle("d0 error (mm)");         
       
-      m_errPhi0 = new TH1F("errPhi0", "Error of Phi0", 50,0,0.004);
+      m_errPhi0 = new TH1F("errPhi0", "Error of Phi0", 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0);
       m_errPhi0->GetXaxis()->SetTitle("#phi0 error (rad)"); 
 
-      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50,-m_d0Range,m_d0Range, 50,0,0.004);
+      m_errPhi0VsD0BS = new TH2F("errPhi0VsD0BS", "Error of Phi0 vs d0BS", 50,-m_d0Range,m_d0Range, 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsD0BS);
       m_errPhi0VsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errPhi0VsD0BS->GetYaxis()->SetTitle("#phi0 error (rad)");
         
-      m_errPhi0VsPt = new TH2F("errPhi0VsPt", "Error of Phi0 vs Pt", 50,0,40, 50,0,0.004);
+      m_errPhi0VsPt = new TH2F("errPhi0VsPt", "Error of Phi0 vs Pt", 50,0,40, 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsPt);
       m_errPhi0VsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
       m_errPhi0VsPt->GetYaxis()->SetTitle("#phi0 error (rad)");
         
-      m_errPhi0VsP = new TH2F("errPhi0VsP", "Error of Phi0 vs P", 50,0,40, 50,0,0.004);
+      m_errPhi0VsP = new TH2F("errPhi0VsP", "Error of Phi0 vs P", 50,0,40, 50,0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsP);
       m_errPhi0VsP->GetXaxis()->SetTitle("P (GeV/c)"); 
       m_errPhi0VsP->GetYaxis()->SetTitle("#phi0 error (rad)");
         
-      m_errPhi0VsPhi0 = new TH2F("errPhi0VsPhi0", "Error of Phi0 vs Phi0", 50,0,2*m_Pi,50, 0,0.004);
+      m_errPhi0VsPhi0 = new TH2F("errPhi0VsPhi0", "Error of Phi0 vs Phi0", 90,0,2*m_Pi,50, 0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsPhi0);
       m_errPhi0VsPhi0->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_errPhi0VsPhi0->GetYaxis()->SetTitle("#phi0 error (rad)");
       
-      m_errPhi0VsEta = new TH2F("errPhi0VsEta", "Error of Phi0 vs Eta", 50,-3.,3.,50, 0,0.004);
+      m_errPhi0VsEta = new TH2F("errPhi0VsEta", "Error of Phi0 vs Eta", 50,-3.,3.,50, 0,0.010);
       RegisterHisto(al_mon,m_errPhi0VsEta);
       m_errPhi0VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errPhi0VsEta->GetYaxis()->SetTitle("#phi0 error (rad)");  
@@ -1068,22 +1070,22 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errPt);
       m_errPt->GetXaxis()->SetTitle("Pt err (GeV/c)");
         
-      m_errPtVsD0BS = new TH2F("errPtVsD0BS", "Error of Pt Vs doBS", 50, -m_d0Range, m_d0Range, 50,0., 1.);
+      m_errPtVsD0BS = new TH2F("errPtVsD0BS", "Error of Pt Vs doBS", 50, -m_d0Range, m_d0Range, 50,0., 0.5);
       RegisterHisto(al_mon,m_errPtVsD0BS);
       m_errPtVsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errPtVsD0BS->GetYaxis()->SetTitle("Pt error (GeV/c)");  
 
-      m_errPtVsPt = new TH2F("errPtVsPt", "Error of Pt Vs Pt", 50, 0, 40., 50,0., 1.);
+      m_errPtVsPt = new TH2F("errPtVsPt", "Error of Pt Vs Pt", 50, 0, 40., 50,0., 0.5);
       RegisterHisto(al_mon,m_errPtVsPt);
       m_errPtVsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
       m_errPtVsPt->GetYaxis()->SetTitle("Pt error (GeV/c)");  
         
-      m_errPtVsP = new TH2F("errPtVsP", "Error of Pt Vs P", 50, 0, 40., 50,0., 1.);
+      m_errPtVsP = new TH2F("errPtVsP", "Error of Pt Vs P", 50, 0, 40., 50,0., 0.5);
       RegisterHisto(al_mon,m_errPtVsP);
       m_errPtVsP->GetXaxis()->SetTitle("P (GeV/c)"); 
       m_errPtVsP->GetYaxis()->SetTitle("P error (GeV/c)");  
       
-      m_errPtVsPhi0 = new TH2F("errPtVsPhi0", "Error of Pt Vs Phi0", 50, 0, 2*m_Pi, 50,0., 1.);
+      m_errPtVsPhi0 = new TH2F("errPtVsPhi0", "Error of Pt Vs Phi0", 50, 0, 2*m_Pi, 50,0., 0.5);
       RegisterHisto(al_mon,m_errPtVsPhi0);
       m_errPtVsPhi0->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_errPtVsPhi0->GetYaxis()->SetTitle("Pt error (GeV/c)");     
@@ -1098,7 +1100,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_PtVsPhi0Neg->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_PtVsPhi0Neg->GetYaxis()->SetTitle("Pt (GeV/c)");  
       
-      m_errPtVsEta = new TH2F("errPtVsEta", "Error of Pt Vs Eta", 50, -3., 3.,50, 0., 1.);
+      m_errPtVsEta = new TH2F("errPtVsEta", "Error of Pt Vs Eta", 50, -3., 3.,50, 0., 0.5);
       RegisterHisto(al_mon,m_errPtVsEta);
       m_errPtVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errPtVsEta->GetYaxis()->SetTitle("Pt error (GeV/c)");       
@@ -1107,17 +1109,17 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errPt_Pt2);
       m_errPt_Pt2->GetXaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");        
   
-    m_errPt_Pt2VsPt= new TH2F("errPt_Pt2VsPt", "Error of Pt / Pt^2 Vs Pt", 50, 0, 40., 50,0., 0.015);
+      m_errPt_Pt2VsPt= new TH2F("errPt_Pt2VsPt", "Error of Pt / Pt^2 Vs Pt", 50, 0, 40., 50,0., 0.015);
       RegisterHisto(al_mon,m_errPt_Pt2VsPt);
       m_errPt_Pt2VsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
       m_errPt_Pt2VsPt->GetYaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");
 
-    m_errPt_Pt2VsEta= new TH2F("errPt_Pt2VsEta", "Error of Pt / Pt^2 Vs Eta", 50, -3., 3., 50,0., 0.015);
+      m_errPt_Pt2VsEta= new TH2F("errPt_Pt2VsEta", "Error of Pt / Pt^2 Vs Eta", 50, -3., 3., 50,0., 0.015);
       RegisterHisto(al_mon,m_errPt_Pt2VsEta);
       m_errPt_Pt2VsEta->GetXaxis()->SetTitle("#eta"); 
       m_errPt_Pt2VsEta->GetYaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");
 
-    m_errPt_Pt2VsPhi0= new TH2F("errPt_Pt2VsPhi0", "Error of Pt / Pt^2 Vs #phi0", 100, 0, 2*m_Pi, 50,0., 0.015);
+      m_errPt_Pt2VsPhi0= new TH2F("errPt_Pt2VsPhi0", "Error of Pt / Pt^2 Vs #phi0", 100, 0, 2*m_Pi, 50,0., 0.015);
       RegisterHisto(al_mon,m_errPt_Pt2VsPhi0);
       m_errPt_Pt2VsPhi0->GetXaxis()->SetTitle("#eta"); 
       m_errPt_Pt2VsPhi0->GetYaxis()->SetTitle("#sigma(Pt)/Pt^{2} (GeV/c)^{-1}");
@@ -1215,7 +1217,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_z0sintheta) ;  
     m_z0_pvcorr = new TH1F("z0_pvcorr","z0 (corrected for primVtx);[mm]",100,-m_z0Range,m_z0Range);  
     RegisterHisto(al_mon,m_z0_pvcorr) ;  
-    m_z0sintheta_pvcorr = new TH1F("z0sintheta_pvcorr","z*sintheta (corrected for primVtx); [mm]",100,-m_d0Range,m_d0Range);  
+    m_z0sintheta_pvcorr = new TH1F("z0sintheta_pvcorr","z*sintheta (corrected for primVtx); [mm]",100,-m_z0Range,m_z0Range);  
     RegisterHisto(al_mon,m_z0sintheta_pvcorr) ;  
     m_d0 = new TH1F("d0","d0;[mm]",400,-m_d0Range,m_d0Range);  
     RegisterHisto(al_mon,m_d0) ;  
@@ -1432,7 +1434,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_trk_pT_asym->GetXaxis()->SetTitle("#pt (GeV)"); 
     m_trk_pT_asym->GetYaxis()->SetTitle("(pos-neg)/(pos+neg)");   
     
-    m_hitMap_barrel = new TH2F("hitMap_barrel","Hit Map for Barrel",100,-1100,1100,100,-1100,1100);
+    m_hitMap_barrel = new TH2F("hitMap_barrel","Hit Map for Barrel",125,-1100,1100,125,-1100,1100);
     RegisterHisto(al_mon,m_hitMap_barrel);
 
     m_hitMap_endcapA = new TH2F("hitMap_endcapA","Hit Map for Endcap A",100,800,2800,100,-3.14,3.14);
@@ -1542,7 +1544,22 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_Tracks_per_LumiBlock) ;
     m_Tracks_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_Tracks_per_LumiBlock->GetYaxis()->SetTitle("# tracks");   
-    //
+
+    m_NPIX_per_LumiBlock = new TH1F("NPixPerLumiBlock","N pixel hits per Lumi block",1024,-0.5,1023.5); 
+    RegisterHisto(al_mon, m_NPIX_per_LumiBlock) ;
+    m_NPIX_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
+    m_NPIX_per_LumiBlock->GetYaxis()->SetTitle("# pixel hits");   
+
+    m_NSCT_per_LumiBlock = new TH1F("NSCTPerLumiBlock","N SCT hits per Lumi block",1024,-0.5,1023.5); 
+    RegisterHisto(al_mon, m_NSCT_per_LumiBlock) ;
+    m_NSCT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
+    m_NSCT_per_LumiBlock->GetYaxis()->SetTitle("# SCT hits");   
+
+    m_NTRT_per_LumiBlock = new TH1F("NTRTPerLumiBlock","N TRT hits per Lumi block",1024,-0.5,1023.5); 
+    RegisterHisto(al_mon, m_NTRT_per_LumiBlock) ;
+    m_NTRT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
+    m_NTRT_per_LumiBlock->GetYaxis()->SetTitle("# TRT hits");   
+
     m_histosBooked++;
   }
   return StatusCode::SUCCESS;
@@ -2069,6 +2086,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     m_trk_chi2Prob -> Fill(trketa,chi2Prob, hweight);
 
     m_Tracks_per_LumiBlock->Fill(float(LumiBlock), hweight);
+    m_NPIX_per_LumiBlock->Fill(float(LumiBlock), nhpix*hweight);
+    m_NSCT_per_LumiBlock->Fill(float(LumiBlock), nhsct*hweight);
+    m_NTRT_per_LumiBlock->Fill(float(LumiBlock), nhtrt*hweight);
 
     m_trk_d0_vs_phi_vs_eta -> Fill(trketa, trkphi, trkd0c, hweight);
     m_trk_pT_vs_eta        -> Fill(trketa, trkpt         , hweight);
