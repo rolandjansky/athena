@@ -97,11 +97,11 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
   sc=m_seedsmaker.retrieve();
 
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_seedsmaker << endmsg;
+    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_seedsmaker << endreq;
     return sc;
   } 
   else {
-    athenaLog << MSG::INFO << "Retrieved tool " << m_seedsmaker << endmsg;
+    athenaLog << MSG::INFO << "Retrieved tool " << m_seedsmaker << endreq;
   }
   
   if(m_useZvertexTool) {
@@ -110,39 +110,39 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
     sc=m_zvertexmaker.retrieve();
 
     if ( sc.isFailure() ) {
-      athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
+      athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_zvertexmaker << endreq;
       return sc;
     } 
     else {
-      athenaLog << MSG::INFO << "Retrieved tool " << m_zvertexmaker << endmsg; 
+      athenaLog << MSG::INFO << "Retrieved tool " << m_zvertexmaker << endreq; 
     }
   }
 
   // Get track-finding tool
   sc = m_trackmaker.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endmsg;
+    athenaLog << MSG::FATAL << "Failed to retrieve tool " << m_trackmaker << endreq;
     return sc;
   } 
   else {
-    athenaLog << MSG::INFO << "Retrieved tool " << m_trackmaker << endmsg;
+    athenaLog << MSG::INFO << "Retrieved tool " << m_trackmaker << endreq;
   }
 
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endmsg;
+    athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endreq;
     return sc;
   }
 
   // Get SCT & pixel Identifier helpers
 
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
+     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
      return StatusCode::FAILURE;
   }  
 
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
+    athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;  
   }
   // register the IdentifiableContainers into StoreGate 
@@ -155,23 +155,23 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
 
      if (evtStore()->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_pixelSpacePointsName
-             << " could not be recorded in StoreGate !" << endmsg; 
+             << " could not be recorded in StoreGate !" << endreq; 
      }  
      else { 
        athenaLog << MSG::INFO << "Container " << m_pixelSpacePointsName 
-             << " registered  in StoreGate" << endmsg;   
+             << " registered  in StoreGate" << endreq;   
      } 
   }
   else {     
     sc = evtStore()->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endmsg; 
+      athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endreq; 
       return sc; 
     } 
     else {  
       m_pixelSpacePointsContainer->addRef();  //increase ref count: 
       athenaLog << MSG::INFO << "Got Pixel space point Container from TDS: " 
-		<< m_pixelSpacePointsName << endmsg; 
+		<< m_pixelSpacePointsName << endreq; 
     } 
   }
   
@@ -181,30 +181,30 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
 
     if (evtStore()->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_sctSpacePointsName
-		 << " could not be recorded in StoreGate !" << endmsg; 
+		 << " could not be recorded in StoreGate !" << endreq; 
     }  
     else { 
       athenaLog << MSG::INFO << "Container " << m_sctSpacePointsName 
-		<< " registered  in StoreGate" << endmsg;   
+		<< " registered  in StoreGate" << endreq;   
     } 
   }
   else {     
     sc = evtStore()->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endmsg; 
+      athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endreq; 
       return sc; 
     } 
     else {  
       m_sctSpacePointsContainer->addRef();  //increase ref count: 
       athenaLog << MSG::INFO << "Got SCT space point Container from TDS: " 
-		<< m_sctSpacePointsName << endmsg; 
+		<< m_sctSpacePointsName << endreq; 
     } 
   }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
     m_timers = false;
   } 
   else{
@@ -228,7 +228,7 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
 
   }
 
-  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyC initialized "<< endmsg;
+  athenaLog << MSG::INFO << "TrigL2PattRecoStrategyC initialized "<< endreq;
   return sc;
 }
 
@@ -260,7 +260,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyC called in RoI-based mode "<<endmsg;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyC called in RoI-based mode "<<endreq;
 
   std::vector<IdentifierHash>  listOfSCTIds; 
   std::vector<IdentifierHash>  listOfPixIds; 
@@ -272,7 +272,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   StatusCode sc=convertInputData(listOfPixIds,listOfSCTIds);
   
   if(sc.isFailure()) {
-    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endmsg;
+    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -289,7 +289,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endmsg;
+      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endreq;
   }
   else{ 
     if(m_timers) m_timer[1]->start();
@@ -383,12 +383,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   }
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endmsg;
+    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endreq;
     athenaLog << MSG::DEBUG << "REGTEST: Investigated "
 	      << std::setw(7) <<  m_nseeds 
 	      << " seeds and found "
 	      << std::setw(5) << foundTracks->size() <<" tracks"
-	      << endmsg;
+	      << endreq;
   }
 
   for (size_t i=0; i<foundTracks->size() ; i++){
@@ -416,12 +416,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   HLT::ErrorCode rc=HLT::OK;
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyC called in full-scan mode "<<endmsg;
+    athenaLog<< MSG::DEBUG<<"TrigL2PattRecoStrategyC called in full-scan mode "<<endreq;
 
   StatusCode sc=convertInputData();
 
   if(sc.isFailure()) {
-    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endmsg;
+    athenaLog<< MSG::WARNING<<"Failed to convert input data into offline spacepoints "<<endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -445,7 +445,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
     std::for_each(VZ.begin(),VZ.end(),ZVertexCopyFunctor(m_zVertices));
     if(m_timers) m_timer[9]->stop();   
     if (outputLevel <= MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endmsg;
+      athenaLog << MSG::DEBUG << "REGTEST: Number of zvertex found = " << VZ.size() << endreq;
   }
   else{
     if(m_timers) m_timer[1]->start();
@@ -536,12 +536,12 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
   }
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endmsg;
+    athenaLog << MSG::DEBUG << "REGTEST: Number of seeds found = " << m_nseeds << endreq;
     athenaLog << MSG::DEBUG << "REGTEST: Investigated "
 	      << std::setw(7) <<  m_nseeds 
 	      << " seeds and found "
 	      << std::setw(5) << foundTracks->size() <<" tracks"
-	      << endmsg;
+	      << endreq;
   }
 
   for (size_t i=0; i<foundTracks->size() ; i++){
@@ -579,8 +579,7 @@ double TrigL2PattRecoStrategyC::trackQuality(const Trk::Track* Tr)
    double q;
    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
    else                     q =      (W-x2    );
-   if(q < 0.) q = 0.;
-   quality+=q;
+   if(q < 0.) q = 0.; quality+=q;
  }
  return quality;
 }
@@ -614,8 +613,7 @@ void TrigL2PattRecoStrategyC::filterSharedTracks(std::multimap<double,Trk::Track
     }
 
     if(nf >= m_nfreeCut|| nf == nc) {
-      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
-      ++q;
+      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]); ++q;
     } 
     else  {
       delete (*q).second; QT.erase(q++);
@@ -663,25 +661,25 @@ MsgStream athenaLog(msgSvc(), name());
 
      if (evtStore()->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_pixelSpacePointsName
-             << " could not be recorded in StoreGate !" << endmsg; 
+             << " could not be recorded in StoreGate !" << endreq; 
      }  
      else { 
        /*
        athenaLog << MSG::DEBUG << "Container " << m_pixelSpacePointsName 
-             << " registered  in StoreGate" << endmsg;  
+             << " registered  in StoreGate" << endreq;  
        */ 
      } 
   }
   else {     
     sc = evtStore()->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endmsg; 
+      athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endreq; 
       return sc; 
     } 
     else {  
       /*
       athenaLog << MSG::DEBUG << "Got Pixel space point Container from TDS: " 
-		<< m_pixelSpacePointsName << endmsg; 
+		<< m_pixelSpacePointsName << endreq; 
       */
     } 
   }
@@ -692,50 +690,50 @@ MsgStream athenaLog(msgSvc(), name());
 
     if (evtStore()->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_sctSpacePointsName
-		 << " could not be recorded in StoreGate !" << endmsg; 
+		 << " could not be recorded in StoreGate !" << endreq; 
     }  
     else { 
       /*
       athenaLog << MSG::DEBUG << "Container " << m_sctSpacePointsName 
-		<< " registered  in StoreGate" << endmsg;   
+		<< " registered  in StoreGate" << endreq;   
       */
     } 
   }
   else {     
     sc = evtStore()->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endmsg; 
+      athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endreq; 
       return sc; 
     } 
     else {  
       /*
       athenaLog << MSG::DEBUG << "Got SCT space point Container from TDS: " 
-		<< m_sctSpacePointsName << endmsg; 
+		<< m_sctSpacePointsName << endreq; 
       */
     } 
   }
  
   sc = evtStore()->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
   if (sc.isFailure()) { 
-    athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endmsg; 
+    athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endreq; 
     return sc; 
   } 
   else {
     /*  
     athenaLog << MSG::DEBUG << "Got Pixel SpacePoints Container from TDS: " 
-	      << m_pixelOnlineClustersName << endmsg; 
+	      << m_pixelOnlineClustersName << endreq; 
     */
   } 
 
   sc = evtStore()->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
   if (sc.isFailure()) { 
-    athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endmsg; 
+    athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endreq; 
     return sc; 
   } 
   else {
     /*  
     athenaLog << MSG::DEBUG << "Got SCT SpacePoints Container from TDS: " 
-	      << m_pixelOnlineClustersName << endmsg; 
+	      << m_pixelOnlineClustersName << endreq; 
     */
   }
   return sc;
@@ -814,7 +812,7 @@ TrigInDetTrack* TrigL2PattRecoStrategyC::convertOutputTracks(Trk::Track* t) {
     }
   }
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG <<nClust<<" SCT clusters left unassigned "<<endmsg;
+    athenaLog << MSG::DEBUG <<nClust<<" SCT clusters left unassigned "<<endreq;
   }
 
   if(pvsp->empty() || (pvsp->size()<4)) {
@@ -823,7 +821,7 @@ TrigInDetTrack* TrigL2PattRecoStrategyC::convertOutputTracks(Trk::Track* t) {
   }
 
   if (outputLevel <= MSG::DEBUG) {
-    athenaLog << MSG::DEBUG <<"created vector with "<<pvsp->size()<<" spacepoints"<<endmsg;
+    athenaLog << MSG::DEBUG <<"created vector with "<<pvsp->size()<<" spacepoints"<<endreq;
   }
 
   //  std::cout<<(*t)<<std::endl;

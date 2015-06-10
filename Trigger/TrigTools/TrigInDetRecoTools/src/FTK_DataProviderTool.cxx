@@ -37,7 +37,7 @@ StatusCode FTK_DataProviderTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::INFO << "FTK_DataProviderTool initialized" << endmsg;
+  athenaLog << MSG::INFO << "FTK_DataProviderTool initialized" << endreq;
 
   return sc;
 
@@ -64,13 +64,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(TrackCollection& trackCollecti
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return TrackCollection" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return TrackCollection" << endreq;
   }
 
   sc = getTrackCollection();
 
   if (sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK TrackCollection" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK TrackCollection" << endreq;
     return sc;
   }
 
@@ -90,7 +90,7 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(TrackCollection& trackCollecti
   }
   
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "Number of retrieved tracks : " << trackCollection.size() << " (out of " << m_ftkTrackContainer->size() << ")" << endmsg;
+    athenaLog << MSG::INFO << "Number of retrieved tracks : " << trackCollection.size() << " (out of " << m_ftkTrackContainer->size() << ")" << endreq;
   }
 
   return sc;
@@ -107,13 +107,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(const IRoiDescriptor& roi, Tra
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return TrackCollection" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return TrackCollection" << endreq;
   }
 
   sc = getTrackCollection();
 
   if(sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endreq;
     return sc;
   }
 
@@ -145,7 +145,7 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(const IRoiDescriptor& roi, Tra
     
   }
 
-  athenaLog << MSG::INFO << "Number of retrieved tracks : " << trackCollection.size() << " (out of " << m_ftkTrackContainer->size() << ")" << endmsg;
+  athenaLog << MSG::INFO << "Number of retrieved tracks : " << trackCollection.size() << " (out of " << m_ftkTrackContainer->size() << ")" << endreq;
 
   return sc;
 
@@ -161,13 +161,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(std::vector<const Trk::Track*>
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return std::vector<const Trk:Track*>" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return std::vector<const Trk:Track*>" << endreq;
   }
 
   sc = getTrackCollection();
 
   if (sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endreq;
     return sc;
   }
 
@@ -188,7 +188,7 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(std::vector<const Trk::Track*>
   }
   
   if (vtrack.size() != m_ftkTrackContainer->size()) {
-    athenaLog << MSG::WARNING << "Only " << vtrack.size() << " tracks out of " << m_ftkTrackContainer->size() << " successfully retrieved!" << endmsg; 
+    athenaLog << MSG::WARNING << "Only " << vtrack.size() << " tracks out of " << m_ftkTrackContainer->size() << " successfully retrieved!" << endreq; 
   }
 
   return sc;
@@ -205,13 +205,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(const IRoiDescriptor& roi, std
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return std::vector<const Trk::Track*>" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return std::vector<const Trk::Track*>" << endreq;
   }
 
   sc = getTrackCollection();
 
   if(sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endreq;
     return sc;
   }
 
@@ -257,13 +257,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(std::vector<TrigFTK_TrackSeed>
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return std::vector<TrigFTK_TrackSeed>" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in full-scan mode to retrieve FTK TrackCollection from StoreGate and return std::vector<TrigFTK_TrackSeed>" << endreq;
   }
   
   sc = getTrackCollection();
 
   if(sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endreq;
     return sc;
   }
 
@@ -331,13 +331,13 @@ StatusCode FTK_DataProviderTool::retrieveFTK_Data(const IRoiDescriptor& roi, std
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if (outputLevel <= MSG::INFO) {
-    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return std::vector<TrigFTK_TrackSeed>" << endmsg;
+    athenaLog << MSG::INFO << "FTK_DataProviderTool called in RoI-based mode to retrieve FTK TrackCollection from StoreGate and return std::vector<TrigFTK_TrackSeed>" << endreq;
   }
 
   sc = getTrackCollection();
 
   if(sc.isFailure()) {
-    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endmsg;
+    athenaLog << MSG::ERROR << "Failed to retrieve FTK Tracks" << endreq;
     return sc;
   }
 
@@ -417,13 +417,13 @@ StatusCode FTK_DataProviderTool::getTrackCollection()
   m_ftkTrackContainer = nullptr;
 
   if (!evtStore()->transientContains<TrackCollection>(m_ftkTracksName)) {  
-    athenaLog << MSG::WARNING << " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endmsg;
+    athenaLog << MSG::WARNING << " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endreq;
     return sc;
   }  
   else { 
     sc = evtStore()->retrieve(m_ftkTrackContainer, m_ftkTracksName); 
     if (sc.isFailure()) { 
-      athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endmsg; 
+      athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endreq; 
       return sc; 
     }
   } 

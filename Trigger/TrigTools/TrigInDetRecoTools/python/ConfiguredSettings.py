@@ -64,6 +64,7 @@ class SettingsForStrategyB(CommonSettings) :
             map_LayerTwoMultiplicity[i]   = 3
             reco_D0Max[i]                 = 3.0*mm            
             vertexing_CutRPhi[i]          = 0.5
+            vertexing_CutRZ[i]            = L2IDTrackingCuts.RegSelZmax()+30
             vertexing_Enable[i]           = False
             vertexing_WindowSize[i]       = 3.0
         
@@ -206,6 +207,7 @@ class SettingsForStrategyA(CommonSettings) :
             dphideta[i]               = -0.02
             chargeaware[i]            = True
             zhistoperphi[i]           = True
+            maxz[i]                   = L2IDTrackingCuts.RegSelZmax()
             prefercentralz[i]         = False
             vrtxdistcut[i]            = 0.
             nvrtxseparation[i]        = 0
