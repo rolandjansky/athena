@@ -2,8 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "LArSimEvent/LArHitFloat.h"
 #include "LArSimEvent/LArHitFloatContainer.h"
+#undef private
+#undef protected
 #include "Identifier/Identifier.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -22,7 +26,7 @@ void LArHitFloatContainerCnv_p2::transToPers(const LArHitFloatContainer* transCo
 {   //static int ev=0;
 
 	size_t size = transCont->size();  
-	log << MSG::DEBUG  << " ***  Writing LArHitContainer_p2 of size:"<<size<<endmsg;
+	log << MSG::DEBUG  << " ***  Writing LArHitContainer_p2 of size:"<<size<<endreq;
 	
 	persCont->m_channelHash.reserve(size);	
 	std::vector<float> tempE;	tempE.reserve(size);
@@ -36,9 +40,9 @@ void LArHitFloatContainerCnv_p2::transToPers(const LArHitFloatContainer* transCo
 	std::multimap <unsigned int, unsigned int> map_hashPositions;// first hash ; second its position in container
 
 	for (unsigned int w=0;w<size;++w){
-                IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it).cellID());
+		IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it).m_ID);
 		map_hashPositions.insert(std::pair<unsigned int, int>((unsigned int)hashId, w));
-//		if (!ev) std::cout<<hashId<<"\t"<<((*it)->cellID())<<std::endl;
+//		if (!ev) std::cout<<hashId<<"\t"<<((*it)->m_ID)<<std::endl;
 		++it;
 		}
 
@@ -51,9 +55,9 @@ void LArHitFloatContainerCnv_p2::transToPers(const LArHitFloatContainer* transCo
 		old=iter->first;
 		unsigned int pos=iter->second;
 		persCont->m_channelHash.push_back(pHash);
-		tempE.push_back(  (transCont->at(pos)).energy() );
-		tempT.push_back(  (transCont->at(pos)).time()   );
-//		if (!ev) std::cout<<"Writing Hash: "<<iter->first<<"\t E: "<< (float) (transCont->At(pos))->energy()<<"\t T: "<< (float) (transCont->At(pos))->time()<<std::endl;
+		tempE.push_back(  (transCont->at(pos)).m_energy );
+		tempT.push_back(  (transCont->at(pos)).m_time   );
+//		if (!ev) std::cout<<"Writing Hash: "<<iter->first<<"\t E: "<< (float) (transCont->At(pos))->m_energy<<"\t T: "<< (float) (transCont->At(pos))->m_time<<std::endl;
 //		count++;
 		}			
 //	std::cout<<"ILIJA : "<<count<<std::endl;
@@ -73,7 +77,7 @@ void LArHitFloatContainerCnv_p2::persToTrans(const LArHitContainer_p2* persCont,
 {
 //	static int dog=0;
 	size_t cells=persCont->m_channelHash.size();
-	log << MSG::DEBUG  << " ***  Reading LArHitContainer of size: "<<cells<<endmsg;
+	log << MSG::DEBUG  << " ***  Reading LArHitContainer of size: "<<cells<<endreq;
 	transCont->clear();
 	transCont->reserve(cells);
 	
