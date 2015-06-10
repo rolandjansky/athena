@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="LArHit_p1" />
+  <class name="std::vector<LArHit_p1>" />
+  <class name="LArHitContainer_p2" id="1F1DE705-E0CE-4F0E-941A-C405CB2CD137" />
+</lcgdict>
