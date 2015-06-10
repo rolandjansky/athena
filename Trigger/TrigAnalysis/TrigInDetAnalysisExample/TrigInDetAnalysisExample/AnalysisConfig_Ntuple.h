@@ -50,6 +50,12 @@ public:
     m_doVertices(false),
     m_doMuons(false),
     m_doElectrons(false),
+    m_doElectrons_tightCB(false),
+    m_doElectrons_mediumCB(false),
+    m_doElectrons_looseCB(false),
+    m_doElectrons_tightLH(false),
+    m_doElectrons_mediumLH(false),
+    m_doElectrons_looseLH(false),
     m_doTaus(false),
     m_doBjets(false),
     m_hasTruthMap(false),
@@ -80,6 +86,12 @@ public:
       if ( chainNames[i]=="Offline" )   m_doOffline   = true;
       if ( chainNames[i]=="Vertex" )    m_doVertices  = true;
       if ( chainNames[i]=="Electrons" ) m_doElectrons = true;
+      if ( chainNames[i]=="Electrons_TightCB" ) m_doElectrons_tightCB = true;
+      if ( chainNames[i]=="Electrons_MediumCB" ) m_doElectrons_mediumCB = true;
+      if ( chainNames[i]=="Electrons_LooseCB" ) m_doElectrons_looseCB = true;
+      if ( chainNames[i]=="Electrons_TightLH" ) m_doElectrons_tightLH = true;
+      if ( chainNames[i]=="Electrons_MediumLH" ) m_doElectrons_mediumLH = true;
+      if ( chainNames[i]=="Electrons_LooseLH" ) m_doElectrons_looseLH = true;
       if ( chainNames[i]=="Muons" )     m_doMuons     = true;
       if ( chainNames[i]=="Taus" )      m_doTaus      = true;
       if ( chainNames[i]=="Taus3" )     m_doTauThreeProng = true;
@@ -95,7 +107,6 @@ public:
     if ( !m_finalised ) finalize();
     delete m_event;
   }
-
 
 protected:
 
@@ -121,6 +132,12 @@ protected:
   bool m_doVertices;
   bool m_doMuons;
   bool m_doElectrons;
+  bool m_doElectrons_tightCB;
+  bool m_doElectrons_mediumCB;
+  bool m_doElectrons_looseCB;
+  bool m_doElectrons_tightLH;
+  bool m_doElectrons_mediumLH;
+  bool m_doElectrons_looseLH;
   bool m_doTaus;
   bool m_doBjets;
   bool m_hasTruthMap;

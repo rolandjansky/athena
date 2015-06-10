@@ -53,14 +53,14 @@ void ChainString::parse() {
     
     mhead = fields[0]; 
 
-    std::string tags[4]   = { "collection=", "index=", "te=", "roi=" };
-    std::string alt[4]    = { "key=",        "ind=",   "",    ""     };
-    bool        tagged[4] = {  false,         false,    false, false };    
+    std::string tags[5]   = { "collection=", "index=", "te=", "roi=", "vtx=" };
+    std::string alt[5]    = { "key=",        "ind=",   "",    "",     ""     };
+    bool        tagged[5] = {  false,         false,    false, false, false  };    
  
-    std::string* values[4] = { &mtail, &mextra, &melement, &mroi };
+    std::string* values[5] = { &mtail, &mextra, &melement, &mroi, &mvtx };
 
     for ( unsigned i=1 ; i<fields.size() ; i++ ) {
-      for ( unsigned itag=0 ; itag<4 ; itag++ ) { 
+      for ( unsigned itag=0 ; itag<5 ; itag++ ) { 
 	if ( tagged[itag] ) continue;
 	//	std::cout << itag << " " << i << " " << fields[i] << " " << toupper(fields[i]).find(toupper(tags[itag])) << std::endl; 
 
@@ -93,7 +93,7 @@ void ChainString::parse() {
     /// *all* tags should be used   
     if ( !usetags ) { 
       //      std::cout << "fields.size() " << fields.size() << std::endl;
-      for ( unsigned i=0 ; i<4 ; i++ ) {
+      for ( unsigned i=0 ; i<5 ; i++ ) {
 	if ( fields.size()>i+1 ) *values[i] = fields[i+1];
       }
     }      
@@ -104,6 +104,7 @@ void ChainString::parse() {
     std::cout << "index :     " << mextra   << std::endl;
     std::cout << "te :        " << melement << std::endl;
     std::cout << "roi :       " << mroi     << std::endl;
+    std::cout << "vtx :       " << mroi     << std::endl;
     std::cout << "pass :      " << mpassed  << std::endl;
 #endif   
     
@@ -111,7 +112,7 @@ void ChainString::parse() {
     /// to a root directory etc
 
     std::string raw = mhead;
-    for ( int i=0 ; i<4 ; i++ ) if ( *values[i]!="" ) raw += ":" + *values[i];
+    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + *values[i];
     if ( !mpassed ) raw += ";DTE";
     *(std::string*)(this) = raw;
 

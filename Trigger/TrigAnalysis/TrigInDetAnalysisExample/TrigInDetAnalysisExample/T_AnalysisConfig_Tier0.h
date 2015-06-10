@@ -263,13 +263,11 @@ protected:
     const EventInfo* pEventInfo;
     unsigned run_number        = 0;
     unsigned event_number      = 0;
-
     unsigned lumi_block        = 0;
     unsigned bunch_crossing_id = 0;
-
     unsigned time_stamp = 0;
     double mu_val = 0;
-  
+
     if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
       m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endreq;
     } else {
@@ -445,9 +443,16 @@ protected:
 
       const std::string& key = m_chainNames[ichain].tail();
 
-      unsigned decisiontype;
-      if ( m_chainNames[ichain].passed() ) decisiontype = TrigDefs::Physics;
+      unsigned _decisiontype = TrigDefs::Physics;
+      unsigned  decisiontype;
+     
+      if ( this->requireDecision() ) _decisiontype =  TrigDefs::requireDecision;
+      
+      
+      if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
       else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
+
+      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\n\nSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
 
 
       /// and the index of the collection (if any)
@@ -884,6 +889,14 @@ protected:
 
         _analysis->execute( ref_tracks, test_tracks, m_associator );
 	
+	if ( _analysis->debug() ) { 
+	  m_provider->msg(MSG::INFO) << "Missing track for " << m_chainNames[ichain]  
+				     << "\trun "   << run_number
+				     << "\tevent " << event_number
+				     << "\tlb "    << lumi_block << endreq;
+	  
+	}
+
       }
     }
     
@@ -1025,7 +1038,8 @@ protected:
       if ( name().find("Shifter")!=std::string::npos ) {
 	/// shifter histograms - do not encode chain names
 	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
-	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos )           mongroup = folder_name + "/EFID";
+	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos || 
+		  m_chainNames.at(ic).tail().find("_EFID") != std::string::npos )             mongroup = folder_name + "/EFID";
 	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
 	else                                                                                  mongroup = folder_name + "/Unknown";

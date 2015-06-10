@@ -55,9 +55,9 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "etaCutOffline",     m_etaCutOffline     = 2.5 );
   declareProperty( "d0CutOffline",      m_d0CutOffline      = 1000 );
   declareProperty( "z0CutOffline",      m_z0CutOffline      = 2000 );
-  declareProperty( "pixHitsOffline",    m_pixHitsOffline    = -1 ); // 1 <- old value
-  declareProperty( "sctHitsOffline",    m_sctHitsOffline    = -1 ); // 6 <- old value
-  declareProperty( "siHitsOffline",     m_siHitsOffline     = -1 );
+  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  1 ); // 1 <- old value
+  declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value
+  declareProperty( "siHitsOffline",     m_siHitsOffline     =  8 );
   declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
@@ -248,7 +248,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	// std::cout << "selected chains " << selectChains.size() << std::endl;
 
 	if ( selectChains.size()==0 ) { 
-	  msg(MSG::WARNING) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endreq;
+	  msg(MSG::INFO) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endreq;
 	}
 
 
@@ -267,7 +267,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// FTF chain
 		shifter_ftf++;
 		if ( shifter_ftf>1 ) {
-		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
 	      }
@@ -275,7 +275,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_efid++;
 		if ( shifter_efid>1 ) {
-		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
 	      }
@@ -283,7 +283,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_efid_run1++;
 		if ( shifter_efid_run1>1 ) {
-		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
 	      }
@@ -291,7 +291,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		/// EFID chain
 		shifter_l2star++;
 		if ( shifter_l2star>1 ) {
-		  msg(MSG::WARNING) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
+		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
 	      }
@@ -387,7 +387,9 @@ StatusCode TrigTestBase::fill() {
     }
   }
   
+
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
+
 
   if(msg().level() <= MSG::DEBUG) {
     msg(MSG::DEBUG) << " ----- exit fill() ----- " << endreq;

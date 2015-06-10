@@ -8,6 +8,22 @@ Analysis chains can be specified, selecting an dactual chain, a specific track c
 a TE from which it should originate, an RoI to be retrieved, and whether the chains should
 be required to have passed.
 
+New instructions
+----------------
+
+The preferred format for analysis chains now is
+
+
+   ChainName:key=TrackCollectionName:roi=RoiName:vtx=VertexName
+
+Other keys are available, and eg ";DTE" should be added at the end to use the deactivated 
+Trigger Elements.
+
+MS 10-6-2015
+
+
+Old instructions - (from March 2015 and not largely out of date) 
+----------------
 To specify without an RoI the format of the chain names in the configuration ...
 
    ChainName:TrackCollectionKey:index:TriggerElementKey;DTE
@@ -88,7 +104,6 @@ explicitly as there is the possibility in the future of specifying the chains wi
   "ChainName:Collection=TrackCollection:roi=... :"
 
 etc, so that the fields after the chain name itself, can just be added in any order and with any
-number of different configuration parameters for clarity, however this has not yet been implemented.
-If there is anyone who would like to do this, it should not be very hard.
+number of different configuration parameters for clarity, however this *has* now been implemented.
 
 MS 30-4-2015
