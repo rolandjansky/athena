@@ -360,16 +360,13 @@ void AnalysisConfig_Ntuple::loop() {
 		const Trig::ChainGroup* _chain=(*m_tdt)->getChainGroup(chainName);
 
 		
-		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
-					   << "\tpass " << _chain->isPassed() << "\tCH  FIXED" << endreq;
+		//		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
+		//					   << "\tpass " << _chain->isPassed() << "\tCH  FIXED" << endreq;
 
 		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
 					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass " << (*m_tdt)->isPassed(chainName) << "\tTDT FIXED" << endreq;
-
-		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
-					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass " << (*m_tdt)->isPassed(chainName, _decisiontype ) << "\tDT FIXED " << _decisiontype << " " << endreq;
+					   << "\tpass physics  " << (*m_tdt)->isPassed(chainName) 
+					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, _decisiontype ) << "\tdec type " << _decisiontype << " ) " << endreq;
 
 
 		//		if ( (*m_tdt)->isPassed(chainName) ) { 
@@ -604,6 +601,8 @@ void AnalysisConfig_Ntuple::loop() {
 	/// get the offline vertices into our structure
 	
 	std::vector<TrackVertex> vertices;
+
+#ifndef XAODTRACKING_VERTEX_H
 	
 	const VxContainer* primaryVtxCollection;
 	if ( m_provider->evtStore()->retrieve(primaryVtxCollection, "VxPrimaryCandidate").isFailure()) {
@@ -635,10 +634,13 @@ void AnalysisConfig_Ntuple::loop() {
 	  }
 	}
 
-#ifdef XAODTRACKING_VERTEX_H
+
+
+#else
+
 
 	//	std::vector<TrackVertex> vertices;
-	
+
 	const xAOD::VertexContainer* xaodVtxCollection;
 	//	if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "VxPrimaryCandidate").isFailure()) {
 	if ( m_provider->evtStore()->retrieve( xaodVtxCollection ).isFailure()) {
@@ -944,6 +946,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 		int icomb = 0;
 
+		const IRoiDescriptor* iroiptr = 0; 
 
 		for( ; comb!=combEnd ; ++comb) {
 
@@ -983,6 +986,7 @@ void AnalysisConfig_Ntuple::loop() {
 			/// need some way to specify which RoiDescriptor we are really interested in ...
 
 			std::string roi_name = m_chainNames[ichain].roi();
+			std::string vtx_name = m_chainNames[ichain].vtx();
 
 			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois;
 			
@@ -1009,6 +1013,16 @@ void AnalysisConfig_Ntuple::loop() {
 
 			if ( _rois.empty() ) continue;
 
+			if ( iroiptr==0 ) { 
+			  iroiptr = _rois[0].cptr();
+			}
+			else { 
+			  if ( iroiptr == _rois[0].cptr() ) { 
+			    std::cout << "found RoI before " << *_rois[0].cptr() << std::endl;
+			    continue;
+			  }
+			}
+			
 			// notify if have multiple RoIs (get this for FS chains)
 			if( _rois.size()>1) {
 			  m_provider->msg(MSG::INFO) << "\tMore than one RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
@@ -1088,10 +1102,12 @@ void AnalysisConfig_Ntuple::loop() {
 
 			std::vector<TrackVertex> tidavertices;	
 
+#ifndef XAODTRACKING_VERTEX_H
+
 			/// what is this doing? Why is it just fetching but not assigning to anything ????? who write this?
 			// comb->get<TrigRoiDescriptor>("forID");
 
-			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>();
+			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>(vtx_name);
 
 			if ( trigvertices.empty() ) { 
 			  m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << endreq;
@@ -1132,17 +1148,17 @@ void AnalysisConfig_Ntuple::loop() {
 			    }
 
 			  }
+			}
 			  
-			
-#ifdef XAODTRACKING_VERTEX_H
-			  /// now also add xAOD vertices
+#else			
+			/// now also add xAOD vertices
 
-			  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = comb->get<xAOD::VertexContainer>();
+			std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = comb->get<xAOD::VertexContainer>(vtx_name);
 
-			  if ( xaodtrigvertices.empty() ) { 
+			if ( xaodtrigvertices.empty() ) { 
 			    m_provider->msg(MSG::INFO) << "\tNo xAOD::VertexContainer for chain " << chainName << endreq;
-			  }
-			  else {
+			}
+			else {
 
 			    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 			    
@@ -1169,12 +1185,10 @@ void AnalysisConfig_Ntuple::loop() {
 			      }
 			    }
 			    
-			  }
+			}
 #endif
   
  
-			}
-
 			const std::vector<TrigInDetAnalysis::Track*>& testTracks = selectorTest.tracks();
 			m_provider->msg(MSG::DEBUG) << "\ttest tracks.size() " << testTracks.size() << endreq; 
 			for (unsigned int ii=0; ii < testTracks.size(); ii++) {

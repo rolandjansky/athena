@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "TH1.h"
+#include "TH2.h"
 #include "TProfile.h"
 
 #include "TrigInDetAnalysis/TrackAnalysis.h"
@@ -33,6 +34,8 @@ class Analysis_Tier0 : public TrackAnalysis {
 
   std::map<std::string, TProfile*>::const_iterator TEffbegin() const { return m_effhistos.begin(); }
   std::map<std::string, TProfile*>::const_iterator TEffend()   const { return m_effhistos.end(); }
+
+  bool debug() const { return m_debug; }
   
  private:
 
@@ -67,6 +70,24 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_d0res;
   TProfile* h_z0res;
 
+
+  TProfile* h_npixvseta;
+  TProfile* h_npixvsphi;
+
+  TProfile* h_nsctvseta;
+  TProfile* h_nsctvsphi;
+
+  TProfile* h_npixvseta_rec;
+  TProfile* h_npixvsphi_rec;
+
+  TProfile* h_nsctvseta_rec;
+  TProfile* h_nsctvsphi_rec;
+
+
+  TProfile* h_d0vsphi;
+  TH2D*     h2d_d0vsphi;
+  TH2D*     h2d_d0vsphi_rec;
+
   TH1D* h_chain;
 
   TH1D* h_trkpT;
@@ -75,11 +96,27 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_trkd0;
   TH1D* h_trkz0;
 
+  TH1D* h_npix;
+  TH1D* h_nsct;
+  TH1D* h_nsihits;
+
   TH1D* h_trkpT_rec;
   TH1D* h_trketa_rec;
   TH1D* h_trkphi_rec;
   TH1D* h_trkd0_rec;
   TH1D* h_trkz0_rec;
+
+  TH1D* h_npix_rec;
+  TH1D* h_nsct_rec;
+  TH1D* h_nsihits_rec;
+
+
+  TH1D* h_trkpT_residual;
+  TH1D* h_trketa_residual;
+  TH1D* h_trkphi_residual;
+  TH1D* h_trkd0_residual;
+  TH1D* h_trkz0_residual;
+
 
   // Efficiency plateau cuts
   double m_pTCut;
@@ -88,6 +125,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   double m_z0Cut;
 
   int m_nVtx;
+
+  bool m_debug;
 
 };
 
