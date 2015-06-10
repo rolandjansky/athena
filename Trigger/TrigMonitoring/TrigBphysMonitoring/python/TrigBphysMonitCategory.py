@@ -14,12 +14,8 @@ monitoring_bphys = ['HLT_2mu4_bDimu', 'HLT_2mu4_bDimu_novtx_noos', 'HLT_mu6_mu4_
                     ]
 
 
-#primary_bphys = [ 
-                 #'HLT_2mu6_bDimu', 'HLT_2mu6_bBmumuxv2', 'HLT_3mu6_bJpsi', 'HLT_mu18_bJpsi_Trkloose', 'HLT_2mu6_bDimu_L1BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-4M8-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-BO', 'HLT_2mu6_bDimu_novtx_noos'
-                 #]
-
-# Triggers for 2015 HI runs
 primary_bphys = [ 
-                 'HLT_2mu4_bDimu', 'HLT_2mu4_bDimu_novtx_noos'
+                 'HLT_2mu6_bDimu', 'HLT_2mu6_bBmumuxv2', 'HLT_3mu6_bJpsi', 'HLT_mu18_bJpsi_Trkloose', 'HLT_2mu6_bDimu_L1BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-4M8-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-BO', 'HLT_2mu6_bDimu_novtx_noos'
                  ]
+
 

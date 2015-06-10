@@ -6,13 +6,12 @@
 
 #from TrigEDMConfig import TriggerEDM
 #containers = [x[0] for x in TriggerEDM.TriggerHLTList if "TrigBphysContainer" in x[0]]
-#containers = ["HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
-              ##"HLT_xAOD__TrigBphysContainer_L2BMuMuXFex", 
-              ##"HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
-              #"HLT_xAOD__TrigBphysContainer_L2MultiMuFex","HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
-              #"HLT_xAOD__TrigBphysContainer_L2TrackMass", "HLT_xAOD__TrigBphysContainer_EFTrackMass"]
+containers = ["HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
+              #"HLT_xAOD__TrigBphysContainer_L2BMuMuXFex", 
+              #"HLT_xAOD__TrigBphysContainer_EFBMuMuXFex",
+              "HLT_xAOD__TrigBphysContainer_L2MultiMuFex","HLT_xAOD__TrigBphysContainer_EFMultiMuFex",
+              "HLT_xAOD__TrigBphysContainer_L2TrackMass", "HLT_xAOD__TrigBphysContainer_EFTrackMass"]
 
-containers = ["HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex"]
 
 #from TriggerMenu.menu import DC14 as menu  #note should move to MC asap
 #from TriggerJobOpts.TriggerFlags          import TriggerFlags
@@ -96,19 +95,33 @@ def TrigBphysMonitoringTool():
                                   #EffTrigDenom_noVtxOS = "HLT_2mu4_bDimu_novtx_noos",
                                   
                                   DetailedChains_patterns = {"BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)',
-                                                             #"BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]',
-                                                             #"MultiMu": 'HLT_(3mu[0-9]+)_(b.*)',
-                                                             #"MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trkloose',
-                                                             #"BMuMu_express"  : 'HLT_2mu6_(bDimu|bJpsimumu)',
-                                                             #"BMuMuX_express" : 'HLT_2mu6_bBmumuxv[23]',
-                                                             #"MultiMu_express": 'HLT_3mu6_(b.*)',
-                                                             #"MuTrack_express": 'HLT_mu6_(b.*)_Trkloose'
+                                                             "BMuMuX" : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]',
+                                                             "MultiMu": 'HLT_(3mu[0-9]+)_(b.*)',
+                                                             "MuTrack": 'HLT_(mu[0-9]+)_(b.*)_Trkloose',
+                                                             "BMuMu_express"  : 'HLT_2mu6_(bDimu|bJpsimumu)',
+                                                             "BMuMuX_express" : 'HLT_2mu6_bBmumuxv[23]',
+                                                             "MultiMu_express": 'HLT_3mu6_(b.*)',
+                                                             "MuTrack_express": 'HLT_mu6_(b.*)_Trkloose'
                                                             },
-                                  DetailedL1TopoChains_patterns = {},
+                                  DetailedL1TopoChains_patterns = {"L1BPH-2M"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-2M-2MU4",
+                                                                   "L1BPH-4M8"    : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-4M8-2MU4",
+                                                                   "L1BPH-DR"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-DR-2MU4",
+                                                                   "L1BPH-DR-2M"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-DR-2MU4-BPH-2M-2MU4",
+                                                                   "L1BPH-DR-4M8" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-DR-2MU4-BPH-4M8-2MU4",
+                                                                   "L1BPH-B"      : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH.*-2MU4-B",
+                                                                   "L1BPH-BO"     : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH.*-2MU4-BO",
+                                                                   "L1BPH-2M_express"     : "HLT_2mu6_(b.*)_L1BPH-2M-2MU4",
+                                                                   "L1BPH-4M8_express"    : "HLT_2mu6_(b.*)_L1BPH-4M8-2MU4",
+                                                                   "L1BPH-DR_express"     : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4",
+                                                                   "L1BPH-DR-2M_express"  : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4-BPH-2M-2MU4",
+                                                                   "L1BPH-DR-4M8_express" : "HLT_2mu6_(b.*)_L1BPH-DR-2MU4-BPH-4M8-2MU4",
+                                                                   "L1BPH-B_express"      : "HLT_2mu6_(b.*)_L1BPH.*-2MU4-B",
+                                                                   "L1BPH-BO_express"     : "HLT_2mu6_(b.*)_L1BPH.*-2MU4-BO"
+                                                                  },
                                   EfficiencyChains_patterns = {"BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
-                                                               #"BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]",
-                                                               #"MultiMu": "HLT_(3mu[0-9]+)_(b.*)",
-                                                               #"MuTrack": "HLT_(mu[0-9]+)_(b.*)_Trkloose"
+                                                               "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23]",
+                                                               "MultiMu": "HLT_(3mu[0-9]+)_(b.*)",
+                                                               "MuTrack": "HLT_(mu[0-9]+)_(b.*)_Trkloose"
                                                               },
                                   EffTrigDenom_noVtxOS_pattern = "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bDimu_novtx_noos",
 
