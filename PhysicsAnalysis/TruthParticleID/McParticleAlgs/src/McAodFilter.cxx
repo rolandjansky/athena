@@ -36,9 +36,7 @@
 ////////////////
 McAodFilter::McAodFilter( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_mcVtxFilterTool      ( 0 ),
-  m_truthParticleCnvTool ( 0 )
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration

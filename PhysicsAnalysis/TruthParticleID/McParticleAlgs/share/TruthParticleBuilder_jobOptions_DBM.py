@@ -7,6 +7,7 @@ import EventKernel.ParticleDataType
 from ParticleBuilderOptions.AODFlags import AODFlags
 from RecExConfig.ObjKeyStore import objKeyStore
 
+
 # needed runtime dependancy for TruthParticleCnvTool
 if not "PartPropSvc" in theApp.Dlls:
     include( "PartPropSvc/PartPropSvc.py" )
@@ -24,10 +25,10 @@ job = AlgSequence()
 
 from McParticleAlgs.JobOptCfg import McAodBuilder,createMcAodBuilder,PileUpClassification
 
-if (objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) and 
-    not objKeyStore.isInInput( "McEventCollection", "GEN_AOD" )):
-    job += McAodBuilder()
-    pass
+#if (objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) and 
+#    not objKeyStore.isInInput( "McEventCollection", "GEN_AOD" )):
+job += McAodBuilder()
+#    pass
 
 
 
@@ -59,7 +60,6 @@ for cont in inputTPContainer:
     job += builder
 
 
-if ( objKeyStore.isInInput( "McEventCollection", "GEN_AOD" ) or
-     objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) ):
+if rec.doWritexAOD():
     from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+    job += xAODMaker__xAODTruthCnvAlg(name = "GEN_AOD2xAOD", xAODTruthEventContainerName = "TruthEvent")
