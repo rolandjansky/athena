@@ -8,6 +8,19 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 #====================================================================
+# ELECTRON 4-MOMENTA CORRECTION
+#====================================================================
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__ElectronsDirectionTool
+DFCommonElectronsDirection = DerivationFramework__ElectronsDirectionTool(name = "DFCommonElectronsDirection",
+                                                                         EtaSGEntry = "DFCommonElectrons_eta",
+                                                                         PhiSGEntry = "DFCommonElectrons_phi",
+                                                                         PtSGEntry = "DFCommonElectrons_pt",
+                                                                         nPrecisionHitsSGEntry = "DFCommonElectronsnPrecisionHits"
+                                                                         )
+
+ToolSvc += DFCommonElectronsDirection
+
+#====================================================================
 # PHOTON ETA (=ETA2), ET (=E/COSH(ETA2))
 #====================================================================
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__PhotonsDirectionTool
@@ -25,26 +38,9 @@ ToolSvc += DFCommonPhotonsDirection
 # (PRESELECTION=16: FUDGE FACTORS GEO21->DATA12)
 #====================================================================
 
-from PyUtils import AthFile
-af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0]) #opens the first file from the InputCollections list
-af.fileinfos #this is a dict of dicts, take a look at what's available! Below are some examples:
-
-isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
-beam_energy = af.fileinfos['beam_energy']
-conditions_tag = af.fileinfos['conditions_tag'] #useful for figuring out which mc production this is
-isFullSim = False
-if isMC: 
-    simulationFlavour = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']
-    isFullSim = simulationFlavour in ('default', 'MC12G4', 'FullG4')
-
-print "EGammaCommon: isMC = ", isMC
-if isMC: 
-    print "EGammaCommon: isFullSim = ", isFullSim
-
-if isFullSim:
-#from AthenaCommon.GlobalFlags import globalflags
-#print "globalflags.DataSource(): ", globalflags.DataSource()
-#if globalflags.DataSource()=='geant4':
+from AthenaCommon.GlobalFlags import globalflags
+print "globalflags.DataSource(): ", globalflags.DataSource()
+if globalflags.DataSource()=='geant4':
     from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
     DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=16)
     ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
@@ -69,6 +65,9 @@ ToolSvc += ElectronLHSelectorVeryLoose
 # Loose
 ElectronLHSelectorLoose = ConfiguredAsgElectronLikelihoodTool("ElectronLHSelectorLoose", LikeEnum.Loose)
 ElectronLHSelectorLoose.primaryVertexContainer = "PrimaryVertices"
+# addition for beginning of run - use alignment-robust LH menu
+ElectronLHSelectorLoose.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150518/ElectronLikelihoodLooseOfflineConfig2015_CutD0DphiDeta.conf"
+# to be removed when we go back to normal loose menu and good alignment
 ToolSvc += ElectronLHSelectorLoose
 
 # Medium
@@ -246,8 +245,7 @@ from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFr
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
-#if globalflags.DataSource()=='geant4':
-if isFullSim:
+if globalflags.DataSource()=='geant4':
     PhotonPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMLoose",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorLoose,
                                                                        EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
@@ -265,9 +263,8 @@ ToolSvc += PhotonPassIsEMLoose
 print PhotonPassIsEMLoose
  
 # decorate photons with the output of IsEM tight
-# on full-sim MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
-#if globalflags.DataSource()=='geant4':
-if isFullSim:
+# on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
+if globalflags.DataSource()=='geant4':
     PhotonPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMTight",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorTight,
                                                                        EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
@@ -285,7 +282,7 @@ ToolSvc += PhotonPassIsEMTight
 print PhotonPassIsEMTight
 
 # list of all the decorators so far
-EGAugmentationTools = [DFCommonPhotonsDirection,
+EGAugmentationTools = [DFCommonElectronsDirection,DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose,ElectronPassLHLoose,ElectronPassLHMedium,ElectronPassLHTight,
                        ElectronPassIsEMLoose,ElectronPassIsEMMedium,ElectronPassIsEMTight,
                        PhotonPassIsEMLoose,
@@ -314,15 +311,14 @@ if  rec.doTruth():
                                   isoParticlesKey        = "egammaTruthParticles",
                                   allParticlesKey        = "TruthParticles",
                                   particleIDsToCalculate = [-11,11,22],
-                                  IsolationConeSizes     = [0.2,0.3,0.4],
-                                  excludeIDsFromCone     = [-16,-14,-13,-12,12,13,14,16],
+                                  IsolationConeSizes      = [0.2,0.3,0.4],
                                   IsolationVarNamePrefix = 'etcone',
                                   ChargedParticlesOnly   = False)
     ToolSvc += TruthEgetIsolationTool
     print TruthEgetIsolationTool
     EGAugmentationTools.append(TruthEgetIsolationTool)
 
-    # Decorate egammaTruthParticles with truth-particle-level ptcone20,30,40
+    # Decorate egammaTruthParticles with truth-particle-level ptcone20
     TruthEgptIsolationTool = dtit(name = "TruthEgptIsolationTool",
                                   isoParticlesKey        = "egammaTruthParticles",
                                   allParticlesKey        = "TruthParticles",
@@ -361,9 +357,12 @@ if  rec.doTruth():
     topSequence += EventDensityAlg("EDTruthCentralAlg", EventDensityTool = tc )
     topSequence += EventDensityAlg("EDTruthForwardAlg", EventDensityTool = tf )
 
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
+
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGammaCommonKernel",

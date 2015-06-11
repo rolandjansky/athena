@@ -3,11 +3,10 @@
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
-    "Muons.DFCommonMuonsPreselection",
+    "Muons.DFCommonGoodMuon",
+    "Muons.DFCommonMuonsLoose",
+    "Muons.DFCommonMuonsMedium",
+    "Muons.DFCommonMuonsTight",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
@@ -17,12 +16,6 @@ ExtraContentMuons=[
     ]
 
 ExtraMuonsTruth=[
-    "MuonTruthParticles.e",
-    "MuonTruthParticles.px",
-    "MuonTruthParticles.py",
-    "MuonTruthParticles.pz",
-    "MuonTruthParticles.status",
-    "MuonTruthParticles.pdgId",
     "MuonTruthParticles.truthOrigin",
     "MuonTruthParticles.truthType"
     ]
@@ -31,8 +24,6 @@ ExtraContentPhotons=[
 	]
 
 ExtraContentElectrons=[]
-
-ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
 
 ExtraPhotonsTruth=[
     "Photons.truthOrigin",
@@ -54,27 +45,23 @@ ExtraContentGSFConversionVertices=[
 	"GSFConversionVertices.trackParticleLinks"
 	]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#	ExtraContentPhotons.append("Photons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#	ExtraContentElectrons.append("Electrons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentElectrons.append("Electrons."+cell+layer)
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
-GainDecoratorTool = GainDecorator()
-ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
-ExtraContentElectrons.extend( getGainDecorations(GainDecoratorTool) )
+cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
+layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
+					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
+					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
+					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
 
-ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices
+for cell in cells:
+	ExtraContentPhotons.append("Photons."+cell)
+	for layer in layers_gains:
+		ExtraContentPhotons.append("Photons."+cell+layer)
+
+for cell in cells:
+	ExtraContentElectrons.append("Electrons."+cell)
+	for layer in layers_gains:
+		ExtraContentElectrons.append("Electrons."+cell+layer)
+
+ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices
 ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 
 
@@ -87,18 +74,6 @@ ExtraContainersTruth=["TruthEvents",
                       #,"AntiKt4TruthWZJets"
                       ]
 ExtraContainersElectrons=["Electrons","GSFTrackParticles","egammaClusters"]
-
-# for trigger studies
-ExtraContainersTrigger = [
-        "HLT_xAOD__ElectronContainer_egamma_Electrons",
-         #L2Calo collections
-        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
-        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
-        # to access information about EF clusters and tracks
-        "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
-        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
-        # For trigger matching
-        "HLT_xAOD__TrigPassBitsContainer_passbits"]
 
 
 # should probably slim electron/cluster collections and keep only relevant subset of variables..

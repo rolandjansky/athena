@@ -6,35 +6,19 @@
 ExtraContentElectrons=[]
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
-    "Muons.DFCommonMuonsPreselection",
+    "Muons.DFCommonGoodMuon",
+    "Muons.DFCommonMuonsLoose",
+    "Muons.DFCommonMuonsMedium",
+    "Muons.DFCommonMuonsTight",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
     "Muons.etcone20",
     "Muons.etcone30",
     "Muons.etcone40"
-#    "Muons.PromptLepton_TrackJetNTrack",
-#    "Muons.PromptLepton_sv1_ntkv",
-#    "Muons.PromptLepton_jf_ntrkv",
-#    "Muons.PromptLepton_ip2",
-#    "Muons.PromptLepton_ip2_cu",
-#    "Muons.PromptLepton_ip3",
-#    "Muons.PromptLepton_ip3_cu",
-#    "Muons.PromptLepton_EtTopoCone20Rel",
-#    "Muons.PromptLepton_TagWeight"
-]   
+    ]
 
 ExtraMuonsTruth=[
-    "MuonTruthParticles.e",
-    "MuonTruthParticles.px",
-    "MuonTruthParticles.py",
-    "MuonTruthParticles.pz",
-    "MuonTruthParticles.status",
-    "MuonTruthParticles.pdgId",
     "MuonTruthParticles.truthOrigin",
     "MuonTruthParticles.truthType"
     ]
@@ -42,8 +26,6 @@ ExtraMuonsTruth=[
 ExtraContentPhotons=[
 	]
 	
-ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
-
 ExtraPhotonsTruth=[
     "Photons.truthOrigin",
     "Photons.truthType",
@@ -64,20 +46,23 @@ ExtraContentGSFConversionVertices=[
 	"GSFConversionVertices.trackParticleLinks"
 	]
 
-#ExtraContentHLTElectrons=[
-#        "HLT_xAOD__ElectronContainer_egamma_Electrons.e.pt.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1.fracs1.wtots1.weta1.DeltaE.Eratio.caloClusterLinks"
-#]
+cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
+layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
+					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
+					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
+					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
 
-ExtraContentTrackJets=["AntiKt4PV0TrackJets.pt.eta.phi.e.m.rapidity.btaggingLink.constituentLinks"]
-ExtraContentBtagging=["BTagging_AntiKt4Track.SV1_pb.SV1_pc.SV1_pu.IP2D_pb.IP2D_pc.IP2D_pu.IP3D_pb.IP3D_pc.IP3D_pu.JetFitter_pb.JetFitter_pc.JetFitter_pu.JetFitterCombNN_pb.JetFitterCombNN_pc.JetFitterCombNN_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant"]
+for cell in cells:
+	ExtraContentPhotons.append("Photons."+cell)
+	for layer in layers_gains:
+		ExtraContentPhotons.append("Photons."+cell+layer)
 
+for cell in cells:
+	ExtraContentElectrons.append("Electrons."+cell)
+	for layer in layers_gains:
+		ExtraContentElectrons.append("Electrons."+cell+layer)
 
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
-GainDecoratorTool = GainDecorator()
-ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
-ExtraContentElectrons.extend( getGainDecorations(GainDecoratorTool) )
-
-ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices+ExtraContentTrackJets+ExtraContentBtagging
+ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices
 ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 
 ExtraContainersTruth=["TruthEvents", 
@@ -90,35 +75,10 @@ ExtraContainersTruth=["TruthEvents",
 		      ]
 
 ExtraContainersElectrons=["Electrons",
+                          "ForwardElectrons",
                           "GSFTrackParticles",
-                          "egammaClusters"]
+                          "egammaClusters",
+                          "ForwardElectronClusters"
+                          ]
 
-# for trigger studies
-ExtraContainersTrigger=[
-        # to access the HLT egamma xAOD collections
-        "HLT_xAOD__ElectronContainer_egamma_Electrons",
-        "HLT_xAOD__PhotonContainer_egamma_Photons",    
-         #L2Calo collections
-        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
-        "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",  
-        # to access information about EF clusters and tracks
-        "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
-        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig",
-        # For trigger matching
-        "HLT_xAOD__TrigPassBitsContainer_passbits",
-        # for L1 studies
-        "LVL1EmTauRoIs",
-        "HLT_TrigRoiDescriptorCollection_initialRoI", #Athena
-        "HLT_xAOD__RoiDescriptorStore_initialRoI" #AthAnalysis
-        ]
-
-ExtraContainersTriggerDataOnly=[ 
-        "HLT_xAOD__TrigElectronContainer_L2ElectronFex"
-        ]
-
-ExtraVariablesEventShape=[
-    "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
-    "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea"
-]
-
-#should slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..
+#should probably slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..

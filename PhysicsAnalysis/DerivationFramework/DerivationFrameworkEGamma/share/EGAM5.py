@@ -19,107 +19,17 @@ RecomputeElectronSelectors = True
 # SKIMMING TOOLS
 #====================================================================
 
-#====================================================================
-# WTP triggers
-#====================================================================
-
-# L1Topo W T&P 
-triggers =  ['HLT_e13_etcut_trkcut' ]
-triggers +=  ['HLT_e18_etcut_trkcut' ]
-## # Non-L1Topo W TP commissioning triggers ==> in MC, in 50 ns data
-triggers +=  ['HLT_e13_etcut_trkcut_xs15' ]
-triggers +=  ['HLT_e18_etcut_trkcut_xs20' ]
-## W T&P triggers ==> not in MC, in 50 ns data
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_mt25' ]
-triggers +=  ['HLT_e18_etcut_trkcut_xs20_mt35' ]
-###W T&P triggers ==> not in MC, not in 50 ns data, will be in 25 ns data
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05' ]
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25' ]
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25' ]
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_2dphi05' ]
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05' ]
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25' ]
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25' ]
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05' ]
-triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15' ]
-triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35' ]
-triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35' ]
-triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15' ]
-
-# others
-triggers +=  ['HLT_e5_etcut_L1W-05DPHI-JXE-0']
-triggers +=  ['HLT_e5_etcut_L1W-10DPHI-JXE-0']
-triggers +=  ['HLT_e5_etcut_L1W-15DPHI-JXE-0']
-triggers +=  ['HLT_e5_etcut_L1W-10DPHI-EMXE-0']
-triggers +=  ['HLT_e5_etcut_L1W-15DPHI-EMXE-0']
-triggers +=  ['HLT_e5_etcut_L1W-05DPHI-EMXE-1']
-triggers +=  ['HLT_e5_etcut_L1W-05RO-XEHT-0']
-triggers +=  ['HLT_e5_etcut_L1W-90RO2-XEHT-0']
-triggers +=  ['HLT_e5_etcut_L1W-250RO2-XEHT-0']
-triggers +=  ['HLT_e5_etcut_L1W-HT20-JJ15.ETA49']
-
-triggers +=  ['HLT_e13_etcut_L1W-NOMATCH']
-triggers +=  ['HLT_e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT']
-triggers +=  ['HLT_e13_etcut_L1EM10_W-MT25']
-triggers +=  ['HLT_e13_etcut_L1EM10_W-MT30']
-triggers +=  ['HLT_e13_etcut_trkcut_L1EM12']
-triggers +=  ['HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE']
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25']
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
-triggers +=  ['HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi15_mt25_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_xe30_mt35']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20']
-triggers +=  ['HLT_e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0']
-
-triggers +=  ['HLT_e18_etcut_L1EM15_W-MT35']
-triggers +=  ['HLT_e18_etcut_trkcut_L1EM15']
-triggers +=  ['HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE']
-triggers +=  ['HLT_e18_etcut_trkcut_xs20_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE'] 
-triggers +=  ['HLT_e18_etcut_trkcut_xs30_xe30_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE']
-triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35']
-triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30'] 
-triggers +=  ['HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE']
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-EGAM5_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                   = "EGAM5_TriggerSkimmingTool",
-                                                                        TriggerListOR          = triggers)
-ToolSvc += EGAM5_TriggerSkimmingTool
-print "EGAM5 trigger skimming tool:", EGAM5_TriggerSkimmingTool
 
 #====================================================================
 # W->enu selection for electron calibration
 #====================================================================
 
 # could add track isolation (if included in single electron trigger..)
+#requirement_el = 'DFCommonElectronsLHTight && DFCommonElectrons_pt > 24.5*GeV'
 if RecomputeElectronSelectors :
-    requirement_el = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
+    requirement_el = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && DFCommonElectrons_pt > 24.5*GeV'
 else :
-    requirement_el = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
+    requirement_el = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && DFCommonElectrons_pt > 24.5*GeV'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGTransverseMassTool
 EGAM5_MTTool = DerivationFramework__EGTransverseMassTool( name = "EGAM5_MTTool",
@@ -129,6 +39,8 @@ EGAM5_MTTool = DerivationFramework__EGTransverseMassTool( name = "EGAM5_MTTool",
                                                           ObjectMassHypothesis = 0.511*MeV,
                                                           ObjectContainerName = "Electrons",
                                                           METContainerName = "MET_LocHadTopo",
+                                                          ObjectPtBranchName = "DFCommonElectrons_pt",
+                                                          ObjectPhiBranchName = "DFCommonElectrons_eta"
                                                           )
 ToolSvc += EGAM5_MTTool
 print EGAM5_MTTool
@@ -136,37 +48,31 @@ print EGAM5_MTTool
 # Skimming criteria
 expression = 'count(WENU_TransverseMass>40*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM5_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM5_OfflineSkimmingTool",
-                                                                         expression = expression)
-ToolSvc += EGAM5_OfflineSkimmingTool
-print "EGAM5 offline skimming tool:", EGAM5_OfflineSkimmingTool
-
-#====================================================
-# Third selection: mix of offline and online criteria
-#====================================================
-expression = '(HLT_e60_lhloose_xe60noL1 || HLT_e120_lhloose || HLT_j80_xe80 || HLT_xe70 || HLT_xe80_tc_lcw_L1XE50  || HLT_xe90_mht_L1XE50 ||  HLT_xe90_tc_lcw_wEFMu_L1XE50 || HLT_xe90_mht_wEFMu_L1XE50) && count(Electrons.pt>14.5*GeV)>=1'
-EGAM5_ThirdSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM5_ThirdSkimmingTool",
-                                                                       expression = expression)
-ToolSvc += EGAM5_ThirdSkimmingTool
-print "EGAM5 offline skimming tool:", EGAM5_ThirdSkimmingTool
-
+EGAM5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM5SkimmingTool",
+                                                                 expression = expression)
+ToolSvc += EGAM5SkimmingTool
+print "EGAM5 skimming tool:", EGAM5SkimmingTool
 
 #====================================================================
-# Gain and cluster energies per layer decoration tool
+# Cell sum decoration tool
 #====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
-EGAM5_GainDecoratorTool = GainDecorator()
-ToolSvc += EGAM5_GainDecoratorTool
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
-EGAM5_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
-
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CellDecorator
+EGAM5_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM5_CellDecoratorTool",
+                                                              SGKey_electrons         = "Electrons",
+                                                              SGKey_photons           = "Photons",
+                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
+                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
+                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
+                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
+                                                              )
+ToolSvc += EGAM5_CellDecoratorTool
 
 #====================================================================                                                                                                    
 # Max Cell sum decoration tool                                                                                                                                                  
 #====================================================================                                                                                                           
 
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__MaxCellDecorator
 EGAM5_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM5_MaxCellDecoratorTool",
                                                                     SGKey_electrons         = "Electrons",
                                                                     SGKey_photons           = "Photons",
@@ -177,13 +83,10 @@ ToolSvc += EGAM5_MaxCellDecoratorTool
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-EGAM5SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM5SkimmingTool", FilterList=[EGAM5_TriggerSkimmingTool,EGAM5_OfflineSkimmingTool,EGAM5_ThirdSkimmingTool] )
-ToolSvc+=EGAM5SkimmingTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
-                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
+                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_CellDecoratorTool,EGAM5_MaxCellDecoratorTool],
                                                                        SkimmingTools = [EGAM5SkimmingTool]
                                                                        )
 
@@ -208,7 +111,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM5SlimmingHelper = SlimmingHelper("EGAM5SlimmingHelper")
 
 from DerivationFrameworkEGamma.EGAM5ExtraContent import *
-EGAM5SlimmingHelper.SmartCollections = ["Electrons",
+EGAM5SlimmingHelper.SmartCollections = [#"Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
@@ -218,27 +121,23 @@ EGAM5SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
-# Add egamma trigger objects
-EGAM5SlimmingHelper.IncludeEGammaTriggerContent = True
 
-# Extra variables
 EGAM5SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM5SlimmingHelper.AllVariables = ExtraContainersElectrons
-EGAM5SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM5SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM5SlimmingHelper.AllVariables += ExtraContainersTruth
 
-for tool in EGAM5_ClusterEnergyPerLayerDecorators:
-    EGAM5SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
-
-# This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)
+
+# Add EventShape
+EGAM5Stream.AddItem("xAOD::EventShape#*")
+EGAM5Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 # Add MET_RefFinalFix
 # JRC: COMMENTED TEMPORARILY
 #addMETOutputs(EGAM5Stream)
 
+# Add egamma trigger objects
+EGAM5Stream.IncludeEGammaTriggerContent = True
