@@ -108,6 +108,15 @@ def MergeTrackRecordCollTool(name="MergeTrackRecordCollTool", **kwargs):
     return CfgMgr.MergeTrackRecordCollTool(name, **kwargs)
 
 
+def MergeCaloEntryLayerTool(name="MergeCaloEntryLayerTool", **kwargs):
+    kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer" )
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", TrackRecord_FirstXing() )
+        kwargs.setdefault("LastXing",  TrackRecord_LastXing() )
+
+    return CfgMgr.MergeTrackRecordCollTool(name, **kwargs)
+
+
 ############################################################################
 def MergeHijingParsTool(name="MergeHijingParsTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
