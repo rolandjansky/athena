@@ -11,10 +11,10 @@ globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
-globalflags.DatabaseInstance.set_Value_and_Lock('COMP200')
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()  #Switched off to avoid geometry
