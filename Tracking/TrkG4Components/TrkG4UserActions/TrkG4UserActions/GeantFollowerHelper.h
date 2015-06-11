@@ -10,10 +10,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/ServiceHandle.h"
-#include "TrkParameters/TrackParameters.h" //typedef, can't fwd declare
+#include "GaudiKernel/ServiceHandle.h"
+#include "TrkParameters/TrackParameters.h"
 #include "TrkG4UserActions/IGeantFollowerHelper.h"
-#include "G4ThreeVector.hh" //typedef, can't fwd declare
+#include "G4ThreeVector.hh"
 
 #ifndef MAXPROBES
 #define MAXPROBES 50000

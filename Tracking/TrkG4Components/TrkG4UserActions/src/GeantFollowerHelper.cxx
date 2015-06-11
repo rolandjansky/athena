@@ -8,6 +8,7 @@
 
 // StoreGate
 #include "TrkG4UserActions/GeantFollowerHelper.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // CLHEP
@@ -15,10 +16,10 @@
 #include "CLHEP/Geometry/Transform3D.h"
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-//other
 
 // constructor
 Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::string& n, const IInterface* p) :
@@ -26,14 +27,12 @@ Trk::GeantFollowerHelper::GeantFollowerHelper(const std::string& t, const std::s
   m_extrapolator(""),
   m_extrapolateDirectly(true),
   m_extrapolateIncrementally(true),
-  m_parameterCache(nullptr),
+  m_parameterCache(0),
   m_tX0Cache(0.),
   m_validationTreeName("G4Follower_"+n),
   m_validationTreeDescription("Output of the G4Follower_"),
   m_validationTreeFolder("/val/G4Follower_"+n),
-  m_validationTree(nullptr),
-  m_t_x{}, m_t_y{}, m_t_z{}, m_t_theta{},m_t_eta{},m_t_phi{}, m_t_p{}, m_t_charge{}, m_t_pdg{},
-  m_g4_steps{}
+  m_validationTree(0)
 {
    declareInterface<IGeantFollowerHelper>(this);
    // properties

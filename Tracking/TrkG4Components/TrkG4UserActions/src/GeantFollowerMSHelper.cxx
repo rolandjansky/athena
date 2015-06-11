@@ -25,101 +25,23 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 
-
 // constructor
-Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p)
- : AthAlgTool(t,n,p)
- , m_extrapolator("")
- , m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
- , m_extrapolateDirectly(false)
- , m_extrapolateIncrementally(false)
- , m_speedup(false)
- , m_parameterCache(nullptr)
- , m_parameterCacheCov(nullptr)
- , m_parameterCacheMS(nullptr)
- , m_parameterCacheMSCov(nullptr)
- , m_tX0Cache(0.)
- , m_crossedMuonEntry(false)
- , m_exitLayer(false)
- , m_destinationSurface(nullptr)
- , m_validationTreeName("G4Follower")
- , m_validationTreeDescription("Output of the G4Follower_")
- , m_validationTreeFolder("/val/G4Follower")
- , m_validationTree(nullptr)
- , m_t_x(0.)
- , m_t_y(0.)
- , m_t_z(0.)
- , m_t_theta(0.)
- , m_t_eta(0.)
- , m_t_phi(0.)
- , m_t_p(0.)
- , m_t_charge(0.)
- , m_t_pdg(0)
- , m_m_x(0.)
- , m_m_y(0.)
- , m_m_z(0.)
- , m_m_theta(0.)
- , m_m_eta(0.)
- , m_m_phi(0.)
- , m_m_p(0.)
- , m_b_x(0.)
- , m_b_y(0.)
- , m_b_z(0.)
- , m_b_theta(0.)
- , m_b_eta(0.)
- , m_b_phi(0.)
- , m_b_p(0.)
- , m_b_X0(0.)
- , m_b_Eloss(0.)
- , m_g4_steps(-1)
- , m_g4_p{0}
- , m_g4_eta{0}
- , m_g4_theta{0}
- , m_g4_phi{0}
- , m_g4_x{0}
- , m_g4_y{0}
- , m_g4_z{0}
- , m_g4_tX0{0}
- , m_g4_t{0}
- , m_g4_X0{0}
- , m_trk_status{0}
- , m_trk_p{0}
- , m_trk_eta{0}
- , m_trk_theta{0}
- , m_trk_phi{0}
- , m_trk_x{0}
- , m_trk_y{0}
- , m_trk_z{0}
- , m_trk_lx{0}
- , m_trk_ly{0}
- , m_trk_eloss{0}
- , m_trk_eloss1{0}
- , m_trk_eloss0{0}
- , m_trk_eloss5{0}
- , m_trk_eloss10{0}
- , m_trk_scaleeloss{0}
- , m_trk_scalex0{0}
- , m_trk_x0{0}
- , m_trk_erd0{0}
- , m_trk_erz0{0}
- , m_trk_erphi{0}
- , m_trk_ertheta{0}
- , m_trk_erqoverp{0}
- , m_trk_scats(0)
- , m_trk_sstatus{0}
- , m_trk_sx{0}
- , m_trk_sy{0}
- , m_trk_sz{0}
- , m_trk_sx0{0}
- , m_trk_seloss{0}
- , m_trk_smeanIoni{0}
- , m_trk_ssigIoni{0}
- , m_trk_smeanRad{0}
- , m_trk_ssigRad{0}
- , m_trk_ssigTheta{0}
- , m_trk_ssigPhi{0}
- , m_g4_stepsMS(-1)
-
+Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p) :
+  AthAlgTool(t,n,p),
+  m_extrapolator(""),
+  m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
+  m_extrapolateDirectly(false),
+  m_extrapolateIncrementally(false),
+  m_speedup(false),
+  m_parameterCache(0),
+  m_parameterCacheCov(0),
+  m_parameterCacheMS(0),
+  m_parameterCacheMSCov(0),
+  m_tX0Cache(0.),
+  m_validationTreeName("G4Follower"),
+  m_validationTreeDescription("Output of the G4Follower_"),
+  m_validationTreeFolder("/val/G4Follower"),
+  m_validationTree(0)
 {
    declareInterface<IGeantFollowerMSHelper>(this);
    // properties
@@ -237,7 +159,6 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
 
    // initialize
    //
-   m_t_x        = 0.;    
    m_t_y        = 0.; 
    m_t_z        = 0.; 
    m_t_theta    = 0.; 
@@ -396,7 +317,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
         m_parameterCacheMS = new Trk::CurvilinearParameters(npos, nmom, charge);
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
+        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
         covMatrix->setZero();
         m_parameterCacheMSCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
         ATH_MSG_DEBUG( "m_crossedMuonEntry x " << m_parameterCacheMS->position().x() << " y " << m_parameterCacheMS->position().y() << " z " << m_parameterCacheMS->position().z() );
@@ -404,7 +325,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_t_charge);
 // Muon Entry
         m_destinationSurface = &(g4Parameters->associatedSurface());
-        delete g4Parameters;
     }
 
     
@@ -462,16 +382,13 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 
         ATH_MSG_DEBUG( " Extrapolation OK ");
     }
-    
-    //sroe: coverity 31530
-    m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
 
     if(!trkParameters) {
       delete eloss;
       delete extrapolationCache;
-      delete g4Parameters;
       return;
     } 
+    m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
 // 
 // Max radius 13400 maxZ 26050
 //
@@ -601,7 +518,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     bool muonSystem = false;
     bool calorimeter = false;
 
-    if(!matvec->empty()) { 
+    if(matvec->size()>0) { 
       if(m_crossedMuonEntry&&!m_exitLayer) calorimeter = true;
       if(m_crossedMuonEntry&&m_exitLayer)  muonSystem = true;
     }
@@ -653,8 +570,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     double x0 = 0.;
 
     int mmat = 0;
-    //sroe: coverity 31541; matvec cannot be null here
-    if (!(matvec->empty())){    
+    if (matvec && !matvec->empty()&& matvec->size()>0){    
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = matvec->begin();
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator it_end = matvec->end();
         for ( ; it != it_end; ++it ) {
@@ -684,9 +600,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //                    if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() );
                   } 
              } 
-             //sroe: coverity 31532
-             const Trk::ScatteringAngles* scatAng = (matEfs)?( (matEfs)->scatteringAngles() ): (nullptr);
-             
+             const Trk::ScatteringAngles* scatAng = (matEfs)->scatteringAngles();
              if(scatAng) {
                 sigmaTheta = scatAng->sigmaDeltaTheta();
                 sigmaPhi = scatAng->sigmaDeltaPhi();

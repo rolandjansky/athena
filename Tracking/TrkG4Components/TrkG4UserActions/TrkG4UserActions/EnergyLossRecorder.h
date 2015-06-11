@@ -9,7 +9,7 @@
 #ifndef EnergyLossRecorder_H
 #define EnergyLossRecorder_H
 
-#include "G4AtlasTools/UserActionBase.h"
+#include "FadsActions/UserAction.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
@@ -28,27 +28,30 @@
 */
 
 namespace Trk {
-  class IPositionMomentumWriter;
+  class IPositionMomentumWriter;  
 }
 
-class EnergyLossRecorder final: public UserActionBase {
+class EnergyLossRecorder: public FADS::UserAction {
 
- public:
-  /** Standard UserAction */
-  EnergyLossRecorder(const std::string& type, const std::string& name, const IInterface* parent);
+  public:
+    /** Standard FADS UserAction */
+    EnergyLossRecorder(std::string s);
 
-  /** All G4 interface methods */
-  virtual void BeginOfEvent(const G4Event*) override; //FIXME no-longer needed?
-  virtual void EndOfEvent(const G4Event*) override;
-  virtual void BeginOfRun(const G4Run*) override; //FIXME no-longer needed?
-  virtual void EndOfRun(const G4Run*) override; //FIXME no-longer needed?
-  virtual void Step(const G4Step*) override;
+    /** All G4 interface methods */
+    void BeginOfEventAction(const G4Event*);
+    void EndOfEventAction(const G4Event*);
+    void BeginOfRunAction(const G4Run*);
+    void EndOfRunAction(const G4Run*);
+    void SteppingAction(const G4Step*);
 
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-  virtual StatusCode initialize() override;
- private:
-  ToolHandle<Trk::IPositionMomentumWriter> m_pmWriter;
-  unsigned int                             m_entries;
+  private:
+     ToolHandle<Trk::IPositionMomentumWriter> m_pmWriter;
+     unsigned int                             m_entries;
+     bool                                     m_retrieved;
+
+    
+       
 };
 
 #endif
+
