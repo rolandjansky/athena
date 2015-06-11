@@ -12,6 +12,11 @@ use TrigHLTMonitoring       TrigHLTMonitoring-*	    Trigger/TrigMonitoring
 use xAODTrigger             xAODTrigger-*           Event/xAOD
 use xAODTrigMissingET       xAODTrigMissingET-*     Event/xAOD
 use xAODMissingET           xAODMissingET-*         Event/xAOD
+use xAODMuon                xAODMuon-*              Event/xAOD
+use xAODTrigMuon            xAODTrigMuon-*          Event/xAOD
+use xAODEgamma              xAODEgamma-*            Event/xAOD
+use xAODTrigEgamma          xAODTrigEgamma-*        Event/xAOD
+use xAODPrimitives          xAODPrimitives-*        Event/xAOD
 
 private
 apply_tag ROOTGraphicsLibs
