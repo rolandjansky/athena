@@ -21,7 +21,7 @@ class ITrigHitFilter: virtual public IAlgTool
   static const InterfaceID& interfaceID() {
     return IID_ITrigHitFilter;
   }
-  virtual void findTracks( std::vector<TrigSiSpacePoint* >, 
+  virtual void findTracks( std::vector<const TrigSiSpacePoint* >, 
 			   TrigInDetTrackCollection&,
 		  	   const IRoiDescriptor*, 
 			   double = 0.0, 

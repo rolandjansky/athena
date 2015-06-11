@@ -9,7 +9,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 
-class TrigSiSpacePoint;
+class TrigSiSpacePointBase;
 class IRoiDescriptor;
 
 static const InterfaceID IID_ITrigZFinder("ITrigZFinder", 1 , 0); 
@@ -21,7 +21,7 @@ class ITrigZFinder: virtual public IAlgTool
   static const InterfaceID& interfaceID() {
     return IID_ITrigZFinder;
   }
-    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePoint *>& spVec, const IRoiDescriptor& RoI) = 0;
+    virtual TrigVertexCollection* findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& RoI) = 0;
 };
 
 #endif

@@ -9,6 +9,9 @@
 #include <vector>
 
 class TrigInDetTrack;
+namespace Trk {
+  class Track;
+}
 class TrigL2HitResidual;
 
 static const InterfaceID IID_ITrigL2ResidualCalculator("ITrigL2ResidualCalculator",1,0);
@@ -32,6 +35,7 @@ static const InterfaceID IID_ITrigL2ResidualCalculator("ITrigL2ResidualCalculato
 
     virtual StatusCode getResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&) = 0;
     virtual StatusCode getUnbiassedResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&) = 0;
+    virtual StatusCode getUnbiassedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&) = 0;
   };
 
 #endif
