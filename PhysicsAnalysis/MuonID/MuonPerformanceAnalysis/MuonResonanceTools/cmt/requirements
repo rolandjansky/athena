@@ -2,7 +2,6 @@ package MuonResonanceTools
 
 author Andrea Di Simone 
 author Fabio Cardillo
-author Claudia Ciocca
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
@@ -12,7 +11,6 @@ use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
-#use  GoodRunsLists              GoodRunsLists-*                 DataQuality
 use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/MuonID
 use  MuonPerformanceHistUtils   MuonPerformanceHistUtils-*      PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
 use  MuonEfficiencyCorrections  MuonEfficiencyCorrections-*     PhysicsAnalysis/MuonID/MuonIDAnalysis 
@@ -23,11 +21,9 @@ use  TrigMuonMatching           TrigMuonMatching-*              Trigger/TrigAnal
 private
 #use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  GaudiInterface             GaudiInterface-*                External
-use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 end_private
 
 public
-#library MuonResonanceTools *.cxx ../Root/*.cxx -s=components *.cxx
-#apply_pattern component_library
-apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+library MuonResonanceTools *.cxx ../Root/*.cxx -s=components *.cxx
+apply_pattern component_library
 apply_pattern declare_joboptions files="../share/*.py"
