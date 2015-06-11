@@ -106,6 +106,7 @@ conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoise-RUN2-UPD1-00"
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
+theCaloNoiseTool.RescaleForHV=False #Turn automatic rescaling off
 ToolSvc += theCaloNoiseTool
 
 from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault

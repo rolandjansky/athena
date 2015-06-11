@@ -7,13 +7,16 @@
 # configuration for data, read noise from database through CaloNoiseToolDB
 
 if 'RunNumber' not in dir():
-   RunNumber = 99999
+   RunNumber = 258914
 if 'LumiBlock' not in dir():
    LumiBlock = 1
+
 if 'GlobalTag' not in dir():
-   GlobalTag =  'COMCOND-ES1PT-004-00'
+   GlobalTag =  'CONDBR2-ES1PA-2015-04'
 if 'Geometry' not in dir():
-   Geometry = 'ATLAS-GEO-10-00-00'
+   Geometry = 'ATLAS-R2-2015-03-01-00'
+if 'outputNtuple' not in dir():
+   outputNtuple="cellnoise_data.root"
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
@@ -33,6 +36,9 @@ DetFlags.digitize.all_setOff()
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.DataSource.set_Value_and_Lock('data')
+
+from CaloTools.CaloNoiseFlags import jobproperties
+jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(-1.)
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
@@ -63,10 +69,14 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
+if "folderTag" in dir():
+   conddb.addOverride("/LAR/NoiseOfl/CellNoise",folderTag)
+
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
+theCaloNoiseTool.RescaleForHV=False
 ToolSvc += theCaloNoiseTool
 
 #--------------------------------------------------------------
@@ -98,7 +108,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='"+outputNtuple+"' OPT='RECREATE'"];
 
 
 #--------------------------------------------------------------

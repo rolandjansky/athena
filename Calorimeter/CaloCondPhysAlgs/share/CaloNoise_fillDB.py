@@ -57,7 +57,8 @@ comment  = "Updated noise values"
 #==================================================
 #=== set shortcut
 g = PyCintex.gbl
-PyCintex.makeClass('std::vector<float>')
+#PyCintex.makeClass('std::vector<float>')
+PyCintex.loadDict("STLAddRflx")
 
 #=== get a logger
 log = CaloCondLogger.getLogger("CaloNoiseWriter")
@@ -90,16 +91,19 @@ try:
     #=== Create the CaloCondBlobFlt objects
     #==================================================   
     #=== default a and b to be used for each gain 
-    gainDefVec = g.std.vector('float')()
+    #gainDefVec = g.std.vector('float')()
+    gainDefVec = PyCintex.gbl.std.vector('float')()
     gainDefVec.push_back(0.) # a 
     gainDefVec.push_back(0.) # b 
     #=== three gains per channel for LAr
-    defVecLAr = g.std.vector('std::vector<float>')()
+    #defVecLAr = g.std.vector('std::vector<float>')()
+    defVecLAr = PyCintex.gbl.std.vector('std::vector<float>')()
     defVecLAr.push_back(gainDefVec)
     defVecLAr.push_back(gainDefVec)
     defVecLAr.push_back(gainDefVec)
     #=== four "gains" per channel for Tile
-    defVecTile = g.std.vector('std::vector<float>')()
+    #defVecTile = g.std.vector('std::vector<float>')()
+    defVecTile = PyCintex.gbl.std.vector('std::vector<float>')()
     defVecTile.push_back(gainDefVec)
     defVecTile.push_back(gainDefVec)
     defVecTile.push_back(gainDefVec)

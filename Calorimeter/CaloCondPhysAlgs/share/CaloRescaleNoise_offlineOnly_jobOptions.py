@@ -94,6 +94,7 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
+theCaloNoiseTool.RescaleForHV=False #Turn automatic rescaling off
 ToolSvc += theCaloNoiseTool
 
 from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
