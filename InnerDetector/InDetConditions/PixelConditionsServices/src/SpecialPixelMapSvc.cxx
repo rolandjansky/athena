@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "SpecialPixelMapSvc.h"
 
 // Athena
@@ -59,6 +60,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_useDualFolderStructure(false),
   m_maskLayers(false),
   m_writeBlobs(false),
+  m_forceNewDBContent(false),
   m_connectionString("oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"),
   m_connectivityTag("PIT-ALL-V39"),
   m_aliasTag("PIT-ALL-V39"),
@@ -90,6 +92,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
 		  "Use dual folder structure when creating a CondAttrListCollection");
   declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" );
   declareProperty("WriteBlobs", m_writeBlobs, "Switch between blob and clob writing");
+  declareProperty("ForceNewDBContent",m_forceNewDBContent);
   declareProperty("ConnectionString", m_connectionString, "Connection string for connectivity DB (used when reading text files)"); 
   declareProperty("ConnectivityTag", m_connectivityTag, "Connectivity tag"); 
   declareProperty("AliasTag", m_aliasTag, "Alias tag"); 
@@ -467,14 +470,16 @@ StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 	  return StatusCode::FAILURE;
 	}
       }
+
+      if (overlay){
 	
       DetectorSpecialPixelMap* maskOverlay = 0;	
-      
+
       if(m_detStore->contains<DetectorSpecialPixelMap>("MaskingOverlay")){
-	sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+	sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");// using "internal" key
 	if( sc.isSuccess() ){
 	  ATH_MSG_DEBUG( "Old DetectorSpecialPixelMap at MaskingOverlay retrieved" );
-	  sc = m_detStore->remove(maskOverlay);
+	  sc = m_detStore->remove(maskOverlay);//remove old overlay to be replaced with new one in det store
 	  if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to remove old Masking Overlay!" );return StatusCode::FAILURE;}
 	}
 	else{
@@ -483,17 +488,24 @@ StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 	}
       }
 
-      sc = createMaskingOverlay();
+       sc = createMaskingOverlay("MaskingOverlay");
 
       if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to create new Masking Overlay!" );return StatusCode::FAILURE;}
       
-      sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");
+      sc = m_detStore->retrieve(maskOverlay, "MaskingOverlay");//get newly created masking overlay back from detector store
 
       if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to retrieve new Masking Overlay!" );return StatusCode::FAILURE;}
       
-	  
-      overlay->merge(maskOverlay);	  
-      
+       overlay->merge(maskOverlay);//an old overlay exists, merge the new one with it	  
+
+	}
+
+      else{
+	sc = createMaskingOverlay(m_overlayKey);//no old overlay exists, just add the new one with the expected key
+
+	if(!sc.isSuccess()) {ATH_MSG_FATAL( "Unable to create new Masking Overlay!" );return StatusCode::FAILURE;}
+
+      }
 
     }
       
@@ -876,7 +888,8 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 	
 	const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
 	unsigned int idhash; 
-	if(isIBL){ 
+	if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
+	else if(isIBL){ 
 	  if(range.start().run()<222222){
 	    //	    continue;
 	    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
@@ -1200,13 +1213,13 @@ StatusCode SpecialPixelMapSvc::createDeadModuleList() const{
   return StatusCode::SUCCESS;
 }
 
-StatusCode SpecialPixelMapSvc::createMaskingOverlay() const{
+StatusCode SpecialPixelMapSvc::createMaskingOverlay(const std::string internalKey) const{
 
   DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap;
 
   spm->resize(m_pixelID->wafer_hash_max());
 
-  StatusCode sc = m_detStore->record(spm, "MaskingOverlay");
+  StatusCode sc = m_detStore->record(spm, internalKey);
   if (sc.isFailure()) {
     ATH_MSG_FATAL( "Unable to record SpecialPixelMap" );
     return StatusCode::FAILURE;
