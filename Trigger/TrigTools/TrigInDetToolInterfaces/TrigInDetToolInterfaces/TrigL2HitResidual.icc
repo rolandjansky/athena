@@ -5,14 +5,14 @@
 #include "GaudiKernel/MsgStream.h"
 #include "Identifier/Identifier.h"
 
-TrigL2HitResidual::TrigL2HitResidual(Identifier id, int reg, 
+TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
 				     double phiR, double phiP) : 
   m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP) {
 
   m_etaRes=0.0;m_etaPull=0.0;	
 }
 
-TrigL2HitResidual::TrigL2HitResidual(Identifier id, int reg, 
+TrigL2HitResidual::TrigL2HitResidual(Identifier id, Region reg, 
 				     double phiR, double phiP, 
 				     double etaR, double etaP) : 
   m_id(id), m_region(reg), m_phiRes(phiR), m_phiPull(phiP), m_etaRes(etaR), m_etaPull(etaP) {
@@ -39,14 +39,14 @@ Identifier TrigL2HitResidual::identify() const {
   return m_id;
 }
 
-int TrigL2HitResidual::regionId() const {
+Region TrigL2HitResidual::regionId() const {
   return m_region;
 }
 
 std::string str( const TrigL2HitResidual& v ) { 
 
   std::stringstream ss; 
-  ss << "Residual: region "<<v.regionId() 
+  ss << "Residual: region "<< static_cast<std::uint8_t>(v.regionId())
       <<" phi: "<<v.phiResidual() 
       <<" / "<<v.phiPull() 
       <<" eta: "<<v.etaResidual() 

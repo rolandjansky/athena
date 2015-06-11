@@ -11,20 +11,30 @@
 class Identifier;
 class MsgStream;
 
+enum class Region : std::uint8_t  {
+  PixBarrel,
+  PixEndcap,
+  SctBarrel,
+  SctEndcap,
+  IBL,
+  Undefined,
+}; 
+
+
 class TrigL2HitResidual {
  public:
-  TrigL2HitResidual(Identifier,int,double,double);
-  TrigL2HitResidual(Identifier,int,double,double,double,double);
+  TrigL2HitResidual(Identifier,Region,double,double);
+  TrigL2HitResidual(Identifier,Region,double,double,double,double);
   ~TrigL2HitResidual(){};
   double phiResidual() const ;
   double etaResidual() const ;
   double phiPull() const ;
   double etaPull() const ;
   Identifier identify() const ;
-  int regionId() const ;
+  Region regionId() const ;
  private:
   Identifier m_id;
-  long m_region;
+  Region m_region;
   double m_phiRes,m_phiPull,m_etaRes,m_etaPull;
 };
 
