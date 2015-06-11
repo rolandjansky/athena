@@ -44,7 +44,6 @@ def getGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
     kwargs.setdefault('SimulationTool'        , 'ISFG4TransportTool'         )
     kwargs.setdefault('Identifier'            , "Geant4"                     )
     kwargs.setdefault('PrintTimingInfo'       , ISF_Flags.DoTimeMonitoring() )
-    kwargs.setdefault('UseNewConfiguration'   , ISF_Flags.UseNewG4Config()   )
     return getIGeant4(**kwargs).getSimSvc()
 
 def getFullGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
