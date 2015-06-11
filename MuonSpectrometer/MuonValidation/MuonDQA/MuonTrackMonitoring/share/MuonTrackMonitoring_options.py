@@ -32,6 +32,7 @@ if MuonDQAFlags.doMuonTrackMon:
                                                  MuonTrackCollections = ["ExtrapolatedMuonSpectrometerTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                  NPhiBins = 360,
                                                  UseTriggerVector = False,
+                                                 EnableLumi = DQMonFlags.enableLumiAccess(),
                                                  MuonTriggerChainName = "NoMuonTriggerSelection" )
    #############MuonGenericTracksMon#############
    MuonGenericTracksMon = MuonGenericTracksMon(name = "MuonGenericTracksMon",
@@ -39,10 +40,12 @@ if MuonDQAFlags.doMuonTrackMon:
                                                MuonTrackCollections = ["ExtrapolatedMuonSpectrometerTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                NPhiBins = 360,
                                                UseTriggerVector = False,
+                                               EnableLumi = DQMonFlags.enableLumiAccess(),
                                                MuonTriggerChainName = "NoMuonTriggerSelection" )
    #############TGCStandaloneTracksMon_Trig############
    TGCStandaloneTracksMon_NoTrig = TGCStandaloneTracksMon(name = "TGCStandaloneTracksMon",
                                                           TriggerAware = False,
+                                                          EnableLumi = DQMonFlags.enableLumiAccess(),
                                                           MuonTriggerChainName = "TriggersInChain")
    ToolSvc += MuonSelectedTracksMon
    ToolSvc += MuonGenericTracksMon
@@ -51,9 +54,9 @@ if MuonDQAFlags.doMuonTrackMon:
    monMan.AthenaMonTools += [ MuonGenericTracksMon ]
    monMan.AthenaMonTools += [ TGCStandaloneTracksMon ]
    ###enable lumi tool
-   MuonSelectedTracksMon.EnableLumi = True
-   MuonGenericTracksMon.EnableLumi = True
-   TGCStandaloneTracksMon.EnableLumi = True
+   #MuonSelectedTracksMon.EnableLumi = True
+   #MuonGenericTracksMon.EnableLumi = True
+   #TGCStandaloneTracksMon.EnableLumi = True
  
 #############TriggerAware Trk Monitoring#######################
 ## set to true in case you would like to use trigger-aware monitoring
@@ -69,6 +72,7 @@ else:
                                                          NPhiBins = 360,
                                                          UseTriggerVector = True,
                                                          MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
+                                                         EnableLumi = DQMonFlags.enableLumiAccess(),
                                                          Muon_Trigger_Items = ["EF_2mu10", "EF_2mu4", "EF_2mu6", "EF_mu10", "EF_mu20", "EF_mu40"],
                                                          MuonTriggerChainName = "TriggersInChain") 
       #############MuonGenericTracksMon_Trig############
@@ -78,11 +82,13 @@ else:
                                                        NPhiBins = 360,
                                                        UseTriggerVector = True,
                                                        MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
+                                                       EnableLumi = DQMonFlags.enableLumiAccess(),
                                                        Muon_Trigger_Items = ["EF_2mu10", "EF_2mu4", "EF_2mu6", "EF_mu10", "EF_mu20", "EF_mu40"],						    
                                                        MuonTriggerChainName = "TriggersInChain")
       #############TGCStandaloneTracksMon_Trig############
       TGCStandaloneTracksMon_Trig = TGCStandaloneTracksMon(name = "TGCStandaloneTracksMon_Trig",
                                                            TriggerAware = False,
+                                                           EnableLumi = DQMonFlags.enableLumiAccess(),
                                                            MuonTriggerDecisionTool = "TrigDec::TrigDecisionTool",
                                                            Muon_Trigger_Items = ["MU0", "MU4", "MU6", "MU10", "MU11", "MU15", "MU20", "MU40", "MU0_TGC", "MU6_TGC", "MU0_TGC_HALO" ],
                                                            MuonTriggerChainName = "TriggersInChain")
@@ -92,54 +98,58 @@ else:
       monMan.AthenaMonTools += [ MuonSelectedTracksMon_Trig ]
       monMan.AthenaMonTools += [ MuonGenericTracksMon_Trig]
       monMan.AthenaMonTools += [ TGCStandaloneTracksMon_Trig]
+      ###enable lumi tool
+      #MuonSelectedTracksMon_Trig.EnableLumi = True
+      #MuonGenericTracksMon_Trig.EnableLumi = True
+      #TGCStandaloneTracksMon_Trig.EnableLumi = True
       #############MuonSelectedTracksMon_Trig#############
       MuonSelectedTracksMon_trig2mu4 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trig2mu4",
-                                                             WhichTrackCollections = [0,1,1],
+                                                             WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                              MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                              UseTriggerVector = False )   
       MuonSelectedTracksMon_trig2mu6 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trig2mu6",
-                                                             WhichTrackCollections = [0,1,1],
+                                                             WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                              MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                              UseTriggerVector = False )   
       MuonSelectedTracksMon_trigmu10 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trigmu10",
-                                                             WhichTrackCollections = [0,1,1],
+                                                             WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                              MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                              UseTriggerVector = False )
       MuonSelectedTracksMon_trigmu20 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trigmu20",
-                                                             WhichTrackCollections = [0,1,1],
+                                                             WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                              MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                              UseTriggerVector = False )
       MuonSelectedTracksMon_trigmu40 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trigmu40",
-                                                             WhichTrackCollections = [0,1,1],
+                                                             WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                              MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                              UseTriggerVector = False )
       MuonSelectedTracksMon_trig2mu10 = MuonSelectedTracksMon(name = "MuonSelectedTracksMon_trig2mu10",
-                                                              WhichTrackCollections = [0,1,1],
+                                                              WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                               MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                               UseTriggerVector = False )
       #############MuonGenericTracksMon_Trig#############
       MuonGenericTracksMon_trig2mu4 = MuonSelectedTracksMon(name = "MuonGenericTracksMon_trig2mu4",
-                                                            WhichTrackCollections = [0,1,1],
+                                                            WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                             MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                             UseTriggerVector = False )   
       MuonGenericTracksMon_trig2mu6 = MuonSelectedTracksMon(name = "MuonGenericTracksMon_trig2mu6",
-                                                            WhichTrackCollections = [0,1,1],
+                                                            WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                             MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                             UseTriggerVector = False )   
       MuonGenericTracksMon_trigmu10 = MuonGenericTracksMon(name = "MuonGenericTracksMon_trigmu10",
-                                                           WhichTrackCollections = [0,1,1],
+                                                           WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                            MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                            UseTriggerVector = False)
       MuonGenericTracksMon_trigmu20 = MuonGenericTracksMon(name = "MuonGenericTracksMon_trigmu20",
-                                                           WhichTrackCollections = [0,1,1],
+                                                           WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                            MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                            UseTriggerVector = False)
       MuonGenericTracksMon_trigmu40 = MuonGenericTracksMon(name = "MuonGenericTracksMon_trigmu40",
-                                                           WhichTrackCollections = [0,1,1],
+                                                           WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                            MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                            UseTriggerVector = False)
       MuonGenericTracksMon_trig2mu10 = MuonGenericTracksMon(name = "MuonGenericTracksMon_trig2mu10",
-                                                            WhichTrackCollections = [0,1,1],
+                                                            WhichTrackCollections = [0,1,1], EnableLumi = True,
                                                             MuonTrackCollections = ["MooreTracks" ,"ConvertedMBoyTracks", "MuidExtrapolatedTracks" ],
                                                             UseTriggerVector = False)
       MuonSelectedTracksMon_trig2mu4.TrigDecisionTool = tdt

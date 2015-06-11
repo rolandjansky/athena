@@ -12,6 +12,9 @@
 #include "MuonHistUtils/RecoInfoPlots.h"
 #include "MuonHistUtils/MomentumPullPlots.h"
 #include "MuonHistUtils/MuonHitSummaryPlots.h"
+#include "MuonHistUtils/MuonIsolationPlots.h"
+#include "MuonHistUtils/MuonParamPlots.h"
+
 
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
@@ -28,6 +31,8 @@ class RecoMuonPlots:public PlotBase {
       Muon::MomentumPullPlots         m_oMomentumPullPlots;
       Trk::MSHitPlots                 m_oMSHitPlots; 
       Muon::MuonHitSummaryPlots       m_oMuonHitSummaryPlots;
+      Muon::MuonIsolationPlots        m_oMuonIsolationPlots;
+      Muon::MuonParamPlots            m_oMuonParamPlots;
 };
 
 #endif

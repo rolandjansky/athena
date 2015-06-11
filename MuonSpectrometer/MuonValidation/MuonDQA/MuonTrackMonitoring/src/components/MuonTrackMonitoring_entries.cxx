@@ -1,5 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "../MuonGenericTracksMon.h"
+#include "MuonTrackMonitoring/MuonGenericTracksMon.h"
  
 DECLARE_TOOL_FACTORY(MuonGenericTracksMon)
  

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RecoMuonPlots.h"
+#include "MuonTrackMonitoring/RecoMuonPlots.h"
 
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
@@ -14,7 +14,9 @@ m_oMuRecoInfoPlots(this, "/"),
 m_oImpactPlots(this, "/"),
 m_oMomentumPullPlots(this, "/"),
 m_oMSHitPlots(this,"/"),
-m_oMuonHitSummaryPlots(this,"/")
+m_oMuonHitSummaryPlots(this,"/"),
+m_oMuonIsolationPlots(this,"/"),
+m_oMuonParamPlots(this,"/")
 {}
 
 void RecoMuonPlots::fill(const xAOD::Muon& mu) {
@@ -23,6 +25,8 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu) {
   m_oMuRecoInfoPlots.fill(mu);
   m_oMomentumPullPlots.fill(mu);
   m_oMuonHitSummaryPlots.fill(mu);
+  m_oMuonIsolationPlots.fill(mu);
+  m_oMuonParamPlots.fill(mu);
 
   // tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
