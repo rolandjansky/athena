@@ -16,9 +16,6 @@ class iGeant4:
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-    global UseNewG4Configuration
-    UseNewG4Configuration =  kwargs.pop('UseNewConfiguration', False)
-
     ####################################
     ##
     ## the Athena part:
@@ -60,40 +57,13 @@ class iGeant4:
     ##
     ####################################
 
-    ##
-    ## choose between new ISF G4 Python Configuration...
-    ##   (work in progress)
-    if UseNewG4Configuration:
-      ## Set up the appropriate sim skeleton in the G4 engine
-      #from ISF_Geant4Config.ISF_AtlasSimSkeleton import ISF_AtlasSimSkeleton
-      #dummy = ISF_AtlasSimSkeleton( self.G4Eng )
-      ## Call the sim skeleton pre-init method
-      #self.G4Eng.Dict['simu_skeleton']._do_PreInit()
-      # the _do_PreInit steps written out:
-      # ELLI begin: set a freakin' high log level
-      #self.G4Eng.log.setLevel(10*(VERBOSE - 1));
-      # ELLI end
-      from ISF_Geant4Config.G4AtlasEngine import G4AtlasEngine
-      self.G4Eng = G4AtlasEngine()
-      global G4Eng
-      G4Eng = self.G4Eng
-
-      # The Geant4 Python config tool (to be replaced by C++ soon!)
-      from ISF_Geant4Tools.ISF_G4ConfigTool import ISF_G4ConfigTool
-      G4ConfigTool             = ISF_G4ConfigTool('ISF_G4ConfigTool')
-      G4ConfigTool.G4Eng       = self.G4Eng
-      ToolSvc += G4ConfigTool
-    ##
-    ## ...or standard G4 Configuration from G4AtlasApps
-    ##
-    else :
-      # let the G4 configuration know that is an ISF run!
-      simFlags.ISFRun.set_Value_and_Lock( True)
-      # call the standard G4 config
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
-      from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-      topSequence += PyG4AtlasAlg()
+    # let the G4 configuration know that is an ISF run!
+    simFlags.ISFRun.set_Value_and_Lock( True)
+    # call the standard G4 config
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+    topSequence += PyG4AtlasAlg()
 
 
   def getSimSvc(self):
