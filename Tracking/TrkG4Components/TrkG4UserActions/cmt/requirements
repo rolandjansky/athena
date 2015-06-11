@@ -12,23 +12,27 @@ use FadsActions       FadsActions-*       Simulation/G4Sim/FADS
 use TrkGeometry       TrkGeometry-*       Tracking/TrkDetDescr
 use TrkParameters     TrkParameters-*     Tracking/TrkEvent
 use Geant4            Geant4-*            External
+use TrkDetDescrInterfaces  TrkDetDescrInterfaces-*  Tracking/TrkDetDescr
+use TrkMaterialOnTrack TrkMaterialOnTrack-* Tracking/TrkEvent
 
 private
 use AtlasROOT         AtlasROOT-*         External
-#use AtlasCLHEP	      AtlasCLHEP-*        External
-#use CxxUtils          CxxUtils-*          Control
+use AtlasCLHEP	      AtlasCLHEP-*        External
+use CxxUtils          CxxUtils-*          Control
 use StoreGate         StoreGate-*         Control
+use GeoPrimitives     GeoPrimitives-*     DetectorDescription
 use SimHelpers        SimHelpers-*        Simulation/G4Sim
-#use TrkSurfaces       TrkSurfaces-*       Tracking/TrkDetDescr
-#use TrkExInterfaces   TrkExInterfaces-*   Tracking/TrkExtrapolation
-
+use TrkSurfaces       TrkSurfaces-*       Tracking/TrkDetDescr
+use TrkExInterfaces   TrkExInterfaces-*   Tracking/TrkExtrapolation
+use TrkValInterfaces  TrkValInterfaces-*  Tracking/TrkValidation
+use TrkExUtils        TrkExUtils-*          Tracking/TrkExtrapolation
 ##
 
 branches src src/components doc python share
 
 private
 ## default is to make component library
-library TrkG4UserActions MaterialStepRecorder.cxx components/*.cxx
+library TrkG4UserActions *.cxx components/*.cxx
 
 apply_pattern component_library
 

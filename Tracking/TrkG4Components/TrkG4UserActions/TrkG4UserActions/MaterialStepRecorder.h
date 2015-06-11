@@ -14,6 +14,9 @@
 #include <vector>
 
 #include "TrkGeometry/MaterialStepCollection.h"
+#include "TrkGeometry/ElementTable.h"
+#include "TrkGeometry/Material.h"
+
 
 /** @class MaterialStepRecorder
 
@@ -22,6 +25,10 @@
 */
 
 class StoreGateSvc;
+
+namespace Trk {
+    class IPositionMomentumWriter;
+}
 
 class MaterialStepRecorder: public FADS::UserAction {
 
@@ -41,13 +48,19 @@ class MaterialStepRecorder: public FADS::UserAction {
     StoreGateSvc*                   m_storeGate;
     Trk::MaterialStepCollection*    m_matStepCollection;
     std::string                     m_matStepCollectionName;
+	bool                            m_recordComposition;
 
     double                          m_totalNbOfAtoms;
     size_t                          m_totalSteps;
     size_t                          m_eventID;
 
     int                             m_verboseLevel;
-
+    
+    Trk::ElementTable*              m_elementTable; 
+    std::string                     m_elementTableName;
+    
+    Trk::ElementTable*              m_runElementTable;
+    
 };
 
 #endif
