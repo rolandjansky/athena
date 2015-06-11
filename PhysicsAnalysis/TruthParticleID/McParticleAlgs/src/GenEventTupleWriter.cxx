@@ -29,8 +29,7 @@
 ////////////////
 GenEventTupleWriter::GenEventTupleWriter( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_genEventWriter ( 0 )
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration

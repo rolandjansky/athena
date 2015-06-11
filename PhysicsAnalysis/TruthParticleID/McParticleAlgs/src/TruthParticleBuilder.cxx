@@ -29,9 +29,7 @@
 ////////////////
 TruthParticleBuilder::TruthParticleBuilder( const std::string& name, 
 					    ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm ( name, pSvcLocator ),
-  m_filterTool ( 0 ),
-  m_cnvTool    ( 0 )
+  AthAlgorithm ( name, pSvcLocator )
 {
   //
   // Property declaration
