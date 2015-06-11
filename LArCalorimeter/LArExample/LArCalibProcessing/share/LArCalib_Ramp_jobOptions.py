@@ -11,7 +11,8 @@ import commands
 ###########################################################################
 
 include("LArCalibProcessing/LArCalib_Flags.py")
-include("RecExCommission/GetInputFiles.py")
+#include("RecExCommission/GetInputFiles.py")
+include("LArCalibProcessing/GetInputFiles.py")
 
 #######################################################
 #       Run properties
@@ -44,7 +45,6 @@ if not 'FullFileName' in dir():
          Trigger = "*"+Partition
       else :
          Trigger = "calibration_LArElec-Ramp"+".*"+Partition   
-         #Trigger = "calibration_LArElec-Ramp"+".*"
    
    FullFileName = []
    for RunNumber in RunNumberList :
@@ -82,6 +82,9 @@ if not 'doLArCalibDataQuality' in dir():
 
 if not 'online' in dir():
    online = False
+
+if not 'CheckBadEvents' in dir():
+   CheckBadEvents = True
 
 #######################################################
 #                Ramp properties                      #
@@ -375,7 +378,8 @@ if ( runAccumulator ) :
    # this is a OLD jobOptions which can maybe work but only for the barrel                       #
    # can be used as a skeleton if needed but                                                     #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
-   include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
+   #include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
+   include("./LArCalib_CalibrationPatterns.py")
 
 else :
    theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
@@ -436,21 +440,25 @@ except:
    pass
 
 # Temperature folder
-#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-#svcMgr.EventSelector.InitialTimeStamp = 1284030331
-#import cx_Oracle
-#import time
-#import datetime
-#connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-#cursor=connection.cursor()
-#sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-#cursor.execute(sRequest)
-#times= cursor.fetchall()
-#d=times[0][1]
-#iovtemp=int(time.mktime(d.timetuple()))
-##print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
-##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+svcMgr.EventSelector.InitialTimeStamp = 1284030331
+import cx_Oracle
+import time
+import datetime
+try:
+   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+   cursor=connection.cursor()
+   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+   cursor.execute(sRequest)
+   times= cursor.fetchall()
+   d=times[0][1]
+   iovtemp=int(time.mktime(d.timetuple()))
+except:
+   iovtemp=1283145454
+
+#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
+svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
@@ -769,11 +777,15 @@ if (WriteNtuple):
    # Ramp fit ntuple
    from LArCalibTools.LArCalibToolsConf import LArRamps2Ntuple
    LArRamps2Ntuple=LArRamps2Ntuple("LArRamps2Ntuple")
-   LArRamps2Ntuple.ContainerKey = GainList #Only for raw ramp
+   klist=[]
+   for i in GainList:
+      klist+=["LArRamp"+i]
+   LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
    LArRamps2Ntuple.NtupleName = "RAMPS"
    LArRamps2Ntuple.RawRamp = SaveRawRamp
    LArRamps2Ntuple.SaveAllSamples = SaveAllSamples
    LArRamps2Ntuple.ApplyCorr = ApplyCorr
+   LArRamps2Ntuple.AddFEBTempInfo = False
    
    topSequence+= LArRamps2Ntuple
       
@@ -795,7 +807,7 @@ if (WriteNtuple):
   
 ###########################################################################	
 	
-svcMgr.MessageSvc.OutputLevel  = DEBUG
+svcMgr.MessageSvc.OutputLevel  = INFO
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 

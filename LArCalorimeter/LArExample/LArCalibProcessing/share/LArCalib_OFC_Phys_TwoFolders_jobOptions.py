@@ -669,6 +669,7 @@ topSequence+=LArPhysOFCAlg2
 
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
 theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
 if NColl > 0:
    theLArAutoCorrDecoderTool.DecodeMode=1
 ToolSvc += theLArAutoCorrDecoderTool

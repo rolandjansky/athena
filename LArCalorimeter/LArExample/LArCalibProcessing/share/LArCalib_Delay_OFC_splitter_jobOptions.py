@@ -816,11 +816,13 @@ if (WriteNtuple):
                   LArCaliWaves2NtupleVec[i].KeyList    = [ KeyOutputSplitted[i] ]
               LArCaliWaves2NtupleVec[i].SaveJitter = SaveJitter    
               LArCaliWaves2NtupleVec[i].SaveDerivedInfo = SaveDerivedInfo
+              LArCaliWaves2NtupleVec[i].AddFEBTempInfo = False
 
    else :
         LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
         LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
         LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
+        LArCaliWaves2Ntuple.AddFEBTempInfo = False
         LArCaliWaves2Ntuple.SaveJitter = SaveJitter
         if (doCaliWaveSelector):
            LArCaliWaves2Ntuple.KeyList     = [ KeyOutput+"Sel" ]

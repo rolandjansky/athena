@@ -51,6 +51,9 @@ if not 'online' in dir():
 if 'NColl' not in dir():
    NColl=0
 
+if 'bunchSpace' not in dir():
+   bunchSpace = 25
+
 if not 'NSamples' in dir():
    NSamples = 32   
    
@@ -138,7 +141,8 @@ PedestalAutoCorrLog.info( " Partition                         = "+Partition )
 PedestalAutoCorrLog.info( " Type                              = Pedestal " )
 PedestalAutoCorrLog.info( " LArGain                           = "+str(GainList) )
 PedestalAutoCorrLog.info( " LArCalibFolderTag              = "+"_mu_"+str(NColl)+ACLArCalibFolderTag )
-PedestalAutoCorrLog.info( " OutputAutoCorrRootFullFileName = "+OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName )
+if WriteNtuple:
+   PedestalAutoCorrLog.info( " OutputAutoCorrRootFullFileName = "+OutputAutoCorrRootFileDir + "/" + OutputAutoCorrRootFileName )
 PedestalAutoCorrLog.info( " OutputAutoCorrPoolFullFileName    = "+OutputAutoCorrPoolFileDir + "/" + OutputAutoCorrPoolFileName )
 PedestalAutoCorrLog.info( " OutputObjectSpecAutoCorr          = "+OutputObjectSpecAutoCorr )
 PedestalAutoCorrLog.info( " OutputTagSpecAutoCorr             = "+OutputTagSpecAutoCorr )
@@ -165,7 +169,7 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.BeamFlags import jobproperties
-jobproperties.Beam.bunchSpacing = 50
+jobproperties.Beam.bunchSpacing = bunchSpace
 jobproperties.Beam.numberOfCollisions = float(NColl)
 
 # dont load Shape from CONDBR2 
@@ -203,7 +207,8 @@ svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += [ "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_oflcond.xml" ]
 
 from LArROD.LArRODFlags import larRODFlags
-larRODFlags.doOFCPileupOptimization = True
+larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True)
+larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)
 
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
@@ -243,9 +248,9 @@ from IOVDbSvc.CondDB import conddb
 conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/Shape",forceMC=True)
 conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/MinBias",forceMC=True)
 conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/fSampl",forceMC=True)
-conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-CSC02-F-QGSP_BERT_BIRK")
+conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK")
 conddb.addOverride("/LAR/ElecCalibMC/Shape","LARElecCalibMCShape-Apr2010")
-conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-MinBias-7TeV")
+conddb.addOverride("/LAR/ElecCalibMC/MinBias","LARElecCalibMCMinBias-mc15-s2081")
 
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag

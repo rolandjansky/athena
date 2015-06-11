@@ -144,7 +144,6 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'DBConnectionCOOL' in dir():
-   #DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
    DBConnectionCOOL = "COOLOFL_LAR/CONDBR2"
 
 ## HEC map
@@ -194,7 +193,8 @@ if not 'InputOFCPoolFileName' in dir():
 
 ## Output   
 if not 'LArCalibFolderOutputTag' in dir():
-   LArCalibFolderOutputTag = "-UPD3-00"        
+   rs=FolderTagResover()
+   LArCalibFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArRampFolder)      
 
 if not 'OutputRampRootFileDir' in dir():
    OutputRampRootFileDir = commands.getoutput("pwd")
@@ -261,7 +261,7 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"
       
 #######################################################################################
 #                                print summary                                        #
@@ -400,8 +400,7 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannels/BadChannels"
-MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RampLog.info( "Read Bad Channels from Oracle DB")
@@ -558,6 +557,15 @@ theLArRCBMasker.ProblemsToMask=[
 ToolSvc+=theLArRCBMasker
 
 from LArCalibUtils.LArCalibUtilsConf import LArRampBuilder
+#Bad-channel mask used by the LArRampBuilder and the Ramp-patcher
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
+theLArRCBMasker.DoMasking=True
+theLArRCBMasker.ProblemsToMask=[
+   "deadCalib","deadReadout","deadPhys","almostDead","short"
+      ]
+ToolSvc+=theLArRCBMasker
+
 if not PeakOF:
    from LArRecUtils.LArRecUtilsConf import LArParabolaPeakRecoTool
    theLArParabolaPeakRecoTool=LArParabolaPeakRecoTool()
@@ -622,6 +630,7 @@ if ( AllWavesPerCh ) :
       theLArRampBuilder[i].DeadChannelCut = -9999
       theLArRampBuilder[i].GroupingType = "ExtendedSubDetector"
       theLArRampBuilder[i].OutputLevel = ERROR
+      theLArRampBuilder[i].BadChannelMask=theLArRCBMasker
 
 else:
 
@@ -653,6 +662,7 @@ else:
    theLArRampBuilder.BadChannelMask = theLArRCBMasker
    theLArRampBuilder.DeadChannelCut = -9999
    theLArRampBuilder.GroupingType = GroupingType
+   theLArRampBuilder.BadChannelMask=theLArRCBMasker
 
    if ( isHEC ) :
      theLArRampBuilder.isHEC = isHEC
@@ -772,6 +782,7 @@ if (WriteNtuple):
         LArRamps2NtupleVec[i].RampKey =  KeyOutputSplitted[i] 
         LArRamps2NtupleVec[i].NtupleName   = "RAMPS"+str(i)
         LArRamps2NtupleVec[i].RawRamp      = SaveRawRamp
+        LArRamps2NtupleVec[i].AddFEBTempInfo = False
         LArRamps2NtupleVec[i].OutputLevel  = ERROR
    else:     
       LArRamps2Ntuple=LArRamps2Ntuple("LArRamps2Ntuple")
@@ -782,6 +793,7 @@ if (WriteNtuple):
       LArRamps2Ntuple.ContainerKey = rawkeys #Only for raw ramp
       LArRamps2Ntuple.NtupleName = "RAMPS"
       LArRamps2Ntuple.RawRamp = SaveRawRamp
+      LArRamps2Ntuple.AddFEBTempInfo = False
    
       topSequence+= LArRamps2Ntuple
       
