@@ -162,7 +162,8 @@ if not 'InputPedPoolFileName' in dir():
 ## Output
 
 if not 'LArCalibFolderOutputTag' in dir():
-   LArCalibFolderOutputTag = '-UPD3-00'    
+   rs=FolderTagResover()
+   LArCalibFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArCaliWaveFolder)    
    
 if not 'OutputCaliWaveRootFileDir' in dir():
    OutputCaliWaveRootFileDir  = commands.getoutput("pwd")
@@ -241,7 +242,7 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"      
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
       
 #######################################################################################
 # print summary
@@ -372,11 +373,13 @@ include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")
 include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 
+include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannels/BadChannels"
-MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayLog.info( "Read Bad Channels from Oracle DB")
@@ -514,6 +517,8 @@ if ( AllWavesPerCh ) :
                  LArCaliWaveSelVec[i].SelectionList   += [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000"]
                  LArCaliWaveSelVec[i].OutputLevel     = ERROR
 
+   #LArCaliWaveBuilderVec[3].OutputLevel     = DEBUG
+
 else :
    LArCaliWaveBuilder = LArCaliWaveBuilder()
    LArCaliWaveBuilder.KeyList          = GainList
@@ -560,6 +565,8 @@ if CorrectBadChannels:
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
    theLArBadChannelTool=LArBadChanTool()
    theLArBadChannelTool.OutputLevel=DEBUG
+   theLArBadChannelTool.CoolFolder=BadChannelsFolder
+   theLArBadChannelTool.CoolMissingFEBsFolder=MissingFEBsFolder
    ToolSvc+=theLArBadChannelTool
    
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -660,6 +667,8 @@ if (WriteNtuple):
                   LArCaliWaves2NtupleVec[i].KeyList    = [ KeyOutputSplitted[i] ]
               LArCaliWaves2NtupleVec[i].SaveJitter = SaveJitter    
               LArCaliWaves2NtupleVec[i].SaveDerivedInfo = SaveDerivedInfo
+
+        #LArCaliWaves2NtupleVec[3].OutputLevel=DEBUG    
 
    else :
         LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )

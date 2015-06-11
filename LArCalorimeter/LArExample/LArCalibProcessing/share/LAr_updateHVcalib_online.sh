@@ -4,7 +4,7 @@ if [[ $# < 3 ]];
 then
     echo "Syntax: $0 <time>  <Run> <LB> "
     echo " <time> = time in UTC at which the HV is stable at the new conditions (and HV mapping updated if needed) like \"2010-07-29:13:00:00\" "
-    echo " <Run> <LB> = run/lumiblock to start IoV for UPD3/UPD4 update (allows to backdate)"
+    echo " <Run> <LB> = run/lumiblock to start IoV for UPD4 noise update (allows to backdate)"
     exit
 fi
 
@@ -89,7 +89,7 @@ _EOF4_
 globalTag=`python getGlobalTag.py | awk '{print($1)}'`
 #globalTag="COMCOND-BLKPA-006-01"
 
-echo $globalTag
+echo "Found current global tag $globalTag"
 
 
 
@@ -106,8 +106,9 @@ if grep -q ERROR hv.log
       exit
 fi
 
-usedRun=`grep "Working on run" hv.log | awk '{print($4)}'`
-echo " ---> the run number to read the HV mapping db in the UPD4 tag is " ${usedRun}
+usedRun=`grep "Working on run" hv.log | awk '{print($5)}'`
+echo " ---> the run number to read the HV mapping db in the UPD4 tag is" ${usedRun}
+grep "^--->" hv.log
 
 cat > dumpMapping.py << _EOF1_
 from CoolConvUtilities import AtlCoolTool
@@ -123,7 +124,7 @@ _EOF1_
 python dumpMapping.py >& python.log
 runHVmap=`grep LArHVMap dumpMapping.txt  | tail -1 | cut -f 1  -d , | cut -f 2 -d \[`
 
-echo "      the latest HV mapping change is valid from run " ${runHVmap}
+echo "      the latest HV mapping change is valid from run" ${runHVmap}
 
 if test ${runHVmap} -gt ${usedRun}; then
    echo "   BE CAREFUL  the used run is older than the latest HV mapping change... Check that you know what you are doing before any db upload "
@@ -252,7 +253,7 @@ AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;s
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"
-(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; source $AtlasSetup/scripts/asetup.sh --tags=AtlasP1HLT,17.1.5.21,setup,here; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
+(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; source $AtlasSetup/scripts/asetup.sh --tags=AtlasP1HLT,20.2.1.3,setup,here; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
 if [ $? -ne 0 ];  then
       echo "Testing job reported an error ! "
       echo "Please, do not upload constants to online ! "
@@ -263,14 +264,9 @@ echo "  "
 echo " mergedb.log contains the log file of the various AtlCoolCopy operation to make local sqlite files"
 echo " " 
 echo "  After checking that everything is OK you can proceed with the database update"
-echo "  (1) ~atlcond/utils/registerFiles2 --wait --online cond12_data.lar.COND LArHVScaleCorr_dummy.pool.root "
-echo "  (2) ~atlcond/CondAFSBufferMgr/startAFSBufferReplication.py  myDB200_hvOnline.db"
-echo "  after checking that steps 1 and 2 went OK (you should get some e-mail confirmation, without ERROR) and after calling LAr RC"
-echo "  (3) ~atlcond/utils/AtlCoolMerge.py --online  myDB200_hvOnline.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
-echo "  (4) ~atlcond/utils/AtlCoolMerge.py larnoisesqlite.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
-echo "  (5) ~atlcond/utils/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
-echo "  (6) ~atlcond/utils/AtlCoolMerge.py --partial myDB200_UPD3.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password> "
+echo "  (1) ~atlcond/utils/AtlCoolMerge.py --online HVScaleCorr.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
+echo "  (2) ~atlcond/utils/AtlCoolMerge.py larnoisesqlite.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo "  (3) ~atlcond/utils/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
 
 echo "  (note that password are different for LAr online,offline, Calo online offline databases"
-echo "  3 requires lar online password, 4 and 6 the lar offline password, 5 calo online password"
 exit

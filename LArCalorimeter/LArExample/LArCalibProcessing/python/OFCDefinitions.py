@@ -16,7 +16,8 @@ OFCDefinitions=namedtuple("OFCDefinitions",
                            "FolderShape",
                            "FolderOFCPicked",
                            "FolderShapePicked",
-                           
+                           "ReadDSPConfig",
+                           "DSPConfigFolder" 
                            ]
                           )
 
@@ -26,13 +27,15 @@ OFCDef_4Samples=OFCDefinitions("OFC4samples",
                                Nphase=8,
                                Dphase=3, 
                                PhysAutoCorr=(False,True),
-                               useDelta=(0,3),
-                               KeyOFC=("LArOFC_4_3","LArOFC_4_3_mu"),
-                               KeyShape="LArShape_4_3",
+                               useDelta=(0,0),
+                               KeyOFC=("LArOFC_4_0","LArOFC_4_0_mu"),
+                               KeyShape="LArShape_4_0",
                                FolderOFC="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples3bins17phases",
                                FolderShape="/LAR/ElecCalibOfl/Shape/RTM/4samples3bins17phases",
                                FolderOFCPicked="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples1phase",
                                FolderShapePicked="/LAR/ElecCalibOfl/Shape/RTM/4samples1phase",
+                               ReadDSPConfig=True,
+                               DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
                                )
 
 
@@ -41,15 +44,19 @@ OFCDef_5Samples=OFCDefinitions("OFC5samples",
                                Nphase=8,
                                Dphase=3, 
                                PhysAutoCorr=(False,True),
-                               useDelta=(0,3),
-                               KeyOFC=("LArOFC_5_3","LArOFC_5_3_mu"),
-                               KeyShape="LArShape_5_3",
+                               useDelta=(0,0),
+                               KeyOFC=("LArOFC_5_0","LArOFC_5_0_mu"),
+                               KeyShape="LArShape_5_0",
                                FolderOFC="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples3bins17phases",
                                FolderShape="/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases",
                                FolderOFCPicked="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples1phase",
                                FolderShapePicked="/LAR/ElecCalibOfl/Shape/RTM/5samples1phase",
+                               ReadDSPConfig=True,
+                               DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
                                )
                                
 
 
 OFCDefs=(OFCDef_5Samples,OFCDef_4Samples)
+#OFCDefsRepro=(OFCDef_4Samples,0)
+

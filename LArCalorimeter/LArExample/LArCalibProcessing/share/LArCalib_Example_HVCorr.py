@@ -25,7 +25,7 @@ if "TimeStamp" not in dir():
 
 from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
 
-rlb=TimeStampToRunLumi(TimeStamp)
+rlb=TimeStampToRunLumi(TimeStamp,dbInstance="CONDBR2")
 if rlb is None:
    print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number"
    RunNumber=999999
@@ -35,7 +35,16 @@ else:
    LumiBlock=rlb[1]
 
 
-print "Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp
+print "---> Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp
+timediff=int(time()-(TimeStamp/1000000000L))
+if timediff<0:
+    print "ERROR: Timestamp in the future???"
+else:
+    (days,remainder)=divmod(timediff,24*60*60)
+    (hours,seconds)=divmod(remainder,60*60)
+    print "---> Timestamp is %i days %i hours and %i minutes ago" % (days,hours,int(seconds/60))
+    pass
+                                                                
 
 # name of output local sql file
 OutputSQLiteFile = 'HVScaleCorr.db'
