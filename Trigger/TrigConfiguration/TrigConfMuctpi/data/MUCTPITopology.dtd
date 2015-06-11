@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- The main node is called "MUCTPI_TOPO" and it contains "Mioct" elements -->
+<!ELEMENT MUCTPI_TOPO (Mioct+)>
+
+<!-- A Mioct node describes the configuration of one MIOCT module -->
+<!-- with all of its "logical" Look Up Tables -->
+<!ELEMENT Mioct (ETAPHILUT, PTLUT)>
+
+<!-- The MIOCT is also identified with a simple ID -->
+<!ATTLIST Mioct
+          IDs              CDATA            #REQUIRED>
+
+<!-- ETA/PHI LUT -->
+<!ELEMENT ETAPHILUT (Sector*)>
+
+<!ELEMENT Sector (EtaPhiElement*)>
+<!ATTLIST Sector
+          sect             CDATA            #REQUIRED>
+
+<!-- Each line in the ETA/PHI LUT has a candidate encoding -->
+<!ELEMENT EtaPhiElement EMPTY>
+<!ATTLIST EtaPhiElement
+          roi              CDATA            #REQUIRED
+          eta              CDATA            #REQUIRED
+          phi              CDATA            #REQUIRED>
+
+<!-- PT LUT -->
+<!ELEMENT PTLUT (PtElement*)>
+
+<!-- Each line in the PT LUT has a candidate encoding -->
+<!ELEMENT PtElement EMPTY>
+<!ATTLIST PtElement
+          pt               CDATA            #REQUIRED
+          code             CDATA            #REQUIRED>

@@ -1,0 +1,71 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+import logging
+
+from PyUtils.Decorators import memoize
+from os.path import exists
+
+
+@memoize
+def getLogger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    # create console handler and set level to debug
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    
+    # create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+    
+    # add ch to logger
+    logger.addHandler(ch)
+
+    return logger
+
+
+
+@memoize
+def findFileInXMLPATH(filename):
+    """ Use XMLPATH to find files (cache result through memoize decorator)"""
+
+    if filename=="NONE":
+        return filename
+
+    filename = str(filename)
+
+    mlog = getLogger()
+    mlog.debug("Searching XML file %s" % filename)
+    if filename.find('./') is 0: ## this expected to be local file, name starts from ./
+        return filename
+    else:
+        mlog.debug("Nonlocal XML config file")
+        from os import environ
+        ## even if ./ not as file name prefix look first in PWD
+        if exists(filename):
+            mlog.info(filename+" XML configuration file taken from working directory")
+            return filename
+
+        ## search XMLPATH path
+        if not environ.has_key('XMLPATH'): ## XMLPATH is not known ... no search is performed
+            mlog.info("XML file: "+filename + " not found and XMLPATH not given" )
+            return filename
+
+        xmlpath = environ['XMLPATH']
+        paths = split(xmlpath, ":")
+        for path in paths:
+
+            test = join(path, filename)
+            if exists(test):
+                mlog.info("Found XML file: " + abspath(test))
+                return abspath(test)
+
+            test = join(path, "TrigConfMuctpi",filename)
+            if exists(test):
+                mlog.info("Found XML file: " + abspath(test))
+                return abspath(test)
+
+        return filename
