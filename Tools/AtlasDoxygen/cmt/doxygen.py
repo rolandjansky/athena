@@ -447,10 +447,10 @@ def filter_doxyfile (doxygen_input, doxygen_html_output, tagfiles, package_tagfi
 # Construct the list of expected tag files from the list of used packages
 # and the list of used packages to display in the HTML table
 #
-def filter_uses ():
+def filter_uses ( output_dir ):
   used_packages = ''
   tagfiles = []
-  common_output = cmt.macro_value ('DOXYGEN_COMMON_OUTPUT_DIRECTORY')+'/InstallArea/doc' #FIXME! Should use something like build_output_dir
+  # common_output = cmt.macro_value ('DOXYGEN_COMMON_OUTPUT_DIRECTORY')+'/InstallArea/doc' #FIXME! Should use something like build_output_dir
 
   for line in cmt.uses:
       w = string.split (line)
@@ -479,7 +479,9 @@ def filter_uses ():
           used_packages = used_packages + ' ' + offset + package
           # New approach - fill tagfiles with the 'topuses' and complete doxygen-compatible format.
           # Doxygen uses funky format here: path/to/compB/compB.tag=path/to/compB/htmldocs
-          tagfile = common_output+"/"+package + '.tag='+common_output+"/"+package+'/html'
+          # tagfile = common_output+"/"+package + '.tag='+"../../"+package+'/html'
+          # tagfile = output_dir+'/'+package + '.tag='+output_dir+'/'+package+'/html'
+          tagfile = output_dir+'/'+package + '.tag=../../'+package+'/html'
           # print 'tagfile = '+tagfile
           tagfiles.append(tagfile)
       # else:
@@ -728,12 +730,16 @@ DOXYGEN_EXCLUDE_PATTERNS = cmt.macro_value ('DOXYGEN_EXCLUDE_PATTERNS')
 
 html_mapping = map (f, string.split (cmt.macro_value ('DOXYGEN_HTML_MAPPING')))
 
+print "DoxygenRoot = ", DoxygenRoot
+
 output = build_output_dir (package)
 writeHTML=False
 package_tagfile=''
 if 'doxygen_tags' in cmt.tags:
   print 'Pass #1 - Making doxygen tags (no HTML)'
   package_tagfile = os.path.normpath (output + '/' + package + '.tag')
+  # package_tagfile = package + '.tag'
+  # output = "."
 else:
   # Pass #2 so make HTML
   print "Pass #2 - Writing HTML in this pass... (will use tags made in pass#1)"
@@ -752,7 +758,7 @@ used_packages=''
 tagfiles=[]
 if writeHTML:
     # Only care about this for pass#2
-    used_packages, tagfiles = filter_uses ()
+    used_packages, tagfiles = filter_uses (output_dir=output)
 print 'used_packages = ' + used_packages
 print 'tagfiles = ' + ' '.join(tagfiles)
 
@@ -761,7 +767,7 @@ print 'tagfiles = ' + ' '.join(tagfiles)
 
 #print 'output = ' + output
 
-if not os.path.isdir (output):
+if output and not os.path.isdir (output):
     os.makedirs (output)
 
 if not os.path.isdir ('../doc'):
@@ -784,7 +790,9 @@ if not has_mainpage ():
 
 # Only worry about this when we're working with tagfiles?
 if not writeHTML and not os.path.isdir (os.path.dirname (package_tagfile)):
-    os.makedirs (os.path.dirname (package_tagfile))
+    dirname = os.path.dirname (package_tagfile)
+    if (dirname):
+        os.makedirs (dirname)
 
 #----------------------------------------------------
 # Constructing the Doxyfile
@@ -826,7 +834,8 @@ if writeHTML:
   #print "Going over HTML lines:"
   for line in lines:
     # print line
-    if '<!--SVNLINK-->' in line:
+    # Insert the link to SVN 
+    if '<!-- SVNLINK -->' in line:
       g.write ('<tab type="user" visible="yes" url="'+ package_svnpath +'" title="SVN"/>')
     g.write (line)
   g.close ()
@@ -866,7 +875,7 @@ if writeHTML:
 #----------------------------------------------------
 # Running doxygen
 print 'Current location =  ' + os.getcwd()
-print 'Now running doxygen ' + cmt.macro_value ('PATH')
+print 'Now running doxygen with PATH= \n' + cmt.macro_value ('PATH')
     
 os.putenv ('PATH', cmt.macro_value ('PATH'))
 

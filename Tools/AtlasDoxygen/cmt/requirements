@@ -22,11 +22,11 @@ use LCG_Configuration *
 path_remove DOTFONTPATH "" Linux&Doxygen "AtlasDoxygen"
 path_prepend DOTFONTPATH "" Linux&Doxygen "$(AtlasDoxygen_root)/fonts/ttf"
 
-macro AtlasDoxygen_native_version "" Doxygen "1.8.2"
+macro AtlasDoxygen_native_version "" Doxygen "$(doxygen_config_version)"
 path_remove PATH "" Doxygen "/doxygen/"
 path_prepend PATH "" Doxygen "$(LCG_external)/doxygen/$(AtlasDoxygen_native_version)/$(LCG_system)/bin"
 
-macro graphviz_native_version "" Doxygen "2.28.0"
+macro graphviz_native_version "" Doxygen "$(graphviz_config_version)"
 path_remove PATH "" Doxygen "/graphviz/"
 path_prepend PATH "" Doxygen "$(LCG_external)/graphviz/$(graphviz_native_version)/$(LCG_system)/bin"
 
