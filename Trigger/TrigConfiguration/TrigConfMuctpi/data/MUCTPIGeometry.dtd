@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!ELEMENT MuCTPiGeometry (MIOCT+, PtEncoding)>
+
+<!ELEMENT MIOCT (Sector+, Decode)>
+<!ATTLIST MIOCT
+          id            CDATA           #REQUIRED
+          slot          CDATA           #REQUIRED>
+
+<!ELEMENT Sector (ROI+)>
+<!ATTLIST Sector
+          connector     CDATA           #REQUIRED
+          name          CDATA           #REQUIRED>
+
+<!ELEMENT ROI EMPTY>
+<!ATTLIST ROI
+          eta           CDATA            #REQUIRED
+          phi           CDATA            #REQUIRED
+          etacode       CDATA            #REQUIRED
+          phicode       CDATA            #REQUIRED
+          etamin        CDATA            #REQUIRED
+          etamax        CDATA            #REQUIRED
+          phimin        CDATA            #REQUIRED
+          phimax        CDATA            #REQUIRED
+          roiid         CDATA            #REQUIRED>
+
+<!ELEMENT Decode (TopoCell+)>
+
+<!ELEMENT TopoCell EMPTY>
+<!ATTLIST TopoCell
+          etacode       CDATA            #REQUIRED
+          phicode       CDATA            #REQUIRED
+          eta           CDATA            #REQUIRED
+          phi           CDATA            #REQUIRED
+          ieta          CDATA            #REQUIRED
+          iphi          CDATA            #REQUIRED
+          etamin        CDATA            #REQUIRED
+          etamax        CDATA            #REQUIRED
+          phimin        CDATA            #REQUIRED
+          phimax        CDATA            #REQUIRED>
+
+<!ELEMENT PtEncoding (PtCodeElement*)>
+<!ELEMENT PtCodeElement EMPTY>
+<!ATTLIST PtCodeElement
+          pt            CDATA            #REQUIRED
+          code          CDATA            #REQUIRED
+          value         CDATA            #REQUIRED>
