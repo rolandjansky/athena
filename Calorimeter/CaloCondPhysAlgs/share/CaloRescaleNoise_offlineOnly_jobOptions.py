@@ -11,13 +11,13 @@
 if 'RunNumber' not in dir():
    RunNumber = 999999
 if 'LumiBlock' not in dir():
-   LumiBlock = 1
+   LumiBlock = 0
 
 if 'GlobalTag' not in dir():
    GlobalTag =  'COMCOND-ES1PT-004-00'
 
 if 'Geometry' not in dir():
-   Geometry = 'ATLAS-GEO-20-00-00'
+   Geometry = 'ATLAS-GEO-10-00-00'
 
 print "RunNumber ",RunNumber
 print "LumiBlock ",LumiBlock
@@ -28,7 +28,7 @@ rec.RunNumber.set_Value_and_Lock(RunNumber)
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
-trigDB=indirectOpen('COOLONL_TRIGGER/CONDBR2',oracle=True)
+trigDB=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
 trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
 print " runiov ", runiov

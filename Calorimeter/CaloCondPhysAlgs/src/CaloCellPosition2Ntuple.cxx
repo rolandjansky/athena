@@ -3,6 +3,11 @@
 */
 
 #include "CaloCondPhysAlgs/CaloCellPosition2Ntuple.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/NTuple.h"
+#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -34,7 +39,8 @@ CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLo
 //Destructor
 CaloCellPosition2Ntuple::~CaloCellPosition2Ntuple()
 {
-  ATH_MSG_DEBUG( "CaloCellPosition2Ntuple destructor called"  );
+  MsgStream log( messageService(), name() ) ;
+  log << MSG::DEBUG << "CaloCellPosition2Ntuple destructor called" << endreq;
 }
 //__________________________________________________________________________
 StatusCode CaloCellPosition2Ntuple::initialize()
@@ -82,7 +88,7 @@ StatusCode CaloCellPosition2Ntuple::stop()
 
   int nread = (int)(m_cellPos->size());
 
-  if (nread > ncell) {
+  if (nread != ncell) {
     ATH_MSG_WARNING ( " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell );
     return StatusCode::SUCCESS;
   }

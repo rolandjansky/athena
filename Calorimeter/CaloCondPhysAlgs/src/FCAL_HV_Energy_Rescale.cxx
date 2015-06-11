@@ -65,16 +65,13 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
   IdentifierHash hashMin,hashMax;
   calocell_id->calo_cell_hash_range(CaloCell_ID::LARFCAL, hashMin,hashMax);
 
-  ATH_MSG_INFO( "Working on hash range 0 to " << hashMax  );
+  msg(MSG::INFO) << "Working on hash range 0 to " << hashMax << endreq;
 
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("CaloCondBlob16M","blob");// , cool::StorageType::Blob16M);
   AthenaAttributeList* attrList=new AthenaAttributeList(*spec);
   coral::Blob& blob=(*attrList)["CaloCondBlob16M"].data<coral::Blob>();
   CaloCondBlobFlt* flt= CaloCondBlobFlt::getInstance(blob);
-  spec->release(); // deletes spec
-  // cppcheck-suppress memleak
-  spec = nullptr;
 
   //Blob Defintion Vector
   std::vector<std::vector<float> > defVec;
@@ -101,14 +98,14 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
       }
       else
 	++nSmall;
-      ATH_MSG_INFO( "FCAL module " << calocell_id->sampling(id) << " : Old= " << upd1corr << ", new=" << corrNew << ", ratio=" << corr << " =>" << value  );
+      msg(MSG::INFO) << "FCAL module " << calocell_id->sampling(id) << " : Old= " << upd1corr << ", new=" << corrNew << ", ratio=" << corr << " =>" << value << endreq;
     }
     //std::cout << h << " " << value << std::endl;
     setVec[0]=value;
     flt->setData(h,0,setVec);
   }//end loop over hash
 
-  ATH_MSG_INFO( "Found " << nFCAL << " FCAL channels of which " << nSet << " have a correction. (" << nSmall << " below threshold)"  );
+  msg(MSG::INFO) << "Found " << nFCAL << " FCAL channels of which " << nSet << " have a correction. (" << nSmall << " below threshold)" << endreq;
   
   return StatusCode::SUCCESS;
 }

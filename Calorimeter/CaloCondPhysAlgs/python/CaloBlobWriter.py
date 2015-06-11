@@ -126,7 +126,7 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
       print "No input given. Create empty blob"
       data = cool.Record(spec)
    else:
-      data=CaloCondBlobWriterFromFile(spec,inputFileName,defaultvalue)
+      data=CaloCondBlobWriterFromFile(spec,inputFileName,0.0)
 
    print "Storing CaloCondBlob object"
    folder.storeObject(iovMin, iovMax, data, cool.ChannelId(0), foldertag,True)

@@ -76,7 +76,7 @@
        float phi;
        float reference;
    };
-   std::vector<CellInfo> m_CellList;
+   std::vector<CellInfo> CellList;
 
    int  m_ncell;
 

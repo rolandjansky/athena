@@ -11,7 +11,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 //=== AttributeList
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -55,7 +55,8 @@ CaloAddCellPedShift::CaloAddCellPedShift(const std::string& name, ISvcLocator* p
 //__________________________________________________________________________
 CaloAddCellPedShift::~CaloAddCellPedShift()
 {
-  ATH_MSG_DEBUG( "CaloAddCellPedShift destructor called"  );
+  MsgStream log( messageService(), name() ) ;
+  log << MSG::DEBUG << "CaloAddCellPedShift destructor called" << endreq;
 }
 //__________________________________________________________________________
 StatusCode CaloAddCellPedShift::initialize()
@@ -108,7 +109,7 @@ StatusCode CaloAddCellPedShift::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endmsg;
+  msg() << endreq;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();
@@ -237,7 +238,7 @@ StatusCode CaloAddCellPedShift::stop()
 
           float ped1 = ped1_old + pedShiftValue[i];
 
-          if (iCool<48) fprintf(fp,"%5u %5d %5d %8.3f %8.3f\n",iCool,ii,gain,ped1,ped2);
+          if (iCool<48) fprintf(fp,"%5d %5d %5d %8.3f %8.3f\n",iCool,ii,gain,ped1,ped2);
 
           m_iCool = iCool;
           m_SubHash=ii;
