@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 compNames_all = [ "PreSamplB", "EMB1", "EMB2", "EMB3",   # LAr barrel
                   "PreSamplE", "EME1", "EME2", "EME3",   # LAr EM endcap
                   "HEC0",      "HEC1", "HEC2", "HEC3",   # Hadronic end cap cal.
@@ -67,6 +68,9 @@ def HLTMETMonitoringTool():
                                   comp_names   = compNames_all,
                                   bit_names    = bitNames_allHLT,
                                   monitoring_met         = hltmonList.monitoring_met,
+				  muon_base              = "HLT_mu26",
+                                  muon_pt_thresh         = 18,
+                                  electron_pt_thresh     = 20,
                                   primary_met            = [],
                                   prescaled_met          = [],
                                   );

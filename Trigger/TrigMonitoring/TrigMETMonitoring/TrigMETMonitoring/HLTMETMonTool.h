@@ -16,6 +16,11 @@
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Electron.h"
+
 #include <string>
 #include <vector>
 
@@ -91,14 +96,19 @@ private:
   std::string m_lvl1_roi_key;
   std::string m_hlt_met_key; 
   std::string m_off_met_key;
+  std::string m_muon_key;
+  std::string m_muon_base_trigger;
+
+  double m_muon_pt_thresh;
+  double m_electron_pt_thresh;
   
   std::vector<std::string> m_compNames, m_bitNames;
 
-  // for the efficiencies
+  // for the efficiencies                                                                                                    
   std::string m_denominator_trigger;
-  TH1F *m_offmet_denominator;
+  TH1F *h_denominator;
 
-  std::string m_numerator_trigger[4]; // = {"HLT_xe80", "HLT_xe100"};
+  std::string m_numerator_trigger[4]; // = {"HLT_xe80", "HLT_xe100"};                                                        
   TH1F *trig_eff_num[4] = {0};
 
 };
