@@ -38,6 +38,7 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("noiseTool",m_noiseTool,"noise tool");
   declareProperty("HVCorrTool",m_hvCorrTool);
   declareProperty("keyHVScaleCorr",m_keyHVScaleCorr);
+  declareProperty("absScaling",m_absScaling=false);
 }
 
 //__________________________________________________________________________
@@ -168,16 +169,28 @@ StatusCode CaloRescaleNoise::stop()
           m_elecNoise = m_noiseTool->elecNoiseRMS(calodde,gain,-1);
           m_pileupNoise = m_noiseTool->pileupNoiseRMS(calodde);
 
-          if (hvonline>0.) m_elecNoiseRescaled = m_elecNoise*hvcorr/hvonline;
-          else m_elecNoiseRescaled = m_elecNoise ;
+          if (hvonline>0.) {
+             if (m_absScaling) {
+                m_elecNoiseRescaled = m_elecNoise*hvonline;
+                if (iCool<48 && m_elecNoise>0. && hvonline > 1.) {
+                    ATH_MSG_WARNING ( " Abs. scaled Noise cell " << m_Hash  <<
+                                      " layer/ieta/iphi " << m_calo_id->sampling(id) << " " << m_calo_id->eta(id) << " " << m_calo_id->phi(id) << " OldNoise,NewNoise " <<
+                                         m_elecNoise << " " << m_elecNoiseRescaled );
+                }
+             } else {
+                m_elecNoiseRescaled = m_elecNoise*hvcorr/hvonline;
+                if (iCool<48 && m_elecNoise>0. && std::fabs(m_elecNoiseRescaled/m_elecNoise-1.)>0.05) {
+                    ATH_MSG_WARNING ( " DifferentNoise  cell " << m_calo_id->show_to_string(id) <<
+                                      " layer/eta/phi " << m_layer << " " << m_eta << " " << m_phi << " OldNoise,NewNoise " <<
+                                         m_elecNoise << " " << m_elecNoiseRescaled );
+                }
+             }
+          } else {
+             m_elecNoiseRescaled = m_elecNoise ;
+          }
 
           if (iCool<48) fprintf(fp,"%5d %5d %5d %8.3f %8.3f\n",iCool,ii,gain,m_elecNoiseRescaled,m_pileupNoise);
 
-          if (iCool<48 && m_elecNoise>0. && std::fabs(m_elecNoiseRescaled/m_elecNoise-1.)>0.05) {
-            ATH_MSG_WARNING ( " DifferentNoise  cell " << m_calo_id->show_to_string(id) <<
-                              " layer/eta/phi " << m_layer << " " << m_eta << " " << m_phi << " OldNoise,NewNoise " <<
-                              m_elecNoise << " " << m_elecNoiseRescaled );
-          }
           m_tree->Fill();
 
        }   // loop over gains

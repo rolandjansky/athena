@@ -74,6 +74,6 @@ class CaloRescaleNoise : public AthAlgorithm {
   float m_pileupNoise; 
   float m_elecNoiseRescaled;
   TTree* m_tree;
-
+  bool m_absScaling;
 };
 #endif
