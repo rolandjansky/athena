@@ -91,13 +91,13 @@ void GeantFollower::SteppingAction(const G4Step* aStep)
       // G4LogicalVolume
       const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
       if(ATH_LIKELY(lv)) {
-	const G4Material *mat    = lv->GetMaterial();
-	// the step information
-	double steplength     = aStep->GetStepLength();
-	// the position information
-	double X0             = mat->GetRadlen();
-	// update the track follower
-	m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
+	      const G4Material *mat    = lv->GetMaterial();
+	      // the step information
+	      double steplength     = aStep->GetStepLength();
+	      // the position information
+	      double X0             = mat->GetRadlen();
+	      // update the track follower
+	      m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
       }
       else {
 	throw std::runtime_error("GeantFollower::SteppingAction NULL G4LogicalVolume pointer.");

@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 467755 $"
+__version__="$Revision: 674389 $"
 #==============================================================
 
 
@@ -16,27 +16,27 @@ topSeq = AlgSequence()
 #--- Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL) ----
 #from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.OutputLevel  = INFO
-ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.defaultLimit = 20000
 
 #--- Detector flags -------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-#--- Include JobSpecs.py --------------------------------------
-#include ('JobSpecs.py')
+import random
+import time
 
 ### pass arguments with athena -c "..." ...jobOptions.py:
 if 'myMomentum' not in dir() :
     myMomentum = 10000
 
 if 'myRandomOffset' not in dir() :
-    myRandomOffset = 0
+    myRandomOffset = int(random.uniform(0,time.time())*0.001 )
 
 if 'myRandomSeed1' not in dir() :
-    myRandomSeed1 = 12398190
+    myRandomSeed1 = int(random.uniform(0,time.time()))
 
 if 'myRandomSeed2' not in dir() :
-    myRandomSeed2 = 820189
+    myRandomSeed2 = int(random.uniform(0,time.time()))
 
 if 'myMaxEvent' not in dir() :
     myMaxEvent = 10
@@ -45,127 +45,83 @@ if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-    myGeo = 'ATLAS-GEO-18-01-03'
+    myGeo = 'ATLAS-R1-2012-02-01-00_VALIDATION'
+
+print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
 
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 # the global flags
-if myGeo.split('-')[1] == 'GEO' :
-    if myGeo.split('-')[2] > 16 :
-        globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-05-02'
-    else :
-        globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-04-15'
-elif myGeo.split('-')[1] == 'IBL' :
-    globalflags.ConditionsTag = 'OFLCOND-SDR-BS14T-IBL-03'
-else :
-    globalflags.ConditionsTag = 'OFLCOND-SDR-BS7T-05-02'
-
+globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
 print globalflags.ConditionsTag
 
-#DetFlags.simulate.Truth_setOn()   ### deprecated!
-DetFlags.Truth_setOn()
-
-# specify your "/tmp/<username>/" directory here (output files may be large!)
-outPath = ""  #"/tmp/wlukas/"
 
 #--- AthenaCommon flags ---------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
-athenaCommonFlags.PoolHitsOutput = '/dev/null' # outPath + 'Hits.pool.root'
-athenaCommonFlags.EvtMax = myMaxEvent
+athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import SimFlags
 SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout = myGeo  # specific value
+SimFlags.SimLayout = myGeo
 SimFlags.EventFilter.set_Off()
 
-myMinEta = -2.7
-myMaxEta =  2.7
+include("GeneratorUtils/StdEvgenSetup.py")
+theApp.EvtMax = 50000
 
-myPDG    = 13   # 999 = Geantinos, 13 = Muons
-
-## Run ParticleGenerator
-import AthenaCommon.AtlasUnixGeneratorJob
-spgorders = [ 'pdgcode:' + ' constant ' + str(myPDG),
-              'vertX:'   + ' constant 0.0',
-              'vertY:'   + ' constant 0.0',
-              'vertZ:'   + ' constant 0.0',
-              't:'       + ' constant 0.0',
-              'eta:'     + ' flat ' + str(myMinEta) + ' ' + str(myMaxEta),
-              'phi:'     + ' flat  0 6.2831853',
-              myPt + ':' + ' constant ' + str(myMomentum) ]
-from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
-topSeq += ParticleGenerator()
-topSeq.ParticleGenerator.orders = sorted(spgorders)
+import ParticleGun as PG
+pg = PG.ParticleGun()
+pg.sampler.pid = (-13, 13)
+pg.sampler.mom = PG.PtEtaMPhiSampler(pt=5000, eta=[-3.5,3.5])
+topSeq += pg
 
 SimFlags.RandomSeedOffset = myRandomOffset
+SimFlags.RandomSeedList.addSeed( "ParticleGun", myRandomSeed1, myRandomSeed2 )
 
-### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/SimFlags.py for details)
-SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+from RngComps.RngCompsConf import AtRndmGenSvc 
+myAtRndmGenSvc = AtRndmGenSvc()
+myAtRndmGenSvc.Seeds = ["ParticleGun "+str(myRandomSeed1)+" "+str(myRandomSeed2) ] 
+myAtRndmGenSvc.OutputLevel 	    = VERBOSE
+myAtRndmGenSvc.EventReseeding   = False
+ServiceMgr += myAtRndmGenSvc
 
-### alternative for earlier rel17/rel16
-#from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-#ServiceMgr += AtRanluxGenSvc()
-#ServiceMgr.AtRanluxGenSvc.Seeds = [ "SINGLE " + str(myRandomSeed1) + ' ' + str(myRandomSeed2) ]
-### alternative to previous line
-#ServiceMgr.AtRanluxGenSvc.Seeds = [ "SINGLE OFFSET " + str(myRandomOffset) + ' ' + str(myRandomSeed1) + ' ' + str(myRandomSeed2) ]
+# ToolSvc setup
+from AthenaCommon.AppMgr import ToolSvc
 
-### alternative for old rel16 versions and before (?)
-#SeedString = "SINGLE " + str(myRandomSeed1) + ' ' + str(myRandomSeed2)
-#SimFlags.Seeds.set_Value(SeedString)
-
+from TrkValTools.TrkValToolsConf import Trk__PositionMomentumWriter as PmWriter
+PmWriter = PmWriter('PosMomWriter')
+ToolSvc += PmWriter
 
 ## Add an action
-def eloss_action():
+def energyloss_action():
     from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    EnergyLossAction = PyG4Atlas.UserAction('TrkG4UserActions','EnergyLossRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    EnergyLossAction.set_Properties({"verboseLevel":"0",
-#                                 "cylinders" : "5",
-#                                 "R1": "36.5", "Z1": "2748",   # for Beate ... 34.5 is too small b/c BeamPipe is shifted/tilted!
-#                                 "R2":  "250", "Z2": "3000",   # for Beate ... was z=680 but PP0 PST extends much further
-#                                 "R3":  "550", "Z3": "2820",   # for Beate
-#                                 "R4": "1085", "Z4": "3120",   # for Beate ... or z=3242
-#                                 "R5": "1170", "Z5": "3520",   # for Beate ... Pixel support until z=3460 (or 3470) / ID end-plate until z=3512?
-#                                 "R6":"13000", "Z6":"22500",   # ATLAS
-#                                 "cylinders" : "3",
-#                                 "R1":  "600", "Z1": "2700",   # for Beate (old)
-#                                 "R2": "1170", "Z2": "2748",   # for Beate (old)
-#                                 "R3": "4250", "Z3": "6527",   # for Beate (old) (ATLAS: z=6500)
-#                                 "cylinders" : "6",
-#                                 "R1": "4250", "Z1": "6527",   # for Niels
-#                                 "R2": "4440", "Z2": "7100",   # for Niels
-#                                 "R3": "6200", "Z3": "8000",   # for Niels
-#                                 "R4": "8500", "Z4":"10500",   # for Niels
-#                                 "R5":"11500", "Z5":"16000",   # for Niels
-#                                 "R6":"12000", "Z6":"22030",   # for Niels
-                                 "cylinders" : "6",
-                                 "R1": "36.5", "Z1": "2748",   # for Niels and Peter (rel16/rel17 validation)
-                                 "R2":  "250", "Z2": "2750",   # for Niels and Peter (rel16/rel17 validation)
-                                 "R3":  "550", "Z3": "2820",   # for Niels and Peter (rel16/rel17 validation)
-                                 "R4": "1085", "Z4": "3120",   # for Niels and Peter (rel16/rel17 validation)
-                                 "R5": "1170", "Z5": "3520",   # for Niels and Peter (rel16/rel17 validation)
-                                 "R6": "4250", "Z6": "6527",   # for Niels and Peter (rel16/rel17 validation)
-                                 "minEta"   : str(myMinEta),
-                                 "maxEta"   : str(myMaxEta),
-                                 "momentum" : str(myMomentum),
-                                 "pdg"      : str(myPDG),
-                                 "usePt"    : myPt,
-                                 "useX0"    : "on",
-                                 "onionMode": "on",
-                                 "keepAlive": "off"
-                                  })
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EnergyLossAction)
+    EnergyLossRecorder = PyG4Atlas.UserAction('TrkG4UserActions','EnergyLossRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EnergyLossRecorder)
 
-SimFlags.InitFunctions.add_function('preInitG4', eloss_action)
+SimFlags.InitFunctions.add_function('preInitG4', energyloss_action)
 
-# suppress the enormous amount of MC output
-from TruthExamples.TruthExamplesConf import DumpMC
-DumpMC.VerboseOutput = False
+############### The Material hit collection ##################
 
+if not hasattr(ServiceMgr, 'THistSvc'):
+       from GaudiSvc.GaudiSvcConf import THistSvc
+       ServiceMgr += THistSvc()
+# add the G4 validation output stream
+ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.root' TYPE='ROOT' OPT='RECREATE'" ]
+
+
+#from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+## --- check dictionary
+#ServiceMgr.AthenaSealSvc.CheckDictionary   = True
+## --- commit interval (test)
+#ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
+#ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
+#MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
+#MaterialStream.OutputFile   =   "MaterialStepFile.root" 
+#MaterialStream.ItemList    += [ 'MaterialStepVector#*']
 
 ##############################################################
 
@@ -173,5 +129,5 @@ DumpMC.VerboseOutput = False
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-#--- End EnergyLossSimulation_jobOptions.py file  ------------------------------
+#--- End jobOptions.GeantinoMapping.py file  ------------------------------
 

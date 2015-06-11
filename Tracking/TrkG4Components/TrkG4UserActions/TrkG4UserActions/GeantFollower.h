@@ -39,7 +39,7 @@ class GeantFollower: public FADS::UserAction {
     void SteppingAction(const G4Step*);
     
   private:
-    std::string                                  m_name;
+    std::string                               m_name;
     ToolHandle<Trk::IGeantFollowerHelper>     m_helper;
     mutable const Trk::IGeantFollowerHelper*  m_helperPointer;
     
