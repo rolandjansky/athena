@@ -339,12 +339,8 @@ class TriggerTowerMaker : public AthAlgorithm,
     // Pedestal correction
     bool m_elementFir;
     bool m_correctFir;
-    int  iElement;
     static const int m_nElement = 33; // eta bins 
     static const int m_nLayer = 2;    // em and had layers
-
-    TProfile* p1_bcidLutEm[m_nElement];
-    TProfile* p1_bcidLutHad[m_nElement];
 
     std::vector< std::vector< std::vector<int> > > m_FIRCoeffElement; //  layer(em/had), element(eta bin), FIR coefficients(for 5 samples)
     int m_nDropElement[m_nLayer][m_nElement]; //  layer (em/had), element (eta bin)
