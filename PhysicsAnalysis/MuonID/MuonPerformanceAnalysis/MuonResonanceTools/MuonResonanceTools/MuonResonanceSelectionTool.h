@@ -14,8 +14,12 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
+#ifndef ROOTCORE
+#include "GaudiKernel/ToolHandle.h"
+#else
+#include "AsgTools/ToolHandle.h"
+#endif
 
 class MuonResonanceSelectionTool
 : virtual public asg::AsgTool,
