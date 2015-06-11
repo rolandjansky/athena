@@ -112,6 +112,8 @@ private:
   bool m_maskLayers;
 
   bool m_writeBlobs;
+
+  bool m_forceNewDBContent;
   
   std::string m_connectionString;
   std::string m_connectivityTag;

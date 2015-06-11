@@ -60,6 +60,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_useDualFolderStructure(false),
   m_maskLayers(false),
   m_writeBlobs(false),
+  m_forceNewDBContent(false),
   m_connectionString("oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"),
   m_connectivityTag("PIT-ALL-V39"),
   m_aliasTag("PIT-ALL-V39"),
@@ -91,6 +92,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
 		  "Use dual folder structure when creating a CondAttrListCollection");
   declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" );
   declareProperty("WriteBlobs", m_writeBlobs, "Switch between blob and clob writing");
+  declareProperty("ForceNewDBContent",m_forceNewDBContent);
   declareProperty("ConnectionString", m_connectionString, "Connection string for connectivity DB (used when reading text files)"); 
   declareProperty("ConnectivityTag", m_connectivityTag, "Connectivity tag"); 
   declareProperty("AliasTag", m_aliasTag, "Alias tag"); 
@@ -886,7 +888,8 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 	
 	const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
 	unsigned int idhash; 
-	if(isIBL){ 
+	if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
+	else if(isIBL){ 
 	  if(range.start().run()<222222){
 	    //	    continue;
 	    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
