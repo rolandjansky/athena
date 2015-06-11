@@ -30,6 +30,9 @@
 // This algorithm includes
 #include "TrigT1CaloSim/EnergyCMX.h"
 
+#include "TrigConfL1Data/TriggerThreshold.h"
+#include "TrigConfL1Data/CTPConfig.h"
+
 namespace LVL1 {
 
 

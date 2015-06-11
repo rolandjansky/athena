@@ -48,25 +48,21 @@ using namespace TrigConf;
 
 JetCMX::JetCMX
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ),
+      m_CMXJetHitLocation(TrigT1CaloDefs::CMXJetHitsLocation),
+      m_CMXJetTobLocation(TrigT1CaloDefs::CMXJetTobLocation),
+      m_TopoOutputLocation(TrigT1CaloDefs::JetTopoTobLocation),
+      m_CTPOutputLocation(TrigT1CaloDefs::JetCTPLocation),
+      m_JetCMXDataLocation(TrigT1CaloDefs::JetCMXDataLocation),
+      m_jetCTP(nullptr),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
 {
-    m_CMXJetHitLocation     = TrigT1CaloDefs::CMXJetHitsLocation;
-    m_CMXJetTobLocation     = TrigT1CaloDefs::CMXJetTobLocation;
-    m_JetCMXDataLocation    = TrigT1CaloDefs::JetCMXDataLocation;
-    m_TopoOutputLocation    = TrigT1CaloDefs::JetTopoTobLocation;
-    m_CTPOutputLocation     = TrigT1CaloDefs::JetCTPLocation;
-
-    // This is how you declare the paramembers to Gaudi so that
-    // they can be over-written via the job options file
-    
     declareProperty( "CMXJetHitLocation",       m_CMXJetHitLocation );
     declareProperty( "CMXJetTobLocation",       m_CMXJetTobLocation );
     declareProperty( "JetCMXDataLocation",      m_JetCMXDataLocation );
     declareProperty( "CTPOutputLocation",       m_CTPOutputLocation );
     declareProperty( "TopoOutputLocation",      m_TopoOutputLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-
 }
 
 // Destructor
