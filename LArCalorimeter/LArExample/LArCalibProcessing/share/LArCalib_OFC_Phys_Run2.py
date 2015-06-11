@@ -232,11 +232,13 @@ conddb.addFolder("",ShapeResidualsFolder+InputDBConnectionShapeResidual)
 #Decoder Tool for electronic-noise only autocorrelation
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
 theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
 ToolSvc += theLArAutoCorrDecoderTool
 
 #Decoder Tool for pile-up autocorrelation
 theLArPhysAutoCorrDecoderTool = LArAutoCorrDecoderTool("LArPhysAutoCorrDecoderTool")
 theLArPhysAutoCorrDecoderTool.DecodeMode=1
+theLArPhysAutoCorrDecoderTool.UseAlwaysHighGain=True
 theLArPhysAutoCorrDecoderTool.KeyAutoCorr="LArPhysAutoCorr"
 ToolSvc += theLArPhysAutoCorrDecoderTool
 

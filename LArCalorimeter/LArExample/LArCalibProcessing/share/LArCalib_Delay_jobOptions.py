@@ -593,6 +593,7 @@ if (WriteNtuple):
    LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
    LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
    LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
+   LArCaliWaves2Ntuple.AddFEBTempInfo = False
    LArCaliWaves2Ntuple.SaveJitter = SaveJitter
    LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
    

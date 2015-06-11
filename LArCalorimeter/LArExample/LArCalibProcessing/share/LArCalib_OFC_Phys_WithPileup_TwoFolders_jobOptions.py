@@ -138,6 +138,12 @@ if not 'TimeShiftByIndex' in dir() :
 if not 'Nsamples' in dir():
    Nsamples = 5
 
+if Nsamples == 4:
+   if not 'ReadDSPCOnfig' in dir():
+      ReadDSPConfig=True
+   if not 'DSPConfigFolder' in dir():
+      DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
+
 if not 'Nphases' in dir():
    Nphases = 8
 
@@ -178,6 +184,12 @@ if not 'TimeShiftByIndex2' in dir() :
 
 if not 'Nsamples2' in dir():
    Nsamples2 = 5
+
+if Nsamples2 == 4:
+   if not 'ReadDSPCOnfig2' in dir():
+      ReadDSPConfig2=True
+   if not 'DSPConfigFolder2' in dir():
+      DSPConfigFolder2="/LAR/Configuration/DSPConfiguration"
 
 if not 'Nphases2' in dir():
    Nphases2 = 24
@@ -630,10 +642,13 @@ else:
 
 from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
 theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
 ToolSvc += theLArAutoCorrDecoderTool
+
 if NColl > 0:
    theLArPhysAutoCorrDecoderTool = LArAutoCorrDecoderTool("LArPhysAutoCorrDecoderTool")
    theLArPhysAutoCorrDecoderTool.DecodeMode=1
+   theLArPhysAutoCorrDecoderTool.UseAlwaysHighGain=True
    theLArPhysAutoCorrDecoderTool.KeyAutoCorr="LArPhysAutoCorr"
    ToolSvc += theLArPhysAutoCorrDecoderTool
 
@@ -661,6 +676,9 @@ LArPhysOFCAlg.UseDelta = 0 #Only for high-mu OFCs
 LArPhysOFCAlg.KeyOFC   = OFCKey
 LArPhysOFCAlg.KeyShape = ShapeKey
 LArPhysOFCAlg.DecoderTool = theLArAutoCorrDecoderTool
+if Nsamples==4:
+   LArPhysOFCAlg.ReadDSPConfig   = ReadDSPConfig
+   LArPhysOFCAlg.DSPConfigFolder = DSPConfigFolder
 
 
 topSequence+=LArPhysOFCAlg
@@ -688,6 +706,10 @@ LArPhysOFCAlg2.KeyOFC   = OFCKey2
 LArPhysOFCAlg2.KeyShape = ShapeKey2
 LArPhysOFCAlg2.DecoderTool = theLArAutoCorrDecoderTool
 
+if Nsamples2==4:
+   LArPhysOFCAlg2.ReadDSPConfig   = ReadDSPConfig2
+   LArPhysOFCAlg2.DSPConfigFolder = DSPConfigFolder2
+
 topSequence+=LArPhysOFCAlg2
 
 if NColl > 0:
@@ -712,6 +734,10 @@ if NColl > 0:
    LArPhysOFCAlgmu.UseDelta = UseDelta
    LArPhysOFCAlgmu.KeyOFC   = OFCKey+"_mu"
    LArPhysOFCAlgmu.DecoderTool = theLArPhysAutoCorrDecoderTool
+
+   if Nsamples==4:
+      LArPhysOFCAlgmu.ReadDSPConfig   = ReadDSPConfig
+      LArPhysOFCAlgmu.DSPConfigFolder = DSPConfigFolder
    
    
    topSequence+=LArPhysOFCAlgmu
@@ -738,6 +764,10 @@ if NColl > 0:
    LArPhysOFCAlgmu2.KeyOFC   = OFCKey2+"_mu"
    LArPhysOFCAlgmu2.DecoderTool = theLArPhysAutoCorrDecoderTool
    
+   if Nsamples2==4:
+      LArPhysOFCAlgmu2.ReadDSPConfig   = ReadDSPConfig2
+      LArPhysOFCAlgmu2.DSPConfigFolder = DSPConfigFolder2
+
    topSequence+=LArPhysOFCAlgmu2
 ###########################################################################
 

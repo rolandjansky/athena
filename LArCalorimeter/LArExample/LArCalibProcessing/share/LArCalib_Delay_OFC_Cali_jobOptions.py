@@ -1,3 +1,11 @@
+# Modified version:
+# - doOFC=False switch off the OFC computation and storing
+# - skipEvents added to EventSelector - doesn't help for Xtalk
+# - maxEvents added also - doesnt help for Xtalk
+# - allCells will reconstruct also not-pulsed waves
+# - usePatt - if <0 all patterns, if <0,15> or <0,13> if EMEC, fill only those pattern
+# - numPatt - either 16 for EMB or 14 for EMEC (with standard configuration)
+
 import commands
 
 ###########################################################################
@@ -11,7 +19,8 @@ import commands
 ###########################################################################
 
 include("LArCalibProcessing/LArCalib_Flags.py")
-include("RecExCommission/GetInputFiles.py")
+#include("RecExCommission/GetInputFiles.py")
+include("LArCalibProcessing/GetInputFiles.py")
 
 #######################################################
 #       Run properties
@@ -68,9 +77,33 @@ if not 'ChannelSelection' in dir():
 if not 'runAccumulator' in dir(): 
    runAccumulator = False # averaged mode
 
+if not 'RecAllCells' in dir():
+   RecAllCells=False # do not reco non-pulsed cells
+
+if not 'doBadCatcher' in dir():
+   doBadCatcher = True
+
 from string import *
 def DBConnectionFile(sqlitefile):  
    return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
+
+if not 'skipEvents' in dir():
+   skipEvents=0
+
+if not 'maxEvents' in dir():
+   maxEvents=-1
+
+if not 'allCells' in dir():
+   allCells=False
+
+if not 'usePatt' in dir():
+   usePatt = -1
+
+if not 'numPatt' in dir():
+   if 'EMB' in Partition:
+      numPatt = 16
+   else:
+      numPatt = 14
 
 #######################################################
 #                Monitoring properties
@@ -92,7 +125,7 @@ if not 'StripsXtalkCorr' in dir():
 if not 'ShortCorrector' in dir():
    ShortCorrector = True # correctio for short
 
-if not "ADCSaturation" in dir():
+if not "ADCsaturation" in dir():
    ADCsaturation  = 4095 # Set to 0 if you want to keep saturating pulses otherwise 4095
    
 if not 'SubtractPed' in dir(): # Set whether to substract pedestals. Pedestals come from COOL, or local Pool file if 'PedPoolFileName' is defined, or fake pedestal subraction as 'extrema ratio'
@@ -114,37 +147,42 @@ if not 'CorrectBadChannels' in dir():
 ###########################################################################
 #                             OFC properties
 ###########################################################################
+if not 'doOFC' in dir():
+   doOFC = True
 
-if not 'Nsamples' in dir():
+if doOFC:
+ if not 'Nsamples' in dir():
    Nsamples = 5
 
-if not 'Nphases' in dir():
+ if not 'Nphases' in dir():
    Nphases = 50
 
-if not 'Dphases' in dir():
+ if not 'Dphases' in dir():
    Dphases = 1
    
-if not 'Ndelays' in dir():
+ if not 'Ndelays' in dir():
    Ndelays = 24
 	
-if not 'ContainerKey' in dir():
+ if not 'ContainerKey' in dir():
    ContainerKey = "LArCaliWave"
    
-if not 'OFCKey' in dir():
+ if not 'OFCKey' in dir():
    OFCKey = "LArOFC"
 
-if not 'Normalize' in dir():
+ if not 'Normalize' in dir():
    Normalize = True
 
-if not 'TimeShift' in dir() :
+ if not 'TimeShift' in dir() :
    TimeShift = False
 
-if not 'TimeShiftByIndex' in dir() :
+ if not 'TimeShiftByIndex' in dir() :
    TimeShiftByIndex = -1
 
-if not 'DumpOFC' in dir():
+ if not 'DumpOFC' in dir():
    DumpOFC = False
 
+if not 'ForceShift' in dir():
+   ForceShift = False
    
 #######################################################
 #      Delay output name
@@ -167,6 +205,9 @@ if not 'IOVEnd' in dir():
 
 if not 'DBConnectionCOOL' in dir():  
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
+
+if not 'DBConnectionCOOLONL' in dir():  
+   DBConnectionCOOLONL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
 
 ## Pedestal
 if not 'ReadPedFromCOOL' in dir():
@@ -196,9 +237,9 @@ if not 'LArCalibWaveFolderXtlkOutputTag' in dir():
    LArCalibWaveFolderXtlkOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArCaliWaveFolderXtlk)
 if not 'LArCalibWaveFolderOutputTag' in dir():
    LArCalibWaveFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArCaliWaveFolder)
-if not 'LArCalibOFCXtlkFolderOutputTag' in dir():
+if doOFC and not 'LArCalibOFCXtlkFolderOutputTag' in dir():
    LArCalibOFCXtlkFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArOFCCaliFolderXtlk)
-if not 'LArCalibOFCFolderOutputTag' in dir():
+if doOFC and not 'LArCalibOFCFolderOutputTag' in dir():
    LArCalibOFCFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArOFCCaliFolder)
 del rs #Close database
    
@@ -248,7 +289,7 @@ if ( ReadPedFromCOOL ):
    if 'InputPedSQLiteFile' in dir():
       InputDBConnectionPed = DBConnectionFile(InputPedSQLiteFile)
    else:
-      InputDBConnectionPed = DBConnectionCOOL
+      InputDBConnectionPed = DBConnectionCOOLONL
 
 if ( ReadAutoCorrFromCOOL ):      
    if 'InputAutoCorrSQLiteFile' in dir():
@@ -256,7 +297,7 @@ if ( ReadAutoCorrFromCOOL ):
    else:
       InputDBConnectionAutoCorr = DBConnectionCOOL
 
-if not 'OutputObjectSpecOFC' in dir():
+if doOFC and not 'OutputObjectSpecOFC' in dir():
    if   ( ContainerKey == "LArCaliWave" ):
       if ( not StripsXtalkCorr ):
          OutputObjectSpecOFC   = "LArOFCComplete#"  +OFCKey  +"#"+ LArCalib_Flags.LArOFCCaliFolder	
@@ -272,19 +313,20 @@ if not 'OutputObjectSpecOFC' in dir():
       else:
          OutputObjectSpecOFC   = "LArOFCComplete#"+OFCKey+"#"+ LArCalib_Flags.LArOFCMasterWaveFolderXtlk
          OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolderXtlk,LArCalibOFCXtlkFolderOutputTag)
-			
-OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
-if (StripsXtalkCorr):
-   OFCFileTag += "_StripsXtalkCorr"
+if doOFC:
+  OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
-OFCFileTag += "_"+str(Nsamples)+"samples"
+  if (StripsXtalkCorr):
+    OFCFileTag += "_StripsXtalkCorr"
 
-if (Dphases>1):
-   OFCFileTag += "_"+str(Dphases)+"Dphase"
+  OFCFileTag += "_"+str(Nsamples)+"samples"
 
-if not 'OutputOFCRootFileName' in dir():
-   OutputOFCRootFileName = "LArOFCCali_"+OFCFileTag + ".root"
+  if (Dphases>1):
+    OFCFileTag += "_"+str(Dphases)+"Dphase"
+
+  if not 'OutputOFCRootFileName' in dir():
+    OutputOFCRootFileName = "LArOFCCali_"+OFCFileTag + ".root"
    
 ## Bad Channel   
    
@@ -301,40 +343,42 @@ if ( ReadBadChannelFromCOOL ):
 ###########################################################################
 #                             OFC properties
 ###########################################################################
-
-if not 'Nsamples' in dir():
+if doOFC:
+ if not 'Nsamples' in dir():
    Nsamples = 5
 
-if not 'Nphases' in dir():
+ if not 'Nphases' in dir():
    Nphases = 50
 
-if not 'Dphases' in dir():
+ if not 'Dphases' in dir():
    Dphases = 1
    
-if not 'Ndelays' in dir():
+ if not 'Ndelays' in dir():
    Ndelays = 24
 	
-if not 'ContainerKey' in dir():
+ if not 'ContainerKey' in dir():
    ContainerKey = "LArCaliWave"
    
-if not 'OFCKey' in dir():
+ if not 'OFCKey' in dir():
    OFCKey = "LArOFC"
 
-if not 'Normalize' in dir():
+ if not 'Normalize' in dir():
    Normalize = True
 
-if not 'TimeShift' in dir() :
+ if not 'TimeShift' in dir() :
    TimeShift = False
 
-if not 'TimeShiftByIndex' in dir() :
+ if not 'TimeShiftByIndex' in dir() :
    TimeShiftByIndex = -1
 
-if not 'DumpOFC' in dir():
+ if not 'DumpOFC' in dir():
    DumpOFC = False
+
+if not 'doOFC' in dir():
+   doOFC=True
 #######################################################################################
 # print summary
 #######################################################################################
-
 DelayOFCLog = logging.getLogger( "DelayOFCLog" )
 DelayOFCLog.info( " ======================================================== " )
 DelayOFCLog.info( " ***                 LAr Delay&&OFC summary           *** " )
@@ -345,23 +389,25 @@ DelayOFCLog.info( " Partition                          = "+Partition )
 DelayOFCLog.info( " Type                               = Delay "  )
 DelayOFCLog.info( " LArGain                            = "+str(GainList) )
 for i in range(len(FullFileName)):
-   DelayOFCLog.info( " FullFileName                       = "+FullFileName[i] )
+  DelayOFCLog.info( " FullFileName                       = "+FullFileName[i] )
 if ( ReadPedFromCOOL ):
-   DelayOFCLog.info( " InputDBConnectionPed               = "+InputDBConnectionPed)
+  DelayOFCLog.info( " InputDBConnectionPed               = "+InputDBConnectionPed)
 else :
-   DelayOFCLog.info( " InputPedPoolFileName               = "+InputPedPoolFileName)
+  DelayOFCLog.info( " InputPedPoolFileName               = "+InputPedPoolFileName)
 if ( ReadAutoCorrFromCOOL ):
-   DelayOFCLog.info( " InputDBConnectionAutoCorr          = "+InputDBConnectionAutoCorr )
+  DelayOFCLog.info( " InputDBConnectionAutoCorr          = "+InputDBConnectionAutoCorr )
 else:   
-   DelayOFCLog.info( " InputAutoCorrPoolFileName          = "+InputAutoCorrPoolFileName )
+  DelayOFCLog.info( " InputAutoCorrPoolFileName          = "+InputAutoCorrPoolFileName )
 DelayOFCLog.info( " PedLArCalibFolderTag               = "+PedLArCalibFolderTag )
 DelayOFCLog.info( " OutputCaliWaveRootFullFileName     = "+OutputRootFileDir+"/"+OutputCaliWaveRootFileName )
-DelayOFCLog.info( " OutputOFCRootFullFileName          = "+OutputRootFileDir+"/"+OutputOFCRootFileName )
-DelayOFCLog.info( " OutputPoolFullFileName             = "+OutputPoolFileDir+"/"+OutputPoolFileName )
 DelayOFCLog.info( " OutputObjectSpecCaliWave           = "+OutputObjectSpecCaliWave )
 DelayOFCLog.info( " OutputTagSpecCaliWave              = "+OutputTagSpecCaliWave )
-DelayOFCLog.info( " OutputObjectSpecOFC                = "+str(OutputObjectSpecOFC) )
-DelayOFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
+if doOFC:   
+ DelayOFCLog.info( " OutputOFCRootFullFileName          = "+OutputRootFileDir+"/"+OutputOFCRootFileName )
+ DelayOFCLog.info( " OutputPoolFullFileName             = "+OutputPoolFileDir+"/"+OutputPoolFileName )
+ DelayOFCLog.info( " OutputObjectSpecOFC                = "+str(OutputObjectSpecOFC) )
+ DelayOFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
+
 DelayOFCLog.info( " IOVBegin                           = "+str(IOVBegin) )
 DelayOFCLog.info( " IOVEnd                             = "+str(IOVEnd) )
 DelayOFCLog.info( " LArCalibOutputDB                   = "+OutputDB )
@@ -438,7 +484,7 @@ if ( runAccumulator ) :
    # this is a OLD jobOptions which can maybe work but only for the barrel                        #
    # can be used as a skeleton if needed but                                                      #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
-   include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
+   include("./LArCalib_CalibrationPatterns.py")
 
 else:
    theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
@@ -461,6 +507,9 @@ if CheckBadEvents:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher      
       
+EventSelector.SkipEvents=skipEvents
+theApp.EvtMax = maxEvents
+
 ##########################################################################
 #                                                                        #
 #                      Delay run reconstruction                          #
@@ -500,21 +549,25 @@ except:
    pass
 
 # Temperature folder
-#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-#svcMgr.EventSelector.InitialTimeStamp = 1284030331
-#import cx_Oracle
-#import time
-#import datetime
-#connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-#cursor=connection.cursor()
-#sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-#cursor.execute(sRequest)
-#times= cursor.fetchall()
-#d=times[0][1]
-#iovtemp=int(time.mktime(d.timetuple()))
-##print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
-##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+svcMgr.EventSelector.InitialTimeStamp = 1284030331
+import cx_Oracle
+import time
+import datetime
+try:
+   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+   cursor=connection.cursor()
+   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+   cursor.execute(sRequest)
+   times= cursor.fetchall()
+   d=times[0][1]
+   iovtemp=int(time.mktime(d.timetuple()))
+except:
+   iovtemp=1283145454
+
+#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
+svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
@@ -530,12 +583,21 @@ if (SubtractPed):
    if ( ReadPedFromCOOL ):
       if not 'InputPedSQLiteFile' in dir():
          DelayOFCLog.info( "Read Pedestal from Oracle DB")
+         PedestalFolder = "/LAR/ElecCalibFlat/Pedestal"
+         PedestalTagSpec = ""
+         from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
+         theLArCondSvc=LArFlatConditionSvc(DoSuperCells=False,DoRegularCells=True)
+         svcMgr+=theLArCondSvc
+         svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
+         svcMgr.LArFlatConditionSvc.PedestalInput=PedestalFolder
+         PedChannelSelection=""
       else :   
          DelayOFCLog.info( "Read Pedestal from SQLite file")
-
-      PedestalFolder = LArCalib_Flags.LArPedestalFolder
-      PedestalTagSpec = LArCalibFolderTag (PedestalFolder,PedLArCalibFolderTag)
-      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+ChannelSelection)
+         PedestalFolder = LArCalib_Flags.LArPedestalFolder
+         PedestalTagSpec = LArCalibFolderTag (PedestalFolder,PedLArCalibFolderTag)
+         PedChannelSelection=ChannelSelection
+         
+      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+PedChannelSelection)
    else:
       if 'InputPedPoolFileName' in dir():
          DelayOFCLog.info( "Read Pedestal from POOL file") 
@@ -591,6 +653,9 @@ LArCaliWaveBuilder.SubtractPed      = SubtractPed
 LArCaliWaveBuilder.CheckEmptyPhases = CheckEmptyPhases
 LArCaliWaveBuilder.NBaseline        = 0 # to avoid the use of the baseline when Pedestal are missing
 LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only for HEC
+LArCaliWaveBuilder.RecAllCells      = RecAllCells
+LArCaliWaveBuilder.UsePattern = usePatt
+LArCaliWaveBuilder.NumPattern = numPatt
 
 if StripsXtalkCorr:
    LArCaliWaveBuilder.ADCsaturation = 0
@@ -652,18 +717,17 @@ if CorrectBadChannels:
 #                                 Cali OFC                               #
 #                                                                        #
 ##########################################################################
-
-if ( ReadAutoCorrFromCOOL ):
+if doOFC:
+ if ( ReadAutoCorrFromCOOL ):
    if not 'InputAutoCorrSQLiteFile' in dir():
       DelayOFCLog.info( "Read AutoCorr from  Oracle DB" )
    else :
       DelayOFCLog.info( "Read AutoCorr from SQLite file" )
       
-if ( ReadAutoCorrFromCOOL ):
    AutoCorrFolder  = LArCalib_Flags.LArAutoCorrFolder
    AutoCorrTagSpec = LArCalibFolderTag(AutoCorrFolder,AutoCorrLArCalibFolderTag)
    conddb.addFolder("",AutoCorrFolder+"<tag>"+AutoCorrTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionAutoCorr+"</dbConnection>"+ ChannelSelection)
-else:
+ else:
    if 'InputAutoCorrPoolFileName' in dir():
       DelayOFCLog.info( "Read AutoCorr from POOL file" )
       PoolFileList += [ InputAutoCorrPoolDir+"/"+InputAutoCorrPoolFileName ]
@@ -768,6 +832,7 @@ if (WriteNtuple):
    LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
    LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
    LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
+   LArCaliWaves2Ntuple.AddFEBTempInfo = False
    LArCaliWaves2Ntuple.SaveJitter = SaveJitter
    LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
    
@@ -809,33 +874,33 @@ if ( WritePoolFile ) :
 ###########################################################################
 #                            OFC computation
 ###########################################################################
+if doOFC:
+  from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
+  theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+  ToolSvc += theLArAutoCorrDecoderTool
 
-from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
-theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
-ToolSvc += theLArAutoCorrDecoderTool
-
-from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
-LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")
-LArCaliOFCAlg.ReadCaliWave = True
-LArCaliOFCAlg.KeyList   = [ ContainerKey ]
-LArCaliOFCAlg.Nphase    = Nphases
-LArCaliOFCAlg.Dphase    = Dphases
-LArCaliOFCAlg.Ndelay    = Ndelays
-LArCaliOFCAlg.Nsample   = Nsamples
-LArCaliOFCAlg.Normalize = Normalize
-LArCaliOFCAlg.TimeShift = TimeShift
-LArCaliOFCAlg.TimeShiftByIndex = TimeShiftByIndex
-LArCaliOFCAlg.Verify    = True
-LArCaliOFCAlg.FillShape = False
-if ( DumpOFC ) :
-	LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
-LArCaliOFCAlg.GroupingType = GroupingType
-LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool
-topSequence+=LArCaliOFCAlg
+  from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
+  LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")
+  LArCaliOFCAlg.ReadCaliWave = True
+  LArCaliOFCAlg.KeyList   = [ ContainerKey ]
+  LArCaliOFCAlg.Nphase    = Nphases
+  LArCaliOFCAlg.Dphase    = Dphases
+  LArCaliOFCAlg.Ndelay    = Ndelays
+  LArCaliOFCAlg.Nsample   = Nsamples
+  LArCaliOFCAlg.Normalize = Normalize
+  LArCaliOFCAlg.TimeShift = TimeShift
+  LArCaliOFCAlg.TimeShiftByIndex = TimeShiftByIndex
+  LArCaliOFCAlg.Verify    = True
+  LArCaliOFCAlg.FillShape = False
+  if ( DumpOFC ) :
+     LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
+  LArCaliOFCAlg.GroupingType = GroupingType
+  LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool
+  topSequence+=LArCaliOFCAlg
 
 
 
-if ( WritePoolFile ) :
+  if ( WritePoolFile ) :
    from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
    OutputConditionsAlg2=OutputConditionsAlg("OutputConditionsAlg2",OutputPoolFileDir+"/"+OutputPoolFileName,
                                            [OutputObjectSpecOFC],[OutputObjectSpecTagOFC],WriteIOV)
@@ -844,11 +909,12 @@ if ( WritePoolFile ) :
       OutputConditionsAlg2.Run2 = IOVEnd
    
 
-if (WriteNtuple):
+  if (WriteNtuple):
    from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
    LArOFC2Ntuple = LArOFC2Ntuple("LArOFC2Ntuple")
    LArOFC2Ntuple.ContainerKey = OFCKey 	   
    LArOFC2Ntuple.NtupleFile = "FILE2" 	   
+   LArOFC2Ntuple.AddFEBTempInfo = False 	   
    topSequence+=LArOFC2Ntuple
 
    if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
@@ -856,9 +922,10 @@ if (WriteNtuple):
    svcMgr += NTupleSvc()
    svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
    
-
-
-
+      if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
+         os.remove(OutputRootFileDir+"/"+OutputOFCRootFileName)  
+      svcMgr += NTupleSvc()
+      svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
 
    
 ###########################################################################

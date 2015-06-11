@@ -8,7 +8,7 @@ from calendar import timegm
 
 
 if "date" not in dir():
-    date="2013-02-06:09:45:00"
+    date="2015-02-06:09:45:00"
 
 if "TimeStamp" not in dir():
    try:
@@ -36,7 +36,7 @@ if "RunNumber" in dir():
 print "Working on run",myRunNumber,"LB",myLumiBlock,"Timestamp:",TimeStamp
 
 if "GlobalTag" not in dir():
-    GlobalTag     = 'COMCOND-BLKPST-004-00'
+    GlobalTag     = 'CONDBR2-BLKPA-2015-05'
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()
@@ -45,7 +45,7 @@ DetFlags.em_setOn()
 include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 
 # the Tile, LAr and Calo detector description package
-DetDescrVersion = "ATLAS-GEO-10-00-00"
+DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 online = True
 include ("LArConditionsCommon/LArMinimalSetup.py")

@@ -192,7 +192,8 @@ if not 'OutputShapePoolFileName' in dir():
    OutputShapePoolFileName = "LArShapeCali_"+OFCFileTag + ".pool.root"
 
 if not 'LArCalibFolderOutputTag' in dir():
-   LArCalibFolderOutputTag = "-UPD3-00"  
+   rs=FolderTagResover()
+   LArCalibFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArOFCCaliFolder)  
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -270,7 +271,7 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
       #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"            
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"            
 
 ###########################################################################
 # Print summary
@@ -341,8 +342,7 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-BadChannelsFolder="/LAR/BadChannels/BadChannels"
-MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 
 if not 'InputBadChannelSQLiteFile' in dir():
    OFCLog.info( "Read Bad Channels from Oracle DB")
@@ -462,7 +462,7 @@ if ( AllWavesPerCh ) :
        if ( DumpOFC ) :
             LArCaliOFCAlgVec[i].DumpOFCfile = "LArOFCCali"+str(i+1)+".dat"
        LArCaliOFCAlgVec[i].GroupingType = GroupingType
-       LArCaliOFCAlgVec[i].DecoderTool=theLArAutoCorrDecoderTool     
+       LArCaliOFCAlgVec[i].DecoderTool=theLArAutoCorrDecoderTool
 
 else:
    LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")
@@ -480,9 +480,8 @@ else:
    if ( DumpOFC ) :
       LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
    LArCaliOFCAlg.GroupingType = GroupingType
-   LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool   
+   LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool
    topSequence+=LArCaliOFCAlg
-
 
 ###########################################################################
 
