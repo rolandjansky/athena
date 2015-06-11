@@ -45,15 +45,14 @@ StatusCode MergeGenericMuonSimHitCollTool::prepareEvent(unsigned int nInputEvent
   return StatusCode::SUCCESS;
 }
 StatusCode MergeGenericMuonSimHitCollTool::processBunchXing(int bunchXing,
-                                                            SubEventIterator bSubEvents,
-                                                            SubEventIterator eSubEvents)
-{
+                                                            PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                                                            PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
   StatusCode sc(StatusCode::SUCCESS);
   //if this is the first SubEvent for this Event then create the hitContainers;
   ATH_MSG_VERBOSE ( "processBunchXing()" );
-  SubEventIterator iEvt(bSubEvents);
+  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
+    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
     // loop over containers
     for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process GenericMuonSimHitCollection " << m_SimHitContainerNames[iHitContainer] );

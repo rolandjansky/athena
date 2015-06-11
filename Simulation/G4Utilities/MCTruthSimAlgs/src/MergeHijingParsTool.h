@@ -7,9 +7,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "GeneratorObjects/HijingEventParams.h"
-#include "StoreGate/WriteHandle.h"
-
+#include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
@@ -36,9 +34,10 @@ public:
   virtual StatusCode mergeEvent() override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
-  virtual StatusCode processBunchXing(int bunchXing,
-                                      SubEventIterator bSubEvents,
-                                      SubEventIterator eSubEvents) override final;
+  virtual StatusCode
+    processBunchXing(int bunchXing,
+                     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   virtual bool toProcess(int bunchXing) const override final;
@@ -48,7 +47,7 @@ public:
   virtual StatusCode processAllSubEvents() override final;
 private:
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  SG::WriteHandle<HijingEventParams> m_outputObject;
+  StringProperty m_key;
   bool m_firstSubEvent;
 };
 #endif //MCTRUTHSIMALGS_MERGEHIJINGPARSTOOL_H
