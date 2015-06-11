@@ -10,12 +10,22 @@
 
 MuonResonanceSelectionTool::MuonResonanceSelectionTool(std::string myname)
   : AsgTool(myname),
+    m_highMassWindow(110000.0),
+    m_lowMassWindow(90000.0),
+#ifndef ROOTCORE
     m_seliTool("CP::MuonSelectionTool/MuonSelectionTool", this), 
     m_sfTool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
     m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
     m_matchTool("Trig::TrigMuonMatching/TrigMuonMatching", this),
-    m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool", this){
-  
+    m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool", this)
+#else 
+    m_seliTool("CP::MuonSelectionTool/MuonSelectionTool"), 
+    m_sfTool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors" ),
+    m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool" ),
+    m_matchTool("Trig::TrigMuonMatching/TrigMuonMatching"),
+    m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool")
+#endif
+{
   
   declareProperty("PtCut",          m_ptCut = 20000.0);
   declareProperty("EtaCut",         m_etaCut = 2.5);
@@ -42,8 +52,8 @@ StatusCode MuonResonanceSelectionTool::initialize()
 {
   
   ATH_CHECK( m_seliTool.retrieve() );
-  ATH_CHECK( m_sfTool.retrieve() );
-  ATH_CHECK( m_calibTool.retrieve() );
+  if (m_doEff) ATH_CHECK( m_sfTool.retrieve() );
+  if (m_doCalib) ATH_CHECK( m_calibTool.retrieve() );
   ATH_CHECK( m_trigTool.retrieve() );
   ATH_CHECK( m_matchTool.retrieve() ); 
 
@@ -84,11 +94,14 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
     return goodMuons;
   }
 
-  if( m_calibTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
-    ATH_MSG_WARNING( "Cannot configure muon calibration tool for systematic " << sys.name() ); 
-  
-  if( m_sfTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
-    ATH_MSG_WARNING( "Cannot configure muon efficiency corrections for systematic " << sys.name() );
+  if (m_doCalib) {      
+    if( m_calibTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
+      ATH_MSG_WARNING( "Cannot configure muon calibration tool for systematic " << sys.name() ); 
+  }
+  if (m_doEff) {
+    if( m_sfTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
+      ATH_MSG_WARNING( "Cannot configure muon efficiency corrections for systematic " << sys.name() );
+  }
   
   // loop over muon container
   for(auto tag : *tags) {
@@ -102,6 +115,7 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
       try{ m_calibTool->correctedCopy( *tag, mu );}
       catch(SG::ExcBadAuxVar&){
 	ATH_MSG_WARNING( "Cannot retrieve aux-item - rejecting muon" );
+	delete mu;
 	continue;
       }
     }
@@ -109,6 +123,7 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
       try{ mu = copy(*tag);}
       catch(SG::ExcBadAuxVar&){    
       	ATH_MSG_WARNING( "Cannot retrieve aux-item - rejecting muon" );
+	delete mu;
 	continue;
       }
     }
@@ -123,19 +138,20 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
     //pass MuonSelectionTool
     if(!m_seliTool->accept(*mu)){ 
       ATH_MSG_DEBUG("Muon rejected by " << m_seliTool );
+      delete mu;
       continue;
     }
 
     // Cut on mu eta, pT, iso, IP
-    if(mu->pt() < m_ptCut) continue;
-    if(TMath::Abs(mu->eta()) > m_etaCut) continue;
+    if(mu->pt() < m_ptCut){delete mu; continue;}
+    if(TMath::Abs(mu->eta()) > m_etaCut){delete mu; continue;}
     float caloiso = m_isoCaloCut * mu->pt();
     float trkiso  = m_isoTrkCut * mu->pt();
     if( !(mu->isolation(caloiso, xAOD::Iso::etcone30)) ||
-	!(mu->isolation(trkiso,  xAOD::Iso::ptcone30)) ) continue;
+	!(mu->isolation(trkiso,  xAOD::Iso::ptcone30)) ){delete mu; continue;}
     if( !IPCut(*mu, m_z0Cut, m_d0Cut) ||
-	!IPCutAbs(*mu, m_Abs_z0Cut, m_Abs_d0Cut) ) continue;
-    if( m_IDCuts && !IDTrk(*mu) ) continue;
+	!IPCutAbs(*mu, m_Abs_z0Cut, m_Abs_d0Cut) ){delete mu; continue;}
+    if( m_IDCuts && !IDTrk(*mu) ){delete mu; continue;}
 
     //TriggerMatching
     applyTriggerMatch(*mu);
@@ -155,7 +171,7 @@ void MuonResonanceSelectionTool::applySF(const xAOD::Muon& mu, bool isMC) const{
   
   float sf = 1.;
   if(isMC){
-    if( !m_sfTool->applyEfficiencyScaleFactor(mu) ){
+    if( m_sfTool->applyEfficiencyScaleFactor(mu) == CP::CorrectionCode::Error ){
       ATH_MSG_WARNING( "Failed to apply scale factor to the muon" );
       return;
     }
@@ -170,14 +186,12 @@ void MuonResonanceSelectionTool::applySF(const xAOD::Muon& mu, bool isMC) const{
 bool  MuonResonanceSelectionTool::IPCut(const xAOD::Muon& mu, float z0cut, float d0cut) const{
   
   const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
-  if( mu.muonType() == xAOD::Muon::Combined && !tp->track() )
+  if( mu.muonType() == xAOD::Muon::Combined && !tp )
     tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
   
   if(tp){
-    //compute sigma(d0)
-    const Trk::Perigee Per = tp->perigeeParameters();
-    const AmgSymMatrix(5) *Cov = Per.covariance();
-    float err_d0 = Amg::error(*Cov,Trk::d0);
+    float err_d0 = sqrt(tp->definingParametersCovMatrix()(0,0));
+    if(err_d0==0) err_d0 = 1e-9;
 
     //correct z0 wrt to PV
     const xAOD::Vertex *vx = const_cast<xAOD::Vertex*>(tp->vertex());
@@ -203,7 +217,7 @@ bool  MuonResonanceSelectionTool::IPCut(const xAOD::Muon& mu, float z0cut, float
 bool  MuonResonanceSelectionTool::IPCutAbs(const xAOD::Muon& mu, float Abs_z0, float Abs_d0) const{
   
   const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
-  if( mu.muonType() == xAOD::Muon::Combined && !tp->track() )
+  if( mu.muonType() == xAOD::Muon::Combined && !tp )
     tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
   
   if(tp){

@@ -17,7 +17,9 @@
 
 #include "MuonResonanceTools/IMuonResonanceTool.h"
 #include "AsgTools/AsgTool.h"
+#ifndef ROOTCORE
 #include "GaudiKernel/ToolHandle.h"
+#endif
 
 
 class IMuonResonanceSelectionTool;
