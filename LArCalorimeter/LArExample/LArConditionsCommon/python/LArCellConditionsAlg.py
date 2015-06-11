@@ -15,8 +15,7 @@ __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
-#import PyCintex as PyLCGDict
-import cppyy 
+import PyCintex as PyLCGDict
 
 from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel
 from ROOT import CaloDetDescrManager
@@ -132,7 +131,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             self.msg.info('retrieved [%s]', self.badChannelTool.name())
 
 
-        self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
+        self.class_larBCBitPacking=PyLCGDict.makeClass("LArBadChanBitPacking")
         self.bc_packing=self.class_larBCBitPacking()
 
         self.noisepattern=0L

@@ -68,7 +68,7 @@ theApp.nextEvent()
 
 ToolSvc =svcMgr.ToolSvc
 
-from LArCabling.LArCabingConf import LArCablingService
+from LArTools.LArToolsConf import *
 
 ToolSvc += LArCablingService()
 # Create a dumper object with output level for printout
