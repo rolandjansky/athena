@@ -65,7 +65,7 @@ namespace Trig {
         const xAOD::Photon *phEF = 0;
         if(eg->type()==xAOD::Type::Electron){
             const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (eg);
-            const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec = fc.get<xAOD::ElectronContainer>();
+            const std::vector< Trig::Feature<xAOD::ElectronContainer> > vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons");
             
             for(auto feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
@@ -89,7 +89,7 @@ namespace Trig {
         }
         else if(eg->type()==xAOD::Type::Photon){
             const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (eg);
-            const std::vector< Trig::Feature<xAOD::PhotonContainer> > vec = fc.get<xAOD::PhotonContainer>();
+            const std::vector< Trig::Feature<xAOD::PhotonContainer> > vec = fc.get<xAOD::PhotonContainer>("egamma_Photons");
             for(auto feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
                 if(cont == NULL) {
@@ -122,9 +122,9 @@ namespace Trig {
         if(eg->type()==xAOD::Type::Electron){
             const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (eg);
 #ifdef XAOD_ANALYSIS
-            const auto vec = fc.containerFeature<xAOD::ElectronContainer>();
+            const auto vec = fc.containerFeature<xAOD::ElectronContainer>("egamma_Electrons");
 #else
-            const auto vec = fc.get<xAOD::ElectronContainer>();
+            const auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons");
 #endif // XAOD_ANALYSIS
             for(auto feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
@@ -150,9 +150,9 @@ namespace Trig {
         else if(eg->type()==xAOD::Type::Photon){
             const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (eg);
 #ifdef XAOD_ANALYSIS
-            const auto vec = fc.containerFeature<xAOD::PhotonContainer>();
+            const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons");
 #else
-            const auto vec = fc.get<xAOD::PhotonContainer>();
+            const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons");
 #endif // XAOD_ANALYSIS
             for(auto feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
@@ -184,7 +184,7 @@ namespace Trig {
         // Get the container of online electrons associated to passed items
         auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
 
-        auto vec = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+        auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 
         for(auto feat : vec){
@@ -215,7 +215,7 @@ namespace Trig {
         // Get the container of online electrons associated to passed items
         auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
 
-        auto vec = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+        auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 
         for(auto feat : vec){
@@ -244,7 +244,7 @@ namespace Trig {
         ATH_MSG_DEBUG("Match HLT CaloCluster");
         finalFC=NULL;
         auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
-        auto vec = fc.get<xAOD::CaloClusterContainer>("",TrigDefs::alsoDeactivateTEs);
+        auto vec = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
         ATH_MSG_DEBUG("EFCal  FC Size " << vec.size());
         double deltaR=0.;
         for(auto feat : vec){
