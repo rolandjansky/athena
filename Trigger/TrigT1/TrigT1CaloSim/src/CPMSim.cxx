@@ -23,7 +23,7 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1CaloEvent/CPMTowerCollection.h"
+#include "xAODTrigL1Calo/CPMTowerContainer.h"
 #include "TrigT1CaloEvent/CPMTobRoI_ClassDEF.h"
 #include "TrigT1CaloEvent/CPMCMXData_ClassDEF.h"
 
@@ -48,32 +48,27 @@ using namespace TrigConf;
 CPMSim::CPMSim
   ( const std::string& name, ISvcLocator* pSvcLocator )
     : AthAlgorithm( name, pSvcLocator ), 
-      m_allTOBs(0),
-      m_CMXData(0),
+      m_cpmTowers(nullptr),
+      m_allTOBs(nullptr),
+      m_CMXData(nullptr),
+      m_CPMTowerLocation(TrigT1CaloDefs::CPMTowerLocation),
+      m_CPMTobRoILocation(TrigT1CaloDefs::CPMTobRoILocation),
+      m_CPMCMXDataLocation(TrigT1CaloDefs::CPMCMXDataLocation ),
+      m_emTauSlinkLocation(TrigT1CaloDefs::EmTauSlinkLocation),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_CPMTool("LVL1::L1CPMTools/L1CPMTools"),
       m_eventNumber(0)
 {
-    m_CPMTobRoILocation      = TrigT1CaloDefs::CPMTobRoILocation;
-    m_CPMCMXDataLocation     = TrigT1CaloDefs::CPMCMXDataLocation ;
-    m_CPMTowerLocation       = TrigT1CaloDefs::CPMTowerLocation;
-    m_emTauSlinkLocation     = TrigT1CaloDefs::EmTauSlinkLocation;
-
-    // This is how you declare the paramembers to Gaudi so that
-    // they can be over-written via the job options file
-    
-    declareProperty( "CPMTOBRoILocation",       m_CPMTobRoILocation );
-    declareProperty( "CPMCMXDataLocation",      m_CPMCMXDataLocation );
+    declareProperty( "CPMTOBRoILocation", m_CPMTobRoILocation );
+    declareProperty( "CPMCMXDataLocation", m_CPMCMXDataLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty( "CPMTowerLocation", m_CPMTowerLocation ) ;
-    declareProperty( "EmTauSlinkLocation",   m_emTauSlinkLocation );
-
+    declareProperty( "EmTauSlinkLocation", m_emTauSlinkLocation );
        
     /** Clear SLink output vectors (RoI output) */
-    for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
-      m_CPRoIROD[i]=0;
+    for (unsigned int i = 0; i < TrigT1CaloDefs::numOfCPRoIRODs; ++i) {
+      m_CPRoIROD[i] = nullptr;
     }
-
 }
 
 // Destructor
@@ -150,8 +145,8 @@ StatusCode CPMSim::execute( )
   m_allTOBs    = new DataVector<CPMTobRoI>;  // Container to hold all TOB RoIs in event
 
   // Retrieve the CPMTowerContainer
-  if (evtStore()->contains<CPMTowerCollection>(m_CPMTowerLocation)) {
-    const DataVector<CPMTower>* storedCPMTs;
+  if (evtStore()->contains<xAOD::CPMTowerContainer>(m_CPMTowerLocation)) {
+    const DataVector<xAOD::CPMTower>* storedCPMTs;
     StatusCode sc = evtStore()->retrieve(storedCPMTs, m_CPMTowerLocation);  
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of TriggerTowerCollection - zero would indicate a problem
@@ -159,7 +154,7 @@ StatusCode CPMSim::execute( )
          ATH_MSG_WARNING("Empty CPMTowerContainer - looks like a problem" );
 	
       // Map the CPMTs
-      std::map<int, CPMTower*>* towerMap = new std::map<int, CPMTower*>;
+      std::map<int, xAOD::CPMTower*>* towerMap = new std::map<int, xAOD::CPMTower*>;
       m_CPMTool->mapTowers(storedCPMTs, towerMap);
 	 
       // Loop over crates and modules

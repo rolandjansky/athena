@@ -3009,6 +3009,9 @@ void LVL1::TriggerTowerMaker::preProcess()
       element = IetaToElement(iEta, 1); // element range (0-32)
       element = m_nElement-element-1;
 
+      // silence Coverity ...
+      assert(0 < element && element < 33 && "element out-of-range");
+
       m_nDrop[towerType] = m_nDropElement[1][element];
       slope = m_slopeElement[1][element];
       if (element>28 && element<33) { // FCal23 mapping
@@ -3371,55 +3374,40 @@ double LVL1::TriggerTowerMaker::calib(const double tt_eta, const TowerTypes TTTy
      But this function will be removed asap.
      So, I will do so.
   */
-
   if (abseta >= 0.0 && abseta < 2.5) {
-
     ieta = static_cast<uint>( abseta/0.1 );
-
     if ( ieta >= 25) {
-    
-      
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
-          << " invalid: " << ieta  );
+                       << " invalid: " << ieta  );
       return 1.0;
     }
-
     return m_Calib[myInd][0][ieta];
-  }  
-  else if (abseta >= 2.5 && abseta < 3.1 ) {
+  } else if (abseta >= 2.5 && abseta < 3.1 ) {
     abseta -= 2.5;
     ieta =  static_cast<uint>( abseta/0.2 );
     if (ieta >= 3) {
-    
-      
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
-          << " invalid: " << ieta  );
+                       << " invalid: " << ieta  );
       return 1.0;
     }
     return m_Calib[myInd][1][ieta];
-  }
-  else if (abseta >= 3.1 && abseta < 3.2) {
+  } else if (abseta >= 3.1 && abseta < 3.2) {
     return m_Calib[myInd][2][0]; // we have only one TT in this region
-  }
-  else if (abseta >= 3.2) {
+  } else if (abseta >= 3.2) {
     abseta -= 3.2;
     ieta =  static_cast<uint>( abseta/0.425 );
     if (ieta >= 4) {
-      
-      
       ATH_MSG_WARNING( "calib: calculated index for  eta value: " << abseta
-          << "invalid: " << ieta  );
+                       << "invalid: " << ieta  );
       return 1.0;
     }
     return m_Calib[myInd][3][ieta];
-  }
-  else{
-    
+  } else {
     ATH_MSG_WARNING( "calib (for calo cells): eta region (" 
-        << tt_eta << ") couldn't recognise. Skip calibration for this TT. " );
+                     << tt_eta << ") couldn't recognise. Skip calibration for this TT. " );
     return 1.0;
   }
-  return 1.0;
+  // cannot be reached
 }
 
 LVL1::TriggerTowerMaker::towerType LVL1::TriggerTowerMaker::TTL1type(const Identifier& id, const CaloLVL1_ID* l1id) const {
@@ -3574,7 +3562,7 @@ int LVL1::TriggerTowerMaker::IetaToElement(int eta, int layer)
   else if (layer == 1 && (element == 2 || element == 62)) element = 3; // FCal2-1
   else if (layer == 1 && (element == 3 || element == 63)) element = 1; // FCal3-1
   else if (element > 32) element = 65-element;
-  if (element > 32) element = 65-element;
+
   return element;
 }
 

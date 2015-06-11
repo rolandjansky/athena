@@ -33,7 +33,7 @@ Run2CPMTowerMaker::Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvc
   : AthAlgorithm( name, pSvcLocator ), 
     m_CPMTowerTool("LVL1::L1CPMTowerTools/L1CPMTowerTools")
 {
-  m_triggerTowerLocation     = "xAODTriggerTowers" ;
+  m_triggerTowerLocation     = TrigT1CaloDefs::xAODTriggerTowerLocation;
   m_cpmTowerLocation         = TrigT1CaloDefs::CPMTowerLocation;
 
   // This is how you declare the parameters to Gaudi so that
@@ -87,8 +87,10 @@ StatusCode Run2CPMTowerMaker::execute( )
   ATH_MSG_DEBUG  ( "looking for trigger towers at "
                    << m_triggerTowerLocation ) ;
 				      
-  // Vector to store CPMTs in
-  CPMTCollection* vectorOfCPMTs = new  CPMTCollection;
+  // Vectors to store CPMTs in
+  CPMTCollection*    vectorOfCPMTs = new  CPMTCollection;
+  CPMTAuxCollection* cpmtAuxVector = new  CPMTAuxCollection;
+  vectorOfCPMTs->setStore(cpmtAuxVector);
   
   // Retrieve TriggerTowers from StoreGate 
   if (evtStore()->contains<xAOD::TriggerTowerContainer>(m_triggerTowerLocation)) {
@@ -113,18 +115,16 @@ StatusCode Run2CPMTowerMaker::execute( )
   }
       
   // Finally, store CPMTs and we are done
-  StatusCode sc = evtStore()->overwrite(vectorOfCPMTs, m_cpmTowerLocation,true,false,false);
+  CHECK( evtStore()->record( cpmtAuxVector, m_cpmTowerLocation + "Aux." ) );
+  CHECK( evtStore()->record( vectorOfCPMTs, m_cpmTowerLocation ) );
   
-  // Report success or failure
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Error registering CPM Tower collection in TES " );
-  }
-  else {
-    ATH_MSG_DEBUG("Stored CPM Towers in TES at "<< m_cpmTowerLocation );
-  }
+  // Report success for debug purposes
+  ATH_MSG_DEBUG("Stored CPM Towers in TES at "<< m_cpmTowerLocation );
+
   
   // Report success in any case, or else job will terminate
   vectorOfCPMTs=0;
+  cpmtAuxVector=0;
   return StatusCode::SUCCESS;
   
 }//end execute
