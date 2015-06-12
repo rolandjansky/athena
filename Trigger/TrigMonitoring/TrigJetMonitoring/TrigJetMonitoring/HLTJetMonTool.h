@@ -26,6 +26,7 @@
 #include "xAODTrigger/JetRoI.h"
 #include "xAODTrigger/JetRoIContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
@@ -61,6 +62,11 @@ class HLTJetMonTool : public IHLTMonTool {
   typedef std::map<std::string, double> JetThrestype;
   typedef std::map<std::string, double>::const_iterator JetThresIter;
 
+  typedef std::map<std::string, double> JetEtaHighThrestype;
+  typedef std::map<std::string, double>::const_iterator JetEtaHighThresIter;
+
+  typedef std::map<std::string, double> JetEtaLowThrestype;
+  typedef std::map<std::string, double>::const_iterator JetEtaLowThresIter;
 
   public:
 
@@ -90,6 +96,8 @@ class HLTJetMonTool : public IHLTMonTool {
                        m_hltbinloEt, m_hltbinhiEt, m_hltnperbinEt;    // for HLT trigger eff vs. Et
 
     JetThrestype m_l1EtThres, m_hltEtThres, m_ofEtThres;
+    JetEtaHighThrestype m_hltEtaHighThres;
+    JetEtaLowThrestype  m_hltEtaLowThres;
 
     std::vector<int> m_l1nbinsEt,  // for L1 trigger eff vs. Et
                      m_hltnbinsEt; // for EF trigger eff vs. Et
@@ -118,7 +126,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
-    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
+    bool m_doLumiWeight, m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
@@ -130,6 +138,8 @@ class HLTJetMonTool : public IHLTMonTool {
     int m_MaxNJet /*, m_n90Cut*/ ;
 
     double lumi_weight;
+    int m_lumiBlock;
+    std::vector<int> v_lbn;
 
     std::string m_p4State;
    
@@ -160,6 +170,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // SG retrieval method
     StatusCode retrieveContainers();
+    int retrieveLumiBlock();
 
     // book methods
     void bookJetHists();  // this method calls all other book methods
@@ -212,7 +223,7 @@ class HLTJetMonTool : public IHLTMonTool {
     //bool evtSelTriggersPassed();
 
     TLorentzVector DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &ContainerName, const std::string& level, double thrHLT, float DRCut, bool& Pass);
-    bool   isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll);
+    bool   isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll,double EtaLow, double EtaHigh);
     bool   isChainActive(const std::string& theChain );
     double signed_delta_phi(double ph11, double phi2);
     double delta_r(double eta1, double phi1, double eta2, double phi2);
