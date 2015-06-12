@@ -72,3 +72,38 @@ def HLTEgammaMonitoringDumpTool():
   ToolSvc += HLTEgammaDump;
   list = ['HLTEgammaDumpTool/HLTEgammaDump'];
   return list
+
+def TrigEgammaMonitoringTool():
+  from AthenaCommon.AppMgr import ToolSvc
+  from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaEmulationTool
+  from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool
+  from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
+
+  probelist = hltmonList.monitoring_egamma
+  categoryList = ['primary_single_ele' , 'primary_single_ele_cutbased' , 'primary_double_ele' , 'primary_double_ele_cutbased' , 'monitoring_ele_idperf' , 'monitoring_ele_idperf_cutbased' , 'monitoring_Zee' , 'monitoring_Jpsiee' , 'primary_single_pho' , 'primary_double_pho']
+  sigsPerCategory = [3, 3, 3, 3, 4, 4, 2, 2, 4, 3]
+
+  basePath = '/HLT/Egamma/'
+  tagItems = hltmonList.monitoring_egamma[0:sigsPerCategory[0]+sigsPerCategory[1]]
+
+  Analysis = TrigEgammaNavAnalysisTool(name='NavAnalysis',
+                                       DirectoryPath=basePath+'Analysis',
+                                       TriggerList=probelist,
+                                       File="",
+                                       OutputLevel=0)
+  TPAnalysis = TrigEgammaNavTPAnalysisTool(name='NavTPAnalysis',
+                                           DirectoryPath=basePath+'TPAnalysis',
+                                           TriggerList=probelist,
+                                           File="",
+                                           TagTriggerList=tagItems,
+                                           OutputLevel=0)
+  Emulation = TrigEgammaEmulationTool("Emulation",TriggerList=probelist)
+  from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
+  TrigEgammaMon = TrigEgammaMonTool( name = "TrigEgammaMon", 
+                                     histoPathBase=basePath,
+                                     Tools=["TrigEgammaNavAnalysisTool/NavAnalysis",
+                                            "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
+                                            "TrigEgammaEmulationTool/Emulation"])
+  ToolSvc += TrigEgammaMon;
+  list = ['TrigEgammaMonTool/TrigEgammaMon'];
+  return list
