@@ -12,10 +12,12 @@
 LumiBlockTester::LumiBlockTester(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_lumiTool("LuminosityTool"),
-  m_liveTool("TrigLivefractionTool")
+  m_liveTool("TrigLivefractionTool"),
+  m_muTool("LumiBlockMuTool")
 {
   declareProperty("LuminosityTool", m_lumiTool);
   declareProperty("TrigLivefractionTool", m_liveTool);
+  declareProperty("LumiBlockMuTool", m_muTool);
 }
 
 StatusCode
@@ -28,6 +30,9 @@ LumiBlockTester::initialize()
 
   // Get the livefration tool
   CHECK(m_liveTool.retrieve());
+
+  // Get the mu tool
+  CHECK(m_muTool.retrieve());
 
   ATH_MSG_INFO("LumiBlockTester::initialize() done");
 
@@ -59,6 +64,16 @@ LumiBlockTester::execute()
   float lumilive = m_liveTool->lbAverageLivefraction();
 
   ATH_MSG_INFO( "LB: " << lumiblock << " BCID: " << bcid << " <mu>: " << avgmu << " mu: " << instmu << " livefraction: " << live << " lumiavg livefraction: " << lumilive );
+
+  avgmu = m_muTool->averageInteractionsPerCrossing();
+  instmu = m_muTool->actualInteractionsPerCrossing();
+  ATH_MSG_INFO( "From muTool - <mu>: " << avgmu << " mu: " << instmu);
+
+  const EventInfo* eventInfo;
+  CHECK(evtStore()->retrieve(eventInfo));
+  instmu = eventInfo->actualInteractionsPerCrossing();
+  avgmu = eventInfo->averageInteractionsPerCrossing();
+  ATH_MSG_INFO( "From EvInfo - <mu>: " << avgmu << " mu: " << instmu);
 
   ATH_MSG_DEBUG("LumiBlockTester::execute() done");
   return StatusCode::SUCCESS;

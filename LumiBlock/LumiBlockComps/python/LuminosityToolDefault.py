@@ -16,7 +16,13 @@ def LuminosityToolDefault(name="LuminosityTool"):
         return getattr(svcMgr.ToolSvc, name)
 
     from IOVDbSvc.CondDB import conddb
-    if conddb.dbdata == "COMP200":
+
+    # For MC, return unconfigured tool (which will do nothing)
+    if conddb.isMC:
+        mlog.info("LuminosityToolDefault called for MC!")
+        return LuminosityTool(name)
+
+    elif conddb.dbdata == "COMP200":
         return LuminosityToolOfflineRun1(name)
 
     elif conddb.dbdata == "CONDBR2":
@@ -29,7 +35,7 @@ def LuminosityToolDefault(name="LuminosityTool"):
 # Configuration for offline default tool used in Run1
 # Change logic so that folders names are blank by default and must be configured
 def LuminosityToolOfflineRun1(name="LuminosityTool"):
-        
+       
     mlog = logging.getLogger(name)
 
     # Instantiate new tool
@@ -44,13 +50,13 @@ def LuminosityToolOfflineRun1(name="LuminosityTool"):
         lumiFolder  = "/TRIGGER/LUMI/LBLESTONL"
         if not conddb.folderRequested( lumiFolder ):
             conddb.addFolder('TRIGGER_ONL', lumiFolder)
-            mlog.info("LuminosityToolDefault requested %s", lumiFolder)
+            mlog.info("LuminosityToolOfflineRun1 requested %s", lumiFolder)
 
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/LBLESTOFL"
         if not conddb.folderRequested( lumiFolder ):
             conddb.addFolder('TRIGGER_OFL', lumiFolder)
-            mlog.info("LuminosityToolDefault requested %s", lumiFolder)
+            mlog.info("LuminosityToolOfflineRun1 requested %s", lumiFolder)
 
     lumiTool.LumiFolderName = lumiFolder
 
@@ -58,7 +64,7 @@ def LuminosityToolOfflineRun1(name="LuminosityTool"):
     folder = "/TRIGGER/LUMI/LBLB"
     if not conddb.folderRequested( folder ):
         conddb.addFolder('TRIGGER', folder)
-        mlog.info("LuminosityToolDefault requested %s", folder)
+        mlog.info("LuminosityToolOfflineRun1 requested %s", folder)
 
     lumiTool.LBLBFolderName = folder
 
@@ -69,28 +75,28 @@ def LuminosityToolOfflineRun1(name="LuminosityTool"):
     if not hasattr(svcMgr.ToolSvc, toolName):
         from CoolLumiUtilities.FillParamsToolDefault import FillParamsToolDefault
         svcMgr.ToolSvc += FillParamsToolDefault(toolName)
-        mlog.info("LuminosityToolDefault added tool %s", toolName)
+        mlog.info("LuminosityToolOfflineRun1 added tool %s", toolName)
 
     toolName = "BunchLumisTool"
     lumiTool.BunchLumisTool = toolName
     if not hasattr(svcMgr.ToolSvc, toolName):
         from CoolLumiUtilities.BunchLumisToolDefault import BunchLumisToolDefault
         svcMgr.ToolSvc += BunchLumisToolDefault(toolName)
-        mlog.info("LuminosityToolDefault added tool %s", toolName)
+        mlog.info("LuminosityToolOfflineRun1 added tool %s", toolName)
 
     toolName = "BunchGroupTool"
     lumiTool.BunchGroupTool = toolName
     if not hasattr(svcMgr.ToolSvc, toolName):
         from CoolLumiUtilities.BunchGroupToolDefault import BunchGroupToolDefault
         svcMgr.ToolSvc += BunchGroupToolDefault(toolName)
-        mlog.info("LuminosityToolDefault added tool %s", toolName)
+        mlog.info("LuminosityToolOfflineRun1 added tool %s", toolName)
 
     toolName = "OnlineLumiCalibrationTool"
     lumiTool.OnlineLumiCalibrationTool = toolName
     if not hasattr(svcMgr.ToolSvc, toolName):
         from CoolLumiUtilities.OnlineLumiCalibrationToolDefault import OnlineLumiCalibrationToolDefault
         svcMgr.ToolSvc += OnlineLumiCalibrationToolDefault(toolName)
-        mlog.info("LuminosityToolDefault added tool %s", toolName)
+        mlog.info("LuminosityToolOfflineRun1 added tool %s", toolName)
 
 
     mlog.info("Created Run1 %s using folder %s" % (name, lumiFolder))
@@ -102,24 +108,41 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
     mlog = logging.getLogger(name)
 
     # Set up DB configuration
-    #from IOVDbSvc.CondDB import conddb
-    #from InDetRecExample.InDetJobProperties import InDetFlags
+    from IOVDbSvc.CondDB import conddb
+    from InDetRecExample.InDetJobProperties import InDetFlags
 
-    # Will eventually use our new online/offline folder, but not ready
-    # Set up with dummy configuration for now (this is also now the default)
     lumiTool = LuminosityTool(name)
-    lumiTool.LBLBFolderName = ''
 
-    lumiTool.LumiFolderName = ''
-    lumiTool.FillParamsTool = ''
-    lumiTool.BunchLumisTool = ''
-    lumiTool.BunchGroupTool = ''
-    lumiTool.OnlineLumiCalibrationTool = ''
-    
-    mlog.info("Created Run2 %s using a dummy Run2 configuration!" % name)
+    # Check if this is express stream or bulk
+    if not InDetFlags.useBeamConstraint():
+        lumiFolder  = "/TRIGGER/LUMI/OnlPrefLumi"
+        if not conddb.folderRequested( lumiFolder ):
+            conddb.addFolder('TRIGGER_ONL', lumiFolder)
+
+    else:
+        lumiFolder = "/TRIGGER/OFLLUMI/OflPrefLumi"
+        if not conddb.folderRequested( lumiFolder ):
+            conddb.addFolder('TRIGGER_OFL', lumiFolder)
+
+    mlog.info("LuminosityToolOfflineRun2 requested %s", lumiFolder)
+    lumiTool.LumiFolderName = lumiFolder
+
+    mlog.info("Created Run2 %s using folder %s" % (name, lumiFolder))
+
+    # Need the calibration tool just to get the proper MuToLumi value
+    toolName = "OnlineLumiCalibrationTool"
+    lumiTool.OnlineLumiCalibrationTool = toolName
+    if not hasattr(svcMgr.ToolSvc, toolName):
+        from CoolLumiUtilities.OnlineLumiCalibrationToolDefault import OnlineLumiCalibrationToolDefault
+        svcMgr.ToolSvc += OnlineLumiCalibrationToolDefault(toolName)
+        mlog.info("LuminosityToolOfflineRun2 added tool %s", toolName)
+    else:
+        mlog.info("LuminosityToolOfflineRun2 found %s already defined!" % toolName)
+
+    # Other folder names are now blank by default
 
     return lumiTool
-
+    
 class LuminosityToolOnline(LuminosityTool):
     """LuminosityTool for use in the online/HLT"""
     
@@ -137,23 +160,31 @@ class LuminosityToolOnline(LuminosityTool):
             #conddb.addFolder('TDAQ', '/TDAQ/OLC/BUNCHLUMIS')
 
             self.LumiFolderName = folder
-            self.LBLBFolderName = ''
-
-            self.FillParamsTool = ''
-            self.BunchLumisTool = ''
-            self.BunchGroupTool = ''
-            self.OnlineLumiCalibrationTool = ''
-        
+            # Other folder names are now blank by default
             mlog.info("Created online %s using folder %s" % (name, folder))
 
         
         elif conddb.dbdata == "CONDBR2": # Run2
-            # Folder names are now blank by default
-            mlog.info("Created online %s using a dummy Run2 configuration!" % name)
+            folder  = "/TRIGGER/LUMI/HLTPrefLumi"
+            conddb.addFolder('TRIGGER_ONL', folder)
+
+            self.LumiFolderName = folder
+            # Other folder names are now blank by default
+            mlog.info("Created online %s using folder %s" % (name, folder))
 
         else:
-            mlog.warning("LuminosityToolDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
+            mlog.warning("LuminosityToolOnline can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
             mlog.info("Created online %s using a dummy Run2 configuration!" % name)
 
+        # Also need helper tool to make mu values properly
+        if not conddb.isMC:
+            toolName = "OnlineLumiCalibrationTool"
+            self.OnlineLumiCalibrationTool = toolName
+            if not hasattr(svcMgr.ToolSvc, toolName):
+                from CoolLumiUtilities.OnlineLumiCalibrationToolDefault import OnlineLumiCalibrationToolDefault
+                svcMgr.ToolSvc += OnlineLumiCalibrationToolDefault(toolName)
+                mlog.info("LuminosityToolOnline added tool %s", toolName)
+            else:
+                mlog.info("LuminosityToolOnline found %s already defined!" % toolName)
 
 

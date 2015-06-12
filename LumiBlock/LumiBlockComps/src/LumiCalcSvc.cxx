@@ -42,12 +42,16 @@
 #include <iostream>
 
 #include "LumiBlockComps/LumiCalcSvc.h"
+#include "xAODLuminosity/LumiBlockRangeContainer.h"
+#include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
 
 LumiCalcSvc::LumiCalcSvc(const std::string& name, 
 		       ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  p_inputstore(0),
-  p_metadatastore(0),
+  //  p_inputstore(0),
+  //  p_metadatastore(0),
+  m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name),
+  m_pInputStore    ("StoreGateSvc/InputMetaDataStore", name),
   tHistSvc(0),
   m_sourcedb("COOLONL_TRIGGER/OFLP200"),
   m_parlumiestfolder("/TRIGGER/LUMI/LBLEST"),
@@ -97,6 +101,10 @@ StatusCode LumiCalcSvc::initialize(){
   // locate the conditions store ptr to it.
 
   // locate input metadata store
+
+  ATH_CHECK( m_pMetaDataStore.retrieve() );
+  ATH_CHECK( m_pInputStore.retrieve() );
+  /*
   StatusCode sc = service("StoreGateSvc/InputMetaDataStore", p_inputstore);
   //sc = m_pInputStore.retrieve();
   if (!sc.isSuccess() || 0 == p_inputstore) {
@@ -111,10 +119,10 @@ StatusCode LumiCalcSvc::initialize(){
     return StatusCode::FAILURE;
   }
 
-
+  */
   // Set to be listener for begin/end of event
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  sc = incSvc.retrieve();
+  StatusCode sc = incSvc.retrieve();
   if (!sc.isSuccess()) {
     log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
     return(sc);
@@ -163,7 +171,7 @@ void LumiCalcSvc::print(){
 // Calculates lumi on a user defined input MetaData LumiBlockCollection
 StatusCode LumiCalcSvc::calcLumi(){
   MsgStream log(msgSvc(), name());
-  StatusCode status = doDbQuery(p_metadatastore);
+  StatusCode status = doDbQuery(m_pMetaDataStore);
   if (!status.isSuccess()){
     log << MSG::WARNING << "Couldn't do Db Query for LumiCalcSvc" << endreq;
   }
@@ -173,12 +181,12 @@ StatusCode LumiCalcSvc::calcLumi(){
 }
 
 //===========================================================================
-StatusCode LumiCalcSvc::doDbQuery(StoreGateSvc * sg) {
+StatusCode LumiCalcSvc::doDbQuery(StoreGateSvc_t sg) {
   MsgStream log(msgSvc(), name());
   StatusCode status = StatusCode::SUCCESS;
     
   doRecordTree(true);// record history to LumiTree TTree
-  StoreGateSvc * store = sg;
+  StoreGateSvc_t store = sg;
   LumiTree=m_lumicalc->getTree();
 
   if (!m_triggers.value().empty() && !m_lbcnames.value().empty()) {
@@ -210,19 +218,23 @@ StatusCode LumiCalcSvc::doDbQuery(StoreGateSvc * sg) {
         trignames.push_back(*it);
     }
 
-    if (store->contains<LumiBlockCollection>(lbcollname)) {
-      const DataHandle<LumiBlockCollection> iovc;
-      status = store->retrieve(iovc, lbcollname);
+    if (store->contains<xAOD::LumiBlockRangeContainer>(lbcollname)) {
+      //      const DataHandle<xAOD::LumiBlockRangeContainer> iovc;
+      const xAOD::LumiBlockRangeContainer* lbcoll = 0;
+      status = store->retrieve(lbcoll, lbcollname);
+
       if (!status.isSuccess()) {
-        log << MSG::DEBUG << "Could not find LumiBlockCollection >>" << lbcollname << "<< in " << store->name() << endreq;
+        log << MSG::DEBUG << "Could not find LumiBlockRangeContainer >>" << lbcollname << "<< in " << store->name() << endreq;
       }else {
-        log << MSG::DEBUG << " Found LumiBlockCollection >>" << lbcollname << "<< in " << store->name() << " OK " << endreq;
+        log << MSG::DEBUG << " Found LumiBlockRangeContainer >>" << lbcollname << "<< in " << store->name() << " OK " << endreq;
         log << MSG::INFO << " Calculating Integrated Luminosity based on >>" << lbcollname <<  "<< in " << store->name() << endreq;
         if (!description.empty()) { log << MSG::INFO << " Description of >>" << lbcollname << "<< = " << description << endreq; }
-        const LumiBlockCollection* lbcoll = iovc;
+
+	/*
+        const LumiBlockRangeContainer* lbcoll = iovc;
         // check against problems
         if(dynamic_cast< const LumiBlockCollection * >(lbcoll) == 0){
-          log << MSG::ERROR << "Input LumiBlockCollection to LumiCalcSvc is not of type LumiBlockCollection" << endreq;
+          log << MSG::ERROR << "Input LumiBlockRangeContainer to LumiCalcSvc is not of type LumiBlockRangeContainer" << endreq;
           status = StatusCode::FAILURE;
           return status;
         }else{
@@ -232,6 +244,8 @@ StatusCode LumiCalcSvc::doDbQuery(StoreGateSvc * sg) {
             return status;
           }
         } 
+	*/
+
         for( std::list<TString>::const_iterator it = trignames.begin(); it != trignames.end(); ++it){
           const std::string trigname = it->Data();
           m_lumicalc->SetCollName(lbcollname);
@@ -269,7 +283,7 @@ void LumiCalcSvc::handle(const Incident& inc) {
     log << MSG::DEBUG << "BeginTagFile incident fired!" << endreq;
     m_fileCurrentlyOpened = true;
     if(m_UseInputStore == true){
-      doDbQuery(p_inputstore);
+      doDbQuery(m_pInputStore);
     }
   }
   else if (inc.type() == "EndInputFile") {
