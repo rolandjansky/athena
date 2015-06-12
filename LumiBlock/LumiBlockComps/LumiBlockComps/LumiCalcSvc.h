@@ -73,12 +73,17 @@ public:
   bool registerLBCollection(const TString& tname, const TString& regexpr, const std::list<TString>& trigpar);
 
 private:
-  StatusCode doDbQuery(StoreGateSvc * sg);
+  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+  StatusCode doDbQuery(StoreGateSvc_t sg);
   void doRecordTree(bool b){m_recordTTree = b;}
   void printTree();
 
-  StoreGateSvc* p_inputstore; // input metadata store
-  StoreGateSvc* p_metadatastore; // metadata store
+
+  StoreGateSvc_t m_pMetaDataStore;
+  StoreGateSvc_t m_pInputStore;
+
+  //  StoreGateSvc* p_inputstore; // input metadata store
+  //  StoreGateSvc* p_metadatastore; // metadata store
   ITHistSvc * tHistSvc;
 
   // Configurable Properties

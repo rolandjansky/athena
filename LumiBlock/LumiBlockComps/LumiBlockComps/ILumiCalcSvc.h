@@ -31,8 +31,6 @@
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/Property.h"
 
-
-class LumiBlockCollection;
 class TTree;
 
 typedef std::pair< TString, std::list<TString> > tvtPair;

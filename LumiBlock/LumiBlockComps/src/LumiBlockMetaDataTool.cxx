@@ -12,7 +12,7 @@
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/ITriggerRegistryTool.h"
-#include "LumiCalc/LumiBlockCollectionConverter.h"
+#include "LumiCalc/LumiBlockRangeContainerConverter.h"
 #include "LumiBlockComps/ILumiCalcSvc.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
@@ -40,6 +40,7 @@ LumiBlockMetaDataTool::LumiBlockMetaDataTool(const std::string& type, const std:
    m_tagDataStore   ("StoreGateSvc/TagMetaDataStore", name),
    m_nfiles(0),
    m_fileCurrentlyOpened(false),
+   m_converter(new LumiBlockRangeContainerConverter()),
    m_grlcollection(new Root::TGRLCollection()),
    m_lcSvc("LumiCalcSvc/LumiCalcSvc",name),
    m_GoodRunsListSelectorTool("GoodRunsListSelectorTool"),
@@ -287,30 +288,36 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
      p_tempLBColl->push_back(iovr);
      ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
 		<< (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-		    << (*ilast)->eventsExpected() << " expected " << (*i)->eventsExpected());
+		    << (*ilast)->eventsSeen() << " expected " << (*i)->eventsExpected());
      i++;
      while (i != ie) {
        if( ((*i)->startRunNumber()==(*ilast)->startRunNumber()) &&
            ((*i)->stopRunNumber()==(*ilast)->stopRunNumber()) &&
            ((*i)->startLumiBlockNumber()==(*ilast)->startLumiBlockNumber()) &&
-	   ((*i)->startLumiBlockNumber()==(*ilast)->startLumiBlockNumber()) ) {
+	   ((*i)->stopLumiBlockNumber()==(*ilast)->stopLumiBlockNumber()) ) {
 
 	 if((*ilast)->eventsExpected()!=(*i)->eventsExpected()) {
 	   ATH_MSG_WARNING(  "Error: tmpLBColl with run  " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events expected "     
 	 	 		  << (*ilast)->eventsExpected() << " and " << (*i)->eventsExpected() );
 	 }
          else {
-	   ATH_MSG_INFO(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-	 	 		  << (*ilast)->eventsSeen() << "+" << (*i)->eventsSeen() << " and events expected "
-				  << (*ilast)->eventsExpected() );
+	   ATH_MSG_INFO(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() 
+			               << " events seen "  << iovr->eventsSeen() << "+" 
+                                       << (*i)->eventsSeen() << " and events expected "
+				       << iovr->eventsExpected() );
 
-	     iovr->setEventsSeen((*i)->eventsSeen()+(*ilast)->eventsSeen());
+	     iovr->setEventsSeen((*i)->eventsSeen()+iovr->eventsSeen());
 	 }
        }
        else {
          iovr = new xAOD::LumiBlockRange(*(*i));
-	 ATH_MSG_INFO(  "Push_back tmpLBColl with run  " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
-	 	 		  << (*ilast)->eventsExpected() << "+" << (*i)->eventsExpected() );
+
+         ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
+		<< iovr->startRunNumber() << " LB " << iovr->startLumiBlockNumber() << " events seen "     
+		    << iovr->eventsSeen() << " expected " << iovr->eventsExpected());
+
+     //	 ATH_MSG_INFO(  "Push_back tmpLBColl with run  " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
+     //	 	 		  << (*ilast)->eventsExpected() << "+" << (*i)->eventsExpected() );
          p_tempLBColl->push_back(iovr);
          ilast = i;
        }
@@ -390,19 +397,55 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     ATH_CHECK( m_pMetaDataStore->record( piovSuspect, m_suspectLBColl_name ) );
     ATH_CHECK( m_pMetaDataStore->record( piovSuspectAux, m_suspectLBColl_name + "Aux." ) );
   }
+
+  if (m_storexmlfiles) {
+    if(piovComplete->size()>0) {
+       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> _metadata;
+       _metadata["complete"]=TString("complete");
+       TString complete   = m_converter->GetSuggestedName(*piovComplete);
+       TString subname = "complete"+complete;
+       TString filename = "LumiBlockMetaData_" + subname + ".xml";
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovComplete,_metadata,_version);
+       m_converter->CreateXMLFile(*pgrl,filename.Data());
+    }
+    if(piovUnfinished->size()>0) {
+       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> _metadata;
+       _metadata["complete"]=TString("unfinished");
+       TString unfinished   = m_converter->GetSuggestedName(*piovUnfinished);
+       TString subname = "unfinished"+unfinished;
+       TString filename = "LumiBlockMetaData_" + subname + ".xml";
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovUnfinished,_metadata,_version);
+       m_converter->CreateXMLFile(*pgrl,filename.Data());
+    }
+    if(piovSuspect->size()>0) {
+       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> _metadata;
+       _metadata["suspect"]=TString("suspect");
+       TString suspect   = m_converter->GetSuggestedName(*piovSuspect);
+       TString subname = "suspect"+suspect;
+       TString filename = "LumiBlockMetaData_" + subname + ".xml";
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovSuspect,_metadata,_version);
+       m_converter->CreateXMLFile(*pgrl,filename.Data());
+    }
+
+  }
+
+
   return(StatusCode::SUCCESS);
 }
 
 const TString
 LumiBlockMetaDataTool::getGRLString( const TString& grlname ) const
 {
-  /*
+  
   std::vector< Root::TGoodRunsList >::const_iterator itr = m_grlcollection->find( grlname );
   if (itr!=m_grlcollection->end())
     return m_converter->GetXMLString(*itr);
 
   ATH_MSG_WARNING("getGRLString() : GoodRunsList with name <" << grlname << "> not found. Return empty string." );
-  */
+  
   return "";
 }
 

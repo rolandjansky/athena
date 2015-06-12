@@ -25,6 +25,8 @@
 #include "CoolLumiUtilities/IBunchLumisTool.h"
 #include "CoolLumiUtilities/IOnlineLumiCalibrationTool.h"
 
+#include "CoralBase/Blob.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -129,6 +131,11 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   // Calibration data
   // std::map<unsigned int, LumiCalibrator> m_cali;
 
+  // Pointer to per-BCID blob (Run2 only)
+  const coral::Blob *m_bunchInstLumiBlob;
+
+  // Channel to use to get muToLumi from calibration tool
+  unsigned int m_calibChannel;
 };
 
 

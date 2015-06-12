@@ -15,6 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "LumiBlockComps/ITrigLivefractionTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 
 #include <string>
 
@@ -28,6 +29,7 @@ class LumiBlockTester: public AthAlgorithm {
  private:
   ToolHandle<ILuminosityTool> m_lumiTool;
   ToolHandle<ITrigLivefractionTool> m_liveTool;
+  ToolHandle<ILumiBlockMuTool> m_muTool;
   
 };
 
