@@ -6,6 +6,11 @@
 #include "TrigFTKSim/FTKDataInput.h"
 #include "TrigFTKSim/atlClustering.h"
 
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+
+#include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
+#include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
+
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
@@ -22,6 +27,7 @@
 FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
   m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),
+  m_clusterConverterTool("TrigFTKClusterConverterTool"),
   m_pix_cabling_svc("PixelCablingSvc", name),
   m_sct_cabling_svc("SCT_CablingSvc", name),
   m_storeGate(0),
@@ -29,7 +35,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_evtStore(0 ),
   m_pixelId(0),
   m_sctId(0),
-  m_IBLMode(false),
+  m_IBLMode(0),
   m_pmap_path(""),
   m_pmap(0x0),
   m_rmap_path(""),
@@ -40,6 +46,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_SaveHits(false),
   m_SavePerPlane(false),
   m_DumpTestVectors(false),
+  m_EmulateDF(false),
   m_Clustering(false),
   m_SaveClusterContent(false),
   m_DiagClustering(true),
@@ -50,10 +57,30 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_outpath("ftksim_smartwrapper.root"),
   m_outfile(0x0),
   m_hittree(0x0),
+  m_hittree_perplane(0),
+  m_original_hits(0),
+  m_logical_hits(0),
+  m_original_hits_per_plane(0),
+  m_logical_hits_per_plane(0),
+  m_evtinfo(0),
+  m_run_number(0),
+  m_event_number(0),
+  m_trackstree(0),
   m_identifierHashList(0x0),
-  m_pix_rodIdlist({0x130011, 0x111510, 0x111508, 0x112414, 0x130015, 0x111716, 0x112416}),
-  m_sct_rodIdlist({0x220005, 0x210005, 0x220007})
+//  m_pix_rodIdlist({0x130011, 0x111510, 0x111508, 0x112414, 0x130015, 0x111716, 0x112416}),  //old ROD list for consistency.  to be removed soon.
+//  m_sct_rodIdlist({0x220005, 0x210005, 0x220007}),
+  m_pix_rodIdlist({0x140160, 0x130007, 0x112508, 0x111816, 0x111816, 0x140170, 0x130015,0x112414}),
+  m_sct_rodIdlist({0x21010d, 0x21010c, 0x21010e,0x21010f}),
+  m_FTKPxlClu_CollName("FTK_Pixel_Clusters"), 
+  m_FTKPxlCluContainer(0x0),
+  m_FTKSCTClu_CollName("FTK_SCT_Cluster"),
+  m_FTKSCTCluContainer(0x0),
+  m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
+  m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
+  m_mcTruthName("TruthEvent")
 {
+  
+  declareProperty("TrigFTKClusterConverterTool", m_clusterConverterTool);
   declareProperty("RMapPath",m_rmap_path);
   declareProperty("PMapPath",m_pmap_path);
   declareProperty("OutFileName",m_outpath);
@@ -65,6 +92,8 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   // hit type options
   declareProperty("SaveRawHits",m_SaveRawHits);
   declareProperty("SaveHits",m_SaveHits);
+
+  // special options for test vector production
   declareProperty("SavePerPlane",m_SavePerPlane);
   declareProperty("DumpTestVectors",m_DumpTestVectors);
   
@@ -76,6 +105,17 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("PixelClusteringMode",m_PixelClusteringMode);
   declareProperty("DuplicateGanged",m_DuplicateGanged);
   declareProperty("GangedPatternRecognition",m_GangedPatternRecognition);
+
+
+  //output for PseduoTracking
+  declareProperty("WriteClustersToESD",m_WriteClustersToESD);
+  declareProperty("FTKPixelClustersCollName",m_FTKPxlClu_CollName,"FTK pixel clusters collection");
+  declareProperty("FTKSCTClusterCollName",m_FTKSCTClu_CollName,"FTK SCT clusters collection");
+
+  //for DF board emulation 
+  declareProperty("EmulateDF",m_EmulateDF);
+  declareProperty("pixRodIds", m_pix_rodIdlist);
+  declareProperty("sctRodIds", m_sct_rodIdlist);
 }
 
 FTKRegionalWrapper::~FTKRegionalWrapper ()
@@ -124,7 +164,13 @@ StatusCode FTKRegionalWrapper::initialize()
     m_hitInputTool->reference()->setPlaneMaps(m_pmap,0x0);
   }
 
-// Retrieve pixel cabling service
+  // Get the cluster converter tool
+  if (m_clusterConverterTool.retrieve().isFailure() ) {
+    log << MSG::ERROR << "Failed to retrieve tool " << m_clusterConverterTool << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  // Retrieve pixel cabling service
   if (m_pix_cabling_svc.retrieve().isFailure()) {
     log << MSG::FATAL << "Failed to retrieve tool " << m_pix_cabling_svc << endreq;
     return StatusCode::FAILURE;
@@ -170,13 +216,12 @@ StatusCode FTKRegionalWrapper::initialize()
     if (m_SavePerPlane) { m_original_hits_per_plane = new vector<FTKRawHit>*[m_ntowers]; }
     
     for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
-      m_hittree->Branch(Form("RawHits%d.",ireg),&m_original_hits[ireg]);
+      m_hittree->Branch(Form("RawHits%d.",ireg),&m_original_hits[ireg], 32000, 1);
       
       if (m_SavePerPlane) {
         m_original_hits_per_plane[ireg] = new vector<FTKRawHit>[m_nplanes];
         for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-          m_hittree_perplane->Branch(Form("RawHits_t%d_p%d.",ireg,iplane),
-              &m_original_hits_per_plane[ireg][iplane]);
+          m_hittree_perplane->Branch(Form("RawHits_t%d_p%d.",ireg,iplane),&m_original_hits_per_plane[ireg][iplane],32000, 1);
         }
       }
     } // end towers loop
@@ -187,13 +232,12 @@ StatusCode FTKRegionalWrapper::initialize()
     if (m_SavePerPlane) { m_logical_hits_per_plane = new vector<FTKHit>*[m_ntowers]; }
     
     for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
-      m_hittree->Branch(Form("Hits%d.",ireg),&m_logical_hits[ireg]);
+      m_hittree->Branch(Form("Hits%d.",ireg),&m_logical_hits[ireg], 32000, 1);
 
       if (m_SavePerPlane) {
         m_logical_hits_per_plane[ireg] = new vector<FTKHit>[m_ntowers];
         for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-          m_hittree_perplane->Branch(Form("Hits_t%d_p%d.",ireg,iplane),
-              &m_logical_hits_per_plane[ireg][iplane]);
+          m_hittree_perplane->Branch(Form("Hits_t%d_p%d.",ireg,iplane), &m_logical_hits_per_plane[ireg][iplane],32000, 1);
         }
       }
     } // end towers loop
@@ -217,6 +261,73 @@ StatusCode FTKRegionalWrapper::initialize()
     return StatusCode::FAILURE;
   }
 
+  
+  // Write clusters in InDetCluster format to ESD for use in Pseudotracking
+  if (m_WriteClustersToESD){
+    StatusCode sc = service("StoreGateSvc", m_storeGate);
+    // Creating collection for pixel clusters
+    m_FTKPxlCluContainer = new InDet::PixelClusterContainer(m_pixelId->wafer_hash_max());
+    m_FTKPxlCluContainer->addRef();
+    sc = m_storeGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName);
+    if (sc.isFailure()) {
+      log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    // Generic format link for the pixel clusters
+    const InDet::SiClusterContainer *symSiContainerPxl(0x0);
+    sc = m_storeGate->symLink(m_FTKPxlCluContainer,symSiContainerPxl);
+    if (sc.isFailure()) {
+      log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    // Creating collection for the SCT clusters
+    m_FTKSCTCluContainer = new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max());
+    m_FTKSCTCluContainer->addRef();
+    sc = m_storeGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName);
+    if (sc.isFailure()) {
+      log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endreq;
+      return StatusCode::FAILURE;
+    }
+    // Generic format link for the pixel clusters
+    const InDet::SiClusterContainer *symSiContainerSCT(0x0);
+    sc = m_storeGate->symLink(m_FTKSCTCluContainer,symSiContainerSCT);
+    if (sc.isFailure()) {
+      log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    // getting sct truth
+    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
+      m_ftkSctTruth = new PRD_MultiTruthCollection;
+      StatusCode sc=m_storeGate->record(m_ftkSctTruth,m_ftkSctTruthName); 
+      if(sc.isFailure()) { 
+	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName  
+			<<" cannot be recorded in StoreGate !"); 
+      } 
+      else { 
+	ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName   
+		      << " is recorded in StoreGate"); 
+      } 
+    } 
+    //getting pixel truth 
+    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) { 
+      m_ftkPixelTruth = new PRD_MultiTruthCollection;
+      StatusCode sc=m_storeGate->record(m_ftkPixelTruth,m_ftkPixelTruthName); 
+      if(sc.isFailure()) { 
+	ATH_MSG_WARNING("Pixel FTK Truth Container " << m_ftkPixelTruthName  
+			<<" cannot be recorded in StoreGate !"); 
+      } 
+      else { 
+	ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName   
+		      << " is recorded in StoreGate"); 
+      } 
+    }  
+  }
+
+
+
   // create a TTree to store the truth tracks
   m_trackstree = new TTree("truthtracks","Truth tracks");
   // add the branch related to the truth tracks
@@ -229,6 +340,21 @@ StatusCode FTKRegionalWrapper::initialize()
   PIXEL_CLUSTERING_MODE = m_PixelClusteringMode;
   DUPLICATE_GANGED = m_DuplicateGanged;
   GANGED_PATTERN_RECOGNITION = m_GangedPatternRecognition;
+
+
+  //Dump to the log output the RODs used in the emulation
+  if(m_EmulateDF){
+
+    for (auto it = m_pix_rodIdlist.begin(); it < m_pix_rodIdlist.end(); it++)
+      ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
+		    << (*it) <<MSG::dec);
+    
+    for (auto it = m_sct_rodIdlist.begin(); it < m_sct_rodIdlist.end(); it++)
+      ATH_MSG_DEBUG("Going to test against the following SCT RODIDs "<< MSG::hex
+		    << (*it) <<MSG::dec);
+    
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -260,12 +386,136 @@ StatusCode FTKRegionalWrapper::execute()
   m_evtinfo->Fill();
 
   // retrieve the original list of hits, the list is copied because the clustering will change it
-  vector<FTKRawHit> fulllist = datainput->getOriginalHits();
+  vector<FTKRawHit> fulllist;
+
+  //if DF emulation is requested then first check if hits are in DF Rods before doing clustering or writing to file
+  if(m_EmulateDF){
+
+    //get list of original hits
+    vector<FTKRawHit> templist = datainput->getOriginalHits();
+
+    vector<FTKRawHit>::const_iterator ihit = templist.begin();
+    vector<FTKRawHit>::const_iterator ihitE = templist.end();
+
+    for (;ihit!=ihitE;++ihit) { // hit loop
+      const FTKRawHit &currawhit = *ihit;
+
+
+      ATH_MSG_DEBUG("Testing if hit is in the DF boards");
+    
+      //first get the hit's Module identifier hash
+      uint32_t modHash = currawhit.getIdentifierHash();
+      
+
+      if (currawhit.getIsSCT()){
+
+	ATH_MSG_VERBOSE("Processing SCT hit");
+     	//SCT
+	
+	//then get the corresponding RobId
+	uint32_t robid = m_sct_cabling_svc->getRobIdFromHash(modHash);
+	
+	//then try to find in rob list
+	auto it = find(m_sct_rodIdlist.begin(), m_sct_rodIdlist.end(), robid);
+	
+	ATH_MSG_VERBOSE("Trying to find "<< MSG::hex <<robid<<MSG::dec
+		      << "in the DF SCT Rod list");
+
+	//only keep hit if found
+	if (it != m_sct_rodIdlist.end()){
+	  ATH_MSG_VERBOSE("Found the SCT module in the DF Rod list!");
+	}else{
+	  ATH_MSG_VERBOSE("SCT Module is not in the DF Rod list!");
+	  continue;
+	}	
+      }else if (currawhit.getIsPixel()) {
+	  ATH_MSG_VERBOSE("Processing Pixel hit");
+
+	  //pixel
+	  //need to get the identifier from the hash
+	  Identifier dehashedId = m_pixelId->wafer_id(modHash);
+
+	  //then get the corresponding RobId
+	  uint32_t robid = m_pix_cabling_svc->getRobId(dehashedId);
+	  
+	  //then try to find in rob list
+	  auto it = find(m_pix_rodIdlist.begin(), m_pix_rodIdlist.end(), robid);
+	  
+	  ATH_MSG_VERBOSE("Trying to find pixel "<< MSG::hex <<robid<<MSG::dec
+			<< "in the DF Rod list from "<<dehashedId);
+	  //only keep hit if found
+	  if (it != m_pix_rodIdlist.end()){
+	    ATH_MSG_VERBOSE("Found the Pixel module in the DF Rod list!");
+	  }else{
+	    ATH_MSG_VERBOSE("Pixel Module is not in the DF Rod list!");
+	    continue;
+	  }
+	  
+      }else{
+	//this shouldn't happen, so throw error
+	ATH_MSG_ERROR("Hit is neither Pixel or SCT!!");
+	return StatusCode::FAILURE;
+      }
+      //save the hit if it has the correct RodID
+      ATH_MSG_DEBUG("Found hit to keep");
+      fulllist.push_back(currawhit);
+    }
+  }else{
+    //if no DF emulation, just copy the hits as originally intended
+    fulllist = datainput->getOriginalHits();
+  }
   
+  ATH_MSG_VERBOSE("Going to run  on "<< fulllist.size()<<" hits");
+
   // if the clustering is requested it has to be done before the hits are distributed
   if (m_Clustering ) {
     atlClusteringLNF(fulllist);
   }
+
+
+  //get all the containers to write clusters
+  if(m_WriteClustersToESD){
+    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
+      m_ftkSctTruth = new PRD_MultiTruthCollection;
+      
+      StatusCode sc=m_storeGate->record(m_ftkSctTruth,m_ftkSctTruthName,false); 
+      if(sc.isFailure()) { 
+	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName  
+			<<" cannot be re-recorded in StoreGate !"); 
+      }
+    } 
+    
+    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) { 
+      m_ftkPixelTruth = new PRD_MultiTruthCollection;
+      
+      StatusCode sc=m_storeGate->record(m_ftkPixelTruth,m_ftkPixelTruthName,false); 
+      if(sc.isFailure()) { 
+	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkPixelTruthName  
+			<<" cannot be re-recorded in StoreGate !"); 
+      } 
+    }   
+    
+    
+    // Check the FTK pixel container
+    if (!m_storeGate->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
+      m_FTKPxlCluContainer->cleanup();
+      if (m_storeGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName,false).isFailure()) {
+	return StatusCode::FAILURE;
+      }
+    }
+    
+    // check the FTK SCT container
+    if (!m_storeGate->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
+      m_FTKSCTCluContainer->cleanup();
+      if (m_storeGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName,false).isFailure()) {
+	return StatusCode::FAILURE;
+      }
+    }
+  }
+
+
+
+
 
   // prepare to iterate on the input files
   vector<FTKRawHit>::const_iterator ihit = fulllist.begin();
@@ -281,25 +531,67 @@ StatusCode FTKRegionalWrapper::execute()
       assert(currawhit.getTruth());
       hitref.setTruth(*(currawhit.getTruth()));
     }
+    
+    if(m_WriteClustersToESD){
+      int dim = hitref.getDim();
+      switch (dim) {
+      case 0: {
+	//missing hit - just ignore this for the time being
+      }
+	break;
+      case 1: {
+	InDet::SCT_Cluster* pSctCL = m_clusterConverterTool->createSCT_Cluster(hitref.getIdentifierHash(), hitref.getCoord(0), hitref.getNStrips() ); //createSCT_Cluster(h);
+
+	if(pSctCL!=NULL) {
+	  InDet::SCT_ClusterCollection* pColl = m_clusterConverterTool->getCollection(m_FTKSCTCluContainer, hitref.getIdentifierHash());
+	  if(pColl!=NULL) {
+	    pSctCL->setHashAndIndex(pColl->identifyHash(), pColl->size()); 
+	    pColl->push_back(pSctCL); 
+	    const MultiTruth& t = hitref.getTruth();
+	    m_clusterConverterTool->createSCT_Truth(pSctCL->identify(), t, m_ftkSctTruth, m_mcEventCollection, m_storeGate, m_mcTruthName);
+	  }
+	}
+      }
+	break; 
+      case 2: {
+	InDet::PixelCluster* pPixCL = m_clusterConverterTool->createPixelCluster(hitref.getIdentifierHash(), hitref.getCoord(0), hitref.getCoord(1), hitref.getEtaWidth(), hitref.getPhiWidth(), hitref.getCoord(1)); //need to fix trkPerigee->eta());
+	
+	if(pPixCL!=NULL) {
+	  InDet::PixelClusterCollection* pColl = m_clusterConverterTool->getCollection(m_FTKPxlCluContainer, hitref.getIdentifierHash());
+	  if(pColl!=NULL) {
+	    pPixCL->setHashAndIndex(pColl->identifyHash(), pColl->size()); 
+	    pColl->push_back(pPixCL); 
+	    const MultiTruth& t = hitref.getTruth();
+	    m_clusterConverterTool->createPixelTruth(pPixCL->identify(), t, m_ftkPixelTruth, m_mcEventCollection, m_storeGate, m_mcTruthName);
+	  }
+	}
+      }
+	break;
+      }
+    }
+
 
     // get plane id
     const int plane = hitref.getPlane();
-
+    
     // check the region
     for (int ireg=0;ireg!=m_ntowers;++ireg) {
+      
       if (m_rmap->isHitInRegion(hitref,ireg)) {
         // if the equivalent hit is compatible with this tower the hit is saved
         if (m_SaveRawHits) m_original_hits[ireg].push_back(currawhit);
         if (m_SaveHits) m_logical_hits[ireg].push_back(hitref);
 
         if (m_SavePerPlane) {
-          if (m_SaveRawHits) m_original_hits_per_plane[ireg][plane].push_back(currawhit);
-          if (m_SaveHits) m_logical_hits_per_plane[ireg][plane].push_back(hitref);
-        }
+	  if (m_SaveRawHits)
+	    m_original_hits_per_plane[ireg][plane].push_back(currawhit);
+	  if (m_SaveHits)
+	    m_logical_hits_per_plane[ireg][plane].push_back(hitref);
+	}
       }
     }
   } // end hit loop
-
+  
   // fill the branches
   m_hittree->Fill();
   if (m_SavePerPlane) { m_hittree_perplane->Fill(); }
@@ -560,6 +852,15 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 
 StatusCode FTKRegionalWrapper::finalize()
 {
+
+  // the cluster container has to be explictly released
+  if(m_WriteClustersToESD){
+    m_FTKPxlCluContainer->cleanup();
+    m_FTKPxlCluContainer->release();
+    m_FTKSCTCluContainer->cleanup();
+    m_FTKSCTCluContainer->release();
+  }
+
   // close the output files
   m_outfile->Write();
   m_outfile->Close();

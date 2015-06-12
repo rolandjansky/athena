@@ -31,15 +31,32 @@ FTKSGInput.ReadTruthTracks = True
 
 ToolSvc += FTKSGInput
 
+from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKClusterConverterTool
+ClusterConvTool = TrigFTKClusterConverterTool(UsePixelCalibSvc = False)
+
+ToolSvc += ClusterConvTool
+
 print "Output file", OutputNTUP_FTKIPFile
 wrapper = FTKRegionalWrapper(OutputLevel = DEBUG, 
                              PMapPath = pmap_path,
                              RMapPath = rmap_path,
-                             OutFileName = OutputNTUP_FTKIPFile)
+                             OutFileName = OutputNTUP_FTKIPFile,
+                             WriteClustersToESD = True,
+                             SaveHits = True,
+                             Clustering = True,
+                             TrigFTKClusterConverterTool  = ClusterConvTool)
 wrapper.IBLMode = 1
 wrapper.HitInputTool = FTKSGInput
-#wrapper.Clustering = True
+wrapper.Clustering = True
 theJob += wrapper
+ 
+from RecExConfig.ObjKeyStore import objKeyStore
+objKeyStore.addStreamESD("InDet::SCT_ClusterContainer","FTK_SCT_Cluster")
+objKeyStore.addStreamESD("InDet::PixelClusterContainer","FTK_Pixel_Clusters")
+objKeyStore.addStreamESD("Trk::PRD_MultiTruthCollection","PRD_MultiTruthSCT_FTK")
+objKeyStore.addStreamESD("PRD_MultiTruthCollection","PRD_MultiTruthSCT_FTK")
+objKeyStore.addStreamESD("PRD_MultiTruthCollection","PRD_MultiTruthPixel_FTK")
+
 
 print theJob
 ###############################################################
