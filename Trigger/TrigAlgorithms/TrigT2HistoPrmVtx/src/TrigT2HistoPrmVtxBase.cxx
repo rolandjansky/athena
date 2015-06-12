@@ -277,13 +277,9 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
   uint8_t nPix  = 0;  
   uint8_t nSCT  = 0; 
 
-  uint8_t expBL  = 0;
-  track->summaryValue(expBL, xAOD::expectBLayerHit);
-
   track->summaryValue(nBlay, xAOD::numberOfBLayerHits);
   track->summaryValue(nPix,  xAOD::numberOfPixelHits);
   track->summaryValue(nSCT,  xAOD::numberOfSCTHits);
-
 
   //nBlay = nBlay*2;
   //nPix  = nPix*2; 
@@ -321,8 +317,7 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
     m_listCutApplied.push_back(3);
     return false;
   }
-  //  if (nBlay < m_efTrkSelBLayer) {
-  if (expBL && (nBlay < m_efTrkSelBLayer) ){
+  if (nBlay < m_efTrkSelBLayer) {
     if (m_logLvl <= MSG::VERBOSE)
       m_log << MSG::VERBOSE << "    track is not selected (missing b-layer hit)" << endreq;
 
