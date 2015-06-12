@@ -72,20 +72,22 @@ hlt_jetDepbinhi = [ 6.0 ]
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
 # L1 items   
-hlt_level1EtThresholds        = { 'L1_J15':50. }
+hlt_level1EtThresholds        = { 'L1_J15':50.,'L1_RD0_FILLED':0.}
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]
 hlt_level1EtBinsHigh          = [ 400. ]
 
 # HLT items
-hlt_hltEtThresholds            = { 'j25':20.,'j60':50. , 'j200_jes_PS':100.}
-hlt_hltContainers              = {'j25':'a4tcemsubjesFS','j60':'a4tcemsubjesFS', 'j200_jes_PS':'a4tcemjesPS'}
+hlt_hltEtThresholds            = { 'j25':20.,'j60':50. , 'j60_L1RD0':50.,'j60_280eta320':50.,'j60_320eta490':50.,'j200_jes_PS':100.,'j360':250.,'j460_a10_sub_L1J100':350.}
+hlt_hltEtaHighThresholds       = { 'j25':3.2,'j60':3.2 , 'j60_L1RD0':3.2,'j60_280eta320':3.2,'j60_320eta490':4.9,'j200_jes_PS':3.2, 'j360':3.2, 'j460_a10_sub_L1J100':3.2}
+hlt_hltEtaLowThresholds        = { 'j25':0., 'j60':0.,   'j60_L1RD0':0., 'j60_280eta320':2.8,'j60_320eta490':3.2,'j200_jes_PS':0.,  'j360':0.,  'j460_a10_sub_L1J100':0.}
+hlt_hltContainers              = {'j25':'a4tcemsubjesFS','j60':'a4tcemsubjesFS','j60_L1RD0':'a4tcemsubjesFS','j60_280eta320':'a4tcemsubjesFS','j60_320eta490':'a4tcemsubjesFS','j200_jes_PS':'a4tcemjesPS','j360':'a4tcemsubjesFS','j460_a10_sub_L1J100':'a10tcemsubFS'}
 hlt_hltEtNBins                 = [ 50, 50 ]
 hlt_hltEtBinsLow               = [ 0., 0. ]
 hlt_hltEtBinsHigh              = [ 500., 500.]
 
 # Offline 
-hlt_offlineEtThresholds        = { 'L1_J15':10., 'j25':20., 'j60':50. }
+hlt_offlineEtThresholds        = { 'L1_J15':10., 'j25':20., 'j60':50.  , 'j60_L1RD0':50.,'j60_280eta320':50.,'j60_320eta490':50.,'j200_jes_PS':100.,'j360':250.,'j460_a10_sub_L1J100':350.}
             
 ## implemented but not being used [todo]
 ##hlt_jetchainsbyregexp         = [ "(L2|EF)_[0-9]?[jJ][0-9]+", "(L2|EF)_[0-9]+[fj][j0-9]+"]
@@ -102,8 +104,8 @@ def TrigJetMonitoringTool():
             DoL1Efficiency       = True,         # w.r.t offline
 	    DoOfflineJets        = True,         # fill offline jet plots
             DoHLTEfficiency      = True,         # w.r.t offline (HLT eff = L1 & HLT)
-         #   EnableLumi           = True,        # Enable Luminosity Tool
-         #   DoLumiWeight         = False,        # Decide to apply luminosity weights                       
+            #EnableLumi           = True,        # Enable Luminosity Tool
+            #DoLumiWeight         = True,        # Decide to apply luminosity weights                       
             # SG Keys for L1, EF, OF Jets
             L1xAODJetKey         = "LVL1JetRoIs",
             HLTJetKeys           = hlt_JetKeys,
@@ -170,8 +172,11 @@ def TrigJetMonitoringTool():
             JetDepBinLo               = hlt_jetDepbinlo,
             JetDepBinHi               = hlt_jetDepbinhi,
             
-            L1EtThresGeV            = hlt_level1EtThresholds,
-            HLTEtThresGeV           = hlt_hltEtThresholds,
+            L1EtThresGeV              = hlt_level1EtThresholds,
+            HLTEtThresGeV             = hlt_hltEtThresholds,
+
+            HLTEtaHighThres           = hlt_hltEtaHighThresholds,
+            HLTEtaLowThres            = hlt_hltEtaLowThresholds,
 
             # L1 Items for trigger efficiency
             primary_l1jet           = hltmonList.primary_l1jet,
@@ -242,11 +247,11 @@ def TrigJetMonitoringTool():
   from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
 
- # from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
- # ToolSvc+=LuminosityToolDefault()
-   
- # from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
- # ToolSvc+=TrigLivefractionToolDefault()
+  #from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
+  #ToolSvc+=LuminosityToolDefault()
+  
+  #from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
+  #ToolSvc+=TrigLivefractionToolDefault()
   
   ToolSvc += HLTJetMon;
 
