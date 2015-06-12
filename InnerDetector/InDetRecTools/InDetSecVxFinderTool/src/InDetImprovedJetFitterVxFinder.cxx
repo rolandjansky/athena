@@ -151,7 +151,7 @@ namespace InDet
     m_maxTracksForDetailedClustering(25),
     m_usepTDepTrackSel(false),
     m_pTMinOffset(800),//MeV
-    m_pTMinSlope(120),//MeV(track cut)/MeV(sum of track pT)
+    m_pTMinSlope(0.01),//MeV(track cut)/MeV(sum of track pT)
     m_pTMax(600e3)//MeV--> stop at 600 GeV sum of track pT
   { 
     //JetFitter tools
@@ -182,31 +182,31 @@ namespace InDet
     declareProperty("UseFastClustering",m_useFastClustering);
 
     //Cuts which steer the finding in the seeding phase before JetFitter (yes, so many!!!)
-    declareProperty("cutCompatibilityPrimaryVertexForPositiveLifetimeTracks",m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks);
-    declareProperty("cutCompatibilityPrimaryVertexForNegativeLifetimeTracks",m_cutCompatibilityPrimaryVertexForNegativeLifetimeTracks);
+    declareProperty("cutCompPrimaryVertexForPosLifetimeTracks",m_cutCompatibilityPrimaryVertexForPositiveLifetimeTracks);
+    declareProperty("cutCompPrimaryVertexForNegLifetimeTracks",m_cutCompatibilityPrimaryVertexForNegativeLifetimeTracks);
     declareProperty("twoVertexProbabilityCut",m_twoVertexProbabilityCut);
     declareProperty("cutDeltaMKs",m_cutDeltaMKs);
     declareProperty("cutDeltaMLambda",m_cutDeltaMLambda);
     declareProperty("cutDeltaMGamma",m_cutDeltaMGamma);
-    declareProperty("cutCompatibilityPrimaryVertexSingleTrackForKsAndLambda",m_cutCompatibilityPrimaryVertexSingleTrackForKsAndLambda);
-    declareProperty("cutCompatibilityPrimaryVertexBothTracksForKsAndLambda",m_cutCompatibilityPrimaryVertexBothTracksForKsAndLambda);
+    declareProperty("cutCompPrimaryVertexSingleTrackForKsAndLambda",m_cutCompatibilityPrimaryVertexSingleTrackForKsAndLambda);
+    declareProperty("cutCompPrimaryVertexBothTracksForKsAndLambda",m_cutCompatibilityPrimaryVertexBothTracksForKsAndLambda);
     declareProperty("cutTwoTrkVtxLifetimeSignificanceForKs",m_cutTwoTrkVtxLifetimeSignificanceForKs);
     declareProperty("cutTwoTrkVtxLifetimeSignificanceForLambda",m_cutTwoTrkVtxLifetimeSignificanceForLambda);
-    declareProperty("cutIPD0BothTracksCriteriumOneForKsAndLambda",m_cutIPD0BothTracksCriteriumOneForKsAndLambda);
-    declareProperty("cutIPZ0BothTracksCriteriumOneForKsAndLambda",m_cutIPZ0BothTracksCriteriumOneForKsAndLambda);
-    declareProperty("cutTransverseTwoTrkVtxDistanceCriteriumTwoForKsAndLambda",m_cutTransverseTwoTrkVtxDistanceCriteriumTwoForKsAndLambda);
-    declareProperty("cutCompatibilityChi2ToPrimaryNeutralTrackFromConversion",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromConversion);
-    declareProperty("cutCompatibilityChi2ToPrimaryNeutralTrackFromKs",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromKs);
-    declareProperty("cutCompatibilityChi2ToPrimaryNeutralTrackFromLambda",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromLambda);
-    declareProperty("cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection",m_cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection);
-    declareProperty("cutCompatibilityPrimaryVertexBothTracksForBFirstSelection",m_cutCompatibilityPrimaryVertexBothTracksForBFirstSelection);
+    declareProperty("cutIPD0BothTracksCriteriumAForKsAndLambda",m_cutIPD0BothTracksCriteriumOneForKsAndLambda);
+    declareProperty("cutIPZ0BothTracksCriteriumAForKsAndLambda",m_cutIPZ0BothTracksCriteriumOneForKsAndLambda);
+    declareProperty("cutTransvTwoTrkVtxDistCriteriumBForKsAndLambda",m_cutTransverseTwoTrkVtxDistanceCriteriumTwoForKsAndLambda);
+    declareProperty("cutCompChi2ToPrimaryNeutTrkFromConversion",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromConversion);
+    declareProperty("cutCompChi2ToPrimaryNeutTrkFromKs",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromKs);
+    declareProperty("cutCompChi2ToPrimaryNeutTrkFromLambda",m_cutCompatibilityChi2ToPrimaryNeutralTrackFromLambda);
+    declareProperty("cutCompPrimaryVertexSingleTrackForBFirstSelect",m_cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection);
+    declareProperty("cutCompPrimaryVertexBothTracksForBFirstSelect",m_cutCompatibilityPrimaryVertexBothTracksForBFirstSelection);
     declareProperty("cutIPD0BothTracksForBFirstSelection",m_cutIPD0BothTracksForBFirstSelection);
     declareProperty("cutIPZ0BothTracksForBFirstSelection",m_cutIPZ0BothTracksForBFirstSelection);
     declareProperty("cutPtBothTracksForBFirstSelection",m_cutPtBothTracksForBFirstSelection);
-    declareProperty("cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionFirstCriterium",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionFirstCriterium);
-    declareProperty("cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium",m_cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium);
-    declareProperty("cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionSecondCriterium",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionSecondCriterium);
-    declareProperty("cutTwoTrkVtxVertexProbForBFirstSelectionSecondCriterium",m_cutTwoTrkVtxVertexProbForBFirstSelectionSecondCriterium);
+    declareProperty("cutTwoTrkVtxLifeSignForBFirstSelectCriteriumA",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionFirstCriterium);
+    declareProperty("cutTwoTrkVtxVtxProbForBFirstSelectCriteriumA",m_cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium);
+    declareProperty("cutTwoTrkVtxLifeSignForBFirstSelectCriteriumB",m_cutTwoTrkVtxLifetimeSignificanceForBFirstSelectionSecondCriterium);
+    declareProperty("cutTwoTrkVtxVtxProbForBFirstSelectCriteriumB",m_cutTwoTrkVtxVertexProbForBFirstSelectionSecondCriterium);
     declareProperty("firstBeam_min",m_firstBeam_min);
     declareProperty("secondBeam_min",m_secondBeam_min);
     declareProperty("secondBeam_max",m_secondBeam_max);
@@ -214,14 +214,14 @@ namespace InDet
     declareProperty("firstLayer_max",m_firstLayer_max);
     declareProperty("secondLayer_min",m_secondLayer_min);
     declareProperty("secondLayer_max",m_secondLayer_max);
-    declareProperty("cutCompatibilityToPrimarySingleTrackForMatInteractions",m_cutCompatibilityToPrimarySingleTrackForMatInteractions);
-    declareProperty("cutCompatibilityToPrimaryBothTracksForMatInteractions",m_cutCompatibilityToPrimaryBothTracksForMatInteractions);
+    declareProperty("cutCompToPrimarySingleTrackForMatInterac",m_cutCompatibilityToPrimarySingleTrackForMatInteractions);
+    declareProperty("cutCompToPrimaryBothTracksForMatInterac",m_cutCompatibilityToPrimaryBothTracksForMatInteractions);
     declareProperty("cutIPD0SingleTrackForBSecondSelection",m_cutIPD0SingleTrackForBSecondSelection);
     declareProperty("cutIPZ0SingleTrackForBSecondSelection",m_cutIPZ0SingleTrackForBSecondSelection);
     declareProperty("cutPtSingleTrackForBSecondSelection",m_cutPtSingleTrackForBSecondSelection);
-    declareProperty("cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection",m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection);
-    declareProperty("cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection",m_cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection);
-    declareProperty("doNotUsePrimaryVertexCombatibilityInfo",m_doNotUsePrimaryVertexCombatibilityInfo);
+    declareProperty("cutCompPVSinglePosLifeTrackForBSecondSelect",m_cutCompatibilityPrimaryVertexSinglePositiveLifetimeTrackForBSecondSelection);
+    declareProperty("cutCompPVSingleNegLifeTrackForBSecondSelect",m_cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection);
+    declareProperty("doNotUsePVCombInfo",m_doNotUsePrimaryVertexCombatibilityInfo);
     declareProperty("ID_maxR",m_maxR);
     declareProperty("ID_maxZ",m_maxZ);
 
@@ -234,7 +234,7 @@ namespace InDet
     declareProperty("VertexEdmFactory", m_VertexEdmFactory);
 
     declareProperty("usepTDepTrackSel",m_usepTDepTrackSel);
-    declareProperty("pTMinOffset",m_usepTDepTrackSel);
+    declareProperty("pTMinOffset",m_pTMinOffset);
     declareProperty("pTMinSlope",m_pTMinSlope);
     declareProperty("pTMax",m_pTMax);
     
