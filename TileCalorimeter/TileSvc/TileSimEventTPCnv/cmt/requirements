@@ -1,0 +1,18 @@
+## automatically generated CMT requirements file
+package TileSimEventTPCnv
+
+author Jose Maneira <Jose.Maneira@cern.ch>
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+use AtlasReflex         AtlasReflex-*           External
+use TileSimEvent        TileSimEvent-*          TileCalorimeter 
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*      Database/AthenaPOOL
+
+
+library TileSimEventTPCnv *.cxx
+apply_pattern tpcnv_library
+
+apply_pattern lcgdict dict=TileSimEventTPCnv  selectionfile=selection.xml headerfiles="../TileSimEventTPCnv/TileSimEventTPCnvDict.h"
+apply_pattern lcgdict dict=OLD_TileSimEventTPCnv  selectionfile=OLD_selection.xml headerfiles="../TileSimEventTPCnv/TileSimEventTPCnvDict.h"
+
