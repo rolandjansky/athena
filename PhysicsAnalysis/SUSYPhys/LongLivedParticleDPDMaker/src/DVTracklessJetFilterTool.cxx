@@ -19,7 +19,7 @@ DerivationFramework::DVTracklessJetFilterTool::DVTracklessJetFilterTool( const s
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
-  m_jetSGKey("AntiKt4Jets"),
+  m_jetSGKey("AntiKt4EMTopoJets"),
   m_ptCut(50000.0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);

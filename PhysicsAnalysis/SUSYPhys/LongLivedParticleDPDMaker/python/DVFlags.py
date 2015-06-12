@@ -12,7 +12,7 @@ class DV_containerFlags(JobProperty):
     photonCollectionName='Photons'
     electronCollectionName='Electrons'
     muonCollectionName='Muons'
-    jetCollectionName="AntiKt4LCTopoJets"
+    jetCollectionName="AntiKt4EMTopoJets"
     METCollectionName="MET_LocHadTopo"
     pass
 primRPVLLDESDM.add_JobProperty(DV_containerFlags)
@@ -120,8 +120,9 @@ class DV_MeffFilterFlags(JobProperty):
     StoredValue=True
     cutMeffMin=1.0*Units.TeV ##
     cutMEToverMeffMin=0.3   ## note that these two cuts are ORed in the code!
-    cutJetPtMin=40000.
+    cutJetPtMin=40.0*Units.GeV
     cutJetEtaMax=2.5
+    cutMETMin=80.0*Units.GeV
     pass
 primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 

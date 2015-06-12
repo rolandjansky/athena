@@ -24,7 +24,8 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
   m_MeffCut(1000000.),
   m_METoverMeffCut(0.3),
   m_jetPtCut(40000.),
-  m_jetEtaCut(2.7)
+  m_jetEtaCut(2.7),
+  m_METCut(80000.)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("METContainerKey", m_metSGKey);
@@ -32,6 +33,7 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
     declareProperty("jetPtCut", m_jetPtCut);
     declareProperty("jetEtaCut", m_jetEtaCut);
     declareProperty("METoverMeffCut", m_METoverMeffCut);
+    declareProperty("METCut",m_METCut);
     declareProperty("JetContainerKey", m_jetSGKey);
   }
   
@@ -88,8 +90,9 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      
      Meff += MET;
      Meff += totalJetPT;
+     ///     msg(MSG::DEBUG)<<" MET "<< MET<< " totalJetPT "<<totalJetPT<<" Meff "<<Meff<<" ratio "<< MET/Meff <<endreq;
      
-     if ((Meff > m_MeffCut) || (MET/Meff > m_METoverMeffCut ) ) {   //// NOTE: OR of these two requirements
+     if ((Meff > m_MeffCut) || ((MET > m_METCut) && (MET/Meff > m_METoverMeffCut )))  {   //// NOTE: OR of these two requirements
        passesEvent=true;
        ++m_npass;
      }

@@ -51,7 +51,7 @@ namespace DerivationFramework {
     double m_METoverMeffCut;
     double m_jetPtCut;
     double m_jetEtaCut;
-
+    double m_METCut;
 
   }; 
   

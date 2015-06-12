@@ -255,6 +255,7 @@ from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFr
 DVMeffFilterTool = DerivationFramework__DVMeffFilterTool(name = "DVMeffFilterTool",
                                                          METContainerKey = METContainer,
                                                          MeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMeffMin,
+                                                         METCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMETMin,
                                                          METoverMeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMin)
 ToolSvc += DVMeffFilterTool
 
