@@ -4,8 +4,8 @@ author Jose Maneira <Jose.Maneira@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-* 
 use AtlasReflex          AtlasReflex-*           External
-use TileSimEvent         TileSimEvent-*          TileCalorimeter 
 use TileEvent            TileEvent-*             TileCalorimeter 
+use TileSimEventTPCnv    TileSimEventTPCnv-*     TileCalorimeter/TileSvc
 use EventContainers      EventContainers-*       Event
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
 

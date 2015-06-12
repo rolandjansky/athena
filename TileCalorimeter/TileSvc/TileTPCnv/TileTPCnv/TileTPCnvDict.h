@@ -5,8 +5,6 @@
 #ifndef TILETPCNV_TILETPCNVDICT_H
 #define TILETPCNV_TILETPCNVDICT_H
 
-#include "TileTPCnv/TileHit_p1.h"
-#include "TileTPCnv/TileHitVector_p1.h"
 #include "TileTPCnv/TileHitContainer_p1.h"
 
 #include "TileTPCnv/TileTTL1_p1.h"

@@ -5,8 +5,6 @@
 // generate the T/P converter entries
 #include "AthenaKernel/TPCnvFactory.h"
 
-#include "TileTPCnv/TileHit_p1.h"
-#include "TileTPCnv/TileHitVector_p1.h"
 #include "TileTPCnv/TileHitContainer_p1.h"
 #include "TileTPCnv/TileHitContainerCnv_p1.h"
 

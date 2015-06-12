@@ -12,12 +12,12 @@
 #ifndef TILEHITCONTAINER_P1_H
 #define TILEHITCONTAINER_P1_H
 
-#include "TileTPCnv/TileHit_p1.h"
+#include "TileSimEventTPCnv/TileHit_p1.h"
 #include <vector>
 
-class TileHitContainer_p1   
-{
-public:
+class TileHitContainer_p1 {
+
+  public:
     /// typedefs
     typedef std::vector<TileHit_p1> ElemVector;
     typedef ElemVector::const_iterator const_iterator;
@@ -28,7 +28,7 @@ public:
 
     // Accessors
     const std::vector<unsigned int>& getParam() const {return m_param;}
-    const ElemVector&               getVector() const {return m_cont;}
+    const ElemVector&                getVector() const {return m_cont;}
 
     // Clear methods
     void clear() {m_param.clear(); m_cont.clear(); }

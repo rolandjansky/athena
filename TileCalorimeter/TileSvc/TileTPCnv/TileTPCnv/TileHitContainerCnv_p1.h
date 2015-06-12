@@ -16,7 +16,7 @@
 #define private public
 #include "TileTPCnv/TileHitContainer_p1.h"
 #undef private 
-#include "TileTPCnv/TileHitCnv_p1.h"
+#include "TileSimEventTPCnv/TileHitCnv_p1.h"
 #include "TileTPCnv/T_TilePoolContainerCnv.h"
 
 // Tile includes

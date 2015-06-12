@@ -1,8 +1,5 @@
 <lcgdict>
 
-  <class name="TileHit_p1" />
-  <class name="std::vector<TileHit_p1>" />
-  <class name="TileHitVector_p1" id="65AD597A-BF97-46EE-B9E3-203B35218EA7" />
   <class name="TileHitContainer_p1" id="E347580F-BBF0-441E-A799-9AC0256F69DF" />
 
   <class name="TileTTL1_p1" />
