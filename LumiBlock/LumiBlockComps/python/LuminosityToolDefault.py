@@ -16,7 +16,13 @@ def LuminosityToolDefault(name="LuminosityTool"):
         return getattr(svcMgr.ToolSvc, name)
 
     from IOVDbSvc.CondDB import conddb
-    if conddb.dbdata == "COMP200":
+
+    # For MC, return unconfigured tool (which will do nothing)
+    if conddb.isMC:
+        mlog.info("LuminosityToolDefault called for MC!")
+        return LuminosityTool(name)
+
+    elif conddb.dbdata == "COMP200":
         return LuminosityToolOfflineRun1(name)
 
     elif conddb.dbdata == "CONDBR2":
@@ -116,18 +122,25 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
     else:
         lumiFolder = "/TRIGGER/OFLLUMI/OflPrefLumi"
         if not conddb.folderRequested( lumiFolder ):
-            # Add tag for testing, must take this out!
-            # mlog.warning('>>> Specify tag OflPrefLumi-RUN2-UPD4-00 for testing, take this out! <<<')
-            # conddb.addFolderWithTag('TRIGGER_OFL', lumiFolder, 'OflPrefLumi-RUN2-UPD4-00', force=True)
-
             conddb.addFolder('TRIGGER_OFL', lumiFolder)
 
     mlog.info("LuminosityToolOfflineRun2 requested %s", lumiFolder)
     lumiTool.LumiFolderName = lumiFolder
 
+    mlog.info("Created Run2 %s using folder %s" % (name, lumiFolder))
+
+    # Need the calibration tool just to get the proper MuToLumi value
+    toolName = "OnlineLumiCalibrationTool"
+    lumiTool.OnlineLumiCalibrationTool = toolName
+    if not hasattr(svcMgr.ToolSvc, toolName):
+        from CoolLumiUtilities.OnlineLumiCalibrationToolDefault import OnlineLumiCalibrationToolDefault
+        svcMgr.ToolSvc += OnlineLumiCalibrationToolDefault(toolName)
+        mlog.info("LuminosityToolOfflineRun2 added tool %s", toolName)
+    else:
+        mlog.info("LuminosityToolOfflineRun2 found %s already defined!" % toolName)
+
     # Other folder names are now blank by default
 
-    mlog.info("Created Run2 %s using folder %s" % (name, lumiFolder))
     return lumiTool
     
 class LuminosityToolOnline(LuminosityTool):
@@ -163,5 +176,15 @@ class LuminosityToolOnline(LuminosityTool):
             mlog.warning("LuminosityToolOnline can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
             mlog.info("Created online %s using a dummy Run2 configuration!" % name)
 
+        # Also need helper tool to make mu values properly
+        if not conddb.isMC:
+            toolName = "OnlineLumiCalibrationTool"
+            self.OnlineLumiCalibrationTool = toolName
+            if not hasattr(svcMgr.ToolSvc, toolName):
+                from CoolLumiUtilities.OnlineLumiCalibrationToolDefault import OnlineLumiCalibrationToolDefault
+                svcMgr.ToolSvc += OnlineLumiCalibrationToolDefault(toolName)
+                mlog.info("LuminosityToolOnline added tool %s", toolName)
+            else:
+                mlog.info("LuminosityToolOnline found %s already defined!" % toolName)
 
 

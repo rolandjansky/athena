@@ -35,7 +35,8 @@ LuminosityTool::LuminosityTool(const std::string& type,
     m_recalcPerBCIDLumi(true),
     m_preferredChannel(0),
     m_luminousBunches(0),
-    m_bunchInstLumiBlob(NULL)
+    m_bunchInstLumiBlob(NULL),
+    m_calibChannel(0)
 {
   declareInterface<ILuminosityTool>(this);
   declareProperty("LumiFolderName", m_lumiFolderName);
@@ -252,6 +253,7 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
   m_LBAvEvtsPerBX = 0.;
   m_Valid = 0xFFFFFFFF;
   m_preferredChannel = 0;
+  m_calibChannel = 0;
   m_bunchInstLumiBlob = NULL;
 
   // Check if we have anything to do
@@ -315,14 +317,17 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     if (hasAlgorithmID) {
       // In Run2, channel 0 should be good.  Leave as is
       m_preferredChannel = m_lumiChannel;
+      m_calibChannel = attrList["AlgorithmID"].data<cool::UInt32>();
 
     } else {
       // In Run1, we need to recalculate from the actual channel number
       m_preferredChannel = (m_Valid >> 22);
+      m_calibChannel = m_preferredChannel;
     }
 
   } else {
     m_preferredChannel = m_lumiChannel;
+    m_calibChannel = m_lumiChannel;
   }
 
   m_LBAvInstLumi = attrList["LBAvInstLumi"].data<cool::Float>();   // Lumi
@@ -339,14 +344,7 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
     m_LBAvEvtsPerBX=0.;
   }
 
-  // Also update muToLumi as this may have changed with the channel number
-  if (!m_onlineLumiCalibrationTool.empty()) {
-    m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_preferredChannel);
-  } else if (m_LBAvEvtsPerBX > 0.) {
-    m_MuToLumi = m_LBAvInstLumi / m_LBAvEvtsPerBX;
-  } else {
-    m_MuToLumi = 0.;
-  } 
+  // MuToLumi gets updated in recalcPerBCIDLumi
 
   // Check validity of per-BCID luminosity (will issue warning in recalcPerBCIDLumi
   int perBcidValid = (m_Valid/10) % 10;
@@ -422,6 +420,18 @@ LuminosityTool::recalculatePerBCIDLumi()
   // Clear the calibrated luminosity data
   m_LBInstLumi.assign(TOTAL_LHC_BCIDS, 0.);
 
+  // Update muToLumi 
+  if (!m_onlineLumiCalibrationTool.empty()) {
+    // This is the only correct way to do this!
+    // The division below gives average mu (over all bunches) to total lumi
+    m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_calibChannel);
+    //} else if (m_LBAvEvtsPerBX > 0.) {
+    //m_MuToLumi = m_LBAvInstLumi / m_LBAvEvtsPerBX;
+  } else {
+    m_MuToLumi = 0.;
+  } 
+  ATH_MSG_DEBUG(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibChannel );
+
   // Make some sanity checks that we have everyting we need
   if (m_lumiFolderName.empty()) {
     ATH_MSG_INFO( "LumiFolderName is empty in recalculatePerBCIDLumi()!");
@@ -436,6 +446,7 @@ LuminosityTool::recalculatePerBCIDLumi()
     ATH_MSG_INFO( "LBAvInstLumi is zero or negative in recalculatePerBCIDLumi():" << m_LBAvInstLumi);
     return;
   }
+
 
   // Check here if we want to do this the Run1 way (hard) or the Run2 way (easy)
 

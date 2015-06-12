@@ -31,7 +31,7 @@
 class StoreGateSvc;
 class ILumiCalcSvc;
 class IGoodRunsListSelectorTool;
-//class LumiBlockCollectionConverter;
+class LumiBlockRangeContainerConverter;
 class ITriggerRegistryTool;
 
 namespace Root {
@@ -97,7 +97,7 @@ private:
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-   //   LumiBlockCollectionConverter* m_converter;
+   LumiBlockRangeContainerConverter* m_converter;
    Root::TGRLCollection* m_grlcollection;
 
    ServiceHandle<ILumiCalcSvc> m_lcSvc;

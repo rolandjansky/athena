@@ -134,6 +134,8 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   // Pointer to per-BCID blob (Run2 only)
   const coral::Blob *m_bunchInstLumiBlob;
 
+  // Channel to use to get muToLumi from calibration tool
+  unsigned int m_calibChannel;
 };
 
 
