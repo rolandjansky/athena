@@ -1,0 +1,27 @@
+## automatically generated CMT requirements file
+package TileSimEventAthenaPool
+
+author Alexandre Solodkov <Sanya.Solodkov@cern.ch>
+
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+
+private
+
+use GaudiInterface	GaudiInterface-*		External
+use AthenaPoolCnvSvc	AthenaPoolCnvSvc-*		Database/AthenaPOOL
+use AthenaPoolUtilities	AthenaPoolUtilities-*		Database/AthenaPOOL
+use TileSimEvent	TileSimEvent-*			TileCalorimeter
+use TileSimEventTPCnv   TileSimEventTPCnv-*		TileCalorimeter/TileSvc
+
+
+
+apply_pattern poolcnv files="-s=${TileSimEvent_root}/TileSimEvent TileHitVector.h"
+
+macro_append TileSimEventAthenaPoolPoolCnv_shlibflags "$(TileSimEventAthenaPool_dict_linkopts)"
+
+
+
+
