@@ -253,18 +253,18 @@ class WriteTauMuonStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteTauMuonStream)
 listESDtoDPD.append(WriteTauMuonStream.StreamName)
 
-class WriteJetStream(JobProperty):
+class WriteDESDM_CALJETStream(JobProperty):
     """ Produce the primary DPD Jet DPD."""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-    StreamName   = "StreamDESD_CALJET"
+    StreamName   = "StreamDESDM_CALJET"
     FileName     = ""
     isVirtual    = False
     DPDMakerScript = "PrimaryDPDMaker/PerfDPD_Jet.py"
     pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteJetStream)
-listESDtoDPD.append(WriteJetStream.StreamName)
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESDM_CALJETStream)
+listESDtoDPD.append(WriteDESDM_CALJETStream.StreamName)
 
 class WriteTrackingStream(JobProperty):
     """ Produce the primary DPD Tracking."""
@@ -1255,6 +1255,45 @@ class WriteDAOD_IDTRKLUMIStream(JobProperty):
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTRKLUMIStream)
 listESDtoDPD.append(WriteDAOD_IDTRKLUMIStream.StreamName)
+
+class WriteDAOD_L1CALO1(JobProperty):
+    """ Produce the DAOD for L1Calo1."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO1"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO1.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO1)
+listESDtoDPD.append(WriteDAOD_L1CALO1.StreamName)
+
+class WriteDAOD_L1CALO2(JobProperty):
+    """ Produce the DAOD for L1Calo2."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO2"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO2.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO2)
+listESDtoDPD.append(WriteDAOD_L1CALO2.StreamName)
+
+class WriteDAOD_L1CALO3(JobProperty):
+    """ Produce the DAOD for L1Calo3."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDAOD_L1CALO3"
+    FileName       = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkL1Calo/L1CALO3.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_L1CALO3)
+listESDtoDPD.append(WriteDAOD_L1CALO3.StreamName)
 
 class WriteD2ESD_ZMMStream(JobProperty):
     """ Produce the Z->mumu D2ESD."""

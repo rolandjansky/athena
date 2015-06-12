@@ -76,7 +76,13 @@ StatusCode muonTrkTrackThinTool::execute()
   const TrackCollection* alltracks = 0;
   CHECK( evtStore()->retrieve( alltracks, m_trackCollKey ) );
   if (!alltracks){
-    ATH_MSG_DEBUG( "------------- No Track Collection to filter of type" <<  m_trackCollKey);
+    ATH_MSG_DEBUG( "------------- No Track Collection to filter of type: " <<  m_trackCollKey);
+    return StatusCode::SUCCESS;
+  }
+
+  if (alltracks->size() == 0){
+    ATH_MSG_DEBUG( "------------- Track Collection is empty, collection type: " <<  m_trackCollKey);
+    return StatusCode::SUCCESS;
   }
 
   std::vector<bool> mask_t;
@@ -116,9 +122,10 @@ StatusCode muonTrkTrackThinTool::execute()
     }
 
     int trIndex = muontr_link.index();
-    mask_t[trIndex] = true;
-    m_trackpass++;
-
+    if (trIndex < int(mask_t.size())){
+      mask_t[trIndex] = true;
+      m_trackpass++;
+    }
   }//close muon loop
 
       

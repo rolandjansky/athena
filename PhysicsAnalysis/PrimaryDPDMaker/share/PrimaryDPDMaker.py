@@ -88,7 +88,6 @@ if primDPD.MakePrimaryDPD():
            or primDPD.WriteEGammaStream() \
            or primDPD.WriteMuonStream() \
            or primDPD.WriteSingleMuonStream() \
-           or primDPD.WriteJetStream() \
            or primDPD.WriteMinBiasStream() \
            or primDPD.WritePrescaledESDStream() \
            or primDPD.WriteLargeMetStream() \
@@ -164,13 +163,6 @@ if primDPD.MakePrimaryDPD():
     ##=======================================================
     if primDPD.WriteSingleMuonStream():
         rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_SingleMuon.py")
-        pass
-
-    ##=======================================================
-    ## Include the Jet DPD Output Stream
-    ##=======================================================
-    if primDPD.WriteJetStream():
-        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_Jet.py")
         pass
 
     ##=======================================================
