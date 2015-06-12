@@ -308,8 +308,8 @@ GeoPcon* EMECSupportConstruction::getPcon(std::string id) const
 	std::vector<double> zplane, rmin, rmax;
 
 	std::string id1 = id;
-	if(id.find("FrontSupportMother") == 0) id1 == "FrontSupportMother";
-	else if(id.find("BackSupportMother") == 0) id1 == "BackSupportMother";
+	if(id.find("FrontSupportMother") == 0) id1 = "FrontSupportMother";
+	else if(id.find("BackSupportMother") == 0) id1 = "BackSupportMother";
 	else if(id.find("Stretchers") != std::string::npos) id1 = "Stretchers";
 	else if(id == "FrontMiddleRing::LowerHole") id1 = "FrontMiddleRing::LH";
 	else if(id == "FrontMiddleRing::LowerGTen") id1 = "FrontMiddleRing::LGT";
@@ -1198,11 +1198,12 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
                                   //RInnerFront-43.5;RInnerBack-24.5
 	const double talpha = (r2min - r1min)*0.5/dz;
 	const double calpha = 2.*dz/sqrt(pow(2.*dz,2.)+pow(r2min-r1min,2.));
+        const double inv_calpha = 1. / calpha;
 	const double alpha = atan(talpha);
 	double surfthick = getNumber(DB_numbers, numbers, "surfthick", "PARVALUE", 1.*CLHEP::mm);       // thickness of the cone shell
 	double barthick = getNumber(DB_numbers, numbers, "barthick", "PARVALUE", 5.*CLHEP::mm);       // thickness of the Alu bars
-	double r1max     = pow(barthick/2.,2.)+ pow(r1min+(surfthick+barthick)/calpha,2.);
-			r1max     = sqrt(r1max)+surfthick/calpha;
+	double r1max     = pow(barthick/2.,2.)+ pow(r1min+(surfthick+barthick)*inv_calpha,2.);
+			r1max     = sqrt(r1max)+surfthick*inv_calpha;
 	double r2max     = r2min+(r1max-r1min);
 
 	GeoCons*    shapeIAC    = new GeoCons ( r1min ,r2min,
@@ -1219,7 +1220,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 	std::string name = name0 + "::InnerShell";
 	GeoCons*  shapeIACIS  = new GeoCons(
                                r1min ,                 r2min,
-                               r1min+surfthick/calpha, r2min+surfthick/calpha,
+                               r1min+surfthick*inv_calpha, r2min+surfthick*inv_calpha,
                                dz, PhiStart, PhiSize);
   GeoLogVol* logicalIACIS = new GeoLogVol (name,shapeIACIS,Alu);
   GeoPhysVol*   physIACIS = new GeoPhysVol(logicalIACIS);
@@ -1229,7 +1230,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 //-----------------------------/
 
   GeoCons*     shapeIACOS  = new GeoCons (
-                              r1max-surfthick/calpha,  r2max-surfthick/calpha,
+                              r1max-surfthick*inv_calpha,  r2max-surfthick*inv_calpha,
                               r1max,                   r2max,
                               dz, PhiStart, PhiSize);
   GeoLogVol* logicalIACOS = new GeoLogVol (name,shapeIACOS,Alu);
@@ -1242,8 +1243,8 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 	const int    nofmodul  =   8;
 	const double moduldphi = CLHEP::twopi / nofmodul;
   GeoCons*     shapeIACP  = new GeoCons(
-       	                      r1min+surfthick/calpha,r2min+surfthick/calpha,
-                              r1max-surfthick/calpha,r2max-surfthick/calpha,
+       	                      r1min+surfthick*inv_calpha,r2min+surfthick*inv_calpha,
+                              r1max-surfthick*inv_calpha,r2max-surfthick*inv_calpha,
                               dz, -moduldphi/2.,moduldphi);
   GeoLogVol* logicalIACP = new GeoLogVol (name,shapeIACP,LAr);
   GeoPhysVol*   physIACP = new GeoPhysVol(logicalIACP);
@@ -1252,7 +1253,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
 //-------------------------/
 
   GeoPara* shapeIACAB    = new GeoPara(
-                                  barthick/2./calpha,barthick/2.,dz,
+                                  barthick/2.*inv_calpha,barthick/2.,dz,
                                   0.,alpha,0.);
   GeoLogVol* logicalIACAB= new GeoLogVol (name,shapeIACAB, Alu);
   GeoPhysVol*   physIACAB= new GeoPhysVol(logicalIACAB);
@@ -1260,7 +1261,7 @@ GeoPhysVol* EMECSupportConstruction::inner_envelope(void) const
   const double dphi = CLHEP::twopi / 256.;
   const int    nbar = 9;
   const double phi[9]={-15.,-11.,-7.5,-4.,0.,4.,7.5,11.,15.}; // phipos of the bars
-  const double r0=r1min+(surfthick+barthick/2.)/calpha+dz*talpha;
+  const double r0=r1min+(surfthick+barthick/2.)*inv_calpha+dz*talpha;
 
 	for(int i = 0; i < nbar; ++ i){  // put the Alu bars into the module
 		double fi=phi[i]*dphi;
@@ -1293,16 +1294,17 @@ GeoPhysVol* EMECSupportConstruction::middle_envelope(void) const
 	double eta_mid = (*DB_EmecWheelParameters)[0]->getDouble("ETAEXT");
 
 	double tanThetaMid = 2. * exp(-eta_mid) / (1. - exp(-2.*eta_mid));
-	double cosThetaMid = (1. - exp(2.*-eta_mid)) / (1. + exp(-2.*eta_mid));
+	const double cosThetaMid = (1. - exp(2.*-eta_mid)) / (1. + exp(-2.*eta_mid));
+        const double inv_cosThetaMid = 1. / cosThetaMid;
 
 	double z0 = LArTotalThickness * 0.5 + dMechFocaltoWRP;
 	double length = 462.*CLHEP::mm;
-	double rthickness = 1.5*CLHEP::mm / cosThetaMid;
+	double rthickness = 1.5*CLHEP::mm * inv_cosThetaMid;
 
 	std::string name = BaseName + "InnerTransversalBars";
 	double dz = length * cosThetaMid * 0.5;
-	double rmin0 = (z0 - dz) * tanThetaMid - LArEMECHalfCrack + 1./cosThetaMid;
-	double rmin1 = (z0 + dz) * tanThetaMid - LArEMECHalfCrack + 1./cosThetaMid;
+	double rmin0 = (z0 - dz) * tanThetaMid - LArEMECHalfCrack + inv_cosThetaMid;
+	double rmin1 = (z0 + dz) * tanThetaMid - LArEMECHalfCrack + inv_cosThetaMid;
 
 	GeoCons* shapeITB = new GeoCons(rmin0, rmin1, rmin0 + rthickness, rmin1 + rthickness,
 				                    dz, PhiStart, PhiSize);
