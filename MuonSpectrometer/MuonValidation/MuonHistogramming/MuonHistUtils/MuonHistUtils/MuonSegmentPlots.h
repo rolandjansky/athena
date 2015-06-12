@@ -61,8 +61,12 @@ class MuonSegmentPlots:public PlotBase {
       TH1* etaphidir;
 
       TH1* chamberIndex;
+      TH2* chamberIndex_perSector;
+
+      std::vector<TH2*> sector_etaIndex;
 
       const float myPi = 3.14159;
+      const char *StationName[8] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE"};//For filling in monitoring plots
 };
 }
 
