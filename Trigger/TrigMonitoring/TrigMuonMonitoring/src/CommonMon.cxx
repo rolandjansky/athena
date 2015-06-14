@@ -1461,14 +1461,14 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   for( std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
     ATH_MSG_DEBUG( it->first );
     
-    if( getTDT()->isPassed( ("HLT_"+ it->first) )  ){
+    if( getTDT()->isPassed( (it->first) )  ){
       //ATH_MSG_FATAL(" pass" << *it );
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
       
     }
     //cosmic
-    if( getTDT()->isPassed( ("HLT_"+ it->first + "_cosmic") )  ){
+    if( getTDT()->isPassed( (it->first + "_cosmic") )  ){
       //ATH_MSG_FATAL(" pass" << *it <<"_cosmic");
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
@@ -1530,7 +1530,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   vs_ESHIindep.push_back("HLT_2g5_loose");
 
   for (int i = 0; i <= m_maxESbr; i++) {
-    m_passedES[i] = false; 
+    m_passedES[i] = false;
   }
 
   if (m_requestESchains) {
@@ -1632,7 +1632,8 @@ StatusCode HLTMuonMonTool::fillChainDQA()
   }
 
   for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ){
-    StatusCode sc = fillChainDQA_standard(*it, m_histChainEFFS[itr]);
+    if(itr > 0) continue;
+    StatusCode sc = fillChainDQA_standard(*it, m_histChainEFFS[0]);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_standard failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
@@ -1848,7 +1849,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
   // YY: 25.05.10 to clear m_checked:
   retval.getCode();
 
-  FeatureContainer fHLT = getTDT()->features("HLT_"+chainName,TrigDefs::alsoDeactivateTEs);
+  FeatureContainer fHLT = getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs);
 
   std::vector<Combination> combsHLT = fHLT.getCombinations();
   ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());  
@@ -1879,7 +1880,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     float rec_phi = m_RecMuonSA_phi[i_rec];
     float rec_pt  = m_RecMuonSA_pt[i_rec];
     ATH_MSG_DEBUG("++ i_rec=" << i_rec); 
-    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt); 
+    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
     //    if( rec_pt > 50. ) rec_pt = 50.;
     // if( rec_pt > 100. ) rec_pt = 100.;
 
@@ -2027,7 +2028,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     std::string monalg2 = "_MuonEFSA";
 
 
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("HLT_" + chainName);
+    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails( chainName);
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
       configChain = chainDetail->getConfigChain();
@@ -2423,15 +2424,15 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
         int mu1_index = m_RecMuonCB_pt_index[0].second;
         int mu2_index = m_RecMuonCB_pt_index[1].second;
 
-        std::string EF_pre_trigger= "HLT_"+m_FS_pre_trigger;   
-        std::string EF_pre_trigger_second= "HLT_"+m_FS_pre_trigger_second;   
+        std::string EF_pre_trigger= m_FS_pre_trigger;   
+        std::string EF_pre_trigger_second= m_FS_pre_trigger_second;   
 
 	if( m_tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
         if(getTDT()->isPassed(EF_pre_trigger.c_str())!=1 && getTDT()->isPassed(EF_pre_trigger_second.c_str())!=1) return StatusCode::SUCCESS;
 
         std::string name = histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
         hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
-	std::string EF_FS_trigger = "HLT_"+chainName;
+	std::string EF_FS_trigger = chainName;
         if(getTDT()->isPassed(EF_FS_trigger.c_str())){
                 name =  histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Numerator";
                 hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
@@ -2450,7 +2451,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 
 
 	//*************  check the first pre trigger mu18it_tight *******************//
-        FeatureContainer my_fHLT = getTDT()->features("HLT_"+m_FS_pre_trigger,TrigDefs::alsoDeactivateTEs);
+        FeatureContainer my_fHLT = getTDT()->features(m_FS_pre_trigger,TrigDefs::alsoDeactivateTEs);
 
         std::vector<Combination> my_combsHLT = my_fHLT.getCombinations();
 
@@ -2526,7 +2527,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
         }
 
 	//*************  check the second pre trigger mu24i_tight *******************//
-        FeatureContainer my_fHLT_mu24_imedium = getTDT()->features("HLT_"+m_FS_pre_trigger_second,TrigDefs::alsoDeactivateTEs);
+        FeatureContainer my_fHLT_mu24_imedium = getTDT()->features(m_FS_pre_trigger_second,TrigDefs::alsoDeactivateTEs);
 
         std::vector<Combination> my_combsHLT_mu24_imedium= my_fHLT_mu24_imedium.getCombinations();
 
@@ -2767,7 +2768,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
   retval.getCode();
 
 
-  FeatureContainer fHLT = getTDT()->features("HLT_"+chainName,TrigDefs::alsoDeactivateTEs);  
+  FeatureContainer fHLT = getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs);  
 
 
   std::vector<Combination> combsHLT = fHLT.getCombinations();
@@ -2791,7 +2792,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 
     if (!m_RecMuonCB_isGoodCB[i_rec]) {  
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision. 
+      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision.
     }
 
     float rec_eta = m_RecMuonCB_eta[i_rec];
@@ -3077,7 +3078,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
     std::string monalg3 = "_EFmuon";
 
     //const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName); // sept25
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("HLT_" + chainName); // sept25
+    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails(chainName); // sept25
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
       configChain = chainDetail->getConfigChain();
@@ -4196,7 +4197,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   ATH_MSG_DEBUG("Container of muon particle with key " << muonKey << " found in Store Gate with size " << muonCont->size()); 
 
   // get vertex
-  //std::string vxKey = "VxPrimaryCandidate";  // attention
+  // std::string vxKey = "VxPrimaryCandidate";  // attention
   std::string vxKey = "HLT_xAOD__VertexContainer_xPrimVx";  // May change to Offline Vx container key if possible
   const xAOD::VertexContainer* vxCont = 0;
   sc = m_storeGate->retrieve(vxCont, vxKey);
@@ -4706,10 +4707,10 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
 
     bool mub = false;
     bool mue = false;
-    if (getTDT()->isPassedBits("L1_MUB") && TrigDefs::L1_isPassedBeforePrescale) {
+    if (getTDT()->isPassedBits("L1_MUB") & TrigDefs::L1_isPassedBeforePrescale) {
       mub = true;
     }
-    if (getTDT()->isPassedBits("L1_MUE") && TrigDefs::L1_isPassedBeforePrescale) {
+    if (getTDT()->isPassedBits("L1_MUE") & TrigDefs::L1_isPassedBeforePrescale) {
       mue = true;
     }
 

@@ -31,7 +31,7 @@
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"
-
+#include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -278,6 +278,21 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     bool isEndcap = false;
     if( saddr == - 1 )  isEndcap = true;
 
+    int inner  = 0;
+    int middle = 1;
+    int outer  = 2;
+
+    // define inner, middle, outer
+    if (isEndcap) {
+      inner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
+      middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
+      outer  = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+    } else {
+      inner  = xAOD::L2MuonParameters::Chamber::BarrelInner;
+      middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
+      outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+    }
+
     bool mf_success = true;
     if( fabs(pt) < ZERO_LIMIT )  mf_success = false;
      
@@ -317,17 +332,17 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     hist("muFast_saddr", histdirmufast )->Fill(saddr+0.01);
     std::vector<float> sp_r;
     std::vector<float> sp_z;
-    if( fabs((*itMf)->superPointR(1)) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(1) );    sp_z.push_back( (*itMf)->superPointZ(1) ); }
-      else           { sp_r.push_back( (*itMf)->superPointR(1)*10 ); sp_z.push_back( (*itMf)->superPointZ(1)*10 ); }
+    if( fabs((*itMf)->superPointR(inner)) > ZERO_LIMIT ) {
+      sp_r.push_back( (*itMf)->superPointR(inner) );
+      sp_z.push_back( (*itMf)->superPointZ(inner) );
     }
-    if( fabs((*itMf)->superPointR(2)) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(2) );    sp_z.push_back( (*itMf)->superPointZ(2) ); }
-      else           { sp_r.push_back( (*itMf)->superPointR(2)*10 ); sp_z.push_back( (*itMf)->superPointZ(2)*10 ); }
+    if( fabs((*itMf)->superPointR(middle)) > ZERO_LIMIT ) {
+      sp_r.push_back( (*itMf)->superPointR(middle) );
+      sp_z.push_back( (*itMf)->superPointZ(middle) );
     }
-    if( fabs((*itMf)->superPointR(3)) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(3) );    sp_z.push_back( (*itMf)->superPointZ(3) ); }
-      else           { sp_r.push_back( (*itMf)->superPointR(3)*10 ); sp_z.push_back( (*itMf)->superPointZ(3)*10 ); }
+    if( fabs((*itMf)->superPointR(outer)) > ZERO_LIMIT ) {
+      sp_r.push_back( (*itMf)->superPointR(outer) );
+      sp_z.push_back( (*itMf)->superPointZ(outer) );
     }
     float sign = 1;
     if( phi < 0 ) sign = -1;
@@ -371,6 +386,24 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     }
 
     // flow
+    bool isEndcap = false;
+    if( (*itMfd)->sAddress() == - 1 )  isEndcap = true;
+
+    int inner  = 0;
+    int middle = 1;
+    int outer  = 2;
+
+    // define inner, middle, outer
+    if (isEndcap) {
+      inner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
+      middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
+      outer  = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+    } else {
+      inner  = xAOD::L2MuonParameters::Chamber::BarrelInner;
+      middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
+      outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+    }
+
     bool isL1hitThere               = false;
     bool isL1emuOkForTriggerPlane   = false;
 
@@ -380,32 +413,31 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     int nTGCMidPhi = (*itMfd)->tgcMidPhiN();
     int nTGCInnRho = (*itMfd)->tgcInnRhoN();
     int nTGCInnPhi = (*itMfd)->tgcInnPhiN();
+    float TGCMid1Z  = (*itMfd)->tgcMid1Z();
     float TGCMidRhoChi2 = (*itMfd)->tgcMidRhoChi2();
     float TGCMidPhiChi2 = (*itMfd)->tgcMidPhiChi2();
 
     if( systemID==0 ) { // RPC
       float rpc1_z = (*itMfd)->rpc1z();
       float rpc2_z = (*itMfd)->rpc2z();
-      const float NO_VALUE = 99999;
       if( nRPC!=0 ) isL1hitThere = true;
-      if( fabs(rpc1_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
       ATH_MSG_DEBUG("RPC nHits=" << nRPC);  
       ATH_MSG_DEBUG("RPC 1/2 Z=" << rpc1_z << " / " << rpc2_z);
     }
     else { // TGC
-      const float NO_VALUE = -99999;
       if( nTGCMidRho!=0 && nTGCMidPhi!=0 ) isL1hitThere = true;
-      if( fabs(TGCMidRhoChi2 - NO_VALUE) > ZERO_LIMIT && fabs(TGCMidPhiChi2 - NO_VALUE) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( fabs(TGCMid1Z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
       ATH_MSG_DEBUG("TGC Mid nHits: Rho/Phi=" << nTGCMidRho << " / " << nTGCMidPhi); 
-      ATH_MSG_DEBUG("TGC Mid Chi2 : Rho/Phi=" << TGCMidRhoChi2 << " / " << TGCMidPhiChi2);
+      ATH_MSG_DEBUG("TGC Mid Z =" << TGCMid1Z );
     }
 
-
-
+    float MDTInnR = 0;
+    float MDTMidR = 0;
+    float MDTOutR = 0;
     float MDTInnChi2 = 0;
     float MDTMidChi2 = 0;
     float MDTOutChi2 = 0;
-
 
     // loop each MDT tube
 
@@ -418,14 +450,11 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
     // if muFast succeeded segment reconstruction.
     //std::cout << "L1_MBTS_2 " << getTDT()->isPassed( "L1_MBTS_2" ) << " L1_MU0 " << getTDT()->isPassed( "L1_MU0" ) << std::endl;;
-      if( systemID==0 ){//barrel
+      if( !isEndcap ){//barrel
         for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
           
           float res = (*itMfd)->mdtHitResidual(i_tube)/10.;  // convert to cm
-          float r   = (*itMfd)->mdtHitR(i_tube)/10.;  // convert to cm
-          int imr = 2;
-          if     ( r < 650 ) { imr=0; }
-          else if( r < 850 ) { imr=1; }
+          int imr = (*itMfd)->mdtHitChamber(i_tube);
 
 	  /*
 	  float z   = mdt_tube_z[i_tube];
@@ -435,41 +464,41 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           }
 	  */
 
-          if     ( imr == 0 ) { 
+          if     ( imr == inner ) { 
             n_mdt_hits_inner++;
             hist("muFast_MDT_Inn_residual_barrel", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Inn_residual_barrel_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Inn_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
-          else if( imr == 1 ) {
+          else if( imr == middle ) {
             n_mdt_hits_middle++;
             hist("muFast_MDT_Mid_residual_barrel", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Mid_residual_barrel_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Mid_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
-          else if( imr == 2 ) {
+          else if( imr == outer ) {
             n_mdt_hits_outer++;
             hist("muFast_MDT_Out_residual_barrel", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Out_residual_barrel_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Out_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
         }
-        MDTInnChi2 = (*itMfd)->superPointChi2(0);
-        MDTMidChi2 = (*itMfd)->superPointChi2(1);
-        MDTOutChi2 = (*itMfd)->superPointChi2(2);
+        MDTInnR = (*itMfd)->superPointR(inner);
+        MDTMidR = (*itMfd)->superPointR(middle);
+        MDTOutR = (*itMfd)->superPointR(outer);
+        MDTInnChi2 = (*itMfd)->superPointChi2(inner);
+        MDTMidChi2 = (*itMfd)->superPointChi2(middle);
+        MDTOutChi2 = (*itMfd)->superPointChi2(outer);
 
       } 
       else{ //endcap
         for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
 
           float res = (*itMfd)->mdtHitResidual(i_tube) / 10 ; // to cm
-          float z   = (*itMfd)->mdtHitZ(i_tube);
-          int imr = 2;
-          if     ( fabs(z) < 10000 ) { imr=0; }
-          else if( fabs(z) < 15000 ) { imr=1; }
+          int imr = (*itMfd)->mdtHitChamber(i_tube);
 
           /*
           if( res == 0. || res == 1. ){
@@ -478,31 +507,34 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           }
           */
 
-          if     ( imr == 0 ) {
+          if     ( imr == inner ) {
             n_mdt_hits_inner++;
             hist("muFast_MDT_Inn_residual_endcap", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Inn_residual_endcap_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Inn_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
-          else if( imr == 1 ) {
+          else if( imr == middle ) {
             n_mdt_hits_middle++;
             hist("muFast_MDT_Mid_residual_endcap", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Mid_residual_endcap_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Mid_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
-          else if( imr == 2 ) {
+          else if( imr == outer ) {
             n_mdt_hits_outer++;
             hist("muFast_MDT_Out_residual_endcap", histdirmufast)->Fill(res);
-				if(off_match){
-				   hist("muFast_MDT_Out_residual_endcap_OffMatch", histdirmufast)->Fill(res);
-				}
+	    if(off_match){
+	      hist("muFast_MDT_Out_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	    }
           }
         }
-        MDTInnChi2 = (*itMfd)->superPointChi2(3);
-        MDTMidChi2 = (*itMfd)->superPointChi2(4);
-        MDTOutChi2 = (*itMfd)->superPointChi2(5);
+        MDTInnR = (*itMfd)->superPointR(inner);
+        MDTMidR = (*itMfd)->superPointR(middle);
+        MDTOutR = (*itMfd)->superPointR(outer);
+        MDTInnChi2 = (*itMfd)->superPointChi2(inner);
+        MDTMidChi2 = (*itMfd)->superPointChi2(middle);
+        MDTOutChi2 = (*itMfd)->superPointChi2(outer);
       }
 
     //MDT flow
@@ -510,12 +542,9 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     bool isMDTFitOkForTriggerPlane    = false;
     bool isMDTFitOkFor2Plane          = false;
 
-
-    const float MDT_CHI2_NO_VALUE = -99999;
-
     if( n_mdt_hits_middle != 0 ) isMDThitThereForTriggerPlane = true;
-    if( fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
-    if( isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
+    if( MDTMidR > ZERO_LIMIT ) isMDTFitOkForTriggerPlane = true;
+    if( isMDTFitOkForTriggerPlane && (MDTInnR > ZERO_LIMIT || MDTOutR > ZERO_LIMIT) ) isMDTFitOkFor2Plane  = true;
 
     ATH_MSG_DEBUG("isL1hitThere/emuOkForTriggerPlane=" << isL1hitThere << " / " << isL1emuOkForTriggerPlane);
 

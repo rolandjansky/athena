@@ -73,6 +73,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
+  declareProperty("monitoring_muonEFFS", m_chainsEFFS);
   
   //construction of muFast parameters
 
@@ -143,7 +144,7 @@ StatusCode HLTMuonMonTool::init()
   ATH_MSG_DEBUG("init being called");
 
   // some switches and flags
-  m_requestESchains = true; 
+  m_requestESchains = true;
   
   //initialization for common tools
   StatusCode scAS;
@@ -231,10 +232,15 @@ StatusCode HLTMuonMonTool::init()
   // m_FS_pre_trigger_second = "mu24i_tight";
   //
   // v5 primary
-  m_histChainEFFS.push_back("muChainEFFS");
-  m_chainsEFFS.push_back("mu18_mu8noL1");
-  m_FS_pre_trigger = "mu18";
-  m_FS_pre_trigger_second = "mu24_imedium";
+  //m_histChainEFFS.push_back("muChainEFFS");
+  //m_chainsEFFS.push_back("mu18_mu8noL1");
+  m_FS_pre_trigger = "HLT_mu18";
+  m_FS_pre_trigger_second = "HLT_mu24_imedium";
+  for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
+	if(ich > 0) continue;
+	m_histChainEFFS.push_back("muChainEFFS");
+  }
+
   
   // chainAnalysis for MuGirl
   // Warning: corresponding standard chain has to exist!!!!!!!!
