@@ -116,7 +116,6 @@ namespace D3PD {
       m_roiIsNoneType (nullptr),
       m_roiIsMuonType (nullptr),
       m_roiIsEmTauType (nullptr),
-      m_roiIsTau (nullptr),
       m_roiIsJetType (nullptr),
       m_roiIsJetEtType (nullptr),
       m_roiIsEnergyType (nullptr),
@@ -125,15 +124,6 @@ namespace D3PD {
       m_roiEta (nullptr),
       m_roiPhi (nullptr),
       m_roiArea (nullptr),
-      m_roiEt (nullptr),
-      m_roiEtLarge (nullptr),
-      m_roiMuCharge (nullptr),
-      m_roiIsolationBits (nullptr),
-      m_roiVectorEX (nullptr),
-      m_roiVectorEY (nullptr),
-      m_roiOverflowEX (nullptr),
-      m_roiOverflowEY (nullptr),
-      m_roiOverflowET (nullptr),
       m_seqN (nullptr),
       m_seqIsInitial (nullptr),
       m_seqIsExecuted (nullptr),
@@ -354,29 +344,18 @@ namespace D3PD {
     //RoI DATA//
     ////////////
     if (m_doRoI) {
-      CHECK( m_tree->addVariable( m_prefix + "roi_n", m_roiN, "Number of L1 RoI" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeNone", m_roiIsNoneType, "Flag RoI has no type" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeMuon", m_roiIsMuonType, "Flag RoI was MUON" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeEmTau", m_roiIsEmTauType, "Flag RoI was EMTAU (see isTau)" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTau", m_roiIsTau, "Flag, disambiguity between EM and TAU" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeJet", m_roiIsJetType, "Flag RoI was Jet" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeJetEt", m_roiIsJetEtType, "Floag RoI was JetET" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeEnergy", m_roiIsEnergyType, "Flag RoI was Energy" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_id", m_roiId, "RoI ID for matching to algorithms" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_nL1Thresholds", m_roiNL1thresholds, "Number of thresholds passed, depends on config" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_eta", m_roiEta, "RoI eta coordinate" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_phi", m_roiPhi, "RoI phi coordinate" ) );
-      CHECK( m_tree->addVariable( m_prefix + "roi_area", m_roiArea, "RoI area in eta x phi" ) ); 
-      // Extra RoI
-      CHECK( m_tree->addVariable( m_prefix + "roi_et", m_roiEt, "RoI ET for EMTAU, ETSmall for Jet, pT for muon, scalar sum ET for ENERGY" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_etLarge", m_roiEtLarge, "RoI ET Large for jets only" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_muCharge", m_roiMuCharge, "RoI muon charge, muons only" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_isoBits", m_roiIsolationBits, "RoI isolation bits, EMTAU only" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_vectorEX", m_roiVectorEX, "RoI signed vector sum ET in X, ENERGY only" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_vectorEY", m_roiVectorEY, "RoI signed vector sum ET in Y, ENEGY only" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_overflowEX", m_roiOverflowEX, "RoI vector sum ET X overflow bit" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_overflowEY", m_roiOverflowEY, "RoI vector sum ET Y overflow bit" ) ); 
-      CHECK( m_tree->addVariable( m_prefix + "roi_overflowET", m_roiOverflowET, "RoI scalar sum ET overflow bit" ) ); 
+      CHECK( m_tree->addVariable( m_prefix + "roi_n", m_roiN, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeNone", m_roiIsNoneType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeMuon", m_roiIsMuonType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeEmTau", m_roiIsEmTauType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeJet", m_roiIsJetType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeJetEt", m_roiIsJetEtType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_isTypeEnergy", m_roiIsEnergyType, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_id", m_roiId, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_nL1Thresholds", m_roiNL1thresholds, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_eta", m_roiEta, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_phi", m_roiPhi, "" ) );
+      CHECK( m_tree->addVariable( m_prefix + "roi_area", m_roiArea, "" ) ); 
     }
 
     ////////////////
@@ -494,7 +473,6 @@ namespace D3PD {
    
   /**
   * Save all events in the TrigMonEventCollection to the D3PD
-  * Note magic numbers come from TrigMonVar.h
   */
   void TrigCostD3PDMakerTool::handleNewEvent( const Incident& ) {
       
@@ -524,7 +502,7 @@ namespace D3PD {
       // Do we want to save this event?
       if (m_onlySaveCostEvents == true) {
         float _result = 0.;
-        event->getVar(Trig::kIsCostEvent, _result); // 47, is the magic number in this case. 
+        event->getVar(47, _result); // 47, is the magic number in this case. These will be converted to an enum soon!!!
         // Bool stored as float. Test for 0
         if (_result < 0.5) {
           ATH_MSG_DEBUG( "Not a Cost Event (scale tools were not run, but L1 result info still there). Skipping event due to m_onlySaveCostEvents == true" );
@@ -564,13 +542,13 @@ namespace D3PD {
         }  
         for (unsigned i=0; i < event->getVarKey().size(); ++i) {
           switch (event->getVarKey().at(i)) {
-            case Trig::kIsCostEvent:
+            case 47:
               *m_ranScaleTools = (uint8_t) event->getVarVal().at(i);
               break;
-            case Trig::kEventLumiBlockLength:
+            case 43:
               *m_lumiLength = event->getVarVal().at(i);
               break;
-            case Trig::kEventNumber:
+            case 9999:
               *m_costEvent = event->getVarVal().at(i);
               break;
             default:
@@ -589,19 +567,19 @@ namespace D3PD {
         } else {
           for (unsigned i=0; i < event->getVarKey().size(); ++i) {
             switch (event->getVarKey().at(i)) {
-              case Trig::kTimeCostMonitoring:
+              case 100:
                 *m_timerTrigCost = event->getVarVal().at(i);
                 break;
-              case Trig::kTimeExec:
+              case 101:
                 *m_timerEndSteer = event->getVarVal().at(i);
                 break;
-              case Trig::kTimeProc:
+              case 102:
                 *m_timerChainProcess = event->getVarVal().at(i);
                 break;
-              case Trig::kTimeRes:
+              case 103:
                 *m_timerResultBuilder = event->getVarVal().at(i);
                 break;
-              case Trig::kTimeMon:
+              case 104:
                 *m_timerMon = event->getVarVal().at(i);
                 break;
               default:
@@ -618,13 +596,13 @@ namespace D3PD {
         *m_event = event->getEvent();
         for (unsigned i=0; i < event->getVarKey().size(); ++i) {
           switch (event->getVarKey().at(i)) {
-            case Trig::kEBWeight:
+            case 45:
               *m_ebWeight = event->getVarVal().at(i);
               break;
-            case Trig::kEBBunchGroup:
+            case 46:
               *m_ebWeightBG = (uint32_t) event->getVarVal().at(i);
               break;
-            case Trig::kEBIsUnbiasedFlag:
+            case 48:
               *m_ebUnbiased = (uint8_t) event->getVarVal().at(i);
               break;
             default:
@@ -803,7 +781,6 @@ namespace D3PD {
         m_roiIsNoneType     ->resize( eventRoIs.size() );
         m_roiIsMuonType     ->resize( eventRoIs.size() );
         m_roiIsEmTauType    ->resize( eventRoIs.size() );
-        m_roiIsTau          ->resize( eventRoIs.size() );
         m_roiIsJetType      ->resize( eventRoIs.size() );
         m_roiIsJetEtType    ->resize( eventRoIs.size() );
         m_roiIsEnergyType   ->resize( eventRoIs.size() );
@@ -812,20 +789,10 @@ namespace D3PD {
         m_roiEta            ->resize( eventRoIs.size() );
         m_roiPhi            ->resize( eventRoIs.size() );
         m_roiArea           ->resize( eventRoIs.size() );
-        m_roiEt             ->resize( eventRoIs.size() );
-        m_roiEtLarge        ->resize( eventRoIs.size() );
-        m_roiMuCharge       ->resize( eventRoIs.size() );
-        m_roiIsolationBits  ->resize( eventRoIs.size() );
-        m_roiVectorEX       ->resize( eventRoIs.size() );
-        m_roiVectorEY       ->resize( eventRoIs.size() );
-        m_roiOverflowEX     ->resize( eventRoIs.size() );
-        m_roiOverflowEY     ->resize( eventRoIs.size() );
-        m_roiOverflowET     ->resize( eventRoIs.size() );
         for(unsigned int i = 0; i < eventRoIs.size(); ++i) {
           m_roiIsNoneType   ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kNone);
           m_roiIsMuonType   ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kMuon);
           m_roiIsEmTauType  ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kEmTau);
-          m_roiIsTau        ->at(i) = (uint8_t) (eventRoIs.at(i).getVarVal(Trig::kRoIIsTau)); // Resolve ambiguity
           m_roiIsJetType    ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kJet);
           m_roiIsJetEtType  ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kJetEt);
           m_roiIsEnergyType ->at(i) = (uint8_t) (eventRoIs.at(i).getRoiType() == TrigMonRoi::kEnergy);
@@ -834,15 +801,6 @@ namespace D3PD {
           m_roiEta          ->at(i) = eventRoIs.at(i).getEta();
           m_roiPhi          ->at(i) = eventRoIs.at(i).getPhi();
           m_roiArea         ->at(i) = eventRoIs.at(i).getRoIArea();
-          m_roiEt           ->at(i) = eventRoIs.at(i).getVarVal(Trig::kRoIET); //EMTAU=ET, muon=pT, jet=ETSmall, energy=scaler total energy
-          m_roiEtLarge      ->at(i) = eventRoIs.at(i).getVarVal(Trig::kRoIETLarge); //Only for jets
-          m_roiMuCharge     ->at(i) = (uint8_t) eventRoIs.at(i).getVarVal(Trig::kRoIMuonCharge); //Only for muons
-          m_roiIsolationBits->at(i) = (uint32_t) eventRoIs.at(i).getVarVal(Trig::kRoIIsolationBits); //Only for EMTAU
-          m_roiVectorEX     ->at(i) = eventRoIs.at(i).getVarVal(Trig::kRoIEnergyVectorX); //Only for ENERGY
-          m_roiVectorEY     ->at(i) = eventRoIs.at(i).getVarVal(Trig::kRoIEnergyVectorY); //Only for ENERGY
-          m_roiOverflowEX   ->at(i) = (uint8_t) eventRoIs.at(i).getVarVal(Trig::kRoIEnergyOverflowX); //Only for ENERGY
-          m_roiOverflowEY   ->at(i) = (uint8_t) eventRoIs.at(i).getVarVal(Trig::kRoIEnergyOverflowY); //Only for ENERGY
-          m_roiOverflowET   ->at(i) = (uint8_t) eventRoIs.at(i).getVarVal(Trig::kRoIEnergyOverflowT); //Only for ENERGY
         }
       }
 
@@ -990,13 +948,13 @@ namespace D3PD {
       if (m_doDBKey) {
         for (unsigned i=0; i < event->getVarKey().size(); ++i) {
           switch (event->getVarKey().at(i)) {
-            case Trig::kSMK:
+            case 66:
               *m_DB_SMK = event->getVarVal().at(i);
               break;
-            case Trig::kL1PSK:
+            case 67:
               *m_DB_L1PSK = event->getVarVal().at(i);
               break;
-            case Trig::kHLTPSK:
+            case 68:
               *m_DB_HLTPSK = event->getVarVal().at(i);
               break;
             default:
@@ -1130,7 +1088,6 @@ namespace D3PD {
       m_roiIsNoneType->clear();
       m_roiIsMuonType->clear();
       m_roiIsEmTauType->clear();
-      m_roiIsTau->clear();
       m_roiIsJetType->clear();
       m_roiIsJetEtType->clear();
       m_roiIsEnergyType->clear();
@@ -1139,16 +1096,6 @@ namespace D3PD {
       m_roiEta->clear();
       m_roiPhi->clear();
       m_roiArea->clear();
-      //
-      m_roiEt->clear();
-      m_roiEtLarge->clear();
-      m_roiMuCharge->clear();
-      m_roiIsolationBits->clear();
-      m_roiVectorEX->clear();
-      m_roiVectorEY->clear();
-      m_roiOverflowEX->clear();
-      m_roiOverflowEY->clear();
-      m_roiOverflowET->clear();
     }
 
     ////////////////
