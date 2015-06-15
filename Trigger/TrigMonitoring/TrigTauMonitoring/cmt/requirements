@@ -14,10 +14,11 @@ use AnalysisUtils         AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
 use AthenaMonitoring      AthenaMonitoring-*      Control
 use AtlasROOT             AtlasROOT-*             External
 use EventInfo             EventInfo-*             Event
-use GaudiInterface       GaudiInterface-*         External
+use GaudiInterface        GaudiInterface-*        External
 use StoreGate             StoreGate-*             Control
 use TrigDecisionInterface TrigDecisionInterface-* Trigger/TrigEvent
 use TrigDecisionTool      TrigDecisionTool-*      Trigger/TrigAnalysis
+#use TrigTauEmulation      TrigTauEmulation-*      Trigger/TrigAnalysis/TrigTauAnalysis
 use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
 use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent

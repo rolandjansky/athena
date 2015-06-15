@@ -36,6 +36,9 @@
 
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
+//#include "TrigTauEmulation/Level1EmulationTool.h"
+//#include "TrigTauEmulation/HltEmulationTool.h"
+
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
@@ -88,51 +91,63 @@
 
 using namespace std;
 using namespace AnalysisUtils;
+
 const float PI=2.0*acos(0.);
 const float TWOPI=2.0*PI;
 
 
 HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, const IInterface* parent)
-: IHLTMonTool(type, n, parent){
+  : IHLTMonTool(type, n, parent)
+//  : IHLTMonTool(type, n, parent),
+//    m_emulationTool(this),
+//    m_hltemulationTool(this)
+  {
     
     ATH_MSG_DEBUG("HLTTauMonTool::HLTTauMonTool()");
     
     declareProperty("primary_tau", 		m_primary_tau);
     declareProperty("monitoring_tau", 		m_monitoring_tau);
     declareProperty("prescaled_tau", 		m_prescaled_tau);
-    declareProperty("EffOffTauPtCut", 		m_effOffTauPtCut);
-    declareProperty("TurnOnCurves", 		m_turnOnCurves);
-    declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom);
-    declareProperty("doTruth", 			m_truth);
-    declareProperty("doEmulation", 		m_emulation);
-    declareProperty("doTestTracking", 		m_doTestTracking);
-    declareProperty("LowestSingleTau", 		m_lowest_singletau);
-    //declareProperty("LowestDiTau", 		m_lowest_ditau);
-    //declareProperty("LowestETau", 		m_lowest_etau);
-    //declareProperty("LowestMuTau", 		m_lowest_mutau);
-    //declareProperty("LowestMetTau", 		m_lowest_mettau);
-    //declareProperty("CosmicChain",              m_cosmic_chain);
-    declareProperty("doIncludeL1deactivateTE", 	m_doIncludeL1deactivateTE);
-    declareProperty("doIncludePreseldeactivateTE", m_doIncludePreseldeactivateTE);
-    declareProperty("doIncludeHLTdeactivateTE", m_doIncludeHLTdeactivateTE);
-    declareProperty("nTrkMax",			m_selection_nTrkMax);
-    declareProperty("nTrkMin",			m_selection_nTrkMin);
-    declareProperty("PtMax",			m_selection_ptMax);
-    declareProperty("PtMin",			m_selection_ptMin);
-    declareProperty("AbsEtaMax",		m_selection_absEtaMax);
-    declareProperty("AbsEtaMin",		m_selection_absEtaMin);
-    declareProperty("AbsPhiMax",		m_selection_absPhiMax);
-    declareProperty("AbsPhiMin",		m_selection_absPhiMin);
+    declareProperty("EffOffTauPtCut", 		m_effOffTauPtCut=20000.);
+    declareProperty("TurnOnCurves", 		m_turnOnCurves=true);
+    declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom="RecoID");
+    declareProperty("doTruth", 			m_truth=false);
+    declareProperty("doRealZtautauEff",		m_RealZtautauEff=false);
+    declareProperty("doEmulation",         	m_emulation=false);
+    declareProperty("emulation_l1_tau",         m_emulation_l1_tau);    
+    declareProperty("emulation_hlt_tau",        m_emulation_hlt_tau);
+//    declareProperty("HltEmulationTool", 	m_hltemulationTool);
+//    declareProperty("EmulationTool",            m_emulationTool);
+    declareProperty("doTestTracking", 		m_doTestTracking=false);
+    declareProperty("LowestSingleTau", 		m_lowest_singletau="");
+    declareProperty("doIncludeL1deactivateTE", 	m_doIncludeL1deactivateTE=false);
+    declareProperty("doIncludePreseldeactivateTE", m_doIncludePreseldeactivateTE=false);
+    declareProperty("doIncludeHLTdeactivateTE", m_doIncludeHLTdeactivateTE=false);
+    declareProperty("nTrkMax",			m_selection_nTrkMax=-1);
+    declareProperty("nTrkMin",			m_selection_nTrkMin=-1);
+    declareProperty("PtMax",			m_selection_ptMax=-1.);
+    declareProperty("PtMin",			m_selection_ptMin=-1.);
+    declareProperty("AbsEtaMax",		m_selection_absEtaMax=-1.);
+    declareProperty("AbsEtaMin",		m_selection_absEtaMin=-1.);
+    declareProperty("AbsPhiMax",		m_selection_absPhiMax=-1.);
+    declareProperty("AbsPhiMin",		m_selection_absPhiMin=-1.);
 
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
-HLTTauMonTool::~HLTTauMonTool() {
+HLTTauMonTool::~HLTTauMonTool() { 
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 StatusCode HLTTauMonTool::init() {
-    
+   
+    // TrigTauEmul::Level1EmulationTool emulationTool("TauTriggerEmulator");
+  if(m_emulation){
+//    ATH_MSG_INFO("Yo, Initializing " << m_emulationTool->name());
+//    ATH_CHECK(m_emulationTool.retrieve());
+//    ATH_MSG_INFO("Yo, Initializing " << m_hltemulationTool->name());
+//    ATH_CHECK(m_hltemulationTool.retrieve());
+  }
     // put all trigger names into one arry
     for(std::vector<std::string>::iterator it = m_monitoring_tau.begin(); it != m_monitoring_tau.end(); ++it) {
         m_trigItems.push_back(*it);
@@ -207,6 +222,14 @@ StatusCode HLTTauMonTool::fill() {
  
     for(unsigned int j=0;j<m_trigItems.size();++j)
     {
+
+	// test Trigger Before Prescale (TBP) decision:
+	std::string trig_item_EF = "HLT_"+m_trigItems.at(j);
+        std::string trig_item_L1(LowerChain( trig_item_EF ) );
+        const unsigned int TBP_bit = getTDT()->isPassedBits(trig_item_L1);
+        setCurrentMonGroup("HLT/TauMon/Expert");
+	if(TBP_bit & TrigDefs::L1_isPassedBeforePrescale) hist("hL1TBPCounts")->Fill(m_trigItems.at(j).c_str(),1.);
+
 	bool activeChain(false);
 	for(unsigned int i=0;i<m_trigItemsAll.size();++i) if("HLT_"+m_trigItems.at(j) == m_trigItemsAll.at(i)) activeChain = true;
 	if(!activeChain && m_trigItems.at(j)!="Dump"){ATH_MSG_DEBUG("trigger chain " << m_trigItems.at(j) << " not active! skipping");}
@@ -221,6 +244,12 @@ StatusCode HLTTauMonTool::fill() {
 		if(sc.isFailure()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem. Exiting!"); return StatusCode::FAILURE;}       	
     	}	 
     }
+
+    if(m_emulation) {
+        sc = Emulation();
+        if(sc.isFailure()){ ATH_MSG_WARNING("Failed emulation. Exiting!"); return StatusCode::FAILURE;}
+    }
+
     
     if(m_doTestTracking){ sc = test2StepTracking();
       if(sc.isFailure()){ ATH_MSG_WARNING("Failed at test2Steptracking. Exiting!"); return StatusCode::FAILURE;}
@@ -237,6 +266,7 @@ StatusCode HLTTauMonTool::proc()
 StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, bool  endOfRun)
 #endif
 {
+
   if(endOfEventsBlock || endOfLumiBlock) {}//Get rid of compilation warnings
   if(endOfRun)
     {
@@ -348,10 +378,19 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      plotUnderOverFlow(hist("hRecoHLTNVtxNum"));
 	      plotUnderOverFlow(hist("hRecoHLTMuNum"));
 	    }
-	 
+	  if(m_RealZtautauEff)
+	    {
+	      setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/RealZtautauEff");
+	      plotUnderOverFlow(hist("hRealZttPtDenom"));
+	      plotUnderOverFlow(hist("hRealZttL1PtNum"));
+	      plotUnderOverFlow(hist("hRealZttHLTPtNum"));
+	    }
+
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/L1RoI");
 	  plotUnderOverFlow(hist("hL1RoIEta"));
-	  plotUnderOverFlow(hist("hL1RoIPhi")); 	   
+	  plotUnderOverFlow(hist("hL1RoIPhi"));
+	  plotUnderOverFlow(hist("hL1RoIeT"));
+	  plotUnderOverFlow(hist("hL1RoIisol")); 	   
 	  plotUnderOverFlow(hist("hL1RoITauClus"));
 	  plotUnderOverFlow(hist("hL1RoIEMIso"));
 	  plotUnderOverFlow(hist("hL1RoIHadCore"));
@@ -363,7 +402,8 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	  plotUnderOverFlow(hist("hEta"));
 	  plotUnderOverFlow(hist("hPhi"));
 	  plotUnderOverFlow(hist("hFTFnWideTrack"));
-	  
+	  plotUnderOverFlow(hist("hdRmax"));	  
+
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau");
 	  plotUnderOverFlow(hist("hEFEt"));
 	  plotUnderOverFlow(hist("hEFEta"));
@@ -376,6 +416,8 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	  plotUnderOverFlow(hist("hEFIsoFrac"));           
 	  plotUnderOverFlow(hist("hEFPSSFraction"));
 	  plotUnderOverFlow(hist("hEFEMFraction"));
+ 	  plotUnderOverFlow(hist("hScore1p"));
+	  plotUnderOverFlow(hist("hScoremp"));
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/1p_nonCorrected");
 	  plotUnderOverFlow(hist("hEFinnerTrkAvgDist1PNCorr"));
 	  plotUnderOverFlow(hist("hEFetOverPtLeadTrk1PNCorr"));
@@ -540,6 +582,11 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
               divide("hRecoHLTMuNum","hRecoTauMuDenom","hRecoHLTMuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      divide2("hRecoHLTEtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	    }
+	  if(m_RealZtautauEff)
+	    {
+	      divide("hRealZttL1PtNum","hRealZttPtDenom","hRealZttL1PtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/RealZtautauEff");
+	      divide("hRealZttHLTPtNum","hRealZttPtDenom","hRealZttHLTPtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/RealZtautauEff");
+	    }
 	}//End of trigItem loop
 
   // clone shifter histograms
@@ -564,6 +611,8 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
       cloneHistogram("hL1RoIEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
       cloneHistogram("hL1RoIPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
       cloneHistogram("hL1RoITauClus","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
+      cloneHistogram("hL1RoIeT","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
+      cloneHistogram("hL1RoIisol","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
       cloneHistogram("hL1RoIEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
       cloneHistogram("hL1RoIHadCore","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
       cloneHistogram("hL1RoIHadIsol","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
@@ -576,6 +625,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
       cloneHistogram("hFTFnWideTrack","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
       cloneHistogram("hEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
       cloneHistogram("hPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
+      cloneHistogram("hdRmax","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
       cloneHistogram2("hEFEtaVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
 
       setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau");
@@ -590,6 +640,8 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
       cloneHistogram("hEFIsoFrac","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
       cloneHistogram("hEFPSSFraction","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
       cloneHistogram("hEFEMFraction","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+      cloneHistogram("hScore1p","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+      cloneHistogram("hScoremp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
       cloneHistogram2("hEFEtaVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
       cloneHistogram2("hEFEtVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
       cloneHistogram2("hEFEtVsEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
@@ -709,12 +761,13 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     // define here all histograms
     //L1 Roi
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/L1RoI",run));
-    addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",26,-2.6,2.6));
-    addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",32,-3.2,3.2));
+    addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
+    addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
     
-    addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",26,-2.6,2.6,32,-3.2,3.2));
-    
-    addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",40,0.,100.));
+    addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
+    addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));    
+    addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,100.));
+    addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,100.));
     addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
     addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
     addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
@@ -730,6 +783,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     addHistogram(new TH1F("hFTFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH1F("hEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
     addHistogram(new TH1F("hPhi","EF TrigCaloCluster Phi; #phi ; Nevents",32,-3.2,3.2));
+    addHistogram(new TH1F("hdRmax","EF deltaR max; dRmax ; Nevents",52,-0.02,0.5));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",
                           26,-2.6,2.6,32,-3.2,3.2));
     addHistogram(new TH2F("hEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",
@@ -758,6 +812,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     addHistogram(new TH1F("hEFIsoFrac", "Iso Fraction at EF; isoFrac at EF; Candidates",50,-0.1,1.1));
     addHistogram(new TH1F("hEFPSSFraction", "PSS Fraction at EF; PSS at EF; Candidates",50,-0.05,1.1));
     addHistogram(new TH1F("hEFEMFraction", "Em Fraction at EF; EM Fraction at EF; Candidates",50,-0.05,1.1));
+    addHistogram(new TH1F("hScore1p", "1p BDT Score; HLT BDT Score; Candidates",50,0.,1.));
+    addHistogram(new TH1F("hScoremp", "mp BDT Score; HLT BDT Score; Candidates",50,0.,1.));
     //BDT inputs for 1-prong Non-Corrected
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_nonCorrected",run, ATTRIB_MANAGED, ""));
     addHistogram(new TH1F("hEFinnerTrkAvgDist1PNCorr", "Inner Track Average Distance at EF 1-prong non-corrected; innertrkAvgDist at EF; Candidates",50,-0.05,0.5));
@@ -1210,17 +1266,28 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTNVtxEfficiency","HLT vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoHLTMuEfficiency","HLT vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
   	addHistogram(new TH2F("hRecoHLTEtaVsPhiEfficiency","HLT vs Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-    }   
+    }
+    if(m_RealZtautauEff)
+      {
+	addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/RealZtautauEff",run, ATTRIB_MANAGED, "") );
+	addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+	addHistogram(new TH1F("hRealZttL1PtNum","L1 vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+	addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+	addHistogram(new TH1F("hRealZttL1PtEfficiency","L1 vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	addHistogram(new TH1F("hRealZttHLTPtEfficiency","HLT vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      }
 }
 
 void HLTTauMonTool::bookHistogramsAllItem(){
 
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert",run));
+    addHistogram(new TH1F("hL1TBPCounts","L1 Before Prescale counts; Chains;Nevents",m_trigItems.size(),0,m_trigItems.size()));
     addHistogram(new TH1F("hL1Counts","L1 counts; Chains;Nevents",m_trigItems.size(),0,m_trigItems.size()));
     addHistogram(new TH1F("hL1CountsDebug","L1 counts; Chains;Nevents",m_trigItems.size(),0,m_trigItems.size()));
     addHistogram(new TH1F("hHLTCounts","HLT counts; Chains;Nevents",m_trigItems.size(),0,m_trigItems.size()));
     addHistogram(new TH1F("hHLTCountsDebug","HLT counts; Chains;Nevents",m_trigItems.size(),0,m_trigItems.size()));
     for(unsigned int i=0;i<m_trigItems.size(); ++i){
+      hist("hL1TBPCounts")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
       hist("hL1Counts")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
       hist("hL1CountsDebug")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
       hist("hHLTCounts")->GetXaxis()->SetBinLabel(i+1,m_trigItems.at(i).c_str());
@@ -1259,12 +1326,17 @@ void HLTTauMonTool::bookHistogramsAllItem(){
       addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/TurnOnCurves",run));
     }
 
-    if(m_emulation){
-      
-      addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
-      addHistogram(new TH1F("hL1Emulation","; mismatched events",m_trigItems.size(),-0.5,m_trigItems.size()-0.5));
-
+    if(m_emulation){   
+     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
+     addHistogram(new TH1F("hL1Emulation","; mismatched events",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
+     addHistogram(new TH1F("hHLTEmulation","; mismatched events",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
+     for(unsigned int i=0;i<m_emulation_l1_tau.size(); ++i){
+       hist("hL1Emulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
      }
+     for(unsigned int i=0;i<m_emulation_hlt_tau.size(); ++i){
+       hist("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
+     }
+    }
 
 }
 
@@ -1360,24 +1432,24 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        }
        for(;comb!=combEnd;++comb){
 
-       const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1flag);
-       std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
+         const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1flag);
+         std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
 
          const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
          if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
            ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
            //return StatusCode::FAILURE;
-         } else{
+         } else {
            ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
          }
          xAOD::EmTauRoIContainer::const_iterator itEMTau;
          xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
 
-       for(; roi != roi_e; ++roi)
+         for(; roi != roi_e; ++roi)
            if(roi->cptr()){
-           for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
-     	if(roi->cptr()->roiWord()!=(*itEMTau)->roiWord()) continue;
-     	if(!Selection(*itEMTau)) continue;
+             for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
+     	       if(roi->cptr()->roiWord()!=(*itEMTau)->roiWord()) continue;
+     	       if(!Selection(*itEMTau)) continue;
                setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
                sc = fillL1Tau(*itEMTau);
                if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return StatusCode::FAILURE;}
@@ -1385,12 +1457,21 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
                sc = fillL1TauVsOffline(*itEMTau);
                if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return StatusCode::FAILURE;}
              }
-       }
-
-
-     }
+           }
+        }
      }// end L1 histos
 
+//     // Testing tau+met chains...
+//     if(getTDT()->isPassed("HLT_tau35_medium1_tracktwo_xe70_L1XE45")) {
+//        ATH_MSG_WARNING ("Event passed HLT_tau35_medium1_tracktwo_xe70_L1XE45");
+//        Trig::FeatureContainer f = ( getTDT()->features("HLT_tau35_medium1_tracktwo_xe70_L1XE45") );
+//        Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
+//        if(comb==combEnd) ATH_MSG_WARNING ("But NO combination of features associated");
+//        if(comb!=combEnd) ATH_MSG_WARNING ("WITH combination of features associated");
+//        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>();
+//        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
+//        if(CI==CI_e) ATH_MSG_WARNING("TrigTauMerged TauJet container EMPTY in HLT_tau35_medium1_tracktwo_xe70_L1XE45");
+//     }
      // HLT histsos ...
      if (getTDT()->isPassed(trig_item_EF)) {
 
@@ -1432,10 +1513,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 
          const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>();
          std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
+         if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF); 
          ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
          for(; CI != CI_e; ++CI){
            if(CI->cptr()){
-
+             if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
              ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
              xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
              xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
@@ -1470,12 +1552,13 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
       if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill Reco eff curves. Exiting!"); return StatusCode::FAILURE;}
       if(m_truth) sc = TauEfficiencyCombo(trigItem);
       if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
-    }
-
-    if(m_emulation) {
-      sc = Emulation(trigItem,"L1");
-      if(sc.isFailure()){ ATH_MSG_WARNING("Failed emulation. Exiting!"); return StatusCode::FAILURE;}
-    }   
+    }  
+    
+    if(m_RealZtautauEff)
+      {
+	sc = RealZTauTauEfficiency(trigItem);
+	if(sc.isFailure()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency(). Exiting!"); return StatusCode::FAILURE;}
+      }   
     
     if (!sc.isSuccess()) {
         ATH_MSG_WARNING("Could not fill histograms for given item.");
@@ -1498,7 +1581,17 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   hist("hL1RoIEta")->Fill(aL1Tau->eta());
   hist("hL1RoIPhi")->Fill(aL1Tau->phi());
   hist2("hL1EtaVsPhi")->Fill(aL1Tau->eta(),aL1Tau->phi());
+  hist("hL1RoIeT")->Fill(aL1Tau->eT()/CLHEP::GeV);
 
+  uint8_t isoBit = aL1Tau->isol();
+  if(isoBit/128) hist("hL1RoIisol")->Fill(8);
+  if((isoBit/64)%2) hist("hL1RoIisol")->Fill(7);
+  if((isoBit/32)%2) hist("hL1RoIisol")->Fill(6);
+  if((isoBit/16)%2) hist("hL1RoIisol")->Fill(5);
+  if((isoBit/8)%2) hist("hL1RoIisol")->Fill(4);
+  if((isoBit/4)%2) hist("hL1RoIisol")->Fill(3);
+  if((isoBit/2)%2) hist("hL1RoIisol")->Fill(2);
+  if((isoBit/1)%2) hist("hL1RoIisol")->Fill(1);
   hist("hL1RoITauClus")->Fill(aL1Tau->tauClus()/CLHEP::GeV);
   hist("hL1RoIEMIso")->Fill(aL1Tau->emIsol()/CLHEP::GeV);
   hist("hL1RoIHadCore")->Fill(aL1Tau->hadCore()/CLHEP::GeV);
@@ -1524,7 +1617,9 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
     hist("hFTFnTrack")->Fill(EFnTrack);
     hist("hEta")->Fill(aEFTau->eta());
     hist("hPhi")->Fill(aEFTau->phi());
-    
+    float dRMax=-1; 
+    aEFTau->detail(xAOD::TauJetParameters::dRmax, dRMax);
+    hist("hdRmax")->Fill(dRMax); 
     hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
     hist2("hEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
     hist2("hEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
@@ -1552,7 +1647,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float isoFrac = 0;
   float EMFrac = -1.0;
   float PSSFraction = 0;
-
+  float BDTJetScore = 0;
   float innerTrkAvgDist = 0;
   float etOverPtLeadTrk = 0;
   float ipSigLeadTrk = 0;
@@ -1608,6 +1703,11 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       if(aEFTau->detail(xAOD::TauJetParameters::hadRadius, hadRadius)) hist("hEFHADRadius")->Fill(hadRadius);  
       if(aEFTau->detail(xAOD::TauJetParameters::isolFrac, isoFrac)) hist("hEFIsoFrac")->Fill(isoFrac);
       if(aEFTau->detail(xAOD::TauJetParameters::PSSFraction, PSSFraction)) hist("hEFPSSFraction")->Fill(PSSFraction);
+      if( BDTJetScore = aEFTau->discriminant(xAOD::TauJetParameters::TauID::BDTJetScore) )
+	{
+	  if(is1P) hist("hScore1p")->Fill(BDTJetScore);
+	  if(isMP) hist("hScoremp")->Fill(BDTJetScore);
+	}
     }
   else if(BDTinput_type == "1p_NonCorr")
     {
@@ -3081,7 +3181,7 @@ StatusCode HLTTauMonTool::TauEfficiencyCombo(const std::string & trigItem){
      float off_ex = (m_off_met_cont->at(0)->mpx())/CLHEP::GeV;
      float off_ey = (m_off_met_cont->at(0)->mpy())/CLHEP::GeV;
      off_met = sqrt(off_ex*off_ex+off_ey+off_ey);
-    // ATH_MSG_WARNING("Met:" << off_met );
+     ATH_MSG_DEBUG("m_off_met:" << m_off_met );
    }
  //offline_met = off_met;
 
@@ -3136,7 +3236,7 @@ StatusCode HLTTauMonTool::TauEfficiencyCombo(const std::string & trigItem){
  if(off_met>20000.) if(getTDT()->isPassed(hlt_chain)) hist("hCombHLTMETNum")->Fill(off_met);
 
  double lead_pt =-1., sub_lead_pt=-1., dR=0, dEta=0, dPhi=0;
- int ind_1 = 0, ind_2 = 0; 
+ unsigned int ind_1 = 0, ind_2 = 0; 
  if(tlv_truthMatched.size() >=2)
    {
      for(unsigned int i=0;i<tlv_truthMatched.size();i++)
