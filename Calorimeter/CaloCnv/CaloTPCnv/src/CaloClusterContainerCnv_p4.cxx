@@ -27,7 +27,7 @@ bool testbit (unsigned int x, unsigned int i)
 
 void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers, 
 					     CaloClusterContainer* trans, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p4" << endmsg;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Reading CaloClusterContainerCnv_p4" << endreq;
 
   static CaloPhiRange range;
 					     
@@ -81,7 +81,7 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
   if (tmp_badChannelEta.size() != pers->m_badClusIndexList.size() ||
       tmp_badChannelPhi.size() != pers->m_badClusIndexList.size() ||
       pers->m_badLayerStatusList.size() != pers->m_badClusIndexList.size()) {
-    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endmsg;
+    log << MSG::WARNING << " problem to decode bad channel information, not filled..." << endreq;
     fillBad=false;
   }
   
@@ -146,7 +146,8 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
   
 			
     //Convert moment store
-    CaloClusterMomentStore::moment_store transStore;
+    CaloClusterMomentStore::moment_store& transStore=transCluster->m_momentStore.m_store;
+    transStore.clear();
     for (unsigned short i=0;i<nkeys;++i) {
       float val;
       if (i_mom == i_mom_e) {
@@ -167,7 +168,6 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
       }
       transStore.insert (transStore.end(),  CaloClusterMomentStore::moment_store::value_type( keys[i], val ) );
     }
-    transCluster->m_momentStore.setMomentStore (std::move (transStore));
     
     // fill bad channel information
     transCluster->resetBadChannel();
@@ -264,16 +264,14 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4* pers
   }
 
   //Convert TowerSegment
-  CaloTowerSeg seg;
-  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
-  trans->setTowerSeg (seg);
+  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&(trans->m_towerSeg));
 }
 
 
 
 void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans, 
 					     CaloClusterContainer_p4* pers, MsgStream &log) {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p4" << endmsg;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p4" << endreq;
 
 
   static CaloPhiRange range;
@@ -388,7 +386,7 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
                      <<trDS->retrieveData(static_cast<vartype>(i),
                                           static_cast<samptype>(j))
                      <<"\t var: "<<i
-                     <<"\t sampling: "<<j<<endmsg;
+                     <<"\t sampling: "<<j<<endreq;
           }
         }
 			
@@ -424,12 +422,12 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
 // bad channel info
        const CaloCluster::badChannelList* badlist = cl.getBadChannel();
        // std::cout << " transtopers: bad channel size " << badlist->size() << std::endl;
-       for (const CaloClusterBadChannelData& bad : *badlist) {
+       for (unsigned int i=0;i<badlist->size();i++) {
           pers->m_badClusIndexList.push_back(index);
-          float etac = bad.getEta()-(cl.eta());
-          float phic = range.diff(bad.getPhi(),cl.phi());
-          CaloSampling::CaloSample sampl = bad.getLayer();
-          CaloBadChannel flag = bad.getFlag();
+          float etac = (*badlist)[i].getEta()-(cl.eta());
+          float phic = range.diff((*badlist)[i].getPhi(),cl.phi());
+          CaloSampling::CaloSample sampl = (*badlist)[i].getLayer();
+          CaloBadChannel flag = (*badlist)[i].getFlag();
           short status =  ((sampl & 0xff) | ((flag.packedData() & 0xff) << 8));
           tmp_badChannelEta.push_back(etac);
           tmp_badChannelPhi.push_back(phic);
@@ -468,7 +466,8 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
   C.setNrBits(16);
   C.reduce(tmp_rawE,pers->m_rawEEtaPhiM);
    
-  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
+  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
+
 } 
 
 
@@ -476,13 +475,13 @@ void CaloClusterContainerCnv_p4::transToPers(const CaloClusterContainer* trans,
 void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4::CaloCluster_p* pers, 
 					     CaloCluster* trans, MsgStream& log) {
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
-  trans->setBasicEnergy (pers->m_basicSignal);
-  trans->setTime (pers->m_time);
+  trans->m_basicSignal=pers->m_basicSignal;
+  trans->m_time=pers->m_time;
   trans->m_samplingPattern=pers->m_samplingPattern; 
   trans->m_eta0=pers->m_eta0;
   trans->m_phi0=pers->m_phi0;   
-  trans->m_status = CaloRecoStatus(pers->m_caloRecoStatus);
-  trans->setClusterSize (pers->m_clusterSize);
+  trans->m_status.m_status=pers->m_caloRecoStatus;
+  trans->m_clusterSize=pers->m_clusterSize;
 
   //Convert base class and element links
   m_P4EEtaPhiMCnv.persToTrans(&pers->m_P4EEtaPhiM,(P4EEtaPhiM*)trans,log);
@@ -498,13 +497,13 @@ void CaloClusterContainerCnv_p4::persToTrans(const CaloClusterContainer_p4::Calo
 void CaloClusterContainerCnv_p4::transToPers(const CaloCluster* trans, 
 					     CaloClusterContainer_p4::CaloCluster_p* pers, MsgStream& log) {
 
-  pers->m_basicSignal=trans->getBasicEnergy();
-  pers->m_time=trans->getTime();
+  pers->m_basicSignal=trans->m_basicSignal;
+  pers->m_time=trans->m_time;
   pers->m_samplingPattern=trans->m_samplingPattern; 
-  pers->m_eta0=trans->eta0();
-  pers->m_phi0=trans->phi0(); 
-  pers->m_caloRecoStatus=trans->m_status.getStatusWord();
-  pers->m_clusterSize=trans->getClusterSize();
+  pers->m_eta0=trans->m_eta0;
+  pers->m_phi0=trans->m_phi0; 
+  pers->m_caloRecoStatus=trans->m_status.m_status;
+  pers->m_clusterSize=trans->m_clusterSize;
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);

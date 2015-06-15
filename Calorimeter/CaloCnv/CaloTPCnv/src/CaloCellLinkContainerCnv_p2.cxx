@@ -10,16 +10,20 @@
  */
 
 
+#define private public
+#define protected public
 #include "DataModel/ElementLink.h"
+#undef private
+#undef protected
+
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
+#include "SGTools/IStringPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "AthenaKernel/IThinningSvc.h"
-#include "CxxUtils/fpcompare.h"
 
 #include <vector>
 #include <algorithm>
-#include <cmath>
 
 using namespace std;
 
@@ -204,19 +208,20 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
   pers->m_linkW.reserve (5*nclus);
 
   pers->m_contName.clear();
-  SG::sgkey_t first_key = 0;
+  IStringPool::sgkey_t first_key = 0;
 
 
   IThinningSvc * thinningSvc = IThinningSvc::instance();
   const bool thinning = thinningSvc && thinningSvc->thinningOccurred();
 
-  // Declare this outside the loop to save on memory allocations.
-  std::vector<cell_t> cells;
   for (unsigned int iCluster = 0; iCluster < nclus; ++iCluster) {
 
     // This is actually a Navigable - contains links to the cells.
     const CaloCellLink& lnk = *(*trans)[iCluster];
 
+    // ??? Making this static saves memory allocations, but means
+    // we're not thread-safe.
+    static std::vector<cell_t> cells;
     cells.clear();
     cells.reserve (lnk.size()+1);
     CaloCellLink::cell_iterator it_cell   = lnk.begin();
@@ -228,7 +233,7 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 
       // Put stuff into array for later sorting.
       float weight = citer->second;
-      // Trying to store weights > NWEIGHT_SCALE will lead to corrupted data.
+      // Trying to store weights > NWIEGHT_SCALE will lead to corrupted data.
       if (fabs (weight) > NWEIGHT_SCALE) {
         REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING,
                                      "CaloCellLinkContainerCnv_p2")
@@ -258,12 +263,12 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
 	  {
 	    //REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG, 
             //                         "CaloCellLinkContainerCnv_p2")
-	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endmsg ;
+	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endreq ;
             index = persIdx;
 	  }
       }
 
-      SG::sgkey_t key = citer->first.key();
+      IStringPool::sgkey_t key = citer->first.key();
       citer->first.source()->tryELRemap (key, index, key, index);
 
       if (pers->m_contName.empty()) {
@@ -289,6 +294,7 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
         index &= INDEX_MASK;
       }
       cells.push_back (cell_t (index, weight));
+
     } // End loop over cells
 
     // Sort links according to cell indices.
@@ -327,20 +333,8 @@ CaloCellLinkContainerCnv_p2::transToPers(const CaloCellLinkContainer* trans,
       // Don't let the weight sequence length get too large,
       // or we'll lose precision on the weight.  A limit of 255
       // allows the weight to be represented within ~0.02.
-      //
-      // We also need to be careful comparing weights.
-      // Because we lose precision due to adding the sequence length,
-      // it's possible to have a case where last_weight != cell.weight,
-      // but they're equal after packing.  That means that if we
-      // then copy the data, the persistent data won't be exactly
-      // the same.  Try to take this into account in the comparison.
-      float w1 = (nw_in_seq+1)*NWEIGHT_SCALE + last_weight;
-      float w2 = (nw_in_seq+1)*NWEIGHT_SCALE + cell.weight;
-      using CxxUtils::fpcompare::equal;
-      if (equal (nextafterf (w1, w2), w2) && nw_in_seq < 255)
-      {
+      if (last_weight == cell.weight && nw_in_seq < 255)
         ++nw_in_seq;
-      }
       else {
         if (nw_in_seq) {
           pers->m_linkW.push_back (nw_in_seq*NWEIGHT_SCALE + last_weight);

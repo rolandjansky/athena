@@ -9,6 +9,7 @@
 #include <vector>
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
 #include "DataModelAthenaPool/Navigable_p1.h"
+#include "Navigation/Navigable.h"
 
 class CaloCellLinkContainer_p1 {
  public:

@@ -39,7 +39,7 @@ public:
 void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* trans, 
                                                  CaloClusterContainer_p7* pers, MsgStream &log)
 {
-  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p7" << endmsg;
+  if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "Writing CaloClusterContainerCnv_p7" << endreq;
 
 
   static CaloPhiRange range;
@@ -73,7 +73,7 @@ void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* tra
   for (CaloClusterContainer::const_iterator it2 = it; it2 != it_e; ++it2)
   {
     const CaloCluster& cl = **it2;
-    const CaloClusterMomentStore& ms = *cl.getMomentStore(false);
+    const CaloClusterMomentStore& ms = cl.m_momentStore;
     pers->m_varTypePattern |= cl.m_dataStore.m_varTypePattern;
 
     if (pers->m_momentContainer.m_nMoments == 0 && ms.size() != 0) {
@@ -163,7 +163,7 @@ void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* tra
                      <<trDS->retrieveData(static_cast<vartype>(i),
                                           static_cast<samptype>(j))
                      <<"\t var: "<<i
-                     <<"\t sampling: "<<j<<endmsg;
+                     <<"\t sampling: "<<j<<endreq;
           }
         }
 			
@@ -267,7 +267,8 @@ void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* tra
   F.reduce(tmp_altEtaPhiM,pers->m_altEtaPhiM);
 
    
-  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
+  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
+
 } 
 
 

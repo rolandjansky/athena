@@ -66,9 +66,7 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers
     trans->push_back(transCluster);
   }
   //Convert TowerSegment
-  CaloTowerSeg seg;
-  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
-  trans->setTowerSeg (seg);
+  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&(trans->m_towerSeg));
 }
 
 
@@ -100,7 +98,7 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans,
     m_momentContainerCnv.transToPers(&((*it)->m_momentStore),&(pers->m_momentContainer));
     (*it)->setSignalState(oldstate); //Change back to org signal state
   }
-  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
+  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
 }
 
 
@@ -108,15 +106,15 @@ void CaloClusterContainerCnv_p2::transToPers(const CaloClusterContainer* trans,
 void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::CaloCluster_p* pers, 
 					     CaloCluster* trans, MsgStream& log) {
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
-  trans->setBasicEnergy (pers->m_basicSignal);
-  trans->setTime (pers->m_time);
+  trans->m_basicSignal=pers->m_basicSignal;
+  trans->m_time=pers->m_time;
   trans->m_samplingPattern=pers->m_samplingPattern; 
   trans->m_barrel=pers->m_barrel;  
   trans->m_endcap=pers->m_endcap;
   trans->m_eta0=pers->m_eta0;
   trans->m_phi0=pers->m_phi0;   
-  trans->m_status = CaloRecoStatus(pers->m_caloRecoStatus);
-  trans->setClusterSize (pers->m_clusterSize);
+  trans->m_status.m_status=pers->m_caloRecoStatus;
+  trans->m_clusterSize=pers->m_clusterSize;
 
   //trans->m_barrel=pers->m_samplingPattern & 0x1ff00f; //That's the OR of all barrel-bits
   //trans->m_endcap=pers->m_samplingPattern & 0xe00ff0; //That's the OR of all endcap-bits
@@ -135,15 +133,15 @@ void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2::Calo
 void CaloClusterContainerCnv_p2::transToPers(const CaloCluster* trans, 
 					     CaloClusterContainer_p2::CaloCluster_p* pers, MsgStream& log) {
 
-  pers->m_basicSignal=trans->getBasicEnergy();
-  pers->m_time=trans->getTime();
+  pers->m_basicSignal=trans->m_basicSignal;
+  pers->m_time=trans->m_time;
   pers->m_samplingPattern=trans->m_samplingPattern; 
   pers->m_barrel=trans->m_barrel;  
   pers->m_endcap=trans->m_endcap;
-  pers->m_eta0=trans->eta0();
-  pers->m_phi0=trans->phi0(); 
-  pers->m_caloRecoStatus=trans->m_status.getStatusWord();
-  pers->m_clusterSize=trans->getClusterSize();
+  pers->m_eta0=trans->m_eta0;
+  pers->m_phi0=trans->m_phi0; 
+  pers->m_caloRecoStatus=trans->m_status.m_status;
+  pers->m_clusterSize=trans->m_clusterSize;
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);

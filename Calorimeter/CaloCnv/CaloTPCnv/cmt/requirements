@@ -15,8 +15,6 @@ use CaloEvent            CaloEvent-*                Calorimeter
 
 private
 use AtlasReflex          AtlasReflex-*              External
-use AtlasCLHEP           AtlasCLHEP-*               External
-use CxxUtils             CxxUtils-*                 Control
 use SGTools		 SGTools-*	            Control
 use EventKernel          EventKernel-*              Event
 use CaloConditions       CaloConditions-*           Calorimeter
@@ -35,5 +33,4 @@ apply_pattern lcgdict dict=OLD_CaloTPCnv  selectionfile=OLD_selection.xml header
 use TestTools      TestTools-*         AtlasTest 
 apply_pattern UnitTest_run unit_test=CaloCellLinkContainerCnv_p2 extrapatterns='Athena::getMessageSvc'
 apply_pattern UnitTest_run unit_test=CaloClusterContainerCnv
-apply_pattern UnitTest_run unit_test=CaloClusterCellLinkContainerCnv_p1
 
