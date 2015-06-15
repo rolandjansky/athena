@@ -1,5 +1,5 @@
 DiMuMonDoROOTFile = False
-doFits = False
+doFits = True
 doSaveFits = False
 doJpsi = True
 doZmumu = True

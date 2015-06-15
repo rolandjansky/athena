@@ -322,7 +322,6 @@ StatusCode DiMuMon::fillHistograms()
     double idTrkPt(0),ptSum(0);
     float iso_pt40(0);
     if( !muon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
-      std::cout << "No isolation variable stored on the muon" << std::endl;
       return false;
     }
     else {
@@ -515,13 +514,14 @@ StatusCode DiMuMon::fillHistograms()
 }
 
 
-StatusCode DiMuMon::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
+//StatusCode DiMuMon::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
+StatusCode DiMuMon::procHistograms()
 {
 
-  if (isEndOfEventsBlock || isEndOfLumiBlock){
+  //  if (isEndOfEventsBlock || isEndOfLumiBlock){
     //do nothing
-  }
-   if( isEndOfRun && m_doFits) {
+  //  }
+   if(m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
      for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
        std::map<std::string, TH2D*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
