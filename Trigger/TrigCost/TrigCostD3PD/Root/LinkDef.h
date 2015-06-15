@@ -22,6 +22,9 @@
 
 #pragma link C++ nestedclass;
 
+#pragma link C++ class std::map<std::string,int>+;
+#pragma link C++ class std::map<std::string,float>+;
+
 #pragma link C++ class D3PDReader::VarHandleBase+;
 #pragma link C++ class D3PDReader::VarProxyBase+;
 //#pragma link C++ class D3PDReader::VariableStats+;
