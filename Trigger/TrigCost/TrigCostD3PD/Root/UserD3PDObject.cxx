@@ -14,22 +14,22 @@ namespace D3PDReader {
 
    UserD3PDObjectElement::UserD3PDObjectElement( size_t index,
                                                  const UserD3PDObject& parent )
-      : ::TNamed(), m_parent( &parent ), m_index( index ), m_proxies() {
+      : ::TNamed(), fParent( &parent ), fIndex( index ), fProxies() {
 
    }
 
    UserD3PDObjectElement::
    UserD3PDObjectElement( const UserD3PDObjectElement& parent )
-      : TNamed( parent ), m_parent( parent.m_parent ), m_index( parent.m_index ),
-        m_proxies() {
+      : TNamed( parent ), fParent( parent.fParent ), fIndex( parent.fIndex ),
+        fProxies() {
 
    }
 
    UserD3PDObjectElement::~UserD3PDObjectElement() {
 
       // Delete the allocated objects:
-      std::map< ::TString, VarProxyBase* >::iterator itr = m_proxies.begin();
-      std::map< ::TString, VarProxyBase* >::iterator end = m_proxies.end();
+      std::map< ::TString, VarProxyBase* >::iterator itr = fProxies.begin();
+      std::map< ::TString, VarProxyBase* >::iterator end = fProxies.end();
       for( ; itr != end; ++itr ) {
          delete itr->second;
       }
@@ -37,36 +37,36 @@ namespace D3PDReader {
 
    size_t UserD3PDObjectElement::GetIndex() const {
 
-      return m_index;
+      return fIndex;
    }
 
    UserD3PDObject::UserD3PDObject( const ::Long64_t& master,
                                    const char* prefix )
-      : D3PDObjectBase(), m_master( &master ), m_prefix( prefix ), m_proxies(),
-        m_handles(), m_extraHandles(), m_fromInput( kTRUE ),
-        m_inTree( 0 ) {
+      : D3PDObjectBase(), fMaster( &master ), fPrefix( prefix ), fProxies(),
+        fHandles(), fExtraHandles(), fFromInput( kTRUE ),
+        fInTree( 0 ) {
 
    }
 
    UserD3PDObject::UserD3PDObject( const char* prefix )
-      : D3PDObjectBase(), m_master( 0 ), m_prefix( prefix ), m_proxies(),
-        m_handles(), m_extraHandles(), m_fromInput( kFALSE ),
-        m_inTree( 0 ) {
+      : D3PDObjectBase(), fMaster( 0 ), fPrefix( prefix ), fProxies(),
+        fHandles(), fExtraHandles(), fFromInput( kFALSE ),
+        fInTree( 0 ) {
 
    }
 
    UserD3PDObject::~UserD3PDObject() {
 
       // Delete the allocated objects:
-      std::map< ::TString, VarHandleBase* >::iterator itr = m_handles.begin();
-      std::map< ::TString, VarHandleBase* >::iterator end = m_handles.end();
+      std::map< ::TString, VarHandleBase* >::iterator itr = fHandles.begin();
+      std::map< ::TString, VarHandleBase* >::iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          delete itr->second;
       }
       // Although the code almost certainly crashes when such dummy objects
       // are created, there's still some chance that they need to be cleaned:
-      std::vector< VarHandleBase* >::iterator eitr = m_extraHandles.begin();
-      std::vector< VarHandleBase* >::iterator eend = m_extraHandles.end();
+      std::vector< VarHandleBase* >::iterator eitr = fExtraHandles.begin();
+      std::vector< VarHandleBase* >::iterator eend = fExtraHandles.end();
       for( ; eitr != eend; ++eitr ) {
          delete *eitr;
       }
@@ -77,7 +77,7 @@ namespace D3PDReader {
     */
    const char* UserD3PDObject::GetPrefix() const {
 
-      return m_prefix;
+      return fPrefix;
    }
 
    /**
@@ -85,11 +85,11 @@ namespace D3PDReader {
     */
    void UserD3PDObject::SetPrefix( const char* prefix ) {
 
-      m_prefix = prefix;
+      fPrefix = prefix;
 
       // Set all the variable names:
-      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          itr->second->SetName( ::TString( prefix ) + itr->first );
       }
@@ -106,7 +106,7 @@ namespace D3PDReader {
    void UserD3PDObject::ReadFrom( TTree* tree ) {
 
       // Check if the object will be able to read from the TTree:
-      if( ! m_fromInput ) {
+      if( ! fFromInput ) {
          Error( "ReadFrom",
                 "The object was not created with the correct" );
          Error( "ReadFrom",
@@ -115,8 +115,8 @@ namespace D3PDReader {
       }
 
       // Call ReadFrom(...) on all the variables:
-      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          // Ignore the variables that are created only now:
          if( ! itr->second->GetMaster() ) continue;
@@ -124,7 +124,7 @@ namespace D3PDReader {
       }
 
       // Remember the pointer:
-      m_inTree = tree;
+      fInTree = tree;
 
       return;
    }
@@ -139,8 +139,8 @@ namespace D3PDReader {
    void UserD3PDObject::WriteTo( TTree* tree ) {
 
       // Call WriteTo(...) on all the variables:
-      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          itr->second->WriteTo( tree );
       }
@@ -163,10 +163,10 @@ namespace D3PDReader {
 
       ::TPRegexp re( pattern );
 
-      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
-         if( ! re.Match( m_prefix + itr->first ) ) continue;
+         if( ! re.Match( fPrefix + itr->first ) ) continue;
          if( active ) {
             if( itr->second->IsAvailable() ) itr->second->SetActive( active );
          } else {
@@ -186,7 +186,7 @@ namespace D3PDReader {
    void UserD3PDObject::ReadAllActive() {
 
       // Check if it makes sense to call this function:
-      if( ! m_fromInput ) {
+      if( ! fFromInput ) {
          static ::Bool_t wPrinted = kFALSE;
          if( ! wPrinted ) {
             Warning( "ReadAllActive",
@@ -198,8 +198,8 @@ namespace D3PDReader {
       }
 
       // Read in the current entry for each active variable:
-      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          if( ! itr->second->IsActive() ) continue;
          itr->second->ReadCurrentEntry();
@@ -222,8 +222,8 @@ namespace D3PDReader {
    //    D3PDReadStats result;
 
    //    // Add the statistics from each variable to the result:
-   //    std::map< ::TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-   //    std::map< ::TString, VarHandleBase* >::const_iterator end = m_handles.end();
+   //    std::map< ::TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+   //    std::map< ::TString, VarHandleBase* >::const_iterator end = fHandles.end();
    //    for( ; itr != end; ++itr ) {
    //       result.AddVariable( itr->second->GetStatistics() );
    //    }
@@ -236,7 +236,7 @@ namespace D3PDReader {
     */
    UserD3PDObject& UserD3PDObject::Set( const UserD3PDObject& parent ) {
 
-      if( parent.m_handles.size() ) {
+      if( parent.fHandles.size() ) {
          Error( "Set",
                 "User variables can not be copied usig this function!" );
       }
@@ -256,8 +256,8 @@ namespace D3PDReader {
    void UserD3PDObject::Clear( Option_t* ) {
 
       // Clear each variable:
-      std::map< ::TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
-      std::map< ::TString, VarHandleBase* >::const_iterator end = m_handles.end();
+      std::map< ::TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
+      std::map< ::TString, VarHandleBase* >::const_iterator end = fHandles.end();
       for( ; itr != end; ++itr ) {
          itr->second->Clear();
       }
@@ -270,7 +270,7 @@ namespace D3PDReader {
     */
    UserD3PDObject& UserD3PDObject::Add( const UserD3PDObjectElement& el ) {
 
-      if( el.m_proxies.size() ) {
+      if( el.fProxies.size() ) {
          Error( "Add",
                 "User variables can not be copied usig this function!" );
       }
@@ -289,10 +289,10 @@ namespace D3PDReader {
     */
    UserD3PDObjectElement& UserD3PDObject::operator[]( size_t index ) {
 
-      while( m_proxies.size() <= index ) {
-         m_proxies.push_back( new UserD3PDObjectElement( m_proxies.size(), *this ) );
+      while( fProxies.size() <= index ) {
+         fProxies.push_back( new UserD3PDObjectElement( fProxies.size(), *this ) );
       }
-      return *m_proxies[ index ];
+      return *fProxies[ index ];
    }
 
    /**
@@ -306,10 +306,10 @@ namespace D3PDReader {
     */
    const UserD3PDObjectElement& UserD3PDObject::operator[]( size_t index ) const {
 
-      while( m_proxies.size() <= index ) {
-         m_proxies.push_back( new UserD3PDObjectElement( m_proxies.size(), *this ) );
+      while( fProxies.size() <= index ) {
+         fProxies.push_back( new UserD3PDObjectElement( fProxies.size(), *this ) );
       }
-      return *m_proxies[ index ];
+      return *fProxies[ index ];
    }
 
    /**

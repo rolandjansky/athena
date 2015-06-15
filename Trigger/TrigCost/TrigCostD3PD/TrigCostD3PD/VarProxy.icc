@@ -16,23 +16,23 @@ namespace D3PDReader {
    template< typename Type >
    VarProxy< Type >::VarProxy( const VarHandle< std::vector< Type >* >& handle,
                                size_t i )
-      : m_handle( const_cast< VarHandle< std::vector< Type >* >* >( &handle ) ),
-        m_index( i ), m_dummy() {
+      : fHandle( const_cast< VarHandle< std::vector< Type >* >* >( &handle ) ),
+        fIndex( i ), fDummy() {
 
    }
 
    template< typename Type >
    VarProxy< Type >::VarProxy( const VarProxy< Type >& parent )
-      : VarProxyBase(), m_handle( parent.m_handle ), m_index( parent.m_index ),
-        m_dummy() {
+      : VarProxyBase(), fHandle( parent.fHandle ), fIndex( parent.fIndex ),
+        fDummy() {
 
    }
 
    template< typename Type >
    VarProxy< Type >& VarProxy< Type >::operator=( const VarProxy< Type >& parent ) {
 
-      m_handle = parent.m_handle;
-      m_index  = parent.m_index;
+      fHandle = parent.fHandle;
+      fIndex  = parent.fIndex;
 
       return *this;
    }
@@ -40,30 +40,30 @@ namespace D3PDReader {
    template< typename Type >
    ::Bool_t VarProxy< Type >::IsAvailable() const {
 
-      return m_handle->IsAvailable();
+      return fHandle->IsAvailable();
    }
 
    template< typename Type >
    typename VarProxy< Type >::result_type VarProxy< Type >::operator()() {
 
-      if( m_handle->IsAvailable() ) {
-         return ( ( *( *m_handle )() ) )[ m_index ];
+      if( fHandle->IsAvailable() ) {
+         return ( ( *( *fHandle )() ) )[ fIndex ];
       } else {
-         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + m_handle->GetName() + "()",
+         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + fHandle->GetName() + "()",
                     "Variable not available on input. Returning 0" );
-         return m_dummy;
+         return fDummy;
       }
    }
 
    template< typename Type >
    typename VarProxy< Type >::const_result_type VarProxy< Type >::operator()() const {
 
-      if( m_handle->IsAvailable() ) {
-         return ( ( *( *m_handle )() ) )[ m_index ];
+      if( fHandle->IsAvailable() ) {
+         return ( ( *( *fHandle )() ) )[ fIndex ];
       } else {
-         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + m_handle->GetName() + "()",
+         ::Warning( ::TString( "D3PDReader::VarProxy::" ) + fHandle->GetName() + "()",
                     "Variable not available on input. Returning 0" );
-         return m_dummy;
+         return fDummy;
       }
    }
 

@@ -15,6 +15,7 @@
 // STL include(s):
 #include <map>
 #include <vector>
+using std::vector;
 
 // ROOT include(s):
 #include <TObject.h>
@@ -140,7 +141,6 @@ namespace D3PDReader {
       VarHandle< std::vector<float,std::allocator<float> >* > roi_eta;
       VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_id;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeEmTau;
-      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTau; // new
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeEnergy;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeJet;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_isTypeJetEt;
@@ -149,16 +149,6 @@ namespace D3PDReader {
       VarHandle< unsigned short > roi_n;
       VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_nL1Thresholds;
       VarHandle< std::vector<float,std::allocator<float> >* > roi_phi;
-      // New
-      VarHandle< std::vector<float,std::allocator<float> >* > roi_et;
-      VarHandle< std::vector<float,std::allocator<float> >* > roi_etLarge;
-      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_muCharge;
-      VarHandle< std::vector<unsigned int,std::allocator<unsigned int> >* > roi_isoBits;
-      VarHandle< std::vector<float,std::allocator<float> >* >  roi_vectorEX;
-      VarHandle< std::vector<float,std::allocator<float> >* > roi_vectorEY;
-      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEX;
-      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowEY;
-      VarHandle< std::vector<unsigned char,std::allocator<unsigned char> >* > roi_overflowET;
       /// Run number for this event
       VarHandle< unsigned int > runNumber;
       /// Start of the event in seconds
@@ -221,9 +211,9 @@ namespace D3PDReader {
       /// Function setting up all the VarHandle members
       void SetVarHandles( const ::Long64_t* master );
 
-      std::map< ::TString, VarHandleBase* > m_handles; ///< Book-keeper of the VarHandle members
-      const ::Bool_t m_fromInput; ///< Flag specifying if object is used for D3PD reading
-      ::TString m_prefix; ///< Prefix to the branch names
+      std::map< ::TString, VarHandleBase* > fHandles; ///< Book-keeper of the VarHandle members
+      const ::Bool_t fFromInput; ///< Flag specifying if object is used for D3PD reading
+      ::TString fPrefix; ///< Prefix to the branch names
 
       ClassDef( TrigCostD3PDObject, 0 )
 

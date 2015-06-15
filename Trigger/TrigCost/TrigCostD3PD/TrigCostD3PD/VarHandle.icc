@@ -23,11 +23,10 @@
 namespace D3PDReader {
 
    template< typename Type >
-   // cppcheck-suppress uninitMemberVar
    VarHandle< Type >::VarHandle( const char* name,
                                  const ::Long64_t* master )
       : VarHandleBase( name, master ),
-        m_variable() {
+        fVariable() {
 
       SetType( RootCppType( typeid( Type ).name() ) );
    }
@@ -40,11 +39,11 @@ namespace D3PDReader {
    template< typename Type >
    void VarHandle< Type >::ReadFrom( ::TTree* tree ) {
 
-      m_inTree = tree;
-      m_fromInput = kTRUE;
-      m_variable = 0;
-      m_inBranch = 0;
-      m_available = UNKNOWN;
+      fInTree = tree;
+      fFromInput = kTRUE;
+      fVariable = 0;
+      fInBranch = 0;
+      fAvailable = UNKNOWN;
 
       return;
    }
@@ -57,7 +56,7 @@ namespace D3PDReader {
       ::TBranch* branch = tree->GetBranch( GetName() );
       if( branch ) return branch;
 
-      branch = tree->Branch( GetName(), &m_variable,
+      branch = tree->Branch( GetName(), &fVariable,
                              ::TString::Format( "%s/%s", GetName(),
                                                 RootType( typeid( Type ).name() ) ) );
       if( ! branch ) {
@@ -76,39 +75,39 @@ namespace D3PDReader {
    template< typename Type >
    typename VarHandle< Type >::result_type VarHandle< Type >::operator()() {
 
-      if( ! m_fromInput ) return m_variable;
+      if( ! fFromInput ) return fVariable;
 
-      if( ! m_inBranch ) {
-         if( ! ConnectVariable( &m_variable, TClass::GetClass( typeid( Type ) ),
+      if( ! fInBranch ) {
+         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
                                 TDataType::GetType( typeid( Type ) ), kFALSE ) ||
-             !m_inBranch )
+             !fInBranch )
          {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
-            return m_variable;
+            return fVariable;
          }
       }
       UpdateBranch();
 
-      return m_variable;
+      return fVariable;
    }
 
    template< typename Type >
    typename VarHandle< Type >::const_result_type VarHandle< Type >::operator()() const {
 
-      if( ! m_fromInput ) return m_variable;
+      if( ! fFromInput ) return fVariable;
 
-      if( ! m_inBranch ) {
-         if( ! ConnectVariable( &m_variable, TClass::GetClass( typeid( Type ) ),
+      if( ! fInBranch ) {
+         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
                                 TDataType::GetType( typeid( Type ) ), kFALSE ) ) {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
-            return m_variable;
+            return fVariable;
          }
       }
       UpdateBranch();
 
-      return m_variable;
+      return fVariable;
    }
 
    template< typename Type >
@@ -117,7 +116,7 @@ namespace D3PDReader {
       if( IsAvailable() ) {
          this->operator()();
       } else {
-         m_variable = 0;
+         fVariable = 0;
       }
       return;
    }
@@ -132,16 +131,15 @@ namespace D3PDReader {
    template< typename Type >
    void VarHandle< Type >::Set( Type value ) {
 
-      m_variable = value;
+      fVariable = value;
       return;
    }
 
    template< typename Type >
-   // cppcheck-suppress uninitMemberVar
    VarHandle< Type* >::VarHandle( const char* name,
                                   const ::Long64_t* master )
       : VarHandleBase( name, master ),
-        m_variable( 0 ) {
+        fVariable( 0 ) {
 
       int status;
       char* type_name = abi::__cxa_demangle( typeid( Type ).name(), 0, 0, &status );
@@ -154,17 +152,17 @@ namespace D3PDReader {
    template< typename Type >
    VarHandle< Type* >::~VarHandle() {
 
-      if( m_variable ) delete m_variable;
+      if( fVariable ) delete fVariable;
    }
 
    template< typename Type >
    void VarHandle< Type* >::ReadFrom( ::TTree* tree ) {
 
-      m_inTree = tree;
-      m_fromInput = kTRUE;
-      if( m_variable ) m_variable->clear();
-      m_inBranch = 0;
-      m_available = UNKNOWN;
+      fInTree = tree;
+      fFromInput = kTRUE;
+      if( fVariable ) fVariable->clear();
+      fInBranch = 0;
+      fAvailable = UNKNOWN;
 
       return;
    }
@@ -183,10 +181,10 @@ namespace D3PDReader {
                   typeid( Type ).name() );
          return 0;
       }
-      if( ! m_variable ) {
-         m_variable = new Type();
+      if( ! fVariable ) {
+         fVariable = new Type();
       }
-      branch = tree->Bronch( GetName(), GetType(), &m_variable );
+      branch = tree->Bronch( GetName(), GetType(), &fVariable );
       if( ! branch ) {
          ::Error( "D3PDReader::VarHandle::WriteTo",
                   "Couldn't add variable %s to tree %s",
@@ -204,46 +202,46 @@ namespace D3PDReader {
    typename VarHandle< Type* >::result_type
    VarHandle< Type* >::operator()() {
 
-      if( ! m_fromInput ) {
-         if( ! m_variable ) m_variable = new Type();
-         return m_variable;
+      if( ! fFromInput ) {
+         if( ! fVariable ) fVariable = new Type();
+         return fVariable;
       }
 
-      if( ! m_inBranch ) {
-         if( ! ConnectVariable( &m_variable, TClass::GetClass( typeid( Type ) ),
+      if( ! fInBranch ) {
+         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
                                 TDataType::GetType( typeid( Type ) ), kTRUE ) ) {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
-            return m_variable;
+            return fVariable;
          }
       }
       UpdateBranch();
 
-      return m_variable;
+      return fVariable;
    }
 
    template< typename Type >
    typename VarHandle< Type* >::const_result_type
    VarHandle< Type* >::operator()() const {
 
-      if( ! m_fromInput ) {
-         if( ! m_variable ) m_variable = new Type();
-         return m_variable;
+      if( ! fFromInput ) {
+         if( ! fVariable ) fVariable = new Type();
+         return fVariable;
       }
 
-      if( ! m_inBranch ) {
-         if( ! ConnectVariable( &m_variable, TClass::GetClass( typeid( Type ) ),
+      if( ! fInBranch ) {
+         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
                                 TDataType::GetType( typeid( Type ) ), kTRUE ) ||
-             !m_inBranch)
+             !fInBranch)
          {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
-            return m_variable;
+            return fVariable;
          }
       }
       UpdateBranch();
 
-      return m_variable;
+      return fVariable;
    }
 
    template< typename Type >
@@ -252,8 +250,8 @@ namespace D3PDReader {
       if( IsAvailable() ) {
          this->operator()();
       } else {
-         if( ! m_variable ) m_variable = new Type();
-         m_variable->clear();
+         if( ! fVariable ) fVariable = new Type();
+         fVariable->clear();
       }
       return;
    }
@@ -268,7 +266,7 @@ namespace D3PDReader {
    template< typename Type >
    void VarHandle< Type* >::Set( const_result_type value ) {
 
-      *m_variable = *value;
+      *fVariable = *value;
       return;
    }
 

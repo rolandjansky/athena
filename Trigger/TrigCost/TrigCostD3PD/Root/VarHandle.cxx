@@ -15,10 +15,10 @@ namespace D3PDReader {
 
    VarHandleBase::VarHandleBase( const char* name,
                                  const ::Long64_t* master )
-      : m_master( master ), m_fromInput( kFALSE ),
-        m_inTree( 0 ), m_inBranch( 0 ), m_available( UNKNOWN ), m_name( name ),
-        m_active( kFALSE ), m_type( "" ),
-        m_entriesRead(), m_branchSize(), m_zippedSize() {
+      : fMaster( master ), fFromInput( kFALSE ),
+        fInTree( 0 ), fInBranch( 0 ), fAvailable( UNKNOWN ), fName( name ),
+        fActive( kFALSE ), fType( "" ),
+        fEntriesRead(), fBranchSize(), fZippedSize() {
 
 #ifdef COLLECT_D3PD_READING_STATISTICS
       //D3PDPerfStats::Instance();
@@ -27,52 +27,52 @@ namespace D3PDReader {
 
    const char* VarHandleBase::GetName() const {
 
-      return m_name;
+      return fName;
    }
 
    void VarHandleBase::SetName( const char* name ) {
 
-      m_name = name;
+      fName = name;
       return;
    }
 
    const char* VarHandleBase::GetType() const {
 
-      return m_type;
+      return fType;
    }
 
    void VarHandleBase::SetType( const char* type ) {
 
-      m_type = type;
+      fType = type;
       return;
    }
 
    const ::Long64_t* VarHandleBase::GetMaster() const {
 
-      return m_master;
+      return fMaster;
    }
 
    void VarHandleBase::SetMaster( const ::Long64_t* master ) {
 
-      m_master = master;
+      fMaster = master;
       return;
    }
 
    ::Bool_t VarHandleBase::IsActive() const {
 
-      return m_active;
+      return fActive;
    }
 
    void VarHandleBase::SetActive( ::Bool_t active ) {
 
-      m_active = active;
+      fActive = active;
       return;
    }
 
    ::Bool_t VarHandleBase::IsAvailable() const {
 
-      if( ! m_fromInput ) return kTRUE;
-      switch( m_available ) {
+      if( ! fFromInput ) return kTRUE;
+      switch( fAvailable ) {
 
       case AVAILABLE:
          return kTRUE;
@@ -82,9 +82,9 @@ namespace D3PDReader {
          break;
       case UNKNOWN:
          {
-            if( ! m_inTree ) return kTRUE;
+            if( ! fInTree ) return kTRUE;
             ::Bool_t temp = kFALSE;
-            m_available = ( temp = m_inTree->GetBranch( GetName() ) ) ? AVAILABLE :
+            fAvailable = ( temp = fInTree->GetBranch( GetName() ) ) ? AVAILABLE :
                          UNAVAILABLE;
             return temp;
          }
@@ -104,29 +104,29 @@ namespace D3PDReader {
    //    ::Long64_t readEntries = 0;
    //    ::Long64_t unzippedBytes = 0;
    //    ::Long64_t zippedBytes = 0;
-   //    for( size_t i = 0; i < m_entriesRead.size(); ++i ) { 
-   //       readEntries += m_entriesRead[ i ];
-   //       unzippedBytes += static_cast< ::Long64_t >( m_branchSize[ i ] *
-   //                                                   m_entriesRead[ i ] );
-   //       zippedBytes += static_cast< ::Long64_t >( m_zippedSize[ i ] *
-   //                                                 m_entriesRead[ i ] );
+   //    for( size_t i = 0; i < fEntriesRead.size(); ++i ) { 
+   //       readEntries += fEntriesRead[ i ];
+   //       unzippedBytes += static_cast< ::Long64_t >( fBranchSize[ i ] *
+   //                                                   fEntriesRead[ i ] );
+   //       zippedBytes += static_cast< ::Long64_t >( fZippedSize[ i ] *
+   //                                                 fEntriesRead[ i ] );
    //    }
 
    //    // Now return the "smart" object:
    //    return VariableStats( GetName(), GetType(),
-   //                          m_entriesRead.size(), readEntries,
+   //                          fEntriesRead.size(), readEntries,
    //                          unzippedBytes, zippedBytes );
    // }
 
    ::Bool_t VarHandleBase::ConnectVariable( void* var, ::TClass* realClass,
                                             EDataType dtype, Bool_t isptr ) const {
 
-      if( ! m_inTree ) {
+      if( ! fInTree ) {
          ::Error( "D3PDReader::VarHandleBase::ConnectVariable",
                   "Object not connected yet!" );
          return kFALSE;
       }
-      if( ! m_inTree->GetBranch( GetName() ) ) {
+      if( ! fInTree->GetBranch( GetName() ) ) {
          ::Error( "D3PDReader::VarHandleBase::ConnectVariable",
                   "The following variable doesn't exist: %s",
                   GetName() );
@@ -134,9 +134,9 @@ namespace D3PDReader {
       }
 #ifdef ACTIVATE_BRANCHES
       // Only call this function when the user asks for it. It's quite expensive...
-      m_inTree->SetBranchStatus( ::TString( GetName() ) + "*", 1 );
+      fInTree->SetBranchStatus( ::TString( GetName() ) + "*", 1 );
 #endif // ACTIVATE_BRANCHES
-      if( m_inTree->SetBranchAddress( GetName(), var, &m_inBranch,
+      if( fInTree->SetBranchAddress( GetName(), var, &fInBranch,
                                      realClass, dtype, isptr ) ) {
          ::Error( "D3PDReader::VarHandleBase::ConnectVariable",
                   "Couldn't connect variable to branch: %s", GetName() );
@@ -144,7 +144,7 @@ namespace D3PDReader {
       }
 
 #ifdef COLLECT_D3PD_READING_STATISTICS
-      //UpdateStat( m_inBranch );
+      //UpdateStat( fInBranch );
 #endif // COLLECT_D3PD_READING_STATISTICS
 
       return kTRUE;
@@ -152,12 +152,12 @@ namespace D3PDReader {
 
    void VarHandleBase::UpdateBranch() const {
       //Cov warning
-      if (!m_inBranch) return;
+      if (!fInBranch) return;
 
-      if( *m_master != m_inBranch->GetReadEntry() ) {
-         m_inBranch->GetEntry( *m_master );
+      if( *fMaster != fInBranch->GetReadEntry() ) {
+         fInBranch->GetEntry( *fMaster );
 #ifdef COLLECT_D3PD_READING_STATISTICS
-        // ++( m_entriesRead.back() );
+        // ++( fEntriesRead.back() );
 #endif // COLLECT_D3PD_READING_STATISTICS
       }
 
@@ -166,13 +166,13 @@ namespace D3PDReader {
 
    // void VarHandleBase::UpdateStat( ::TBranch* br ) const {
 
-   //    m_entriesRead.push_back( 0 );
-   //    m_branchSize.push_back( ( ::Float_t ) br->GetTotalSize( "*" ) /
+   //    fEntriesRead.push_back( 0 );
+   //    fBranchSize.push_back( ( ::Float_t ) br->GetTotalSize( "*" ) /
    //                           ( ::Float_t ) br->GetEntries() );
-   //    m_zippedSize.push_back( ( ::Float_t ) br->GetZipBytes( "*" ) /
+   //    fZippedSize.push_back( ( ::Float_t ) br->GetZipBytes( "*" ) /
    //                           ( ::Float_t ) br->GetEntries() );
 
-   //    D3PDPerfStats::Instance()->NewTreeAccessed( m_inTree );
+   //    D3PDPerfStats::Instance()->NewTreeAccessed( fInTree );
 
    //    return;
    // }

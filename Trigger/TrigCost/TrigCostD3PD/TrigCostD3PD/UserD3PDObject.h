@@ -74,11 +74,11 @@ namespace D3PDReader {
 
    private:
       /// Reference to the parent of this object
-      const UserD3PDObject* m_parent;
+      const UserD3PDObject* fParent;
       /// The index of this object inside the parent container
-      size_t m_index;
+      size_t fIndex;
       /// Book-keeper of the VarProxy members
-      mutable std::map< ::TString, VarProxyBase* > m_proxies;
+      mutable std::map< ::TString, VarProxyBase* > fProxies;
 
       UserD3PDObjectElement& operator=( const UserD3PDObjectElement& parent );
 
@@ -159,18 +159,18 @@ namespace D3PDReader {
       const VarHandle< T >& Variable( const TString& name ) const;
 
    private:
-      const ::Long64_t* m_master; ///< Pointer to the master entry number
-      ::TString m_prefix; ///< Prefix to the branch names
+      const ::Long64_t* fMaster; ///< Pointer to the master entry number
+      ::TString fPrefix; ///< Prefix to the branch names
       ///< Internal list of proxy objects
-      mutable std::vector< UserD3PDObjectElement* > m_proxies;
+      mutable std::vector< UserD3PDObjectElement* > fProxies;
       /// Book-keeper of the VarHandle members
-      mutable std::map< ::TString, VarHandleBase* > m_handles;
+      mutable std::map< ::TString, VarHandleBase* > fHandles;
       /// Book-keeper of VarHandle objects needed for technical reasons
-      mutable std::vector< VarHandleBase* > m_extraHandles;
+      mutable std::vector< VarHandleBase* > fExtraHandles;
       /// Flag specifying if object is used for D3PD reading
-      const ::Bool_t m_fromInput;
+      const ::Bool_t fFromInput;
       /// TTree that is being read currently
-      ::TTree* m_inTree;
+      ::TTree* fInTree;
 
       ClassDef( UserD3PDObject, 0 )
 
