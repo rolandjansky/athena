@@ -32,27 +32,27 @@
 namespace MuonGM
 {
 
-DblQ00Wcmi::DblQ00Wcmi(IRDBQuery* wcmi)
+DblQ00Wcmi::DblQ00Wcmi(IRDBQuery* m_wcmi)
  : m_nObj(0)
 {
-  if(wcmi) {
-    wcmi->execute();
-    m_nObj = wcmi->size();
+  if(m_wcmi) {
+    m_wcmi->execute();
+    m_nObj = m_wcmi->size();
     m_d = new WCMI[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wcmi banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(wcmi->next()) {
-        m_d[i].version     = wcmi->data<int>("WCMI_DATA.VERS");    
-        m_d[i].jsta        = wcmi->data<int>("WCMI_DATA.JSTA");
-        m_d[i].num         = wcmi->data<int>("WCMI_DATA.NUM");
-        m_d[i].heightness     = wcmi->data<float>("WCMI_DATA.HEIGHTNESS");
-        m_d[i].largeness      = wcmi->data<float>("WCMI_DATA.LARGENESS");
-        m_d[i].thickness      = wcmi->data<float>("WCMI_DATA.THICKNESS");
+    while(m_wcmi->next()) {
+        m_d[i].version     = m_wcmi->data<int>("WCMI_DATA.VERS");    
+        m_d[i].jsta        = m_wcmi->data<int>("WCMI_DATA.JSTA");
+        m_d[i].num         = m_wcmi->data<int>("WCMI_DATA.NUM");
+        m_d[i].heightness     = m_wcmi->data<float>("WCMI_DATA.HEIGHTNESS");
+        m_d[i].largeness      = m_wcmi->data<float>("WCMI_DATA.LARGENESS");
+        m_d[i].thickness      = m_wcmi->data<float>("WCMI_DATA.THICKNESS");
         //std::cerr<<" FROM ORACLE: CMI "<<m_d[i].jsta<<" h/l/t "<<m_d[i].heightness<<" "<<m_d[i].largeness <<" "<<m_d[i].thickness <<std::endl;
 	i++;
     }
-    wcmi->finalize();
+    m_wcmi->finalize();
   }
   else {
     m_d = new WCMI[0];
