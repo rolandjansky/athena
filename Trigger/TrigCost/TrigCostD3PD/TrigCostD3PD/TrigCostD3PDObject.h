@@ -72,8 +72,9 @@ namespace D3PDReader {
       /// Enhanced bias weight of the event (only if specificaly calculated)
       VarHandle< float > ebWeight;
       VarHandle< unsigned int > ebWeightBG;
+      VarHandle< unsigned char > ebUnbiased;
       /// If the event was a monitoring event
-      VarHandle< unsigned short > ranScaleTools;
+      VarHandle< unsigned char > ranScaleTools;
       /// BCID for this event
       VarHandle< unsigned int > bunchCrossingId;
       VarHandle< std::vector<unsigned short,std::allocator<unsigned short> >* > chain_counter;
