@@ -254,6 +254,11 @@ namespace D3PDReader {
       } else {
          ebWeightBG() = 0;
       }
+      if( parent.ebUnbiased.IsAvailable() && ebUnbiased.IsActive() ) {
+         ebUnbiased() = parent.ebUnbiased();
+      } else {
+         ebUnbiased() = 0;
+      }
       if( parent.ranScaleTools.IsAvailable() && ranScaleTools.IsActive() ) {
          ranScaleTools() = parent.ranScaleTools();
       } else {
@@ -853,6 +858,9 @@ namespace D3PDReader {
       else if( ! ::strcmp( name, "ebWeightBG" ) ) {
          return &ebWeightBG;
       }
+      else if( ! ::strcmp( name, "ebUnbiased" ) ) {
+         return &ebUnbiased;
+      }
       else if( ! ::strcmp( name, "ranScaleTools" ) ) {
          return &ranScaleTools;
       }
@@ -1214,11 +1222,12 @@ namespace D3PDReader {
    void TrigCostD3PDObject::SetVarHandles( const ::Long64_t* master ) {
 
       // Create a list of variable-branch name pairs:
-      static const Int_t NVARNAMES = 118;
+      static const Int_t NVARNAMES = 119;
       static const char* VARNAMES[ NVARNAMES ][ 2 ] = {
          { "appId", "appId" },
          { "ebWeight", "ebWeight" },
          { "ebWeightBG", "ebWeightBG" },
+         { "ebUnbiased", "ebUnbiased" },         
          { "ranScaleTools", "ranScaleTools" },         
          { "bunchCrossingId", "bunchCrossingId" },
          { "chain_counter", "chain_counter" },
