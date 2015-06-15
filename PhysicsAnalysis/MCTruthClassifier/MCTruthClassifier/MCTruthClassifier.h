@@ -5,6 +5,7 @@
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 #define MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 /********************************************************************
+
 NAME:     MCTruthClassifier.h 
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 AUTHORS:  O. Fedin
@@ -44,95 +45,149 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
   // constructor 
   MCTruthClassifier(const std::string& type);
   // destructor 
-  virtual ~MCTruthClassifier();
+  ~MCTruthClassifier();  
 
   // Gaudi algorithm hooks
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize();
+  virtual StatusCode execute();
+  StatusCode finalize();
     
   //Old EDM  
 #ifndef XAOD_ANALYSIS
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const HepMC::GenParticle *, Info* info = nullptr) const override; 
-  bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart) const;
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>  particleTruthClassifier(const HepMC::GenParticle *); 
+  bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
 #endif
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TruthParticle *, Info* info = nullptr) const override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TrackParticle *, Info* info = nullptr) const override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Electron*, Info* info = nullptr) /*const*/ override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Photon*, Info* info = nullptr ) override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Muon*, Info* info = nullptr) const override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster*, Info* info = nullptr) override;
-  virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const override;
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TruthParticle *);     
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TrackParticle *);
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Electron* );     
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Photon* );     
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Muon* );     
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster* );
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Jet*, bool DR );
 
-  virtual
-  const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle *,
-                                        Info* info = nullptr) const override;
-  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*) const;
+  MCTruthPartClassifier::ParticleOutCome getParticleOutCome(){return  m_ParticleOutCome;}
 
-  virtual
+  float getProbTrktoTruth(){return m_probability;}
+
+  const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle *);
+  const xAOD::TruthParticle* getGenPart(){return m_thePart;}
+  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*);
+  const xAOD::TruthParticle* getMother(){return m_Mother;}
+
+  int   getMotherPDG(){return m_MotherPDG;};
+  int   getMotherBarcode(){return m_MotherBarcode;};
+
+  const xAOD::TruthParticle* getPhotonMother(){return m_PhotonMother;}
+  int   getPhotonMotherPDG(){return m_PhotonMotherPDG;}
+  int   getPhotonMotherBarcode(){return m_PhotonMotherBarcode;}
+
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
-    checkOrigOfBkgElec(const xAOD::TruthParticle* thePart,
-                       Info* info = nullptr) const override;
+                         checkOrigOfBkgElec(const xAOD::TruthParticle* thePart);
+
+  const xAOD::TruthParticle* getBkgElecMother(){return m_BkgElecMother;}
+
+  std::vector<const xAOD::TruthParticle*>* getTauFinalState(){return &m_tauFinalStatePart;}
+ 
+  float getdeltaRMatch(){return m_deltaRMatch;}
+  float getdeltaPhiMatch(){return m_deltaPhi;}
+  uint8_t   getNumOfSiHits(){return m_NumOfSiHits;}
+
+  std::vector<const xAOD::TruthParticle*>  getEGPartPntr(){return m_egPartPtr;} 
+  std::vector<float> getEGPartdR(){return m_egPartdR;}
+  std::vector<std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> >  getEGPartClas(){return m_egPartClas;}
+
+  std::vector<const xAOD::TrackParticle*>   getCnvPhotTrkPtr()        {return m_cnvPhtTrkPtr;}
+  std::vector<const xAOD::TruthParticle*>   getCnvPhotTrkToTruthPart(){return m_cnvPhtTrPart;}
+  std::vector<MCTruthPartClassifier::ParticleType>   getCnvPhotPartType() {return  m_cnvPhtPartType;}
+  std::vector<MCTruthPartClassifier::ParticleOrigin> getCnvPhotPartOrig() {return  m_cnvPhtPartOrig;}
 
  private:
 
-   static float detEta(float x, float y ) {return fabs(x-y);}
-   static float detPhi(float , float );
-   static float rCone (float x, float y ){return sqrt(x*x + y*y);}
+   float detEta(float x, float y ) {return fabs(x-y);}
+   float detPhi(float , float );
+   float rCone (float x, float y ){return sqrt(x*x + y*y);}
    //
-   MCTruthPartClassifier::ParticleType    defTypeOfElectron(MCTruthPartClassifier::ParticleOrigin, bool isPrompt) const;
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfElectron(const xAOD::TruthParticleContainer* xTruthParticleContainer ,const xAOD::TruthParticle*,
-                                                            bool& isPrompt,
-                                                            Info* info) const;
-   MCTruthPartClassifier::ParticleOutCome defOutComeOfElectron(const xAOD::TruthParticle*) const;
+   MCTruthPartClassifier::ParticleType    defTypeOfElectron(MCTruthPartClassifier::ParticleOrigin);
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfElectron(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleOutCome defOutComeOfElectron(const xAOD::TruthParticle*);
    //
-   MCTruthPartClassifier::ParticleType    defTypeOfMuon(MCTruthPartClassifier::ParticleOrigin, bool isPrompt) const;
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfMuon(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*, bool& isPrompt, Info* info) const;
-   MCTruthPartClassifier::ParticleOutCome defOutComeOfMuon(const xAOD::TruthParticle*) const;
+   MCTruthPartClassifier::ParticleType    defTypeOfMuon(MCTruthPartClassifier::ParticleOrigin);
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfMuon(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleOutCome defOutComeOfMuon(const xAOD::TruthParticle*);
    //
-   static MCTruthPartClassifier::ParticleType    defTypeOfTau(MCTruthPartClassifier::ParticleOrigin);
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfTau(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*, int motherPDG, Info* info) const;
-   MCTruthPartClassifier::ParticleOutCome defOutComeOfTau(const xAOD::TruthParticle*, Info* info) const;
+   MCTruthPartClassifier::ParticleType    defTypeOfTau(MCTruthPartClassifier::ParticleOrigin);
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfTau(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleOutCome defOutComeOfTau(const xAOD::TruthParticle*);
    //
-   MCTruthPartClassifier::ParticleType    defTypeOfPhoton(MCTruthPartClassifier::ParticleOrigin) const;
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfPhoton(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*, bool& isPrompt, Info* info) const;
-   MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*) const;
+   MCTruthPartClassifier::ParticleType    defTypeOfPhoton(MCTruthPartClassifier::ParticleOrigin);
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfPhoton(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
    //
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*, bool& isPrompt, Info* info) const;
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    //
    MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
-   static bool isHadron(const xAOD::TruthParticle*);
-   static MCTruthPartClassifier::ParticleType    defTypeOfHadron(long);
-   static MCTruthPartClassifier::ParticleOrigin  convHadronTypeToOrig(MCTruthPartClassifier::ParticleType pType,
-                                                                      int motherPDG);
+   bool isHadron(const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleType    defTypeOfHadron(long);
+   MCTruthPartClassifier::ParticleOrigin  convHadronTypeToOrig(MCTruthPartClassifier::ParticleType pType);
    //
-   const xAOD::TruthVertex* findEndVert(const xAOD::TruthParticle*) const;
-   static bool  isHardScatVrtx(const xAOD::TruthVertex* );
+   const xAOD::TruthVertex* findEndVert(const xAOD::TruthParticle*);
+   bool  isHardScatVrtx(const xAOD::TruthVertex* );
    //
-   std::vector<const xAOD::TruthParticle*> findFinalStatePart(const xAOD::TruthVertex*) const;
+   std::vector<const xAOD::TruthParticle*> findFinalStatePart(const xAOD::TruthVertex*);
    //
-   static double partCharge(const xAOD::TruthParticle*);
+   double partCharge(const xAOD::TruthParticle*);
 #ifndef XAOD_ANALYSIS
-   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& ) const;
-   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool,
-                                              Info* info);
+   bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& );
+   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool );
 #endif
    //
-   void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&) const;
-   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
-   MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
+   void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&);
+   double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
+   MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>);
    //
   
    /** Return true if genParticle and truthParticle have the same pdgId, barcode and status **/
-   static const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*,int );
+   const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*,int );
   
+   const xAOD::TruthParticle* m_thePart;
+   const xAOD::TruthParticle* m_Mother;
+  
+   int   m_MotherPDG;
+   int   m_MotherStatus;
+   long  m_MotherBarcode;
+   int   m_NumOfParents;
+   int   m_NumOfDaug;
+
+   const xAOD::TruthVertex*  m_MothOriVert;
+   const xAOD::TruthVertex*  m_partOriVert;
+
+   bool m_isPrompt;
+
+   const xAOD::TruthParticle* m_PhotonMother;
+   int   m_PhotonMotherPDG;
+   long  m_PhotonMotherBarcode;
+   long  m_PhotonMotherStatus;
+
+   const xAOD::TruthParticle* m_BkgElecMother;
+
+   std::vector<const xAOD::TruthParticle*> m_tauFinalStatePart;
+
+   float m_deltaRMatch;
+   float m_deltaPhi;
+   float  m_NumOfSiHits;
+   float m_probability;
+   
+   std::vector<const xAOD::TruthParticle*> m_egPartPtr;
+   std::vector<float> m_egPartdR;
+   std::vector<std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> > m_egPartClas;
+
+   MCTruthPartClassifier::ParticleOutCome  m_ParticleOutCome;
+
+   std::vector< const xAOD::TrackParticle*>  m_cnvPhtTrkPtr;
+   std::vector<const xAOD::TruthParticle*>   m_cnvPhtTrPart;
+   std::vector<MCTruthPartClassifier::ParticleType>    m_cnvPhtPartType;
+   std::vector<MCTruthPartClassifier::ParticleOrigin>  m_cnvPhtPartOrig;
+
 //------------------------------------------------------------------------
 //      configurable data members
 //------------------------------------------------------------------------

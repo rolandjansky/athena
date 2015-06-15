@@ -22,20 +22,17 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "AthenaKernel/Units.h"
 //
 //std includes
 #include <cmath>
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 using namespace MCTruthPartClassifier;
-using std::abs;
 
 //Old EDM interface, just for Athena version
 //---------------------------------------------------------------------------------------
 std::pair<ParticleType,ParticleOrigin>
-MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle  *thePart,
-                                           Info* info /*= nullptr*/) const {
+MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle  *thePart){
   //---------------------------------------------------------------------------------------
   ParticleType   partType = Unknown;     
   ParticleOrigin partOrig = NonDefined;  
@@ -58,7 +55,7 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle  *thePart,
 	//return default
 	return std::make_pair(partType,partOrig); 
       }
-      return particleTruthClassifier(truthParticle, info);
+      return particleTruthClassifier(truthParticle);
     }
   }
 
@@ -66,7 +63,7 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle  *thePart,
 }
 //------------------------------------------------------------------------
 bool MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle *genPart,
-					      const xAOD::TruthParticle *truthPart) const {
+					      const xAOD::TruthParticle *truthPart){
   //------------------------------------------------------------------------
   if (!genPart || !truthPart) return false;
 
@@ -84,12 +81,8 @@ bool MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle *genPart,
 
 //Methods using directly the extrapolator usable only from Athena
 //-----------------------------------------------------------------------------------------
-// Not const due to ITruthParticlesInConeTool::particlesInCone.
 const xAOD::TruthParticle*
-MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
-                                   bool isFwrdEle,
-                                   Info* info)
-{
+MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle){
   //-----------------------------------------------------------------------------------------
 
   ATH_MSG_DEBUG( "Executing egammaClusMatch " );
@@ -156,13 +149,11 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isExt = genPartToCalo(clus, thePart,isFwrdEle, dR, isNCone);
     if (!isExt) continue;
 
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    m_egPartPtr.push_back(thePart);
+    m_egPartdR.push_back(dR);
 
-    if (info) {
-      info->egPartPtr.push_back(thePart);
-      info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
-    }
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    m_egPartClas.push_back(particleTruthClassifier(theMatchPart));
 
     // the leading photon  inside narrow eleptical cone  m_partExtrConePhi X m_partExtrConeEta 
     if(!isFwrdEle&&iParticlePDG==22&&isNCone&&pt>LeadingPhtPT)   { thePhoton = thePart; LeadingPhtPT=pt; LeadingPhtdR=dR;}
@@ -176,21 +167,13 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   } // end cycle for Gen particle 
   
   if(thePhoton!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=LeadingPhtdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift); m_deltaRMatch=LeadingPhtdR;
   } else if(theLeadingPartInCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=LeadingPartdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift);  m_deltaRMatch=LeadingPartdR;  
   } else if(theBestPartOutCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=BestPartdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift); m_deltaRMatch=BestPartdR;
   } else if(isFwrdEle&&theBestPartdR!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartdR->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=BestPartdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartdR->barcode()%m_barcodeShift); m_deltaRMatch=BestPartdR;
   } else theMatchPart = 0;
 
   if(isFwrdEle||theMatchPart!=0||!m_inclG4part)   {return theMatchPart;}
@@ -221,13 +204,11 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isExt = genPartToCalo(clus, thePart, false , dR, isNCone);
     if(!isExt) continue;
 
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    m_egPartPtr.push_back(thePart);
+    m_egPartdR.push_back(dR);
 
-    if (info) {
-      info->egPartPtr.push_back(thePart);
-      info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
-    }
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    m_egPartClas.push_back(particleTruthClassifier(theMatchPart));
 
     // the leading photon  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta
     if(iParticlePDG==22&&isNCone&&pt>LeadingPhtPT)   { thePhoton = thePart; LeadingPhtPT=pt; LeadingPhtdR=dR;}
@@ -239,17 +220,11 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   } // end cycle for G4 particle
 
   if( thePhoton!=0){
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=LeadingPhtdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift); m_deltaRMatch=LeadingPhtdR;
   } else if( theLeadingPartInCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=LeadingPartdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift); m_deltaRMatch=LeadingPartdR;
   } else if( theBestPartOutCone!=0) { 
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift);
-    if (info)
-      info->deltaRMatch=BestPartdR;
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift); m_deltaRMatch=BestPartdR;
   } else theMatchPart = 0;
 
   ATH_MSG_DEBUG( "succeeded  egammaClusMatch ");
@@ -261,7 +236,7 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
 				      const xAOD::TruthParticle* thePart,
 				      bool isFwrdEle, 
 				      double& dRmatch,
-				      bool  & isNarrowCone) const {
+				      bool  & isNarrowCone)  {
   dRmatch      = -999.;
   isNarrowCone = false;
 

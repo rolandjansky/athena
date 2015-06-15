@@ -6,20 +6,22 @@ from AthenaCommon.Constants import *
 from AthenaCommon.BeamFlags import jobproperties
 import traceback
 import EventKernel.ParticleDataType
+	
 from RecExConfig.Configured import Configured
 from InDetRecExample.InDetKeys import InDetKeys
 from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 
 
-mlog = logging.getLogger ('MCTruthClassifierBase.py::configure:')
+
+mlog = logging.getLogger ('MCTruthCalssifierBase.py::configure:')
 mlog.info('entering')
 
 from AthenaCommon.AppMgr import ToolSvc
 	
 # Configure the extrapolator
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-theAtlasExtrapolator=AtlasExtrapolator(name = 'MCTruthClassifieExtrapolator')
+theAtlasExtrapolator=AtlasExtrapolator(name = 'egammaExtrapolator')
 theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic calculation of eloss in calorimeters
 # all left to MaterialEffects/EnergyLossUpdators
 	           
@@ -32,7 +34,6 @@ ToolSvc += NoElossMaterialEffectsUpdator
 	           
 # setup MaterialEffectsUpdator arrays
 MyUpdators = []
-# This is truth particles  so 
 #    MyUpdators += [AtlasMaterialEffectsUpdator] # for ID
 MyUpdators += [NoElossMaterialEffectsUpdator] # for ID
 MyUpdators += [NoElossMaterialEffectsUpdator] # for Calo
@@ -51,7 +52,7 @@ ToolSvc+=theAtlasExtrapolator
 	           
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 ClassifierParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(name="ClassifierParticleCaloExtensionTool",
-                                                                    Extrapolator = theAtlasExtrapolator)
+                                                                                Extrapolator = theAtlasExtrapolator)
 ToolSvc+=ClassifierParticleCaloExtensionTool
 
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
