@@ -62,7 +62,7 @@ iFatras::TransportTool::TransportTool( const std::string& t,
    m_errorPropagation(false),
    m_hitsOff(false)
 {
-  declareInterface<ITransportTool>(this);
+  declareInterface<ISF::IParticleProcessor>(this);
   
   // validation output section
   declareProperty( "ValidationOutput",  m_validationOutput );
@@ -108,7 +108,7 @@ iFatras::TransportTool::initialize()
   if (retrieveTool<iFatras::ISimHitCreator>(m_simHitCreatorID).isFailure())
       return StatusCode::FAILURE;
   if (retrieveTool<iFatras::ISimHitCreator>(m_simHitCreatorMS).isFailure())
-     return StatusCode::FAILURE;
+      return StatusCode::FAILURE;
   if (retrieveTool<Trk::ITimedExtrapolator>(m_extrapolator).isFailure()) 
       return StatusCode::FAILURE;
   if (retrieveTool<iFatras::IParticleDecayHelper>(m_particleDecayHelper).isFailure())
@@ -245,7 +245,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
   if ( freepath>0. && freepath<0.01 ) {
     if (!m_particleDecayHelper.empty()) {
       ATH_MSG_VERBOSE( "[ fatras transport ] Decay is triggered for input particle.");
-      m_particleDecayHelper->decay(isp);
+      m_particleDecayHelper->decay(isp,isp.position(),isp.momentum(),isp.timeStamp());
     }
 
     // validation mode - for all particle registered into stack
@@ -257,9 +257,15 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
     return 0;
   }
 
-  // presample interactions
+  // presample interactions if not done already
   Trk::PathLimit pathLim(-1.,0);
-  if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
+  ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : 0;
+  if (matLimit) {
+    pathLim=Trk::PathLimit( matLimit->dMax,matLimit->process);
+    pathLim.updateMat(matLimit->dCollected,13.,0.);          // arbitrary Z choice : update MaterialPathInfo  
+  } else if (absPdg!=999 && pHypothesis<99) { // need to resample   
+    pathLim = m_samplingTool->sampleProcess(isp.momentum().mag(),isp.charge(),pHypothesis);  
+  }
      
   // use extrapolation with path limit - automatic exit at subdetector boundary
   // NB: don't delete eParameters, it's memory is managed inside the extrapolator
@@ -369,7 +375,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
   if (uisp && timeLim.tMax>0.  && timeLim.time >=timeLim.tMax ) {
     if (!m_particleDecayHelper.empty()) {
       ATH_MSG_VERBOSE( "[ fatras transport ] Decay is triggered for input particle.");
-      m_particleDecayHelper->decay(*uisp);
+      m_particleDecayHelper->decay(*uisp,uisp->position(),uisp->momentum(),uisp->timeStamp());
     }
     delete uisp; 
     return 0;

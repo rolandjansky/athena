@@ -10,64 +10,62 @@
 #include "ISF_FatrasTools/McMaterialEffectsEngine.h"
 
 // Gaudi Kernel
-#include "GaudiKernel/IRndmGenSvc.h"
-#include "GaudiKernel/RndmGenerators.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
+
 // ISF includes
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFTruthIncident.h"
-#include "ISF_Event/ParticleClipboard.h"
 #include "ISF_Event/ParticleUserInformation.h"
 // iFatras
-// #include "ISF_FatrasInterfaces/IHadronicInteractionProcessor.h"
-// #include "ISF_FatrasInterfaces/IProcessSamplingTool.h"
-// #include "ISF_FatrasInterfaces/IPhysicsValidationTool.h"
-// #include "ISF_FatrasInterfaces/IPhotonConversionTool.h"
-// #include "ISF_FatrasInterfaces/IParticleDecayer.h"
-// FastSimulation
-// #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
+#include "ISF_FatrasInterfaces/IHadronicInteractionProcessor.h"
+#include "ISF_FatrasInterfaces/IProcessSamplingTool.h"
+#include "ISF_FatrasInterfaces/IPhysicsValidationTool.h"
+#include "ISF_FatrasInterfaces/IParticleDecayHelper.h"
+#include "ISF_FatrasInterfaces/IEnergyLossSampler.h"
+#include "ISF_FatrasInterfaces/IMultipleScatteringSampler.h"
 // Trk inlcude
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkSurfaces/Surface.h" 
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include "TrkGeometry/Layer.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ITimedExtrapolator.h"
+
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandLandau.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+
 // Validation mode - TTree includes
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
 // STD
 #include <math.h>
 
-// temporary
-#include "TrkGeometry/TrackingVolume.h"
-
 // constructor
 iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
+  m_samplingTool(""),
   m_eLoss(true),
-  m_eLossUpdator("iFatras::McEnergyLossUpdator/FatrasEnergyLossUpdator"),
+  m_eLossSampler(""),
   m_ms(true),
-  m_msUpdator("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),  
+  m_msSampler(""),
+  m_particleDecayHelper(""),  
+  m_parametricScattering(true),
+  m_uniformHertzDipoleAngle(false),
+  m_processCode(3),
   m_minimumMomentum(50.*CLHEP::MeV),
-  m_use_msUpdator(false),
-  m_referenceMaterial(true),
+  m_minimumBremPhotonMomentum(50.*CLHEP::MeV),
+  m_createBremPhoton(true),
   m_bendingCorrection(false),
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(0),
@@ -75,24 +73,50 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_trackingGeometry(0),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
+  m_validationMode(false),
+  m_validationTool(""),
   m_particleBroker("ISF_ParticleParticleBroker", n),
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
-  m_layer(0)
+  m_oneOverThree(1./3.),
+  m_projectionFactor(sqrt(2.)/2.)
 {
   declareInterface<Trk::IMaterialEffectsEngine>(this);
-  // the tool parameters -----------------------------------------------------
+
+  // steering of the screen outoput (SOP)
+  declareProperty("OutputPrefix"                        , m_sopPrefix);
+  declareProperty("OutputPostfix"                       , m_sopPostfix);
+
+  // Tool Parameters 
+  // Energy Loss Samplers
   declareProperty("EnergyLoss"                          , m_eLoss);
-  declareProperty("EnergyLossUpdator"                   , m_eLossUpdator);
+  declareProperty("EnergyLossSampler"                   , m_eLossSampler);
+  // Multiple Scattering Sampler
   declareProperty("MultipleScattering"                  , m_ms);
-  declareProperty("MultipleScatteringUpdator"           , m_msUpdator);
-  // the steering --------------------------------------------------------------
-  declareProperty("UseMultipleScatteringUpdator"        , m_use_msUpdator);
+  declareProperty("MultipleScatteringSampler"           , m_msSampler);
+  // tool handle for the particle decayer
+  declareProperty( "ParticleDecayHelper",       m_particleDecayHelper      );  
+  // Process sampling
+  declareProperty( "ProcessSamplingTool",                m_samplingTool             );
+
+  // MC Truth Properties
+  declareProperty("BremProcessCode"                     , m_processCode, "MCTruth Physics Process Code");
+  
+  // The Steering
+  declareProperty("ParametericScattering"               , m_parametricScattering);
   declareProperty("MomentumCut"                         , m_minimumMomentum);
+  declareProperty("MinimumBremPhotonMomentum"           , m_minimumBremPhotonMomentum);
+  declareProperty("CreateBremPhotons"                   , m_createBremPhoton);
+  declareProperty("BendingCorrection"                   , m_bendingCorrection);
+
+  // Validation mode
+  declareProperty("ValidationMode"                      , m_validationMode);
+  declareProperty("PhysicsValidationTool"               , m_validationTool);
+
   // TrackingGeometry Service      
-  declareProperty("TrackingGeometrySvc",                  m_trackingGeometrySvc);     
+  declareProperty("TrackingGeometrySvc"                 , m_trackingGeometrySvc);     
   declareProperty("RandomNumberService"                 , m_rndGenSvc               , "Random number generator");
   declareProperty("RandomStreamName"                    , m_randomEngineName        , "Name of the random number stream");
-
+  
   // ISF Services and Tools
   declareProperty("ParticleBroker"                      , m_particleBroker        , "ISF Particle Broker Svc");
   declareProperty("TruthRecordSvc"                      , m_truthRecordSvc        , "ISF Particle Truth Svc");      
@@ -107,414 +131,811 @@ iFatras::McMaterialEffectsEngine::~McMaterialEffectsEngine()
 StatusCode iFatras::McMaterialEffectsEngine::initialize()
 {
 
-  ATH_MSG_INFO( "initialize()" );
+  ATH_MSG_INFO( ""<<"init"<<""<<"starting initialize()" );
     
-  // retrieve the energy loss updator
+  // retrieve the energy loss sampler
   if (m_eLoss){
-    if (m_eLossUpdator.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_eLossUpdator );
+    ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITH EnergyLossSampler ");
+    if (m_eLossSampler.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve " << m_eLossSampler );
       return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "Successfully retrieved " << m_eLossUpdator );
-  }
-    
-  // retrieve the multiple scattering updator tool
-  if (m_ms && m_use_msUpdator){
-    if (m_msUpdator.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_msUpdator );
+    } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_eLossSampler );
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITHOUT EnergyLossSampler ");
+  
+  // retrieve the multiple scattering sampler tool
+  if (m_ms){
+    ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITH MultipleScatteringSamper ");
+    if (m_msSampler.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Could not retrieve " << m_msSampler );
       return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "Successfully retrieved " << m_msUpdator );
-  }
-    
+    } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_msSampler );
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITHOUT MultipleScatteringSamper ");
+
+   // retrieve the process sampling tool
+  if (m_samplingTool.retrieve().isFailure()){
+    ATH_MSG_FATAL( "Could not retrieve " << m_samplingTool );
+    return StatusCode::FAILURE;
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_samplingTool );
+  
+   // retrieve the decayHelper
+  if (m_particleDecayHelper.retrieve().isFailure()){
+    ATH_MSG_FATAL( "Could not retrieve " << m_particleDecayHelper );
+    return StatusCode::FAILURE;
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_particleDecayHelper );
+  
   // get the random generator service
   if (m_rndGenSvc.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
     return StatusCode::FAILURE;
   } else
-    ATH_MSG_VERBOSE( "Successfully retrieved " << m_rndGenSvc );
-    
-  //Get own engine with own seeds:
+    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_rndGenSvc );
+  
+  // get own engine with own seeds:
   m_randomEngine = m_rndGenSvc->GetEngine(m_randomEngineName);
   if (!m_randomEngine) {
     ATH_MSG_FATAL( "Could not get random engine '" << m_randomEngineName << "'" );
     return StatusCode::FAILURE;
-  }    
-         
+  } else
+    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully got random engine '" << m_randomEngineName << "'" );
+  
   // get the tracking geometry for layer lookup     
   // get the TrackingGeometrySvc
   if (m_trackingGeometrySvc.retrieve().isSuccess()){
-    ATH_MSG_INFO( "Successfully retrieved " << m_trackingGeometrySvc );
+    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_trackingGeometrySvc );
     m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
   } else {
     ATH_MSG_WARNING( "Couldn't retrieve " << m_trackingGeometrySvc << ". " );
     ATH_MSG_WARNING( " -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore." );
-  }         
-   
+  }     
+  
   // ISF Services
   if (m_particleBroker.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_particleBroker );
     return StatusCode::FAILURE;
-  }
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_particleBroker );
+  
   if (m_truthRecordSvc.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_truthRecordSvc );
     return StatusCode::FAILURE;
+  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_truthRecordSvc );
+
+  if (m_validationMode){
+    // retrieve the physics validation tool
+    if (m_validationTool.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Could not retrieve " << m_validationTool );
+      return StatusCode::FAILURE;
+    } else
+      ATH_MSG_VERBOSE( "Successfully retrieved " << m_validationTool );
   }
 
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode iFatras::McMaterialEffectsEngine::finalize()
 {
-  ATH_MSG_INFO( "finalize() successful" );
+  ATH_MSG_INFO(""<<"fini "<<""<<"finalize() successful" );    
   return StatusCode::SUCCESS;
 }
 
-Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterial(Trk::ExCellCharged& eCell,
+Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterial(Trk::ExCellCharged& ecCharged,
 									Trk::PropDirection dir,
 									Trk::MaterialUpdateStage matupstage) const
-{
-  m_layer = eCell.leadLayer;
-
-  // get the material properties 
-  m_matProp =  0;
+{ 
+  // ATH_MSG_DEBUG(++ecCharged.navigationStep, "handleMaterial"<<"char"<<"handleMaterial for charge particle called."); 
+  return handleMaterialT<Trk::TrackParameters> (ecCharged, dir, matupstage);
   
-  if (m_referenceMaterial){
-    if (m_layer && m_layer->layerMaterialProperties()) {
-      // get the LayerMaterialProperties
-      const Trk::LayerMaterialProperties* layerMaterial = m_layer->layerMaterialProperties();
-      m_matProp = layerMaterial ? layerMaterial->fullMaterial( eCell.leadParameters->position() ) : 0;
-    }
-  }
+}
 
-  // the Extrapolator made sure that the layer is the lead layer && the parameters are the lead parameters
-  if (eCell.leadLayer && eCell.leadLayer->layerMaterialProperties()){
-    ATH_MSG_DEBUG( "handleMaterial for TrackParameters.");
-    // update the track parameters   
-    
-    eCell.leadParameters = updateTrackParameters(*eCell.leadParameters,eCell,dir,matupstage);
-  }
-
-  
-
-  return Trk::ExtrapolationCode::InProgress;
+Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterial(Trk::ExCellNeutral& ecNeutral, 
+									Trk::PropDirection dir,
+									Trk::MaterialUpdateStage matupstage) const
+{ 
+  //ATH_MSG_DEBUG(++ecNeutral.navigationStep, "handleMaterial"<<"neut"<<"handleMaterial for neutral particle called."); 
+  return handleMaterialT<Trk::NeutralParameters> (ecNeutral, dir, matupstage); 
 }
 
 
-const Trk::TrackParameters* iFatras::McMaterialEffectsEngine::updateTrackParameters(  const Trk::TrackParameters& parm,
-										      Trk::ExCellCharged& eCell,
-										      // const Trk::Layer& lay,
-										      // Trk::TimeLimit& timeLim, Trk::PathLimit& pathLim,
-										      // Trk::GeometrySignature /*geoID*/,
-										      Trk::PropDirection dir,
-										      Trk::MaterialUpdateStage matupstage) const
-                                                                                    // Trk::ParticleHypothesis particle) const
+void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::TrackParameters& pars,
+								AmgVector(5)& parameters,
+								double simTheta, double num_deltaPhi) const
+{
+  
+  // parametric scattering - independent in x/y 
+  if (m_parametricScattering){ 
+    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"Using parametric scattering." );
+    // the initial values
+    double theta =  parameters[Trk::theta];
+    double phi   =  parameters[Trk::phi];
+    double sinTheta   = (theta*theta > 10e-10) ? sin(theta) : 1.; 
+    
+    // sample them in an independent way
+    double deltaTheta = m_projectionFactor*simTheta;
+    double deltaPhi   = m_projectionFactor*num_deltaPhi/sinTheta; 
+    
+    phi += deltaPhi;
+    if (phi >= M_PI) phi -= M_PI;
+    else if (phi < -M_PI) phi += M_PI;
+    if (theta > M_PI) theta -= M_PI;
+    
+    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"deltaPhi / deltaTheta = " << deltaPhi << " / " << deltaTheta );
+    
+    // assign the new values
+    parameters[Trk::phi]   = phi;   
+    parameters[Trk::theta] = fabs(theta + deltaTheta);
+
+  } else {
+    double thetaMs = simTheta;
+    double psi     = 2.*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
+    // more complex but "more true" - 
+    CLHEP::Hep3Vector parsMomHep( pars.momentum().x(), pars.momentum().y(), pars.momentum().z() );
+    CLHEP::Hep3Vector newDirectionHep( parsMomHep.unit().x(), parsMomHep.unit().y(), parsMomHep.unit().z());
+    double x = -newDirectionHep.y();
+    double y = newDirectionHep.x();
+    double z = 0.;
+    // if it runs along the z axis - no good ==> take the x axis
+    if (newDirectionHep.z()*newDirectionHep.z() > 0.999999)       
+        x = 1.; y=0.;
+    // deflector direction
+    CLHEP::Hep3Vector deflector(x,y,z);
+    // rotate the new direction for scattering
+    newDirectionHep.rotate(thetaMs, deflector);
+    // and arbitrarily in psi             
+    newDirectionHep.rotate(psi, parsMomHep);
+
+    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"deltaPsi / deltaTheta = " << psi << " / " << thetaMs );
+
+    // assign the new values
+    parameters[Trk::phi]   = newDirectionHep.phi();   
+    parameters[Trk::theta] = newDirectionHep.theta();
+  }
+
+}
+
+void iFatras::McMaterialEffectsEngine::recordBremPhoton(const ISF::ISFParticle* parent,
+							double time,
+							double pElectron,
+							double gammaE,
+							const Amg::Vector3D& vertex,
+							Amg::Vector3D& particleDir,
+							Trk::ParticleHypothesis particle) const
+{
+  ISF::ISFParticle *bremPhot = bremPhoton(parent,time,pElectron,gammaE,vertex,particleDir,particle);
+  m_particleBroker->push(bremPhot, parent);
+
+}
+
+void iFatras::McMaterialEffectsEngine::recordBremPhotonLay(const ISF::ISFParticle* parent,
+							   double time,
+							   double pElectron,
+							   double gammaE,
+							   const Amg::Vector3D& vertex,
+							   Amg::Vector3D& particleDir,
+							   Trk::ParticleHypothesis particle,
+							   Trk::PropDirection dir,
+							   float matFraction ) const {
+
+  ISF::ISFParticle *bremPhot = bremPhoton(parent,time,pElectron,gammaE,vertex,particleDir,particle);
+
+  // process the photon on layer 
+  if (gammaE<m_minimumMomentum) return;
+  Trk::PathLimit pLim = m_samplingTool->sampleProcess(gammaE,0,Trk::photon);
+
+  // save presampled information
+  ISF::ParticleUserInformation* childInfo =  bremPhot->getUserInformation();
+  if (!childInfo) {
+    childInfo = new ISF::ParticleUserInformation();
+    bremPhot->setUserInformation(childInfo);
+  }
+  childInfo->setMaterialLimit(pLim.process,pLim.x0Max,0.); 
+      
+  // material fraction : flip if direction of propagation changed
+  float ci = m_layer->surfaceRepresentation().normal().dot( particleDir );
+  float co = m_layer->surfaceRepresentation().normal().dot( bremPhot->momentum().unit() );
+  float remMat =  ci*co <0 ? (1-matFraction)    : matFraction;
+
+  Trk::NeutralCurvilinearParameters  nParm(bremPhot->position(),bremPhot->momentum(),bremPhot->charge());
+  Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+  enc.leadLayer = m_layer;
+       
+  if (pLim.x0Max>0) {
+    enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+    enc.materialLimitX0 = pLim.x0Max;
+  }
+  enc.materialProcess = pLim.process;
+  enc.materialX0 = 0.;
+  
+  // loop back      
+  processMaterialOnLayer(bremPhot,enc,dir,remMat);	
+
+}
+
+ISF::ISFParticle* iFatras::McMaterialEffectsEngine::bremPhoton(const ISF::ISFParticle* parent,
+							       double time,
+							       double pElectron,
+							       double gammaE,
+							       const Amg::Vector3D& vertex,
+							       Amg::Vector3D& particleDir,Trk::ParticleHypothesis particle) const
+{
+  // ------------------------------------------------------
+  // simple approach
+  // (a) simulate theta uniform within the opening angle of the relativistic Hertz dipole
+  //      theta_max = 1/gamma
+  // (b)Following the Geant4 approximation from L. Urban -> encapsulate that later
+  //      the azimutal angle
+    
+  double psi    =  2.*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
+    
+  // the start of the equation
+  double theta = 0.;
+  double m = m_particleMasses.mass[particle];
+  double E = sqrt(pElectron*pElectron + m*m);
+
+  if (m_uniformHertzDipoleAngle) {
+    // the simplest simulation
+    theta = m/E * CLHEP::RandFlat::shoot(m_randomEngine);  
+  } else {
+    // -----> 
+    theta = m/E;
+    // follow 
+    double a = 0.625; // 5/8
+    
+    double r1 = CLHEP::RandFlat::shoot(m_randomEngine);
+    double r2 = CLHEP::RandFlat::shoot(m_randomEngine);
+    double r3 = CLHEP::RandFlat::shoot(m_randomEngine);
+    
+    double u =  -log(r2*r3)/a;
+    
+    theta *= (r1 < 0.25 ) ? u : u*m_oneOverThree; // 9./(9.+27) = 0.25
+  }
+  
+  ATH_MSG_VERBOSE("[ brem ]"<<"BremPhoton"<<""<<"Simulated angle to electron    = " << theta << "." );
+  
+  double th = particleDir.theta()-theta;
+  double ph = particleDir.phi();
+  if ( th<0.) { th *=-1; ph += M_PI; }
+  CLHEP::Hep3Vector newDirectionHep( sin(th)*cos(ph),sin(th)*sin(ph),cos(th) );
+  CLHEP::Hep3Vector particleDirHep( particleDir.x(), particleDir.y(), particleDir.z() );
+  newDirectionHep.rotate(psi,particleDirHep);
+  Amg::Vector3D newDirection( newDirectionHep.x(), newDirectionHep.y(), newDirectionHep.z() );
+  
+  // recoil / save input momentum for validation
+  Amg::Vector3D inEl(pElectron*particleDir);    
+  particleDir = (particleDir*pElectron- gammaE*newDirection).unit();
+     
+  // -------> create the brem photon <--------------------
+  ISF::ISFParticle *bremPhoton = new ISF::ISFParticle( vertex,
+						       gammaE*newDirection,
+						       0,   //!< mass
+						       0,   //!< charge
+						       22,  //!< pdg code
+						       time,  //!< time
+						       *parent );
+  
+  // register TruthIncident
+  ISF::ISFParticleVector children(1, bremPhoton);
+  ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
+			       children,
+			       m_processCode,
+			       parent->nextGeoID(),
+			       ISF::fPrimarySurvives );
+  m_truthRecordSvc->registerTruthIncident(truth);
+
+  if (m_validationMode) {
+    ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+    validInfo->setProcess(m_processCode);
+    if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+    else validInfo->setGeneration(1);     // assume parent is a primary track
+    bremPhoton->setUserInformation(validInfo);
+
+    // save interaction info 
+    if ( m_validationTool ) {
+      Amg::Vector3D* nMom = new Amg::Vector3D(inEl);
+      m_validationTool->saveISFVertexInfo(m_processCode, vertex,*parent,inEl+gammaE*newDirection,nMom,children);
+      delete nMom; 
+    }
+
+
+  }
+
+  return bremPhoton;
+  
+} 
+
+Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer( const ISF::ISFParticle* isp,
+							       Trk::ExCellCharged& eCell,
+							       Trk::PropDirection dir,
+							       float& mFraction) const
 {   
 
-  double matFraction = 0.;
-
-  const Trk::TrackParameters* tParameters = &(parm);
-
-  // get parent particle
-  const ISF::ISFParticle *isp = ISF::ParticleClipboard::getInstance().getParticle();
-  // something is seriously wrong if there is no parent particle
-  assert(isp);
-
-  m_isp = isp;
-  
-  //std::cout << "updateTrackParameters : processing isp:position within layer: "<<isp <<","<< isp->generation() <<","<< particle <<std::endl;
-  //std::cout << "position: global, within layer:"<<parm->position()<<","<< matFraction<< std::endl;
-  
-  // recalculate if missing
-  m_matProp = m_matProp ? m_matProp : m_layer->fullUpdateMaterialProperties(*tParameters);
-  double pathCorrection = m_layer->surfaceRepresentation().pathCorrection(tParameters->position(),dir*(tParameters->momentum()));
-  //pathCorrection = pathCorrection > 0. ? pathCorrection : m_layer->pathCorrection(parm); 
-  
-  // check if a bending correction has to be applied
-  if (m_bendingCorrection) {
-    ATH_MSG_WARNING("BendingCorrection not implemented!! (McMaterialEffectsEngine.cxx)");
-    // const Trk::TrackingVolume* enclosingVolume = m_bendingCorrection ? m_layer->enclosingTrackingVolume() : 0;
-    // if (enclosingVolume && enclosingVolume->bendingCorrector() ) { 
-    //   double bendingCorrection = enclosingVolume->bendingCorrector()->bendingCorrection(*parm);
-    //   pathCorrection *= bendingCorrection; 
-    // }
-  }
-  
-  //--------------------------------------------------------------------------------------------------  
-  if (msgLvl(MSG::VERBOSE) && int(dir)){
-    const Trk::TrackingVolume* enclosingVolume = m_layer->enclosingTrackingVolume();
-    std::string volumeName = enclosingVolume ? enclosingVolume->volumeName() : "Unknown";
-    double layerR = m_layer->surfaceRepresentation().bounds().r();
-    double layerZ = m_layer->surfaceRepresentation().center().z();   
-    ATH_MSG_VERBOSE( "  [M] Material effects update() on layer with index "<< m_layer->layerIndex() );
-    ATH_MSG_VERBOSE( "                        -> path/X0 on layer [r/z] = [ " << layerR << " / " << layerZ << " ] :"     
-		     << pathCorrection*m_matProp->thicknessInX0() );
-    ATH_MSG_VERBOSE( "                        -> path correctin factor  =   " << pathCorrection );
-  }
-  //--------------------------------------------------------------------------------------------------
+  const Trk::TrackParameters* parm = eCell.leadParameters;
+    
+  // path correction
+  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum())));
   
   // figure out if particle stopped in the layer and recalculate path limit
   int iStatus = 0;
-  double dX0 = (1.-matFraction)*pathCorrection*m_matProp->thicknessInX0();
+  float dX0 = (1.-mFraction)*pathCorrection*m_thicknessInX0;
+  float dL0 = (1.-mFraction)*pathCorrection*m_thicknessInL0;
+  
+  if ( eCell.materialLimitX0>0 && eCell.materialProcess<100 && eCell.materialX0+dX0>= eCell.materialLimitX0) {      // elmg. interaction
+    float x0rem = eCell.materialLimitX0 - eCell.materialX0;
+    dL0 *= x0rem>0 ? x0rem/dX0 : 1.; 
+    if ( x0rem>0 ) dX0 = x0rem;
+    iStatus = 1; 
+  } else if ( eCell.materialLimitL0>0 && eCell.materialProcess>100 && eCell.materialL0+dL0 >= eCell.materialLimitL0 )   {     // hadronic interaction
+    float l0rem = eCell.materialLimitX0 - eCell.materialL0 ;
+    dX0 *= l0rem>0 ? l0rem/dL0 : 1.;
+    if ( l0rem>0 ) dL0 = l0rem;
+    iStatus = 2; 
+  }
+  // material update
+  eCell.materialX0 += dX0;
+  eCell.materialL0 += dL0;
+  eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
+  eCell.zX         += m_matProp->averageZ()*dX0;
   
   // get the kinematics
-  double p    = (tParameters->momentum()).mag();
+  double p    = parm->momentum().mag();
+  double m    = m_particleMasses.mass[eCell.pHypothesis];
+  double E    = sqrt(p*p+m*m);
   
-  matFraction += dX0/pathCorrection/m_matProp->thicknessInX0();  
+  // radiation and ionization preceed the presampled interaction (if any) 
   
-  if ( isp->charge()!=0 ) {
-    AmgVector(5) updatedParameters(tParameters->parameters());  
-    if ( m_eLoss ) ionize(*tParameters, updatedParameters, dX0, dir, eCell.pHypothesis );
+  if ( m_eLoss ) {
+    // the updatedParameters - first a deep copy
+    AmgVector(5)      uParameters = parm->parameters();
 
-    if ( m_ms ) {
+    // smeared/presampled energy loss
+    Trk::EnergyLoss* eloss = m_eLossSampler->energyLoss(*m_matProp, p, dX0/m_matProp->thicknessInX0(), dir, eCell.pHypothesis);
 
-      double sigmaMSproj = (m_use_msUpdator && m_msUpdator ) ?
-	sqrt(m_msUpdator->sigmaSquare(*m_matProp, p, dX0/m_matProp->thicknessInX0(), eCell.pHypothesis)) : msSigma(dX0,p,eCell.pHypothesis);
- 
-      multipleScatteringUpdate(*tParameters,updatedParameters,sigmaMSproj, pathCorrection);
+    if (eCell.pHypothesis==Trk::electron && m_createBremPhoton) { 
+
+      // ionization update
+     
+      double newP = E+eloss->meanIoni()>m ? sqrt((E+eloss->meanIoni())*(E+eloss->meanIoni())-m*m) : 0.5*m_minimumMomentum;
+      uParameters[Trk::qOverP] = parm->charge()/newP;
+
+      // radiation 
+      if (newP>m_minimumMomentum)
+	radiate(isp,uParameters,eCell,dX0,mFraction,dir,pathCorrection*m_thicknessInX0);   // mFraction used to estimate material thickness for brem photons
+
+      // save the actual radiation loss
+      float nqOp = uParameters[Trk::qOverP];
+      float radLoss = fabs(1./nqOp) - newP;
+      eloss->update(0.,0.,radLoss-eloss->meanRad(),eloss->meanRad()-radLoss);
+
+    } else {
+      
+      // calculate the new momentum
+      double newP = E+eloss->deltaE()>m ? sqrt((E+eloss->deltaE())*(E+eloss->deltaE())-m*m) : 0.5*m_minimumMomentum;
+      uParameters[Trk::qOverP] = parm->charge()/newP;
+
     }
+
+    // TODO straggling 
+
+    if (m_validationMode && eloss) {
+      if (eCell.eLoss) { 
+	eCell.eLoss->update(*eloss);
+	delete eloss;
+      } else 
+        eCell.eLoss=eloss;
+    }
+
+    
+    const Trk::TrackParameters* upd = parm->associatedSurface().createTrackParameters(uParameters[0],
+										      uParameters[1],
+										      uParameters[2],
+										      uParameters[3],
+										      uParameters[4]);
+    //eCell.updateLeadParameters(upd);   
+    eCell.leadParameters = upd;    
+
+    if (upd->momentum().mag() < m_minimumMomentum ) {
+
+      // save info for locally created particle
+      if (m_validationMode && isp!=m_isp) {
+	ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
+	m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
+      }
+
+      if (isp!=m_isp) { delete isp; }      
+      return Trk::ExtrapolationCode::FailureUpdateKill;
+    }
+  }
+  
+  mFraction += dX0/pathCorrection/m_thicknessInX0;  
+  
+  if ( m_ms ) {
+    AmgVector(5) updatedParameters=eCell.leadParameters->parameters();  
+    
+    double simTheta = m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis);
+    //do the update -> You need 2 evaluation of simTheta. The second one is used to calculate deltaphi in multipleScatteringUpdate
+    multipleScatteringUpdate(*(eCell.leadParameters), updatedParameters, simTheta, 
+			     m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis));
+    
+    
     
     // use the manipulator to update the track parameters -------> get rid of 0!
-    tParameters = tParameters->associatedSurface().createTrackParameters(updatedParameters[0],
-									 updatedParameters[1],
-									 updatedParameters[2],
-									 updatedParameters[3],
-									 updatedParameters[4],
-									 0);
+    const Trk::TrackParameters* upd = eCell.leadParameters->associatedSurface().createTrackParameters(updatedParameters[0],
+												      updatedParameters[1],
+												      updatedParameters[2],
+												      updatedParameters[3],
+												      updatedParameters[4]);
     
-    if ((tParameters->momentum()).mag() < m_minimumMomentum ) {
-      if (isp!=m_isp) { delete isp; delete tParameters; }
-      return 0;
+    //eCell.updateLeadParameters(upd); 
+    eCell.leadParameters=upd; 
+    if (upd->momentum().mag() < m_minimumMomentum ) {
+      if (isp!=m_isp) { delete isp;}
+      return Trk::ExtrapolationCode::FailureUpdateKill;
+    }
+  }
+  
+  if ( iStatus==1 || iStatus==2 ) {   // interaction with particle stopping
+    
+    ISF::ISFParticleVector childs = m_samplingTool->interact(isp,eCell);    // TODO pass material when needed
+          
+    // save info for locally created particles
+    if (m_validationMode && isp!=m_isp) {
+      ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
+      m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
     }
     
+    // loop over childrens and decide about their fate
+    
+    for (unsigned ic=0; ic<childs.size(); ic++) {
+      double mom = childs[ic]->momentum().mag();
+      
+      if (mom<m_minimumMomentum) continue;
+      Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(childs[ic]->pdgCode(),childs[ic]->charge());
+      Trk::PathLimit pLim = m_samplingTool->sampleProcess(mom,childs[ic]->charge(),pHypothesis);
+      double pathLimit = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(*childs[ic]) : -1.; 
+      
+      // TODO sample decays and save the material collection & path limits at the exit from the layer (ISFFatrasParticle ?)
+      
+      // material fraction : flip if direction of propagation changed
+      float ci = m_layer->surfaceRepresentation().normal().dot( parm->momentum().unit() );
+      float co = m_layer->surfaceRepresentation().normal().dot( childs[ic]->momentum().unit() );
+      float remMat =  ci*co <0 ? (1-mFraction)    : mFraction;
+      
+      // save presampled information
+      ISF::ParticleUserInformation* childInfo =  childs[ic]->getUserInformation();
+      if (!childInfo) {
+	childInfo = new ISF::ParticleUserInformation();
+	childs[ic]->setUserInformation(childInfo);
+      }
+      childInfo->setMaterialLimit(pLim.process,pLim.x0Max,0.); 
+      //std::cout <<"child info saved on isp:"<<childs[ic]<<","<<childs[ic]->getUserInformation()->materialLimit()<< std::endl;
+
+      // configure child cell and loop back
+      if (childs[ic]->charge()!=0) {
+	Trk::CurvilinearParameters  cParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
+	Trk::ExtrapolationCell< Trk::TrackParameters > ecc(cParm);
+	
+	if (pathLimit>0) {
+	  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
+	  ecc.pathLimit = pathLimit;
+	}
+	
+	if (pLim.x0Max>0) {
+	  if (pLim.process==121) {
+	    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+	    ecc.materialLimitL0 = pLim.x0Max;
+	  } else {
+	    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+	    ecc.materialLimitX0 = pLim.x0Max;
+	  }
+	  ecc.materialProcess = pLim.process;
+	}
+        ecc.leadLayer = m_layer;
+	
+	// loop back      
+	Trk::ExtrapolationCode exitCode=processMaterialOnLayer(childs[ic],ecc,dir,remMat);
+  
+        if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+        else 
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+
+      } else {
+	Trk::NeutralCurvilinearParameters  nParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
+	Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+	
+	if (pathLimit>0) {
+	  enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
+	  enc.pathLimit = pathLimit;
+	}
+       
+	if (pLim.x0Max>0) {
+	  if (pLim.process==121) {
+	    enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+	    enc.materialLimitL0 = pLim.x0Max;
+	  } else {
+	    enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+	    enc.materialLimitX0 = pLim.x0Max;
+	  }
+	 enc.materialProcess = pLim.process;
+	}
+        enc.leadLayer = m_layer;
+
+	// loop back      
+	Trk::ExtrapolationCode exitCode=processMaterialOnLayer(childs[ic],enc,dir,remMat);	
+  
+        if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+        else 
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+      }
+    }
+    
+    if (childs.size()>0 || true ) { // TODO: pass the interaction status
+      if (isp!=m_isp) { delete isp; }
+      return Trk::ExtrapolationCode::SuccessMaterialLimit;
+    }
+  }
+  
+  // register particle if not in the stack already 
+  if (isp!=m_isp ) {
+    ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+    // add presampled process info 
+    if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
+      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? eCell.materialL0 : eCell.materialX0);
+      regisp->setUserInformation(validInfo);
+      //std::cout <<"collected material at layer exit:"<<regisp->getUserInformation()->materialLimit()->dCollected<<std::endl;
+    }
+    // validation mode
+    if (m_validationMode) {
+      ISF::ParticleUserInformation* validInfo = regisp->getUserInformation();
+      if (!validInfo){
+	validInfo = new ISF::ParticleUserInformation();
+	regisp->setUserInformation(validInfo);
+      }
+      if (isp->getUserInformation()) validInfo->setProcess(isp->getUserInformation()->process());
+      else validInfo->setProcess(-2);        // signal problem in the validation chain
+      if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
+      else validInfo->setGeneration(-1);        // signal problem in the validation chain
+    }
+    m_particleBroker->push(regisp, m_isp);
+  }
+  if (isp!=m_isp) delete isp;
+
+  return Trk::ExtrapolationCode::InProgress;   
+}
+
+Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer( const ISF::ISFParticle* isp,
+							       Trk::ExCellNeutral& eCell,
+							       Trk::PropDirection dir,
+							       float& mFraction) const
+{   
+
+  const Trk::NeutralParameters* parm = eCell.leadParameters;
+    
+  // path correction
+  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum())));
+  
+  // figure out if particle stopped in the layer and recalculate path limit
+  int iStatus = 0;
+  float dX0 = (1.-mFraction)*pathCorrection*m_thicknessInX0;
+  float dL0 = (1.-mFraction)*pathCorrection*m_thicknessInL0;
+  
+  if ( eCell.materialLimitX0>0 && eCell.materialProcess<100 && eCell.materialX0+dX0>= eCell.materialLimitX0) {      // elmg. interaction
+    float x0rem = eCell.materialLimitX0 - eCell.materialX0;
+    dL0 *= x0rem>0 ? x0rem/dX0 : 1.; 
+    if ( x0rem>0 ) dX0 = x0rem;
+    iStatus = 1; 
+  } else if ( eCell.materialLimitL0>0 && eCell.materialProcess>100 && eCell.materialL0+dL0 >= eCell.materialLimitL0 )   {     // hadronic interaction
+    float l0rem = eCell.materialLimitX0 - eCell.materialL0 ;
+    dX0 *= l0rem>0 ? l0rem/dL0 : 1.;
+    if ( l0rem>0 ) dL0 = l0rem;
+    iStatus = 2; 
+  }
+  // material update
+  eCell.materialX0 += dX0;
+  eCell.materialL0 += dL0;
+  eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
+  eCell.zX         += m_matProp->averageZ()*dX0;
+  
+  // get the kinematics
+  //double p    = parm->momentum().mag();
+  //double m    = m_particleMasses.mass[eCell.pHypothesis];
+  //double E    = sqrt(p*p+m*m);
+    
+  if ( iStatus==1 || iStatus==2 ) {   // interaction with particle stopping
+    
+    ISF::ISFParticleVector childs = m_samplingTool->interact(isp,eCell);     // TODO pass material when needed
+    
+    // save info for locally created particles
+    if (m_validationMode && isp!=m_isp) {
+      ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
+      m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
+    }
+    
+    // loop over childrens and decide about their fate
+    
+    for (unsigned ic=0; ic<childs.size(); ic++) {
+      double mom = childs[ic]->momentum().mag();
+      
+      if (mom<m_minimumMomentum) continue;
+      Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(childs[ic]->pdgCode(),childs[ic]->charge());
+      Trk::PathLimit pLim = m_samplingTool->sampleProcess(mom,childs[ic]->charge(),pHypothesis);
+      double pathLimit = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(*childs[ic]) : -1.; 
+      
+      // TODO sample decays and save the material collection & path limits at the exit from the layer (ISFFatrasParticle ?)
+      
+      // material fraction : flip if direction of propagation changed
+      float ci = m_layer->surfaceRepresentation().normal().dot( parm->momentum().unit() );
+      float co = m_layer->surfaceRepresentation().normal().dot( childs[ic]->momentum().unit() );
+      float remMat =  ci*co <0 ? (1-mFraction)    : mFraction;
+
+      // save presampled information
+      ISF::ParticleUserInformation* childInfo =  childs[ic]->getUserInformation();
+      if (!childInfo) {
+	childInfo = new ISF::ParticleUserInformation();
+	childs[ic]->setUserInformation(childInfo);
+      }
+      childInfo->setMaterialLimit(pLim.process,pLim.x0Max,0.); 
+      
+      // configure child cell and loop back
+      if (childs[ic]->charge()!=0) {
+	Trk::CurvilinearParameters  cParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
+	Trk::ExtrapolationCell< Trk::TrackParameters > ecc(cParm);
+	
+	if (pathLimit>0) {
+	  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
+	  ecc.pathLimit = pathLimit;
+	}
+	
+	if (pLim.x0Max>0) {
+	  if (pLim.process==121) {
+	    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+	    ecc.materialLimitL0 = pLim.x0Max;
+	  } else {
+	    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+	    ecc.materialLimitX0 = pLim.x0Max;
+	  }
+	  ecc.materialProcess = pLim.process;
+	}
+	
+	// loop back      
+	Trk::ExtrapolationCode exitCode = processMaterialOnLayer(childs[ic],ecc,dir,remMat);
+  
+        if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+        else 
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+
+      } else {
+	Trk::NeutralCurvilinearParameters  nParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
+	Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+	
+	if (pathLimit>0) {
+	  enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
+	  enc.pathLimit = pathLimit;
+	}
+       
+	if (pLim.x0Max>0) {
+	  if (pLim.process==121) {
+	    enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+	    enc.materialLimitL0 = pLim.x0Max;
+	  } else {
+	    enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+	    enc.materialLimitX0 = pLim.x0Max;
+	  }
+	 enc.materialProcess = pLim.process;
+	}
+	
+	// loop back      
+	Trk::ExtrapolationCode exitCode = processMaterialOnLayer(childs[ic],enc,dir,remMat);	
+
+        if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+        else 
+	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+      }
+    }
+    
+    if (childs.size()>0 || true) { // TODO : pass the interaction status 
+      if (isp!=m_isp) { delete isp; }
+      return Trk::ExtrapolationCode::SuccessMaterialLimit;
+    }
   }
   
   // register particle if not in the stack already
-  if (tParameters && isp!=m_isp ) {
-    ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),tParameters->momentum(),isp->mass(),isp->charge(),
+  if (isp!=m_isp ) {
+    ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
 						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+    // add presampled process info 
+    if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
+      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? eCell.materialL0 : eCell.materialX0);
+      regisp->setUserInformation(validInfo);
+    }
+    // validation mode
+    if (m_validationMode) {
+      ISF::ParticleUserInformation* validInfo = regisp->getUserInformation();
+      if (!validInfo){
+	validInfo = new ISF::ParticleUserInformation();
+	regisp->setUserInformation(validInfo);
+      }
+      if (isp->getUserInformation()) validInfo->setProcess(isp->getUserInformation()->process());
+      else validInfo->setProcess(-2);        // signal problem in the validation chain
+      if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
+      else validInfo->setGeneration(-1);        // signal problem in the validation chain
+    }
     m_particleBroker->push(regisp, m_isp);
   }
-  
   if (isp!=m_isp) delete isp;
   
-  if (tParameters) std::cout <<"layer "<< tParameters->position()<< " returns :"<< isp <<" with momentum  "<< tParameters->momentum().mag()  << std::endl;
-  else std::cout <<"layer returns :"<<  0  << std::endl;
-  
-  return (&parm); 
-  
+  return Trk::ExtrapolationCode::InProgress;   
 }
 
-void iFatras::McMaterialEffectsEngine::ionize(const Trk::TrackParameters& parm, 
-					      AmgVector(5)& updatedPar,
-					      double dInX0,
-					      Trk::PropDirection /*dir*/,
-					      Trk::ParticleHypothesis particle ) const 
-{
-  double p    = parm.momentum().mag();                                                      
-  double m    = m_particleMasses.mass[particle];
-  double E    = sqrt(p*p+m*m);
-  
-  // the following formulas are imported from STEP
-  // preparation of kinetic constants
 
-  double me    = m_particleMasses.mass[Trk::electron];
-  double mfrac = me/m;
-  double beta  = p/E;
-  double gamma = E/m;
-  double Ionization = 0.;
-
-  //Ionization - Bethe-Bloch
-  double I = 16.e-6 * std::pow(m_matProp->averageZ(),0.9); //16 eV * Z**0.9 - bring to MeV
-
-  //K/A*Z = 0.5 * 30.7075MeV/(g/mm2) * Z/A * rho[g/mm3]  / scale to mm by this
-  double kaz = 0.5*30.7075*m_matProp->zOverAtimesRho();
-
-  if (particle == Trk::electron){
-    // for electrons use slightly different BetheBloch adaption
-    // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm. 79 (1994), 157-164
-    Ionization = -kaz*(2.*log(2.*me/I)+3.*log(gamma) - 1.95);
-  }
-  else {
-    double eta2 = beta*gamma; eta2 *= eta2;
-    // density effect, only valid for high energies (gamma > 10 -> p > 1GeV for muons)
-    double delta = 0.;
-    if (gamma > 10.) {
-      double eplasma = 28.816e-6 * sqrt(1000.*m_matProp->zOverAtimesRho());
-      delta = 2.*log(eplasma/I) + log(eta2) - 1.;
-    }
-    // tmax - cut off energy
-    double tMax = 2.*eta2*me/(1.+2.*gamma*mfrac+mfrac*mfrac);
-    // divide by beta^2 for non-electrons
-    kaz /= beta*beta;
-    Ionization = -kaz*(log(2.*me*eta2*tMax/(I*I)) - 2.*(beta*beta) - delta);
-  }
+// radiative effects
+void iFatras::McMaterialEffectsEngine::radiate(const ISF::ISFParticle* parent, AmgVector(5)& parm ,
+					       Trk::ExCellCharged& eCell, float pathLim, float mFr,
+					       Trk::PropDirection dir, float refX) const {
  
-  double energyLoss = Ionization*dInX0*m_matProp->x0();   
-  double newP = sqrt(fmax(0.,(E+energyLoss)*(E+energyLoss)-m*m));       
+  // sample energy loss and free path independently
+  double path = 0.;
+  double p = 1./ fabs(parm[Trk::qOverP]);
 
-  newP = newP <= 0.5*m_minimumMomentum ? 0.5*m_minimumMomentum : newP;      // arbitrary regularization;
-  
-  (updatedPar)[Trk::qOverP] = parm.charge()/newP; 
+  Amg::Vector3D eDir = eCell.leadParameters->momentum().unit();
+  Amg::Vector3D ePos = eCell.leadParameters->position();
 
-}
+  while ( path < pathLim && p>m_minimumMomentum ) {
 
-double iFatras::McMaterialEffectsEngine::msSigma(double dInX0,double p,Trk::ParticleHypothesis particle) const {
-   
-  double m    = m_particleMasses.mass[particle];
-  double E    = sqrt(p*p+m*m);
-  double beta = p/E; 
+    double rndx = CLHEP::RandFlat::shoot(m_randomEngine);
 
-  // PDG Particle Review, Phys.Rev.D86,010001(2012), chapter 30.3, page 328 
+    // sample visible fraction of the mother momentum taken according to 1/f  
+ 
+    double eps = fmin(10.,m_minimumMomentum)/p;
 
-  double sigmaMSproj = 13.6/beta/p*sqrt(dInX0)*(1.+0.038*log(dInX0));
+    double z = pow(eps,pow(rndx,exp(1.1)));          // adjustment here ? 
 
-  return sigmaMSproj; 
-} 
-                                                         
-void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::TrackParameters& pars,
-								AmgVector(5)& parameters,
-                                                                double sigmaMSproj, double pathCorrection) const
-{
-  //block of initial values
-  //------------------------------------//
-  double d = 0.1*m_matProp->thickness(); //layer thickness, cm
-  d*=pathCorrection;
-  double X0 = 0.1*m_matProp->x0(); //layer rad len, cm
-  double Z = m_matProp->averageZ(); //charge layer material
-  //double AN = 2*Z; //mass number of the material (an approximation, bad for heavy nuclei)
-  double p = m_isp->momentum().mag()*0.001; //particle momentum, GeV
-  double m = m_isp->mass()*0.001; //particle mass, GeV
-  double dOverX0 = d/X0;
-  double E=sqrt(p*p+m*m);
-  double beta=p/E;
-  double scale = 0.860176; ///magic
-  
-  std::cout<<"McMaterialEffectsEngine::multipleScatteringUpdate: Material pars (d,beta,p,dOverX0,Z): "<<std::endl;
-  std::cout<<d<<' '<<beta<<' '<<p<<' '<<dOverX0<<' '<<Z<<std::endl;
-  //-----------------------------------//
-  
-  double theta = simulate_theta_space(beta, p, dOverX0, Z, scale);
-  //theta*=m_projectionFactor*sigmaMSproj;
-  
-  double psi = 2*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
-  
-  CLHEP::Hep3Vector parsMomHep( pars.momentum().x(), pars.momentum().y(), pars.momentum().z() );
-  CLHEP::Hep3Vector newDirection( parsMomHep.unit().x(), parsMomHep.unit().y(), parsMomHep.unit().z());
-  double x = -newDirection.y();
-  double y = newDirection.x();
-  double z = 0.;
-  // if it runs along the z axis - no good ==> take the x axis
-  if (newDirection.z()*newDirection.z() > 0.999999) {
-    x=1.; y=0.;
-  }
-  // deflector direction
-  CLHEP::Hep3Vector deflector(x,y,z);
-  // rotate the new direction for scattering
-  newDirection.rotate(theta, deflector);
-  // and arbitrarily in psi             
-  newDirection.rotate(psi, parsMomHep);
-  // assign the new values
-  parameters[Trk::phi]   = newDirection.phi();   
-  parameters[Trk::theta] = newDirection.theta();
-  
-}
+    // convert into scaling factor for mother momentum
+    z = (1.- z); 
 
-double iFatras::McMaterialEffectsEngine::simulate_theta_space(double beta, double p,double dOverX0,double Z, double scale) const{
-  double * scattering_params;
-    // Decide which mixture is best
-  if (dOverX0/(beta*beta)>0.6/pow(Z,0.6)){ //Gaussian
-    // Gaussian mixture or pure Gaussian
-    if (dOverX0/(beta*beta)>10){
-        scattering_params=get_gaussian(beta,p,dOverX0,scale); // Get parameters
-        std::cout<<"McMaterialEffectsEngine::multipleScatteringUpdate: using pure_gaussian"<<std::endl;
+    // turn into path   
+    //double dx = -log(z)*0.65;     // adjust for mean of exp(-x)  
+    double dx = -0.7*log(z);     // adjust for mean of exp(-x)  
+ 
+    // sample free path (in X0)
+    //double rnd = CLHEP::RandFlat::shoot(m_randomEngine);
+    //double dx = -log(rnd)/13.;
+
+    // resolve the case when there is not enough material left in the layer
+    if ( path+dx > pathLim ) {
+      double rndp = CLHEP::RandFlat::shoot(m_randomEngine);
+      if (rndp > (pathLim-path)/dx){        
+	(parm)[Trk::qOverP] = (parm)[Trk::qOverP]>0 ? 1/p : -1/p; 
+	mFr += (pathLim-path)/refX; 
+        path = pathLim;
+	break;                   // radiation loop ended         
+      } 
+      path += dx*rndp;
+      mFr += dx*rndp/refX; 
+      
+    } else { 
+      path+=dx;
+      mFr += dx/refX; 
     }
-    else{
-        scattering_params=get_gaussmix(beta,p,dOverX0,Z,scale); // Get parameters
-        std::cout<<"McMaterialEffectsEngine::multipleScatteringUpdate: using gaussian_mixture"<<std::endl;
-    }
-    return sim_gaussmix(scattering_params); // Simulate
+    if ( p*(1-z) > m_minimumBremPhotonMomentum ) {
+
+      double deltaP = (1-z)*p;
+      recordBremPhotonLay(parent,eCell.time,p,deltaP,ePos,eDir,eCell.pHypothesis,dir,mFr);
+      p *=z ;
+
+      // std::cout <<"brem photon emitted, momentum update:"<< p<<","<<path<<","<<pathLim<<",mat.fraction:"<<mFr<<std::endl; 
+    }    
   }
-  //Semigaussian mixture
-  scattering_params = get_semigauss(beta,p,dOverX0,Z,scale); // Get parameters
-  std::cout<<"McMaterialEffectsEngine::multipleScatteringUpdate: using semi_gaussian mixture"<<std::endl;
-  return sim_semigauss(scattering_params); // Simulate
-}
 
-double * iFatras::McMaterialEffectsEngine::get_gaussian(double beta, double p,double dOverX0, double scale) const{
-  double * scattering_params = new double[4];
-  scattering_params[0]=0.015/beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
- // scattering_params[0]=1.0;
-  scattering_params[1]=1.0; //Variance of core
-  scattering_params[2]=1.0; //Variance of tails
-  scattering_params[3]=0.5; //Mixture weight of tail component
-  return scattering_params;
-}
-
-double * iFatras::McMaterialEffectsEngine::get_gaussmix(double beta, double p,double dOverX0,double Z, double scale) const{  
-  double * scattering_params = new double[4];
-  scattering_params[0]=0.015/beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
-//   scattering_params[0]=1.0;
-  double d1=log(dOverX0/(beta*beta));
-  double d2=log(pow(Z,2.0/3.0)*dOverX0/(beta*beta));
-  double epsi;
-  double var1=(-1.843e-3*d1+3.347e-2)*d1+8.471e-1; //Variance of core
-  if (d2<0.5)
-    epsi=(6.096e-4*d2+6.348e-3)*d2+4.841e-2;
-  else
-    epsi=(-5.729e-3*d2+1.106e-1)*d2-1.908e-2;
-  scattering_params[1]=var1; //Variance of core
-  scattering_params[2]=(1-(1-epsi)*var1)/epsi; //Variance of tails
-  scattering_params[3]=epsi; //Mixture weight of tail component
-  return scattering_params;
-}
-
-double * iFatras::McMaterialEffectsEngine::get_semigauss(double beta,double p,double dOverX0,double Z, double scale) const{
-  double * scattering_params = new double[6];
-  double N=dOverX0*1.587E7*pow(Z,1.0/3.0)/(beta*beta)/(Z+1)/log(287/sqrt(Z));
-  scattering_params[4]=0.015/beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
-//  double eps = 0.125*log10(10*dOverX0);
-//  scattering_params[4]=0.0175/beta/p*sqrt(dOverX0)*(1+eps);
-  //scattering_params[4]= 0.0192/beta/p*sqrt(dOverX0)*(1.+0.038*log(dOverX0));
-  //scattering_params[4]=1.0;
-  double rho=41000/pow(Z,2.0/3.0);
-  double b=rho/sqrt(N*(log(rho)-0.5));
-  double n=pow(Z,0.1)*log(N);
-  double var1=(5.783E-4*n+3.803E-2)*n+1.827E-1;
-  double a=(((-4.590E-5*n+1.330E-3)*n-1.355E-2)*n+9.828E-2)*n+2.822E-1;
-  double epsi = (1-var1)/(a*a*(log(b/a)-0.5)-var1);
-  scattering_params[3]=(epsi>0) ? epsi : 0.0;//Mixture weight of tail component
-  scattering_params[0]=a; //Parameter 1 of tails
-  scattering_params[1]=b; //Parameter 2 of tails
-  scattering_params[2]=var1; //Variance of core
-  scattering_params[5]=N; //Average number of scattering processes
-  return scattering_params;
-}
-
-double iFatras::McMaterialEffectsEngine::sim_gaussmix(double * scattering_params) const{
-  double sigma_tot = scattering_params[0];
-  double var1 = scattering_params[1];
-  double var2 = scattering_params[2];
-  double epsi = scattering_params[3];  
-  bool ind = (double)rand()/RAND_MAX>epsi;
-  double u=(double)rand()/RAND_MAX;
-  if(ind)
-  return sqrt(var1)*sqrt(-2*log(u))*sigma_tot;
-  else
-  return sqrt(var2)*sqrt(-2*log(u))*sigma_tot;
-}
-
-double iFatras::McMaterialEffectsEngine::sim_semigauss(double * scattering_params) const{
-  double a = scattering_params[0];
-  double b = scattering_params[1];
-  double var1 = scattering_params[2];
-  double epsi = scattering_params[3];
-  double sigma_tot = scattering_params[4];
-  bool ind=(double)rand()/RAND_MAX>epsi;
-  double u=(double)rand()/RAND_MAX;
-  if(ind)
-  return sqrt(var1)*sqrt(-2*log(u))*sigma_tot;
-  else
-  return a*b*sqrt((1-u)/(u*b*b+a*a))*sigma_tot;
+  (parm)[Trk::qOverP] = (parm)[Trk::qOverP] > 0 ? 1/p : -1./p; 
+  (parm)[Trk::theta]  = eDir.theta(); 
+  (parm)[Trk::phi]    = eDir.phi(); 
+  return; 
 }

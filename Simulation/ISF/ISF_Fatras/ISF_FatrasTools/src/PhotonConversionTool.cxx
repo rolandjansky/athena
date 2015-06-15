@@ -29,11 +29,11 @@
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Matrix/Vector.h"
@@ -252,10 +252,10 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
                                                *parent );
       // in the validation mode, add process info
       if (m_validationMode) {
-	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
         validInfo->setProcess(14);
         if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-	else validInfo->setGeneration(1);     // assume parent is a primary track
+      	else validInfo->setGeneration(1);     // assume parent is a primary track
         ch1->setUserInformation(validInfo);
       }
       children[ichild] = ch1;
@@ -274,10 +274,10 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
       
       // in the validation mode, add process info
       if (m_validationMode) {
-	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
         validInfo->setProcess(14);
-        if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-	else validInfo->setGeneration(1);     // assume parent is a primary track
+	if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+      	else validInfo->setGeneration(1);     // assume parent is a primary track
         ch2->setUserInformation(validInfo);
       }
       children[ichild] = ch2;
@@ -348,13 +348,13 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
 						  pdg1,
 						  time,
 						  *parent );
-    if (m_validationMode) {
-      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
-      validInfo->setProcess(14);
-      if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-      else validInfo->setGeneration(1);     // assume parent is a primary track
-      ch1->setUserInformation(validInfo);
-    }
+    //if (m_validationMode) {
+    //  ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+    //  validInfo->setProcess(14);
+    //  if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+    //  else validInfo->setGeneration(1);     // assume parent is a primary track
+    //  ch1->setUserInformation(validInfo);
+    //}
     children[0] = ch1;
 
     ISF::ISFParticle* ch2  = new ISF::ISFParticle( vertex,
@@ -365,28 +365,28 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
 						   time,
 						   *parent );
       
-    if (m_validationMode) {
-      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
-      validInfo->setProcess(14);
-      if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-      else validInfo->setGeneration(1);     // assume parent is a primary track
-      ch2->setUserInformation(validInfo);
-    }
+    //if (m_validationMode) {
+    //  ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+    //  validInfo->setProcess(14);
+    //  if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+    //  else validInfo->setGeneration(1);     // assume parent is a primary track
+    //  ch2->setUserInformation(validInfo);
+    //}
     children[1] = ch2;
 
     // register TruthIncident
-    ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
-                                 children,
-                                 m_processCode,
-                                 parent->nextGeoID(),
-                                 ISF::fKillsPrimary );
-    m_truthRecordSvc->registerTruthIncident( truth);
+    //ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
+    //                             children,
+    //                             m_processCode,
+    //                             parent->nextGeoID(),
+    //                             ISF::fKillsPrimary );
+    //m_truthRecordSvc->registerTruthIncident( truth);
 
     // save info for validation
-    if (m_validationMode && m_validationTool) {
-      Amg::Vector3D* nPrim=0;
-      m_validationTool->saveISFVertexInfo(14,vertex,*parent,parent->momentum(),nPrim,children);
-    }
+    //if (m_validationMode && m_validationTool) {
+    //  Amg::Vector3D* nPrim=0;
+    //  m_validationTool->saveISFVertexInfo(14,vertex,*parent,parent->momentum(),nPrim,children);
+    //}
 
     return children;
 }
@@ -599,7 +599,7 @@ Amg::Vector3D iFatras::PhotonConversionTool::childDirection(const Amg::Vector3D&
 
 }
 
-bool iFatras::PhotonConversionTool::doConversion(double time, const Trk::TrackParameters& parm,
+bool iFatras::PhotonConversionTool::doConversion(double time, const Trk::NeutralParameters& parm,
 						const Trk::ExtendedMaterialProperties* /*extMatProp*/) const {
   double p = parm.momentum().mag();
   
@@ -627,7 +627,7 @@ bool iFatras::PhotonConversionTool::doConversion(double time, const Trk::TrackPa
 
 /** interface for processing of the presampled nuclear interactions on layer*/
 ISF::ISFParticleVector iFatras::PhotonConversionTool::doConversionOnLayer(const ISF::ISFParticle* parent, 
-									 double time, const Trk::TrackParameters& parm,
+									 double time, const Trk::NeutralParameters& parm,
 									 const Trk::ExtendedMaterialProperties* /*ematprop*/) const {
   double p = parm.momentum().mag();
 

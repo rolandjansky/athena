@@ -76,6 +76,10 @@ iFatras::PhysicsValidationTool::initialize()
     m_particles->Branch("pph"       , &m_pph     , "pph/F"            );
     m_particles->Branch("p"         , &m_p      , "p/F"            );
     m_particles->Branch("eloss"     , &m_eloss  , "eloss/F"            );
+    m_particles->Branch("ionloss"     , &m_ionloss  , "ionloss/F"            );
+    m_particles->Branch("radloss"     , &m_radloss  , "radloss/F"            );
+    m_particles->Branch("zOaTr"     , &m_zOaTr  , "zOaTr/F"            );
+    m_particles->Branch("wZ"         , &m_wZ  ,   "wZ/F"            );
     m_particles->Branch("X0"        , &m_X0     , "X0/F"            );
     m_particles->Branch("dt"        , &m_dt     , "dt/F"            );
     m_particles->Branch("thIn"      , &m_thIn   , "thIn/F"            );
@@ -130,6 +134,83 @@ StatusCode iFatras::PhysicsValidationTool::finalize()
  *  ==> see headerfile
  *=======================================================================*/
 
+/** new transport tool */
+void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
+							 const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
+							 Trk::ExtrapolationCode ecode) {
+
+  m_p     = isp.momentum().mag();
+  m_ionloss = ec.eLoss ? ec.eLoss->meanIoni() : 0.;
+  m_radloss = ec.eLoss ? ec.eLoss->meanRad() : 0.;           // average estimate
+  m_zOaTr   = ec.zOaTrX;
+  m_wZ   = ec.zX;
+
+  if (ecode == Trk::ExtrapolationCode::SuccessBoundaryReached) {   // surviving particle
+    m_scEnd = 0;
+    m_eloss = ec.endParameters->momentum().mag()-m_p;
+    //m_dt = time - isp.timeStamp();
+    m_dt = ec.pathLength/CLHEP::c_light;   // TODO get timing info from the cell 
+
+    m_thEnd = ec.endParameters->position().theta();
+    m_phEnd = ec.endParameters->position().phi();
+    m_dEnd  = ec.endParameters->position().mag();
+
+  } else {
+
+    m_scEnd = -1;   // undefined
+    if (ecode == Trk::ExtrapolationCode::SuccessPathLimit) m_scEnd = 201;   // decay
+    else if (ecode == Trk::ExtrapolationCode::SuccessMaterialLimit ) m_scEnd = ec.materialProcess;   // material interaction
+
+    m_eloss = -m_p;
+    m_thEnd = -10.;     // TODO : retrieve position of stopped particle
+    m_phEnd = -10.;     // TODO : retrieve position of stopped particle 
+    m_dEnd = -1.;       // TODO : retrieve position of stopped particle
+  }
+  m_X0 = ec.materialX0;
+
+  saveInfo(isp);
+
+}
+
+/** new transport tool */
+void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
+							 const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
+							 Trk::ExtrapolationCode ecode) {
+
+  m_p     = isp.momentum().mag();
+  m_ionloss = 0.;
+  m_radloss = 0.;
+  m_zOaTr   = ec.zOaTrX;
+  m_wZ   = ec.zX;
+
+  if (ecode == Trk::ExtrapolationCode::SuccessBoundaryReached) {   // surviving particle
+    m_scEnd = 0;
+    m_eloss = ec.endParameters->momentum().mag()-m_p;
+    //m_dt = time - isp.timeStamp();
+    m_dt = ec.pathLength/CLHEP::c_light;   // TODO get timing info from the cell 
+
+    m_thEnd = ec.endParameters->position().theta();
+    m_phEnd = ec.endParameters->position().phi();
+    m_dEnd  = ec.endParameters->position().mag();
+
+  } else {
+
+    m_scEnd = -1;   // undefined
+    if (ecode == Trk::ExtrapolationCode::SuccessPathLimit) m_scEnd = 201;   // decay
+    else if (ecode == Trk::ExtrapolationCode::SuccessMaterialLimit ) m_scEnd = ec.materialProcess;   // material interaction
+
+    m_eloss = -m_p;
+    m_thEnd = -10.;     // TODO : retrieve position of stopped particle
+    m_phEnd = -10.;     // TODO : retrieve position of stopped particle 
+    m_dEnd = -1.;       // TODO : retrieve position of stopped particle
+  }
+  m_X0 = ec.materialX0;
+
+  saveInfo(isp);
+
+}
+
+/** old transport tool/prompt decay */
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 int endProcess,
 							 const Trk::TrackParameters* ePar,
@@ -137,17 +218,22 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 
   m_pdg = isp.pdgCode();
   m_scIn = isp.getUserInformation()? isp.getUserInformation()->process() : 0;      // assume primary track
-  m_scEnd = endProcess;
   m_gen = isp.getUserInformation()? isp.getUserInformation()->generation() : 0;    // assume primary track 
   m_pth=isp.momentum().theta();
   m_pph=isp.momentum().phi();
-  m_p  =isp.momentum().mag();
   m_geoID = isp.nextGeoID();
-  m_eloss = ePar? ePar->momentum().mag()-m_p : -m_p;
-  m_dt = time - isp.timeStamp();
   m_dIn  = isp.position().mag();
   m_thIn = isp.position().theta();
   m_phIn = isp.position().phi();
+  m_p     = isp.momentum().mag();
+  m_scEnd = endProcess;
+  m_eloss = ePar? ePar->momentum().mag()-m_p : -m_p;
+  m_dt = time - isp.timeStamp();
+
+  m_ionloss = 0.;    // n.a.
+  m_radloss = 0.;    // n.a.
+  m_zOaTr   = 0.;    // n.a.
+
   if (ePar) { 
 
     //error propagation
@@ -163,6 +249,25 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
     m_dEnd = -1.;       // particle stopped and position unknown
   }
   m_X0 = dX0;
+
+  m_particles->Fill();
+
+}
+
+void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) { 
+
+  // ISF particle info ( common )
+
+  m_pdg = isp.pdgCode();
+  m_scIn = isp.getUserInformation()? isp.getUserInformation()->process() : 0;      // assume primary track
+  m_gen = isp.getUserInformation()? isp.getUserInformation()->generation() : 0;    // assume primary track 
+  m_pth=isp.momentum().theta();
+  m_pph=isp.momentum().phi();
+  m_geoID = isp.nextGeoID();
+  m_dIn  = isp.position().mag();
+  m_thIn = isp.position().theta();
+  m_phIn = isp.position().phi();
+
   m_particles->Fill();
 
 }

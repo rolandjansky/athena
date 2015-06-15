@@ -199,9 +199,10 @@ StatusCode iFatras::HadIntProcessorParametric::finalize()
 }
 
 
-bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Trk::TrackParameters& parm, double p, double /*E*/,
-                         const Trk::MaterialProperties& mprop, double pathCorrection,
-                         Trk::ParticleHypothesis particle) const 
+bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+							     double p, double /*E*/, double charge, 
+							     const Trk::MaterialProperties& mprop, double pathCorrection,
+							     Trk::ParticleHypothesis particle) const 
 {
   const Trk::MaterialProperties* extMprop = dynamic_cast<const Trk::MaterialProperties*>(&mprop);
   double prob = 0.;
@@ -209,7 +210,7 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Trk::TrackPar
   // m_hadIntProbScale is used later, not here
   if (extMprop && !m_hadIntFromX0) {
 
-    double al = absorptionLength(extMprop, p, parm.charge(), particle);  // in mm
+    double al = absorptionLength(extMprop, p, charge, particle);  // in mm
 
     if (al>0.) prob = exp( (-1.)*pathCorrection*extMprop->thickness()/al );
     else       prob = exp( (-1.)*pathCorrection*extMprop->thicknessInL0()); 
@@ -228,8 +229,8 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Trk::TrackPar
   // (1. - prob) is generally O(0.01), so this is the right way to scale it
   // TODO fix time info (if needed)
   if (CLHEP::RandFlat::shoot(m_randomEngine) < (1. - prob) * m_hadIntProbScale ) return recordHadState(0.,p, 
-												       parm.position(),
-												       parm.momentum().unit(),
+												       position,
+												       momentum.unit(),
 												       particle);
   
   // no hadronic interactions were computed
@@ -239,7 +240,7 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Trk::TrackPar
 
 /** absorption length */
 double iFatras::HadIntProcessorParametric::absorptionLength(const Trk::MaterialProperties* mat,
-						   double p, double, Trk::ParticleHypothesis particle) const {
+							    double p, double, Trk::ParticleHypothesis particle) const {
   double al = mat->l0();
 
   /* // these parametrization comes from comparison with G4 sampler, but give too many interactions 
@@ -676,7 +677,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 
 } 
 
-bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time,const Trk::TrackParameters& parm,
+bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
 							       const Trk::Material* /*ematprop*/,
 							       Trk::ParticleHypothesis particle, bool processSecondaries) const {
   // get parent particle
@@ -684,7 +685,7 @@ bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time,const
   // something is seriously wrong if there is no parent particle
   assert(parent);
 
-  ISF::ISFParticleVector ispVec=getHadState(parent,time, parm.momentum().mag(), parm.position(), parm.momentum().unit(),particle);
+  ISF::ISFParticleVector ispVec=getHadState(parent, time, momentum.mag(), position, momentum.unit(), particle);
 
   // having no secondaries does not necessarily mean the interaction did not take place  : TODO : add flag into ::getHadState
   //  if (!ispVec.size()) return false;
@@ -699,12 +700,13 @@ bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time,const
 
 }
 
-ISF::ISFParticleVector iFatras::HadIntProcessorParametric::doHadIntOnLayer(const ISF::ISFParticle* parent, double time,const Trk::TrackParameters& parm,
-							       const Trk::MaterialProperties* /*ematprop*/,
-							       Trk::ParticleHypothesis particle) const {
+ISF::ISFParticleVector iFatras::HadIntProcessorParametric::doHadIntOnLayer(const ISF::ISFParticle* parent, double time,
+									   const Amg::Vector3D& position, const Amg::Vector3D& momentum,
+									   const Trk::Material* /*emat*/,
+									   Trk::ParticleHypothesis particle) const {
 
-  return getHadState(parent, time, parm.momentum().mag(), parm.position(), parm.momentum().unit(),particle);
-
+  return getHadState(parent, time, momentum.mag(), position, momentum.unit(), particle);
+  
 }
 
 /** interface for processing of the presampled nuclear interaction */                           
@@ -716,17 +718,17 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
   const ISF::ISFParticle *parent = ISF::ParticleClipboard::getInstance().getParticle();
   // something is seriously wrong if there is no parent particle
   assert(parent);
-
-  ISF::ISFParticleVector ispVec=getHadState(parent,time, p, vertex, particleDir, particle);
-
+  
+  ISF::ISFParticleVector ispVec=getHadState(parent, time, p, vertex, particleDir, particle);
+  
   // having no secondaries does not necessarily mean the interaction did not take place : TODO : add flag into ::getHadState
   //  if (!ispVec.size()) return false;
-
+  
   // push onto ParticleStack
   if (ispVec.size() ) {
     for (unsigned int ic=0; ic<ispVec.size(); ic++) m_particleBroker->push(ispVec[ic], parent);
   }
-
+  
   return true;
 }
 

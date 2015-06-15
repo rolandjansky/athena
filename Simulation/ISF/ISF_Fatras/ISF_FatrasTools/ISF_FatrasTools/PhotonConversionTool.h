@@ -17,7 +17,6 @@
 // Trk
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
 // ISF
@@ -75,12 +74,12 @@ namespace iFatras {
 			  double p) const;
       
       /** interface for processing of the presampled pair production */
-      bool doConversion(double time, const Trk::TrackParameters& parm,
+      bool doConversion(double time, const Trk::NeutralParameters& parm,
 			const Trk::ExtendedMaterialProperties* extMatProp=0) const;
       
       /** interface for processing of the presampled nuclear interactions on layer*/
       ISF::ISFParticleVector doConversionOnLayer(const ISF::ISFParticle* parent, 
-						 double time, const Trk::TrackParameters& parm,
+						 double time, const Trk::NeutralParameters& parm,
 						 const Trk::ExtendedMaterialProperties *ematprop=0) const;
 
 

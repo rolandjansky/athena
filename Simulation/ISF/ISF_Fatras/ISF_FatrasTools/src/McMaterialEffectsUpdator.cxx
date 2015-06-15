@@ -21,7 +21,7 @@
 #include "ISF_Event/ISFTruthIncident.h"
 #include "ISF_Event/ParticleClipboard.h"
 #include "ISF_Event/ParticleUserInformation.h"
-#include "ISF_FatrasInterfaces/IParticleDecayer.h"
+#include "ISF_FatrasInterfaces/IParticleDecayHelper.h"
 // iFatras
 #include "ISF_FatrasInterfaces/IHadronicInteractionProcessor.h"
 #include "ISF_FatrasInterfaces/IProcessSamplingTool.h"
@@ -140,7 +140,7 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
       declareProperty("ProcessSamplingTool"                 , m_samplingTool);
       declareProperty("PhotonConversionTool"                , m_conversionTool);
       // tool handle for the particle decayer
-      declareProperty( "ParticleDecayer"                    , m_particleDecayer      );
+      declareProperty( "ParticleDecayHelper"                , m_particleDecayer      );
       // MC Truth Properties
       declareProperty("BremProcessCode"                     , m_processCode, "MCTruth Physics Process Code");
       // the steering --------------------------------------------------------------
@@ -485,9 +485,20 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (parm && isp!=m_isp ) {
       ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
 						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
-    // in the validation mode, add process info
-      if (m_validationMode) {
+      // add presampled process info 
+      if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
+	ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
 	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+	validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? pathLim.l0Collected : pathLim.x0Collected);
+	regisp->setUserInformation(validInfo);
+      }
+      // in the validation mode, add process info
+      if (m_validationMode) {
+	ISF::ParticleUserInformation* validInfo = regisp->getUserInformation();
+        if (!validInfo) {
+	  validInfo = new ISF::ParticleUserInformation();
+	  regisp->setUserInformation(validInfo);
+	}
 	if (isp->getUserInformation()) validInfo->setProcess(isp->getUserInformation()->process());
 	else validInfo->setProcess(-2);        // signal problem in the validation chain
 	if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
@@ -575,7 +586,8 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   if ( iStatus==1 || iStatus==2 ) {   // interaction
     
     ISF::ISFParticleVector childs = iStatus==1 ? interactLay(isp,timeLim.time,*parm,particle,pathLim.process) :
-                                                 m_hadIntProcessor->doHadIntOnLayer(isp,timeLim.time,*parm,m_extMatProp, particle);
+      m_hadIntProcessor->doHadIntOnLayer(isp, timeLim.time, parm->position(), parm->momentum(),
+					 ( m_extMatProp ? &m_extMatProp->material() : 0), particle);
 
     // save info for locally created particles
     if (m_validationMode && childs.size()>0 && isp!=m_isp) {
@@ -615,15 +627,25 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   if (parm && isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
 						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+    // add presampled process info 
+    if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
+      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? pathLim.l0Collected : pathLim.x0Collected);
+      regisp->setUserInformation(validInfo);
+    }
     // in the validation mode, add process info
     if (m_validationMode) {
-      ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+      ISF::ParticleUserInformation* validInfo = regisp->getUserInformation();
+      if (!validInfo){
+	validInfo = new ISF::ParticleUserInformation();
+	regisp->setUserInformation(validInfo);
+      }
       if (isp->getUserInformation()) validInfo->setProcess(isp->getUserInformation()->process());
       else validInfo->setProcess(-2);        // signal problem in the validation chain
       if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
       else validInfo->setGeneration(-1);        // signal problem in the validation chain
-      regisp->setUserInformation(validInfo);
-    }
+   }
     m_particleBroker->push(regisp, m_isp);
   }
 
@@ -860,7 +882,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::update(double tim
 
   // Hadronic Interaction section ----------------------------------------------------------------------------------------------
   // ST add hadronic interaction for secondaries 
-  if ( particle == Trk::pion &&  m_hadInt && m_hadIntProcessor->hadronicInteraction(parm, p, E,matprop, pathCorrection,particle)){
+  if ( particle == Trk::pion &&  m_hadInt && m_hadIntProcessor->hadronicInteraction(parm.position(), parm.momentum(), p, E, parm.charge(), matprop, pathCorrection, particle)){
       ATH_MSG_VERBOSE( "  [+] Hadronic interaction killed initial hadron ... stop simulation, tackle childs." );
       return 0;    
   } 
@@ -1500,6 +1522,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
                                                          timeLim.time,  //!< time
                                                          *parent );
 
+
     // in the validation mode, add process info
     if (m_validationMode) {
       ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
@@ -1612,7 +1635,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 
   if ( process == 201 ) {    // decay  
     // update parent before decay
-    ISF::ISFParticleVector childVector = m_particleDecayer->decayParticle(*parent,position,momentum,parent->pdgCode(),time);
+    ISF::ISFParticleVector childVector = m_particleDecayer->decayParticle(*parent,position,momentum,time);
 
     for (unsigned int i=0; i<childVector.size(); i++) {
       // in the validation mode, add process info
@@ -1714,13 +1737,14 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 
   if (process==14) {  // photon conversion
    
-    const Trk::TrackParameters* parm = new Trk::CurvilinearParameters(position,momentum,parent->charge());
+    const Trk::NeutralParameters* parm = new Trk::NeutralCurvilinearParameters(position,momentum,parent->charge());
 
     bool cStat = m_conversionTool->doConversion(time, *parm); 
    
-    if ( cStat ) delete parm;
-  
-    return (cStat? 0 : parm);
+    if (!cStat) ATH_MSG_WARNING( "Conversion failed, killing photon anyway ");
+
+    // kill the mother particle
+    delete parm; return 0;
   }
 
   if (process==121) {    // hadronic interaction
@@ -1729,7 +1753,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 
     const Trk::TrackParameters* parm = new Trk::CurvilinearParameters(position,momentum,parent->charge());
 
-    bool recHad = m_hadIntProcessor->doHadronicInteraction(time,*parm,m_extMatProp, particle, true);
+    bool recHad = m_hadIntProcessor->doHadronicInteraction(time, position, momentum, m_extMatProp, particle, true);
     // eventually : bool recHad =  m_hadIntProcessor->recordHadState( time, p, position, pDir, particle);
  
     // kill the track if interaction recorded --------------------------
@@ -1823,7 +1847,29 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 
   if (process==14) {  // photon conversion
    
-    return m_conversionTool->doConversionOnLayer(parent, time, parm); 
+    Trk::NeutralCurvilinearParameters neu(position,momentum,parent->charge());
+    childVector=m_conversionTool->doConversionOnLayer(parent, time, neu); 
+
+    // validation mode 
+    if (m_validationMode && m_validationTool) {
+
+      // add process info for children
+      for (unsigned int i=0; i<childVector.size(); i++) {
+	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+	validInfo->setProcess(process);
+	if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
+	else validInfo->setGeneration(1);     // assume parent is a primary track
+	childVector[i]->setUserInformation(validInfo);
+      }
+      // save interaction info 
+      if ( m_validationTool ) {
+	Amg::Vector3D* nMom = 0;
+	m_validationTool->saveISFVertexInfo(process, position,*parent,momentum,nMom,childVector);
+	delete nMom;
+      }
+    }
+  
+    return childVector;
   }
 
   if (process==121) {    // hadronic interaction
@@ -1832,12 +1878,13 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 
     const Trk::CurvilinearParameters parm(position,momentum,parent->charge());
 
-    return ( m_hadIntProcessor->doHadIntOnLayer(parent, time,parm,m_extMatProp, particle) );
+    return ( m_hadIntProcessor->doHadIntOnLayer(parent, time, position, momentum,
+						m_extMatProp? &m_extMatProp->material() : 0, particle) );
 
   }
 
   if ( process == 201 ) {    // decay  
-    childVector = m_particleDecayer->decayParticle(*parent,parm.position(),parm.momentum(),parent->pdgCode(),time);
+    childVector = m_particleDecayer->decayParticle(*parent,parm.position(),parm.momentum(),time);
     // in the validation mode, add process info
     if (m_validationMode) {
       for (unsigned int i=0; i<childVector.size(); i++) {

@@ -14,12 +14,16 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "TrkExInterfaces/ITimedExtrapolator.h"
+
 #include "TrkGeometry/Layer.h"
+#include "TrkGeometry/TrackingVolume.h"
 
 // iFatras includes
 #include "ISF_FatrasInterfaces/ISimHitCreator.h"
 #include "ISF_FatrasInterfaces/IParticleDecayHelper.h"
 #include "ISF_FatrasInterfaces/IProcessSamplingTool.h"
+#include "ISF_FatrasInterfaces/IPhysicsValidationTool.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -29,6 +33,9 @@
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandFlat.h"
+
+// AtlasDetDescr
+#include "AtlasDetDescr/AtlasRegion.h"
 
 #include <iostream>
 
@@ -50,10 +57,15 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
     m_trackFilter(""),
     m_neutralHadronFilter(""),
     m_photonFilter(""),
-    m_samplingTool("")
+    m_samplingTool(""),
+    m_validationMode(false),
+    m_validationTool("")
 {
-  declareInterface<ITransportTool>(this);
+  declareInterface<ISF::IParticleProcessor>(this);
 
+  // validation output section
+  declareProperty( "ValidationMode",  m_validationMode );
+  declareProperty( "PhysicsValidationTool",     m_validationTool  );
   // tool handle for the particle decayer
   declareProperty( "ParticleDecayHelper",       m_particleDecayHelper      );  
   // tool handle for the track creator                                      
@@ -64,7 +76,7 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
   declareProperty( "TrackFilter",               m_trackFilter              );
   declareProperty( "NeutralFilter",             m_neutralHadronFilter      );
   declareProperty( "PhotonFilter",              m_photonFilter             );  
-  //
+  // tools handles ISF Framework
   declareProperty( "ProcessSamplingTool",       m_samplingTool             );
   // service handles
   declareProperty( "RandomNumberService",       m_rndGenSvc                );
@@ -102,6 +114,8 @@ iFatras::TransportEngine::initialize()
     return StatusCode::FAILURE;
   if (retrieveTool<iFatras::IProcessSamplingTool>(m_samplingTool).isFailure())
     return StatusCode::FAILURE;
+  if (m_validationMode && retrieveTool<iFatras::IPhysicsValidationTool>(m_validationTool).isFailure())
+      return StatusCode::FAILURE;
 
   if ( m_rndGenSvc.retrieve().isFailure() ){
     ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
@@ -136,8 +150,8 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   // copy the current particle onto the particle clipboard
   ISF::ParticleClipboard::getInstance().setParticle(isp);
   
-  ATH_MSG_INFO ("[ fatras transport ] processing particle " << isp.pdgCode() );
-  
+  ATH_MSG_DEBUG ("[ fatras transport ] processing particle " << isp.pdgCode() );
+
   // [0] ============================================================================================
   //  - INPUT PARTICLE PREPARATION
   //
@@ -174,13 +188,14 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
     ATH_MSG_VERBOSE( "[ fatras transport ] Determined processor w/o filter.");
   
   // now transport the particle - if it passes the filter
-  if ( filter && !filter->passFilter(isp) ) {
-    ATH_MSG_DEBUG( "[ fatras transport ] Filter not passed, ignore particle.");
-    ATH_MSG_DEBUG( "   -> for more information, turn on debug/verbose output of  " << filter->name() );
-    return 0;
-  }
+  //if ( filter && !filter->passFilter(isp) ) {
+  //  ATH_MSG_DEBUG( "[ fatras transport ] Filter not passed, ignore particle.");
+  //  ATH_MSG_DEBUG( "   -> for more information, turn on debug/verbose output of  " << filter->name() );
+  //  return 0;
+  //}
   
-  ATH_MSG_INFO( "[ fatras transport ] The StackParticle passed filter - starting transport.");
+  //ATH_MSG_DEBUG( "[ fatras transport ] The StackParticle passed filter - starting transport.");
+  ATH_MSG_DEBUG( "[ fatras transport ] starting transport.");
   
   // [a] DECAY section ------------------------------------------------------------------------------
   //
@@ -192,7 +207,13 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   if ( pathLimit > 0. && pathLimit < 0.01 ) {
     if (!m_particleDecayHelper.empty()) {
       ATH_MSG_VERBOSE( "[ fatras transport ] Decay is triggered for input particle.");
-      m_particleDecayHelper->decay(isp);
+      m_particleDecayHelper->decay(isp,isp.position(),isp.momentum(),isp.timeStamp());
+    }
+
+    // validation mode - for all particle registered into stack
+    if ( m_validationMode && m_validationTool ) {
+      Trk::CurvilinearParameters inputPar(isp.position(),isp.momentum(),isp.charge());
+      m_validationTool->saveISFParticleInfo(isp,201,&inputPar,isp.timeStamp(),0.); 
     }
     return 0;
   }
@@ -202,20 +223,24 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
   //
   double materialLimitX0 = -1.;
   double materialLimitL0 = -1.;
-  // now sample the path limit with the path sampling tool
-  // -> the outcome is a material path limit
-  Trk::PathLimit matLim(-1.,0);
-  if (absPdg!=999 && pHypothesis<99) {
-      // sample the material process
-      matLim = m_samplingTool->sampleProcess(isp.momentum().mag(),isp.charge(),pHypothesis);
-      // now assign the limit to L0 or X0 (121 is the code used inside the sampling tool)
-      if (matLim.process == 121 ){
-          materialLimitL0 = matLim.x0Max;
-      } else 
-          materialLimitX0 = matLim.x0Max;
-      ATH_MSG_VERBOSE( "[ fatras transport ] Particle free path : " << matLim.x0Max << " and process : " << matLim.process);
+  int materialProcess = -1;
+  double materialX0=0.;
+  double materialL0=0.;
+  // now sample the path limit if not done already
+  ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : 0;
+  if (matLimit) {
+    materialProcess = matLimit->process;
+    if (materialProcess==121) materialLimitL0 = matLimit->dMax;
+    else  materialLimitX0 = matLimit->dMax;
+    if (materialProcess==121) materialL0=matLimit->dCollected;
+    else materialX0 = matLimit->dCollected;
+  } else if (absPdg!=999 && pHypothesis<99) { // need to resample   
+    Trk::PathLimit matLim = m_samplingTool->sampleProcess(isp.momentum().mag(),isp.charge(),pHypothesis);  
+    materialProcess = matLim.process;
+    if (materialProcess==121) materialLimitL0 = matLim.x0Max;
+    else  materialLimitX0 = matLim.x0Max;        
   }
-      
+  
   // [1] ============================================================================================  
   //  - TRANSPORT THROUGH THE DETECTOR
   //
@@ -237,9 +262,20 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                   pathLimit,
                                                                                   materialLimitX0,
                                                                                   materialLimitL0);
-    ecc.materialProcess = matLim.process;
+    ecc.materialProcess = materialProcess;
+    if (ecc.materialLimitL0 != -1)
+      ecc.materialL0 = materialL0;
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);   
+    if (ecc.materialLimitX0 != -1)
+      ecc.materialX0 = materialX0;
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+
     // do the transport using the new engine 
-    Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc);	
+    Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc);
+ 
+    // validation info
+    if (m_validationMode ) m_validationTool->saveISFParticleInfo(isp,ecc,eCode); 
+	
     // resolve the different success states
     if (eCode.isSuccess()) {
       // this is a success - let's find out which one
@@ -249,11 +285,20 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                             eCode,
                                             ecc.endParameters->position(),
                                             ecc.endParameters->momentum(),
-                                            ecc.endParameters->charge(),
-                                            ecc.endParameters->position().mag()/CLHEP::c_light); //!< TODO update with pathLength
+					    ecc.pathLength/CLHEP::c_light,
+					    ecc.nextGeometrySignature);
       // memory cleanup  
-      delete ecc.endParameters;
+      // delete ecc.endParameters;
       // no hit creation -> return can be done now
+      if (rParticle && m_validationMode) {
+	// save validation info
+	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+	validInfo->setProcess(0);
+	if (isp.getUserInformation()) validInfo->setGeneration(isp.getUserInformation()->generation());
+	else validInfo->setGeneration(0);     // assume primary parent
+	rParticle->setUserInformation(validInfo);
+      }
+
       return rParticle;
     } else {
       ATH_MSG_WARNING( "Error code " << eCode.toString() << " running the Extrapolator for neutral particle!" );
@@ -277,21 +322,32 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                 materialLimitX0,
                                                                                 materialLimitL0);
     ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive);
-    ecc.materialProcess = matLim.process;
+    ecc.materialProcess = materialProcess;
+    if (ecc.materialLimitL0 != -1)
+      ecc.materialL0 = materialL0;
+     ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+    if (ecc.materialLimitX0 != -1)
+      ecc.materialX0 = materialX0;
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
     // do the transport using the new engine 
     // [B - 1] extrapoalte
     Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc);	
+
+    // validation info
+    if (m_validationMode ) m_validationTool->saveISFParticleInfo(isp,ecc,eCode); 
+
     // resolve the different success states
     if (eCode.isSuccess()) {
         // this is a success - let's find out which one
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully run extrapolation for charged particle.");
-        // either give a particle back (at boundary) or the sub tools took care of it
+
+	// either give a particle back (at boundary) or the sub tools took care of it
         rParticle = handleExtrapolationResult(isp,
                                               eCode,
                                               ecc.endParameters->position(),
                                               ecc.endParameters->momentum(),
-                                              ecc.endParameters->charge(),
-                                              ecc.endParameters->position().mag()/CLHEP::c_light); //!< TODO update with pathLength
+					      ecc.pathLength/CLHEP::c_light,
+					      ecc.nextGeometrySignature);
         // memory cleanup       
         delete ecc.endParameters;
     } else {
@@ -323,6 +379,16 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
         }
      }
   }
+   
+  if (rParticle && m_validationMode) {
+    // save validation info
+    ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+    validInfo->setProcess(0);
+    if (isp.getUserInformation()) validInfo->setGeneration(isp.getUserInformation()->generation());
+    else validInfo->setGeneration(0);     // assume primary parent
+    rParticle->setUserInformation(validInfo);
+  }
+
   // return what you have to the ISF 
   return rParticle;
 }
@@ -333,30 +399,34 @@ ISF::ISFParticle* iFatras::TransportEngine::handleExtrapolationResult(const ISF:
                                                                       Trk::ExtrapolationCode eCode,
                                                                       const Amg::Vector3D& position,
                                                                       const Amg::Vector3D& momentum,
-                                                                      double charge,
-                                                                      double stime)
+								      double stime,
+								      Trk::GeometrySignature nextGeoID)
 {
+
     // the return particle
     ISF::ISFParticle* rParticle = 0;
     // switch the extrapolation code returns
     if (eCode == Trk::ExtrapolationCode::SuccessBoundaryReached){
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached detector boundary with the particle -> return particle at boundary.");
         // create the updated particle at the end of processing step
+	AtlasDetDescr::AtlasRegion geoID=AtlasDetDescr::AtlasRegion(5);
+	if (nextGeoID<99) geoID = AtlasDetDescr::AtlasRegion(nextGeoID);	  
         rParticle = new ISF::ISFParticle(position,
                                          momentum,
                                          isp.mass(),
                                          isp.charge(),
-                                         stime+isp.timeStamp(),
                                          isp.pdgCode(),
+                                         stime+isp.timeStamp(),
                                          isp,
                                          isp.barcode());
+	rParticle->setNextGeoID(geoID);
     } else if (eCode == Trk::ExtrapolationCode::SuccessPathLimit){
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached path limit for the particle -> decay & return 0.");
         // call the decayer tool
-        m_particleDecayHelper->decay(isp);
+        m_particleDecayHelper->decay(isp,position,momentum,stime+isp.timeStamp());
     } else if (eCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached material limit for the particle -> return 0.");
+
     return rParticle;
 }
       
-

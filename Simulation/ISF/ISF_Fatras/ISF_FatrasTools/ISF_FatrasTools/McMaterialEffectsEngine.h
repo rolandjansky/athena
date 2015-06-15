@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 ///////////////////////////////////////////////////////////////////
 // McMaterialEffectsEngine.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -17,11 +18,12 @@
 
 // Trk
 #include "TrkExInterfaces/IMaterialEffectsEngine.h"
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExUtils/ExtrapolationCell.h"
-#include "TrkExUtils/MaterialInteraction.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 // ISF
 #include "ISF_Event/ITruthIncident.h"
@@ -32,129 +34,190 @@
 
 class StoreGateSvc;
 
-namespace Trk {
+namespace Trk{
   class EnergyLoss;
   class CylinderVolumeBounds;
-  class IEnergyLossUpdator;
-  class IMultipleScatteringUpdator;
   class TrackingGeometry;
   class ITrackingGeometrySvc;
 }
 
 namespace ISF {
-    class IParticleBroker;
-    class ISFParticle;
-    class ITruthSvc;
+  class IParticleBroker;
+  class ISFParticle;
+  class ITruthSvc;
 }
 
 namespace iFatras {
+
+  class IPhysicsValidationTool;
+  class IEnergyLossSampler;
+  class IMultipleScatteringSampler;
+  class IHadronicInteractionProcessor;
+  class IPhotonConversionSampler; 
+  class IParticleDecayHelper;
+  class IProcessSamplingTool;
   
   /** @class McMaterialEffectsEngine
-  
-      Updator for a track on a Trk::Layer, it extends the IMaterialEffectsEngine to 
-      be used inside the Extrapolator with an update based on a Random number.
       
-      The McMaterialEffectsEngine uses both an extended EnergyLossUpdator
-      and the standard ATLAS MultipleScatteringUpdator configured for the Gaussian-Mixture-Model.
-
+      Mc Material effects engine for charged and neutral (fast track simulation) used inside the ExtrapolatorEngine. It extends the IMaterialEffectsEngine.
+      
+      The McMaterialEffectsEngine uses both an extended EnergyLossSampler
+      and the standard ATLAS MultipleScatteringSampler configured for the Gaussian-Mixture-Model.
+      
       @author Andreas.Salzburger@cern.ch, Noemi.Calace@cern.ch
-   */
-   
-  class McMaterialEffectsEngine : public AthAlgTool, virtual public Trk::IMaterialEffectsEngine { 
-    public:      
-      /**AlgTool constructor for McMaterialEffectsEngine*/
-      McMaterialEffectsEngine(const std::string&,const std::string&,const IInterface*);
-      /**Destructor*/
-      virtual ~McMaterialEffectsEngine();
-       
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
-      /** AlgTool finalize method */
-      StatusCode finalize();
-      
-      /** Updator interface (full update for a layer): 
-         given track parameters are deleted internally,
-         if no update has to be done, 
-         the pointer is returned
-        */ 
-      virtual Trk::ExtrapolationCode handleMaterial(Trk::ExCellCharged& ecCharged,
-						    Trk::PropDirection dir=Trk::alongMomentum,
-						    Trk::MaterialUpdateStage matupstage=Trk::fullUpdate) const;
-
-      virtual Trk::ExtrapolationCode handleMaterial(Trk::ExCellNeutral&,
-						    Trk::PropDirection,
-						    Trk::MaterialUpdateStage) const {return Trk::ExtrapolationCode::InProgress; }
-      
-   private:
-      
-      const Trk::TrackParameters* updateTrackParameters(const Trk::TrackParameters& parameters,
-							Trk::ExCellCharged& eCell,
-							Trk::PropDirection dir,
-							Trk::MaterialUpdateStage matupstage) const;
-      
-      double simulate_theta_space(double beta, double p,double dOverX0,double Z, double scale) const;
-      double * get_gaussian(double beta, double p,double dOverX0, double scale) const;
-      double * get_gaussmix(double beta, double p,double dOverX0,double Z, double scale) const;
-      double * get_semigauss(double beta,double p,double dOverX0,double Z, double scale) const;
-      double sim_gaussmix(double * scattering_params) const;
-      double sim_semigauss(double * scattering_params) const;
-
-      void ionize(const Trk::TrackParameters& parm, AmgVector(5)& updatedPar, double dInX0,
-		  Trk::PropDirection pdir, Trk::ParticleHypothesis particle ) const ;
-      
-      /** the private multiple scattering sigma calculation*/
-      double msSigma(double dInX0, double p,Trk::ParticleHypothesis particle) const;
-      
-      /** the private multiple Scattering update method, thetaMs is the projected random number*/
-      void multipleScatteringUpdate( const Trk::TrackParameters& parm,
-				     AmgVector(5)& parameters,
-				     double sigmaMSproj, double pathCorrection) const;
-                 
-      /** IEnergyLossUpdator */
-      bool                                         m_eLoss;
-      ToolHandle<Trk::IEnergyLossUpdator>          m_eLossUpdator;
-      
-      /** IMultipleScatteringUpdator */
-      bool                                         m_ms;
-      ToolHandle<Trk::IMultipleScatteringUpdator>  m_msUpdator;
-      
-      /** Minimum momentum cut */
-      double                                       m_minimumMomentum;
-      
-      /** switch between MSUpdator and local parametrization */
-      bool                                         m_use_msUpdator;
-      
-      /** Switch to use reference material */
-      bool                                         m_referenceMaterial;
-      
-      /** Switch to use bending correction */
-      bool                                         m_bendingCorrection;
-
-      /** Random Generator service  */
-      ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
-      /** Random engine  */
-      CLHEP::HepRandomEngine*                      m_randomEngine;
-      std::string                                  m_randomEngineName;                   //!< Name of the random number stream
-      
-      mutable const Trk::TrackingGeometry*         m_trackingGeometry;                   //!< the tracking geometry owned by the navigator
-      ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;                //!< ToolHandle to the TrackingGeometrySvc
-      std::string                                  m_trackingGeometryName;               //!< default name of the TrackingGeometry      
-      
-      /** struct of Particle Masses */
-      Trk::ParticleMasses                         m_particleMasses;
-      
-      ServiceHandle<ISF::IParticleBroker>     m_particleBroker;
-      ServiceHandle<ISF::ITruthSvc>           m_truthRecordSvc;
-
-      /** cache incoming particle */
-      mutable const ISF::ISFParticle*         m_isp;
-
-      /** cache layer properties */
-      mutable const Trk::Layer*                             m_layer;
-      mutable const Trk::MaterialProperties*                m_matProp;                                                                              
-           
-  };
+  */
   
+  class McMaterialEffectsEngine : public AthAlgTool, virtual public Trk::IMaterialEffectsEngine { 
+  public:      
+    /**AlgTool constructor for McMaterialEffectsEngine*/
+    McMaterialEffectsEngine(const std::string&,const std::string&,const IInterface*);
+    /**Destructor*/
+    virtual ~McMaterialEffectsEngine();
+    
+    /** AlgTool initailize method.*/
+    StatusCode initialize();
+    /** AlgTool finalize method */
+    StatusCode finalize();
+    
+    /** charged extrapolation */
+    virtual Trk::ExtrapolationCode handleMaterial(Trk::ExCellCharged& ecCharged,
+						  Trk::PropDirection dir=Trk::alongMomentum,
+						  Trk::MaterialUpdateStage matupstage=Trk::fullUpdate) const;
+
+    /** charged extrapolation */
+    virtual Trk::ExtrapolationCode handleMaterial(Trk::ExCellNeutral& ecNeutral,
+						  Trk::PropDirection dir= Trk::alongMomentum,
+						  Trk::MaterialUpdateStage matupstage=Trk::fullUpdate) const;
+    
+  private:
+
+    template <class T> Trk::ExtrapolationCode handleMaterialT( Trk::ExtrapolationCell<T>& eCell,
+							       Trk::PropDirection dir=Trk::alongMomentum,
+							       Trk::MaterialUpdateStage matupstage=Trk::fullUpdate) const;
+    
+    Trk::ExtrapolationCode processMaterialOnLayer(const ISF::ISFParticle* isp,
+				Trk::ExCellCharged& eCell,
+				Trk::PropDirection dir,
+				float& mFraction) const;
+
+    Trk::ExtrapolationCode processMaterialOnLayer(const ISF::ISFParticle* isp,
+				Trk::ExCellNeutral& eCell,
+				Trk::PropDirection dir,
+				float& mFraction) const;
+
+    void multipleScatteringUpdate(const Trk::TrackParameters& pars,
+				  AmgVector(5)& parameters,
+				  double simTheta, 
+				  double num_deltaPhi) const;
+
+    void recordBremPhoton(const ISF::ISFParticle* parent,
+			  double time,
+			  double pElectron,
+			  double gammaE,
+			  const Amg::Vector3D& vertex,
+			  Amg::Vector3D& particleDir,Trk::ParticleHypothesis  ) const; 
+
+    void recordBremPhotonLay(const ISF::ISFParticle* parent,
+			     double time,
+			     double pElectron,
+			     double gammaE,
+			     const Amg::Vector3D& vertex,
+			     Amg::Vector3D& particleDir,Trk::ParticleHypothesis, 
+			     Trk::PropDirection dir,float mFraction ) const; 
+
+    ISF::ISFParticle* bremPhoton(const ISF::ISFParticle* parent,
+				 double time,
+				 double pElectron,
+				 double gammaE,
+				 const Amg::Vector3D& vertex,
+				 Amg::Vector3D& particleDir, Trk::ParticleHypothesis ) const; 
+    
+    void radiate(const ISF::ISFParticle* parent, AmgVector(5)& parm ,
+		 Trk::ExCellCharged& eCell, float pathlim, float mFr,Trk::PropDirection dir,float refX) const;
+    
+    /** IProcessSamplig */
+    ToolHandle<IProcessSamplingTool>             m_samplingTool;
+
+    /** IEnergyLossSampler */
+    bool                                             m_eLoss;
+    //ToolHandle<iFatras::IEnergyLossSampler>          m_eLossSampler;
+    ToolHandle<Trk::IEnergyLossUpdator>              m_eLossSampler;
+    /** Boolean switch for use of a dedicated eloss updator */
+    bool                                             m_dedicatedElectronSampler;     
+    /** Pointer to the energy loss sampler - electrons */
+    ToolHandle<iFatras::IEnergyLossSampler>          m_elEnergyLossSampler;          
+   
+    /** IMultipleScatteringSampler */
+    bool                                             m_ms;
+    ToolHandle<iFatras::IMultipleScatteringSampler>  m_msSampler;
+
+    /** Particle Decay */
+    ToolHandle<IParticleDecayHelper>             m_particleDecayHelper; 
+    
+    /** describe deflection parametric/do real deflection */
+    bool                                             m_parametricScattering;
+
+    /** use the relativistic hertz dipole for brem photon radiation */
+    bool                                             m_uniformHertzDipoleAngle;
+    
+    /** MCTruth process code for TruthIncidents created by this tool */
+    Barcode::PhysicsProcessCode                      m_processCode;
+     
+    /** Minimum momentum cut */
+    double                                           m_minimumMomentum;
+    
+    /** Minimum momentum for brem photons */
+    double                                           m_minimumBremPhotonMomentum;
+    
+    /** Create brem photons flag */
+    bool                                             m_createBremPhoton;
+     
+    /** Switch to use bending correction */
+    bool                                             m_bendingCorrection;
+
+    /** Random Generator service  */
+    ServiceHandle<IAtRndmGenSvc>                     m_rndGenSvc;
+    /** Random engine  */
+    CLHEP::HepRandomEngine*                          m_randomEngine;
+    /** Name of the random number stream */
+    std::string                                      m_randomEngineName;                 
+    
+    /** the tracking geometry owned by the navigator */
+    mutable const Trk::TrackingGeometry*             m_trackingGeometry;         
+    /** ToolHandle to the TrackingGeometrySvc */
+    ServiceHandle<Trk::ITrackingGeometrySvc>         m_trackingGeometrySvc;          
+    /** default name of the TrackingGeometry  */
+    std::string                                      m_trackingGeometryName;    
+    
+    /** struct of Particle Masses */
+    Trk::ParticleMasses                              m_particleMasses;
+    Trk::PdgToParticleHypothesis                     m_pdgToParticleHypothesis;
+
+    /** Validation section */
+    bool                          m_validationMode;
+    ToolHandle<IPhysicsValidationTool>  m_validationTool;
+
+    ServiceHandle<ISF::IParticleBroker>              m_particleBroker;
+    ServiceHandle<ISF::ITruthSvc>                    m_truthRecordSvc;
+
+    /** useful for the angle calculation of the brem photon */ 
+    double                                           m_oneOverThree;
+
+    /** cache incoming particle */
+    mutable const ISF::ISFParticle*                  m_isp;
+    
+    /** cache layer properties */
+    mutable const Trk::Layer*                       m_layer;
+    mutable const Trk::MaterialProperties*          m_matProp;           
+    mutable float                                   m_thicknessInX0;
+    mutable float                                   m_thicknessInL0;
+     
+	double                                          m_projectionFactor;
+  };
+        
 }
+
+//!< define the templated function   
+#include "McMaterialEffectsEngine.icc" 
 
 #endif // ISF_FATRASTOOLS_MCMATERIALEFFECTENIGINE_H

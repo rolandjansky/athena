@@ -16,8 +16,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 
-// iFatras
-#include "ISF_FatrasInterfaces/ITransportTool.h"
+// IFS
+#include "ISF_Interfaces/IParticleProcessor.h"
 
 // Tracking
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
@@ -53,7 +53,7 @@ namespace iFatras
       @author Andreas.Salzburger -at- cern.ch
   */  
   
-  class TransportTool : virtual public ITransportTool,
+  class TransportTool : virtual public ISF::IParticleProcessor,
                         public AthAlgTool
   {
   public:

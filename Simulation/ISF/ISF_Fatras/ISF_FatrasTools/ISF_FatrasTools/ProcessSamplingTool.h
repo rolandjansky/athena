@@ -23,8 +23,16 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
+namespace ISF {
+  class ITruthSvc;
+}
+
 namespace iFatras 
 {
+  class IHadronicInteractionProcessor;
+  class IPhotonConversionTool; 
+  class IParticleDecayHelper;
+  class IPhysicsValidationTool;
     
   /** @class ProcessSamplingTool 
       
@@ -51,8 +59,15 @@ namespace iFatras
     virtual StatusCode finalize();
 
     /** Process pre-sampling : to be moved into material updators eventually */
-    Trk::PathLimit sampleProcess(double mom, double charge, Trk::ParticleHypothesis pHypothesis);
+    Trk::PathLimit sampleProcess(double mom, double charge, Trk::ParticleHypothesis pHypothesis) const;
     
+    /** Process simulation */
+    ISF::ISFParticleVector  interact(const ISF::ISFParticle* parent,
+				     Trk::ExCellCharged& eCell,
+				     const Trk::Material* mat) const;
+    ISF::ISFParticleVector  interact(const ISF::ISFParticle* parent,
+				     Trk::ExCellNeutral& eCell,
+				     const Trk::Material* mat) const;
   private:
      /** templated Tool retrieval - gives unique handling & look and feel */
      template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle){
@@ -72,8 +87,25 @@ namespace iFatras
      ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
      CLHEP::HepRandomEngine*                      m_randomEngine;
      std::string                                  m_randomEngineName;         //!< Name of the random number stream
+     
+     /** Truth record */
+     ServiceHandle<ISF::ITruthSvc>                m_truthRecordSvc;
 
-     Trk::ParticleMasses                 m_particleMasses;    //!< Struct of Particle masses
+     /** hadronic interaction */
+     bool                                         m_hadInt;
+     ToolHandle<IHadronicInteractionProcessor>    m_hadIntProcessor;
+     
+     /** decay */
+     ToolHandle<IParticleDecayHelper>                 m_particleDecayer;
+
+      /** IPhotonConversionTool */
+     ToolHandle<iFatras::IPhotonConversionTool>   m_conversionTool;
+
+     Trk::ParticleMasses                          m_particleMasses;    //!< Struct of Particle masses
+
+     /** validation */
+     bool                                         m_validationMode;
+     ToolHandle<IPhysicsValidationTool>           m_validationTool;
 
   }; 
 }

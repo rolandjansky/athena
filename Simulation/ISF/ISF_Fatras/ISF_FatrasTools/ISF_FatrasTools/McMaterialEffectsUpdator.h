@@ -61,7 +61,7 @@ namespace iFatras {
   class IPhysicsValidationTool;
   class IHadronicInteractionProcessor;
   class IPhotonConversionTool; 
-  class IParticleDecayer;
+  class IParticleDecayHelper;
       
   /** @class McMaterialEffectsUpdator
   
@@ -217,7 +217,7 @@ namespace iFatras {
      ToolHandle<IHadronicInteractionProcessor>    m_hadIntProcessor;
      
      /** Particle Decay */
-     ToolHandle<IParticleDecayer>                 m_particleDecayer;
+     ToolHandle<IParticleDecayHelper>                 m_particleDecayer;
      
      /** Minimum momentum cut */
      double                                       m_minimumMomentum;

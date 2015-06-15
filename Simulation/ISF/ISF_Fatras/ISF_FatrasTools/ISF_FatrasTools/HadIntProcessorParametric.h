@@ -75,24 +75,26 @@ namespace iFatras {
       StatusCode finalize();
 
       /** interface for processing of the nuclear interactions */
-      bool hadronicInteraction(const Trk::TrackParameters& parm, double p, double E,
+      bool hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+			       double p, double E, double charge,
                                const Trk::MaterialProperties& mprop, double pathCorrection,
                                Trk::ParticleHypothesis particle=Trk::pion) const;
 
       /** interface for processing of the presampled nuclear interaction */                           
       bool recordHadState(double time, double p,
-         const Amg::Vector3D& vertex,
-         const Amg::Vector3D& particleDir,
-         Trk::ParticleHypothesis particle ) const;
+			  const Amg::Vector3D& vertex,
+			  const Amg::Vector3D& particleDir,
+			  Trk::ParticleHypothesis particle ) const;
 
-      bool doHadronicInteraction(double time,const Trk::TrackParameters& parm,
-				 const Trk::Material* ematprop,
+      bool doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+				 const Trk::Material* emat,
 				 Trk::ParticleHypothesis particle,
 				 bool processSecondaries) const;
  
-      ISF::ISFParticleVector doHadIntOnLayer(const ISF::ISFParticle* parent, double time,const Trk::TrackParameters& parm,
-				 const Trk::MaterialProperties* ematprop,
-				 Trk::ParticleHypothesis particle) const;
+      ISF::ISFParticleVector doHadIntOnLayer(const ISF::ISFParticle* parent, double time,
+					     const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+					     const Trk::Material* emat,
+					     Trk::ParticleHypothesis particle) const;
  
    private:
       /** interface for calculation of absorption length */

@@ -67,21 +67,19 @@ namespace iFatras{
                                  Trk::ParticleHypothesis particleHypothesis = Trk::pion,
                                  bool mpv=true) const override;
 
-  /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
-        the detailed Eloss information Calorimeter energy, error momentum and momentum error */
-  
+    /** Dummy methodes imposed by public interface - cleanup */
+    /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
+        the detailed Eloss information Calorimeter energy, error momentum and momentum error */ 
     Trk::EnergyLoss* updateEnergyLoss( Trk::EnergyLoss*, double, double, double, double, int&) const override { return 0; }
   
-   /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
-   void getX0ElossScales(int, double, double, double&, double& ) const override {}
-
+    /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
+    void getX0ElossScales(int, double, double, double&, double& ) const override {}
+    /** Dummy methods end here */
+     
  private:
   
    ToolHandle<IEnergyLossUpdator> m_energyLossUpdator;            //!< Pointer to the energy loss updator
    int                            m_energyLossDistribution;       //!< include energy loss straggling or not ( 0 == none, 1 == gauss, 2 == landau)
-
-   bool                           m_dedicatedElectronUpdator;     //!< boolean switch for use of a dedicated eloss updator
-   ToolHandle<IEnergyLossUpdator> m_elEnergyLossUpdator;          //!< Pointer to the energy loss updator - electrons
 
    /** Random Generator service  */
    ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;

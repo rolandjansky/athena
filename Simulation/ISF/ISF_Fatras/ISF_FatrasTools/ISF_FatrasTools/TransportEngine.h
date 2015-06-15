@@ -16,12 +16,13 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 #include "TrkExUtils/ExtrapolationCell.h"
-// iFatras
-#include "ISF_FatrasInterfaces/ITransportTool.h"
+// ISF
+#include "ISF_Interfaces/IParticleProcessor.h"
 
 // Tracking
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkDetDescrUtils/GeometrySignature.h"
 
 class IIncidentSvc;
 
@@ -39,6 +40,7 @@ namespace iFatras
   class ISimHitCreator;    
   class IParticleDecayHelper;
   class IProcessSamplingTool;
+  class IPhysicsValidationTool;
    
   /** @class TransportEngine 
       
@@ -48,7 +50,7 @@ namespace iFatras
       @author Noemi Calace -at- cern.ch, Andreas Salzburger -at cern.ch 
   */  
   
-  class TransportEngine : virtual public ITransportTool,
+  class TransportEngine : virtual public ISF::IParticleProcessor,
     public AthAlgTool
     {
     public:
@@ -74,8 +76,8 @@ namespace iFatras
                                                   Trk::ExtrapolationCode eCode,
                                                   const Amg::Vector3D& position,
                                                   const Amg::Vector3D& momentum,
-                                                  double charge,
-                                                  double stime);
+						  double stime,
+						  Trk::GeometrySignature geoID);
       
       /** templated Tool retrieval - gives unique handling & look and feel */
       template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle)
@@ -122,6 +124,9 @@ namespace iFatras
                                                 
       Trk::PdgToParticleHypothesis                 m_pdgToParticleHypothesis;
       Trk::ParticleMasses                          m_particleMasses;      //!< Struct of Particle masses
+
+      bool                                         m_validationMode;
+      ToolHandle<IPhysicsValidationTool>           m_validationTool;
                                                                                                 
     }; 
     

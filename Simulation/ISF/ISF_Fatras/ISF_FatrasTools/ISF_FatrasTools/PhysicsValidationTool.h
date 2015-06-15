@@ -67,9 +67,18 @@ namespace iFatras
     /** AlgTool finalize method */
 
     virtual StatusCode finalize();
-    
-    /** Fill ntuple */
+
+    /** ISFParticle info: old transport tool */
     void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 );
+    
+    /** ISFParticle info: new transport tool */
+    void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
+				     Trk::ExtrapolationCode ecode );
+
+    /** ISFParticle info: new transport tool */
+    void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
+				     Trk::ExtrapolationCode ecode );
+
 
     void saveISFVertexInfo(int process,Amg::Vector3D vertex,const ISF::ISFParticle& isp,Amg::Vector3D primIn,
 			   Amg::Vector3D* primOut, const ISF::ISFParticleVector children);
@@ -85,6 +94,8 @@ namespace iFatras
               ATH_MSG_DEBUG("[ fatras setup ] Successfully retrieved " << thandle);
               return StatusCode::SUCCESS;
      }
+     
+     void saveInfo(const ISF::ISFParticle& isp); 
       
     /*---------------------------------------------------------------------
      *  Private members
@@ -105,6 +116,10 @@ namespace iFatras
     mutable float                                                         m_pph;
     mutable float                                                         m_p;
     mutable float                                                         m_eloss;
+    mutable float                                                         m_ionloss;
+    mutable float                                                         m_radloss;
+    mutable float                                                         m_zOaTr;
+    mutable float                                                         m_wZ;
     mutable float                                                         m_thIn;
     mutable float                                                         m_phIn;
     mutable float                                                         m_dIn;
