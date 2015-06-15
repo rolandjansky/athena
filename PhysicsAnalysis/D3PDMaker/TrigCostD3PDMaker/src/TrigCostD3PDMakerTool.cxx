@@ -54,6 +54,7 @@ namespace D3PD {
       m_timer (nullptr),
       m_ebWeight (nullptr),
       m_ebWeightBG (nullptr),
+      m_ebUnbiased (nullptr),
       m_ranScaleTools(nullptr),
       m_appId (nullptr),
       m_chainN (nullptr),
@@ -201,7 +202,7 @@ namespace D3PD {
       m_doSeq   = true;
       m_doTE    = true;
       m_doDBKey = true;
-      m_doEB    = true;
+      m_doEB    = false;
     } else if (m_writeMode == "RATE") {
       m_doBasic = true;
       m_doExtra = false;
@@ -213,7 +214,7 @@ namespace D3PD {
       m_doSeq   = false;
       m_doTE    = false;
       m_doDBKey = true;
-      m_doEB    = true;
+      m_doEB    = false;
     } else if (m_writeMode == "EBWEIGHT") {
       m_doBasic = false;
       m_doExtra = false;
@@ -244,8 +245,6 @@ namespace D3PD {
       CHECK( m_tree->addVariable( m_prefix + "timer", m_timer, "Nominal time for this event" ) );
       CHECK( m_tree->addVariable( m_prefix + "appId", m_appId, "Hash of AppId of the XPU node processing this event." ) );
       CHECK( m_tree->addVariable( m_prefix + "ranScaleTools", m_ranScaleTools, "If this was a monitored event (did we run the scale tools online)" ) );
-      CHECK( m_tree->addVariable( m_prefix + "ebWeight", m_ebWeight, "Enhanced bias weighting factor." ) );
-      CHECK( m_tree->addVariable( m_prefix + "ebWeightBG", m_ebWeightBG, "Enhanced bias bunch group identifier." ) );
       CHECK( m_tree->addVariable( m_prefix + "costRunSec", m_costRunSec, "Second the data were saved by CostMon" ) );
       CHECK( m_tree->addVariable( m_prefix + "costRunNsec", m_costRunNsec, "Nanosecond the data were saved by CostMon" ) );
       CHECK( m_tree->addVariable( m_prefix + "costEvent", m_costEvent, "Sequential number of cost events processed" ) );
@@ -255,6 +254,7 @@ namespace D3PD {
       CHECK( m_tree->addVariable( m_prefix + "eventNumber", m_event, "Event number" ) );
       CHECK( m_tree->addVariable( m_prefix + "ebWeight", m_ebWeight, "Enhanced bias weighting factor." ) );
       CHECK( m_tree->addVariable( m_prefix + "ebWeightBG", m_ebWeightBG, "Enhanced bias bunch group identifier." ) );
+      CHECK( m_tree->addVariable( m_prefix + "ebUnbiased", m_ebUnbiased, "If EB event was unbiased online." ) );
     }
 
     //////////////
@@ -542,12 +542,6 @@ namespace D3PD {
         }  
         for (unsigned i=0; i < event->getVarKey().size(); ++i) {
           switch (event->getVarKey().at(i)) {
-            case 45:
-              *m_ebWeight = event->getVarVal().at(i);
-              break;
-            case 46:
-              *m_ebWeightBG = (uint32_t) event->getVarVal().at(i);
-              break;
             case 47:
               *m_ranScaleTools = (uint8_t) event->getVarVal().at(i);
               break;
@@ -607,6 +601,9 @@ namespace D3PD {
               break;
             case 46:
               *m_ebWeightBG = (uint32_t) event->getVarVal().at(i);
+              break;
+            case 48:
+              *m_ebUnbiased = (uint8_t) event->getVarVal().at(i);
               break;
             default:
               break;
@@ -986,8 +983,6 @@ namespace D3PD {
       *m_sec = 0;
       *m_nsec = 0;
       *m_timer = 0;
-      *m_ebWeight = 0;
-      *m_ebWeightBG = 0;
       *m_ranScaleTools= 0;
       *m_appId = 0;
       *m_costEvent = 0;
@@ -999,6 +994,7 @@ namespace D3PD {
       *m_event = 0;
       *m_ebWeight = 0;
       *m_ebWeightBG = 0;
+      *m_ebUnbiased = 0;
     }
 
     //////////////

@@ -109,6 +109,7 @@ namespace D3PD {
         float*    m_timer;              // Event timer
         float*    m_ebWeight;           // Enhanced bias weighting factor
         uint32_t* m_ebWeightBG;         // Enhanced bias weight bunch group
+        uint8_t*  m_ebUnbiased;         // Enhanced Bias flag for unbiased online events
         uint8_t*  m_ranScaleTools;      // If this was a monitoring event
         uint32_t* m_appId;              // Application ID - hash of trigger XPU node
 
