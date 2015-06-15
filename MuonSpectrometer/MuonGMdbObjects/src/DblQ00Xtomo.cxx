@@ -79,7 +79,7 @@ DblQ00Xtomo::DblQ00Xtomo(IRDBQuery* m_xtomo)
     m_xtomo->finalize();
 
   } else {
-    m_d = new XTOMO[0];
+    m_d = 0;
     std::cerr << "No XtomoData table in the MuonDD Database" << std::endl;
   }
 
@@ -88,7 +88,7 @@ DblQ00Xtomo::DblQ00Xtomo(IRDBQuery* m_xtomo)
  
 DblQ00Xtomo::~DblQ00Xtomo()
 {
-    if  (m_nObj > 0) delete [] m_d;
+    if  (m_nObj > 0 && m_d) delete [] m_d;
 }
 
 } // end of namespace MuonGM
