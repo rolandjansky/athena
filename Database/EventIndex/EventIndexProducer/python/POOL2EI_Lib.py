@@ -3,7 +3,7 @@
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
 # @author Javier Sanchez
-# @date February 2010
+# @date February 2014
 # 
 # Some code borrowed from PyAthena.FilePeekerLib
 # credits to Sebastien Binet 
@@ -21,6 +21,17 @@ from EI_Lib import EIrecord, IOV
 import time
 StatusCode = PyAthena.StatusCode
 
+# make Coral.AttributeList work in Coral3/ROOT6 
+from PyCool import coral 
+try: 
+    getattr(coral.Attribute, 'data<std::basic_string<char> >') 
+    # use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6) 
+    def attr_str_data(attr): 
+        return getattr(attr, 'data<std::basic_string<char> >') () 
+    # if not defined, use the old one (ROOT5)  
+except AttributeError: 
+    def attr_str_data(attr): 
+        return getattr(attr, 'data<std::string>') () 
 
 def _import_ROOT():
     import sys
@@ -267,22 +278,20 @@ class POOL2EI(PyAthena.Alg):
             for idx in xrange(sz):
                 chan = payload.chanNum(idx)
                 attr_list = payload.attributeList(chan)
-                attr_list = list(toiter(attr_list.begin(),
-                                        attr_list.end()))
                 attr_data = []
-                for a in attr_list:
+                for a in list(toiter(attr_list.begin(), attr_list.end())):
                     spec   = a.specification()
                     a_type = spec.typeName()
-                    a_type = 'std::string' if a_type == 'string' else a_type
-                    a_data = getattr(a,'data<{}>'.format(a_type))()
-                    if a_type == 'std::string':
+                    if a_type.find('string') >= 0:
+                        a_data = attr_str_data(a)
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
                             # swallow and keep as a string
                             pass
-                    attr_data.append((spec.name(),
-                                      a_data))
+                    else:
+                        a_data = getattr(a,'data<{}>'.format(a_type))()
+                    attr_data.append((spec.name(), a_data))
                 attrs.append(dict(attr_data))
             if len(attrs) == len(chan_names):
                 data.append(dict(zip(chan_names,attrs)))
