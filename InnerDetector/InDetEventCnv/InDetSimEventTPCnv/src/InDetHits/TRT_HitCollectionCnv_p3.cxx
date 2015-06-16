@@ -2,9 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetSimEvent/TRTUncompressedHit.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p3.h"
+#undef private
+#undef protected
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p3.h"
 
 #include <cmath>
@@ -47,7 +51,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
   static const double dRcut = 1.0e-7*CLHEP::mm;
   static const double dTcut = 1.0*CLHEP::ns; // redundant?
 
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endmsg;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endreq;
 
   int lastBarcode = -1;
   int lastId = -1;
@@ -63,9 +67,9 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     //   const TRTUncompressedHit* trtHit = *it;
     TRTUncompressedHitCollection::const_iterator trtHit = it;
 
-    if ( trtHit->particleLink().barcode() != lastBarcode  ||  idx - endBC > 65500) {   // max unsigned short =  65535;
+    if ( trtHit->m_partLink.barcode() != lastBarcode  ||  idx - endBC > 65500) {   // max unsigned short =  65535;
       // store barcode once for set of consecutive hits with same barcode
-      lastBarcode = trtHit->particleLink().barcode();
+      lastBarcode = trtHit->m_partLink.barcode();
       persCont->m_barcode.push_back(lastBarcode);
       if ( idx > 0 ) {
         persCont->m_nBC.push_back(idx - endBC);
@@ -73,9 +77,9 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
       }
     }
 
-    if ( (int)trtHit->GetParticleEncoding() != lastId || idx - endId >  65500) { // max unsigned short =  65535;
+    if ( (int)trtHit->particleEncoding != lastId || idx - endId >  65500) { // max unsigned short =  65535;
       // store id once for set of consecutive hits with same id
-      lastId = trtHit->GetParticleEncoding();
+      lastId = trtHit->particleEncoding;
       persCont->m_id.push_back(lastId);
       if ( idx > 0 ) {
         persCont->m_nId.push_back(idx - endId);
@@ -83,9 +87,9 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
       }
     }
 
-    const HepGeom::Point3D<double> hitStart(trtHit->GetPreStepX(), trtHit->GetPreStepY(), trtHit->GetPreStepZ()); // mm
+    const HepGeom::Point3D<double> hitStart(trtHit->preStepX, trtHit->preStepY, trtHit->preStepZ); // mm
 
-    const double meanTime = trtHit->GetGlobalTime(); // ns  // Time of flight from the I.P. to the center of the hit.
+    const double meanTime = trtHit->globalTime; // ns  // Time of flight from the I.P. to the center of the hit.
     const double dTLast = fabs(meanTime - lastT);      // |d(meantime)| between the previous hit and the current one.
     const double dRLast = lastEnd.distance(hitStart);  // Distance between end of previous hit and start of current one;
     // this is zero if the hit is a continuation of the same particle in the same straw.
@@ -104,11 +108,11 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
       // Persistify string *strawId* using 24 bits.
       // Assumes 0 <= strawId <= 16,777,215 (strawId appears to be < 4,000,000)
       //
-      const unsigned int strawId = trtHit->GetHitID();
+      const unsigned int strawId = trtHit->hitID;
       persCont->m_strawId1b.push_back(  (unsigned char)(strawId % 256) ); //  8 bits
       persCont->m_strawId2b.push_back( (unsigned short)(strawId / 256) ); // 16 bits
       if ( strawId>16777215 )
-        log << MSG::WARNING << "TRT_HitCollectionCnv: strawId > 2^24-1 cannot be persistified correctly! " << endmsg;
+        log << MSG::WARNING << "TRT_HitCollectionCnv: strawId > 2^24-1 cannot be persistified correctly! " << endreq;
 
       //
       // Persistify string start radius using 1 bit (istartRflag) or 8 bits (startR)
@@ -171,7 +175,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     // Now for the end hits //
     //////////////////////////
 
-    const HepGeom::Point3D<double> hitEnd(trtHit->GetPostStepX(), trtHit->GetPostStepY(), trtHit->GetPostStepZ()); // mm
+    const HepGeom::Point3D<double> hitEnd(trtHit->postStepX, trtHit->postStepY, trtHit->postStepZ); // mm
     const HepGeom::Point3D<double> hitLength = (hitEnd - hitStart);
 
     //
@@ -191,7 +195,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     //  - The mantissa has maximum 9 bits, the exponent has maximum 6 bits,
     //    Note: a rare condition causes an 10-bit mantissa (mantissa=512).
     //
-    double kinEne = trtHit->GetKineticEnergy()    * 1.0e9;  // nano Mev = meV.
+    double kinEne = trtHit->kineticEnergy    * 1.0e9;  // nano Mev = meV.
     double steplength = hitLength.distance() * 1.0e9;  // nano mm  = pm.
     if ( kinEne     < 1.0 )        kinEne=1.0;         // Keep  the value
     if ( steplength < 1.0 )    steplength=1.0;         // well within the
@@ -249,7 +253,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     if ( lastId == 22 ||
          (int)(abs(lastId)/100000) == 41 ||
          (int)(abs(lastId)/10000000) == 1
-         ) persCont->m_hitEne.push_back( (float)(trtHit->GetEnergyDeposit()) );  // keV
+         ) persCont->m_hitEne.push_back( (float)(trtHit->energyDeposit) );  // keV
 
     lastEnd = hitEnd;
     lastT = meanTime;
@@ -288,7 +292,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p3::createTransient(const TRT
 void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
 
-  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endmsg;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endreq;
 
   // some values are read less than once per hit, these need counters.
   unsigned int meanTimeofCount=0, startRCount=0, endRCount=0, hitEneCount=0;
