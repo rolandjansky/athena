@@ -48,21 +48,25 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_phi(-1.),
   m_eta(-1.),
   m_hitCollectionHelper(new AthenaHitsCollectionHelper),
+  m_simulateID(true),
+  m_bcmHits(0),
+  m_bcmHitCollectionName("BCMHits"),
+  m_blmHits(0),
+  m_blmHitCollectionName("BLMHits"),
   m_pixHits(0),
   m_pixHitCollectionName("PixelHits"),
   m_sctHits(0),
   m_sctHitCollectionName("SCT_Hits"),
   m_trtHits(0),
   m_trtHitCollectionName("TRTUncompressedHits"),
-  m_blmHits(0),
-  m_blmHitCollectionName("BLMHits"),
-  m_bcmHits(0),
-  m_bcmHitCollectionName("BCMHits"),
+  m_simulateCalo(true),
+  m_storedContainers(0),
   m_embHitCollectionName("LArHitEMB"),
   m_emecHitCollectionName("LArHitEMEC"),
   m_fcalHitCollectionName("LArHitFCAL"),
   m_hecHitCollectionName("LArHitHEC"),
   m_miniFcalHitCollectionName("LArHitMiniFCAL"),
+  m_storedCalibContainers(0),
   m_activeLArHitCollectionName("LArCalibrationHitActive"),
   m_inactiveLArHitCollectionName("LArCalibrationHitInactive"),
   m_deadLArHitCollectionName("LArCalibrationHitDeadMaterial"),
@@ -76,6 +80,9 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_tileInactiveCellCalibHitCollectionName("TileCalibHitInactiveCell"),
   m_tileDeadMaterialCalibHits(0),
   m_tileDeadMaterialCalibHitCollectionName("TileCalibHitDeadMaterial"),
+  m_doMiniFcal(false),
+  m_doTileCalibHits(false),
+  m_simulateMS(true),
   m_mdtHits(0),
   m_mdtHitCollectionName("MDT_Hits"),
   m_rpcHits(0),
@@ -86,10 +93,6 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_cscHitCollectionName("CSC_Hits"),
   m_muonHits(0),
   m_muonHitCollectionName("GenericMuon_Hits"),
-  m_storedContainers(0),
-  m_storedCalibContainers(0),
-  m_doMiniFcal(false),
-  m_doTileCalibHits(false),
   m_caloEntryLayerTracks(0),
   m_caloEntryLayerTrackCollectionName("CaloEntryLayer"),
   m_muonEntryLayerTracks(0),
@@ -111,12 +114,14 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
                   m_thistSvc,
                   "The THistSvc" );
 
+  declareProperty("SimulateID",         m_simulateID );
+  declareProperty("BCM_HitCollection",  m_bcmHitCollectionName );
+  declareProperty("BLM_HitCollection",  m_blmHitCollectionName );
   declareProperty("PixelHitCollection", m_pixHitCollectionName );
   declareProperty("SCT_HitCollection",  m_sctHitCollectionName );
   declareProperty("TRT_HitCollection",  m_trtHitCollectionName );
-  declareProperty("BLM_HitCollection",  m_blmHitCollectionName );
-  declareProperty("BCM_HitCollection",  m_bcmHitCollectionName );
 
+  declareProperty("SimulateCalo",         m_simulateCalo );
   declareProperty("EMBLAr_HitCollection",      m_embHitCollectionName );
   declareProperty("EMECLAr_HitCollection",     m_emecHitCollectionName );
   declareProperty("FCAL_HitCollection",        m_fcalHitCollectionName );
@@ -125,15 +130,14 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("ActiveLAr_HitCollection",   m_activeLArHitCollectionName );
   declareProperty("InactiveLAr_HitCollection", m_inactiveLArHitCollectionName );
   declareProperty("DeadMatlLAr_HitCollection", m_deadLArHitCollectionName );
-
-
   declareProperty("TileHitVec_HitCollection",  m_tileHitVecHitCollectionName );
   declareProperty("MBTS_HitCollection",        m_mbtsHitCollectionName );
-
   declareProperty("TileActiveCellCalibHitCollection",   m_tileActiveCellCalibHitCollectionName );
   declareProperty("TileInactiveCellCalibHitCollection", m_tileInactiveCellCalibHitCollectionName );
   declareProperty("TileDeadMaterialCalibHitCollection", m_tileDeadMaterialCalibHitCollectionName );
+  declareProperty("DoTileCalibHits", m_doTileCalibHits );
 
+  declareProperty("SimulateMS",         m_simulateMS );
   declareProperty("MDT_HitCollection",  m_mdtHitCollectionName );
   declareProperty("RPC_HitCollection",  m_rpcHitCollectionName );
   declareProperty("TGC_HitCollection",  m_tgcHitCollectionName );
@@ -145,8 +149,6 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("MuonExitLayer_TrackCollection",   m_muonExitLayerTrackCollectionName );
 
   declareProperty("CosmicPerigee_TrackCollection",   m_cosmicPerigeeTrackCollectionName );
-
-  declareProperty("DoTileCalibHits", m_doTileCalibHits );
 }
 
 
@@ -159,35 +161,21 @@ ISF::SimHitSvc::~SimHitSvc()
 /** framework methods */
 StatusCode ISF::SimHitSvc::initialize()
 {
-
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-
-  StoreGateSvc* detStore;
-  StatusCode status = svcLocator->service("DetectorStore", detStore);
-  if (status.isFailure())
-    {
-      ATH_MSG_FATAL("Unable to get pointer to DetectorStore Service");
-      return StatusCode::FAILURE;
-    }
-  else
+  if(m_simulateCalo) {
+    ISvcLocator* svcLocator = Gaudi::svcLocator();
+    StoreGateSvc* detStore;
+    CHECK(svcLocator->service("DetectorStore", detStore));
     ATH_MSG_DEBUG("DetectorStore Svc initialized.");
-
-
-  // Check whether or not we need to write out Mini FCAL hits
-  const CaloIdManager* caloIdManager;
-  status = detStore->retrieve(caloIdManager);
-  if(!status.isSuccess()) {
-    ATH_MSG_ERROR("Unable to retrieve CaloIdManager. Mini FCAL hits will not be persistified");
-    return StatusCode::FAILURE;
+    // Check whether or not we need to write out Mini FCAL hits
+    const CaloIdManager* caloIdManager;
+    CHECK(detStore->retrieve(caloIdManager));
+    const LArMiniFCAL_ID* larMiniFcalID = caloIdManager->getMiniFCAL_ID();
+    m_doMiniFcal = (larMiniFcalID && larMiniFcalID->is_initialized());
   }
-
-  const LArMiniFCAL_ID* larMiniFcalID = caloIdManager->getMiniFCAL_ID();
-  m_doMiniFcal = (larMiniFcalID && larMiniFcalID->is_initialized());
 
   // Global containers
   m_storedContainers = new StoredLArHitContainers();
   m_storedCalibContainers = new StoredLArCalibHitContainers();
-
 
   // setup for validation mode
   if ( m_validationOutput) {
@@ -227,9 +215,9 @@ StatusCode ISF::SimHitSvc::initialize()
 /** framework methods */
 StatusCode ISF::SimHitSvc::finalize()
 {
+  //FIXME why is this necessary?
   m_storedContainers = new StoredLArHitContainers();
   m_storedCalibContainers = new StoredLArCalibHitContainers();
-
   return StatusCode::SUCCESS;
 }
 
@@ -238,10 +226,12 @@ StatusCode ISF::SimHitSvc::finalize()
 /** Insert a SiHit - used for Pixels, SCT */
 void ISF::SimHitSvc::insert(const SiHit& siHit)
 {
-  if (siHit.isPixel())
+  if (siHit.isPixel()) {
     m_pixHits->Insert(siHit);
-  else
+  }
+  else {
     m_sctHits->Insert(siHit);
+  }
 }
 
 /* Insert a TRT Hit */
@@ -278,7 +268,6 @@ StatusCode ISF::SimHitSvc::initializeEvent()
        it!=m_sd.end();++it) {
     (**it).Initialize(0);
   }
-
 
   m_pixHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_pixHitCollectionName);
   m_sctHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_sctHitCollectionName);

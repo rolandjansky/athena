@@ -44,6 +44,11 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
 def getSimHitService(name="ISF_SimHitService", **kwargs):
     kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode()                    )
 
+    from AthenaCommon.DetFlags import DetFlags
+    kwargs.setdefault('SimulateID', DetFlags.simulate.ID_on() )
+    kwargs.setdefault('SimulateCalo', DetFlags.simulate.Calo_on() )
+    kwargs.setdefault('SimulateMS', DetFlags.simulate.Muon_on() )
+
     from G4AtlasApps.SimFlags import simFlags
 
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun.statusOn:

@@ -115,41 +115,46 @@ namespace ISF {
 
 
         AthenaHitsCollectionHelper*                                  m_hitCollectionHelper;
+        //Inner Detector
+        bool                                                         m_simulateID;
+        SiHitCollection*                                             m_bcmHits;
+        std::string                                                  m_bcmHitCollectionName;
+        SiHitCollection*                                             m_blmHits;
+        std::string                                                  m_blmHitCollectionName;
         SiHitCollection*                                             m_pixHits;
         std::string                                                  m_pixHitCollectionName;
         SiHitCollection*                                             m_sctHits;
         std::string                                                  m_sctHitCollectionName;
         TRTUncompressedHitCollection*                                m_trtHits;
         std::string                                                  m_trtHitCollectionName;
-        SiHitCollection*                                             m_blmHits;
-        std::string                                                  m_blmHitCollectionName;
-        SiHitCollection*                                             m_bcmHits;
-        std::string                                                  m_bcmHitCollectionName;
 
+        //Calorimeter
+        bool                                                         m_simulateCalo;
+        StoredLArHitContainers*                                      m_storedContainers;
         std::string                                                  m_embHitCollectionName;
         std::string                                                  m_emecHitCollectionName;
         std::string                                                  m_fcalHitCollectionName;
         std::string                                                  m_hecHitCollectionName;
         std::string                                                  m_miniFcalHitCollectionName;
+        StoredLArCalibHitContainers*                                 m_storedCalibContainers;
         std::string                                                  m_activeLArHitCollectionName;
         std::string                                                  m_inactiveLArHitCollectionName;
         std::string                                                  m_deadLArHitCollectionName;
-
         TileHitVector*                                               m_tileHitVecHits;
         std::string                                                  m_tileHitVecHitCollectionName;
         TileHitVector*                                               m_mbtsHits;
         std::string                                                  m_mbtsHitCollectionName;
-
-
         CaloCalibrationHitContainer*                                 m_tileActiveCellCalibHits;
         std::string                                                  m_tileActiveCellCalibHitCollectionName;
-
         CaloCalibrationHitContainer*                                 m_tileInactiveCellCalibHits;
         std::string                                                  m_tileInactiveCellCalibHitCollectionName;
-
         CaloCalibrationHitContainer*                                 m_tileDeadMaterialCalibHits;
         std::string                                                  m_tileDeadMaterialCalibHitCollectionName;
+        bool m_doMiniFcal;
+        bool m_doTileCalibHits;
 
+        //MuonSpectrometer
+        bool                                                         m_simulateMS;
         MDTSimHitCollection*                                         m_mdtHits;
         std::string                                                  m_mdtHitCollectionName;
         RPCSimHitCollection*                                         m_rpcHits;
@@ -161,35 +166,17 @@ namespace ISF {
         GenericMuonSimHitCollection*                                 m_muonHits;
         std::string                                                  m_muonHitCollectionName;
 
-        StoredLArHitContainers*      m_storedContainers;
-        StoredLArCalibHitContainers* m_storedCalibContainers;
+        TrackRecordCollection*                                       m_caloEntryLayerTracks;
+        std::string                                                  m_caloEntryLayerTrackCollectionName;
 
-        //std::map<IdentifierHash, SiHitCollection* >                  m_pixHits;
-        //std::map<IdentifierHash, SiHitCollection* >                  m_sctHits;
-        //std::map<IdentifierHash, TRTUncompressedHitCollection* >     m_trtHits;
-        //
-        //// we need an ID helper and Detector Managers
-        //const InDetDD::SiDetectorManager*                            m_pixMgr;
-        //std::string                                                  m_pixMgrLocation;
-        //const InDetDD::SiDetectorManager*                            m_sctMgr;
-        //std::string                                                  m_sctMgrLocation;
-        //const InDetDD::TRT_DetectorManager*                          m_trtMgr;
-        //std::string                                                  m_trtMgrLocation;
+        TrackRecordCollection*                                       m_muonEntryLayerTracks;
+        std::string                                                  m_muonEntryLayerTrackCollectionName;
 
-        bool m_doMiniFcal;
-        bool m_doTileCalibHits;
+        TrackRecordCollection*                                       m_muonExitLayerTracks;
+        std::string                                                  m_muonExitLayerTrackCollectionName;
 
-        TrackRecordCollection*                                         m_caloEntryLayerTracks;
-        std::string                                                    m_caloEntryLayerTrackCollectionName;
-
-        TrackRecordCollection*                                         m_muonEntryLayerTracks;
-        std::string                                                    m_muonEntryLayerTrackCollectionName;
-
-        TrackRecordCollection*                                         m_muonExitLayerTracks;
-        std::string                                                    m_muonExitLayerTrackCollectionName;
-
-        TrackRecordCollection*                                         m_cosmicPerigeeTracks;
-        std::string                                                    m_cosmicPerigeeTrackCollectionName;
+        TrackRecordCollection*                                       m_cosmicPerigeeTracks;
+        std::string                                                  m_cosmicPerigeeTrackCollectionName;
 
         std::vector<FADS::FadsSensitiveDetector*> m_sd;
   };
