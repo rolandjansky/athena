@@ -5,8 +5,15 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkMCTruth.MCTruthCommon import * 
-from DerivationFrameworkTau.TauTruthCommon import *
-augmentationTools = []
+
+# Flag to distinguish EVNT/xAOD input
+# isEVNT = False
+# This is now set in the MCTruthCommon
+
+# Add translator from EVGEN input to xAOD-like truth here
+from RecExConfig.ObjKeyStore import objKeyStore
+from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+
 #====================================================================
 # JET/MET
 #====================================================================
@@ -27,7 +34,7 @@ jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
 if dfInputIsEVNT:
   # Standard truth jets
   # To recover jet constituents remove the last modifier.
-  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler], ptmin= 5000)
+  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit], ptmin= 5000)
   akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
   DerivationFrameworkJob += akt4alg
 
@@ -36,13 +43,10 @@ if dfInputIsEVNT:
   akt4wzalg = JetAlgorithm("jetalgAntiKt4TruthWZJets", Tools = [akt4wz] )
   DerivationFrameworkJob += akt4wzalg
   #jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
-  #Large R jets
-  akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth",ptmin= 100000)
-  akt10alg = JetAlgorithm("jetalgAntiKt10TruthJets", Tools = [akt10] )
-  DerivationFrameworkJob += akt10alg
-  akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.2, ptfrac=0.05, input='AntiKt10TruthJets', modifiersin=[jtm.nsubjettiness, jtm.removeconstit])
-  akt10trimalg = JetAlgorithm("jetalgTrimmedAntiKt10TruthJets", Tools = [akt10trim] )
-  DerivationFrameworkJob += akt10trimalg
+  # Other jets
+  #akt6  = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
+  #akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
+  #akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
 
 # Add truth-based MET algorithm here
 import METReconstruction.METConfig_Truth
@@ -52,62 +56,11 @@ metAlg = getMETRecoAlg('METReconstruction')
 DerivationFrameworkJob += metAlg
 
 #==============================================================================
-# HEAVY FLAVOR DECORATIONS (ttbar)
+# Set-up of the tols for writing special collections and decorators
 #==============================================================================
-# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
-# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
-# list of ttbar samples by mc_channel_number
-TRUTH1DSIDList=[
-  410000,
-  410001,
-  410002,
-  410003,
-  410004,
-  410007,
-  410008,
-  410009,
-  301528,
-  301529,
-  301530,
-  301531,
-  301532,
-  303722,
-  303723,
-  303724,
-  303725,
-  303726,
-  407009,
-  407010,
-  407011,
-  407012,
-  410120,
-  410121,
-  426090,
-  426091,
-  426092,
-  426093,
-  426094,
-  426095,
-  426096,
-  426097,
-  429007,
-]
 
-import PyUtils.AthFile as af
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-f = af.fopen(athenaCommonFlags.FilesInput()[0])
-if len(f.infos['run_number']) > 0:
-  if(int((f.infos['run_number'])[0]) in TRUTH1DSIDList):
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier
-    TRUTH1hadronorigintool = DerivationFramework__HadronOriginClassifier("TRUTH1HadronOriginClassifier",DSID=int((f.infos['run_number'])[0]))
-    ToolSvc += TRUTH1hadronorigintool
-    print "TRUTH1hadronorigintool: ", TRUTH1hadronorigintool
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginDecorator
-    TRUTH1hadronorigindecorator = DerivationFramework__HadronOriginDecorator(name = "TRUTH1HadronOriginDecorator")
-    TRUTH1hadronorigindecorator.ToolName = TRUTH1hadronorigintool
-    ToolSvc += TRUTH1hadronorigindecorator
-    print "TRUTH1hadronorigindecorator: ", TRUTH1hadronorigindecorator
-    augmentationTools.append(TRUTH1hadronorigindecorator)
+from DerivationFrameworkMCTruth.TruthObjectTools import *
+from DerivationFrameworkMCTruth.TruthDecoratorTools import *
 
 #==============================================================================
 # Thinning the master truth collection 
@@ -117,8 +70,7 @@ TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name               
                                                             ThinningService            = "TRUTH1ThinningSvc",
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
-                                                            WriteBHadrons              = True,
-                                                            WritettHFHadrons           = True,
+                                                            WriteBHadrons              = False,
                                                             WriteGeant                 = False,
                                                             GeantPhotonPtThresh        = -1.0,
                                                             WriteTauHad                = True,
@@ -129,7 +81,7 @@ TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name               
                                                             WriteBosonProducts         = True,
                                                             WriteTopAndDecays          = True,
                                                             WriteEverything            = False,
-                                                            WriteAllLeptons            = True,
+                                                            WriteAllLeptons            = False,
                                                             WriteStatus3               = False,
                                                             PreserveDescendants        = False, 
                                                             PreserveGeneratorDescendants = False,
@@ -144,30 +96,19 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 TRUTH1PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "TRUTH1PhotonThinning",
                                                                  ThinningService         = "TRUTH1ThinningSvc",
                                                                  ParticlesKey            = "TruthPhotons",  
-                                                                 ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
+                                                                 ParticleSelectionString = "(TruthPhotons.particleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 ToolSvc += TRUTH1PhotonThinning
-
-#Let's save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo) 
-SUSYGenFilt_MCTruthClassifier = MCTruthClassifier(name = "SUSYGenFilt_MCTruthClassifier",
-                                                  ParticleCaloExtensionTool="")
-ToolSvc += SUSYGenFilt_MCTruthClassifier
-GenFilter = CfgMgr.DerivationFramework__SUSYGenFilterTool(
-  "MTandHTGenFilt",
-  )
-ToolSvc += GenFilter
 
 #==============================================================================
 # Create the derivation kernel algorithm
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools += [DFCommonTruthClassificationTool,GenFilter,
-                      DFCommonTruthMuonTool,DFCommonTruthElectronTool,DFCommonTruthPhotonTool,DFCommonTruthNeutrinoTool,
-                      DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                      DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
-                      DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                      DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH1Kernel",
-                                                                        AugmentationTools = augmentationTools,
+                                                                        AugmentationTools = [TRUTH1MuonTool,TRUTH1ElectronTool,TRUTH1PhotonTool,TRUTH1TauTool,TRUTH1NeutrinoTool,
+                                                                          TRUTH1ElectronDressingTool, TRUTH1MuonDressingTool,
+                                                                          TRUTH1ElectronIsolationTool1, TRUTH1ElectronIsolationTool2,
+                                                                          TRUTH1MuonIsolationTool1, TRUTH1MuonIsolationTool2,
+                                                                          TRUTH1PhotonIsolationTool1, TRUTH1PhotonIsolationTool2],
                                                                         ThinningTools = [TRUTH1TruthThinning,TRUTH1PhotonThinning])
 
 #==============================================================================
@@ -197,10 +138,6 @@ TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthWZJets")
 TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
 TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
 TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.")
-TRUTH1Stream.AddItem("xAOD::JetContainer#TrimmedAntiKt10TruthJets")
-TRUTH1Stream.AddItem("xAOD::JetAuxContainer#TrimmedAntiKt10TruthJetsAux.")
-TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt10TruthJets")
-TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10TruthJetsAux.")
 TRUTH1Stream.AddItem("xAOD::MissingETContainer#MET_Truth")
 TRUTH1Stream.AddItem("xAOD::MissingETContainer#MET_TruthRegions")
 TRUTH1Stream.AddItem("xAOD::MissingETAuxContainer#MET_TruthAux.")
@@ -235,4 +172,3 @@ TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthParticlesAux." )
 TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
 TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )
 TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )
-TRUTH1Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

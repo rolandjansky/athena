@@ -2,28 +2,17 @@
 # Set up common services and job object.
 # This should appear in ALL derivation job options
 #==============================================================================
-# Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from RecExConfig.ObjKeyStore import objKeyStore
-from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-from RecExConfig.InputFilePeeker import inputFileSummary
-
-#ensure EventInfoCnvAlg is scheduled in the main algsequence, if not already, and is needed
-from RecExConfig.InputFilePeeker import inputFileSummary
-if ("EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']) and not any(isinstance(x,CfgMgr.xAODMaker__EventInfoCnvAlg) for x in DerivationFrameworkJob):
-    DerivationFrameworkJob += CfgMgr.xAODMaker__EventInfoCnvAlg()
-
-# Decide what kind of input HepMC container we are dealing with
-if ("McEventCollection#GEN_EVENT" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
-elif ("McEventCollection#TruthEvent" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
+from DerivationFrameworkMCTruth.MCTruthCommon import * 
 
 #==============================================================================
 # Create the derivation kernel algorithm
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH0Kernel")
+
+# Now we add the sequencer to the job
+#DerivationFrameworkJob += EvgenAODSequence
 
 #==============================================================================
 # Set up stream
@@ -48,4 +37,3 @@ TRUTH0Stream.AddItem( "xAOD::TruthVertexContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
-TRUTH0Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

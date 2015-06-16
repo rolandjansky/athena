@@ -18,6 +18,7 @@
 namespace ExpressionParsing {
   class ExpressionParser;
 }
+class IMCTruthClassifier;
 
 namespace DerivationFramework {
 
@@ -37,7 +38,8 @@ namespace DerivationFramework {
       //std::string m_verticesKey;
       std::string m_collectionName; 
       std::string m_partString;
-      bool do_compress, do_sherpa;
+      ToolHandle<IMCTruthClassifier> m_classifier;
+      bool m_runClassifier;
   }; 
 }
 

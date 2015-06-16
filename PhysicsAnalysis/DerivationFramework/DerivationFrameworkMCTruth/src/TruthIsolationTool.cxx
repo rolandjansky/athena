@@ -105,18 +105,17 @@ StatusCode DerivationFramework::TruthIsolationTool::addBranches() const
     decayHelper.constructListOfFinalParticles(importedAllTruthParticles, candidateParticlesList, emptyList, true, m_chargedOnly);
 
     //create the cached conesize^2 vector
-    m_coneSizes2->clear();
     for ( auto csize_itr : *m_coneSizesSort ) {
       m_coneSizes2->push_back(csize_itr * csize_itr);
     }
 
     // Standard particle loop over final state particles of interest
-    for (const auto& part : listOfParticlesForIso) {
+    for (auto pItr=listOfParticlesForIso.begin(); pItr!=listOfParticlesForIso.end(); ++pItr) {
       std::vector<float> isolationsCalcs(m_coneSizes2->size(), 0.0);
-      calcIsos(part, candidateParticlesList, isolationsCalcs);
+      calcIsos(*pItr, candidateParticlesList, isolationsCalcs);
 
       for ( unsigned int icone = 0; icone < m_coneSizesSort->size(); ++icone ) {
-        decorators_iso.at(icone)(*part) = isolationsCalcs.at(icone);
+        decorators_iso.at(icone)(**pItr) = isolationsCalcs.at(icone);
       }
     }
 
@@ -133,17 +132,17 @@ void DerivationFramework::TruthIsolationTool::calcIsos(const xAOD::TruthParticle
 
     float part_eta = particle->eta();
     float part_phi = particle->phi();
-    for (const auto& cand_part : candidateParticlesList) {
-      if (find(m_excludeFromCone.begin(), m_excludeFromCone.end(), cand_part->pdgId()) != m_excludeFromCone.end()) {
+    for (auto pItr=candidateParticlesList.begin(); pItr!=candidateParticlesList.end(); ++pItr) {
+      if (find(m_excludeFromCone.begin(), m_excludeFromCone.end(), (*pItr)->pdgId()) != m_excludeFromCone.end()) {
         //skip if we find a particle in the exclude list
         continue;
       }
-      if (cand_part->barcode() != particle->barcode()) {
+      if ((*pItr)->barcode() != particle->barcode()) {
         //iteration over sorted cone sizes
         for ( unsigned int icone = 0; icone < m_coneSizes2->size(); ++icone ) {
-          if (calculateDeltaR2(cand_part, part_eta, part_phi) < m_coneSizes2->at(icone) ) {
+          if (calculateDeltaR2(*pItr, part_eta, part_phi) < m_coneSizes2->at(icone) ) {
             //sum the transverse momenta
-            isoCalcs.at(icone) = isoCalcs.at(icone) + cand_part->pt();
+            isoCalcs.at(icone) = isoCalcs.at(icone) + (*pItr)->pt();
           } else {
             //break out of the loop safely since the cone sizes are sorted descending
             break;
@@ -161,7 +160,7 @@ float DerivationFramework::TruthIsolationTool::calculateDeltaR2(const xAOD::IPar
   float eta1 = p1->eta();
   float deltaPhi = fabs(phi1-phi2);
   if (deltaPhi>TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;
-  float deltaPhiSq = deltaPhi * deltaPhi;
+  float deltaPhiSq = (phi1-phi2)*(phi1-phi2);
   float deltaEtaSq = (eta1-eta2)*(eta1-eta2);
   return deltaPhiSq+deltaEtaSq;
 }
