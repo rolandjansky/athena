@@ -377,11 +377,12 @@ def extract_streams_from_tag (fname,
         for ref in stream_refs:
             try:
                 token_str = getattr(t, ref)
-            except AttributeError,err:
+            except (AttributeError, TypeError) as err:
+                # MN: TypeError is a bug in ROOT 5.34.25, fixed in 5.34.30
                 # filthy work-around...
                 try:
                     token_branch = t.GetBranch (ref)
-                    token_branch.GetEntry (0)
+                    token_branch.GetEntry(i)
                     token_str = token_branch.GetLeaf("Token").GetValueString()
                 except Exception,new_err:
                     print "::: could not access stream-ref [%s] (entry #%i)"%(
