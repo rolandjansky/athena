@@ -37,7 +37,8 @@ m_nAccepted(0.),
 m_nMerged(0.),
 m_failureCount(0),
 m_procPtr(0),
-m_userHookPtr(0)
+m_userHookPtr(0),
+m_doLHE3Weights(false)
 {
   declareProperty("Commands", m_commands);
   declareProperty("UserParams", m_userParams);
@@ -92,43 +93,62 @@ StatusCode Pythia8_i::genInitialize() {
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
   
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
-  // Tune 4C for pp collisions (default from 8.150 anyway)
+  // Tune 4C for pp collisions
   m_pythia.readString("Tune:pp = 5");
 
-  // but also use LHAPDF and CTEQ6L1 unless otherwise instructed in JO
-  if(m_useLHAPDF){
-    m_pythia.readString("PDF:useLHAPDF = on");
-    m_pythia.readString("PDF:LHAPDFset = cteq6ll.LHpdf");
-  }else{
-    m_pythia.readString("PDF:useLHAPDF = off");
+  // also use CTEQ6L1 from LHAPDF 6 by default
+  // can be over-written using JO
+  m_pythia.readString("PDF:pSet= LHAPDF6:cteq6ll.LHpdf");
+  
+  // have to find any old-style Pythia 8.18x PDF commands and convert them
+  foreach(string &cmd, m_commands){
+    try{
+      string val = findValue(cmd, "PDF:LHAPDFset");
+      if(val != ""){
+        cmd = "PDF:pSet = LHAPDF6:" + val;
+      }else{
+        val = findValue(cmd, "BeamRemnants:reconnectRange");
+        if(val != ""){
+          cmd = "ColourReconnection:range = " + val;
+          m_commands += "ColourReconnection:mode = 0";
+        }
+      }
+        
+    }catch(Pythia8_i::CommandException err){
+      ATH_MSG_ERROR(err.what());
+      return StatusCode::FAILURE;
+    }
+
+    if(cmd.find("PDF:useLHAPDF") != std::string::npos){
+      ATH_MSG_WARNING("PDF:useLHAPDF is deprecated and ignored.");
+      cmd="";
+    }
   }
-    
-  for(vector<string>::const_iterator param = m_userParams.begin();
-      param != m_userParams.end(); ++param){
+
+  foreach(const string &param, m_userParams){
     vector<string> splits;
-    boost::split(splits, *param, boost::is_any_of("="));
+    boost::split(splits, param, boost::is_any_of("="));
     if(splits.size() != 2){
-      ATH_MSG_ERROR("Cannot interpret user param command: " + *param);
+      ATH_MSG_ERROR("Cannot interpret user param command: " + param);
       return StatusCode::FAILURE;
     }
     
     boost::erase_all(splits[0], " ");
     m_pythia.settings.addParm(splits[0], 0., false, false, 0., 0.);
-    m_commands+=*param;
+    m_commands+=param;
   }
 
-  for(vector<string>::const_iterator mode = m_userModes.begin();
-      mode != m_userModes.end(); ++mode){
+  foreach(const string &mode, m_userModes){
     vector<string> splits;
-    boost::split(splits, *mode, boost::is_any_of("="));
+    boost::split(splits, mode, boost::is_any_of("="));
     if(splits.size() != 2){
-      ATH_MSG_ERROR("Cannot interpret user mode command: " + *mode);
+      ATH_MSG_ERROR("Cannot interpret user mode command: " + mode);
       return StatusCode::FAILURE;
     }
     
     boost::erase_all(splits[0], " ");
     m_pythia.settings.addMode(splits[0], 0, false, false, 0, 0);
-    m_commands+=*mode;
+    m_commands+=mode;
   }
   
   // Now apply the settings from the JO
@@ -257,29 +277,40 @@ StatusCode Pythia8_i::genInitialize() {
       canInit = false;
     }
   }
-  
+
   if(m_lheFile != ""){
-    if(!m_pythia.init(m_lheFile)){
-      ATH_MSG_ERROR("Unable to read requested LHE file: " + m_lheFile + " !!");
-      ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
+    if(m_procPtr != 0){
+      ATH_MSG_ERROR("Both LHE file and user process have been specified");
+      ATH_MSG_ERROR("LHE input does not make sense with a user process!");
       canInit = false;
     }
-  }else{
-    if(m_procPtr != 0){
-      if(!m_pythia.setSigmaPtr(m_procPtr)){
-        ATH_MSG_ERROR("Unable to set requested user process: " + m_userProcess + " !!");
-        ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!"); 
-        canInit = false;
-      }
+    
+    canInit = canInit && m_pythia.readString("Beams:frameType = 4");
+    canInit = canInit && m_pythia.readString("Beams:LHEF = " + m_lheFile);
+    if(!canInit){
+      ATH_MSG_ERROR("Unable to read requested LHE file: " + m_lheFile + " !");
+      ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
     }
-    if(!m_pythia.init(beam1, beam2, m_collisionEnergy)){
-      ATH_MSG_ERROR("Unable to initialise Pythia beams !!");
+  }else{
+    canInit = canInit && m_pythia.readString("Beams:frameType = 1");
+    canInit = canInit && m_pythia.readString("Beams:idA = " + boost::lexical_cast<string>(beam1));
+    canInit = canInit && m_pythia.readString("Beams:idB = " + boost::lexical_cast<string>(beam2));
+    canInit = canInit && m_pythia.readString("Beams:eCM = " + boost::lexical_cast<string>(m_collisionEnergy));
+  }
+  
+  if(m_procPtr != 0){
+    if(!m_pythia.setSigmaPtr(m_procPtr)){
+      ATH_MSG_ERROR("Unable to set requested user process: " + m_userProcess + " !!");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
       canInit = false;
     }
   }
-
+  
   StatusCode returnCode = SUCCESS;
+  
+  if(canInit){
+    canInit = m_pythia.init();
+  }
   
   if(!canInit){
     returnCode = StatusCode::FAILURE;
@@ -390,7 +421,31 @@ StatusCode Pythia8_i::fillEvt(GenEvent *evt){
   
   // set the event weight
   evt->weights().clear();
-  evt->weights().push_back(eventWeight);
+  
+  vector<string>::const_iterator id = m_weightIDs.begin();
+  
+  if(m_pythia.info.getWeightsDetailedSize() != 0){
+    for(map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
+        wgt != m_pythia.info.rwgt->wgts.end(); ++wgt){
+      
+      if(m_internal_event_number == 1){
+        m_doLHE3Weights = true;
+        m_weightIDs.push_back(wgt->first);
+      }else{
+        if(*id != wgt->first){/// mismatch in weight name!
+          ATH_MSG_ERROR("Mismatch in LHE3 weight name.  Found "<<wgt->first<<", expected "<<*id);
+          return StatusCode::FAILURE;
+        }
+        ++id;
+      }
+      
+      //evt->weights().push_back(mergingWeight * wgt->second.contents);
+      evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+      
+    }
+  }else{
+    evt->weights().push_back(eventWeight);
+  }
 
   // Units correction
   #ifdef HEPMC_HAS_UNITS
@@ -434,6 +489,22 @@ StatusCode Pythia8_i::genFinalize(){
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
   std::cout << "MetaData: generator= Pythia 8." << PY8VERSION <<std::endl;
 
+  if(m_doLHE3Weights){
+    
+    std::cout<<"MetaData: weights = ";
+    foreach(const string &id, m_weightIDs){
+      
+      map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
+      
+      if(weight != m_pythia.info.init_weights->end()){
+        std::cout<<weight->second.contents<<" | ";
+      }else{
+        std::cout<<"Unknown | ";
+      }
+    }
+    std::cout<<std::endl;
+  }
+  
   return SUCCESS;
 }
 

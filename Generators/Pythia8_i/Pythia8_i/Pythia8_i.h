@@ -8,7 +8,8 @@
 #include "GeneratorModules/GenModule.h"
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8/Pythia8ToHepMC.h"
+//#include "Pythia8/../Pythia8Plugins/HepMC2.h"
+#include "Pythia8Plugins/HepMC2.h"
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -67,7 +68,7 @@ public:
   CommandException(const string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
     }
   };
-  
+    
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode fillEvt(GenEvent *evt);
@@ -87,9 +88,6 @@ private:
   
   static std::string xmlpath();
   
-//  StoreGateSvc* m_sGateService;
-//  string m_mcEventKey;
-
   static std::string findValue(const std::string &command, const std::string &key);
   
   int m_internal_event_number;
@@ -141,8 +139,11 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
-  static int s_allowedTunes(double version);
+  vector<string> m_weightIDs;
+  bool m_doLHE3Weights;
   
+  static int s_allowedTunes(double version);
+
 };
 
 #endif
