@@ -78,6 +78,10 @@ StatusCode TileCisDefaultCalibTool::initialize() {
   memset(edgeSample, 0, sizeof(edgeSample));
   memset(nextToEdgeSample, 0, sizeof(nextToEdgeSample));
 
+  memset(SampleBit, 0, sizeof(SampleBit));
+  memset(BitStatus, 0, sizeof(BitStatus));
+  memset(NumSamp, 0, sizeof(NumSamp));
+
   // get beam info tool
   CHECK( m_beamPrv.retrieve() );
 
@@ -223,32 +227,59 @@ StatusCode TileCisDefaultCalibTool::execute() {
     TileDigitsContainer::const_iterator digItColl = digContainer->begin();
     TileDigitsContainer::const_iterator digItCollEnd = digContainer->end();
 
-    if (pass) {
+     for (; digItColl != digItCollEnd; ++digItColl) {
 
-      for (; digItColl != digItCollEnd; ++digItColl) {
+      TileDigitsCollection::const_iterator digIt = (*digItColl)->begin();
+      TileDigitsCollection::const_iterator digItEnd = (*digItColl)->end();
 
-        TileDigitsCollection::const_iterator digIt = (*digItColl)->begin();
-        TileDigitsCollection::const_iterator digItEnd = (*digItColl)->end();
+      if (digIt != digItEnd) {
 
-        if (digIt != digItEnd) {
+        HWIdentifier adc_id = (*digIt)->adc_HWID();
+        int ros = m_tileHWID->ros(adc_id);    // LBA=1  LBC=2  EBA=3  EBC=4
+        int drawer = m_tileHWID->drawer(adc_id); // 0 to 63
 
-          HWIdentifier adc_id = (*digIt)->adc_HWID();
-          int ros = m_tileHWID->ros(adc_id);    // LBA=1  LBC=2  EBA=3  EBC=4
-          int drawer = m_tileHWID->drawer(adc_id); // 0 to 63
+        // not clear how to handle this. if not 7 get off? MM - 4 June 2009
+        int numSamples = (*digIt)->NtimeSamples();
+        if (numSamples != 7) {
+          m_doSampleChecking = false;
+          break;
+        }
 
-          // not clear how to handle this. if not 7 get off? MM - 4 June 2009
-          int numSamples = (*digIt)->NtimeSamples();
-          if (numSamples != 7) {
-            m_doSampleChecking = false;
-            break;
-          }
-
-          for (; digIt != digItEnd; ++digIt) {
+        for (; digIt != digItEnd; ++digIt) {
 
             adc_id = (*digIt)->adc_HWID();
             int chan = m_tileHWID->channel(adc_id);  // 0 to 47 channel not PMT
             int gain = m_tileHWID->adc(adc_id);      // low=0 high=1
+           
+            std::vector<float> theDigits = (*digIt)->samples();
 
+            //MM - skip channels with digital errors
+            if (!(theDQstatus->isAdcDQgood(ros, drawer, chan, gain))) {
+              continue;
+            }
+ 
+            // Loop over samples for bit analysis
+            // We don't need to use the same cuts as the "Edge Sample" analysis           
+            for(unsigned int sampNum = 0; sampNum < theDigits.size(); sampNum++) {
+
+              // Count the total number of samples taken by an ADC
+              NumSamp[ros][drawer][chan][gain] += 1;
+              int k = 0;
+              int quotient = theDigits[sampNum];
+              
+              // convert sample to binary number
+              while(quotient!=0) {
+                if((quotient % 2) == 1) {
+                  // If the bit is one, store info in the array
+                  SampleBit[ros][drawer][chan][gain][k] += 1;
+                }
+                
+                quotient = quotient / 2;
+                k += 1;
+              } // end binary conversion
+            } //end sample loop
+               
+          if (pass) {
             //MM - only consider fit range
             if (gain == 0) {
               if ((charge < m_linfitMinLo) || (charge > m_linfitMaxLo)) {
@@ -258,11 +289,6 @@ StatusCode TileCisDefaultCalibTool::execute() {
               if ((charge < m_linfitMinHi) || (charge > m_linfitMaxHi)) {
                 continue;
               }
-            }
-
-            //MM - skip channels with digital errors
-            if (!(theDQstatus->isAdcDQgood(ros, drawer, chan, gain))) {
-              continue;
             }
 
             std::vector<float> theDigits = (*digIt)->samples();
@@ -507,11 +533,40 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       if (edgeSample[ros][drawer][chan][gain] == 0) {
         setBit(edgeSamp, qflag[ros][drawer][chan][gain]);
       }
-
       // this bit is set if there were no events found in the fit range 
       // with the maximum sample value in the second or sixth sample 
       if (nextToEdgeSample[ros][drawer][chan][gain] == 0) {
         setBit(nextToEdgeSamp, qflag[ros][drawer][chan][gain]);
+      }
+ 
+      // Determine failure/passing of StuckBit quality flag
+      // And store information about bits in an array
+      // which will be written to the ntuple
+      int NoStuckBit = 1; 
+      for(int i = 0; i < 10; i++) {
+        // If a bit is stuck at zero...
+        if(SampleBit[ros][drawer][chan][gain][i] == 0  && (NumSamp[ros][drawer][chan][gain] != 0)) {
+          // write information to BitStatus array of shorts
+          // each bit in short corresponds to a bit in an adc
+          // with 6 short bits left over
+          BitStatus[ros][drawer][chan][gain][0] += pow(2, i);
+          NoStuckBit = 0;
+          ATH_MSG_DEBUG( "\n\nBIT STUCK AT ZERO: "
+                  << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
+
+        }
+       // Same for a bit stuck at one
+        else if (SampleBit[ros][drawer][chan][gain][i] == NumSamp[ros][drawer][chan][gain] && (NumSamp[ros][drawer][chan][gain] != 0)) {
+          BitStatus[ros][drawer][chan][gain][1] += pow(2, i);
+          NoStuckBit = 0;
+          ATH_MSG_DEBUG( "\n\nBIT STUCK AT ONE: "
+                  << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
+        }
+      } //end bit loop
+      
+      // If no stuck bits are found, this adc passes StuckBit qflag
+      if(NoStuckBit) {
+        setBit(stuckbitBit, qflag[ros][drawer][chan][gain]);
       }
 
       gr->SetName("scan_" + arrayString(ros, drawer, chan, gain));
@@ -536,6 +591,7 @@ StatusCode TileCisDefaultCalibTool::writeNtuple(int runNumber, int runType, TFil
   t->Branch("nDAC", *nDAC, "nDAC[5][64][48][2]/I");
   t->Branch("nDigitalErrors", *nDigitalErrors, "nDigitalErrors[5][64][48][2]/I");
   t->Branch("chi2", *chi2, "chi2[5][64][48][2]/F");
+  t->Branch("BitStatus", *BitStatus, "BitStatus[5][64][48][2][4]/s");
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
   t->Fill();

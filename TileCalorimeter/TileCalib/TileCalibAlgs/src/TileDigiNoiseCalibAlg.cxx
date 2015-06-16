@@ -386,13 +386,13 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits() {
         // Needed to calculate the AutoCorrealtion matrix at end of run
         //m_tileOFCorrelation->RunningCorrelation(vdigits,ros-1,drawer,chan,gain,msg(),false,m_nSamples,100);
 
-        if (theDQstatus->isChEmpty(ros, drawer, chan)) {
-          ATH_MSG_DEBUG( "Skipping Module: " << TileCalibUtils::getDrawerString(ros, drawer)
-                        << " channel: " << chan
-                        << " ADC: " << gain
-                        << " because empty" );
-          continue;
-        }
+        // if (theDQstatus->isChEmpty(ros, drawer, chan)) {
+        //   ATH_MSG_DEBUG( "Skipping Module: " << TileCalibUtils::getDrawerString(ros, drawer)
+        //                 << " channel: " << chan
+        //                 << " ADC: " << gain
+        //                 << " because empty" );
+        //   continue;
+        // }
 
         // If DQ problem, do not fill calib ntuple
         if (m_calibMode == 1) {// Bigain: check indivual adc's
