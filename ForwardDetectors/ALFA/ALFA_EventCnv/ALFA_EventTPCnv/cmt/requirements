@@ -27,7 +27,7 @@ use AtlasReflex        AtlasReflex-*        External
 
 # Pattern to build the dict lib. User should create a single header
 # file: <package>Dict.h which includes all other .h files. See EventInfoDict
-apply_pattern lcgdict dict=ALFA_EventTPCnv  selectionfile=selection.xml headerfiles="../ALFA_EventTPCnv/ALFA_EventTPCnvDict.h
+apply_pattern lcgdict dict=ALFA_EventTPCnv  selectionfile=selection.xml headerfiles="../ALFA_EventTPCnv/ALFA_EventTPCnvDict.h"
 
 # end_private
 
