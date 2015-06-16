@@ -37,6 +37,7 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/System.h"
 //#include "IOVDbSvc/IIOVCondDbSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 // CORAL includes
 #include "CoralKernel/Context.h"
@@ -526,6 +527,16 @@ bool psc::Psc::prepareForRun (const ptree& args)
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
   {
     ERS_PSC_ERROR("Error preparing the EventLoopMgr");
+    return false;
+  }
+
+  // Cleanup of dangling database connections from RDBAccessSvc
+  ServiceHandle<IRDBAccessSvc> p_rdbAccessSvc("RDBAccessSvc","psc::Psc");
+  if(p_rdbAccessSvc->shutdown("*Everything*")) {
+    ERS_LOG("Cleaning up RDBAccessSvc connections");
+  } else {
+    ERS_PSC_ERROR("Cleaning up RDBAccessSvc connections failed");
+    p_rdbAccessSvc->release();
     return false;
   }
 
