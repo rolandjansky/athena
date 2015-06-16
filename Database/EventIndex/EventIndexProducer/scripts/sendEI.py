@@ -20,6 +20,7 @@ from os import path, access, R_OK
 class Stats(object):
     pass
 stats=Stats()
+gstats=Stats()
 
 # logger
 log=None
@@ -83,6 +84,12 @@ class EIFile(object):
     def close(self):
         self._db.close()
 
+    def getEventsPerFile(self):
+        nfiles=self._db['Nfiles']
+        nevents=[]
+        for nf in xrange(nfiles):
+            nevents.append(self._db['Nentries_%d'%nf])
+        return nevents
 
 class EIIterator(object):
 
@@ -155,7 +162,7 @@ class EI5(object):
 
     
     def setEvtCommon(self,ec):
-        ecnames=[('JobID','a'),('TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e'),('InputDsName','f')]
+        ecnames=[('JobID','a'),('TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e'),('InputDsName','f'),('GUID','g')]
         ecn = dict(ecnames)
         self._ec_next={}              # valid starting from next append
         for k,v in ec.iteritems():
@@ -167,6 +174,12 @@ class EI5(object):
         if self._ec_next is not None:
             self._ec = self._ec_next
             self._ec_next = None
+
+        if e is None:
+            # empty event
+            self._lastevt={}
+            self._evtlist.append({})
+            return 0
 
         evt=dict(zip(self._schema, e))
 
@@ -258,7 +271,10 @@ class EI5(object):
         
         # fill data
         bd["ec"]=self._ec
-        bd['el']=self._evtlist
+        if len(self._evtlist[0]) != 0:
+            bd['el']=self._evtlist
+        else:
+            bd['el']=[]                    # empty event
 
         # build block
         eb={}
@@ -398,6 +414,8 @@ class MSG(object):
         if last:
             if self.conn is not None:
                 self.conn.commit(transaction=self.transactionID)     # commit transaction
+            self.seq = 0                                             # restart sequence 
+            self.seqid = uuid.uuid4().hex                            # define a new identifier for this sequence
 
         self.blocks=[]
 
@@ -528,12 +546,12 @@ def eimrun(logger,opt):
         sys.exit(1)
 
 
-    # stats
-    stats.ntot=0
-    stats.tot_size=0
-    stats.start_time=0
-    stats.end_time=0
-    stats.nmsg=0
+    # grand total stats
+    gstats.ntot=0
+    gstats.tot_size=0
+    gstats.start_time=0
+    gstats.end_time=0
+    gstats.nmsg=0
 
     # check supported versions of EI file
     if  int(eif['Version']) > 1:
@@ -556,6 +574,7 @@ def eimrun(logger,opt):
         log.info(" EndProcTime: {}".format(eif['EndProcTime']))
         log.info(" TaskID: {}".format(eif['TaskID']))
         log.info(" JobID: {}".format(eif['JobID']))
+        log.info(" InputDsName: {}".format(eif['InputDsName']))
         log.info(" Includes Provenance: {}".format(eif['ProvenanceRef']))
         log.info(" Includes Trigger: {}".format(eif['TriggerInfo']))
         
@@ -600,7 +619,7 @@ def eimrun(logger,opt):
     ei5.setIncProvenance(opt.provenance)
 
     # connect to broker
-    stats.start_time=int(time.time() * 1000)
+    gstats.start_time=int(time.time() * 1000)
     mbroker=MSG(opt)
     try:
         mbroker.connect()
@@ -609,27 +628,31 @@ def eimrun(logger,opt):
         sys.exit(1)
  
 
-    nfiles = eif['Nfiles']
-    # new event iterator
-    if opt.evtmax != 0:
-        eifiter=eif.iterE(opt.evtmax)    # limit number of events to get
-    else:
-        eifiter=eif.iterE()              # all events
+    nFiles = eif['Nfiles']
+    nEventsPerFile = eif.getEventsPerFile()
+    if opt.evtmax != 0:                                 # truncate list if max events <> 0
+        nEvtTot = 0
+        for nf in xrange(nFiles):
+            nEvtTot += nEventsPerFile[nf]
+            if nEvtTot >= opt.evtmax:
+                nEventsPerFile[nf] = nEventsPerFile[nf] - nEvtTot + opt.evtmax
+                nFiles = nf + 1
+                nEventsPerFile = nEventsPerFile[0:nf+1]
+                break
 
+    proc_events_tot = 0                                 # total events procesed
+    nEvtFrom = nEvtTo = 0                               # ranges to process
 
-    events_tot = eif['Nentries']  # total number of events
-    proc_events_tot = 0           # total events procesed
-    proc_events_bunch = 0         # events procesed in bunch
+    for nf in xrange(nFiles):                           # loop over files
+        log.info("Processing file %d"%nf)
 
-    # get list of files
-    fdata=[]
-    for nf in xrange(nfiles):
-        if 'Nentries_{:d}'.format(nf) in eif:
-            nevents = eif['Nentries_{:d}'.format(nf)]
-        else:
-            nevents = events_tot
-            
-        # new common values
+        # stats
+        stats.ntot=0
+        stats.tot_size=0
+        stats.nmsg=0
+        stats.start_time=int(time.time() * 1000)
+
+        # new file, new common values
         evtcommon={}
         if "AMITag_{:d}".format(nf) in eif:
             evtcommon['AMITag']=eif['AMITag_{:d}'.format(nf)]
@@ -637,101 +660,125 @@ def eimrun(logger,opt):
             evtcommon['ProjName']=eif['ProjName_{:d}'.format(nf)]
         if "TrigStream_{:d}".format(nf) in eif:
             evtcommon['TrigStream']=eif['TrigStream_{:d}'.format(nf)]
+        if "GUID_{:d}".format(nf) in eif:
+            evtcommon['GUID']=eif["GUID_{:d}".format(nf)]
             
         evtcommon['TaskID']=eif['TaskID']
         evtcommon['JobID']=eif['JobID']
         evtcommon['InputDsName']=eif['InputDsName']
-        fdata.append((nevents,evtcommon))
+        ei5.setEvtCommon(evtcommon)
 
-    i = 0
-    nf = 0
-    log.info("Processing file {:d}".format(nf))
-    (nevents,evtcommon) = fdata.pop(0)
-    ei5.setEvtCommon(evtcommon)
-    last_in_file = nevents
-    if opt.evtmax != 0:
-        last_event = opt.evtmax
-    else:
-        last_event = events_tot
-    if last_in_file > last_event:
-        last_in_file = last_event
-    force_send = False
-    while True:
-        # get event
-        try:
-            evt = eifiter.next()
-        except:
-            evtlast=True  # no more events
-            break
+        nevt = nEventsPerFile[nf]
+        nEvtTo += nevt
+        #mbroker.startFile()   # reset seq and transid
 
-        i += 1
-        stats.ntot += 1
+        for i in xrange(nEvtFrom, nEvtTo):     # loop over events in file
+            evt=eif[i]
+            #print nf, i, evt[0],evt[1]
+            sz = ei5.append(evt)    # append event to block
+            stats.ntot += 1
+            # send block if greather enough or last event
+            if sz >= opt.msize or i == (nEvtTo - 1):
+                #print "sendig buffer", nf, i, evt[0],evt[1]
+                blk = ei5.getEvtBlock()
+                mbroker.addBlock(blk)
+                if i == (nEvtTo - 1):
+                    #print "LAST"
+                    msz = mbroker.sendMSG(last=True)
+                else:
+                    msz = mbroker.sendMSG()
+                stats.nmsg += 1
+                stats.tot_size += msz
 
-        sz = ei5.append(evt)    # append event to block
-        
-        # last event in input file ?
-        if i == last_in_file:
-            log.info("Last event in file {:d}".format(nf))
-            nf += 1
-            # prepare for next file
-            try:
-                (nevents,evtcommon) = fdata.pop(0)
-            except:
-                (nevents,evtcommon) = (0,{})
-            last_in_file += nevents
-            if last_in_file > last_event:
-                last_in_file = last_event
-            ei5.setEvtCommon(evtcommon)
-            force_send=True
-
-        # send block is greather enough or force_send
-        if sz >= opt.msize or force_send:
-            #print "sendig buffer"
-            force_send = False
+        # patch: if file has no events at all, send empty message
+        if nEvtFrom == nEvtTo:
+            ei5.append(None)            # add empty event
             blk = ei5.getEvtBlock()
             mbroker.addBlock(blk)
-            if i == last_event:
-                #print "LAST"
-                msz = mbroker.sendMSG(last=True)
-            else:
-                msz = mbroker.sendMSG()
+            msz = mbroker.sendMSG(last=True)
             stats.nmsg += 1
             stats.tot_size += msz
+            
+        stats.end_time=int(time.time() * 1000)
+
+        # send stats to alternate queue
+        #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
+        msgst="EISTATS0;{};{};{};{};{};{};{};{}".format(
+            eif["GUID_{:d}".format(nf)],
+            eif['JobID'],eif['TaskID'],
+            stats.start_time,stats.end_time,
+            stats.ntot,stats.nmsg,stats.tot_size)
+        mbroker.sendMSGstats(msgst)
+
+        log.info("Last event in file %d"%nf)
+
+        if opt.verbose > 0:
+            log.info("=========== sendEI summary ==========")
+            log.info(" number of events:     {:10d}".format(stats.ntot))
+            log.info(" Sun of message sizes: {:10d} bytes".format(stats.tot_size))
+            if int(stats.ntot) != 0:
+                log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
+            log.info(" number of messages:   {:10d} ".format(stats.nmsg))
+            if int(stats.nmsg) != 0:
+                log.info(" mean message size:    {:10.2f} Kbytes".format((float(stats.tot_size)/int(stats.nmsg)/1000.)))
+                log.info(" mean evts per msg:    {:10.2f}".format((float(stats.ntot)/int(stats.nmsg))))
+            dt = int(stats.end_time - stats.start_time)
+            log.info(" connected time:   {:d} ms".format(dt))
+            if dt != 0:
+                log.info(" BW {:10.2f} KB/s".format((float(stats.tot_size)/(dt))))
+                log.info(" BW {:10.2f} msg/s".format((float(stats.nmsg)/(dt)*1000)))
+                log.info(" BW {:10.2f} evt/s".format((float(stats.ntot)/(dt)*1000)))
+
+
+        # grand stats
+        gstats.ntot += stats.ntot
+        gstats.tot_size += stats.tot_size
+        gstats.nmsg += stats.nmsg
+
+        # reset stats
+        stats.ntot=0
+        stats.tot_size=0
+        stats.nmsg=0
+        stats.start_time=stats.end_time
+        
+        nEvtFrom = nEvtTo                          # next file
 
 
     # at this point, buffer should be empty
     blk = ei5.getEvtBlock()
     if blk is not None:
         log.error("Buffer is not empty")
-    stats.end_time=int(time.time() * 1000)
 
-    # send stats to alternate queue
-    #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
-    msgst="EISTATS0;{};{};{};{};{};{};{};{}".format(
-        eif['GUID_0'],
-        eif['JobID'],eif['TaskID'],
-        stats.start_time,stats.end_time,
-        stats.ntot,stats.nmsg,stats.tot_size)
-    mbroker.sendMSGstats(msgst)
+    gstats.end_time=int(time.time() * 1000)
+
+    if nFiles > 1:
+        # send stats to alternate queue
+        #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
+        msgst="EISTATS1;{};{};{};{};{};{};{};{}".format(
+            '00000000-0000-0000-0000-000000000000',
+            eif['JobID'],eif['TaskID'],
+            gstats.start_time,gstats.end_time,
+            gstats.ntot,gstats.nmsg,gstats.tot_size)
+        mbroker.sendMSGstats(msgst)
 
     mbroker.close()
 
-    if opt.verbose > 0:
-        log.info("=========== sendEI summary ==========")
-        log.info(" number of events:     {:10d}".format(stats.ntot))
-        log.info(" Sun of message sizes: {:10d} bytes".format(stats.tot_size))
-        if int(stats.ntot) != 0:
-            log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
-        log.info(" number of messages:   {:10d} ".format(stats.nmsg))
-        if int(stats.nmsg) != 0:
-            log.info(" mean message size:    {:10.2f} Kbytes".format((float(stats.tot_size)/int(stats.nmsg)/1000.)))
-            log.info(" mean evts per msg:    {:10.2f}".format((float(stats.ntot)/int(stats.nmsg))))
-        dt = int(stats.end_time - stats.start_time)
+    if nFiles > 1 and opt.verbose > 0:
+        log.info("=========== sendEI summary grand total ==========")
+        log.info(" number of events:     {:10d}".format(gstats.ntot))
+        log.info(" Sun of message sizes: {:10d} bytes".format(gstats.tot_size))
+        if int(gstats.ntot) != 0:
+            log.info(" mean size per evt:    {:10.1f} bytes".format((float(gstats.tot_size)/int(gstats.ntot))))
+        log.info(" number of messages:   {:10d} ".format(gstats.nmsg))
+        if int(gstats.nmsg) != 0:
+            log.info(" mean message size:    {:10.2f} Kbytes".format((float(gstats.tot_size)/int(gstats.nmsg)/1000.)))
+            log.info(" mean evts per msg:    {:10.2f}".format((float(gstats.ntot)/int(gstats.nmsg))))
+        dt = int(gstats.end_time - gstats.start_time)
         log.info(" connected time:   {:d} ms".format(dt))
         if dt != 0:
-            log.info(" BW {:10.2f} KB/s".format((float(stats.tot_size)/(dt))))
-            log.info(" BW {:10.2f} msg/s".format((float(stats.nmsg)/(dt)*1000)))
-            log.info(" BW {:10.2f} evt/s".format((float(stats.ntot)/(dt)*1000)))
+            log.info(" BW {:10.2f} KB/s".format((float(gstats.tot_size)/(dt))))
+            log.info(" BW {:10.2f} msg/s".format((float(gstats.nmsg)/(dt)*1000)))
+            log.info(" BW {:10.2f} evt/s".format((float(gstats.ntot)/(dt)*1000)))
 
 
 if __name__ == '__main__':
