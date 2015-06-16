@@ -8,8 +8,9 @@
 #include "LArG4RunControl/LArGeoTB2004Options.h"
 #include "LArReadoutGeometry/HECDetectorManager.h"
 
+
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
@@ -74,33 +75,36 @@ LArDetectorToolH62004::create( StoreGateSvc* detStore )
 
 
 
-  // Get the detector configuration.
-  IGeoDbTagSvc *geoDbTag;
-  StatusCode sc = service ("GeoDbTagSvc",geoDbTag);
-  if (StatusCode::SUCCESS != sc) {
-    log << MSG::ERROR << "Could not find GeoDbTagSvc" << endmsg;
-    return (StatusCode::FAILURE);
-  }
-
-  std::string AtlasVersion = geoDbTag->atlasVersion();
-  std::string LArVersion   = geoDbTag->LAr_VersionOverride();
-
+ // Get the detector configuration.
+  IGeoModelSvc *geoModel;
+  StatusCode sc;
+  sc=service ("GeoModelSvc",geoModel);
+  if (StatusCode::SUCCESS != sc) { 
+    log << MSG::ERROR 
+	<< "Could not find GeoModelSvc" 
+	<< endreq; 
+    return (StatusCode::FAILURE); 
+  } 
+  
+  std::string AtlasVersion = geoModel->atlasVersion();
+  std::string LArVersion   = geoModel->LAr_VersionOverride();
+  
   IRDBAccessSvc *accessSvc;
   sc=service("RDBAccessSvc",accessSvc);
   if (StatusCode::SUCCESS != sc) { 
     log << MSG::ERROR 
 	<< "Could not find RDBAccessSvc" 
-	<< endmsg; 
+	<< endreq; 
     return (StatusCode::FAILURE); 
   } 
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endmsg;
+  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endreq;
 
 
-  log << MSG::INFO  << "Creating the LAr " << endmsg;
-  log << MSG::INFO  << "LAr Geometry Options:"   << endmsg;
+  log << MSG::INFO  << "Creating the LAr " << endreq;
+  log << MSG::INFO  << "LAr Geometry Options:"   << endreq;
 
 
 
@@ -113,7 +117,7 @@ LArDetectorToolH62004::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != sc) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endmsg; 
+	<< endreq; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -143,7 +147,7 @@ LArDetectorToolH62004::create( StoreGateSvc* detStore )
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theLArFactory.create(world);
     } catch (std::bad_alloc) {
-      log << MSG::FATAL << "Could not create new H62004Node!" << endmsg;
+      log << MSG::FATAL << "Could not create new H62004Node!" << endreq;
       return StatusCode::FAILURE; 
     }
     // Register the H62004Node instance with the Transient Detector Store
@@ -152,7 +156,7 @@ LArDetectorToolH62004::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != sc) { 
     log << MSG::ERROR 
 	<< "Could not record LArFactory to DetStore" 
-	<< endmsg; 
+	<< endreq; 
     return (StatusCode::FAILURE); 
   } 
 

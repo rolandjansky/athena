@@ -78,7 +78,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   }
 
   MsgStream log(msgSvc, "LArGeo::MovableTableConstructionH62004"); 
-  log << MSG::INFO << "+    HELLO from LArGeo::MovableTableConstructionH62004       +" << endmsg;
+  log << MSG::INFO << "+    HELLO from LArGeo::MovableTableConstructionH62004       +" << endreq;
 
 
   StoreGateSvc *detStore;
@@ -161,7 +161,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   // The beam sees the instrumentation in the following order:
   // W1, W2, B1, MWPC5
 
-  log << MSG::INFO << "Create Movable Scintillators ..." << endmsg;
+  log << MSG::INFO << "Create Movable Scintillators ..." << endreq;
 
   // Create scintillator S1(num=4),S2,S3(num= 6,7)
   
@@ -201,7 +201,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   //----- Done with Scintillators
 
   //------ Now create MWPC N2 & N3 & N4 
-  log << MSG::INFO << " Create MWPC's " << endmsg;
+  log << MSG::INFO << " Create MWPC's " << endreq;
   
   MWPCConstruction MWPC(1.*CLHEP::mm);
   GeoVPhysVol* MwpcPhysical = MWPC.GetEnvelope();
@@ -214,7 +214,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   //----- Done with the MWPC
 
   //----- Now create BPC
-  log << MSG::INFO << " Create BPC 5&6 " << endmsg;
+  log << MSG::INFO << " Create BPC 5&6 " << endreq;
 
   BPCConstruction BPC(false);
   GeoVPhysVol* BPCPhysical = BPC.GetEnvelope();

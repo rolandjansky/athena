@@ -11,6 +11,8 @@
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+class IRDBAccessSvc;
+class IGeoModelSvc;
 class LArDetDescrManager;
 
 namespace LArGeo {

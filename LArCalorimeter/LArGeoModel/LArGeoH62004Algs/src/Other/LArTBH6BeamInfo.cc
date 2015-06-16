@@ -45,17 +45,17 @@ StatusCode LArTBH6BeamInfo::initialize()
 
    sc = service("StoreGateSvc", m_StoreGate);
    if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get pointer to StoreGate Service" << endmsg;
+     log << MSG::ERROR << "Unable to get pointer to StoreGate Service" << endreq;
      return sc;
    }
 
    if((!m_Primary) && (m_pcode == 999)) {
-      log << MSG::ERROR << "Pcode should be in jO, if not PrimaryTrackOnly !" << endmsg;
+      log << MSG::ERROR << "Pcode should be in jO, if not PrimaryTrackOnly !" << endreq;
       return StatusCode::FAILURE;
    }
    
 // End of Initialization 
-   log << MSG::INFO << "LArTBH6BeamInfo initialisation completed" << endmsg;
+   log << MSG::INFO << "LArTBH6BeamInfo initialisation completed" << endreq;
    return sc;
 }
 
@@ -67,14 +67,14 @@ StatusCode LArTBH6BeamInfo::execute()
 {
    StatusCode sc;                                                            
    MsgStream log(messageService(), name());
-   log << MSG::INFO << "LArTBH6BeamInfo in execute" << endmsg;
+   log << MSG::INFO << "LArTBH6BeamInfo in execute" << endreq;
    CLHEP::Hep3Vector pos;
 
    if ( m_numEv == 0 ){
       const TBEventInfo* theEventInfo;
       sc = m_StoreGate->retrieve(theEventInfo,"TBEventInfo");
       if ( sc.isFailure() ) {
-         log << MSG::ERROR << "cannot retrieve TBEventInfo from StoreGate" << endmsg;
+         log << MSG::ERROR << "cannot retrieve TBEventInfo from StoreGate" << endreq;
          return StatusCode::FAILURE;
       }
       m_cryoX = theEventInfo->getCryoX();
@@ -96,7 +96,7 @@ StatusCode LArTBH6BeamInfo::execute()
 // loop hit containers
    for (; it < m_HitsCollNames.end(); ++it) {
 
-      log<<MSG::DEBUG<<" hit container name: "<< *it <<endmsg;
+      log<<MSG::DEBUG<<" hit container name: "<< *it <<endreq;
 
       sc = m_StoreGate->retrieve(hitcoll, *it) ;
 
@@ -105,7 +105,7 @@ StatusCode LArTBH6BeamInfo::execute()
         CONTAINER::const_iterator f_hit = hitcoll->begin();
         CONTAINER::const_iterator l_hit = hitcoll->end();
 
-        log<<MSG::INFO<<" hit container: "<< *it <<" size: "<<hitcoll->size()<<endmsg;
+        log<<MSG::INFO<<" hit container: "<< *it <<" size: "<<hitcoll->size()<<endreq;
 
         for ( ; f_hit!=l_hit; ++f_hit) {
             LArG4H6FrontHit* hit = (*f_hit) ;
@@ -129,12 +129,12 @@ StatusCode LArTBH6BeamInfo::execute()
 	}
 
       } else {
-        log<<MSG::ERROR<<" unable to retrieve hit container: "<< *it <<endmsg;
+        log<<MSG::ERROR<<" unable to retrieve hit container: "<< *it <<endreq;
       }
    }
 
    if(v_x.size() < 2 || v_y.size() < 2) { // Could not fit
-      log<<MSG::DEBUG<<"Could not fit, setting zero. "<<v_x.size()<<"/"<<v_y.size()<<endmsg;
+      log<<MSG::DEBUG<<"Could not fit, setting zero. "<<v_x.size()<<"/"<<v_y.size()<<endreq;
       TBTrack *track = new TBTrack(0,0);
       track->setUintercept(0.);
       track->setVintercept(0.);
@@ -150,7 +150,7 @@ StatusCode LArTBH6BeamInfo::execute()
       sc = m_StoreGate->record(track,"Track");
     
       if ( sc.isFailure( ) ) {
-         log << MSG::FATAL << "Cannot record Track" << endmsg;
+         log << MSG::FATAL << "Cannot record Track" << endreq;
       }
       return sc;
    }
@@ -167,20 +167,20 @@ StatusCode LArTBH6BeamInfo::execute()
    check = fitVect(v_x, v_xz, v_ex, a1_x, a2_x, chi2_x, residual_x);
 
    if(!check){
-      log << MSG::ERROR << "Fit in X-coordinate failure." << endmsg;
+      log << MSG::ERROR << "Fit in X-coordinate failure." << endreq;
       return StatusCode::FAILURE;
    }
     
    check = fitVect(v_y, v_yz, v_ey, a1_y, a2_y, chi2_y, residual_y);
    if(!check){
-      log << MSG::ERROR << "Fit in Y-coordinate failure." << endmsg;
+      log << MSG::ERROR << "Fit in Y-coordinate failure." << endreq;
       return StatusCode::FAILURE;
     } 
  
     // Setting the slopes & intercepts for each track //
-    log << MSG::DEBUG << "Setting fit parameters of track." << endmsg;
-    log << MSG::DEBUG << "Intercepts: "<<a1_x<<" "<<a1_y << endmsg;
-    log << MSG::DEBUG << "Slopes: "<<a2_x<<" "<<a2_y << endmsg;
+    log << MSG::DEBUG << "Setting fit parameters of track." << endreq;
+    log << MSG::DEBUG << "Intercepts: "<<a1_x<<" "<<a1_y << endreq;
+    log << MSG::DEBUG << "Slopes: "<<a2_x<<" "<<a2_y << endreq;
    
     TBTrack *track = new TBTrack(v_x.size(), v_y.size());
 
@@ -199,9 +199,9 @@ StatusCode LArTBH6BeamInfo::execute()
       track->setResidualv(i, residual_y[i]);
     }
     
-    log << MSG::DEBUG << "chi2 in X: " << chi2_x << endmsg;
-    log << MSG::DEBUG << "chi2 in Y: " << chi2_y << endmsg;
-    log << MSG::DEBUG << "Setting chi2s of track." << endmsg;
+    log << MSG::DEBUG << "chi2 in X: " << chi2_x << endreq;
+    log << MSG::DEBUG << "chi2 in Y: " << chi2_y << endreq;
+    log << MSG::DEBUG << "Setting chi2s of track." << endreq;
 
     track->setChi2_u(chi2_x);
     track->setChi2_v(chi2_y);
@@ -214,7 +214,7 @@ StatusCode LArTBH6BeamInfo::execute()
     sc = m_StoreGate->record(track,"Track");
     
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record Track" << endmsg;
+      log << MSG::FATAL << "Cannot record Track" << endreq;
       return sc;
     }
 
@@ -228,7 +228,7 @@ StatusCode LArTBH6BeamInfo::execute()
 StatusCode LArTBH6BeamInfo::finalize()
 {
    MsgStream log(messageService(), name());                                   
-   log << MSG::INFO << "LArTBH6BeamInfo::finalize()" << endmsg;            
+   log << MSG::INFO << "LArTBH6BeamInfo::finalize()" << endreq;            
    return StatusCode::SUCCESS;                                                
 }
     
@@ -263,9 +263,9 @@ bool LArTBH6BeamInfo::fitVect(const dVect &vec, const dVect &vec_z, const dVect 
   int hitNum = vec.size();
   for(i = 0; i < hitNum; ++i){
 
-    log << MSG::DEBUG << "Position in X: " << vec[i] <<endmsg;
-    log << MSG::DEBUG << "Position in Z: " << vec_z[i] <<endmsg;
-    log << MSG::DEBUG << "Error in X: " << vec_e[i] <<endmsg;
+    log << MSG::DEBUG << "Position in X: " << vec[i] <<endreq;
+    log << MSG::DEBUG << "Position in Z: " << vec_z[i] <<endreq;
+    log << MSG::DEBUG << "Error in X: " << vec_e[i] <<endreq;
 
     m_s += 1 / (vec_e[i]*vec_e[i]);
     m_su += vec[i] / (vec_e[i]*vec_e[i]); 
@@ -276,13 +276,13 @@ bool LArTBH6BeamInfo::fitVect(const dVect &vec, const dVect &vec_z, const dVect 
  
   double denum = (m_s*m_sww-m_sw*m_sw);
   if(denum == 0){
-    log << MSG::ERROR << " Invalid denumerator" << endmsg;
+    log << MSG::ERROR << " Invalid denumerator" << endreq;
     return false;
   }
 
   a1 = (m_su*m_sww - m_sw*m_suw)/ denum;
   a2 = (m_s*m_suw - m_su*m_sw)/ denum;
-  log << MSG::DEBUG << "Fit results:" << " intercept = " << a1 << " and slope = " << a2 << endmsg;
+  log << MSG::DEBUG << "Fit results:" << " intercept = " << a1 << " and slope = " << a2 << endreq;
 
   // Fill residual
   residual.clear();

@@ -36,11 +36,11 @@ LArHitsH6EventAction::LArHitsH6EventAction(std::string s): FADS::UserAction(s)
   }
   MsgStream msgStr = MsgStream(m_msgSvc, "LArTBH6EventAction");
 
-  msgStr << MSG::DEBUG  <<"LArTBH6EventAction::LArTBH6EventAction constructor"<<endmsg;
+  msgStr << MSG::DEBUG  <<"LArTBH6EventAction::LArTBH6EventAction constructor"<<endreq;
 
   status = svcLocator->service("StoreGateSvc", m_storeGate);
   if (status.isFailure()) {
-     msgStr << MSG::ERROR << " could not fetch the StoraGateSvc !!!" << endmsg;
+     msgStr << MSG::ERROR << " could not fetch the StoraGateSvc !!!" << endreq;
   }
 
 //  FadsEventAction::GetEventAction()->SetApplicationAction(this);
@@ -74,7 +74,7 @@ void LArHitsH6EventAction::BeginOfEventAction(const G4Event*)
 void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
 {
   MsgStream msgStr = MsgStream(m_msgSvc, "LArHitsH6EndOfEventAction");
-  msgStr << MSG::DEBUG <<"LArHitsH6EventAction::EndOfEventAction"<<endmsg;
+  msgStr << MSG::DEBUG <<"LArHitsH6EventAction::EndOfEventAction"<<endreq;
   StatusCode status;
 
 
@@ -87,7 +87,7 @@ void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
   if ( HCE != 0) {
      int maxNumberHitCollections = HCE->GetNumberOfCollections();
 #ifdef DEBUG_HITS
-	     msgStr<< MSG::DEBUG  <<" Number of collections: "<<maxNumberHitCollections<<endmsg;
+	     msgStr<< MSG::DEBUG  <<" Number of collections: "<<maxNumberHitCollections<<endreq;
 #endif
      for ( int h = 0; h != maxNumberHitCollections; h++ ) {
           hc = HCE->GetHC(h);
@@ -96,7 +96,7 @@ void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
           LArG4H6WarmTCHitsCollection * collection_w = 0;
 	  if ( hc != 0 ) {
 #ifdef DEBUG_HITS
-	     msgStr<< MSG::DEBUG  <<" Have collection: "<<hc->GetName()<<endmsg;
+	     msgStr<< MSG::DEBUG  <<" Have collection: "<<hc->GetName()<<endreq;
 #endif
 //             collection = dynamic_cast<LArG4H6LeakHitsCollection*>( hc );
              collection_f = dynamic_cast<LArG4H6FrontHitsCollection*>( hc );
@@ -104,7 +104,7 @@ void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
 	     if (collection_w != 0 ) {
                 int numberHits = collection_w->entries();
 #ifdef DEBUG_HITS
-                msgStr<< MSG::DEBUG  <<" --- WarmTC hits: "<<numberHits<<endmsg;
+                msgStr<< MSG::DEBUG  <<" --- WarmTC hits: "<<numberHits<<endreq;
 #endif
                 for (int i = 0; i < numberHits; i++) {
                    LArG4H6WarmTCHit* hit = new LArG4H6WarmTCHit(*(*collection_w)[i]);
@@ -114,7 +114,7 @@ void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
 	     if (collection_f != 0 ) {
                 int numberHits = collection_f->entries();
 #ifdef DEBUG_HITS
-                msgStr<< MSG::DEBUG  <<" --- Beam hits: "<<numberHits<<endmsg;
+                msgStr<< MSG::DEBUG  <<" --- Beam hits: "<<numberHits<<endreq;
 #endif
                 for (int i = 0; i < numberHits; i++) {
                    LArG4H6FrontHit* hit = new LArG4H6FrontHit(*(*collection_f)[i]);
@@ -123,33 +123,33 @@ void LArHitsH6EventAction::EndOfEventAction(const G4Event* evt)
 	     }
            } else {
 #ifdef DEBUG_HITS
-	     msgStr<< MSG::DEBUG  <<" Do not have collection num: "<<h <<endmsg;
-	     msgStr<< MSG::DEBUG  <<" WarmTCSciXCollection has id: "<<G4SDManager::GetSDMpointer()->GetCollectionID("WarmTCSciXCollection")<<endmsg;
+	     msgStr<< MSG::DEBUG  <<" Do not have collection num: "<<h <<endreq;
+	     msgStr<< MSG::DEBUG  <<" WarmTCSciXCollection has id: "<<G4SDManager::GetSDMpointer()->GetCollectionID("WarmTCSciXCollection")<<endreq;
 #endif
            }
     }
   } else {
 #ifdef DEBUG_HITS
-	     msgStr<< MSG::DEBUG  <<" Do not have collection of this event !!" <<endmsg;
+	     msgStr<< MSG::DEBUG  <<" Do not have collection of this event !!" <<endreq;
 #endif
   }
 
   status = m_storeGate->record(wtcColl,"LArG4H6WarmTCHitCollection",false);
   if (status.isFailure()) {
-         msgStr << MSG::ERROR << "Failed to record LArG4H6WarmTCHitCollection  in StoreGate!" << endmsg;
+         msgStr << MSG::ERROR << "Failed to record LArG4H6WarmTCHitCollection  in StoreGate!" << endreq;
   }
   status = m_storeGate->setConst(wtcColl);
   if (status.isFailure()) {
-         msgStr  << MSG::ERROR << "Failed to lock LArG4H6WarmTCHitCollection  in StoreGate!" << endmsg;
+         msgStr  << MSG::ERROR << "Failed to lock LArG4H6WarmTCHitCollection  in StoreGate!" << endreq;
   }
 
   status = m_storeGate->record(BeamColl,"LArG4H6FrontHitCollection",false);
   if (status.isFailure()) {
-         msgStr << MSG::ERROR << "Failed to record LArG4H6FrontHitCollection  in StoreGate!" << endmsg;
+         msgStr << MSG::ERROR << "Failed to record LArG4H6FrontHitCollection  in StoreGate!" << endreq;
   }
   status = m_storeGate->setConst(BeamColl);
   if (status.isFailure()) {
-         msgStr  << MSG::ERROR << "Failed to lock LArG4H6BeamHitCollection  in StoreGate!" << endmsg;
+         msgStr  << MSG::ERROR << "Failed to lock LArG4H6BeamHitCollection  in StoreGate!" << endreq;
   }
 
   // Note that if this is not a calibration run, the size of calibList
