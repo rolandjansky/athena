@@ -56,8 +56,8 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    int ushape,
                                    MsgStream *log,
 				   bool fullGeo)
-  : m_detectorStore(pDetStore)
-  , m_detectorManager(manager)
+  : detectorStore(pDetStore)
+  , detectorManager(manager)
   , m_log(log) 
   , m_addPlatesToCellVolume(addPlates)
   , m_Ushape(ushape)
@@ -99,13 +99,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   // double AnglMin2 = 54. * deltaPhi*CLHEP::deg;
   // double AnglMax2 = 58. * deltaPhi*CLHEP::deg;
 
-  (*m_log) << MSG::INFO <<" Entering TileAtlasFactory::create()" << endmsg;
+  (*m_log) << MSG::INFO <<" Entering TileAtlasFactory::create()" << endreq;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
   DataHandle<StoredMaterialManager> theMaterialManager;
-  if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
+  if (StatusCode::SUCCESS != detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   {  
-    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 
+    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
     return; 
   }
   const GeoMaterial* matAir = theMaterialManager->getMaterial("std::Air");
@@ -113,12 +113,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //const GeoMaterial* matAlu = theMaterialManager->getMaterial("std::Aluminium");
 
   // -------- -------- SECTION BUILDER  -------- ----------
-  TileDddbManager* dbManager = m_detectorManager->getDbManager();
+  TileDddbManager* dbManager = detectorManager->getDbManager();
   TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
 
   double DzSaddleSupport = 0, RadiusSaddle = 0;
   if (dbManager->BoolSaddle())
-    {(*m_log) << MSG::INFO << " Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx"<< endmsg;
+    {(*m_log) << MSG::INFO << " Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx"<< endreq;
 
      dbManager->SetCurrentSaddle(0);
 
@@ -126,11 +126,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      RadiusSaddle = dbManager->RadiusSaddle()*CLHEP::cm;
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG << " DzSaddleSupport()= "<<DzSaddleSupport<<" RadiusSaddle= "<<RadiusSaddle
-		<< endmsg;
+		<< endreq;
     }
 
   if(m_log->level()<=MSG::DEBUG)
-    (*m_log) <<MSG::DEBUG << "TileAtlasFactory. addPlates = " <<m_addPlatesToCellVolume<<endmsg;
+    (*m_log) <<MSG::DEBUG << "TileAtlasFactory. addPlates = " <<m_addPlatesToCellVolume<<endreq;
   // -------- -------- CUT BUILDER  -------- ----------
   //TileGeoCutBuilder* CutBuilder = new TileGeoCutBuilder(theMaterialManager,dbManager,m_log);
 
@@ -187,7 +187,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //std::cerr <<std::cout.setf(std::ios::right)<<std::setiosflags(std::ios::fixed)<<std::setw(9)<<std::setprecision(2);
 
   if(m_log->level()<=MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "n_env " << n_env << endmsg;
+    (*m_log) << MSG::DEBUG << "n_env " << n_env << endreq;
 
   for(int i = 0; i < n_env ; ++i)
   {
@@ -221,12 +221,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::DEBUG <<" BFingerLengthPos "<<BFingerLengthPos<<" PosDelta "<<PosDelta;
   if (fabs(PosDelta) < fabs(EBFingerLength - BFingerLength) ) {
     BFingerLengthPos += PosDelta;
-    (*m_log) <<" => New BFingerLengthPos "<<BFingerLengthPos<<endmsg;
+    (*m_log) <<" => New BFingerLengthPos "<<BFingerLengthPos<<endreq;
   } else {
     /** Relative shift of EBpos is too big, This is expected behaviour for testbeam and commissioning configurations */
     BFingerLengthPos = BFingerLength;
     PosDelta =0;
-    (*m_log) <<" => New PosDelta "<<PosDelta<<endmsg;
+    (*m_log) <<" => New PosDelta "<<PosDelta<<endreq;
   }
 
   //
@@ -239,12 +239,12 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::DEBUG <<" BFingerLengthNeg "<<BFingerLengthNeg<<" NegDelta "<<NegDelta;
   if (fabs(NegDelta) < fabs(EBFingerLength - BFingerLength) ) {
     BFingerLengthNeg += NegDelta;
-    (*m_log) <<" => New BFingerLengthNeg "<<BFingerLengthNeg<<endmsg;
+    (*m_log) <<" => New BFingerLengthNeg "<<BFingerLengthNeg<<endreq;
   } else {
     /** Relative shift of EBpos is too big, This is expected behaviour for testbeam and commissioning configurations */
     BFingerLengthNeg = BFingerLength;
     NegDelta =0;
-    (*m_log) <<" => New NegDelta "<<NegDelta<<endmsg;
+    (*m_log) <<" => New NegDelta "<<NegDelta<<endreq;
   }
 
   // extra flag sayubg that special C10 goes outside envelope for normal C10
@@ -255,7 +255,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     double rMinC10sp = dbManager->TILBrminimal();
     spC10 = (rMinC10sp < rMinC10);
     if (spC10) {
-      (*m_log) << MSG::DEBUG <<" Special C10, changing Rmin from "<<rMinC10<<" to "<< rMinC10sp << endmsg;
+      (*m_log) << MSG::DEBUG <<" Special C10, changing Rmin from "<<rMinC10<<" to "<< rMinC10sp << endreq;
       rMinC10 = rMinC10sp;
     }
   }
@@ -269,7 +269,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     double rMinE4sp = dbManager->TILBrminimal();
     spE4 = (rMinE4sp < rMinE4neg);
     if (spE4) {
-      (*m_log) << MSG::DEBUG <<" E4' present, changing Rmin for negative crack from "<<rMinE4neg<<" to "<< rMinE4sp << endmsg;
+      (*m_log) << MSG::DEBUG <<" E4' present, changing Rmin for negative crack from "<<rMinE4neg<<" to "<< rMinE4sp << endreq;
       rMinE4neg = rMinE4sp;
     }
   }
@@ -338,13 +338,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::DEBUG 
 	     << " EBPos EnvDZPos[3] " << EnvDZPos[3] << " ZLength[5] " <<ZLength[5]<<"+"<<ZLength[3]
 	     << " = " << ZLength[3]+ZLength[5] << " EBFingerLengthPos = " <<EBFingerLengthPos
-	     <<endmsg;
+	     <<endreq;
     
     (*m_log) << MSG::DEBUG << " PosEndBarrelFinger = " << PosEndBarrelFinger
 	     << " PosEndITC = " << PosEndITC
 	     << " PosEndExBarrel = " << PosEndExBarrel
 	     << " PosEndExtBarrelFinger = " << PosEndExBarrelFinger
-	     << endmsg;
+	     << endreq;
   }
 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
@@ -354,7 +354,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      (*m_log) << MSG::WARNING
               << "Discrepancy between TileGlobals and TILB tables in GeoModel DB "
               << PosEndITC << " != " << PosEndITC1 << "; take this into account" 
-              <<endmsg;
+              <<endreq;
   }
 
   //double beginITC1   = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
@@ -379,7 +379,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	     << " PosEndGap  = " << PosEndGap
 	     << " PosBeginCrack  = " << PosBeginCrack
 	     << " PosEndCrack  = " << PosEndCrack
-	     << endmsg;
+	     << endreq;
   
   // R minimals 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
@@ -429,13 +429,13 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::DEBUG 
 	     << " EBNeg EnvDZPos[2] " << EnvDZPos[2] << " ZLength[4] " <<ZLength[4]<<"+"<<ZLength[2]
 	     << " = " << ZLength[2]+ZLength[4] << " EBFingerLengthNeg = " <<EBFingerLengthNeg
-	     <<endmsg;
+	     <<endreq;
     
     (*m_log) << MSG::DEBUG << " NegEndBarrelFinger = " << NegEndBarrelFinger
 	     << " NegEndITC = " << NegEndITC
 	     << " NegEndExBarrel = " << NegEndExBarrel
 	     << " NegEndExtBarrelFinger = " << NegEndExtBarrelFinger
-	     << endmsg;
+	     << endreq;
   }
 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
@@ -445,7 +445,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   if (fabs(corr)>0.01) { (*m_log) << MSG::WARNING
                                   << "Discrepancy between TileGlobals and TILB tables in GeoModel DB "
                                   << NegEndITC << " != " << NegEndITC1 << "; take this into account" 
-                                  << endmsg;
+                                  << endreq;
     }
   //double NegBeginITC1 = corr + (dbManager->TILBzoffset() + dbManager->TILEzshift()-dbManager->TILBdzmodul()/2)*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
@@ -469,7 +469,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	     << " NegEndGap  = " << NegEndGap
 	     << " NegBeginCrack  = " << NegBeginCrack
 	     << " NegEndCrack  = " << NegEndCrack
-	     << endmsg;
+	     << endreq;
 
   // R minimals 
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
@@ -570,7 +570,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if (dbManager->BoolCuts()) {
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG << " Tile Geometry with Ext.Barrel CutOuts and Iron plates, starting form TileCal-CSC-01"
-		 << endmsg;
+		 << endreq;
 
       volname = "CutB"; dbManager->SetCurrentCuts(volname); 
       PosXcut = dbManager->CutsXpos(); 
@@ -753,7 +753,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     if(m_log->level()<=MSG::DEBUG)
       (*m_log) << MSG::DEBUG << " EnvCounter " << EnvCounter << " EnvType " << EnvType 
-	       << " EnvNModules " << NumberOfMod << endmsg;
+	       << " EnvNModules " << NumberOfMod << endreq;
 
     if(EnvType == 1) 
      {
@@ -774,7 +774,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		 << " Length=" << zEndSection
 		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
 		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
-		 << endmsg;
+		 << endreq;
       
       // Envelopes for two barrel fingers, positive finger 
       GeoTubs* fingerMotherPos = new GeoTubs(BFingerRmin,
@@ -809,7 +809,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	 (*m_log) << MSG::DEBUG << "Barrel finger envelope parameters: " 
 		  << " length Pos/Neg=" << BFingerLengthPos << "/" << BFingerLengthNeg
 		  << " Rmin=" << BFingerRmin << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
-		  << endmsg;
+		  << endreq;
 
        // Envelopes for two barrel saddle supports, positive
        if (dbManager->BoolSaddle())
@@ -826,7 +826,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     if(EnvType == 3) {   
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" EBarrelPos DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2<< endmsg;
+	(*m_log) << MSG::DEBUG <<" EBarrelPos DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthPos)/2<< endreq;
 
       checking("EBarrel (+)", false, 0, 
                dbManager->GetEnvRin()*CLHEP::cm,dbManager->GetEnvRout()*CLHEP::cm,
@@ -846,7 +846,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		 << " length=" << (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLength)
 		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
 		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
-		 << endmsg;
+		 << endreq;
 
       // Envelope for finger separately
       checking("EBarrel (+)", false, 0, 
@@ -866,7 +866,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		 << " length=" << EBFingerLength
 		 << " Rmin=" << EFingerRmin
 		 << " Rmax=" << (dbManager->GetEnvRout())*CLHEP::cm
-		 << endmsg;
+		 << endreq;
 
       if (dbManager->BoolSaddle())
       { //Envelopes for two barrel saddle supports, positive
@@ -886,7 +886,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     // Negative Ext.Barrel
     if(EnvType == 2) { 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" EBarrelNeg DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2<< endmsg;
+	(*m_log) << MSG::DEBUG <<" EBarrelNeg DZ "<<(dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLengthNeg)/2<< endreq;
 
       GeoTubs* GeneralMother = new GeoTubs(dbManager->GetEnvRin()*CLHEP::cm,
 					   dbManager->GetEnvRout()*CLHEP::cm,
@@ -902,7 +902,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		 << " length=" << (dbManager->GetEnvZLength()*CLHEP::cm- EBFingerLength)
 		 << " Rmin=" << dbManager->GetEnvRin()*CLHEP::cm
 		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
-		 << endmsg;
+		 << endreq;
 
       // Envelope for finger separately
       GeoTubs* fingerMother = new GeoTubs(EFingerRmin,
@@ -918,7 +918,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		 << " length=" << EBFingerLengthNeg
 		 << " Rmin=" << EFingerRmin
 		 << " Rmax=" << dbManager->GetEnvRout()*CLHEP::cm
-		 << endmsg;
+		 << endreq;
 
       if (dbManager->BoolSaddle())
       { //Envelopes for Ext. barrel saddle supports, positive 
@@ -951,9 +951,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dzITC1   = dbManager->TILBdzmodul();
       
       (*m_log) << MSG::INFO << " Positive ITC envelope parameters: PLUG1 " 
-               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<< endmsg;
+               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<< endreq;
       (*m_log) << MSG::INFO << "                                   PLUG2 "
-               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<< endmsg;
+               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<< endreq;
 
       checking("ITC itcWheel1 (+)", false, 0, 
                rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
@@ -1030,9 +1030,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dzITC1   = dbManager->TILBdzmodul();
       
       (*m_log) << MSG::INFO << " Negative ITC envelope parameters: PLUG1 " 
-               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<<endmsg;
+               <<" Rmin= "<<rMinITC1*CLHEP::cm<<" Rmax= "<<rMaxITC1*CLHEP::cm<<" dzITC1= "<<dzITC1/2*CLHEP::cm<<endreq;
       (*m_log) << MSG::INFO << "                                   PLUG2 "
-               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<<endmsg;
+               <<" Rmin= "<<rMinITC2*CLHEP::cm<<" Rmax= "<<rMaxITC2*CLHEP::cm<<" dzITC2= "<<dzITC2/2*CLHEP::cm<<endreq;
 
       checking("ITC itcWheel1 (-)", false, 0, 
                rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
@@ -1137,7 +1137,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       //if(ModuleNcp<39 || ModuleNcp>58) continue; if(ModuleNcp>42 && ModuleNcp<55) continue;
       
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" ModuleNcp= "<< ModuleNcp <<" ModType "<< ModType <<" Phi "<< phi << endmsg;
+	(*m_log) << MSG::DEBUG <<" ModuleNcp= "<< ModuleNcp <<" ModType "<< ModType <<" Phi "<< phi << endreq;
 
       //
       // ------------------- BARREL BLOCKS ------------------------ 
@@ -1214,7 +1214,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
 	  GeoTransform* xtraModFingerPos  = new GeoTransform(HepGeom::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
 
-          //(*m_log) << MSG::DEBUG << "R  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endmsg;
+          //(*m_log) << MSG::DEBUG << "R  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endreq;
  
           pvFingerMotherPos->add(zrotMod);
           pvFingerMotherPos->add(xtraModFingerPos);
@@ -1246,7 +1246,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
 	  GeoTransform* xtraModFingerNeg  = new GeoTransform(HepGeom::TranslateX3D((dbManager->TILErmax() + dbManager->TILBrmax())/2*CLHEP::cm));
 
-          // (*m_log) << MSG::DEBUG << "L  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endmsg;
+          // (*m_log) << MSG::DEBUG << "L  Index " << ModuleNcp << " Fingpattern "<< ModFingpattern << endreq;
 
           pvFingerMotherNeg->add(zrotMod);
           pvFingerMotherNeg->add(xtraModFingerNeg);
@@ -1309,7 +1309,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         if (!dbManager->BoolCuts())
 	 { 
 	   if(m_log->level()<=MSG::DEBUG)
-	     (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endmsg;
+	     (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endreq;
 
            lvEBarrelModuleMotherPos = new GeoLogVol("EBarrelModule",ebarrelModuleMotherPos,matAir);
            pvEBarrelModuleMotherPos = new GeoPhysVol(lvEBarrelModuleMotherPos);
@@ -1318,7 +1318,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
            //gdb
 	  if(m_log->level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
+	    (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endreq;
  
            double PoZ2 =0, PoZ1 =0, thicknessEndPlate =dbManager->TILBdzend1()*CLHEP::cm;
 
@@ -1382,11 +1382,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         /*
         if (!dbManager->BoolCuts())
 	 { pvEBarrelMotherPos->add(pvEBarrelModuleMotherPos);
-           (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endmsg;
+           (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endreq;
 
          } else {
 
-           (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
+           (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endreq;
  
            double PoZ2 =0, PoZ1 =0;
            double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
@@ -1527,7 +1527,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
          if (!dbManager->BoolCuts())
 	 { 
 	   if(m_log->level()<=MSG::DEBUG)
-	     (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endmsg;
+	     (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endreq;
 
            lvEBarrelModuleMotherNeg = new GeoLogVol("EBarrelModule",ebarrelModuleMotherNeg,matAir);
            pvEBarrelModuleMotherNeg = new GeoPhysVol(lvEBarrelModuleMotherNeg);
@@ -1536,7 +1536,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
            //gdb
 	   if(m_log->level()<=MSG::DEBUG)
-	     (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
+	     (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endreq;
  
            double PoZ2 =0, PoZ1 =0, thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
 
@@ -1602,10 +1602,10 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         /*
         if (!dbManager->BoolCuts()) 
          { pvEBarrelMotherNeg->add(pvEBarrelModuleMotherNeg);
-           (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endmsg;
+           (*m_log) << MSG::DEBUG << " BoolCuts NO "<< dbManager->BoolCuts() << endreq;
 
          } else {
-           (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endmsg;
+           (*m_log) << MSG::DEBUG << " BoolCuts YES "<< dbManager->BoolCuts() << endreq;
 
            double PoZ2 =0, PoZ1 =0;
            double thicknessEndPlate = dbManager->TILBdzend1()*CLHEP::cm;
@@ -1722,22 +1722,28 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       if((EnvType == 4) || (EnvType == 5)){
 
-        int Id4 = ModType%100;
-        int Ic10 = (ModType/100)%100;
-        int Igap = (ModType/10000)%100;
-        int Icrack = (ModType/1000000)%100;
+        bool Ifd4 = false, Ifc10 = false, Ifgap = false, Ifcrack = false;
+        int Id4 = false, Ic10 = false, Igap = false, Icrack = false;
 
-        bool Ifd4    = ( Id4 != 0);
-        bool Ifc10   = ( Ic10 != 0);
-        bool Ifgap   = ( Igap != 0);
-        bool Ifcrack = ( Icrack != 0);
+        Id4 = int(fmod(ModType,10));
+        Ic10 = int(fmod(ModType/100,100));
+        Igap = int(fmod(ModType/10000,100));
+        Icrack = int(fmod(ModType/1000000,100));
 
-	bool Ifspecialgirder = (Id4 == 7);
+        Ifd4    |= ( Id4 != 0);
+        Ifc10   |= ( Ic10 != 0);
+        Ifgap   |= ( Igap != 0);
+        Ifcrack |= ( Icrack != 0);
+
+	
+	bool Ifspecialgirder = false;
+	if (Ifd4)
+	  Ifspecialgirder |= (Id4 == 7);
 
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG <<" ITC : EnvType "<<EnvType<<" Size = "<<dbManager->GetModTypeSize()
 		   <<" Ncp= "<<ModuleNcp<<"  D4 "<<Id4<<" specialflag = "<<Ifspecialgirder<<" C10 "<<Ic10<<" Gap "<<Igap<<" Crack "<<Icrack
-		   << endmsg;
+		   << endreq;
 
         if (Ifc10) 
          { dbManager->SetCurrentSectionByNumber(Ic10); // TILE_PLUG2
@@ -1746,7 +1752,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            dzITC2   = dbManager->TILBdzmodul();
          } else { 
 	   if(m_log->level()<=MSG::DEBUG)
-	     (*m_log) << MSG::DEBUG <<" C10 unavailable "<<endmsg;
+	     (*m_log) << MSG::DEBUG <<" C10 unavailable "<<endreq;
          }
 
         if (Ifd4) 
@@ -1757,7 +1763,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	   if (Ifspecialgirder)
 	     dzITC1 = dbManager->TILBdzgir();
          } else
-         { (*m_log) << MSG::INFO <<" D4 unavailable "<<endmsg;
+         { (*m_log) << MSG::INFO <<" D4 unavailable "<<endreq;
 	   dzITC1 = 9.485; //sb [CLHEP::cm]
          }
 
@@ -1805,7 +1811,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             X = (dzITC1 - dzITC2)/2*CLHEP::cm; 
             Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*CLHEP::cm;
 	    if(m_log->level()<=MSG::DEBUG)
-	      (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z<< endmsg;
+	      (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z<< endreq;
 
             HepGeom::Translate3D itcModule_SubShiftNeg(X, 0., Z);
             const GeoShapeUnion& itcModuleMotherNeg = itcModuleSub1Neg->add(*itcModuleSub2Neg<<itcModule_SubShiftNeg);
@@ -1836,7 +1842,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	      (*m_log) << MSG::DEBUG <<"  Plug1Module : Glue= "<<Glue<<" dzITC1= "<<dzITC1
                      <<" TILBdzend1= "<<dbManager->TILBdzend1()
 	             <<" TILBdzend2= "<<dbManager->TILBdzend2()
-                     <<endmsg; 
+                     <<endreq; 
 
             if (NbPeriod > 6)
              { dzGlue = (Glue - 2*NbPeriod * (dbManager->TILBdzmast() + dbManager->TILBdzspac())) / (4.*NbPeriod);
@@ -1847,11 +1853,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	    if(m_log->level()<=MSG::DEBUG)
 	      (*m_log) << MSG::DEBUG <<"  Plug1Module : Glue= "<<Glue<<" dzGlue= "<<dzGlue<<" NbPeriod= "<<NbPeriod
 		       <<" TILBdzmast= "<<dbManager->TILBdzmast()<<" TILBdzspac= "<<dbManager->TILBdzspac()
-		       <<endmsg; 
+		       <<endreq; 
 
             if (dzGlue <= 0.)
              { (*m_log) << MSG::WARNING <<"  Plug1Module warning: "<<" dzGlue= "<<dzGlue 
-	                <<endmsg;
+	                <<endreq;
              }
 
             checking("Plug1Module plug1SubMotherNeg (-)", false, 2, 
@@ -1867,7 +1873,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * CLHEP::cm;
 	    if(m_log->level()<=MSG::DEBUG)
               if (specialC10)
-                (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endmsg;
+                (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endreq;
           
             GeoLogVol *lvPlug1ModuleMotherNeg=0;
             if (thicknessWedgeMother > rless)
@@ -1977,7 +1983,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z
 		     <<" zStandard= "<<zITCStandard<< " zShift= " <<zShift
-		     <<endmsg;
+		     <<endreq;
 
           GeoTransform* xtraITCNeg = new GeoTransform(HepGeom::TranslateX3D(
                                          (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
@@ -2124,7 +2130,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           X = (dzITC1 - dzITC2)/2*CLHEP::cm; 
           Z = ((rMinITC2+rMaxITC2)-(rMaxITC1 + rMinITC1))/2*CLHEP::cm;
 	  if(m_log->level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z<< endmsg;
+	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z<< endreq;
 
           HepGeom::Translate3D itcModule_SubShiftPos(X, 0., Z);
           const GeoShapeUnion& itcModuleMotherPos = itcModuleSub1Pos->add(*itcModuleSub2Pos<<itcModule_SubShiftPos);
@@ -2156,7 +2162,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	    (*m_log) << MSG::DEBUG <<"  Plug1Module : Glue= "<<Glue<<" dzITC1= "<<dzITC1
 		     <<" TILBdzend1= "<<dbManager->TILBdzend1()
 		     <<" TILBdzend2= "<<dbManager->TILBdzend2()
-		     <<endmsg; 
+		     <<endreq; 
 
           if (NbPeriod > 6)
            { dzGlue = (Glue - 2*NbPeriod * (dbManager->TILBdzmast() + dbManager->TILBdzspac())) / (4.*NbPeriod);
@@ -2168,11 +2174,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  Plug1Module : Glue= "<<Glue<<" dzGlue= "<<dzGlue<<" NbPeriod= "<<NbPeriod
 		     <<" TILBdzmast= "<<dbManager->TILBdzmast()<<" TILBdzspac= "<<dbManager->TILBdzspac()
-		     <<endmsg; 
+		     <<endreq; 
 
           if (dzGlue <= 0.)
              {(*m_log) << MSG::WARNING <<"  Plug1Module warning: "<<" dzGlue= "<<dzGlue 
-	               <<endmsg;
+	               <<endreq;
              }
 
           checking("Plug1Module plug1SubMotherPos (+)", false, 2, 
@@ -2189,7 +2195,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           thicknessWedgeMother = (dbManager->TILBdzmodul() - dzITC2Bis) * CLHEP::cm;
           if(m_log->level()<=MSG::DEBUG)
             if (specialC10)
-              (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endmsg;
+              (*m_log) << MSG::DEBUG <<" Separate C10 and D4 in module " << ModuleNcp << endreq;
 
           GeoLogVol *lvPlug1ModuleMotherPos=0;
           if (thicknessWedgeMother > rless)
@@ -2296,7 +2302,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z
 		     <<" zStandard= "<<zITCStandard<< " zShift= " <<zShift
-		     <<endmsg;
+		     <<endreq;
 
 	  GeoTransform* xtraITCPos = new GeoTransform(HepGeom::TranslateX3D(
                                         (dbManager->TILBrmaximal() + dbManager->TILBrminimal())/2*CLHEP::cm));
@@ -2440,7 +2446,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       tfBarrelMother = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning barrel with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning barrel with translation "<<ztrans*CLHEP::cm<< endreq;
 
       GeoNameTag* ntBarrelModuleMother = new GeoNameTag("Barrel"); 
 
@@ -2454,7 +2460,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       tfFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive barrel finger with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive barrel finger with translation "<<ztrans*CLHEP::cm<< endreq;
 
       GeoNameTag* ntFingerMotherPos = new GeoNameTag("TileFingerPos");
 
@@ -2484,7 +2490,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       tfFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)*HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative barrel finger with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative barrel finger with translation "<<ztrans*CLHEP::cm<< endreq;
 
       GeoNameTag* ntFingerMotherNeg = new GeoNameTag("TileFingerNeg");
       pvTileEnvelopeBarrel->add(tfFingerMotherNeg);
@@ -2527,7 +2533,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " Iron1: " << dxIron << " " << dyIron << endmsg;
+	  (*m_log) << MSG::DEBUG << " Iron1: " << dxIron << " " << dyIron << endreq;
 
         GeoTransform* tfIron1 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY-dyIron,PoZ2) 
 	                                       * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
@@ -2545,7 +2551,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " Iron2: " << dxIron << " " << dyIron << endmsg;
+	  (*m_log) << MSG::DEBUG << " Iron2: " << dxIron << " " << dyIron << endreq;
 
         GeoTransform* tfIron2 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,PoZ2) 
 	                      * HepGeom::RotateZ3D(-84.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
@@ -2563,7 +2569,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIron = dbManager->CutsXpos();
 	dyIron = dbManager->CutsYpos();
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " Iron3: " << dxIron << " " << dyIron << endmsg;
+	  (*m_log) << MSG::DEBUG << " Iron3: " << dxIron << " " << dyIron << endreq;
 
         GeoTransform* tfIron3 = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::Translate3D(dxIron,PosY+dyIron,PoZ2) 
 	                      * HepGeom::RotateZ3D(90.*CLHEP::deg) * HepGeom::RotateX3D(90.*CLHEP::deg) * HepGeom::RotateZ3D(90.*CLHEP::deg)); // Left
@@ -2597,7 +2603,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIr = dbManager->CutsXpos();
 	dyIr = dbManager->CutsYpos();
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " IrUp: " <<dxIr<< " " <<dyIr<< endmsg;
+	  (*m_log) << MSG::DEBUG << " IrUp: " <<dxIr<< " " <<dyIr<< endreq;
 
         GeoTransform* tfIrUp = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
                              * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
@@ -2617,7 +2623,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
         dxIr = dbManager->CutsXpos();
 	dyIr = dbManager->CutsYpos();
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << " IrDw: " <<dxIr<< " " <<dyIr<< endmsg;
+	  (*m_log) << MSG::DEBUG << " IrDw: " <<dxIr<< " " <<dyIr<< endreq;
 
         GeoTransform* tfIrDw = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) 
                              * HepGeom::Translate3D(PosXcut+dxIr,-PosYcut+dyIr,-PoZ1) 
@@ -2641,7 +2647,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       GeoTransform* tfEBarrelMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
                                              HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel with translation "<< ztrans*CLHEP::cm << endmsg; 
+      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel with translation "<< ztrans*CLHEP::cm << endreq; 
 
       //
       GeoNameTag* ntEBarrelMotherPos = new GeoNameTag("EBarrelPos");
@@ -2658,7 +2664,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       GeoTransform* tfEFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
                                                           HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<<endreq;
 
       GeoNameTag* ntEFingerMotherPos = new GeoNameTag("TileEFingerPos");
 
@@ -2675,7 +2681,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                             HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
 
         (*m_log) << MSG::INFO <<" Positioning positive ext.barrel saddle with translation ztrans= "<<ztrans*CLHEP::cm
-                 << endmsg;
+                 << endreq;
 
         GeoNameTag* ntESaddleMotherPos = new GeoNameTag("TileESaddlePos");
 
@@ -2811,7 +2817,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       GeoTransform* tfEBarrelMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
                                              HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel with translation ztrans "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel with translation ztrans "<<ztrans*CLHEP::cm<<endreq;
       
       GeoNameTag* ntEBarrelMotherNeg = new GeoNameTag("EBarrelNeg");
 
@@ -2827,7 +2833,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       GeoTransform* tfEFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
                                              HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
 
-      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ext.barrel finger with translation ztrans= "<<ztrans*CLHEP::cm<< endreq;
 
       GeoNameTag* ntEFingerMotherNeg = new GeoNameTag("TileEFingerNeg");
 
@@ -2844,7 +2850,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                                HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
 
         (*m_log) << MSG::INFO <<" Positioning negative ext.barrel saddle with translation ztrans= "<<ztrans*CLHEP::cm
-                 << endmsg;
+                 << endreq;
 
         GeoNameTag* ntESaddleMotherNeg = new GeoNameTag("TileESaddleNeg");
 
@@ -2867,7 +2873,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       //std::cout <<" ztrans "<<ztrans<<" PosEndBarrelFinger/CLHEP::cm "<<PosEndBarrelFinger/CLHEP::cm
       //          <<" dbManager->TILBdzmodul()/2*CLHEP::cm"<<dbManager->TILBdzmodul()/2<<"\n";
       
-      (*m_log) << MSG::INFO <<" Positioning positive ITC with translation "<<ztrans*CLHEP::cm<< endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive ITC with translation "<<ztrans*CLHEP::cm<< endreq;
 
       GeoTransform* tfITCMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * 
                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
@@ -2881,7 +2887,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
       ztrans = PosBeginGap*(1./CLHEP::cm) + dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning positive Gap with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive Gap with translation "<<ztrans*CLHEP::cm<<endreq;
 
       GeoTransform* tfGapMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
@@ -2896,7 +2902,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
       ztrans = PosBeginCrack*(1./CLHEP::cm) + dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning positive Crack with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning positive Crack with translation "<<ztrans*CLHEP::cm<<endreq;
 
       GeoTransform* tfCrackMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
@@ -2918,7 +2924,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
       ztrans = -NegEndBarrelFinger*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative ITC with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative ITC with translation "<<ztrans*CLHEP::cm<<endreq;
 
       GeoTransform* tfITCMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
@@ -2932,7 +2938,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
       ztrans = -NegBeginGap*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative Gap with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative Gap with translation "<<ztrans*CLHEP::cm<<endreq;
 
       GeoTransform* tfGapMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
                                          HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
@@ -2947,7 +2953,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
       dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
       ztrans = -NegBeginCrack*(1./CLHEP::cm) - dbManager->TILBdzmodul()/2;
 
-      (*m_log) << MSG::INFO <<" Positioning negative Crack with translation "<<ztrans*CLHEP::cm<<endmsg;
+      (*m_log) << MSG::INFO <<" Positioning negative Crack with translation "<<ztrans*CLHEP::cm<<endreq;
 
       GeoTransform* tfCrackMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm)* 
                                            HepGeom::RotateZ3D(dbManager->GetEnvDPhi()*CLHEP::deg));
@@ -2983,7 +2989,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 		  << " EnvCounter is " << EnvCounter
 		  << " EnvType is " << EnvType
 		  << " Zshift is " << Zshift*(1./CLHEP::cm) << " cm"
-		  << endmsg;
+		  << endreq;
 
        // Central barrel 
        if(EnvType == 1 || EnvType == 0) { 
@@ -2995,7 +3001,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
        }
      }
 
-   const TileID* tileID = m_detectorManager->get_id();
+   const TileID* tileID = detectorManager->get_id();
  
    unsigned int dete[6] = {TILE_REGION_CENTRAL,TILE_REGION_CENTRAL,TILE_REGION_EXTENDED,TILE_REGION_EXTENDED,
                            TILE_REGION_GAP,TILE_REGION_GAP};
@@ -3003,7 +3009,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
    
    for (int ii=0; ii<6; ++ii) {
      if (ii%2 == 0) {
-        sectionBuilder->computeCellDim(m_detectorManager, dete[ii],
+        sectionBuilder->computeCellDim(detectorManager, dete[ii],
                                        m_addPlatesToCellVolume,
                                        zShiftInSection[ii+1], // zShiftPos
                                        zShiftInSection[ii]);  // zShiftNeg
@@ -3018,8 +3024,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      
      Identifier idRegion = tileID->region_id(ii);
      descriptor->set(idRegion);
-     m_detectorManager->add(descriptor); 
-     m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+     detectorManager->add(descriptor); 
+     detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
    }
 
   // --------- ----------- --------- -------- ------ --------- ------- ---------- 
@@ -3040,11 +3046,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::INFO << " Global positioning of barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") CLHEP::cm" << endreq;
 
     world->add(barrelTT);
     world->add(pvTileEnvelopeBarrel);
-    m_detectorManager->addTreeTop(pvTileEnvelopeBarrel);
+    detectorManager->addTreeTop(pvTileEnvelopeBarrel);
   }
  
   if(EBA)
@@ -3062,11 +3068,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::INFO << " Global positioning of positive ext.barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") CLHEP::cm" << endreq;
 
     world->add(posEcTT);
     world->add(pvTileEnvelopePosEndcap);
-    m_detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
+    detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
   }
  
   if(EBC)
@@ -3084,11 +3090,11 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     (*m_log) << MSG::INFO << " Global positioning of negative ext.barrel with rotation ("
              << dbManager->GetEnvDPhi() << "," << dbManager->GetEnvDTheta() << "," << dbManager->GetEnvDPsi() << ")"
              << ") and translation (" << dbManager->GetEnvDX() << "," << dbManager->GetEnvDY() << "," << dbManager->GetEnvDZ()
-             << ") CLHEP::cm" << endmsg;
+             << ") CLHEP::cm" << endreq;
 
     world->add(negEcTT);
     world->add(pvTileEnvelopeNegEndcap);
-    m_detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
+    detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
   }
 
   delete sectionBuilder;
@@ -3110,15 +3116,15 @@ void TileAtlasFactory::checking(std::string Name, bool print, int level,
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG <<Step[level]<<Name<<"-"<<level
 		<<" dX1,dX2= "<<X1<<","<<X2<<" dY1,dY2= "<<Y1<<","<<Y2<<",dZ= "<<Z
-		<<endmsg;
+		<<endreq;
    }
   if (X1 < rless && X2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endreq;
    }
   if (Y1 < rless && Y2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endreq;
    }
   if (Z < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endreq;
    } 
 } 

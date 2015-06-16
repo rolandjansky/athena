@@ -35,7 +35,7 @@ public:
   virtual void create(GeoPhysVol *world);
 
   /** Access function to TileDetDescr geometry data */
-  virtual const TileDetDescrManager * getDetectorManager() const { return m_detectorManager; }
+  virtual const TileDetDescrManager * getDetectorManager() const { return detectorManager; }
 
   /** Function for checking empty volumes:
       @param VolumeName  The volume name
@@ -49,10 +49,10 @@ public:
 private:  
   
   /** Detector pointer to Store Gate service */
-  StoreGateSvc              *m_detectorStore;
+  StoreGateSvc              *detectorStore;
 
   /** Detector pointer to TileDetDescrManager */  
-  TileDetDescrManager       *m_detectorManager;
+  TileDetDescrManager       *detectorManager;
 
   /** Get message SVC */
   MsgStream                 *m_log;

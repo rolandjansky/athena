@@ -57,7 +57,7 @@ void TileGeoCutBuilder::MakeCut(GeoPhysVol*&   mother,
   GeoTransform* tfTmp = new GeoTransform(HepGeom::Translate3D(0.,0.,0.));
   mother->add(tfTmp);
 
-  (*m_log) << MSG::INFO <<"  MakeCut : number= "<<number<<endmsg;
+  (*m_log) << MSG::INFO <<"  MakeCut : number= "<<number<<endreq;
 }
 
 
@@ -80,16 +80,16 @@ void TileGeoCutBuilder::checking(std::string Name, bool print, int level,
      if(m_log->level()<=MSG::DEBUG)
        (*m_log) << MSG::DEBUG <<Step[level]<<Name<<"-"<<level
 		<<" dX1,dX2= "<<X1<<","<<X2<<" dY1,dY2= "<<Y1<<","<<Y2<<",dZ= "<<Z
-		<<endmsg;
+		<<endreq;
    }
   if (X1 < rless && X2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endreq;
    }
   if (Y1 < rless && Y2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endreq;
    }
   if (Z < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endmsg;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endreq;
    } 
 }
 
