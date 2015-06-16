@@ -12,6 +12,8 @@
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+class IRDBAccessSvc;
+class IGeoModelSvc;
 namespace LArGeo {
 
   class CryostatConstructionTBEC 
