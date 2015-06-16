@@ -35,12 +35,12 @@ namespace JiveXML {
   StatusCode CSCClusterRetriever::initialize(){
     
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endreq; 
     
     //Retrieve the CSC ID helper
     const MuonGM::MuonDetectorManager* muon_mgr;
     if ( detStore()->retrieve(muon_mgr).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonDetectorManager!" << endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve MuonDetectorManager!" << endreq;
       return StatusCode::FAILURE;
     } 
 
@@ -56,18 +56,18 @@ namespace JiveXML {
   StatusCode CSCClusterRetriever::retrieve(ToolHandle<IFormatTool> &/*FormatTool*/) {
    
     // //be verbose
-    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
     
     // //retrieve the cluster collection
     // const CscClusterCollection* container;
     // if( evtStore()->retrieve(container,m_sgKey).isFailure() ) {
-    //   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find CscClusterCollection " << m_sgKey << endmsg;
+    //   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find CscClusterCollection " << m_sgKey << endreq;
     //   return StatusCode::SUCCESS;
     // }
 
     // //Abort if the container is empty
     // if (container->empty()){
-    //   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CscClusterCollection with name " << m_sgKey << " is empty!" << endmsg;
+    //   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CscClusterCollection with name " << m_sgKey << " is empty!" << endreq;
     //   return StatusCode::SUCCESS;
     // }
 
@@ -129,7 +129,7 @@ namespace JiveXML {
     // myDataMap["hitsFull multiple=\"" + noHitsFull + "\""] = hitsFull;
 
     // //Be verbose
-    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
 
     // //forward data to formating tool
     // return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

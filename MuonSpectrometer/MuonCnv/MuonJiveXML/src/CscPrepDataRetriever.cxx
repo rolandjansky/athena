@@ -28,12 +28,12 @@ namespace JiveXML {
 
   StatusCode CscPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endreq; 
     
     StatusCode sc=detStore()->retrieve(m_cscIdHelper);
     if (sc.isFailure())
       {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve CscIdHelper!" << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve CscIdHelper!" << endreq;
         return StatusCode::FAILURE;
       }
 
@@ -45,11 +45,11 @@ namespace JiveXML {
   StatusCode CscPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
 
     const Muon::CscPrepDataContainer *cscContainer;
     if ( evtStore()->retrieve(cscContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::CscPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::CscPrepDataContainer '" << m_sgKey << "' was not retrieved." << endreq;
       return StatusCode::SUCCESS;
     }
 
@@ -80,7 +80,7 @@ namespace JiveXML {
         Identifier id = data->identify();
           
         if (!element) {
-           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::CscReadoutElement for hit " << id << endmsg;
+           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::CscReadoutElement for hit " << id << endreq;
           continue;
         }
 
@@ -110,7 +110,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

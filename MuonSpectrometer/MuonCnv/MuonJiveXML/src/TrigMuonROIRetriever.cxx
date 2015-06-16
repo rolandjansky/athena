@@ -30,13 +30,13 @@ namespace JiveXML {
   StatusCode TrigMuonROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
 
 
     const LVL1_ROI * roi;
     
     if ( evtStore()->retrieve(roi,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No MuonROI (LVL1_ROI) found." << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No MuonROI (LVL1_ROI) found." << endreq;
       return StatusCode::SUCCESS;
     } 
 
@@ -65,9 +65,9 @@ namespace JiveXML {
       thrNumber.push_back(DataType( itMU->getThrNumber()));
 
       // prevent empty threshold name list
-      std::string str_thrName = itMU->getThrName();
-      if (str_thrName ==""){ str_thrName = "empty"; };
-      thrName.push_back(DataType( str_thrName ));
+      std::string m_thrName = itMU->getThrName();
+      if (m_thrName ==""){ m_thrName = "empty"; };
+      thrName.push_back(DataType( m_thrName ));
       thrValue.push_back(DataType( itMU->getThrValue()));
 
       // 'energy' used, as all other ROIs have it
@@ -85,7 +85,7 @@ namespace JiveXML {
     myDataMap["thrValue"] = thrValue;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
