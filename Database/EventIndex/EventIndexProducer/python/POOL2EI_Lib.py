@@ -3,7 +3,7 @@
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
 # @author Javier Sanchez
-# @date February 2010
+# @date February 2014
 # 
 # Some code borrowed from PyAthena.FilePeekerLib
 # credits to Sebastien Binet 
@@ -21,6 +21,17 @@ from EI_Lib import EIrecord, IOV
 import time
 StatusCode = PyAthena.StatusCode
 
+# make Coral.AttributeList work in Coral3/ROOT6 
+from PyCool import coral 
+try: 
+    getattr(coral.Attribute, 'data<std::basic_string<char> >') 
+    # use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6) 
+    def attr_str_data(attr): 
+        return getattr(attr, 'data<std::basic_string<char> >') () 
+    # if not defined, use the old one (ROOT5)  
+except AttributeError: 
+    def attr_str_data(attr): 
+        return getattr(attr, 'data<std::string>') () 
 
 def _import_ROOT():
     import sys
@@ -73,25 +84,36 @@ class POOL2EI(PyAthena.Alg):
         _info("## SendToBroker: {}".format(self.SendToBroker))
 
 
+        self._dsname = "Unknown.Input.Dataset.Name"   # default fake value
         if self.EiDsName is not None:
             _info("## EiDsName: {}".format(self.EiDsName))
             self._dsname = self.EiDsName
         else:
-            """ this code is not used. Just for reference in case dataset has to be
-                read from Job Definition
-            try:
-                import newJobDef
-                for k in newJobDef.job.keys():
-                    _info("## newJobDef.job[{}]: {}".format(k,newJobDef.job[k]))
-                realDatasetsIN = newJobDef.job['realDatasetsIN'].split(',')
-                self._dsname = realDatasetsIN[0]
-            except:
-                self._dsname = "Project.runNumber.streamName.prodStep.dataType.Version"
-            """
+            # try to get dataset name from pathena INDS environment variable
             import os
-            inds = os.getenv('INDS',"Unknown.Input.Dataset.Name")
-            _info("## INDS: {}".format(inds))
-            self._dsname = inds
+            inds = os.getenv('INDS')
+            if inds is not None:
+                _info("## INDS: {}".format(inds))
+                self._dsname = inds
+            else:
+                # else, try to use job definition
+                try:
+                    import newJobDef
+                    processingType = newJobDef.job['processingType']
+                    transformation = newJobDef.job['transformation']
+                    dsSource ='realDatasetsIn'    # take dataset name from input
+                    if processingType == 'merge' and transformation != 'POOLtoEI_tf.py':
+                        dsSource = 'realDatasets' # take dataset name from output
+                    datasets = newJobDef.job[dsSource].split(',')
+                    _info("## {}[0]: {}".format(dsSource,datasets[0]))
+                    self._dsname = datasets[0]
+                    # remove _tid and _sub parts from dsname
+                    import re
+                    self._dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', self._dsname)
+                    self._dsname = re.sub('_sub[0-9]{10}', '', self._dsname)
+                    self._dsname = re.sub('\/$', '', self._dsname)
+                except:
+                    _info('## Unable to get dataset name from realDatasetsIn or realDatasets')
                 
 
         # token match regex
@@ -135,7 +157,7 @@ class POOL2EI(PyAthena.Alg):
         if self.Out is not None:
             oname = self.Out
         else:
-            oname = "pool.ei.pkl"
+            oname = "output.ei.pkl"
         oname = os.path.expanduser(os.path.expandvars(oname))
         self._eifname = oname
         _info('Opening EI file [{}]...'.format(oname))
@@ -256,22 +278,20 @@ class POOL2EI(PyAthena.Alg):
             for idx in xrange(sz):
                 chan = payload.chanNum(idx)
                 attr_list = payload.attributeList(chan)
-                attr_list = list(toiter(attr_list.begin(),
-                                        attr_list.end()))
                 attr_data = []
-                for a in attr_list:
+                for a in list(toiter(attr_list.begin(), attr_list.end())):
                     spec   = a.specification()
                     a_type = spec.typeName()
-                    a_type = 'std::string' if a_type == 'string' else a_type
-                    a_data = getattr(a,'data<{}>'.format(a_type))()
-                    if a_type == 'std::string':
+                    if a_type.find('string') >= 0:
+                        a_data = attr_str_data(a)
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
                             # swallow and keep as a string
                             pass
-                    attr_data.append((spec.name(),
-                                      a_data))
+                    else:
+                        a_data = getattr(a,'data<{}>'.format(a_type))()
+                    attr_data.append((spec.name(), a_data))
                 attrs.append(dict(attr_data))
             if len(attrs) == len(chan_names):
                 data.append(dict(zip(chan_names,attrs)))
