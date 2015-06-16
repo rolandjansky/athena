@@ -249,9 +249,9 @@ bool Trig::FillConf::FillSeq(TrigMonConfig &confg,
   }
 
   //
-  // Insert sequence sorted by name, first 300 index values are used by L1
+  // Insert sequence sorted by name, first 512 index values are used by L1
   //
-  unsigned icountSeq = 600;
+  unsigned icountSeq = 512;
   
   for(std::map<std::string, TrigConf::HLTSequence *>::const_iterator sit = seqmap.begin();
       sit != seqmap.end(); ++sit) {
@@ -427,14 +427,8 @@ bool Trig::FillConf::FillStreams(TrigMonConfig &confg,
 
    // loop over the config chain and add stream information 
    // (note that for stream prescales in FillHLT, the stream ps info is not correctly stored HLTFrame)
-   TrigConf::HLTLevel level = TrigConf::EF;
-   std::string levels = "EF";
-
-   bool merged = false;
-   if(merged) {
-      level = TrigConf::HLT;
-      levels = "HLT";
-   }
+   TrigConf::HLTLevel level = TrigConf::HLT;
+   std::string levels = "HLT";
 
    BOOST_FOREACH(const TrigConf::HLTPrescaleSet::ScalingMap_t::value_type& x, pss.getPrescales(level)) {
       unsigned int chain_counter = x.first;

@@ -308,14 +308,20 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
         if(curAlgName != myname) {
           // New algorithm
           curAlgName.clear();
-          vector<TrigConfAlg>::const_iterator algIter = myseqIter -> findName(myname);
-          if(algIter == myseqIter -> algEnd()) {
-            ATH_MSG_WARNING( "Bad alg iterator ");
-            return;
+          if(myseqIter == m_TrigConfSeq.end()) {
+            ATH_MSG_WARNING( "Bad iterator for new algorithm " << curAlgName);
+            continue;
+          } else {
+            vector<TrigConfAlg>::const_iterator algIter = myseqIter -> findName(myname);
+            if(algIter == myseqIter -> algEnd()) {
+              ATH_MSG_WARNING( "Bad alg iterator ");
+              return;
+            }
+
+            curAlgName = myname;
+            curAlgPos = algIter -> getPosition();
           }
-    
-          curAlgName = myname;
-          curAlgPos = algIter -> getPosition();
+
         }
 
         entry.m_palg = curAlgPos;

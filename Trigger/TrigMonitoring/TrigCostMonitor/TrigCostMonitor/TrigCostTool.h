@@ -17,8 +17,8 @@
 // Trigger
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigSteering/Scaler.h"
+#include "TrigSteering/EventInfoAccessTool.h"
 
-#include "xAODEventInfo/EventInfo.h" // OLD
 #include "xAODEventInfo/EventInfo.h"
 
 // Trigger
@@ -62,7 +62,7 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   void ProcessEvent(TrigMonEvent &event);
   void SavePrevLumi(TrigMonEvent &event);
 
-  bool IsMonitoringEvent(xAOD::EventInfo* info);
+  StatusCode IsMonitoringEvent(bool& monitoringEvent);
   
   void ClearBeforeNewRun(unsigned run = 0);
 
@@ -92,17 +92,20 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   bool         m_writeConfig;      // Write out configuration data
   bool         m_writeConfigDB;    // Write out configuration data loaded from the DB
   bool         m_onlySaveCostEvent;// Only save events which pass the OPI `prescale'
+  bool         m_obeyCostChainPS;  // Only monitor HLT events for prescale sets where the cost chain PS > 0
+
 
   unsigned int m_stopAfterNEvent;  // Stop collecting data after nevents
   float        m_execPrescale;     // Prescale for collecting extended data
   float        m_doOperationalInfo;// Value of doOperationalInfo in parent steering alg. Only for reference here
 
   // Athena tool and service handles
-  const HLT::TrigSteer              *m_parentAlg;
-  TrigTimer                         *m_timer;
-  ServiceHandle<ITrigTimerSvc>       m_timerSvc; 
-  ToolHandle<IBunchGroupTool>        m_toolBunchGroup;
-  ToolHandle<HLT::IReusableScaler>   m_scalerTool;
+  const HLT::TrigSteer                  *m_parentAlg;
+  TrigTimer                             *m_timer;
+  ServiceHandle<ITrigTimerSvc>          m_timerSvc; 
+  ToolHandle<IBunchGroupTool>           m_toolBunchGroup;
+  ToolHandle<HLT::IReusableScaler>      m_scalerTool;
+  ToolHandle<HLT::IEventInfoAccessTool> m_eventInfoAccessTool;
 
   // Tools for operational data collection
   ToolHandle<Trig::ITrigNtTool>      m_toolConf;
@@ -123,6 +126,8 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   unsigned                           m_keyTimer;      // Starting key for adding timers
   unsigned                           m_exportedConfig;// Number of configs exported to the HLT result
   unsigned                           m_exportedEvents;// Number of events exported to the HLT result
+  float                              m_costChainPS;      // Set to value of the cost chain prescale on load of new config
+
 
   TrigMonConfig                      m_config_db;     // Trigger configuration from DB (live config)
   TrigMonConfig                      m_config_sv;     // Trigger configuration from conf. servivce
