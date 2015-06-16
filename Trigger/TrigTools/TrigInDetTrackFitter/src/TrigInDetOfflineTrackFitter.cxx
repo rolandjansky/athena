@@ -62,12 +62,12 @@ StatusCode TrigInDetOfflineTrackFitter::initialize()
   StatusCode scFit = toolSvc->retrieveTool(m_FitterName, m_FitterInstance, m_trackFitter);
   if (scFit.isFailure())
     {
-      athenaLog<<MSG::ERROR<<"Could not find refit tool of type "<<m_FitterName<<". Exiting."<< endmsg;
+      athenaLog<<MSG::ERROR<<"Could not find refit tool of type "<<m_FitterName<<". Exiting."<< endreq;
       return scFit;
     }
   else 
     {
-      athenaLog << MSG::INFO << "Refit tool \""<<m_FitterName<<" "<<m_FitterInstance<<"\" booked."<< endmsg;
+      athenaLog << MSG::INFO << "Refit tool \""<<m_FitterName<<" "<<m_FitterInstance<<"\" booked."<< endreq;
     }
   */
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
