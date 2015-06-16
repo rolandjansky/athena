@@ -38,13 +38,18 @@ TrigCostAlg::TrigCostAlg(const std::string& name,
   declareProperty("tools",         m_tools,      "Tools array");
 
   declareProperty("doTiming",      m_doTiming      = true);
+  declareProperty("writeConfig",   m_writeConfig   = true);
+  declareProperty("writeEvent",    m_writeEvent    = true);
   declareProperty("mergeEvent",    m_mergeEvent    = true);
   declareProperty("printEvent",    m_printEvent    = false);
 
-  declareProperty("keyConfigL2",   m_keyConfigL2 = "HLT_OPI_L2_monitoring_config");
-  declareProperty("keyConfigEF",   m_keyConfigEF = "HLT_OPI_EF_monitoring_config");
-  declareProperty("keyEventL2",    m_keyEventL2  = "HLT_OPI_L2_monitoring_event");
-  declareProperty("keyEventEF",    m_keyEventEF  = "HLT_OPI_EF_monitoring_event");
+  declareProperty("keyConfigL2",   m_keyConfigL2  = "HLT_TrigMonConfigCollection_OPI_L2_monitoring_config");
+  declareProperty("keyConfigEF",   m_keyConfigEF  = "HLT_TrigMonConfigCollection_OPI_EF_monitoring_config");
+  declareProperty("keyConfigHLT",  m_keyConfigHLT = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config");
+  declareProperty("keyEventL2",    m_keyEventL2   = "HLT_TrigMonEventCollection_OPI_L2_monitoring_event");
+  declareProperty("keyEventEF",    m_keyEventEF   = "HLT_TrigMonEventCollection_OPI_EF_monitoring_event");
+  declareProperty("keyEventHLT",   m_keyEventHLT  = "HLT_TrigMonEventCollection_OPI_HLT_monitoring_event");
+
 }
 
 //---------------------------------------------------------------------------------------
@@ -84,7 +89,8 @@ StatusCode TrigCostAlg::initialize()
   ATH_MSG_INFO("printEvent    = " << m_printEvent);
   ATH_MSG_INFO("keyEventL2    = " << m_keyEventL2);
   ATH_MSG_INFO("keyEventEF    = " << m_keyEventEF);
-  
+  ATH_MSG_INFO("keyEventHLT   = " << m_keyEventHLT);
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -124,8 +130,9 @@ StatusCode TrigCostAlg::execute()
     }
   }  
 
-  ExtractEvent(m_keyEventL2, 2);
-  ExtractEvent(m_keyEventEF, 3);
+  ExtractEvent(m_keyEventL2,  2);
+  ExtractEvent(m_keyEventEF,  3);
+  ExtractEvent(m_keyEventHLT, 2);
 
   for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
     (*it)->Fill(m_event);

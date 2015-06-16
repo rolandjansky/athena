@@ -503,12 +503,14 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
           if(!te) continue;
     
           std::string seqname = "unknown";
-          std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
-          if(sit != m_Config->end<TrigConfSeq>()) {
-            seqname = sit->getName();
-         }
+          if (m_Config) {
+            std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
+            if(sit != m_Config->end<TrigConfSeq>()) {
+              seqname = sit->getName();
+            }
+          }
     
-         ATH_MSG_INFO("Successor TE: " << seqname << "/" << te->getId() );
+          ATH_MSG_INFO("Successor TE: " << seqname << "/" << te->getId() );
         }
       }
     }

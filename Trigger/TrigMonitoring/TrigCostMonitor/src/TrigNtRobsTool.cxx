@@ -156,7 +156,11 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       alg_id = TrigConf::HLTUtils::string2hash(rob->requestor_name, "ALG");
       
       if(m_algIds.insert(alg_id).second) {
-        ATH_MSG_INFO("Algorithm not in a menu: " << rob->requestor_name << " use hash id=" << alg_id );
+        if (rob->requestor_name == "<NONE>" || rob->requestor_name == "TrigSteer_HLT") {
+          ATH_MSG_DEBUG("Algorithm not in a menu: " << rob->requestor_name << " use hash id=" << alg_id );
+        } else {
+          ATH_MSG_INFO("Algorithm not in a menu: " << rob->requestor_name << " use hash id=" << alg_id );
+        }
       }
     }
 
@@ -350,21 +354,21 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
 
   std::map<const uint32_t, robmonitor::ROBDataStruct>::iterator it = rob.requested_ROBs.begin();
   for(; it != rob.requested_ROBs.end(); ++it) {
-    const robmonitor::ROBDataStruct &data = it->second;
+    const robmonitor::ROBDataStruct &robData = it->second;
       
     TrigMonROBData::History myhist = TrigMonROBData::kUNCLASSIFIED;
     
-    if(data.rob_history==robmonitor::UNCLASSIFIED) myhist = TrigMonROBData::kUNCLASSIFIED;
-    if(data.rob_history==robmonitor::RETRIEVED)    myhist = TrigMonROBData::kRETRIEVED;
-    if(data.rob_history==robmonitor::CACHED)       myhist = TrigMonROBData::kCACHED;
-    if(data.rob_history==robmonitor::IGNORED)      myhist = TrigMonROBData::kIGNORED;
-    if(data.rob_history==robmonitor::DISABLED)     myhist = TrigMonROBData::kDISABLED;
+    if(robData.rob_history==robmonitor::UNCLASSIFIED) myhist = TrigMonROBData::kUNCLASSIFIED;
+    if(robData.rob_history==robmonitor::RETRIEVED)    myhist = TrigMonROBData::kRETRIEVED;
+    if(robData.rob_history==robmonitor::CACHED)       myhist = TrigMonROBData::kCACHED;
+    if(robData.rob_history==robmonitor::IGNORED)      myhist = TrigMonROBData::kIGNORED;
+    if(robData.rob_history==robmonitor::DISABLED)     myhist = TrigMonROBData::kDISABLED;
     
     Tmp::RobSum &sum = sum_robs[myhist];
     
     sum.nrob++;
-    sum.size+= data.rob_size;
-    sum.rids.push_back(data.rob_id);
+    sum.size+= robData.rob_size;
+    sum.rids.push_back(robData.rob_id);
   }
 
   const std::string pref = "CheckROB for " + rob.requestor_name + " ";

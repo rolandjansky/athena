@@ -8,11 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Reconstruction
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-// NEEDS MIGRATING
+#include "xAODEventInfo/EventInfo.h"	
 
 // Trigger
 #include "TrigConfHLTData/HLTUtils.h"
@@ -139,48 +135,36 @@ StatusCode TrigCostRun::execute()
   //
   
   static int firstTwo = 0;
-  if (firstTwo++ < 2) {
+  if (m_printEvent && firstTwo++ < 2) {
 	  ATH_MSG_WARNING( evtStore()->dump() );
   }
-  
-  const DataHandle<EventInfo> event_handle;
-  if(evtStore() -> retrieve(event_handle).isFailure()) {
-    ATH_MSG_WARNING("Failed to read EventInfo");
-    return StatusCode::SUCCESS;
-  }
+
+  const xAOD::EventInfo* event_info(0);
+  CHECK(evtStore()->retrieve(event_info));  
 
   ScopeResumePauseTimer execTimer(m_timerExec, false);
 
-  //
-  // Print EventInfo and stream tags
-  //
-  TriggerInfo *trig = event_handle->trigger_info();
-  if(!trig) {
-    ATH_MSG_WARNING("Failed to get TriggerInfo");
-    return StatusCode::SUCCESS;
-  }
-
-  const std::vector<TriggerInfo::StreamTag> &streams = trig->streamTags();
-
   if(m_printEvent) {
     ATH_MSG_INFO(">>>>>>>>>>>>>>>>"
-	  << " run #" << event_handle->event_ID()->run_number()
-	  << " lumi #" << event_handle->event_ID()->lumi_block()
-	  << " event #" << event_handle->event_ID()->event_number() 
-	  << " has " << streams.size() << " streams ");
+	  << " run #" << event_info->runNumber()
+	  << " lumi #" << event_info->lumiBlock()
+	  << " event #" << event_info->eventNumber() 
+	  << " has " << event_info->streamTags().size() << " streams ");
   }
   
   bool found_stream = false;
-  for(unsigned i = 0; i < streams.size(); ++i) {
-    const TriggerInfo::StreamTag &stag = streams[i];
+  for(unsigned i = 0; i < event_info->streamTags().size(); ++i) {
+    const xAOD::EventInfo::StreamTag &stag = event_info->streamTags().at(i);
+
+    if(m_printEvent) {
+      ATH_MSG_INFO("  stream " << i << ": " << stag.name() << "/" << stag.type());
+    }
+
     if(stag.name() == m_keyStream) {
       found_stream = true;
       break;
     }
 
-    if(m_printEvent) {
-      ATH_MSG_INFO("  stream " << i << ": " << stag.name() << "/" << stag.type());
-    }
   }
 
   if(!m_keyStream.empty() && !found_stream) {
@@ -340,7 +324,9 @@ bool TrigCostRun::MatchL2andEF(const std::vector<TrigMonEvent> &events_l2,
 
 //---------------------------------------------------------------------------------------
 TrigCostRun::ReadHLTResult::ReadHLTResult()
-  :outputLevel(3),
+  :doLevel(0),
+   outputLevel(3),
+   msgStream(0),
    globalConfig(0),
    timerNavig(0),
    appId(0),

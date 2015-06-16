@@ -16,8 +16,6 @@
 #include "StoreGate/DataHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 // #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" // Get CTP ROB 
-#include "EventInfo/EventInfo.h" // Legacy
-#include "EventInfo/TriggerInfo.h" // Legacy
 
 // Trigger
 #include "TrigNavigation/Navigation.h"
@@ -49,6 +47,7 @@ TrigCostTool::TrigCostTool(const std::string& type,
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
    m_toolBunchGroup("BunchGroupTool", this),
    m_scalerTool("HLT::RandomScaler/TrigCostScaler", this),
+   m_eventInfoAccessTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
    m_toolConf("Trig::TrigNtConfTool/TrigNtConfTool", this),
    m_toolEBWeight("Trig::TrigNtEBWeightTool/TrigNtEBWeightTool", this),
    m_eventTools(this),
@@ -61,16 +60,18 @@ TrigCostTool::TrigCostTool(const std::string& type,
    m_countEvent(0),
    m_keyTimer(0),
    m_exportedConfig(0),
-   m_exportedEvents(0)
+   m_exportedEvents(0),
+   m_costChainPS(0)
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("toolConf",    m_toolConf,    "Trigger configuration tool");
-  declareProperty("toolEBWeight",m_toolEBWeight,"Enhanced bias weighting tool");  
-  declareProperty("eventTools",  m_eventTools,  "Cost sub-tools run on every event");
-  declareProperty("scaleTools",  m_scaleTools,  "Cost sub-tools run on events after prescale");
-  declareProperty("alwaysTools", m_alwaysTools, "Cost sub-tools run on every event if always flag is set");
-  declareProperty("scalerTool",  m_scalerTool,  "Scaler used to prescale the scaleTools");
+  declareProperty("toolConf",      m_toolConf,            "Trigger configuration tool");
+  declareProperty("toolEBWeight",  m_toolEBWeight,        "Enhanced bias weighting tool");  
+  declareProperty("eventTools",    m_eventTools,          "Cost sub-tools run on every event");
+  declareProperty("scaleTools",    m_scaleTools,          "Cost sub-tools run on events after prescale");
+  declareProperty("alwaysTools",   m_alwaysTools,         "Cost sub-tools run on every event if always flag is set");
+  declareProperty("scalerTool",    m_scalerTool,          "Scaler used to prescale the scaleTools");
+  declareProperty("eventInfoTool", m_eventInfoAccessTool, "Tool to manipulate the event streaming"); 
   
   declareProperty("level",            m_level            = "");
   declareProperty("monitoringLogic",  m_monitoringLogic  = "no-calib no-debug no-physics");
@@ -91,7 +92,7 @@ TrigCostTool::TrigCostTool(const std::string& type,
   declareProperty("writeConfig",      m_writeConfig      = true);
   declareProperty("writeConfigDB",    m_writeConfigDB    = false);  
   declareProperty("onlySaveCostEvent",m_onlySaveCostEvent= true, "Only save events which have passed the OPI prescale which run all scale tools");
-
+  declareProperty("obeyCostChainPS",  m_obeyCostChainPS  = true, "Only monitor events if the cost chain prescale is > 0");
 
   declareProperty("stopAfterNEvent",  m_stopAfterNEvent  = 1000);
   declareProperty("execPrescale",     m_execPrescale     = 1.0);
@@ -169,6 +170,9 @@ StatusCode TrigCostTool::initialize()
 
   CHECK(m_scaleTools.retrieve());
   ATH_MSG_INFO("Retrieved " << m_scaleTools);
+
+  CHECK(m_eventInfoAccessTool.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_eventInfoAccessTool);
   
   CHECK(m_alwaysTools.retrieve());
   ATH_MSG_INFO("Retrieved " << m_alwaysTools);
@@ -217,6 +221,7 @@ StatusCode TrigCostTool::initialize()
   ATH_MSG_INFO("doOperationalInfo= " << m_doOperationalInfo);
   ATH_MSG_INFO("keyTimer         = " << m_keyTimer         );
   ATH_MSG_INFO("printEvent       = " << m_printEvent       );
+  ATH_MSG_INFO("obeyCostChainPS  = " << m_obeyCostChainPS  );
 
   return StatusCode::SUCCESS;
 }
@@ -304,80 +309,95 @@ StatusCode TrigCostTool::fillHists()
   //
   // Make new event and call tools
   //  
-  const bool monitoringEvent = IsMonitoringEvent(eventInfo); // Have I passed the CostMon chain and no other chains?
+  bool monitoringEvent = false; // Only write out on monitoring events
+  CHECK( IsMonitoringEvent(monitoringEvent) ); // Have I passed the CostMon chain and no other chains? (changes value of monitoringEvent)
+
   const unsigned opiLevel = m_parentAlg->getAlgoConfig()->getSteeringOPILevel(); // Have I passed the OPI "prescale"?
 
-  // Decide if we run the scale tools
+  // Have I passed my own personal "prescale" (not this is currently not used)
   bool _prescaleDecision = true;
   if (m_execPrescale) {
     _prescaleDecision = m_scalerTool->decision(m_execPrescale);
   } 
 
-  // We now provide the option to bail out here if we have not passed the OPI `prescale'
+  // If only saving full cost events then make sure pass internal and OPI prescales
+  bool _runTools = true; // Do we create a new TrigMonEvent and fill it with stuff?
+  int _ranSacleTools = 0; // Set to 1 if we additioanlly run the scale tools (full mon event)
   if (m_onlySaveCostEvent == true && m_writeAlways == false) {
     if (opiLevel == 0 || m_execPrescale == 0 || _prescaleDecision == 0) {
-      ATH_MSG_DEBUG("Not a full monitoring event, return now. To save basic info for all events set onlySaveCostEvent=0");
-      return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG("Not a full monitoring event, not processing. To save basic info for all events set onlySaveCostEvent=0");
+      _runTools = false;
     }
   }
+
+  // If only running when the chain is active (default) and we're online (costForCAF false)
+  if (m_obeyCostChainPS == true && m_costForCAF == false) {
+    if (m_costChainPS <= 0.) _runTools = false;
+  }
+  ATH_MSG_DEBUG("Obey cost chain PS=" << m_obeyCostChainPS << ", CostChainPS=" << m_costChainPS << " costForCAF=" << m_costForCAF << " and runTools=" << _runTools);
 
   if(m_stopAfterNEvent > 0 && m_bufferEvents.size() >= m_stopAfterNEvent) { // Have we filled up the buffer? This is bad!
     delete m_bufferEvents.front();
     m_bufferEvents.erase(m_bufferEvents.begin());
-
-    ATH_MSG_WARNING("Reached CostMon buffer limit... deleted 1st event. Lost statistics!! Event buffer size = " << m_bufferEvents.size());
+    ATH_MSG_WARNING("Reached CostMon buffer limit... deleted 1st event. Lost statistics!! Buffer size = " << m_bufferEvents.size());
   }
 
-  TrigMonEvent *event = new TrigMonEvent();
-  m_bufferEvents.push_back(event);
-  
-  event->setEventID(eventInfo->eventNumber(),
-        eventInfo->lumiBlock(),
-        eventInfo->bcid(),
-        eventInfo->runNumber(),
-        eventInfo->timeStamp(),
-        eventInfo->timeStampNSOffset());    
+  // Only for full monitoring events, or for all events if m_onlySaveCostEvent=false (but scale tools are still not run in this case)
+  // Note that if writeAlways is true, runTools will be true too
+  TrigMonEvent *event = 0;
+  if (_runTools) {
 
-  // Run the per event tools
-  for(unsigned i = 0; i < m_eventTools.size(); ++i) { 
-    ATH_MSG_DEBUG( "Running EventTool " << i << ", " << m_eventTools[i]->type() );
-    m_eventTools[i]->Fill(*event); 
-  }
-  
-  int _ranSacleTools = 0;
-  ATH_MSG_DEBUG( "Deciding if we run the ScaleTools on this event (full monitorng event):"
-       << " doOperationalInfo=" << m_doOperationalInfo
-       << " [descision=" << opiLevel << "]"
-       << ". execPrescale=" << m_execPrescale 
-       << " [descision=" << _prescaleDecision << "]" );
-  if(m_writeAlways || (opiLevel > 0 && m_execPrescale > 0.0 && _prescaleDecision == true)) {
-    for(unsigned i = 0; i < m_scaleTools.size(); ++i) { 
-      ATH_MSG_DEBUG( "Running Event ScaleTools " << i << ", " << m_scaleTools[i]->type() );
-      m_scaleTools[i]->Fill(*event); 
+    event = new TrigMonEvent();
+    m_bufferEvents.push_back(event);
+    
+    event->setEventID(eventInfo->eventNumber(),
+          eventInfo->lumiBlock(),
+          eventInfo->bcid(),
+          eventInfo->runNumber(),
+          eventInfo->timeStamp(),
+          eventInfo->timeStampNSOffset());    
+
+    // Run the per event tools
+    for(unsigned i = 0; i < m_eventTools.size(); ++i) { 
+      ATH_MSG_DEBUG( "Running EventTool " << i << ", " << m_eventTools[i]->type() );
+      m_eventTools[i]->Fill(*event); 
     }
-    // Also use the EB weight tool
-    if (m_doEBWeight) m_toolEBWeight->Fill(*event);
-    _ranSacleTools = 1;
-  } else {
-    ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
-  }
-  event->addVar(47, _ranSacleTools);
+  
 
-  //
-  // Fill basic event data
-  //
-  ProcessEvent(*event);
+    ATH_MSG_DEBUG( "Deciding if we run the ScaleTools on this event (full monitorng event):"
+         << " doOperationalInfo=" << m_doOperationalInfo
+         << " [descision=" << opiLevel << "]"
+         << ". execPrescale=" << m_execPrescale 
+         << " [descision=" << _prescaleDecision << "]" );
+    if(m_writeAlways || (opiLevel > 0 && m_execPrescale > 0.0 && _prescaleDecision == true)) {
+      for(unsigned i = 0; i < m_scaleTools.size(); ++i) { 
+        ATH_MSG_DEBUG( "Running Event ScaleTools " << i << ", " << m_scaleTools[i]->type() );
+        m_scaleTools[i]->Fill(*event); 
+      }
+      // Also use the EB weight tool
+      if (m_doEBWeight) m_toolEBWeight->Fill(*event);
+      _ranSacleTools = 1;
+    } else {
+      ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
+    }
+    event->addVar(47, _ranSacleTools);
+
+    //
+    // Fill basic event data
+    //
+    ProcessEvent(*event);
+  }
   
   if(monitoringEvent || m_writeAlways) { // If passed CostMon chain or WriteAlways is true (i.e. CAF mode)
     //
     // Write counts for previous events
     //
-    SavePrevLumi(*event);
+    if (event) SavePrevLumi(*event);
     
     //
-    // Process always tools
+    // Process always tools. m_writeAlways implied _runTools, but check 'event' non null to be careful. Also we currenly have no alwaysTools
     //
-    if(m_writeAlways) {
+    if(m_writeAlways && event) {
       for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
         ATH_MSG_DEBUG( "Running Event AlwaysTools " << i << ", " << m_alwaysTools[i]->type() );
         m_alwaysTools[i]->Fill(*event);
@@ -443,7 +463,7 @@ StatusCode TrigCostTool::fillHists()
     m_timer->stop();
     event_timer = m_timer->elapsed();
 
-    if(m_saveEventTimers) {
+    if(m_saveEventTimers && event) {
       event->addVar(m_keyTimer, m_timer->elapsed());
     }
   }
@@ -451,7 +471,7 @@ StatusCode TrigCostTool::fillHists()
   if(outputLevel() <= MSG::DEBUG) { 
     ATH_MSG_DEBUG("Processed run #" << eventInfo->runNumber() << " lb #" << eventInfo->lumiBlock() << " event #" << eventInfo->eventNumber() );
     ATH_MSG_DEBUG("  steeringOPILevel  = " << opiLevel );
-    ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent );
+    ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent << ", ranTools = " << _runTools << ", ranScaleTools = " << _ranSacleTools );
     ATH_MSG_DEBUG("  event buffer size = " << m_bufferEvents.size() );
     ATH_MSG_DEBUG("  elapsed time=" << event_timer << " ms" );
 
@@ -460,7 +480,7 @@ StatusCode TrigCostTool::fillHists()
       ATH_MSG_DEBUG( evtStore()->dump() );
     }
 
-    if(m_printEvent) Trig::Print(*event, m_config_sv, msg(), MSG::DEBUG);
+    if(m_printEvent && event) Trig::Print(*event, m_config_sv, msg(), MSG::DEBUG);
   }
 
   return StatusCode::SUCCESS;
@@ -588,12 +608,22 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
       ATH_MSG_DEBUG("ProcessConfig - Exporting the operational prescale " << m_execPrescale );
       ATH_MSG_DEBUG("ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo );
 
+      //Get the prescale of the cost chain
+      const std::vector<TrigConfChain> _chains = m_config_sv.getVec<TrigConfChain>();
+      for(unsigned int i = 0; i < _chains.size(); ++i) {
+        if ( _chains.at(i).getChainName().find("costmonitor") != std::string::npos ) {
+          m_costChainPS =  _chains.at(i).getPrescale();
+          ATH_MSG_DEBUG( "Got CostChain prescale: " << m_costChainPS);
+        }
+      }
+
       if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
         m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
         ATH_MSG_DEBUG( "ProcessConfig - writing out full svc configuration" );
       }
     }
   }
+
 
   // Should we use the DB to collect the online keys for this LB and Run Number?
   if (m_useConfDb && m_toolConf && m_costForCAF && m_doEBWeight) {
@@ -792,35 +822,13 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
 }
 
 //---------------------------------------------------------------------------------------
-
-namespace Cost
-{
-  void PrintStreams(xAOD::EventInfo* trig, MsgStream &msg, MSG::Level level)
-  {    
-    const std::vector<xAOD::EventInfo::StreamTag> &streams = trig->streamTags();
-    for(unsigned i = 0; i < streams.size(); ++i) {
-      const xAOD::EventInfo::StreamTag &stag = streams[i];      
-      msg << level << "   stream " << i << ": " << stag.name() << "/" << stag.type() << endreq;
-    }
-  }
-}
-
-//---------------------------------------------------------------------------------------
-bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
+StatusCode TrigCostTool::IsMonitoringEvent(bool& monitoringEvent)
 {
   //
   // Check if this event has monitoring stream
   // 
-  const std::vector< xAOD::EventInfo::StreamTag > &streams = info->streamTags(); //New
-
-  if(streams.empty()) {
-    ATH_MSG_DEBUG("[xAOD::EventInfo] Event has no trigger streams");
-  } else {
-    if(outputLevel() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG("[xAOD::EventInfo] Event has " << streams.size() << " stream(s)");
-      Cost::PrintStreams(info, msg(), MSG::DEBUG);
-    }
-  }
+  std::vector< xAOD::EventInfo::StreamTag > streams;
+  CHECK( m_eventInfoAccessTool->getStreamTags(streams) ); //Get streams
 
   const bool noCalib   = m_monitoringLogic.find("no-calib")   != std::string::npos;
   const bool noDebug   = m_monitoringLogic.find("no-debug")   != std::string::npos;
@@ -831,8 +839,7 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
   bool costEvent = false;
   bool passLogic = true;
 
-  std::vector< xAOD::EventInfo::StreamTag > new_streams;
-  std::vector<TriggerInfo::StreamTag>       new_streams_legacy;
+  std::vector< xAOD::EventInfo::StreamTag > _streamTagPurgeList; // List of StreamTags to be removed if not saving cost data
 
   for(unsigned i = 0; i < streams.size(); ++i) {
     const xAOD::EventInfo::StreamTag &stag = streams.at(i);
@@ -860,12 +867,10 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
     if(stag.name() == m_monitoringStream) {
       costEvent = true;
       ATH_MSG_DEBUG("Event has monitoring stream: " << m_monitoringStream);
-    } else {
-      new_streams.push_back(stag);
-      new_streams_legacy.push_back( 
-        TriggerInfo::StreamTag(stag.name(), stag.type(), stag.obeysLumiblock(), stag.robs(), stag.dets())
-      );
+      // If the pass logic ends up false and stream purge is on, we'll want to remove this stream
+      _streamTagPurgeList.push_back( stag );
     }
+
   }
 
   if(oneStream && streams.size() != 1) {
@@ -878,26 +883,11 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
 
   if(m_purgeCostStream && costEvent && !passLogic) {
     ATH_MSG_DEBUG("Failed Pass Logic, purge the Cost stream tag from the event to save writing out empty RAW event to SFO");
-    
-    const std::vector< xAOD::EventInfo::StreamTag > new_streams_const(new_streams); 
-    info->setStreamTags(new_streams_const); 
-
-    // Also update the legacy non-xAOD object
-    const DataHandle<EventInfo> event_handle_legacy;
-    if (evtStore()->retrieve(event_handle_legacy).isFailure()) {
-      ATH_MSG_DEBUG("Can no longer access old EventInfo - remove this legacy code block");
-    } else {
-      TriggerInfo* info_legacy = event_handle_legacy->trigger_info();
-      info_legacy->setStreamTags(new_streams_legacy);
-    }
-
-    if(outputLevel() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG("After stream purge event has " << info->streamTags().size() << " stream(s)");
-      Cost::PrintStreams(info, msg(), MSG::DEBUG);
-    }
+    CHECK( m_eventInfoAccessTool->removeStreamTags(_streamTagPurgeList) ); // Remove stream tags 
   }
 
-  return (costEvent && passLogic);
+  monitoringEvent = (costEvent && passLogic);
+  return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------------------

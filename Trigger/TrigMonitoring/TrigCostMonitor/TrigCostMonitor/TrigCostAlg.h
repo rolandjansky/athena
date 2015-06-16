@@ -59,8 +59,10 @@ private:
 
    std::string   m_keyConfigL2;      // Key for L2 TrigMonConfigCollection
    std::string   m_keyConfigEF;      // Key for EF TrigMonConfigCollection
+   std::string   m_keyConfigHLT;     // Key for HLT TrigMonConfigCollection
    std::string   m_keyEventL2;       // Key for L2 TrigMonEventCollection
    std::string   m_keyEventEF;       // Key for EF TrigMonEventCollection
+   std::string   m_keyEventHLT;      // Key for HLT TrigMonEventCollection
 
    // Tools and services
    TrigTimer                          *m_timerTotal;
