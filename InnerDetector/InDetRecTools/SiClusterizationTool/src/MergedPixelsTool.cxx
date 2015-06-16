@@ -122,14 +122,14 @@ namespace InDet {
 
     StatusCode MergedPixelsTool::finalize()
     {
-      
       ATH_MSG_DEBUG("------------------- Clusterization Statistics ------------------------");
       ATH_MSG_DEBUG("-- # Processed Pixel Clusters     : " << m_processedClusters);
-      ATH_MSG_DEBUG("-- # Clusters modified  (%)       : " << m_modifiedOrigClusters << " (" << double(m_modifiedOrigClusters)/double(m_processedClusters) << ")" );
-      ATH_MSG_DEBUG("-- # Clusters split into more (%) : " << m_splitOrigClusters << " (" << double(m_splitOrigClusters)/double(m_processedClusters) << ")" );
-      ATH_MSG_DEBUG("-- # Split Clusters created       : " << m_splitProdClusters);
-      ATH_MSG_DEBUG("-- # Large Pixel Clusters (%)     : " << m_largeClusters << " (" << double(m_largeClusters)/double(m_processedClusters) << ")" );
-        
+      if(m_processedClusters){ 
+	ATH_MSG_DEBUG("-- # Clusters modified  (%)       : " << m_modifiedOrigClusters << " (" << double(m_modifiedOrigClusters)/double(m_processedClusters) << ")" );
+	ATH_MSG_DEBUG("-- # Clusters split into more (%) : " << m_splitOrigClusters << " (" << double(m_splitOrigClusters)/double(m_processedClusters) << ")" );
+	ATH_MSG_DEBUG("-- # Split Clusters created       : " << m_splitProdClusters);
+	ATH_MSG_DEBUG("-- # Large Pixel Clusters (%)     : " << m_largeClusters << " (" << double(m_largeClusters)/double(m_processedClusters) << ")" );
+      }  
       return StatusCode::SUCCESS;
     }
 
