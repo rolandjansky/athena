@@ -28,13 +28,15 @@
 /****************************************************/
 /* TileLaserDefaultCalibTool.cxx     July 2014      */
 /*                                                  */
-/* Marco van Woerden <mvanwoer@cern.ch>             */
-/*                                                  */
+/* Henric Wilkens, following work from Seb Viret and 
+   Vincent Giangiobbe             
+                                                    */
 /****************************************************/
 
 TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, const std::string& name,const IInterface* pParent):
   AthAlgTool(type, name, pParent),
   m_pisaMethod2(false),
+  m_isLaserCalib(false),
   m_tileHWID(nullptr),
   m_cabling(nullptr),
   m_tileBadChanTool("TileBadChanTool"),
@@ -50,30 +52,15 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_las_time(0),
   m_ratio_LASERII(),
   m_ratio_S_LASERII(),
-  m_rs_chan_Laser(),
-  m_rs_chan_Pedestal(),
-  m_rs_chan_LED(),
-  m_rs_chan_Alpha(),
-  m_rs_chan_Linearity(),
   m_rs_ratio_LASERII(),
-  m_chan_LAS(),
-  m_chan_PED(),
-  m_chan_LED(),
-  m_chan_APH(),
-  m_chan_LIN(),
-  m_chan_S_LAS(),
-  m_chan_S_PED(),
-  m_chan_S_LED(),
-  m_chan_S_APH(),
-  m_chan_S_LIN(),
-  m_chan_Ped(),
-  m_chan_Led(),
-  m_chan_Lin(),
-  m_chan_Alpha(),
-  m_chan_SPed(),
-  m_chan_SLed(),
-  m_chan_SLin(),
-  m_chan_SAlpha(),
+  m_PMT_LASERII(),
+  m_PMT_S_LASERII(),
+  m_rs_PMT_signal_LASERII(),
+  m_diode_LASERII(),
+  m_diode_S_LASERII(),
+  m_rs_diode_signal_LASERII(),
+  m_diode_Ped_LASERII(),
+  m_diode_Ped_S_LASERII(),
   m_PMT(),
   m_PMT_S(),
   m_diode(),
@@ -135,48 +122,29 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   m_flow         = 0;
   m_head_temp    = 0;
   m_las_time     = 0;
-  m_PMT1_ADC_prev[0]= 0;
-  m_PMT2_ADC_prev[0]= 0;
-  m_PMT1_ADC_prev[1]= 0;
-  m_PMT2_ADC_prev[1]= 0;
+  m_PMT1_ADC_prev = 0;
+  m_PMT2_ADC_prev = 0;
+
   
-  // LOOP OVER MONITORING PMTS
-  for(int chan=0; chan<NCHANNELS; ++chan){
-    // LASERII
-    m_chan_LAS[chan] = 0;             // Mean value for monitoring diodes, PMTs, phocal, CIS
-    m_chan_PED[chan] = 0;             // Mean value for monitoring diodes, PMTs, phocal, CIS
-    m_chan_LED[chan] = 0;             // Mean value for monitoring diodes, PMTs, phocal, CIS
-    m_chan_APH[chan] = 0;             // Mean value for monitoring diodes, PMTs, phocal, CIS
-    m_chan_LIN[chan] = 0;             // Mean value for monitoring diodes, PMTs, phocal, CIS
-    m_chan_S_LAS[chan] = 0;           // Corresponding RMS
-    m_chan_S_PED[chan] = 0;           // Corresponding RMS
-    m_chan_S_LED[chan] = 0;           // Corresponding RMS
-    m_chan_S_APH[chan] = 0;           // Corresponding RMS
-    m_chan_S_LIN[chan] = 0;           // Corresponding RMS
-    m_chan_Ped[chan] = 0;             // Corresponding pedestal values
-    m_chan_Led[chan] = 0;             // Corresponding LED values
-    m_chan_Lin[chan] = 0;             // Corresponding linearity values
-    m_chan_Alpha[chan] = 0;           // Corresponding alpha peaks
-    m_chan_SPed[chan] = 0;            // Sigma of pedestal values
-    m_chan_SLed[chan] = 0;            // Sigma of LED values
-    m_chan_SLin[chan] = 0;            // Sigma of linearity values
-    m_chan_SAlpha[chan] = 0;          // Sigma of alpha peaks
-    
-    //m_HG_PMT[d]      = 0;
-    //m_HG_PMT_S[d]    = 0;
-    //m_rs_HG_PMT_signal[d] = new RunningStat();
-    m_rs_chan_Laser[chan] = new RunningStat();
-    m_rs_chan_Pedestal[chan] = new RunningStat();
-    m_rs_chan_LED[chan] = new RunningStat();
-    m_rs_chan_Alpha[chan] = new RunningStat();
-    m_rs_chan_Linearity[chan] = new RunningStat();
-    
-    //m_LG_PMT[d]      = 0;
-    //m_LG_PMT_S[d]    = 0;
-    //m_rs_LG_PMT_signal[d] = new RunningStat();
-  } // FOR
-  
-  for(int d=0;d<2;++d){
+  // Loop over monitoring pmts laserii
+  for ( int diode=0; diode<NDIODES; ++diode ) {
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      m_diode_LASERII[diode][gain] = 0;      // diode signal values
+      m_diode_S_LASERII[diode][gain] = 0;    // Sigma of signal values    
+      m_diode_Ped_LASERII[diode][gain] = 0;  // Corresponding pedestal values
+      m_diode_Ped_S_LASERII[diode][gain] = 0;// Sigma of pedestal values    
+      
+      m_rs_diode_signal_LASERII[diode][gain] = new RunningStat();
+    }
+  }
+
+  for(int d=0;d<NPMTS;++d){
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      m_PMT_LASERII[d][gain]      = 0;
+      m_PMT_S_LASERII[d][gain]    = 0;
+      
+      m_rs_PMT_signal_LASERII[d][gain] = new RunningStat();
+    }
     // LASERI
     m_PMT[d]      = 0;
     m_PMT_S[d]    = 0;
@@ -184,7 +152,7 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   } // FOR
   
   // LASERI
-  for(int d=0; d<4; ++d){
+  for(int d=0; d<NDIODES_LASER1; ++d){
     m_diode[d]       = 0;
     m_diode_S[d]     = 0;
     m_diode_Ped[d]   = 0;
@@ -194,45 +162,52 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
     m_rs_diode_signal[d]  = new RunningStat();
   } // FOR
   
-  for(int part=0; part<4; ++part){
-    for(int gain=0;gain<2;++gain){
+  for ( int part=0; part<NPARTITIONS; ++part ) {
+    for ( int gain=0; gain<NGAINS; ++gain ) {
       m_rs_meantime[part][gain] = new RunningStat(); 
-      m_meantime[part][gain] =0.;
-    } // FOR
-    for(int drawer=0; drawer<64; ++drawer){
-      for(int gain=0; gain<2; ++gain){
+      m_meantime[part][gain] = 0.;
+    } 
+
+    for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
+      for ( int gain=0; gain<NGAINS; ++gain ) {
         
-        // K FACTOR FOR EACH COUPLE OF ODD AND EVENT PMTS
-        for(int couple=0; couple<22; ++couple){
+        for(int couple=0; couple<NCOUPLES; ++couple){
+	  // K factor for each couple of odd and event pmts
           m_rs_reducedKappa[part][drawer][couple][gain] = new RunningStat();
         } // FOR
         
-        for(int channel=0; channel<48; ++channel){
-          m_rs_time[part][drawer][channel][gain]   = new RunningStat();
-          m_rs_signal[part][drawer][channel][gain] = new RunningStat();
+        for ( int channel=0; channel<NCHANNELS; ++channel ) {
+          m_rs_time[part][drawer][channel][gain]       = new RunningStat();
+          m_rs_signal[part][drawer][channel][gain]     = new RunningStat();
           m_rs_raw_signal[part][drawer][channel][gain] = new RunningStat();
+
           m_time[part][drawer][channel][gain]    = 0;
           m_time_S[part][drawer][channel][gain]  = 0;
+
           m_mean[part][drawer][channel][gain]    = 0;
           m_mean_S[part][drawer][channel][gain]  = 0;
           m_raw_mean[part][drawer][channel][gain]    = 0;
           m_raw_mean_S[part][drawer][channel][gain]  = 0;
+
           m_kappa[part][drawer][channel][gain]   = 0;
+
           m_status[part][drawer][channel][gain]  = 0;
           
-          for(int iSlice=0; iSlice<100; ++iSlice){
+          for ( int iSlice=0; iSlice<NSLICES; ++iSlice ) {
             m_mean_slice[part][drawer][channel][iSlice][gain] = 0;
             m_variance_slice[part][drawer][channel][iSlice][gain] = 0;
           } // FOR
           
           // LASERII
-          for(int chan=0; chan<NCHANNELS; ++chan){
-            m_rs_ratio_LASERII[chan][part][drawer][channel][gain]  = new RunningStat();
-            m_ratio_LASERII[chan][part][drawer][channel][gain]   = 0;
-            m_ratio_S_LASERII[chan][part][drawer][channel][gain] = 0;
+          for(int diode=0; diode<NDIODES; ++diode){
+	    for (int diode_gain=0; diode_gain<NGAINS; diode_gain++) {
+	      m_rs_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain]  = new RunningStat();
+	      m_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain]   = 0;
+	      m_ratio_S_LASERII[diode][diode_gain][part][drawer][channel][gain] = 0;
+	    }
           } // FOR
           // LASERI
-          for(int d=0; d<4; ++d){
+          for(int d=0; d<NDIODES_LASER1; ++d){
             m_rs_ratio[d][part][drawer][channel][gain]  = new RunningStat();
             m_ratio[d][part][drawer][channel][gain]   = 0;
             m_ratio_S[d][part][drawer][channel][gain] = 0;
@@ -281,12 +256,12 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   ATH_CHECK( evtStore()->retrieve(laserObj, m_laserContainerName) );
   
   m_LASERII = laserObj->isLASERII();
-  if(laserObj->isLASERII()) ATH_MSG_DEBUG ( "LASERII VERSION IS " << laserObj->getVersion() << " DAQ TYPE = " << laserObj->getDaqType() );
-  else                      ATH_MSG_DEBUG ( "LASERI VERSION IS "  << laserObj->getVersion() << " DAQ TYPE = " << laserObj->getDaqType() );
+
+  if(m_LASERII) ATH_MSG_DEBUG ( "LASERII VERSION IS " << laserObj->getVersion() << " DAQ TYPE = " << laserObj->getDaqType() );
+  else          ATH_MSG_DEBUG ( "LASERI VERSION IS "  << laserObj->getVersion() << " DAQ TYPE = " << laserObj->getDaqType() );
   
   const uint32_t *cispar = m_beamInfo->cispar();
   
-  // EVENT TIME IN NS SINCE 01/JAN/1970
   m_las_time = static_cast<double>(cispar[10])+static_cast<double>(cispar[11])/1000000;
   
   // RETRIEVE LASER INFORMATION
@@ -295,124 +270,62 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     return StatusCode::SUCCESS; // This is expected for some events
   } // IF
   
-  // LASERII
-  for(int i=0; i<NDIODES; ++i){
-    ATH_MSG_DEBUG ( i << "UNKNOWN RUN HG="
-                    << laserObj->getDiodeADC(i,1)
-                    << "  &  LG=" << laserObj->getDiodeADC(i,0)
-                    << " ( DAQ TYPE=" << laserObj->getDaqType()
-                    << " ) " );
+
+  if ( m_LASERII ) {  // LASERII
+    // We need to have pedestals
+    if ( m_evtNr<=4 ) return StatusCode::SUCCESS; 
+    for ( int diode=0; diode<NDIODES; ++diode ) {
+      const char* text[NGAINS] = {"LG DIODE ","HG DIODE "}; 
+      for ( int gain=0; gain<NGAINS; gain++ ) {
+	if ( laserObj->isSet(diode, gain, 0) ) { // Pedestal are set 
+	  m_diode_Ped_LASERII[diode][gain]   = laserObj->getMean(diode, gain,0);
+	  m_diode_Ped_S_LASERII[diode][gain] = laserObj->getSigma(diode, gain,0);
+	  ATH_MSG_DEBUG ( text[gain] << diode << " PED= " 
+			  << m_diode_Ped_LASERII[diode][gain]  << "+/-" << m_diode_Ped_S_LASERII[diode][gain] 
+			  << " ( " << laserObj->isSet(diode, gain, 0) << " ) " 
+			  );
+	  m_rs_diode_signal_LASERII[diode][gain]->Push(laserObj->getDiodeADC(diode,gain) - 
+						       laserObj->getMean(diode, gain,0));
+	}
+      }
+    }    
     
-    // FIRST 4 EVENTS ARE SKIPPED TO RETRIEVE LASER PEDESTAL VALUES
-    // DEBUGGED FROM DATA
-    // LASERCALIB: DAQ TYPE 0x10
-    // LASER:      DAQ TYPE 0x18
-    // PEDESTAL:   DATA FORMAT MISMATCH
-    // PHYSICS:    DATA FORMAT MISMATCH
-    // ALPHA:      DAQ TYPE 0x10
-    
-    if(m_evtNr>4){
-      // MONITORING DIODES
-      if(laserObj->getDaqType()==0x10){
-        m_rs_chan_Pedestal[i*2+0]->Push(laserObj->getDiodeADC(i,0));
-        m_rs_chan_Pedestal[i*2+1]->Push(laserObj->getDiodeADC(i,1));
-      } // IF
-      else if(laserObj->getDaqType()==0x11){
-        m_rs_chan_Alpha[i*2+0]->Push(laserObj->getDiodeADC(i,0));
-        m_rs_chan_Alpha[i*2+1]->Push(laserObj->getDiodeADC(i,1));
-        
-        ATH_MSG_DEBUG ( i << "LASER RUN HG="
-                        << laserObj->getDiodeADC(i,0)
-                        << "  &  LG=" << laserObj->getDiodeADC(i,1)
-                        << " ( DAQ TYPE=" << laserObj->getDaqType()
-                        << " ) " );
-      } // ELSE IF
-      else if(laserObj->getDaqType()==0x12){
-        m_rs_chan_LED[i*2+0]->Push(laserObj->getDiodeADC(i,0));
-        m_rs_chan_LED[i*2+1]->Push(laserObj->getDiodeADC(i,1));
-        
-        ATH_MSG_DEBUG ( i << "LED RUN HG="
-                        << laserObj->getDiodeADC(i,0)
-                        << "  &  LG=" << laserObj->getDiodeADC(i,1)
-                        << " ( DAQ TYPE=" << laserObj->getDaqType()
-                        << " ) " );
-      } // ELSE IF
-      else if(laserObj->getDaqType()==0x13){
-        m_rs_chan_Linearity[i*2+0]->Push(laserObj->getDiodeADC(i,0));
-        m_rs_chan_Linearity[i*2+1]->Push(laserObj->getDiodeADC(i,1));
-        
-        ATH_MSG_DEBUG ( i << "LINEARITY RUN HG="
-                        << laserObj->getDiodeADC(i,0)
-                        << "  &  LG=" << laserObj->getDiodeADC(i,1)
-                        << " ( DAQ TYPE=" << laserObj->getDaqType()
-                        << " ) " );
-      } // ELSE IF
-      else if(laserObj->getDaqType()==0x18){
-        m_rs_chan_Laser[i*2+0]->Push(laserObj->getDiodeADC(i,0));
-        m_rs_chan_Laser[i*2+1]->Push(laserObj->getDiodeADC(i,1));
-        
-        ATH_MSG_DEBUG ( i << "LASER RUN HG="
-                        << laserObj->getDiodeADC(i,0)
-                        << "  &  LG=" << laserObj->getDiodeADC(i,1)
-                        << " ( DAQ TYPE=" << laserObj->getDaqType()
-                        << " ) " );
-      } // ELSE IF
-      
-      // MONITORING PMTS
-      if(i<2){
-        if(laserObj->getDaqType()==0x10){
-          m_rs_chan_Pedestal[i*2+0+NDIODES*2]->Push(laserObj->getPMADC(i,0));
-          m_rs_chan_Pedestal[i*2+1+NDIODES*2]->Push(laserObj->getPMADC(i,1));
-        } // IF
-        else if(laserObj->getDaqType()==0x11){
-          m_rs_chan_Alpha[i*2+0+NDIODES*2]->Push(laserObj->getPMADC(i,0));
-          m_rs_chan_Alpha[i*2+1+NDIODES*2]->Push(laserObj->getPMADC(i,1));
-        } // ELSE IF
-        else if(laserObj->getDaqType()==0x12){
-          m_rs_chan_LED[i*2+0+NDIODES*2]->Push(laserObj->getPMADC(i,0));
-          m_rs_chan_LED[i*2+1+NDIODES*2]->Push(laserObj->getPMADC(i,1));
-        } // ELSE IF
-        else if(laserObj->getDaqType()==0x13){
-          m_rs_chan_Linearity[i*2+0+NDIODES*2]->Push(laserObj->getPMADC(i,0));
-          m_rs_chan_Linearity[i*2+1+NDIODES*2]->Push(laserObj->getPMADC(i,1));
-        } // ELSE IF
-        else if(laserObj->getDaqType()==0x18){
-          m_rs_chan_Laser[i*2+0+NDIODES*2]->Push(laserObj->getPMADC(i,0));
-          m_rs_chan_Laser[i*2+1+NDIODES*2]->Push(laserObj->getPMADC(i,1));
-        } // ELSE IF
-      } // IF
+    for (int pmt=0; pmt<NPMTS; pmt++ ) {
+      for ( int gain=0; gain<NGAINS; gain++ ) {
+	m_rs_PMT_signal_LASERII[pmt][gain]->Push(laserObj->getPMADC(pmt,gain)-laserObj->getMean(pmt==0?10:14,gain,0));
+      }
+    }    
+
+  } else {  // laserI
+
+    for(int d=0; d<NDIODES_LASER1; ++d){
+      m_rs_diode_signal[d]->Push(laserObj->getDiodeADC(d,0)-laserObj->getDiodePedestal(d,0));
+    } 
+  
+    for(int pmt=0; pmt<NPMTS; pmt++){
+      m_rs_PMT_signal[pmt]->Push(laserObj->getPMADC(pmt,0)-laserObj->getPMPedestal(pmt,0));    
+    } 
+  
+    // Check that adc information has been sent
+    if(laserObj->getPMADC(0,0) == m_PMT1_ADC_prev &&
+       laserObj->getPMADC(1,0) == m_PMT2_ADC_prev ){
+      m_ADC_problem = 1;
+      ATH_MSG_WARNING ( "There is perhaps an ADC problem with this event" );
     } // IF
-  } // FOR
-  
-  // LASERI
-  for(int i=0; i<4; ++i){
-    m_rs_diode_signal[i]->Push(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0));
-  } // FOR
-  
-  for(int i=0; i<2; ++i){
-    m_rs_PMT_signal[i]->Push(laserObj->getPMADC(i,0)-laserObj->getPMPedestal(i,0));    // LASERI
-  } // FOR
-  
-  // CHECK THAT ADC INFORMATION HAS BEEN SENT
-  if(laserObj->getPMADC(0,0) == m_PMT1_ADC_prev[0] &&
-     laserObj->getPMADC(1,0) == m_PMT2_ADC_prev[0]){
-    m_ADC_problem = 1;
-    ATH_MSG_WARNING ( "There is perhaps an ADC problem with this event" );
-  } // IF
-  if(laserObj->getPMADC(0,1) == m_PMT1_ADC_prev[1] &&
-     laserObj->getPMADC(1,1) == m_PMT2_ADC_prev[1] && m_LASERII){
-    m_ADC_problem = 1;
-    ATH_MSG_WARNING ( "There is perhaps an ADC problem with this event" );
-  } // IF
-  
-  m_PMT1_ADC_prev[0] = laserObj->getPMADC(0,0); // LG
-  m_PMT2_ADC_prev[0] = laserObj->getPMADC(1,0); // LG
-  m_PMT1_ADC_prev[1] = laserObj->getPMADC(0,1); // HG
-  m_PMT2_ADC_prev[1] = laserObj->getPMADC(1,1); // HG
-  
+    
+    m_PMT1_ADC_prev = laserObj->getPMADC(0,0); // LG
+    m_PMT2_ADC_prev = laserObj->getPMADC(1,0); // LG
+    
+    for(int d=0; d<NDIODES_LASER1; ++d){
+      m_diode_Ped[d]     = laserObj->getDiodePedestal(d,0);
+      m_diode_SPed[d]    = laserObj->getDiodeSigmaPedestal(d,0);
+      m_diode_Alpha[d]   = laserObj->getAlpha(d,0);
+      m_diode_SAlpha[d]  = laserObj->getSigmaAlpha(d,0);
+    }
+    
+  } 
   
   // Next parameters are constants, don't need to update them more than once
-  
   if(m_las_filter == 0){
     m_las_filter   = laserObj->getFiltNumber();
     m_hrate        = laserObj->getHumidity();
@@ -420,165 +333,128 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     m_head_temp    = laserObj->getPumpDiodeTemp();
     m_las_requ_amp = laserObj->getDiodeCurrOrd();
   } // IF
-  
-  // LASERII
-  for(int chan=0;chan<NCHANNELS;++chan){
-    if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getMean (chan/2,chan%2,0)>0) m_chan_Ped[chan]    = laserObj->getMean(chan/2,chan%2,0);
-    if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getMean (chan/2,chan%2,2)>0) m_chan_Led[chan]    = laserObj->getMean(chan/2,chan%2,2);
-    if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getMean (chan/2,chan%2,3)>0) m_chan_Alpha[chan]  = laserObj->getMean(chan/2,chan%2,3);
-    if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_chan_Lin[chan]    = laserObj->getMean(chan/2,chan%2,1);
-    if(laserObj->isSet(chan/2, chan%2, 0) && laserObj->getMean (chan/2,chan%2,0)>0) m_chan_SPed[chan]   = laserObj->getSigma(chan/2,chan%2,0);
-    if(laserObj->isSet(chan/2, chan%2, 2) && laserObj->getMean (chan/2,chan%2,2)>0) m_chan_SLed[chan]   = laserObj->getSigma(chan/2,chan%2,2);
-    if(laserObj->isSet(chan/2, chan%2, 3) && laserObj->getMean (chan/2,chan%2,3)>0) m_chan_SAlpha[chan] = laserObj->getSigma(chan/2,chan%2,3);
-    if(laserObj->isSet(chan/2, chan%2, 1) && laserObj->getMean (chan/2,chan%2,1)>0) m_chan_SLin[chan]   = laserObj->getSigma(chan/2,chan%2,1);
+  /*
     
-    // DEBUG OUTPUT
-    if(chan%2==1){
-      ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " );
-      ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " );
-      ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " );
-      ATH_MSG_DEBUG ("HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " );
-    } // IF
-    if(chan%2==0){
-      ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " );
-      ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " );
-      ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " );
-      ATH_MSG_DEBUG ("LG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " );
-    } // IF
-  } // FOR
-  
-  // LASERI
-  for(int i=0; i<4; ++i){
-    m_diode_Ped[i]     = laserObj->getDiodePedestal(i,0);
-    m_diode_SPed[i]    = laserObj->getDiodeSigmaPedestal(i,0);
-    m_diode_Alpha[i]   = laserObj->getAlpha(i,0);
-    m_diode_SAlpha[i]  = laserObj->getSigmaAlpha(i,0);
-  } // FOR
-  
-  // ITERATOR OVER RAWCHANNELCONTAINER
+    Iterator over rawchannelcontainer
+ 
+  */  
   TileRawChannelUnit::UNIT RChUnit = rawCnt->get_unit();
   TileRawChannelContainer::const_iterator itColl;
   TileRawChannelContainer::const_iterator itCollEnd = rawCnt->end();
   
-  double Q1Q2[22];
-  for(int couple=0; couple<22; ++couple) Q1Q2[couple]=1;
+  double Q1Q2[NCOUPLES];
+  for (int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
   int currentDrawer=0;
   
-  RunningStat* avg_time[4][2];
-  for(int ros=0; ros<4; ros++) for(int gain=0; gain<2; gain++) avg_time[ros][gain] = new RunningStat();
+  RunningStat* avg_time[NCHANNELS][NGAINS];
+  for (int ros=0; ros<NCHANNELS; ros++) {
+    for (int gain=0; gain<NGAINS; gain++) avg_time[ros][gain] = new RunningStat();
+  }
   
-  // LOOP OVER TILERAWCHANNELCOLLECTIONS
-  for(itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl){
+  // Loop over tilerawchannelcollections to get avg time per partition
+  for ( itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl ) {
     HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
-    
     int ros  = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
-    
-    // LOOP OVER TILERAWCHANNELS IN COLLECTION
-    for(TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it){
+    // Loop over tilerawchannels in collection
+    for ( TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it ) {
       HWIdentifier hwid=(*it)->adc_HWID();  
       int gain   = m_tileHWID->adc(hwid);      // low=0 high=1    
-
       float ofctime = (*it)->time();
       if(ofctime!=0.0 and abs(ofctime-15.0)<30.)
         avg_time[ros][gain]->Push(ofctime);
-    } // FOR
-  } // FOR
+    } 
+  } // Now we have the average time per partition for this event
   
-  // LOOP OVER TILERAWCHANNELCOLLECTIONS (AGAIN! REASON: WE NEED MEAN OF TIME DISTRIBUTION)
-  for(itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl){
+  // Loop over tilerawchannelcollections 
+  for ( itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl ) {
     HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
     int ros = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
     int drawer = m_tileHWID->drawer(drawer_id); // 0 to 63
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros+1,drawer);
     
-    // LOOP OVER TILERAWCHANNELS IN COLLECTION
-    for(TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it){
-      // GET ADCHASH
-      HWIdentifier hwid=(*it)->adc_HWID();
-      int chan   = m_tileHWID->channel(hwid);  // 0 to 47 channel not PMT
-      int gain   = m_tileHWID->adc(hwid);      // low=0 high=1
-      //log << MSG::DEBUG << "ROS=" << ros << " DRAWER=" << drawer << " CHAN=" << chan << " GAIN=" << gain << endreq;
-      float amp = (*it)->amplitude();
-      float ofctime = (*it)->time();
-      if(ofctime!=0.0) ofctime-=avg_time[ros][gain]->Mean();
+    // Loop over tilerawchannels in collection
+    for ( TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it ) {
+      // Get adchash
+      HWIdentifier hwid = (*it)->adc_HWID();
+      int chan          = m_tileHWID->channel(hwid);  // 0 to 47 channel
+      int gain          = m_tileHWID->adc(hwid);      // low=0 high=1
+      float amp         = (*it)->amplitude();
+      float ofctime     = (*it)->time();
+      if(ofctime!=0.0) ofctime -= avg_time[ros][gain]->Mean();
       const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
       
-      // CHECK WHETHER CHANNEL IS CONNECTED
-      if(theDQstatus->isChEmpty(ros+1,drawer,chan)){
+      // Check whether channel is connected
+      if ( theDQstatus->isChEmpty(ros+1,drawer,chan) ) {
         m_status[ros][drawer][chan][0] = -1;
         m_status[ros][drawer][chan][1] = -1;
         continue;
-      } // IF
+      } 
       
-      //--- Status of the channel in DB
-      //TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain);
-      //m_status[ros][drawer][chan][gain] = status.isBad();
-      //std::cout<<"Status = "<<status.isBad()<<std::endl;
+      /* --- Status of the channel in DB
+	 TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain);
+	 m_status[ros][drawer][chan][gain] = status.isBad();
+	 std::cout<<"Status = "<<status.isBad()<<std::endl;
       
-      // 0 = isGood()
-      // 1 = isNoisy() : Large HF noise; Correlated noise; Large LF noise;
-      // 2 = isAffected() : ?
-      // 3 = isBad()   : ADC masked (unspecified); ADC dead; Very large HF noise; No data; Wrong DSP configuration; Severe stuck bit; Severe data corruption; Channel masked (unspecified); No PMT connected; No HV; Wrong HV;
-      // 4 = other
-      // 5 = bad ADC
+	 0 = isGood()
+	 1 = isNoisy() : Large HF noise; Correlated noise; Large LF noise;
+	 2 = isAffected() : ?
+	 3 = isBad()   : ADC masked (unspecified); ADC dead; 
+	                 Very large HF noise; No data; 
+                         Wrong DSP configuration; Severe stuck bit; 
+                         Severe data corruption; 
+                         Channel masked (unspecified); No PMT connected; 
+                         No HV; Wrong HV;
+         4 = other
+         5 = bad ADC
+      */
       
-      if(theDQstatus->isAdcDQgood(ros+1,drawer,chan,gain)){
+      if ( theDQstatus->isAdcDQgood(ros+1,drawer,chan,gain) ) {
         m_status[ros][drawer][chan][gain] = m_tileBadChanTool->encodeStatus(  m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain) );
       } else {
         m_status[ros][drawer][chan][gain] = 5;
       }
       
       /*
-       // Don't enable negative or null energies
-       if(amp <= 0.) continue;
-       In fact we don't like this line since it biases the averages to follow
+	Don't enable negative or null energies
+	if(amp <= 0.) continue;
+	In fact we don't like this line since it biases the averages to follow
        */
       
       float ampInPicoCoulombs = m_tileToolEmscale->channelCalib(drawerIdx, chan, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-      //log << MSG::DEBUG << "DRAWER=" << drawerIdx << " CHAN=" << chan << " GAIN=" << gain << " AMP=" << amp << " in UNITS: " << RChUnit << " ===> " <<  ampInPicoCoulombs << " pC" << endreq;
       
       m_rs_time[ros][drawer][chan][gain]->Push(ofctime);
       m_rs_signal[ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
       m_rs_raw_signal[ros][drawer][chan][gain]->Push(amp);
       
-      //log << MSG::DEBUG << "PMT EVENT STORED!" << endreq;
-      
-      // FIRST 4 EVENTS ARE SKIPPED TO RETRIEVE LASER PEDESTALS
-      if(m_LASERII && m_evtNr>4){
-        for(int i=0; i<NDIODES; ++i){
-          if(gain==1) ATH_MSG_DEBUG ( "HG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gain) << " " << m_chan_Ped[i*2+gain] );
-          if(gain==0) ATH_MSG_DEBUG ( "LG CHANNEL " << i << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(i,gain) << " " << m_chan_Ped[i*2+gain] );
-          
-          // MONITORING DIODES
-          if(laserObj->getDiodeADC(i,gain)-m_chan_Ped[i*2+gain]!=0)
-            m_rs_ratio_LASERII[i*2+gain][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
-                                                                        (laserObj->getDiodeADC(i,gain)-m_chan_Ped[i*2+gain])
-                                                                        );
-          
-          // MONITORING PMTS
-          if(i<2){
-            if(laserObj->getPMADC(i,gain)-m_chan_Ped[i*2+gain+NDIODES*2]!=0)
-              m_rs_ratio_LASERII[i*2+gain+NDIODES*2][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/
-                                                                                    (laserObj->getPMADC(i,gain)-m_chan_Ped[i*2+gain+NDIODES*2])
-                                                                                    );
-          } // IF
-        } // FOR
-      } // IF
-      else{
-        for(int i=0; i<4; ++i){
+      if ( m_LASERII ){
+        for(int diode=0; diode<NDIODES; ++diode){
+	  const char* text[NGAINS] = {"LG CHANNEL ","HG CHANNEL "};  
+	  for ( int diode_gain=0; diode_gain<NGAINS; diode_gain++ ) {
+	    ATH_MSG_DEBUG ( text[diode_gain]  << diode << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(diode,diode_gain) << " " << m_diode_Ped_LASERII[diode][diode_gain] );
+
+	    // MONITORING DIODES
+	    float normalization = ((float)laserObj->getDiodeADC(diode,diode_gain)-m_diode_Ped_LASERII[diode][diode_gain]);
+	    if ( normalization!=0. )
+	      m_rs_ratio_LASERII[diode][diode_gain][ros][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization );
+          } // Diode Gains
+        } // Diodes
+      } else {
+        for(int i=0; i<NDIODES_LASER1; ++i){
           if((laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)) != 0)
             m_rs_ratio[i][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)));
         } // FOR
       } // ELSE
-      //---- V.Giangiobbe. Compute the average <q1.q2> for each couple of even and odd PMTs.
-      
-      //-- RAZ
+
+      /* 
+	 V.Giangiobbe. Compute the average <q1.q2> for each couple of even and odd PMTs.
+      */
+
       if(currentDrawer != drawer){
-        for(int couple=0; couple<22; ++couple) Q1Q2[couple]=1;
-      } // IF
+        for(int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
+      } 
       
       //-- Store the data in m_rs_reducedKappa[ros][drawer][couple][gain]
-      for(int couple=0; couple<22; ++couple){
+      for(int couple=0; couple<NCOUPLES; ++couple){
         if(chan==int(getCoupleOfChan(ros, couple).first) || chan==int(getCoupleOfChan(ros, couple).second)){
           Q1Q2[couple]*=ampInPicoCoulombs;
           currentDrawer = drawer;
@@ -589,10 +465,9 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     } // End of the loop over the TileRawChannelCollection
   } // End of the loop over the TileRawChannelContainer
   
-  for(int ros=0; ros<4; ros++){
-    for(int gain=0;gain<2;++gain){
+  for(int ros=0; ros<NPARTITIONS; ros++){
+    for(int gain=0;gain<NGAINS;++gain){
       m_rs_meantime[ros][gain]->Push(avg_time[ros][gain]->Mean());
-    //    printf("%6.2f %6.2f\n",avg_time[ros][gain]->Mean(), meantime[ros][gain]->Mean());
       delete(avg_time[ros][gain]);
     } // FOR
   } // FOR
@@ -603,109 +478,118 @@ StatusCode TileLaserDefaultCalibTool::execute(){
 StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
   // COMPUTE CALIBRATION COEFFICIENT AT THE END OF THE EVENT LOOP
   ATH_MSG_INFO ( "finalizeCalculations()" );
-  
-  // LASERII
-  for(int chan=0;chan<NCHANNELS;++chan){
-    m_chan_LAS[chan]   = m_rs_chan_Laser[chan]->Mean();
-    m_chan_PED[chan]   = m_rs_chan_Pedestal[chan]->Mean();
-    m_chan_LED[chan]   = m_rs_chan_LED[chan]->Mean();
-    m_chan_APH[chan]   = m_rs_chan_Alpha[chan]->Mean();
-    m_chan_LIN[chan]   = m_rs_chan_Linearity[chan]->Mean();
-    m_chan_S_LAS[chan] = m_rs_chan_Laser[chan]->StandardDeviation();
-    m_chan_S_PED[chan] = m_rs_chan_Pedestal[chan]->StandardDeviation();
-    m_chan_S_LED[chan] = m_rs_chan_LED[chan]->StandardDeviation();
-    m_chan_S_APH[chan] = m_rs_chan_Alpha[chan]->StandardDeviation();
-    m_chan_S_LIN[chan] = m_rs_chan_Linearity[chan]->StandardDeviation();
-  } // FOR
-  
-  // LASERI
-  for(int d=0; d<2; ++d){
-    m_PMT[d]         = m_rs_PMT_signal[d]->Mean();
-    m_PMT_S[d]       = m_rs_PMT_signal[d]->StandardDeviation();
-  } // FOR
-  
-  for(int d=0; d<4; ++d){
-    m_diode[d]       = m_rs_diode_signal[d]->Mean();
-    m_diode_S[d]     = m_rs_diode_signal[d]->StandardDeviation();
-  } // FOR
-  
-  // LOOP OVER BARRELS, MODULES AND GAINS
-  for(int i=0; i<4; ++i){
-    for(int gain=0;gain<2;++gain) m_meantime[i][gain] = m_rs_meantime[i][gain]->Mean();
-    for(int drawer=0; drawer<64; ++drawer){
-      for(int gain=0; gain<2; ++gain){
-        // COMPUTE THE AVERAGE KAPPA CORRECTION FACTOR FOR ALL EVENT AND ODD PMTS
-        // KAPPA IS BY DEFINITION: COV(Q1,Q2)/<Q1>*<Q2> AVERAGE ON ALL COUPLES OF PMTS Q1, Q2
-        // RECEIVING LIGHT FROM THE SAME CLEAR FIBER (ONLY 2 INDEPENDENT KAPPA FOR EACH MODULE)
+
+  // Loop over monitors
+   if ( m_LASERII ) { // LASERII  
+     for(int pmt=0; pmt<NPMTS; pmt++){
+       for ( int gain=0; gain<NGAINS; ++gain ) {
+	 m_PMT_LASERII[pmt][gain]         = m_rs_PMT_signal_LASERII[pmt][gain]->Mean();
+	 m_PMT_S_LASERII[pmt][gain]       = m_rs_PMT_signal_LASERII[pmt][gain]->StandardDeviation();
+       }
+     }
+     for(int d=0; d<NDIODES; ++d){
+       for ( int gain=0; gain<NGAINS; ++gain ) {	 
+	 m_diode_LASERII[d][gain]       = m_rs_diode_signal_LASERII[d][gain]->Mean();
+	 m_diode_S_LASERII[d][gain]     = m_rs_diode_signal_LASERII[d][gain]->StandardDeviation();
+       }
+     }
+   } else {           // LASERI
+     for(int pmt=0; pmt<NPMTS; pmt++){
+       m_PMT[pmt]         = m_rs_PMT_signal[pmt]->Mean();
+       m_PMT_S[pmt]       = m_rs_PMT_signal[pmt]->StandardDeviation();
+     } // FOR
+     
+     for(int d=0; d<NDIODES_LASER1; ++d){
+       m_diode[d]       = m_rs_diode_signal[d]->Mean();
+       m_diode_S[d]     = m_rs_diode_signal[d]->StandardDeviation();
+     } // FOR
+   }
+
+  // Loop over barrels, modules and gains
+  for ( int partition=0; partition<NPARTITIONS; partition++ ) {
+    for ( int gain=0; gain<NGAINS; ++gain ) {
+      m_meantime[partition][gain] = m_rs_meantime[partition][gain]->Mean();
+    }
+
+    for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
+      for ( int gain=0; gain<NGAINS; ++gain ) {
+/*  Compute the average kappa correction factor for all event and odd pmts
+    Kappa is by definition: cov(q1,q2)/<q1>*<q2> average on all couples of 
+    pmts q1, q2 receiving light from the same clear fiber (only 2 independent 
+    kappa for each module)    */
         int nCouplesEven=0, nCouplesOdd=0;
-        for(int couple=0; couple<22; ++couple){
-          int chan0 = getCoupleOfChan(i, couple).first;
-          int chan1 = getCoupleOfChan(i, couple).second;
-          double q0 = m_rs_signal[i][drawer][chan0][gain]->Mean();
-          double q1 = m_rs_signal[i][drawer][chan1][gain]->Mean();
+
+        for(int couple=0; couple<NCOUPLES; ++couple){
+          int chan0 = getCoupleOfChan(partition, couple).first;
+          int chan1 = getCoupleOfChan(partition, couple).second;
+          double q0 = m_rs_signal[partition][drawer][chan0][gain]->Mean();
+          double q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
           
           if(q0*q1==0) continue;
           
           //-- Average of all couples on the same even fiber
-          if(couple%2==0){
-            m_kappa[i][drawer][0][gain] += (m_rs_reducedKappa[i][drawer][couple][gain]->Mean()/(q0*q1) - 1);
-            ++nCouplesEven;
-          } else {
-            m_kappa[i][drawer][1][gain] += (m_rs_reducedKappa[i][drawer][couple][gain]->Mean()/(q0*q1) - 1);
-            ++nCouplesOdd;
-          } // ELSE
+	  int fibre = couple%2;
+	  m_kappa[partition][drawer][fibre][gain] += (m_rs_reducedKappa[partition][drawer][couple][gain]->Mean()/(q0*q1) - 1);
+	  
+          if ( fibre ) nCouplesOdd ++; 
+	  else nCouplesEven++;
+
         } // FOR
-        if(nCouplesEven!=0) m_kappa[i][drawer][0][gain] = m_kappa[i][drawer][0][gain]/nCouplesEven;
-        if(nCouplesOdd!=0)  m_kappa[i][drawer][1][gain] = m_kappa[i][drawer][1][gain]/nCouplesOdd;
+
+        if ( nCouplesEven!=0 ) m_kappa[partition][drawer][0][gain] = m_kappa[partition][drawer][0][gain]/nCouplesEven;
+        if ( nCouplesOdd!=0 )  m_kappa[partition][drawer][1][gain] = m_kappa[partition][drawer][1][gain]/nCouplesOdd;
         
-        for(int couple=0; couple<22; ++couple){
-          int chan0 = getCoupleOfChan(i, couple).first;
-          int chan1 = getCoupleOfChan(i, couple).second;
+        for(int couple=0; couple<NCOUPLES; ++couple){
+          int chan0 = getCoupleOfChan(partition, couple).first;
+          int chan1 = getCoupleOfChan(partition, couple).second;
           if(couple%2==0){
-            m_kappa[i][drawer][chan0][gain] = m_kappa[i][drawer][0][gain];
-            m_kappa[i][drawer][chan1][gain] = m_kappa[i][drawer][0][gain];
+            m_kappa[partition][drawer][chan0][gain] = m_kappa[partition][drawer][0][gain];
+            m_kappa[partition][drawer][chan1][gain] = m_kappa[partition][drawer][0][gain];
           } else {
-            m_kappa[i][drawer][chan0][gain] = m_kappa[i][drawer][1][gain];
-            m_kappa[i][drawer][chan1][gain] = m_kappa[i][drawer][1][gain];
+            m_kappa[partition][drawer][chan0][gain] = m_kappa[partition][drawer][1][gain];
+            m_kappa[partition][drawer][chan1][gain] = m_kappa[partition][drawer][1][gain];
           } // ELSE
         } // FOR
-        m_kappa[i][drawer][32][gain] = m_kappa[i][drawer][0][gain];
+        // This line looks like a bug to me (Henric), commenting it,
+	// m_kappa[partition][drawer][32][gain] = m_kappa[partition][drawer][0][gain];
         // END OF KAPPA CALCULATION
         
-        for(int k=0; k<48; ++k){
-          m_time[i][drawer][k][gain]       = m_rs_time[i][drawer][k][gain]->Mean();
-          m_time_S[i][drawer][k][gain]     = m_rs_time[i][drawer][k][gain]->StandardDeviation();
-          m_mean[i][drawer][k][gain]       = m_rs_signal[i][drawer][k][gain]->Mean();
-          m_mean_S[i][drawer][k][gain]     = m_rs_signal[i][drawer][k][gain]->StandardDeviation();
-          m_raw_mean[i][drawer][k][gain]   = m_rs_raw_signal[i][drawer][k][gain]->Mean();
-          m_raw_mean_S[i][drawer][k][gain] = m_rs_raw_signal[i][drawer][k][gain]->StandardDeviation();
+        for(int channel=0; channel<NCHANNELS; ++channel){
+          m_time[partition][drawer][channel][gain]       = m_rs_time[partition][drawer][channel][gain]->Mean();
+          m_time_S[partition][drawer][channel][gain]     = m_rs_time[partition][drawer][channel][gain]->StandardDeviation();
+          m_mean[partition][drawer][channel][gain]       = m_rs_signal[partition][drawer][channel][gain]->Mean();
+          m_mean_S[partition][drawer][channel][gain]     = m_rs_signal[partition][drawer][channel][gain]->StandardDeviation();
+          m_raw_mean[partition][drawer][channel][gain]   = m_rs_raw_signal[partition][drawer][channel][gain]->Mean();
+          m_raw_mean_S[partition][drawer][channel][gain] = m_rs_raw_signal[partition][drawer][channel][gain]->StandardDeviation();
           
           //-- V.Giangiobbe : save the average charge and variance in slices of m_eventsPerSlice=1000
           if(m_pisaMethod2){
-            for(int iSlice=0; iSlice<m_rs_signal[i][drawer][k][gain]->GetNSlices(); ++iSlice){
+            for(int iSlice=0; iSlice<m_rs_signal[partition][drawer][channel][gain]->GetNSlices(); ++iSlice){
               if(iSlice>=100) continue;
-              m_mean_slice[i][drawer][k][iSlice][gain]     = m_rs_signal[i][drawer][k][gain]->Mean(iSlice);
-              m_variance_slice[i][drawer][k][iSlice][gain] = m_rs_signal[i][drawer][k][gain]->Variance(iSlice);
+              m_mean_slice[partition][drawer][channel][iSlice][gain]     = m_rs_signal[partition][drawer][channel][gain]->Mean(iSlice);
+              m_variance_slice[partition][drawer][channel][iSlice][gain] = m_rs_signal[partition][drawer][channel][gain]->Variance(iSlice);
             } // FOR
           } // IF
           
           if(m_LASERII){
-            for(int chan=0; chan<NCHANNELS; ++chan){
-              m_ratio_LASERII[chan][i][drawer][k][gain]   = m_rs_ratio_LASERII[chan][i][drawer][k][gain]->Mean();
-              m_ratio_S_LASERII[chan][i][drawer][k][gain] = m_rs_ratio_LASERII[chan][i][drawer][k][gain]->StandardDeviation();
-            } // FOR
-          } // IF
-          else{
-            for(int d=0; d<4; ++d){
-              m_ratio[d][i][drawer][k][gain]   = m_rs_ratio[d][i][drawer][k][gain]->Mean();
-              m_ratio_S[d][i][drawer][k][gain] = m_rs_ratio[d][i][drawer][k][gain]->StandardDeviation();
-            } // FOR
+            for ( int diode=0; diode<NDIODES; diode++ ) {
+	      for ( int diode_gain=0; diode_gain<NGAINS; diode_gain++) {
+		m_ratio_LASERII[diode][diode_gain][partition][drawer][channel][gain]   = m_rs_ratio_LASERII[diode][diode_gain][partition][drawer][channel][gain]->Mean();
+		m_ratio_S_LASERII[diode][diode_gain][partition][drawer][channel][gain] = m_rs_ratio_LASERII[diode][diode_gain][partition][drawer][channel][gain]->StandardDeviation();
+	      } // FOR
+	    }
+	  } else {
+            for(int d=0; d<NDIODES_LASER1; ++d){
+              m_ratio[d][partition][drawer][channel][gain]   = m_rs_ratio[d][partition][drawer][channel][gain]->Mean();
+              m_ratio_S[d][partition][drawer][channel][gain] = m_rs_ratio[d][partition][drawer][channel][gain]->StandardDeviation();
+            } // Laser 1 diodes
           } // ELSE
-          m_entries[i][drawer][k][gain] = m_rs_signal[i][drawer][k][gain]->NumDataValues();
-        } // FOR
-      } // FOR
-    } // FOR
-  } // FOR
+          m_entries[partition][drawer][channel][gain] = m_rs_signal[partition][drawer][channel][gain]->NumDataValues();
+
+        } // Channels
+      } // Gain
+    } // Drawer
+  } // Partition
   
   return StatusCode::SUCCESS;
 } // FINALIZECALCULATIONS
@@ -723,44 +607,37 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
   t->Branch("ADC_status",&m_ADC_problem, "ADC/I");
   t->Branch("WheelPos",&m_las_filter, "wheelpos/I");
   t->Branch("RequestedAmp",&m_las_requ_amp, "requamp/F");
-  if(!m_LASERII){
+  t->Branch("TimeRun",&m_las_time, "timeofrun/F");
+  t->Branch("MeanTime",m_meantime,"meantime[4][2]/F");
+  t->Branch("Time",*m_time,"time[4][64][48][2]/F");
+  t->Branch("Sigma_Time",*m_time_S,"time_s[4][64][48][2]/F");
+  t->Branch("Signal",*m_mean,"signal[4][64][48][2]/F");
+  t->Branch("Sigma_Signal",*m_mean_S,"signal_s[4][64][48][2]/F");
+  t->Branch("Raw_Signal",*m_raw_mean,"rawsignal[4][64][48][2]/F");
+  t->Branch("Raw_Sigma_Signal",*m_raw_mean_S,"rawsignal_s[4][64][48][2]/F");
+  t->Branch("LaserEntries",*m_entries,"LASER_entries[4][64][48][2]/I");
+  t->Branch("Kappa",*m_kappa,"Kappa[4][64][48][2]/F");
+  t->Branch("Status",*m_status,"Status[4][64][48][2]/S");
+  t->Branch("HV",*m_HV,"HV[4][64][48]/F");
+  t->Branch("HVSet",*m_HVSet,"HVSet[4][64][48]/F");
+  
+  if(m_LASERII){
+               /* Laser II */
+    t->Branch("PMT_Signal",*m_PMT_LASERII, "PMT[2][2]/F");
+    t->Branch("PMT_Sigma_Signal",*m_PMT_S_LASERII, "PMT_s[2][2]/F");
+    t->Branch("Diode_Signal",*m_diode_LASERII, "diode[10][2]/F");
+    t->Branch("Diode_Sigma_Signal",*m_diode_S_LASERII, "diode_s[10][2]/F");
+    t->Branch("Diode_Ped",*m_diode_Ped_LASERII,"diode_Ped[10][2]/F");
+    t->Branch("Diode_Sigma_Ped",*m_diode_Ped_S_LASERII,"diode_sPed[10][2]/F");
+    t->Branch("Ratio",*m_ratio_LASERII,"signal_cor[10][2][4][64][48][2]/F");
+    t->Branch("Sigma_Ratio",*m_ratio_S_LASERII,"signal_cor_s[10][2][4][64][48][2]/F");
+
+  } else {
+              /* Laser I */
     t->Branch("Humidity",&m_hrate,"humid/F");
     t->Branch("AirFlow",&m_flow,"flow/F");
     t->Branch("HeadTemp",&m_head_temp,"htemp/F");
-  } // IF
-  t->Branch("TimeRun",&m_las_time, "timeofrun/F");
-  
-  if(m_LASERII){
-    const char* gainnames[2]  = {"LG","HG"};
-    const char* channames[16] = {"Diode0","Diode1","Diode2","Diode3","Diode4","Diode5","Diode6","Diode7",
-      "Diode8","Diode9","PMT1","ExtCIS0","IntCIS","DiodePhocal","PMT2","ExtCIS1"};
-    for(int chan=0;chan<NCHANNELS;++chan){
-      t->Branch(Form("%s_%s_Signal",gainnames[chan%2],channames[chan/2]),&m_chan_LAS[chan],Form("%s_%s_Signal/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Signal_Pedestal",gainnames[chan%2],channames[chan/2]),&m_chan_PED[chan],Form("%s_%s_Signal_Pedestal/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Signal_LED",gainnames[chan%2],channames[chan/2]),&m_chan_LED[chan],Form("%s_%s_Signal_LED/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Signal_Alpha",gainnames[chan%2],channames[chan/2]),&m_chan_APH[chan],Form("%s_%s_Signal_Alpha/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Signal_Linearity",gainnames[chan%2],channames[chan/2]),&m_chan_LIN[chan],Form("%s_%s_Signal_Linearity/F",gainnames[chan%2],channames[chan/2]));
-      
-      t->Branch(Form("%s_%s_Sigma",gainnames[chan%2],channames[chan/2]),&m_chan_S_LAS[chan],Form("%s_%s_Sigma/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Sigma_Pedestal",gainnames[chan%2],channames[chan/2]),&m_chan_S_PED[chan],Form("%s_%s_Sigma_Pedestal/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Sigma_LED",gainnames[chan%2],channames[chan/2]),&m_chan_S_LED[chan],Form("%s_%s_Sigma_LED/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Sigma_Alpha",gainnames[chan%2],channames[chan/2]),&m_chan_S_APH[chan],Form("%s_%s_Sigma_Alpha/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Sigma_Linearity",gainnames[chan%2],channames[chan/2]),&m_chan_S_LIN[chan],Form("%s_%s_Sigma_Linearity/F",gainnames[chan%2],channames[chan/2]));
-//      
-      t->Branch(Form("%s_%s_Ped",gainnames[chan%2],channames[chan/2]),&m_chan_Ped[chan],Form("%s_%s_Ped/F",gainnames[chan%2],channames[chan/2]));
-      t->Branch(Form("%s_%s_Led",gainnames[chan%2],channames[chan/2]),&m_chan_Led[chan],Form("%s_%s_Led/F",gainnames[chan%2],channames[chan/2]));
-      t->Branch(Form("%s_%s_Alpha",gainnames[chan%2],channames[chan/2]),&m_chan_Alpha[chan],Form("%s_%s_Alpha/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Ped1",gainnames[chan%2],channames[chan/2]),&m_chan_Lin[chan],Form("%s_%s_Ped1/F",gainnames[chan%2],channames[chan/2]));
-      t->Branch(Form("%s_%s_Ped_Sigma",gainnames[chan%2],channames[chan/2]),&m_chan_SPed[chan],Form("%s_%s_Ped_Sigma/F",gainnames[chan%2],channames[chan/2]));
-      t->Branch(Form("%s_%s_Led_Sigma",gainnames[chan%2],channames[chan/2]),&m_chan_SLed[chan],Form("%s_%s_Led_Sigma/F",gainnames[chan%2],channames[chan/2]));
-      t->Branch(Form("%s_%s_Alpha_Sigma",gainnames[chan%2],channames[chan/2]),&m_chan_SAlpha[chan],Form("%s_%s_Alpha_Sigma/F",gainnames[chan%2],channames[chan/2]));
-//      t->Branch(Form("%s_%s_Ped1_Sigma",gainnames[chan%2],channames[chan/2]),&m_chan_SLin[chan],Form("%s_%s_Ped1_Sigma/F",gainnames[chan%2],channames[chan/2]));
-    } // FOR
-    
-    t->Branch("Ratio",*m_ratio_LASERII,"ratio[32][4][64][48][2]/F");
-    t->Branch("Sigma_Ratio",*m_ratio_S_LASERII,"ratio_S[32][4][64][48][2]/F");
-  } // IF
-  else{
+
     t->Branch("PMT1_Signal",&m_PMT[0], "PMT_1/F");
     t->Branch("PMT2_Signal",&m_PMT[1], "PMT_2/F");
     t->Branch("PMT_Sigma_Signal",m_PMT_S, "PMT_s[2]/F");
@@ -775,18 +652,6 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
     t->Branch("Sigma_Ratio",*m_ratio_S,"signal_cor_s[4][4][64][48][2]/F");
   } // ELSE
   
-  t->Branch("MeanTime",m_meantime,"meantime[4][2]/F");
-  t->Branch("Time",*m_time,"time[4][64][48][2]/F");
-  t->Branch("Sigma_Time",*m_time_S,"time_s[4][64][48][2]/F");
-  t->Branch("Signal",*m_mean,"signal[4][64][48][2]/F");
-  t->Branch("Sigma_Signal",*m_mean_S,"signal_s[4][64][48][2]/F");
-  t->Branch("Raw_Signal",*m_raw_mean,"rawsignal[4][64][48][2]/F");
-  t->Branch("Raw_Sigma_Signal",*m_raw_mean_S,"rawsignal_s[4][64][48][2]/F");
-  t->Branch("LaserEntries",*m_entries,"LASER_entries[4][64][48][2]/I");
-  t->Branch("Kappa",*m_kappa,"Kappa[4][64][48][2]/F");
-  t->Branch("Status",*m_status,"Status[4][64][48][2]/S");
-  t->Branch("HV",*m_HV,"HV[4][64][48]/F");
-  t->Branch("HVSet",*m_HVSet,"HVSet[4][64][48]/F");
   
   if(m_pisaMethod2){
     t->Branch("MeanSlice",*m_mean_slice,"MeanSlice[4][64][48][100][2]/F");
@@ -806,13 +671,12 @@ StatusCode TileLaserDefaultCalibTool::finalize(){
   
   StatusCode sc = TileLaserDefaultCalibTool::finalizeCalculations(); // Perform the analysis
   
-  for(int part=0; part<4; ++part){
+  for(int part=0; part<NPARTITIONS; ++part){
     int ros = part+1;
-    for(int drawer=0; drawer<64; ++drawer){
+    for(int drawer=0; drawer<NDRAWERS; ++drawer){
       int module = drawer+1;
-      for(int channel=0; channel<48; ++channel){
-        int pmt = abs(m_cabling->channel2hole(ros,channel));
-        
+      for(int channel=0; channel<NCHANNELS; ++channel){
+        int pmt = abs(m_cabling->channel2hole(ros,channel));        
         m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
         m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
       } // FOR
@@ -831,11 +695,11 @@ std::pair<unsigned int, unsigned int> TileLaserDefaultCalibTool::getCoupleOfChan
   // GET CHANNEL COUPLES THAT ARE ON THE SAME CLEAR FIBER
   std::pair<unsigned int, unsigned int> coupleOfChannels;
   
-  int chan1LB[22]={0, 1, 4, 5, 8,  9,  12, 13, 16, 17, 20, 21, 26, 25, 28, 27, 38, 35, 40, 37, 42, 47};
-  int chan2LB[22]={2, 3, 6, 7, 10, 11, 14, 15, 18, 19, 22, 23, 24, 29, 34, 39, 36, 33, 44, 41, 46, 45};
+  int chan1LB[NCOUPLES]={0, 1, 4, 5, 8,  9,  12, 13, 16, 17, 20, 21, 26, 25, 28, 27, 38, 35, 40, 37, 42, 47};
+  int chan2LB[NCOUPLES]={2, 3, 6, 7, 10, 11, 14, 15, 18, 19, 22, 23, 24, 29, 34, 39, 36, 33, 44, 41, 46, 45};
   
-  int chan1EB[22]={0, 1, 4, 5,  8, 9,  12, 13, 16, 17, 22, 23, 30, 35, 41, 40, -1, -1, -1, -1, -1, -1};
-  int chan2EB[22]={2, 3, 6, 7, 10, 11, 14, 15, 20, 21, 31, 32, 38, 37, 39, 36, -1, -1, -1, -1, -1, -1};
+  int chan1EB[NCOUPLES]={0, 1, 4, 5,  8, 9,  12, 13, 16, 17, 22, 23, 30, 35, 41, 40, -1, -1, -1, -1, -1, -1};
+  int chan2EB[NCOUPLES]={2, 3, 6, 7, 10, 11, 14, 15, 20, 21, 31, 32, 38, 37, 39, 36, -1, -1, -1, -1, -1, -1};
   
   //--- LB,
   if(ros<2){

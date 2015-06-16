@@ -40,8 +40,6 @@ TileTOFTool::TileTOFTool(const std::string& type, const std::string& name, const
     m_LA_EA(0),
     m_LA_LC(0),
     m_LA_EC(0),
-    m_section(0),
-    m_side(0),
     m_tcor(),
     m_Npair()
 {
@@ -212,7 +210,7 @@ StatusCode TileTOFTool::finalizeCalculations()
 
 // Calculation of time offsets wrt module 16 of each partition
 
-   int n2[4][64] = {0};
+   int n2[4][64] = {{0}};
    memset( m_TimeCor, 0, sizeof(m_TimeCor)/sizeof(m_TimeCor[0][0]));
 
   for(int s=0; s<4; s++){

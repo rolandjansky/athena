@@ -26,7 +26,7 @@
 
 #include <cmath>
 
-const unsigned NPmts = 48;
+//const unsigned NPmts = 48;
 
 template<class _T> inline _T sqr(const _T &data) { return data * data; }
 
@@ -270,7 +270,7 @@ StatusCode TileLaserTimingTool::initNtuple(int runNumber, int runType, TFile * r
 }
 
 // conv factor from low gain to high gain
-const float LG2HG = 64.;
+//const float LG2HG = 64.;
 
 /**
  * TODO: determine event type, select laser?

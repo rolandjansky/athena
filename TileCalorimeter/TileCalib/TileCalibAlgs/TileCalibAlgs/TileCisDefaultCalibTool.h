@@ -59,7 +59,8 @@ class TileCisDefaultCalibTool: public AthAlgTool
       digiErrorBit = 6,
       probChi2Bit = 7,
       edgeSamp = 8,
-      nextToEdgeSamp = 9
+      nextToEdgeSamp = 9,
+      stuckbitBit = 10
     };
     // typedefs for maps
     // dac map: uses dac value as key
@@ -125,6 +126,16 @@ class TileCisDefaultCalibTool: public AthAlgTool
     // Mike Miller - 4 June 2009
     int edgeSample[5][64][48][2];
     int nextToEdgeSample[5][64][48][2];
+
+    // these arrays are used to contain information about stuck bits in adc's
+    // this array pertains to the "stuck bit" quality flag; it is not written to
+    // the ntuple
+    int SampleBit[5][64][48][2][10];
+    // This array contains information about each bit in the adc
+    // it IS written into the ntuple
+    unsigned short BitStatus[5][64][48][2][4];
+    // used to count the number of injection samples analyzed for odd bit behavior
+    int NumSamp[5][64][48][2];
 
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* scanMap;
