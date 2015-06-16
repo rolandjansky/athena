@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 637362 $"
+__version__ = "$Revision: 671401 $"
 __doc__ = "check that 2 ROOT files have same content (containers and sizes)."
 __author__ = "Sebastien Binet"
 
@@ -41,7 +41,7 @@ def _is_exit_early():
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
                   default=('Token',),
-                  help='set of leaves names to ignore from comparison')
+                  help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (without any trailing dots)')
 @acmdlib.argument('--enforce-leaves',
                   nargs='*',
                   default=('BCID',),
@@ -117,7 +117,7 @@ def main(args):
     def tree_infos(tree, args):
         nentries = tree.GetEntriesFast()
         leaves = [l.GetName() for l in tree.GetListOfLeaves()
-                  if l not in args.ignore_leaves]
+                  if l.GetName() not in args.ignore_leaves]
         return {
             'entries' : nentries,
             'leaves': set(leaves),
@@ -144,15 +144,20 @@ def main(args):
             itr_entries = args.entries
             pass
         msg.info('comparing over [%s] entries...', itr_entries)
+                
+        old_leaves = infos['old']['leaves'] - infos['new']['leaves']
+        if old_leaves:
+            msg.warning('the following variables exist only in the old file !')
+            for l in old_leaves:
+                msg.warning(' - [%s]', l)
+        new_leaves = infos['new']['leaves'] - infos['old']['leaves']
+        if new_leaves:
+            msg.warning('the following variables exist only in the new file !')
+            for l in new_leaves:
+                msg.warning(' - [%s]', l)
+        skip_leaves = old_leaves | new_leaves | set(args.ignore_leaves)
         
         leaves = infos['old']['leaves'] & infos['new']['leaves']
-        diff_leaves = infos['old']['leaves'] - infos['new']['leaves']
-        if diff_leaves:
-            msg.info('the following variables exist in only one tree !')
-            for l in diff_leaves:
-                msg.info(' - [%s]', l)
-        leaves = leaves - set(args.ignore_leaves)
-        
         msg.info('comparing [%s] leaves over entries...', len(leaves))
         all_good = True
         n_good = 0
@@ -160,36 +165,132 @@ def main(args):
         import collections
         from itertools import izip
         summary = collections.defaultdict(int)
-        for d in izip(fold.dump(args.tree_name, itr_entries),
-                      fnew.dump(args.tree_name, itr_entries)):
-            tree_name, ientry, name, iold = d[0]
-            _,              _,    _, inew = d[1]
-            name[0] = name[0].rstrip('\0')
-            if ((not (name[0] in leaves)) or
-                # FIXME: that's a plain (temporary?) hack
-                name[-1] in args.known_hacks):
-                continue
+
+        old_dump_iter = fold.dump(args.tree_name, itr_entries)
+        new_dump_iter = fnew.dump(args.tree_name, itr_entries)
+
+        def leafname_fromdump(entry):
+            return '.'.join([s for s in entry[2] if not s.isdigit()])
+        
+        def reach_next(dump_iter, skip_leaves):
+            keep_reading = True
+            while keep_reading:
+                try:
+                    entry = dump_iter.next()
+                except StopIteration:
+                    return None
+                entry[2][0] = entry[2][0].rstrip('.\0')  # clean branch name
+                name = []
+                skip = False
+                for n in leafname_fromdump(entry).split('.'):
+                    name.append(n)
+                    if '.'.join(name) in skip_leaves:
+                        skip = True
+                        break
+                if not skip:
+                    return entry
+                # print 'SKIP:', leafname_fromdump(entry)
+            pass
+
+        read_old = True
+        read_new = True
+        d_old = None
+        d_new = None
+        
+        while True:
+            if read_old:
+                prev_d_old = d_old
+                d_old = reach_next(old_dump_iter, skip_leaves)
+            if read_new:
+                prev_d_new = d_new
+                d_new = reach_next(new_dump_iter, skip_leaves)
+                
+            if not d_new and not d_old:
+                break
             
-            if d[0] == d[1]:
-                diff = False
+            read_old = True
+            read_new = True
+            if d_old == d_new:
                 n_good += 1
                 continue
-            n_bad += 1
-            diff = True
+            
+            if d_old:    
+                tree_name, ientry, name, iold = d_old
+            if d_new:
+                tree_name, ientry, name, inew = d_new
 
-            in_synch = d[0][:-1] == d[1][:-1]
+            # FIXME: that's a plain (temporary?) hack
+            if name[-1] in args.known_hacks:
+                continue
+            
+            n_bad += 1
+
+            in_synch = d_old and d_new and d_old[:-1] == d_new[:-1]
             if not in_synch:
                 if not _is_summary():
-                    print '::sync-old %s' % \
-                          '.'.join(["%03i"%ientry]+map(str, d[0][2]))
-                    print '::sync-new %s' % \
-                          '.'.join(["%03i"%ientry]+map(str, d[1][2]))
+                    if d_old:
+                        print '::sync-old %s' %'.'.join(["%03i"%ientry]+map(str, d_old[2]))
+                    else:
+                        print '::sync-old ABSENT'
+                    if d_new:
+                        print '::sync-new %s' %'.'.join(["%03i"%ientry]+map(str, d_new[2]))
+                    else:
+                        print '::sync-new ABSENT'
                     pass
-                summary[name[0]] += 1
                 # remember for later
-                fold.allgood = False
-                fnew.allgood = False
-
+                if not d_old:
+                    fold.allgood = False
+                    summary[d_new[2][0]] += 1
+                elif not d_new:
+                    fnew.allgood = False
+                    summary[d_old[2][0]] += 1
+                else:
+                    branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
+                    branch_new = '.'.join(["%03i"%ientry, d_new[2][0]])
+                    if branch_old < branch_new: 
+                        if not _is_summary():
+                            print '::sync-old skipping entry'
+                        summary[d_old[2][0]] += 1
+                        fnew.allgood = False
+                        read_new = False
+                    elif branch_old > branch_new:
+                        if not _is_summary():
+                            print '::sync-new skipping entry'
+                        summary[d_new[2][0]] += 1
+                        fold.allgood = False
+                        read_old = False
+                    else:
+                        # MN: difference in the leaves
+                        prev_leaf_old = leafname_fromdump(prev_d_old)
+                        prev_leaf_new = leafname_fromdump(prev_d_new)
+                        leaf_old = leafname_fromdump(d_old)
+                        leaf_new = leafname_fromdump(d_new)
+                        if prev_leaf_old == prev_leaf_new:
+                            # array size difference?
+                            if leaf_old == leaf_new and leaf_old == prev_leaf_old:
+                                # could be a size difference in >1 dim arrays
+                                # hard to sync, skipping both
+                                pass
+                            elif leaf_old == prev_leaf_old:
+                                # old has bigger array, skip old entry
+                                read_new = False
+                                if not _is_summary():
+                                    print '::sync-old skipping entry'
+                                summary[leaf_old] += 1
+                            elif leaf_new == prev_leaf_new:
+                                # new has bigger array, skip new entry
+                                read_old = False
+                                if not _is_summary():
+                                    print '::sync-new skipping entry'
+                                summary[leaf_new] += 1
+                                                            
+                        if read_old and read_new:
+                            summary[d_new[2][0]] += 1
+                            if not _is_summary():
+                                print '::sync-old+new skipping both entries'
+                        fold.allgood = False
+                        fnew.allgood = False
+ 
                 if _is_exit_early():
                     print "*** exit on first error ***"
                     break
@@ -205,7 +306,7 @@ def main(args):
             if not _is_summary():
                 print '%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value)
                 pass
-            summary[name[0]] += 1
+            summary[leafname_fromdump(d_old)] += 1
 
             if name[0] in args.enforce_leaves:
                 msg.info("don't compare further")
