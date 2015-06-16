@@ -131,7 +131,7 @@ bool Trig::FillConf::FillLV1(TrigMonConfig &confg,
    // Collect L1 config
    //
 
-   const std::vector<float> prescalesL1 = ctp_config.prescaleSet().prescales_float();
+   const std::vector<int> prescalesL1 = ctp_config.prescaleSet().prescales();
 
    std::set<TrigConfSeq> myth_set;
 
@@ -141,7 +141,7 @@ bool Trig::FillConf::FillLV1(TrigMonConfig &confg,
          continue;
       }
     
-      float prescale = 0;
+      int prescale = 0;
       if(int(prescalesL1.size()) > item->ctpId()) {
          prescale = prescalesL1[item->ctpId()];
       } else {
@@ -394,11 +394,12 @@ bool Trig::FillConf::FillHLT(TrigMonConfig &confg,
     //
     // Iterate over and add streams and groups
     //
-    const vector<TrigConf::HLTStreamTag*> &str_vec = hchn->streams();
-    for(unsigned int i = 0; i < str_vec.size(); ++i) {
-      TrigConf::HLTStreamTag *htag = str_vec[i];
-      if(htag) mychn.addStream(htag->stream(), htag->prescale());
-    }
+    //    const vector<TrigConf::HLTStreamTag*> &str_vec = hchn->streamTagList();
+
+    //    for(unsigned int i = 0; i < str_vec.size(); ++i) {
+    //      TrigConf::HLTStreamTag *htag = str_vec[i];
+      //      if(htag) mychn.addStream(htag->stream(), htag->prescale());
+    //    }
     BOOST_FOREACH(const string& grp, hchn->groups()) {
        mychn.addGroup(grp);
     }
@@ -523,7 +524,7 @@ void Trig::FillConf::UpdateLV1(TrigMonConfig &confg,
   // Update L1 config
   //
 
-  const std::vector<float> prescalesL1 = ctp_config.prescaleSet().prescales_float();
+  const std::vector<int> prescalesL1 = ctp_config.prescaleSet().prescales();
 
   BOOST_FOREACH(TrigConf::TriggerItem *item, ctp_config.menu().items()) {
     if(!item) {
@@ -531,7 +532,7 @@ void Trig::FillConf::UpdateLV1(TrigMonConfig &confg,
       continue;
     }
     
-    float prescale = 0;
+    int prescale = 0;
     if(int(prescalesL1.size()) > item->ctpId()) {
       prescale = prescalesL1[item->ctpId()];
     } else {

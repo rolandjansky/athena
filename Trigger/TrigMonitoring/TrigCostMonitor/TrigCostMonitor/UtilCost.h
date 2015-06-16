@@ -17,8 +17,7 @@ class TrigMonConfig;
 
 //---------------------------------------------------------------------------------------
 namespace Trig 
-{
-
+{   
   void Print(const TrigMonEvent &event, 
 	     const TrigMonConfig &config,
 	     MsgStream &log, MSG::Level level, int verb = 6);

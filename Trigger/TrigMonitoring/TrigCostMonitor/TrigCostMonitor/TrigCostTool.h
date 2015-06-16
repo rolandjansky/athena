@@ -99,9 +99,6 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   float        m_execPrescale;     // Prescale for collecting extended data
   float        m_doOperationalInfo;// Value of doOperationalInfo in parent steering alg. Only for reference here
 
-  unsigned int  m_configReductionValue; // Random chance, 1/Value, that this PU gets chosen to write out configs to T0.
-  bool          m_doConfigReduction; // Reduce duplicate configs being sent by every PU online. Only send from 1/configReuctionValue PUs
-
   // Athena tool and service handles
   const HLT::TrigSteer                  *m_parentAlg;
   TrigTimer                             *m_timer;
@@ -126,6 +123,7 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   unsigned                           m_run;           // Current run number
   unsigned                           m_lumi;          // Current run luminosity block
   unsigned                           m_countEvent;    // Continous count of events
+  unsigned                           m_keyTimer;      // Starting key for adding timers
   unsigned                           m_exportedConfig;// Number of configs exported to the HLT result
   unsigned                           m_exportedEvents;// Number of events exported to the HLT result
   float                              m_costChainPS;      // Set to value of the cost chain prescale on load of new config

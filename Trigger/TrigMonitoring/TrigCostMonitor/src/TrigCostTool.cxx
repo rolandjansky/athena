@@ -33,19 +33,15 @@
 // #include "TrigConfL1Data/CTPExtraWordsFormat.h"
 
 // Local
+#include "TrigCostMonitor/UtilCost.h"
 #include "TrigCostMonitor/TrigCostTool.h"
 #include "TrigCostMonitor/TrigNtConfTool.h"
-#include "TrigCostMonitor/UtilCost.h"
 
 //---------------------------------------------------------------------------------------
 TrigCostTool::TrigCostTool(const std::string& type,
          const std::string& name,
          const IInterface* parent)
-  :AthAlgTool(type, name, parent),
-   m_appId(0),
-   m_appName(), 
-   m_configReductionValue(0),
-   m_doConfigReduction(0),
+  :AthAlgTool(type, name, parent), 
    m_parentAlg(0),
    m_timer(0),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
@@ -62,6 +58,7 @@ TrigCostTool::TrigCostTool(const std::string& type,
    m_run(0),
    m_lumi(0),
    m_countEvent(0),
+   m_keyTimer(0),
    m_exportedConfig(0),
    m_exportedEvents(0),
    m_costChainPS(0)
@@ -96,9 +93,6 @@ TrigCostTool::TrigCostTool(const std::string& type,
   declareProperty("writeConfigDB",    m_writeConfigDB    = false);  
   declareProperty("onlySaveCostEvent",m_onlySaveCostEvent= true, "Only save events which have passed the OPI prescale which run all scale tools");
   declareProperty("obeyCostChainPS",  m_obeyCostChainPS  = true, "Only monitor events if the cost chain prescale is > 0");
-
-  declareProperty("configReductionValue", m_configReductionValue = 50, "Random chance, 1/Value, that this PU gets chosen to write out configs to T0.");
-  declareProperty("doConfigReduction", m_doConfigReduction = false, "Reduce duplicate configs being sent by every PU online. Only send from 1/configReuctionValue PUs.");
 
   declareProperty("stopAfterNEvent",  m_stopAfterNEvent  = 1000);
   declareProperty("execPrescale",     m_execPrescale     = 1.0);
@@ -148,12 +142,15 @@ StatusCode TrigCostTool::initialize()
   // Update from old style "HLT_OPI_HLT"
   if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_L2";
+    m_keyTimer    = 100;
   }
   else if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_EF";
+    m_keyTimer    = 110;
   }
   else if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::HLT) {
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_HLT";
+    m_keyTimer    = 100;
   }
 
   // Only get this tool offline
@@ -206,8 +203,6 @@ StatusCode TrigCostTool::initialize()
     }
   }
 
-  m_appId = m_configReductionValue;
-
   ATH_MSG_INFO("level            = " << m_level            );
   ATH_MSG_INFO("monitoringLogic  = " << m_monitoringLogic  );
   ATH_MSG_INFO("monitoringStream = " << m_monitoringStream );
@@ -224,10 +219,9 @@ StatusCode TrigCostTool::initialize()
   ATH_MSG_INFO("stopAfterNEvent  = " << m_stopAfterNEvent  );
   ATH_MSG_INFO("execPrescale     = " << m_execPrescale     );
   ATH_MSG_INFO("doOperationalInfo= " << m_doOperationalInfo);
+  ATH_MSG_INFO("keyTimer         = " << m_keyTimer         );
   ATH_MSG_INFO("printEvent       = " << m_printEvent       );
   ATH_MSG_INFO("obeyCostChainPS  = " << m_obeyCostChainPS  );
-  ATH_MSG_INFO("doConfigReduction= " << m_doConfigReduction);
-  ATH_MSG_INFO("configReducValue = " << m_configReductionValue);
 
   return StatusCode::SUCCESS;
 }
@@ -320,25 +314,6 @@ StatusCode TrigCostTool::fillHists()
 
   const unsigned opiLevel = m_parentAlg->getAlgoConfig()->getSteeringOPILevel(); // Have I passed the OPI "prescale"?
 
-  // Get My PU name
-  if (m_appId == m_configReductionValue) {
-    const HLT::HLTResult *hlt_result = 0;
-    if(!evtStore()->contains<HLT::HLTResult>(m_hltResult)) {
-      ATH_MSG_DEBUG("StoreGate does not contain HLTResult: " << m_hltResult);
-    } else if(evtStore()->retrieve<HLT::HLTResult>(hlt_result, m_hltResult).isFailure() || !hlt_result) {
-       ATH_MSG_DEBUG("Failed to retrieve HLTResult: " << m_hltResult);
-    } else {
-      const std::vector<uint32_t> &extraData = hlt_result->getExtras();
-      if(extraData.empty()) {
-        ATH_MSG_DEBUG("Extra data is empty");
-      } else {
-        StringSerializer().deserialize(extraData, m_appName); 
-        m_appId = TrigConf::HLTUtils::string2hash(m_appName, "APP_ID_TCT");
-        ATH_MSG_DEBUG("Running on " << m_appName << " with hash " << m_appId);
-      }
-    }
-  }
-
   // Have I passed my own personal "prescale" (not this is currently not used)
   bool _prescaleDecision = true;
   if (m_execPrescale) {
@@ -405,7 +380,7 @@ StatusCode TrigCostTool::fillHists()
     } else {
       ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
     }
-    event->addVar(Trig::kIsCostEvent, _ranSacleTools);
+    event->addVar(47, _ranSacleTools);
 
     //
     // Fill basic event data
@@ -439,16 +414,6 @@ StatusCode TrigCostTool::fillHists()
       ATH_MSG_WARNING("Failed to get HLT::Navigation pointer. Cannot save this cost event!");
       return StatusCode::SUCCESS;
     }    
-
-    // See if this PU is writing CONFIG data
-    if (m_doConfigReduction == true) {
-      if (m_appId % m_configReductionValue != 0) {
-        m_bufferConfig.clear();
-        ATH_MSG_DEBUG( "This PU, " << m_appName << ", hash " << m_appId << " is not divisible by " << m_configReductionValue << " NOT writing");
-      } else {
-        ATH_MSG_DEBUG( "This PU, " << m_appName << ", hash " << m_appId << " is divisible by " << m_configReductionValue << " writing config");
-      }
-    }
 
     if(!m_bufferConfig.empty()) {
 
@@ -499,7 +464,7 @@ StatusCode TrigCostTool::fillHists()
     event_timer = m_timer->elapsed();
 
     if(m_saveEventTimers && event) {
-      event->addVar(Trig::kTimeCostMonitoring, m_timer->elapsed());
+      event->addVar(m_keyTimer, m_timer->elapsed());
     }
   }
 
@@ -652,14 +617,7 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
         }
       }
 
-      bool writeConfig = true;
-      if      (m_writeAlways == true) writeConfig = true; // First check WriteAlways flag
-      else if (m_writeConfig == false) writeConfig = false; // Next comes WriteConfig flag. This is normally true.
-      else if (m_costForCAF == true) writeConfig = true; // If offline, then we don't have any other preconditions
-      else if (m_obeyCostChainPS == true && m_costChainPS > 0) writeConfig = true; // Online, we normally only write out if we are in stable beams
-      else if (m_obeyCostChainPS == true && m_costChainPS <= 0) writeConfig = false;
-      
-      if(writeConfig) {
+      if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
         m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
         ATH_MSG_DEBUG( "ProcessConfig - writing out full svc configuration" );
       }
@@ -749,9 +707,9 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
   //
   // Save DB keys
   //
-  event.addVar(Trig::kSMK, m_config_sv.getMasterKey());
-  event.addVar(Trig::kL1PSK, m_config_sv.getLV1PrescaleKey());
-  event.addVar(Trig::kHLTPSK, m_config_sv.getHLTPrescaleKey());
+  event.addVar(66, m_config_sv.getMasterKey());
+  event.addVar(67, m_config_sv.getLV1PrescaleKey());
+  event.addVar(68, m_config_sv.getHLTPrescaleKey());
 
   //
   // Read OPI from TrigSteer
@@ -777,10 +735,10 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
     }
     
     if(m_saveEventTimers) {
-      event.addVar(Trig::kTimeExec, texec);
-      event.addVar(Trig::kTimeProc, tproc);
-      event.addVar(Trig::kTimeRes, tres);
-      event.addVar(Trig::kTimeMon, tmon);
+      event.addVar(m_keyTimer+1, texec);
+      event.addVar(m_keyTimer+2, tproc);
+      event.addVar(m_keyTimer+3, tres);
+      event.addVar(m_keyTimer+4, tmon);
     }
   } else {
    ATH_MSG_DEBUG( "Could not find TrigOperationalInfoCollection " << m_keySteerOPI << " did the HLT process anything?" );
@@ -810,7 +768,7 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
       m_readLumiBlock.clearMsg();
     }
     ATH_MSG_DEBUG( "LB " << event.getLumi() << " is Length " << m_readLumiBlock.getLumiBlockLength(event.getLumi()) );
-    event.addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(event.getLumi())); // 43 is lumi block length location
+    event.addVar(43, m_readLumiBlock.getLumiBlockLength(event.getLumi())); // 43 is lumi block length location
   }
 
 }
@@ -854,7 +812,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
   //
   // Save current event number
   //
-  event.addVar(Trig::kEventNumber, m_countEvent);
+  event.addVar(9999, m_countEvent);
 
   //
   // Erase all lumi block counts except for current lumi block
