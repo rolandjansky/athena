@@ -18,8 +18,9 @@ void ALFA_HitCnv_p1::persToTrans(const ALFA_Hit_p1* persObj, ALFA_Hit* transObj,
    log << MSG::DEBUG << "ALFA_HitCnv_p1::persToTrans called " << endreq;
    
 //   HepMcParticleLinkCnv_p1 HepMcPLCnv;
-//   transObj->HitID         = persObj->HitID;
-//   HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(transObj->m_partLink), log);   
+//   HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(transObj->m_partLink), log); 
+   transObj->hitID         = persObj->hitID;
+   transObj->trackID       = persObj->trackID;  
    transObj->particleEncoding = persObj->particleEncoding;
    transObj->kineticEnergy = persObj->kineticEnergy;
    transObj->energyDeposit = persObj->energyDeposit;
@@ -43,8 +44,9 @@ void ALFA_HitCnv_p1::transToPers(const ALFA_Hit* transObj,
 {
    log << MSG::DEBUG << "ALFA_HitCnv_p1::transToPers called " << endreq;
  //  HepMcParticleLinkCnv_p1 HepMcPLCnv;
-//    persObj->HitID         = transObj-> HitID;
-//    HepMcPLCnv.transToPers(&(transObj->m_partLink),&(persObj->m_partLink), log);   
+//    HepMcPLCnv.transToPers(&(transObj->m_partLink),&(persObj->m_partLink), log);
+    persObj->hitID          = transObj->hitID;
+    persObj->trackID        = transObj->trackID;   
     persObj->particleEncoding = transObj->particleEncoding;
     persObj->kineticEnergy = transObj->kineticEnergy;
     persObj->energyDeposit = transObj->energyDeposit;
