@@ -58,7 +58,7 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
  : AthAlgorithm(name,pSvcLocator)
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_beamCnv(0)
-  , m_beamPrv(0)
+  //, m_beamPrv(0)
   , m_cabling(0)
   , m_tileID(0)
   , m_tileHWID(0)
@@ -66,7 +66,7 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileIdTrans("TileCondIdTransforms")
   , m_cispar(0)
-  , m_nDrawers(0)
+  //, m_nDrawers(0)
   , m_time(0)
   , m_year(0)
   , m_month(0)
@@ -84,14 +84,18 @@ TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLoca
   declareProperty("doFixed", m_doFixed = true); 
   declareProperty("doOpt" , m_doOpt  = true); 
   declareProperty("doDsp" , m_doDsp  = true); 
+  declareProperty("doOF1" , m_doOF1  = true); 
+  declareProperty("doMF" , m_doMF  = true); 
   declareProperty("SaveHist", m_saveHist = false); // write all histograms to output file
   declareProperty("InvertChanRatio", m_invertChanRatio = true); // swap two sigmas and invert ratio if it is above 1.0 (channel fit only)
   declareProperty("MaskBadChannels",m_maskBadChannels = true);
-  declareProperty("UseforCells" , m_UseforCells  = 2); // Fit    =0, Fixed   =1,  Opt    =2, Dsp    =3,
+  declareProperty("UseforCells" , m_UseforCells  = 2); // Fit=0, Fixed=1,  Opt=2, Dsp=3, OF1=4, MF=5
   declareProperty("TileRawChannelContainerFixed", m_fixedRawChannelContainer = "TileRawChannelFixed");
   declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "TileRawChannelFit"); // 
   declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "TileRawChannelOpt2"); //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "TileRawChannelCnt"); //
+  declareProperty("TileRawChannelContainerOF1", m_OF1RawChannelContainer = "TileRawChannelOF1"); //
+  declareProperty("TileRawChannelContainerMF",  m_MFRawChannelContainer = "TileRawChannelMF"); //
   declareProperty("CalibMode", m_calibMode = true);  
   declareProperty("UsePMT", m_usePMT = false);  
   declareProperty("RunNumber", m_run=0);
@@ -296,21 +300,12 @@ StatusCode TileRawChNoiseCalibAlg::execute() {
   m_cispar = m_beamInfo->cispar();
   if (m_evtNr % 1000 == 0) ATH_MSG_INFO( " events processed so far " << m_evtNr );
   
-  if (m_doFit) {
-    empty &= (fillRawChannels(m_fitRawChannelContainer, Fit).isFailure());
-  }
-
-  if (m_doFixed) {
-    empty &= (fillRawChannels(m_fixedRawChannelContainer, Fixed).isFailure());
-  }
-
-  if (m_doOpt) {
-    empty &= (fillRawChannels(m_optRawChannelContainer, Opt).isFailure());
-  }
-
-  if (m_doDsp) {
-    empty &= (fillRawChannels(m_dspRawChannelContainer, Dsp).isFailure());
-  }
+  if (m_doFit){empty &= (fillRawChannels(m_fitRawChannelContainer, Fit).isFailure());}
+  if (m_doFixed){empty &= (fillRawChannels(m_fixedRawChannelContainer, Fixed).isFailure());}
+  if (m_doOpt){empty &= (fillRawChannels(m_optRawChannelContainer, Opt).isFailure());}
+  if (m_doDsp) {empty &= (fillRawChannels(m_dspRawChannelContainer, Dsp).isFailure());}
+  if (m_doOF1) {empty &= (fillRawChannels(m_OF1RawChannelContainer, OF1).isFailure());}
+  if (m_doMF) {empty &= (fillRawChannels(m_MFRawChannelContainer, MF).isFailure());}
 
 
   if (empty) {ATH_MSG_ERROR( "Error in execute " ); }
@@ -329,6 +324,8 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
   if (m_doFixed) finalRawCh(Fixed);
   if (m_doOpt) finalRawCh(Opt);
   if (m_doDsp) finalRawCh(Dsp);
+  if (m_doOF1) finalRawCh(OF1);
+  if (m_doMF) finalRawCh(MF);
 
   if (m_UseforCells == 0) {
     if (m_doFit) finalCell();
@@ -338,6 +335,10 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
     if (m_doOpt) finalCell();
   } else if (m_UseforCells == 3) {
     if (m_doDsp) finalCell();
+  } else if (m_UseforCells == 4) {
+    if (m_doOF1) finalCell();
+  } else if (m_UseforCells == 5) {
+    if (m_doMF) finalCell();
   } else {
     ATH_MSG_WARNING( "unknown rawchannel type used for cells" << m_UseforCells );
   }
@@ -452,7 +453,7 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
 
   t->Branch("edsp_mean",*(rc_mean[Dsp]),"edsp_mean[5][64][48][2]/F");
   t->Branch("edsp_av",*(rc_av[Dsp]),"edsp_av[5][64][48][2]/F");
-  t->Branch("edsp_rms",*(rc_rms[Dsp]),"eds_rms[5][64][48][2]/F");
+  t->Branch("edsp_rms",*(rc_rms[Dsp]),"edsp_rms[5][64][48][2]/F");
   t->Branch("edsp_sigma",*(rc_sigma[Dsp]),"edsp_sigma[5][64][48][2]/F");
   t->Branch("edsp_mean_err",*(rc_mean_err[Dsp]),"edsp_mean_err[5][64][48][2]/F");
   t->Branch("edsp_sigma_err",*(rc_sigma_err[Dsp]),"edsp_sigma_err[5][64][48][2]/F");
@@ -470,6 +471,50 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
   t->Branch("edsp_gerrnorm",*(rc_gerrnorm[Dsp]),"edsp_gerrnorm[5][64][48][2]/F");
   t->Branch("edsp_gerrsigma2",*(rc_gerrsigma2[Dsp]),"edsp_gerrsigma2[5][64][48][2]/F");  
   t->Branch("edsp_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[Dsp]),"edsp_gcorrsigma1sigma2[5][64][48][2]/F");
+
+
+  t->Branch("eOF1_mean",*(rc_mean[OF1]),"eOF1_mean[5][64][48][2]/F");
+  t->Branch("eOF1_av",*(rc_av[OF1]),"eOF1_av[5][64][48][2]/F");
+  t->Branch("eOF1_rms",*(rc_rms[OF1]),"eOF1_rms[5][64][48][2]/F");
+  t->Branch("eOF1_sigma",*(rc_sigma[OF1]),"eOF1_sigma[5][64][48][2]/F");
+  t->Branch("eOF1_mean_err",*(rc_mean_err[OF1]),"eOF1_mean_err[5][64][48][2]/F");
+  t->Branch("eOF1_sigma_err",*(rc_sigma_err[OF1]),"eOF1_sigma_err[5][64][48][2]/F");
+  t->Branch("eOF1_kurtosis",*(rc_kurtosis[OF1]),"eOF1_kurtosis[5][64][48][2]/F");
+  t->Branch("eOF1_skewness",*(rc_skewness[OF1]),"eOF1_skewness[5][64][48][2]/F");
+  t->Branch("eOF1_chi2",*(rc_chi2[OF1]),"eOF1_chi2[5][64][48][2]/F");
+  t->Branch("eOF1_ndf",*(rc_ndf[OF1]),"eOF1_ndf[5][64][48][2]/F");
+  t->Branch("eOF1_probC2",*(rc_probC2[OF1]),"eOF1_probC2[5][64][48][2]/F");
+
+  t->Branch("eOF1_gsigma1",*(rc_gsigma1[OF1]),"eOF1_gsigma1[5][64][48][2]/F");
+  t->Branch("eOF1_gsigma2",*(rc_gsigma2[OF1]),"eOF1_gsigma2[5][64][48][2]/F");
+  t->Branch("eOF1_gnorm",*(rc_gnorm[OF1]),"eOF1_gnorm[5][64][48][2]/F");
+  t->Branch("eOF1_gchi2",*(rc_gchi2[OF1]),"eOF1_gchi2[5][64][48][2]/F");
+  t->Branch("eOF1_gerrsigma1",*(rc_gerrsigma1[OF1]),"eOF1_gerrsigma1[5][64][48][2]/F");
+  t->Branch("eOF1_gerrnorm",*(rc_gerrnorm[OF1]),"eOF1_gerrnorm[5][64][48][2]/F");
+  t->Branch("eOF1_gerrsigma2",*(rc_gerrsigma2[OF1]),"eOF1_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("eOF1_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[OF1]),"eOF1_gcorrsigma1sigma2[5][64][48][2]/F");
+
+
+  t->Branch("eMF_mean",*(rc_mean[MF]),"eMF_mean[5][64][48][2]/F");
+  t->Branch("eMF_av",*(rc_av[MF]),"eMF_av[5][64][48][2]/F");
+  t->Branch("eMF_rms",*(rc_rms[MF]),"eMF_rms[5][64][48][2]/F");
+  t->Branch("eMF_sigma",*(rc_sigma[MF]),"eMF_sigma[5][64][48][2]/F");
+  t->Branch("eMF_mean_err",*(rc_mean_err[MF]),"eMF_mean_err[5][64][48][2]/F");
+  t->Branch("eMF_sigma_err",*(rc_sigma_err[MF]),"eMF_sigma_err[5][64][48][2]/F");
+  t->Branch("eMF_kurtosis",*(rc_kurtosis[MF]),"eMF_kurtosis[5][64][48][2]/F");
+  t->Branch("eMF_skewness",*(rc_skewness[MF]),"eMF_skewness[5][64][48][2]/F");
+  t->Branch("eMF_chi2",*(rc_chi2[MF]),"eMF_chi2[5][64][48][2]/F");
+  t->Branch("eMF_ndf",*(rc_ndf[MF]),"eMF_ndf[5][64][48][2]/F");
+  t->Branch("eMF_probC2",*(rc_probC2[MF]),"eMF_probC2[5][64][48][2]/F");
+
+  t->Branch("eMF_gsigma1",*(rc_gsigma1[MF]),"eMF_gsigma1[5][64][48][2]/F");
+  t->Branch("eMF_gsigma2",*(rc_gsigma2[MF]),"eMF_gsigma2[5][64][48][2]/F");
+  t->Branch("eMF_gnorm",*(rc_gnorm[MF]),"eMF_gnorm[5][64][48][2]/F");
+  t->Branch("eMF_gchi2",*(rc_gchi2[MF]),"eMF_gchi2[5][64][48][2]/F");
+  t->Branch("eMF_gerrsigma1",*(rc_gerrsigma1[MF]),"eMF_gerrsigma1[5][64][48][2]/F");
+  t->Branch("eMF_gerrnorm",*(rc_gerrnorm[MF]),"eMF_gerrnorm[5][64][48][2]/F");
+  t->Branch("eMF_gerrsigma2",*(rc_gerrsigma2[MF]),"eMF_gerrsigma2[5][64][48][2]/F");  
+  t->Branch("eMF_gcorrsigma1sigma2",*(rc_gcorrsigma1sigma2[MF]),"eMF_gcorrsigma1sigma2[5][64][48][2]/F");
 
 
   t->Branch("ecell_av",*(ecell_av),"ecell_av[2][64][4][17][6]/F");
@@ -503,7 +548,9 @@ StatusCode TileRawChNoiseCalibAlg::finalize() {
       if ((m_doFit && rc == Fit)
           || (m_doFixed && rc == Fixed)
           || (m_doOpt && rc == Opt)
-          || (m_doDsp && rc == Dsp)) {
+          || (m_doDsp && rc == Dsp)
+          || (m_doOF1 && rc == OF1)
+          || (m_doMF && rc == MF)) {
 
         for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
           for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
@@ -703,8 +750,10 @@ void TileRawChNoiseCalibAlg::removeRC(RCtype rctype) {
 /*---------------------------------------------------------*/
   if (rctype == Fixed) m_doFixed = false;
   else if (rctype == Opt) m_doOpt = false;
-  else if (rctype == Dsp) m_doDsp = false;
   else if (rctype == Fit) m_doFit = false;
+  else if (rctype == Dsp) m_doDsp = false;
+  else if (rctype == OF1) m_doOF1 = false;
+  else if (rctype == MF)  m_doMF = false;
 }
 
 /// finalDigits is called during finalize

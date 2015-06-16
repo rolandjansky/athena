@@ -49,8 +49,6 @@ class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool
   float m_LA_LC;
   float m_LA_EC;
 
-  int m_section;
-  int m_side;
   float m_tcor[4][32][32];
   int m_Npair[4][32][32];
 };

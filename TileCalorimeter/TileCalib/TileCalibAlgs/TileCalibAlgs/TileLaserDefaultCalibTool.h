@@ -16,9 +16,17 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 
-#define NDIODES 14
-#define NCHANNELS 32
-#define NPMTS
+#define NDIODES 10
+#define NDIODES_LASER1 4
+#define NMONITORS 4
+#define NPMTS 2
+
+#define NGAINS 2
+#define NPARTITIONS 4 
+#define NDRAWERS 64
+#define NCOUPLES 22 
+#define NCHANNELS 48
+#define NSLICES 100
 
 class TileRawChannelContainer;
 class TileBeamInfoProvider;
@@ -51,6 +59,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   std::string m_laserContainerName;
 	
   bool m_pisaMethod2;
+  bool m_isLaserCalib;
   
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
@@ -78,19 +87,13 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_las_time;                 // Event time
 
   // LASERII
-  float m_ratio_LASERII[32][4][64][48][2];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
-  float m_ratio_S_LASERII[32][4][64][48][2];     // Corresponding RMS
+  float m_ratio_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
+  float m_ratio_S_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
 
-  RunningStat* m_rs_chan_Laser[32];
-  RunningStat* m_rs_chan_Pedestal[32];
-  RunningStat* m_rs_chan_LED[32];
-  RunningStat* m_rs_chan_Alpha[32];
-  RunningStat* m_rs_chan_Linearity[32];
-
-  RunningStat* m_rs_ratio_LASERII[32][4][64][48][2];
+  RunningStat* m_rs_ratio_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];
 
   // FIRST PART OF DATA FRAGMENT
-  float m_chan_LAS[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Laser runs
+  /*  float m_chan_LAS[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Laser runs
   float m_chan_PED[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Pedestal runs
   float m_chan_LED[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in LED runs
   float m_chan_APH[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Alpha runs
@@ -100,59 +103,63 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_chan_S_LED[32];               // Corresponding RMS in LED runs
   float m_chan_S_APH[32];               // Corresponding RMS in Alpha runs
   float m_chan_S_LIN[32];               // Corresponding RMS in Linearity runs
+  */
 
   // SECOND PART OF DATA FRAGMENT
-  float m_chan_Ped[32];             // Corresponding pedestal values
-  float m_chan_Led[32];             // Corresponding LED values
-  float m_chan_Lin[32];             // Corresponding linearity values
-  float m_chan_Alpha[32];           // Corresponding alpha peaks
-  float m_chan_SPed[32];            // Sigma of pedestal values
-  float m_chan_SLed[32];            // Sigma of LED values
-  float m_chan_SLin[32];            // Sigma of linearity values
-  float m_chan_SAlpha[32];          // Sigma of alpha peaks
+  float m_PMT_LASERII[NPMTS][NGAINS];             // Mean value for box PMTs
+  float m_PMT_S_LASERII[NPMTS][NGAINS];           // Corresponding RMS
+  RunningStat* m_rs_PMT_signal_LASERII[NPMTS][NGAINS];
+
+  float m_diode_LASERII[NDIODES][NGAINS];         // Mean value for box Photodiodes
+  float m_diode_S_LASERII[NDIODES][NGAINS];       // Corresponding RMS
+  RunningStat* m_rs_diode_signal_LASERII[NDIODES][NGAINS];
+
+  float m_diode_Ped_LASERII[NDIODES][NGAINS];     // Corresponding pedestal values
+  float m_diode_Ped_S_LASERII[NDIODES][NGAINS];   // Sigma of pedestal values
 
   // LASERI
-  float m_PMT[2];                       // Mean value for box PMTs
-  float m_PMT_S[2];                     // Corresponding RMS
-  float m_diode[4];                     // Mean value for box Photodiodes
-  float m_diode_S[4];                   // Corresponding RMS
-  float m_diode_Ped[4];                 // Corresponding pedestal values
-  float m_diode_Alpha[4];               // Corresponding alpha peaks
-  float m_diode_SPed[4];                // Sigma of pedestals
-  float m_diode_SAlpha[4];              // RMS of alpha spectra
-  float m_ratio[4][4][64][48][2];       // Calib coefficients computed for this run (for all diodes)
-  float m_ratio_S[4][4][64][48][2];     // Corresponding RMS
-  RunningStat* m_rs_diode_signal[4];
-  RunningStat* m_rs_PMT_signal[2];
-  RunningStat* m_rs_ratio[4][4][64][48][2];
+  float m_PMT[NPMTS];                                // Mean value for box PMTs
+  float m_PMT_S[NPMTS];                              // Corresponding RMS
+  float m_diode[NDIODES_LASER1];                     // Mean value for box Photodiodes
+  float m_diode_S[NDIODES_LASER1];                   // Corresponding RMS
+  float m_diode_Ped[NDIODES_LASER1];                 // Corresponding pedestal values
+  float m_diode_Alpha[NDIODES_LASER1];               // Corresponding alpha peaks
+  float m_diode_SPed[NDIODES_LASER1];                // Sigma of pedestals
+  float m_diode_SAlpha[NDIODES_LASER1];              // RMS of alpha spectra
+  float m_ratio[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes)
+  float m_ratio_S[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  RunningStat* m_rs_diode_signal[NDIODES_LASER1];
+  RunningStat* m_rs_PMT_signal[NPMTS];
+  RunningStat* m_rs_ratio[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
 
-  float m_meantime[4][2];               // Mean time computed for this run per partition (to remove 25ns jitter) 
-  float m_time[4][64][48][2];           // Mean time computed for this run
-  float m_time_S[4][64][48][2];         // Corresponding RMS
-  float m_mean[4][64][48][2];           // Mean signal computed for this run
-  float m_mean_S[4][64][48][2];         // Corresponding RMS
-  float m_raw_mean[4][64][48][2];       // Mean signal computed for this run
-  float m_raw_mean_S[4][64][48][2];     // Corresponding RMS
-  int    m_entries[4][64][48][2];       // Number of LASER events collected for one channel (and a particular gain)
-  float m_kappa[4][64][48][2];          // Kappa correction term
-  float m_mean_slice[4][64][48][100][2];
-  float m_variance_slice[4][64][48][100][2];
-  short  m_status[4][64][48][2];        // Status of the channel in the DB
-  float  m_HV[4][64][48]; 
-  float  m_HVSet[4][64][48]; 
+  float m_meantime[NPARTITIONS][NGAINS];         // Mean time computed for this run per partition (to remove 25ns jitter) 
+  float m_time[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];           // Mean time computed for this run
+  float m_time_S[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];         // Corresponding RMS
+
+  float m_mean[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];           // Mean signal computed for this run
+  float m_mean_S[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];         // Corresponding RMS
+  float m_raw_mean[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Mean signal computed for this run
+  float m_raw_mean_S[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  int   m_entries[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];        // Number of LASER events collected for one channel (and a particular gain)
+  float m_kappa[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];          // Kappa correction term
+  float m_mean_slice[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS];
+  float m_variance_slice[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS];
+  short  m_status[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];        // Status of the channel in the DB
+  float  m_HV[NPARTITIONS][NDRAWERS][NCHANNELS]; 
+  float  m_HVSet[NPARTITIONS][NDRAWERS][NCHANNELS]; 
 
   // Local results - not sent to ROOTuple
-  int m_PMT1_ADC_prev[2];
-  int m_PMT2_ADC_prev[2];
+  int m_PMT1_ADC_prev;
+  int m_PMT2_ADC_prev;
 
   bool m_LASERII;
   long long m_evtNr;
 
-  RunningStat* m_rs_meantime[4][2];
-  RunningStat* m_rs_time[4][64][48][2];
-  RunningStat* m_rs_signal[4][64][48][2];
-  RunningStat* m_rs_raw_signal[4][64][48][2];
-  RunningStat* m_rs_reducedKappa[4][64][22][2];
+  RunningStat* m_rs_meantime[NPARTITIONS][NGAINS];
+  RunningStat* m_rs_time[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_raw_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][NCOUPLES][NGAINS];
 
   // Functions
   std::pair<unsigned int, unsigned int> getCoupleOfChan(int ros, int couple);
@@ -202,7 +209,7 @@ public:
 		} else {
 			m_newM_slice = m_oldM_slice + (x - m_oldM_slice)/m_n_slice;
 			m_newS_slice = m_oldS_slice + (x - m_oldM_slice)*(x - m_newM_slice);
-   		m_oldM_slice = m_newM_slice; 
+			m_oldM_slice = m_newM_slice; 
 			m_oldS_slice = m_newS_slice;
 		}
 		

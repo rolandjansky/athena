@@ -55,7 +55,7 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
   private:
 
     enum RCtype {
-      Fit = 0, Fixed = 1, Opt = 2, Dsp = 3, RCnum = 4
+      Fit = 0, Fixed = 1, Opt = 2, Dsp = 3, OF1 = 4, MF = 5, RCnum = 6
     };
 
     enum trigtype {
@@ -86,6 +86,8 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     bool m_doFixed;
     bool m_doOpt;
     bool m_doDsp;
+    bool m_doOF1;
+    bool m_doMF;
     bool m_saveHist;
     bool m_invertChanRatio;
 
@@ -101,7 +103,7 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     // Tools / storegate info
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     TileBeamElemContByteStreamCnv* m_beamCnv;
-    TileBeamInfoProvider* m_beamPrv;
+    //TileBeamInfoProvider* m_beamPrv;
     const TileCablingService* m_cabling;
     // Identifiers
     const TileID* m_tileID;
@@ -117,7 +119,7 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     std::string m_ntupleID;
     std::string m_file;
     int64_t m_treeSize;
-    unsigned int m_nDrawers;
+    //unsigned int m_nDrawers;
 
     // Container Parameters
     std::string m_digitsContainer;
@@ -126,6 +128,8 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     std::string m_fitRawChannelContainer;
     std::string m_optRawChannelContainer;
     std::string m_dspRawChannelContainer;
+    std::string m_OF1RawChannelContainer;
+    std::string m_MFRawChannelContainer;
 
     TH1F* histAmp[RCnum][5][64][48][2];
     TH1F* histCellAmp[2][64][4][17][6];
