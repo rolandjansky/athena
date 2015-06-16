@@ -567,9 +567,14 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
   pTE->m_setTrackCovariance(Gf);
   pTE->m_attachToSurface(pSE);
 
-  pTE->m_applyMaterialEffects();
+  //  pTE->m_applyMaterialEffects();
+  if(m_doMultScatt)
+    pTE->m_applyMultipleScattering();
 
   pTE->m_setTrackState(Rf);//restore
+
+  if(m_doBremm) 
+    pTE->m_applyEnergyLoss(1);
 
   AmgSymMatrix(5) Gi;
   for(i=0;i<5;i++) for(j=i;j<5;j++)
@@ -836,7 +841,7 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 
 		correctScale(pTS);
 
-		double Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+		Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
 		double Phi0 = pTS->m_getTrackState(2);
 		if(Phi0>M_PI) Phi0-=2*M_PI;
 		if(Phi0<-M_PI) Phi0+=2*M_PI;

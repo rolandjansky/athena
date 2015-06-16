@@ -21,6 +21,7 @@ namespace Trk {
   class TrkBaseNode;             
   class TrkTrackState;      
   class TrkPlanarSurface;
+  class Track;
 }
 
 namespace MagField {	
@@ -38,6 +39,7 @@ class TrigL2ResidualCalculator: public AthAlgTool, virtual public ITrigL2Residua
 
   StatusCode getResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&);
   StatusCode getUnbiassedResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&);
+  StatusCode getUnbiassedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&);
 
 private:
 
