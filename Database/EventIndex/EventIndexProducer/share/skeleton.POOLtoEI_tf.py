@@ -49,7 +49,7 @@ else:
 if hasattr(runArgs,"sendtobroker"):
     SendToBroker = runArgs.sendtobroker
 else:
-    SendToBroker = False
+    SendToBroker = True
 
 if hasattr(runArgs,"eidsname"):
     EiDsName = runArgs.eidsname
