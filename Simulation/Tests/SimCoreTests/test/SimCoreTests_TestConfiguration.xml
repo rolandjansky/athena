@@ -5,13 +5,13 @@
     <mailto>atlas-simulation-testreports@cern.ch</mailto>
 
     <!--
-        don't forget to check the xml file with
-        python /afs/cern.ch/user/r/rtt/public/validateXML.py SimCoreTests_TestConfiguration.xml
+       don't forget to check the xml file with
+       python /afs/cern.ch/user/r/rtt/public/validateXML.py SimCoreTests_TestConfiguration.xml
 
-and to update the twiki page:
-https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
+       and to update the twiki page:
+       https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
-    -->
+      -->
 
     <jobList>
 
@@ -89,10 +89,6 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_TTbarSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
-              <testToInvert> <!-- still failing as of October 2013 -->
-                <jobGroupName>SimCoreTests:SimCoreJobTransformTests</jobGroupName>
-                <testidentifier>StrangePDGGrepper</testidentifier>
-              </testToInvert>
             </jobTransform>
           </chainElement>
 
@@ -128,21 +124,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>TTbarSimTiming_DCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>19.X.0/dcube_TTbarSimTiming.xml</argvalue>
+                  <argvalue>18.X.0/dcube_TTbarSimTiming.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>TTbarSimTiming.timing_histos.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>localRefFile</argname>
-                  <argvalue>True</argvalue>
+                  <argvalue>18.X.0/TTbarSimTiming.timing_histos.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>timing_histos.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-timing_histos.root/timing_histos.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-18.X.0/timing_histos.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
 
             </jobTransform>
@@ -221,10 +214,6 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_NeutronCutTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
-              <testToInvert> <!-- still failing as of October 2013 -->
-                <jobGroupName>SimCoreTests:SimCoreJobTransformTests</jobGroupName>
-                <testidentifier>StrangePDGGrepper</testidentifier>
-              </testToInvert>
             </jobTransform>
 
           </chainElement>
@@ -665,7 +654,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/ALFASimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>testALFA.HITS.pool.root_ALFASimTest.HITS.pool.root.diffPool</keepFilePattern>
-            </test>
+              </test>
               <test position="2">
                 <modulename>RttLibraryTools</modulename>
                 <testname>DCubeRunner</testname>
@@ -683,6 +672,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/ALFASimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -743,6 +733,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/ZDCSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -775,6 +766,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -812,6 +804,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/AtlasG4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
             <chainfileout>test.HITS.pool.root</chainfileout>
@@ -853,6 +846,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>truth_2.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-truth.root/truth_2.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -897,6 +891,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
@@ -939,6 +934,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/AtlasG4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -971,6 +967,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
               <testToRemove>
                 <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
@@ -1010,6 +1007,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/AtlasG4_minbias.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </athena>
           </chainElement>
@@ -1042,6 +1040,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
               <testToRemove>
                 <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
@@ -1083,6 +1082,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/AtlasG4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
 
             </jobTransform>
@@ -1126,6 +1126,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>truth_2.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-truth.root/truth_2.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1170,6 +1171,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
@@ -1212,22 +1214,23 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-18.X.0/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
               <!--
-                  <test position="2">
-                  <modulename>RttLibraryTools</modulename>
-                  <testname>DiffPoolFilesRunner</testname>
-                  <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
-                  <arg>
-                  <argname>fileName</argname>
-                  <argvalue>test.HITS.pool.root</argvalue>
-                  </arg>
-                  <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/WriteCalHitsTest.HITS.pool.root</argvalue>
-                  </arg>
-                  </test>
-              -->
+                 <test position="2">
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>DiffPoolFilesRunner</testname>
+                   <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
+                   <arg>
+                     <argname>fileName</argname>
+                     <argvalue>test.HITS.pool.root</argvalue>
+                   </arg>
+                   <arg>
+                     <argname>refFileName</argname>
+                     <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/WriteCalHitsTest.HITS.pool.root</argvalue>
+                   </arg>
+                 </test>
+                 -->
             </jobTransform>
           </chainElement>
 
@@ -1259,6 +1262,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
               <testToRemove>
                 <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
@@ -1272,13 +1276,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
 
       <!--
-           ********************************************************************************
-           Section II
-           ********************************************************************************
-      -->
+         ********************************************************************************
+         Section II
+         ********************************************************************************
+        -->
 
       <athena userJobId="G4AtlasGeoTest">
-        <doc>Recursive geometry test on ATLAS-GEO-20-00-01 (MC12 default). Done only on G4 and GeoModel envelopes</doc>
+        <doc>Recursive geometry test on ATLAS-R2-2015-03-01-00 (MC15 default). Done only on G4 and GeoModel envelopes</doc>
         <options>G4AtlasTests/test_G4AtlasGeo</options>
         <group>SimCoreTests:SimGeomTestJobs</group>
         <queue>short</queue>
@@ -1291,19 +1295,6 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           <testidentifier>SolidProblemGrepper</testidentifier>
         </testToInvert>
       </athena>
-
-
-      <athena userJobId="G4AtlasGeoTest_latest">
-        <doc>Recursive geometry test on ATLAS-GEO-21-00-00. Done only on G4 and GeoModel envelopes</doc>
-        <options>G4AtlasTests/test_G4AtlasGeo-21-00-00.py</options>
-        <group>SimCoreTests:SimGeomTestJobs</group>
-        <queue>short</queue>
-        <testToInvert> <!-- still failing as of March 2013 -->
-          <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
-          <testidentifier>SolidProblemGrepper</testidentifier>
-        </testToInvert>
-      </athena>
-
 
       <chain>
         <chainName>RegressionTest_G4AtlasCosmic</chainName>
@@ -1350,10 +1341,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
         </sequential>
       </chain>
       <!--
-           ********************************************************************************
-           Section III
-           ********************************************************************************
-      -->
+         ********************************************************************************
+         Section III
+         ********************************************************************************
+        -->
       <chain>
         <chainName>RegressionTest_SkipEventsTest</chainName>
         <sequential>
@@ -1506,6 +1497,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>G4ExceptionGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
@@ -1526,6 +1518,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>StuckTrackGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test> <!-- Special Test for CSCspacer Stuck Track G4Exceptions should remove once it starts failing.. -->
           <modulename>RttLibraryTools</modulename>
@@ -1538,8 +1531,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           </arg>
           <arg>
             <fileGrepperArgs>
-                    <!-- veto pattern block -->
-                    <fileGrepperVetoPattern>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
                 <!-- This looks for StuckTrack that is not due to a CSCspacer -->
                 <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
                 <compileFlags>S</compileFlags>
@@ -1547,47 +1540,49 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>CSCspacerStuckTrackGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test> <!-- Special Test for uninitialized random stream seeds should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
-           <testidentifier>DefaultSeedsGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>*_log</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
-         </test>
-         <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>StrangePDGGrepper_results.txt</outputFile>
-           <testidentifier>StrangePDGGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>*_log</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
-         </test>
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
+          <testidentifier>DefaultSeedsGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
+        </test>
+        <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>StrangePDGGrepper_results.txt</outputFile>
+          <testidentifier>StrangePDGGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
+          <noalarm />
+        </test>
       </jobGroup>
 
       <jobGroup name="SimGeomTestJobs" parent="RTT:Athena">
@@ -1730,8 +1725,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
         <keepFilePattern>*.php</keepFilePattern>
         <keepFilePattern>log*</keepFilePattern>
         <keepFilePattern>*log</keepFilePattern>
+        <keepFilePattern>*.json</keepFilePattern>
         <keepFilePattern>*.diffPool</keepFilePattern>
         <keepFilePattern>test.athena.profile</keepFilePattern>
+        <!-- TODO: Look for G4Exceptions in jobReport.json rather than the log files. -->
         <test>
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
@@ -1751,6 +1748,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>G4ExceptionGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
@@ -1771,6 +1769,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>StuckTrackGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test> <!-- Special Test for CSCspacer Stuck Track G4Exceptions should remove once it starts failing.. -->
           <modulename>RttLibraryTools</modulename>
@@ -1783,8 +1782,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           </arg>
           <arg>
             <fileGrepperArgs>
-                    <!-- veto pattern block -->
-                    <fileGrepperVetoPattern>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
                 <!-- This looks for StuckTrack that is not due to a CSCspacer -->
                 <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
                 <compileFlags>S</compileFlags>
@@ -1792,6 +1791,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             </fileGrepperArgs>
           </arg>
           <keepFilePattern>CSCspacerStuckTrackGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
@@ -1838,45 +1838,46 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           <keepFilePattern>jobGroupFileGrepper_results.txt</keepFilePattern>
         </test>
         <test> <!-- Special Test for uninitialized random stream seeds should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
-           <testidentifier>DefaultSeedsGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>log.AtlasG4Tf</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
-         </test>
-         <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>StrangePDGGrepper_results.txt</outputFile>
-           <testidentifier>StrangePDGGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>log.AtlasG4Tf</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
-         </test>
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
+          <testidentifier>DefaultSeedsGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>log.AtlasG4Tf</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
+        </test>
+        <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>StrangePDGGrepper_results.txt</outputFile>
+          <testidentifier>StrangePDGGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>log.AtlasG4Tf</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
+          <noalarm />
+        </test>
       </jobGroup>
       <jobGroup name="SimCoreRegressionTests" parent="RTT:Top">
         <keepFilePattern>*.root</keepFilePattern>
@@ -1892,6 +1893,32 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           <modulename>RttLibraryTools</modulename>
           <testname>DiffPoolFilesRunner</testname>
           <testidentifier>HITS_RegressionTestRunner</testidentifier>
+          <arg>
+            <argname>fileName</argname>
+            <argvalue>today.HITS.pool.root</argvalue>
+          </arg>
+          <arg>
+            <argname>refFileName</argname>
+            <argvalue>yesterday.HITS.pool.root</argvalue>
+          </arg>
+          <keepFilePattern>today.HITS.pool.root_yesterday.HITS.pool.root.diffPool</keepFilePattern>
+        </test>
+        <test>
+          <modulename>FlexibleDiffPoolFilesRunner</modulename>
+          <testname>FlexibleDiffPoolFilesRunner</testname>
+          <testidentifier>HITS_RegressionTestRunner</testidentifier>
+          <arg>
+            <argname>platformDependent</argname>
+            <argvalue>True</argvalue>
+          </arg>
+          <arg>
+            <argname>optionString</argname>
+            <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings</argvalue>
+          </arg>
+          <arg>
+            <argname>doDetailedChecks</argname>
+            <argvalue>True</argvalue>
+          </arg>
           <arg>
             <argname>fileName</argname>
             <argvalue>today.HITS.pool.root</argvalue>
