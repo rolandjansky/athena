@@ -3,40 +3,40 @@
 */
 
 #include "TrackWriteFastSim/NeutronFastSim.h"
-#include "G4FastSimulation/FastSimModelProxy.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "MCTruth/TruthStrategyManager.h"
 #include "MCTruth/EventInformation.h"
 
+#include "G4Event.hh"
 #include "G4Neutron.hh"
+#include "G4SDManager.hh"
+#include "G4VSensitiveDetector.hh"
+#include "G4EventManager.hh"
 #include "TrackWriteFastSim/TrackFastSimSD.h"
-#include <iostream>
 
-static FastSimModelProxy<NeutronFastSim> cavfastsim("NeutronFastSim");
+NeutronFastSim::NeutronFastSim(const std::string& name, const std::string& fsSDname)
+  : G4VFastSimulationModel(name)
+  , m_Energy(5)
+  , m_fsSD(0)
+  , m_init(false)
+  , m_fsSDname(fsSDname)
+{
+}
 
 G4bool NeutronFastSim::IsApplicable(const G4ParticleDefinition&)
 {
   if (!m_init){
     m_init = true;
 
-    FADS::SensitiveDetectorCatalog * fsdc = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog();
-    if (!fsdc) {
-      std::cout << "NeutronFastSim could not get sensitive detector catalog.  If you are not writing track records this is acceptable." << std::endl;
+    G4SDManager *sdm = G4SDManager::GetSDMpointer();
+    G4VSensitiveDetector * vsd = sdm->FindSensitiveDetector( m_fsSDname );
+    if (!vsd) {
+      G4cout << "NeutronFastSim::IsApplicable WARNING Could not get TrackFastSimSD sensitive detector.  If you are not writing track records this is expected." << G4endl;
     } else {
-      FADS::FadsSensitiveDetector * fsd = fsdc->GetSensitiveDetector("TrackFastSimSD");
-      if (!fsd) {
-        std::cout << "NeutronFastSim could not get TrackFastSimSD sensitive detector.  If you are not writing track records this is expected." << std::endl;
-      } else {
-        m_fsSD = dynamic_cast<TrackFastSimSD*>(fsd);
-        if (!m_fsSD) {
-          std::cout << "NeutronFastSim could not cast the SD.  If you are not writing track records this is expected." << std::endl;
-        } else { // succeeded in cast
-          m_fsSD->SetCollectionName("NeutronBG");
-        }
-      } // found the SD
-    } // got the catalog
-  }
+      m_fsSD = dynamic_cast<TrackFastSimSD*>(vsd);
+      if (!m_fsSD) {
+        G4cout << "NeutronFastSim::IsApplicable WARNING Could not cast the SD.  If you are not writing track records this is expected." << G4endl;
+      }
+    } // found the SD
+  } // End of lazy init
   return true;
 }
 
@@ -48,10 +48,9 @@ G4bool NeutronFastSim::ModelTrigger(const G4FastTrack& fastTrack)
   }
 
   // Not a neutron... Pick it up if the primary had eta>6.0
-  EventInformation *eventInfo=TruthStrategyManager::GetStrategyManager()->GetEventInformation();
+  EventInformation *eventInfo=static_cast<EventInformation*>(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
   HepMC::GenParticle *gp = eventInfo->GetCurrentPrimary();
   if (fabs(gp->momentum().eta())>6.0 && gp->barcode()<200000){
-    //std::cout << "Recording particle " << fastTrack.GetPrimaryTrack()->GetDefinition()->GetParticleName() << " " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() << std::endl;
     return true;
   } else {
     return false;

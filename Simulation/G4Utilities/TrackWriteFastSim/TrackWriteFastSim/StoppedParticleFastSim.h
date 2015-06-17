@@ -2,28 +2,35 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef StoppedParticleFastSim_h
-#define StoppedParticleFastSim_h
+#ifndef TRACKWRITEFASTSIM_StoppedParticleFastSim_h
+#define TRACKWRITEFASTSIM_StoppedParticleFastSim_h
 
-#include "G4FastSimulation/FastSimModel.h"
+//Base class header
+#include "G4VFastSimulationModel.hh"
+
+//STL headers
+#include <string>
+
 class TrackFastSimSD;
 
-class StoppedParticleFastSim: public FastSimModel
+class StoppedParticleFastSim: public G4VFastSimulationModel
 {
 public:
 
-  StoppedParticleFastSim(G4String name) : FastSimModel(name) , m_fsSD(0) , m_init(false) {}
+  StoppedParticleFastSim(const std::string& name, const std::string& fsSDname);
+  ~StoppedParticleFastSim() {}
 
   // Fast Sim Methods
-  G4bool IsApplicable(const G4ParticleDefinition&);
-  virtual G4bool ModelTrigger(const G4FastTrack &);
-  void DoIt(const G4FastTrack&, G4FastStep&);
+  G4bool IsApplicable(const G4ParticleDefinition&) override final;
+  virtual G4bool ModelTrigger(const G4FastTrack &) override final;
+  void DoIt(const G4FastTrack&, G4FastStep&) override final;
 
 protected:
 
   bool isSUSYParticle(const int) const;
   TrackFastSimSD * m_fsSD;
   bool m_init;
+  std::string m_fsSDname;
 };
 
-#endif
+#endif // TRACKWRITEFASTSIM_StoppedParticleFastSim_h

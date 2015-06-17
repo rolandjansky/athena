@@ -3,10 +3,6 @@
 */
 
 #include "TrackWriteFastSim/StoppedParticleFastSim.h"
-#include "G4FastSimulation/FastSimModelProxy.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-
 #include "TrackWriteFastSim/TrackFastSimSD.h"
 
 #include "G4FastTrack.hh"
@@ -15,13 +11,20 @@
 #include "G4ParticleDefinition.hh"
 #include "G4Material.hh"
 #include "G4ElementVector.hh"
+#include "G4SDManager.hh"
+#include "G4VSensitiveDetector.hh"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include <cmath>
-#include <iostream>
 
-static FastSimModelProxy<StoppedParticleFastSim> stoppedparticlefastsim("StoppedParticleFastSim");
+StoppedParticleFastSim::StoppedParticleFastSim(const std::string& name, const std::string& fsSDname)
+  : G4VFastSimulationModel(name)
+  , m_fsSD(nullptr)
+  , m_init(false)
+  , m_fsSDname(fsSDname)
+{
+}
 
 G4bool StoppedParticleFastSim::IsApplicable(const G4ParticleDefinition&)
 {
@@ -40,12 +43,8 @@ G4bool StoppedParticleFastSim::ModelTrigger(const G4FastTrack& fastTrack)
       if (mat->GetElement(i) &&
           minA>mat->GetElement(i)->GetN()){
         minA=mat->GetElement(i)->GetN();
-        //std::cout << "Setting min A !" << std::endl;
-      } //else if (! mat->GetElement(i) ) std::cout << "Had a problem with " << mat->GetElement(i) << std::endl;
-      //else std::cout << "Got an A from the material of: " << mat->GetElement(i)->GetN() << std::endl;
+      }
     }
-    //std::cout << "Material with " << mat->GetNumberOfElements() << " elements... and vector size " << mat->GetElementVector()->size() << std::endl;
-    //std::cout << "Looking at SUSY particle " << id << " with beta " << fastTrack.GetPrimaryTrack()->GetVelocity() << " and minA " << minA << " for " << 0.15*std::pow(minA,-2./3.) << std::endl;
     if (fastTrack.GetPrimaryTrack()->GetVelocity()<0.15*std::pow(minA,-2./3.)*CLHEP::c_light) return true;
     return false;
   }
@@ -57,23 +56,16 @@ void StoppedParticleFastSim::DoIt(const G4FastTrack& fastTrack, G4FastStep& fast
   if (!m_init){
     m_init = true;
 
-    FADS::SensitiveDetectorCatalog * fsdc = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog();
-    if (!fsdc) {
-      std::cout << "ERROR: StoppedParticleFastSim could not get sensitive detector catalog." << std::endl;
-    } else {
-      FADS::FadsSensitiveDetector * fsd = fsdc->GetSensitiveDetector("TrackFastSimSD");
-      if (!fsd) {
-        std::cout << "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." << std::endl;
-      } else {
-        m_fsSD = dynamic_cast<TrackFastSimSD*>(fsd);
-        if (!m_fsSD) {
-          std::cout << "StoppedParticleFastSim could not cast the SD." << std::endl;
-        } else { // succeeded in cast
-          m_fsSD->SetCollectionName("StoppingPositions");
-        }
-      } // found the SD
-    } // got the catalog
-  }
+    G4SDManager *sdm = G4SDManager::GetSDMpointer();
+    G4VSensitiveDetector * vsd = sdm->FindSensitiveDetector( m_fsSDname );
+    if (!vsd) {
+      G4cout << "StoppedParticleFastSim::DoIt WARNING Could not get TrackFastSimSD sensitive detector.  If you are not writing track records this is expected." << G4endl;
+      m_fsSD = dynamic_cast<TrackFastSimSD*>(vsd);
+      if (!m_fsSD) {
+        G4cout << "StoppedParticleFastSim::DoIt WARNING Could not cast the SD.  If you are not writing track records this is expected." << G4endl;
+      }
+    } // found the SD
+  } // End of lazy init
 
   if (isSUSYParticle(fastTrack.GetPrimaryTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding()) &&
       m_fsSD) {
