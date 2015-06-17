@@ -239,6 +239,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
         ATH_MSG_VERBOSE(
             "SubBlock version #" << int(m_subBlockHeader.version())
              << " format #" << int(m_subBlockHeader.format())
+             << " seqNum (compVer) #" << int(m_subBlockHeader.seqNum())
              << " nslice1 #" << int(m_subBlockHeader.nSlice1())
              << " nslice2 #" << int(m_subBlockHeader.nSlice2())
         );
@@ -620,7 +621,6 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
       if (present == 1) {
         interpretPpmHeaderR4V1_(numAdc, encoding, minIndex);
         CHECK((encoding != -1) && (minIndex != -1));
-
         // First get the LIT related quantities
         if (encoding < 3) {
           // Get the peal finder bits
@@ -690,6 +690,9 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
         for (uint8_t i = 0; i < numLut; ++i)
         {
           pedCor[i] = getPpmBytestreamField_(6) + pedCorBase;
+          if (m_subBlockHeader.compVer() > 0) {
+            pedEn[i] = 1;
+          }
         }
       } else {
         // At the moment there is an enabled bit for every LUT slice

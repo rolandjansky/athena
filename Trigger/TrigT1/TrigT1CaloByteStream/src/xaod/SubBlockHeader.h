@@ -31,6 +31,7 @@ public:
   uint8_t module() const;
   uint8_t nSlice2() const;
   uint8_t nSlice1() const;
+  uint8_t compVer() const { return seqNum();}
 
   bool isPpmBlock() const;
 
