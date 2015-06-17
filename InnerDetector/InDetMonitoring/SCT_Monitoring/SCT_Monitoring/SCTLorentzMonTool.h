@@ -101,7 +101,7 @@ private:
   //@name Service members
   //@{
   /// Kalman Updator for SCT Unbiased states in Residual calculation
-//  ToolHandle<Trk::IUpdator> m_updator;
+  //  ToolHandle<Trk::IUpdator> m_updator;
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;

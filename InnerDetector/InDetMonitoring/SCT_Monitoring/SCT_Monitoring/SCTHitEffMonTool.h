@@ -187,6 +187,7 @@ private:
   TProfile2D * m_effHashLumiB;
 
   TProfArray m_Eff_summaryHisto;
+  TProfArray m_Eff_summaryHisto_old;
   TProfArray m_holesPerTrackHisto;
   TProfArray m_holesDistPerTrackHisto;
   TProfArray m_Unas_summaryHisto;

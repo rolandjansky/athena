@@ -62,13 +62,11 @@ class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  //  virtual StatusCode bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun); // hidetoshi 14.01.21
   virtual StatusCode bookHistogramsRecurrent();                                                     // hidetoshi 14.01.21
   virtual StatusCode bookHistograms();                                                              // hidetoshi 14.01.21
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun ); // hidetoshi 14.01.21
   virtual StatusCode procHistograms();                                                              // hidetoshi 14.01.21
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);

@@ -45,13 +45,11 @@ class SCTTracksMonTool : public SCTMotherTrigMonTool{
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
-  //  virtual StatusCode bookHistograms(bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun); // hidetoshi 12.01.21
   virtual StatusCode bookHistogramsRecurrent();                                                     // hidetoshi 12.01.21
   virtual StatusCode bookHistograms();                                                              // hidetoshi 12.01.21 
   ///Fill histograms in each loop
   virtual StatusCode fillHistograms() ;
   ///process histograms at the end (we only use 'isEndOfRun')
-  //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );  // hidetoshi 12.01.21 
   virtual StatusCode procHistograms();                                                                       // hidetoshi 12.01.21 
   ///helper function used in procHistograms
   StatusCode checkHists(bool fromFinalize);
@@ -170,21 +168,15 @@ private:
   //@name  Histograms related methods
   //@{
   // Book Track related  Histograms
-
- 
   // hidetoshi 14.01.22
   StatusCode bookTrackHistos(const SCT_Monitoring::Bec becVal);
   StatusCode bookGeneralHistos();
   StatusCode bookPositiveEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_A);}
   StatusCode bookNegativeEndCapTrackHistos(){ return bookTrackHistos(SCT_Monitoring::ENDCAP_C);}
-
   //@}
   
   //@name Service methods
   //@{
-  /// Get Kalman Updator for unbiased residuals
-  //StatusCode GetKalmanUpdator();
-  
   /// Calculate Pull value for MeasuredAtPlane TrackStates
   double calculatePull(const double, const double, const double);
   

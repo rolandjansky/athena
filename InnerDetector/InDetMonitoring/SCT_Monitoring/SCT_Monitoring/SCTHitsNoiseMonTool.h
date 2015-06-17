@@ -253,7 +253,16 @@ private:
   H1D_t m_tbinHistoRecent;
   H1D_t m_tbinHistoRecentECp;
   H1D_t m_tbinHistoRecentECm;
-
+  Prof2_t m_tbinfrac[8];
+  Prof2_t m_tbinfracECp[18];
+  Prof2_t m_tbinfracECm[18];
+  Prof2_t m_clusizedist[8];
+  Prof2_t m_clusizedistECp[18];
+  Prof2_t m_clusizedistECm[18];
+  Prof_t m_tbinfracall;
+  Prof_t m_tbinfracVsLB;
+  Prof_t m_tbinfracVsLBECp;
+  Prof_t m_tbinfracVsLBECm;
   //std::string m_tracksName;
   bool m_initialize;
  
@@ -361,8 +370,16 @@ private:
  
   H2_t
     h2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector);
+  H2I_t
+    h2IFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, double xlo, double xhi, int nbiny, double ylo, double yhi);
   Prof2_t
     prof2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecProf2_t & storageVector);
+  Prof2_t
+    prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, int xlo, int xhi, int nbiny, int ylo, int yhi);
+  Prof_t
+    profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, int lo, int hi);
+  Prof_t
+    profFactory(const std::string & name, const std::string & title, MonGroup & registry);
   //@}
 
   //@name Service methods
