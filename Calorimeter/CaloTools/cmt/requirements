@@ -56,3 +56,7 @@ apply_pattern UnitTest_run unit_test=CaloCellPackerUtils
 apply_pattern UnitTest_run unit_test=CaloCompactCellTool \
   extrapatterns="SGAudSvc +INFO|^lar  decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|^AtlasDetectorID::"
 
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+

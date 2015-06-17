@@ -259,7 +259,7 @@ private:
   bool m_speedTwoGauss;
 
 //Constants
-  static const int m_nCalos=4;// number of calorimeters
+  static const int m_nCalos=5;// number of calorimeters
   int m_ncell;   // total number of calo cells
 
   CaloGain::CaloGain  m_highestGain[m_nCalos];
