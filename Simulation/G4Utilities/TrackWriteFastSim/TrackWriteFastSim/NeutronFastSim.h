@@ -2,28 +2,35 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef NeutronFastSim_h
-#define NeutronFastSim_h
+#ifndef TRACKWRITEFASTSIM_NeutronFastSim_h
+#define TRACKWRITEFASTSIM_NeutronFastSim_h
 
-#include "G4FastSimulation/FastSimModel.h"
+//Base class header
+#include "G4VFastSimulationModel.hh"
+
+//STL headers
+#include <string>
+
 class TrackFastSimSD;
 
-class NeutronFastSim: public FastSimModel
+class NeutronFastSim: public G4VFastSimulationModel
 {
 public:
 
-  NeutronFastSim(G4String name) : FastSimModel(name) , m_Energy(5) , m_fsSD(0) , m_init(false) {}
+  NeutronFastSim(const std::string& name, const std::string& fsSDname);
+  ~NeutronFastSim() {}
 
   // Fast Sim Methods
-  G4bool IsApplicable(const G4ParticleDefinition&);
-  virtual G4bool ModelTrigger(const G4FastTrack &);
-  void DoIt(const G4FastTrack&, G4FastStep&);
+  G4bool IsApplicable(const G4ParticleDefinition&) override final;
+  virtual G4bool ModelTrigger(const G4FastTrack &) override final;
+  void DoIt(const G4FastTrack&, G4FastStep&) override final;
 
 protected:
 
   G4double m_Energy;
   TrackFastSimSD * m_fsSD;
   bool m_init;
+  std::string m_fsSDname;
 };
 
-#endif
+#endif //TRACKWRITEFASTSIM_NeutronFastSim_h

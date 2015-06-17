@@ -2,26 +2,36 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Class header
 #include "TrackWriteFastSim/TrackFastSimSD.h"
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
+
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
+// Geant4 headers
+#include "G4DynamicParticle.hh"
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
-#include "G4DynamicParticle.hh"
 
+// STL headers
 #include <cmath>
 
-static  FADS::SensitiveDetectorEntryT<TrackFastSimSD> trackfastsd("TrackFastSimSD");
-
-void TrackFastSimSD::Initialize(G4HCofThisEvent*)
+TrackFastSimSD::TrackFastSimSD(const std::string& name, const std::string& outputCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_trackRecordCollection( outputCollectionName )
 {
-  m_trackRecordCollection = m_hitCollHelp.RetrieveNonconstCollection<TrackRecordCollection>(m_colName);
+}
+
+// Initialize from G4 - necessary to new the write handle for now
+void TrackFastSimSD::Initialize(G4HCofThisEvent *)
+{
+  if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
 }
 
 void TrackFastSimSD::WriteTrack(const G4Track* track, const bool originPos, const bool originMom)
 {
-  if (!track) { ATH_MSG_ERROR ( "the track pointer was zero" ); return; }
+  if (!track) { G4cout << "ERROR: the track pointer was zero" << G4endl; return; }
 
   G4VPhysicalVolume *preVol=track->GetVolume();
 
@@ -40,22 +50,6 @@ void TrackFastSimSD::WriteTrack(const G4Track* track, const bool originPos, cons
   int barcode = trHelp.GetBarcode();
 
   //create the TimedTrackRecord
-  if (!m_trackRecordCollection){
-    ATH_MSG_ERROR ( "No collection" );
-  } else m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
+  m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
 }
 
-void TrackFastSimSD::EndOfEvent(G4HCofThisEvent* )
-{
-  if (m_trackRecordCollection) {
-    if(!m_allowMods) {
-      m_hitCollHelp.SetConstCollection<TrackRecordCollection>(m_trackRecordCollection);
-    }
-  }
-}
-
-void TrackFastSimSD::SetCollectionName(const std::string s)
-{
-  m_colName = s;
-  if (m_trackRecordCollection) m_trackRecordCollection->setName(s);
-}
