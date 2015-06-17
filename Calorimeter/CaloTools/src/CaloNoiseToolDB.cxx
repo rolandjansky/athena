@@ -607,6 +607,7 @@ CaloNoiseToolDB::getDBNoise(SYSTEM sysId,
 float
 CaloNoiseToolDB::getNoise(const CaloDetDescrElement* caloDDE, CalorimeterNoiseType type)
 {
+  if (!m_cacheValid) this->updateCache(); 
   float Nminbias=-1;
   if( m_Nminbias>0 )
     Nminbias=m_Nminbias;
@@ -648,6 +649,8 @@ CaloNoiseToolDB::getNoise(const CaloDetDescrElement* caloDDE, CalorimeterNoiseTy
 float
 CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 {
+
+  if (!m_cacheValid) this->updateCache(); 
   const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
   float Nminbias=-1;
   if( m_Nminbias>0 )
@@ -704,6 +707,8 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 float
 CaloNoiseToolDB::getNoise(const CaloCell* caloCell, float energy, CalorimeterNoiseType type)
 {
+
+  if (!m_cacheValid) this->updateCache(); 
   const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
   float Nminbias=-1;
   if( m_Nminbias>0 )
@@ -833,13 +838,14 @@ float
 CaloNoiseToolDB::elecNoiseRMSHighestGain(const CaloCell* caloCell, 
 				       const int /* step */)
 {    
+ if (!m_cacheValid) this->updateCache(); 
  Identifier id = caloCell->ID();
  int i = (int)(m_calo_id->calo_cell_hash(id));
  if (i>m_ncell) return -1;
  const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
  CaloGain::CaloGain highestgain=m_highestGain[caloDDE->getSubCalo()];
- if (m_rescaleForHV)
-   return m_larHVCellCorrTool->getCorrection(caloDDE->identify()) * this->getA(i,highestgain);
+ if (m_rescaleForHV && !caloDDE->is_tile())
+   return m_larHVCellCorrTool->getCorrection(id) * this->getA(i,highestgain);
  else
    return this->getA(i,highestgain);
 }
@@ -1045,6 +1051,7 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
 			     const float energy, 
 			     const int /*step*/) {
   //  std::cout << "totalNoiseRMS e " << energy << " gain " << gain << std::endl;
+  if (!m_cacheValid) this->updateCache(); 
   int i = (int)(caloDDE->calo_hash());
   if (i>m_ncell) return -1;
   float lumi = (Nminbias>0) ? Nminbias/2.3 : m_lumi0;
