@@ -16,6 +16,9 @@ public:
 	AtlasTrajectory(const G4Track* aTrack);
 	~AtlasTrajectory() {}
 	void AppendStep(const G4Step* aStep);
+#if G4VERSION_NUMBER >= 1010
+	void DrawTrajectory() const override { DrawTrajectory(0); }
+#endif
 	void DrawTrajectory(G4int) const;
 private:
 	const G4TrackingManager *theTrackManager;
