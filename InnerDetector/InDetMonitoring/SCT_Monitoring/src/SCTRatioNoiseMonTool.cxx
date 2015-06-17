@@ -89,13 +89,119 @@ namespace { //use anonymous namespace to restrict scope to this file, equivalent
  */
 //====================================================================================================
 SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
-					   const string & name,           
-					   const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent),
-								       m_pSCTHelper(0),
-								       m_sctmgr(0),
-								       m_pSummarySvc("SCT_ConditionsSummarySvc", name),
-								       m_checkBadModules(true),
-								       m_ignore_RDO_cut_online(true)
+             const string & name,           
+             const IInterface* parent) : SCTMotherTrigMonTool(type, name, parent),
+                       eventID(0),
+                       m_numberOfEvents(0),
+                       nLink0{},
+                       nLink1{},
+                       nBoth{},
+                       nNoSidesBarrelModule{},
+                       nOneSideBarrelModule{},
+                       nTwoSideBarrelModule{},
+                       nNonGoodModulesBarrelModule{},
+                       nNoSidesEndcapAModule{},
+                       nOneSideEndcapAModule{},
+                       nTwoSideEndcapAModule{},
+                       nNonGoodModulesEndcapAModule{},
+                       nNoSidesEndcapCModule{},
+                       nOneSideEndcapCModule{},
+                       nTwoSideEndcapCModule{},
+                       nNonGoodModulesEndcapCModule{},
+                       /** goodModules init in ctor body **/
+                       m_pnoiseoccupancymapHistoVectorECC{},
+                       m_pnoiseoccupancymapHistoVectorBar{},
+                       m_pnoiseoccupancymapHistoVectorECA{},
+                       nOneSideModule(0),
+                       nTwoSideModule(0),
+                       nNoFiredModules(0),
+                       //
+                       d1(0),
+                       n1(0),
+                       n1Barrel{},
+                       n1EndcapA{},
+                       n1EndcapC{},
+                       d1Barrel{},
+                       d1EndcapA{},
+                       d1EndcapC{},
+                       //
+                       noSidesHit(false),
+                       oneSideHit(false),
+                       twoSidesHit(false),
+                       correct_TimeBin(false),
+                       //
+                       nZero{},
+                       nOne{},
+                       nLayer{},
+                       nEta{},
+                       nPhi{},
+                       nNonGoodModule{},
+                       m_checkrecent(20),
+                       m_current_lb(0),
+                       m_last_reset_lb(0),
+                       set_timebin(-1),
+                       tbin(-1),
+                       modNum(0),
+                       ratio(-1.0),
+                       //General histograms
+                       m_NOEV(nullptr),
+                       m_NOEV_Barrel{},
+                       m_NOEV_EndcapC{},
+                       m_NOEV_EndcapA{},
+                       m_NOEV_RDO{},
+                       m_NOEV_Eventnum{},
+                       m_side(nullptr),
+                       m_num_RDO{},
+                       m_NZ1(nullptr),
+                       m_N11(nullptr),
+                       m_N21(nullptr),
+                       //
+                       m_NZ1BAR{},
+                       m_N11BAR{},
+                       m_N21BAR{},
+                       m_NZ1BAR_vsLB{},
+                       m_N11BAR_vsLB{},
+                       //
+                       m_NZ1ECC{},
+                       m_N11ECC{},
+                       m_N21ECC{},
+                       m_NZ1ECC_vsLB{},
+                       m_N11ECC_vsLB{},
+                       //
+                       m_NZ1ECA{},
+                       m_N11ECA{},
+                       m_N21ECA{},
+                       m_NZ1ECA_vsLB{},
+                       m_N11ECA_vsLB{},
+                       //
+                       m_NOb(nullptr),
+                       m_NO(nullptr),
+                       m_NOb_layer{},
+                       m_NOb_layer_vsLB{},
+                       m_NOECC_disk{},
+                       m_NOECC_disk_vsLB{},
+                       m_NOECA_disk{},
+                       m_NOECA_disk_vsLB{},
+                       m_NOEC(nullptr),
+                       m_NOEC_Outer(nullptr),
+                       m_NOEC_ShortMiddle(nullptr),
+                       m_NOEC_Inner(nullptr),
+                       m_NOEC_Middle(nullptr),
+                       m_numberHitsinBarrel{},
+                       //
+                       m_NZ1_vs_modnum(nullptr),
+                       m_N11_vs_modnum(nullptr),
+                       //
+                       m_stream("/stat"),
+                       m_path(""),
+                       m_tracksName(""), //never used?
+                       m_NOTrigger("L1_RD0_EMPTY"),
+                       m_dataObjectName("SCT_RDOs"),
+                       m_pSCTHelper(nullptr),
+                       m_sctmgr(nullptr),
+                       m_pSummarySvc("SCT_ConditionsSummarySvc", name),
+                       m_checkBadModules(true),
+                       m_ignore_RDO_cut_online(true)
 {
   declareProperty("histoPathBase", m_stream = "/stat");
   declareProperty("conditionsService", m_pSummarySvc);
@@ -104,105 +210,10 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
   declareProperty("CheckRecent",m_checkrecent=20);
   declareProperty("NOTrigger",m_NOTrigger="L1_RD0_EMPTY");
   declareProperty("IgnoreRDOCutOnline",m_ignore_RDO_cut_online);
-  m_numberOfEvents=0;
-
-  //General Histograms
-  m_side=0;
-  m_NZ1=0;
-  m_N11=0;
-  m_N21=0;
-  m_NOb=0;
-  m_NO=0;
-  m_NOEC=0;
-  m_NOEC_Outer=0;
-  m_NOEC_ShortMiddle=0;
-  m_NOEC_Inner=0;
-  m_NOEC_Middle=0; 
-  m_NZ1_vs_modnum=0;
-  m_N11_vs_modnum=0;
-  m_current_lb=0;
-  m_last_reset_lb=0;
   
-  eventID = 0;
-
-  for (int i = 0; i <n_mod[GENERAL_INDEX]  ; i++) {
-    nLayer[i]=0;
-    nEta[i]=0;
-    nPhi[i]=0;
-    nOne[i]=0;
-    nZero[i]=0;
-    nBoth[i]=0;
-    nLink0[i]=0;
-    nLink1[i]=0;
-    nNonGoodModule[i]=0;
-    
-    goodModules[i] = true;
+  for (auto &i:goodModules) {
+    i= true;
   } 
-  for (int i = 0; i < n_layers[BARREL_INDEX] ; i++){
-    nNoSidesBarrelModule[i]=0;
-    nOneSideBarrelModule[i]=0;
-    nTwoSideBarrelModule[i]=0;
-    nNonGoodModulesBarrelModule[i]=0;
-    m_NZ1BAR[i]=0;
-    m_N11BAR[i]=0;
-    m_N21BAR[i]=0;
-
-    m_NZ1BAR_vsLB[i]=0;
-    m_N11BAR_vsLB[i]=0;
-    m_NOb_layer_vsLB[i]=0;
-
-    m_NOEV_Barrel[i]=0;
-    m_NOb_layer[i]=0;
-    m_numberHitsinBarrel[i]=0;
-    n1Barrel[i]=0;
-    d1Barrel[i]=0;
-  }
-
-  for (int i = 0; i < n_layers[ENDCAP_C_INDEX] ; i++){
-    m_NOECC_disk[i]=0;
-    m_NOECA_disk[i]=0;
-    nNoSidesEndcapCModule[i]=0;
-    nOneSideEndcapCModule[i]=0;
-    nTwoSideEndcapCModule[i]=0;
-    nNonGoodModulesEndcapCModule[i]=0;
-    nNoSidesEndcapAModule[i]=0;
-    nOneSideEndcapAModule[i]=0;
-    nTwoSideEndcapAModule[i]=0;
-    nNonGoodModulesEndcapAModule[i]=0;
-    m_NOEV_EndcapC[i]=0;
-    m_NOEV_EndcapA[i]=0;
-    m_NZ1ECC[i]=0;
-    m_N11ECC[i]=0;
-    m_N21ECC[i]=0;
-    m_NZ1ECA[i]=0;
-    m_N11ECA[i]=0;
-    m_N21ECA[i]=0;
-
-    m_NOECC_disk_vsLB[i]=0;
-    m_NZ1ECC_vsLB[i]=0;
-    m_N11ECC_vsLB[i]=0;
-
-    m_NOECA_disk_vsLB[i]=0;
-    m_NZ1ECA_vsLB[i]=0;
-    m_N11ECA_vsLB[i]=0;
-
-    n1EndcapA[i]=0;
-    n1EndcapC[i]=0;
-    d1EndcapA[i]=0;
-    d1EndcapC[i]=0;
-  }
-  noSidesHit=false;
-  oneSideHit=false;
-  twoSidesHit=false;
-  set_timebin = -1;
-  tbin=-1;
-  nOneSideModule=0;
-  nTwoSideModule=0;
-  nNoFiredModules=0;
-  ratio=-1;
-  d1=0;
-  n1=0;
-
 }
 
 
@@ -308,25 +319,15 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
     nTwoSideEndcapAModule[i]=0;
   }
   
-  //EventID * eventID;
   const EventInfo* pEvent(0);
   CHECK (evtStore()->retrieve(pEvent));
   if (not pEvent) return ERROR ("Could not find event pointer"), StatusCode::FAILURE;
-  //eventID = pEvent->event_ID();
- 
-  bool isSelectedTrigger = false;
 
-  //  if(m_doTrigger){
-    //    if  (AthenaMonManager::dataType() !=  AthenaMonManager::cosmics) {
-    //if (SCTMotherTrigMonTool::isCalibrationNoise(m_NOTrigger)) {
-	isSelectedTrigger = true;
-	//}
-      // }
-	//}
-
+  const bool isSelectedTrigger = true;
   m_current_lb = pEvent->event_ID()->lumi_block();
   int count_SCT_RDO = 0;
-  if( isSelectedTrigger == true || m_environment==AthenaMonManager::online){ // 21.11.2014 Fumiaki Ito
+  //sroe: isSelected Trigger has been forced to true, so the second statement below is never executed
+  if( isSelectedTrigger == true /**|| m_environment==AthenaMonManager::online**/){ // 21.11.2014 Fumiaki Ito
     for( ; col_it!= lastCol ; ++col_it){
       correct_TimeBin=false;
       const InDetRawDataCollection<SCTRawDataType>* SCT_Collection(*col_it);
@@ -339,7 +340,6 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
       int thisPhi       = m_pSCTHelper->phi_module(SCT_Identifier);
       int thisEta       = m_pSCTHelper->eta_module(SCT_Identifier);
       int thisSide      = m_pSCTHelper->side(SCT_Identifier);
-      //int thisWaferHash = m_pSCTHelper->wafer_hash(SCT_Identifier);
        
       modNum = (rd->identifyHash())/2;
 
@@ -351,30 +351,30 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
       nPhi[modNum]= thisPhi;
 
       if(!goodModule){
-	nNonGoodModule[modNum] = 1;
+  nNonGoodModule[modNum] = 1;
       }
       DataVector<SCTRawDataType>::const_iterator p_rdo_end= SCT_Collection->end();
       for(DataVector<SCTRawDataType>::const_iterator p_rdo=SCT_Collection->begin() ; p_rdo!=p_rdo_end; ++p_rdo){
-	count_SCT_RDO++;
-	SCT3_RawData* rdo3 = dynamic_cast<SCT3_RawData*>(*p_rdo);
-	if (rdo3!=0) tbin = (rdo3)->getTimeBin();
-	//  if (tbin == set_timebin && goodModule ){
-	if (timeBinInPattern(tbin,XIX) && goodModule ){
+  count_SCT_RDO++;
+  SCT3_RawData* rdo3 = dynamic_cast<SCT3_RawData*>(*p_rdo);
+  if (rdo3!=0) tbin = (rdo3)->getTimeBin();
+  //  if (tbin == set_timebin && goodModule ){
+  if (timeBinInPattern(tbin,XIX) && goodModule ){
   
-	  if (thisBec==0){
-	    int layer=thisLayerDisk;
-	    m_numberHitsinBarrel[layer]->Fill(thisPhi,1.);
-	  }         
-	  if(thisSide==1){
-	    //modNum = ((thisWaferHash-1)/2);
-	    nLink1[modNum]+=1;
-	    m_side->Fill(1);
-	  } else {
-	    //modNum=(thisWaferHash/2);
-	    nLink0[modNum]+=1;
-	    m_side->Fill(3);
-	  }
-	}
+    if (thisBec==0){
+      int layer=thisLayerDisk;
+      m_numberHitsinBarrel[layer]->Fill(thisPhi,1.);
+    }         
+    if(thisSide==1){
+      //modNum = ((thisWaferHash-1)/2);
+      nLink1[modNum]+=1;
+      m_side->Fill(1);
+    } else {
+      //modNum=(thisWaferHash/2);
+      nLink0[modNum]+=1;
+      m_side->Fill(3);
+    }
+  }
       }
     }
      
@@ -382,71 +382,71 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
     if(count_SCT_RDO<1E6 || (m_ignore_RDO_cut_online && m_environment==AthenaMonManager::online)){
       m_num_RDO->Fill(count_SCT_RDO);    
       for(int j=0;j<n_mod[GENERAL_INDEX]; j++){
-	noSidesHit=false;
-	oneSideHit=false;
-	twoSidesHit=false;
-	if(nLink0[j] !=0 && nLink1[j] !=0) {
-	  twoSidesHit=true;
-	} else {
-	  if(nLink0[j] !=0 || nLink1[j] !=0 ){
-	    oneSideHit=true;
-	  }
-	}
-	if(nLink0[j] ==0 && nLink1[j] ==0 && goodModules[j]/*no-sides-fix*/) {
-	  noSidesHit=true;
-	}
-	if(isBarrel(j)){
-	  if(noSidesHit){
-	    nNoSidesBarrelModule[nLayer[j]]++; }
-	  if(oneSideHit)
-	    nOneSideBarrelModule[nLayer[j]]++; 
-	  if(twoSidesHit)
-	    nTwoSideBarrelModule[nLayer[j]]++;
-	  if(nNonGoodModule[j]){
-	    nNonGoodModulesBarrelModule[nLayer[j]]++;
-	  }
-	}
+  noSidesHit=false;
+  oneSideHit=false;
+  twoSidesHit=false;
+  if(nLink0[j] !=0 && nLink1[j] !=0) {
+    twoSidesHit=true;
+  } else {
+    if(nLink0[j] !=0 || nLink1[j] !=0 ){
+      oneSideHit=true;
+    }
+  }
+  if(nLink0[j] ==0 && nLink1[j] ==0 && goodModules[j]/*no-sides-fix*/) {
+    noSidesHit=true;
+  }
+  if(isBarrel(j)){
+    if(noSidesHit){
+      nNoSidesBarrelModule[nLayer[j]]++; }
+    if(oneSideHit)
+      nOneSideBarrelModule[nLayer[j]]++; 
+    if(twoSidesHit)
+      nTwoSideBarrelModule[nLayer[j]]++;
+    if(nNonGoodModule[j]){
+      nNonGoodModulesBarrelModule[nLayer[j]]++;
+    }
+  }
    
-	if(isEndcapA(j)){
-	  if(noSidesHit){
-	    nNoSidesEndcapAModule[nLayer[j]]+=1;}
-	  if(oneSideHit)
-	    nOneSideEndcapAModule[nLayer[j]]+=1;
-	  if(twoSidesHit)
-	    nTwoSideEndcapAModule[nLayer[j]]+=1;
-	  if(nNonGoodModule[j]){
-	    nNonGoodModulesEndcapAModule[nLayer[j]]++;
-	  }
-	}
-	if(isEndcapC(j)){
-	  if(noSidesHit)
-	    nNoSidesEndcapCModule[nLayer[j]]+=1;
-	  if(oneSideHit)
-	    nOneSideEndcapCModule[nLayer[j]]+=1;
-	  if(twoSidesHit)
-	    nTwoSideEndcapCModule[nLayer[j]]+=1;
-	  if(nNonGoodModule[j]){
-	    nNonGoodModulesEndcapCModule[nLayer[j]]++;
-	  }
-	}
+  if(isEndcapA(j)){
+    if(noSidesHit){
+      nNoSidesEndcapAModule[nLayer[j]]+=1;}
+    if(oneSideHit)
+      nOneSideEndcapAModule[nLayer[j]]+=1;
+    if(twoSidesHit)
+      nTwoSideEndcapAModule[nLayer[j]]+=1;
+    if(nNonGoodModule[j]){
+      nNonGoodModulesEndcapAModule[nLayer[j]]++;
+    }
+  }
+  if(isEndcapC(j)){
+    if(noSidesHit)
+      nNoSidesEndcapCModule[nLayer[j]]+=1;
+    if(oneSideHit)
+      nOneSideEndcapCModule[nLayer[j]]+=1;
+    if(twoSidesHit)
+      nTwoSideEndcapCModule[nLayer[j]]+=1;
+    if(nNonGoodModule[j]){
+      nNonGoodModulesEndcapCModule[nLayer[j]]++;
+    }
+  }
        
-	if(noSidesHit && !nNonGoodModule[j]){
-	  m_NZ1_vs_modnum->Fill(j);
-	  nNoFiredModules+=1;   
-	  nZero[j]+=1;
-	}   // end if(noSidesHit)
-	//--------------------------------------
-	if(oneSideHit){
-	  m_N11_vs_modnum->Fill(j);
-	  nOne[j]+=1;
-	  nOneSideModule+=1;
-	}   // end if(oneSideHit)
-	//--------------------------------------
-	if(twoSidesHit){
-	  nBoth[j]+=1;
-	  nTwoSideModule+=1;    
-	}   // end if(twoSidesHit)
-	//--------------------------------------
+  if(noSidesHit && !nNonGoodModule[j]){
+    m_NZ1_vs_modnum->Fill(j);
+    nNoFiredModules+=1;   
+    nZero[j]+=1;
+  }   // end if(noSidesHit)
+  //--------------------------------------
+  if(oneSideHit){
+    m_N11_vs_modnum->Fill(j);
+    nOne[j]+=1;
+    nOneSideModule+=1;
+  }   // end if(oneSideHit)
+  //--------------------------------------
+  if(twoSidesHit){
+    nBoth[j]+=1;
+    nTwoSideModule+=1;    
+  }   // end if(twoSidesHit)
+  //--------------------------------------
       }
        
        
@@ -464,39 +464,39 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
       m_N21->Fill(nTwoSideModule);
        
       for(int l=0 ; l<n_layers[BARREL_INDEX]; l++){
-	int nosidehit = NumModBarrelLayer[l]-nNonGoodModulesBarrelModule[l]-nOneSideBarrelModule[l]-nTwoSideBarrelModule[l];
-	double NO_ev_barrel = calculateNoiseOccupancyUsingRatioMethod(nOneSideBarrelModule[l], nosidehit);
-	m_NOEV_Barrel[l]->Fill(1E5*NO_ev_barrel);
-	m_NZ1BAR[l]->Fill(nosidehit);
-	m_N11BAR[l]->Fill(nOneSideBarrelModule[l]);
-	m_N21BAR[l]->Fill(nTwoSideBarrelModule[l]);
+  int nosidehit = NumModBarrelLayer[l]-nNonGoodModulesBarrelModule[l]-nOneSideBarrelModule[l]-nTwoSideBarrelModule[l];
+  double NO_ev_barrel = calculateNoiseOccupancyUsingRatioMethod(nOneSideBarrelModule[l], nosidehit);
+  m_NOEV_Barrel[l]->Fill(1E5*NO_ev_barrel);
+  m_NZ1BAR[l]->Fill(nosidehit);
+  m_N11BAR[l]->Fill(nOneSideBarrelModule[l]);
+  m_N21BAR[l]->Fill(nTwoSideBarrelModule[l]);
 
-	m_NZ1BAR_vsLB[l]->Fill(m_current_lb,nNoSidesBarrelModule[l]);
-	m_N11BAR_vsLB[l]->Fill(m_current_lb,nOneSideBarrelModule[l]);
+  m_NZ1BAR_vsLB[l]->Fill(m_current_lb,nNoSidesBarrelModule[l]);
+  m_N11BAR_vsLB[l]->Fill(m_current_lb,nOneSideBarrelModule[l]);
       }
          
       for(int m=0; m<n_layers[ENDCAP_C_INDEX]; m++){
-	int nosidehit = NumModEndcapDisk[m]-nNonGoodModulesEndcapCModule[m]-nOneSideEndcapCModule[m]-nTwoSideEndcapCModule[m];
-	double NO_ev_endcapc = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapCModule[m], nosidehit);
-	m_NOEV_EndcapC[m]->Fill(1E5*NO_ev_endcapc);
-	m_NZ1ECC[m]->Fill(nosidehit);
-	m_N11ECC[m]->Fill(nOneSideEndcapCModule[m]);
-	m_N21ECC[m]->Fill(nTwoSideEndcapCModule[m]);
+  int nosidehit = NumModEndcapDisk[m]-nNonGoodModulesEndcapCModule[m]-nOneSideEndcapCModule[m]-nTwoSideEndcapCModule[m];
+  double NO_ev_endcapc = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapCModule[m], nosidehit);
+  m_NOEV_EndcapC[m]->Fill(1E5*NO_ev_endcapc);
+  m_NZ1ECC[m]->Fill(nosidehit);
+  m_N11ECC[m]->Fill(nOneSideEndcapCModule[m]);
+  m_N21ECC[m]->Fill(nTwoSideEndcapCModule[m]);
 
-	m_NZ1ECC_vsLB[m]->Fill(m_current_lb,nNoSidesEndcapCModule[m]);
-	m_N11ECC_vsLB[m]->Fill(m_current_lb,nOneSideEndcapCModule[m]);
+  m_NZ1ECC_vsLB[m]->Fill(m_current_lb,nNoSidesEndcapCModule[m]);
+  m_N11ECC_vsLB[m]->Fill(m_current_lb,nOneSideEndcapCModule[m]);
       }       
        
       for(int q=0; q<n_layers[ENDCAP_A_INDEX]; q++){
-	int nosidehit = NumModEndcapDisk[q]-nNonGoodModulesEndcapAModule[q]-nOneSideEndcapAModule[q]-nTwoSideEndcapAModule[q];
-	double NO_ev_endcapa = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapAModule[q], nosidehit);
-	m_NOEV_EndcapA[q]->Fill(1E5*NO_ev_endcapa);
-	m_NZ1ECA[q]->Fill(nosidehit);
-	m_N11ECA[q]->Fill(nOneSideEndcapAModule[q]);
-	m_N21ECA[q]->Fill(nTwoSideEndcapAModule[q]);
+  int nosidehit = NumModEndcapDisk[q]-nNonGoodModulesEndcapAModule[q]-nOneSideEndcapAModule[q]-nTwoSideEndcapAModule[q];
+  double NO_ev_endcapa = calculateNoiseOccupancyUsingRatioMethod(nOneSideEndcapAModule[q], nosidehit);
+  m_NOEV_EndcapA[q]->Fill(1E5*NO_ev_endcapa);
+  m_NZ1ECA[q]->Fill(nosidehit);
+  m_N11ECA[q]->Fill(nOneSideEndcapAModule[q]);
+  m_N21ECA[q]->Fill(nTwoSideEndcapAModule[q]);
 
-	m_NZ1ECA_vsLB[q]->Fill(m_current_lb,nNoSidesEndcapAModule[q]);
-	m_N11ECA_vsLB[q]->Fill(m_current_lb,nOneSideEndcapAModule[q]);
+  m_NZ1ECA_vsLB[q]->Fill(m_current_lb,nNoSidesEndcapAModule[q]);
+  m_N11ECA_vsLB[q]->Fill(m_current_lb,nOneSideEndcapAModule[q]);
       }
       
     }
@@ -509,22 +509,22 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
       
       //       if (procHistograms(true,true,true).isFailure()){    // hidetoshi 14.01.21
       if (procHistograms().isFailure()) {                          // hidetoshi 14.01.21
-	WARNING("Warning problem in procHistograms!");
+  WARNING("Warning problem in procHistograms!");
       }
       //maiken: hm... why is this here... Why reset and fill histograms both for each 1000 events, and for each 20 lb's?
       if ( (m_current_lb % m_checkrecent == 0) && (m_current_lb>m_last_reset_lb) ){
-	m_current_lb = pEvent->event_ID()->lumi_block();
-	//   if (procHistograms(true,true,true).isFailure()) {  // hidetoshi 14.01.21
-	if (procHistograms().isFailure()) {                     // hidetoshi 14.01.21
-	  WARNING("Warning problem in procHistograms!");
-	}
+  m_current_lb = pEvent->event_ID()->lumi_block();
+  //   if (procHistograms(true,true,true).isFailure()) {  // hidetoshi 14.01.21
+  if (procHistograms().isFailure()) {                     // hidetoshi 14.01.21
+    WARNING("Warning problem in procHistograms!");
+  }
       }
       
       /*Now reset the counters used for the reset histograms*/
       
       for (int i = 0; i <n_mod[GENERAL_INDEX]  ; i++) {
-	nOne[i]=0;
-	nZero[i]=0;
+  nOne[i]=0;
+  nZero[i]=0;
       } 
     }
   }
@@ -560,93 +560,93 @@ StatusCode  SCTRatioNoiseMonTool::procHistograms(){                             
       int layer = nLayer[j];
 
       if(m_environment==AthenaMonManager::online){
-	//calculate and fill rationoise per lumiblock
-	if(isBarrel(j)){
-	  if(layer<4){
-	    for (int bin=1; bin<NBINS_LBs + 1; bin++){
-	      int num_zero = m_NZ1BAR_vsLB[layer]->GetBinContent(bin);
-	      int num_one = m_N11BAR_vsLB[layer]->GetBinContent(bin);
-	      if(num_zero != 0){
-		float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
-		m_NOb_layer_vsLB[layer]->SetBinContent(bin,ratio_evt);
-	      }
-	    }
-	  }
-	}
-	if(isEndcap(j)){
-	  if(isEndcapA(j)){
-	    //calculate event-wise rationoise
-	    for (int bin=1; bin<NBINS_LBs + 1; bin++){
-	      int num_zero = m_NZ1ECA_vsLB[layer]->GetBinContent(bin);
-	      int num_one = m_N11ECA_vsLB[layer]->GetBinContent(bin);
-	      if(num_zero!=0){
-		float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
-		m_NOECA_disk_vsLB[layer]->SetBinContent(bin,ratio_evt);
-	      }
-	    }
-	  }
-	  if(isEndcapC(j)){
+  //calculate and fill rationoise per lumiblock
+  if(isBarrel(j)){
+    if(layer<4){
+      for (int bin=1; bin<NBINS_LBs + 1; bin++){
+        int num_zero = m_NZ1BAR_vsLB[layer]->GetBinContent(bin);
+        int num_one = m_N11BAR_vsLB[layer]->GetBinContent(bin);
+        if(num_zero != 0){
+    float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
+    m_NOb_layer_vsLB[layer]->SetBinContent(bin,ratio_evt);
+        }
+      }
+    }
+  }
+  if(isEndcap(j)){
+    if(isEndcapA(j)){
+      //calculate event-wise rationoise
+      for (int bin=1; bin<NBINS_LBs + 1; bin++){
+        int num_zero = m_NZ1ECA_vsLB[layer]->GetBinContent(bin);
+        int num_one = m_N11ECA_vsLB[layer]->GetBinContent(bin);
+        if(num_zero!=0){
+    float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
+    m_NOECA_disk_vsLB[layer]->SetBinContent(bin,ratio_evt);
+        }
+      }
+    }
+    if(isEndcapC(j)){
         
-	    //calculate event-wise rationoise
-	    for (int bin=1; bin<NBINS_LBs + 1; bin++){
-	      int num_zero = m_NZ1ECC_vsLB[layer]->GetBinContent(bin);
-	      int num_one = m_N11ECC_vsLB[layer]->GetBinContent(bin);
+      //calculate event-wise rationoise
+      for (int bin=1; bin<NBINS_LBs + 1; bin++){
+        int num_zero = m_NZ1ECC_vsLB[layer]->GetBinContent(bin);
+        int num_one = m_N11ECC_vsLB[layer]->GetBinContent(bin);
     
-	      if(num_zero!=0){
-		float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
-		m_NOECC_disk_vsLB[layer]->SetBinContent(bin,ratio_evt);
-	      }
-	    }
-	  }
-	}
+        if(num_zero!=0){
+    float ratio_evt = 1E5*calculateNoiseOccupancyUsingRatioMethod(num_one,num_zero);
+    m_NOECC_disk_vsLB[layer]->SetBinContent(bin,ratio_evt);
+        }
+      }
+    }
+  }
       }//end online requirement
 
       if(nZero[j]!=0){
-	ratio=0;
-	ratio = 1E5*calculateNoiseOccupancyUsingRatioMethod(nOne[j], nZero[j]);
-	if(ratio!=0){
-	  m_NO->Fill(ratio);
-	  if(isBarrel(j)){
-	    m_NOb->Fill(ratio);
-	    // Produce Noise Occupancy plots for each layer
-	    m_pnoiseoccupancymapHistoVectorBar[layer]->Fill(nEta[j],nPhi[j],ratio);
-	    if(layer<4){
-	      m_NOb_layer[layer]->Fill(ratio);
-	    } 
-	  } // end if Barrel    
-	  if(isEndcap(j)){
-	    if(isEndcapA(j)){
-	      m_pnoiseoccupancymapHistoVectorECA[layer]->Fill(nEta[j],nPhi[j],ratio);
-	      m_NOECA_disk[layer]->Fill(ratio);
-	    }
-	    if(isEndcapC(j)){
-	      m_pnoiseoccupancymapHistoVectorECC[layer]->Fill(nEta[j],nPhi[j],ratio);
-	      m_NOECC_disk[layer]->Fill(ratio);
-	    }
-	    m_NOEC->Fill(ratio);
-	    switch (nEta[j]){
-	    case 0:
-	      m_NOEC_Outer->Fill(ratio);
-	      break;
-	    case 1:
-	      switch (layer){
-	      case 7:
-		m_NOEC_ShortMiddle->Fill(ratio);
-		break;
-	      default:
-		m_NOEC_Middle->Fill(ratio);
-		break;
-	      }
-	      break;
-	    case 2:
-	      m_NOEC_Inner->Fill(ratio);
-	      break;
-	      break;
-	    default:
-	      break;
-	    }
-	  } 
-	}
+  ratio=0;
+  ratio = 1E5*calculateNoiseOccupancyUsingRatioMethod(nOne[j], nZero[j]);
+  if(ratio!=0){
+    m_NO->Fill(ratio);
+    if(isBarrel(j)){
+      m_NOb->Fill(ratio);
+      // Produce Noise Occupancy plots for each layer
+      m_pnoiseoccupancymapHistoVectorBar[layer]->Fill(nEta[j],nPhi[j],ratio);
+      if(layer<4){
+        m_NOb_layer[layer]->Fill(ratio);
+      } 
+    } // end if Barrel    
+    if(isEndcap(j)){
+      if(isEndcapA(j)){
+        m_pnoiseoccupancymapHistoVectorECA[layer]->Fill(nEta[j],nPhi[j],ratio);
+        m_NOECA_disk[layer]->Fill(ratio);
+      }
+      if(isEndcapC(j)){
+        m_pnoiseoccupancymapHistoVectorECC[layer]->Fill(nEta[j],nPhi[j],ratio);
+        m_NOECC_disk[layer]->Fill(ratio);
+      }
+      m_NOEC->Fill(ratio);
+      switch (nEta[j]){
+      case 0:
+        m_NOEC_Outer->Fill(ratio);
+        break;
+      case 1:
+        switch (layer){
+        case 7:
+    m_NOEC_ShortMiddle->Fill(ratio);
+    break;
+        default:
+    m_NOEC_Middle->Fill(ratio);
+    break;
+        }
+        break;
+      case 2:
+        m_NOEC_Inner->Fill(ratio);
+        break;
+        break;
+      default:
+        break;
+      }
+    } 
+  }
       }
     }
     m_NOb->SetBinContent(m_NOb->GetNbinsX(),m_NOb->GetBinContent(m_NOb->GetNbinsX() ) + m_NOb->GetBinContent(m_NOb->GetNbinsX() +1));
@@ -728,13 +728,13 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
     // For each type of endcap module
 
     m_NOEC_Inner=h1Factory("h_NOEC_Inner", "Noise Occupancy Endcap Inner Modules", RatioNoise, 0, 100, 500);
-    m_NOEC_Inner->SetTitle("Noise Occupancy for Endcap Inner; Noise Occupancy [10^{-5}] ; Num of Modules");	
+    m_NOEC_Inner->SetTitle("Noise Occupancy for Endcap Inner; Noise Occupancy [10^{-5}] ; Num of Modules"); 
     m_NOEC_Middle=h1Factory("h_NOEC_Middle", "Noise Occupancy Endcap Middle Modules", RatioNoise, 0, 100, 500);
-    m_NOEC_Middle->SetTitle("Noise Occupancy for Endcap Middle; Noise Occupancy [10^{-5}] ; Num of Modules");	
+    m_NOEC_Middle->SetTitle("Noise Occupancy for Endcap Middle; Noise Occupancy [10^{-5}] ; Num of Modules"); 
     m_NOEC_ShortMiddle=h1Factory("h_NOEC_ShortMiddle", "Noise Occupancy Endcap Short Middle Modules",RatioNoise, 0, 100, 500);
-    m_NOEC_ShortMiddle->SetTitle("Noise Occupancy for Endcap Short Middle; Noise Occupancy [10^{-5}] ; Num of Modules");	
+    m_NOEC_ShortMiddle->SetTitle("Noise Occupancy for Endcap Short Middle; Noise Occupancy [10^{-5}] ; Num of Modules");  
     m_NOEC_Outer=h1Factory("h_NOEC_Outer", "Noise Occupancy Endcap Outer Modules",RatioNoise, 0, 100, 500);
-    m_NOEC_Outer->SetTitle("Noise Occupancy for Endcap Outer; Noise Occupancy [10^{-5}] ; Num of Modules");	
+    m_NOEC_Outer->SetTitle("Noise Occupancy for Endcap Outer; Noise Occupancy [10^{-5}] ; Num of Modules"); 
 
     
     const string paths[]={"SCT/SCTEC/RatioNoise", "SCT/SCTB/RatioNoise", "SCT/SCTEA/RatioNoise"};
@@ -746,11 +746,11 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
     
     for(int systemIndex=0; systemIndex<3; systemIndex++){
       (storageVectors[systemIndex])->clear();
-	//    MonGroup noiseOccMaps(this,m_path+paths[systemIndex],expert,run);      // hidetoshi 14.01.21
-	MonGroup noiseOccMaps(this,m_path+paths[systemIndex],run,ATTRIB_UNMANAGED);  // hidetoshi 14.01.21
-	MonGroup noiseOccHits(this,m_path+paths_hits[systemIndex],run,ATTRIB_UNMANAGED);  //07.01.2015
-	if(systemIndex==1){
-	for(int l=0;l< n_layers[BARREL_INDEX];l++){//24.12.2014
+  //    MonGroup noiseOccMaps(this,m_path+paths[systemIndex],expert,run);      // hidetoshi 14.01.21
+  MonGroup noiseOccMaps(this,m_path+paths[systemIndex],run,ATTRIB_UNMANAGED);  // hidetoshi 14.01.21
+  MonGroup noiseOccHits(this,m_path+paths_hits[systemIndex],run,ATTRIB_UNMANAGED);  //07.01.2015
+  if(systemIndex==1){
+  for(int l=0;l< n_layers[BARREL_INDEX];l++){//24.12.2014
       //granularity set to one histogram/layer for now
       m_NOEV_Barrel[l] = h1Factory("h_NOEV_Barrel"+hNumBarrel[l], "Event Noise Occupancy Barrel Layer"+hNumBarrel[l], noiseOccMaps, 0, 5,500);
       m_NOEV_Barrel[l]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
@@ -778,39 +778,39 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
       m_NZ1BAR_vsLB[l]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
       m_N11BAR_vsLB[l]=h1Factory("h_N11BAR"+hNumBarrel[l]+"_vsLB", "Num of OneSide Hits in Barrel Layer"+hNumBarrel[l]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
       m_N11BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
-      m_N11BAR_vsLB[l]->GetYaxis()->SetTitle("Num of OneSide Hits");	
-	} //24.12.2014
-	}
-	if(systemIndex==0){
-	  for(int m=0; m<n_layers[ENDCAP_C_INDEX];m++){
-	    m_NOEV_EndcapC[m] = h1Factory("h_NOEV_EndcapC"+hNumEndcap[m], "Event Noise Occupancy EndcapC Disk"+hNumEndcap[m], noiseOccMaps, 0, 5,500);
-	    m_NOEV_EndcapC[m]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
-	    m_NOEV_EndcapC[m]->GetYaxis()->SetTitle("Events");
-	    m_NZ1ECC[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m], "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
-	    m_NZ1ECC[m]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
-	    m_NZ1ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-	    m_N11ECC[m]=h1Factory("h_N11ECC"+hNumEndcap[m], "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
-	    m_N11ECC[m]->GetXaxis()->SetTitle("Num of OneSide Hits");
-	    m_N11ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-	    m_N21ECC[m]=h1Factory("h_N21ECC"+hNumEndcap[m], "Num of TwoSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
-	    m_N21ECC[m]->GetXaxis()->SetTitle("Num of TwoSide Hits");
-	    m_N21ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-	    m_NOECC_disk[m]=h1Factory("h_NOECC_disk"+hNumEndcap[m], "Noise Occupancy EndcapC Disk"+hNumEndcap[m],noiseOccMaps, 0, 100, 500);
-	    m_NOECC_disk[m]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-	    m_NOECC_disk[m]->GetYaxis()->SetTitle("Num of Modules");	
-	    
-	    m_NOECC_disk_vsLB[m] = h1Factory("h_NOECC_disk"+hNumEndcap[m]+"_vsLB", "Noise Occupancy EndcapC Disk"+hNumEndcap[m]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
-	    m_NOECC_disk_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
-	    m_NOECC_disk_vsLB[m]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-	    m_NZ1ECC_vsLB[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m]+"_vsLB", "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
-	    m_NZ1ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
-	    m_NZ1ECC_vsLB[m]->GetYaxis()->SetTitle("Num of ZeroSide Hits");	
-	    m_N11ECC_vsLB[m] = h1Factory("h_N11ECC"+hNumEndcap[m]+"_vsLB", "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
-	    m_N11ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
-	    m_N11ECC_vsLB[m]->GetYaxis()->SetTitle("Num of OneSide Hits");	
-	  }
-	}
-	if(systemIndex==2){
+      m_N11BAR_vsLB[l]->GetYaxis()->SetTitle("Num of OneSide Hits");  
+  } //24.12.2014
+  }
+  if(systemIndex==0){
+    for(int m=0; m<n_layers[ENDCAP_C_INDEX];m++){
+      m_NOEV_EndcapC[m] = h1Factory("h_NOEV_EndcapC"+hNumEndcap[m], "Event Noise Occupancy EndcapC Disk"+hNumEndcap[m], noiseOccMaps, 0, 5,500);
+      m_NOEV_EndcapC[m]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
+      m_NOEV_EndcapC[m]->GetYaxis()->SetTitle("Events");
+      m_NZ1ECC[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m], "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+      m_NZ1ECC[m]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
+      m_NZ1ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+      m_N11ECC[m]=h1Factory("h_N11ECC"+hNumEndcap[m], "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+      m_N11ECC[m]->GetXaxis()->SetTitle("Num of OneSide Hits");
+      m_N11ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+      m_N21ECC[m]=h1Factory("h_N21ECC"+hNumEndcap[m], "Num of TwoSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+      m_N21ECC[m]->GetXaxis()->SetTitle("Num of TwoSide Hits");
+      m_N21ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+      m_NOECC_disk[m]=h1Factory("h_NOECC_disk"+hNumEndcap[m], "Noise Occupancy EndcapC Disk"+hNumEndcap[m],noiseOccMaps, 0, 100, 500);
+      m_NOECC_disk[m]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]"); 
+      m_NOECC_disk[m]->GetYaxis()->SetTitle("Num of Modules");  
+      
+      m_NOECC_disk_vsLB[m] = h1Factory("h_NOECC_disk"+hNumEndcap[m]+"_vsLB", "Noise Occupancy EndcapC Disk"+hNumEndcap[m]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
+      m_NOECC_disk_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
+      m_NOECC_disk_vsLB[m]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");  
+      m_NZ1ECC_vsLB[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m]+"_vsLB", "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_NZ1ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");  
+      m_NZ1ECC_vsLB[m]->GetYaxis()->SetTitle("Num of ZeroSide Hits"); 
+      m_N11ECC_vsLB[m] = h1Factory("h_N11ECC"+hNumEndcap[m]+"_vsLB", "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_N11ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");  
+      m_N11ECC_vsLB[m]->GetYaxis()->SetTitle("Num of OneSide Hits");  
+    }
+  }
+  if(systemIndex==2){
     for(int p=0; p<n_layers[ENDCAP_A_INDEX];p++){
       m_NOEV_EndcapA[p] = h1Factory("h_NOEV_EndcapA"+hNumEndcap[p], "Event Noise Occupancy EndcapA Disk"+hNumEndcap[p], noiseOccMaps, 0, 5,500);
       m_NOEV_EndcapA[p]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
@@ -825,24 +825,24 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
       m_N21ECA[p]->GetXaxis()->SetTitle("Num of TwoSide Hits");
       m_N21ECA[p]->GetYaxis()->SetTitle("Num of Entries");
       m_NOECA_disk[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p], "Noise Occupancy EndcapA Disk"+hNumEndcap[p],noiseOccMaps, 0, 100, 500);
-      m_NOECA_disk[p]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-      m_NOECA_disk[p]->GetYaxis()->SetTitle("Num of Modules");	
+      m_NOECA_disk[p]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]"); 
+      m_NOECA_disk[p]->GetYaxis()->SetTitle("Num of Modules");  
       
       m_NOECA_disk_vsLB[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p]+"_vsLB", "Noise Occupancy Barrel Disk"+hNumEndcap[p]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
-      m_NOECA_disk_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");		
+      m_NOECA_disk_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");    
       m_NOECA_disk_vsLB[p]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
       m_NZ1ECA_vsLB[p]=h1Factory("h_NZ1ECA"+hNumEndcap[p]+"_vsLB", "Num of ZeroSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
-      m_NZ1ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
+      m_NZ1ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");  
       m_NZ1ECA_vsLB[p]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
       m_N11ECA_vsLB[p]=h1Factory("h_N11ECA"+hNumEndcap[p]+"_vsLB", "Num of OneSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
-      m_N11ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
+      m_N11ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");  
       m_N11ECA_vsLB[p]->GetYaxis()->SetTitle("Num of OneSide Hits");
     }
     }//06.01.2015
       for (unsigned int i=0; i!=limits[systemIndex];++i) {
-	const string streamhitmap ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i];
-	std::string histotitle="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i];
-	prof2Factory(streamhitmap,histotitle, bec[systemIndex], noiseOccMaps,*(storageVectors[systemIndex]));
+  const string streamhitmap ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i];
+  std::string histotitle="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i];
+  prof2Factory(streamhitmap,histotitle, bec[systemIndex], noiseOccMaps,*(storageVectors[systemIndex]));
       }   
     }      
   }  // hidetoshi 14.01.22

@@ -105,6 +105,22 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   int numberOfEvents;
 
   bool m_initialize;
+  //max number of errors in lbs                                                                          
+  unsigned int previous_lb;
+  int maskedlink_errs_max[4];
+  int robfragment_errs_max[4];
+  int abcd_errs_max[4];
+  int raw_errs_max[4];
+  int timeout_errs_max[4];
+  int lvl1id_errs_max[4];
+  int bcid_errs_max[4];
+  int preamble_errs_max[4];
+  int formatter_errs_max[4];
+  int rodclock_errs_max[4];
+  int truncrod_errs_max[4];
+  int bsparse_errs_max[4];
+  int tot_err_max[4];
+  int tot_mod_err_max[4];
   // Book noise map histograms
   StatusCode bookConfMaps();
   StatusCode bookPositiveEndCapConfMaps();
@@ -180,7 +196,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F     * m_ConfOnline[4];
   TProfile * m_MaskedLinksVsLB[4];
   TProfile * m_ROBFragmentVsLB[4];
-
   TProfile * m_ABCDVsLB[4];
   TProfile * m_RawErrsVsLB[4];
   TProfile * m_TimeOutVsLB[4];
@@ -192,8 +207,25 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile * m_TruncRODVsLB[4];
   TProfile * m_BSParseVsLB[4];
 
+  TH1F * m_MaxMaskedLinksVsLB[4];
+  TH1F * m_MaxROBFragmentVsLB[4];
+  TH1F * m_MaxABCDVsLB[4];
+  TH1F * m_MaxRawErrsVsLB[4];
+  TH1F * m_MaxTimeOutVsLB[4];
+  TH1F * m_MaxLVL1IDVsLB[4];
+  TH1F * m_MaxBCIDVsLB[4];
+  TH1F * m_MaxPreambleVsLB[4];
+  TH1F * m_MaxFormatterVsLB[4];
+  TH1F * m_MaxRODClockVsLB[4];
+  TH1F * m_MaxTruncRODVsLB[4];
+  TH1F * m_MaxBSParseVsLB[4];
+
   TProfile * m_NumberOfErrorsVsLB[4];
   TProfile * m_ModulesWithErrorsVsLB[4];
+ 
+  TH1F * m_MaxNumberOfErrorsVsLB[4];
+  TH1F * m_MaxModulesWithErrorsVsLB[4];
+
   TProfile * m_ConfEffOnline;
   TProfile * m_ConfNoiseOnline;
   TProfile * m_ConfNoiseOnlineRecent;
