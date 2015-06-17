@@ -196,6 +196,16 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F     * m_ConfOnline[4];
   TProfile * m_MaskedLinksVsLB[4];
   TProfile * m_ROBFragmentVsLB[4];
+  TProfile * m_ABCDVsLB[4];
+  TProfile * m_RawErrsVsLB[4];
+  TProfile * m_TimeOutVsLB[4];
+  TProfile * m_LVL1IDVsLB[4];
+  TProfile * m_BCIDVsLB[4];
+  TProfile * m_PreambleVsLB[4];
+  TProfile * m_FormatterVsLB[4];
+  TProfile * m_RODClockVsLB[4];
+  TProfile * m_TruncRODVsLB[4];
+  TProfile * m_BSParseVsLB[4];
 
   TH1F * m_MaxMaskedLinksVsLB[4];
   TH1F * m_MaxROBFragmentVsLB[4];
@@ -210,8 +220,12 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F * m_MaxTruncRODVsLB[4];
   TH1F * m_MaxBSParseVsLB[4];
 
-  TH1F * m_NumberOfErrorsVsLB[4];
-  TH1F * m_ModulesWithErrorsVsLB[4];
+  TProfile * m_NumberOfErrorsVsLB[4];
+  TProfile * m_ModulesWithErrorsVsLB[4];
+ 
+  TH1F * m_MaxNumberOfErrorsVsLB[4];
+  TH1F * m_MaxModulesWithErrorsVsLB[4];
+
   TProfile * m_ConfEffOnline;
   TProfile * m_ConfNoiseOnline;
   TProfile * m_ConfNoiseOnlineRecent;

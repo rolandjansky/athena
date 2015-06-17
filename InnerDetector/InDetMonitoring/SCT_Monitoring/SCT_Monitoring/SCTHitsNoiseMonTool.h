@@ -253,13 +253,13 @@ private:
   H1D_t m_tbinHistoRecent;
   H1D_t m_tbinHistoRecentECp;
   H1D_t m_tbinHistoRecentECm;
-  //modify shirabe
-  H2I_t m_tbinmod;
-  H2I_t m_tbinmodECp;
-  H2I_t m_tbinmodECm;
   Prof2_t m_tbinfrac[8];
   Prof2_t m_tbinfracECp[18];
   Prof2_t m_tbinfracECm[18];
+  Prof2_t m_clusizedist[8];
+  Prof2_t m_clusizedistECp[18];
+  Prof2_t m_clusizedistECm[18];
+  Prof_t m_tbinfracall;
   Prof_t m_tbinfracVsLB;
   Prof_t m_tbinfracVsLBECp;
   Prof_t m_tbinfracVsLBECm;
@@ -378,6 +378,8 @@ private:
     prof2DFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbinx, int xlo, int xhi, int nbiny, int ylo, int yhi);
   Prof_t
     profFactory(const std::string & name, const std::string & title, MonGroup & registry, int nbin, int lo, int hi);
+  Prof_t
+    profFactory(const std::string & name, const std::string & title, MonGroup & registry);
   //@}
 
   //@name Service methods
