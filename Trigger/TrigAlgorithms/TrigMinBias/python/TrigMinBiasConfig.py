@@ -153,7 +153,6 @@ class MbTrkFex ( TrigTrackCounter ) :
         super(MbTrkFex, self).__init__(name)
         time = TrigTimeHistToolConfig("MbTrkFexTimers")
         time.TimerHistLimits = [0, 10]
-        self.AthenaMonTools += [ MbTrkFexMonitoring(), time]
         
         # Set the histogram dimensions from TrigT2MinBiasProperties.
         self.Z0Bins = trigMinBiasProperties.trkZ0Bins()
@@ -168,6 +167,8 @@ class MbTrkFex ( TrigTrackCounter ) :
         self.PhiBins = trigMinBiasProperties.trkPhiBins()
         self.PhiMin = trigMinBiasProperties.trkPhiMin()
         self.PhiMax = trigMinBiasProperties.trkPhiMax()
+
+        self.AthenaMonTools += [ MbTrkFexMonitoring(), time]
 
 
 MbTrkFex_1 = MbTrkFex # remove once cosmic slice migrated
