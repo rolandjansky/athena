@@ -175,7 +175,7 @@ void TruthStrategyManager::SaveSecondaryVertex(G4Track* primaryTrack,
 	HepMC::GenVertex* vtx=StepPoint2Vertex(stepPoint);
 	int vbcode=GetEventInformation()->SecondaryVertexBarCode();
 	vtx->suggest_barcode(vbcode);
-	
+	vtx->set_id(stepPoint->GetProcessDefinedStep()->GetProcessSubType()+1000);
 //	std::cout << " created new secondary vertex "<<std::endl;
 //	std::cout << *vtx <<std::endl;
 //	std::cout << "proposed barcode "<<vbcode<<std::endl;

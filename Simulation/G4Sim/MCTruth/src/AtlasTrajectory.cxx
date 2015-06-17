@@ -54,7 +54,11 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
 	G4Trajectory::AppendStep(aStep);
 }
 
+#if G4VERSION_NUMBER < 1010
 void AtlasTrajectory::DrawTrajectory(G4int i_mode=0) const
+#else
+void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
+#endif
 {
 // If i_mode>=0, draws a trajectory as a polyline (blue for
 // positive, red for negative, green for neutral) and, if i_mode!=0,
