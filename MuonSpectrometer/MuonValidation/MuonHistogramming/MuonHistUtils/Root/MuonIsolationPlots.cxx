@@ -81,7 +81,13 @@ void IsoPlots::initializePlots()
 void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType)
 {
   float fIso = 0;
-  if (muon.isolation(fIso, isoType)) fill(fIso, muon.pt());
+  try{
+    muon.isolation(fIso, isoType);
+  }
+  catch(SG::ExcBadAuxVar&){
+    return;
+  }
+  if (fIso) fill(fIso, muon.pt());
 }
 void IsoPlots::fill(float fIso, float fPt)
 {
@@ -117,13 +123,18 @@ void IsoCorrPlots::fill(const xAOD::Muon& muon,
     float fIso30 = 0;
     float fIso40 = 0;
     float fIsoCorr = 0;
-    muon.isolation(fIso20, isoType_cone20);
-    muon.isolation(fIso30, isoType_cone30);
-    muon.isolation(fIso40, isoType_cone40);
 
-    if (fIso20 && fIso30 && fIso40 && muon.isolationCaloCorrection(fIsoCorr, flavour, isoCorrType, isoCorrParam)){
-      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr);
+    try{
+      muon.isolation(fIso20, isoType_cone20);
+      muon.isolation(fIso30, isoType_cone30);
+      muon.isolation(fIso40, isoType_cone40);
+      muon.isolationCaloCorrection(fIsoCorr, flavour, isoCorrType, isoCorrParam);      
     }
+    catch(SG::ExcBadAuxVar&){
+      return;
+    }
+    if (fIso20 && fIso30 && fIso40)
+      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr);
 }
 
 void IsoCorrPlots::fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr)

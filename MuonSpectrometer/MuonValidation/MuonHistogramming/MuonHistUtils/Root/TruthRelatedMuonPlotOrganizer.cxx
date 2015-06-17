@@ -93,7 +93,7 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
     //muon spectrometer track at MS entry (not extrapolated)
     const xAOD::TrackParticle *msTrk(0);  
     //muon extrapolated to IP
-    const xAOD::TrackParticle* msExtrapTrk(0);
+    //const xAOD::TrackParticle* msExtrapTrk(0);
   
     ////////////////// @@@ sorting out the mess with the link to the extrapolated muon
     //for 20.1.0...
@@ -105,14 +105,14 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
     if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid() ) {
       //cool, we got both links:
       int correctEnumForExtrap = ((int)xAOD::Muon::MuonSpectrometerTrackParticle)+2;
-      msExtrapTrk = mu.trackParticle((xAOD::Muon::TrackParticleType) correctEnumForExtrap);
+      //msExtrapTrk = mu.trackParticle((xAOD::Muon::TrackParticleType) correctEnumForExtrap);
       msTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
     }
     else {
       // gymnastics to get msTrk...
       ElementLink<xAOD::TrackParticleContainer> msExtrapTrkLink = mu.trackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle);      
       if (msExtrapTrkLink.isValid()) {
-	msExtrapTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
+	//msExtrapTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
 	TruthLink truthLink_muTrk;
 	if( (*msExtrapTrkLink)->isAvailable<TruthLink>("truthParticleLink") ) {
 	  truthLink_muTrk = (*msExtrapTrkLink)->auxdata<TruthLink>("truthParticleLink");
