@@ -317,6 +317,9 @@ StatusCode JepRoiByteStreamTool::convert(
       for (int dataID = 0; dataID < maxDataID; ++dataID) {
         int source = dataID;
         if (dataID >= m_modules) {
+          // coverity[mixed_enums : FALSE]
+          // coverity[switch_on_enum : FALSE]
+          // coverity[first_enum_type : FALSE]
           switch (dataID) {
           case LVL1::CMMJetHits::LOCAL_MAIN:
             source = CmmJetSubBlock::LOCAL_MAIN;

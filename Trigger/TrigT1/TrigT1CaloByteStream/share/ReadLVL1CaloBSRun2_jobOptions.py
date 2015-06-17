@@ -56,7 +56,7 @@ ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAOD
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerContainer/CPMTowers" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersAux." ]
 
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersOverlap" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerContainer/CPMTowersOverlap" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerAuxContainer/CPMTowersOverlapAux." ]
 # =============================================================================
 # CMXCPTOB

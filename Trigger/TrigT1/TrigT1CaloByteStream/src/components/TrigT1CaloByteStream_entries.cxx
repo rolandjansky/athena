@@ -41,7 +41,7 @@
 #include "../JepRoiReadByteStreamV1Cnv.h"
 
 // Both
-//#include "../CpReadByteStreamV1V2Cnv.h"
+#include "../CpReadByteStreamV1V2Cnv.h"
 #include "../JepReadByteStreamV1V2Cnv.h"
 
 // ============================================================================
@@ -189,7 +189,7 @@ DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadJHByteStreamV1CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadJRByteStreamV1CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadCRByteStreamV1CnvT )
 // Both
-//DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadByteStreamV1V2Cnv )
+DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadByteStreamV1V2Cnv )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadJEByteStreamV1V2CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadESByteStreamV1V2CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, RodHeaderByteStreamCnv )
@@ -268,7 +268,7 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloByteStream )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepRoiReadJRByteStreamV1CnvT )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepRoiReadCRByteStreamV1CnvT )
   // Both
-//  DECLARE_NAMESPACE_CONVERTER( LVL1BS, CpReadByteStreamV1V2Cnv )
+  DECLARE_NAMESPACE_CONVERTER( LVL1BS, CpReadByteStreamV1V2Cnv )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepReadJEByteStreamV1V2CnvT )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepReadESByteStreamV1V2CnvT )
   // ==========================================================================
