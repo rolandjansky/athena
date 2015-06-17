@@ -8,23 +8,21 @@ use AtlasHepMC            AtlasHepMC-*            External
 use Lhapdf                Lhapdf-*                External
 use LCG_Configuration
 
-#macro Pythia8_home "$(LCG_external)/MCGenerators/pythia8"
-macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/pythia8"
-#macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt61g/pythia8"
-macro Pythia8_version "186"
+#private
+macro myLCG_config_version "67c"
+#end_private
+macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/pythia8"
+macro Pythia8_version "205"
+
 macro Pythia8_patch_version ""
-macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(LCG_config_version)"
+macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(myLCG_config_version)"
 macro Pythia8_system "$(LCG_ext_system)"
 macro Pythia8_dir "$(Pythia8_home)/$(Pythia8_version)$(Pythia8_patch_version)/$(Pythia8_system)"
 macro Pythia8_lib "$(Pythia8_dir)/lib"
 macro Pythia8_include "$(Pythia8_dir)/include"
-macro Pythia8_xmldoc "$(Pythia8_dir)/xmldoc"
-#macro Pythia8_xmldoc "$(Pythia8_home)/$(Pythia8_version)$(Pythia8_patch_version)/share/xmldoc"
-macro Pythia8_linkopts "-L$(Pythia8_lib) -lpythia8 -lpythia8tohepmc"
+macro Pythia8_xmldoc "$(Pythia8_dir)/share/Pythia8/xmldoc"
+macro Pythia8_linkopts "-L$(Pythia8_lib) -lpythia8 "
 macro Pythia8_export_paths "$(Pythia8_lib) $(Pythia8_include) $(Pythia8_xmldoc)"
-
-macro Pythia8_pp_cppflags " -DHEPMC2"
-macro Pythia8_pp_fflags   " -DHEPMC2"
 
 apply_pattern declare_installed_libraries dir=$(Pythia8_lib)
 
