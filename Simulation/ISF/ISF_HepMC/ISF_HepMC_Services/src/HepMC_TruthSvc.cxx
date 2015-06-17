@@ -373,7 +373,7 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
 
   std::vector<double> weights(2);
   weights[0] = static_cast<double>(parentBC);
-  weights[1] = static_cast<double>(processCode);
+  weights[1] = static_cast<double>(processCode); //now saved in GenVertex::id() ATLASSIM-2055
 
   // Check for a previous end vertex on this particle.  If one existed, snip it
   bool setPersistent = true;
@@ -404,7 +404,7 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
       abort();
     }
   }
-  int vtxID = 0;
+  int vtxID = 1000 + static_cast<int>(processCode);
   HepMC::GenVertex *vtx = new HepMC::GenVertex( ti.position(), vtxID, weights );
   vtx->suggest_barcode( vtxbcode );
 
