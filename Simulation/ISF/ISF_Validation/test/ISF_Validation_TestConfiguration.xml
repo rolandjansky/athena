@@ -215,6 +215,7 @@
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-MC15/G4_ttbar_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -265,6 +266,7 @@
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-MC15/G4_MC15_ttbar_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -315,6 +317,7 @@
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-MC15/G4_MC15_ZPrime_QuasiStable_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -366,6 +369,7 @@
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-MC15/G4_minbias_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
             <chainfileout>
@@ -490,7 +494,6 @@
                   <test position="1">
                     <modulename>RttLibraryTools</modulename>
                     <testname>DCubeRunner</testname>
-                    <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                     <arg>
                       <argname>DCubeCfg</argname>
                       <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue>
@@ -573,6 +576,7 @@
                   <argvalue>truth.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-MC15/G4_WriteCalHitsTest_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -664,6 +668,7 @@
                 </arg>
                 <keepFilePattern>ISF_ATLFASTII_ttbar_log</keepFilePattern>
                 <keepFilePattern>DCube-MC15/ISF_ATLFASTII_ttbar_MC12.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
             <chainfileout>Hits.pool.root</chainfileout>
@@ -679,7 +684,6 @@
                 <test>
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/ttbar_ATLFASTII_500evt.truth.root.xml</argvalue>
@@ -693,6 +697,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -786,7 +791,6 @@
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.InDetStandardPlots.root.xml</argvalue>
@@ -800,11 +804,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.PhysValMon.root.xml</argvalue>
@@ -818,11 +822,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.RDO_truth.root.xml</argvalue>
@@ -836,6 +840,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
@@ -853,7 +858,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.InDetStandardPlots.root.xml</argvalue>
@@ -867,11 +871,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.PhysValMon.root.xml</argvalue>
@@ -885,11 +889,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.RDO_truth.root.xml</argvalue>
@@ -903,6 +907,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
 
                     <testToRemove>
@@ -961,7 +966,7 @@
                 <jobTransformJobName>ATLFASTIIF_ttbar_1sim_Reg</jobTransformJobName>
                 <jobTransformCmd>sim_reg_test.py ATLFASTIIF_ttbar_1sim truth.root Hits.pool.root</jobTransformCmd>
                 <group>ISF_Validation_HitsRegressionTests</group>
-                <queue>extrashort</queue>
+                <queue>medium</queue>
               </jobTransform>
             </chainElement>
             <chainElement>
@@ -974,7 +979,6 @@
                 <test position="1">
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/ttbar_G4_500evt.truth.root.xml</argvalue>
@@ -988,6 +992,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1005,7 +1010,6 @@
                 <test position="1">
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/ttbar_ATLFASTII_500evt.truth.root.xml</argvalue>
@@ -1019,6 +1023,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1102,7 +1107,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.InDetStandardPlots.root.xml</argvalue>
@@ -1116,11 +1120,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.PhysValMon.root.xml</argvalue>
@@ -1134,11 +1138,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_G4_500evt.RDO_truth.root.xml</argvalue>
@@ -1152,6 +1156,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_G4_500evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
@@ -1170,7 +1175,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.InDetStandardPlots.root.xml</argvalue>
@@ -1184,11 +1188,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.PhysValMon.root.xml</argvalue>
@@ -1202,11 +1206,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/ttbar_ATLFASTII_500evt.RDO_truth.root.xml</argvalue>
@@ -1220,6 +1224,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/ttbar_ATLFASTII_500evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
@@ -1279,7 +1284,7 @@
                 <jobTransformJobName>ATLFASTIIF_minbias_1sim_Reg</jobTransformJobName>
                 <jobTransformCmd>sim_reg_test.py ATLFASTIIF_minbias_1sim truth.root Hits.pool.root</jobTransformCmd>
                 <group>ISF_Validation_HitsRegressionTests</group>
-                <queue>extrashort</queue>
+                <queue>medium</queue>
               </jobTransform>
             </chainElement>
             <chainElement>
@@ -1292,7 +1297,6 @@
                 <test position="1">
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/minbias_ATLFASTII_2000evt.truth.root.xml</argvalue>
@@ -1306,6 +1310,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/minbias_ATLFASTII_2000evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1323,7 +1328,6 @@
                 <test position="1">
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/minbias_G4_2000evt.truth.root.xml</argvalue>
@@ -1337,6 +1341,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/minbias_G4_2000evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1354,7 +1359,6 @@
                 <test position="1">
                   <modulename>RttLibraryTools</modulename>
                   <testname>DCubeRunner</testname>
-                  <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                   <arg>
                     <argname>DCubeCfg</argname>
                     <argvalue>MCProd/minbias_ATLFASTIIF_2000evt.truth.root.xml</argvalue>
@@ -1368,6 +1372,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/minbias_ATLFASTIIF_2000evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1452,7 +1457,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_G4_2000evt.InDetStandardPlots.root.xml</argvalue>
@@ -1466,11 +1470,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_G4_2000evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_G4_2000evt.PhysValMon.root.xml</argvalue>
@@ -1484,11 +1488,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_G4_2000evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_G4_2000evt.RDO_truth.root.xml</argvalue>
@@ -1502,6 +1506,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_G4_2000evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
@@ -1519,7 +1524,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTII_2000evt.InDetStandardPlots.root.xml</argvalue>
@@ -1533,11 +1537,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTII_2000evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTII_2000evt.PhysValMon.root.xml</argvalue>
@@ -1551,11 +1555,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTII_2000evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTII_2000evt.RDO_truth.root.xml</argvalue>
@@ -1569,6 +1573,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTII_2000evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
@@ -1587,7 +1592,6 @@
                     <test position="1">
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTIIF_2000evt.InDetStandardPlots.root.xml</argvalue>
@@ -1601,11 +1605,11 @@
                         <argvalue>today.InDetStandardPlots.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTIIF_2000evt.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTIIF_2000evt.PhysValMon.root.xml</argvalue>
@@ -1619,11 +1623,11 @@
                         <argvalue>today.PhysValMon.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTIIF_2000evt.PhysValMon.root/today.PhysValMon.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <test>
                       <modulename>RttLibraryTools</modulename>
                       <testname>DCubeRunner</testname>
-                      <testnegate /> <!-- remove this tag once DCube tests are tuned properly -->
                       <arg>
                         <argname>DCubeCfg</argname>
                         <argvalue>MCProd/minbias_ATLFASTIIF_2000evt.RDO_truth.root.xml</argvalue>
@@ -1637,6 +1641,7 @@
                         <argvalue>today.RDO_truth.root</argvalue>
                       </arg>
                       <keepFilePattern>DCube-MCProd/minbias_ATLFASTIIF_2000evt.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                      <noalarm />
                     </test>
                     <testToRemove>
                       <jobGroupName>RTT:Top</jobGroupName>
