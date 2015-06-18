@@ -64,8 +64,6 @@ class HLTBjetMonTool : public IHLTMonTool {
 
   std::vector<std::string> m_TriggerChainBjet, m_TriggerChainMujet;
  
-  //  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
 

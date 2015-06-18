@@ -175,11 +175,11 @@ StatusCode HLTBjetMonTool::book(){
       addHistogram(new TH1F("ez0","err_z0 of tracks", 200, 0., 5.));
       addHistogram(new TH1F("diffz0PV0","z0 of tracks wrt 1st offline PV", 200, -10., 10.));
       addHistogram(new TH1F("sigz0PV","z0-PV/errz0", 200, -20., 20.));
-      addHistogram(new TH1F("trkPt","Pt of tracks", 1000, 0., 20000.));
+      addHistogram(new TH1F("trkPt","Pt of tracks", 100, 0., 50.));
       addHistogram(new TH2F("trkEtaPhi","Phi vs Eta of tracks", 20, -5., 5., 20, -3.1416, 3.1416));
       //   Jets online
       addHistogram(new TH1F("nJet","Number of jets", 20, 0., 20.));
-      addHistogram(new TH1F("jetPt","Pt of jets", 500, 0., 500.));
+      addHistogram(new TH1F("jetPt","Pt of jets", 100, 0., 250.));
       addHistogram(new TH2F("jetEtaPhi","Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
       //   B-jets online
       addHistogram(new TH1F("IP3D_pu_tr","IP3D_pu probability distribution", 200, 0., 1.));
@@ -189,7 +189,7 @@ StatusCode HLTBjetMonTool::book(){
       addHistogram(new TH1F("wSV1_Rbu_tr","LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
       addHistogram(new TH1F("wCOMB_Rbu_tr","LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
       addHistogram(new TH1F("wMV1_tr","MV1 discriminant", 200, 0., 1.));
-      addHistogram(new TH1F("xMVtx_tr","SV mass", 200, 0., 10000.));
+      addHistogram(new TH1F("xMVtx_tr","SV mass", 50, 0., 10.));
       addHistogram(new TH1F("xNVtx_tr","Number of SV", 10, 0., 10.));
 
 
@@ -230,7 +230,10 @@ StatusCode HLTBjetMonTool::book(){
     } else {
       chainName = m_TriggerChainBjet.at(i);
       *m_log << MSG::INFO << " Trigger chain " << i << " " << chainName << " fired." << endreq;
-      goto Fired;
+      // now check if configured
+      std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
+      if ( selectChains.size() ) goto Fired;
+      //      goto Fired; // w/o checking if configured
     }
   }
   *m_log << MSG::INFO << " Trigger chain of size: " << size_TriggerChainBjet << " " << chainName << " at all - RETURN " << endreq;
@@ -338,7 +341,7 @@ StatusCode HLTBjetMonTool::book(){
       int nJet = onlinejet->size();
       hist("nJet","HLT/BjetMon/Shifter")->Fill(nJet);
       for(const auto* jet : *onlinejet) {
-	ATH_MSG_INFO("                 -   pt/eta/phi: " << jet->pt() << " / " << jet->eta() << " / " << jet->phi());
+	ATH_MSG_INFO("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
 	hist("jetPt","HLT/BjetMon/Shifter")->Fill((jet->pt())*1.e-3);
 	hist2("jetEtaPhi","HLT/BjetMon/Shifter")->Fill(jet->eta(),jet->phi());
       } // for online jet
@@ -354,7 +357,7 @@ StatusCode HLTBjetMonTool::book(){
       int nTrack = onlinetrack->size();
       hist("nTrack","HLT/BjetMon/Shifter")->Fill(nTrack);
       for(const auto* trk : *onlinetrack) {
-	ATH_MSG_INFO("     pT: " << trk->pt() << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
+	ATH_MSG_INFO("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
 	hist("d0","HLT/BjetMon/Shifter")->Fill(trk->d0());
 	hist("z0","HLT/BjetMon/Shifter")->Fill(trk->z0());
 	hist("ed0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
@@ -362,7 +365,7 @@ StatusCode HLTBjetMonTool::book(){
 	hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()-offlinepvz);
 	float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
 	if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()-offlinepvz)/errz0 );
-	hist("trkPt","HLT/BjetMon/Shifter")->Fill(trk->pt());
+	hist("trkPt","HLT/BjetMon/Shifter")->Fill( (trk->pt())*1.e-3 );
 	hist2("trkEtaPhi","HLT/BjetMon/Shifter")->Fill(trk->eta(),trk->phi());
       } // for online track particles
     } // onlinetracks.size
@@ -399,8 +402,8 @@ StatusCode HLTBjetMonTool::book(){
       const TrigEFBjetContainer* EFonlinebjet = EFonlinebjets[0].cptr();
       ATH_MSG_INFO("                 -   nBjet: " << EFonlinebjet->size());
       for(const auto* bjet : *EFonlinebjet) {
-	ATH_MSG_INFO("                 -   MVTX / EVTX / NVTX: " << bjet->xMVtx() << " / " << bjet->xEVtx() << " / " << bjet->xNVtx());
-	hist("xMVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xMVtx());
+	ATH_MSG_INFO("                 -   MVTX / EVTX / NVTX: " << (bjet->xMVtx())*1.e-3 << " / " << (bjet->xEVtx())*1.e-3 << " / " << bjet->xNVtx());
+	hist("xMVtx_tr","HLT/BjetMon/Shifter")->Fill( (bjet->xMVtx())*1.e-3 );
 	hist("xNVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xNVtx());
       } //EFonlinebjet 
     } // EFonlinebjets.size
