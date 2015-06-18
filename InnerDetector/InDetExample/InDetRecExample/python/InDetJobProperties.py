@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
+
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
 ## @purpose Python module to hold common flags to configure JobOptions
@@ -95,6 +96,12 @@ class InDetFlagsJobProperty(JobProperty):
 
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
+
+
+class doDBM(InDetFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 class doPrintConfigurables(InDetFlagsJobProperty):
     """if this is on the all the print InDetXYZ lines are activated"""
@@ -509,10 +516,10 @@ class doVertexFinding(InDetFlagsJobProperty):
     StoredValue  = True
 
 class primaryVertexSetup(InDetFlagsJobProperty):
-    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' """
+    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' """
     statusOn     = True
     allowedTypes = ['str']
-    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder']
+    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding']
     StoredValue  = 'IterativeFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):
@@ -1124,6 +1131,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.materialInteractionsType   , 2)      
        self.checkThenSet(self.selectSCTIntimeHits    , False)
        self.checkThenSet(self.cutLevel               , 8    )
+       self.checkThenSet(self.doInnerDetectorCommissioning, True)
 
     # --- special case heavy ion
     elif (rec.doHeavyIon()):
@@ -1403,7 +1411,8 @@ class InDetJobProperties(JobPropertyContainer):
     #    self.checkThenSet(self.doInnerDetectorCommissioning, True)
 
     if (self.doInnerDetectorCommissioning()):
-        self.checkThenSet(self.useBroadClusterErrors  , True)
+        if not (self.doCosmics()):
+           self.checkThenSet(self.useBroadClusterErrors  , True)
         self.checkThenSet(self.doSlimming             , False)
         self.checkThenSet(self.doTrackSegmentsPixel, True )
         self.checkThenSet(self.doTrackSegmentsSCT  , True )
@@ -1813,6 +1822,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doIBL() :
        print '*'
        print '* --------------------> Special reconstruction for IBL !'
+       print '*'
+    if self.doDBM() :
+       print '*'
+       print '* --------------------> Special reconstruction for DBM !'
        print '*'
     if self.doHighPileup() :
        print '*'
@@ -2382,7 +2395,8 @@ _list_InDetJobProperties = [Enabled,
                             doTRTOccupancyEventInfo,
                             doNNToTCalibration,
                             keepAdditionalHitsOnTrackParticle,
-                            doSCTModuleVeto
+                            doSCTModuleVeto,
+                            doDBM
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

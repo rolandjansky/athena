@@ -2,12 +2,9 @@
 # control input
 #--------------------------------------------------------------
 # --- specify input type
-if not 'readESD' in dir():
-  readESD = True
-readAOD = not readESD
-
-# --- run on the 13.0.30.3 reference ESD or AOD
-read13Reference = False
+if not 'readAOD' in dir():
+  readAOD = True
+readESD = not readAOD
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -17,15 +14,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
   
 if readESD:
   athenaCommonFlags.FilesInput = [ "ESD.pool.root" ]
-  if read13Reference:
-    # 13.0.30.3 reference ESD with DetDescrVersion = "ATLAS-CSC-01-02-00"
-    athenaCommonFlags.FilesInput = [ "/afs/cern.ch/atlas/maxidisk/d33/referencefiles/T1_5200.13.0.30.3.ESD.017284._00001.pool.root" ]
 
 elif readAOD:
   athenaCommonFlags.FilesInput = [ "AOD.pool.root" ]
-  if read13Reference:
-    # 13.0.30.3 reference AOD with DetDescrVersion = "ATLAS-CSC-01-02-00"
-    athenaCommonFlags.FilesInput = [ "/afs/cern.ch/atlas/maxidisk/d33/referencefiles/T1_5200.13.0.30.3.AOD.017284._00001.pool.root" ]
 
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())
@@ -185,7 +176,12 @@ InDetFlags.doPrintConfigurables = True
 from InDetRecExample.InDetKeys import InDetKeys
 if InDetFlags.doVertexFinding() and readAOD:
   InDetKeys.Tracks = InDetKeys.TrackParticles()
-  print "InDetKeys.Tracks = "+InDetKeys.Tracks()
+
+# uncomment if you don't want to overwrite the original fits (e.g. for comparison)
+# this would also require enabling "pass-through" output mode (see bottom of this file)
+# or else manually adding the input collection to the output stream
+#if InDetFlags.doVertexFinding():
+#  InDetKeys.xAODVertexContainer = "RefitPrimaryVertices" 
 
 if readESD and not redoPatternRecoAndTracking:
   InDetKeys.UnslimmedTracks              = 'Tracks'
@@ -209,6 +205,9 @@ InDetKeys.print_JobProperties()
 InDetFlags.doStatistics   = doInDetRecStatistics
 TrackCollectionKeys        = [InDetKeys.Tracks()]
 TrackCollectionTruthKeys   = [InDetKeys.TracksTruth()]
+
+# Uncomment to use medical image seeding
+# InDetFlags.primaryVertexSetup = "MedImgMultiFinding"
   
 #--------------------------------------------------------------
 # load master joboptions file
@@ -216,6 +215,9 @@ TrackCollectionTruthKeys   = [InDetKeys.TracksTruth()]
   
 include("InDetRecExample/InDetRec_all.py")
 
-if doWriteESD: StreamESD.ForceRead = True
-    
-if doWriteAOD: StreamAOD.ForceRead = True
+# Set to True if you want to write out all input data ("pass-through" mode)
+if doWriteESD:
+  StreamESD.TakeItemsFromInput = False
+
+if doWriteAOD:
+  StreamAOD.TakeItemsFromInput = False

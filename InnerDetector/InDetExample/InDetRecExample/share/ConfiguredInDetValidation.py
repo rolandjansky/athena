@@ -1,3 +1,4 @@
+
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredInDetValidation.py')
 
@@ -73,6 +74,20 @@ class  ConfiguredInDetValidation:
         InDetRecStatistics.minREndSecondary   = 0.
         InDetRecStatistics.minZEndPrimary     = 0.
         InDetRecStatistics.minZEndSecondary   = 0.
+
+        
+      if InDetFlags.doDBM():
+        InDetRecStatistics.minPt              = .0*GeV
+        InDetRecStatistics.maxEta             = 9999.
+        InDetRecStatistics.maxRStartPrimary   = 9999999.
+        InDetRecStatistics.maxRStartSecondary = 9999999.
+        InDetRecStatistics.maxZStartPrimary   = 9999999.
+        InDetRecStatistics.maxZStartSecondary = 9999999.
+        InDetRecStatistics.minREndPrimary     = 0.
+        InDetRecStatistics.minREndSecondary   = 0.
+        InDetRecStatistics.minZEndPrimary     = 0.
+        InDetRecStatistics.minZEndSecondary   = 0.
+
         
       topSequence += InDetRecStatistics
       if (InDetFlags.doPrintConfigurables()):
@@ -109,6 +124,15 @@ class  ConfiguredInDetValidation:
         InDetTrackClusterAssValidation.MinNumberSpacePoints   = 4
       if InDetFlags.doBeamHalo():
         InDetTrackClusterAssValidation.MomentumCut            = 0
+
+      if InDetFlags.doDBM():
+        InDetTrackClusterAssValidation.MomentumCut            = 0
+        InDetTrackClusterAssValidation.RadiusMax              = 9999999.0
+        InDetTrackClusterAssValidation.RapidityCut            = 9999.9
+        InDetTrackClusterAssValidation.MinNumberClustersTRT   = 0
+        InDetTrackClusterAssValidation.MinNumberClusters      = 0
+        InDetTrackClusterAssValidation.MinNumberSpacePoints   = 0
+
  
       topSequence += InDetTrackClusterAssValidation
       if (InDetFlags.doPrintConfigurables()):
