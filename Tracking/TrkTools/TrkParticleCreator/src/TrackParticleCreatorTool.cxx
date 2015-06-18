@@ -706,7 +706,7 @@ namespace Trk
 
   void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) const {
     tp.setBeamlineTiltX(tiltx);
-    tp.setBeamlineTiltX(tilty);
+    tp.setBeamlineTiltY(tilty);
   }  
 
  void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) const {
