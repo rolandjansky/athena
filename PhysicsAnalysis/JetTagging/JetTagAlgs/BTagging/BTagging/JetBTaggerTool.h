@@ -15,7 +15,7 @@
 #include "BTagging/IJetBTaggerTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
-
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 namespace Analysis{
 
@@ -51,6 +51,7 @@ class  JetBTaggerTool:
   ToolHandle< IBTagJetPtScaling> m_PtRescalingTool;
   mutable bool m_retag;
   bool m_PtRescale;
+  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 };
 
 }
