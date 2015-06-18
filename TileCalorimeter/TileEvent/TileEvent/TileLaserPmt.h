@@ -9,13 +9,15 @@
 #ifndef TILELASERPMT_H
 #define TILELASERPMT_H
 
-namespace TileLaser{
-
 class TileLaserPmt {
 
  public:
 
-  TileLaserPmt() : m_PMADC(0),  m_TDC(0), m_pmPedestal(0.0), m_pmSigmaPedestal(0.0) { }
+  TileLaserPmt() 
+    : m_PMADC(0)
+    , m_TDC(0)
+    , m_pmPedestal(0.0)
+    , m_pmSigmaPedestal(0.0) { }
 
   ~TileLaserPmt() { }
 
@@ -28,10 +30,10 @@ class TileLaserPmt {
 	      const int tdc, 
 	      const double pmPedestal, 
 	      const double pmSigmaPedestal) {
-      m_PMADC=pmAdc;
-      m_TDC=tdc;
-      m_pmPedestal=pmPedestal;
-      m_pmSigmaPedestal=pmSigmaPedestal;
+      m_PMADC = pmAdc;
+      m_TDC = tdc;
+      m_pmPedestal = pmPedestal;
+      m_pmSigmaPedestal = pmSigmaPedestal;
   }
 
  private:
@@ -43,5 +45,4 @@ class TileLaserPmt {
  
 };
 
-}
 #endif
