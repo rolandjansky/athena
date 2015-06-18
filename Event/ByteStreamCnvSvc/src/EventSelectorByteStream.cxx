@@ -507,8 +507,8 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          ATH_MSG_WARNING("Continue with bad event");
       }
       // Set RE for rob data provider svc
-      //m_robProvider->setNextEvent(pre);
-      //m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
+      m_robProvider->setNextEvent(pre);
+      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
@@ -936,8 +936,8 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
 StatusCode EventSelectorByteStream::createAddress(const IEvtSelector::Context& /*it*/,
                 IOpaqueAddress*& iop) const {
    const RawEvent* pre = m_eventSource->currentEvent();
-   m_robProvider->setNextEvent(pre);
-   m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
+   //m_robProvider->setNextEvent(pre);
+   //m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
    SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
    if (proxy !=0) {
      iop = proxy->address();
