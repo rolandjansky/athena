@@ -13,8 +13,9 @@ import sys,pickle,os
 HIProjTag = "data[0-9][0-9]_hi" # Only for Pb-Pb and p-Pb collisions (this regular expression matches with both "data11_hi" and "data11_hip")
 HIpProjTag = "data[0-9][0-9]_hip" # Only for p-Pb collisions
 ppProjTag = "data[0-9][0-9]_.*eV" # Only for pp data
-cmProjTag = "data[0-9][0-9]_(cos|1beam)" # only for commissioning
+cmProjTag = "data[0-9][0-9]_(cos|1beam|comm)" # only for commissioning
 cpProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm)" #For commissioning or pp but not HI
+pcProjTag = "data[0-9][0-9]_(1beam|.*eV|comm)" #For commissioning or pp but not cosmics
 cphipProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm|hip)" # Above plus hip, i.e. all bar Pb-Pb HI
 pphipProjTag = "data[0-9][0-9]_(.*eV|hip)" # pp or hip, for hip outputs in pp
 
@@ -29,80 +30,44 @@ specialT0Setup = specialT0Setup_Oracle # By Default
 OutputsVsStreams = {
 
 # The basics:
-    'outputESDFile': {'dstype': 'ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced.'},
-    'outputAODFile': {'dstype': 'AOD', 'ifMatch': cpProjTag+'(?!.(.*DRAW.*|.*ZeroBias.*x[0-9].*))', 'HumanOutputs': 'always produced except for ZeroBias (ZB-1) stream and HI.'},
-    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': HIProjTag+'(?!.(.*DRAW.*|.*ZeroBias.*x[0-9].*))', 'HumanOutputs': 'Produced for HI/HIp and comm when AOD is disabled'},
+    'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced, except for DRAW input'},
+    'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cpProjTag, 'HumanOutputs': 'always produced except for ZeroBias stream.'},
+    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': HIProjTag+'(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in AOD merging'},
     'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for debug stream'},  # note was disabled for Pb-Pb HardProbes
     
-# Ntuples
-    'outputNTUP_TRIGFile': {'dstype': 'NTUP_TRIG', 'ifMatch': '(?!.*DRAW.*)(.*express.*|.*physics_MinBias.*|.*physics_HardProbes.*|.*physics_UPC.*)',
-                            'HumanOutputs': 'always produced for express. Produced for MinBias, HardProbes and UPC in early hip running'},
-    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*EnhancedBias.*|.*MuonswBeam.*|.*physics_Muons\..*|.*physics_L1TT.*|.*physics_L1Muon\..*|.*physics_HLTPassthrough\..*|.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
-                                 'HumanOutputs': 'produced for EnhancedBias, Muon, L1TT and L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
-    'outputNTUP_TRIGMUFile': {'dstype': 'NTUP_TRIGMU', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_L1Muon\..*|.*physics_IDCosmic\..*|.*physics_HLTPassthrough\..*)',
-                                 'HumanOutputs': 'produced for L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
-    'outputNTUP_SCTFile': {'dstype': 'NTUP_SCT', 'ifMatch': cphipProjTag+'(?!.*DRAW.*)(.*express.*|.*Background.*)',
-                           'HumanOutputs': 'produced for express and Background stream'},
-    'outputNTUP_BKGDFile': {'dstype': 'NTUP_BKGD', 'ifMatch': '(?!.*DRAW.*)(.*Background.*)',
-                            'HumanOutputs': 'produced for Background stream'},
+# NTuples
+    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
+                                 'HumanOutputs': 'produced for IDCosmic and CosmicMuons streams'},
 
-    'outputNTUP_EGAMMAFile': {'dstype': 'NTUP_EGAMMA', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
-                                 'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
-    'outputNTUP_PHYSICSFile': {'dstype': 'NTUP_PHYSICS', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
-                                 'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
-    'outputNTUP_SUSYFile': {'dstype': 'NTUP_SUSY', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
-                                 'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
+# DRAW production 
+   'outputDRAW_ZMUMUFile': {'dstype': 'DRAW_ZMUMU', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                              'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+   'outputDRAW_TAUMUHFile' : {'dstype': 'DRAW_TAUMUH', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                             'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+    ### These don't work in 20.1.5.4, code updates from Paul coming soon
+    ### Added three new outputs in 20.1.5.5 - DRAW_EGZ, DRAW_EGJPSI, DRAW_EMU
+   'outputDRAW_EGZFile'  : {'dstype': 'DRAW_EGZ', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                            'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+   #'outputDRAW_EGJPSIFile'  : {'dstype': 'DRAW_EGJPSI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   #                         'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+   'outputDRAW_EMUFile'  : {'dstype': 'DRAW_EMU', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                            'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
 
-# Commissioning DESDs:    
-    'outputDESD_MUONCOMMFile' : {'dstype': 'DESD_MUONCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*CosmicMuons.*|.*MuonswBeam.*)',
-                                 'HumanOutputs': 'produced for cosmics runs, for CosmicMuons and MuonswBeam streams.'},
-    'outputDESD_TILECOMMFile' : {'dstype': 'DESD_TILECOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*CosmicMuons.*)',
-                                 'HumanOutputs': 'produced for cosmics runs, for CosmicMuons streams.'},
-    'outputDESD_CALOCOMMFile' : {'dstype': 'DESD_CALOCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*L1Calo\..*|.*L1CaloEM.*)',
-                                 'HumanOutputs': 'produced for cosmics runs, for L1Calo and L1CaloEM'},
-    'outputDESD_IDCOMMFile'   : {'dstype': 'DESD_IDCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*IDCosmic.*|.*CosmicMuons.*)',
-                                 'HumanOutputs': 'produced for cosmics runs, for IDCosmic and CosmicMuons streams.'},
-    'outputDESD_PIXELCOMMFile': {'dstype': 'DESD_PIXELCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*IDCosmic.*)',
-                                 'HumanOutputs': 'produced for cosmics runs, for IDCosmic streams.'},
+# Special reconstruction outputs for DRAW
+    #'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_ZMCP', 'ifMatch': cpProjTag+'(.*DRAW_ZMUMU.*)', 
+    #                             'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
+    'outputDESDM_ALLCELLSFile': {'dstype': 'replace RAW ESDM', 'ifMatch': cpProjTag+'(.*DRAW.*)(?!.*TAUMUH.*)', 
+                                 'HumanOutputs': 'produced when reconstructing all DRAW formats'},
 
-#Collission DESDs:
-    
-    #DRAW reconstruction outputs
-    'outputDESD_ZMUMUFile'   : {'dstype': 'DESD_ZMUMU', 'ifMatch': ppProjTag+'(.*DRAW_ZMUMU.*)','HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
-    'outputDAOD_ZMUMUFile'   : {'dstype': 'DAOD_ZMUMU', 'ifMatch': ppProjTag+'(.*DRAW_ZMUMU.*)','HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
-    'outputDESD_ZEEFile'     : {'dstype': 'DESD_ZEE',   'ifMatch': ppProjTag+'(.*DRAW_ZEE.*)','HumanOutputs': 'produced when reconstructing DRAW_ZEE'},
-    'outputDAOD_ZEEFile'     : {'dstype': 'DAOD_ZEE',   'ifMatch': ppProjTag+'(.*DRAW_ZEE.*)','HumanOutputs': 'produced when reconstructing DRAW_ZEE'},
-    'outputDESD_WMUNUFile'   : {'dstype': 'DESD_WMUNU', 'ifMatch': ppProjTag+'(.*DRAW_WMUNU.*)','HumanOutputs': 'produced when reconstructing DRAW_WMUNU'},
-    'outputDAOD_WMUNUFile'   : {'dstype': 'DAOD_WMUNU', 'ifMatch': ppProjTag+'(.*DRAW_WMUNU.*)','HumanOutputs': 'produced when reconstructing DRAW_WMUNU'},
-    'outputDESD_WENUFile'   : {'dstype': 'DESD_WENU',   'ifMatch': ppProjTag+'(.*DRAW_WENU.*)','HumanOutputs': 'produced when reconstructing DRAW_WENU'},
-    'outputDAOD_WENUFile'   : {'dstype': 'DAOD_WENU',   'ifMatch': ppProjTag+'(.*DRAW_WENU.*)','HumanOutputs': 'produced when reconstructing DRAW_WENU'},
-    #DESD production
-    'outputDESDM_RPVLLFile': {'dstype': 'DESDM_RPVLL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*|.*physics_Egamma.*|.*physics_Muons\..*)',
+# DESDs made from full ESD files
+    'outputDAOD_IDTRKVALIDFile' : {'dstype': 'DAOD_IDTRKVALID', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*MinBias.*|.*IDCosmic.*)',
+                                 'HumanOutputs': 'produced for MinBias and IDCosmic streams.'},
+    'outputDAOD_IDTRKLUMIFile' : {'dstype': 'DAOD_IDTRKLUMI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*VdM.*|.*PixelBeam.*)',
+                                 'HumanOutputs': 'produced for calibration streams.'},
+    'outputDESDM_RPVLLFile': {'dstype': 'DESDM_RPVLL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
                               'HumanOutputs': 'produced for collision runs, for physics_JetTauEtMiss, physics_Egamma and physics_Muons streams.'},
-    'outputDESDM_EGAMMAFile': {'dstype': 'DESDM_EGAMMA','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for physics_Egamma streams.'},
-    'outputDESD_CALJETFile': {'dstype': 'DESD_CALJET',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for the physics_JetTauEtMiss stream.'},
-    'outputDESDM_TRACKFile' : {'dstype': 'DESDM_TRACK', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for the physics_JetTauEtMiss stream.'},
-    'outputDESD_SGLELFile'  : {'dstype': 'DESD_SGLEL',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
-    'outputDESD_SGLMUFile'  : {'dstype': 'DESD_SGLMU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)', 'HumanOutputs': 'produced for collision runs, for the physics_Muons streams.'},
-    #'outputDESDM_METFile'    : {'dstype': 'DESDM_MET',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for physics_JetETMiss stream'},
-    'outputDESD_PHOJETFile' : {'dstype': 'DESD_PHOJET', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
-    'outputDESD_MBIASFile'  : {'dstype': 'DESD_MBIAS',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_MinBias.*)', 'HumanOutputs': 'produced for collision runs, for the physics_MinBias stream.'},
-    #RAW skims 
-   'outputDRAW_ZMUMUFile'  : {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
-   'outputDRAW_ZEEFile'    : {'dstype': 'DRAW_ZEE',   'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'}, 
-   'outputDRAW_WMUNUFile'  : {'dstype': 'DRAW_WMUNU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
-   'outputDRAW_WENUFile'   : {'dstype': 'DRAW_WENU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
-   
 
-    #Special heavy ion outputs:
-    'outputDESD_HIRAREFile' : {'dstype' : 'DESD_HIRARE', 'ifMatch' : HIProjTag+'(.*physics_HardProbes.*)','HumanOutputs': 'produced in HI runs, for the physics_HardProbes stream'},
-    'outputNTUP_HIFile' : {'dstype': 'NTUP_HI','ifMatch' : pphipProjTag+'(.*express.*|.*physics_bulk.*|.*physics_MinBias.*|.*physics_Standby.*|.*physics_HardProbes.*|.*physics_UPC.*)','HumanOutputs':'produced for express, bulk, MinBias, MinBiasOverlay, Standby, HardProbes and UPC streams'},
-    'outputNTUP_MINBIASFile': {'dstype': 'NTUP_MINBIAS', 'ifMatch': pphipProjTag+'(?!.*DRAW.*)(.*express.*|.*physics_bulk.*|.*physics_MinBias.*|.*physics_Standby.*|.*physics_HardProbes.*|.*physics_UPC.*)','HumanOutputs': 'produced for express, bulk, MinBias, MinBiasOverlay, Standby, HardProbes and UPC streams'},
-    'outputNTUP_TRKVALIDFile': {'dstype': 'NTUP_TRKVALID', 'ifMatch': pphipProjTag+'(?!.*DRAW.*)(.*express.*)','HumanOutputs': 'produced for express only for HI/HIp.'},    
-
-    #Special for pixelStream outputs :
-    'outputNTUP_IDVTXLUMIFile' : {'dstype' : 'NTUP_IDVTXLUMI', 'ifMatch' : ppProjTag+'(?!.*DRAW.*)(.*PixelBeam.*|.*calibration_VdM.*)','HumanOutputs': 'produced for luminosity studies, for the PixelBeam stream.'},
-    }
+}
 
 #Print for debugging...
 ## for outputKey in OutputsVsStreams.keys():
@@ -153,14 +118,24 @@ def GetProcessConfigs(release,patcharea):
     # AOD merging
     processConfigs['aodmerge'] = {
         'inputs': {'inputAODFile': {}},
-        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'}
-                    #'outputTAGFile': {'dstype': 'TAG'}
+        'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'},
+                    'outputTAGFile': {'dstype': 'TAG'}
                     },
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
         'description': 'Produces merged AODs plus associated physics TAGs with AODMerge_tf.py. '}
+
+    # DAOD merging
+    processConfigs['daodmerge'] = {
+        'inputs': {'inputAODFile': {}},
+        'outputs': {'outputAOD_MRGFile': {'dstype': '!likeinput'}},
+        'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
+        'transformation': 'AODMerge_tf.py',
+        'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
+                          'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
+        'description': 'Produces merged DAODs plus associated physics TAGs with AODMerge_tf.py. '}
 
     # DPD merging
     processConfigs['dpdmerge'] = {
@@ -257,11 +232,11 @@ if __name__ == '__main__':
     process=None
     if inPickleFile.endswith('.pickle'): 
         process='reco'
-    elif (inPickleFile in ['histmerge', 'tagmerge', 'ntupmerge', 'aodmerge', 'dpdmerge', 'fastmon']):
+    elif (inPickleFile in ['histmerge', 'tagmerge', 'ntupmerge', 'aodmerge', 'daodmerge', 'dpdmerge', 'fastmon']):
         process = inPickleFile
     else:
         s = "Don't know how to interpret argument: '%s'.\n"%inPickleFile
-        s += "Possible arguments are: histmerge, tagmerge, ntupmerge, aodmerge, dpdmerge\n"
+        s += "Possible arguments are: histmerge, tagmerge, ntupmerge, aodmerge, daodmerge, dpdmerge\n"
         s += "...or for reconstruction tags: a pickeled dic named *.pickle\n"
         raise RuntimeError(s)
 
