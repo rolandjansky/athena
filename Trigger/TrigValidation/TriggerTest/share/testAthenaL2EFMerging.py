@@ -1,10 +1,7 @@
 # Job options used for L2/EF merging tests
 # The input file is the default BSRDO file
 #
-# LVL2 only: -c 'EvtMax=10;doEF=False'
-# EF only:   -c 'EvtMax=10;doLVL2=False'
-# HLT only:  -c 'EvtMax=10;doHLT=True'
-#trigtest.pl --test AthenaTrigRDO_L2EFMerging_nomerge --run AthenaTrigRDO_L2EFMerging_nomerge --conf TriggerTest.conf
+#trigtest.pl --test AthenaTrigRDO_L2EFMerging --run AthenaTrigRDO_L2EFMerging --conf TriggerTest.conf
 
 import os
 from RecExConfig.RecFlags import rec
@@ -15,20 +12,27 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 # Generic setup
 ####################################
 #EvtMax=20
-ReadBS=True
+#ReadBS=True
 #testCurrentMenu=True
 #testPhysicsV5=True
 #testLS1V1=True
-rerunLVL1=1
+rerunLVL1=True
 
-OutputLevel=DEBUG
-HLTOutputLevel=DEBUG
+#OutputLevel=DEBUG
+#HLTOutputLevel=DEBUG
 SkipEvents=0
-setPrescale="None"
+#setPrescale="None"
 doValidation=False
-chainOrderedDown=True
+#chainOrderedDown=True
 
 #BSRDOInput='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data'
+
+#used externally with Athena
+#useCONDBR2=False
+#setGlobalTag='COMCOND-HLTP-004-03'
+# athena setDetDescr='ATLAS-R1-2012-02-01-00'
+#setDetDescr='ATLAS-R1-2012-02-00-00'
+#testPhysicsV5=True
 
 #####################################
 # configure the menu
@@ -57,8 +61,8 @@ chainOrderedDown=True
 #generate-rob-ros-map-from-data.py BSRDOInput > rob-ros-map.py
 #include("TrigROBDataProviderSvc/TrigROBDataProviderSvc.py")
 include("TrigROBDataProviderSvc/TrigROBDataProviderSvc_RTT.py")
-include("TriggerTest/rob-ros-map.py")
 #########################################
+include("TriggerTest/rob-ros-map.py")
 
 #when did this come in - check in SVN Trac
 #TriggerFlags.triggerMenuSetup="Physics_pp_v5"
@@ -66,7 +70,6 @@ include("TriggerTest/rob-ros-map.py")
 #####################################################
 include('TriggerRelease/runHLT_standalone.py')
 #####################################################
-
 
 
 ####################################
@@ -78,25 +81,23 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 def configureSteering(trigSteer):
-	trigSteer.OutputLevel=DEBUG
-#VERBOSE
 	trigSteer.enableRerun=False
-	for algo in trigSteer.getChildren(): 
-		algo.OutputLevel = DEBUG
-#INFO
+	trigSteer.enableRobRequestPreparation=True
+	trigSteer.cachingMode=0
+	trigSteer.EBstrategy=1 #call EB at the end of all chains	
+	
+	from TrigSteerMonitor.TrigSteerMonitorConfig import TrigROBMoniConfig
+	TrigSteerMonROB = [  TrigROBMoniConfig() ]	
+	trigSteer.MonTools += TrigSteerMonROB
+
+	trigSteer.OutputLevel=INFO
+	#for algo in trigSteer.getChildren(): 
+	#	algo.OutputLevel = WARNING
+
 	print trigSteer
 
 if TriggerFlags.doHLT():
-	topSequence.TrigSteer_HLT.enableRobRequestPreparation=True
-	topSequence.TrigSteer_HLT.cachingMode=0
-	topSequence.TrigSteer_HLT.EBstrategy=1 #call EB at the end of all chains	
 	configureSteering(topSequence.TrigSteer_HLT)
-else: 
-	if TriggerFlags.doEF():
-		configureSteering(topSequence.TrigSteer_EF)
-	if TriggerFlags.doLVL2():
-		topSequence.TrigSteer_L2.enableRobRequestPreparation=True
-		configureSteering(topSequence.TrigSteer_L2)
 
 
 # additional DEBUG flags:
@@ -105,7 +106,7 @@ else:
 #ToolSvc.TrigDataAccess.OutputLevel=VERBOSE
 
 ServiceMgr.ROBDataProviderSvc.OutputLevel=WARNING
-#ServiceMgr.MessageSvc.debugLimit=0
+ServiceMgr.MessageSvc.debugLimit=0
 ServiceMgr.MessageSvc.warningLimit=0
 #ServiceMgr.MessageSvc.infoLimit=0
 
@@ -115,10 +116,11 @@ print " End of configuration for testAthenaL2EFMerging"
 # MSG::NIL  	(=0) DEFAULT
 # MSG::VERBOSE  (=1)
 # MSG::DEBUG	(=2)
-# MSG::INFO	    (=3)
+# MSG::INFO	(=3)
 # MSG::WARNING  (=4)
 # MSG::ERROR	(=5)
 # MSG::FATAL    (=6)
 # MSG::ALWAYS   (=7)
+
 
 
