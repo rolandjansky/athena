@@ -17,7 +17,7 @@ class TRTUncompressedHit
   TRTUncompressedHit();
   
   // Destructor: FIXME POOL
-  virtual ~TRTUncompressedHit();
+  inline virtual ~TRTUncompressedHit() {};
   
   bool operator < (const TRTUncompressedHit& obj) const
     {return hitID < obj.hitID;}

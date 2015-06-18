@@ -39,7 +39,7 @@ TRTUncompressedHit::TRTUncompressedHit( ) :
 }
 
 // destructor
-TRTUncompressedHit::~TRTUncompressedHit() {}
+// TRTUncompressedHit::~TRTUncompressedHit() {}
 
 // barcode
 int TRTUncompressedHit::GetTrackID() const 
