@@ -41,6 +41,7 @@ public:
   virtual const Property& getProperty( const std::string& name) const;
   virtual StatusCode getProperty( const std::string& n, std::string& v ) const;
   virtual const std::vector<Property*>& getProperties( ) const;
+  virtual bool hasProperty(const std::string& name) const;
 
   virtual const std::string&  type() const;
   virtual const IInterface*   parent() const;
@@ -64,6 +65,13 @@ public:
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
   virtual Gaudi::StateMachine::State FSMState() const;
 #endif
+
+#ifdef ATHENAHIVE
+  virtual const DataObjectDescriptorCollection & inputDataObjects() const;
+  virtual const DataObjectDescriptorCollection & outputDataObjects() const;
+#endif
+
+
 };
 
 #endif // not MCPARTICLEEVENTTPCNV_ROOTTRUTHPARTICLECNVTOOL_H

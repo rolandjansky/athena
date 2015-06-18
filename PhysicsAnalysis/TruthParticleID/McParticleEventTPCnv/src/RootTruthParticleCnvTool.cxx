@@ -185,6 +185,7 @@ StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const{abort();}
 const Property& RootTruthParticleCnvTool::getProperty( const std::string&) const{abort();}
 StatusCode RootTruthParticleCnvTool::getProperty( const std::string&, std::string& ) const{abort();}
 const std::vector<Property*>& RootTruthParticleCnvTool::getProperties( ) const{abort();}
+bool RootTruthParticleCnvTool::hasProperty(const std::string&) const {abort();}
 
 const std::string&  RootTruthParticleCnvTool::type() const{abort();}
 const IInterface*   RootTruthParticleCnvTool::parent() const{abort();}
@@ -208,4 +209,11 @@ const std::string& RootTruthParticleCnvTool::name() const{abort();}
 StatusCode RootTruthParticleCnvTool::execute() {abort();}
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
 Gaudi::StateMachine::State RootTruthParticleCnvTool::FSMState() const{abort();}
+#endif
+
+#ifdef ATHENAHIVE
+const DataObjectDescriptorCollection & 
+RootTruthParticleCnvTool::inputDataObjects() const { abort(); }
+const DataObjectDescriptorCollection & 
+RootTruthParticleCnvTool::outputDataObjects() const { abort(); }
 #endif
