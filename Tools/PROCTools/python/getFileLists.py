@@ -28,24 +28,23 @@ class TCTChainInfo:
         self.eventlist+=((run,event),)
 
 class findTCTFiles:
-    def __init__(self,rDir,vDir,checkAge=False):
-        self._checkAge=checkAge
-        self._rDir=rDir
-        self._vDir=vDir
-        self._commonDirs=dict()
-        self._vFiles=[]
-        self._rFiles=[]
+    def __init__(self, rDir, vDir, checkAge = False):
+        self._checkAge = checkAge
+        self._rDir = rDir
+        self._vDir = vDir
+        self._commonDirs = dict()
+        self._vFiles = []
+        self._rFiles = []
         
     def checkFileAge(self,path):
         try:
-            fileTime=os.stat(path)[8]
+            fileTime = os.stat(path)[8]
         except:
             return
-        age=time()-fileTime
+        age = time() - fileTime
 
-        if age>86400: #More than 24h
-            print "WARNING! File",path
-            print "is more than",int(age/86400.),"day(s) old"
+        if age > 86400: #More than 24h
+            print "WARNING! File %s is more than %d day(s) old" % (path, int(age/86400.))
         return
 
 
@@ -132,10 +131,10 @@ class findTCTFiles:
         print "Seaching for compatible TCT directories ..." 
         allEvents=0
         
-        os.path.walk(self._rDir,self.hasLogfile,True)   # Reference directory
-        os.path.walk(self._vDir,self.hasLogfile,False)  # Validation directory
+        os.path.walk(self._rDir, self.hasLogfile, True)   # Reference directory
+        os.path.walk(self._vDir, self.hasLogfile, False)  # Validation directory
         
-        names=self._commonDirs.keys()
+        names = self._commonDirs.keys()
         for tctname in names:
             tcis = self._commonDirs[tctname]
 
@@ -145,6 +144,8 @@ class findTCTFiles:
 
             ref = tcis[0]
             val = tcis[1]
+
+            formats = ["RDO", "ESD", "AOD", "TAG"] # or anything matching them, though more than one will cause problems! /CO
             
             refEvents = self.getTCTChainInfo(ref)
             if refEvents is None or len(refEvents) == 0:
@@ -152,9 +153,9 @@ class findTCTFiles:
                 self._commonDirs.pop(tctname)
                 continue
             
-            valEvents=self.getTCTChainInfo(val)
+            valEvents = self.getTCTChainInfo(val)
             if valEvents is None or len(valEvents) == 0:
-                print "No events found in",val.logfile
+                print "No events found in", val.logfile
                 continue
 
             if (valEvents == refEvents):
@@ -164,11 +165,31 @@ class findTCTFiles:
                 for format in refEvents:
                     print "%-70s: ref: %d events, val: %d events" % (format, refEvents[format], valEvents[format])
             else:
-                print "TCT %s is NOT compatible, outputs different number of events for at least one format:" % tctname
-                for format in refEvents:
-                    print "  %s, ref: %d, val: %d" % (format, refEvents[format], valEvents[format])
-                # don't compare the files for this then!
-                self._commonDirs.pop(tctname)
+                # workaround for when names of test output files change between two rels 
+                print "The (names of the) output files differ in some way:"
+                print refEvents
+                print valEvents
+                print "Will now attempt to match the files by type"
+                matchFound = False
+                for refFormat in refEvents:
+                    if matchFound:
+                        break # exit loop if a match was found
+                    valFormat = "MOCK"
+                    for vFormat in valEvents:
+                        #print vFormat
+                        for f in formats:
+                            if matchFound:
+                                break
+                            if f in refFormat and f in vFormat:
+                                valFormat = vFormat
+                                print "Both are %s: %s, %s" % (f, refFormat, valFormat)
+                                matchFound = True
+                    print "  %s, ref: %d, val: %d" % (format, refEvents[refFormat], valEvents[valFormat])
+                if not matchFound:
+                    # don't compare the files for this then!
+                    self._commonDirs.pop(tctname)
+                    print "TCT %s is NOT compatible, outputs different number of events for at least one format:" % tctname
+                    print 
                 
         print "Found %i compatible TCT chains with at total of %i events" % (len(self._commonDirs), allEvents)
         #rint "Done"

@@ -65,7 +65,6 @@ def compareTreeFiles(rName,vName,details):
         nBad+=bad
     return (nGood,nBad)
 
-
 def diffPoolFiles(ref,chk,details,toIgnore = ['RecoTimingObj_p1_RAWtoESD_timings', 'RecoTimingObj_p1_ESDtoAOD_timings']):
     import PyUtils.PoolFile as PF
     try:
@@ -177,35 +176,35 @@ if __name__ == "__main__":
     print filePattern
 
     #Hack to process POOL files first (otherwise inifite loop)
-    allPatterns=[]
+    allPatterns = []
     for fP in filePattern:
-        if fP.find("pool")==-1:
+        if fP.find("pool") == -1:
             allPatterns.append(fP)
         else:
-            allPatterns.insert(0,fP)
+            allPatterns.insert(0, fP)
 
     if refPath is None:
-        refPath=tctPath(nRef,rRef);
+        refPath = tctPath(nRef, rRef);
 
     if valPath is None:
-        valPath=tctPath(nVal,rVal);
+        valPath = tctPath(nVal, rVal);
 
-    if not os.access(refPath,os.R_OK):
+    if not os.access(refPath, os.R_OK):
         print "Can't access output of reference TCT at",refPath
         sys.exit(-1)
 
-    if not os.access(valPath,os.R_OK):
+    if not os.access(valPath, os.R_OK):
         print "Can't access output of validation TCT at",valPath
         sys.exit(-1)
    
-    msg="Reference TCT:\n"
-    msg+=refPath+"\n"
-    msg+="Validation TCT:\n"
-    msg+=valPath+"\n"
+    msg = "Reference TCT:\n"
+    msg += refPath + "\n"
+    msg += "Validation TCT:\n"
+    msg += valPath + "\n"
 
     print msg
     if detailsFN is not None:
-        details=open(detailsFN,"w")
+        details = open(detailsFN, "w")
         details.write(msg)
     else:
         details=None
@@ -355,5 +354,3 @@ if __name__ == "__main__":
         
     #print statPerChain
     del diffTTree
-    
-    
