@@ -30,6 +30,12 @@ private
 apply_tag ROOTEGLibs
 end_private
 
+# Specify the required ROOT components to cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS EG)"
+
+# Specify explicit dependency against CLHEP for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(CLHEP)"
+
 library McParticleEventTPCnv *.cxx
 
 apply_pattern tpcnv_library
