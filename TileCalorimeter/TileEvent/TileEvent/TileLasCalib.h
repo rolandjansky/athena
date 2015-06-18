@@ -11,29 +11,37 @@
 
 #include <math.h>
 
-namespace TileLaser{
+
   
-  class TileLasCalib {
-    
-  public:
-    
-    TileLasCalib() :
-    HG(1),LG(0), m_mean_LG(-99.), m_sigma_LG(-99.), m_mean_HG(-99.), m_sigma_HG(-99.), m_type(-1), m_nevts(0), m_isSet_LG(false), m_isSet_HG(false) { }
+class TileLasCalib {
+  
+ public:
+  
+   TileLasCalib() 
+     : HG(1)
+     , LG(0)
+     , m_mean_LG(-99.)
+     , m_sigma_LG(-99.)
+     , m_mean_HG(-99.)
+     , m_sigma_HG(-99.)
+     , m_type(-1)
+     , m_nevts(0)
+     , m_isSet_LG(false)
+     , m_isSet_HG(false) { }
     
     ~TileLasCalib() { }
     
     void setCalib(int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain){
-      if(nevts>0 && !isSet(gain) && (gain==LG || gain==HG) ){
+      if(nevts > 0 && !isSet(gain) && (gain == LG || gain == HG) ){
         double tmp_mean = sumXinQDC / double(nevts);
-        double tmp_sigma = sqrt(sumX2inQDC/nevts-tmp_mean*tmp_mean);
+        double tmp_sigma = sqrt(sumX2inQDC / nevts - tmp_mean * tmp_mean);
         tmp_mean = 8500. - tmp_mean; // CONVERT QDC TO ADC COUNTS
-        if(tmp_mean>0){
-          if(gain==LG){
+        if(tmp_mean > 0){
+          if(gain == LG){
             m_mean_LG = tmp_mean;
             m_sigma_LG = tmp_sigma;
             m_isSet_LG = true;
-          } // IF
-          else{
+          } else { // IF
             m_mean_HG = tmp_mean;
             m_sigma_HG = tmp_sigma;
             m_isSet_HG = true;
@@ -49,8 +57,8 @@ namespace TileLaser{
     // CONVERTED FROM QDC TO ADC BY
     // <X>' = 8500-<X>
     
-    double getMean(int gain) const{
-      if(gain==LG) return m_mean_LG;
+    double getMean(int gain) const {
+      if(gain == LG) return m_mean_LG;
       return m_mean_HG;
     } // getMean
     
@@ -58,7 +66,7 @@ namespace TileLaser{
     // SIGMA = SQRT(SUMX^2/N - <X>^2)
     
     double getSigma(int gain) const{
-      if(gain==LG) return m_sigma_LG;
+      if(gain == LG) return m_sigma_LG;
       return m_sigma_HG;
     } // getSigma
     
@@ -88,9 +96,9 @@ namespace TileLaser{
     } // getN
     
     bool isSet(int gain) const{
-      if(gain==LG) return m_isSet_LG;
-      if(gain==HG) return m_isSet_HG;
-      if(gain!=LG && gain!=HG) return false;
+      if(gain == LG) return m_isSet_LG;
+      if(gain == HG) return m_isSet_HG;
+      if(gain != LG && gain != HG) return false;
       return false;
     } // isSet
     
@@ -109,5 +117,5 @@ namespace TileLaser{
     
   };
   
-}
+
 #endif

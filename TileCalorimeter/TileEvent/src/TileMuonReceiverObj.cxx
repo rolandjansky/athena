@@ -48,3 +48,13 @@ TileMuonReceiverObj::operator std::string() const
 
    return text.str();
  }
+
+void TileMuonReceiverObj::clear(){  
+
+  m_TileMuRcvDecision.clear(); 
+  m_TileMuRcvThresholds.clear(); 
+  m_TileMuRcvEne.clear(); 
+  m_TileMuRcvTime.clear();
+  return;
+
+}

@@ -21,9 +21,8 @@ Raw data classes are: TileDigits, TileRawChannel, TileBeamElem, TileTTL1,
 TileL2, TileTrigger
 Reco classes are: TileCell, TileMu, TileCosmicMuon, TileTTL1Cell
 There is another set of raw data classes to keep information from 
-laser system: TileLaserObject which holds TileLaser::TileLaserControl, 
-TileLaser::TileLaser, vector of TileLaser::TileLaserPmt and 
-TileLaser::TileLaserDiode
+laser system: TileLaserObject which holds TileLaserControl, 
+TileLaser, vector of TileLaserPmt and TileLaserDiode
 
 
 @section TileEventRawData Raw data EDM
@@ -98,8 +97,7 @@ are used instead.
 
 TileLaserObject class contains everything which comes from TileCal Laser system
 This information is unpacked from special laser fragment in the ByteStream and then
-stored in TileLaser::TileLaserControl, TileLaser::TileLaser, TileLaser::TileLaserPmt
-and TileLaser::TileLaserDiode.
+stored in TileLaserControl, TileLaser, TileLaserPmt and TileLaserDiode.
 TileLaserObject keeps all the objects mentioned above as private members and
 provides access methods to all the elements.
 There is only one TileLaserObject in StoreGate.

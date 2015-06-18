@@ -12,16 +12,21 @@
 
 #include <time.h>
 
-namespace TileLaser {
-
-  class TileLaserControl {
+class TileLaserControl {
 
   public:
     
-    TileLaserControl() : m_pumpDiodeTemp(0.0), m_timeLastMeasP(0), m_diodeBoxTemp(0.0),
-                         m_timeLastMeasD(0), m_gasFlux(0.0), m_timeLastMeasF(0),
-                         m_humidity(0.0), m_timeLastMeasH(0), m_lastPedMeas(0),
-                         m_lastAlphaMeas(0) { }
+    TileLaserControl() 
+      : m_pumpDiodeTemp(0.0)
+      , m_timeLastMeasP(0)
+      , m_diodeBoxTemp(0.0)
+      , m_timeLastMeasD(0)
+      , m_gasFlux(0.0)
+      , m_timeLastMeasF(0)
+      , m_humidity(0.0)
+      , m_timeLastMeasH(0)
+      , m_lastPedMeas(0)
+      , m_lastAlphaMeas(0) { }
 
     ~TileLaserControl() { }
       
@@ -46,16 +51,16 @@ namespace TileLaser {
                     const int timeLastMeasH,
                     const time_t lastPedMeas,
                     const time_t lastAlphaMeas ) {
-        m_pumpDiodeTemp=pumpDiodeTemp;
-        m_timeLastMeasP=timeLastMeasP;
-        m_diodeBoxTemp=diodeBoxTemp;
-        m_timeLastMeasD=timeLastMeasD;
-        m_gasFlux=gasFlux;
-        m_timeLastMeasF=timeLastMeasF;
-        m_humidity=humidity;
-        m_timeLastMeasH=timeLastMeasH;
-        m_lastPedMeas=lastPedMeas;
-        m_lastAlphaMeas=lastAlphaMeas;
+        m_pumpDiodeTemp =  pumpDiodeTemp;
+        m_timeLastMeasP = timeLastMeasP;
+        m_diodeBoxTemp = diodeBoxTemp;
+        m_timeLastMeasD = timeLastMeasD;
+        m_gasFlux = gasFlux;
+        m_timeLastMeasF = timeLastMeasF;
+        m_humidity = humidity;
+        m_timeLastMeasH = timeLastMeasH;
+        m_lastPedMeas = lastPedMeas;
+        m_lastAlphaMeas = lastAlphaMeas;
     }
       
   private:
@@ -72,7 +77,5 @@ namespace TileLaser {
     time_t m_lastAlphaMeas;
     
   };
-
-}
 
 #endif

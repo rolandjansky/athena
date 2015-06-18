@@ -9,14 +9,18 @@
 #ifndef TILELASERPLC
 #define TILELASERPLC
 
-namespace TileLaser{
 
-  class TileLaserPLC{
+class TileLaserPLC{
 
   public:
 
-    TileLaserPLC() : m_alphaPos(0),  m_LVdiodes(0.0), m_HVpmts(0.0), 
-                     m_shutter(0), m_interlock(0),  m_alarm(0) { }
+    TileLaserPLC() 
+      : m_alphaPos(0)
+      ,  m_LVdiodes(0.0)
+      , m_HVpmts(0.0)
+      , m_shutter(0)
+      , m_interlock(0)
+      ,  m_alarm(0) { }
 
     ~TileLaserPLC() { }
 
@@ -51,7 +55,7 @@ namespace TileLaser{
     int m_interlock;
     int m_alarm;
  
-  };
-}
+};
+
 
 #endif

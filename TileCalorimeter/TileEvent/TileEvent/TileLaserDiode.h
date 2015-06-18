@@ -9,14 +9,18 @@
 #ifndef TILELASERDIODE_H
 #define TILELASERDIODE_H
 
-namespace TileLaser{
-
 class TileLaserDiode {
 
  public:
 
-  TileLaserDiode() : m_diodeADC(0), m_diodePedestal(0.0), m_diodeSigmaPedestal(0.0), m_alpha(0.0),
-                   m_sigmaAlpha(0.0), m_pedestalAlpha(0.0), m_sigmaPedAlpha(0.0) { }
+  TileLaserDiode() 
+    : m_diodeADC(0)
+    , m_diodePedestal(0.0)
+    , m_diodeSigmaPedestal(0.0)
+    , m_alpha(0.0)
+    , m_sigmaAlpha(0.0)
+    , m_pedestalAlpha(0.0)
+    , m_sigmaPedAlpha(0.0) { }
 
   ~TileLaserDiode() { }
 
@@ -36,13 +40,13 @@ class TileLaserDiode {
                 const double sigmaAlpha,
                 const double pedestalAlpha, 
                 const double sigmaPedAlpha) {
-      m_diodeADC=diodeAdc;
-      m_diodePedestal=diodePedestal;
-      m_diodeSigmaPedestal=diodeSigmaPedestal;
-      m_alpha=alpha;
-      m_sigmaAlpha=sigmaAlpha;
-      m_pedestalAlpha=pedestalAlpha;
-      m_sigmaPedAlpha=sigmaPedAlpha;
+      m_diodeADC = diodeAdc;
+      m_diodePedestal = diodePedestal;
+      m_diodeSigmaPedestal = diodeSigmaPedestal;
+      m_alpha = alpha;
+      m_sigmaAlpha = sigmaAlpha;
+      m_pedestalAlpha = pedestalAlpha;
+      m_sigmaPedAlpha = sigmaPedAlpha;
   }
     
  private:
@@ -57,5 +61,4 @@ class TileLaserDiode {
 
 };
 
-}
 #endif

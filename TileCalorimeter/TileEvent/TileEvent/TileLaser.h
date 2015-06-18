@@ -10,14 +10,17 @@
 #ifndef TILELASER_H
 #define TILELASER_H
 
-namespace TileLaser{
 
 class TileLaser {
 
  public:
 
-  TileLaser() : m_counter(0), m_diodeCurrOrd(0), m_diodeCurrMeas(0), 
-                m_filtNumber(0), m_slamaDelay(0) { }
+  TileLaser() 
+    : m_counter(0)
+    , m_diodeCurrOrd(0)
+    , m_diodeCurrMeas(0)
+    , m_filtNumber(0)
+    , m_slamaDelay(0) { }
 
   ~TileLaser() { }
     
@@ -32,11 +35,11 @@ class TileLaser {
                 const int diodeCurrMeas, 
                 const int filtNumber,
 		const int SlamaDelay) {
-      m_counter=Counter;
-      m_diodeCurrOrd=diodeCurrOrd;
-      m_diodeCurrMeas=diodeCurrMeas;
-      m_filtNumber=filtNumber;
-      m_slamaDelay=SlamaDelay;
+      m_counter = Counter;
+      m_diodeCurrOrd = diodeCurrOrd;
+      m_diodeCurrMeas = diodeCurrMeas;
+      m_filtNumber = filtNumber;
+      m_slamaDelay = SlamaDelay;
   }
  
  private:
@@ -48,7 +51,5 @@ class TileLaser {
   int m_slamaDelay;
 
 };
-
-}
 
 #endif

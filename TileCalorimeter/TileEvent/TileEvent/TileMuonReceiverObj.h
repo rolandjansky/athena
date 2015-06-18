@@ -19,8 +19,8 @@
 //    
 //****************************************************************************
 
-#ifndef TILESIMALGS_TILEMUONRECEIVEROBJ_H
-#define TILESIMALGS_TILEMUONRECEIVEROBJ_H
+#ifndef TILEEVENT_TILEMUONRECEIVEROBJ_H
+#define TILEEVENT_TILEMUONRECEIVEROBJ_H
 
 #include <vector>
 #include <string> 
@@ -39,6 +39,8 @@ class TileMuonReceiverObj {
 
   TileMuonReceiverObj(): m_id(0), m_TileMuRcvDecision(), m_TileMuRcvThresholds(), m_TileMuRcvEne(), m_TileMuRcvTime() {}
 
+  TileMuonReceiverObj( int id ) { m_id=id; }
+
   TileMuonReceiverObj( int id, std::vector<bool> &decision)
    { m_id=id; m_TileMuRcvDecision=decision; }
 
@@ -52,9 +54,11 @@ class TileMuonReceiverObj {
    { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; m_TileMuRcvDecision=decision; }
 
   // destructor
+  //
   virtual ~TileMuonReceiverObj(){}
   
   // set methods
+  //
   void Set(int id, std::vector<bool> &decision)
    { m_id=id; m_TileMuRcvDecision=decision; }
 
@@ -68,15 +72,24 @@ class TileMuonReceiverObj {
    { m_id=id; m_TileMuRcvEne=ene; m_TileMuRcvTime=time; m_TileMuRcvDecision=decision; }
 
   // access methods
+  //
   int GetID() const { return m_id; }
+
+  inline int identify(void) const { return m_id; }
+
   const std::vector<bool>&  GetDecision() const { return m_TileMuRcvDecision; } // [dim 4] 
   const std::vector<float>& GetThresholds() const { return m_TileMuRcvThresholds; } // [dim 4] ... it is the same for every event
   const std::vector<float>& GetEne() const { return m_TileMuRcvEne; } // [dim 2] d6 and d5+d6 
   const std::vector<float>& GetTime() const { return m_TileMuRcvTime; } // [dim 2] (t1+t2)/2. and (t1+t2+t3+t4)/4. : 1..4 are the PMTs with 1,2 > D6 and 3,4 > D5
 
   // print methods
+  //
   std::string whoami (void) const { return "TileMuonReceiverObj"; }
+
   void print(void) const;
+
+  void clear(void);
+
   operator std::string() const;
  
  private:

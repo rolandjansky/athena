@@ -150,14 +150,14 @@ public:
   
 private:
   
-  TileLaser::TileLaserControl m_slowCtrl;
-  TileLaser::TileLaser m_laserParameter;
-  std::vector<TileLaser::TileLaserDiode> m_diodesLG;
-  std::vector<TileLaser::TileLaserDiode> m_diodesHG;
-  std::vector<TileLaser::TileLaserPmt> m_pmtsLG;
-  std::vector<TileLaser::TileLaserPmt> m_pmtsHG;
-  std::vector<TileLaser::TileLasCalib> m_lascalib;
-  TileLaser::TileLaserPLC m_plc;
+  TileLaserControl m_slowCtrl;
+  TileLaser m_laserParameter;
+  std::vector<TileLaserDiode> m_diodesLG;
+  std::vector<TileLaserDiode> m_diodesHG;
+  std::vector<TileLaserPmt> m_pmtsLG;
+  std::vector<TileLaserPmt> m_pmtsHG;
+  std::vector<std::vector<TileLasCalib> > m_lascalib;
+  TileLaserPLC m_plc;
   
   int m_daqtype;
   int m_BCID;
