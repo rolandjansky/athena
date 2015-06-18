@@ -12,28 +12,33 @@
 
 #include "TileEvent/TileLaserObject.h"
 
-using namespace TileLaser;
 
-TileLaserObject::TileLaserObject() :
-m_slowCtrl(),
-m_laserParameter(),
-m_diodesLG(nbDiodes,TileLaserDiode()),
-m_diodesHG(nbDiodes,TileLaserDiode()),
-m_pmtsLG(nbPmts,TileLaserPmt()),
-m_pmtsHG(nbPmts,TileLaserPmt()),
-m_lascalib(nbDiodes+nbPmts,TileLasCalib()),
-m_plc(),
-m_daqtype(0),
-m_BCID(0),
-m_version(0)
+TileLaserObject::TileLaserObject()
+  : m_slowCtrl()
+  , m_laserParameter()
+  , m_diodesLG(nbDiodes,TileLaserDiode())
+  , m_diodesHG(nbDiodes,TileLaserDiode())
+  , m_pmtsLG(nbPmts,TileLaserPmt())
+  , m_pmtsHG(nbPmts,TileLaserPmt())
+  , m_lascalib(nbTypes,std::vector<TileLasCalib>(16))
+  , m_plc()
+  , m_daqtype(0)
+  , m_BCID(0)
+  , m_version(0)
 {
+/*  for(int type=0;type<nbTypes;++type){
+    m_lascalib.push_back(std::vector<TileLasCalib>());
+    for(int chan=0;chan<nbDiodes+nbPmts;++chan){
+      m_lascalib[type].push_back(TileLasCalib());
+    } // FOR
+  } // FOR*/
 } // TileLaserObject::TileLaserObject
 
 double TileLaserObject::getMean(int chan, int gain, int type) const{
   if(type-firstType<0 || type-firstType>=nbTypes) return -1.;
   if(chan<0 || chan>=nbDiodes+nbPmts) return -1.;
   if(gain!=0 && gain!=1) return -1.;
-  if(m_lascalib[chan].getType() == type) return m_lascalib[chan].getMean(gain);
+  if(m_lascalib[type][chan].getType() == type) return m_lascalib[type][chan].getMean(gain);
   return -99.;
 } // getMean
 
@@ -41,7 +46,7 @@ double TileLaserObject::getSigma(int chan, int gain, int type) const{
   if(type-firstType<0 || type-firstType>=nbTypes) return -1.;
   if(chan<0 || chan>=nbDiodes+nbPmts) return -1.;
   if(gain!=0 && gain!=1) return -1.;
-  if(m_lascalib[chan].getType() == type) return m_lascalib[chan].getSigma(gain);
+  if(m_lascalib[type][chan].getType() == type) return m_lascalib[type][chan].getSigma(gain);
   return -99.;
 } // getSigma
 
@@ -49,26 +54,26 @@ int TileLaserObject::getType(int chan, int gain, int type) const{
   if(type-firstType<0 || type-firstType>=nbTypes) return -1;
   if(chan<0 || chan>=nbDiodes+nbPmts) return -1;
   if(gain!=0 && gain!=1) return -1;
-  return m_lascalib[chan].getType();
+  return m_lascalib[type][chan].getType();
 } // getMean
 
 int TileLaserObject::getN(int chan, int gain, int type) const{
   if(type-firstType<0 || type-firstType>=nbTypes) return -1;
   if(chan<0 || chan>=nbDiodes+nbPmts) return -1;
   if(gain!=0 && gain!=1) return -1;
-  return m_lascalib[chan].getN();
+  return m_lascalib[type][chan].getN();
 } // getN
 
 bool TileLaserObject::isSet(int chan, int gain, int type) const{
   if(type-firstType<0 || type-firstType>=nbTypes) return false;
   if(chan<0 || chan>=nbDiodes+nbPmts) return false;
   if(gain!=0 && gain!=1) return false;
-  return m_lascalib[chan].isSet(gain);
+  return m_lascalib[type][chan].isSet(gain);
 } // getSigma
 
 void TileLaserObject::setCalib(int chan, int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain){
-  if(!m_lascalib[chan].isSet(gain)){
-    m_lascalib[chan].setCalib(type,sumXinQDC,sumX2inQDC,nevts,gain);
+  if(!m_lascalib[type][chan].isSet(gain)){
+    m_lascalib[type][chan].setCalib(type,sumXinQDC,sumX2inQDC,nevts,gain);
   } // IF
 } // setCalib
 

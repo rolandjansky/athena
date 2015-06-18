@@ -248,7 +248,7 @@ void TileCell::setEnergy_nonvirt(float e1, float e2, int gain1, int gain2)
 { 
    m_eneDiff = e1-e2;
    m_energy  = e1+e2;
-   m_gain = (CaloGain::CaloGain) ( 0xFFFFFFF0 | (gain2 << 2) | (gain1 & 3) );
+   m_gain = (CaloGain::CaloGain) ( 0xFFFFFFF0 | (static_cast<unsigned int>(gain2) << 2) | (gain1 & 3) );
 }
 
 inline
@@ -260,7 +260,7 @@ void TileCell::setQuality_nonvirt(unsigned char qual, unsigned char qbit, int pm
 inline
 void TileCell::setEqual_nonvirt(int gain) {
    m_eneDiff = 0;
-   m_gain = (CaloGain::CaloGain) ( 0xFFFFFFF0 | (gain << 2) | (gain & 3) );
+   m_gain = (CaloGain::CaloGain) ( 0xFFFFFFF0 | (static_cast<unsigned int>(gain) << 2) | (gain & 3) );
 }
 
 #endif  // TILEEVENT_TILECELL_H

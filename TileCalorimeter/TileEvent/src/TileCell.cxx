@@ -67,7 +67,7 @@ TileCell::TileCell(const CaloDetDescrElement* const & caloDDE,
                    int qual1, int qual2, int qbit1, int qbit2, 
                    int gain1, int gain2)
   : CaloCell(caloDDE,ene1+ene2,(time1+time2)/2.0, 0, 0,
-             (CaloGain::CaloGain) ( 0xFFFFFFF0 | (gain2 << 2) | (gain1 & 3) ))
+             (CaloGain::CaloGain) ( 0xFFFFFFF0 | (static_cast<unsigned int>(gain2) << 2) | (gain1 & 3) ))
   , m_eneDiff(ene1-ene2)
   , m_timeDiff((time1-time2)/2.)
 { 
