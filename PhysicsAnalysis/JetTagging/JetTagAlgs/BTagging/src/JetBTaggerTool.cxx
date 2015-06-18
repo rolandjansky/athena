@@ -34,7 +34,9 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
   m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
   m_PtRescalingTool("Analysis::BTagJetPtScaling"),
-  m_retag(false), m_PtRescale(false)
+  m_retag(false),
+  m_PtRescale(false),
+  m_magFieldSvc("AtlasFieldSvc",n)
 {
 
   declareProperty( "BTagTool", m_bTagTool);
@@ -44,6 +46,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   declareProperty( "BTagJFVtxName", m_BTagJFVtxName );
   declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
   declareProperty( "BTagJetPtRescale", m_PtRescale, "switch to decide whether to carry out jet pt rescaling (to use calorimeter jet tunings for track jets)");
+  declareProperty("MagFieldSvc",    m_magFieldSvc );
 }
 
 JetBTaggerTool::~JetBTaggerTool()
@@ -89,6 +92,12 @@ StatusCode JetBTaggerTool::initialize() {
     return StatusCode::FAILURE;
   } else {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_PtRescalingTool); 
+  }
+
+  /// retrieve the magnetic field service
+  if (m_magFieldSvc.retrieve().isFailure()){
+     ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
+     return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
@@ -225,21 +234,33 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   std::vector<xAOD::Jet*> jetsList;
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
-  for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
-    xAOD::Jet& jetToTag = ( **it );
-    jetsList.push_back(&jetToTag);
-    xAOD::BTagging * newBTag = new xAOD::BTagging();
-    //Push the BTagging object in the container and in the temporary vector
-    bTaggingContainer->push_back(newBTag);
-    btagsList.push_back(newBTag);
-    if (!m_retag) {
-      //Create an element link to be passed to the tagged Jet.
-      //Nothing done in case of re-tagging, assuming the same order is used
-      ElementLink< xAOD::BTaggingContainer> linkBTagger;
-      linkBTagger.toContainedElement(*bTaggingContainer, newBTag);
-      jetToTag.setBTaggingLink(linkBTagger);
-    }
-  } //end loop JetContainer
+  if (m_magFieldSvc->solenoidOn()) {
+    for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
+      xAOD::Jet& jetToTag = ( **it );
+      jetsList.push_back(&jetToTag);
+      xAOD::BTagging * newBTag = new xAOD::BTagging();
+      //Push the BTagging object in the container and in the temporary vector
+      bTaggingContainer->push_back(newBTag);
+      btagsList.push_back(newBTag);
+      if (!m_retag) {
+        //Create an element link to be passed to the tagged Jet.
+        //Nothing done in case of re-tagging, assuming the same order is used
+        ElementLink< xAOD::BTaggingContainer> linkBTagger;
+        linkBTagger.toContainedElement(*bTaggingContainer, newBTag);
+        jetToTag.setBTaggingLink(linkBTagger);
+      }
+    } //end loop JetContainer
+  }
+  else { //Solenoid OFF
+    for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
+      xAOD::Jet& jetToTag = ( **it );
+      if (!m_retag) {
+	ElementLink< xAOD::BTaggingContainer> linkBTagger;
+        jetToTag.setBTaggingLink(linkBTagger);
+      }
+    } //end loop JetContainer
+  } //end test Solenoid status
+
 
   // From here on, no modification should be made to the JetContainer anymore.
   // We use this to create a shallow copy of the JetContainer, for the case of track-jet collections.
@@ -247,24 +268,26 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   
   xAOD::ShallowAuxContainer* jetShallowAuxContainer(0);
   xAOD::JetContainer* jetShallowContainer(0);
-  if (m_PtRescale) {
-    auto rec = xAOD::shallowCopyContainer (jets);
-    jetShallowContainer = rec.first;
-    jetShallowAuxContainer = rec.second;
-    StatusCode sc = m_PtRescalingTool->BTagJetPtScaling_exec(*jetShallowContainer);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("#BTAG# Failed to carry out jet pt rescaling");
-    }
-    // also change the iterators to point to the shallow-copied JetContainer
-    itB = jetShallowContainer->begin();
-    itE = jetShallowContainer->end();
-    // and modify the jetsList variable accordingly
-    unsigned int ijet = 0;
-    for (auto it = itB; it != itE; ++it) {
-      xAOD::Jet& jetToTag = **it;
-      jetsList[ijet++] = &jetToTag;
-    }
-  }  
+  if (m_magFieldSvc->solenoidOn()) {
+    if (m_PtRescale) {
+      auto rec = xAOD::shallowCopyContainer (jets);
+      jetShallowContainer = rec.first;
+      jetShallowAuxContainer = rec.second;
+      StatusCode sc = m_PtRescalingTool->BTagJetPtScaling_exec(*jetShallowContainer);
+      if (sc.isFailure()) {
+        ATH_MSG_WARNING("#BTAG# Failed to carry out jet pt rescaling");
+      }
+      // also change the iterators to point to the shallow-copied JetContainer
+      itB = jetShallowContainer->begin();
+      itE = jetShallowContainer->end();
+      // and modify the jetsList variable accordingly
+      unsigned int ijet = 0;
+      for (auto it = itB; it != itE; ++it) {
+        xAOD::Jet& jetToTag = **it;
+        jetsList[ijet++] = &jetToTag;
+      }
+    } 
+  } 
   
   //if (!m_retag) {
   // FF: the logic may need to be changed to allow for omitting the track association without yielding a WARNING for every jet
@@ -283,7 +306,9 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   //}
 
   std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
-  for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it,++itBTag) {
+  std::vector<xAOD::Jet *>::iterator itJetB = jetsList.begin();
+  std::vector<xAOD::Jet *>::iterator itJetE = jetsList.end();
+  for (std::vector<xAOD::Jet *>::iterator it = itJetB ; it != itJetE; ++it,++itBTag) {
     xAOD::Jet& jetToTag = ( **it );
     // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
     if (! reuse_SVContainer) {

@@ -12,7 +12,7 @@ use xAODBTagging           xAODBTagging-*           Event/xAOD
 use JetInterface           JetInterface-*          Reconstruction/Jet
 use AsgTools               AsgTools-*               Control/AthToolSupport
 use xAODTracking           xAODTracking-*         Event/xAOD
-
+use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
 private
 
 #use AtlasCLHEP             AtlasCLHEP-*             External

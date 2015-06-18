@@ -1139,10 +1139,6 @@ class Configuration:
           print '#BTAG - WARNING - Disabling whole b-tagging since beamType is not collisions...'
           BTaggingFlags.Active = False
           return False
-      if jobproperties.BField.solenoidOn() == False:
-          print '#BTAG - WARNING - Disabling whole b-tagging since solenoid is OFF...'
-          BTaggingFlags.Active = False
-          return False
       if not self._IgnoreTaggerObstacles:
           for tagger in BTaggingFlags._tags:
               if not taggerIsPossible(tagger):
