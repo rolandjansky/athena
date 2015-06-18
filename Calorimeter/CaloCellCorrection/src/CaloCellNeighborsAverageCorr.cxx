@@ -110,15 +110,6 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 {
   ATH_MSG_VERBOSE ( " in process " );
 
-  //inspired from Calorimeter/CaloRec/src/CaloTopoClusterMaker.cxx
-  // (to be moved such that can be jobOptions configurable )
-
-  //one could use various families of neighbors:
-  LArNeighbours::neighbourOption m_nOption;
-  //  m_nOption = LArNeighbours::all3D;
-  m_nOption = LArNeighbours::all2D; //gives less bias than all3D
-  //m_nOption = LArNeighbours::super3D;
-  
   std::vector<IdentifierHash> theNeighbors;
   theNeighbors.reserve(22);
   
@@ -209,12 +200,11 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
       //We need a IdentifierHash to pass as input to the get_neighbors().
       //   IdentifierHash theCellHashID = theCell->getID(); //this doesn't work (any more?)
       Identifier theCellID = aCell->ID();
+      const float oldE=aCell->energy();
       IdentifierHash theCellHashID = m_calo_id->calo_cell_hash(theCellID); 
-
-      ATH_MSG_VERBOSE ( " correcting " << ((isTile)?"Tile":"LAr") <<  " hash " << theCellHashID );
       
       //Find now the neighbors around theCell, and store them in theNeighbors vector.
-      m_calo_id->get_neighbours(theCellHashID,m_nOption,theNeighbors);
+      m_calo_id->get_neighbours(theCellHashID,LArNeighbours::all2D,theNeighbors);
       
       //std::cout << "Found " << theNeighbors.size() << " neighbors." << std::endl;
       
@@ -223,11 +213,13 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
       if (caloDDE) volumeOfTheCell = caloDDE->volume();
       //     std::cout << " volumeOfTheCell " << volumeOfTheCell << std::endl;
       if (volumeOfTheCell==0) continue;
-      int theCellSampling = caloDDE->getSampling();
+      //int theCellSampling = caloDDE->getSampling();
       //      if (theCellSubCalo == CaloCell_ID::TILE) {
       //      std::cout << "theCell = " << theCellSubCalo << "  " << theCellSampling  << " is at eta=" << aCell->eta() << " phi=" << aCell->phi() << " E=" << aCell->energy() << " V=" << volumeOfTheCell*1e-6 << "D=" << aCell->energy() / volumeOfTheCell * 1e6 << std::endl;
       //      }
-	  
+	
+
+      const Identifier theCellRegion=m_calo_id->region_id(theCellID);
       //loop through neighbors, and calculate average energy density of guys who have a legitimate volume (namely >0).
       float totalEnergyDensity=0;
       float legitimateNeighbors=0;
@@ -242,13 +234,21 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 	  //	  std::cout << "GEORGIOS DEBUGGING Retrieving cannedUncorrectedEnergies[" << thisNeighbor << "] = " << cannedUncorrectedEnergies[thisNeighbor] << std::endl;
 	}
 	if (thisNeighbor->badcell()) continue;
-	int thisNeighborSubCalo = thisNeighborDDE->getSubCalo();
-	int thisNeighborSampling = thisNeighborDDE->getSampling();
-	if (thisNeighborSubCalo != theCellSubCalo) continue;
-	if (thisNeighborSampling != theCellSampling) continue; //if the quality of the cell is very different, it's a wrong idea that dE/dV would be similar.
+	//int thisNeighborSubCalo = thisNeighborDDE->getSubCalo();
+	//int thisNeighborSampling = thisNeighborDDE->getSampling();
+	//if (thisNeighborSubCalo != theCellSubCalo) continue;
+	//if (thisNeighborSampling != theCellSampling) continue; //if the quality of the cell is very different, it's a wrong idea that dE/dV would be similar.
+	const Identifier thisNeighborRegion=m_calo_id->region_id(thisNeighbor->ID());
+
+	//Use only neighbors of the same region
+	if (thisNeighborRegion!=theCellRegion) {
+	  ATH_MSG_VERBOSE("Ignoring neighbor in different region " << thisNeighborRegion.get_identifier32().get_compact() << "/" << theCellRegion.get_identifier32().get_compact());
+	  continue;
+	}
 	float thisVolume = thisNeighborDDE->volume();
 	if (thisVolume <= 0) continue;
-	
+
+	//A suitable neightbor if we arrive at this point
 	legitimateNeighbors++;
 	float thisEnergyDensity= thisEnergy / thisVolume;
 	totalEnergyDensity += thisEnergyDensity;
@@ -256,15 +256,20 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 	//	if (theCellSubCalo == CaloCell_ID::TILE && theCellSampling == CaloCell_ID::TileBar0)
 	//	std::cout << "Neighbor " << iN << " : " << thisNeighborSubCalo << " , " << thisNeighborSampling << " : " << thisNeighbor->eta() << " , " << thisNeighbor->phi() << " E=" << thisNeighbor->energy() << " V=" << thisVolume*1e-6 << " D=" << thisEnergyDensity*1e6 << std::endl;
 
-      }
+      } //end loop over neighbors
       float averageEnergyDensity=0;
-      if(legitimateNeighbors <= 0) continue;
+      if(legitimateNeighbors <= 0) {
+	ATH_MSG_INFO("Did not get any suitable neighbor for cell " << theCellID.get_identifier32().get_compact());
+	continue;
+      }
+
       averageEnergyDensity = totalEnergyDensity / legitimateNeighbors;
       
       //now use the average energy density to make a prediction for the energy of theCell
       float predictedEnergy = averageEnergyDensity * volumeOfTheCell;
       aCell->setEnergy(predictedEnergy);
-      
+      ATH_MSG_VERBOSE ( " correcting " << ((isTile)?"Tile":"LAr") <<  " id " << theCellID.get_identifier32().get_compact() << " Eold=" 
+			<<oldE << "Enew=" << predictedEnergy << ", used " << legitimateNeighbors <<  "neighbors" );
     }  // end of if(badcell)
   }  // end loop over cells
   return StatusCode::SUCCESS;
