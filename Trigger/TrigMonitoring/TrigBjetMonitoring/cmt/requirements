@@ -32,6 +32,7 @@ use     xAODBTagging            xAODBTagging-*                  Event/xAOD
 #use     xAODCore                xAODCore-*                      Event/xAOD 
 #use     BTagging                BTagging-*                      PhysicsAnalysis/JetTagging/JetTagAlgs
 use     xAODTracking            xAODTracking-*                  Event/xAOD
+use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
 
 
 apply_tag ROOTGraphicsLibs
