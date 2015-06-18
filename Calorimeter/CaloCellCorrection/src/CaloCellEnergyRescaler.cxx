@@ -23,9 +23,14 @@ CaloCellEnergyRescaler::~CaloCellEnergyRescaler() {}
 
 StatusCode CaloCellEnergyRescaler::initialize() {
 
-  ATH_CHECK( detStore()->regFcn(&CaloCellEnergyRescaler::load,
-                                dynamic_cast<CaloCellEnergyRescaler*>(this),
-                                m_attrList,m_key) );
+  StatusCode sc=detStore()->regFcn(&CaloCellEnergyRescaler::load,
+				   dynamic_cast<CaloCellEnergyRescaler*>(this),
+				   m_attrList,m_key);
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Cound not register Callback function for AthenaAttributeList with key " << m_key << endreq;
+    return sc;
+  }
+
   return StatusCode::SUCCESS;
 }
 

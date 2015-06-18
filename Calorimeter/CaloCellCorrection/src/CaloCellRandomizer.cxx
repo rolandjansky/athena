@@ -22,6 +22,9 @@
 
 #include <CLHEP/Random/Randomize.h>
 
+#include "GaudiKernel/MsgStream.h"
+
+
 using CLHEP::RandGauss;
 
 
@@ -62,11 +65,26 @@ CaloCellRandomizer::CaloCellRandomizer(
 
 StatusCode CaloCellRandomizer::initialize()
 {
-  ATH_MSG_INFO( " in CaloCellRandomizer::initialize() "  );
-  ATH_CHECK( m_noiseTool.retrieve() );
-  ATH_MSG_INFO( "Noise Tool retrieved"  );
-  ATH_MSG_INFO( "CaloCellRandomizer initialize() end"  );
+ MsgStream  log(msgSvc(),name());
+ log << MSG::INFO << " in CaloCellRandomizer::initialize() " << endreq;
+
+  
+
+  if(m_noiseTool.retrieve().isFailure()){
+    log << MSG::INFO
+	<< "Unable to find tool for CaloNoiseTool"
+	<< endreq;
+    return StatusCode::FAILURE;
+  }  
+  else {
+    log << MSG::INFO << "Noise Tool retrieved" << endreq;
+  }
+  
+  log << MSG::INFO << "CaloCellRandomizer initialize() end" << endreq;
+
+  
   return StatusCode::SUCCESS;
+
 }
 
 
@@ -91,6 +109,10 @@ void CaloCellRandomizer::MakeCorrection(CaloCell* theCell)
   GaussShifted = Gauss+m_fractionSigma;
 
 
+  MsgStream  log(msgSvc(),name());
+  
+    
+    
   if( m_GaussRand  ){
     setenergy(theCell,(Gauss*SigmaNoise));
   }

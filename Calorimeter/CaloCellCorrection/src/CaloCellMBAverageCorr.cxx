@@ -36,9 +36,16 @@ CaloCellMBAverageCorr::CaloCellMBAverageCorr(
 
 StatusCode CaloCellMBAverageCorr::initialize()
 {
- ATH_MSG_INFO( " in CaloCellMBAverageCorr::initialize() "  );
- ATH_CHECK( m_caloMBAverageTool.retrieve() );
+ MsgStream  log(msgSvc(),name());
+ log << MSG::INFO << " in CaloCellMBAverageCorr::initialize() " << endreq;
+
+ if (m_caloMBAverageTool.retrieve().isFailure()) {
+  log << MSG::ERROR << " cannot retrieve m_caloMBAverageTool";
+  return StatusCode::FAILURE;
+ }
+
   return StatusCode::SUCCESS;
+
 }
 
 

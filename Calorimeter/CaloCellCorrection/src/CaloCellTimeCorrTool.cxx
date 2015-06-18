@@ -22,9 +22,13 @@ CaloCellTimeCorrTool::~CaloCellTimeCorrTool() {}
 
 
 StatusCode CaloCellTimeCorrTool::initialize() {
-  ATH_CHECK( detStore()->regFcn(&CaloCellTimeCorrTool::load,
-                                dynamic_cast<CaloCellTimeCorrTool*>(this),
-                                m_attrList,m_key) );
+  StatusCode sc=detStore()->regFcn(&CaloCellTimeCorrTool::load,
+				   dynamic_cast<CaloCellTimeCorrTool*>(this),
+				   m_attrList,m_key);
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Cound not register Callback function for AthenaAttributeList with key " << m_key << endreq;
+     return sc;
+  }
   return StatusCode::SUCCESS;
 }
 

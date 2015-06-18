@@ -37,10 +37,7 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
-    m_caloCoolIdTool("CaloCoolIdTool"),
-    m_cellId(nullptr),
-    m_caloLumiBCIDTool(""),
-    m_isMC(false)
+   m_caloCoolIdTool("CaloCoolIdTool"),m_caloLumiBCIDTool(""),m_isMC(false)
 {
  declareInterface<CaloCellCorrection>(this);
  declareProperty("Luminosity",m_lumi0=0,"Luminosity in 10**33 units");
@@ -57,15 +54,19 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 
 StatusCode CaloCellPedestalCorr::initialize()
 {
-  ATH_MSG_INFO( " in CaloCellPedestalCorr::initialize() "  );
+  msg(MSG::INFO) << " in CaloCellPedestalCorr::initialize() " << endreq;
 
   ATH_CHECK(detStore()->retrieve(m_cellId, "CaloCell_ID"));
 
   if (m_lumi0<0) {
     if (detStore()->contains<CondAttrListCollection>(m_lumiFolderName)) {
       const DataHandle<CondAttrListCollection> lumiData;
-      ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateLumi, this , lumiData, m_lumiFolderName, true) );
-      ATH_MSG_INFO( " Registered a callback for " << m_lumiFolderName << " Cool folder "  );
+      StatusCode sc = detStore()->regFcn(&CaloCellPedestalCorr::updateLumi, this , lumiData, m_lumiFolderName, true);
+      if (sc.isFailure()) {
+          msg(MSG::ERROR) << " cannot register callback for luminosity " << endreq;
+          return StatusCode::FAILURE;
+      }
+      msg(MSG::INFO) << " Registered a callback for " << m_lumiFolderName << " Cool folder " << endreq;
     }
     m_lumi0=0;
   }
@@ -73,8 +74,12 @@ StatusCode CaloCellPedestalCorr::initialize()
 
   if (!m_isMC) {
     //=== Register callback for this data handle
-    ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName) );
-    ATH_MSG_INFO( " registered a callback for " << m_folderName << " folder "  );
+    StatusCode sc=detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << " cannot register callback " << endreq;
+      return StatusCode::FAILURE;
+    }
+    msg(MSG::INFO) << " registered a callback for " << m_folderName << " folder " << endreq;
 
     ATH_CHECK(m_caloCoolIdTool.retrieve());
   }
@@ -83,7 +88,7 @@ StatusCode CaloCellPedestalCorr::initialize()
     ATH_CHECK(m_caloLumiBCIDTool.retrieve());
   }
   
-  ATH_MSG_INFO( "CaloCellPedestalCorr initialize() end"  );
+  msg(MSG::INFO) << "CaloCellPedestalCorr initialize() end" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -93,7 +98,7 @@ StatusCode CaloCellPedestalCorr::initialize()
 StatusCode
 CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
 {
-  ATH_MSG_INFO( " in updateLumi() "  );
+  msg(MSG::INFO) << " in updateLumi() " << endreq;
 
   const CondAttrListCollection* attrListColl = 0;
   ATH_CHECK(detStore()->retrieve(attrListColl, m_lumiFolderName));
@@ -105,11 +110,11 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
      if (msgLvl(MSG::DEBUG)) {
        std::ostringstream attrStr1;
        (*first).second.toOutputStream( attrStr1 );
-       ATH_MSG_DEBUG( "ChanNum " << (*first).first << " Attribute list " << attrStr1.str()  );
+       msg(MSG::DEBUG) << "ChanNum " << (*first).first << " Attribute list " << attrStr1.str() << endreq;
      }
      const coral::AttributeList& attrList = (*first).second;
      if (attrList["LBAvInstLumi"].isNull()) {
-       ATH_MSG_WARNING( " NULL Luminosity information in database ... set it to 0 "  );
+       msg(MSG::WARNING) << " NULL Luminosity information in database ... set it to 0 " << endreq;
        m_lumi0 = 0.;
      } else {
        m_lumi0 = attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
@@ -118,10 +123,10 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
    }
   }
   if ( !(m_lumi0 == m_lumi0) ) {
-    ATH_MSG_WARNING( " Luminosity not a number ?  m_lumi0 " << m_lumi0 << "   ... set it to 0 "  );
+    msg(MSG::WARNING) << " Luminosity not a number ?  m_lumi0 " << m_lumi0 << "   ... set it to 0 " << endreq;
     m_lumi0 = 0.;
   }
-  ATH_MSG_INFO( " Luminosity " << m_lumi0  );
+  msg(MSG::INFO) << " Luminosity " << m_lumi0 << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -136,7 +141,7 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endmsg;
+  msg() << endreq;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();
