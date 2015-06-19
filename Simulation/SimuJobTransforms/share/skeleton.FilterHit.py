@@ -127,6 +127,17 @@ Stream1.ItemList=["EventInfo#*",
                   "TrackRecordCollection#MuonEntryLayer"] # others not used in pileup
 #                  "TrackRecordCollection#MuonExitLayer", # not used in pileup
 #                  "TrackRecordCollection#CaloEntryLayer"] # not used in pileup
+
+# Deal with "new" truth jet collections properly
+from PyJobTransforms.trfUtils import releaseIsOlderThan
+if releaseIsOlderThan(20,0):
+    #Hack to maintain compatibility of G4AtlasApps trunk with
+    #19.2.X.Y after EDM changes in release 20.0.0.
+    Stream1.ItemList += ["xAOD::JetContainer_v1#*",
+                         "xAOD::JetAuxContainer_v1#*"]
+else:
+    Stream1.ItemList += ["xAOD::JetContainer#*",
+                         "xAOD::JetAuxContainer#*"]
 #BLM
 #Stream1.ItemList += ["SiHitCollection#BLMHits"] # not used in digi
 #BCM
