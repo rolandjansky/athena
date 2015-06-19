@@ -55,24 +55,22 @@ public:
 
   ~LArRecoMaterialTool();
   static const InterfaceID& interfaceID( ) ; 
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize();
+  StatusCode finalize();
 
-  virtual
   bool get_material (CaloSubdetNames::ALIGNVOL alvol, 
 		     double& mass, double& volume,
 		     double& x0, double& dEdx,
 		     double& aveA, double& aveZ
-		     ) const  override;
+		     );
 
   /** default material used to fill the envelope */
-  virtual
   void get_default_material (double& density,
 			     double& x0, double& dEdx,
 			     double& aveA, double& aveZ
-			     ) const override;
+			     );
 
-  void print() const override;
+  void print();
 
 private:
 

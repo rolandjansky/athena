@@ -71,7 +71,7 @@ LArCellVolumes::CellVolume ( Identifier cell_id )
     std::cerr << "LArCellVolumes::CellVolume(). Problem in LArCellVolumes: no cell volumes...\n"; 
   else
   {
-  //log << MSG::INFO << "Looking for volume for cell :" << endmsg;
+  //log << MSG::INFO << "Looking for volume for cell :" << endreq;
   //m_calocell_id->print(cell_id);
 
   // compute Identifier of Cell with same eta, but phi=0 and pos side

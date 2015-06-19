@@ -68,7 +68,7 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
     sc = svcLoc->service( "DetectorStore", m_pDetStore );
 
     if (!sc.isSuccess() || 0 == m_pDetStore)  {
-      log <<MSG::FATAL <<"Could not find DetectorStore" <<endmsg;
+      log <<MSG::FATAL <<"Could not find DetectorStore" <<endreq;
       // do not try to go further: nothing will work anyway
       return;
     }
@@ -80,12 +80,12 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 
     sc = svcLoc->service("GeoModelSvc",m_geoModelSvc);
     if (sc.isFailure()) 
-      log << MSG::ERROR << "Unable to get pointer to GeoModel service" << endmsg;
+      log << MSG::ERROR << "Unable to get pointer to GeoModel service" << endreq;
     else
     {
       DecodeVersionKey detectorKey = DecodeVersionKey(m_geoModelSvc, "LAr");
       log <<MSG::INFO << "DecodeVersionKey found : " << detectorKey.tag() 
-	  << " " << detectorKey.tag()<<endmsg;
+	  << " " << detectorKey.tag()<<endreq;
 
       if ( detectorKey.tag() != "LAr-H8-00" &&  detectorKey.tag() != "LAr-H6-00"
 	   && detectorKey.tag() != "LAr-G3-00")
@@ -95,18 +95,18 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 	}
     }
 
-    log <<MSG::INFO <<"Readout geometry will use : " << m_tag << " " << m_node <<endmsg;
+    log <<MSG::INFO <<"Readout geometry will use : " << m_tag << " " << m_node <<endreq;
 
     // Acess the DB service :
 
     sc = svcLoc->service("RDBAccessSvc",m_iAccessSvc);
     if (sc.isFailure()) 
       {
-	log << MSG::ERROR << "Unable to get RDBAccessSvc." << endmsg;
+	log << MSG::ERROR << "Unable to get RDBAccessSvc." << endreq;
       }
     else
       {
-	log <<MSG::INFO <<" did access RDBAccessSvc " <<endmsg;
+	log <<MSG::INFO <<" did access RDBAccessSvc " <<endreq;
 
 	m_iAccessSvc->connect();
 
@@ -130,7 +130,7 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 	if(recCellVolumes->size())
 	  m_cellVolumes = new LArCellVolumes(recCellVolumes);
 	else 
-	  log << MSG::ERROR << "Unable to get LArCellVolumes" << endmsg;
+	  log << MSG::ERROR << "Unable to get LArCellVolumes" << endreq;
 
 	m_iAccessSvc->disconnect();
 	

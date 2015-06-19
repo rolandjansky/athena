@@ -44,28 +44,26 @@ public:
 		  const std::string& name, 
 		  const IInterface* parent); 
 
-  virtual ~LArRecoSimpleGeomTool();
+  ~LArRecoSimpleGeomTool();
   static const InterfaceID& interfaceID( ) ; 
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  StatusCode initialize();
+  StatusCode finalize();
   
   /** the enum ALIGNVOL covers all LAr pieces, including cryostats and coil */
   
-  virtual
   bool get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 			     Amg::Transform3D& htrans,double& hphi,
 			     std::vector<double>& radius,  
 			     std::vector<double>& depth, 
-			     std::vector<double>& hlength ) const override;
+			     std::vector<double>& hlength );
   
-  virtual
   bool get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
 			 Amg::Transform3D& htrans,double& hphi, 
 			 std::vector<double>& z, 
 			 std::vector<double>& depth,
-			 std::vector<double>& rmin, std::vector<double>& rmax ) const override;
+			 std::vector<double>& rmin, std::vector<double>& rmax );  
    
-  virtual void print() const override;
+  void print();
 
 private:
   
@@ -82,7 +80,7 @@ private:
 	       std::vector<double>& hlength );
 
   // mapping between ALIGNVOL and strings (need to retrieve StoredPV-s)
-  std::string map_av(CaloSubdetNames::ALIGNVOL alvol) const;
+  std::string map_av(CaloSubdetNames::ALIGNVOL alvol);
 
   const CaloCell_ID*        m_calo_id;
   CaloPhiRange             m_phi_range;
@@ -91,6 +89,8 @@ private:
   std::string m_geometry;
 
   IRDBAccessSvc* m_iAccessSvc;
+  const IRDBRecordset* m_lar;
+  const IRDBRecord* m_rec;
   const IGeoModelSvc* m_geoModelSvc;
 
   const IRDBRecordset* m_recCryoCyl;

@@ -92,7 +92,7 @@ LArRecoMaterialTool::get_material (CaloSubdetNames::ALIGNVOL alvol,
 				   double& mass, double& volume,
 				   double& x0, double& dEdx,
 				   double& aveA, double& aveZ
-				   ) const
+				   )
 {
   bool result = false;
 
@@ -117,7 +117,7 @@ void
 LArRecoMaterialTool::get_default_material (double& density,
 					   double& x0, double& dEdx,
 					   double& aveA, double& aveZ
-					   ) const
+					   )
 {
   // FIXME ! should take real LAr numbers 
   density = 1.;
@@ -129,7 +129,7 @@ LArRecoMaterialTool::get_default_material (double& density,
 }
 
 void
-LArRecoMaterialTool::print () const
+LArRecoMaterialTool::print ()
 {
     
   for ( unsigned int i = 0; i < m_alignvol_number.size(); i++ )
@@ -215,13 +215,12 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
   // Shortcut : 
   if ( !m_parseGeoModelForMaterial )
     {
-      //if ( alvol == CaloSubdetNames::LARCRYO_B || alvol == CaloSubdetNames::SOLENOID) {
+      if ( alvol == CaloSubdetNames::LARCRYO_B || alvol == CaloSubdetNames::SOLENOID) {
 	mass = 3.61158e+07  ;
 	x0 = 89.411;
 	dEdx = 7.47033e-24 ;
 	aveA = 27.9728;
 	aveZ = 13.4253 ; 
-#if 0
       } else {
 	mass = 3.61158e+07  ;
 	x0 = 89.411;
@@ -229,7 +228,6 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
 	aveA = 27.9728;
 	aveZ = 13.4253 ; 
       } 
-#endif
     }
 #if 0
   // Dead code as long as m_parseGeoModelForMaterial is false.
