@@ -58,6 +58,7 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
     if overlayTransform:
         SimExe.inData = [('EVNT', 'BS_SKIM')]
         SimExe.outData = ['HITS']
+        SimExe.inputDataTypeCountCheck = ['EVNT']
     executorSet.add(SimExe)
 
 def addAtlasG4Substep(executorSet):
