@@ -277,7 +277,6 @@ StatusCode EMBremCollectionBuilder::contExecute()
           ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*m_trackTES,trackNumber);
 	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
 	  gsfTrack->auxdata< ElementLink< xAOD::TrackParticleContainer > >( "originalTrackParticle" ) = linkToOriginal;
-	  linkToOriginal.toPersistent();
 		  
 	  if(m_doTruth){
 	    //Add Truth decorations. Copy from the original.
@@ -285,7 +284,6 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	    if(tPL.isAvailable(*(*track_iter))){
 	      ElementLink<xAOD::TruthParticleContainer> linkToTruth= tPL(*(*track_iter));
 	      tPL(*gsfTrack) = linkToTruth;	      
-	      linkToTruth.toPersistent();    
 	      
 	      if(!linkToTruth.isValid()){
 		ATH_MSG_DEBUG("Cannot create Valid Link to Truth Particle for GSFTrackParticle");

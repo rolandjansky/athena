@@ -103,7 +103,6 @@ bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::Ca
   double e1 = 0.;
   double e2 = 0.;
   double e3 = 0.;
-  double eallsamples = 0;
   
   if ( cluster->inBarrel() && !cluster->inEndcap() ){
     e0 = cluster->eSample(CaloSampling::PreSamplerB);
@@ -141,23 +140,25 @@ bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::Ca
   }   
   
   // sum of energy in all samplings
-  eallsamples = e0+e1+e2+e3;
+  const double eallsamples = e0+e1+e2+e3;
 
   if (eallsamples!=0.) {
+    const double inv_eallsamples = 1. / eallsamples;
+
     // check fraction of energy reconstructed in presampler
-    double f0 = e0/eallsamples;
+    double f0 = e0 * inv_eallsamples;
     if (f0 > m_thrF0max) return false;
 
     // check fraction of energy reconstructed in first sampling
-    double f1 = e1/eallsamples;
+    double f1 = e1 * inv_eallsamples;
     if (f1 > m_thrF1max) return false;
 
     // check fraction of energy reconstructed in second sampling
-    double f2 = e2/eallsamples;
+    double f2 = e2 * inv_eallsamples;
     if (f2 > m_thrF2max) return false;
 
     // check fraction of energy reconstructed in third sampling
-    double f3 = e3/eallsamples;
+    double f3 = e3 * inv_eallsamples;
     if (f3 > m_thrF3max) return false;
   }
 

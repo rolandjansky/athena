@@ -492,9 +492,7 @@ void egammaSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* cluster) 
 ElementLink< xAOD::TrackParticleContainer > egammaSuperClusterBuilder::GetTrackParticleLink(const xAOD::TrackParticleContainer* tracks,
 											    const xAOD::TrackParticle* track)
 {
-
-  int nTrk(-1);
-  
+  int nTrk(-1); 
   for (const auto& egTrack : *tracks) {
     nTrk++;
     if (egTrack->perigeeParameters().position().perp() == track->perigeeParameters().position().perp()) {

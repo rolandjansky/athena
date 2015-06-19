@@ -11,6 +11,7 @@
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
+#include "LumiBlockComps/LumiBlockMuTool.h"
 
 // ===========================================================================
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
@@ -47,6 +48,12 @@ EMPIDBuilder::EMPIDBuilder(const std::string& type,
 
   declareProperty("LHValueName", m_LHValueName="LHValue",
     "The LH Value name");
+
+  /** Luminosity tool */
+  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
+  //** Flag *//
+  declareProperty("UseLuminosityTool", m_UselumiBlockMuTool = false, 
+		  "Use Luminosity Tool instead of value stored in xAOD");
 
 }
 
@@ -105,6 +112,14 @@ StatusCode EMPIDBuilder::initialize()
     return StatusCode::FAILURE;
   }
 
+  if (m_UselumiBlockMuTool) {
+    // retrieve the lumi tool
+    if (m_lumiBlockMuTool.retrieve().isFailure()) {
+      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -154,20 +169,30 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
 
   size_t sizeLH = m_electronLHselectors.size();
 
+    //negative mu means the default behaviour --> retrieve the one in xAOD 
+    double mu = -99.;
+    double avg_mu = -99.;
+    if(m_UselumiBlockMuTool && m_lumiBlockMuTool){ //
+      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+      ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+      ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+    }
+
   for (size_t i = 0; i<sizeLH; ++i) {
-   const Root::TAccept& accept = m_electronLHselectors[i]->accept(eg);
-   //save the bool result
-   eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
-   //save the isem
-   eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_electronLHselectorResultNames[i]); 
-
-   //save the LHValue only once
-   if(i==0){
-     eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->getTResult().getResult(0)),m_LHValueName);
-   }
-
+  
+    const Root::TAccept& accept = m_electronLHselectors[i]->accept(eg,avg_mu);
+    //save the bool result
+    eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
+    //save the isem
+    eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_electronLHselectorResultNames[i]); 
+    
+    //save the LHValue only once
+    if(i==0){
+      eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->getTResult().getResult(0)),m_LHValueName);
+    }  
   }
-
+  
   size_t sizeGen = m_genericIsEMselectors.size();
   for (size_t i = 0; i<sizeGen;++i) {
     const Root::TAccept& accept = m_genericIsEMselectors[i]->accept(eg);

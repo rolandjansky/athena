@@ -257,7 +257,7 @@ bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD
   auto convType = xAOD::EgammaHelpers::conversionType(&vertex);
   bool isSingle = (convType == singleTRT || convType == singleSi);
   bool isTRT = (convType == singleTRT || convType == xAOD::EgammaParameters::doubleTRT);
-  float EoverPcut = m_maxEoverP_singleTrack*(1+m_maxEoverP_singleTrack_EtSf*cluster.et()/1e3);
+  float EoverPcut = m_maxEoverP_singleTrack*(1+m_maxEoverP_singleTrack_EtSf*cluster.et()*1e-3);
   
   // Check TRT tube hit fraction
   float tubeHitFraction = getMaxTRTTubeHitFraction(vertex);

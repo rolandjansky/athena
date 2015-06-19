@@ -24,6 +24,7 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "FourMom/EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP.h"
+#include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 
 //  END OF HEADER FILES INCLUDE
 using CLHEP::GeV;
@@ -51,6 +52,12 @@ EMFourMomBuilder::EMFourMomBuilder(const std::string& type,
   declareProperty("m_FourMomCombiner",
 		  m_FourMomCombiner,
 		  "Tool for performing E-p combination");		  
+
+
+  // 
+  declareProperty("ResolutionConfiguration",
+		  m_ResolutionConfiguration = "run2_pre",
+		  "Resolution Configuration");
   
 }
 
@@ -65,7 +72,6 @@ EMFourMomBuilder::~EMFourMomBuilder()
 StatusCode EMFourMomBuilder::initialize()
 {
   ATH_MSG_DEBUG(" Initializing EMFourMomBuilder");
- 
  return StatusCode::SUCCESS;
 }
 
@@ -125,6 +131,8 @@ StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg, unsigned int index)
 
 // ===================================================================
 StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,unsigned int index){
+
+  //=========== In case we manage to have combination as default
   if (m_useCombination) {
     //Get # of Si hits.
     uint8_t nPixel(0), nSCT(0);
@@ -141,7 +149,7 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,unsigned int i
     //Put combined error matrix in EMErrorDetail.
     saveParameters(el);
   }
-  //===========No combination  
+  //===========No combination  default for now !
   else{
     const xAOD::CaloCluster *cluster = el->caloCluster();
     if (!cluster) {
@@ -172,8 +180,13 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el,unsigned int i
     m.setZero();
     m = J * (covmat * J.transpose());
     
+    //Energy resolution for the cluster
+    static eg_resolution eg_resol(m_ResolutionConfiguration);
+    eg_resol.msg().setLevel(this->msg().level());
+    const float sigmaE_over_E= eg_resol.getResolution(0,E,cluster->eta());
+
     //Rearrange the elements of the d0, z0, phi, eta, P representation to make the (E, eta, phi, M)     
-    matrix(0,0) = m(4,4); //This should come from the cluster E 
+    matrix(0,0) = sigmaE_over_E* E * sigmaE_over_E *E ;//This comes from the cluster Energy resolution 
     matrix(1,1) = m(3,3);
     matrix(2,2) = m(2,2);     
     matrix.fillSymmetric(0,1,m(4,3));
@@ -207,11 +220,6 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Photon* ph){
   //Set the four momentum.
   ATH_MSG_DEBUG("Setting P4 using E=" << E << " eta=" << eta << " phi=" << phi <<" mass" << mass);
   ph->setP4( E/cosh(eta), eta, phi, mass);
-  //Set the covariance matrix.
-  //dynamic variable not filled for now for Photons
-  //AmgMatrix(4,4) matrix;
-  //matrix.setZero();
-  //ph->setCovMatrix(matrix.cast<float>()); 
 
   return StatusCode::SUCCESS;
 }
@@ -240,22 +248,13 @@ StatusCode EMFourMomBuilder::setFromCluster(xAOD::Egamma* eg)
   else{
     eg->setP4( E/cosh(eta), eta, phi, mass);
   }
-  //Set the covariance matrix.
-  //dynamic variable not filled for now for Photons
-  //AmgMatrix(4,4) matrix;
-  //matrix.setZero();
-  //eg->setCovMatrix(matrix.cast<float>());
-
   return StatusCode::SUCCESS;
 }
 
 // =================================================================
 // Fill egamma with the combined parameters + matrix.
 void EMFourMomBuilder::saveParameters(xAOD::Egamma *eg) {
-  saveCombinedParams(eg);
-}
 
-void EMFourMomBuilder::saveCombinedParams(xAOD::Egamma *eg) {
   double mass(0.);
   if (eg->type()==xAOD::Type::Electron){
     mass = 0.510998;

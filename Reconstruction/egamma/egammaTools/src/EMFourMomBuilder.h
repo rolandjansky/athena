@@ -73,7 +73,6 @@ private:
 
   //Method to save parameters in egamma object.
   void saveParameters    (xAOD::Egamma*);
-  void saveCombinedParams(xAOD::Egamma*);
 
   //Adding in separate combination tool - this should act as the shell that makes the decision.
   ToolHandle<IFourMomCombiner> m_FourMomCombiner;
@@ -81,6 +80,8 @@ private:
   /** @brief Use E-p combination*/
   bool   m_useCombination;
 
+  /** @brief Resolution configuration*/
+  std::string m_ResolutionConfiguration; 
 
 };
 

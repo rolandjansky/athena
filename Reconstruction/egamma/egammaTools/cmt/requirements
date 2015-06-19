@@ -20,6 +20,8 @@ use EventPrimitives            EventPrimitives-*       Event
 use LArRecConditions           LArRecConditions-*      LArCalorimeter 
 use LArTools                   LArTools-*              LArCalorimeter 
 
+use LumiBlockComps 	       LumiBlockComps-*        LumiBlock
+
 use InDetConversionFinderTools InDetConversionFinderTools-*  InnerDetector/InDetRecTools
 use InDetRecToolInterfaces     InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
 use InDetBeamSpotService       InDetBeamSpotService-*        InnerDetector/InDetConditions
@@ -54,7 +56,7 @@ use xAODTruth                  xAODTruth-*             Event/xAOD
 
 use PATCore                    PATCore-*               PhysicsAnalysis/AnalysisCommon
 use ElectronPhotonSelectorTools    ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
-
+use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
 
 end_private
 

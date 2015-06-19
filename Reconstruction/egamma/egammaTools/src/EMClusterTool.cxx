@@ -104,7 +104,7 @@ StatusCode EMClusterTool::contExecute()
   xAOD::CaloClusterContainer* outputTopoSeededClusterContainer = outputClusterContainer;
   if (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName)
   {
-    outputTopoSeededClusterContainer = \
+    outputTopoSeededClusterContainer = 
       CaloClusterStoreHelper::makeContainer(&*evtStore(), 
                                             m_outputTopoSeededClusterContainerName, 
                                             msg());
@@ -156,8 +156,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
 {
   if (!eg) return;
   
-  if (!eg->caloCluster())
-  {
+  if (!eg->caloCluster()){
     ATH_MSG_DEBUG("egamma object does not have a cluster associated");
     return;
   }
@@ -166,6 +165,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
   xAOD::CaloCluster* cluster =0;
   if(eg->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
     cluster = new xAOD::CaloCluster(*(eg->caloCluster()));
+    fillPositionsInCalo(cluster);
   }
   else {
     cluster = makeNewCluster(*(eg->caloCluster()), eg,egType);
@@ -188,14 +188,12 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   //
   
   // protection against cluster not in barrel nor endcap
-  if (!cluster.inBarrel() && !cluster.inEndcap() )
-  {
+  if (!cluster.inBarrel() && !cluster.inEndcap() ){
     ATH_MSG_ERROR("Cluster neither in barrel nor in endcap, Skipping cluster");
 	  return 0;
   }
   
-  if ((int) egType < 0 || egType >= xAOD::EgammaParameters::NumberOfEgammaTypes)
-  {
+  if ((int) egType < 0 || egType >= xAOD::EgammaParameters::NumberOfEgammaTypes){
     ATH_MSG_WARNING("Invalid egamma type");
     return 0;
   }

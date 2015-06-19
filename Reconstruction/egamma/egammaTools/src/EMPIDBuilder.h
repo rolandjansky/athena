@@ -23,6 +23,7 @@ class IAsgSelectionTool;
 class IAsgElectronIsEMSelector;
 class IAsgElectronLikelihoodTool;
 class IAsgPhotonIsEMSelector;
+class ILumiBlockMuTool;
 
 class EMPIDBuilder : public egammaBaseTool
 {
@@ -57,8 +58,16 @@ class EMPIDBuilder : public egammaBaseTool
   
   ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMselectors;
   std::vector<std::string> m_photonIsEMselectorResultNames;
+ 
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
 
   std::string m_LHValueName;
+
+ private:
+  bool m_UselumiBlockMuTool;
+
+
+  
 };
 
 #endif

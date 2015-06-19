@@ -225,10 +225,10 @@ std::vector<const xAOD::CaloCluster*> egammaTopoClusterMap::RetrieveTopoClusters
 									   double Pt)
 {
 
-  if ((Pt / 1000.) < 15) {
+  if ((Pt * 1e-3) < 15) {
     return RetrieveTopoClusters(eta, phi, 0.2, 0.2);
   } 
-  else if ((Pt/1000.) < 50) {
+  else if ((Pt * 1e-3) < 50) {
     return RetrieveTopoClusters(eta, phi, 0.2, 0.4);
   }
   else {

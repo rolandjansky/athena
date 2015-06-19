@@ -146,7 +146,6 @@ StatusCode FourMomCombiner::TrackClusterExecute(xAOD::Egamma *eg,
     return StatusCode::FAILURE;
   }
 
-  
   //Load track parameters from egamma object.
   fillTrackVectorElements(eg,index);
   
@@ -228,9 +227,7 @@ StatusCode FourMomCombiner::execute() {
     m_combMatrix = wVM.getMatrix();
 
   }
-
   return StatusCode::SUCCESS;
-  
 }
 
 StatusCode FourMomCombiner::finalize() {
@@ -575,9 +572,7 @@ double FourMomCombiner::getClusterPhiError(const xAOD::Egamma* eg) const
   if (aCluster == 0 /*|| pars == 0*/) return 1E11;
 
   return 1e-3;
-  
   //return pars->getPhiMatrix(tp).getError(caloEta(eg, aCluster->eta()), aCluster->e());
-
 }
 
 double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const 
@@ -594,11 +589,8 @@ double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const
     const double sigma_theta = 0.07 /sqrt(clusterEnergyGeV);
     const double theta = 2.*atan(exp(eta));
     return ( fabs(sigma_theta/sin(theta)) );
-
   }
-
   return 0.;
-
 }
 
 double FourMomCombiner::getClusterEtaPosError(const xAOD::Egamma* eg) const
@@ -634,12 +626,8 @@ double FourMomCombiner::getClusterEnergyError(const xAOD::Egamma* eg) const
   
   double cl_err = 1E10;
 
-
   return cl_err;
-
 } 
-
-
 
 double FourMomCombiner::caloEta(const xAOD::Egamma* eg, double clusterEta) const {
 
@@ -652,11 +640,9 @@ double FourMomCombiner::caloEta(const xAOD::Egamma* eg, double clusterEta) const
   } else {
     return clusterEta;
   }
-
 }
 
-bool FourMomCombiner::isElectron(const xAOD::Egamma* eg) const
-{
+bool FourMomCombiner::isElectron(const xAOD::Egamma* eg) const {
   return (xAOD::EgammaHelpers::isElectron(eg));
 }
 

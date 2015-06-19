@@ -73,7 +73,8 @@ EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
                                    ExtrapolationTool = EMExtrapolationTools)   
 
 
-EMAmbiguityTool = ToolFactory( egammaToolsConf.EMAmbiguityTool )
+from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
+EGammaAmbiguityTool = ToolFactory( ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool )
 
 
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)

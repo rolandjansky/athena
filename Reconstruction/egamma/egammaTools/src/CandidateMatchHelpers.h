@@ -63,7 +63,7 @@ class CandidateMatchHelpers
       ecCorr = sinTheta0*sqrt(sinTheta0)*ecFactor;
     }
     ////
-    double Rscaled =(Rcalo-r_first)/Rcalo;
+    double Rscaled =(Rcalo-r_first)*(1./Rcalo);
     phiRot = Rscaled*ecCorr*charge*430./(Et);    
     return  phiRot;
   }

@@ -37,7 +37,7 @@ egammaClusterOverlapMarker::egammaClusterOverlapMarker(const std::string& type,
   declareProperty("dEta",
 		  m_dEta = 0.05);
 
-  declareProperty("dEta",
+  declareProperty("dPhi",
 		  m_dPhi = 0.1);
 
   //Object containers.
@@ -65,8 +65,7 @@ StatusCode egammaClusterOverlapMarker::finalize() {
 //////////////////////////////////////////////////////////////////////////////
 
 StatusCode egammaClusterOverlapMarker::execute(const xAOD::CaloCluster *clus)
-					      
-{
+					      {
 
   xAOD::ElectronContainer *elecs = 0;
   const xAOD::CaloClusterContainer *tcClusters = 0;
@@ -85,12 +84,7 @@ StatusCode egammaClusterOverlapMarker::execute(const xAOD::CaloCluster *clus)
 
   ATH_MSG_DEBUG("Retrieved cluster containers for overlap check!");
   
-  float pi(4*atan(1));
-
   ElementLink<xAOD::ElectronContainer> nullLink;
-
-  // xAOD::ElectronContainer::iterator elIter = elecs->begin();
-  // for (; elIter != elecs->end(); ++elIter) {
 
   for (unsigned int elIndex(0); elIndex < elecs->size(); elIndex++) {
 
@@ -101,7 +95,7 @@ StatusCode egammaClusterOverlapMarker::execute(const xAOD::CaloCluster *clus)
       
     //Need to get seed cluster info from electron.
     float dEta(fabs(seedClus->eta()-clus->eta()));
-    float dPhi(remainder(fabs(seedClus->phi()-clus->phi()),2*pi));
+    float dPhi(remainder(fabs(seedClus->phi()-clus->phi()),2*M_PI));
       
     ElementLink<xAOD::ElectronContainer> linkToEl(*elecs, elIndex);
     static SG::AuxElement::Decorator<ElementLink<xAOD::ElectronContainer> > overlapLink ("overlapLink");

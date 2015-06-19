@@ -248,7 +248,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   bool foundCentralCell = egammaOQFlagsBuilder::findCentralCell(cluster);
   
   //=================== Set timing bit ===================================================//
-  const double absEnergyGeV = fabs(cluster->e()/GeV);
+  const double absEnergyGeV = fabs(cluster->e()*(1./GeV));
   if(absEnergyGeV != 0 &&  fabs(cluster->time()) > m_TCut + m_TCutVsE/absEnergyGeV) {
     iflag |= ( 0x1 << xAOD::EgammaParameters::OutTime);
   }

@@ -1,6 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "../EMAmbiguityTool.h"
 #include "../EMBremCollectionBuilder.h"
 #include "../EMClusterTool.h"
 #include "../EMConversionBuilder.h"
@@ -17,7 +16,6 @@
 #include "../egammaSuperClusterBuilder.h"
 #include "../egammaClusterOverlapMarker.h"
 
-DECLARE_TOOL_FACTORY     ( EMAmbiguityTool              )
 DECLARE_TOOL_FACTORY     ( EMBremCollectionBuilder      )
 DECLARE_TOOL_FACTORY     ( EMClusterTool                )
 DECLARE_TOOL_FACTORY     ( EMConversionBuilder          )
@@ -35,7 +33,6 @@ DECLARE_TOOL_FACTORY     ( egammaSuperClusterBuilder    )
 DECLARE_TOOL_FACTORY     ( egammaClusterOverlapMarker   )
 
 DECLARE_FACTORY_ENTRIES(egammaTools) {
-    DECLARE_TOOL     ( EMAmbiguityTool              )
     DECLARE_TOOL     ( EMBremCollectionBuilder      )
     DECLARE_TOOL     ( EMClusterTool                )
     DECLARE_TOOL     ( EMConversionBuilder          )
