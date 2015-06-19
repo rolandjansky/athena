@@ -32,7 +32,6 @@
 #include "xAODEgamma/EgammaContainer.h"
 
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IEMAmbiguityTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
@@ -42,6 +41,7 @@
 
 #include "xAODPrimitives/IsolationType.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
+class IEGammaAmbiguityTool;
 
 namespace xAOD {
     class ITrackIsolationTool;
@@ -90,8 +90,8 @@ private:
   ToolHandle<IEMConversionBuilder> m_conversionBuilder;
   ToolHandle<IEMShowerBuilder> m_showerBuilder;  // trigger specific
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder; // trigger specific
-  ToolHandle<IEMAmbiguityTool> m_ambiguityTool;
-
+  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool;
+  
   /** @brief Tool for decorating electron PID isEM and LH */
   ToolHandle<IegammaBaseTool> m_electronPIDBuilder;
   

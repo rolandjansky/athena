@@ -51,7 +51,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "egammaInterfaces/IEMAmbiguityTool.h"
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
@@ -83,6 +83,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 
 // needed for online monitor histograms
 class ISvcLocator;
+
 
 // Template class for monitoring
 namespace {
@@ -295,7 +296,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
         }
     }
     if (m_ambiguityTool.empty()) {
-        ATH_MSG_ERROR("EMAmbiguityTool is empty");
+        ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
         return HLT::BAD_JOB_SETUP;
     }
 
@@ -305,7 +306,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     }
     else{
         ATH_MSG_DEBUG("Retrieved Tool "<<m_ambiguityTool);
-        if (timerSvc()) m_timerTool3 = addTimer("EMAmbiguityTool");
+        if (timerSvc()) m_timerTool3 = addTimer("EGammaAmbiguityTool");
     }
     
     if (m_fourMomBuilder.empty()) {
@@ -835,7 +836,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // For now set author as Electron
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
-        unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
+        unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
+                egRec->vertex(),
+                egRec->trackParticle());
         if (timerSvc()) m_timerTool3->stop(); //timer
         ATH_MSG_DEBUG("REGTEST:: AmbiguityTool Author " << author);
         // Set author

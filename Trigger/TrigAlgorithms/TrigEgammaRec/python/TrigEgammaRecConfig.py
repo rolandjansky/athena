@@ -18,7 +18,7 @@ from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyVal
 
 # Import tools required for trigger reconstruction
 from egammaTools.egammaToolsFactories import \
-        EMTrackMatchBuilder, EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool, \
+        EMTrackMatchBuilder, EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool, \
         EMFourMomBuilder, EMShowerBuilder
     # Not importing
     # egammaCheckEnergyDepositTool, EMBremCollectionBuilder, 
@@ -48,10 +48,10 @@ TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTra
 
 #tit = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 #tit.TrackSelectionTool.maxZ0SinTheta = 15
-import ROOT, PyCintex
+import ROOT, cppyy
 # Need to be sure base dict is loaded first.
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 #IsoTypes =  [[ int(isoPar.ptcone20), int(isoPar.ptcone30), int(isoPar.ptcone40) ],]
 
@@ -148,7 +148,7 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     # Tools with default configuration    
 #     VertexBuilderTool = EMVertexBuilder,
     ConversionBuilderTool = EMConversionBuilder, 
-    AmbiguityTool = EMAmbiguityTool,
+    AmbiguityTool = EGammaAmbiguityTool,
     FourMomBuilderTool = EMFourMomBuilder,
     
     # Flags

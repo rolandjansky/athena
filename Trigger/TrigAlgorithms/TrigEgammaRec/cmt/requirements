@@ -33,6 +33,7 @@ use xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 use CaloEvent                   CaloEvent-*                   Calorimeter
 use TrigTimeAlgs                TrigTimeAlgs-*                Trigger/TrigTools
 use AtlasROOT                   AtlasROOT-*                   External
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 
 public
 # =====================================================================
