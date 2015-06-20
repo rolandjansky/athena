@@ -134,11 +134,6 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   
   const IRPCcablingSvc* m_cabling;
    
-  
-  // private function to initialize the selection of a certain region
-   
-  std::vector<int>	     	 RpcStripShift    (Identifier prdcoll_id, int  irpctriggerInfo);
-  std::vector<std::string>   	 RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo);
 
   //Declare Properties  
   std::string m_chamberName		;
@@ -209,12 +204,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
         enum_Phi_LowPt0_BC ,enum_Phi_LowPt1_BC ,enum_Eta_LowPt0_BC ,enum_Eta_LowPt1_BC ,
         enum_Phi_Pivot0_BC ,enum_Phi_Pivot1_BC ,enum_Eta_Pivot0_BC ,enum_Eta_Pivot1_BC ,
         enum_Phi_HighPt0_BC,enum_Phi_HighPt1_BC,enum_Eta_HighPt0_BC,enum_Eta_HighPt1_BC};
-  std::vector<TH2I*> rpc2DPanelHits ;  
-  std::vector<TH2I*> rpc2DoffPanelDCS ;    
-  std::vector<TH2I*> rpc2DdeadPanelDCS ;
+  std::vector<TH2I*> rpc2DPanelHits ; 
   std::vector<TH2I*> rpc1DvsLBPanelHits ;
-  std::vector<TH2I*> rpc1DvsLBoffPanelDCS ;
-  std::vector<TH2I*> rpc1DvsLBdeadPanelDCS ;
   enum {enum_Phi_TrigTowerLowPt_BA ,enum_Phi_TrigTowerHighPt_BA, enum_Eta_TrigTowerLowPt_BA ,enum_Eta_TrigTowerHighPt_BA ,
         enum_Phi_TrigTowerLowPt_BC ,enum_Phi_TrigTowerHighPt_BC, enum_Eta_TrigTowerLowPt_BC ,enum_Eta_TrigTowerHighPt_BC };    
   std::vector<TH2I*> rpc1DvsLBTrigTowerHits ;  
