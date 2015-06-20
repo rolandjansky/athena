@@ -2,8 +2,8 @@ from AthenaCommon.Logging import logging
 BSFilterLog = logging.getLogger('BSFilter')
 BSFilterLog.info( '****************** STARTING BSFilter *****************' )
 
-# BSFilterLog.info( '**** Transformation run arguments' )
-# BSFilterLog.info( str(runArgs) )
+BSFilterLog.info( '**** Transformation run arguments' )
+BSFilterLog.info( str(runArgs) )
 
 #---------------------------
 theApp.EvtMax = runArgs.maxEvents

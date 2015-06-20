@@ -10,7 +10,8 @@ jp.PerfMonFlags.doMonitoring = True # to enable monitoring
 jp.PerfMonFlags.doFastMon = True    # to only enable a lightweight monitoring
 
 if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
-    exec( runArgs.preExec )
+    for cmd in runArgs.preExec:
+        exec(cmd)
 
 TileFrameLength=7
 
@@ -229,7 +230,8 @@ if hasattr(runArgs,"postInclude"):
         include(fragment)
 
 if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
-    exec( runArgs.postExec )
+    for cmd in runArgs.postExec:
+        exec(cmd)
 
-#print "overlay_trf: at the end. job=\n", job
-print "\noverlay_trf: at the end. ServiceMgr=\n", ServiceMgr
+#print "OverlayBS_tf.py: at the end. job=\n", job
+print "\nOverlayBS_tf.py: at the end. ServiceMgr=\n", ServiceMgr
