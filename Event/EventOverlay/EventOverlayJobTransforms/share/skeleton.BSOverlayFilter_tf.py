@@ -2,8 +2,8 @@ from AthenaCommon.Logging import logging
 BSFilterLog = logging.getLogger('BSFilter')
 BSFilterLog.info( '****************** STARTING BSFilter *****************' )
 
-# BSFilterLog.info( '**** Transformation run arguments' )
-# BSFilterLog.info( str(runArgs) )
+BSFilterLog.info( '**** Transformation run arguments' )
+BSFilterLog.info( str(runArgs) )
 
 #---------------------------
 theApp.EvtMax = runArgs.maxEvents
@@ -21,7 +21,7 @@ BSFilterLog.info( '**** ByteStreamInputSvc configuration' )
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
 # ByteStreamInputSvc.FullFileName = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
-ByteStreamInputSvc.FullFileName = runArgs.inputBSFile
+ByteStreamInputSvc.FullFileName = runArgs.inputZeroBiasBSFile
 
 print ByteStreamInputSvc
 

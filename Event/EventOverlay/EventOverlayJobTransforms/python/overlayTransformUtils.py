@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 659164 2015-04-07 09:33:47Z jchapman $
+#  @version $Id: overlayTransformUtils.py 664098 2015-04-30 14:12:37Z jchapman $
 
 import os
 import re
@@ -29,12 +29,12 @@ class BSJobSplitterExecutor(athenaExecutor):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         # There are two ways to configure this transform:
-        # - Give an inputBSFile argument directly
+        # - Give an inputZeroBiasBSFile argument directly
         # - Give a overlayConfigFile and jobNumber argument
         # Check now that we have a configuration that works
 
-        if 'inputBSFile' in self.conf.argdict and 'overlayConfigFile' in self.conf.argdict:
-            raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Both inputBSFile and overlayConfigFile have been specified - please use only one.')
+        if 'inputZeroBiasBSFile' in self.conf.argdict and 'overlayConfigFile' in self.conf.argdict:
+            raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Both inputZeroBiasBSFile and overlayConfigFile have been specified - please use only one.')
 
         if 'overlayConfigFile' in self.conf.argdict:
             if 'jobNumber' not in self.conf.argdict:
@@ -52,11 +52,11 @@ class BSJobSplitterExecutor(athenaExecutor):
                 f.close()
 
                 bsInputs = open(self._inputFilelist).readline().rstrip().split(',')
-                self.conf.addToArgdict('inputBSFile', trfArgClasses.argBSFile(bsInputs, io='input', type='BS', subtype='BS'))
-                self.conf.addToDataDictionary('BS', self.conf.argdict['inputBSFile'])
+                self.conf.addToArgdict('inputZeroBiasBSFile', trfArgClasses.argBSFile(bsInputs, io='input', type='BS', subtype='BS_ZeroBias'))
+                self.conf.addToDataDictionary('BS', self.conf.argdict['inputZeroBiasBSFile'])
                 input.add('BS')
                 msg.info('Validating resolved input bytestream files')
-                trfValidation.performStandardFileValidation({'BS': self.conf.argdict['inputBSFile']}, io='input')
+                trfValidation.performStandardFileValidation({'BS': self.conf.argdict['inputZeroBiasBSFile']}, io='input')
             except Exception, e:
                 raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error while unpacking and extracting input files for transform: {0}'.format(e))
 
@@ -66,7 +66,7 @@ class BSJobSplitterExecutor(athenaExecutor):
 
         else:
             #if 'lumiBlockMapFile' not in self.conf.argdict:
-            #    raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'inputBSFile is specified, but no lumiBlockMapFile was given.')
+            #    raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'inputZeroBiasBSFile is specified, but no lumiBlockMapFile was given.')
             #self.conf.argdict['InputLbnMapFile'] = self.conf.argdict['lumiBlockMapFile']
             if 'lumiBlockMapFile' in self.conf.argdict:
                 self.conf.argdict['InputLbnMapFile'] = self.conf.argdict['lumiBlockMapFile']
@@ -78,7 +78,7 @@ class BSJobSplitterExecutor(athenaExecutor):
             self._hasExecuted = True
             msg.info('Activating job splitting with {0} files per subjob'.format(self.conf.argdict['maxFilesPerSubjob'].value))
 
-            tmpFiles = self.conf.argdict['inputBSFile'].value
+            tmpFiles = self.conf.argdict['inputZeroBiasBSFile'].value
             self._subJobInputs = []
             while len(tmpFiles) > 0:
                 self._subJobInputs.append(tmpFiles[0:self.conf.argdict['maxFilesPerSubjob'].value-1])
@@ -134,30 +134,43 @@ def addOverlayChainOverrideArguments(parser):
     from EventOverlayJobTransforms.overlayTrfArgs import  addOverlayChainOverrideArgs
     addOverlayChainOverrideArgs(parser)
 
-def addOverlayBSFilterArguments(parser):
+def addCommonOverlayArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
+    addForwardDetTrfArgs(parser)
+
+def addUniqueOverlayBSFilterArguments(parser):
     from EventOverlayJobTransforms.overlayTrfArgs import addOverlayBSFilterArgs
     addOverlayBSFilterArgs(parser)
 
-def addOverlay_PoolArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addBasicDigiArgs
+def addOverlayBSFilterArguments(parser):
+    addUniqueOverlayBSFilterArguments(parser)
+
+def addUniqueOverlay_PoolArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addBasicDigiArgs
     from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayPoolTrfArgs
     addBasicDigiArgs(parser)
-    addForwardDetTrfArgs(parser)
     addOverlayTrfArgs(parser)
     addOverlayPoolTrfArgs(parser)
 
-def addOverlay_BSArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addBasicDigiArgs
+def addOverlay_PoolArguments(parser):
+    addUniqueOverlay_PoolArguments(parser)
+    addCommonOverlayArguments(parser)
+
+def addUniqueOverlay_BSArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addBasicDigiArgs
     from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayBSTrfArgs
     addBasicDigiArgs(parser)
-    addForwardDetTrfArgs(parser)
     addOverlayTrfArgs(parser)
     addOverlayBSTrfArgs(parser)
+
+def addOverlay_BSArguments(parser):
+    addUniqueOverlay_BSArguments(parser)
+    addCommonOverlayArguments(parser)
 
 ### Add Sub-step Methods
 def addOverlayBSFilterSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'BSFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['BS'], outData = ['BS_SKIM']))
+                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS'], outData = ['BS_SKIM']))
 
 def addOverlay_PoolSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
@@ -167,7 +180,7 @@ def addOverlay_PoolSubstep(executorSet):
 def addOverlay_BSSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayBS', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayBS_tf.py',
                                    substep = 'overlayBS', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                                   inData = [('HITS', 'BS')], outData = ['RDO', 'RDO_SGNL']))
+                                   inData = [('HITS', 'BS_SKIM')], outData = ['RDO', 'RDO_SGNL']))
 
 ### Append Sub-step Methods
 def appendOverlayBSFilterSubstep(trf):
