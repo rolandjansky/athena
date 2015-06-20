@@ -182,7 +182,7 @@ class CaloSuperCellDetDescrManagerCnvTest (PyAthena.Alg):
         def pr_depth (typ, d, helper):
             pr_line (typ, d)
             def get_depth (which):
-                v = getattr (PyAthena, 'vector<double>')()
+                v = getattr (ROOT, 'vector<double>')()
                 getattr(d, 'get_depth_' + which)(v)
                 return '[' + string.join (['%7.2f' % x for x in v], ',') + ']'
             print >> f, ('depth %d %s %s' %

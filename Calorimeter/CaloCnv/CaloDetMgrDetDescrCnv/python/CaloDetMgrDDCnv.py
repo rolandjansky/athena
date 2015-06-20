@@ -4,9 +4,9 @@
 #  Joboptions for the loading of the of CaloDetDescrMgr
 #
 
-from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
-DetDescrCnvSvc = DetDescrCnvSvc()
-DetDescrCnvSvc.DetectorManagers += [ "CaloMgr" ]
-DetDescrCnvSvc.DetectorManagers += [ "CaloTTMgr" ]
+#from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
+#DetDescrCnvSvc = DetDescrCnvSvc()
+#DetDescrCnvSvc.DetectorManagers += [ "CaloMgr" ]
+#DetDescrCnvSvc.DetectorManagers += [ "CaloTTMgr" ]
 
 

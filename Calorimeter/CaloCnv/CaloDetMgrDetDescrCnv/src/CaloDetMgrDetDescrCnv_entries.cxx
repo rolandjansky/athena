@@ -10,15 +10,8 @@
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "CaloDetMgrDetDescrCnv/CaloMgrDetDescrCnv.h"
-#include "CaloDetMgrDetDescrCnv/CaloTTMgrDetDescrCnv.h"
 #include "CaloDetMgrDetDescrCnv/CaloSuperCellMgrDetDescrCnv.h"
 
-DECLARE_CONVERTER_FACTORY(CaloTTMgrDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(CaloMgrDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(CaloSuperCellMgrDetDescrCnv)
 
-DECLARE_FACTORY_ENTRIES	( CaloDetMgrDetDescrCnv ) {
-    DECLARE_CONVERTER	( CaloMgrDetDescrCnv );
-    DECLARE_CONVERTER	( CaloTTMgrDetDescrCnv );
-    DECLARE_CONVERTER   ( CaloSuperCellMgrDetDescrCnv )
-}
