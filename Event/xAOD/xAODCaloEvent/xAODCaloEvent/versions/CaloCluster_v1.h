@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 794609 2017-01-30 15:51:25Z menke $
+// $Id: CaloCluster_v1.h 676869 2015-06-20 03:55:11Z leggett $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -21,37 +21,37 @@ extern "C" {
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODCaloEvent/CaloClusterBadChannelData.h"
-#include "xAODCaloEvent/CaloClusterContainerFwd.h"
-#include "AthLinks/ElementLink.h"
 
 #ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#include "AthLinks/ElementLink.h"
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
-#endif // not SIMULATIONBASE
 #endif // not XAOD_ANALYSIS
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
-#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#ifdef XAOD_ANALYSIS
 class CaloClusterCellLink {};
 typedef unsigned CaloRecoStatus;
-#endif // defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // XAOD_ANALYSIS
+
+#include "tbb/recursive_mutex.h"
 
 class CaloClusterChangeSignalState;
 
 namespace xAOD {
-   class CaloCluster_v1;
-   typedef DataVector<CaloCluster_v1> CaloClusterContainer_v1;
 
    /// Description of a calorimeter cluster
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 794609 $
-   /// $Date: 2017-01-30 16:51:25 +0100 (Mon, 30 Jan 2017) $
+   /// $Revision: 676869 $
+   /// $Date: 2015-06-20 05:55:11 +0200 (Sat, 20 Jun 2015) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
+
+   public:
+     mutable tbb::recursive_mutex m_mut;
 
    public:
 
@@ -83,8 +83,6 @@ namespace xAOD {
          Topo_633   = 12,
          // transient cluster for AODCellContainer
          SW_7_11    = 13,
-	 //New (2016) egamma cluster
-	 SuperCluster=14,
          CSize_Unknown = 99
       };
 
@@ -142,10 +140,6 @@ namespace xAOD {
          /// Total em-scale energy of cells with bad HV in this cluster
          ENG_BAD_HV_CELLS  = 828,
          N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
-	 /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
-	 PTD               = 830,
- 	 /// cell based mass i.e. the mass of the 4-vector sum of all massless positive energetic cells
-	 MASS              = 831,
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
@@ -491,9 +485,9 @@ namespace xAOD {
      flt_t calM() const;
      /// Set mass for singal state CALIBRATED
      void  setCalM(flt_t);
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#ifndef XAOD_ANALYSIS
    private:
-#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif
      /// Switch signal state (mutable)
      bool setSignalState(const State s) const;
    public:
@@ -524,14 +518,6 @@ namespace xAOD {
      void setBadChannelList(const CaloClusterBadChannelList& bcl); 
      const CaloClusterBadChannelList& badChannelList() const;
      
-     /// Get a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
-     const CaloCluster_v1* getSisterCluster() const;
-
-     /// Get a link to a 'sister' cluster (eg the non-calibrated counterpart)
-     const ElementLink<xAOD::CaloClusterContainer_v1>& getSisterClusterLink() const;
-
-     /// Set a link to a 'sister' cluster (eg the non-calibrated counterpart)
-     bool setSisterClusterLink(const ElementLink<CaloClusterContainer_v1>& sister);
 
      //For debugging only...
      //std::vector<std::pair<std::string,float> > getAllMoments();
@@ -561,13 +547,13 @@ namespace xAOD {
 
      unsigned sampVarIdx(const CaloSample) const;
 
-     float getSamplVarFromAcc(const Accessor<std::vector<float > >& acc, 
+     float getSamplVarFromAcc(Accessor<std::vector<float > >& acc, 
 			      const CaloSample sampling, const float errorvalue=-999) const; //FIXME find a better errorcode
 
-     bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc, 
+     bool setSamplVarFromAcc(Accessor<std::vector<float> >& acc, 
 			     const CaloSample sampling, const float value);
    public:
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#ifndef XAOD_ANALYSIS
 
      /// @name Athena-only methods, used during building stage
      /// @{
@@ -594,7 +580,7 @@ namespace xAOD {
       * @return true on success
       */  
      bool setLink(CaloClusterCellLinkContainer* CCCL,
-                  IProxyDict* sg = nullptr);
+                  IProxyDictWithPool* sg = nullptr);
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
@@ -635,20 +621,8 @@ namespace xAOD {
      ///Iterator of the underlying CaloClusterCellLink (const version)
      typedef CaloClusterCellLink::const_iterator const_cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
-     const_cell_iterator cell_begin() const { 
-       const CaloClusterCellLink* links=getCellLinks();
-       if (!links) 
-	 return CaloClusterCellLink::dummyIt;
-       else
-	 return links->begin();
-     }
-     const_cell_iterator cell_end() const { 
-       const CaloClusterCellLink* links=getCellLinks();
-       if (!links) 
-	 return CaloClusterCellLink::dummyIt;
-       else
-	 return getCellLinks()->end();
-     } 
+     const_cell_iterator cell_begin() const { return getCellLinks()->begin();}
+     const_cell_iterator cell_end() const { return getCellLinks()->end();} 
      
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
      typedef CaloClusterCellLink::iterator cell_iterator; 
@@ -681,7 +655,7 @@ namespace xAOD {
      const CaloRecoStatus& recoStatus() const {return m_recoStatus;}
      ///  @}
 
-#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif
 
       /// Function preparing the object to be persistified
       void toPersistent();
@@ -740,7 +714,7 @@ namespace xAOD {
 
   inline double CaloCluster_v1::getMomentValue( CaloCluster_v1::MomentType type) const {
     double value=-999;
-    (void)this->retrieveMoment(type,value);
+    this->retrieveMoment(type,value);
     return value;
   }
 

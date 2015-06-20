@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#ifndef XAOD_ANALYSIS
 #ifndef CALOCLUSTERKINEHELPER_H
 #define CALOCLUSTERKINEHELPER_H
 
@@ -23,4 +23,4 @@ class CaloClusterKineHelper {
 };
 
 #endif
-#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif
