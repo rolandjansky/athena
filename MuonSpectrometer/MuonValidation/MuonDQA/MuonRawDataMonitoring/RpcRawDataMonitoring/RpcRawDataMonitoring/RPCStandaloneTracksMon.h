@@ -121,11 +121,6 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   const IRPCcablingSvc* m_cabling;
    
   
-  // private function to initialize the selection of a certain region
-   
-  std::vector<int>	     	 RpcStripShift    (Identifier prdcoll_id, int  irpctriggerInfo);
-  std::vector<std::string>   	 RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo);
-
   //Declare Properties  
   std::string m_chamberName		;
   std::string m_StationSize		;

@@ -41,6 +41,8 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
+#include "RpcRawDataMonitoring/RpcGlobalUtilities.h"
+
 #include <sstream>
 #include <string.h>
 #include <vector>
@@ -77,9 +79,6 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   StatusCode bookRPCLV1ProfilesHistograms(int m_i_sector, std::string m_sectorlogic_name, std::string m_cma_name,  int m_i_ijk, std::string m_ijk_name) ;  
 
    
-  std::vector<int>	     	 RpcStripShift    (Identifier prdcoll_id, int  irpctriggerInfo);
-  std::vector<std::string>   	 RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo);	
-  
   MuonDQAHistMap m_stationHists;
 
 
