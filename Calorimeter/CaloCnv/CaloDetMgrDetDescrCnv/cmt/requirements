@@ -23,15 +23,12 @@ use GeoModelInterfaces    GeoModelInterfaces-*       DetectorDescription/GeoMode
 use GeoModelUtilities     GeoModelUtilities-*        DetectorDescription/GeoModel
 use RDBAccessSvc          RDBAccessSvc-*             Database/AthenaPOOL
 
-use LArTools	          LArTools-*		     LArCalorimeter       
 use LArReadoutGeometry    LArReadoutGeometry-*       LArCalorimeter/LArGeoModel
 
 use TileDetDescr	  TileDetDescr-*	     TileCalorimeter       
 
 use CaloDetDescr	  CaloDetDescr-*	     Calorimeter       
-use CaloTTDetDescr	  CaloTTDetDescr-*	     Calorimeter
 use CaloIdentifier	  CaloIdentifier-*	     Calorimeter
-use CaloTriggerTool	  CaloTriggerTool-*	     Calorimeter
 
 
 private

@@ -1,15 +1,15 @@
-print "now executing CaloDetMgrDetDescrCnv_CaloDetDescrCnv"
+#print "now executing CaloDetMgrDetDescrCnv_CaloDetDescrCnv"
 #
 #  Joboptions for the loading of the of CaloDetDescrMgr
 #
 
-theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
+#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
 
-DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
-DetDescrCnvSvc.DetectorManagers += [ "CaloMgr" ]
-DetDescrCnvSvc.DetectorManagers += [ "CaloTTMgr" ]
+#DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
+#DetDescrCnvSvc.DetectorManagers += [ "CaloMgr" ]
+#DetDescrCnvSvc.DetectorManagers += [ "CaloTTMgr" ]
 include( "CaloConditions/CaloConditions_jobOptions.py" ) 
 
 # must be included once only :
-include.block ("CaloDetMgrDetDescrCnv/CaloDetDescr_joboptions.py")
+#include.block ("CaloDetMgrDetDescrCnv/CaloDetDescr_joboptions.py")
 
