@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Transform for preparation of BS overlay
-# @version $Id: BSOverlayFilter_tf.py 634748 2014-12-09 14:59:16Z jchapman $ 
+# @version $Id: BSOverlayFilter_tf.py 664293 2015-05-01 09:47:58Z jchapman $ 
 
 import os.path
 import sys
@@ -20,7 +20,7 @@ from EventOverlayJobTransforms.overlayTransformUtils import BSJobSplitterExecuto
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
-ListOfDefaultPositionalKeys=['--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--checkEventCount', '--command', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--inputBSFile', '--jobNumber', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--noimf', '--notcmalloc', '--outputBS_SKIMFile', '--overlayConfigFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--triggerBit']
+ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--eventIdFile', '--execOnly', '--fileValidation', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputFileValidation', '--inputZeroBiasBSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputBS_SKIMFile', '--outputFileValidation', '--overlayConfigFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--triggerBit', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace

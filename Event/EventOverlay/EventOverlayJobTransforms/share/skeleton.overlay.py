@@ -49,7 +49,7 @@ isRealData = False
 
 if readBS:
    globalflags.InputFormat.set_Value_and_Lock('bytestream')
-   DataInputCollections=runArgs.inputBSFile
+   DataInputCollections=runArgs.inputZeroBiasBSFile
 else:
    DataInputCollections=runArgs.pileupBSFile
    jobproperties.AthenaCommonFlags.PoolRDOInput=runArgs.pileupBSFile

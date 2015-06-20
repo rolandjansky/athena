@@ -10,7 +10,8 @@ jp.PerfMonFlags.doMonitoring = True # to enable monitoring
 jp.PerfMonFlags.doFastMon = True    # to only enable a lightweight monitoring
 
 if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
-    exec( runArgs.preExec )
+    for cmd in runArgs.preExec:
+        exec(cmd)
 
 import AthenaCommon.AtlasUnixStandardJob
 
@@ -186,3 +187,7 @@ print "\n\noverlay_trf: at the end. ServiceMgr=\n", ServiceMgr
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
+
+if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
+    for cmd in runArgs.postExec:
+        exec(cmd)

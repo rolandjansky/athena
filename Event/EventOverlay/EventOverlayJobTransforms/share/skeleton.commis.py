@@ -1,7 +1,8 @@
 from AthenaCommon.Logging import logging
 overlaylog = logging.getLogger('overlay')
 overlaylog.info( '****************** STARTING OVERLAY *****************' )
-
+overlaylog.info( '**** Transformation run arguments' )
+overlaylog.info( str(runArgs) )
 from PerfMonComps.PerfMonFlags import jobproperties as jp
 jp.PerfMonFlags.doMonitoring = True # to enable monitoring
 jp.PerfMonFlags.doFastMon = True    # to only enable a lightweight monitoring
