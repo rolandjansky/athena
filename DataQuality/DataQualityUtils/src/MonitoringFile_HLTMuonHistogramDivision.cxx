@@ -38,8 +38,8 @@
 
 namespace dqutils {
 
-   static const bool fdbg = false;
-   //static const bool fdbg = true;
+//   static const bool fdbg = false;
+   static const bool fdbg = true;
 
 
   void
@@ -70,23 +70,21 @@ namespace dqutils {
     ///
 
     // 110728: removing the iteration of searching run directory according to the new MDT code
-    /* TIter next_run (mf.GetListOfKeys());
-       TKey* key_run(0);
-       while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) { //== the while commented out at the end
-      TObject* obj_run = key_run->ReadObj();
-      TDirectory* tdir_run = dynamic_cast<TDirectory*>( obj_run );
-      if (tdir_run ==0 ) {
-	delete obj_run;
-	continue;
-      } // no deleting
-      run_dir = tdir_run->GetName();
-      if (!run_dir.Contains("run") )  {
-	delete obj_run;
-	continue;
-	} // no deleting */
-
+    // 150621: reenable ...
+    TIter next_run (mf.GetListOfKeys());
+    TKey* key_run(0);
+    while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) { //== the while commented out at the end
+      if (!key_run->IsFolder()) continue;
+      run_dir = key_run->GetName();
+      if (!run_dir.Contains("run") )  { continue;}
+      break;
+    }
+    if (! run_dir.Contains("run") ) {
+      std::cerr << "HLTMuon: unable to find run directory ..." << std::endl;
+      return;
+    }
     {
-      run_dir = dir0->GetName();
+      //run_dir = dir0->GetName();
       if (fdbg) {
 	std::cout << "HLTMuon: run directory is " << run_dir << std::endl;
       }
@@ -468,7 +466,7 @@ namespace dqutils {
 
       // YY: pt range.
       int iSTDL = 91;  // 40 GeV
-      int iSTDH = 112; // 80 GeV
+      int iSTDH = 120; // 100 GeV
       int iMSL = 105;  // 60 GeV
       int iMSH = 120;  // 100 GeV
 
@@ -658,8 +656,8 @@ namespace dqutils {
 		continue;
 	      }
 	      TH1F *h1sumL = 0; mf.get(histL1sum, h1sumL);
-	      if (!for_mydebug) {
-		if (fdbg) {
+	      if (!h1sumL) {
+		if (for_mydebug) {
 		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< histL1sum << std::endl;
 		}
 		continue;
@@ -753,8 +751,8 @@ namespace dqutils {
 	      }
 
 	      TH1F *h1sum_mu = 0; mf.get(histEFsum_mu, h1sum_mu);
-	      if (!for_mydebug) {
-		if (fdbg) {
+	      if (!h1sum_mu) {
+		if (for_mydebug) {
 		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< histEFsum_mu << std::endl;
 		}
 		continue;
@@ -2082,7 +2080,9 @@ namespace dqutils {
 	      // at the moment it is not correct if we run the algorithm # 4: mu40_MSonly_barrel .
 	      double sumeff, sumerr;
 	      double sumn = h1num->Integral(ibin, ibin); ////
+	      if(isBarrelMon[ialg] || isMSbMon[ialg]) sumn = h1num->Integral(ibin+1, ibin+1);
 	      double sumd = h1den->Integral(ibin, ibin); ////
+	      if(isBarrelMon[ialg] || isMSbMon[ialg]) sumd = h1den->Integral(ibin+1, ibin+1);
 	      if (sumd == 0.) {
 		sumeff = 0.;
 		sumerr = 0.;
@@ -2095,8 +2095,8 @@ namespace dqutils {
 	    }
 	  }
 	  
-	    /* 3. Picking up chainDQ MSonly graph */
-	    /* EF efficiency wrt L1, as for the ztp graph = overall HLT efficiency wrt L1: not possible, wrt offline */
+	    /* 3. Picking up chainDQ MSonly graph   abandoned !!!*/
+	    /* EF efficiency wrt L1, as for the ztp graph = overall HLT efficiency wrt L1: not possible, wrt offline 
 	  if (isMSbMon[ialg]) {  // skip muIso and MSonly !!!
 	    TString histChNum = nd_dir + chainName + m_MSchainName + MoniAlg + "_Turn_On_Curve_Numerator";
 	    TString histChDen = nd_dir + chainName + m_MSchainName + MoniL2Alg + "_Turn_On_Curve_wrt_L1_Denominator";
@@ -2132,6 +2132,7 @@ namespace dqutils {
 	      h1eff->SetBinError(3, sumerr);     ////
 	    }
 	  }
+	  */
 	  efdir->cd();
 	  h1eff->Write("",TObject::kOverwrite);
 	    

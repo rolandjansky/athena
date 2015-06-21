@@ -1153,6 +1153,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       if (drawopt.find("lego") == std::string::npos) {
 	myC->RedrawAxis();
       }
+      polynomial(myC,display,h2);
       TLatex t;
       t.SetNDC();
       t.SetTextSize(0.03);
@@ -1320,6 +1321,11 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       myC->cd();
       displayExtra(myC,display);
       myC->RedrawAxis();
+
+      ratioplot(myC ,h,hRef,display);      //RatioPad
+      myC->cd();//might be unnecessary
+      polynomial(myC,display,h); //draw polynome for TH1
+
       TLatex t;
       t.SetNDC();
       t.SetTextSize(0.03);
@@ -1914,6 +1920,10 @@ axisOption( std::string str, TH1* h )
   std::size_t found  = str.find("AxisRange");
    while (found!=std::string::npos)
     {
+      //std::string coordinates, cx1,cy1 ="";
+      //std::size_t found1 = str.find_first_of(")",found+1);
+      //std::size_t found2 = str.find_first_of("\'",found+1);
+      //if (found2!=std::string::npos){
       std::string coordinates, cx1,cy1 ="";
       std::size_t found1 = str.find_first_of(")",found+1);
       std::size_t found2 = str.find_first_of("\'",found+1);
@@ -1922,7 +1932,7 @@ axisOption( std::string str, TH1* h )
 	 if (found1 < found2) {
 	    found1 = str.find_first_of(")",found2+1);
 	 }
-      }
+/*      }
       if (found1!=std::string::npos){
 	coordinates = str.substr(found+10,found1-found-10);
 	found1 = coordinates.find_first_of(",");
@@ -1951,8 +1961,160 @@ axisOption( std::string str, TH1* h )
 	}
       }
       found=str.find("AxisRange",found+1);
-    } 
+    }
+*/
+
+       }
+       if (found1!=std::string::npos){
+    coordinates = str.substr(found+10,found1-found-10);
+    found1 = coordinates.find_first_of(",");
+    if (found1!=std::string::npos){
+      cx1 = coordinates.substr(0,found1);
+      double x1=std::strtod(cx1.c_str(),NULL);
+      found2 =  coordinates.find_first_of(",",found1+1);
+      if (found2!=std::string::npos){
+        cy1 = coordinates.substr(found1+1,found2-found1-1);
+        double y1=std::strtod(cy1.c_str(),NULL);
+        std::string txt =  coordinates.substr(found2+2,coordinates.size() );
+        txt =  txt.substr(0,txt.size()-1 );
+        if (txt == "X" && x1 < y1)
+          {
+        h->SetAxisRange(x1,y1,"X");
+          }
+        if (txt == "Y" && x1 < y1)
+          {
+        h->SetAxisRange(x1,y1,"Y");
+          }
+        if (txt == "Z" && x1 < y1)
+          {
+        h->SetAxisRange(x1,y1,"Z");
+          }
+
+      }else{
+        std::string txt =  coordinates.substr(found1+2,coordinates.size() );
+        txt =  txt.substr(0,txt.size()-1 );
+        if(txt[1]=='M'){
+          if (txt=="XMax")
+        {
+          double xmin = h->GetBinLowEdge(1)-h->GetBinWidth(1);
+          h->SetAxisRange(xmin,x1,"X");
+        }
+          if (txt=="XMin")
+        {
+          double xmax = h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
+          h->SetAxisRange(x1,xmax,"X");
+        }
+          if (txt=="YMax")
+        {
+          double ymin = h->GetMinimum();
+          h->SetAxisRange(ymin,x1,"Y");
+        }
+          if (txt=="YMin")
+        {
+          double ymax = h->GetMaximum();
+          h->SetAxisRange(x1,ymax,"Y");
+        }
+        }
+      }
+    }
+       }
+       found=str.find("AxisRange",found+1);
+     }
+ 
 }
+
+//-----------------------------
+void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::string display) {
+    //this method creates two pads under a main canvas, upperpad with input canvas displayed, lower with ratio plot
+    //Then it clears the input canvas and draws this newly created in input
+    //I dont know if it is the best aproach,I used this method to minimize the changes on the main code
+    if(display.find("RatioPad")==std::string::npos ) return;
+    unsigned int ww = myC_upperpad->GetWw();
+    unsigned int wh = myC_upperpad->GetWh();
+    std::string padname="PAD";
+    std::string padname_ratio ="PAD_main";
+    TCanvas *myC_ratiopad = new TCanvas( padname_ratio.c_str(), "myC_ratiopad", ww, wh );
+    TCanvas *myC_main =  new TCanvas( padname.c_str(), "myC_main", ww, wh );
+    myC_main->cd();
+    //producing ratio histogram and plotting it on to myC_ratiopad
+    myC_ratiopad->cd();
+    myC_ratiopad->SetTopMargin(0);
+    myC_ratiopad->SetLogx(display.find("LogX")!=std::string::npos );
+    TH1F *clonehist=(TH1F*)h->Clone();
+    clonehist->Divide(hRef);
+    formatTH1( myC_ratiopad, clonehist);
+    clonehist->SetTitle("");
+    clonehist->SetAxisRange(0,2,"Y");
+    clonehist->Draw("HIST");
+    clonehist->GetXaxis()->SetTitleSize(0.11);
+    clonehist->GetXaxis()->SetLabelSize(0.11);
+    clonehist->GetYaxis()->SetTitleSize(0.11);
+    clonehist->GetYaxis()->SetLabelSize(0.11);
+    myC_main->cd();
+    TPad*    lowerPad = new TPad("lowerPad", "lowerPad",
+                                 .005, .060, .995, .250);
+    lowerPad->SetTopMargin(0);
+    lowerPad->SetFillStyle(0);
+    lowerPad->Draw();
+    TPad*    upperPad = new TPad("upperPad", "upperPad",
+                                 .005, .250, .995, .995);
+    upperPad->SetBottomMargin(0);
+    upperPad->SetFillStyle(0);
+    upperPad->Draw();
+
+    lowerPad->cd();
+    myC_ratiopad->DrawClonePad();
+    //Draw y=1 lineon ratio plot
+    TLine *line=new TLine;
+    line->SetLineColor(kRed);
+    line->SetLineWidth(1);
+    //method belove might be a problem when axis range changed
+    double xmin=clonehist->GetXaxis()->GetXmin();
+    double xmax=clonehist->GetXaxis()->GetXmax();
+    //double xmin = clonehist->GetBinLowEdge(1)-clonehist->GetBinWidth(1);
+    //double xmax = clonehist->GetBinLowEdge( clonehist->GetNbinsX() ) +  2.0*clonehist->GetBinWidth( clonehist->GetNbinsX() ) ;
+    line->DrawLine(xmin,1,xmax,1);
+    upperPad->cd();
+    myC_upperpad->SetBottomMargin(0);
+    myC_upperpad->SetFillStyle(0);
+    h->GetXaxis()->SetLabelSize(0.);
+    h->GetXaxis()->SetTitleSize(0.);
+    myC_upperpad->DrawClonePad();
+    myC_upperpad->cd();
+    myC_upperpad->Clear();
+    myC_main->DrawClonePad();
+}
+
+//-----------------------------
+void HanOutputFile::polynomial( TCanvas* c, std::string str,TH1* h ) {
+    double xmin=h->GetXaxis()->GetXmin();
+    double xmax=h->GetXaxis()->GetXmax();
+    std::size_t found = str.find("polynomial(");
+    while (found!=std::string::npos)
+    {
+        std::size_t endpos= str.find_first_of(")",found+1);
+        std::cout<<"found;"<<found<<" endpos;"<<endpos<<"count "<<" \n";
+        std::string inp_str=str.substr(found+11,endpos-found-11);
+        std::size_t found1 =0;
+        std::size_t found2 =inp_str.find_first_of(",",found1);
+        TF1 *func = new TF1("func", "pol9",xmin,xmax);
+        for(int j=0; j<10; j++) {
+            std::string value_str=inp_str.substr(found1,found2-found1);
+            double value_double=std::strtod(value_str.c_str(),NULL);
+            func->SetParameter(j,value_double);
+            if(found2==std::string::npos) {
+                break;
+            }
+            found1=found2+1;
+            found2=inp_str.find_first_of(",",found1);
+        }
+        func->SetNpx(1000);
+        c->cd();
+        func->Draw("SAME");
+        found=str.find("polynomial(",found+1);
+    }
+}
+
 
 void
 HanOutputFile::

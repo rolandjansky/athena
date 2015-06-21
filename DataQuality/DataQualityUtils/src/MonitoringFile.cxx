@@ -3,7 +3,7 @@
 */
 
 // **********************************************************************
-// $Id: MonitoringFile.cxx 606175 2014-07-12 13:16:19Z ponyisi $
+// $Id: MonitoringFile.cxx 675315 2015-06-15 15:11:06Z ponyisi $
 // **********************************************************************
 
 #include "DataQualityUtils/MonitoringFile.h"
@@ -434,7 +434,13 @@ TObject* MonitoringFile::mergeObjsMultiCycles(const std::string& keyname,
 	   std::cerr << "WARNING: HISTOGRAM " << h->GetName() << " IS INTERNALLY INCONSISTENT, NOT MERGING" << std::endl;
 	   nextObj.release();
 	   continue;
-	 } 
+	 }
+         if (h && (obj->IsA() !=  h->IsA())) {
+           // problem: class types have changed ...
+	   std::cerr << "WARNING: CHANGE OF CLASS TYPES FOR " << h->GetName() << ", NOT MERGING" << std::endl;
+	   nextObj.release();
+	   continue;
+	 }
 	 MonitoringFile::mergeObjs(obj, nextObj.get(), mergeType,m_debugLevel>VERBOSE?VERBOSE: (dqutils::MonitoringFile::debugLevel_t)m_debugLevel);
       } else {
 	 std::cerr << "MonitoringFile::mergeObjsMultiCycles(): NULL KEY; corrupt file?" << std::endl;
