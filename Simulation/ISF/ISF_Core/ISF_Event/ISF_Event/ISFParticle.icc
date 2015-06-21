@@ -74,7 +74,8 @@ namespace ISF {
     return 0;
   }
   inline void ISFParticle::setExtraBC( const Barcode::ParticleBarcode& bc ) const {
-    if ( m_userInfo!=0 ) { m_userInfo->setExtraBC( bc ); } // m_userInfo is mutable
+    if (!m_userInfo) m_userInfo=new ParticleUserInformation();    
+    m_userInfo->setExtraBC( bc );  // m_userInfo is mutable
   }
 
   // printout methods
