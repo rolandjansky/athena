@@ -1,5 +1,5 @@
 ##
-## # $Id: LArG4FastSimulation_VPTimer_EHist_jobOptions.py 448395 2011-07-12 18:28:47Z gsedov $
+## # $Id: LArG4FastSimulation_VPTimer_EHist_jobOptions.py 662012 2015-04-21 14:32:22Z jchapman $
 ##
 ## # jobOptions file for preparing detailed program timer and histogramming of 
 ## # MC-level energy by particle and volume
@@ -27,14 +27,14 @@ actionProperties={
 
 ## # volume/particle timing - prints cpu time spent per particle, per volume to outfile
 ## # DO NOT USE SIMULTANEOUSLY WITH EHistAction!
-TimerAction = PyG4Atlas.UserAction('LArG4FastSimulationTestActions','TestActionVPTimer',
+TimerAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionVPTimer',
                                    ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
 TimerAction.set_Properties(actionProperties)
 AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(TimerAction)
 print "volume/particle timing ON (see stdout)"
 
 ## # energy histogramming - creates ROOT file with histograms of kinetic energy by particle, by volume
-#EHistAction = PyG4Atlas.UserAction('LArG4FastSimulationTestActions','TestActionEHist',
+#EHistAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionEHist',
 #                                   ['BeginOfRun','EndOfRun','Step'])
 #EHistAction.set_Properties(actionProperties)
 #AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EHistAction)
