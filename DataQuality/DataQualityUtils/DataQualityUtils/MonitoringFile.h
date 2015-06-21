@@ -35,6 +35,7 @@ class TH1I;
 class TH3F;
 class TH2;
 class TH3;
+class TProfile2D;
 class TObjArray;
 class TKey;
 class TTree;
@@ -130,7 +131,8 @@ namespace dqutils {
     /**
      * Methods for creating ID Alignment summary plots on merged files
      */
-
+    
+    //static void   MakeBowingFit(TProfile2D* p2d, TH1F* hm, TH1F* hb);
     static void   fitMergedFile_IDPerfMonManager(std::string inFileName, bool isIncremental = false);
     static void   fitMergedFile_DiMuMonManager(std::string inFileName, bool isIncremental = false);
     static void   fitMergedFile_IDAlignMonManager(std::string inFileName, bool isIncremental = false);
@@ -157,6 +159,7 @@ namespace dqutils {
     static void   fillGaussianMeanOrWidth(TH2F* h2d, TH1F* h, float fitMin, float fitMax, int iopt);
     static void   fillMeanOrWidth(TH2F* h2d, TH1F* h, int iopt);
     static void   fillDetPaperMeanRMS(TH2F* h2d, TH1F* h, int iopt);
+   
     static void   meanRMSProjections2D(TH2F* h2d, TH1F* h, int iopt);
     static void   meanRMSProjections3D(TH3F* h3d, TH2F* h, int iopt);
     static void   meanRMSProjections3D_DMRPlot(TH3F* h3d, TH1F* h, int iopt);
@@ -327,6 +330,10 @@ namespace dqutils {
     static void BJetTaggingPostProcess(std::string inFileName, bool isIncremental = false);
     static void BJetTaggingAdjustRanges(TFile * f);
     static void BJetTaggingNormalise(TFile * f);
+    
+    //HLT MinBiasMon
+    static void HLTMinBiasMonPostProcess(std::string inFileName, bool isIncremental = false);
+    static void HLTMinBiasMonGetTargetHistos(TDirectory *source, std::vector< std::pair<TString,TString> >& targetNames);
 
     // primary vertex monitoring
     static void pv_PrimaryVertexMonitoring_calcResoAndEfficiency(std::string inFilename, bool isIncremental = false);

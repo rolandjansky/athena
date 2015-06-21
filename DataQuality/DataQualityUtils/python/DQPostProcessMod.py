@@ -168,6 +168,8 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['gareth.brown@cern.ch']),
                  (mf.HLTJetPostProcess,
                   ['venkat.kaushik@cern.ch']),
+                 (mf.HLTMinBiasMonPostProcess,
+                  ['azemla@cern.ch']),
                  (mf.BJetTaggingPostProcess,
                   ['m.neumann@cern.ch']),
                  (mf.L1CaloPostProcess,
