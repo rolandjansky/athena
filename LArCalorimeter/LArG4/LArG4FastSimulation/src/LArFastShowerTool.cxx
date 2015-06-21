@@ -3,11 +3,8 @@
 */
 
 #include "LArFastShowerTool.h"
-#include "BarrelFastSimDedicatedSD.h"
-#include "EndcapFastSimDedicatedSD.h"
-#include "FCALFastSimDedicatedSD.h"
+
 #include "LArFastShower.h"
-#include "G4SDManager.hh"
 
 LArFastShowerTool::LArFastShowerTool(const std::string& type, const std::string& name, const IInterface *parent):
   FastSimulationBase(type,name,parent),
@@ -46,7 +43,7 @@ LArFastShowerTool::LArFastShowerTool(const std::string& type, const std::string&
   declareProperty("SensitiveDetector" , m_FastSimDedicatedSD , "Fast sim dedicated SD for this setup");
   declareProperty("ShowerLibSvc" , m_showerLibSvc, "Handle on the shower library service");
   m_configuration.m_showerLibSvcName=m_showerLibSvc.name();
-
+  if(!m_FastSimDedicatedSD.empty()) {m_configuration.m_SensitiveDetectorName=m_FastSimDedicatedSD.name();}
   declareInterface<IFastSimulation>(this);
 }
 
@@ -54,33 +51,20 @@ StatusCode LArFastShowerTool::initialize()
 {
   ATH_MSG_VERBOSE( name() << "::initialize()");
   CHECK( m_showerLibSvc.retrieve() );
+  CHECK( m_FastSimDedicatedSD.retrieve() );
   return FastSimulationBase::initialize();
 }
 
 G4VFastSimulationModel* LArFastShowerTool::makeFastSimModel()
 {
   ATH_MSG_DEBUG( "Initializing Fast Sim Model" );
-  IFastSimDedicatedSD * fastSD = dynamic_cast<IFastSimDedicatedSD*>(G4SDManager::GetSDMpointer()->FindSensitiveDetector(m_FastSimDedicatedSD,false));
-  if (fastSD){
-    ATH_MSG_INFO( "SD " << m_FastSimDedicatedSD << " already created." );
-  } else if ("BarrelFastSimDedicatedSD"==m_FastSimDedicatedSD){
-    fastSD = new BarrelFastSimDedicatedSD( &*detStore() );
-  } else if ("EndcapFastSimDedicatedSD"==m_FastSimDedicatedSD){
-    fastSD = new EndcapFastSimDedicatedSD( &*detStore() );
-  } else if ("FCALFastSimDedicatedSD"==m_FastSimDedicatedSD){
-    fastSD = new FCALFastSimDedicatedSD( &*detStore() );
-  } else {
-    ATH_MSG_FATAL( "Fast sim SD type " << m_FastSimDedicatedSD << " not found!" );
-    throw std::runtime_error("Bad SD name");
-  }
-  G4SDManager::GetSDMpointer()->AddNewDetector(fastSD);
 
   // Create a fresh Fast Sim Model
-  return new LArFastShower(name(),m_configuration, fastSD);
+  return new LArFastShower(name(),m_configuration, &(*m_FastSimDedicatedSD));
 }
 
 StatusCode LArFastShowerTool::EndOfAthenaEvent()
 {
-  // SD is taken care of by the SD tools
+  CHECK(m_FastSimDedicatedSD->EndOfAthenaEvent());
   return StatusCode::SUCCESS;
 }
