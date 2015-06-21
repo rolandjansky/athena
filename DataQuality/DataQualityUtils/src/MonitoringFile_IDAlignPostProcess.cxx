@@ -1136,7 +1136,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   meanRMSProjections3D(m_pix_b3_yresvsmodetaphi_3d,m_pix_b3_yresvsmodetaphi_mean,2);
 
   //2-d residual map histograms - pixel barrel residual width
-  TH2F* m_pix_b0_xresvsmodetaphi_rms = new TH2F("pix_b0_xresvsmodetaphi_mean","X Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
+  TH2F* m_pix_b0_xresvsmodetaphi_rms = new TH2F("pix_b0_xresvsmodetaphi_rms","X Residual Width vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_xresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_xresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_xresvsmodetaphi_rms = new TH2F("pix_b1_xresvsmodetaphi_rms","X Residual Width vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);
@@ -1148,7 +1148,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
   TH2F* m_pix_b3_xresvsmodetaphi_rms = new TH2F("pix_b3_xresvsmodetaphi_rms","X Residual Width vs Module Eta-Phi-ID Pixel Barrel L3",13,-6.5,6.5,52,-0.5,51.5);
   m_pix_b3_xresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b3_xresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
-  TH2F* m_pix_b0_yresvsmodetaphi_rms = new TH2F("pix_b0_yresvsmodetaphi_rms","Y Residual Mean vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
+  TH2F* m_pix_b0_yresvsmodetaphi_rms = new TH2F("pix_b0_yresvsmodetaphi_rms","Y Residual Width vs Module Eta-Phi-ID Pixel Barrel L0",20,-10.5,9.5,14,0,14);
   m_pix_b0_yresvsmodetaphi_rms->GetXaxis()->SetTitle("Module Eta-ID");
   m_pix_b0_yresvsmodetaphi_rms->GetYaxis()->SetTitle("Module Phi-ID");
   TH2F* m_pix_b1_yresvsmodetaphi_rms = new TH2F("pix_b1_yresvsmodetaphi_rms","Y Residual Width vs Module Eta-Phi-ID Pixel Barrel L1",13,-6.5,6.5,22,-0.5,21.5);

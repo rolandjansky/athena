@@ -38,8 +38,8 @@
 
 namespace dqutils {
 
-   static const bool fdbg = false;
-   //static const bool fdbg = true;
+//   static const bool fdbg = false;
+   static const bool fdbg = true;
 
 
   void
@@ -70,23 +70,21 @@ namespace dqutils {
     ///
 
     // 110728: removing the iteration of searching run directory according to the new MDT code
-    /* TIter next_run (mf.GetListOfKeys());
-       TKey* key_run(0);
-       while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) { //== the while commented out at the end
-      TObject* obj_run = key_run->ReadObj();
-      TDirectory* tdir_run = dynamic_cast<TDirectory*>( obj_run );
-      if (tdir_run ==0 ) {
-	delete obj_run;
-	continue;
-      } // no deleting
-      run_dir = tdir_run->GetName();
-      if (!run_dir.Contains("run") )  {
-	delete obj_run;
-	continue;
-	} // no deleting */
-
+    // 150621: reenable ...
+    TIter next_run (mf.GetListOfKeys());
+    TKey* key_run(0);
+    while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) { //== the while commented out at the end
+      if (!key_run->IsFolder()) continue;
+      run_dir = key_run->GetName();
+      if (!run_dir.Contains("run") )  { continue;}
+      break;
+    }
+    if (! run_dir.Contains("run") ) {
+      std::cerr << "HLTMuon: unable to find run directory ..." << std::endl;
+      return;
+    }
     {
-      run_dir = dir0->GetName();
+      //run_dir = dir0->GetName();
       if (fdbg) {
 	std::cout << "HLTMuon: run directory is " << run_dir << std::endl;
       }

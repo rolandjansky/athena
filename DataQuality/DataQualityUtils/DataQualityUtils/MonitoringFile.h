@@ -330,6 +330,10 @@ namespace dqutils {
     static void BJetTaggingPostProcess(std::string inFileName, bool isIncremental = false);
     static void BJetTaggingAdjustRanges(TFile * f);
     static void BJetTaggingNormalise(TFile * f);
+    
+    //HLT MinBiasMon
+    static void HLTMinBiasMonPostProcess(std::string inFileName, bool isIncremental = false);
+    static void HLTMinBiasMonGetTargetHistos(TDirectory *source, std::vector< std::pair<TString,TString> >& targetNames);
 
     // primary vertex monitoring
     static void pv_PrimaryVertexMonitoring_calcResoAndEfficiency(std::string inFilename, bool isIncremental = false);

@@ -94,25 +94,21 @@ namespace dqutils {
     dir0->cd();
     ///
 
-    /*
     TIter next_run (mf.GetListOfKeys());
     TKey* key_run(0);
-    while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) {
-      TObject* obj_run = key_run->ReadObj();
-      TDirectory* tdir_run = dynamic_cast<TDirectory*>( obj_run );
-      if (tdir_run ==0 ){
-	// delete obj_run;
-	continue;
-      }
-      run_dir = tdir_run->GetName();
-      if (!run_dir.Contains("run") )  {
-	// delete obj_run;
-	continue;
-      }
-    */
+    while ((key_run = dynamic_cast<TKey*> ( next_run() )) !=0 ) { //== the while commented out at$
+      if (!key_run->IsFolder()) continue;
+      run_dir = key_run->GetName();
+      if (!run_dir.Contains("run") )  { continue;}
+      break;
+    }
+    if (! run_dir.Contains("run") ) {
+      std::cerr << "HLTMuon: unable to find run directory ..." << std::endl;
+      return;
+    }
     int times = 1;
     while (times--) {  // just once
-      run_dir = dir0->GetName();
+      //run_dir = dir0->GetName();
       if (fpdbg) {
 	std::cout << "HLTMuon: run directory is " << run_dir << std::endl;
       }
