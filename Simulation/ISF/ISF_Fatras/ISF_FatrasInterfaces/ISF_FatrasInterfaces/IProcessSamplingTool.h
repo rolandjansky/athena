@@ -11,6 +11,9 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
+#include "TrkExUtils/ExtrapolationCell.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "ISF_Event/ISFParticleVector.h"
 //#include "TrkExInterfaces/ITimedExtrapolator.h"
 
 namespace Trk{
@@ -45,7 +48,17 @@ namespace iFatras {
        static const InterfaceID& interfaceID() { return IID_IProcessSamplingTool; }
 
        /** Process, path limit */
-       virtual Trk::PathLimit sampleProcess(double momentum, double charge, Trk::ParticleHypothesis pHypothesis) =0;
+       virtual Trk::PathLimit sampleProcess(double momentum, double charge, Trk::ParticleHypothesis pHypothesis) const=0;
+
+       /** Process simulation */
+       virtual ISF::ISFParticleVector  interact(const ISF::ISFParticle* isp,
+						Trk::ExCellCharged& eCell,
+						const Trk::Material* mat=0) const=0;
+	 
+       /** Process simulation */
+       virtual ISF::ISFParticleVector  interact(const ISF::ISFParticle* isp,
+						Trk::ExCellNeutral& eCell,
+						const Trk::Material* mat=0) const=0;
   };
 
 } // end of namespace

@@ -11,6 +11,8 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
+// Amg
+#include "GeoPrimitives/GeoPrimitives.h"
 
 namespace ISF
 {
@@ -52,8 +54,17 @@ namespace iFatras
     /** free path estimator (-1 for stable particle) */
     virtual double freePath(const ISF::ISFParticle& isp) const = 0;
 
+    /** decay (includes handling of secondaries) */
+    virtual void decay(const ISF::ISFParticle& isp,
+		       const Amg::Vector3D& vertex,
+		       const Amg::Vector3D& mom,
+		       double timeStamp = 0.) const = 0;
+
     /** decay */
-    virtual void decay(const ISF::ISFParticle& isp) const = 0;
+    virtual std::vector<ISF::ISFParticle*> decayParticle( const ISF::ISFParticle& parent,
+                                                          const Amg::Vector3D& vertex,
+                                                          const Amg::Vector3D& mom,
+                                                          double timeStamp = 0.) const = 0;
   };
   
 }

@@ -15,6 +15,8 @@
 #include "ISF_Event/ISFParticleVector.h"
 // Trk
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
+#include "TrkExUtils/ExtrapolationCell.h"
 
 //namespace ISF {
 //    class ISFParticle;
@@ -43,8 +45,16 @@ namespace iFatras {
     /** AlgTool interface methods */
     static const InterfaceID& interfaceID() { return IID_IPhysicsValidationTool; }
     
-    /** ISFParticle info */
+    /** ISFParticle info: old transport tool */
     virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, int endProcess, const Trk::TrackParameters* ePar, double time, double dX0 )=0;
+
+    /** ISFParticle info: new transport tool */
+    virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
+				     Trk::ExtrapolationCode ecode )=0;
+
+    /** ISFParticle info: new transport tool */
+    virtual void saveISFParticleInfo(const ISF::ISFParticle& isp, const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
+				     Trk::ExtrapolationCode ecode )=0;
 
     /** Interaction vertex info */
     virtual void saveISFVertexInfo(int process, Amg::Vector3D vertex,const ISF::ISFParticle& isp, Amg::Vector3D primIn,

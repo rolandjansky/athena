@@ -13,8 +13,11 @@ use GaudiInterface      GaudiInterface-*             External
 # Trk
 use TrkEventPrimitives  TrkEventPrimitives-*         Tracking/TrkEvent
 use TrkParameters       TrkParameters-*              Tracking/TrkEvent
+use TrkNeutralParameters       TrkNeutralParameters-*              Tracking/TrkEvent
 use GeoPrimitives       GeoPrimitives-*              DetectorDescription
 use TrkExInterfaces     TrkExInterfaces-*            Tracking/TrkExtrapolation
+#use EventPrimitives     EventPrimitives-*            Event
+use TrkExUtils          TrkExUtils-*                 Tracking/TrkExtrapolation
 
 # ISF
 use ISF_Event           ISF_Event-*                  Simulation/ISF/ISF_Core

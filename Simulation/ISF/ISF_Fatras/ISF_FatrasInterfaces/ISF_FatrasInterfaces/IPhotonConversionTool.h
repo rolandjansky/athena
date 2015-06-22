@@ -13,7 +13,7 @@
 #include "GaudiKernel/IAlgTool.h"
 // Event primitives
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 // ISF
 #include "ISF_Event/ISFParticleVector.h"
 
@@ -58,24 +58,24 @@ namespace iFatras
 				double p) const = 0;
 
     /** interface for processing of the presampled pair production */
-    virtual bool doConversion(double time, const Trk::TrackParameters& parm,
+    virtual bool doConversion(double time, const Trk::NeutralParameters& parm,
 			      const Trk::ExtendedMaterialProperties* extMatProp=0) const;
 
-    /** interface for processing of the presampled nuclear interactions on layer*/
+    /** interface for processing of the presampled conversion on layer*/
     virtual ISF::ISFParticleVector doConversionOnLayer(const ISF::ISFParticle* parent, 
-						       double time, const Trk::TrackParameters& parm,
+						       double time, const Trk::NeutralParameters& parm,
 						       const Trk::ExtendedMaterialProperties *ematprop=0) const;
 
   };
 
-  inline bool IPhotonConversionTool::doConversion(double /*time*/, const Trk::TrackParameters& /*parm*/,
+  inline bool IPhotonConversionTool::doConversion(double /*time*/, const Trk::NeutralParameters& /*parm*/,
 						  const Trk::ExtendedMaterialProperties* /*ematprop*/) const
  {
     return false;
   }
 
   inline ISF::ISFParticleVector IPhotonConversionTool::doConversionOnLayer(const ISF::ISFParticle* /*parent*/,
-									   double /*time*/, const Trk::TrackParameters& /*parm*/,
+									   double /*time*/, const Trk::NeutralParameters& /*parm*/,
 									   const Trk::ExtendedMaterialProperties* /*ematprop*/) const
   {
     ISF::ISFParticleVector cv(0); return cv;
