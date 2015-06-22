@@ -138,10 +138,12 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             bool passedEFCalo=false;
             bool passedEF=false;
             const HLT::TriggerElement* feat = m_probeElectrons[i].second;
+
+            resolution(m_dir+"/"+probeTrigger,m_probeElectrons[i]); // Requires offline match
             
             float avgmu=0.;
-            if(m_lumiBlockMuTool)
-                avgmu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+            if(m_lumiTool)
+                avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
 
             cd(m_dir);
             if(et > etthr + 1.0)
@@ -193,9 +195,11 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                     ATH_MSG_DEBUG("Fails EF, find nearby candidates");
                     // Inefficiency analysis
                     const xAOD::Electron* selEF = NULL;
+                    const xAOD::Photon* selPh = NULL;
                     const xAOD::CaloCluster* selClus = NULL;
                     const xAOD::TrackParticle* selTrk = NULL;
                     const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
+                    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
                     const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
                     const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat);
                     float dRmax=0.15;
@@ -210,6 +214,18 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                         } // loop over EFEl
                     } //FC exists
                     dRmax=0.15;
+                    if ( EFPh != NULL ){
+                        ATH_MSG_DEBUG("Retrieved PhotonnContainer for inefficiency " << EFPh->size());
+                        for(const auto& ph : *EFPh){
+                            float dr=dR(eta,phi,ph->eta(),ph->phi());
+                            if ( dr<dRmax){
+                                dRmax=dr;
+                                selPh = ph;
+                            } // dR
+                        } // loop over EFEl
+                        ATH_MSG_DEBUG("Closest electron dR " << dRmax);
+                    } //FC exists
+                    else ATH_MSG_DEBUG("Photon Container NULL");
                     if ( EFClus != NULL ){
                         ATH_MSG_DEBUG("Retrieved PhotonContainer for inefficiency");
                         for(const auto& clus : *EFClus){
@@ -232,7 +248,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                         } // loop over EFPh
                     } //FC exists
                     // Call inefficiency method in AnalysisBaseTool
-                    fillInefficiency(basePath+"HLT",selEF,selClus,selTrk);
+                    fillInefficiency(basePath+"HLT",selEF,selPh,selClus,selTrk);
                 }
             } // Features
         } // End loop over electrons

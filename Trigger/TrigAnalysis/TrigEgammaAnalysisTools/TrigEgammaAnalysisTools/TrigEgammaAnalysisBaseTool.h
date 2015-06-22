@@ -82,6 +82,7 @@ protected:
 
 
   void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
+  void fillHLTAbsResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
   void fillHLTShowerShapes(const std::string, const xAOD::Egamma *);
   void fillHLTTracking(const std::string, const xAOD::Electron *);
   void fillShowerShapes(const std::string, const xAOD::Egamma *);
@@ -91,7 +92,15 @@ protected:
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
  
   /*! Inefficiency analysis */
-  void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
+  void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
+ 
+  /*! Resolution methods */
+  void resolution(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+  void resolutionPhoton(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+  void resolutionElectron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+  void resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+  void resolutionL2Electron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+  void resolutionEFCalo(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   
   /*! Finalizes efficiency for kinematic histograms */
   void finalizeEfficiency(std::string);
@@ -123,9 +132,9 @@ protected:
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
   /*! Offline Lumi tool */
-  //ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
+  ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
-  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
+  //ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
 
   
   // Infra-structure members

@@ -6,13 +6,30 @@
 #
 
 from sys import argv, exit
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--file', type=str,help='input file')
+parser.add_argument('--folder', type=str,help='folder')
+parser.add_argument('--fileformat', type=str,help='filetype')
+parser.add_argument('--trigger', type=str,help='trigger')
+parser.add_argument('--trigger2', type=str,help='trigger to compare')
+args = parser.parse_args()
+
+import ROOT
 from ROOT import TFile, TH1F
 from ROOT import TCanvas, TLegend
 from ROOT import SetOwnership
+ROOT.gROOT.SetBatch(True)
 
 from AtlasStyle import *
 from getHistograms import *
+
+inputfile=TFile(args.file)
+triggerName=args.trigger
+triggerName2=args.trigger2
+folder=args.folder
+fileformat=args.fileformat
 
 #########################################################################################
 def makeCanvas(histo,title,triggerName,folder):
@@ -22,7 +39,7 @@ def makeCanvas(histo,title,triggerName,folder):
 	leg.SetFillStyle(0)
 	leg.SetTextSize(0.04)
 	leg.AddEntry(h, triggerName,"l")
-	c = TCanvas("c","Efficiency",800,600)
+	c = TCanvas("c","Efficiency")
 	h.Draw()
 	leg.Draw()
 	c.SetGrid()
@@ -98,21 +115,22 @@ def produceCanvas(triggerName,folder,inputfile):
         histEffPhi_D.GetYaxis().SetRangeUser(0.75, 1)
         ##########################
 
-        canv = TCanvas("canv","Efficiency",1000,600)
-        canv.Divide(4,2)
+        canv = TCanvas("canv","Efficiency")
+        canv.Divide(4,4)
 
         leg1 = TLegend(0.4,0.2,0.75,0.40, triggerName)
         leg2 = TLegend(0.4,0.2,0.75,0.50, triggerName)
         leg3 = TLegend(0.4,0.2,0.75,0.40, triggerName)
-        #leg4 = TLegend(0.4,0.2,0.95,0.30) # for the trigger name
+        leg4 = TLegend(0.4,0.2,0.75,0.40, triggerName)
         leg1.SetBorderSize(0)
         leg2.SetBorderSize(0)
         leg3.SetBorderSize(0)
-        #leg4.SetBorderSize(0)
+        leg4.SetBorderSize(0)
+        leg4.SetBorderSize(0)
         leg1.SetTextSize(0.05)
         leg2.SetTextSize(0.05)
         leg3.SetTextSize(0.05)
-        #leg4.SetTextSize(0.05)
+        leg4.SetTextSize(0.05)
 
         leg1.AddEntry(histEffEt_A, "L2Efficiencies","l")
         leg1.AddEntry(histEffEt_B, "HLTEfficiencies","l")
@@ -121,10 +139,15 @@ def produceCanvas(triggerName,folder,inputfile):
         leg2.AddEntry(histEffEt_D, "L2CaloEfficiencies","l")
         leg2.AddEntry(histEffEt_E, "EFCaloEfficiencies","l")
 
-
+        leg3.AddEntry(histEffEt_D, "L2CaloEfficiencies","l")
+        leg3.AddEntry(histEffEt_E, "EFCaloEfficiencies","l")
+        
+        leg4.AddEntry(histEffEt_C, "L1CaloEfficiencies","l")
+        
         SetOwnership( leg1, 0 )   # 0 = release (not keep), 1 = keep
         SetOwnership( leg2, 0 )   # 0 = release (not keep), 1 = keep
         SetOwnership( leg3, 0 )   # 0 = release (not keep), 1 = keep
+        SetOwnership( leg4, 0 )   # 0 = release (not keep), 1 = keep
 
         canv.cd(1)
         histEffEt_A.Draw()
@@ -159,6 +182,28 @@ def produceCanvas(triggerName,folder,inputfile):
         histEffPhi_D.Draw("SAME")
         histEffPhi_E.Draw("SAME")
 
+        canv.cd(9)
+        histEffEt_D.Draw()
+        histEffEt_E.Draw("SAME")
+        leg3.Draw()
+
+        canv.cd(10)
+        histEffEta_D.Draw()
+        histEffEta_E.Draw("SAME")
+
+        canv.cd(11)
+        histEffPhi_D.Draw()
+        histEffPhi_E.Draw("SAME")
+
+        canv.cd(13)
+        histEffEt_C.Draw()
+        leg4.Draw()
+
+        canv.cd(14)
+        histEffEta_C.Draw()
+
+        canv.cd(15)
+        histEffPhi_C.Draw()
 
         for i in range(9):
             canv.cd(i+1).SetGrid()
@@ -169,23 +214,6 @@ def produceCanvas(triggerName,folder,inputfile):
 ### Main program
 #########################################################################################
 
-if(len(argv)<4):
-	print "usage: plotEfficiencies.py -b <root file> <trigger name> <folder> <file format>"
-	exit(2)
-elif(len(argv)==6):
-  filename = argv[2]
-  triggerName = argv[3]
-  folder = argv[4]
-  fileformat = argv[5]
-  print filename, triggerName, folder, fileformat
-  if (folder!="TPAnalysis") or (folder!="Analysis"):
-  	print "Last argument is wrong"
-  print "ROOT File : ", filename
-  print "Trigger name :", triggerName
-  inputfile = TFile(filename)
-else:
-    print "usage: plotEfficiencies.py -b <root file> <trigger name> <folder> <format>"
-    exit(2)
 
 
 SetAtlasStyle()

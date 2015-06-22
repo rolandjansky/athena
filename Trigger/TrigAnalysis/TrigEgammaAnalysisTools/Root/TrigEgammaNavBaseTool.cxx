@@ -250,6 +250,11 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
           std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(eg,te);
           m_objTEList.push_back(pair);
       }
+      else {
+          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(eg,NULL);
+          m_objTEList.push_back(pair);
+      }
+
   }
 
   ATH_MSG_DEBUG("BaseTool::Photon TEs " << m_objTEList.size() << " found.");

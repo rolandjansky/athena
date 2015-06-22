@@ -7,9 +7,11 @@
 #define TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVNTUPLE_H
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEgamma/EgammaEnums.h"
+#include "xAODTracking/TrackingPrimitives.h"
 
 class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
                           virtual public ITrigEgammaAnalysisBaseTool
@@ -20,66 +22,131 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
   
     TrigEgammaNavNtuple( const std::string& myname );
     ~TrigEgammaNavNtuple() {};
-  
     StatusCode childInitialize ();
     StatusCode childBook();
     StatusCode childExecute();
     StatusCode childFinalize();
  
   private: 
+
+    /* Dump offline photons */
+    bool executePhotonDump();
+    /* Dump offline electrons */
+    bool executeElectronDump();
+    /* Dump Trigger, electron and photons matched with the trigger object */
+    bool executeTrigEgammaDump();
+
     /* helper function */ 
     template <class T> void InitBranch(TTree* fChain, std::string branch_name, T* param, bool message = true);
 
-    void conect_branchs(TTree *t);
+    /* Create branches */
+    void bookEventBranches( TTree *t );
+    void bookElectronBranches( TTree *t );
+    void bookPhotonBranches( TTree *t );
+    void bookTriggerBranches( TTree *t );
+    void bookMonteCarloBranches( TTree *t );
+    
+    /* uses InitBranch to connect the local variable and ttree pointer */
+    void linkEventBranches( TTree *t);
+    void linkElectronBranches( TTree *t);
+    void linkPhotonBranches( TTree *t);
+    void linkTriggerBranches( TTree *t);
+    void linkMonteCarloBranches( TTree *t);    
+    
+    /* parse between objects and local variables connected to the 
+     * ttree pointer */
+    bool fillEvent        ( );
+    bool fillMonteCarlo   ( const xAOD::Egamma        *eg );
+    bool fillElectron     ( const xAOD::Electron      *el );
+    bool fillPhoton       ( const xAOD::Photon        *ph );
+    bool fillCaloRings    ( const xAOD::Electron      *el );
+    bool fillTrigCaloRings( const HLT::TriggerElement *te );
+    
+    /* Space memory manager */
     void alloc_space();
     void release_space();
     void clear();
 
-    bool attach_monteCarlo( const xAOD::Electron *eg );
-    bool attach_likelihood( const xAOD::Electron *eg );
-    bool attach_ringer    ( const HLT::TriggerElement *te );
-
   private:
 
-    bool m_doRinger;
-    const xAOD::EventInfo *m_eventInfo;
-    const xAOD::TruthParticleContainer *m_truthContainer;
+    bool m_doOfflineDump;
+    std::string m_offDir;
+    
+    const xAOD::EventInfo               *m_eventInfo;
+    const xAOD::TruthParticleContainer  *m_truthContainer;
+
+    /* Counters */
+    int m_nGoodVtx; 
+    int m_nPileupPrimaryVtx;
 
     /* Branch variables */
     uint32_t            m_runNumber;
     unsigned long long  m_eventNumber;
-    unsigned int        m_eventCounter;    
+    unsigned int        m_eventCounter;   
+    
+    /* Egamma */
+    float               m_el_et;
     float               m_el_pt;
     float               m_el_eta;
     float               m_el_phi;
-    // Likelihood
-    uint8_t             m_el_nSi             ;
-    uint8_t             m_el_nSiDeadSensors  ;
-    uint8_t             m_el_nPix            ;
-    uint8_t             m_el_nSCT            ;
-    uint8_t             m_el_nPixDeadSensors ;
-    uint8_t             m_el_nSCTDeadSensors ;
-    uint8_t             m_el_expectBlayer    ;
-    uint8_t             m_el_nBlayerHits     ;
-    uint8_t             m_el_nBlayerOutliers ;
-    float               m_el_d0              ;
-    float               m_el_deltaEta        ;
-    float               m_el_deltaPhiRescaled2;
-    int                 m_el_convBit ; // this no longer works
-    // offline
+    float               m_el_ethad1;
+    float               m_el_ehad1;
+    float               m_el_f1;
+    float               m_el_f3;
+    float               m_el_d0;
+    float               m_el_f1core;
+    float               m_el_f3core;
+    float               m_el_weta2;
+    float               m_el_wtots1;
+    float               m_el_fracs1;
+    float               m_el_Reta;
+    float               m_el_Rphi;
+    float               m_el_Eratio;
+    float               m_el_Rhad;
+    float               m_el_Rhad1;
+    float               m_el_deta1;
+    float               m_el_deta2;
+    float               m_el_dphi2;
+    float               m_el_dphiresc;
+    float               m_el_dphiresc2;
+    float               m_el_eprobht;
+    float               m_el_charge;
+    uint8_t             m_el_nblayerhits;
+    uint8_t             m_el_nblayerolhits;
+    uint8_t             m_el_npixhits;
+    uint8_t             m_el_npixolhits;
+    uint8_t             m_el_nscthits;
+    uint8_t             m_el_nsctolhits;
+    uint8_t             m_el_ntrthightreshits;
+    uint8_t             m_el_ntrthits;
+    uint8_t             m_el_ntrthighthresolhits;
+    uint8_t             m_el_ntrtolhits;
+    uint8_t             m_el_ntrtxenonhits;
+    bool                m_el_expectblayerhit;
+    uint8_t             m_el_nsihits         ;
+    uint8_t             m_el_nsideadsensors  ;
+    uint8_t             m_el_npixdeadsensors ;
+    uint8_t             m_el_nsctdeadsensors ;
     bool                m_el_loose;
     bool                m_el_medium;
     bool                m_el_tight;
     bool                m_el_lhLoose;
     bool                m_el_lhMedium;
     bool                m_el_lhTight; 
+    bool                m_el_rgLoose;
+    bool                m_el_rgMedium;
+    bool                m_el_rgTight;
     bool                m_el_multiLepton;
-    int                 m_trk_nGoodVtx;
-    int                 m_trk_nPileupPrimaryVtx;
+    std::vector<float> *m_el_ringsE;
+    int                 m_el_nGoodVtx;
+    int                 m_el_nPileupPrimaryVtx;
+    ///Egamma Calo
     float               m_calo_et;
     float               m_calo_eta;
     float               m_calo_phi;
-     // Level 1     
+
+
+    // Level 1     
     float               m_trig_L1_emClus;
     float               m_trig_L1_tauClus;
     float               m_trig_L1_emIsol;

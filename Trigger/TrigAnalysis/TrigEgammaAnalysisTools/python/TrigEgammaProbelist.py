@@ -65,10 +65,11 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e12_loose_L1EM10VH',
         'e15_loose_L1EM13VH',
         'e17_loose',
+        'e17_lhloose_L1EM15',
         'e13_etcut_trkcut',
 	# Rerun mode for photon
-        'g35_loose_L1EM15',
-        'g25_loose_L1EM15',
+        'g35_loose',
+        'g25_loose',
 	"g25_medium",
 	"g35_medium",
         'g50_loose',
@@ -79,13 +80,16 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         "e0_perf_L1EM15",
         "g0_perf_L1EM15",
         "g10_etcut",
+        "g10_loose",
         "e5_etcut",
         "e10_etcut_L1EM7",
         "e5_lhloose_idperf",
         "e5_loose_idperf",
+        "e5_loose_L2Star_idperf",
+        "e5_loose",
         'e24_medium_idperf_L1EM20VH',
         'e24_lhmedium_idperf_L1EM20VH',
-	]
+       ]
 
 # ProbeList 1 - Low/mid pt supporting triggers
 # Tools to Run

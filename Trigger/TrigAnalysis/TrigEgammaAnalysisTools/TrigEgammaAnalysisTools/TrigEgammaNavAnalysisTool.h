@@ -30,12 +30,6 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
         void bookPerCategory(const std::string);
         void efficiency(const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
         void inefficiency(const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolution(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolutionPhoton(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolutionElectron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolutionL2Electron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void resolutionEFCalo(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
         
         /*! Online persisted containers */
         const xAOD::EventInfo *m_eventInfo;

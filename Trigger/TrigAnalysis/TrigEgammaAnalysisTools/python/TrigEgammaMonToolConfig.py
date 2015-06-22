@@ -11,11 +11,9 @@ def TrigEgammaMonTool():
     # Makes available all possible triggers which can be in any dataset
     # Set final list from triggers available in data
     import TriggerMenu.menu.Physics_pp_v5 as physics_menu
-    import TriggerMenu.menu.MC_pp_v5 as mc_menu
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
     physics_menu.setupMenu()
-    mc_menu.setupMenu()
     egammaMenu = TriggerFlags.EgammaSlice.signatures()
     egammaChains = []
     l1Items = []
@@ -27,11 +25,10 @@ def TrigEgammaMonTool():
     # Set list to full menu
     #probelist = egammaChains
     probelist = default
-    #probelist=['e5_loose_idperf']
+    #probelist=['e5_loose_idperf','e5_lhloose_idperf','e0_perf_L1EM15','g0_perf_L1EM15']
 
     basePath = '/HLT/Egamma/'
-    tagItems = ['e5_loose','e5_lhloose',
-            'e24_lhmedium_iloose_L1EM18VH',
+    tagItems = ['e24_lhmedium_iloose_L1EM18VH',
         'e24_lhmedium_iloose_L1EM20VH',
         'e24_lhtight_iloose',
         'e26_lhtight_iloose',
@@ -51,7 +48,7 @@ def TrigEgammaMonTool():
             TriggerList=probelist, 
             File="",
             TagTriggerList=tagItems,
-            OutputLevel=2)
+            OutputLevel=0)
     Emulation = TrigEgammaEmulationTool("Emulation",TriggerList=probelist)
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
     TrigEgammaMonTool = TrigEgammaMonTool( name = "TrigEgammaMonTool", 

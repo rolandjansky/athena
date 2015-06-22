@@ -81,10 +81,12 @@ TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("TightLHSelector")
 TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodTightOfflineConfig2015.conf"
 ToolSvc+=TightLHSelector
 
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-lumiTool = LuminosityToolOnline()
-ToolSvc += lumiTool 
-
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+#lumiTool = LuminosityToolOnline()
+#ToolSvc += lumiTool 
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
+#lumiTool = LuminosityToolDefault()
+#ToolSvc += lumiTool
 #from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
 #lumiOnlineTool = LuminosityToolOnline("LuminosityToolOnline")
 #ToolSvc += lumiOnlineTool
@@ -101,19 +103,6 @@ ToolSvc += EgammaMatchTool
 # These are triggerlist in constructor as well
 # Using Factories need to set for each tool
 
-isemlabels=["ClusterEtaRange","ConversionMatch",
-        "ClusterHadronicLeakage","ClusterMiddleEnergy",
-        "ClusterMiddleEratio37","ClusterMiddleEratio33",
-        "ClusterMiddleWidth","f3","ClusterStripsEratio",
-        "ClusterStripsDeltaEmax2","ClusterStripsDeltaE",
-        "ClusterStripsWtot","ClusterStripsFracm",
-        "ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1",
-        "TrackBlayer","TrackPixel","TrackSi","TrackA0",
-        "TrackMatchEta","TrackMatchPhi","TrackMatchEoverP",
-        "TrackTRTeProbabilityHT_Electron","TrackTRThits",
-        "TrackTRTratio","TrackTRTratio90","TrackA0Tight",
-        "TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation",
-        "noTrack","noCluster","noCandidate","All"]
 TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPNtuple, name ="TrigEgammaNavTPNtuple",
         DirectoryPath='NavZeeTPNtuple',
         ElectronKey = 'Electrons',
@@ -124,17 +113,14 @@ TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPN
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
         ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
         OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
         OfflineProbeSelector='Loose', 
         ForceProbePid=False, 
         OppositeCharge=True,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
-        TagTrigger="e24_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        doRinger=False,
+        TagTriggerList="e24_tight_iloose",
+        TriggerList=triggerlist,
         )
 
 TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtuple, name ="TrigEgammaNavNtuple",
@@ -146,8 +132,9 @@ TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtupl
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         TriggerList=triggerlist,
-        dR = 0.07,
-        doRinger=False,
+        OfflineDirectoryPath='Offline/Egamma/Ntuple', 
+        DoOfflineDump=False,
+        dR=0.07,
         )
 
 TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPAnalysisTool, name = "TrigEgammaNavTPAnalysisTool",
@@ -168,7 +155,7 @@ TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgamma
         OfflineProbeMinEt=24,
         TagTriggerList=["e26_tight_iloose"],
         TriggerList=triggerlist,
-        IsEMLabels=isemlabels
+        IsEMLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","All"],
         )
 
 TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavAnalysisTool, name ="TrigEgammaNavAnalysisTool",
@@ -181,7 +168,6 @@ TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNa
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         TriggerList=triggerlist,
         dR = 0.07,
-        IsEMLabels=isemlabels
         )
 
 

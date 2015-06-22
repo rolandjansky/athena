@@ -3,8 +3,8 @@
 def TrigEgammaPhysValMonTool():
     from AthenaCommon.AppMgr import ToolSvc
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaEmulationTool
-    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool
-    from TrigEgammaAnalysisTools.TrigEgammaProbelist import default # to import probelist
+    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool, TrigEgammaNavNtuple, TrigEgammaNavTPNtuple
+    from TrigEgammaAnalysisTools.TrigEgammaProbelist import default, probeListLowMidPtPhysicsTriggers # to import probelist
     
     #from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # import MaM trigger list not available!!!!
     import TriggerMenu.menu.Physics_pp_v5 as physics_menu
@@ -23,34 +23,66 @@ def TrigEgammaPhysValMonTool():
         l1Items.append(egchain[1])
         addItems.append(egchain[3])
     # Set list to full menu
-    probelist = egammaChains
-    #probelist = default
+    #probelist = egammaChains
+    probelist = default
+    #probelist = list(set(default+probeListLowMidPtPhysicsTriggers))
     
+
     basePath = '/Trigger/HLT/Egamma/'
-    tagItems = ['e24_lhmedium_iloose_L1EM18VH',
+    tagItems = [
+        'e24_lhmedium_iloose_L1EM18VH',
         'e24_lhmedium_iloose_L1EM20VH',
-        'e24_lhtight_iloose',
+        'e24_lhtight_iloose'
         'e26_lhtight_iloose',
-        # Primary cut-based electron triggers
+        #Primary cut-based electron triggers
         'e24_medium_iloose_L1EM18VH',
         'e24_medium_iloose_L1EM20VH',
         'e24_tight_iloose',
-        'e26_tight_iloose']
+        'e26_tight_iloose'
+        ]
     Analysis = TrigEgammaNavAnalysisTool(name='NavAnalysis',
             DirectoryPath=basePath+'Analysis',
             TriggerList=probelist, 
             File="PhysVal")
+    
     TPAnalysis = TrigEgammaNavTPAnalysisTool(name='NavTPAnalysis',
             DirectoryPath=basePath+'TPAnalysis',
             TriggerList=probelist, 
-            File="",
+            File="PhysVal",
             TagTriggerList=tagItems,
             OutputLevel=0)
+ 
     Emulation = TrigEgammaEmulationTool("Emulation",TriggerList=probelist)
+ 
+
+    Ntuple    = TrigEgammaNavNtuple(name="NavNtuple",
+            DirectoryPath=basePath+'Ntuple',
+            TriggerList=probelist,
+            DoOfflineDump=False,
+            File="PhysVal",
+            OutputLevel=0)
+
+   
+    TPNtuple  = TrigEgammaNavTPNtuple(name="NavTPNtuple",
+            DirectoryPath=basePath+'TPNtuple',
+            TriggerList=probelist,
+            File="PhysVal",
+            TagTriggerList=tagItems,
+            OutputLevel=0)
+
+
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaPhysValMonTool
     TrigEgammaPhysValMonTool = TrigEgammaPhysValMonTool( name = "TrigEgammaPhysValMonTool", 
             histoPathBase=basePath,
-            Tools=["TrigEgammaNavAnalysisTool/NavAnalysis",
+            Tools=[
+                "TrigEgammaNavAnalysisTool/NavAnalysis",
                 "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
-                "TrigEgammaEmulationTool/Emulation"])
+                "TrigEgammaEmulationTool/Emulation",
+                "TrigEgammaNavNtuple/NavNtuple",
+                "TrigEgammaNavTPNtuple/NavTPNtuple"
+                ])
+
     ToolSvc += TrigEgammaPhysValMonTool
+
+
+

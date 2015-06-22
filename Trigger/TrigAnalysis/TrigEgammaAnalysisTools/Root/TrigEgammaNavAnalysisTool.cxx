@@ -63,6 +63,9 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     addHistogram(new TH1F("l1_energy", "L1 Energy; E [GeV]; Count", 50, 0., 100.));
     addHistogram(new TH1F("l1_roi_et", "L1 RoI Energy; E [GeV]; Count", 50, 0., 100.));
     addHistogram(new TH2F("l1_eta_phi", "L1 Calo; eta ; phi", 50, -2.47, 2.47,50,-3.14,3.14));
+    addHistogram(new TH1F("l1_eta", "#eta; #eta ; Count", 50, -2.47, 2.47));
+    addHistogram(new TH1F("l1_phi", "#phi; #phi ; Count", 50, -3.14, 3.14));
+
 
     addHistogram(new TH1F("electrons", "Offline Electrons; ; N_{electrons}", 6, 1., 6));   
     addHistogram(new TH1F("elperevt", "Offline Electrons; ; N_{electrons}/Evt", 6, 1., 6));   
@@ -135,6 +138,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     
    for (const auto& l1: *m_emTauRoI) {
         hist2("l1_eta_phi")->Fill(l1->eta(),l1->phi());
+        hist1("l1_eta")->Fill(l1->eta());
+        hist1("l1_phi")->Fill(l1->phi());
         hist1("l1_energy")->Fill(l1->emClus()/1.e3);
         hist1("l1_roi_et")->Fill(l1->eT()/1.e3);
     }
@@ -151,11 +156,12 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
 
         // Trigger counts
         cd(m_dir);
-        // Require event passes trigger
-        // Killing events?
-        //if(!m_trigdec->isPassed("HLT_"+trigger)) continue;
+        if(m_trigdec->isPassed("HLT_"+trigger)) hist1("trigger_counts")->AddBinContent(ilist+1);
         
-        hist1("trigger_counts")->AddBinContent(ilist+1);
+        // Skip event if prescaled out 
+        // Prescale cut has ill effects
+        // if(m_trigdec->isPassedBits("HLT_"+trigger) & TrigDefs::EF_prescaled) continue;
+
         std::string basePath = m_dir+"/"+trigger+"/Distributions/";
         
         std::string type="";
@@ -171,26 +177,39 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
         }
+        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger);
         for(unsigned int i=0;i<m_objTEList.size();i++){
             efficiency(m_dir+"/"+trigger+"/Efficiency/",etthr,m_objTEList[i]); // Requires offline match
             inefficiency(m_dir+"/"+trigger+"/Efficiency/HLT",etthr,m_objTEList[i]); // Requires offline match
-            resolution(m_dir+"/"+trigger+"/Resolutions/HLT",m_objTEList[i]); // Requires offline match
+            resolution(m_dir+"/"+trigger,m_objTEList[i]); // Requires offline match
         }
        
         // Retrieve FeatureContainer for a given trigger
+        ATH_MSG_DEBUG("Retrieve features for chain");
         auto fc = (m_trigdec->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
-        auto initRois = fc.get<TrigRoiDescriptor>();
+        auto initRois = fc.get<TrigRoiDescriptor>("initialRoI");
+        
+        ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
         for(auto feat : initRois){
-            if(feat.te()==NULL) continue;
+            if(feat.te()==NULL) {
+                ATH_MSG_DEBUG("initial RoI feature NULL");
+                continue;
+            }
+            const TrigRoiDescriptor *roi = feat.cptr();
+            cd(basePath+"RoI");
+            hist1("roi_eta")->Fill(roi->eta());
+            hist1("roi_phi")->Fill(roi->phi());
+            ATH_MSG_DEBUG("ROI eta, phi" << roi->eta() << " " << roi->phi());
             ATH_MSG_DEBUG("Retrievec L1 FC");
             auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
             const xAOD::EmTauRoI *l1 = itEmTau.cptr();
             if(l1==NULL) continue;
-            ATH_MSG_DEBUG("Retrievec L1 Object");
+            ATH_MSG_DEBUG("Retrieve L1 Object");
+            ATH_MSG_DEBUG("L1 eta, phi" << l1->eta() << " " << l1->phi() << " " << l1->eT()/1.e3);
             fillL1Calo(basePath+"L1Calo",l1);
         }
-        auto vec_clus = fc.get<xAOD::CaloClusterContainer>("",TrigDefs::alsoDeactivateTEs);
-        ATH_MSG_DEBUG("EF FC Size " << vec_clus.size());
+        auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+        ATH_MSG_DEBUG("EFCalo FC Size " << vec_clus.size());
         for(auto feat : vec_clus){
             if(feat.te()==NULL) continue;
             const xAOD::CaloClusterContainer *cont = feat.cptr();
@@ -198,11 +217,32 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             ATH_MSG_DEBUG("Retrieved EF Calo Container");
             for(const auto& clus : *cont){
                 if(clus==NULL) continue;
-                ATH_MSG_DEBUG("Retrieved EF Cluster");
+                ATH_MSG_DEBUG("Retrieved EF Cluster "<<clus->eta() << clus->phi() << clus->e()/1.e3  );
+                
                 fillEFCalo(basePath+"EFCalo",clus);           
             }
         }
+        auto vec_trk = fc.get<xAOD::TrackParticleContainer>("",TrigDefs::alsoDeactivateTEs);
+        ATH_MSG_DEBUG("EF Trk FC Size " << vec_trk.size());
+        for(auto feat : vec_trk){
+            if(feat.te()==NULL) continue;
+            const xAOD::TrackParticleContainer *cont = feat.cptr();
+            if(cont==NULL) continue;
+            ATH_MSG_DEBUG("Retrieved EF Trk Container");
+            for(const auto& trk : *cont){
+                if(trk==NULL) continue;
+                ATH_MSG_DEBUG("Retrieved EF Trk");
+                //fillEFCalo(basePath+"EFCalo",clus);           
+            }
+        }
         auto vec = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+        auto vec_bits = fc.get<TrigPassBits>("",TrigDefs::alsoDeactivateTEs);
+        for(auto feat : vec_bits){
+            if(feat.te()==NULL) continue;
+            const TrigPassBits *cont = feat.cptr();
+        }
+
+        ATH_MSG_DEBUG("EF Electron FC Size " << vec.size());
         for(auto feat : vec){
             if(feat.te()==NULL) continue;
             const xAOD::ElectronContainer *cont = feat.cptr();
@@ -214,7 +254,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
                 fillHLTTracking(basePath+"HLT",el);           
             }
         }
-        auto vec_ph = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+        auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+        ATH_MSG_DEBUG("EF Photon FC Size " << vec.size());
         for(auto feat : vec_ph){
             if(feat.te()==NULL) continue;
             const xAOD::PhotonContainer *cont = feat.cptr();
@@ -225,6 +266,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
                 fillHLTShowerShapes(basePath+"HLT",ph);           
             }
         }
+        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
 
   return StatusCode::SUCCESS;
@@ -258,156 +300,9 @@ void bookPerCategory(const std::string category){
 
 }
 
-void TrigEgammaNavAnalysisTool::resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-    const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedL2Ph = ancestorPassed<xAOD::TrigPhotonContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::TrigPhoton *phL2 = NULL;
-
-    const auto* L2Ph = getFeature<xAOD::TrigPhotonContainer>(feat);
-    dRMax=100.;
-    if(L2Ph != NULL){
-        for(const auto& ph : *L2Ph){
-            if(ph == NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
-                continue;
-            }
-            deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->eta(),ph->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                phL2 =ph;
-            } 
-        } //Loop over EF photons
-        if(dRMax < 0.05) { 
-            if(passedL2Ph && phL2!=NULL){
-                //fillRes(trigger,phEF,phOff);
-                //fillShowerShapes(trigger,phEF,phOff);           
-            } // Is EF Photon
-        } // Found closest photon match
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
-}
-
-void TrigEgammaNavAnalysisTool::resolutionL2Electron(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-}
-
-void TrigEgammaNavAnalysisTool::resolutionEFCalo(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-    const xAOD::Egamma *eg = pairObj.first;
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::CaloCluster *clusEF = NULL;
-
-    const auto* EFCalo = getFeature<xAOD::CaloClusterContainer>(feat);
-    dRMax=100.;
-    if(EFCalo!=NULL){
-        for(const auto& clus : *EFCalo){
-            if(clus==NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
-                continue;
-            }
-            deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), clus->eta(),clus->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                clusEF=clus;
-            } 
-        } //Loop over EF photons
-        if(dRMax < 0.05) { 
-            if(passedEFCalo && clusEF!=NULL){
-                //fillRes(trigger,phEF,phOff);
-                //fillShowerShapes(trigger,phEF,phOff);           
-            } // Is EF Photon
-        } // Found closest photon match
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
-}
-
-void TrigEgammaNavAnalysisTool::resolutionPhoton(const std::string dir,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-    ATH_MSG_DEBUG("Resolution photon "<< dir);
-
-    const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedEFPh = ancestorPassed<xAOD::PhotonContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::Photon *phEF = NULL;
-
-    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
-    dRMax=100.;
-    if(EFPh != NULL){
-        for(const auto& ph : *EFPh){
-            if(ph == NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
-                continue;
-            }
-            deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                phEF =ph;
-            } 
-        } //Loop over EF photons
-        if(dRMax < 0.05) { 
-            if(passedEFPh && phEF!=NULL){
-                fillHLTResolution(dir,phEF,phOff);
-            } // Is EF Photon
-        } // Found closest photon match
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
-}
-void TrigEgammaNavAnalysisTool::resolutionElectron(const std::string dir,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-    ATH_MSG_DEBUG("Resolution Electron " << dir);
-
-    const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedEFEl = ancestorPassed<xAOD::ElectronContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::Electron *elEF = NULL;
-
-    const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
-    if(EFEl != NULL) {
-        dRMax=100.;
-        ATH_MSG_DEBUG("Retrieve Electron FC");
-        for(const auto& el : *EFEl){
-            if(el == NULL) {
-                ATH_MSG_WARNING("Electron from TE NULL");
-                continue;
-            }
-            deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                elEF =el;
-            }
-        } // Loop over EF container
-        if(dRMax < 0.05) {
-            if(passedEFEl && elEF!=NULL){
-                fillHLTResolution(dir,elEF,elOff);
-            } // Is EF electron
-        } // Found closest math
-    } // Feature
-    else ATH_MSG_WARNING("NULL Feature");
-}
-
-void TrigEgammaNavAnalysisTool::resolution(const std::string dir,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-   
-    ATH_MSG_DEBUG("Executing resolution for " << dir);
-    const xAOD::Egamma* eg =pairObj.first;
-    const HLT::TriggerElement *feat = pairObj.second; 
-    
-    if ( feat!=NULL ) {
-        if(eg->type()==xAOD::Type::Electron){
-            resolutionElectron(dir,pairObj);
-        } // Offline object Electron
-        else if(eg->type()==xAOD::Type::Photon){
-            resolutionPhoton(dir,pairObj);
-        } // Offline photon
-    }
-}
 
 void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const float etthr,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+    ATH_MSG_DEBUG("Start Inefficiency Analysis ======================= " << basePath);
     // Inefficiency analysis
     float et=0.;
     const xAOD::Egamma* eg =pairObj.first;
@@ -421,20 +316,37 @@ void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const fl
 
     float eta = eg->eta();
     float phi = eg->phi();
+    ATH_MSG_DEBUG("Offline eta, phi " << eta << " " << phi);
     const xAOD::Electron* selEF = NULL;
+    const xAOD::Photon* selPh = NULL;
     const xAOD::CaloCluster* selClus = NULL;
     const xAOD::TrackParticle* selTrk = NULL;
+    
+    // Can we acquire L1 information 
+    //
+    //auto initRois = fc.get<TrigRoiDescriptor>();
+    //if ( initRois.size() < 1 ) ATH_MSG_DEBUG("No L1 RoI"); 
+    //auto itEmTau = m_trigDecTool->ancestor<xAOD::EmTauRoI>(initRois[0]);
+    ATH_MSG_DEBUG("Retrieve L1");
+    const auto* EmTauRoI = getFeature<xAOD::EmTauRoI>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Electron");
     const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Photons");
+    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Cluster");
     const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Trk");
     const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat);
-    float dRmax=0.15;
+    float dRmax=0.5;
+    bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
     bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
     unsigned int runNumber               = m_eventInfo->runNumber();
     unsigned int eventNumber             = m_eventInfo->eventNumber();
-    if(!passedEF){
-        ATH_MSG_DEBUG("REGEST::Fails EF Electron Hypo Run " << runNumber << " Event " << eventNumber);
+    if(EmTauRoI==NULL) ATH_MSG_DEBUG("L1 EmTauRoI NULL pointer");
+    if(!passedEF && passedEFCalo){
+        ATH_MSG_DEBUG("REGEST::Fails EF Electron, passes EFCalo Hypo Run " << runNumber << " Event " << eventNumber);
         if ( EFEl != NULL ){
-            ATH_MSG_DEBUG("Retrieved ElectronContainer for inefficiency");
+            ATH_MSG_DEBUG("Retrieved ElectronContainer for inefficiency " << EFEl->size());
             for(const auto& el : *EFEl){
                 float dr=dR(eta,phi,el->eta(),el->phi());
                 if ( dr<dRmax){
@@ -442,10 +354,25 @@ void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const fl
                     selEF = el;
                 } // dR
             } // loop over EFEl
+            ATH_MSG_DEBUG("Closest electron dR " << dRmax);
         } //FC exists
-        dRmax=0.15;
+        else ATH_MSG_DEBUG("Electron Container NULL");
+        dRmax=0.5;
+        if ( EFPh != NULL ){
+            ATH_MSG_DEBUG("Retrieved PhotonnContainer for inefficiency " << EFPh->size());
+            for(const auto& ph : *EFPh){
+                float dr=dR(eta,phi,ph->eta(),ph->phi());
+                if ( dr<dRmax){
+                    dRmax=dr;
+                    selPh = ph;
+                } // dR
+            } // loop over EFEl
+            ATH_MSG_DEBUG("Closest electron dR " << dRmax);
+        } //FC exists
+        else ATH_MSG_DEBUG("Photon Container NULL");
+        dRmax=0.5;
         if ( EFClus != NULL ){
-            ATH_MSG_DEBUG("Retrieved PhotonContainer for inefficiency");
+            ATH_MSG_DEBUG("Retrieved ClusterContainer for inefficiency " << EFClus->size());
             for(const auto& clus : *EFClus){
                 float dr=dR(eta,phi,clus->eta(),clus->phi());
                 if(dr<dRmax){
@@ -453,10 +380,12 @@ void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const fl
                     selClus = clus;
                 } // dR
             } // loop over EFPh
+            ATH_MSG_DEBUG("Closest cluster dR " << dRmax);
         }
-        dRmax=0.15;
+        else ATH_MSG_DEBUG("CaloCluster Container NULL");
+        dRmax=0.5;
         if ( EFTrk != NULL ){
-            ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency");
+            ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrk->size());
             for(const auto& trk : *EFTrk){
                 float dr=dR(eta,phi,trk->eta(),trk->phi());
                 if(dr<dRmax){
@@ -464,10 +393,13 @@ void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const fl
                     selTrk = trk;
                 } // dR
             } // loop over EFPh
+            ATH_MSG_DEBUG("Closest track dR " << dRmax);
         } //FC exists
+        else ATH_MSG_DEBUG("TrackParticle Container NULL");
 
-        fillInefficiency(basePath,selEF,selClus,selTrk);
+        fillInefficiency(basePath,selEF,selPh,selClus,selTrk);
     }
+    ATH_MSG_DEBUG("End Inefficiency Analysis ======================= " << basePath);
 }
 
 void TrigEgammaNavAnalysisTool::efficiency(const std::string basePath,const float etthr,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
@@ -487,8 +419,8 @@ void TrigEgammaNavAnalysisTool::efficiency(const std::string basePath,const floa
     float eta = eg->eta();
     float phi = eg->phi();
     float avgmu=0.;
-    if(m_lumiBlockMuTool)
-        avgmu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+    if(m_lumiTool)
+        avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
     ATH_MSG_DEBUG("Fill probe histograms");
     fillHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu);
     fillHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu);
@@ -498,15 +430,33 @@ void TrigEgammaNavAnalysisTool::efficiency(const std::string basePath,const floa
 
     if ( feat ) {
         ATH_MSG_DEBUG("Fill passed  histograms");
+        ATH_MSG_DEBUG("Retrieve EmTauRoI");
         bool passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
+        ATH_MSG_DEBUG("Retrieve TrigEMCluster");
         bool passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
-        bool passedL2El = ancestorPassed<xAOD::TrigElectronContainer>(feat);
-        bool passedL2Ph = ancestorPassed<xAOD::TrigPhotonContainer>(feat);
+        bool passedL2=false;
+        if(pairObj.first->type()==xAOD::Type::Electron){
+            ATH_MSG_DEBUG("Retrieve TrigElectron");
+            passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
+        }
+        else {
+            passedL2 = ancestorPassed<xAOD::TrigPhotonContainer>(feat);
+            ATH_MSG_DEBUG("Retrieve TrigElectron");
+        }
+        ATH_MSG_DEBUG("Retrieve CaloCluster");
         bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-        bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
+        bool passedEF=false;
+        if(pairObj.first->type()==xAOD::Type::Electron){
+            ATH_MSG_DEBUG("Retrieve Electron");
+            passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
+        }
+        else {
+            ATH_MSG_DEBUG("Retrieve Photon");
+            passedEF = ancestorPassed<xAOD::PhotonContainer>(feat);
+        }
         if( passedL1Calo) fillMatchHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu);
         if( passedL2Calo ) fillMatchHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu);
-        if( passedL2El || passedL2Ph ) fillMatchHistos(basePath+"L2",etthr,et,eta,phi,avgmu);
+        if( passedL2 ) fillMatchHistos(basePath+"L2",etthr,et,eta,phi,avgmu);
         if( passedEFCalo ) fillMatchHistos(basePath+"EFCalo",etthr,et,eta,phi,avgmu);
         if( passedEF ) fillMatchHistos(basePath+"HLT",etthr,et,eta,phi,avgmu);
     } // Features
