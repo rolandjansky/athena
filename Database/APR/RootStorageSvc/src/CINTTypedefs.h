@@ -29,7 +29,8 @@ namespace CINT  {
     * @version 1.0
     */
   class Typedefs  {
-    friend class std::auto_ptr<Typedefs>;
+    friend class std::unique_ptr<Typedefs>;
+    friend struct std::default_delete<Typedefs>;
 
   protected:
     typedef std::map<std::string,std::string> Definitions;

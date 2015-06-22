@@ -19,6 +19,7 @@
 #ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 /*
  *  POOL namespace
@@ -40,7 +41,11 @@ namespace pool  {
   class RootOODb  : public OODatabaseImp  {
   public:
 #ifdef HAVE_GAUDI_PLUGINSVC
-typedef Gaudi::PluginService::Factory1<IOODatabase*, void*> Factory;
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    typedef Gaudi::PluginService::Factory<IOODatabase*, void*> Factory;
+  #else  
+    typedef Gaudi::PluginService::Factory1<IOODatabase*, void*> Factory;
+  #endif
 #endif
     /// Standard Constructor
     RootOODb(void* ctxt);

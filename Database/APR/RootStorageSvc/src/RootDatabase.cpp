@@ -456,6 +456,12 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
         return opt._setValue((void*)m_file->Get(key));
       }
       break;
+    case 'I':
+      if ( !strcasecmp(n,"IOBYTES_WRITTEN") )      // int
+        return opt._setValue((long long int)(byteCount(WRITE_COUNTER)));
+      else if ( !strcasecmp(n,"IOBYTES_READ") )         // int
+        return opt._setValue((long long int)(byteCount(READ_COUNTER)));
+      break;
     case 'R':
       if ( !m_file )
         return Error;

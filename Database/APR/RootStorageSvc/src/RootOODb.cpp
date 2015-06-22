@@ -23,9 +23,9 @@
 using namespace pool;
 
 static RootClassLoader* _classLoader()  {
-  static std::auto_ptr<RootClassLoader> ldr;
+  static std::unique_ptr<RootClassLoader> ldr;
   if ( 0 == ldr.get() )  {
-    ldr = std::auto_ptr<RootClassLoader>(new RootClassLoader);
+    ldr = std::unique_ptr<RootClassLoader>(new RootClassLoader);
   }
   return ldr.get();
 }

@@ -17,7 +17,7 @@
 #include <sstream>
 
 
-static std::auto_ptr<CINT::Typedefs> s_defs(0);
+static std::unique_ptr<CINT::Typedefs> s_defs;
 
 /// Standard constructor
 CINT::Typedefs::Typedefs()  {
@@ -101,7 +101,7 @@ TClass* CINT::Typedefs::applyType(const std::string& /*type_name*/, bool )  {
 
 TClass* CINT::Typedefs::apply(const std::string& cl_name, bool silent) {
   if ( 0 == s_defs.get() )  {
-    s_defs = std::auto_ptr<Typedefs>(new Typedefs());
+    s_defs = std::unique_ptr<Typedefs>(new Typedefs());
   }
   return s_defs->applyType(cl_name,silent);
 }

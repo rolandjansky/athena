@@ -740,7 +740,7 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
     else if ( !hasBeenCreated && mode&pool::CREATE )    {
       int count, defCompression=1, defSplitLevel=99, 
 	 defAutoSave=16*1024*1024, defBufferSize=16*1024,
-	 branchOffsetTabLen=0, containerSplitLevel=defSplitLevel;
+	 branchOffsetTabLen=0, containerSplitLevel=defSplitLevel, auxSplitLevel=defSplitLevel;
       DbStatus res = Success;
       try   {
         DbOption opt1("DEFAULT_COMPRESSION","");
@@ -749,21 +749,29 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
         DbOption opt4("DEFAULT_BUFFERSIZE","");
 	DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
         DbOption opt6("CONTAINER_SPLITLEVEL", m_name);
+        DbOption opt7("CONTAINER_SPLITLEVEL", SG::AUX_POSTFIX);
 	dbH.getOption(opt1);
         dbH.getOption(opt2);
         dbH.getOption(opt3);
         dbH.getOption(opt4);
 	dbH.getOption(opt5);
         dbH.getOption(opt6);
+        dbH.getOption(opt7);
         opt1._getValue(defCompression);
         opt2._getValue(defSplitLevel);
         opt3._getValue(defAutoSave);
         opt4._getValue(defBufferSize);
 	opt5._getValue(branchOffsetTabLen);
         opt6._getValue(containerSplitLevel);
+        opt7._getValue(auxSplitLevel);
+        if (containerSplitLevel == defSplitLevel) {
+	   if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == SG::AUX_POSTFIX)
+	           || info->clazz().Properties().HasProperty("IAuxStore") ) containerSplitLevel = auxSplitLevel;
+        }
 	if (!m_tree) {
           m_tree = new TTree(treeName.c_str(), treeName.c_str(), (m_branchName.empty() ? containerSplitLevel : defSplitLevel));
-          m_tree->SetDirectory(m_rootDb->file());
+          if (m_rootDb)
+            m_tree->SetDirectory(m_rootDb->file());
           // Autosave every mega byte...
           m_tree->SetAutoSave(defAutoSave);
         }
@@ -884,10 +892,6 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
       if ( 0 != dsc.clazz )  {
         if ( dsc.clazz->GetStreamerInfo() )  {
           std::string nam  = (m_branchName.empty() ? col->name() : m_branchName);
-          int split = defSplitLevel;
-//FIXME: PvG temporary hack because of broken direct ROOT readability
-          if ( (nam.size() >= 4 && nam.substr(nam.size()-4) == SG::AUX_POSTFIX)
-	          && dsc.clazz->CanSplit() ) split = 1;
           if (m_branchName.empty()) {
             for ( std::string::iterator j = nam.begin(); j != nam.end(); ++j )    {
               if ( !::isalnum(*j) ) *j = '_';
@@ -897,7 +901,7 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
                                        dsc.clazz->GetName(), // Object class
                                        (void*)&dsc.buffer,   // Object address
                                        defBufferSize, // Buffer size
-                                       split);        // Split Mode (Levels)
+                                       defSplitLevel);        // Split Mode (Levels)
           if ( dsc.branch )  {
             dsc.leaf = dsc.branch->GetLeaf(nam.c_str());
             dsc.branch->SetAutoDelete(kFALSE);

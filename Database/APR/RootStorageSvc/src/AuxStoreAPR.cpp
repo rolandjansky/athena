@@ -17,6 +17,7 @@
 #include "TClassTable.h"
 #include "TClassEdit.h"
 #include "TVirtualCollectionProxy.h"
+#include "TROOT.h"
 
 #include <iostream>
 
@@ -97,6 +98,27 @@ const std::type_info* getElementType (TBranch* br,
 }
 
 
+// Convert from class name to TClass; try to avoid autoparsing.
+TClass* getClassIfDictionaryExists (const std::string& cname)
+{
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+  return TClass::GetClass (cname.c_str());
+#else
+  if (TClass* cl = (TClass*)gROOT->GetListOfClasses()->FindObject(cname.c_str())) {
+    if (cl->IsLoaded() && cl->HasDictionary()) return cl;
+    return nullptr;
+  }
+
+  if (gInterpreter->GetClassSharedLibs (cname.c_str())) {
+    TClass* cl = TClass::GetClass (cname.c_str());
+    if (cl->HasDictionary())
+      return cl;
+  }
+  return nullptr;
+#endif
+}
+
+
 } // Anonymous namespace
 
 
@@ -125,25 +147,11 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
           if (fac_class_name[fac_class_name.size()-1] == '>')
             fac_class_name += ' ';
           fac_class_name += '>';
-          TClass* fac_class = 0;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-          fac_class = TClass::GetClass (fac_class_name.c_str());
+          TClass* fac_class = getClassIfDictionaryExists (fac_class_name);
           if (fac_class)
-#else
-          if (TClass::HasDictionarySelection(fac_class_name.c_str()))
-            fac_class = TClass::GetClass (fac_class_name.c_str());
-          if (fac_class && fac_class->HasDictionary())
-#endif
           {
-            TClass* base_class = 0;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-            base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
+            TClass* base_class = getClassIfDictionaryExists ("SG::IAuxTypeVectorFactory");
             if (base_class) {
-#else
-            if (TClass::HasDictionarySelection("SG::IAuxTypeVectorFactory"))
-              base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
-            if (base_class && base_class->HasDictionary()) {
-#endif
               int offs = fac_class->GetBaseClassOffset (base_class);
               if (offs >= 0) {
                 void* fac_vp = fac_class->New();
