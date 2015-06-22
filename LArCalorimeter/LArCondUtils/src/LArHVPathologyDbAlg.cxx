@@ -13,7 +13,7 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloDetDescr/CaloDetectorElements.h"
@@ -39,13 +39,11 @@
 #include "EventInfo/EventID.h"
 
 #include <fstream>
-#include <cstdlib>
 
 LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator)
   , m_writeCondObjs(false)
   , m_inpFile("LArHVPathology.inp")
-  , m_outFile("")
   , m_folder("")
   , m_outpTag("HVPathologies-TEST")
   , m_evt(0)
@@ -59,10 +57,9 @@ LArHVPathologyDbAlg::LArHVPathologyDbAlg(const std::string& name, ISvcLocator* p
 {
   declareProperty("WriteCondObjs", m_writeCondObjs);
   declareProperty("InpFile",       m_inpFile);
-  declareProperty("OutFile",       m_outFile);
   declareProperty("Folder",        m_folder);
   declareProperty("TagName",       m_outpTag);
-  declareProperty("Mode",  m_mode,"Mode to read file (0=offlineID/elecID, 1=online ID fields + HV module/line, 2=type is HV value to overwrite)");
+  declareProperty("Mode",  m_mode,"Mode to read file (0=offlineID/elecID, 1=online ID fields + HV module/line");
 }
 
 LArHVPathologyDbAlg::~LArHVPathologyDbAlg()
@@ -71,33 +68,33 @@ LArHVPathologyDbAlg::~LArHVPathologyDbAlg()
 
 StatusCode LArHVPathologyDbAlg::initialize()
 {
-  msg(MSG::INFO) << " in initialize()" << endmsg;
+  msg(MSG::INFO) << " in initialize()" << endreq;
 
   if(m_folder.value().empty()) {
-    msg(MSG::ERROR) << "Folder property not set. Exiting ... " << endmsg;
+    msg(MSG::ERROR) << "Folder property not set. Exiting ... " << endreq;
     return StatusCode::FAILURE;
   }
 
   // Get HVPathology tool
   StatusCode sc = m_pathologyTool.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Unable to initialize LArHVPathologyDbTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to initialize LArHVPathologyDbTool" << endreq;
     return sc;
   }
   else {
-    msg(MSG::INFO) << "Retrieved LArHVPathologyDbTool"  << endmsg;
+    msg(MSG::INFO) << "Retrieved LArHVPathologyDbTool"  << endreq;
   }
 
   // Get the IOVRegistrationSvc when needed
   if(m_writeCondObjs) {
     sc = m_regSvc.retrieve();
     if(!sc.isSuccess()) {
-      msg(MSG::ERROR) << "Unable to find IOVRegistrationSvc" << endmsg;
+      msg(MSG::ERROR) << "Unable to find IOVRegistrationSvc" << endreq;
       m_writeCondObjs = false;
       return sc;
     }  
     else {
-      msg(MSG::INFO) << "Retrieved IOVRegistrationSvc "  << endmsg;
+      msg(MSG::INFO) << "Retrieved IOVRegistrationSvc "  << endreq;
     }
   }
 
@@ -105,7 +102,7 @@ StatusCode LArHVPathologyDbAlg::initialize()
 
   sc = detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endmsg;
+   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
    return sc;
   }
 
@@ -116,39 +113,41 @@ StatusCode LArHVPathologyDbAlg::initialize()
 //  retrieve CaloDetDescrMgr 
   sc = detStore()->retrieve(m_calodetdescrmgr);
   if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Unable to retrieve CaloDetDescrMgr " << endmsg;
+     msg(MSG::ERROR) << "Unable to retrieve CaloDetDescrMgr " << endreq;
      return sc;
   }
 
   sc = detStore()->retrieve(m_laronline_id,"LArOnlineID");
   if (sc.isFailure()) {
      msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" 
-          << endmsg;
+          << endreq;
      return StatusCode::FAILURE;
   }
+
+
 
   return sc;
 }
 
 StatusCode LArHVPathologyDbAlg::execute()
 {
-  msg(MSG::INFO) <<" in execute()" <<endmsg;
+  msg(MSG::INFO) <<" in execute()" <<endreq;
 
   StatusCode sc = evtStore()->retrieve(m_evt);
   if(!sc.isSuccess()) {
-     msg(MSG::ERROR) << "Could not get event info " << endmsg;
+     msg(MSG::ERROR) << "Could not get event info " << endreq;
      return sc;
   }
  
   int nevt = m_evt->event_ID()->event_number();
 
   if(m_writeCondObjs && nevt==1) {
-    msg(MSG::INFO) << "Creating conditions objects" << endmsg;
+    msg(MSG::INFO) << "Creating conditions objects" << endreq;
 
     // Create cond objects
     sc = createCondObjects(); 
     if(!sc.isSuccess()) {
-      msg(MSG::ERROR) << "Could not create cond objects " << endmsg;
+      msg(MSG::ERROR) << "Could not create cond objects " << endreq;
       m_writeCondObjs = false;
       return sc;
     }
@@ -157,7 +156,7 @@ StatusCode LArHVPathologyDbAlg::execute()
   // Dump cond objects
   sc = printCondObjects();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Could not print out cond objects" << endmsg;
+    msg(MSG::ERROR) << "Could not print out cond objects" << endreq;
     return sc;
   }
 
@@ -166,17 +165,17 @@ StatusCode LArHVPathologyDbAlg::execute()
 
 StatusCode LArHVPathologyDbAlg::stop()
 {
-  msg(MSG::INFO) <<" in stop()" <<endmsg;
+  msg(MSG::INFO) <<" in stop()" <<endreq;
   StatusCode sc= StatusCode::SUCCESS;
  
   if(m_writeCondObjs) {
     sc = registerCondObjects();
     if(!sc.isSuccess()) {
-      msg(MSG::ERROR) << "Could not register objects" << endmsg;
+      msg(MSG::ERROR) << "Could not register objects" << endreq;
       return sc;
     } 
     else {
-      msg(MSG::INFO) << "Register OK" << endmsg;
+      msg(MSG::INFO) << "Register OK" << endreq;
     }
   }
 
@@ -185,10 +184,10 @@ StatusCode LArHVPathologyDbAlg::stop()
 
 StatusCode LArHVPathologyDbAlg::createCondObjects()
 {
-  msg(MSG::INFO) <<" in createCondObjects() " <<endmsg;
+  msg(MSG::INFO) <<" in createCondObjects() " <<endreq;
 
   if(detStore()->contains<AthenaAttributeList>(m_folder)) {
-    msg(MSG::INFO) << "EMB Pathologies already in SG, skipping " <<endmsg;
+    msg(MSG::INFO) << "EMB Pathologies already in SG, skipping " <<endreq;
   }
   else {
     // Read input file and construct LArHVPathologiesDb for given folder
@@ -196,7 +195,7 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
     infile.open(m_inpFile.value().c_str());
 
     if(!infile.is_open()) {
-      msg(MSG::ERROR) << "Unable to open " << m_inpFile << " for reading" << endmsg;
+      msg(MSG::ERROR) << "Unable to open " << m_inpFile << " for reading" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -215,20 +214,20 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
 
     if(foldername!=m_folder.value()) {
       msg(MSG::ERROR) << "Unable to find data for the folder " << m_folder 
-		      << " in the input file" << endmsg;
+		      << " in the input file" << endreq;
       return StatusCode::FAILURE;
     }
     else
-      msg(MSG::INFO) << "Found folder " << foldername << " in the input file" << endmsg;
+      msg(MSG::INFO) << "Found folder " << foldername << " in the input file" << endreq;
       
     // Get data corresponding to the folder and put it into LArHVPathologiesDb object
     LArHVPathologiesDb pathologies;
 
-    msg(MSG::INFO) << " start reading input file " << endmsg;
+    msg(MSG::INFO) << " start reading input file " << endreq;
     while(!infile.eof()) {
       // Number or string?
       checkChar = static_cast<char> (infile.get());
-      msg(MSG::INFO) << " checChar " << checkChar << endmsg;
+      msg(MSG::INFO) << " checChar " << checkChar << endreq;
       if(checkChar=='\n')
 	continue;
       if((checkChar >= '0') && (checkChar <= '9')) {
@@ -242,23 +241,22 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
         } else {
           unsigned int bec,pos_neg,FT,slot,channel,hvModule,hvLine;
           infile >> bec >> pos_neg >> FT >> slot >> channel >> hvModule >> hvLine >> pathologyType;
-          msg(MSG::INFO) << " read " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << hvModule << " " << hvLine << " " << pathologyType << endmsg;
+          msg(MSG::INFO) << " read " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << hvModule << " " << hvLine << " " << pathologyType << endreq;
           HWIdentifier hwid = m_laronline_id->channel_Id(bec,pos_neg,FT,slot,channel);
           Identifier id = m_cablingService->cnvToIdentifier( hwid);
           cellID = (unsigned int)(id.get_identifier32().get_compact());
           elecList=getElectInd(id,hvModule,hvLine);
-          msg(MSG::INFO) << " cellId , elecList size " << cellID << " " << elecList.size() << endmsg;
+          msg(MSG::INFO) << " cellId , elecList size " << cellID << " " << elecList.size() << endreq;
         }
         for (unsigned int i=0;i<elecList.size();i++) {
 	 LArHVPathologiesDb::LArHVElectPathologyDb electPath;
 	 electPath.cellID = cellID;
 	 electPath.electInd = elecList[i];
-         if(m_mode==2) electPath.pathologyType = ((pathologyType&0x0FFF)<<4);
-         else electPath.pathologyType = pathologyType;
+	 electPath.pathologyType = pathologyType;
 	 pathologies.m_v.push_back(electPath);
 	 msg(MSG::INFO) << "Created electrode pathology (" << cellID
 		       << "," << elecList[i]
-		       << "," << pathologyType << ")" << endmsg;
+		       << "," << pathologyType << ")" << endreq;
         }
       }
       else if(checkChar==commentSign) {
@@ -272,18 +270,18 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
     }
 
     infile.close();
-    msg(MSG::INFO) << "Finished parsing input file" << endmsg;    
+    msg(MSG::INFO) << "Finished parsing input file" << endreq;    
 
     AthenaAttributeList* attrlist = m_pathologyTool->hvPathology2AttrList(pathologies);
-    msg(MSG::INFO) << "Created Attribute List" << endmsg;
+    msg(MSG::INFO) << "Created Attribute List" << endreq;
 
     StatusCode sc = detStore()->record(attrlist,m_folder);
     if(!sc.isSuccess()) {
-      msg(MSG::ERROR) << "Could not record " << m_folder << endmsg;
+      msg(MSG::ERROR) << "Could not record " << m_folder << endreq;
       return sc;
     }
     else
-      msg(MSG::INFO) << "Recorded " << m_folder << endmsg;
+      msg(MSG::INFO) << "Recorded " << m_folder << endreq;
   }
  
   return StatusCode::SUCCESS;
@@ -291,68 +289,39 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
 
 StatusCode LArHVPathologyDbAlg::printCondObjects()
 {
-  msg(MSG::INFO) <<" in printCondObjects() " <<endmsg;
-  std::ofstream *fout=0;
+  msg(MSG::INFO) <<" in printCondObjects() " <<endreq;
+
   const AthenaAttributeList* attrlist;
   StatusCode sc = detStore()->retrieve(attrlist,m_folder);
 
   if(sc.isFailure())
-    msg(MSG::WARNING) << "Could not find object for " << m_folder << endmsg;
+    msg(MSG::WARNING) << "Could not find object for " << m_folder << endreq;
   else {
     LArHVPathologiesDb* pathologyContainer = m_pathologyTool->attrList2HvPathology(*attrlist);
-    msg(MSG::INFO) << "Unpacked pathologies from Attribute List for " << m_folder << endmsg;
-    if(m_outFile.value().size()>0) {
-       fout = new std::ofstream(m_outFile.value().c_str());
-       if((!fout) || (fout && !(fout->good()))) {
-             msg(MSG::WARNING) << "Could not open output file: " << m_outFile.value() << endmsg;
-             fout=0;
-             }
-       if(fout) *fout<<m_folder.value()<<std::endl;
-    }
+    msg(MSG::INFO) << "Unpacked pathologies from Attribute List for " << m_folder << endreq;
+
     for(unsigned i=0; i<pathologyContainer->m_v.size(); ++i) {
       LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathologyContainer->m_v[i];
-      if(m_mode==0) {
-         msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID
-      	     << "(" << electPath.electInd 
-      	     << "," << electPath.pathologyType << ") " << endmsg;
-         if(fout) *fout<<electPath.cellID<<"\t"<<electPath.electInd<<"\t"<<electPath.pathologyType<<std::endl;    
-      } else {
-         msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID << endmsg;
-         HWIdentifier hwid = m_cablingService->createSignalChannelID(Identifier32(electPath.cellID));
-         int HVLine=getHVline(Identifier(electPath.cellID),electPath.electInd);
-         if(HVLine<0) {
-            msg(MSG::ERROR) << "No HVline for cell "<<electPath.cellID<< endmsg;
-         } else {
-            int hvmodule=HVLine/1000;
-            int hvline=HVLine%1000;
-            if(m_mode==1) {
-              msg(MSG::INFO) << m_laronline_id->barrel_ec(hwid) << " " << m_laronline_id->pos_neg(hwid) << " " << m_laronline_id->feedthrough(hwid) << " " << m_laronline_id->slot(hwid) << " " << m_laronline_id->channel(hwid) << " " << hvmodule << " " << hvline << " " << electPath.pathologyType << endmsg;
-              if(fout) *fout << m_laronline_id->barrel_ec(hwid) << " " << m_laronline_id->pos_neg(hwid) << " " << m_laronline_id->feedthrough(hwid) << " " << m_laronline_id->slot(hwid) << " " << m_laronline_id->channel(hwid) << " " << hvmodule << " " << hvline << " " << electPath.pathologyType << std::endl;
-            } else if (m_mode==2){
-              msg(MSG::INFO) << m_laronline_id->barrel_ec(hwid) << " " << m_laronline_id->pos_neg(hwid) << " " << m_laronline_id->feedthrough(hwid) << " " << m_laronline_id->slot(hwid) << " " << m_laronline_id->channel(hwid) << " " << hvmodule << " " << hvline << " " << ((electPath.pathologyType&0xFF0)>>4) << endmsg;
-              if(fout) *fout << m_laronline_id->barrel_ec(hwid) << " " << m_laronline_id->pos_neg(hwid) << " " << m_laronline_id->feedthrough(hwid) << " " << m_laronline_id->slot(hwid) << " " << m_laronline_id->channel(hwid) << " " << hvmodule << " " << hvline << " " << ((electPath.pathologyType&0xFFF0)>>4) << std::endl;
-
-            }
-         }
-      }
+      msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID
+		     << "(" << electPath.electInd 
+		     << "," << electPath.pathologyType << ") " << endreq;
     }
     delete pathologyContainer;
   }
-  if(fout) fout->close();
   return sc;
 }
 
 StatusCode LArHVPathologyDbAlg::registerCondObjects()
 {
-  msg(MSG::INFO) << "entering registerCondObject()"  << endmsg;
+  msg(MSG::INFO) << "entering registerCondObject()"  << endreq;
 
   std::string objname("AthenaAttributeList");
 
   StatusCode sc = m_regSvc->registerIOV(objname, m_folder, m_outpTag);
   if(!sc.isSuccess()) 
-    msg(MSG::ERROR) << "Could not register (" << objname << ", " << m_outpTag << ") in IOV DB " << endmsg;
+    msg(MSG::ERROR) << "Could not register (" << objname << ", " << m_outpTag << ") in IOV DB " << endreq;
   else
-    msg(MSG::INFO) << "Successfully registered" << endmsg;
+    msg(MSG::INFO) << "Successfully registered" << endreq;
 
   return sc;
 }
@@ -450,106 +419,5 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
   }
 
   return list;
-
-}
-
-int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int ElectInd)
-{
-
-  unsigned int igap, ielec;
-// EM calo
-  if (m_larem_id->is_lar_em(id)) {
-// LAr EMB
-     if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id) > 0)  {
-       if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-         const EMBCellConstLink cell = embElement->getEMBCell();
-         unsigned int nelec = cell->getNumElectrodes();
-         igap = ElectInd % 2;
-         ielec = std::div(ElectInd - igap, 2).quot;
-         if (ielec > nelec) {
-            msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-         } else { 
-            return cell->getElectrode(ielec)->hvLineNo(igap);
-         }
-       }
-     }
-// LAr EMEC
-     if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id) > 0) {
-       if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-         const EMECCellConstLink cell = emecElement->getEMECCell();
-         unsigned int nelec = cell->getNumElectrodes();
-         igap = ElectInd % 2;
-         ielec = std::div(ElectInd - igap, 2).quot;
-         if (ielec > nelec) {
-            msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-         } else { 
-            return cell->getElectrode(ielec)->hvLineNo(igap);
-         }
-       }
-     }
-// EMBPS
-     if (abs(m_larem_id->barrel_ec(id))==1 &&  m_larem_id->sampling(id)==0) {
-       if (const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-        const EMBCellConstLink cell = embElement->getEMBCell();
-        const EMBPresamplerHVModuleConstLink hvmodule =  cell->getPresamplerHVModule ();
-        if(ElectInd >= 2) {
-            msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMBPS cell "<<id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-        } else {
-            return hvmodule->hvLineNo(ElectInd);
-        }
-       }
-     }
-// EMECPS
-    if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id)==0) {
-      if (const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-       const EMECCellConstLink cell = emecElement->getEMECCell();
-       const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
-        if(ElectInd >= 2) {
-            msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMECPS cell "<<id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-        } else {
-            return hvmodule->hvLineNo(ElectInd);
-        }
-      }
-    }
-  }
-//HEC
-  if (m_larhec_id->is_lar_hec(id)) {
-    if (const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-      const HECCellConstLink cell = hecElement->getHECCell();
-      unsigned int nsubgaps = cell->getNumSubgaps();
-      if( ElectInd >= nsubgaps) {
-         msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for HEC cell "<<id.get_identifier32().get_compact() <<endmsg;
-         return -1;
-      } else {
-         return cell->getSubgap(ElectInd)->hvLineNo();
-      }
-    }
-  }
-//FCAL
-  if (m_larfcal_id->is_lar_fcal(id)) {
-    if (const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id))) {
-       const FCALTile* tile = fcalElement->getFCALTile();
-       unsigned int nlines = tile->getNumHVLines();
-      if( ElectInd >= nlines) {
-         msg(MSG::ERROR) << "Wrong line "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
-         return -1;
-      } else {
-         const FCALHVLineConstLink line2 = tile->getHVLine(ElectInd);
-         if(line2) {
-            return line2->hvLineNo();
-         } else {
-            msg(MSG::ERROR) << "Do not have HVLine for "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
-            return -1;
-         }
-      }
-    }
-  }
-
-  // should not get up to this point....
-  return -1;
 
 }

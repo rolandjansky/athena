@@ -8,20 +8,18 @@ from calendar import timegm
 if "InputFile" not in dir():
     InputFile="HVPathologies.txt"
 
-if "OutputFile" not in dir():
-    OutputFile="larhvpathology.db"
-
 if "tagName" not in dir():
-    tagName="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
+    tagName="LARHVPathologiesOflPathologies-UPD1-00"
 
 if "RunNumber" not in dir():
     RunNumber = 999999
 
 if "GloablTag" not in dir():
-    GlobalTag = 'CONDBR2-BLKPA-2016-14'
+    GlobalTag = 'COMCOND-BLKPA-006-01'
 
 if "date" not in dir():
-    date="2015-09-29:12:00:00"
+    date="2010-09-02:12:00:00"
+
 
 if "TimeStamp" not in dir():
    try:
@@ -39,24 +37,24 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 ## get a handle to the ServiceManager
-#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle to the ApplicationManager
-#from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import theApp
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()
 DetFlags.LAr_setOn()
-#DetFlags.Tile_setOn()
+DetFlags.Tile_setOn()
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'data'
-globalflags.InputFormat = 'bytestream'
+globalflags.InputFormat = 'pool'
 
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
+jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -67,10 +65,10 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 TileUseDCS=False
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
-#include( "TileIdCnv/TileIdCnv_jobOptions.py" )
+include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-#include("TileConditions/TileConditions_jobOptions.py" )
-#include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+include("TileConditions/TileConditions_jobOptions.py" )
+include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 #from LArConditionsCommon import LArHVDB
 
@@ -80,6 +78,8 @@ conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
 conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
 
 
+
+
 #--------------------------------------------------------------
 # Access to IOVSvc, IOVDbSvc and CondDBMySQLCnvSvc
 #--------------------------------------------------------------
@@ -87,25 +87,26 @@ import IOVDbSvc.IOVDb
 
 from LArCondUtils.LArCondUtilsConf import LArHVPathologyDbAlg
 LArHVPathologyDbAlg = LArHVPathologyDbAlg()
-# Choose the following to write out cond objects 
+topSequence += LArHVPathologyDbAlg
+
+# Here mytest.db is the name of SQLite file created by this job
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=larhvpathology.db;dbname=COMP200"
+
+svcMgr.MessageSvc.OutputLevel = 4
+svcMgr.MessageSvc.debugLimit  = 100000
+svcMgr.MessageSvc.infoLimit   = 100000
+
+LArHVPathologyDbAlg.OutputLevel = 2
+svcMgr.IOVDbSvc.OutputLevel     = 3
+
+# Choose the following to write out cond objects . 
 LArHVPathologyDbAlg.WriteCondObjs = True
+
 # Other properties of LArHVPathologyDbAlg
 LArHVPathologyDbAlg.InpFile       =  InputFile
 LArHVPathologyDbAlg.Folder        = "/LAR/HVPathologiesOfl/Pathologies"
 LArHVPathologyDbAlg.TagName       = tagName
 LArHVPathologyDbAlg.Mode          = 1
-topSequence += LArHVPathologyDbAlg
-
-# Here mytest.db is the name of SQLite file created by this job
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+OutputFile+";dbname=CONDBR2"
-
-svcMgr.MessageSvc.OutputLevel = 4
-svcMgr.MessageSvc.debugLimit  = 99999999
-svcMgr.MessageSvc.infoLimit   = 99999999
-
-topSequence.LArHVPathologyDbAlg.OutputLevel = 2
-svcMgr.IOVDbSvc.OutputLevel     = 3
-
 
 #--------------------------------------------------------------
 # Options for IOVRegistrationSvc

@@ -39,27 +39,29 @@ class LArHVToolMC: public AthAlgTool, virtual public ILArHVTool
 
   virtual ~LArHVToolMC();
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize();
+  virtual StatusCode finalize(){return StatusCode::SUCCESS;}
 
 
   // Given a Offline Readout ID, return values of HV and Weight 
   virtual StatusCode getHV(const Identifier& id,
-         std::vector< HV_t > & v  ) const override ;
+         std::vector< HV_t > & v  )  ;
 
   // Given a Offline Readout ID, return values of Current and Weight
   virtual StatusCode getCurrent(const Identifier& id,
-         std::vector< CURRENT_t > & v  ) const override ;
+         std::vector< CURRENT_t > & v  )  ;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
-  virtual const std::vector<HWIdentifier>& getUpdatedElectrodes() override;
+ const std::vector<HWIdentifier>& getUpdatedElectrodes();
 
   private:
 
   bool m_readASCII;
 
   double m_hv[2][1024][7][2];
+
+  bool m_first;
 
   const LArEM_ID*   m_larem_id;
   const DataHandle<CaloIdManager> m_caloIdMgr;

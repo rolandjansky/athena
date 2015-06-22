@@ -28,8 +28,7 @@ LArHVToolMC::LArHVToolMC(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_readASCII(false),
-    m_larem_id(nullptr)
+    m_readASCII(false) 
 {
  declareInterface< ILArHVTool >( this );
  declareProperty("readASCII",m_readASCII);
@@ -45,6 +44,7 @@ StatusCode LArHVToolMC::initialize()
   ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
 
   m_larem_id   = m_caloIdMgr->getEM_ID();
+  m_first=true;
 
   const LArElectrodeID* electrodeID = nullptr;
   ATH_CHECK( detStore()->retrieve(electrodeID) );
@@ -55,16 +55,20 @@ StatusCode LArHVToolMC::initialize()
     m_updatedElectrodes.push_back(electrodeID->ElectrodeId(IdentifierHash(i)));
   }
 
-  InitHV();
-
   return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode LArHVToolMC::getHV(const Identifier& id,
-         std::vector< HV_t > & v  )  const
+         std::vector< HV_t > & v  ) 
 {
+
+  if (m_first) {
+       this->InitHV();
+       m_first=false;
+  }
+
   v.clear();
 
 // check identifier in LAR
@@ -131,7 +135,7 @@ StatusCode LArHVToolMC::getHV(const Identifier& id,
 }
 
 StatusCode LArHVToolMC::getCurrent(const Identifier& /* id */,
-         std::vector< CURRENT_t > & v  )  const
+         std::vector< CURRENT_t > & v  ) 
 {
      ATH_MSG_WARNING ( " LArHVToolMC: getCurrent not implemented " );
      CURRENT_t cu;
@@ -270,7 +274,7 @@ void LArHVToolMC::InitHV()
     while (fgets(line,80,fp)) {
         int nZSide,nEtaReg,nGapSide,nFirstElec,nLastElec;
         float hvVal;
-        sscanf(&line[0],"%80d%80d%80d%80d%80d%80f",&nZSide,&nEtaReg,&nGapSide,&nFirstElec,&nLastElec,&hvVal);
+        sscanf(&line[0],"%d%d%d%d%d%f",&nZSide,&nEtaReg,&nGapSide,&nFirstElec,&nLastElec,&hvVal);
 
         std::cout << " found pathological region " << nZSide << " " << nEtaReg << " " << nGapSide
           << " " << nFirstElec << " " << nLastElec << " " << hvVal << std::endl;

@@ -50,32 +50,32 @@ class LArHVToolDB: public AthAlgTool, virtual public ILArHVTool
   LArHVToolDB(const std::string& type, const std::string& name,
                       const IInterface* parent);
 
-  virtual ~LArHVToolDB() override;
+  virtual ~LArHVToolDB();
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
 
   // Given a Offline Readout ID, return values of HV and Weight 
   virtual StatusCode getHV(const Identifier& id,
-         std::vector< HV_t > & v  ) const override ;
+         std::vector< HV_t > & v  )  ;
 
   // Given a Offline Readout ID, return values of Current and Weight
   virtual StatusCode getCurrent(const Identifier& id,
-         std::vector< CURRENT_t > & ihv  ) const override ;
+         std::vector< CURRENT_t > & ihv  )  ;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
 
-  virtual const std::vector<HWIdentifier>& getUpdatedElectrodes() override;
+  const std::vector<HWIdentifier>& getUpdatedElectrodes();
   
   private:
 
   static const unsigned m_nHVCoolChannels;
 
-  StatusCode getPayload(const Identifier& id,std::vector< HV_t > & v,std::vector< CURRENT_t > & ihv) const;
-  void addHV(std::vector< HV_t > & v, double hv, double wt) const;
-  void addCurr(std::vector< CURRENT_t > & ihv, double curr, double wt) const;
-  std::vector<unsigned int> getElecList(const Identifier& id) const;
+  StatusCode getPayload(const Identifier& id,std::vector< HV_t > & v,std::vector< CURRENT_t > & ihv);
+  void addHV(std::vector< HV_t > & v, double hv, double wt);
+  void addCurr(std::vector< CURRENT_t > & ihv, double curr, double wt);
+  std::vector<unsigned int> getElecList(const Identifier& id);
   StatusCode fillUpdatedHVChannelsVec(const std::set<size_t>& folderIndices);
 
 
@@ -87,11 +87,9 @@ class LArHVToolDB: public AthAlgTool, virtual public ILArHVTool
   const LArElectrodeID* m_electrodeID;
   const LArHVLineID* m_hvLineID;
 
-  // FIXME: mutable
-  // These are used for memoization.
-  mutable Identifier m_id;
-  mutable std::vector<HV_t> m_v;
-  mutable std::vector<CURRENT_t> m_i;
+  Identifier m_id;
+  std::vector<HV_t> m_v;
+  std::vector<CURRENT_t> m_i;
 
   const DataHandle<AthenaAttributeList> m_pathologiesHandle;
 
@@ -101,9 +99,9 @@ class LArHVToolDB: public AthAlgTool, virtual public ILArHVTool
 
   LArHVPathologiesDb* m_pathologyContainer;
 
-  std::vector<std::vector<unsigned short> >  m_hasPathologyEM;
-  std::vector<std::vector<unsigned short> >  m_hasPathologyHEC;
-  std::vector<std::vector<unsigned short> >  m_hasPathologyFCAL;
+  std::vector<bool>  m_hasPathologyEM;
+  std::vector<bool>  m_hasPathologyHEC;
+  std::vector<bool>  m_hasPathologyFCAL;
   std::string m_HVPathologiesFolderName;
 
   std::vector<HWIdentifier> m_updatedElectrodes;
