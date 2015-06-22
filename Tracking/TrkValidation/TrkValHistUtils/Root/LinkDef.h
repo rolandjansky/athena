@@ -16,7 +16,6 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "TrkValHistUtils/RecoInfoPlots.h"
 #include "TrkValHistUtils/ResolutionPlots.h"
-#include "TrkValHistUtils/TrkValHistUtilities.h"
 #include "TrkValHistUtils/TruthInfoPlots.h"
 #include "TrkValHistUtils/TruthTrkExtrapolationPlots.h"
 

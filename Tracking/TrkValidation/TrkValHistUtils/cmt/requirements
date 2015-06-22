@@ -10,14 +10,17 @@ use AtlasROOT           AtlasROOT-*            External
 use xAODBase            xAODBase-*             Event/xAOD
 use xAODTracking        xAODTracking-*         Event/xAOD
 use xAODTruth           xAODTruth-*            Event/xAOD
-use TrkEventPrimitives  TrkEventPrimitives-*   Tracking/TrkEvent
 
 private
 use EventPrimitives     EventPrimitives-*      Event
 
+public
+#use TrkEventPrimitives  TrkEventPrimitives-*   Tracking/TrkEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkEventPrimitives"
+
 ##
 public
-library TrkValHistUtils ../Root/*.cxx
+library TrkValHistUtils ../Root/*.cxx ../src/*.cxx
 apply_pattern installed_library
 
 

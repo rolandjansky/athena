@@ -4,6 +4,7 @@
 
 #include "TrkValHistUtils/DefParamPullPlots.h"
 #include "xAODTruth/TruthVertex.h"
+#include "xAODTracking/TrackingPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 namespace Trk{
@@ -39,20 +40,30 @@ void DefParamPullPlots::initializePlots() {
 }
 
 void DefParamPullPlots::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt) {
-    const Perigee& trackPer = trkprt.perigeeParameters();
-    const AmgSymMatrix(5) * locError = trackPer.covariance();
-
     const double d0_trk     = trkprt.d0();
     const double z0_trk     = trkprt.z0();
     const double phi_trk    = trkprt.phi0();
     const double theta_trk  = trkprt.theta();
     const double qoverp_trk = trkprt.qOverP();
 
+#if !defined(ROOTCORE) && defined(STANDALONE)
+    const Perigee& trackPer = trkprt.perigeeParameters();
+    const AmgSymMatrix(5) * locError = trackPer.covariance();
+
     const double err_d0     = Amg::error( *locError, d0     );
     const double err_z0     = Amg::error( *locError, z0     );
     const double err_phi    = Amg::error( *locError, phi0   );
     const double err_theta  = Amg::error( *locError, theta  );
     const double err_qoverp = Amg::error( *locError, qOverP );
+#else
+    const AmgSymMatrix(5) locError = trkprt.definingParametersCovMatrix();
+
+    const double err_d0     = Amg::error( locError, 0     ); //d0
+    const double err_z0     = Amg::error( locError, 1     );//z0
+    const double err_phi    = Amg::error( locError, 2   ); //phi
+    const double err_theta  = Amg::error( locError, 3  ); //theta
+    const double err_qoverp = Amg::error( locError, 4 ); //qOverP
+#endif
 
     const double d0_truth     = 0;
     const double phi_truth    = truthprt.phi();
