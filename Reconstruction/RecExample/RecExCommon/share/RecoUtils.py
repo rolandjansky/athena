@@ -154,8 +154,8 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
         # Increase Compression Level to 4, reducing filesize somewhat without hurting writespeed too much
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '4'" ]
-        # Optimize Basket Sizes to store data for 100 entries/events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'" ]
+        # Optimize Basket Sizes to store data for 10 entries/events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'" ]
         # Switch on splitting for the largest container (default off)
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/Tracks)'; CONTAINER_SPLITLEVEL = '99'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/CombinedInDetTracks)'; CONTAINER_SPLITLEVEL = '99'" ]
@@ -178,6 +178,7 @@ if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         # Optimize Basket Sizes to store data for 100 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100';"]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '1'"]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '1'"]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp2'; TREE_AUTO_FLUSH = '0'" ]
         # Base the xAOD branch names just on the SG keys:
         StreamAOD.WritingTool.SubLevelBranchName = "<key>"
