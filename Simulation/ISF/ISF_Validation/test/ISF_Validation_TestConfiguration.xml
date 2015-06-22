@@ -412,6 +412,7 @@
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-MCProd/minbias_G4_50evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -496,17 +497,18 @@
                     <testname>DCubeRunner</testname>
                     <arg>
                       <argname>DCubeCfg</argname>
-                      <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue>
+                      <argvalue>MCProd/InDetStandardPlots.root.xml</argvalue>
                     </arg>
                     <arg>
                       <argname>DCubeRef</argname>
-                      <argvalue>MC12/minbias_InDetStandardPlots.root</argvalue>
+                      <argvalue>MCProd/minbias_G4_50evt.InDetStandardPlots.root</argvalue>
                     </arg>
                     <arg>
                       <argname>DCubeMon</argname>
                       <argvalue>InDetStandardPlots.root</argvalue>
                     </arg>
-                    <keepFilePattern>DCube-MC12/minbias_InDetStandardPlots.root/InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    <keepFilePattern>DCube-MCProd/minbias_G4_50evt.InDetStandardPlots.root/InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    <noalarm />
                   </test>
                 </jobTransform>
                 <chainfileout>AOD.pool.root</chainfileout>
@@ -1719,7 +1721,7 @@
           <testname>DCubeRunner</testname>
           <arg>
             <argname>DCubeCfg</argname>
-            <argvalue>MC15/dcube-ISF_G4_ttbar.xml</argvalue>
+            <argvalue>MCProd/HITS_truth.root.xml</argvalue>
           </arg>
           <arg>
             <argname>DCubeRef</argname>
@@ -1758,7 +1760,7 @@
           <testname>DCubeRunner</testname>
           <arg>
             <argname>DCubeCfg</argname>
-            <argvalue>MC12/dcube-RDO_truth.xml</argvalue>
+            <argvalue>MCProd/RDO_truth.root.xml</argvalue>
           </arg>
           <arg>
             <argname>DCubeRef</argname>
@@ -1779,7 +1781,7 @@
           <testname>DCubeRunner</testname>
           <arg>
             <argname>DCubeCfg</argname>
-            <argvalue>MC12/dcube-AtlasG4_ttbar_500evts.PhysValMon.xml</argvalue>
+            <argvalue>MCProd/PhysValMon.root.xml</argvalue>
           </arg>
           <arg>
             <argname>DCubeRef</argname>
@@ -1800,7 +1802,7 @@
           <testname>DCubeRunner</testname>
           <arg>
             <argname>DCubeCfg</argname>
-            <argvalue>MC12/dcube-minbias-InDetStandardPlots.xml</argvalue>
+            <argvalue>MCProd/InDetStandardPlots.root.xml</argvalue>
           </arg>
           <arg>
             <argname>DCubeRef</argname>
