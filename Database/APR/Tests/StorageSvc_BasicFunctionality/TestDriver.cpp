@@ -60,11 +60,11 @@ TestDriver::testWriting()
    }
 
    cout << "Session connect" << endl;
-   pool::FileDescriptor fd( file, file );
-   if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
+   pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
+   if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, *fd ).isSuccess() ) ) {
       throw std::runtime_error( "Could not start a connection." );
    }
-   pool::DatabaseConnection* connection = fd.dbc();
+   pool::DatabaseConnection* connection = fd->dbc();
    pool::Transaction* transaction = 0;
    cout << "startTransaction" << endl;
    if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
@@ -93,8 +93,8 @@ TestDriver::testWriting()
     // Creating the persistent shape.
     Guid guid = pool::DbReflex::guid(class_SimpleTestClass);
     const pool::Shape* shape = 0;
-    if ( storSvc->getShape( fd, guid, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
-      storSvc->createShape( fd, container, guid, shape );
+    if ( storSvc->getShape( *fd, guid, shape ) == pool::IStorageSvc::SHAPE_NOT_AVAILIBLE ) {
+      storSvc->createShape( *fd, container, guid, shape );
     }
     if ( ! shape ) {
       throw std::runtime_error( "Could not create a persistent shape." );
@@ -102,7 +102,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( transaction, *fd,
 				container, pool::ROOTTREE_StorageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -121,9 +121,10 @@ TestDriver::testWriting()
 	iObject != myObjects.end(); ++iObject ) delete *iObject;
   myObjects.clear();
 
-  if ( ! ( storSvc->disconnect( fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->disconnect( *fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not disconnect." );
   }
+  delete fd;
   if ( ! ( storSvc->endSession( sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end correctly the session." );
   }
