@@ -109,7 +109,7 @@ class EvgenExecutor(athenaExecutor):
             expand_if_archive(tarball)
             if "MC14" in str(joparam):
                 mk_jo_proxy(os.getcwd(), "MC14JobOptions", "_joproxy14")
-            if "MC15" in str(joparam):
+            else :
                 mk_jo_proxy(os.getcwd(), "MC15JobOptions", "_joproxy15")
             ## Source setup script (requires some shenanigans to update the Python env robustly)
             # TODO: trf framework now bans use of exec()...
@@ -123,13 +123,14 @@ class EvgenExecutor(athenaExecutor):
                 # TODO: Make the package name configurable
                 if "MC14" in str(joparam):
                     mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
-                if "MC15" in str(joparam):
+#                if "MC15" in str(joparam):
+                else :
                     mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
                 msg.info("No evgenJobOpts tarball specified, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
             elif os.path.exists("/afs/cern.ch/atlas/groups/Generators"):
                 if "MC14" in str(joparam):
                     mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
-                if "MC15" in str(joparam):
+                else :
                     mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
                 msg.info("No evgenJobOpts tarball specified, no cvmfs, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 
