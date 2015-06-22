@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TrkValHistUtils/HitResidualPlots.h"
 
 namespace Trk{
@@ -31,3 +32,4 @@ void HitResidualPlots::fill( const Trk::ResidualPull& resPull ) {
 }
 
 }//close namespace
+#endif // not XAOD_ANALYSIS

@@ -42,7 +42,6 @@ void PlotBase::setDetailLevel(int iDetailLevel){
   m_iDetailLevel = iDetailLevel;
 }
 
-
 std::vector<HistData> PlotBase::retrieveBookedHistograms(){
   std::vector<HistData> vBookedHistograms = m_vBookedHistograms;
   for (const auto & subNode: m_vSubNodes){
@@ -111,11 +110,11 @@ TH3* PlotBase::Book3D(const std::string & name, const std::string & labels, int 
   return hist;
 }
 
-
 TH3* PlotBase::Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir){
-  return Book3D(name, labels, refHist->GetNbinsX(), refHist->GetXaxis()->GetXmin(), refHist->GetXaxis()->GetXmax(),
-                              refHist->GetNbinsY(), refHist->GetYaxis()->GetXmin(), refHist->GetYaxis()->GetXmax(),
-                              refHist->GetNbinsZ(), refHist->GetZaxis()->GetXmin(), refHist->GetZaxis()->GetXmax(),prependDir);
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+  TH3* hist = new TH3D((prefix + name).c_str(), labels.c_str(), refHist->GetNbinsX(), refHist->GetXaxis()->GetXbins()->GetArray(), refHist->GetNbinsY(), refHist->GetYaxis()->GetXbins()->GetArray(), refHist->GetNbinsZ(), refHist->GetZaxis()->GetXbins()->GetArray());
+  m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
+  return hist;
 }
 
 TProfile* PlotBase::BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float startX, float endX, float startY, float endY, bool prependDir)

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #ifndef TRKVALHISTUTILS_HITRESIDUALPLOTS_H
 #define TRKVALHISTUTILS_HITRESIDUALPLOTS_H
 
@@ -26,5 +27,5 @@ class HitResidualPlots: public PlotBase {
 };
  
 }
-
 #endif
+#endif // not XAOD_ANALYSIS
