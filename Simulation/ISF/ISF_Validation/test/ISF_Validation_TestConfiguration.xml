@@ -1,130 +1,163 @@
 <?xml version="1.0"?>
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
 
-<!--
-  don't forget to validate the xml syntax of this file after changing it:
-    python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py ISF_Validation_TestConfiguration.xml
--->
-
 <unifiedTestConfiguration>
   <atn>
-    <TEST name="FullG4_ttbar_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
-      <timelimit>120</timelimit>
+    <TEST name="MC12G4_ttbar_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'MC12G4' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
+      <timelimit>70</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <platform>opt</platform>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
-    <TEST name="FullG4_LongLived_ZPrime_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
-      <timelimit>120</timelimit>
-      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="ATLFASTII_ttbar_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTII' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'ATLFASTII' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="ATLFASTIIF_ttbar_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTIIF' --postInclude 'default:PyJobTransforms/UseFrontier.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'ATLFASTIIF' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4GammaCones_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4GammaCones' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4GammaCones' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.evgen.e1189.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4GammaCones_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4GammaCones_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4GammaCones_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.evgen.e1189.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="FatrasGammaCones_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'FatrasGammaCones_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'FatrasGammaCones_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.evgen.e1189.pool.root --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4BHadronsOnly_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4BHadronsOnly_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4BHadronsOnly_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <TEST name="G4BHadrons_FatrasID_FastCalo_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4BHadrons_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
+      <timelimit>30</timelimit>
+      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <expectations>
+        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4WLeptonsCone_FatrasID_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4WLeptonsCone_FatrasID_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4WLeptonsCone_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <TEST name="G4ZLeptonsCone_FatrasID_FastCalo_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4ZLeptonsCone_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
+      <timelimit>30</timelimit>
+      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <platform>opt</platform>
+      <expectations>
+        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <TEST name="G4ZLeptonsConeSticky_FatrasID_FastCalo_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4ZLeptonsConeSticky_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
+      <timelimit>30</timelimit>
+      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <expectations>
+        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4ZDecayProducts_FatrasID_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4ZDecayProducts_FatrasID_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
-      <timelimit>60</timelimit>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4ZDecayProducts_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
+      <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <platform>opt</platform>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
 
     <TEST name="G4JPsiLeptonsCone_FatrasID_FastCalo_2evts" type="script" >
-        <options_atn>export TRF_ECHO=True; skip_if_AthSimulation.sh Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4JPsiLeptonsCone_FatrasID_FastCalo' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4JPsiLeptonsCone_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
@@ -149,20 +182,20 @@
         <displayProcess>Simul</displayProcess>
         <displayComponent>Athena-Core</displayComponent>
       </classification>
-
       <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-          %%                FullG4 ttbar (MC15 production setup)
-          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%                           Geant4 ttbar
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
-        <chainName>SimulationTest_FullG4_ttbar</chainName>
+        <chainName>SimulationTest_Geant4_ttbar</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
-            <jobTransform userJobId="FullG4_ttbar_1sim">
-              <doc>Test detector functionality for ISF FullG4 using ttbar events</doc>
-              <jobTransformJobName>FullG4_ttbar_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 4</jobTransformCmd>
+            <jobTransform userJobId="G4_ttbar_1sim">
+              <doc>Test detector functionality for ISF G4 using ttbar</doc>
+              <jobTransformJobName>G4_ttbar_1sim</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --randomSeed 0 --enableLooperKiller True --maxEvents 4 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile "/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root" --outputHITSFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
 
@@ -188,61 +221,10 @@
           </chainElement>
 
           <chainElement>
-            <jobTransform userJobId="FullG4_ttbar_1sim_Reg">
+            <jobTransform userJobId="G4_ttbar_1sim_Reg">
               <doc>Regression test between releases</doc>
-              <jobTransformJobName>FullG4_ttbar_1sim_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py FullG4_ttbar_1sim truth.root Hits.pool.root</jobTransformCmd>
-              <group>ISF_Validation_HitsRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-          </chainElement>
-
-        </sequential>
-      </chain>
-
-      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-          %%           FullG4_LongLived Z-prime (MC15 production setup)
-          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        -->
-      <chain>
-        <chainName>SimulationTest_FullG4_ZPrime_QuasiStable</chainName>
-        <abortOnError />
-        <sequential>
-
-          <chainElement>
-            <jobTransform userJobId="FullG4_LongLived_ZPrime_1sim">
-              <doc>Test detector functionality for ISF G4 using ttbar</doc>
-              <jobTransformJobName>FullG4_LongLived_ZPrime_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4_LongLived' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 10</jobTransformCmd>
-              <group>ISF_Validation_sim</group>
-              <queue>medium</queue>
-
-              <test position="1">
-                <modulename>RttLibraryTools</modulename>
-                <testname>DCubeRunner</testname>
-                <arg>
-                  <argname>DCubeCfg</argname>
-                  <argvalue>MC15/dcube-G4_MC15_ZPrime_QuasiStable_1sim.xml</argvalue>
-                </arg>
-                <arg>
-                  <argname>DCubeRef</argname>
-                  <argvalue>MC15/G4_MC15_ZPrime_QuasiStable_1sim.truth.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>DCubeMon</argname>
-                  <argvalue>truth.root</argvalue>
-                </arg>
-                <keepFilePattern>DCube-MC15/G4_MC15_ZPrime_QuasiStable_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
-                <noalarm />
-              </test>
-            </jobTransform>
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="FullG4_LongLived_ZPrime_1sim_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>FullG4_LongLived_ZPrime_1sim_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py FullG4_LongLived_ZPrime_1sim truth.root Hits.pool.root</jobTransformCmd>
+              <jobTransformJobName>G4_ttbar_1sim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py G4_ttbar_1sim truth.root Hits.pool.root</jobTransformCmd>
               <group>ISF_Validation_HitsRegressionTests</group>
               <queue>short</queue>
             </jobTransform>
@@ -252,7 +234,58 @@
       </chain>
 
        <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         %%                           Geant4 Z-prime LongLived (MC15 Truth Strategy) (will soon be depricated)
+         %%                           Geant4 ttbar (MC15 Truth Strategy)
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        -->
+      <chain>
+        <chainName>MC15_SimulationTest_Geant4_ttbar</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="G4_MC15_ttbar_1sim">
+              <doc>Test detector functionality for ISF G4 using ttbar</doc>
+              <jobTransformJobName>G4_MC15_ttbar_1sim</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --truthStrategy MC15 --randomSeed 0 --enableLooperKiller True --maxEvents 4 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile "/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root" --outputHITSFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <group>ISF_Validation_sim</group>
+              <queue>medium</queue>
+
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>MC15/dcube-G4_MC15_ttbar_1sim.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>MC15/G4_MC15_ttbar_1sim.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-MC15/G4_MC15_ttbar_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="G4_MC15_ttbar_1sim_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>G4_MC15_ttbar_1sim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py G4_MC15_ttbar_1sim truth.root Hits.pool.root</jobTransformCmd>
+              <group>ISF_Validation_HitsRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+       <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%                           Geant4 Z-prime LongLived (MC15 Truth Strategy)
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
@@ -264,7 +297,7 @@
             <jobTransform userJobId="G4_MC15_ZPrime_QuasiStable_1sim">
               <doc>Test detector functionality for ISF G4 using ttbar</doc>
               <jobTransformJobName>G4_MC15_ZPrime_QuasiStable_1sim</jobTransformJobName>
-              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-03-01-00_VALIDATION" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-02-01-00" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
 
@@ -302,19 +335,21 @@
         </sequential>
       </chain>
 
+
      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         %%         FullG4 Minbias FullChain (MC15 production setup)
+         %%                     Geant4 Minbias FullChain
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
-        <chainName>FullChainTest_FullG4_minbias</chainName>
+        <chainName>FullChainTest_Geant4_minbias</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
-            <jobTransform userJobId="FullG4_minbias_1sim">
-              <doc>Tests detector functionality for ISF FullG4 truth and beam transformation using minbias events in the innerdetector</doc>
-              <jobTransformJobName>FullG4_minbias_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.evgen.EVNT.e3099.01517253._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 50</jobTransformCmd>
+            <jobTransform userJobId="G4_minbias_1sim">
+              <doc>Tests detector functionality for ISF G4 truth and beam transformation using minbias events in the innerdetector</doc>
+              <jobTransformJobName>G4_minbias_1sim</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --randomSeed 0 --enableLooperKiller True --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile "/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic-pythia8-7000.evgen.pool.root" --outputHITSFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
               <test position="1">
@@ -344,20 +379,20 @@
 
           <parallel>
             <chainElement>
-              <jobTransform userJobId="FullG4_minbias_1sim_Reg">
+              <jobTransform userJobId="G4_minbias_1sim_Reg">
                 <doc>Regression test between releases</doc>
-                <jobTransformJobName>FullG4_minbias_1sim_Reg</jobTransformJobName>
-                <jobTransformCmd>sim_reg_test.py FullG4_minbias_1sim truth.root Hits.pool.root</jobTransformCmd>
+                <jobTransformJobName>G4_minbias_1sim_Reg</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py G4_minbias_1sim truth.root Hits.pool.root</jobTransformCmd>
 
                 <group>ISF_Validation_HitsRegressionTests</group>
                 <queue>short</queue>
               </jobTransform>
             </chainElement>
             <chainElement>
-              <jobTransform userJobId="FullG4_minbias_1sim_Compare_MCProd_G4">
+              <jobTransform userJobId="G4_minbias_1sim_Compare_MCProd_G4">
                 <doc>comparison to ISF references</doc>
-                <jobTransformJobName>FullG4_minbias_1sim_Compare_MCProd_G4</jobTransformJobName>
-                <jobTransformCmd>sim_reg_test.py FullG4_minbias_1sim</jobTransformCmd>
+                <jobTransformJobName>G4_minbias_1sim_Compare_MCProd_G4</jobTransformJobName>
+                <jobTransformCmd>sim_reg_test.py G4_minbias_1sim</jobTransformCmd>
 
                 <group>ISF_Validation</group>
                 <queue>short</queue>
@@ -386,11 +421,14 @@
               </jobTransform>
             </chainElement>
             <sequential>
+              <!--Run Merge Job with 17.6.51 makes hit file compatible with 17.3.13-->
               <chainElement>
-                <jobTransform userJobId="FullG4_minbias_2merge">
-                  <doc>HITS merge job</doc>
-                  <jobTransformJobName>FullG4_minbias_2merge</jobTransformJobName>
-                  <jobTransformCmd>HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=50 --skipEvents='0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-19'</jobTransformCmd>
+                <jobTransform userJobId="G4_minbias_2merge">
+                  <doc>Merge job for backward compatibility with 17.3.13</doc>
+                  <jobTransformJobName>G4_minbias_2merge</jobTransformJobName>
+                  <jobTransformCmd>
+                    HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=50 --skipEvents='0' --geometryVersion='ATLAS-GEO-20-00-01' --conditionsTag='OFLCOND-MC12-SIM-00'
+                  </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -409,12 +447,14 @@
               </chainElement>
               <!-- Run Digitisation -->
               <chainElement>
-                <jobTransform userJobId="FullG4_minbias_3digi">
+                <jobTransform userJobId="G4_minbias_3digi">
 
                   <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
-                  <jobTransformJobName>FullG4_minbias_3digi</jobTransformJobName>
+                  <jobTransformJobName>G4_minbias_3digi</jobTransformJobName>
 
-                  <jobTransformCmd>Digi_tf.py --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --maxEvents '50' --skipEvents '0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --digiSeedOffset1 '123456' --digiSeedOffset2 '2345678' --postInclude 'PyJobTransforms/UseFrontier.py' --AddCaloDigi 'False' --conditionsTag 'OFLCOND-RUN12-SDR-31'</jobTransformCmd>
+                  <jobTransformCmd>
+                    Digi_tf.py --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --maxEvents '50' --skipEvents '0' --geometryVersion 'ATLAS-GEO-20-00-01' --digiSeedOffset1 '123456' --digiSeedOffset2 '2345678' --postInclude 'PyJobTransforms/UseFrontier.py' --samplingFractionDbTag 'QGSP_BERT' --AddCaloDigi 'False' --conditionsTag 'OFLCOND-MC12-SDR-06'
+                  </jobTransformCmd>
 
                   <group>ISF_Validation</group>
 
@@ -435,10 +475,12 @@
 
               <!-- Run Reconstruction -->
               <chainElement>
-                <jobTransform userJobId="FullG4_minbias_4reco">
+                <jobTransform userJobId="G4_minbias_4reco">
                   <doc>reco</doc>
-                  <jobTransformJobName>FullG4_minbias_4reco</jobTransformJobName>
-                  <jobTransformCmd>Reco_tf.py --inputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --maxEvents '50' --skipEvents '0' --preInclude 'ISF_Example/preInclude.IDonly_reconstruction.py'</jobTransformCmd>
+                  <jobTransformJobName>G4_minbias_4reco</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_tf.py --inputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --maxEvents '50' --skipEvents '0' --preInclude 'ISF_Example/preInclude.IDonly_reconstruction.py'
+                  </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -484,7 +526,8 @@
       <jobTransform userJobId="G4_cosmics_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmics_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION --conditionsTag OFLCOND-RUN12-SDR-19 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics</jobTransformCmd>
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-01-01-00 --conditionsTag OFLCOND-RUN12-SDR-01 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics
+        </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>short</queue>
         <!-- add in some tests later -->
@@ -493,7 +536,8 @@
       <jobTransform userJobId="G4_cosmicsTR_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmicsTR_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --CosmicPtSlice 'NONE' --beamType 'cosmics'</jobTransformCmd>
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --CosmicPtSlice 'NONE' --beamType 'cosmics'
+        </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>medium</queue>
         <!-- add in some tests later -->
@@ -513,7 +557,8 @@
             <jobTransform userJobId="G4_WriteCalHitsTest_1sim">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>G4_WriteCalHitsTest_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'Hits.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'</jobTransformCmd>
+              <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'Hits.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              </jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>short</queue>
               <test position="1">
@@ -599,15 +644,15 @@
         -->
       <chain>
         <chainName>FullChainTest_ATLFASTII_ttbar</chainName>
+        <abortOnError />
         <sequential>
           <chainElement>
             <jobTransform userJobId="ATLFASTII_ttbar_1sim">
               <doc>Tests detector functionality for ISF ATLFASTII-like configuration using ttbar events</doc>
               <jobTransformJobName>ATLFASTII_ttbar_1sim</jobTransformJobName>
-              <!-- MC15 production AMI tag a766 -->
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTII' --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 250</jobTransformCmd>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTII --randomSeed 123 --enableLooperKiller True --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile Hits.pool.root --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
-              <queue>long</queue>
+              <queue>long</queue> <!-- 500evts take ~9h13m KSI2K -->
               <test>
                 <modulename>RttLibraryTools</modulename>
                 <testname>DCubeRunner</testname>
@@ -673,11 +718,14 @@
             </chainElement>
             <sequential>
 
+              <!--Run Merge Job with 17.6.51 makes hit file compatible with 17.3.13-->
               <chainElement>
                 <jobTransform userJobId="ATLFASTII_ttbar_2merge">
                   <doc>Merge job for backward compatibility with 17.3.13</doc>
                   <jobTransformJobName>ATLFASTII_ttbar_2merge</jobTransformJobName>
-                  <jobTransformCmd>HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-R2-2015-03-01-00' --conditionsTag='OFLCOND-RUN12-SDR-19'</jobTransformCmd>
+                  <jobTransformCmd>
+                    HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-GEO-20-00-01' --conditionsTag='OFLCOND-MC12-SIM-00'
+                  </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -699,18 +747,30 @@
                 <jobTransform userJobId="ATLFASTII_ttbar_3digireco">
                   <doc>reco</doc>
                   <jobTransformJobName>ATLFASTII_ttbar_3digireco</jobTransformJobName>
-                  <jobTransformCmd>Reco_tf.py --digiSteeringConf 'StandardSignalOnlyTruth' --conditionsTag 'default:OFLCOND-MC15c-SDR-09' --postInclude 'default:RecJobTransforms/UseFrontier.py' --autoConfiguration 'everything' --steering 'doRDO_TRIG' --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --DataRunNumber '267599' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(0);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False)' 'ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --numberOfCavernBkg '0' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib" --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --maxEvents '250' --jobNumber '1'</jobTransformCmd>
+                  <jobTransformCmd>
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '500' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
+                  </jobTransformCmd>
+                  <!-- example creating RecoValHists.root
+                       <jobTransformCmd>
+                         Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root outputHISTFile=RecoValHists.root
+                       </jobTransformCmd> -->
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
                     <chaindatasetName>Merge.pool.root</chaindatasetName>
                     <dataset_info>
                       <jobTransformData/>
-                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- dummy file -->
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName> <!-- TODO: change this to ttbar dataset -->
                     </dataset_info>
                   </chaindataset_info>
                   <queue>long</queue>
                 </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                     <chainfileout>ESD.pool.root</chainfileout>
+                     <chainfileout>AOD.pool.root</chainfileout>
+                     <chainfileout>RecoValHists.root</chainfileout>
+                     <chainfileout>InDetStandardPlots.root</chainfileout>
+                     <chainfileout>PhysValMon.root</chainfileout>-->
               </chainElement>
 
               <parallel>
@@ -877,7 +937,7 @@
             <jobTransform userJobId="ATLFASTIIF_ttbar_1sim">
               <doc>Tests detector functionality for ISF ATLFASTIIF using ttbar</doc>
               <jobTransformJobName>ATLFASTIIF_ttbar_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTIIF' --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2000</jobTransformCmd>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --randomSeed 0 --enableLooperKiller True --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile "/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root" --outputHITSFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
               <!--
@@ -980,7 +1040,9 @@
                 <jobTransform userJobId="ATLFASTIIF_ttbar_2merge">
                   <doc>Merge job for backward compatibility with 17.3.13</doc>
                   <jobTransformJobName>ATLFASTIIF_ttbar_2merge</jobTransformJobName>
-                  <jobTransformCmd>HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-R2-2015-03-01-00' --conditionsTag='OFLCOND-RUN12-SDR-19'</jobTransformCmd>
+                  <jobTransformCmd>
+                    HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-GEO-20-00-01' --conditionsTag='OFLCOND-MC12-SIM-00'
+                  </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -1002,7 +1064,13 @@
                 <jobTransform userJobId="ATLFASTIIF_ttbar_3digireco">
                   <doc>reco</doc>
                   <jobTransformJobName>ATLFASTIIF_ttbar_3digireco</jobTransformJobName>
-                  <jobTransformCmd>Reco_tf.py --digiSteeringConf 'StandardSignalOnlyTruth' --conditionsTag 'default:OFLCOND-MC15c-SDR-09' --postInclude 'default:RecJobTransforms/UseFrontier.py' --autoConfiguration 'everything' --steering 'doRDO_TRIG' --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --DataRunNumber '267599' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(0);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False)' 'ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --numberOfCavernBkg '0' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib" --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --maxEvents '2000' --jobNumber '1'</jobTransformCmd>
+                  <jobTransformCmd>
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '500' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
+                  </jobTransformCmd>
+                  <!-- example creating RecoValHists.root
+                       <jobTransformCmd>
+                         Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root outputHISTFile=RecoValHists.root
+                       </jobTransformCmd> -->
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -1187,7 +1255,7 @@
             <jobTransform userJobId="ATLFASTIIF_minbias_1sim">
               <doc>Tests detector functionality for ISF ATLFASTIIF using minbias</doc>
               <jobTransformJobName>ATLFASTIIF_minbias_1sim</jobTransformJobName>
-              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTIIF' --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.evgen.EVNT.e3099.01517253._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2000</jobTransformCmd>
+              <jobTransformCmd>Sim_tf.py --simulator ATLFASTIIF --randomSeed 0 --enableLooperKiller True --maxEvents 2000 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.minbias.evgen.pool.root --outputHITSFile "Hits.pool.root" --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
               <!--
@@ -1322,7 +1390,9 @@
                 <jobTransform userJobId="ATLFASTIIF_minbias_2merge">
                   <doc>Merge job for backward compatibility with 17.3.13</doc>
                   <jobTransformJobName>ATLFASTIIF_minbias_2merge</jobTransformJobName>
-                  <jobTransformCmd>HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-R2-2015-03-01-00' --conditionsTag='OFLCOND-RUN12-SDR-19'</jobTransformCmd>
+                  <jobTransformCmd>
+                    HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=-1 --skipEvents='0' --geometryVersion='ATLAS-GEO-20-00-01' --conditionsTag='OFLCOND-MC12-SIM-00'
+                  </jobTransformCmd>
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -1344,7 +1414,13 @@
                 <jobTransform userJobId="ATLFASTIIF_minbias_3digireco">
                   <doc>reco</doc>
                   <jobTransformJobName>ATLFASTIIF_minbias_3digireco</jobTransformJobName>
-                  <jobTransformCmd>Reco_tf.py --digiSteeringConf 'StandardSignalOnlyTruth' --conditionsTag 'default:OFLCOND-MC15c-SDR-09' --postInclude 'default:RecJobTransforms/UseFrontier.py' --autoConfiguration 'everything' --steering 'doRDO_TRIG' --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --DataRunNumber '267599' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(0);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODFULL"' 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False)' 'ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doSlimming.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --numberOfCavernBkg '0' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib" --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --maxEvents '2000' --jobNumber '1'</jobTransformCmd>
+                  <jobTransformCmd>
+                    Reco_tf.py --conditionsTag 'OFLCOND-MC12-AFII-07' --preInclude 'HITtoRDO:SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py' --geometryVersion 'ATLAS-GEO-20-00-01' --autoConfiguration 'everything' --DataRunNumber '195847' --preExec 'e2a:rec.Commissioning.set_Value_and_Lock(True)' 'r2e:rec.Commissioning.set_Value_and_Lock(True);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' --inputHITSFile 'Merge.pool.root' --outputESDFile 'ESD.pool.root' --outputAODFile 'AOD.pool.root' --maxEvents '2000' --outputRDOFile 'RDO.pool.root' --outputNTUP_PHYSVALFile 'PhysValMon.root' --postInclude 'PyJobTransforms/UseFrontier.py' 'HITtoRDO:DigitizationTests/postInclude.RDO_Plots.py'
+                  </jobTransformCmd>
+                  <!-- example creating RecoValHists.root
+                       <jobTransformCmd>
+                         Reco_trf.py inputRDOFile=RDO.pool.root outputESDFile=ESD.pool.root outputAODFile=AOD.pool.root maxEvents=-1 skipEvents=0 autoConfiguration='everything' preExec='InDetFlags.doStandardPlots.set_Value_and_Lock(True)' outputHIST_PHYSVALMONFile=PhysValMon.root outputHISTFile=RecoValHists.root
+                       </jobTransformCmd> -->
                   <group>ISF_Validation</group>
                   <chaindataset_info>
                     <jobTransformData/>
@@ -1356,6 +1432,12 @@
                   </chaindataset_info>
                   <queue>long</queue>
                 </jobTransform>
+                <!-- not required to be on chainstore at the moment
+                     <chainfileout>ESD.pool.root</chainfileout>
+                     <chainfileout>AOD.pool.root</chainfileout>
+                     <chainfileout>RecoValHists.root</chainfileout>
+                     <chainfileout>InDetStandardPlots.root</chainfileout>
+                     <chainfileout>PhysValMon.root</chainfileout>-->
               </chainElement>
               <parallel>
                 <chainElement>
@@ -1606,12 +1688,11 @@
         <keepFilePattern>*.php</keepFilePattern>
         <keepFilePattern>*log</keepFilePattern>
         <keepFilePattern>*.diffPool</keepFilePattern>
-        <keepFilePattern>*.diffRoot</keepFilePattern>
         <keepFilePattern>test.athena.profile</keepFilePattern>
         <test position="1">
           <modulename>RttLibraryTools</modulename>
           <testname>DiffPoolFilesRunner</testname>
-          <testidentifier>HITS_RegressionTestDiffPoolRunner</testidentifier>
+          <testidentifier>HITS_RegressionTestRunner</testidentifier>
           <arg>
             <argname>fileName</argname>
             <argvalue>today.Hits.pool.root</argvalue>
@@ -1623,34 +1704,17 @@
           <keepFilePattern>today.Hits.pool.root_yesterday.Hits.pool.root.diffPool</keepFilePattern>
         </test>
         <test position="2">
-          <modulename>FlexibleDiffPoolFilesRunner</modulename>
-          <testname>FlexibleDiffPoolFilesRunner</testname>
-          <testidentifier>HITS_RegressionTestDiffRootRunner</testidentifier>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ExeRunner</testname>
           <arg>
-            <argname>platformDependent</argname>
-            <argvalue>True</argvalue>
+             <argname>exeName</argname>
+             <argvalue>acmd.py</argvalue>
           </arg>
           <arg>
-            <argname>optionString</argname>
-            <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings</argvalue>
+             <argname>exeParamString</argname>
+             <argvalue>diff-root yesterday.Hits.pool.root today.Hits.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings</argvalue>
           </arg>
-          <arg>
-            <argname>doDetailedChecks</argname>
-            <argvalue>True</argvalue>
-          </arg>
-          <arg>
-            <argname>fileName</argname>
-            <argvalue>today.Hits.pool.root</argvalue>
-          </arg>
-          <arg>
-            <argname>refFileName</argname>
-            <argvalue>yesterday.Hits.pool.root</argvalue>
-          </arg>
-          <arg>
-            <argname>testOutputFile</argname>
-            <argvalue>today.Hits.pool.root_yesterday.Hits.pool.root.diffRoot</argvalue>
-          </arg>
-          <keepFilePattern>today.Hits.pool.root_yesterday.Hits.pool.root.diffRoot</keepFilePattern>
+          <keepFilePattern>RttLibraryTools_ExeRunner.postprocessing.log</keepFilePattern>
         </test>
         <test position="3">
           <modulename>RttLibraryTools</modulename>
