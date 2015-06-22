@@ -400,7 +400,7 @@ bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collec
     // bypass Athena problem.
     if (stateVec.empty()) {
     log <<MSG::ERROR <<"Got empty channel list after Blob decoding of col channel " 
-    << State::coolChannelName(coolChan) << endmsg;
+    << State::coolChannelName(coolChan) << endreq;
     return false;
     }
     */

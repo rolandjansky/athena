@@ -41,10 +41,10 @@ LArBadChannelParser2::parseISfile( int nint, int minString,
     ISLine parsedLine;
     if (parseLine( readLine, parsedLine, nint, minString, firstWildcard)) {
       result.push_back(parsedLine);
-      // (*m_log) << MSG::DEBUG << "LArBadChannelParser ACCEPTED line " << readLine << endmsg;
+      // (*m_log) << MSG::DEBUG << "LArBadChannelParser ACCEPTED line " << readLine << endreq;
     }
     else {
-      (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << readLine << endmsg;
+      (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << readLine << endreq;
     }
   }
   return result;
@@ -79,7 +79,7 @@ bool LArBadChannelParser2::interpretLine( const std::vector<std::string>& comman
 {
   if((int)command.size() < nint+minString) {
     (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << m_linenumber \
-	     << ":\t not enough parameters given" << endmsg; 
+	     << ":\t not enough parameters given" << endreq; 
     return false;
   }
 
@@ -93,7 +93,7 @@ bool LArBadChannelParser2::interpretLine( const std::vector<std::string>& comman
     }
     else {
       (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << m_linenumber \
-	       << ":\t word " << i + 1 << " must be a non-negative integer: " << command[i] << endmsg;
+	       << ":\t word " << i + 1 << " must be a non-negative integer: " << command[i] << endreq;
       return false;
     }
   }

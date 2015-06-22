@@ -87,7 +87,7 @@ inline bool LArBadChannelMasker::statusShouldBeMasked(const LArBadChannel& cellS
       return false;
 
 //   log << MSG::VERBOSE << "gain: " << gain << " bitMask: 0x" << MSG::hex << m_bitMask 
-//      << " cellStatus: 0x" << cellStatus.packedData() << MSG::dec << endmsg; 
+//      << " cellStatus: 0x" << cellStatus.packedData() << MSG::dec << endreq; 
 
    if (gain==CaloGain::LARHIGHGAIN) 
       return (m_bitMask & cellStatus.packedData() & m_highGainMask) != 0;

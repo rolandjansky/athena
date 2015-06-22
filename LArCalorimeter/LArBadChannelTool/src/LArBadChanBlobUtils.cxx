@@ -38,29 +38,29 @@ namespace LArBadChanBlobUtils {
   {
     if ( endian != machineEndianness()) {
       log << MSG::ERROR << "BLOB endian-ness and computer endian-ness differ."
-	  << " This version cannot decode such BLOBs" << endmsg;
+	  << " This version cannot decode such BLOBs" << endreq;
       return false;
     }
     if ( chanSize != sizeof( Channel)) {
       log << MSG::ERROR << "The word size for HWidentifier in the BLOB (" 
 	  << chanSize << ") diifers from the HWIdentifier::value_type size "
-	  << sizeof( Channel) << endmsg;
-      log << MSG::ERROR << "This version cannot decode such BLOBs" << endmsg;
+	  << sizeof( Channel) << endreq;
+      log << MSG::ERROR << "This version cannot decode such BLOBs" << endreq;
       return false;
     }
     if ( stateSizeInBlob != 0 && stateSizeInBlob != currentStateSize) {
       log << MSG::ERROR << "The word size for LArBadChannel or LArBadFeb in the BLOB (" 
 	  << stateSizeInBlob << ") diifers from the runtime BitWord size "
-	  << currentStateSize << endmsg;
-      log << MSG::ERROR << "This version cannot decode such BLOBs" << endmsg;
+	  << currentStateSize << endreq;
+      log << MSG::ERROR << "This version cannot decode such BLOBs" << endreq;
       return false;
     }
  
     if (blobp->size() % step != 0) {
       log << MSG::ERROR << "BLOB size (" << blobp->size() 
 	  << ") is not an exact multiple of content size " 
-	  << step << endmsg;
-      log << MSG::ERROR << "The BLOB is probably corrupted." << endmsg;
+	  << step << endreq;
+      log << MSG::ERROR << "The BLOB is probably corrupted." << endreq;
       return false;
     }
 
