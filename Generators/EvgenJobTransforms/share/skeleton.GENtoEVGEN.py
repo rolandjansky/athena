@@ -95,7 +95,7 @@ evgenLog.debug("****************** CONFIGURING EVENT GENERATION ****************
 ## Functions for operating on generator names
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
 from EvgenJobTransforms.EvgenConfig import evgenConfig
-from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune
+from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
 
 ## Fix non-standard event features
 from EvgenProdTools.EvgenProdToolsConf import FixHepMC
@@ -244,14 +244,21 @@ gennames = sorted(evgenConfig.generators, key=gen_sortkey)
 ## Check that the actual generators, tune, and main PDF are consistent with the JO name
 if joparts[0].startswith("MC"): #< if this is an "official" JO
     genpart = jo_physshortparts[0]
+#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
     expectedgenpart = ''.join(gennames)
     ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Jimmy" label
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Jimmy")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
         return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, genpart))
+    def _norm2(s):
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        
+    def _short2(s):
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+     
+    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart:
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
         sys.exit(1)
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
@@ -260,6 +267,13 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
                        " has too few physicsShort fields separated by '_'." +
                        " It should contain <generators>_<tune+PDF_<process>. Please rename.")
         sys.exit(1)
+
+## Check the "--steering=afterburn" command line argument has been set if EvtGen is in the JO name
+# Dont't have access to steering flag so check it's effect on output files
+if gen_require_steering(gennames):
+    if hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
+        raise RuntimeError("'EvtGen' found in job options name, please set '--steering=afterburn'")
+
 
 ## Check that the evgenConfig.minevents setting is acceptable
 ## minevents defines the production event sizes and must be sufficiently "round"
@@ -414,6 +428,8 @@ elif "Alpgen" in evgenConfig.generators:
     datFile = "inparmAlpGen.dat"
 elif "Protos" in evgenConfig.generators:
     datFile = "protos.dat"
+elif "ProtosLHEF" in evgenConfig.generators:
+    datFile = "protoslhef.dat"
 elif "AcerMC" in evgenConfig.generators:
     datFile = "inparmAcerMC.dat"
 elif "CompHep" in evgenConfig.generators:
@@ -423,8 +439,10 @@ elif "CompHep" in evgenConfig.generators:
 eventsFile = None
 if "Alpgen" in evgenConfig.generators:
     eventsFile = "alpgen.unw_events"
-elif "Protos" in evgenConfig.generators: # TODO: converting to LHEF
+elif "Protos" in evgenConfig.generators: 
     eventsFile = "protos.events"
+elif "ProtosLHEF" in evgenConfig.generators:
+    eventsFile = "protoslhef.events"
 elif "BeamHaloGenerator" in evgenConfig.generators:
     eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:

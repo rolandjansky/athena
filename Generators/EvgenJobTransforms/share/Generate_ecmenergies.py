@@ -36,5 +36,8 @@ elif 'Sherpa' in evgenConfig.generators:
 elif 'Epos' in evgenConfig.generators:
     genSeq.Epos.BeamMomentum = -eBeam
     genSeq.Epos.TargetMomentum = eBeam
+elif 'QGSJet' in evgenConfig.generators:
+    genSeq.QGSJet.BeamMomentum = -eBeam
+    genSeq.QGSJet.TargetMomentum = eBeam    
 
 del eCM, eBeam

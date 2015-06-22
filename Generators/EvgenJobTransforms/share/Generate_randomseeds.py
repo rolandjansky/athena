@@ -24,6 +24,7 @@ genseeds = {
     'Isajet'            : ["ISAJET OFFSET {rnd} 1857585203 {rnd}", "ISAJET_INIT 820021 2347532"],
     'Phojet'            : ["PHOJET OFFSET {rnd} 174947321 {rnd}", "PHOJET_INIT 820021 2347532"],
     'Epos'              : ["EPOS OFFSET {rnd} {rnd} 31122001", "EPOS_INIT OFFSET {rnd} 820021 2347532"],
+    'QGSJet'            : ["QGSJet OFFSET {rnd} {rnd} 51122005", "QGSJET_INIT OFFSET {rnd} 820021 2347532"],
     'ParticleGun'       : ["ParticleGun {rnd} {rnd}"],
     'ParticleGenerator' : ["SINGLE LUXURY 2 OFFSET 12345 {rnd} {rnd}"],
     'ParticleDecayer'   : ["ParticleDecayer LUXURY 2 OFFSET 54321 {rnd} {rnd}"],

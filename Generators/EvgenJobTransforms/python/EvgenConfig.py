@@ -6,7 +6,7 @@
 lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep",
                   "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2",
-                  "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC"]
+                  "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones
 inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
@@ -21,7 +21,7 @@ mainGenerators += ["Pythia8", "Pythia8B"]
 ## Sherpa family
 mainGenerators += ["Sherpa"]
 ## Soft QCD generators
-mainGenerators += ["Exhume", "Phojet", "Epos"]
+mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 ## ATLAS-specific generators
 mainGenerators += ["ParticleGenerator", "ParticleGun"]
 mainGenerators += ["CosmicGenerator", "BeamHaloGenerator"]
@@ -46,6 +46,13 @@ notesthepmcGenerators = ["ParticleDecayer", "ParticleGun", "CosmicGenerator", "B
 ## Generators with no flexibility/concept of a tune or PDF choice
 notuneGenerators = ["ParticleGenerator", "ParticleGun", "CosmicGenerator", "BeamHaloGenerator", "HepMCAscii"]
 
+
+def gen_require_steering(gennames):
+    "Return a boolean of whether this set of generators requires the steering command line flag"
+    if not "EvtGen" in gennames: return False
+    if any(("Pythia" in gen and not "Pythia8" in gen) for gen in gennames): return True
+    if any(("Herwig" in gen and not "Herwigpp" in gen) for gen in gennames): return True
+    return False
 
 def gen_known(genname):
     "Return whether a generator name is known"
