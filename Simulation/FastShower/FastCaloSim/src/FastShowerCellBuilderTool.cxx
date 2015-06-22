@@ -233,6 +233,61 @@ class shape_count_info {
   shape_count_info():n(0),min_eta(1000),max_eta(-1),min_E(1000000000),max_E(-1) {};
 };
 
+bool checkParticleEnergyParametrization(ParticleEnergyParametrization* param, TString& msg)
+{
+  if(!param) {
+    return false;
+  }  
+
+  /*
+  //The parametrizations for param->DistPara(0) and param->DistPara(>m_Ecal_vs_dist->GetNbinsX()) should never be used
+  //Could be deleted, but to be safe lets not touch them now extensively... 
+  ParticleEnergyParametrizationInDistbin* inbin=param->DistPara(0);
+  if(inbin) inbin->m_corr.ResizeTo(0,0);
+  ParticleEnergyParametrizationInDistbin* inbin=param->DistPara(m_Ecal_vs_dist->GetNbinsX()+1);
+  if(inbin) inbin->m_corr.ResizeTo(0,0);
+  */
+
+  for(int i=1;i<=param->GetNDistBins();++i) {
+    ParticleEnergyParametrizationInDistbin* inbin=param->DistPara(i);
+    if(!inbin) {
+      msg+=Form("DistPara(%d) not filled. ",i);
+      continue;
+    }  
+    for(int j=-2;j<0;++j) {
+      if(isnan(inbin->m_mean(j))) {
+        inbin->m_corr.ResizeTo(0,0);
+        msg+=Form("mean(%d,%d) is nan, fixed by removing correlation matrix, n=%d elements. ",i,j,inbin->m_corr.GetNoElements());
+        break;
+      }  
+      if(isnan(inbin->m_RMS(j))) {
+        inbin->m_corr.ResizeTo(0,0);
+        msg+=Form("RMS(%d,%d) is nan, fixed by removing correlation matrix, n=%d elements. ",i,j,inbin->m_corr.GetNoElements());
+        break;
+      }  
+    }
+    for(int j=0;j<CaloCell_ID_FCS::MaxSample;++j) {
+      if(inbin->m_ElayerProp[j]) {
+        if(isnan(inbin->m_mean(j))) {
+          msg+=Form("mean(%d,%d) is nan, not fixable! ",i,j);
+          return false;
+        }  
+      }
+    }  
+    for(int j=-2;j<CaloCell_ID_FCS::MaxSample;++j) {
+      if(inbin->m_corr.GetNoElements()==0) break;
+      for(int k=-2;k<CaloCell_ID_FCS::MaxSample;++k) {
+        if(isnan(inbin->m_corr(j,k))) {
+          inbin->m_corr.ResizeTo(0,0);
+          msg+=Form("corr(%d,%d,%d) is nan, fixed by removing correlation matrix, n=%d elements. ",i,j,k,inbin->m_corr.GetNoElements());
+          break;
+        }  
+      }
+    }  
+  }
+  return true;
+}
+
 void FastShowerCellBuilderTool::LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level)
 {
   TIterator *iter=infile.GetListOfKeys()->MakeIterator();
@@ -270,7 +325,8 @@ void FastShowerCellBuilderTool::LoadParametrizationsFromFile(TDirectory& infile,
     if(cl->InheritsFrom(ParticleEnergyParametrization::Class()))
     {
       ParticleEnergyParametrization* obj=(ParticleEnergyParametrization*)(key->ReadObj());
-      if(obj) {
+      TString msg;
+      if(checkParticleEnergyParametrization(obj,msg)) {
 //        cout<<" -> Got obj "<<obj->GetName()<<" : "<<obj->GetTitle()<<endl;
         obj->SetNoDirectoryHisto();
 
@@ -283,6 +339,11 @@ void FastShowerCellBuilderTool::LoadParametrizationsFromFile(TDirectory& infile,
         n_energy[obj->id()].max_eta=TMath::Max(n_energy[obj->id()].max_eta,obj->eta());
         n_energy[obj->id()].min_E  =TMath::Min(n_energy[obj->id()].min_E  ,obj->E()  );
         n_energy[obj->id()].max_E  =TMath::Max(n_energy[obj->id()].max_E  ,obj->E()  );
+        if(msg!="") {
+          ATH_MSG_WARNING("Could fix some nan in input parametrization "<<obj->GetName()<<" ("<<obj->GetTitle()<<"): "<<msg.Data());
+        }
+      } else if(obj) {
+        ATH_MSG_WARNING("Found nan in input parametrization "<<obj->GetName()<<" ("<<obj->GetTitle()<<"): "<<msg.Data());
       }
     }
   }
@@ -902,7 +963,8 @@ bool FastShowerCellBuilderTool::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVe
   double best_target=0;
 
   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-  while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
+  while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
+  //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
   
   if (it!=hitVector->end()) {
     Amg::Vector3D hitPos1 = (*it).trackParms->position();
@@ -1054,7 +1116,7 @@ bool FastShowerCellBuilderTool::get_calo_surface(std::vector<Trk::HitInfo>* hitV
   for(int i=0;i<m_n_surfacelist;++i) {
     CaloCell_ID_FCS::CaloSample sample=m_surfacelist[i];
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-    while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
+    while (it != hitVector->end() && it->detID != (3000+sample) )  { it++;} 
     if(it==hitVector->end()) continue;
     Amg::Vector3D hitPos = (*it).trackParms->position();
     
@@ -1092,7 +1154,7 @@ bool FastShowerCellBuilderTool::get_calo_surface(std::vector<Trk::HitInfo>* hitV
   if(sample_calo_surf==CaloCell_ID_FCS::noSample) {
     // first intersection with sensitive calo layer
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-    while ((*it).detID != 3 && it < hitVector->end() )  it++;   // to be updated 
+    while ( it < hitVector->end() && (*it).detID != 3 ) { it++;}   // to be updated 
     if (it==hitVector->end())   {  // no calo intersection, abort
       return false;
     }
@@ -1282,7 +1344,7 @@ StatusCode FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCel
     }
     // loop over intersection
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-    while ((*it).detID != -3 && it < hitVector->end() )  it++;   // to be updated 
+    while (it < hitVector->end() && (*it).detID != -3 )  { it++;}   // to be updated 
     if(it!=hitVector->end()) {
       Amg::Vector3D hitPos = (*it).trackParms->position();
       CaloCell_ID_FCS::CaloSample sample = (CaloCell_ID_FCS::CaloSample)((*it).detID-3000);    // to be updated
@@ -2616,7 +2678,7 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
   Amg::Vector3D pos(0.,0.,0.);    // default
 
   if (vtx) {
-    const HepMC::ThreeVector vtxPos(vtx->point3d());
+    //const HepMC::ThreeVector vtxPos(vtx->point3d());
     pos = Amg::Vector3D( vtx->point3d().x(),vtx->point3d().y(), vtx->point3d().z()); 
   }
 

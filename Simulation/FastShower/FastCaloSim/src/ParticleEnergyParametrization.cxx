@@ -197,41 +197,61 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
   }
   
   p.fcal_tot=0;
-  TVectorD x(-2,CaloCell_ID_FCS::LastSample);
-  x(-2)=p.dist_in;
-  x(-2)-=shapeindist->m_mean(-2);
-  if(shapeindist->m_RMS(-2)>0) x(-2)/=shapeindist->m_RMS(-2);
-  x(-1)=p.Ecal;
-  x(-1)-=shapeindist->m_mean(-1);
-  if(shapeindist->m_RMS(-1)>0) x(-1)/=shapeindist->m_RMS(-1);
   
-  CorelatedGausRandom_corgen(shapeindist->m_corr,x,rand,0);
-  
-  for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
-    p.fcal_layer[i]=0;
-    TH1* h1=shapeindist->m_ElayerProp[i];
-    if(h1) {
-      double* fIntegral=h1->GetIntegral();
-      if(!fIntegral) h1->ComputeIntegral();
-      fIntegral=h1->GetIntegral();
-      if(fIntegral) {
-        double prop=TMath::Freq(x(i));
-//        cout<<"cs="<<i<<" prop="<<prop<<endl;
-        int nbinsx = h1->GetNbinsX();
-        int ibin = (Int_t)TMath::BinarySearch(nbinsx,fIntegral,prop);
+  if(shapeindist->m_corr.GetNoElements()>0) {
+    TVectorD x(-2,CaloCell_ID_FCS::LastSample);
+    x(-2)=p.dist_in;
+    x(-2)-=shapeindist->m_mean(-2);
+    if(shapeindist->m_RMS(-2)>0) x(-2)/=shapeindist->m_RMS(-2);
+    x(-1)=p.Ecal;
+    x(-1)-=shapeindist->m_mean(-1);
+    if(shapeindist->m_RMS(-1)>0) x(-1)/=shapeindist->m_RMS(-1);
+    
+    CorelatedGausRandom_corgen(shapeindist->m_corr,x,rand,0);
+    
+    for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
+      p.fcal_layer[i]=0;
+      if(::isnan(x(i))) {
+        cout<<" WARNING: encountered nan in "<<GetName()<<", distbin="<<distbin<<" : x("<<i<<")="<<x(i)<<" n="<<shapeindist->m_corr.GetNoElements()<<" elements:"<<endl;
+        x.Print();
+        shapeindist->m_mean.Print();
+        shapeindist->m_RMS.Print();
+        shapeindist->m_corr.Print();
+      }
+      TH1* h1=shapeindist->m_ElayerProp[i];
+      if(h1) {
+        double* fIntegral=h1->GetIntegral();
+        if(!fIntegral) h1->ComputeIntegral();
+        fIntegral=h1->GetIntegral();
+        if(fIntegral) {
+          double prop=TMath::Freq(x(i));
+  //        cout<<"cs="<<i<<" prop="<<prop<<endl;
+          int nbinsx = h1->GetNbinsX();
+          int ibin = (Int_t)TMath::BinarySearch(nbinsx,fIntegral,prop);
 
-        double xdist;
-        if(fIntegral[ibin+1]<=fIntegral[ibin]) xdist=h1->GetBinCenter(ibin+1);
-         else xdist=h1->GetBinLowEdge(ibin+1)+h1->GetBinWidth(ibin+1)*(prop-fIntegral[ibin])/(fIntegral[ibin+1] - fIntegral[ibin]);
+          double xdist;
+          if(fIntegral[ibin+1]<=fIntegral[ibin]) xdist=h1->GetBinCenter(ibin+1);
+           else xdist=h1->GetBinLowEdge(ibin+1)+h1->GetBinWidth(ibin+1)*(prop-fIntegral[ibin])/(fIntegral[ibin+1] - fIntegral[ibin]);
 
-        double f=xdist+shapeindist->m_mean(i);
+          double f=xdist+shapeindist->m_mean(i);
+          if(f<0) f=0;
+          p.fcal_layer[i]=f;
+          p.fcal_tot+=f;
+        } else cout<<"cs="<<i<<" no fIntegral"<<endl; 
+      }
+    }
+  } else {
+    for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
+      p.fcal_layer[i]=0;
+      TH1* h1=shapeindist->m_ElayerProp[i];
+      if(h1) {
+        double f=h1->GetRandom()+shapeindist->m_mean(i);
         if(f<0) f=0;
         p.fcal_layer[i]=f;
         p.fcal_tot+=f;
-      } else cout<<"cs="<<i<<" no fIntegral"<<endl; 
+      }
     }
   }
-
 
   p.fcal_tot_uncor=0;
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {

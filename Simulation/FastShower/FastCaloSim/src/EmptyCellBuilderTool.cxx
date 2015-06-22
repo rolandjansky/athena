@@ -72,8 +72,8 @@ void EmptyCellBuilderTool::create_empty_calo(CaloCellContainer * theCellContaine
 
   #if FastCaloSim_project_release_v1 == 12
   #else  
-    static DataPool<FastSimTileCell> CellsPTile(10000);
-    static DataPool<FastSimCaloCell> CellsPCalo(190000);
+    DataPool<FastSimTileCell> CellsPTile(10000);
+    DataPool<FastSimCaloCell> CellsPCalo(190000);
     log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endreq;
     log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endreq;
   #endif  

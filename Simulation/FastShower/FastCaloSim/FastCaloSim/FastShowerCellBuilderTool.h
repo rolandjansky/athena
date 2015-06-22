@@ -127,8 +127,8 @@ private:
   CLHEP::HepRandomEngine*               m_randomEngine;
   std::string                    m_randomEngineName;         //!< Name of the random number stream
 
-  CaloDepthTool*                 m_calodepth;
-  CaloDepthTool*                 m_calodepthEntrance;
+  //CaloDepthTool*                 m_calodepth;
+  //CaloDepthTool*                 m_calodepthEntrance;
   
   /** The Extrapolator setup */
   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
@@ -240,10 +240,10 @@ private:
   double ptruth_eta;
   double ptruth_phi;
   double ptruth_e;
-  double ptruth_et;
+  //double ptruth_et;
   double ptruth_pt;
   double ptruth_p;
-  int pdgid;
+  //int pdgid;
   int refid;
 
   double eta_calo_surf;

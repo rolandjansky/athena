@@ -52,10 +52,16 @@ public:
   typedef std::vector< std::vector<cellinfo_vec> > map_type;
 
   cellinfo_map(int p_neta=0, int p_nphi=0):
-               m_eta_start(-5), m_eta_end(5), m_phi_start(-M_PI), m_phi_end(M_PI), m_neta(p_neta), m_nphi(p_nphi), m_leta(1), m_lphi(1) {
-    if(m_neta>0) m_deta=(m_eta_end-m_eta_start)/m_neta;
-    if(m_nphi>0) m_dphi=(m_phi_end-m_phi_start)/m_nphi;
+  m_eta_start(-5), m_eta_end(5), m_phi_start(-M_PI), m_phi_end(M_PI), m_neta(p_neta), m_nphi(p_nphi), m_leta(1), m_lphi(1) { 
     
+    if(m_neta>0) {
+      m_deta=(m_eta_end-m_eta_start)/m_neta;
+    }
+    else m_deta = 0;
+    if(m_nphi>0) {
+      m_dphi=(m_phi_end-m_phi_start)/m_nphi;
+    }
+    else m_dphi = 0;
     m_map.resize(m_neta);
     for(unsigned int i=0;i<m_neta;++i) m_map[i].resize(m_nphi);
   }

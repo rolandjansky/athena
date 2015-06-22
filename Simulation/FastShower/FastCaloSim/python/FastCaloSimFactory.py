@@ -3,7 +3,8 @@
 from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 
-def FastCaloSimFactory():
+def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
+
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'FastCaloSimFactory::configure:' )
 
@@ -11,9 +12,9 @@ def FastCaloSimFactory():
     from AthenaCommon.AppMgr import ToolSvc
 
     #########################################################################################################
-    mlog.info("now configure theFastShowerCellBuilderTool...")
-    from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
-    theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
+    
+    #from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
+    #theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
 
     mlog.info("now configure the non-interacting propagator...")
     from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
@@ -28,16 +29,23 @@ def FastCaloSimFactory():
     timedExtrapolator.STEP_Propagator = niPropagator
     timedExtrapolator.ApplyMaterialEffects = False
     ToolSvc+=timedExtrapolator
-    theFastShowerCellBuilderTool.Extrapolator=timedExtrapolator
+    #theFastShowerCellBuilderTool.Extrapolator=timedExtrapolator
     mlog.info("configure TimedExtrapolator finished")
 
     from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceHelper
     caloSurfaceHelper = CaloSurfaceHelper()
     ToolSvc+=caloSurfaceHelper
-    theFastShowerCellBuilderTool.CaloSurfaceHelper=caloSurfaceHelper  
+    #theFastShowerCellBuilderTool.CaloSurfaceHelper=caloSurfaceHelper  
 
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags 
-    theFastShowerCellBuilderTool.CaloEntrance = TrkDetFlags.InDetContainerName()
+    #theFastShowerCellBuilderTool.CaloEntrance = TrkDetFlags.InDetContainerName()
+
+    kwargs.setdefault("CaloEntrance", TrkDetFlags.InDetContainerName())
+    kwargs.setdefault("CaloSurfaceHelper", caloSurfaceHelper)
+    kwargs.setdefault("Extrapolator", timedExtrapolator)
+    
+    from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
+    theFastShowerCellBuilderTool=FastShowerCellBuilderTool(name, **kwargs)
 
     #########################################################################################################
     #theFastShowerCellBuilderTool.Invisibles=[12, 14, 16, 1000022]
@@ -60,7 +68,7 @@ def FastCaloSimFactory():
 
     theFastShowerCellBuilderTool.ParticleParametrizationFileName=ParticleParametrizationFileName     
     mlog.info("ParticleParametrizationFile=%s",ParticleParametrizationFileName)
- 
+
     #from AthenaCommon.AppMgr import theApp
     #svcMgr = theApp.serviceMgr()
     #svcMgr.MessageSvc.debugLimit   = 100000000
@@ -70,5 +78,7 @@ def FastCaloSimFactory():
 
     return theFastShowerCellBuilderTool
 
+def getFastShowerCellBuilderTool(name="FastShowerCellBuilderTool", **kwargs):
 
+    return FastShowerCellBuilderTool()
 
