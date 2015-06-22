@@ -6,6 +6,7 @@
 #include <vector>
 
 // Athena/Gaudi includes:
+#include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
 
@@ -14,7 +15,7 @@
 #include "GaudiKernel/GaudiException.h"
 
 // Package includes
-#include "DeriveSimulationInputs.h"
+#include "TrigT1CTMonitoring/DeriveSimulationInputs.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
@@ -26,13 +27,11 @@
 
 // TrigConf includes
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/PIT.h"
-#include "TrigConfL1Data/TIP.h"
 #include "TrigConfL1Data/Muctpi.h"
 
 //Additional needs for CTP simulation
@@ -79,8 +78,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveSimulationInputs( const std::s
    declareProperty("do_MuCTPI_input",     do_MuCTPI_input, "Flag to rederive MuCTPI input from raw data fragment");
    declareProperty("do_L1Calo_input",     do_L1Calo_input, "Flag to rederive L1Calo input from raw data fragment");
    declareProperty("do_L1Calo_sim",       do_L1Calo_sim,   "Flag to resimulate L1Calo input");
-   declareProperty("AttrListFolders",     m_par_atrlist);
-   declareProperty("AttrListCollFolders", m_par_atrcollist);
+   declareProperty("AttrListFolders",     par_atrlist);
+   declareProperty("AttrListCollFolders", par_atrcollist);
    declareProperty("N_cablebits",         N_cablebits);
    declareProperty("N_slots_ctpin",       N_slots_ctpin);
    declareProperty("N_connectors_ctpin",  N_connectors_ctpin);
@@ -128,17 +127,12 @@ TrigT1CTMonitoring::DeriveSimulationInputs::beginRun(){
 StatusCode
 TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
     
-   ATH_MSG_DEBUG("Executing DeriveSimulationInputs: CTP_RDO -> TIP pattern -> threshold multiplicity -> cable words (EMTAU, JET, MUON, etc)");
-   ATH_MSG_DEBUG("requires correct TIP mapping from COOL (present at data taking)");
+   ATH_MSG_DEBUG("Executing DeriveSimulationInputs algorithm");
 		
    if ( ! m_configSvc->ctpConfig() ) {
       ATH_MSG_WARNING("Unable to retrieve CTP configuration");
       return StatusCode::RECOVERABLE;
    }
-
-   /**
-    * reset CTPIN and FP cable arrays 
-    **/
 
    // ctpin
    for (int bit = 0; bit < 31; bit++)
@@ -153,9 +147,8 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
             FPCables[bit][conn][clock] = 0;
 
 
-
    // get CTP RDO from storegate
-   const CTP_RDO* theCTP_RDO = nullptr;
+   const DataHandle < CTP_RDO > theCTP_RDO = nullptr;
    CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
 
    
@@ -163,7 +156,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
    //unsigned int ctpVersionNumber = theCTP_RDO->getCTPVersionNumber(); 
 
    unsigned int ctpVersionNumber = m_configSvc->ctpConfig()->ctpVersion();
-   ATH_MSG_DEBUG("Menu configuration with ctp version " << ctpVersionNumber);
+   ATH_MSG_DEBUG("CTP_RDO with ctp version " << ctpVersionNumber);
 		
    const std::vector < uint32_t > & cDataWords = theCTP_RDO->getDataWords();
    if (cDataWords.size() == 0) {
@@ -180,26 +173,25 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 
    CTP_Decoder ctp;
    ctp.setRDO(theCTP_RDO);
-   
+		
    const std::vector<CTP_BC> & BCs = ctp.getBunchCrossings();
 
    std::bitset < 512 > currentTIP( BCs[ theCTP_RDO->getL1AcceptBunchPosition() ].getTIP() );
    
-
+   StatusCode sc = StatusCode::SUCCESS;
    if (ctpVersionNumber<=3) { // Run 1 CTP
 
       for (size_t tipNum = 0; tipNum < currentTIP.size(); ++tipNum) {
 
          if ( ! currentTIP.test(tipNum) ) continue;
-
-         fillPitMap(tipNum).ignore();
+         sc = fillPitMap(tipNum, m_pitVector);
 
       }
 
    } else { // Run 2 CTP
 
-//       unsigned int LUTinputs = 16;
-//       unsigned int nLut = currentTIP.size()/LUTinputs;
+      unsigned int LUTinputs = 16;
+      unsigned int nLut = currentTIP.size()/LUTinputs;
 
       for (size_t tipNum = 0; tipNum < currentTIP.size(); ++tipNum) {
 
@@ -207,21 +199,38 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 
          //assume that LUT input 0..11 are PIT, 12..15 are FPI
 
-         bool isPIT = (tipNum<320); // (false), isFPI(false);
+         bool isPIT(false), isFPI(false);
 
-         ATH_MSG_VERBOSE("TIP " << tipNum << " fired, type is " << (isPIT?"PIT":"FPI"));
+         for (unsigned int lut = 0; lut<nLut; lut++) {
+            if ( (tipNum >= (LUTinputs*lut) ) && tipNum<(LUTinputs*lut+12) ) {
+               isPIT = true;
+            } else if ( (tipNum >= (LUTinputs*lut+12)) && tipNum<(LUTinputs*(lut+1)) ) {
+               isFPI = true;
+            }
+         }
+					
+         if (isPIT && isFPI) {
+            ATH_MSG_WARNING("Error in determining input type of TIP " << tipNum << ": cannot be PIT and FPI.");
+            return StatusCode::FAILURE;
+         }
+         if (!isPIT && !isFPI) {
+            ATH_MSG_WARNING("Error in determining input type of TIP " << tipNum << ": must be either PIT or FPI.");
+            return StatusCode::FAILURE;
+         }
 					
          if (isPIT) {
-            fillPitMap(tipNum).ignore();
-         } else {
-            fillFPIMap(tipNum).ignore();
+            sc = fillPitMap(tipNum, m_pitVector);
+         }
+					
+         if (isFPI) {
+            sc = fillFPIMap(tipNum);
          }
       }
    }
 
 		
    ATH_MSG_DEBUG("filling store gate");
-   StatusCode sc = fillStoreGate(ctpVersionNumber);
+   sc = fillStoreGate(ctpVersionNumber);
 		
    ATH_MSG_DEBUG("end execute()");
    return sc;
@@ -233,7 +242,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 	
   
 StatusCode
-TrigT1CTMonitoring::DeriveSimulationInputs::fillPitMap(unsigned int pitNum) {
+TrigT1CTMonitoring::DeriveSimulationInputs::fillPitMap(int pitNum, const std::vector<TrigConf::PIT*> & pitVector) {
     
    ATH_MSG_DEBUG("Filling pit map with pitNum " << pitNum );
    if ( ! m_configSvc->ctpConfig() ) {
@@ -242,21 +251,18 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillPitMap(unsigned int pitNum) {
    }
 
 
-   for ( TrigConf::PIT * pit : m_pitVector ) {
+   for ( TrigConf::PIT * pit : pitVector ) {
 
       if (pit->pitNumber() != pitNum) continue;
 
-      ATH_MSG_DEBUG("fillPitMap: PIT fired " << pit->pitNumber() << " " << pit->thresholdName());
-      ATH_MSG_DEBUG("found cable slot = " << pit->ctpinSlot() << ", connector = " << pit->ctpinConnector() << ", bit = " << pit->cableBit());
+      ATH_MSG_DEBUG("PIT fired: " << pit->pitNumber() << " " << pit->thresholdName());
+      ATH_MSG_DEBUG("found cable bit slot = " << pit->ctpinSlot() << ", connector = " << pit->ctpinConnector() << ", cable = " << pit->cableBit());
          
-      if (( pit->cableBit()+1 > (int)N_cablebits) ||
-          ( pit->ctpinSlot()-6 > (int)N_slots_ctpin) ||  
-          ( pit->ctpinConnector()+1 > (int)N_connectors_ctpin)) {
-         ATH_MSG_WARNING("Cable outside allowed range");
-         cout << pit->cableBit()+1 << "   " << N_cablebits << endl;
-         cout << pit->ctpinSlot()-6 << "  " << N_slots_ctpin << endl;
-         cout << pit->ctpinConnector()+1 << "  " << N_connectors_ctpin << endl;
-         return StatusCode::RECOVERABLE;
+      if (( pit->cableBit()+1 > N_cablebits) ||
+          ( pit->ctpinSlot()-6 > N_slots_ctpin) ||  
+          ( pit->ctpinConnector()+1 > N_connectors_ctpin)) {
+         ATH_MSG_INFO("null pit connection");
+         return StatusCode::FAILURE;
       }
          
       CTPINCables[ pit->cableBit()][ pit->ctpinSlot()-7][ pit->ctpinConnector()] = 1;
@@ -271,17 +277,15 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillPitMap(unsigned int pitNum) {
 	
 	
 StatusCode
-TrigT1CTMonitoring::DeriveSimulationInputs::fillFPIMap(unsigned int tipNum) {
-   
-   unsigned int cableBit = ((tipNum-320)%64)/2;
-   unsigned int con = (tipNum-320)/64;
-   unsigned int clock = (tipNum-320)%2;
-
-   ATH_MSG_DEBUG("Filling FPI map with tipNum " << tipNum << " cable bit " << cableBit << ", conn " << con << " clock " << clock);
+TrigT1CTMonitoring::DeriveSimulationInputs::fillFPIMap(int bitNum) {
 		
-   if ( cableBit >=32 || con > 2 || clock>1 ) {
-      ATH_MSG_WARNING("Cable outside allowed range");
-      return StatusCode::RECOVERABLE;
+   int cableBit = bitNum%N_cablebits;
+   int con = bitNum/N_cablebits;
+   int clock = bitNum/(N_connectors_fp*N_cablebits);
+		
+   if ( (bitNum > 2*N_connectors_fp*N_cablebits-1) ||	(con+1 > 2*N_connectors_fp) || clock>1) {
+      ATH_MSG_INFO("null pit connection");
+      return StatusCode::FAILURE;
    }
 		
    FPCables[cableBit][con][clock] = 1;
@@ -295,10 +299,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillFPIMap(unsigned int tipNum) {
 namespace {
 
    // return slot-7 for CTPIN
-   unsigned int getSlot(const string & slot) { // slot : SLOT7 .. SLOT9 or CTPCORE
-      if(slot=="CTPCORE") {
-         return 10;
-      }
+   unsigned int getSlot(const string & slot) { // slot : SLOT7 .. SLOT9
       std::string::size_type pos = slot.find_last_of("T");
       const char* tmp(&slot[pos+1]);
       return std::atoi(tmp)-7;
@@ -318,25 +319,26 @@ namespace {
 StatusCode
 TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersionNumber) {
    StatusCode sc = StatusCode::SUCCESS;
-
-   //cout << "JOERG in DeriveSimulationInputs::fillStoreGate ctp version " << ctpVersionNumber << endl;
     
    // dump the TIP info (which PIT and DIRECT inputs have fired)
    if(msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG("Dumping filled cable array for CTPIN");
-      for (unsigned int slot = 0; slot < N_slots_ctpin; slot++)  //want to store these numbers somewhere
-         for (unsigned int conn = 0; conn < N_connectors_ctpin; conn++) //want to store these numbers somewhere
-            for (unsigned int bit = 0; bit < N_cablebits; ++bit)   //want to store these numbers somewhere
-               ATH_MSG_DEBUG(" Cable slot = " << slot+7 << ", connector = " << conn << ", cable bit = " << bit << "  -> " << CTPINCables[bit][slot][conn]);
+      for (int i = 0; i < N_cablebits; i++)   //want to store these numbers somewhere
+         for (int j = 0; j < N_slots_ctpin; j++)  //want to store these numbers somewhere
+            for (int k = 0; k < N_connectors_ctpin; k++) //want to store these numbers somewhere
+               ATH_MSG_DEBUG(" Cable = " << i << ", slot = " << j+7 << ", connector = " << k << ", cable bit = " << CTPINCables[i][j][k]);
       
       if (ctpVersionNumber>3) {
          ATH_MSG_DEBUG("Dumping filled cable array for CTPCORE front panel");
-         for (unsigned int conn = 0; conn < 3; conn++)
-            for (unsigned int bit = 0; bit < 32; bit++)
+         for (unsigned int bit = 0; bit < 32; bit++)
+            for (unsigned int conn = 0; conn < 3; conn++)
                for (unsigned int clock= 0; clock < 2; clock++)
-                  ATH_MSG_DEBUG(" CTPCORE connector = " << conn << ", clock " << clock << ", cable bit = " << bit << "  -> " << FPCables[bit][conn][clock]);
+                  ATH_MSG_DEBUG(" Cable = " << bit << ", connector = " << conn << ", clock " << clock << ", cable bit = " << FPCables[bit][conn][clock]);
       }
    }
+		
+
+
 		
    unsigned int muonCable = 0;
    unsigned int emtauCables0 = 0;
@@ -354,13 +356,13 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    unsigned int nimCables1 = 0;   
    unsigned int nimCables2 = 0;
 
-   uint32_t calCable = 0;
-   uint32_t emCables[2]  = {0,0};
-   uint32_t tauCables[2] = {0,0};
-   uint32_t jetCables[2] = {0,0};
-   uint32_t enCables[2]  = {0,0};
-   uint32_t nimCables[2] = {0,0};
-   uint64_t fpCables[3]  = {0,0,0};
+   unsigned int calCable = 0;
+   unsigned int emCables[2]  = {0,0};
+   unsigned int tauCables[2] = {0,0};
+   unsigned int jetCables[2] = {0,0};
+   unsigned int enCables[2]  = {0,0};
+   unsigned int nimCables[2] = {0,0};
+   unsigned int fpCables[3]  = {0,0,0};
 		
 
 
@@ -368,22 +370,15 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
 
    for ( TrigConf::TriggerThreshold* thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
 
-      if(thr->ttype() == TrigConf::L1DataDef::BGRP || thr->ttype() == TrigConf::L1DataDef::RNDM) {
-         continue;
-      }
-
-      uint64_t cable = 0;
+      int cable = 0;
 
       // finding slot and connector number and clock phase in case of direct inputs
 
-      if ( ctpVersionNumber>3 && (thr->input()!="ctpin" || thr->cableCtpin()=="CTPCORE") ) { // front panel inputs (L1TOPO or ALFA)
-         /*
-           Direct inputs ALFA and TOPO
-         */
+      if ( ctpVersionNumber>3 && (thr->input()!="ctpin") ) { // front panel inputs (L1TOPO or ALFA)
+				
          unsigned int connector = getConnector(thr->cableConnector()); // 0..2
          unsigned int clock = thr->clock(); // 0..1
-
-         
+				
          if ( connector > 2 || clock > 1 ) {
             ATH_MSG_WARNING("Invalid front panel connector " << connector);
             continue;
@@ -394,42 +389,31 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
                ATH_MSG_WARNING("Cable bit outside range " << cablebit);
                continue;
             }
-            //cable |= FPCables[cablebit][connector][clock] ? (1UL << (32 * clock + cablebit) ) : 0;
-            cable |= FPCables[cablebit][connector][clock] ? (1UL << (2 * cablebit + clock) ) : 0; // if we want to go to "alternating pattern"
+            cable |= FPCables[cablebit][connector][clock] ? (1 << (N_cablebits * N_connectors_fp * clock + cablebit) ) : 0;  // TODO: Fix (connector missing in formula
          }
-         
-         ATH_MSG_DEBUG( "Dumping TriggerThreshold " << thr->name() << " details: " << thr->cableName() 
-                        << " " << thr->type() << " front panel " << thr->cableConnector() << " bit range " << thr->cableStart()
-                        << " - " << thr->cableEnd() << ", clock " << thr->clock() << ", first pos " << (2 * thr->cableStart() + clock) );
+				
+         ATH_MSG_DEBUG("Dumping TriggerThreshold: " << thr->cableName() << " " << thr->type() << " front panel " << thr->cableConnector() << " " << thr->cableStart() << " " << thr->cableEnd());
          
       } else {
-         /*
-           CTPIN
-         */
          unsigned int slot = getSlot(thr->cableCtpin()); // 0..2
          unsigned int connector = getConnector(thr->cableConnector()); // 0..3
 
          if ( slot > 2 || connector > 3 ) {
-            ATH_MSG_WARNING("Invalid CTPIN connection with slot " << slot << " and connector " << connector << " for threshold " << thr->name() << "  and " << thr->cableCtpin());
+            ATH_MSG_WARNING("Invalid CTPIN connection with slot " << slot << " and connector " << connector);
             continue;
          }
 
          for (int cablebit = thr->cableStart(); cablebit <= thr->cableEnd(); cablebit++) {
-            if ((cablebit > (int)N_cablebits) || (cablebit < 0)) {
+            if ((cablebit > N_cablebits) || (cablebit < 0)) {
                ATH_MSG_WARNING("cablebit out of range " << cablebit);
                continue;
             }
-            if ( cablebit > 31 ) {
-               ATH_MSG_WARNING("Invalid cablebit " << cablebit << " for threshold " << thr->name() << " and " << thr->cableCtpin());
-               continue;
-            }
-            cable |= CTPINCables[cablebit][slot][connector] ? (1U << cablebit) : 0;
+            cable |= CTPINCables[cablebit][slot][connector] ? (1 << cablebit) : 0;
          }
-         ATH_MSG_DEBUG("Dumping TriggerThreshold " << thr->name() << " details: " << thr->cableName() << " " << thr->type() << " " << thr->cableCtpin() << " " << thr->cableConnector() << " " << thr->cableStart() << " " << thr->cableEnd());
+         ATH_MSG_DEBUG("Dumping TriggerThreshold: " << thr->cableName() << " " << thr->type() << " " << thr->cableCtpin() << " " << thr->cableConnector() << " " << thr->cableStart() << " " << thr->cableEnd());
       }
-      
 
-      ATH_MSG_DEBUG("Cable " << cable );
+
 			
       if(ctpVersionNumber<=3) {
          if ( thr->cableName() == "MU" )
@@ -464,16 +448,12 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
 			
          else if (((thr->cableName() == "NIM") && (thr->type() == "NIM"))||
                   ((thr->cableName() == "NIM") && (thr->type() == "CALREQ"))){
-
             if ((thr->cableCtpin() == "SLOT8") && (thr->cableConnector() == "CON2"))
                nimCables0 |= cable;
-
             if ((thr->cableCtpin() == "SLOT9") && (thr->cableConnector() == "CON0"))
                nimCables1 |= cable;
-
             if ((thr->cableCtpin() == "SLOT9")&&(thr->cableConnector() == "CON1"))
                nimCables2 |= cable;
-
          }		
          else
             ATH_MSG_WARNING("Unrecognised cable type: " << thr->type());
@@ -481,21 +461,21 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       } else {
 
          // run 2
-         if      (thr->cableName() == "EM1")      emCables[0]  |= cable;  // SLOT  7, CONN 0
-         else if (thr->cableName() == "EM2")      emCables[1]  |= cable;  // SLOT  7, CONN 1
-         else if (thr->cableName() == "TAU1")     tauCables[0] |= cable;  // SLOT  7, CONN 2
-         else if (thr->cableName() == "TAU2")     tauCables[1] |= cable;  // SLOT  7, CONN 3
-         else if (thr->cableName() == "JET1")     jetCables[0] |= cable;  // SLOT  8, CONN 0
-         else if (thr->cableName() == "JET2")     jetCables[1] |= cable;  // SLOT  8, CONN 1
-         else if (thr->cableName() == "EN1")      enCables[0]  |= cable;  // SLOT  8, CONN 2
-         else if (thr->cableName() == "EN2")      enCables[1]  |= cable;  // SLOT  8, CONN 3
-         else if (thr->cableName() == "MUCTPI")   muonCable    |= cable;  // SLOT  9, CONN 0
-         else if (thr->cableName() == "CTPCAL")   calCable     |= cable;  // SLOT  9, CONN 1
-         else if (thr->cableName() == "NIM1")     nimCables[0] |= cable;  // SLOT  9, CONN 2
-         else if (thr->cableName() == "NIM2")     nimCables[1] |= cable;  // SLOT  9, CONN 3
-         else if (thr->cableName() == "ALFA")     fpCables[0]  |= cable;  // SLOT 10, CONN 0
-         else if (thr->cableName() == "TOPO1")    fpCables[1]  |= cable;  // SLOT 10, CONN 1
-         else if (thr->cableName() == "TOPO2")    fpCables[2]  |= cable;  // SLOT 10, CONN 2
+         if      (thr->cableName() == "EM1")      emCables[0] |= cable;
+         else if (thr->cableName() == "EM2")      emCables[1] |= cable;
+         else if (thr->cableName() == "TAU1")     tauCables[0] |= cable;
+         else if (thr->cableName() == "TAU2")     tauCables[1] |= cable;
+         else if (thr->cableName() == "JET1")     jetCables[0] |= cable;
+         else if (thr->cableName() == "JET2")     jetCables[1] |= cable;
+         else if (thr->cableName() == "EN1")      enCables[0] |= cable;
+         else if (thr->cableName() == "EN2")      enCables[1] |= cable;
+         else if (thr->cableName() == "MUCTPI")   muonCable |= cable;
+         else if (thr->cableName() == "CTPCAL")   calCable |= cable;
+         else if (thr->cableName() == "NIM1")     nimCables[0] |= cable;
+         else if (thr->cableName() == "NIM2")     nimCables[1] |= cable;
+         else if (thr->cableName() == "ALFA")     fpCables[0] |= cable;
+         else if (thr->cableName() == "TOPO1")    fpCables[1] |= cable;
+         else if (thr->cableName() == "TOPO2")    fpCables[2] |= cable;
          else
             ATH_MSG_WARNING("Cable " << thr->cableName() << " with unrecognised cable type for run 2: " << thr->type());
       }
@@ -518,55 +498,23 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    }
 		
    if ((!do_L1Calo_input) && (!do_L1Calo_sim)) {
-
-      LVL1::EmTauCTP* newEMTau(nullptr);
-      ATH_MSG_DEBUG("Recording EmTauCTP to storegate " << LVL1::TrigT1CaloDefs::EmTauCTPLocation);
-      if (ctpVersionNumber<=3) {
-         newEMTau = new LVL1::EmTauCTP(emtauCables0, emtauCables1);
-         ATH_MSG_DEBUG("    " << hex << emtauCables0 << dec);
-         ATH_MSG_DEBUG("    " << hex << emtauCables1 << dec);
-      } else {
-         newEMTau = new LVL1::EmTauCTP( emCables[0], emCables[1], tauCables[0], tauCables[1] );
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << emCables[0]  << dec << " SLOT 7 / CONN 0 => EM1");
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << emCables[1]  << dec << " SLOT 7 / CONN 1 => EM2");
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << tauCables[0] << dec << " SLOT 7 / CONN 2 => TAU1");
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << tauCables[1] << dec << " SLOT 7 / CONN 3 => TAU2");
-      }
+      LVL1::EmTauCTP* newEMTau = new LVL1::EmTauCTP(emtauCables0, emtauCables1);
+      ATH_MSG_DEBUG(" Recording EMTau word into storegate " << LVL1::TrigT1CaloDefs::EmTauCTPLocation);
       sc = evtStore()->record(newEMTau, LVL1::TrigT1CaloDefs::EmTauCTPLocation);
       if ( sc.isFailure() ) {
          ATH_MSG_ERROR(" could not register object " << LVL1::TrigT1CaloDefs::EmTauCTPLocation);
          return sc;
       }
-
-
-
-      LVL1::JetCTP* newJet(nullptr);
-      ATH_MSG_DEBUG("Recording JetCTP to storegate " << LVL1::TrigT1CaloDefs::JetCTPLocation);
-      if (ctpVersionNumber<=3) {
-         newJet = new LVL1::JetCTP(jetCables0, jetCables1);
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << jetCables0  << dec);
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << jetCables1  << dec);
-      } else {
-         newJet = new LVL1::JetCTP(jetCables[0], jetCables[1]);
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << jetCables[0]  << dec << " SLOT 8 / CONN 0 => JET1");
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << jetCables[1]  << dec << " SLOT 8 / CONN 1 => JET2");
-      }
+      
+      LVL1::JetCTP* newJet = new LVL1::JetCTP(jetCables0, jetCables1);
       sc = evtStore()->record(newJet, LVL1::TrigT1CaloDefs::JetCTPLocation);
       if ( sc.isFailure() ) {
          ATH_MSG_ERROR(" could not register object " << LVL1::TrigT1CaloDefs::JetCTPLocation);
          return sc;
       }
       
-      LVL1::EnergyCTP* newEnergy(nullptr);
-      ATH_MSG_DEBUG("Recording EnergyCTP to storegate " << LVL1::TrigT1CaloDefs::EnergyCTPLocation);
-      if (ctpVersionNumber<=3) {
-         newEnergy = new LVL1::EnergyCTP(energyCables);
-      } else {
-         newEnergy = new LVL1::EnergyCTP(enCables[0], enCables[1]);
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << enCables[0]  << dec << " SLOT 8 / CONN 2 => EN1");
-         ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << enCables[1]  << dec << " SLOT 8 / CONN 3 => EN2");
-      }
-      sc = evtStore()->record(newEnergy, LVL1::TrigT1CaloDefs::EnergyCTPLocation);
+      LVL1::EnergyCTP* newEnergy = new LVL1::EnergyCTP(energyCables);
+      sc = evtStore()->record(newEnergy, LVL1::TrigT1CaloDefs::EnergyCTPLocation);       
       if ( sc.isFailure() ) {
          ATH_MSG_ERROR(" could not register object " << LVL1::TrigT1CaloDefs::EnergyCTPLocation);
          return sc;
@@ -578,22 +526,11 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       sc = DeriveL1CaloInput_fromSim();
 		
    if (ctpVersionNumber>3) {
-      uint32_t cableword0clock0( fpCables[0] & 0xffffffff );  // lower 32 bit
-      uint32_t cableword0clock1( (fpCables[0] & 0xffffffff00000000) >> 32 );  // upper 32 bit
-      uint32_t cableword1clock0( fpCables[1] & 0xffffffff );
-      uint32_t cableword1clock1( (fpCables[1] & 0xffffffff00000000) >> 32 );
-      uint32_t cableword2clock0( fpCables[2] & 0xffffffff );
-      uint32_t cableword2clock1( (fpCables[2] & 0xffffffff00000000) >> 32 );
-      LVL1::FrontPanelCTP* newFP = new LVL1::FrontPanelCTP( cableword0clock0, cableword0clock1,
-                                                            cableword1clock0, cableword1clock1,
-                                                            cableword2clock0, cableword2clock1);
+      LVL1::FrontPanelCTP* newFP = new LVL1::FrontPanelCTP();
+      newFP->setCableWord0(0, fpCables[0]);
+      newFP->setCableWord1(0, fpCables[1]);
+      newFP->setCableWord2(0, fpCables[2]);
       ATH_MSG_DEBUG(" Recording FrontPanel inputs to storegate " << LVL1::DEFAULT_L1TopoCTPLocation);
-      ATH_MSG_DEBUG("    clock 0 0x" << hex << setfill('0') << setw(8) << cableword0clock0 << 
-                    "    clock 1 0x" << setfill('0') << setw(8) << cableword0clock1 << dec << " SLOT 10 / CONN 0 => ALFA");
-      ATH_MSG_DEBUG("    clock 0 0x" << hex << setfill('0') << setw(8) << cableword1clock0 <<
-                    "    clock 1 0x" << setfill('0') << setw(8) << cableword1clock1 << dec << " SLOT 10 / CONN 1 => TOPO1");
-      ATH_MSG_DEBUG("    clock 0 0x" << hex << setfill('0') << setw(8) << cableword2clock0 <<
-                    "    clock 1 0x" << setfill('0') << setw(8) << cableword2clock1 << dec << " SLOT 10 / CONN 2 => TOPO2");
       sc = evtStore()->record(newFP, LVL1::DEFAULT_L1TopoCTPLocation); 
       if ( sc.isFailure() ) {
          ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_L1TopoCTPLocation);
@@ -601,71 +538,37 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
       }
    }
 		
-   LVL1::MbtsCTP* newMBTSA{nullptr};
+   LVL1::MbtsCTP* newMBTSA = new LVL1::MbtsCTP(mbtsCablesA);
    ATH_MSG_DEBUG(" Recording MBTS_A to storegate " << LVL1::DEFAULT_MbtsACTPLocation);
-   if (ctpVersionNumber<=3) {
-      newMBTSA = new LVL1::MbtsCTP(mbtsCablesA);
-   } else {
-      newMBTSA = new LVL1::MbtsCTP(nimCables[0]);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << nimCables[0]  << dec << " SLOT 9 / CONN 2 => NIM1");
-   }
    sc = evtStore()->record(newMBTSA, LVL1::DEFAULT_MbtsACTPLocation); 
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_MbtsACTPLocation);
       return sc;
    }
-
-
 		
-   LVL1::MbtsCTP* newMBTSC{nullptr};
+   LVL1::MbtsCTP* newMBTSC = new LVL1::MbtsCTP(mbtsCablesC);
    ATH_MSG_DEBUG(" Recording MBTS_C to storegate " << LVL1::DEFAULT_MbtsCCTPLocation);
-   if (ctpVersionNumber<=3) {
-      newMBTSC = new LVL1::MbtsCTP(mbtsCablesC);
-   } else {
-      newMBTSC = new LVL1::MbtsCTP(nimCables[1]);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << nimCables[1]  << dec << " SLOT 9 / CONN 2 => NIM2");
-   }
    sc = evtStore()->record(newMBTSC, LVL1::DEFAULT_MbtsCCTPLocation);
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_MbtsCCTPLocation);
       return sc;
    }
-
-
-   
-   LVL1::BcmCTP* newBCM{nullptr};
-   if (ctpVersionNumber<=3) {
-      newBCM = new LVL1::BcmCTP(bcmCables);
-   } else {
-      newBCM = new LVL1::BcmCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
+    
+   LVL1::BcmCTP* newBCM = new LVL1::BcmCTP(bcmCables);
    sc = evtStore()->record(newBCM, LVL1::DEFAULT_BcmCTPLocation);
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_BcmCTPLocation);
       return sc;
    }
     
-   LVL1::LucidCTP* newLUCID{nullptr};
-   if (ctpVersionNumber<=3) {
-      newLUCID = new LVL1::LucidCTP(lucidCables);
-   } else {
-      newLUCID = new LVL1::LucidCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
+   LVL1::LucidCTP* newLUCID = new LVL1::LucidCTP(lucidCables);
    sc = evtStore()->record(newLUCID, LVL1::DEFAULT_LucidCTPLocation);
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_LucidCTPLocation);
       return sc;
    }
     
-   LVL1::ZdcCTP* newZDC{nullptr};
-   if (ctpVersionNumber<=3) {
-      newZDC = new LVL1::ZdcCTP(zdcCables);
-   } else {
-      newZDC = new LVL1::ZdcCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
+   LVL1::ZdcCTP* newZDC = new LVL1::ZdcCTP(zdcCables);
    sc = evtStore()->record(newZDC, LVL1::DEFAULT_ZdcCTPLocation); 
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_ZdcCTPLocation);
@@ -673,12 +576,6 @@ TrigT1CTMonitoring::DeriveSimulationInputs::fillStoreGate(unsigned int ctpVersio
    }
 		
    LVL1::BptxCTP* newBPTX = new LVL1::BptxCTP(bptxCables);
-   if (ctpVersionNumber<=3) {
-      newBPTX = new LVL1::BptxCTP(bptxCables);
-   } else {
-      newBPTX = new LVL1::BptxCTP(calCable);
-      ATH_MSG_DEBUG("    0x" << hex << setfill('0') << setw(8) << calCable  << dec << " SLOT 8 / CONN 3 => CTPCAL");
-   }
    sc = evtStore()->record(newBPTX, LVL1::DEFAULT_BptxCTPLocation); 
    if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" could not register object " << LVL1::DEFAULT_BptxCTPLocation);
@@ -850,7 +747,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::DeriveL1CaloInput_fromSim() {
 StatusCode
 TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool() {
    StatusCode sc = StatusCode::SUCCESS;
-   ATH_MSG_DEBUG("Reading CTP input mapping from COOL");  
+   ATH_MSG_DEBUG("Trying to access CTP input mapping from COOL");  
 		
    const CondAttrListCollection* atrlistcol;
    sc = detStore()->retrieve(atrlistcol,"/TRIGGER/LVL1/CTPCoreInputMapping");
@@ -860,46 +757,31 @@ TrigT1CTMonitoring::DeriveSimulationInputs::ReadInputMappingFromCool() {
       return sc;
    }
 		
-   ATH_MSG_DEBUG("Reading CTP PIT mapping from COOL /TRIGGER/LVL1/CTPCoreInputMapping");
-
    for (CondAttrListCollection::const_iterator citr = atrlistcol->begin();citr != atrlistcol->end(); ++citr) {
-      
+      ATH_MSG_DEBUG("Dumping CTP configuration from COOL");  
+			
       TrigConf::PIT* pit = new TrigConf::PIT();
       
-      int TIPnumber = (int)(*citr).first;
+      int PitBit = (int)(*citr).first;
       std::string ThresholdName((((*citr).second)["ThresholdName"]).data<std::string>());
       int CtpinSlot = (int)(((*citr).second)["CtpinSlot"]).data<unsigned char>();  
       int CtpinConnector = (int)(((*citr).second)["CtpinConnector"]).data<unsigned char>();  
       int CableBit = (int)(((*citr).second)["CableBit"]).data<unsigned char>();  
-
-      // test fix
-      //       if(true) { // TODO
-      //          int newTIPnumber=0;
-      //          if(TIPnumber<160) {
-      //             newTIPnumber = 2 * TIPnumber;
-      //          } else if(TIPnumber<320) {
-      //             newTIPnumber = 2 * TIPnumber - 319;
-      //          } else {
-      //             newTIPnumber = TIPnumber;
-      //          }
-      //          TIPnumber = newTIPnumber;
-      //       }
-      
-      pit->setPitNumber(TIPnumber);
+			
+      pit->setPitNumber(PitBit);
       pit->setThresholdName(ThresholdName);
       pit->setCtpinSlot(CtpinSlot);
       pit->setCtpinConnector(CtpinConnector);
       pit->setCableBit(CableBit);
-
-      ATH_MSG_DEBUG("TIP number " << TIPnumber << ", thr " << ThresholdName << " slot " << CtpinSlot << " conn " << CtpinConnector << " cable bit " << CableBit);
       
-      m_pitVector.push_back(pit);
+      m_pitVector.push_back((TrigConf::PIT*) pit);
    }
    return sc;
 }
 
 
 //======================================================================================================
+
 
 StatusCode
 TrigT1CTMonitoring::DeriveSimulationInputs::finalize() {

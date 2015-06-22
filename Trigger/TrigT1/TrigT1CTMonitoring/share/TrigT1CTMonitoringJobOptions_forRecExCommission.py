@@ -155,18 +155,18 @@ if isOnline:
     LVL1ConfigSvc.XMLFile = "L1MenuM5.xml"
     LVL1ConfigSvc.CreateLegacyObjects = True
     LVL1ConfigSvc.DumpTTVmap = False
-    #LVL1ConfigSvc.OutputLevel = VERBOSE
+    LVL1ConfigSvc.OutputLevel = VERBOSE
     svcMgr += LVL1ConfigSvc
     theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
    
-    #    svcMgr.ToolSvc += BSMon( OutputLevel=INFO )
+    svcMgr.ToolSvc += BSMon( OutputLevel=INFO )
     svcMgr.ToolSvc += BSMon( ProcessMuctpiData=True )
     svcMgr.ToolSvc += BSMon( ProcessMuctpiDataRIO=True )
     svcMgr.ToolSvc += BSMon( ProcessCTPData=True )
     svcMgr.ToolSvc += BSMon( ProcessRoIBResult=True )
     svcMgr.ToolSvc += BSMon( InclusiveTriggerThresholds=True )
     svcMgr.ToolSvc += BSMon( FillStateCoolFolderName=UsedFillStateCoolFolderName)
-    #    RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
+    RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
     
     print topSequence
     print svcMgr
@@ -194,16 +194,6 @@ if not isOnline:
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         topSequence += CTPSimulationOnData("CTPSimulation")
 
-        from AthenaMonitoring.DQMonFlags import DQMonFlags
-        histbase = "/" + DQMonFlags.monManFileKey() + "/"
-        if DQMonFlags.monManRun():
-            histbase += "run_RUNNR/"
-        try:
-            topSequence.CTPSimulation.HistBase = histbase
-        except AttributeError, ex:
-            print ex," ignore for now"
-
-
     ## AthenaMonManager is the Algorithm that manages many classes inheriting
     ## from ManagedMonitorToolBase
 
@@ -214,7 +204,7 @@ if not isOnline:
                                ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
                                DataType            = DQMonFlags.monManDataType() )
     topSequence += monMan
-   
+    
     theApp.Dlls += [ "TrigT1CTMonitoring" ]
     
     

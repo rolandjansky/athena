@@ -10,6 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
+#include "StoreGate/DataHandle.h"
 //#include "TrigConfigSvc/ITrigConfigSvc.h"
 //#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
@@ -63,8 +64,8 @@ namespace TrigT1CTMonitoring {
       StatusCode DeriveL1CaloInput_fromSim();
       //StatusCode ReadPitConfigFromCool();
       StatusCode ReadInputMappingFromCool();
-      StatusCode fillPitMap(unsigned int pitNum);
-      StatusCode fillFPIMap(unsigned int bitNum);
+      StatusCode fillPitMap(int pitNum, const std::vector<TrigConf::PIT*> & m_pitVector);
+      StatusCode fillFPIMap(int bitNum);
       StatusCode fillStoreGate(unsigned int ctpVersionNum);
 
       virtual StatusCode initialize();
@@ -76,10 +77,10 @@ namespace TrigT1CTMonitoring {
       bool do_L1Calo_input {false};
       bool do_L1Calo_sim   {false};
 		
-      unsigned int N_cablebits {31}; // same for CTPIN boards and front panel
-      unsigned int N_slots_ctpin {3};
-      unsigned int N_connectors_ctpin {4};
-      unsigned int N_connectors_fp {3}; //front panel
+      int N_cablebits {31}; // same for CTPIN boards and front panel
+      int N_slots_ctpin {3};
+      int N_connectors_ctpin {4};
+      int N_connectors_fp {3}; //front panel
 
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 
@@ -91,8 +92,8 @@ namespace TrigT1CTMonitoring {
 
    private:
     
-      std::vector<std::string> m_par_atrlist;   
-      std::vector<std::string> m_par_atrcollist;
+      std::vector<std::string> par_atrlist;   
+      std::vector<std::string> par_atrcollist;
     
    }; 
 }
