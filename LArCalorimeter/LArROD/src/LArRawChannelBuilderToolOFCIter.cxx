@@ -36,12 +36,12 @@ LArRawChannelBuilderToolOFCIter::LArRawChannelBuilderToolOFCIter(const std::stri
   m_larOFIterCont(NULL),
   m_storeGate("StoreGateSvc", name),
   m_peakReco("LArOFPeakRecoTool") {
-  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x05);  // bit pattern special for this tool,
                                                        // to be stored in "uint16_t provenance"
-  m_helper->setErrorString(0, "no errors");
-  m_helper->setErrorString(1, "channel saturated");
-  m_helper->setErrorString(2, "OFC not valid");
+  helper->setErrorString(0, "no errors");
+  helper->setErrorString(1, "channel saturated");
+  helper->setErrorString(2, "OFC not valid");
   
   declareProperty("ADCMax",                    m_AdcMax=4095);
   declareProperty("Skip",                      m_skipSaturatedCells=false);
@@ -72,41 +72,41 @@ StatusCode LArRawChannelBuilderToolOFCIter::initTool()
   StatusCode sc=m_peakReco.retrieve();
   
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endmsg;
+    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endreq;
     return StatusCode::FAILURE;
   }
   
   sc = m_storeGate.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endmsg;
+    log << MSG::ERROR << "StoreGate service not found" << endreq;
     return sc;
   }
 
   if (m_minADCforIterInSigma>0) {//threshold given in terms of pedestal-rms, get pedestal
     if (m_doMC) {
       if (detStore()->regHandle(m_larNoise,"LArNoise").isFailure()) {
-         log << MSG::ERROR << " no LArNoise found " << endmsg;
+         log << MSG::ERROR << " no LArNoise found " << endreq;
          m_minADCforIterInSigma=-1;
       }
       else
-        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* LArNoise " <<endmsg;
+        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* LArNoise " <<endreq;
     }
     else {
       if (detStore()->regHandle(m_larPedestal,m_pedestalKey).isFailure()) {
         log << MSG::ERROR << "No pedestals with key <" << m_pedestalKey << "> found in DetectorStore." 
   	    << "Will only use property minADCforIter ("<<m_minADCforIter <<") as iteration threshold."
-  	    << endmsg;
+  	    << endreq;
         m_minADCforIterInSigma=-1;
       }
       else
-        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* pedestalRMS " <<endmsg;
+        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* pedestalRMS " <<endreq;
     }
   }
   else
-    log << MSG::INFO << " Min ADC for iteration "<<m_minADCforIter <<endmsg;
+    log << MSG::INFO << " Min ADC for iteration "<<m_minADCforIter <<endreq;
 
-  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endmsg;
-  log << MSG::INFO << " Min and Max Sample "<<m_minSample<< " "<<m_maxSample<<endmsg;
+  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endreq;
+  log << MSG::INFO << " Min and Max Sample "<<m_minSample<< " "<<m_maxSample<<endreq;
 
 
   return StatusCode::SUCCESS;
@@ -119,7 +119,7 @@ void LArRawChannelBuilderToolOFCIter::initEvent() {
     StatusCode sc=m_storeGate->record(m_larOFIterCont,m_timingContKey);
     if (sc.isFailure()) {
       MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "Failed to record a LArOFIterResultsContainer with key " << m_timingContKey << " to StoreGate." << endmsg;
+      log << MSG::ERROR << "Failed to record a LArOFIterResultsContainer with key " << m_timingContKey << " to StoreGate." << endreq;
       delete m_larOFIterCont;
       m_larOFIterCont=NULL;
     }
@@ -132,8 +132,8 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 						      const std::vector<float>& ramps,
 						      MsgStream* pLog )
 {
-  const HWIdentifier chid=m_parent->curr_chid;
-  const CaloGain::CaloGain gain=m_parent->curr_gain;
+  const HWIdentifier chid=pParent->curr_chid;
+  const CaloGain::CaloGain gain=pParent->curr_gain;
 
   uint16_t iprovenance=0;
 
@@ -143,7 +143,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   }
 
   if(debugPrint)
-    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid.get_compact() <<MSG::dec<< endmsg;
+    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid.get_compact() <<MSG::dec<< endreq;
 
 
   // Loop over samples, to find maximum, check for saturation and subtract pedestal
@@ -160,12 +160,12 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 			     << "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
 			     << " ADC=" << samples[ii];
       if ( m_skipSaturatedCells ) {
-	  if(debugPrint) (*pLog) << " Skipping channel." << endmsg; 
-	  m_helper->incrementErrorCount(1);
+	  if(debugPrint) (*pLog) << " Skipping channel." << endreq; 
+	  helper->incrementErrorCount(1);
 	  return false;
       }
       else
-	if(debugPrint) (*pLog) << endmsg;
+	if(debugPrint) (*pLog) << endreq;
 
       iprovenance = iprovenance | 0x0400;
     } //end if saturated
@@ -174,7 +174,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     if ((ii >= m_minSample)&&(ii <= m_maxSample)&&(currval > peakval)) { ipeak = ii; peakval = currval; }
   }
 
-  if(debugPrint) (*pLog) << MSG::DEBUG << "Peak value: " << peakval << ", peak sample:" << ipeak << endmsg;
+  if(debugPrint) (*pLog) << MSG::DEBUG << "Peak value: " << peakval << ", peak sample:" << ipeak << endreq;
 
   int nIteration = m_nIterProp;
   bool doIter=false;
@@ -201,7 +201,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 
   if (!doIter) {//No iteration, insufficient signal
     nIteration=1;
-    ipeak = m_parent->curr_shiftTimeSamples + 2 ; 
+    ipeak = pParent->curr_shiftTimeSamples + 2 ; 
   }
 
 
@@ -230,15 +230,15 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     // this should be ~0 if the peak is at curr_shiftTimeSamples
 
     // FIXME: this time definition still misses the tstart from the OFC to be absolutely computed
-    time = (25.*((int)(results.getPeakSample_final())-2-m_parent->curr_shiftTimeSamples)-(results.getDelay_final()-results.getTau()));
+    time = (25.*((int)(results.getPeakSample_final())-2-pParent->curr_shiftTimeSamples)-(results.getDelay_final()-results.getTau()));
     //log << MSG::DEBUG << "Peak and time properly retrieved with OFPeakRecoTool:";
-    //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time << endmsg;
+    //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time << endreq;
   }
   else {
   //  log << MSG::DEBUG << ". OFC iteration not valid for channel 0x"
   // 	<< MSG::hex << chid.get_compact() << MSG::dec 
-  // 	<< " Gain = " << gain << ". Skipping channel." << endmsg;
-    m_helper->incrementErrorCount(2);
+  // 	<< " Gain = " << gain << ". Skipping channel." << endreq;
+    helper->incrementErrorCount(2);
     return false;
   }
 
@@ -253,7 +253,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 
 
   //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time<<
-  //	" energy "<<energy <<endmsg;
+  //	" energy "<<energy <<endreq;
 
   uint16_t iquality=0;
 
@@ -268,8 +268,8 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   //Reminder: Bit-pattern 
   //ppcc bbbb sqqq qqqq qqqq
 
-  iprovenance |= (m_parent->qualityBitPattern & 0x00FF);
-  iprovenance |= (m_helper->returnBitPattern() & 0x00FF);
+  iprovenance |= (pParent->qualityBitPattern & 0x00FF);
+  iprovenance |= (helper->returnBitPattern() & 0x00FF);
   if (results.getConverged())
     iprovenance |= 0x0100;
   iprovenance = iprovenance & 0x3FFF;
@@ -286,7 +286,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   (this->*m_buildIt)((int)(floor(energy+0.5)),(int)floor(time+0.5),iquality,iprovenance,digit);
    
   
-  m_helper->incrementErrorCount(0);
+  helper->incrementErrorCount(0);
 
   
   return true;

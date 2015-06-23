@@ -38,7 +38,7 @@ StatusCode LArCalibDigitsAccumulator::initialize(){
   // retrieve online ID helper
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
+    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -46,12 +46,12 @@ StatusCode LArCalibDigitsAccumulator::initialize(){
   IToolSvc* toolSvc;
   sc=service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
+    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
     return StatusCode::FAILURE;
   }
   
   if (m_larCablingSvc.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
+    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -69,7 +69,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
   MsgStream log(msgSvc(), name());
 
   if ( m_event_counter < 100 || m_event_counter%100==0 )
-    log << MSG::INFO << "Processing event " << m_event_counter << endmsg;
+    log << MSG::INFO << "Processing event " << m_event_counter << endreq;
   ++m_event_counter;
 
   
@@ -80,7 +80,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
   const LArCalibParams* calibParams;
   sc=detStore()->retrieve(calibParams,"LArCalibParams");
   if (sc.isFailure())
-    {log << MSG::ERROR << "Cannot load LArCalibParams from DetStore." << endmsg;
+    {log << MSG::ERROR << "Cannot load LArCalibParams from DetStore." << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -96,10 +96,10 @@ StatusCode LArCalibDigitsAccumulator::execute()
     
     sc=evtStore()->retrieve(calibDigitContainer,*key_it);
     if(sc.isFailure()) {
-      log << MSG::ERROR << "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." << endmsg;
+      log << MSG::ERROR << "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." << endreq;
       return StatusCode::SUCCESS;
     }else{
-      log << MSG::DEBUG << "Retrieved LArCalibDigitContainer with key " << *key_it << " from StoreGate." << endmsg;
+      log << MSG::DEBUG << "Retrieved LArCalibDigitContainer with key " << *key_it << " from StoreGate." << endreq;
     }
 
     // store LArAccumulatedDigits
@@ -111,9 +111,9 @@ StatusCode LArCalibDigitsAccumulator::execute()
     LArCalibDigitContainer::const_iterator it_end=calibDigitContainer->end();
 
     if(it == it_end) {
-      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " is empty " << endmsg;
+      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " is empty " << endreq;
     }else{
-      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " has size =  " << calibDigitContainer->size() <<  endmsg;
+      log << MSG::DEBUG << "LArCalibDigitContainer with key=" << *key_it << " has size =  " << calibDigitContainer->size() <<  endreq;
     }
 
     // counter of triggers 
@@ -147,7 +147,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
       if(calibLineID.size()>0){
 	calibModuleID=m_onlineHelper->calib_module_Id(calibLineID[0]);
 	nTriggerPerStep[febhash] = calibParams->NTrigger(calibModuleID);
-	log << MSG::DEBUG << "Ntrigger per step = " << nTriggerPerStep[febhash] << endmsg;
+	log << MSG::DEBUG << "Ntrigger per step = " << nTriggerPerStep[febhash] << endreq;
 	if(nTriggerPerStep[febhash] > 1000) nTriggerPerStep[febhash]=100; // very dirty !!! 
       }else{
 
@@ -164,13 +164,13 @@ StatusCode LArCalibDigitsAccumulator::execute()
       else
 	// next cells: should be the same delay
 	if (m_delay!=(*it)->delay()) {
-	  log << MSG::DEBUG << "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" << endmsg;
+	  log << MSG::DEBUG << "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" << endreq;
 	  m_delay=(*it)->delay();
 	}
 
       CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
-	{log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endmsg;
+	{log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endreq;
           delete larAccuCalibDigitContainer;
 	  return StatusCode::FAILURE;
 	}
@@ -181,11 +181,11 @@ StatusCode LArCalibDigitsAccumulator::execute()
       // trigger counter for each cell
       cellAccumulated.m_ntrigger++;
 
-      log << MSG::DEBUG << "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() << endmsg;
+      log << MSG::DEBUG << "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() << endreq;
 
       // at first trigger, initialize vectors
       unsigned int sizeSamples = (*it)->samples().size();
-      log << MSG::DEBUG << "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples << endmsg;
+      log << MSG::DEBUG << "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples << endreq;
 
       LArAccumulatedCalibDigit* accuCalibDigit;
 
@@ -214,14 +214,14 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	cellAccumulated.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
       }
 
-      log << MSG::DEBUG << "Sum = " << cellAccumulated.m_sum[0] << endmsg;
-      log << MSG::DEBUG << "Sum2 = " << cellAccumulated.m_sum2[0] << endmsg;
+      log << MSG::DEBUG << "Sum = " << cellAccumulated.m_sum[0] << endreq;
+      log << MSG::DEBUG << "Sum2 = " << cellAccumulated.m_sum2[0] << endreq;
 
       // when reached total number of triggers for this step, fill LArAccumulatedCalibDigit and reset number of triggers
 
       if(cellAccumulated.m_ntrigger==nTriggerPerStep[febhash]){
-	log << MSG::DEBUG << "filling LArAccumulatedCalibDigit " << endmsg;
-	log << MSG::DEBUG << "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] << endmsg;
+	log << MSG::DEBUG << "filling LArAccumulatedCalibDigit " << endreq;
+	log << MSG::DEBUG << "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] << endreq;
 	
 	accuCalibDigit->setAddSubStep(cellAccumulated.m_sum,cellAccumulated.m_sum2,nTriggerPerStep[febhash]);
 	iStepTrigger[febhash]++;
@@ -232,8 +232,8 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	std::vector<float> RMS =  accuCalibDigit->RMS();
 
 	for(unsigned int i=0;i<mean.size();i++){
-	  log << MSG::DEBUG << "mean["<<i<<"] = " << mean[i] << endmsg;
-	  log << MSG::DEBUG << "RMS["<<i<<"] = " << RMS[i] << endmsg;
+	  log << MSG::DEBUG << "mean["<<i<<"] = " << mean[i] << endreq;
+	  log << MSG::DEBUG << "RMS["<<i<<"] = " << RMS[i] << endreq;
 	}
 
 	larAccuCalibDigitContainer->push_back(accuCalibDigit);
@@ -248,14 +248,14 @@ StatusCode LArCalibDigitsAccumulator::execute()
     larAccuCalibDigitContainer->setDelayScale(m_delayScale);
     sc = evtStore()->record(larAccuCalibDigitContainer,*key_it);
     if (sc!=StatusCode::SUCCESS)
-      {log << MSG::WARNING << "Unable to record LArAccumulatedCalibDigitContainer with key " << *key_it << " from DetectorStore. " << endmsg;
+      {log << MSG::WARNING << "Unable to record LArAccumulatedCalibDigitContainer with key " << *key_it << " from DetectorStore. " << endreq;
       } 
     else
-      log << MSG::DEBUG << "Recorded succesfully LArAccumulatedCalibDigitContainer with key " << *key_it  << endmsg;
+      log << MSG::DEBUG << "Recorded succesfully LArAccumulatedCalibDigitContainer with key " << *key_it  << endreq;
     
     sc = evtStore()->setConst(larAccuCalibDigitContainer);
     if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot lock LArAccumulatedCalibDigitContainer " << endmsg;
+      log << MSG::ERROR << " Cannot lock LArAccumulatedCalibDigitContainer " << endreq;
       return(StatusCode::FAILURE);
     }
 

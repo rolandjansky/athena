@@ -25,7 +25,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArCalibParams.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 class LArCalibDigitsAccumulatorFreeGain : public AthAlgorithm
 {

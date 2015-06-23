@@ -14,11 +14,11 @@ LArRawChannelBuilderToolBadChannelTool::LArRawChannelBuilderToolBadChannelTool(c
   LArRawChannelBuilderToolBase(type,name,parent),
   m_badChannelMask("BadLArRawChannelMask",this)
 {
-  m_helper = new LArRawChannelBuilderStatistics( 2,      // number of possible errors
+  helper = new LArRawChannelBuilderStatistics( 2,      // number of possible errors
 					       0x01);  // bit pattern special for this tool,
                                                        // to be stored in "int quality"
-  m_helper->setErrorString(0, "no errors");
-  m_helper->setErrorString(1, "known bad channel");
+  helper->setErrorString(0, "no errors");
+  helper->setErrorString(1, "known bad channel");
   declareProperty("BadChannelMask",m_badChannelMask);
 
 }
@@ -29,7 +29,7 @@ StatusCode LArRawChannelBuilderToolBadChannelTool::initTool()
   if(m_badChannelMask.retrieve().isFailure())
     {
       log << MSG::ERROR << "Could not retrieve private BadChannelMask "
-	  << m_badChannelMask << endmsg;
+	  << m_badChannelMask << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -42,15 +42,15 @@ bool LArRawChannelBuilderToolBadChannelTool::buildRawChannel(const LArDigit* /*d
 							     MsgStream* /* pLog */ )
 {
   // zero means channel ok
-  const HWIdentifier chid=m_parent->curr_chid;
-  const CaloGain::CaloGain gain=m_parent->curr_gain;
+  const HWIdentifier chid=pParent->curr_chid;
+  const CaloGain::CaloGain gain=pParent->curr_gain;
   if (m_badChannelMask->cellShouldBeMasked(chid,gain)) {
     // inverse logic, true means building went ok.
-    m_helper->incrementErrorCount(1);
+    helper->incrementErrorCount(1);
     return true;
   }
   
-  m_helper->incrementErrorCount(0);
+  helper->incrementErrorCount(0);
   return false;
 }
 

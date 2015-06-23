@@ -27,12 +27,12 @@ LArRawChannelBuilderToolCubic::LArRawChannelBuilderToolCubic(const std::string& 
   LArRawChannelBuilderToolBase(type,name,parent),
   m_fcalId(NULL)
 {
-  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x04);  // bit pattern special for this tool,
 					               // to be stored in  "uint16_t provenance"
-  m_helper->setErrorString(0, "no errors");
-  m_helper->setErrorString(1, "Fit failed");
-  m_helper->setErrorString(2, "is FCAL");
+  helper->setErrorString(0, "no errors");
+  helper->setErrorString(1, "Fit failed");
+  helper->setErrorString(2, "is FCAL");
 
   declareProperty("UseMaxSample",      m_useMaxSample = false);
   declareProperty("minADCforCubic",             m_minADC=30);
@@ -59,11 +59,11 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   float time=0;
    
   // use fixed sample 
-  unsigned int maxSample = m_parent->curr_shiftTimeSamples+2 ;
+  unsigned int maxSample = pParent->curr_shiftTimeSamples+2 ;
 
   // use max Sample 
   if(m_useMaxSample) 
-    maxSample = m_parent->curr_maxsample ; 
+    maxSample = pParent->curr_maxsample ; 
 
 
   if( maxSample>= digit->samples().size() )
@@ -78,7 +78,7 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   if(m_fcalId->is_lar_fcal(currentID()))
     {
       if(bool(pLog))
-	(*pLog) << MSG::VERBOSE << "FCAL using special reconstuction !" << endmsg;
+	(*pLog) << MSG::VERBOSE << "FCAL using special reconstuction !" << endreq;
       
       unsigned int it0;
       
@@ -91,10 +91,10 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
       if ( (maxSample) <= 1 )
 	{
 	  it0 = 1;
-	} else if ( (maxSample) >= (m_parent->curr_nsamples) )
+	} else if ( (maxSample) >= (pParent->curr_nsamples) )
 	  {
 	    // peak is late
-	    it0 = (m_parent->curr_nsamples) - 3;
+	    it0 = (pParent->curr_nsamples) - 3;
 	  } else {
 	    // peak in safe region
 	    it0 = (maxSample) - 1;
@@ -132,9 +132,9 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
       if ( (maxSample) <= 1 )
 	{
 	  it0 = 1;
-	} else if ( (maxSample) >= (m_parent->curr_nsamples) - 2 )
+	} else if ( (maxSample) >= (pParent->curr_nsamples) - 2 )
 	  {  // peak is late
-	    it0 = (m_parent->curr_nsamples) - 4;
+	    it0 = (pParent->curr_nsamples) - 4;
 	  } else { // peak in safe region
 	    it0 = ( digit->samples()[(maxSample)-2] > digit->samples()[(maxSample)+2] )
 	      ? (maxSample) - 2
@@ -163,7 +163,7 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
       
       if(CubicFailed)
 	{
-	  m_helper->incrementErrorCount(1);
+	  helper->incrementErrorCount(1);
 	  return false;
 	}
     }
@@ -180,8 +180,8 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   uint16_t iquality=0;
   uint16_t iprovenance=0;
 
-  iprovenance |= m_parent->qualityBitPattern;
-  iprovenance |= m_helper->returnBitPattern();
+  iprovenance |= pParent->qualityBitPattern;
+  iprovenance |= helper->returnBitPattern();
   iprovenance = iprovenance & 0x3FFF;
 
   if (time>MAXINT) time=MAXINT;
@@ -192,7 +192,7 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   
   
   (this->*m_buildIt)((int)(floor(energy+0.5)),(int)floor(time+0.5),iquality,iprovenance,digit);
-  m_helper->incrementErrorCount(0);
+  helper->incrementErrorCount(0);
   
   return true;
 }

@@ -18,8 +18,8 @@ LArRawChannelBuilderToolBaseClass::LArRawChannelBuilderToolBaseClass(const std::
 								     const std::string& name,
 								     const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_parent(NULL),
-  m_helper(NULL),
+  pParent(NULL),
+  helper(NULL),
   m_detStore(NULL),
   m_larCablingSvc(0)
   ,m_isSC(false)
@@ -28,7 +28,7 @@ declareProperty("IsSuperCell",              m_isSC  = false);
 }
 
 LArRawChannelBuilderToolBaseClass::~LArRawChannelBuilderToolBaseClass() {
-  delete m_helper;
+  delete helper;
 }
 
 void
@@ -36,38 +36,38 @@ LArRawChannelBuilderToolBaseClass::printSummary()
 {
   MsgStream log(msgSvc(), name());
   ulonglong sum=0;
-  for( unsigned int i=0; i<m_helper->returnMaxErrors(); i++ )
-    sum+=m_helper->returnErrorCount(i);
+  for( unsigned int i=0; i<helper->returnMaxErrors(); i++ )
+    sum+=helper->returnErrorCount(i);
   
-  log << MSG::INFO << "Printing Summary for tool " << name() << " :" << endmsg;
+  log << MSG::INFO << "Printing Summary for tool " << name() << " :" << endreq;
   log << MSG::INFO
       << std::setw(40) << " " << " : "
       << std::setw(12) << " total "
       << std::setw(10) << " percent " << "  "
       << std::setw(12) << " per event "
       << std::setw(12) << " RMS "
-      << endmsg;
+      << endreq;
 
   double inv_sum = sum > 0 ? 1./sum : 1;
-  for( unsigned int i=0; i<m_helper->returnMaxErrors(); i++ )
+  for( unsigned int i=0; i<helper->returnMaxErrors(); i++ )
     {
       double fraction = 0.0;
       double perEvent = 0.0;
       double rmsPerEv = 0.0;
       if(sum>0)
-        fraction=100 * double(m_helper->returnErrorCount(i)) * inv_sum;
-      if(m_helper->returnEvents()>0)
+        fraction=100 * double(helper->returnErrorCount(i)) * inv_sum;
+      if(helper->returnEvents()>0)
         {
-          perEvent = double(m_helper->returnErrorCountPerEvent(i)) / double(m_helper->returnEvents());
-          rmsPerEv = double(m_helper->returnErrorCountSqPerEvent(i)) / double(m_helper->returnEvents());
+          perEvent = double(helper->returnErrorCountPerEvent(i)) / double(helper->returnEvents());
+          rmsPerEv = double(helper->returnErrorCountSqPerEvent(i)) / double(helper->returnEvents());
           rmsPerEv = sqrt(std::max(0.,rmsPerEv-perEvent*perEvent));
         }
       
       log << MSG::INFO
 	  << std::setw(40)
-	  << m_helper->returnErrorString(i) << " : "
+	  << helper->returnErrorString(i) << " : "
 	  << std::setw(12)
-	  << m_helper->returnErrorCount(i)
+	  << helper->returnErrorCount(i)
 	  << std::setw(10)
 	  << std::fixed
 	  << std::setprecision(4)
@@ -81,34 +81,34 @@ LArRawChannelBuilderToolBaseClass::printSummary()
 	  << std::fixed
 	  << std::setprecision(4)
 	  << rmsPerEv
-	  << endmsg;
+	  << endreq;
     }
 }
 
 void
 LArRawChannelBuilderToolBaseClass::finalEventHidden()
 {
-  m_helper->resetErrorcountPerEvent();
+  helper->resetErrorcountPerEvent();
   finalEvent();
 }
 
 Identifier
 LArRawChannelBuilderToolBaseClass::currentID( void )
 {
-  if(m_parent->curr_id==0)
+  if(pParent->curr_id==0)
     {
       try {
-        m_parent->curr_id = m_larCablingSvc->cnvToIdentifier(m_parent->curr_chid);
+        pParent->curr_id = m_larCablingSvc->cnvToIdentifier(pParent->curr_chid);
       } catch ( LArID_Exception & except ) {
 	MsgStream log(msgSvc(), name());
         log << MSG::INFO
 	    << "A larCablingSvc exception was caught for channel 0x!"
-	    << MSG::hex << m_parent->curr_chid.get_compact() << MSG::dec << endmsg;
-        // log << MSG::INFO<<m_onlineHelper->print_to_string(curr_chid)<<endmsg;
-        m_parent->curr_id=0;
+	    << MSG::hex << pParent->curr_chid.get_compact() << MSG::dec << endreq;
+        // log << MSG::INFO<<m_onlineHelper->print_to_string(curr_chid)<<endreq;
+        pParent->curr_id=0;
       }
     }
-  return m_parent->curr_id;
+  return pParent->curr_id;
 }
 
 

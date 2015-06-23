@@ -20,7 +20,7 @@
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 class LArDigitsAccumulator : public AthAlgorithm
 {

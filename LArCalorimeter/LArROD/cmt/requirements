@@ -17,7 +17,7 @@ use LArRawEvent      LArRawEvent-*         LArCalorimeter
 #use LArRawUtils     LArRawUtils-*         LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRecUtils      LArRecUtils-*         LArCalorimeter
-use LArCabling       LArCabling-*          LArCalorimeter
+use LArTools         LArTools-*            LArCalorimeter
 
 use LArRecConditions LArRecConditions-*    LArCalorimeter
 
@@ -35,7 +35,6 @@ apply_pattern declare_joboptions files="*.txt *.py"
 apply_pattern declare_python_modules files="*.py"
 
 private
-use CxxUtils        CxxUtils-*          Control
 use AthContainers   AthContainers-*     Control
 use CaloDetDescr    CaloDetDescr-*      Calorimeter
 use CommissionEvent CommissionEvent-*   Commission

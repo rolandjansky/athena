@@ -32,7 +32,7 @@ StatusCode LArDigitsAccumulator::initialize(){
   // retrieve online ID helper
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
+    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -40,12 +40,12 @@ StatusCode LArDigitsAccumulator::initialize(){
   IToolSvc* toolSvc;
   sc=service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
+    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
     return StatusCode::FAILURE;
   }
   
   if (m_larCablingSvc.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
+    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -63,7 +63,7 @@ StatusCode LArDigitsAccumulator::execute()
   MsgStream log(msgSvc(), name());
 
   if ( m_event_counter < 100 || m_event_counter%100==0 )
-    log << MSG::INFO << "Processing event " << m_event_counter << endmsg;
+    log << MSG::INFO << "Processing event " << m_event_counter << endreq;
   ++m_event_counter;
 
   
@@ -81,10 +81,10 @@ StatusCode LArDigitsAccumulator::execute()
      
     sc=evtStore()->retrieve(DigitContainer,*key_it);
     if(sc.isFailure()) {
-      log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " << *key_it << "from StoreGate." << endmsg;
+      log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " << *key_it << "from StoreGate." << endreq;
       return StatusCode::SUCCESS;
     }else{
-      log << MSG::DEBUG << "Retrieved LArDigitContainer with key " << *key_it << " from StoreGate." << endmsg;
+      log << MSG::DEBUG << "Retrieved LArDigitContainer with key " << *key_it << " from StoreGate." << endreq;
     }
 
     // store LArAccumulatedDigits
@@ -96,9 +96,9 @@ StatusCode LArDigitsAccumulator::execute()
     LArDigitContainer::const_iterator it_end=DigitContainer->end();
 
     if(it == it_end) {
-      log << MSG::DEBUG << "LArDigitContainer with key=" << *key_it << " is empty " << endmsg;
+      log << MSG::DEBUG << "LArDigitContainer with key=" << *key_it << " is empty " << endreq;
     }else{
-      log << MSG::DEBUG << "LArDigitContainer with key=" << *key_it << " has size =  " << DigitContainer->size() <<  endmsg;
+      log << MSG::DEBUG << "LArDigitContainer with key=" << *key_it << " has size =  " << DigitContainer->size() <<  endreq;
     }
 
     //unsigned int iStepTrigger=0;
@@ -114,7 +114,7 @@ StatusCode LArDigitsAccumulator::execute()
 
       CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
-	{log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endmsg;
+	{log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endreq;
           delete larAccuDigitContainer;
 	  return StatusCode::FAILURE;
 	}
@@ -125,11 +125,11 @@ StatusCode LArDigitsAccumulator::execute()
       // trigger counter for each cell
       cellAccumulated.m_ntrigger++;
 
-      //log << MSG::DEBUG << "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", sample 0 = "<< (*it)->samples()[0] << endmsg;
+      //log << MSG::DEBUG << "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", sample 0 = "<< (*it)->samples()[0] << endreq;
 
       // at first trigger, initialize vectors
       unsigned int sizeSamples = (*it)->samples().size();
-      //log << MSG::DEBUG << "# of samples = " << sizeSamples << endmsg;
+      //log << MSG::DEBUG << "# of samples = " << sizeSamples << endreq;
 
       LArAccumulatedDigit* accuDigit;
 
@@ -159,15 +159,15 @@ StatusCode LArDigitsAccumulator::execute()
 	  }
       }
 
-      //log << MSG::DEBUG << "Sum = " << cellAccumulated.m_samplesum << endmsg;
-      //log << MSG::DEBUG << "Matrix = " << cellAccumulated.m_matrix[0] << endmsg;
+      //log << MSG::DEBUG << "Sum = " << cellAccumulated.m_samplesum << endreq;
+      //log << MSG::DEBUG << "Matrix = " << cellAccumulated.m_matrix[0] << endreq;
 
       // when reached total number of triggers for this step, fill LArAccumulatedDigit and reset number of triggers
 
       if(cellAccumulated.m_ntrigger==m_NtriggersPerStep){
 
-	//log << MSG::DEBUG << "filling LArAccumulatedCalibDigit " << endmsg;
-	//log << MSG::DEBUG << "chid = " << chid << ", gain = " << gain << ", trigPerStep = " << m_NtriggersPerStep << endmsg;
+	//log << MSG::DEBUG << "filling LArAccumulatedCalibDigit " << endreq;
+	//log << MSG::DEBUG << "chid = " << chid << ", gain = " << gain << ", trigPerStep = " << m_NtriggersPerStep << endreq;
 	
 	accuDigit->setAddSubStep(gain,cellAccumulated.m_samplesum,cellAccumulated.m_matrix,m_NtriggersPerStep);
       
@@ -179,19 +179,19 @@ StatusCode LArDigitsAccumulator::execute()
       
     }// loop over cells in container
 
-    log << MSG::DEBUG << "Finished loop over channels " << endmsg;
+    log << MSG::DEBUG << "Finished loop over channels " << endreq;
 
     const std::string SGkey=(*key_it)+m_AccuDigitContainerName;
     sc = evtStore()->record(larAccuDigitContainer,SGkey);
     if (sc!=StatusCode::SUCCESS)
-      {log << MSG::WARNING << "Unable to record LArAccumulatedDigitContainer with key " << SGkey << " from DetectorStore. " << endmsg;
+      {log << MSG::WARNING << "Unable to record LArAccumulatedDigitContainer with key " << SGkey << " from DetectorStore. " << endreq;
       } 
     else
-      log << MSG::INFO << "Recorded succesfully LArAccumulatedDigitContainer with key " << SGkey  << endmsg;
+      log << MSG::INFO << "Recorded succesfully LArAccumulatedDigitContainer with key " << SGkey  << endreq;
     
     sc = evtStore()->setConst(larAccuDigitContainer);
     if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot lock LArAccumulatedDigitContainer " << endmsg;
+      log << MSG::ERROR << " Cannot lock LArAccumulatedDigitContainer " << endreq;
       return(StatusCode::FAILURE);
     }
 

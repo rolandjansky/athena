@@ -42,28 +42,28 @@ StatusCode LArRawChannelBuilderDriver::initialize()
   m_params->m_larRawChannelContainer = 0;
   
   if (detStore()->retrieve(m_onlineHelper, "LArOnlineID").isFailure()){
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
   
   if(m_larCablingSvc.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endreq;
     return StatusCode::FAILURE;
   }
   
   if ( m_buildTools.retrieve().isFailure() ){
-    msg(MSG::ERROR) << "Unable to find Builder Tools " << m_buildTools << endmsg;
+    msg(MSG::ERROR) << "Unable to find Builder Tools " << m_buildTools << endreq;
     return StatusCode::FAILURE; 
   }else{
     ATH_MSG_INFO("Successfully retrieved Builder Tools " << m_buildTools);
   }
   for( builderToolVector::iterator it = m_buildTools.begin(); it != m_buildTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      msg(MSG::ERROR) << "Unable to initialize Builder Tool " << (*it)->name() << endmsg;
+      msg(MSG::ERROR) << "Unable to initialize Builder Tool " << (*it)->name() << endreq;
   
   if ( m_adc2eTools.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Unable to find ADC2E Tools " << m_buildTools << endmsg;
+      msg(MSG::ERROR) << "Unable to find ADC2E Tools " << m_buildTools << endreq;
       return StatusCode::FAILURE; 
   }else{
     ATH_MSG_INFO("Successfully retrieved ADC2E Tools " << m_buildTools);
@@ -71,29 +71,29 @@ StatusCode LArRawChannelBuilderDriver::initialize()
 
   for( adc2eToolVector::iterator it = m_adc2eTools.begin(); it != m_adc2eTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      msg(MSG::ERROR) << "Unable to initialize ADC2E Tool " << (*it)->name() << endmsg;
+      msg(MSG::ERROR) << "Unable to initialize ADC2E Tool " << (*it)->name() << endreq;
   
   if ( m_pedestalTools.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Unable to find Pedestal Tools " << m_buildTools << endmsg;
+      msg(MSG::ERROR) << "Unable to find Pedestal Tools " << m_buildTools << endreq;
       return StatusCode::FAILURE; 
     }else{
     ATH_MSG_INFO("Successfully retrieved Pedestal Tools " << m_buildTools);
   }
   for( pedestalToolVector::iterator it = m_pedestalTools.begin(); it != m_pedestalTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      msg(MSG::ERROR) << "Unable to initialize Pedestal Tool " << (*it)->name() << endmsg;
+      msg(MSG::ERROR) << "Unable to initialize Pedestal Tool " << (*it)->name() << endreq;
   
   // check that we have tools to run the reconstruction !
   if( m_buildTools.size() == 0 ){
-      msg(MSG::ERROR) << "Didn't find any BuilderTools to do reconstruction !" << endmsg;
+      msg(MSG::ERROR) << "Didn't find any BuilderTools to do reconstruction !" << endreq;
       return(StatusCode::FAILURE);  
     }
   if( m_adc2eTools.size() == 0 ){
-      msg(MSG::ERROR) << "Didn't find and ADC2ETools to do reconstruction !" << endmsg;
+      msg(MSG::ERROR) << "Didn't find and ADC2ETools to do reconstruction !" << endreq;
       return(StatusCode::FAILURE);  
     }
   if( m_pedestalTools.size() == 0 ){
-    msg(MSG::ERROR) << "Didn't find and PedestalTools to do reconstruction !" << endmsg;
+    msg(MSG::ERROR) << "Didn't find and PedestalTools to do reconstruction !" << endreq;
     return(StatusCode::FAILURE);  
   }
   return StatusCode::SUCCESS;
@@ -128,7 +128,7 @@ StatusCode LArRawChannelBuilderDriver::execute()
   ATH_MSG_VERBOSE("1) LArDigitContainer container size = " <<  digitContainer->size());
   
   if( digitContainer->size() < 1 ) {
-    msg(MSG::INFO) << "Empty LArDigitContainer container." << endmsg;
+    msg(MSG::INFO) << "Empty LArDigitContainer container." << endreq;
     return StatusCode::SUCCESS;
   }
   
@@ -153,7 +153,7 @@ StatusCode LArRawChannelBuilderDriver::execute()
 
       if (m_params->curr_gain >= CaloGain::LARNGAIN || m_params->curr_gain<0) {
 	// write ERROR message, could change to warning if needed
-	msg(MSG::WARNING) << " Corrupted data found : gain = " << m_params->curr_gain << endmsg;
+	msg(MSG::WARNING) << " Corrupted data found : gain = " << m_params->curr_gain << endreq;
 	m_params->curr_gain = CaloGain::UNKNOWNGAIN;
       }
       
@@ -203,11 +203,11 @@ StatusCode LArRawChannelBuilderDriver::execute()
   
   //Organize Collections  
   //  sortChannels(m_larRawChannelContainer);
-  //m_log << MSG::DEBUG << "sorted RawChannelContainer, now lock it " << endmsg;
+  //m_log << MSG::DEBUG << "sorted RawChannelContainer, now lock it " << endreq;
   // lock raw channel container
   sc = evtStore()->setConst(m_params->m_larRawChannelContainer);
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << " Cannot lock RawChannel Container " << endmsg;
+    msg(MSG::WARNING) << " Cannot lock RawChannel Container " << endreq;
     // return(StatusCode::FAILURE);
   }
   
@@ -260,16 +260,16 @@ void LArRawChannelBuilderDriver::ADC2energy()
 
 StatusCode LArRawChannelBuilderDriver::finalize()
 {
-  msg(MSG::INFO) << "LArRawChannelBuilderDriver finalize." << endmsg;
-  msg( MSG::INFO) << "  Build Tools:" << endmsg;
+  msg(MSG::INFO) << "LArRawChannelBuilderDriver finalize." << endreq;
+  msg( MSG::INFO) << "  Build Tools:" << endreq;
   for( builderToolVector::iterator it = m_buildTools.begin();
        it != m_buildTools.end(); it++ ) (*it)->printSummary();
   
-  msg(MSG::INFO) << "  ADC2Energy Tools:" << endmsg;
+  msg(MSG::INFO) << "  ADC2Energy Tools:" << endreq;
   for( adc2eToolVector::iterator it = m_adc2eTools.begin();
        it != m_adc2eTools.end(); it++ ) (*it)->printSummary();
   
-  msg(MSG::INFO) << "  Pedestal Tools:" << endmsg;
+  msg(MSG::INFO) << "  Pedestal Tools:" << endreq;
   for( pedestalToolVector::iterator it = m_pedestalTools.begin();
        it != m_pedestalTools.end(); it++ ) (*it)->printSummary();
 

@@ -14,7 +14,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "Identifier/Identifier.h"
-#include "LArCabling/LArSuperCellCablingTool.h"
+#include "LArTools/LArSuperCellCablingTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -59,6 +59,8 @@ LArSuperCellBuilderDriver::~LArSuperCellBuilderDriver()
 
 StatusCode LArSuperCellBuilderDriver::initialize()
 {
+  MsgStream m_log(msgSvc(), name());
+  
   // initialize parameters
   m_params = new LArRawChannelBuilderParams;
   m_params->m_larRawChannelContainer = NULL;
@@ -67,18 +69,18 @@ StatusCode LArSuperCellBuilderDriver::initialize()
   
   if (this->retrieveDetectorStore(m_onlineHelper, "LArOnline_SuperCellID").isFailure())
     {
-      ATH_MSG_ERROR( "Could not get LArOnlineID helper !"  );
+      m_log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
       return StatusCode::FAILURE;
     }
   // if (m_roiMap.retrieve().isFailure())
 //     {
-//       ATH_MSG_ERROR( "Unable to find tool LArRoI_Map"  );
+//       m_log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endreq;
 //       return StatusCode::FAILURE; 
 //     }
   
   if(m_larCablingSvc.retrieve().isFailure())
     {
-      ATH_MSG_ERROR( "Could not retrieve LArCablingService Tool"  );
+      m_log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
       return StatusCode::FAILURE;
     }
   
@@ -87,51 +89,51 @@ StatusCode LArSuperCellBuilderDriver::initialize()
   
   if ( m_buildTools.retrieve().isFailure() )
     {
-      ATH_MSG_ERROR( "Unable to find Builder Tools " << m_buildTools  );
+      m_log << MSG::ERROR << "Unable to find Builder Tools " << m_buildTools << endreq;
       return StatusCode::FAILURE; 
     }else{
-    ATH_MSG_INFO( "Successfully retrieved Builder Tools " << m_buildTools  );
+      m_log << MSG::INFO << "Successfully retrieved Builder Tools " << m_buildTools << endreq;
     }
   for( builderToolVector::iterator it = m_buildTools.begin(); it != m_buildTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize Builder Tool " << (*it)->name()  );
+      m_log << MSG::ERROR << "Unable to initialize Builder Tool " << (*it)->name() << endreq;
   
   if ( m_adc2eTools.retrieve().isFailure() )
     {
-      ATH_MSG_ERROR( "Unable to find ADC2E Tools " << m_buildTools  );
+      m_log << MSG::ERROR << "Unable to find ADC2E Tools " << m_buildTools << endreq;
       return StatusCode::FAILURE; 
     }else{
-    ATH_MSG_INFO( "Successfully retrieved ADC2E Tools " << m_buildTools  );
+      m_log << MSG::INFO << "Successfully retrieved ADC2E Tools " << m_buildTools << endreq;
     }
   for( adc2eToolVector::iterator it = m_adc2eTools.begin(); it != m_adc2eTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize ADC2E Tool " << (*it)->name()  );
+      m_log << MSG::ERROR << "Unable to initialize ADC2E Tool " << (*it)->name() << endreq;
   
   if ( m_pedestalTools.retrieve().isFailure() )
     {
-      ATH_MSG_ERROR( "Unable to find Pedestal Tools " << m_buildTools  );
+      m_log << MSG::ERROR << "Unable to find Pedestal Tools " << m_buildTools << endreq;
       return StatusCode::FAILURE; 
     }else{
-    ATH_MSG_INFO( "Successfully retrieved Pedestal Tools " << m_buildTools  );
+      m_log << MSG::INFO << "Successfully retrieved Pedestal Tools " << m_buildTools << endreq;
     }
   for( pedestalToolVector::iterator it = m_pedestalTools.begin(); it != m_pedestalTools.end(); it++ )
     if( ( (*it)->initToolHidden(m_params) ).isFailure() )
-      ATH_MSG_ERROR( "Unable to initialize Pedestal Tool " << (*it)->name()  );
+      m_log << MSG::ERROR << "Unable to initialize Pedestal Tool " << (*it)->name() << endreq;
   
   // check that we have tools to run the reconstruction !
   if( m_buildTools.size() == 0 )
     {
-      ATH_MSG_ERROR( "Didn't find any BuilderTools to do reconstruction !"  );
+      m_log << MSG::ERROR << "Didn't find any BuilderTools to do reconstruction !" << endreq;
       return(StatusCode::FAILURE);  
     }
   if( m_adc2eTools.size() == 0 )
     {
-      ATH_MSG_ERROR( "Didn't find and ADC2ETools to do reconstruction !"  );
+      m_log << MSG::ERROR << "Didn't find and ADC2ETools to do reconstruction !" << endreq;
       return(StatusCode::FAILURE);  
     }
   if( m_pedestalTools.size() == 0 )
     {
-      ATH_MSG_ERROR( "Didn't find and PedestalTools to do reconstruction !"  );
+      m_log << MSG::ERROR << "Didn't find and PedestalTools to do reconstruction !" << endreq;
       return(StatusCode::FAILURE);  
     }
   return StatusCode::SUCCESS;
@@ -151,29 +153,41 @@ void LArSuperCellBuilderDriver::initEventTools(){
 
 StatusCode LArSuperCellBuilderDriver::execute() {
 
+  MsgStream msg(msgSvc(), name());
+
+  msg << MSG::DEBUG << "In execute" << endreq;
+
   //Pointer to input data container
   const LArDigitContainer* digitContainer=0;
   
   //Retrieve Digit Container
-  ATH_MSG_DEBUG( "About to retrieve LArDigitContainer with key " << m_DataLocation  );
+  msg << MSG::DEBUG << "About to retrieve LArDigitContainer with key " << m_DataLocation << endreq;
   
-  ATH_CHECK( evtStore()->retrieve(digitContainer,m_DataLocation) );
+  StatusCode sc=evtStore()->retrieve(digitContainer,m_DataLocation);
+  if(sc.isFailure()) {
+    msg<< (MSG::WARNING) << "Can't retrieve LArDigitContainer with key " << m_DataLocation << "from StoreGate." << endreq;
+    return StatusCode::SUCCESS;
+  }
   
   // Put this LArRawChannel container in the transient store
   CaloCellContainer* caloCell= new CaloCellContainer();
-  ATH_CHECK( evtStore()->record(caloCell, "SCell") );
+  sc = evtStore()->record(caloCell, "SCell");
+  if(sc.isFailure()) {
+      msg<< (MSG::WARNING) << "Can't record LArRawChannelContainer in StoreGate" << endreq;
+      return StatusCode::FAILURE;
+  }
 
-  ATH_MSG_VERBOSE(  "LArDigitContainer container size = " <<  digitContainer->size()  );
+  msg<<(MSG::VERBOSE) <<  "LArDigitContainer container size = " <<  digitContainer->size() << endreq;
   //
   if( digitContainer->size() < 1 ) {
-        ATH_MSG_INFO( "Empty LArDigitContainer container."  );
+        msg<<(MSG::INFO) << "Empty LArDigitContainer container." << endreq;
         return StatusCode::SUCCESS;
   }
 
   ToolHandle<LArSuperCellCablingTool> cabling;
-  const CaloSuperCellDetDescrManager* sem_mgr;
+  const CaloSuperCellDetDescrManager* m_sem_mgr;
   CHECK( cabling.retrieve() );
-  CHECK( detStore()->retrieve (sem_mgr, "CaloSuperCellMgr") );
+  CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
 
   initEventTools();
 
@@ -185,11 +199,11 @@ StatusCode LArSuperCellBuilderDriver::execute() {
        int time=0;
        int prov=0;
        CaloGain::CaloGain gain;
-       if ( buildLArCell( (*cont_it), energy, time, gain, prov, &msg() ) ){
+       if ( buildLArCell( (*cont_it), energy, time, gain, prov, &msg ) ){
 	   ii++;
 	   Identifier id = cabling->cnvToIdentifier((*cont_it)->channelID());
-	   IdentifierHash idhash = sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
-	   const CaloDetDescrElement* dde = sem_mgr->get_element (idhash);
+	   IdentifierHash idhash = m_sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
+	   const CaloDetDescrElement* dde = m_sem_mgr->get_element (idhash);
            CaloCell* cell = new CaloCell( dde, (float)energy, (float)time, (uint16_t)0, (uint16_t)prov, gain );
 	   caloCell->push_back( cell );
        }
@@ -209,11 +223,11 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
 {
   /* #ifndef NDEBUG
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "In buildLArCell" << endmsg;
+     (*pLog) << MSG::DEBUG << "In buildLArCell" << endreq;
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "chid : " << digit->channelID() << endmsg;
+     (*pLog) << MSG::DEBUG << "chid : " << digit->channelID() << endreq;
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "gain : " << digit->gain() << endmsg;
+     (*pLog) << MSG::DEBUG << "gain : " << digit->gain() << endreq;
      #endif */
   
   //StatusCode sc;
@@ -278,7 +292,7 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
         bool ok=true;
         while( !(ok=(*it)->buildRawChannel(digit_go, pedestal, m_ramps, pLog)) && ++it != itEnd )
 	   if(bool(pLog))
-	     (*pLog) << MSG::DEBUG << "One LArRawChannelBuilderTool failed" << endmsg;
+	     (*pLog) << MSG::DEBUG << "One LArRawChannelBuilderTool failed" << endreq;
         // Keep the last calculated values
         if ( ok ) {
            energies[bcid] = (*it)->energy();
@@ -294,13 +308,13 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
       for(int bcid = 0 ; bcid <= m_bcs  ; ++ bcid ) {
 	if ( (bcid!=middle_point) && (energies[bcid]>energies[middle_point]) )
 		passBCIDmax=false;
-        if ( (bcid!=middle_point) && (times[bcid]!=0) && (std::abs(times[bcid])<13e3) ) // If within bad BC, bad
+        if ( (bcid!=middle_point) && (times[bcid]!=0) && (fabsf(times[bcid])<13e3) ) // If within bad BC, bad
 		passBCIDTime=false;
       }
       energy=energies[middle_point];
       time  =times[middle_point]*1e-3;
       if ( passBCIDTime ) {
-	if ( std::abs(time)<25 ) passBCIDTime=true;
+	if ( fabsf(time)<25 ) passBCIDTime=true;
 	else passBCIDTime=false;
       }
 	
@@ -308,14 +322,14 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
       if ( passBCIDTime ) prov |= 0x200 ;
       prov |= 0x2000;
 	 
-      // (*pLog) << MSG::VERBOSE << "done building LArRawChannel" << endmsg;
+      // (*pLog) << MSG::VERBOSE << "done building LArRawChannel" << endreq;
       m_params->curr_id=0;
 
       /*
 	#ifndef NDEBUG
 	if(bool(pLog))
 	(*pLog) << MSG::DEBUG << "Finished computing energy : " 
-	<< energy << " time : " << time << endmsg;
+	<< energy << " time : " << time << endreq;
 	#endif
       */
       return true;
@@ -355,7 +369,7 @@ float LArSuperCellBuilderDriver::pedestal(MsgStream* pLog)
   
   while( !(*it)->pedestal(m_oldPedestal, pLog) && ++it != itEnd )
     if(bool(pLog))
-      (*pLog) << MSG::DEBUG << "One PedestalTool failed" << endmsg;
+      (*pLog) << MSG::DEBUG << "One PedestalTool failed" << endreq;
   
   // remember for which channel we retrieved the pedestal
   m_oldIdentifier=m_params->curr_chid;
@@ -374,23 +388,25 @@ void LArSuperCellBuilderDriver::ADC2energy(MsgStream* pLog)
   
   while( !(*it)->ADC2E(m_ramps, pLog) && ++it != itEnd )
     if(bool(pLog))
-      (*pLog) << MSG::DEBUG << "One ADC2Energy Tool failed" << endmsg;
+      (*pLog) << MSG::DEBUG << "One ADC2Energy Tool failed" << endreq;
   
   return;
 }
 
 StatusCode LArSuperCellBuilderDriver::finalize()
 {
-  ATH_MSG_INFO( "LArSuperCellBuilderdriver finalize."  );
-  ATH_MSG_INFO( "  Build Tools:"  );
+  MsgStream m_log(msgSvc(), name());
+  
+  m_log << MSG::INFO << "LArSuperCellBuilderdriver finalize." << endreq;
+  m_log << MSG::INFO << "  Build Tools:" << endreq;
   for( builderToolVector::iterator it = m_buildTools.begin();
        it != m_buildTools.end(); it++ ) (*it)->printSummary();
   
-  ATH_MSG_INFO( "  ADC2Energy Tools:"  );
+  m_log << MSG::INFO << "  ADC2Energy Tools:" << endreq;
   for( adc2eToolVector::iterator it = m_adc2eTools.begin();
        it != m_adc2eTools.end(); it++ ) (*it)->printSummary();
   
-  ATH_MSG_INFO( "  Pedestal Tools:"  );
+  m_log << MSG::INFO << "  Pedestal Tools:" << endreq;
   for( pedestalToolVector::iterator it = m_pedestalTools.begin();
        it != m_pedestalTools.end(); it++ ) (*it)->printSummary();
 
