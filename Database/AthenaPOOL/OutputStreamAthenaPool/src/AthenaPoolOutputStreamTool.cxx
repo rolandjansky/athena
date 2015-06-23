@@ -486,8 +486,16 @@ StatusCode AthenaPoolOutputStreamTool::getInputItemList(SG::IFolder* m_p2BWritte
 	            it != itLast; ++it) {
                // Only insert the primary clid, not the ones for the symlinks!
                CLID clid = it->getPrimaryClassID();
+                  std::string typeName;
                   if (clid != ClassID_traits<DataHeader>::ID()) {
-                  ATH_MSG_DEBUG("Adding " << clid << "#" << it->getKey() << " to itemlist");
+                  //check the typename is known ... we make an exception if the key contains 'Aux.' ... aux containers may not have their keys known yet in some cases
+		  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
+                  std::string typeName;
+                  if( m_clidSvc->getTypeNameOfID(clid,typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
+                     ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid );
+                     continue;
+                  }
+                  ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();
                   if (keyName.size() > 10 && keyName.substr(0, 10) == hltKey) {
                      m_p2BWrittenFromTool->add(clid, hltKey + "*").ignore();
