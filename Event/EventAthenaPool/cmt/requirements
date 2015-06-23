@@ -12,13 +12,11 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 
 apply_pattern poolcnv \
     files="-s=${EventInfo_root}/EventInfo EventInfo.h EventStreamInfo.h MergedEventInfo.h PileUpEventInfo.h \
-           -s=${ByteStreamData_root}/ByteStreamData ByteStreamMetadataContainer.h \
 "
 private
 
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 #use GaudiInterface       GaudiInterface-*           External
 use AthenaKernel         AthenaKernel-*             Control
-use ByteStreamData       ByteStreamData-*           Event
 use EventInfo            EventInfo-*                Event
 use EventTPCnv           EventTPCnv-*               Event
