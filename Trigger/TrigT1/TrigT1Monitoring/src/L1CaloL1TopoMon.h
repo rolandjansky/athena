@@ -25,28 +25,26 @@
 #include "DataModel/DataVector.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-
-
 class LWHist;
 class TH1F_LW;
-class TH2I_LW;
+class TH2F_LW;
 class StatusCode;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
 }
 
-// ============================================================================
 namespace LVL1 {
-// ============================================================================
-// Forward declarations:
+  
 // ============================================================================
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
+class FrontPanelCTP;
 // ============================================================================
-class L1CaloL1TopoMon : public ManagedMonitorToolBase
+  
+ class L1CaloL1TopoMon : public ManagedMonitorToolBase
 {
-public:
+ public:
   
   L1CaloL1TopoMon( const std::string & type,
 		   const std::string & name,
@@ -58,18 +56,27 @@ public:
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
+
+  enum ERROR_BIT {CALO_CONV=0, NO_CMX, DAQ_CONV, NO_DAQ, ROI_CONV,
+		  NO_ROI, F_OVERFLOW,
+		  F_CRC, PAYL_CRC, CMX_EMATCH, NUMBEROFBITS};
+  
+  std::vector<std::string> ERROR_LABELS{"Calo conv","No CMX","DAQ conv",
+      "No DAQ","ROI conv","No ROI","Fibre Overf","Fibre CRC",
+      "Payload CRC","CMX ematch"};
   
  private:
-
-   /// Bin labels for summary plots
-   void setLabels(LWHist* hist, bool xAxis = true);
-     
+  
    /// Trigger configuration service
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
    /// Corrupt events tool
-   ToolHandle<ITrigT1CaloMonErrorTool>      m_errorTool;
+   ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
    /// Histogram utilities tool
    ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
+   /// Output from L1Topo
+   const DataHandle< LVL1::FrontPanelCTP > m_topoCTP;
+   std::string m_CMXJetTobLocation;
+   std::string m_topoCTPLoc;
 
    /// Root directory
    std::string m_PathInRootFile;   
@@ -80,13 +87,31 @@ public:
 
    /** Histos */   
    // Data transmission checks
-   TH1F_LW* m_h_l1topo_1d_L1CaloL1TopoDAQCnvErrors;
-   TH1F_LW* m_h_l1topo_1d_L1CaloL1TopoDAQPayloadCRCErrors;
-   TH1F_LW* m_h_l1topo_1d_L1CaloL1TopoDAQTobs;
-   TH1F_LW* m_h_l1topo_1d_L1CaloL1TopoDAQJetTobs;
-
+   TH1F_LW* m_h_l1topo_1d_CMXTobs;
+   TH1F_LW* m_h_l1topo_1d_Simulation;
+   TH1F_LW* m_h_l1topo_1d_JetTobs_EnergyLg;
+   TH2F_LW* m_h_l1topo_2d_JetTobs_Hitmap_mismatch;
+   TH2F_LW* m_h_l1topo_2d_JetTobs_Hitmap_match;
+   TH1F_LW* m_h_l1topo_1d_Errors;
+   TH1F_LW* m_h_l1topo_1d_DAQTobs;
+   TH1F_LW* m_h_l1topo_1d_DAQJetTobs_no0;
+   TH1F_LW* m_h_l1topo_1d_DAQJetTobs;
+   TH1F_LW* m_h_l1topo_1d_DAQTauTobs_no0;
+   TH1F_LW* m_h_l1topo_1d_DAQTauTobs;
+   TH1F_LW* m_h_l1topo_1d_DAQEMTobs_no0;
+   TH1F_LW* m_h_l1topo_1d_DAQEMTobs;
+   TH1F_LW* m_h_l1topo_1d_DAQMuonTobs_no0;
+   TH1F_LW* m_h_l1topo_1d_DAQMuonTobs;
+   TH1F_LW* m_h_l1topo_1d_DAQEnergyTobs;
+   TH1F*    m_h_l1topo_1d_DAQCTPSignal;
+   TH1F_LW* m_h_l1topo_1d_DAQTriggerBits;
+   TH1F_LW* m_h_l1topo_1d_DAQMismatchTriggerBits;
+   TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
+   TH1F_LW* m_h_l1topo_1d_ROITobs;
 };
+
 // ============================================================================
 }  // end namespace
 // ============================================================================
+
 #endif
