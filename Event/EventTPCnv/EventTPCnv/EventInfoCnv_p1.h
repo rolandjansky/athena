@@ -13,14 +13,11 @@ class MsgStream;
 class EventInfoCnv_p1  : public T_AthenaPoolTPCnvBase<EventInfo, EventInfo_p1>  {
 public:
   EventInfoCnv_p1() {}
-  virtual void   persToTrans(const EventInfo_p1* persObj, EventInfo* transObj, MsgStream &log) override;
-  virtual void   transToPers(const EventInfo* transObj, EventInfo_p1* persObj, MsgStream &log) override;
-  void   persToTrans(const EventInfo_p1* persObj, EventInfo* transObj, MsgStream &log) const;
-  void   transToPers(const EventInfo* transObj, EventInfo_p1* persObj, MsgStream &log) const;
+  virtual void   persToTrans(const EventInfo_p1* persObj, EventInfo* transObj, MsgStream &log) ;
+  virtual void   transToPers(const EventInfo* transObj, EventInfo_p1* persObj, MsgStream &log) ;
 
   // needed to handle specific default constructor of EventInfo
-  virtual EventInfo *createTransient( const EventInfo_p1* persObj, MsgStream &log) override;
-  EventInfo *createTransient( const EventInfo_p1* persObj, MsgStream &log) const;
+  virtual EventInfo *createTransient( const EventInfo_p1* persObj, MsgStream &log);
 };
 
 template<>
