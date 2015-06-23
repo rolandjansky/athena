@@ -25,6 +25,7 @@ class HLTMonTriggerList:
      monitoring_muonNonIso = []
      monitoring_muonIso = []
      monitoring_MSonly = []
+     monitoring_muonEFFS = []
      monitoring_tau = []
      monitoring_singleTau = []
      
@@ -61,6 +62,7 @@ class HLTMonTriggerList:
           self.monitoring_muonNonIso = muon.monitoring_muonNonIso
           self.monitoring_muonIso = muon.monitoring_muonIso
           self.monitoring_MSonly = muon.monitoring_MSonly
+          self.monitoring_muonEFFS = muon.monitoring_muonEFFS
 
           # set the tau triggers to the default values
           self.monitoring_tau = tau.monitoring_tau
