@@ -131,21 +131,14 @@ if l1caloRawMon:
     #L1Man.AthenaMonTools += [ L1CaloLevel2MonTool ]
 
     ####################### L1Calo->L1Topo ################################
-    if isData:
-        # Sasha: Current version of L1TopoMon call m_errorTool->robOrUnpackingError()
-        # which produces many warnings during run on MC data (test q221)
-        # since there are no some xAOD objects (e.g. xAOD::CPMTower)
-        # This block of code should be placed out if "if isData"  block
-        # when (1) there are not warnings from error tool OR (2) get rid of
-        # m_errorTool->robOrUnpackingError() checks
-        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloL1TopoMon
-        L1CaloL1TopoMonTool = LVL1__L1CaloL1TopoMon(
-            name = "L1CaloL1TopoMonTool",
-            #OutputLevel = DEBUG,
-            #OutputLevel = VERBOSE,
-            )
-        ToolSvc += L1CaloL1TopoMonTool
-        L1Man.AthenaMonTools += [ L1CaloL1TopoMonTool ]
+    from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloL1TopoMon
+    L1CaloL1TopoMonTool = LVL1__L1CaloL1TopoMon(
+        name = "L1CaloL1TopoMonTool",
+        #OutputLevel = DEBUG,
+        #OutputLevel = VERBOSE,
+        )
+    ToolSvc += L1CaloL1TopoMonTool
+    L1Man.AthenaMonTools += [ L1CaloL1TopoMonTool ]
 
     ##########################################################################
     # FileKey must match that given to THistSvc
