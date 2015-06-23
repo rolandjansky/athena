@@ -16,15 +16,17 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IParticleFilter.h"
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_FatrasInterfaces/ITransportTool.h"
+#include "ISF_Interfaces/IParticleProcessor.h"
 
 /** Constructor **/
 iFatras::FatrasSimSvc::FatrasSimSvc(const std::string& name, ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
+  m_IDsimulationTool(""),
   m_simulationTool(""),
   m_particleFilter("")
 {
   // retrieve the simulation tool and the transport tool
+  declareProperty("IDSimulationTool",   m_IDsimulationTool);
   declareProperty("SimulationTool",   m_simulationTool);
   declareProperty("ParticleFilter",   m_particleFilter); 
 }
@@ -37,8 +39,11 @@ StatusCode iFatras::FatrasSimSvc::initialize()
 {
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing ...");
    // retrieve simulation tool
-   if ( retrieveTool<iFatras::ITransportTool>(m_simulationTool).isFailure() ) 
-       return StatusCode::FAILURE;
+   if ( retrieveTool<ISF::IParticleProcessor>(m_IDsimulationTool).isFailure() )      
+     return StatusCode::FAILURE;
+   // retrieve simulation tool
+   if ( retrieveTool<ISF::IParticleProcessor>(m_simulationTool).isFailure() ) 
+     return StatusCode::FAILURE;
    // retrieve particle filter
    if ( !m_particleFilter.empty() && retrieveTool<ISF::IParticleFilter>(m_particleFilter).isFailure())
        return StatusCode::FAILURE;
@@ -78,7 +83,7 @@ StatusCode iFatras::FatrasSimSvc::simulate(const ISF::ISFParticle& isp)
       return StatusCode::SUCCESS;
   }
   /** Process Particle from particle broker */
-  ISF::ISFParticle* newIsp = m_simulationTool->process(isp);
+  ISF::ISFParticle* newIsp = (isp.nextGeoID()==AtlasDetDescr::fAtlasID) ? m_IDsimulationTool->process(isp) : m_simulationTool->process(isp);
   ATH_MSG_VERBOSE( m_screenOutputPrefix << "Simulation created : " << ( newIsp ? "" : "no") << " new particle");
   
   if (newIsp) {

@@ -20,7 +20,6 @@ use AtlasDetDescr             AtlasDetDescr-*              DetectorDescription
 # private use statements
 private
 use StoreGate                 StoreGate-*                  Control
-use ISF_FatrasInterfaces      ISF_FatrasInterfaces-*       Simulation/ISF/ISF_Fatras
 use ISF_Event                 ISF_Event-*                  Simulation/ISF/ISF_Core
 
 public
@@ -29,6 +28,6 @@ apply_pattern component_library
 apply_pattern declare_python_modules files="*.py"
 
 # use the following to compile with debug information
-#private
+private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

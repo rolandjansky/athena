@@ -28,13 +28,12 @@
 
 namespace ISF {
     class IParticleFilter;
+    class IParticleProcessor;
     class ISFParticle;
     class ITruthSvc;
 }
 
 namespace iFatras {
-
-  class ITransportTool;
 
   /** @class FatrasSimSvc
   
@@ -67,7 +66,8 @@ namespace iFatras {
       FatrasSimSvc();
 
       /** Track Creation & transport */
-      ToolHandle<iFatras::ITransportTool>  m_simulationTool;   //!< Pointer to the transport AlgTool
+      ToolHandle<ISF::IParticleProcessor>  m_IDsimulationTool;   //!< Pointer to the transport AlgTool
+      ToolHandle<ISF::IParticleProcessor>  m_simulationTool;   //!< Pointer to the transport AlgTool
       ToolHandle<ISF::IParticleFilter>     m_particleFilter;   //!< the particle filter concerning kinematic cuts, etc.
 
   }; 

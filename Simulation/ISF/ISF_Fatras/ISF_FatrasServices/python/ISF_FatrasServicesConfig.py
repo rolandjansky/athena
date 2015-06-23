@@ -71,6 +71,16 @@ def initialiseCoolDataBaseFolder():
     #HACK: CoolDataBaseFolder may not be set at this point! Is this right? -KG
     return CoolDataBaseFolder
 
+
+######################################################################################
+# validation & process sampling
+def getFatrasPhysicsValidationTool(name="ISF_FatrasPhysicsValidationTool", **kwargs):
+    kwargs.setdefault("ValidationStreamName", "ISFFatras")
+
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__PhysicsValidationTool
+    return iFatras__PhysicsValidationTool(name, **kwargs)
+
+
 #################################################################################
 # The Geometry Builder
 #################################################################################
@@ -80,11 +90,14 @@ def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **k
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if not TrkDetFlags.SLHC_Geometry() :
-        kwargs.setdefault("buildTrtStrawLayers" , True)
-        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+    if TrkDetFlags.ISF_FatrasCustomGeometry() :
+        from ISF_FatrasDetDescrTools.CustomInDetTrackingGeometryBuilder import CustomInDetTrackingGeometryBuilder as IDGeometryBuilder
     else :
-        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+        if not TrkDetFlags.SLHC_Geometry() :
+            kwargs.setdefault("buildTrtStrawLayers" , True)
+            from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+        else :
+            from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
@@ -159,7 +172,8 @@ def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs)
 
 def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     # the Navigator (needed for several instances)
-    kwargs.setdefault("TrackingGeometrySvc"  , getService('ISF_FatrasTrackingGeometrySvc'))
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    kwargs.setdefault("TrackingGeometrySvc"  , AtlasTrackingGeometrySvc)#getService('ISF_FatrasTrackingGeometrySvc'))
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
     return Trk__Navigator(name, **kwargs )
@@ -176,13 +190,35 @@ def getFatrasChargedPropagator(name="ISF_FatrasChargedPropagator", **kwargs):
     #from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as ChargedPropagator
     #return ChargedPropagator(name, **kwargs )
 
-######################################################################################
-# validation & process sampling
-def getFatrasPhysicsValidationTool(name="ISF_FatrasPhysicsValidationTool", **kwargs):
-    kwargs.setdefault("ValidationStreamName", "ISFFatras")
+# Propagators for the Extrapolation Engine
+# load the RungeKutta Propagator
+def getFatrasPropagator(name="ISF_FatrasPropagator", **kwargs):
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RungeKuttaPropagator
+    return RungeKuttaPropagator(name, **kwargs)
 
-    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__PhysicsValidationTool
-    return iFatras__PhysicsValidationTool(name, **kwargs)
+# from the Propagator create a Propagation engine to handle path length
+def getFatrasStaticPropagator(name="ISF_FatrasStaticPropagator", **kwargs):
+    kwargs.setdefault("Propagator", getPublicTool('ISF_FatrasPropagator'))
+    # configure output formatting  
+    kwargs.setdefault("OutputPrefix", '[SP] - ')
+    kwargs.setdefault("OutputPostfix", ' - ')
+    kwargs.setdefault("OutputLevel", ISF_FatrasFlags.OutputLevelGeneral())
+    from TrkExEngine.TrkExEngineConf import Trk__PropagationEngine as StaticPropagator
+    return StaticPropagator(name, **kwargs)
+
+# load the static navigation engine
+def getFatrasStaticNavigationEngine(name="ISF_FatrasStaticNavigationEngine", **kwargs):
+    #give the tools it needs
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    kwargs.setdefault("PropagationEngine", getPublicTool('ISF_FatrasStaticPropagator'))
+    kwargs.setdefault("MaterialEffectsEngine", getPublicTool('ISF_FatrasMaterialEffectsEngine'))
+    kwargs.setdefault("TrackingGeometry", AtlasTrackingGeometrySvc.TrackingGeometryName)
+    # configure output formatting  
+    kwargs.setdefault("OutputPrefix", '[SN] - ')
+    kwargs.setdefault("OutputPostfix", ' - ')
+    kwargs.setdefault("OutputLevel", ISF_FatrasFlags.OutputLevelGeneral())
+    from TrkExEngine.TrkExEngineConf import Trk__StaticNavigationEngine
+    return Trk__StaticNavigationEngine(name, **kwargs)
 
 
 ################################################################################
@@ -197,22 +233,15 @@ def getFatrasPdgG4Particle(name="ISF_FatrasPdgG4Particle", **kwargs):
     from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__PDGToG4Particle
     return iFatras__PDGToG4Particle(name, **kwargs )
 
-def getFatrasParticleDecayer(name="ISF_FatrasParticleDecayer", **kwargs):
-    kwargs.setdefault("PDGToG4ParticleConverter", getPublicTool('ISF_FatrasPdgG4Particle'))
-    #kwargs.setdefault("G4RunManagerHelper"  , getPublicTool('ISF_G4RunManagerHelper'))
-
-    from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__G4ParticleDecayCreator
-    return iFatras__G4ParticleDecayCreator(name, **kwargs )
-
 def getFatrasParticleDecayHelper(name="ISF_FatrasParticleDecayHelper", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
-    simFlags.RandomSeedList.addSeed( "FatrasG4" , 23491234, 23470291 )
+    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasG4" ):
+      simFlags.RandomSeedList.addSeed( "FatrasG4" , 23491234, 23470291 )
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("G4RandomStreamName"    , "FatrasG4") # TODO: read stream name "FatrasG4" from Fatras jobProperties
     kwargs.setdefault("ParticleBroker"  , getService('ISF_ParticleBrokerSvc'))
     kwargs.setdefault("ParticleTruthSvc", ISF_Flags.TruthService.get_Value())
-    kwargs.setdefault("ParticleDecayer" , getPublicTool('ISF_FatrasParticleDecayer'))
     kwargs.setdefault("PDGToG4ParticleConverter", getPublicTool('ISF_FatrasPdgG4Particle'))
     # the validation output
     kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
@@ -239,7 +268,7 @@ def getFatrasG4HadIntProcessor(name="ISF_FatrasG4HadIntProcessor", **kwargs):
     kwargs.setdefault("TruthRecordSvc"      , ISF_Flags.TruthService.get_Value())
     kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
     kwargs.setdefault('ValidationMode'      , ISF_Flags.ValidationMode())
-    kwargs.setdefault("MinEnergyCut"        , FatrasTuningFlags.MomCutOffSec())
+    kwargs.setdefault("MomentumCut"        , FatrasTuningFlags.MomCutOffSec())
 
     from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__G4HadIntProcessor
     return iFatras__G4HadIntProcessor(name, **kwargs )
@@ -264,48 +293,6 @@ def getFatrasParametricHadIntProcessor(name="ISF_FatrasParametricHadIntProcessor
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__HadIntProcessorParametric
     return iFatras__HadIntProcessorParametric(name, **kwargs )
 
-def getFatrasProcessSamplingTool(name="ISF_FatrasProcessSamplingTool", **kwargs):
-
-    # random number service
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
-
-    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__ProcessSamplingTool
-    return iFatras__ProcessSamplingTool(name, **kwargs)
-#
-# (ii) Energy Loss
-#      - Ionization and Bremstrahlung loss
-#      - assing the Bethe-Heitler Eloss updator
-def getFatrasBetheHeitlerEnergyLossUpdator(name="ISF_FatrasBetheHeitlerEnergyLossUpdator", **kwargs):
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
-    kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ScaleFactor"  , FatrasTuningFlags.BetheHeitlerScalor())
-
-    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McBetheHeitlerEnergyLossUpdator
-    return iFatras__McBetheHeitlerEnergyLossUpdator(name, **kwargs )
-
-def getFatrasEnergyLossUpdator(name="ISF_FatrasEnergyLossUpdator", **kwargs):
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
-    kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("ElectronEnergyLossUpdator"  , getPublicTool('ISF_FatrasBetheHeitlerEnergyLossUpdator'))
-
-    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McEnergyLossUpdator
-    return iFatras__McEnergyLossUpdator(name, **kwargs )
-
-#
-# (iii) Multiple scattering
-def getFatrasMultipleScatteringUpdator(name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    simFlags.RandomSeedList.addSeed( "TrkExRnd" , 12412330, 37849324 )
-    kwargs.setdefault("RandomNumberService"   , simFlags.RandomSvc() )
-    kwargs.setdefault("RandomStreamName"      , 'TrkExRnd' ) # TODO: read stream name "TrkExRnd" from Fatras jobProperties
-    kwargs.setdefault("GaussianMixtureModel"  , FatrasTuningFlags.GaussianMixtureModel())
-
-    from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
-    return Trk__MultipleScatteringUpdator(name, **kwargs )
-
 # (iv) photon conversion
 def getFatrasConversionCreator(name="ISF_FatrasConversionCreator", **kwargs):
     #   Fatras Hadronic Interaction Processor
@@ -322,10 +309,83 @@ def getFatrasConversionCreator(name="ISF_FatrasConversionCreator", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__PhotonConversionTool
     return iFatras__PhotonConversionTool(name, **kwargs )
 
+def getFatrasProcessSamplingTool(name="ISF_FatrasProcessSamplingTool", **kwargs):
+
+    # random number service
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
+    # truth record
+    kwargs.setdefault("TruthRecordSvc"      , ISF_Flags.TruthService.get_Value())
+    # decays
+    kwargs.setdefault("ParticleDecayHelper" , getPublicTool('ISF_FatrasParticleDecayHelper'))
+    # photon conversion
+    kwargs.setdefault("PhotonConversionTool"     , getPublicTool('ISF_FatrasConversionCreator'))
+    # hadronic interactions
+    kwargs.setdefault("HadronicInteraction"         , True)
+    #kwargs.setdefault("HadronicInteractionProcessor", getPublicTool('ISF_FatrasParametricHadIntProcessor'))
+    kwargs.setdefault("HadronicInteractionProcessor", getPublicTool('ISF_FatrasG4HadIntProcessor'))
+    # the validation output
+    kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
+    kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
+
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__ProcessSamplingTool
+    return iFatras__ProcessSamplingTool(name, **kwargs)
+#
+# (ii) Energy Loss
+#      - Ionization and Bremstrahlung loss
+
+def getFatrasEnergyLossUpdator(name="ISF_FatrasEnergyLossUpdator", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
+    #kwargs.setdefault("EnergyLossUpdator"  , getPublicTool('AtlasEnergyLossUpdator'))
+
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McEnergyLossUpdator
+    return iFatras__McEnergyLossUpdator(name, **kwargs )
+#
+# (iii) Multiple scattering
+def getFatrasMultipleScatteringUpdator(name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
+      simFlags.RandomSeedList.addSeed( "TrkExRnd" , 12412330, 37849324 )
+    kwargs.setdefault("RandomNumberService"   , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"      , 'TrkExRnd' ) # TODO: read stream name "TrkExRnd" from Fatras jobProperties
+    kwargs.setdefault("GaussianMixtureModel"  , FatrasTuningFlags.GaussianMixtureModel())
+
+    from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
+    return Trk__MultipleScatteringUpdator(name, **kwargs )
+
+def getFatrasMultipleScatteringSamplerHighland(name="ISF_MultipleScatteringSamplerHighland", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
+      simFlags.RandomSeedList.addSeed( "TrkExRnd" , 12412330, 37849324 )
+    kwargs.setdefault("RandomNumberService"   , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"      , 'TrkExRnd' ) # TODO: read stream name "TrkExRnd" from Fatras jobProperties
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__MultipleScatteringSamplerHighland
+    return iFatras__MultipleScatteringSamplerHighland(name, **kwargs )
+
+def getFatrasMultipleScatteringSamplerGaussianMixture(name="ISF_MultipleScatteringSamplerGaussianMixture", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
+      simFlags.RandomSeedList.addSeed( "TrkExRnd" , 12412330, 37849324 )
+    kwargs.setdefault("RandomNumberService"   , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"      , 'TrkExRnd' ) # TODO: read stream name "TrkExRnd" from Fatras jobProperties
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__MultipleScatteringSamplerGaussianMixture
+    return iFatras__MultipleScatteringSamplerGaussianMixture(name, **kwargs )
+
+def getFatrasMultipleScatteringSamplerGeneralMixture(name="ISF_MultipleScatteringSamplerGeneralMixture", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "TrkExRnd" ):
+      simFlags.RandomSeedList.addSeed( "TrkExRnd" , 12412330, 37849324 )
+    kwargs.setdefault("RandomNumberService"   , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"      , 'TrkExRnd' ) # TODO: read stream name "TrkExRnd" from Fatras jobProperties
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__MultipleScatteringSamplerGeneralMixture
+    return iFatras__MultipleScatteringSamplerGeneralMixture(name, **kwargs )
 
 # Combining all in the MaterialEffectsUpdator
 def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"              , getService('ISF_ParticleBrokerSvc'))
@@ -352,12 +412,43 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     #
     kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
     kwargs.setdefault("ProcessSamplingTool"         , getPublicTool('ISF_FatrasProcessSamplingTool'))
-    kwargs.setdefault("ParticleDecayer"             , getPublicTool('ISF_FatrasParticleDecayer'))
+    kwargs.setdefault("ParticleDecayHelper"             , getPublicTool('ISF_FatrasParticleDecayHelper'))
     # MCTruth Process Code
     kwargs.setdefault("BremProcessCode"             , 3) # TODO: to be taken from central definition
+    kwargs.setdefault("TrackingGeometrySvc"         , AtlasTrackingGeometrySvc)
 
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McMaterialEffectsUpdator
     return iFatras__McMaterialEffectsUpdator(name, **kwargs )
+
+def getFatrasMaterialEffectsEngine(name="ISF_FatrasMaterialEffectsEngine", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    kwargs.setdefault("RandomNumberService"         , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"            , ISF_FatrasFlags.RandomStreamName())
+    kwargs.setdefault("ParticleBroker"              , getService('ISF_ParticleBrokerSvc'))
+    kwargs.setdefault("TruthRecordSvc"              , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("ProcessSamplingTool"         , getPublicTool('ISF_FatrasProcessSamplingTool'))
+    kwargs.setdefault("ParticleDecayHelper"         , getPublicTool('ISF_FatrasParticleDecayHelper'))
+    # energy loss
+    kwargs.setdefault("EnergyLoss"                  , True)
+    kwargs.setdefault("EnergyLossSampler"           , getPublicTool('ISF_FatrasEnergyLossUpdator'))
+    kwargs.setdefault("CreateBremPhotons"           , True)
+    # multiple scattering
+    kwargs.setdefault("MultipleScattering"          , True)
+    kwargs.setdefault("MultipleScatteringSampler"   , getPublicTool('ISF_FatrasMultipleScatteringSamplerHighland'))
+    # the properties given throuth the JobProperties interface
+    kwargs.setdefault("MomentumCut"                 , FatrasTuningFlags.MomCutOffSec())
+    kwargs.setdefault("MinimumBremPhotonMomentum"   , FatrasTuningFlags.MomCutOffSec())
+    # MCTruth Process Code
+    kwargs.setdefault("BremProcessCode"             , 3) # TODO: to be taken from central definition
+    # the validation output
+    kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
+    kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
+    kwargs.setdefault("OutputPrefix", '[McME] - ')
+    kwargs.setdefault("OutputPostfix", ' - ')
+    kwargs.setdefault("OutputLevel", ISF_FatrasFlags.OutputLevelGeneral())
+    
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McMaterialEffectsEngine
+    return iFatras__McMaterialEffectsEngine(name, **kwargs )
 
 def getFatrasSTEP_Propagator(name="ISF_FatrasSTEP_Propagator", **kwargs):
     kwargs.setdefault("MomentumCutOff"                 , FatrasTuningFlags.MomCutOffSec() )
@@ -387,6 +478,33 @@ def getFatrasExtrapolator(name="ISF_FatrasExtrapolator", **kwargs):
     #from TrkExTools.TrkExToolsConf import Trk__Extrapolator as Extrapolator
     #return Extrapolator(name, **kwargs )
 
+# load the Static ExtrapolationEngine
+def getFatrasStaticExtrapolator(name="ISF_FatrasStaticExEngine", **kwargs):
+    # give the tools it needs 
+    kwargs.setdefault("PropagationEngine", getPublicTool('ISF_FatrasStaticPropagator'))
+    kwargs.setdefault("MaterialEffectsEngine", getPublicTool('ISF_FatrasMaterialEffectsEngine'))
+    kwargs.setdefault("NavigationEngine", getPublicTool('ISF_FatrasStaticNavigationEngine'))
+    # configure output formatting               
+    kwargs.setdefault("OutputPrefix", '[SE] - ')
+    kwargs.setdefault("OutputPostfix", ' - ')
+    kwargs.setdefault("OutputLevel", ISF_FatrasFlags.OutputLevelGeneral())
+    from TrkExEngine.TrkExEngineConf import Trk__StaticEngine
+    return Trk__StaticEngine(name, **kwargs)
+
+def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
+    # load the tracking geometry service
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    # assign the tools
+    kwargs.setdefault("ExtrapolationEngines"    , [ getPublicTool('ISF_FatrasStaticExEngine') ] )
+    kwargs.setdefault("TrackingGeometrySvc"     , AtlasTrackingGeometrySvc)
+    kwargs.setdefault("PropagationEngine"       , getPublicTool('ISF_FatrasStaticPropagator'))
+    # configure output formatting 
+    kwargs.setdefault("OutputPrefix"     , '[ME] - ')
+    kwargs.setdefault("OutputPostfix"    , ' - ')
+    kwargs.setdefault("OutputLevel"      ,  ISF_FatrasFlags.OutputLevelGeneral())
+       
+    from TrkExEngine.TrkExEngineConf import Trk__ExtrapolationEngine
+    return Trk__ExtrapolationEngine(name="ISF_FatrasExEngine", **kwargs )
 
 ################################################################################
 # HIT CREATION SECTION
@@ -425,6 +543,18 @@ def getFatrasHitCreatorTRT(name="ISF_FatrasHitCreatorTRT", **kwargs):
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorTRT
     return iFatras__HitCreatorTRT(name, **kwargs )
 
+def getFatrasPileupHitCreatorPixel(name="ISF_FatrasPileupHitCreatorPixel", **kwargs):
+    kwargs.setdefault("CollectionName"  , 'PileupPixelHits')
+    return getFatrasHitCreatorPixel(name, **kwargs)
+
+def getFatrasPileupHitCreatorSCT(name="ISF_FatrasPileupHitCreatorSCT", **kwargs):
+    kwargs.setdefault("CollectionName"  , 'PileupSCT_Hits')
+    return getFatrasHitCreatorSCT(name, **kwargs)
+
+def getFatrasPileupHitCreatorTRT(name="ISF_FatrasPileupHitCreatorTRT", **kwargs):
+    kwargs.setdefault("CollectionName"  , 'PileupTRTUncompressedHits')
+    return getFatrasHitCreatorTRT(name, **kwargs)
+
 ################################################################################
 # TRACK CREATION SECTION
 ################################################################################
@@ -436,6 +566,12 @@ def getFatrasSimHitCreatorID(name="ISF_FatrasSimHitCreatorID", **kwargs):
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__SimHitCreatorID
     return iFatras__SimHitCreatorID(name, **kwargs )
+
+def getFatrasPileupSimHitCreatorID(name="ISF_FatrasPileupSimHitCreatorID", **kwargs):
+    kwargs.setdefault("PixelHitCreator" , getPublicTool('ISF_FatrasPileupHitCreatorPixel'))
+    kwargs.setdefault("SctHitCreator"   , getPublicTool('ISF_FatrasPileupHitCreatorSCT'))
+    kwargs.setdefault("TrtHitCreator"   , getPublicTool('ISF_FatrasPileupHitCreatorTRT'))
+    return getFatrasSimHitCreatorID(name, **kwargs )
 
 def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
@@ -472,7 +608,7 @@ def getFatrasSimTool(name="ISF_FatrasSimTool", **kwargs):
     kwargs.setdefault("ProcessSamplingTool"         , getPublicTool('ISF_FatrasProcessSamplingTool'))
     # set the output level
     kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
-    kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode())
+    kwargs.setdefault("ValidationOutput"              , ISF_Flags.ValidationMode())
     # random number service
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
@@ -480,12 +616,54 @@ def getFatrasSimTool(name="ISF_FatrasSimTool", **kwargs):
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportTool
     return iFatras__TransportTool(name, **kwargs )
 
+def getFatrasSimEngine(name="ISF_FatrasSimEngine", **kwargs):
+    kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasSimHitCreatorID'))
+    # TODO: G4 Tools can not be used at the same time as Geant4 inside ISF
+    kwargs.setdefault("ParticleDecayHelper" , getPublicTool('ISF_FatrasParticleDecayHelper'))
+    # the filter setup
+    kwargs.setdefault("TrackFilter"         , getPublicTool('ISF_FatrasKinematicFilter'))
+    kwargs.setdefault("NeutralFilter"       , getPublicTool('ISF_FatrasKinematicFilter'))
+    kwargs.setdefault("PhotonFilter"        , getPublicTool('ISF_FatrasKinematicFilter'))
+    # extrapolator - test setup
+    kwargs.setdefault("Extrapolator"        , getPublicTool('ISF_FatrasExEngine'))
+    #
+    kwargs.setdefault("ProcessSamplingTool" , getPublicTool('ISF_FatrasProcessSamplingTool'))
+    # set the output level
+    # kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
+    # the validation
+    kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
+    kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
+    # random number service
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
+
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportEngine
+    return iFatras__TransportEngine(name, **kwargs )
+
 def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
     kwargs.setdefault("Identifier"      , "Fatras")
+    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
     kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
-    # set the output level
-    kwargs.setdefault("OutputLevel"     , ISF_FatrasFlags.OutputLevelGeneral())
 
+    # set the output level
+    kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
+    
+    # register Fatras random number stream if not already registered
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
+      simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
+        
+    from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
+    return iFatras__FatrasSimSvc(name, **kwargs )
+
+def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):
+    kwargs.setdefault("Identifier"      , "Fatras")
+    kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimEngine'))
+    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
+    
+    # set the output level
+    kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
+        
     # register Fatras random number stream if not already registered
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
@@ -493,10 +671,6 @@ def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
 
     from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
     return iFatras__FatrasSimSvc(name, **kwargs )
-
-def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):
-    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasNewExtrapolationSimTool'))
-    return getFatrasSimServiceID(name, **kwargs )
 
 def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("EnableGeoIDOverride"      , True  )
@@ -504,29 +678,11 @@ def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("GeoIDOverride"            , 3     ) # ISF::fAtlasCalo
     return getFatrasSimServiceID(name, **kwargs )
 
-def getFatrasNewExtrapolationSimTool(name="ISF_FatrasNewExtrapolationSimTool", **kwargs):
-    # add your custom configuration of the SimTool here
-    #   NB: only the 'delta' to the normal SimTool configuration needs to be configured here, eg:
-    # kwargs.setdefault("SimHitCreatorMS" , '' )
-    # kwargs.setdefault("SimHitCreatorID" , 'ISF_FatrasNewExtrapolationSimHitCreatorID' )
-    # ..
-    return getFatrasSimTool(name, **kwargs )
-
 def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
-    ## MB: Turn off track hit creation
-    kwargs.setdefault("TurnOffHitCreation"  , True)
-    return getFatrasSimTool( name, **kwargs )
+    kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasPileupSimHitCreatorID'))
+    return getFatrasSimTool(name, **kwargs)
 
 def getFatrasPileupSimServiceID(name="ISF_FatrasPileupSimSvc", **kwargs):
-    kwargs.setdefault("Identifier"      , "Fatras")
-    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasPileupSimTool'))
-    # set the output level
-    kwargs.setdefault("OutputLevel"     , ISF_FatrasFlags.OutputLevelGeneral())
-
-    # register Fatras random number stream if not already registered
-    from G4AtlasApps.SimFlags import SimFlags,simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
-      simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
-
-    from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
-    return iFatras__FatrasSimSvc(name, **kwargs )
+    kwargs.setdefault("IDSimulationTool", getPublicTool('ISF_FatrasPileupSimTool'))
+    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
+    return getFatrasSimServiceID(name, **kwargs)
