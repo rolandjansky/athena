@@ -45,6 +45,9 @@
 #include "xAODTracking/VertexContainer.h"		
 #include "TrkTrack/Track.h"
 
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkEventPrimitives/PropDirection.h"
+
 #include <vector>
 #include <string>
 
@@ -57,7 +60,8 @@ namespace DerivationFramework {
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx")
+    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -92,6 +96,7 @@ namespace DerivationFramework {
     declareProperty("HoleSearch",             m_holeSearchTool);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
+    declareProperty("TrackExtrapolator",      m_extrapolator);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
@@ -142,8 +147,11 @@ namespace DerivationFramework {
       CHECK( m_holeSearchTool.retrieve() );
     }
 
-    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) 
-	CHECK( m_TRTdEdxTool.retrieve() );
+    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
+    	CHECK( m_TRTdEdxTool.retrieve() );
+    }
+
+    CHECK(m_extrapolator.retrieve());
 
     m_firstEventWarnings = true;
 
@@ -191,7 +199,6 @@ namespace DerivationFramework {
     int nPixelMSOS(0);
     int nSCT_MSOS(0);
     int nTRT_MSOS(0);
-     
 
     // --- Add event-level information
     if (m_addExtraEventInfo) {
@@ -265,20 +272,20 @@ namespace DerivationFramework {
       const xAOD::VertexContainer* vxContainer =  0;
       CHECK ( evtStore()->retrieve(vxContainer, m_PriVtxContainerName) );
       if (vxContainer) {
-	numberOfPrimaryVertices = 0;
-	for (const xAOD::Vertex* vtx: *vxContainer) {
-	  if ( (vtx->vertexType() == xAOD::VxType::PriVtx) ||
-	       (vtx->vertexType() == xAOD::VxType::PileUp) ) {
-	    numberOfPrimaryVertices++;
-	  }
-	}
+        numberOfPrimaryVertices = 0;
+        for (const xAOD::Vertex* vtx: *vxContainer) {
+          if ( (vtx->vertexType() == xAOD::VxType::PriVtx) ||
+              (vtx->vertexType() == xAOD::VxType::PileUp) ) {
+            numberOfPrimaryVertices++;
+          }
+        }
       }
     } else {
       if (m_firstEventWarnings) {
-	ATH_MSG_WARNING("No Primary Vertex container: " << m_PriVtxContainerName << ". Assuming 1 vertex per event.");
+        ATH_MSG_WARNING("No Primary Vertex container: " << m_PriVtxContainerName << ". Assuming 1 vertex per event.");
       }
     }
-	  
+
     // Set up the decorators
     SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
     SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");		
@@ -302,10 +309,10 @@ namespace DerivationFramework {
 
       //Calculate and decorate track particle with TRT dEdx value    
       if (m_storeTRT) {
-	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
-	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
+        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
+        decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
       };
-	  
+
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
       for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
@@ -433,23 +440,69 @@ namespace DerivationFramework {
 
         const Trk::TrackParameters* tp = trackState->trackParameters();       
 
+        // Track extrapolation
+        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface());
+//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,false);
+//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::pion,Trk::MaterialUpdateMode::removeNoise);
+//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::nonInteractingMuon,Trk::MaterialUpdateMode::addNoise);
+
+//        Amg::Transform3D *newDetElem = new Amg::Transform3D();
+//        *newDetElem = trackState->surface().transform();
+//        Trk::PerigeeSurface newSurface(newDetElem);
+//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolateDirectly(track->perigeeParameters(),newSurface);
+
         // Set local positions on the surface
-        if(tp) { msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] ); }
+        if (tp) { 
+          msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] ); 
+
+          if (extrap) {
+            ATH_MSG_DEBUG("    Original position " << tp->parameters()[0] << " " << tp->parameters()[1]);
+            ATH_MSG_DEBUG("Extrapolated position " << extrap->parameters()[0] << " " << extrap->parameters()[1]);
+          }
+
+        }
+        else {
+          if (extrap) {
+            msos->setLocalPosition( extrap->parameters()[0], extrap->parameters()[1] ); 
+          }
+          else { 
+            ATH_MSG_DEBUG("Track extrapolation failed."); 
+          }
+        }
 
         // Set calculate local incident angles
         const Trk::TrkDetElementBase *de = trackState->surface().associatedDetectorElement();
         const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
-        if ( tp && side && (isSCT || isPixel) ) {
-          Amg::Vector3D mytrack = tp->momentum();
+        if (side && (isSCT || isPixel)) {
           Amg::Vector3D mynormal = side->normal();
           Amg::Vector3D myphiax = side->phiAxis();
           Amg::Vector3D myetaax = side->etaAxis();
-          float trketacomp = mytrack.dot(myetaax);
-          float trkphicomp = mytrack.dot(myphiax);
-          float trknormcomp = mytrack.dot(mynormal);  
-          msos->setLocalAngles( atan2(trketacomp,trknormcomp), atan2(trkphicomp,trknormcomp) );
-        } 
+          if (tp) {
+            Amg::Vector3D mytrack = tp->momentum();
+            float trketacomp = mytrack.dot(myetaax);
+            float trkphicomp = mytrack.dot(myphiax);
+            float trknormcomp = mytrack.dot(mynormal);  
 
+            ATH_MSG_DEBUG("     Original incident angle " << trketacomp << " " << trkphicomp << " " << trknormcomp);
+            if (extrap) {
+              Amg::Vector3D metrack = extrap->momentum();
+              float trketacompX = metrack.dot(myetaax);
+              float trkphicompX = metrack.dot(myphiax);
+              float trknormcompX = metrack.dot(mynormal);  
+              ATH_MSG_DEBUG("Extrapolated incident angle " << trketacompX << " " << trkphicompX << " " << trknormcompX);
+            }
+            msos->setLocalAngles( atan2(trketacomp,trknormcomp), atan2(trkphicomp,trknormcomp) );
+          }
+          else {
+            if (extrap) {
+              Amg::Vector3D metrack = extrap->momentum();
+              float trketacompX = metrack.dot(myetaax);
+              float trkphicompX = metrack.dot(myphiax);
+              float trknormcompX = metrack.dot(mynormal);  
+              msos->setLocalAngles( atan2(trketacompX,trknormcompX), atan2(trkphicompX,trknormcompX) );
+            }
+          }
+        } 
  
         //Get the measurement base object
         const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
@@ -502,15 +555,36 @@ namespace DerivationFramework {
  
  
         // Add the drift time for the tracks position -- note the position is biased 
-        if(tp && isTRT){
+        if (isTRT) {
           TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
-          if(rtr) 
-            msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));
+          if(rtr) {
+            if (tp){
+              msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));
+            }
+            else {
+              if (extrap) {
+                msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(extrap->parameters()[0]));
+              }
+            }
+          }
         }
 
-        if(tp && m_addPulls){
-          const Trk::ResidualPull *biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
-          if(biased){
+        if (m_addPulls) {
+
+          const Trk::ResidualPull *biased = 0;
+          const Trk::ResidualPull *unbiased = 0;
+          if (tp) { 
+            biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
+            unbiased = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Unbiased);
+          }
+          else {
+            if (extrap) {
+              biased   = m_residualPullCalculator->residualPull(measurement, extrap, Trk::ResidualPull::Biased);
+              unbiased = m_residualPullCalculator->residualPull(measurement, extrap, Trk::ResidualPull::Unbiased);
+            }
+          }
+
+          if (biased) {
             if(biased->dimension()>Trk::locY){  
               msos->setBiasedResidual( biased->residual()[Trk::locX], biased->residual()[Trk::locY] );
               msos->setBiasedPull( biased->pull()[Trk::locX], biased->pull()[Trk::locY] );            
@@ -521,8 +595,7 @@ namespace DerivationFramework {
             delete biased;
           } 
 
-		  const Trk::ResidualPull *unbiased = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Unbiased);
-          if(unbiased){
+          if (unbiased) {
             if(unbiased->dimension()>Trk::locY){  
               msos->setUnbiasedResidual( unbiased->residual()[Trk::locX], unbiased->residual()[Trk::locY] );
               msos->setUnbiasedPull( unbiased->pull()[Trk::locX], unbiased->pull()[Trk::locY] );            
@@ -532,7 +605,9 @@ namespace DerivationFramework {
             }
             delete unbiased;
           }
+
         }
+
       } //end loop over TSOS's
        
       ATH_MSG_DEBUG("The number of TSOS's " << msosLink.size() );

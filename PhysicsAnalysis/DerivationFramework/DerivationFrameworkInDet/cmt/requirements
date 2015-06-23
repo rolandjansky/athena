@@ -44,6 +44,7 @@ use CommissionEvent             CommissionEvent-*               Commission
 use InDetPhysValMonitoring      InDetPhysValMonitoring-*     InnerDetector/InDetValidation
 use TrkEventUtils               TrkEventUtils-*              Tracking/TrkEvent
 use TRT_ToT_Tools               TRT_ToT_Tools-*              InnerDetector/InDetRecTools
+use TrkExInterfaces             TrkExInterfaces-*            Tracking/TrkExtrapolation
 
 use LArRecEvent 		LArRecEvent-*		     LArCalorimeter
 end_private

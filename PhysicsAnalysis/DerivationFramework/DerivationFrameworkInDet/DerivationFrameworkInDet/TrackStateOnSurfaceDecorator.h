@@ -32,6 +32,7 @@ namespace Trk {
   class IResidualPullCalculator;
   class ITrackHoleSearchTool;
   class PrepRawData;
+  class IExtrapolator;
 }
 
 namespace DerivationFramework {
@@ -88,8 +89,9 @@ namespace DerivationFramework {
       const SCT_ID*          m_sctId;
       const TRT_ID*          m_trtId;
 
-      ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;
-      ToolHandle< Trk::ITrackHoleSearchTool >     m_holeSearchTool;
+      ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;
+      ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
+      ToolHandle<Trk::IExtrapolator>            m_extrapolator;
       ServiceHandle<ITRT_CalDbSvc>                m_trtcaldbSvc;
 	  
       /**tool to calculate dE/dx using TRT ToT*/

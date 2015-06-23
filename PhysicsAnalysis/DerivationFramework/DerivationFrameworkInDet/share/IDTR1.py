@@ -40,11 +40,14 @@ if DerivationFrameworkIsMonteCarlo:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
-                                                                        AugmentationTools = [IDTR1TrackToVertexWrapper]
-                                                                      )
- 
- 
+if DerivationFrameworkIsMonteCarlo:
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
+                                                                            AugmentationTools = [IDTR1TrackToVertexWrapper,TruthDecor]
+                                                                          )
+else:
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
+                                                                            AugmentationTools = [IDTR1TrackToVertexWrapper]
+                                                                          )
 #====================================================================
 # SET UP STREAM  
 #====================================================================
@@ -56,22 +59,18 @@ IDTR1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTR1Stream.AcceptAlgs(["IDTR1Kernel"])
 
 # Add event info, tracks, vertices and the decoration
-IDTR1Stream.AddItem("xAOD::EventInfo#*")
-IDTR1Stream.AddItem("xAOD::EventAuxInfo#*")
-IDTR1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-IDTR1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
-IDTR1Stream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
-IDTR1Stream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux.")
-IDTR1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTR1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
-IDTR1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-IDTR1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
-IDTR1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
-IDTR1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
+# Use slimming helper
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+IDTR1SlimmingHelper = SlimmingHelper("IDTR1SlimmingHelper")
+allVariables = []
+allVariables.append("InDetTrackParticles")
+allVariables.append("GSFTrackParticles")
+allVariables.append("PrimaryVertices")
+allVariables.append("AntiKt4EMTopoJets")
+allVariables.append("BTagging_AntiKt4EMTopo")
 if DerivationFrameworkIsMonteCarlo:
-    IDTR1Stream.AddItem("xAOD::TruthParticleContainer#TruthParticles")
-    IDTR1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.")
-    IDTR1Stream.AddItem("xAOD::TruthVertexContainer#TruthVertices")
-    IDTR1Stream.AddItem("xAOD::TruthVertexAuxContainer#TruthVerticesAux.")
-    IDTR1Stream.AddItem("xAOD::TruthEventContainer#TruthEvents")
-    IDTR1Stream.AddItem("xAOD::TruthEventAuxContainer#TruthEventsAux.")
+    allVariables.append("TruthParticles")
+    allVariables.append("TruthVertices")
+    allVariables.append("TruthEvents") 
+IDTR1SlimmingHelper.AllVariables = allVariables
+IDTR1SlimmingHelper.AppendContentToStream(IDTR1Stream) 
