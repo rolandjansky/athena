@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 665939 2015-05-08 18:25:18Z atlidbs $'
+__version__ = '$Id: BeamSpotData.py 674928 2015-06-12 21:52:28Z mhance $'
 
 import time
 import copy
@@ -824,8 +824,9 @@ class BeamSpotContainer:
             if b.lbEnd-b.lbStart > 500:
                 print 'WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r)
             else:
-                for i in range(b.lbStart,b.lbEnd):
-                    cache[r][i] = b
+                for i in range(b.lbStart,b.lbEnd+1):
+                    if b.status in self.statusList:
+                        cache[r][i] = b
         return cache
 
     def summary(self):
@@ -860,7 +861,6 @@ class BeamSpotNt(BeamSpotContainer):
     def __init__(self,fileName,update=False,fullCorrelations=False):
         BeamSpotContainer.__init__(self)
         self.treeName = 'BeamSpotNt'
-        #self.treeName = 'Beamspot/Beamspots'
         self.fileName = fileName
         self.update = update
         self.fullCorrelations = fullCorrelations
@@ -931,7 +931,7 @@ class BeamSpotFinderNt(BeamSpotContainer):
     fitResultToStatusMap = {0: 0, 1: 3, 2: 0, 3: 0}
     fitIdToStatusMap = {1: 0x38, 2: 0x40, 3: 0x10}
 
-    def __init__(self,fileName,treeName = 'Beamspot/Beamspots',fullCorrelations=True):
+    def __init__(self,fileName,treeName = 'BeamSpotNt',fullCorrelations=True):
         BeamSpotContainer.__init__(self)
         self.fileName = fileName
         self.treeName = treeName

@@ -6,7 +6,7 @@ Compare two sets of beam spots for the same run; can read results from
 ntuples,CSV, or from COOL; use BeamSpotData class
 """
 __author__  = 'Martina Hurwitz'
-__version__ = '$Id$'
+__version__ = '$Id $'
 __usage__   = '%prog [options] file1/tag1 file2/tag2'
 
 import sys, os
@@ -22,14 +22,14 @@ from InDetBeamSpotExample.Utils import getRunFromName
 varDef = {
     'nEvents': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(N_{vert})', 'ytit2': 'Number of vertices', 'title': 'Difference in number of vertices', 'bigchange': 300, 'cannr':2},
     'k': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(k)', 'ytit2': 'Error scale factor k', 'title': 'Difference in error scale factor k', 'bigchange': 0.2, 'cannr':3},
-    'posX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(x) (mm)', 'ytit2': 'X position (mm)', 'title': 'Difference in beamspot x', 'bigchange': 10, 'cannr':7},
-    'posY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(y) (mm)', 'ytit2': 'Y position (mm)', 'title': 'Difference in beamspot y', 'bigchange': 10, 'cannr':8},
-    'posZ': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(z) (mm)', 'ytit2': 'Z position (mm)', 'title': 'Difference in beamspot z', 'bigchange': 3, 'cannr':9},
-    'sigmaX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{x}) (mm)', 'ytit2': '#sigma_{x} (mm)', 'title': 'Difference in beamspot #sigma_{x}', 'bigchange': 3,'cannr':13},
-    'sigmaY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{y}) (mm)', 'ytit2': '#sigma_{y} (mm)', 'title': 'Difference in beamspot #sigma_{y}', 'bigchange': 3,'cannr':14},
-    'sigmaZ': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{z}) (mm)', 'ytit2': '#sigma_{z} (mm)', 'title': 'Difference in beamspot #sigma_{z}', 'bigchange': 2, 'cannr':15},
-    'tiltX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(Tilt_{x-z}) (rad)', 'ytit2': 'Tilt in x-z (rad)', 'title': 'Difference in beamspot tilt in x-z', 'bigchange': 0.15,'cannr':19},
-    'tiltY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(Tilt_{y-z}) (rad)', 'ytit2': 'Tilt in y-z (rad)', 'title': 'Difference in beamspot tilt in y-z', 'bigchange': 0.15,'cannr':20},
+    'posX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(x) [mm]', 'ytit2': 'X position [mm]', 'title': 'Difference in beamspot x', 'bigchange': 10, 'cannr':7},
+    'posY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(y) [mm]', 'ytit2': 'Y position [mm]', 'title': 'Difference in beamspot y', 'bigchange': 10, 'cannr':8},
+    'posZ': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(z) [mm]', 'ytit2': 'Z position [mm]', 'title': 'Difference in beamspot z', 'bigchange': 3, 'cannr':9},
+    'sigmaX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{x}) [mm]', 'ytit2': '#sigma_{x} [mm]', 'title': 'Difference in beamspot #sigma_{x}', 'bigchange': 3,'cannr':13},
+    'sigmaY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{y}) [mm]', 'ytit2': '#sigma_{y} [mm]', 'title': 'Difference in beamspot #sigma_{y}', 'bigchange': 3,'cannr':14},
+    'sigmaZ': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#sigma_{z}) [mm]', 'ytit2': '#sigma_{z} [mm]', 'title': 'Difference in beamspot #sigma_{z}', 'bigchange': 2, 'cannr':15},
+    'tiltX': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(Tilt_{x-z}) [rad]', 'ytit2': 'Tilt in x-z [rad]', 'title': 'Difference in beamspot tilt in x-z', 'bigchange': 0.15,'cannr':19},
+    'tiltY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(Tilt_{y-z}) [rad]', 'ytit2': 'Tilt in y-z [rad]', 'title': 'Difference in beamspot tilt in y-z', 'bigchange': 0.15,'cannr':20},
     'rhoXY': {'xtit': 'Luminosity Block Number', 'ytit': '#Delta(#rho_{xy})', 'ytit2': '#rho_{xy}', 'title': 'Difference in #rho', 'bigchange': 0.15,'cannr':21}
         }
 def getVarDef(what,property,default=''):
@@ -60,13 +60,27 @@ parser.add_option('', '--label2', dest='label2', default='', help='Description o
 parser.add_option('', '--lbmin', dest='lbmin', type='int', default=0, help='Miminum LB used in comparison')
 parser.add_option('', '--lbmax', dest='lbmax', type='int', default=0, help='Maximum LB used in comparison')
 parser.add_option('', '--smallChanges', dest='smallChanges', action='store_true', default=False, help='Print out changes larger than 0.1 percent')
-
+parser.add_option('', '--RooFit', dest='RooFit',action='store_true',default=False,help='Compare Run 1 Fit Method with RooFit result in same file')
+parser.add_option('', '--status', dest='status',action='store',default=59,help='default fit status to use for first file')
+parser.add_option('', '--multicanv', dest='multicanv', action='store_true',default=False,help="create multiple canvases")
+parser.add_option('', '--outtag', dest='outtag', action='store', default='', help="string to prepend to output file names.")
+parser.add_option('', '--html', dest='html', action='store_true', default=False, help="create an HTML page to see plots more easily.  Only really useful with multicanv.")
 (options,args) = parser.parse_args()
-if len(args) < 2:
-    parser.error('wrong number of command line arguments')
 
-tag1 = args[0]
-tag2 = args[1]
+tag1=''
+tag2=''
+
+if options.RooFit:
+    if len(args) != 1:
+        parser.error('wrong number of command line arguments')
+    tag1=args[0]
+    tag2=args[0]
+
+else:
+    if len(args) < 2:
+        parser.error('wrong number of command line arguments')
+    tag1=args[0]
+    tag2=args[1]
 
 if options.runNumber :
     runNumber = int(options.runNumber)
@@ -87,7 +101,7 @@ ndptilt=8
 
 # Setup ROOT
 if options.batch:
-    os.unsetenv('DISPLAY')
+    ROOT.gROOT.SetBatch(1)
 import ROOT
 from InDetBeamSpotExample import ROOTUtils
 ROOTUtils.setStyle()
@@ -169,7 +183,15 @@ if options.lbmin != 0:
 if options.lbmax != 0:
     BSData1.lbmax = options.lbmax
     BSData2.lbmax = options.lbmax
-    
+
+
+BS2_status = options.status
+if options.RooFit:
+    if options.status==107:
+        BS2_status=59
+    else:
+        BS2_status=107
+BSData2.statusList=[BS2_status]
 BS2Dict = BSData2.getDataCache()
     
 if(len(BS2Dict)==0):
@@ -201,11 +223,14 @@ eydDict = {}
 
 for BS1 in BSData1:
     pass1 = False
-    if BS1.status == 59 or (BS1.status%8) == 7: pass1 = True
+    if BS1.status == options.status: pass1 = True
 
     run = BS1.run
     lbmin = BS1.lbStart
     lbmax = BS1.lbEnd
+    # This is taken into account correctly for COOL, not for ROOT
+    if ".csv" in tag1 or ".root" in tag1:
+        lbmax+=1
     
     if lbmax-lbmin > 100:
         lbmax = lbmin+10
@@ -236,8 +261,14 @@ for BS1 in BSData1:
                 BS2 = BS2Dict[run][lb]
                 
                 pass2 = False
-                if BS2.status == 59 or (BS2.status%8) == 7: pass2 = True
-                
+                if options.RooFit:
+                    if options.status==59:
+                        if BS2.status == 107: pass2 = True
+                    elif options.status==107:
+                        if BS2.status == 59: pass2 = True
+                else:
+                    if BS2.status == options.status: pass2 = True
+
                 if pass1 and not pass2:
                     print "Warning: run %s lumiBlock %s doesn't have good fit anymore" %(run,lb)
                     numOld += 1
@@ -287,8 +318,14 @@ for run in BS2Dict:
     for lb in BS2Dict[run]:
         BS2 = BS2Dict[run][lb]
         
-        if BS2.status != 59 and (BS2.status%8) != 7: continue
-        
+        if options.RooFit:
+            if options.status==59:
+                if BS2.status == 107: pass2 = True
+            elif options.status==107:
+                if BS2.status == 59: pass2 = True
+        else:
+            if BS2.status == options.status: pass2 = True
+
         x2.append(lb)
         ex2.append(0.0)
         
@@ -321,12 +358,18 @@ if doOnePlot:
 elif options.plotHistos:
     canvas = ROOT.TCanvas('BeamSpotComparison', 'BeamSpotComparison', 750, 1000)
     canvas.Divide(3, 4)
+elif options.multicanv:
+    canvases = {}
+    ratiopad = {}
+    primarypad = {}
+    zeroline = {}
 else:
     canvas = ROOT.TCanvas('BeamSpotComparison', 'BeamSpotComparison', 750, 1400)
     ROOT.gPad.SetLeftMargin(0.0)
     ROOT.gPad.SetBottomMargin(0.0)
     canvas.Divide(3, 8, 0.01, 0)
-    
+
+
 ivar = 0
 graphColl = []
 dummyColl = []
@@ -424,6 +467,69 @@ for var in varColl:
             ROOT.gPad.SetRightMargin(0.1)
             grdiff.Draw("AP")
             
+        elif options.multicanv:
+            ROOT.gStyle.SetGridColor(ROOT.kGray)
+            ROOT.gStyle.SetGridWidth(1)
+            canvases[var]=ROOT.TCanvas('BeamSpotComparison_%s'%var,
+                                       'BeamSpotComparison_%s'%var,
+                                       800,600)
+            canvases[var].cd()
+            
+            primarypad[var] = ROOT.TPad("primarypad","primarypad",0,0.35,1,1)
+            primarypad[var].SetBottomMargin(0.03)
+            primarypad[var].Draw()
+            primarytextscale=1./(primarypad[var].GetWh()*primarypad[var].GetAbsHNDC());
+            
+            ratiopad[var] = ROOT.TPad("ratiopad","ratiopad",0,0.03,1,0.35)
+            ratiopad[var].SetTopMargin(0.03)
+            ratiopad[var].SetBottomMargin(0.3)
+            ratiopad[var].SetGridy(1)
+            ratiopad[var].Draw()
+            ratiotextscale=1./(ratiopad[var].GetWh()*ratiopad[var].GetAbsHNDC())
+
+            primarypad[var].cd()
+            hdummy.Draw()
+            gr1.Draw("P")
+            gr2.Draw("P")
+
+            hdummy.GetYaxis().SetTitleSize(0.085)
+            hdummy.GetYaxis().SetTitleOffset(0.75)
+            hdummy.GetYaxis().SetLabelSize(0.06)
+            hdummy.GetXaxis().SetLabelSize(0)
+
+            minyaxis=hdummy.GetYaxis().GetXmin()
+            maxyaxis=hdummy.GetYaxis().GetXmax()
+            rangeyaxis=abs(minyaxis-maxyaxis)
+            hdummy.GetYaxis().SetLimits(minyaxis,maxyaxis+0.50*rangeyaxis)
+            primarypad[var].Update()
+            
+            ratiopad[var].cd()
+            grdiff.Draw("AP")
+
+            diffymax=grdiff.GetYaxis().GetXmax()
+            diffymin=grdiff.GetYaxis().GetXmin()
+            if diffymin>0.:
+                grdiff.GetYaxis().SetRangeUser(0.-0.1*abs(diffymax-diffymin),diffymax)
+            elif diffymax<0.:
+                grdiff.GetYaxis().SetRangeUser(diffymin,0.+0.1*abs(diffymax-diffymin))
+            
+            grdiff.GetYaxis().SetTitleSize(0.16)
+            grdiff.GetYaxis().SetTitleOffset(.39)
+            grdiff.GetXaxis().SetTitleOffset(0.9)
+            grdiff.GetXaxis().SetTitleSize(0.16)
+            grdiff.GetYaxis().SetLabelSize(0.12)
+            grdiff.GetYaxis().SetNdivisions(8)
+            grdiff.GetXaxis().SetLabelSize(0.12)
+
+            zeroline[var]=ROOT.TLine(xmin, 0.0, xmax+1, 0.0)
+            zeroline[var].SetLineWidth(2)
+            zeroline[var].Draw()
+
+            grdiff.Draw("P")
+            
+            ratiopad[var].Update()
+            
+            canvases[var].Update()
         else:
             canvas.cd(getVarDef(var, 'cannr'))
             ROOT.gPad.SetTopMargin(0.1)
@@ -444,13 +550,7 @@ for var in varColl:
     ivar += 1
     
 # summary frame
-
-if not doOnePlot:
-    if options.plotHistos:
-        canvas.cd(1)
-    else:
-        canvas.cd(4)
-        
+def drawSummary(var=''):
     # description
     descrText=''
     if options.config == 'OnlineOffline':
@@ -458,7 +558,8 @@ if not doOnePlot:
         legText1 = 'Offine'
         legText2 = 'Online'
     elif options.config == 'Reproc':
-        descrText += 'Reprocessed - Tier0 comparison'
+        if not options.multicanv:
+            descrText += 'Reprocessed - Tier0 comparison'
         legText1 = 'Tier0'
         legText2 = 'Reproc'
     else:
@@ -470,8 +571,14 @@ if not doOnePlot:
 
     if options.label2 != '':
         legText2 = options.label2
-                           
-    ROOTUtils.drawText(0.14, 0.95, 0.1, descrText)
+
+
+    if options.multicanv:
+        primarypad[var].cd()
+    if not options.multicanv:
+        ROOTUtils.drawText(0.14, 0.95, 0.1, descrText)
+    else:
+        ROOTUtils.drawText(0.14, 0.95, 0.1, descrText)
     
     # legend
     legendList = []
@@ -479,21 +586,73 @@ if not doOnePlot:
     legendList.append([gr1, legText1, 'LP'])
     legendList.append([gr2, legText2, 'LP'])
     legendList.append([grdiff, 'Difference', 'LP'])
-    if not options.plotHistos:
+    if options.multicanv:
+        ROOTUtils.drawLegend(0.25, 0.6, 0.55, 0.9, legendList)
+    elif not options.plotHistos:
         ROOTUtils.drawLegend(0.14, 0.67, 0.9, 0.9, legendList)
-        
     if runNumber != 0:
-        ROOTUtils.drawText(0.14, 0.55, 0.1, 'Run = %i' %runNumber)
+        if options.multicanv:
+            ROOTUtils.drawText(0.6, 0.7, 0.1, 'Run = %i' %runNumber)
+        else:
+            ROOTUtils.drawText(0.14, 0.55, 0.1, 'Run = %i' %runNumber)
+    if options.multicanv:
+        primarypad[var].Update()
         
-    newText = 'New fits: %i' % numNew
-    oldText = 'Missing fits: %i' %numOld
-    ROOTUtils.drawText(0.14, 0.19, 0.1, newText)
-    ROOTUtils.drawText(0.14, 0.07, 0.1, oldText)
+if not doOnePlot:
+    if options.plotHistos:
+        canvas.cd(1)
+        drawSummary()
+    elif options.multicanv:
+        for var,canv in canvases.iteritems():
+            canv.cd()
+            drawSummary(var)
+    else:
+        canvas.cd(4)
+        drawSummary()
+        
+    
+    if not options.multicanv:
+        newText = 'New fits: %i' % numNew
+        oldText = 'Missing fits: %i' %numOld
+        ROOTUtils.drawText(0.14, 0.19, 0.1, newText)
+        ROOTUtils.drawText(0.14, 0.07, 0.1, oldText)
     
 if options.output:
+    basename=options.outtag
+    if options.config == "Reproc":
+        basename=tag2.replace(".BeamSpotNt-nt.root",".PlotBeamSpotCompareReproc").replace(".MergeNt-nt.root",".PlotBeamSpotCompareReproc")
+        basename=basename[basename.rfind('/')+1:]
+        if options.html and options.outtag.find('/'):
+            basename=options.outtag[:options.outtag.rfind('/')+1]+basename+"."
+    elif options.runNumber>0:
+        basename+=str(options.runNumber)
+        basename+="_"
+    elif options.runMin>0:
+        basename+=str(options.runMin)
+        basename+="_"
+        basename+=str(options.runMax)
+        basename+="_"
+        
     for o in options.output.split(','):
-        if o[0]=='.':
-            canvas.SaveAs(basename+what+o)
+        if options.multicanv:
+            if options.html:
+                htmlstart=0
+                if basename.find('/')>0:
+                    htmlstart=basename.rfind('/')+1
+                html=open(basename[htmlstart:-1]+".html",'w')
+            for var,canv in canvases.iteritems():
+                canv.Print(basename+var+o)
+            if o==".png" and options.html:
+                for var in ['posX', 'posY', 'posZ', 'sigmaX', 'sigmaY', 'sigmaZ', 'rhoXY', 'tiltX', 'tiltY', 'k', 'nEvents']:
+                    if var in canvases:
+                        html.write("<img src=\""+basename+var+o+"\" width=\"33%\">")
+            if options.html:
+                html.close()
         else:
             canvas.SaveAs(o)
             
+
+if not options.batch:
+    while(True):
+        time.sleep(1)
+                    

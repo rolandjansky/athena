@@ -9,13 +9,12 @@
 ## Description: Here, all neccessary job flags for the BeamSpot DPD
 ##              are defined.
 ##
-## $Id$
 ##=============================================================================
 
 __doc__ = """Here, all neccessary job flags for the BeamSpotDPD are defined."""
 __version__ = "0.0.1"
 __author__  = "James Walder <jwalder@cern.ch>"
-
+__version__ = "$Id $"
 
 ## Import the module that allows to use named units, e.g. GeV
 import AthenaCommon.SystemOfUnits as Units

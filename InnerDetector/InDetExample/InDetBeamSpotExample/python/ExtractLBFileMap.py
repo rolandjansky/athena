@@ -136,7 +136,7 @@ def extract(dirs, filter, prefix = True):
                 sc = 1
                 pass
 
-            if not "eos" in arg:
+            if not "eos" in arg and not "eos" in fileName:
                 f.Close()
         
         except Exception, e:

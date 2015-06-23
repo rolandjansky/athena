@@ -1,11 +1,11 @@
-# $Id: VertexTemplate.py 668584 2015-05-20 05:28:35Z mhance $
+# $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 668584 2015-05-20 05:28:35Z mhance $"
+print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -18,7 +18,7 @@ if not 'outputfileprefix' in jobConfig:              jobConfig['outputfileprefix
 if not 'outputfile' in jobConfig:                    jobConfig['outputfile'] = jobConfig['outputfileprefix']+'beamspot.db'
 if not 'histfile' in jobConfig:                      jobConfig['histfile'] = jobConfig['outputfileprefix']+'nt.root'
 if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps'] = 'MergeNt PlotBeamSpot LinkResults AveBeamSpot DQBeamSpot'
-if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = False
+if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = True
 if not 'VertexNtuple' in jobConfig:                  jobConfig['VertexNtuple'] = True
 if not 'WriteAllVertices' in jobConfig:              jobConfig['WriteAllVertices'] = False
 if not 'VertexTreeName' in jobConfig:                jobConfig['VertexTreeName'] = 'Vertices'
@@ -66,12 +66,12 @@ include("InDetBeamSpotExample/AutoConfFragment.py")
 include("InDetBeamSpotExample/ReadInDetRecFragment.py")
 include("InDetBeamSpotExample/JobSetupFragment.py")
 
-#if 'UseBCID' in jobConfig:
+# if 'UseBCID' in jobConfig:
 #     import InDetBeamSpotExample.FilterUtils as FilterUtils
 #     FilterUtils.filterSeq += FilterUtils.BCIDFilter(jobConfig['bcidList'])
-# if 'lbList' in jobConfig:
-#     import InDetBeamSpotExample.FilterUtils as FilterUtils
-#     FilterUtils.filterSeq += FilterUtils.LBFilter(jobConfig['lbList'])
+if 'lbList' in jobConfig:
+    import InDetBeamSpotExample.FilterUtils as FilterUtils
+    FilterUtils.filterSeq += FilterUtils.LBFilter(jobConfig['lbList'])
 # if 'lbData' in jobConfig:
 #     import InDetBeamSpotExample.FilterUtils as FilterUtils
 #     FilterUtils.filterSeq += FilterUtils.LumiBlockFilter(jobConfig['lbData'])

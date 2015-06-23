@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 668583 2015-05-20 03:57:41Z mhance $'
+__version__ = '$Id: beamspotman.py 676234 2015-06-18 00:29:52Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -235,18 +235,24 @@ if cmd=='run' and len(args)==3:
 if cmd=='runMon' and len(args)==3:
     run = args[1]
     tag = args[2]
-    c = getFullCastorPath(run)
 
     datasets = []
-    pattern = re.compile(options.filter+tag+'.*')
-    for p in DiskUtils.filelist(c):
-        f = p.split('/')[-1]
-        if pattern.search(f):
-            datasets.append(f)
-    if len(datasets)!=1:
-        print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
-        sys.exit(1)
-    dsname = '.'.join(datasets[0].split('.')[:3])
+    c=''
+    if options.filelist == None:
+        c = getFullCastorPath(run)
+
+        pattern = re.compile(options.filter+tag+'.*')
+        for p in DiskUtils.filelist(c):
+            f = p.split('/')[-1]
+            if pattern.search(f) and ('.TMP.log' not in f):
+                datasets.append(f)
+        if len(datasets)!=1:
+            print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
+            sys.exit(1)
+        dsname = '.'.join(datasets[0].split('.')[:3])
+    else:
+        datasets.append(options.filelist.rstrip())
+        dsname=options.project+'.'+run+'.'+options.stream
 
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
@@ -256,10 +262,19 @@ if cmd=='runMon' and len(args)==3:
         # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
         #       other data sets we have only the merged files.
         os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
+    elif options.filelist != None:
+        lbinfoinfiles=True
+        for line in open(options.filelist,'r'):
+            if "lb" not in line: 
+                lbinfoinfiles=False
+                break
+        lboptions='--lbperjob 10' if lbinfoinfiles else '-n 10'
+        cmd = 'runJobs.py %s -f \'%s\' -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,datasets[0])
+        print cmd
+        os.system(cmd)
     else:
-        # Before we could use --lbperjob on AOD:
-        #os.system('runJobs.py -n 2 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
-        os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
+        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]]))
+        os.system(cmd)
         
     sys.exit(0)
 
@@ -541,7 +556,7 @@ if cmd=='queryT0' and len(args)==3:
     cur = oracle.cursor()
     try:
         #sql = str("SELECT status FROM etask WHERE taskname='%s' AND creationtime>sysdate-10" % t0TaskName)  # Oracle doesn't want unicode
-        sql = str("SELECT status FROM etask WHERE taskname='%s' AND tasktype='beamspotproc'" % t0TaskName)  # Oracle doesn't want unicode
+        sql = str("SELECT status FROM tasks WHERE taskname='%s' AND tasktype='beamspotproc'" % t0TaskName)  # Oracle doesn't want unicode
         cur.execute(sql)
         r = cur.fetchall()
     except Exception,e:
@@ -710,8 +725,9 @@ if cmd=='runMonJobs' and len(args)<3:
         ptag = dsname.split('.')[0]
         stream = dsname.split('.')[2]
         taskName = t['TASKNAME']
-        datatag = taskName.split('.')[-1].split('_')[0]
-        monTaskName = 'MON.%s.%s' % (taskName,datatag)
+        fulldatatag = taskName.split('.')[-1]
+        datatag = fulldatatag.split('_')[0]
+        monTaskName = 'MON.%s' % (taskName)
 
         # Now that beamspot folder tag can change, the tag to be monitored must be the one the parent task uploaded to.
         # If more than one tag (might be case if upload to current/next) then take first (should be same)
@@ -728,6 +744,7 @@ if cmd=='runMonJobs' and len(args)<3:
         print '\nRunning monitoring job for run %s:' % runnr
 
         submitjob=True
+        eospath=options.eospath
         # for old runs we would need to check if the dataset had been replicated at Tier-0.  
         # with EOS this is no longer necessary.
         r=[]
@@ -739,12 +756,27 @@ if cmd=='runMonJobs' and len(args)<3:
             if not r:
                 print '    WARNING: input data not yet replicated - please retry later'
                 submitjob=False
+        else:
+            print '... Querying T0 database for completion of merging jobs of %s' % t0dsname
+            cur = oracle.cursor()
+            origt0TaskName='%s.recon.AOD.%s%%.aodmerge.task' % (dsname,datatag)
+            cur.execute("select status from tasks where taskname like '%s' and tasktype='aodmerge'" % origt0TaskName)
+            r = cur.fetchall()
+            if not r:
+                print '    WARNING: can\'t get status of merge job for %s, running on un-merged samples instead' % origt0TaskName
+                eospath='/eos/atlas/atlastier0/tzero/prod'
+            elif not (r[0][0]=='FINISHED' or r[0][0]=='TRUNCATED'):
+                print '    Merge job for taskname %s is not finished yet, has status %s, running on un-merged samples instead.' % (origt0TaskName, r[0][0])
+                eospath='/eos/atlas/atlastier0/tzero/prod'
+            else:
+                print '    Merge job is finished, launching jobs.'
+            submitjob=True
 
         if submitjob:
             if int(runnr)<240000:
                 print '   ',r
             print '... Submitting monitoring task'
-            cmd = 'beamspotman.py -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
+            cmd = 'beamspotman.py --eospath=%s -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (eospath,ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
             print '    %s' % cmd
             sys.stdout.flush()
             status = os.system(cmd) >> 8   # Convert to standard Unix exit code
@@ -1161,7 +1193,7 @@ if cmd=='runaod' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='atlasb1_long', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
+                                           batchqueue='atlasb1', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps=options.postprocsteps,
                                            autoconfparams='DetDescrVersion',
@@ -1209,8 +1241,10 @@ if cmd=='dqflag' and len(args)==2:
         batchmode = ''
 
     print
+    cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
+    print cmd
 
-    stat = os.system('dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) )
+    stat = os.system(cmd)
 
     # Old DQ flags
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile,options.srcdqdbname,passwd))
@@ -1256,7 +1290,9 @@ if cmd=='dqflag' and len(args)==3:
     else:
         batchmode = ''
 
-    stat = os.system('dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) )
+    cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
+    print "Running %s" % cmd
+    stat = os.system(cmd)
 
     # Old DQ flags
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile[0],options.srcdqdbname,passwd))

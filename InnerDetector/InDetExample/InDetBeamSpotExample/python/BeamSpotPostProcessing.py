@@ -5,7 +5,7 @@
 Beam spot postprocessing library.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 
 import os
@@ -23,6 +23,7 @@ linkTemplates = {
     'PlotGlobalMon.pdf': '(<a href="/jobfiles/%s/%s/%s">pdf</a>)',
     'PlotBeamSpotCompareReproc.gif': '<a href="../files?u=%s/%s/%s">Compare</a>',
     'PlotBeamSpotCompareReproc.pdf': '(<a href="/jobfiles/%s/%s/%s">pdf</a>)',
+    'PlotBeamSpotCompareReproc.html': '(<a href="/jobfiles/%s/%s/%s">html</a>)',
     'PlotBCID-data.txt': '<a href="../files?u=%s/%s/%s">BCID data</a>',
     'PlotBCID-vsLb.gif': '<a href="../files?u=%s/%s/%s">vsLb</a>',
     'PlotBCID-vsLb.pdf': None,   # suppress linking until we get better quality PDF
@@ -80,6 +81,12 @@ class T0VertexDefaultProcessing(PostProcessingStep):
             self.log('Running postprocessing step:  %s' % step)
             self.executedSteps  = runPostProcStep(self.taskman,self.taskDict,self.oldStatus,self.executedSteps,step,self.postprocLib,self.jobName)
 
+class T0VertexTestProcessing(PostProcessingStep):
+    def run(self):
+        postProcSteps = 'PlotBeamSpotMon MergeNt BeamSpotNt PlotBeamSpot LinkResults PlotOnlineOfflineCompare AveBeamSpot CheckT0Status DQBeamSpot BeamSpotGlobalNt '
+        for step in postProcSteps.split():
+            self.log('Running postprocessing step:  %s' % step)
+            self.executedSteps  = runPostProcStep(self.taskman,self.taskDict,self.oldStatus,self.executedSteps,step,self.postprocLib,self.jobName)
 
 class ReprocVertexDefaultProcessing(PostProcessingStep):
     def run(self):
@@ -133,9 +140,12 @@ class PlotBeamSpotCompareReproc(PostProcessingStep):
             raise PostProcessingError('ERROR: Unable to resolve beamspot folder tag',self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
 
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            self.logExec('cd %s; plotBeamSpotCompare.py -b -o %s,%s --finder2 --config="Reproc" %s %s' % (self.taskDir, outFileNameGIF,outFileNamePDF,beamspottag,ntFileName))
+            self.logExec('cd %s; plotBeamSpotCompare.py -b -o %s,%s --config="Reproc" %s %s' % (self.taskDir, outFileNameGIF,outFileNamePDF,beamspottag,ntFileName))
             self.addResult(outFileNameGIF)
             self.addResult(outFileNamePDF)
+            self.logExec('cd %s; mkdir -p %s' % (self.taskDir, self.getFileName('-compplots')))
+            self.logExec('cd %s; plotBeamSpotCompare.py -b --outtag="%s/repro_" --output=".pdf,.png" --config="Reproc" --multicanv --html %s %s' % (self.taskDir, self.getFileName('-compplots'), beamspottag,ntFileName))
+            self.addResult(self.getFileName('.html'))
             
 class PlotOnlineOfflineCompare(PostProcessingStep):
     def run(self):
@@ -143,7 +153,7 @@ class PlotOnlineOfflineCompare(PostProcessingStep):
         outFileNamePDF = self.getFileName('.pdf')
         ntFileName = self.getFileName('-nt.root','MergeNt')
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            cmd = 'cd %s; plotBeamSpotCompare.py -b -o %s,%s --finder1 --online2 --config="OnlineOffline" %s %s' % (self.taskDir, outFileNameGIF, outFileNamePDF, ntFileName, beamspottagonline)
+            cmd = 'cd %s; plotBeamSpotCompare.py -b -o %s,%s --online2 --config="OnlineOffline" %s %s' % (self.taskDir, outFileNameGIF, outFileNamePDF, ntFileName, beamspottagonline)
             status=self.logExec(cmd,doPrint=True,abortOnError=False)
             resultLinks = self.taskDict['RESULTLINKS']
             if status==0: 
@@ -225,7 +235,7 @@ class LinkResults(PostProcessingStep):
 class AveBeamSpot(PostProcessingStep):
     def run(self):
         ntFileName              = self.getFileName('-nt.root','MergeNt')
-        beamSpotDbFileName      = self.getFileName('-beamspot')
+        beamSpotDbFileName      = self.getFileName('-beamspot.db')
         #dataQualityDbFileName   = self.getFileName('-dqflags.db')
 
         if os.path.exists('/'.join([self.taskDir,beamSpotDbFileName])):
@@ -234,7 +244,7 @@ class AveBeamSpot(PostProcessingStep):
         #   self.logExec('cd %s; rm -f %s' % (self.taskDir,dataQualityDbFileName))
 
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            cmd = 'cd %s; beamspotnt.py --tag=%s -f %s ave' % (self.taskDir,beamSpotDbFileName,ntFileName)
+            cmd = 'cd %s; beamspotnt.py --tag=%s -f %s --newave ave' % (self.taskDir,beamSpotDbFileName[:-3],ntFileName)
             #cmd = 'cd %s; aveBeamSpot.py -b -o %s %s' % (self.taskDir,beamSpotDbFileName,ntFileName)
             #cmd = 'cd %s; aveBeamSpot.py -b -o %s -d %s %s' % (self.taskDir,beamSpotDbFileName,dataQualityDbFileName,ntFileName)            
             status = self.logExec(cmd,doPrint=True,abortOnError=False)
@@ -424,7 +434,7 @@ class BeamSpotGlobalNt(PostProcessingStep):
         
         ntFileName = self.getFileName('-nt.root','MergeNt')
         globalNtDir = '/afs/cern.ch/user/a/atlidbs/nt/t0'
-        beamspottag = 'IndetBeampos-ES1-UPD2' # Always update to one global ntuple so don't resolve current
+        beamspottag = 'IndetBeampos-RUN2-ES1-UPD2-10' # Always update to one global ntuple so don't resolve current
         globalNtFileName = '%s/beamspotnt-%s.root' % (globalNtDir,beamspottag)
         if not os.path.exists(globalNtDir):
             raise PostProcessingError('ERROR: Cannot access directory with global beam spot ntuple: %s' % globalNtDir, self.executedSteps)

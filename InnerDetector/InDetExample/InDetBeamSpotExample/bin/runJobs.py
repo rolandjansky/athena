@@ -4,7 +4,7 @@
 # Front-end script to run JobRunner jobs
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: runJobs.py 665939 2015-05-08 18:25:18Z atlidbs $'
+__version__ = '$Id: runJobs.py 676234 2015-06-18 00:29:52Z mhance $'
 __usage__   = """%prog [options] JOBOPTIONTEMPLATE DATASET TASK INPUTDATA
 
 Templates:  - InDetBeamSpotExample/ESDToDPDTemplate.py
@@ -106,10 +106,10 @@ if options.griduser:
 
 else:
     inputDS = ''
+    files = []
     if options.fromcastor:
         # INPUTDATA specifies a CASTOR directory with files
         # (the default filter is to use ESD files)
-        files = []
         if not options.filter:
             if options.bytestream:
                 filter = '.*'
@@ -120,6 +120,11 @@ else:
         for f in castorFiles:
             if pattern.search(f):
                 files.append(f)
+    elif os.path.isfile(inputdata):
+        # inputdata is a text file with filenames
+        for line in open(inputdata,'r'):
+            files.append('root://eosatlas/'+line.rstrip())
+
     else:
         if options.runoverdpd:
             # INPUTDATA is DPD task name

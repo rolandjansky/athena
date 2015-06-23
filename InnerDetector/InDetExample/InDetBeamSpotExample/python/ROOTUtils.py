@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 644342 2015-02-05 01:57:35Z beringer $
+# $Id: ROOTUtils.py 672121 2015-06-03 16:53:14Z mhance $
 """
 Miscellaneous utilities for PyROOT.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: ROOTUtils.py 644342 2015-02-05 01:57:35Z beringer $'
+__version__ = '$Id: ROOTUtils.py 672121 2015-06-03 16:53:14Z mhance $'
 
 
 import ROOT
@@ -113,7 +113,7 @@ class PlotLibrary:
                 if i in self.otherMethods: continue
                 self.__class__.__dict__[i](self,*args)
 
-    def genPlot(self,what='ALL',code='plot',*args):
+    def genPlot(self,what='ALL',code='plot',labels=[],*args):
         """Make plots using a general code. genPlot makes either a single plot defined
            by argument what, or all plots (if what=''). The plots made in the latter
            case are specified by whatList. A canvas that is subdivided if necessary
@@ -136,6 +136,19 @@ class PlotLibrary:
                         ROOT.gPad.SaveAs('%s-%s-%s%s' % (self.name,code,w,o))
                     else:
                         ROOT.gPad.SaveAs(o)
+
+            # If we want to put some labels on an empty pad, add them now.
+            if labels!=[] and self.allCanvasDivs[0]*self.allCanvasDivs[1] > len(self.whatList):
+                iCanvas+=1
+                c.cd(iCanvas)
+                xtext=0.0
+                ytext=0.8
+                for label in labels:
+                    drawText(xtext,ytext,0.06,label)
+                    ytext=ytext-0.1
+            elif labels!=[]:
+                print "ERROR: can't add labels unless we have an empty pad to use.  Ignoring labels."
+
             for o in self.saveAsList:
                 if o[0]=='.':
                     c.SaveAs('%s-%s-%s%s' % (self.name,code,what,o))
@@ -285,27 +298,40 @@ def moveStats(h,dx,dy,xw=0,yw=0,label=''):
     ROOT.gPad.Update
 
 
-def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8):
+def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8,customstring=""):
+    if x==None or y==None:
+        print "Must set (x,y) position using --atlasx and --atlasy to add labels.  No ATLAS labels created."
+        return
     l = ROOT.TLatex()
     l.SetNDC()
     l.SetTextFont(72)
     l.SetTextColor(color)
     l.DrawLatex(x,y,"ATLAS")
-    if (isPreliminary):
+    if customstring != "":
         p = ROOT.TLatex()
         p.SetNDC()
         p.SetTextFont(42)
         p.SetTextColor(color)
-        p.DrawLatex(x+offset,y,"Preliminary")
-    if (isForApproval):
-        p = ROOT.TLatex()
-        p.SetNDC()
-        p.SetTextFont(42)
-        p.SetTextColor(color)
-        p.DrawLatex(x+offset,y,"for approval")
+        p.DrawLatex(x+offset,y,customstring)
+    else:
+        if (isPreliminary):
+            p = ROOT.TLatex()
+            p.SetNDC()
+            p.SetTextFont(42)
+            p.SetTextColor(color)
+            p.DrawLatex(x+offset,y,"Preliminary")
+        if (isForApproval):
+            p = ROOT.TLatex()
+            p.SetNDC()
+            p.SetTextFont(42)
+            p.SetTextColor(color)
+            p.DrawLatex(x+offset,y,"Internal for approval")
     
-    if energy: 
-        p.DrawLatex(x, y-0.07, "#sqrt{s} = %s TeV" % energy)
+    if energy:
+        if float(energy)<15:
+            p.DrawLatex(x, y-0.07, "#sqrt{s} = %s TeV" % energy)
+        else:
+            p.DrawLatex(x, y-0.07, "#sqrt{s} = %s GeV" % energy)
 
 
 

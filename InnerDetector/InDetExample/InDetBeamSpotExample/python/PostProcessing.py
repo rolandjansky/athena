@@ -5,7 +5,7 @@
 This module defines the generic infrastructure for task postprocessing.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 
 import dircache, glob, re, time, sys, os, commands, math
