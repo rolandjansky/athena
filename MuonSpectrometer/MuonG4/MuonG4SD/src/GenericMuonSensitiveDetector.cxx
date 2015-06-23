@@ -23,7 +23,12 @@ GenericMuonSensitiveDetector::GenericMuonSensitiveDetector(const std::string& na
 // Implemenation of memebr functions
 void GenericMuonSensitiveDetector::Initialize(G4HCofThisEvent*) 
 {
-  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+#ifdef ATHENAHIVE // temporary until WriteHandle fix for Hive
+  m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+#else
+  if (!m_GenericMuonHitCollection.isValid())
+    m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+#endif
 }
 
 G4bool GenericMuonSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
