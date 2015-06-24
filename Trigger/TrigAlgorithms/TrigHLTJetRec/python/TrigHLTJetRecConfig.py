@@ -36,26 +36,35 @@ from EventShapeTools.EventShapeToolsConf import EventDensityTool
 # quasi cut and paste of configEventDensityTool in EventDensityConfig.py
 # that creates the name in the format expected by the pileup calibration tool.
 
+
 def _getEventShapeSGKey(radius, pseudoJetGetterLabel):
     return  "HLTKt"+str(int(10*radius))+pseudoJetGetterLabel + "EventShape"
 
-def configHLTEventDensityTool( name, pjGetter, radius, **options ):
-    """ options can be used to pass any EventDensityTool properties 
-    """
-    # Set default and passed properties for the EventDensityTool
+
+def configHLTEventDensityTool(name,
+                              pjGetter,
+                              JetAlgorithm='Kt',
+                              radius=0.4,
+                              AbsRapidityMin=0.0,
+                              AbsRapidityMax=2.0,
+                              AreaDefinition='Voronoi',
+                              VoronoiRfact=0.9,
+                              **options):
+    """Set up the energy denisty tool. Defaults can be overridden by
+    adding arguments to **options"""
+
+
     toolProperties = dict(
-        JetAlgorithm        = "Kt",
+        JetAlgorithm        = JetAlgorithm,
         JetRadius           = radius,
         JetInput            = pjGetter,
-        AbsRapidityMin      = 0.0,
-        AbsRapidityMax      = 2.0,
-        AreaDefinition      = "Voronoi",
-        VoronoiRfact        = 0.9,
-        # OutputContainer     = "HLTKt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        AbsRapidityMin      = AbsRapidityMin,
+        AbsRapidityMax      = AbsRapidityMax,
+        AreaDefinition      = AreaDefinition,
+        VoronoiRfact        = VoronoiRfact,
         OutputContainer     = _getEventShapeSGKey(radius,pjGetter.Label)
     )
-    # Override properties with user-supplied options.
-    toolProperties.update( options)
+
     # Build the tool :
     return EventDensityTool(name, **toolProperties)
     
@@ -98,6 +107,7 @@ def _getJetBuildTool(merge_param,
     mymods.extend([
             jtm.jetens,
             jtm.caloqual_cluster,
+            jtm.clsmoms,
             ])
 
     if not do_minimalist_setup:
@@ -223,7 +233,7 @@ def _getTriggerPseudoJetGetter(cluster_calib):
     return triggerPseudoJetGetter
 
     
-def _getEnergyDensityTool(name, pjGetter, radius, **options):
+def _getEnergyDensityTool(name, **options):
 
     # declare jtm as global as this function body may modify it
     # with the += operator
@@ -238,10 +248,7 @@ def _getEnergyDensityTool(name, pjGetter, radius, **options):
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        energyDensityTool = configHLTEventDensityTool(name,
-                                                      pjGetter,
-                                                      radius,
-                                                      **options)
+        energyDensityTool = configHLTEventDensityTool(name, **options)
         jtm += energyDensityTool
         energyDensityTool = getattr(jtm, name)
         print 'TrigHLTJetRecConfig._getEnergyDensityTool '\
@@ -471,7 +478,8 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
 
 
-class TrigHLTJetRecFromTriggerTower(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
+class TrigHLTJetRecFromTriggerTower(
+        TrigHLTJetRecConf.TrigHLTJetRecFromTriggerTower):
     """Jets from trigger towers"""
     def __init__(self,
                  name,
@@ -487,7 +495,8 @@ class TrigHLTJetRecFromTriggerTower(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
                  ptMinCut=15000.,
                  etaMaxCut=3.2,
                  ):
-        TrigHLTJetRecConf.TrigHLTJetRecFromJet.__init__(self, name=name)
+        TrigHLTJetRecConf.TrigHLTJetRecFromTriggerTower.__init__(self,
+                                                                 name=name)
 
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
@@ -568,8 +577,19 @@ class TrigHLTJetDebug(TrigHLTJetRecConf.TrigHLTJetDebug):
 class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
     """Supply a specific merge parameter for the anti-kt algorithm"""
 
-    # cluster_calib: EM or LC
-    def __init__(self, name, cluster_calib, ed_merge_param): 
+    
+    def __init__(self,
+                 name,
+                 # cluster_calib: follow naming convention EM or LC
+                 cluster_calib='EM',
+                 ed_merge_param=0.4, 
+                 AbsRapidityMin=0.0,
+                 AbsRapidityMax=2.0,
+                 JetAlgorithm='Kt',
+                 AreaDefinition='Voronoi',
+                 VoronoiRfact=0.9,
+             ): 
+
         TrigHLTJetRecConf.TrigHLTEnergyDensity.__init__(self, name=name)
 
         from TrigHLTJetRec.TrigHLTEnergyDensityMonitoring import(
@@ -593,11 +613,19 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
         # triggerPseudoJetGetter_EMTopo')
         self.pseudoJetGetter = pseudoJetGetter  
 
+        options = dict(AbsRapidityMin=AbsRapidityMin,
+                       AbsRapidityMax=AbsRapidityMax,
+                       JetAlgorithm=JetAlgorithm,
+                       radius=ed_merge_param,
+                       pjGetter=pseudoJetGetter,
+                       AreaDefinition=AreaDefinition,
+                       VoronoiRfact=VoronoiRfact,
+                       )
+
         # ed_merge_param is a float e.g. 0.4
-        self.energyDensityTool = _getEnergyDensityTool(
-            'jetTriggerEnergyDensityTool_%s' % cluster_calib,
-            pseudoJetGetter,
-            ed_merge_param)
+        name='jetTriggerEnergyDensityTool_%s' % cluster_calib
+
+        self.energyDensityTool = _getEnergyDensityTool(name, **options)
 
         self.eventShapeSGKey = _getEventShapeSGKey(ed_merge_param,
                                                    pseudoJetGetter.Label)

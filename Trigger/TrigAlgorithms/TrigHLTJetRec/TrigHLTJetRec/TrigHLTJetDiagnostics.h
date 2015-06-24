@@ -21,7 +21,6 @@
 
 class TH1D;
 class TH2D;
-class TFile;
 	
 class TrigHLTJetDiagnostics: public HLT::HypoAlgo {
 	
@@ -38,7 +37,6 @@ public:
                                                            const int &binsY, double minY, double maxY);
 
 private:
-  TFile* fOut;
   std::string m_chainName;
   std::map<TString,TH1D*> hMap1D;
   std::map<TString,TH2D*> hMap2D;

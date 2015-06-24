@@ -104,21 +104,26 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   // make a local copy of the input jets from the TE for easier iteration
   std::vector<const xAOD::Jet*> originalJets(outJets->begin(), outJets->end());
 
-  // redundant? check the collection contains jets 
+  // check the collection contains jets 
   std::size_t njets = originalJets.size();
   
-  if( njets == 0 ){
-    ATH_MSG_DEBUG("JetCollection is empty");
+  if( njets < 2 ){
+    ATH_MSG_DEBUG("JetCollection contains <2 jets, not running algorithm");
+    //set trigger element to not active so that chain doesn't go any further
+    outputTE->setActiveState(false);
+    return HLT::OK;
   } else {
     ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
   }
 
-  /*ATH_MSG_DEBUG("List of original jets, before sorting");
+
+  /*
+  ATH_MSG_INFO("List of original jets, before sorting");
   for ( unsigned int iJet=0; iJet < originalJets.size(); iJet++ ) {
     const xAOD::Jet* thisJet = originalJets[iJet];
-    ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
-  }*/
-
+    ATH_MSG_INFO( "  jet pT = " << thisJet->pt() );
+  }
+  */
 
   std::vector<const xAOD::Jet*>::iterator it_maxJetBound;
   
@@ -127,19 +132,20 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   //sanity check
   else if (m_maxNJets == 0) {
     ATH_MSG_DEBUG( "This algorithm will keep no jets, so it should not be running at all." );
-    it_maxJetBound=originalJets.begin();
+    outputTE->setActiveState(false);
+    return HLT::OK;
   }
-  //check we do have a constraint on a number of jets: -1 means keep all jets
+  //if we got here, we do not have a constraint on a number of jets: -1 means keep all jets
   else it_maxJetBound=originalJets.end(); 
 
   // check the sort order of the input container is ok
   // use a partial sort to save some time
   std::partial_sort( originalJets.begin(), it_maxJetBound, originalJets.end(), DescendingEt() );
 
-  /*ATH_MSG_DEBUG("List of original jets, after sorting");
+  /*ATH_MSG_INFO("List of original jets, after sorting");
   for ( unsigned int iJet=0; iJet < originalJets.size(); iJet++ ) {
     const xAOD::Jet* thisJet = originalJets[iJet];
-    ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
+    ATH_MSG_INFO( "  jet pT = " << thisJet->pt() );
   }*/
 
   //use std::partition to select the jets above threshold
@@ -158,10 +164,10 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
 
   }
   
-  /*ATH_MSG_DEBUG("List of output jets");
+  /*ATH_MSG_INFO("List of output jets");
   for ( unsigned int iJet=0; iJet < outputJets->size(); iJet++ ) {
     const xAOD::Jet* thisJet = outputJets->at(iJet);
-    ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
+    ATH_MSG_INFO( "  jet pT = " << thisJet->pt() );
   }*/
 
   ATH_MSG_DEBUG(outputJets->size() << " jets kept");
@@ -174,15 +180,15 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
 
   HLT::ErrorCode
     TrigHLTJetDSSelector::attachJetCollection(HLT::TriggerElement* outputTE,
-        const xAOD::JetContainer* j_container, std::string j_key){
+        const xAOD::JetContainer* j_container, std::string j_label){
 
       // We have to explicitly delete the aux store, so get a pointer to it.
       auto auxStore = j_container->getStore();
-      std::string label = "TrigHLTJetDSSelector";
-      std::string key = j_key;
+
+      std::string ignored_key; // ignored output parameter
 
       HLT::ErrorCode hltStatus = 
-        recordAndAttachFeature(outputTE, j_container, key, label);
+        recordAndAttachFeature(outputTE, j_container, ignored_key, j_label);
 
       // cleanup
       if (hltStatus != HLT::OK) {
