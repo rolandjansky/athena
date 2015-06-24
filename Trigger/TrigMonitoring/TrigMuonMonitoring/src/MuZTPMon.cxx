@@ -317,7 +317,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   if(m_ztp_newrun) {
     map<string, string> newmap(m_ztpmap); // copy the map
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
-      string chainname = "HLT_";
+      string chainname;
       chainname += itmap->first;
       const TrigConf::HLTChain* chain = getTDT()->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainname);
       
@@ -385,7 +385,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     // isTriggered_L2 = ChainGroupL2->isPassed();
     
     bool isTriggered_EF = false;
-    const Trig::ChainGroup* ChainGroupEF = getTDT()->getChainGroup("HLT_"+itmap->first);
+    const Trig::ChainGroup* ChainGroupEF = getTDT()->getChainGroup(itmap->first);
     isTriggered_EF = ChainGroupEF->isPassed();
 
     
@@ -393,7 +393,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     ///////////////////////////////////// get ONLINE Objects //////////////////////////////////////////
 
     Trig::FeatureContainer fL1 = getTDT()->features(m_ztp_l1map[itmap->first]);
-    Trig::FeatureContainer fHLT = getTDT()->features("HLT_"+itmap->first,TrigDefs::alsoDeactivateTEs);
+    Trig::FeatureContainer fHLT = getTDT()->features(itmap->first,TrigDefs::alsoDeactivateTEs);
     
     std::vector<Trig::Combination>::const_iterator jL1;    
     std::vector<Trig::Combination>::const_iterator jL2;    
