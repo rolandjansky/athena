@@ -86,10 +86,8 @@ if primDPD.MakePrimaryDPD():
     ##=======================================================================    
     if primDPD.WriteSingleElectronStream() \
            or primDPD.WriteEGammaStream() \
-           or primDPD.WritePhotonJetStream() \
            or primDPD.WriteMuonStream() \
            or primDPD.WriteSingleMuonStream() \
-           or primDPD.WriteJetStream() \
            or primDPD.WriteMinBiasStream() \
            or primDPD.WritePrescaledESDStream() \
            or primDPD.WriteLargeMetStream() \
@@ -154,14 +152,6 @@ if primDPD.MakePrimaryDPD():
 
 
     ##=======================================================
-    ## Include the Photon-Jet DPD Output Stream
-    ##=======================================================
-    if primDPD.WritePhotonJetStream():
-        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_PhotonJet.py")
-        pass
-
-
-    ##=======================================================
     ## Include the Muon DPD Output Stream
     ##=======================================================
     if primDPD.WriteMuonStream():
@@ -173,13 +163,6 @@ if primDPD.MakePrimaryDPD():
     ##=======================================================
     if primDPD.WriteSingleMuonStream():
         rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_SingleMuon.py")
-        pass
-
-    ##=======================================================
-    ## Include the Jet DPD Output Stream
-    ##=======================================================
-    if primDPD.WriteJetStream():
-        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_Jet.py")
         pass
 
     ##=======================================================
@@ -288,6 +271,14 @@ if primDPD.MakePrimaryDPD():
             rec.DPDMakerScripts.append("LongLivedParticleDPDMaker/PhysDESDM_RPVLL_CosmicCalo.py")
     except(AttributeError):
         pass
+
+    ## Include the Muon DESDM Output Stream
+    ##=======================================================
+    if primDPD.WriteMuonStream():
+        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDESD_MS.py")
+        pass
+    ##=======================================================
+
 
     ##################################################################################
     ## Commissioning DPD

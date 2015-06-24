@@ -67,6 +67,9 @@ use VxVertex                    VxVertex-*              Tracking/TrkEvent
 use egammaEvent                 egammaEvent-*           Reconstruction/egamma
 use tauEvent                    tauEvent-*              Reconstruction
 
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+
 
 end_private
 
