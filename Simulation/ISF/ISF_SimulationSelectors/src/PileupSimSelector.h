@@ -42,6 +42,12 @@ namespace ISF {
 
     private:
      mutable Barcode::BitCalculator m_bitcalculator;
+
+     std::vector<int> m_pileupbcid; // vector of BCIDs to select
+
+     mutable int m_npass; // number of particles filter accepts
+     mutable int m_nfail; // number of particles filter rejects
+
   }; 
   
 }

@@ -18,15 +18,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace Trk {
-  class IExtrapolator;
-  class ITrackingGeometrySvc;
-  class TrackingGeometry;
-  class TrackingVolume;
-  class PdgToParticleHypothesis;
-}
-
 namespace ISF {
+
+  // forward delcarations
+  class ITrkExtrapolator;
 
   /** @class ConeSimSelector
   
@@ -66,9 +61,6 @@ namespace ISF {
       virtual bool passSelectorCuts(const ISFParticle& particle) const;
 
     private:
-
-      bool retrieveTrackingGeometry() const;
-
       std::vector<int>                          m_absPDGVector;  //!< abs(PDG) for particles to create cones around
       /** ISFParticle has to have a relative which is in this list to create a cone*/
       bool                                      m_checkRelatives;//!< on/off for checking relatives
@@ -79,20 +71,9 @@ namespace ISF {
       int                                       m_relationProp;  //!< Python property
       HepMC::IteratorRange                      m_relation;      //!< HepMC
 
-      /** tracking geometry for geometry signature */
-      mutable const Trk::TrackingGeometry*      m_trackingGeometry;     //!< the tracking geometry owned by the navigator      
-      ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;  //!< ServiceHandle to the TrackingGeometrySvc
-      std::string                               m_trackingGeometryName; //!< default name of the TrackingGeometry  
-
-      /** extrapolation to calo entry */
-      ToolHandle<Trk::IExtrapolator>       m_extrapolator;              //!< ToolHandle for track extrapolator
-
-      bool                                      m_extrapolateToCalo; //!< on/off for extrapolating track to CaloEntry prior before building cone
-
-      mutable const Trk::TrackingVolume*        m_caloEntrance;
-
-      Trk::PdgToParticleHypothesis*             m_pdgToParticleHypothesis; //!< converts PDG ID to hypothesis for TrackParameters
-
+      /** Track extrapolation to estimate impact point of particle on next sub-detector*/
+      bool                                      m_extrapolateToCalo; //!< enable/disable
+      ToolHandle<ISF::ITrkExtrapolator>         m_extrapolator;      //!< extrapolator tool
   };
 
 }

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/KinematicSimSelector.h"
+#include "KinematicSimSelector.h"
 
 /** Constructor **/
 ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 

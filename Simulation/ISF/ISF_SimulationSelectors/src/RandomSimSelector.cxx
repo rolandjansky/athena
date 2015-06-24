@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/RandomSimSelector.h"
+#include "RandomSimSelector.h"
 // HepMC includes
 #include "ISF_Event/ISFParticle.h"
 // Units includes

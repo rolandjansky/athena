@@ -6,7 +6,7 @@
 // TruthAssocSimSelector.cxx, (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////// 
 // class include
-#include "ISF_SimulationSelectors/TruthAssocSimSelector.h"
+#include "TruthAssocSimSelector.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"

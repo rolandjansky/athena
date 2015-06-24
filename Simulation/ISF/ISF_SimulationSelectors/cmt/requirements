@@ -9,24 +9,20 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 # public use statements
 use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*        External
-use AtlasHepMC                  AtlasHepMC-*            External
 
-use ISF_Event                   ISF_Event-*             Simulation/ISF/ISF_Core
-use ISF_Interfaces              ISF_Interfaces-*        Simulation/ISF/ISF_Core
 
 use AtlasROOT                   AtlasROOT-*             External
-use BarcodeServices             BarcodeServices-*       Simulation/Barcode      
 
 #################################################################
 # private use statements
 private
+use AtlasHepMC                  AtlasHepMC-*            External
+use ISF_Event                   ISF_Event-*             Simulation/ISF/ISF_Core
+use ISF_Interfaces              ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use ISF_HepMC_Event             ISF_HepMC_Event-*       Simulation/ISF/ISF_HepMC
+use ISF_TrackingInterfaces      ISF_TrackingInterfaces-* Simulation/ISF/ISF_Tracking
 
-use TrkDetDescrInterfaces       TrkDetDescrInterfaces-* Tracking/TrkDetDescr
-use TrkExInterfaces             TrkExInterfaces-*       Tracking/TrkExtrapolation
-use TrkEventPrimitives          TrkEventPrimitives-*    Tracking/TrkEvent
-use TrkParameters               TrkParameters-*         Tracking/TrkEvent
-use TrkGeometry                 TrkGeometry-*           Tracking/TrkDetDescr
+use BarcodeServices             BarcodeServices-*       Simulation/Barcode      
 
 public
 library ISF_SimulationSelectors *.cxx components/*.cxx
