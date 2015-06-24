@@ -64,12 +64,15 @@ ConfigSvcBase::initialize() {
       if (s == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }
       else if (s == "mysql")  { dbtype = TrigDBConnectionConfig::MySQL; }
       else if (s == "sqlite") { dbtype = TrigDBConnectionConfig::SQLite; }
-      m_dbconfig = std::unique_ptr<TrigDBConnectionConfig>{
-         new TrigDBConnectionConfig( dbtype,
-                                     m_dbServer,
-                                     m_dbSMKey,
-                                     m_dbHLTPSKey)
-      };
+
+      TrigDBConnectionConfig * tmpptr{nullptr};
+      if(m_dbHLTPSKey)
+        tmpptr = new TrigDBConnectionConfig(dbtype, m_dbServer, m_dbSMKey,
+                                            m_dbHLTPSKey);
+      else
+        tmpptr = new TrigDBConnectionConfig(dbtype, m_dbServer, m_dbSMKey,
+                                            m_dbHLTPSKeySet);
+      m_dbconfig = std::unique_ptr<TrigDBConnectionConfig>{std::move(tmpptr)};
       m_dbconfig->m_useFrontier = m_useFrontier;
    }
 

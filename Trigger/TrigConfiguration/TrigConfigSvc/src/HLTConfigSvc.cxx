@@ -46,12 +46,6 @@
 using namespace std;
 using namespace TrigConf;
 
-bool hasLBPSKList(const string & dbHLTPSKeySet) {
-   return (dbHLTPSKeySet != "" && dbHLTPSKeySet != "[]"); // empty list can be "" or "[]" (change comes with the new DBConnection class)
-}
-
-
-
 HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
    base_class(name, pSvcLocator),
    m_eventStore(0),
@@ -138,22 +132,21 @@ HLTConfigSvc::initialize() {
    ATH_MSG_INFO("    Run merged HLT      = " << m_setMergedHLT);
 
 
-   if( m_dbHLTPSKey!=0 && hasLBPSKList(m_dbHLTPSKeySet)  )
+   if( fromDB() && m_dbHLTPSKey!=0 && !m_dbconfig->m_hltkeys.empty() )
       ATH_MSG_WARNING("DBHLTPSKey and DBHLTPSKeySet both specified, the DBHLTPSKeySet will be ignored");
 
    // Read the HLT configuration
    m_HLTFrame.setMergedHLT( m_setMergedHLT );
-   m_HLTFrame.setSMK( m_dbSMKey );
-   if( m_dbHLTPSKey > 0) {
-      m_HLTFrame.thePrescaleSetCollection().set_prescale_key_to_load( m_dbHLTPSKey );
-   } else if( hasLBPSKList(m_dbHLTPSKeySet) ) {
-      // LB1uPSK1cLB2uPSK2..., meaning from LB1 use PSK1, change at LB2 use PSK2, ...
-      vector<pair<unsigned int, unsigned int> > all_lbnpsk;
-      for( const string& lbupsk: split( m_dbHLTPSKeySet, "c") ) {
-         auto lbpsk = split(lbupsk, "u" );
-         all_lbnpsk.push_back(std::make_pair<unsigned int, unsigned int>(atoi(lbpsk[0].c_str()),atoi(lbpsk[1].c_str())) );
-      }
-      m_HLTFrame.thePrescaleSetCollection().set_prescale_keys_to_load( all_lbnpsk );         
+   if(fromDB())
+   {
+     m_HLTFrame.setSMK( m_dbSMKey );
+     if(m_dbHLTPSKey) {
+       m_HLTFrame.thePrescaleSetCollection().set_prescale_key_to_load(
+           m_dbHLTPSKey);
+     } else {
+       m_HLTFrame.thePrescaleSetCollection().set_prescale_keys_to_load(
+           m_dbconfig->m_hltkeys);
+     }
    }
 
    CHECK(initStorageMgr());
@@ -232,13 +225,8 @@ TrigConf::HLTConfigSvc::start() {
    if( ! fromDB() ) // xml config
       return StatusCode::SUCCESS;
 
-   // if the m_dbHLTPSKeySet is set then we don't need to load any
-   // prescales 
-   if( hasLBPSKList(m_dbHLTPSKeySet) )
-      return StatusCode::SUCCESS;
-
    // also load the prescale set for the initial HLT PSK into the PrescaleSetCollection
-   if(m_dbHLTPSKey>0) {
+   if(m_dbHLTPSKey) {
 
       ATH_MSG_INFO("Loading PrescaleSet for initial HLT PSK: " << m_dbHLTPSKey);
 
@@ -379,7 +367,7 @@ TrigConf::HLTConfigSvc::updatePrescaleSets(uint requestcount) {
       return StatusCode::SUCCESS;
    }
    
-   if( hasLBPSKList(m_dbHLTPSKeySet) ) {
+   if( !m_dbconfig->m_hltkeys.empty() ) {
       ATH_MSG_WARNING("Has list of [(lb1,psk1), (lb2,psk2),...] defined!");
       return StatusCode::SUCCESS;
    }
