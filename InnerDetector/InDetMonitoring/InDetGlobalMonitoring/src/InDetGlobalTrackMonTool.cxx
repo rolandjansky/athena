@@ -187,19 +187,19 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
     // Eta-phi maps
     registerManHist( m_Trk_eta_phi_LoosePrimary_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_LoosePrimary_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Loose Primary selection",
-                     20, -c_etaRange, c_etaRange,
+                     m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
 
     registerManHist( m_Trk_eta_phi_Tight_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_Tight_eta_phi_ratio","Distribution of eta vs phi for combined tracks passing Tight selection",
-                     20, -c_etaRange, c_etaRange,
+                     m_nBinsEta, -c_etaRange, c_etaRange,
                      m_nBinsPhi, -M_PI, M_PI,
                      "eta", "#phi_{0}" ).ignore();
     
     registerManHist( m_Trk_eta_phi_noTRText_ratio, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_eta_phi_ratio","Distribution of eta vs phi for combined tracks with no TRT extension",
-		     20, -c_etaRange, c_etaRange, 
+		     20, -c_etaRangeTRT, c_etaRangeTRT, 
 		     m_nBinsPhi, -M_PI, M_PI,
 		     "eta", "#phi_{0}" ).ignore();
     
@@ -486,9 +486,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	return StatusCode::SUCCESS;
     }
 
-    m_Trk_nLoose->Fill( combined_tracks->size() );
-    m_Trk_nLoose_LB->Fill( m_manager->lumiBlockNumber(), combined_tracks->size() );
-
+    int nLoose = 0;
     int nLP = 0;
     int nTight = 0;
     int nNoIBL = 0;
@@ -500,36 +498,36 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
     for ( ; itrack!= itrack_end; ++itrack)
     {
 	const Trk::Track * track = (*itrack);
-	if ( !track )
+	if ( !track || track->perigeeParameters() == 0 )
 	{
 	    ATH_MSG_DEBUG( "NULL track pointer in collection" );
-	    return StatusCode::SUCCESS;
+	    continue;
 	}
 	
 	// Skip tracks that are not inside out
-	if ( m_dataType == AthenaMonManager::collisions && ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ) )
+	if ( m_dataType == AthenaMonManager::collisions
+	     && ( ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
+		  || track->perigeeParameters()->pT() < 5000. ) )
 	    continue;
-
+	
 	// Create a new summary or get copy of the cached one
 	const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
 	
 	if ( !summary )
 	{
 	    ATH_MSG_DEBUG( "NULL pointer to track summary" );
-	    return StatusCode::SUCCESS;
+	    continue;
 	}
 	
 	// Skip tracks without Pixel or SCT hits in cosmics
 	if ( m_dataType == AthenaMonManager::cosmics  && 
 	     summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
 	    continue;
-
+	
 	FillHits( track, summary );
-
-	if ( track->perigeeParameters() != 0 ) 
-	{
-	    FillEtaPhi( track , summary );
-	}
+	FillEtaPhi( track , summary );
+	
+	nLoose++;
 	
 	if ( m_loosePri_selTool->accept(*track) )
 	    nLP++;
@@ -549,7 +547,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 		nNoBL++;
 	}
 
-	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTDeadStraws) == 0 )
+	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
 	    nNoTRText++;;
 	if ( m_doHitMaps ) 
 	{
@@ -565,6 +563,9 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	delete summary;
     }
     
+    m_Trk_nLoose->Fill( nLoose );
+    m_Trk_nLoose_LB->Fill( m_manager->lumiBlockNumber(), nLoose );
+
     m_Trk_nLoosePrimary_LB->Fill( m_manager->lumiBlockNumber(), nLP );
     m_Trk_nTight_LB->Fill( m_manager->lumiBlockNumber(), nTight );
     if ( m_doIBL )
