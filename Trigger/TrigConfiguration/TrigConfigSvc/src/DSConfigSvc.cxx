@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 645890 2015-02-11 00:40:56Z stelzer $
+// $Id: DSConfigSvc.cxx 677827 2015-06-24 07:52:56Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -569,6 +569,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       m_ctpConfig.setL1Version(isRun2 ? 1 : 0);
       L1DataDef::setMaxThresholdsFromL1Version( m_ctpConfig.l1Version() );
       ATH_MSG_INFO( "  Determined format " << (isRun2 ? "Run 2" : "Run 1") );
+      
+      float emEnergyScale = isRun2 ? 2 : 1;
+      const_cast<CaloInfo&>(m_ctpConfig.menu().caloInfo()).setGlobalEmScale( emEnergyScale );
+      ATH_MSG_INFO( "  Setting EM energy scale to " << emEnergyScale );
 
       for(TriggerThreshold * thr : tmpThrVector) {
 

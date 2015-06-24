@@ -312,7 +312,8 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
       }
 
       // check if the DB and the client agree in size
-      if( propertiesFromDBSorted.size() != propertiesFromDB->size() ) {
+      if( propertiesFromDBSorted.size() != propertiesFromDB->size() && 
+          client != "THistSvc") {
          //find the properties that differ between the two lists
          std::vector<const Property*> propertiesFromDBDiffer;
          for( const Property * dbProp : *propertiesFromDB ) {
@@ -327,11 +328,11 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
                propertiesFromDBDiffer.push_back(dbProp);
             }
          }
-         ATH_MSG_WARNING( client << " asks for " << propertiesFromDBSorted.size() << " properties while the database knows about "
+         ATH_MSG_ERROR( client << " asks for " << propertiesFromDBSorted.size() << " properties while the database knows about "
                           << propertiesFromDB->size() << ", properties that differ are: ");
 
          for(const Property*  differ : propertiesFromDBDiffer )
-            ATH_MSG_WARNING( "   " << differ->name() );
+            ATH_MSG_ERROR( "   " << differ->name() );
 
       }
 

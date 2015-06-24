@@ -308,7 +308,7 @@ def getUsedTables(output, condition, schemaname, tables):
 
 def isRun2(cursor,schemaname):
     import cx_Oracle
-    if type(cursor.connection)!=cx_Oracle.Connection:
+    if not hasattr(cursor,'connection') or type(cursor.connection)!=cx_Oracle.Connection:
         log.warning('Detection of DB schema only supported for Oracle. Will assume run-2')
         return True
 
@@ -670,20 +670,28 @@ def getStreams(connection, smk):
 def getL1Prescales(connection, l1prescalekey): 
     
     cursor,schemaname = getTriggerDBCursor(connection) 
+    isrun2 = isRun2(cursor,schemaname)
 
+    maxitems = 512 if isrun2 else 256
     tables = { 'L' : 'L1_PRESCALE_SET' } 
 
-    output = ['L.L1PS_NAME'] + ['L.L1PS_VAL%i' % i for i in xrange(1,257)] 
+    output = ['L.L1PS_NAME'] + ['L.L1PS_VAL%i' % i for i in xrange(1,maxitems+1)] 
 
     condition = [ "L.L1PS_ID = '%i'" % l1prescalekey ] 
 
     res = executeQuery(cursor, output, condition, schemaname, tables) 
 
-    name,prescales = res[0][0], res[0][1:257]
+    name,prescales = res[0][0], res[0][1:maxitems+1]
+    if isrun2: prescales = map(getPrescaleFromCut, prescales)
 
     return (name,prescales)
 
-
+def getPrescaleFromCut(cut):
+    """Convert (run-2) prescale cuts into prescale value"""
+    sign = -1 if cut<0 else 1
+    ucut = abs(cut)
+    return (sign*0xFFFFFF ) / float( 0x1000000 - ucut );
+    
 def queryHLTPrescaleTable(connection,psk):
     """returns content of prescale set table and prescale table for a
     given HLT prescale key
