@@ -18,7 +18,7 @@
 
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalTopBottomMonTool.h"
+#include "InDetGlobalTopBottomMonTool.h"
 //Framework
 #include "GaudiKernel/StatusCode.h"
 //Standard c++

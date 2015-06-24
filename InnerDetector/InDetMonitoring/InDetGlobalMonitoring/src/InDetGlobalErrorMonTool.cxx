@@ -3,7 +3,7 @@
 */
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalErrorMonTool.h"
+#include "InDetGlobalErrorMonTool.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"

@@ -25,7 +25,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 
 class TH1F_LW;
 class TH2F_LW;
@@ -51,6 +51,7 @@ protected:
         TH1F_LW* m_hTrNPt;
         TH1F_LW* m_hTrPt;
         TH2F_LW* m_hTrDPhi;
+        TH2F_LW* m_hTrDPhiCorr;
 
 	TH1F_LW* m_hBsX;
 	TH1F_LW* m_hBsY;

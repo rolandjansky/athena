@@ -20,7 +20,7 @@
 #define InDetGlobalManager_H
 
 //Local includes
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 
 //Framework
 #include "GaudiKernel/ToolHandle.h"
