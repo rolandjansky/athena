@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/PileupSimSelector.h"
+#include "PileupSimSelector.h"
 // HepMC includes
 #include "ISF_Event/ISFParticle.h"
 // Units includes
