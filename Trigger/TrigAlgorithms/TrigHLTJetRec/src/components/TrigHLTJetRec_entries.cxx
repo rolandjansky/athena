@@ -1,4 +1,4 @@
-#include "TrigHLTJetRec/TrigHLTJetRec.h"
+//#include "TrigHLTJetRec/TrigHLTJetRec.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromCluster.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromJet.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
@@ -18,7 +18,7 @@
 #include "TrigHLTJetRec/TrigHLTJetDSSelector.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
+//DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromJet)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromTriggerTower)
@@ -39,7 +39,7 @@ DECLARE_TOOL_FACTORY(IParticleSelectorAll)
 DECLARE_TOOL_FACTORY(IParticleSelectorEtaPt)
 
 DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
-    DECLARE_ALGORITHM( TrigHLTJetRec);
+  //DECLARE_ALGORITHM( TrigHLTJetRec);
     DECLARE_ALGORITHM( TrigHLTJetRecFromCluster);
     DECLARE_ALGORITHM( TrigHLTJetRecFromJet);
     DECLARE_ALGORITHM( TrigHLTJetRecFromTriggerTower);

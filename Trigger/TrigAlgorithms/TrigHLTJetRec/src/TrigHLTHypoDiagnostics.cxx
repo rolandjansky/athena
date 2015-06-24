@@ -58,7 +58,7 @@ HLT::ErrorCode TrigHLTHypoDiagnostics::hltFinalize(){
   ATH_MSG_INFO ("Finalizing " << name() << "...");
   // Open output root file
   std::string fileName = "hypo_"+m_chainName+"_.root";
-  fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  TFile* fOut = new TFile(fileName.c_str(), "RECREATE");
   std::string directory = "hypo_"+m_chainName;
   TDirectory* dir = fOut->mkdir(directory.c_str());
   dir->cd(); 
