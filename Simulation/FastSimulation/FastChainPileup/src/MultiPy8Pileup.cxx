@@ -17,8 +17,12 @@ MultiPy8Pileup::MultiPy8Pileup(const std::string& name, ISvcLocator* pSvcLocator
   Pythia8_i::Pythia8_i( name, pSvcLocator ),
   m_ngen(0),
   m_nbad(0),
-  m_evnumber(1),
-  m_randomEngine(NULL),m_file(NULL)
+  // m_evnumber(1),
+  m_randomEngine(NULL),
+  m_file(NULL),
+  m_htgPileupProfile(NULL),
+  m_htgPileupMu(NULL),
+  m_htgPileupEvents(NULL)
 {
   declareProperty("NCollPerEvent",m_ncollevent=20,"Collisons per event (-1 to use profile)");
   declareProperty("PileupProfile",m_pileupProfile,"Pileup profile array");
@@ -98,12 +102,12 @@ StatusCode MultiPy8Pileup::callGenerator() {
 		    << " for BCID " << bcid);
       StatusCode sc=Pythia8_i::callGenerator();
       if (sc==StatusCode::SUCCESS) {
-	GenEvent* evt=new GenEvent();
+	HepMC::GenEvent* evt=new HepMC::GenEvent();
 	if (Pythia8_i::fillEvt(evt)==StatusCode::SUCCESS) {
 	  // change the process ID to incorporate the BCID * 10000
 	  int pid=evt->signal_process_id();
 	  evt->set_signal_process_id(pid+10000*bcid);
-	  ATH_MSG_DEBUG("Signal process ID " << pid << " set to " << 
+	  ATH_MSG_DEBUG("Signal process ID " << pid << " set to " <<
 			evt->signal_process_id() << " for BCID " << bcid);
 	  m_evts.push_back(evt);
 	  ++m_ngen;
@@ -117,12 +121,12 @@ StatusCode MultiPy8Pileup::callGenerator() {
       }
     }
   }
-  ATH_MSG_DEBUG("callGenerator finished with " << m_evts.size() << 
+  ATH_MSG_DEBUG("callGenerator finished with " << m_evts.size() <<
 		" pileup events in buffer");
   return StatusCode::SUCCESS;
 }
 
-StatusCode MultiPy8Pileup::fillEvt(GenEvent* evt) {
+StatusCode MultiPy8Pileup::fillEvt(HepMC::GenEvent* evt) {
   int nbuf=m_evts.size();
   if (nbuf>1) {
     // send extra events into McEventCollection via backdoor

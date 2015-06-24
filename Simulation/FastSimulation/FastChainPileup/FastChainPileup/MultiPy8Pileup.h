@@ -18,7 +18,9 @@
 
 #include "Pythia8_i/Pythia8_i.h"
 
-class GenEvent;
+namespace HepMC {
+  class GenEvent;
+}
 
 class MultiPy8Pileup : public Pythia8_i {
 
@@ -30,21 +32,21 @@ class MultiPy8Pileup : public Pythia8_i {
     virtual StatusCode genFinalize();
 
     virtual StatusCode callGenerator();
-    virtual StatusCode fillEvt( GenEvent *event );
+    virtual StatusCode fillEvt( HepMC::GenEvent *event );
 
   private:
     int nPileupEvents();                // decide how much pileup events will be generated
     // parameters
     int m_ncollevent;                  // fixed number of collisions per event
-    std::vector<int> m_pileupProfile;  // pileup mu-profile
-    std::vector<float> m_multbcid;     // mu multipliers per BCID
+    std::vector< int > m_pileupProfile;  // pileup mu-profile
+    std::vector< float > m_multbcid;     // mu multipliers per BCID
     std::string m_filename;            // filename for histogram output
 
     int m_ngen;                         // total number of events generated
     int m_nbad;                         // total number of failed events
-    int m_evnumber;                     // event sequence number
+    // int m_evnumber;                     // event sequence number
 
-    std::vector<GenEvent*> m_evts;   // vector of generated minbias events
+    std::vector< HepMC::GenEvent * > m_evts;   // vector of generated minbias events
 
     CLHEP::HepRandomEngine *m_randomEngine;
 
