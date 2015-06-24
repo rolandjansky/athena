@@ -188,6 +188,19 @@ class WriteDESDM_PHOJETStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESDM_PHOJETStream)
 listESDtoDPD.append(WriteDESDM_PHOJETStream.StreamName)
 
+class WriteDESDM_SGLELStream(JobProperty):
+    """ Produce the primary DPD single electon DPD."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESDM_SGLEL"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "PrimaryDPDMaker/PerfDPD_SGLEL.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESDM_SGLELStream)
+listESDtoDPD.append(WriteDESDM_SGLELStream.StreamName)
+
 class WriteSingleElectronStream(JobProperty):
     """ Produce the primary DPD Missing Et DPD."""
     statusOn     = True
@@ -1242,6 +1255,19 @@ class WriteDAOD_IDTRKVALIDStream(JobProperty):
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTRKVALIDStream)
 listESDtoDPD.append(WriteDAOD_IDTRKVALIDStream.StreamName)
+
+class WriteDAOD_IDTIDEStream(JobProperty):
+    """ Produce the DPD for DAOD_IDTIDE - AOD with PrepRawData """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_IDTIDE"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkInDet/IDTIDE1.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTIDEStream)
+listESDtoDPD.append(WriteDAOD_IDTIDEStream.StreamName)
 
 class WriteDAOD_IDTRKLUMIStream(JobProperty):
     """ Produce the DPD for DAOD_IDTRKLUMI - AOD with PrepRawData """

@@ -11,7 +11,7 @@ DRAW_ZMUMU_Seq = CfgMgr.AthSequencer("DRAW_ZMUMU_Seq")
 
 # Object selection strings
 sel_muon1  = 'Muons.pt > 25*GeV && Muons.ptcone40/Muons.pt < 0.3'
-sel_muon2  = 'Muons.pt > 7*GeV'  #  && Muons.ptcone40/Muons.pt < 0.4'
+sel_muon2  = 'Muons.pt > 20*GeV && Muons.ptcone40/Muons.pt < 0.3'
 
 # Event selection string
 draw_zmumu = '( count (  DRZmumuMass > 70*GeV   &&  DRZmumuMass < 110*GeV ) >= 1 )'

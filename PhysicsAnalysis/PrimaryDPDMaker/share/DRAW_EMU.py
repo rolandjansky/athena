@@ -10,10 +10,10 @@ topSequence = AlgSequence()
 DRAW_EMU_Seq = CfgMgr.AthSequencer("DRAW_EMU_Seq")
 
 # Object selection strings
-sel_muon1  = 'Muons.pt > 20*GeV && Muons.ptcone20/Muons.pt < 0.2'
-sel_muon2  = 'Muons.pt > 10*GeV && Muons.ptcone20/Muons.pt < 0.2'
-sel_el1  = 'Electrons.pt > 25*GeV && Electrons.ptcone20/Electrons.pt < 0.2 && Electrons.isEMLHLoose'
-sel_el2  = 'Electrons.pt > 10*GeV && Electrons.ptcone20/Electrons.pt < 0.2 && Electrons.isEMLHLoose'
+sel_muon1  = 'Muons.pt > 20*GeV && Muons.ptcone40/Muons.pt < 0.3'
+sel_muon2  = 'Muons.pt > 15*GeV && Muons.ptcone40/Muons.pt < 0.3'
+sel_el1  = 'Electrons.pt > 25*GeV && ( Electrons.Medium || Electrons.LHMedium )'
+sel_el2  = 'Electrons.pt > 15*GeV && ( Electrons.Medium || Electrons.LHMedium )'
 
 # Event selection string
 draw_emu = '( (count('+sel_muon1+')>=1 && count('+sel_el2+')>=1) || (count('+sel_el1+')>=1 && count('+sel_muon2+')>=1) )'

@@ -85,11 +85,31 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
-EventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EventStringSkimmingTool",
-                                                                expression = "(count(Muons.muonType == 0) > 0)")
-ToolSvc += EventStringSkimmingTool
+EventStringSkimmingTool1_sub = DerivationFramework__xAODStringSkimmingTool(name = "EventStringSkimmingTool1_sub",
+                                                                expression = "(count(Muons.muonType == 0 && Muons.pt > 4*GeV && Muons.pt < 15*GeV) > 0)")
+ToolSvc += EventStringSkimmingTool1_sub
+print EventStringSkimmingTool1_sub
+
+LowpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "LowpTMuonPrescaleSkimmingTool",
+                                                                    Prescale = 10)
+ToolSvc += LowpTMuonPrescaleSkimmingTool
+print LowpTMuonPrescaleSkimmingTool
+
+EventStringSkimmingTool1 = DerivationFramework__FilterCombinationAND(name="EventStringSkimmingTool1",FilterList=[EventStringSkimmingTool1_sub, LowpTMuonPrescaleSkimmingTool])
+ToolSvc += EventStringSkimmingTool1
+print EventStringSkimmingTool1
+
+EventStringSkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EventStringSkimmingTool2",
+                                                                expression = "(count(Muons.muonType == 0 && Muons.pt >= 15*GeV) > 0)")
+ToolSvc += EventStringSkimmingTool2
+print EventStringSkimmingTool2
+
+EventStringSkimmingTool=DerivationFramework__FilterCombinationOR(name="EventStringSkimmingTool",FilterList=[EventStringSkimmingTool1, EventStringSkimmingTool2])
+ToolSvc+=EventStringSkimmingTool
 print EventStringSkimmingTool
+
 
 #Trigger selection
 #Muon triggers:
@@ -109,7 +129,7 @@ JPsiTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiT
 ToolSvc += JPsiTrigSkimmingTool
 print JPsiTrigSkimmingTool
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 JPsiTrigPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "JPsiTrigPrescaleSkimmingTool",
                                                                     Prescale = 1)
 ToolSvc += JPsiTrigPrescaleSkimmingTool
@@ -174,7 +194,7 @@ else:
 
 if primDPDAlignTrigMu.ApplyThinning():
     AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_MS"])
-    AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_CT"])
+#    AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_CT"])
     pass
 
 if primDPDAlignTrigMu.ApplySkimming():

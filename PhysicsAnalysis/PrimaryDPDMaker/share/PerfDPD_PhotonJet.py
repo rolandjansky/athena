@@ -60,42 +60,10 @@ StreamDESDM_PHOJET.AddRequireAlgs(["DESDM_PHOJETKernel"])
 
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
-# Take all items from the input, except for the ones listed in the excludeList, list copied from AllCells
-ExcludeList=[ "TrackCollection#Tracks",
-              "InDet::PixelClusterContainer#PixelClusters",
-              "InDet::SCT_ClusterContainer#SCT_Clusters",
-              "InDet::TRT_DriftCircleContainer#TRT_DriftCircles",
-              "PRD_MultiTruthCollection#PRD_MultiTruthTRT",
-              "PRD_MultiTruthCollection#CSC_TruthMap",
-              "PRD_MultiTruthCollection#MDT_TruthMap",
-              "PRD_MultiTruthCollection#PRD_MultiTruthPixel",
-              "PRD_MultiTruthCollection#PRD_MultiTruthSCT",
-              "PRD_MultiTruthCollection#RPC_TruthMap",
-              "PRD_MultiTruthCollection#TGC_TruthMap",
-              "Muon::CscStripPrepDataContainer#CSC_Measurements",
-              "Muon::RpcPrepDataContainer#RPC_Measurements",
-              "Muon::TgcPrepDataContainer#TGC_Measurements",
-              "Muon::TgcPrepDataContainer#TGC_MeasurementsNextBC",
-              "Muon::TgcPrepDataContainer#TGC_MeasurementsPriorBC",
-              "Muon::MdtPrepDataContainer#MDT_DriftCircles",
-              "Muon::RpcCoinDataContainer#RPC_triggerHits",
-              "MuonSimDataCollection#MDT_SDO",
-              "MuonSimDataCollection#RPC_SDO",
-              "MuonSimDataCollection#TGC_SDO",
-              "CscSimDataCollection#CSC_SDO",
-              "CscRawDataContainer#CSCRDO",
-              "Muon::CscPrepDataContainer#CSC_Clusters",
-              "InDet::PixelGangedClusterAmbiguities#PixelClusterAmbiguitiesMap",
-              "InDet::PixelGangedClusterAmbiguities#SplitClusterAmbiguityMap",
-              "MdtCsmContainer#MDTCSM",
-              # not sure if the detailed track truth will be useful?
-              "DetailedTrackTruthCollection#ConvertedMBoyMuonSpectroOnlyTracksTruth",
-              "DetailedTrackTruthCollection#ConvertedMBoyTracksTruth",
-              "DetailedTrackTruthCollection#DetailedTrackTruth",
-              "DetailedTrackTruthCollection#MooreTracksTruth",
-              "DetailedTrackTruthCollection#MuonSpectrometerTracksTruth",
-              "DetailedTrackTruthCollection#ResolvedForwardTracksDetailedTruth",
-              ]
+# Take all items from the input, except for the ones listed in the excludeList,
+# list should be copied from AllCells but add back the thinned tracking info for egamma
+
+ExcludeList=[]
 dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)
 
 
