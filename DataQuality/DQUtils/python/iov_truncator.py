@@ -27,7 +27,7 @@ except ImportError:
         and the other 50 long.
         """
         from collections import namedtuple
-        T = namedtuple("EOR_Params_VAL", "since, until RunNumber")
+        T = namedtuple("EOR_VAL", "since, until RunNumber")
         
         return map(T._make, [(rlumi(  1, 0), rlumi(1,  100),           1),
                              (rlumi(  2, 0), rlumi(2,   50),           2),
@@ -69,7 +69,7 @@ def make_run_iovs(iovs):
     since = min(min(o.since for o in objects) for objects in iovs)
     until = max(max(o.until for o in objects) for objects in iovs)
     
-    run_iovs = fetch_iovs("EOR_Params", since, until, 
+    run_iovs = fetch_iovs("EOR", since, until, 
                              with_channel=False, what=[])
     
     atlas_runs = atlas_runs_set()

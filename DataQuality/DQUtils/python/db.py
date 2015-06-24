@@ -257,6 +257,8 @@ class Databases(object):
         
         "SOR_Params"    : "COOLONL_TDAQ::/TDAQ/RunCtrl/SOR_Params",
         "EOR_Params"    : "COOLONL_TDAQ::/TDAQ/RunCtrl/EOR_Params",
+        "SOR"           : "COOLONL_TDAQ::/TDAQ/RunCtrl/SOR",
+        "EOR"           : "COOLONL_TDAQ::/TDAQ/RunCtrl/EOR",
         
         "LBLB"          : "COOLONL_TRIGGER::/TRIGGER/LUMI/LBLB",
         "LBTIME"        : "COOLONL_TRIGGER::/TRIGGER/LUMI/LBTIME",
@@ -334,12 +336,17 @@ class Databases(object):
         
         try:
             cool_folder = db.getFolder(folder)
-        except RuntimeError as error:
-            if not ("cannot be established" in error.args[0] or
-                     "not found" in error.args[0]):
+        except Exception as error:
+            log.debug('HELP! %s' % error.args)
+            args = str(error.args[0] if not isinstance(error.args, basestring) else error.args)
+            log.debug('THIS IS %s' % type(args))
+            log.debug('Value of boolean: %s' % ("not found" in args))
+            if not ("cannot be established" in args or
+                     "not found" in args
+                    ):
                 log.exception("Unknown error encountered whilst opening "
                               "database connection to '%s'" 
-                              % self.connection_string)
+                              % database)
                 raise
                 
             if not create_function:
@@ -400,14 +407,16 @@ class Databases(object):
                                               oracle=True)
                 finally:
                     sys.stdout = prev_stdout
-        except RuntimeError as e:
+        except Exception as e:
             if "The database does not exist" in e.args[0] and not create:
                 log.info("Failed trying to connect to '%s'", res_db_string)
                 raise
             from PyCool import cool
             dbService = cool.DatabaseSvcFactory.databaseService()
             connection = dbService.createDatabase(res_db_string)
-        
+        except:
+            print sys.exc_info()[0]
+            raise
         return connection
 
     @classmethod
@@ -423,7 +432,7 @@ class Databases(object):
         folderset_path = dirname(folder_name)
         try:
             folder_set = db.getFolderSet(folderset_path)
-        except RuntimeError, error:
+        except Exception, error:
             caught_error = "Folder set %s not found" % folderset_path
             if caught_error not in error.args[0]:
                 raise
@@ -472,7 +481,7 @@ class Databases(object):
         try:
             db = cls.get_instance(database, False)
             
-        except RuntimeError, error:
+        except Exception, error:
             if not create or "The database does not exist" not in error.args[0]:
                 raise
             
@@ -487,7 +496,7 @@ class Databases(object):
         try:
             folder = db.getFolder(folder_name)
             payload = cool.Record(folder.payloadSpecification())
-        except RuntimeError, error:
+        except Exception, error:
             if not create or "Folder %s not found" % folder_name not in error.args[0]:
                 raise
                 

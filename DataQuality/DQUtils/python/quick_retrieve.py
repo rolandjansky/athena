@@ -7,11 +7,14 @@ Load the DQUtils dictionary
 Exposes quick_retrieve and GIL releasing functions
 """
 
-import PyCool
-import PyCintex
-
-PyCintex.Cintex.Enable()
+try:
+    import cppyy as PyCintex
+except:
+    import PyCintex
+    PyCintex.Cintex.Enable()
 PyCintex.loadDictionary("DQUtilsDict")
+
+import PyCool
 
 quick_retrieve = PyCintex.gbl.quick_retrieve
 browse_coracool = PyCintex.gbl.browse_coracool

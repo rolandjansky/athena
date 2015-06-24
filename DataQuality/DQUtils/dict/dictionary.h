@@ -7,6 +7,12 @@
 // Please see quick_retrieve.cxx for detailed information on these functions.
 
 
+#ifdef _POSIX_C_SOURCE
+# undef _POSIX_C_SOURCE
+#endif
+#ifdef _XOPEN_SOURCE
+# undef _XOPEN_SOURCE
+#endif
 #include <Python.h>
 
 #include <CoolKernel/ChannelSelection.h>

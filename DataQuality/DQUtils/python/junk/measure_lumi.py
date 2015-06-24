@@ -95,7 +95,7 @@ def main():
     
     lest_iovs = S(fetch_iovs("LBLESTONL", since, until, [0]))
     lblb_iovs = S(fetch_iovs("LBLB", since, until))
-    eor_iovs = S(fetch_iovs("EOR_Params", since, until))
+    eor_iovs = S(fetch_iovs("EOR", since, until))
     rfp_iovs = S(fetch_iovs("/TDAQ/RunCtrl/DataTakingMode", since, until, 
                                database="tdaq"))
     

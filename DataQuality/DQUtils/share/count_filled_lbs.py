@@ -68,7 +68,7 @@ def fetch_fixedup_folder_information(folder, since, until, cs):
     `info_runs`
     """
 
-    info_runs = fetch_iovs("EOR_Params", since, until, 
+    info_runs = fetch_iovs("EOR", since, until, 
                               with_channel=False, what=["FilenameTag"])
     
     iovs = fetch_iovs(folder, since, until, cs, what=["Code"])
@@ -83,7 +83,7 @@ def fetch_fixedup_folder_information(folder, since, until, cs):
         bad_run_count = len(bad_runs)
         print ("  Warning: There are %i runs which don't have a sensible end "
                "time on the\n"
-               "  EOR_Params folder, and have been excluded "
+               "  EOR folder, and have been excluded "
                "from the following counts." 
                % bad_run_count)
         print "  They are:",
@@ -115,7 +115,7 @@ def generate_lb_count_table(folder, iovs, info_runs):
     
     table= [
 ("Project tag", "Runs", "Tot. LBs",   "Fill. LBs", "%",      "Green", "Gr %"),
-("",            "",     "EOR_Params", folder,      "Filled", "",      "Total")]     
+("",            "",     "EOR", folder,      "Filled", "",      "Total")]     
               
     
     for tag, tag_runs in sorted(runs_by_project_tag.iteritems()):
