@@ -14,7 +14,7 @@
  *********************************************************************************/
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalBCMTool.h"
+#include "InDetGlobalBCMTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 //Framework
@@ -30,7 +30,7 @@
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "InDetGlobalMonitoring/InDetGlobalPrimaryVertexMonTool.h"
+#include "InDetGlobalPrimaryVertexMonTool.h"
 //Pixel and SCT stuff
 #include "InDetRawData/PixelRDORawData.h"
 //EventInfo

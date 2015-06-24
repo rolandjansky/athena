@@ -16,7 +16,7 @@
 
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherTrigMonTool.h"
+#include "InDetGlobalMotherTrigMonTool.h"
 //Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"

@@ -14,7 +14,7 @@
 
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalPixelTool.h"
+#include "InDetGlobalPixelTool.h"
 //Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"

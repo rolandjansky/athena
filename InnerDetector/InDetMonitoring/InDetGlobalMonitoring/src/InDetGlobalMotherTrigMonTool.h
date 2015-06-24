@@ -18,7 +18,7 @@
 #define InDetGlobalMotherTrigMonTool_H
 
 //Local includes
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 
 //Standard C++
 #include <vector>

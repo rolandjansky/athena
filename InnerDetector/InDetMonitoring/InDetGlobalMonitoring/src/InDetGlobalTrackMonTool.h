@@ -27,6 +27,8 @@
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
+#include "PixelGeoModel/IBLParameterSvc.h"
+
 //Detector Managers
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -125,6 +127,7 @@ private:
 
     const std::array<std::string,4> c_detector_labels;
 
+    ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
     ToolHandle <Trk::ITrackHoleSearchTool> m_holes_search_tool;
     ToolHandle <Trk::ITrackSummaryTool> m_trkSummaryTool;
 

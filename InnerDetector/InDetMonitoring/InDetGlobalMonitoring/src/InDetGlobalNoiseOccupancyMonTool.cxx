@@ -19,7 +19,7 @@
 
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalNoiseOccupancyMonTool.h"
+#include "InDetGlobalNoiseOccupancyMonTool.h"
 //Framework
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetRawData/SCT3_RawData.h"

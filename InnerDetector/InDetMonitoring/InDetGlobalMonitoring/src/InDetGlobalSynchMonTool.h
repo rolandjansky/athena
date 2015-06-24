@@ -21,7 +21,7 @@
 #define InDetGlobalSynchMonTool_H
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherTrigMonTool.h"
+#include "InDetGlobalMotherTrigMonTool.h"
 //Standard c++
 #include <string>
 

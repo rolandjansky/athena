@@ -22,7 +22,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //Local
-#include "InDetGlobalMonitoring/InDetGlobalMotherMonTool.h"
+#include "InDetGlobalMotherMonTool.h"
 //Framework
 #include "IdDictDetDescr/IdDictManager.h"
 #include "TrkToolInterfaces/IUpdator.h"
