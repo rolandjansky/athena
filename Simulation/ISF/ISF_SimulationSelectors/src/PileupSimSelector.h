@@ -15,43 +15,41 @@
 // Barcode interpretation
 #include "BarcodeServices/BitCalculator.h"
 
-namespace ISF
-{
+namespace ISF {
 
   /** @class PileupSimSelector
-
+  
       This SimlationSelector implementation will select all particles that are handed to it.
       ( passFilter() always returns true )
-
+  
       @author Elmar.Ritsch -at- cern.ch
-  */
-  class PileupSimSelector : public ISimulationSelector
-  {
+     */
+  class PileupSimSelector : public ISimulationSelector {
+      
+    public: 
+     /** Constructor with parameters */
+     PileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-  public:
-    /** Constructor with parameters */
-    PileupSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+     /** Destructor */
+     ~PileupSimSelector();
 
-    /** Destructor */
-    ~PileupSimSelector();
+     // Athena algtool's Hooks
+     StatusCode  initialize();
+     StatusCode  finalize();
 
-    // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+     /** check whether given particle passes all cuts -> will be used for routing decision*/
+     inline virtual bool passSelectorCuts(const ISFParticle& particle) const;
 
-    /** check whether given particle passes all cuts -> will be used for routing decision*/
-    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+    private:
+     mutable Barcode::BitCalculator m_bitcalculator;
 
-  private:
-    mutable Barcode::BitCalculator m_bitcalculator;
+     std::vector<int> m_pileupbcid; // vector of BCIDs to select
 
-    std::vector<int> m_pileupbcid; // vector of BCIDs to select
+     mutable int m_npass; // number of particles filter accepts
+     mutable int m_nfail; // number of particles filter rejects
 
-    mutable int m_npass; // number of particles filter accepts
-    mutable int m_nfail; // number of particles filter rejects
-
-  };
-
+  }; 
+  
 }
 
 

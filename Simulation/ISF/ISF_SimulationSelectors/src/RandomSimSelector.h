@@ -14,38 +14,36 @@
 
 class TRandom;
 
-namespace ISF
-{
+namespace ISF {
 
   /** @class RandomSimSelector
-
+  
       This SimlationSelector implementation will select all particles that are handed to it.
       ( passFilter() always returns true )
-
+  
       @author Elmar.Ritsch -at- cern.ch
-  */
-  class RandomSimSelector : public ISimulationSelector
-  {
+     */
+  class RandomSimSelector : public ISimulationSelector {
+      
+    public: 
+     /** Constructor with parameters */
+     RandomSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-  public:
-    /** Constructor with parameters */
-    RandomSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+     /** Destructor */
+     ~RandomSimSelector();
 
-    /** Destructor */
-    ~RandomSimSelector();
+     // Athena algtool's Hooks
+     StatusCode  initialize();
+     StatusCode  finalize();
 
-    // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+     /** check whether given particle passes all cuts -> will be used for routing decision*/
+     inline virtual bool passSelectorCuts(const ISFParticle& particle) const;
 
-    /** check whether given particle passes all cuts -> will be used for routing decision*/
-    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+    private:
 
-  private:
-
-    mutable TRandom* m_random;
-  };
-
+     mutable TRandom* m_random;
+  }; 
+  
 }
 
 

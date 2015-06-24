@@ -12,34 +12,34 @@
 // ISF includes
 #include "ISF_Interfaces/ISimulationSelector.h"
 
-namespace ISF
-{
+namespace ISF {
 
   /** @class DefaultSimSelector
-
+  
       This SimlationSelector implementation will select all particles that are handed to it.
       ( passFilter() always returns true )
-
+  
       @author Elmar.Ritsch -at- cern.ch
-  */
-  class DefaultSimSelector : public ISimulationSelector
-  {
+     */
+  class DefaultSimSelector : public ISimulationSelector {
+      
+    public: 
+     /** Constructor with parameters */
+     DefaultSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-  public:
-    /** Constructor with parameters */
-    DefaultSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+     /** Destructor */
+     ~DefaultSimSelector();
 
-    /** Destructor */
-    ~DefaultSimSelector();
+     // Athena algtool's Hooks
+     StatusCode  initialize();
+     StatusCode  finalize();
 
-    // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+     /** check whether given particle passes all cuts -> will be used for routing decision*/
+     inline virtual bool passSelectorCuts(const ISFParticle& particle) const;
 
-    /** check whether given particle passes all cuts -> will be used for routing decision*/
-    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
-  };
-
+	  private:
+  }; 
+  
 }
 
 
