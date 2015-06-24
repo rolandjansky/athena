@@ -73,6 +73,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
+  declareProperty("monitoring_muonEFFS", m_chainsEFFS);
   
   //construction of muFast parameters
 
@@ -231,10 +232,15 @@ StatusCode HLTMuonMonTool::init()
   // m_FS_pre_trigger_second = "mu24i_tight";
   //
   // v5 primary
-  m_histChainEFFS.push_back("muChainEFFS");
-  m_chainsEFFS.push_back("mu18_mu8noL1");
-  m_FS_pre_trigger = "mu18";
-  m_FS_pre_trigger_second = "mu24_imedium";
+  //m_histChainEFFS.push_back("muChainEFFS");
+  //m_chainsEFFS.push_back("mu18_mu8noL1");
+  m_FS_pre_trigger = "HLT_mu18";
+  m_FS_pre_trigger_second = "HLT_mu24_imedium";
+  for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
+	if(ich > 0) continue;
+	m_histChainEFFS.push_back("muChainEFFS");
+  }
+
   
   // chainAnalysis for MuGirl
   // Warning: corresponding standard chain has to exist!!!!!!!!
@@ -427,22 +433,22 @@ StatusCode HLTMuonMonTool::init()
   
   // AI 20100824 - for rate monitoring:
   // Primary chain is mu6
-  m_allESchain.push_back("HLT_mu4");
-  m_allESchain.push_back("HLT_mu6_IDTrkNoCut");
-  m_allESchain.push_back("HLT_2mu4");
-  m_allESchain.push_back("HLT_2mu10");
-  m_allESchain.push_back("HLT_mu10");
-  m_allESchain.push_back("HLT_mu10_MG");  // added 27.10.2010
-  m_allESchain.push_back("HLT_mu20");  // added 27.10.2010
-  m_allESchain.push_back("HLT_mu20_MSonly");
+  //m_allESchain.push_back("HLT_mu4");
+  //m_allESchain.push_back("HLT_mu6_IDTrkNoCut");
+  //m_allESchain.push_back("HLT_2mu4");
+  //m_allESchain.push_back("HLT_2mu10");
+  //m_allESchain.push_back("HLT_mu10");
+  //m_allESchain.push_back("HLT_mu10_MG");  // added 27.10.2010
+  //m_allESchain.push_back("HLT_mu20");  // added 27.10.2010
+  //m_allESchain.push_back("HLT_mu20_MSonly");
 
   // Primary chain is mu10
-  m_allESchain.push_back("EF_mu6");
-  m_allESchain.push_back("EF_mu10_IDTrkNoCut");
-  m_allESchain.push_back("EF_2mu4_Jpsimumu");
-  m_allESchain.push_back("EF_2mu4_Upsimumu");
+  //m_allESchain.push_back("EF_mu6");
+  //m_allESchain.push_back("EF_mu10_IDTrkNoCut");
+  //m_allESchain.push_back("EF_2mu4_Jpsimumu");
+  //m_allESchain.push_back("EF_2mu4_Upsimumu");
   //m_allESchain.push_back("EF_2mu10"); no duplication
-  m_allESchain.push_back("EF_mu15");
+  //m_allESchain.push_back("EF_mu15");
   //m_allESchain.push_back("EF_mu20_MSonly");  no duplication
 
   // Primary chain is mu13
@@ -452,7 +458,17 @@ StatusCode HLTMuonMonTool::init()
   //m_allESchain.push_back("EF_2mu4_Upsimumu");  no duplication
   //m_allESchain.push_back("EF_2mu10"); no duplication
   //m_allESchain.push_back("EF_mu15");  no duplication
-  m_allESchain.push_back("EF_mu30_MSonly");
+  //m_allESchain.push_back("EF_mu30_MSonly");
+  
+  // Primary chain is mu24_imedium
+  m_allESchain.push_back("HLT_mu24_imedium");
+  m_allESchain.push_back("HLT_mu18");
+  m_allESchain.push_back("HLT_2mu10");
+  m_allESchain.push_back("HLT_2mu14");
+  m_allESchain.push_back("HLT_mu20_idperf");
+  m_allESchain.push_back("HLT_mu6_idperf");
+  m_allESchain.push_back("HLT_Zmumu_idperf");
+  m_allESchain.push_back("HLT_Jpsimumu_idperf");
 
   // initialising algorithm index for summary histos
   fMuFast = (float)iMuFast;
@@ -469,7 +485,7 @@ StatusCode HLTMuonMonTool::init()
 
   // YY: pt range.
   iSTDL = 91;  // 40 GeV
-  iSTDH = 112; // 80 GeV
+  iSTDH = 120; // 100 GeV
   iMSL = 105;  // 60 GeV
   iMSH = 120;  // 100 GeV
   /* iSTDL = 71;  // 22.5 GeV

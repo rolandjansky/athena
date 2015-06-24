@@ -111,11 +111,11 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
   const DataHandle<IsoMuonFeatureContainer> lastisoContainer;
   StatusCode sc_iso = m_storeGate->retrieve(isoContainer,lastisoContainer);
   if ( sc_iso.isFailure() ) {
-    ATH_MSG_VERBOSE( "Failed to retrieve HLT muIso container" );
+    ATH_MSG_DEBUG( "Failed to retrieve HLT muIso container" ); 
     return StatusCode::SUCCESS; 
   }
 
-  ATH_MSG_DEBUG( " ====== START HLTMuon muIso MonTool ====== " );
+  ATH_MSG_DEBUG( " ====== START HLTMuon muIso MonTool ====== " ); 
 
   // -----------------------------
   // Dump IsoMuonFeature info

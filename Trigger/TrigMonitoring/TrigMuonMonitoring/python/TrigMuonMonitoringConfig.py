@@ -10,6 +10,7 @@ def TrigMuonMonitoringTool():
 	HLTMuonMon.monitoring_muonNonIso = hltmonList.monitoring_muonNonIso
 	HLTMuonMon.monitoring_muonIso = hltmonList.monitoring_muonIso
 	HLTMuonMon.monitoring_MSonly = hltmonList.monitoring_MSonly
+	HLTMuonMon.monitoring_muonEFFS = hltmonList.monitoring_muonEFFS
 
 	from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool	
 	HLTMuonMon.BCTool = BunchCrossingTool()

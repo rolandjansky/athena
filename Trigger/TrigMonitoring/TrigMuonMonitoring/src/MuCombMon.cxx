@@ -355,7 +355,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   // -----------------------------
   //For standard chains
   for(unsigned int nchain=0;nchain<m_chainsGeneric.size();nchain++) {
-	 Trig::FeatureContainer fc = getTDT()->features("HLT_" + m_chainsGeneric[nchain]);
+	 Trig::FeatureContainer fc = getTDT()->features(m_chainsGeneric[nchain]);
 	 std::vector<Trig::Combination> combs = fc.getCombinations();
 	 std::vector<Trig::Combination>::const_iterator p_comb;
 	 for(p_comb=combs.begin();p_comb!=combs.end();++p_comb) {
@@ -437,7 +437,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
   //For passHLT chains
   for(unsigned int nchain=0;nchain<m_chainsL2passHLT.size();nchain++) {
-	 Trig::FeatureContainer fc = getTDT()->features("HLT_" + m_chainsL2passHLT[nchain]);
+	 Trig::FeatureContainer fc = getTDT()->features(m_chainsL2passHLT[nchain]);
 	 std::vector<Trig::Combination> combs = fc.getCombinations();
     std::vector<Trig::Combination>::const_iterator p_comb;
       
