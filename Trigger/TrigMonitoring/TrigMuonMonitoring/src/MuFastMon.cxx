@@ -126,7 +126,11 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
     addHistogram( new TH1F("muFast_MDT_Out_residual_barrel_OffMatch",   "muFast barrel MDT Outer  station residual matched with Offline; MDT Outer barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Inn_N_barrel",   "muFast barrel MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Mid_N_barrel",   "muFast barrel MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
+
     addHistogram( new TH1F("muFast_MDT_Out_N_barrel",   "muFast barrel MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
+    addHistogram( new TH2F("muFast_MDT_Inn_residual_barrel_vs_LB",  "muFast barrel MDT Inner station residual vs LB; LB; MDT Inner barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Mid_residual_barrel_vs_LB",  "muFast barrel MDT Middle station residual vs LB; LB; MDT Middle barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Out_residual_barrel_vs_LB",  "muFast barrel MDT Outer station residual vs LB; LB; MDT Outer barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
 
     addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap",   "muFast endcap MDT Inner  station residual; MDT Inner endcap residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap",   "muFast endcap MDT Middle station residual; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
@@ -137,6 +141,11 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
     addHistogram( new TH1F("muFast_MDT_Inn_N_endcap",   "muFast endcap MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Mid_N_endcap",   "muFast endcap MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
     addHistogram( new TH1F("muFast_MDT_Out_N_endcap",   "muFast endcap MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
+    addHistogram( new TH2F("muFast_MDT_Inn_residual_endcap_vs_LB",  "muFast endcap MDT Inner station residual vs LB; LB; MDT Inner endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Mid_residual_endcap_vs_LB",  "muFast endcap MDT Middle station residual vs LB; LB; MDT Middle endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Out_residual_endcap_vs_LB",  "muFast endcap MDT Outer station residual vs LB; LB; MDT Outer endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+
+
 
     // Comparison to Offline
     addHistogram( new TH1F("muFast_dR_toRecMuonCB",          "dR between muFast and Offline; #DeltaR; Entries",           100,  0,  2), histdirmufast );
@@ -467,6 +476,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           if     ( imr == inner ) { 
             n_mdt_hits_inner++;
             hist("muFast_MDT_Inn_residual_barrel", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Inn_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Inn_residual_barrel_OffMatch", histdirmufast)->Fill(res);
 	    }
@@ -474,6 +484,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           else if( imr == middle ) {
             n_mdt_hits_middle++;
             hist("muFast_MDT_Mid_residual_barrel", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Mid_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Mid_residual_barrel_OffMatch", histdirmufast)->Fill(res);
 	    }
@@ -481,6 +492,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           else if( imr == outer ) {
             n_mdt_hits_outer++;
             hist("muFast_MDT_Out_residual_barrel", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Out_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Out_residual_barrel_OffMatch", histdirmufast)->Fill(res);
 	    }
@@ -510,6 +522,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           if     ( imr == inner ) {
             n_mdt_hits_inner++;
             hist("muFast_MDT_Inn_residual_endcap", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Inn_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Inn_residual_endcap_OffMatch", histdirmufast)->Fill(res);
 	    }
@@ -517,6 +530,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           else if( imr == middle ) {
             n_mdt_hits_middle++;
             hist("muFast_MDT_Mid_residual_endcap", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Mid_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Mid_residual_endcap_OffMatch", histdirmufast)->Fill(res);
 	    }
@@ -524,6 +538,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
           else if( imr == outer ) {
             n_mdt_hits_outer++;
             hist("muFast_MDT_Out_residual_endcap", histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Out_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
 	      hist("muFast_MDT_Out_residual_endcap_OffMatch", histdirmufast)->Fill(res);
 	    }

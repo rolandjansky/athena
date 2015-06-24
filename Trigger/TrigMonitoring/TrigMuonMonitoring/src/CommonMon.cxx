@@ -4499,11 +4499,11 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
       << " event #" << event_handle->event_ID()->event_number() 
       << " has express stream tag");  */
 
-  const std::string key = "HLT_EXPRESS_OPI_EF";
+  const std::string key = "HLT_EXPRESS_OPI_HLT";
 
   if (!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
     if (errcnt < 1) {
-      ATH_MSG_DEBUG("Missing TrigOperationalInfoCollection with key=" << key);
+      ATH_MSG_INFO("Missing TrigOperationalInfoCollection with key=" << key);
       errcnt++;
     }
     return retvect;
@@ -4512,7 +4512,7 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
   const TrigOperationalInfoCollection *opi = 0;
   if (!m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
     if (errcnt < 1) {
-      ATH_MSG_DEBUG("Failed to retreive TrigOperationalInfoCollection with key=" << key);
+      ATH_MSG_INFO("Failed to retreive TrigOperationalInfoCollection with key=" << key);
       return retvect;
     }
   }
