@@ -905,17 +905,21 @@ int EventSelectorAthenaPool::findEvent(int evtNum) {
          if (!pcc.initialize().isSuccess()) {
             break;
          }
-         pool::ICollectionCursor* hi = &pcc.executeQuery();
-         ICollectionSize* cs = dynamic_cast<ICollectionSize*>(hi);
-         if (cs == 0) {
-            break;
+         int collection_size = 0;
+         if (pcc.isValid()) {
+            pool::ICollectionCursor* hi = &pcc.executeQuery();
+            ICollectionSize* cs = dynamic_cast<ICollectionSize*>(hi);
+            if (cs == 0) {
+               break;
+            }
+            collection_size = cs->size();
          }
          if (i > 0) {
             m_firstEvt[i] = m_firstEvt[i - 1] + m_numEvt[i - 1];
          } else {
             m_firstEvt[i] = 0;
          }
-         m_numEvt[i] = cs->size();
+         m_numEvt[i] = collection_size;
       }
       if (evtNum >= m_firstEvt[i] && evtNum < m_firstEvt[i] + m_numEvt[i]) {
          return(i);
