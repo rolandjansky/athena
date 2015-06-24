@@ -130,16 +130,13 @@ def fetch_lumi_inputs(range_iov, tag="OflLumi-7TeV-002"):
                      *range_iov)
     
     if tag == "ONLINE":
-        lumis = fetch_iovs("COOLONL_TRIGGER::/TRIGGER/LUMI/OnlPrefLumi",
+        lumis = fetch_iovs("COOLONL_TRIGGER::/TRIGGER/LUMI/LBLESTONL",
                            channels=[0], #loud=True,
                            *range_iov)
         # Select valid
         lumis = IOVSet(l for l in lumis if (l.Valid & 0xFFFF) % 10 == 0)
     else:
-        # Apparently this string changes from time to time...
-        lumi_folder = "COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi" # Run-2
-        #lumi_folder = "COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL" # Run-1
-        lumis = fetch_iovs(lumi_folder,
+        lumis = fetch_iovs("COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL",
                            tag=tag,
                            channels=[0], #loud=True,
                            *range_iov)
