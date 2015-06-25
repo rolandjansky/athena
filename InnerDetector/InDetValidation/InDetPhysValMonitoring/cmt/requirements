@@ -55,7 +55,7 @@ library InDetPhysValMonitoring *.cxx components/*.cxx
 
 #macro_append cppflags ' -std=c++11 '
 #macro_append use_linkopts ' -std=c++11 ' 
-
+apply_pattern declare_python_modules files="*.py"
 apply_pattern component_library
 end_private
 
