@@ -35,8 +35,14 @@ runTest03=false
 runTest13=false
 # 04 uses dumpOptions to show that athenaopts gives the same as DB args as in 01 - works
 runTest04=false
-# 05 run using testPhysicsV5 instead of from DB - works - should move to be test31
+# 05 run using testPhysicsV5 instead of from DB - works
 runTest05=false
+
+runTest00J=false # run all Jira tests (also needed to recreate json files for below)
+runTest01J=false # ATR-11463 --postcommand
+runTest02J=false # ATR-11555 --eventmodifier
+runTest03J=false # PRODSYS-468 --prodSysBSRDO
+
 
 if [ "$*" == "" ]; then
     echo "***No argument provided will run all tests***"
@@ -50,6 +56,10 @@ if [ "$*" == "" ]; then
     runTest13=true
     runTest04=true
     runTest05=true
+    runTest00J=true
+    runTest01J=true
+    runTest02J=true
+    runTest03J=true
 fi
 
 if [ "$1" == "01" ]; then
@@ -102,6 +112,32 @@ if [ "$1" == "05" ]; then
     runTest05=true
 fi
 
+if [ "$1" == "00J" ]; then
+    echo "***Selected 00J run all Jira tests***"
+    runTest00J=true
+    runTest01J=true
+    runTest02J=true
+    runTest03J=true
+fi
+
+if [ "$1" == "01J" ]; then
+    echo "***Selected: runTest01J***"
+    runTest00J=true
+    runTest01J=true
+fi
+
+if [ "$1" == "02J" ]; then
+    echo "***Selected: runTest02J***"
+    runTest00J=true
+    runTest02J=true
+fi
+
+if [ "$1" == "03J" ]; then
+    echo "***Selected: runTest03J***"
+    runTest00J=true
+    runTest03J=true
+fi
+
 ##############################################################################
 
 if $runTest01 ; then
@@ -134,6 +170,8 @@ echo "***trf end status***"
 tail log.txt -n 1
 echo "***runTest01: BSRDO->BS completed***"
 
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
 echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
@@ -188,6 +226,8 @@ echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runwrapper.BSRDO
 diff -s ../runTest01_BSRDO_BS/runwrapper.BSRDOtoRAW.sh runwrapper.BSRDOtoRAW.sh 
 echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runtranslate.BSRDOtoRAW.py runtranslate.BSRDOtoRAW.py"
 diff -s ../runTest01_BSRDO_BS/runtranslate.BSRDOtoRAW.py runtranslate.BSRDOtoRAW.py
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
 echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
@@ -245,6 +285,8 @@ echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runwrapper.BSRDO
 diff -s ../runTest01_BSRDO_BS/runwrapper.BSRDOtoRAW.sh runwrapper.BSRDOtoRAW.sh 
 echo "---compare to runTest01---$ diff -s ../runTest01_BSRDO_BS/runtranslate.BSRDOtoRAW.py runtranslate.BSRDOtoRAW.py"
 diff -s ../runTest01_BSRDO_BS/runtranslate.BSRDOtoRAW.py runtranslate.BSRDOtoRAW.py
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
 echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
@@ -633,6 +675,8 @@ echo "***trf end status***"
 tail log.txt -n 1
 echo "***runTest05: BSRDO->BS completed***"
 
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
 echo "---test skipEvents (2)---$ grep Skipped.*event log.BSRDOtoRAW"
 grep Skipped.*event log.BSRDOtoRAW 
 echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
@@ -654,5 +698,308 @@ fi
 
 ##############################################################################
 
+if $runTest00J ; then
+
+echo -e "\n******runTest00J: create JSON files******"
+
+rm -rf runTest00J
+mkdir runTest00J
+cd runTest00J
+
+Trig_reco_tf.py \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--AMITag r6839 \
+--DBhltpskey 76 --DBlvl1pskey 33 --DBserver TRIGGERDBREPR --DBsmkey 110 --DBtype Coral \
+--autoConfiguration everything --beamType collisions \
+--ignoreErrors True --jobOptionSvcType TrigConf::HLTJobOptionsSvc --maxEvents 1 \
+--outputBSFile=RAW.05731105._005112.pool.root.1 \
+--outputHIST_HLTMONFile=HIST_HLTMON.05731105._005112.pool.root.1 \
+--runNumber 253010 \
+--useDB True \
+--dumpJSON hltonly.json
+
+Trig_reco_tf.py \
+--inputBS_RDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 \
+--AMITag r6839 \
+--DBhltpskey 76 --DBlvl1pskey 33 --DBserver TRIGGERDBREPR --DBsmkey 110 --DBtype Coral \
+--asetup RAWtoESD:AtlasProduction,20.1.5.8 ESDtoAOD:AtlasProduction,20.1.5.8 RAWtoCOST:AtlasProduction,20.1.5.8 \
+--autoConfiguration everything --beamType collisions \
+--conditionsTag RAWtoESD:CONDBR2-ES1PA-2015-05 ESDtoAOD:CONDBR2-ES1PA-2015-05 \
+--geometryVersion RAWtoESD:ATLAS-R2-2015-03-01-00 ESDtoAOD:ATLAS-R2-2015-03-01-00 \
+--ignoreErrors True --jobOptionSvcType TrigConf::HLTJobOptionsSvc --maxEvents 1 \
+--outputAODFile=AOD.05731105._005112.pool.root.1 \
+--outputBSFile=RAW.05731105._005112.pool.root.1 \
+--outputESDFile=ESD.05731105._005112.pool.root.1 \
+--outputHISTFile=HIST.05731105._005112.pool.root.1 \
+--outputHIST_HLTMONFile=HIST_HLTMON.05731105._005112.pool.root.1 \
+--outputNTUP_TRIGCOSTFile=NTUP_TRIGCOST.05731105._005112.pool.root.1 \
+--outputNTUP_TRIGRATEFile=NTUP_TRIGRATE.05731105._005112.pool.root.1 \
+--postExec r2e:pass --preExec 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useBeamConstraint.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;DQMonFlags.doLVL1CaloMon=True;DQMonFlags.doCTPMon=False;' 'ESDtoAOD:DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;DQMonFlags.doCTPMon=False' \
+--runNumber 253010 \
+--triggerConfig RAWtoESD=MCRECO:DB:TRIGGERDBREPR:110,33,76 --useDB True \
+--dumpJSON hlt+reco.json
+
+echo "---diff json files--$ diff hltonly.json hlt+reco.json"
+diff hltonly.json hlt+reco.json
+
+echo "***runTest00J completed***"
+
+cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+
+if $runTest01J ; then
+
+echo -e "\n******runTest01J: ATR-11463******"
+
+rm -rf runTest01J
+mkdir runTest01J
+cd runTest01J
+
+mkdir HLTONLY
+cd HLTONLY
+
+echo -e "\n******run HLTONLY******"
+
+Trig_reco_tf.py \
+--argJSON="../../runTest00J/hltonly.json" \
+--postcommand="include(\"TriggerRelease/dbmod_BFieldAutoConfig.py\")" \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLTONLY completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+mkdir HLT+RECO
+cd HLT+RECO
+
+echo -e "\n******run HLT+RECO******"
+
+Trig_reco_tf.py \
+--argJSON=../../runTest00J/hlt+reco.json \
+--postcommand="include(\"TriggerRelease/dbmod_BFieldAutoConfig.py\")" \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLT+RECO completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+echo "---test postcommand---$ grep BFieldAutoConfig */log.BSRDOtoRAW"
+grep BFieldAutoConfig */log.BSRDOtoRAW
+
+echo "***runTest01J completed***"
+
+cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+
+if $runTest02J ; then
+
+echo -e "\n******runTest02J: ATR-11555******"
+
+rm -rf runTest02J
+mkdir runTest02J
+cd runTest02J
+
+mkdir HLTONLY
+cd HLTONLY
+
+echo -e "\n******run HLTONLY******"
+
+Trig_reco_tf.py \
+--argJSON=../../runTest00J/hltonly.json \
+--eventmodifier="TrigByteStreamTools.trigbs_prescaleL1" \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLTONLY completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+mkdir HLT+RECO
+cd HLT+RECO
+
+echo -e "\n******run HLT+RECO******"
+
+Trig_reco_tf.py \
+--argJSON=../../runTest00J/hlt+reco.json \
+--eventmodifier="TrigByteStreamTools.trigbs_prescaleL1" \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLT+RECO completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+echo "---test eventmodifier---$ grep trigbs_prescaleL1 */log.BSRDOtoRAW"
+grep trigbs_prescaleL1 */log.BSRDOtoRAW
+
+echo "***runTest02J completed***"
+
+cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+
+if $runTest03J ; then
+
+echo -e "\n******runTest03J: PRODSYS-468******"
+
+rm -rf runTest03J
+mkdir runTest03J
+cd runTest03J
+
+mkdir HLTONLY
+cd HLTONLY
+
+echo -e "\n******run HLTONLY******"
+
+Trig_reco_tf.py \
+--argJSON=../../runTest00J/hltonly.json \
+--prodSysBSRDO True \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLTONLY completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+mkdir HLT+RECO
+cd HLT+RECO
+
+echo -e "\n******run HLT+RECO******"
+
+Trig_reco_tf.py \
+--argJSON=../../runTest00J/hlt+reco.json \
+--prodSysBSRDO True \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***HLT+RECO completed***"
+
+echo "---test runNumber (253010)---$ grep \"Using run number\" log.BSRDOtoRAW"
+grep "Using run number" log.BSRDOtoRAW
+echo "---test maxEvents (1)---$ grep Processed log.BSRDOtoRAW"
+grep Processed log.BSRDOtoRAW
+echo "---test smkey (110) hltpskey (76) lvlkey (33) server (TRIGGERDBREPR)---$ grep \"TrigDBConnectionConfig after\" log.BSRDOtoRAW"
+grep "TrigDBConnectionConfig after" log.BSRDOtoRAW
+echo "---test BS file created---$ ls RAW.05731105._005112.pool.root.1"
+ls RAW.05731105._005112.pool.root.1
+echo "---test MON file created---$ ls HIST_HLTMON.05731105._005112.pool.root.1"
+ls HIST_HLTMON.05731105._005112.pool.root.1
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
+
+cd ..
+
+echo "---test eventmodifier---$ grep prodSysBSRDO */log.BSRDOtoRAW"
+grep prodSysBSRDO */jobReport.json
+
+echo "***runTest03J completed***"
+
+cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+    
 echo -e "\n***End time***"
 date
