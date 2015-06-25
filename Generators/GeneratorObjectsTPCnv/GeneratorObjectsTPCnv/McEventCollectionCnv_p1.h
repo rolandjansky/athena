@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// McEventCollectionCnv_p1.h 
+// McEventCollectionCnv_p1.h
 // Header file for class McEventCollectionCnv_p1
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-#ifndef GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H 
-#define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H 
+///////////////////////////////////////////////////////////////////
+#ifndef GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H
+#define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H
 
 // STL includes
 
@@ -31,22 +31,20 @@
 
 // Forward declaration
 class MsgStream;
-namespace HepMC { struct DataPool; }
-
 class McEventCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<
-                                          McEventCollection, 
-			                  McEventCollection_p1
-                                       >  
-{ 
-  typedef T_AthenaPoolTPCnvBase<McEventCollection, 
-				McEventCollection_p1> Base_t;
+                                          McEventCollection,
+                                          McEventCollection_p1
+                                       >
+{
+  typedef T_AthenaPoolTPCnvBase<McEventCollection,
+                                McEventCollection_p1> Base_t;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
+  ///////////////////////////////////////////////////////////////////
+  // Public methods:
+  ///////////////////////////////////////////////////////////////////
+ public:
 
-  /** Default constructor: 
+  /** Default constructor:
    */
   McEventCollectionCnv_p1();
 
@@ -62,36 +60,27 @@ class McEventCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~McEventCollectionCnv_p1();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+  // Const methods:
   ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c McEventCollection
    *  from its persistent representation @c McEventCollection_p1
    */
-  virtual void persToTrans( const McEventCollection_p1* persObj, 
-			    McEventCollection* transObj, 
-			    MsgStream& msg ) ;
+  virtual void persToTrans( const McEventCollection_p1* persObj,
+                            McEventCollection* transObj,
+                            MsgStream& msg ) ;
 
   /** Method creating the persistent representation @c McEventCollection_p1
    *  from its transient representation @c McEventCollection
    */
-  virtual void transToPers( const McEventCollection* transObj, 
-			    McEventCollection_p1* persObj, 
-			    MsgStream& msg ) ;
+  virtual void transToPers( const McEventCollection* transObj,
+                            McEventCollection_p1* persObj,
+                            MsgStream& msg ) ;
+};
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /// a PIMPL idiom to hide the DataPools (and their specialized destructors)
-  /// from the outside world
-  HepMC::DataPool* m_pool;
-}; 
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+/// Inline methods:
+///////////////////////////////////////////////////////////////////
 
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H
