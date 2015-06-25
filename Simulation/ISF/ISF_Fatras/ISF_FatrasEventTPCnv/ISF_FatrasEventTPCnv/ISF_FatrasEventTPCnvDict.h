@@ -14,11 +14,15 @@
 #include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarCluster_p1.h"
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainer_p1.h"
 
+#include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarCluster_p2.h"
+#include "ISF_FatrasEventTPCnv/PlanarClusterContainer_p2.h"
+
 #include <vector>
 
 namespace ISF_FatrasEventTPCnvDict{
   struct tmp {
     std::vector < iFatras::PlanarCluster_p1 > m_v1;
+    std::vector < iFatras::PlanarCluster_p2 > m_v2;
   };
 }
 

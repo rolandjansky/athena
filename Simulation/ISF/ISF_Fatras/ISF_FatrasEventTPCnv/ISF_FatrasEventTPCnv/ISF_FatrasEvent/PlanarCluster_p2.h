@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PLANAR_CLUSTER_P1_H
-#define PLANAR_CLUSTER_P1_H
+#ifndef PLANAR_CLUSTER_P2_H
+#define PLANAR_CLUSTER_P2_H
 
 //--------------------------------------------------------------
 //
-// file:    PlanarCluster_p1.h
+// file:    PlanarCluster_p2.h
 //
 //--------------------------------------------------------------
 
@@ -19,15 +19,19 @@
 
 namespace iFatras {
 
-  class PlanarCluster_p1
+  class PlanarCluster_p2
   {
   public:
     typedef int rdo_diff_type;
 
-    PlanarCluster_p1() {}
+    PlanarCluster_p2() {}
 
+    // for Pixel
     // m_clustId - stores the pixel cluster id only for 32-bit ids,
     // otherwise the cluster id is stored in the m_rdoList
+    
+    // for SCT
+    // cluster id is stored in the m_rdoList
        unsigned int                          m_clusId; 
        std::vector<rdo_diff_type>            m_rdoList;
        float                                 m_localPosX;
@@ -36,9 +40,11 @@ namespace iFatras {
        float                                 m_mat01; 
        float                                 m_mat11;
 
+       bool                                  m_isFromPixel;
+ 
        InDet::SiWidth_p2                     m_width;
 
   };
 }
 
-#endif // PLANAR_CLUSTER_P1_H
+#endif // PLANAR_CLUSTER_P2_H
