@@ -2,11 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "ISF_FatrasEvent/PlanarCluster.h"
 #include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarCluster_p2.h"
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainer_p2.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
 #include "ISF_FatrasEvent/PlanarClusterContainer.h"
+#undef private
+#undef protected
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
@@ -60,7 +64,7 @@ void PlanarClusterContainerCnv_p2::transToPers(const iFatras::PlanarClusterConta
     //PlanarClusterCnv_p2  chanCnv;
     if(!m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
-	log << MSG::FATAL << "Could not initialize PlanarClusterContainerCnv_p2 " << endmsg;
+	log << MSG::FATAL << "Could not initialize PlanarClusterContainerCnv_p2 " << endreq;
       }
     }
     PlanarClusterCnv_p2  chanCnv(m_pixId, m_sctId);
@@ -145,14 +149,16 @@ void  PlanarClusterContainerCnv_p2::persToTrans(const iFatras::PlanarClusterCont
       // Fill with channels:
       // This is used to read the vector of errMat
       // values and lenght of the value are specified in separate vectors
-      //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endmsg;
+      //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endreq;
       for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
 	const iFatras::PlanarCluster_p2* pchan = &(persCont->m_rawdata[ichan + collBegin]);
+	iFatras::PlanarCluster* chan = new iFatras::PlanarCluster();
 	// In preparation for 64-bit ids, set the initial cluster
 	// id to the wafer id. Actual cluster id will be set in
 	// the converter from diff.
-        iFatras::PlanarCluster* chan = new iFatras::PlanarCluster
-          (chanCnv.createPlanarCluster (pchan, collID, de, log));
+	chan->m_clusId = collID;
+	chanCnv.persToTrans(pchan, chan, log);
+	chan->m_detEl = de;
 	// DC Bugfix: Set the hash index!
 	chan->setHashAndIndex(collIDHash, ichan);
 	(*coll)[ichan] = chan;
@@ -170,10 +176,10 @@ void  PlanarClusterContainerCnv_p2::persToTrans(const iFatras::PlanarClusterCont
 
 //================================================================
 iFatras::PlanarClusterContainer* PlanarClusterContainerCnv_p2::createTransient(const iFatras::PlanarClusterContainer_p2* persObj, MsgStream& log) {
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PlanarClusterContainerCnv_p2::createTransient called " << endmsg;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "PlanarClusterContainerCnv_p2::createTransient called " << endreq;
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize PlanarClusterContainerCnv_p2 " << endmsg;
+      log << MSG::FATAL << "Could not initialize PlanarClusterContainerCnv_p2 " << endreq;
     }
   }
   std::auto_ptr<iFatras::PlanarClusterContainer> trans(new iFatras::PlanarClusterContainer(m_pixId->wafer_hash_max()+m_sctId->wafer_hash_max()));
@@ -191,7 +197,7 @@ StatusCode PlanarClusterContainerCnv_p2::initialize(MsgStream &log) {
   // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endmsg;
+    log << MSG::FATAL << "StoreGate service not found !" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -199,53 +205,48 @@ StatusCode PlanarClusterContainerCnv_p2::initialize(MsgStream &log) {
   StoreGateSvc *detStore;
   sc = svcLocator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
     return StatusCode::FAILURE;
   } 
   
   // Get the sct helper from the detector store
   sc = detStore->retrieve(m_pixId, "PixelID");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
+    log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
     return StatusCode::FAILURE;
-  } else log << MSG::INFO << "PixelID helper retrieved !" << endmsg;      
+  } else log << MSG::INFO << "PixelID helper retrieved !" << endreq;      
   
-  
+  m_pixelDetElementMap = new iFatras::IdHashDetElementCollection;
   //Retrieve the map with IdHash to DetElement 
   if ((detStore->contains<iFatras::IdHashDetElementCollection>(m_pixelDetElementMapName))){
-    m_pixelDetElementMap = nullptr;
     if((detStore->retrieve(m_pixelDetElementMap, m_pixelDetElementMapName)).isFailure()){
-      log << MSG::FATAL <<"Could not retrieve collection " << m_pixelDetElementMapName << endmsg;
+      log << MSG::FATAL <<"Could not retrieve collection " << m_pixelDetElementMapName << endreq;
       return StatusCode::FAILURE;
     }
     else 
-      log << MSG::INFO <<"Found and Retrieved collection " << m_pixelDetElementMapName << endmsg;
-  }
-  else
-    m_pixelDetElementMap = new iFatras::IdHashDetElementCollection;
+      log << MSG::INFO <<"Found and Retrieved collection " << m_pixelDetElementMapName << endreq;
+  }    
   
   // Get the sct helper from the detector store
   if ((detStore->contains<SCT_ID>("SCT_ID"))){
     sc = detStore->retrieve(m_sctId, "SCT_ID");
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_ID helper !" << endmsg;
+      log << MSG::FATAL << "Could not get SCT_ID helper !" << endreq;
       return StatusCode::FAILURE;
     } 
-    else log << MSG::INFO << "SCT_ID helper retrieved !" << endmsg;      
-  } else log << MSG::INFO << "SCT_ID helper NOT  in the detStore !" << endmsg;
+    else log << MSG::INFO << "SCT_ID helper retrieved !" << endreq;      
+  } else log << MSG::INFO << "SCT_ID helper NOT  in the detStore !" << endreq;
 
+  m_sctDetElementMap = new iFatras::IdHashDetElementCollection;
   //Retrieve the map with IdHash to DetElement 
   if ((detStore->contains<iFatras::IdHashDetElementCollection>(m_sctDetElementMapName))){
-    m_sctDetElementMap = nullptr;
     if((detStore->retrieve(m_sctDetElementMap, m_sctDetElementMapName)).isFailure()){
-      log << MSG::FATAL <<"Could not retrieve collection " << m_sctDetElementMapName<< endmsg;
+      log << MSG::FATAL <<"Could not retrieve collection " << m_sctDetElementMapName<< endreq;
       return StatusCode::FAILURE;
     }
     else
-      log << MSG::INFO <<"Found and Retrieved collection " << m_sctDetElementMapName<< endmsg;
+      log << MSG::INFO <<"Found and Retrieved collection " << m_sctDetElementMapName<< endreq;
   }
-  else
-    m_sctDetElementMap = new iFatras::IdHashDetElementCollection;
   
   return StatusCode::SUCCESS;
 }
