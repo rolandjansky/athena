@@ -31,7 +31,7 @@
 
 // ROOT 
 #include "TBranch.h"
-#include "RootUtils/TBranchElementClang.h"
+#include "TBranchElement.h"
 #include "TLeaf.h"
 #include "TTree.h"
 
@@ -137,7 +137,7 @@ StatusCode LeafCnv::initialize()
 // {
 //   m_msg << MSG::INFO 
 //      << "Finalizing " << name() << "..." 
-//      << endmsg;
+//      << endreq;
 
 //   return StatusCode::SUCCESS;
 // }
@@ -207,8 +207,8 @@ LeafCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
     ATH_MSG_ERROR("::createRep: received null ptr to dobj");
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " -> clid: [" << pObj->clID() << "]" << endmsg
-                 << " -> name: [" << pObj->name() << "]" << endmsg;
+  msg(MSG::INFO) << " -> clid: [" << pObj->clID() << "]" << endreq
+                 << " -> name: [" << pObj->name() << "]" << endreq;
 
   /*
   Athena::DataBucketBranch *dbb = 0;

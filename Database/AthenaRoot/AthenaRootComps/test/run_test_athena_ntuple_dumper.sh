@@ -21,15 +21,7 @@ function run_test() {
     /bin/rm -f $reffile > /dev/null
     /bin/rm -f $chkfile > /dev/null
     refdir=root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/
-    # Depending on the LCG version, we may get the xrdcp binary either from
-    # LCG or from the system installation.  If the latter, then we need to be
-    # sure we don't have the LCG libraries on LD_LIBRARY_PATH or xrdcp
-    # will likely crash.
-    if [ `which xrdcp` = "/usr/bin/xrdcp" ]; then
-      LD_LIBRARY_PATH='' xrdcp $refdir/$reffile $reffile || return 1
-    else
-      xrdcp $refdir/$reffile $reffile || return 1
-    fi
+    xrdcp $refdir/$reffile $reffile || return 1
 
     echo ""
     echo "::::::::::::::::::::::::::::::::::::::::::::::"

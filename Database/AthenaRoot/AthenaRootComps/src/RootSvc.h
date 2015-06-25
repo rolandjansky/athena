@@ -7,6 +7,7 @@
 // RootSvc.h
 // Header file for class Athena::RootSvc
 // Author: Peter van Gemmeren <gemmeren@anl.gov>
+// Author: S.Binet<binet@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef ATHENAROOTCOMPS_ROOTSVC_H
 #define ATHENAROOTCOMPS_ROOTSVC_H 1
@@ -18,25 +19,28 @@
 
 // AthenaRootKernel includes
 #include "AthenaRootKernel/IRootSvc.h"
+#include "AthenaRootKernel/IIoSvc.h"
+
+// STL includes
+#include <string>
+#include "CxxUtils/unordered_map.h" //> migrate to STL
 
 // fwk includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaBaseComps/AthService.h"
-#include "PersistentDataModel/Guid.h"
-
-#include <map>
 
 // fwd declares
-class IDictLoaderSvc;
-class Placement;
-namespace pool { class IFileCatalog; }
 namespace Athena { class RootConnection; }
 
 namespace Athena {
 /** @class RootSvc
  *  @brief This class provides the interface to the ROOT software.
  **/
-class RootSvc : virtual public ::IRootSvc, public ::AthService {
+class RootSvc
+  : virtual public ::IRootSvc,
+            public ::AthService
+{
   friend class SvcFactory<Athena::RootSvc>;
 
 public:
@@ -49,63 +53,73 @@ public:
   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
   /// Retrieve interface ID
-  static const InterfaceID& interfaceID() {
+  static const InterfaceID& interfaceID()
+  {
     return ::IRootSvc::interfaceID();
   }
 
   ///@{ RootType-base interface
+
   /// Load the type (dictionary) from Root.
   RootType getType(const std::type_info& type) const;
 
-  /// Read object from Root.
-  void* readObject(const Token& token, void*& pObj);
+  /// Create an object of a given `RootType`.
+  void* createObject(const RootType type) const;
 
   /// Write object of a given class to Root.
-  const Token* writeObject(const Placement& placement, const RootType& type, const void* pObj);
-
-  /// Create an object of a given `RootType`.
-  void* createObject(const RootType& type) const;
+  unsigned long writeObject(const std::string& placement,
+                            const RootType type,
+                            const void* pObj);
 
   /// Destruct a given object of type `RootType`.
-  void destructObject(const RootType& type, void* pObj) const;
+  void destructObject(RootType type, void* pObj) const;
+
   ///@}
 
-  /// Open the file `fname` with open mode `mode`
-  StatusCode open(const std::string& fname, const std::string& mode);
+  /// open the file `fname` with open mode `mode`
+  /// @returns the file descriptor or -1 if failure
+  IIoSvc::Fd open(const std::string& fname,
+                  IIoSvc::IoType mode);
 
-  /// Connect the file `fname` to the service.
-  StatusCode connect(const std::string& fname);
+  /// Connect the file descriptor `fd` to the service.
+  StatusCode connect(IIoSvc::Fd fd);
+
+  /// get the RootConnection associated with file descriptor `fd`
+  /// @returns NULL if no such file is known to this service
+  Athena::RootConnection* connection(IIoSvc::Fd fd);
+
+  /// get the connection (or create it) for file descriptor `fd`
+  Athena::RootConnection* new_connection(IIoSvc::Fd fd);
 
   /// Commit data and flush buffer.
   StatusCode commitOutput();
 
-  /// Disconnect the file `fname` from the service.
-  StatusCode disconnect(const std::string& fname);
-
-  /// Get the RootConnection associated with file `fname`
-  /// @returns NULL if no such file is known to this service
-  Athena::RootConnection* connection(const std::string& fname);
+  /// Disconnect the file from the service.
+  StatusCode disconnect(IIoSvc::Fd fd);
 
 protected:
-  /// Destructor
-  virtual ~RootSvc();
+   /// Destructor
+   virtual ~RootSvc();
 
 private:
-  /// Default constructor:
-  RootSvc(); //< not implemented
-  RootSvc(const RootSvc&); //< not implemented
-  RootSvc& operator=(const RootSvc&); //< not implemented
+   /// Default constructor:
+   RootSvc(); //< not implemented
+   RootSvc(const RootSvc&); //< not implemented
+   RootSvc& operator=(const RootSvc&); //< not implemented
 
 private:
-  pool::IFileCatalog* m_catalog;
-
-  typedef std::map<Guid, Athena::RootConnection*> ConnMap_t;
+  typedef SG::unordered_map<IIoSvc::Fd,
+                            Athena::RootConnection*> ConnMap_t;
   /// Map of file name keys and connection values.
   ConnMap_t m_conns;
+
   Athena::RootConnection* m_wconn;
 
-  /// ServiceHandle to the dictionary service
-  ServiceHandle< ::IDictLoaderSvc> m_dictSvc;
+  /// dict loader service
+  mutable ServiceHandle< ::IDictLoaderSvc> m_dictsvc;
+
+  /// iosvc
+  ServiceHandle< ::IIoSvc> m_iosvc;
 };
 
 }//> namespace Athena

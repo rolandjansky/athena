@@ -11,6 +11,9 @@
 #ifndef ATHENAROOTCOMPS_TTREEEVENTSELECTOR_H 
 #define ATHENAROOTCOMPS_TTREEEVENTSELECTOR_H 
 
+// STL includes
+#include "CxxUtils/unordered_set.h" // move to STL when available
+
 // framework includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -19,8 +22,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAddressProvider.h"
-
-#include <unordered_set>
 
 // Forward declaration
 class ISvcLocator;
@@ -173,7 +174,7 @@ class TTreeEventSelector :
 
   // the list of transient addresses we "manage" or know about
   // these addresses are the actual TTree's branch names
-  std::unordered_set<SG::TransientAddress*> m_rootAddresses;
+  SG::unordered_set<SG::TransientAddress*> m_rootAddresses;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

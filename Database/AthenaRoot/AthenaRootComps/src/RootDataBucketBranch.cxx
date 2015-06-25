@@ -28,7 +28,7 @@ DataBucketBranch::cast(CLID clid, SG::IRegisterTransient* /*itr*/,
                        bool /*isConst*/) const
 {
   // no conversion needed
-  if (allowMismatchCLID || clid == m_clid) {
+  if (clid == m_clid) {
     return m_ptr;
 
   } else {
