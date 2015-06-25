@@ -15,9 +15,10 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainerCnv_p1.h"
+#include "ISF_FatrasEventTPCnv/PlanarClusterContainerCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  iFatras::PlanarClusterContainer_p1  PlanarClusterContainer_PERS;
+typedef  iFatras::PlanarClusterContainer_p2  PlanarClusterContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<iFatras::PlanarClusterContainer, PlanarClusterContainer_PERS >  PlanarClusterContainerCnvBase;
 
 /**
@@ -47,7 +48,7 @@ private:
   MsgStream             m_log;         //!< MsgStream
 
   PlanarClusterContainerCnv_p1   m_converter_p1;
- 
+  PlanarClusterContainerCnv_p2   m_converter_p2;
 
 };
 
