@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 659939 2015-04-10 13:20:44Z sroe $
+# $Id: PhysVal_jobOptions.py 659923 2015-04-10 11:38:00Z sroe $
 
 # Set up the reading of the input xAOD:
 FNAME = "AOD.pool.root"
