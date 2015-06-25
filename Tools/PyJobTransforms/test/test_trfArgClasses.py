@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 670822 2015-05-29 09:20:49Z graemes $
+#  @version $Id: test_trfArgClasses.py 678200 2015-06-25 10:29:34Z graemes $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -428,6 +428,8 @@ class argFileTests(unittest.TestCase):
             print >>f2, 'Short file 2'
         with open('file3', 'w') as f3:
             print >>f3, 80*'-', 'Long file 3', 80*'-'
+        with open('file4', 'w') as f4:
+            print >>f4, 'Short file number 4'
         with open('prefix.prodsysfile._001.suffix.1', 'w') as f1:
             print >>f1, 'This is prodsys test file 1'
         with open('prefix.prodsysfile._002.suffix.4', 'w') as f2:
@@ -441,7 +443,7 @@ class argFileTests(unittest.TestCase):
         self.myManualGUIDMultiFile = argFile(['file1', 'file2', 'file3'], io='input', guid={'file1': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'file2': '1368D295-27C6-4A92-8187-704C2A6A5864', 'file3': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9'})
 
     def tearDown(self):
-        for f in ('file1', 'file2', 'file3', 'prefix.prodsysfile._001.suffix.1', 'prefix.prodsysfile._002.suffix.4', 
+        for f in ('file1', 'file2', 'file3', 'file4', 'prefix.prodsysfile._001.suffix.1', 'prefix.prodsysfile._002.suffix.4', 
                   'prefix.prodsysfile._003.suffix.7'):
             try:
                 os.unlink(f)
@@ -462,7 +464,7 @@ class argFileTests(unittest.TestCase):
         
     def test_argFileGlob(self):
         myInput = argFile('file?', io='input')
-        self.assertEqual(myInput.value, ['file1', 'file2', 'file3'])    
+        self.assertEqual(myInput.value, ['file1', 'file2', 'file3', 'file4'])    
 
     def test_argFileProdsysGlob(self):
         myInput = argFile('prefix.prodsysfile._[001,002,003].suffix', io='input')
@@ -473,10 +475,6 @@ class argFileTests(unittest.TestCase):
         self.assertEqual(self.mySingleFile.io, 'output')
         self.assertEqual(self.myMultiFile.io, 'input')
         
-    def test_argFileDataset(self):
-        withDataset = argFile('fakeDatasetName#file1')
-        self.assertEqual(withDataset.dataset, 'fakeDatasetName')
-    
     def test_argFileMetadata(self):
         # Can't test all metadata directly now we added a GUID generator
         self.assertTrue(cmpMetadata(self.mySingleFile.getMetadata(), {'file1': {'_exists': True, 'file_guid': 'D6F5F632-4EA6-4EA6-9A78-9CF59C247094', 'integrity': True, 'file_size': 20}}))
@@ -503,6 +501,60 @@ class argFileTests(unittest.TestCase):
     def test_argFileSetMetadata(self):
         self.myMultiFile._setMetadata(files=None, metadataKeys={'file_size': 1234567, '_exists': True})
         self.assertEqual(self.myMultiFile.getSingleMetadata('file1', 'file_size'), 1234567)
+        
+        
+    ## @brief Tests of Tier-0 dictionary setup
+    def test_argFileTier0Dict(self):
+        t0file = argFile([{'dsn': 'testDataset', 'lfn': 'file1', 'guid': 'D6F5F632-4EA6-4EA6-9A78-9CF59C247094', 'events': 12, 'checksum': 'ad:fcd568ea'},
+                          {'dsn': 'testDataset', 'lfn': 'file2', 'guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'events': 13, 'checksum': 'ad:24ea1d6f'},
+                          {'dsn': 'testDataset', 'lfn': 'file3', 'guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'events': 14, 'checksum': 'ad:e4ddac3b'},
+                          {'dsn': 'testDataset', 'lfn': 'file4', 'guid': 'CAB26113-8CEC-405A-BEDB-9B1CFDD96DA8', 'events': 15, 'checksum': 'ad:65262635', 'extra': 'something'},
+                           ],
+                         io='input')
+        self.assertEqual(t0file.value, ['file1', 'file2', 'file3', 'file4'])
+        self.assertEqual(t0file.getSingleMetadata(fname='file1', metadataKey='file_guid', populate=False), 'D6F5F632-4EA6-4EA6-9A78-9CF59C247094')
+        self.assertEqual(t0file.getSingleMetadata(fname='file2', metadataKey='nentries', populate=False), 13)
+        self.assertEqual(t0file.getSingleMetadata(fname='file1', metadataKey='nentries', populate=False), 12)
+        self.assertEqual(t0file.getSingleMetadata(fname='file3', metadataKey='checksum', populate=False), 'ad:e4ddac3b')
+        self.assertEqual(t0file.dataset, 'testDataset')
+
+    ## @brief Test that we fail when lfn is missing or dataset is inconsistent
+    def test_argFileTier0DictBad(self):
+        t0file = argFile(None, io="input")
+        self.assertRaises(trfExceptions.TransformArgException, t0file.valueSetter, 
+                          [{'dsn': 'testDataset', 'guid': 'D6F5F632-4EA6-4EA6-9A78-9CF59C247094', 'events': 12, 'checksum': 'ad:fcd568ea'},
+                           {'dsn': 'testDataset', 'lfn': 'file4', 'guid': 'CAB26113-8CEC-405A-BEDB-9B1CFDD96DA8', 'events': 15, 'checksum': 'ad:65262635'},
+                          ])
+        self.assertRaises(trfExceptions.TransformArgException, t0file.valueSetter, 
+                          [{'dsn': 'testDataset', 'lfn': 'file1', 'guid': 'D6F5F632-4EA6-4EA6-9A78-9CF59C247094', 'events': 12, 'checksum': 'ad:fcd568ea'},
+                          {'dsn': 'brokenDataset', 'lfn': 'file2', 'guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'events': 13, 'checksum': 'ad:24ea1d6f'},
+                          {'dsn': 'testDataset', 'lfn': 'file3', 'guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'events': 14, 'checksum': 'ad:e4ddac3b'},
+                          {'dsn': 'testDataset', 'lfn': 'file4', 'guid': 'CAB26113-8CEC-405A-BEDB-9B1CFDD96DA8', 'events': 15, 'checksum': 'ad:65262635'},
+                           ])
+
+    ## @brief Tier-0 dsn#lfn notation test
+    def test_argFileTier0withDSNString(self):
+        withDataset = argFile('fakeDatasetName#file1')
+        self.assertEqual(withDataset.dataset, 'fakeDatasetName')
+        self.assertEqual(withDataset.value, ['file1'])
+    
+    def test_argFileTier0withDSNArray(self):
+        t0file = argFile(["testDataset#file1", "testDataset#file2", "testDataset#file3", "testDataset#file4"], io="input")
+        self.assertEqual(t0file.dataset, "testDataset")
+        self.assertEqual(t0file.value, ['file1', 'file2', 'file3', 'file4'])
+
+    def test_argFileTier0withDSNBad(self):
+        t0file = argFile(None, io="input")
+        # Cannot have inconsistent dataset names
+        self.assertRaises(trfExceptions.TransformArgException, t0file.valueSetter, 
+                          ["testDataset#file1", "testDataset#file2", "testDataset#file3", "testDatasetDifferent#file4"])
+        # Cannot have some files with missing dataset names
+        self.assertRaises(trfExceptions.TransformArgException, t0file.valueSetter, 
+                          ["testDataset#file1", "testDataset#file2", "testDataset#file3", "file4"])
+        # Cannot change dataset name
+        t0file.dataset = "originalDSN"
+        self.assertRaises(trfExceptions.TransformArgException, t0file.valueSetter, 
+                          ["testDataset#file1", "testDataset#file2", "testDataset#file3", "testDataset#file4"])
 
 if __name__ == '__main__':
     unittest.main()

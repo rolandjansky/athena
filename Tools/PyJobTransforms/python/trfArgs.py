@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 671521 2015-06-01 20:13:43Z graemes $
+#  @version $Id: trfArgs.py 676585 2015-06-19 09:24:49Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -316,7 +316,8 @@ class dpdType(object):
     #  @param argclass The argument class to be used for this data
     #  @param treeNames For DPD types only, the tree(s) used for event counting (if @c None then 
     #  no event counting can be done.
-    def __init__(self, name, type = None, substeps = [], argclass = None, treeNames = None):
+    #  @param help Help string to generate for this argument
+    def __init__(self, name, type = None, substeps = [], argclass = None, treeNames = None, help = None):
         self._name = name
         
         ## @note Not very clear how useful this actually is, but we
@@ -361,6 +362,7 @@ class dpdType(object):
         else:
             self._argclass = argclass
                 
+        self._help = help
         self._treeNames = treeNames
             
     @property
@@ -378,6 +380,10 @@ class dpdType(object):
     @property 
     def argclass(self):
         return self._argclass
+
+    @property 
+    def help(self):
+        return self._help
 
     @property 
     def treeNames(self):
@@ -398,6 +404,9 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_SUSYTRUTH', substeps=['a2d'], treeNames=['truth']))
     extraDPDs.append(dpdType('NTUP_HIGHMULT', substeps=['e2a'], treeNames=['MinBiasTree']))
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
+
+    extraDPDs.append(dpdType('NTUP_MCPTP', substeps=['a2d'], help="Ntuple file for MCP Tag and Probe"))
+    extraDPDs.append(dpdType('NTUP_MCPScale', substeps=['a2d'], help="Ntuple file for MCP scale calibration"))
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:
@@ -430,11 +439,11 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                     parser.add_argument('--input' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=True, io='input', type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), nargs='+',
-                                        help='DPD input {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD input {0} file'.format(dpd.name))
                     parser.add_argument('--output' + dpd.name + '_MRGFile', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output merged {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output merged {0} file'.format(dpd.name))
                     
         pass
     else:
@@ -446,12 +455,12 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                     parser.add_argument('--output' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 else:
                     parser.add_argument('--output' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 if transform:
                     for executor in transform.executors:
                         if hasattr(executor, 'substep') and executor.substep in dpd.substeps:

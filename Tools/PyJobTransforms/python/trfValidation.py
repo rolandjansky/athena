@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 668703 2015-05-20 12:53:05Z jchapman $
+# @version $Id: trfValidation.py 676350 2015-06-18 13:45:21Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -682,6 +682,7 @@ class eventMatch(object):
     # All data is taken from _trf dict
     def __init__(self, executor, eventCountConf=None, eventCountConfOverwrite=False):
         self._executor = executor
+        self._eventCount = None
 
         ## @note This double dictionary is formed of INPUT data, then a dictionary of the expected
         #  event counts from different output data types. If there is no exact match for the output
@@ -702,7 +703,7 @@ class eventMatch(object):
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
-        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
@@ -727,6 +728,10 @@ class eventMatch(object):
 
         if self._executor is not None:
             self.configureCheck(override=False)
+
+    @property
+    def eventCount(self):
+        return self._eventCount
 
     ## @brief Setup the parameters needed to define particular checks
     #  @param override If set then configure the checks using this dictionary, which needs
@@ -881,5 +886,5 @@ class eventMatch(object):
                 else:
                     raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),
                                                                      'Unrecognised event count configuration for {inData} to {outData}: "{conf}" is not known'.format(inData=inData, outData=outData, conf=checkConf))
-
+            self._eventCount = expectedEvents
         return True

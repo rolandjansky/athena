@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 665892 2015-05-08 14:54:36Z graemes $
+#  @version $Id: trfReports.py 677748 2015-06-23 20:29:35Z graemes $
 #
 
-__version__ = '$Revision: 665892 $'
+__version__ = '$Revision: 677748 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.1'
+    _reportVersion = '1.0.3'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -171,6 +171,10 @@ class trfJobReport(trfReport):
                                'wallTime': exe.wallTime,}
                 if exe.memStats:
                     exeResource['memory'] = exe.memStats
+                if exe.eventCount:
+                    exeResource['nevents'] = exe.eventCount
+                if exe.athenaMP:
+                    exeResource['mpworkers'] = exe.athenaMP
                 myDict['resource']['executor'][executionStep['name']] = exeResource
 
         # Resource consumption
@@ -400,6 +404,7 @@ class trfFileReport(object):
             # move metadata to subFile dict, before it can be compressed
             metaData = self._fileArg._fileMetadata
             for fileName in metaData.keys():
+                msg.info("Examining metadata for file {0}".format(fileName))
                 if basenameReport == False:
                     searchFileName = fileName
                 else:

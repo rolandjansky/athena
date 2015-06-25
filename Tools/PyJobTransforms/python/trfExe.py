@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfExe.py 677748 2015-06-23 20:29:35Z graemes $
 
 import copy
 import json
@@ -19,8 +19,6 @@ import subprocess
 import sys
 import time
 
-from xml.etree import ElementTree
-
 import logging
 msg = logging.getLogger(__name__)
 
@@ -28,6 +26,7 @@ from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum, releaseIsOlderThan, ValgrindCommand
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
+from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
 
 
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -164,6 +163,8 @@ class transformExecutor(object):
         #  enabled). 
         self._exeStart = self._exeStop = None
         self._memStats = {}
+        self._eventCount = None
+        self._athenaMP = None
         
         
     ## Now define properties for these data members
@@ -323,7 +324,14 @@ class transformExecutor(object):
     @property
     def memStats(self):
         return self._memStats
+    
+    @property
+    def eventCount(self):
+        return self._eventCount
 
+    @property
+    def athenaMP(self):
+        return self._athenaMP
 
     def preExecute(self, input = set(), output = set()):
         msg.info('Preexecute for %s' % self._name)
@@ -587,7 +595,7 @@ class scriptExecutor(transformExecutor):
                     while (not mem_proc.poll()) and countWait < 10:
                         time.sleep(0.1)
                         countWait += 1
-                except OSError:
+                except OSError, UnboundLocalError:
                     pass
         
         
@@ -633,6 +641,7 @@ class scriptExecutor(transformExecutor):
         else:
             checkcount=trfValidation.eventMatch(self)
             checkcount.decide()
+            self._eventCount = checkcount.eventCount
             msg.info('Event counting for substep {0} passed'.format(self.name))
 
 
@@ -646,7 +655,9 @@ class athenaExecutor(scriptExecutor):
     #  @param trf Parent transform
     #  @param skeletonFile athena skeleton job options file (optionally this can be a list of skeletons
     #  that will be given to athena.py in order); can be set to @c None to disable writing job options 
-    #  files at all  
+    #  files at all
+    #  @param inputDataTypeCountCheck List of input datatypes to apply preExecute event count checks to;
+    #  default is @c None, which means check all inputs
     #  @param exe Athena execution script
     #  @param exeArgs Transform argument names whose value is passed to athena
     #  @param substep The athena substep this executor represents (alias for the name)
@@ -670,13 +681,12 @@ class athenaExecutor(scriptExecutor):
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
     #  snippets into the runArgs file.
     def __init__(self, name = 'athena', trf = None, conf = None, skeletonFile = 'PyJobTransforms/skeleton.dummy.py', inData = set(), 
-                 outData = set(), exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
+                 outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
                  manualDataDictionary = None, memMonitor = True):
         
         self._substep = forceToAlphaNum(substep)
-        self._athenaMP = None # As yet unknown; N.B. this flag is used for AthenaMP version 2+. For AthenaMP-I it is set to False
         self._inputEventTest = inputEventTest
         self._tryDropAndReload = tryDropAndReload
         self._extraRunargs = extraRunargs
@@ -684,6 +694,7 @@ class athenaExecutor(scriptExecutor):
         self._literalRunargs = literalRunargs
         self._dataArgs = dataArgs
         self._errorMaskFiles = errorMaskFiles
+        self._inputDataTypeCountCheck = inputDataTypeCountCheck
 
         if perfMonFile:
             self._perfMonFile = None
@@ -703,12 +714,18 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 665892 2015-05-08 14:54:36Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 677748 2015-06-23 20:29:35Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
-       
+    @property
+    def inputDataTypeCountCheck(self):
+        return self._inputDataTypeCountCheck
     
+    @inputDataTypeCountCheck.setter
+    def inputDataTypeCountCheck(self, value):
+        self._inputDataTypeCountCheck = value
+        
     @property
     def substep(self):
         return self._substep
@@ -716,12 +733,12 @@ class athenaExecutor(scriptExecutor):
     def preExecute(self, input = set(), output = set()):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         
-        # Try to detect AthenaMP mode
-        # The first flag indicates if the transform needs to handle the AthenaMP merging (i.e., AthenaMP v2)
-        # The first flag is set true in order to disable the --drop-and-reload option because AthenaMP v1 
-        #  cannot handle it 
-        self._athenaMP, self._athenaMPv1 = self._detectAthenaMP()
-
+        # Try to detect AthenaMP mode and number of workers
+        if self.conf._disableMP:
+            self._athenaMP = 0
+        else:
+            self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
+            
         # And if this is athenaMP, then set some options for workers and output file report
         if self._athenaMP:
             self._athenaMPWorkerTopDir = 'athenaMP-workers-{0}-{1}'.format(self._name, self._substep)
@@ -743,14 +760,19 @@ class athenaExecutor(scriptExecutor):
         if (self._inputEventTest and 'skipEvents' in self.conf.argdict and 
             self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None):
             msg.debug('Will test for events to process')
-            for dataType in input:
-                inputEvents = self.conf.dataDictionary[dataType].nentries
-                msg.debug('Got {0} events for {1}'.format(inputEvents, dataType))
-                if not isinstance(inputEvents, (int, long)):
-                    msg.warning('Are input events countable? Got nevents={0} so disabling event count check for this input'.format(inputEvents))
-                elif self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) >= inputEvents:
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
-                                                                    'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor), inputEvents, dataType))
+            if self._inputDataTypeCountCheck is None:
+                self._inputDataTypeCountCheck = input
+            for dataType in self._inputDataTypeCountCheck:
+                try:
+                    inputEvents = self.conf.dataDictionary[dataType].nentries
+                    msg.debug('Got {0} events for {1}'.format(inputEvents, dataType))
+                    if not isinstance(inputEvents, (int, long)):
+                        msg.warning('Are input events countable? Got nevents={0} so disabling event count check for this input'.format(inputEvents))
+                    elif self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) >= inputEvents:
+                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
+                                                                        'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor), inputEvents, dataType))
+                except KeyError:
+                    pass
     
         ## Write the skeleton file and prep athena
         if self._skeleton is not None:
@@ -834,68 +856,15 @@ class athenaExecutor(scriptExecutor):
 
         # If this was an athenaMP run then we need to update output files
         if self._athenaMP:
-            if path.exists(self._athenaMPFileReport):
-                try:
-                    try:
-                        outputFileArgs = [ self.conf.dataDictionary[dataType] for dataType in self._output ]
-                    except KeyError, e:
-                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC'),
-                                                                        'Failed to find output file argument instances for outputs {0} in {1}'.format(self.outData, self.name))
-                    mpOutputs = ElementTree.ElementTree()
-                    mpOutputs.parse(self._athenaMPFileReport)
-                    for filesElement in mpOutputs.getroot().getiterator(tag='Files'):
-                        msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
-                        originalArg = None 
-                        originalName = filesElement.attrib['OriginalName']
-                        for fileArg in outputFileArgs:
-                            if fileArg.value[0] == originalName:
-                                originalArg = fileArg
-                                break
-                        if originalArg is None:
-                            msg.warning('Found AthenaMP output with name {0}, but no matching transform argument'.format(originalName))
-                            continue
-                        msg.debug('Found matching argument {0}'.format(originalArg))
-                        fileNameList = []
-                        for fileElement in filesElement.getiterator(tag='File'):
-                            msg.debug('Examining element {0} with attributes {1}'.format(fileElement, fileElement.attrib))
-                            fileNameList.append(fileElement.attrib['name'])
-                        # Now update argument with the new name list and reset metadata
-                        originalArg.multipleOK = True
-                        originalArg.value = fileNameList
-                        originalArg.originalName = originalName
-                        msg.debug('Argument {0} value now {1}'.format(originalArg, originalArg.value))
-                        # Merge?
-                        if originalArg.io is 'output' and len(originalArg.value) > 1:
-                            msg.debug('{0} files {1} are candidates for smart merging'.format(originalArg.name, originalArg.value))
-                            self._smartMerge(originalArg)
-                except Exception, e:
-                    msg.error('Exception thrown when processing athenaMP outputs report {0}: {1}'.format(self._athenaMPFileReport, e))
-                    msg.error('Validation is now very likely to fail')
-                    raise
-            else:
-                msg.warning('AthenaMP run was set to True, but no outputs file was found')
-                
-            
-        if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary.keys():
-            #tgzipping JiveXML files
-            targetTGZName = self.conf.dataDictionary['TXT_JIVEXMLTGZ'].value[0]
-            if os.path.exists(targetTGZName):
-                os.remove(targetTGZName)
+            outputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._output ])
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP)
+            for dataType in self._output:
+                if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
+                    self._smartMerge(self.conf.dataDictionary[dataType])
+        
+        if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary:
+            self._targzipJiveXML()
 
-            import tarfile
-            fNameRE = re.compile("JiveXML\_\d+\_\d+.xml")
-
-            # force gz compression
-            tar = tarfile.open(targetTGZName, "w:gz")
-            for fName in os.listdir('.'):
-                matches = fNameRE.findall(fName)
-                if len(matches) > 0:
-                    if fNameRE.findall(fName)[0] == fName:
-                        msg.info('adding %s to %s' % (fName, targetTGZName))
-                        tar.add(fName)
-
-            tar.close()
-            msg.info('JiveXML compression: %s has been written and closed.' % (targetTGZName))
 
     def validate(self):
         self._hasValidated = True
@@ -965,53 +934,6 @@ class athenaExecutor(scriptExecutor):
         msg.info('Executor {0} has validated successfully'.format(self.name))
         self._isValidated = True
 
-
-    ## @brief Detect if AthenaMP is being used for this execution step
-    #  @details Check environment and athena options
-    #  Note that the special config option @c disableMP is used as an override
-    #  so that we do not utilise AthenaMP for smart merging
-    #  @return Tuple of two booleans: first is true if AthenaMPv2 is enabled, second is true 
-    #  if AthenaMPv1 is enabled
-    def _detectAthenaMP(self):
-        if self.conf._disableMP:
-            msg.debug('Executor configuration specified disabling AthenaMP')
-            return False, False
-        
-        try:
-            # First try and detect if any AthenaMP has been enabled 
-            if 'ATHENA_PROC_NUMBER' in os.environ and (int(os.environ['ATHENA_PROC_NUMBER']) is not 0):
-                msg.info('Detected non-zero ATHENA_PROC_NUMBER ({0}) - setting athenaMP=True flag'.format(os.environ['ATHENA_PROC_NUMBER']))
-                athenaMPEnabled = True
-            elif 'athenaopts' in self.conf.argdict and len([opt for opt in self.conf.argdict['athenaopts'].value if '--nprocs' in opt]) > 0:
-                msg.info('Detected --nprocs argument for athena - setting athenaMP=True flag')
-                athenaMPEnabled = True
-            else:
-                athenaMPEnabled = False
-                
-            # If AthenaMP has not been enabled, we don't care about the version
-            if not athenaMPEnabled:
-                msg.info('No AthenaMP options found - assuming normal athena run')
-                return False, False
-                
-            # Now need to see if we're running with AthenaMP v1 or v2. In v1 AthenaMP
-            # handles all special merging and setup, so we ignore it. In v2 the
-            # transform takes an active role in smart merging and job setup.
-            # We signal AthenaMPv1 by returning False, True; v2 by True, False
-            from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps
-            if 'Version' in dir(AthenaMPJobProps.AthenaMPFlags):
-                if AthenaMPJobProps.AthenaMPFlags.Version == 1:
-                    msg.info("AthenaMP properties indicates version 1 - no special AthenaMP processing will be done")
-                    return False, True
-            elif releaseIsOlderThan(17, 7):
-                msg.info("Release is older than 17.7, so assuming AthenaMP version 1 - no special AthenaMP processing will be done")
-                return False, True
-            return True, False
-
-        except ValueError:
-            msg.error('Could not understand ATHENA_PROC_NUMBER environment variable (int conversion failed)')
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Invalid ATHENA_PROC_NUMBER environment variable')
-
-
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
         ## Start building up the command line
@@ -1052,9 +974,7 @@ class athenaExecutor(scriptExecutor):
         
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
-            if self._athenaMPv1:
-                msg.info('Disabling "--drop-and-reload" because the job is configured to use AthenaMP v1')
-            elif 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
+            if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
                 msg.info('Disabling "--drop-and-reload" because the job is configured to use Valgrind')
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
@@ -1184,7 +1104,6 @@ class athenaExecutor(scriptExecutor):
     def _smartMerge(self, fileArg):
         ## @note Produce a list of merge jobs - this is a list of lists
         #  @todo This should be configurable!
-        #  @note Value is set very low for now for testing 
         
         ## @note only file arguments which support selfMerge() can be merged
         if 'selfMerge' not in dir(fileArg):
@@ -1194,8 +1113,7 @@ class athenaExecutor(scriptExecutor):
         if fileArg.mergeTargetSize == 0:
             msg.info('Files in {0} will not be merged as target size is set to 0)'.format(fileArg.name))
             return
-        
-        
+
         mergeCandidates = [list()]
         currentMergeSize = 0
         for fname in fileArg.value:
@@ -1237,6 +1155,29 @@ class athenaExecutor(scriptExecutor):
             else:
                 ## We want to parallelise this part!
                 fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
+
+
+    def _targzipJiveXML(self):
+        #tgzipping JiveXML files
+        targetTGZName = self.conf.dataDictionary['TXT_JIVEXMLTGZ'].value[0]
+        if os.path.exists(targetTGZName):
+            os.remove(targetTGZName)
+
+        import tarfile
+        fNameRE = re.compile("JiveXML\_\d+\_\d+.xml")
+
+        # force gz compression
+        tar = tarfile.open(targetTGZName, "w:gz")
+        for fName in os.listdir('.'):
+            matches = fNameRE.findall(fName)
+            if len(matches) > 0:
+                if fNameRE.findall(fName)[0] == fName:
+                    msg.info('adding %s to %s' % (fName, targetTGZName))
+                    tar.add(fName)
+
+        tar.close()
+        msg.info('JiveXML compression: %s has been written and closed.' % (targetTGZName))
+
 
 ## @brief Athena executor where failure is not consisered fatal
 class optionalAthenaExecutor(athenaExecutor):
@@ -1494,31 +1435,39 @@ class NTUPMergeExecutor(scriptExecutor):
 
         super(NTUPMergeExecutor, self).preExecute(input=input, output=output)
 
-## @brief Specalise the athena executor to deal with the BS merge oddity of excluding empty DRAWs 
+
+## @brief Specalise the script executor to deal with the BS merge oddity of excluding empty DRAWs 
 class bsMergeExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
+        self._inputBS = list(input)[0]
+        self._outputBS = list(output)[0]
         self._maskedFiles = []
-        if 'BS' in self.conf.argdict and 'maskEmptyInputs' in self.conf.argdict and self.conf.argdict['maskEmptyInputs'].value is True:
+        self._useStubFile = False
+        if 'maskEmptyInputs' in self.conf.argdict and self.conf.argdict['maskEmptyInputs'].value is True:
             eventfullFiles = []
-            for fname in self.conf.dataDictionary['BS'].value:
-                nEvents = self.conf.dataDictionary['BS'].getSingleMetadata(fname, 'nentries')
+            for fname in self.conf.dataDictionary[self._inputBS].value:
+                nEvents = self.conf.dataDictionary[self._inputBS].getSingleMetadata(fname, 'nentries')
                 msg.debug('Found {0} events in file {1}'.format(nEvents, fname))
                 if isinstance(nEvents, int) and nEvents > 0:
                     eventfullFiles.append(fname)
-            self._maskedFiles = list(set(self.conf.dataDictionary['BS'].value) - set(eventfullFiles))
+            self._maskedFiles = list(set(self.conf.dataDictionary[self._inputBS].value) - set(eventfullFiles))
             if len(self._maskedFiles) > 0:
                 msg.info('The following input files are masked because they have 0 events: {0}'.format(' '.join(self._maskedFiles)))
-                if len(self.conf.dataDictionary['BS'].value) == 0:
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
-                                                                    'All input files had zero events - aborting BS merge')            
+                if len(eventfullFiles) == 0:
+                    if 'emptyStubFile' in self.conf.argdict and path.exists(self.conf.argdict['emptyStubFile'].value):
+                        self._useStubFile = True
+                        msg.info("All input files are empty - will use stub file {0} as output".format(self.conf.argdict['emptyStubFile'].value))
+                    else:
+                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
+                                                                        'All input files had zero events - aborting BS merge')            
         
         # Write the list of input files to a text file, so that testMergedFiles can swallow it
-        self._mergeBSFileList = '{0}.list'.format(self._exe)
-        self._mergeBSLogfile = '{0}.out'.format(self._exe)
+        self._mergeBSFileList = '{0}.list'.format(self._name)
+        self._mergeBSLogfile = '{0}.out'.format(self._name)
         try:
             with open(self._mergeBSFileList, 'w') as BSFileList:
-                for fname in self.conf.dataDictionary['BS'].value:
+                for fname in self.conf.dataDictionary[self._inputBS].value:
                     if fname not in self._maskedFiles:
                         print >>BSFileList, fname
         except (IOError, OSError) as e:
@@ -1527,7 +1476,7 @@ class bsMergeExecutor(scriptExecutor):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'), errMsg)
         
         # Hope that we were given a correct filename...
-        self._outputFilename = self.conf.dataDictionary['BS_MRG'].value[0]
+        self._outputFilename = self.conf.dataDictionary[self._outputBS].value[0]
         if self._outputFilename.endswith('._0001.data'):
             self._doRename = False
             self._outputFilename = self._outputFilename.split('._0001.data')[0]    
@@ -1544,17 +1493,32 @@ class bsMergeExecutor(scriptExecutor):
         self._cmd = [self._exe, self._mergeBSFileList, '0', self._outputFilename] 
         
         super(bsMergeExecutor, self).preExecute(input=input, output=output)
-        
+    
+    def execute(self):
+        if self._useStubFile:
+            # Need to fake execution!
+            self._exeStart = os.times()
+            msg.info("Using stub file for empty BS output - execution is fake")
+            if self._outputFilename != self.conf.argdict['emptyStubFile'].value:
+                os.rename(self.conf.argdict['emptyStubFile'].value, self._outputFilename)            
+            self._memMonitor = False
+            self._hasExecuted = True
+            self._rc = 0
+            self._exeStop = os.times()
+        else:
+            super(bsMergeExecutor, self).execute()
         
     def postExecute(self):
-        if self._doRename:
+        if self._useStubFile:
+            pass
+        elif self._doRename:
             self._expectedOutput = self._outputFilename + '._0001.data'
-            msg.info('Renaming {0} to {1}'.format(self._expectedOutput, self.conf.dataDictionary['BS_MRG'].value[0]))
+            msg.info('Renaming {0} to {1}'.format(self._expectedOutput, self.conf.dataDictionary[self._outputBS].value[0]))
             try:
-                os.rename(self._outputFilename + '._0001.data', self.conf.dataDictionary['BS_MRG'].value[0])
+                os.rename(self._outputFilename + '._0001.data', self.conf.dataDictionary[self._outputBS].value[0])
             except OSError, e:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
-                                                                'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary['BS_MRG'].value[0], e))
+                                                                'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary[self._outputBS].value[0], e))
         super(bsMergeExecutor, self).postExecute()
         
                 
