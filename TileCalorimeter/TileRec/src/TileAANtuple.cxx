@@ -45,6 +45,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileEvent/TileMuonReceiverContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileL2Algs/TileL2Builder.h"
@@ -163,6 +164,9 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_ROD_DMUfeCRC()
 , m_ROD_DMUrodCRC()
 , m_ROD_DMUMask()
+, m_eTMDB()
+, m_sampleTMDB()
+, m_decisionTMDB()
 , m_TEMP()
 , m_HV()
 , m_HVSET()
@@ -213,6 +217,9 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainer = "");      //
+  declareProperty("TileMuRcvRawChannelContainer", m_tileMuRcvRawChannelContainer = "MuRcvRawChCnt");// TMDB
+  declareProperty("TileMuRcvDigitsContainer", m_tileMuRcvDigitsContainer = "MuRcvDigitsCnt");// TMDB
+  declareProperty("TileMuRcvContainer", m_tileMuRcvContainer = "TileMuRcvCnt");// TMDB
   declareProperty("TileLaserObject", m_laserObject = "" /* "TileLaserObj" */);       //
   declareProperty("CalibrateEnergy", m_calibrateEnergy = true);
   declareProperty("UseDspUnits", m_useDspUnits = false);
@@ -258,8 +265,12 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   memset(m_las_PMT_TDC,        0, sizeof(m_las_PMT_TDC));
   memset(m_las_PMT_Ped,        0, sizeof(m_las_PMT_Ped));
   memset(m_las_PMT_Ped_RMS,    0, sizeof(m_las_PMT_Ped_RMS));
-}
 
+  // TMDB
+  memset(m_eTMDB,0,sizeof(m_eTMDB));
+  memset(m_sampleTMDB,0,sizeof(m_sampleTMDB));
+  memset(m_decisionTMDB,0,sizeof(m_decisionTMDB));
+}
 
 TileAANtuple::~TileAANtuple() {
 }
@@ -442,6 +453,12 @@ StatusCode TileAANtuple::execute() {
   empty &= storeRawChannels(m_optRawChannelContainer,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
   empty &= storeRawChannels(m_of1RawChannelContainer,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
   
+  // store TMDB data
+  //
+  empty &= storeTMDBDecision().isFailure();
+  empty &= storeTMDBDigits().isFailure();
+  empty &= storeTMDBRawChannel().isFailure();
+
   if (m_beamCnv) {
     m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
     m_evt = m_beamCnv->eventFragment()->global_id();
@@ -522,7 +539,7 @@ StatusCode TileAANtuple::execute() {
   if (m_checkDCS) {
     empty &= storeDCS().isFailure();
   }
-  
+ 
   if (empty) {
     ATH_MSG_WARNING( "Some problems in execute - ntuple was not filled at all" );
   }
@@ -1128,7 +1145,7 @@ TileAANtuple::storeDigits(std::string containerId
   if (containerId.size() == 0) // empty name, nothing to do
     return StatusCode::FAILURE;
   
-  // Read Digits from TDS
+  // Read Digits from TES
   const TileDigitsContainer* digitsCnt;
   CHECK( evtStore()->retrieve(digitsCnt, containerId) );
   
@@ -1299,6 +1316,189 @@ TileAANtuple::storeDigits(std::string containerId
   else return StatusCode::SUCCESS;
 }
 
+StatusCode TileAANtuple::storeTMDBDecision() {
+
+  const char * part[4] = {"LBA","LBC","EBA","EBC"};
+
+  // Read Decision from TES
+  //
+  if (m_tileMuRcvContainer.size()>0){
+
+    ATH_MSG_VERBOSE( "reading TMDB decision from " << m_tileMuRcvContainer ); 
+
+    const TileMuonReceiverContainer *decisionCnt;
+    CHECK( evtStore()->retrieve(decisionCnt, m_tileMuRcvContainer) );
+  
+    TileMuonReceiverContainer::const_iterator it = decisionCnt->begin();
+    TileMuonReceiverContainer::const_iterator itLast = decisionCnt->end();
+  
+    // Go through all decisions
+    for(; it != itLast; ++it) {
+
+      const TileMuonReceiverObj * obj = (*it);
+
+      const std::vector<bool> & decision = obj->GetDecision(); 
+      int siz = decision.size();
+
+      if (siz>0) {
+
+        int fragId = (*it)->identify();
+        int drawer = fragId & 0x3F;
+        int ros    = (fragId>>8) - 1;
+ 
+        if (siz > N_TMDBCHANS) {
+          ATH_MSG_VERBOSE( "ONLY " << N_TMDBCHANS << " decisions saved to ntuple instead of " << siz);
+          siz = N_TMDBCHANS;
+        }
+
+        for (int n = 0; n < siz; ++n) {
+          m_decisionTMDB[ros][drawer][n] = (unsigned char) decision[n];
+        }
+
+        if (msgLvl(MSG::VERBOSE)) {
+          std::stringstream ss;
+          for (int n = 0; n < siz; ++n) {
+            ss<<std::setw(5)<<(int)m_decisionTMDB[ros][drawer][n];
+          }
+          msg(MSG::VERBOSE) << "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros] 
+                            << std::setfill('0') << std::setw(2)
+                            << drawer+1 << std::setfill(' ') 
+                            << "      decision: " <<ss.str() << endmsg;
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+ 
+StatusCode TileAANtuple::storeTMDBDigits() {
+
+  const char * part[4] = {"LBA","LBC","EBA","EBC"};
+
+  // Read Digits from TES
+  //
+  if (m_tileMuRcvDigitsContainer.size()>0){
+
+    ATH_MSG_VERBOSE( "reading TMDB digits from " << m_tileMuRcvDigitsContainer ); 
+
+    const TileDigitsContainer* digitsCnt;
+    CHECK( evtStore()->retrieve(digitsCnt, m_tileMuRcvDigitsContainer) );
+  
+    TileDigitsContainer::const_iterator itColl1 = (*digitsCnt).begin();
+    TileDigitsContainer::const_iterator itCollEnd1 = (*digitsCnt).end();
+  
+    // Go through all TileDigitsCollections
+    for(; itColl1 != itCollEnd1; ++itColl1) {
+
+      TileDigitsCollection::const_iterator it1 = (*itColl1)->begin();
+      TileDigitsCollection::const_iterator itEnd1 = (*itColl1)->end();
+
+      if (it1!=itEnd1) {
+
+        int fragId = (*itColl1)->identify();
+        int drawer = fragId & 0x3F;
+        int ros    = (fragId>>8) - 1;
+        int ichannel = 0;
+ 
+        ATH_MSG_VERBOSE( "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros]
+                         << std::setfill('0') << std::setw(2)
+                          << drawer+1 << std::setfill(' ') ); 
+
+        for (; it1 != itEnd1; ++it1) {
+
+          if (ichannel>=N_TMDBCHANS) {
+            ATH_MSG_WARNING("Too many channels in TMDB Digi container for frag 0x" <<MSG::hex<< fragId <<MSG::dec <<" keeping only first " << N_TMDBCHANS << " channels in ntuple ");
+            break;
+          }
+
+          const TileDigits* digit = (*it1);
+        
+          // get digits
+          const std::vector<float> & sampleVec = digit->samples();
+          int siz = sampleVec.size();
+
+          if (siz > N_SAMPLES) {
+            ATH_MSG_VERBOSE( "ONLY " << N_SAMPLES << " digits saved to ntuple instead of " << siz);
+            siz = N_SAMPLES;
+          }
+
+          for (int n = 0; n < siz; ++n) {
+            m_sampleTMDB[ros][drawer][ichannel][n] = (unsigned char) sampleVec[n];
+          }
+
+          if (msgLvl(MSG::VERBOSE)) {
+            std::stringstream ss;
+            for (int n = 0; n < siz; ++n) {
+              ss<<std::setw(5)<<(int)m_sampleTMDB[ros][drawer][ichannel][n];
+            }
+            msg(MSG::VERBOSE) << "      dig: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(digit->adc_HWID())<<": "<<ss.str() << endmsg;;
+          }
+      
+          ++ichannel;
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TileAANtuple::storeTMDBRawChannel() {
+
+  const char * part[4] = {"LBA","LBC","EBA","EBC"};
+
+  // Read Raw Channels from TDS
+  //
+  if (m_tileMuRcvRawChannelContainer.size()>0){
+
+    ATH_MSG_VERBOSE( "reading TMDB energies from " << m_tileMuRcvRawChannelContainer ); 
+
+    const TileRawChannelContainer* rcCnt;
+    CHECK( evtStore()->retrieve(rcCnt, m_tileMuRcvRawChannelContainer) );
+
+    TileRawChannelContainer::const_iterator itColl2 = (*rcCnt).begin();
+    TileRawChannelContainer::const_iterator itCollEnd2 = (*rcCnt).end();
+  
+    // Go through all TileDigitsCollections
+    for(; itColl2 != itCollEnd2; ++itColl2) {
+
+      TileRawChannelCollection::const_iterator it2 = (*itColl2)->begin();
+      TileRawChannelCollection::const_iterator itEnd2 = (*itColl2)->end();
+
+      if (it2!=itEnd2) {
+
+        int fragId = (*itColl2)->identify();
+        int drawer = fragId & 0x3F;
+        int ros    = (fragId>>8) - 1;
+        int ichannel = 0;
+  
+        ATH_MSG_VERBOSE( "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros]
+                         << std::setfill('0') << std::setw(2)
+                         << drawer+1 << std::setfill(' ') ); 
+
+        for (; it2 != itEnd2; ++it2) {
+
+          if (ichannel>=N_TMDBCHANS) {
+            ATH_MSG_WARNING("Too many channels in TMDB RCh container for frag 0x" <<MSG::hex<< fragId <<MSG::dec <<" keeping only first " << N_TMDBCHANS << " channels in ntuple ");
+            break;
+          }
+
+          const TileRawChannel* rc = (*it2);
+        
+          m_eTMDB[ros][drawer][ichannel] =  rc -> amplitude();
+
+          ATH_MSG_VERBOSE( "      rc: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(rc->adc_HWID())<< ": " << m_eTMDB[ros][drawer][ichannel] );
+
+          ++ichannel;
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 StatusCode
 TileAANtuple::finalize() {
   ATH_MSG_INFO( "finalize() successfully" );
@@ -1312,7 +1512,8 @@ TileAANtuple::ntuple_clear() {
   CISPAR_clearBranch();
   LASER_clearBranch();
   DIGI_clearBranch();
-  
+  TMDB_clearBranch();
+
   return StatusCode::SUCCESS;
 }
 
@@ -1347,7 +1548,7 @@ TileAANtuple::initNTuple(void) {
       LASER_addBranch();
     }
     DIGI_addBranch();
-    
+    TMDB_addBranch();
   }
   
   //DCS Ntuple creation
@@ -1582,7 +1783,7 @@ void TileAANtuple::LASER_addBranch(void) {
       
       ATH_MSG_DEBUG("LASERII BRANCHING..");
       
-      m_ntuplePtr->Branch(Form("LASER_DAQTYPE"),&(m_daqtype),Form("LASER_DAQTYPE"));
+      m_ntuplePtr->Branch(Form("LASER_DAQTYPE"),&(m_daqtype),Form("LASER_DAQTYPE/I"));
       for(int chan=0;chan<32;++chan){
         m_ntuplePtr->Branch(Form("LASER_%s_%s_ADC",gainnames[chan%2],channames[chan/2]),&(m_chan[chan]),Form("LASER_%s_%s_ADC/I",gainnames[chan%2],channames[chan/2]));
         m_ntuplePtr->Branch(Form("LASER_%s_%s_Ped",gainnames[chan%2],channames[chan/2]),&(m_chan_Ped[chan]),Form("LASER_%s_%s_Ped/F",gainnames[chan%2],channames[chan/2]));
@@ -2161,6 +2362,40 @@ void TileAANtuple::DIGI_clearBranch(void) {
   }
   
 }
+
+/*//////////////////////////////////////////////////////////////////////////////
+ // TMDB variables
+ //////////////////////////////////////////////////////////////////////////////
+ */
+
+void TileAANtuple::TMDB_addBranch(void)
+{
+  
+  if (m_tileMuRcvRawChannelContainer.size()>0) {
+    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][4]/F");
+  }
+
+  if (m_tileMuRcvDigitsContainer.size()>0) {
+    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][4][7]/b");
+  }
+
+  if (m_tileMuRcvContainer.size()>0) {
+    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b");
+  }
+
+}
+
+void TileAANtuple::TMDB_clearBranch(void)
+{
+  if (m_tileMuRcvRawChannelContainer.size()>0) CLEAR(m_eTMDB);
+  if (m_tileMuRcvDigitsContainer.size()>0) CLEAR(m_sampleTMDB);
+  if (m_tileMuRcvContainer.size()>0) CLEAR(m_decisionTMDB);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+ // DCS variables
+ /////////////////////////////////////////////////////////////////////////////
+ */
 
 void TileAANtuple::DCS_addBranch() {
   bool br[9];
