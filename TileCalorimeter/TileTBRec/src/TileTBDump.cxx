@@ -268,6 +268,7 @@ StatusCode TileTBDump::execute() {
     eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(source_id);
     unsigned int subdet_id = id.subdetector_id();
     unsigned int module_id = id.module_id();
+//    int robsourceid = robf.source_id();
 
     bool known = m_dumpUnknown || subdet_id == 0x70  // COMMON BEAM ROD in CTB2004
                  || (subdet_id >= 0x50 && subdet_id < 0x60); // TileCal IDs
@@ -354,11 +355,11 @@ StatusCode TileTBDump::execute() {
         if ((subdet_id >= 0x50 && subdet_id < 0x60) || // TileCal IDs
             subdet_id == 0x63 || // wrong id in first testbeam test runs 
             subdet_id == 0x70) { // COMMON BEAM ROD in CTB2004
-          dump_digi(subdet_id,data, size, version, verbosity);
+          dump_digi(subdet_id,data, size, version, verbosity, source_id);
         } else if ( m_dumpUnknown ) {
           dump_data(data, size, version, verbosity);
           if (subdet_id == 0) { // try also to find normal fragments  
-            dump_digi(subdet_id,data, size, version, verbosity);
+            dump_digi(subdet_id,data, size, version, verbosity, source_id);
           }
         }
         
@@ -427,7 +428,7 @@ void TileTBDump::dump_data(const uint32_t * data, unsigned int size, unsigned in
 }
 
 void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsigned int rodsize
-                           , unsigned int version, int verbosity) {
+                           , unsigned int version, int verbosity, unsigned int robsourceid) {
 
   int s, c, f, nfrag, ngain, nchan, nsamp, size, ch, extra = 0, pmt, fragType, nhits = 0;
   int id, type, rflag, unit, pulse, nsmpl, algor, niter;
@@ -478,7 +479,80 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
     size = frag[f]->size - m_sizeOverhead;
     data = frag[f]->data;
 
-    if (id < 0x100 || beamROD) { // BEAM fragments
+    if (type==0x40 || type==0x41 || type==0x42){
+
+      unsigned char * adc;
+      unsigned short * result;
+      int tmdb_ch1 = std::min(5U,((robsourceid)>>16)&0xF);
+      int tmdb_ch2 = (((robsourceid))&0xF)<<3;
+      const char * dr56rl[4] = { "D5-L","D5-R","D6-L","D6-R" };
+      const char * ch11[6] = { "AUX","LBA","LBC","EBA","EBC","UNK" };
+      const char * ch12[6] = { "aux","lba","lbc","eba","ebc","unk" };
+      const char * dr56hl[4] = {" D6L "," D6H "," D56L"," D56H"};
+      const char * tit[4] = {"TMDB digits","TMDB energy","TMDB decision","Unknown"};
+
+      std::cout << std::hex << std::endl << tit[type&3] <<" fragment 0x" << type << " vers 0x"<< id << ", "
+                << std::dec << size << " words found"<< std::endl << std::endl;
+
+      int nsamp = 7;
+      int nch = 32;
+      int ntd = 3;
+      int count = 1;
+      switch (type) {
+
+        case 0x40: 
+            nsamp=4*size/nch;
+            std::cout << "ch      cell   ";
+            for (int ind=nsamp; ind>0; --ind) {
+              std::cout << "    S"<<ind;
+            }
+            std::cout << std::endl;
+            adc = reinterpret_cast<unsigned char *>(data);
+            for (int pword=0;pword<nch;++pword) {
+              std::cout << std::setw(2) << pword << " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4];
+              for (int ind=nsamp-1; ind>-1; --ind) {
+                std::cout << " | " << std::setw(3) << (  static_cast<unsigned>(adc[pword+32*ind]) );
+              }
+              std::cout << std::endl;
+              if (pword%4==3) count+=1;
+            }
+            break;
+
+        case 0x41: 
+            std::cout << "ch      cell      energy" << std::endl; 
+            for (int pword=0;pword<size;++pword) {
+              std::cout << std::setw(2) << pword<< " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4]
+                        << " | "<< std::setw(6) << static_cast<int>(data[pword])
+                        <<  std::endl;
+              if (pword%4==3) count+=1;
+            }
+            break;
+
+        case 0x42:
+            std::cout << "nn   name   " << dr56hl[3] << dr56hl[2]
+                      << dr56hl[1] << dr56hl[0] << std::endl; 
+            result = reinterpret_cast<unsigned short *>(data);
+            if (size!=2) ntd=size*2;
+            for (int pword=0;pword<ntd;++pword) {
+              count=pword*3;
+              unsigned short r=result[pword];
+              for(int pqword=0;pqword<4;++pqword){
+                  std::cout << std::setw(2) << pqword+pword*4 << " | " << ((count>0&&count<9)?ch11[tmdb_ch1]:ch12[tmdb_ch1])
+                          << std::setfill('0') << std::setw(2) << tmdb_ch2+count
+                          << std::setfill(' ') << std::setw(5)<<((r>>3)&1) << std::setw(5)<<((r>>2)&1)
+                          << std::setw(5)<<((r>>1)&1) << std::setw(5)<<(r&1) << std::endl;
+                r>>=4;
+                ++count;
+              } 
+            }
+            break;
+        default: 
+            dump_data((uint32_t*) data, size, version, verbosity);
+      }
+
+    } else if (id < 0x100 || beamROD) { // BEAM fragments
       id &= 0xFF; // set proper frag ID in Beam frag for old data
 
       switch (id) {

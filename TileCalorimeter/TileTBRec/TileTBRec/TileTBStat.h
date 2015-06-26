@@ -152,6 +152,8 @@ class TileTBStat: public AthAlgorithm {
     std::vector<T_RobRodFragMap> m_fragMap;
 
     void find_frag(const uint32_t* data, unsigned int size, T_RobRodFragMap & ROBfrag);
+
+    uint32_t m_nEventsPerTrigger[257];
 };
 
 #endif
