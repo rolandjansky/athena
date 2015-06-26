@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbTypeInfo.h 601961 2014-06-16 14:49:09Z mnowak $
+// $Id: DbTypeInfo.h 678597 2015-06-26 12:55:50Z mnowak $
 //====================================================================
 //  DbTypeInfo definition
 //--------------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace pool  {
 
   protected:
     /// Constructor with type id
-    DbTypeInfo(const Guid& guid, TypeH cl);
+    DbTypeInfo(const Guid& guid, TypeH cl, Columns& cols);
     DbTypeInfo(const Guid& guid);
 
     /// Destructor

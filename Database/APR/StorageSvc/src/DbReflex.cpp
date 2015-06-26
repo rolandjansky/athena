@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbReflex.cpp 604560 2014-07-02 09:39:13Z mnowak $
+// $Id: DbReflex.cpp 678597 2015-06-26 12:55:50Z mnowak $
 //====================================================================
 //  Package    : StorageSvc (The POOL project)
 //
@@ -62,11 +62,13 @@ Guid DbReflex::guid(const TypeH& type)  {
         }
 #    else
         idstr = type.Properties().PropertyAsString("id");
+        /* 
         if( idstr.empty() ) {
            cout << "!! WARNING, type " << type.Name() << " does not have property ClassID" << endl
                 << "===========" << endl;;
         }
         cout << "GUID: Class " << type.Name() << " has GUID= " << idstr << endl;
+        */
 #    endif
   
      if( !idstr.empty() )  {
@@ -98,7 +100,6 @@ const TypeH DbReflex::forGuid(const Guid& id)
    }
 
   // Check the transformation map
-  // MN: probably not used in ATlas, but keeping that for reference for now
   const DbTypeInfo* info = 0;
   if ( DbTransform::getShape(id, info).isSuccess() )  {
      TypeH t = info->clazz();
@@ -109,9 +110,12 @@ const TypeH DbReflex::forGuid(const Guid& id)
         }
      }
   }
-  // GUID not in the map: scan all known types. refresh the map 
-  TypeH wanted;
-  for(size_t i=0; i<TypeH::TypeSize(); ++i)  { //FIXME
+             
+  DbPrint log("APR:DbReflex:forGuid");
+  // GUID not in the map: scan all known types. refresh the map
+  log << DbPrintLvl::Warning << " doing GUID scan on ALL types for Class ID=" << id << DbPrint::endmsg;
+
+  for(size_t i=0; i<TypeH::TypeSize(); ++i)  { 
      TypeH t = TypeH::TypeAt(i);
      /*
        TypeH::iterator it = TypeH::begin();
@@ -119,17 +123,15 @@ const TypeH DbReflex::forGuid(const Guid& id)
        for(int i =0; it!=end; ++it,++i)  {
        TypeH t = *it;
      */
-     if ( t.IsClass() || t.IsStruct() )  {
+     if( t.IsClass() || t.IsStruct() )  {
         Guid g = guid(t);
-        if ( ::memcmp(&g, &id, sizeof(Guid))==0 )  {
-           wanted = t;
+        if( ::memcmp(&g, &id, sizeof(Guid))==0 )  {
+           log << DbPrintLvl::Debug << "Resolved class ID " << id << " to " << t.Name() << DbPrint::endmsg;
+           return t;
         }
      }
   }
-  if( !wanted ) {
-     DbPrint log("APR:DbReflex:forGuid");
-     log << DbPrintLvl::Warning
-         << "Type lookup for class ID " << id << " failed" << DbPrint::endmsg;
-  }
-  return wanted;
+
+  log << DbPrintLvl::Warning << "Type lookup for class ID " << id << " failed" << DbPrint::endmsg; 
+  return TypeH();
 }

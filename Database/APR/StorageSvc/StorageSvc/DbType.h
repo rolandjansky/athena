@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbType.h 633389 2014-12-03 15:50:13Z gemmeren $
+// $Id: DbType.h 676800 2015-06-19 18:10:56Z ssnyder $
 //====================================================================
 //  DbType definition file
 //--------------------------------------------------------------------
@@ -36,11 +36,11 @@ namespace pool    {
     int m_type;
   public:
     /// MASK: all bits set (All bits set)
-    static const int MASK       = ~0x0;
+    static const constexpr unsigned int MASK       = ~0x0;
     /// MINOR type mask (1 low byte set)
     static const int MINOR_MASK = 0xFF;
     /// MAJOR type mask (3 high bytes set)
-    static const int MAJOR_MASK = MASK<<8;
+    static const constexpr unsigned int MAJOR_MASK = MASK<<8;
 
   public:
     /// Standard constructor

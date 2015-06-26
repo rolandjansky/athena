@@ -240,7 +240,7 @@ DbStatus DbStorageSvc::getShape( const FileDescriptor& fDesc,
                                  ShapeH&               shape)
 {
   shape = 0;
-  if ( 0 != &fDesc && m_domH.isValid() )   {
+  if ( /*0 != &fDesc &&*/ m_domH.isValid() )   {
     DbDatabase dbH(DbDatabaseH(fDesc.dbc()->handle()));
     if ( !dbH.isValid() )  {
       DbStatus sc = dbH.open(m_domH, fDesc.PFN(), fDesc.FID(), pool::READ);
