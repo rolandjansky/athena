@@ -33,7 +33,6 @@ TileEvent/TileMuContainer
 
 The other Tile EDM classes have custom converters, defined in this package.
 
-TileSimEvent/TileHitVector
 TileEvent/TileHitContainer.h 
           TileDigitsContainer.h 
 		  TileRawChannelContainer.h 
