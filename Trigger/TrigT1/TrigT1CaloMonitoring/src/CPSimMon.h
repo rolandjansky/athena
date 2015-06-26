@@ -215,7 +215,8 @@ private:
 
   //typedef maps @@
   //typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
-  typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMap;
+  typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapEm;
+  typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapHad;
   typedef std::map<int, const xAOD::CPMTower*>     CpmTowerMap;
   typedef std::map<int, const xAOD::CMXCPTob*>     CmxCpTobMap;
   typedef std::map<int, const xAOD::CMXCPHits*>    CmxCpHitsMap;
@@ -226,7 +227,9 @@ private:
   static const int s_cmxs    = 2;
   
   /// Compare Trigger Towers and CPM Towers
-  bool  compare(const TriggerTowerMap& ttMap, const CpmTowerMap& cpMap,
+  bool  compareEm(const TriggerTowerMapEm& ttMap, const CpmTowerMap& cpMap,
+                      ErrorVector& errors, bool overlap);
+  bool  compareHad(const TriggerTowerMapHad& ttMap, const CpmTowerMap& cpMap,
                       ErrorVector& errors, bool overlap);
   /// Compare Simulated RoIs with data
   void  compare(const CpmTobRoiMap& roiSimMap, const CpmTobRoiMap& roiMap,
@@ -243,7 +246,8 @@ private:
   /// Set labels for Topo histograms
   void  setLabelsTopo(TH2F_LW* hist);
   /// Set up TriggerTower map
-  void  setupMap(const xAOD::TriggerTowerContainer* coll, TriggerTowerMap& map);
+  void  setupMap(const xAOD::TriggerTowerContainer* coll,
+                 TriggerTowerMapEm& emmap, TriggerTowerMapHad& hadmap);
   /// Set up CpmTower map
   void  setupMap(const xAOD::CPMTowerContainer* coll, CpmTowerMap& map);
   /// Set up CpmTobRoi map

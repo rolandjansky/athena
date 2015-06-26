@@ -30,14 +30,6 @@ class TProfile2D_LW;
 
 class StatusCode;
 
-
-
-namespace Trig {
-class IBunchCrossingTool;
-
-static const std::string MC_DIGI_PARAM = "/Digitization/Parameters";
-} //added
-
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -152,7 +144,7 @@ class TrigT1CaloLWHistogramTool;
  *
  */
 
- class PPrMon: public ManagedMonitorToolBase, public virtual IIncidentListener
+ class PPrMon: public ManagedMonitorToolBase
 {
 
 public:
@@ -166,7 +158,6 @@ public:
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
 
-  virtual void handle(const Incident& I);
 private:
 
   /// Subdetector partitions
@@ -182,9 +173,6 @@ private:
   int partition(int layer, double eta);
   /// Return subdetector partition name
   std::string partitionName(int part);
-  //Get LHC bunch structure
-  void parseBeamIntensityPattern();
-  std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
   /// xAODTriggerTower Container key
@@ -223,8 +211,6 @@ private:
   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
   /// TT simulation tool for Identifiers
   ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
-  // Tool to retrieve bunch structure
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   // ADC hitmaps
   TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_adc_HitMap;                  ///< eta-phi Map of EM FADC > cut for triggered timeslice
@@ -278,20 +264,6 @@ private:
 
   TH1F_LW* m_h_ppm_1d_tt_lutjep_LutPerBCN;              ///< Num of LUT-JEP > 5 per BC
   TH2F_LW* m_h_ppm_2d_tt_lutjep_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-JEP
-
-  //Distribution of Pedestal per BCN and Lumi Block
-  TProfile2D_LW* m_h_ppm_em_2d_pedestal_BCN_Lumi;
-  TProfile2D_LW* m_h_ppm_had_2d_pedestal_BCN_Lumi;
-
-  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_Ped_BCN_Lumi;
-  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_Ped_BCN_Lumi;
-
-  //Distribution of Pedestal Correction per BCN and Lumi Block
-  TProfile2D_LW* m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi;
-  TProfile2D_LW* m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi;
-
-  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_PedCorr_BCN_Lumi;
-  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_PedCorr_BCN_Lumi;
 
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors

@@ -589,33 +589,24 @@ StatusCode CPMon::fillHistograms()
     for (; ttIterator != ttIteratorEnd; ++ttIterator) {
 
       const int layer = (*ttIterator)->layer();
-      //LVL1::TriggerTower* tt = *ttIterator;
-      //xAOD::TriggerTowerContainer_v2* tt = *ttIterator;
+      const xAOD::TriggerTower_v2* tt = *ttIterator; 
       const double eta = (*ttIterator)->eta();
       if (eta < -2.5 || eta > 2.5) continue;
       const double phi = (*ttIterator)->phi();
-
-      //const std::vector<int>& emLut((*ttIterator)->emLUT());
-      //const std::vector<int>& hadLut((*ttIterator)->hadLUT());
-      //if (std::accumulate(emLut.begin(), emLut.end(), 0) == 0 &&
-      //  std::accumulate(hadLut.begin(), hadLut.end(), 0) == 0) continue;
-      //const int    em =  1; //= (*ttIterator)->emEnergy();
-      //const int    had = 1; //(*ttIterator)->hadEnergy();
-
+      
+      if (!tt->cpET()) continue; 
       //check if the TriggerTower is in EM or HAD layer
       if (layer == 0) { //EM
-        //const int em =  int emLut((*ttIterator)->lut_cp());
-        m_histTool->fillCPMEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_Hitmap, eta, phi);
+        const int em = int(tt->cpET()); 
+        if (em) m_histTool->fillCPMEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_Hitmap, eta, phi); 
       }
       if (layer == 1) { //HAD
-        //cosnt int had = const std::vector<int>& hadLut((*ttIterator)->lut_cp());
-        m_histTool->fillCPMEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_Hitmap, eta, phi);
+        const int had = int(tt->cpET()); 
+        if (had)  m_histTool->fillCPMEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_Hitmap, eta, phi); 
       }
+      
       //if (std::accumulate(emLut.begin(), emLut.end(), 0) == 0 &&
       //  std::accumulate(hadLut.begin(), hadLut.end(), 0) == 0) continue;
-
-      //if (em)  m_histTool->fillCPMEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_Hitmap, eta, phi);
-      //if (had) m_histTool->fillCPMEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_Hitmap, eta, phi);
 
       // will see later what to do with the next 3 lines @@vkousk
       const unsigned int key = towerKey.ttKey(phi, eta);

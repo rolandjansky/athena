@@ -17,9 +17,11 @@
 #define TRIGT1CALOMONITORING_PPRSTABILITYMON_H
 
 #include <string>
+#include <vector>
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
@@ -32,6 +34,10 @@ class L1CaloPprFineTimePlotManager;
 class L1CaloPprPedestalPlotManager;
 class L1CaloPprPedestalCorrectionPlotManager;
 class L1CaloPprEtCorrelationPlotManager;
+
+namespace Trig {
+class IBunchCrossingTool;
+}
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -153,7 +159,7 @@ class TrigT1CaloLWHistogramTool;
  *
  * */
 
-class PPrStabilityMon: public ManagedMonitorToolBase
+class PPrStabilityMon: public ManagedMonitorToolBase, public virtual IIncidentListener
 {
 
  public:
@@ -165,8 +171,14 @@ class PPrStabilityMon: public ManagedMonitorToolBase
   virtual StatusCode finalize();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
+  
+  virtual void handle(const Incident& I);
 
 private:
+  
+  void parseBeamIntensityPattern();
+  std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
+  
   /// Cut on ADC minimum value, used for fine time monitoring
   unsigned int m_ppmADCMinValue;
   /// Cut on ADC maximum value, used for fine time monitoring
@@ -180,6 +192,8 @@ private:
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
   /// Tool for identifiers and database info
   ToolHandle<IL1TriggerTowerTool> m_ttTool;
+  /// Tool to retrieve bunch structure
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
   /// Manager for fine time plots
   L1CaloPprFineTimePlotManager*         m_fineTimePlotManager;
   /// Manager for pedestal plots

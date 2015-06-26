@@ -124,7 +124,6 @@ if l1caloRawMon:
             ADCPedestal = 32,
             PathInRootFile = "L1Calo/PPM",
             ErrorPathInRootFile = "L1Calo/PPM/Errors",
-            BeamType=jobproperties.Beam.beamType(),
             #OnlineTest = True,
             #OutputLevel = DEBUG
             )

@@ -631,13 +631,14 @@ StatusCode CPSimMon::fillHistograms()
 
   // Maps to simplify comparisons
   
-  TriggerTowerMap ttMap;
+  TriggerTowerMapEm ttMapEm;
+  TriggerTowerMapEm ttMapHad;
   CpmTowerMap     cpMap;
   CpmTowerMap     ovMap;
   CpmTobRoiMap    crMap;
   CmxCpTobMap     cbMap;
   CmxCpHitsMap    cmMap;
-  setupMap(triggerTowerTES, ttMap);
+  setupMap(triggerTowerTES, ttMapEm, ttMapHad);
   setupMap(cpmTowerTES, cpMap);
   setupMap(cpmTowerOvTES, ovMap);
   setupMap(cpmRoiTES, crMap);
@@ -654,12 +655,16 @@ StatusCode CPSimMon::fillHistograms()
   // Compare Trigger Towers and CPM Towers from data
 
   bool overlap = false;
-  bool mismatchCore = false;
-  bool mismatchOverlap = false;
-  mismatchCore = compare(ttMap, cpMap, errorsCPM, overlap);
+  bool mismatchCoreEm = false;
+  bool mismatchCoreHad = false;
+  bool mismatchOverlapEm = false;
+  bool mismatchOverlapHad = false;
+  mismatchCoreEm  = compareEm(ttMapEm, cpMap, errorsCPM, overlap);
+  mismatchCoreHad = compareHad(ttMapHad, cpMap, errorsCPM, overlap);
   if (m_overlapPresent) {
     overlap = true;
-    mismatchOverlap = compare(ttMap, ovMap, errorsCPM, overlap);
+    mismatchOverlapEm  = compareEm(ttMapEm, ovMap, errorsCPM, overlap);
+    mismatchOverlapHad = compareHad(ttMapHad, ovMap, errorsCPM, overlap);
   }
 
   // Compare RoIs simulated from CPM Towers with CPM RoIs from data
@@ -667,7 +672,7 @@ StatusCode CPSimMon::fillHistograms()
   CpmTobRoiCollection* cpmRoiSIM = 0;
   if (cpmTowerTES || cpmTowerOvTES) {
     cpmRoiSIM = new CpmTobRoiCollection;
-    if (mismatchCore || mismatchOverlap) {
+    if (mismatchCoreEm || mismatchCoreHad || mismatchOverlapEm || mismatchOverlapHad) {
       simulate(cpMap, ovMap, cpmRoiSIM);
     } else {
       simulate(cpMap, cpmRoiSIM);
@@ -817,7 +822,7 @@ StatusCode CPSimMon::fillHistograms()
 
 //  Compare Trigger Towers and CPM Towers
 
-bool CPSimMon::compare(const TriggerTowerMap& ttMap,
+bool CPSimMon::compareEm(const TriggerTowerMapEm& ttMap,
                        const CpmTowerMap& cpMap, ErrorVector& errors,
                        bool overlap)
 {
@@ -827,8 +832,8 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
  
   bool mismatch = false;
   LVL1::CoordToHardware converter;
-  TriggerTowerMap::const_iterator ttMapIter    = ttMap.begin();
-  TriggerTowerMap::const_iterator ttMapIterEnd = ttMap.end();
+  TriggerTowerMapEm::const_iterator ttMapIter    = ttMap.begin();
+  TriggerTowerMapEm::const_iterator ttMapIterEnd = ttMap.end();
   CpmTowerMap::const_iterator     cpMapIter    = cpMap.begin();
   CpmTowerMap::const_iterator     cpMapIterEnd = cpMap.end();
 
@@ -837,9 +842,7 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     int ttKey = 0;
     int cpKey = 0;
     int ttEm  = 0;
-    int ttHad = 0;
     int cpEm  = 0;
-    int cpHad = 0;
     double eta = 0.;
     double phi = 0.;
     int key = 0;
@@ -864,10 +867,7 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
       }
       //check if the TriggerTower is in EM or HAD layer
       if (layer == 0) { //EM
-	ttEm  = tt->e(); 
-      }
-      if (layer == 1) { //HAD
-	ttHad = tt->e();
+	ttEm  = tt->cpET(); 
       }
       key = ttKey;
 
@@ -881,7 +881,6 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
       eta = cp->eta();
       phi = cp->phi();
       cpEm  = cp->emEnergy();
-      cpHad = cp->hadEnergy();
       key = cpKey;
 
     } else {
@@ -897,19 +896,13 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
       phi = tt->phi();
       //check if the TriggerTower is in EM or HAD layer
       if (layer == 0) { //EM
-	ttEm  = tt->e(); 
+	ttEm  = tt->cpET();; 
       }
-      if (layer == 1) { //HAD
-	ttHad = tt->e();
-      }
-      //ttEm  = tt->emEnergy();
-      //ttHad = tt->hadEnergy();
       cpEm  = cp->emEnergy();
-      cpHad = cp->hadEnergy();
       key = ttKey;
     }
 
-    if (!ttEm && !ttHad && !cpEm && !cpHad) continue;
+    if (!ttEm && !cpEm) continue;
     
     //  Fill in error plots
 
@@ -922,7 +915,6 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     const int loc = crate * s_modules + cpm - 1;
     const int cpmBins = s_crates * s_modules;
     const int bitEm  = (1 << EMTowerMismatch);
-    const int bitHad = (1 << HadTowerMismatch);
     double phiFPGA = phi;
     if (overlap) {
       const double twoPi    = 2.*M_PI;
@@ -963,9 +955,115 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     }
     if (hist1) m_histTool->fillCPMEtaVsPhi(hist1, eta, phi);
     if (hist2) hist2->Fill(loc, loc2);
+  }
 
-    hist1 = 0;
-    hist2 = 0;
+  return mismatch;
+}
+
+bool CPSimMon::compareHad(const TriggerTowerMapHad& ttMap,
+                       const CpmTowerMap& cpMap, ErrorVector& errors,
+                       bool overlap)
+{
+  if (m_debug) {
+    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endreq;
+  }
+ 
+  bool mismatch = false;
+  LVL1::CoordToHardware converter;
+  TriggerTowerMapHad::const_iterator ttMapIter    = ttMap.begin();
+  TriggerTowerMapHad::const_iterator ttMapIterEnd = ttMap.end();
+  CpmTowerMap::const_iterator     cpMapIter    = cpMap.begin();
+  CpmTowerMap::const_iterator     cpMapIterEnd = cpMap.end();
+
+  while (ttMapIter != ttMapIterEnd || cpMapIter != cpMapIterEnd) {
+
+    int ttKey = 0;
+    int cpKey = 0;
+    int ttHad = 0;
+    int cpHad = 0;
+    double eta = 0.;
+    double phi = 0.;
+    int key = 0;
+
+    if (ttMapIter != ttMapIterEnd) ttKey = ttMapIter->first;
+    if (cpMapIter != cpMapIterEnd) cpKey = cpMapIter->first;
+
+    if ((cpMapIter == cpMapIterEnd) ||
+                 ((ttMapIter != ttMapIterEnd) && (cpKey > ttKey))) {
+
+      // TriggerTower but no CPMTower
+
+      const xAOD::TriggerTower* tt = ttMapIter->second;
+      ++ttMapIter;
+      const int layer = tt->layer();
+      eta = tt->eta();
+      phi = tt->phi();
+      if (overlap) { // skip non-overlap TTs
+        const LVL1::Coordinate coord(phi, eta);
+	const int crate = converter.cpCrateOverlap(coord);
+        if (crate >= s_crates) continue;
+      }
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 1) { //HAD
+	ttHad = tt->cpET();;
+      }
+      key = ttKey;
+
+    } else if ((ttMapIter == ttMapIterEnd) ||
+                 ((cpMapIter != cpMapIterEnd) && (ttKey > cpKey))) {
+
+      // CPMTower but no TriggerTower
+
+      const xAOD::CPMTower* cp = cpMapIter->second;
+      ++cpMapIter;
+      eta = cp->eta();
+      phi = cp->phi();
+      cpHad = cp->hadEnergy();
+      key = cpKey;
+
+    } else {
+
+      // Have both
+
+      const xAOD::TriggerTower* tt = ttMapIter->second;
+      const xAOD::CPMTower*     cp = cpMapIter->second;
+      ++ttMapIter;
+      ++cpMapIter;      
+      const int layer = tt->layer();
+      eta = tt->eta();
+      phi = tt->phi();
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 1) { //HAD
+	ttHad = tt->cpET();;
+      }
+      cpHad = cp->hadEnergy();
+      key = ttKey;
+    }
+
+    if (!ttHad && !cpHad) continue;
+    
+    //  Fill in error plots
+
+    const LVL1::Coordinate coord(phi, eta);
+    const int crate = (overlap) ? converter.cpCrateOverlap(coord)
+                                : converter.cpCrate(coord);
+    const int cpm   = (overlap) ? converter.cpModuleOverlap(coord)
+                                : converter.cpModule(coord);
+    if (crate >= s_crates || cpm > s_modules) continue;
+    const int loc = crate * s_modules + cpm - 1;
+    const int cpmBins = s_crates * s_modules;
+    const int bitHad = (1 << HadTowerMismatch);
+    double phiFPGA = phi;
+    if (overlap) {
+      const double twoPi    = 2.*M_PI;
+      const double piByFour = M_PI/4.;
+      if (phi > 7.*piByFour)   phiFPGA -= twoPi;
+      else if (phi < piByFour) phiFPGA += twoPi;
+    }
+    const int loc2 = fpga(crate, phiFPGA);
+
+    TH2F_LW* hist1 = 0;
+    TH2F_LW* hist2 = 0;
     if (ttHad && ttHad == cpHad) { // non-zero match
       errors[loc] |= bitHad;
       hist1 = (overlap) ? m_h_cpm_had_2d_etaPhi_tt_PpmEqOverlap
@@ -999,6 +1097,8 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
 
   return mismatch;
 }
+
+
 
 //  Compare Simulated RoIs with data
 
@@ -1572,7 +1672,7 @@ void CPSimMon::setLabelsTopo(TH2F_LW* hist)
 // Set up TriggerTower map
 
   void CPSimMon::setupMap(const xAOD::TriggerTowerContainer* coll,
-                                 TriggerTowerMap& map)
+                                 TriggerTowerMapEm& mapEm, TriggerTowerMapHad& mapHad)
 {
   if (coll) {
     LVL1::TriggerTowerKey towerKey;
@@ -1583,14 +1683,15 @@ void CPSimMon::setLabelsTopo(TH2F_LW* hist)
     for (; pos != posE; ++pos) {
       const xAOD::TriggerTower* tt = (*pos);
       const int layer = (*pos)->layer();
-      if (layer == 0) emE  = (*pos)->e();
-      if (layer == 1) hadE = (*pos)->e();
+      if (layer == 0) emE  = (*pos)->cpET();;
+      if (layer == 1) hadE = (*pos)->cpET();;
       const double eta = (*pos)->eta();
       if (eta > -2.5 && eta < 2.5 &&
                      ( emE > 0 || hadE > 0)) {
         const double phi = (*pos)->phi();
         const int key = towerKey.ttKey(phi, eta);
-        map.insert(std::make_pair(key, tt));
+        if (emE  > 0) mapEm.insert(std::make_pair(key, tt));
+        if (hadE > 0) mapHad.insert(std::make_pair(key, tt));
 	//what is the problem with *pos???
 	//map.insert(std::make_pair(key, nullptr));
       }

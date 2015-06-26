@@ -43,7 +43,6 @@
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "PPrMon.h"
@@ -58,7 +57,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
     m_h_ppm_em_2d_etaPhi_tt_adc_HitMap(0),
     m_h_ppm_had_2d_etaPhi_tt_adc_HitMap(0),
     m_h_ppm_had_1d_tt_adc_MaxTimeslice(0),
@@ -92,10 +90,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_lutjep_Phi(0),
     m_h_ppm_1d_tt_lutjep_LutPerBCN(0),
     m_h_ppm_2d_tt_lutjep_BcidBits(0),
-    m_h_ppm_em_2d_pedestal_BCN_Lumi(0),
-    m_h_ppm_had_2d_pedestal_BCN_Lumi(0),
-    m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi(0),
-    m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi(0),
     m_h_ppm_1d_ErrorSummary(0),
     m_h_ppm_2d_Status03(0),
     m_h_ppm_2d_Status47(0),
@@ -112,7 +106,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
                   m_TriggerTowerContainerName = "LVL1TriggerTowers");
   declareProperty("BS_xAODTriggerTowerContainer",
                   m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
-  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
   declareProperty("LUTHitMap_LumiBlocks",  m_TT_HitMap_LumiBlocks = 10,
                   "The number of back lumiblocks for separate LUT hitmaps online");
   declareProperty("ADCHitMap_Thresh",      m_TT_ADC_HitMap_Thresh = 15,
@@ -129,7 +122,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
   declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/PPM") ;
   declareProperty("ErrorPathInRootFile",
                   m_ErrorPathInRootFile = "L1Calo/PPM/Errors") ;
-  declareProperty("BeamType", m_BeamType);
   declareProperty("OnlineTest", m_onlineTest = false,
                   "Test online code when running offline");
 
@@ -165,20 +157,8 @@ StatusCode PPrMon::initialize()
   CHECK(m_errorTool.retrieve());
   CHECK(m_histTool.retrieve());
   CHECK(m_ttTool.retrieve());
-  CHECK(m_bunchCrossingTool.retrieve());
-
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-  CHECK(incSvc.retrieve());
-  incSvc->addListener(this, "BunchConfig");
 
   return StatusCode::SUCCESS;
-}
-
-void PPrMon::handle(const Incident& I)
-{
-  if(I.type() != "BunchConfig") return;
-
-  parseBeamIntensityPattern();
 }
 
 /*---------------------------------------------------------*/
@@ -207,7 +187,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                               run, attr);
     MonGroup TT_LutJepPeakDist(this, m_PathInRootFile + "/LUT-JEP/Distributions",
                                run, attr);
-    MonGroup TT_Pedestal(this, m_PathInRootFile + "/Pedestal", run, ATTRIB_X_VS_LB);
     MonGroup TT_Error(this, m_ErrorPathInRootFile, run, attr);
     MonGroup TT_ErrorEvents(this, m_ErrorPathInRootFile, run, attr, "",
                             "eventSample");
@@ -455,33 +434,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     axis2->SetBinLabel(6, "extBC & peakF");
     axis2->SetBinLabel(7, "satBC & peakF");
     axis2->SetBinLabel(8, "all");
-
-
-    if (m_BeamType == "collisions") {
-      //-------------------------Pedestal---------------------------------------
-      m_histTool->setMonGroup(&TT_Pedestal);
-
-      m_h_ppm_em_2d_pedestal_BCN_Lumi =
-        m_histTool->bookProfile2D(Form("ppm_em_pedestal_BCN_lumi"),
-                                  Form("Profile plot of Pedestal Vs BCN Vs Lumi: Em TriggerTower; Lumi Block; Relative BCN"),
-                                  2000, 0, 2000, 77, 0, 154);
-      m_h_ppm_had_2d_pedestal_BCN_Lumi =
-        m_histTool->bookProfile2D(Form("ppm_had_pedestal_BCN_lumi"),
-                                  Form("Profile plot of Pedestal Vs BCN Vs Lumi: Had TriggerTower; Lumi Block; Relative BCN"),
-                                  2000, 0, 2000, 77, 0, 154);
-
-      //-------------------------Pedestal Correction----------------------------
-
-      m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi =
-        m_histTool->bookProfile2D(Form("ppm_em_pedestalCorrection_BCN_lumi"),
-                                  Form("Profile plot of Pedestal Correction Vs BCN Vs Lumi: Em TriggerTower; Lumi Block; Relative BCN"),
-                                  2000, 0, 2000, 77, 0, 154);
-
-      m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi =
-        m_histTool->bookProfile2D(Form("ppm_had_pedestalCorrection_BCN_lumi"),
-                                  Form("Profile plot of Pedestal Correction Vs BCN Vs Lumi: Had TriggerTower; Lumi Block; Relative BCN"),
-                                  2000, 0, 2000, 77, 0, 154);
-    }
 
     //-------------------------Summary of Errors------------------------------
 
@@ -738,10 +690,8 @@ StatusCode PPrMon::fillHistograms()
     return StatusCode::SUCCESS;
   }
 
-  // Get Bunch crossing number and lumi number from EventInfo
+  // Get Bunch crossing number from EventInfo
   uint32_t bunchCrossing = 0;
-  unsigned int lumiNo = 0;
-  unsigned int currentRunNo = 0;
   const EventInfo* evInfo = 0;
   sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure() || !evInfo) {
@@ -751,8 +701,6 @@ StatusCode PPrMon::fillHistograms()
     if (evID)
     {
       bunchCrossing = evID->bunch_crossing_id();
-      lumiNo = evID->lumi_block();
-      currentRunNo = evID->run_number();
     }
   }
 
@@ -867,128 +815,6 @@ StatusCode PPrMon::fillHistograms()
         std::vector<short unsigned int>::const_iterator itE = ADC.end();
         for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
           m_v_ppm_1d_tt_adc_SignalProfile[emPart]->Fill(slice, *it);
-        }
-      }
-
-      if (m_BeamType == "collisions") {
-        //---------------------------- Pedestal ---------------------------------
-        if (cpET == 0 && jepET == 0) {
-
-          //Get pedestal value
-          const std::vector<short unsigned int>& EtLut = (*TriggerTowerIterator)->adc();
-          const int nSlices = EtLut.size();
-          int pedestal = 0;
-          for ( int i = 0; i < nSlices; i++ ) {
-            int pedestalAtSlice = EtLut[i] - 32;
-            // only analyze towers with activity close
-            // to the pedestal mean value
-            //if ( fabs(pedestalAtSlice) > m_pedestalMaxWidth ) { return -1000.; } //needs updating
-            pedestal += pedestalAtSlice;
-          }
-          pedestal /= static_cast<double>(nSlices);
-
-          //fill pedestal histogram averaged over all detector regions
-
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            m_h_ppm_em_2d_pedestal_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            m_h_ppm_em_2d_pedestal_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-          }
-
-          //fill pedestal histograms for specific detector regions
-          MgmtAttr_t attr = ATTRIB_UNMANAGED;
-          MonGroup TT_Pedestal(this, m_PathInRootFile + "/Pedestal", run, attr);
-          int detectorRegion = this->partition(0, eta);
-          std::map<int, TProfile2D_LW*>::iterator part_itr = m_map_em_partitionProfile_Ped_BCN_Lumi.find(detectorRegion);
-          if ( part_itr == m_map_em_partitionProfile_Ped_BCN_Lumi.end() )
-          {
-            std::string detectorRegionString = this->partitionName(detectorRegion);
-            m_histTool->setMonGroup(&TT_Pedestal);
-            TProfile2D_LW* anLWProfile2DHistEmPed = m_histTool->bookProfile2D(Form("ppm_em_pedestal_BCN_Lumi_%s",
-                                                    detectorRegionString.data()
-                                                                                  ),
-                                                    Form("Run:%d, Pedestal Vs BCN Vs Lumi Profile for partition %s; Lumi Block; Relative BCN;",
-                                                        currentRunNo,
-                                                        detectorRegionString.data()),
-                                                    2000, 0, 2000, 77, 0, 154);
-
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-              anLWProfile2DHistEmPed->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-            }
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-              anLWProfile2DHistEmPed->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-            }
-
-            m_map_em_partitionProfile_Ped_BCN_Lumi.insert( std::pair<int, TProfile2D_LW*> (detectorRegion, anLWProfile2DHistEmPed));
-
-            m_histTool->unsetMonGroup();
-          }
-          else
-          {
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-              part_itr->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-            }
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-              part_itr->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-            }
-          }
-        }
-        //-----------------------------Pedestal Correction --------------------------------
-        //Get pedestal correction value
-        const std::vector<short int>& pedCorrVec = (*TriggerTowerIterator)->correction();
-        const int nSlices = pedCorrVec.size();
-        double pedestalCorrection = 0;  // to be returned
-        for ( int i = 0; i < nSlices; i++ )
-        {
-          pedestalCorrection += pedCorrVec[i];
-        }
-        pedestalCorrection /= static_cast<double>(nSlices);
-
-        //fill pedestal histogram averaged over all detector regions
-        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-          m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-        }
-        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-          m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-        }
-
-        //fill pedestal histograms for specific detector regions
-        MgmtAttr_t attr = ATTRIB_UNMANAGED;
-        MonGroup TT_Pedestal(this, m_PathInRootFile + "/Pedestal", run, attr);
-        int detectorRegion = this->partition(0, eta);
-        std::map<int, TProfile2D_LW*>::iterator part_itr2 = m_map_em_partitionProfile_PedCorr_BCN_Lumi.find(detectorRegion);
-        if ( part_itr2 == m_map_em_partitionProfile_PedCorr_BCN_Lumi.end() )
-        {
-          std::string detectorRegionString = this->partitionName(detectorRegion);
-          m_histTool->setMonGroup(&TT_Pedestal);
-          TProfile2D_LW* anLWProfile2DHistEmPedCorr = m_histTool->bookProfile2D(Form("ppm_em_pedestalCorrection_BCN_Lumi_%s",
-              detectorRegionString.data()
-                                                                                    ),
-              Form("Run:%d, Pedestal Correction Vs BCN Vs Lumi Profile for partition %s; Lumi Block; Relative BCN;",
-                   currentRunNo,
-                   detectorRegionString.data()),
-              2000, 0, 2000, 77, 0, 154);
-
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            anLWProfile2DHistEmPedCorr->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            anLWProfile2DHistEmPedCorr->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-          }
-
-          m_map_em_partitionProfile_PedCorr_BCN_Lumi.insert( std::pair<int, TProfile2D_LW*> (detectorRegion, anLWProfile2DHistEmPedCorr));
-
-          m_histTool->unsetMonGroup();
-        }
-        else
-        {
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            part_itr2->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            part_itr2->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-          }
         }
       }
 
@@ -1166,130 +992,6 @@ StatusCode PPrMon::fillHistograms()
         std::vector<short unsigned int>::const_iterator itE = ADC.end();
         for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
           m_v_ppm_1d_tt_adc_SignalProfile[hadPart]->Fill(slice, *it);
-        }
-      }
-
-      if (m_BeamType == "collisions") {
-        //---------------------------- Pedestal ---------------------------------
-        if (cpET == 0 && jepET == 0) {
-
-          //Get pedestal value
-          const std::vector<short unsigned int>& EtLut = (*TriggerTowerIterator)->adc();
-          const int nSlices = EtLut.size();
-          int pedestal = 0;
-          for ( int i = 0; i < nSlices; i++ ) {
-            int pedestalAtSlice = EtLut[i] - 32;
-            // only analyze towers with activity close
-            // to the pedestal mean value
-            //if ( fabs(pedestalAtSlice) > m_pedestalMaxWidth ) { return -1000.; } //needs updating
-            pedestal += pedestalAtSlice;
-          }
-          pedestal /= static_cast<double>(nSlices);
-
-          //fill pedestal histogram averaged over all detector regions
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            m_h_ppm_had_2d_pedestal_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            m_h_ppm_had_2d_pedestal_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-          }
-
-
-          //fill pedestal histograms for specific detector regions
-          MgmtAttr_t attr = ATTRIB_UNMANAGED;
-          MonGroup TT_Pedestal(this, m_PathInRootFile + "/Pedestal", run, attr);
-          int detectorRegion = this->partition(1, eta);
-          std::map<int, TProfile2D_LW*>::iterator part_itr = m_map_had_partitionProfile_Ped_BCN_Lumi.find(detectorRegion);
-          if ( part_itr == m_map_had_partitionProfile_Ped_BCN_Lumi.end() )
-          {
-            std::string detectorRegionString = this->partitionName(detectorRegion);
-            m_histTool->setMonGroup(&TT_Pedestal);
-            TProfile2D_LW* anLWProfile2DHistEmPed = m_histTool->bookProfile2D(Form("ppm_had_pedestal_BCN_Lumi_%s",
-                                                    detectorRegionString.data()
-                                                                                  ),
-                                                    Form("Run:%d, Pedestal Vs BCN Vs Lumi Profile for partition %s; Lumi Block; Relative BCN;",
-                                                        currentRunNo,
-                                                        detectorRegionString.data()),
-                                                    2000, 0, 2000, 77, 0, 154);
-
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-              anLWProfile2DHistEmPed->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-            }
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-              anLWProfile2DHistEmPed->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-            }
-
-            m_map_had_partitionProfile_Ped_BCN_Lumi.insert( std::pair<int, TProfile2D_LW*> (detectorRegion, anLWProfile2DHistEmPed));
-
-            m_histTool->unsetMonGroup();
-          }
-          else
-          {
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-              part_itr->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestal);
-            }
-            if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-              part_itr->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestal);
-            }
-          }
-        }
-
-        //-----------------------------Pedestal Correction --------------------------------
-
-        //Get pedestal correction value
-        const std::vector<short int>& pedCorrVec = (*TriggerTowerIterator)->correction();
-        const int nSlices = pedCorrVec.size();
-        double pedestalCorrection = 0;  // to be returned
-        for ( int i = 0; i < nSlices; i++ )
-        {
-          pedestalCorrection += pedCorrVec[i];
-        }
-        pedestalCorrection /= static_cast<double>(nSlices);
-
-        //fill pedestal histogram averaged over all detector regions
-        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-          m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-        }
-        if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-          m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-        }
-
-        //fill pedestal histograms for specific detector regions
-        MgmtAttr_t attr = ATTRIB_X_VS_LB;
-        MonGroup TT_Pedestal(this, m_PathInRootFile + "/Pedestal", run, attr);
-        int detectorRegion = this->partition(1, eta);
-        std::map<int, TProfile2D_LW*>::iterator part_itr2 = m_map_had_partitionProfile_PedCorr_BCN_Lumi.find(detectorRegion);
-        if ( part_itr2 == m_map_had_partitionProfile_PedCorr_BCN_Lumi.end() )
-        {
-          std::string detectorRegionString = this->partitionName(detectorRegion);
-          m_histTool->setMonGroup(&TT_Pedestal);
-          TProfile2D_LW* anLWProfile2DHistEmPedCorr = m_histTool->bookProfile2D(Form("ppm_had_pedestalCorrection_BCN_Lumi_%s",
-              detectorRegionString.data()
-                                                                                    ),
-              Form("Run:%d, Pedestal Correction Vs BCN Vs Lumi Profile for partition %s; Lumi Block; Relative BCN;",
-                   currentRunNo,
-                   detectorRegionString.data()),
-              2000, 0, 2000, 77, 0, 154);
-
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            anLWProfile2DHistEmPedCorr->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            anLWProfile2DHistEmPedCorr->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-          }
-
-          m_map_had_partitionProfile_PedCorr_BCN_Lumi.insert( std::pair<int, TProfile2D_LW*> (detectorRegion, anLWProfile2DHistEmPedCorr));
-
-          m_histTool->unsetMonGroup();
-        }
-        else
-        {
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 1) { //After long gap
-            part_itr2->second->Fill(lumiNo, m_distanceFromHeadOfTrain[bunchCrossing].second, pedestalCorrection);
-          }
-          if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[bunchCrossing].first == 0) { //After short gap
-            part_itr2->second->Fill(lumiNo, (m_distanceFromHeadOfTrain[bunchCrossing].second + 80), pedestalCorrection);
-          }
         }
       }
 
@@ -1476,72 +1178,6 @@ std::string PPrMon::partitionName(int part) {
   default:          name = "Unknown";     break;
   }
   return name;
-}
-
-namespace {
-using bcid_t = Trig::IBunchCrossingTool::bcid_type;
-static const bcid_t MAX_BCID = 3564;
-
-template<typename Log, typename Tool, typename ResultVector>
-void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& result) {
-  for (bcid_t bcid = 0; bcid < MAX_BCID; bcid += 20) {
-    // print 20 items at once
-    log << MSG::INFO << "Filled      ";
-    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
-    log << endreq;
-    log << MSG::INFO << "Distance    ";
-    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << result[j].second << " ";
-    log << endreq;
-
-    log << MSG::INFO << "LongGap?    ";
-    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log <<  std::setw(3) << result[j].first << " ";
-    log << endreq;
-  }
-}
-}
-
-// "Parse" the beam intensity pattern to get the bunch train structure.
-void PPrMon::parseBeamIntensityPattern()
-{
-  auto BC = Trig::IBunchCrossingTool::BunchCrossings;
-  m_distanceFromHeadOfTrain.assign(MAX_BCID, std::make_pair(false, -10));
-
-  // special case to work around problem in BunchCrossingToolBase
-  ATH_MSG_INFO("NOB: " << m_bunchCrossingTool->numberOfFilledBunches());
-  if(m_bunchCrossingTool->numberOfFilledBunches() <= 1) {
-    // find bcid of filled bunch
-    for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
-      if (m_bunchCrossingTool->isFilled(bcid)) {
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(true, 0);
-        break;
-      }
-    }
-    return;
-  }
-
-  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
-  for (bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
-    if (m_bunchCrossingTool->isFilled(bcid)) {
-      m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(bcid) > 250,
-                                        m_bunchCrossingTool->distanceFromFront(bcid, BC));
-    } else {
-      if (m_bunchCrossingTool->gapAfterBunch(bcid, BC) == 1) {
-        bcid_t head = ((bcid + 1) == MAX_BCID ? 0 : bcid + 1); // wrap around
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(head) > 250,
-                                          -1);
-      } else if (m_bunchCrossingTool->gapBeforeBunch(bcid, BC) == 1) {
-        bcid_t tail = bcid ? bcid - 1 : MAX_BCID - 1; // wrap around
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(tail) > 250,
-                                          m_bunchCrossingTool->distanceFromFront(tail, BC) + 1);
-      } else {
-        m_distanceFromHeadOfTrain[bcid] = std::make_pair(false, -10);
-      }
-    }
-  }
-
-  if (msgLvl(MSG::DEBUG)) {
-    printPatternParsingInfo(msg(), m_bunchCrossingTool, m_distanceFromHeadOfTrain);
-  }
 }
 
 // ============================================================================
