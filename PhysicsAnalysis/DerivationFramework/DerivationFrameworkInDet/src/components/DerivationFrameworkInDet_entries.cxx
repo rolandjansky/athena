@@ -9,6 +9,9 @@
 #include "DerivationFrameworkInDet/TrackStateOnSurfaceDecorator.h"
 #include "DerivationFrameworkInDet/TrackParametersForTruthParticles.h"
 #include "DerivationFrameworkInDet/EventInfoBSErrDecorator.h"
+#include "DerivationFrameworkInDet/UnassociatedHitsDecorator.h"
+#include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
+#include "DerivationFrameworkInDet/LArCollisionTimeDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -22,6 +25,9 @@ DECLARE_TOOL_FACTORY( TrackParametersAtPV )
 DECLARE_TOOL_FACTORY( TrackStateOnSurfaceDecorator )
 DECLARE_TOOL_FACTORY( TrackParametersForTruthParticles )
 DECLARE_TOOL_FACTORY( EventInfoBSErrDecorator )
+DECLARE_TOOL_FACTORY( UnassociatedHitsDecorator )
+DECLARE_NAMESPACE_TOOL_FACTORY(DerivationFramework, UnassociatedHitsGetterTool)
+DECLARE_TOOL_FACTORY( LArCollisionTimeDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackToVertexWrapper )
@@ -34,5 +40,8 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
 	 DECLARE_TOOL( TrackStateOnSurfaceDecorator )
 	 DECLARE_TOOL( TrackParametersForTruthParticles )
 	 DECLARE_TOOL( EventInfoBSErrDecorator )
+	 DECLARE_TOOL( UnassociatedHitsDecorator )
+         DECLARE_NAMESPACE_TOOL(DerivationFramework, UnassociatedHitsGetterTool)
+	 DECLARE_TOOL( LArCollisionTimeDecorator )
 }
 

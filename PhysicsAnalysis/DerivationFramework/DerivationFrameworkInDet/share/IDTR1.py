@@ -19,6 +19,7 @@ print IDTR1IPETool
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
+# Add unbiased track parameters to track particles
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackToVertexWrapper
 IDTR1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "IDTR1TrackToVertexWrapper",
                                                                       TrackToVertexIPEstimator = IDTR1IPETool,
@@ -26,16 +27,27 @@ IDTR1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "IDT
                                                                       ContainerName = "InDetTrackParticles")
 ToolSvc += IDTR1TrackToVertexWrapper 
 print IDTR1TrackToVertexWrapper
+
+# Add decoration with truth parameters if running on simulation
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
+    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
+                                                                        DecorationPrefix = "IDTR1")
+    ToolSvc += TruthDecor
+    print TruthDecor
  
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
-                                                                        AugmentationTools = [IDTR1TrackToVertexWrapper]
-                                                                      )
- 
- 
+if DerivationFrameworkIsMonteCarlo:
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
+                                                                            AugmentationTools = [IDTR1TrackToVertexWrapper,TruthDecor]
+                                                                          )
+else:
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
+                                                                            AugmentationTools = [IDTR1TrackToVertexWrapper]
+                                                                          )
 #====================================================================
 # SET UP STREAM  
 #====================================================================
@@ -47,13 +59,18 @@ IDTR1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTR1Stream.AcceptAlgs(["IDTR1Kernel"])
 
 # Add event info, tracks, vertices and the decoration
-IDTR1Stream.AddItem("xAOD::EventInfo#*")
-IDTR1Stream.AddItem("xAOD::EventAuxInfo#*")
-IDTR1Stream.AddItem("xAOD::TrackParticleContainer#*")
-IDTR1Stream.AddItem("xAOD::TrackParticleAuxContainer#*")
-IDTR1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTR1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
-#IDTR1Stream.AddItem("std::vector<float>#IDTR1D0")
-#IDTR1Stream.AddItem("std::vector<float>#IDTR1Z0")
-#IDTR1Stream.AddItem("std::vector<float>#IDTR1D0Sigma")
-#IDTR1Stream.AddItem("std::vector<float>#IDTR1Z0Sigma")
+# Use slimming helper
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+IDTR1SlimmingHelper = SlimmingHelper("IDTR1SlimmingHelper")
+allVariables = []
+allVariables.append("InDetTrackParticles")
+allVariables.append("GSFTrackParticles")
+allVariables.append("PrimaryVertices")
+allVariables.append("AntiKt4EMTopoJets")
+allVariables.append("BTagging_AntiKt4EMTopo")
+if DerivationFrameworkIsMonteCarlo:
+    allVariables.append("TruthParticles")
+    allVariables.append("TruthVertices")
+    allVariables.append("TruthEvents") 
+IDTR1SlimmingHelper.AllVariables = allVariables
+IDTR1SlimmingHelper.AppendContentToStream(IDTR1Stream) 
