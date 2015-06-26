@@ -86,47 +86,47 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
     "stop" : {
       "generic" :[
         '     1000006  %3.3f   # ~t_1'       % ( MASS + 100.000 ),
-        '     1000612  %3.3f   # ~T+  '      % ( MASS + 100.325 ),
-        '     1000622  %3.3f   # ~T0  '      % ( MASS + 100.325 ),
-        '     1000632  %3.3f   # ~T_s+'      % ( MASS + 100.500 ),
-        '     1000642  %3.3f   # ~T_c0'      % ( MASS + 101.500 ),
-        '     1000652  %3.3f   # ~T_b+'      % ( MASS + 104.800 ),
-        '     1006113  %3.3f   # ~T_dd10'    % ( MASS + 100.650 ),
-        '     1006211  %3.3f   # ~T_ud0+'    % ( MASS + 100.650 ),
-        '     1006213  %3.3f   # ~T_ud1+'    % ( MASS + 100.650 ),
-        '     1006223  %3.3f   # ~T_uu1++ '  % ( MASS + 100.650 ),
-        '     1006311  %3.3f   # ~T_sd00  '  % ( MASS + 100.825 ),
-        '     1006313  %3.3f   # ~T_sd10  '  % ( MASS + 100.825 ),
-        '     1006321  %3.3f   # ~T_su0+  '  % ( MASS + 100.825 ),
-        '     1006323  %3.3f   # ~T_su1+  '  % ( MASS + 100.825 ),
-        '     1006333  %3.3f   # ~T_ss10  '  % ( MASS + 101.000 ),
+      	'     1000612  %3.3f   # ~T+  '      % ( MASS + 100.325 ),
+      	'     1000622  %3.3f   # ~T0  '      % ( MASS + 100.325 ),
+      	'     1000632  %3.3f   # ~T_s+'      % ( MASS + 100.500 ),
+      	'     1000642  %3.3f   # ~T_c0'      % ( MASS + 101.500 ),
+      	'     1000652  %3.3f   # ~T_b+'      % ( MASS + 104.800 ),
+      	'     1006113  %3.3f   # ~T_dd10'    % ( MASS + 100.650 ),
+      	'     1006211  %3.3f   # ~T_ud0+'    % ( MASS + 100.650 ),
+      	'     1006213  %3.3f   # ~T_ud1+'    % ( MASS + 100.650 ),
+      	'     1006223  %3.3f   # ~T_uu1++ '  % ( MASS + 100.650 ),
+      	'     1006311  %3.3f   # ~T_sd00  '  % ( MASS + 100.825 ),
+      	'     1006313  %3.3f   # ~T_sd10  '  % ( MASS + 100.825 ),
+      	'     1006321  %3.3f   # ~T_su0+  '  % ( MASS + 100.825 ),
+      	'     1006323  %3.3f   # ~T_su1+  '  % ( MASS + 100.825 ),
+      	'     1006333  %3.3f   # ~T_ss10  '  % ( MASS + 101.000 ),
         '    -1000006  %3.3f   # ~t_1bar'    % ( MASS + 100.000 ),
-        '    -1000612  %3.3f   # ~Tbar-  '   % ( MASS + 100.325 ),
-        '    -1000622  %3.3f   # ~Tbar0  '   % ( MASS + 100.325 ),
-        '    -1000632  %3.3f   # ~Tbar_s-'   % ( MASS + 100.500 ),
-        '    -1000642  %3.3f   # ~Tbar_c0'   % ( MASS + 101.500 ),
-        '    -1000652  %3.3f   # ~Tbar_b-'   % ( MASS + 104.800 ),
-        '    -1006113  %3.3f   # ~Tbar_dd10' % ( MASS + 100.650 ),
-        '    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS + 100.650 ),
-        '    -1006213  %3.3f   # ~Tbar_ud1-' % ( MASS + 100.650 ),
-        '    -1006223  %3.3f   # ~Tbar_uu1--'% ( MASS + 100.650 ),
-        '    -1006311  %3.3f   # ~Tbar_sd00 '% ( MASS + 100.825 ),
-        '    -1006313  %3.3f   # ~Tbar_sd10 '% ( MASS + 100.825 ),
-        '    -1006321  %3.3f   # ~Tbar_su0- '% ( MASS + 100.825 ),
-        '    -1006323  %3.3f   # ~Tbar_su1- '% ( MASS + 100.825 ),
-        '    -1006333  %3.3f   # ~Tbar_ss10 '% ( MASS + 101.000 ),
+      	'    -1000612  %3.3f   # ~Tbar-  '   % ( MASS + 100.325 ),
+      	'    -1000622  %3.3f   # ~Tbar0  '   % ( MASS + 100.325 ),
+      	'    -1000632  %3.3f   # ~Tbar_s-'   % ( MASS + 100.500 ),
+      	'    -1000642  %3.3f   # ~Tbar_c0'   % ( MASS + 101.500 ),
+      	'    -1000652  %3.3f   # ~Tbar_b-'   % ( MASS + 104.800 ),
+      	'    -1006113  %3.3f   # ~Tbar_dd10' % ( MASS + 100.650 ),
+      	'    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS + 100.650 ),
+      	'    -1006213  %3.3f   # ~Tbar_ud1-' % ( MASS + 100.650 ),
+      	'    -1006223  %3.3f   # ~Tbar_uu1--'% ( MASS + 100.650 ),
+      	'    -1006311  %3.3f   # ~Tbar_sd00 '% ( MASS + 100.825 ),
+      	'    -1006313  %3.3f   # ~Tbar_sd10 '% ( MASS + 100.825 ),
+      	'    -1006321  %3.3f   # ~Tbar_su0- '% ( MASS + 100.825 ),
+      	'    -1006323  %3.3f   # ~Tbar_su1- '% ( MASS + 100.825 ),
+      	'    -1006333  %3.3f   # ~Tbar_ss10 '% ( MASS + 101.000 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
       ],
       "regge" : [
         '     1000006  %3.3f   # ~t_1'       % ( MASS +  100.000 ),
-        '     1000612  %3.3f   # ~T+  '      % ( MASS +  100.325 ),
-        '     1000622  %3.3f   # ~T0  '      % ( MASS +  100.325 ),
-        '     1006211  %3.3f   # ~T_ud0+'    % ( MASS +  100.650 ),
+      	'     1000612  %3.3f   # ~T+  '      % ( MASS +  100.325 ),
+      	'     1000622  %3.3f   # ~T0  '      % ( MASS +  100.325 ),
+      	'     1006211  %3.3f   # ~T_ud0+'    % ( MASS +  100.650 ),
         '    -1000006  %3.3f   # ~t_1bar'    % ( MASS +  100.000 ),
-        '    -1000612  %3.3f   # ~Tbar-  '   % ( MASS +  100.325 ),
-        '    -1000622  %3.3f   # ~Tbar0  '   % ( MASS +  100.325 ),
-        '    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS +  100.650 ),
+      	'    -1000612  %3.3f   # ~Tbar-  '   % ( MASS +  100.325 ),
+      	'    -1000622  %3.3f   # ~Tbar0  '   % ( MASS +  100.325 ),
+      	'    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS +  100.650 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
       ],
@@ -136,13 +136,13 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
       "generic" : [],
       "regge" : [
         '     1000005  %3.3f   # ~b'         % ( MASS + 100.000 ),
-        '     1000512  %3.3f   # ~B0  '      % ( MASS + 100.325 ),
-        '     1000522  %3.3f   # ~B-  '      % ( MASS + 100.325 ),
-        '     1005211  %3.3f   # ~B_ud0'     % ( MASS + 100.650 ),
+      	'     1000512  %3.3f   # ~B0  '      % ( MASS + 100.325 ),
+      	'     1000522  %3.3f   # ~B-  '      % ( MASS + 100.325 ),
+      	'     1005211  %3.3f   # ~B_ud0'     % ( MASS + 100.650 ),
         '    -1000005  %3.3f   # ~bbar'      % ( MASS + 100.000 ),
-        '    -1000512  %3.3f   # ~Bbar0  '   % ( MASS + 100.325 ),
-        '    -1000522  %3.3f   # ~Bbar+  '   % ( MASS + 100.325 ),
-        '    -1005211  %3.3f   # ~Bbar_ud0'  % ( MASS + 100.650 ),
+      	'    -1000512  %3.3f   # ~Bbar0  '   % ( MASS + 100.325 ),
+      	'    -1000522  %3.3f   # ~Bbar+  '   % ( MASS + 100.325 ),
+      	'    -1005211  %3.3f   # ~Bbar_ud0'  % ( MASS + 100.650 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
         ],
@@ -406,7 +406,8 @@ if simdict.has_key("DECAYS"):
   from PythiaRhad_i.PythiaRhad_iConf import PythiaRhad
   genSeq +=PythiaRhad()
   genSeq.PythiaRhad.useAtlasPythiaTune09=False
-  genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
+  #genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
+  genSeq.PythiaRhad.Tune_Name="ATLAS_20110003"
   genSeq.PythiaRhad.PythiaCommand += [
     "pyinit pylisti 12",
     "pyinit pylistf 1",
@@ -429,22 +430,25 @@ if simdict.has_key("DECAYS"):
     "pymssm imss 1 1",          # General MSSM simulation
     "pymssm imss 3 1",          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
     "pymssm imss 5 1",          # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
-    "pymssm rmss 1 10000.0",    # Photino mass
-    "pymssm rmss 2 10000.0",    # Wino/Zino mass
-    "pymssm rmss 3 10000.0",    # Gluino  mass
-    "pymssm rmss 4 10000.0",    # Higgsino mass parameter
-    "pymssm rmss 7 10000.0",    # Right slepton mass
-    "pymssm rmss 8 8000.0",     # Left squark mass
-    "pymssm rmss 9 8000.0",     # Right squark mass
-    "pymssm rmss 10 8000.0",    # stop2 mass
-    "pymssm rmss 11 8000.0",    # sbottom1 mass
-    "pymssm rmss 12 8000.0",    # stop1 mass
-    "pymssm rmss 21 8000.0e9",  # Gravitino mass
+    #"pymssm rmss 1 4000.0",    # Photino mass
+    "pymssm rmss 2 8000.0",    # Wino/Zino mass
+    #"pymssm rmss 3 10000.0",    # Gluino  mass
+    "pymssm rmss 4 40000.0",    # Higgsino mass parameter
+    "pymssm rmss 6 1500.0",    # Left slepton mass
+    "pymssm rmss 7 1200.0",    # Right slepton mass
+    "pymssm rmss 8 4800.0",     # Left squark mass
+    "pymssm rmss 9 4200.0",     # Right squark mass
+    "pymssm rmss 10 4800.0",    # stop2 mass
+    #"pymssm rmss 11 8000.0",    # sbottom1 mass
+    #"pymssm rmss 12 8000.0",    # stop1 mass
+    "pymssm rmss 13 1500.0",    # Left stau mass
+    "pymssm rmss 14 1200.0",    # Right stau mass
+    #"pymssm rmss 21 10000.0e9",  # Gravitino mass
     "pysubs msel 0",            # Turn off all processes
     "pypars mstp 111 0",        # Turn off master switch for fragmentation and decay
     #"pyinit pylisti 12",       # dumps the full decay table, etc.
-    "pyinit pylistf 3",         # dumps pythia event
-    "pystat 2"
+    "pyinit pylistf 3"         # dumps pythia event
+    #"pystat 2"
   ]
 
   pdg={}
@@ -545,15 +549,15 @@ if simdict.has_key("DECAYS"):
       "pymssm imss 3 1",                          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
       "pymssm imss 5 0",                          # allow pythia to calculate squark masses/mixings
       "pymssm rmss 1 "+str(MASSX),                # # Photino mass
-      "pymssm rmss 2 10000.0",                    # Wino/Zino mass
+      #"pymssm rmss 2 10000.0",                    # Wino/Zino mass
       "pymssm rmss 3 "+str(simdict["MASS"])+".0", # Gluino  mass
-      "pymssm rmss 4 10000.0",                    # Higgsino mass parameter
-      "pymssm rmss 7 10000.0",                    # Right slepton mass
-      "pymssm rmss 8 8000.0",                     # Left squark mass
-      "pymssm rmss 9 8000.0",                     # Right squark mass
-      "pymssm rmss 10 8000.0",                    # stop2 mass
-      "pymssm rmss 11 8000.0",                    # sbottom1 mass
-      "pymssm rmss 12 8000.0",                    # stop1 mass
+      #"pymssm rmss 4 10000.0",                    # Higgsino mass parameter
+      #"pymssm rmss 7 10000.0",                    # Right slepton mass
+      "pymssm rmss 8 4800.0",                     # Left squark mass
+      "pymssm rmss 9 4200.0",                     # Right squark mass
+      "pymssm rmss 10 4800.0",                    # stop2 mass
+      "pymssm rmss 11 4200.0",                    # sbottom1 mass
+      "pymssm rmss 12 4100.0",                    # stop1 mass
       "pymssm rmss 21 "+str(MASSX)+"e9",          # Gravitino mass (was MASSX before)
       "pymssm imss 11 1",                         # make N1 the LSP (1 would make N1 NLSP and gravitino LSP) (default is 0)
       "pymssm rmss 29 7.0e5",                     # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production (default is 2.4e18)
@@ -612,14 +616,14 @@ if simdict.has_key("DECAYS"):
       "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
       "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
       "pymssm rmss 1 "+str(MASSX),                 # Photino mass
-      "pymssm rmss 2 10000.0",                     # Wino/Zino mass
-      "pymssm rmss 3 10000.0",                     # Gluino  mass
-      "pymssm rmss 4 10000.0",                     # Higgsino mass parameter
-      "pymssm rmss 7 10000.0",                     # Right slepton mass
-      "pymssm rmss 8 8000.0",                      # Left squark mass
-      "pymssm rmss 9 8000.0",                      # Right squark mass
-      "pymssm rmss 10 8000.0",                     # stop2 mass
-      "pymssm rmss 11 8000.0",                     # sbottom1 mass
+      #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
+      "pymssm rmss 3 25000.0",                     # Gluino  mass
+      #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
+      #"pymssm rmss 7 10000.0",                     # Right slepton mass
+      "pymssm rmss 8 4800.0",                      # Left squark mass
+      "pymssm rmss 9 4200.0",                      # Right squark mass
+      "pymssm rmss 10 4800.0",                     # stop2 mass
+      "pymssm rmss 11 4200.0",                     # sbottom1 mass
       "pymssm rmss 12 "+str(simdict["MASS"])+".0", # stop1 mass
       "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
       "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
@@ -656,15 +660,15 @@ if simdict.has_key("DECAYS"):
       "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
       "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
       "pymssm rmss 1 "+str(MASSX),                 # Photino mass
-      "pymssm rmss 2 10000.0",                     # Wino/Zino mass
-      "pymssm rmss 3 10000.0",                     # Gluino  mass
-      "pymssm rmss 4 10000.0",                     # Higgsino mass parameter
-      "pymssm rmss 7 10000.0",                     # Right slepton mass
-      "pymssm rmss 8 8000.0",                      # Left squark mass
-      "pymssm rmss 9 8000.0",                      # Right squark mass
-      "pymssm rmss 10 8000.0",                     # stop2 mass
+      #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
+      "pymssm rmss 3 25000.0",                     # Gluino  mass
+      #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
+      #"pymssm rmss 7 10000.0",                     # Right slepton mass
+      "pymssm rmss 8 4800.0",                      # Left squark mass
+      "pymssm rmss 9 4200.0",                      # Right squark mass
+      "pymssm rmss 10 4800.0",                     # stop2 mass
       "pymssm rmss 11 "+str(simdict["MASS"])+".0", # sbottom1 mass
-      "pymssm rmss 12 8000.0",                     # stop1 mass
+      "pymssm rmss 12 4100.0",                     # stop1 mass
       "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
       "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
       "pymssm rmss 29 7.0e5",                      # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production
