@@ -38,9 +38,11 @@ if not hasattr( ToolSvc, "TileCellBuilderHG" ):
 from TileRecUtils.TileRecFlags import jobproperties
 ToolSvc.TileCellBuilderLG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 ToolSvc.TileCellBuilderLG.maskBadChannels = True
+ToolSvc.TileCellBuilderLG.SkipGain = 1
 
 ToolSvc.TileCellBuilderHG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 ToolSvc.TileCellBuilderHG.maskBadChannels = True
+ToolSvc.TileCellBuilderHG.SkipGain = 0
 
 theCaloCellMakerLG.CaloCellMakerToolNames += [ ToolSvc.TileCellBuilderLG.getFullName() ]
 theCaloCellMakerHG.CaloCellMakerToolNames += [ ToolSvc.TileCellBuilderHG.getFullName() ]

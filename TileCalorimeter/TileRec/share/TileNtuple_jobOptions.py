@@ -19,6 +19,9 @@ TileNtuple.TileRawChannelContainerOF1  = ""
 TileNtuple.TileRawChannelContainerMF = ""
 TileNtuple.TileRawChannelContainerDsp  = ""
 TileNtuple.TileLaserObject = ""
+TileNtuple.TileMuRcvRawChannelContainer= ""
+TileNtuple.TileMuRcvDigitsContainer= ""
+TileNtuple.TileMuRcvContainer = ""
 
 from TileRecUtils.TileRecFlags import jobproperties
 
@@ -78,6 +81,11 @@ else:
 
     if doTileMF:
         TileNtuple.TileRawChannelContainerMF = "TileRawChannelMF"
+
+    if useTMDB:
+        TileNtuple.TileMuRcvRawChannelContainer = "MuRcvRawChCnt"
+        TileNtuple.TileMuRcvDigitsContainer = "MuRcvDigitsCnt"
+        TileNtuple.TileMuRcvContainer = "TileMuRcvCnt"
 
     if TileCisRun:
         # parameters for bigain CIS run
