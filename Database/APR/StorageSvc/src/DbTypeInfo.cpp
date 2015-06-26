@@ -3,7 +3,7 @@
 */
 
 
-// $Id: DbTypeInfo.cpp 619703 2014-10-02 18:11:53Z gemmeren $
+// $Id: DbTypeInfo.cpp 678597 2015-06-26 12:55:50Z mnowak $
 //====================================================================
 //  DbTypeInfo implementation
 //--------------------------------------------------------------------
@@ -283,18 +283,48 @@ namespace pool  {
 }
 
 using namespace pool;
+using namespace std;
 
 /// Standard Constructor
-DbTypeInfo::DbTypeInfo(const Guid& guid, TypeH cl)
-: Shape(),
-  m_refCount( 0 ),
-  m_columns(),
-  m_mult( 0 ),
-  m_class( cl )
+DbTypeInfo::DbTypeInfo(const Guid& guid, TypeH type, Columns& cols)
+      : Shape(),
+        m_refCount( 0 ),
+        m_columns(),
+        m_mult( 0 ),
+        m_class( type )
 {
-  DbInstanceCount::increment(this);
-  setShapeID(guid);
+   DbInstanceCount::increment(this);
+   setShapeID(guid);
+   if( cols.size() == 0 )   {
+      std::string full = DbReflex::fullTypeName(type);
+      std::string nam = (full.substr(0,2)=="::") ? full.substr(2) : full;
+      int col_type = DbColumn::POINTER;
+      if(clazz()) {
+        if (clazz().TypeInfo() == typeid(unsigned char)) col_type = DbColumn::UCHAR;
+        else if (clazz().TypeInfo() == typeid(unsigned short)) col_type = DbColumn::USHORT;
+        else if (clazz().TypeInfo() == typeid(unsigned int)) col_type = DbColumn::UINT;
+        else if (clazz().TypeInfo() == typeid(unsigned long)) col_type = DbColumn::ULONG;
+        else if (clazz().TypeInfo() == typeid(char)) col_type = DbColumn::CHAR;
+        else if (clazz().TypeInfo() == typeid(short)) col_type = DbColumn::SHORT;
+        else if (clazz().TypeInfo() == typeid(int)) col_type = DbColumn::INT;
+        else if (clazz().TypeInfo() == typeid(long)) col_type = DbColumn::LONG;
+        else if (clazz().TypeInfo() == typeid(bool)) col_type = DbColumn::BOOL;
+        else if (clazz().TypeInfo() == typeid(float)) col_type = DbColumn::FLOAT;
+        else if (clazz().TypeInfo() == typeid(double)) col_type = DbColumn::DOUBLE;
+        else if (clazz().TypeInfo() == typeid(char*)) col_type = DbColumn::NTCHAR;
+        else if (clazz().TypeInfo() == typeid(unsigned long long)) col_type = DbColumn::ULONGLONG;
+        else if (clazz().TypeInfo() == typeid(long long)) col_type = DbColumn::LONGLONG;
+        else if (clazz().TypeInfo() == typeid(Token)) col_type = DbColumn::TOKEN;
+      }
+      m_columns.push_back(new DbColumn(type.Name(), nam, col_type, 0));
+      // cout << " -- DbTypeInfo: created column: " << type.Name() << ",  " << nam << endl;
+   }
+   else  {
+      m_columns = cols;
+      cols.clear();
+   }
 }
+
 
 DbTypeInfo::DbTypeInfo(const Guid& guid)
 : Shape(),
@@ -370,10 +400,10 @@ const std::string DbTypeInfo::toString() const   {
 }
 
 static const char* itm[][2] = { 
-  {"{ID=","}"}, 
-  {"{CL=","}"}, 
-  {"{NCOL=","}"},
-  {"{COL={","}}"} 
+  {"{ID=", "}"}, 
+  {"{CL=", "}"}, 
+  {"{NCOL=", "}"},
+  {"{COL={", "}}"} 
 };
 
 DbStatus DbTypeInfo::i_fromString( const std::string& string_rep)  {
@@ -436,23 +466,72 @@ const std::string DbTypeInfo::typeName(const std::type_info& typ) {
   return pool::typeName(typ);
 }
 
+
 /// Load type information object from string representation
-const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep) {
-  Guid clsid(Guid::null());
-  DbTypeInfo* pType = new DbTypeInfo(clsid);
-  DbStatus sc = pType->i_fromString(string_rep);
-  if ( sc.isSuccess() )   {
-    DbTypeInfo *typ_info = 0;
-    if (DbTransform::getShape(pType->shapeID(), (const DbTypeInfo*&)typ_info) == DbStatus::Success) {
-      delete pType;
-      return typ_info;
-    }
-    DbTransform::regShape(pType);
-    return pType;
-  }
-  delete pType;
-  return 0;
+const DbTypeInfo* DbTypeInfo::fromString(const std::string& string_rep)
+/*
+ Create extra shapes when GUID is the same but column names are different
+ (column naming change happened by accident during Reflex migration
+ - now they use fully qualified typenames)
+*/
+{
+   const DbTypeInfo* main_type_info = 0;
+   bool              created_main_ti = false;
+   DbTypeInfo* new_type_info = new DbTypeInfo(Guid::null());
+   // cout << " -- fromDbString DbTypeInfo: " << string_rep << endl;
+   if( new_type_info->i_fromString(string_rep).isSuccess() )   {
+      // find existing typeinfo or create a fresh one based on transient dictionary
+      // do this first to ensure current type is first in the DbTransform list
+      // cout << " -- fromDbString DbTypeInfo: " << string_rep << "  GUID=" << new_type_info->shapeID() <<  endl;
+      if( DbTransform::getShape( new_type_info->shapeID() , main_type_info) != DbStatus::Success) {
+         // new shape
+         if( !new_type_info->m_class ) {
+            // no transient type info for this type, use the string description as it is          
+            DbTransform::regShape( new_type_info );
+            cout << "DbTypeInfo::fromString:  registered new  " << string_rep << endl;
+            return new_type_info;
+         }
+         // create new shape from transient type
+         Columns cols;
+         main_type_info = new DbTypeInfo( new_type_info->shapeID(), new_type_info->m_class, cols );
+         created_main_ti = true;
+         DbTransform::regShape(main_type_info);
+      } 
+      // current shape is now registered, check if the one from DB has the same column names
+      if( new_type_info->m_class && main_type_info->toString() != string_rep ) {
+         // difference. See if DB shape is already known
+         if( created_main_ti ) {
+            // keep pointer to avoid memory leak
+            // the 'proper' shape will sit in the DbTransform list in case another database needs to use it
+            DbTransform::ownShape( main_type_info );  
+            // cout << "DbTypeInfo::fromString:  registered new MAIN " << main_type_info->toString() << endl;
+         }
+         // cout << " -- fromDbString DbTypeInfo:" <<"   searching for:" << string_rep << endl;
+         const DbTypeInfo* extra_info = DbTransform::getShape( new_type_info->shapeID(), string_rep );
+         if( extra_info ) {
+            // this extra shape is already registered, use it
+            main_type_info = extra_info;
+            // cout << "DbTypeInfo::fromString:  found EXTRA cached " <<  main_type_info->toString() << endl; 
+         } else {
+            // register the new extra shape and use it in this database
+            // cout << "DbTypeInfo::fromString:  registered new EXTRA " << string_rep << endl;
+            DbTransform::regShape( new_type_info );
+            return new_type_info;
+         }
+      }
+      /*
+        else {
+         if( created_main_ti )
+            cout << "DbTypeInfo::fromString:  registered new " <<  main_type_info->toString() << endl;
+         else
+            cout << "DbTypeInfo::fromString:  found cached " << main_type_info->toString() << endl;
+      }
+      */
+   }
+   delete new_type_info;
+   return main_type_info;
 }
+
 
 /// Create type information using Guid only Class must already be registered.
 DbTypeInfo* DbTypeInfo::create(const std::string& cl_name)  {
@@ -482,39 +561,7 @@ DbTypeInfo* DbTypeInfo::create(const std::string& cl_name, Columns& cols)   {
        clearColumns(cols);
        return typ_info;
     }
-    typ_info = new DbTypeInfo(guid, type);
-    if ( cols.size() == 0 )   {
-      std::string full = DbReflex::fullTypeName(type);
-      std::string nam = (full.substr(0,2)=="::") ? full.substr(2) : full;
-      int col_type = DbColumn::POINTER;
-      if (typ_info->clazz()) {
-        if (typ_info->clazz().TypeInfo() == typeid(unsigned char)) col_type = DbColumn::UCHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned short)) col_type = DbColumn::USHORT;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned int)) col_type = DbColumn::UINT;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned long)) col_type = DbColumn::ULONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(char)) col_type = DbColumn::CHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(short)) col_type = DbColumn::SHORT;
-        else if (typ_info->clazz().TypeInfo() == typeid(int)) col_type = DbColumn::INT;
-        else if (typ_info->clazz().TypeInfo() == typeid(long)) col_type = DbColumn::LONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(bool)) col_type = DbColumn::BOOL;
-        else if (typ_info->clazz().TypeInfo() == typeid(float)) col_type = DbColumn::FLOAT;
-        else if (typ_info->clazz().TypeInfo() == typeid(double)) col_type = DbColumn::DOUBLE;
-        else if (typ_info->clazz().TypeInfo() == typeid(char*)) col_type = DbColumn::NTCHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned long long)) col_type = DbColumn::ULONGLONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(long long)) col_type = DbColumn::LONGLONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(Token)) col_type = DbColumn::TOKEN;
-      }
-
-      typ_info->m_columns.clear();
-      typ_info->m_columns.push_back(new DbColumn(type.Name(),
-                                    nam,
-                                    col_type,
-                                    0));
-    }
-    else  {
-      typ_info->m_columns = cols;
-      cols.clear();
-    }
+    typ_info = new DbTypeInfo(guid, type, cols); 
     DbTransform::regShape(typ_info);
     return typ_info;
   }
@@ -531,42 +578,9 @@ DbTypeInfo* DbTypeInfo::create(const Guid& guid, Columns& cols)   {
   }
   TypeH cl = DbReflex::forGuid(guid);
   if ( cl )    {
-    typ_info = new DbTypeInfo(guid, cl);
-    if ( cols.size() == 0 )   {
-      std::string full = DbReflex::fullTypeName(cl);
-      std::string nam = (full.substr(0,2)=="::") ? full.substr(2) : full;
-      int col_type = DbColumn::POINTER;
-      if (typ_info->clazz()) {
-        if (typ_info->clazz().TypeInfo() == typeid(unsigned char)) col_type = DbColumn::UCHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned short)) col_type = DbColumn::USHORT;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned int)) col_type = DbColumn::UINT;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned long)) col_type = DbColumn::ULONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(char)) col_type = DbColumn::CHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(short)) col_type = DbColumn::SHORT;
-        else if (typ_info->clazz().TypeInfo() == typeid(int)) col_type = DbColumn::INT;
-        else if (typ_info->clazz().TypeInfo() == typeid(long)) col_type = DbColumn::LONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(bool)) col_type = DbColumn::BOOL;
-        else if (typ_info->clazz().TypeInfo() == typeid(float)) col_type = DbColumn::FLOAT;
-        else if (typ_info->clazz().TypeInfo() == typeid(double)) col_type = DbColumn::DOUBLE;
-        else if (typ_info->clazz().TypeInfo() == typeid(char*)) col_type = DbColumn::NTCHAR;
-        else if (typ_info->clazz().TypeInfo() == typeid(unsigned long long)) col_type = DbColumn::ULONGLONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(long long)) col_type = DbColumn::LONGLONG;
-        else if (typ_info->clazz().TypeInfo() == typeid(Token)) col_type = DbColumn::TOKEN;
-      }
-      std::vector<const DbColumn*> c;
-      c.push_back(new DbColumn(cl.Name(),
-                               nam,
-                               col_type,
-                               0));
-      typ_info->m_columns = c;
-      c.clear();
-    }
-    else  {
-      typ_info->m_columns = cols;
-      cols.clear();
-    }
-    DbTransform::regShape(typ_info);
-    return typ_info;
+     typ_info = new DbTypeInfo(guid, cl, cols); 
+     DbTransform::regShape(typ_info);
+     return typ_info;
   }
   clearColumns(cols);
   return 0;
@@ -580,25 +594,10 @@ DbTypeInfo* DbTypeInfo::createEx(const Guid& guid, Columns& cols)   {
     return typ_info;
   }
   TypeH cl = DbReflex::forGuid(guid);
-  if ( !(cols.size() == 0 && !cl) ) {
-    typ_info = new DbTypeInfo(guid, cl);
-    if ( cols.size() == 0 ) {
-      std::string full = DbReflex::fullTypeName(cl);
-      std::string nam = (full.substr(0,2)=="::") ? full.substr(2) : full;
-      std::vector<const DbColumn*> c;
-      c.push_back(new DbColumn(cl.Name(),
-                                nam,
-                                DbColumn::POINTER,
-                                0));
-      typ_info->m_columns = c;
-      c.clear();
-    }
-    else {
-      typ_info->m_columns = cols;
-      cols.clear();
-    }
-    DbTransform::regShape(typ_info);
-    return typ_info;
+  if( !(cols.size() == 0 && !cl) ) {
+     typ_info = new DbTypeInfo(guid, cl, cols);
+     DbTransform::regShape(typ_info);
+     return typ_info;
   }
   clearColumns(cols);
   return 0;

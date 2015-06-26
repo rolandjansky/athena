@@ -381,7 +381,8 @@ DbStatus DbDatabaseObj::open()   {
                   << DbPrint::endmsg;
             }
             // Update the transient list of links
-            if ( m_shapeMap.insert(ShapeMap::value_type(pShape->shapeID(), pShape) ).second ) pShape->addRef();
+            if( m_shapeMap.insert(ShapeMap::value_type(pShape->shapeID(), pShape)).second )
+               pShape->addRef();
 /*
             if ( pShape->clazz() )  {
               m_classMap.insert(make_pair(pShape->clazz(), pShape));

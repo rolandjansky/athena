@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainer.cpp 590734 2014-04-01 21:49:36Z gemmeren $
+// $Id: DbContainer.cpp 664792 2015-05-04 17:31:32Z gemmeren $
 //====================================================================
 //  DbContainerObj handle implementation
 //--------------------------------------------------------------------
@@ -200,6 +200,7 @@ DbStatus DbContainer::load(void** ptr, ShapeH shape,
                            const Token::OID_t& linkH,
                            DbAccessMode mod)  const {
   DbObjectCallBack call;
+  call.setObject(*ptr);
   call.setShape(shape);
   if ( isValid() )  {
     Token::OID_t oid;
