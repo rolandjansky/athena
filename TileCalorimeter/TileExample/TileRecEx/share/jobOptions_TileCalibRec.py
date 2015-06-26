@@ -162,8 +162,10 @@ else:
                 InputDirectory = ("/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            elif RunNumber < 254945:
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+           elif RunStream.startswith('calibration'):
+                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.daq.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
-               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
 
     if not 'InputDirectory' in dir():
         if RunNumber < 10:
@@ -235,7 +237,9 @@ def FindFile(path, runinput, filter):
         if (path.startswith('/eos/')):
             fullname.append('root://eosatlas/' + path + '/' + file_name)
         elif ReadPool and not RunFromLocal:
-            fullname.append('castor:' + path + '/' + file_name)
+            fullname.append('rfio:' + path + '/' + file_name) # maybe castor: ?
+        elif (path.startswith('/castor/')):
+            fullname.append('root://castoratlas/' + path + '/' + file_name)
         else:
             fullname.append(path + '/' + file_name)
 
@@ -426,6 +430,10 @@ if not 'doTileFitCool' in dir():
 if not 'TileOF1Ped' in dir():
     TileOF1Ped = -1
 
+# for the moment enable TMDB only for data
+if not 'useTMDB' in dir():
+    useTMDB = not doSim
+
 if TileBiGainRun:
     # only 7 samples are expected
     if not 'TileFrameLength' in dir():
@@ -453,7 +461,7 @@ if not 'PhaseFromCOOL' in dir():
     PhaseFromCOOL = True
 
 if not 'OfcFromCOOL' in dir():
-    if TilePhysRun:
+    if TilePhysRun or TilePedRun:
         OfcFromCOOL = True
     else:
         OfcFromCOOL = False
@@ -644,11 +652,12 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2014-00'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2014-00'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2015-07'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-07'
         else:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
-            else:                        CondDbTag = 'COMCOND-ES1PA-006-05'
+            if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
+            else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
+
     jobproperties.Global.ConditionsTag = CondDbTag        
     conddb.setGlobalTag(CondDbTag)
     # Set Geometry version
@@ -714,8 +723,8 @@ tileInfoConfigurator.OutputLevel = OutputLevel
 # use correct timing constants for different run types
 from TileConditions.TileCondToolConf import *
 if TilePhysTiming:
-    if RUN2: tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
-    else:    tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
+    if RUN2 and TileLasPulse: tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
+    else:                     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
 elif TileLasPulse:
     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','LAS')
 elif TileCisPulse:
@@ -976,14 +985,19 @@ if doD3PD:
 #                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainerNewReco'))
 
             else:
-                alg += TileDetailsD3PDObject (**_args(1, 'TileDetails',kw, sgkey='AllCalo', prefix='tile_', \
+                if TileBiGainRun:
+                    alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCaloHG', prefix = 'tile_', \
                                                               Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
+                    alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCaloHG', prefix = 'calo_'))
+                else:
+                    alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCalo', prefix = 'tile_', \
+                                                              Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
+                    alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCalo', prefix = 'calo_'))
 
-                alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo',kw, sgkey='AllCalo', prefix='calo_'))
-                alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainer'))
+                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainer'))
 
-                if RUN2:
-                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainer', MBTS_SaveEtaPhiInfo = False))
+                    if RUN2:
+                        alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainer', MBTS_SaveEtaPhiInfo = False))
                 
         if doCaloTopoCluster:
             from CaloD3PDMaker.xAODClusterD3PDObject import xAODClusterD3PDObject
@@ -1105,7 +1119,9 @@ if doTileMon:
     doTileMonDigi = ReadDigits
     doTileMonRch = (ReadDigits or ReadRch)
     doTileMonDQ = (TilePhysRun and ReadDigits)
-    doTileMonCell = TilePhysRun
+
+    if not 'doTileMonCell' in dir():
+        doTileMonCell = TilePhysRun
 
     doTileDigiNoiseMon = doTileDigiNoiseMon and ReadDigits
     doTileCellNoiseMon = doTileCellNoiseMon and doCaloCell
@@ -1115,7 +1131,8 @@ if doTileMon:
         theTileDigitsMon = TileDigitsMonTool ( name            ="TileDigitsMon", 
                                                histoPathBase   = "/Tile/Digits",
                                                book2D          = b2d,
-                                               runType         = runType )
+                                               runType         = runType,
+                                               FillPedestalDifference = True)
         ToolSvc += theTileDigitsMon
         TileMon.AthenaMonTools += [ theTileDigitsMon ]
         print theTileDigitsMon
@@ -1156,8 +1173,10 @@ if doTileMon:
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
 
+        #theTileRawChannelMon.MinAmpForCorrectedTime = 0.1
+
         print theTileRawChannelMon
-            
+
     if doTileMonDQ:
         theTileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
                                              OutputLevel        = 3,
@@ -1198,25 +1217,41 @@ if doTileMon:
         print theTileDQFragMon
 
     if doTileMonCell:
-        theTileCellMon = TileCellMonTool(name               = 'TileCellMon',
-                                         OutputLevel        = 3,
-                                         doOnline           = False,
-                                         cellsContainerName = "AllCalo",
-                                         histoPathBase      = "/Tile/Cell");
+        if TileBiGainRun:
+            theTileCellMonHG = TileCellMonTool(name               = 'TileCellMonHG',
+                                             OutputLevel        = 3,
+                                             doOnline           = False,
+                                             cellsContainerName = "AllCaloHG",
+                                             negEnergyThreshold = -2000,
+                                             energyThreshold    = 300,
+                                             histoPathBase      = "/Tile/Cell");
+            ToolSvc += theTileCellMonHG;
+            TileMon.AthenaMonTools += [ theTileCellMonHG ];
+            print theTileCellMonHG;
 
-        ToolSvc += theTileCellMon;
-        TileMon.AthenaMonTools += [ theTileCellMon ];
-        print theTileCellMon;
+        else:
+            theTileCellMon = TileCellMonTool(name               = 'TileCellMon',
+                                             OutputLevel        = 3,
+                                             doOnline           = False,
+                                             negEnergyThreshold = -2000,
+                                             energyThreshold    = 300,
+                                             cellsContainerName = "AllCalo",
+                                             histoPathBase      = "/Tile/Cell");
+
+            #theTileCellMon.energyThreshold = 300.
+            #theTileCellMon.energyThresholdForTime = 150.
+            #theTileCellMon.FillTimeHistograms = True
+            ToolSvc += theTileCellMon;
+            TileMon.AthenaMonTools += [ theTileCellMon ];
+            print theTileCellMon;
 
     if doTileDigiNoiseMon:
         TileDigiNoiseMon = TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon',
                                                 OutputLevel        = OutputLevel,
-                                                runType            = 4, # pedestal maybe always should be... 
-                                                bigain             = True,
-                                                TileRawChannelContainerDSP = "TileRawChannelCnt",
+                                                TileDigitsContainer = "TileDigitsCnt",
                                                 histoPathBase = "/Tile/DigiNoise" );
         
-        TileDigiNoiseMon.OutputLevel=WARNING
+        if not TileBiGainRun: TileDigiNoiseMon.TriggerTypes = [ 0x82 ]
         ToolSvc += TileDigiNoiseMon;
         TileMon.AthenaMonTools += [ TileDigiNoiseMon ];
         print TileDigiNoiseMon;
@@ -1283,9 +1318,10 @@ if doTileMon:
                                                               Xmin          = -10.,
                                                               Xmax          =  10.,
                                                               Gain          = "LG",
+                                                              do2GFit       = True,
+                                                              # doFit         = True,
                                                               SummaryUpdateFrequency = 0 );
 
-        # TileRawChannelNoiseMonLG.do2GFit       = True;
         ToolSvc += TileRawChannelNoiseMonLG;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMonLG ];
         print TileRawChannelNoiseMonLG;
@@ -1298,6 +1334,8 @@ if doTileMon:
                                                               Xmin          = -10.,
                                                               Xmax          =  10.,
                                                               Gain          = "HG",
+                                                              do2GFit       = True,
+                                                              # doFit         = True,
                                                               SummaryUpdateFrequency = 0 );
 
 
@@ -1314,12 +1352,12 @@ if doTileMon:
                                                             Xmax          =  10.0,
                                                             Gain          = "HG",
                                                             do2GFit       = True,
+                                                            # doFit         = True,
                                                             SummaryUpdateFrequency = 0);
 
         # fill raw channel noise mon histograms only for certain trigger types
         # if not defined here, then by default all triggers will be considered
         TileRawChannelNoiseMon.TriggerTypes           = [ 0x82 ];
-        TileRawChannelNoiseMon.do2GFit                = True;
 
         ToolSvc += TileRawChannelNoiseMon;
         TileMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
@@ -1340,14 +1378,15 @@ if doTileCalib:
         from TileCalibAlgs.TileCalibAlgsConf import TileDigiNoiseCalibAlg
         from TileCalibAlgs.TileCalibAlgsConf import TileRawChNoiseCalibAlg
 
-        theTileDigiNoiseCalibAlg = TileDigiNoiseCalibAlg( "theTileDigiNoiseCalibAlg" )
-        theTileDigiNoiseCalibAlg.DoAvgCorr = False # False=> Full AutoCorr matrix calculation
-        if TileNoiseFilter > 0:
-            exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': TileNoiseFilter }
-        if Version != "0" and Version != "Ped.0" and Version != "Ped" :
-            VF = Version+"_tnf"+str(TileNoiseFilter)
-            exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': VF }
-        topSequence += theTileDigiNoiseCalibAlg
+        if Version == "0" or Version == "Ped.0" or Version == "Ped" : # prudce digi noise ntuple only for default version
+            theTileDigiNoiseCalibAlg = TileDigiNoiseCalibAlg( "theTileDigiNoiseCalibAlg" )
+            theTileDigiNoiseCalibAlg.DoAvgCorr = False # False=> Full AutoCorr matrix calculation
+            if TileNoiseFilter > 0:
+                exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': TileNoiseFilter }
+            if Version != "0" and Version != "Ped.0" and Version != "Ped" :
+                VF = Version+"_tnf"+str(TileNoiseFilter)
+                exec 'theTileDigiNoiseCalibAlg.FileNamePrefix = \'Digi_NoiseCalib_%(Version)s\' '  %  {'Version': VF }
+            topSequence += theTileDigiNoiseCalibAlg
         theTileRawChNoiseCalibAlg = TileRawChNoiseCalibAlg("theTileRawChNoiseCalibAlg")
         theTileRawChNoiseCalibAlg.UseforCells = 1  # 1= Fixed , 2= Opt2
         if TileNoiseFilter > 0:
@@ -1533,3 +1572,6 @@ if not 'db' in dir():
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
 
+
+if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
+    ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
