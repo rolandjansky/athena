@@ -22,7 +22,6 @@ from ROOT.CTPfragment import getFolderUpdates
 
 # Import classes from C++ namespace
 FolderEntry = _CTPfragment.FolderEntry
-ExtraPayload = _CTPfragment.ExtraPayload
 
 def _versioned(obj, name, version):
    """Helper to return versioned members of CTPdataformat"""
@@ -205,8 +204,7 @@ def main():
       fe2.folderIndex = 2
       fe2.lumiBlock = 59
 
-      #x = getExtraPayloadObject(rob) 
-      x = _CTPfragment.ExtraPayload()
+      x = getExtraPayloadObject(rob)
       x.setL1PSK(255)
       x.updateFolder(fe)
       x.updateFolder(fe2)
