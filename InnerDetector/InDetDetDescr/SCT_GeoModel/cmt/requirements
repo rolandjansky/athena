@@ -25,8 +25,5 @@ use InDetCondServices    InDetCondServices-*    InnerDetector/InDetConditions
 use GeoModelInterfaces   GeoModelInterfaces-*   DetectorDescription/GeoModel
 
 public
-
-apply_pattern dual_use_library files=*.cxx 
-
-
-
+apply_pattern declare_python_modules files="*.py"
+apply_pattern dual_use_library files=*.cxx
