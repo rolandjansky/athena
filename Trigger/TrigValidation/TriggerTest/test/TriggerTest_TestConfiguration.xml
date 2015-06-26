@@ -83,7 +83,7 @@
             <author>TAPM validation</author>
             <mailto> francesca.pastore@cern.ch </mailto> 
             <expectations> 
-                <errorMessage>ERROR </errorMessage> 
+                <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 

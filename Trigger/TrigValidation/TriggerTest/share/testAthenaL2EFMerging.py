@@ -107,7 +107,7 @@ if TriggerFlags.doHLT():
 
 ServiceMgr.ROBDataProviderSvc.OutputLevel=WARNING
 ServiceMgr.MessageSvc.debugLimit=0
-ServiceMgr.MessageSvc.warningLimit=0
+ServiceMgr.MessageSvc.warningLimit=5000
 #ServiceMgr.MessageSvc.infoLimit=0
 
 print " End of configuration for testAthenaL2EFMerging"
