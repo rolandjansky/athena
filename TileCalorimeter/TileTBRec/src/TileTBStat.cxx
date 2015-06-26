@@ -158,6 +158,8 @@ TileTBStat::TileTBStat(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("DetectDummyFragments", m_detectDummyFragments = false);
 
   m_runNo = m_evtMin =  m_evtMax = m_evtBegin = m_evtNo = 0;
+
+  
 }
 
 
@@ -189,6 +191,7 @@ StatusCode TileTBStat::initialize() {
   memset(m_nEvt, 0, sizeof(m_nEvt));
   memset(m_cisBeg, 0, sizeof(m_cisBeg));
   memset(m_cisPar, 0, sizeof(m_cisPar));
+  memset(m_nEventsPerTrigger, 0, sizeof(m_nEventsPerTrigger));
 
   m_timeStart = time(0);
   ATH_MSG_INFO( "initialization completed" );
@@ -387,6 +390,10 @@ StatusCode TileTBStat::execute() {
   }
   ++(m_nEvt[ind]);
 
+  unsigned int lvl1_trigger_type = event->lvl1_trigger_type();
+  if (lvl1_trigger_type < 256U) ++m_nEventsPerTrigger[lvl1_trigger_type];
+  else ++m_nEventsPerTrigger[256];
+
   m_spillPattern <<= 4;
   m_spillPattern |= (m_trigType & 0xF);
 
@@ -503,6 +510,19 @@ StatusCode TileTBStat::finalize() {
   std::cout << "Ped    " << m_nEvt[2] << std::endl;
   std::cout << "CIS    " << m_nEvt[3] << std::endl;
   std::cout << "Bad    " << m_nEvt[4] << std::endl;
+  std::cout << std::endl << std::endl;
+
+  std::cout << "Number of events per trigger:" << std::endl;
+  for (int i = 0; i < 256; ++i) {
+    if (m_nEventsPerTrigger[i] != 0) {
+      std::cout << " Level1 trigger type: " << i << " (0x"<< std::hex << i << std::dec << ") => " <<  m_nEventsPerTrigger[i] << std::endl;
+    }
+  }
+
+  if (m_nEventsPerTrigger[256] != 0) {
+    std::cout << " Level1 trigger type: > 255(0xFF) => " <<  m_nEventsPerTrigger[256] << std::endl;
+  }
+
   std::cout << std::endl << std::endl;
 
   std::cout << "LasFrag begin" << std::endl;

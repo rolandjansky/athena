@@ -169,9 +169,13 @@ class TileTBDump: public AthAlgorithm {
         double d_quality;
     } T_TileRecoCalib;
 
+
+/*    void dump_TMDB(uint32_t subdet_id, const uint32_t* roddata, unsigned int rodsize
+                               , uint32_t version, int verbosity, int robsource_id);*/
+
     void dump_data(const uint32_t* data, unsigned int size, unsigned int version, int verbosity);
 
-    void dump_digi(unsigned int subdet_id, const uint32_t* data, unsigned int size, unsigned int version, int verbosity);
+    void dump_digi(unsigned int subdet_id, const uint32_t* data, unsigned int size, unsigned int version, int verbosity, unsigned int robsourceid);
 
     void dump_it(unsigned int nw, unsigned int* data);
 
