@@ -329,7 +329,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       template <class T>
       class MgmtParams {
           public:
-              inline MgmtParams(T* templateHist, const MonGroup& group)
+              inline MgmtParams(T* templateHist, MonGroup group)
                  : m_templateHist(templateHist), m_group(group) { }
 
               T* m_templateHist;
@@ -703,19 +703,19 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
    protected:
       std::map< Interval_t, std::vector< MgmtParams<TH1> > > m_templateHistograms;
       // Runs over the vector of managed histograms, register clonned histogram and saves it to a file.
-      StatusCode regManagedHistograms(std::vector< MgmtParams<TH1> >& templateHistograms);
+      StatusCode regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms);
 
       std::map< Interval_t, std::vector< MgmtParams<TGraph> > > m_templateGraphs;
       // Runs over the vector of managed graphs, register clonned graph and saves it to a file.
-      StatusCode regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs);
+      StatusCode regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs);
 
       std::map< Interval_t, std::vector< MgmtParams<TTree> > > m_templateTrees;
       // Runs over the vector of managed trees, register clonned tree and saves it to a file.
-      StatusCode regManagedTrees(std::vector< MgmtParams<TTree> >& templateTrees);
+      StatusCode regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees);
 
       std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;
       // Runs over the vector of managed histograms and register them (just a helper method).
-      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& templateLWHistograms);
+      StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& m_templateLWHistograms);
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
@@ -750,7 +750,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
          protected:
             void copyString( char* to, const std::string& from );
-            const int m_charArrSize;
+            const int charArrSize;
             TTree* m_metadata;
             char* m_nameData;
             //char* m_levelData;
@@ -791,21 +791,17 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
          public:
         OfflineStream( const std::string& fileKey, AthenaMonManager::DataType_t /*dataType*/,
                        AthenaMonManager::Environment_t /*environment*/ )
-               : m_fileKey(fileKey),
-                 m_prev_run_number(0),
-                 m_prev_lumi_block(0) { }
+               : m_fileKey(fileKey) { }
 
             virtual ~OfflineStream() { }
             virtual std::string getStreamName( const ManagedMonitorToolBase* tool, const MonGroup& group, const std::string& objName, bool usePreviousInterval=false );
             virtual std::string getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, const std::string& objName, const bool usePreviousInterval );
-	    void updateRunLB();
 
          private:
             OfflineStream() { }
             const std::string                m_fileKey;
             //AthenaMonManager::DataType_t     m_dataType;
             //AthenaMonManager::Environment_t  m_environment;
-            uint32_t m_prev_run_number, m_prev_lumi_block;
             std::set<std::string> m_ebNames;
             void getLBrange(int*,int*,int,int);
       };
@@ -816,51 +812,18 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
-       * Flag functions allowing clients to determine when to book new and process old histograms;
+       * Variable allowing clients to determine when to book new and process old histograms;
        * values are updated by fillHists() based on counting lumiBlocks,
        * and are correctly set when fillHistograms(),
        * bookHistograms() and procHistograms() are called.
        */
 
-      bool newLowStatIntervalFlag() const { return m_newLowStatInterval; }
-      bool newMedStatIntervalFlag() const { return m_newMedStatInterval; }
-      bool newHigStatIntervalFlag() const { return m_newHigStatInterval; }
-      bool newLowStatFlag() const { return m_newLowStat; }
-      bool newLumiBlockFlag() const { return m_newLumiBlock; }
-      bool newRunFlag() const { return m_newRun; }
-      bool newEventsBlockFlag() const { return m_newEventsBlock; }
-      bool endOfEventsBlockFlag() const { return m_endOfEventsBlock; }
-      bool endOfLowStatFlag() const { return m_endOfLowStat; }
-      bool endOfLumiBlockFlag() const { return m_endOfLumiBlock; }
-      bool endOfRunFlag() const { return m_endOfRun; }
+      bool newLowStatInterval, newMedStatInterval, newHigStatInterval;
+      bool newLowStat, newLumiBlock, newRun;
+      bool newEventsBlock;
 
-public:
-      // Old-style access via variables.
-      // Make these public to avoid triggering naming convention warnings.
-#ifdef ManagedMonitorToolBase_CXX
-#define MMTB_DEPRECATED(v) bool v
-#else
-#define MMTB_DEPRECATED(v) bool v __attribute__((deprecated("Use " #v "Flag() instead")))
-#endif
-      MMTB_DEPRECATED(newLowStatInterval);
-      MMTB_DEPRECATED(newMedStatInterval);
-      MMTB_DEPRECATED(newHigStatInterval);
-      MMTB_DEPRECATED(newLowStat);
-      MMTB_DEPRECATED(newLumiBlock);
-      MMTB_DEPRECATED(newRun);
-      MMTB_DEPRECATED(newEventsBlock);
-      MMTB_DEPRECATED(endOfEventsBlock);
-      MMTB_DEPRECATED(endOfLowStat);
-      MMTB_DEPRECATED(endOfLumiBlock);
-      MMTB_DEPRECATED(endOfRun);
+      bool endOfEventsBlock, endOfLowStat, endOfLumiBlock, endOfRun;
 
-private:
-      bool m_newLowStatInterval, m_newMedStatInterval, m_newHigStatInterval;
-      bool m_newLowStat, m_newLumiBlock, m_newRun;
-      bool m_newEventsBlock;
-      bool m_endOfEventsBlock, m_endOfLowStat, m_endOfLumiBlock, m_endOfRun;
-
-protected:
       typedef std::map<std::string,OutputMetadata*> MDMap_t;
       MDMap_t m_metadataMap;
 
@@ -924,13 +887,12 @@ protected:
       bool m_hasRetrievedLumiTool;
       bool m_bookHistogramsInitial;
       bool m_useLumi;
-      float m_defaultLBDuration;
-      //int m_cycleNum;
+      int m_cycleNum;
       std::set<Interval_t> m_supportedIntervalsForRebooking;
 
       // Use private implementation idiom for more flexible development.
       class Imp;
-      Imp * m_d;
+      Imp * d;
 
 };
 

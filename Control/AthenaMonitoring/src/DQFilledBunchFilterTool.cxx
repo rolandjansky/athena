@@ -31,7 +31,7 @@ StatusCode DQFilledBunchFilterTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool DQFilledBunchFilterTool::accept() const {
+bool DQFilledBunchFilterTool::accept() {
   if (m_alwaysReturnTrue) {
     return true;
   } else {

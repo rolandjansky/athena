@@ -32,7 +32,7 @@ MonitorToolBase::MonitorToolBase(const std::string & type,
     , m_rootsvc(0)
     , m_isBooked(false)
     , m_path("/stat")
-    , m_setupStreamMap(false)
+    , setupStreamMap(false)
     , m_LogFileName("my.default")
     , m_FormatString("")
     , m_preScale(1)
@@ -61,7 +61,7 @@ MonitorToolBase::~MonitorToolBase()
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "destructor has been called" << endmsg;
+  log << MSG::INFO << "destructor has been called" << endreq;
 }
 
 /*---------------------------------------------------------*/
@@ -71,12 +71,12 @@ MonitorToolBase::getStreamName(unsigned int number, bool useDefault /* =true */ 
 {
   std::string str="empty"; // no trailing slash, histogram will be temporary
   
-  if( ! m_setupStreamMap)
+  if( ! setupStreamMap)
     if( ! this->setupOutputStreams().isSuccess())
       {
 	MsgStream log(msgSvc(), name ());
 	log << MSG::ERROR
-	    << "Could not setup Outputstreams !" << endmsg;
+	    << "Could not setup Outputstreams !" << endreq;
       }
   
   // valid entry in vector ?
@@ -98,12 +98,12 @@ MonitorToolBase::getStreamName(std::string stream, bool useDefault /* = true */ 
 {
   std::string str="empty"; // no trailing slash, histogram will be temporary
   
-  if( ! m_setupStreamMap)
+  if( ! setupStreamMap)
     if( ! this->setupOutputStreams().isSuccess() )
       {
 	MsgStream log(msgSvc(), name ());
 	log << MSG::ERROR
-	    << "Could not setup Outputstreams !" << endmsg;
+	    << "Could not setup Outputstreams !" << endreq;
       }
   
   // valid entry in map ?
@@ -145,7 +145,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	{
 	  log << MSG::ERROR
 	      << "No '/' found in StreamName " << *itr
-	      << " ! Will not use this stream !" << endmsg;
+	      << " ! Will not use this stream !" << endreq;
 	  itr = m_THistSvc_streamnameMapping.erase(itr);
 	  continue;
 	}
@@ -160,7 +160,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	      << iter->first << iter->second << "\" with \""
 	      << itr->substr(0,location)
 	      << itr->substr(location) << "\" !!"
-	      << endmsg;
+	      << endreq;
 	  iter->second=itr->substr(location);
 	}else{
 	  m_map_THistSvc_streamnames[itr->substr(0,location)]=itr->substr(location);
@@ -173,7 +173,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
     {
       log << MSG::INFO
 	  << "Using following mapping of mnemonics to streams (in alphabetical order):"
-	  << endmsg;
+	  << endreq;
       for( map_type::const_iterator iter = m_map_THistSvc_streamnames.begin();
 	   iter != m_map_THistSvc_streamnames.end(); iter++ )
 	log << MSG::INFO 
@@ -181,10 +181,10 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	    << iter->first << " writes to "
 	    << std::setw(20)
 	    << iter->second
-	    << endmsg;
+	    << endreq;
     }
   // don't call again
-  m_setupStreamMap=true;
+  setupStreamMap=true;
   
   return StatusCode::SUCCESS;
 }
@@ -223,7 +223,7 @@ StatusCode MonitorToolBase::finalHists() // Default finalHists(): do nothing.
 /*---------------------------------------------------------*/
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "default finalHists() called." << endmsg;
+  log << MSG::INFO << "default finalHists() called." << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -243,9 +243,9 @@ StatusCode MonitorToolBase::checkHists(bool fromFinalize) // Default checkHists(
     log.setFormat(m_FormatString);
   
   if(fromFinalize)
-    log << MSG::INFO << "default checkHists() called from finalize()." << endmsg;
+    log << MSG::INFO << "default checkHists() called from finalize()." << endreq;
   else
-    log << MSG::INFO << "default checkHists() called periodically." << endmsg;
+    log << MSG::INFO << "default checkHists() called periodically." << endreq;
   return StatusCode::SUCCESS;
 }
 /*---------------------------------------------------------*/
@@ -256,7 +256,7 @@ IHistogramSvc* MonitorToolBase::ToolHistoSvc()
  
   StatusCode sc = service("HistogramDataSvc",m_histsvc, true);
   if( sc.isFailure() ) {
-    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endmsg;
+    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endreq;
   }
 
   return m_histsvc;
@@ -269,7 +269,7 @@ ITHistSvc* MonitorToolBase::ToolRootHistSvc()
  
   StatusCode sc = service("THistSvc",m_rootsvc, true);
   if( sc.isFailure() ) {
-    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endmsg;
+    log << MSG::WARNING << ">>> Unable to locate the Histogram service" << endreq;
   }
   
   return m_rootsvc;

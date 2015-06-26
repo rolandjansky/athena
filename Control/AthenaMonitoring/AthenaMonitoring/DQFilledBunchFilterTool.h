@@ -18,11 +18,11 @@ class DQFilledBunchFilterTool :  public AthAlgTool, virtual public IDQFilterTool
  public:
   DQFilledBunchFilterTool(const std::string&,const std::string&,const IInterface*);
         
-  virtual ~DQFilledBunchFilterTool () override;
+  virtual ~DQFilledBunchFilterTool ();
         
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
-  virtual bool accept() const override;
+  virtual bool accept() ;
 
  private:
   bool m_alwaysReturnTrue;

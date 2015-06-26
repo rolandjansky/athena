@@ -45,7 +45,7 @@ class AthenaMonManager : public AthAlgorithm {
        * transform or during the ESD --> AOD transform (but not both!)
        * Strings of the same names may be given as jobOptions.
        */
-      enum Environment_t { user = 0, noOutput, online, tier0, tier0Raw, tier0ESD, AOD, altprod };
+      enum Environment_t { user = 0, noOutput, online, tier0, tier0Raw, tier0ESD, altprod, AOD };
 
       /**
        * An enumeration of the different types of data the
@@ -93,7 +93,6 @@ class AthenaMonManager : public AthAlgorithm {
 
       virtual StatusCode initialize();
       virtual StatusCode execute();
-      virtual StatusCode stop();
       virtual StatusCode finalize();
 
       virtual StatusCode beginRun();
@@ -128,7 +127,7 @@ class AthenaMonManager : public AthAlgorithm {
    private:
       // Use private implementation idiom for more flexible development.
       class Imp;
-      Imp *m_d;
+      Imp *d;
 };
 
 #endif

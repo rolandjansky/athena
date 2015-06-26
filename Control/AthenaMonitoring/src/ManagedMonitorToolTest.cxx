@@ -94,9 +94,9 @@ bookHistogramsRecurrent( )
    MonGroup gaussian_ensemble( this, "Stats/Gaussian", lumiBlock, ATTRIB_UNMANAGED );
    MonGroup gaussian_summary( this, "Stats/Gaussian", lumiBlock, ATTRIB_UNMANAGED );
 
-   if( newLowStatIntervalFlag() ) { }
+   if( newLowStatInterval ) { }
 
-   if( newLumiBlockFlag() ) {
+   if( newLumiBlock ) {
          m_ensembles.clear();
 
          for( int i = 0; i < s_nEnsembles; ++i ) {
@@ -135,7 +135,7 @@ bookHistogramsRecurrent( )
 
    }
 
-   if( newRunFlag() ) {
+   if( newRun ) {
       
          // Example for TGraph
          MonGroup space_point( this, "SpacePoint", run, ATTRIB_UNMANAGED );
@@ -289,7 +289,7 @@ fillHistograms()
        
       // newEventsBlock is a static variable.
       // It is true when eventsBlock changed.
-      if (newEventsBlockFlag())        
+      if (newEventsBlock)        
           m_offset += 1;
 
       // Fill out different histograms bins 
@@ -314,7 +314,7 @@ ManagedMonitorToolTest::
 procHistograms( )
 {
    
-  if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {
+   if( endOfLowStat || endOfLumiBlock ) {
          for( int i = 0; i < s_nEnsembles; ++i ) {
             TH1* h = m_ensembles[i];
 
@@ -338,7 +338,7 @@ procHistograms( )
    }
 
 
-   if( endOfRunFlag() ) {
+   if( endOfRun ) {
          // fill vectors to TGraph
          for(unsigned int i=0; i<m_event.size(); i++) 
             m_graph->SetPoint(i, m_event[i], m_spacepoint[i]);

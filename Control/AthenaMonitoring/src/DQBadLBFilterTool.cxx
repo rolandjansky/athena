@@ -95,7 +95,7 @@ StatusCode DQBadLBFilterTool::updateCache() {
   return StatusCode::SUCCESS;
 }
         
-bool DQBadLBFilterTool::accept() const {
+bool DQBadLBFilterTool::accept() {
   if (m_alwaysReturnTrue) {
     return true;
   } else {

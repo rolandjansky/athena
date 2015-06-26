@@ -12,7 +12,7 @@ DQDummyFilterTool::DQDummyFilterTool(const std::string& type,const std::string& 
         
 DQDummyFilterTool::~DQDummyFilterTool () {}
 
-bool DQDummyFilterTool::accept() const {
+bool DQDummyFilterTool::accept() {
   return true;
 }
 

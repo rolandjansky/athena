@@ -223,25 +223,11 @@ class doLucidMon(JobProperty):
     StoredValue=True
 list+=[doLucidMon]
 
-class doAFPMon(JobProperty):
-    """Switch for AFP monitoring"""
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-list+=[doAFPMon]
-
-class doHIMon(JobProperty):
-    """ Switch for dedicated Heavy Ion monitoring """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-list+=[doHIMon]
-
 class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[doStreamAwareMon]
 
 class monType(JobProperty):
@@ -360,7 +346,7 @@ class nameTrigDecTool(JobProperty):
     """ name of trigger decision tool """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'TrigDecisionTool'
+    StoredValue  = 'monTrigDecTool'
 list+=[nameTrigDecTool]
 
 class nameTrigTransTool(JobProperty):
@@ -404,10 +390,6 @@ list+=[enableLumiAccess]
 class DQMonFlagsCont(JobPropertyContainer):
     """Container for Data Quality Monitoring flags
     """
-    def set_All_Off(self):
-        for j in list:
-            if j.__name__.startswith('do') and j.__name__.endswith('Mon'):
-                j.StoredValue = False
     pass
 
 ##-----------------------------------------------------------------------------
