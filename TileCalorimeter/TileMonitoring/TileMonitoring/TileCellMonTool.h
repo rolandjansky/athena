@@ -82,6 +82,7 @@ class TileCellMonTool: public TileFatherMonTool {
 
     //detailed occupancy plots at the channel level
     std::vector<TH2F*> m_TileCellDetailOccMapOvThr[NPartHisto];
+    std::vector<TH2F*> m_TileCellDetailOccMapHiGainOvThr[NPartHisto];
     std::vector<TH2F*> m_TileCellDetailOccMapLowGainOvThr[NPartHisto];
     std::vector<TH2F*> m_TileCellDetailOccMapOvThr30GeV[NPartHisto];
     std::vector<TH2F*> m_TileCellDetailOccMapOvThr300GeV[NPartHisto];
@@ -112,6 +113,7 @@ class TileCellMonTool: public TileFatherMonTool {
     std::vector<TH1F*> m_TileCellEneDiffSamp[NPartHisto][TotalSamp];
     std::vector<TH1F*> m_TileCellTimeDiffSamp[NPartHisto][TotalSamp];
     std::vector<TH1F*> m_TileCellEvEneSamp[NPartHisto][TotalSamp];
+    std::vector<TH1F*> m_TileChannelTimeSamp[NPartHisto][TotalSamp];
 
     std::vector<TProfile*> m_TilenCellsLB[NPartHisto];
     std::vector<TH2F*> m_TileCellModuleCorr[NPartHisto];

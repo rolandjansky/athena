@@ -201,7 +201,7 @@ topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 if not athenaCommonFlags.isOnline():
     from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
     lumiTool = LuminosityToolDefault()
-    lumiTool.OutputLevel = DEBUG
+    lumiTool.OutputLevel = INFO
     ToolSvc += lumiTool
 else:
     from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
@@ -210,7 +210,7 @@ else:
 if not athenaCommonFlags.isOnline() and False:
     from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
     liveTool = TrigLivefractionToolDefault()
-    liveTool.OutputLevel = DEBUG
+    liveTool.OutputLevel = INFO
     ToolSvc += liveTool
 
 
@@ -421,3 +421,7 @@ if TileUseCOOL:
 #    ToolSvc.TileCellMon.OutputLevel = DEBUG
 #if hasattr (svcMgr.ToolSvc, 'TileCellBuilder'):
 #    ToolSvc.TileCellBuilder.OutputLevel = DEBUG
+
+if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
+    ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
+

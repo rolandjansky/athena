@@ -65,6 +65,8 @@ class TileMBTSMonTool: public TileFatherMonTool {
     TProfile* m_h_sumEnergy;
     TProfile* m_h_sumEnergy_wTBP;
     TProfile* m_h_sumTime;
+    TH1F* m_h_timeA;
+    TH1F* m_h_timeC;
     TH1F* m_h_timeDiff;
     TH2F* m_h_timeDiffLumi;
     TH2S* m_h_coinEnergyHits;

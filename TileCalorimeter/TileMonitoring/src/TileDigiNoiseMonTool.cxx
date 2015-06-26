@@ -43,7 +43,7 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_DQstatus(0)
   , m_nEventsProcessed(0)
-
+  , m_histogramsNotBooked(true)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -52,7 +52,7 @@ TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
 
-  declareProperty("bigain", m_bigain = true);
+  declareProperty("bigain", m_bigain = true); // DEPRICATED, not used, always bigain mode
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
   declareProperty("FillEmptyFromDB", m_fillEmtyFromDB = false);
@@ -100,70 +100,70 @@ StatusCode TileDigiNoiseMonTool:: initialize() {
   return TileFatherMonTool::initialize();
 }
 
-/*---------------------------------------------------------*/
-StatusCode TileDigiNoiseMonTool::bookHistograms()
-/*---------------------------------------------------------*/
-{ 
+StatusCode TileDigiNoiseMonTool::bookHistograms() {
+  return StatusCode::SUCCESS;
+}
 
-  ATH_MSG_DEBUG( "TileDigiNoiseMonTool::bookHistograms() :  m_path =  " << m_path  );
+/*---------------------------------------------------------*/
+StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
+/*---------------------------------------------------------*/
+
+  ATH_MSG_DEBUG( "::bookHistograms() :  m_path =  " << m_path  );
   
   
   const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
-  const char *gain[6] = { "lo", "hi", "", " low gain", " high gain", "" };
+  const char *gain[4] = { "lo", "hi", " low gain", " high gain" };
   const char *type[6] = { "lfn", "hfn", "ped", "Low Freq. Noise", "High Freq. Noise", "Pedestal[0]" };
   char histName[50];
   char histTitle[70];
-
-  int mingain = (m_bigain) ? 0 : 2;
-  int maxgain = (m_bigain) ? 2 : 3;
 
   std::string module_name;
   std::string cell_name;
   std::string channel_name;
 
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-    for (int gn = mingain; gn < maxgain; ++gn) {
-      int adc = gn & 1;
+    for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
       for (int noisetype = 0; noisetype < 3; ++noisetype) {
 
         sprintf(histName, "noisemap_%s_%s_%s", part[ros], gain[adc], type[noisetype]);
         if (noisetype == 2 && m_fillPedestalDifference) {
-          sprintf(histTitle, "Noise map %s %s %s %s (entries = events)", part[ros], gain[3 + gn], type[noisetype + 3], "- pedestal in DB");
+          sprintf(histTitle, "Noise map %s %s %s %s (entries = events)", part[ros], gain[2 + adc], type[noisetype + 3], "- pedestal in DB");
         } else {
-          sprintf(histTitle, "Noise map %s %s %s (entries = events)", part[ros], gain[3 + gn], type[noisetype + 3]);
+          sprintf(histTitle, "Noise map %s %s %s (entries = events)", part[ros], gain[2 + adc], type[noisetype + 3]);
         }
 
         ATH_MSG_DEBUG( "in bookHists() :: booking noise_map histo : " << histName );
 
-        m_finalNoiseMap[ros][gn][noisetype] = book2F("", histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5);
+        m_finalNoiseMap[ros][adc][noisetype] = book2F("", histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5);
 
         for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; drawer += 2) {
           module_name = TileCalibUtils::getDrawerString(ros, drawer);
-          m_finalNoiseMap[ros][gn][noisetype]->GetXaxis()->SetBinLabel(drawer + 1, module_name.c_str());
+          m_finalNoiseMap[ros][adc][noisetype]->GetXaxis()->SetBinLabel(drawer + 1, module_name.c_str());
         }
 
         for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
           cell_name = getCellName(ros, channel);
 
           channel_name = cell_name + (cell_name.empty() ? "ch" : "_ch") + std::to_string(channel);
-          m_finalNoiseMap[ros][gn][noisetype]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
+          m_finalNoiseMap[ros][adc][noisetype]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
         }
         
         if (noisetype < 2) {
-          m_finalNoiseMap[ros][gn][noisetype]->GetZaxis()->SetTitle("Noise [ADC]");
-          m_finalNoiseMap[ros][gn][noisetype]->GetZaxis()->SetRangeUser(0, 10);
+          m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetTitle("Noise [ADC]");
+          m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(0, 10);
         } else {
-          m_finalNoiseMap[ros][gn][noisetype]->GetZaxis()->SetTitle("Pedestal [ADC]");
-          if (m_fillPedestalDifference) m_finalNoiseMap[ros][gn][noisetype]->GetZaxis()->SetRangeUser(-5, 5);
-          else m_finalNoiseMap[ros][gn][noisetype]->GetZaxis()->SetRangeUser(20, 80);
+          m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetTitle("Pedestal [ADC]");
+          if (m_fillPedestalDifference) m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(-5, 5);
+          else m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(20, 80);
         }
-        m_finalNoiseMap[ros][gn][noisetype]->SetTitle(histTitle);
+        m_finalNoiseMap[ros][adc][noisetype]->SetTitle(histTitle);
 
       } // end loop over noise type (hfn, lfn)
     } // end gain loop
   } // end loop over ros/partitions
 
   //SetBookStatus(true);
+  m_histogramsNotBooked = false;
   
   return StatusCode::SUCCESS;
 }
@@ -203,6 +203,8 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
   if (m_triggerTypes.empty()
       || std::find( m_triggerTypes.begin(), m_triggerTypes.end(), m_lvl1info) != m_triggerTypes.end()) {
 
+    if (m_histogramsNotBooked) CHECK( bookNoiseHistograms() );
+
     m_DQstatus = m_beamInfo->getDQstatus();
 
     const TileDigitsContainer* digitsContainer;
@@ -221,12 +223,12 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
         
         adc_id = tile_digits->adc_HWID();
         int channel = m_tileHWID->channel(adc_id);
-        int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
+        int adc = m_tileHWID->adc(adc_id);
         
         //        if (isDisconnected(ros, drawer, channel)) continue;
         
-        if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, gain) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
-        if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, gain).isBad() ) continue;
+        if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+        if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
         
         std::vector<float> digits = tile_digits->samples();
         
@@ -242,18 +244,18 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
         if (n_digits > 0) {
           double ped = digits[0];
           
-          m_sumPed1[ros][drawer][channel][gain] += ped;
-          m_sumPed2[ros][drawer][channel][gain] += ped * ped;
+          m_sumPed1[ros][drawer][channel][adc] += ped;
+          m_sumPed2[ros][drawer][channel][adc] += ped * ped;
           
-          ++m_nPedEvents[ros][drawer][channel][gain];
+          ++m_nPedEvents[ros][drawer][channel][adc];
           
           if (n_digits > 1) {
             mean_samp /= n_digits;
             rms_samp = rms_samp / n_digits - mean_samp * mean_samp;
             rms_samp = (rms_samp > 0.0) ? sqrt(rms_samp * n_digits / (n_digits - 1)) : 0.0;
-            m_sumRms1[ros][drawer][channel][gain] += rms_samp;
+            m_sumRms1[ros][drawer][channel][adc] += rms_samp;
             
-            ++m_nRmsEvents[ros][drawer][channel][gain];
+            ++m_nRmsEvents[ros][drawer][channel][adc];
           }
         }
       } // digits
@@ -271,21 +273,17 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
 StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
 /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO( "in finalHists()" );
 
-  // for bigain run book 2 histograms per channel
-  // for monogain run book just one histogram per channel
-  int mingain = (m_bigain) ? 0 : 2;
-  int maxgain = (m_bigain) ? 2 : 3;
+  if (m_histogramsNotBooked) return StatusCode::SUCCESS;
+
+  ATH_MSG_DEBUG( "in updateSummaryHistograms()" );
 
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-
-      for (int gain = mingain; gain < maxgain; ++gain) {
-        int adc = gain & 1;
-
+      for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
         for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+
           double pedestal = 0.0;
           double pedestal_rms = 0.0;
           double hi_rms = 0.0;
@@ -341,7 +339,7 @@ StatusCode TileDigiNoiseMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
 
-  ATH_MSG_DEBUG( "in procHistograms()" );
+  ATH_MSG_INFO( "in procHistograms()" );
 
   return updateSummaryHistograms();
 }

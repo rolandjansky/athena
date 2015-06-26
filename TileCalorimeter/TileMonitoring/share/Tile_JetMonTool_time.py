@@ -180,7 +180,7 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 
 if not 'MonitorOutput' in dir():
 #   MonitorOutput="SHIFT"
-   MonitorOutput="EXPERT"
+   MonitorOutput="Tile"
 
 #**************************************************************
 #
@@ -215,7 +215,7 @@ from TileMonitoring.TileMonitoringConf import TileJetMonTool
 TileJetMonTool = TileJetMonTool(name               = 'TileJetMonTool',
                                 jetPtMin          = 20000.0,
                                 jetEtaMax         = 1.4,
-                                jetCollectionName = 'AntiKt4TopoEMJets',
+                                jetCollectionName = 'AntiKt4EMTopoJets',
                                 OutputLevel        = INFO);
 ToolSvc += TileJetMonTool;    
 ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ];

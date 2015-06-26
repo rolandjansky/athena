@@ -147,10 +147,10 @@ if not 'TileUseCOOL' in dir():
    
 if TileUseCOOL and not 'tileCOOLtag' in dir():
     if doOnline:
-        tileCOOLtag = "CONDBR2-HLTP-2014-00"
+        tileCOOLtag = "CONDBR2-HLTP-2015-04"
     else:
         if RunNumber > 232498:
-            tileCOOLtag = "CONDBR2-BLKPA-2014-00"
+            tileCOOLtag = "CONDBR2-BLKPA-2015-06"
         else:
             tileCOOLtag = "COMCOND-BLKPA-RUN1-06"
 

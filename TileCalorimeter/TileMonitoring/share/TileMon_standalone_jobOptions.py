@@ -162,7 +162,7 @@ if not  athenaCommonFlags.isOnline() or storeHisto or athenaCommonFlags.isOnline
         svcMgr += THistSvc("THistSvc")
     if os.path.exists(RootHistOutputFileName):
         os.remove(RootHistOutputFileName)
-    svcMgr.THistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
+    svcMgr.THistSvc.Output = [MonitorOutput + " DATAFILE='" + RootHistOutputFileName + "' OPT='RECREATE'"]
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")
