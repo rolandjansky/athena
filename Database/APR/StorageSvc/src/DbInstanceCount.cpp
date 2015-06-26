@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbInstanceCount.cpp 514554 2012-08-22 21:53:57Z gemmeren $
+// $Id: DbInstanceCount.cpp 657436 2015-03-27 19:00:25Z ssnyder $
 //====================================================================
 //  DbInstanceCount implementation
 //--------------------------------------------------------------------
@@ -38,7 +38,16 @@ namespace {
   typedef map<const type_info*, COUNT*> TypeCounter;
   typedef map<const string*,    COUNT*> StringCounter;
   typedef DbObjectSet<DbObjectSetBase>  ContCounter;
-  static bool s_trace_instances = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
+
+  bool s_trace_instances = false;
+  bool s_trace_init = false;
+  
+  bool trace_instances()
+  {
+    if (!s_trace_init)
+      s_trace_instances = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
+    return s_trace_instances;
+  }
 
   ContCounter& contCounter() {
     static ContCounter       s_cntCounts(delete_DbObjectSetBase);
@@ -74,7 +83,7 @@ DbObjectSetBase::~DbObjectSetBase()   {
 }
 
 void DbObjectSetBase::printOut()  {
-  if ( s_trace_instances && m_type != typeid(DbObjectSetBase) )  {
+  if ( trace_instances() && m_type != typeid(DbObjectSetBase) )  {
     cout << "Removal on unload of " << m_objects.size() << " instances of type:" 
               << typeName(m_type) << endl;       
   }
@@ -98,7 +107,7 @@ DbInstanceCount::~DbInstanceCount() {
   if ( 0 == s_thisCount.value() )   {
     StringCounter::iterator i;
     TypeCounter::iterator   j;
-    dump(s_trace_instances ? ALL : NONE);
+    dump(trace_instances() ? ALL : NONE);
     for(i=s_strCounts->begin(); i != s_strCounts->end(); ++i)
       delete (*i).second;
     for(j=s_typCounts->begin(); j != s_typCounts->end(); ++j)
@@ -110,23 +119,24 @@ DbInstanceCount::~DbInstanceCount() {
 
 /// Check if tracing is enabled.
 bool DbInstanceCount::doTrace()    {
-  return s_trace_instances;
+  return trace_instances();
 }
 
 /// Enable/Disable tracing
 void DbInstanceCount::doTracing(bool value)    {
   s_trace_instances = value;
+  s_trace_init = true;
 }
 
 /// Access counter object for local caching on optimizations
 DbInstanceCount::Counter* DbInstanceCount::getCounter(const type_info& typ)  {
-  Counter* cnt = s_trace_instances ? types()[&typ] : &s_nullCount;
+  Counter* cnt = trace_instances() ? types()[&typ] : &s_nullCount;
   return (0!=cnt) ? cnt : types()[&typ] = new Counter();
 }
 
 /// Access counter object for local caching on optimizations
 DbInstanceCount::Counter* DbInstanceCount::getCounter(const string& typ)  {
-  Counter* cnt = s_trace_instances ? strings()[&typ] : &s_nullCount;
+  Counter* cnt = trace_instances() ? strings()[&typ] : &s_nullCount;
   return (0!=cnt) ? cnt : strings()[&typ] = new Counter();
 }
 

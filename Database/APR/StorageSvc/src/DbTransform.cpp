@@ -11,21 +11,29 @@
 using namespace std;
 using namespace pool;
 
-typedef Guid                      GuidKEY;
 typedef vector<const DbTypeInfo*> ShapeVector;
-typedef map<GuidKEY, ShapeVector> Shapes;
+typedef map<Guid, ShapeVector>    Shapes;
 
 namespace {
   struct _Init {
-    Shapes m_map;
+    Shapes      m_map;
+    ShapeVector m_ownedShapes;
+    
     static _Init& instance()  {
       static _Init _inst;
       return _inst;
     }
-    _Init()                                    {                                }
-    ~_Init()                                   {      shapes().clear();         }
-    static Shapes& shapes()                    {      return instance().m_map;  }
-    static ShapeVector& shape(const Guid& guid){  return instance().m_map[guid];}
+    _Init() {}
+    ~_Init() {
+       for( const DbTypeInfo* info : ownedShapes() ) {
+          info->deleteRef();
+       }
+       ownedShapes().clear();
+       shapes().clear();
+    }
+    static Shapes&      shapes()                     {  return instance().m_map;  }
+    static ShapeVector& shape(const Guid& guid)      {  return instance().m_map[guid]; }
+    static ShapeVector& ownedShapes()                {  return instance().m_ownedShapes; }
   };
 }
 
@@ -39,6 +47,18 @@ DbStatus DbTransform::getShape(const Guid& shape_Guid, const DbTypeInfo*& shape)
   return Error;
 }
 
+
+/// Access shape registry
+const DbTypeInfo* DbTransform::getShape(const Guid& shape_Guid, const std::string& rep)
+{
+  for( auto shape: _Init::shape(shape_Guid) ) {
+     if( shape->toString() == rep )
+        return shape;
+  }
+  return 0;
+}
+
+
 /// Access entry in shape registry
 DbStatus DbTransform::regShape(const DbTypeInfo*  shape)  {
   if ( shape )    {
@@ -50,6 +70,14 @@ DbStatus DbTransform::regShape(const DbTypeInfo*  shape)  {
     }
   }
   return Error;
+}
+
+/// keep shape until the end
+void DbTransform::ownShape(const DbTypeInfo*  shape)  {
+  if ( shape ) {
+     _Init::ownedShapes().push_back(shape);
+     shape->addRef();
+  }
 }
 
 /// Access entry in shape registry
