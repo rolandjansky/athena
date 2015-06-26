@@ -38,13 +38,11 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DetDescrConditions/AlignableTransformContainer.h"
 #
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -88,7 +86,7 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
 
   // Set Version information
   // Get the geometry tag
-  DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
+  DecodeVersionKey versionKey(geoModelSvc(), "SCT");
   IRDBRecordset_ptr switchSet
     = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
   const IRDBRecord    *switches   = (*switchSet)[0];
@@ -136,8 +134,8 @@ SCT_DetectorFactory::~SCT_DetectorFactory()
 void SCT_DetectorFactory::create(GeoPhysVol *world) 
 { 
 
-  msg(MSG::INFO) << "Building SCT Detector." << endmsg;
-  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
+  msg(MSG::INFO) << "Building SCT Detector." << endreq;
+  msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
 
   // The name tag here is what is used by the GeoModel viewer.
   GeoNameTag *topLevelNameTag = new GeoNameTag("SCT");         
@@ -171,7 +169,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   //  
   if (barrelPresent) {
    
-    msg(MSG::DEBUG) << "Building the SCT Barrel." << endmsg;
+    msg(MSG::DEBUG) << "Building the SCT Barrel." << endreq;
 
     m_detectorManager->numerology().addBarrel(0);
 
@@ -200,7 +198,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   //  
   if (forwardPlusPresent) {
 
-    msg(MSG::DEBUG) << "Building the SCT Endcap A (positive z)." << endmsg;
+    msg(MSG::DEBUG) << "Building the SCT Endcap A (positive z)." << endreq;
 
     m_detectorManager->numerology().addEndcap(2);
 
@@ -232,7 +230,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
   if (forwardMinusPresent) {
 
-    msg(MSG::DEBUG) << "Building the SCT Endcap C (negative z)." << endmsg;
+    msg(MSG::DEBUG) << "Building the SCT Endcap C (negative z)." << endreq;
 
     m_detectorManager->numerology().addEndcap(-2);
     
@@ -274,79 +272,39 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
   // Register the keys and the level corresponding to the key
   // and whether it expects a global or local shift.
   // level 0: sensor, level 1: module, level 2, layer/disc, level 3: whole barrel/enccap
-  InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
-  m_detectorManager->addAlignFolderType(AlignFolder);
 
-  if (AlignFolder==InDetDD::static_run1){
-    m_detectorManager->addFolder("/Indet/Align");
-    m_detectorManager->addChannel("/Indet/Align/ID",3,InDetDD::global);
-    m_detectorManager->addChannel("/Indet/Align/SCT",2,InDetDD::global);
-  
-    if (barrelPresent) {
-      m_detectorManager->addChannel("/Indet/Align/SCTB1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTB2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTB3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTB4",1,InDetDD::local);
-    }
-    if (forwardPlusPresent) {
-      m_detectorManager->addChannel("/Indet/Align/SCTEA1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA4",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA5",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA6",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA7",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA8",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEA9",1,InDetDD::local);
-    }
-    if  (forwardMinusPresent) {
-      m_detectorManager->addChannel("/Indet/Align/SCTEC1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC4",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC5",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC6",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC7",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC8",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/Align/SCTEC9",1,InDetDD::local);
-    }
+  m_detectorManager->addFolder("/Indet/Align");
+
+  m_detectorManager->addChannel("/Indet/Align/ID",3,InDetDD::global);
+  m_detectorManager->addChannel("/Indet/Align/SCT",2,InDetDD::global);
+
+  if (barrelPresent) {
+    m_detectorManager->addChannel("/Indet/Align/SCTB1",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTB2",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTB3",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTB4",1,InDetDD::local);
   }
-
-  if (AlignFolder==InDetDD::timedependent_run2){
-    m_detectorManager->addGlobalFolder("/Indet/AlignL1/ID");
-    m_detectorManager->addGlobalFolder("/Indet/AlignL2/SCT");
-    m_detectorManager->addChannel("/Indet/AlignL1/ID",3,InDetDD::global);
-    m_detectorManager->addChannel("/Indet/AlignL2/SCT",2,InDetDD::global);
-    m_detectorManager->addFolder("/Indet/AlignL3");
-
-    if (barrelPresent) {
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTB1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTB2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTB3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTB4",1,InDetDD::local);
-    }
-    if (forwardPlusPresent) {
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA4",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA5",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA6",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA7",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA8",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEA9",1,InDetDD::local);
-    }
-    if  (forwardMinusPresent) {
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC1",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC2",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC3",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC4",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC5",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC6",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC7",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC8",1,InDetDD::local);
-      m_detectorManager->addChannel("/Indet/AlignL3/SCTEC9",1,InDetDD::local);
-    }
+  if (forwardPlusPresent) {
+    m_detectorManager->addChannel("/Indet/Align/SCTEA1",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA2",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA3",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA4",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA5",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA6",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA7",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA8",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEA9",1,InDetDD::local);
+  }
+  if  (forwardMinusPresent) {
+    m_detectorManager->addChannel("/Indet/Align/SCTEC1",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC2",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC3",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC4",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC5",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC6",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC7",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC8",1,InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/SCTEC9",1,InDetDD::local);
   }
 
   // Return precision to its original value
@@ -360,30 +318,3 @@ const SCT_DetectorManager * SCT_DetectorFactory::getDetectorManager() const
   return m_detectorManager;
 }
  
-
-// Determine which alignment folders are loaded to decide if we register old or new folders                                         
-InDetDD::AlignFolderType SCT_DetectorFactory::getAlignFolderType() const
-{
-
-  bool static_folderStruct = false;
-  bool timedep_folderStruct = false;
-  if (detStore()->contains<CondAttrListCollection>("/Indet/AlignL1/ID") &&
-      detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/SCT") &&
-      detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
-
-  if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
-
-  if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg;
-    return InDetDD::static_run1;
-  }
-  else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
-    return InDetDD::timedependent_run2;
-  }
-  else if (static_folderStruct && timedep_folderStruct){
-    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
-  }
-  else return InDetDD::none;
-
-}
