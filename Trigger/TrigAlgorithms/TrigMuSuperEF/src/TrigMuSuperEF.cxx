@@ -69,8 +69,11 @@ class ISvcLocator;
 TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) :
   FexAlgo(name, pSvcLocator),
   m_TrigMuonEF_saTrackTool("TrigMuonEFStandaloneTrackTool/TrigMuonEFStandaloneTrackTool"),
+  m_roi(0),
   m_Roi_StillToBeAttached(0),
   m_totalTime(0),
+  m_muonContainer(0),
+  m_slowMuonContainer(0),
   m_ctTrackParticleContainer(0),
   m_combTrkTrackColl(0),
   m_tracksCache(),
@@ -173,6 +176,8 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   
   declareCombinedMonitoringVariables(m_TMEF_monVars.CB);
   declareCaloTagMonitoringVariables(m_TrigCaloTag_monVars);
+
+
 }
 // ----------------------------------------
 TrigMuSuperEF::~TrigMuSuperEF()
@@ -196,6 +201,8 @@ HLT::ErrorCode
 TrigMuSuperEF::prepareRobRequests(const HLT::TriggerElement* input){
 
   ATH_MSG_DEBUG("prepareRobRequests called");
+  
+  clearRoiCache();
 
   HLT::RobRequestInfo* RRInfo = config()->robRequestInfo();
 
@@ -763,9 +770,15 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
 
   if( msTrackParticleCont && msTrackParticleAuxCont ) {
     // attach MS track particles to the TE
+    ATH_MSG_DEBUG( "Muon tracks container retrieved with size : " << msTrackParticleCont->size() );
     attachTrackParticleContainer( TEout, msTrackParticleCont, m_msTrackParticleContName);
   } else {
     ATH_MSG_WARNING("Problem with MS track particle container");
+    if (!msTrackParticleCont || msTrackParticleCont->empty()) {
+      ATH_MSG_DEBUG( "No muon tracks found: stop here to process the RoI." );
+      if(msTrackParticleCont) delete msTrackParticleCont;
+      return HLT::MISSING_FEATURE;
+    }
     if(msTrackParticleCont) delete msTrackParticleCont;
   }
   if(msTrackParticleAuxCont) delete msTrackParticleAuxCont; // always clean up Aux container
@@ -778,12 +791,9 @@ HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI,
   if (m_recordTracks)
     m_TrigMuonEF_saTrackTool->recordSpectrometerTracks();  
 
-  if (!msTrackParticleCont || msTrackParticleCont->empty()) {
-    ATH_MSG_DEBUG( "No muon tracks found: stop here to process the RoI." );
-    return HLT::MISSING_FEATURE;
-  } else {
-    ATH_MSG_DEBUG( "Muon tracks container retrieved with size : " << msTrackParticleCont->size() );
-  }
+
+
+
 
   if ( m_standaloneOnly ) {
     ATH_MSG_DEBUG("In standalone only mode, call buildMuons");
@@ -832,12 +842,11 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
   xAOD::TrackParticleContainer* combTrackParticleCont = 0;
   xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
   InDetCandidateCollection inDetCandidates;
-  MuonCandidateCollection* muonCandidates= 0;
+  MuonCandidateCollection* muonCandidates= new MuonCandidateCollection();
 
   if(m_standaloneOnly) {
     // Standalone only
     ++m_counter_TrigMuonEF.total;
-    muonCandidates = new MuonCandidateCollection();
     hltStatus = runMSReconstruction(muonRoI, TEout, *muonCandidates, muonContainerOwn );
 
     ++m_counter_TrigMuonEF.pass;// check this
@@ -870,7 +879,6 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 
       ++m_counter_TrigMuonEF.total;
       // TrigMuonEF MS+CB
-      muonCandidates = new MuonCandidateCollection();
       hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
 
       if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.pass;
@@ -900,7 +908,6 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 	if(m_forceBoth || !foundMuon) {
 	  // now run TrigMuonEF MS+CB
 	  ++m_counter_TrigMuonEF.total;
-	  muonCandidates = new MuonCandidateCollection();
 	  hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
 	  
 	  if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.total;
@@ -916,14 +923,11 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 
   /////////////////////////// Build all output containers
   // includes xAOD muons, track particles and filling the SA TrackCollection
-  TrackCollection* extrapolatedTracks = 0;
-  xAOD::TrackParticleContainer* saTrackParticleCont = 0;
+  TrackCollection* extrapolatedTracks = new TrackCollection();
+  xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer;
   xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
-  if(muonCandidates) {
-    extrapolatedTracks = new TrackCollection();
-    saTrackParticleCont = new xAOD::TrackParticleContainer();
-    saTrackParticleCont->setStore( &saTrackParticleAuxCont );
-  }
+  saTrackParticleCont->setStore( &saTrackParticleAuxCont );
+  
   ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
   hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
   if(hltStatus!=HLT::OK) {
