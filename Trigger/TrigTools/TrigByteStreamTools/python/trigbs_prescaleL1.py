@@ -20,28 +20,34 @@ import libpyevent_storage as EventStorage
 import cppyy
 cppyy.loadDictionary('TrigByteStreamToolsDict')
 from ROOT import CTPdataformat
+from TrigByteStreamTools import CTPfragment
 
-def ints2bits(info):
-  if type(info)==int:
-    info=[info]
-  bits=[]
-  cnt=0;
-  for word in info:
-    for i in range(32):
-      if word&(1<<i):
-        bits+=[cnt]
-      cnt+=1
-  return bits
+prescales = None
+log = logging.getLogger('trigbs_prescaleL1.py')
+log.setLevel(logging.INFO)
 
-def bits2ints(bits,len=1):
-    words = [0] * len
-    for bit in bits:
-      words[bit//32] |= 1<<(bit%32)
-    return words
+def loadPrescales(config):
+  """Load L1 prescales from DB"""
+  
+  database = config['db-server']
+  l1psk = int(config['db-extra']['lvl1key'])
 
-def modify(event):
-  """Prescale L1 items in CTP fragment used by L2."""  
+  log.info('Applying L1 prescale set %s from %s' % (l1psk,database))
+  from TrigConfigSvc.TrigConfigSvcUtils import getL1Prescales
+  name, prescales = getL1Prescales(database,l1psk)
+  log.debug('Prescales: %s' % str(prescales))
+  return prescales
 
+  
+def modify_general(**kwargs):
+  """Prescale L1 items in CTP fragment used by HLT"""  
+  global prescales
+  
+  if prescales==None:
+    prescales = loadPrescales(kwargs['configuration'])
+
+  event = kwargs["event"]
+  
   # Set seed based on event time stamp to make it reproducible
   seed = '%s%s' % (event.bc_time_seconds(),event.bc_time_nanoseconds())
   random.seed(zlib.crc32(seed))
@@ -53,16 +59,23 @@ def modify(event):
       new_event.append_unchecked(rob)
     else:
       data = [d for d in rob.rod_data()]
-      L1TBP = ints2bits(data[CTPdataformat.TBPpos : CTPdataformat.TBPpos+CTPdataformat.TBPwords])    # 8:16
+      v = CTPfragment.ctpFormatVersion(rob)
+      TBPpos = CTPfragment._versioned(CTPdataformat,'TBPpos',v)
+      TBPwords = CTPfragment._versioned(CTPdataformat,'TBPwords',v)
+      TAVpos = CTPfragment._versioned(CTPdataformat,'TAVpos',v)
+            
+      L1TBP = CTPfragment.decodeTriggerBits(data[TBPpos:TBPpos+TBPwords])
+      log.debug('Old L1TBP: %s' % L1TBP)
       newL1TAV = []
       for ctp in L1TBP:
         if prescales[ctp]<=0: continue
-        if random.uniform(0,int(prescales[ctp]))>1: continue
+        if random.uniform(0,prescales[ctp])>1: continue
         newL1TAV.append(ctp)
 
-      newL1TAVBits = bits2ints(newL1TAV,CTPdataformat.TBPwords)
+      log.debug('New L1TAV: %s' % newL1TAV)        
+      newL1TAVBits = CTPfragment.encodeTriggerBits(newL1TAV,TBPwords)
       for i,value in enumerate(newL1TAVBits):
-        data[CTPdataformat.TAVpos+i] = value
+        data[TAVpos+i] = value
 
       newrob = eformat.write.ROBFragment(rob)        
       newrob.rod_data(data)
@@ -71,27 +84,25 @@ def modify(event):
   return new_event.readonly()
 
 
-#read in L1 prescales to be applied
-L1Key=None
-database=None
-for arg in sys.argv:
-  if arg.find('DBServer')!=-1:
-    args=arg.split(':')
-    for aa in args:
-      if aa.startswith('DBServer='):
-        database=aa.split('=')[1]
-      if aa.startswith('DBLVL1PSKey=') or aa.startswith('DBL1PSKey'):
-        L1Key=int(aa.split('=')[1])
 
-log = logging.getLogger('trigbs_prescaleL1.py')
-if database!=None and L1Key!=None:
-  log.warning('Applying L1 prescale set %s from %s' % (L1Key,database))
-  from TrigConfigSvc.TrigConfigSvcUtils import getL1Prescales
-  name, prescales = getL1Prescales(database,L1Key)
-else:
-  log.warning('Applying L1 prescale set from default XML file')
-  from TriggerMenuPython.XMLReader import L1MenuXMLReader
-  r = L1MenuXMLReader("TriggerMenuXML/LVL1config_Physics_pp_v1.xml")
-  name = dict(r.LVL1Config.items)['name']
-  prescales = [ps.element.text for ps in r.LVL1Config.PrescaleSet.Prescales]
+if __name__ == "__main__":
+  if len(sys.argv)<=1:
+    print "Syntax: trigbs_prescaleL1.py FILE"
+    sys.exit(1)
+
+  log.setLevel(logging.DEBUG)    
+  kwargs = {'configuration' : {'db-server':'TRIGGERDB_RUN1',
+                               'db-extra' : {'lvl1key' : 300}}}
+
+  kwargs = {'configuration' : {'db-server':'TRIGGERDBREPR',
+                               'db-extra' : {'lvl1key' : 30}}}  
+
+  os = eformat.ostream()
+  for e in eformat.istream(sys.argv[1]):
+    kwargs['event'] = e
+    new_event = modify_general(**kwargs)
+    os.write(new_event)
+
+
+  
 

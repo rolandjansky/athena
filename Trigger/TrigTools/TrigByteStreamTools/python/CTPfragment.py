@@ -18,6 +18,7 @@ cppyy.loadDictionary('TrigByteStreamToolsDict')
 cppyy.loadDictionary('CTPfragment')
 from ROOT import CTPdataformat
 from ROOT import CTPfragment as _CTPfragment
+from ROOT.CTPfragment import getFolderUpdates
 
 # Import classes from C++ namespace
 FolderEntry = _CTPfragment.FolderEntry
@@ -26,7 +27,7 @@ def _versioned(obj, name, version):
    """Helper to return versioned members of CTPdataformat"""
    attr = ''
    v = version
-   while v>0:   # decrement version until found
+   while v>=0:   # decrement version until found
       attr = '%s_v%d' % (name, v)
       if hasattr(obj,attr): break
       v -= 1
@@ -37,6 +38,25 @@ def _setBits32(bitset, value, shift, mask):
    v = bitset & (0xffffffff ^ (mask << shift))
    v = v | (value << shift)
    return v
+
+def decodeTriggerBits(info):
+   """Return list of bits [0,1,1,0,...] from list of 32-bit trigger words"""
+   if type(info)==int: info=[info]
+   bits=[]
+   cnt=0;
+   for word in info:
+      for i in range(32):
+         if word&(1<<i):
+            bits+=[cnt]
+         cnt+=1
+   return bits
+
+def encodeTriggerBits(bits,len=1):
+   """Return list of trigger words from list of bits"""
+   words = [0] * len
+   for bit in bits:
+      words[bit//32] |= 1<<(bit%32)
+   return words
 
 def ctpFormatVersion(rob):
    """Get CTP fragment format version"""
@@ -131,6 +151,24 @@ def lvl1AcceptBunch(rob):
    else:
       return (rob.rod_minor_version() >> shift) & CTPdataformat.L1APositionMask
 
+def getTriggerWords(rob,name='TAV'):
+   """Get trigger words"""
+
+   name = name.upper()
+   v = ctpFormatVersion(rob)
+   pos = _versioned(CTPdataformat,name+'pos',min(v,4))
+   words = _versioned(CTPdataformat,name+'words',min(v,4))
+   # No TAP in RoI ROB
+   if v>4 and rob.source_id().module_id()==1:
+      pos = _versioned(CTPdataformat,name+'pos',5)
+      if name=='TAP': return []
+
+   l1abunch = 0 if rob.source_id().module_id()==1 else lvl1AcceptBunch(rob)
+   
+   data = [d for d in rob.rod_data()]
+   pos = l1abunch*_versioned(CTPdataformat,'DAQwordsPerBunch',v) + pos
+   return data[pos:pos+words]
+   
 #
 # For testing
 #
