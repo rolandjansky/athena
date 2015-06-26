@@ -3,6 +3,8 @@
 */
 
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
+#include "boost/algorithm/string/split.hpp"
+#include "boost/algorithm/string/classification.hpp"
 
 TriggerTranslatorToolSimple::TriggerTranslatorToolSimple(const std::string& type,
 					     const std::string& name,
@@ -19,12 +21,15 @@ StatusCode TriggerTranslatorToolSimple::initialize() {
   std::vector<std::string> junk;
   //m_trigmap[""] = junk;
   for(const auto item : m_trigmap_property) {
-    std::cout << "Key " << item.first << " Value " << item.second << std::endl;
+    ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second << std::endl );
+    std::vector<std::string> triggers;
+    boost::split(triggers, item.second, boost::is_any_of(","));
+    m_trigmap[item.first] = triggers;
   }
   return StatusCode::SUCCESS;
 }
 
 
 const std::vector<std::string> TriggerTranslatorToolSimple::translate(const std::string& key) {
-  return m_trigmap[""];
+  return m_trigmap.at(key);
 }

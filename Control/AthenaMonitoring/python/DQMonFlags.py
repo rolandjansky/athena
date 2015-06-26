@@ -178,7 +178,7 @@ class doMuonTrackMon(JobProperty):
     """ Switch for muon track monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 list+=[doMuonTrackMon]
 
 class doMuonAlignMon(JobProperty):
@@ -227,7 +227,7 @@ class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[doStreamAwareMon]
 
 class monType(JobProperty):
@@ -348,6 +348,13 @@ class nameTrigDecTool(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'monTrigDecTool'
 list+=[nameTrigDecTool]
+
+class nameTrigTransTool(JobProperty):
+    """ name of trigger translator tool """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'monTrigTransTool'
+list+=[nameTrigTransTool]
 
 class monToolPostExec(JobProperty):
     """ MonManager environment """

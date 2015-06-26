@@ -48,6 +48,7 @@ ManagedMonitorToolTest( const std::string & type, const std::string & name,
    , m_managedHist_lumiBlock(0)
    , m_managedHist_eventsBlock(0)
    , m_managedHist_run(0)
+   , m_Lumi(0)
    , m_graph(0)
    , m_managedGraph(0)
    , m_ntuple(0)
@@ -179,8 +180,11 @@ bookHistograms( )
    m_managedHist2_lowStat = new TH1F ( "managedHist2_lowStat", "Managed Histogram, regHist Example 2; interval: lowStat", 5, 0.0, 5.0 );
 
    m_managedHist_lumiBlock  = new TH1F( "managedHist_lumiBlock", "Managed Histogram; interval: lumiBlock", 5, 0.0, 5.0 );
-   m_managedHist_eventsBlock  = new TH1F( "managedHist_eventsBlock", "Managed Histogram; interval: lumiBlock", 5, 0.0, 5.0 );
+   m_managedHist_eventsBlock  = new TH1F( "managedHist_eventsBlock", "Managed Histogram; interval: eventBlock", 5, 0.0, 5.0 );
    m_managedHist_run  = new TH1F( "managedHist0_run", "Managed Histogram; interval: run", 5, 0.0, 5.0 );
+
+   // Create luminosity histogram 
+   m_Lumi = new TH1F( "Avg_mu", "Average number of interactions", 100, 0, 100 );
 
    // Create MonGroup object for managing managed histograns from same group
    MonGroup managed_booking_lowStat( this, "Managed/Histograms", lowStat );   // to be re-booked every lowStat interval
@@ -201,6 +205,9 @@ bookHistograms( )
 
    MonGroup managed_eventsBlock(this, "Managed/Histograms", eventsBlock);    // to re-booked every eventsBlock
    regHist( m_managedHist_eventsBlock, managed_eventsBlock ).ignore();
+
+   // Register luminosity histogram
+   regHist( m_Lumi, managed_eventsBlock).ignore();
 
    MonGroup managed_booking_run( this, "Managed/Histograms", run);   // to be re-booked every run 
    regHist( m_managedHist_run, managed_booking_run ).ignore();
@@ -240,6 +247,15 @@ StatusCode
 ManagedMonitorToolTest::
 fillHistograms()
 {
+      // Fill average mu per bunch crossing
+      double lumiPerBCID = lbAverageInteractionsPerCrossing();
+      if (lumiPerBCID < 0) {
+          // no luminosity information or EnableLumi is set to False in the config
+          ATH_MSG_INFO("No luminosity information available or EnableLumi = False");
+      } else {
+         m_Lumi->Fill(lumiPerBCID);
+      }
+
    
       std::vector<TH1*>::const_iterator ensembleEnd = m_ensembles.end();
       for( std::vector<TH1*>::const_iterator i = m_ensembles.begin(); i != ensembleEnd; ++i ) {
