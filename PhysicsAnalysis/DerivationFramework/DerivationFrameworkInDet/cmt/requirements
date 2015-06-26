@@ -5,6 +5,8 @@ author James Catmore <james.catmore@cern.ch>
 # public use statements
 use AtlasPolicy                 AtlasPolicy-*
 use AthenaBaseComps             AthenaBaseComps-*       Control
+use CLIDSvc                CLIDSvc-*                   Control
+use StoreGate              StoreGate-*                 Control
 use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
 use xAODBase			xAODBase-*		Event/xAOD
 use xAODTracking                xAODTracking-*          Event/xAOD
@@ -32,6 +34,7 @@ use InDetIdentifier             InDetIdentifier-*               InnerDetector/In
 use TrkParameters               TrkParameters-*                 Tracking/TrkEvent
 use TrkCompetingRIOsOnTrack     TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
 use TrkRIO_OnTrack              TrkRIO_OnTrack-*                Tracking/TrkEvent
+use InDetPrepRawData       	InDetPrepRawData-*          	InnerDetector/InDetRecEvent
 use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 use TRT_ConditionsServices      TRT_ConditionsServices-*        InnerDetector/InDetConditions
@@ -41,12 +44,17 @@ use CommissionEvent             CommissionEvent-*               Commission
 use InDetPhysValMonitoring      InDetPhysValMonitoring-*     InnerDetector/InDetValidation
 use TrkEventUtils               TrkEventUtils-*              Tracking/TrkEvent
 use TRT_ToT_Tools               TRT_ToT_Tools-*              InnerDetector/InDetRecTools
+use TrkExInterfaces             TrkExInterfaces-*            Tracking/TrkExtrapolation
+
+use LArRecEvent 		LArRecEvent-*		     LArCalorimeter
+end_private
+
 ################################################################
 #
 public
 
 ## declare the directories CMT should know about
-branches python share src
+branches python share src src/components 
 
 apply_pattern dual_use_library files= " *.cxx "
 apply_pattern declare_joboptions files=" *.py"

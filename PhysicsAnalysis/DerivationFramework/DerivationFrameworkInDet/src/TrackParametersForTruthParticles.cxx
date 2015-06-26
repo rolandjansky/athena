@@ -21,7 +21,7 @@ DerivationFramework::TrackParametersForTruthParticles::TrackParametersForTruthPa
                                                  const std::string& n,
                                                  const IInterface* p ) :
   AthAlgTool(t,n,p),
-  m_collTruthName("TruthParticle"),
+  m_collTruthName("TruthParticles"),
   m_sgKey1(""),
   m_decoTool("InDetPhysValTruthDecoratorTool")
 	{
