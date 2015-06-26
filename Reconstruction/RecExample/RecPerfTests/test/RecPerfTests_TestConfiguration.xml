@@ -24,7 +24,7 @@
 	<doc>quick_test</doc>
 	<jobTransformJobName>quick_test</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 3 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' &amp;&gt;  __log.txt; 
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 3 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ;
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -44,11 +44,14 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
-    <jobTransform userJobId="system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+  
+
+
+  <jobTransform userJobId="system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' &gt;&amp; __log.txt; 
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -72,7 +75,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  &gt;&amp;  __log.txt; 
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -97,7 +100,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>monitoring_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt;
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -121,7 +124,7 @@
 	<doc>Reco_tf runs on 13TeV collision data from the minbias stream</doc>
 	<jobTransformJobName>monitoring_reco_data12_jettauetmiss</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --conditionsTag "CONDBR2-BLKPA-2015-05" --inputBSFile 'root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00267167/data15_13TeV.00267167.physics_Main.merge.RAW/data15_13TeV.00267167.physics_Main.merge.RAW._lb0176._SFO-1._0001.1' --outputESDFile "myESD.pool.root" --outputAODFile "myAOD.pool.root"  --ignorePatterns "ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId" --AMITag "f594" --ignoreErrors true --maxEvents 200 --skipEvents 0 --autoConfiguration "everything" --preExec 'DQMonFlags.enableLumiAccess=False;DQMonFlags.doCTPMon=False;from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);' --beamType "collisions" --geometryVersion "ATLAS-R2-2015-03-01-00" --postExec "r2e:topSequence.LArNoisyROAlg.Tool.BadChanPerFEB=30" --outputHISTFile "myHIST.pool.root" --athenaopts=' --pmon=sdmonfp' &gt;&amp; __log.txt;
+	  export TRF_ECHO=1; Reco_tf.py --conditionsTag "CONDBR2-BLKPA-2015-05" --inputBSFile 'root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00267167/data15_13TeV.00267167.physics_Main.merge.RAW/data15_13TeV.00267167.physics_Main.merge.RAW._lb0176._SFO-1._0001.1' --outputESDFile "myESD.pool.root" --outputAODFile "myAOD.pool.root"  --ignorePatterns "ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId" --AMITag "f594" --ignoreErrors true --maxEvents 200 --skipEvents 0 --autoConfiguration "everything" --preExec 'DQMonFlags.enableLumiAccess=False;DQMonFlags.doCTPMon=False;from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);' --beamType "collisions" --geometryVersion "ATLAS-R2-2015-03-01-00" --postExec "r2e:topSequence.LArNoisyROAlg.Tool.BadChanPerFEB=30" --outputHISTFile "myHIST.pool.root" --athenaopts=' --pmon=sdmonfp' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -145,7 +148,7 @@
 	<doc>Reco_tf runs on 8TeV collision 8 data from the jettauetmiss stream</doc>
 	<jobTransformJobName>monitoring_reco_data12_jettauetmiss</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt;
+	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -169,9 +172,8 @@
 	<doc>Reco_tf runs on 8TeV collision data from the egamma stream</doc>
 	<jobTransformJobName>monitoring_reco_data12_egamma</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_Egamma.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt;
+	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_Egamma.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
-	  cat log.RAWtoESD log.ESDtoAOD &gt; __log.txt;
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
@@ -194,7 +196,7 @@
 	<doc>Reco_tf runs on 8TeV collision 8 data from the muons stream</doc>
 	<jobTransformJobName>monitoring_reco_data12_muons</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_Muons.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt; 
+	  export TRF_ECHO=1; Reco_tf.py --inputBSFile root://eosatlas//eos/atlas/user/a/atlaspmb/data12_8TeV/data12_8TeV.00209109.physics_Muons.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 150 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -219,7 +221,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>systemtrigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=True;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' &gt;&amp; __log.txt;  
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=True;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -243,7 +245,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>trigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=True;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt; 
+	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=True;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ;
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -263,18 +265,19 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
-      <jobTransform userJobId="ATLASDerivation_MC15TOPQ1">
-	<doc> MC15TOPQ1 derivation</doc>
-	<jobTransformJobName>ATLASDerivation_MC15TOPQ1</jobTransformJobName>
+
+
+      <jobTransform userJobId="Derivation_Data15ExotJetmTrain">
+	<doc>Data15ExotJetmTrain</doc>
+	<jobTransformJobName>Derivation_Data15ExotJetmTrain</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_AOD.pool.root --outputDAODFile MC15.pool.root --reductionConf TOPQ1 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' &gt;&amp; __log.txt;
+          export TRF_ECHO=1; Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTdata15/Data15_AOD.pool.root --outputDAODFile myDAOD.pool.root --reductionConf EXOT3 JETM1 JETM8 JETM9 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --maxEvents 500 | tee  __log.txt;
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt   | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  export userJobId="ATLASDerivation_MC15TOPQ1"; 
+	  checkxAOD.py myDAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="Derivation_Data15ExotJetmTrain"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
 	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
@@ -285,7 +288,78 @@
 	</jobTransformCmd>
 	<group>TrfRecPerf</group>
 	<queue>atlasrttperf</queue>
-      </jobTransform>    
+      </jobTransform>
+
+
+      <jobTransform userJobId="Derivation_MC15ExotJetmTrain">
+	<doc>Data15ExotJetmTrain</doc>
+	<jobTransformJobName>Derivation_MC15ExotJetmTrain</jobTransformJobName>
+	<jobTransformCmd>
+          export TRF_ECHO=1; Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_AOD.pool.root --outputDAODFile myDAOD.pool.root  --reductionConf EXOT3 JETM1 JETM8 JETM9 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --maxEvents 500 | tee  __log.txt;
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt   | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myDAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="Derivation_MC15ExotJetmTrain"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="Derivation_MC15StdmTrain">
+	<doc>Data15ExotJetmTrain</doc>
+	<jobTransformJobName>Derivation_MC15StdmTrain</jobTransformJobName>
+	<jobTransformCmd>
+          export TRF_ECHO=1; Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_AOD.pool.root --outputDAODFile myDAOD.pool.root  --reductionConf STDM2 STDM3 STDM4 STDM5 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --maxEvents 500 | tee  __log.txt;
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt   | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myDAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="Derivation_MC15StdmTrain"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+
+      <jobTransform userJobId="Derivation_Data15StdmTrain">
+	<doc>Data15ExotJetmTrain</doc>
+	<jobTransformJobName>Derivation_Data15StdmTrain</jobTransformJobName>
+	<jobTransformCmd>
+          export TRF_ECHO=1; Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTdata15/Data15_AOD.pool.root --outputDAODFile myDAOD.pool.root  --reductionConf STDM2 STDM3 STDM4 STDM5 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --maxEvents 500 | tee  __log.txt;
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt   | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myDAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="Derivation_Data15StdmTrain"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
 
 
 
