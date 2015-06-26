@@ -97,9 +97,7 @@ StatusCode TileCellIDCToNtuple::initialize()
 
 StatusCode TileCellIDCToNtuple::execute()
 {
-  StatusCode sc;
-
-  // step1: read RCs from TDS
+  // step1: read Cells from TDS
   const TileCellIDC* CellCnt;
   CHECK( evtStore()->retrieve(CellCnt, m_cellContainer) );
 

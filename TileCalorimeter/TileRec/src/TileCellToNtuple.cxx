@@ -111,14 +111,12 @@ StatusCode TileCellToNtuple::initialize()
 
 StatusCode TileCellToNtuple::execute()
 {
-  StatusCode sc;
-
   m_nchan=0;
   m_tolE=0.0;
 
   if (m_scinCells) {
 
-    // step1: read RCs from TDS
+    // step1: read Cells from TDS
     const TileCellContainer* CellCnt;
     CHECK( evtStore()->retrieve(CellCnt, m_cellContainer) );
 
@@ -147,7 +145,7 @@ StatusCode TileCellToNtuple::execute()
 
 
 
-    // step1: read RCs from TDS
+    // step1: read Cells from TDS
     const CaloCellContainer* CellCnt;
     CHECK( evtStore()->retrieve(CellCnt, m_cellContainer) );
 

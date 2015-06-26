@@ -18,6 +18,8 @@ if ('doSim' in dir()) and doSim:
     TileMonoRun = False
     TilePhysRun = True
     TileRunType = 1
+    if not 'useTMDB' in dir():
+        useTMDB = False
 
 
 # set options for TileRawChannelMaker
@@ -80,6 +82,9 @@ if not 'TileLasRun' in dir():
 
 if not 'TileMonoRun' in dir():
     TileMonoRun = False
+
+if not 'useTMDB' in dir():
+    useTMDB = True
 
 if not 'TileRunType' in dir():
     TileRunType = jobproperties.TileRecFlags.TileRunType()

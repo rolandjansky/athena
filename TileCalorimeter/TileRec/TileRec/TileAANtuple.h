@@ -67,6 +67,7 @@
 #define N_SAMPLES 7
 #define N_RODS 65
 #define N_CISPAR 110
+#define N_TMDBCHANS 4 // 4 in EB and 7 in B
 
 class TTree;
 
@@ -105,11 +106,11 @@ class TileAANtuple : public AthAlgorithm {
   private:
 
     StatusCode storeRawChannels(std::string cntID
-		  	                        , float ene[N_ROS2][N_MODULES][N_CHANS]
-			                          , float time[N_ROS2][N_MODULES][N_CHANS]
-			                          , float chi2[N_ROS2][N_MODULES][N_CHANS]
-			                          , float ped[N_ROS2][N_MODULES][N_CHANS]
-			                          , bool fillAll);
+		  	        , float ene[N_ROS2][N_MODULES][N_CHANS]
+			        , float time[N_ROS2][N_MODULES][N_CHANS]
+			        , float chi2[N_ROS2][N_MODULES][N_CHANS]
+			        , float ped[N_ROS2][N_MODULES][N_CHANS]
+			        , bool fillAll);
                                
     StatusCode storeMFRawChannels(std::string cntID
                                   , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
@@ -119,10 +120,14 @@ class TileAANtuple : public AthAlgorithm {
                                   , bool fillAll);
 
     StatusCode storeDigits(std::string cntID
-			                     , short sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
-			                     , short gain[N_ROS2][N_MODULES][N_CHANS]
-		  	                   , bool fillAll);
-   
+			   , short sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
+			   , short gain[N_ROS2][N_MODULES][N_CHANS]
+		  	   , bool fillAll);
+
+    StatusCode storeTMDBDecision();
+    StatusCode storeTMDBDigits();
+    StatusCode storeTMDBRawChannel();
+
     StatusCode storeBeamElements();
     StatusCode storeLaser();
     StatusCode storeDCS();
@@ -136,11 +141,13 @@ class TileAANtuple : public AthAlgorithm {
     void CISPAR_addBranch(void);
     void DIGI_addBranch(void);
     void DCS_addBranch(void);
+    void TMDB_addBranch(void);
 
     void TRIGGER_clearBranch(void);
     void LASER_clearBranch(void);
     void CISPAR_clearBranch(void);
     void DIGI_clearBranch(void);
+    void TMDB_clearBranch(void); 
 
     inline int digiChannel2PMT(int fragType, int chan) {
       return (abs(m_cabling->channel2hole(fragType, chan)) - 1);
@@ -250,7 +257,7 @@ class TileAANtuple : public AthAlgorithm {
     float m_ene[N_ROS2][N_MODULES][N_CHANS];
     float m_time[N_ROS2][N_MODULES][N_CHANS];
     float m_ped[N_ROS2][N_MODULES][N_CHANS];
-    float m_chi2[N_ROS2][N_MODULES][N_CHANS];
+    float m_chi2[N_ROS2][N_MODULES][N_CHANS]; 
 
     float m_eFit[N_ROS2][N_MODULES][N_CHANS];
     float m_tFit[N_ROS2][N_MODULES][N_CHANS];
@@ -296,6 +303,10 @@ class TileAANtuple : public AthAlgorithm {
     short m_ROD_DMUrodCRC[N_ROS][N_MODULES][N_DMUS];
     uint16_t m_ROD_DMUMask[N_ROS][N_MODULES][2];
 
+    float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]; // TMDB
+    unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]; // TMDB
+    unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBCHANS]; // TMDB
+ 
     float m_TEMP[4][64][7];
     float m_HV[4][64][48];
     float m_HVSET[4][64][48];
@@ -321,8 +332,11 @@ class TileAANtuple : public AthAlgorithm {
     std::string m_mfRawChannelContainer;
     std::string m_of1RawChannelContainer;
     std::string m_laserObject;
+    std::string m_tileMuRcvRawChannelContainer; // TMDB
+    std::string m_tileMuRcvDigitsContainer; // TMDB
+    std::string m_tileMuRcvContainer; // TMDB
 
-    // other jobOptions parameters
+   // other jobOptions parameters
     bool m_calibrateEnergy; //!< convert energy to new units or use amplitude from RawChannel directly
     bool m_useDspUnits; //!< true if energy should be converted to units used in DSP
     bool m_bsInput;    //!< true if bytestream file is used
