@@ -188,11 +188,11 @@ namespace LVL1{
               if(pos_neg==1) {
                   if( (submodule%4)==0 || (submodule%4)==3 ) submodule_eta_offset = 0;
                   else submodule_eta_offset = 2;
-                  channel_eta_offset = int(channel/2.);
+                  channel_eta_offset = channel/2;
               } else {
                   if( (submodule%4)==0 || (submodule%4)==3 ) submodule_eta_offset = 2;
                   else submodule_eta_offset = 0;
-                  channel_eta_offset = 1-int(channel/2.);
+                  channel_eta_offset = 1-channel/2;
               }
               return module_eta_offset + submodule_eta_offset + channel_eta_offset;
           }
@@ -303,8 +303,8 @@ namespace LVL1{
 
       //-- REGION 0 --//
       if(region==0) {
-          module_phi_offset = int((module-5)/4.)*16;
-          submodule_phi_offset = int(submodule/2.)*2;
+          module_phi_offset = int((module-5)/4)*16;
+          submodule_phi_offset = int(submodule/2)*2;
           channel_phi_offset = channel%2;
 
           return module_phi_offset + submodule_phi_offset + channel_phi_offset;
@@ -312,8 +312,8 @@ namespace LVL1{
       //-- REGION 1 --//
       } else if (region==1) {
           if(ppm_type==7) {
-              module_phi_offset = int((module-5)/4.)*8;
-              submodule_phi_offset = int(submodule/2.)*1;
+              module_phi_offset = int((module-5)/4)*8;
+              submodule_phi_offset = int(submodule/2)*1;
               channel_phi_offset = 0;
 
           } else if(ppm_type==8) {

@@ -61,6 +61,8 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
     m_p_online_had_valueVsLumi(0),
     m_p_online_em_valueVsBCN(0),
     m_p_online_had_valueVsBCN(0),
+    m_h_ppm_em_2d_value_BCN_Lumi(0),
+    m_h_ppm_had_2d_value_BCN_Lumi(0),
     m_p_offline_em_valueVsLumi(0),
     m_p_offline_had_valueVsLumi(0),
     m_p_online_em_etaPhiValue(0),
@@ -111,6 +113,8 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
     m_p_online_had_valueVsLumi(0),
     m_p_online_em_valueVsBCN(0),
     m_p_online_had_valueVsBCN(0),
+    m_h_ppm_em_2d_value_BCN_Lumi(0),
+    m_h_ppm_had_2d_value_BCN_Lumi(0),
     m_p_offline_em_valueVsLumi(0),
     m_p_offline_had_valueVsLumi(0),
     m_p_online_em_etaPhiValue(0),
@@ -175,12 +179,15 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
     {
         m_p_online_em_valueVsLumi = 0;
         m_p_online_had_valueVsLumi = 0;
+        m_p_online_em_valueVsBCN = 0;
+        m_p_online_had_valueVsBCN = 0;
         m_p_online_em_etaPhiValue = 0;
         m_p_online_had_etaPhiValue = 0;
         m_h_online_em_etaPhiValueRMS = 0;
         m_h_online_had_etaPhiValueRMS = 0;
         m_map_online_partitionProfile_ValueVsLumi.clear();
         m_map_online_partitionProfile_ValueVsBCN.clear();
+        m_map_online_partitionProfile_ValueVsLumiVsBCN.clear();	
         m_map_online_coolIDProfile_ValueVsLumi.clear();
         m_map_online_coolIDProfile_ValueVsBCN.clear();
     }

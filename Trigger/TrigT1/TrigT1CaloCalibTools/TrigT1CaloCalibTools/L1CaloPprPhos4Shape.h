@@ -270,7 +270,8 @@ public:
       }
       else if (x[0] > par[0] )
       {
-         output = ampl * exp((-0.5) * (((x[0] - x_max) / sigma_l) + (exp(-(x[0] - x_max) / sigma_l) ) ) ) + pedestal;
+         const double inv_sigma_l = 1. / sigma_l;
+         output = ampl * exp((-0.5) * (((x[0] - x_max) *inv_sigma_l) + (exp(-(x[0] - x_max) * inv_sigma_l) ) ) ) + pedestal;
       }
 
       return output;

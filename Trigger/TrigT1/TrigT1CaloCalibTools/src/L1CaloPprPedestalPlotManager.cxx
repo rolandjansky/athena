@@ -39,6 +39,7 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ITHistSvc* histoSvc,
       m_conditionsContainer(0),
       m_conditionsContainerRun2(0),
       m_pedestalMaxWidth(0.),
+      m_distanceFromHeadOfTrain(0),
       m_firstCall(true),
       m_isRun2(false)
 {
@@ -63,6 +64,7 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBas
       m_conditionsContainer(0),
       m_conditionsContainerRun2(0),
       m_pedestalMaxWidth(0.),
+      m_distanceFromHeadOfTrain(0),
       m_firstCall(true),
       m_isRun2(false)
 
@@ -187,6 +189,16 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
 				       m_monitoringTitle.data(),
 				       m_monitoringDimension.data()),
 				       nbins, xmin, xmax);
+	  
+	m_h_ppm_em_2d_value_BCN_Lumi =
+          m_histTool->bookProfile2D(Form("ppm_em_pedestal_BCN_lumi"),
+                                  Form("Profile plot of Pedestal Vs BCN Vs Lumi: Em TriggerTower; Lumi Block; Relative BCN"),
+                                  nbins, xmin, xmax, 77, 0, 154);
+	  
+        m_h_ppm_had_2d_value_BCN_Lumi =
+          m_histTool->bookProfile2D(Form("ppm_had_pedestal_BCN_lumi"),
+                                  Form("Profile plot of Pedestal Vs BCN Vs Lumi: Had TriggerTower; Lumi Block; Relative BCN"),
+                                  nbins, xmin, xmax, 77, 0, 154);
     
         ManagedMonitorToolBase::MonGroup ADC_Global(m_monObj,m_pathInRootFile, ManagedMonitorToolBase::run, attr);
         m_histTool->setMonGroup(&ADC_Global);
@@ -227,10 +239,22 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
     if( layer == 0 ) {
       m_p_online_em_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_em_valueVsBCN->Fill(m_bunchCrossing,value);
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
+            m_h_ppm_em_2d_value_BCN_Lumi->Fill(m_lumiNo, m_distanceFromHeadOfTrain[m_bunchCrossing].second, value);
+          }
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
+            m_h_ppm_em_2d_value_BCN_Lumi->Fill(m_lumiNo, (m_distanceFromHeadOfTrain[m_bunchCrossing].second + 80), value);
+          }
     }
     else {
       m_p_online_had_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_had_valueVsBCN->Fill(m_bunchCrossing,value);
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
+            m_h_ppm_had_2d_value_BCN_Lumi->Fill(m_lumiNo, m_distanceFromHeadOfTrain[m_bunchCrossing].second, value);
+      }
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
+            m_h_ppm_had_2d_value_BCN_Lumi->Fill(m_lumiNo, (m_distanceFromHeadOfTrain[m_bunchCrossing].second + 80), value);
+      }
     }    
     
     //Fill Etaphi Plots
@@ -273,6 +297,8 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
     CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
     
     std::map<CaloDivisionEnum, TProfile_LW*>::iterator part_itr = m_map_online_partitionProfile_ValueVsLumi.find(detectorRegion);
+    std::map<CaloDivisionEnum, TProfile_LW*>::iterator part_itr2 = m_map_online_partitionProfile_ValueVsBCN.find(detectorRegion);
+    std::map<CaloDivisionEnum, TProfile2D_LW*>::iterator part_itr3 = m_map_online_partitionProfile_ValueVsLumiVsBCN.find(detectorRegion);
 
     if(part_itr == m_map_online_partitionProfile_ValueVsLumi.end())
     {
@@ -302,33 +328,8 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 								    m_monitoringTitle.data(),
 								    detectorRegionString.data()),
 								    nbins, xmin, xmax);
-	anLWProfileHist->Fill(m_lumiNo,value);
-
-	m_map_online_partitionProfile_ValueVsLumi.insert( std::pair<CaloDivisionEnum, TProfile_LW*> (detectorRegion,anLWProfileHist));
-
-        m_histTool->unsetMonGroup();
-    }
-    else
-    {
-        part_itr->second->Fill(m_lumiNo,value);
-    }
-    
-    //Now for bunchcrossingnumber:
-    std::map<CaloDivisionEnum, TProfile_LW*>::iterator part_itr2 = m_map_online_partitionProfile_ValueVsBCN.find(detectorRegion);
-    if(part_itr2 == m_map_online_partitionProfile_ValueVsBCN.end())
-      {
-        std::string plotType = this->GetDetectorLayerString(theLayer);
-        std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
-
-        std::string mergeMethod("");
-	if (AthenaMonManager::environment() != AthenaMonManager::online) {
-	    mergeMethod = "mergeRebinned";
-        }
-
-        ManagedMonitorToolBase::MgmtAttr_t attr2 = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
-        ManagedMonitorToolBase::MonGroup ADC_Partitions2(m_monObj, m_pathInRootFile , ManagedMonitorToolBase::run, attr2, "", mergeMethod);
-        m_histTool->setMonGroup(&ADC_Partitions2);
-        TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",
+	
+	TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",
 								    plotType.data(),
 								    detectorRegionString.data(),
 								    m_monitoringName.data()),
@@ -337,17 +338,43 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 								    m_monitoringTitle.data(),
 								    detectorRegionString.data()),
 								    0xdec, 0, 0xdec);
+	
+	TProfile2D_LW* anLWProfileHist3 = m_histTool->bookProfile2D(Form("ppm_%s_2d_profile_adc_%s_%sVsLumiVsBCN",
+								    plotType.data(),
+								    detectorRegionString.data(),
+								    m_monitoringName.data()),
+							       Form("Run:%d, %s Vs BCN Vs LumiBlock for partition %s",
+								    m_currentRunNo,
+								    m_monitoringTitle.data(),
+								    detectorRegionString.data()),
+								    nbins, xmin, xmax, 77, 0, 154);
+	
+	anLWProfileHist->Fill(m_lumiNo,value);
 	anLWProfileHist2->Fill(m_bunchCrossing,value);
-
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
+	  anLWProfileHist3->Fill(m_lumiNo,m_distanceFromHeadOfTrain[m_bunchCrossing].second,value);
+	}
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
+	  anLWProfileHist3->Fill(m_lumiNo,(m_distanceFromHeadOfTrain[m_bunchCrossing].second+80),value);
+	}
+	
+	m_map_online_partitionProfile_ValueVsLumi.insert( std::pair<CaloDivisionEnum, TProfile_LW*> (detectorRegion,anLWProfileHist));
 	m_map_online_partitionProfile_ValueVsBCN.insert( std::pair<CaloDivisionEnum, TProfile_LW*> (detectorRegion,anLWProfileHist2));
-
+	m_map_online_partitionProfile_ValueVsLumiVsBCN.insert( std::pair<CaloDivisionEnum, TProfile2D_LW*> (detectorRegion,anLWProfileHist3));
+	
         m_histTool->unsetMonGroup();
-      }
-      else
-      {
+    }
+    else
+    {
+        part_itr->second->Fill(m_lumiNo,value);
 	part_itr2->second->Fill(m_bunchCrossing,value);
-      } 
-      
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
+	  part_itr3->second->Fill(m_lumiNo,m_distanceFromHeadOfTrain[m_bunchCrossing].second,value);
+	}
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
+	  part_itr3->second->Fill(m_lumiNo,(m_distanceFromHeadOfTrain[m_bunchCrossing].second+80),value);
+	}
+    } 
 }
 
 // --------------------------------------------------------------------------

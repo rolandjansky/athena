@@ -16,6 +16,7 @@
 #define TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALPLOTMANAGER
 
 #include <string>
+#include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -52,6 +53,8 @@ public:
 	                             const std::string& pathInRootFile);
 	inline ~L1CaloPprPedestalPlotManager() {};
 	inline void SetPedestalMaxWidth(double &width) { m_pedestalMaxWidth = width; };
+	inline void SetDistanceFromHeadOfTrain(const std::vector<std::pair<bool, int16_t>> &distance) { m_distanceFromHeadOfTrain = distance; };
+
 
 private:
 
@@ -76,6 +79,8 @@ private:
 	double m_pedestalMaxWidth; // plotting pedestal only if for every slice
 	// the deviation from the mean pedestal
 	// value is less
+	
+	std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain; //LHC bunch structure
 	
 	bool m_firstCall;
 	

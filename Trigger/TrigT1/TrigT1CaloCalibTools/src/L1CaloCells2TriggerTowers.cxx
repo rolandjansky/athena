@@ -120,7 +120,7 @@ namespace LVL1{
           int sample = m_caloCellHelper->sample(Id);
 
           if( (section==1 || section==2) && sample==2) { //D-cells, except D4
-            cellEnergy+=(*i)->energy()/2.;
+            cellEnergy+=(*i)->energy()*0.5;
 
           } else {
             cellEnergy+=(*i)->energy();
@@ -492,9 +492,10 @@ namespace LVL1{
       }
 
       std::vector<double>::iterator it_adc = vADCSum.begin();
-      for(;it_adc!=vADCSum.end();++it_adc){
-        if(nSum > 0){
-          (*it_adc)/=nSum;
+      if(nSum > 0){
+        const double inv_nSum = 1. / static_cast<double> (nSum);
+        for(;it_adc!=vADCSum.end();++it_adc){
+          (*it_adc) *= inv_nSum;
         }
       }
 
@@ -523,9 +524,10 @@ namespace LVL1{
       }
 
       std::vector<double>::iterator it_adc = vADCSum.begin();
-      for(;it_adc!=vADCSum.end();++it_adc){
-        if(nSum > 0){
-          (*it_adc)/=nSum;
+      if(nSum > 0){
+        const double inv_nSum = 1. / static_cast<double> (nSum);
+        for(;it_adc!=vADCSum.end();++it_adc){
+          (*it_adc) *= inv_nSum;
         }
       }
 

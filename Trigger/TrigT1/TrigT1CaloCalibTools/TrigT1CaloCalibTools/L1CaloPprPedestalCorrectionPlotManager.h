@@ -16,6 +16,7 @@
 #define TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALCORRECTIONPLOTMANAGER
 
 #include <string>
+#include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -52,7 +53,9 @@ class L1CaloPprPedestalCorrectionPlotManager : public L1CaloPprPlotManager
 				     const unsigned int lumimax,
 				     const std::string& pathInRootFile);
 	inline ~L1CaloPprPedestalCorrectionPlotManager() {};
-// 	inline void SetPedestalMaxWidth(double &width) { m_pedestalMaxWidth = width; };
+	
+	inline void SetDistanceFromHeadOfTrain(const std::vector<std::pair<bool, int16_t>> &distance) { m_distanceFromHeadOfTrain = distance; };
+
 
     private:
 		
@@ -67,6 +70,8 @@ class L1CaloPprPedestalCorrectionPlotManager : public L1CaloPprPlotManager
         void fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
 	
 	ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+	
+	std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain; //LHC bunch structure
 
 };
 
