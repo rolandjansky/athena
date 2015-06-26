@@ -67,11 +67,22 @@
   < LocalCoordinatesOfHits = 1 >  1 (top transform), 2
 
 
+For now argon parameters are taken the same as for xenon.
+This should be changed in the future. (E thr 3.21 keV, prob thr 0.88, E corr 3. keV)
+Also probably xenon parameters should be corrected,
+see https://indico.cern.ch/event/396000/contribution/7/material/slides/9.pdf
+pages 8-10
   < EnergyThreshold = 4.9 >  keV  (for TR energy correction)
+  < EnergyThresholdKr = 14.33 > keV (same for Krypton)
+  < EnergyThresholdAr = 4.9 >  keV (same for Argon)
   
   < ProbabilityThreshold = 0.85 >
+  < ProbabilityThresholdKr = 0.357 >
+  < ProbabilityThresholdAr = 0.85 >
   
   < EnergyDepositCorrection = 4. >  keV
+  < EnergyDepositCorrectionKr = 12.5 > keV
+  < EnergyDepositCorrectionAr = 4. > keV
 
 
   < TestLocalCoordinatesOfHits = 0 >  0, 1
