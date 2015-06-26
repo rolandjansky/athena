@@ -692,6 +692,9 @@ initialize()
             msg(MSG::WARNING) << "Error parsing the trigger chain list, using empty list" << endreq;
             m_vTrigChainNames.clear();
          }
+	 if (!m_trigTranslator.empty()) {
+	   updateTriggersForGroups(m_vTrigChainNames);
+	 }
       }
       else {
 	ATH_MSG_DEBUG("  --> trigger chain list empty");
@@ -703,6 +706,9 @@ initialize()
             msg(MSG::WARNING) << "Error parsing the trigger group names list, using empty list" << endreq;
             m_vTrigGroupNames.clear();
          }
+	 if (!m_trigTranslator.empty()) {
+	   updateTriggersForGroups(m_vTrigChainNames);
+	 }
       }
       else {
 	ATH_MSG_DEBUG("  --> trigger group list empty");
@@ -912,13 +918,14 @@ fillHists()
       (!m_useTrigger
        || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
+     ATH_MSG_DEBUG("Passed trigger, presumably");
       d->benchPreFillHistograms();
       StatusCode sc3 = fillHistograms();
       m_haveClearedLastEventBlock = true;
       d->benchPostFillHistograms();
       sc3.setChecked();
       ++m_nEvents;
-   }
+   } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
 
    ++m_nEventsIgnoreTrigger;
    if( newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
@@ -1410,12 +1417,12 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
       return StatusCode::FAILURE;
 
    if (!m_bookHistogramsInitial) {
-           ATH_MSG_INFO("Yura: very first time");
+           ATH_MSG_DEBUG("Yura: very first time");
 	   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
 
-               ATH_MSG_INFO("Yura: we have managed histograms");
+               ATH_MSG_DEBUG("Yura: we have managed histograms");
 	       if (m_supportedIntervalsForRebooking.count(group.interval())) {
-                       ATH_MSG_INFO("        Yura: adding histogram" << h->GetName());
+                       ATH_MSG_DEBUG("        Yura: adding histogram" << h->GetName());
 		       m_templateLWHistograms[group.interval()].push_back( MgmtParams<LWHist>(h, group) );
 	       } else {
 		       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
@@ -1771,7 +1778,9 @@ lbAverageInteractionsPerCrossing()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbAverageInteractionsPerCrossing();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1789,7 +1798,9 @@ lbInteractionsPerCrossing()
 
         return instmu;
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1802,7 +1813,9 @@ lbAverageLuminosity()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbAverageLuminosity();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1815,7 +1828,9 @@ lbLuminosityPerBCID()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbLuminosityPerBCID();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1832,7 +1847,9 @@ lbAverageLivefraction()
     if ( m_hasRetrievedLumiTool ) {
         return m_liveTool->lbAverageLivefraction();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1848,7 +1865,9 @@ livefractionPerBCID()
     if ( m_hasRetrievedLumiTool ) {
         return m_liveTool->livefractionPerBCID();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1861,7 +1880,9 @@ lbLumiWeight()
     if ( m_hasRetrievedLumiTool ) {
         return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
     } else{
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -1875,7 +1896,9 @@ lbDuration()
     if ( m_hasRetrievedLumiTool ) {
         return m_lumiTool->lbDuration();
     } else {
-        ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
+        //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
+        ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        return -1.0;
     }
     return -0.0;
 }
@@ -2171,6 +2194,30 @@ parseList(const std::string& line, std::vector<std::string>& result) {
    return StatusCode::SUCCESS;
 }
 
+void
+ManagedMonitorToolBase::
+updateTriggersForGroups(std::vector<std::string>& vTrigChainNames) {
+  for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
+    std::string& thisName = vTrigChainNames[i];
+    if (thisName.substr(0, 9) == "CATEGORY_") {
+      ATH_MSG_DEBUG("Found a trigger category: " << thisName << ". We will unpack it.");
+      std::vector<std::string> triggers = m_trigTranslator->translate(thisName.substr(9,std::string::npos));
+      std::ostringstream oss;
+      oss << "(";
+      for (size_t itrig = 0; itrig < triggers.size(); ++itrig) {
+	if (itrig != 0) { 
+	  oss << "|";
+	}
+	oss << triggers[itrig];
+      }
+      oss << ")";
+      // replace with new value
+      std::string newval = oss.str();
+      ATH_MSG_DEBUG("Replaced with " << newval);
+      vTrigChainNames[i] = newval;
+    }
+  }
+}
 
 ManagedMonitorToolBase::StreamNameFcn*
 ManagedMonitorToolBase::

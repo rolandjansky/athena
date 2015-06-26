@@ -719,6 +719,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
+      void updateTriggersForGroups(std::vector<std::string>&);
 
       StatusCode registerMetadata(const std::string& streamName, const std::string& hName, const MonGroup& group);
 

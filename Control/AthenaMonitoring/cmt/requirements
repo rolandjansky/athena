@@ -22,7 +22,7 @@ use AthenaPoolUtilities   AthenaPoolUtilities-*    Database/AthenaPOOL
 use SGAudCore             SGAudCore-*              Control/SGMon
 use AtlasCORAL            AtlasCORAL-*             External
 use LWHists               LWHists-*                Tools
-
+use AtlasBoost            AtlasBoost-*             External
 # Specify required ROOT components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore)"
 
