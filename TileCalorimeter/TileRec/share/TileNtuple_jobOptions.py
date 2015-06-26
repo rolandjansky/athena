@@ -15,7 +15,6 @@ TileNtuple.TileRawChannelContainer = ""
 TileNtuple.TileRawChannelContainerFit  = ""
 TileNtuple.TileRawChannelContainerFitCool  = ""
 TileNtuple.TileRawChannelContainerOpt  = ""
-TileNtuple.TileRawChannelContainerQIE  = ""
 TileNtuple.TileRawChannelContainerOF1  = ""
 TileNtuple.TileRawChannelContainerMF = ""
 TileNtuple.TileRawChannelContainerDsp  = ""
@@ -76,10 +75,6 @@ else:
 
     if doTileOpt2:
         TileNtuple.TileRawChannelContainerOpt = "TileRawChannelOpt2"
-        
-    if doTileQIE:
-        TileNtuple.TileRawChannelContainerQIE = "TileRawChannelQIE"
-#        TileNtuple.TileRawChannelContainer = ""
         
     if doTileOF1:
         TileNtuple.TileRawChannelContainerOF1 = "TileRawChannelOF1"        

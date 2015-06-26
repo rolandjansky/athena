@@ -7,7 +7,6 @@
 #include "TileRec/TileHitVecToNtuple.h"
 #include "TileRec/TileDigitsToNtuple.h"
 #include "TileRec/TileTTL1ToNtuple.h"
-#include "TileRec/TileEventFilter.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TileRec/TileMuonReceiverDecisionToNtuple.h"
 
@@ -20,7 +19,6 @@ DECLARE_ALGORITHM_FACTORY( TileTBHitToNtuple )
 DECLARE_ALGORITHM_FACTORY( TileHitVecToNtuple )
 DECLARE_ALGORITHM_FACTORY( TileDigitsToNtuple )
 DECLARE_ALGORITHM_FACTORY( TileTTL1ToNtuple )
-DECLARE_ALGORITHM_FACTORY( TileEventFilter )
 DECLARE_ALGORITHM_FACTORY( TileMuonReceiverDecisionToNtuple )
 
 DECLARE_FACTORY_ENTRIES(TileRec) {
@@ -33,6 +31,5 @@ DECLARE_FACTORY_ENTRIES(TileRec) {
   DECLARE_ALGORITHM( TileHitVecToNtuple )
   DECLARE_ALGORITHM( TileDigitsToNtuple )
   DECLARE_ALGORITHM( TileTTL1ToNtuple )
-  DECLARE_ALGORITHM( TileEventFilter )
   DECLARE_ALGORITHM( TileMuonReceiverDecisionToNtuple )
 }

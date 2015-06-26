@@ -214,7 +214,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create
   declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "");      // by default
-  declareProperty("TileRawChannelContainerQIE", m_qieRawChannelContainer = "");      // processed QIE data
   declareProperty("TileRawChannelContainerOF1", m_of1RawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = "");      //
   declareProperty("TileRawChannelContainerMF", m_mfRawChannelContainer = "");      //
@@ -452,7 +451,6 @@ StatusCode TileAANtuple::execute() {
   empty &= storeRawChannels(m_fitRawChannelContainer,  m_eFit,  m_tFit,  m_chi2Fit, m_pedFit, false).isFailure();
   empty &= storeRawChannels(m_fitcRawChannelContainer, m_eFitc, m_tFitc, m_chi2Fitc,m_pedFitc,false).isFailure();
   empty &= storeRawChannels(m_optRawChannelContainer,  m_eOpt,  m_tOpt,  m_chi2Opt, m_pedOpt, false).isFailure();
-  empty &= storeRawChannels(m_qieRawChannelContainer,  m_eQIE,  m_tQIE,  m_chi2QIE, m_pedQIE, false).isFailure();
   empty &= storeRawChannels(m_of1RawChannelContainer,  m_eOF1,  m_tOF1,  m_chi2OF1, m_pedOF1, false).isFailure();
   
   // store TMDB data
@@ -576,14 +574,15 @@ StatusCode TileAANtuple::storeLaser() {
   m_las_ReqAmp = laserObj->getDiodeCurrOrd();
   m_las_MeasAmp = laserObj->getDiodeCurrMeas();
   m_las_Temperature = laserObj->getPumpDiodeTemp();
-  ATH_MSG_VERBOSE( "Laser BCID " << m_las_BCID
-                   << " Filt " << m_las_Filt
-                   << " ReqAmp " << m_las_ReqAmp
-                   << " MeasAmp " << m_las_MeasAmp
-                   << " Temp " << m_las_Temperature );
+  msg(MSG::VERBOSE) << "Laser BCID " << m_las_BCID
+  << " Filt " << m_las_Filt
+  << " ReqAmp " << m_las_ReqAmp
+  << " MeasAmp " << m_las_MeasAmp
+  << " Temp " << m_las_Temperature
+  << endreq;
   
-  if(laserObj->isLASERII()) ATH_MSG_DEBUG( "LASERII VERSION IS " << laserObj->getVersion()  );
-  else                      ATH_MSG_DEBUG( "LASERI VERSION IS "  << laserObj->getVersion()  );
+  if(laserObj->isLASERII()) msg(MSG::DEBUG) << "LASERII VERSION IS " << laserObj->getVersion() << endreq;
+  else                      msg(MSG::DEBUG) << "LASERI VERSION IS "  << laserObj->getVersion() << endreq;
   
   if(laserObj->isLASERII()){
     m_daqtype = laserObj->getDaqType();
@@ -593,16 +592,16 @@ StatusCode TileAANtuple::storeLaser() {
       m_chan[i*2+0] = laserObj->getDiodeADC(i,0);
       m_chan[i*2+1] = laserObj->getDiodeADC(i,1);
       
-      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+0]  );
-      ATH_MSG_DEBUG( "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+1]  );
+      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (LG) " << m_chan[i*2+0] << endreq;
+      msg(MSG::DEBUG) << "LASERII CHANNEL " << i << " (HG) " << m_chan[i*2+1] << endreq;
       
       // MONITORING PMTS
       if(i<2){
         m_chan[i*2+0+14*2] = laserObj->getPMADC(i,0);
         m_chan[i*2+1+14*2] = laserObj->getPMADC(i,1);
         
-        ATH_MSG_DEBUG( "LASERII PMT " << i << " (LG) " << m_chan[i*2+0+14*2]  );
-        ATH_MSG_DEBUG( "LASERII PMT " << i << " (HG) " << m_chan[i*2+1+14*2]  );
+        msg(MSG::DEBUG) << "LASERII PMT " << i << " (LG) " << m_chan[i*2+0+14*2] << endreq;
+        msg(MSG::DEBUG) << "LASERII PMT " << i << " (HG) " << m_chan[i*2+1+14*2] << endreq;
       } // IF
     } // FOR
     
@@ -619,18 +618,18 @@ StatusCode TileAANtuple::storeLaser() {
       
       // DEBUG OUTPUT
       if(chan%2==1){
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " SIG= " << m_chan[chan]  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
-        ATH_MSG_DEBUG( "HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
+        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
+        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
+        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
+        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " << endreq;
+        msg(MSG::DEBUG) << "HG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " << endreq;
       } // IF
       if(chan%2==0){
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " SIG= " << m_chan[chan]  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) "  );
-        ATH_MSG_DEBUG( "LG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) "  );
+        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " SIG= " << m_chan[chan] << endreq;
+        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Ped[chan]   << "+/-" << m_chan_SPed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 0) << " ) " << endreq;
+        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " PED= " << m_chan_Lin[chan]   << "+/-" << m_chan_SLin[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 1) << " ) " << endreq;
+        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " LED= " << m_chan_Led[chan]   << "+/-" << m_chan_SLed[chan]   << " ( " << laserObj->isSet(chan/2, chan%2, 2) << " ) " << endreq;
+        msg(MSG::DEBUG) << "LG CHAN " << chan/2 << " ALP= " << m_chan_Alpha[chan] << "+/-" << m_chan_SAlpha[chan] << " ( " << laserObj->isSet(chan/2, chan%2, 3) << " ) " << endreq;
       } // IF
     } // FOR
   } // IF
@@ -641,11 +640,12 @@ StatusCode TileAANtuple::storeLaser() {
         m_las_PMT_TDC[gn][i] = laserObj->getTDC(i,gn);
         m_las_PMT_Ped[gn][i] = laserObj->getPMPedestal(i,gn);
         m_las_PMT_Ped_RMS[gn][i] = laserObj->getPMSigmaPedestal(i,gn);
-        ATH_MSG_VERBOSE( "LasPMT" << i << " g " << gn
-                         << " adc " << m_las_PMT_ADC[gn][i]
-                         << " ped " << m_las_PMT_Ped[gn][i]
-                         << " rms " << m_las_PMT_Ped_RMS[gn][i]
-                         << " tdc " << m_las_PMT_TDC[gn][i] );
+        msg(MSG::VERBOSE) << "LasPMT" << i << " g " << gn
+        << " adc " << m_las_PMT_ADC[gn][i]
+        << " ped " << m_las_PMT_Ped[gn][i]
+        << " rms " << m_las_PMT_Ped_RMS[gn][i]
+        << " tdc " << m_las_PMT_TDC[gn][i]
+        << endreq;
       } // FOR
       
       for (unsigned int i=0; i<14; ++i) {
@@ -657,14 +657,15 @@ StatusCode TileAANtuple::storeLaser() {
         m_las_D_AlphaPed[gn][i] = laserObj->getPedestalAlpha(i,gn);
         m_las_D_AlphaPed_RMS[gn][i] = laserObj->getSigmaPedAlpha(i,gn);
         
-        ATH_MSG_VERBOSE( "LasD" << i << " g " << gn
-                         << " adc " << m_las_D_ADC[gn][i]
-                         << " ped " << m_las_D_Ped[gn][i]
-                         << " rms " << m_las_D_Ped_RMS[gn][i]
-                         << " alp " << m_las_D_Alpha[gn][i]
-                         << " rms " << m_las_D_Alpha_RMS[gn][i]
-                         << " ape " << m_las_D_AlphaPed[gn][i]
-                         << " rms " << m_las_D_AlphaPed_RMS[gn][i] );
+        msg(MSG::VERBOSE) << "LasD" << i << " g " << gn
+        << " adc " << m_las_D_ADC[gn][i]
+        << " ped " << m_las_D_Ped[gn][i]
+        << " rms " << m_las_D_Ped_RMS[gn][i]
+        << " alp " << m_las_D_Alpha[gn][i]
+        << " rms " << m_las_D_Alpha_RMS[gn][i]
+        << " ape " << m_las_D_AlphaPed[gn][i]
+        << " rms " << m_las_D_AlphaPed_RMS[gn][i]
+        << endreq;
       } // FOR
     } // FOR
   } // ELSE
@@ -683,10 +684,10 @@ StatusCode TileAANtuple::storeBeamElements() {
     if (msgLvl(MSG::VERBOSE)) {
       if (oldval != cispar[i]) {
         if (last < i-1) {
-          ATH_MSG_VERBOSE( "cispar[" << last << ".." << i-1 << "] = "
-                           << oldval  );
+          msg(MSG::VERBOSE) << "cispar[" << last << ".." << i-1 << "] = "
+          << oldval << endmsg;
         } else if (last == i-1) {
-          ATH_MSG_VERBOSE( "cispar[" << last << "] = " << oldval  );
+          msg(MSG::VERBOSE) << "cispar[" << last << "] = " << oldval << endmsg;
         }
         last = i;
         oldval = cispar[i];
@@ -696,10 +697,10 @@ StatusCode TileAANtuple::storeBeamElements() {
   
   if (msgLvl(MSG::VERBOSE)) {
     if (last < N_CISPAR-1) {
-      ATH_MSG_VERBOSE( "cispar[" << last << ".." << N_CISPAR-1 << "] = "
-                       << oldval  );
+      msg(MSG::VERBOSE) << "cispar[" << last << ".." << N_CISPAR-1 << "] = "
+      << oldval << endmsg;
     } else {
-      ATH_MSG_VERBOSE( "cispar[" << last << "] = "<< oldval  );
+      msg(MSG::VERBOSE) << "cispar[" << last << "] = "<< oldval << endmsg;
     }
   }
   
@@ -744,7 +745,6 @@ TileAANtuple::storeRawChannels(std::string containerId
   // get named container
   const TileRawChannelContainer* rcCnt;
   CHECK( evtStore()->retrieve(rcCnt, containerId) );
-  ATH_MSG_VERBOSE( "Conteiner ID " << containerId );
   
   TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
   ATH_MSG_VERBOSE( "RawChannel unit is " << rChUnit );
@@ -862,13 +862,13 @@ TileAANtuple::storeRawChannels(std::string containerId
       if (msgLvl(MSG::VERBOSE)) {
         int index,pmt;
         rch->cell_ID_index(index,pmt);
-        ATH_MSG_VERBOSE( "TRC ch " << channel
-                         << " gain " << adc
-                         << " type " << std::min(index,0)
-                         << " ene=" << energy
-                         << " time=" << rch->time()
-                         << " chi2=" << rch->quality()
-                         << " ped=" << rch->pedestal()  );
+        msg(MSG::VERBOSE) << "TRC ch " << channel
+        << " gain " << adc
+        << " type " << std::min(index,0)
+        << " ene=" << energy
+        << " time=" << rch->time()
+        << " chi2=" << rch->quality()
+        << " ped=" << rch->pedestal() << endmsg;
       }
     }
     
@@ -1066,13 +1066,13 @@ TileAANtuple::storeMFRawChannels(std::string containerId
       if (msgLvl(MSG::VERBOSE)) {
         int index,pmt;
         rch->cell_ID_index(index,pmt);
-        ATH_MSG_VERBOSE( "TRC ch " << channel
-                         << " gain " << adc
-                         << " type " << std::min(index,0)
-                         << " ene=" << ene[rosI][drawer][channel][0]
-                         << " time=" << rch->time()
-                         << " chi2=" << rch->quality()
-                         << " ped=" << rch->pedestal()  );
+        msg(MSG::VERBOSE) << "TRC ch " << channel
+        << " gain " << adc
+        << " type " << std::min(index,0)
+        << " ene=" << ene[rosI][drawer][channel][0]
+        << " time=" << rch->time()
+        << " chi2=" << rch->quality()
+        << " ped=" << rch->pedestal() << endmsg;
       }
     }
     
@@ -1165,23 +1165,23 @@ TileAANtuple::storeDigits(std::string containerId
     int rosH = rosI + N_ROS;
     
     if (msgLvl(MSG::VERBOSE)) {
-      ATH_MSG_VERBOSE( "Event# " << m_evtNr
-                       << " Frag id 0x" << MSG::hex << fragId << MSG::dec
-                       << " ROS " << ROS
-                       << " drawer " << drawer  );
+      msg(MSG::VERBOSE) << "Event# " << m_evtNr
+      << " Frag id 0x" << MSG::hex << fragId << MSG::dec
+      << " ROS " << ROS
+      << " drawer " << drawer << endmsg;
       
       if (fillAll) {
-        ATH_MSG_VERBOSE( "       Size=" << (*itColl)->getFragSize()
-                         << " BCID=" << (*itColl)->getFragBCID() << MSG::hex
-                         << " CRC=0x" << ((*itColl)->getFragCRC()&0xffff)
-                         << " DMUMask=0x" << ((*itColl)->getFragDMUMask()&0xffff) << MSG::dec  );
+        msg(MSG::VERBOSE) << "       Size=" << (*itColl)->getFragSize()
+        << " BCID=" << (*itColl)->getFragBCID() << MSG::hex
+        << " CRC=0x" << ((*itColl)->getFragCRC()&0xffff)
+        << " DMUMask=0x" << ((*itColl)->getFragDMUMask()&0xffff) << MSG::dec << endmsg;
         
-        ATH_MSG_VERBOSE( "       Lvl1ID=" << (*itColl)->getLvl1Id()
-                         << " Lvl1Type=" << (*itColl)->getLvl1Type()
-                         << " EvBCID=" << (*itColl)->getRODBCID()
-                         << " EvType=" << (*itColl)->getDetEvType()  );
+        msg(MSG::VERBOSE) << "       Lvl1ID=" << (*itColl)->getLvl1Id()
+        << " Lvl1Type=" << (*itColl)->getLvl1Type()
+        << " EvBCID=" << (*itColl)->getRODBCID()
+        << " EvType=" << (*itColl)->getDetEvType() << endmsg;
         
-        ATH_MSG_VERBOSE("       Header=" << (*itColl)->getFragChipHeaderWords()  );
+        msg(MSG::VERBOSE) <<"       Header=" << (*itColl)->getFragChipHeaderWords() << endmsg;
       }
     }
     
@@ -1299,10 +1299,11 @@ TileAANtuple::storeDigits(std::string containerId
         if (siz > N_SAMPLES) {
           siz = N_SAMPLES;
           if (msgLvl(MSG::VERBOSE))
-            ATH_MSG_VERBOSE( "} ONLY " << siz << " digits saved to ntuple" );
+            msg(MSG::VERBOSE) << "} ONLY " << siz << " digits saved to ntuple"
+            << endmsg;
         } else {
           if (msgLvl(MSG::VERBOSE))
-            ATH_MSG_VERBOSE( "}"  );
+            msg(MSG::VERBOSE) << "}" << endmsg;
         }
         for (int n = 0; n < siz; ++n) {
           a_sample[rosI][drawer][channel][n] = (short) sampleVec[n];
@@ -1345,9 +1346,9 @@ StatusCode TileAANtuple::storeTMDBDecision() {
         int drawer = fragId & 0x3F;
         int ros    = (fragId>>8) - 1;
  
-        if (siz > N_TMDBDECISIONS) {
-          ATH_MSG_VERBOSE( "ONLY " << N_TMDBDECISIONS << " decisions saved to ntuple instead of " << siz);
-          siz = N_TMDBDECISIONS;
+        if (siz > N_TMDBCHANS) {
+          ATH_MSG_VERBOSE( "ONLY " << N_TMDBCHANS << " decisions saved to ntuple instead of " << siz);
+          siz = N_TMDBCHANS;
         }
 
         for (int n = 0; n < siz; ++n) {
@@ -1359,10 +1360,10 @@ StatusCode TileAANtuple::storeTMDBDecision() {
           for (int n = 0; n < siz; ++n) {
             ss<<std::setw(5)<<(int)m_decisionTMDB[ros][drawer][n];
           }
-          ATH_MSG_VERBOSE( "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros] 
-                           << std::setfill('0') << std::setw(2)
-                           << drawer+1 << std::setfill(' ') 
-                           << "      decision: " <<ss.str()  );
+          msg(MSG::VERBOSE) << "   0x" <<MSG::hex<< fragId <<MSG::dec<<" "<< part[ros] 
+                            << std::setfill('0') << std::setw(2)
+                            << drawer+1 << std::setfill(' ') 
+                            << "      decision: " <<ss.str() << endmsg;
         }
       }
     }
@@ -1431,7 +1432,7 @@ StatusCode TileAANtuple::storeTMDBDigits() {
             for (int n = 0; n < siz; ++n) {
               ss<<std::setw(5)<<(int)m_sampleTMDB[ros][drawer][ichannel][n];
             }
-            ATH_MSG_VERBOSE( "      dig: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(digit->adc_HWID())<<": "<<ss.str()  );
+            msg(MSG::VERBOSE) << "      dig: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(digit->adc_HWID())<<": "<<ss.str() << endmsg;;
           }
       
           ++ichannel;
@@ -2117,7 +2118,6 @@ void TileAANtuple::DIGI_addBranch(void)
             || m_fitRawChannelContainer.size() > 0
             || m_fitcRawChannelContainer.size() > 0
             || m_optRawChannelContainer.size() > 0
-            || m_qieRawChannelContainer.size() > 0
             || m_dspRawChannelContainer.size() > 0
             || m_mfRawChannelContainer.size() > 0
             || m_of1RawChannelContainer.size() > 0
@@ -2138,7 +2138,6 @@ void TileAANtuple::DIGI_addBranch(void)
                   || m_fitRawChannelContainer.size() > 0
                   || m_fitcRawChannelContainer.size() > 0
                   || m_optRawChannelContainer.size() > 0
-                  || m_qieRawChannelContainer.size() > 0
                   || m_of1RawChannelContainer.size() > 0
                   || m_dspRawChannelContainer.size() > 0
                   || m_bsInput) {
@@ -2204,13 +2203,6 @@ void TileAANtuple::DIGI_addBranch(void)
       m_ntuplePtr->Branch(NAME2("chi2Opt",f_suf), m_chi2Opt[ir],  NAME3("chi2Opt",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (m_qieRawChannelContainer.size() > 0) {
-      m_ntuplePtr->Branch(NAME2("eQIE",f_suf),    m_eQIE[ir],        NAME3("eQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tQIE",f_suf),    m_tQIE[ir],        NAME3("tQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("pedQIE",f_suf),  m_pedQIE[ir],    NAME3("pedQIE",f_suf,"[4][64][48]/F")); // float
-      m_ntuplePtr->Branch(NAME2("chi2QIE",f_suf), m_chi2QIE[ir],  NAME3("chi2QIE",f_suf,"[4][64][48]/F")); // float
-    }
-
     if (m_of1RawChannelContainer.size() > 0) {
       m_ntuplePtr->Branch(NAME2("eOF1",f_suf),    m_eOF1[ir],        NAME3("eOF1",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tOF1",f_suf),    m_tOF1[ir],        NAME3("tOF1",f_suf,"[4][64][48]/F")); // float
@@ -2332,14 +2324,6 @@ void TileAANtuple::DIGI_clearBranch(void) {
     CLEAR2(m_chi2Opt, size);
   }
   
-
-  if (m_qieRawChannelContainer.size() > 0) {
-    CLEAR2(m_eQIE, size);
-    CLEAR2(m_tQIE, size);
-    CLEAR2(m_pedQIE, size);
-    CLEAR2(m_chi2QIE, size);
-  }
-
   if (m_of1RawChannelContainer.size() > 0) {
     CLEAR2(m_eOF1, size);
     CLEAR2(m_tOF1, size);
@@ -2386,17 +2370,17 @@ void TileAANtuple::DIGI_clearBranch(void) {
 
 void TileAANtuple::TMDB_addBranch(void)
 {
-
+  
   if (m_tileMuRcvRawChannelContainer.size()>0) {
-    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][8]/F");  // float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]
+    m_ntuplePtr->Branch("eTMDB", m_eTMDB, "eTMDB[4][64][4]/F");
   }
 
   if (m_tileMuRcvDigitsContainer.size()>0) {
-    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
+    m_ntuplePtr->Branch("sampleTMDB", m_sampleTMDB, "sampleTMDB[4][64][4][7]/b");
   }
 
   if (m_tileMuRcvContainer.size()>0) {
-    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
+    m_ntuplePtr->Branch("decisionTMDB", m_decisionTMDB, "decisionTMDB[4][64][4]/b");
   }
 
 }
@@ -2485,11 +2469,11 @@ StatusCode TileAANtuple::storeDCS()
         }
         
         if (msgLvl(MSG::VERBOSE) || m_DRSTATUS[rosI][drawer] != TileDCSSvc::OK_DRAWER) {
-          ATH_MSG_VERBOSE( "Module=" << m_tileDCSSvc->partitionName(ROS)
-                           << std::setw(2) << std::setfill('0') << module
-                           << " DRSTATES=" << m_DRSTATES[rosI][drawer]
-                           << " DRSTATUS=" << m_DRSTATUS[rosI][drawer]
-                           << " => " << ((drbad) ? "bad" : "good")  );
+          msg(MSG::VERBOSE) << "Module=" << m_tileDCSSvc->partitionName(ROS)
+          << std::setw(2) << std::setfill('0') << module
+          << " DRSTATES=" << m_DRSTATES[rosI][drawer]
+          << " DRSTATUS=" << m_DRSTATUS[rosI][drawer]
+          << " => " << ((drbad) ? "bad" : "good") << endmsg;
         }
         
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ROS,drawer);
@@ -2514,14 +2498,14 @@ StatusCode TileAANtuple::storeDCS()
           }
           
           if (msgLvl(MSG::VERBOSE) || (chbad && !drbad)) {
-            ATH_MSG_VERBOSE( "Module=" << m_tileDCSSvc->partitionName(ROS)
-                             << std::setw(2) << std::setfill('0') << module
-                             << " channel=" << channel << " pmt=" << pmt
-                             << " HV=" << m_HV[rosI][drawer][channel]
-                             << " HVSET=" << m_HVSET[rosI][drawer][channel]
-                             << " HVSTATUS=" << m_HVSTATUS[rosI][drawer][channel]
-                             << " CHSTATUS=" << m_CHSTATUS[rosI][drawer][channel]
-                             << " => " << ((chbad) ? "bad" : "good")  );
+            msg(MSG::VERBOSE) << "Module=" << m_tileDCSSvc->partitionName(ROS)
+            << std::setw(2) << std::setfill('0') << module
+            << " channel=" << channel << " pmt=" << pmt
+            << " HV=" << m_HV[rosI][drawer][channel]
+            << " HVSET=" << m_HVSET[rosI][drawer][channel]
+            << " HVSTATUS=" << m_HVSTATUS[rosI][drawer][channel]
+            << " CHSTATUS=" << m_CHSTATUS[rosI][drawer][channel]
+            << " => " << ((chbad) ? "bad" : "good") << endmsg;
           }
         }
         
