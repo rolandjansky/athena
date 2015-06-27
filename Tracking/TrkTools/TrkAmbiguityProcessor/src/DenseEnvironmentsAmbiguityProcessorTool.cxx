@@ -20,6 +20,7 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 
+#include "InDetIdentifier/PixelID.h"
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   #include "TrkTruthData/TrackTruthCollection.h"
@@ -219,6 +220,13 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     m_NfailedFits[i]      = 0;
   }
 
+
+  sc = detStore()->retrieve(m_PixelHelper, "PixelID");
+  if (sc.isFailure())
+  {
+    ATH_MSG_FATAL( "Could not get PixelID helper !" );
+    return StatusCode::FAILURE;
+  }
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   // to get the brem truth
@@ -840,12 +848,63 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
 
 //==================================================================================================
 
+namespace {
+  // check whether an element is in a multimap for multimaps with a comparator which 
+  // considers occasionally elements with non unique elements as unique.
+  template <class T, class T_Key> 
+  bool inMap( const T &a_multimap, const T_Key key) { 
+    typename T::const_iterator start =  a_multimap.find(key);
+    auto comparator(a_multimap.key_comp());
+    for(typename T::const_iterator iter =  start;
+        iter != a_multimap.end();
+        ++iter) {
+      if (iter->first == key) {
+        return true;
+      }
+      else if ( comparator( key,iter->first) ) {
+        break;
+      }
+    }
+    return false;
+  }
+}
+
+
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
                                                                                          const Trk::TrackParameters*> & clusterTrkPara )
   
 {  
 
-  if (m_splitClusterMap->find( clusterTrkPara.first) != m_splitClusterMap->end() ){
+  //Search using identifier 
+  auto searchResult =  m_splitClusterMap->find( clusterTrkPara.first );
+  if( searchResult !=  m_splitClusterMap->end() ){
+    std::cout <<  "SAME PIXEL CLUSTERS " << std::endl;
+
+    if( searchResult->first !=  clusterTrkPara.first){ 
+      std::cout <<  "CRAZY PIXEL CLUSTERS " << std::endl;
+      std::cout << "Original " << searchResult->first  << std::endl;
+      
+      int count(0);
+      for( auto id: searchResult->first->rdoList() ){
+         std::cout << "Pixel "<< count++ 
+         << " phi " <<  m_PixelHelper->phi_index( id )
+         << " eta " <<  m_PixelHelper->eta_index( id ) 
+         << std::endl;
+      }
+            
+      std::cout << "New " << clusterTrkPara.first  << std::endl;     
+      count = 0;
+      for( auto id: clusterTrkPara.first->rdoList() ){
+         std::cout << "Pixel "<< count++ 
+         << " phi " <<  m_PixelHelper->phi_index( id )
+         << " eta " <<  m_PixelHelper->eta_index( id ) 
+         << std::endl;
+      }
+    }
+  }
+
+
+  if (inMap( *m_splitClusterMap, clusterTrkPara.first) ){
     return;
   }
   // Recaculate the split prob with the use of the track parameters
@@ -895,9 +954,41 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::updatePixelSplitInformation(s
   for( auto clusterTrkPara : setOfClustersOnTrack){
     // Check to see if this cluster has been updated using an earlier instance of the AmbiguityProcessor
     // If it has already been updated dont do it again 
-    if( m_splitClusterMap->find( clusterTrkPara.first ) !=  m_splitClusterMap->end() )
+    // Search using identifier 
+    auto searchResult =  m_splitClusterMap->find( clusterTrkPara.first );
+    if( searchResult !=  m_splitClusterMap->end() ){
+      std::cout <<  "SAME PIXEL CLUSTERS " << std::endl;
+
+      if( searchResult->first !=  clusterTrkPara.first){ 
+        std::cout <<  "CRAZY PIXEL CLUSTERS " << std::endl;
+        std::cout << "Original " << searchResult->first  << std::endl;
+      
+        int count(0);
+        for( auto id: searchResult->first->rdoList() ){
+           std::cout << "Pixel "<< count++ 
+           << " phi " <<  m_PixelHelper->phi_index( id )
+           << " eta " <<  m_PixelHelper->eta_index( id ) 
+           << std::endl;
+        }
+            
+        std::cout << "New " << clusterTrkPara.first  << std::endl;     
+        count = 0;
+        for( auto id: clusterTrkPara.first->rdoList() ){
+           std::cout << "Pixel "<< count++ 
+           << " phi " <<  m_PixelHelper->phi_index( id )
+           << " eta " <<  m_PixelHelper->eta_index( id ) 
+           << std::endl;
+        }
+      }
+     
       continue;
-		
+    }
+   
+   
+   
+    //if (inMap( *m_splitClusterMap, clusterTrkPara.first) ) 
+    //  continue;
+    
     // Recaculate the split prob with the use of the track parameters
     InDet::PixelClusterSplitProb splitProb = m_splitProbTool->splitProbability( *clusterTrkPara.first, *clusterTrkPara.second );
     // update the split prob information on the cluster --  the use of the split flag is now questionable -- possible it will now indicate if the cluster is shared between multiple tracks
@@ -1000,7 +1091,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
     for (; tsos != tsosVec->end(); ++tsos) {
       const MeasurementBase* measurement = (*tsos)->measurementOnTrack();   
         
-      if(!measurement || ! (*tsos)->trackParameters()){
+      if( !measurement || !(*tsos)->trackParameters() ){
         ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << (*tsos)->trackParameters() );
         continue;           
       }

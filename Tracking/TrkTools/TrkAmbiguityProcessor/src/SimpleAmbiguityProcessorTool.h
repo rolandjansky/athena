@@ -178,7 +178,7 @@ namespace Trk {
 	m_Naccepted,m_NsubTrack,m_NnoSubTrack,m_NacceptedBrem,
 	m_NbremFits,m_Nfits,m_NrecoveryBremFits,m_NgoodFits,m_NfailedFits;
       /** internal monitoring: categories for counting different types of extension results*/
-      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3};
+      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iDBM = 4};
       std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
 
       /** helper for monitoring and validation: does success/failure counting */
