@@ -15,8 +15,7 @@ DecisionConnector::DecisionConnector(const std::string & name,
                                      const vector<string> & inputs,
                                      const string & algorithm,
                                      const vector<string> & outputs) :
-   Connector(name, inputs, algorithm, outputs, DECISION),
-   m_decisionAlgorithm(0)
+   Connector(name, inputs, algorithm, outputs, DECISION)
 {}
 
 DecisionConnector::~DecisionConnector() {
