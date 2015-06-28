@@ -90,8 +90,14 @@ DecisionConnector::setFirstOutputBit(unsigned int firstOutputBit) {
 }
 
 
+namespace TCS {
+
+
 ostream &
 operator<<(ostream &o, const TCS::DecisionConnector & conn) {
    o << "(" << join(conn.inputNames()) << ") ---[ " << conn.algorithmName() << " ]---> (" << join(conn.outputNames()) << ")";
    return o;
+}
+
+
 }

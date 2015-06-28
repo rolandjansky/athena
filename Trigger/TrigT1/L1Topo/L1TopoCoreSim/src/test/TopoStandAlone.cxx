@@ -1,11 +1,13 @@
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <stdint.h>
 
 #include "TrigConfBase/TrigConfMessaging.h"
 
 #include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoCoreSim/TopoSteering.h"
+#include "L1TopoCoreSim/StandaloneL1TopoHistSvc.h"
 #include "L1TopoCoreSim/TopoASCIIReader.h"
 #include "L1TopoInterfaces/Decision.h"
 
@@ -56,11 +58,11 @@ int run(int argc, const char* argv[]) {
    if(argc>=4)
       filename = argv[3];
 
-   TFile *f = new TFile(argc>=4 ? argv[3] : "L1TopoSimulation.root","RECREATE");
+   //TFile *f = new TFile(argc>=4 ? argv[3] : "L1TopoSimulation.root","RECREATE");
    TH1* h[3];
-   h[0] = new TH1F("DecisionModule1", "L1 Topo Decision (Module 1)", 64, 0, 64);
-   h[1] = new TH1F("DecisionModule2", "L1 Topo Decision (Module 2)", 64, 0, 64);
-   h[2] = new TH1F("DecisionModule3", "L1 Topo Decision (Module 3)", 64, 0, 64);
+   h[0] = new TH1F("Decision/DecisionModule1", "L1 Topo Decision (Module 1)", 64, 0, 64);
+   h[1] = new TH1F("Decision/DecisionModule2", "L1 Topo Decision (Module 2)", 64, 0, 64);
+   h[2] = new TH1F("Decision/DecisionModule3", "L1 Topo Decision (Module 3)", 64, 0, 64);
 
    const std::vector<TXC::TriggerLine> & topoTriggers = XMLParser.menu().getL1TopoConfigOutputList().getTriggerLines();
    for(const TXC::TriggerLine tl : topoTriggers) {
@@ -68,7 +70,6 @@ int run(int argc, const char* argv[]) {
    }
    for(uint i=0; i<3; ++i)
       h[i]->SetLabelSize(0.025);
-
 
 
    // instantiate steering
@@ -79,6 +80,16 @@ int run(int argc, const char* argv[]) {
 
    steering.setAlgMsgLevel( algMsgLvl );
 
+   std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new StandaloneL1TopoHistSvc() );
+   topoHistSvc->setBaseDir("L1TopoSimulation.root:");
+   for(int i = 0; i < 3; i++ )
+      topoHistSvc->registerHist(h[i]);
+
+
+
+
+   steering.setHistSvc(topoHistSvc);
+
    //steering.printConfiguration(cout);
 
    //steering.structure().printParameters(cout);
@@ -88,7 +99,6 @@ int run(int argc, const char* argv[]) {
    TCS::TopoASCIIReader reader; // instantiate ascii reader
 
    reader.setVerbosity(0); // disable print to screen
-
 
    // load ascii event file
    reader.loadInput(argv[2]);
@@ -120,8 +130,10 @@ int run(int argc, const char* argv[]) {
    }
    msg << TrigConf::MSGTC::INFO << "=======================================================" << TrigConf::endmsgtc;
   
-   f->Write();
-   f->Close();
+//    f->Write();
+//    f->Close();
+
+   steering.saveHist();
 
    reader.printFileSummary();
   

@@ -2,6 +2,8 @@
 //  Framework to execute simulation algorithms
 
 #include "L1TopoInterfaces/AlgFactory.h" 
+#include "L1TopoInterfaces/IL1TopoHistSvc.h"
+
 
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
@@ -12,6 +14,7 @@
 
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoConfig/LayoutConstraints.h"
+
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoCoreSim/Connector.h"
@@ -86,10 +89,33 @@ TopoSteering::initializeAlgorithms() {
       TCS::ConfigurableAlg * alg = conn->algorithm();
       if(alg) {
          TRG_MSG_INFO("initializing algorithm " << alg->name());
+         if(m_histSvc) {
+            alg->setL1TopoHistSvc(m_histSvc);
+         }
          alg->initialize();
       }
+
    }
 
+   return TCS::StatusCode::SUCCESS;
+}
+
+
+StatusCode
+TopoSteering::setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
+   TRG_MSG_INFO("setting L1TopoHistSvc ");
+   m_histSvc = histSvc;
+   return TCS::StatusCode::SUCCESS;
+}
+
+
+StatusCode
+TopoSteering::saveHist() {
+   if(m_histSvc) {
+      m_histSvc->save();
+   } else {
+      TRG_MSG_WARNING("saveHist called without an L1TopoHistSvc being available");
+   }
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -300,10 +326,10 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
 
 void
 TopoSteering::printDebugInfo() {
-   cout << "Number of ClusterTOB  : " << ClusterTOB::instances() << " (" << ClusterTOB::heap().size() << " on the heap)" << endl;
-   cout << "Number of JetTOB      : " << JetTOB::instances() <<  " (" << JetTOB::heap().size() << " on the heap)" << endl;
-   cout << "Number of GenericTOB  : " << GenericTOB::instances() <<  " (" << GenericTOB::heap().size() << " on the heap)" << endl;
-   cout << "Number of CompositeTOB: " << CompositeTOB::instances() <<  " (" << CompositeTOB::heap().size() << " on the heap)" << endl;
+   TRG_MSG_INFO("Number of ClusterTOB  : " << ClusterTOB::instances() << " (" << ClusterTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::instances() <<  " (" << JetTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::instances() <<  " (" << GenericTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::instances() <<  " (" << CompositeTOB::heap().size() << " on the heap)");
 }
 
 

@@ -22,9 +22,10 @@ namespace TCS {
    class GlobalDecision;
 }
 
-std::ostream& operator<<(std::ostream&, const TCS::GlobalDecision &);
 
 namespace TCS {
+
+  std::ostream& operator<<(std::ostream&, const TCS::GlobalDecision &);
 
    class Decision;
    class DecisionConnector;
@@ -52,7 +53,7 @@ namespace TCS {
       void print() const;
 
    private:
-      friend std::ostream& ::operator<<(std::ostream&, const TCS::GlobalDecision &);
+      friend std::ostream& operator<<(std::ostream&, const TCS::GlobalDecision &);
 
       // 64 bit decision bit field
       uint64_t m_decision[3] {0,0,0};

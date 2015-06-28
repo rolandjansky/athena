@@ -72,6 +72,10 @@ GlobalDecision::resetDecision() {
    return StatusCode::SUCCESS;
 }
 
+
+namespace TCS {
+
+
 std::ostream&
 operator<<(std::ostream& o, const TCS::GlobalDecision & dec) {
 
@@ -112,4 +116,7 @@ GlobalDecision::print() const {
          TRG_MSG_INFO("      " << setw(30) << left << trigger.name() << "  unset" );
    }
    
+}
+
+
 }

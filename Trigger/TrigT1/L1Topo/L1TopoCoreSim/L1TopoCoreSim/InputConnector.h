@@ -46,8 +46,8 @@ namespace TCS {
 
    };
    
-}
-
 std::ostream & operator<<(std::ostream &, const TCS::InputConnector&);
+
+}
 
 #endif

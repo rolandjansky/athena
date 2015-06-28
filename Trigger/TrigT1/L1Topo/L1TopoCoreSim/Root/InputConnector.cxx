@@ -35,9 +35,14 @@ TCS::InputConnector::attachOutputData(const TCS::InputTOBArray* data) {
 }
 
 
+namespace TCS {
+
 
 ostream &
 operator<<(ostream &o, const TCS::InputConnector & conn) {
    o << conn.name();
    return o;
+}
+
+
 }
