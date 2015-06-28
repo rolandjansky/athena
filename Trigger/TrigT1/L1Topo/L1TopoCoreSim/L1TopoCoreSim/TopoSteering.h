@@ -7,6 +7,7 @@
 #define __L1TopoCoreSimulation__TopoSteering__
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -21,6 +22,8 @@
 namespace TXC {
    class L1TopoMenu;
 }
+
+class IL1TopoHistSvc;
 
 namespace TCS {
 
@@ -72,15 +75,18 @@ namespace TCS {
       
       const std::vector<TCS::Connector*> & connectors() const { return structure().connectors(); } //added
 
-      
       void printConfiguration(std::ostream & o) const;
 
       void setMsgLevel( TrigConf::MSGTC::Level lvl );
 
       void setAlgMsgLevel( TrigConf::MSGTC::Level lvl );
 
-      // in the meantime we have a mock configuration
-      // StatusCode setupMockConfiguration();
+      /**
+       * @brief enables the histogramming service
+       */
+      StatusCode setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc);
+
+      StatusCode saveHist();
 
    private:
 
@@ -112,6 +118,8 @@ namespace TCS {
       unsigned int m_evtCounter = {1};
       
       TrigConf::MSGTC::Level m_AlgMsgLvl { TrigConf::MSGTC::WARNING };
+
+      std::shared_ptr<IL1TopoHistSvc>  m_histSvc;
 
    };
    

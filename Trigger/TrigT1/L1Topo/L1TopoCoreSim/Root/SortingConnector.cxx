@@ -59,8 +59,14 @@ SortingConnector::attachOutputData(const TOBArray* data) {
 }
 
 
+namespace TCS {
+
+
 ostream &
 operator<<(ostream &o, const TCS::SortingConnector & conn) {
    o << conn.inputNames()[0] << " ---[ " << conn.algorithmName() << " ]---> " << conn.outputNames()[0];
    return o;
+}
+
+
 }
