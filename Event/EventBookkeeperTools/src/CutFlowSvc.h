@@ -134,6 +134,13 @@ public:
   void print();
 
 private:
+  /// Helper function to determine the processing cycle number from the
+  /// input meta-data store
+  StatusCode determineCycleNumberFromInput( const std::string& collName );
+
+  /// Determine the cycle number from the old-style EventBookkeeper
+  StatusCode determineCycleNumberFromOldInput( const std::string& collName );
+
   /// Helper function to record the collection (and its aux store) to the
   /// output MetaData store
   StatusCode recordCollection( xAOD::CutBookkeeperContainer* coll,
@@ -165,23 +172,37 @@ private:
 
 
 
-  //properties
+  /// Create a typedef
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  StoreGateSvc_t m_outMetaDataStore;
-  StoreGateSvc_t m_inMetaDataStore;
-  StoreGateSvc_t m_eventStore;
-  StringProperty m_completeCollName;
-  StringProperty m_incompleteCollName;
-  int m_skimmingCycle;
-  StringProperty m_inputStream;
-  StringProperty m_printStream;
-  StringProperty m_printVirtual;
-  StringProperty m_writeTxtFileNamed;
-  StringProperty m_writeRootFileNamed;
 
-  //class data members
+  /// The output meta-data store
+  StoreGateSvc_t m_outMetaDataStore;
+
+  /// The input meta-data store
+  StoreGateSvc_t m_inMetaDataStore;
+
+  /// The event store
+  StoreGateSvc_t m_eventStore;
+
+  /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
+  StringProperty m_completeCollName;
+
+  /// The name of the incomplete, i.e., not fully processed (e.g. failed job), CutBookkeeperContainer
+  StringProperty m_incompleteCollName;
+
+  /// The current skimming cycle, i.e., how many processing stages we already had
+  int m_skimmingCycle;
+
+  /// The name of the currently used input file stream
+  StringProperty m_inputStream;
+
+  /// Temporary container for frequent use
   xAOD::CutBookkeeperContainer*  m_inputCompleteBookTmp;
 
+  /// Temporary auxiliary container for frequent use
+  xAOD::CutBookkeeperAuxContainer* m_inputCompleteBookAuxTmp;
+
+  /// A flag to say if the input file is currently open or not
   bool m_fileCurrentlyOpened;
 
   /// Declare a simple typedef for the internal map
@@ -191,8 +212,15 @@ private:
   /// to the pointer of associated CutBookkeeper
   CutIDMap_t m_ebkMap;
 
+  /// Internal flag to track if the old-style EventBookkeepers from the input were already processed
+  bool m_alreadyCopiedEventBookkeepers;
+
+  /// Internal flag to track if we have already determined the cycle number from the first input file
+  bool m_alreadyDeterminedCycleNumber;
+
 public:
 
+  /// Publish the interface for this service
   static const InterfaceID& interfaceID();
 
 };
