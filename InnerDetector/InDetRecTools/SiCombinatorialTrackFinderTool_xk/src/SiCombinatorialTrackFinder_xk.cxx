@@ -687,10 +687,12 @@ Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack()
        );
   }
   else              {
-
+    
+    Trk::TrackInfo info = m_trackinfo; 
+    info.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinderSimple);
     return new Trk::Track
       (
-       m_trackinfo,
+       info,
        m_trajectory.convertToSimpleTrackStateOnSurface(m_cosmicTrack),
        m_trajectory.convertToFitQuality()
        );

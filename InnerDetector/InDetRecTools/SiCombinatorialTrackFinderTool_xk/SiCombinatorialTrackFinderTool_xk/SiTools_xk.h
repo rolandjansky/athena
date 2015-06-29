@@ -145,6 +145,7 @@ namespace InDet{
       m_useassoTool = false;
       m_multitrack  = false; 
       m_bremnoise   = false;
+      m_electron    = false;
       m_fieldService= 0    ;
     }
 
@@ -176,6 +177,7 @@ namespace InDet{
 	m_useassoTool = T.m_useassoTool;
 	m_multitrack  = T.m_multitrack ; 
 	m_bremnoise   = T.m_bremnoise  ;
+	m_electron    = T.m_electron   ; 
       }
       return(*this);
     }
