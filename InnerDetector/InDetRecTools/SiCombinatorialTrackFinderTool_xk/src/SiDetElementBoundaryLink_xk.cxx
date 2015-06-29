@@ -14,7 +14,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
-#include "TrkSurfaces/AnnulusBounds.h" 
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -74,8 +73,6 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
     m_bound[i][1] = ay/m_bound[i][2];
     m_bound[i][0] = ax/m_bound[i][2];
   }
-  m_dR = 0.;
-  const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); if(B) m_dR = B->R();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -85,7 +82,7 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParameters& Tp,double& a) const
 {
   double x = Tp.par()[0];
-  double y = Tp.par()[1]-m_dR;
+  double y = Tp.par()[1];
 
   int    n  = 0;
   a         = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 

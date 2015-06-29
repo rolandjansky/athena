@@ -49,7 +49,6 @@ namespace InDet{
 
       const InDetDD::SiDetectorElement*   m_detelement ;
       double                              m_bound[4][3];
-      double                              m_dR         ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -67,7 +66,6 @@ namespace InDet{
       for(int i=0; i!=4; ++i) {
 	for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
       }
-      m_dR = L.m_dR;
     }
   
   inline SiDetElementBoundaryLink_xk& SiDetElementBoundaryLink_xk::operator = 
@@ -78,7 +76,6 @@ namespace InDet{
 	for(int i=0; i!=4; ++i) {
 	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
 	}
-	m_dR = L.m_dR;
       }
       return(*this);
     }
