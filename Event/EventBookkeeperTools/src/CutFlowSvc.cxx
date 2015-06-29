@@ -143,6 +143,7 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
 
   // Try to get CutBookkeepers from the input file
   if ( m_inMetaDataStore->contains<xAOD::CutBookkeeperContainer>(collName) ) {
+    ATH_MSG_VERBOSE("Found xAOD::CutBookkeeperContainer in input MetaStore with name: " << collName);
 
     // There can always only be a single object in the input store. As the store
     // is connected to just a single input file.

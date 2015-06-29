@@ -15,6 +15,7 @@ def GetInputStreamNameFromMetaDataItemList( metaDataItemList ):
     except:
         print "WARNING Unable to determine input stream name from metadata_itemList."
         pass
+    if inputStreamName == "" : inputStreamName = "unknownStream"
     return inputStreamName
 
 
@@ -26,7 +27,9 @@ def GetCurrentStreamName( msg, athFile=None ):
     try:
         from RecExConfig.RecFlags import rec
         msg.debug("Got the stream name from the RecFlags: %s" % rec.mergingStreamName())
-        return rec.mergingStreamName()
+        streamName = rec.mergingStreamName()
+        if streamName == "" : streamName = "unknownStream"
+        return streamName
     except ImportError:
         msg.info("Couldn't get input stream name from the RecFlags... trying AthFile directly.")
         pass
@@ -42,7 +45,7 @@ def GetCurrentStreamName( msg, athFile=None ):
 
 
 
-def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addMetaDataToAllOutputFiles=True ):
+def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True ):
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -73,8 +76,22 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addMetaDataT
     # First of all, schedule EventCounterAlg
     if not hasattr(seq,"AllExecutedEvents"):
         if not seq.isLocked():
-            msg.debug("Adding EventCounterAlg with name AllExecutedEvents as first alg to sequence with name %s" % seq.getName())
-            seq.insert( 0, CfgMgr.EventCounterAlg("AllExecutedEvents") )
+            if addAlgInPlace:
+                msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s" % seq.getName())
+                seq += CfgMgr.EventCounterAlg("AllExecutedEvents")
+                pass
+            else:
+                # Need to schedule it after the xAODMaker::EventInfoCnvAlg such that xAOD::EventInfo is present
+                index = 0
+                if hasattr( seq, "xAODMaker::EventInfoCnvAlg" ):
+                    for alg in seq:
+                        index += 1
+                        if alg.getName() == "xAODMaker::EventInfoCnvAlg": break
+                        pass
+                    pass
+                msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i" % (seq.getName(),index))
+                seq.insert( index, CfgMgr.EventCounterAlg("AllExecutedEvents") )
+                pass
             pass
         else :
             msg.info("Could NOT add EventCounterAlg with name AllExecutedEvents to locked sequence with name %s" % seq.getName())
