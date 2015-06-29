@@ -48,7 +48,7 @@ myCpp2.OutputLevel=INFO
 myCpp2.cut1=212.
 myCpp2.cut2=122.
 topSequence+=myCpp2
-	
+
 from EventBookkeeperTools.myTestLogicalFilterCombiner import myTestLogicalFilterCombiner
 _myLFC=myTestLogicalFilterCombiner('myLFC')
 _myLFC.cmdstring = "myCpp1 or myCpp2"
@@ -60,8 +60,5 @@ topSequence+=_myLFC
 svcMgr.CutFlowSvc.OutputLevel=INFO
 svcMgr.CutFlowSvc.OutputLevel=DEBUG
 svcMgr.CutFlowSvc.SkimmingCycle=cycle
-svcMgr.CutFlowSvc.printStream=stream
-svcMgr.CutFlowSvc.writeTxtFileNamed="myCutFlow.txt"
-if 'outTFile' in dir(): svcMgr.CutFlowSvc.writeRootFileNamed=outTFile
 
 svcMgr.MessageSvc.defaultLimit = 9999999

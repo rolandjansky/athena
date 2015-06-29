@@ -20,8 +20,7 @@ myCppFilterTest::myCppFilterTest(const std::string& name, ISvcLocator* pSvcLocat
   // *****************************************************
   AthFilterAlgorithm(name, pSvcLocator),
   m_cut1(0),
-  m_cut2(0),
-  m_cycle(-1)
+  m_cut2(0)
 {
   declareProperty("counter",m_counter = 0);
   declareProperty("cut1", m_cut1 = 1.);
@@ -40,9 +39,9 @@ StatusCode myCppFilterTest::initialize(){
   ATH_MSG_DEBUG("initialize()");
 
   // Get filter EB  and only then register the cuts
-  filterCutID = this->cutID();
-  cut1ID      = cutFlowSvc()->registerCut("cut1","First cut",filterCutID);
-  cut1ID      = cutFlowSvc()->registerCut("cut2","Second cut",filterCutID);
+  m_filterCutID = this->cutID();
+  m_cut1ID      = cutFlowSvc()->registerCut("cut1","First cut",m_filterCutID);
+  m_cut2ID      = cutFlowSvc()->registerCut("cut2","Second cut",m_filterCutID);
 
   return StatusCode::SUCCESS;
 }
@@ -51,9 +50,9 @@ StatusCode myCppFilterTest::initialize(){
 StatusCode myCppFilterTest::execute() {
   // Here you do your analysis with the event selection
 
-  cutFlowSvc()->addEvent(cut1ID);
-  cutFlowSvc()->addEvent(cut1ID);
-  cutFlowSvc()->addEvent(filterCutID);
+  cutFlowSvc()->addEvent(m_cut1ID);
+  cutFlowSvc()->addEvent(m_cut2ID);
+  cutFlowSvc()->addEvent(m_filterCutID);
 
   return (StatusCode::SUCCESS);
 }

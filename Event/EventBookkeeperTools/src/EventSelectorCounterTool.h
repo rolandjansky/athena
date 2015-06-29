@@ -8,10 +8,11 @@
 /** @file EventSelectorCounterTool.h
  *  @brief This file contains the class definition for the EventSelectorCounterTool class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: EventSelectorCounterTool.h,v 1.1 2009-03-06 21:41:59 gemmeren Exp $
+ *  $Id: EventSelectorCounterTool.h 663679 2015-04-29 08:31:54Z krasznaa $
  **/
 
-#include "GaudiKernel/AlgTool.h"
+//#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
 #include "AthenaKernel/ICutFlowSvc.h"
@@ -23,7 +24,8 @@ class StoreGateSvc;
 /** @class EventSelectorCounterTool
  *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
  **/
-class EventSelectorCounterTool : public AlgTool, virtual public IAthenaSelectorTool {
+//class EventSelectorCounterTool : public AlgTool, virtual public IAthenaSelectorTool {
+class EventSelectorCounterTool : public AthAlgTool, virtual public IAthenaSelectorTool {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    EventSelectorCounterTool(const std::string& type, const std::string& name, const IInterface* parent);

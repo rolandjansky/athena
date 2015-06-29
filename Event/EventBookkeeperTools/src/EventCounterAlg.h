@@ -13,6 +13,7 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
@@ -58,6 +59,15 @@ class EventCounterAlg
 
   /// Default constructor:
   EventCounterAlg();
+
+  /// Property to set if all MC event-weights, including the non-nominal ones, should be tracked
+  bool m_trackOtherMCWeights;
+
+  /// An event counter
+  unsigned long m_eventsProcessed;
+
+  /// Keep a vector of all cutIDs for the non-nominal MC event weights
+  std::vector<CutIdentifier> m_mcCutIDs;
 
 };
 

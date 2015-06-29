@@ -38,15 +38,15 @@ protected:
 
 
 private:
-  CutIdentifier filterCutID;
-  CutIdentifier cut1ID;
-  CutIdentifier cut2ID;
+  CutIdentifier m_filterCutID;
+  CutIdentifier m_cut1ID;
+  CutIdentifier m_cut2ID;
 
 
   int m_counter;
   double m_cut1;
   double m_cut2;
-  double m_cycle;
+  //double m_cycle;
 
 };
 
