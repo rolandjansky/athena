@@ -171,6 +171,14 @@ class doMergedHLTResult(JobProperty):
 
 _flags.append(doMergedHLTResult)
 
+class doAlwaysUnpackDSResult(JobProperty):
+    """ if False disable decoding of DS results for all files but for real DS files """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doAlwaysUnpackDSResult)
+
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
