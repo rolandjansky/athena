@@ -8,8 +8,8 @@ def _setupGeoModel():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
  
     import DetDescrCnvSvc.DetStoreConfig
-    svcMgr.DetDescrCnvSvc.IdDictFromRDB = True 
- 
+    svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
+
     # Conditions DB setup and TagInfo
     from IOVDbSvc.CondDB import conddb
     import EventInfoMgt.EventInfoMgtInit

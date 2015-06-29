@@ -25,60 +25,47 @@ elif ( DetFlags.detdescr.ID_on() ):
         from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
         svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
         if GeometryFlags.isSLHC():
-           #SLHC specific code 
-           # General service builder tool for SLHC
-           from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
-           InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-           ToolSvc+=InDetServMatBuilderToolSLHC
+            #SLHC specific code 
+            # General service builder tool for SLHC
+            from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
+            InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
+            ToolSvc+=InDetServMatBuilderToolSLHC
     
     if ( DetFlags.detdescr.pixel_on() ):
-        from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-        pixelTool =  PixelDetectorTool()
-        GeoModelSvc.DetectorTools += [ pixelTool ]
-        if GeometryFlags.isSLHC():
-           #SLHC specific code 
-           pixelTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
-
-        if not hasattr(svcMgr,'PixelLorentzAngleSvc'):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-            PixelLorentzAngleSvc = SiLorentzAngleSvc(name = "PixelLorentzAngleSvc",
-                                                     SiConditionsServices = None,
-                                                     UseMagFieldSvc = False,
-                                                     DetectorName = "Pixel")
-            svcMgr+=PixelLorentzAngleSvc
+        from AthenaCommon import CfgGetter
+        GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
             
         if (DetFlags.detdescr.BCM_on() ) :
             from AthenaCommon.AppMgr import ToolSvc
             from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
             bcmTool = InDetDD__BCM_Builder()
             ToolSvc += bcmTool
-            pixelTool.BCM_Tool = bcmTool 
+            GeoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
 
             from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
             blmTool = InDetDD__BLM_Builder()
             ToolSvc += blmTool
-            pixelTool.BLM_Tool = blmTool
+            GeoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
 
     if ( DetFlags.detdescr.SCT_on() ):
         if GeometryFlags.isSLHC():
-           #SLHC specific code 
-           from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
-           sctSLHCTool = SCT_SLHC_DetectorTool()
-           GeoModelSvc.DetectorTools += [ sctSLHCTool ]
-           sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
+            #SLHC specific code                                                                                                                                   
+            from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
+            sctSLHCTool = SCT_SLHC_DetectorTool()
+            GeoModelSvc.DetectorTools += [ sctSLHCTool ]
+            sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
+            if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
+                from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
+                SCTLorentzAngleSvc = SiLorentzAngleSvc(name = "SCTLorentzAngleSvc",
+                                                       SiConditionsServices = None,
+                                                       UseMagFieldSvc = False,
+                                                       DetectorName = "SCT")
+                svcMgr+=SCTLorentzAngleSvc
         else:
-           # Current atlas specific code 
-           from SCT_GeoModel.SCT_GeoModelConf import SCT_DetectorTool
-           GeoModelSvc.DetectorTools += [ SCT_DetectorTool() ]
+            # Current atlas specific code 
+            from AthenaCommon import CfgGetter
+            GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
-        if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-            SCTLorentzAngleSvc = SiLorentzAngleSvc(name = "SCTLorentzAngleSvc",
-                                                   SiConditionsServices = None,
-                                                   UseMagFieldSvc = False,
-                                                   DetectorName = "SCT")
-            svcMgr+=SCTLorentzAngleSvc        
-                
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
         GeoModelSvc.DetectorTools += [ TRT_DetectorTool() ]
@@ -94,4 +81,3 @@ elif ( DetFlags.detdescr.ID_on() ):
        
     # Make alignable 
     from InDetCondFolders import InDetAlignFolders
-
