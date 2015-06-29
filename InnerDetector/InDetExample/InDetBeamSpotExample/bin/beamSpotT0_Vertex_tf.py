@@ -23,7 +23,7 @@
 # InDetBeamSpotExample/share/VertexTemplate.
 #
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamSpotT0_Vertex_trf.py 487258 2012-03-08 09:53:58Z gwilliam $'
+__version__ = '$Id: beamSpotT0_Vertex_tf.py 487258 2012-03-08 09:53:58Z gwilliam $'
 
 import sys
 from InDetBeamSpotExample import TrfUtils
