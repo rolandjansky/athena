@@ -149,11 +149,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             if(et > etthr + 1.0)
                 hist1("nProbes")->AddBinContent(ilist+1);
             
-            fillHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu,mass);
-            fillHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu,mass);
-            fillHistos(basePath+"L2",etthr,et,eta,phi,avgmu,mass);
-            fillHistos(basePath+"EFCalo",etthr,et,eta,phi,avgmu,mass);
-            fillHistos(basePath+"HLT",etthr,et,eta,phi,avgmu,mass);
 
             if ( feat ) {
                 passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
@@ -162,31 +157,26 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                 passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
                 if( passedL1Calo){
-                    fillMatchHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu,mass);
                     cd(m_dir);
                     if(et > etthr + 1.0)
                         hist1("nProbesL1")->AddBinContent(ilist+1);
                 }
                 if( passedL2Calo ){
-                    fillMatchHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu,mass);
                     cd(m_dir);
                     if(et > etthr + 1.0)
                         hist1("nProbesL2Calo")->AddBinContent(ilist+1);
                 }
                 if( passedL2 ){
-                    fillMatchHistos(basePath+"L2",etthr,et,eta,phi,avgmu,mass);
                     cd(m_dir);
                     if(et > etthr + 1.0)
                         hist1("nProbesL2")->AddBinContent(ilist+1);
                 }
                 if( passedEFCalo ){
-                    fillMatchHistos(basePath+"EFCalo",etthr,et,eta,phi,avgmu,mass);
                     cd(m_dir);
                     if(et > etthr + 1.0)
                         hist1("nProbesEFCalo")->AddBinContent(ilist+1);
                 }
                 if( passedEF ){
-                    fillMatchHistos(basePath+"HLT",etthr,et,eta,phi,avgmu,mass);
                     cd(m_dir);
                     if(et > etthr + 1.0)
                         hist1("nProbesHLT")->AddBinContent(ilist+1);
@@ -251,6 +241,11 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                     fillInefficiency(basePath+"HLT",selEF,selPh,selClus,selTrk);
                 }
             } // Features
+            fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,et,eta,phi,avgmu,mass);
+            fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,et,eta,phi,avgmu,mass);
+            fillEfficiency(basePath+"L2",passedL2,etthr,et,eta,phi,avgmu,mass);
+            fillEfficiency(basePath+"EFCalo",passedEFCalo,etthr,et,eta,phi,avgmu,mass);
+            fillEfficiency(basePath+"HLT",passedEF,etthr,et,eta,phi,avgmu,mass);
         } // End loop over electrons
     } // End loop over trigger list
 
@@ -278,13 +273,5 @@ StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
     hist1("nProbesHLT")->Sumw2();
     hist1("EffHLT")->Divide(hist1("nProbesHLT"),hist1("nProbes"),1,1,"b");
 
-    for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
-        std::string probeTrigger = m_trigList.at(ilist);
-        finalizeEfficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L2Calo");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L2");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/EFCalo");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L1Calo");
-    }
     return StatusCode::SUCCESS;
 }

@@ -54,6 +54,8 @@ TrigEgammaNavTPBaseTool( const std::string& myname )
   declareProperty("TriggerList",m_trigInputList);
   declareProperty("CategoryList",m_categories);
   declareProperty("RemoveCrack", m_rmCrack=true); //new
+  declareProperty("OfflineProbeIsolation", m_offProbeIsolation="Loose");
+  declareProperty("ForceProbeIsolation", m_forceProbeIsolation=false);
 
   m_PidToolMap["Tight"]=0;
   m_PidToolMap["Medium"]=1;
@@ -361,6 +363,11 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
             //ATH_MSG_DEBUG("too many jets around object");
             return false; 
         }
+    }
+    if (m_forceProbeIsolation) {
+      if (!isIsolated(el, m_offProbeIsolation)) {
+	return false;
+      }
     }
     return true; // Good probe electron
 }

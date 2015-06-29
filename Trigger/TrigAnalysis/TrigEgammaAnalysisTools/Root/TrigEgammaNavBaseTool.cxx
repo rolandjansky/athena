@@ -43,6 +43,8 @@ TrigEgammaNavBaseTool( const std::string& myname )
   declareProperty("RemoveCrack", m_rmCrack=true); //new
   declareProperty("PhotonPid",m_photonPid = "Tight");
   declareProperty("doUnconverted", m_doUnconverted=false);
+  declareProperty("OfflineProbeIsolation", m_offProbeIsolation="Loose");
+  declareProperty("ForceProbeIsolation", m_forceProbeIsolation=false);
   m_PidToolMap["Tight"]=0;
   m_PidToolMap["Medium"]=1;
   m_PidToolMap["Loose"]=2;
@@ -205,6 +207,11 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
       // if(!eg->passSelection(pidname)) continue;
       // Rerun offline selection
       if(!ApplyElectronPid(eg,pidname)) continue;
+      if (m_forceProbeIsolation) {
+	if (!isIsolated(eg, m_offProbeIsolation)) {
+	  continue;
+	}
+      }
       const xAOD::Electron * HLTobject =static_cast<const xAOD::Electron*> (m_matchTool->closestHLTObject(eg,trigItem));
       if(HLTobject){
           std::pair< const xAOD::Electron*, const xAOD::Electron* > match_pair(HLTobject,eg);

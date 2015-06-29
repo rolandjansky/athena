@@ -15,7 +15,6 @@ use LumiBlockComps          LumiBlockComps-*             LumiBlock
 
 use xAODTrigger                 xAODTrigger-*                   Event/xAOD
 use xAODEgamma                  xAODEgamma-*                    Event/xAOD
-use xAODEgammaCnv               xAODEgammaCnv-*                    Event/xAOD
 use xAODTrigEgamma              xAODTrigEgamma-*                Event/xAOD
 use xAODTracking                xAODTracking-*                  Event/xAOD
 use xAODTrigCalo                xAODTrigCalo-*                  Event/xAOD

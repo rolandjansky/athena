@@ -71,22 +71,21 @@ protected:
   void parseTriggerName(const std::string,const std::string, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Creates static map to return L1 item from trigger name */
   std::string getL1Item(std::string trigger);
-   
+
+  /*! Check if electron fulfils isolation criteria */
+  bool isIsolated(const xAOD::Electron*, const std::string);
+
   std::string getProbePid(const std::string);// {return m_offProbeTightness;}
   /*! book common histograms for analysis */
   void bookAnalysisHistos(const std::string);
-  /*! fill kinematic histograms, et,eta,phi,lumi */
-  void fillHistos(const std::string,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
-  /*! fill matched kinematic histograms, et,eta,phi,lumi */
-  void fillMatchHistos(const std::string,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
 
+  /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
+  void fillEfficiency(const std::string,bool,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
 
   void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
   void fillHLTAbsResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
-  void fillHLTShowerShapes(const std::string, const xAOD::Egamma *);
-  void fillHLTTracking(const std::string, const xAOD::Electron *);
-  void fillShowerShapes(const std::string, const xAOD::Egamma *);
-  void fillTracking(const std::string, const xAOD::Electron *);
+  void fillShowerShapes(const std::string, const xAOD::Egamma *); // Online and Offline fillers
+  void fillTracking(const std::string, const xAOD::Electron *); // Online and Offline fillers
   void fillEFCalo(const std::string,const xAOD::CaloCluster *);
   void fillL2Electron(const std::string,const xAOD::TrigElectron *);
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
@@ -121,7 +120,8 @@ protected:
   float getEnergyBE3(const xAOD::Egamma *eg);
   float getEaccordion(const xAOD::Egamma *eg);
   float getE0Eaccordion(const xAOD::Egamma *eg);
-  
+  float getAvgMu();
+
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
@@ -134,7 +134,7 @@ protected:
   /*! Offline Lumi tool */
   ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
-  //ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
 
   
   // Infra-structure members

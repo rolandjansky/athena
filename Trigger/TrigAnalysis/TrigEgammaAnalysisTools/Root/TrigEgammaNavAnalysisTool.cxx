@@ -235,38 +235,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
                 //fillEFCalo(basePath+"EFCalo",clus);           
             }
         }
-        auto vec = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-        auto vec_bits = fc.get<TrigPassBits>("",TrigDefs::alsoDeactivateTEs);
-        for(auto feat : vec_bits){
-            if(feat.te()==NULL) continue;
-            const TrigPassBits *cont = feat.cptr();
-        }
-
-        ATH_MSG_DEBUG("EF Electron FC Size " << vec.size());
-        for(auto feat : vec){
-            if(feat.te()==NULL) continue;
-            const xAOD::ElectronContainer *cont = feat.cptr();
-            if(cont==NULL) continue;
-            ATH_MSG_DEBUG("EF Electron Size " << cont->size());
-            for(const auto& el : *cont){
-                if(el==NULL) continue;
-                fillHLTShowerShapes(basePath+"HLT",el);           
-                fillHLTTracking(basePath+"HLT",el);           
-            }
-        }
-        auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
-        ATH_MSG_DEBUG("EF Photon FC Size " << vec.size());
-        for(auto feat : vec_ph){
-            if(feat.te()==NULL) continue;
-            const xAOD::PhotonContainer *cont = feat.cptr();
-            if(cont==NULL) continue;
-            ATH_MSG_DEBUG("EF Photon Size " << cont->size());
-            for(const auto& ph : *cont){
-                if(ph==NULL) continue;
-                fillHLTShowerShapes(basePath+"HLT",ph);           
-            }
-        }
-        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger);
+        
+        ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
 
   return StatusCode::SUCCESS;
@@ -277,16 +247,6 @@ StatusCode TrigEgammaNavAnalysisTool::childFinalize(){
     ATH_MSG_DEBUG("Processed N events " << m_eventCounter);
     cd(m_dir);
     hist1("elperevt")->Scale(float(m_eventCounter));
-    for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
-        std::string probeTrigger = m_trigList.at(ilist);
-        finalizeEfficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L2Calo");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L2");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/EFCalo");
-        finalizeEfficiency(m_dir+"/" + probeTrigger + "/Efficiency/L1Calo");
-    }
-
-  
     return StatusCode::SUCCESS;
 }
 
@@ -296,8 +256,8 @@ void TrigEgammaNavAnalysisTool::bookPerSignature(const std::string trigger){
     bookAnalysisHistos(basePath);
 }
 
-void bookPerCategory(const std::string category){
-
+void TrigEgammaNavAnalysisTool::bookPerCategory(const std::string category){
+    ATH_MSG_DEBUG("Now booking category histograms " << category);
 }
 
 
@@ -316,7 +276,7 @@ void TrigEgammaNavAnalysisTool::inefficiency(const std::string basePath,const fl
 
     float eta = eg->eta();
     float phi = eg->phi();
-    ATH_MSG_DEBUG("Offline eta, phi " << eta << " " << phi);
+    ATH_MSG_DEBUG("Offline et, eta, phi " << et << " " << eta << " " << phi);
     const xAOD::Electron* selEF = NULL;
     const xAOD::Photon* selPh = NULL;
     const xAOD::CaloCluster* selClus = NULL;
@@ -422,44 +382,35 @@ void TrigEgammaNavAnalysisTool::efficiency(const std::string basePath,const floa
     if(m_lumiTool)
         avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
     ATH_MSG_DEBUG("Fill probe histograms");
-    fillHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu);
-    fillHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu);
-    fillHistos(basePath+"L2",etthr,et,eta,phi,avgmu);
-    fillHistos(basePath+"EFCalo",etthr,et,eta,phi,avgmu);
-    fillHistos(basePath+"HLT",etthr,et,eta,phi,avgmu);
 
+    bool passedL1Calo=false;
+    bool passedL2Calo=false;
+    bool passedL2=false;
+    bool passedEFCalo=false;
+    bool passedEF=false;
     if ( feat ) {
-        ATH_MSG_DEBUG("Fill passed  histograms");
-        ATH_MSG_DEBUG("Retrieve EmTauRoI");
-        bool passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
-        ATH_MSG_DEBUG("Retrieve TrigEMCluster");
-        bool passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
-        bool passedL2=false;
-        if(pairObj.first->type()==xAOD::Type::Electron){
-            ATH_MSG_DEBUG("Retrieve TrigElectron");
+        ATH_MSG_DEBUG("Retrieve Ancestor passed");
+        passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
+        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
+        if(pairObj.first->type()==xAOD::Type::Electron)
             passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
-        }
-        else {
+
+        else 
             passedL2 = ancestorPassed<xAOD::TrigPhotonContainer>(feat);
-            ATH_MSG_DEBUG("Retrieve TrigElectron");
-        }
-        ATH_MSG_DEBUG("Retrieve CaloCluster");
-        bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-        bool passedEF=false;
-        if(pairObj.first->type()==xAOD::Type::Electron){
-            ATH_MSG_DEBUG("Retrieve Electron");
+        
+        passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
+        
+        if(pairObj.first->type()==xAOD::Type::Electron)
             passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
-        }
-        else {
-            ATH_MSG_DEBUG("Retrieve Photon");
+        else 
             passedEF = ancestorPassed<xAOD::PhotonContainer>(feat);
-        }
-        if( passedL1Calo) fillMatchHistos(basePath+"L1Calo",etthr,et,eta,phi,avgmu);
-        if( passedL2Calo ) fillMatchHistos(basePath+"L2Calo",etthr,et,eta,phi,avgmu);
-        if( passedL2 ) fillMatchHistos(basePath+"L2",etthr,et,eta,phi,avgmu);
-        if( passedEFCalo ) fillMatchHistos(basePath+"EFCalo",etthr,et,eta,phi,avgmu);
-        if( passedEF ) fillMatchHistos(basePath+"HLT",etthr,et,eta,phi,avgmu);
+
     } // Features
+    fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,et,eta,phi,avgmu);
+    fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,et,eta,phi,avgmu);
+    fillEfficiency(basePath+"L2",passedL2,etthr,et,eta,phi,avgmu);
+    fillEfficiency(basePath+"EFCalo",passedEFCalo,etthr,et,eta,phi,avgmu);
+    fillEfficiency(basePath+"HLT",passedEF,etthr,et,eta,phi,avgmu);
     ATH_MSG_DEBUG("Complete efficiency"); 
 }
 

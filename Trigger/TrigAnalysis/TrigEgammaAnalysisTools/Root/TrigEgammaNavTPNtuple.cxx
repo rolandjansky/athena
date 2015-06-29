@@ -239,6 +239,7 @@ bool TrigEgammaNavTPNtuple::fillEvent(){
 
 
 bool TrigEgammaNavTPNtuple::fillPhoton( const xAOD::Photon *ph ){
+    if(!ph) return false;
   return true;
 }
 
@@ -401,7 +402,9 @@ bool TrigEgammaNavTPNtuple::fillTrigCaloRings( const HLT::TriggerElement *te ){
 
 bool TrigEgammaNavTPNtuple::fillCaloRings( const xAOD::Electron *el ){
 
+    
   m_el_ringsE->clear();
+  if(!el) return false;
   /*auto m_ringsELReader = xAOD::getCaloRingsReader();
 
   // First, check if we can retrieve decoration: 

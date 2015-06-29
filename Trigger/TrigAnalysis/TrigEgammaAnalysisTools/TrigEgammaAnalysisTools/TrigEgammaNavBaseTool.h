@@ -127,7 +127,10 @@ private:
   std::string m_offProbeTightness;
   /*! Map of trigger name and L1 item */
   //std::map<std::string,std::string> m_triggerMap;
-  
+  /*! force probe isolation */
+  bool m_forceProbeIsolation;
+  /*! Define isolation working point for Probe electron */
+  std::string m_offProbeIsolation;  
 };
 
 #endif

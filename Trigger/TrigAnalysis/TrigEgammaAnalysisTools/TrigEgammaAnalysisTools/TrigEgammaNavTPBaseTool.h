@@ -36,7 +36,6 @@
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
-
 namespace Trig{
             class FeatureContainer;
 }
@@ -105,7 +104,7 @@ private:
   ///*! Offline isEM Selectors */
   ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
-  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
 
   std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
   //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
@@ -140,7 +139,10 @@ private:
   std::vector<std::string> m_tagTrigList;
   /*! Apply nearby jet selection */
   bool m_applyJetNearProbeSelection;
-  
+  /*! force probe isolation */
+  bool m_forceProbeIsolation;
+  /*! Define isolation working point for Probe electron */
+  std::string m_offProbeIsolation;
 };
 
 #endif
