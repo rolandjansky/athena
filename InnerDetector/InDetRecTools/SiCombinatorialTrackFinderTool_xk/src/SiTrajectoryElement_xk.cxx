@@ -134,7 +134,14 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 		  0. , 0.,.001,
 		  0. , 0.,  0.,.001,
 		  0. , 0.,  0.,  0.,.00001};
-  
+
+  if(m_detelement->isDBM()) {
+
+    double tn = tan(Tp.par()[3]);
+    cv[ 5]    = .0001           ;
+    cv[14]    = (tn*tn*1.e-6)   ;
+  } 
+
   m_parametersPF.setCovariance(cv);
   initiateState(m_parametersPF,m_parametersUF);
 
@@ -1466,10 +1473,13 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
 (bool useJac,double* P,Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb) 
 {
 
+  double Ax[3] = {m_Tr[0],m_Tr[1],m_Tr[2]};
+  double Ay[3] = {m_Tr[3],m_Tr[4],m_Tr[5]};
+  double Az[3] = {m_Tr[6],m_Tr[7],m_Tr[8]};
   double d [3] = {P[0]-m_Tr[ 9],P[1]-m_Tr[10],P[2]-m_Tr[11]};
 
-  double p[5] = {d[0]*m_Tr[0]+d[1]*m_Tr[1]+d[2]*m_Tr[2],
-		 d[0]*m_Tr[3]+d[1]*m_Tr[4]+d[2]*m_Tr[5],
+  double p[5] = {d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2],
+		 d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2],
 		 atan2(P[4],P[3])                ,
 		 acos(P[5])                      ,
 		 P[6]                            };
@@ -1477,67 +1487,57 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
   Tb.setParameters(m_surface,p); m_A[0] = P[3]; m_A[1] = P[4]; m_A[2] = P[5];
   if(!useJac) return true;
 
-  double n=1./P[6]; P[35]*=n; P[36]*=n; P[37]*=n; P[38]*=n; P[39]*=n; P[40]*=n;
-
   // Condition trajectory on surface
   //
-  double S[3] =  {m_Tr[6],m_Tr[7],m_Tr[8]};
-
-  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
-  if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
-
-  double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
-  double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
-
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]); 
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  double A  = Az[0]*P[3]+Az[1]*P[4]+Az[2]*P[5]; if(A!=0.) A=1./A;
+  double s0 = Az[0]*P[ 7]+Az[1]*P[ 8]+Az[2]*P[ 9];
+  double s1 = Az[0]*P[14]+Az[1]*P[15]+Az[2]*P[16]; 
+  double s2 = Az[0]*P[21]+Az[1]*P[22]+Az[2]*P[23];
+  double s3 = Az[0]*P[28]+Az[1]*P[29]+Az[2]*P[30];
+  double s4 = Az[0]*P[35]+Az[1]*P[36]+Az[2]*P[37]; 
+  double T0 =(Ax[0]*P[ 3]+Ax[1]*P[ 4]+Ax[2]*P[ 5])*A; 
+  double T1 =(Ay[0]*P[ 3]+Ay[1]*P[ 4]+Ay[2]*P[ 5])*A;
+  double n  = 1./P[6]; 
 
   double Jac[21];
 
   // Jacobian production
   //
-  Jac[ 0] = m_Tr[0]*P[ 7]+m_Tr[1]*P[ 8]+m_Tr[2]*P[ 9]; // dL0/dL0
-  Jac[ 1] = m_Tr[0]*P[14]+m_Tr[1]*P[15]+m_Tr[2]*P[16]; // dL0/dL1
-  Jac[ 2] = m_Tr[0]*P[21]+m_Tr[1]*P[22]+m_Tr[2]*P[23]; // dL0/dPhi
-  Jac[ 3] = m_Tr[0]*P[28]+m_Tr[1]*P[29]+m_Tr[2]*P[30]; // dL0/dThe
-  Jac[ 4] = m_Tr[0]*P[35]+m_Tr[1]*P[36]+m_Tr[2]*P[37]; // dL0/dCM
+  Jac[ 0] = (Ax[0]*P[ 7]+Ax[1]*P[ 8])+(Ax[2]*P[ 9]-s0*T0);    // dL0/dL0
+  Jac[ 1] = (Ax[0]*P[14]+Ax[1]*P[15])+(Ax[2]*P[16]-s1*T0);    // dL0/dL1
+  Jac[ 2] = (Ax[0]*P[21]+Ax[1]*P[22])+(Ax[2]*P[23]-s2*T0);    // dL0/dPhi
+  Jac[ 3] = (Ax[0]*P[28]+Ax[1]*P[29])+(Ax[2]*P[30]-s3*T0);    // dL0/dThe
+  Jac[ 4] =((Ax[0]*P[35]+Ax[1]*P[36])+(Ax[2]*P[37]-s4*T0))*n; // dL0/dCM
 
-  Jac[ 5] = m_Tr[3]*P[ 7]+m_Tr[4]*P[ 8]+m_Tr[5]*P[ 9]; // dL1/dL0
-  Jac[ 6] = m_Tr[3]*P[14]+m_Tr[4]*P[15]+m_Tr[5]*P[16]; // dL1/dL1
-  Jac[ 7] = m_Tr[3]*P[21]+m_Tr[4]*P[22]+m_Tr[5]*P[23]; // dL1/dPhi
-  Jac[ 8] = m_Tr[3]*P[28]+m_Tr[4]*P[29]+m_Tr[5]*P[30]; // dL1/dThe
-  Jac[ 9] = m_Tr[3]*P[35]+m_Tr[4]*P[36]+m_Tr[5]*P[37]; // dL1/dCM
-
+  Jac[ 5] = (Ay[0]*P[ 7]+Ay[1]*P[ 8])+(Ay[2]*P[ 9]-s0*T1);    // dL1/dL0
+  Jac[ 6] = (Ay[0]*P[14]+Ay[1]*P[15])+(Ay[2]*P[16]-s1*T1);    // dL1/dL1
+  Jac[ 7] = (Ay[0]*P[21]+Ay[1]*P[22])+(Ay[2]*P[23]-s2*T1);    // dL1/dPhi
+  Jac[ 8] = (Ay[0]*P[28]+Ay[1]*P[29])+(Ay[2]*P[30]-s3*T1);    // dL1/dThe
+  Jac[ 9] =((Ay[0]*P[35]+Ay[1]*P[36])+(Ay[2]*P[37]-s4*T1))*n; // dL1/dCM
 
   double P3,P4, C = P[3]*P[3]+P[4]*P[4]; 
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
   else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
 
-  Jac[10] = P3*P[11]-P4*P[10];                   // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                   // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                   // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                   // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                   // dPhi/dCM
-  Jac[15] = C*P[12];                             // dThe/dL0
-  Jac[16] = C*P[19];                             // dThe/dL1
-  Jac[17] = C*P[26];                             // dThe/dPhi
-  Jac[18] = C*P[33];                             // dThe/dThe
-  Jac[19] = C*P[40];                             // dThe/dCM
-  Jac[20] =      1.;                             // dCM /dCM
+  double T2  =(P3*P[43]-P4*P[42])*A;
+  double C44 = C*P[44]           *A;
+
+  Jac[10] = P3*P[11]-P4*P[10]-s0*T2;    // dPhi/dL0
+  Jac[11] = P3*P[18]-P4*P[17]-s1*T2;    // dPhi/dL1
+  Jac[12] = P3*P[25]-P4*P[24]-s2*T2;    // dPhi/dPhi
+  Jac[13] = P3*P[32]-P4*P[31]-s3*T2;    // dPhi/dThe
+  Jac[14] =(P3*P[39]-P4*P[38]-s4*T2)*n; // dPhi/dCM
+
+  Jac[15] = C*P[12]-s0*C44;             // dThe/dL0
+  Jac[16] = C*P[19]-s1*C44;             // dThe/dL1
+  Jac[17] = C*P[26]-s2*C44;             // dThe/dPhi
+  Jac[18] = C*P[33]-s3*C44;             // dThe/dThe
+  Jac[19] =(C*P[40]-s4*C44)*n;          // dThe/dCM
+  Jac[20] = 1.;                         // dCM /dCM
 
   Tb.newCovarianceMatrix(Ta,Jac); 
-  if(Tb.cov()[0]<=0. || Tb.cov()[2]<=0. || Tb.cov()[5]<=0. || Tb.cov()[9]<=0. || Tb.cov()[14]<=0.) return false;
+  const double* t = &Tb.cov()[0];
+  if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
   return true;
 }
 
@@ -1548,7 +1548,6 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
 bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 (bool Jac,double* P)
 {
-  const double C33  = 1./3.     ;  
   const double Smin = .1        ;
   const double Shel = 5.        ;
   const double dlt  = .001      ;
@@ -1560,6 +1559,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   double* A    =          &P[ 3];            // Directions
   double* sA   =          &P[42];
   double  Pi   =  149.89626*P[6];            // Invert mometum/2. 
+  double  Pa   = fabs      (P[6]);
 
   double  a    = A[0]*m_Tr[6]+A[1]*m_Tr[7]+A[2]*m_Tr[8]                 ; if(a==0.) return false; 
   double  S    = ((m_Tr[12]-R[0]*m_Tr[6])-(R[1]*m_Tr[7]+R[2]*m_Tr[8]))/a; 
@@ -1568,6 +1568,10 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   if(S0 <= Smin) {
     R[0]+=(A[0]*S); R[1]+=(A[1]*S); R[2]+=(A[2]*S); P[45]+=S; return true;
   }
+  else  if( (Pa*S0) > .3) {
+    S > 0. ? S = .3/Pa : S=-.3/Pa;
+  }
+  
   bool   ste   = false; 
 
   double f0[3],f[3]; m_fieldService->getFieldZR(R,f0); 
@@ -1575,7 +1579,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   while(true) {
 
     bool Helix = false; if(fabs(S) < Shel) Helix = true;
-    double S3=C33*S, S4=.25*S, PS2=Pi*S;
+    double S3=(1./3.)*S, S4=.25*S, PS2=Pi*S;
  
     // First point
     //   
@@ -1583,13 +1587,13 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     double A0    = A[1]*H0[2]-A[2]*H0[1]            ;
     double B0    = A[2]*H0[0]-A[0]*H0[2]            ;
     double C0    = A[0]*H0[1]-A[1]*H0[0]            ;
-    double A2    = A[0]+A0                          ;
-    double B2    = A[1]+B0                          ;
-    double C2    = A[2]+C0                          ;
+    double A2    = A0+A[0]                          ;
+    double B2    = B0+A[1]                          ;
+    double C2    = C0+A[2]                          ;
     double A1    = A2+A[0]                          ;
     double B1    = B2+A[1]                          ;
     double C1    = C2+A[2]                          ;
-    
+
     // Second point
     //
     if(!Helix) {
@@ -1599,16 +1603,16 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];}
 
     double H1[3] = {f[0]*PS2,f[1]*PS2,f[2]*PS2}; 
-    double A3    = B2*H1[2]-C2*H1[1]+A[0]      ; 
-    double B3    = C2*H1[0]-A2*H1[2]+A[1]      ; 
-    double C3    = A2*H1[1]-B2*H1[0]+A[2]      ;
-    double A4    = B3*H1[2]-C3*H1[1]+A[0]      ; 
-    double B4    = C3*H1[0]-A3*H1[2]+A[1]      ; 
-    double C4    = A3*H1[1]-B3*H1[0]+A[2]      ;
+    double A3    = (A[0]+B2*H1[2])-C2*H1[1]    ; 
+    double B3    = (A[1]+C2*H1[0])-A2*H1[2]    ; 
+    double C3    = (A[2]+A2*H1[1])-B2*H1[0]    ;
+    double A4    = (A[0]+B3*H1[2])-C3*H1[1]    ; 
+    double B4    = (A[1]+C3*H1[0])-A3*H1[2]    ; 
+    double C4    = (A[2]+A3*H1[1])-B3*H1[0]    ;
     double A5    = 2.*A4-A[0]                  ; 
     double B5    = 2.*B4-A[1]                  ; 
-    double C5    = 2.*C4-A[2]                  ;
-    
+    double C5    = 2.*C4-A[2]                  ;    
+
     // Last point
     //
     if(!Helix) {
@@ -1626,7 +1630,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     //
     if(!ste) {
       double EST = fabs((A1+A6)-(A3+A4))+fabs((B1+B6)-(B3+B4))+fabs((C1+C6)-(C3+C4)); 
-      if(EST>dlt) {S*=.5; continue;} 
+      if(EST>dlt) {S*=.6; continue;} 
     }
 
     // Parameters calculation
@@ -1634,67 +1638,109 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false; ste = true;
 
     double A00 = A[0], A11=A[1], A22=A[2];
-    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*C33;
-    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*C33;
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*C33; 
-    double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
-    A[0]*=CBA; A[1]*=CBA; A[2]*=CBA;
+
+    A[0] = 2.*A3+(A0+A5+A6); 
+    A[1] = 2.*B3+(B0+B5+B6); 
+    A[2] = 2.*C3+(C0+C5+C6);
     
+    double D = (A[0]*A[0]+A[1]*A[1])+(A[2]*A[2]-9.);
+    D        = (1./3.)-((1./648.)*D)*(12.-D)       ;
+
+    R[0]+=(A2+A3+A4)*S3;
+    R[1]+=(B2+B3+B4)*S3;
+    R[2]+=(C2+C3+C4)*S3;
+    A[0]*=D            ;
+    A[1]*=D            ;
+    A[2]*=D            ;
+
     if(Jac) {
 
-      // Jacobian calculation
-      //
-      for(int i=21; i<35; i+=7) {
-	
-	double* dR   = &P[i]                                       ;  
-	double* dA   = &P[i+3]                                     ;
-	double dA0   = H0[ 2]*dA[1]-H0[ 1]*dA[2]                   ;
-	double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0]                   ;
-	double dC0   = H0[ 1]*dA[0]-H0[ 0]*dA[1]                   ;
-	double dA2   = dA0+dA[0]                                   ;                
-	double dB2   = dB0+dA[1]                                   ;                
-	double dC2   = dC0+dA[2]                                   ;                
-	double dA3   = dA[0]+dB2*H1[2]-dC2*H1[1]                   ;
-	double dB3   = dA[1]+dC2*H1[0]-dA2*H1[2]                   ;
-	double dC3   = dA[2]+dA2*H1[1]-dB2*H1[0]                   ;
-	double dA4   = dA[0]+dB3*H1[2]-dC3*H1[1]                   ;
-	double dB4   = dA[1]+dC3*H1[0]-dA3*H1[2]                   ;
-	double dC4   = dA[2]+dA3*H1[1]-dB3*H1[0]                   ;
-	double dA5   = 2.*dA4-dA[0]                                ;            
-	double dB5   = 2.*dB4-dA[1]                                ;            
-	double dC5   = 2.*dC4-dA[2]                                ;            
-	double dA6   = dB5*H2[2]-dC5*H2[1]                         ;      
-	double dB6   = dC5*H2[0]-dA5*H2[2]                         ;      
-	double dC6   = dA5*H2[1]-dB5*H2[0]                         ;      
-	dR[0]+=(dA2+dA3+dA4)*S3; dA[0]=((dA0+2.*dA3)+(dA5+dA6))*C33;      
-	dR[1]+=(dB2+dB3+dB4)*S3; dA[1]=((dB0+2.*dB3)+(dB5+dB6))*C33; 
-	dR[2]+=(dC2+dC3+dC4)*S3; dA[2]=((dC0+2.*dC3)+(dC5+dC6))*C33;
-      }
+      double* d2A = &P[24];
+      double* d3A = &P[31]; 
+      double* d4A = &P[38]; 
+      double d2A0 = H0[2]*d2A[1]-H0[1]*d2A[2];
+      double d2B0 = H0[0]*d2A[2]-H0[2]*d2A[0];
+      double d2C0 = H0[1]*d2A[0]-H0[0]*d2A[1];
+      double d3A0 = H0[2]*d3A[1]-H0[1]*d3A[2];
+      double d3B0 = H0[0]*d3A[2]-H0[2]*d3A[0];
+      double d3C0 = H0[1]*d3A[0]-H0[0]*d3A[1];
+      double d4A0 =(A0+H0[2]*d4A[1])-H0[1]*d4A[2];
+      double d4B0 =(B0+H0[0]*d4A[2])-H0[2]*d4A[0];
+      double d4C0 =(C0+H0[1]*d4A[0])-H0[0]*d4A[1];
+      double d2A2 = d2A0+d2A[0];                
+      double d2B2 = d2B0+d2A[1];                
+      double d2C2 = d2C0+d2A[2];
+      double d3A2 = d3A0+d3A[0];                
+      double d3B2 = d3B0+d3A[1];                
+      double d3C2 = d3C0+d3A[2];
+      double d4A2 = d4A0+d4A[0];                
+      double d4B2 = d4B0+d4A[1];                
+      double d4C2 = d4C0+d4A[2];
+      double d0   = d4A[0]-A00;
+      double d1   = d4A[1]-A11;
+      double d2   = d4A[2]-A22;
+      double d2A3 = ( d2A[0]+d2B2*H1[2])-d2C2*H1[1];
+      double d2B3 = ( d2A[1]+d2C2*H1[0])-d2A2*H1[2];
+      double d2C3 = ( d2A[2]+d2A2*H1[1])-d2B2*H1[0];
+      double d3A3 = ( d3A[0]+d3B2*H1[2])-d3C2*H1[1];
+      double d3B3 = ( d3A[1]+d3C2*H1[0])-d3A2*H1[2];
+      double d3C3 = ( d3A[2]+d3A2*H1[1])-d3B2*H1[0];
+      double d4A3 = ((A3+d0)+d4B2*H1[2])-d4C2*H1[1];
+      double d4B3 = ((B3+d1)+d4C2*H1[0])-d4A2*H1[2];
+      double d4C3 = ((C3+d2)+d4A2*H1[1])-d4B2*H1[0];
+      double d2A4 = ( d2A[0]+d2B3*H1[2])-d2C3*H1[1];
+      double d2B4 = ( d2A[1]+d2C3*H1[0])-d2A3*H1[2];
+      double d2C4 = ( d2A[2]+d2A3*H1[1])-d2B3*H1[0];
+      double d3A4 = ( d3A[0]+d3B3*H1[2])-d3C3*H1[1];
+      double d3B4 = ( d3A[1]+d3C3*H1[0])-d3A3*H1[2];
+      double d3C4 = ( d3A[2]+d3A3*H1[1])-d3B3*H1[0];
+      double d4A4 = ((A4+d0)+d4B3*H1[2])-d4C3*H1[1];
+      double d4B4 = ((B4+d1)+d4C3*H1[0])-d4A3*H1[2];
+      double d4C4 = ((C4+d2)+d4A3*H1[1])-d4B3*H1[0];
+      double d2A5 = 2.*d2A4-d2A[0];            
+      double d2B5 = 2.*d2B4-d2A[1];            
+      double d2C5 = 2.*d2C4-d2A[2];
+      double d3A5 = 2.*d3A4-d3A[0];            
+      double d3B5 = 2.*d3B4-d3A[1];            
+      double d3C5 = 2.*d3C4-d3A[2];            
+      double d4A5 = 2.*d4A4-d4A[0];            
+      double d4B5 = 2.*d4B4-d4A[1];            
+      double d4C5 = 2.*d4C4-d4A[2];            
+      double d2A6 = d2B5*H2[2]-d2C5*H2[1];      
+      double d2B6 = d2C5*H2[0]-d2A5*H2[2];      
+      double d2C6 = d2A5*H2[1]-d2B5*H2[0];      
+      double d3A6 = d3B5*H2[2]-d3C5*H2[1];      
+      double d3B6 = d3C5*H2[0]-d3A5*H2[2];      
+      double d3C6 = d3A5*H2[1]-d3B5*H2[0];
+      double d4A6 = d4B5*H2[2]-d4C5*H2[1];      
+      double d4B6 = d4C5*H2[0]-d4A5*H2[2];      
+      double d4C6 = d4A5*H2[1]-d4B5*H2[0];      
+      
+      double* dR  = &P[21];
+      dR [0]+=(d2A2+d2A3+d2A4)*S3;
+      dR [1]+=(d2B2+d2B3+d2B4)*S3;
+      dR [2]+=(d2C2+d2C3+d2C4)*S3;
+      d2A[0] =((d2A0+2.*d2A3)+(d2A5+d2A6))*(1./3.);      
+      d2A[1] =((d2B0+2.*d2B3)+(d2B5+d2B6))*(1./3.); 
+      d2A[2] =((d2C0+2.*d2C3)+(d2C5+d2C6))*(1./3.);
 
-      double* dR   = &P[35]                                      ;  
-      double* dA   = &P[38]                                      ;
-      double dA0   = H0[ 2]*dA[1]-H0[ 1]*dA[2]+A0                ;
-      double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0]+B0                ;
-      double dC0   = H0[ 1]*dA[0]-H0[ 0]*dA[1]+C0                ;
-      double dA2   = dA0+dA[0]                                   ;                
-      double dB2   = dB0+dA[1]                                   ;                
-      double dC2   = dC0+dA[2]                                   ;                
-      double dA3   = (dA[0]+dB2*H1[2]-dC2*H1[1])+(A3-A00)        ;
-      double dB3   = (dA[1]+dC2*H1[0]-dA2*H1[2])+(B3-A11)        ;
-      double dC3   = (dA[2]+dA2*H1[1]-dB2*H1[0])+(C3-A22)        ;
-      double dA4   = (dA[0]+dB3*H1[2]-dC3*H1[1])+(A4-A00)        ;
-      double dB4   = (dA[1]+dC3*H1[0]-dA3*H1[2])+(B4-A11)        ;
-      double dC4   = (dA[2]+dA3*H1[1]-dB3*H1[0])+(C4-A22)        ;
-      double dA5   = 2.*dA4-dA[0]                                ;            
-      double dB5   = 2.*dB4-dA[1]                                ;            
-      double dC5   = 2.*dC4-dA[2]                                ;            
-      double dA6   = dB5*H2[2]-dC5*H2[1]+A6                      ;      
-      double dB6   = dC5*H2[0]-dA5*H2[2]+B6                      ;      
-      double dC6   = dA5*H2[1]-dB5*H2[0]+C6                      ;      
-      dR[0]+=(dA2+dA3+dA4)*S3; dA[0]=((dA0+2.*dA3)+(dA5+dA6))*C33;      
-      dR[1]+=(dB2+dB3+dB4)*S3; dA[1]=((dB0+2.*dB3)+(dB5+dB6))*C33; 
-      dR[2]+=(dC2+dC3+dC4)*S3; dA[2]=((dC0+2.*dC3)+(dC5+dC6))*C33;
+      dR          = &P[28];
+      dR [0]+=(d3A2+d3A3+d3A4)*S3;
+      dR [1]+=(d3B2+d3B3+d3B4)*S3;
+      dR [2]+=(d3C2+d3C3+d3C4)*S3;
+      d3A[0] =((d3A0+2.*d3A3)+(d3A5+d3A6))*(1./3.);      
+      d3A[1] =((d3B0+2.*d3B3)+(d3B5+d3B6))*(1./3.); 
+      d3A[2] =((d3C0+2.*d3C3)+(d3C5+d3C6))*(1./3.);
+
+      dR          = &P[35];
+      dR [0]+=(d4A2+d4A3+d4A4)*S3;
+      dR [1]+=(d4B2+d4B3+d4B4)*S3;
+      dR [2]+=(d4C2+d4C3+d4C4)*S3;
+      d4A[0] =((d4A0+2.*d4A3)+(d4A5+d4A6+A6))*(1./3.);      
+      d4A[1] =((d4B0+2.*d4B3)+(d4B5+d4B6+B6))*(1./3.); 
+      d4A[2] =((d4C0+2.*d4C3)+(d4C5+d4C6+C6))*(1./3.);
     }
+
     // New step estimation
     //
     double  a    = A[0]*m_Tr[6]+A[1]*m_Tr[7]+A[2]*m_Tr[8]; if(a==0.) return false;
@@ -1705,9 +1751,14 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
       double Sl = 2./S; sA[0] = A6*Sl; sA[1] = B6*Sl; sA[2] = C6*Sl;
       R[0]+=(A[0]*Sn); R[1]+=(A[1]*Sn); R[2]+=(A[2]*Sn); P[45]+=Sn; return true;  
     }
-    if     (aSn  < fabs(S))  S=Sn;
-    else if(S*Sn < 0.     ) {if(++it > 2) return false; S=Sn;}
 
+    double aS = fabs(S);
+
+    if     (  S*Sn < 0. ) {
+      if(++it > 2) return false; aSn < aS ? S = Sn : S =-S;
+    }
+    else if( aSn  < aS  ) S = Sn;
+   
     f0[0]=f[0]; f0[1]=f[1]; f0[2]=f[2];
   }
   return false;

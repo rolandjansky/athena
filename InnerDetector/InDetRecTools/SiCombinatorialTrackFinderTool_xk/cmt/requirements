@@ -33,3 +33,6 @@ library SiCombinatorialTrackFinderTool_xk *.cxx components/*.cxx
 apply_pattern component_library
 
 
+#private
+#macro_append cppflags " -ftree-vectorize  -ffast-math -fassociative-math -mtune=native -march=native"
+#end_private
