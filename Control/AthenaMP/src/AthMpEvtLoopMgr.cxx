@@ -384,6 +384,11 @@ StatusCode AthMpEvtLoopMgr::wait()
   for(it=m_tools.begin(); it!=itLast; ++it) 
     (*it)->reportSubprocessStatuses();
 
+  if(!all_ok) {
+    for(it=m_tools.begin(); it!=itLast; ++it) 
+      (*it)->killChildren();    
+  }
+
   return (all_ok?StatusCode::SUCCESS:StatusCode::FAILURE);
 }
 
