@@ -16,6 +16,7 @@
 #include "AthenaInterprocess/IMessageDecoder.h"
 
 #include <boost/filesystem.hpp>
+#include <memory>
 
 class IEvtSelector;
 
@@ -45,13 +46,15 @@ class AthenaMPToolBase : public AthAlgTool
   virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>);
   virtual void setRandString(const std::string& randStr);
 
+  virtual void killChildren();
+
   // _________IMessageDecoder_________
-  AthenaInterprocess::ScheduledWork* operator()(const AthenaInterprocess::ScheduledWork&);
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> operator()(const AthenaInterprocess::ScheduledWork&);
 
   // _____ Actual working horses ________
-  virtual AthenaInterprocess::ScheduledWork* bootstrap_func() = 0;
-  virtual AthenaInterprocess::ScheduledWork* exec_func() = 0;
-  virtual AthenaInterprocess::ScheduledWork* fin_func() = 0;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func() = 0;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func() = 0;
+  virtual std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func() = 0;
 
  protected:
   enum Func_Flag {

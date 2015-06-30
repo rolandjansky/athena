@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <signal.h>
 
 #include <iterator>
 
@@ -204,9 +205,16 @@ void AthenaMPToolBase::setRandString(const std::string& randStr)
   m_randStr = randStr;
 }
 
-AthenaInterprocess::ScheduledWork* AthenaMPToolBase::operator()(const AthenaInterprocess::ScheduledWork& param)
+void AthenaMPToolBase::killChildren()
 {
-  AthenaInterprocess::ScheduledWork* outwork(0);
+  for(auto child : m_processGroup->getChildren()) {
+    kill(child.getProcessID(),SIGKILL);
+  }
+}
+
+std::unique_ptr<AthenaInterprocess::ScheduledWork> AthenaMPToolBase::operator()(const AthenaInterprocess::ScheduledWork& param)
+{
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork;
   bool all_ok(true);
 
   if(param.size==sizeof(Func_Flag)) {
@@ -241,9 +249,9 @@ AthenaInterprocess::ScheduledWork* AthenaMPToolBase::operator()(const AthenaInte
   }
 
   if(!all_ok) {
-    int* errcode = new int(1); // For now use 0 success, 1 failure
-    outwork = new AthenaInterprocess::ScheduledWork;
-    outwork->data = (void*)errcode;
+    outwork = std::unique_ptr<AthenaInterprocess::ScheduledWork>(new AthenaInterprocess::ScheduledWork);
+    outwork->data = malloc(sizeof(int));
+    *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
     outwork->size = sizeof(int);
   }
 

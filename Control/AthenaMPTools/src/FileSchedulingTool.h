@@ -27,9 +27,9 @@ class FileSchedulingTool : public AthenaMPToolBase
   void subProcessLogs(std::vector<std::string>&);
 
   // _____ Actual working horses ________
-  AthenaInterprocess::ScheduledWork* bootstrap_func();
-  AthenaInterprocess::ScheduledWork* exec_func();
-  AthenaInterprocess::ScheduledWork* fin_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
 
  private:
   FileSchedulingTool();

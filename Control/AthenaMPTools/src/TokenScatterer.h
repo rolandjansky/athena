@@ -7,6 +7,9 @@
 
 #include "AthenaMPToolBase.h"
 #include "yampl/Exceptions.h"
+#include <map>
+
+typedef std::map<pid_t,std::string> Pid2RangeID;
 
 namespace yampl {
   class ISocket;
@@ -32,9 +35,9 @@ class TokenScatterer : public AthenaMPToolBase
   virtual AthenaMP::AllWorkerOutputs_ptr generateOutputReport();
 
   // _____ Actual working horses ________
-  AthenaInterprocess::ScheduledWork* bootstrap_func();
-  AthenaInterprocess::ScheduledWork* exec_func();
-  AthenaInterprocess::ScheduledWork* fin_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
 
  private:
   TokenScatterer();
@@ -54,11 +57,13 @@ class TokenScatterer : public AthenaMPToolBase
 
   // Poll the failed PID queue to see if any of the Processors has failed
   void pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+			  , yampl::ISocket* socket2Pilot
 			  , int& procReportPending);
 
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
   bool                     m_doCaching;
+  Pid2RangeID              m_pid2RangeID; // Current RangeID-s by PIDs
 };
 
 #endif
