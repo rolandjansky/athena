@@ -40,10 +40,6 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_sct          = false              ;
   m_usePix       = true              ;
   m_useSct       = true              ;
-  m_usePix       = true              ;
-  m_useSct       = true              ;
-  m_usePix       = true              ;
-  m_useSct       = true              ;
   m_useassoTool  = false              ;
   m_cosmicTrack  = false              ;    
   m_simpleTrack  = false              ;
@@ -73,6 +69,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_etaWidth     = .3                 ;
   m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
   m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
+  m_beamconditions               = "BeamCondSvc"            ;
 
   declareInterface<ISiTrackMaker>(this);
 
@@ -102,12 +99,12 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("doCaloSeededBrem"        ,m_useCaloSeeds);
   declareProperty("doHadCaloSeedSSS"        ,m_useHClusSeed);
   declareProperty("phiWidth"                ,m_phiWidth    );
-  declareProperty("useSCT"                  , m_useSct);
-  declareProperty("usePixel"                , m_usePix);
   declareProperty("etaWidth"                ,m_etaWidth    );
   declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
   declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
+  declareProperty("useSCT"                  , m_useSct);
+  declareProperty("usePixel"                , m_usePix);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -124,6 +121,15 @@ InDet::SiTrackMaker_xk::~SiTrackMaker_xk()
 
 StatusCode InDet::SiTrackMaker_xk::initialize()
 {
+  StatusCode sc = AlgTool::initialize(); 
+
+  // Get beam geometry
+  //
+  m_beam = 0;
+  if(m_beamconditions!="") {
+    sc = service(m_beamconditions,m_beam);
+  }
+
   // Get magnetic field service
   //
   if(m_fieldmode != "NoField" ) {
@@ -141,8 +147,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if ( m_roadmaker.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endreq;
     return StatusCode::FAILURE;
-  } 
-  else {
+  } else {
     msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endreq;
   }
 
@@ -151,8 +156,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if ( m_tracksfinder.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endreq;
     return StatusCode::FAILURE;
-  } 
-  else {
+  } else {
     msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
   }
 
@@ -178,7 +182,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   } 
 
   if(m_cosmicTrack)  m_seedsfilter = 3;
-  
+
   // Setup for magnetic field
   //
   std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
@@ -199,7 +203,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
   }
   
-  m_distmax = m_distmax*m_distmax;
+  m_distmax = m_distmax*m_distmax; if(m_pTmin < 20.) m_pTmin = 20.;
   return StatusCode::SUCCESS;
 }
 
@@ -335,6 +339,9 @@ std::ostream& InDet::operator <<
 
 void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 {
+  if(m_beam) {Amg::Vector3D cb = m_beam->beamPos(); m_xybeam[0] = cb[0]; m_xybeam[1] = cb[1];}
+  else       {                                      m_xybeam[0] =    0.; m_xybeam[1] =    0.;}
+  
   m_pix          = PIX && m_usePix;
   m_sct          = SCT && m_useSct;
   m_simpleTrack  = false;
@@ -347,7 +354,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 
   // Erase cluster to track association
   //
-  if(m_seedsfilter) m_clusterTrack.clear(); 
+  if(m_seedsfilter) m_clusterTrack.clear();
 
   // Erase statistic information
   //
@@ -460,10 +467,12 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   if(!m_pix && !m_sct) return m_tracks;
   
   bool good;  m_sss = false; 
-  !m_seedsfilter ? good=true : m_seedsfilter==1 ? good=newClusters(Sp) : good=newSeed(Sp);  
+  !m_seedsfilter ? good=true : good=newSeed(Sp);  
 
   if(!good) return m_tracks;
-  
+
+  m_dbm = isDBMSeeds(*Sp.begin());
+
   // Get initial parameters estimation
   // 
   const Trk::TrackParameters* Tp = getAtaPlane(m_sss && m_useHClusSeed,Sp);
@@ -476,7 +485,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   if(!m_cosmicTrack) m_roadmaker->detElementsRoad(*Tp,Trk::alongMomentum,   DE);
   else               m_roadmaker->detElementsRoad(*Tp,Trk::oppositeMomentum,DE);
 
-  if(!m_pix || !m_sct) detectorElementsSelection(DE);
+  if(!m_pix || !m_sct || m_dbm) detectorElementsSelection(DE);
 
   if( int(DE.size())  <   m_nclusmin) {delete Tp; return m_tracks;} 
 
@@ -571,6 +580,8 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
 (bool sss,const std::list<const Trk::SpacePoint*>& SP)
 {
+  if(m_dbm) return getAtaPlaneDBM(SP);
+
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if(is==ise) return 0;
 
@@ -653,6 +664,88 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
 }
 
 ///////////////////////////////////////////////////////////////////
+// Space point seed parameters extimation for DBM seed
+///////////////////////////////////////////////////////////////////
+
+const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
+(const std::list<const Trk::SpacePoint*>& SP)
+{
+  std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
+  if(is==ise) return 0;
+
+  const Trk::PrepRawData*       cl  = (*is)->clusterList().first;
+  if(!cl) return 0;
+  const Trk::PlaneSurface*      pla = 
+    static_cast<const Trk::PlaneSurface*>(&cl->detectorElement()->surface());
+  if(!pla) return 0;
+
+  is0 = is; if(++is==ise) return 0; 
+  is1 = is; if(++is==ise) return 0;
+  is2 = is ;
+  double p0[3],p1[3],p2[3]; 
+  if(!globalPositions((*is0),(*is1),(*is2),p0,p1,p2)) return 0;
+
+  double x0 = m_xybeam[0]-p0[0];
+  double y0 = m_xybeam[1]-p0[1];
+  double x2 = p2[0]      -p0[0];
+  double y2 = p2[1]      -p0[1];
+  double z2 = p2[2]      -p0[2];
+
+  double u1 = -1./sqrt(x0*x0+y0*y0);
+  double rn = x2*x2+y2*y2          ;
+  double r2 = 1./rn                ;
+  double a  =  x0*u1               ;
+  double b  =  y0*u1               ;
+  double u2 = (a*x2+b*y2)*r2       ;
+  double v2 = (a*y2-b*x2)*r2       ;
+  double A  = v2/(u2-u1)           ;
+  double B  = 2.*(v2-A*u2)         ;
+  double C  = B/sqrt(1.+A*A)       ;
+  double T  = z2*sqrt(r2)          ;
+  
+  const Amg::Transform3D& Tp = pla->transform();
+
+  double Ax[3] = {Tp(0,0),Tp(1,0),Tp(2,0)}; 
+  double Ay[3] = {Tp(0,1),Tp(1,1),Tp(2,1)}; 
+  double D [3] = {Tp(0,3),Tp(1,3),Tp(2,3)}; 
+  
+  double   d[3] = {p0[0]-D[0],p0[1]-D[1],p0[2]-D[2]};
+
+  m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
+  m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
+
+  if(m_fieldprop.magneticFieldMode() > 0) {
+
+    double H[3],gP[3] ={p0[0],p0[1],p0[2]}; m_fieldService->getFieldZR(gP,H);
+
+    if(fabs(H[2])>.0001) {
+      m_p[2] = atan2(b+a*A,a-b*A);
+      m_p[3] = atan2(1.,T)       ;  
+      m_p[5] = -C/(300.*H[2])    ;
+    }
+    else {
+      T    =  z2*sqrt(r2)  ;
+      m_p[2] = atan2(y2,x2);
+      m_p[3] = atan2(1.,T) ;
+      m_p[5] = 1./1000.    ;
+    }
+  }
+  else {
+      T    = z2*sqrt(r2)   ;
+      m_p[2] = atan2(y2,x2);
+      m_p[3] = atan2(1.,T) ;
+      m_p[5] = 1./1000     ;
+  }
+
+  if(fabs(m_p[5])*20. > 1.1) return 0;
+  m_p[4] = m_p[5]/sqrt(1.+T*T);
+  m_p[6] = p0[0]                           ;
+  m_p[7] = p0[1]                           ;
+  m_p[8] = p0[2]                           ;
+  return pla->createTrackParameters(m_p[0],m_p[1],m_p[2],m_p[3],m_p[4],0); 
+}
+
+///////////////////////////////////////////////////////////////////
 // Set track quality cuts
 ///////////////////////////////////////////////////////////////////
 
@@ -691,14 +784,21 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
 void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>& DE)
 {
   std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
+  if(!m_dbm) {
 
-  while(d!=DE.end()) {
-
-    if     ((*d)->isPixel()) {if(!m_pix) {DE.erase(d++); continue;}}
-    else if(   !m_sct      ) {            DE.erase(d++); continue; }
-    ++d;
+    while(d!=DE.end()) {
+      
+      if     ((*d)->isPixel()) {if(!m_pix) {DE.erase(d++); continue;}}
+      else if(   !m_sct      ) {            DE.erase(d++); continue; }
+      ++d;
+    }
   }
-
+  else      {
+    while(d!=DE.end()) {
+      if(!(*d)->isDBM())  {DE.erase(d++); continue;}
+      ++d;
+    }
+  }
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -726,119 +826,50 @@ void InDet::SiTrackMaker_xk::magneticFieldInit()
 // New clusters comparison with clusters associated with track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::newClusters(const std::list<const Trk::SpacePoint*>& Sp)
-{
-  const Trk::PrepRawData* prd   [ 40];
-  const Trk::Track*       trk[2][200];
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
-    t[40],te = m_clusterTrack.end();
-
-  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
-  int n = 0;
-  for(; s!=se; ++s) {
-
-     if((*s)->clusterList().first ) {
-       prd[n] = (*s)->clusterList().first;
-       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]==te) return true; ++n;
-     }
-     if((*s)->clusterList().second) {
-       prd[n] = (*s)->clusterList().second;
-       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]==te) return true; ++n;
-     }
-     if(n==40) break;
-  }
-  if(!n) return false;
-
-  int m = 0;
-  for(; t[0]!=te; ++t[0]) {
-    if( (*t[0]).first != prd[0] ) break; trk[0][m++] = (*t[0]).second; 
-    if(m==200) break;
-  } 
-  
-  int in=0, ou=1;
-
-  for(int i=1; i!=n; ++i) {
-
-    int l = 0;
-    for(; t[i]!=te; ++t[i]) {
-
-      if( (*t[i]).first != prd[i] ) break;
-
-      for(int j=0; j!=m; ++j) {
-	if((*t[i]).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
-      }
-    }
-    if(l==0) return true;
-    m=l; if(in==0) {in=1; ou=0;} else {in=0; ou=1;}
-  }
-  return false;
-}
-
-///////////////////////////////////////////////////////////////////
-// New clusters comparison with clusters associated with track
-///////////////////////////////////////////////////////////////////
-
 bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp)
 {
-  const Trk::PrepRawData* prd   [ 40];
-  const Trk::Track*       trk[2][200];
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
-    tt,t[40],te = m_clusterTrack.end();
-
+  std::multiset<const Trk::Track*> trackseed;
+  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = m_clusterTrack.end();
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
-  int n  = 0;
-  int nc = 0;
-  for(; s!=se; ++s) {
 
-     if((*s)->clusterList().first ) {
-       prd[n] = (*s)->clusterList().first;
-       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]!=te) ++nc; ++n;
-     }
-     if((*s)->clusterList().second) {
-       prd[n] = (*s)->clusterList().second;
-       t  [n] = m_clusterTrack.find(prd[n]); if(t[n]!=te) ++nc; ++n; 
-     }
-     if(n==40) break;
+  int n = 0;
+  for(s = Sp.begin(); s!=se; ++s) {
+
+    const Trk::PrepRawData* p = (*s)->clusterList().first; 
+   
+    for(pt = m_clusterTrack.find(p); pt!=pte; ++pt) {if((*pt).first!=p) break; trackseed.insert((*pt).second);} ++n;
+
+    p = (*s)->clusterList().second; if(!p) continue;
+
+    for(pt = m_clusterTrack.find(p); pt!=pte; ++pt) {if((*pt).first!=p) break; trackseed.insert((*pt).second);} ++n;
+
   }
+  if(trackseed.empty()) return true;
 
-  if(!nc || (!m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43.)) return true; 
-  if(n==nc) {
+  std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
-    int m = 0;
-    for(tt=t[0]; tt!=te; ++tt) {
-      if( (*tt).first != prd[0] ) break; trk[0][m++] = (*tt).second;
-      if(m == 200) break;
-    } 
-    
-    int in=0, ou=1, i=1;
+  const Trk::Track* tr  = (*t)                             ;
+  unsigned int      nsm = tr->measurementsOnTrack()->size();
+  unsigned int      nsm3= 0                                ;
+  int               nt  = 1                                ;
+  int               t3  = 0                                ;
 
-    for(; i!=n; ++i) {
+  for(++t; t!=te; ++t) {
 
-      int l = 0;
-      for(tt=t[i]; t[i]!=te; ++tt) {
-	if( (*tt).first != prd[i] ) break;
-	for(int j=0; j!=m; ++j) {
-	  if((*tt).second == trk[in][j]) {trk[ou][l++]= trk[in][j]; break;}
-	}
-      }
-      if(l==0) break;
-      m=l; if(in==0) {in=1; ou=0;} else {in=0; ou=1;}
-    }
-    if(i==n) return false;
+    if((*t) == tr) {++nt; continue;}
+    if (nt  == n ) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;} 
+    tr = (*t); nt = 1;
+    unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
   }
+  if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
+  
+  if(nsm3 > 13 || t3 > 2) return false;
 
-  if(n==3) return true;
+  if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
+  if(t3 > 0) return false;
 
-  int h = 0;
-  for(int i=0; i!=n; ++i) {
+  if(n==3 || n==6 || nsm < m_wrongcluster) return true;
 
-    for(tt=t[i]; t[i]!=te; ++tt) {
-      if( (*tt).first != prd[i] ) break;
-      if((*tt).second->measurementsOnTrack()->size() >= m_wrongcluster) {++h; break;}
-    }
-  }
-  if(        !h             )                return true;
-  if(n==6 && !m_useSSSfilter) {m_sss = true; return true;}
   return false;
 }
 
@@ -1121,4 +1152,15 @@ bool InDet::SiTrackMaker_xk::isHadCaloCompatible()
     ++r; ++z;
   }
   return false;
+}
+
+///////////////////////////////////////////////////////////////////
+// Test is it DBM seed
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s)
+{
+  const InDetDD::SiDetectorElement* de= 
+    static_cast<const InDetDD::SiDetectorElement*>(s->clusterList().first->detectorElement());
+  return de && de->isDBM();
 }

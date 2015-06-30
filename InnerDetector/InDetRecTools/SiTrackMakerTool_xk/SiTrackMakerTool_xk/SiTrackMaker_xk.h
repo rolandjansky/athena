@@ -26,6 +26,7 @@
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h" 
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 class MsgStream;
 
@@ -92,6 +93,7 @@ namespace InDet{
       MagField::IMagFieldSvc*                m_fieldService        ;
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker   ;
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder;
+      IBeamCondSvc*                                  m_beam        ;
 
       int                            m_nprint        ;  // Kind output information
       int                            m_inputseeds    ;  // Number input seeds
@@ -103,9 +105,11 @@ namespace InDet{
       std::string                    m_patternName   ;  // Name of the pattern recognition
       std::string         m_inputClusterContainerName;
       std::string      m_inputHadClusterContainerName;
+      std::string                    m_beamconditions;
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;
       bool                           m_sct           ;
+      bool                           m_dbm           ;
       bool                           m_usePix        ; //flags to set whether to use pixel/sct cluster, irrespective of what is in event
       bool                           m_useSct        ;
       bool                           m_useassoTool   ; // Use prd-track association tool
@@ -142,6 +146,7 @@ namespace InDet{
       double m_phiWidth                              ;
       double m_etaWidth                              ;
       double m_p[9]                                  ;
+      double m_xybeam[2]                             ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -150,6 +155,8 @@ namespace InDet{
  
       const Trk::TrackParameters* getAtaPlane
 	(bool,const std::list<const Trk::SpacePoint*>&);
+      const Trk::TrackParameters* getAtaPlaneDBM
+	(const std::list<const Trk::SpacePoint*>&);
 
       bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
 			   double*,double*,double*);
@@ -158,22 +165,21 @@ namespace InDet{
       void globalPosition(const Trk::SpacePoint*,double*,double*,double*);
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
-      bool newClusters(const std::list<const Trk::SpacePoint*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
       bool isNewTrack(Trk::Track*);
       bool isCaloCompatible   ();
       bool isHadCaloCompatible();
+      bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
-
     };
 
-  MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
-  std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
+    MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
+    std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
 
 } // end of name space
 
