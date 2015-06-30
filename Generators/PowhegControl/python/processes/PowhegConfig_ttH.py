@@ -37,7 +37,7 @@ class PowhegConfig_ttH(PowhegConfig_base) :
     ## Set optimised integration parameters
     self.ncall1   = 10000
     self.ncall2   = 10000
-    self.nubound  = 10000
+    self.nubound  = 20000
 
     ## Override defaults
     self.minlo        = -1

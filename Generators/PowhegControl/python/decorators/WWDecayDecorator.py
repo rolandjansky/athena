@@ -18,7 +18,7 @@ class WWDecayDecorator(object) :
     self.decorated = decorated
 
     self.decorated.allowed_decay_modes = []
-    self.decorated.add_parameter( 'decay_mode', None, desc='WW decay mode' )
+    self.decorated.add_phantom( 'decay_mode', None, desc='WW decay mode' )
     self.boson = boson
 
 
@@ -27,13 +27,11 @@ class WWDecayDecorator(object) :
     __decay_code_lookup = { 'e':-11, 'mu':-13, 'tau':-15, 'emu':-113, 'l':-135 }
     # 11 e-; 13 mu-; 15 tau-; -11 e+; -13 mu+; -15 tau+;
     # 113 e- and mu- together; -113 e+ and mu+ together;
-    # 135 e+, mu+ and tau+ together; -135 e-, mu- and tau- together
-    # I think this ^ is wrong
-    __decay_mode = self.decorated.pop('decay_mode')
-    if __decay_mode not in self.decorated.allowed_decay_modes :
-      self.decorated.logger.warning( 'Decay mode {0} not recognised!'.format( __decay_mode ) )
-    __W_sign = [-1,+1][ 'WpWp' in __decay_mode ]
-    __vdecaymodeW1, __vdecaymodeW2 = __decay_mode.replace('WpWp','').replace('WmWm','').split('v')[:-1]
+    # 135 e+, mu+ and tau+ together; -135 e-, mu- and tau- together (surely the other way around?)
+    if self.decorated.decay_mode not in self.decorated.allowed_decay_modes :
+      self.decorated.logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode ) )
+    __W_sign = [-1,+1][ 'WpWp' in self.decorated.decay_mode ]
+    __vdecaymodeW1, __vdecaymodeW2 = self.decorated.decay_mode.replace('WpWp','').replace('WmWm','').split('v')[:-1]
     __vdecaymodeW1 = __decay_code_lookup[__vdecaymodeW1] * __W_sign
     __vdecaymodeW2 = __decay_code_lookup[__vdecaymodeW2] * __W_sign
 

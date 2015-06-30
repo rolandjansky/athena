@@ -1,18 +1,15 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl RepeatingTimer
+#  Helper class to run repeating timer in additional thread
 #
-#   Run repeating timer in additional thread
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 import threading
 
 class RepeatingTimer(threading._Timer):
-  '''To allow timing output in an additional thread. From http://stackoverflow.com/questions/5429577/'''
+  ## To allow timing output in an additional thread. From http://stackoverflow.com/questions/5429577/
   def run(self):
     while True:
       self.finished.wait(self.interval)

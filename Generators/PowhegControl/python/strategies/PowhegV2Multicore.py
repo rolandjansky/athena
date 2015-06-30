@@ -1,12 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl PowhegV2Multicore
+#  Run multiple Powheg v2 processes
+#  - use a PowhegSingleThread for each one
+#  - needs multiple passes over the same events
 #
-#   Run multiple Powheg processes with multiple passes through each one
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 import subprocess, time
@@ -14,11 +13,7 @@ from PowhegSingleThread import *
 from OutputHandler import write_output
 from ..utility import RepeatingTimer
 
-###############################################################################
-#
-#  Register multiple Powheg processes
-#
-###############################################################################
+##  Run multiple Powheg processes
 def runPowhegV2Multicore(configurator) :
   configurator.logger.info( 'Running in multicore mode with {0} subjobs'.format(configurator.cores) )
   # Initialise temporary files to hold the seed indices, since providing stdin while reading stdout is tricky - increment by 1e6 each time
@@ -59,4 +54,3 @@ def runPowhegV2Multicore(configurator) :
     # Increment parallelstage and repeat
     subprocess.call( 'sed -i "s/parallelstage {0}/parallelstage {1}/g" powheg.input'.format(idx_stage, idx_stage+1), shell=True )
     configurator.logger.info( 'Finished stage {0}/4 in {1}'.format( idx_stage, RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )
-

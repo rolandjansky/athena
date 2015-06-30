@@ -42,4 +42,4 @@ class PowhegConfig_DMS_tloop(PowhegConfig_base) :
     self.bornktmin    = 100.0
     self.doublefsr    = 1
     self.minlo        = -1
-    self.runningscale = 3 # ! (default 3) 0, 1, 2, 3 correspond to 2mX (fixed), ptj, XXbar invmass, Ht/2
+    self.runningscale = 3 # (default 3) 0, 1, 2, 3 correspond to 2mX (fixed), ptj, XXbar invmass, Ht/2

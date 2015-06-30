@@ -29,6 +29,7 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'mass window' )
     self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'running width' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters

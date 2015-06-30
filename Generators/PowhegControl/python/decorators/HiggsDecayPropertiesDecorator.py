@@ -18,16 +18,8 @@ class HiggsDecayPropertiesDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.use_massive_b = True
-    self.decorated.use_massive_c = True
-    self.decorated.add_parameter( 'use_massive_b', True, desc='(default True) enable bottom quark mass' )
-    self.decorated.add_parameter( 'use_massive_c', True, desc='(default True) enable charm quark mass' )
-    self.decorated.add_parameter( 'hdecaywidth', 0,      desc='(default 0) 0:use hwidth; 1:read total decay width from HDECAY sm.br2 file' )
-    self.decorated.add_parameter( 'masswindow', 10.0,    desc='(default 10) number of widths around hmass in the BW for an off-shell Higgs boson' )
-    self.decorated.add_parameter( 'nnlo', -1,            desc='(default -1, disabled) enable NNLO rescaling' )
-
-
-  def finalise(self) :
-    ## Set bottom and charm masses if requested
-    self.decorated.fix_parameter( 'bottommass', [-1,ATLASCommonParameters.mass_b][self.decorated.pop('use_massive_b')], desc='(default process-dependent) bottom quark mass (enabled if defined)' )
-    self.decorated.fix_parameter( 'charmmass', [-1,ATLASCommonParameters.mass_c][self.decorated.pop('use_massive_c')],  desc='(default process-dependent) charm quark mass (enabled if defined)' )
+    self.decorated.add_parameter( 'hdecaywidth', 0,                       desc='(default 0) 0:use hwidth; 1:read total decay width from HDECAY sm.br2 file' )
+    self.decorated.add_parameter( 'mass_b', ATLASCommonParameters.mass_b, desc='(default ATLAS) bottom quark mass (loops disabled if <= 0)', parameter='bottommass' )
+    self.decorated.add_parameter( 'mass_c', ATLASCommonParameters.mass_c, desc='(default ATLAS) charm quark mass (loops enabled if <= 0)', parameter='charmmass' )
+    self.decorated.add_parameter( 'masswindow', 10.0,                     desc='(default 10) number of widths around hmass in the BW for an off-shell Higgs boson' )
+    self.decorated.add_parameter( 'nnlo', -1,                             desc='(default -1, use Powheg default) enable NNLO rescaling' )

@@ -27,9 +27,9 @@ class PowhegConfig_jj(PowhegConfig_base) :
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 70000
-    self.ncall2   = 10000
-    self.nubound  = 10000
+    self.ncall1   = 40000
+    self.ncall2   = 25000
+    self.nubound  = 50000
     self.foldx    = 10
     self.foldy    = 10
     self.foldphi  = 5

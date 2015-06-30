@@ -34,9 +34,9 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 10000
+    self.ncall1   = 30000
     self.ncall2   = 150000
-    self.nubound  = 100000
+    self.nubound  = 300000
     self.itmx2    = 12
     self.xupbound = 10
 
@@ -51,3 +51,4 @@ class PowhegConfig_WZ(PowhegConfig_base) :
                                  'WZlvvv', 'WZqqvv', 'WZqqqq' ]
     self.decay_mode = 'WZlvll'
     self.minlo      = -1
+    self.withdamp   = 1

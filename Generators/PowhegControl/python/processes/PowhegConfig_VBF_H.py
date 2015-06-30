@@ -30,7 +30,11 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     ## Set optimised integration parameters
     self.ncall1   = 20000
     self.ncall2   = 300000
-    self.nubound  = 100000
+    self.nubound  = 300000
+    self.xupbound = 4
     self.foldx    = 2
     self.foldy    = 2
     self.foldphi  = 5
+
+    ## Override defaults
+    self.withdamp = 1

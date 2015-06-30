@@ -37,3 +37,4 @@ class PowhegConfig_Wt_DR(PowhegConfig_base) :
 
     ## Override defaults
     self.topdecaymode = 11111
+    self.withdamp     = 0
