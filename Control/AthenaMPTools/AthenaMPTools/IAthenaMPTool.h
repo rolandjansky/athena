@@ -46,6 +46,9 @@ class IAthenaMPTool : virtual public IAlgTool
 
   virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>) = 0;
   virtual void setRandString(const std::string& randStr) = 0;
+
+  // Brutal force: kill all children
+  virtual void killChildren() = 0;
 };
 
 #endif

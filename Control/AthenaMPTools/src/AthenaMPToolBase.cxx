@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <signal.h>
 
 #include <iterator>
 
@@ -202,6 +203,13 @@ void AthenaMPToolBase::useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsR
 void AthenaMPToolBase::setRandString(const std::string& randStr)
 {
   m_randStr = randStr;
+}
+
+void AthenaMPToolBase::killChildren()
+{
+  for(auto child : m_processGroup->getChildren()) {
+    kill(child.getProcessID(),SIGKILL);
+  }
 }
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> AthenaMPToolBase::operator()(const AthenaInterprocess::ScheduledWork& param)

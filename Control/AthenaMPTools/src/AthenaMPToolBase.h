@@ -46,6 +46,8 @@ class AthenaMPToolBase : public AthAlgTool
   virtual void useFdsRegistry(boost::shared_ptr<AthenaInterprocess::FdsRegistry>);
   virtual void setRandString(const std::string& randStr);
 
+  virtual void killChildren();
+
   // _________IMessageDecoder_________
   std::unique_ptr<AthenaInterprocess::ScheduledWork> operator()(const AthenaInterprocess::ScheduledWork&);
 
