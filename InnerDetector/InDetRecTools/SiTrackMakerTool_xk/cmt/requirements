@@ -17,6 +17,7 @@ use AthenaBaseComps           AthenaBaseComps-*           Control
 use MagFieldInterfaces *      MagneticField
 use InDetRecToolInterfaces    InDetRecToolInterfaces-*    InnerDetector/InDetRecTools
 use TrkGeometry               TrkGeometry-*               Tracking/TrkDetDescr
+use InDetBeamSpotService      InDetBeamSpotService-*      InnerDetector/InDetConditions 
 
 library SiTrackMakerTool_xk *.cxx components/*.cxx 
 apply_pattern component_library
