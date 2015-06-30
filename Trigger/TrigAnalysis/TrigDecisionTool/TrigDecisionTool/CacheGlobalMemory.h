@@ -51,6 +51,19 @@ namespace LVL1CTP {
   class Lvl1Result;
 }
 
+namespace asg {
+  class SgTEvent;
+}
+class StoreGateSvc;
+
+#ifdef ASGTOOL_STANDALONE
+typedef asg::SgTEvent* EventPtr_t;
+#elif defined(ASGTOOL_ATHENA)
+typedef StoreGateSvc*  EventPtr_t;
+#else
+#   error "Wrong environment configuration detected!"
+#endif
+
 namespace Trig {
 
   class ChainGroup;
@@ -118,6 +131,16 @@ namespace Trig {
     void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
     Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
 
+    /// Set the event store to be used by the object
+    void setStore( EventPtr_t store ) { m_store = store; }
+    /// Get the event store that the object is using
+    EventPtr_t store() const { return m_store; }
+
+    /// Set the event store to be used by the object
+    void setDecisionKey( const std::string& key ) { m_decisionKey = key; }
+    /// Get the event store that the object is using
+    std::string decisionKey() const { return m_decisionKey; }
+
     // 
     template<class T>
     void deleteAtTheEndOfEvent(T t) const { m_deleteAtEndOfEvent.insert(t); }
@@ -150,6 +173,13 @@ namespace Trig {
     //
     // Data members
     //
+
+    /// Pointer to the event store in use
+    std::string m_decisionKey;
+    
+
+    /// Pointer to the event store in use
+    EventPtr_t m_store;
 
     /// Trigger decision unpacker helper
     IDecisionUnpacker* m_unpacker;
