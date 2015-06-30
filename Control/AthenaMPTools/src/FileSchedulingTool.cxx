@@ -139,12 +139,13 @@ void FileSchedulingTool::subProcessLogs(std::vector<std::string>& filenames)
   }
 }
 
-AthenaInterprocess::ScheduledWork* FileSchedulingTool::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap_func()
 {
-  int* errcode = new int(1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -281,11 +282,11 @@ AthenaInterprocess::ScheduledWork* FileSchedulingTool::bootstrap_func()
   }
 
   // Declare success and return
-  *errcode = 0;
+  *(int*)(outwork->data) = 0;
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* FileSchedulingTool::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -316,9 +317,9 @@ AthenaInterprocess::ScheduledWork* FileSchedulingTool::exec_func()
     }
   }
 
-  int* errcode = new int(all_ok?0:1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
@@ -327,12 +328,12 @@ AthenaInterprocess::ScheduledWork* FileSchedulingTool::exec_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* FileSchedulingTool::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::fin_func()
 {
   // Dummy
-  int* errcode = new int(0); 
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 0; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
   return outwork;
 }

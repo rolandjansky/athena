@@ -53,7 +53,7 @@ StatusCode SharedReaderTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-int SharedReaderTool::makePool(int maxevt, int, const std::string& topdir)
+int SharedReaderTool::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
   msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
 
@@ -66,6 +66,8 @@ int SharedReaderTool::makePool(int maxevt, int, const std::string& topdir)
     msg(MSG::ERROR) << "Empty name for the top directory!" << endreq;
     return -1;
   }
+
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
   m_subprocTopDir = topdir;
 
   // Create the process group with only one process and map_async bootstrap
@@ -106,12 +108,13 @@ AthenaMP::AllWorkerOutputs_ptr SharedReaderTool::generateOutputReport()
   return jobOutputs;
 }
 
-AthenaInterprocess::ScheduledWork* SharedReaderTool::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_func()
 {
-  int* errcode = new int(1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -150,7 +153,7 @@ AthenaInterprocess::ScheduledWork* SharedReaderTool::bootstrap_func()
   msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
 
   // IEventShare ...
-  if(!m_evtShare->makeServer(1).isSuccess()) {
+  if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
     msg(MSG::ERROR) << "Failed to make the event selector a share server" << endreq;
     return outwork;
   }
@@ -195,11 +198,11 @@ AthenaInterprocess::ScheduledWork* SharedReaderTool::bootstrap_func()
   }
 
   // Declare success and return
-  *errcode = 0;
+  *(int*)(outwork->data) = 0;
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* SharedReaderTool::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP Shared Reader PID=" << getpid() << endreq;
 
@@ -255,10 +258,11 @@ AthenaInterprocess::ScheduledWork* SharedReaderTool::exec_func()
     }
   }
 
-  int* errcode = new int(all_ok?0:1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -267,12 +271,12 @@ AthenaInterprocess::ScheduledWork* SharedReaderTool::exec_func()
 
 }
 
-AthenaInterprocess::ScheduledWork* SharedReaderTool::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::fin_func()
 {
   // Dummy
-  int* errcode = new int(0); 
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 0; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
   return outwork;
 }

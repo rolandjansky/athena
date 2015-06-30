@@ -110,12 +110,13 @@ AthenaMP::AllWorkerOutputs_ptr TokenScatterer::generateOutputReport()
   return jobOutputs;
 }
 
-AthenaInterprocess::ScheduledWork* TokenScatterer::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::bootstrap_func()
 {
-  int* errcode = new int(1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -181,11 +182,11 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::bootstrap_func()
   }
 
   // Declare success and return
-  *errcode = 0;
+  *(int*)(outwork->data) = 0;
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP Token Scatterer PID=" << getpid() << endreq;
 
@@ -212,13 +213,15 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   // Communication protocol with the Pilot
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
+  std::string processorWaitRequest("");
 
   while(all_ok) {
     // NO CACHING MODE: first get a request from one of the processors and only after that request the next event range from the pilot
-    if(!m_doCaching) {
+    if(!m_doCaching && processorWaitRequest.empty()) {
       msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
-	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+      while(processorWaitRequest.empty()) {
+	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
       msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
@@ -277,9 +280,13 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
        || eventRangeMap.find("startEvent")==eventRangeMap.end()
        || eventRangeMap.find("lastEvent")==eventRangeMap.end()
        || eventRangeMap.find("GUID")==eventRangeMap.end()) {
-      msg(MSG::ERROR) << "Wrong format of the event range: " << eventRange << endreq;
-      all_ok = false;
-      break;
+      std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong format");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+      continue;
     }
     else {
       msg(MSG::DEBUG) << "*** Decoded Event Range ***" << endreq;
@@ -294,10 +301,16 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     std::string guid = eventRangeMap["GUID"];
     int startEvent = std::atoi(eventRangeMap["startEvent"].c_str());
     int lastEvent = std::atoi(eventRangeMap["lastEvent"].c_str());
-    if(rangeID.empty() || lastEvent < startEvent) {
-      msg(MSG::ERROR) << "Wrong values in the Event Range: " << eventRange << endreq;
-      all_ok = false;
-      break;
+    if(rangeID.empty() 
+       || guid.empty()
+       || lastEvent < startEvent) {
+      std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong values of range fields");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+      continue;
     }
 
     // Compose a string to be sent to the TokenExtractor
@@ -317,11 +330,34 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     
     // Get the response: list of tokens
     ssize_t responseSize = socket2Extractor->recv(responseBuffer);    
-    if(responseSize==1) {
-      // Empty message received. Report an ERROR and break the loop
-      msg(MSG::ERROR) << "Token Extractor failed to deliver tokens for the RangeID=" << rangeID << endreq;
-      all_ok = false;
-      break;
+    if(responseSize==sizeof(unsigned)) {
+      // Token Extractor reported an error. In such cases the Token Extractor sends two messages
+      // 1. Error code: 0 - Global, 1 - Range-specific
+      unsigned* errorCode = (unsigned*)responseBuffer;
+      bool globalTEError = (*errorCode==0?true:false);
+      // 2. Error message
+      responseSize = socket2Extractor->recv(responseBuffer);
+      std::string errorString(responseBuffer,responseSize);
+      msg(MSG::ERROR) << "Token Extractor reporting an error: " << errorString << endreq;
+
+      if(globalTEError) {
+	std::string errorStr("ERR_TE_FATAL " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+	memcpy(errorMessage,errorStr.data(),errorStr.size());
+	socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::ERROR) << "This is a FATAL error! Stopping the event loop" << endreq;
+	all_ok = false;
+	break;
+      }
+      else {
+	// Range specific error
+	std::string errorStr("ERR_TE_RANGE " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+        memcpy(errorMessage,errorStr.data(),errorStr.size());
+        socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::INFO) << "Ignoring this event range " << endreq;
+	continue;
+      }
     }
     std::string responseStr(responseBuffer,responseSize);
     msg(MSG::DEBUG) << "Received response from the token extractor with the tokens: " << responseStr << endreq;
@@ -330,8 +366,9 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     // and only after that wait for a new range request by one of the processors
     if(m_doCaching) {
       msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
-      while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
-	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+      while(processorWaitRequest.empty()) {
+	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
       msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
@@ -343,6 +380,12 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     memcpy(message2Processor,message2ProcessorStr.data(),message2ProcessorStr.size());
     socket2Processor->send(message2Processor,message2ProcessorStr.size());
     procReportPending++;
+
+    // Get PID from the request and Update m_pid2RangeID
+    int pid = std::atoi(processorWaitRequest.c_str());
+    m_pid2RangeID[pid] = rangeID;
+    processorWaitRequest.clear();
+
     msg(MSG::DEBUG) << "Sent response to the processor : " << message2ProcessorStr << endreq;
   }
 
@@ -360,29 +403,32 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     // Tell the workers that the event processing is over
     // i.e. send out m_nprocs empty messages
     void* emptyMess4Processor(0);
-    if(!m_doCaching) {
+    if(!processorWaitRequest.empty()) {
       // We already have one processor waiting for the answer
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
+      msg(MSG::DEBUG) << "Set one processor free" << endreq;
     }
-    for(int i(0); i<(m_doCaching?m_nprocs:m_nprocs-1); ++i) {
+    for(int i(0); i<(processorWaitRequest.empty()?m_nprocs:m_nprocs-1); ++i) {
+      msg(MSG::DEBUG) << "Going to set another processor free" << endreq;
       while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
-	pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
+      msg(MSG::DEBUG) << "DONE" << endreq;
     }
+
+    msg(MSG::DEBUG) << "Still " << procReportPending << " pending reports" << endreq;
     
     // Final round of colecting output file names from processors
     while(procReportPending>0) {
       std::string strProcessorRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
       if(!strProcessorRequest.empty()) {
-	msg(MSG::ERROR) << "Unexpected message received from a processor at this stage : " << strProcessorRequest << endreq;
-	all_ok = false;
-	break;
+	msg(MSG::WARNING) << "Unexpected message received from a processor at this stage : " << strProcessorRequest << endreq;
       }
-      pollFailedPidQueue(sharedFailedPidQueue,procReportPending);
+      pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
       usleep(1000);
     }
   }
@@ -398,10 +444,11 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
     }
   }
   
-  int* errcode = new int(all_ok?0:1); // For now use 0 success, 1 failure
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
+
   // ...
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
@@ -414,12 +461,12 @@ AthenaInterprocess::ScheduledWork* TokenScatterer::exec_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenScatterer::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::fin_func()
 {
   // Dummy
-  int* errcode = new int(0); 
-  AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
+  outwork->data = malloc(sizeof(int));
+  *(int*)(outwork->data) = 0; // Error code: for now use 0 success, 1 failure
   outwork->size = sizeof(int);
   return outwork;
 }
@@ -461,7 +508,7 @@ std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
 					       , yampl::ISocket* socket2Pilot
 					       , int& procReportPending)
 {
-  msg(MSG::DEBUG) << "In getNewRangeRequest ..."  << endreq;
+//  msg(MSG::DEBUG) << "In getNewRangeRequest ..."  << endreq;
   void* processor_request(0);
   ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
 
@@ -480,11 +527,20 @@ std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
 }
 
 void TokenScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+					, yampl::ISocket* socket2Pilot
 					, int& procReportPending)
 {
   pid_t pid;
   if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)) {
     msg(MSG::INFO) << "Procesor with PID=" << pid << " has failed!" << endreq;
+    if(m_pid2RangeID.find(pid)!=m_pid2RangeID.end()) {
+      msg(MSG::WARNING) << "The failed RangeID = " << m_pid2RangeID[pid] << " will be reported to Pilot" << endreq;
+
+      std::string errorStr("ERR_ATHENAMP_PROCESS " + m_pid2RangeID[pid] + ": Failed to process event range");
+      void* errorMessage = malloc(errorStr.size());
+      memcpy(errorMessage,errorStr.data(),errorStr.size());
+      socket2Pilot->send(errorMessage,errorStr.size());
+    }
     procReportPending--;
   } 
 }

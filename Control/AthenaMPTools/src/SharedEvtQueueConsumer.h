@@ -35,9 +35,9 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   void subProcessLogs(std::vector<std::string>&);
 
   // _____ Actual working horses ________
-  AthenaInterprocess::ScheduledWork* bootstrap_func();
-  AthenaInterprocess::ScheduledWork* exec_func();
-  AthenaInterprocess::ScheduledWork* fin_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> bootstrap_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> exec_func();
+  std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
 
  private:
   SharedEvtQueueConsumer();
@@ -52,6 +52,7 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   // Properties
   bool m_useSharedReader; // Work in pair with a SharedReader
   bool m_isPileup;        // Are we doing pile-up digitization?
+  bool m_isRoundRobin;    // Are we running in the "reproducible mode"?
   int  m_nEventsBeforeFork;
 
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
