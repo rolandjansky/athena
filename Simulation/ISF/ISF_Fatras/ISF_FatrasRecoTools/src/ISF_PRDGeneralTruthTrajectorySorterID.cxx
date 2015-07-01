@@ -32,9 +32,9 @@ public:
     const Amg::Vector3D* globalPosition_prd2 = ((prd2->detectorElement())->surface(prd2->identify())).localToGlobal(prd2->localPosition());
     
     //for debugging
-    std::cout << "globalPosition_prd1->mag() = " << globalPosition_prd1->mag() << std::endl;
-    std::cout << "globalPosition_prd2->mag() = " << globalPosition_prd2->mag() << std::endl;
-    std::cout << "globalPosition_prd1->mag() < globalPosition_prd2->mag()" << (globalPosition_prd1->mag() < globalPosition_prd2->mag()) << std::endl;
+    //std::cout << "globalPosition_prd1->mag() = " << globalPosition_prd1->mag() << std::endl;
+    //std::cout << "globalPosition_prd2->mag() = " << globalPosition_prd2->mag() << std::endl;
+    //std::cout << "globalPosition_prd1->mag() < globalPosition_prd2->mag() = " << (globalPosition_prd1->mag() < globalPosition_prd2->mag()) << std::endl;
         
     return (globalPosition_prd1->mag() < globalPosition_prd2->mag());
   }
