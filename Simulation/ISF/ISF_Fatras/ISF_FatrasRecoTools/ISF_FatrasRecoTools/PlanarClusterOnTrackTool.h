@@ -52,9 +52,6 @@ namespace iFatras {
 						const Trk::TrackParameters&) const;
     /** handle for incident service */
     void handle(const Incident& inc) ;
-
-  private:
-    bool        m_useDefinedParameters;
     
   };
 
