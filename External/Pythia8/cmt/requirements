@@ -12,7 +12,7 @@ use LCG_Configuration
 macro myLCG_config_version "67c"
 #end_private
 macro Pythia8_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/pythia8"
-macro Pythia8_version "205"
+macro Pythia8_version "210"
 
 macro Pythia8_patch_version ""
 macro Pythia8_native_version "$(Pythia8_version)$(Pythia8_patch_version)_lcgcmt$(myLCG_config_version)"
