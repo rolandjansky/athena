@@ -56,29 +56,37 @@ namespace iFatras {
     
   private:
     /** templated method since used for further developments */
-    template < class PrdT > const Trk::PrepRawData* prdFromIdentifierContainer(
-									       const Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >& cont,
-									       const Identifier& ideh, const IdentifierHash& ideHash ) const 
+    template < class PrdT > const Trk::PrepRawData* prdFromIdentifierContainers(
+										std::vector < const Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >* >& coll,
+										const Identifier& ideh, const IdentifierHash& ideHash ) const 
       {
-	// find the collection
-	typename Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >::const_iterator prdCollIter = cont.indexFind(ideHash);
-	if ( prdCollIter == cont.end() ){
-	  ATH_MSG_VERBOSE("PRD Collection to IdentifierHash could not be found. Return 0.");
-	  return 0;
-	}
-	const Trk::PrepRawDataCollection< PrdT >* prdCollection = (*prdCollIter);
-	// search for the PRD in the collection --- do a loop, can be done better with std::find probably
 	const PrdT* prd = 0;
-	// iterate through the collections
-	typename Trk::PrepRawDataCollection< PrdT >::const_iterator prdIter  = prdCollection->begin();
-	typename Trk::PrepRawDataCollection< PrdT >::const_iterator prdIterE = prdCollection->end();
-	for ( ; prdIter != prdIterE; ++prdIter ){
-	  if ( (*prdIter)->identify() == ideh ){
-	    prd = (*prdIter);
-	    break;
+	// loop on the containers
+	typename std::vector < const Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >* >::const_iterator pmtVecCollIter  = coll.begin();
+	typename std::vector < const Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >* >::const_iterator pmtVecCollIterE = coll.end();
+	for ( ; pmtVecCollIter != pmtVecCollIterE; ++pmtVecCollIter ){
+	  // find the collection
+	  typename Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >::const_iterator prdCollIter = (*pmtVecCollIter)->indexFind(ideHash);
+	  if (!(*prdCollIter))
+	    continue;
+	    
+	  const Trk::PrepRawDataCollection< PrdT >* prdCollection = (*prdCollIter);
+	  // search for the PRD in the collection --- do a loop, can be done better with std::find probably
+	  // iterate through the collections
+	  typename Trk::PrepRawDataCollection< PrdT >::const_iterator prdIter  = prdCollection->begin();
+	  typename Trk::PrepRawDataCollection< PrdT >::const_iterator prdIterE = prdCollection->end();
+	  for ( ; prdIter != prdIterE; ++prdIter ){
+	    if ( (*prdIter)->identify() == ideh ){
+	      prd = (*prdIter);
+	      break;
+	    }
 	  }
 	}
+	
 	// return what you have
+	if (!prd) // if no prd is found
+	  ATH_MSG_VERBOSE("PRD Collection to IdentifierHash could not be found. Return 0.");
+	
 	return prd;
       }
     
@@ -88,8 +96,11 @@ namespace iFatras {
     
     const SCT_ID*                               m_sctIdHelper;                      
     
-    std::string                                 m_planarClusterContainerName;          
-    mutable const iFatras::PlanarClusterContainer*        m_planarClusterContainer;     
+    std::vector<std::string>                                        m_planarClusterContainerNames;          
+    mutable std::vector<const iFatras::PlanarClusterContainer*>*    m_planarClusterContainers;     
+
+    bool                                        m_usePixel;
+    bool                                        m_useSCT;
     
   };
 
