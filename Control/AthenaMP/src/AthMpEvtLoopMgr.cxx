@@ -10,6 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "PersistentDataModel/Guid.h"
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -137,8 +138,11 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Generate random component of the Shared Memory and Shared Queue names
   srand(time(NULL));
+  Guid uuid;
+  Guid::create(uuid);
   std::ostringstream randStream;
-  randStream << rand();
+  randStream << getpid() << '_' << uuid.toString();
+  ATH_MSG_INFO("Using random components for IPC object names: " << randStream.str());
 
   StoreGateSvc* pDetStore(0);
   if(service("DetectorStore", pDetStore).isFailure() || pDetStore==0) {
@@ -169,7 +173,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Initialize shared memory segment and by this way make sure it never gets re-initialized during the job
   m_shmemName = std::string("/athmp-shmem-"+randStream.str());
-  boost::interprocess::shared_memory_object::remove(m_shmemName.c_str());
   boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::create_only
 							 , m_shmemName.c_str()
 							 , boost::interprocess::read_write);
