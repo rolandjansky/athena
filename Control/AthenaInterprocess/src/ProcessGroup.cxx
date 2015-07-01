@@ -22,7 +22,7 @@ using namespace boost::interprocess;
 static inline AthenaInterprocess::SharedQueue create_queue( const std::string& owner, int count )
 {
    std::ostringstream s;
-   s << "athenamp_" << owner << '_' << getpid() << '_' << count << std::ends;
+   s << "athenamp_" << owner << '_' << getpid() << '_' << count << '_' << rand() << std::ends;
    AthenaInterprocess::SharedQueue queue = AthenaInterprocess::SharedQueue( s.str() );
    return queue;
 }
@@ -218,7 +218,7 @@ bool ProcessGroup::create()
 // a single queue for posting back onto the mother
    if ( ! m_inbox ) {
       std::ostringstream s;
-      s << "athenamp_mother_" << getpid() << std::ends;
+      s << "athenamp_mother_" << getpid() << '_' << rand() << std::ends;
       m_inbox = AthenaInterprocess::IdentifiedSharedQueue( s.str() );
    }
 
