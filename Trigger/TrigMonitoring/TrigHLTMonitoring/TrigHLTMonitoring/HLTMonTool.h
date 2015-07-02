@@ -24,7 +24,8 @@
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiCalc/CoolQuery.h"   
-
+#include "xAODLuminosity/LumiBlockRangeContainer.h"
+#include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
 //#include "TrigDecision/TrigDecisionTool.h"
 
 // Forward declarations
@@ -32,7 +33,7 @@ class IInterface;
 class StoreGateSvc;
 class TH1F;
 class StatusCode;
-class LumiBlockCollection;
+// class LumiBlockCollection;
 ///Concrete monitoring tool derived from MonitorToolBase
 class HLTMonTool : public IHLTMonTool {
 
@@ -72,9 +73,10 @@ class HLTMonTool : public IHLTMonTool {
   std::map<cool::ValidityKey, cool::UInt63> m_lbStartTimes; //!< map of LB to its start time in UNIX time
   std::map<cool::ValidityKey, cool::UInt63> m_lbStopTimes;  //!< map of LB to its stop time in UNIX time
   
-  std::string m_lumikey; //!< StoreGate Key for LumiBlockCollection
+  std::string m_lumikey; //!< StoreGate Key for LumiBlockRangeContainer
   std::string m_basepath; //!< Basepath for MonTool
-  LumiBlockCollection* m_lbc;
+  //  LumiBlockCollection* m_lbc;
+  const xAOD::LumiBlockRangeContainer* m_lbc;
   bool m_scopeLumi;
   int m_nLBs; //# of lumi blocks in run;
 };

@@ -3,7 +3,6 @@ package TrigHLTMonitoring
 author Martin zur Nedden <nedden@mail.cern.ch>
 
 use AtlasPolicy             AtlasPolicy-*
-#use AtlasCLHEP             AtlasCLHEP-*            External
 use GaudiInterface          GaudiInterface-*        External
 
 private
@@ -20,10 +19,7 @@ use TrigDecisionTool        TrigDecisionTool-*      Trigger/TrigAnalysis
 use TrigConfigSvc           TrigConfigSvc-*         Trigger/TrigConfiguration
 
 use LumiCalc                LumiCalc-*        LumiBlock
-#use LumiBlockData          LumiBlockData-*         LumiBlock
-#use AtlasCOOL              AtlasCOOL-*             External
-#use CoraCool               CoraCool-*              Database     
-
+use xAODLuminosity              xAODLuminosity-*     Event/xAOD
 
 private
 use AthenaKernel            AthenaKernel-*          Control

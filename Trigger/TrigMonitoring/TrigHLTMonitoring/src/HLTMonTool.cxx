@@ -56,7 +56,7 @@
 HLTMonTool::HLTMonTool(const std::string & type, 
 const std::string & name,
 const IInterface* parent)
-: IHLTMonTool(type, name, parent), m_lbc(0)
+: IHLTMonTool(type, name, parent)
 {
   declareProperty("RegExes",m_regexlist);
   declareProperty("LumiKey",m_lumikey = "LumiBlocks");
@@ -144,30 +144,63 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
     sc = StatusCode::FAILURE;
     ATH_MSG_WARNING("List of L1 Items from TDT is empty");
   }
+
   if(m_scopeLumi){
-    sc = m_inputMetaStore->retrieve(m_lbc,m_lumikey);
-    if(sc.isFailure()){
-      ATH_MSG_INFO("Couldn't retrieve LumiBlockCollection!");
-      m_scopeLumi = 0; //switch off rate monitoring
+    //    sc = m_inputMetaStore->retrieve(m_lbc,m_lumikey);
+    //   if(sc.isFailure()){
+    //  ATH_MSG_INFO("Couldn't retrieve LumiBlockCollection!");
+    //   m_scopeLumi = 0; //switch off rate monitoring
+
+    if (m_inputMetaStore->contains<xAOD::LumiBlockRangeContainer>(m_lumikey)) {
+      StatusCode sc = m_inputMetaStore->retrieve(m_lbc,m_lumikey);
+      if (!sc.isSuccess()) {
+	ATH_MSG_INFO( "Could not find  xAOD::LumiBlockRangeContainer in input metatdata store" );
+	m_scopeLumi = 0; //switch off lumi monitoring
+      }
     }
     else{
       ATH_MSG_DEBUG("Retrieved LumiBlockCollection! Size is " << m_lbc->size());
       
       // loop over lumiblockcollection, count lumiblocks for histo booking
-      LumiBlockCollection::iterator lbit = m_lbc->begin();
+      //      LumiBlockCollection::iterator lbit = m_lbc->begin();
+
+      // loop over lumiblockrangecontainer, count lumiblocks for histo booking
+      
+      xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
+      xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
+      xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
+
       int m_nLBs = 0;
       uint32_t start, stop;
-      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
-      for(;lbit!=m_lbc->end();++lbit){
-	IOVRange* range = (IOVRange*)(*lbit);
-	start = (range->start()).event();
-	stop = (range->stop()).event();
+
+      //      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
+      //      for(;lbit!=m_lbc->end();++lbit){
+      //	IOVRange* range = (IOVRange*)(*lbit);
+      //	start = (range->start()).event();
+      //	stop = (range->stop()).event();
+
+      uint32_t first = (*lbit)->startLumiBlockNumber();
+      for(;lbit!=ie;++lbit){
+	start = (*lbit)->startLumiBlockNumber();
+	stop = (*lbit)->stopLumiBlockNumber();
+
 	m_nLBs += stop - start + 1;
       }//loop over contigous lb ranges
       
       //get all LumiBlocks for this run
       ATH_MSG_DEBUG("Now making CoolQuery database access!");
-      m_coolquery = new CoolQuery("COOLOFL_TRIGGER/COMP200","L1_MBTS_1"); // <<-- L1_MBTS_1 is just dummy initial value
+      //  m_coolquery = new CoolQuery("COOLOFL_TRIGGER/COMP200","L1_MBTS_1"); // <<-- L1_MBTS_1 is just dummy initial value
+
+
+      std::string oflfolder = "COOLOFL_TRIGGER/";
+      std::string datadb;
+      if((*i)->startRunNumber()> 222222) {
+	datadb="CONDBR2";
+      } else {
+	datadb="COMP200";
+      }
+      m_coolquery = new CoolQuery(oflfolder+datadb,"L1_MBTS_1"); // <<-- L1_MBTS_1 is just dummy initial value
+
       if(m_coolquery){
 	m_coolquery->openDbConn();
 	
@@ -268,10 +301,17 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
       for(chItr = ratechains.begin(); chItr!=ratechains.end();++chItr){
 	ATH_MSG_VERBOSE("booking Rate histogram for chain " << *chItr << " in " << monpath);
 	addHistogram(new TH1F(chItr->c_str(),std::string("Rate_"+(*chItr)).c_str(),m_nLBs,0.5,m_nLBs+0.5),monpath);
-	for(LumiBlockCollection::iterator lbit=m_lbc->begin();lbit!=m_lbc->end();++lbit){
-	  IOVRange* range = (IOVRange*)(*lbit);
-	  uint32_t start = (range->start()).event();
-	  uint32_t stop = (range->stop()).event();
+	//	for(LumiBlockCollection::iterator lbit=m_lbc->begin();lbit!=m_lbc->end();++lbit){
+	//	  IOVRange* range = (IOVRange*)(*lbit);
+	//  uint32_t start = (range->start()).event();
+	//  uint32_t stop = (range->stop()).event();
+        xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
+        xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
+        xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
+        for(;lbit!=ie;++lbit){
+	  uint32_t start = (*lbit)->startLumiBlockNumber();
+	  uint32_t stop = (*lbit)->stopLumiBlockNumber();
+
 	  for(uint32_t i=start;i<=stop;++i)
 	    hist(chItr->c_str(),monpath)->GetXaxis()->SetBinLabel(start+(i-1),((std::string)IOVTime(getRunNr(),start+(i-1))).c_str());
 	}//loop over contigous lb ranges
