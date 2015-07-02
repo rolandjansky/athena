@@ -8,7 +8,6 @@
 #include "DerivationFrameworkTools/FilterCombinationOR.h"
 #include "DerivationFrameworkTools/TriggerSkimmingTool.h"
 #include "DerivationFrameworkTools/PrescaleTool.h"
-#include "DerivationFrameworkTools/GenericObjectThinning.h"
 
 using namespace DerivationFramework;
 
@@ -21,7 +20,6 @@ DECLARE_TOOL_FACTORY( FilterCombinationAND )
 DECLARE_TOOL_FACTORY( FilterCombinationOR )
 DECLARE_TOOL_FACTORY( TriggerSkimmingTool )
 DECLARE_TOOL_FACTORY( PrescaleTool )
-DECLARE_TOOL_FACTORY( GenericObjectThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
    DECLARE_TOOL( xAODStringSkimmingTool )
@@ -33,6 +31,5 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkTools ) {
    DECLARE_TOOL( FilterCombinationOR )
    DECLARE_TOOL( TriggerSkimmingTool )
    DECLARE_TOOL( PrescaleTool )
-   DECLARE_TOOL( GenericObjectThinning )
 }
 

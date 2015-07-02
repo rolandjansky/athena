@@ -53,10 +53,10 @@ bool DerivationFramework::FilterCombinationAND::eventPassesFilter() const
   ToolHandleArray<DerivationFramework::ISkimmingTool>::const_iterator filterIter = m_filtersToCombine.begin();
   for (; filterIter != m_filtersToCombine.end(); ++filterIter) {
     bool thisFilterPasses = (*filterIter)->eventPassesFilter();
-    msg(MSG::DEBUG)<<" Filter "<<filterIter->name()<<" passes? "<<thisFilterPasses<<endmsg;
+    msg(MSG::DEBUG)<<" Filter "<<filterIter->name()<<" passes? "<<thisFilterPasses<<endreq;
     passesEvent = passesEvent && thisFilterPasses ;
   }
-  msg(MSG::DEBUG)<<" AND of all filters  passes? "<<passesEvent<<endmsg;
+  msg(MSG::DEBUG)<<" AND of all filters  passes? "<<passesEvent<<endreq;
   if (passesEvent) m_npass++;
  
   return passesEvent;

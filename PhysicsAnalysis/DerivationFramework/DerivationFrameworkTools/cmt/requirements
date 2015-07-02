@@ -8,12 +8,13 @@ use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAn
 use GaudiInterface 	GaudiInterface-* 	External
 use TrigDecisionTool     TrigDecisionTool-*     Trigger/TrigAnalysis
 use PATCore         PATCore-*         PhysicsAnalysis/AnalysisCommon
-use xAODBase             xAODBase-*             Event/xAOD
 
 private
   use ExpressionEvaluation ExpressionEvaluation-*  PhysicsAnalysis/CommonTools  
   use AtlasROOT            AtlasROOT-*             External
-  use AthenaKernel         AthenaKernel-*          Control 
+
+# xAOD packages and other dependencies
+  use xAODBase             xAODBase-*             Event/xAOD
 end_private
 
 public

@@ -49,10 +49,10 @@ bool DerivationFramework::FilterCombinationOR::eventPassesFilter() const
   for (; filterIter != m_filtersToCombine.end(); ++filterIter) {
     bool thisFilterPasses = (*filterIter)->eventPassesFilter();
    
-    msg(MSG::DEBUG)<<" Filter "<<filterIter->name()<<" passes? "<<thisFilterPasses<<endmsg;
+    msg(MSG::DEBUG)<<" Filter "<<filterIter->name()<<" passes? "<<thisFilterPasses<<endreq;
     passesEvent = passesEvent || thisFilterPasses ;
   }
-  msg(MSG::DEBUG)<<" OR of all filters  passes? "<<passesEvent<<endmsg;
+  msg(MSG::DEBUG)<<" OR of all filters  passes? "<<passesEvent<<endreq;
   if (passesEvent) m_npass++;
   return passesEvent;
  
