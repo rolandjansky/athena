@@ -98,6 +98,7 @@ namespace MuonCalib {
     MuonCalibCaloBranch   m_mbtsBranch;
     MuonCalibCaloBranch   m_caloBranch;
     MuonCalibTriggerInfoBranch m_ctpBranch;
+    bool m_init;
   };
 
 

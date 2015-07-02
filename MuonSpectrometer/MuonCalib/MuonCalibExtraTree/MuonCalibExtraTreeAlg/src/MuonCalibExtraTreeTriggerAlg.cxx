@@ -58,7 +58,8 @@ namespace MuonCalib {
     AthAlgorithm(name, pSvcLocator), p_StoreGateSvc(0),
     m_rpcRoiService( "LVL1RPC::RPCRecRoiSvc", name ),
     m_tgcRoiService( "LVL1TGC::TGCRecRoiSvc", name ),
-    m_caloBranch("calo_")
+    m_caloBranch("calo_"),
+    m_init(false)
   {
     declareProperty("doCTP", m_doCTP = true );
     declareProperty("doMuCTPI", m_doMuCTPI = true );
@@ -81,20 +82,6 @@ namespace MuonCalib {
   
     MsgStream log(messageService(), name());
     log << MSG::INFO << "Initialisation started     " << endreq;
-
-    TDirectory* dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
-    dir->cd();
-    
-    log << MSG::DEBUG << "Try the GetObject call" << endreq;
-    dir->GetObject("Segments",m_tree);
-
-    log << MSG::DEBUG << "retrieved tree " << m_tree << endreq;
-
-    log << MSG::DEBUG << "created tree" << endreq;
-    if(m_doMuCTPI) m_muCTPIBranch.createBranch(m_tree);
-    if(m_doMBTS) m_mbtsBranch.createBranch(m_tree);
-    if(m_doLVL1Calo) m_caloBranch.createBranch(m_tree);
-    if(m_doCTP)  m_ctpBranch.createBranch(m_tree);
 
     // Set pointer on StoreGateSvc
     StatusCode  sc = service("StoreGateSvc", p_StoreGateSvc);
@@ -141,8 +128,27 @@ namespace MuonCalib {
 
   // Execute
   StatusCode MuonCalibExtraTreeTriggerAlg::execute(){
-
     MsgStream log(messageService(), name());
+
+    if(!m_init) {
+
+      TDirectory* dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
+      dir->cd();
+      
+      log << MSG::DEBUG << "Try the GetObject call" << endreq;
+      dir->GetObject("Segments",m_tree);
+      
+      log << MSG::DEBUG << "retrieved tree " << m_tree << endreq;
+      
+      log << MSG::DEBUG << "created tree" << endreq;
+      if(m_doMuCTPI) m_muCTPIBranch.createBranch(m_tree);
+      if(m_doMBTS) m_mbtsBranch.createBranch(m_tree);
+      if(m_doLVL1Calo) m_caloBranch.createBranch(m_tree);
+      if(m_doCTP)  m_ctpBranch.createBranch(m_tree);
+
+      m_init = true;
+    }
+
     log << MSG::DEBUG << " execute()     " << endreq;
 
     if( m_doMuCTPI ) addMuCTPI();
