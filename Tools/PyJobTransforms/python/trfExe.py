@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 677748 2015-06-23 20:29:35Z graemes $
+# @version $Id: trfExe.py 679938 2015-07-02 22:09:59Z graemes $
 
 import copy
 import json
@@ -165,6 +165,7 @@ class transformExecutor(object):
         self._memStats = {}
         self._eventCount = None
         self._athenaMP = None
+        self._dbMonitor = None
         
         
     ## Now define properties for these data members
@@ -332,6 +333,10 @@ class transformExecutor(object):
     @property
     def athenaMP(self):
         return self._athenaMP
+
+    @property
+    def dbMonitor(self):
+        return self._dbMonitor
 
     def preExecute(self, input = set(), output = set()):
         msg.info('Preexecute for %s' % self._name)
@@ -714,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 677748 2015-06-23 20:29:35Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 679938 2015-07-02 22:09:59Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -733,13 +738,55 @@ class athenaExecutor(scriptExecutor):
     def preExecute(self, input = set(), output = set()):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         
+        # Check we actually have events to process!
+        inputEvents = 0
+        dt = ""
+        if self._inputDataTypeCountCheck is None:
+            self._inputDataTypeCountCheck = input
+        for dataType in self._inputDataTypeCountCheck:
+            thisInputEvents = self.conf.dataDictionary[dataType].nentries
+            if thisInputEvents > inputEvents:
+                inputEvents = thisInputEvents
+                dt = dataType
+
+        # Now take into account skipEvents and maxEvents
+        if ('skipEvents' in self.conf.argdict and 
+            self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None):
+            mySkipEvents = self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+        else:
+            mySkipEvents = 0
+
+        if ('maxEvents' in self.conf.argdict and 
+            self.conf.argdict['maxEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None):
+            myMaxEvents = self.conf.argdict['maxEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+        else:
+            myMaxEvents = -1
+            
+        # Any events to process...?
+        if (self._inputEventTest and mySkipEvents > 0 and mySkipEvents >= inputEvents):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
+                                                           'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(mySkipEvents, inputEvents, dt))
+        
+        # Expected events to process
+        if (myMaxEvents != -1):
+            expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
+        else:
+            expectedEvents = inputEvents-mySkipEvents
+        
         # Try to detect AthenaMP mode and number of workers
         if self.conf._disableMP:
             self._athenaMP = 0
         else:
             self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
+
+            # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
+            # which also avoids issues with zero sized files
+            if expectedEvents < self._athenaMP:
+                msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
+                self.conf._disableMP = True
+                self._athenaMP = 0
             
-        # And if this is athenaMP, then set some options for workers and output file report
+        # And if this is (still) athenaMP, then set some options for workers and output file report
         if self._athenaMP:
             self._athenaMPWorkerTopDir = 'athenaMP-workers-{0}-{1}'.format(self._name, self._substep)
             self._athenaMPFileReport = 'athenaMP-outputs-{0}-{1}'.format(self._name, self._substep)
@@ -756,24 +803,6 @@ class athenaExecutor(scriptExecutor):
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
 
-        # Check we actually have events to process!
-        if (self._inputEventTest and 'skipEvents' in self.conf.argdict and 
-            self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None):
-            msg.debug('Will test for events to process')
-            if self._inputDataTypeCountCheck is None:
-                self._inputDataTypeCountCheck = input
-            for dataType in self._inputDataTypeCountCheck:
-                try:
-                    inputEvents = self.conf.dataDictionary[dataType].nentries
-                    msg.debug('Got {0} events for {1}'.format(inputEvents, dataType))
-                    if not isinstance(inputEvents, (int, long)):
-                        msg.warning('Are input events countable? Got nevents={0} so disabling event count check for this input'.format(inputEvents))
-                    elif self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) >= inputEvents:
-                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
-                                                                        'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor), inputEvents, dataType))
-                except KeyError:
-                    pass
-    
         ## Write the skeleton file and prep athena
         if self._skeleton is not None:
             inputFiles = dict()
@@ -897,6 +926,8 @@ class athenaExecutor(scriptExecutor):
         msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
         self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
         worstError = self._logScan.worstError()
+        self._dbMonitor = self._logScan.dbMonitor()
+        
 
         # In general we add the error message to the exit message, but if it's too long then don't do
         # that and just say look in the jobReport
@@ -1042,7 +1073,7 @@ class athenaExecutor(scriptExecutor):
                     print >>wrapper, 'DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot)
                 if self.conf._disableMP:
                     print >>wrapper, "# AthenaMP explicitly disabled for this executor"
-                    print >>wrapper, "unset ATHENA_PROC_NUMBER"
+                    print >>wrapper, "export ATHENA_PROC_NUMBER=0"
                 if self._envUpdate.len > 0:
                     print >>wrapper, "# Customised environment"
                     for envSetting in  self._envUpdate.values:

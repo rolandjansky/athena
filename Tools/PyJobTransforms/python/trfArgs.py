@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 676585 2015-06-19 09:24:49Z graemes $
+#  @version $Id: trfArgs.py 679938 2015-07-02 22:09:59Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -25,8 +25,6 @@ def addStandardTrfArgs(parser):
     parser.add_argument('--showSteps', action='store_true', help='Show list of executor steps only, then exit')
     parser.add_argument('--dumpPickle', metavar='FILE', help='Interpret command line arguments and write them out as a pickle file')
     parser.add_argument('--dumpJSON', metavar='FILE', help='Interpret command line arguments and write them out as a JSON file')
-    parser.add_argument('--orphanKiller', action='store_true', help="Kill all orphaned children at the end of a job (that is, sharing the transform's pgid, but with ppid=1)." 
-                                                                    "Beware, this is potentially dangerous in a a batch environment")
     parser.add_argument('--reportName', type=argFactory(trfArgClasses.argString, runarg=False), 
                         help='Base name for job reports (default name is "jobReport" for most reports, but "metadata" for classic prodsys XML)')
     parser.add_argument('--reportType', type=argFactory(trfArgClasses.argList, runarg=False), nargs='+', metavar='TYPE',

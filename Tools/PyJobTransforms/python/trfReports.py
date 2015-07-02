@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 677748 2015-06-23 20:29:35Z graemes $
+#  @version $Id: trfReports.py 679715 2015-07-02 11:28:03Z lerrenst $
 #
 
-__version__ = '$Revision: 677748 $'
+__version__ = '$Revision: 679715 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.3'
+    _reportVersion = '1.0.4'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -175,6 +175,9 @@ class trfJobReport(trfReport):
                     exeResource['nevents'] = exe.eventCount
                 if exe.athenaMP:
                     exeResource['mpworkers'] = exe.athenaMP
+                if exe.dbMonitor:
+                    exeResource['dbData'] = exe.dbMonitor['bytes']
+                    exeResource['dbTime'] = exe.dbMonitor['time']
                 myDict['resource']['executor'][executionStep['name']] = exeResource
 
         # Resource consumption

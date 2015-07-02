@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 676350 2015-06-18 13:45:21Z graemes $
+# @version $Id: trfValidation.py 679715 2015-07-02 11:28:03Z lerrenst $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -258,6 +258,8 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails[level] = []
             # Format:
             # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
+        self._dbbytes = None
+        self._dbtime = None
 
 
     def scanLogFile(self, resetReport=False):
@@ -365,6 +367,15 @@ class athenaLogFileReport(logFileReport):
                     else:
                         # Overcounted
                         pass
+                if self._dbbytes is None and 'Total payload read from COOL' in fields['message']:
+                    msg.debug("Found COOL payload information at line {0}".format(line))
+                    a = re.match(r'(\D+)(?P<bytes>\d+)(\D+)(?P<time>\d+[.]?\d*)(\D+)', fields['message'])
+                    self._dbbytes = int(a.group('bytes'))
+                    self._dbtime = float(a.group('time'))
+
+    ## Return data volume and time spent to retrieve information from the database
+    def dbMonitor(self):
+        return {'bytes' : self._dbbytes, 'time' : self._dbtime}
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):

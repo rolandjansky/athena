@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 678200 2015-06-25 10:29:34Z graemes $
+# @version $Id: trfArgClasses.py 679938 2015-07-02 22:09:59Z graemes $
 
 import argparse
 import bz2
@@ -1190,6 +1190,33 @@ class argFile(argList):
     ## @brief String representation of a file argument
     def __str__(self):
         return "{0}={1} (Type {2}, Dataset {3}, IO {4})".format(self.name, self.value, self.type, self.dataset, self.io)
+    
+    
+    ## @brief Utility to strip arguments which should not be passed to the selfMerge methods
+    #  of our child classes
+    #  @param copyArgs If @c None copy all arguments by default, otherwise only copy the
+    #  listed keys
+    def _mergeArgs(self, argdict, copyArgs=None):
+        if copyArgs:
+            myargdict = {}
+            for arg in copyArgs:
+                if arg in argdict:
+                    myargdict[arg] = copy.copy(argdict[arg])
+            
+        else:
+            myargdict = copy.copy(argdict)
+        # Never do event count checks for self merging
+        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
+        if 'athenaopts' in myargdict:
+            # Need to ensure that "nprocs" is not passed to merger
+            newopts = []
+            for opt in myargdict['athenaopts'].value:
+                if opt.startswith('--nprocs'):
+                    continue
+                newopts.append(opt)
+            myargdict['athenaopts'] = argList(newopts, runarg=False)
+        return myargdict
+
 
 ## @brief Athena file class
 #  @details Never used directly, but is the parent of concrete classes
@@ -1232,31 +1259,6 @@ class argAthenaFile(argFile):
     ## @brief Small wrapper which sets the standard options for doAllFiles and retrieveKeys
     def _getAthInfo(self, files):
         self._callAthInfo(files, doAllFiles = True, retrieveKeys=athFileInterestingKeys)
-
-    ## @brief Utility to strip arguments which should not be passed to the selfMerge methods
-    #  of our child classes
-    #  @param copyArgs If @c None copy all arguments by default, otherwise only copy the
-    #  listed keys
-    def _mergeArgs(self, argdict, copyArgs=None):
-        if copyArgs:
-            myargdict = {}
-            for arg in copyArgs:
-                if arg in argdict:
-                    myargdict[arg] = copy.copy(argdict[arg])
-            
-        else:
-            myargdict = copy.copy(argdict)
-        # Never do event count checks for self merging
-        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
-        if 'athenaopts' in myargdict:
-            # Need to ensure that "nprocs" is not passed to merger
-            newopts = []
-            for opt in myargdict['athenaopts'].value:
-                if opt.startswith('--nprocs'):
-                    continue
-                newopts.append(opt)
-            myargdict['athenaopts'] = argList(newopts, runarg=False)
-        return myargdict
 
     @property
     def prodsysDescription(self):
