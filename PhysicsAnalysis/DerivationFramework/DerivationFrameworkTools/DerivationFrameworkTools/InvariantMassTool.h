@@ -30,12 +30,16 @@ namespace DerivationFramework {
 
     private:
       std::string m_expression;
+      std::string m_expression2;
       ExpressionParsing::ExpressionParser *m_parser;
+      ExpressionParsing::ExpressionParser *m_parser2;
       std::string m_sgName;
-      float m_massHypothesis;
+      float m_massHypothesis,m_massHypothesis2;
       std::string m_containerName;
+      std::string m_containerName2;
       StatusCode getInvariantMasses(std::vector<float>*) const;
       float calculateInvariantMass(float,float,float,float,float,float,float) const;		
+      float calculateInvariantMass(float,float,float,float,float,float,float,float) const;
   }; 
 }
 
