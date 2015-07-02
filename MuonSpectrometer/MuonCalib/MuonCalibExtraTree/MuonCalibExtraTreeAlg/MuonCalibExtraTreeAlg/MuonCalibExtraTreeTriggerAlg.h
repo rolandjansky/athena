@@ -14,6 +14,8 @@
 #include "MuonCalibExtraTreeAlg/MuonCalibCaloBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibTriggerInfoBranch.h"
 
+
+  //
 class StoreGateSvc;
 class MdtIdHelper;
 class CscIdHelper;
@@ -29,6 +31,7 @@ namespace MuonGM {
 namespace LVL1 {
   class RecMuonRoiSvc;
 }
+
 
 namespace MuonCalib {
 
@@ -66,6 +69,7 @@ namespace MuonCalib {
     void addCalo();
     void finishEvent();
 
+
     StoreGateSvc* p_StoreGateSvc;                   //!< Pointer to StoreGateSvc 
     StoreGateSvc* m_detStore;                     //!< Pointer to Detector store 
     ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiService;
@@ -97,7 +101,8 @@ namespace MuonCalib {
     bool m_init;
   };
 
-}  //  namespace MuonCalib
+
+}
 
 #endif
 

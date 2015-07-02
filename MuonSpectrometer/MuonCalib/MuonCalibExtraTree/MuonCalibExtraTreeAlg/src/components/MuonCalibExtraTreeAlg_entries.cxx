@@ -20,3 +20,5 @@ DECLARE_FACTORY_ENTRIES(MuonCalibExtraTreeAlg) {
   DECLARE_TOOL ( ExtraTreeMuonFillerTool )
   DECLARE_TOOL ( SegmentOnTrackSelector )
 }
+
+
