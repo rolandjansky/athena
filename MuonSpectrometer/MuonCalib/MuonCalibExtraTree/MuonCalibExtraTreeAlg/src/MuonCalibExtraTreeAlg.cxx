@@ -54,7 +54,8 @@ namespace MuonCalib{
     m_ntupleName(""), m_patternLocation(""),m_delayFinish(false),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"),
     m_segmentOnTrackSelector(""),
-    m_file(0), m_dir(0), m_tree(0)
+    m_file(0), m_dir(0), m_tree(0),
+    m_init(false)
   {
     m_ntupleName = "PatternNtupleMaker";
     declareProperty("doPhi",m_doPhi);
@@ -83,39 +84,43 @@ namespace MuonCalib{
     } 
     m_muonIdHelper = m_detMgr->mdtIdHelper();
 
-    m_dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
-    m_dir->cd();
-    
-    //    m_tree = new TTree("Segments", "my first Tree");
-
-    ATH_MSG_DEBUG("Try the GetObject call");
-    m_dir->GetObject("Segments",m_tree);
-    ATH_MSG_DEBUG("retrieved tree " << m_tree);
-
-    ATH_MSG_DEBUG("created tree");
-    if(m_doPhi) createPhiHitBranch(m_tree);
-    if(m_track_fillers.size()) {
-      createHitBranch(m_tree);
-      createTrackBranch(m_tree);
-    }
-    for (ToolHandleArray<IExtraTreeFillerTool>::iterator it=m_track_fillers.begin(); it!=m_track_fillers.end(); it++) {
-      if(!it->retrieve().isSuccess()) {
-	ATH_MSG_FATAL("Failed to retrieve "<<it->name());
-	return StatusCode::FAILURE;
-      }
-      if(!m_segmentOnTrackSelector.empty()) {
-	if(!m_segmentOnTrackSelector.retrieve().isSuccess()) {
-	  ATH_MSG_FATAL("Failed to retieve SegmentOnTrackSelector!");
-	  return StatusCode::FAILURE;
-	}
-      }
-      (*it)->SetBranches(&m_trackBranch, &m_hitBranch, &m_trackSegmentBranch, m_segmentOnTrackSelector);
-    }
     
     return StatusCode::SUCCESS;
   }  // end MuonCalibExtraTreeAlg::initialize
 
   StatusCode MuonCalibExtraTreeAlg::execute() {
+    if(!m_init) {
+      m_dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
+      m_dir->cd();
+      
+      //    m_tree = new TTree("Segments", "my first Tree");
+      
+      ATH_MSG_DEBUG("Try the GetObject call");
+      m_dir->GetObject("Segments",m_tree);
+      ATH_MSG_DEBUG("retrieved tree " << m_tree);
+      
+      ATH_MSG_DEBUG("created tree");
+      if(m_doPhi) createPhiHitBranch(m_tree);
+      if(m_track_fillers.size()) {
+	createHitBranch(m_tree);
+	createTrackBranch(m_tree);
+      }
+      for (ToolHandleArray<IExtraTreeFillerTool>::iterator it=m_track_fillers.begin(); it!=m_track_fillers.end(); it++) {
+	if(!it->retrieve().isSuccess()) {
+	  ATH_MSG_FATAL("Failed to retrieve "<<it->name());
+	  return StatusCode::FAILURE;
+	}
+	if(!m_segmentOnTrackSelector.empty()) {
+	  if(!m_segmentOnTrackSelector.retrieve().isSuccess()) {
+	    ATH_MSG_FATAL("Failed to retieve SegmentOnTrackSelector!");
+	    return StatusCode::FAILURE;
+	  }
+	}
+	(*it)->SetBranches(&m_trackBranch, &m_hitBranch, &m_trackSegmentBranch, m_segmentOnTrackSelector);
+      }
+      m_init = true;
+    }
+
     // Reset branches
     if(m_doPhi) m_phiHitBranch.reset();
     if(m_track_fillers.size()) {

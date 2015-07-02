@@ -86,6 +86,7 @@ class  ISegmentOnTrackSelector;
     MuonCalibTrack_EBranch      m_trackBranch;
     MuonCalibHit_EBranch        m_hitBranch;
     MuonCalibTrackSegmentBranch m_trackSegmentBranch;
+    bool m_init;
   };
 
 }//namespace MuonCalib
