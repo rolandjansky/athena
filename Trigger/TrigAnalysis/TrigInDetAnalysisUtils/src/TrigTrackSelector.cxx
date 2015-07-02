@@ -729,7 +729,9 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 
       double dpT  = 0; 
 
-      //      correctToBeamline( z0, dz0, d0, dd0, theta, phi );
+
+      if ( xBeam!=0 || yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
+      
 
       double sintheta = std::sin(theta);
       double costheta = std::cos(theta);

@@ -16,7 +16,7 @@
 #include "xAODTau/TauJet.h"
        
 namespace TrigInDetAnalysis {
-  bool IsGoodOffline(const xAOD::Electron& elec); 
+  bool IsGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0); 
   bool IsGoodOffline(const xAOD::Muon& muon); 
   bool IsGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
 }
