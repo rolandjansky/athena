@@ -154,6 +154,7 @@ namespace MuonCalib {
     bool m_doRPCTriggerHits;  //!< Process rpc trigger hit info
     float m_mbts_threshold;   //!< MBTS threshold
     const TileTBID* m_tileTBID; //!< TileTBID
+    bool m_ntupFileOpen;
   };
 
 }
