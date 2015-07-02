@@ -16,6 +16,16 @@ class HLTMonTriggerList:
      monitoring_bphys = []
      primary_bphys = []
      monitoring_egamma = []
+     primary_single_ele = []
+     primary_single_ele_cutbased = []
+     primary_double_ele = []
+     primary_double_ele_cutbased = []
+     monitoring_ele_idperf = []
+     monitoring_ele_idperf_cutbased = []
+     monitoring_Zee = []
+     monitoring_Jpsiee = []
+     primary_single_pho = []
+     primary_double_pho = []
      monitoring_l1jet = []
      monitoring_jet = []
      primary_l1jet = []
@@ -46,6 +56,17 @@ class HLTMonTriggerList:
           # set the egamma triggers to the default values
           self.monitoring_egamma = egamma.monitoring_egamma
 
+          self.primary_single_ele = egamma.primary_single_ele
+          self.primary_single_ele_cutbased = egamma.primary_single_ele_cutbased
+          self.primary_double_ele = egamma.primary_double_ele
+          self.primary_double_ele_cutbased = egamma.primary_double_ele_cutbased
+          self.monitoring_ele_idperf = egamma.monitoring_ele_idperf
+          self.monitoring_ele_idperf_cutbased = egamma.monitoring_ele_idperf_cutbased
+          self.monitoring_Zee = egamma.monitoring_Zee
+          self.monitoring_Jpsiee = egamma.monitoring_Jpsiee
+          self.primary_single_pho = egamma.primary_single_pho
+          self.primary_double_pho = egamma.primary_double_pho
+          
           # set the jet triggers to the default values
           self.monitoring_l1jet = jets.monitoring_l1jet
           self.monitoring_jet = jets.monitoring_jet
