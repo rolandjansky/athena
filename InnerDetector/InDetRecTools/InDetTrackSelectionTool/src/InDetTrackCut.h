@@ -10,9 +10,10 @@
 #ifndef INDETTRACKSELECTIONTOOL_INDETTRACKCUT_H
 #define INDETTRACKSELECTIONTOOL_INDETTRACKCUT_H
 
-#include "InDetTrackSelectionTool/InDetTrackAccessor.h"
+#include "InDetTrackAccessor.h"
 
 #include <map>
+#include <array>
 
 namespace InDet {
 
@@ -28,6 +29,7 @@ namespace InDet {
     // initialize should find the accessor(s) or create them if they don't exist
     virtual StatusCode initialize();
     virtual bool result() const = 0; // whether the cut passes
+    operator bool() const {return this->result();}
   protected:
     // a function that gets the accessor labelled by "name", adding it if it needs to.
     template <class AccessorType>
@@ -39,10 +41,37 @@ namespace InDet {
     InDetTrackSelectionTool* m_selectionTool;
   }; // class TrackCut
 
+  // ---------------- OrCut ----------------
+  // a cut that passes if any of its N cuts do.
+  template <size_t N>
+  class OrCut : public TrackCut {
+  public:
+    OrCut(InDetTrackSelectionTool*);
+    virtual StatusCode initialize();
+    virtual bool result() const;
+    void setCut(size_t i, std::unique_ptr<TrackCut>&& cut) {m_cuts.at(i).swap(cut);}
+    std::unique_ptr<TrackCut>& Cut(size_t i) {return m_cuts.at(i);}
+  private:
+    std::array< std::unique_ptr<TrackCut> , N > m_cuts;
+  }; // class OrCut
+
+  // ---------------- NotCut ----------------
+  class NotCut : public TrackCut {
+  public:
+    NotCut(InDetTrackSelectionTool*);
+    virtual StatusCode initialize();
+    virtual bool result() const;
+    void setCut(std::unique_ptr<TrackCut>&& cut) {m_cut.swap(cut);}
+    std::unique_ptr<TrackCut>& Cut() {return m_cut;}
+  private:
+    std::unique_ptr<TrackCut> m_cut;
+  };
+
   // ---------------- MaxSummaryValueCut ----------------
   class MaxSummaryValueCut : public virtual TrackCut {
   public:
-    MaxSummaryValueCut(InDetTrackSelectionTool*);
+    MaxSummaryValueCut(InDetTrackSelectionTool*, Int_t max=0);
+    MaxSummaryValueCut(InDetTrackSelectionTool*, Int_t max, const std::vector<xAOD::SummaryType>&);
     void setMaxValue(Int_t max) {m_maxValue = max;}
     void addSummaryType(xAOD::SummaryType type) {m_summaryTypes.push_back(type);}
     virtual StatusCode initialize();
@@ -58,7 +87,8 @@ namespace InDet {
 
   class MinSummaryValueCut : public virtual TrackCut {
   public:
-    MinSummaryValueCut(InDetTrackSelectionTool*);
+    MinSummaryValueCut(InDetTrackSelectionTool*, Int_t min=0);
+    MinSummaryValueCut(InDetTrackSelectionTool*, Int_t min, const std::vector<xAOD::SummaryType>&);
     void setMinValue(Int_t min) {m_minValue = min;}
     void addSummaryType(xAOD::SummaryType type) {m_summaryTypes.push_back(type);}
     virtual StatusCode initialize();
@@ -70,10 +100,26 @@ namespace InDet {
     std::vector< std::shared_ptr<SummaryAccessor> > m_summaryAccessors;
   }; // class MinSummaryValueCut
 
+  // ---------------- FuncSummaryValueCut ----------------
+  template <size_t N>
+  class FuncSummaryValueCut : public virtual TrackCut {
+  public:
+    FuncSummaryValueCut(InDetTrackSelectionTool*, const std::array<xAOD::SummaryType,N>&&);
+    void setFunction(std::function<bool(const std::array<uint8_t,N>&)> func) {m_func = func;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    std::function<bool(const std::array<uint8_t,N>&)> m_func;
+    std::array< xAOD::SummaryType, N> m_summaryTypes;
+    std::array< std::shared_ptr<SummaryAccessor>,N > m_summaryAccessors;
+    mutable std::array<uint8_t,N> m_results; // member variable to store the results
+  }; // class FuncSummaryValueCut
+  
+
   // ---------------- MaxSummaryValueRatioCut ----------------
   class MaxSummaryValueRatioCut : public virtual TrackCut {
   public:
-    MaxSummaryValueRatioCut(InDetTrackSelectionTool*);
+    MaxSummaryValueRatioCut(InDetTrackSelectionTool*, Double_t max);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     void addSummaryTypeNumerator(xAOD::SummaryType type) {m_summaryTypesNum.push_back(type);}
     void addSummaryTypeDenominator(xAOD::SummaryType type) {m_summaryTypesDen.push_back(type);}
@@ -91,7 +137,7 @@ namespace InDet {
   // ---------------- MinTrtHitCut ----------------
   class MinTrtHitCut : public virtual MinSummaryValueCut {
   public: 
-    MinTrtHitCut(InDetTrackSelectionTool*);
+    MinTrtHitCut(InDetTrackSelectionTool*, Int_t min=0, Double_t etaLow=0, Double_t etaHigh=0);
     void setMaxEtaAcceptance(Double_t eta) {m_maxTrtEtaAcceptance = eta;}
     void setMaxEtaForCut(Double_t eta) {m_maxEtaForCut = eta;}
     virtual StatusCode initialize();
@@ -105,7 +151,7 @@ namespace InDet {
   // ---------------- MaxTrtHitRatioCut ----------------
   class MaxTrtHitRatioCut : public virtual MaxSummaryValueRatioCut {
   public: 
-    MaxTrtHitRatioCut(InDetTrackSelectionTool*);
+    MaxTrtHitRatioCut(InDetTrackSelectionTool*, Double_t ratio=0, Double_t etaLow=0, Double_t etaHigh=0);
     void setMaxEtaAcceptance(Double_t eta) {m_maxTrtEtaAcceptance = eta;}
     void setMaxEtaForCut(Double_t eta) {m_maxEtaForCut = eta;}
     virtual StatusCode initialize();
@@ -119,7 +165,7 @@ namespace InDet {
   // ---------------- MinUsedHitsdEdxCut ----------------
   class MinUsedHitsdEdxCut : public virtual TrackCut {
   public:
-    MinUsedHitsdEdxCut(InDetTrackSelectionTool*);
+    MinUsedHitsdEdxCut(InDetTrackSelectionTool*, Int_t min=0);
     void setMinValue(Int_t min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -132,7 +178,7 @@ namespace InDet {
   // ---------------- MinOverflowHitsdEdxCut ----------------
   class MinOverflowHitsdEdxCut : public virtual TrackCut {
   public:
-    MinOverflowHitsdEdxCut(InDetTrackSelectionTool*);
+    MinOverflowHitsdEdxCut(InDetTrackSelectionTool*, Int_t min=0);
     void setMinValue(Int_t min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -145,7 +191,7 @@ namespace InDet {
   // ---------------- D0Cut ----------------
   class D0Cut : public virtual TrackCut {
   public:
-    D0Cut(InDetTrackSelectionTool*);
+    D0Cut(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -157,24 +203,24 @@ namespace InDet {
   // ---------------- D0SigmaCut ----------------
   class D0SigmaCut : public virtual TrackCut {
   public:
-    D0SigmaCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance
+    D0SigmaCut(InDetTrackSelectionTool*, Double_t max=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;} // cut is on variance
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
   }; // class D0SigmaCut
 
   // ---------------- D0SignificanceCut ----------------
   class D0SignificanceCut : public virtual TrackCut {
   public:
-    D0SignificanceCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;}
+    D0SignificanceCut(InDetTrackSelectionTool*, Double_t max=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamAccessor> m_paramAccessor;
     std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
   }; // class D0SignificanceCut
@@ -183,7 +229,7 @@ namespace InDet {
   // ---------------- Z0Cut ----------------
   class Z0Cut : public virtual TrackCut {
   public:
-    Z0Cut(InDetTrackSelectionTool*);
+    Z0Cut(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -195,24 +241,24 @@ namespace InDet {
   // ---------------- Z0SigmaCut ----------------
   class Z0SigmaCut : public virtual TrackCut {
   public:
-    Z0SigmaCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance so we will save the squared value
+    Z0SigmaCut(InDetTrackSelectionTool*, Double_t max=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;} // cut is on variance so we will save the squared value
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
   }; // class Z0SigmaCut
 
   // ---------------- Z0SignificanceCut ----------------
   class Z0SignificanceCut : public virtual TrackCut {
   public:
-    Z0SignificanceCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;}
+    Z0SignificanceCut(InDetTrackSelectionTool*, Double_t max=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamAccessor> m_paramAccessor;
     std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
   }; // class Z0SignificanceCut
@@ -221,7 +267,7 @@ namespace InDet {
   // ---------------- Z0SinThetaCut ----------------
   class Z0SinThetaCut : public virtual TrackCut {
   public:
-    Z0SinThetaCut(InDetTrackSelectionTool*);
+    Z0SinThetaCut(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -234,12 +280,12 @@ namespace InDet {
   // ---------------- Z0SinThetaSigmaCut ----------------
   class Z0SinThetaSigmaCut : public virtual TrackCut {
   public:
-    Z0SinThetaSigmaCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance
+    Z0SinThetaSigmaCut(InDetTrackSelectionTool*, Double_t maxSigma=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;} // cut is on variance
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamAccessor> m_Z0Accessor;
     std::shared_ptr<ParamCovAccessor> m_Z0VarAccessor;
     std::shared_ptr<ParamAccessor> m_ThetaAccessor;
@@ -250,12 +296,12 @@ namespace InDet {
   // ---------------- Z0SinThetaSignificanceCut ----------------
   class Z0SinThetaSignificanceCut : public virtual TrackCut {
   public:
-    Z0SinThetaSignificanceCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance
+    Z0SinThetaSignificanceCut(InDetTrackSelectionTool*, Double_t maxSig=0);
+    void setMaxValue(Double_t max) {m_maxValueSq = max*max;} // cut is on variance
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
+    Double_t m_maxValueSq;
     std::shared_ptr<ParamAccessor> m_Z0Accessor;
     std::shared_ptr<ParamCovAccessor> m_Z0VarAccessor;
     std::shared_ptr<ParamAccessor> m_ThetaAccessor;
@@ -266,7 +312,7 @@ namespace InDet {
   // ---------------- PtCut ----------------
   class PtCut : public virtual TrackCut {
   public:
-    PtCut(InDetTrackSelectionTool*);
+    PtCut(InDetTrackSelectionTool*, Double_t min=0);
     void setMinValue(Double_t min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -278,7 +324,7 @@ namespace InDet {
   // ---------------- EtaCut ----------------
   class EtaCut : public virtual TrackCut {
   public:
-    EtaCut(InDetTrackSelectionTool*);
+    EtaCut(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -290,7 +336,7 @@ namespace InDet {
   // ---------------- PCut ----------------
   class PCut : public virtual TrackCut {
   public:
-    PCut(InDetTrackSelectionTool*);
+    PCut(InDetTrackSelectionTool*, Double_t min=0);
     void setMinValue(Double_t min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -310,39 +356,12 @@ namespace InDet {
     std::shared_ptr<FitQualityAccessor> m_fitAccessor;
   };
 
-  // ---------------- MaxOneSharedModule ----------------
-
-  class MaxOneSharedModule : public virtual TrackCut {
-  public:
-    MaxOneSharedModule(InDetTrackSelectionTool*);
-    virtual StatusCode initialize();
-    virtual bool result() const;
-  private:
-    std::shared_ptr<SummaryAccessor> m_pixAccessor;
-    std::shared_ptr<SummaryAccessor> m_sctAccessor;
-  };
-
-  // ---------------- MinNSiHitsIfSiSharedHits ----------------
-  class MinNSiHitsIfSiSharedHits : public virtual TrackCut {
-  public:
-    MinNSiHitsIfSiSharedHits(InDetTrackSelectionTool*);
-    void setMinSiHits(Int_t min) {m_minSiHits = min;}
-    virtual StatusCode initialize();
-    virtual bool result() const;
-  private:
-    Int_t m_minSiHits;
-    std::shared_ptr<SummaryAccessor> m_pixHitsAccessor;
-    std::shared_ptr<SummaryAccessor> m_sctHitsAccessor;
-    std::shared_ptr<SummaryAccessor> m_pixSharedHitsAccessor;
-    std::shared_ptr<SummaryAccessor> m_sctSharedHitsAccessor;
-  };
-
   // ---------------- MinNSiHitsAboveEta ----------------
   class MinNSiHitsAboveEta : public virtual TrackCut {
   public:
-    MinNSiHitsAboveEta(InDetTrackSelectionTool*);
+    MinNSiHitsAboveEta(InDetTrackSelectionTool*, Int_t hits=0, Double_t eta=0);
     void setEtaCutoff(Double_t eta) {m_etaCutoff = eta;}
-    void setMinSiHits(Double_t hits) {m_minSiHits = hits;}
+    void setMinSiHits(Int_t hits) {m_minSiHits = hits;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
@@ -356,7 +375,7 @@ namespace InDet {
   // ---------------- MaxChiSq ----------------
   class MaxChiSq : public virtual TrackCut {
   public:
-    MaxChiSq(InDetTrackSelectionTool*);
+    MaxChiSq(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -368,7 +387,7 @@ namespace InDet {
   // ---------------- MaxChiSqPerNdf ----------------
   class MaxChiSqPerNdf : public virtual TrackCut {
   public:
-    MaxChiSqPerNdf(InDetTrackSelectionTool*);
+    MaxChiSqPerNdf(InDetTrackSelectionTool*, Double_t max=0);
     void setMaxValue(Double_t max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -380,7 +399,7 @@ namespace InDet {
   // ---------------- MinProb ----------------
   class MinProb : public virtual TrackCut {
   public:
-    MinProb(InDetTrackSelectionTool*);
+    MinProb(InDetTrackSelectionTool*, Double_t min=0);
     void setMinValue(Double_t min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
@@ -389,11 +408,26 @@ namespace InDet {
     std::shared_ptr<FitQualityAccessor> m_accessor;
   };
 
+  // ---------------- MinEProbHT ----------------
+  // unfortunately not yet a summary value in Trk::Tracks
+  //   so we can't call this a summary value cut
+  class MinEProbHTCut : public virtual TrackCut {
+  public:
+    MinEProbHTCut(InDetTrackSelectionTool*, Double_t min=0);
+    void setMin(Double_t min) {m_minValue = min;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    Double_t m_minValue;
+    std::shared_ptr<eProbabilityHTAccessor> m_accessor;
+  }; // class MinEProbHT
+  
+
 #ifndef XAOD_ANALYSIS
   // ---------------- MinSiHitsModTopBottomCut ----------------
   class MinSiHitsModTopBottomCut : public virtual TrackCut {
   public:
-    MinSiHitsModTopBottomCut(InDetTrackSelectionTool*);
+    MinSiHitsModTopBottomCut(InDetTrackSelectionTool*, Int_t top=0, Int_t bottom=0);
     void setMinTop(uint8_t min) {m_minTop = min;}
     void setMinBottom(uint8_t min) {m_minBottom = min;}
     virtual StatusCode initialize();
@@ -404,9 +438,6 @@ namespace InDet {
     std::shared_ptr<SiHitsTopBottomAccessor> m_accessor;
   };
 #endif
-
-  // // ---------------- PtDependentSctHitsCut ----------------
-  // class PtDependentSctHitsCut : public virtual TrackCut;
 
 
 } // namespace InDet

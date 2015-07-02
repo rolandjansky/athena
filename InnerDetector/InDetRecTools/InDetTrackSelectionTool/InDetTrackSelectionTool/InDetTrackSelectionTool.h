@@ -9,22 +9,23 @@
 
 // Local include(s):
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "InDetTrackSelectionTool/InDetTrackCut.h"
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-// forward declares for these tools are insufficient
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-//#include "MagFieldInterfaces/IMagFieldSvc.h"
 #endif
 
 #include <map>
 
 namespace InDet {
+
+  // forward declaration of helper classes
+  class TrackAccessor;
+  class TrackCut;
 
    /// Implementation of the track selector tool
    ///
@@ -32,6 +33,8 @@ namespace InDet {
     public virtual IInDetTrackSelectionTool,
     public asg::AsgTool {
     
+    friend class TrackCut;
+
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS2( InDetTrackSelectionTool,
 		     IAsgSelectionTool,
@@ -39,19 +42,19 @@ namespace InDet {
     
   public:
     /// Constructor for standalone usage
-    InDetTrackSelectionTool( const std::string& name );
+    InDetTrackSelectionTool( const std::string& name, const std::string& cutLevel = "" );
 
-    /// Destructor to clean up memory
-    // don't need it with smart pointers
-    //    ~InDetTrackSelectionTool();
+    // The default destructor is OK but it must be defined in the
+    // implementation file in order to forward declare with unique_ptr
+    ~InDetTrackSelectionTool();
 
     /// @name Function(s) implementing the asg::IAsgTool interface
     /// @{
     
     /// Function initialising the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /// Function finalizing the tool
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /// @}
     
@@ -59,10 +62,10 @@ namespace InDet {
     /// @{
     
     /// Get an object describing the "selection steps" of the tool
-    virtual const Root::TAccept& getTAccept() const;
+    virtual const Root::TAccept& getTAccept() const override;
     
     /// Get the decision using a generic IParticle pointer
-    virtual const Root::TAccept& accept( const xAOD::IParticle* ) const;
+    virtual const Root::TAccept& accept( const xAOD::IParticle* ) const override;
     
     /// @}
     
@@ -71,20 +74,23 @@ namespace InDet {
     
     /// Get the decision for a specific track object
     virtual const Root::TAccept& accept( const xAOD::TrackParticle& track,
-					 const xAOD::Vertex* vertex = 0 ) const;
+					 const xAOD::Vertex* vertex = nullptr ) const override;
 
 #ifndef XAOD_ANALYSIS
     virtual const Root::TAccept& accept( const Trk::Track& track,
-					 const Trk::Vertex* vertex = 0 ) const;
+					 const Trk::Vertex* vertex = nullptr ) const override;
 #endif
     
     /// @}
 
-    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true );
-    
-  protected:
-    // the TrackCut needs to be able to add accessors to the tool in initialize()
-    friend StatusCode TrackCut::initialize();
+    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true ) override
+      __attribute__ ((deprecated("For consistency with the athena interface, the cut level is best set through the \"CutLevel\" property.")));
+
+  private:
+    bool m_isInitialized; // flag whether or not the tool has been initialized, to check erroneous use cases.
+
+    // this is the setCutLevel function that actually does the work, so that it doesn't warn if called in athena.
+    void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
 
     std::unordered_map< std::string, std::shared_ptr<TrackAccessor> > m_trackAccessors; //!< list of the accessors that need to be run for each track
 
@@ -140,8 +146,12 @@ namespace InDet {
     Double_t m_maxChiSq; //!< Maximum fit chi squared
     Double_t m_maxChiSqperNdf; //!< Maximum chi squared per degree of freedom
     Double_t m_minProb; //!< Minimum fit probability
+    Double_t m_minPtForProbCut; //!< Pt above which a Prob(chiSq, ndf) cut is applied
+    Double_t m_minProbAbovePtCutoff; //!< Minimum probability above Pt cutoff
     Int_t m_minNUsedHitsdEdx; //!< Minimum number of dEdx hits used
     Int_t m_minNOverflowHitsdEdx; //!< Minimum number of IBL overflow hits for dEdx
+    Bool_t m_eProbHTonlyForXe; //!< Flag whether to only check eProbabilityHT if all TRT hits are Xenon hits
+    Double_t m_minEProbabilityHT; //!< Minimum eProbabiltyHT
 #ifndef XAOD_ANALYSIS
     Int_t m_minNSiHitsMod; //!< Minimum number of Si hits, with pixel hits counting twice
     Int_t m_minNSiHitsModTop; //!< Min number of Si hits on top half (pixel counting twice)
@@ -164,8 +174,6 @@ namespace InDet {
     ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
     ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
 
-    //Bool_t m_initMagFieldSvc; //!< Whether to initialize the MagField service
-    //ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc; //!< Magnetic field service
 #endif // XAOD_ANALYSIS
 
   }; // class InDetTrackSelectionTool

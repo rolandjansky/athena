@@ -35,8 +35,8 @@ namespace InDet {
     // function to get properties from track
     virtual StatusCode access( const xAOD::TrackParticle& track,
 			       const xAOD::Vertex* vertex = 0 ) = 0;
-    //Trk::Track access will need to be passed e.g. the summary, perigee directly
 #ifndef XAOD_ANALYSIS
+    //Trk::Track access will need to be passed e.g. the summary, perigee directly
     virtual StatusCode access( const Trk::Track& track,
 			       const Trk::TrackParameters* perigee = 0,
 			       const Trk::TrackSummary* summary = 0) = 0;
@@ -47,7 +47,7 @@ namespace InDet {
   };
 
   // ---------------- SummaryAccessor ----------------
-
+  // summary values can be a uint8_t or a float: at some point may templatize
   class SummaryAccessor : public virtual TrackAccessor {
   public:
     SummaryAccessor(const asg::IAsgTool*);
@@ -119,6 +119,7 @@ namespace InDet {
 #endif
     Double_t getChiSq() const {return m_chiSq;}
     Double_t getNumberDoF() const {return m_nDoF;}
+    Double_t getProb() const {return TMath::Prob( m_chiSq, m_nDoF );}
   private:
     Double_t m_chiSq;
     Double_t m_nDoF;
@@ -206,9 +207,28 @@ namespace InDet {
     uint8_t m_n;
   };
 
+  // ---------------- eProbabilityHTAccessor ----------------
+  // unfortunately, for now we need a special case as it is not
+  //   implemented in the Trk::Track summary values yet (02-2015)
+  // effort has not been put into generalization as this is
+  // hopefully temporary.
+  class eProbabilityHTAccessor : public virtual TrackAccessor {
+  public:
+    eProbabilityHTAccessor(const asg::IAsgTool*);
+    StatusCode access ( const xAOD::TrackParticle& track,
+			const xAOD::Vertex* = 0 );
+#ifndef XAOD_ANALYSIS
+    StatusCode access ( const Trk::Track& track,
+                        const Trk::TrackParameters* perigee = 0,
+                        const Trk::TrackSummary* summary = 0 );
+#endif
+    float getValue() const {return m_eProbHT;}
+  private:
+    float m_eProbHT;
+  };
+
 #ifndef XAOD_ANALYSIS
   // ---------------- SiHitsTopBottomAccessor ----------------
-
   class SiHitsTopBottomAccessor : public virtual TrackAccessor {
   public:
     SiHitsTopBottomAccessor(const asg::IAsgTool*);

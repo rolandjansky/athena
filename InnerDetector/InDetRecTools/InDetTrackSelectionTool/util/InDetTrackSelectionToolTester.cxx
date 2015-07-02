@@ -11,7 +11,6 @@
 // ROOT include(s):
 #include <TFile.h>
 #include <TError.h>
-#include <TString.h>
 #include <TH2F.h>
 
 // Infrastructure include(s):
@@ -19,10 +18,6 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ROOTCORE
-
-// EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTracking/TrackParticle.h"
 
 // Local include(s):
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
@@ -39,6 +34,9 @@ int main( int argc, char* argv[] ) {
       return 1;
    }
 
+   // fail on an unchecked StatusCode
+   StatusCode::enableFailure();
+
    // Initialise the application:
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(xAOD::Init( APP_NAME )) );
 
@@ -46,16 +44,13 @@ int main( int argc, char* argv[] ) {
    const std::string fileName = argv[ 1 ];
    Info( APP_NAME, "Opening file: %s", fileName.data() );
    std::unique_ptr< TFile > ifile( TFile::Open( fileName.data(), "READ" ) );
-   StatusCode gotFile = StatusCode::FAILURE;
-   if (ifile.get())
-     gotFile = StatusCode::SUCCESS;
+   StatusCode gotFile = ifile.get()!=nullptr ? StatusCode::SUCCESS : StatusCode::FAILURE;
    ASG_CHECK_SA( APP_NAME, gotFile );
 
    // Create a TEvent object:
-   xAOD::TEvent event( static_cast<TFile*>(0), xAOD::TEvent::kClassAccess );
+   xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.readFrom( ifile.get() )) );
-   Info( APP_NAME, "Number of events in the file: %i",
-         static_cast< int >( event.getEntries() ) );
+   Info( APP_NAME, "Number of events in the file: %llu", event.getEntries() );
 
    // Decide how many events to run over:
    Long64_t entries = event.getEntries();
@@ -67,19 +62,21 @@ int main( int argc, char* argv[] ) {
    }
 
    // Create the tool(s) to test:
-   InDet::InDetTrackSelectionTool selTool( "TrackSelection" );
+   InDet::InDetTrackSelectionTool selTool( "TrackSelection", "MinBias" );
    // Configure and initialise the tool(s):
    selTool.msg().setLevel( MSG::INFO );
    //selTool.setCutLevel( InDet::CutLevel::Loose ); // set tool to apply default loose cuts
-   selTool.setProperty( "CutLevel", "Loose" );
-   //selTool.setProperty("minPt", 100.0); // the cuts can be modified from the pre-defined sets
-   selTool.setProperty("maxZ0", 10.);
-   //selTool.setProperty("maxD0", 1.5);
-   //selTool.setProperty("minNTrtHits", 1);
+   //   ASG_CHECK_SA( APP_NAME, selTool.setProperty( "CutLevel", "TightPrimary" ) ); // can set this in the constructor
+   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("minPt", 100.0) ); // the cuts can be modified from the pre-defined sets
+   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0", 10.) );
+   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxD0", 1.5) );
+   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("minNTrtHits", 1); )
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0SinTheta", -1.) ); // try to turn off this cut
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("minEProbabilityHT", .01) );
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("eProbHTonlyForXe", true) );   
    ASG_CHECK_SA( APP_NAME, selTool.initialize() );
 
-   //std::unique_ptr< TFile > outFile(new TFile("IDTrackSelectionToolTestOut.root", "RECREATE");
-   TFile* outFile = new TFile("IDTrackSelectionToolTestOut.root", "RECREATE");
+   std::unique_ptr< TFile > outFile(new TFile("IDTrackSelectionToolTestOut.root", "RECREATE"));
 
    // Create some histograms to look at results
    TH1F* hist_z0 = new TH1F("z0", "z0", 1000, -200, 200);
@@ -93,17 +90,7 @@ int main( int argc, char* argv[] ) {
      
      // Tell the object which entry to look at:
      ASG_CHECK_SA( APP_NAME, !event.getEntry( entry ) );
-     
-     // Print some event information for fun:
-     const xAOD::EventInfo* ei = 0;
-     ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.retrieve( ei, "EventInfo" )) );
-     Info( APP_NAME,
-	   "===>>>  start processing event #%i, "
-	   "run #%i %i events processed so far  <<<===",
-	   static_cast< int >( ei->eventNumber() ),
-	   static_cast< int >( ei->runNumber() ),
-	   static_cast< int >( entry ) );
-     
+          
      // Get the InDetTrackParticles from the event:
      const xAOD::TrackParticleContainer* tracks = 0;
      ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.retrieve( tracks, "InDetTrackParticles" )) );
@@ -161,10 +148,7 @@ int main( int argc, char* argv[] ) {
      
      // Close with a message:
      Info( APP_NAME,
-	   "===>>>  done processing event #%i, "
-	   "run #%i %i events processed so far  <<<===",
-	   static_cast< int >( ei->eventNumber() ),
-	   static_cast< int >( ei->runNumber() ),
+	   "===>>>   %i events processed so far  <<<===",
 	   static_cast< int >( entry + 1 ) );
    }
    

@@ -7,7 +7,7 @@
 // InDetTrackAccessor.cxx
 // implementations of accessor objects
 
-#include "InDetTrackSelectionTool/InDetTrackAccessor.h"
+#include "src/InDetTrackAccessor.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -46,7 +46,7 @@ void InDet::SummaryAccessor::setSummaryType( xAOD::SummaryType sumType )
 }
 
 StatusCode InDet::SummaryAccessor::access( const xAOD::TrackParticle& track,
-					   const xAOD::Vertex* )
+					      const xAOD::Vertex* )
 {
   m_valid = false;
   if (!track.summaryValue(m_summaryValue, m_summaryType)) {
@@ -59,8 +59,8 @@ StatusCode InDet::SummaryAccessor::access( const xAOD::TrackParticle& track,
 
 #ifndef XAOD_ANALYSIS
 StatusCode InDet::SummaryAccessor::access ( const Trk::Track&,
-					    const Trk::TrackParameters*,
-					    const Trk::TrackSummary* summary )
+					       const Trk::TrackParameters*,
+					       const Trk::TrackSummary* summary )
 {
   m_valid = false;
   if (!summary) {
@@ -82,6 +82,11 @@ StatusCode InDet::SummaryAccessor::access ( const Trk::Track&,
   return StatusCode::SUCCESS;
 }
 #endif
+
+// only two types in summary are uint8_t and float
+// not worth templating until Trk::Track uses the xAOD::SummaryType
+//template class InDet::SummaryAccessor<uint8_t>;
+//template class InDet::SummaryAccessor<float>;
 
 // ---------------- ParamAccessor ----------------
 InDet::ParamAccessor::ParamAccessor(const asg::IAsgTool* tool)
@@ -217,7 +222,6 @@ StatusCode InDet::FitQualityAccessor::access( const Trk::Track& track,
   return StatusCode::SUCCESS;
 }
 #endif
-
 
 // ---------------- PtAccessor ----------------
 InDet::PtAccessor::PtAccessor(const asg::IAsgTool* tool)
@@ -363,7 +367,7 @@ StatusCode InDet::UsedHitsdEdxAccessor::access ( const Trk::Track&,
 }
 #endif
 
-// ---------------- UsedHitsdEdxAccessor ----------------
+// ---------------- OverflowHitsdEdxAccessor ----------------
 InDet::OverflowHitsdEdxAccessor::OverflowHitsdEdxAccessor(const asg::IAsgTool* tool)
   : TrackAccessor::TrackAccessor(tool)
   , m_n(0)
@@ -402,7 +406,50 @@ StatusCode InDet::OverflowHitsdEdxAccessor::access ( const Trk::Track&,
 }
 #endif
 
-// the top/bottom is likely only available in athena
+// ---------------- eProbabilityHTAccessor ----------------
+InDet::eProbabilityHTAccessor::eProbabilityHTAccessor(const asg::IAsgTool* tool)
+  : TrackAccessor::TrackAccessor(tool)
+  , m_eProbHT(0.)
+{
+}
+
+StatusCode InDet::eProbabilityHTAccessor::access( const xAOD::TrackParticle& track,
+						  const xAOD::Vertex* )
+{
+  m_valid = false;
+  if (!track.summaryValue(m_eProbHT, xAOD::SummaryType::eProbabilityHT)) {
+    ATH_MSG_DEBUG( "Failed to get eProbabilityHT from xAOD::TrackParticle summary. A value of zero will be used instead." );
+    m_eProbHT = 0;
+  }
+  m_valid = true;
+  return StatusCode::SUCCESS;
+}
+
+#ifndef XAOD_ANALYSIS
+StatusCode InDet::eProbabilityHTAccessor::access ( const Trk::Track&,
+						   const Trk::TrackParameters*,
+						   const Trk::TrackSummary* summary )
+{
+  m_valid = false;
+  if (!summary) {
+    ATH_MSG_ERROR( "Recieved null pointer to track summary." );
+    m_eProbHT = 0;
+    return StatusCode::FAILURE;
+  }
+  float checkSummaryValue = summary->getPID( Trk::eProbabilityType::eProbabilityHT );
+  if (checkSummaryValue < 0) {
+    // Trk::TrackSummary::getkPID() will return -1 if the data cannot be retrieved
+    ATH_MSG_DEBUG( "Recieved " << checkSummaryValue << " for eProbabilityHT. A value of zero will be used instead." );
+    checkSummaryValue = 0;
+  }
+  m_eProbHT = checkSummaryValue;
+  m_valid = true;
+  return StatusCode::SUCCESS;
+}
+#endif
+
+
+// the top/bottom si hit info is likely only available in athena
 #ifndef XAOD_ANALYSIS
 // ---------------- SiHitsTopBottomAccessor ----------------
 InDet::SiHitsTopBottomAccessor::SiHitsTopBottomAccessor(const asg::IAsgTool* tool)

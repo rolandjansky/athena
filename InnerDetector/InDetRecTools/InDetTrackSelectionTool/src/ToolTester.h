@@ -11,10 +11,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// Local include(s):
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-
 namespace InDet {
+
+  // forward declaration of tool
+  class IInDetTrackSelectionTool;
 
    /// Simple algorithm for using the tools in Athena
    ///

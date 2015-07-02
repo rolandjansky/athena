@@ -35,14 +35,14 @@ namespace InDet {
   // if you add levels, make sure to add entries to the map in InDetTrackSelectionTool.cxx
   // so that they can be set from athena as well.
   enum
-#if __cplusplus > 201100
+#if __cplusplus > 201100L
   class
 #endif
   CutLevel {
-    NoCut=0, Loose=1, LoosePrimary=2, TightPrimary=3, LooseMuon, LooseElectron
+    NoCut, Loose, LoosePrimary, TightPrimary, LooseMuon, LooseElectron, MinBias
       };
   
-  /// Interface for track selection tools
+  /// Interface for track selection tool
   ///
   /// @author Michael Clark <michael.ryan.clark@cern.ch>
   /// 
@@ -74,7 +74,11 @@ namespace InDet {
 #endif
 
     /// Set the selection to a pre-defined standard set of cuts
-    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true ) = 0;
+    // This function should not be public in Athena, as the cut level should be 
+    //   set in the job options. Allow it for now, so as to not break compatibility
+    virtual void setCutLevel( InDet::CutLevel level, Bool_t overwrite = true )
+      __attribute__ ((deprecated("The cut level should be set in the job options through the \"CutLevel\" property.")))
+      = 0;
 
   }; // class IInDetTrackSelectionTool
 
