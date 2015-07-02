@@ -95,8 +95,8 @@ namespace MuonCalib {
     m_cscIdHelper(NULL),
     m_rpcIdHelper(NULL),
     m_tgcIdHelper(NULL),
-    m_tileTBID(NULL)
-    
+    m_tileTBID(NULL),
+    m_ntupFileOpen(false)
   {
     // Contents in the ntuple: with or without truth?
     declareProperty("doTruth", m_doTruth = true);
@@ -174,13 +174,6 @@ namespace MuonCalib {
 
     log << MSG::INFO << "================================" << endreq;
 
-    // create the root file: 
-    // was originally in the constructor - from where it was not possible to 
-    // configure the file name - please let me know if in some use-case 
-    // having it here causes troubles - domizia.orestano@cern.ch
-    if( m_createRootFile )      
-      RootFileManager::getInstance()->openFile(m_ntupleName);
-
     // Set pointer on StoreGateSvc
     StatusCode  sc = service("StoreGateSvc", p_StoreGateSvc);
     if (!sc.isSuccess() || 0 == p_StoreGateSvc) {
@@ -199,14 +192,6 @@ namespace MuonCalib {
       log << MSG::INFO << "CSCStripFitter      : " << "Using Fitter with name \"" << m_stripFitter->name() << "\"" << endreq;
     }
 
-
-    sc = m_muonCalibTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_muonCalibTool << endreq;
-      return sc;
-    } else {
-      log << MSG::INFO << "Retrieved tool " << m_muonCalibTool << endreq;
-    }
 
     m_eventNumber = 0;
 
@@ -274,6 +259,23 @@ namespace MuonCalib {
     log << MSG::DEBUG << " execute()     " << endreq;
     if( m_createRootFile )
     	{
+	  if(!m_ntupFileOpen) {
+	    // create the root file: 
+	    // was originally in the constructor - from where it was not possible to 
+	    // configure the file name - please let me know if in some use-case 
+	    // having it here causes troubles - domizia.orestano@cern.ch
+	    RootFileManager::getInstance()->openFile(m_ntupleName);
+	    m_ntupFileOpen=true;
+
+	    StatusCode ssc = m_muonCalibTool.retrieve();
+	    if (ssc.isFailure()) {
+	      log << MSG::FATAL << "Could not find tool " << m_muonCalibTool << endreq;
+	      return ssc;
+	    } else {
+	      log << MSG::INFO << "Retrieved tool " << m_muonCalibTool << endreq;
+	    }
+	  }
+
 	log<<MSG::INFO<<"Write metadata"<<endreq;
 	StoreGateSvc* detStore = 0;
 	StatusCode sc = service( "DetectorStore", detStore );
@@ -314,13 +316,15 @@ namespace MuonCalib {
     MsgStream log(messageService(), name());
     log << MSG::INFO << "Finalisation started     " << endreq;
 
-    // perform analysis
-    m_muonCalibTool->analyse();
-
-    std::for_each(m_events.begin(),m_events.end(),DeleteObject());
-
-    // close root file 
-    if( m_createRootFile ) RootFileManager::getInstance()->closeFile();
+    if(m_ntupFileOpen) {
+      // perform analysis
+      m_muonCalibTool->analyse();
+      
+      std::for_each(m_events.begin(),m_events.end(),DeleteObject());
+      
+      // close root file 
+      if( m_createRootFile ) RootFileManager::getInstance()->closeFile();
+    }
 
     return StatusCode::SUCCESS;
   }
