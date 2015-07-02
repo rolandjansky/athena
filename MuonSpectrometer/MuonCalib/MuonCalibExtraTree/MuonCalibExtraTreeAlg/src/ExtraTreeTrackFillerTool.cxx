@@ -232,13 +232,17 @@ inline void ExtraTreeTrackFillerTool :: storeMeasurement(const Trk::MeasurementB
 	  if( rotc->numberOfContainedROTs() > 1) {       
             for (unsigned int i=1; i<rotc->numberOfContainedROTs(); i++) {
               rot = &(rotc->rioOnTrack(i));
+              if(!rot) {
+                ATH_MSG_WARNING("ROI on Track not available - skipping this one.");
+                continue;
+              }
               idc = rot->identify(); 
 	      id = m_idToFixedIdTool->idToFixedId(idc);
 	      residual = -999.;
 	      pull = -999.;
 	      Amg::Vector3D pos = rot->globalPosition();
 	      error = std::sqrt(rot->localCovariance()(0,0));
-              if(id.is_tgc()&&rot) {
+              if(id.is_tgc() && rot) {
                error = errorRot(rot);
               }
 	      ATH_MSG_DEBUG(" Competing rio " << -type << " error " << error);

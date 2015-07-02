@@ -21,7 +21,8 @@ using namespace std;
 namespace MuonCalib {
 
   MuonCalibTriggerInfoBranch::MuonCalibTriggerInfoBranch(std::string branchName) : 
-    m_branchName(branchName), branchesInit(false), m_first(true), index(0), m_prescaledClock(0) {
+    m_branchName(branchName), branchesInit(false), m_first(true), index(0), m_numberBC(0),
+    m_L1A_BC(0), m_timeNs(0), m_randomTrig(0), m_firedItemsBeforePrescale(0), m_prescaledClock(0) {
   }
 
   bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO) {

@@ -101,8 +101,8 @@ namespace MuonCalib {
     for(auto msTrk: *tracks) {
       ATH_MSG_DEBUG("index: " << index << "Muon MS track: pt="<< msTrk->pt() << " eta= " << msTrk->eta());
       if(!writeTrackPartice(msTrk, false, true, index, 6).isSuccess()) {
-	ATH_MSG_FATAL("Failed to write SA track!");
-	return StatusCode::FAILURE;
+      	ATH_MSG_FATAL("Failed to write SA track!");
+      	return StatusCode::FAILURE;
       }
     }
     
@@ -115,8 +115,8 @@ namespace MuonCalib {
     for(auto msTrk: *tracksExt){
       ATH_MSG_DEBUG("index: " << index << "Muon MS ext. track: pt="<< msTrk->pt() << " eta= " << msTrk->eta());
       if(!writeTrackPartice(msTrk, false, true, index, 7).isSuccess()) {
-	ATH_MSG_FATAL("Failed to write extrapolated SAE track!");
-	return StatusCode::FAILURE;
+      	ATH_MSG_FATAL("Failed to write extrapolated SAE track!");
+      	return StatusCode::FAILURE;
       }
     }
     
@@ -129,8 +129,8 @@ namespace MuonCalib {
     for(auto msTrk: *tracksComb){
       ATH_MSG_DEBUG("index: " << index << "Muon comb. track: pt="<< msTrk->pt() << " eta= " << msTrk->eta());
       if(!writeTrackPartice(msTrk, false, true, index, 8).isSuccess()) {
-	ATH_MSG_FATAL("Failed to write combined track!");
-	return StatusCode::FAILURE;
+      	ATH_MSG_FATAL("Failed to write combined track!");
+      	return StatusCode::FAILURE;
       }
     }
     
@@ -174,10 +174,17 @@ namespace MuonCalib {
     for (int i = 0; i < nseg; ++i) {
 //     const Trk::Segment* tseg = muon.muonSegment(i);
 //     const Muon::MuonSegment* seg  = dynamic_cast<const  Muon::MuonSegment* > (tseg);
-//      const xAOD::MuonSegment* segx = muon.muonSegment(i);   //segx is not used anywhere
-      const Muon::MuonSegment* seg = 0;
-      if( !seg ) continue;
-
+      const xAOD::MuonSegment* segx = muon.muonSegment(i);   
+      if (!segx ) {
+        ATH_MSG_WARNING("Zero pointer to xAOD::MuonSegment! Skipping.");
+        continue;
+      }
+      const ElementLink < ::Trk::SegmentCollection > & link = segx->muonSegment();
+      const Muon::MuonSegment* seg = dynamic_cast<const  Muon::MuonSegment* >(*link);
+      if( !seg ) {
+        ATH_MSG_WARNING("Invalid link back to Muon::MuonSegment! Skipping.");
+        continue;
+      }
     // create pars for muon and loop over hits
       double momentum = 1e8;
       double charge   = 0.;
