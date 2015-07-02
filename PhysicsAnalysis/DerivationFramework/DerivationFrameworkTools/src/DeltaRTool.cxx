@@ -187,7 +187,7 @@ namespace DerivationFramework {
   {
     float deltaPhi = fabs(phi1-phi2);
     if (deltaPhi>TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;
-    float deltaPhiSq = (phi1-phi2)*(phi1-phi2);
+    float deltaPhiSq = deltaPhi*deltaPhi;
     float deltaEtaSq = (eta1-eta2)*(eta1-eta2);
     float deltaR = sqrt(deltaPhiSq+deltaEtaSq);
     return deltaR;
