@@ -46,6 +46,8 @@ if HLTMonFlags.doMonTier0:
        if rec.doCalo and rec.doInDet:
         from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
         HLTMonManager.AthenaMonTools += HLTEgammaMonitoringTool()
+        from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
+        HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
       except:
         print "Problems with HLTEgammaTool, tool not enabled"
 
