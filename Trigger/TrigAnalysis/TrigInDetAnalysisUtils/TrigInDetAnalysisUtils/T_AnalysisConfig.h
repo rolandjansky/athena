@@ -81,7 +81,8 @@ public:
     m_releaseData(""),
     m_keepAllEvents(false),
     m_useHighestPT(false),
-    m_filterOnRoi(true)
+    m_filterOnRoi(true),
+    m_requireDecision(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -139,7 +140,8 @@ public:
     m_genericFlag(true),
     m_releaseData(""),
     m_keepAllEvents(false),
-    m_filterOnRoi(true)
+    m_filterOnRoi(true),
+    m_requireDecision(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -266,7 +268,9 @@ public:
   bool filterOnRoi()          const { return m_filterOnRoi; }
   bool setFilterOnRoi(bool b)       { return m_filterOnRoi=b; }
 
-
+  void       setRequireDecision(bool b) { m_requireDecision=b; } 
+  bool requireDecision() const          { return m_requireDecision; } 
+  
 protected:
 
   virtual void loop() = 0;
@@ -407,7 +411,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -459,7 +463,7 @@ protected:
       //	       << endreq;
 
 
-      if (TrigInDetAnalysis::IsGoodOffline(*(*elec))) selectorRef.selectTrack( (*elec)->trackParticle() );
+      if (TrigInDetAnalysis::IsGoodOffline(*(*elec), selection)) selectorRef.selectTrack( (*elec)->trackParticle() );
 
     }
 
@@ -473,36 +477,32 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processMuons(     TrigTrackSelector& selectorRef,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
-      const std::string& containerName = "Muons"
+                             const std::string& containerName = "Muons"
 #                            else
                              const std::string& containerName = "StacoMuonCollection"
 #                            endif
 			     )  {
 
+#   ifdef XAODTRACKING_TRACKPARTICLE_H
+    typedef xAOD::MuonContainer     Container;
+#   else
+    typedef Analysis::MuonContainer Container;
+#   endif
+
     m_provider->msg(MSG::INFO) << " Offline muons " << endreq;
 
     selectorRef.clear();
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-    const xAOD::MuonContainer* container = 0;
-#else
-    const Analysis::MuonContainer* container = 0;
-#endif
+    const Container*     container = 0;
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-    if( ! m_provider->evtStore()->template contains<Analysis::MuonContainer>(containerName) ) {
-#else
-    if( ! m_provider->evtStore()->template contains<xAOD::MuonContainer>(containerName) ) {
-#endif
-      m_provider->msg(MSG::WARNING) << "Error No MuonCollection" << containerName
-				    << " !" << endreq;
+    if( ! m_provider->evtStore()->template contains<Container>(containerName) ) {
+      m_provider->msg(MSG::WARNING) << "Error No MuonCollection" << containerName << " !" << endreq;
       return 0;
     }
 
     StatusCode sc=m_provider->evtStore()->retrieve( container, containerName );
     if( sc.isFailure() || !container ) {
-      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName
-				    << " !" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName << " !" << endreq;
       return 0;
     }
 
@@ -511,16 +511,16 @@ protected:
     auto muon_end = container->end();
     for( ; muon!=muon_end ; ++muon ){
       if (TrigInDetAnalysis::IsGoodOffline(*(*muon))) {
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-	selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
-#     else
-	selectorRef.selectTrack((*muon)->inDetTrackParticle());
-#     endif
+#      ifdef XAODTRACKING_TRACKPARTICLE_H
+       selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+#      else
+       selectorRef.selectTrack((*muon)->inDetTrackParticle());
+#      endif
       }
     }
 
     return selectorRef.tracks().size();
-  }
+}
 
 
 
@@ -528,20 +528,23 @@ protected:
     /// select offline one-prong taus
     ////////////////////////////////////////////////////////////////////////////////////////////
 unsigned processTaus(      TrigTrackSelector& selectorRef,
-    bool doThreeProng = true,
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-    const std::string& containerName = "Taus"
-#     else
-    const std::string& containerName = "TauRecContainer"
-#     endif
-    ) {
+			   bool doThreeProng = true,
+#                          ifdef XAODTRACKING_TRACKPARTICLE_H
+			   const std::string& containerName = "Taus"
+#                          else
+			   const std::string& containerName = "TauRecContainer"
+#                          endif
+			   ) {
+  
+# ifdef XAODTRACKING_TRACKPARTICLE_H
+  typedef xAOD::TauJetContainer     Container; 
+# else
+  typedef Analysis::TauJetContainer Container;
+# endif
 
   selectorRef.clear();
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-  const xAOD::TauJetContainer* container = 0;
-#     else
-  const Analysis::TauJetContainer* container =0;
-#     endif
+
+  const Container* container = 0;
 
   std::cout << " in do tau selection " << std::endl;
 
@@ -549,14 +552,12 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   m_provider->msg(MSG::INFO) << " Offline taus " << endreq;
 
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-  if ( !m_provider->evtStore()->template contains<xAOD::TauJetContainer>(containerName)) {
-#     else
-  if ( !m_provider->evtStore()->template contains<Analysis::TauJetContainer>(containerName)) {
-#     endif
+  if ( !m_provider->evtStore()->template contains<Container>(containerName)) {
+      
     m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
     return 0;
   }
+  
 
   StatusCode sc = m_provider->evtStore()->retrieve( container, containerName);
   if (sc != StatusCode::SUCCESS) {
@@ -571,13 +572,15 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   for ( ; tau!=tau_end ; ++tau ) {
 
-    if (TrigInDetAnalysis::IsGoodOffline(*(*tau),doThreeProng,20000.0)) {
+    if (TrigInDetAnalysis::IsGoodOffline( *(*tau), doThreeProng, 20000.0 )) {
 
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      for (unsigned int i  = 0; i < (*tau)->nTracks(); i++) {
+      unsigned N = (*tau)->nTracks();
 #     else
-      for (unsigned int i  = 0; i < (*tau)->numTrack(); i++) {
+      unsigned N = (*tau)->numTrack(); 
 #     endif
+
+      for ( unsigned i=N ; i-- ; )  {  
         selectorRef.selectTrack((*tau)->track(i));
         Ntaus++;
       }
@@ -641,6 +644,8 @@ protected:
   bool                   m_useHighestPT;
 
   bool                   m_filterOnRoi;
+
+  bool                   m_requireDecision;
 
 };
 
