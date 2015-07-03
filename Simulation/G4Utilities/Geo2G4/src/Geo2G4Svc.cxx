@@ -10,7 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Geo2G4/Geo2G4SvcAccessor.h"
-#include "GenericVolumeBuilder.h"
+#include "Geo2G4/VolumeBuilder.h"
 
 void InitializeBuilders();
 

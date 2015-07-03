@@ -2,16 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// LArWheelSolid
-// Authors: A. M. Soukharev, with revisions by William Seligman
-
-// Revised 11-May-2001 WGS to integrate it with LArEMECConstruction
-// November 2001 updates and bugfixes by A. Soukharev
-// August 2002 - A. Soukharev - speed improvements
-// 15 Apr 2003 AMS move geometry calculations to Calculator
-
-#ifndef __LArWheelSolid_HH__
-#define __LArWheelSolid_HH__
+#ifndef __LArWheelSolid_H__
+#define __LArWheelSolid_H__
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4VSolid.hh"
@@ -20,15 +12,30 @@
 // disabled by default to avoid any performance degradation
 //#define DEBUG_LARWHEELSOLID
 
-// set this to use speed-improved version of DistanceToOut
-#define LArWheelSolidDTO_NEW
+// set this to use native G4 FanBound's methods for DisToIn
+// instead of local calculations
+//#define LARWHEELSOLID_USE_FANBOUND
 
-// set this to use speed-improved version of DistanceToIn
-#define LArWheelSolidDTI_NEW
+// set this to use BoundingShape's methods for DisToOut
+// instead of local calculations
+//#define LARWHEELSOLID_USE_BS_DTO
+
+// change this to have more z sections
+#define LARWHEELSOLID_ZSECT_MULT 1
+
+
+// set this to check in dti and dto functions if particle direction
+// pointing inside or outside of volume to return zero fast when it is required by spec.
+// currently at development stage, requires accurate surface normal calculations
+//#define CHECK_DIRTONORM_ANGLE_ON_SURFACE
 
 #ifdef DEBUG_LARWHEELSOLID
-extern G4bool Verbose;
+#define LWSDBG(a, b) if(Verbose > a) b
 #define MSG_VECTOR(v) "(" << v.x() << ", " << v.y() << ", " << v.z() << ")"
+#define LWS_HARD_TEST_DTI
+#define LWS_HARD_TEST_DTO
+#else
+#define LWSDBG(a, b)
 #endif
 
 // Forward declarations.
@@ -42,21 +49,9 @@ class G4Polycone;
 class LArWheelCalculator;
 class TF1;
 class LArFanSections;
+class G4Polyhedra;
 
-typedef enum {
-  InnerAbsorberWheel,
-  OuterAbsorberWheel,
-  InnerElectrodWheel,
-  OuterElectrodWheel,
-  InnerAbsorberModule,
-  OuterAbsorberModule,
-  InnerElectrodModule,
-  OuterElectrodModule,
-  InnerGlueWheel,
-  OuterGlueWheel,
-  InnerLeadWheel,
-  OuterLeadWheel
-} LArWheelSolid_t;
+#include "LArWheelSolid_type.h"
 
 inline const char *LArWheelSolidTypeString(LArWheelSolid_t type)
 {
@@ -119,25 +114,34 @@ public:
 
 private:
   static const G4double Tolerance;
+  static const G4double AngularTolerance;
   static const G4double IterationPrecision;
   static const G4double IterationPrecision2;
   static const unsigned int IterationsLimit;
 
-  LArWheelSolid_t Type;
+  G4bool IsOuter;
+  const LArWheelSolid_t Type;
   LArWheelCalculator *Calculator;
-  G4double FanHalfThickness;
+  G4double FanHalfThickness, FHTplusT, FHTminusT;
   G4double FanPhiAmplitude;
   G4double MinPhi;
   G4double MaxPhi;
-  G4double PhiPosition;
+  const G4double PhiPosition;
   G4Polycone* BoundingPolycone;
-  G4Polycone** FanSection;
-  G4int MaxFanSection;
-  G4double *FanSectionLimits;
-  G4int MaxFanSectionLimits;
+  G4VSolid* BoundingShape;
+#ifdef LARWHEELSOLID_USE_FANBOUND
+  G4VSolid* FanBound;
+#endif
+
+  std::vector<G4double> Zsect;
+  G4int Zsect_start_search;
 
   LArFanSections *m_fs;
 
+  // z at outer wheel "bend"
+  G4double Zmid;
+  // Special limit, used in dto
+  G4double Ymin;
   // limits for use in service functions
   G4double Zmin, Zmax, Rmin, Rmax;
 
@@ -145,30 +149,34 @@ private:
   void outer_solid_init(const G4String &);
   void set_phi_size(void);
 
-  virtual G4double distance_to_in(const G4ThreeVector &,
-                                  const G4double,
-                                  const G4ThreeVector &) const;
   virtual G4double distance_to_in(G4ThreeVector &, const G4ThreeVector &) const;
-  virtual G4double distance_to_in_ref(G4ThreeVector &, const G4ThreeVector &) const;
   G4double in_iteration_process(const G4ThreeVector &,
-                                G4double,
-                                const G4ThreeVector &) const;
-  G4double search_for_nearest_point(const G4ThreeVector &,
-                                    const G4ThreeVector &) const;
+                                G4double, G4ThreeVector &) const;
+  G4double search_for_nearest_point(
+	const G4ThreeVector &, const G4double,
+	const G4ThreeVector &
+  ) const;
   G4bool search_for_most_remoted_point(const G4ThreeVector &,
                                        const G4ThreeVector &,
                                        G4ThreeVector &) const;
-  G4double distance_to_out(const G4ThreeVector &,
-                           const G4ThreeVector &) const;
-  G4double distance_to_out_ref(const G4ThreeVector &, const G4ThreeVector &) const;
   G4double out_iteration_process(const G4ThreeVector &,
-                                 const G4ThreeVector &) const;
-  G4int select_fan_section(G4double) const;
+                                 G4ThreeVector &) const;
 
-  bool fs_inner_escape(G4double &b,
-                       const G4ThreeVector &p, const G4ThreeVector &v) const;
-  void fs_outer_escape(const G4int &fan_section, G4double &b,
-                       const G4ThreeVector &p, const G4ThreeVector &v) const;
+  G4bool fs_cross_lower(const G4ThreeVector &p, const G4ThreeVector &v,
+                        G4ThreeVector &q) const;
+  G4bool fs_cross_upper(const G4ThreeVector &p, const G4ThreeVector &v,
+                        G4ThreeVector &q) const;
+  typedef enum {
+	  NoCross, ExitAtInner, ExitAtOuter,
+	  ExitAtFront, ExitAtBack, ExitAtSide
+  } FanBoundExit_t;
+  FanBoundExit_t find_exit_point(const G4ThreeVector &p,
+                                 const G4ThreeVector &v,
+                                 G4ThreeVector &q) const;
+  G4bool check_D(G4double &b,
+                 G4double A, G4double B, G4double C, G4bool) const;
+
+  G4int select_section(const G4double &Z) const;
 
   EInside Inside_accordion(const G4ThreeVector&) const;
   void get_point_on_accordion_surface(G4ThreeVector &) const;
@@ -205,10 +213,6 @@ protected:
   friend double LArWheelSolid_fcn_side_area(double *, double *);
 
 #ifdef DEBUG_LARWHEELSOLID
-  G4double in_chord_method(
-                           const G4ThreeVector &p0, const G4ThreeVector &p1,
-                           const G4ThreeVector &v) const;
-
   static const char* inside(EInside i)
   {
     switch(i){
@@ -218,7 +222,17 @@ protected:
     }
     return "unknown";
   }
+
+  public:
+	static G4int Verbose;
+	void SetVerbose(G4int v){ Verbose = v; }
+	G4bool test_dti(const G4ThreeVector &p,
+	                const G4ThreeVector &v, const G4double distance) const;
+	G4bool test_dto(const G4ThreeVector &p,
+	                const G4ThreeVector &v, const G4double distance) const;
+  private:
+	const char *TypeStr(void) const { return LArWheelSolidTypeString(Type); }
 #endif
 };
 
-#endif // __LArWheelSolid_HH__
+#endif // __LArWheelSolid_H__
