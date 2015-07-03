@@ -2,72 +2,64 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// LArWheelSolid.cc (see also LArWheelSolid*.cc)
-// Authors: A. M. Soukharev, with revisions by William G. Seligman
-// 16-Oct-2001 WGS: Incorporated corrected for first and last wave
-//                  from Jozsef Toth.
-// Nov 2001 AMS: bugfixes and updates of algorithms
-//                             also in files LArWheelSolid*.cc
-// 01-Apr-2002 AMS: Added GetPhiGap routine.
-// August 2002: speed improvements
-// 15-Apr-2003 AMS: moved geometry code to LArWheelCalculator
-
 #include "G4VGraphicsScene.hh"
 #include "G4VisExtent.hh"
-#include "G4Polycone.hh"
-#include "G4ios.hh"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "LArWheelSolid.h"
 
-class G4Polyhedron;
 class G4NURBS;
 class G4VoxelLimits;
 class G4AffineTransform;
 
 EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 {
-  static G4ThreeVector p;
-  EInside inside_bp = BoundingPolycone->Inside(inputP);
-  if(inside_bp == kOutside) return kOutside;
-  p = inputP;
-  G4double d = FanHalfThickness - fabs(Calculator->DistanceToTheNearestFan(p));
-  if(d > Tolerance) return inside_bp;
-  if(d > -Tolerance) return kSurface;
-  return kOutside;
+	LWSDBG(10, std::cout << std::setprecision(25));
+	LWSDBG(1, std::cout << TypeStr() << " Inside " << MSG_VECTOR(inputP) << std::endl);
+	static G4ThreeVector p;
+	const EInside inside_BS = BoundingShape->Inside(inputP);
+	if(inside_BS == kOutside){
+		LWSDBG(2, std::cout << "outside BS" << std::endl);
+		return kOutside;
+	}
+	p = inputP;
+	const G4double d = fabs(Calculator->DistanceToTheNearestFan(p));
+	if(d > FHTplusT){
+		LWSDBG(2, std::cout << "outside fan d=" << d << ", FHTplusT=" << FHTplusT << std::endl);
+		return kOutside;
+	}
+	if(d < FHTminusT){
+		LWSDBG(2, std::cout << "inside fan d=" << d << ", FHTminusT=" << FHTminusT << ", inside_BS=" << inside(inside_BS) << std::endl);
+		return inside_BS;
+	}
+	LWSDBG(2, std::cout << "surface" << std::endl);
+	return kSurface;
 }
 
-G4ThreeVector LArWheelSolid::SurfaceNormal (const G4ThreeVector &inputP) const
+G4ThreeVector LArWheelSolid::SurfaceNormal(const G4ThreeVector &inputP) const
 {
-  static G4ThreeVector p, d;
-  EInside inside_bp = BoundingPolycone->Inside(inputP);
-  if(inside_bp == kOutside
-     || (inside_bp == kSurface && Inside(inputP) == kSurface))
-    {
-      return BoundingPolycone->SurfaceNormal(inputP);
-    }
-  p = inputP;
-  Calculator->DistanceToTheNearestFan(p);
-  d = Calculator->NearestPointOnNeutralFibre(p);
-  d.rotateZ(inputP.phi() - p.phi()); // rotate back to initial position
-  p = inputP - d;
-  return(p.unit());
-}
-
-G4int LArWheelSolid::select_fan_section(G4double z) const
-{
-  G4int i;
-  for(i = 1; i <= MaxFanSectionLimits; i ++){
-    if(FanSectionLimits[i] >= z) return i - 1;
-  }
-  return i - 2;
+	LWSDBG(1, std::cout << TypeStr() << " SurfaceNormal" << MSG_VECTOR(inputP) << std::endl);
+	static G4ThreeVector p, d;
+	EInside inside_BS = BoundingShape->Inside(inputP);
+	if(inside_BS != kInside){
+		LWSDBG(2, std::cout << "not inside BS" << std::endl);
+		return BoundingShape->SurfaceNormal(inputP);
+	}
+	p = inputP;
+	Calculator->DistanceToTheNearestFan(p);
+	d = Calculator->NearestPointOnNeutralFibre(p);
+	d.rotateZ(inputP.phi() -  p.phi()); // rotate back to initial position
+	LWSDBG(4, std::cout << "npnf" << MSG_VECTOR(d) << std::endl);
+	p = inputP - d;
+	LWSDBG(2, std::cout << "sn " << MSG_VECTOR(p.unit()) << std::endl);
+	return(p.unit());
 }
 
 G4bool LArWheelSolid::CalculateExtent(const EAxis a, const G4VoxelLimits &vl,
                                       const G4AffineTransform &t, G4double &p,
                                       G4double &q) const
 {
-  return BoundingPolycone->CalculateExtent(a, vl, t, p, q);
+	return BoundingShape->CalculateExtent(a, vl, t, p, q);
 }
 
 G4GeometryType LArWheelSolid::GetEntityType() const
@@ -121,10 +113,21 @@ void LArWheelSolid::DescribeYourselfTo(G4VGraphicsScene &scene) const
 
 G4VisExtent LArWheelSolid::GetExtent() const
 {
-  return BoundingPolycone->GetExtent();
+  return BoundingShape->GetExtent();
 }
 
 G4Polyhedron* LArWheelSolid::CreatePolyhedron() const
 {
-  return BoundingPolycone->CreatePolyhedron();
+  return BoundingShape->CreatePolyhedron();
+}
+
+/*
+ * returns the number of lower z boundary of z-section containing Z
+ */
+G4int LArWheelSolid::select_section(const G4double &Z) const
+{
+	for(G4int i = Zsect_start_search; i > 0; -- i){
+		if(Z > Zsect[i]) return i;
+	}
+	return 0;
 }

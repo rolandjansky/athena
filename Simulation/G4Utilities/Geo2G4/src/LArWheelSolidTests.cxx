@@ -2,23 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include<iostream>
-#include<stdexcept>
-#include"boost/io/ios_state.hpp"
-#include<map>
+#include <iostream>
+#include <stdexcept>
+#include "boost/io/ios_state.hpp"
+#include <map>
 
-#include"TRandom3.h"
-#include"TF1.h"
-#include"TNtupleD.h"
-#include"TFile.h"
-
+#include "TRandom3.h"
+#include "TF1.h"
+#include "TNtupleD.h"
+#include "TFile.h"
 // For root version ifdef
 #include "TROOT.h"
 
-#include"G4Polycone.hh"
+#include "G4Polycone.hh"
 
-#include"LArWheelSolid.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
+#include "LArWheelSolid.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 //#define LOCAL_DEBUG 1
@@ -78,7 +77,7 @@ G4ThreeVector LArWheelSolid::GetPointOnSurface(void) const
   const char *v1 = getenv("LARWHEELSOLID_TEST_MODE_LEVEL2");
   if(v1) level2 = atof(v1);
 
-#if DEBUG > 1
+#if LOCAL_DEBUG > 1
   std::cout << "LWS::GPOS " << r << std::endl;
 #endif
 
@@ -318,7 +317,7 @@ G4double LArWheelSolid::GetCubicVolume(void)
     f_vol->Integral(Rmin, Rmax, IntPrecision)
 #endif
 
-#ifndef DEBUG
+#ifndef LOCAL_DEBUG
     * Calculator->GetNumberOfFans()
 #endif
     ;
@@ -391,7 +390,7 @@ G4double LArWheelSolid::GetSurfaceArea(void)
 
   // sagging ignored, effect should be negligible
   return result
-#ifndef DEBUG
+#ifndef LOCAL_DEBUG
     * Calculator->GetNumberOfFans()
 #endif
     ;
@@ -399,37 +398,6 @@ G4double LArWheelSolid::GetSurfaceArea(void)
 
 void LArWheelSolid::test(void)
 {
-#if 0
-  FILE *FF = fopen("test_input", "r");
-  if(FF){
-    LArWheelSolid_t type;
-    fread(&type, sizeof(type), 1, FF);
-    if(type == Type){
-      G4ThreeVector p0, v0;
-      fread(&p0, sizeof(p0), 1, FF);
-      fread(&v0, sizeof(v0), 1, FF);
-      Verbose = true;
-      std::cout << "AT TEST DTI" << p0 << " Rt = " << p0.perp()
-                << " phi = " << p0.phi() << " " << v0 << std::endl;
-      G4ThreeVector p1(p0), v1(v0), p(p0), v(v0);
-      G4double dd1 = distance_to_in_ref(p1, v1);
-      G4double dd = distance_to_in(p, v);
-      std::cout << "== DTI new " << dd1 << " old " << dd << " == " << std::endl;
-      EInside i1 = Inside(p0 + v0 * dd1);
-      EInside i =  Inside(p0 + v0 * dd);
-      std::cout << "new " << inside(i1) << std::endl;
-      std::cout << "old " << inside(i) << std::endl;
-
-      std::cout << std::endl << "AT TEST DTO" << p0 << " " << v0 << std::endl;
-      dd1 = distance_to_out_ref(p0, v0);
-      dd = distance_to_out(p0, v0);
-      std::cout << "== DTO new " << dd1 << " old " << dd << " == " << std::endl;
-      exit(0);
-    }
-    fclose(FF);
-  }
-#endif
-
   boost::io::ios_all_saver ias(std::cout);
   const char *on = getenv("LARWHEELSOLID_TEST");
   if(on == 0) return;
@@ -518,13 +486,29 @@ void LArWheelSolid::test(void)
   ias.restore();
 }
 
-void LArWheelSolid::clean_tests(void)
-{
-  if(f_area) delete f_area;
-  if(f_vol) delete f_vol;
-  if(f_area_on_pc) delete f_area_on_pc;
-  if(f_length) delete f_length;
-  if(f_side_area) delete f_side_area;
+void LArWheelSolid::clean_tests(void) {
+	if(f_area) {
+		delete f_area;
+	  	f_area = 0;
+	}
+	if(f_vol) {
+		delete f_vol;
+		f_vol = 0;
+	}
+
+	if(f_area_on_pc) {
+		delete f_area_on_pc;
+		f_area_on_pc = 0;
+	}
+
+	if(f_length) {
+		delete f_length;
+		f_length = 0;
+	}
+	if(f_side_area) {
+		delete f_side_area;
+		f_side_area = 0;
+	}
 }
 
 G4double LArWheelSolid::get_area_at_r(G4double r) const
@@ -631,11 +615,10 @@ void LArWheelSolid::init_tests(void)
   test_index = double(solid.size());
   solid[test_index] = this;
 
-  std::cout << "LArWheelSolid::init_tests:" << std::endl;
-  std::cout << "Put " << this << " with index " << test_index
-            << " into list of solids" << std::endl;
-  std::cout << "Calculator: "<< Calculator
-            << " BP: " << BoundingPolycone << std::endl;
+#ifdef DEBUG_LARWHEELSOLID
+	std::cout << "LArWheelSolid::init_tests: put " << this
+	          << " with index " << test_index << std::endl;
+#endif
 
   f_area = new TF1(
                    (GetName() + "_f_area").c_str(), &LArWheelSolid_fcn_area,
@@ -667,3 +650,147 @@ void LArWheelSolid::init_tests(void)
                         );
   f_side_area->FixParameter(0, test_index);
 }
+
+#ifdef DEBUG_LARWHEELSOLID
+G4bool LArWheelSolid::test_dti(
+	const G4ThreeVector &inputP, const G4ThreeVector &inputV,
+	const G4double distance
+) const
+{
+	if(distance > 10.*m){
+		LWSDBG(1, std::cout << "DTI test skipped, distance > 10 m"
+	                        << std::endl);
+		return false;
+	}
+	static unsigned long counter = 0;
+	counter ++;
+	G4ThreeVector p, v;
+	if(BoundingShape->Inside(inputP) == kOutside){
+		p = inputP + inputV * BoundingShape->DistanceToIn(inputP, inputV);
+	} else p = inputP;
+	const G4double phi0 = p.phi();
+	const G4double d = Calculator->DistanceToTheNearestFan(p);
+	if(fabs(d) < FHTminusT){
+		std::cout << "DTI test already inside" << MSG_VECTOR(p) << std::endl;
+		return false;
+	}
+	v = inputV;
+	v.rotateZ(p.phi() - phi0);
+	const G4double dd = IterationPrecision;
+	LWSDBG(1, std::cout << "Start DTI test, expect "
+	                    << long(distance / dd) << " iterations"
+	                    << std::endl);
+
+	G4int V = Verbose;
+	Verbose = 0;
+
+	const G4double d1 = distance - IterationPrecision;
+	static bool first = true;
+	for(G4double t = IterationPrecision; t < d1; t += dd){
+		G4ThreeVector p1 = p + v * t;
+		if(fabs(Calculator->DistanceToTheNeutralFibre(p1)) < FHTminusT){
+			std::cout << "DTI test at " << MSG_VECTOR(inputP) << " -> "
+			          << MSG_VECTOR(inputV) << ", translated to "
+			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
+			          << " in range of "
+			          << distance << ": found nearer intersection at local point"
+			          << MSG_VECTOR(p1) << ", distance " << d
+			          << ", call " << counter
+			          << std::endl;
+			Verbose = V;
+
+			if(first){
+				first = false;
+				FILE *F = fopen("dti_error.dat", "w");
+				if(F){
+					fprintf(F, "%10e %10e %10e\n", p.x(), p.y(), p.z());
+					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
+					for(G4double e = IterationPrecision; e < d1; e += dd){
+						p1 = p + v * e;
+						G4double f = fabs(Calculator->DistanceToTheNeutralFibre(p1)) - FanHalfThickness;
+						fprintf(F, "%10e %10e\n", e, f);
+					}
+					fclose(F);
+				}
+			}
+
+			return true;
+		}
+	}
+	Verbose = V;
+	LWSDBG(1, std::cout << "DTI test at " << MSG_VECTOR(p) << " -> "
+			            << MSG_VECTOR(v) << " in range of "
+			            << distance << ": allright" << std::endl);
+	return false;
+}
+
+G4bool LArWheelSolid::test_dto(
+	const G4ThreeVector &inputP, const G4ThreeVector &inputV,
+	const G4double distance
+) const
+{
+	if(distance > 10.*m){
+		LWSDBG(1, std::cout << "DTO test skipped, distance > 10 m"
+	                        << std::endl);
+		return false;
+	}
+	static unsigned long counter = 0;
+	counter ++;
+	G4ThreeVector p, v;
+	p = inputP;
+	const G4double phi0 = p.phi();
+	const G4double d = Calculator->DistanceToTheNearestFan(p);
+	if(fabs(d) > FHTplusT){
+		std::cout << "DTO test already outside" << MSG_VECTOR(p) << std::endl;
+		return false;
+	}
+	v = inputV;
+	v.rotateZ(p.phi() - phi0);
+	const G4double dd = IterationPrecision;
+	LWSDBG(1, std::cout << "Start DTO test, expect "
+	                    << long(distance / dd) << " iterations"
+	                    << std::endl);
+
+	G4int V = Verbose;
+	Verbose = 0;
+
+	const G4double d1 = distance - IterationPrecision;
+	static bool first = true;
+	for(G4double t = IterationPrecision; t < d1; t += dd){
+		G4ThreeVector p1 = p + v * t;
+		if(fabs(Calculator->DistanceToTheNeutralFibre(p1)) > FHTplusT){
+			std::cout << "DTO test at " << MSG_VECTOR(inputP) << " -> "
+			          << MSG_VECTOR(inputV) << ", translated to "
+			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
+			          << " in range of "
+			          << distance << ": found nearer intersection at local point"
+			          << MSG_VECTOR(p1) << ", distance " << d
+			          << ", call " << counter
+			          << std::endl;
+			Verbose = V;
+
+			if(first){
+				first = false;
+				FILE *F = fopen("dto_error.dat", "w");
+				if(F){
+					fprintf(F, "%10e %10e %10e\n", p.x(), p.y(), p.z());
+					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
+					for(G4double e = IterationPrecision; e < d1; e += dd){
+						p1 = p + v * e;
+						G4double f = fabs(Calculator->DistanceToTheNeutralFibre(p1)) - FanHalfThickness;
+						fprintf(F, "%10e %10e\n", e, f);
+					}
+					fclose(F);
+				}
+			}
+
+			return true;
+		}
+	}
+	Verbose = V;
+	LWSDBG(1, std::cout << "DTO test at " << MSG_VECTOR(p) << " -> "
+			            << MSG_VECTOR(v) << " in range of "
+			            << distance << ": allright" << std::endl);
+	return false;
+}
+#endif
