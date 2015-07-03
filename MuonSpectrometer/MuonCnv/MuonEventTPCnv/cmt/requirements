@@ -17,7 +17,6 @@ use  MuonDigitContainer         MuonDigitContainer-*            MuonSpectrometer
 use  MuonPrepRawData            MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonRIO_OnTrack            MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use  MuonSimEvent               MuonSimEvent-*                  MuonSpectrometer
 use  MuonTrigCoinData           MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  MuonSimData                MuonSimData-*                   MuonSpectrometer
 use  TrkEventCnvTools           TrkEventCnvTools-*              Tracking/TrkEventCnv
@@ -44,7 +43,6 @@ library MuonEventTPCnv  *.cxx \
    MuonPrepRawData/*.cxx \ 
    MuonTrigCoinData/*.cxx  \
    MuonSegment/*.cxx \
-   MuonSimEvent/*.cxx \  
    MuonChamberT0s/*.cxx \
    MuonDigitContainer/*.cxx  
 

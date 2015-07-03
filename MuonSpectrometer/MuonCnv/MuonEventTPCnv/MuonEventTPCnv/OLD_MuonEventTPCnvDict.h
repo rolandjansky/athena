@@ -38,11 +38,6 @@
 #include "MuonEventTPCnv/TgcCoinDataContainer_tlp1.h"
 #include "MuonEventTPCnv/TgcCoinDataContainer_tlp2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtTwinPrepData_p1.h"
-#include "MuonEventTPCnv/MuonSimEvent/CSCSimHitCollection_p1.h"
-#include "MuonEventTPCnv/MuonSimEvent/RPCSimHitCollection_p1.h"
-#include "MuonEventTPCnv/MuonSimEvent/TGCSimHitCollection_p1.h"
-#include "MuonEventTPCnv/MuonSimEvent/TGCSimHitCollection_p2.h"
-#include "MuonEventTPCnv/MuonSimEvent/MDTSimHitCollection_p1.h"
 #include "MuonEventTPCnv/MuonChamberT0s/ChamberT0s_p1.h"
 
 struct OLD_MuonEventTPCnvDict 
