@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GEOPIXELLAYER_H
-#define GEOPIXELLAYER_h
+#ifndef PIXELGEOMODEL_GEOPIXELLAYER_H
+#define PIXELGEOMODEL_GEOPIXELLAYER_H
 
 #include "PixelGeoModel/GeoVPixelFactory.h"
 
@@ -35,4 +35,4 @@ class GeoPixelLayer : public GeoVPixelFactory {
 
 };
 
-#endif
+#endif // not PIXELGEOMODEL_GEOPIXELLAYER_H

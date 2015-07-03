@@ -43,9 +43,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // Module geometry
   GeoPixelSiCrystal theSensor(isBLayer);
   GeoPixelModule pm(theSensor);
-  double pmThicknessN=pm.ThicknessN();
+  double pmThicknessN=pm.ThicknessN_noSvc();
   double pmThicknessP=pm.ThicknessP();
   double pmWidth=pm.Width();
+
+  //  double tmp = pm.ThicknessN();
+  m_thicknessN_svc = pm.ModuleServiceThickness();
+  m_width_svc = pm.ModuleServiceWidth();
 
   // Module geometry - Si3D
   double pmThicknessN3D=-1;
@@ -552,6 +556,10 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double EndblockFlexThickness=0.;
 
   double wingZmin=0., wingZmax=0.;
+  int nbModuleSvc = gmt_mgr->PixelModuleServiceNumber();    
+  GeoLogVol * wingflex_logVol = 0;
+  double wingFlexPosX = 0.;
+  double wingFlexPosY = 0.;
 
   for(int iModule=0; iModule<NbModuleRL; iModule++)
     {
@@ -572,8 +580,6 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	flexGapZ = FlexStaveMiddleGap;
 	wingZmin = flexGapZ;
       }
-
-
 
       // Box and coordinates
       GeoBox * cableflex_shape = new GeoBox(FlexThicknessRL*0.5,FlexWidth*0.5,(ModuleTotLength-m_SafetyMargin-flexGapZ)*.5);
@@ -614,6 +620,75 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	cableflex_logVol= new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
       else
 	cableflex_logVol= new GeoLogVol(lname.str(),cableflex_shape,cableflex_material);
+
+      // Wing flex ( second version - not smeared )
+      if(nbModuleSvc>0)
+	{
+	  std::ostringstream wingName;
+	  wingName << "WingFlex";
+
+	  if(iModule==0)
+	    {
+	      double wingPos = FlexOffset+flexHalfWidth+2.*m_SafetyMargin+0.5;               // SES - fixme
+	      double flex1x = foamMidX+(wingPos+wingHalfWidth)*vDirX;
+	      double flex1y = foamMidY+(wingPos+wingHalfWidth)*vDirY;
+	      double flex2x = flex1x+WingThick*vPerpDirX;
+	      double flex2y = flex1y+WingThick*vPerpDirY;
+	      double flex4x = foamMidX+(wingPos)*vDirX;
+	      double flex4y = foamMidY+(wingPos)*vDirY;
+	      double flex3x = flex4x+WingThick*vPerpDirX;
+	      double flex3y = flex4y+WingThick*vPerpDirY;
+	  
+	      wingFlexPosX = (flex1x+flex2x+flex3x+flex4x)*0.25;
+	      wingFlexPosY = (flex1y+flex2y+flex3y+flex4y)*0.25;
+	      WingThick = 0.06;
+	      double wingHalfLength = 12.15*.5;
+	      GeoBox* wingflex_shape = new GeoBox(WingThick*0.5,wingHalfWidth,wingHalfLength);
+	      
+	      // flex name
+	      const GeoMaterial* wingflex_material= mat_mgr->getMaterialForVolume("pix::WingFlexTop",wingflex_shape->volume()) ;
+	      wingflex_logVol = new GeoLogVol(wingName.str(),wingflex_shape,wingflex_material);
+	    }
+	  
+
+	  // Add flex in 3D model : A component
+	  double zPos = (iModule+.5)*ModuleLength_flex+(iModule+.5)*ModuleGap_flex;
+	  CLHEP::Hep3Vector wingflex_posA(wingFlexPosX, wingFlexPosY , zPos-ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
+	  
+	  GeoPhysVol * wingflex_logVolPV_1 = new GeoPhysVol(wingflex_logVol);
+	  GeoNameTag* wingflex_tag = new GeoNameTag(wingName.str());
+	  logVolPV->add(wingflex_tag);
+	  logVolPV->add(wingflex_xformA);
+	  logVolPV->add(wingflex_logVolPV_1);
+
+	  CLHEP::Hep3Vector wingflex_posA_2(wingFlexPosX, wingFlexPosY , zPos+ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformA_2 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA_2));
+	  
+	  GeoPhysVol * wingflex_logVolPV_2 = new GeoPhysVol(wingflex_logVol);
+	  logVolPV->add(wingflex_tag);
+	  logVolPV->add(wingflex_xformA_2);
+	  logVolPV->add(wingflex_logVolPV_2);
+
+
+	  // Add flex in 3D model : C component
+	  CLHEP::Hep3Vector wingflex_posC(wingFlexPosX, wingFlexPosY , -zPos-ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
+	  
+	  GeoPhysVol * wingflex_logVolPV_C1 = new GeoPhysVol(wingflex_logVol);
+	  logVolPV->add(wingflex_tag);
+	  logVolPV->add(wingflex_xformC);
+	  logVolPV->add(wingflex_logVolPV_C1);
+
+	  CLHEP::Hep3Vector wingflex_posC_2(wingFlexPosX, wingFlexPosY , -zPos+ModuleLength_flex*.25);
+	  GeoTransform* wingflex_xformC_2 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC_2));
+	  
+	  GeoPhysVol * wingflex_logVolPV_C2 = new GeoPhysVol(wingflex_logVol);
+	  logVolPV->add(wingflex_tag);
+	  logVolPV->add(wingflex_xformC_2);
+	  logVolPV->add(wingflex_logVolPV_C2);
+
+	}
 
       GeoPhysVol * cableflex_logVolPV = new GeoPhysVol(cableflex_logVol);
       GeoNameTag* cableflex_tag = new GeoNameTag(lname.str());
@@ -675,47 +750,47 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // ------------------------------------------------------------------------------------------------------------
   // Wings Flex
   // ------------------------------------------------------------------------------------------------------------
-  // ------------------------------------------------------------------------------------------------------------
+   // ------------------------------------------------------------------------------------------------------------
 
-  if(bFlexAndWing){
-
-    gmt_mgr->msg(MSG::INFO)<<"Wings : "<< FlexOffset<<" "<<flexHalfWidth<<endreq;
-    
-    double wingPos = FlexOffset+flexHalfWidth+2.*m_SafetyMargin+0.5;               // SES - fixme
-    double flex1x = foamMidX+(wingPos+wingHalfWidth)*vDirX;
-    double flex1y = foamMidY+(wingPos+wingHalfWidth)*vDirY;
-    double flex2x = flex1x+WingThick*vPerpDirX;
-    double flex2y = flex1y+WingThick*vPerpDirY;
-    double flex4x = foamMidX+(wingPos)*vDirX;
-    double flex4y = foamMidY+(wingPos)*vDirY;
-    double flex3x = flex4x+WingThick*vPerpDirX;
-    double flex3y = flex4y+WingThick*vPerpDirY;
-    
-    GeoBox* wingflex_shape = new GeoBox(WingThick*0.5,wingHalfWidth-m_SafetyMargin,(wingZmax-wingZmin)*.5);
-    
-    // flex name
-    std::ostringstream wingName;
-    wingName << "WingFlex";
-    
-    // Add flex in 3D model : A component
-    CLHEP::Hep3Vector wingflex_posA((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,(wingZmax-wingZmin)*.5+FlexStaveMiddleGap);
-    GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
-    
-    const GeoMaterial* wingflex_material= mat_mgr->getMaterial("pix::WingFlexA");
-    GeoLogVol * wingflex_logVol = new GeoLogVol(wingName.str(),wingflex_shape,wingflex_material);
-    
-    GeoPhysVol * wingflex_logVolPV = new GeoPhysVol(wingflex_logVol);
-    GeoNameTag* wingflex_tag = new GeoNameTag(wingName.str());
-    logVolPV->add(wingflex_tag);
-    logVolPV->add(wingflex_xformA);
-    logVolPV->add(wingflex_logVolPV);
-    
-    CLHEP::Hep3Vector wingflex_posC((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-((wingZmax-wingZmin)*.5+FlexStaveMiddleGap));
-    GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
-    logVolPV->add(wingflex_tag);
-    logVolPV->add(wingflex_xformC);
-    logVolPV->add(wingflex_logVolPV);
-  }
+  if(bFlexAndWing&&nbModuleSvc==0)   // old wing flex definition
+    {
+      gmt_mgr->msg(MSG::INFO)<<"Wings : "<< FlexOffset<<" "<<flexHalfWidth<<endreq;
+      
+      double wingPos = FlexOffset+flexHalfWidth+2.*m_SafetyMargin+0.5;               // SES - fixme
+      double flex1x = foamMidX+(wingPos+wingHalfWidth)*vDirX;
+      double flex1y = foamMidY+(wingPos+wingHalfWidth)*vDirY;
+      double flex2x = flex1x+WingThick*vPerpDirX;
+      double flex2y = flex1y+WingThick*vPerpDirY;
+      double flex4x = foamMidX+(wingPos)*vDirX;
+      double flex4y = foamMidY+(wingPos)*vDirY;
+      double flex3x = flex4x+WingThick*vPerpDirX;
+      double flex3y = flex4y+WingThick*vPerpDirY;
+	
+      GeoBox* wingflex_shape = new GeoBox(WingThick*0.5,wingHalfWidth-m_SafetyMargin,(wingZmax-wingZmin)*.5);
+      
+      // flex name
+      std::ostringstream wingName;
+      wingName << "WingFlex";
+      
+      // Add flex in 3D model : A component
+      CLHEP::Hep3Vector wingflex_posA((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,(wingZmax-wingZmin)*.5+FlexStaveMiddleGap);
+      GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
+      
+      const GeoMaterial* wingflex_material= mat_mgr->getMaterial("pix::WingFlexA");
+      GeoLogVol * wingflex_logVol = new GeoLogVol(wingName.str(),wingflex_shape,wingflex_material);
+      
+      GeoPhysVol * wingflex_logVolPV = new GeoPhysVol(wingflex_logVol);
+      GeoNameTag* wingflex_tag = new GeoNameTag(wingName.str());
+      logVolPV->add(wingflex_tag);
+      logVolPV->add(wingflex_xformA);
+      logVolPV->add(wingflex_logVolPV);
+      
+      CLHEP::Hep3Vector wingflex_posC((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-((wingZmax-wingZmin)*.5+FlexStaveMiddleGap));
+      GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
+      logVolPV->add(wingflex_tag);
+      logVolPV->add(wingflex_xformC);
+      logVolPV->add(wingflex_logVolPV);
+    }
 
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
@@ -1153,11 +1228,44 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
   
   // Create and return stave envelop
   GeoSimplePolygonBrep* m_convexStaveEnvelopShape = new GeoSimplePolygonBrep(shapeDZ);
-  for(unsigned int iPt=0; iPt<xVertices.size(); iPt++)
-    {
-      m_convexStaveEnvelopShape->addVertex(xVertices[iPt],yVertices[iPt]);
-      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endreq;
-    }
+
+  if(m_thicknessN_svc<.01)
+    for(unsigned int iPt=0; iPt<xVertices.size(); iPt++)
+      {
+	m_convexStaveEnvelopShape->addVertex(xVertices[iPt],yVertices[iPt]);
+	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endreq;
+      }
+  else {
+    for(unsigned int iPt=1; iPt<xVertices.size()-1; iPt++)
+      {
+	m_convexStaveEnvelopShape->addVertex(xVertices[iPt],yVertices[iPt]);
+	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endreq;
+      }
+
+    xVertices[0]+=m_thicknessN_svc;
+    double delta = 0.4;
+    unsigned int iPoint = xVertices.size()-1;
+    //    double xMid = xVertices[iPoint]+(xVertices[0]-xVertices[iPoint])*.45;
+    //    double yMid = yVertices[iPoint]+(yVertices[0]-yVertices[iPoint])*.45;
+    
+    double xDir = xVertices[0]-xVertices[iPoint];
+    double yDir = yVertices[0]-yVertices[iPoint];
+    double tmp = 1./sqrt(xDir*xDir+yDir*yDir);
+    xDir*=tmp; yDir*=tmp;
+
+    double xMid = xVertices[0]-m_width_svc*xDir;
+    double yMid = yVertices[0]-m_width_svc*yDir+1.;
+    m_convexStaveEnvelopShape->addVertex(xMid, yMid);
+    m_convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+
+    xMid = xVertices[0]-m_width_svc*xDir;
+    yMid = yVertices[0]-m_width_svc*.5*yDir+1.;
+    m_convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+    m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yMid);
+    m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yVertices[0]);
+
+    //    m_convexStaveEnvelopShape->addVertex(xVertices[0], yVertices[0]);
+  }
 
   return m_convexStaveEnvelopShape;
 

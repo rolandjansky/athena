@@ -160,6 +160,19 @@ public:
   virtual double PixelChipGap(bool isModule3D=false)=0;
   virtual double PixelChipThickness(bool isModule3D=false)=0;
 
+  // Module services
+  virtual int PixelModuleServiceNumber()=0;
+  virtual double PixelModuleServiceLength(int svc)=0;
+  virtual double PixelModuleServiceWidth(int svc)=0;
+  virtual double PixelModuleServiceThick(int svc)=0;
+  virtual double PixelModuleServiceOffsetX(int svc)=0;
+  virtual double PixelModuleServiceOffsetY(int svc)=0;
+  virtual double PixelModuleServiceOffsetZ(int svc)=0;
+  virtual int PixelModuleServiceModuleType(int svc)=0;
+  virtual int PixelModuleServiceFullSize(int svc)=0;
+  virtual std::string PixelModuleServiceName(int svc)=0;
+  virtual std::string PixelModuleServiceMaterial(int svc)=0;
+
   // Disk Carbon Structure
   virtual double PixelECCarbonRMin(std::string)=0;
   virtual double PixelECCarbonRMax(std::string)=0;

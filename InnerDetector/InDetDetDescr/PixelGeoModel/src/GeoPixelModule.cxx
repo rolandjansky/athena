@@ -7,6 +7,7 @@
 #include "PixelGeoModel/GeoPixelChip.h"
 #include "PixelGeoModel/GeoPixelSiCrystal.h"
 #include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
@@ -14,6 +15,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeUnion.h"
 
 using std::max;
 
@@ -24,11 +26,14 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   // Define the log volume in the constructor, so I do it only once.
   //
   // The module orientation is
-  // x normal to the detector.
+  // x normal to the detector
   // y in the phi direction
   // z in the eta (z) direction
 
   m_isModule3D=m_theSensor.GetModule3DFlag();
+  m_moduleSvcThickness = 0.;
+  m_moduleSvcWidth = 0.;
+  nbModuleSvc = gmt_mgr->PixelModuleServiceNumber();
 
   //
   // The Dimensions are in separate routines
@@ -38,21 +43,76 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   double width = this->Width();
   const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
 
-  const GeoShape * moduleShape = 0;
-  const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
-  if (ThicknessP() == ThicknessN()) {
-    moduleShape = moduleBox;
-  } else {
-    // Shift so the center of the box is the center of the sensor.
-    double shift = 0.5 * (ThicknessP() - ThicknessN());
-    const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
-    moduleShape = &shiftedBox;
-  }
+  //  const GeoShape * moduleShape = 0;
   std::string logName = gmt_mgr->isBarrel() ? "ModuleBrl" : "ModuleEC";
-  theModule = new GeoLogVol(logName,moduleShape,air);
+
+  if (ThicknessP() == ThicknessN()) {
+    const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
+    const GeoShape * moduleShape = moduleBox;
+    theModule = new GeoLogVol(logName,moduleShape,air);
+  } 
+  else {
+
+    // Shift so the center of the box is the center of the sensor.
+    double shift = 0.5 * (ThicknessP() - ThicknessN_noSvc());
+    //    const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
+    //    moduleShape = &shiftedBox;
+    
+    thickness = ThicknessP()+ThicknessN_noSvc();
+    const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
+    const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
+    const GeoShape * moduleShape = &shiftedBox;
+    
+    if(m_moduleSvcThickness<0.001) {
+      theModule = new GeoLogVol(logName,moduleShape,air);
+    }
+    else {
+      double svcWidth = width*.6;
+      m_moduleSvcWidth = svcWidth;
+      const GeoBox* moduleSvcBox1 = new GeoBox(m_moduleSvcThickness*.5,svcWidth*.25,length*.5);
+      double yShift = width*.5-svcWidth*.75;
+      double xShift = thickness*.5+m_moduleSvcThickness*.5; 
+      const GeoShape &shiftedSvcBox1 = (*moduleSvcBox1) << (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift));
+
+      const GeoBox* moduleSvcBox2 = new GeoBox(m_moduleSvcThickness*.25,svcWidth*.25,length*.5);
+      yShift = width*.5-svcWidth*.25;
+      xShift = thickness*.5+m_moduleSvcThickness*.25; 
+      const GeoShape &shiftedSvcBox2 = (*moduleSvcBox2) << (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift));
+
+      GeoShapeUnion *moduleSvcShapeWing = 0;
+      for(int iSvc=0; iSvc<nbModuleSvc; iSvc++)
+	{
+	  //	  int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
+	  std::string name = gmt_mgr->PixelModuleServiceName(iSvc);
+	  
+	  if(name=="WingFlex"){
+	    double width_svc = gmt_mgr->PixelModuleServiceWidth(iSvc);
+	    double thick_svc = gmt_mgr->PixelModuleServiceThick(iSvc);
+	    double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+	    double offsetY = gmt_mgr->PixelModuleServiceOffsetY(iSvc);
+	    //	    double offsetZ = gmt_mgr->PixelModuleServiceOffsetZ(iSvc);
+	    double xPos = -0.5*(gmt_mgr->PixelBoardThickness(m_isModule3D)-gmt_mgr->PixelHybridThickness(m_isModule3D)) - offsetX - thick_svc*.5;
+
+	    const GeoBox* moduleSvcBox3 = new GeoBox(thick_svc*.5+.01,width_svc*.5+.01,length*.5+.01);
+	    const GeoShape &shiftedSvcBox3 = (*moduleSvcBox3) << (HepGeom::TranslateX3D(xPos)*HepGeom::TranslateY3D(offsetY));
+	    moduleSvcShapeWing = new GeoShapeUnion(moduleShape, &shiftedSvcBox3);
+	  }
+	}
 
 
+      GeoShapeUnion *moduleSvcShape = 0;
+      if(moduleSvcShapeWing==0)
+	moduleSvcShape = new GeoShapeUnion(moduleShape, &shiftedSvcBox1);
+      else
+	moduleSvcShape = new GeoShapeUnion(moduleSvcShapeWing, &shiftedSvcBox1);
+      GeoShapeUnion *moduleSvcGblShape = new GeoShapeUnion(moduleSvcShape, &shiftedSvcBox2);
+
+      theModule = new GeoLogVol(logName,moduleSvcGblShape,air);	
+    }
+  }
+  
 }
+
 
 GeoVPhysVol* GeoPixelModule::Build( ) {
   GeoFullPhysVol* modulePhys = new GeoFullPhysVol(theModule);
@@ -97,7 +157,73 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   // Add the silicon element to the list of detector elements...
   //
+
+
+  // Add the module services
+  if(nbModuleSvc==0) return modulePhys;
+  
+  int svcType = (m_isModule3D) ? 1 : 0;
+  for(int iSvc=0; iSvc<nbModuleSvc; iSvc++)
+    {
+      int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
+      
+      if(type==svcType){
+	double length = gmt_mgr->PixelModuleServiceLength(iSvc);
+	double width = gmt_mgr->PixelModuleServiceWidth(iSvc);
+	double thick = gmt_mgr->PixelModuleServiceThick(iSvc);
+	double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+	double offsetY = gmt_mgr->PixelModuleServiceOffsetY(iSvc);
+	double offsetZ = gmt_mgr->PixelModuleServiceOffsetZ(iSvc);
+	std::string name = gmt_mgr->PixelModuleServiceName(iSvc);
+	std::string material = gmt_mgr->PixelModuleServiceMaterial(iSvc);
+
+	const GeoBox* svcBox = new GeoBox(thick*.5-0.01,width*.5,length*.5);      
+	const GeoMaterial* svcMat = mat_mgr->getMaterialForVolume(material,svcBox->volume());
+	GeoLogVol* svcLogVol = new GeoLogVol(name, svcBox, svcMat);
+	GeoPhysVol* svcPhys = new GeoPhysVol(svcLogVol);
+
+	double xPos = -0.5*(gmt_mgr->PixelBoardThickness(m_isModule3D)-gmt_mgr->PixelHybridThickness(m_isModule3D)) - offsetX - thick*.5;
+	double yPos = offsetY;
+	double zPos = offsetZ;
+	GeoTransform* xform = new GeoTransform(HepGeom::Translate3D(xPos,yPos,zPos));	
+	modulePhys->add(xform);
+	modulePhys->add(svcPhys);
+      }
+    }
+
+
   return modulePhys;
+}
+
+double GeoPixelModule::ThicknessN_noSvc() {
+  //
+  // The module envelope is no longer forced to symmetric about its
+  // center to allow for room between the module and TMT. ThicknessN
+  // is the max of ThicknessP and thickness from the module center to
+  // the outer surface of the hybrid plus some safety.
+  //
+  double safety = 0.01*CLHEP::mm; 
+  double thickn = 0.5 * gmt_mgr->PixelBoardThickness(m_isModule3D)+ gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
+  double thick = max(thickn, ThicknessP()); 
+  
+  if(nbModuleSvc==0) return thick;
+  
+  double thickSvc=0;
+  int svcType = (m_isModule3D) ? 1 : 0;
+  for(int iSvc=0; iSvc<nbModuleSvc; iSvc++)
+    {
+      int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
+      int fullSize = gmt_mgr->PixelModuleServiceFullSize(iSvc);
+      if(type==svcType&&fullSize==1){
+	double locThick = gmt_mgr->PixelModuleServiceThick(iSvc);
+	double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+	double tmp = offsetX+locThick;
+	thickSvc = std::max(thickSvc,tmp);
+      }
+    }
+
+  return thick+thickSvc;
+
 }
 
 
@@ -114,8 +240,25 @@ double GeoPixelModule::ThicknessN() {
   double thickn = 0.5 * gmt_mgr->PixelBoardThickness(m_isModule3D)+ gmt_mgr->PixelHybridThickness(m_isModule3D) + safety;
   double thick = max(thickn, ThicknessP()); 
 
-  return thick;
+  if(nbModuleSvc==0) return thick;
+  
+  double thickSvc=0;
+  int svcType = (m_isModule3D) ? 1 : 0;
+  for(int iSvc=0; iSvc<nbModuleSvc; iSvc++)
+    {
+      int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
+      if(type==svcType){
+	double locThick = gmt_mgr->PixelModuleServiceThick(iSvc);
+	double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+	double tmp = offsetX+locThick;
+	thickSvc = std::max(thickSvc,tmp);
+      }
+    }
+  m_moduleSvcThickness = thickSvc;
+
+  return thick+thickSvc;
 }
+
 
 double GeoPixelModule::ThicknessP() {
   //

@@ -15,15 +15,23 @@ class GeoPixelModule : public GeoVPixelFactory {
   virtual GeoVPhysVol* Build();
   double Thickness();
   double ThicknessN();
+  double ThicknessN_noSvc();
   double ThicknessP();
   double Width();
   double Length();
+  double ModuleServiceThickness() const { return m_moduleSvcThickness; }
+  double ModuleServiceWidth() const { return m_moduleSvcWidth; }
   Identifier getID();
  private:
   const GeoLogVol* theModule;
   Identifier _id;
   GeoPixelSiCrystal& m_theSensor;
   bool m_isModule3D;
+
+  double m_moduleSvcThickness;
+  double m_moduleSvcWidth;
+  int nbModuleSvc;
+
 };
 
 #endif

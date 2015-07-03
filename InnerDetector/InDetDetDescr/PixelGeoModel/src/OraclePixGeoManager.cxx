@@ -121,6 +121,7 @@ OraclePixGeoManager::init()
   PixelEnvelopeService = rdbSvc->getRecordsetPtr("PixelEnvelopeService",     detectorKey, detectorNode);
   PixelLayer         = rdbSvc->getRecordsetPtr("PixelLayer",             detectorKey, detectorNode);
   PixelModule        = rdbSvc->getRecordsetPtr("PixelModule",            detectorKey, detectorNode);
+  PixelModuleSvc     = rdbSvc->getRecordsetPtr("PixelModuleSvc",            detectorKey, detectorNode);
   PixelStave         = rdbSvc->getRecordsetPtr("PixelStave",             detectorKey, detectorNode);
   PixelStaveZ        = rdbSvc->getRecordsetPtr("PixelStaveZ",            detectorKey, detectorNode);
   PixelTopLevel      = rdbSvc->getRecordsetPtr("PixelTopLevel",          detectorKey, detectorNode);
@@ -598,6 +599,74 @@ double OraclePixGeoManager::PixelChipThickness(bool isModule3D)  {
 
   return db()->getDouble(PixelModule,"CHIPTHICK",moduleType())*mmcm();
 }
+
+
+
+/////////////////////////////////////////////////////////
+//
+// Module services
+//
+/////////////////////////////////////////////////////////
+
+int OraclePixGeoManager::PixelModuleServiceNumber()
+{
+  if(!ibl()||GetLD()>0||!isBarrel()) return 0;
+
+  if (db()->getTableSize(PixelModuleSvc)) 
+    return db()->getTableSize(PixelModuleSvc);
+  return 0;
+}
+
+double OraclePixGeoManager::PixelModuleServiceLength(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"LENGTH",svc)*mmcm();
+}
+
+double OraclePixGeoManager::PixelModuleServiceWidth(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"WIDTH",svc)*mmcm();
+}
+
+double OraclePixGeoManager::PixelModuleServiceThick(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"THICK",svc)*mmcm();
+}
+
+double OraclePixGeoManager::PixelModuleServiceOffsetX(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"XOFFSET",svc)*mmcm();
+}
+
+double OraclePixGeoManager::PixelModuleServiceOffsetY(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"YOFFSET",svc)*mmcm();
+}
+
+double OraclePixGeoManager::PixelModuleServiceOffsetZ(int svc)
+{
+  return db()->getDouble(PixelModuleSvc,"ZOFFSET",svc)*mmcm();
+}
+
+int OraclePixGeoManager::PixelModuleServiceFullSize(int svc)
+{
+  return db()->getInt(PixelModuleSvc,"FULLSIZE",svc);
+}
+
+int OraclePixGeoManager::PixelModuleServiceModuleType(int svc)
+{
+  return db()->getInt(PixelModuleSvc,"MODULE3D",svc)*mmcm();
+}
+
+std::string OraclePixGeoManager::PixelModuleServiceName(int svc)
+{
+  return db()->getString(PixelModuleSvc,"NAME",svc);
+}
+
+std::string OraclePixGeoManager::PixelModuleServiceMaterial(int svc)
+{
+  return db()->getString(PixelModuleSvc,"MATERIAL",svc);
+}
+
 
 
 /////////////////////////////////////////////////////////

@@ -48,6 +48,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   IRDBRecordset_ptr PixelEnvelopeService;
   IRDBRecordset_ptr PixelLayer;
   IRDBRecordset_ptr PixelModule;
+  IRDBRecordset_ptr PixelModuleSvc;
   IRDBRecordset_ptr PixelStave;
   IRDBRecordset_ptr PixelStaveZ;
   IRDBRecordset_ptr PixelTopLevel;
@@ -312,6 +313,19 @@ class OraclePixGeoManager : public PixelGeometryManager {
   double PixelChipLength(bool isModule3D=false);
   double PixelChipGap(bool isModule3D=false);
   double PixelChipThickness(bool isModule3D=false);
+
+  // Module services
+  int PixelModuleServiceNumber();
+  double PixelModuleServiceLength(int svc);
+  double PixelModuleServiceWidth(int svc);
+  double PixelModuleServiceThick(int svc);
+  double PixelModuleServiceOffsetX(int svc);
+  double PixelModuleServiceOffsetY(int svc);
+  double PixelModuleServiceOffsetZ(int svc);
+  int PixelModuleServiceModuleType(int svc);
+  int PixelModuleServiceFullSize(int svc);
+  std::string PixelModuleServiceName(int svc);
+  std::string PixelModuleServiceMaterial(int svc);
 
   // Disk Carbon Structure
   // Being replaced by PixelDiskSupportRMin etc methods

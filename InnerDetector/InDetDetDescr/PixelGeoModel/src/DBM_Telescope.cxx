@@ -93,7 +93,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
   // parameters for rotating the 3-layer unit
   double lyRadius = sqrt(layerUnitY*layerUnitY/4 + layerUnitZ*layerUnitZ/4);
   double lyAngle = atan(layerUnitY/layerUnitZ);//21.6444*CLHEP::deg; // arctan(DBM3LayersY / DBM3LayersZ)
-  // position of bottom tip of the 3-layers unit, a rotation point
+  // position of bottom tip of the 3-layers unit, which is the rotation point
   double layerUnitPos_Y = (trapBackY/cos(angle) - coolingSidePlateY)*cos(angle);
   double layerUnitPos_Z = coolingSidePlateY*sin(angle) + trapBackShortZ + bracketZ - brcktLockZ; 
 
