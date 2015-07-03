@@ -1,3 +1,4 @@
+
 #--------------------------------------------------------------
 #
 #
@@ -90,6 +91,10 @@ if doEdmMonitor:
   topSequence += InDetEdmMonitor
   if (InDetFlags.doPrintConfigurables()):
     print          InDetEdmMonitor
+## DBM TruthLinks
+if InDetFlags.doDBM() and InDetFlags.doTruth():
+  from AthenaCommon.Resilience import protectedInclude
+  protectedInclude( "McParticleAlgs/TruthParticleBuilder_jobOptions_DBM.py" )
 
 #--------------------------------------------------------------
 # Load Inner Detector reconstruction
@@ -189,17 +194,30 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
   ServiceMgr.AthenaSealSvc.CheckDictionary = True
   # --- commit interval (test)
   ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
-  
+
+# MC truth information
+  if doWriteESD or doWriteAOD:
+    if InDetFlags.doTruth():
+      truthList = [ 'xAOD::TruthEventContainer#TruthEvents',
+                    'xAOD::TruthEventAuxContainer#TruthEventsAux.',
+                    'xAOD::TruthPileupEventContainer#TruthPileupEvents',
+                    'xAOD::TruthPileupEventAuxContainer#TruthPileupEventsAux.',
+                    'xAOD::TruthParticleContainer#TruthParticles',
+                    'xAOD::TruthParticleAuxContainer#TruthParticlesAux.',
+                    'xAOD::TruthVertexContainer#TruthVertices',
+                    'xAOD::TruthVertexAuxContainer#TruthVerticesAux.',
+                    'PileUpEventInfo#OverlayEvent' ]
+
   if doWriteESD:
     # --- create stream
     StreamESD            = AthenaPoolOutputStream ( "StreamESD", InDetKeys.OutputESDFileName(),asAlg=True) 
-    # --- save MC collection if truth turned on
+    # --- save MC collections if truth turned on
     if InDetFlags.doTruth():
-      StreamESD.ItemList += ["McEventCollection#*"]
-      StreamESD.ItemList += [ "PileUpEventInfo#OverlayEvent" ]
+      StreamESD.ItemList += truthList
     # ---- load list of objects
     include ( "InDetRecExample/WriteInDetESD.py" )
     StreamESD.ItemList  += InDetESDList
+    StreamESD.ItemList  += [ 'xAOD::EventInfo#EventInfo' , 'xAOD::EventAuxInfo#EventInfoAux.' ]
     # --- add trigger to IDRE standalone ESD
     StreamESD.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
@@ -207,18 +225,24 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamESD.ForceRead = True # otherwise unread stuff is not copied
       
   if doWriteAOD:
-    # --- create stream
-    StreamAOD            = AthenaPoolOutputStream ( "StreamAOD", InDetKeys.OutputAODFileName())
-    # --- save MC collection if truth turned on
+    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+    # --- create *augmented* stream; this makes ROOT happy
+    StreamAOD_Augmented   = MSMgr.NewPoolRootStream ( "StreamAOD", InDetKeys.OutputAODFileName() )
+    # --- here is the old, backward-compatible event stream
+    StreamAOD = StreamAOD_Augmented.GetEventStream()
+    # --- save MC collections if truth turned on
     if InDetFlags.doTruth():
-      StreamAOD.ItemList += ["McEventCollection#*"]
-      StreamAOD.ItemList += [ "PileUpEventInfo#OverlayEvent" ]
+      StreamAOD.ItemList += truthList
+
     # --- load list of objects
     include ( "InDetRecExample/WriteInDetAOD.py" )
+    StreamAOD.ItemList  += [ 'xAOD::EventInfo#EventInfo' , 'xAOD::EventAuxInfo#EventInfoAux.' ]
     # --- add trigger to IDRE standalone AOD
     StreamAOD.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
+    if InDetFlags.doDBM():
+      topSequence.StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
     StreamAOD.ForceRead = True # otherwise unread stuff is not copied
   
   if 'doCopyRDO' in dir() and doCopyRDO:

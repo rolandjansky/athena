@@ -1,3 +1,4 @@
+
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 
@@ -50,7 +51,7 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- Space points seeds maker, use different ones for cosmics and collisions
          #
-         if InDetFlags.doCosmics():
+         if (InDetFlags.doCosmics() and NewTrackingCuts.mode() != "DBM"):
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_Cosmic as SiSpacePointsSeedMaker
          elif InDetFlags.doHeavyIon():
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_HeavyIon as SiSpacePointsSeedMaker
@@ -101,7 +102,23 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
             InDetSiSpacePointsSeedMaker.RapidityCut        = NewTrackingCuts.maxEta()
-            
+         if NewTrackingCuts.mode() == "DBM":
+            InDetSiSpacePointsSeedMaker.checkEta           = True
+            InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
+            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
+            InDetSiSpacePointsSeedMaker.pTmin = 0
+            InDetSiSpacePointsSeedMaker.mindRadius         = 0
+            InDetSiSpacePointsSeedMaker.maxdRadius = 100000
+            InDetSiSpacePointsSeedMaker.mindRadius = 0
+            InDetSiSpacePointsSeedMaker.maxdZver = 1000000
+            InDetSiSpacePointsSeedMaker.maxdZdRver = 1000000
+            InDetSiSpacePointsSeedMaker.maxdImpactSSS = 100000
+            InDetSiSpacePointsSeedMaker.maxdImpactPPS = 100000
+            InDetSiSpacePointsSeedMaker.minVRadius2 = 0
+            InDetSiSpacePointsSeedMaker.maxVRadius1 = 1000000
+            InDetSiSpacePointsSeedMaker.maxVRadius2 = 1000000
+            InDetSiSpacePointsSeedMaker.RapidityCut = 5.0
+
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -142,6 +159,10 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         useSCT             = NewTrackingCuts.useSCT(), 
                                                                         SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
+         if NewTrackingCuts.mode() == "DBM":
+            InDetSiDetElementsRoadMaker.MagneticFieldMode = "NoField"
+
+
          #InDetSiDetElementsRoadMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiDetElementsRoadMaker
          if (InDetFlags.doPrintConfigurables()):
@@ -151,7 +172,7 @@ class  ConfiguredNewTrackingSiPattern:
          # --- Local track finding using sdCaloSeededSSSpace point seed
          #
 
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
                                           useSCT                    = NewTrackingCuts.useSCT(),
@@ -181,9 +202,16 @@ class  ConfiguredNewTrackingSiPattern:
                                           InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           UseAssociationTool        = usePrdAssociationTool)
 					  
+         if NewTrackingCuts.mode() == "DBM":
+            InDetSiTrackMaker.MagneticFieldMode = "NoField"
+            InDetSiTrackMaker.pTminBrem = 0
+            InDetSiTrackMaker.pTminSSS = 0
+            InDetSiTrackMaker.useSCT = False
+            InDetSiTrackMaker.useBremModel = False
+            InDetSiTrackMaker.useSSSseedsFilter = False
+				
 					
-					
-         if InDetFlags.doCosmics():
+         if (InDetFlags.doCosmics() and NewTrackingCuts.mode() != "DBM"):
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
 	   
          elif InDetFlags.doHeavyIon():
@@ -247,7 +275,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                                     useZBoundFinding = NewTrackingCuts.doZBoundary())   
 
-        
+         if NewTrackingCuts.mode() == "DBM":
+            InDetSiSPSeededTrackFinder.Zcut = 0
+
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
@@ -370,6 +400,9 @@ class  ConfiguredNewTrackingSiPattern:
          # --- load Ambiguity Processor
          #
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+         if NewTrackingCuts.mode() == "DBM":
+            InDetTrackFitter.StraightLine = True
+
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation"):
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
@@ -389,7 +422,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiguityProcessor.sharedProbCut2            = InDetFlags.pixelClusterSplitProb2()
            InDetAmbiguityProcessor.SplitClusterAmbiguityMap  = InDetKeys.SplitClusterAmbiguityMap()
 
-         if NewTrackingCuts.mode() == "Pixel":
+         if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True
          if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
             InDetAmbiguityProcessor.Fitter = InDetTrackFitterLowPt
