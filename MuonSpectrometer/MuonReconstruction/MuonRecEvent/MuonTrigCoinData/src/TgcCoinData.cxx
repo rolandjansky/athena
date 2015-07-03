@@ -34,7 +34,7 @@ namespace Muon
 			    const double widthOut,
 			    const int delta,
 			    const int sub,
-                            const int tile) :
+                            const int inner) :
     m_channelIdIn(channelIdIn),
     m_channelIdOut(channelIdOut),
     m_collectionIdHash(collectionIdHash),
@@ -59,7 +59,7 @@ namespace Muon
     m_pt(0),
     m_veto(false),
     m_sub(sub),
-    m_tile(tile),
+    m_inner(inner),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -101,7 +101,7 @@ namespace Muon
     m_pt(0),
     m_veto(false),
     m_sub(sub),
-    m_tile(0),
+    m_inner(0),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -147,7 +147,7 @@ namespace Muon
     m_pt(pt),
     m_veto(veto),
     m_sub(0),
-    m_tile(0),
+    m_inner(0),
     m_isPositiveDeltaR(isPositiveDeltaR),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -189,7 +189,7 @@ TgcCoinData::TgcCoinData():
     m_pt(0),
     m_veto(false),
     m_sub(0),
-    m_tile(0),
+    m_inner(0),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -218,7 +218,7 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_pt(RIO.m_pt),
     m_veto(RIO.m_veto),
     m_sub(RIO.m_sub),
-    m_tile(RIO.m_tile),
+    m_inner(RIO.m_inner),
     m_isPositiveDeltaR(RIO.m_isPositiveDeltaR)
 {
   m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
@@ -261,7 +261,7 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_roi = RIO.m_roi;
       m_pt = RIO.m_pt;
       m_veto = RIO.m_veto;
-      m_tile = RIO.m_tile;
+      m_inner = RIO.m_inner;
       m_sub = RIO.m_sub;
       m_isPositiveDeltaR = RIO.m_isPositiveDeltaR;
       delete m_globalposIn;
