@@ -8,41 +8,22 @@
 // helper class to replace G4Polycone
 // in certain LArWheelSolid operations
 
-#include<vector>
-
-#include "G4VSolid.hh"
-
-#define LAR_FAN_SECTIONS_MULT 1
-
 struct LArFanSections
 {
-  G4double Amin, Amax;
-  G4double Bmin, Bmax;
-  G4double Amin2, Amax2;
-  G4double Bmin2, Bmax2;
-  G4double xmin, xmax;
-  G4double Cflat2, ABmax, ABmin;
-  G4int last_fs, first_flat;
-  std::vector<G4double> z;
-  std::vector<G4double> rmin2;
-  std::vector<G4double> rmax2;
+	G4double Amin, Amax;
+	G4double Bmin, Bmax;
+	G4double Amin2, Amax2;
+	G4double Bmin2, Bmax2;
+	G4double xmin, xmax;
+	G4double Cflat2, ABmax, ABmin;
 
-  LArFanSections(
-                 G4double Ain, G4double Aout,
-                 G4double Bin, G4double Bout,
-                 G4double Xmax
-                 );
+	LArFanSections(
+		G4double ri1, G4double ri2,
+		G4double ro1, G4double ro2,
+		G4double Xmax, G4double z1, G4double z2
+	);
 
-  ~LArFanSections()
-  {
-    z.clear();
-    rmin2.clear();
-    rmax2.clear();
-  }
-
-  void prepare(void);
-  void print(void) const;
-  size_t select_section(const G4double &);
+	void print(void) const;
 };
 
 #endif // __LARFANSECTION_H__

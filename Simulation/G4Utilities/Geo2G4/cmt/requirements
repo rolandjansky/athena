@@ -2,8 +2,7 @@ package Geo2G4
 
 author ADA
 
-branches src cmt
-
+public
 use AtlasPolicy         AtlasPolicy-*
 use AthenaKernel        AthenaKernel-*       Control
 use GaudiInterface      GaudiInterface-*     External
@@ -19,6 +18,7 @@ use GeoSpecialShapes    GeoSpecialShapes-*   DetectorDescription/GeoModel
 use GeoModelInterfaces  GeoModelInterfaces-* DetectorDescription/GeoModel
 use StoreGate           StoreGate-*          Control
 use SimHelpers          SimHelpers-*         Simulation/G4Sim
+use SGTools             SGTools-*            Control
 end_private
 
 include_dirs "$(Geo2G4_root)" "$(Geo2G4_root)/Geo2G4"
@@ -26,14 +26,15 @@ include_dirs "$(Geo2G4_root)" "$(Geo2G4_root)/Geo2G4"
 # Specify the required ROOT components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore RIO)"
 
-# Specify to cmake that this package has a non-standard include path (transparent to CMT)
-apply_pattern cmake_add_command command="include_directories(Geo2G4)"
+# ZLM to CMake folks: I believe that now that this is dual use and cleaner, these are not needed?
+## Specify to cmake that this package has a non-standard include path (transparent to CMT)
+#apply_pattern cmake_add_command command="include_directories(Geo2G4)"
+#
+## Override the library type for cmake so that it is linkable by clients (transparent to CMT)
+#apply_pattern cmake_override_library_type library=Geo2G4 type=installed_library
 
-# Override the library type for cmake so that it is linkable by clients (transparent to CMT)
-apply_pattern cmake_override_library_type library=Geo2G4 type=installed_library
+apply_pattern dual_use_library files="*.cxx"
 
-library Geo2G4 ../src/*.cxx -s=components *.cxx
-
-apply_pattern component_library
-
-apply_pattern install_runtime
+# Make dict for LArWheelSolidChecker
+use AtlasReflex  AtlasReflex-* External -no_auto_imports
+apply_pattern lcgdict dict=LArWheelSolidChecker selectionfile=../src/lcg_dict/selection.xml headerfiles="../src/LArWheelSolidDDProxy.h"
