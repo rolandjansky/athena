@@ -1204,10 +1204,10 @@ void AscObj_TSOS::zoomView() {
         for (it=cameras.begin();it!=itE;++it) {
           if (common()->controller()->assocObjDetailLevel()==TrackCommonFlags::SIMPLE)
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,1.0,lookat0);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,100.0,100.0,1.0,lookat0);
           } else
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,1.0,lookat0);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,100.0,100.0,1.0,lookat0);
           }
         }
       } else if ( strSurf )
@@ -1228,10 +1228,10 @@ void AscObj_TSOS::zoomView() {
           lookat1 = cameraDir.dot(lookat0) > 0 ? lookat0 : -lookat0;
           if (common()->controller()->assocObjDetailLevel()==TrackCommonFlags::SIMPLE)
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,1.0,lookat1);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,100.0,100.0,1.0,lookat1);
           } else
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,1.0,lookat1);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,100.0,100.0,1.0,lookat1);
           }
         }
       }

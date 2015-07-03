@@ -93,7 +93,8 @@ public:
     shownTSOSParts(TrackCommonFlags::TSOS_NoObjects),
     customColouredTSOSParts(TrackCommonFlags::TSOS_NoObjects),
     tsos_ascobjs(0),
-    m_objBrowseTree(0){}
+    m_objBrowseTree(0),
+    tempMaxPropRadius(0.0){}
   ~Imp() { delete tsos_ascobjs; }
   TrackHandleBase * theclass;
 
@@ -169,6 +170,7 @@ public:
   AscObj_TSOS* addTSOS(const Trk::TrackStateOnSurface * tsos,unsigned index);
 
   QTreeWidgetItem* m_objBrowseTree;
+  float tempMaxPropRadius;
 };
 
 
@@ -475,8 +477,12 @@ void TrackHandleBase::setVisible(bool vis)
 }
 
 //____________________________________________________________________
-void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints )
+void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints, float maxR )
 {
+  VP1Msg::messageVerbose(QString("TrackHandleBase::update3DObject with maxR set to ")+QString::number(maxR) );
+  if (maxR>0.0) {    
+    d->tempMaxPropRadius=maxR;
+  }
   if ( invalidatePropagatedPoints) {
     if (d->points_propagated != d->points_raw) // might be same underlying vector
       delete d->points_propagated;d->points_propagated = 0;
@@ -490,6 +496,7 @@ void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints )
     //Simply clear the present 3D objects. They will only be recreated if/when the track becomes visible again.
     clearLine();
   }
+  d->tempMaxPropRadius=0.0;
 }
 
 //____________________________________________________________________
@@ -537,8 +544,12 @@ void TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty(const std::vect
   std::vector<Amg::Vector3D >::const_iterator pointsIt, pointsItEnd(points.end());
   unsigned npointsused(0);
 
+
   float maxR2=theclass->common()->controller()->propMaxRadius()>0.0?theclass->common()->controller()->propMaxRadius():std::numeric_limits<float>::max();
-  
+  if (tempMaxPropRadius>0.0){    
+    maxR2 = tempMaxPropRadius * tempMaxPropRadius;
+    theclass->collHandle()->systemBase()->messageVerbose("maxR2 is set to "+VP1Msg::str(maxR2));
+  }
   float vertexPlanePhi = (theclass->common()->controller()->vertexProjectionAngle())*M_PI/180;// angle of plane to use for vertex projection
   vertexPlanePhi-=M_PI; // ATLAS range is -PI to PI
   
@@ -556,7 +567,7 @@ void TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty(const std::vect
   if (cos(vertexPlanePhi-trkPhi)>0) newPhi=vertexPlanePhi;
   // theclass->collHandle()->systemBase()->messageVerbose("Vertex projection is set to "+VP1Msg::str(vertexPlanePhi)+" trkPhi= "+VP1Msg::str(trkPhi)+" newPhi="+VP1Msg::str(newPhi));
   
-  for (pointsIt = points.begin();pointsIt!=pointsItEnd && pointsIt->perp2()<maxR2; ++pointsIt) {
+  for (pointsIt = points.begin();pointsIt!=pointsItEnd && pointsIt->mag2()<maxR2; ++pointsIt) {
     // theclass->collHandle()->systemBase()->messageVerbose(VP1Msg::str(count++)+": point has perp2="+VP1Msg::str(pointsIt->perp2()));
     if (!isSane(*pointsIt)) {
       theclass->collHandle()->systemBase()->message("WARNING: Ignoring point on track:"+VP1Msg::str( *pointsIt ) );
@@ -618,9 +629,7 @@ void TrackHandleBase::registerTrack()
 
 //____________________________________________________________________
 void TrackHandleBase::Imp::rebuild3DObjects()
-{
-  std::cout<<" TrackHandleBase::Imp::rebuild3DObjects()"<<std::endl;
-  
+{  
   //Ensure we are always detached while updating.
   if (theclass->m_visible)
     detach3DObjects();

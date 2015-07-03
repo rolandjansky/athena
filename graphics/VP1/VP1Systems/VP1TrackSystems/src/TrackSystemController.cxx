@@ -54,7 +54,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 
-#include "TrkDetDescrSvc/TrackingVolumesSvc.h"
+#include "TrkVolumes/CylinderVolumeBounds.h"
+#include "TrkVolumes/Volume.h"
 
 #include "Inventor/nodes/SoMaterial.h"
 #include "Inventor/nodes/SoDrawStyle.h"
@@ -152,6 +153,11 @@ public:
   
   QTreeWidget* objBrowserWidget;
   TrackSysCommonData * common;
+  
+  // Added because TrackingVolumeSvc doesn't work any more. Can remove when we move to new extrapolator
+  Trk::Volume* calorimeterEntryLayer;
+  Trk::Volume* muonSpectrometerEntryLayer;
+  Trk::Volume* muonSpectrometerExitLayer;
 };
 
 const QString TrackSystemController::Imp::noneAvailString = QString("None available");
@@ -239,7 +245,7 @@ void TrackSystemController::Imp::ensureFittersCreated(IVP1System * sys) {
 
 //____________________________________________________________________
 TrackSystemController::TrackSystemController(IVP1System * sys)
-  : VP1Controller(sys,"TrackSystemController"), d(new Imp), m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc","TrackSystemController")
+  : VP1Controller(sys,"TrackSystemController"), d(new Imp)
 {
   d->theclass = this;
   d->lastUpdatedAvailableExtrapolators = QStringList("<dummy>");//special.
@@ -524,7 +530,11 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
 
   // we want "Print information" on single track selection turned ON by default
   d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
-
+  
+  // Since TrkVolumesSvc isn't working anymore, hardcode values. (Remove when we move to new extrapolator)
+  d->calorimeterEntryLayer      = new Trk::Volume(0, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
+  d->muonSpectrometerEntryLayer = new Trk::Volume(0, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
+  d->muonSpectrometerExitLayer  = new Trk::Volume(0, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
   initLastVars();
 }
 
@@ -603,11 +613,6 @@ void TrackSystemController::initTools()
   //could also use testForChanges() here:
   possibleChange_propagator();
   possibleChange_trackFitter();
-  
-  //TrackingVolumesSvc
-  if (m_trackingVolumesSvc.retrieve().isFailure()){ 
-    message("WARNING! Failed to retrieve TrackingVolumesSvc. Disabling propagation to arbitrary volumes.");
-  }
 }
 
 //____________________________________________________________________
@@ -667,7 +672,12 @@ TrackSystemController::~TrackSystemController()
   // d->trackLightModel->unref();
   d->ascObjDrawStyle->unref();
   d->ascObjComplexity->unref();
-  // delete d->objBrowserWidget;
+  
+  delete d->calorimeterEntryLayer     ;
+  delete d->muonSpectrometerEntryLayer;
+  delete d->muonSpectrometerExitLayer ;
+    
+    // delete d->objBrowserWidget;
   delete d;
   messageVerbose("~TrackSystemController end");
 }
@@ -1518,13 +1528,12 @@ Muon::MuonEDMPrinterTool * TrackSystemController::muonEDMPrinterTool() const
 
 const Trk::Volume * TrackSystemController::extrapolateToThisVolume() const
 {
-  if (!m_trackingVolumesSvc) return 0;
   if (d->ui_extrap.comboBox_extendAllInDetTracksToHere->currentText()=="Calorimeter")
-    return &(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+    return d->calorimeterEntryLayer;
   if (d->ui_extrap.comboBox_extendAllInDetTracksToHere->currentText()=="Muon Entrance")
-    return &(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+    return d->muonSpectrometerEntryLayer;
   if (d->ui_extrap.comboBox_extendAllInDetTracksToHere->currentText()=="Muon Exit")
-    return &(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerExitLayer));
+    return d->muonSpectrometerExitLayer;
   return 0;
 }
 
