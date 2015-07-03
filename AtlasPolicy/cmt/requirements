@@ -853,10 +853,12 @@ pattern declare_calib \
 
 
 #---------------------------------
-# ManaCore section
+# ManaCore and AthSimulationBase section
 #---------------------------------
 #action checkreq "checkreq.py -i 2 -n" ManaCore " echo 'CHECKREQ: checkreq disabled in ManaCore releases' "
 macro_append pp_cppflags "" ManaCore " -DXAOD_MANACORE -DXAOD_ANALYSIS "
+macro_append pp_cppflags "" AthSimulationBase " -DSIMULATIONBASE "
+
 pattern use_ifndef \
     public ; \
     macro <package>_pplist_<pkg> "`echo "<pplist>" | sed 's/,/\|/g'`" ; \
