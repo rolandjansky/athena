@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
 
@@ -289,16 +291,23 @@ StatusCode TestHepMC::execute() {
 
         HepMC::GenVertex::particle_iterator par = (*vitr)->particles_begin(HepMC::parents);
         for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
-	  std::cout << "Outgoing particle : " << std::endl;
-          (*par)->print();
-	  std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
-	  std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
-          std::cout << "parents info: " << std::endl;
+	  //  std::cout << "Outgoing particle : " << std::endl;
+	  //          (*par)->print();
+          ATH_MSG_WARNING("Outgoing particle : ");
+          if (m_dumpEvent) (*par)->print();
+          ATH_MSG_WARNING("production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z());
+          ATH_MSG_WARNING("end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z());
+          ATH_MSG_WARNING("parents info: ");
+	  //	  std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
+	  //	  std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
+	  //   std::cout <<  << std::endl;
           if ((*par)->production_vertex()) {
             HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
             for(; p_parents != (*par)->production_vertex()->particles_end(HepMC::parents); ++p_parents) {
-              cout << "\t";
-              (*p_parents)->print();
+	      // cout << "\t";
+	      if (m_dumpEvent) (*p_parents)->print();
+	      ATH_MSG_WARNING("\t");
+          
             }
           }
 
@@ -356,7 +365,7 @@ StatusCode TestHepMC::execute() {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record momenta");
         ++m_partMomentumNANandINFCheckRate;
         ++m_nFail;
-        if (m_dumpEvent) (*itr)->print();
+        if (m_dumpEvent) (*pitr)->print();
         setFilterPassed(false);
         return StatusCode::SUCCESS;
       }
@@ -376,7 +385,8 @@ StatusCode TestHepMC::execute() {
           double plifetime = pd->lifetime()*1e+12;  // why lifetime doesn't come in common units???
           if (plifetime != 0 && plifetime < m_min_tau) { // particles with infinite lifetime get a 0 in the PDT
             ATH_MSG_WARNING("Stable particle found with lifetime = " << plifetime << "~ns!!");
-            (*pitr)->print();
+	    if (m_dumpEvent) (*pitr)->print();
+
             ++m_Status1ShortLifetime;
             ++m_nFail;
             setFilterPassed(false);
@@ -396,7 +406,8 @@ StatusCode TestHepMC::execute() {
 	  }
 	  if (susyPart==0){
             ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
-            (*pitr)->print();
+	    if (m_dumpEvent) (*pitr)->print();
+    
 	  }
         }
       }
@@ -528,10 +539,10 @@ StatusCode TestHepMC::execute() {
     double lostE = fabs(totalE - cmenergy);
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
-      if (m_dumpEvent || lostE > m_energy_diff) {
-          (*itr)->print();
-	  std::cout << "balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE << std::endl;
-      }
+
+	  //	  std::cout << "balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE << std::endl;
+      ATH_MSG_WARNING("balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE);
+      
      if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
       //     std::cout << "hidt filled " << std::endl;
@@ -687,3 +698,6 @@ StatusCode TestHepMC::finalize() {
 
   return StatusCode::SUCCESS;
 }
+
+
+#endif

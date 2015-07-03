@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #ifndef EVGENPRODTOOLS_EVGENOTFTOPUPSVC_H
 #define EVGENPRODTOOLS_EVGENOTFTOPUPSVC_H
 
@@ -57,5 +59,7 @@ private:
   long        m_nTotal;         //!< Book-keeping: total number of generated events 
   long        m_nIterations;    //!< Book-keeping: total number of OTF iterations
 };
+
+#endif
 
 #endif

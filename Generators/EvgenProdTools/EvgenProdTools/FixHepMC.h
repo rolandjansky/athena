@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #ifndef FIX_HEPMC
 #define FIX_HEPMC
 
@@ -57,5 +59,7 @@ private:
 
 };
 
+
+#endif
 
 #endif

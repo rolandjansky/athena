@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "EvgenProdTools/EvgenOTFTopUpSvc.h"
 
 EvgenOTFTopUpSvc::EvgenOTFTopUpSvc(const std::string& name, ISvcLocator* pSvcLocator)
@@ -34,3 +36,4 @@ StatusCode EvgenOTFTopUpSvc::queryInterface(const InterfaceID& riid, void** ppvI
   return StatusCode::SUCCESS;
 }
 
+#endif

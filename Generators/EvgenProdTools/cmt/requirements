@@ -2,6 +2,7 @@ package EvgenProdTools
 
 author Andy Buckley <andy.buckley@cern.ch>
 author Zach Marshall <zach.marshall@cern.ch>
+author Will Buttinger <will@cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 use AtlasHepMC        AtlasHepMC-*        External
@@ -15,6 +16,10 @@ use AthenaKernel      AthenaKernel-*      Control
 use TruthUtils        TruthUtils-*        Generators
 use GaudiInterface    GaudiInterface-*    External
 use EventInfo         EventInfo-*         Event
+
+use IOVDbMetaDataTools IOVDbMetaDataTools-* Database
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use IOVDbDataModel IOVDbDataModel-* Database
 end_private
 
 #use AtlasHepMC       AtlasHepMC-*       External
