@@ -8,7 +8,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#undef private
+#undef protected
 
 #include "MuonEventTPCnv/MuonRIO_OnTrack/MuonClusterOnTrackCnv_p1.h"
 
@@ -30,7 +34,7 @@ transToPers( const Muon::MuonClusterOnTrack *transObj,
 {
    //std::cout<<"MuonClusterOnTrackCnv_p1::transToPers start"<<std::endl;
    persObj->m_RIO = baseToPersistent( &m_RIOCnv,  static_cast<const Trk::RIO_OnTrack*>(transObj), log );
-   persObj->m_positionAlongStrip = transObj->positionAlongStrip();
+   persObj->m_positionAlongStrip = transObj->m_positionAlongStrip;
    //std::cout<<"MuonClusterOnTrackCnv_p1::transToPers end"<<std::endl;
 }
 

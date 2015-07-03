@@ -8,7 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
+#undef private
+#undef protected
+
 #include "MuonEventTPCnv/MuonRIO_OnTrack/STGC_ClusterOnTrackCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
@@ -32,7 +37,7 @@ persToTrans( const Muon::STGC_ClusterOnTrack_p1 *persObj,
    if (transObj->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << transObj->identify()<<"/"<<transObj->idDE()<<")"<<endmsg;   
+            << transObj->identify()<<"/"<<transObj->idDE()<<")"<<endreq;   
 }
 
 
@@ -42,17 +47,17 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
 {
   // std::cout<<"BLAH! STGC_ClusterOnTrackCnv_p1::persToTrans"<<std::endl;
   // log << MSG::INFO<<"Identifier/IdentifierHash : ("
-  //     << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;   
+  //     << transObj->identify()<<"/"<<transObj->idDE()<<endreq;   
   
   // Prepare ELs
    m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::sTgcClusterOnTrack *>(transObj));  
   
-   m_elCnv.transToPers(&transObj->prepRawDataLink(),&persObj->m_prdLink,log);
-   persObj->m_positionAlongStrip = transObj->positionAlongStrip();
-   persObj->m_id = transObj->identify().get_identifier32().get_compact();
-   persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );
+   m_elCnv.transToPers(&transObj->m_rio,&persObj->m_prdLink,log);
+   persObj->m_positionAlongStrip = transObj->m_positionAlongStrip;
+   persObj->m_id = transObj->m_identifier.get_identifier32().get_compact();
+   persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->m_localParams, log );
    Trk::ErrorMatrix pMat;
-   EigenHelpers::eigenMatrixToVector(pMat.values, transObj->localCovariance(), "STGC_ClusterOnTrackCnv_p1");
+   EigenHelpers::eigenMatrixToVector(pMat.values, transObj->m_localCovariance, "STGC_ClusterOnTrackCnv_p1");
    persObj->m_localErrMat = toPersistent( &m_errorMxCnv, &pMat, log );
   
    // Extra check.
@@ -63,7 +68,7 @@ transToPers( const Muon::sTgcClusterOnTrack *transObj,
    if (nonconst->detectorElement()==0) 
         log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
             << "probably because of a problem with the Identifier/IdentifierHash : ("
-            << nonconst->identify()<<"/"<<nonconst->idDE()<<")"<<endmsg;   
+            << nonconst->identify()<<"/"<<nonconst->idDE()<<")"<<endreq;   
 }
 
 

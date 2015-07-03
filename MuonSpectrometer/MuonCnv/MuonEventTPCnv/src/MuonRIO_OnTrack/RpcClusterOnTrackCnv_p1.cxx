@@ -8,7 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
+#undef private
+#undef protected
+
 #include "MuonEventTPCnv/MuonRIO_OnTrack/RpcClusterOnTrackCnv_p1.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 

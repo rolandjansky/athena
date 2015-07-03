@@ -8,13 +8,18 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "MuonPrepRawData/MdtTwinPrepData.h"
+#undef private
+#undef protected
+
 #include "MuonEventTPCnv/MuonPrepRawData/MdtTwinPrepDataCnv_p1.h"
 
 void MdtTwinPrepDataCnv_p1::
 persToTrans( const Muon::MdtTwinPrepData_p1 *, Muon::MdtTwinPrepData *,MsgStream & log ) 
 {
-  log<<MSG::WARNING<<"MdtTwinPrepDataCnv_p1::persToTrans is currently disabled. Contact Muon developers"<<endmsg;
+  log<<MSG::WARNING<<"MdtTwinPrepDataCnv_p1::persToTrans is currently disabled. Contact Muon developers"<<endreq;
   
     // // Fill localposition
     // transObj->m_localPos.setX(persObj->m_driftRadius);
@@ -35,7 +40,7 @@ persToTrans( const Muon::MdtTwinPrepData_p1 *, Muon::MdtTwinPrepData *,MsgStream
 void MdtTwinPrepDataCnv_p1::
 transToPers( const Muon::MdtTwinPrepData *, Muon::MdtTwinPrepData_p1 *, MsgStream & log )
 {
-  log<<MSG::WARNING<<"MdtTwinPrepDataCnv_p1::transToPers is currently disabled. Contact Muon developers"<<endmsg;
+  log<<MSG::WARNING<<"MdtTwinPrepDataCnv_p1::transToPers is currently disabled. Contact Muon developers"<<endreq;
     // persObj->m_driftRadius      = transObj->m_localPos.x();
     // persObj->m_errorDriftRadius = transObj->m_localErrMat->covariance().m[0];
     // persObj->m_tdc              = transObj->m_tdc;
