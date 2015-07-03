@@ -13,7 +13,8 @@
 // STL includes
 //#include <iosfwd>
 
-#include "AthContainers/DataVector.h"
+// DataModel includes
+#include "DataModel/DataVector.h"
 
 // CLIDSvc includes (for persistency)
 #include "CLIDSvc/CLASS_DEF.h"

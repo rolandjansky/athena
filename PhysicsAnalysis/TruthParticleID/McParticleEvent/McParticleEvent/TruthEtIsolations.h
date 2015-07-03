@@ -21,14 +21,15 @@
 #include <iosfwd>
 #include <string>
 #include <stdexcept>
-#include <unordered_map>
 
 // Boost includes
 #include "boost/array.hpp"
 
 // Gaudi includes
 
-#include "AthLinks/ElementLink.h"
+// DataModel includes
+#include "DataModel/ElementLink.h"
+#include "DataModel/unordered_map.h"
 
 // GeneratorObjects includes
 #include "GeneratorObjects/McEventCollection.h"
@@ -57,7 +58,7 @@ class TruthEtIsolations
   typedef McAod::EtIsolations EtIsol_t;
 
   /// The map of barcode-to-Et isolations
-  typedef std::unordered_map<int,EtIsol_t> EtIsolMap_t;
+  typedef SG::unordered_map<int,EtIsol_t> EtIsolMap_t;
 
   /// The iterator over the map of barcode-to-Et-isolations
   typedef EtIsolMap_t::const_iterator const_iterator;
