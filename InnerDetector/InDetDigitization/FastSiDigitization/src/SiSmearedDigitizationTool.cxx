@@ -97,7 +97,7 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_prdTruthNameSCT("PRD_MultiTruthSCT"),
   m_prdTruthNamePlanar("PRD_MultiTruthPlanar"),
   m_SmearPixel(true), //true: smear pixel --- false: smear SCT
-  m_emulateAtlas(false), // error rotation for endcap SCT
+  m_emulateAtlas(true), // error rotation for endcap SCT
   m_detElementMapName("Pixel_IdHashDetElementMap"),
   m_checkSmear(false),
   m_thistSvc(NULL),
@@ -121,6 +121,9 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_x_entry_SCT(0),
   m_y_entry_SCT(0),
   m_z_entry_SCT(0),
+  m_x_SCT_global(0),
+  m_y_SCT_global(0),
+  m_z_SCT_global(0),
   m_x_pixel_smeared(0),
   m_y_pixel_smeared(0),
   m_x_SCT_smeared(0),
@@ -134,18 +137,20 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_useCustomGeometry(false)
 {
   declareInterface<ISiSmearedDigitizationTool>(this);
-  declareProperty("RndmSvc",                   m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
-  declareProperty("RndmEngine",                m_randomEngineName, "Random engine name");
-  declareProperty("InputObjectName",           m_inputObjectName="PixelHits", "Input Object name" );
-  declareProperty("pitch_X",                     m_pitch_X);
-  declareProperty("pitch_Y",                     m_pitch_Y);
-  declareProperty("MergeClusters",               m_merge);
-  declareProperty("Nsigma",                      m_nSigma);
-  declareProperty("SmearPixel",                m_SmearPixel, "Enable Pixel or SCT Smearing");
-  declareProperty("PixelClusterContainerName", m_pixel_SiClustersName="PixelClusters");
-  declareProperty("SCT_ClusterContainerName",  m_Sct_SiClustersName="SCT_Clusters");
-  declareProperty("PlanarClusterContainerName", m_planar_SiClustersName="PlanarClusters");
-  declareProperty("CheckSmear", m_checkSmear);
+  declareProperty("RndmSvc",                      m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
+  declareProperty("RndmEngine",                   m_randomEngineName, "Random engine name");
+  declareProperty("InputObjectName",              m_inputObjectName="PixelHits", "Input Object name" );
+  declareProperty("pitch_X",                      m_pitch_X);
+  declareProperty("pitch_Y",                      m_pitch_Y);
+  declareProperty("MergeClusters",                m_merge);
+  declareProperty("Nsigma",                       m_nSigma);
+  declareProperty("SmearPixel",                   m_SmearPixel, "Enable Pixel or SCT Smearing");
+  declareProperty("PixelClusterContainerName",    m_pixel_SiClustersName="PixelClusters");
+  declareProperty("SCT_ClusterContainerName",     m_Sct_SiClustersName="SCT_Clusters");
+  declareProperty("PlanarClusterContainerName",   m_planar_SiClustersName="PlanarClusters");
+  declareProperty("PRD_TruthPlanarContainerName", m_prdTruthNamePlanar="PRD_MultiTruthPlanar");
+  declareProperty("DetectorElementMapName",       m_detElementMapName="Pixel_IdHashDetElementMap");
+  declareProperty("CheckSmear",                   m_checkSmear);
   
   // get the service handle for the TrackingGeometry
   declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
@@ -249,21 +254,21 @@ StatusCode SiSmearedDigitizationTool::initialize()
     if (m_SmearPixel){
       m_outputFile = new TFile("CheckSmearing_Pixel.root","RECREATE");
       m_currentTree = new TTree("PixelTree","Check smearing Pixel");
-      m_currentTree->Branch("pixel_X"       , &m_x_pixel, "m_x_pixel/D");
-      m_currentTree->Branch("pixel_Y"       , &m_y_pixel, "m_y_pixel/D");
-      m_currentTree->Branch("pixel_X_exit"       , &m_x_exit_pixel, "m_x_exit_pixel/D");
-      m_currentTree->Branch("pixel_Y_exit"       , &m_y_exit_pixel, "m_y_exit_pixel/D");
-      m_currentTree->Branch("pixel_Z_exit"       , &m_z_exit_pixel, "m_z_exit_pixel/D");
-      m_currentTree->Branch("pixel_X_entry"       , &m_x_entry_pixel, "m_x_entry_pixel/D");
-      m_currentTree->Branch("pixel_Y_entry"       , &m_y_entry_pixel, "m_y_entry_pixel/D");
-      m_currentTree->Branch("pixel_Z_entry"       , &m_z_entry_pixel, "m_z_entry_pixel/D");
-      m_currentTree->Branch("pixel_X_global", &m_x_pixel_global, "m_x_pixel_global/D");
-      m_currentTree->Branch("pixel_Y_global", &m_y_pixel_global, "m_y_pixel_global/D");
-      m_currentTree->Branch("pixel_Z_global", &m_z_pixel_global, "m_z_pixel_global/D");
-      m_currentTree->Branch("pixel_X_smear" , &m_x_pixel_smeared, "m_x_pixel_smeared/D");
-      m_currentTree->Branch("pixel_Y_smear" , &m_y_pixel_smeared, "m_y_pixel_smeared/D");
-      m_currentTree->Branch("pixel_Err_X"   , &m_Err_x_pixel, "m_Err_x_pixel/D");
-      m_currentTree->Branch("pixel_Err_Y"   , &m_Err_y_pixel, "m_Err_y_pixel/D");
+      m_currentTree->Branch("pixel_X"            , &m_x_pixel         , "m_x_pixel/D");
+      m_currentTree->Branch("pixel_Y"            , &m_y_pixel         , "m_y_pixel/D");
+      m_currentTree->Branch("pixel_X_exit"       , &m_x_exit_pixel    , "m_x_exit_pixel/D");
+      m_currentTree->Branch("pixel_Y_exit"       , &m_y_exit_pixel    , "m_y_exit_pixel/D");
+      m_currentTree->Branch("pixel_Z_exit"       , &m_z_exit_pixel    , "m_z_exit_pixel/D");
+      m_currentTree->Branch("pixel_X_entry"      , &m_x_entry_pixel   , "m_x_entry_pixel/D");
+      m_currentTree->Branch("pixel_Y_entry"      , &m_y_entry_pixel   , "m_y_entry_pixel/D");
+      m_currentTree->Branch("pixel_Z_entry"      , &m_z_entry_pixel   , "m_z_entry_pixel/D");
+      m_currentTree->Branch("pixel_X_global"     , &m_x_pixel_global  , "m_x_pixel_global/D");
+      m_currentTree->Branch("pixel_Y_global"     , &m_y_pixel_global  , "m_y_pixel_global/D");
+      m_currentTree->Branch("pixel_Z_global"     , &m_z_pixel_global  , "m_z_pixel_global/D");
+      m_currentTree->Branch("pixel_X_smear"      , &m_x_pixel_smeared , "m_x_pixel_smeared/D");
+      m_currentTree->Branch("pixel_Y_smear"      , &m_y_pixel_smeared , "m_y_pixel_smeared/D");
+      m_currentTree->Branch("pixel_Err_X"        , &m_Err_x_pixel     , "m_Err_x_pixel/D");
+      m_currentTree->Branch("pixel_Err_Y"        , &m_Err_y_pixel     , "m_Err_y_pixel/D");
 
       if( m_thistSvc->regTree("PixelTree",m_currentTree).isFailure()) {
 	ATH_MSG_ERROR("Cannot register Ttree");
@@ -275,15 +280,18 @@ StatusCode SiSmearedDigitizationTool::initialize()
     else{
       m_outputFile = new TFile("CheckSmearing_SCT.root","RECREATE");
       m_currentTree = new TTree("SCT_Tree","Check smearing SCT");
-      m_currentTree->Branch("SCT_X"        , &m_x_SCT, "m_x_SCT/D");
-      m_currentTree->Branch("SCT_exit_X"        , &m_x_exit_SCT, "m_x_exit_SCT/D");
-      m_currentTree->Branch("SCT_exit_Y"        , &m_y_exit_SCT, "m_y_exit_SCT/D");
-      m_currentTree->Branch("SCT_exit_Z"        , &m_z_exit_SCT, "m_z_exit_SCT/D");
-      m_currentTree->Branch("SCT_entry_X"        , &m_x_entry_SCT, "m_x_entry_SCT/D");
-      m_currentTree->Branch("SCT_entry_Y"        , &m_y_entry_SCT, "m_y_entry_SCT/D");
-      m_currentTree->Branch("SCT_entry_Z"        , &m_z_entry_SCT, "m_z_entry_SCT/D");
-      m_currentTree->Branch("SCT_X_smear"  , &m_x_SCT_smeared, "m_x_SCT_smeared/D");
-      m_currentTree->Branch("SCT_Err_X"    , &m_Err_x_SCT, "m_Err_x_SCT/D");
+      m_currentTree->Branch("SCT_X"             , &m_x_SCT         , "m_x_SCT/D");
+      m_currentTree->Branch("SCT_exit_X"        , &m_x_exit_SCT    , "m_x_exit_SCT/D");
+      m_currentTree->Branch("SCT_exit_Y"        , &m_y_exit_SCT    , "m_y_exit_SCT/D");
+      m_currentTree->Branch("SCT_exit_Z"        , &m_z_exit_SCT    , "m_z_exit_SCT/D");
+      m_currentTree->Branch("SCT_entry_X"       , &m_x_entry_SCT   , "m_x_entry_SCT/D");
+      m_currentTree->Branch("SCT_entry_Y"       , &m_y_entry_SCT   , "m_y_entry_SCT/D");
+      m_currentTree->Branch("SCT_entry_Z"       , &m_z_entry_SCT   , "m_z_entry_SCT/D");
+      m_currentTree->Branch("SCT_X_global"      , &m_x_SCT_global  , "m_x_SCT_global/D");
+      m_currentTree->Branch("SCT_Y_global"      , &m_y_SCT_global  , "m_y_SCT_global/D");
+      m_currentTree->Branch("SCT_Z_global"      , &m_z_SCT_global  , "m_z_SCT_global/D");
+      m_currentTree->Branch("SCT_X_smear"       , &m_x_SCT_smeared , "m_x_SCT_smeared/D");
+      m_currentTree->Branch("SCT_Err_X"         , &m_Err_x_SCT     , "m_Err_x_SCT/D");
 
       if( m_thistSvc->regTree("SCT_Tree",m_currentTree).isFailure()) {
 	ATH_MSG_ERROR("Cannot register Ttree");
@@ -348,9 +356,8 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
       return StatusCode::FAILURE;
     }
 
-    //    if (seHitColl->size() == 0) {break;}
-
     ATH_MSG_INFO ( "SiHitCollection found with " << seHitColl->size() << " hits" );
+
     //Copy Hit Collection
     SiHitCollection* siHitColl(new SiHitCollection("PixelHits"));
     SiHitCollection::const_iterator i(seHitColl->begin());
@@ -377,7 +384,10 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
 
   if (m_useCustomGeometry){
     iFatras::PlanarClusterContainer * symSiContainer=0;
-    m_planarClusterContainer = new iFatras::PlanarClusterContainer(m_pixel_ID->wafer_hash_max());
+    if(m_SmearPixel) // Smear Pixel
+      m_planarClusterContainer = new iFatras::PlanarClusterContainer(m_pixel_ID->wafer_hash_max());
+    else
+      m_planarClusterContainer = new iFatras::PlanarClusterContainer(m_sct_ID->wafer_hash_max());
     
     if(!m_planarClusterContainer) {
       ATH_MSG_FATAL( "[ --- ] Could not create PlanarClusterContainer");
@@ -506,10 +516,11 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
     return StatusCode::FAILURE;
   }
 
-  if(this->mergeEvent().isFailure()) {
-    ATH_MSG_FATAL ( "merge method failed!" );
-    return StatusCode::FAILURE;
-  }
+  if (m_merge)
+    if(this->mergeEvent().isFailure()) {
+      ATH_MSG_FATAL ( "merge method failed!" );
+      return StatusCode::FAILURE;
+    }
   
   if (createAndStoreRIOs().isFailure()) {
     ATH_MSG_FATAL ( "createAndStoreRIOs() failed!" );
@@ -688,19 +699,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
   // The idea is first to check how many cluster we have to merge and then merge them.
   // The loop is done until there aren't any clusters to merge
   
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() ---" );
+  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() for PlanarCluster ---" );
   
   Planar_detElement_RIO_map::iterator i = cluster_map->begin();
   Planar_detElement_RIO_map::iterator e = cluster_map->end();
 
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: cluster_map size --- " << cluster_map->size() );
-  
   for (; i != e; i = cluster_map->upper_bound(i->first)){
     IdentifierHash current_id = i->first;
     // Check if clusters with current_id have been already considered
 
-    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
-    
     bool NewMerge = true;
     
     while (NewMerge) {
@@ -708,38 +715,31 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
       std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
       for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second;  ++iter){
 	
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: outer loop!");
-	
 	for ( Planar_detElement_RIO_map::iterator inner_iter = std::next(iter); inner_iter != range.second; ++inner_iter){
 	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: inner loop!");
-	  
 	  double dist = calculateDistance((*iter).second,(*inner_iter).second);
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: dist = " << dist);
-	  
 	  double sigma = calculateSigma((*iter).second,(*inner_iter).second);
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma = " << sigma);
 	  
 	  if( dist <= m_nSigma * sigma) {
 	    
 	    std::vector<Identifier> rdoList;
 	    
-      Amg::Vector2D intersection;
-      InDet::SiWidth siWidth;
-      Amg::MatrixX *clusterErr;
-      std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
+	    Amg::Vector2D intersection;
+	    InDet::SiWidth siWidth;
+	    Amg::MatrixX *clusterErr;
+	    std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
 	    
 	    const iFatras::PlanarDetElement* hitPlanarDetElement = (((*inner_iter).second)->detectorElement());
 	    
-	    std::pair<int, int> intersectionXY = hitPlanarDetElement->cellsOfPosition(intersection);
-	    Identifier intersectionId = m_pixel_ID->pixel_id(hitPlanarDetElement->identify(), intersectionXY.first, intersectionXY.second);
+	    std::pair<int, int> intersectionXY;
+	    Identifier intersectionId;
+	    if (hitPlanarDetElement->cellOfPosition(intersection, intersectionXY)) {
+	      intersectionId = m_SmearPixel ? m_pixel_ID->pixel_id(hitPlanarDetElement->identify(), intersectionXY.first, intersectionXY.second) :
+		m_sct_ID->strip_id(hitPlanarDetElement->identify(), intersectionXY.first);
+	    }
 	    rdoList.push_back(intersectionId);
 	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersectionId = " << intersectionId);
-	    
-	    InDetDD::SiCellId currentCellId = InDetDD::SiCellId(m_pixel_ID->phi_index(intersectionId) , m_pixel_ID->eta_index(intersectionId));
+	    InDetDD::SiCellId currentCellId = m_SmearPixel ? InDetDD::SiCellId(m_pixel_ID->phi_index(intersectionId) , m_pixel_ID->eta_index(intersectionId)) : InDetDD::SiCellId(m_sct_ID->strip(intersectionId));
 	    
 	    if ( !currentCellId.isValid() ) {
         delete clusterErr;
@@ -753,8 +753,6 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
 									       hitPlanarDetElement,
 									       clusterErr);
 	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: merged planar cluster = " << *planarCluster);
-	    
 	    ((*inner_iter).second) = planarCluster;
 	    
 	    cluster_map->erase(iter);
@@ -767,20 +765,20 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
     }
   }
     
-  i = cluster_map->begin();
-  e = cluster_map->end();
+  // i = cluster_map->begin();
+  // e = cluster_map->end();
   
-  for (; i != e; i = cluster_map->upper_bound(i->first)){
-    IdentifierHash current_id = i->first;
-    // Check if clusters with current_id have been already considered
+  // for (; i != e; i = cluster_map->upper_bound(i->first)){
+  //   IdentifierHash current_id = i->first;
+  //   // Check if clusters with current_id have been already considered
     
-    ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
+  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
     
-    std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-    for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-      ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Planar Cluster = " << *((*iter).second) );
-    }
-  }
+  //   std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
+  //   for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
+  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Planar Cluster = " << *((*iter).second) );
+  //   }
+  // }
   
   return StatusCode::SUCCESS;
 }
@@ -790,18 +788,14 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
   // The idea is first to check how many cluster we have to merge and then merge them.
   // The loop is done until there aren't any clusters to merge
   
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() ---" );
+  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() for PixelClusters---" );
   
   Pixel_detElement_RIO_map::iterator i = cluster_map->begin();
   Pixel_detElement_RIO_map::iterator e = cluster_map->end();
 
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: cluster_map size --- " << cluster_map->size() );
-  
   for (; i != e; i = cluster_map->upper_bound(i->first)){
     IdentifierHash current_id = i->first;
     // Check if clusters with current_id have been already considered
-
-    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
     bool NewMerge = true;
     
     while (NewMerge) {
@@ -809,19 +803,11 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
       std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
       for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
 	
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: outer loop!");
-	
 	for ( Pixel_detElement_RIO_map::iterator inner_iter = std::next(iter); inner_iter != range.second; ++inner_iter){
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: inner loop!");
 	  
 	  double dist = calculateDistance((*iter).second,(*inner_iter).second);
 	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: dist = " << dist);
-	  
 	  double sigma = calculateSigma((*iter).second,(*inner_iter).second);
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma = " << sigma);
 	  
 	  if( dist <= m_nSigma * sigma) {
 	    
@@ -837,8 +823,6 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
 	    Identifier intersectionId = hitSiDetElement->identifierOfPosition(intersection);
 	    
 	    rdoList.push_back(intersectionId);
-	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersectionId = " << intersectionId);
 	    
 	    InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 	    
@@ -854,8 +838,6 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
 									hitSiDetElement,
 									clusterErr);
 	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: merged pixel cluster = " << *pixelCluster);
-	    
 	    ((*inner_iter).second) = pixelCluster;
 	    
 	    cluster_map->erase(iter);
@@ -868,20 +850,20 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
     }
   }
   
-  i = cluster_map->begin();
-  e = cluster_map->end();
+  // i = cluster_map->begin();
+  // e = cluster_map->end();
   
-  for (; i != e; i = cluster_map->upper_bound(i->first)){
-    IdentifierHash current_id = i->first;
-    // Check if clusters with current_id have been already considered
+  // for (; i != e; i = cluster_map->upper_bound(i->first)){
+  //   IdentifierHash current_id = i->first;
+  //   // Check if clusters with current_id have been already considered
 
-    ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
+  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
     
-    std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-    for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-      ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Pixel Cluster = " << *((*iter).second) );
-    }
-  }
+  //   std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
+  //   for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
+  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: Pixel Cluster = " << *((*iter).second) );
+  //   }
+  // }
   
   return StatusCode::SUCCESS;
 }
@@ -891,18 +873,14 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
   // The idea is first to check how many cluster we have to merge and then merge them.
   // The loop is done until there aren't any clusters to merge
   
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() ---" );
+  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in mergeEvent() for SCT_Clusters---" );
   
   SCT_detElement_RIO_map::iterator i = cluster_map->begin();
   SCT_detElement_RIO_map::iterator e = cluster_map->end();
 
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: cluster_map size --- " << cluster_map->size() );
-  
   for (; i != e; i = cluster_map->upper_bound(i->first)){
     IdentifierHash current_id = i->first;
     // Check if clusters with current_id have been already considered
-
-    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
     bool NewMerge = true;
     
     while (NewMerge) {
@@ -910,19 +888,11 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
       std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
       for (SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
 	
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: outer loop!");
-	
 	for ( SCT_detElement_RIO_map::iterator inner_iter = std::next(iter); inner_iter != range.second; ++inner_iter){
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: inner loop!");
 	  
 	  double dist = calculateDistance((*iter).second,(*inner_iter).second);
 	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: dist = " << dist);
-	  
 	  double sigma = calculateSigma((*iter).second,(*inner_iter).second);
-	  
-	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma = " << sigma);
 	  
 	  if( dist <= m_nSigma * sigma) {
 	    
@@ -939,8 +909,6 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
 	    
 	    rdoList.push_back(intersectionId);
 	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersectionId = " << intersectionId);
-	    
 	    InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 	    
 	    if ( !currentCellId.isValid() ) {
@@ -955,8 +923,6 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
 								    hitSiDetElement,
 								    clusterErr);
 	    
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: merged sct cluster = " << *sctCluster);
-	    
 	    ((*inner_iter).second) = sctCluster;
 	    
 	    cluster_map->erase(iter);
@@ -969,20 +935,20 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
     }
   }
   
-  i = cluster_map->begin();
-  e = cluster_map->end();
+  // i = cluster_map->begin();
+  // e = cluster_map->end();
   
-  for (; i != e; i = cluster_map->upper_bound(i->first)){
-    IdentifierHash current_id = i->first;
-    // Check if clusters with current_id have been already considered
+  // for (; i != e; i = cluster_map->upper_bound(i->first)){
+  //   IdentifierHash current_id = i->first;
+  //   // Check if clusters with current_id have been already considered
 
-    ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
+  //   ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: " << cluster_map->count(current_id) << "elements with key " << current_id );
     
-    std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
-    for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-      ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: SCT Cluster = " << *((*iter).second) );
-    }
-  }
+  //   std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range = cluster_map->equal_range(current_id);
+  //   for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
+  //     ATH_MSG_DEBUG( "--- AFTER MERGING SiSmearedDigitizationTool: SCT Cluster = " << *((*iter).second) );
+  //   }
+  // }
   
   return StatusCode::SUCCESS;
 }
@@ -999,20 +965,18 @@ StatusCode SiSmearedDigitizationTool::digitize()
     }
     else
       ATH_MSG_INFO( "TrackingGeometry '" << m_trackingGeometryName << "' successfully retrieved from DetectorStore." );
+  }    
+
+  m_detElementMap = new iFatras::IdHashDetElementCollection;
+  //Retrieve and/or store the map with IdHash to DetElement 
+  if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
+    if((detStore()->retrieve(m_detElementMap, m_detElementMapName)).isFailure()){
+      ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
+      return StatusCode::FAILURE;
+    } else ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
+  } else ATH_MSG_DEBUG("Collection " << m_detElementMapName  << " not found!");
+  
      
-    m_detElementMap = new iFatras::IdHashDetElementCollection;
-    //Retrieve and/or store the map with IdHash to DetElement 
-    if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
-      if((detStore()->retrieve(m_detElementMap, m_detElementMapName)).isFailure()){
-	ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
-	return StatusCode::FAILURE;
-      }
-      else
-	ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
-    }
-           
-  }   
-   
   TimedHitCollection<SiHit>::const_iterator i, e;
    
   if(m_useCustomGeometry) 
@@ -1030,101 +994,114 @@ StatusCode SiSmearedDigitizationTool::digitize()
     while (i != e) {
      
       TimedHitPtr<SiHit> hit(*i++);
-      int barrelEC = hit->getBarrelEndcap();
+      int barrelEC  = hit->getBarrelEndcap();
       int layerDisk = hit->getLayerDisk();
       int phiModule = hit->getPhiModule();
       int etaModule = hit->getEtaModule();
-
-      //int trkn = hit->trackNumber();
-      //const HepMcParticleLink McLink = HepMcParticleLink(trkn,hit.eventId());
-      //const HepMC::GenParticle* genPart= McLink.cptr();
+      int side      = 0;
 
       const InDetDD::SiDetectorElement* hitSiDetElement = 0;
       const iFatras::PlanarDetElement* hitPlanarDetElement = 0;
      
-      if ( m_SmearPixel ) { // Smear Pixel
-        if ( !m_useCustomGeometry ) {
-          const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_pix->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
-          ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
-          hitSiDetElement = hitSiDetElement_temp;
-        }
-      else {
-        Identifier idwafer = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
-        IdentifierHash idhash = m_pixel_ID->wafer_hash(m_pixel_ID->wafer_id(idwafer));
-        iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
-        if (it_map == m_detElementMap->end()) 
-          ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
-        else{
-          ATH_MSG_DEBUG("Id hash " << idhash << " found in the map.");
-          const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
-          ATH_MSG_DEBUG("Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
-          hitPlanarDetElement = hitPlanarDetElement_temp;
-          ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
-         
-        }
-      }      
-    }
-    else { // Smear SCT
-      int side = hit->getSide();
-      const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
-      ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side); 
-      hitSiDetElement = hitSiDetElement_temp;
-    }
-
-      if ( m_SmearPixel ) { // Smear Pixel
-        if ( !hitSiDetElement && !hitPlanarDetElement ) {
-          ATH_MSG_ERROR( " could not get detector element for both SiDetElement and PlanarDetElement");
-          continue;
-        } 
-        else if ( !hitSiDetElement && !m_useCustomGeometry ) {
-          ATH_MSG_ERROR( " could not get detector element for SiDetElement");
-          continue;
-        }
-        else if( !hitPlanarDetElement && m_useCustomGeometry ) {
-          ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
-          continue;
-        }
+      if(m_SmearPixel){ // Smear Pixel
+	if (!m_useCustomGeometry) { // Not custom Pixel
+	  const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_pix->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
+	  ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
+	  hitSiDetElement = hitSiDetElement_temp;
+	} else { // Custom Pixel
+	  Identifier idwafer = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
+	  IdentifierHash idhash = m_pixel_ID->wafer_hash(m_pixel_ID->wafer_id(idwafer));
+	  iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
+	  if (it_map == m_detElementMap->end()) 
+	    ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
+	  else {
+	    ATH_MSG_DEBUG("Id hash " << idhash << " found in the map.");
+	    const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
+	    ATH_MSG_DEBUG("Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
+	    hitPlanarDetElement = hitPlanarDetElement_temp;
+	    ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
+	  }
+	}
+      } else { // Smear SCT
+	side = hit->getSide();
+	if (!m_useCustomGeometry) {// Not custom SCT
+	  const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
+	  ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side); 
+	  hitSiDetElement = hitSiDetElement_temp;
+	} else { // Custom SCT
+	  Identifier idwafer = m_sct_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
+	  IdentifierHash idhash = m_sct_ID->wafer_hash(m_sct_ID->wafer_id(idwafer));
+	  iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
+	  if (it_map == m_detElementMap->end()) 
+	    ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
+	  else{
+	    ATH_MSG_DEBUG("Id hash " << idhash << " found in the map.");
+	    const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
+	    ATH_MSG_DEBUG("SCT PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side); 
+	    hitPlanarDetElement = hitPlanarDetElement_temp;
+	    ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
+	  }
+	}
       }
-      else { // Smear SCT
-        if ( !hitSiDetElement ) {
-          ATH_MSG_ERROR( " could not get detector element for SiDetElement");
-          continue;
-        }
-        if ( m_useCustomGeometry && !hitPlanarDetElement ) {  // CID=24988, needed for waferID
-          ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
-          continue;
-        }
-        
+      
+      if ( !hitSiDetElement && !hitPlanarDetElement ) {
+	ATH_MSG_ERROR( " could not get detector element for both SiDetElement and PlanarDetElement");
+	continue;
       }
-     
+      else if ( !hitSiDetElement && !m_useCustomGeometry ) {
+	ATH_MSG_ERROR( " could not get detector element for SiDetElement");
+	continue;
+      }
+      else if( !hitPlanarDetElement && m_useCustomGeometry ) {
+	ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
+	continue;
+      }
+                
       if (m_SmearPixel && !m_useCustomGeometry && !(hitSiDetElement->isPixel())) continue;
-     
       if (m_SmearPixel && m_useCustomGeometry && !(hitPlanarDetElement->isPixel())) continue;
+
+      if (!m_SmearPixel && !m_useCustomGeometry && !(hitSiDetElement->isSCT())) continue;
+      if (!m_SmearPixel && m_useCustomGeometry && !(hitPlanarDetElement->isSCT())) continue;
      
       IdentifierHash waferID;
      
-      if (!m_useCustomGeometry)
+      if (!m_useCustomGeometry) // Not custom
 	if(m_SmearPixel){ // Smear Pixel
 	  waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
 	}else{ // Smear SCT
 	  waferID = m_sct_ID->wafer_hash(hitSiDetElement->identify());
 	}
-      else
+      else // Custom
 	if(m_SmearPixel){ // Smear Pixel
 	  waferID = m_pixel_ID->wafer_hash(hitPlanarDetElement->identify());
 	}else{ // Smear SCT
 	  waferID = m_sct_ID->wafer_hash(hitPlanarDetElement->identify()); // CID=24988
 	}
      
-      Amg::Vector3D localStartPosition = (Amg::Vector3D)hit->localStartPosition();
-      Amg::Vector3D localEndPosition   = (Amg::Vector3D)hit->localEndPosition();
-     
-      double localEntryX = localStartPosition.y();
-      double localEntryY = localStartPosition.z();
-      double localEntryZ = localStartPosition.x();
-      double localExitX = localEndPosition.y();
-      double localExitY = localEndPosition.z();
-      double localExitZ = localEndPosition.x();
+      HepGeom::Point3D<double> pix_localStartPosition = hit->localStartPosition();
+      HepGeom::Point3D<double> pix_localEndPosition   = hit->localEndPosition();
+
+      if (!m_useCustomGeometry) {
+	pix_localStartPosition = hitSiDetElement->hitLocalToLocal3D(pix_localStartPosition);
+	pix_localEndPosition = hitSiDetElement->hitLocalToLocal3D(pix_localEndPosition);
+      } else {
+	const Trk::Surface* hitSurface = &hitPlanarDetElement->surface();
+	const Amg::Transform3D& sTransform = hitSurface->transform().inverse();
+	const Amg::Transform3D& hitTransform = Amg::CLHEPTransformToEigen(hitPlanarDetElement->transformHit());
+	Amg::Vector3D localStartPosition(pix_localStartPosition.x(), pix_localStartPosition.y(), pix_localStartPosition.z());
+	Amg::Vector3D localEndPosition(pix_localEndPosition.x(), pix_localEndPosition.y(), pix_localEndPosition.z());
+	Amg::Vector3D localEntry(sTransform*(hitTransform*localStartPosition));
+	Amg::Vector3D localExit(sTransform*(hitTransform*localEndPosition));
+	pix_localStartPosition = HepGeom::Point3D<double>( localEntry.x(), localEntry.y(), localEntry.z() );
+	pix_localEndPosition = HepGeom::Point3D<double>( localExit.x(), localExit.y(), localExit.z() );
+      }
+          
+      double localEntryX = pix_localStartPosition.x();
+      double localEntryY = pix_localStartPosition.y();
+      double localEntryZ = pix_localStartPosition.z();
+      double localExitX = pix_localEndPosition.x();
+      double localExitY = pix_localEndPosition.y();
+      double localExitZ = pix_localEndPosition.z();
      
       double thickness = 0.0;
      
@@ -1135,16 +1112,22 @@ StatusCode SiSmearedDigitizationTool::digitize()
      
       // Transform to reconstruction local coordinates (different x,y,z ordering and sign conventions compared to simulation coords)
       if (!m_SmearPixel) { // Smear SCT
-       
-// 	double hitDepth  = hitSiDetElement->hitDepthDirection();
-// 	double hitPhi    = hitSiDetElement->hitPhiDirection();
-// 	double hitEta    = hitSiDetElement->hitEtaDirection();
-
-	HepGeom::Point3D<double> sct_localStartPosition = hit->localStartPosition();
+       	HepGeom::Point3D<double> sct_localStartPosition = hit->localStartPosition();
 	HepGeom::Point3D<double> sct_localEndPosition = hit->localEndPosition();
-// 	
-	sct_localStartPosition = hitSiDetElement->hitLocalToLocal3D(sct_localStartPosition);
-	sct_localEndPosition = hitSiDetElement->hitLocalToLocal3D(sct_localEndPosition);
+	if (!m_useCustomGeometry) {
+	  sct_localStartPosition = hitSiDetElement->hitLocalToLocal3D(sct_localStartPosition);
+	  sct_localEndPosition = hitSiDetElement->hitLocalToLocal3D(sct_localEndPosition);
+	} else {
+	  const Trk::Surface* hitSurface = &hitPlanarDetElement->surface();
+	  const Amg::Transform3D& sTransform = hitSurface->transform().inverse();
+	  const Amg::Transform3D& hitTransform = Amg::CLHEPTransformToEigen( hitPlanarDetElement->transformHit());
+	  Amg::Vector3D localStartPosition(sct_localStartPosition.x(), sct_localStartPosition.y(), sct_localStartPosition.z());
+	  Amg::Vector3D localEndPosition(sct_localEndPosition.x(), sct_localEndPosition.y(), sct_localEndPosition.z());
+	  Amg::Vector3D localEntry(sTransform*(hitTransform*localStartPosition));
+	  Amg::Vector3D localExit(sTransform*(hitTransform*localEndPosition));
+	  sct_localStartPosition = HepGeom::Point3D<double>( localEntry.x(), localEntry.y(), localEntry.z() );
+	  sct_localEndPosition = HepGeom::Point3D<double>( localExit.x(), localExit.y(), localExit.z() );
+	}
 	
 	localEntryX = sct_localStartPosition.x();
 	localEntryY = sct_localStartPosition.y();
@@ -1152,30 +1135,11 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	localExitX  = sct_localEndPosition.x();
 	localExitY  = sct_localEndPosition.y();
 	localExitZ  = sct_localEndPosition.z();
-	
-	// localEntryX = localStartPosition.y();
-	// localEntryY = localStartPosition.z();
-	// localEntryZ = localStartPosition.x();
-	// localExitX  = localEndPosition.y();
-	// localExitY  = localEndPosition.z();
-	// localExitZ  = localEndPosition.x();
-       
-	// localEntryX *= hitPhi;
-	// localExitX *= hitPhi;
-	// localEntryY *= hitEta;
-	// localExitY *= hitEta;
-	// localEntryZ *= hitDepth;
-	// localExitZ *= hitDepth;
       }
      
-      double distX = localExitX-localEntryX;
-      double distY = localExitY-localEntryY;
-     
-      if (distX<0)
-	distX=-distX;
-      if (distY<0)
-	distY=-distY;
-     
+      double distX = fabs(localExitX-localEntryX);
+      double distY = fabs(localExitY-localEntryY);
+      
       if(m_SmearPixel){ // Smear Pixel
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel start position --- " << localEntryX << ",  " << localEntryY << ",  " << localEntryZ );
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel exit position --- " << localExitX << ",  " << localExitY << ",  " << localExitZ );
@@ -1224,26 +1188,54 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	
       } 
       else {
-	// get the identifier of the entry and the exit
-	std::pair<int, int> entryXY = hitPlanarDetElement->cellsOfPosition(localEntry);	
-	Identifier entryId = m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, entryXY.first, entryXY.second);
-	// now get the cellIds and check whether they're valid
-	if (hitPlanarDetElement->isLastCellIdValid()) 
-	  entryCellId = InDetDD::SiCellId(m_pixel_ID->phi_index(entryId), m_pixel_ID->eta_index(entryId));
-	else
-	  entryCellId = InDetDD::SiCellId();
+	if(m_SmearPixel){ // Smear Pixel
+	  // get the identifier of the entry and the exit
+	  std::pair<int, int> entryXY;
+	  // now get the cellId and check whether it is valid
+	  if (hitPlanarDetElement->cellOfPosition(localEntry, entryXY)) {
+	    Identifier entryId = m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, entryXY.first, entryXY.second);
+	    entryCellId = InDetDD::SiCellId(m_pixel_ID->phi_index(entryId), m_pixel_ID->eta_index(entryId));
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: entryId " << entryId << " --- entryCellId " << entryCellId );
+	  } else {
+	    entryCellId = InDetDD::SiCellId();
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: Not Valid CellId" );
+	  }
 	
-	std::pair<int, int> exitXY = hitPlanarDetElement->cellsOfPosition(localExit);
-	Identifier exitId  = m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, exitXY.first, exitXY.second);
-	// now get the cellIds and check whether they're valid
-	if (hitPlanarDetElement->isLastCellIdValid()) 
-	  exitCellId  = InDetDD::SiCellId(m_pixel_ID->phi_index(exitId) , m_pixel_ID->eta_index(exitId));
-	else
-	  exitCellId = InDetDD::SiCellId();
+	  std::pair<int, int> exitXY; 
+	  // now get the cellId and check whether it is valid
+	  if (hitPlanarDetElement->cellOfPosition(localExit, exitXY)) {                                    
+	    Identifier exitId  = m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, exitXY.first, exitXY.second);
+	    exitCellId  = InDetDD::SiCellId(m_pixel_ID->phi_index(exitId) , m_pixel_ID->eta_index(exitId));
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: exitId " << exitId << " --- exitCellId " << exitCellId );
+	  } else {
+	    exitCellId = InDetDD::SiCellId();
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: Not Valid CellId" );
+	  }
 	  
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: entryId " << entryId << " --- exitId " << exitId );
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: entryCellId " << entryCellId << " --- exitCellId " << exitCellId );
-	
+	} else { // Smear SCT
+	  // get the identifier of the entry and the exit
+	  std::pair<int, int> entryXY;
+	  // now get the cellId and check whether it is valid
+	  if (hitPlanarDetElement->cellOfPosition(localEntry, entryXY)) {
+	    Identifier entryId = m_sct_ID->strip_id(barrelEC, layerDisk, phiModule, etaModule, side, entryXY.first);
+	    entryCellId = InDetDD::SiCellId(m_sct_ID->strip(entryId));
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool SCT: entryId " << entryId << " --- entryCellId " << entryCellId );
+	  } else {
+	    entryCellId = InDetDD::SiCellId();
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool SCT: Not Valid CellId" );
+	  }
+
+	  std::pair<int, int> exitXY; 
+	  // now get the cellId and check whether it is valid
+	  if (hitPlanarDetElement->cellOfPosition(localExit, exitXY)) {                                    
+	    Identifier exitId  = m_sct_ID->strip_id(barrelEC, layerDisk, phiModule, etaModule, side, exitXY.first);
+	    exitCellId  = InDetDD::SiCellId(m_sct_ID->strip(exitId));
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool SCT: exitId " << exitId << " --- exitCellId " << exitCellId );
+	  } else {
+	    exitCellId = InDetDD::SiCellId();
+	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool SCT: Not Valid CellId" );
+	  }
+       	}	
       }
      
       // entry / exit validity    
@@ -1261,72 +1253,70 @@ StatusCode SiSmearedDigitizationTool::digitize()
       if(m_SmearPixel){ // Smear Pixel
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel inter X --- " << interX );
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel inter Y --- " << interY );
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel dist X --- " << distX );
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel dist Y --- " << distY );
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel dist X --- "  << distX );
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel dist Y --- "  << distY );
       }else{ // Smear SCT
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT inter X --- " << interX );
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT inter Y --- " << interY );
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT dist X --- "  << distX );
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT dist Y --- "  << distY );
       }
      
       //the particle crosses at least n pixels (in x direction you have timesX, in y direction you have timesY)
-      double timesY = (m_pitch_Y) ? floor(distY/m_pitch_Y) : 0;
       double timesX = (m_pitch_X) ? floor(distX/m_pitch_X) : 0;
-     
-      double newdistY = distY - (timesY*m_pitch_Y);
+      double timesY = (m_pitch_Y) ? floor(distY/m_pitch_Y) : 0;
+
       double newdistX = distX - (timesX*m_pitch_X);
+      double newdistY = distY - (timesY*m_pitch_Y);
+	   
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: times X --- " << timesX );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: times Y --- " << timesY );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: new dist X --- " << newdistX );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: new dist Y --- " << newdistY );
      
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel times X --- " << timesX );
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel times Y --- " << timesY );
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel new dist X --- " << newdistX );
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel new dist Y --- " << newdistY );
-     
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel thickness --- " << thickness );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: thickness --- " << thickness );
     
       //Probability
      
       double ProbY = 2*newdistY/(m_pitch_Y+newdistY);
       double ProbX = 2*newdistX/(m_pitch_X+newdistX);
      
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel ProbX --- " << ProbX );
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pixel ProbY --- " << ProbY );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: ProbX --- " << ProbX );
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: ProbY --- " << ProbY );
      
       // create the errors
       double sigmaX = m_pitch_X/sqrt(12.);
       double sigmaY = m_pitch_Y/sqrt(12.);
      
-      if(m_SmearPixel){
+      int elementX = timesX+1;
+      int elementY = timesY+1;
       
-	if (timesY>0){
-	  if (CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0) < ProbY){
-	    sigmaY = (double)(timesY+2)*m_pitch_Y/sqrt(12.);
-	    timesY+=2;}
-	  else{
-	    sigmaY = (double)(timesY+1)*m_pitch_Y/sqrt(12.);
-	    timesY+=1;}
-	}
-	if (timesX>0){
-	  if (CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0) < ProbX){
-	    sigmaX = (double)(timesX+2)*m_pitch_X/sqrt(12.);
-	    timesX+=2;}
-	  else{
-	    sigmaX = (double)(timesX+1)*m_pitch_X/sqrt(12.);
-	    timesX+=1;}
-	}
-      }
-     
-      if(m_SmearPixel){ // Smear Pixel
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma X --- " << sigmaX);
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma Y --- " << sigmaY);
-      }else{ // Smear SCT
-	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: sigma X --- " << sigmaX);
+      if(m_SmearPixel){
+	if (CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0) < ProbY){ // number of crossed pixel is (timesY+1)+1
+	  sigmaY = (double)(timesY+2)*m_pitch_Y/sqrt(12.);
+	  elementY++;
+	} else // number of crossed pixel is (timesY+1)
+	  sigmaY = (double)(timesY+1)*m_pitch_Y/sqrt(12.); 
+	
+	if (CLHEP::RandFlat::shoot(m_randomEngine, 0.0, 1.0) < ProbX){ // number of crossed pixel is (timesY+1)+1
+	  sigmaX = (double)(timesX+2)*m_pitch_X/sqrt(12.);
+	  elementX++;
+	} else // number of crossed pixel is (timesY+1)
+	  sigmaX = (double)(timesX+1)*m_pitch_X/sqrt(12.);
+	
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: sigma X --- " << sigmaX);
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool pixel: sigma Y --- " << sigmaY);
+       
+      } else { // Smear SCT
+	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool SCT: sigma X --- " << sigmaX);
       }
     
       double temp_X = interX;
       double temp_Y = interY;
      
       // Smear intersection 
-      // create the smdar parameter
-    
+      // create the smear parameter
+      
       if (sigmaX != 0.){
 	double sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaX);
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
@@ -1334,21 +1324,17 @@ StatusCode SiSmearedDigitizationTool::digitize()
       }
      
       if(m_SmearPixel){ // Smear Pixel also in y direction
-       
-	if (sigmaY != 0.)
+       	if (sigmaY != 0.)
 	  {
 	    double sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaY);
 	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
 	    interY += sParY;
 	  }
-      
-      }else{ // Smear SCT --> Fix y coordinate to 0
-	interY = 0;
       }
-        
-     
+
+      
       // Define the current smeared center position
-      Amg::Vector2D intersection(interX,interY);
+      Amg::Vector2D intersection(interX, m_SmearPixel ? interY : 0.); // Smear SCT --> Fix y coordinate to 0
      
       if(m_SmearPixel)
 	ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: Intersection after smearing for Pixel: " << intersection);
@@ -1359,24 +1345,27 @@ StatusCode SiSmearedDigitizationTool::digitize()
       if (!m_useCustomGeometry)
 	intersectionId = hitSiDetElement->identifierOfPosition(intersection);
       else {
-	std::pair<int, int> intersectionXY = hitPlanarDetElement->cellsOfPosition(intersection);
-	// get the identifier of the entry and the exit
-	intersectionId = m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, intersectionXY.first, intersectionXY.second);
+	std::pair<int, int> intersectionXY;
+	if (hitPlanarDetElement->cellOfPosition(Amg::Vector2D(interX, interY), intersectionXY)) 
+	  // get the identifier of the entry and the exit
+	  intersectionId = m_SmearPixel ? m_pixel_ID->pixel_id(barrelEC, layerDisk, phiModule, etaModule, intersectionXY.first, intersectionXY.second) : m_sct_ID->strip_id(barrelEC, layerDisk, phiModule, etaModule, side, intersectionXY.first);
       }
       rdoList.push_back(intersectionId);
-    
-      InDetDD::SiCellId currentCellId = (m_useCustomGeometry) ? InDetDD::SiCellId(m_pixel_ID->phi_index(intersectionId) , m_pixel_ID->eta_index(intersectionId)) : hitSiDetElement->cellIdFromIdentifier(intersectionId);
+      
+      InDetDD::SiCellId currentCellId = m_useCustomGeometry ? (m_SmearPixel ? InDetDD::SiCellId(m_pixel_ID->phi_index(intersectionId) , m_pixel_ID->eta_index(intersectionId)) : InDetDD::SiCellId(m_sct_ID->strip(intersectionId))) : hitSiDetElement->cellIdFromIdentifier(intersectionId);
       if (!currentCellId.isValid()) continue;
+
+      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: Intersection Id = " << intersectionId << " --- currentCellId = " << currentCellId );
     
       if(m_SmearPixel){ // Smear Pixel --> Create Pixel Cluster
-
-	if(timesX == 0 && timesY == 0)
-	  { timesX = 1; timesY = 1; }
 	
-	double lengthX = (m_pitch_X) ? timesX*m_pitch_X : 0.8;
-	double lengthY = (m_pitch_Y) ? timesY*m_pitch_Y : 0.8;
+	double lengthX = (m_pitch_X) ? elementX*m_pitch_X : 1.;
+	double lengthY = (m_pitch_Y) ? elementY*m_pitch_Y : 1.;
 	
-	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(timesX,timesY), Amg::Vector2D(lengthX, lengthY));  
+	if (m_pitch_X == 0. || m_pitch_Y == 0.) 
+	  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: pitchX and/or pitchY are 0. Cluster length is forced to be 1. mm");
+	
+	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(elementX,elementY), Amg::Vector2D(lengthX, lengthY));  
       
 	InDet::PixelCluster* pixelCluster = 0;
 	iFatras::PlanarCluster* planarCluster = 0;
@@ -1402,7 +1391,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	    return StatusCode::FAILURE;
 	  }
 	  
-	} else {
+	} else { // create planar clusters for pixel
 	  planarCluster = new iFatras::PlanarCluster(intersectionId,
 						     intersection,
 						     rdoList,
@@ -1463,40 +1452,55 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	    m_currentTree -> Fill();
 	  
 	  }
-      
-	      
-      }else{ // Smear SCT --> Create SCT Cluster
-
-	// Pixel Design needed -------------------------------------------------------------
-	InDetDD::SCT_ModuleSideDesign* design_sct;
 	
-	design_sct = (InDetDD::SCT_ModuleSideDesign*)&hitSiDetElement->design();
-  
-	if (!design_sct) {
-	  ATH_MSG_INFO ( "Could not get design"<< design_sct) ;
-	  continue;
-	}
-      
+      } else { // Smear SCT --> Create SCT Cluster
+
 	// prepare & create the siWidth
 	InDet::SCT_Cluster* sctCluster = 0;
-	// Find length of strip at centre
-	double clusterWidth = rdoList.size()*hitSiDetElement->phiPitch(intersection); 
-	const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design_sct->endsOfStrip(intersection));
-	double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
+	// prepare & create the siWidth
+	iFatras::PlanarCluster* planarCluster = 0;
+
+	double clusterWidth =0.;
+	double stripLength = 0.;
+	
+	if (!m_useCustomGeometry) {
+	  // Pixel Design needed -------------------------------------------------------------
+	  InDetDD::SCT_ModuleSideDesign* design_sct;
+	  
+	  design_sct = (InDetDD::SCT_ModuleSideDesign*)&hitSiDetElement->design();
+	  
+	  if (!design_sct) {
+	    ATH_MSG_INFO ( "Could not get design"<< design_sct) ;
+	    continue;
+	  }
+	  
+	  // Find length of strip at centre
+	  clusterWidth = rdoList.size()*hitSiDetElement->phiPitch(intersection); 
+	  const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design_sct->endsOfStrip(intersection));
+	  stripLength = fabs(ends.first.xEta()-ends.second.xEta());
+
+	} else {
+	  // Find length of strip at centre
+	  clusterWidth = rdoList.size()*hitPlanarDetElement->phiPitch(intersection);
+	  stripLength  = hitPlanarDetElement->stripLength(intersection);}
+	
 	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
 						     Amg::Vector2D(clusterWidth,stripLength) ); 
-
+	  
 	const Amg::Vector2D& colRow = siWidth->colRow();
 	AmgSymMatrix(2) mat;
 	mat.setIdentity();
 	mat(Trk::locX,Trk::locX) = sigmaX*sigmaX;
-	mat(Trk::locY,Trk::locY) = hitSiDetElement->length()*hitSiDetElement->length()/12.;
+	mat(Trk::locY,Trk::locY) = m_useCustomGeometry ? hitPlanarDetElement->lengthY()*hitPlanarDetElement->lengthY()/12.:
+	  hitSiDetElement->length()*hitSiDetElement->length()/12.;
 
 	// single strip - resolution close to pitch/sqrt(12)
 	// two-strip hits: better resolution, approx. 40% lower
-      
-	if(m_emulateAtlas && hitSiDetElement->design().shape() == InDetDD::Trapezoid){// rotation for endcap SCT
 	
+	InDetDD::DetectorShape elShape = m_useCustomGeometry ? hitPlanarDetElement->shape() : hitSiDetElement->design().shape();
+	
+	if(m_emulateAtlas && elShape == InDetDD::Trapezoid){// rotation for endcap SCT
+	  
 	  if(colRow.x() == 1){
 	    mat(1,1) = pow(siWidth->phiR(),2)/12;
 	  }
@@ -1507,58 +1511,92 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	    mat(1,1) = pow(siWidth->phiR(),2)/12;
 	  }
 	  mat(2,2) = pow(siWidth->z()/colRow.y(),2)/12;
-	
-	
-	  double sn      = hitSiDetElement->sinStereoLocal(intersection); 
+	  
+	  
+	  double sn      = m_useCustomGeometry ? hitPlanarDetElement->sinStereoLocal(intersection):
+	    hitSiDetElement->sinStereoLocal(intersection); 
 	  double sn2     = sn*sn;
 	  double cs2     = 1.-sn2;
-	  double w       = hitSiDetElement->phiPitch(intersection)/hitSiDetElement->phiPitch(); 
+	  double w       = m_useCustomGeometry ? hitPlanarDetElement->phiPitch(intersection)/hitPlanarDetElement->phiPitch():
+	    hitSiDetElement->phiPitch(intersection)/hitSiDetElement->phiPitch(); 
 	  double v0      = mat(1,1)*w*w;
 	  double v1      = mat(2,2);
 	  mat(1,1) = (cs2*v0+sn2*v1);
 	  mat(2,1) = (sn*sqrt(cs2)*(v0-v1));
 	  mat(2,2) = (sn2*v0+cs2*v1);
 	}
-     
+	
 	Amg::MatrixX* clusterErr = new Amg::MatrixX(mat);
-          
-	sctCluster = new InDet::SCT_Cluster(intersectionId,
-					    intersection,
-					    rdoList,
-					    *siWidth,					   
-					    hitSiDetElement,
-					    clusterErr);
+        
+	// create the cluster
+	if (!m_useCustomGeometry) {
+	  sctCluster = new InDet::SCT_Cluster(intersectionId,
+					      intersection,
+					      rdoList,
+					      *siWidth,					   
+					      hitSiDetElement,
+					      clusterErr);
+	  
+	  m_sctClusterMap->insert(std::pair<IdentifierHash, const InDet::SCT_Cluster* >(waferID, sctCluster));
+	  
+	  if (FillTruthMap(m_SCTPrdTruth, sctCluster, hit).isFailure()) {
+	    ATH_MSG_FATAL ( "FillTruthMap() for SCT failed!" );
+	    return StatusCode::FAILURE;
+	  }
+	} else {
+	  planarCluster = new iFatras::PlanarCluster(intersectionId,
+						     intersection,
+						     rdoList,
+						     *siWidth,					   
+						     hitPlanarDetElement,
+						     clusterErr);
+	  
+	  Planar_detElement_RIO_map::iterator it_map = m_planarClusterMap->find(waferID);
+
+	  m_planarClusterMap->insert(std::pair<IdentifierHash, const iFatras::PlanarCluster* >(waferID, planarCluster));
+	  
+	  if (FillTruthMap(m_planarPrdTruth, planarCluster, hit).isFailure()) {
+	    ATH_MSG_FATAL ( "FillTruthMap() for planar element failed!" );
+	    return StatusCode::FAILURE;
+	  }
+	}
+	
 	if (m_checkSmear)
 	  {
+	    if (m_useCustomGeometry)
+	      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: planarCluster --> " << *planarCluster);
+	    else 
+	      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: SCT_Cluster --> " << *sctCluster);
+
 	    //Take info to store in the tree
 	    m_x_SCT = temp_X;
- 	  	  
-	    m_x_SCT_smeared = (sctCluster->localPosition()).x();
-	  	  
+	    m_x_SCT_smeared = m_useCustomGeometry ? (planarCluster->localPosition()).x() : (sctCluster->localPosition()).x();
+	    
 	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: BEFORE SMEARING LocalPosition --> X = " << m_x_SCT );
 	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: LocalPosition --> X = " << m_x_SCT_smeared );
-	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: GlobalPosition --> X = " << (sctCluster->globalPosition()).x() << "  Y = " << (sctCluster->globalPosition()).y());
-	  
-	    m_Err_x_SCT = Amg::error(sctCluster->localCovariance(), Trk::locX);
-
+	    
+	    if (!m_useCustomGeometry) {
+	      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: GlobalPosition --> X = " << (sctCluster->globalPosition()).x() << "  Y = " << (sctCluster->globalPosition()).y());
+	      m_x_SCT_global = (sctCluster->globalPosition()).x();
+	      m_y_SCT_global = (sctCluster->globalPosition()).y();
+	      m_z_SCT_global = (sctCluster->globalPosition()).z();
+				
+	    } else {
+	      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: GlobalPosition --> X = " << (planarCluster->globalPosition()).x() << "  Y = " << (planarCluster->globalPosition()).y());
+	      m_x_SCT_global = (planarCluster->globalPosition()).x();
+	      m_y_SCT_global = (planarCluster->globalPosition()).y();
+	      m_z_SCT_global = (planarCluster->globalPosition()).z();
+	    }	   
+	    
+	    m_Err_x_SCT = m_useCustomGeometry ? Amg::error(planarCluster->localCovariance(), Trk::locX) : Amg::error(sctCluster->localCovariance(), Trk::locX);    
 	    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: Error --> X = " << m_Err_x_SCT );	
-	  
+	    
 	    m_currentTree -> Fill();
-	  
+	    
 	  }
-
-	m_sctClusterMap->insert(std::pair<IdentifierHash, const InDet::SCT_Cluster* >(waferID, sctCluster));
-
-	if (FillTruthMap(m_SCTPrdTruth, sctCluster, hit).isFailure()) {
-	  ATH_MSG_FATAL ( "FillTruthMap() for SCT failed!" );
-	  return StatusCode::FAILURE;
-	}
-
       }
-    
     }
   }
-  
   return StatusCode::SUCCESS;
 }
 
@@ -1572,46 +1610,39 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
     Planar_detElement_RIO_map::iterator i = m_planarClusterMap->begin();
     Planar_detElement_RIO_map::iterator e = m_planarClusterMap->end();
     
-    for (; i != e; i = m_planarClusterMap->upper_bound(i->first)) {
+    //Retrieve and/or store the map with IdHash to DetElement 
+    m_detElementMap = new iFatras::IdHashDetElementCollection;
+    if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
+      if((detStore()->retrieve(m_detElementMap, m_detElementMapName)).isFailure()){
+	ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
+	return StatusCode::FAILURE;
+      }
+      else
+	ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
+    }
+    ATH_MSG_DEBUG("Number of elements " << m_detElementMap->size() );
+    
+    for (; i != e; i = m_planarClusterMap->upper_bound(i->first)){
       
       std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range;
       range = m_planarClusterMap->equal_range(i->first);
       
       Planar_detElement_RIO_map::iterator firstDetElem;
       firstDetElem = range.first;
-      //const iFatras::PlanarCluster* planarCluster = (firstDetElem->second);
       
       IdentifierHash waferID;
       waferID = firstDetElem->first;
       
-      m_detElementMap = new iFatras::IdHashDetElementCollection;
-      
-      //Retrieve and/or store the map with IdHash to DetElement 
-      if ( detStore()->contains< iFatras::IdHashDetElementCollection >(m_detElementMapName) ) {
-        if ( detStore()->retrieve( m_detElementMap, m_detElementMapName ).isFailure() ) {
-          ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
-          return StatusCode::FAILURE;
-        }
-        else {
-          ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
-        }
-      }
-      
-      ATH_MSG_DEBUG("Number of elements " << m_detElementMap->size() );
-
       iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(waferID);
       if ( it_map == m_detElementMap->end() ) {
         ATH_MSG_WARNING("Id hash " << waferID << " not found in the map from id hash to planar detector element.");
         return StatusCode::FAILURE;
-      }
-      else {
+      } else {
         ATH_MSG_DEBUG("Id hash " << waferID << " found in the map.");
       }
       
       const iFatras::PlanarDetElement* detElement = it_map->second;
 
-      // std::cout << "Noemi --> waferID = " << waferID << " planarCluster = " << *planarCluster << " detElement = " << detElement << " Surface = " << detElement->surface() << std::endl;
-           
       iFatras::PlanarClusterCollection *clusterCollection = new iFatras::PlanarClusterCollection(waferID);
       clusterCollection->setIdentifier(detElement->identify());
       
@@ -1630,8 +1661,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
     
     m_planarClusterMap->clear();
       
-  }
-  else if ( m_SmearPixel ) { // Store Pixel RIOs
+  } else if ( m_SmearPixel ) { // Store Pixel RIOs
       
     ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel createAndStoreRIOs() ---" );
       
@@ -1645,8 +1675,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
       
       Pixel_detElement_RIO_map::iterator firstDetElem;
       firstDetElem = range.first;
-      //const InDet::PixelCluster* pixelCluster = (firstDetElem->second);
-      
+            
       IdentifierHash waferID;
       waferID = firstDetElem->first;
       
@@ -1683,7 +1712,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
       
       SCT_detElement_RIO_map::iterator firstDetElem;
       firstDetElem = range.first;
-      //const InDet::SCT_Cluster* sctCluster = (firstDetElem->second);
+      
       IdentifierHash waferID;
       waferID = firstDetElem->first;
       const InDetDD::SiDetectorElement* detElement = m_manager_sct->getDetectorElement(waferID);

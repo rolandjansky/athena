@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FASTSIDIGITIZATION_SCT_FASTDIGITIZATION_H
-#define FASTSIDIGITIZATION_SCT_FASTDIGITIZATION_H
+#ifndef SCT_DIGITIZATION_SCTFASTDIGITIZATION_H
+#define SCT_DIGITIZATION_SCTFASTDIGITIZATION_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -27,4 +27,4 @@ class SCT_FastDigitization : public AthAlgorithm {
    ToolHandle<ISCT_FastDigitizationTool> m_digTool;
 };
 
-#endif // FASTSIDIGITIZATION_SCT_FASTDIGITIZATION_H
+#endif // SCT_DIGITIZATION_SCTFASTDIGITIZATION_H

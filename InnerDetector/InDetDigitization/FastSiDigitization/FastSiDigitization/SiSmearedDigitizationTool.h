@@ -206,6 +206,9 @@ public:
   double           m_x_entry_SCT;
   double           m_y_entry_SCT;
   double           m_z_entry_SCT;
+  double           m_x_SCT_global;
+  double           m_y_SCT_global;
+  double           m_z_SCT_global;
 
   double           m_x_pixel_smeared;
   double           m_y_pixel_smeared;
