@@ -115,7 +115,7 @@ public:
                uint16_t hitId,
                uint16_t sub,
                int16_t delta,
-               uint16_t tile);
+               uint16_t inner);
 
     // Sector logic
     TgcRawData(uint16_t bcTag,
@@ -222,9 +222,9 @@ public:
     {
         return m_delta;
     }
-    uint16_t tile() const
+    uint16_t inner() const
     {
-        return m_tile;
+        return m_inner;
     }
     uint16_t segment() const
     {
@@ -358,7 +358,7 @@ private:
     uint16_t m_hitId;
     uint16_t m_hsub;
     bool m_strip;
-    uint16_t m_tile;
+    uint16_t m_inner;
 
     // Sector Logic
     bool m_cand3plus;

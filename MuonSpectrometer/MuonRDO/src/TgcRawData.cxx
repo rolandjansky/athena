@@ -29,7 +29,7 @@ void TgcRawData::clear(uint16_t bcTag,
     m_index = 0;
     m_pos = 0;
     m_delta = 0;
-    m_tile = 0;
+    m_inner = 0;
     m_segment = 0;
     m_subMatrix = 0;
     m_sector = 0;
@@ -140,7 +140,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        uint16_t hitId,
                        uint16_t sub,
                        int16_t delta,
-                       uint16_t tile
+                       uint16_t inner
                        )
 {
     clear(bcTag, subDetectorId, rodId, 0, 0, l1Id, bcId);
@@ -154,7 +154,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
     m_hitId = hitId;
     m_hsub = sub;
     m_delta = delta;
-    m_tile = tile;
+    m_inner = inner;
 }
 
 // Sector logic
@@ -259,7 +259,7 @@ stream& dump(stream& sl, const TgcRawData& data)
         << ", hitId=" << data.hitId()
         << ", hsub=" << data.hsub()
         << ", delta=" << data.delta()
-        << ", tile=" << data.tile();
+        << ", inner=" << data.inner();
         break;
     case TgcRawData::TYPE_SL:
         sl << ", cand3plus=" << data.cand3plus()
