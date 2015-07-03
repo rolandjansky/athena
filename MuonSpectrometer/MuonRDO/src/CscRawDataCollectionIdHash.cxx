@@ -22,12 +22,12 @@ CscRawDataCollectionIdHash::CscRawDataCollectionIdHash()
 
   MsgStream log(msgSvc, "CscRawDataCollectionIdHash" );
 
-  log << MSG::DEBUG << " CscRawDataCollectionIdHash Constructor "<<endmsg; 
+  log << MSG::DEBUG << " CscRawDataCollectionIdHash Constructor "<<endreq; 
 
   // initialize RPC cabling service
   sc = svcLoc->service("CSCcablingSvc", m_cabling);
   if (sc != StatusCode::SUCCESS ) {
-     log << MSG::ERROR << " Cannot get CSC cabling Service " << endmsg;
+     log << MSG::ERROR << " Cannot get CSC cabling Service " << endreq;
   }
 
   m_size=0;

@@ -20,7 +20,6 @@ class MsgStream;
 class RpcFiredChannel {
 
  private:
-  friend class RpcFiredChannelCnv_p1;
 
 
   ubit16 m_bcid;

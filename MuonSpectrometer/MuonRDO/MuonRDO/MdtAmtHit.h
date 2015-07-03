@@ -40,8 +40,11 @@ class MdtAmtHit
   
   // All the datawords (no headers and footers) coming from this channel 
   // to be decoded on demand using MdtReadOut methods
-  std::vector<uint32_t> m_dataWords;
+  std::vector<uint32_t>* p_dataWords;
 
+  MdtAmtHit & operator=(const MdtAmtHit &right);
+  MdtAmtHit(const MdtAmtHit&);
+  
  public:
   
   // Default constructor
@@ -52,6 +55,8 @@ class MdtAmtHit
 
   // Full constructor with masked flag
   MdtAmtHit(uint16_t tdcId, uint16_t channelId, bool isMasked);
+
+  virtual ~MdtAmtHit()  { delete p_dataWords; }
 
   // set data members
   void setValues(uint16_t coarse, uint16_t fine, uint16_t width);
@@ -76,8 +81,7 @@ class MdtAmtHit
   bool     isMasked()  const {return m_isMasked;}
   
   // Vector containing all 32 bits data words (undecoded) 
-  // FIXME: Should return by reference!
-  const std::vector<uint32_t>* dataWords() const {return &m_dataWords;}
+  std::vector<uint32_t>* dataWords() const {return p_dataWords;}
     
 };
 

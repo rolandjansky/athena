@@ -42,17 +42,14 @@ RpcPadContainer::RpcPadContainer()
 RpcPadContainer::RpcPadContainer( unsigned int hashmax)
 : IdentifiableContainer<RpcPad>(hashmax) 
 {
-  // std::cout<<"RpcPadContainer ctor ["<<this<<"]"<<std::endl;
+
 }
 
 //**********************************************************************
 
 // Destructor.
 
-RpcPadContainer::~RpcPadContainer() {
-  // std::cout<<"RpcPadContainer dtor ["<<this<<"]"<<std::endl;
-
-}
+RpcPadContainer::~RpcPadContainer() {}
 
 //**********************************************************************
 /// Convert identifier to idhash
@@ -99,7 +96,7 @@ void RpcPadContainer::push_back(RpcCoinMatrix* /*cm*/) {
   //   pad->push_back(cm); 
   //  } else
   //  {
-  //    log << MSG::ERROR <<" RpcPadContainer: Pad does not exist "<<endmsg;
+  //    log << MSG::ERROR <<" RpcPadContainer: Pad does not exist "<<endreq;
   //  } 
   //  return ; 
 }

@@ -31,8 +31,6 @@ class MdtCsm : public DataVector<MdtAmtHit>
   typedef Identifier ID; 
   typedef MdtAmtHit DIGIT; 
   
-  friend class MdtCsmCnv_p1;
-  
   /** Default constructor*/
   MdtCsm();
 
