@@ -38,8 +38,29 @@ private:
 
 
   /// Track collections ///
+
+  bool m_getRawTracks;
+
   std::string m_ftk_raw_trackcollection_Name;
   FTK_RawTrackContainer *m_ftk_raw_trackcollection;
+
+  bool m_getTracks;
+  //  std::string m_TrackCollectionName;
+  bool m_getRefitTracks; 
+  //  std::string m_refitTrackCollectionName;
+  bool m_getTrackParticles; 
+  //  std::string m_TrackParticleCollectionName;
+  bool m_getRefitTrackParticles; 
+  //  std::string m_refitTrackParticleCollectionName;
+  bool m_getVxVertex; 
+  //  std::string m_VxContainerName;
+  bool m_getRefitVxVertex; 
+  //  std::string m_refitVxContainerName;
+  bool m_getVertex;
+  //  std::string m_VertexContainerName;
+  bool m_getRefitVertex;
+  //  std::string m_refitVertexContainerName;
+
 
   //IFTK_DataProviderSvc* m_DataProviderSvc;
   ServiceHandle<IFTK_DataProviderSvc> m_DataProviderSvc;

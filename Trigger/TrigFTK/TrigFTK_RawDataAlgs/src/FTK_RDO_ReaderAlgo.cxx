@@ -21,21 +21,43 @@
 #include "TMath.h"
 #define NINT(a) ((a) >= 0.0 ? (int)((a)+0.5) : (int)((a)-0.5))
 
-#define DEBUGMSG MSG::DEBUG
-#define VERBOSEMSG MSG::VERBOSE
-
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  
+  m_getRawTracks(true), 
   m_ftk_raw_trackcollection_Name("FTK_RDO_Tracks"),
-  m_ftk_raw_trackcollection(0x0),
-  m_DataProviderSvc("FTK_DataProviderSvc", name),
+  m_getTracks(true), //  m_TrackCollectionName("FTK_TrackCollection"),
+  m_getRefitTracks(true), // m_refitTrackCollectionName("FTKrefit_TrackCollection"),
+  m_getTrackParticles(true), // m_TrackParticleCollectionName("FTK_TrackParticleCollection"),
+  m_getRefitTrackParticles(true), //m_refitTrackParticleCollectionName("FTKrefit_TrackParticleCollection"),
+  m_getVxVertex(true), //m_VxContainerName("FTK_VxContainer"),
+  m_getRefitVxVertex(true), //m_refitVxContainerName("FTKrefit_VxContainer"),
+  m_getVertex(true), //m_VertexContainerName("FTK_VertexContainer"),
+  m_getRefitVertex(true), //m_refitVertexContainerName("FTKrefit_VertexContainer"),
+  m_DataProviderSvc("IFTK_DataProviderSvc/IFTK_DataProviderSvc", name),
   m_fillHists(false)
 {  
   declareProperty("RDO_CollectionName",m_ftk_raw_trackcollection_Name,
 		  "Collection name of RDO");
+  declareProperty("GetRawTracks",m_getRawTracks);
+  declareProperty("GetTracks",m_getTracks);
+  //  declareProperty("TrackCollectionName",m_TrackCollectionName, "Name of FTK track collection");
+  declareProperty("GetRefitTracks",m_getRefitTracks);
+  //  declareProperty("RefitTrackCollectionName",m_refitTrackCollectionName, "Name of refitted FTK track collection");
+  declareProperty("GetTrackParticles",m_getTrackParticles);
+  //  declareProperty("TrackCollectionName",m_TrackParticleCollectionName,"Name of FTK TrackParticle collection");
+  declareProperty("GetRefitTrackParticles",m_getRefitTrackParticles=true);
+  //  declareProperty("RefitTrackCollectionName",m_refitTrackCollectionName,"Name of refitted FTK TrackParticle collection");
+  declareProperty("GetVxVertex",m_getVxVertex);
+  //  declareProperty("VxContainerName",m_VxContainerName,"Name of FTK VxContainer");
+  declareProperty("GetRefitVxVertex",m_getRefitVxVertex);
+  //  declareProperty("RefitVxContainerName",m_refitVxContainerName,"Name of refit FTK VxContainer");
+  declareProperty("GetRefitVertex",m_getRefitVertex);
+  //  declareProperty("RefitVertexContainerName",m_refitVertexContainerName,"Name of refit FTK track VertexContainer");
+
   declareProperty("FTK_DataProvider", m_DataProviderSvc);
   declareProperty("fillHists", m_fillHists);
  }
@@ -46,31 +68,18 @@ FTK_RDO_ReaderAlgo::~FTK_RDO_ReaderAlgo()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_ReaderAlgo::initialize(){
   MsgStream athlog(msgSvc(), name());
-  athlog << MSG::INFO << "FTK_RDO_ReaderAlgo::initialize()" << endreq;
+  ATH_MSG_INFO("FTK_RDO_ReaderAlgo::initialize()" );
   
-  StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
-  if (scSG.isFailure()) {
-    athlog << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
-    return scSG;
-  }
-  athlog << MSG::INFO << "Input RDO collection" << m_ftk_raw_trackcollection_Name << endreq;
+  ATH_CHECK( service("StoreGateSvc", m_StoreGate ));
+  ATH_MSG_INFO("Input RDO collection" << m_ftk_raw_trackcollection_Name);
 
   //Set up the FTK Data Provider SVC //
-  scSG = m_DataProviderSvc.retrieve();
-  //scSG = service("DataProviderSvc", m_DataProviderSvc);
-
-  if (scSG.isFailure()) {
-    athlog << MSG::FATAL << "Unable to retrieve Data Provier" << endreq;
-    return scSG;
-  }
-
+  ATH_CHECK(m_DataProviderSvc.retrieve());
 
   if (m_fillHists) {
     /// Get Histogram Service ///                                                                                                                                         
-    if (service("THistSvc", rootHistSvc).isFailure()){
-      ATH_MSG_ERROR("Failed to get ITHistSvc");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(service("THistSvc", rootHistSvc));
+
     //Book Histograms//
     double PI = TMath::Pi();
     std::vector<TH1D*> histograms;
@@ -158,7 +167,7 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_ReaderAlgo::execute() {
    MsgStream athlog(msgSvc(), name());
-   athlog << DEBUGMSG << "FTK_RDO_ReaderAlgo::execute() start" << endreq;
+   ATH_MSG_DEBUG("FTK_RDO_ReaderAlgo::execute() start");
 
 
    const EventInfo* eventInfo;
@@ -167,298 +176,346 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
      ATH_MSG_ERROR( "Could not retrieve event info" );
    }
    int eventNumber = eventInfo->event_ID()->event_number();
-   athlog << DEBUGMSG << " Event " << eventNumber << endreq;
+   ATH_MSG_DEBUG(" Event " << eventNumber);
 
-   //
-   // Get RAW tracks
-   //
 
-   const FTK_RawTrackContainer *rawTracks ( 0 );
-   if ( evtStore()->contains<FTK_RawTrackContainer> ( m_ftk_raw_trackcollection_Name) ) {
-     if ( evtStore()->retrieve ( rawTracks, m_ftk_raw_trackcollection_Name  ).isFailure() )
-       {	        
-	 if (msgLvl(DEBUGMSG)) msg() << "Could not retrieve FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate." << endreq;
-	 return StatusCode::SUCCESS;
-       }
-   } else {
-     if (msgLvl(DEBUGMSG)) msg() << "Could not find FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate." << endreq;
-     return StatusCode::SUCCESS;
-
-   }
-
-   athlog << DEBUGMSG << " Got FTK_RawTrackContainer with " << rawTracks->size() << " tracks" << endreq;
-
-   // Fill RAW track histograms
-
-   if (m_fillHists) h_FTK_RawTrack_n->Fill(rawTracks->size());
-
-   
-   FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
-   FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
-
-   for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
-
-     float trkTheta = std::atan2(1.0,(*pTrack)->getCotTh());
-     float trkEta = -std::log(std::tan(trkTheta/2.));
-     float trkPt=1.e10;
-     if ((*pTrack)->getCurv() !=0) trkPt=2./(*pTrack)->getCurv();
+   if (m_getRawTracks) {
+     //
+     // Get RAW tracks
+     //
+     
+     const FTK_RawTrackContainer *rawTracks ( 0 );
+     if ( evtStore()->contains<FTK_RawTrackContainer> ( m_ftk_raw_trackcollection_Name) ) {
+       if ( evtStore()->retrieve ( rawTracks, m_ftk_raw_trackcollection_Name  ).isFailure() )
+	 {	        
+	   ATH_MSG_DEBUG("Could not retrieve FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
+	   return StatusCode::SUCCESS;
+	 }
+     } else {
+       ATH_MSG_DEBUG("Could not find FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
+       return StatusCode::SUCCESS;
        
-
-     athlog << VERBOSEMSG << itr << ": pT: " << trkPt  << " eta: " << trkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
-       " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << trkTheta << " curv " << (*pTrack)->getCurv() <<
-       " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size() << endreq;
+     }
+     
+     ATH_MSG_DEBUG(" Got FTK_RawTrackContainer with " << rawTracks->size() << " tracks");
+     
+     // Fill RAW track histograms
      
      if (m_fillHists) {
-       h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
-       h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
-       h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
-       h_FTK_RawTrack_curv->Fill((*pTrack)->getCurv());
-       h_FTK_RawTrack_cot->Fill((*pTrack)->getCotTh());
-       h_FTK_RawTrack_nPix->Fill((*pTrack)->getPixelClusters().size());
-       h_FTK_RawTrack_nSCT->Fill((*pTrack)->getSCTClusters().size());
+       h_FTK_RawTrack_n->Fill(rawTracks->size());
+     
+   
+       FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
+       FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
+       
+       for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
+	 
+	 float trkTheta = std::atan2(1.0,(*pTrack)->getCotTh());
+	 float trkEta = -std::log(std::tan(trkTheta/2.));
+	 float trkPt=1.e10;
+	 if ((*pTrack)->getCurv() !=0) trkPt=2./(*pTrack)->getCurv();
+	 
+	 ATH_MSG_VERBOSE( itr << ": pT: " << trkPt  << " eta: " << trkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
+			  " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << trkTheta << " curv " << (*pTrack)->getCurv() <<
+			  " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size()<< " barCode: "<<(*pTrack)->getBarcode()  );
+	 if (m_fillHists) {
+	   h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
+	   h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
+	   h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
+	   h_FTK_RawTrack_curv->Fill((*pTrack)->getCurv());
+	   h_FTK_RawTrack_cot->Fill((*pTrack)->getCotTh());
+	   h_FTK_RawTrack_nPix->Fill((*pTrack)->getPixelClusters().size());
+	   h_FTK_RawTrack_nSCT->Fill((*pTrack)->getSCTClusters().size());
+	 }
+	 //if (msgLvl(MSG::VERBOSE)) {
+	 //ATH_MSG_INFO
+	 /*std::cout << "FTK_RawTrack Parameter Summary: " << std::endl;
+	   std::cout << " - Road ID = " << (*pTrack)->getRoadID() << std::endl;
+	   std::cout << " - Road ID = " << (*pTrack)->getTH1() << std::endl;
+	   std::cout << " - d0      = " << (*pTrack)->getD0()  << std::endl;
+	   std::cout << " - z0      = " << (*pTrack)->getZ0() << std::endl;
+	   std::cout << " - phi     = " << (*pTrack)->getPhi()   << std::endl;
+	   std::cout << " - cot     = " << (*pTrack)->getCotTh()  << std::endl;
+	   std::cout << " - ipt     = " << (*pTrack)->getCurv()   << std::endl;
+	   std::cout << " - barcode = " << (*pTrack)->getBarcode() << std::endl;*/
+	 /*for( unsigned int i = 0; i < (*pTrack)->getPixelClusters().size(); ++i){
+	   std::cout << " PIXEL Cluster " << i << std::endl;
+	   std::cout << "       Layer      = " << (*pTrack)->getPixelClusters()[i].getLayer() << std::endl;
+	   std::cout << "       Col Coord  = " << (*pTrack)->getPixelClusters()[i].getColCoord() << std::endl;
+	   std::cout << "       Col Width  = " << (*pTrack)->getPixelClusters()[i].getColWidth() << std::endl;
+	   std::cout << "       Row Coord  = " << (*pTrack)->getPixelClusters()[i].getRowCoord() << std::endl;
+	   std::cout << "       Row Width  = " << (*pTrack)->getPixelClusters()[i].getRowWidth() << std::endl;
+	   std::cout << "       Hash ID    = " << (*pTrack)->getPixelClusters()[i].getModuleID() << std::endl;
+	   }
+	   for( unsigned int i = 0; i < (*pTrack)->getSCTClusters().size(); ++i){
+	   std::cout << " SCT Cluster " << i << std::endl;
+	   std::cout << "       Layer        = " << (*pTrack)->getSCTClusters()[i].getLayer() << std::endl;
+	   std::cout << "       Hit Coord    = " << (*pTrack)->getSCTClusters()[i].getHitCoord() << std::endl;
+	   std::cout << "       Hit Width    = " << (*pTrack)->getSCTClusters()[i].getHitWidth() << std::endl;
+	   std::cout << "       Module ID    = " << (*pTrack)->getSCTClusters()[i].getModuleID() << std::endl;
+	   } // end loop over i
+	   std::cout << std::endl;*/
+	 //} // end if (msgLvl(MSG::VERBOSE))
+       } // end loop over tracks
      }
-     //if (msgLvl(MSG::VERBOSE)) {
-     //ATH_MSG_INFO
-     /*std::cout << "FTK_RawTrack Parameter Summary: " << std::endl;
-       std::cout << " - Road ID = " << (*pTrack)->getRoadID() << std::endl;
-       std::cout << " - Road ID = " << (*pTrack)->getTH1() << std::endl;
-       std::cout << " - d0      = " << (*pTrack)->getD0()  << std::endl;
-       std::cout << " - z0      = " << (*pTrack)->getZ0() << std::endl;
-       std::cout << " - phi     = " << (*pTrack)->getPhi()   << std::endl;
-       std::cout << " - cot     = " << (*pTrack)->getCotTh()  << std::endl;
-       std::cout << " - ipt     = " << (*pTrack)->getCurv()   << std::endl;
-       std::cout << " - barcode = " << (*pTrack)->getBarcode() << std::endl;*/
-     /*for( unsigned int i = 0; i < (*pTrack)->getPixelClusters().size(); ++i){
-       std::cout << " PIXEL Cluster " << i << std::endl;
-       std::cout << "       Layer      = " << (*pTrack)->getPixelClusters()[i].getLayer() << std::endl;
-       std::cout << "       Col Coord  = " << (*pTrack)->getPixelClusters()[i].getColCoord() << std::endl;
-       std::cout << "       Col Width  = " << (*pTrack)->getPixelClusters()[i].getColWidth() << std::endl;
-       std::cout << "       Row Coord  = " << (*pTrack)->getPixelClusters()[i].getRowCoord() << std::endl;
-       std::cout << "       Row Width  = " << (*pTrack)->getPixelClusters()[i].getRowWidth() << std::endl;
-       std::cout << "       Hash ID    = " << (*pTrack)->getPixelClusters()[i].getModuleID() << std::endl;
-       }
-       for( unsigned int i = 0; i < (*pTrack)->getSCTClusters().size(); ++i){
-       std::cout << " SCT Cluster " << i << std::endl;
-       std::cout << "       Layer        = " << (*pTrack)->getSCTClusters()[i].getLayer() << std::endl;
-       std::cout << "       Hit Coord    = " << (*pTrack)->getSCTClusters()[i].getHitCoord() << std::endl;
-       std::cout << "       Hit Width    = " << (*pTrack)->getSCTClusters()[i].getHitWidth() << std::endl;
-       std::cout << "       Module ID    = " << (*pTrack)->getSCTClusters()[i].getModuleID() << std::endl;
-       } // end loop over i
-       std::cout << std::endl;*/
-     //} // end if (msgLvl(MSG::VERBOSE))
-   } // end loop over tracks
-
+   }
 
    //
    // Get Converted Tracks
    //
+   if (m_getTracks) {
+     ATH_MSG_DEBUG("Getting converted tracks from DataProviderSvc");
+     TrackCollection *track_collection = m_DataProviderSvc->getTracks(false);
+     ATH_MSG_DEBUG("DataProviderSvc returned " <<  track_collection->size() << " converted tracks");
+     //  if ( evtStore()->record ( track_collection, m_TrackCollectionName).isFailure() ) {
+     //	 ATH_MSG_DEBUG("Failed to record FTK TrackCollection with name " <<  m_TrackCollectionName);
+     //  }
 
-   athlog << DEBUGMSG << "Getting converted tracks from DataProviderSvc" << endreq;
-   TrackCollection *track_collection = m_DataProviderSvc->getTracks(false);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  track_collection->size() << " converted tracks" << endreq;
-
-   if (m_fillHists) h_Track_n->Fill(track_collection->size());
-   TrackCollection::const_iterator track_it   = track_collection->begin();
-   TrackCollection::const_iterator last_track = track_collection->end();
-   int iTrack=0;
-   for ( ; track_it!= last_track; track_it++, iTrack++) {
-     int nPix = 0;
-     int nSCT = 0;
-     const Trk::TrackSummary* summary = (*track_it)->trackSummary();
-     if( summary != 0){
-       nPix = summary->get(Trk::numberOfPixelHits);
-       nSCT = summary->get(Trk::numberOfSCTHits);
+     ATH_MSG_VERBOSE( " Printing information for " << track_collection->size()<< " FTK tracks" );
+     if (m_fillHists)h_Track_n->Fill(track_collection->size());
+     TrackCollection::const_iterator track_it   = track_collection->begin();
+     TrackCollection::const_iterator last_track = track_collection->end();
+     int iTrack=0;
+     for ( ; track_it!= last_track; track_it++, iTrack++) {
+       int nPix = 0;
+       int nSCT = 0;
+       const Trk::TrackSummary* summary = (*track_it)->trackSummary();
+       if( summary != 0){
+	 nPix = summary->get(Trk::numberOfPixelHits);
+	 nSCT = summary->get(Trk::numberOfSCTHits);
+       }
+       
+       if (m_fillHists) {
+	 h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+	 h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+	 h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+	 h_Track_curv->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+	 double cotTheta=1.e10;
+	 double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
+	 if (tanTheta!=0) cotTheta= 1./tanTheta;
+	 h_Track_cot->Fill(cotTheta);
+	 
+	 h_Track_nPix->Fill(nPix);
+	 h_Track_nSCT->Fill(nSCT);
+       }
+       double trkPt = 1.e10;
+       if ((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]!=0) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+       ATH_MSG_VERBOSE( " Track "<< iTrack << ": pT: "<< trkPt <<
+			" eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
+			" phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
+			" d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
+			" z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+			" nPix: " << nPix << " nSCT: " << nSCT );
+       
      }
-
-     if (m_fillHists) {
-       athlog << VERBOSEMSG << " filling histograms " << endreq;
-       h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-       h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-       h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-       h_Track_curv->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-       h_Track_cot->Fill(1./std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]));
-       h_Track_nPix->Fill(nPix);
-       h_Track_nSCT->Fill(nSCT);
-     }
-     double trkPt = 1.e10;
-     if ((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]!=0) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
-     athlog << VERBOSEMSG << iTrack << ": pT: "<< trkPt <<
-       " eta: " <<  -log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-       " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-       " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
-       " nPix: " << nPix << " nSCT: " << nSCT << endreq;
-     
    }
-
    //
    // Get TrackParticles from Converted Tracks
    // 
    
 
-   athlog << DEBUGMSG << " Getting TrackParticles from converted tracks from DataProviderSvc" << endreq;
-   xAOD::TrackParticleContainer *tpc  = m_DataProviderSvc->getTrackParticles(false);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  tpc->size() << " TrackParticles created from converted tracks" << endreq;
+   if (m_getTrackParticles) {
+     ATH_MSG_DEBUG( " Getting TrackParticles from converted tracks from DataProviderSvc" );
+     xAOD::TrackParticleContainer *tpc  = m_DataProviderSvc->getTrackParticles(false);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpc->size() << " TrackParticles created from converted tracks" );
 
-   int itpc = 0;
-   for ( auto ptp =  tpc->begin(); ptp !=  tpc->end(); ptp++, itpc++) {
-     //uint8_t NumOfPixHits = 0;
-     //uint8_t NumOfSCTHits = 0;
-     //if (!(*ptp)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << DEBUGMSG << "Could not retrieve number of SCT hits"<< endreq;
-     //if (!(*ptp)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << DEBUGMSG << "Could not retrieve number of Pixel hits"<< endreq;
+     //       if ( evtStore()->get ( tpc, m_TrackParticleCollectionName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get FTK TrackParticleCollection with name " <<  m_TrackParticleCollectionName );
+     //       }
+  
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  tpc->size()<< " TrackParticles" );
      
-     double p = 1e10;
-     if ((*ptp)->qOverP() !=0) p = 1./(*ptp)->qOverP();
-     athlog << VERBOSEMSG << itpc << ": q*pT " << (*ptp)->pt()*(*ptp)->charge() << " eta " << (*ptp)->eta() << " phi " << (*ptp)->phi0() <<
-       " d0: " << (*ptp)->d0() << " z0: " << (*ptp)->z0() << " p " << p << endreq;
+     int itpc = 0;
+     for ( auto ptp =  tpc->begin(); ptp !=  tpc->end(); ptp++, itpc++) {
+       //uint8_t NumOfPixHits = 0;
+       //uint8_t NumOfSCTHits = 0;
+       //if (!(*ptp)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) ATH_MSG_DEBUG( "Could not retrieve number of SCT hits");
+       //if (!(*ptp)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) ATH_MSG_DEBUG( "Could not retrieve number of Pixel hits");
+       
+       double p = 1e10;
+       if ((*ptp)->qOverP() !=0) p = 1./(*ptp)->qOverP();
+       ATH_MSG_VERBOSE( "itp:" << itpc << ": q*pT " << (*ptp)->pt()*(*ptp)->charge() << " eta " << (*ptp)->eta() << " phi " << (*ptp)->phi0() <<
+			" d0: " << (*ptp)->d0() << " z0: " << (*ptp)->z0() << " p " << p );
+     }
    }
+
 
    //
    // Get VxVertex from converted tracks
    //
+   if (m_getVxVertex) {
+     ATH_MSG_DEBUG( " Getting VxContainer from Converted tracks from DataProviderSvc" );
+     VxContainer* vxc = m_DataProviderSvc->getVxContainer(false);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxc->size() << " VxCandidates created from converted tracks" );
+     //       if ( evtStore()->get ( vxc, m_VxContainerName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get FTK VxContainer with name " <<  m_VxContainerName );
+     //       }
 
-   athlog << DEBUGMSG << " Getting VxContainer from Converted tracks from DataProviderSvc" << endreq;
-   VxContainer* vxc = m_DataProviderSvc->getVxContainer(false);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  vxc->size() << " VxCandidates created from converted tracks" << endreq;
-
-   int ivx=0;
-   for (auto pvx = vxc->begin(); pvx != vxc->end(); pvx++, ivx++) {
-     athlog << VERBOSEMSG << ivx << ": (x,y,z) = ( " << 
-       (*pvx)->recVertex().position().x() << ", " <<  
-       (*pvx)->recVertex().position().y() << ", " <<
-       (*pvx)->recVertex().position().z() <<
-       " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() << 
-       " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() << endreq;
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  vxc->size()<< " VxVertex " );
+     int ivx=0;
+     for (auto pvx = vxc->begin(); pvx != vxc->end(); pvx++, ivx++) {
+       ATH_MSG_VERBOSE( ivx << ": (x,y,z) = ( " << 
+			(*pvx)->recVertex().position().x() << ", " <<  
+			(*pvx)->recVertex().position().y() << ", " <<
+			(*pvx)->recVertex().position().z() <<
+			" ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() << 
+			" nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() );
+     }
    }
 
 
    //
    // Get xAoD::Vertex from converted tracks
    //
+   if (m_getVertex) { 
+     ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" );
+     xAOD::VertexContainer* vertexc = m_DataProviderSvc->getVertexContainer(false);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vertexc->size() << " zAOD:Vertex created from converted tracks" );
+     //       if ( evtStore()->get ( vertexc, m_VertexContainerName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get FTK VertexContainer with name " <<  m_VertexContainerName );
+     //       }
 
-   athlog << DEBUGMSG << " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" << endreq;
-   xAOD::VertexContainer* vertexc = m_DataProviderSvc->getVertexContainer(false);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  vertexc->size() << " zAOD:Vertex created from converted tracks" << endreq;
-
-   int ivertexc = 0;
-   for (auto pv = vertexc->begin(); pv != vertexc->end(); pv++, ivertexc++) {
-     athlog << VERBOSEMSG << ivertexc << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z() <<
-       " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF()<< endreq;
+   
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  vertexc->size()<< " xAOD::Vertex" );
+     
+     int ivertexc = 0;
+     for (auto pv = vertexc->begin(); pv != vertexc->end(); pv++, ivertexc++) {
+       ATH_MSG_VERBOSE( ivertexc << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z() <<
+			" ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF());
+     }
+     
    }
 
    // 
    // Get refitted Tracks
    //
 
+   if (m_getRefitTracks) {
+     ATH_MSG_DEBUG( " Getting refitted tracks from DataProviderSvc" );
+     TrackCollection *refitTracks  = m_DataProviderSvc->getTracks(true);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  refitTracks->size() << " refitted tracks" );
+     //       if ( evtStore()->get ( refitTracks, m_refitTrackCollectionName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackCollection with name " <<  m_refitTrackCollectionName );
+     //       }
 
-   athlog << DEBUGMSG << " Getting refitted tracks from DataProviderSvc" << endreq;
-   TrackCollection *refitTracks  = m_DataProviderSvc->getTracks(true);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  refitTracks->size() << " refitted tracks" << endreq;
-
-   if (m_fillHists) h_Track_n->Fill(refitTracks->size());
-   track_it   = refitTracks->begin();
-   last_track = refitTracks->end();
-   for (iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
-     int nPix = 0;
-     int nSCT = 0;
-     const Trk::TrackSummary* summary = (*track_it)->trackSummary();
-     if( summary != 0){
-       nPix = summary->get(Trk::numberOfPixelHits);
-       nSCT = summary->get(Trk::numberOfSCTHits);
-     }
-     if (m_fillHists) {
-       athlog << VERBOSEMSG << " filling histograms " << endreq;
-       h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-       h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-       h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-       h_Track_curv->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
-       h_Track_cot->Fill(1./std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]));
-       h_Track_nPix->Fill(nPix);
-       h_Track_nSCT->Fill(nSCT);
-     }
-     double trkPt = 1.e10;
-     if ((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]!=0) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
+     ATH_MSG_VERBOSE( " Printing information for " << refitTracks->size()<< " refitted FTK tracks" );
+     if (m_fillHists) h_Track_n->Fill(refitTracks->size());
+     auto track_it   = refitTracks->begin();
+     auto last_track = refitTracks->end();
+     for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
+       int nPix = 0;
+       int nSCT = 0;
+       const Trk::TrackSummary* summary = (*track_it)->trackSummary();
+       if( summary != 0){
+	 nPix = summary->get(Trk::numberOfPixelHits);
+	 nSCT = summary->get(Trk::numberOfSCTHits);
+       }
+       if (m_fillHists) {
+	 h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+	 h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+	 h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+	 h_Track_curv->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+	 double cotTheta=1.e10;
+	 double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
+	 if (tanTheta !=0) cotTheta=1./tanTheta; 
+	 h_Track_cot->Fill(cotTheta);
+	 h_Track_nPix->Fill(nPix);
+	 h_Track_nSCT->Fill(nSCT);
+       }
+       double trkPt = 1.e10;
+       if ((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]!=0) trkPt= sin((*track_it)->perigeeParameters()->parameters()[Trk::theta])/(*track_it)->perigeeParameters()->parameters()[Trk::qOverP];
        
-     athlog << VERBOSEMSG << iTrack << ": pT: "<< trkPt <<
-       " eta: " <<  -std::log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
-       " phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
-       " d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
-       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
-       " nPix: " << nPix << " nSCT: " << nSCT << endreq;
+       ATH_MSG_VERBOSE( " Track" << iTrack << ": pT: "<< trkPt <<
+			" eta: " <<  -std::log(std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]/2.)) <<
+			" phi: " <<  (*track_it)->perigeeParameters()->parameters()[Trk::phi0] <<
+			" d0: " << (*track_it)->perigeeParameters()->parameters()[Trk::d0] <<
+			" z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
+			" nPix: " << nPix << " nSCT: " << nSCT );
+     }
+     
    }
 
-   
    //
    // Get TrackParticles from refitted tracks
    //
+   if (m_getRefitTrackParticles) {
+     ATH_MSG_DEBUG( " Getting TrackParticles from refitted tracks from DataProviderSvc" );
+     xAOD::TrackParticleContainer *tpr  = m_DataProviderSvc->getTrackParticles(true);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  tpr->size() << " TrackParticles created from refitted tracks" );
+     //       if ( evtStore()->get ( tpr, m_refitTrackParticleCollectionName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get refit FTK TrackParticleCollection with name " <<  m_refitTrackParticleCollectionName );
+     //       }
 
-   athlog << DEBUGMSG << " Getting TrackParticles from refitted tracks from DataProviderSvc" << endreq;
-   xAOD::TrackParticleContainer *tpr  = m_DataProviderSvc->getTrackParticles(true);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  tpr->size() << " TrackParticles created from refitted tracks" << endreq;
-
-   int itpr=0;
-   for ( auto ptpr =  tpr->begin(); ptpr !=  tpr->end(); ptpr++, itpr++) {
-     double p = 1.e10;
-     if ((*ptpr)->qOverP()!=0.) p = 1./(*ptpr)->qOverP();
-     //uint8_t NumOfPixHits = 0;
-     //uint8_t NumOfSCTHits = 0;
-     //if (!(*ptpr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endreq;
-     //if (!(*ptpr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << MSG::DEBUG << "Could not retrieve number of Pixel hits"<< endreq;
-     athlog << VERBOSEMSG << itpr << ": q*pT " << (*ptpr)->pt()*(*ptpr)->charge() << " eta " << (*ptpr)->eta() << " phi " << (*ptpr)->phi0() << 
-       " d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << (*ptpr)->z0() << endreq;
-	 
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  tpr->size()<< " refitted TrackParticles" );
+     
+     int itpr=0;
+     for ( auto ptpr =  tpr->begin(); ptpr !=  tpr->end(); ptpr++, itpr++) {
+       double p = 1.e10;
+       if ((*ptpr)->qOverP()!=0.) p = 1./(*ptpr)->qOverP();
+       //uint8_t NumOfPixHits = 0;
+       //uint8_t NumOfSCTHits = 0;
+       //if (!(*ptpr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) ) athlog << MSG::DEBUG << "Could not retrieve number of SCT hits");
+       //if (!(*ptpr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) ) athlog << MSG::DEBUG << "Could not retrieve number of Pixel hits");
+       ATH_MSG_VERBOSE( itpr << ": q*pT " << (*ptpr)->pt()*(*ptpr)->charge() << " eta " << (*ptpr)->eta() << " phi " << (*ptpr)->phi0() << 
+			" d0: " << (*ptpr)->d0() << " z0: " << " q*p: " << p << (*ptpr)->z0() );
+       
+     }
+   
    }
-
-
 
    //
    // Get VxVertex from refitted tracks
    //
+   if (m_getRefitVxVertex) {
+     ATH_MSG_DEBUG( " Getting VxContainer from refitted tracks from DataProviderSvc" );
+     VxContainer* vxr = m_DataProviderSvc->getVxContainer(true);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " VxCandidates created from refitted tracks" );
+     //       if ( evtStore()->get ( vxr, m_refitVxContainerName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get refit FTK VxContainer with name " <<  m_refitVxContainerName );
+     //       }
 
-   athlog << DEBUGMSG << " Getting VxContainer from refitted tracks from DataProviderSvc" << endreq;
-   VxContainer* vxr = m_DataProviderSvc->getVxContainer(true);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  vxr->size() << " VxCandidates created from refitted tracks" << endreq;
-   
-
-   int ivxr = 0;
-   for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivxr++) {
-     athlog << VERBOSEMSG << ivxr << ": (x,y,z)= ( " << (*pvx)->recVertex().position().x() << ", " <<  (*pvx)->recVertex().position().y() << ", " << (*pvx)->recVertex().position().z()
-	    << " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() << " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() << endreq;
-     
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " VxVertex from refitted tracks" );
+     int ivxr = 0;
+     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivxr++) {
+       ATH_MSG_VERBOSE( ivxr << ": (x,y,z)= ( " << (*pvx)->recVertex().position().x() << ", " <<  (*pvx)->recVertex().position().y() << ", " << (*pvx)->recVertex().position().z()
+			<< " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() << " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() );
+       
+     }
    }
-
-
    //
    // Get xAoD::Vertex from converted tracks
    //
 
-   athlog << DEBUGMSG << " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" << endreq;
-   xAOD::VertexContainer* vertexr = m_DataProviderSvc->getVertexContainer(true);
-   athlog << DEBUGMSG << "DataProviderSvc returned " <<  vertexr->size() << " zAOD:Vertex created from refitted tracks" << endreq;
+   if (m_getRefitVertex) {
+     ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" );
+     xAOD::VertexContainer* vertexr = m_DataProviderSvc->getVertexContainer(true);
+     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vertexr->size() << " xAOD:Vertex created from refitted tracks" );
+
+     //       if ( evtStore()->get ( vertexr, m_refitVertexContainerName).isFailure() ) {
+     //	 ATH_MSG_DEBUG( "Failed to get refit FTK VertexContainer with name " <<  m_refitVertexContainerName );
+     //       }
    
-   int ivertexr = 0;
-   for (auto pv = vertexr->begin(); pv != vertexr->end(); pv++, ivertexr++) {
-     athlog << VERBOSEMSG << ivertexr << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z()<< 
-       " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF()<< endreq;
+     ATH_MSG_VERBOSE( " " );
+     ATH_MSG_VERBOSE( " Printing information for " <<  vertexr->size()<< " xAOD::Vertex from refitted tracks" );
+     int ivertexr = 0;
+     for (auto pv = vertexr->begin(); pv != vertexr->end(); pv++, ivertexr++) {
+       ATH_MSG_VERBOSE( ivertexr << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z()<< 
+			" ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF());
+     }
    }
    
-   
-   delete(track_collection);
-   delete(refitTracks);   
-   delete(tpc);
-   delete(vxc);
-   delete(vertexc);
-   delete(tpr);
-   delete(vxr);
-   delete(vertexr);
-
 
    // Reset the ftk cache for this event //
    //scFTK = m_DataProviderSvc->endEvent();
    //if( scFTK.isFailure()){
-   //  athlog << VERBOSEMSG << "Cache Clear " << endreq;
+   //  ATH_MSG_VERBOSE( "Cache Clear " );
    //}
-   athlog << DEBUGMSG << "FTK_RDO_ReaderAlgo::execute() end" << endreq;
+   ATH_MSG_DEBUG( "FTK_RDO_ReaderAlgo::execute() end" );
 
    return StatusCode::SUCCESS;
 }
@@ -466,7 +523,7 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_ReaderAlgo::finalize() {
     MsgStream athlog(msgSvc(), name());
-    athlog << MSG::INFO << "finalize()" << endreq;
+    ATH_MSG_INFO("finalize()" );
 
     return StatusCode::SUCCESS;
 }
