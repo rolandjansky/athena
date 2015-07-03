@@ -80,7 +80,7 @@ namespace Muon
 		 const double widthOut,
 		 const int delta, 
 		 const int sub,
-                 const int tile);
+                 const int inner);
 
     //for TYPE_TRACKLET_EIFI 
     TgcCoinData( const Identifier& channelIdIn,
@@ -188,8 +188,8 @@ namespace Muon
       /** return subMatrix of Tracklet or hsub of HiPt */
       int sub() const;
 
-      /** return tile hit bits */
-      int tile() const;
+      /** return InnerCoincidecne trigger bits */
+      int inner() const;
       
       /** return isPositiveDeltaR (isMuplus) of SL */
       bool isPositiveDeltaR() const;
@@ -237,7 +237,7 @@ namespace Muon
       bool m_veto;
 
       int m_sub;
-      int m_tile;
+      int m_inner;
       bool m_isPositiveDeltaR;
 
       mutable const Amg::Vector3D* m_globalposIn;
@@ -310,7 +310,7 @@ namespace Muon
 
   inline int TgcCoinData::sub() const{ return m_sub; }
 
-  inline int TgcCoinData::tile() const{ return m_tile; }
+  inline int TgcCoinData::inner() const{ return m_inner; }
 
   inline bool TgcCoinData::isPositiveDeltaR() const{ return m_isPositiveDeltaR; }
 
