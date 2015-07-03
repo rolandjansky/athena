@@ -25,7 +25,7 @@ class RpcPadContainerCnv_p1 : public T_AthenaPoolTPCnvBase< RpcPadContainer, Rpc
 public:
     typedef RpcPadContainer_p1 PERS;  
     typedef RpcPadContainer TRANS;
-    RpcPadContainerCnv_p1(): m_rpcCabling(0), m_isInitialized(false), m_errorCount(0), m_maxNumberOfErrors(10) {}
+    RpcPadContainerCnv_p1(): m_rpcCabling(0), m_isInitialized(false)/*, m_errorCount(0), m_maxNumberOfErrors(10)*/ {}
     virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
     virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
     virtual RpcPadContainer* createTransient(const RpcPadContainer_p1* persObj, MsgStream& log);
@@ -34,8 +34,8 @@ private:
 
     const IRPCcablingSvc *m_rpcCabling;
     bool m_isInitialized;
-    unsigned int m_errorCount;
-    unsigned int m_maxNumberOfErrors;
+    //unsigned int m_errorCount;
+    //unsigned int m_maxNumberOfErrors;
 };
 
 #endif 

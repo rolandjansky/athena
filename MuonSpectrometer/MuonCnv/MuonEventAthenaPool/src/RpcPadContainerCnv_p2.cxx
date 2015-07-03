@@ -113,7 +113,7 @@ void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, Rpc
             if (sc.isFailure()) {
                 log << MSG::WARNING<<"Could not add collection with hash="<<coll->identifyHash()
                     <<" to IDC which has hash max of "<<transCont->size()<<" (PadHashFunction gives "<<m_rpcCabling->padHashFunction()->max()<<")"<<endreq;
-                throw std::runtime_error("Failed to add collection to ID Container. Hash = "+coll->identifyHash());
+                throw std::runtime_error("Failed to add collection to ID Container. Hash = "+std::to_string(coll->identifyHash()));
             }
         }
     }
