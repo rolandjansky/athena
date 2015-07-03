@@ -186,6 +186,7 @@
 #  20141110 sss  - Handle Pythia8Plugins directory from Pythia8.
 #  20141205 sss  - Allow changing linkopts for other libraries built in
 #                  the package.
+#  20150519 obreshko - add AthSimulationBase
 #
 ###################################################################################################################################
 
@@ -201,7 +202,7 @@ class checker:
   def __init__(self):
 
 # checkreq version string
-    self.ckrvers="checkreq-v140312"
+    self.ckrvers="checkreq-v150519"
 
 # some patterns used in several places
     self.patTroot=compile("^T[A-Z][a-zA-Z0-9]*\.h")   # (potential) ROOT header file name
@@ -230,7 +231,7 @@ class checker:
 # list of projects
     self.projmap={"AtlasCore":None, "AtlasConditions":None, "AtlasEvent":None, "AtlasReconstruction":None, \
       "AtlasTrigger":None, "AtlasAnalysis":None, "AtlasSimulation":None, "AtlasOffline":None, \
-      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, "AthAnalysisBase":None}
+      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, "AthAnalysisBase":None, "AthSimulationBase":None}
 # per project, setup list of non-accessible projects
     self.projmap["AtlasProduction"]=[]
     self.projmap["AtlasOffline"]=["AtlasProduction"]
@@ -245,6 +246,7 @@ class checker:
     self.projmap["AtlasHLT"]=[]
     self.projmap["GAUDI"]=[]
     self.projmap["AthAnalysisBase"]=[]
+    self.projmap["AthSimulationBase"]=[]
 
     self.policy1 = ["AtlasPolicy", "GaudiPolicy", "DetCommonPolicy", "AtlasHLTPolicy", "ExternalPolicy", "TestPolicy", \
                     "TDAQPolicy", "AtlasFortranPolicy", "AtlasCommonPolicy", "AtlasCxxPolicy"]
@@ -823,7 +825,7 @@ def inc2pac(c, p, st):
   transinc2 = {
 # provide several mappings for backward compatibility with old releases
 # then resolve against available use stmts
-  "hltinterface":["HLTtdaqcommon","HLTtdaq"]
+  "hltinterface":["HLTtdaqcommon","HLTtdaq","TDAQCPolicy"]
   }
 
   transinc = {
@@ -1216,8 +1218,10 @@ def inc2pac(c, p, st):
         return strtl[0]
       elif strtl[1] in p.reqp_up:
         return strtl[1]
+      elif strtl[2] in p.reqp_up:
+        return strtl[2]
       else:
-        return strtl[0]+"_or_"+strtl[1]         
+        return strtl[0]+"_or_"+strtl[1]+"_or_"+strtl[2]
     except:
 # catch more special VP1 cases
       if patQTVP1.match(str):  #include <Qtxxx/...>
