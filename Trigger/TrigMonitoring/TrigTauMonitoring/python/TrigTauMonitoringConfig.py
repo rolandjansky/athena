@@ -13,7 +13,9 @@ def TrigTauMonitoringTool():
                   'tau8_cosmic_track',
                   
                   ## Run-II - No BDT: main track-based items
-                  'tau25_perf_tracktwo',
+		#  'tau25_idperf_track',
+		#  'tau25_idperf_tracktwo',
+                #  'tau25_perf_tracktwo',
                   'tau25_perf_tracktwo_L1TAU12',
                   'tau25_perf_ptonly',
                   'tau25_perf_ptonly_L1TAU12',
@@ -132,24 +134,35 @@ def TrigTauMonitoringTool():
         ]
 
 
+	# Setup emulation 
 	emul_l1_tau = [ 
+		'L1_J12',
+		'L1_TAU12',
 		'L1_TAU12IM',
+		'L1_TAU60',
 		'L1_TAU20IM_2TAU12IM',
-		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12'
+		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
+		'L1_MU10_TAU12IM',
+		'L1_TAU20_2TAU12_XE35',
+		'L1_TAU20_2J20_XE45'
 	]
 
 	emul_hlt_tau = [
-		'HLT_tau25_perf_ptonly',
+#		'HLT_tau25_perf_ptonly',
 	]
 
-#	from TrigTauEmulation.TrigTauEmulationConfig import get_level1_emulator
-#	Level1Emulator = get_level1_emulator('Level1Emulator', emul_l1_tau)
-#	
+	# get the Level1 Emulation tool from the emulation python config
+	from TrigTauEmulation.TrigTauEmulationConfig import get_level1_emulator
+	Level1Emulator = get_level1_emulator('Level1Emulator', emul_l1_tau)
+	
+	# Add the Level1 emulation tool to the tool service
 	from AthenaCommon.AppMgr import ToolSvc
-#	ToolSvc += Level1Emulator
-#
+	ToolSvc += Level1Emulator
+
+	# get the HLT emulation tool from the emulation python config
 #	from TrigTauEmulation.TrigTauEmulationConfig import get_hlt_emulator
 #	HltEmulator = get_hlt_emulator('HltEmulator', emul_hlt_tau, Level1Emulator)
+	# Add the HLT emulation tool to the tool service
 #	ToolSvc += HltEmulator
 
 
@@ -158,7 +171,7 @@ def TrigTauMonitoringTool():
 	HLTTauMon = HLTTauMonTool(name			 = 'HLTTauMon',
 				  histoPathBase		 = "/Trigger/HLT",
 				  monitoring_tau	 = hltmonList.monitoring_tau,
-				  primary_tau		 = [], #full_tau, #[]
+				  primary_tau		 = [],#full_tau, #[]
 				  prescaled_tau		 = [],
 				  LowestSingleTau 	 = hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
 				  EffOffTauPtCut	 = 20000.,  #MeV
@@ -166,11 +179,12 @@ def TrigTauMonitoringTool():
 				  TurnOnCurvesDenom	 = "RecoID", # combined string with combination of "Truth", "Reco", "ID" and "Presel". For Truth doTruth=True!
 				  doTruth		 = False,
 				  doRealZtautauEff       = False,
-				  doEmulation		 = False,
+				  doBootstrap		 = False,
+				  doEmulation		 = True,
 				  emulation_l1_tau       = emul_l1_tau,
 				  emulation_hlt_tau      = emul_hlt_tau,
-				  #EmulationTool          = Level1Emulator,
-				  #HltEmulationTool       = HltEmulator,
+				  L1EmulationTool        = Level1Emulator,
+#				  HltEmulationTool       = HltEmulator,
 				  doTestTracking	 = False,
 				  doIncludeL1deactivateTE 	= False,
 				  doIncludePreseldeactivateTE 	= False,

@@ -26,8 +26,8 @@
 #include "xAODTruth/TruthParticle.h"
 
 #include "GaudiKernel/ToolHandle.h"
-//#include "TrigTauEmulation/ILevel1EmulationTool.h"
-//#include "TrigTauEmulation/IHltEmulationTool.h"
+#include "TrigTauEmulation/ILevel1EmulationTool.h"
+#include "TrigTauEmulation/IHltEmulationTool.h"
 
 // Forward declarations
 class StatusCode;
@@ -107,6 +107,7 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
   void testL1TopoNavigation(const std::string & trigItem);
+  float PrescaleRetrieval(const std::string & trigItem, const std::string & level);
   bool Selection(const xAOD::TauJet *aTau);
   bool Selection(const xAOD::EmTauRoI *aTau);
   int m_selection_nTrkMax, m_selection_nTrkMin;
@@ -144,6 +145,8 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTestTracking;
   bool m_emulation;
   bool m_RealZtautauEff;
+  std::vector<std::string> CutItems;
+  bool m_bootstrap;
 
   unsigned int m_L1flag;
   unsigned int m_Preselectionflag;
@@ -151,12 +154,10 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doIncludeL1deactivateTE;
   bool m_doIncludePreseldeactivateTE;
   bool m_doIncludeHLTdeactivateTE;
+  
 
-
-
-//  ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_emulationTool;
-//  ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
-
+  ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_l1emulationTool;
+  ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
 
 
   ///Name of the trigger items to be monitored.

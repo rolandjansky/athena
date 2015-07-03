@@ -37,8 +37,8 @@
 
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
-//#include "TrigTauEmulation/Level1EmulationTool.h"
-//#include "TrigTauEmulation/HltEmulationTool.h"
+#include "TrigTauEmulation/Level1EmulationTool.h"
+#include "TrigTauEmulation/HltEmulationTool.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -155,37 +155,47 @@ StatusCode HLTTauMonTool::Emulation(){
   }
 
 
-//  ATH_CHECK(m_emulationTool->calculate(l1taus, l1jets, l1muons, l1xe));
-//  //m_emulationTool->PrintCounters();
+ ATH_CHECK(m_l1emulationTool->calculate(l1taus, l1jets, l1muons, l1xe));
+//  //m_l1emulationTool->PrintCounters();
 //
-//  // Print the decision for all the tested chains and the TDT decision
-//  for (auto it: m_emulation_l1_tau) {  
-//   bool emulation_decision = m_emulationTool->decision(it);
-//   std::cout << it << " emulation : " << emulation_decision << std::endl;
-//   auto chain_group = getTDT()->getChainGroup(it);
-//   bool cg_passes_event = chain_group->isPassed(); 
-//   std::cout << it << " TDT : " <<  cg_passes_event << std::endl;
-//   if (emulation_decision != cg_passes_event){
-//    std::cout << "TDT and emulation decision different, TDT gives : " << cg_passes_event << " emulation gives : " << emulation_decision << std::endl;
-//    setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
-//    hist("hL1Emulation")->Fill(it.c_str(),1.);
-//   }
-//  }
+ // Print the decision for all the tested chains and the TDT decision
+ for (auto it: m_emulation_l1_tau) {  
+  if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
+  bool emulation_decision = m_l1emulationTool->decision(it);
+  ATH_MSG_INFO(it << " emulation : " << emulation_decision);
+  setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
+  if(emulation_decision) hist("hL1EmulationPassEmul")->Fill(it.c_str(),1.);
+  auto chain_group = getTDT()->getChainGroup(it);  
+  bool cg_passes_event = chain_group->isPassed();
+  if(m_bootstrap) if(getTDT()->isPassedBits(it) & TrigDefs::L1_isPassedBeforePrescale) cg_passes_event = true; 
+  ATH_MSG_INFO(it << " TDT : " <<  cg_passes_event);
+  setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
+  if(cg_passes_event) hist("hL1EmulationPassTDT")->Fill(it.c_str(),1.);
+  //int L1_PSCut = (int) getTDT()->getPrescale(it);
+  //float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
+  if (emulation_decision != cg_passes_event){
+    ATH_MSG_INFO("TDT and emulation decision different, TDT gives : " 
+		 << cg_passes_event 
+		 << " emulation gives : " 
+		 << emulation_decision);
+    setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
+    hist("hL1Emulation")->Fill(it.c_str(),1.);
+  }
+ }
+ // std::string l1_chain(LowerChain("HLT_"+trigItem));
 
-//  std::string l1_chain(LowerChain("HLT_"+trigItem));
-//
-//  if(level=="L1"){
-//    ATH_MSG_DEBUG("Emulating " << l1_chain << " at " << level );
-//
-//  
-//
-//
-//  } else if(level=="HLT"){
-//    ATH_MSG_DEBUG("Emulating " << trigItem << " at " << level );
-//
-//  } else {
-//    ATH_MSG_WARNING("Level of emulation not valid, exiting!"); return StatusCode::FAILURE;
-//  }  
+ // if(level=="L1"){
+ //   ATH_MSG_DEBUG("Emulating " << l1_chain << " at " << level );
+
+ // 
+
+
+ // } else if(level=="HLT"){
+ //   ATH_MSG_DEBUG("Emulating " << trigItem << " at " << level );
+
+ // } else {
+ //   ATH_MSG_WARNING("Level of emulation not valid, exiting!"); return StatusCode::FAILURE;
+ // }  
 
   return StatusCode::SUCCESS;
 

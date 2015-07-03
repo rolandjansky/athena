@@ -36,8 +36,10 @@
 
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
-//#include "TrigTauEmulation/Level1EmulationTool.h"
-//#include "TrigTauEmulation/HltEmulationTool.h"
+#include "TrigConfL1Data/PrescaleSet.h"
+
+#include "TrigTauEmulation/Level1EmulationTool.h"
+#include "TrigTauEmulation/HltEmulationTool.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -97,10 +99,9 @@ const float TWOPI=2.0*PI;
 
 
 HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, const IInterface* parent)
-  : IHLTMonTool(type, n, parent)
-//  : IHLTMonTool(type, n, parent),
-//    m_emulationTool(this),
-//    m_hltemulationTool(this)
+ : IHLTMonTool(type, n, parent),
+   m_l1emulationTool(this)
+//   m_hltemulationTool(this)
   {
     
     ATH_MSG_DEBUG("HLTTauMonTool::HLTTauMonTool()");
@@ -113,11 +114,12 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom="RecoID");
     declareProperty("doTruth", 			m_truth=false);
     declareProperty("doRealZtautauEff",		m_RealZtautauEff=false);
-    declareProperty("doEmulation",         	m_emulation=false);
-    declareProperty("emulation_l1_tau",         m_emulation_l1_tau);    
-    declareProperty("emulation_hlt_tau",        m_emulation_hlt_tau);
-//    declareProperty("HltEmulationTool", 	m_hltemulationTool);
-//    declareProperty("EmulationTool",            m_emulationTool);
+    declareProperty("doBootstrap",              m_bootstrap=true);
+    declareProperty("doEmulation",         	m_emulation=false, "boolean to switch on emulation");
+    declareProperty("emulation_l1_tau",         m_emulation_l1_tau, "List of L1 chains to emulate");    
+    declareProperty("emulation_hlt_tau",        m_emulation_hlt_tau, "List of HLT chains to emulate");
+    declareProperty("L1EmulationTool",          m_l1emulationTool, "Handle to the L1 emulation tool");
+    //declareProperty("HltEmulationTool", 	m_hltemulationTool,  "Handle to the HLT emulation tool");
     declareProperty("doTestTracking", 		m_doTestTracking=false);
     declareProperty("LowestSingleTau", 		m_lowest_singletau="");
     declareProperty("doIncludeL1deactivateTE", 	m_doIncludeL1deactivateTE=false);
@@ -141,12 +143,11 @@ HLTTauMonTool::~HLTTauMonTool() {
 ///////////////////////////////////////////////////////////////////
 StatusCode HLTTauMonTool::init() {
    
-    // TrigTauEmul::Level1EmulationTool emulationTool("TauTriggerEmulator");
-  if(m_emulation){
-//    ATH_MSG_INFO("Yo, Initializing " << m_emulationTool->name());
-//    ATH_CHECK(m_emulationTool.retrieve());
-//    ATH_MSG_INFO("Yo, Initializing " << m_hltemulationTool->name());
-//    ATH_CHECK(m_hltemulationTool.retrieve());
+  if (m_emulation) {
+    ATH_MSG_INFO("Initializing " << m_l1emulationTool->name());
+    ATH_CHECK(m_l1emulationTool.retrieve());
+    //ATH_MSG_INFO("Initializing " << m_hltemulationTool->name());
+    //ATH_CHECK(m_hltemulationTool.retrieve());
   }
     // put all trigger names into one arry
     for(std::vector<std::string>::iterator it = m_monitoring_tau.begin(); it != m_monitoring_tau.end(); ++it) {
@@ -240,6 +241,7 @@ StatusCode HLTTauMonTool::fill() {
 		if ( getTDT()->isPassed(trig_item_L1) ) hist("hL1Counts")->Fill(m_trigItems.at(j).c_str(),1.);
 		if ( getTDT()->isPassed(trig_item_EF) ) hist("hHLTCounts")->Fill(m_trigItems.at(j).c_str(),1.);  
 		//testL1TopoNavigation(m_trigItems[j]);
+		//testPrescaleRetrieval(m_trigItems[j]);
 		sc = fillHistogramsForItem(m_trigItems[j]);
 		if(sc.isFailure()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem. Exiting!"); return StatusCode::FAILURE;}       	
     	}	 
@@ -381,6 +383,21 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	  if(m_RealZtautauEff)
 	    {
 	      setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/RealZtautauEff");
+	      plotUnderOverFlow(hist("hRealTauPt"));
+              plotUnderOverFlow(hist("hRealTauEta"));
+              plotUnderOverFlow(hist("hRealTauPhi"));
+              plotUnderOverFlow(hist("hRealTauNTrack"));
+              plotUnderOverFlow(hist("hRealTauCharge"));
+              plotUnderOverFlow(hist("hRealMuPt"));
+              plotUnderOverFlow(hist("hRealMuEta"));
+              plotUnderOverFlow(hist("hRealMuPhi"));
+	      plotUnderOverFlow(hist("hRealMET"));
+              plotUnderOverFlow(hist("hRealMuCharge"));
+              plotUnderOverFlow(hist("hRealTauMuCosdPhi"));
+              plotUnderOverFlow(hist("hRealMETMuTransMass"));
+              plotUnderOverFlow(hist("hRealTauMuVisMass"));
+              plotUnderOverFlow(hist("hRealTauMuDPhi"));
+              plotUnderOverFlow(hist("hRealTauMuCharge"));
 	      plotUnderOverFlow(hist("hRealZttPtDenom"));
 	      plotUnderOverFlow(hist("hRealZttL1PtNum"));
 	      plotUnderOverFlow(hist("hRealZttHLTPtNum"));
@@ -1270,11 +1287,48 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     if(m_RealZtautauEff)
       {
 	addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/"+trigItem+"/RealZtautauEff",run, ATTRIB_MANAGED, "") );
+	addHistogram(new TH1F("hRealTauPt",";Offline #tau p_{T} [GeV];",nbin_pt-1,bins_pt));
+        addHistogram(new TH1F("hRealTauEta",";Offline #tau #eta;",nbin_eta-1,bins_eta));
+        addHistogram(new TH1F("hRealTauPhi",";Offline #tau #phi;",16,-3.2,3.2));
+        addHistogram(new TH1F("hRealTauNTrack",";Number of #tau tracks;",10,0,10));
+        addHistogram(new TH1F("hRealTauCharge",";Offline #tau Charge;",11,-5.5,5.5));
+
+        addHistogram(new TH1F("hRealMuPt",";Offline #mu p_{T} [GeV];",nbin_pt-1,bins_pt));
+        addHistogram(new TH1F("hRealMuEta",";Offline #mu #eta;",nbin_eta-1,bins_eta));
+        addHistogram(new TH1F("hRealMuPhi",";Offline #mu #phi;",16,-3.2,3.2));
+        addHistogram(new TH1F("hRealMuCharge",";Offline #mu Charge;",11,-5.5,5.5));
+
+	addHistogram(new TH1F("hRealMET",";E^{Miss}_{T} [GeV];",50,0,120));
+	
+        addHistogram(new TH1F("hRealTauMuCosdPhi",";Cos#delta#phi;",16,-2,2));
+        addHistogram(new TH1F("hRealMETMuTransMass",";m_{T}(#mu, E^{miss}_{T}) [GeV];",100,0,140));
+        addHistogram(new TH1F("hRealTauMuVisMass",";m_{vis}(#mu, #tau_{h}) [GeV];",100,0,140));
+        addHistogram(new TH1F("hRealTauMuDPhi",";#mu #tau #Delta#phi;",16,-3.2,3.2));
+        addHistogram(new TH1F("hRealTauMuCharge",";Offline #tau+#mu Charge;",11,-5.5,5.5));
+
 	addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
 	addHistogram(new TH1F("hRealZttL1PtNum","L1 vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
 	addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
 	addHistogram(new TH1F("hRealZttL1PtEfficiency","L1 vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
 	addHistogram(new TH1F("hRealZttHLTPtEfficiency","HLT vs Offline Real Tau Efficiency; Offline Tau p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+
+	CutItems.clear();
+	CutItems.push_back("No Cut");
+	CutItems.push_back("Selected Tau");
+	CutItems.push_back("Selected Mu");
+	CutItems.push_back("Selected #tau+#mu");
+	CutItems.push_back("#tau+#mu Charge");
+	CutItems.push_back("#tau+#mu Vis Mass");
+	CutItems.push_back("Cos#Delta#phi");
+	CutItems.push_back("MET #mu Trans Mass");
+	CutItems.push_back("#tau #mu #Delta#phi");
+
+	addHistogram(new TH1F("hCutFlow","; ;Events",CutItems.size(),0,CutItems.size()));
+	
+	for(unsigned int i=0;i<CutItems.size(); ++i)
+	  {
+	    hist("hCutFlow")->GetXaxis()->SetBinLabel(i+1,CutItems.at(i).c_str());
+	  }
       }
 }
 
@@ -1328,13 +1382,21 @@ void HLTTauMonTool::bookHistogramsAllItem(){
 
     if(m_emulation){   
      addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/Emulation",run));
-     addHistogram(new TH1F("hL1Emulation","; mismatched events",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
-     addHistogram(new TH1F("hHLTEmulation","; mismatched events",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
+     addHistogram(new TH1F("hL1EmulationPassTDT","; TDT passed events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
+     addHistogram(new TH1F("hHLTEmulationPassTDT"," TDT passed events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
+     addHistogram(new TH1F("hL1EmulationPassEmul"," Emualtion passed events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
+     addHistogram(new TH1F("hHLTEmulationPassEmul"," Emulation passed events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
+     addHistogram(new TH1F("hL1Emulation"," Mismatched events;",m_emulation_l1_tau.size(),-0.5,m_emulation_l1_tau.size()-0.5));
+     addHistogram(new TH1F("hHLTEmulation"," Mismatched events;",m_emulation_hlt_tau.size(),-0.5,m_emulation_hlt_tau.size()-0.5));
      for(unsigned int i=0;i<m_emulation_l1_tau.size(); ++i){
        hist("hL1Emulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
+       hist("hL1EmulationPassTDT")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
+       hist("hL1EmulationPassEmul")->GetXaxis()->SetBinLabel(i+1,m_emulation_l1_tau.at(i).c_str());
      }
      for(unsigned int i=0;i<m_emulation_hlt_tau.size(); ++i){
        hist("hHLTEmulation")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
+       hist("hHLTEmulationPassTDT")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
+       hist("hHLTEmulationPassEmul")->GetXaxis()->SetBinLabel(i+1,m_emulation_hlt_tau.at(i).c_str());
      }
     }
 
@@ -1955,10 +2017,11 @@ StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau){
            int ntrack_TAU = (*CI)->nTracks();
            if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
            bool good_tau = (*CI)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-           bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
-           bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
-           bool best_tau = good_tau && not_a_electron && not_a_muon;
-           if(!best_tau) continue;
+           //bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
+           //bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
+           //bool best_tau = good_tau && not_a_electron && not_a_muon;
+           bool best_tau = good_tau;
+	   if(!best_tau) continue;
 	   float eta = aL1Tau->eta();
 	   float phi = aL1Tau->phi();
            double dR = deltaR(eta,TauTLV.Eta(),phi,TauTLV.Phi());
@@ -2013,10 +2076,11 @@ StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
             int ntrack_TAU = (*CI)->nTracks();
             if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
             bool good_tau = (*CI)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-            bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
-            bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
-            bool best_tau = good_tau && not_a_electron && not_a_muon;
-            if(!best_tau) continue;
+            //bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
+            //bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
+            //bool best_tau = good_tau && not_a_electron && not_a_muon;
+            bool best_tau = good_tau;
+	    if(!best_tau) continue;
             double dR = TauTLV.DeltaR(aEFTau->p4());
             if(dR < tmpR){
                 tmpR = dR;
@@ -2181,9 +2245,10 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 	  int ntrack_TAU = (*CI)->nTracks();
 	  if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
 	  bool good_tau = (*CI)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-	  bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
-	  bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
-	  bool best_tau = good_tau && not_a_electron && not_a_muon;
+	  //bool not_a_electron = !( (*CI)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
+	  //bool not_a_muon = !( (*CI)->isTau(xAOD::TauJetParameters::MuonVeto) );
+	  //bool best_tau = good_tau && not_a_electron && not_a_muon;
+	  bool best_tau = good_tau;
 	  if(!best_tau) continue;
 	  double dR = TauTLV.DeltaR(aEFTau->p4());
 	  if(dR < tmpR)
@@ -2432,6 +2497,24 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 //------------------------------------------------------------------------------------
 // Testing methods
 //------------------------------------------------------------------------------------
+float HLTTauMonTool::PrescaleRetrieval(const std::string & trigItem, const std::string & level){
+	std::string trig_item_EF = "HLT_"+trigItem;
+	// trying to get the prescale value
+	
+	std::string l1_chain(LowerChain(trig_item_EF));
+	int L1_PSCut = (int) getTDT()->getPrescale(l1_chain);
+	float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
+	float HLT_PS = getTDT()->getPrescale(trig_item_EF) / (float)L1_PSCut; // Remove the L1 cut from this
+	float Total_PS = L1_PS * HLT_PS;
+	ATH_MSG_DEBUG(trig_item_EF << ": L1 PS "<< L1_PS << ", HLT PS " << HLT_PS << ", Total PS " << Total_PS);
+//	if(getTDT()->isPassedBits(trig_item_EF) & TrigDefs::EF_prescaled) ATH_MSG_WARNING(trig_item_EF << " is prescaled!!");
+	//if(getTDT()->isPassedBits(l1_chain) & TrigDefs::L1_isPassedAfterPrescale) ATH_MSG_WARNING(l1_chain << " is prescaled!!");
+	if(level=="L1") return L1_PS;
+	else if(level=="HLT") return HLT_PS;
+	else return Total_PS;
+}
+
+
 void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
 	ATH_MSG_DEBUG("HLTTauMonTool::testL1TopoNavigation");
         std::string trig_item_EF = "HLT_"+trigItem;
@@ -2873,10 +2956,11 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	      		if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
 			if(TauDenom.find("ID")!=std::string::npos){
    	      			bool good_tau = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-              			bool not_a_electron = !( (*recoItr)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
-              			bool not_a_muon = !( (*recoItr)->isTau(xAOD::TauJetParameters::MuonVeto) );
-              			bool best_tau = good_tau && not_a_electron && not_a_muon;
-  	      			if(!best_tau) continue;		
+              			//bool not_a_electron = !( (*recoItr)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
+              			//bool not_a_muon = !( (*recoItr)->isTau(xAOD::TauJetParameters::MuonVeto) );
+				//bool best_tau = good_tau && not_a_electron && not_a_muon;
+  	      			bool best_tau = good_tau;
+				if(!best_tau) continue;		
 			}
 			if(addToDenom){	
 				tlv_TauDenom.push_back(TauTLV);
@@ -2974,6 +3058,12 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
       		hist("hRecoTauMuDenom")->Fill(mu);
       		hist2("hRecoTauEtaVsPhiDenom")->Fill(eta,phi);
 	
+		// get prescale wait:
+		//float L1_PS = PrescaleRetrieval(trigItem,"L1");
+		//float Tot_PS = PrescaleRetrieval(trigItem,"TOT");
+		//ATH_MSG_WARNING(trigItem << " " << L1_PS << " " << Tot_PS);
+		if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue; 		
+
 		if( HLTTauMatching(trigItem, tlv_TauDenom.at(i), 0.2)  ){
 			hist("hRecoHLTPtNum")->Fill(pt/1000.);
 	  		if(ntracks == 1) hist("hRecoHLTPt1PNum")->Fill(pt/1000.);
@@ -3093,9 +3183,10 @@ StatusCode HLTTauMonTool::TauEfficiencyCombo(const std::string & trigItem){
       int ntrack_TAU = (*recoItr)->nTracks();
       if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
       bool good_tau = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-      bool not_a_electron = !( (*recoItr)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
-      bool not_a_muon = !( (*recoItr)->isTau(xAOD::TauJetParameters::MuonVeto) );
-      bool best_tau = good_tau && not_a_electron && not_a_muon;
+      //bool not_a_electron = !( (*recoItr)->isTau(xAOD::TauJetParameters::EleBDTMedium) );
+      //bool not_a_muon = !( (*recoItr)->isTau(xAOD::TauJetParameters::MuonVeto) );
+      //bool best_tau = good_tau && not_a_electron && not_a_muon;
+      bool best_tau = good_tau;
       if(!best_tau) continue;
       
       for(unsigned int truth=0;truth<tlv_truthTau.size();truth++)

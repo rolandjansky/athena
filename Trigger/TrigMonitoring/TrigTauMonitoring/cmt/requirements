@@ -18,11 +18,12 @@ use GaudiInterface        GaudiInterface-*        External
 use StoreGate             StoreGate-*             Control
 use TrigDecisionInterface TrigDecisionInterface-* Trigger/TrigEvent
 use TrigDecisionTool      TrigDecisionTool-*      Trigger/TrigAnalysis
-#use TrigTauEmulation      TrigTauEmulation-*      Trigger/TrigAnalysis/TrigTauAnalysis
+use TrigTauEmulation      TrigTauEmulation-*      Trigger/TrigAnalysis/TrigTauAnalysis
 use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
 use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent
 use TrigConfHLTData       TrigConfHLTData-*       Trigger/TrigConfiguration
+use TrigConfL1Data        TrigConfL1Data-*        Trigger/TrigConfiguration
 
 use xAODTau		  xAODTau-*		  Event/xAOD
 use xAODTrigger		  xAODTrigger-*		  Event/xAOD
