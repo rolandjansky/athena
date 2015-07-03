@@ -1316,7 +1316,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
     return StatusCode::SUCCESS;
   }
 
-  bool isInner = (((*itD)->sector() & 4) != 0 ); // Inner flag for EIFI and Tile
+  bool isInner = (((*itD)->sector() & 4) != 0 ); // Inner flag for EIFI and Tilecal
 
   // Protection against invalid hitId
   if((*itD)->hitId()==0 && !isInner ) {
@@ -1522,7 +1522,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   int trackletId = 2*sbLoc_o + slbsubMatrix;
   int delta = static_cast<int>((*itD)->delta());
   int hsub = static_cast<int>((*itD)->hsub());
-  int tile = static_cast<int>((*itD)->tile());
+  int inner = static_cast<int>((*itD)->inner());
 
   // check duplicate digits
   TgcCoinDataCollection::const_iterator it_tgcCoinData   = coincollection->begin();
@@ -1534,7 +1534,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
        (trackletId==(*it_tgcCoinData)->trackletId()) && // trackletId 
        (delta==(*it_tgcCoinData)->delta()) && // delta
        (hsub==(*it_tgcCoinData)->sub()) && // hsub
-       (tile==(*it_tgcCoinData)->tile())
+       (inner==(*it_tgcCoinData)->inner())
        ) { 
       if(38<=trackletId && trackletId<=41) {
 	// This drop is most probably due to the fix of the HiPt Endcap Strip Board bug. 
@@ -1569,7 +1569,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
 					     width_o,
 					     delta, // delta
 					     hsub,  // hsub
-                                             tile);
+                                             inner);
   // add the digit to the collection
   newCoinData->setHashAndIndex(coincollection->identifyHash(), coincollection->size());  
   coincollection->push_back(newCoinData);

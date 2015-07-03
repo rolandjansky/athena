@@ -133,8 +133,8 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
 	  ls.hipt = 1;
 	  counters[5].count++;
 	  if(raw->isStrip() == 1 && raw->sector() & 4 ){
-            TGC_BYTESTREAM_HIPT_TILE hpt;
-            hpt.tile = raw->tile();
+            TGC_BYTESTREAM_HIPT_INNER hpt;
+            hpt.inner = raw->inner();
             //hpt.hipt = raw->isHipt();
             //hpt.cand = raw->index();
             //hpt.chip = raw->chip();
@@ -407,31 +407,31 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 		  << counters[iCnt].id << " " << counters[iCnt].count 
 		  << "words" << endreq;
 	    }
-	    TGC_BYTESTREAM_HIPT      hpt;
-	    TGC_BYTESTREAM_HIPT_TILE hpttile;
+	    TGC_BYTESTREAM_HIPT       hpt;
+	    TGC_BYTESTREAM_HIPT_INNER hptinner;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		if(p_debug) {
 		  log << MSG::DEBUG << "WORD"
 		      << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
-		fromBS32(bs[iBs], hpttile);
-		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
+		fromBS32(bs[iBs], hptinner);
+		if(hptinner.sector & 4){
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
                                                    rdo.subDetectorId(),
                                                    rdo.rodId(),
                                                    rdo.l1Id(),
                                                    rdo.bcId(),
-                                                   hpttile.strip,
+                                                   hptinner.strip,
                                                    0,
-                                                   hpttile.sector,
-                                                   0,
-                                                   0,
+                                                   hptinner.sector,
                                                    0,
                                                    0,
                                                    0,
                                                    0,
-                                                   hpttile.tile);
+                                                   0,
+                                                   0,
+                                                   hptinner.inner);
                   rdo.push_back(raw);
                 }else{
                   fromBS32(bs[iBs], hpt);

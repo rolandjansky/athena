@@ -338,28 +338,28 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 	    ATH_MSG_VERBOSE( "fragment" << counters[iCnt].id << 
 			     " " << counters[iCnt].count << "words" );
 	    TGC_BYTESTREAM_HIPT      hpt;
-	    TGC_BYTESTREAM_HIPT_TILE hpttile;
+	    TGC_BYTESTREAM_HIPT_INNER hptinner;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		ATH_MSG_VERBOSE( "WORD" << iFrag << ":" << MSG::hex << bs[iBs] );
-		fromBS32(bs[iBs], hpttile);
+		fromBS32(bs[iBs], hptinner);
 
-		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
+		if(hptinner.sector & 4){
                   TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
                                                    rdo.subDetectorId(),
                                                    rdo.rodId(),
                                                    rdo.l1Id(),
                                                    rdo.bcId(),
-                                                   hpttile.strip,
+                                                   hptinner.strip,
                                                    0,
-                                                   hpttile.sector,
-                                                   0,
-                                                   0,
+                                                   hptinner.sector,
                                                    0,
                                                    0,
                                                    0,
                                                    0,
-                                                   hpttile.tile);
+                                                   0,
+                                                   0,
+                                                   hptinner.inner);
                   rdo.push_back(raw);
                 }else{
                   fromBS32(bs[iBs], hpt);

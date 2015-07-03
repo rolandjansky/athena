@@ -144,10 +144,10 @@ struct TGC_BYTESTREAM_HIPT
   TGC_BYTESTREAM_HIPT() { memset(this, 0, sizeof(*this)); }
 };
 
-/** The struct for TileCal in ByteStream. */
-struct TGC_BYTESTREAM_HIPT_TILE
+/** The struct for Inner trigger bits in ByteStream. */
+struct TGC_BYTESTREAM_HIPT_INNER
 {
-  signed   tile:     8;
+  unsigned inner:    8;
   unsigned fill1:    1;
   unsigned hipt:     1;
   unsigned cand:     1;
@@ -158,7 +158,7 @@ struct TGC_BYTESTREAM_HIPT_TILE
   unsigned bcBitmap: 3;
   unsigned fill2:   11;
 
-  TGC_BYTESTREAM_HIPT_TILE() { memset(this, 0, sizeof(*this)); }
+  TGC_BYTESTREAM_HIPT_INNER() { memset(this, 0, sizeof(*this)); }
 };
 
 /** The struct for SL in ByteStream. */
