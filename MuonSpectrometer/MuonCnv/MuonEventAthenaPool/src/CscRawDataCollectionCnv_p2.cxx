@@ -10,22 +10,20 @@
 void
 CscRawDataCollectionCnv_p2::persToTrans(const CscRawDataCollection_p2* persColl, CscRawDataCollection* transColl, MsgStream &log) 
 {
-   //log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endmsg;
+   //log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endreq;
 
-   IdentifierHash idhash = transColl->identifyHash();
-   transColl->setOnlineId (persColl->m_id);
-   transColl->setIdentifyHash (idhash);
-   transColl->setRodId (persColl->m_rodId);
-   transColl->setSubDetectorId (persColl->m_subDetectorId);
-   transColl->setNumDPU (persColl->m_numRPU);
-   transColl->set_samplingPhase (persColl->m_samplingPhase);
-   transColl->set_triggerType (persColl->m_triggerType);
-   transColl->set_firstBitSummary (persColl->m_firstBitSummary);
-   transColl->set_eventType (persColl->m_eventType);
-   transColl->setRPUID (persColl->m_rpuID);
-   transColl->set_dataType (persColl->m_dataType);
-   transColl->set_spuCount (persColl->m_spuCount);
-   transColl->set_scaAddress (persColl->m_scaAddress);
+   transColl->m_id             = persColl->m_id;
+   transColl->m_rodId          = persColl->m_rodId ;
+   transColl->m_subDetectorId  = persColl->m_subDetectorId;
+   transColl->m_numRPU         = persColl->m_numRPU;
+   transColl->m_samplingPhase  = persColl->m_samplingPhase ;
+   transColl->m_triggerType    = persColl->m_triggerType ;
+   transColl->m_firstBitSummary= persColl->m_firstBitSummary;
+   transColl->m_eventType      = persColl->m_eventType;
+   transColl->m_rpuID          = persColl->m_rpuID;
+   transColl->m_dataType       = persColl->m_dataType;
+   transColl->m_spuCount       = persColl->m_spuCount;
+   transColl->m_scaAddress     = persColl->m_scaAddress;
 
    // Invoke vector converter from the base template
    CscRawDataCollection_Cnv_p2_base_t::persToTrans( persColl, transColl, log );
@@ -34,7 +32,7 @@ CscRawDataCollectionCnv_p2::persToTrans(const CscRawDataCollection_p2* persColl,
    // for(CscRawDataCollection::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
    //    std::ostringstream ostr;
    //    ostr << **it;
-   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endmsg;
+   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endreq;
    // }  
 }
 
@@ -43,18 +41,18 @@ CscRawDataCollectionCnv_p2::persToTrans(const CscRawDataCollection_p2* persColl,
 void
 CscRawDataCollectionCnv_p2::transToPers(const CscRawDataCollection* transColl, CscRawDataCollection_p2* persColl, MsgStream &log) 
 {
-    persColl->m_id             = transColl->identify();
-    persColl->m_rodId          = transColl->rodId() ;
-    persColl->m_subDetectorId  = transColl->subDetectorId();
-    persColl->m_numRPU         = transColl->numRPU();
-    persColl->m_samplingPhase  = transColl->samplingPhase() ;
-    persColl->m_triggerType    = transColl->triggerType() ;
-    persColl->m_firstBitSummary= transColl->firstBitSummary();
-    persColl->m_eventType      = transColl->eventType();
-    persColl->m_rpuID          = transColl->rpuID();
-    persColl->m_dataType       = transColl->dataType();
-    persColl->m_spuCount       = transColl->spuCount();
-    persColl->m_scaAddress     = transColl->scaAddress();
+    persColl->m_id             = transColl->m_id;
+    persColl->m_rodId          = transColl->m_rodId ;
+    persColl->m_subDetectorId  = transColl->m_subDetectorId;
+    persColl->m_numRPU         = transColl->m_numRPU;
+    persColl->m_samplingPhase  = transColl->m_samplingPhase ;
+    persColl->m_triggerType    = transColl->m_triggerType ;
+    persColl->m_firstBitSummary= transColl->m_firstBitSummary;
+    persColl->m_eventType      = transColl->m_eventType;
+    persColl->m_rpuID          = transColl->m_rpuID;
+    persColl->m_dataType       = transColl->m_dataType;
+    persColl->m_spuCount       = transColl->m_spuCount;
+    persColl->m_scaAddress     = transColl->m_scaAddress;
     
     // Invoke vector converter from the base template	 
     CscRawDataCollection_Cnv_p2_base_t::transToPers( transColl, persColl, log );

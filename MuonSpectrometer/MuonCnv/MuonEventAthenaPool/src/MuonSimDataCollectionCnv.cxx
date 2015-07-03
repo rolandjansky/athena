@@ -24,27 +24,27 @@ MuonSimDataCollectionCnv::~MuonSimDataCollectionCnv() {
 }
 
 MuonSimDataCollection_PERS*    MuonSimDataCollectionCnv::createPersistent (MuonSimDataCollection* transCont) {
-    MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
+    MsgStream log(messageService(), "MuonSimDataCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
     MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p1.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 MuonSimDataCollection* MuonSimDataCollectionCnv::createTransient() {
-    MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
+    MsgStream log(messageService(), "MuonSimDataCollectionCnv" );
     static pool::Guid   p0_guid("5B50C32E-A036-4B49-AC97-716E53210BE2");
     static pool::Guid   p1_guid("0605B4A3-3744-4486-B39D-F9C9E809D868");
     ATH_MSG_DEBUG("createTransient(): main converter");
     MuonSimDataCollection* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-      std::unique_ptr< MuonSimDataCollection_PERS >   col_vect( this->poolReadObject< MuonSimDataCollection_PERS >() );
+      std::auto_ptr< MuonSimDataCollection_PERS >   col_vect( this->poolReadObject< MuonSimDataCollection_PERS >() );
       p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p0_guid) ){
        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
-       std::unique_ptr< MuonSimDataCollection >   col_vect( poolReadObject< MuonSimDataCollection >() );
+       std::auto_ptr< MuonSimDataCollection >   col_vect( poolReadObject< MuonSimDataCollection >() );
        p_collection = col_vect.release();
     }
   //----------------------------------------------------------------

@@ -28,31 +28,31 @@ StatusCode RpcCoinDataContainerCnv::initialize() {
     if( !RpcCoinDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
     
-    //msgSvc()->setOutputLevel( "RpcCoinDataContainerCnv", MSG::INFO );
+    //messageService()->setOutputLevel( "RpcCoinDataContainerCnv", MSG::INFO );
 
    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), "RpcCoinDataContainerCnv");
-    if (log.level() <= MSG::DEBUG) log << MSG::INFO << "RpcCoinDataContainerCnv::initialize()" << endmsg;
+    MsgStream log(messageService(), "RpcCoinDataContainerCnv");
+    if (log.level() <= MSG::DEBUG) log << MSG::INFO << "RpcCoinDataContainerCnv::initialize()" << endreq;
 
     return StatusCode::SUCCESS;
 }
 
 Muon::RpcCoinDataContainerCnv_p1::PERS*    RpcCoinDataContainerCnv::createPersistent (Muon::RpcCoinDataContainer* transCont) {
-    MsgStream log(msgSvc(), "RpcCoinDataContainerCnv" );
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
+    MsgStream log(messageService(), "RpcCoinDataContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
     Muon::RpcCoinDataContainerCnv_p1::PERS *rpc_p= m_converter_p1.createPersistent( transCont, log );
     return rpc_p;
 }
 
 Muon::RpcCoinDataContainer* RpcCoinDataContainerCnv::createTransient() {
-    MsgStream log(msgSvc(), "RpcCoinDataContainerCnv" );
+    MsgStream log(messageService(), "RpcCoinDataContainerCnv" );
     static pool::Guid   p1_guid("AF0DB103-E825-45E5-9C29-9C32342756DD"); 
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
     Muon::RpcCoinDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
-        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
-        std::unique_ptr< Muon::RpcCoinDataContainerCnv_p1::PERS >   col_vect( poolReadObject< Muon::RpcCoinDataContainerCnv_p1::PERS >() );
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Delegate TP converter " << endmsg;
+        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
+        std::auto_ptr< Muon::RpcCoinDataContainerCnv_p1::PERS >   col_vect( poolReadObject< Muon::RpcCoinDataContainerCnv_p1::PERS >() );
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Delegate TP converter " << endreq;
         p_collection = m_converter_p1.createTransient( col_vect.get(), log );
     } else {
         throw std::runtime_error("Unsupported persistent version of RpcCoinDataContainer");

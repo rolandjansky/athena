@@ -2,7 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "MuonRDO/CscRawData.h"
+#undef private
+#undef protected
+
 #include "CscRawDataCnv_p1.h"
 
 #include "GaudiKernel/GaudiException.h"
@@ -21,12 +26,14 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
        now add that during conversion : pedestal set to 2048 ADC counts
        Ketevi A. Assamagan - April 11, 2007 */
    unsigned int size = (pers->m_amps).size();
-   std::vector<uint16_t> amps(size);
-   for (unsigned int i=0; i<size; ++i)
-     amps[i] = pers->m_amps[i] + 2048;
+   for (unsigned int i=0; i<size; ++i) {
+     uint16_t adc = (pers->m_amps)[i] + 2048;
+     (trans->m_amps).push_back( adc );
+   }
+   //trans->m_amps        = pers->m_amps;
 
 
-  /** conversion of the chamberLayer index into the new format */
+  /** conversion of the chamnerLayer index into the new format */
   int stationName =  ( ( pers->m_address & 0x00010000) >> 16 ) + 50;
   int stationEta  =  ( ((pers->m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
   int stationPhi  =  ( ( pers->m_address & 0x0000E000) >> 13 ) + 1;
@@ -39,8 +46,6 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   uint32_t nameIndex    = uint32_t(stationName-50);
   uint32_t etaIndex     = (stationEta  == -1) ? 0 : 1;
   uint32_t phiIndex     = uint32_t (stationPhi-1);
-  /// ??? This looks wrong!  chamberLayer is either 1 or 2, but then this
-  ///      gets packed into a 1-bit field.  Should this be -1?
   uint32_t chamberIndex = uint32_t (chamberLayer-0);
   uint32_t layerIndex   = uint32_t (wireLayer-1);
   uint32_t stripType    = uint32_t (measuresPhi);
@@ -58,7 +63,7 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   }
   
   // build the address
-  uint32_t address = nameIndex    << 16 |
+  trans->m_address = nameIndex    << 16 |
                      phiIndex     << 13 |
                      etaIndex     << 12 |
                      chamberIndex << 11 |
@@ -74,7 +79,8 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   if ( stripType == 0 ) spuID = static_cast<uint16_t>( nameIndex*5 + layerIndex );
   else spuID = static_cast<uint16_t>( (nameIndex+1)*5-1 );
 
-  *trans = CscRawData (amps, address, pers->m_id,
-                       spuID, 1);
+  trans->m_id          = pers->m_id;
+  trans->m_rpuID       = spuID;
+  trans->m_width       = 1; 
 }
 

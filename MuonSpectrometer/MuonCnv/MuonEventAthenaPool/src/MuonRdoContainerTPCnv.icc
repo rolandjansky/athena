@@ -20,14 +20,14 @@ template <class T, class P, class CONV>
 P *
 MuonRdoContainerTPCnv<T,P, CONV >::createPersistent(T* rdoC)
 {
-  MsgStream log(this->msgSvc(), "MuonRdoContainerTPCnv" );
+  MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" );
   
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered  MuonRdoContainerTPCnv::createPersistent()" << endmsg;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered  MuonRdoContainerTPCnv::createPersistent()" << endreq;
 
   P *persObj = m_TPconverter.createPersistent( rdoC, log );
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << persObj->size()
-      << endmsg;
+      << endreq;
 
   return persObj; 
 }
@@ -40,8 +40,8 @@ T*
 MuonRdoContainerTPCnv<T,P, CONV >
 ::createTransient()
 {
-   MsgStream log(this->msgSvc(), "MuonRdoContainerTPCnv" ); 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << endmsg;
+   MsgStream log(this->messageService(), "MuonRdoContainerTPCnv" ); 
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << endreq;
    //std::cout << " **** Warning: using default createTransient() - (possibly missing specialized version of this method" << std::endl;
 
    return createTransientFrom_p0( this->poolReadObject(), log );
@@ -54,9 +54,9 @@ T*
 MuonRdoContainerTPCnv<T,P, CONV >
 ::createTransientFrom_p0(COLL_vector* col_vect, MsgStream &log)
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endmsg;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endreq;
 
-   std::unique_ptr<T> rdoC( new T );
+   std::auto_ptr<T> rdoC( new T );
    //COLL_vector	*col_vect = (COLL_vector*) colV;
    typename COLL_vector::const_iterator it_Coll  = col_vect->begin();
    typename COLL_vector::const_iterator it_CollE = col_vect->end();

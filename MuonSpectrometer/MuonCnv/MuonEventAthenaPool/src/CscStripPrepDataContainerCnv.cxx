@@ -36,16 +36,16 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
     if( !CscStripPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
 
-//    msgSvc()->setOutputLevel( "CscStripPrepDataContainerCnv", MSG::DEBUG );
+//    messageService()->setOutputLevel( "CscStripPrepDataContainerCnv", MSG::DEBUG );
 
    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv");
-    log << MSG::INFO << "CscStripPrepDataContainerCnv::initialize()" << endmsg;
+    MsgStream log(messageService(), "CscStripPrepDataContainerCnv");
+    log << MSG::INFO << "CscStripPrepDataContainerCnv::initialize()" << endreq;
 
    // get StoreGate service
     StatusCode sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "StoreGate service not found !" << endmsg;
+        log << MSG::FATAL << "StoreGate service not found !" << endreq;
         return StatusCode::FAILURE;
     }
 
@@ -53,44 +53,44 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
     StoreGateSvc *detStore;
     sc = service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
         return StatusCode::FAILURE;
     } else {
-        log << MSG::DEBUG << "Found DetectorStore." << endmsg;
+        log << MSG::DEBUG << "Found DetectorStore." << endreq;
     }
 
 
     //m_converter_p0.initialize(log);
 
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
 
     return StatusCode::SUCCESS;
 }
 
 CscStripPrepDataContainer_PERS*    CscStripPrepDataContainerCnv::createPersistent (Muon::CscStripPrepDataContainer* transCont) {
-    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv" );
-    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
+    MsgStream log(messageService(), "CscStripPrepDataContainerCnv" );
+    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
     CscStripPrepDataContainer_PERS *pixdc_p= m_TPConverter.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient() {
-    MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv" );
+    MsgStream log(messageService(), "CscStripPrepDataContainerCnv" );
     static pool::Guid   p0_guid("A41C9D99-F977-43B5-8DFC-819F057A9136"); // before t/p split
     static pool::Guid   p1_guid("6075244C-C6BB-4E24-B711-E7E4ED0F7462"); // with CscStripPrepData_tlp1
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
     Muon::CscStripPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
-        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
+        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
         usingTPCnvForReading( m_TPConverter );
-        std::unique_ptr< CscStripPrepDataContainer_PERS >  p_coll( poolReadObject< CscStripPrepDataContainer_PERS >() );
+        std::auto_ptr< CscStripPrepDataContainer_PERS >  p_coll( poolReadObject< CscStripPrepDataContainer_PERS >() );
         p_collection = m_TPConverter.createTransient( p_coll.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p0_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
         throw std::runtime_error("Not currently supporting reading non TP-split PRDs");
-        //std::unique_ptr< CscStripPrepDataContainer_p0 >   col_vect( poolReadObject< CscStripPrepDataContainer_p0 >() );
+        //std::auto_ptr< CscStripPrepDataContainer_p0 >   col_vect( poolReadObject< CscStripPrepDataContainer_p0 >() );
         //p_collection = m_converter_p0.createTransient( col_vect.get(), log );
     }
     else {

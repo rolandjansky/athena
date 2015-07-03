@@ -1,4 +1,0 @@
-ApplicationMgr.DLLs += { "StoreGate", "CLIDComps" };
-ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore" };
-TGCcablingServerSvc.forcedUse = true;
-#include "IOVSvc/IOVSvc.txt"

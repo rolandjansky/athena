@@ -2,9 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "MuonRDO/RpcSectorLogic.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "MuonRDO/RpcSLTriggerHit.h"
+#undef private
+#undef protected
+
 #include "RpcSectorLogicContainerCnv_p1.h"
 
 
@@ -28,17 +33,16 @@
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
 #include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "boost/range/iterator_range.hpp"
 #include <assert.h>
 
 void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* transCont,  RpcSectorLogicContainer_p1* persCont, MsgStream & log) 
 {
   unsigned int tCsize=transCont->size();
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainerCnv_p1::transToPers " << endmsg;
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " RpcSectorLogicContainerCnv_p1 sizes: trans: " << tCsize << " " << endmsg;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainerCnv_p1::transToPers " << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " RpcSectorLogicContainerCnv_p1 sizes: trans: " << tCsize << " " << endreq;
   //std::cout<<"m_sectorList[0]: "<<transCont->m_sectorList[0]<<", m_sectorList[1]"<<transCont->m_sectorList[1]<<std::endl;
-  persCont->m_sectorList[0] = transCont->sectorList()[0];
-  persCont->m_sectorList[1] = transCont->sectorList()[1];
+  persCont->m_sectorList[0] = transCont->m_sectorList[0];
+  persCont->m_sectorList[1] = transCont->m_sectorList[1];
 
   RpcSectorLogicContainer::const_iterator it_Coll     = transCont->begin();
   RpcSectorLogicContainer::const_iterator it_CollEnd  = transCont->end();
@@ -55,7 +59,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
   persCont->m_slVariables[slVariableIndex++]=tCsize; // 1st element is number of SLs. Format is defined in RpcSectorLogicContainer_p1.h
   //std::cout<<"B"<<std::endl;
   
-  persCont->m_hasMoreThan2TriggerCand.reserve(tCsize);
+  persCont->m_hasMoreThan2TriggerCand.resize(tCsize);
   //unsigned int indexSL=0; 
   for (; it_Coll != it_CollEnd; it_Coll++)  {
     //std::cout<<"Processing SL :"<<indexSL++<<", slVariableIndex="<<slVariableIndex<<std::endl;
@@ -72,18 +76,18 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
     //std::cout<<"sl variables="<<persCont->m_slVariables[slVariableIndex-5]<<", "<<persCont->m_slVariables[slVariableIndex-4]<<", "<<persCont->m_slVariables[slVariableIndex-3]<<", "<<persCont->m_slVariables[slVariableIndex-2]<<", "<<persCont->m_slVariables[slVariableIndex-1]<<std::endl;
     
     // m_counters (pers version already resized at start of loop)
-    persCont->m_slVariables[slVariableIndex++]=(**it_Coll).counters().size(); // Size of m_counters
-    //std::cout<<"m_counters.size()="<<(**it_Coll).counters().size()<<", slVariableIndex="<<slVariableIndex<<std::endl;
+    persCont->m_slVariables[slVariableIndex++]=(**it_Coll).m_counters.size(); // Size of m_counters
+    //std::cout<<"m_counters.size()="<<(**it_Coll).m_counters.size()<<", slVariableIndex="<<slVariableIndex<<std::endl;
     
-    std::copy ((**it_Coll).counters().begin(), (**it_Coll).counters().end(), persCont->m_slVariables.begin()+slVariableIndex);   
-    slVariableIndex+=(**it_Coll).counters().size();
+    std::copy ((**it_Coll).m_counters.begin(), (**it_Coll).m_counters.end(), persCont->m_slVariables.begin()+slVariableIndex);   
+    slVariableIndex+=(**it_Coll).m_counters.size();
     
     // m_triggerRates
-    persCont->m_slVariables[slVariableIndex++]=(**it_Coll).triggerRates().size(); // Size of m_triggerRates
+    persCont->m_slVariables[slVariableIndex++]=(**it_Coll).m_triggerRates.size(); // Size of m_triggerRates
 //std::cout<<"m_triggerRates :"<<persCont->m_slVariables[slVariableIndex]<<", slVariableIndex="<<slVariableIndex<<std::endl;
-    persCont->m_triggerRates.resize(persCont->m_triggerRates.size()+(**it_Coll).triggerRates().size()); 
-    std::copy ((**it_Coll).triggerRates().begin(), (**it_Coll).triggerRates().end(), persCont->m_triggerRates.begin()+triggerRateIndex);                
-    triggerRateIndex+=(**it_Coll).triggerRates().size();
+    persCont->m_triggerRates.resize(persCont->m_triggerRates.size()+(**it_Coll).m_triggerRates.size()); 
+    std::copy ((**it_Coll).m_triggerRates.begin(), (**it_Coll).m_triggerRates.end(), persCont->m_triggerRates.begin()+triggerRateIndex);                
+    triggerRateIndex+=(**it_Coll).m_triggerRates.size();
 
     persCont->m_hasMoreThan2TriggerCand.push_back((**it_Coll).hasMoreThan2TriggerCand());
     
@@ -108,12 +112,13 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
       << "RpcSectorLogicContainerCnv_p1 summary: vector size "
       << persCont->m_slVariables.size() << ", last index used "
       << slVariableIndex
-      << endmsg;
+      << endreq;
 }
 
 void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p1* persCont, RpcSectorLogicContainer* transCont, MsgStream & /**log*/) 
 {
-   transCont->setSectorList (persCont->m_sectorList);
+   transCont->m_sectorList[0] = persCont->m_sectorList[0];
+   transCont->m_sectorList[1] = persCont->m_sectorList[1];
    //std::cout<<"**** RpcSectorLogicContainerCnv_p1::persToTrans"<<std::endl;
    //std::cout<<"m_sectorList[0]: "<<transCont->m_sectorList[0]<<", m_sectorList[1]"<<transCont->m_sectorList[1]<<std::endl;
 
@@ -135,23 +140,22 @@ void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p
                         persCont->m_slVariables[index+3], //m_errorCode
                         persCont->m_slVariables[index+4]);//m_crc
       index+=5; // Fix for coverity defect 17799 - no multiple index++ in the same line.
-      rsl->setHasMoreThan2TriggerCand (persCont->m_hasMoreThan2TriggerCand[indexSL]);
+      rsl->m_hasMoreThan2TriggerCand = persCont->m_hasMoreThan2TriggerCand[indexSL];
       uint16_t numCounters=persCont->m_slVariables[index++];
-      for (uint16_t i : boost::make_iterator_range (persCont->m_slVariables.begin()+index,
-                                                    persCont->m_slVariables.begin()+index + numCounters))
-        rsl->addCounter(i);
+      rsl->m_counters.resize(numCounters);
+      //std::cout<<"numCounters: "<<numCounters<<", index"<<index<<std::endl;
+      std::copy (persCont->m_slVariables.begin()+index, persCont->m_slVariables.begin()+index+numCounters, rsl->m_counters.begin());    
       index+=numCounters;
       
       uint16_t numTriggerRates=persCont->m_slVariables[index++];
+      rsl->m_triggerRates.resize(numTriggerRates);
       //std::cout<<"numTriggerRates: "<<numTriggerRates<<", index"<<index<<", indexTR: "<<indexTR<<std::endl;
       
 //std::cout<<"persCont->m_triggerRates.size(): "<<persCont->m_triggerRates.size()<<std::endl;
           
-      for (double r : boost::make_iterator_range(persCont->m_triggerRates.begin()+indexTR,
-                                                 persCont->m_triggerRates.begin()+indexTR+numTriggerRates))
-        rsl->addTriggerRate (r);
+      std::copy (persCont->m_triggerRates.begin()+indexTR, persCont->m_triggerRates.begin()+indexTR+numTriggerRates, rsl->m_triggerRates.begin()); 
       indexTR+=numTriggerRates;
-      rsl->setHasMoreThan2TriggerCand (persCont->m_hasMoreThan2TriggerCand[indexSL]);
+      rsl->m_hasMoreThan2TriggerCand=persCont->m_hasMoreThan2TriggerCand[indexSL];
       uint16_t numRpcSLTriggerHits = persCont->m_slVariables[index++];   
       //std::cout<<"numRpcSLTriggerHits: "<<numRpcSLTriggerHits<<std::endl; 
       rsl->resize(numRpcSLTriggerHits);  
@@ -166,7 +170,7 @@ void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p
                             persCont->m_slVariables[index+6],//overlapEta
                             persCont->m_slVariables[index+7]);//triggerBcid                            
         index+=8;
-        (*rsl)[th]->setIsInput (static_cast<bool>(persCont->m_slVariables[index++]));
+        (*rsl)[th]->m_isInput = static_cast<bool>(persCont->m_slVariables[index++]);
         //std::cout<<"end th "<<th<<", index="<<index<<std::endl;
       }         
       (*transCont)[indexSL++]=rsl;
