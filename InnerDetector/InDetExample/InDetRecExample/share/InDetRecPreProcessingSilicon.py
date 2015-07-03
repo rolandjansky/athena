@@ -1,3 +1,4 @@
+
 # ------------------------------------------------------------
 #
 # ----------- Data-Preparation stage
@@ -231,6 +232,9 @@ if InDetFlags.doSpacePointFormation():
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                      ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                      ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+   if InDetFlags.doDBM():
+      InDetSiTrackerSpacePointFinder.OverlapLimitEtaMax = 5.0
+      InDetSiTrackerSpacePointFinder.OverlapLimitEtaMin = 0
 
    if InDetFlags.doCosmics():
       InDetSiTrackerSpacePointFinder.ProcessOverlaps      = False

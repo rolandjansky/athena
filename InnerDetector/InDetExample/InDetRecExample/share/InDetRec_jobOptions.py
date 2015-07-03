@@ -1,3 +1,4 @@
+
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
 # -----------------------------------
@@ -68,7 +69,9 @@ else:
     if (not 'InDetNewTrackingCuts' in dir()):
       print "InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now"
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-      if InDetFlags.doVtxLumi():
+      if InDetFlags.doDBM():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
+      elif InDetFlags.doVtxLumi():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
       elif InDetFlags.doCosmics():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
@@ -156,9 +159,11 @@ else:
     # ------------------------------------------------------------
     # --- silicon
     include ("InDetRecExample/InDetRecPreProcessingSilicon.py")
-    include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
+
     # --- TRT, no drift information if cosmics, do not use extrenal phase in any case
-    InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions",False)
+    if not InDetFlags.doDBM():
+      include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
+      InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions",False)
 
     # ------------------------------------------------------------
     #

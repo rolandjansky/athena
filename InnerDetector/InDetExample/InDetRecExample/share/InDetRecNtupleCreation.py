@@ -1,3 +1,4 @@
+
 # --------------------------------------------      
 #
 # --- produce tracking ntuple
@@ -303,52 +304,53 @@ if InDetFlags.doNtupleCreation():
 # --------------------------------------------      
 if InDetFlags.doStandardPlots():
   if len(TrackCollectionKeys) > 0:
+    if not InDetFlags.doDBM():
     #
     # -- track selections 
     #
     # for standard good quality cuts
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    InDetTrackSelectorToolGood = InDet__InDetDetailedTrackSelectorTool(name                 = "InDetDetailedTrackSelectorToolGood",
-                                                                       pTMin                = 0,
-                                                                       d0MaxPreselection    = 10,
-                                                                       IPd0Max              = 2,
-                                                                       IPz0Max              = 10000,
-                                                                       etaMax               = 2.5,
-                                                                       nHitSi               = 7,
-                                                                       nHitBLayer           = 0,
-                                                                       nHitPix              = 0,
-                                                                       nHitTrtHighEFractionMax             = 1,
-                                                                       nHitTrtHighEFractionWithOutliersMax = 1,
-                                                                       useTrackSummaryInfo  = True,
-                                                                       InDetTestBLayerTool  = InDetRecTestBLayerTool,
-                                                                       TrackSummaryTool     = InDetTrackSummaryTool,
-                                                                       Extrapolator         = InDetExtrapolator,
-                                                                       TrtMaxEtaAcceptance  = 1.9)
+      from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+      InDetTrackSelectorToolGood = InDet__InDetDetailedTrackSelectorTool(name                 = "InDetDetailedTrackSelectorToolGood",
+                                                                         pTMin                = 0,
+                                                                         d0MaxPreselection    = 10,
+                                                                         IPd0Max              = 2,
+                                                                         IPz0Max              = 10000,
+                                                                         etaMax               = 2.5,
+                                                                         nHitSi               = 7,
+                                                                         nHitBLayer           = 0,
+                                                                         nHitPix              = 0,
+                                                                         nHitTrtHighEFractionMax             = 1,
+                                                                         nHitTrtHighEFractionWithOutliersMax = 1,
+                                                                         useTrackSummaryInfo  = True,
+                                                                         InDetTestBLayerTool  = InDetRecTestBLayerTool,
+                                                                         TrackSummaryTool     = InDetTrackSummaryTool,
+                                                                         Extrapolator         = InDetExtrapolator,
+                                                                         TrtMaxEtaAcceptance  = 1.9)
 
-    ToolSvc+=InDetTrackSelectorToolGood
-    if (InDetFlags.doPrintConfigurables()):
-      print      InDetTrackSelectorToolGood
+      ToolSvc+=InDetTrackSelectorToolGood
+      if (InDetFlags.doPrintConfigurables()):
+        print      InDetTrackSelectorToolGood
 
     # for track selection as done by b-tagging group
-    InDetTrackSelectorToolBtag = InDet__InDetDetailedTrackSelectorTool(name                 = "InDetDetailedTrackSelectorToolBtag",
-                                                                       pTMin                = 0,
-                                                                       IPd0Max              = 1,
-                                                                       d0MaxPreselection    = 10,
-                                                                       IPz0Max              = 40000,
-                                                                       etaMax               = 2.5,
-                                                                       nHitBLayer           = 1,
-                                                                       nHitPix              = 2,
-                                                                       nHitSi               = 7,
-                                                                       nHitTrtHighEFractionMax             = 1,
-                                                                       nHitTrtHighEFractionWithOutliersMax = 1,
-                                                                       # -- do not give tool ! InDetTestBLayerTool  = InDetRecTestBLayerTool,
-                                                                       TrackSummaryTool     = InDetTrackSummaryTool,
-                                                                       Extrapolator         = InDetExtrapolator,
-                                                                       TrtMaxEtaAcceptance  = 1.9)       
+      InDetTrackSelectorToolBtag = InDet__InDetDetailedTrackSelectorTool(name                 = "InDetDetailedTrackSelectorToolBtag",
+                                                                         pTMin                = 0,
+                                                                         IPd0Max              = 1,
+                                                                         d0MaxPreselection    = 10,
+                                                                         IPz0Max              = 40000,
+                                                                         etaMax               = 2.5,
+                                                                         nHitBLayer           = 1,
+                                                                         nHitPix              = 2,
+                                                                         nHitSi               = 7,
+                                                                         nHitTrtHighEFractionMax             = 1,
+                                                                         nHitTrtHighEFractionWithOutliersMax = 1,
+                                                                         # -- do not give tool ! InDetTestBLayerTool  = InDetRecTestBLayerTool,
+                                                                         TrackSummaryTool     = InDetTrackSummaryTool,
+                                                                         Extrapolator         = InDetExtrapolator,
+                                                                         TrtMaxEtaAcceptance  = 1.9)       
 
-    ToolSvc+=InDetTrackSelectorToolBtag
-    if (InDetFlags.doPrintConfigurables()):
-      print  InDetTrackSelectorToolBtag
+      ToolSvc+=InDetTrackSelectorToolBtag
+      if (InDetFlags.doPrintConfigurables()):
+        print  InDetTrackSelectorToolBtag
 
     # --- add an AthenaMonManager algorithm to the list of algorithms to be ran
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -398,42 +400,43 @@ if InDetFlags.doStandardPlots():
     InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
     
     # selected tracks passing good quality cuts
-    InDetStandardPerformanceGood = InDetStandardPerformance (name                = "InDetStandardPerformanceGood",
-                                                             tracksName          = InDetKeys.UnslimmedTracks(),
-                                                             tracksTruthName     = InDetKeys.UnslimmedTracksTruth(),
-                                                             SummaryTool         = InDetTrackSummaryToolSharedHits,
-                                                             HoleSearch          = InDetHoleSearchTool,
-                                                             useTrackSelection   = True,
-                                                             TrackSelectorTool   = InDetTrackSelectorToolGood,
-                                                             HistDirectoryName   = "SelectedGoodTracks",
-                                                             TruthToTrackTool    = TruthToTrackTool,
-                                                             doUpgrade           = InDetFlags.doSLHC(),
-                                                             DoTruth             = InDetFlags.doTruth())
+    if not InDetFlags.doDBM():
+      InDetStandardPerformanceGood = InDetStandardPerformance (name                = "InDetStandardPerformanceGood",
+                                                               tracksName          = InDetKeys.UnslimmedTracks(),
+                                                               tracksTruthName     = InDetKeys.UnslimmedTracksTruth(),
+                                                               SummaryTool         = InDetTrackSummaryToolSharedHits,
+                                                               HoleSearch          = InDetHoleSearchTool,
+                                                               useTrackSelection   = True,
+                                                               TrackSelectorTool   = InDetTrackSelectorToolGood,
+                                                               HistDirectoryName   = "SelectedGoodTracks",
+                                                               TruthToTrackTool    = TruthToTrackTool,
+                                                               doUpgrade           = InDetFlags.doSLHC(),
+                                                               DoTruth             = InDetFlags.doTruth())
     
-    ToolSvc += InDetStandardPerformanceGood
-    if (InDetFlags.doPrintConfigurables()):
-      print    InDetStandardPerformanceGood
+      ToolSvc += InDetStandardPerformanceGood
+      if (InDetFlags.doPrintConfigurables()):
+        print    InDetStandardPerformanceGood
     
-    InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGood ]
+      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGood ]
 
     # selected tracks passing b-tagging cuts
-    InDetStandardPerformanceBtag = InDetStandardPerformance (name               = "InDetStandardPerformanceBtag",
-                                                             tracksName         = InDetKeys.UnslimmedTracks(),
-                                                             tracksTruthName    = InDetKeys.UnslimmedTracksTruth(),
-                                                             SummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                             HoleSearch         = InDetHoleSearchTool,
-                                                             useTrackSelection  = True,
-                                                             TrackSelectorTool  = InDetTrackSelectorToolBtag,
-                                                             HistDirectoryName  = "SelectedBtagTracks",
-                                                             TruthToTrackTool   = TruthToTrackTool,
-                                                             doUpgrade          = InDetFlags.doSLHC(),
-                                                             DoTruth            = InDetFlags.doTruth())
+      InDetStandardPerformanceBtag = InDetStandardPerformance (name               = "InDetStandardPerformanceBtag",
+                                                               tracksName         = InDetKeys.UnslimmedTracks(),
+                                                               tracksTruthName    = InDetKeys.UnslimmedTracksTruth(),
+                                                               SummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                               HoleSearch         = InDetHoleSearchTool,
+                                                               useTrackSelection  = True,
+                                                               TrackSelectorTool  = InDetTrackSelectorToolBtag,
+                                                               HistDirectoryName  = "SelectedBtagTracks",
+                                                               TruthToTrackTool   = TruthToTrackTool,
+                                                               doUpgrade          = InDetFlags.doSLHC(),
+                                                               DoTruth            = InDetFlags.doTruth())
     
-    ToolSvc += InDetStandardPerformanceBtag
-    if (InDetFlags.doPrintConfigurables()):
-      print    InDetStandardPerformanceBtag
+      ToolSvc += InDetStandardPerformanceBtag
+      if (InDetFlags.doPrintConfigurables()):
+        print    InDetStandardPerformanceBtag
     
-    InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceBtag ]
+      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceBtag ]
 
     # selected Good IPatRec tracks
     if InDetFlags.doiPatRec():

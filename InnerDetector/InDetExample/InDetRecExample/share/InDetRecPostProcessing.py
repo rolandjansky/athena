@@ -99,7 +99,9 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                                               maximumChi2cutForSeeding = 49,
                                                                               maxVertices              = 200,
                                                                               createSplitVertices      = False,
-                                                                              InternalEdmFactory       = InDetVxEdmCnv)
+                                                                              InternalEdmFactory       = InDetVxEdmCnv,
+                                                                              doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                              MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
   ToolSvc += InDetPriVxFinderToolNoBeamConstraint
   if (InDetFlags.doPrintConfigurables()):
     print InDetPriVxFinderToolNoBeamConstraint
@@ -132,7 +134,9 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                                     maximumChi2cutForSeeding = 49,
                                                                     maxVertices              = 25,
                                                                     createSplitVertices      = True,
-                                                                    InternalEdmFactory       = InDetVxEdmCnv)
+                                                                    InternalEdmFactory       = InDetVxEdmCnv,
+                                                                    doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                    MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks())
   ToolSvc += InDetPriVxFinderToolSplit
   if (InDetFlags.doPrintConfigurables()):
     print InDetPriVxFinderToolSplit
@@ -471,3 +475,18 @@ if InDetFlags.doParticleCreation():
 
  if InDetFlags.doPrintConfigurables():
   print InDetVxLinkSetter
+
+if rec.doPhysicsValidationAugmentation() :
+  try:
+     import InDetPhysValMonitoring.InDetPhysValDecoration
+     InDetPhysValMonitoring.InDetPhysValDecoration.addDecoratorIfNeeded()
+  except ImportError:
+     from AthenaCommon.Logging import logging
+     log = logging.getLogger('InDetRecExample/InDetRecPostProcessing.py' )
+     log.info('Package InDetPhysValMonitoring.InDetPhysValDecoration is missing.'\
+              ' So, will not run the decoration. Module should become available in future'\
+              ' versions of InDetPhysValMonitoring')
+     import sys 
+     sys.exit(1)
+     pass
+

@@ -13,168 +13,168 @@ InDetAlignMonReadESD = False
 # NOTE: Include the following BEFORE adding InDetAlignMonManager to topSequence.
 # include('InDetAlignmentMonitoring/InDetAlignmentMonitoring_vertexing.py')
 
-from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMon__TrackSelectionTool
 
-m_alignMonTrackSelectorTool  = []
-m_alignMonTrackSelectionTool = []
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool           #loading the InDetTrackSelectionTool
+from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMon__TrackSelectionTool
+#Here are to load the track selection tool.
+#The alignMonTrackSelectionTool is a custom made trackselection tool that interface the monitoring tools to the track selection and make some 
+#high level cuts (if everything passes, comTime, EventPhase, PrimaryVertex ..)
+#It can call the InDetDetailedTrackSelectorTool or the InDetTrackSelectionTool, that actually make the track selection
+
+m_alignMonTrackSelectorTool     =[]
+m_alignMonTrackSelectionTool    =[]
+
+
 
 if not jobproperties.Beam.beamType()=='cosmics': 
     #
-    # Collisions and single beam running    
+    # Collisions and single beam running
     #
-
-    # Default track selector used by most modules
-    m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name                = "InDetAlignDetailedTrackSelectorTool",
-                                                                             pTMin               = 5000.0, #5 GeV
-                                                                             IPd0Max             = 100000.0, #no cut on d0 yet
-                                                                             IPz0Max             = 150.0, #actual cut is on sin(theta)*z0
-                                                                             nHitBLayer          = 0, #overriding default
-                                                                             nHitPix             = 0, #overriding default
-                                                                             nHitSct             = 0, #overriding default
-                                                                             nHitSi              = 9, #overriding default
-                                                                             nHitTrt             = 15,#overriding default
-                                                                             nSharedSct          = 0, #overriding default
-                                                                             InDetTestBLayerTool = InDetRecTestBLayerTool,
-                                                                             TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                             Extrapolator        = InDetExtrapolator))
-
-    # Alternative track selector used by SivsTRT module which has same cuts as default but with no cuts on TRT hits
-    m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name                = "InDetAlignDetailedTrackSelectorTool_noTRT",
-                                                                             pTMin               = 5000.0, #2 GeV
-                                                                             IPd0Max             = 100000.0, #no cut on d0 yet
-                                                                             IPz0Max             = 150.0, #actual cut is on sin(theta)*z0
-                                                                             nHitBLayer          = 0, #overriding default
-                                                                             nHitPix             = 0, #overriding default
-                                                                             nHitSct             = 0, #overriding default
-                                                                             nHitSi              = 9, #overriding default
-                                                                             nHitTrt             = 0,#overriding default
-                                                                             nSharedSct          = 0, #overriding default
-                                                                             InDetTestBLayerTool = InDetRecTestBLayerTool,
-                                                                             TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                             Extrapolator        = InDetExtrapolator))
-
-
+    # Track selector that implement the Tracking CP supported cuts for Run2 using loosePrimary cut
+    m_alignMonTrackSelectorTool.append(InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionTool_LoosePrimary",
+                                                                         UseTrkTrackTools = True,
+                                                                         minPt = 5000,
+                                                                         maxD0 = 100000,
+                                                                         maxZ0SinTheta = 150,
+                                                                         CutLevel = "LoosePrimary",
+                                                                         TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                         Extrapolator        = InDetExtrapolator))
+                                                                         
+    
+    # Track selector that implement the Tracking CP supported cuts for Run2 using tightPrimary cut
+    m_alignMonTrackSelectorTool.append(InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionTool_NoTRT",
+                                                                         UseTrkTrackTools = True,
+                                                                         minPt = 5000,
+                                                                         maxD0 = 100000,
+                                                                         maxZ0SinTheta = 150,
+                                                                         minNTrtHits = 0,
+                                                                         CutLevel = "LoosePrimary",
+                                                                         TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                         Extrapolator        = InDetExtrapolator))
+    
     if jobproperties.Beam.beamType()=='singlebeam':
-        m_alignMonTrackSelectorTool[0].pTMin   = 0.0
-        m_alignMonTrackSelectorTool[0].IPz0Max = 100000.0
-        m_alignMonTrackSelectorTool[1].pTMin   = 0.0
-        m_alignMonTrackSelectorTool[1].IPz0Max = 100000.0
-
+        m_alignMonTrackSelectorTool[0].minPt   = 0.0
+        m_alignMonTrackSelectorTool[0].maxZ0SinTheta = 100000.0
+        m_alignMonTrackSelectorTool[1].minPt   = 0.0
+        m_alignMonTrackSelectorTool[1].maxZ0SinTheta = 100000.0
+    
+    #Adding the tools to the Tool Service
+        
     ToolSvc += m_alignMonTrackSelectorTool[0]
     ToolSvc += m_alignMonTrackSelectorTool[1]
-
-    if (InDetFlags.doPrintConfigurables()):
-        print m_alignMonTrackSelectorTool[0]
-        print m_alignMonTrackSelectorTool[1]
-
-    m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                = "InDetAlignMonTrackSelectionTool",
-                                                                          #PassAllTracks      = True, ## Uncomment this line to bypass track slection
-                                                                          TrackSelectorTool   = m_alignMonTrackSelectorTool[0]))
     
-    m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                = "InDetAlignMonTrackSelectionTool_noTRT",
-                                                                          #PassAllTracks      = True, ## Uncomment this line to bypass track slection
-                                                                          TrackSelectorTool   = m_alignMonTrackSelectorTool[1]))
     
+    #Here we start creating the custom Track Selection tools.
+    
+    m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary",
+                                                                          #PassAllTracks           = True, ## Uncomment this line to bypass track slection
+                                                                          IDTrackSelectionTool     = m_alignMonTrackSelectorTool[0],
+                                                                          UseIDTrackSelectionTool  = True))
+    
+    m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary_NoTRT",
+                                                                          #PassAllTracks           = True, ## Uncomment this line to bypass track slection
+                                                                          IDTrackSelectionTool     = m_alignMonTrackSelectorTool[1],
+                                                                          UseIDTrackSelectionTool  = True))
+
+    
+    #Adding the TrackSelectionTools to the Tool Service
     ToolSvc += m_alignMonTrackSelectionTool[0]
     ToolSvc += m_alignMonTrackSelectionTool[1]
-    if (InDetFlags.doPrintConfigurables()):
-        print m_alignMonTrackSelectionTool[0]
-        print m_alignMonTrackSelectionTool[1]
-
+        
+    #if (InDetFlags.doPrintConfigurables()):
+    print m_alignMonTrackSelectionTool[0]
+    print m_alignMonTrackSelectionTool[1]
+                
+    #Starting the creation of the monitoring tools
+        
+    
+    
     if not jobproperties.Beam.beamType()=='singlebeam':
+        
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonSivsTRT
         InDetAlignMonSivsTRT_noTrig = IDAlignMonSivsTRT (name                                = "InDetAlignMonSivsTRT_noTrig",
-                                                         trackSelection                      = m_alignMonTrackSelectionTool[1])
+                                                         trackSelection                      = m_alignMonTrackSelectionTool[0])
+
         ToolSvc += InDetAlignMonSivsTRT_noTrig
         if (InDetFlags.doPrintConfigurables()):
             print InDetAlignMonSivsTRT_noTrig
+
 
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
         InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
                                                               extrapolator                   = InDetExtrapolator,
                                                               vxContainerName                = InDetKeys.PrimaryVertices(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
+        
         ToolSvc += InDetAlignMonBeamSpot_noTrig
         if (InDetFlags.doPrintConfigurables()):
             print InDetAlignMonBeamSpot_noTrig
 
-        # Note this is not included in the tool service
+
+        # Note this is not to be included in the tool service
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonNtuple
         InDetAlignMonNtuple = IDAlignMonNtuple (name                                         = "InDetAlignMonNtuple",
                                                 tracksName                                   = InDetKeys.ExtendedTracks(),
                                                 tracksTruthName                              = InDetKeys.ExtendedTracksTruth())
-
-    
+        
 else:
     #
-    # Cosmic running    
+    # Cosmics Running
     #
+    
+    # Original set of selectors
 
     m_trackSelectorToolName          = ["InDetAlignCosmicTrackSelectorTool","InDetAlignCosmicTrackSelector_Half","PixTrackSelectorTool",
                                         "PixUpLowTrackSelectorTool","SCTTrackSelectorTool","SCTUpLowTrackSelectorTool","SiTrackSelectorTool",
                                         "SiUpSiLowTrackSelectorTool","TRTonlyTrackSelectorTool","TRTUpTRTLowTrackSelectorTool"]
-    m_nHitBLayer                     = [ 0, 1,2,1, 0,0, 2,1, 0, 0]
-    m_nHitPix                        = [ 3, 3,5,3, 0,0, 5,3, 0, 0]
-    m_nHitSct                        = [ 8, 8,0,0,14,8,14,8, 0, 0]
-    m_nHitTrt                        = [30,25,0,0, 0,0, 0,0,30,30]
+
+    
+    
+    m_minNInnermostLayerHits         = [ 0, 1,2,1, 0,0, 2,1, 0, 0]
+    m_minNPixelHits                  = [ 3, 3,5,3, 0,0, 5,3, 0, 0]
+    m_minNSctHits                    = [ 8, 8,0,0,14,8,14,8, 0, 0]
+    m_minNTrtHits                    = [30,25,0,0, 0,0, 0,0,30,30]
 
     m_alignMonTrackSelectionToolName = ["InDetAlignMonTrackSelectionTool","InDetAlignMonTrackSelectionTool_Half","PixTrackSelectionTool",
                                         "PixUpLowTrackSelectionTool","SCTTrackSelectionTool","SCTUpLowTrackSelectionTool","SiTrackSelectionTool",
-                                        "SiUpSiLowTrackSelectionTool","TRTonlyTrackSelectionTool","TRTUpTRTLowTrackSelectionTool" ]
+                                        "SiUpSiLowTrackSelectionTool","TRTonlyTrackSelectionTool","TRTUpTRTLowTrackSelectionTool"]
+
+    
     
     for i in range(10):        
-        m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name                = m_trackSelectorToolName[i],
-                                                                                 pTMin               = 1000.0,#1 GeV
-                                                                                 IPd0Max             = 50.0,#no cut on d0 yet
-                                                                                 IPz0Max             = 1200.0,#actual cut is on sin(theta)*z0
-                                                                                 nHitBLayer          = m_nHitBLayer[i], 
-                                                                                 nHitPix             = m_nHitPix[i], 
-                                                                                 nHitSct             = m_nHitSct[i], 
-                                                                                 nHitSi              = 0, 
-                                                                                 nHitTrt             = m_nHitTrt[i], 
-                                                                                 nSharedSct          = 0,
-                                                                                 InDetTestBLayerTool = InDetRecTestBLayerTool,
-                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
-                                                                                 Extrapolator        = InDetExtrapolator))
+        m_alignMonTrackSelectorTool.append(InDet__InDetTrackSelectionTool(name                   = m_trackSelectorToolName[i],
+                                                                          minPt                  = 1000.0,#1 GeV
+                                                                          maxD0                  = 50.0,#no cut on d0 yet
+                                                                          maxZ0SinTheta          = 1200.0,#actual cut is on sin(theta)*z0
+                                                                          minNInnermostLayerHits = m_minNInnermostLayerHits[i], 
+                                                                          minNPixelHits          = m_minNPixelHits[i], 
+                                                                          minNSctHits            = m_minNSctHits[i], 
+                                                                          minNTrtHits            = m_minNTrtHits[i], 
+                                                                          UseTrkTrackTools       = True,
+                                                                          CutLevel               = "LoosePrimary",
+                                                                          TrackSummaryTool       = InDetTrackSummaryTool,
+                                                                          Extrapolator           = InDetExtrapolator))
         ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_alignMonTrackSelectorTool[i]
-
+            
+        
     
+            
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                = m_alignMonTrackSelectionToolName[i],
-                                                                              ## Uncomment this line to bypass track slection
+                                                                              ## Uncomment this line to bypass track selection
                                                                               #PassAllTracks      = True,
                                                                               #DoEventPhaseCut    = True,
-                                                                              TrackSelectorTool   = m_alignMonTrackSelectorTool[i]))
+                                                                              UseIDTrackSelectionTool  = True,
+                                                                              IDTrackSelectionTool     = m_alignMonTrackSelectorTool[i]))
+        
         if jobproperties.Beam.beamType()=='singlebeam':
             m_alignMonTrackSelectionTool[i].PassAllTracks = True
 
         ToolSvc += m_alignMonTrackSelectionTool[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_alignMonTrackSelectionTool[i]
-
-
-#
-# The Truth 
-#
-if InDetAlignMonDoTruth:
-    from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
-    InDetAlignTruthToTrackTool = Trk__TruthToTrack( name         = "InDetAlignTruthToTrackTool",
-                                                    Extrapolator = InDetExtrapolator )
-    ToolSvc += InDetAlignTruthToTrackTool
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignTruthToTrackTool
-        
-    from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonTruthComparison
-    InDetAlignMonTruthComparison = IDAlignMonTruthComparison (name             = "InDetAlignMonTruthComparison",
-                                                              trackSelection   = m_alignMonTrackSelectionTool[1],
-                                                              tracksName       = InDetKeys.ExtendedTracks(),
-                                                              tracksTruthName  = InDetKeys.ExtendedTracksTruth(),
-                                                              TruthToTrackTool = InDetAlignTruthToTrackTool)
-    ToolSvc += InDetAlignMonTruthComparison
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonTruthComparison
+    
 
 #
 # Residuals
