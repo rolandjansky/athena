@@ -1540,7 +1540,10 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                 significanceCutSeeding   = 12,
                                                                 maximumChi2cutForSeeding = 49,
                                                                 maxVertices              = 200,
-                                                                InternalEdmFactory       = InDetVxEdmCnv)
+                                                                InternalEdmFactory       = InDetVxEdmCnv,
+                                                                doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
+                                                                )
 
   elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
     #

@@ -99,7 +99,9 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                                               maximumChi2cutForSeeding = 49,
                                                                               maxVertices              = 200,
                                                                               createSplitVertices      = False,
-                                                                              InternalEdmFactory       = InDetVxEdmCnv)
+                                                                              InternalEdmFactory       = InDetVxEdmCnv,
+                                                                              doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                              MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
   ToolSvc += InDetPriVxFinderToolNoBeamConstraint
   if (InDetFlags.doPrintConfigurables()):
     print InDetPriVxFinderToolNoBeamConstraint
@@ -132,7 +134,9 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                                     maximumChi2cutForSeeding = 49,
                                                                     maxVertices              = 25,
                                                                     createSplitVertices      = True,
-                                                                    InternalEdmFactory       = InDetVxEdmCnv)
+                                                                    InternalEdmFactory       = InDetVxEdmCnv,
+                                                                    doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
+                                                                    MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks())
   ToolSvc += InDetPriVxFinderToolSplit
   if (InDetFlags.doPrintConfigurables()):
     print InDetPriVxFinderToolSplit

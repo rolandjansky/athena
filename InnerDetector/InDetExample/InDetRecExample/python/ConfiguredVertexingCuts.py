@@ -72,7 +72,10 @@ class ConfiguredVertexingCuts :
    
 #cuts ONLY relevant to InDetPriVxFinder + Full or Fast or similar
    self.__chi2CutMethod             = 2
-   self.__enableMultipleVertices    = True      
+   self.__enableMultipleVertices    = True  
+
+   self.__doMaxTracksCut = False
+   self.__MaxTracks = 5000 #Not applied  anyway if above false
       
 #-----------------------------------------------------------------------
 #End of the default track pre-selection block
@@ -122,6 +125,12 @@ class ConfiguredVertexingCuts :
 
    if (self.__indetflags.doMinBias()):
      self.__minPT   = 100. * Units.MeV
+
+   if not (self.__indetflags.useBeamConstraint()) and not (mode == "HeavyIon") and not (mode == "SLHC"):
+     # Cut on multiplicity for IterativeFinder if no beamspot constraint, to avoid timeouts
+     self.__doMaxTracksCut = True
+     self.__MaxTracks = 3000
+     
        
 #--------------"Hight PileUp mode, setup for 2012 ?"---------------------
 #  Same Pt cut of 400, higher requirements for the track quality
@@ -281,6 +290,12 @@ class ConfiguredVertexingCuts :
 
   def  enableMultipleVertices(self): 
    return self.__enableMultipleVertices
+
+  def  doMaxTracksCut(self):
+    return self.__doMaxTracksCut
+     
+  def MaxTracks(self):
+    return self.__MaxTracks
 
 #-------------------------------------------------------------------------
 #  Print method dumping the summary of the current cut configuration
