@@ -5,24 +5,19 @@
 #ifndef MUONCOINDATADICT_H
 #define MUONCOINDATADICT_H
 
-#include "MuonTrigCoinData/MuonCoinDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
+#include "MuonTrigCoinData/MuonCoinDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonTrigCoinData/RpcCoinData.h"
-#include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
 namespace tmpMuonTrigCoinData
 {
   struct tmp 
   {
-    DataVector<Muon::TgcCoinData> tmpDV1Tgc;
-    DataVector<Muon::RpcCoinData> tmpDV1Rpc;
+    DataVector<Muon::TgcCoinData> tmpDV1;
     Muon::TgcCoinDataContainer tmpCont1;
     
-    DataVector<Muon::MuonCoinDataCollection<Muon::TgcCoinData> >    dummy1Tgc;
-    std::vector<Muon::MuonCoinDataCollection<Muon::TgcCoinData>* >  dummy2Tgc;
-    DataVector<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >    dummy1Rpc;
-    std::vector<Muon::MuonCoinDataCollection<Muon::RpcCoinData>* >  dummy2Rpc;
+    DataVector<Muon::MuonCoinDataCollection<Muon::TgcCoinData> >    dummy1;
+    std::vector<Muon::MuonCoinDataCollection<Muon::TgcCoinData>* >  dummy2;
   };
 }
 

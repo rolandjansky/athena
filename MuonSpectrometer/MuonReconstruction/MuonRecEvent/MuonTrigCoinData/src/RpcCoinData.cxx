@@ -70,41 +70,12 @@ RpcCoinData::RpcCoinData(const RpcCoinData& RIO):
     m_lowPtCm( RIO.m_lowPtCm )
 { }
 
-//move constructor:
-RpcCoinData::RpcCoinData(RpcCoinData&& RIO):
-    RpcPrepData(std::move(RIO)), 
-    m_ijk( RIO.m_ijk ),
-    m_threshold( RIO.m_threshold ),
-    m_overlap( RIO.m_overlap ),
-    m_parentCmId( RIO.m_parentCmId ),
-    m_parentPadId( RIO.m_parentPadId ), 
-    m_parentSectorId( RIO.m_parentSectorId ),
-    m_lowPtCm( RIO.m_lowPtCm )
-{ }
-
 //assignment operator
 RpcCoinData& RpcCoinData::operator=(const RpcCoinData& RIO)
 {
   if(&RIO !=this)
     {
       RpcPrepData::operator=(RIO);
-      m_ijk            = RIO.m_ijk;
-      m_threshold      = RIO.m_threshold;
-      m_overlap        = RIO.m_overlap;
-      m_parentCmId     = RIO.m_parentCmId;
-      m_parentPadId    = RIO.m_parentPadId; 
-      m_parentSectorId = RIO.m_parentSectorId;
-      m_lowPtCm        = RIO.m_lowPtCm;
-    }
-  return *this;
-}
-
-//move operator
-RpcCoinData& RpcCoinData::operator=(RpcCoinData&& RIO)
-{
-  if(&RIO !=this)
-    {
-      RpcPrepData::operator=(std::move(RIO));
       m_ijk            = RIO.m_ijk;
       m_threshold      = RIO.m_threshold;
       m_overlap        = RIO.m_overlap;
@@ -132,7 +103,7 @@ MsgStream& RpcCoinData::dump( MsgStream&    stream) const
   stream<<"parentSectorId       = "<<this->parentSectorId()<<", ";
   stream<<"lowPtCm              = "<<this->isLowPtCoin()<<", ";
   stream<<"lowPtInputToHighPtCm = "<<this->isLowPtInputToHighPtCm()<<", ";
-  stream<<"}"<<endmsg;
+  stream<<"}"<<endreq;
   
   return stream;
 }
