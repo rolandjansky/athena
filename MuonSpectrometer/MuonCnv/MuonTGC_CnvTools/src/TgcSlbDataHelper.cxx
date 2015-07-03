@@ -439,7 +439,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       uint16_t hitId[N_HPT_E];
       uint16_t sub[N_HPT_E];
       int16_t deltaHPT[N_HPT_E];
-      uint16_t tile[N_HPT_E];
+      uint16_t inner[N_HPT_E];
 
       size_t numberOfHit;
       if(forward) {
@@ -512,7 +512,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     hitId[i],
 			     sub[i],
 			     deltaHPT[i],
-                             tile[i]);
+                             inner[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
 	  if(m_debug) {
