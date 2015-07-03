@@ -24,6 +24,11 @@
 #include "tauEvent/TauJet.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
+
+#include "GaudiKernel/ToolHandle.h"
+#include "TrigTauEmulation/ILevel1EmulationTool.h"
+#include "TrigTauEmulation/IHltEmulationTool.h"
+
 // Forward declarations
 class StatusCode;
 
@@ -94,12 +99,15 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
   StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
+  StatusCode RealZTauTauEfficiency(const std::string & trigItem);
+
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
   StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
   void testL1TopoNavigation(const std::string & trigItem);
+  float PrescaleRetrieval(const std::string & trigItem, const std::string & level);
   bool Selection(const xAOD::TauJet *aTau);
   bool Selection(const xAOD::EmTauRoI *aTau);
   int m_selection_nTrkMax, m_selection_nTrkMin;
@@ -107,7 +115,7 @@ class HLTTauMonTool : public IHLTMonTool {
   float m_selection_absEtaMax, m_selection_absEtaMin;
   float m_selection_absPhiMax, m_selection_absPhiMin; 
 
-  StatusCode Emulation(const std::string & trigItem, const std::string & level);
+  StatusCode Emulation();
   std::string LowerChain(std::string hlt_item);
   /// Method for managing the histogram divisions
   void divide(TH1 *num, TH1 *den, TH1 *quo);
@@ -136,6 +144,9 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_truth;
   bool m_doTestTracking;
   bool m_emulation;
+  bool m_RealZtautauEff;
+  std::vector<std::string> CutItems;
+  bool m_bootstrap;
 
   unsigned int m_L1flag;
   unsigned int m_Preselectionflag;
@@ -143,9 +154,10 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doIncludeL1deactivateTE;
   bool m_doIncludePreseldeactivateTE;
   bool m_doIncludeHLTdeactivateTE;
+  
 
-
-
+  ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_l1emulationTool;
+  ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
 
 
   ///Name of the trigger items to be monitored.
@@ -155,7 +167,8 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
-
+  std::vector<std::string> m_emulation_l1_tau;
+  std::vector<std::string> m_emulation_hlt_tau;
   std::string m_lowest_singletau;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;
