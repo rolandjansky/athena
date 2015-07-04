@@ -350,27 +350,28 @@ sub parse_config(){
 		$this_test->{'pre_condition'} = ();
 		$this_test->{'pre_command'} = ();
 		$this_test->{'post_command'} = ();
-                $this_test->{'post_test'} = ();
+        $this_test->{'post_test'} = ();
 		$this_test->{'athena_env'} = 'export STAGE_SVCCLASS=atlascerngroupdisk;export STAGE_HOST=castoratlast3';
 		$this_test->{'athena_args'} = UNDEFINED;
 		$this_test->{'athena_cmd'} = 'athena.py -b';
 		$this_test->{'exitmask'} = $default_exitmask;
 		$this_test->{'stdinfile'} = '';
 		$this_test->{'regtest'} = ();
-                $this_test->{'filterlog'} = '';
+        $this_test->{'filterlog'} = '';
 		$this_test->{'compresslog'} = FALSE;
 		$this_test->{'rootcomp'} = FALSE;
 		$this_test->{'rootcomp_cmd'} = "";
 		$this_test->{'rootcomp_file1'} = "";
 		$this_test->{'rootcomp_file2'} = "";
-                $this_test->{'checkcount'} = FALSE;
-                $this_test->{'checkcount_file'} = "";
-                $this_test->{'checkcount_tolerance'} = 1;
-                $this_test->{'checkcount_level'} = "BOTH";
-                $this_test->{'checkmerge'} = FALSE;
-                $this_test->{'checkmerge_file'} = "";
-                $this_test->{'checkmerge_tolerance'} = 1;
-                $this_test->{'emdcheck'} = ();
+        $this_test->{'checkcount'} = FALSE;
+        $this_test->{'checkcount_file'} = "";
+        $this_test->{'checkcount_tolerance'} = 1;
+        $this_test->{'checkcount_level'} = "BOTH";
+        $this_test->{'checkmerge'} = FALSE;
+        $this_test->{'checkmerge_file'} = "";
+        $this_test->{'checkmerge_reffile'} = "";
+        $this_test->{'checkmerge_tolerance'} = 1;
+        $this_test->{'emdcheck'} = ();
 		$this_test->{'doc'} = "";
 		next;
 	    }
@@ -511,13 +512,15 @@ sub parse_config(){
 	    next;
 	}
 	#check merge
-	if ($line =~ /^checkmerge\s+([^\s]+)\s+([^\s]+)/){
+	if ($line =~ /^checkmerge\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)/){
 	    $this_test->{'checkmerge'} = TRUE;
 	    $this_test->{'checkmerge_file'} = $1;
-            $this_test->{'checkmerge_tolerance'}=$2;
+            $this_test->{'checkmerge_reffile'}= $2;
+            $this_test->{'checkmerge_tolerance'}= $3;
 	    print "$prog debug: config checkmerge >" . ( $_ ? "true" : "false") . "<\n" if ($debug);
 	    print "$prog debug: config checkmerge_file >$1<\n" if ($debug);
-	    print "$prog debug: config checkmerge_tolerance >$2<\n" if ($debug);
+	    print "$prog debug: config checkmerge_reffile >$2<\n" if ($debug);
+	    print "$prog debug: config checkmerge_tolerance >$3<\n" if ($debug);
 	    next;
 	}
         #  check for 3rd argument (L2, EF or BOTH)
@@ -611,6 +614,7 @@ sub print_config(){
 	print "  checkmerge '" . ( $config{$_}->{'checkcount'} ? "true" : "false") . "'\n";
 	print "  checkmerge_file '" . $config{$_}->{'checkcount_file'} . "'\n";
 	print "  checkmerge_tolerance '" . $config{$_}->{'checkcount_tolerance'} . "'\n";
+	print "  checkmerge_reffile '" . $config{$_}->{'checkcount_file'} . "'\n";
 	print "  datafile '" . $config{$_}->{'datafile'} . "'\n";
 	print "  datafilelink '" . $config{$_}->{'datafilelink'} . "'\n";
 	print "  joboptions '" . $config{$_}->{'joboptions'} . "'\n";
@@ -1108,13 +1112,14 @@ sub run_test($){
     if ($config{$id}->{'checkmerge'}){
 	my $checkmerge_file =  $config{$id}->{'checkmerge_file'};
         my $checkmerge_tolerance = $config{$id}->{'checkmerge_tolerance'};
+        my $checkmerge_reffile = $config{$id}->{'checkmerge_reffile'};
         if( $nightly ne "" ) {
            $checkmerge_file  =~ s/latest/$nightly/ ;
 	}
         $checkmerge_file = resolveSymlinks($checkmerge_file);
 	print "$prog: checking trigger histograms for merged system \n";
-        print "=== Running $checkmerge_cmd $checkmerge_tolerance $checkmerge_file  > $checkmergeout 2>&1 \n";
-	my $rc=systemcall("$checkmerge_cmd $checkmerge_tolerance $checkmerge_file  > $checkmergeout 2>&1", TRUE);
+        print "=== Running $checkmerge_cmd $checkmerge_file $checkmerge_reffile $checkmerge_tolerance > $checkmergeout 2>&1 \n";
+	my $rc=systemcall("$checkmerge_cmd $checkmerge_file $checkmerge_reffile $checkmerge_tolerance > $checkmergeout 2>&1", TRUE);
 
  	if ($rc != 0){
 	    print "=== $name WARNING: Errors detected by checkmerge\nSee $checkmergeout for details.\n";
