@@ -218,7 +218,7 @@ def main():
 
 
    # Now import ROOT
-   import PyCintex
+   import cppyy
    from PerfMonAna import PyRootLib
    ROOT = PyRootLib.importRoot( batch=True )
 
