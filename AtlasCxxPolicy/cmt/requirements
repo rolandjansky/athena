@@ -64,10 +64,24 @@ macro_append cppflags                "" \
              applyWerror             " -Werror"
 macro_append cppflags                "" \
              target-gcc              " -fno-var-tracking-assignments "
+macro_append cppflags                "" \
+             target-gcc              " -Wextra -Werror=return-type "
 
 # Enable c++11 for gcc47 (enables target-c11)
 macro_append cppflags  "" \
       target-c11       " -std=c++11 "
+
+# Enable c++14 for gcc49
+macro_append cppflags  "" \
+      target-gcc49       " -std=c++14 "
+
+# Enable the undefined behaviour sanitizer in debug builds of gcc49
+macro_append cppflags  "" \
+      target-gcc49&target-dbg       " -fsanitize=undefined "
+macro_append cpplinkflags "" \ 
+      target-gcc49&target-dbg	    " -fsanitize=undefined " 
+macro_append cmt_installarea_linkopts   "" \ 
+      target-gcc49&target-dbg       " -fsanitize=undefined " 
 
 # Checking.
 # Can't use use_if here, since that makes a private dependency and we need
@@ -230,6 +244,9 @@ macro_append AtlasCxxPolicy_pp_cppflags           "" \
 
 # Add flag to control 64-bit Identifiers
 macro_append AtlasCxxPolicy_pp_cppflags  " -D__IDENTIFIER_64BIT__ " 
+
+# Suppress warnings about ext/hash_map being deprecated.
+macro_append AtlasCxxPolicy_pp_cppflags  " -D_GLIBCXX_PERMIT_BACKWARD_HASH " 
 
 #
 # Generate a C++ macro for providing the package version 
