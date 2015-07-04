@@ -167,13 +167,25 @@ class ByteStreamUnpackGetter(Configured):
                 extr.EFResultKey=""
             else:
                 extr.HLTResultKey=""
- 
+
+            #
+            # Configure DataScouting
+            #
+            from RecExConfig.InputFilePeeker import inputFileSummary
+            if inputFileSummary['bs_metadata']['Stream'].startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
+                for stag in inputFileSummary['stream_tags']:
+                    if (stag['stream_type'] == 'calibration') and (stag['stream_name'].startswith('DataScouting_')):
+                        ds_tag = stag['stream_name'][0:15]
+                        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                        extr.DSResultKeys += [ ds_tag ]
+
         else:            
             #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
             # but the extr alg must run
             extr.L2ResultKey=""
             extr.EFResultKey=""
             extr.HLTResultKey=""
+            extr.DSResultKeys=[]
 
         topSequence += extr
         
@@ -256,15 +268,15 @@ class HLTTriggerResultGetter(Configured):
                 log.debug("the stream found in 'bs_metadata' is "+stream)
                 if "express" in stream:
                     from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
-                    type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_EF")
+                    type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
                     if EDMDetails[type].has_key('collection'):
                         colltype = EDMDetails[type]['collection']
-                        log.info("Adding HLT_EXPRESS_OPI_EF to ESD for stream "+stream)                        
+                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)                        
                         from RecExConfig.ObjKeyStore import objKeyStore
                         objKeyStore.addStreamESD(colltype, key)
                     return True
             else:
-                log.warning("Could not determine stream of bytestream file, not adding HLT_EXPRESS_OPI_EF to ESD.")
+                log.warning("Could not determine stream of bytestream file, not adding HLT_EXPRESS_OPI_HLT to ESD.")
         return False
 
     def configure(self):
@@ -322,7 +334,7 @@ class HLTTriggerResultGetter(Configured):
         #Are we adding operational info objects in ESD?
         added=self._AddOPIToESD()
         if added:
-            log.debug("Operational Info object HLT_EXPRESS_OPI_EF with extra information about express stream prescaling added to the data.")
+            log.debug("Operational Info object HLT_EXPRESS_OPI_HLT with extra information about express stream prescaling added to the data.")
         
 
 
