@@ -197,8 +197,8 @@ public:
       hnull->SetLineColor(kWhite);
       hnull->SetMarkerStyle(0);
       hnull->SetLineStyle(0);
-      hnull->SetLineWidth(1e-5);
-      hnull->SetMarkerSize(1e-5);
+      hnull->SetLineWidth(0);
+      hnull->SetMarkerSize(0);
 
       
       if ( mean ) { 

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: PurityAnalysis.cxx 513250 2012-08-10 14:35:11Z sutt $
+//   $Id: PurityAnalysis.cxx 674692 2015-06-12 12:18:52Z smh $
 
 
 // #include "TrigInDetAnalysisExample/PurityAnalysis.h"
@@ -240,8 +240,8 @@ void PurityAnalysis::finalise() {
 
   mdir->push();
 
-  std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
-  std::map<std::string, TH1F*>::iterator hend=m_histos.end();
+  //std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
+  //std::map<std::string, TH1F*>::iterator hend=m_histos.end();
   //  for ( ; hitr!=hend ; hitr++ ) hitr->second->Write();     
 
   //  std::cout << "DBG >" << eff_pt->Hist()->GetName() << "< DBG" << std::endl;

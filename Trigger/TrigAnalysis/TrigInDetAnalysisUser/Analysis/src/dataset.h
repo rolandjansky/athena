@@ -6,19 +6,22 @@
 //  
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: dataset.h 513250 2012-08-10 14:35:11Z sutt $
+//   $Id: dataset.h 680395 2015-07-04 16:19:10Z sutt $
 
 
 #ifndef __DATASET_H
 #define __DATASET_H
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
+
 #include <dirent.h>
 
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 class dataset : public std::vector<std::string> {
@@ -27,21 +30,48 @@ public:
   
   dataset(const std::string& s) : m_directory(s) {
     std::cout << "dataset::dataset() reading files from " << s << std::endl;
-    DIR *dirp;
-    struct dirent *entry;
-    
-    if( ( dirp = opendir(s.c_str()) ) )  {
-      while( ( entry = readdir(dirp) ) ) {
-	std::string file = entry->d_name;
-	if ( file.find(".root")!=std::string::npos ) { 
-	  push_back( s+"/"+file );
-	  //   std::cout << " read file: " << entry->d_name << std::endl;
-	}
+
+    if ( s.find("root://eos")!=std::string::npos ) { 
+      /// need to open on eos
+      
+      std::string  _cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls "+s+"/";
+      std::system( (_cmd+" > .eosfiles.log").c_str() );
+
+      std::string   cmd = "export EOSFILES=$("+_cmd+")";
+      std::system(  cmd.c_str() );
+
+      std::ifstream infile(".eosfiles.log");
+
+      while( !infile.fail() ) {
+	std::string file;
+	infile >>  file;
+	if ( !infile.fail() ) push_back( s+"/"+file );
       }
-      closedir(dirp);
-    }   
-    std::cout << "dataset::dataset() " << size() << " files in dataset" << std::endl;
-  } 
+
+      //      for ( unsigned i=size() ; i-- ; ) std::cout << at(i) << std::endl;
+
+      /// grrrr, the getenv actually crashes for some reason
+      //      std::string files = std::getenv("EOSFILES");
+      //      std::cout << "files " << files << std::endl;
+
+    }
+    else { 
+      DIR *dirp;
+      struct dirent *entry;
+
+      if( ( dirp = opendir(s.c_str()) ) )  {
+	while( ( entry = readdir(dirp) ) ) {
+	  std::string file = entry->d_name;
+	  if ( file.find(".root")!=std::string::npos ) { 
+	    push_back( s+"/"+file );
+	    //   std::cout << " read file: " << entry->d_name << std::endl;
+	  }
+	}
+	closedir(dirp);
+      }   
+      std::cout << "dataset::dataset() " << size() << " files in dataset" << std::endl;
+    } 
+  }
 
   ~dataset() { } 
 

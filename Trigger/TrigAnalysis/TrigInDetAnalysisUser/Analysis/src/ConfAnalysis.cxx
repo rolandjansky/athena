@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 663185 2015-04-27 10:16:03Z hartj $
+//   $Id: ConfAnalysis.cxx 679168 2015-06-29 21:40:21Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -129,7 +129,6 @@ void ConfAnalysis::initialiseInternal() {
   const double d0resMax  = 5;
 
   // beamspot corrected position
-
   const int    a0Bins = int(100*_binConfig.a0_NScale);
   const double a0Max  = 5;
 
@@ -199,10 +198,13 @@ void ConfAnalysis::initialiseInternal() {
 
   TDirectory* dir = gDirectory;
 
-  //  std::cout << "ConfAnalysis::initialize() Directory " << gDirectory->GetName() << " " << name() << std::endl;
+  std::cout << "ConfAnalysis::initialize() Directory " << gDirectory->GetName() << " " << name() << std::endl;
 
   mdir = new TIDDirectory(name());
   mdir->push();
+
+  std::cout << "ConfAnalysis::initialize() Directory " << gDirectory->GetName() << " " << name() << std::endl;
+
 
   //  TIDDirectory d("histos");
   //  d.push();
@@ -336,8 +338,8 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(    new TH1F( "eta_rec",  "eta_rec",   etaBins,  -tmp_maxEta, tmp_maxEta ) );
   addHistogram(    new TH1F( "phi_rec",  "phi_rec",   phiBins,  -tmp_maxPhi, tmp_maxPhi ) );
   addHistogram(    new TH1F(  "z0_rec",   "z0_rec",     zBins,        -zMax,       zMax ) );
-  addHistogram(    new TH1F(  "d0_rec",   "d0_rec",    d0Bins,       -d0Max,      d0Max ) );
-  addHistogram(    new TH1F(  "a0_rec",   "a0_rec",    a0Bins,       -a0Max,      a0Max ) );
+  addHistogram(    new TH1F(  "d0_rec",   "d0_rec",     d0Bins,       -d0Max,      d0Max ) );
+  addHistogram(    new TH1F(  "a0_rec",   "a0_rec",     a0Bins,       -a0Max,      a0Max ) );
 
   addHistogram2D(  new TH2F( "eta_phi_rec",  "eta_phi_rec", (tmp_maxEta+1)*30  ,  -tmp_maxEta-1, tmp_maxEta+1,   (tmp_maxPhi+1)*30,  -tmp_maxPhi-1, tmp_maxPhi+1 ) );
   addHistogram2D(  new TH2F( "phi_d0_rec",  "phi_d0_rec", (2*tmp_maxPhi+2)*15,  -tmp_maxPhi-1, tmp_maxPhi+1 ,d0Bins+20,       -d0Max+7,      d0Max-7 ));
@@ -586,6 +588,18 @@ void ConfAnalysis::initialiseInternal() {
   rd0resPull.push_back( new Resplot("rd0Pull_vs_ABS_pt", ptnbins, ptbinlims, factor*8*a0resBins,   -5,5));//-wfactor*a0resMax,  wfactor*a0resMax  ) ); 
   
 
+  rd0_vs_phi     = new Resplot( "d0_vs_phi",     20, -M_PI, M_PI, 200, -10, 10 ); 
+  rd0_vs_phi_rec = new Resplot( "d0_vs_phi_rec", 20, -M_PI, M_PI, 200, -10, 10 ); 
+
+
+  /// Roi - track residuals
+
+  rRoi_deta_vs_eta = new Resplot( "rRoi_deta_vs_eta", 20, -2.5, 2.5, 101,  -0.5,  0.5 );
+  rRoi_dphi_vs_eta = new Resplot( "rRoi_dphi_vs_eta", 20, -2.5, 2.5, 101,  -0.5,  0.5 );
+  rRoi_dzed_vs_eta = new Resplot( "rRoi_dzed_vs_eta", 20, -2.5, 2.5, 401, -30.0, 30.0 );
+
+  //  std::cout << "ROI RESPLOTS " <<  rRoi_deta_vs_eta->Name() << " " << rRoi_dphi_vs_eta->Name() << std::endl;
+
 
   // hit occupancies
 
@@ -743,9 +757,42 @@ TF1* FitFWGaussian(TH1D* s, double a, double b) {
 
 
 
+
+
+void fitSin( TH1D* h ) { 
+
+  static TF1* fsin = new TF1( "sinp", "sqrt([0]*[0])*sin([1]-x)" ); // , -M_PI, M_PI );
+
+  fsin->SetParameter(0,1);
+  fsin->SetParameter(1,0);
+
+  fsin->SetLineWidth(1);
+
+  //  h->SetTitle(";track #phi;d_{0} [mm]");
+ 
+  h->Fit( fsin, "", "", -M_PI, M_PI );
+
+  double radius = fsin->GetParameter(0);
+  double phi    = fsin->GetParameter(1);
+  
+  double y = radius*sin(phi);
+  double x = radius*cos(phi);
+  
+  std::cout << h->GetTitle() << " x = " << x << "\ty = " << y << std::endl;
+
+}
+
+
+
+
 /// calculate the efficiencies and write them out with all the histograms 
 
 void ConfAnalysis::finalise() {
+
+
+  gDirectory->pwd();
+
+  std::cout << "confanalysis::finalise() " << name() << " " << m_initialised << std::endl;
 
   if ( !m_initialised ) return;
 
@@ -831,6 +878,16 @@ void ConfAnalysis::finalise() {
 
   for ( unsigned i = 0 ; i<Npurity ; i++ ) hpurity[i]->finalise();
 
+
+  rd0_vs_phi->Finalise(Resplot::FitNull95);
+  fitSin( rd0_vs_phi->Mean() );
+  rd0_vs_phi->Write();
+
+  rd0_vs_phi_rec->Finalise(Resplot::FitNull95);
+  fitSin( rd0_vs_phi_rec->Mean() );
+  rd0_vs_phi_rec->Write();
+  
+
   for ( int i=mres.size() ; i-- ; ) { 
     mres[i]->Finalise(Resplot::FitNull95); 
     mres[i]->Write();
@@ -873,13 +930,31 @@ void ConfAnalysis::finalise() {
     delete hphivsDa0res[ih];
   }  
 
+  /// roi residuals 
+
+  rRoi_deta_vs_eta->Finalise(Resplot::FitNull95);
+  rRoi_dphi_vs_eta->Finalise(Resplot::FitNull95);
+  rRoi_dzed_vs_eta->Finalise(Resplot::FitNull95);
+  
+  rRoi_deta_vs_eta->Write();
+  rRoi_dphi_vs_eta->Write();
+  rRoi_dzed_vs_eta->Write();
+
+  delete  rRoi_deta_vs_eta;
+  delete  rRoi_dphi_vs_eta;
+  delete  rRoi_dzed_vs_eta;
+
+  /// standard residuals
+
+
+
   for ( unsigned i=retares.size() ; i-- ; ) { 
 
 #if 1
     retares[i]->Finalise(Resplot::FitNull95);
     rphires[i]->Finalise(Resplot::FitNull95);
-    rzedres[i]->Finalise(Resplot::FitNull95);
     riptres[i]->Finalise(Resplot::FitNull95);
+    rzedres[i]->Finalise(Resplot::FitNull95);
     //    rptres[i]->Finalise(Resplot::FitBreit);
     //rptres[i]->Finalise(Resplot::FitNull95);
     rd0res[i]->Finalise(Resplot::FitNull95);
@@ -909,12 +984,6 @@ void ConfAnalysis::finalise() {
     rptres[i]->Write();
     rd0res[i]->Write();
 
-    delete retares[i];
-    delete rphires[i];
-    delete rzedres[i];
-    delete riptres[i];
-    delete rptres[i];
-    delete rd0res[i];
 
     retaresPull[i]->Write();
     rphiresPull[i]->Write();
@@ -931,6 +1000,30 @@ void ConfAnalysis::finalise() {
     //   rd0res_95[i]->Write();
     //   rd0res_rms[i]->Write();
   }
+
+
+  TDirectory* td = gDirectory;
+
+  TFile fzed( (name()+"-fzed.root").c_str(), "recreate" );
+  fzed.cd();
+
+  for ( unsigned i=retares.size() ; i-- ; ) { 
+    rzedres[i]->Write();
+  }
+
+  fzed.Close();
+
+  for ( unsigned i=retares.size() ; i-- ; ) { 
+    delete retares[i];
+    delete rphires[i];
+    delete rzedres[i];
+    delete riptres[i];
+    delete rptres[i];
+    delete rd0res[i];
+  }
+
+  td->cd();
+
 
   //ADDED BY JK
   //-----Only one more element in d0 and z0 vectors than eta now
@@ -963,6 +1056,12 @@ extern int NvtxCount;
 
 /// fill all the histograms - matched histograms, efficiencies etc
 
+
+double wrapphi( double phi ) { 
+  if ( phi<-M_PI ) phi += 2*M_PI;
+  if ( phi> M_PI ) phi -= 2*M_PI;
+  return phi;
+} 
 
 
 void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
@@ -1011,6 +1110,22 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
   for ( int i=reftracks.size() ; i-- ; ) { 
 
+    /// fill roi residuals
+
+
+
+
+    if ( groi!=0 ) { 
+      //  std::cout << "ConfAnalysis::Fill() groi " << *groi << std::endl;
+
+      double deta = reftracks[i]->eta() - groi->eta();
+      double dphi = wrapphi( reftracks[i]->phi() - groi->phi() );
+      double dzed = reftracks[i]->z0() - groi->zed();
+      
+      rRoi_deta_vs_eta->Fill( groi->eta(), deta );
+      rRoi_dphi_vs_eta->Fill( groi->eta(), dphi );
+      rRoi_dzed_vs_eta->Fill( groi->eta(), dzed );
+    }
 
     /// kinematics
     double ipTt = 1./(reftracks[i]->pT()/1000.);     
@@ -1019,16 +1134,32 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     double etat = reftracks[i]->eta(); 
     double phit = reftracks[i]->phi(); 
 
-    //    double thetat = 2*std::atan( exp( (-1)*etat ) );
+    double thetat = 2*std::atan( exp( (-1)*etat ) );
 
     /// correct the tracks during creation rather than during the analysis
     ///    double z0t = reftracks[i]->z0()+((std::cos(phit)*m_xBeamReference + std::sin(phit)*m_yBeamReference)/std::tan(thetat));    
     ///    double d0t  = reftracks[i]->a0(); 
     ///    double a0t  = reftracks[i]->a0() + std::sin(phit)*m_xBeamReference - std::cos(phit)*m_yBeamReference; 
 
+    /// BUT we should still allow them to be corrected, but afetr setting with a flag instead
+
     double z0t  = reftracks[i]->z0();
     double d0t  = reftracks[i]->a0() - std::sin(phit)*m_xBeamReference + std::cos(phit)*m_yBeamReference;  
     double a0t  = reftracks[i]->a0();
+
+    //    std::cout << "\na0t " << a0t;
+    //    std::cout << "\txBeamReference " << m_xBeamReference << "\tyBeamReference " << m_yBeamReference << std::endl;  
+    
+    if ( m_xBeamReference!=0 &&  m_yBeamReference!=0 ) { 
+      z0t = reftracks[i]->z0()+((std::cos(phit)*m_xBeamReference + std::sin(phit)*m_yBeamReference)/std::tan(thetat));    
+      d0t  = reftracks[i]->a0(); 
+      a0t  = reftracks[i]->a0() + std::sin(phit)*m_xBeamReference - std::cos(phit)*m_yBeamReference; 
+    }
+
+    //    std::cout << "a0t " << a0t << std::endl;;
+
+    
+    
 
     static bool rfirst = true;
     if ( rfirst ) { 
@@ -1086,6 +1217,8 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     h2->Fill( phit, d0t );
     h2a0->Fill( phit, a0t );
 
+    rd0_vs_phi->Fill( phit, a0t );
+
     const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
 
     //    std::cout << "\t\tConfAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
@@ -1136,7 +1269,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       double etar = matchedreco->eta();
       double phir = matchedreco->phi();
       //double z0r  = matchedreco->z0() + std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest; ; 
-      //double thetar = 2*std::atan( exp( (-1)*etar) );
+      double thetar = 2*std::atan( exp( (-1)*etar) );
 
       //      double z0r    = matchedreco->z0()+((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));    
       //      double d0r  = matchedreco->a0(); 
@@ -1147,11 +1280,28 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 	std::cout << "beamline " << m_xBeamTest << " " << m_yBeamTest << " (test)" << std::endl;
 	tfirst = false;
       }
+
+      double d0r  = 0;
+      double a0r  = 0;
+      double z0r  = 0;
+      
+      d0r  = matchedreco->a0()  - sin(phir)*m_xBeamTest + cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position 
+      a0r  = matchedreco->a0();
+      z0r  = matchedreco->z0();
       
 
-      double z0r  = matchedreco->z0();
-      double d0r  = matchedreco->a0()  - sin(phir)*m_xBeamTest + cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position 
-      double a0r  = matchedreco->a0();
+      if ( m_xBeamTest!=0 && m_yBeamTest!=0 ) { 
+	d0r  = matchedreco->a0(); 
+
+	//	std::cout << "cock " << a0r;
+
+	a0r  = matchedreco->a0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
+
+	//	std::cout << " -> " << a0r << std::endl;
+
+	z0r  = matchedreco->z0()+((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));    
+      }
+
 
       double nsctr = matchedreco->sctHits(); 
       double npixr = matchedreco->pixelHits(); 
@@ -1185,6 +1335,9 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
 
       if ( h2m ) h2m->Fill( phit, d0t );
+
+
+      rd0_vs_phi_rec->Fill( phir, a0r );
 
 
       /// fill them all the resplots from a loop ...

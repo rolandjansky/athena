@@ -46,7 +46,7 @@ void CopyDir(TDirectory *source, bool mkdirFlag) {
 	if ( (std::string(dirname).find("Fast") !=std::string::npos)) printf ("Found Fast"); 
 	if ( (std::string(dirname).find("vs") !=std::string::npos)) printf ("Found vs"); 
 
-	if ( (std::string(dirname).find("EF") !=std::string::npos)   || (std::string(dirname).find("L2")!=std::string::npos) || (std::string(dirname).find("Fast")!=std::string::npos)  || (std::string(dirname).find("vs")!=std::string::npos)   ) {
+	if ( (std::string(dirname).find("EF") !=std::string::npos)   || (std::string(dirname).find("L2")!=std::string::npos) || (std::string(dirname).find("HLT")!=std::string::npos) || (std::string(dirname).find("Fast")!=std::string::npos)  || (std::string(dirname).find("vs")!=std::string::npos)   ) {
  	// if ( std::string(dirname).find("slices") !=std::string::npos   || std::string(dirname).find("roi")!=std::string::npos  ) {
          printf("Directory OK will be copied: %s\n",dirname);	
          source->cd(key->GetName());

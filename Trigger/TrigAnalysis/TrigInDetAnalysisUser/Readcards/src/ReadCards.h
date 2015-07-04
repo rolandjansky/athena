@@ -75,6 +75,7 @@ public:
 
   string GetValueString(unsigned i) const  { 
     if ( i<mValues.size() ) return mValues[i].Tag();
+    else return string("");
   }
 
 
@@ -188,7 +189,7 @@ private:
   std::string  mFileName;
 
   ifstream mFile;
-  int      mPos;
+  //int      mPos;
 
   std::string    mString;
 

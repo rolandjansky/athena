@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 623908 2014-10-24 14:25:15Z smh $
+//   $Id: ConfAnalysis.h 679168 2015-06-29 21:40:21Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -234,7 +234,7 @@ private:
 
   std::map<int, int> rmap;
 
-  TH1F* hchi2;
+  //TH1F* hchi2;
 
   Efficiency* eff_vs_mult;
 
@@ -247,9 +247,16 @@ private:
   TH1F*       mu;
   Efficiency* eff_vs_mu;
 
+  /// beam spot dependent
+
+  Resplot* rd0_vs_phi;
+  Resplot* rd0_vs_phi_rec;
+
   /// Residuals 
   
-
+  Resplot* rRoi_deta_vs_eta;
+  Resplot* rRoi_dphi_vs_eta;
+  Resplot* rRoi_dzed_vs_eta;
 
   /// flag to print out the matched tracks etc
   bool m_print;
