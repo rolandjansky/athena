@@ -178,7 +178,7 @@ class ByteStreamUnpackGetter(Configured):
                         ds_tag = stag['stream_name'][0:15]
                         ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
                         extr.DSResultKeys += [ ds_tag ]
- 
+
         else:            
             #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
             # but the extr alg must run
@@ -268,15 +268,15 @@ class HLTTriggerResultGetter(Configured):
                 log.debug("the stream found in 'bs_metadata' is "+stream)
                 if "express" in stream:
                     from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
-                    type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_EF")
+                    type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
                     if EDMDetails[type].has_key('collection'):
                         colltype = EDMDetails[type]['collection']
-                        log.info("Adding HLT_EXPRESS_OPI_EF to ESD for stream "+stream)                        
+                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)                        
                         from RecExConfig.ObjKeyStore import objKeyStore
                         objKeyStore.addStreamESD(colltype, key)
                     return True
             else:
-                log.warning("Could not determine stream of bytestream file, not adding HLT_EXPRESS_OPI_EF to ESD.")
+                log.warning("Could not determine stream of bytestream file, not adding HLT_EXPRESS_OPI_HLT to ESD.")
         return False
 
     def configure(self):
@@ -334,7 +334,7 @@ class HLTTriggerResultGetter(Configured):
         #Are we adding operational info objects in ESD?
         added=self._AddOPIToESD()
         if added:
-            log.debug("Operational Info object HLT_EXPRESS_OPI_EF with extra information about express stream prescaling added to the data.")
+            log.debug("Operational Info object HLT_EXPRESS_OPI_HLT with extra information about express stream prescaling added to the data.")
         
 
 
