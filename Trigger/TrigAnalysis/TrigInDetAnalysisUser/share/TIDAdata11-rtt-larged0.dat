@@ -109,6 +109,8 @@ testChains = {
     "HLT_mu24_idperf:TrigFastTrackFinder_Muon",
     "HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID",
     "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
+    "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
     "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:1",
@@ -118,6 +120,8 @@ testChains = {
     "HLT_mu6_idperf:TrigFastTrackFinder_Muon",
     "HLT_mu6_idperf:InDetTrigParticleCreation_Muon_EFID",
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
+    "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+    "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 
     "HLT_tau29_idperf_track:TrigFastTrackFinder_Tau",
     "HLT_tau29_idperf_track:TrigFastTrackFinder_Tau_IDTrig",

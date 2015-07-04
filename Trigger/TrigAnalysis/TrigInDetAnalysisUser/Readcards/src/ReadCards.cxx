@@ -109,19 +109,43 @@ void ReadCards::clean() {
     //    cout << ">> " << line << endl;
 
     if ( (pos=line.find("//")) != std::string::npos ) {
-      std::string tmpline = chop(line,"//");
-      //      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
-      //     size_t n = count( tmpline, "\""); 
-      //  if ( n%2==0 ) 
-      line = tmpline;
+
+      int quotecount = 0;
+
+      for ( unsigned iq=0 ; iq<pos ; iq++ ) { 
+	if      ( line[iq]=='\"' ) quotecount++;
+	else if ( line[iq]=='"' )  quotecount++;
+      } 
+
+      //      std::cout << "quotecount " << quotecount << std::endl;
+      
+      if ( quotecount%2==0 ) { 
+	std::string tmpline = chop(line,"//");
+	//      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
+	//     size_t n = count( tmpline, "\""); 
+	//  if ( n%2==0 ) 
+	line = tmpline;
+      }
     }
 
     if ( (pos=line.find("#")) != std::string::npos ) {
-      std::string tmpline = chop(line,"#");
-      //  size_t n = count( tmpline, "\"");
-      //      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
-      // if ( n%2==0 ) 
-      line = tmpline;
+
+      int quotecount = 0;
+
+      for ( unsigned iq=0 ; iq<pos ; iq++ ) { 
+	if      ( line[iq]=='\"' ) quotecount++;
+	else if ( line[iq]=='"' )  quotecount++;
+      } 
+
+      //      std::cout << "quotecount " << quotecount << std::endl;
+
+      if ( quotecount%2==0 ) { 
+	std::string tmpline = chop(line,"#");
+	//  size_t n = count( tmpline, "\"");
+	//      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
+	// if ( n%2==0 ) 
+	line = tmpline;
+      }
     }
 
     // removespace(line);
@@ -224,7 +248,7 @@ void ReadCards::parse()
     if ( ket.size()>1 ) error("syntax error after brace : " + input);  
     if ( bra.size()!=ket.size() )  error("mismatched braces :" + input);
 
-    int nargs;
+    int nargs = 0;
 
     while ( line.size() ) {
       // get rid of spaces at either end of line
@@ -283,8 +307,11 @@ void ReadCards::parse()
     if ( bra.size()==0 && values.size()>1 ) error("missing braces : " + input);
 
     // missing value
-    if ( values.size()==0 ) error("tag with no value : " + input);
-  
+    if ( values.size()==0 ) { 
+      std::cout << "\nmString " << mString << std::endl;  
+      error("tag with no value : " + input);
+    }  
+
     // add the tag, value pairing
 
     AddTag(tagname,values);

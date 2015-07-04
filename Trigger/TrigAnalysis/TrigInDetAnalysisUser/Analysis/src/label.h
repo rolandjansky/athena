@@ -12,36 +12,37 @@
 #ifndef  LABEL_H
 #define  LABEL_H
 
+#include <cstdio>
 #include <iostream>
 
 
 inline std::string label( const std::string& format, int i ) { 
   char c[256];
-  sprintf( c, format.c_str(), i );
+  std::sprintf( c, format.c_str(), i );
   return c;
 }
 
 inline std::string label( const std::string& format, int i, int j ) { 
   char c[256];
-  sprintf( c, format.c_str(), i, j );
+  std::sprintf( c, format.c_str(), i, j );
   return c;
 }
 
 inline std::string label( const std::string& format, double d ) { 
   char c[256];
-  sprintf( c, format.c_str(), d );
+  std::sprintf( c, format.c_str(), d );
   return c;
 }
 
 inline std::string label( const std::string& format, double d, double e ) { 
   char c[256];
-  sprintf( c, format.c_str(), d, e );
+  std::sprintf( c, format.c_str(), d, e );
   return c;
 }
 
 inline std::string label( const std::string& format, double d, double e, int i ) { 
   char c[256];
-  sprintf( c, format.c_str(), d, e, i );
+  std::sprintf( c, format.c_str(), d, e, i );
   return c;
 }
 
@@ -49,7 +50,7 @@ inline std::string label( const std::string& format, double d, double e, int i )
 
 inline std::string label( const std::string& format, const std::string& s ) { 
   char c[256];
-  sprintf( c, format.c_str(), s.c_str());
+  std::sprintf( c, format.c_str(), s.c_str());
   return c;
 }
 

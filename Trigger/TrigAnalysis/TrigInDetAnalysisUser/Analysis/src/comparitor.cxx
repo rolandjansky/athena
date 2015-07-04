@@ -9,7 +9,8 @@
 //   $Id: comparitor.cxx, v0.0   Fri 12 Oct 2012 13:39:05 BST sutt $
 
 
-#include <stdlib.h>
+// #include <stdlib.h>
+#include <cstdio>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h> 
@@ -181,9 +182,11 @@ int main(int argc, char** argv) {
   NeventTest = htestev->GetEntries();
   NeventRef  = hrefev->GetEntries();
 
-  const int Nhistos = 36;
+  const int Nhistos = 39;
   std::string histos[Nhistos] = { 
     "pT",
+    "a0",
+    "a0_rec",
    /// efficiencies
     "pT_eff",       
     "eta_eff", 
@@ -200,6 +203,7 @@ int main(int argc, char** argv) {
     "eta_res", 
     "phi_res", 
     "z0_res",
+    "a0_res",
     /// residuals vs track parameters
     "rd0_vs_pt/sigma",
     "rd0_vs_signed_pt/sigma",
@@ -224,8 +228,12 @@ int main(int argc, char** argv) {
     "ntracks_rec"
   };
   
+  
   std::string histonames[Nhistos] = { 
     "P_{T}",
+    "a0",
+    "a0 rec",
+
     "Efficiency P_{T}", 
     "Efficiency #eta", 
     "Efficiency #phi", 
@@ -241,6 +249,7 @@ int main(int argc, char** argv) {
     "Residual #eta", 
     "Residual #phi", 
     "Residual z0",
+    "Residual a0",
     
     "Residual d vs P_{T}",
     "Residual d vs signed P_{T}",
@@ -265,6 +274,10 @@ int main(int argc, char** argv) {
     "Number of reconstructed tracks"
   }; 
 
+
+
+
+
   const int Nhistos2D = 2;
 
   std::string histos2D[Nhistos2D] = {
@@ -276,6 +289,7 @@ int main(int argc, char** argv) {
     "#phi vs #eta",
     "d_{0} vs #phi",
   };
+
 
 
   //  std::cout << "size of chains " << chains.size() << std::endl;
@@ -413,9 +427,9 @@ int main(int argc, char** argv) {
     if ( contains(histos[i],"vs_eta") )                   xaxis = "Offline #eta"; 
     if ( contains(histos[i],"vs_zed") )                   xaxis = "Offline z_{0} [mm]"; 
     if ( contains(histos[i],"a0" ) && 
-	 contains(histos[i],"vs" )==std::string::npos )                      xaxis = "Offline a_{0} [mm]"; 
+	 !contains(histos[i],"vs" ))                      xaxis = "Offline a_{0} [mm]"; 
     if ( contains(histos[i],"d0") && 
-	 contains(histos[i],"vs" )==std::string::npos)                       xaxis = "Offline d_{0} [mm]"; 
+	 !contains(histos[i],"vs" ))                       xaxis = "Offline d_{0} [mm]"; 
     if ( contains(histos[i],"mu") )                       xaxis = "<#mu>"; 
     if ( contains(histos[i],"vs_ipt") )                   xaxis = "true 1/P_{T} [GeV^{-1}]";
 	 
@@ -507,6 +521,12 @@ int main(int argc, char** argv) {
 	}
       }
       
+      if ( histos[i]=="d0" || histos[i]=="d0_rec" ||
+	   histos[i]=="a0" || histos[i]=="a0_rec" ) { 
+	htest->GetXaxis()->SetRangeUser( -10, 10 ); 
+	href->GetXaxis()->SetRangeUser( -10, 10 ); 
+      }
+
       if ( contains(histos[i],"ntracks") ) {
 	htest->Rebin(10);
         href->Rebin(10);
@@ -575,6 +595,10 @@ int main(int argc, char** argv) {
 	  c1->SetLogx();
 	  uselogx = true;
 	}
+	if(histos[i]=="z0_eff") { 
+	  //	  href->SetMinimum(60);
+	  href->GetXaxis()->SetRangeUser(-200,200);
+	}
 	if(histos[i]=="eff_vs_mu") { 
 	  //	  href->SetMinimum(60);
 	  href->GetXaxis()->SetRangeUser(0,40);
@@ -592,11 +616,12 @@ int main(int argc, char** argv) {
 	    htest->GetXaxis()->SetRangeUser(-3,3);
 	  }
 	}
-	href->SetMinimum(70);
-	href->SetMaximum(105);
-	htest->SetMinimum(70);
-	htest->SetMaximum(105);
+	href->SetMinimum(90);
+	href->SetMaximum(102);
+	htest->SetMinimum(90);
+	htest->SetMaximum(102);
       }
+
 
       if(histos[i]=="pT") { 
 	href->GetXaxis()->SetRangeUser(1,100);
@@ -621,6 +646,12 @@ int main(int argc, char** argv) {
 	//	htest->SetMinimum(0);
       }
 
+
+      if ( contains(href->GetYaxis()->GetTitle(),"z0" ) ||
+	   contains(htest->GetYaxis()->GetTitle(),"z0" ) ){
+	href->SetMaximum(0.6);
+	htest->SetMaximum(0.6);
+      }
 
       std::string c = chains[j];
 
@@ -813,6 +844,9 @@ int main(int argc, char** argv) {
       std::cout << "plots: " << histos[i] << std::endl;
       /// use 1.5 times the actual maximum so room for the key
       plots.Max(1.5); 
+
+      //      if ( contains(histos[i],"z0_vs_") plots.Max(0.6);
+
     }
 
     //    if ( contains(histos[i],"sigma") ) plots.Min(0.3); 
@@ -836,7 +870,7 @@ int main(int argc, char** argv) {
     */
     
     if ( uselogx ) c1->SetLogx(true);
-
+    
 
     if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
       c1->SetLogy(true);
@@ -854,8 +888,13 @@ int main(int argc, char** argv) {
 
     }
 
+    if ( histos[i]=="d0" || histos[i]=="d0_rec" || 
+	 histos[i]=="a0" || histos[i]=="a0_rec" ||
+	 histos[i]=="ntracks_rec" || histos[i]=="ntracks" ) c1->SetLogy(true);
+
 
     if ( plotname!="" ) { 
+      //      plots.back().Print( dir+plotname+tag+".C" );
       plots.back().Print( dir+plotname+tag+".pdf" );
       plots.back().Print( dir+plotname+tag+".png" );
     }    

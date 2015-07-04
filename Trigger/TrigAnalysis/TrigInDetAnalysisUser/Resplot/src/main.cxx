@@ -51,6 +51,9 @@ int main() {
   std::cout << "finalising" << std::endl;
 
   plot1.Finalise(Resplot::FitNull95);
+
+  std::cout << __LINE__ << std::endl;
+
   plot2.Finalise(Resplot::FitGaussian);
   
   plot1.Write();
