@@ -156,48 +156,6 @@ class HLTSimulationGetter(Configured):
             from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
             FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=INFO)
             topSequence += FTKMerger
-        
-        ## if TriggerFlags.doLVL2():
-        ##     log.info("configuring LVL2")
-        ##     from TrigSteering.TrigSteeringConfig import TrigSteer_L2, ReruningTrigSteer_L2
-        ##     if TriggerFlags.doFEX():
-        ##         log.info("configuring LVL2 for normal running (FEX + Hypo)")
-        ##         TrigSteer_L2 = TrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-        ##         TrigSteer_L2.doHypo = TriggerFlags.doHypo()
-        ##         
-        ##     if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
-        ##         log.info("configuring LVL2 for re-running (Hypo only)")
-        ##         TrigSteer_L2 = ReruningTrigSteer_L2('TrigSteer_L2', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-        ## 
-        ##         #            if not TriggerFlags.writeBS():
-        ##     from TrigEDMConfig.TriggerEDM import getL2PreregistrationList, getEDMLibraries
-        ##     TrigSteer_L2.Navigation.ClassesToPreregister = getL2PreregistrationList()
-        ##             
-        ##     TrigSteer_L2.Navigation.Dlls = getEDMLibraries()
-        ##     
-        ##     monitoringTools(TrigSteer_L2)            
-        ##     topSequence += TrigSteer_L2
-
-        
-        ## if TriggerFlags.doEF():
-        ##     log.info("configuring EF")
-        ##     from TrigSteering.TrigSteeringConfig import TrigSteer_EF,ReruningAfterL2TrigSteer_EF
-        ##     if TriggerFlags.doFEX():            
-        ##         TrigSteer_EF = TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-        ##         TrigSteer_EF.doHypo = TriggerFlags.doHypo()
-        ##         
-        ##     if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
-        ##         TrigSteer_EF = ReruningAfterL2TrigSteer_EF('TrigSteer_EF', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
-        ## 
-        ##     # if not TriggerFlags.writeBS():
-        ##     from TrigEDMConfig.TriggerEDM import getEFPreregistrationList, getEDMLibraries
-        ##     TrigSteer_EF.Navigation.ClassesToPreregister = getEFPreregistrationList()
-        ## 
-        ##     TrigSteer_EF.Navigation.Dlls = getEDMLibraries()
-        ## 
-        ##     monitoringTools(TrigSteer_EF)
-        ##     topSequence += TrigSteer_EF
-
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
@@ -208,13 +166,18 @@ class HLTSimulationGetter(Configured):
                 from AthenaCommon.GlobalFlags  import globalflags
 
                 # schedule the conversion of the L1Calo ROIB data to topo simulation input
-                if globalflags.DataSource()=='data':
-                    if not hasattr( topSequence, 'RoiB2TopoInputDataCnv' ):
-                        log.info("Setting up RoiB2TopoInputDataCnv")
-                        from L1TopoSimulation.L1TopoSimulationConfig import RoiB2TopoInputDataCnv
-                        roib2Topo = RoiB2TopoInputDataCnv()
-                        roib2Topo.OutputLevel = DEBUG # getHLTOutputLevel()
-                        topSequence += roib2Topo
+
+                # this ROIB converter should only be scheduled if
+                # - we run on data
+                # - L1Calo simulation has not been scheduled
+                # - and ROIB converter has not been scheduled yet before
+                if globalflags.DataSource()=='data' \
+                       and not hasattr( topSequence, 'CPCMX' ) \
+                       and not hasattr( topSequence, 'RoiB2TopoInputDataCnv' ):
+                    log.info("Setting up RoiB2TopoInputDataCnv")
+                    from L1TopoSimulation.L1TopoSimulationConfig import RoiB2TopoInputDataCnv
+                    roib2Topo = RoiB2TopoInputDataCnv()
+                    topSequence += roib2Topo
 
                 log.info("configuring HLT merged system, for normal running (FEX + Hypo)")
                 TrigSteer_HLT = TrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
@@ -223,7 +186,6 @@ class HLTSimulationGetter(Configured):
             if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
                 log.info("configuring merged HLT for re-running (Hypo only)")
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
-                #            if not TriggerFlags.writeBS():
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
             TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated

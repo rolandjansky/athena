@@ -171,6 +171,14 @@ class doMergedHLTResult(JobProperty):
 
 _flags.append(doMergedHLTResult)
 
+class doAlwaysUnpackDSResult(JobProperty):
+    """ if False disable decoding of DS results for all files but for real DS files """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doAlwaysUnpackDSResult)
+
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
@@ -845,7 +853,16 @@ class outputL1TopoConfigFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            # triggerMenuSetup contains the prescale mode in many
+            # cases, e.g. MC_pp_v5_tight_mc_prescale. Prescaling is
+            # not available for L1Topo, therefore that part is being
+            # removed.
+            import re
+            menuSetup = TriggerFlags.triggerMenuSetup()
+            m = re.match('(.*v\d).*', menuSetup)
+            if m:
+                menuSetup = m.groups()[0]
+            return "L1Topoconfig_" + menuSetup + "_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
@@ -1031,11 +1048,12 @@ class triggerMenuSetup(JobProperty):
         # Run 2
         'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
         'Physics_pp_v5', # for testing algorithms and software quality during LS1, later for data taking
-        'Physics_pp_v5_cosmics_prescale', 
+        'Physics_pp_v5_cosmics_prescale',
+        'Physics_pp_v5_tight_physics_prescale', 
         'LS1_v1', # for P1 detector commissioning (cosmics, streamers)
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
-        'MC_HI_v3',
+        'MC_HI_v3', 'MC_HI_v3_tight_mc_prescale',
         ]
 
     _default_menu='MC_pp_v5_tight_mc_prescale'
@@ -1108,6 +1126,7 @@ class L1PrescaleSet(JobProperty):
         'L1Prescales100_MC_HI_v1','L1PrescalesNone_MC_HI_v1',
         'L1Prescales100_Physics_HI_v2','L1PrescalesNone_Physics_HI_v2',
         'L1Prescales100_MC_HI_v2','L1PrescalesNone_MC_HI_v2',
+        'tight_physics_prescale',
         ]
     StoredValue = ''
 _flags.append(L1PrescaleSet)
@@ -1155,6 +1174,7 @@ class HLTPrescaleSet(JobProperty):
         'HLTPrescales100_MC_HI_v1','HLTPrescalesNone_MC_HI_v1',
         'HLTPrescales100_Physics_HI_v2','HLTPrescalesNone_Physics_HI_v2',
         'HLTPrescales100_MC_HI_v2','HLTPrescalesNone_MC_HI_v2',
+        'tight_physics_prescale',
         ]
     StoredValue = ''
 _flags.append(HLTPrescaleSet)
