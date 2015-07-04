@@ -394,7 +394,7 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
     return -1;
   }
 
-  //  std::cout << "Resplot::Finalise() " << m_name << std::endl;
+  //  std::cout << "Resplot::Finalise() " << m_name << std::endl;  
 
   clear();
 
@@ -443,11 +443,13 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
 
     TF1* f1 = func(s, a, b); 
 
+
     //    unZeroErrors(s);
 
 
     if ( f1!=NULL ) {
  
+
       f1->SetLineWidth(1);
       f1->SetNpx(5000);
       m_fitname = f1->GetName();
@@ -491,6 +493,7 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
   }
   
 
+
 #endif
 
 
@@ -502,6 +505,8 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
   ZeroErrors(m_h1d);
   TF1* f2 = func(m_h1d, a, b);
  
+
+
   unZeroErrors(m_h1d);
   if ( f2!=NULL ) {
     //    std::cout << "  fit = " << f2 << std::endl;
@@ -1398,8 +1403,6 @@ int findmax(TH1D* s) {
 // TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 
-  //  std::cout << "---------------------------------------\nFN95O frac: " << frac << std::endl;
-
   TF1* f=new TF1("null", "[0]+[1]+[2]");
   
   f->SetParName(0, "Maximum");
@@ -1422,19 +1425,34 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 	    << std::endl;
 #endif
 
-  if  ( generate::GetEntries(s)<20 ) return f;
+
+  if  ( generate::GetEntries(s)<10 ) return f;
+ 
+  //  std::cout << "---------------------------------------\nFN95O frac: " << frac << " " << s << std::endl;
+
+  //  std::cout << __LINE__ << std::endl;
+  
 
   s->GetXaxis()->SetRange(1,s->GetNbinsX());
-  s->GetXaxis()->UnZoom();
 
+  //  std::cout << __LINE__ << " " << s->GetXaxis() << std::endl;
+
+  /// this line causes a crash, even though s->GetXaxis() returns 
+  /// the x axis ok
+  //  s->GetXaxis()->UnZoom();
+
+  //  std::cout << __LINE__ << std::endl;
+  
   //  double m = s->GetMean();
   double m = FindMean(s,frac);
+
+  //  std::cout << __LINE__ << std::endl;
 
   int imax =  s->GetXaxis()->FindBin(m);
 
   //  std::cout << "mean " << m << " " << imax << " max " << s->GetBinCenter(findmax(s)) << " " << findmax(s) << std::endl;
 
-  f->FixParameter(0, s->GetMaximum()); f->SetParError(0, sqrt(s->GetMaximum()));
+  f->FixParameter(0, s->GetMaximum()); f->SetParError(0, std::sqrt(s->GetMaximum()));
   //  f->FixParameter(1, s->GetMean());    f->SetParError(1, s->GetMeanError());
 
   //  double entries = s->GetEntries() + s->GetBinContent(0) + s->GetBinContent(s->GetNbinsX()+1);
@@ -1528,13 +1546,13 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 	rlower  = stats[2];
 	erlower = stats[3];
       }
-      else { 
+      //      else { 
 	rlower  = s->GetRMS();     
 	erlower = s->GetRMSError();    
-      }
+	//   }
 
-      //      std::cout <<  "FitNULL95()  " << s->GetName() << "\t lower rms " << rlower << " +- " << s->GetRMSError() << " (wrong)\t " << stats[2] << " +- " << stats[3] << " (correct)" << std::endl;
-      //      std::cout << s->GetName() << " " << s->GetTitle() << "\t lower 95% rms " << rlower << " +- " << erlower << "\t( " << lowerbin << " - " << upperbin << " )" << std::endl;
+	//      std::cout <<  "FitNULL95()  " << s->GetName() << "\tmean " << m << "\t lower rms " << rlower << " +- " << s->GetRMSError() << " (wrong)\t " << stats[2] << " +- " << stats[3] << " (correct)" << std::endl;
+	//      std::cout << s->GetName() << " " << s->GetTitle() << "\t lower 95% rms " << rlower << " +- " << erlower << "\t( " << lowerbin << " - " << upperbin << " )" << std::endl;
  
       s->GetXaxis()->SetRange(lowerbin-1, upperbin+1);
 
@@ -1547,10 +1565,10 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 	rupper  = stats[2];
 	erupper = stats[3];
       }
-      else { 
+      //      else { 
 	rupper  = s->GetRMS();     
 	erupper = s->GetRMSError();     
-      }
+	//   }
       
       //      std::cout <<  "FitNULL95()  " << s->GetName() << "\t upper rms " << rupper << " +- " << s->GetRMSError() << " (wrong)\t " << stats[2] << " +- " << stats[3] << " (correct)" << std::endl;
 
@@ -1633,7 +1651,8 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 
 
 TF1* Resplot::FitNull95(TH1D* s, double , double  ) {
-  if ( oldrms95 ) return Resplot::FitNull95Obsolete(s); /// use approximate root errors for speed
+  //  if ( oldrms95 ) return Resplot::FitNull95Obsolete(s, 0.95, true ); /// use approximate root errors for speed
+  if ( oldrms95 ) return Resplot::FitNull95Obsolete( s, 0.95 ); /// use approximate root errors for speed
   else            return Resplot::FitNull95New(s);
 } 
 

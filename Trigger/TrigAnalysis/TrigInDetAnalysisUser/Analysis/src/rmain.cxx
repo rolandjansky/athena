@@ -454,23 +454,35 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("BeamTestx") )     beamTest.push_back(inputdata.GetValue("BeamTestx"));
   if ( inputdata.isTagDefined("BeamTesty") )     beamTest.push_back(inputdata.GetValue("BeamTesty"));
-  
-  else {
-    beamTest.push_back(0);    beamTest.push_back(0);
+
+#if 0  
+  if ( beamTest.size()!=2 ) {
+    beamTest.clear();
+    beamTest.push_back(0);
+    beamTest.push_back(0);
   }
+#endif
+
+
   if ( inputdata.isTagDefined("BeamRefx") )    beamRef.push_back(inputdata.GetValue("BeamRefx"));
   if ( inputdata.isTagDefined("BeamRefy") )    beamRef.push_back(inputdata.GetValue("BeamRefy"));
-  
-  else {
-    beamRef.push_back(0);    beamRef.push_back(0);
+
+#if 0
+  if ( beamRef.size()!=2 ) {
+    beamRef.clear();
+    beamRef.push_back(0);
+    beamRef.push_back(0);
   }
+#endif
   
-  
-  if ( beamTest.size()!=2 || beamRef.size()!=2 ) { 
+  if ( ( beamTest.size()!=2 && beamTest.size()!=0 ) || 
+       ( beamRef.size()!=2  && beamRef.size()!=0  ) ) { 
     std::cerr << "incorrectly specified beamline position" << std::endl;
     return (-1);
   }
   
+  std::cout << "beamref " << beamRef << "\tbeamtest " << beamTest << std::endl;
+
   double a0v = 1000;
   double z0v = 2000;
 
@@ -800,17 +812,21 @@ int main(int argc, char** argv)
 
   std::vector<std::string> release_data;
 
+  std::string release_data_save = "";
+
   if ( show_release ){
 
     for ( unsigned i=0 ; i<filenames.size() ; i++ ) {
     
-      TFile finput( filenames[i].c_str() );
-      if (!finput.IsOpen()) {
+      TFile* finput = TFile::Open( filenames[i].c_str() );
+
+
+      if (!finput->IsOpen()) {
 	std::cerr << "Error: could not open input file" << filenames[i] << std::endl;
 	exit(-1);
       }
   
-      TTree*   dataTree    = (TTree*)finput.Get("dataTree");
+      TTree*   dataTree    = (TTree*)finput->Get("dataTree");
       TString* releaseData = new TString("");
       
       if ( dataTree ) { 
@@ -819,18 +835,23 @@ int main(int argc, char** argv)
 	for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
 	  dataTree->GetEntry(i);      
 	  release_data.push_back( releaseData->Data() );
-	  std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+	  if (  release_data_save != release_data.back() ) { 
+	    std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
+	  }
+	  release_data_save = release_data.back();
 	}
       }
-    }      
 
-    for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) std::cout << "presort  " << ird << " " << release_data[ird] << std::endl;
+      if ( finput ) delete finput;
+    }      
+    
+    //    for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) std::cout << "presort  " << ird << " " << release_data[ird] << std::endl;
 
     if ( !release_data.empty() ) { 
       std::sort(release_data.begin(), release_data.end());
       release_data.erase(std::unique(release_data.begin(), release_data.end()), release_data.end());
 
-      for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) std::cout << "postsort " << ird << " " << release_data[ird] << std::endl;
+      //      for ( unsigned ird=0 ; ird<release_data.size() ; ird++ ) std::cout << "postsort " << ird << " " << release_data[ird] << std::endl;
     
       foutdir->cd();
       
@@ -1131,13 +1152,25 @@ int main(int argc, char** argv)
 	//extract beamline position values from rois
 	const std::vector<double>& beamline = chain.rois()[ir].user();
 
+	
 	//set values of track analysis to these so can access elsewhere
 	for ( int i=analyses.size() ; i-- ; ) {
           TrackAnalysis* analy_track = analyses[i];
-          if ( !inputdata.isTagDefined("BeamRef") && beamline.size()>=2) {
-            analy_track->setBeamRef(  beamline[0], beamline[1] );
-            analy_track->setBeamTest( beamline[0], beamline[1] );
+
+	  if ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
+	  else { 
+	    if ( !inputdata.isTagDefined("BeamTest") && beamline.size()>=2) {
+	      analy_track->setBeamTest( beamline[0], beamline[1] );
+	    }
 	  }
+
+	  if ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
+	  else { 
+	    if ( !inputdata.isTagDefined("BeamRef") && beamline.size()>=2) {
+	      analy_track->setBeamRef(  beamline[0], beamline[1] );
+	    }
+	  }
+
 	}
 	
 	testTracks.clear();
@@ -1168,6 +1201,9 @@ int main(int argc, char** argv)
 	//	std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
 	groi = &roi;
+
+
+	foutdir->cd();
 
 	if ( truthMatch ) { 
 	  
@@ -1265,6 +1301,8 @@ int main(int argc, char** argv)
 
  
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
+
+  foutdir->cd();
   
   //  hcorr->Finalise(Resplot::FitPoisson);
 
