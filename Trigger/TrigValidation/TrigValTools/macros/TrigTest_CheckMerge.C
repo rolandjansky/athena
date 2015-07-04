@@ -81,19 +81,26 @@ int n_missAllROSPrefetch = 0;
 int n_missROSPrefetch    = 0;
 
 TString psname="compare_diff.ps";
+TString psROS="checkROS.pdf";
 // aux function
 void readdir(TDirectory *refdir, TDirectory *mergedir, char *refname);
 // aux function
 void configH(TH1* h, Int_t i);
 // function to check the results of the TrigROBDataProviderSvc
 void checkROSAccess(TDirectory *mergedir);
+// function to plot histograms from ROBMonitor
+void checkROBMonitor(TDirectory *mergedir);
 // function to compare histograms from merged and not merged run (tested with Run1 menu)
 void checkMerge(Int_t toler,char *refname);
 
 /// MAIN FUNCTION
 void  TrigTest_CheckMerge(Int_t toler,char *refname){
  TFile* f1 = TFile::Open(refname);
+ if (!c1) c1 = new TCanvas("c1","canvas",100,10,640,720);
+ c1->SaveAs((psROS+"[").Data());// just open the file
  checkROSAccess(f1);
+ checkROBMonitor(f1);
+ c1->SaveAs((psROS+"]").Data());// just close the file
  return;
 }
 ////////////////
@@ -323,60 +330,148 @@ void readdir(TDirectory *refdir, TDirectory *mergedir, char *refname){
 
 
 void checkROSAccess( TDirectory *mergedir){
-  printf("checkROSAccess\n");
+  printf("Executing checkROSAccess\n");
   char ROSdir[]="ROBDataProviderSvc";
-  mergedir->cd(ROSdir);
 
-  //  if (!c1) c1 = new TCanvas("c1","canvas",100,10,640,720);
   
-  if (!c1) c1 = new TCanvas("c1","canvas",10,10,1640,620);
+  if (!c1) c1 = new TCanvas("c1","canvas",10,10,1640,1120);
   c1->Clear();
   c1->Divide(1,1);
-  c1->SetCanvasSize(1600,700);
-  c1->SetBottomMargin(0.7);
-  c1->SetLogy();
-  gStyle->SetOptStat(0);
- //  gROOT->ForceStyle();
+  c1->SetCanvasSize(1600,1100);
+  c1->SetBottomMargin(0.2);
+  c1->SetTopMargin(0.2);
+  c1->SetLeftMargin(0.2);
+  c1->SetRightMargin(0.2);
 
-  TLegend     *myleg = new TLegend(0.1,0.9,0.35,1.);
+  gStyle->SetOptStat(0);
+  //gROOT->ForceStyle();
+
+  TLegend     *myleg = new TLegend(0.1,0.85,0.35,.96);
   myleg->SetBorderSize(0);
   myleg->SetFillColor(0);
-  myleg->SetTextSize(.04);
+  myleg->SetTextSize(.03);
 
-  // c1->cd(1)->SetLogy();
-  TH1F* h1, *h2, *h3;
-  //DeclaredROBsPerAlgo;//
-  //PrefetchedROBsPerAlgo;//
 
+  TH1F* h1, *h2, *h3, *h4, *h5;
+  TH2F* h1_2D;
+
+  //-----------------------------------
+  // retrieve number of events
+  mergedir->cd("TrigSteer_HLT");
+  mergedir->cd("TIMERS");
+  int nevents=TrigSteer_HLT_TotalTime->GetEntries();
+  c1->SaveAs(psROS.Data());
+
+  mergedir->cd();
+  mergedir->cd(ROSdir);
+
+  //-----------------------------------
+  // Monitor ROS requests
+  //  h1_2D=ROSRequests;
+  ROSRequests->GetYaxis()->SetLabelSize(0.02);
+  //  ROSRequests->GetXaxis()->SetLabelSize(0.02);
+  ROSRequests->Draw("COLTEXT");
+  c1->SaveAs(psROS.Data());
+
+  printf("\n");
+
+  int nROS=ROSRequests->GetNbinsY();
+  int nalgo=ROSRequests->GetNbinsX();
+  int ncall=0, ymax=0, maxncall=0;
+  float avgmax=0.;
+  printf("    %-65s      ROS WITH MAX REQUESTS       |  ROS REQUESTS  |  AVG ROS REQ/EVT  |\n","");
+  printf("    %-65s-----------------------------------------------------------------------|\n","");
+  const char* label;
+  const char* label2;
+ 
+  for (int a=1; a<=nalgo; a++){
+    label = ROSRequests->GetXaxis()->GetBinLabel(a);
+    maxncall=0;
+    ymax=0;
+    for (int r=1; r<=nROS; r++){
+      ncall=ROSRequests->GetBinContent(a,r);
+      if (ncall>maxncall){
+	maxncall=ncall;
+	ymax=r;
+      }
+    }
+    for(int algo2=1;algo2<=CallerPerEvent->GetNbinsX(); algo2++){
+      label2=CallerPerEvent->GetXaxis()->GetBinLabel(algo2);
+      if ( string(label2).find(label) != std::string::npos){
+	avgmax= maxncall/CallerPerEvent->GetBinContent(algo2);
+	break;
+      }
+    }
+    printf(" %-65s:    %-30s  |   %-12d |    %-12.1f   |\n", label,  ROSRequests->GetYaxis()->GetBinLabel(ymax), maxncall, avgmax);
+    //    printf("Algo %s sends maximum calls to ROS %s: value=%d\n",ROSRequests->GetXaxis()->GetBinLabel(a), ROSRequests->GetYaxis()->GetBinLabel(ymax), maxncall);
+  }
+    printf("    %-65s-----------------------------------------------------------------------|\n","");
+
+
+  //-----------------------------------
+  c1->SetCanvasSize(1600,800);
+  c1->SetLogy();
+  // Monitor ROBs
   h1= RequestedROBsPerAlgo;
   h1->SetLineColor(1);
   h1->SetFillColor(0);
   h1->SetLineWidth(2.);
-  h1->GetXaxis()->LabelsOption("v");
+  //  h1->GetXaxis()->LabelsOption("v");
   h1->Draw();
   myleg->AddEntry(h1, "All requested ROBs","LEP");
 
   h2= MissingRequestedROBsPerAlgo; 
   h2->SetMarkerColor(2);
-  h2->SetMarkerStyle(21);
+  h2->SetMarkerStyle(20);
   h2->SetMarkerSize(1.5);
   h2->Draw("SAMEP0");
   myleg->AddEntry(h2, "not predeclared ROBs","LEP");
 
+  h4 = MissingRequestedROBsPerAlgoButCached;
+  h4->SetMarkerColor(6);
+  h4->SetMarkerStyle(22);
+  h4->SetMarkerSize(1.5);
+  h4->Draw("SAMEP0");
+  myleg->AddEntry(h4, "not predecalred ROBs, but cached by different algorithm","LEP");
+ 
+  myleg->Draw();
+  c1->SaveAs(psROS.Data());
+
+  //-----------------------------------
+  myleg->Clear();
+  h1= RequestedROBsPerAlgo;
+  h1->SetLineColor(1);
+  h1->SetFillColor(0);
+  h1->SetLineWidth(2.);
+  //  h1->GetXaxis()->LabelsOption("v");
+  h1->Draw();
+  myleg->AddEntry(h1, "All requested ROBs","LEP");
+
   h3 = MissingRequestedROBsPerAlgo_pref;
   h3->SetMarkerColor(4);
-  h3->SetMarkerStyle(22);
+  h3->SetMarkerStyle(21);
   h3->SetMarkerSize(1.5);
   h3->Draw("SAMEP0");
   myleg->AddEntry(h3, "not prefetched ROBs","LEP");
+
+  h5 = MissingRequestedROBsPerAlgoButCached_pref;
+  h5->SetMarkerColor(8);
+  h5->SetMarkerStyle(23);
+  h5->SetMarkerSize(1.5);
+  h5->Draw("SAMEP0");
+  myleg->AddEntry(h5, "not prefecthed ROBs, but cached by different algorithm","LEP");
+ 
+
   myleg->Draw();
+  //  c1->SaveAs("checkROSAccess_prefetch.gif");
+  c1->SaveAs(psROS.Data());
 
-  c1->SaveAs("checkROSAccess.gif");
+  printf("\n *check ROBs Access for %d algorithms* \n", h1->GetNbinsX());
+  
+  printf("    %-65s   ROB   |            DURING EXECUTION       |            DURING PREFETCHING      |\n","");
+  printf("    %-65s   REQ   |  MISS ALL | MISS SOME | MISS CACH |  MISS ALL |  MISS SOME | MISS CACH |\n","");
 
-  printf("checkROSAccess for %d  algorithms: \n", h1->GetNbinsX());
-  printf("    %-65s   REQ   |   MISS     |   MISS    |  MISS     |    MISS    |\n","");
-  printf("    %-65s   ROS   |   ALLEXE   |   EXE     |  ALLPREF  |    PREF    |\n","");
-  printf("    %-65s-----------------------------------------------------------|\n","");
+  printf("    %-65s----------------------------------------------------------------------------------|\n","");
   const char* label;
   for (int i=1; i<h1->GetNbinsX(); i++){
     label = h1->GetXaxis()->GetBinLabel(i);
@@ -384,16 +479,22 @@ void checkROSAccess( TDirectory *mergedir){
     if (h2->GetBinContent(i) != 0 ) {
       if  (h2->GetBinContent(i) ==  h1->GetBinContent(i)) {// all the ROBs are missed
 	missAllROSRequest[n_missAllROSRequest]=label;
-	printf("   %-5d  |           |", h2->GetBinContent(i) );
+	printf("  %-5d  |           |", h2->GetBinContent(i) );
 	n_missAllROSRequest++;
       }
       else {
 	missROSRequest[n_missROSRequest]=label;
-	printf("          |   %-5d   |", h2->GetBinContent(i) );
+	printf("         |   %-5d   |", h2->GetBinContent(i) );
 	n_missROSRequest++;
       }
     }
-    else printf("          |           |");
+    else printf("         |           |");
+    //cached
+    if (h4->GetBinContent(i) != 0 ) 
+      printf("   %-5d   |", h4->GetBinContent(i) );
+    else 
+      printf("           |");
+
 
     if (h3->GetBinContent(i) != 0 ) {
       if  (h3->GetBinContent(i) ==  h1->GetBinContent(i)) {// all the ROBs are missed
@@ -408,9 +509,17 @@ void checkROSAccess( TDirectory *mergedir){
       }
     }
     else printf("           |            |");
+
+    if (h5->GetBinContent(i) != 0 ) 
+      printf("   %-5d   |", h5->GetBinContent(i) );
+    else 
+      printf("           |");
+
+
     printf("\n");
   }
-  printf("    %-65s-----------------------------------------------------------|\n","");
+  printf("    %-65s----------------------------------------------------------------------------------|\n","");
+
 
   printf("\n");
   printf("# algos with missed ROB fragments during the execution:  %d %s \n", n_missROSRequest,     (n_missROSRequest!=0? " --> WARNING":"") );    
@@ -422,6 +531,8 @@ void checkROSAccess( TDirectory *mergedir){
   if (n_missROSRequest || n_missAllROSRequest || n_missROSPrefetch || n_missAllROSPrefetc){
     printf("WARNING Found in TrigTest_CheckMerg.C\n");
   }
+  c1->SetLogy(0);
+
 
 }
 
@@ -445,4 +556,54 @@ void configH(TH1* h, Int_t i){
     stat->SetOptStat(111110);
   }
   gPad->Modified(); gPad->Update(); 
+}
+
+
+
+void checkROBMonitor( TDirectory *mergedir){
+  printf("Executing checkROBMonitor\n");
+  char ROBdir[]="TrigSteer_HLT/TrigROBMoni";
+  mergedir->cd(ROBdir);
+  
+  if (!c1) c1 = new TCanvas("c1","canvas",10,10,1640,720);
+  c1->Clear();
+  c1->Divide(1,1);
+  c1->SetCanvasSize(1600,700);
+  c1->SetBottomMargin(0.4);
+  c1->SetTopMargin(0.2);
+  c1->SetLogy(0);
+  gStyle->SetOptStat(0);
+ //  gROOT->ForceStyle();
+
+  TLegend     *myleg = new TLegend(0.1,0.85,0.35,.96);
+  myleg->SetBorderSize(0);
+  myleg->SetFillColor(0);
+  myleg->SetTextSize(.03);
+
+  // c1->cd(1)->SetLogy();
+  TH2I* h2;
+  TProfile* TProf;
+
+  //  c1->cd(1);
+  TProf=ROBRequestTime_Algo;
+  TProf->SetMarkerStyle(20);
+  TProf->SetMarkerColor(1);
+  TProf->SetMarkerSize(1.);
+  //TProf->Draw();
+
+  //c1->cd(2);
+  TProf=ROBRequestSize_Algo;
+  TProf->SetMarkerStyle(20);
+  TProf->SetMarkerColor(1);
+  TProf->SetMarkerSize(1.);
+  //TProf->Draw();
+
+  h2=ROBHistory_Algo;
+  h2->SetMarkerStyle(20);
+  h2->SetMarkerColor(1);
+  h2->SetMarkerSize(1.);
+  h2->Draw("COLZTEXT");
+  //  c1->SaveAs("checkROBMonitor.gif");
+  c1->SaveAs(psROS.Data());  
+
 }

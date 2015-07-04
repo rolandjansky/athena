@@ -34,18 +34,19 @@
 #include <iostream> 
 #include <iomanip>
 #include <Riostream.h> 
+#include <RVersion.h>
 
-void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
+void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string level)
 {
     Bool_t debug = 0;  
     Int_t ncheck = 0;
-    TString **hnames  = new TString[4];
-    TString **hanames = new TString[4];
-    TString **fnames  = new TString[4];
+    TString *hnames[5];
+    TString *hanames[5];
+    TString *fnames[5];
     Int_t EXT_BNS = 500;
     
-    if(!(TString(level)=="L2"||TString(level)=="EF"||TString(level)=="BOTH"||TString(level)=="HLT")){
-        cout << "checkcounts: ERROR : Invalid trigger level given as input: " << TString(level) << endl;
+    if(!(level=="L2"||level=="EF"||level=="BOTH"||level=="HLT")){
+        cout << "checkcounts: ERROR : Invalid trigger level given as input: " << level << endl;
         cout << "Next time please choose between: L2,EF,HLT and BOTH - goodbye! "<< endl;
         exit(-1);
     }
@@ -56,11 +57,10 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         exit(-1);
     }
     
-    TString *reffile = new TString(refname);
-    cout << "using reference file: " << *reffile << endl;
-    TFile *ref = new TFile(*reffile);
+    cout << "using reference file: " << reffile << endl;
+    TFile *ref = new TFile(reffile.c_str());
     if(ref->IsZombie()){
-        cout << "checkcounts: ERROR : Unable to open reference file: " << *reffile << endl;
+        cout << "checkcounts: ERROR : Unable to open reference file: " << reffile << endl;
         exit(-1);
     }
     
@@ -72,18 +72,18 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
     
     
     ///this is option for possible direct calls of levels
-    if(TString(level)=="L2"||TString(level)=="EF"||TString(level)=="HLT"){
+    if(level=="L2"||level=="EF"||level=="HLT"){
         hnames[0] =new TString("ChainAcceptance");
         // look for alternate names : hanames
         hanames[0]=new TString("SignatureAcceptance_runsummary");
         //hanames[0]=new TString("ChainAcceptance_runsummary");
-        fnames[0] =new TString("TrigSteer_"+TString(level));
+        fnames[0] =new TString("TrigSteer_"+level);
         
         hnames[1] =new TString("NumberOfActiveTEs");
         // look for alternate names : hanames
         hanames[1]=new TString("NumberOfActiveTEsPerEvent");
         //hanames[1]=new TString("NumberOfActiveTEs_runsummary");
-        fnames[1] =new TString("TrigSteer_"+TString(level));
+        fnames[1] =new TString("TrigSteer_"+level);
         ncheck =2;
         
         if(run_l1) {
@@ -95,7 +95,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         cout << "Checking " << level << " trigger counts" << endl;
     }
     
-    if(TString(level)=="BOTH"){   // "BOTH"
+    if(level=="BOTH"){   // "BOTH"
         TDirectory *hlt_dir = rf->GetDirectory("TrigSteer_HLT");
         if(hlt_dir){
             level = "HLT";
@@ -153,7 +153,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
             }
             cout << "Checking L2 and EF trigger counts " << endl;
         }
-    } //end if(TString(level)=="BOTH")
+    } //end if(level=="BOTH")
     
     if(ncheck==0){
         cout << "checkcounts: ERROR : This should never happen some config error involving ncheck and *level - please contact/assign a TrigValTools developer - exiting CheckCounts!" << endl;
@@ -172,38 +172,38 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
     //        TDirectory *l1_dir_cur =  rf->GetDirectory("../CTPSimulation");///L1ItemsAV");
     //        TDirectory *l1_dir_ref = ref->GetDirectory("../CTPSimulation");///L1ItemsAV");
     
-    if(TString(level)=="L2"){ 
-        if(!(l2_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
+    if(level=="L2"){ 
+        if(!(l2_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
         if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
         if(!(l2_dir_ref)||!(l2_dir_cur))  DIRERROR=1;
     }
-    if(TString(level)=="EF"){     
-        if(!(ef_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
+    if(level=="EF"){     
+        if(!(ef_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
         if(!(ef_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_EF " << endl;
         if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
     }
-    if(TString(level)=="HLT"){
-        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: CTPSimulation " << endl; 
-        //            if((l1_dir_cur)) cout << "good reference file: " << *reffile << " : Does  contain the directory: CTPSimulation " << endl; 
-        if(!(hlt_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
+    if(level=="HLT"){
+        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: CTPSimulation " << endl; 
+        //            if((l1_dir_cur)) cout << "good reference file: " << reffile << " : Does  contain the directory: CTPSimulation " << endl; 
+        if(!(hlt_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
         if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
         if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
     }
-    if(TString(level)=="BOTH"){
-        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: CTPSimulation " << endl; 
-        //            if((l1_dir_cur)) cout << "good reference file: " << *reffile << " : Does  contain the directory: CTPSimulation " << endl; 
+    if(level=="BOTH"){
+        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: CTPSimulation " << endl; 
+        //            if((l1_dir_cur)) cout << "good reference file: " << reffile << " : Does  contain the directory: CTPSimulation " << endl; 
         //check for existence of TrigSteer_HLT in either of the 2 files
         if(!(hlt_dir_ref)||!(hlt_dir_cur)){ //not found -> check for L2 and EF TrigSteer_ directories
-            if(!(l2_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
+            if(!(l2_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
             if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
             if(!(l2_dir_ref)||!(l2_dir_cur))  DIRERROR=1;
-            if(!(ef_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
+            if(!(ef_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
             if(!(ef_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_EF " << endl;
             if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
         }
         //check for existence of L2 and EF TrigSteer_ directories in either of the 2 files
         if(!(ef_dir_ref)||!(ef_dir_cur)||!(l2_dir_ref)||!(l2_dir_cur)){ //not found -> check for TrigSteer_HLT dirs
-            if(!(hlt_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
+            if(!(hlt_dir_ref)) cout << "Bad reference file: " << reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
             if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
             if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
         }
@@ -236,8 +236,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         TString *fname = fnames[index];  
         rf->cd(*fname);
         TH1 *tchain;
-        TString *hname;
-        hname  = *hnames[index];
+        TString* hname  = hnames[index];
         if(debug){
             cout << "looking for " << *hname << endl;
         }
@@ -245,7 +244,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         if(tchain==0)
         {
             //look for alternate names
-            hname =  *hanames[index];
+            hname = hanames[index];
             if(debug){
                 cout << "looking for alternate " << *hname << endl;
             }
@@ -266,14 +265,22 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         }
         newbc = new Double_t[nbins+EXT_BNS];
         oldbc = new Double_t[nbins+EXT_BNS];
-        xlabels = new TString[nbins+EXT_BNS];
+        
+        #if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,0)
+        //new code for root 6                                                                                                                                                                             
+        TString* xlabels[nbins+EXT_BNS];
+        #else
+        //old code for root 5                                                                                                                                                                       
+        TString* xlabels= new TString[nbins+EXT_BNS];
+        #endif
+        
         manam = new Bool_t[nbins];
         for(Int_t i=0; i<nbins+EXT_BNS; i++)
         {    
             if(i<nbins)
             {     
                 xlabels[i] = new TString(tchain->GetXaxis()->GetBinLabel(i));
-                while (xlabels[i]->Contains(" ")) xlabels[i]->Chop();
+                while (xlabels[i]->Contains(" ")) xlabels[i]->Chop(); 
                 manam[i]=false;
             }
         }
@@ -312,10 +319,10 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         nrnnew=echist->GetEntries();
         cout << "Number of events processed in test: " << nrnnew << endl;               
         rf->Close();
-        TFile *orf = new TFile(*reffile);
+        TFile *orf = new TFile(reffile.c_str());
         if( orf->IsZombie()){
             cout << "checkcounts test warning: Unable to open reference file" 
-            << *reffile << endl;
+            << reffile << endl;
             exit(-1);
         }
         
@@ -328,13 +335,13 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         if(otchain==0)
         {    
             // look for alternate names
-            *honame = hanames[index];
+            honame = hanames[index];
             if(debug){ cout << "looking for alternate " << *honame << endl; }
             gDirectory->GetObject(*honame,otchain);
             if(otchain==0)
             {
                 cout << "checkcounts test warning : no " << *honame << " in " 
-                << *reffile << endl;      
+                << reffile << endl;      
                 continue;
             }
         }     
@@ -349,7 +356,6 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         {
             Int_t bi = -1;
             TString *obna = new TString(otchain->GetXaxis()->GetBinLabel(i));
-            if( debug ){ cout << i << "reference bin label (before chop): " << *obna << endl; }
             while (obna->Contains(" ")) obna->Chop();
             if( debug ){ cout << i << "reference bin label: " << *obna << endl; }
             for(Int_t si=0; si<nbins+nexlb; si++)
@@ -374,7 +380,6 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
                 }
             }
         }
-        TH1 *echist;
         gDirectory->GetObject("NInitialRoIsPerEvent",echist); 
         if (*fname=="CTPSimulation"){
             const char * olddir ;
@@ -421,7 +426,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
                 "Ref n" << setw(10) << "Test" << setw(15) << "test-ref" << endl;  
                 for(Int_t i=1; i<nbins+nexlb; i++)
                 {
-                    TString *label = xlabels[i];                  
+                    TString *label = xlabels[i];
                     label->Resize(50);
                     Int_t cndif = 0;
                     if(i<nbins)

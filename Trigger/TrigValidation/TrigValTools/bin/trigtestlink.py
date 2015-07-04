@@ -14,7 +14,7 @@ testname = sys.argv[1]
 
 path = os.environ['PATH']
 
-projects = '|'.join(["AtlasP1HLT","AtlasCAFHLT","AtlasTestHLT","AtlasTrigger","AtlasAnalysis","AtlasHLT"])
+projects = '|'.join(["AtlasP1HLT","AtlasCAFHLT","AtlasTestHLT","AtlasTrigger","AtlasAnalysis","AtlasHLT","AtlasProduction"])
 
 for p in path.split(':'):
 
@@ -28,8 +28,12 @@ for p in path.split(':'):
         basename = os.path.basename(dirname)
 
         if basename == "NICOS_area":
+            # pick out the atntest area (only exists for nigthly releases)
             subdirs[:] = [x for x in subdirs if re.match("NICOS_atntest.*",x)]
-            atnarea = subdirs[0]
+            if len(subdirs)>0:
+                atnarea = subdirs[0] # usually the opt build
+            else:
+                atnarea = ""
             continue
 
         if basename == atnarea:
@@ -39,10 +43,15 @@ for p in path.split(':'):
 
         if basename in ["trigp1test_testconfiguration_work", "triggertest_testconfiguration_work", "triganalysistest_testconfiguration_work"]:
             if testname == "-l":
+                conf = { "trigp1test_testconfiguration_work" : "TrigP1Test.conf",
+                         "triggertest_testconfiguration_work" : "TriggerTest",
+                         "triganalysistest_testconfiguration_work" : "TrigAnalysisTest" }[basename]
                 # list all tests
                 print "\n"+basename+":"
                 print len(basename)*"=" + "="
-                print '\n'.join(sorted(subdirs))
+                w = max(len(x) for x in subdirs)
+                for test in sorted(subdirs):
+                    print "%-*s   ==>  trigtest.pl --cleardir --test %s --rundir %s --conf %s.conf" % (w, test,test,test,conf)
                 continue
 
         if basename == testname:
