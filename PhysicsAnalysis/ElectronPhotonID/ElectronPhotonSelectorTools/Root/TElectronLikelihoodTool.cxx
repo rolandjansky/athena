@@ -5,6 +5,7 @@
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include <cmath>
 #include "TSystem.h"
+#include "TROOT.h"
 
 /** 
     Author : Kurt Brendlinger <kurb@sas.upenn.edu>
@@ -71,8 +72,13 @@ Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
       for (unsigned int ip = 0; ip < IP_BINS; ip++){
 	for(unsigned int et = 0; et < fnEtBinsHist; et++){
 	  for(unsigned int eta = 0; eta < fnEtaBins; eta++){
-	    if (fPDFbins[s_or_b][ip][et][eta][varIndex])
+	    // std::cout << "Trying to free varIndex " << varIndex << " s_or_b " << s_or_b
+	    // 	      << " ip " << ip << " et " << et << " eta " << eta << std::endl;
+	    if (fPDFbins[s_or_b][ip][et][eta][varIndex]){
+	      // std::cout << "name: " << fPDFbins[s_or_b][ip][et][eta][varIndex]->GetName() << std::endl;
 	      delete fPDFbins[s_or_b][ip][et][eta][varIndex];
+	      fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
+	    }
 	  }
 	}
       }
@@ -247,32 +253,45 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	      && (vstr.find("TRT") != std::string::npos))
 	    continue;
 	  
+	  char pdfdir[500];
+	  sprintf(pdfdir,"%s/%s",vstr.c_str(),sig_bkg.c_str());
 	  char pdf[500];
-	  sprintf(pdf,"%s/%s/%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),vstr.c_str(),sig_bkg.c_str(),binname);
-	  TH1F* hist = (TH1F*)m_pdfFile->Get(pdf);
+	  sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	  char pdf_newname[500];
+	  sprintf(pdf_newname,"%s_%s_%s_LHtool_copy_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
+
+	  if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())){
+            ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
+            return 1;
+	  }
+	  if (!((TDirectory*)m_pdfFile->Get(vstr.c_str()))->GetListOfKeys()->Contains(sig_bkg.c_str())){
+            ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
+            return 1;
+	  }
 
           // New: if the 0th et bin (4-7 GeV) histogram does not exist in the root file,
           // then just use the 7-10 GeV bin histogram. This should preserve backward compatibility
-          if (et == 0 && !hist) {
+          if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             //std::cout << "Info: using 7 GeV bin in place of 4 GeV bin." << std::endl;
             getBinName( binname, et_tmp+1, eta_tmp, ip, m_ipBinning );
-            sprintf(pdf,"%s/%s/%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),vstr.c_str(),sig_bkg.c_str(),binname);
-            //std::cout << binname << std::endl;
-            hist = (TH1F*)m_pdfFile->Get(pdf);
+            sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+            sprintf(pdf_newname,"%s_%s_%s_LHtool_copy4GeV_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
           }
-          
-	  if (hist) {
-	    std::string histname = hist->GetName();
-	    fPDFbins[s_or_b][ip][et][eta][varIndex] = (TH1F*)hist->Clone(histname.c_str());
+          if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
+	    TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
+	    gROOT->cd(0);
+	    fPDFbins[s_or_b][ip][et][eta][varIndex] = new TH1F();
+	    hist->Copy(*fPDFbins[s_or_b][ip][et][eta][varIndex]);
 	    fPDFbins[s_or_b][ip][et][eta][varIndex]->SetDirectory(0);
-	    int nbins = fPDFbins[s_or_b][ip][et][eta][varIndex]->GetNbinsX();
-	    fPDFIntegrals[s_or_b][ip][et][eta][varIndex] = fPDFbins[s_or_b][ip][et][eta][varIndex]->Integral(1,nbins);
-	  }
-	  else {
-	    ATH_MSG_INFO("Warning: Object " << pdf << " does not exist.");
-	    ATH_MSG_INFO("Skipping all other histograms with this variable.");
-	    return 1;
-	  }
+	    fPDFbins[s_or_b][ip][et][eta][varIndex]->SetName(pdf_newname);
+            int nbins = fPDFbins[s_or_b][ip][et][eta][varIndex]->GetNbinsX();
+            fPDFIntegrals[s_or_b][ip][et][eta][varIndex] = fPDFbins[s_or_b][ip][et][eta][varIndex]->Integral(1,nbins);
+          }
+          else {
+            ATH_MSG_INFO("Warning: Object " << pdf << " does not exist.");
+            ATH_MSG_INFO("Skipping all other histograms with this variable.");
+            return 1;
+          }
 	}
       }
     }  
@@ -631,12 +650,12 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     double disc_loose_ref         ;
     double disc_max                = DiscMaxForPileupTransform;
     double pileup_max              = PileupMaxForPileupTransform;
-
+    
     // default situation, in the case where 4-7 GeV bin is not defined
     if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
       unsigned int etfinebin = getLikelihoodEtDiscBin(et);
       unsigned int ibin_combined = etfinebin*10+etabin;
-
+      
       disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
       disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
       disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
@@ -658,11 +677,15 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     }
     else if(disc <= disc_hard_cut_ref_prime){
       // Between the loose and hard cut reference points for pileup correction
-      disc = disc_loose_ref + (disc - disc_loose_ref) * (disc_hard_cut_ref - disc_loose_ref) / double(disc_hard_cut_ref_prime - disc_loose_ref);
+      double denom = double(disc_hard_cut_ref_prime - disc_loose_ref);
+      if(denom < 0.001) denom = 0.001;
+      disc = disc_loose_ref + (disc - disc_loose_ref) * (disc_hard_cut_ref - disc_loose_ref) / denom;
     }
     else if(disc_hard_cut_ref_prime < disc && disc <= disc_max){
       // Between the hard cut and max reference points for pileup correction
-      disc = disc_hard_cut_ref + (disc - disc_hard_cut_ref_prime) * (disc_max - disc_hard_cut_ref) / double(disc_max - disc_hard_cut_ref_prime);
+      double denom = double(disc_max - disc_hard_cut_ref_prime);
+      if(denom < 0.001) denom = 0.001;
+      disc = disc_hard_cut_ref + (disc - disc_hard_cut_ref_prime) * (disc_max - disc_hard_cut_ref) / denom;
     }
     else{
       // Above threshold where pileup correction necessary
@@ -763,7 +786,6 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
   ATH_MSG_DEBUG("mask: " << mask);
   return mask;
 }
-
 
 
 // These are the variables availalble in the likelihood.

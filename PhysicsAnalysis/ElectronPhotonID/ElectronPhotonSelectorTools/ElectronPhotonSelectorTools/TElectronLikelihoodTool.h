@@ -348,7 +348,7 @@ namespace Root {
       return GetLikelihoodBitmask(vars);
     };
     
-    
+
   public:
     /** @brief cut min on b-layer hits*/
     std::vector<int> CutBL;
