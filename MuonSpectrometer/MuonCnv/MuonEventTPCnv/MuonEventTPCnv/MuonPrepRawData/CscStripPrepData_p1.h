@@ -18,7 +18,9 @@ namespace Muon
     class CscStripPrepData_p1
     {
     public:
-        CscStripPrepData_p1() {}
+        CscStripPrepData_p1()
+         : m_timeOfFirstSample(0.), m_samplingTime(0), m_samplingPhase(0)
+         {}
      // base
         TPObjRef                m_prd;
         IdentifierHash          m_collectionHash;

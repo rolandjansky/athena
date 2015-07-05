@@ -20,7 +20,7 @@ namespace Muon
    class STGC_ClusterOnTrack_p1
    {
   public:
-     STGC_ClusterOnTrack_p1() : m_positionAlongStrip(0.0) {}
+     STGC_ClusterOnTrack_p1() : m_id(0), m_positionAlongStrip(0.0) {}
 
       /** base RIO_OnTrack_p1 info*/
       Identifier32::value_type        m_id;
