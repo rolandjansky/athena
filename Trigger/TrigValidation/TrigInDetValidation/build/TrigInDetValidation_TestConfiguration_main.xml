@@ -61,17 +61,17 @@
 #     include   "TrigInDetValidation_tau_IBL_pu46_run2.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_run2_offline.xml"
 
-#     include   "TrigInDetValidation_mu_single_mu_100_run2.xml"
+<!-- #     include   "TrigInDetValidation_mu_single_mu_100_run2.xml" -->
 #     include   "TrigInDetValidation_mu_single_mu_larged0_run2.xml"
 #     include   "TrigInDetValidation_mu_single_mu_larged0_PU_run2.xml"
-#     include   "TrigInDetValidation_mu_Zmumu_pu40.xml"
-#     include   "TrigInDetValidation_mu_Zmumu_pu40_run2.xml"
+<!-- #     include   "TrigInDetValidation_mu_Zmumu_pu40.xml" -->
+<!-- #     include   "TrigInDetValidation_mu_Zmumu_pu40_run2.xml"--> 
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2_offline.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2_offline_rzMatcher.xml"
 #     include   "TrigInDetValidation_mu_Zmumu_IBL_pu40_run2_rzMatcher.xml"
 
-#     include   "TrigInDetValidation_mu_bphys_run2.xml"
+<!-- #     include   "TrigInDetValidation_mu_bphys_run2.xml" -->
 #     include   "TrigInDetValidation_mu_bphys_IBL_run2.xml"
 
 

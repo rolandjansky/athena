@@ -4,10 +4,10 @@ use_new_tm = useNewTriggerMenu()
 def electronChains(runMergedChain):
 
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        "Electrons",
-                        ]
+  tidaAnalysischains = ["Truth"]
+
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
     idTrigChainlist += [
@@ -54,10 +54,11 @@ def electronChains(runMergedChain):
 
 def muonChains(runMergedChain):
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        "Muons",
-                        ]
+
+  tidaAnalysischains = ["Truth"]
+
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
     idTrigChainlist += [
@@ -86,12 +87,14 @@ def muonChains(runMergedChain):
     if use_new_tm:
       idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
       idTrigChainlist.append(['mu6_idperf',   'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
-      tidaAnalysischains.append('HLT_mu24_idperf:TrigFastTrackFinder_Muon')
-      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID')
-      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
-      tidaAnalysischains.append('HLT_mu6_idperf:TrigFastTrackFinder_Muon')
-      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigParticleCreation_Muon_EFID')
-      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
+#      tidaAnalysischains.append('HLT_mu24_idperf:TrigFastTrackFinder_Muon')
+#      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID')
+      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
+      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+#      tidaAnalysischains.append('HLT_mu6_idperf:TrigFastTrackFinder_Muon')
+#      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigParticleCreation_Muon_EFID')
+      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
+      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
     else:
       idTrigChainlist.append('mu22_IDTrkNoCut_tight_IDT')
       tidaAnalysischains.append('EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon')
@@ -101,10 +104,11 @@ def muonChains(runMergedChain):
 
 def tauChains(runMergedChain):
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        "Taus",
-                        ]
+
+  tidaAnalysischains = ["Truth"]
+
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
     idTrigChainlist += [
@@ -149,9 +153,10 @@ def tauChains(runMergedChain):
 
 def bjetChains(runMergedChain):
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        ]
+
+  tidaAnalysischains = ["Truth"]
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
     idTrigChainlist += [
@@ -182,9 +187,9 @@ def bjetChains(runMergedChain):
 
 def beamspotChains(runMergedChain):
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        ]
+  tidaAnalysischains = ["Truth"]
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
   idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   tidaAnalysischains += [
@@ -195,9 +200,11 @@ def beamspotChains(runMergedChain):
 
 def minBiasChains(runMergedChain):
   idTrigChainlist = []
-  tidaAnalysischains = ["Truth",
-                        "Offline",
-                        ]
+
+  tidaAnalysischains = ["Truth"]
+
+  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+    tidaAnalysischains += ["Offline"]
 
   if not use_new_tm:
     idTrigChainlist += [ 'InDetMonMergeDP_FS']
