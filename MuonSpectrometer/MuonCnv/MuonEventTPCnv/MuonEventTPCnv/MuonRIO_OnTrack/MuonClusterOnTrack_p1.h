@@ -25,7 +25,7 @@ namespace Muon
    class MuonClusterOnTrack_p1
    {
   public:
-     MuonClusterOnTrack_p1() {}
+     MuonClusterOnTrack_p1() : m_positionAlongStrip(0) {}
 
      /** Link to base RIO_OnTrack_p1*/
      TPObjRef                       m_RIO;
