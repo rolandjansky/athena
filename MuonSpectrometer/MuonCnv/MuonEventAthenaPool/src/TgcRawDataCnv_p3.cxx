@@ -39,7 +39,7 @@ void TgcRawDataCnv_p3::persToTrans(const TgcRawData_p3* persObj,
     transObj->m_hitId         = persObj->m_hitId;
     transObj->m_hsub          = persObj->m_hsub;
     transObj->m_strip         = persObj->m_strip;
-    transObj->m_tile          = persObj->m_tile;
+    transObj->m_inner         = persObj->m_inner;
     transObj->m_cand3plus     = persObj->m_cand3plus;
     transObj->m_muplus        = persObj->m_muplus;
     transObj->m_threshold     = persObj->m_threshold;
@@ -76,7 +76,7 @@ void TgcRawDataCnv_p3::transToPers(const TgcRawData* transObj,
     persObj->m_hitId         = transObj->m_hitId;
     persObj->m_hsub          = transObj->m_hsub;
     persObj->m_strip         = transObj->m_strip;
-    persObj->m_tile          = transObj->m_tile;
+    persObj->m_inner         = transObj->m_inner;
     persObj->m_cand3plus     = transObj->m_cand3plus;
     persObj->m_muplus        = transObj->m_muplus;
     persObj->m_threshold     = transObj->m_threshold;

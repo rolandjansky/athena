@@ -19,7 +19,7 @@ class TgcRawData_p3
     m_type(0), m_forward(false), 
     m_index(0), 
     m_pos(0), m_delta(0), m_segment(0), m_subMatrix(0), 
-    m_sector(0), m_chip(0), m_hipt(false), m_hitId(0), m_hsub(0), m_strip(false), m_tile(0), 
+    m_sector(0), m_chip(0), m_hipt(false), m_hitId(0), m_hsub(0), m_strip(false), m_inner(0), 
     m_cand3plus(false), m_muplus(false), m_threshold(0), m_overlap(false), m_veto(false), m_roi(0)  
     {
     }
@@ -80,7 +80,7 @@ private:
     uint16_t m_hitId;
     uint16_t m_hsub;
     bool m_strip;
-    int m_tile;
+    int m_inner;
 
     // Sector Logic
     bool m_cand3plus;
