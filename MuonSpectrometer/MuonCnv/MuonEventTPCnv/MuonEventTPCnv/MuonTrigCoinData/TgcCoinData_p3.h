@@ -41,7 +41,7 @@ namespace Muon
        m_pt(0),
        m_veto(false),
        m_sub(0),
-       m_tile(0),
+       m_inner(0),
        m_isPositiveDeltaR(false) 
        {}
      // base
@@ -73,7 +73,7 @@ namespace Muon
      bool m_veto;   
 
      int m_sub;
-     int m_tile;
+     int m_inner;
      bool m_isPositiveDeltaR;
    };
 }

@@ -57,7 +57,7 @@ persToTrans( const Muon::TgcCoinData_p3 *persObj, Muon::TgcCoinData *transObj,Ms
    transObj->m_veto = persObj->m_veto; 
 
    transObj->m_sub = persObj->m_sub; 
-   transObj->m_tile = persObj->m_tile; 
+   transObj->m_inner = persObj->m_inner; 
    transObj->m_isPositiveDeltaR = persObj->m_isPositiveDeltaR; 
 }
 
@@ -135,10 +135,10 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
    persObj->m_roi = transObj->m_roi; 
    persObj->m_pt = transObj->m_pt; 
    persObj->m_veto = transObj->m_veto; 
-   persObj->m_tile = transObj->m_tile; 
+   persObj->m_inner = transObj->m_inner; 
 
    persObj->m_sub = transObj->m_sub; 
-   persObj->m_tile = transObj->m_tile; 
+   persObj->m_inner = transObj->m_inner; 
    persObj->m_isPositiveDeltaR = transObj->m_isPositiveDeltaR; 
 }
 
