@@ -9,21 +9,18 @@ use GaudiInterface      GaudiInterface-*        External
 
 library MuonAGDD *.cxx components/*.cxx
 apply_pattern component_library
-
-apply_pattern install_runtime
+apply_pattern declare_python_modules files="*.py"
 
 public
-use AGDDKernel		    	AGDDKernel-*		 	DetectorDescription/AGDD
 use AGDDControl		    	AGDDControl-*			DetectorDescription/AGDD
 
 private
+use AGDDKernel		    	AGDDKernel-*		 	DetectorDescription/AGDD
 use MuonAGDDBase			MuonAGDDBase-*			MuonSpectrometer/MuonDetDescr
 use StoreGate               StoreGate-*             Control
 use GeoModelInterfaces      GeoModelInterfaces-*    DetectorDescription/GeoModel
-use MuonGeoModel            MuonGeoModel-*          MuonSpectrometer
 use AGDDModel				AGDDModel-*				DetectorDescription/AGDD
 use AGDD2GeoSvc		    	AGDD2GeoSvc-*			DetectorDescription/AGDD
-use GeoModelKernel      	GeoModelKernel-*        DetectorDescription/GeoModel
 use MuonReadoutGeometry     MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
 use EventInfo               EventInfo-*             Event
 use EventInfoMgt            EventInfoMgt-*          Event

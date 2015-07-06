@@ -18,7 +18,6 @@ MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name,
 {
   	declareProperty( "Structures" ,     m_structuresToBuild);
   	declareProperty( "ReadAGDD",   		m_readAGDD);
-  	declareProperty( "Locked",			m_locked);
   	declareProperty( "DumpAGDD",		m_dumpAGDD);
   	declareProperty( "OverrideConfiguration",m_overrideConfiguration=false);
 	declareProperty( "BuildNSW",		m_buildNSW);

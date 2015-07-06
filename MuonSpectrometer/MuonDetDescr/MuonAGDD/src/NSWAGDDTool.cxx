@@ -20,7 +20,7 @@ using namespace MuonGM;
 NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent):AGDDToolBase(type,name,parent)
 {
-	std::cout<<"This is NSWAGDDTool's constructor!!!! "<<name<<std::endl;
+  //std::cout<<"This is NSWAGDDTool's constructor!!!! "<<name<<std::endl;
 }
 
 StatusCode NSWAGDDTool::initialize()
