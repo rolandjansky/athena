@@ -17,22 +17,20 @@
 
 #include <string>
 
+#include "GaudiKernel/ServiceHandle.h"
 class IRDBAccessSvc;
 class IRDBRecordset;
 class IRDBRecord;
-class IMessageSvc;
-class MsgStream;
 
 class TileCalibDddbManager
 {
  public:
 
-  TileCalibDddbManager(IRDBAccessSvc* access,
+  TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
 		       std::string    version_tag,
 		       std::string    version_node,
-                       IMessageSvc* m_msgSvc);
-
-  ~TileCalibDddbManager();
+                       const int verboseLevel);
+  // Default destructor is fine
     
 
   enum TileCalibSections
@@ -159,7 +157,7 @@ class TileCalibDddbManager
   std::string mTag;
   std::string mNode;
 
-  MsgStream* m_log;
+  int m_verboseLevel;
 };
 
 #endif

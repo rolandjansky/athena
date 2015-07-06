@@ -18,12 +18,21 @@
 #ifndef TileGeoG4CalibSD_H
 #define TileGeoG4CalibSD_H
 
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
+#include "G4VSensitiveDetector.hh"
 
+// Output collections
+#include "StoreGate/WriteHandle.h"
 #include "TileSimEvent/TileHitVector.h"
-#include "CaloG4Sim/SimulationEnergies.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
+
+// Member variables
+#include "CaloG4Sim/SimulationEnergies.h"
+#include "TileGeoG4SD/TileSDOptions.h"
+
+// Service handles
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 //    the lower line should be uncommented to produce special text or root file
 //    with coordinates of all calibration hits
@@ -39,19 +48,15 @@
 #define IDcalc     0    //1-6, 0-all
 #endif
 
-using namespace FADS;
-
 class CaloCalibrationHitContainer;
 class TileEscapedEnergyProcessing ;
 class G4Step;
 class G4HCofThisEvent;
 class Identifier;
+
+class StoreGateSvc;
 class CaloCell_ID;
 class CaloDM_ID;
-class IMessageSvc;
-class IRDBAccessSvc;
-class IGeoModelSvc;
-class MsgStream;
 
 #ifdef HITSINFO
 class TileCalibHitNtuple;
@@ -73,14 +78,15 @@ class G4VPhysicalVolume    ;
 
 class EventInformation;
 
+#include <string>
 #include <vector>
 typedef std::vector<double> E_4 ;
 
 
-class TileGeoG4CalibSD : public FadsSensitiveDetector
+class TileGeoG4CalibSD : public G4VSensitiveDetector
 {
 public:
-    TileGeoG4CalibSD                  (G4String);
+  TileGeoG4CalibSD                  (const G4String& name, const std::vector<std::string>& m_outputCollectionNames, ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts);
     ~TileGeoG4CalibSD                 ();
 
     void InvokeUserRunAction          ();
@@ -89,9 +95,9 @@ public:
     void InvokeUserSteppingAction     ();
 
     //SD MAIN METHODS FOR A STEP PROCESSING
-    void   Initialize                 (G4HCofThisEvent*);
-    G4bool ProcessHits                (G4Step*, G4TouchableHistory*);
-    void   EndOfEvent                 (G4HCofThisEvent*);
+    void   Initialize                 (G4HCofThisEvent*) override final;
+    G4bool ProcessHits                (G4Step*, G4TouchableHistory*) override final;
+    void   EndOfAthenaEvent           ();
 
     //METHOD FOR CLASSIFYING STEP ENERGY AND THE METHODS,
     //WHICH CALCULATE IDENTIFIER FOR CELL OR DEAD MATERIAL
@@ -142,27 +148,25 @@ private:
     TileGeoG4CalibSD (const TileGeoG4CalibSD&);
     TileGeoG4CalibSD& operator= (const TileGeoG4CalibSD&);
 
-    bool m_debug;
-    bool m_verbose;
-
-    //ATHENA AND OTHER SERVICES
-    IMessageSvc*   m_msgSvc   ;
-    IRDBAccessSvc* m_rdbSvc   ;
-    IGeoModelSvc*  m_geoModSvc;
-    MsgStream*     m_log;
-
     //CALIBRATION HIT CONTAINERS
-    CaloCalibrationHitContainer* tileActiveCellCalibHits;
-    CaloCalibrationHitContainer* tileInactiveCellCalibHits;
-    CaloCalibrationHitContainer* tileDeadMaterialCalibHits;
+    SG::WriteHandle<CaloCalibrationHitContainer> tileActiveCellCalibHits;
+    SG::WriteHandle<CaloCalibrationHitContainer> tileInactiveCellCalibHits;
+    SG::WriteHandle<CaloCalibrationHitContainer> tileDeadMaterialCalibHits;
+    SG::WriteHandle<TileHitVector> tileHits;
+
+    TileSDOptions m_options;
+
+    // Handles for later use
+    const CaloCell_ID* m_caloCell_ID;
+    const CaloDM_ID*   m_caloDM_ID  ;
+
+    ServiceHandle<IRDBAccessSvc> m_rdbSvc;
+    ServiceHandle<IGeoModelSvc>  m_geoModSvc;
 
 #ifdef HITSINFO
     ToolHandle<TileCalibHitNtuple>  m_ntuple;
     ToolHandle<TileCalibHitCntNtup> m_ntupleCnt;
 #endif
-
-    //HIT CONTAINER EXPORTER TO STOREGATE
-    AthenaHitsCollectionHelper   m_hitCollHelp;
 
     //ORDINARY AND CALIBRATION LOOKUP BUILDERS
     TileGeoG4SDCalc*             m_calc    ;
@@ -175,10 +179,6 @@ private:
 
     //ENERGY AND POSITION AT CURRENT STEP
     G4Step* aStep;
-
-    //ID HELPERS
-    const CaloCell_ID* m_caloCell_ID;
-    const CaloDM_ID*   m_caloDM_ID  ;
 
     //FOR SIMPLE ENERGY DEBUGGING
     double E_tot      ;
@@ -252,9 +252,6 @@ private:
 
     /** @brief set to true if hit is in negative side */
     bool _is_negative;
-
-    /** @brief set to true if we are running testbeam configuration */
-    bool _is_ctb ;
 
     /** @brief set to true if DM hit in end/front plate is added to a real cell (taken from DB) */
     bool _plateToCell;

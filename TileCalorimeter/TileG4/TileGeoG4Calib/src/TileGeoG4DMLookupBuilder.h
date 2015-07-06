@@ -24,20 +24,20 @@
 
 class TileGeoG4CalibSection;
 class TileGeoG4LookupBuilder;
+
+#include "GaudiKernel/ServiceHandle.h"
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class StoreGateSvc;
-class IMessageSvc;
-class MsgStream;
 
 class TileGeoG4DMLookupBuilder
 {
 public:
   TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* tile_lookup_builder, 
-			   IRDBAccessSvc* access, 
-			   IGeoModelSvc* geo_svc,
-                           StoreGateSvc* pDetStore,
-                           IMessageSvc* msgSvc);
+                           ServiceHandle<IRDBAccessSvc> &access, 
+                           ServiceHandle<IGeoModelSvc> &geo_svc,
+                           ServiceHandle<StoreGateSvc> &pDetStore,
+                           const int verboseLevel);
   ~TileGeoG4DMLookupBuilder();
     
   void BuildLookup(bool test_beam = false);
@@ -74,8 +74,7 @@ private:
   const TileDetDescrManager* m_theManager;
   TileDddbManager* m_tdbManager;
 
-  IMessageSvc* m_msgSvc;
-  MsgStream * m_log;
+  int m_verboseLevel;
 
   bool plateToCell;
 };

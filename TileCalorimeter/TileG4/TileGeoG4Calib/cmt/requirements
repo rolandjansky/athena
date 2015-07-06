@@ -1,21 +1,17 @@
 package TileGeoG4Calib
 author Gia Khoriauli <gia@mail.cern.ch>
 
-branches src cmt TileGeoG4Calib
+public
 
 use AtlasPolicy            AtlasPolicy-*
 use AtlasDoxygen           AtlasDoxygen-*           Tools
-use Geant4                 Geant4-*                 External
-use SimHelpers             SimHelpers-*             Simulation/G4Sim
-use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
-use CaloSimEvent           CaloSimEvent-*           Calorimeter
-use CaloG4Sim              CaloG4Sim-*              Calorimeter
-use TileDetDescr           TileDetDescr-*           TileCalorimeter
-use TileSimEvent           TileSimEvent-*           TileCalorimeter
-
 
 private
 use AtlasCLHEP             AtlasCLHEP-*             External
+use CaloSimEvent           CaloSimEvent-*           Calorimeter
+use CaloG4Sim              CaloG4Sim-*              Calorimeter
+use Geant4                 Geant4-*                 External
+use G4AtlasTools           G4AtlasTools-*           Simulation/G4Atlas
 use GaudiInterface         GaudiInterface-*         External
 use StoreGate              StoreGate-*              Control
 use PathResolver           PathResolver-*           Tools
@@ -25,16 +21,19 @@ use GeoModelInterfaces     GeoModelInterfaces-*     DetectorDescription/GeoModel
 use GeoModelUtilities      GeoModelUtilities-*      DetectorDescription/GeoModel
 use CaloIdentifier         CaloIdentifier-*         Calorimeter
 use TileGeoG4SD            TileGeoG4SD-*            TileCalorimeter/TileG4
-use TileSimUtils           TileSimUtils-*           TileCalorimeter
+use TileDetDescr           TileDetDescr-*           TileCalorimeter
+use TileSimEvent           TileSimEvent-*           TileCalorimeter
+use CxxUtils               CxxUtils-*               Control
+
+## Needed only for building the ntuple code
+#use TileSimUtils           TileSimUtils-*           TileCalorimeter
 
 end_private
 
 
-include_dirs "$(TileGeoG4Calib_root)" "$(TileGeoG4Calib_root)/TileGeoG4Calib"
-
 apply_pattern component_library
-library TileGeoG4Calib *.cc  *.cxx
-
+library TileGeoG4Calib *.cc *.cxx components/*.cxx
+apply_pattern declare_python_modules files="*.py"
 #=======================================================
 private
 

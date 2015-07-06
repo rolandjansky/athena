@@ -17,35 +17,28 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "TileGeoG4Calib/TileGeoG4CalibSD.h"
-#include "TileGeoG4Calib/TileGeoG4DMLookupBuilder.h"
-#include "TileGeoG4Calib/TileEscapedEnergyProcessing.h"
+#include "TileGeoG4CalibSD.h"
+#include "TileGeoG4DMLookupBuilder.h"
+#include "TileEscapedEnergyProcessing.h"
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileSimEvent/TileHitVector.h"
-#include "TileSimUtils/TileG4SimOptions.h"
 #include "PathResolver/PathResolver.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "CaloIdentifier/CaloDM_ID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "CaloIdentifier/TileID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/CaloDM_ID.h"
 
 #include "CaloG4Sim/SimulationEnergies.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-
-#include "G4HCofThisEvent.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
@@ -59,30 +52,30 @@
 #include "MCTruth/EventInformation.h"
 
 #include "MCTruth/VTrackInformation.h"
+#include "CxxUtils/make_unique.h"
 
 #include <iostream>
 #include <string>
 
-static SensitiveDetectorEntryT<TileGeoG4CalibSD> tileGeoG4CalibSD("TileGeoG4CalibSD");
-static SensitiveDetectorEntryT<TileGeoG4CalibSD> tileCTBGeoG4CalibSD("TileCTBGeoG4CalibSD");
-
 
 //CONSTRUCTOR
-TileGeoG4CalibSD::TileGeoG4CalibSD(G4String name)
-    : FadsSensitiveDetector(name)
-    , tileActiveCellCalibHits(0)
-    , tileInactiveCellCalibHits(0)
-    , tileDeadMaterialCalibHits(0)
+TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames, ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts)
+    : G4VSensitiveDetector(name)
+    , tileActiveCellCalibHits(outputCollectionNames[1])
+    , tileInactiveCellCalibHits(outputCollectionNames[2])
+    , tileDeadMaterialCalibHits(outputCollectionNames[3])
+    , tileHits(outputCollectionNames[0])
+    , m_options(opts)
+    , m_rdbSvc(opts.rDBAccessSvcName,name)
+    , m_geoModSvc(opts.geoModelSvcName,name)
 #ifdef HITSINFO    //added by Sergey
     , m_ntuple("TileCalibHitNtuple/TileCalibHitNtuple")
     , m_ntupleCnt("TileCalibHitCntNtup/TileCalibHitCntNtup")
 #endif
-    , m_hitCollHelp()
+    , m_calc(0)
     , m_lookupDM(0)
     , m_simEn(0)
     , m_tile_eep(0)
-    , m_caloCell_ID(0)
-    , m_caloDM_ID(0)
     , E_tot(0.0)
     , E_em(0.0)
     , E_nonem(0.0)
@@ -129,83 +122,75 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(G4String name)
     , _is_extended(false)
     , _is_negative(false)
 {
-    //GET MessageSvc POINTERS
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-    StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
-    m_log = new MsgStream (m_msgSvc, "TileGeoG4CalibSD") ;
-    m_debug = (m_log->level()<=MSG::DEBUG);
-    m_verbose = (m_log->level()<=MSG::VERBOSE);
-    if (status.isFailure())
-        (*m_log) << MSG::FATAL << "MessageSvc not found!" << endreq;
-    else if (m_debug)
-        (*m_log) << MSG::DEBUG << "MessageSvc initialized." << endreq;
 
     m_simEn    = new CaloG4::SimulationEnergies();
-    m_tile_eep = new TileEscapedEnergyProcessing(m_msgSvc);
+    m_tile_eep = new TileEscapedEnergyProcessing(verboseLevel);
     m_tile_eep->SetEscapedFlag(false);
     m_tile_eep->SetEnergy5(0.);
     m_tile_eep->SetEscapedEnergy(0.);
 
+    // @TODO : Watch out for this!!  Is it a singleton or something??
     CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
     registry->AddAndAdoptProcessing( "Tile", m_tile_eep );
 
-    status = svcLocator->service("RDBAccessSvc", m_rdbSvc);
-    if (status.isFailure())
-        (*m_log) << MSG::FATAL << "RDBAccessSvc not found!" << endreq;
-    else if (m_debug)
-        (*m_log) << MSG::DEBUG << "RDBAccessSvc initialized." << endreq;
-
-    status = svcLocator->service("GeoModelSvc", m_geoModSvc);
-    if (status.isFailure())
-        (*m_log) << MSG::FATAL << "GeoModelSvc not found!" << endreq;
-    else if (m_debug)
-        (*m_log) << MSG::DEBUG << "GeoModelSvc initialized." << endreq;
-
 #ifdef HITSINFO    //added by Sergey
     if (doHitsNTup) {
-        status = m_ntuple.retrieve();
-        if(status.isFailure()) (*m_log) << MSG::ERROR <<" Can't retrieve " << m_ntuple << endreq;
+      if(m_ntuple.retrieve().isFailure()){
+        G4cout << " Can't retrieve " << m_ntuple << G4endl;
+        abort();
+      }
     }
-    status = m_ntupleCnt.retrieve();
-    if(status.isFailure()) (*m_log) << MSG::ERROR <<" Can't retrieve " << m_ntupleCnt << endreq;
+    if(m_ntupleCnt.retrieve().isFailure()){
+      G4cout <<" Can't retrieve " << m_ntupleCnt << G4endl;
+      abort();
+    }
 #endif
+
+  // Retrieve CaloCell_ID helper from detector store
+  if (detStore->retrieve(m_caloCell_ID).isFailure()){
+    G4cout << "FATAL: Failed to retrieve calo cell ID helper" << G4endl;
+    abort();
+  }
+
+  // Retrieve TileID helper from det store
+  if (detStore->retrieve(m_caloDM_ID).isFailure()){
+    G4cout << "FATAL: Failed to retrieve DM ID helper" << G4endl;
+    abort();
+  }
 
 //**************************************************************************************************
     //Sensitive Detector initialisation for TileCal G4 simulations (Sergey)
-    m_calc = TileGeoG4SDCalc::instance();
+    // Owns this now 
+    m_calc = new TileGeoG4SDCalc(m_options);
 //**************************************************************************************************
 
-    //RETRIEVE CaloCell_ID HELPER FROM DET. STORE
-    status = m_calc->m_detStore->retrieve(m_caloCell_ID);
-    if (status.isFailure())
-        (*m_log) << MSG::ERROR << "Unable to retrieve CaloCell_ID helper from DetectorStore" << endreq;
-    else if (m_debug)
-        (*m_log) << MSG::DEBUG << "CaloCell_ID helper retrieved" << endreq;
-
-    //RETRIEVE TileID HELPER FROM DET. STORE
-    status = m_calc->m_detStore->retrieve(m_caloDM_ID);
-    if (status.isFailure())
-        (*m_log) << MSG::ERROR << "Unable to retrieve CaloDM_ID helper from DetectorStore" << endreq;
-    else if (m_debug)
-        (*m_log) << MSG::DEBUG << "CaloDM_ID helper retrieved" << endreq;
+    // Grab the service handles
+    if (m_rdbSvc.retrieve().isFailure()){
+      G4cout << "FATAL: Could not retrieve the RDB Svc" << G4endl;
+      abort();
+    }
+    if (m_geoModSvc.retrieve().isFailure()){
+      G4cout << "FATAL: Could not retrieve the geo model svc" << G4endl;
+      abort();
+    }
 
     //BUILD TILECAL ORDINARY AND CALIBRATION LOOK-UP TABLES
     m_lookup   = m_calc->m_lookup;
-    m_lookupDM = new TileGeoG4DMLookupBuilder(m_lookup, m_rdbSvc, m_geoModSvc, m_calc->m_detStore, m_msgSvc);
+    m_lookupDM = new TileGeoG4DMLookupBuilder(m_lookup, m_rdbSvc, m_geoModSvc, detStore, verboseLevel);
 
-    if(name.find("CTB") != G4String::npos) {
-        _is_ctb = true ;
+
+
+    if(m_options.tileTB) {
         m_lookup->BuildLookup(true);
         m_lookupDM->BuildLookup(true);
     } else {
-        _is_ctb = false ;
         m_lookup->BuildLookup();
         m_lookupDM->BuildLookup();
     }
-    if (m_debug) (*m_log) << MSG::DEBUG << "Lookup built for Tile" << endreq;
+    if (verboseLevel>5) G4cout << "Lookup built for Tile" << G4endl;
 
     _plateToCell=m_lookupDM->GetPlateToCell();
-    (*m_log) << MSG::INFO << "Using plateToCell (from DB) = " << (_plateToCell ? "true" : "false") << endreq;
+    G4cout << "Using plateToCell (from DB) = " << (_plateToCell ? "true" : "false") << G4endl;
 
     // current settings for AddToCell and AddToGirder are controlled just by one flag
     AddToCell = _plateToCell;
@@ -224,7 +209,6 @@ TileGeoG4CalibSD::~TileGeoG4CalibSD()
     delete m_tile_eep;
     delete m_lookup;
     delete m_lookupDM;
-    delete m_log;
 }
 
 
@@ -234,20 +218,23 @@ TileGeoG4CalibSD::~TileGeoG4CalibSD()
 //-----------------------------------------------------
 void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/)
 {
-    if (m_debug) (*m_log) << MSG::DEBUG << "Initializing SD" << endreq;
+    if (verboseLevel>5) G4cout << "Initializing SD" << G4endl;
 
-    //CALIBRATION HIT CONTAINERS FOR THIS EVENT
-    //tileActiveCellCalibHits   = new CaloCalibrationHitContainer("TileCalibHitActiveCell");
-    //tileInactiveCellCalibHits = new CaloCalibrationHitContainer("TileCalibHitInactiveCell");
-    //tileDeadMaterialCalibHits = new CaloCalibrationHitContainer("TileCalibHitDeadMaterial");
-
-    tileActiveCellCalibHits   = m_hitCollHelp.RetrieveNonconstCollection<CaloCalibrationHitContainer>("TileCalibHitActiveCell");
-    tileInactiveCellCalibHits  = m_hitCollHelp.RetrieveNonconstCollection<CaloCalibrationHitContainer>("TileCalibHitInactiveCell");
-    tileDeadMaterialCalibHits = m_hitCollHelp.RetrieveNonconstCollection<CaloCalibrationHitContainer>("TileCalibHitDeadMaterial");
+#ifdef ATHENAHIVE
+    // Temporary fix for Hive until isValid is fixed
+    tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileActiveCellCalibHits.name());
+    tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileInactiveCellCalibHits.name());
+    tileDeadMaterialCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileDeadMaterialCalibHits.name());
+    tileHits = CxxUtils::make_unique<TileHitVector>(tileHits.name());
+#else
+    if (!tileActiveCellCalibHits.isValid()) tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileActiveCellCalibHits.name());
+    if (!tileInactiveCellCalibHits.isValid()) tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileInactiveCellCalibHits.name());
+    if (!tileDeadMaterialCalibHits.isValid()) tileDeadMaterialCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(tileDeadMaterialCalibHits.name());
+    if (!tileHits.isValid()) tileHits = CxxUtils::make_unique<TileHitVector>(tileHits.name());
+#endif
 
     //TILECAL IDENTIFIER NUMBER - ALWAYS FIXED
     _subCalo  = 3;
-
     m_event_info = 0;
 
 }
@@ -259,10 +246,10 @@ void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/)
 //-----------------------------------------------------------------------------
 G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*/)
 {
-    if (m_calc->m_doCalibHitParticleID && !m_event_info) 
+    if (m_calc->GetOptions().doCalibHitParticleID && !m_event_info) 
       m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
-    if (m_verbose) (*m_log) << MSG::VERBOSE << "Process Hits" << endreq;
+    if (verboseLevel>10) G4cout << "Process Hits" << G4endl;
     aStep = step;
 
     //FORCE DEFAULT HIT FLAG TO BE FALSE
@@ -279,7 +266,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
         m_simEn->SetStepProcessed();
         _doBirkFlag = true;
     } else {
-        if (m_debug) (*m_log) << MSG::DEBUG << "Escaped energy processing"<< endreq;
+        if (verboseLevel>5) G4cout << "Escaped energy processing"<< G4endl;
         SetEscapedEnergy(m_tile_eep->GetEscapedEnergy());
         m_simEn->SetStepProcessed();
         m_tile_eep->SetEscapedFlag(false);
@@ -289,7 +276,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
     //ZERO OR NOT. IF THEY ARE THEN RETURN FROM ProcessHits
     if(AreClassifiedEnergiesAllZero()) {
-        if (m_verbose) (*m_log) << MSG::VERBOSE << "all Energies at this step = 0" << endreq;
+        if (verboseLevel>10) G4cout << "all Energies at this step = 0" << G4endl;
         return false;
     }
 
@@ -316,8 +303,8 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     //THIS MEANS THAT IDENTIFIER CAN'T BE DETERMINED -> RETURN DEFAULT ID
     bool is_identifiable = FindTileCalibSection();
     if (!is_identifiable) {
-        if (m_verbose) (*m_log) << MSG::VERBOSE 
-            << "FindTileCalibSection: The Section can't be found, RETURN DEFAULT ID" << endreq;
+        if (verboseLevel>10) G4cout
+            << "FindTileCalibSection: The Section can't be found, RETURN DEFAULT ID" << G4endl;
         _DefaultHit = true;
     }
 
@@ -333,8 +320,8 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
             }
             ScintIDCalculator();
         } else {
-            if (m_verbose) (*m_log) << MSG::VERBOSE 
-                                    << "ProcessHits: FindTileScinSection returns false" << endreq;
+            if (verboseLevel>10) G4cout
+                                    << "ProcessHits: FindTileScinSection returns false" << G4endl;
             _DefaultHit = true;
         }
     }
@@ -385,14 +372,12 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     // G.P.: now comes new hit processing (see LArCalibHitMerger.cxx for details)
     // --------------------------------------------------------------------------
     int m_primary_id = 0;
-    if(m_calc->m_doCalibHitParticleID) {
+    if(m_calc->GetOptions().doCalibHitParticleID) {
 
-      if (!m_allowMods) {
-        if (m_event_info && m_event_info->GetCurrentPrimary()) 
-          m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
-        else
-          throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-      }
+      if (m_event_info && m_event_info->GetCurrentPrimary()) 
+        m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
+      else
+        throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
       
       /*
       else {
@@ -425,13 +410,13 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 
     Identifier m_id = _id;
     if(_DefaultHit) {
-        if(_is_ctb)
+        if(m_options.tileTB)
             m_id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0); //Default hit
         else
             m_id = DefaultHitIDCalculator();
     }
     if(!m_id.is_valid()) {
-        (*m_log) << MSG::ERROR << "Wrong identifier in ProcessHits()!" << endreq;
+        G4cout << "ERROR: Wrong identifier in ProcessHits()!" << G4endl;
         return true;
     }
 
@@ -513,58 +498,49 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 //-----------------------------------------------------
 //    EndOfEvent - CALLED AT THE END OF EACH EVENT
 //-----------------------------------------------------
-void TileGeoG4CalibSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
+void TileGeoG4CalibSD::EndOfAthenaEvent()
 {
-    if (m_verbose) (*m_log) << MSG::VERBOSE << "Store Hits" << endreq;
+    if (verboseLevel>10) G4cout << "Store Hits" << G4endl;
 
-    //CHECK WHEATHER THIS EVENT WAS ABORTED DUE TO SOME ERROR OR USER ACTION
-    if( !m_allowMods && (G4EventManager::GetEventManager()->GetConstCurrentEvent()->IsAborted()) ) {
-      (*m_log) << MSG::INFO << "SD::EndOfEvent - Event is aborted and HitCollections are not stored!"<< endreq;
-    } else {  //CREATE CALIBHITS FROME THEIR VECTORS AND
-              //STORE THEM IN THE RESPECTIEVE CONTAINERS
-        m_calibrationHits_ptr_t it;
+    //CREATE CALIBHITS FROME THEIR VECTORS AND
+    //STORE THEM IN THE RESPECTIEVE CONTAINERS
+    m_calibrationHits_ptr_t it;
 
-        // Cell Active Material Container
-        for( it = m_activeCalibrationHits.begin();  it != m_activeCalibrationHits.end(); it++) {
-            tileActiveCellCalibHits->push_back(*it);
-        }
+    // Cell Active Material Container
+    tileActiveCellCalibHits->reserve(m_activeCalibrationHits.size());
+    for( auto &it : m_activeCalibrationHits ) {
+        tileActiveCellCalibHits->push_back(std::move(it));
+    }
 
-        // Cell Inactive Material Container
-        for( it = m_inactiveCalibrationHits.begin();  it != m_inactiveCalibrationHits.end(); it++) {
-            tileInactiveCellCalibHits->push_back(*it);
-        }
+    // Cell Inactive Material Container
+    tileInactiveCellCalibHits->reserve(m_inactiveCalibrationHits.size());
+    for( auto &it : m_inactiveCalibrationHits ) {
+        tileInactiveCellCalibHits->push_back(std::move(it));
+    }
 
-        // Tile Dead Material Container
-        for( it = m_deadCalibrationHits.begin();  it != m_deadCalibrationHits.end(); it++) {
-            tileDeadMaterialCalibHits->push_back(*it);
-        }
+    // Tile Dead Material Container
+    tileDeadMaterialCalibHits->reserve(m_deadCalibrationHits.size());
+    for( auto &it : m_deadCalibrationHits ) {
+        tileDeadMaterialCalibHits->push_back(std::move(it));
+    }
 
-        // copy ordinary hits to tileHits vector and reset all pointers
-        TileHitVector* tileHits = m_hitCollHelp.RetrieveNonconstCollection<TileHitVector>("TileHitVec");
-        m_lookup->ResetCells(tileHits);
-        if (!m_allowMods) m_hitCollHelp.SetConstCollection(tileHits);
-
-        //EXPORT ORDINARY TILEHIT AND CALIBHITS CONTAINERS TO StoreGate
-	//m_hitCollHelp.ExportCollection<TileHitVector>(tileHits);
-	//m_hitCollHelp.ExportCollection<CaloCalibrationHitContainer>(tileActiveCellCalibHits);
-	//m_hitCollHelp.ExportCollection<CaloCalibrationHitContainer>(tileInactiveCellCalibHits);
-	//m_hitCollHelp.ExportCollection<CaloCalibrationHitContainer>(tileDeadMaterialCalibHits);	
+    // copy ordinary hits to tileHits vector and reset all pointers
+    m_lookup->ResetCells(&*tileHits);
 
 #ifdef HITSINFO  // added by Sergey
-        m_ntupleCnt->StoreCNT(tileActiveCellCalibHits,tileInactiveCellCalibHits,tileDeadMaterialCalibHits);
+    m_ntupleCnt->StoreCNT(&*tileActiveCellCalibHits,&*tileInactiveCellCalibHits,&*tileDeadMaterialCalibHits);
 #endif
 
-        //DEBUG CALIBHITS ENERGIES CALCULATED BY SIMPLE CALCULATOR
-        //AND DEBUG THE SAME ENERIES DIRECTLE FROM CALIBHITS. THEY
-        //MUST BE THE SAME IF EVERITHING WENT ON WELL
-        //
-        //NOTE: ATHENA DEBUGGING LEVEL SHOULD BE SET 'INFO' OR HIGHER
-        DebugEnergies();
+    //DEBUG CALIBHITS ENERGIES CALCULATED BY SIMPLE CALCULATOR
+    //AND DEBUG THE SAME ENERIES DIRECTLE FROM CALIBHITS. THEY
+    //MUST BE THE SAME IF EVERITHING WENT ON WELL
+    //
+    //NOTE: ATHENA DEBUGGING LEVEL SHOULD BE SET 'INFO' OR HIGHER
+    DebugEnergies();
 
-        m_activeCalibrationHits.clear();
-        m_inactiveCalibrationHits.clear();
-        m_deadCalibrationHits.clear();
-    }
+    m_activeCalibrationHits.clear();
+    m_inactiveCalibrationHits.clear();
+    m_deadCalibrationHits.clear();
 
     //RESET CELL, GIRDER CELL AND
     //PLATE CELL HITS COUNTER VECTORS
@@ -574,11 +550,5 @@ void TileGeoG4CalibSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
     if (doHitsNTup || doHitsTXT) nEvent++;
 #endif
 
-    if (!m_allowMods) {
-      (*m_log) << MSG::DEBUG << "setting hit collections constant" << endreq;
-      m_hitCollHelp.SetConstCollection(tileActiveCellCalibHits);
-      m_hitCollHelp.SetConstCollection(tileInactiveCellCalibHits);
-      m_hitCollHelp.SetConstCollection(tileDeadMaterialCalibHits);
-    }
 }
 

@@ -17,8 +17,6 @@
 //
 //************************************************************
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -28,24 +26,25 @@
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 
 //Calibration Look-up & its Builder
-#include "TileGeoG4Calib/TileGeoG4DMLookupBuilder.h"
-#include "TileGeoG4Calib/TileGeoG4DMLookup.h"
+#include "TileGeoG4DMLookupBuilder.h"
+#include "TileGeoG4DMLookup.h"
 
 //DB Manager
 #include "TileDetDescr/TileDddbManager.h"
-#include "TileGeoG4Calib/TileCalibDddbManager.h"
+#include "TileCalibDddbManager.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
+#include "G4ios.hh"
 
 /////////// C O N S T R U C T O R 
 
 TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* lookup_builder, 
-						   IRDBAccessSvc* raccess, 
-						   IGeoModelSvc* geo_svc,
-                                                   StoreGateSvc* pDetStore,
-                                                   IMessageSvc* msgSvc) : 
+                                                   ServiceHandle<IRDBAccessSvc> &raccess, 
+                                                   ServiceHandle<IGeoModelSvc> &geo_svc,
+                                                   ServiceHandle<StoreGateSvc> &pDetStore,
+                                                   const int verboseLevel) : 
   rBMin(0),rBMax(0),zBarrMaxPos(0),zBarrMaxNeg(0),
   dzBarrMod(0),dzExtBarrMod(0),zLegngthITC(0),
   dzBarrPeriod(0),dzExtBarrPeriod(0),rGirdMin(0),
@@ -55,15 +54,14 @@ TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* looku
   m_lookup_builder(lookup_builder),
   m_sectionMap(0),
   m_tdbManager(0),
-  m_msgSvc(msgSvc),
+  m_verboseLevel(verboseLevel),
   plateToCell(false)
 {
-  m_log = new MsgStream (msgSvc, "TileGeoG4DMLookupBuilder");
 
   const DataHandle<GeoModelExperiment> theExpt;
   StatusCode sc = pDetStore->retrieve( theExpt, "ATLAS" );
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve GeoModelExperiment from DetectorStore" << endreq;
+    G4cout << "ERROR: Unable to retrieve GeoModelExperiment from DetectorStore" << G4endl;
     abort();
   }
 
@@ -72,7 +70,7 @@ TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* looku
     m_tdbManager = m_theManager->getDbManager();
   else
   {
-    (*m_log) << MSG::ERROR << "Cannot get TileDetDescrManager" << endreq;
+    G4cout << "ERROR: Cannot get TileDetDescrManager" << G4endl;
     abort();
   }
 
@@ -80,13 +78,12 @@ TileGeoG4DMLookupBuilder::TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* looku
   std::string versionNode = (geo_svc->tileVersionOverride()).empty()? "ATLAS" : "TileCal";
 
   //m_dbManager = new TileCalibDddbManager(raccess,"ATLAS-00","ATLAS");
-  m_dbManager = new TileCalibDddbManager(raccess, versionTag, versionNode, msgSvc);
+  m_dbManager = new TileCalibDddbManager(raccess, versionTag, versionNode, verboseLevel);
 }
 
 TileGeoG4DMLookupBuilder::~TileGeoG4DMLookupBuilder()
 {
   delete m_dbManager;
-  delete m_log;
 }
 
 ///////////////// B U I L D E R 
@@ -166,9 +163,8 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb)
 {
   if(!m_dbManager || !m_sectionMap)
   {
-    (*m_log) << MSG::ERROR
-             << "CreateGeoG4CalibSections() - Initialization failed"
-             << "  DbManager = " << m_dbManager << "  SectionMap = " << m_sectionMap << endreq;
+    G4cout << "ERROR: CreateGeoG4CalibSections() - Initialization failed"
+             << "  DbManager = " << m_dbManager << "  SectionMap = " << m_sectionMap << G4endl;
     abort();
   }
   
@@ -255,7 +251,7 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb)
     TileGeoG4Section* tile_section = m_lookup_builder->GetSection(v_key); 
 
     //Create & initialize Section
-    _section = new TileGeoG4CalibSection(m_msgSvc);
+    _section = new TileGeoG4CalibSection(m_verboseLevel);
     _section->section         = static_cast<int>(m_dbManager->GetCurrentSection());
     _section->nrOfPeriods     = static_cast<int>(m_dbManager->GetNumSectPeriods());
     _section->nrOfSamples     = static_cast<int>(m_dbManager->GetNumSectSamples());
@@ -324,17 +320,16 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb)
 
 
     //check cells2sample structure
-    if (m_log->level()<=MSG::VERBOSE) {
+    if (m_verboseLevel<10) {
       for(int samp=0;  samp<static_cast<int>(_section->samples.size());  samp++) {
     	for(int cell=0;  cell<static_cast<int>(_section->samples[samp]->cells.size());  cell++) {
-	    (*m_log) << MSG::VERBOSE
-                     <<"samp="<<samp<<"  cell_ind="<<cell
-		     <<" :  nrOfPeriodsInCell[0]= "<<_section->samples[samp]->cells[cell]->nrOfPeriodsInCell[0]
-		     <<" ,  nrOfPeriodsInCell[1] = "<<_section->samples[samp]->cells[cell]->nrOfPeriodsInCell[1]
-                     <<" ,  detector = "<<_section->samples[samp]->cells[cell]->detector
-	             <<" ,  sample = "<<_section->samples[samp]->cells[cell]->sample
-		     <<endreq;
-	}
+	      G4cout <<"samp="<<samp<<"  cell_ind="<<cell
+                 <<" :  nrOfPeriodsInCell[0]= "<<_section->samples[samp]->cells[cell]->nrOfPeriodsInCell[0]
+                 <<" ,  nrOfPeriodsInCell[1] = "<<_section->samples[samp]->cells[cell]->nrOfPeriodsInCell[1]
+                 <<" ,  detector = "<<_section->samples[samp]->cells[cell]->detector
+                 <<" ,  sample = "<<_section->samples[samp]->cells[cell]->sample
+                 <<G4endl;
+        }
       }
     }
     
@@ -431,16 +426,15 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb)
 
 	
     // check plateCells2sample structure
-    if (m_log->level()<=MSG::VERBOSE) {
+    if (m_verboseLevel>10) {
       for(int psamp=0;  psamp<static_cast<int>(_section->samples.size());  psamp++) {
         for(int pcell=0;  pcell<static_cast<int>(_section->samples[psamp]->plateCells.size());  pcell++) {
-	    (*m_log) << MSG::VERBOSE
-                     <<"psamp="<<psamp<<"  cell_ind="<<pcell
-        	     <<" :  detector   = "<<_section->samples[psamp]->plateCells[pcell]->detector
-            	     <<" ,  tower    = "<<_section->samples[psamp]->plateCells[pcell]->tower
-            	     <<" ,  sample = "<<_section->samples[psamp]->plateCells[pcell]->sample
-            	     <<endreq;
-	}
+	      G4cout <<"psamp="<<psamp<<"  cell_ind="<<pcell
+                 <<" :  detector   = "<<_section->samples[psamp]->plateCells[pcell]->detector
+          	     <<" ,  tower    = "<<_section->samples[psamp]->plateCells[pcell]->tower
+          	     <<" ,  sample = "<<_section->samples[psamp]->plateCells[pcell]->sample
+           	     <<G4endl;
+        }
       }
     }
 
@@ -475,14 +469,13 @@ void TileGeoG4DMLookupBuilder::CreateGeoG4CalibSections(bool is_tb)
     
 
     // check girder cells in the section
-    if (m_log->level()<=MSG::VERBOSE) {
+    if (m_verboseLevel>10) {
       for(int gcell=0;  gcell<static_cast<int>(_section->girderCells.size());  gcell++) {
-        (*m_log) << MSG::VERBOSE
-                 <<"cell_ind="<<gcell
-                 <<" :  detector   = "<<_section->girderCells[gcell]->detector
-                 <<" ,  tower    = "<<_section->girderCells[gcell]->tower
-                 <<" ,  sample = "<<_section->girderCells[gcell]->sample
-                 <<endreq;
+        G4cout <<"cell_ind="<<gcell
+               <<" :  detector   = "<<_section->girderCells[gcell]->detector
+               <<" ,  tower    = "<<_section->girderCells[gcell]->tower
+               <<" ,  sample = "<<_section->girderCells[gcell]->sample
+               <<G4endl;
       }
     }
 
