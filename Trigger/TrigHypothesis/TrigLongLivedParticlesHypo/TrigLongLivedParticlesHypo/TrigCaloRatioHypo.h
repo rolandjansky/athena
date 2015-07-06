@@ -17,7 +17,6 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 
@@ -39,6 +38,10 @@ class TrigCaloRatioHypo : public HLT::HypoAlgo {
   double m_etCut;
   /** @brief cut on Log(H/E). */
   double m_logRatioCut;
+  /** @brief cut on minimum track pT. */
+  double m_ptCut;
+  /** @brief radius for the track isolation requirement. */
+  double m_deltaR;
   /** @brief cut on jet eta. */
   double m_etaCut;
 
@@ -49,9 +52,6 @@ class TrigCaloRatioHypo : public HLT::HypoAlgo {
 
   // Switch to accept all the events.
   bool m_acceptAll;
-
-  // Switch on Monitoring:
-  bool m_doMonitoring;
 
   //Monitored Variables
   /** @brief variable for monitoring: E_T of the accepted jets. */
@@ -64,8 +64,5 @@ class TrigCaloRatioHypo : public HLT::HypoAlgo {
   int m_cutCounter;
   /** @brief variable for monitoring: log-ratio distribution. */
   double m_logRatio;
-
-  StoreGateSvc*  m_storeGate;
-
 };
 #endif

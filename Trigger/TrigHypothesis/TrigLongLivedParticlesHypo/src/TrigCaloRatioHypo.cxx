@@ -7,29 +7,22 @@
 // NAME:     TrigCaloRatioHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigLongLivedParticlesHypo
 //
+// AUTHOR:   Andrea Coccaro
+// EMAIL:    Andrea.Coccaro AT cern.ch
+//
 // ************************************************************
 
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
 
+#include "TrigSteeringEvent/PhiHelper.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
 
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackHelper.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "CxxUtils/fpcompare.h"
-#include "FourMomUtils/P4DescendingSorters.h"
 
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-struct DescendingEt:std::binary_function<const xAOD::Jet*, const xAOD::Jet*, bool> {
-  bool operator()(const xAOD::Jet* l, const xAOD::Jet* r)  const {
-    return l->p4().Et() > r->p4().Et();
-  }
-};
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -38,11 +31,12 @@ struct DescendingEt:std::binary_function<const xAOD::Jet*, const xAOD::Jet*, boo
 TrigCaloRatioHypo::TrigCaloRatioHypo(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
-  declareProperty("EtCut",        m_etCut = 35*CLHEP::GeV, "cut value for L2 jet et"); 
-  declareProperty("LogRatioCut",  m_logRatioCut = 1., "cut value for L2 jet log10 of had over em energy ratio"); 
-  declareProperty("EtaCut",       m_etaCut = 2.5, "cut value for Eta of the Jet");  
-  declareProperty("doMonitoring", m_doMonitoring = true, "switch on/off monitoring" );
-  declareProperty("AcceptAll",    m_acceptAll=false);
+  declareProperty("EtCut",       m_etCut = 30*CLHEP::GeV, "cut value forthe jet et"); 
+  declareProperty("LogRatioCut", m_logRatioCut = 1.2, "cut value for the jet energy ratio"); 
+  declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV");
+  declareProperty("DeltaR",      m_deltaR=0.2, "radius for the track isolation requirement");
+  declareProperty("EtaCut",      m_etaCut = 2.5, "cut value for Eta of the Jet");
+  declareProperty("AcceptAll",   m_acceptAll=false);
 
   declareMonitoredStdContainer("JetEt",      m_jetEt);
   declareMonitoredStdContainer("JetEta",     m_jetEta);
@@ -91,7 +85,8 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   m_cutCounter = -1;
 
-  bool passCut = false;
+  bool passCutJet = false;
+  bool passCutTrk = true; //default to true, changes false if a track is within m_deltaR of the jet axis
   pass=false;
 
   double jetRatio = -1.;
@@ -107,69 +102,114 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   m_cutCounter = 0;
 
-  if(status != HLT::OK) {
+  if (status != HLT::OK) {
     msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endreq;
     m_errors++;
     return HLT::ERROR;
   } else if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Got the xAOD jet container" << endreq;
   
-  if(vectorOfJets->size() == 0) {
+  if (vectorOfJets->size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "The xAOD jet container is empty" << endreq;
     m_errors++;
     return HLT::OK;
+  } else if (vectorOfJets->size() != 1) {
+    msg() << MSG::ERROR << "More than one xAOD jet, not expected!" << endreq;
+    m_errors++;
+    return HLT::ERROR;
   } else {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << vectorOfJets->size() << " jets are found" << endreq;
+      msg() << MSG::DEBUG << vectorOfJets->size() << " jet is found" << endreq;
   }
 
-  std::vector<const xAOD::Jet*> theJets(vectorOfJets->begin(), vectorOfJets->end());
+  const xAOD::Jet *jet = vectorOfJets->front();
 
-  std::sort (theJets.begin(), theJets.end(), DescendingEt());
+  double jetEta = jet->eta();
+  double jetPhi = jet->phi();
 
-  for (const xAOD::Jet* aJet : theJets) {
-   
-    double jetEt  = aJet->p4().Et();
-    double jetEta = aJet->eta();
-    double jetPhi = aJet->phi();
-    //object is not decorated?
-    //double jetEMF = aJet->getAttribute<float>("EMFrac");
-    //double jetEMF = aJet->getAttribute<float>("xAOD::JetAttribute::EMFrac");
-    double jetEMF = 0.5;
+  double jetEt  = jet->p4().Et();
+  double jetEMF = jet->getAttribute<float>("EMFrac");
 
-    if (jetEMF)
-      jetRatio = log10(1./jetEMF);
-    else
-      jetRatio = 999;
+  double zero = 0.;
+  double one = 1.;
+  if (CxxUtils::fpcompare::greater(jetEMF,zero)){
+    if(CxxUtils::fpcompare::greater_equal(jetEMF,one)) jetRatio = -999.;
+    else jetRatio = log10(double(1./jetEMF - 1.));
+  } else {
+    jetRatio = 999; 
+  }
+  
+  if(msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << " jet with et=" << jetEt << ", eta=" << jetEta << ", phi=" << jetPhi 
+	  << ", log-ratio=" << jetRatio << endreq;
+
+  if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio >= m_logRatioCut) {
     
-    if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio >= m_logRatioCut) {
+    m_jetEt.push_back(jetEt/CLHEP::GeV);
+    m_jetEta.push_back(jetEta); 
+    m_jetPhi.push_back(jetPhi);
+    m_logRatio = jetRatio;
+    
+    passCutJet = true;
+  }
 
-      m_jetEt.push_back(jetEt/CLHEP::GeV);
-      m_jetEta.push_back(jetEta); 
-      m_jetPhi.push_back(jetPhi);
-      m_logRatio = jetRatio;
-      
-      if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet with Et " << jetEt << ", eta " << jetEta << ", phi " << jetPhi 
-	      << ", log-ratio " << jetRatio << endreq;
+  const xAOD::TrackParticleContainer* vectorOfTracks;
+  status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
 
-      passCut = true;
+  if(status != HLT::OK) {
+    msg() << MSG::ERROR << "Failed to get the xAOD track container" << endreq;
+    m_errors++;
+    return HLT::ERROR;
+  } else if (msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << "Got the xAOD track container" << endreq;
+
+  if(vectorOfTracks->size() == 0) {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "The xAOD track container is empty" << endreq;
+     passCutTrk = true; //default is true, but just for clarity
+  } else {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << vectorOfTracks->size() << " tracks are found" << endreq;
+  
+  xAOD::TrackParticleContainer::const_iterator
+    track     = vectorOfTracks->begin(),
+    lasttrack = vectorOfTracks->end();
+
+  for(; track !=lasttrack; track++ ) {
+
+    float theta   = (*track)->theta();
+    float qOverPt = (*track)->qOverP()/TMath::Sin(theta);
+    float pT      = (1/qOverPt);
+
+    if (fabs(pT) <= m_ptCut) continue;
+
+    double phi  = (*track)->phi0();
+    double eta  = (*track)->eta();
+    
+    if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
+
+    double deta = fabs(eta-jetEta);	
+    double dphi = fabs(HLT::wrapPhi(phi-jetPhi));
+
+    double dR = sqrt((deta*deta)+(dphi*dphi));
+    if (dR<m_deltaR) {
+      passCutTrk = false;
     }
   }
-
-  if(passCut || m_acceptAll) {
+  }
+  if((passCutJet&&passCutTrk) || m_acceptAll) {
 
     pass = true;
     m_cutCounter = 1;
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Minimum calo-ratio value is " 
-	    << m_logRatioCut << " and a jet with " << m_logRatio << " is found; event is accepted" << endreq;
+      msg() << MSG::DEBUG << "Jet passing calo-ratio requirements" << endreq; 
+
   } else {
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Minimum calo-ratio value is " 
-	    << m_logRatioCut << ". No jets above the threshold are found; event is rejected" << endreq;
+      msg() << MSG::DEBUG << "Jet not passing calo-ratio requirements" << endreq; 
   }
 
   return HLT::OK;  

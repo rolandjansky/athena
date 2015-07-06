@@ -1,7 +1,8 @@
 package TrigLongLivedParticlesHypo
 
-author Antonio Policicchio <antonio.policicchio@cern.ch>
-author Stefano Giagu <stefano.giagu@cern.ch>
+author Andrea Coccaro <andrea.coccaro AT cern.ch>
+author Antonio Policicchio <antonio.policicchio AT cern.ch>
+author Stefano Giagu <stefano.giagu AT cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 
@@ -13,8 +14,8 @@ use TrigTimeAlgs        TrigTimeAlgs-*          Trigger/TrigTools
 use TrigCaloEvent       TrigCaloEvent-*         Trigger/TrigEvent
 
 private
-use FourMomUtils	FourMomUtils-*		Event
 use xAODJet             xAODJet-*               Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
 use AtlasCLHEP          AtlasCLHEP-*            External
 use AtlasROOT           AtlasROOT-*             External
 use GaudiInterface      GaudiInterface-*        External

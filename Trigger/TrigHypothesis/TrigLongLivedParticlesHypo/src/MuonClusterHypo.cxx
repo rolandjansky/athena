@@ -21,9 +21,14 @@ class ISvcLocator;
 MuonClusterHypo::MuonClusterHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator){
 
+  //default monitored values are unphysical
+  //events failing cuts will show up in monitoring with these values
+  //note that the "cut" for background trigger is nJet,nTrk ==-1, but
+  //the actual number of jets and tracks in dR cone is monitored
+	
   mCluNum = 0;
-  mNumJet = 0;
-  mNumTrk = 0;
+  mNumJet = -1;
+  mNumTrk = -1;
 
   declareMonitoredVariable("NumClu", mCluNum);
   declareMonitoredVariable("NumJet", mNumJet);
@@ -125,64 +130,93 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
      }
 
      //Requirements
-     int   numberRoI   = MuonClust->getNRoi();
-     int   numberJet   = MuonClust->getNJet();
-     int   numberTrk   = MuonClust->getNTRK();
-     double etaClust    = MuonClust->getEta();
-     double phiClust    = MuonClust->getPhi();
+     int numberRoI = MuonClust->getNRoi();
+     int numberJet = MuonClust->getNJet();
+     int numberTrk = MuonClust->getNTRK();
+     double etaClust = MuonClust->getEta();
+     double phiClust = MuonClust->getPhi();
+
      if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG
-             << "Cluster with " << numberRoI << " muon RoIs, at eta=" << etaClust << " and phi=" << phiClust << " and " << numberJet << " Jets with Log(H/E)" << " and " << numberTrk << " in ID" 
-             << endreq;
+             << "Cluster has " << numberRoI << " muon RoIs, at eta=" << etaClust 
+	     << " and phi=" << phiClust << " and matches " << numberJet << " Jets with Log(H/E)" 
+	     << " and " << numberTrk << " tracks in ID" << endreq;
       }
 
-     //Cut on number of RoIs in the cluster
-     //if(numberRoI >= m_nRoI && fabs(etaClust)<=m_nEta && numberJet==m_nJet && numberTrk==m_nTrk){
-     if(fabs(etaClust)<=m_nEta && numberJet==m_nJet && numberTrk==m_nTrk){
-       if(fabs(etaClust)<=1.0 && numberRoI >= m_nRoIBarrel){  //barrel
-         if(msgLvl() <= MSG::DEBUG) {
-           msg() << MSG::DEBUG
-                 << "Cluster with number of RoI > " << m_nRoIBarrel << " and " << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID.... event accepted"
-                 << endreq;
-          }
+     // Cut on number of RoIs in the cluster
+     if(fabs(etaClust)<=m_nEta) {
 
-          //monitored variables
-          mCluNum = m_nRoIBarrel;
-          mNumJet = m_nJet;
-          mNumTrk = m_nTrk; 
-          result = true;
-       } else if((fabs(etaClust)>=1.0 && fabs(etaClust)<=2.5) && numberRoI >= m_nRoIEndCap){ //endcap
-         if(msgLvl() <= MSG::DEBUG) {
-           msg() << MSG::DEBUG
-                 << "Cluster with number of RoI > " << m_nRoIEndCap << " and " << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID.... event accepted"
-                 << endreq;
-          }
+      //background trigger has cut of to m_nJet == -1, so bypass jet and track cuts if background trigger
+      if((numberJet==m_nJet && m_nJet!=-1) || (m_nJet==-1)) {
+    	  
+	   if((numberTrk==m_nTrk && m_nTrk!=-1) || (m_nTrk==-1)) {
 
-          //monitored variables
-          mCluNum = m_nRoIEndCap;
-          mNumJet = m_nJet;
-          mNumTrk = m_nTrk;
-          result = true;
-       } else {
-         if(msgLvl() <= MSG::DEBUG) {
-           msg() << MSG::DEBUG
-                 << "Cluster is not satisfying all the conditions.... event not accepted"
-                 << endreq;
-         }
-         result = false;
-       }
+	     if(fabs(etaClust)<=1.0 && numberRoI >= m_nRoIBarrel) {
+
+	       if(msgLvl() <= MSG::DEBUG) {
+	         msg() << MSG::DEBUG
+		       << "Cluster passes barrel selection cuts of > " << m_nRoIBarrel << " RoIs and " 
+		       << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID... event accepted"
+		       << endreq;
+	       }
+	       
+	       // monitored variables
+	       mCluNum = numberRoI;
+	       mNumJet = numberJet;
+	       mNumTrk = numberTrk; //set these equal to actual cluster parameters 
+	       result = true;
+
+	     } else if((fabs(etaClust)>=1.0 && fabs(etaClust)<=2.5) && numberRoI >= m_nRoIEndCap) {
+
+	         if(msgLvl() <= MSG::DEBUG) {
+	           msg() << MSG::DEBUG
+	  		       << "Cluster passes endcap selection cuts of > " << m_nRoIEndCap << " RoIs and " 
+	  		       << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID... event accepted"
+	  		       << endreq;
+	       }
+	     
+	       // monitored variables
+	       mCluNum = numberRoI;
+	       mNumJet = numberJet;
+	       mNumTrk = numberTrk; //set these equal to actual cluster parameters
+	       result = true;
+
+	     } else {
+	       if(msgLvl() <= MSG::DEBUG) {
+	         msg() << MSG::DEBUG
+		       << "Cluster does not satisfy all the conditions... event not accepted"
+		       << endreq;
+	       }
+	       result = false;
+	     }
+	   } else {
+	       if(msgLvl() <= MSG::DEBUG) {
+	         msg() << MSG::DEBUG
+		       << "Cluster does not satisfy all the conditions... event not accepted"
+		       << endreq;
+	       }
+	       result = false;		   
+	   }
+      } else {
+	       if(msgLvl() <= MSG::DEBUG) {
+	         msg() << MSG::DEBUG
+		       << "Cluster does not satisfy all the conditions... event not accepted"
+		       << endreq;
+	       }
+	       result = false;	    	  
+      }
      } else {
        if(msgLvl() <= MSG::DEBUG) {
          msg() << MSG::DEBUG
-               << "Cluster is not satisfying all the conditions.... event not accepted"
+               << "Cluster does not satisfy all the conditions... event not accepted"
                << endreq;
        } 
        result = false;
      } 
-
-    //Store result
-    pass = result;
-
-    return HLT::OK;
+     
+     //Store result
+     pass = result;
+     
+     return HLT::OK;
   }
 }
