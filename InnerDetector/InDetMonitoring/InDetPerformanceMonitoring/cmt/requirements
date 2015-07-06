@@ -19,9 +19,13 @@ use GaudiInterface              GaudiInterface-*                External
 
 #packages needed for offline monitoring
 #use TrkExUtils             	TrkExUtils-*                 	Tracking/TrkExtrapolation
-use TrkEventPrimitives 		TrkEventPrimitives-* 		Tracking/TrkEvent
 use TrkV0Vertex 	       	TrkV0Vertex-*	       		Tracking/TrkEvent
 use TrkParameters         	TrkParameters-*   		Tracking/TrkEvent
+use TrkEventPrimitives 		TrkEventPrimitives-* 		Tracking/TrkEvent
+
+use  EventPrimitives            EventPrimitives-*               Event
+
+
 
 #packages needed for IDPerfMonZmumu
 use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
@@ -73,14 +77,21 @@ use GeneratorObjects	GeneratorObjects-*	Generators/
 
 
 #xAOD packages
-use xAODTracking	  xAODTracking-*	    Event/xAOD
-use xAODCaloEvent 	  xAODCaloEvent-*           Event/xAOD
-use xAODMissingET         xAODMissingET-*           Event/xAOD
+use xAODEgamma            	xAODEgamma-*             Event/xAOD
+use xAODMuon		  	xAODMuon-*       	 Event/xAOD
+use xAODJet		  	xAODJet-*       	 Event/xAOD
 
-use xAODEgamma            xAODEgamma-*              Event/xAOD
-use xAODMuon		  xAODMuon-*       	    Event/xAOD
-use xAODJet		  xAODJet-*       	    Event/xAOD
-use JetInterface          JetInterface-*            Reconstruction/Jet
+
+use xAODPrimitives     		xAODPrimitives-*         Event/xAOD
+use xAODTracking		xAODTracking-*		 Event/xAOD
+use xAODTruth		  	xAODTruth-*		 Event/xAOD
+use xAODCaloEvent 	  	xAODCaloEvent-*		 Event/xAOD
+use xAODMissingET         	xAODMissingET-*          Event/xAOD
+
+use JetInterface     		JetInterface-*           Reconstruction/Jet
+
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*	PhysicsAnalysis/ElectronPhotonID
+#use IsolationSelection		IsolationSelection-*		PhysicsAnalysis/AnalysisCommon
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.txt *.py" #InDetPerformanceMonitoring/*.py"

@@ -33,6 +33,8 @@ class TProfile;
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODMissingET/MissingET.h"
 
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+
 class IDPerfMonZee : public ManagedMonitorToolBase
 {
 
@@ -66,7 +68,7 @@ public:
   double deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const;
   double signedDeltaPhi(double phi1, double phi2) const;
 
-  int isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* em2) const;
+  int isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* em2, const xAOD::TrackParticleContainer* tracks = 0) const;
 
   void makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff);
 
@@ -174,6 +176,7 @@ public:
   std::string m_tracksName;
   std::string m_electronsName;
   std::string m_photonsName;
+  std::string m_VxPrimContainerName;
   std::string m_emclustersName;
   std::string m_metName;
   std::string m_triggerChainName;
@@ -183,7 +186,10 @@ public:
   double m_eoverp_standard_min;
   double m_eoverp_standard_max;
   int m_checkrate;
-
+  std::string m_electronIDLevel;
+  bool m_doIDCuts;
+  //Likelihood tool:
+  AsgElectronLikelihoodTool* m_LHTool2015; //!
 };
 
 #endif

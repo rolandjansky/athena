@@ -55,7 +55,7 @@ IDPerfMonKshort::IDPerfMonKshort( const std::string & type, const std::string & 
   declareProperty("tracksName",m_tracksName);
   declareProperty("CheckRate",m_checkrate=1000);
   declareProperty("triggerChainName",m_triggerChainName);
-  declareProperty("VxContainerName",m_VxContainerName="SecVertices");
+  declareProperty("VxContainerName",m_VxContainerName="V0UnconstrVertices");
   declareProperty("VxPrimContainerName",m_VxPrimContainerName="PrimaryVertices");
   //  declareProperty("MakeNtuple",m_Ntuple = false);
 
@@ -95,6 +95,8 @@ StatusCode IDPerfMonKshort::initialize()
 
 StatusCode IDPerfMonKshort::bookHistograms()
 {
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
 
   MonGroup al_kshort_mon ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run);
@@ -157,16 +159,79 @@ StatusCode IDPerfMonKshort::bookHistograms()
     m_mass_scaled->SetMinimum(0.);
     RegisterHisto(al_kshort_mon,m_mass_scaled) ;
 
+
+    m_massVsPhi = new TH2F("ks_massVsPhi", "Invariant mass - world average of K^{0}_{S} candidate", 10, (-1.0* myPi), myPi, 50, -.5, .5);
+    m_massVsPhi->SetXTitle("#phi");
+    m_massVsPhi->SetYTitle("Mass (Gev / c^{2}) - World Average [MeV]");
+    //    m_massVsPhi->SetMarkerStyle(20);
+    //    m_massVsPhi->SetMinimum(0.);
+    RegisterHisto(al_kshort_mon,m_massVsPhi) ;
+
+
+
+
+
     m_pt = new TH1F("ks_pt", "p_{T} of K^{0}_{S} candidate", 100, 0., 10.);
     m_pt->SetYTitle("K^{0}_{S} Candidates");
     m_pt->SetXTitle("p_{T} (Gev / c)");
     m_pt->SetMarkerStyle(20);
     RegisterHisto(al_kshort_mon,m_pt) ;
+
+    m_radiusVsZ_secVertex = new TH2F("secVertex_radiusVsZ", "all sec.vertices (reco);z [mm];Decay radius [mm]",180, -600., 600.,180.,0.,180.);
+    RegisterHisto(al_kshort_mon,m_radiusVsZ_secVertex) ;
+
+    m_YVsX_secVertex = new TH2F("secVertex_YVsX", "all sec. vertices (reco);x [mm];y [mm]",200, -150.,150., 200, -150., 150.);
+    RegisterHisto(al_kshort_mon,m_YVsX_secVertex) ;
+
+
+    m_radiusVsZ_secVertex_sel = new TH2F("secVertex_radiusVsZ_sel", "all sec.vertices (reco);z [mm];Decay radius [mm]",180, -600., 600.,180.,0.,180.);
+    RegisterHisto(al_kshort_mon,m_radiusVsZ_secVertex_sel) ;
+
+    m_YVsX_secVertex_sel = new TH2F("secVertex_YVsX_sel", "all sec. vertices (reco);x [mm];y [mm]",200, -150.,150., 200, -150., 150.);
+    RegisterHisto(al_kshort_mon,m_YVsX_secVertex_sel) ;
+
+
+
+    m_radiusVsZ_secVertex_Ks = new TH2F("secVertex_radiusVsZ_Ks", "sec.vertices (reco) of K^{0}_{S} candidates;z [mm];Decay radius [mm]",180, -600., 600.,180.,0.,180.);
+    RegisterHisto(al_kshort_mon,m_radiusVsZ_secVertex_Ks) ;
+
+    m_YVsX_secVertex_Ks = new TH2F("secVertex_YVsX_Ks", "sec. vertices (reco) of K^{0}_{S} candidates;x [mm];y [mm]",200, -150.,150., 200, -150., 150.);
+    RegisterHisto(al_kshort_mon,m_YVsX_secVertex_Ks) ;
+
+
+    m_radius_secVertices = new TH1F("radius_secVertices", "Decay radius of secondary vertices", 600, 0., 300.);
+    RegisterHisto(al_kshort_mon,m_radius_secVertices) ;
+
+    m_radius_secVertices_sel = new TH1F("radius_secVertices_sel", "Decay radius of secondary vertices", 600, 0., 300.);
+    RegisterHisto(al_kshort_mon,m_radius_secVertices_sel) ;
+
+
+
+    m_YVsX_primVertex = new TH2F("primVertex_YVsX", "all primary vertices (reco);PV x [mm];PV y [mm]",300, -1.5,1.5, 300, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_YVsX_primVertex) ;
+
+    m_XVsZ_primVertex = new TH2F("primVertex_XVsZ", "all primary vertices (reco);PV z [mm];PV x [mm]",200, -350.,350, 300, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_XVsZ_primVertex) ;
+
+    m_YVsZ_primVertex = new TH2F("primVertex_YVsZ", "all primary vertices (reco);PV z [mm];PV y [mm]",200, -350.,350., 100, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_YVsZ_primVertex) ;
+
+    m_YVsX_primVertex_Ks = new TH2F("primVertex_YVsX_Ks", "all primary vertices (reco);PV x [mm];PV y [mm]",300, -1.5,1.5, 300, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_YVsX_primVertex_Ks) ;
+
+    m_XVsZ_primVertex_Ks = new TH2F("primVertex_XVsZ_Ks", "all primary vertices (reco);PV z [mm];PV x [mm]",200, -350.,350, 300, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_XVsZ_primVertex_Ks) ;
+
+    m_YVsZ_primVertex_Ks = new TH2F("primVertex_YVsZ_Ks", "all primary vertices (reco);PV z [mm];PV y [mm]",200, -350.,350., 100, -1.5, 1.5);
+    RegisterHisto(al_kshort_mon,m_YVsZ_primVertex_Ks) ;
+
     m_radius = new TH1F("ks_radius", "Decay radius of K^{0}_{S} candidate", 100, 0., 300.);
     m_radius->SetYTitle("K^{0}_{S} Candidates");
     m_radius->SetXTitle("Decay Radius (mm)");
     m_radius->SetMarkerStyle(20);
     RegisterHisto(al_kshort_mon,m_radius) ;
+
+
     m_eta = new TH1F("ks_eta", "#eta of K^{0}_{S} candidate", 10, -2.5, 2.5);
     m_eta->SetYTitle("K^{0}_{S} Candidates");
     m_eta->SetXTitle("#eta");
@@ -311,7 +376,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TH1* histo) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
@@ -321,7 +386,7 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TH1* histo) {
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TProfile* histo) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
@@ -330,7 +395,7 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TProfile* histo) {
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
-
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
 
   StatusCode sc = mon.regGraph(graph);
   if (sc.isFailure() ) {
@@ -341,6 +406,8 @@ void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
 
 StatusCode IDPerfMonKshort::fillHistograms()
 {
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort fillHistogram() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
   const xAOD::TrackParticleContainer* tracks(0);
   StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
@@ -351,96 +418,182 @@ StatusCode IDPerfMonKshort::fillHistograms()
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<<m_tracksName<<" found in StoreGate" << endreq;
   }
 
-const xAOD::VertexContainer* PrimVxContainer(0);
- if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
-      if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
-	ATH_MSG_DEBUG("No Collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
-	return false;
-      }
- }
- else {
-	ATH_MSG_DEBUG("Collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
-	return StatusCode::SUCCESS;
- }
- xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
-
-
+  const xAOD::VertexContainer* PrimVxContainer(0);
+  if(evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)){
+    if ( evtStore()->retrieve(PrimVxContainer,m_VxPrimContainerName).isFailure()) {
+      ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
+      return false;
+    }
+    else
+      ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxPrimContainerName);
+  }
+  else {
+    ATH_MSG_DEBUG("No collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
+    return StatusCode::SUCCESS;
+  }
+  xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
 
 const xAOD::VertexContainer* SecVxContainer(0);
  if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){
    if (evtStore()->retrieve(SecVxContainer,m_VxContainerName).isFailure()) {
-     ATH_MSG_DEBUG("No Collection with name "<<m_VxContainerName<<" found in StoreGate");
+     ATH_MSG_DEBUG("Could not retrieve collection with name "<<m_VxContainerName<<" found in StoreGate");
      return false;
    }
- } else {
-   ATH_MSG_DEBUG("Collection with name "<<m_VxContainerName<<" found in StoreGate");
+   else
+     ATH_MSG_DEBUG("Successfully retrieved collection with name "<<m_VxContainerName);
+ }
+ else {
+   ATH_MSG_DEBUG("No collection with name "<<m_VxContainerName<<" found in StoreGate");
    return StatusCode::SUCCESS;
  }
 
  m_Nevents->Fill(0.);
 
 
- ToolHandle <Trk::V0Tools> myV0Tools("Trk::V0Tools");
+ // ToolHandle <Trk::V0Tools> myV0Tools("Trk::V0Tools");
  // = new Trk::V0Tools("V0Tools","myV0Tools",m_parent);
  //const xAOD::Vertex* theVxCandidate;
- double piMass = 139.57018;
- double ksMassPDG = 497.648;
- xAOD::VertexContainer::const_iterator v0Itr = SecVxContainer->begin();
- for ( v0Itr=SecVxContainer->begin(); v0Itr!=SecVxContainer->end(); ++v0Itr ) {
-   // for (const auto* secVx_elem : *SecVxContainer) {
-   //theVxCandidate = secVx_elem;
-
-   xAOD::Vertex* theVxCandidate = (*v0Itr);
-   double ksMass = myV0Tools->invariantMass(theVxCandidate,piMass,piMass);
-   double ksPt = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Perp();
-   double ksMomentum = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Vect().Mag();
-   //NEED TO BE MIGRATED?
-   CLHEP::Hep3Vector ksMomentumVector = CLHEP::Hep3Vector(myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Px(),
-							  myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Py(),
-							  myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Pz());
-
+ // double piMass = 139.57018;
+  double ksMassPDG = 497.648;
+  ATH_MSG_DEBUG("@todo : masspdf" <<ksMassPDG );
+  ATH_MSG_DEBUG("@todo Looping over SecVxContainer name : "<< m_VxContainerName);
+  ATH_MSG_DEBUG("@todo >> V0UnconstrVerices container size >> " << SecVxContainer->size());
+  //    const xAOD::VertexContainer::const_iterator* secVx_elem = SecVxContainer->begin();
+  //    for ( *secVx_elem=SecVxContainer->begin(); *secVx_elem!=SecVxContainer->end(); ++(*secVx_elem) ) {
+  for (const auto* secVx_elem : *SecVxContainer) {
+   ATH_MSG_DEBUG("Looping over SecVxContainer name : "<< m_VxContainerName);
+   double ksMass = secVx_elem->auxdata< float >("Kshort_mass");
+   double ksPt = secVx_elem->auxdata< float >("pT");
+   double ksPx = secVx_elem->auxdata< float >("px");
+   double ksPy = secVx_elem->auxdata< float >("py");
+   double ksPz = secVx_elem->auxdata< float >("pz");
+   ATH_MSG_DEBUG( " mass : "<<ksMass << " pt : "<< ksPt << " px : "<< ksPx <<  " py : "<< ksPy << " pz : "<< ksPz);
+   CLHEP::Hep3Vector ksMomentumVector = CLHEP::Hep3Vector(ksPx,ksPy,ksPz);
+   double ksMomentum = ksMomentumVector.mag();
    double transverseFlightDistance, totalFlightDistance;
    Amg::Vector3D flightVector;
    if(primaryVertex!=NULL) {
-     transverseFlightDistance = myV0Tools->lxy(theVxCandidate,primaryVertex);
-     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)-primaryVertex->position()).mag();
-     flightVector = myV0Tools->vtx(theVxCandidate)-primaryVertex->position();
+     if(primaryVertex->nTrackParticles() > 3){
+       ATH_MSG_DEBUG("NTrk of primary vertices : "<< primaryVertex->nTrackParticles());
+       m_YVsX_primVertex->Fill(primaryVertex->position().x(),primaryVertex->position().y());
+       m_XVsZ_primVertex->Fill(primaryVertex->position().z(),primaryVertex->position().x());
+       m_YVsZ_primVertex->Fill(primaryVertex->position().z(),primaryVertex->position().y());
+     }
+     auto vert = secVx_elem->position()-primaryVertex->position();
+     double dx = vert.x();
+     double dy = vert.y();
+     Amg::Vector3D mom(ksPx,ksPy,ksPz);
+     double dxy = (mom.x()*dx + mom.y()*dy)/mom.perp();
+     transverseFlightDistance =dxy;
+     //     transverseFlightDistance = myV0Tools->lxy(theVxCandidate,primaryVertex);
+     Amg::Vector3D vertex(secVx_elem->position().x(),secVx_elem->position().y(),secVx_elem->position().z());
+     totalFlightDistance = (vertex-primaryVertex->position()).mag();
+     //     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)-primaryVertex->position()).mag();
+     flightVector = vertex-primaryVertex->position();
+     //     flightVector = myV0Tools->vtx(theVxCandidate)-primaryVertex->position();
+     ATH_MSG_DEBUG("dx : "<<dx<<" dy: "<<dy<<" dxy: "<<dxy<< "flight distance (total): "<<totalFlightDistance);
    }
    else {
-     transverseFlightDistance = myV0Tools->rxy(theVxCandidate);
-     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)).mag();
-     flightVector = myV0Tools->vtx(theVxCandidate);
+     transverseFlightDistance = secVx_elem->position().perp();
+     //transverseFlightDistance = myV0Tools->rxy(theVxCandidate);
+     Amg::Vector3D vertex(secVx_elem->position().x(),secVx_elem->position().y(),secVx_elem->position().z());
+     totalFlightDistance = vertex.mag();
+     //     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)).mag();
+     flightVector = vertex;
+     //     flightVector = myV0Tools->vtx(theVxCandidate);
    }
-
    double properDecayTime = 1./Gaudi::Units::c_light*ksMassPDG/ksMomentum*totalFlightDistance;
 
-   double ksPx = ksMomentumVector.x();
-   double ksPy = ksMomentumVector.y();
+   //   double ksPx = ksMomentumVector.x();
+   //   double ksPy = ksMomentumVector.y();
    double flightX = flightVector.x();
    double flightY = flightVector.y();
    double cosThetaPointing = (ksPx*flightX+ksPy*flightY)/sqrt(ksPx*ksPx+ksPy*ksPy)/sqrt(flightX*flightX+flightY*flightY);
-
    int trackPos_nSVTHits = 0;
    int trackNeg_nSVTHits = 0;
+   double trackPos_d0 = 0;
+   double trackPos_d0_wrtPV = 0;
+   double trackNeg_d0 = 0;
+   double trackNeg_d0_wrtPV = 0;
+   const xAOD::TrackParticle* trackPos(0);
+   const xAOD::TrackParticle* trackNeg(0);
 
-   const xAOD::TrackParticle* trackPos = myV0Tools->positiveOrigTrack(theVxCandidate);
+   int ntrk(-1);
+   ntrk = secVx_elem->nTrackParticles();
+   ATH_MSG_DEBUG("track particles associated to vertex : "<<ntrk );
+   if(ntrk>0){
+     auto tpLinks = secVx_elem->trackParticleLinks();
+     for (auto link: tpLinks){
+       Info("execute()", "V0: TP link = %d %s ", link.isValid(), link.dataID().c_str() );
+       //const xAOD::TrackParticle* TP = *link;
+       //if (TP) Info("execute()", "V0: TP pt = %f ", TP->pt());
+       if(ntrk == 2){
+	 ATH_MSG_DEBUG("Exactly two track particles!");
+	 if( (*link)->charge() > 0. ) {
+	   trackPos = *link;
+	   ATH_MSG_DEBUG("Track with positive charge!");
+	 }
+	 else if( (*link)->charge() < 0. ){
+	   trackNeg = *link;
+	   ATH_MSG_DEBUG("Track with negative charge!");	   }
+       }
+     }//trackparticles
+   }//ntrk
+
+
    if(trackPos!=0) {
-     uint8_t dummy(-1);
-     trackPos_nSVTHits = trackPos->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
-   }
-   const xAOD::TrackParticle* trackNeg = myV0Tools->negativeOrigTrack(theVxCandidate);
-   if(trackNeg!=0) {
-     uint8_t dummy(-1);
-     trackNeg_nSVTHits = trackNeg->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
-   }
+      uint8_t dummy(-1);
+      trackPos_nSVTHits = trackPos->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
+      trackPos_d0 = trackPos->d0();
+      trackPos_d0_wrtPV = trackPos->d0() - (primaryVertex->position().y()*cos(trackPos->phi0()) - primaryVertex->position().x()*sin(trackPos->phi0()));
 
-   int selectorValue = 0;
+    }
 
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endreq;
+    std::cout <<"@todo : check (2) " << std::endl;
+
+    //   const xAOD::TrackParticle* trackNeg = myV0Tools->negativeOrigTrack(secVx_elem);
+    //      const xAOD::TrackParticle* trackNeg = myV0Tools->negativeOrigTrack(theVxCandidate);
+    if(trackNeg!=0) {
+      uint8_t dummy(-1);
+      trackNeg_nSVTHits = trackNeg->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
+      trackNeg_d0 = trackNeg->d0();
+      trackNeg_d0_wrtPV = trackNeg->d0() - (primaryVertex->position().y()*cos(trackNeg->phi0()) - primaryVertex->position().x()*sin(trackNeg->phi0()));
+    }
+
+    int selectorValue = 0;
+
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endreq;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trackPos nSVThits = " << trackPos_nSVTHits << " trackNeg nSVThits = " << trackNeg_nSVTHits <<endreq;
     // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained << endreq;
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endreq;
+
+
+    double secVertex_radius = secVx_elem->auxdata< float >("Rxy");
+    ATH_MSG_DEBUG("secondary vertex radius : " << secVertex_radius);
+    //    if(secVertex_radius > 20. && abs(secVx_elem->position().z()) < 300.){
+      m_radius_secVertices->Fill(secVertex_radius);
+      m_radiusVsZ_secVertex->Fill(secVx_elem->position().z(),secVertex_radius);
+      m_YVsX_secVertex->Fill(secVx_elem->position().x(),secVx_elem->position().y());
+      //    }
+
+      ATH_MSG_DEBUG("trackneg d0 : " << trackNeg_d0 << " trackpos d0 : "<< trackPos_d0);
+      ATH_MSG_DEBUG("trackneg d0 (PV): " << trackNeg_d0_wrtPV << " trackpos d0 (PV) : "<< trackPos_d0_wrtPV);
+
+      if(secVx_elem->chiSquared()/secVx_elem->numberDoF() < 4.5
+	 && ksPt > 300.
+	 && abs(trackNeg_d0_wrtPV) > 5.
+	 && abs(trackPos_d0_wrtPV) > 5.
+	 && trackPos_nSVTHits > 2
+	 && trackNeg_nSVTHits > 2
+	 && secVertex_radius > 20.
+	 ){
+	m_radius_secVertices_sel->Fill(secVertex_radius);
+	m_radiusVsZ_secVertex_sel->Fill(secVx_elem->position().z(),secVertex_radius);
+	m_YVsX_secVertex_sel->Fill(secVx_elem->position().x(),secVx_elem->position().y());
+      }
+
+
 
     if( 1
 	&& properDecayTime > 0.004
@@ -450,20 +603,40 @@ const xAOD::VertexContainer* SecVxContainer(0);
 	&& trackPos_nSVTHits > 2 && trackNeg_nSVTHits > 2
 	) selectorValue = 1;
     if(selectorValue != 1) continue;
+    std::cout <<"@todo : check (3) " << std::endl;
+
+
+    m_radiusVsZ_secVertex_Ks->Fill(secVx_elem->position().z(),secVertex_radius);
+    m_YVsX_secVertex_Ks->Fill(secVx_elem->position().x(),secVx_elem->position().y());
+
+    m_YVsX_primVertex_Ks->Fill(primaryVertex->position().x(),primaryVertex->position().y());
+    m_XVsZ_primVertex_Ks->Fill(primaryVertex->position().z(),primaryVertex->position().x());
+    m_YVsZ_primVertex_Ks->Fill(primaryVertex->position().z(),primaryVertex->position().y());
 
     m_mass->Fill(ksMass/1000.);
+
+
     //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained <<endreq;
 
     //   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endreq;
-    double ksEta = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).PseudoRapidity();
-    double ksPhi = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Phi();
-    double piPlusPt = myV0Tools->positiveTrack4Momentum(theVxCandidate,piMass).Perp();
+    double ksEta = ksMomentumVector.pseudoRapidity();
+    //    double ksEta = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).PseudoRapidity();
+    double ksPhi = ksMomentumVector.phi();
+    //    double ksPhi = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Phi();
+    std::cout <<"@todo : check (4) " << std::endl;
+    double piPlusPt = trackPos->p4().Perp();
+    std::cout <<"@todo : check (5) " << std::endl;
+    //    double piPlusPt = myV0Tools->positiveTrack4Momentum(theVxCandidate,piMass).Perp();
     //    double piPlusEta = myV0Tools->positiveTrack4Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,piMass).pseudoRapidity();
     //    double piPlusPhi = myV0Tools->positiveTrack4Momentum((const Trk::ExtendedVxCandidate*)myV0Hypothesis,piMass).phi();
-    double piMinusPt = myV0Tools->negativeTrack4Momentum(theVxCandidate,piMass).Perp();
+    double piMinusPt = trackNeg->p4().Perp();
+    //    double piMinusPt = myV0Tools->negativeTrack4Momentum(theVxCandidate,piMass).Perp();
     //    double piMinusEta = myV0Tools->negativeTrack4Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,piMass).pseudoRapidity();
     //    double piMinusPhi = myV0Tools->negativeTrack4Momentum((const Trk::ExtendedVxCandidate*)myV0Hypothesis,piMass).phi();
+    std::cout <<"@todo : check (6) " << std::endl;
 
+
+    m_massVsPhi->Fill(ksPhi,ksMass-ksMassPDG);
     m_pt->Fill(ksPt/1000.);
     m_eta->Fill(ksEta);
     m_phi->Fill(ksPhi);
@@ -519,7 +692,7 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_massVPtBinHistos[quickBin]->Fill(ksMass/1000.);
     //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "histo[" << quickBin << "]->GetEntries() = " << m_massVPtBinHistos[quickBin]->GetEntries() << endreq;
 
-    double radius = myV0Tools->rxy(theVxCandidate);
+    double radius = secVx_elem->auxdata< float >("Rxy");;
 
     m_radius->Fill(radius);
 
@@ -581,6 +754,8 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
 StatusCode IDPerfMonKshort::procHistograms()
 {
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort procHistograms() started"<< endreq;
+
   Double_t myPi = TMath::Pi();
 
   if( endOfLowStat || endOfLumiBlock ) {

@@ -61,7 +61,8 @@ MuonSelector::MuonSelector()
   m_bCutOnCombKine  = false; //not used
   m_fEtaCut         = 2.5;
   //m_fEtaCut         = 1.9;
-  m_combPtCut       = 15.0*CLHEP::GeV; // GeV/c
+      m_combPtCut       = 15.0*CLHEP::GeV; // GeV/c
+  //    m_combPtCut       = .01*CLHEP::GeV; // GeV/c
 
   //m_ptMSCut         = 10.0*CLHEP::GeV;
   m_ptMSCut         = 0.0*CLHEP::GeV;
@@ -272,8 +273,8 @@ bool MuonSelector::passIPCuts()
     const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     extd0 = IDTrk->d0();
     extz0 = IDTrk->z0()+IDTrk->vz();
-    std::cout << " the IDTrack muon d0:  " << extd0 << std::endl;
-    std::cout << " the IDTrack muon z0:  " << extz0 << std::endl;
+    std::cout << " the IDTrack muon (InDetTrackParticle) d0:  " << extd0 << std::endl;
+    std::cout << " the IDTrack muon (InDetTrackParticle) z0:  " << extz0 << std::endl;
     //if( IDTrk->track() ) {
     //      const Trk::Track* IDTrkTrack = IDTrk->track();
     //      if(IDTrkTrack) {

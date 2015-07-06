@@ -66,8 +66,8 @@ IDPerfMonZee::IDPerfMonZee( const std::string & type, const std::string & name, 
   declareProperty("tracksName",m_tracksName);
   declareProperty("electronsName",m_electronsName="Electrons");
   declareProperty("photonsName",m_photonsName="Photons");
+  declareProperty("VxPrimContainerName",m_VxPrimContainerName="PrimaryVertices");
   declareProperty("emclustersName",m_emclustersName="LArClusterEM");
-  //  declareProperty("metName",m_metName="MET_RefFinal");
   declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
   declareProperty("METFinalName",  m_metRefFinalName= "FinalClus");
   declareProperty("eoverp_standard_min",m_eoverp_standard_min=0.5);
@@ -76,6 +76,7 @@ IDPerfMonZee::IDPerfMonZee( const std::string & type, const std::string & name, 
   declareProperty("eoverp_tight_max",m_eoverp_tight_max=1.3);
   declareProperty("CheckRate",m_checkrate=1000);
   declareProperty("triggerChainName",m_triggerChainName);
+  declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
 
   region_strings.push_back("incl");
   region_strings.push_back("barrel");
@@ -97,6 +98,37 @@ StatusCode IDPerfMonZee::initialize()
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endreq;
+
+  //---Electron Likelihood tool---
+  m_doIDCuts = true;
+  ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
+  m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
+  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
+    ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
+
+  //Set up electron LH level
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150429/";
+  if(m_electronIDLevel == ""){
+    ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
+    m_doIDCuts = false;
+  }
+  else{
+    if((m_electronIDLevel != "Loose") && (m_electronIDLevel != "Medium") && (m_electronIDLevel != "Tight")){
+      ATH_MSG_WARNING("Unknown electronIDLevel!! (Accepted values: Loose, Medium, Tight)");
+      m_doIDCuts = false;
+    }
+    else{
+      std::string configFile = confDir+"ElectronLikelihood"+m_electronIDLevel+"OfflineConfig2015.conf";
+      ATH_MSG_INFO("Likelihood configuration file: " << configFile);
+      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure())
+	ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
+    }
+  }
+  StatusCode lh = m_LHTool2015->initialize();
+  if(lh.isFailure()){
+    ATH_MSG_WARNING("Electron likelihood tool initialize() failed!  Turning off electron LH cuts!");
+    m_doIDCuts = false;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -411,7 +443,7 @@ void IDPerfMonZee::RegisterHisto(MonGroup& mon, TH2* histo, bool doSumw2) {
 
 StatusCode IDPerfMonZee::fillHistograms()
 {
-  ATH_MSG_DEBUG("In fillHistograms()");
+  ATH_MSG_VERBOSE("In fillHistograms()");
   int nevents = (int) m_Nevents->GetEntries();
 
   // get electron container from storegate
@@ -429,6 +461,7 @@ StatusCode IDPerfMonZee::fillHistograms()
       return StatusCode::SUCCESS;
     }
   }
+  ATH_MSG_VERBOSE("This event contains " << electrons->size() << " electrons.");
 
   // get photon container from storegate
   const xAOD::PhotonContainer* photons = 0;
@@ -445,6 +478,7 @@ StatusCode IDPerfMonZee::fillHistograms()
       return StatusCode::SUCCESS;
     }
   }
+  //ATH_MSG_DEBUG("This event contains " << photons->size() << " photons.");
 
   // get emcluster container from storegate
   const xAOD::CaloClusterContainer* emclusters = 0;
@@ -509,6 +543,10 @@ StatusCode IDPerfMonZee::fillHistograms()
 
   const xAOD::CaloCluster* LeadingEMcluster = getLeadingEMcluster(photons, electrons);
   const xAOD::CaloCluster* SecondLeadingEMcluster = getLeadingEMcluster(photons, electrons, LeadingEMcluster);
+  
+  if((LeadingEMcluster != 0) && (SecondLeadingEMcluster != 0))
+    ATH_MSG_DEBUG("Event has a leading and second leading EM cluster!");
+
   if (LeadingEMcluster != 0 && SecondLeadingEMcluster != 0) {
     int leading_eta_region = etaRegion(LeadingEMcluster->etaBE(2));
     int second_leading_eta_region = etaRegion(SecondLeadingEMcluster->etaBE(2));
@@ -518,40 +556,60 @@ StatusCode IDPerfMonZee::fillHistograms()
     double second_leading_dEta = electronTrackMatchPhi(tracks,SecondLeadingEMcluster);
     const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,LeadingEMcluster);
     const xAOD::TrackParticle* track_second_leading_emcluster = electronTrackMatch(tracks,SecondLeadingEMcluster);
+
+    if( (track_leading_emcluster != 0) && (track_second_leading_emcluster != 0) )
+      ATH_MSG_DEBUG("Event has a tracks matched to both clusters!");
+
     // *********************
     // Fill event histograms
     // *********************
+
+    // get cluster, track invariant masses and fill pre-selection histograms
     double cluster_invmass = InvMass(LeadingEMcluster,SecondLeadingEMcluster);
+     ATH_MSG_DEBUG("Cluster invariant mass: " << cluster_invmass);
     if (cluster_invmass > 0.) m_Zee_invmass->Fill(cluster_invmass);
     double track_invmass = 0.;
     if (track_leading_emcluster != 0 && track_second_leading_emcluster != 0) {
       track_invmass = InvMass(track_leading_emcluster,track_second_leading_emcluster);
+      ATH_MSG_DEBUG("Track invariant mass: " << track_invmass);
       if (track_invmass > 0.) m_Zee_trk_invmass->Fill(track_invmass);
     }
-    int selected = isZee(LeadingEMcluster,SecondLeadingEMcluster);
-    if (selected <= 1) {
+
+    // does the event pass the Zee selection?
+    int selected = isZee(LeadingEMcluster,SecondLeadingEMcluster,tracks);
+    ATH_MSG_DEBUG("Event passed " << 3-selected << "/3 Zee cuts");
+
+    // fill histograms only with selected events
+    if(selected == 0){
+    //if ( selected <= 1 ) {
+      ATH_MSG_DEBUG("Event passed selection -- filling histograms");
       if (cluster_invmass > 0.) m_Zee_invmass_sel->Fill(cluster_invmass);
-      if (track_leading_emcluster != 0 && track_second_leading_emcluster != 0 && track_invmass > 0.) m_Zee_trk_invmass_sel->Fill(track_invmass);
-    }
-    if (track_leading_emcluster != 0 && track_second_leading_emcluster !=0) {
-      double eoverp_pos = -99.;
-      double eoverp_neg = -99.;
-      double track_leading_emcluster_p = track_leading_emcluster->pt()*cosh(track_leading_emcluster->eta());
-      double track_second_leading_emcluster_p = track_second_leading_emcluster->pt()*cosh(track_second_leading_emcluster->eta());
-      if (track_leading_emcluster->charge() == 1. && track_second_leading_emcluster->charge() == -1.) {
-	eoverp_pos = LeadingEMcluster->e()/track_leading_emcluster_p;
-	eoverp_neg = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
-      }
-      else if (track_leading_emcluster->charge() == -1. && track_second_leading_emcluster->charge() == 1.) {
-	eoverp_neg = LeadingEMcluster->e()/track_leading_emcluster_p;
-	eoverp_pos = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
-      }
-      double eoverpasym = -99.;
-      if (eoverp_pos+eoverp_neg != 0.) {
-	eoverpasym =  (eoverp_pos-eoverp_neg) / (eoverp_pos+eoverp_neg);
-	m_Zee_Eopasym_perevent->Fill(eoverpasym);
-	if (eoverp_pos > m_eoverp_tight_min && eoverp_pos < m_eoverp_tight_max && eoverp_neg > m_eoverp_tight_min && eoverp_neg < m_eoverp_tight_max) {
-	  m_Zee_Eopasym_perevent_central->Fill(eoverpasym);
+      if (track_invmass > 0.) m_Zee_trk_invmass_sel->Fill(track_invmass);
+      //} // selected <= 1 loop used to end here
+
+      // fill e/p histos from SELECTED Zee events
+      if (track_leading_emcluster != 0 && track_second_leading_emcluster !=0) {
+	double eoverp_pos = -99.;
+	double eoverp_neg = -99.;
+	double track_leading_emcluster_p = track_leading_emcluster->pt()*cosh(track_leading_emcluster->eta());
+	double track_second_leading_emcluster_p = track_second_leading_emcluster->pt()*cosh(track_second_leading_emcluster->eta());
+
+	if (track_leading_emcluster->charge() == 1. && track_second_leading_emcluster->charge() == -1.) {
+	  eoverp_pos = LeadingEMcluster->e()/track_leading_emcluster_p;
+	  eoverp_neg = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
+	}
+	else if (track_leading_emcluster->charge() == -1. && track_second_leading_emcluster->charge() == 1.) {
+	  eoverp_neg = LeadingEMcluster->e()/track_leading_emcluster_p;
+	  eoverp_pos = SecondLeadingEMcluster->e()/track_second_leading_emcluster_p;
+	}
+
+	double eoverpasym = -99.;
+	if (eoverp_pos+eoverp_neg != 0.) {
+	  eoverpasym =  (eoverp_pos-eoverp_neg) / (eoverp_pos+eoverp_neg);
+	  m_Zee_Eopasym_perevent->Fill(eoverpasym);
+	  if ( (eoverp_pos > m_eoverp_tight_min) && (eoverp_pos < m_eoverp_tight_max) && (eoverp_neg > m_eoverp_tight_min) && (eoverp_neg < m_eoverp_tight_max) ) {
+	    m_Zee_Eopasym_perevent_central->Fill(eoverpasym);
+	  }
 	}
       }
     }
@@ -612,12 +670,13 @@ StatusCode IDPerfMonZee::procHistograms()
       makeEffHisto(m_Zee_trackmatched_tightEopmatched_eta[region],m_Zee_trackmatched_eta[region],m_Zee_tightEopmatch_eff_vs_eta[region]);
       makeEffHisto(m_Zee_trackmatched_tightEopmatched_phi[region],m_Zee_trackmatched_phi[region],m_Zee_tightEopmatch_eff_vs_phi[region]);
 
-      //m_Zee_Eopdiff[region]->Add(m_Zee_Eop_plus[region],m_Zee_Eop_minus[region],1.,-1);
-      //m_Zee_Eopdiff_vs_p[region]->Add(m_Zee_meanEop_vs_p_plus[region],m_Zee_meanEop_vs_p_minus[region],1.,-1);
-      //m_Zee_Eopdiff_vs_invp[region]->Add(m_Zee_meanEop_vs_invp_plus[region],m_Zee_meanEop_vs_invp_minus[region],1.,-1);
-      //m_Zee_Eopdiff_vs_E[region]->Add(m_Zee_meanEop_vs_E_plus[region],m_Zee_meanEop_vs_E_minus[region],1.,-1);
-      //m_Zee_Eopdiff_vs_phi[region]->Add(m_Zee_meanEop_vs_phi_plus[region],m_Zee_meanEop_vs_phi_minus[region],1.,-1);
-      //m_Zee_Eopdiff_vs_eta[region]->Add(m_Zee_meanEop_vs_eta_plus[region],m_Zee_meanEop_vs_eta_minus[region],1.,-1);
+      // these were commented out
+      m_Zee_Eopdiff[region]->Add(m_Zee_Eop_plus[region],m_Zee_Eop_minus[region],1.,-1);
+      m_Zee_Eopdiff_vs_p[region]->Add(m_Zee_meanEop_vs_p_plus[region],m_Zee_meanEop_vs_p_minus[region],1.,-1);
+      m_Zee_Eopdiff_vs_invp[region]->Add(m_Zee_meanEop_vs_invp_plus[region],m_Zee_meanEop_vs_invp_minus[region],1.,-1);
+      m_Zee_Eopdiff_vs_E[region]->Add(m_Zee_meanEop_vs_E_plus[region],m_Zee_meanEop_vs_E_minus[region],1.,-1);
+      m_Zee_Eopdiff_vs_phi[region]->Add(m_Zee_meanEop_vs_phi_plus[region],m_Zee_meanEop_vs_phi_minus[region],1.,-1);
+      m_Zee_Eopdiff_vs_eta[region]->Add(m_Zee_meanEop_vs_eta_plus[region],m_Zee_meanEop_vs_eta_minus[region],1.,-1);
 
       makeEffHisto(m_Zee_Eop_lt1_vs_eta[region],m_Zee_eta[region],m_Zee_frac_Eop_lt1_vs_eta[region]);
       makeEffHisto(m_Zee_Eop_lt1_vs_phi[region],m_Zee_phi[region],m_Zee_frac_Eop_lt1_vs_phi[region]);
@@ -663,36 +722,32 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
   xAOD::ElectronContainer::const_iterator electronItrEnd = electrons->end();
 
   const xAOD::CaloCluster* leading_emcluster = 0;
-
+  bool LHSel;
   float max_pt = 0.;
-  for (; photonItr != photonItrEnd; ++photonItr) {
-    const xAOD::Photon* ph = (*photonItr);
-    //if (int(ph->isem()&0x7FF3) != 0) continue; // medium (with no track req but with cluster iso)
-    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) != 0) continue; // medium (with no track req but with cluster iso)
-    const xAOD::CaloCluster* cl = ph->caloCluster();
-    if (cl == omitCluster) continue;
-    double deltaR = !omitCluster ? 1.0 : sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
-    if(deltaR < 0.005) continue;
-    if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
-    if (cl->pt() > max_pt) {
-      leading_emcluster = cl;
-      max_pt = cl->pt();
-    }
-  }
+
   for (; electronItr != electronItrEnd; ++electronItr) {
+    ATH_MSG_DEBUG("Checking likelihood");
     const xAOD::Electron* em = (*electronItr);
-    //if (int(em->isem()&0x7FF3) != 0) continue; // medium (with no track req but with cluster iso)
-    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) != 0) continue; // medium (with no track req but with cluster iso)
+    // check ID
+    if(m_doIDCuts){
+      LHSel = false;
+      LHSel = m_LHTool2015->accept(em);
+      if(!LHSel) continue;
+      ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
+    }
+
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
     double deltaR = !omitCluster ? 1.0 : sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
-    if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
+    if (cl->pt()/Gaudi::Units::GeV < 20.) continue;
     if (cl->pt() > max_pt) {
       leading_emcluster = cl;
       max_pt = cl->pt();
     }
   }
+
+  ATH_MSG_DEBUG("leading_emcluster: " << leading_emcluster); 
 
   return leading_emcluster;
 
@@ -786,7 +841,7 @@ double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClust
     invmass = (particle1+particle2).Mag();
   }
 
-  return invmass;
+   return invmass;
 
 }
 
@@ -832,14 +887,24 @@ double IDPerfMonZee::deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackP
 
 }
 
-int IDPerfMonZee::isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* em2) const {
+int IDPerfMonZee::isZee(const xAOD::CaloCluster* em1, const xAOD::CaloCluster* em2, const xAOD::TrackParticleContainer* tracks) const {
 
-  int selected = 2;
+  int selected = 3;
+  
+  //are the two electrons oppositely charged?
+  const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,em1);
+  const xAOD::TrackParticle* track_second_leading_emcluster = electronTrackMatch(tracks,em2);
+  if(!track_leading_emcluster || !track_second_leading_emcluster){
+    ATH_MSG_DEBUG("Don't have 2 matched tracks!  Skipping charge check...");
+    --selected;
+  }
+  else if(track_leading_emcluster->charge() != track_second_leading_emcluster->charge())
+    --selected;
 
   double invmass = InvMass(em1,em2); // given in GeV
-
   if (em1->pt()/Gaudi::Units::GeV > 20. &&
       em2->pt()/Gaudi::Units::GeV > 20.) --selected;
+
   if (invmass > 70. &&
       invmass < 110.) --selected;
 
