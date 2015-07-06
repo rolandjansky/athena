@@ -33,12 +33,9 @@ TrigCaloRatioHypo::TrigCaloRatioHypo(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("EtCut",       m_etCut = 30*CLHEP::GeV, "cut value forthe jet et"); 
   declareProperty("LogRatioCut", m_logRatioCut = 1.2, "cut value for the jet energy ratio"); 
-  declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV for the isolation requirement");
-  declareProperty("TrackCut",    m_trackCut = 0, "minimum number of tracks for the isolation requirement");
+  declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV");
   declareProperty("DeltaR",      m_deltaR=0.2, "radius for the track isolation requirement");
   declareProperty("EtaCut",      m_etaCut = 2.5, "cut value for Eta of the Jet");
-  declareProperty("Reversed",    m_reversedCut = false, "reversed cut for collimated photons");
-  declareProperty("DoTrackIso",  m_doTrackIso = true, "switch on/off the track isolation requirement");
   declareProperty("AcceptAll",   m_acceptAll=false);
 
   declareMonitoredStdContainer("JetEt",      m_jetEt);
@@ -66,20 +63,6 @@ HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
   m_rejected=0;
   m_errors=0;
 
-  //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {  
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " EtCut       = " << m_etCut << endreq; 
-    msg() << MSG::DEBUG << " LogRatioCut = " << m_logRatioCut << endreq; 
-    msg() << MSG::DEBUG << " PtMinID     = " << m_ptCut << endreq; 
-    msg() << MSG::DEBUG << " TrackCut    = " << m_trackCut << endreq; 
-    msg() << MSG::DEBUG << " DeltaR      = " << m_deltaR << endreq; 
-    msg() << MSG::DEBUG << " EtaCut      = " << m_etaCut << endreq; 
-    msg() << MSG::DEBUG << " Reversed    = " << m_reversedCut << endreq; 
-    msg() << MSG::DEBUG << " DoTrackIso  = " << m_doTrackIso << endreq; 
-    msg() << MSG::DEBUG << " AcceptAll   = " << m_acceptAll << endreq;
-  }
-
   return HLT::OK;
 }
 
@@ -103,7 +86,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_cutCounter = -1;
 
   bool passCutJet = false;
-  bool passCutTrk = true; //default to true, changes false if m_trackCut tracks are within m_deltaR of the jet axis
+  bool passCutTrk = true; //default to true, changes false if a track is within m_deltaR of the jet axis
   pass=false;
 
   double jetRatio = -1.;
@@ -160,92 +143,62 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " jet with et=" << jetEt << ", eta=" << jetEta << ", phi=" << jetPhi 
 	  << ", log-ratio=" << jetRatio << endreq;
-  
-  if(!m_reversedCut) {
+
+  if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio >= m_logRatioCut) {
     
-    if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut) {
-      
-      m_jetEt.push_back(jetEt/CLHEP::GeV);
-      m_jetEta.push_back(jetEta); 
-      m_jetPhi.push_back(jetPhi);
-      m_logRatio = jetRatio;
-      
-      passCutJet = true;
-    }
+    m_jetEt.push_back(jetEt/CLHEP::GeV);
+    m_jetEta.push_back(jetEta); 
+    m_jetPhi.push_back(jetPhi);
+    m_logRatio = jetRatio;
     
-  } else {
-      
-    if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio <= m_logRatioCut) {
-	
-      m_jetEt.push_back(jetEt/CLHEP::GeV);
-      m_jetEta.push_back(jetEta); 
-      m_jetPhi.push_back(jetPhi);
-      m_logRatio = jetRatio;
-      
-      passCutJet = true;
-    }
-    
+    passCutJet = true;
   }
 
-  if(m_doTrackIso) {
+  const xAOD::TrackParticleContainer* vectorOfTracks;
+  status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
 
-    bool countTracks=0;
+  if(status != HLT::OK) {
+    msg() << MSG::ERROR << "Failed to get the xAOD track container" << endreq;
+    m_errors++;
+    return HLT::ERROR;
+  } else if (msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << "Got the xAOD track container" << endreq;
 
-    const xAOD::TrackParticleContainer* vectorOfTracks;
-    status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
+  if(vectorOfTracks->size() == 0) {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "The xAOD track container is empty" << endreq;
+     passCutTrk = true; //default is true, but just for clarity
+  } else {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << vectorOfTracks->size() << " tracks are found" << endreq;
+  
+  xAOD::TrackParticleContainer::const_iterator
+    track     = vectorOfTracks->begin(),
+    lasttrack = vectorOfTracks->end();
+
+  for(; track !=lasttrack; track++ ) {
+
+    float theta   = (*track)->theta();
+    float qOverPt = (*track)->qOverP()/TMath::Sin(theta);
+    float pT      = (1/qOverPt);
+
+    if (fabs(pT) <= m_ptCut) continue;
+
+    double phi  = (*track)->phi0();
+    double eta  = (*track)->eta();
     
-    if(status != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to get the xAOD track container" << endreq;
-      m_errors++;
-      return HLT::ERROR;
-    } else if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Got the xAOD track container" << endreq;
-    
-    if(vectorOfTracks->size() == 0) {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "The xAOD track container is empty" << endreq;
-      passCutTrk = true; //default is true, but just for clarity
-    } else {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << vectorOfTracks->size() << " tracks are found" << endreq;
-      
-      xAOD::TrackParticleContainer::const_iterator
-	track     = vectorOfTracks->begin(),
-	lasttrack = vectorOfTracks->end();
-      
-      for(; track !=lasttrack; track++ ) {
-	
-	float theta   = (*track)->theta();
-	float qOverPt = (*track)->qOverP()/TMath::Sin(theta);
-	float pT      = (1/qOverPt);
-	
-	if (fabs(pT) <= m_ptCut) continue;
-	
-	double phi  = (*track)->phi0();
-	double eta  = (*track)->eta();
-	
-	if(msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
-	
-	double deta = fabs(eta-jetEta);	
-	double dphi = fabs(HLT::wrapPhi(phi-jetPhi));
-	
-	double dR = sqrt((deta*deta)+(dphi*dphi));
-	if (dR<m_deltaR) {
-	  countTracks++;
-	}
-      }
-    }
+    if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
 
-    if(countTracks>m_trackCut){
+    double deta = fabs(eta-jetEta);	
+    double dphi = fabs(HLT::wrapPhi(phi-jetPhi));
+
+    double dR = sqrt((deta*deta)+(dphi*dphi));
+    if (dR<m_deltaR) {
       passCutTrk = false;
     }
-    else{
-      if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet passed tracking isolation" << endreq; 
-    }
   }
-
+  }
   if((passCutJet&&passCutTrk) || m_acceptAll) {
 
     pass = true;
