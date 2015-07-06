@@ -29,8 +29,8 @@
 //  
 //****************************************************************************
 
-#ifndef TILERECALGS_TILEDIGITSFILTER_H
-#define TILERECALGS_TILEDIGITSFILTER_H
+#ifndef TILESIMALGS_TILEDIGITSFILTER_H
+#define TILESIMALGS_TILEDIGITSFILTER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -68,4 +68,4 @@ class TileDigitsFilter: public AthAlgorithm {
     int m_threshold[2];  //!< Threshold value for low and high gain
 };
 
-#endif // TILERECALGS_TILEDIGITSFILTER_H
+#endif // TILESIMALGS_TILEDIGITSFILTER_H
