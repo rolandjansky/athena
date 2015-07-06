@@ -21,7 +21,8 @@
 //#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 
-
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+//#include "xAODTruth/xAODTruthHelpers.h"
 //For extrapolation
 
 // ATLAS headers
@@ -47,7 +48,7 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   m_isMC(false),
   m_TrackRefitter1(""),
   m_TrackRefitter2(""),
-  m_trackToVertexTool("Reco::TrackToVertex"),
+    m_trackToVertexTool("Reco::TrackToVertex"),
   m_validationMode(true),
   m_defaultTreeName("DefaultParams"),
   m_refit1TreeName("Refit1Params"),
@@ -87,8 +88,10 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   declareProperty("ValidationMode",   m_validationMode);
 
   declareProperty("TrackTruthName",     m_truthName="TrackTruthCollection");
-  //  declareProperty("TrackParticleName",  m_trackParticleName="InDetTrackParticles");
-  declareProperty("TrackParticleName",  m_trackParticleName="TruthParticles");
+  declareProperty("TrackParticleName",  m_trackParticleName="InDetTrackParticles");
+  //    declareProperty("TrackParticleName",  m_trackParticleName="TruthParticles");
+  //  declareProperty("TrackParticleName",  m_trackParticleName="CombinedMuonTrackParticles");
+
   declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
   declareProperty("isMC",   m_isMC = false);
@@ -154,12 +157,16 @@ StatusCode IDPerfMonZmumu::initialize()
     m_defaultTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_defaultTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_defaultTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_defaultTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_defaultTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
 
     m_defaultTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_defaultTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_defaultTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_defaultTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_defaultTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_defaultTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_defaultTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_refit1Tree == 0){
@@ -175,12 +182,17 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit1Tree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_refit1Tree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_refit1Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_refit1Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_refit1Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
 
     m_refit1Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit1Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_refit1Tree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_refit1Tree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_refit1Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_refit1Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_refit1Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_refit2Tree == 0){
@@ -196,12 +208,18 @@ StatusCode IDPerfMonZmumu::initialize()
     m_refit2Tree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_refit2Tree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_refit2Tree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_refit2Tree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_refit2Tree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
+
 
     m_refit2Tree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_refit2Tree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_refit2Tree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_refit2Tree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_refit2Tree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_refit2Tree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_refit2Tree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
    }
 
   //  if( m_meStacoTree == 0){
@@ -238,12 +256,17 @@ StatusCode IDPerfMonZmumu::initialize()
     m_combStacoTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_combStacoTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_combStacoTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_combStacoTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_combStacoTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
 
     m_combStacoTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_combStacoTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_combStacoTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_combStacoTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_combStacoTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_combStacoTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_combStacoTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
 
@@ -260,12 +283,18 @@ StatusCode IDPerfMonZmumu::initialize()
     m_combMuidTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_combMuidTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_combMuidTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_combMuidTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_combMuidTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
+
+
 
     m_combMuidTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_combMuidTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_combMuidTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_combMuidTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_combMuidTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_combMuidTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_combMuidTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
   if( m_isMC && m_truthTree == 0){
@@ -281,12 +310,16 @@ StatusCode IDPerfMonZmumu::initialize()
     m_truthTree->Branch("Negative_Pz",  &m_negative_pz,  "Negative_Pz/D");
     m_truthTree->Branch("Negative_z0",  &m_negative_z0,  "Negative_z0/D");
     m_truthTree->Branch("Negative_d0",  &m_negative_d0,  "Negative_d0/D");
+    m_truthTree->Branch("Negative_z0_err",  &m_negative_z0_err,  "Negative_z0_err/D");
+    m_truthTree->Branch("Negative_d0_err",  &m_negative_d0_err,  "Negative_d0_err/D");
 
     m_truthTree->Branch("Positive_Px",  &m_positive_px,  "Positive_Px/D");
     m_truthTree->Branch("Positive_Py",  &m_positive_py,  "Positive_Py/D");
     m_truthTree->Branch("Positive_Pz",  &m_positive_pz,  "Positive_Pz/D");
     m_truthTree->Branch("Positive_z0",  &m_positive_z0,  "Positive_z0/D");
     m_truthTree->Branch("Positive_d0",  &m_positive_d0,  "Positive_d0/D");
+    m_truthTree->Branch("Positive_z0_err",  &m_positive_z0_err,  "Positive_z0_err/D");
+    m_truthTree->Branch("Positive_d0_err",  &m_positive_d0_err,  "Positive_d0_err/D");
   }
 
     // now register the Trees
@@ -504,6 +537,21 @@ StatusCode IDPerfMonZmumu::execute()
 	ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
   	return StatusCode::SUCCESS;
      }
+     ATH_MSG_DEBUG("fill truthTree with parameters : ");
+     ATH_MSG_DEBUG("######   (negative)   ########## ");
+     ATH_MSG_DEBUG("Negative px: " << m_negative_px << "\n"
+	       << "Negative py: " << m_negative_py << "\n"
+	       << "Negative pz: " << m_negative_pz << "\n"
+	       << "Negative d0: " << m_negative_d0 << "\n"
+	       << "Negative z0: " << m_negative_z0 << "\n");
+
+
+     ATH_MSG_DEBUG("######   (positive)   ########## ");
+     ATH_MSG_DEBUG( "Positive px: " << m_positive_px << "\n"
+		    << "Positive py: " << m_positive_py << "\n"
+		    << "Positive pz: " << m_positive_pz << "\n"
+		    << "Positive d0: " << m_positive_d0 << "\n"
+		    << "Positive z0: " << m_positive_z0 << "\n");
 
      m_truthTree->Fill();
   }
@@ -516,6 +564,26 @@ StatusCode IDPerfMonZmumu::execute()
   //fill refit1 ID parameters
   FillRecParameters(refit1MuonTrk1, p1->charge());
   FillRecParameters(refit1MuonTrk2, p2->charge());
+
+
+     ATH_MSG_DEBUG("fill refit1Tree with parameters : ");
+     ATH_MSG_DEBUG("######   (negative)   ########## ");
+     ATH_MSG_DEBUG("Negative px: " << m_negative_px << "\n"
+	       << "Negative py: " << m_negative_py << "\n"
+	       << "Negative pz: " << m_negative_pz << "\n"
+	       << "Negative d0: " << m_negative_d0 << "\n"
+     << "Negative z0: " << m_negative_z0 << "\n");
+
+
+     ATH_MSG_DEBUG("######   (positive)   ########## ");
+     ATH_MSG_DEBUG( "Positive px: " << m_positive_px << "\n"
+		    << "Positive py: " << m_positive_py << "\n"
+		    << "Positive pz: " << m_positive_pz << "\n"
+		    << "Positive d0: " << m_positive_d0 << "\n"
+		    << "Positive z0: " << m_positive_z0 << "\n");
+
+
+
   m_refit1Tree->Fill();
 
   //fill refit2 ID parameters
@@ -548,12 +616,18 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     return;
   }
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
+  //  const AmgSymMatrix(5)* covariance = trkPerigee ? trkPerigee->covariance() : NULL;
+  //  if (covariance == NULL) {
+  //    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq;
+  //  }
 
   double px = 0;
   double py = 0;
   double pz = 0;
   double d0 = 0;
   double z0 = 0;
+  //  double d0_err = 0;
+  //  double z0_err = 0;
 
   if(trkPerigee){
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
@@ -561,6 +635,8 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
       px = trkPerigee->momentum().x();
       py = trkPerigee->momentum().y();
       pz = trkPerigee->momentum().z();
+      d0 = trkPerigee->parameters()[Trk::d0];
+      z0 = trkPerigee->parameters()[Trk::z0];
     }
   }
 
@@ -573,8 +649,10 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
       px = atBL->momentum().x();
       py = atBL->momentum().y();
       pz = atBL->momentum().z();
-      z0 = atBL->parameters()[Trk::z0];
       d0 = atBL->parameters()[Trk::d0];
+      z0 = atBL->parameters()[Trk::z0];
+      //      z0_err = Amg::error(*trkPerigee->covariance(),Trk::z0);
+      //      d0_err = Amg::error(*trkPerigee->covariance(),Trk::d0);
     }
   }
 
@@ -585,99 +663,85 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     m_positive_pz = pz;
     m_positive_z0 = z0;
     m_positive_d0 = d0;
+    ATH_MSG_DEBUG("(Filled charge == 1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<< z0);
+    //    m_positive_z0_err = z0_err;
+    //    m_positive_d0_err = d0_err;
   } else  if (charge == -1) {
     m_negative_px = px;
     m_negative_py = py;
     m_negative_pz = pz;
     m_negative_z0 = z0;
     m_negative_d0 = d0;
+    ATH_MSG_DEBUG("(Filled charge == -1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<<z0 );
+    //    m_negative_z0_err = z0_err;
+    //    m_negative_d0_err = d0_err;
   }
 
   return;
 }
 
-StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* track)
+StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackParticle)
 {
-  // Code adjusted from (http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Tracking/TrkAlgorithms/TrkTruthAlgs/src/TrackParticleTruthAlg.cxx)
-  xAOD::TrackParticleContainer* particles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleName)){
-    ATH_CHECK(evtStore()->retrieve(particles, m_trackParticleName));
-  }else return StatusCode::SUCCESS;
-
-   ElementLink<xAOD::TrackParticleContainer> tlink;
-   tlink.setElement(track);
-   tlink.setStorableObject((*particles));
-
-  const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-  if(evtStore()->contains<xAODTruthParticleLinkVector>(m_truthLinkVecName)){
-    ATH_CHECK(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName));
-  }else return StatusCode::SUCCESS;
-
-  const TrackTruthCollection* truthTracks = 0;
-  // Retrieve the input
-  if( evtStore()->contains<TrackTruthCollection>(m_truthName)){
-    ATH_CHECK(evtStore()->retrieve(truthTracks, m_truthName));
-  }else return StatusCode::SUCCESS;
-
-
-  const HepMC::GenParticle *HEPparticle = 0;
-
-  for( auto particle : *particles ) {
-
-    if( !particle->trackLink().isValid() ){
-      ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
-      continue;
-    }
-    ATH_MSG_DEBUG("Looking up truth for pt " << particle->pt() << " eta " << particle->eta() << " phi " << particle->phi());
-
-    Trk::TrackTruthKey key((*tlink)->trackLink());
-    auto found = truthTracks->find(key);
-
-    if(found != truthTracks->end()) {
-      ATH_MSG_VERBOSE("Found track Truth: barcode  " << found->second.particleLink().barcode() << " evt " << found->second.particleLink().eventIndex());
-      HEPparticle = found->second.particleLink().cptr();
-
-    } else {
-      //No truth found
-      ATH_MSG_WARNING("Unable to find truth particles. Skipping event");
-      return StatusCode::FAILURE;
-    }
-
-    // get your track parameters.
-    HepMC::GenVertex* pvtx = HEPparticle->production_vertex();
-
-    //create the perigee here
-    Amg::Vector3D pos(pvtx->position().x(), pvtx->position().y(),pvtx->position().z());
-    Amg::Vector3D mom(HEPparticle->momentum().x(),HEPparticle->momentum().y(),HEPparticle->momentum().z());
+  double momX(0),momY(0),momZ(0), vtxX(0),vtxY(0),vtxZ(0);
+  //  const xAOD::TruthParticle* truthParticle = xAOD::TruthHelpers::getTruthParticle( *trackParticle );
+  const xAOD::TruthParticle* truthParticle = xAOD::EgammaHelpers::getTruthParticle( trackParticle );
+        if(truthParticle->hasProdVtx()){
+	  vtxX = truthParticle->prodVtx()->x();
+	  vtxY = truthParticle->prodVtx()->y();
+	  vtxZ = truthParticle->prodVtx()->z();
+	  momX = truthParticle->px();
+	  momY = truthParticle->py();
+	  momZ = truthParticle->pz();
+        }
+    Amg::Vector3D pos(vtxX,vtxY,vtxZ);
+    Amg::Vector3D mom(momX,momY,momZ);
     double charge = 0;
-    if ( HEPparticle->pdg_id() == 13 )       charge = -1.;
-    else if ( HEPparticle->pdg_id() == -13 ) charge = 1.;
+    if(truthParticle->pdgId() == 13) charge = -1.;
+    else if(truthParticle->pdgId() == -13) charge = 1.;
+    //    Trk::Perigee* candidatePerigee  = new Trk::Perigee(pos,mom,charge,pos);
+    Trk::TrackParameters* parameters  = new Trk::Perigee(pos,mom,charge,pos);
 
-    Trk::Perigee* candidatePerigee  = new Trk::Perigee(pos,mom,charge,pos);
+    const Trk::AtaStraightLine*  atBLi =
+      dynamic_cast<const Trk::AtaStraightLine*>(m_trackToVertexTool->trackAtBeamline( *parameters ));
 
-    if (charge == 1) {
+    if(atBLi){
+      if (charge == 1) {
+	double qOverP   = atBLi->parameters()[Trk::qOverP];
+	if (qOverP) {
+	  m_positive_px = atBLi->momentum().x();
+	  m_positive_py = atBLi->momentum().y();
+	  m_positive_pz = atBLi->momentum().z();
+	  m_positive_z0 = atBLi->parameters()[Trk::z0];
+	  m_positive_d0 = atBLi->parameters()[Trk::d0];
 
-      double qOverP   = candidatePerigee->parameters()[Trk::qOverP];
-      if (qOverP) {
-	m_positive_px = HEPparticle->momentum().x();
-	m_positive_py = HEPparticle->momentum().y();
-	m_positive_pz = HEPparticle->momentum().z();
-	m_positive_z0 = candidatePerigee->parameters()[Trk::z0];
-	m_positive_d0 = candidatePerigee->parameters()[Trk::d0];
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) px : "<< atBLi->momentum().x());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) py : "<< atBLi->momentum().y());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) pz : "<< atBLi->momentum().z());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) d0 : "<< atBLi->parameters()[Trk::d0]);
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) z0 : "<< atBLi->parameters()[Trk::z0]);
+	  ATH_MSG_DEBUG("(Filled charge == 1 ) (truth)-> px : "<< m_positive_px <<" py: "<<m_positive_py <<" pz: "<<m_positive_pz <<" d0: "<<m_positive_d0<<" z0: "<<m_positive_z0);
+	}
+      } else  if (charge == -1) {
+	double qOverP   = atBLi->parameters()[Trk::qOverP];
+	if (qOverP) {
+	  m_negative_px = atBLi->momentum().x();
+	  m_negative_py = atBLi->momentum().y();
+	  m_negative_pz = atBLi->momentum().z();
+	  m_negative_z0 = atBLi->parameters()[Trk::z0];
+	  m_negative_d0 = atBLi->parameters()[Trk::d0];
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) px : "<< atBLi->momentum().x());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) py : "<< atBLi->momentum().y());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) pz : "<< atBLi->momentum().z());
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) d0 : "<< atBLi->parameters()[Trk::d0]);
+	  ATH_MSG_DEBUG("cand perig HEP particle (truth) z0 : "<< atBLi->parameters()[Trk::z0]);
+	  ATH_MSG_DEBUG("(Filled charge == -1 ) (truth)-> px : "<< m_negative_px <<" py: "<<m_negative_py <<" pz: "<<m_negative_pz <<" d0: "<<m_negative_d0<<" z0: "<<m_negative_z0);
+	}
       }
-    } else  if (charge == -1) {
+    }//atBL
 
-      double qOverP   = candidatePerigee->parameters()[Trk::qOverP];
-      if (qOverP) {
-	m_positive_px = HEPparticle->momentum().x();
-	m_positive_py = HEPparticle->momentum().y();
-	m_positive_pz = HEPparticle->momentum().z();
-	m_negative_z0 = candidatePerigee->parameters()[Trk::z0];
-	m_negative_d0 = candidatePerigee->parameters()[Trk::d0];
-      }
-    }
-  }
-  return StatusCode::SUCCESS;
+
+
+    return StatusCode::SUCCESS;
 }
 
 StatusCode IDPerfMonZmumu::finalize()

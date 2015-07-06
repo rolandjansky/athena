@@ -20,10 +20,14 @@
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 class TH1;
 
@@ -66,7 +70,7 @@ public:
   double deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const;
   double signedDeltaPhi(double phi1, double phi2) const;
 
-  int isWenu(const xAOD::CaloCluster* em, double met) const;
+  int isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* em2, double met) const;
 
   void makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff);
 
@@ -89,6 +93,7 @@ public:
   TH1F* m_Wenu_transmass_sel;
   TH1F* m_Wenu_trk_transmass_sel;
   TH1F* m_Wenu_trk_transmass_sel_scaled;
+  TH1F* m_Wenu_clus_pt;
 
   // cluster histos
 
@@ -163,6 +168,7 @@ public:
   std::string m_tracksName;
   std::string m_electronsName;
   std::string m_photonsName;
+  std::string m_VxPrimContainerName;
   std::string m_emclustersName;
   std::string m_metName;
   std::string m_triggerChainName;
@@ -172,6 +178,12 @@ public:
   double m_eoverp_standard_min;
   double m_eoverp_standard_max;
   int m_checkrate;
+  bool m_rejectSecondCluster;
+  std::string m_electronIDLevel;
+  bool m_doIDCuts;
+  xAOD::Iso::IsolationType m_isolationCone;
+  //Likelihood tool:
+  AsgElectronLikelihoodTool* m_LHTool2015; //!
 
 };
 

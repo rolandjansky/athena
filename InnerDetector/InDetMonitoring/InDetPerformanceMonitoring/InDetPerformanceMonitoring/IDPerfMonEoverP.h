@@ -64,7 +64,7 @@ namespace Trig{
 }
 
 namespace Trk{
-  class VxTrackAtVertex;
+  //  class VxTrackAtVertex;
   class Track;
 }
 

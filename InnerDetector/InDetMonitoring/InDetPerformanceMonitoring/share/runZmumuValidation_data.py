@@ -26,7 +26,7 @@ PoolInput = inputFiles
 #PoolInput = ["root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._007903.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._007027.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005086.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005166.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005436.pool.root.1","root://eosatlas//eos/atlas/user/s/sthenkel/MC/mc14_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3059_s2046_s2008_r5862_tid01612263_00/ESD.01612264._005561.pool.root.1"]
 
 # number of event to process
-EvtMax=10000
+EvtMax=-1
 SkipEvents = 0
 
 NoBeamConstraint=True
@@ -46,6 +46,7 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
+#globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-07")
 #globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-REPPST-007-08")
 #globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-16-00-01")
 
@@ -80,6 +81,15 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(False)
 rec.doTruth.set_Value_and_Lock(False)
 
+if not rec.doTruth():
+  from GoodRunsLists.GoodRunsListsConf import *
+  grlTool =  GoodRunsListSelectorTool("GoodRunsTool")
+  grlTool.GoodRunsListVec  =   ['data15_13TeV.periodA_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml']
+  grlTool.EventSelectorMode = True
+  grlTool.PassThrough     = False
+  grlTool.OutputLevel = DEBUG
+  print grlTool
+
 
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.LoadElecCalib.set_Value_and_Lock(True)
@@ -105,7 +115,7 @@ DetFlags.Muon_setOn()
 #DetFlags.makeRIO.Calo_setOff()
 #DetFlags.detdescr.Calo_setOn()
 
-
+#inputCollections = ["Iter3_AlignmentConstants.root"]
 
 #USE temporary to DEBUG
 #from AthenaCommon.AppMgr import theApp
