@@ -63,7 +63,6 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
 {
 
   //read in declarations from job options
-  declareProperty("signatures",m_signatures);  
   declareProperty("UsePreConditionalPassThroughChain", m_usePreConditionalPassThroughChain = false);
   declareProperty("PassThroughChainEF", m_passThroughChainEF = "EF_e10_NoCut");
   declareProperty("PassThroughChainL2", m_passThroughChainL2 = "L2_e10_NoCut");
@@ -166,128 +165,54 @@ StatusCode HLTEgammaNavSigTEMonTool::init()
  *  - implementation of purely virtual function defined in IHLTMonTool
  *  - actual booking performed in base class
  */
-StatusCode HLTEgammaNavSigTEMonTool::book()
-{
-  ATH_MSG_DEBUG("Starting to book histograms.");
+StatusCode HLTEgammaNavSigTEMonTool::book() {
 
-  //book for new run (or start of file)
-    ATH_MSG_DEBUG("Booking histograms for new run.");
+  std::vector<std::string> runningSignatures = getTDT()->getListOfTriggers(".*");
+  if(HLTEgammaNavMonTool::find_relevant_signatures(m_signatures, m_categories, m_sigsPerCategory, runningSignatures).isFailure()){
+    ATH_MSG_WARNING("Incompatibility between signature list and category list. Code will not proceed.");
+    return(StatusCode::FAILURE);
+  }
 
-    //fetch running triggers from trig decision tool
-    vector<string> runningSignatures = getTDT()->getListOfTriggers(".*");
+  for(std::vector<std::string>::const_iterator i = m_signatures.begin(); i!=m_signatures.end(); ++i){
+    ATH_MSG_INFO("Found " << (*i) << " which is of category "<<m_categories.at(i-m_signatures.begin())<<". Booking histograms for it.");
+    if ( book_per_signature((*i)).isFailure() ) return StatusCode::FAILURE;
+    // prepare new table with counters
+    for(size_t ii=0;ii<9;++ii) {m_counters[(*i)].push_back(0);}
+  }
 
-    //loop through monitored signatures to remove the ones not running
-    // - note: we will remove items not found, so only advance the iterator if something is
-    //         found. otherwise this will be handled by vector::erase()
-    vector<string>::iterator monSigIt = m_signatures.begin();
-    for(; monSigIt!=m_signatures.end();){
+  //book histograms for offline comparison if requested
+  if(m_doOfflineComparisons){
+    ATH_MSG_DEBUG("Booking histograms for offline comparison.");
 
-      //form EF-item name of chain
-      string efItemName = "HLT_" + *monSigIt; 
-      bool signatureFound = false;
+    //book electron (isPhoton=false)
+    if(book_offline(false).isFailure()){ return(StatusCode::FAILURE); }
+    //book photon (isPhoton=true)
+    if(book_offline(true).isFailure()){ return(StatusCode::FAILURE); }
 
-      //loop through running signatures
-      vector<string>::const_iterator runSigIt = runningSignatures.begin();
-      vector<string>::const_iterator runSigItE = runningSignatures.end();
-      for(; runSigIt != runSigItE; ++runSigIt){
+  }else{ ATH_MSG_DEBUG("Not booking histograms for offline comparison."); }
 
-        //check whether we have found a match
-        if(efItemName == *runSigIt){
-          signatureFound = true;
-          break;
-        }
-      }//done looping through running signatures
-
-      //remove monitored signatures that are not running
-      if (!signatureFound){
-        ATH_MSG_INFO("Monitored chain not found: "<<*monSigIt);
-        monSigIt = m_signatures.erase(monSigIt);
-      }
-      //otherwise advance iterator to next signature
-      else{
-        ATH_MSG_INFO("Monitored chain found: "<<*monSigIt);
-        ++monSigIt;
-      }
-    }//done looping through monitored signatures
-
-    //loop through monitored signatures to keep only one signature of each trigger type
-    //there are 3 trigger types being monitored
-    //"single_e_no_iso","single_e_iso","photon"
-    // - note: reusing iterator from above
-    bool e_no_iso_found = false; bool e_iso_found = false; bool g_found = false;
-    for(monSigIt = m_signatures.begin(); monSigIt != m_signatures.end(); ){
-      HLTEgammaNavMonTool::trigger_description(*monSigIt,trigDesc);
-      if(trigDesc=="single_e_no_iso" && !e_no_iso_found){
-    	e_no_iso_found = true;
-	++monSigIt;
-      }else if(trigDesc=="single_e_no_iso" && e_no_iso_found){
-	ATH_MSG_INFO("Non-iso electron chain ignored due to redundancy: "<<*monSigIt);
-    	m_signatures.erase(monSigIt);
-      }else if(trigDesc=="single_e_iso" && !e_iso_found){
-    	e_iso_found = true;
-	++monSigIt;
-      }else if(trigDesc=="single_e_iso" && e_iso_found){
-	ATH_MSG_INFO("Iso electron chain ignored due to redundancy: "<<*monSigIt);
-    	m_signatures.erase(monSigIt);
-      }else if(trigDesc=="photon" && !g_found){
-    	g_found = true;
-	++monSigIt;
-      }else if(trigDesc=="photon" && g_found){
-	ATH_MSG_INFO("Photon chain ignored due to redundancy: "<<*monSigIt);
-    	m_signatures.erase(monSigIt);
-      }
-    }
-
-    //loop through monitored signatures to book histograms
-    // - note: reusing iterator from above
-    for(monSigIt = m_signatures.begin(); monSigIt != m_signatures.end(); ++monSigIt){
-
-      //call histogram booking on this signature and bail out if it fails
-      if(book_per_signature(*monSigIt).isFailure()){ return(StatusCode::FAILURE); }
-
-      //---Prepare new table with counters
-      for(size_t ii=0;ii<9;++ii) {
-        m_counters[(*monSigIt)].push_back(0);	
-      }
-    
-    }//done looping through monitored signatures
-
-
-    //book histograms for offline comparison if requested
-    if(m_doOfflineComparisons){
-      ATH_MSG_DEBUG("Booking histograms for offline comparison.");
-
-      //book electron (isPhoton=false)
-      if(book_offline(false).isFailure()){ return(StatusCode::FAILURE); }
-      //book photon (isPhoton=true)
-      if(book_offline(true).isFailure()){ return(StatusCode::FAILURE); }
-
-    }else{ ATH_MSG_DEBUG("Not booking histograms for offline comparison."); }
-
-    //book lumi-dependent histograms
-    if(m_doLumiCalc){
-      ATH_MSG_DEBUG("Booking histograms for lumi.");
-      if(book_lumi().isFailure()){ return(StatusCode::FAILURE); }
-    }else{ ATH_MSG_DEBUG("Not booking histograms for lumi."); }
-
-
+  //book lumi-dependent histograms
+  if(m_doLumiCalc){
+    ATH_MSG_DEBUG("Booking histograms for lumi.");
+    if(book_lumi().isFailure()){ return(StatusCode::FAILURE); }
+  }else{ ATH_MSG_DEBUG("Not booking histograms for lumi."); }
+  
   //booking histograms for new lumi block
-    ATH_MSG_VERBOSE("Booking for new lumiblock");
+  ATH_MSG_VERBOSE("Booking for new lumiblock");
 
-    //clear trigger counters 
-    m_counters_perLB.clear();
-    m_counters_perLB_activeTE.clear();
+  //clear trigger counters 
+  m_counters_perLB.clear();
+  m_counters_perLB_activeTE.clear();
 
-    //loop through signatures
-    vector<string>::iterator sigIt = m_signatures.begin();
-    for(; sigIt != m_signatures.end(); ++sigIt){
-      for(size_t i=0;i<9;++i){
-        ATH_MSG_VERBOSE("Resetting per-LB counters for lumiblock "<<m_lumiblocknbr<<" and signature "<<*sigIt);
-        m_counters_perLB[*sigIt].push_back(0);
-        m_counters_perLB_activeTE[*sigIt].push_back(0);
-      }
+  //loop through signatures
+  vector<string>::iterator sigIt = m_signatures.begin();
+  for(; sigIt != m_signatures.end(); ++sigIt){
+    for(size_t i=0;i<9;++i){
+      ATH_MSG_VERBOSE("Resetting per-LB counters for lumiblock "<<m_lumiblocknbr<<" and signature "<<*sigIt);
+      m_counters_perLB[*sigIt].push_back(0);
+      m_counters_perLB_activeTE[*sigIt].push_back(0);
     }
-
+  }
 
   //all done
   ATH_MSG_DEBUG("Done booking histograms.");
@@ -969,7 +894,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
 
   //set path based on pass-state
-  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc,m_signatures,m_categories);
   string path = m_histoBasePath + "/" + trigDesc + "/"; 
   bool skipActiveTE = false;
   if(onlyActiveTe && condition==TrigDefs::alsoDeactivateTEs){ path += m_activeTePath; skipActiveTE = m_skipActiveTe;}
@@ -1059,7 +984,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     //OVERLAPTEST
     // - fill L1 histograms depending on whether this chains sent to ES
     if(condition==TrigDefs::Physics){
-      HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+      HLTEgammaNavMonTool::trigger_description(signature,trigDesc,m_signatures,m_categories);
       string overlapTestPath = m_histoBasePath+"/"+trigDesc+"/OverlapTest";
       ATH_MSG_VERBOSE("Filling OVERLAPTEST histograms at path "<<overlapTestPath);
       if(chainToEs){
