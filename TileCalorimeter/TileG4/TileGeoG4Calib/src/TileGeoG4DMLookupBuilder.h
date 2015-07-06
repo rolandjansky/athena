@@ -12,8 +12,8 @@
 //
 //************************************************************
 
-#ifndef TILEGEOG4CALIB_TILEGEOG4DMLOOKUPBUILDER_H
-#define TILEGEOG4CALIB_TILEGEOG4DMLOOKUPBUILDER_H
+#ifndef TileGeoG4DMLookupBuilder_H
+#define TileGeoG4DMLookupBuilder_H
 
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
@@ -30,50 +30,53 @@ class IRDBAccessSvc;
 class IGeoModelSvc;
 class StoreGateSvc;
 
-class TileGeoG4DMLookupBuilder {
-  public:
-    TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* tile_lookup_builder, ServiceHandle<IRDBAccessSvc> &access,
-                             ServiceHandle<IGeoModelSvc> &geo_svc, ServiceHandle<StoreGateSvc> &pDetStore,
-                             const int verboseLevel);
-    ~TileGeoG4DMLookupBuilder();
+class TileGeoG4DMLookupBuilder
+{
+public:
+  TileGeoG4DMLookupBuilder(TileGeoG4LookupBuilder* tile_lookup_builder, 
+                           ServiceHandle<IRDBAccessSvc> &access, 
+                           ServiceHandle<IGeoModelSvc> &geo_svc,
+                           ServiceHandle<StoreGateSvc> &pDetStore,
+                           const int verboseLevel);
+  ~TileGeoG4DMLookupBuilder();
+    
+  void BuildLookup(bool test_beam = false);
+  void ResetCells();
+  TileGeoG4CalibSection* GetSection(TileCalibDddbManager::TileCalibSections key) const;
+  bool GetPlateToCell();
+  
+  //Geometry constans fo DH calculator
+  double rBMin,rBMax;
+  double zBarrMaxPos,zBarrMaxNeg;
+  double dzBarrMod,dzExtBarrMod;
+  double zLegngthITC; 
+  double dzBarrPeriod,dzExtBarrPeriod;  
+  double rGirdMin;
+  double dRFront;
+  double dZEnd,dZEndSh;
+  
+  double rP1Min,rP2Min,rGapMax,rGapMin,rCrMax,rCrMin;
 
-    void BuildLookup(bool test_beam = false);
-    void ResetCells();
-    TileGeoG4CalibSection* GetSection(TileCalibDddbManager::TileCalibSections key) const;
-    bool GetPlateToCell();
+private:
 
-    //Geometry constans fo DH calculator
-    double rBMin, rBMax;
-    double zBarrMaxPos, zBarrMaxNeg;
-    double dzBarrMod, dzExtBarrMod;
-    double zLegngthITC;
-    double dzBarrPeriod, dzExtBarrPeriod;
-    double rGirdMin;
-    double dRFront;
-    double dZEnd, dZEndSh;
+  TileGeoG4DMLookupBuilder (const TileGeoG4DMLookupBuilder&);  
+  TileGeoG4DMLookupBuilder& operator= (const TileGeoG4DMLookupBuilder&); 
 
-    double rP1Min, rP2Min, rGapMax, rGapMin, rCrMax, rCrMin;
+  typedef std::map< TileCalibDddbManager::TileCalibSections, TileGeoG4CalibSection*, 
+                    std::less<TileCalibDddbManager::TileCalibSections> >  TileGeoG4CalibSectionMap;
 
-  private:
+  void CreateGeoG4CalibSections(bool is_ctb);
 
-    TileGeoG4DMLookupBuilder(const TileGeoG4DMLookupBuilder&);
-    TileGeoG4DMLookupBuilder& operator=(const TileGeoG4DMLookupBuilder&);
+  TileCalibDddbManager* m_dbManager;
+  TileGeoG4LookupBuilder* m_lookup_builder;
+  TileGeoG4CalibSectionMap* m_sectionMap;
 
-    typedef std::map<TileCalibDddbManager::TileCalibSections, TileGeoG4CalibSection*,
-        std::less<TileCalibDddbManager::TileCalibSections> > TileGeoG4CalibSectionMap;
+  const TileDetDescrManager* m_theManager;
+  TileDddbManager* m_tdbManager;
 
-    void CreateGeoG4CalibSections(bool is_ctb);
+  int m_verboseLevel;
 
-    TileCalibDddbManager* m_dbManager;
-    TileGeoG4LookupBuilder* m_lookup_builder;
-    TileGeoG4CalibSectionMap* m_sectionMap;
-
-    const TileDetDescrManager* m_theManager;
-    TileDddbManager* m_tdbManager;
-
-    int m_verboseLevel;
-
-    bool m_plateToCell;
+  bool plateToCell;
 };
 
-#endif // TILEGEOG4CALIB_TILEGEOG4DMLOOKUPBUILDER_H
+#endif
