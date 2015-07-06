@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.cxx 650693 2015-03-01 16:53:48Z masato $
+// $Id: Lvl1Mibak.cxx 678659 2015-06-26 14:54:31Z wengler $
 
 // STL include(s):
 #include <cassert>
@@ -22,6 +22,7 @@
 #include "../Mioct/EventReaderFactory.h"
 #include "../Mioct/OverlapLogic.h"
 #include "../Mioct/MultiplicityLogic.h"
+
 
 namespace LVL1MUCTPI {
 
@@ -132,6 +133,21 @@ namespace LVL1MUCTPI {
 
       return;
    }
+
+   LVL1::MuCTPIL1Topo Lvl1Mibak::getL1TopoCandidates(MioctL1TopoConverter & l1TopoConv) const {
+
+      std::list< MioctModule* >::const_iterator it;
+      LVL1::MuCTPIL1Topo result;
+      REPORT_VERBOSE_MSG( "getL1TopoCandidates() called" );
+
+      for( it = m_lvl1MioctList.begin(); it != m_lvl1MioctList.end(); ++it ) {
+	result += ( ( *it )->getL1TopoCandidates(l1TopoConv) );
+      }
+
+      return result;
+   }
+
+
 
    void Lvl1Mibak::mirodProcessData() {
 

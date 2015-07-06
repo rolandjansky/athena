@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MioctModule.h 484720 2012-02-23 16:38:31Z krasznaa $
+// $Id: MioctModule.h 678659 2015-06-26 14:54:31Z wengler $
 #ifndef TRIGT1MUCTPI_MIOCTMODULE_H
 #define TRIGT1MUCTPI_MIOCTMODULE_H
 
@@ -14,6 +14,10 @@
 #include "MioctData.h"
 #include "MioctSectorSet.h"
 #include "../Logging/MsgLogger.h"
+#include "../Common/MioctL1TopoConverter.h"
+
+// include  interface class to L1Topo
+#include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
 namespace LVL1MUCTPI {
 
@@ -38,8 +42,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 484720 $
-    * $Date: 2012-02-23 17:38:31 +0100 (Thu, 23 Feb 2012) $
+    * $Revision: 678659 $
+    * $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
     */
    class MioctModule {
 
@@ -87,6 +91,12 @@ namespace LVL1MUCTPI {
        * @see PtMultiplicitySet
        */
       PtMultiplicitySet calculateMultiplicity() const;
+      /**
+       * Return the L1Topo outputs for this MIOCT 
+       * This must be called after calculateMultiplicity() to make sure the
+       * flags are properly set in sector data
+       */
+      LVL1::MuCTPIL1Topo getL1TopoCandidates(MioctL1TopoConverter & l1TopoConv) const;
       /**
        * This method returns a pointer to the SectorSet conatained
        * in this MIOCT

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ForwardSector.cxx 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: ForwardSector.cxx 678659 2015-06-26 14:54:31Z wengler $
 
 // STL include(s):
 #include <iomanip>
@@ -58,12 +58,12 @@ namespace LVL1MUCTPI {
 
    unsigned int ForwardSector::getROI1() const {
 
-      return getValue( EndcapROI1Mask );
+      return getValue( ForwardROI1Mask );
    }
 
    unsigned int ForwardSector::getROI2() const {
 
-      return getValue( EndcapROI2Mask );
+      return getValue( ForwardROI2Mask );
    }
 
    void ForwardSector::print( std::string& result ) const {
@@ -83,7 +83,7 @@ namespace LVL1MUCTPI {
       ROI2Of = this->getValue( ROI2OverflowMask );
 
       std::ostringstream outStream;
-      outStream << " \n\n  FORWARD SECTOR DATA $Revision: 364083 $" << std::endl;
+      outStream << " \n\n  FORWARD SECTOR DATA $Revision: 678659 $" << std::endl;
       outStream << "==============================================" << std::endl;
       outStream << myId << std::endl;
       outStream << "BCID :            " << BCID  << std::endl;

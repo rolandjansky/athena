@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: Lvl1Mibak.h 678659 2015-06-26 14:54:31Z wengler $
 #ifndef TRIGT1MUCTPI_LVL1MIBAK_H
 #define TRIGT1MUCTPI_LVL1MIBAK_H
 
@@ -20,8 +20,12 @@
 #include "../Common/MultiplicityCalcType.h"
 #include "../Logging/MsgLogger.h"
 #include "../Common/EventID.h"
+#include "../Common/MioctL1TopoConverter.h"
 #include "MibakStreamEvent.h"
 #include "../Mioct/StrategyName.h"
+
+// include  interface class to L1Topo
+#include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
 namespace LVL1MUCTPI {
 
@@ -61,8 +65,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 650693 $
-    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    * $Revision: 678659 $
+    * $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
     */
    class Lvl1Mibak {
 
@@ -134,6 +138,8 @@ namespace LVL1MUCTPI {
        * @return Pointer to MibakStreamEvent
        */
       const MibakStreamEvent* getMibakStreamEvent() { return &m_mibakStream; }
+
+      LVL1::MuCTPIL1Topo getL1TopoCandidates(MioctL1TopoConverter & l1TopoConv ) const;
 
       /**
        * This function changes the current OverlapStrategy for the
