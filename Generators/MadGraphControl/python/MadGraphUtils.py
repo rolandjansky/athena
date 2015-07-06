@@ -1270,7 +1270,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                        writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None):
+                       madspin_card=None,decays={}):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1294,7 +1294,23 @@ def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direc
 
     if not SLHAonly:
         # Generate the new process!
-        full_proc = """
+        if 'import model' in process:
+            mglog.info('Assuming that you have specified the model in your process string already')
+            full_proc = ''
+            for l in process.split('\n'):
+                if 'import model' in l:
+                    full_proc += l+'\n'
+                    break
+            full_proc+=helpful_definitions()
+            for l in process.split('\n'):
+                if 'import model' not in l:
+                    full_proc += l+'\n'
+            full_proc+="""
+# Output processes to MadEvent directory
+output -f
+"""
+        else:
+            full_proc = """
 import model mssm
 """+helpful_definitions()+"""
 # Specify process(es) to run
@@ -1311,7 +1327,7 @@ output -f
 
     if MSSMCalc:
         # Grab the param card and move the new masses into place
-        build_param_card(param_card_old='param_card.SM.SG.dat',param_card_new='LH.dat',masses=masses)
+        build_param_card(param_card_old='param_card.SM.SG.dat',param_card_new='LH.dat',masses=masses,decays=decays)
 
         mglog.info('Running MSSMCalc')
         runMSSMCalc = subprocess.Popen([ os.environ['MADPATH']+'/Calculators/mssm/MSSMCalc'])
@@ -1329,7 +1345,7 @@ output -f
             if not os.access(str_param_card,os.R_OK):
                 mglog.info('Could not get param card '+str_param_card)
         else:
-            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses)
+            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses,decays=decays)
 
     if SLHAonly:
         mglog.info('Not running generation - only setting up SLHA file')
