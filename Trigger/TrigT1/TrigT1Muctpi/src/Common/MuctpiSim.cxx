@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.cxx 726107 2016-02-25 11:04:42Z wengler $
+// $Id: MuctpiSim.cxx 650693 2015-03-01 16:53:48Z masato $
 
 // STL include(s):
 #include <cassert>
 #include <iomanip>
 #include <sstream>
-#include <ostream>
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -27,11 +26,11 @@
 #include "MuctpiBitMasks.h"
 
 /*******************************************************************
- * $Date: 2016-02-25 12:04:42 +0100 (Thu, 25 Feb 2016) $
+ * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
  *
  * Implementation of class MuctpiSim
  * @author  $Author: krasznaa $
- * @version $Revision: 726107 $
+ * @version $Revision: 650693 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -69,7 +68,7 @@ namespace LVL1MUCTPI {
    }
 
    // process method of class MuctpiSim
-  void MuctpiSim::processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput, int bcidOffset ) {
+   void MuctpiSim::processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput ) {
 
       // Print the input to the simulation:
       REPORT_VERBOSE_MSG( "Start processing event with input from sector logics:\n" );
@@ -84,7 +83,6 @@ namespace LVL1MUCTPI {
          assert( 0 );
       }
       sl_Reader->getSource().setSectorLogicSource( currentInput );
-      sl_Reader->getSource().setBcidOffset( bcidOffset );
 
       // read the event currently held in the input object
       m_theReader->putNextEvent();
@@ -97,110 +95,6 @@ namespace LVL1MUCTPI {
 
       return;
    }
-
-
-  LVL1::MuCTPIL1Topo  MuctpiSim::getL1TopoData() { 
-    
-    // get the L1Topo candidates
-    LVL1::MuCTPIL1Topo l1topo = m_mibak->getL1TopoCandidates(m_L1TopoConv); 
-    std::vector<LVL1::MuCTPIL1TopoCandidate> l1topoCandVec = l1topo.getCandidates();
-
-    // now get the output formatted for LVL2
-    std::list<unsigned int> lvl2OutCand = getRoIBCandidates();
-
-    // loop and match
-    for (std::list< unsigned int >::iterator it_l2Cand = lvl2OutCand.begin(); 
-	 it_l2Cand != lvl2OutCand.end(); ++it_l2Cand) {
-
-	
-      std::string system;
-      std::string hemisphere = "-";
-      unsigned int sectorNumber = 0;
-      unsigned int regionOfInterest = 0;
-      //offset for differnt counting scheme in MuCTPI geometry file for L1Topo
-      unsigned int offset =0;
-      unsigned int sectorWord = ( * it_l2Cand);
-      
-      // get the address values out of the bit mask
-      const unsigned int sectorAddress =
-	BitOp::getValue( &sectorWord, Lvl2SectorAddressMask );
-      const unsigned int sectorRoIOvl = BitOp::getValue( &sectorWord, Lvl2RoIOvlMask );
-      
-      // get the Hemisphere
-      if ( BitOp::getValue( &sectorAddress, EvReSecAddressSubSysMask ) == 1 ) {
-	hemisphere = "+";
-      }
-      
-      
-      // sector address and RoI and Overlap must be taken apart agin
-      // to extract the readable information
-      // first find out if this is Barrel, endcap, forward, get sector
-      // number, RoI and Overlap information
-      if ( BitOp::getValue( &sectorAddress, EvReSecAddressSystemMask ) == 0 ) {
-	system = "B"; // Barrel
-	if (hemisphere == "+") {
-	  offset = 32;
-	}
-	sectorNumber = BitOp::getValue( &sectorAddress, EvReSecNumberBarrelMask );
-	regionOfInterest = BitOp::getValue( &sectorRoIOvl, Lvl2BarrelRoIMask );
-      } else if ( BitOp::getValue( &sectorAddress, EvReSecAddressSystemMask ) == 1 ) {
-	if (hemisphere == "+") {
-	  system = "FA";
-	} else  {
-	  system = "FC";
-	}
-	sectorNumber = BitOp::getValue( &sectorAddress, EvReSecNumberForwardMask );
-	regionOfInterest = BitOp::getValue( &sectorRoIOvl, Lvl2ForwardRoIMask );
-      } else if ( BitOp::getValue( &sectorAddress, EvReSecAddressSystemMask ) > 1 ) {
-	if (hemisphere == "+") {
-	  system = "EA";
-	} else {
-	  system = "EC";
-	}
-	sectorNumber = BitOp::getValue( &sectorAddress, EvReSecNumberEndcapMask );
-	regionOfInterest = BitOp::getValue( &sectorRoIOvl, Lvl2EndcapRoIMask );
-      }
-      
-      std::string secNumString = "";
-      if (sectorNumber+offset < 10) {
-	secNumString = "0" + std::to_string(sectorNumber + offset);
-      } else {
-	secNumString = std::to_string(sectorNumber + offset);
-      }
-      
-      system = system + secNumString ;
-      
-      for (std::vector<LVL1::MuCTPIL1TopoCandidate>::iterator it_topoCand =  l1topoCandVec.begin(); 
-	   it_topoCand != l1topoCandVec.end(); ++it_topoCand) {      
-	
-	
-	//	std::cout << "TW:" << system << " | " << it_topoCand->getSectorName() << " | " << regionOfInterest << " | " << it_topoCand->getRoiID() << std::endl;
-	
-	if (system == it_topoCand->getSectorName() && regionOfInterest == it_topoCand->getRoiID() ) {
-	  // match has been made, fill the roiWord into the candidate object
-	  it_topoCand->setRoiWord(sectorWord);
-	  // std::cout << "TW match:  Addr: " << system << " : " << hemisphere << system << " "
-	  // 	    << std::setw( 2 ) << std::dec << sectorNumber
-	  // 	    << " Pt/RoI: " << ptValue
-	  // 	    << " " << std::setw( 2 ) << regionOfInterest
-	  // 	    << " Ovl: " << overlap
-	  // 	    << " pad/secOF: " << std::setw( 2 ) << padOverflow
-	  // 	    << std::setw( 2 ) << sectorOverflow
-	  // 	    << " First: " << candFirst
-	  // 	    << " veto: " << veto << std::endl;
-	  
-	  // it_topoCand->print();
-	  break;
-	}
-	
-      }
-    }
-
-    l1topo.setCandidates(l1topoCandVec);
-    return l1topo; 
-    
-}
-
 
    /**
     * The call is just forwarded to the MIBAK object, even though that's not the

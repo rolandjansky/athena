@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SectorLogicSource.cxx 700318 2015-10-13 14:13:15Z wengler $
+// $Id: SectorLogicSource.cxx 441850 2011-06-06 14:50:52Z krasznaa $
 
 // TrigT1 include(s):
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
@@ -14,7 +14,7 @@
 namespace LVL1MUCTPI {
 
    // constructor of SectorLogicSource
-  SectorLogicSource::SectorLogicSource(): m_lvl1MuCTPIInput(nullptr),m_bcidOffset(0) {
+   SectorLogicSource::SectorLogicSource() {
 
    }
 
@@ -61,7 +61,7 @@ namespace LVL1MUCTPI {
 
       const LVL1MUONIF::Lvl1MuSectorLogicData& dataOut =
          m_lvl1MuCTPIInput->getSectorLogicData( systemAddress, subSystemAddress,
-                                                sectorAddress, m_bcidOffset );
+                                                sectorAddress );
 
       return dataOut;
    }
