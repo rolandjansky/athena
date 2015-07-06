@@ -48,7 +48,23 @@ protected:
 
 	TH1F* m_mass;
 	TH1F* m_mass_scaled;
+	TH2F* m_massVsPhi;
 	TH1F* m_radius;
+	TH1F* m_radius_secVertices;
+	TH1F* m_radius_secVertices_sel;
+	TH2F* m_radiusVsZ_secVertex;
+	TH2F* m_radiusVsZ_secVertex_sel;
+	TH2F* m_YVsX_secVertex;
+	TH2F* m_YVsX_secVertex_sel;
+	TH2F* m_radiusVsZ_secVertex_Ks;
+	TH2F* m_YVsX_secVertex_Ks;
+
+	TH2F* m_YVsX_primVertex;
+	TH2F* m_XVsZ_primVertex;
+	TH2F* m_YVsZ_primVertex;
+	TH2F* m_YVsX_primVertex_Ks;
+	TH2F* m_XVsZ_primVertex_Ks;
+	TH2F* m_YVsZ_primVertex_Ks;
 	TH1F* m_pt;
 	TH1F* m_eta;
 	TH1F* m_phi;

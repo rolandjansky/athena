@@ -13,13 +13,17 @@
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 
 //#include "TrkFitterInterfaces/ITrackFitter.h"
-
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthParticle.h"
+//#include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODTruth/TruthParticleContainer.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 
 
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 
 #include <map>
 #include "TH1.h"
@@ -54,7 +58,8 @@ class IDPerfMonZmumu : public AthAlgorithm
  private:
   // Private class member functions.
   void RegisterHistograms();
-  void FillRecParameters(const Trk::Track* track, double charge);
+    void FillRecParameters(const Trk::Track* track, double charge);
+    //void FillRecParameters(const xAOD::TrackParticle* trackparticle, double charge);
   StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
 
   // The Z0 tagger.

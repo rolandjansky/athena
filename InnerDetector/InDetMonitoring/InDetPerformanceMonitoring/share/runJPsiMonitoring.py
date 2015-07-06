@@ -14,11 +14,11 @@
 #
 #   1) Specify the input in here
 #      - One file
-PoolInput = ["/home/wdic/data15_comm.00264034.physics_MinBias.recon.ESD.x322._lb0805._SFO-1._0001.1"]
+#PoolInput = ["/home/wdic/data15_comm.00264034.physics_MinBias.recon.ESD.x322._lb0805._SFO-1._0001.1"]
 #   2) Feed files when executing the script
-#if 'inputFiles' in dir():
-#  print inputFiles
-#PoolInput = inputFiles
+if 'inputFiles' in dir():
+  print inputFiles
+PoolInput = inputFiles
 
 # number of event to process
 EvtMax=-1
@@ -89,9 +89,13 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+#DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
+
+DetFlags.makeRIO.Calo_setOff()
+DetFlags.detdescr.Calo_setOn()
+
 
 #USE temporary to DEBUG
 #from AthenaCommon.AppMgr import theApp

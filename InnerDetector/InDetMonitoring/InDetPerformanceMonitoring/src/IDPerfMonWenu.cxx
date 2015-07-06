@@ -59,16 +59,19 @@ IDPerfMonWenu::IDPerfMonWenu( const std::string & type, const std::string & name
   declareProperty("tracksName",m_tracksName);
   declareProperty("electronsName",m_electronsName="Electrons");
   declareProperty("photonsName",m_photonsName="Photons");
+  declareProperty("VxPrimContainerName",m_VxPrimContainerName="PrimaryVertices");
   declareProperty("emclustersName",m_emclustersName="LArClusterEM");
-  //  declareProperty("metName",m_metName="MET_Topo");
   declareProperty("metName",m_metName="MET_Reference_AntiKt4LCTopo");
-  declareProperty("METFinalName",          m_metRefFinalName         = "FinalClus");
+  declareProperty("METFinalName",m_metRefFinalName="FinalClus");
   declareProperty("eoverp_standard_min",m_eoverp_standard_min=0.5);
   declareProperty("eoverp_standard_max",m_eoverp_standard_max=4.0);
   declareProperty("eoverp_tight_min",m_eoverp_tight_min=0.7);
   declareProperty("eoverp_tight_max",m_eoverp_tight_max=1.3);
   declareProperty("CheckRate",m_checkrate=1000);
   declareProperty("triggerChainName",m_triggerChainName);
+  declareProperty("rejectSecondCluster",m_rejectSecondCluster = true);
+  declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
+  //declareProperty("isolationCone",m_isolationCone = xAOD::Iso::ptcone20); // temporary -- should be replaced by isolation tool
 
   region_strings.push_back("incl");
   region_strings.push_back("barrel");
@@ -90,6 +93,37 @@ StatusCode IDPerfMonWenu::initialize()
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endreq;
+
+  //---Electron Likelihood tool---
+  ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
+  m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
+  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
+    ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
+
+  //Set up electron LH level
+  m_doIDCuts = true;
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150429/";
+  if(m_electronIDLevel == ""){
+    ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
+    m_doIDCuts = false;
+  }
+  else{
+    if((m_electronIDLevel != "Loose") && (m_electronIDLevel != "Medium") && (m_electronIDLevel != "Tight")){
+      ATH_MSG_WARNING("Unknown electronIDLevel!! (Accepted values: Loose, Medium, Tight)");
+      m_doIDCuts = false;
+    }
+    else{
+      std::string configFile = confDir+"ElectronLikelihood"+m_electronIDLevel+"OfflineConfig2015.conf";
+      ATH_MSG_INFO("Likelihood configuration file: " << configFile);
+      if((m_LHTool2015->setProperty("ConfigFile",configFile)).isFailure())
+	ATH_MSG_WARNING("Failure loading ConfigFile in electron likelihood tool.");
+    }
+  }
+  StatusCode lh = m_LHTool2015->initialize();
+  if(lh.isFailure()){
+    ATH_MSG_WARNING("Electron likelihood tool initialize() failed!  Turning off electron LH cuts!");
+    m_doIDCuts = false;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -132,6 +166,8 @@ StatusCode IDPerfMonWenu::bookHistograms()
     RegisterHisto(al_Wenu_mon,m_Wenu_trk_transmass_sel);
     m_Wenu_trk_transmass_sel_scaled = new TH1F("Wenu_trk_transmass_sel_scaled","Transverse mass of the track and the met scaled to per event", 90, 0., 180.);
     RegisterHisto(al_Wenu_mon,m_Wenu_trk_transmass_sel_scaled);
+    m_Wenu_clus_pt = new TH1F("Wenu_cluster_pt","Transverse momentum of the leading em cluster",50,0.,100.);
+    RegisterHisto(al_Wenu_mon,m_Wenu_clus_pt);
 
     // ***********************
     // Book cluster histograms
@@ -481,19 +517,21 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // *******************
 
   const xAOD::CaloCluster* LeadingEMcluster = getLeadingEMcluster(photons, electrons);
+  const xAOD::CaloCluster* SecondLeadingEMcluster = getLeadingEMcluster(photons, electrons, LeadingEMcluster);
   if (LeadingEMcluster != 0) {
     int leading_eta_region = etaRegion(LeadingEMcluster->eta());
     double leading_dPhi = electronTrackMatchEta(tracks,LeadingEMcluster);
     double leading_dEta = electronTrackMatchPhi(tracks,LeadingEMcluster);
     const xAOD::TrackParticle* track_leading_emcluster = electronTrackMatch(tracks,LeadingEMcluster);
 
-    int selected = isWenu(LeadingEMcluster, met);
+    int selected = isWenu(LeadingEMcluster, SecondLeadingEMcluster, met);
     if (selected == 0) {
 
       // *********************
       // Fill event histograms
       // *********************
       m_Wenu_met_sel->Fill(met/Gaudi::Units::GeV);
+      m_Wenu_clus_pt->Fill(LeadingEMcluster->pt()/Gaudi::Units::GeV);
       double cluster_met_transmass = TransMass(LeadingEMcluster,MET);
       if (cluster_met_transmass > 0.) m_Wenu_transmass_sel->Fill(cluster_met_transmass);
       double track_met_transmass = 0.;
@@ -570,7 +608,6 @@ StatusCode IDPerfMonWenu::procHistograms()
 
 
 const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClusterContainer* clusters, const xAOD::CaloCluster* omitCluster) const {
-
   // iterators over the emcluster container
   xAOD::CaloClusterContainer::const_iterator Itr = clusters->begin();
   xAOD::CaloClusterContainer::const_iterator ItrEnd = clusters->end();
@@ -581,13 +618,14 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::CaloClus
   for (; Itr != ItrEnd; ++Itr) {
     const xAOD::CaloCluster* cl = (*Itr);
     if (cl == omitCluster) continue;
+    double deltaR = sqrt(pow(fabs(cl->phi() - omitCluster->phi()),2) + pow(fabs(cl->eta() - omitCluster->eta()),2));
+    if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
       leading_emcluster = cl;
       max_pt = cl->pt();
     }
   }
-
   return leading_emcluster;
 
 }
@@ -603,21 +641,29 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
   xAOD::ElectronContainer::const_iterator electronItrEnd = electrons->end();
 
   const xAOD::CaloCluster* leading_emcluster = 0;
-
+  bool LHSel;
   float max_pt = 0.;
-  for (; photonItr != photonItrEnd; ++photonItr) {
-    const xAOD::Photon* ph = (*photonItr);
-    if (int(ph->isGoodOQ(egammaPID::CALO_PHOTON | egammaPID::CALORIMETRICISOLATION_PHOTON)) == 0) continue; // medium (with no track req but with cluster iso)
-    const xAOD::CaloCluster* cl = ph->caloCluster();
-    if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
-    if (cl->pt() > max_pt) {
-      leading_emcluster = cl;
-      max_pt = cl->pt();
-    }
-  }
+  
   for (; electronItr != electronItrEnd; ++electronItr) {
     const xAOD::Electron* em = (*electronItr);
-    if (int(em->isGoodOQ(egammaPID::CALO_ELECTRON | egammaPID::CALORIMETRICISOLATION_ELECTRON)) == 0) continue; // medium (with no track req but with cluster iso)
+
+    // check ID
+    if(m_doIDCuts){
+      LHSel = false;
+      LHSel = m_LHTool2015->accept(em);
+      if(!LHSel) continue;
+      ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
+    }
+
+    // check isolation (BETA -- will switch to isolation tool when ***REMOVED***)
+    //float iso;
+    //if(em->isolationValue(iso,xAOD::Iso::ptcone20)){
+    //  if( (iso/em->pt()) > 0.12 )
+    //continue;
+    //}
+    //else
+    //  ATH_MSG_WARNING("Isolation information not found! Will skip this cut!!");
+
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
@@ -625,12 +671,12 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
       leading_emcluster = cl;
       max_pt = cl->pt();
     }
+
   }
 
   return leading_emcluster;
 
 }
-
 
 const xAOD::TrackParticle* IDPerfMonWenu::electronTrackMatch(const xAOD::TrackParticleContainer* tracks, const xAOD::CaloCluster* cluster, double dEta, double dPhi) const {
 
@@ -706,12 +752,23 @@ double IDPerfMonWenu::electronTrackMatchPhi(const xAOD::TrackParticleContainer* 
 
 }
 
-int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, double met) const {
+int IDPerfMonWenu::isWenu(const xAOD::CaloCluster* em, const xAOD::CaloCluster* em2, double met) const {
 
   int selected = 2;
 
-  if (em->pt()/Gaudi::Units::GeV > 25.) --selected;
-  if (met/Gaudi::Units::GeV > 0.) --selected;
+  if(em->pt()/Gaudi::Units::GeV > 25.) --selected;
+  if(met/Gaudi::Units::GeV > 20.) --selected; // was at 0 for some reason?
+
+  if(!m_rejectSecondCluster) return selected;
+
+  // else check 2nd EM cluster veto
+  if(em2 != 0){
+    if(em2->pt()/Gaudi::Units::GeV > 25.){
+      ATH_MSG_DEBUG("Event rejected due to second EM cluster w/ pT > 25 GeV");
+      selected++;
+    }
+  }
+
   return selected;
 
 }
@@ -781,6 +838,8 @@ double IDPerfMonWenu::deltaR(const xAOD::CaloCluster* cluster, const xAOD::Track
 
   double deta = cluster->eta()-track->eta();
   double dphi = cluster->phi()-track->phi();
+  if(fabs(dphi) > 3.14159)
+    dphi = 2*3.14159-fabs(dphi);
   dr = TMath::Sqrt(deta*deta + dphi*dphi);
 
   return dr;

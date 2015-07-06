@@ -14,14 +14,14 @@
 #
 #   1) Specify the input in here
 #      - One file
-PoolInput = ["/home/wdic/data15_comm.00264034.physics_MinBias.recon.ESD.x322._lb0805._SFO-1._0001.1"]
+#PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/data/lowMuRun/group.det-indet.data15_13TeV.00267358.physics_MinBias.DxAODMinBias.f597.ConvKSv004_EXT0/group.det-indet.5709497.EXT0._000011.DxAODMinBias.pool.root"]
 #   2) Feed files when executing the script
-#if 'inputFiles' in dir():
-#  print inputFiles
-#PoolInput = inputFiles
+if 'inputFiles' in dir():
+  print inputFiles
+PoolInput = inputFiles
 
 # number of event to process
-EvtMax=10
+EvtMax=10000
 SkipEvents = 0
 
 NoBeamConstraint=True
@@ -89,9 +89,13 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+#DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
+
+DetFlags.makeRIO.Calo_setOff()
+DetFlags.detdescr.Calo_setOn()
+
 
 #USE temporary to DEBUG
 #from AthenaCommon.AppMgr import theApp
@@ -148,9 +152,9 @@ iDPerfMonKshort = IDPerfMonKshort(name = 'IDPerfMonKshort',
                                   tracksName = "InDetTrackParticles",
                                   #CheckRate = 1000,
                                   triggerChainName = "NoTriggerSelection",
-                                  VxContainerName = "TauSecondaryVertices",
+                                  VxContainerName = "V0UnconstrVertices",
                                   VxPrimContainerName = "PrimaryVertices",
-                                  OutputLevel = VERBOSE)
+                                  OutputLevel = DEBUG)
 
 ToolSvc += iDPerfMonKshort
 
