@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.cxx 650693 2015-03-01 16:53:48Z masato $
+// $Id: L1Muctpi.cxx 680617 2015-07-06 12:30:39Z wengler $
 
 // STL include(s):
 #include <iostream>
@@ -43,6 +43,7 @@ namespace LVL1MUCTPI {
 
    // Set the default StoreGate locations of input and output objects:
    const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
+   const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
    const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
    const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
    const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
@@ -65,6 +66,9 @@ namespace LVL1MUCTPI {
       declareProperty( "LUTXMLFile", m_lutXMLFile = "" );
       declareProperty( "RunPeriod", m_runPeriod = "RUN1" );
       declareProperty( "FlaggingMode", m_flagMode = false );
+
+      // Declare the properties of the output generation for L1Topo:
+      declareProperty( "GeometryXMLFile", m_geometryXMLFile = "" );
        
       // Declare the properties for the multiplicity summation:
       declareProperty( "MultiplicityStrategyName", m_multiplicityStrategyName = "INCLUSIVE" );
@@ -77,6 +81,7 @@ namespace LVL1MUCTPI {
       declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
       declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
       declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
+      declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = m_DEFAULT_locationMuCTPItoL1Topo );
       // These are just here for flexibility, normally they should not be changed:
       declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
       declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
@@ -160,6 +165,16 @@ namespace LVL1MUCTPI {
          return StatusCode::FAILURE;
 
       }
+
+      //
+      // Set up the handling of the outputs for L1Topo
+      //
+      
+      ATH_MSG_INFO( "Geometry XML file defined in jobO: " << m_geometryXMLFile );
+      const std::string fullGeometryFileName = PathResolverFindXMLFile( m_geometryXMLFile );
+      ATH_MSG_INFO( "Full path to Geometry XML file: " << fullGeometryFileName );
+
+      m_theMuctpi->setupL1TopoConverter(fullGeometryFileName);
 
       //
       // Set the multiplicity summation style of the simulation:
@@ -377,7 +392,7 @@ namespace LVL1MUCTPI {
       }
 
       // process the input in the MUCTPI simulation
-      m_theMuctpi->processData( &mergedInput );
+      m_theMuctpi->processData( &mergedInput );      
 
       // Save the output of the simulation
       CHECK( saveOutput() );
@@ -612,6 +627,14 @@ namespace LVL1MUCTPI {
 	 }
          CHECK( evtStore()->record( nim, m_nimOutputLocId ) );
       }
+
+      // get outputs for L1Topo and store into Storegate
+      ATH_MSG_INFO("GGetting the output for L1Topo");
+      LVL1::MuCTPIL1Topo l1topoCandidates = m_theMuctpi->getL1TopoData();
+      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(l1topoCandidates.getCandidates());
+      CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
+      
+
       return StatusCode::SUCCESS;
    }
 

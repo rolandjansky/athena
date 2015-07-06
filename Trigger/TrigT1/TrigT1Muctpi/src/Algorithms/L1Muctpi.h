@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1Muctpi.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: L1Muctpi.h 678659 2015-06-26 14:54:31Z wengler $
 #ifndef TRIGT1MUCTPI_L1MUCTPI_H
 #define TRIGT1MUCTPI_L1MUCTPI_H
 
@@ -32,7 +32,7 @@ namespace LVL1MUCTPI {
    class MuctpiSim;
 
    /**
-    *   $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    *   $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
     *
     *   @short Main Athena algorithm of the MuCTPI simulation
     *
@@ -50,7 +50,7 @@ namespace LVL1MUCTPI {
     *     @see LVL1::MuCTPICTP
     *
     *  @author $Author: krasznaa $
-    * @version $Revision: 650693 $
+    * @version $Revision: 678659 $
     *
     */
    class L1Muctpi : public AthAlgorithm {
@@ -90,6 +90,7 @@ namespace LVL1MUCTPI {
 
       // Locations of the inputs and outputs of the simulation in StoreGate:
       static const std::string m_DEFAULT_locationMuCTPItoCTP;
+      static const std::string m_DEFAULT_locationMuCTPItoL1Topo;
       static const std::string m_DEFAULT_locationMuCTPItoRoIB;
       static const std::string m_DEFAULT_L1MuctpiStoreLocationRPC;
       static const std::string m_DEFAULT_L1MuctpiStoreLocationTGC;
@@ -101,6 +102,9 @@ namespace LVL1MUCTPI {
       std::string m_lutXMLFile;
       std::string m_runPeriod;
       bool m_flagMode;
+
+     // These properties control the way the outputs for the L1Topo are generated
+     std::string m_geometryXMLFile;
 
       // These properties control how the multiplicity summation happens:
       std::string m_multiplicityStrategyName;
@@ -114,6 +118,7 @@ namespace LVL1MUCTPI {
       std::string m_rdoOutputLocId;
       std::string m_roiOutputLocId;
       std::string m_ctpOutputLocId;
+      std::string m_l1topoOutputLocId;
       std::string m_tgcLocId;
       std::string m_rpcLocId;
 
