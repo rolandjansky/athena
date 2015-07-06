@@ -1,11 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import MuonClusterHypo
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypoAllCuts
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypo 
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypoTrk
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigCaloRatioHypo
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigLoFRemovalHypo
+from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import *
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import *
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AppMgr import ToolSvc
@@ -14,8 +9,7 @@ from AthenaCommon.AppMgr import ToolSvc
 
 class MuonClusterHypoConfig (MuonClusterHypo):
     __slots__ = []
-
-    def __init__(self, name = "MuonClusterHypoConfig", maxEta=1.0):
+    def __init__(self, name, maxEta, numJet, numTrk):
         super( MuonClusterHypoConfig, self ).__init__( name )
 
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import MuonClusterHypoOnlineMonitoring,MuonClusterHypoValidationMonitoring,MuonClusterHypoCosmicMonitoring
@@ -33,33 +27,9 @@ class MuonClusterHypoConfig (MuonClusterHypo):
         self.nRoIEndCap          = 4 
         self.nRoIBarrel          = 3 
         self.nEta                = maxEta
-        self.nJet                = 0 
-        self.nTrk                = 0
+        self.nJet                = numJet
+        self.nTrk                = numTrk
 
-
-class MuonClusterAllMSHypoConfig (MuonClusterHypo):
-    __slots__ = []
-
-    def __init__(self, name = "MuonClusterAllMSHypoConfig"):
-        super( MuonClusterAllMSHypoConfig, self ).__init__( name )
-
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import MuonClusterHypoOnlineMonitoring,MuonClusterHypoValidationMonitoring,MuonClusterHypoCosmicMonitoring
-        validation = MuonClusterHypoValidationMonitoring()
-        online     = MuonClusterHypoOnlineMonitoring()
-        cosmic     = MuonClusterHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("MuonClusterHypo_Time")
-
-        self.AthenaMonTools = [ validation, online, time, cosmic]
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptAll           = False
-        self.nRoIEndCap          = 4
-        self.nRoIBarrel          = 3
-        self.nEta                = 2.5
-        self.nJet                = 0
-        self.nTrk                = 0
 
 
 class L2HVJetHypoAllCutsBase (TrigL2HVJetHypoAllCuts):
@@ -186,9 +156,18 @@ class L2HVJetHypoTrk (L2HVJetHypoTrkBase):
         super( L2HVJetHypoTrk, self ).__init__( name )
 
 
+class TrigNewLoFHypoConfig (TrigNewLoFHypo):
+    __slots__ = []
+    def __init__(self, name = "TrigNewLoFHypoConfig"):
+        super( TrigNewLoFHypoConfig, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll           = False
+        self.LoFCellContSize     = 4
+
+
 class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
     __slots__ = []
-
     def __init__(self, name = "TrigLoFRemovalHypoConfig"):
         super( TrigLoFRemovalHypoConfig, self ).__init__( name )
 
@@ -209,7 +188,7 @@ class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
 
 class CaloRatioHypo (TrigCaloRatioHypo):
     __slots__ = []
-    def __init__(self, name = "CaloRatioHypo", threshold=35*GeV, logratio=1.):
+    def __init__(self, name, threshold, logratio):
         super( CaloRatioHypo, self ).__init__( name )
 
         self.EtCut       = threshold
