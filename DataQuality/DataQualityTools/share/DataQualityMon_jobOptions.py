@@ -8,8 +8,9 @@ CALOCLUSTER=False
 #Make m_trigDecTool available:
 TrigDecisionTool= monTrigDecTool if DQMonFlags.useTrigger() else "",
 
-DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
-DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
+#Doesn't work anyway
+#DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
+#DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
 
 
 #Global monitoring checks to make sure all triggers are firing. The following triggers are monitored. Triggers are listed here:https://twiki.cern.ch/twiki/bin/viewauth/Atlas/ExpressStream#Physics_pp_v2_menu_collisions
@@ -36,7 +37,7 @@ from RecExConfig.RecFlags import rec
 if rec.doHeavyIon():
     JetCollectionKey='antikt4HIItrEM_TowerJets'
 else:
-    JetCollectionKey='AntiKt4TopoEMJets'
+    JetCollectionKey='AntiKt4EMTopoJets'
                         
 # Import external configuration
 #if not 'DQMonFlags' in dir():
@@ -275,29 +276,31 @@ if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.mo
     DQTLumiMonToolMu = DQTLumiMonTool(
         name = 'DQTLumiMonToolMu',
         histoPath = '/GLOBAL/Luminosity/EF_muX',
-        TriggerChain = 'EF_mu15',
+        TriggerChain = 'HLT_mu24_imedium',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
     DQTLumiMonToolEl = DQTLumiMonTool(
         name = 'DQTLumiMonToolEl',
         histoPath = '/GLOBAL/Luminosity/EF_eX',
-        TriggerChain = 'EF_e22vh_medium_IDTrkNoCut',
+        TriggerChain = 'EF_e24_medium_L1EM18VH',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
-    DQTLumiMonToolZero = DQTLumiMonTool(
-        name = 'DQTLumiMonToolZero',
-        histoPath = '/GLOBAL/Luminosity/EF_zerobias_NoAlg',
-        TriggerChain = 'EF_zerobias_NoAlg',
-        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-    )    
-    DQTLumiMonToolRD0 = DQTLumiMonTool(
-        name = 'DQTLumiMonToolRD0',
-        histoPath = '/GLOBAL/Luminosity/EF_rd0_filled_NoAlg',
-        TriggerChain = 'EF_rd0_filled_NoAlg',
-        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-    )
-    ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
-    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
+#    DQTLumiMonToolZero = DQTLumiMonTool(
+#        name = 'DQTLumiMonToolZero',
+#        histoPath = '/GLOBAL/Luminosity/EF_zerobias_NoAlg',
+#        TriggerChain = 'EF_zerobias_NoAlg',
+#        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
+#    )    
+#    DQTLumiMonToolRD0 = DQTLumiMonTool(
+#        name = 'DQTLumiMonToolRD0',
+#        histoPath = '/GLOBAL/Luminosity/EF_rd0_filled_NoAlg',
+#        TriggerChain = 'EF_rd0_filled_NoAlg',
+#        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
+#    )
+#    ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
+    ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
+#    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
+    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
 
 ## ---> Obsolete
 ##         from DataQualityTools.DataQualityToolsConf import DQTTopLeptonJetsFinderTool
