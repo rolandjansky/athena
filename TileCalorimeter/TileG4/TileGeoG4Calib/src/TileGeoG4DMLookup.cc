@@ -11,11 +11,10 @@
 //
 //************************************************************
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-#include "TileGeoG4Calib/TileGeoG4DMLookup.h"
+#include "TileGeoG4DMLookup.h"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
+
+#include "G4ios.hh"
 
 TileGeoG4CalibCell::TileGeoG4CalibCell()  
   : detector(0),
@@ -43,21 +42,16 @@ TileGeoG4GirderCell::TileGeoG4GirderCell()
     xBound(0)
 {}
 
-TileGeoG4CalibSection::TileGeoG4CalibSection(IMessageSvc* m_msgSvc)
+TileGeoG4CalibSection::TileGeoG4CalibSection(const int verboseLevel)
   : section(0),
     nrOfPeriods(0),
     nrOfSamples(0),
     nrOfCells(0),
     nrOfPlateCells(0),
     nrOfGirderCells(0),
-    sample_ZBound()
+    sample_ZBound(),
+    m_verboseLevel(verboseLevel)
 {
-  m_log = new MsgStream (m_msgSvc, "TileGeoG4CalibSection");
-}
-
-TileGeoG4CalibSection::~TileGeoG4CalibSection()  
-{
-  delete m_log;
 }
 
 void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_section)  
@@ -153,23 +147,21 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
 
 
   // check lookup table
-  if (m_log->level()<=MSG::VERBOSE) {
+  if (m_verboseLevel>10) {
     if(!gap_crack) {
       for (samp=0; samp<l_nSample; samp++) {
         for (per=0; per<l_nPeriod; per++)  {
-	    (*m_log) << MSG::VERBOSE 
-                     <<"samp="<<samp<<"   per="<<per<<" :    cellNum = "<<m_DMToCell[l_nPeriod*samp+per]->cellNum 
+	      G4cout <<"samp="<<samp<<"   per="<<per<<" :    cellNum = "<<m_DMToCell[l_nPeriod*samp+per]->cellNum 
 	             <<" ,  detector = "<<m_DMToCell[l_nPeriod*samp+per]->detector
-		     <<" ,  sample = "<<m_DMToCell[l_nPeriod*samp+per]->sample << endreq;
+		     <<" ,  sample = "<<m_DMToCell[l_nPeriod*samp+per]->sample << G4endl;
 	}	
       }
     }
     else {
       for(int i =0; i < static_cast<int>(m_DMToCell.size()); i++) {
-        (*m_log) << MSG::VERBOSE
-                 <<"samp = "<<i<<" :    cellNum = "<<m_DMToCell[i]->cellNum
-	         <<" ,  detector = "<<m_DMToCell[i]->detector
-                 <<" ,  sample = "<<m_DMToCell[i]->sample << endreq;
+        G4cout <<"samp = "<<i<<" :    cellNum = "<<m_DMToCell[i]->cellNum
+               <<" ,  detector = "<<m_DMToCell[i]->detector
+                 <<" ,  sample = "<<m_DMToCell[i]->sample << G4endl;
       }
     }
   }
@@ -184,15 +176,11 @@ TileGeoG4Cell* TileGeoG4CalibSection::GetCell (int nPeriod, int nSample)
 {
   if (nPeriod<0 || nPeriod>nrOfPeriods-1 || nSample<0 || nSample>nrOfSamples-1) 
     {
-        (*m_log) << MSG::ERROR
-                 << "GetCell(): Bad index to retrieve pointer to the Cell." << endreq;
-
-	(*m_log) << MSG::ERROR
-                 << "The passed period and sample are these :  nPeriod = "
-                 << nPeriod<<" ,  nSample = "<<nSample << endreq;
-	(*m_log) << MSG::ERROR
-                 << "Since for this section there are :  number_periods = "
-                 << nrOfPeriods<<" ,  number_samples = "<<nrOfSamples << endreq;
+    G4cout << "ERROR: GetCell(): Bad index to retrieve pointer to the Cell." << G4endl;
+    G4cout << "ERROR: The passed period and sample are these :  nPeriod = "
+                 << nPeriod<<" ,  nSample = "<<nSample << G4endl;
+    G4cout << "ERROR: Since for this section there are :  number_periods = "
+                 << nrOfPeriods<<" ,  number_samples = "<<nrOfSamples << G4endl;
 
 	return 0;
     }

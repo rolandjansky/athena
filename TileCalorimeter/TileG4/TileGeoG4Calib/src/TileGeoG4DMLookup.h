@@ -19,8 +19,6 @@
 
 class TileGeoG4Cell;
 class TileGeoG4Section;
-class IMessageSvc;
-class MsgStream;
 
 
 class TileGeoG4CalibCell  
@@ -88,7 +86,7 @@ class TileGeoG4CalibSection
 {
 public:
   
-  TileGeoG4CalibSection(IMessageSvc* m_msgSvc);
+  TileGeoG4CalibSection(const int verboseLevel);
   ~TileGeoG4CalibSection();
 
   int section;
@@ -124,7 +122,7 @@ private:
   //for each unit of Absorber Material ("Period") in Tile modules 
   //contains pointer to the corresponding cell
   std::vector<TileGeoG4Cell*> m_DMToCell; 
-  MsgStream * m_log;
+  int m_verboseLevel;
 
 };
 

@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////
 // class TileEscapedEnergyProcessing
 //
 // Author: Gia Khoriauli  <gia@mail.cern.ch>
 // May, 2005
 //
-// This manages processing of those particles, which were created 
+// This manages processing of those particles, which were created
 // in Tile region and escaped from World later
 //
 ///////////////////////////////////////////////////////////////////
@@ -39,44 +39,42 @@
 #include "globals.hh"
 
 class G4Step;
-class IMessageSvc;
-class MsgStream;
 
 class TileEscapedEnergyProcessing : public CaloG4::VEscapedEnergyProcessing
 {
-  public:
-    TileEscapedEnergyProcessing(IMessageSvc* m_msgSvc);
-    virtual ~TileEscapedEnergyProcessing();
+public:
+  TileEscapedEnergyProcessing(const int verboseLevel);
+  virtual ~TileEscapedEnergyProcessing();
 
-    // Method: The G4TouchableHandle to the volume in which "point" is
-    // located; the value of "point" itself in case additional
-    // processing is necessary, and the amount of escaped energy.
-    virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
+  // Method: The G4TouchableHandle to the volume in which "point" is
+  // located; the value of "point" itself in case additional
+  // processing is necessary, and the amount of escaped energy.
+  virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
 
-    //After escaped particle is detected and its 'mother' step is created
-    //this method will retrieve the respective SD for the volume where escaped
-    //particle was created and invokes SD::ProcessHits() - method.		
-    G4bool Call_SD_ProcessHits( G4Step* aStep, G4String &SDname);
+  //After escaped particle is detected and its 'mother' step is created
+  //this method will retrieve the respective SD for the volume where escaped
+  //particle was created and invokes SD::ProcessHits() - method.
+  G4bool Call_SD_ProcessHits( G4Step* aStep, G4String &SDname);
 
-    void   SetEscapedFlag(bool);
-    void   SetEnergy5(double);
-    void   SetEscapedEnergy(double);
+  void   SetEscapedFlag(bool);
+  void   SetEnergy5(double);
+  void   SetEscapedEnergy(double);
 
-    bool   GetEscapedFlag();
-    double GetEnergy5();
-    double GetEscapedEnergy();
+  bool   GetEscapedFlag();
+  double GetEnergy5();
+  double GetEscapedEnergy();
 
 
 private:
-
-    // takes the flag that particle has escaped,
-    // the 'mother' step of escaped particle and
-    // amount of that energy, wich can't be calculated
-    // by Simulationenergies
-    bool   m_escaped;
-    double m_escapedEnergy;
-    double m_energy5;
-    MsgStream * m_log;
+  TileEscapedEnergyProcessing() = delete;
+  // takes the flag that particle has escaped,
+  // the 'mother' step of escaped particle and
+  // amount of that energy, wich can't be calculated
+  // by Simulationenergies
+  bool   m_escaped;
+  double m_escapedEnergy;
+  double m_energy5;
+  int    m_verboseLevel;
 
 };
 
@@ -91,4 +89,3 @@ inline double TileEscapedEnergyProcessing::GetEscapedEnergy() {return m_escapedE
 
 
 #endif // TileG4_TileEscapedEnergyProcessing_H
-

@@ -12,22 +12,20 @@
 //
 ///////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-#include "TileGeoG4Calib/TileCalibDddbManager.h"
+#include "TileCalibDddbManager.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "G4ios.hh"
 
 #include <sstream>
 
 
-TileCalibDddbManager::TileCalibDddbManager(IRDBAccessSvc* access,
+TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
                                            std::string    version_tag,
                                            std::string    version_node,
-                                           IMessageSvc* msgSvc) : 
+                                           const int verboseLevel) :
   currentTile(0),
   currentSection(0),
   currentCell(0),
@@ -37,10 +35,9 @@ TileCalibDddbManager::TileCalibDddbManager(IRDBAccessSvc* access,
   currentPlateCellInd(-1),
   currentGirderCellInd(-1),
   mTag(version_tag),
-  mNode(version_node)
+  mNode(version_node),
+  m_verboseLevel(verboseLevel)
 {
-
-  m_log = new MsgStream (msgSvc, "TileCalibDddbManager");
 
   access->connect();
 
@@ -65,11 +62,6 @@ TileCalibDddbManager::TileCalibDddbManager(IRDBAccessSvc* access,
 
 }
 
-TileCalibDddbManager::~TileCalibDddbManager()
-{
-  delete m_log;
-}
-
 
 
 // --------------------------- T I L E -------------------------
@@ -80,9 +72,8 @@ int TileCalibDddbManager::GetNumModules(int ind)  const
     return (*tile)[ind]->getInt("NMODUL");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumModules() - Unable to retrieve number of modules. return -999"
-             << endreq;
+    G4cout << "GetNumModules() - Unable to retrieve number of modules. return -999"
+             << G4endl;
     return -999;
   }
 }
@@ -102,9 +93,8 @@ bool TileCalibDddbManager::GetSwitchPlateToCell()  const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetSwitchPlateToCell() - Unable to retrieve swithes. return TRUE"
-             << endreq;
+    G4cout << "GetSwitchPlateToCell() - Unable to retrieve swithes. return TRUE"
+             << G4endl;
     return true;
   }
 }
@@ -121,9 +111,8 @@ void TileCalibDddbManager::SetCurrentSection(unsigned int section)
   }
 
   if(ind >= n_tile_sect )
-    (*m_log) << MSG::ERROR
-             << "SetCurrentSection() - Unable to find the section " << section
-             << endreq;
+    G4cout   << "SetCurrentSection() - Unable to find the section " << section
+             << G4endl;
   else
     currentSection = (*tile_section)[ind];
 }
@@ -134,9 +123,8 @@ int TileCalibDddbManager::GetCurrentSection() const
     return currentSection->getInt("SECT");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetCurrentSection() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   << "GetCurrentSection() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -147,9 +135,8 @@ int TileCalibDddbManager::GetNumSectPeriods() const
     return currentSection->getInt("PERIODS");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumSectPeriods() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   << "GetNumSectPeriods() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -160,9 +147,8 @@ int TileCalibDddbManager::GetNumSectSamples() const
     return currentSection->getInt("SAMPLES");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumSectSamples() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   << "GetNumSectSamples() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -173,9 +159,8 @@ int TileCalibDddbManager::GetNumSectCells() const
     return currentSection->getInt("CELLS");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumSectCells() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   << "GetNumSectCells() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -184,10 +169,10 @@ int TileCalibDddbManager::GetNumSectPlateCells() const
 {
   if(currentSection) {
     if(currentSection->isFieldNull("PLATECELLS")) {
-      (*m_log) << MSG::DEBUG
+      if (m_verboseLevel>5) G4cout
                << "GetNumSectPlateCells() - PLATECELLS in section " << currentSection->getInt("SECT")
                << " is NULL, returning -999"
-               << endreq;
+               << G4endl;
       return -999;
     } else {
       return currentSection->getInt("PLATECELLS");
@@ -195,9 +180,8 @@ int TileCalibDddbManager::GetNumSectPlateCells() const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             <<"GetNumSectPlateCells() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   <<"GetNumSectPlateCells() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -206,10 +190,10 @@ int TileCalibDddbManager::GetNumSectGirderCells() const
 {
   if(currentSection){
     if(currentSection->isFieldNull("GIRDERCELLS")) {
-      (*m_log) << MSG::DEBUG
+      if (m_verboseLevel>5) G4cout
                << "GetNumSectGirderCells() - GIRDERCELLS in section " << currentSection->getInt("SECT")
                << " is NULL, returning -999"
-               << endreq;
+               << G4endl;
       return -999;
     } else {
       return currentSection->getInt("GIRDERCELLS");
@@ -217,9 +201,8 @@ int TileCalibDddbManager::GetNumSectGirderCells() const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumSectGirderCells() - Current Section not set, returning -999"
-             << endreq;
+    G4cout   << "GetNumSectGirderCells() - Current Section not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -241,9 +224,8 @@ double TileCalibDddbManager::GetSampleZBound(int ind) const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             <<"GetSampleZBound() - Current Section not set, returning -9999.9"
-             << endreq;
+    G4cout   <<"GetSampleZBound() - Current Section not set, returning -9999.9"
+             << G4endl;
     return -9999.9;
   }
 }
@@ -257,9 +239,8 @@ double TileCalibDddbManager::GetSampleZBound(int ind) const
 void TileCalibDddbManager::SetCurrentGirderCell(unsigned int index)
 {
   if(index >=n_tile_gcell )
-    (*m_log) << MSG::ERROR
-             << "SetCurrentGirderCell() - The requested index = " << index << " out of range"
-             << endreq;
+    G4cout   << "SetCurrentGirderCell() - The requested index = " << index << " out of range"
+             << G4endl;
   else
   {
     currentGirderCell = (*tile_girderCell)[index];
@@ -311,9 +292,8 @@ int TileCalibDddbManager::GetGirderCellDetector() const
     return currentGirderCell->getInt("DETECTOR");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellDetector() - Current GirderCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetGirderCellDetector() - Current GirderCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -324,9 +304,8 @@ int TileCalibDddbManager::GetGirderCellTower() const
     return currentGirderCell->getInt("TOWER");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellTower() - Current GirderCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetGirderCellTower() - Current GirderCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -337,9 +316,8 @@ int TileCalibDddbManager::GetGirderCellSample() const
     return currentGirderCell->getInt("SAMPLE");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellSample() - Current GirderCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetGirderCellSample() - Current GirderCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -350,9 +328,8 @@ double TileCalibDddbManager::GetGirderCellEta() const
     return currentGirderCell->getDouble("ETA");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellEta() - Current GirderCell not set, returning -999.9"
-             << endreq;
+    G4cout   << "GetGirderCellEta() - Current GirderCell not set, returning -999.9"
+             << G4endl;
     return -999.9;
   }
 }
@@ -363,9 +340,8 @@ double TileCalibDddbManager::GetGirderCellDeta() const
     return currentGirderCell->getDouble("DETA");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellDeta() - Current GirderCell not set, returning -999.9"
-             << endreq;
+    G4cout   << "GetGirderCellDeta() - Current GirderCell not set, returning -999.9"
+             << G4endl;
     return -999.9;
   }
 }
@@ -376,9 +352,8 @@ double TileCalibDddbManager::GetGirderCellXBound() const
     return currentGirderCell->getDouble("XBOUND");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetGirderCellXBound() - Current GirderCell not set, returning -9999.9"
-             << endreq;
+    G4cout   << "GetGirderCellXBound() - Current GirderCell not set, returning -9999.9"
+             << G4endl;
     return -9999.9;
   }
 }
@@ -394,9 +369,8 @@ double TileCalibDddbManager::GetGirderCellXBound() const
 void TileCalibDddbManager::SetCurrentPlateCell(unsigned int index)
 {
   if(index >=n_tile_pcell )
-    (*m_log) << MSG::ERROR
-             << "SetCurrentPlateCell() - The requested index = " << index << " out of range"
-             << endreq;
+    G4cout   << "SetCurrentPlateCell() - The requested index = " << index << " out of range"
+             << G4endl;
   else
   {
     currentPlateCell = (*tile_plateCell)[index];
@@ -495,9 +469,8 @@ int TileCalibDddbManager::GetPlateCellDetector() const
     return currentPlateCell->getInt("DETECTOR");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellDetector() - Current PlateCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetPlateCellDetector() - Current PlateCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -508,9 +481,8 @@ int TileCalibDddbManager::GetPlateCellTower() const
     return currentPlateCell->getInt("TOWER");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellTower() - Current PlateCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetPlateCellTower() - Current PlateCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -521,9 +493,8 @@ int TileCalibDddbManager::GetPlateCellSample() const
     return currentPlateCell->getInt("SAMPLE");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellSample() - Current PlateCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetPlateCellSample() - Current PlateCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -534,9 +505,8 @@ double TileCalibDddbManager::GetPlateCellEta() const
     return currentPlateCell->getDouble("ETA");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellEta() - Current PlateCell not set, returning -999.9"
-             << endreq;
+    G4cout   << "GetPlateCellEta() - Current PlateCell not set, returning -999.9"
+             << G4endl;
     return -999.9;
   }
 }
@@ -547,9 +517,8 @@ double TileCalibDddbManager::GetPlateCellDeta() const
     return currentPlateCell->getDouble("DETA");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellDeta() - Current PlateCell not set, returning -999.9"
-             << endreq;
+    G4cout   << "GetPlateCellDeta() - Current PlateCell not set, returning -999.9"
+             << G4endl;
     return -999.9;
   }
 }
@@ -560,9 +529,8 @@ double TileCalibDddbManager::GetPlateCellXBound() const
     return currentPlateCell->getDouble("XBOUND");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellXBound() - Current PlateCell not set, returning -9999.9"
-             << endreq;
+    G4cout   << "GetPlateCellXBound() - Current PlateCell not set, returning -9999.9"
+             << G4endl;
     return -9999.9;
   }
 }
@@ -571,13 +539,13 @@ double TileCalibDddbManager::GetPlateCellZBound() const
 {
   if(currentPlateCell) {
     if(currentPlateCell->isFieldNull("ZBOUND")) {
-      (*m_log) << MSG::DEBUG
+      if (m_verboseLevel>5) G4cout
                << "GetPlateCellZBound() - ZBOUND"
                << " in DETECTOR "<<currentPlateCell->getInt("DETECTOR")
                << " SAMPLE "<<currentPlateCell->getInt("SAMPLE")
                << " TOWER "<<currentPlateCell->getInt("TOWER")
                << " is NULL, returning -9999.9"
-               << endreq;
+               << G4endl;
       return -9999.9;
     } else {
       return currentPlateCell->getDouble("ZBOUND");
@@ -585,9 +553,8 @@ double TileCalibDddbManager::GetPlateCellZBound() const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellZBound() - Current PlateCell not set, returning -9999.9"
-             << endreq;
+    G4cout   << "GetPlateCellZBound() - Current PlateCell not set, returning -9999.9"
+             << G4endl;
     return -9999.9;
   }
 }
@@ -596,13 +563,13 @@ int TileCalibDddbManager::GetPlateCellNeighborPeriod() const
 {
   if(currentPlateCell) {
     if(currentPlateCell->isFieldNull("NEIGHPERIOD")) {
-      (*m_log) << MSG::DEBUG
+      if (m_verboseLevel>5) G4cout
                << "GetPlateCellNeighborPeriod() - NEIGHPERIOD "
                << " in DETECTOR "<<currentPlateCell->getInt("DETECTOR")
                << " SAMPLE "<<currentPlateCell->getInt("SAMPLE")
                << " TOWER "<<currentPlateCell->getInt("TOWER")
                << " is NULL, returning -999"
-               << endreq;
+               << G4endl;
       return -999;
     } else {
       return currentPlateCell->getInt("NEIGHPERIOD");
@@ -610,9 +577,8 @@ int TileCalibDddbManager::GetPlateCellNeighborPeriod() const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetPlateCellNeighborPeriod() - Current PlateCell not set, returning -999"
-             << endreq;
+    G4cout   << "GetPlateCellNeighborPeriod() - Current PlateCell not set, returning -999"
+             << G4endl;
     return -999;
   }
 }
@@ -629,9 +595,8 @@ int TileCalibDddbManager::GetPlateCellNeighborPeriod() const
 void TileCalibDddbManager::SetCurrentCell(unsigned int index)
 {
   if(index >=n_tile_cell )
-    (*m_log) << MSG::ERROR
-             << "SetCurrentCell() - The requested index = " << index << " out of range"
-             << endreq;
+    G4cout   << "SetCurrentCell() - The requested index = " << index << " out of range"
+             << G4endl;
   else
   {
     currentCell = (*tile_cell)[index];
@@ -734,12 +699,12 @@ int TileCalibDddbManager::GetNumOfPeriodsInCell(int period_set) const
 
   if(currentCell) {
     if(currentCell->isFieldNull("PERIODS_"+indx)) {
-      (*m_log) << MSG::DEBUG
+      if (m_verboseLevel>5) G4cout
                << "GetNumOfPeriodsInCell() - PERIODS_"<<indx
                << " in DETECTOR "<<currentCell->getInt("DETECTOR")
                << " SAMPLE "<<currentCell->getInt("SAMPLE")
                << " is NULL, returning -999"
-               << endreq;
+               << G4endl;
       return -999;
     } else {
       return currentCell->getInt("PERIODS", period_set);
@@ -747,9 +712,8 @@ int TileCalibDddbManager::GetNumOfPeriodsInCell(int period_set) const
   }
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetNumOfPeriodsInCell() - Current Cell not set, returning -999"
-             << endreq;
+    G4cout   << "GetNumOfPeriodsInCell() - Current Cell not set, returning -999"
+             << G4endl;
     return -999;
   } 
 }
@@ -760,9 +724,8 @@ int TileCalibDddbManager::GetCellSample() const
     return currentCell->getInt("SAMPLE");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetCellSample() - Current Cell not set, returning -999"
-             << endreq;
+    G4cout   << "GetCellSample() - Current Cell not set, returning -999"
+             << G4endl;
     return -999;
   } 
 }
@@ -773,9 +736,8 @@ int TileCalibDddbManager::GetCellDetector() const
     return currentCell->getInt("DETECTOR");
   else
   {
-    (*m_log) << MSG::ERROR
-             << "GetCellDetector() - Current Cell not set, returning -999"
-             << endreq;
+    G4cout   << "GetCellDetector() - Current Cell not set, returning -999"
+             << G4endl;
     return -999;
   } 
 }
