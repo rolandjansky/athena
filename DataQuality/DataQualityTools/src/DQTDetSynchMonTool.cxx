@@ -1188,7 +1188,10 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_field->getField(&gP1,&f);
    //REL18 m_field->getMagneticFieldKiloGauss(gP1,f);
    float solenoid_bz = f[2];
-   solenoid_bz/=10;
+   //REL19: field is in kilotesla (!)
+   solenoid_bz *= 1000;
+   //REL18 : was in kilogauss
+   //solenoid_bz/=10;
    m_Bfield_solenoid->Fill(solenoid_bz); 
    m_Bfield_solenoid_vsLB->Fill(lumi, solenoid_bz);
    //REL19 
@@ -1198,7 +1201,10 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_field->getField(&gP2,&f);
    //REL18 m_field->getMagneticFieldKiloGauss(gP2,f);
    float toroid_bx = f[0];
-   toroid_bx/=10;
+   //REL19: field is in kilotesla (!)
+   toroid_bx *= 1000;
+   //REL18 : was in kilogauss
+   //toroid_bx/=10;
    m_Bfield_toroid->Fill(toroid_bx);    
    m_Bfield_toroid_vsLB->Fill(lumi, toroid_bx);
 

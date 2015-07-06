@@ -61,14 +61,14 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
 		   const std::string & name,
 		   const IInterface* parent)
    : DataQualityFatherMonTool(type, name, parent),
-     m_electronContainerName("ElectronCollection"),
+     m_electronContainerName("Electrons"),
      m_egDetailContainerName("egDetailAOD"),
      //m_VxPrimContainerName("VxPrimaryCandidate"), //Kshort
      m_VxPrimContainerName("PrimaryVertices"),
      m_VxContainerName("SecVertices"), //Kshort
-      m_METName("MET_LocHadTopo"),
+     m_METName("MET_Reference_AntiKt4LCTopo"),
      m_muonContainerName("Muons"),
-     m_jetCollectionName("AntiKt4EMTopoJets"),
+     m_jetCollectionName("AntiKt4LCTopoJets"),
      m_tracksName("InDetTrackParticles"), //Kshort
      m_electronEtCut(20000),
      m_metCut(25000),
@@ -319,7 +319,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      const xAOD::MissingET* missET;
      if ( evtStore()->contains<xAOD::MissingETContainer>(m_METName) ) {
        evtStore()->retrieve(missETcont,m_METName);
-       missET = (*missETcont)["LocHadTopo"];
+       missET = (*missETcont)["FinalClus"];
        if (!missET){
 	 log << MSG::WARNING << "Cannot retrieve xAOD::MissingET LocHadTopo"  << endreq;
 	 if (!printedErrorMet)
@@ -674,8 +674,6 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
          //EP const Trk::TrackParameters *idtparb=0, *metparb=0;
          //EP const Trk::TrackParameters *idtpar=0, *metpar=0;
-         const xAOD::TrackParticle* idtp = *((*muonItr)->inDetTrackParticleLink());
-         const xAOD::TrackParticle* metp = *((*muonItr)->muonSpectrometerTrackParticleLink());
 
          //idtparb = idtp ? & idtp->definingParameters() : 0;
          //metparb = metp ? & metp->definingParameters() : 0;
@@ -693,8 +691,21 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          //Float_t me_theta = -99999;
          Float_t me_qoverp = -99999;
 
-         id_qoverp = idtp->qOverP();
-         me_qoverp = metp->qOverP();
+	 ATH_MSG_DEBUG("Valid ID? " << (*muonItr)->inDetTrackParticleLink().isValid());
+	 if ((*muonItr)->inDetTrackParticleLink().isValid()) {
+	   const xAOD::TrackParticle* idtp = *((*muonItr)->inDetTrackParticleLink());
+	   id_qoverp = idtp->qOverP();
+	 } else {
+	   id_qoverp = 0;
+	 }
+
+	 ATH_MSG_DEBUG("Valid MS? " << (*muonItr)->muonSpectrometerTrackParticleLink().isValid());
+	 if ((*muonItr)->muonSpectrometerTrackParticleLink().isValid()) {
+	   const xAOD::TrackParticle* metp = *((*muonItr)->muonSpectrometerTrackParticleLink());
+	   me_qoverp = metp->qOverP();
+	 } else {
+	   id_qoverp = 0;
+	 }
 
          //if(idtpar) {
          //  //id_d0 = idtpar->parameters()[Trk::d0];
