@@ -70,10 +70,12 @@ if 'TilePhysRun' in dir():
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/2009/00%(run)s/%(stream)s" % { 'run': RunNumber, 'stream': RunStream })
            elif RunNumber<171194:
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+
            elif RunNumber < 254945:
-                InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+               InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
-                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+
 else:
     TilePhysRun=False
 
@@ -98,10 +100,8 @@ if not 'InputDirectory' in dir():
             Year = 2013            
         elif RunNumber < 248584:
             Year = 2014
-        elif RunNumber < 287952:
-            Year = 2015
         else:
-            Year = 2016
+            Year = 2015
 
         if 'RunStream' in dir():
             if RunStream == 'l1calo' or RunStream == 'L1Calo':
@@ -254,7 +254,7 @@ else:    rec.projectName = "data12_tilecomm"
 
 from IOVDbSvc.CondDB import conddb
 if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-25")
-elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2016-05")
+elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2015-01")
 else:      conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
@@ -271,7 +271,7 @@ if TileLasPulse:
     ToolSvc += getTileCondToolOfcCool('COOL', 'LAS')
 elif TileCisPulse:
     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','CIS')
-    ToolSvc += getTileCondToolOfcCool('COOL', 'CIS')
+    ToolSvc += getTileCondToolOfcCool('COOL', 'CISPULSE100')
 else:
     tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','PHY')
     ToolSvc += getTileCondToolOfcCool('COOL', 'PHY')

@@ -8,10 +8,8 @@
     <TEST name="Commissioning" type="athena" suite="CaloCosEx">
       <options_atn>TileRecEx/jobOptions_TileCommissioningAtn.py</options_atn>
       <timelimit>15</timelimit>
-<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch Sanya.Solodkov@cern.ch</mailto>
--->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -23,10 +21,8 @@
     <TEST name="Commissioning_32b" type="athena" suite="CaloCosEx">
       <options_atn> -c RunFromLocal=True TileRecEx/jobOptions_TileCommissioningAtn.py</options_atn>
       <timelimit>15</timelimit>
-<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch Sanya.Solodkov@cern.ch</mailto>
--->
       <platform>i686</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -38,10 +34,8 @@
     <TEST name="Cosmic" type="athena" suite="CaloCosEx">
       <options_atn>TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
-<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
--->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -53,10 +47,8 @@
     <TEST name="Cosmic_32b" type="athena" suite="CaloCosEx">
       <options_atn> -c RunFromLocal=True TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
-<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
--->
       <platform>i686</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -68,10 +60,8 @@
     <TEST name="Cosmic14" type="athena" suite="CaloCosEx">
       <options_atn> -c RunNumber=239908 TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
-<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
--->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -93,7 +83,7 @@
 
       <athena userJobId="TileCosmicRtt" doMonitoring="True">
         <doc>RTT test for Cosmic runs</doc>
-        <commandLineString>-c "doRTT=True"</commandLineString>
+        <commandLineString>--stdcmalloc -c "doRTT=True"</commandLineString>
         <options>jobOptions_TileCosmicAtn.py</options>
         <group>TileRecEx:TestingTileRecEx</group>
         <queue>medium</queue>
@@ -133,7 +123,7 @@
           energy.
         </doc>
         <commandLineString>
-          -c "TilePhysAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TilePhysAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -160,7 +150,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePhysAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TilePhysAllTestParamsOnOfaRttHistograms_20150228.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -178,7 +168,7 @@
           COOL; not calibrate on energy.
         </doc>
         <commandLineString>
-          -c "TilePhysAllTestParamsOffOfaRtt=True"
+          --stdcmalloc -c "TilePhysAllTestParamsOffOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -205,7 +195,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePhysAllTestParamsOffOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TilePhysAllTestParamsOffOfaRttHistograms_20150228.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -223,7 +213,7 @@
           energy.
         </doc>
         <commandLineString>
-          -c "TilePhysZeroBiasAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TilePhysZeroBiasAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -250,7 +240,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePhysZeroBiasAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TilePhysZeroBiasAllTestParamsOnOfaRttHistograms_20150302.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -269,7 +259,7 @@
           Mev in output ntuple.
         </doc>
         <commandLineString>
-          -c "TilePedestalAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TilePedestalAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -296,7 +286,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TilePedestalAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TilePedestalAllTestParamsOnOfaRttHistograms_20121016.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -314,7 +304,7 @@
           ntuple.
         </doc>
         <commandLineString>
-          -c "TileLasAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TileLasAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -341,7 +331,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileLasAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TileLasAllTestParamsOnOfaRttHistograms_20141003.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -359,7 +349,7 @@
           ntuple.
         </doc>
         <commandLineString>
-          -c "TileCisAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TileCisAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -389,7 +379,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileCisAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TileCisAllTestParamsOnOfaRttHistograms_20121016.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -407,7 +397,7 @@
           pC in output ntuple.
         </doc>
         <commandLineString>
-          -c "TileMonoCisAllTestParamsOnOfaRtt=True"
+          --stdcmalloc -c "TileMonoCisAllTestParamsOnOfaRtt=True"
         </commandLineString>
         <options>jobOptions_TileOptimalFilteringAlgsRtt.py</options>
         <group>TileRecEx:TileOptimalFilteringAlgs</group>
@@ -437,7 +427,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileMonoCisAllTestParamsOnOfaRttHistograms_20160418.root</argvalue>
+            <argvalue>TileMonoCisAllTestParamsOnOfaRttHistograms_20121016.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
