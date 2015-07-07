@@ -203,6 +203,15 @@ protected:
   };
 
 
+  std::string m_TMDB_LB_cell_names[8] = {"D0", "D1L", "D1R", "D2R", "D2L", "D3L", "D3R", ""}; // should be corrected at some time
+  std::string m_TMDB_EB_cell_names[4] = {"D5L", "D5R", "D6L", "D6R"};
+
+  inline std::string getTMDBCellName(unsigned int ros, unsigned int channel) {
+    if (ros < 3) return m_TMDB_LB_cell_names[channel];
+    else return m_TMDB_EB_cell_names[channel];
+  };
+
+
   // Tells if a channel is disconnected or not
   // Special modules are considered too.
   // NB Input is channel number (0-47)

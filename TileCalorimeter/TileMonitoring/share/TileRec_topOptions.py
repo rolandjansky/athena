@@ -18,11 +18,11 @@ def FindFile(path, runinput):
     files = []
     fullname = []
 
-    if path.startswith("/castor") :
+    if path.startswith('/castor') :
         for f in popen('ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
 
-    elif path.startswith("/eos") :
+    elif path.startswith('/eos') :
         for f in popen('eos ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
 
@@ -38,7 +38,7 @@ def FindFile(path, runinput):
     return [fullname, run]
 
 # include Flags jobOption
-include("TileMonitoring/TileRec_FlagOptions.py")
+include('TileMonitoring/TileRec_FlagOptions.py')
 
 
 
@@ -101,15 +101,15 @@ if athenaCommonFlags.isOnline() or doOnline or doStateless:
 
 if not athenaCommonFlags.isOnline():
 
-    include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-    include("ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py")
+    include('ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py')
+    include('ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py')
 
     if not 'InputDirectory' in dir():
-        InputDirectory = "/castor/cern.ch/grid/atlas/t0/perm/DAQ"
+        InputDirectory = '/castor/cern.ch/grid/atlas/t0/perm/DAQ'
     if not 'RunNumber' in dir():
         RunNumber = 0
     if not 'RunFromLocal' in dir():
-       if InputDirectory == "." or RunNumber < 10:
+       if InputDirectory == '.' or RunNumber < 10:
            RunFromLocal = True
        else:
            RunFromLocal = False
@@ -130,21 +130,19 @@ if not athenaCommonFlags.isOnline():
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
 
-    print "InputDirectory is " + str(InputDirectory)
-    print "RunNumber is " + str(FormattedRunNumber)
-    print "FullFileName is " + str(FileNameVec)
-    print "Skip Events is " + str(EvtMin)
-    print "Max events is " + str(EvtMax)
+    print 'InputDirectory is ' + str(InputDirectory)
+    print 'RunNumber is ' + str(FormattedRunNumber)
+    print 'FullFileName is ' + str(FileNameVec)
+    print 'Skip Events is ' + str(EvtMin)
+    print 'Max events is ' + str(EvtMax)
 
-    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
-    # svcMgr.ByteStreamInputSvc.NumFile = [ FileNameVec.__len__() ]
-    # svcMgr.ByteStreamInputSvc.NumFile = [ 10 ]
-    svcMgr.ByteStreamInputSvc.MaxBadEvents = MaxBadEvents
-   
     athenaCommonFlags.FilesInput = FileNameVec
+    svcMgr.EventSelector.Input = FileNameVec
+    svcMgr.EventSelector.MaxBadEvents = MaxBadEvents
+
 
     projectName = FileNameVec[0].split('/').pop().split('.')[0]
-    log.info( "Project name is " + projectName )
+    log.info( 'Project name is ' + projectName )
     rec.projectName = projectName
 
 
@@ -153,14 +151,14 @@ from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
     DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
-log.info("DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()))
+log.info('DetDescrVersion = %s' % (jobproperties.Global.DetDescrVersion()))
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.IgnoreTagDifference = True
-log.info("GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion))
+log.info('GeoModelSvc.AtlasVersion = %s' % (GeoModelSvc.AtlasVersion))
 
 # Setup Db stuff
 if TileUseCOOL:
@@ -168,22 +166,22 @@ if TileUseCOOL:
     log.info( 'Tile COOL tag: ' + tileCOOLtag )
     conddb.setGlobalTag(tileCOOLtag)
 
-# connStr = "<dbConnection>sqlite://DUMMY;schema=caloSqlite.db;dbname=COMP200</dbConnection>"
-# tag     = "<tag>CaloNoiseCellnoise-UPD1-00</tag>"
-# tag     = "<tag>CaloNoiseCellnoise-UPD3-00</tag>"
-# folder  = "/CALO/Noise/CellNoise"
+# connStr = '<dbConnection>sqlite://DUMMY;schema=caloSqlite.db;dbname=COMP200</dbConnection>'
+# tag     = '<tag>CaloNoiseCellnoise-UPD1-00</tag>'
+# tag     = '<tag>CaloNoiseCellnoise-UPD3-00</tag>'
+# folder  = '/CALO/Noise/CellNoise'
 # svcMgr.IOVDbSvc.Folders += [ folder + tag + connStr ]
 
 
 
 # setting option to build frag->ROB mapping at the begin of run
-ByteStreamCnvSvc = Service("ByteStreamCnvSvc")
-ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ] 
+ByteStreamCnvSvc = Service('ByteStreamCnvSvc')
+ByteStreamCnvSvc.ROD2ROBmap = [ '-1' ] 
 
 
 if doTrigger:
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool  
-    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+    tdt = Trig__TrigDecisionTool('TrigDecisionTool')
     ToolSvc += tdt
     if not athenaCommonFlags.isOnline():
         # To read files with trigger config stored as in-file meta-data,
@@ -214,33 +212,33 @@ if not athenaCommonFlags.isOnline() and False:
     ToolSvc += liveTool
 
 
-TileCorrectTime = False
+TileCorrectTime = True
 TileCorrectAmplitude = True
 
 # load conditions data
-include("TileRec/TileDefaults_jobOptions.py")
-include("TileConditions/TileConditions_jobOptions.py")
+include('TileRec/TileDefaults_jobOptions.py')
+include('TileConditions/TileConditions_jobOptions.py')
 
 # set reconstruction flags and reconstruct data
 from TileRecUtils.TileRecFlags import jobproperties
 jobproperties.TileRecFlags.calibrateEnergy.set_Value_and_Lock(False)  # don't need pC in raw channels, keep ADC counts
 jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(TileNoiseFilter)  # Enable noise filter tool
 jobproperties.TileRecFlags.BestPhaseFromCOOL.set_Value_and_Lock(True)  # Use best phase from COOL
-include("TileRec/TileRec_jobOptions.py")
+include('TileRec/TileRec_jobOptions.py')
 
-if jobproperties.Beam.beamType() == 'collisions':
-    jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFixed"
+if jobproperties.Beam.beamType() == 'collisions' or doTileNoiseMon:
+    jobproperties.TileRecFlags.TileRawChannelContainer = 'TileRawChannelFixed'
 else:
-    jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt2"
+    jobproperties.TileRecFlags.TileRawChannelContainer = 'TileRawChannelOpt2'
 
 
 # To read CTP RESULTS and DSP Raw Channels
-if not hasattr(svcMgr, "ByteStreamAddressProviderSvc"):
+if not hasattr(svcMgr, 'ByteStreamAddressProviderSvc'):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
     svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/TileRawChannelCnt"
-                                                  , "CTP_RDO/CTP_RDO"
-                                                  , "CTP_RIO/CTP_RIO" ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ 'TileRawChannelContainer/TileRawChannelCnt'
+                                                  , 'CTP_RDO/CTP_RDO'
+                                                  , 'CTP_RIO/CTP_RIO' ]
 
 
 #----------------
@@ -250,13 +248,13 @@ if doTileCells:
    
    # enable interpolation for dead cells
     doCaloNeighborsCorr = False
-    include("TileRec/TileCellMaker_jobOptions.py")
+    include('TileRec/TileCellMaker_jobOptions.py')
 
    #----------------
    # create towers from TileCells
    #----------------
     if doTowers:
-       include("TileMonitoring/TileMonTower_jobOptions.py")
+       include('TileMonitoring/TileMonTower_jobOptions.py')
        # CmbTowerBldr +=  TileCmbTwrBldr
        # CmbTowerBldr.TowerBuilderTools = [ TileCmbTwrBldr ]
 
@@ -264,23 +262,60 @@ if doTileCells:
    # create clusters from TileCells
    #----------------
     if doClusters:
-        # include( "CaloRec/CaloTopoCluster_jobOptions.py" )
-        include("TileMonitoring/TileMonTopoCluster_jobOptions.py")      
+        # include( 'CaloRec/CaloTopoCluster_jobOptions.py' )
+        include('TileMonitoring/TileMonTopoCluster_jobOptions.py')      
 
     if doTileMuId:
-        include ("TileMuId/TileMuId_cosmics_jobOptions.py")
+        include ('TileMuId/TileMuId_cosmics_jobOptions.py')
 
     if doTileMuonFit:
-        include("TileCosmicAlgs/TileMuonFitter_jobOptions.py")
+        include('TileCosmicAlgs/TileMuonFitter_jobOptions.py')
+
+
+if doTileTMDBRawChannel:
+    # Set up TileCondToolPulseShape to be used in
+    # TileCondToolOfc
+    from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
+    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    
+    # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
+    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+                                      , OptFilterDeltaCorrelation = True
+                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+
+
+    # Set up TileRawChannelBuilderOpt2 to be used
+    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                      , PedestalMode = 1
+                                                      , Minus1Iteration = TRUE
+                                                      , calibrateEnergy = False
+                                                      , correctTime = False
+                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+
+
+    # Set up TileRawChannelBuilderMF to be used
+#    ToolSvc += CfgMgr.TileRawChannelBuilderMF(name = 'TileMuRcvRawChannelBuilderMF'
+#                                              , MF = 1
+#                                              , PedestalMode = 0
+#                                              , DefaultPedestal = 30
+#                                              , TileRawChannelContainer = 'TileMuRcvRawChannelMF'
+#                                              , calibrateEnergy = False
+#                                              , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+
+
+    topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
+                                              , TileDigitsContainer = 'MuRcvDigitsCnt'
+                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
 
 #----------------
 # TileMonitoring
 #----------------
 if doMonitoring:
     if doTileNoiseMon:
-        include("TileMonitoring/jobOptions_TileNoiseMon.py")
+        include('TileMonitoring/jobOptions_TileNoiseMon.py')
     else:
-        include("TileMonitoring/TileMon_standalone_jobOptions.py")
+        include('TileMonitoring/TileMon_standalone_jobOptions.py')
    
 
 
@@ -290,52 +325,52 @@ if doMonitoring:
 if doAtlantis:
 
     # #To read CTP RESULTS and more
-    if not hasattr(svcMgr, "ByteStreamAddressProviderSvc"):
+    if not hasattr(svcMgr, 'ByteStreamAddressProviderSvc'):
         from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         svcMgr += ByteStreamAddressProviderSvc()
 
-    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult"
-                                                      , "MuCTPI_RDO/MUCTPI_RDO"
-                                                      , "MuCTPI_RIO/MUCTPI_RIO"
-                                                      , "LVL_ROI/LVL_ROI" ]
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ 'ROIB::RoIBResult/RoIBResult'
+                                                      , 'MuCTPI_RDO/MUCTPI_RDO'
+                                                      , 'MuCTPI_RIO/MUCTPI_RIO'
+                                                      , 'LVL_ROI/LVL_ROI' ]
 
 
-    include("JiveXML/JiveXML_jobOptionBase.py")
-    include ("TrigJiveXML/TrigJiveXML_DataTypes.py")
+    include('JiveXML/JiveXML_jobOptionBase.py')
+    include ('TrigJiveXML/TrigJiveXML_DataTypes.py')
 
     theEventData2XML.WriteToFile = False
 
     from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloTileRetriever
-    theCaloTileRetriever = JiveXML__CaloTileRetriever (name = "CaloTileRetriever")
+    theCaloTileRetriever = JiveXML__CaloTileRetriever (name = 'CaloTileRetriever')
     theCaloTileRetriever.DoTileCellDetails = True
     theCaloTileRetriever.DoTileDigit = True
     ToolSvc += theCaloTileRetriever
-    theEventData2XML.DataTypes += ["JiveXML::CaloTileRetriever/CaloTileRetriever"]
+    theEventData2XML.DataTypes += ['JiveXML::CaloTileRetriever/CaloTileRetriever']
 
     from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloMBTSRetriever
-    theCaloMBTSRetriever = JiveXML__CaloMBTSRetriever (name = "CaloMBTSRetriever")
+    theCaloMBTSRetriever = JiveXML__CaloMBTSRetriever (name = 'CaloMBTSRetriever')
     theCaloMBTSRetriever.DoMBTSDigits = True
     ToolSvc += theCaloMBTSRetriever
-    theEventData2XML.DataTypes += ["JiveXML::CaloMBTSRetriever/CaloMBTSRetriever"]
+    theEventData2XML.DataTypes += ['JiveXML::CaloMBTSRetriever/CaloMBTSRetriever']
 
 
     if doClusters:
         from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODCaloClusterRetriever
-        thexAODCaloClusterRetriever = JiveXML__xAODCaloClusterRetriever (name = "xAODCaloClusterRetriever")
-        thexAODCaloClusterRetriever.FavouriteClusterCollection = "TileTopoCluster"
-        thexAODCaloClusterRetriever.OtherClusterCollections = [ "" ]
+        thexAODCaloClusterRetriever = JiveXML__xAODCaloClusterRetriever (name = 'xAODCaloClusterRetriever')
+        thexAODCaloClusterRetriever.FavouriteClusterCollection = 'TileTopoCluster'
+        thexAODCaloClusterRetriever.OtherClusterCollections = [ '' ]
         ToolSvc += thexAODCaloClusterRetriever
-        theEventData2XML.DataTypes += ["JiveXML::xAODCaloClusterRetriever/xAODCaloClusterRetriever"]
+        theEventData2XML.DataTypes += ['JiveXML::xAODCaloClusterRetriever/xAODCaloClusterRetriever']
     
 
     if OnlineAtlantis:
         from JiveXML.JiveXMLConf import JiveXML__ONCRPCServerSvc
-        svcMgr += JiveXML__ONCRPCServerSvc("ONCRPCServerSvc", OutputLevel = DEBUG)
+        svcMgr += JiveXML__ONCRPCServerSvc('ONCRPCServerSvc', OutputLevel = DEBUG)
 
         from JiveXML.JiveXMLConf import JiveXML__StreamToServerTool
         StreamToServerTool = JiveXML__StreamToServerTool(OutputLevel = DEBUG
                                                          , ServerService = svcMgr.ONCRPCServerSvc
-                                                         , StreamName = "Tile")
+                                                         , StreamName = 'Tile')
 
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += StreamToServerTool
@@ -344,7 +379,7 @@ if doAtlantis:
 
     else:
         from JiveXML.JiveXMLConf import JiveXML__StreamToFileTool
-        theStreamToFileTool = JiveXML__StreamToFileTool(FileNamePrefix = OutputDirectory + "/JiveXML")
+        theStreamToFileTool = JiveXML__StreamToFileTool(FileNamePrefix = OutputDirectory + '/JiveXML')
         ToolSvc += theStreamToFileTool
         theEventData2XML.StreamTools += [ theStreamToFileTool ]
 
@@ -366,11 +401,11 @@ if doPerfMon and not athenaCommonFlags.isOnline():
     theAuditorSvc += CfgMgr.NameAuditor()
     theAuditorSvc += CfgMgr.MemStatAuditor()
     from PerfMonComps.PerfMonFlags import jobproperties
-    jobproperties.PerfMonFlags.OutputFile = "perfmon_ntuple.root"
+    jobproperties.PerfMonFlags.OutputFile = 'perfmon_ntuple.root'
     jobproperties.PerfMonFlags.doMonitoring = True
     jobproperties.PerfMonFlags.doDetailedMonitoring = True
     jobproperties.PerfMonFlags.doFastMon = False
-    include("PerfMonComps/PerfMonSvc_jobOptions.py")
+    include('PerfMonComps/PerfMonSvc_jobOptions.py')
 
 
 #-----------------------
@@ -385,7 +420,7 @@ if OutputLevel < 2:
 
 svcMgr.MessageSvc.defaultLimit = MsgLinesLimit
 svcMgr.MessageSvc.OutputLevel = OutputLevel
-svcMgr.MessageSvc.Format = "% F%35W%S%7W%R%T %0W%M"
+svcMgr.MessageSvc.Format = '% F%35W%S%7W%R%T %0W%M'
 svcMgr.MessageSvc.useColors = useColors
 # svcMgr.HistorySvc.OutputLevel = 3
 
@@ -400,13 +435,13 @@ if TileUseCOOL:
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
    # svcMgr.PoolSvc.SortReplicas=False
    
-   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/sw/DbSuppForMx/poolcond/PoolCat_comcond.xml"]
-   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/cond08_data.000001.lar.COND/PoolFileCatalog.xml"]
-   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/comcond.000006.lar_conditions.recon.pool.v0000/PoolFileCatalog.xml"]
-   # svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/det/lar/lar/project/databases/cond09_data.000001.lar.COND/PoolFileCatalog.xml"]
+   # svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:/sw/DbSuppForMx/poolcond/PoolCat_comcond.xml']
+   # svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:/det/lar/lar/project/databases/cond08_data.000001.lar.COND/PoolFileCatalog.xml']
+   # svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:/det/lar/lar/project/databases/comcond.000006.lar_conditions.recon.pool.v0000/PoolFileCatalog.xml']
+   # svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:/det/lar/lar/project/databases/cond09_data.000001.lar.COND/PoolFileCatalog.xml']
    # from LArConditionsCommon.LArCondFlags import larCondFlags 
    # larCondFlags.SingleVersion=True
-   # larCondFlags.OFCShapeFolder = ""
+   # larCondFlags.OFCShapeFolder = ''
    # larCondFlags.LArDBConnection.statusOn = False
 
 # ToolSvc.TileCellMon.OutputLevel = 2

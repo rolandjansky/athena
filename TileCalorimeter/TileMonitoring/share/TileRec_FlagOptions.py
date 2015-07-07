@@ -150,7 +150,7 @@ if TileUseCOOL and not 'tileCOOLtag' in dir():
         tileCOOLtag = "CONDBR2-HLTP-2015-04"
     else:
         if RunNumber > 232498:
-            tileCOOLtag = "CONDBR2-BLKPA-2015-06"
+            tileCOOLtag = "CONDBR2-BLKPA-2015-08"
         else:
             tileCOOLtag = "COMCOND-BLKPA-RUN1-06"
 
@@ -181,6 +181,10 @@ if not 'doTileMuonFit' in dir():
 if not 'doMBTS' in dir():
     # MBTS monitoring
     doMBTS = True
+
+
+if not 'doTileTMDBRawChannel' in dir():
+    doTileTMDBRawChannel = True
 
 if not 'doMonitoring' in dir():
    # Monitoring histograms
@@ -237,6 +241,12 @@ if not 'CheckDCS' in dir():
 
 if not 'doTileNoiseMon' in dir():
     doTileNoiseMon = False    
+
+if not 'doTileTMDBDigitsMon' in dir():
+    doTileTMDBDigitsMon = True
+    
+if not 'doTileTMDBRawChannelMon' in dir():
+    doTileTMDBRawChannelMon = True
 
 if doTileNoiseMon:
     doTileCells = False

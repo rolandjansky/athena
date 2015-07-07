@@ -134,7 +134,7 @@ StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
 
         ATH_MSG_DEBUG( "in bookHists() :: booking noise_map histo : " << histName );
 
-        m_finalNoiseMap[ros][adc][noisetype] = book2F("", histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5);
+        m_finalNoiseMap[ros][adc][noisetype] = book2F("", histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5, run, ATTRIB_MANAGED, "", "weightedAverage");
 
         for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; drawer += 2) {
           module_name = TileCalibUtils::getDrawerString(ros, drawer);
@@ -285,6 +285,7 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
         for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
           double pedestal = 0.0;
+          double pedestal_error = 0.0;
           double pedestal_rms = 0.0;
           double hi_rms = 0.0;
 
@@ -299,9 +300,10 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
 
           if (n_ped_events > 1) {
             pedestal = m_sumPed1[ros][drawer][channel][adc] / n_ped_events;
-            
+
             pedestal_rms = m_sumPed2[ros][drawer][channel][adc] / n_ped_events - pedestal * pedestal;
             pedestal_rms = (pedestal_rms > 0.0) ? sqrt(pedestal_rms * n_ped_events / (n_ped_events - 1)) : 0.0;
+            pedestal_error = pedestal_rms / std::sqrt(n_ped_events);
 
             if(m_fillPedestalDifference) {
               if (!isDisconnected(ros, drawer, channel)) pedestal -= m_tileToolNoiseSample->getPed(drawerIdx, channel, adc);
@@ -312,17 +314,21 @@ StatusCode TileDigiNoiseMonTool::updateSummaryHistograms() {
             pedestal_rms = m_tileToolNoiseSample->getLfn(drawerIdx, channel, adc);
           }
 
+
             
           // fill the 2D noise map  CC 2014-07-14
           // LFN : type=1, HFN : type=2
 
           m_finalNoiseMap[ros][adc][0]->SetBinContent(drawer + 1, channel + 1, pedestal_rms); // this is the LFN (RMS of DIGI0)
+          m_finalNoiseMap[ros][adc][0]->SetBinError(drawer + 1, channel + 1, 0.0); // this is the LFN (RMS of DIGI0)
           m_finalNoiseMap[ros][adc][0]->SetEntries(m_nEventsProcessed);
 
           m_finalNoiseMap[ros][adc][1]->SetBinContent(drawer + 1, channel + 1, hi_rms); // this is the HFN (MeanOf(RMS over the 7 digis) )
+          m_finalNoiseMap[ros][adc][1]->SetBinError(drawer + 1, channel + 1, 0.0); // this is the HFN (MeanOf(RMS over the 7 digis) )
           m_finalNoiseMap[ros][adc][1]->SetEntries(m_nEventsProcessed);
 
           m_finalNoiseMap[ros][adc][2]->SetBinContent(drawer + 1, channel + 1, pedestal); // this is the Pedestal (DIGI0) )
+          m_finalNoiseMap[ros][adc][2]->SetBinError(drawer + 1, channel + 1, pedestal_error); // this is the Pedestal (DIGI0) )
           m_finalNoiseMap[ros][adc][2]->SetEntries(m_nEventsProcessed);
 
         } // channnel loop for (int channel = 0; channel < 48; ++channel) {

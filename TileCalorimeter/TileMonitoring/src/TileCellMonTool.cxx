@@ -123,6 +123,8 @@ StatusCode TileCellMonTool:: initialize() {
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
+  
+
   return TileFatherMonTool::initialize();
 }
 
@@ -753,7 +755,8 @@ StatusCode TileCellMonTool::fillHistograms() {
       // note that drawer from HWID and module from ID are different for E3 cells near MBTS
       double drawer = (double)drw + 1.0; // range from 1-64
       double module = (double)m_tileID->module(id) + 1.0; // range from 1-64
-  
+      double occ_module = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) ? module : drawer; // used for occupancy maps
+      
       int samp = std::min(m_tileID->sample(id),(int)AllSamp);
 
       bool single_PMT_scin = (samp == TileID::SAMP_E);
@@ -913,10 +916,10 @@ StatusCode TileCellMonTool::fillHistograms() {
             // Fill occupancy histograms
     
             if (ch1Ok) {
-              m_TileCellDetailOccMap[ partition ][ vecInd ]->Fill(drawer, ch1, ene1 * weight);
+              m_TileCellDetailOccMap[ partition ][ vecInd ]->Fill(occ_module, ch1, ene1 * weight);
             }        
             if (ch2Ok) {
-              m_TileCellDetailOccMap[ partition2 ][ vecInd ]->Fill(drawer, ch2, ene2);
+              m_TileCellDetailOccMap[ partition2 ][ vecInd ]->Fill(occ_module, ch2, ene2);
             }
           }
         } else {
@@ -925,10 +928,10 @@ StatusCode TileCellMonTool::fillHistograms() {
         
         // check if energy is below negative threshold
         if (ch1Ok && ene1 < m_NegThreshold && (!badch1) ) {
-          m_TileCellDetailNegOccMap[ partition ]->Fill(drawer, ch1, 1.0);
+          m_TileCellDetailNegOccMap[ partition ]->Fill(occ_module, ch1, 1.0);
         }
         if (ch2Ok && ene2 < m_NegThreshold && (!badch2) ) {
-          m_TileCellDetailNegOccMap[ partition2 ]->Fill(drawer, ch2, 1.0);
+          m_TileCellDetailNegOccMap[ partition2 ]->Fill(occ_module, ch2, 1.0);
         }
 
         // check if energy is over threshold
@@ -1016,20 +1019,20 @@ StatusCode TileCellMonTool::fillHistograms() {
 
             if (ch1Ok && ene1 > m_Threshold && (!badch1)) {
           
-               m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
-              if (gn1 == 1) m_TileCellDetailOccMapHiGainOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
-              else m_TileCellDetailOccMapLowGainOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
-              if (ene1 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch1);
-              if (ene1 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch1);
+               m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(occ_module, ch1, weight);
+              if (gn1 == 1) m_TileCellDetailOccMapHiGainOvThr[partition][vecInd]->Fill(occ_module, ch1, weight);
+              else m_TileCellDetailOccMapLowGainOvThr[partition][vecInd]->Fill(occ_module, ch1, weight);
+              if (ene1 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(occ_module, ch1);
+              if (ene1 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(occ_module, ch1);
             }
             
             if (ch2Ok && ene2 > m_Threshold && (!badch2)) {
               
-              m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
-              if (gn2 == 1) m_TileCellDetailOccMapHiGainOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
-              else m_TileCellDetailOccMapLowGainOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
-              if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition2][vecInd]->Fill(drawer, ch2);
-              if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition2][vecInd]->Fill(drawer, ch2);
+              m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(occ_module, ch2, 1.0);
+              if (gn2 == 1) m_TileCellDetailOccMapHiGainOvThr[partition2][vecInd]->Fill(occ_module, ch2, 1.0);
+              else m_TileCellDetailOccMapLowGainOvThr[partition2][vecInd]->Fill(occ_module, ch2, 1.0);
+              if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition2][vecInd]->Fill(occ_module, ch2);
+              if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition2][vecInd]->Fill(occ_module, ch2);
             }
             
           } // end loop over TriggerType
@@ -1306,9 +1309,20 @@ StatusCode TileCellMonTool::fillHistograms() {
 StatusCode TileCellMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if( endOfLumiBlock ||  endOfRun ) {
+
+  if (endOfRun) {
     ATH_MSG_INFO( "in procHistograms()" );
+    // set up new minimum value in occupancy plots with average energy
+    // in order to avoid empty bins on these histograms on Tier0
+    for (int partition = 0; partition < NPartHisto; ++partition) {
+      for (TProfile2D* occupancy_map : m_TileCellDetailOccMap[partition]) {
+        double range = occupancy_map->GetMaximum() - occupancy_map->GetMinimum();
+        double new_mimimum = occupancy_map->GetMinimum() - 0.1 * range;
+        occupancy_map->SetMinimum(new_mimimum);
+      }
+    }
   }
+
 
   return StatusCode::SUCCESS;
 }
