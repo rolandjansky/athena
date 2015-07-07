@@ -104,6 +104,10 @@ namespace dqm_algorithms {
 	, NbinsY(-1)
 	, UnMask_All(-1)
 	, UseValue(0)
+	, TypeValue(0)
+	, Value(0.)
+	, UseMaskValue(0)
+	, MaskValue(0.)
 
 	{
 		dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
