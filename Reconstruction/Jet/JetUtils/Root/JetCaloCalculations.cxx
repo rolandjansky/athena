@@ -28,7 +28,7 @@ namespace CaloConstitHelpers {
     virtual bool valid(JetConstitIterator & it ) {return (dynamic_cast<const xAOD::CaloCluster*>(it->rawConstituent())!=0);}
 
     virtual double moment(JetConstitIterator & it, xAOD::CaloCluster::MomentType momentType){
-      double m;
+      double m = 0;
       static_cast<const xAOD::CaloCluster*>(it->rawConstituent())->retrieveMoment(momentType,m) ;
       return m;
     }

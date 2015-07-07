@@ -31,7 +31,7 @@ int em_calosample[]  = { CaloSampling::PreSamplerB, CaloSampling::EMB1, CaloSamp
                            CaloSampling::TileExt0, CaloSampling::TileExt1, CaloSampling::TileExt2,    
                            CaloSampling::FCAL1, CaloSampling::FCAL2  };
   
-  const double GeV = 1000.0;
+//const double GeV = 1000.0;
 }
 
 namespace jet {
