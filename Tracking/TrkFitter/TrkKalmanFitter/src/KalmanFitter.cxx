@@ -507,12 +507,13 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::Track&        inputTrack,
   if ( iterateKalmanFilter(minPar, fitQual, runOutlier, kalMec, this_eta) ||
        invokeAnnealingFilter(minPar, fitQual, runOutlier, kalMec, this_eta) ) {
     // make output track from the internal trajectory
+    assert( fitQual );
     Track* fittedTrack = makeTrack(fitQual,*minPar, &kalMec, this_eta,&(inputTrack.info()) );
     m_trajectory.clear();
-    if (!fittedTrack && fitQual) delete fitQual;
+    if (!fittedTrack) delete fitQual;
     return fittedTrack;
   } else {
-    if (fitQual) delete fitQual;
+    delete fitQual;
     m_trajectory.clear();
     // iterations failed:
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
@@ -592,12 +593,13 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::PrepRawDataSet&   inputPRDColl,
   if ( iterateKalmanFilter(startPar, fitQual, runOutlier, kalMec, this_eta) ||
        invokeAnnealingFilter(startPar, fitQual, runOutlier, kalMec, this_eta) ) {
     // make output track from the internal trajectory
+    assert( fitQual );
     Track* fittedTrack = makeTrack(fitQual,*startPar, &kalMec, this_eta, NULL);
     m_trajectory.clear();
-    if (!fittedTrack && fitQual) delete fitQual;
+    if (!fittedTrack) delete fitQual;
     return fittedTrack;
   } else {
-    if (fitQual) delete fitQual;
+    delete fitQual;
     m_trajectory.clear();
     return 0;
   }
@@ -813,12 +815,13 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::Track&            inputTrack,
                            runOutlier, kalMec, this_eta)  || 
        invokeAnnealingFilter(estimatedStartParameters, fitQual, runOutlier, kalMec, this_eta) ) {
     // make output track from the internal trajectory:
+    assert( fitQual);
     Track* fittedTrack = makeTrack(fitQual,*estimatedStartParameters,&kalMec, this_eta, &(inputTrack.info()));
     m_trajectory.clear();
-    if (!fittedTrack && fitQual) delete fitQual;
+    if (!fittedTrack) delete fitQual;
     return fittedTrack;
   } else {
-    if (fitQual) delete fitQual;
+    delete fitQual;
     fitQual = 0;
     m_trajectory.clear();
     // iterations failed:
@@ -910,14 +913,15 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::Track&             intrk1,
   if ( iterateKalmanFilter(minPar, fitQual, runOutlier, kalMec, this_eta)  || 
        invokeAnnealingFilter(minPar,fitQual,runOutlier, kalMec, this_eta) ) {
     // make output track from the internal trajectory
+    assert( fitQual );
     Track* fittedTrack = makeTrack(fitQual,*minPar, &kalMec, this_eta, &(intrk1.info()) );
     m_trajectory.clear();
-    if (!fittedTrack && fitQual) delete fitQual;
+    if (!fittedTrack) delete fitQual;
     const TrackInfo existingInfo2 = intrk2.info(); 
     if (fittedTrack) fittedTrack->info().addPatternReco(existingInfo2);
     return fittedTrack;
   } else {
-    if (fitQual) delete fitQual;
+    delete fitQual;
     m_trajectory.clear();
     // iterations failed:
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool

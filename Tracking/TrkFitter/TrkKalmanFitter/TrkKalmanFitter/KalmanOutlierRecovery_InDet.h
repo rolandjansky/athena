@@ -60,7 +60,7 @@ private:
         //! cut above which chi2/ndt to flag a single state as outlier
 		double m_State_Chi2PerNdfCut;
         //! position tolerance in sigmas when a track should be defined as being outside detector bounds
-        double m_surfaceProximityCut;
+                //double m_surfaceProximityCut;
         //! trajectory chi2/ndf cut turned into a probability
         double m_Trajectory_Chi2ProbCut;
 

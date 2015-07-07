@@ -32,7 +32,7 @@ Trk::MeasRecalibSteeringTool::MeasRecalibSteeringTool(const std::string& t,
   m_trtDriftCircleCreator("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
   m_trtTubeHitCreator("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_StrawTubeOnTrackTool"),
   m_haveInDetTools(true),
-  m_haveMuonTools(false),
+  //m_haveMuonTools(false),
   m_idHelper(0),
   m_mbHelper(0)
 {

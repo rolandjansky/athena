@@ -350,8 +350,12 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         updatedDifference.reset( new std::pair<AmgVector(5),AmgSymMatrix(5)>
                                  (std::make_pair(*predDiffPar,*predDiffCov)) );
       }
-      it->setForwardStateFitQuality ( *fitQS );
-      delete fitQS;
+      // @TODO fitQS maybe NULL in case it points to an outlier.
+      //    Shall this part of the code be reached for outliers ?
+      if (fitQS) {
+        it->setForwardStateFitQuality ( *fitQS );
+        delete fitQS;
+      }
     }
     // bremStateIfBremFound = NULL; 
 
@@ -597,7 +601,10 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
       }
       TransportJacobian* jac = 0;
       double pathLimit = -1.;
-      if (!propagator) ATH_MSG_WARNING("NO propagator!!");
+      if (!propagator) {
+        ATH_MSG_WARNING("NO propagator!!");
+        return FitterStatusCode::BadInput;
+      }
       lastPropagatedPar = propagator->propagate(*it->referenceParameters(),
                                                 nextSurface,
                                                 Trk::anyDirection, 

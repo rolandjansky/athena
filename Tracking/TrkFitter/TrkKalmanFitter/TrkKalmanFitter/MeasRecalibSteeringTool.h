@@ -65,7 +65,7 @@ namespace Trk
       ToolHandle< IRIO_OnTrackCreator >   m_trtDriftCircleCreator;
       ToolHandle< IRIO_OnTrackCreator >   m_trtTubeHitCreator;
       bool                                m_haveInDetTools;
-      bool                                m_haveMuonTools;
+      //bool                                m_haveMuonTools;
 
       //! Helper to detect type of sub-detector
       const AtlasDetectorID*            m_idHelper;

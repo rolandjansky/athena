@@ -217,8 +217,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
     m_utility->dumpTrajectory(trajectory, "DAF-inconsistency");
   // first smoothed TrkParameter is last forward prediction updated with last MBase
   else smooPar.reset(  m_updator->addToState(*forwardTPar,
-				       fittableMeasurement->localParameters(),
-				       fittableMeasurement->localCovariance(),
+					     fittableMeasurement->localParameters(),
+					     fittableMeasurement->localCovariance(),
                                              fitQual) );
   if (msgLvl(MSG::INFO)) monitorTrackFits( Call, ( forwardTPar ? forwardTPar->eta() : 1000. ) );
   if(!smooPar) {
@@ -254,8 +254,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
   // The first step of backward-filtering is done before any loop because of the
   // specially formed prediction (from the last forward parameters).
   std::unique_ptr<const TrackParameters> updatedPar( m_updator->addToState(*predPar,
-							    fittableMeasurement->localParameters(),
-							    fittableMeasurement->localCovariance(),
+									   fittableMeasurement->localParameters(),
+									   fittableMeasurement->localCovariance(),
                                                                            trackQualityIncrement) );
   if(!updatedPar || !trackQualityIncrement) {
     if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, predPar->eta() );
@@ -299,21 +299,23 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
         fittableMeasurement->associatedSurface()             ;
 
       // now propagate updated TrkParameters to surface of ROT
-      if (!m_useExEngine) 
+      if (!m_useExEngine)
 	predPar.reset(  m_extrapolator->extrapolate(*updatedPar, sf,
                                                     Trk::oppositeMomentum, // reverse filtering
                                                     false,                 // no boundary check
                                                     kalMec.particleType()) );
       else {
-	    ATH_MSG_INFO ("Smoother Kalman Fitter --> starting extrapolation engine");
-	    Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar);
-	    ecc.setParticleHypothesis(kalMec.particleType());
-	    Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &sf, Trk::oppositeMomentum, false);
+	ATH_MSG_DEBUG ("Smoother Kalman Fitter --> starting extrapolation engine");
+	Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::oppositeMomentum);
+	ecc.setParticleHypothesis(kalMec.particleType());
+	Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &sf, false);
         
-	    if (eCode.isSuccess() && ecc.endParameters) {
-	      ATH_MSG_INFO ("Smoother Kalman Fitter --> extrapolation engine success");
-	      predPar.reset(  ecc.endParameters );
-	    }
+	if (eCode.isSuccess() && ecc.endParameters) {
+	  ATH_MSG_DEBUG ("Smoother Kalman Fitter --> extrapolation engine success");
+	  predPar.reset(ecc.endParameters);
+	} else {
+	  ATH_MSG_WARNING ("Smoother Kalman Fitter --> extrapolation engine did not succeed");
+	}    
       }
 
       if(!predPar) {
@@ -514,9 +516,9 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   AmgVector(5)     firstDiff   = updatedDifference->first; // make copy and delete
   updatedDifference.reset( 
     m_updator->updateParameterDifference(firstDiff, *firstErrMtx,
-                                           *(lastPredictedState->measurementDifference()),
-                                           lastMeasurement->localCovariance(),
-                                           lastMeasurement->localParameters().parameterKey(),
+					 *(lastPredictedState->measurementDifference()),
+					 lastMeasurement->localCovariance(),
+					 lastMeasurement->localParameters().parameterKey(),
                                          trackQualityIncrement, /*doFQ=*/true ) );
   if(!updatedDifference || !trackQualityIncrement) {
     if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, lastPredictedState->referenceParameters()->eta() );
