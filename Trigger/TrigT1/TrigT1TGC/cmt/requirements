@@ -35,7 +35,7 @@ use TileEvent           TileEvent-*               TileCalorimeter
 public
 apply_pattern dual_use_library files="*.cxx"
 apply_pattern declare_joboptions files="TrigT1TGCJobOptions.txt TrigT1TGCJobOptions.py TrigT1TGC_jobOptions.py"
-apply_pattern declare_runtime files="RPhiCoincidenceMap*.db TrigT1TGCMaskedChannel*.db Inner*.db Tile*.db" 
+apply_pattern declare_runtime files="BigWheelCW/RPhiCoincidenceMap*.db TrigT1TGCMaskedChannel*.db EiFiCW/Inner*.db TileCW/Tile*.db" 
 
 apply_pattern declare_python_modules files="*.py"
 

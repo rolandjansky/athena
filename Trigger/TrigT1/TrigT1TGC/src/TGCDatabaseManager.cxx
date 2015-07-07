@@ -135,21 +135,32 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   }
 
   // CW for SL
+  std::string ver_BW   = ver;
+  std::string ver_EIFI = ver;
+  std::string ver_TILE = ver;
+
+  std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
+  if (vers.size() == 3) {
+    ver_BW   = "v" + vers[2];
+    ver_EIFI = "v" + vers[1];
+    ver_TILE = "v" + vers[0];
+  }
+
   if (g_FULL_CW) {
     for (int side=0; side<NumberOfSide; side +=1) {
       if (g_USE_INNER) {
-         mapInner[side] = new TGCInnerCoincidenceMap(ver, side);
+         mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
       }
       for (int oct=0; oct<NumberOfOctant; oct++) {
-         mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver, side, oct);
+         mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
       }
     }
   } else {
     TGCInnerCoincidenceMap* mapI = 0;
-    TGCRPhiCoincidenceMap*  map  = new TGCRPhiCoincidenceMap(ver);
+    TGCRPhiCoincidenceMap*  map  = new TGCRPhiCoincidenceMap(ver_BW);
     for (int side=0; side<NumberOfSide; side +=1) {
       if (g_USE_INNER) {
-	if (mapI==0) mapI = new TGCInnerCoincidenceMap(ver);
+	if (mapI==0) mapI = new TGCInnerCoincidenceMap(ver_EIFI);
 	mapInner[side] = mapI;
       }
       for (int oct=0; oct<NumberOfOctant; oct++) {
@@ -159,7 +170,7 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   }
 
   if (g_TILE_MU)  {
-    mapTileMu = new TGCTileMuCoincidenceMap(ver);
+    mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
   }
    
  
@@ -281,6 +292,17 @@ const std::string& TGCDatabaseManager::getFilename(int type)
   return fn;
 }
 
+const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& input, char delimiter)
+{
+  std::istringstream stream(input);
+
+  std::string field;
+  std::vector<std::string> result;
+  while (std::getline(stream, field, delimiter)) {
+    result.push_back(field);
+  }
+  return result;
+}
 
 
 } //end of namespace bracket
