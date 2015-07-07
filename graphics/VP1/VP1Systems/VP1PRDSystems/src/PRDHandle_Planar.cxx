@@ -27,6 +27,7 @@ PRDHandle_Planar::PRDHandle_Planar(PRDCollHandle_Planar* collhandle, const iFatr
 //____________________________________________________________________
 void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detailed)
 {
+  double striplength = 0;
   SoSeparator * errSimple  = new SoSeparator;
   SoSeparator * errDetailed  = new SoSeparator;
   
@@ -34,16 +35,24 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     std::cerr<<"isSane check failed for PRD: "<<*m_cluster<<std::endl;
     return;
   }  
-  errSimple->addChild(common()->nodeManager()->getShapeNode_Point());
+
+  bool isPixel = m_cluster->detectorElement()->isPixel();
+  
+  if (isPixel)
+    errSimple->addChild(common()->nodeManager()->getShapeNode_Point());
+  else {
+    striplength = m_cluster->detectorElement()->lengthY();
+    shape_simple=common()->nodeManager()->getShapeNode_Strip(striplength);
+  }
 
   Amg::Vector2D localpos = m_cluster->localPosition();
-  Amg::Vector2D localposHIT = localpos;
-  
+  Amg::Vector2D localposHIT = m_cluster->detectorElement()->localPositionOfCell( m_cluster->identify() );
+
   SoTranslation * localtrans0 = new SoTranslation;
 
   double xdiff = localposHIT[Trk::locX]-localpos[Trk::locX];
   double ydiff = localposHIT[Trk::locY]-localpos[Trk::locY];
-  
+
   if (xdiff!=xdiff || ydiff!=ydiff) {
     std::cerr<<"NaN is in local pos calc"<<std::endl;
     if (xdiff!=xdiff) std::cerr<<"X diff"<<std::endl;
@@ -55,7 +64,8 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     localtrans0->unref();
     return;
   } else {
-    localtrans0->translation.setValue(localposHIT[Trk::locX]-localpos[Trk::locX],localposHIT[Trk::locY]-localpos[Trk::locY],0);
+    //localtrans0->translation.setValue(localposHIT[Trk::locX]-localpos[Trk::locX],localposHIT[Trk::locY]-localpos[Trk::locY],0);
+    localtrans0->translation.setValue(0., 0., 0.);
   }
 
   const std::vector<Identifier> rdolist = m_cluster->rdoList();
@@ -63,9 +73,16 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
   {
     errDetailed->addChild(localtrans0);
     //FIXME: dont hardcode thickness
-    errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
-								      m_cluster->detectorElement()->pitchY(), 
-								      m_cluster->detectorElement()->thickness()/10.0));
+    if (isPixel)
+      errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
+									m_cluster->detectorElement()->pitchY(), 
+									m_cluster->detectorElement()->thickness()/10.0));
+    else
+      errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+									m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+									m_cluster->detectorElement()->thickness()*3.0));
+    //strip thickness - scaled up by factor of 3 (looks better)
+    //Fixme: Should we drop this upscaling of thickness?
 
     //Translate back so errDetailed is left sane (eg. when drawing errors later)
     SoTranslation * localtransBack = new SoTranslation;
@@ -77,9 +94,16 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     SoSeparator * rdos = new SoSeparator;
     rdos->addChild(localtrans0);
 
-    rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
-							       m_cluster->detectorElement()->pitchY(), 
-							       m_cluster->detectorElement()->thickness()/10.0));
+    if (isPixel)
+      rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
+								 m_cluster->detectorElement()->pitchY(), 
+								 m_cluster->detectorElement()->thickness()/10.0));
+    else
+      rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								 m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+								 m_cluster->detectorElement()->thickness()*3.0));
+    //strip thickness - scaled up by factor of 3 (looks better)
+    //Fixme: Should we drop this upscaling of thickness?
     
     SoTransparency * transparent = new SoTransparency;
     transparent->transparency.setValue(0.5);
@@ -92,50 +116,62 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
 	if (*it == m_cluster->identify() )
 	  continue;
 	
-	const Amg::Vector2D localposRDO = localpos;
+	const Amg::Vector2D localposRDO = m_cluster->detectorElement()->localPositionOfCell(*it);
 	
 	SoTranslation * localtrans = new SoTranslation;
 	localtrans->translation.setValue(localposRDO[Trk::locX]-localposOLD[Trk::locX],
 					 localposRDO[Trk::locY]-localposOLD[Trk::locY],
 					 0);
+	
 	rdos->addChild(localtrans);
 	
 	//FIXME: dont hardcode thickness
-	rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
-								   m_cluster->detectorElement()->pitchY(), 
-								   m_cluster->detectorElement()->thickness()/10.0));
-		       
+	if (isPixel)
+	  rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
+								     m_cluster->detectorElement()->pitchY(), 
+								     m_cluster->detectorElement()->thickness()/10.0));
+	else
+	  rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								     m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+								     m_cluster->detectorElement()->thickness()*3.0));
+	
 	localposOLD = localposRDO;
       }
     errDetailed->addChild(rdos);
   }
   
-  const double settingsSIGMASCALE=3.0;
-  if (collHandle()->drawErrors())
-    {
-      SoGroup * gr = createErrorAtPlanarCluster( settingsSIGMASCALE, 36);
-      if (gr->getNumChildren()==0) {
-	gr->unref();
-	std::cerr<<"Something seems to have gone wrong: no error added. Dumping PRD: "<<*m_cluster<<std::endl;
-      } else {
-	errSimple->addChild( gr );
-	errDetailed->addChild( gr );
+  if (isPixel) {
+    const double settingsSIGMASCALE=3.0;
+    if (collHandle()->drawErrors())
+      {
+	SoGroup * gr = createErrorAtPlanarCluster( settingsSIGMASCALE, 36);
+	if (gr->getNumChildren()==0) {
+	  gr->unref();
+	  std::cerr<<"Something seems to have gone wrong: no error added. Dumping PRD: "<<*m_cluster<<std::endl;
+	} else {
+	  errSimple->addChild( gr );
+	  errDetailed->addChild( gr );
+	}
       }
-    }
-
-  //FIXME: hardcoded colour  
-  SoMaterial * mat = new SoMaterial;
-  mat->diffuseColor.setValue(1.0,0,0);
-  errDetailed->addChild(mat);
-  errDetailed->addChild(common()->nodeManager()->getShapeNode_Cross(0.1));
-  
-  shape_simple = errSimple;
+    
+    //FIXME: hardcoded colour  
+    SoMaterial * mat = new SoMaterial;
+    mat->diffuseColor.setValue(1.0,0,0);
+    errDetailed->addChild(mat);
+    errDetailed->addChild(common()->nodeManager()->getShapeNode_Cross(0.1));
+    
+    shape_simple = errSimple;
+  }
   shape_detailed = errDetailed;
 }
 
 //____________________________________________________________________
 int PRDHandle_Planar::regionIndex() { //instead of identifier juggling, we simply discretize by center coordinate.
-  static const double l=200.0;//CLHEP::mm
+  double myl = 200.0;//CLHEP::mm
+  bool isPixel = m_cluster->detectorElement()->isPixel();
+  if (!isPixel)
+    myl = 100.0;//CLHEP::mm
+  static const double l=myl;//CLHEP::mm
   return       static_cast<int>(m_cluster->detectorElement()->center().z()/l)
     +1000*static_cast<int>(m_cluster->detectorElement()->center().y()/l)
     +1000000*static_cast<int>(m_cluster->detectorElement()->center().x()/l);
@@ -161,14 +197,14 @@ bool PRDHandle_Planar::isSane() const {
   if (!prd) return false;
   if (prd->localPosition()[0]!=prd->localPosition()[0] || prd->localPosition()[1]!=prd->localPosition()[1]){
     isSane=false;
-    std::cerr<<"For pixel cluster with Id="<<prd->identify()<<", localposition is not sane:"<<(prd->localPosition())<<std::endl;
+    std::cerr<<"For planar cluster with Id="<<prd->identify()<<", localposition is not sane:"<<(prd->localPosition())<<std::endl;
   }
    bool XNan = std::isnan(m_cluster->detectorElement()->pitchX());
    bool YNan = std::isnan(m_cluster->detectorElement()->pitchY());
    bool thickNan = std::isnan(m_cluster->detectorElement()->thickness());
    
    if ( XNan || YNan || thickNan ){
-     std::cerr<<"For pixel cluster with Id="<<prd->identify()<<", NaN is in detectorElement "<<std::endl;
+     std::cerr<<"For planar cluster with Id="<<prd->identify()<<", NaN is in detectorElement "<<std::endl;
      if (XNan) std::cerr<<" - eta (which is returning "<<m_cluster->detectorElement()->pitchX()<<")"<<std::endl;
      if (YNan) std::cerr<<" - phi (which is returning "<<m_cluster->detectorElement()->pitchY()<<")"<<std::endl;
      if (thickNan) std::cerr<<" - thickness (which is returning "<<m_cluster->detectorElement()->thickness()<<")"<<std::endl;
