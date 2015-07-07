@@ -34,6 +34,7 @@ namespace jet {
         foundCells =setCellIteratorFromConstit(**constItE); 
         if( foundCells) break;
       }
+      if ( ! foundCells ) foundCells = setCellIteratorFromConstit(**constIt);
       if( foundCells) m_cellIt = m_endCellItinConstit;
       // else no cell in this jet : cell iterators are already positionned to a void container.
     }

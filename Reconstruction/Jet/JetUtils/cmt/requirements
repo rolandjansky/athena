@@ -7,6 +7,8 @@ private
 
 
 use AtlasROOT           AtlasROOT-*             External
+use SGTools             SGTools-*               Control
+use AthLinks            AthLinks-*              Control
 
 # use CaloDetDescr	CaloDetDescr-* 		Calorimeter
 # use CaloInterface	CaloInterface-*		Calorimeter
@@ -48,4 +50,5 @@ apply_pattern installed_library
 # selectionfile="selection.xml"  headerfiles="../JetUtils/JetUtilsDict.h"
 
 use TestTools      TestTools-*         AtlasTest 
-apply_pattern UnitTest_run unit_test=JetUtils_CaloQual
+apply_pattern UnitTest_run unit_test=JetUtils_CaloQual extrapatterns="no dictionary for class"
+
