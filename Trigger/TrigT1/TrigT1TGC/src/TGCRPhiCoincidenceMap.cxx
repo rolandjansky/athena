@@ -84,7 +84,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 	  << " Default set is chosen !!" << endreq;
     }
     // default set 
-    m_verName = "setM";
+    m_verName = "v000f";
     dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
     fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
     isFound =( fullName.length() > 0 );
@@ -117,7 +117,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 
   ///////////  
   log << MSG::INFO 
-      << " TGC CW version of " << m_verName << " is selected " << endreq;
+      << " TGC Big Wheel CW version of " << m_verName << " is selected " << endreq;
   for(int i=0; i<N_PT_THRESH; i++) {
     log << MSG::INFO 
 	<< "TGC Pt_Thr: " << std::setw(2) << i+1

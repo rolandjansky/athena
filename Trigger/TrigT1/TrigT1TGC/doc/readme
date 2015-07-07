@@ -97,6 +97,12 @@ Desrciption of Properties
    - Bunch Tag used for LVL1 simulation
    - default: TgcDigit::BC_CURRENT
 
+- ProcessAllBunches  
+   - flag for multi-bunch prcessing  
+     true  : process PREVIOUS, CURRENT, NEXT bunches 
+     false : process only the bunch of CurrentBunchTag  
+   - default: false    
+
 - OutputTgcRDO
    - flag for making TgcRDO for coincidences (SLB/HPT/SL)
    - default: true
