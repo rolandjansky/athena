@@ -10,8 +10,6 @@ use GaudiInterface      GaudiInterface-*        External
 library AGDD2GeoSvc *.cxx components/*.cxx
 apply_pattern component_library
 
-apply_pattern install_runtime
-
 public
 use AGDDKernel		    AGDDKernel-*		 	DetectorDescription/AGDD
 use AGDDControl		    AGDDControl-*			DetectorDescription/AGDD

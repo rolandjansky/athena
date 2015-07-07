@@ -157,6 +157,8 @@ void AGDDtoGeoSvc::localInitialization()
 	addHandler(new tubsHandler("tubs"));
 	addHandler(new unionHandler("union"));
 	addHandler(new varHandler("var"));
+	addHandler(new versionHandler("version"));
+	addHandler(new importHandler("import"));
 	
 	addHandler(new chamberPositionerHandler("chamberPosition"));
 
