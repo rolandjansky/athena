@@ -16,9 +16,7 @@ use AthLinks            AthLinks-*              Control
 
 #use PathResolver        PathResolver-*          Tools
 
-
-use_ifndef pplist="XAOD_ANALYSIS" pkg="TileCalorimeter/TileEvent"
-#use TileEvent		TileEvent-*		TileCalorimeter
+use TileEvent		TileEvent-*		TileCalorimeter
 use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 
@@ -30,8 +28,7 @@ use xAODTracking        xAODTracking-*         Event/xAOD
 use AtlasPolicy		AtlasPolicy-*
 
 use xAODJet             xAODJet-*               Event/xAOD
-use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
-#use CaloEvent           CaloEvent-*             Calorimeter
+use CaloEvent           CaloEvent-*             Calorimeter
 
 #use GaudiInterface      GaudiInterface-*        External
 
@@ -53,6 +50,3 @@ apply_pattern installed_library
 use TestTools      TestTools-*         AtlasTest 
 apply_pattern UnitTest_run unit_test=JetUtils_CaloQual extrapatterns="no dictionary for class"
 
-
-private
-apply_tag ROOTGenVectorLibs

@@ -161,9 +161,9 @@ namespace jet {
   // ****************************************************************
 
   bool JetCalcnLeadingCells::setupJet(const Jet* j){
-    m_sumE_cells=0;
-    m_cell_energies.clear();
-    m_cell_energies.reserve(j->numConstituents());
+    sumE_cells=0;
+    cell_energies.clear();
+    cell_energies.reserve(j->numConstituents());
     return true;
   }
 
@@ -171,14 +171,14 @@ namespace jet {
   bool JetCalcnLeadingCells::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double e = iter->e();
-    m_cell_energies.push_back(e);
-    m_sumE_cells+=e;
+    cell_energies.push_back(e);
+    sumE_cells+=e;
     return true;
   }
 
   double JetCalcnLeadingCells::jetCalculation() const {  
-    std::vector<double> nc_cell_energies(m_cell_energies);
-    return JetCaloQualityUtils::compute_nLeading(nc_cell_energies,m_sumE_cells,m_threshold);
+    std::vector<double> nc_cell_energies(cell_energies);
+    return JetCaloQualityUtils::compute_nLeading(nc_cell_energies,sumE_cells,threshold);
   }
 
 
@@ -186,15 +186,15 @@ namespace jet {
   // JetCalcOutOfTimeEnergyFraction *************************************************
   // ****************************************************************
   bool JetCalcOutOfTimeEnergyFraction::setupJet(const Jet*  ){
-    m_sumE=0;
-    m_sumE_OOT=0;
+    sumE=0;
+    sumE_OOT=0;
     return true;
   }
 
 
   double JetCalcOutOfTimeEnergyFraction::jetCalculation() const {  
-    if( m_sumE== 0.) return -1;
-    return m_sumE_OOT/m_sumE ;
+    if( sumE== 0.) return -1;
+    return sumE_OOT/sumE ;
   }
 
   bool JetCalcOutOfTimeEnergyFraction::processConstituent(xAOD::JetConstituentVector::iterator& iter){
@@ -207,8 +207,8 @@ namespace jet {
     
     if(onlyPosEnergy && aClusterE<0) return true;
 
-    m_sumE += aClusterE;
-    if(fabs(aClusterTime) > timecut) m_sumE_OOT += aClusterE;
+    sumE += aClusterE;
+    if(fabs(aClusterTime) > timecut) sumE_OOT += aClusterE;
 
     return true;
   }
@@ -217,7 +217,7 @@ namespace jet {
   // JetCalcTimeCells *************************************************
   // ****************************************************************
   bool JetCalcTimeCells::setupJet(const Jet* ){
-    m_time = 0; m_norm = 0;
+    time = 0; norm = 0;
     return true;
   }
 
@@ -226,15 +226,15 @@ namespace jet {
   bool JetCalcTimeCells::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double thisNorm = iter->e()* iter->e();
-    m_time += m_constitExtractor->time(iter) * thisNorm; //theClus->time() * thisNorm ;
-    m_norm += thisNorm;
+    time += m_constitExtractor->time(iter) * thisNorm; //theClus->time() * thisNorm ;
+    norm += thisNorm;
 
     return true;
   }
 
   double JetCalcTimeCells::jetCalculation() const {  
-    if (m_norm==0) return 0;
-    return m_time/m_norm ;
+    if (norm==0) return 0;
+    return time/norm ;
   }
 
 
@@ -242,13 +242,13 @@ namespace jet {
   // JetCalcAverageLArQualityF *************************************************
   // ****************************************************************
   bool JetCalcAverageLArQualityF::setupJet(const Jet* ){
-    m_qf = 0; m_norm = 0;   return true;
+    qf = 0; norm = 0;   return true;
   }
 
 
   double JetCalcAverageLArQualityF::jetCalculation() const {  
-    if(m_norm==0) return 0;
-    return  m_qf/m_norm;
+    if(norm==0) return 0;
+    return  qf/norm;
   }
 
   bool JetCalcAverageLArQualityF::processConstituent(xAOD::JetConstituentVector::iterator& iter){
@@ -256,13 +256,13 @@ namespace jet {
     double e2 = iter->e();
     e2 = e2*e2;
 
-    m_norm+= e2;
+    norm+= e2;
     double qual(0);
-    if(m_useTile) 
+    if(useTile) 
       qual = m_constitExtractor->moment(iter, xAOD::CaloCluster::AVG_TILE_Q);
     else
       qual = m_constitExtractor->moment(iter, xAOD::CaloCluster::AVG_LAR_Q);
-    m_qf += qual*e2;
+    qf += qual*e2;
     return true;
   }
 
@@ -270,22 +270,22 @@ namespace jet {
   // JetCalcQuality *************************************************
   // ****************************************************************
   bool JetCalcQuality::setupJet(const Jet* ){
-    m_totE=0; m_badE=0;   return true;
+    totE=0; badE=0;   return true;
   }
 
 
   double JetCalcQuality::jetCalculation() const {  
-    if (m_totE==0) return 0;
-    return m_badE/m_totE ;
+    if (totE==0) return 0;
+    return badE/totE ;
   }
 
 
   bool JetCalcQuality::processConstituent(xAOD::JetConstituentVector::iterator& iter){
   
-    m_totE += iter->e(); // using iter since it is set at the expected scale by the JetCaloCalculations instance
+    totE += iter->e(); // using iter since it is set at the expected scale by the JetCaloCalculations instance
     double f = m_constitExtractor->moment(iter, xAOD::CaloCluster::BADLARQ_FRAC);
 
-    m_badE += f * iter->e();
+    badE += f * iter->e();
     return true;
   }
 
@@ -298,11 +298,11 @@ namespace jet {
 
   bool JetCalcQualityHEC::processConstituent(xAOD::JetConstituentVector::iterator& iter){
     double clustHEC = m_constitExtractor->energyHEC(iter);
-    m_totE += clustHEC ;
+    totE += clustHEC ;
     
     double f = m_constitExtractor->moment(iter, xAOD::CaloCluster::BADLARQ_FRAC);
     
-    m_badE += f *clustHEC;
+    badE += f *clustHEC;
     return true;
   }
 
@@ -310,15 +310,17 @@ namespace jet {
   // JetCalcNegativeEnergy *************************************************
   // ****************************************************************
   bool JetCalcNegativeEnergy::setupJet(const Jet* ){
-    m_totE =0;
+    totE =0;
+    totSig = 0;
     return true;
   }
 
 
   double JetCalcNegativeEnergy::jetCalculation() const {  
 
-    return m_totE;
+    if( totSig != 0) return totE / totSig;
 
+    return 0.;
   }
 
   bool JetCalcNegativeEnergy::processConstituent(xAOD::JetConstituentVector::iterator& iter){
@@ -326,7 +328,11 @@ namespace jet {
    double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
      
     double epos= m_constitExtractor->moment(iter, xAOD::CaloCluster::ENG_POS);
-    m_totE += (e - epos );
+    double sig = m_constitExtractor->moment(iter, xAOD::CaloCluster::SIGNIFICANCE);
+
+
+    totE += (e - epos ) * fabs( sig  );
+    totSig += sig;
 
     return true;
   }
@@ -335,19 +341,19 @@ namespace jet {
   // JetCalcCentroid *************************************************
   // ****************************************************************
   bool JetCalcCentroid::setupJet(const Jet* /*j*/){
-    m_totE =0;
-    m_centroid_x=0;  m_centroid_y=0;  m_centroid_z=0;
+    totE =0;
+    centroid_x=0;  centroid_y=0;  centroid_z=0;
     return true;
   }
 
 
   double JetCalcCentroid::jetCalculation() const {  
 
-    if (m_totE == 0) return 0;
+    if (totE == 0) return 0;
   
-    double c_x = m_centroid_x/ m_totE;
-    double c_z = m_centroid_z/ m_totE;
-    double c_y = m_centroid_y/ m_totE;
+    double c_x = centroid_x/ totE;
+    double c_z = centroid_z/ totE;
+    double c_y = centroid_y/ totE;
 
     return sqrt(c_x*c_x + c_y*c_y+ c_z*c_z);
   }
@@ -356,16 +362,16 @@ namespace jet {
 
     double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
 
-    m_totE +=e;
+    totE +=e;
     double x,y,z;
 
     x = m_constitExtractor->moment(iter, xAOD::CaloCluster::CENTER_X);
     y = m_constitExtractor->moment(iter, xAOD::CaloCluster::CENTER_Y);
     z = m_constitExtractor->moment(iter, xAOD::CaloCluster::CENTER_Z);
 
-    m_centroid_x +=  x* e;
-    m_centroid_y +=  y* e;
-    m_centroid_z +=  z* e;
+    centroid_x +=  x* e;
+    centroid_y +=  y* e;
+    centroid_z +=  z* e;
 
     return true;
   }
@@ -374,20 +380,20 @@ namespace jet {
   // JetCalcBadCellsFrac *************************************************
   // ****************************************************************
   bool JetCalcBadCellsFrac::setupJet(const Jet* j){
-    m_totE = j->jetP4(xAOD::JetEMScaleMomentum).E()  ; 
-    m_badE = 0;
+    totE = j->jetP4(xAOD::JetEMScaleMomentum).E()  ; 
+    badE = 0;
     return true;
   }
 
 
   bool JetCalcBadCellsFrac::processConstituent(xAOD::JetConstituentVector::iterator& iter){
-    m_badE += m_constitExtractor->moment(iter, xAOD::CaloCluster::ENG_BAD_CELLS );
+    badE += m_constitExtractor->moment(iter, xAOD::CaloCluster::ENG_BAD_CELLS );
     return true;
   }
 
   double JetCalcBadCellsFrac::jetCalculation() const {  
-    if (m_totE == 0) return 0;
-    return m_badE / m_totE ;
+    if (totE == 0) return 0;
+    return badE / totE ;
   }
 
 

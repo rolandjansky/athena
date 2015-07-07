@@ -3,8 +3,6 @@
 */
 
 // emacs this is -*-C++-*-
-#ifndef XAOD_ANALYSIS
-
 #ifndef JETUTILS_JETCELLACCESSOR_H
 #define JETUTILS_JETCELLACCESSOR_H
 //////////////////////////////////////////////////////
@@ -86,6 +84,4 @@ namespace jet{
   };
 
 }
-#endif
-
 #endif
