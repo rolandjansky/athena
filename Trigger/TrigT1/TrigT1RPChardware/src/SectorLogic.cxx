@@ -237,7 +237,20 @@ SectorLogic::~SectorLogic(void) {
 }
 //****************************************************************************//
 
+CMAword  SectorLogic::outputToMuCTPI(int deltaBC) {
+    int bunchID=BCZERO+deltaBC;
+    if( bunchID < nBunMax && bunchID >=0 ) {
+        ubit16 bxsafe = (ubit16)bunchID;
+        return  output(bxsafe);
+    } else {
+        DISP << "warning : bunchID out of range, " << bunchID ;
+        DISP_WARNING;
+        return 0;
+    }
+}
 
+// OLD VERSION
+/*
 CMAword SectorLogic::outputToMuCTPI(ubit16 bunchID) {
   ubit16 bxsafe=BCZERO;
   if( bunchID <= nBunMax-1 ) {
@@ -248,7 +261,7 @@ CMAword SectorLogic::outputToMuCTPI(ubit16 bunchID) {
   }
   return output(bxsafe);
 }
-
+*/
 
 // initializes the array
 void SectorLogic::init(void) {
@@ -366,6 +379,14 @@ CMAword SectorLogic::output(ubit16 i){
       if(OutFromSectorLogic[i].pt2) // aleandro addendum 6-10-2003
           slroi2 = (OutFromSectorLogic[i].pad2)*4 + (OutFromSectorLogic[i].roi2);      
  }
+
+  // MC 2015/7/7 add bc information
+  ubit16 bc = 0;
+  if (i>BCZERO) {
+      bc = i-BCZERO;
+  } else if (i<BCZERO) {
+      bc = i+8-BCZERO;
+  }
   
 
   if (OutFromSectorLogic[i].pt1==0) OutFromSectorLogic[i].pt1=7;
@@ -384,7 +405,7 @@ CMAword SectorLogic::output(ubit16 i){
   fmtout = fmtout | (( OutFromSectorLogic[i].pt2      & 0x07) << 22); // Pt2
   fmtout = fmtout | (( OutFromSectorLogic[i].ntrig1   & 0x01) << 25); // >1 candidate in ROI1
   fmtout = fmtout | (( OutFromSectorLogic[i].ntrig2   & 0x01) << 26); // >1 candidate in ROI2
-  fmtout = fmtout | (( OutFromSectorLogic[i].bcid     & 0x07) << 27); // BCID
+  fmtout = fmtout | (( bc                             & 0x07) << 27); // BCID
   fmtout = fmtout | (( OutFromSectorLogic[i].sign1    & 0x01) << 30); // Candidate1 sign
   fmtout = fmtout | (( OutFromSectorLogic[i].sign2    & 0x01) << 31); // Candidate2 sign
 

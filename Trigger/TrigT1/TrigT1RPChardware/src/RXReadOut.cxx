@@ -35,7 +35,7 @@ RXReadOut::~RXReadOut() {
 void RXReadOut::reset() {
 m_Header=0x0000;
 m_Footer=0x0000;
-for(ubit16 i=0; i<numberOfPads; i++) { m_PADFragment[i]='\0';}
+for(ubit16 i=0; i<numberOfPads; i++) { m_PADFragment[i]=0;}
 numberOfPDFragments=0;
 numberOfWordsInFragment=0;
 topRXBody();
@@ -64,8 +64,7 @@ numberOfWordsInFragment+=1;
 }//end-of-PadReadOut::makeFooter()
 //----------------------------------------------------------------------------//
 void RXReadOut::makeBody() {
-PadReadOut *PADFragment[numberOfPads]=
- {'\0','\0','\0','\0','\0','\0','\0','\0'};
+PadReadOut *PADFragment[numberOfPads]={0};
 PadReadOutStructure PROS;
 ubit16 numberOfPadWords=0;
 ubit16 i;
@@ -126,7 +125,7 @@ newPDRO            =1;
 numberOfWordsInPDRO=0;
 numberOfWordsRead  =0;
 endOfPDFragments   =0;
-currentPDRO        ='\0';
+currentPDRO        =0;
 }//end-of-topRXBody
 //----------------------------------------------------------------------------//
 unsigned short int RXReadOut::readHeader() {
