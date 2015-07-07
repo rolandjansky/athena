@@ -4,7 +4,7 @@
 
 #include "JetUtils/JetOriginHelpers.h"
 
-#include "CaloUtils/CaloVertexedTopoCluster.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "xAODTracking/Vertex.h"
 
 namespace jet {

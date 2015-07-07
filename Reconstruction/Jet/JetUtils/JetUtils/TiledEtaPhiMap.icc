@@ -113,9 +113,9 @@ namespace JetTiledMap {
 
       
     // compute distance to edges of thisTile
-    double d_to_N2 = P4Helpers::deltaPhi(p.y(), (center.y() + m_sizeY/2) ); d_to_N2*=d_to_N2;
+    double d_to_N2 = jet::JetDistances::deltaPhi(p.y(), (center.y() + m_sizeY/2) ); d_to_N2*=d_to_N2;
     double d_to_E2 =  ( p.x() - (center.x() + m_sizeX/2) ) ; d_to_E2*=d_to_E2;
-    double d_to_S2 = P4Helpers::deltaPhi(p.y(), (center.y() - m_sizeY/2) ); d_to_S2*=d_to_S2;
+    double d_to_S2 = jet::JetDistances::deltaPhi(p.y(), (center.y() - m_sizeY/2) ); d_to_S2*=d_to_S2;
     double d_to_W2 =  ( p.x() - (center.x() - m_sizeX/2) ) ; d_to_W2*=d_to_W2;
 
     // get points in this tile : 
