@@ -94,7 +94,7 @@ dqm_core::Result* dqm_algorithms::GraphTest::execute(const std::string & name,
       } 
     catch ( dqm_core::Exception & ex ) 
       {
-	ERS_DEBUG(1,"Parameter: i"<<param[i]<<"' for Green not found in configuration, using default: "<<reValue[i]);
+	ERS_DEBUG(1,"Parameter: i"<<param[i]<<"' for Green not found in configuration, using default: "<<grValue[i]);
       }
     // get configuration for Red Threshold
     try 

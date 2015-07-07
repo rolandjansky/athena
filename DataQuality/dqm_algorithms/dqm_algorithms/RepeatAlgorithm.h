@@ -17,6 +17,7 @@ public:
 
   RepeatAlgorithm( const RepeatAlgorithm& other );
   RepeatAlgorithm();
+  RepeatAlgorithm& operator=(const RepeatAlgorithm& other);
   
   virtual ~RepeatAlgorithm();
   virtual dqm_core::Algorithm*  clone();

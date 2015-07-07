@@ -32,6 +32,15 @@ RepeatAlgorithm( const RepeatAlgorithm& ) :
   subalg_() {
 }  
 
+RepeatAlgorithm& 
+RepeatAlgorithm::
+operator=(const RepeatAlgorithm& other) {
+  if (this != &other) {
+    subalg_ = other.subalg_;
+  }
+  return *this;
+}
+
 RepeatAlgorithm::
 RepeatAlgorithm()
 {
