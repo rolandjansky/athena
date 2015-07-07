@@ -15,7 +15,7 @@
 //____________________________________________________________________
 QStringList PRDCollHandle_Planar::availableCollections(IVP1System*sys)
 {
-  return VP1JobConfigInfo::hasPixelGeometry() ? VP1SGContentsHelper(sys).getKeys<iFatras::PlanarClusterContainer>() : QStringList();
+  return VP1SGContentsHelper(sys).getKeys<iFatras::PlanarClusterContainer>();
 }
 
 //____________________________________________________________________
@@ -27,7 +27,7 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_Planar::PRDCollHandle_Planar(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::Pixel,cd,key), d(new Imp)
+  : PRDCollHandleBase(PRDDetType::Planar,cd,key), d(new Imp)
 {
   d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
   d->minNRDOPerCluster = 2;
