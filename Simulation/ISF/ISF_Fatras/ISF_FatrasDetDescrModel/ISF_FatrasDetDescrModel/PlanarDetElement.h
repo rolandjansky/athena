@@ -26,8 +26,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "ISF_FatrasDetDescrInterfaces/ISegmentation.h"
-
-
+#include "InDetReadoutGeometry/SiDetectorDesign.h"
 
 namespace iFatras {
 
@@ -63,9 +62,6 @@ namespace iFatras {
 		      const bool isOuterMost = false,
 		      const bool debug = false);
 
-    /// Copy-Constructor:
-    PlanarDetElement( const PlanarDetElement& );
-    
     /// Destructor:
     ~PlanarDetElement();
 
@@ -134,6 +130,8 @@ namespace iFatras {
        In the case of silicon it returns the same as bounds()*/  
     const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();};
 
+    InDetDD::DetectorShape shape() const;
+
     //@}
     
     ///////////////////////////////////////////////////////////////////
@@ -146,16 +144,19 @@ namespace iFatras {
     double thickness() const;
     double pitchX() const; 
     double pitchY() const;
+    double phiPitch() const;
+    double phiPitch(const Amg::Vector2D &localPos) const;
+    double stripLength(const Amg::Vector2D &localPos) const;
     double lengthY() const;
     double lengthXmin() const;
     double lengthXmax() const;
+    double sinStereoLocal(const Amg::Vector2D &localPos) const;
     bool isOuterMost() const;
     bool isPixel() const;
     bool isBarrel() const;
     bool isSCT() const;
-    std::pair<int, int> cellsOfPosition(const Amg::Vector2D &localPos) const;
-    bool isLastCellIdValid() const;
-
+    bool cellOfPosition(const Amg::Vector2D &localPos, std::pair<int, int>& entryXY ) const;
+    Amg::Vector2D localPositionOfCell(const Identifier&) const;
     //@}
     
     ///////////////////////////////////////////////////////////////////
@@ -183,6 +184,15 @@ namespace iFatras {
     //@}
 
     ///////////////////////////////////////////////////////////////////
+    // Private methods:
+    ///////////////////////////////////////////////////////////////////
+  private:
+    // Don't allow copying.
+    PlanarDetElement();
+    PlanarDetElement( const PlanarDetElement& );
+    PlanarDetElement &operator=(const PlanarDetElement&);
+    
+    ///////////////////////////////////////////////////////////////////
     // Protected data:
     ///////////////////////////////////////////////////////////////////
   protected:
@@ -199,6 +209,7 @@ namespace iFatras {
     
     mutable Trk::PlaneSurface m_surface;
     Trk::SharedObject<const Trk::SurfaceBounds> * m_bounds;
+    InDetDD::DetectorShape   m_shape;
 
     double m_lengthY;
     double m_lengthXmin;
@@ -255,23 +266,46 @@ namespace iFatras {
     return m_segmentation->pitchY();
   } 
 
+  inline double PlanarDetElement::phiPitch() const 
+  { 
+    return m_segmentation->phiPitch();
+  } 
+
+  inline double PlanarDetElement::phiPitch(const Amg::Vector2D &localPos) const // Useful for SCT Forward.
+  { 
+    return m_segmentation->phiPitch(localPos); 
+  } 
+  
+  inline double PlanarDetElement::stripLength(const Amg::Vector2D &localPos) const // Useful for SCT Forward.
+  { 
+    return m_segmentation->stripLength(localPos); 
+  } 
+
   inline double PlanarDetElement::lengthY()const
   {
     return m_lengthY;
   }
 
-    inline double PlanarDetElement::lengthXmin() const
+  inline double PlanarDetElement::lengthXmin() const
   {
     return m_lengthXmin;
   }
 
   inline double PlanarDetElement::lengthXmax() const
   {
-    
     return m_lengthXmax;
   }
-
   
+  inline double PlanarDetElement::sinStereoLocal(const Amg::Vector2D &localPos) const
+  {
+    return m_segmentation->sinStereoLocal(localPos);
+  }
+  
+  inline InDetDD::DetectorShape PlanarDetElement::shape() const 
+  {
+    return m_shape;
+  }
+
   inline bool PlanarDetElement::isOuterMost() const
     {
       return m_isOuterMost;

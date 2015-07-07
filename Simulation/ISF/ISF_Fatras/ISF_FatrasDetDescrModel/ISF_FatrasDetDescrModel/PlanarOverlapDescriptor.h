@@ -48,7 +48,7 @@ namespace iFatras {
   public:
          
     /** Constructor (area restriction, LC check) */
-    PlanarOverlapDescriptor();
+    PlanarOverlapDescriptor(bool addMoreSurfaces = false, int slices = 3);
          
     /** Destructor */
     virtual ~PlanarOverlapDescriptor(){}
@@ -68,6 +68,9 @@ namespace iFatras {
                                       
              
   private:
+
+    bool m_addMoreSurfaces;
+    int  m_slices;
     
   };
   

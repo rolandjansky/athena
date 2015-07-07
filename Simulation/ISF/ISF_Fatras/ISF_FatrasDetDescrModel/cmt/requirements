@@ -5,29 +5,31 @@ author Noemi Calace <Noemi.Calace@cern.ch>
 #################################################################
 # public use statements
 public
-use AtlasPolicy             AtlasPolicy-*
-use AtlasROOT               AtlasROOT-*              External
-use GeoPrimitives           GeoPrimitives-*          DetectorDescription
-use Identifier              Identifier-*             DetectorDescription
-use TrkDetElementBase       TrkDetElementBase-*      Tracking/TrkDetDescr
-use EventPrimitives         EventPrimitives-*        Event
-use TrkSurfaces            TrkSurfaces-*             Tracking/TrkDetDescr
-use TrkDetDescrUtils        TrkDetDescrUtils-*       Tracking/TrkDetDescr
-use TrkParameters           TrkParameters-*          Tracking/TrkEvent
-use TrkEventPrimitives      TrkEventPrimitives-*     Tracking/TrkEvent
-use TrkGeometry             TrkGeometry-*            Tracking/TrkDetDescr
-use CLIDSvc                 CLIDSvc-*                Control
+use AtlasPolicy                    AtlasPolicy-*
+use AtlasROOT                      AtlasROOT-*                       External
+use GeoPrimitives                  GeoPrimitives-*                   DetectorDescription
+use Identifier                     Identifier-*                      DetectorDescription
+use TrkDetElementBase              TrkDetElementBase-*               Tracking/TrkDetDescr
+use EventPrimitives                EventPrimitives-*                 Event
+use TrkSurfaces                    TrkSurfaces-*                     Tracking/TrkDetDescr
+use TrkDetDescrUtils               TrkDetDescrUtils-*                Tracking/TrkDetDescr
+use TrkParameters                  TrkParameters-*                   Tracking/TrkEvent
+use TrkEventPrimitives             TrkEventPrimitives-*              Tracking/TrkEvent
+use TrkGeometry                    TrkGeometry-*                     Tracking/TrkDetDescr
+use CLIDSvc                        CLIDSvc-*                         Control
 use ISF_FatrasDetDescrInterfaces   ISF_FatrasDetDescrInterfaces-*    Simulation/ISF/ISF_Fatras
+use InDetReadoutGeometry           InDetReadoutGeometry-*            InnerDetector/InDetDetDescr
 #################################################################
 
 # private use statements
 private
-
-
+use InDetIdentifier                InDetIdentifier-*                 InnerDetector/InDetDetDescr
+use GaudiInterface                 GaudiInterface-*                  External
+use StoreGate                      StoreGate-*                       Control
 public
-library ISF_FatrasDetDescrModel *.cxx components/*.cxx
+
+library ISF_FatrasDetDescrModel *.cxx
 apply_pattern installed_library
-apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"

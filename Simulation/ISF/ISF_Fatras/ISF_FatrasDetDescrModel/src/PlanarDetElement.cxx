@@ -20,6 +20,14 @@
 #include "TrkGeometry/MaterialLayer.h"
 
 #include "ISF_FatrasDetDescrModel/PixelSegmentation.h"
+#include "ISF_FatrasDetDescrModel/SCT_Segmentation.h" 
+
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+
+#include "InDetReadoutGeometry/SiCellId.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "StoreGate/StoreGateSvc.h"
 
 namespace iFatras{
 
@@ -67,6 +75,7 @@ namespace iFatras{
       
       Trk::RectangleBounds* rbounds = new Trk::RectangleBounds(lengthXmin/2., lengthY/2.);
       m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(rbounds, true);
+      m_shape = InDetDD::Box;
       if (m_debug){
 	std::cout << "DEBUG: Created Rectangle bounds " << std::endl;
       }
@@ -74,6 +83,7 @@ namespace iFatras{
     
       Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(lengthXmin/2., lengthXmax/2., lengthY/2.);
       m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(tbounds, true);
+      m_shape = InDetDD::Trapezoid;
       if (m_debug){
 	std::cout << "DEBUG: Created Trapezoid bounds " << std::endl;
       }
@@ -107,21 +117,55 @@ namespace iFatras{
     const Trk::MaterialLayer* materialLayer = new Trk::MaterialLayer(m_surface, layerMaterial);
     m_surface.setMaterialLayer(*materialLayer);
 
-    m_segmentation = dynamic_cast<PixelSegmentation*> (new PixelSegmentation(m_lengthXmin, m_lengthY, m_pitchX, m_pitchY));
-  }
+    if (isPixel)
+      m_segmentation = dynamic_cast<PixelSegmentation*> (new PixelSegmentation(m_lengthXmin, m_lengthY, m_pitchX, m_pitchY));
+    else
+      m_segmentation = dynamic_cast<SCT_Segmentation*> (new SCT_Segmentation(m_lengthXmin, m_lengthY, m_lengthXmax, m_pitchX));
+    
+}
 
   // Destructor:
   PlanarDetElement::~PlanarDetElement()
   {}
-
-  std::pair<int, int> PlanarDetElement::cellsOfPosition(const Amg::Vector2D &localPos) const {
-    return m_segmentation->cellsOfPosition(localPos);
-  }   
-
-  bool PlanarDetElement::isLastCellIdValid() const {
-    
-    return m_segmentation->isIdValid();
-
-  }
   
+  bool PlanarDetElement::cellOfPosition(const Amg::Vector2D &localPos, std::pair<int, int>& entryXY) const {
+    return m_segmentation->cellOfPosition(localPos, entryXY);
+  }  
+
+  Amg::Vector2D PlanarDetElement::localPositionOfCell(const Identifier & id) const {
+    
+    Amg::Vector2D local;
+    if (id.is_valid()) {
+      ISvcLocator* svcLocator = Gaudi::svcLocator();
+      StoreGateSvc *detStore;
+      StatusCode sc = svcLocator->service("DetectorStore", detStore);
+      if (sc.isFailure()) {
+	std::cout << "PlanarDetElement::localPositionOfCell --- ERROR: DetectorStore service not found!" << std::endl;
+	return local;
+      } 
+
+      if (isPixel()){
+	
+	const PixelID * pixId = 0;
+	sc = detStore->retrieve(pixId, "PixelID");
+	if (sc.isFailure()) {
+	  std::cout << "PlanarDetElement::localPositionOfCell --- ERROR: Could not get PixelID helper!" << std::endl;
+	  return local;
+	} 
+	
+	local = m_segmentation->localPositionOfCell(InDetDD::SiCellId(pixId->phi_index(id), pixId->eta_index(id)));
+      
+      } else {
+	const SCT_ID * sctId = 0;
+	sc = detStore->retrieve(sctId, "SCT_ID");
+	if (sc.isFailure()) {
+	  std::cout << "PlanarDetElement::localPositionOfCell --- ERROR: Could not get SCT_ID helper!" << std::endl;
+	  return local;
+	} 
+	
+	local = m_segmentation->localPositionOfCell(InDetDD::SiCellId(sctId->strip(id)));
+      }
+    }
+    return local;
+  }
 }
