@@ -15,8 +15,6 @@ use	AtlasPolicy			AtlasPolicy-*
 #use	VxVertex                	VxVertex-*                      Tracking/TrkEvent
 
 use	TrigInDetEvent			TrigInDetEvent-*		Trigger/TrigEvent
-use     TrigInDetPattRecoEvent		TrigInDetPattRecoEvent-*	Trigger/TrigEvent
-
 #use     TrigSiTrack			TrigSiTrack-*			Trigger/TrigAlgorithms
 #use	InDetRecToolInterfaces		InDetRecToolInterfaces-* 	InnerDetector/InDetRecTools 
 #use	TrigInDetToolInterfaces		TrigInDetToolInterfaces-* 	Trigger/TrigTools
@@ -32,16 +30,15 @@ library TrigInDetPattRecoTools  *.cxx
 
 private 
 
-#use GeoPrimitives                      GeoPrimitives-*                 DetectorDescription 
-use     IRegionSelector                 IRegionSelector-*               DetectorDescription
-# use	RegionSelector			RegionSelector-*		DetectorDescription
-# use	RoiDescriptor			RoiDescriptor-*		        DetectorDescription
-
-
+#use GeoPrimitives               GeoPrimitives-*              DetectorDescription 
+use IRegionSelector        IRegionSelector-*        DetectorDescription
+use     TrigInDetPattRecoEvent		TrigInDetPattRecoEvent-*	Trigger/TrigEvent
 
 #use	DataModel			DataModel-*			Control
 #use 	StoreGate			StoreGate-*			Control
 
+#use 	IRegionSelector			IRegionSelector-*		DetectorDescription
+#use	RegionSelector			RegionSelector-*		DetectorDescription
 
 #use	DataCollection			DataCollection-*		External
 
