@@ -18,12 +18,12 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
     m_maxOuterRadius(550.0), 
     m_minRadius(10.0),
     m_maxRadius(600.0), 
-    m_radBinWidth(2.0),
     m_minDeltaRadius(10.0), 
-    m_maxDeltaRadius(270.0),
     m_zTol(3.0), 
     m_pStore(NULL)
 {
+  m_maxDeltaRadius = m_settings.m_doublet_dR_Max;
+  m_radBinWidth = m_settings.m_seedRadBinWidth;
   m_phiSliceWidth = 2*M_PI/m_settings.m_nMaxPhiSlice;
   m_nMaxRadBin = 1+(int)((m_maxRadius-m_minRadius)/m_radBinWidth);
   m_pStore = new PHI_R_STORAGE(m_settings.m_nMaxPhiSlice, m_nMaxRadBin);
@@ -31,8 +31,8 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
   //mult scatt. variance for doublet matching
   const double radLen = 0.036;
   m_CovMS = std::pow((13.6/m_settings.m_tripletPtMin),2)*radLen;
-  m_ptCoeff = 0.29997*m_settings.m_magFieldZ/2;// ~0.3
-  m_minPt2 = m_settings.m_tripletPtMin*m_settings.m_tripletPtMin;
+  const double ptCoeff = 0.29997*1.9972/2.0;// ~0.3*B/2 - assumes nominal field of 2*T
+  m_minR_squ = m_settings.m_tripletPtMin*m_settings.m_tripletPtMin/std::pow(ptCoeff,2);
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
@@ -103,7 +103,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 
       if(S.m_radBins[radIdx].empty()) continue;
 
-      for(auto& spm : S.m_radBins[radIdx]) {//loop over middle spacepoint
+      for(auto spm : S.m_radBins[radIdx]) {//loop over middle spacepoint
 
         float zm = spm->z();
         float rm = spm->r();
@@ -127,7 +127,7 @@ void TrigTrackSeedGenerator::createSeeds() {
           float minZ = zMinus + refRad*(zm - zMinus)/rm;
           float maxZ = zPlus + refRad*(zm - zPlus)/rm;
 
-          for(auto& innPhiIdx : phiVec) {
+          for(auto innPhiIdx : phiVec) {
 
             const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_phiSectors[innPhiIdx].m_radBins[innRadIdx];
 
@@ -147,6 +147,9 @@ void TrigTrackSeedGenerator::createSeeds() {
               }
 
               double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
+              if (fabs(tau) > 7.41) {
+                continue;
+              }
               double z0  = zm - rm*tau;
               if (m_settings.m_doubletFilterRZ) {
                 if (!m_settings.roiDescriptor->contains(z0, tau)) {
@@ -176,7 +179,7 @@ void TrigTrackSeedGenerator::createSeeds() {
           float maxZ = zMinus + refRad*(zm - zMinus)/rm;
           float minZ = zPlus + refRad*(zm - zPlus)/rm;
 
-          for(auto& outPhiIdx : phiVec) {
+          for(auto outPhiIdx : phiVec) {
 
             const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_phiSectors[outPhiIdx].m_radBins[outRadIdx];
 
@@ -189,9 +192,11 @@ void TrigTrackSeedGenerator::createSeeds() {
 
             for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt= it1; spIt!=it2; ++spIt) {
 
-              if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
 
               double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
+              if (fabs(tau) > 7.41) {
+                continue;
+              }
               double z0  = zm - rm*tau;
 
               if (m_settings.m_doubletFilterRZ) {
@@ -199,6 +204,8 @@ void TrigTrackSeedGenerator::createSeeds() {
                   continue;
                 }
               }
+
+              if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
 
               m_SoA.m_sp.push_back(*spIt);
               nSP++;
@@ -345,13 +352,13 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
       if(du==0.0) continue;
       const double A = (m_SoA.m_v[outIdx] - v_inn)/du;
       const double B = v_inn - A*u_inn;
-      const double pT2 = m_ptCoeff*m_ptCoeff*(1+A*A)/(B*B);
+      const double R_squ = (1 + A*A)/(B*B);
 
-      if(pT2 < m_minPt2) continue;
+      if(R_squ < m_minR_squ) continue;
 
       //3. the 3-sigma cut with estimated pT
 
-      const double frac = m_minPt2/pT2;
+      const double frac = m_minR_squ/R_squ;
       if(dt2 > covdt+frac*dCov) continue;
 
       //4. d0 cut

@@ -34,10 +34,12 @@ public:
   int m_maxBarrelPix, m_minEndcapPix, m_maxEndcapPix, m_maxSiliconLayer;
 
   float m_doubletD0Max;
+  float m_doublet_dR_Max;
   float m_magFieldZ;
   float m_tripletD0Max;
   float m_tripletD0_PPS_Max;
   float m_tripletPtMin;
+  float m_seedRadBinWidth;
   bool  m_tripletDoPSS;
   bool  m_doubletFilterRZ;
   int m_nMaxPhiSlice;
