@@ -24,9 +24,8 @@
 
 #include <math.h>
 
-#ifndef ROOTCORE
-#include "FourMomUtils/P4Helpers.h"
-#endif
+
+#include "JetUtils/JetDistances.h"
 
 namespace JetTiledMap {
 

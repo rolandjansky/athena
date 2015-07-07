@@ -19,12 +19,10 @@ use AthLinks            AthLinks-*              Control
 use TileEvent		TileEvent-*		TileCalorimeter
 use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
 use xAODPFlow           xAODPFlow-*             Event/xAOD
-use CaloUtils           CaloUtils-*             Calorimeter
 
 public
 
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
-use FourMomUtils        FourMomUtils-*          Event
 use xAODTracking        xAODTracking-*         Event/xAOD
 
 use AtlasPolicy		AtlasPolicy-*
