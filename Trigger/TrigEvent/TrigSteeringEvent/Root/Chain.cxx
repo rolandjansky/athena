@@ -32,7 +32,9 @@ Chain::Chain( uint32_t serialData )
 } 
 
 Chain::Chain(const TrigConf::HLTChain* configChain) 
-  : m_configChain(configChain) {
+  : m_configChain(configChain) 
+  , m_chain_counter{0}
+{
   if (configChain)
     m_chain_counter = m_configChain->chain_counter();
 
