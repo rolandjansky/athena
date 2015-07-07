@@ -7,7 +7,7 @@
 #include "TrigSteeringEvent/HLTExtraData.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
-#include <iostream> // remove me ???
+#include <cassert>
 #include <algorithm>
 using namespace HLT;
 
@@ -20,7 +20,7 @@ const uint32_t HLTResult::m_HLTResultClassVersion = 3;
 
 /// constructor
 HLTResult::HLTResult() :
-  m_extraData(0)
+      m_extraData(0)
 {
   m_headerResult.resize(IndNumOfFixedBit);
   m_headerResult[IndHLTResultClassVersion]    = m_HLTResultClassVersion;
@@ -57,28 +57,28 @@ HLTResult::HLTResult( const HLTResult& hltResult )
     m_id_name_DSonly(hltResult.m_id_name_DSonly),
     m_modID_id_name(hltResult.m_modID_id_name),
     m_navigationResultCuts(hltResult.m_navigationResultCuts),
-    m_navigationResultCuts_DSonly(hltResult.m_navigationResultCuts_DSonly)
+    m_navigationResultCuts_DSonly(hltResult.m_navigationResultCuts_DSonly),
+    m_extraData{nullptr}
 {
 }
 
 /// destructor
 HLTResult::~HLTResult() {
-  //  this->clearHLTResult();
   delete m_extraData;
 }
 
 void HLTResult::listOfModIDs(std::vector<unsigned int>& mod_ids) const{
-  
+
   for (std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::const_iterator map_it = m_modID_id_name.begin(); 
-       map_it != m_modID_id_name.end(); ++map_it)
+      map_it != m_modID_id_name.end(); ++map_it)
     mod_ids.push_back((*map_it).first);
 }
 
 std::vector<unsigned int> HLTResult::listOfModIDs() const{
-  
+
   std::vector<unsigned int> mod_ids;
   for (std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::const_iterator map_it = m_modID_id_name.begin(); 
-       map_it != m_modID_id_name.end(); ++map_it)
+      map_it != m_modID_id_name.end(); ++map_it)
     mod_ids.push_back((*map_it).first);
   return mod_ids;
 }
@@ -105,192 +105,372 @@ uint32_t HLTResult::error_bits() const {
   return bits;
 }
 
-
-
-bool HLTResult::serialize( std::vector<uint32_t>& output ) {
-
-  unsigned int mod_id = 0;
-  return serialize(output, mod_id);
+// TODO make const when modifying header
+unsigned int HLTResult::estimateSize() {
+  return IndNumOfFixedBit
+      + m_chainsResult.size() + 1      // size(one word) and payload
+      + m_navigationResult.size() + 1
+      + m_extras.size() + 1;
 }
 
-bool HLTResult::serialize(std::vector<uint32_t>& output, const unsigned int mod_id){
-  output.clear();
-  return packForStorage(output, mod_id);
+namespace
+{
+  /*
+   * Serialize an indivisible section of the result (e.g. header)
+   */
+  bool serialize_indivisible(uint32_t* output,
+                             int& data_size,
+                             const std::vector<uint32_t>& indivisible,
+                             unsigned int umax_size,
+                             bool truncating,
+                             bool first=false)
+  {
+    auto size_indivisible = indivisible.size();
+    auto size_needed = data_size + size_indivisible + (first ? 0 : 1); /*
+                                          we add a word for the size unless this
+                                          is the first indivisible we serialize
+                                          */
+
+    if(truncating && size_needed > umax_size)
+      return false; // we do not have space for this indivisible
+
+    if (!first)
+      output[data_size++] = size_indivisible; // follow existing data with size
+
+    std::copy(std::begin(indivisible),
+              std::end(indivisible),
+              output + data_size);
+    data_size += size_indivisible;
+
+    return true;
+  }
+
+  /*
+   * serialize, the collections in nav whose boundaries are provided into output
+   * output must have enough space. The pairs in boundaries must specify proper
+   * boundaries. That is, each pair "bpair" must respect the following
+   * conditions:
+   *  1) bpair.first in [0, nav.size())
+   *  2) bpair.second in [bpair.first, nav.size()]
+   */
+  void serialize_collections(uint32_t * output,
+      int& data_size,
+      const std::vector<uint32_t>& nav,
+      const std::vector<std::pair<unsigned, unsigned>>& boundaries)
+  {
+    const auto nav_begin = std::begin(nav);
+    for(const auto& bpair : boundaries)
+    {
+      assert(bpair.first < nav.size());
+      assert(bpair.second >= bpair.first);
+      assert(bpair.second <= nav.size());
+
+      std::copy(nav_begin + bpair.first,
+                nav_begin + bpair.second,
+                output + data_size);
+      data_size += bpair.second - bpair.first;
+    }
+  }
+
+  /*
+   * Find, in the provided cuts, the boundaries of the collections that are in
+   * idname_include but not in idname_exclude
+   */
+  void
+  find_cuts(const std::set<std::pair<CLID, std::string>>& collections,
+            const std::vector<std::pair<CLID, std::string>>& idname_include,
+            const std::vector<std::pair<CLID, std::string>>& idname_exclude,
+            std::vector<unsigned int> cuts,
+            std::vector<std::pair<unsigned int, unsigned int>>& out)
+  {
+    for(auto coll : collections)
+    {
+      if(std::find(std::begin(idname_exclude),
+                   std::end(idname_exclude),
+                   coll) == std::end(idname_exclude))
+      { // collection not marked for exclusion
+        auto it = std::find(std::begin(idname_include),
+                            std::end(idname_include),
+                            coll);
+        if(it != std::end(idname_include)) // this
+        { // collection marked for inclusion
+          auto pos = std::distance(std::begin(idname_include), it);
+          out.emplace_back(cuts.at(pos + 1),
+                           cuts.at(pos + 2));
+        }
+      }
+    }
+  }
+
+  /*
+   * Addition of the size of a collection, as specified by its cut boundaries,
+   * to an existing (running) sum
+   */
+  inline
+  unsigned add_collection_to_size(unsigned current_size,
+                                  const std::pair<unsigned, unsigned>& pair)
+  {
+    return current_size + pair.second - pair.first;
+  }
+
+  /*
+   * Calculate the total size of the collections whose boundaries are provided
+   */
+  inline
+  unsigned int
+  calc_colls_size(const std::vector<std::pair<unsigned, unsigned>>& boundaries)
+  {
+    return std::accumulate(std::begin(boundaries), std::end(boundaries), 0,
+                           add_collection_to_size);
+  }
 }
 
+auto HLTResult::findDSCuts(unsigned int mod_id) const -> CutPairVecs
+{
 
+  auto cuts_dsonly = CutPairs{{0, m_navigationResultCuts_DSonly.at(1)}}; /* the
+                              first cut pair contains the preamle for DS
+                              navigation: {version, NavSize, TEsSize, NumTEs} */
+  auto cuts_reg = CutPairs{}; // starts empty
 
-bool HLTResult::serialize( uint32_t*& output, int& data_size, const int max_size, const unsigned int mod_id ) {
-  using namespace std;
-  if (mod_id == 0) { 
-    //  cerr << "HLTResult::serialize  max size asked: " << max_size << " estimate: " << estimateSize() << endl; 
-    if ( max_size == -1 || (int)estimateSize() < max_size   ) {
-      //    cerr << "HLTResult::serialize  truncation not needed " << endl; 
-      setHLTResultTruncated(false);
-      std::vector<uint32_t> rawResult;
-      // Till: here we copy the rawResult 2 times! first, in packForStorage and then in the copy below ... ?
-      
-      packForStorage(rawResult, mod_id); // I do not care about the result
-      
-      data_size = rawResult.size();
-      output = new uint32_t [data_size];
-      copy(rawResult.begin(), rawResult.end(), output);
-      //    cerr << "HLTResult::serialize  data size: " << data_size << endl;     
-      return true; // full success
-    }
-
-    // below goes handling of truncation
-    setHLTResultTruncated(true);
-    data_size = 0;
-    
-    //  cerr << "HLTResult::serialize  truncation NEEDED " << endl; 
-    
-    // if max_size is smaller then the header, there is nothing we can do...
-    if (static_cast<unsigned int>(max_size) < m_headerResult.size())
-      return false;
-    
-    // add header
-    output = new uint32_t [max_size];
-    copy( m_headerResult.begin(), m_headerResult.end(), &output[0] );
-    data_size += std::distance(m_headerResult.begin(), m_headerResult.end());
-    
-    //  cerr << "HLTResult::serialize w/o Chains size is : " << data_size << endl; 
-    
-    // check if chains can be added
-    if ( data_size +   m_chainsResult.size() + 1 > static_cast<unsigned int>(max_size) )
-      return false;
-    
-    output[data_size] =  m_chainsResult.size();
-    data_size++;
-    //  cerr << "HLTResult::serialize with Chains still fit : " << data_size << endl; 
-    copy( m_chainsResult.begin(), m_chainsResult.end(), &output[data_size] );
-    data_size += std::distance(m_chainsResult.begin(), m_chainsResult.end());
-    
-    //  cerr << "HLTResult::serialize with Chains size is : " << data_size << endl; 
-    
-    // check if navigation can be added  ( sure not, we werent be here if that would be the case )
-    // find which cut will still be OK.
-    //  copy(m_navigationResultCuts.rbegin(), m_navigationResultCuts.rend(),  ostream_iterator<uint32_t>(cerr, " "));
-    
-    std::vector<unsigned int>::reverse_iterator cut = std::find_if( m_navigationResultCuts.rbegin(),
-								    m_navigationResultCuts.rend(),
-								    bind2nd(std::less<int>(), max_size-data_size-1) );
-    
-    
-    
-    if ( cut == m_navigationResultCuts.rend() ) {
-      //    cerr << "HLTResult::serialize navigation should be cut out totaly " << endl;    
-      return false;
-    }
-    
-    //  cerr << "HLTResult::serialize navigation should be cut at: " << *cut << endl;
-    //  std::vector<uint32_t>::iterator endIt = m_navigationResult.begin();
-    //  advance(endIt, *cut);
-    
-    // crop the navigation data now
-    
-    //m_navigationResult.resize(*cut);
-    //output[data_size] = m_navigationResult.size();
-    //data_size++;
-    //copy(m_navigationResult.begin(), m_navigationResult.end(), &output[data_size]);
-    //data_size += m_navigationResult.size();
-    
-    // create another vector to cut because you need navigation results for data-scouting
-    std::vector<uint32_t> copied_results = m_navigationResult;
-    copied_results.resize(*cut);
-    output[data_size] = copied_results.size();
-    data_size++;
-    copy(copied_results.begin(), copied_results.end(), &output[data_size]);
-    data_size += copied_results.size();
-    
-    // actuall copy
-    //  output[data_size] = *cut;
-    //  data_size++;
-    //  copy( m_navigationResult.begin(), endIt, &output[data_size] );
-    //  data_size += *cut; 
-    //  cerr << "HLTResult::serialize final data size is: " << data_size << endl;
-    
-    return false;
+  auto modid_coll_it = m_modID_id_name.find(mod_id);
+  if(modid_coll_it != std::end(m_modID_id_name))
+  {
+    const auto& collections = modid_coll_it->second;
+    find_cuts(collections,
+              m_id_name_DSonly,
+              {},
+              m_navigationResultCuts_DSonly,
+              cuts_dsonly); // cuts for collections only in the DS result
+    find_cuts(collections,
+              m_id_name,
+              m_id_name_DSonly,
+              m_navigationResultCuts,
+              cuts_reg); // cuts for collections in the normal result
   }
-  
-  else{
-    if ( max_size == -1 || (int)estimateSize_DS(mod_id) < max_size ) {
-      //    cerr << "HLTResult::serialize  truncation not needed " << endl; 
-      setHLTResultTruncated(false);
-      std::vector<uint32_t> rawResult;
-      
-      // Till: here we copy the rawResult 2 times! first, in packForStorage and then in the copy below ... ?
-      packForStorage(rawResult, mod_id); // I do not care about the result
-      
-      data_size = rawResult.size();
-      output = new uint32_t [data_size];
-      copy(rawResult.begin(), rawResult.end(), output);
-      //    cerr << "HLTResult::serialize  data size: " << data_size << endl;     
-      return true; // full success
-    }
-    // below goes handling of truncation
-    setHLTResultTruncated(true);
-    data_size = 0;
-    output = new uint32_t [max_size];
 
-    std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::iterator map_it = m_modID_id_name.begin();
-    map_it = m_modID_id_name.find(mod_id);
-    
-    if (map_it != m_modID_id_name.end()){
-      // map from ScoutingInfo for ROB ID rob_id
-      std::set<std::pair<CLID, std::string> >& collectionsForStorage = (*map_it).second;
-      
-      unsigned int position = 0;
-      
-      for (unsigned int pos = 0; pos < m_id_name.size(); ++pos) {
-	if( collectionsForStorage.find(m_id_name.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections
-	  position = pos;
-	  size_t starting_bin = m_navigationResultCuts.at(position + 1); // 1 is the number of bins used to store features
-	  size_t ending_bin = m_navigationResultCuts.at(position + 1 + 1); 
-	  
-	  std::vector<uint32_t>::iterator starting_point = m_navigationResult.begin()+starting_bin; 
-	  std::vector<uint32_t>::iterator ending_point = m_navigationResult.begin()+ending_bin; 
-	  
-	  if (ending_bin > static_cast<unsigned int>(max_size - data_size -1))
-	    return false;
-	  else{
-	    copy( starting_point, ending_point, &output[data_size+1] );
-	    data_size += std::distance(starting_point, ending_point);
-	    output[0] = data_size;
-	  }
-	}
-      }
-      
-      for (unsigned int pos = 0; pos < m_id_name_DSonly.size(); ++pos) {
-	if(std::find(m_id_name.begin(), m_id_name.end(), m_id_name_DSonly.at(pos)) == m_id_name.end()) {
-	  if( collectionsForStorage.find(m_id_name_DSonly.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections that are only in the datascouting stream
-	    position = pos;
-	    size_t starting_bin = m_navigationResultCuts_DSonly.at(position);
-	    size_t ending_bin = m_navigationResultCuts_DSonly.at(position + 1); 
-	    
-	    std::vector<uint32_t>::iterator starting_point = m_navigationResult_DSonly.begin()+starting_bin; 
-	    std::vector<uint32_t>::iterator ending_point = m_navigationResult_DSonly.begin()+ending_bin; 
-	    
-	    if (ending_bin > static_cast<unsigned int>(max_size - data_size -1))
-	      return false;
-	    else{
-	      copy( starting_point, ending_point, &output[data_size+1] );
-	      data_size += std::distance(starting_point, ending_point);
-	      output[0] = data_size;
-	    }
-	  }
-	}
-      }
-      return false;
+  return std::make_pair(cuts_dsonly, cuts_reg);
+}
+
+unsigned int HLTResult::estimateSize_DS(const unsigned int /*mod_id*/ )
+{
+  // TODO remove when modifying header
+  assert(false);
+  return 0;
+}
+
+/* static */
+unsigned int HLTResult::calc_total_size_DS(unsigned int ds_nav_size)
+{
+  static constexpr auto num_size_words = 3u;
+  return num_size_words + IndNumOfFixedBit + ds_nav_size;
+}
+
+bool HLTResult::serialize_navigation_reg(uint32_t* output,
+                                         int& data_size,
+                                         unsigned int umax_size,
+                                         bool truncating) const
+{
+  auto calc_size_needed = [data_size](unsigned int nav_size)
+                          { return nav_size + data_size + 1; }; /* given a
+                                             navigation size, this gives the
+                                             total space needed in the output */
+  auto is_within_size = [umax_size, &calc_size_needed](unsigned int cut)
+                        { return calc_size_needed(cut) <= umax_size; }; /* tells
+                                             whether the given cut would make it
+                                             within the allowed size */
+
+  if(static_cast<unsigned int>(data_size) < umax_size)
+  { // there is still some space (even if we end up truncating)
+    const auto tot_nav_size = m_navigationResult.size(); // cache the total size
+    auto cut_nav_size = tot_nav_size;                    // init cut size
+    auto endnav = std::end(m_navigationResult);          // and cut point
+
+    if(truncating && calc_size_needed(tot_nav_size) > umax_size)
+    { // Truncation falls in navigation, so find the last cut that still fits
+      auto cutit = std::find_if(m_navigationResultCuts.rbegin(),
+                                m_navigationResultCuts.rend(),
+                                is_within_size);
+      cut_nav_size = (cutit == m_navigationResultCuts.rend()) ? 0 : *cutit;
+      endnav -= tot_nav_size - cut_nav_size;
     }
-    else{
-      std::cerr << "ROB module ID " << mod_id << " not found as key of the map from ScoutingInfo. Nothing serialized."<< std::endl; 
-      return false;
+
+    assert(endnav == std::begin(m_navigationResult) + cut_nav_size); /* endnav
+                                 now marks the cutting point, while cut_nav_size
+                                 says how many nav words we are copying */
+
+    output[data_size++] = cut_nav_size;
+    copy(std::begin(m_navigationResult), endnav, output+data_size);
+    data_size += cut_nav_size;
+
+    return endnav == std::end(m_navigationResult); /* whether we went with the
+                                                      full navigation */
+  }
+
+  return false; // we did not even have space for the size
+}
+
+bool HLTResult::serialize_navigation_DS(uint32_t* output,
+                                        int& data_size,
+                                        unsigned int umax_size,
+                                        unsigned int nav_size,
+                                        const CutPairVecs& dscuts,
+                                        bool truncating) const
+{
+  if(nav_size + data_size < umax_size)
+  { // we have space for the navigation + 1 size word
+    output[data_size++] = nav_size;
+    auto index_for_size_in_nav_preamble = data_size + 1;
+
+    serialize_collections(output, data_size, m_navigationResult_DSonly,
+                          dscuts.first);
+    serialize_collections(output, data_size, m_navigationResult, dscuts.second);
+
+    output[index_for_size_in_nav_preamble] = nav_size; /* the total size needs
+      to be replaced in the navigation preamble as the it was originally
+      calculated with all data scouting collections lumped together in the
+      navigation. This needs to be corrected once headers can be changed and
+      serialization can be requested for each module ID separately.
+      TODO: remove when changing headers */
+  }
+  else
+  {
+    assert(truncating);
+
+    if(static_cast<unsigned int>(data_size) < umax_size)
+      output[data_size++] = 0; /* we can still write the size; (partial
+                                  navigation not supported in DS) */
+  }
+
+  return !truncating;
+}
+
+bool HLTResult::serialize_bootstrap(uint32_t*& output,
+                                    int& data_size,
+                                    bool& truncating,
+                                    int max_size,
+                                    unsigned int estimated_size)
+{
+  assert(!data_size);
+  assert(!output);
+
+  auto umax_size = static_cast<unsigned int>(max_size);
+  output = new uint32_t[std::min(umax_size, estimated_size)];
+
+  truncating = max_size >= 0 && estimated_size > umax_size;
+  setHLTResultTruncated(truncating);
+
+  // serialize header
+  return serialize_indivisible(output, data_size, m_headerResult, umax_size,
+                               truncating, /*first*/true);
+}
+
+inline
+bool HLTResult::serialize_body_regular(uint32_t* output,
+                                       int& data_size,
+                                       unsigned int umax_size,
+                                       unsigned int estimated_size,
+                                       bool truncating) const
+{
+  return serialize_indivisible(output, data_size, m_chainsResult, umax_size,
+                               estimated_size, truncating) &&
+         serialize_navigation_reg(output, data_size, umax_size, truncating) &&
+         serialize_indivisible(output, data_size, m_extras, umax_size,
+                               estimated_size, truncating);
+}
+
+bool HLTResult::serialize_body_DS(uint32_t* output,
+                                  int& data_size,
+                                  unsigned int umax_size,
+                                  unsigned int nav_size,
+                                  const CutPairVecs& dscuts,
+                                  bool truncating) const
+{
+  if(static_cast<unsigned int>(data_size) < umax_size)
+  { // still at least space for chains size
+    output[data_size++] = 0; // no chains
+    if(serialize_navigation_DS(output, data_size, umax_size, nav_size, dscuts,
+                               truncating)
+       && static_cast<unsigned int>(data_size) < umax_size)
+    { // we managed to serialize without truncating and have at least 1word left
+      output[data_size++] = 0; // no extras
+      return true; // no truncation
     }
   }
+
   return false;
 }
 
+bool HLTResult::serialize_regular(uint32_t*& output,
+                                  int& data_size,
+                                  int max_size)
+{
+  updateExtras();
+  bool truncating;
+  auto estim_size = estimateSize();
+  return serialize_bootstrap(output, data_size, truncating,
+                             max_size, estim_size) &&
+         serialize_body_regular(output, data_size,
+                                max_size, estim_size, truncating);
+}
+
+bool HLTResult::serialize_DS(uint32_t*& output,
+                             int& data_size,
+                             int max_size,
+                             unsigned int mod_id)
+{
+  assert(mod_id);
+
+  bool truncating;
+  auto dscuts = findDSCuts(mod_id);
+  auto navsize = calc_colls_size(dscuts.first) + calc_colls_size(dscuts.second);
+
+  return serialize_bootstrap(output, data_size, truncating, max_size,
+                             calc_total_size_DS(navsize)) &&
+         serialize_body_DS(output, data_size, max_size, navsize, dscuts,
+                           truncating);
+}
+
+inline
+bool HLTResult::serialize( std::vector<uint32_t>& output )
+{
+  return serialize(output, /*mod_id*/ 0);
+}
+
+bool HLTResult::serialize(std::vector<uint32_t>& output,
+                          const unsigned int mod_id)
+{
+  uint32_t * aux = nullptr;
+  int data_size = 0;
+
+  auto ret = serialize(aux, data_size, /*max_size*/ -1, mod_id);
+  auto uptr = std::unique_ptr<uint32_t[]>{aux}; // takes care of deletion
+
+  output.reserve(data_size);
+  std::copy(aux, aux + data_size, std::back_inserter(output));
+
+  return ret;
+}
+
+inline
+bool HLTResult::serialize(uint32_t*& output,
+                          int& data_size,
+                          const int max_size,
+                          const unsigned int mod_id)
+{
+  return mod_id ? serialize_DS(output, data_size, max_size, mod_id)
+                : serialize_regular(output, data_size, max_size);
+}
+
+inline
+void HLTResult::updateExtras()
+{
+  if (m_extraData)
+  { // the extraData object has been used, so serialize again into m_extras
+    m_extras.clear();
+    m_extraData->serialize(m_extras);
+  }
+}
 
 bool HLTResult::deserialize( const std::vector<uint32_t>& source ) {
   return unpackFromStorable(source);
@@ -300,197 +480,20 @@ bool HLTResult::deserialize( const std::vector<uint32_t>& source ) {
 bool HLTResult::deserialize(  uint32_t* source, const int data_size ) {
   if (data_size == 0 ) return false;
   std::vector<uint32_t> rawResult(&source[0], &source[data_size]);
-  //  rawResult.clear();
-  //  std::back_insert_iterator< std::vector<uint32_t> > appendIterator(rawResult);
-  // nope this is not error, we copy up to next to the last
-  //  copy(&source[0], &source[data_size], appendIterator);
   return unpackFromStorable(rawResult);
 }
 
-
-
 void HLTResult::clearHLTResult() {
-  // this things are done automatically at deletion
-  //  m_rawResult.clear();
-  //  m_serializedObjects.clear();
-  //  for (uint32_t ires=0; ires<HLTResult::IndNumOfResultTypes; ires++) m_rawPartialResults[ires].clear();
+  /// TODO remove when changing header
+  assert(false); // should not be here
 }
 
-unsigned int HLTResult::estimateSize() {
-  // If the extraData object has been used, erase the content of m_extras
-  if (m_extraData) {
-    m_extras.clear();
-    m_extraData->serialize(m_extras);
-  }
-  return (IndNumOfFixedBit
-	  + m_chainsResult.size() + 1      // size(one word) and payload
-	  + m_navigationResult.size() + 1 
-	  + m_extras.size() +1+1);           
-}
-
-unsigned int HLTResult::estimateSize_DS(const unsigned int mod_id ) {
-  // Check size for Scouting data
-  unsigned int chainSize(1);    
-  unsigned int navigationSize(4);
-  unsigned int extraSize(0);
-
-  std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::iterator map_it = m_modID_id_name.begin();
-  map_it = m_modID_id_name.find(mod_id);
-
-  if (map_it != m_modID_id_name.end()){
-    // map from ScoutingInfo for ROB ID rob_id
-    std::set<std::pair<CLID, std::string> >& collectionsForStorage = (*map_it).second;
-    
-    unsigned int position = 0;
-    
-    for (unsigned int pos = 0; pos < m_id_name.size(); ++pos) {
-      if( collectionsForStorage.find(m_id_name.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections
-	position = pos;
-	size_t starting_bin = m_navigationResultCuts.at(position + 1); // 1 is the number of bins used to store features
-	size_t ending_bin = m_navigationResultCuts.at(position + 1 + 1); 
-	
-	std::vector<uint32_t>::iterator starting_point = m_navigationResult.begin()+starting_bin; 
-	std::vector<uint32_t>::iterator ending_point = m_navigationResult.begin()+ending_bin; 
-
-	navigationSize += ending_bin-starting_bin;
-      }
-    }
-    
-    for (unsigned int pos = 0; pos < m_id_name_DSonly.size(); ++pos) {
-	if(std::find(m_id_name.begin(), m_id_name.end(), m_id_name_DSonly.at(pos)) == m_id_name.end()) {
-	  if( collectionsForStorage.find(m_id_name_DSonly.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections that are only in the datascouting stream
-	    position = pos;
-	    size_t starting_bin = m_navigationResultCuts_DSonly.at(position);
-	    size_t ending_bin = m_navigationResultCuts_DSonly.at(position + 1); 
-	    
-	    std::vector<uint32_t>::iterator starting_point = m_navigationResult_DSonly.begin()+starting_bin; 
-	    std::vector<uint32_t>::iterator ending_point = m_navigationResult_DSonly.begin()+ending_bin; 
-	    
-	    navigationSize += ending_bin-starting_bin;
-	  }
-	}
-    }
-
-    // the returned size is one word more than actually used. This follows the same convention as estimateSize() 
-    return (IndNumOfFixedBit
-	  + chainSize + 1      // size(one word) and payload
-	  + navigationSize + 1 
-	  + extraSize +1 +1);
-  }
-  else{
-    std::cerr << "ROB module ID " << mod_id << " not found as key of the map from ScoutingInfo. HLTResult::estimateSize_DS() Returns 0 as expected size."<< std::endl; 
-    return 0;
-  }
-  
-}
-
-bool HLTResult::packForStorage( std::vector<uint32_t>& raw, const unsigned int mod_id )
+bool HLTResult::packForStorage(std::vector<uint32_t>& /*raw*/,
+                               const unsigned int /*mod_id*/)
 {
-
-  std::back_insert_iterator< std::vector<uint32_t> > appendIterator(raw );
-
-  if (mod_id==0){
-
-    raw.reserve( estimateSize() );
-    copy(m_headerResult.begin(), m_headerResult.end(), appendIterator ); // fixed header
-    
-    raw.push_back( m_chainsResult.size() );
-    copy( m_chainsResult.begin(), m_chainsResult.end(), appendIterator ); // chains
-    
-    raw.push_back( m_navigationResult.size() );
-    copy( m_navigationResult.begin(), m_navigationResult.end(), appendIterator ); // navigation
-    
-    // If the extraData object has been used, erase the content of m_extras
-    if (m_extraData) {
-      m_extras.clear();
-      m_extraData->serialize(m_extras);
-    }
-  
-    raw.push_back( m_extras.size() );
-    copy( m_extras.begin(), m_extras.end(), appendIterator ); // extras
-    
-    return HLT::OK;
-    
-  }else{
-
-    std::map<unsigned int, std::set<std::pair<CLID, std::string> > >::iterator map_it;
-    map_it = m_modID_id_name.find(mod_id);
-
-    std::vector<uint32_t> result;
-    std::back_insert_iterator< std::vector<uint32_t> > appendIteratorResult(result);    
-    
-    if (map_it != m_modID_id_name.end()){
-      
-      raw.reserve( estimateSize_DS(mod_id) );    // this is for the total serialized result
-      result.reserve( estimateSize_DS(mod_id) - IndNumOfFixedBit - 4 ); // this is for the navigation information
-
-      // add header data 
-      copy(m_headerResult.begin(), m_headerResult.end(), appendIterator ); // fixed header
-
-      // add dummy chain result
-      std::vector<uint32_t> dummyChainResult;
-      dummyChainResult.reserve(1);
-      dummyChainResult.push_back(0);
-      raw.push_back( dummyChainResult.size() );
-      copy( dummyChainResult.begin(), dummyChainResult.end(), appendIterator ); // chains
-
-      // add navigation header information 
-      result.push_back( 4 ); // navigation version
-      result.push_back( 0 ); // navigation size placeholer
-      // No TEs are saved for DS
-      result.push_back(4); // length of nav header 2+2(for TE)
-      result.push_back(0); // number of TEs
-      
-      // add feature data
-      // map from ScoutingInfo for ROB ID rob_id
-      std::set<std::pair<CLID, std::string> >& collectionsForStorage = (*map_it).second;
-      
-      unsigned int position = 0;
-      
-      for (unsigned int pos = 0; pos < m_id_name.size(); ++pos) {
-	if( collectionsForStorage.find(m_id_name.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections
-	  position = pos;
-	  size_t starting_bin = m_navigationResultCuts.at(position + 1); // 1 is the number of bins used to store features
-	  size_t ending_bin = m_navigationResultCuts.at(position + 1 + 1); 
-	  
-	  std::vector<uint32_t>::iterator starting_point = m_navigationResult.begin()+starting_bin; 
-	  std::vector<uint32_t>::iterator ending_point = m_navigationResult.begin()+ending_bin; 
-	  
-	  result.reserve(ending_bin - starting_bin);
-	  copy(starting_point, ending_point, appendIteratorResult); // headerblob + datablob
-	}
-      }
-      
-      for (unsigned int pos = 0; pos < m_id_name_DSonly.size(); ++pos) {
-	if(std::find(m_id_name.begin(), m_id_name.end(), m_id_name_DSonly.at(pos)) == m_id_name.end()) {
-	  if( collectionsForStorage.find(m_id_name_DSonly.at(pos)) != collectionsForStorage.end() ) { // compares clid and coll name between scouting info collection and navigation filled collections that are only in the datascouting stream
-	    position = pos;
-	    size_t starting_bin = m_navigationResultCuts_DSonly.at(position);
-	    size_t ending_bin = m_navigationResultCuts_DSonly.at(position + 1); 
-	    
-	    std::vector<uint32_t>::iterator starting_point = m_navigationResult_DSonly.begin()+starting_bin; 
-	    std::vector<uint32_t>::iterator ending_point = m_navigationResult_DSonly.begin()+ending_bin; 
-	    
-	    result.reserve(ending_bin - starting_bin);
-	    copy(starting_point, ending_point, appendIteratorResult); // headerblob + datablob
-	  }
-	}
-      }
-      
-      // add navigation to raw result
-      result[1] = result.size(); // store length of complete navigation information in second word
-      raw.push_back( result.size() );  // size
-      copy( result.begin(), result.end(), appendIterator ); // payload
-
-      // No extra data are stored
-      raw.push_back(0);
-      return HLT::OK;
-    }
-    else{
-      std::cerr << "ROB module ID " << mod_id << " not found as key of the map from ScoutingInfo. Nothing serialized."<< std::endl; 
-      return HLT::OK;
-    }
-  }
+  // TODO remove when changing header
+  assert(false); // should not be here
+  return false; // make compiler happy
 }
 
 
@@ -522,28 +525,10 @@ bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
     return false;
   m_headerResult.clear();
   m_headerResult.reserve(HLTResult::IndNumOfFixedBit);
-  /*
-    std::cout <<  "HLTResult::unpackFromStorable DEBUG " 
-	    << " raw.size()=" << raw.size() 
-	    << " HLTResult::IndNumOfFixedBit=" << HLTResult::IndNumOfFixedBit 
-	    << " rawIndNumOfFixedBit=" << rawIndNumOfFixedBit
-	    << " m_headerResult.size()=" << m_headerResult.size()
-	    << std::endl;
-  */
   m_headerResult.insert(m_headerResult.end(), &raw[0], &raw[rawIndNumOfFixedBit]);
-  /*
-  std::cout <<  "HLTResult::unpackFromStorable DEBUG " 
-	    << " m_headerResult.size()=" << m_headerResult.size()
-	    << std::endl;
-  */
 
   // fill up with zeros so use of HLTResult::IndNumOfFixedBit of other indices past the end doesn't break
   m_headerResult.insert(m_headerResult.end(), HLTResult::IndNumOfFixedBit-rawIndNumOfFixedBit, 0);
-  /*
-    std::cout <<  "HLTResult::unpackFromStorable DEBUG " 
-	    << " m_headerResult.size()=" << m_headerResult.size()
-	    << std::endl;
-  */
 
   if ( raw.size() ==  rawIndNumOfFixedBit )
     return true; // that's OK, we have just empty event, no processing started
@@ -555,7 +540,7 @@ bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
 
   uint32_t readEnd = offset + sizeOfChains;
   bool truncation = false;
-  
+
   if ( readEnd > raw.size() ){
     readEnd = raw.size();
     truncation = true;
@@ -596,7 +581,7 @@ bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
   m_navigationResult.reserve(trueSizeOfNavigation);
   m_navigationResult.insert(m_navigationResult.end(), &raw[offset], &raw[readEnd]);
 
-  
+
   if (truncation) {
     if ( isHLTResultTruncated() )
       return true;
@@ -618,15 +603,15 @@ bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
 
     if ( offset > readEnd )
       return true;
-    
+
     m_extras.clear();
     m_extras.reserve(sizeOfExtras);
     m_extras.insert(m_extras.end(),  &raw[offset], &raw[readEnd]);
     if (truncation) {
       if ( isHLTResultTruncated() )
-	return true;
+        return true;
       else
-	return false;
+        return false;
     } 
   }
 

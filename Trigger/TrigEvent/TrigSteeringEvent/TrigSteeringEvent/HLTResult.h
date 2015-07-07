@@ -233,7 +233,7 @@ namespace HLT {
      */
     bool       isHLTResultTruncated() const { return (m_headerResult[IndHLTResultTruncated] == 0 ? false : true); }
     void       setHLTResultTruncated( bool truncated) {
-      truncated ? (m_headerResult[IndHLTResultTruncated] = 1) : (m_headerResult[IndHLTResultTruncated] = 0);
+      m_headerResult[IndHLTResultTruncated] = truncated ? 1 : 0;
     }
 
     /**
@@ -356,29 +356,107 @@ namespace HLT {
 		    IndNumOfFixedBit       //!< total number of fixed bits
     };
 
-    /*
-     * @brief defines different sub-bytestreams added up to total payload in
-     *        createRawResult each first element in the rawResult will be the
-     *        size of the corresponding payload
-     */
-    /*    enum ResultType { IndChains = 0,
-	  IndNavigation,
-	  IndNumOfResultTypes
-	  };
-    */
     /**
-     * @brief clear raw result vector
+     * @brief Outdated: TODO remove when changing header
      */
-    void       clearHLTResult();
+    void clearHLTResult();
+
+    using CutPairs = std::vector<std::pair<unsigned int, unsigned int>>;
+    using CutPairVecs = std::pair<CutPairs, CutPairs>;
+
+    /*
+     * Serialize the regular result
+     */
+    bool serialize_regular(uint32_t*& output,
+                           int& data_size,
+                           int max_size);
+
+    /*
+     * Serialize the DS result corresponding to the given mod_id
+     */
+    bool serialize_DS(uint32_t*& output,
+                      int& data_size,
+                      int max_size,
+                      unsigned int mod_id);
+
+    /*
+     * Bootstrap the serialization by serializing an initial portion of the end
+     * result which is common to both regular and DS results
+     */
+    bool serialize_bootstrap(uint32_t*& output,
+                             int& data_size,
+                             bool& truncating,
+                             int max_size,
+                             unsigned int estimated_size);
+
+    /*
+     * Serialize the body of the regular result, that is, everything after the
+     * bootstrap part
+     */
+    bool serialize_body_regular(uint32_t* output,
+                                int& data_size,
+                                unsigned int umax_size,
+                                unsigned int estimated_size,
+                                bool truncating) const;
+
+    /*
+     * Serialize the body of a DS result, that is, everything after the
+     * bootstrap part
+     */
+    bool serialize_body_DS(uint32_t* output,
+                           int& data_size,
+                           unsigned int max_size,
+                           unsigned int nav_size,
+                           const CutPairVecs& dscuts,
+                           bool truncating) const;
+
+    /*
+     * Serialize the navigation part of the regular result
+     */
+    bool serialize_navigation_reg(uint32_t* output,
+                                  int& data_size,
+                                  unsigned int umax_size,
+                                  bool truncating) const;
+
+    /*
+     * Serialize the navigation part of a DS result
+     */
+    bool serialize_navigation_DS(uint32_t* output,
+                                 int& data_size,
+                                 unsigned int umax_size,
+                                 unsigned int nav_size,
+                                 const CutPairVecs& dscuts,
+                                 bool truncating) const;
+
+    /*
+     * Update serialized extra data
+     */
+    void updateExtras();
 
     /**
-     * @brief concatenate all vectors and append to the rawResult vector
+     * @brief Outdated: TODO remove when changing header
      */
-    bool packForStorage(std::vector<uint32_t> &raw, const unsigned int rob_id = 0);
+    bool packForStorage(std::vector<uint32_t> &raw,
+                        const unsigned int rob_id = 0);
 
     unsigned int estimateSize();
 
-    unsigned int estimateSize_DS(const unsigned int mod_id);
+    // TODO: remove when changing header
+    unsigned int estimateSize_DS(unsigned int mod_id);
+
+    /**
+     * Calculate the size of a DS result, given the size of its navigation
+     */
+    static unsigned int calc_total_size_DS(unsigned int ds_nav_size);
+
+    /**
+     * Find the pairs of cut points that mark the boundaries of DS collections
+     * for the given module id.
+     * @return A pair whose first element has the boundaries of collections
+     *  found in the DS result and whose second element has the boundaries
+     *  of collections found only in the regular result
+     */
+    CutPairVecs findDSCuts(unsigned int) const;
 
     /**
      * @brief split the rawResult vector into rawPartialResult's
