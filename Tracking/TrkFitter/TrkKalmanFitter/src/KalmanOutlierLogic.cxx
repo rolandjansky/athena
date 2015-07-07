@@ -339,7 +339,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         }
       } else {
         if (m_utility->numberOfSpecificStates(T,Trk::TrackState::TRT,Trk::TrackState::Fittable)>4) {
-          Trk::Trajectory::iterator states       = *(bestStates.begin());
+          //Trk::Trajectory::iterator states       = *(bestStates.begin());
           bool found=false; unsigned int i=0;
           while (i < bestStates.size() && !found) {
             if (bestStates.at(i)->measurementType()==Trk::TrackState::TRT &&

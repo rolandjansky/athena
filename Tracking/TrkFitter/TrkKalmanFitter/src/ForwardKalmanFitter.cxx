@@ -395,16 +395,18 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 
       else {
         ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
-        Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar);
+        Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::anyDirection);
         ecc.setParticleHypothesis(Trk::nonInteracting);
         ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
-        Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, Trk::anyDirection, false);
+        Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, false);
         
 	if (eCode.isSuccess() && ecc.endParameters) {
 	  ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
 	  predPar = ecc.endParameters;
-	} else 
-          ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine did not succeed");
+	} else {
+          ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine did not succeed");
+          predPar = NULL;
+        }
       }      
 
     }
@@ -437,16 +439,16 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 					    Trk::alongMomentum,false,
 					    controlledMatEffects.particleType());
     else {
-      ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
-      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar);
+      ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
+      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::alongMomentum);
       ecc.setParticleHypothesis(controlledMatEffects.particleType());
-      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, Trk::alongMomentum, false);
+      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, false);
       
       if (eCode.isSuccess() && ecc.endParameters) {
-	ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
+	ATH_MSG_DEBUG ("Forward Kalman Fitter --> extrapolation engine success");
 	predPar = ecc.endParameters;
       } else
-        ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine does not succeed");
+        ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine does not succeed");
     }
   }
   return predPar;
@@ -777,16 +779,16 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
 								   Trk::anyDirection,
 								   false, Trk::nonInteracting);
     else {
-      ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
-      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar);
+      ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
+      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar, Trk::anyDirection);
       ecc.setParticleHypothesis(Trk::nonInteracting);
       ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
-      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &startSurface, Trk::anyDirection, false);
+      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &startSurface, false);
       
       if (eCode.isSuccess() && ecc.endParameters) {
-	ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
+	ATH_MSG_DEBUG ("Forward Kalman Fitter --> extrapolation engine success");
 	inputParAtStartSurface = ecc.endParameters;
-      }
+      } else ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine did not succeed");
     }      
 
     if (inputParAtStartSurface == NULL) {
