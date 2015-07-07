@@ -18,7 +18,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -32,7 +31,6 @@ class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
 class TgcDigitContainer; 
-class ITGCTriggerDbTool;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -94,9 +92,6 @@ class LVL1TGCTrigger : public AthAlgorithm
   // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
   void recordRdoHPT(TGCSector *);
 
-  // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
-  void recordRdoInner(TGCSector *);
-  
   // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
   void recordRdoSL(TGCSector *, unsigned int );
 
@@ -114,16 +109,12 @@ class LVL1TGCTrigger : public AthAlgorithm
   // useful functions
   int getCharge(int dR, int Zdir);  
   void extractFromString(std::string, std::vector<int>&);    
-  bool addRawData(TgcRawData *);
+  void addRawData(TgcRawData *);
   int getLPTTypeInRawData(int type);
   void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
 			   const TGCSLSelectorOut *selectorOut, 
 			   unsigned int subsystem);
- 
-  StatusCode updateDatabase(IOVSVC_CALLBACK_ARGS_P(I, keys));
-  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
-
- 
+  
   // Properties
  
   // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
@@ -152,7 +143,7 @@ class LVL1TGCTrigger : public AthAlgorithm
   BooleanProperty   m_OUTCOINCIDENCE; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
   BooleanProperty   m_SINGLEBEAM; // for the single beam run
   BooleanProperty   m_MUHALO; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
-  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in Strip HPT
+  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in STRIP HPT
   BooleanProperty   m_USEINNER; // flag for using Inner Station for SL
   BooleanProperty   m_INNERVETO; // flag for using VETO by Inner Station for SL
   BooleanProperty   m_FULLCW;   // flag for using differne CW for each octant
@@ -160,12 +151,12 @@ class LVL1TGCTrigger : public AthAlgorithm
 
   uint16_t          m_bctagInProcess;
 
-  TGCDatabaseManager *m_db;
+  TGCDatabaseManager *db;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  TGCTimingManager *m_TimingManager;
-  TGCElectronicsSystem *m_system;
+  TGCTimingManager *TimingManager;
+  TGCElectronicsSystem *system;
   
-  int m_nEventInSector;
+  int nEventInSector;
 
   // EIFI-SL connection
   TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;

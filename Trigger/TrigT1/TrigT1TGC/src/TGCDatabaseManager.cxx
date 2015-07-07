@@ -21,6 +21,9 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_DEBUGLEVEL;
+ extern bool        g_USE_INNER;
+ extern bool        g_TILE_MU;
+ extern bool        g_FULL_CW;
 
 TGCConnectionInPP* TGCDatabaseManager::getConnectionInPP(TGCPatchPanel* patchPanel) const 
 {
@@ -127,7 +130,7 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
       MsgStream log(msgSvc, "TGCDatabaseManager::TGCDatabaseManager");
       log << MSG::DEBUG 
 	  << " Fail to read data from database" 
-	  << endmsg;
+	  << endreq;
     }
   }
 
@@ -143,20 +146,32 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
     ver_TILE = "v" + vers[0];
   }
 
-  // RPhi Coincidence Map
-  for (int side=0; side<NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-       mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
+  if (g_FULL_CW) {
+    for (int side=0; side<NumberOfSide; side +=1) {
+      if (g_USE_INNER) {
+         mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
+      }
+      for (int oct=0; oct<NumberOfOctant; oct++) {
+         mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
+      }
+    }
+  } else {
+    TGCInnerCoincidenceMap* mapI = 0;
+    TGCRPhiCoincidenceMap*  map  = new TGCRPhiCoincidenceMap(ver_BW);
+    for (int side=0; side<NumberOfSide; side +=1) {
+      if (g_USE_INNER) {
+	if (mapI==0) mapI = new TGCInnerCoincidenceMap(ver_EIFI);
+	mapInner[side] = mapI;
+      }
+      for (int oct=0; oct<NumberOfOctant; oct++) {
+	mapRphi[side][oct] = map;
+      }
     }
   }
 
-  // Inner Coincidence Map
-  for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
+  if (g_TILE_MU)  {
+    mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
   }
-
-  // Tile-Mu coincidence Map
-  mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
    
  
 }
@@ -184,17 +199,22 @@ TGCDatabaseManager::~TGCDatabaseManager()
     PPToSL[j]=0;
   }
 
-  for (int side=0; side<NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++)
-       delete mapRphi[side][oct];
+  if (g_FULL_CW) {
+     for (int side=0; side<NumberOfSide; side +=1) {
+        if(g_USE_INNER)
+           delete mapInner[side];
+        for (int oct=0; oct<NumberOfOctant; oct++)
+           delete mapRphi[side][oct];
+     }
+  } else {
+     if(g_USE_INNER)
+        delete mapInner[0];
+     delete mapRphi[0][0]; // only delete the first, since all entries point to the same map
   }
-
-  for(int side=0; side<NumberOfSide; side +=1) {
-    delete mapInner[side];
+  if (g_TILE_MU) {
+    delete mapTileMu;
+    mapTileMu = 0;
   }
-
-  delete mapTileMu;
-  mapTileMu = 0;
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
@@ -208,13 +228,13 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   }
   for( int i=0; i<NumberOfRegionType; i+=1) PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side] =0;
-    
+    if (g_USE_INNER) {
+      mapInner[side] =0;
+    }
     for (int oct=0; oct<NumberOfOctant; oct++) {
       mapRphi[side][oct] = 0;
     }
   }
-  mapTileMu = 0;
 
   *this = right;
 }
@@ -238,16 +258,15 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     }
     
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (mapInner[side]!=0) delete mapInner[side];
-      mapInner[side] = new TGCInnerCoincidenceMap(*(right.mapInner[side]));
-      
+      if (g_USE_INNER) {
+	if (mapInner[side]!=0) delete mapInner[side];
+	mapInner[side] = new TGCInnerCoincidenceMap(*(right.mapInner[side]));
+      }
       for (int oct=0; oct<NumberOfOctant; oct++) {
 	if(mapRphi[side][oct]!=0) delete mapRphi[side][oct];
 	mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.mapRphi[side][oct]));
       }
     }
-
-  mapTileMu = new TGCTileMuCoincidenceMap(*(right.mapTileMu));
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;
   }
@@ -285,27 +304,5 @@ const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& in
   return result;
 }
 
-StatusCode TGCDatabaseManager::updateMap()
-{
-  // BW 
-  for (int side = 0; side < NumberOfSide; side +=1) {
-    for (int oct=0; oct<NumberOfOctant; oct++) {
-
-      if (!mapRphi[side][oct]->readMap()) {
-        return StatusCode::SUCCESS;
-      }
-    }
-  }
-
-  // EIFI
-  for (int side=0; side<NumberOfSide; side +=1) {
-    mapInner[side]->readMap();
-  }
-  
-  // TILE
-  mapTileMu->readMap(); 
-
-  return StatusCode::SUCCESS;
-}
 
 } //end of namespace bracket

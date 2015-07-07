@@ -15,6 +15,7 @@ namespace LVL1TGCTrigger {
 
 class TGCTMDBOut;
 
+
 // ====================================================================
 //
 // class definition
@@ -41,7 +42,6 @@ public:
   void  setOutput(int side, int module, int hit56, int hit6); 
   void  eraseOutput();
   int   NumberOfTileModules() const { return NumberOfTileModule; }   
-  int   getInnerTileBits(int side, int sectorID) const;
 
   void Print() const;
   

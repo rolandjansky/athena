@@ -17,6 +17,8 @@
 
 namespace LVL1TGCTrigger {
 
+using namespace std;
+	
 // ====================================================================
 //
 //      constants and globals
@@ -74,7 +76,7 @@ TGCASDOut& TGCASDOut::operator=(const TGCASDOut& right)
     signalType= right.signalType;
     hitID= right.hitID;
     channel= right.channel;
-    hitToF= right.hitToF;
+      hitToF= right.hitToF;
   }
   return *this;
 }
@@ -96,10 +98,10 @@ void TGCASDOut::Print() const
 /////////////////////////////
 {
   tgcReadoutIndex.Print(); 
-  std::cout << "::" << std::setw(9) << strsig[signalType] 
-            << ":: ID=" << std::setw(3) << hitID
-            << ", tof=" << std::setw(5) << std::setprecision(1) << hitToF/CLHEP::ns << "ns"
-            << std::setprecision(6) << std::endl;
+  cout << "::" << setw(9) << strsig[signalType] 
+       << ":: ID=" << setw(3) << hitID
+       << ", tof=" << setw(5) << setprecision(1) << hitToF/CLHEP::ns << "ns"
+       << setprecision(6) << endl;
 }
 
 

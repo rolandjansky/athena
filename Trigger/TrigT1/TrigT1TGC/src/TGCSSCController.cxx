@@ -25,13 +25,15 @@ TGCSSCController::TGCSSCController(const TGCSectorLogic* sL)
 // distribute signals to appropriate r-phi coincidence matrix.
 TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCHighPtChipOut* strip)
 {
+  int HPBid,chip,iCandidate;
+
   TGCSSCControllerOut* out = new TGCSSCControllerOut(sectorLogic->getRegion());
   out->clear();
 
-  for(int HPBid=0; HPBid < sectorLogic->getNumberOfWireHighPtBoard(); HPBid++){
+  for( HPBid=0; HPBid<sectorLogic->getNumberOfWireHighPtBoard(); HPBid+=1){
     if(wire[HPBid]==0) continue; // NO wire HIT
-    for(int chip=0; chip<NumberOfChip; chip+=1){
-      for(int iCandidate=1; iCandidate>=0; iCandidate-=1){
+    for( chip=0; chip<NumberOfChip; chip+=1){
+      for( iCandidate=1; iCandidate>=0; iCandidate-=1){
 	if(wire[HPBid]->getSel(chip,iCandidate)){
 	  // If both candidates has same HitID, ignore 2nd candidate(iCandidate==1).
 	  if(iCandidate==1 && (wire[HPBid]->getHitID(chip,1)) == (wire[HPBid]->getHitID(chip,0))) continue;
@@ -52,8 +54,8 @@ TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCH
 
   if(strip==0) return out; 
 
-  for(int chip=0; chip<NumberOfChip; chip+=1){
-    for(int iCandidate=1; iCandidate>=0; iCandidate-=1){
+  for( chip=0; chip<NumberOfChip; chip+=1){
+    for( iCandidate=1; iCandidate>=0; iCandidate-=1){
       if( strip->getSel(chip,iCandidate) ){
 	// If both candidates has same HitID, ignore 2nd candidate(iCandidate==1).
 	if(iCandidate==1 && (strip->getHitID(chip,1)) == (strip->getHitID(chip,0))) continue;
@@ -100,7 +102,11 @@ int TGCSSCController::getSSCId(int nHPB, int chip, int block) const
 
 int TGCSSCController::convertPhi(int /* chip */, int block, int pos) const
 {
-  return (pos + (block%2) * 2);
+  if (region==Endcap){
+    return (pos+(block%2)*2);
+  }else{
+    return (pos+(block%2)*2);
+  }
 }
 
 int TGCSSCController::getChamberNo(int chip, int block) const
@@ -117,7 +123,11 @@ int TGCSSCController::getChamberNo(int chip, int block) const
 
 int TGCSSCController::getPhiPosInSSC(int /* chip */, int block) const
 {
-  return block%2;
+    if(region==Endcap){
+      return block%2;
+    }else{
+      return block%2;
+    }
 }
 
 } //end of namespace bracket

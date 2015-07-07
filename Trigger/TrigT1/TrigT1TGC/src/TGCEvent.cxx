@@ -11,7 +11,6 @@
 #include <iostream> 
 
 #include "TrigT1TGC/TGCEvent.h"
-#include "TrigT1TGC/TGCASDOut.h"
 
 namespace LVL1TGCTrigger {
 

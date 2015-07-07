@@ -9,10 +9,6 @@
 #include <string>
 #include "TrigT1TGC/TGCInnerTrackletSlot.hh"
 
-#include "GaudiKernel/ToolHandle.h"
-
-class ITGCTriggerDbTool;
-
 namespace LVL1TGCTrigger {
  
 class TGCInnerCoincidenceMap {
@@ -41,10 +37,10 @@ public:
   bool                        isFullCW() const;
   void                        setFullCW( bool val);
 
-  bool readMap();  
   void                        dumpMap() const;
 
 protected:
+  bool readMap();  
  
   enum {N_EndcapSector=48};
   enum {N_Input_InnerSector=4};
@@ -64,8 +60,6 @@ private:
   std::string m_verName;
   int m_side; 
   bool m_fullCW;
-
-   ToolHandle<ITGCTriggerDbTool> m_condDbTool;
 };
 
 

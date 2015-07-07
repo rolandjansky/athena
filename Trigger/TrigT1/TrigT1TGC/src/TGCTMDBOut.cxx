@@ -16,6 +16,8 @@
 
 namespace LVL1TGCTrigger {
 
+using namespace std;
+
 // ====================================================================
 //
 // class description
@@ -65,11 +67,11 @@ TGCTMDBOut& TGCTMDBOut::operator=(const TGCTMDBOut& right)
 void TGCTMDBOut::Print() const
 /////////////////////////////
 {
-  std::cout << "Side=" << sideID
-            << " :: ModuleID=" << moduleID
-            << " :: Hit_56=" << hit_56
-            << " :: Hit_6=" << hit_6
-           << std::endl; 
+  cout << "Side=" << sideID
+       << " :: ModuleID=" << moduleID
+       << " :: Hit_56=" << hit_56
+       << " :: Hit_6=" << hit_6
+       << endl; 
 }
 
 

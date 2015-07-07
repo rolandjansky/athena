@@ -17,14 +17,22 @@ namespace LVL1TGCTrigger {
 
 // ====================================================================
 //
+//      constants and globals
+//
+// ====================================================================
+
+static const char* strZ[3]= { "N/A", "A", "C" };
+
+// ====================================================================
+//
 // class description
 //
 // ====================================================================
 
 //////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex()
- : zDirection(kZ_FORWARD), octantNumber(0),
-   moduleNumber(0), rNumber(0), layerNumber(0)
+  : zDirection(Z_FORWARD), octantNumber(0),
+    moduleNumber(0), rNumber(0), layerNumber(0)
 //////////////////////////////////
 {
 }
@@ -32,16 +40,16 @@ TGCReadoutIndex::TGCReadoutIndex()
 ///////////////////////////////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex(TGCZDirection iz, int ioct, 
 				 int imd, int ir, int ilyr)
- : zDirection(iz), octantNumber(ioct),
-   moduleNumber(imd), rNumber(ir), layerNumber(ilyr)
+  : zDirection(iz), octantNumber(ioct),
+    moduleNumber(imd), rNumber(ir), layerNumber(ilyr)
 ///////////////////////////////////////////////////////////
 {
 }
 
 /////////////////////////////////////////////////////////////
 TGCReadoutIndex::TGCReadoutIndex(TGCIndex tgcindex, int ilyr)
- : zDirection(kZ_FORWARD), octantNumber(0),
-   moduleNumber(0), rNumber(0), layerNumber(0)
+  : zDirection(Z_FORWARD), octantNumber(0),
+    moduleNumber(0), rNumber(0), layerNumber(0)
 /////////////////////////////////////////////////////////////
 {
   SetIndex(tgcindex, ilyr);
@@ -112,7 +120,7 @@ void TGCReadoutIndex::SetIndex(TGCIndex tgcindex, int ilyr)
 void TGCReadoutIndex::Print() const
 ///////////////////////////////////
 {
-  std::cout << "  " << gkTgcZdirName[zDirection] << "-" 
+  std::cout << "  " << strZ[zDirection] << "-" 
             << std::setw(1) << octantNumber << "-"
             << std::setw(2) << moduleNumber << "-" 
             << rNumber << "-"

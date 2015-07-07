@@ -53,7 +53,7 @@ namespace LVL1TGCTrigger {
   MakeCoincidenceOut::~MakeCoincidenceOut()
   {
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "MakeCoincidenceOut destructor called" << endmsg;
+      msg(MSG::DEBUG) << "MakeCoincidenceOut destructor called" << endreq;
     }
   }
   
@@ -61,44 +61,44 @@ namespace LVL1TGCTrigger {
   StatusCode MakeCoincidenceOut::initialize()
   {
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "MakeCoincidenceOut::initialize() called" << endmsg;
+      msg(MSG::DEBUG) << "MakeCoincidenceOut::initialize() called" << endreq;
     }
-    msg(MSG::INFO) << "MakeCoincidenceOut initialize" << endmsg;
+    msg(MSG::INFO) << "MakeCoincidenceOut initialize" << endreq;
 
     // StoreGateSvc
     //StatusCode sc = service("StoreGateSvc", m_sgSvc);
     StatusCode sc = m_sgSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
+      msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
       return StatusCode::FAILURE;
     } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could find StoreGateSvc" << endmsg;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could find StoreGateSvc" << endreq;
     }
     
     // Initialize the IdHelper
     StoreGateSvc* detStore = 0;
     sc = service("DetectorStore", detStore);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Can't locate the DetectorStore" << endmsg;
+      msg(MSG::ERROR) << "Can't locate the DetectorStore" << endreq;
       return sc;
     }
     
     // get TGC ID helper
     sc = detStore->retrieve( m_tgcIdHelper, "TGCIDHELPER");
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not get TgcIdHelper !" << endmsg;
+      msg(MSG::FATAL) << "Could not get TgcIdHelper !" << endreq;
       return sc;
     }
     
 
     if (0==g_OUTCOINCIDENCE) {
-      msg(MSG::INFO) << "You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file" << endmsg;
+      msg(MSG::INFO) << "You should make LVL1TGCTrigger::OUTCOINCIDENCE=1 in your jobOptions file" << endreq;
       return StatusCode::FAILURE;
     }
 
     sc = bookHistos();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Cannot book histograms" << endmsg;
+      msg(MSG::ERROR) << "Cannot book histograms" << endreq;
       return StatusCode::FAILURE;
     }
     
@@ -107,19 +107,19 @@ namespace LVL1TGCTrigger {
   
   StatusCode MakeCoincidenceOut::finalize()
   {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::finalize() called" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::finalize() called" << endreq;
     return StatusCode::SUCCESS; 
   }
   
   
   StatusCode MakeCoincidenceOut::execute()
   {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::execute() called" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MakeCoincidenceOut::execute() called" << endreq;
 
     const EventInfo * evtInfo=0;
     StatusCode sc = m_sgSvc->retrieve(evtInfo, "McEventInfo");
     if (sc.isFailure()) {
-      msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endmsg;
+      msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endreq;
       m_runNumber=-1;
       m_eventNumber=-1;
     } else {
@@ -130,7 +130,7 @@ namespace LVL1TGCTrigger {
     TGCCoincidences::iterator iss=g_TGCCOIN->begin(); 
     m_nhpt=0;
     if (g_TGCCOIN->size()>MaxNhpt) {
-      msg(MSG::WARNING) << "Number of Hpt triggers is " << g_TGCCOIN->size() << ", more than " << MaxNhpt << endmsg;
+      msg(MSG::WARNING) << "Number of Hpt triggers is " << g_TGCCOIN->size() << ", more than " << MaxNhpt << endreq;
     }
     while( iss!=g_TGCCOIN->end() && m_nhpt<MaxNhpt) {
       m_hbid  [m_nhpt]=(*iss)->getBid();
@@ -152,7 +152,7 @@ namespace LVL1TGCTrigger {
     const DataHandle<TgcDigitContainer> tgc_container;
     sc = m_sgSvc->retrieve(tgc_container, m_key);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << " Cannot retrieve TGC Digit Container " << endmsg;
+      msg(MSG::ERROR) << " Cannot retrieve TGC Digit Container " << endreq;
       return sc;
     }
 
@@ -179,7 +179,7 @@ namespace LVL1TGCTrigger {
       const DataHandle<McEventCollection> mcColl(0);
       sc = m_sgSvc->retrieve(mcColl,"TruthEvent");
       if (sc.isFailure() && !mcColl) {
-        msg(MSG::WARNING) << "Cannot retrieve McEventCollection. McEventCollection is recorded in simulation file?" << endmsg;
+        msg(MSG::WARNING) << "Cannot retrieve McEventCollection. McEventCollection is recorded in simulation file?" << endreq;
       } else {
 	McEventCollection::const_iterator itr;
 	m_nmuMC=0;
@@ -204,7 +204,7 @@ namespace LVL1TGCTrigger {
     // write 
     sc = ntupleSvc()->writeRecord("/NTUPLES/FILE1/merge");  
     if (!sc.isSuccess()) { 
-      msg(MSG::ERROR) << "Cannot fill ntuple" << endmsg;
+      msg(MSG::ERROR) << "Cannot fill ntuple" << endreq;
       return StatusCode::FAILURE;
     }
     
@@ -213,7 +213,7 @@ namespace LVL1TGCTrigger {
   
   
   StatusCode MakeCoincidenceOut::bookHistos() {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bookHistos is Called" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bookHistos is Called" << endreq;
 
     StatusCode sc;
     
@@ -255,12 +255,12 @@ namespace LVL1TGCTrigger {
 	  if (sc.isSuccess()) sc = nt->addItem ("phiMC", m_nmuMC,m_phiMC);
 	}
       } else {
-        msg(MSG::ERROR) << "Cannot book this histo" << endmsg;
+        msg(MSG::ERROR) << "Cannot book this histo" << endreq;
 	return StatusCode::FAILURE;
       }
       
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Error happens during add an item..." << endmsg;
+        msg(MSG::ERROR) << "Error happens during add an item..." << endreq;
 	return sc;
       }
     }

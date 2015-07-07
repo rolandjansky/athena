@@ -11,21 +11,18 @@
 namespace LVL1TGCTrigger {
 
 enum TGCHighPtBoardType { WHPB=0, SHPB, TotalNumHighPtBoardType};
-enum{ NumberOfHighPtBoardType = 2 };
+enum{ NumberOfHighPtBoardType = 2};
 
-class TGCConnectionHPBToSL : public TGCBoardConnection
-{
- public:
-  TGCConnectionHPBToSL();
-  TGCConnectionHPBToSL(const TGCConnectionHPBToSL& right);
-  virtual ~TGCConnectionHPBToSL();
-
+class TGCConnectionHPBToSL : public TGCBoardConnection {
+public:
   int getSLPortToHPB(int type, int index) const;
   void setSLPortToHPB(int type, int index, int port);
 
+  TGCConnectionHPBToSL();
+  virtual ~TGCConnectionHPBToSL();
+  TGCConnectionHPBToSL(const TGCConnectionHPBToSL& right);
   TGCConnectionHPBToSL& operator=(const TGCConnectionHPBToSL& right);
-
- private:
+private:
   int* SLPortToHPB[NumberOfHighPtBoardType];
 };
 

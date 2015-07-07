@@ -7,8 +7,9 @@
 
 namespace LVL1TGCTrigger {
 
+  
 TGCBoardConnection::TGCBoardConnection()
- : nType(0), numberOfBoard(0), id(0)
+  :nType(0), numberOfBoard(0),id(0)
 {}
 
 
@@ -63,20 +64,24 @@ void TGCBoardConnection::setId(int type, int board, int idIn)
 
 
 TGCBoardConnection::TGCBoardConnection(const TGCBoardConnection& right)
- : nType(0), numberOfBoard(0), id(0)
+  :nType(0), numberOfBoard(0),id(0)
 {
   nType = right.nType;
   if(nType!=0){
     if(numberOfBoard!=0) delete [] numberOfBoard; 
     numberOfBoard = new int [nType];
-    for(int i=0; i<nType; i+=1) numberOfBoard[i] = right.numberOfBoard[i];
+    int i;
+    for( i=0; i<nType; i+=1)
+      numberOfBoard[i] = right.numberOfBoard[i];
 
-    if(id!=0) delete [] id;
+    if(id!=0) delete [] id;;
     id = new int* [nType];
-    for(int i=0; i<nType; i+=1){
+    for( i=0; i<nType; i+=1){
       if(numberOfBoard[i]!=0){
 	id[i] = new int [numberOfBoard[i]];
-	for(int j=0; j<numberOfBoard[i]; j+=1) id[i][j]=right.id[i][j];
+	int j;
+	for( j=0; j<numberOfBoard[i]; j+=1)
+	  id[i][j]=right.id[i][j];
       }
     }
   }

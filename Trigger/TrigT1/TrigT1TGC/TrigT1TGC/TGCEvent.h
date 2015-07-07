@@ -12,12 +12,10 @@
 #define TGC_EVENT_H
 
 #include <vector>
-#include "TrigT1TGC/TGCReadoutIndex.h"
+#include "TrigT1TGC/TGCASDOut.h"
 
 namespace LVL1TGCTrigger {
-
-class TGCASDOut;
-
+ 
 // ====================================================================
 //
 // class definition

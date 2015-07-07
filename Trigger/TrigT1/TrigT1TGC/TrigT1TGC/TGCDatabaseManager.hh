@@ -12,7 +12,6 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCConnectionPPToSB.hh"
-#include "GaudiKernel/MsgStream.h"
 
 namespace LVL1TGCTrigger {
 
@@ -48,8 +47,6 @@ public:
 
   static const std::string& getFilename(int type); 
   static const std::vector<std::string > splitCW(const std::string& input, char delimiter); 
-
-  StatusCode updateMap();
 
 private:
   TGCRPhiCoincidenceMap* mapRphi[NumberOfSide][NumberOfOctant];
