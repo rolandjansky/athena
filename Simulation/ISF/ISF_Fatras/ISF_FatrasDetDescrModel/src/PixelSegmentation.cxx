@@ -21,8 +21,7 @@ namespace iFatras {
     m_pitchX(0),
     m_pitchY(0),
     m_NcellX(0),
-    m_NcellY(0),
-    m_isIdValid(false)  {}
+    m_NcellY(0) {}
 
   //Constructor with parameters:
   PixelSegmentation::PixelSegmentation(double lengthX, double lengthY, double pitchX, double pitchY) {
@@ -48,26 +47,62 @@ namespace iFatras {
   /// Destructor:
   PixelSegmentation::~PixelSegmentation() {}
 
-  std::pair< int,  int> PixelSegmentation::cellsOfPosition(const Amg::Vector2D &localPos) const {
+  bool PixelSegmentation::cellOfPosition(const Amg::Vector2D& localPos, std::pair<int, int>& entryXY) const{
 
+    // for debugging
+    // std::cout << "-------------------------------------------" << std::endl;
+    // std::cout << "PixelSegmentation::cellOfPosition starting!" << std::endl;
+    
     using Trk::locX;
     using Trk::locY;
-
+    
     double halfLengthX = (m_pitchX*m_NcellX)/2.; 
     double halfLengthY = (m_pitchY*m_NcellY)/2.;
     
     // Check that we are in the bounds 
     if ( (abs(localPos[Trk::locX]) > halfLengthX) || 
 	 (abs(localPos[Trk::locY]) > halfLengthY) ) {
-      m_isIdValid = false;
-      return std::pair< int,  int> (0, 0);
+      entryXY = std::pair< int,  int> (0, 0);
+      return false;
     }
 
     // position relative to bottom left corner.
     Amg::Vector2D relativePos = localPos + Amg::Vector2D(halfLengthX, halfLengthY);
-    m_isIdValid = true;
-    return std::pair< int,  int> ( (int)floor(relativePos[Trk::locX]/m_pitchX), (int)floor(relativePos[Trk::locY]/m_pitchY));
-  
+    entryXY = std::pair< int,  int> ((int)floor(relativePos[Trk::locX]/m_pitchX), (int)floor(relativePos[Trk::locY]/m_pitchY));
+
+    // for debugging
+    // std::cout << "checking local position = " << localPos << std::endl;
+    // std::cout << "relative position = " << relativePos << std::endl;
+    // std::cout << "returning XY = (" << entryXY.first << " ," << entryXY.second << ")" << std::endl;
+
+    // std::cout << "PixelSegmentation::cellOfPosition ending!" << std::endl;
+    // std::cout << "-----------------------------------------" << std::endl;
+
+    return true;
+  }
+
+  Amg::Vector2D PixelSegmentation::localPositionOfCell(const InDetDD::SiCellId &cellId) const {
+    
+    // for debugging
+    // std::cout << "------------------------------------------------" << std::endl;
+    // std::cout << "PixelSegmentation::localPositionOfCell starting!" << std::endl;
+    // std::cout << "checking SiCellId = " << cellId << std::endl;
+
+    double halfLengthX = (m_pitchX*m_NcellX)/2.; 
+    double halfLengthY = (m_pitchY*m_NcellY)/2.;
+    
+    // position relative to bottom left corner.
+    Amg::Vector2D relativePos = Amg::Vector2D( (cellId.phiIndex()+0.5)*m_pitchX , (cellId.etaIndex()+0.5)*m_pitchY );
+
+    // for debugging
+    // std::cout << "relative position = " << relativePos << std::endl;
+    // std::cout << "returning local position = " << relativePos - Amg::Vector2D(halfLengthX, halfLengthY) << std::endl;
+    
+    // std::cout << "PixelSegmentation::localPositionOfCell ending!" << std::endl;
+    // std::cout << "----------------------------------------------" << std::endl;
+
+    // position relative to the center
+    return relativePos - Amg::Vector2D(halfLengthX, halfLengthY);
   }
 
 }
