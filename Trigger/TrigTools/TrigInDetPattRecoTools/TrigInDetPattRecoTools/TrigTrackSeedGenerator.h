@@ -25,13 +25,13 @@ public:
   };
 
   struct greaterThanZ {
-    bool operator()(const float& z, const TrigSiSpacePointBase* const& p) const {
+    bool operator()(float z, const TrigSiSpacePointBase* const& p) const {
       return z < p->z();
     }
   };
 
   struct smallerThanZ {
-    bool operator()(const TrigSiSpacePointBase* const& p, const float& z) const {
+    bool operator()(const TrigSiSpacePointBase* const& p, float z) const {
       return p->z() < z;
     }
   };
@@ -178,7 +178,7 @@ private:
 
   INTERNAL_SOA m_SoA;
 
-  double m_CovMS, m_ptCoeff, m_minPt2;
+  double m_CovMS, m_minR_squ;
 
   INTERNAL_TRIPLET_BUFFER m_triplets;
 
