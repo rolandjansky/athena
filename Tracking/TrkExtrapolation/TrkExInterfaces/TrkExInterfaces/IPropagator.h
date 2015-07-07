@@ -18,7 +18,6 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "ITimedExtrapolator.h"
-#include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 
 // STL
@@ -208,16 +207,6 @@ namespace Trk {
                                                       ParticleHypothesis particle=pion,
 						      const TrackingVolume* tVol=0) const = 0;
                                                       
-      /** Intersection and Intersector interface: 
-        */
-
-       virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                     const TrackSurfaceIntersection*    trackIntersection,
-                                                     const double               qOverP,
-                                                     const MagneticFieldProperties& mft,
-                                                     ParticleHypothesis       particle) const = 0;                        
-
-
       /** GlobalPositions list interface:
          This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
          by the sign of the stepSize.
