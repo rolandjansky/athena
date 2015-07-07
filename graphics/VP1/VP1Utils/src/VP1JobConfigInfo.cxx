@@ -207,6 +207,12 @@ bool VP1JobConfigInfo::Imp::actualInit( StoreGateSvc* detStore )
     av.next(); // increment volume cursor.
   }
 
+  if ((detStore->contains<iFatras::IdHashDetElementCollection>("Pixel_IdHashDetElementMap")) || (detStore->contains<iFatras::IdHashDetElementCollection>("SCT_IdHashDetElementMap"))) {
+    hasPixelGeometry = true;
+    hasSCTGeometry = true;
+    hasTRTGeometry = true;
+  }
+  
   Imp::geoModelWorld = worldPhysVol;
 
   return true;
@@ -218,3 +224,7 @@ const GeoPVConstLink * VP1JobConfigInfo::geoModelWorld()
   Imp::ensureInit();
   return Imp::geoModelWorld == GeoPVConstLink() ? 0 : &Imp::geoModelWorld;
 }
+
+
+
+

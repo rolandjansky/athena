@@ -18,6 +18,8 @@
 #ifndef VP1JOBCONFIGINFO_H
 #define VP1JOBCONFIGINFO_H
 
+#include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
+
 class IVP1System;
 class StoreGateSvc;
 class GeoPhysVol;
