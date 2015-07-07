@@ -35,11 +35,11 @@ void SectorLogicRXReadOut::deleteSLBody() {
     p=p->next;
     delete q;
   }//end-of-while
-  p='\0';
-  q='\0';
-  m_BodyFirst           = '\0';
-  m_BodyLast       = '\0';
-  m_BodyCurr       = '\0';
+  p= 0 ;
+  q= 0 ;
+  m_BodyFirst      = 0;
+  m_BodyLast       = 0;
+  m_BodyCurr       = 0;
   m_numberOfInputWords = 0;
 }//end-of-deleteSLBody
 
@@ -54,13 +54,13 @@ void SectorLogicRXReadOut::initialize() {
   //
   // initialize pointers
   //
-  m_BodyFirst         ='\0';
-  m_BodyLast     ='\0';
-  m_BodyCurr     ='\0';
+  m_BodyFirst         = 0;
+  m_BodyLast     = 0;
+  m_BodyCurr     = 0;
   //
   // initialize check flags
   //
-  m_numberOfWordsInFrag      =0;
+  m_numberOfWordsInFrag     =0;
   m_numberOfInputWords      =0;
   }//end-of-initialize
 //----------------------------------------------------------------------------//
@@ -94,7 +94,7 @@ void SectorLogicRXReadOut::makeNewHit(ubit16 newHit) {
   SLRXROData *p;
   p = new SLRXROData;
   p->hit=newHit;
-  p->next='\0';
+  p->next= 0 ;
   if(!m_BodyFirst) {
     m_BodyFirst = p;
   } else {

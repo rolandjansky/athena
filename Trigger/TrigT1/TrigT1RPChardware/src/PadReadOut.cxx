@@ -42,7 +42,7 @@ PadReadOut::~PadReadOut() {
 void PadReadOut::reset() {
 m_Header=0x0000;
 m_Footer=0x0000;
-for(ubit16 i=0; i<8; i++) { m_CMAFragment[i]='\0';}
+for(ubit16 i=0; i<8; i++) { m_CMAFragment[i]=0;}
 numberOfCMFragments=0;
 numberOfWordsInFragment=0;
 //
@@ -56,7 +56,7 @@ newCMRO            =1;
 numberOfWordsInCMRO=0;
 numberOfWordsRead  =0;
 endOfCMFragments   =0;
-currentCMRO        ='\0';
+currentCMRO        =0;
 }//end-of-PadReadOut::topPADBody
 //----------------------------------------------------------------------------//
 void PadReadOut::makeFragment() {
@@ -84,7 +84,7 @@ numberOfWordsInFragment+=1;
 }//end-of-PadReadOut::makeFooter()
 //----------------------------------------------------------------------------//
 void PadReadOut::makeBody() {
-MatrixReadOut *CMAFragment[8]={'\0','\0','\0','\0','\0','\0','\0','\0'};
+MatrixReadOut *CMAFragment[8]={0};
 MatrixReadOutStructure MROS;
 ubit16 numberOfCMBodyWords=0;
 ubit16 i;
