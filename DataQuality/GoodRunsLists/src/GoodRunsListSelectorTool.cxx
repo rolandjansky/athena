@@ -22,8 +22,6 @@
 
 #include <sys/stat.h>
 
-using namespace std;
-
 GoodRunsListSelectorTool::GoodRunsListSelectorTool( const std::string& type, const std::string& name, const IInterface* parent ) 
  : AthAlgTool( type, name, parent )
  , m_reader(0)
@@ -209,15 +207,15 @@ GoodRunsListSelectorTool::passEvent(const EventInfo* pEvent)
 {
   ATH_MSG_DEBUG ("passEvent() ");
 
-  int eventNumber = pEvent->event_ID()->event_number();
-  int runNumber   = pEvent->event_ID()->run_number();
-  int lumiBlockNr = pEvent->event_ID()->lumi_block();
-  int timeStamp   = pEvent->event_ID()->time_stamp();
+  int m_eventNumber = pEvent->event_ID()->event_number();
+  int m_runNumber   = pEvent->event_ID()->run_number();
+  int m_lumiBlockNr = pEvent->event_ID()->lumi_block();
+  int m_timeStamp   = pEvent->event_ID()->time_stamp();
 
-  ATH_MSG_DEBUG ("passEvent() :: run number = " << runNumber <<
-                 " ; event number = " << eventNumber <<
-                 " ; lumiblock number = " << lumiBlockNr <<
-                 " ; timestamp = " << timeStamp
+  ATH_MSG_DEBUG ("passEvent() :: run number = " << m_runNumber <<
+                 " ; event number = " << m_eventNumber <<
+                 " ; lumiblock number = " << m_lumiBlockNr <<
+                 " ; timestamp = " << m_timeStamp
                 );
 
   /// now make query decision ...
@@ -228,14 +226,14 @@ GoodRunsListSelectorTool::passEvent(const EventInfo* pEvent)
   }
   /// decide from XML files
   else if (!m_usecool) {
-    pass = this->passRunLB(runNumber,lumiBlockNr);
+    pass = this->passRunLB(m_runNumber,m_lumiBlockNr);
   }
   /// Cool based decision
   else {
     /// check if run is in runrange, only done for Cool decision
     if (m_inrunrange.getNPars()==1) {
       double dummy(0);
-      double drunNr = static_cast<double>(runNumber);
+      double drunNr = static_cast<double>(m_runNumber);
       pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
       if (!pass) {
         ATH_MSG_DEBUG ("passEvent() :: Event rejected based on provided run range.");
@@ -289,15 +287,15 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
     return false;
   }
 
-  int eventNumber = pEvent->event_ID()->event_number();
-  int runNumber   = pEvent->event_ID()->run_number();
-  int lumiBlockNr = pEvent->event_ID()->lumi_block();
-  int timeStamp   = pEvent->event_ID()->time_stamp();
+  int m_eventNumber = pEvent->event_ID()->event_number();
+  int m_runNumber   = pEvent->event_ID()->run_number();
+  int m_lumiBlockNr = pEvent->event_ID()->lumi_block();
+  int m_timeStamp   = pEvent->event_ID()->time_stamp();
 
-  ATH_MSG_DEBUG ("passThisRunLB() :: run number = " << runNumber <<
-                 " ; event number = " << eventNumber <<
-                 " ; lumiblock number = " << lumiBlockNr <<
-                 " ; timestamp = " << timeStamp
+  ATH_MSG_DEBUG ("passThisRunLB() :: run number = " << m_runNumber <<
+                 " ; event number = " << m_eventNumber <<
+                 " ; lumiblock number = " << m_lumiBlockNr <<
+                 " ; timestamp = " << m_timeStamp
                 );
 
   /// now make query decision ...
@@ -308,14 +306,14 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
   } 
   /// decide from XML files
   else if (!m_usecool) {
-    pass = this->passRunLB(runNumber,lumiBlockNr,grlnameVec,brlnameVec);
+    pass = this->passRunLB(m_runNumber,m_lumiBlockNr,grlnameVec,brlnameVec);
   }
   /// Cool based decision
   else {
     /// check if run is in runrange, only done for Cool decision
     if (m_inrunrange.getNPars()==1) {
       double dummy(0);
-      double drunNr = static_cast<double>(runNumber);
+      double drunNr = static_cast<double>(m_runNumber);
       pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
       if (!pass) {
         ATH_MSG_DEBUG ("passThisRunLB() :: Event rejected based on provided run range.");
@@ -377,11 +375,11 @@ GoodRunsListSelectorTool::passRunLB( int runNumber, int lumiBlockNr,
   /// decision based on specific blackrunlists
   } else if (!brlnameVec.empty()) {
     bool reject(false);
-    std::vector<Root::TGoodRunsList>::const_iterator brlitr;
+    std::vector<Root::TGoodRunsList>::const_iterator m_brlitr;
     for (unsigned int i=0; i<brlnameVec.size() && !reject; ++i) {
-      brlitr = m_brlcollection->find(brlnameVec[i]);
-      if (brlitr!=m_brlcollection->end())
-        reject = brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
+      m_brlitr = m_brlcollection->find(brlnameVec[i]);
+      if (m_brlitr!=m_brlcollection->end())
+        reject = m_brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
     }    
     if (reject) {
       ATH_MSG_DEBUG ("passRunLB() :: Event rejected by specific black runs list.");
@@ -392,11 +390,11 @@ GoodRunsListSelectorTool::passRunLB( int runNumber, int lumiBlockNr,
   /// decision based on specific goodrunlists
   if (!grlnameVec.empty()) {
     bool pass(false);
-    std::vector<Root::TGoodRunsList>::const_iterator grlitr;
+    std::vector<Root::TGoodRunsList>::const_iterator m_grlitr;
     for (unsigned int i=0; i<grlnameVec.size() && !pass; ++i) {
-      grlitr = m_grlcollection->find(grlnameVec[i]);
-      if (grlitr!=m_grlcollection->end())
-        pass = grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
+      m_grlitr = m_grlcollection->find(grlnameVec[i]);
+      if (m_grlitr!=m_grlcollection->end())
+        pass = m_grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
     } 
     if (pass) {
       ATH_MSG_DEBUG ("passRunLB() :: Event accepted by specific good runs list.");

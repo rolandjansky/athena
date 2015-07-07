@@ -4,8 +4,6 @@
 
 #include "GoodRunsLists/StrUtil.h"
 
-using namespace std;
-
 namespace GRLStrUtil {
 
   void 
