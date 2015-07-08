@@ -13,48 +13,43 @@
 //
 //************************************************************
 
-#ifndef TileGeoG4SD_H
-#define TileGeoG4SD_H 
+#ifndef TILEGEOG4SD_TILEGEOG4SD_H
+#define TILEGEOG4SD_TILEGEOG4SD_H
 
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
+// Base class header
+#include "G4VSensitiveDetector.hh"
 
-using namespace FADS;
+// Member variables
+#include "TileGeoG4SD/TileSDOptions.h"
+#include "StoreGate/WriteHandle.h"
+#include "TileSimEvent/TileHitVector.h"
 
 class TileGeoG4SDCalc;
 class TileGeoG4LookupBuilder;
 
-class G4Step;
 class G4HCofThisEvent;
+class G4Step;
 class G4String;
 
-class IMessageSvc;
-class MsgStream;
-
-
-
-class TileGeoG4SD : public FadsSensitiveDetector
+class TileGeoG4SD : public G4VSensitiveDetector
 {
 public:
-    TileGeoG4SD (G4String name);
+    TileGeoG4SD (G4String name, const std::string& hitCollectionName, const TileSDOptions opts);
    ~TileGeoG4SD ();
 
-    void   Initialize  (G4HCofThisEvent*);
-    G4bool ProcessHits (G4Step*, G4TouchableHistory*);
-    void   EndOfEvent  (G4HCofThisEvent*);
+    void   Initialize  (G4HCofThisEvent*) override final;
+    G4bool ProcessHits (G4Step*, G4TouchableHistory*) override final;
+    void   EndOfAthenaEvent  ();
+
+    TileGeoG4SDCalc* GetCalculator() { return m_calc; }
 
 private:
-    AthenaHitsCollectionHelper m_hitCollHelp;
 
     TileGeoG4SDCalc*          m_calc;
     TileGeoG4LookupBuilder*   m_lookup;
+    const TileSDOptions       m_options;
 
-    IMessageSvc*  m_msgSvc;
-    MsgStream*    m_log;
-
-    bool m_debug;
-    bool m_verbose;
-
+    SG::WriteHandle<TileHitVector> m_HitColl;
 };
 
 #endif

@@ -10,8 +10,7 @@
 //
 //************************************************************
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "G4ios.hh"
 
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include <fstream>
@@ -55,17 +54,16 @@ TileGeoG4Sample::TileGeoG4Sample() :
 {
 }
 
-TileGeoG4Section::TileGeoG4Section(IMessageSvc* m_msgSvc) :
+TileGeoG4Section::TileGeoG4Section(const int verboseLevel) :
   nrOfModules(0),nrOfPeriods(0),nrOfScintillators(0),
   nrOfPhysicalSections(0),
-  nrOfPhysicalSections_negative(0)
+  nrOfPhysicalSections_negative(0),
+  m_verboseLevel(verboseLevel)
 {
-  m_log = new MsgStream (m_msgSvc, "TileGeoG4Section");
 }
 
 TileGeoG4Section::~TileGeoG4Section()
 {
-  delete m_log;
 }
 
 void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift)
@@ -143,9 +141,7 @@ TileGeoG4Cell* TileGeoG4Section::ScinToCell(int nScin)
 {
   if (nScin<0 || nScin >= static_cast<int>(m_ScinToCell.size()))
   {
-    (*m_log) << MSG::ERROR
-             << "ScinToCell(): Bad index to retrieve pointer to the Cell --> " << nScin
-             << endreq;
+    G4cout << "ERROR: ScinToCell(): Bad index to retrieve pointer to the Cell --> " << nScin << G4endl;
     return 0;
   }
   else
@@ -203,9 +199,7 @@ void TileGeoG4Section::AddModuleToCell(bool negative)
       default:
         {
           // Unknown cell type
-          (*m_log) << MSG::ERROR
-                   << "AddModuleToCell(): Unexpected number of PMTs in cell --> " <<current_cell->nrOfPMT
-                   << endreq;
+          G4cout << "ERROR: AddModuleToCell(): Unexpected number of PMTs in cell --> " <<current_cell->nrOfPMT << G4endl;
           return;
         }
       }
@@ -220,30 +214,29 @@ void TileGeoG4Section::AddModuleToCell(bool negative)
 
 void TileGeoG4Section::PrintScinToCell(std::string section_name)
 {
+  if (m_verboseLevel<=5) return;
   int l_nRow = nrOfScintillators;
   int i = 0;
 
-  (*m_log) << MSG::DEBUG << endreq;
-  (*m_log) << MSG::DEBUG << "***********************************************************" << endreq; 
-  (*m_log) << MSG::DEBUG << "* Printing Scintillator-to-Cell corespondence for section *" << endreq;
-  (*m_log) << MSG::DEBUG << "       " << section_name.c_str() << "           "            << endreq;
-  (*m_log) << MSG::DEBUG << "***********************************************************" << endreq;
+  G4cout << G4cout;
+  G4cout << "***********************************************************" << G4endl; 
+  G4cout << "* Printing Scintillator-to-Cell corespondence for section *" << G4endl;
+  G4cout << "       " << section_name.c_str() << "           "            << G4endl;
+  G4cout << "***********************************************************" << G4endl;
 
-  (*m_log) << MSG::DEBUG;
   for (size_t j=0; j<m_ScinToCell.size(); j++)
   {
     if (m_ScinToCell[j])
-      (*m_log) << m_ScinToCell[j]->tower << "," << m_ScinToCell[j]->sample << " ";
+      G4cout << m_ScinToCell[j]->tower << "," << m_ScinToCell[j]->sample << " ";
     if (++i == l_nRow)
     {
-      // (*m_log) << endreq;
       i=0;
     }
   }
-  (*m_log) << endreq;
+  G4cout << G4endl;
 
-  (*m_log) << MSG::DEBUG << "***********************************************************" << endreq;
-  (*m_log) << MSG::DEBUG << endreq;
+  G4cout << "***********************************************************" << G4endl;
+  G4cout << G4endl;
 
 }
 
