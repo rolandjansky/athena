@@ -20,4 +20,4 @@ def particleid_setupcalos():
 
 from G4AtlasApps.SimFlags import simFlags
 simFlags.InitFunctions.add_function("preInitDetFacility", particleid_setupcalos)
-
+if hasattr(simFlags, "ParticleID"): simFlags.ParticleID=True
