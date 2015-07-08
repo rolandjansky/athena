@@ -20,7 +20,6 @@ varsDistrJpsi = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","
 varsVSmeanZmumu = ["eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"]
 varsVSwidthZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg","etaDiff","phiDiff","crtDiff"]
 varsDistrZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
-
 #include( "TrackIsolationTools/TrackIsolationTool_jobOptions.py" )
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -47,8 +46,8 @@ if doJpsi:
                               varsVSwidth = varsVSwidthJpsi,
                               varsDistr = varsDistrJpsi,
                               doFits = doFits,
-                              doSaveFits = doSaveFits,
-                              OutputLevel = 1)
+                              doSaveFits = doSaveFits)
+#                              OutputLevel = 1)
 
 
     ToolSvc += JpsiMon_NoTrig
@@ -68,8 +67,8 @@ if doZmumu:
                                varsVSwidth = varsVSwidthZmumu,
                                varsDistr = varsDistrZmumu,
                                doFits = doFits,
-                               doSaveFits = doSaveFits,
-                               OutputLevel = 1)
+                               doSaveFits = doSaveFits)
+#                               OutputLevel = 1)
 
     ToolSvc += ZmumuMon_NoTrig
     if (InDetFlags.doPrintConfigurables()):
