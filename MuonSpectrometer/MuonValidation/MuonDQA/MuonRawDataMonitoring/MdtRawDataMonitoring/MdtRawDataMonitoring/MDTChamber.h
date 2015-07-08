@@ -66,7 +66,9 @@ class MDTChamber {
   inline int GetMDTHitsPerML_byLayer_Bin(int multi_layer) { return ( multi_layer == 1 ? m_mdthitsperML_byLayer_bin_m1 : m_mdthitsperML_byLayer_bin_m2); }
   inline int GetMDTHitsPerML_Bin(int multi_layer) { return ( multi_layer == 1 ? m_mdthitspermultilayerLumi_bin_m1 : m_mdthitspermultilayerLumi_bin_m2); }
 
-  
+  inline int GetCrate(){ return m_crate; }
+  inline std::string GetCrate_String(){ return m_crate_str; }
+
   void SetMDTHitsPerChamber_IMO_Bin(TH2F*);
   void SetMDTHitsPerML_byLayer_Bins(TH2F*, TH2F*);
 
@@ -78,6 +80,11 @@ class MDTChamber {
   short int m_layer_region;
   short int m_station_eta;
   short int m_station_phi;
+
+  int m_crate;
+//m_crate returns the number of the crate: 1,2,3,4
+//m_crate_str returns the entire string of the crate, e.g. BA01.
+  std::string m_crate_str;
 
   //global bin vals for the colorful TH2F plots
   short int m_mdthitsperchamber_InnerMiddleOuterLumi_bin;

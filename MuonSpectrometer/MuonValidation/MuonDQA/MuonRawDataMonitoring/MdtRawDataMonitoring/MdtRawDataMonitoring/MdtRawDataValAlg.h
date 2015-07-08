@@ -25,6 +25,10 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
+//standard library includes
+#include <fstream> 
+#include <cstdlib>
+#include <iostream>
 
 class Identifier;
 class IdentifierHash;
@@ -121,6 +125,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   virtual StatusCode  binMdtRegional( TH2* &, std::string &xAxis);
   virtual StatusCode  binMdtGlobal_byLayer( TH2*, TH2*, TH2*);
   virtual StatusCode binMdtOccVsLB(TH2* &h, int region, int layer);
+  virtual StatusCode binMdtOccVsLB_Crate(TH2* &h, int region, int crate);
   void TubeID_to_ID_L_ML(int & tubeID, const std::string & hardware_name, int & tube, int & layer, int & ML, int max);
   void ChamberTubeNumberCorrection(int & tubeNum, const std::string & hardware_name, int tubePos, int numLayers);
   void CorrectTubeMax(const std::string & hardware_name, int & numTubes);
@@ -134,6 +139,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   void putBox(TH2* h, float x1, float y1, float x2, float y2);
   void putLine(TH2* h, float x1, float y1, float x2, float y2, Color_t c=kBlack);
   int get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM);
+  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string chamber);
   // private function to initialize the selection of a certain region
   void mdtchamberId();    
   //private function to find mdt mezz cards
@@ -244,6 +250,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* mdteffperchamber_InnerMiddleOuter[4];
   TH2* mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
   TH2* mdtoccvslb[4][3];
+
+  TH2* mdtoccvslb_by_crate[4][4];
+
   /////End from old BS
 
   ///////////For t0 calculations//////////

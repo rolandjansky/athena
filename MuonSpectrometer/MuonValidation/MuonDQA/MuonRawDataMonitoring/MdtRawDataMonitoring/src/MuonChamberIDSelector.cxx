@@ -17,7 +17,15 @@
 
 // Constructor with parameters:
 MuonChamberIDSelector::MuonChamberIDSelector(const std::string &name, ISvcLocator *pSvcLocator) 
-  : AthAlgorithm(name,pSvcLocator) 
+  : AthAlgorithm(name,pSvcLocator),
+   m_StoreGate(0),
+   m_detMgr(0),
+   m_mdtIdHelper(0),
+   m_cscIdHelper(0),
+   m_rpcIdHelper(0),
+   m_tgcIdHelper(0),
+   m_mdtchambersId(0),
+   m_rpcchambersId(0) 
 {}
 
 MuonChamberIDSelector::~MuonChamberIDSelector()

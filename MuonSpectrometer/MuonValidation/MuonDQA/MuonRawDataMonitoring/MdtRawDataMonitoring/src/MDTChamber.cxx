@@ -11,6 +11,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <iostream>
 
 MDTChamber::MDTChamber(std::string name) :
   mdttdc(0),
@@ -38,13 +39,21 @@ MDTChamber::MDTChamber(std::string name) :
   mdt_DRvsSegD(0),
   mdttubenoise(0),
   mdttdctube(0),
-  m_hardware_name(name)
+  m_hardware_name(name),
+  m_global_bin_(0),
+  m_mdthitsperchamber_InnerMiddleOuterLumi_bin(0),
+  m_mdthitspermultilayerLumi_bin_m1(0),
+  m_mdthitspermultilayerLumi_bin_m2(0),
+  m_mdthitsperML_byLayer_bin_m1(0),
+  m_mdthitsperML_byLayer_bin_m2(0)
 {
 
   m_barrel_region = 0;
   m_layer_region = 0;
   m_station_phi = 0;
   m_station_eta = 0;
+  m_crate = 0;
+  m_crate_str = "XXXX";
   if(name.size() >= 7){
 
     //BOS6A16
@@ -80,6 +89,56 @@ MDTChamber::MDTChamber(std::string name) :
     ss >> m_station_phi;
     m_station_phi--;
     ss.clear();
+    
+    //station_phi is used as an iterator, and is thus 1 less than its value (since it always starts at 01, not 00).
+
+    if((Barrel == 'B' && name.substr(0,3)!="BEE") || (name.substr(0,3) == "BIS" && m_station_eta < 7) ){
+	if(m_station_phi < 4 || name.substr(0,3) == "BME"){
+	    m_crate = 1;
+	    if(Side == 'A') m_crate_str = "BA01";
+	    else if(Side == 'C') m_crate_str = "BC01";
+	}
+	else if(m_station_phi < 8 && m_station_phi > 3){
+    	    m_crate = 2;
+	    if(Side == 'A') m_crate_str = "BA02";
+	    else if(Side == 'C') m_crate_str = "BC02";
+	}
+	else if(m_station_phi < 12 && m_station_phi > 7){
+ 	    m_crate = 3;
+	    if(Side == 'A' || Side == 'B') m_crate_str = "BA03";
+	    else if(Side == 'C') m_crate_str = "BC03";
+	}
+  	else if(m_station_phi > 11){
+	    m_crate = 4;
+	    if(Side == 'A' || Side == 'B') m_crate_str = "BA04";
+	    else if(Side == 'C') m_crate_str = "BC04";
+	}    
+     }
+    else if( (Barrel == 'E') || name.substr(0,3)=="BEE" || (name.substr(0,3)=="BIS" && m_station_eta > 6) ){
+	if(m_station_phi < 4){
+	    m_crate = 1;
+	    if(Side == 'A') m_crate_str = "EA01";
+	    else if(Side == 'C') m_crate_str = "EC01";
+	}
+	else if(m_station_phi < 8 && m_station_phi > 3){
+	    m_crate = 2;
+	    if(Side == 'A') m_crate_str = "EA02";
+	    else if(Side == 'C') m_crate_str = "EC02";
+	}
+	else if(m_station_phi < 12 && m_station_phi > 7){
+	    m_crate = 3;
+	    if(Side == 'A') m_crate_str = "EA03";
+	    else if(Side == 'C') m_crate_str = "EC03";
+	}
+  	else if(m_station_phi > 11){
+	    m_crate = 4;
+	    if(Side == 'A') m_crate_str = "EA04";
+	    else if(Side == 'C') m_crate_str = "EC04";
+         }
+    }
+    else {
+	std::cout << "CHAMBER " << name.c_str() << " didn't make it into a crate!" << std::endl;
+    }
   }
   else {
     //    ATH_MSG_DEBUG("BAD CHAMBER NAME");
