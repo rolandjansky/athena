@@ -22,6 +22,7 @@
 #include <TString.h>
 #include <TRegexp.h>
 
+
 using std::string;
 
 StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
@@ -73,7 +74,6 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
 
   //Place Bounding Lines around bins representing actual detector
   if( ecap=='B' ){
-    //wow what a f#$K pile
     //Left Side
     putBox(h, 0, 0, 6, 16);   putLine(h,6,0,6,16); putLine(h,2,16,6,16);                             
     putBox(h, 0, 16, 2, 18);  putLine(h,2,16,2,18); putLine(h,0,18,2,18);//1
@@ -166,15 +166,8 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     //Bottom: NEW
     putBox(h, 0, 0, 4, 32); putBox(h, 4, 8, 5, 10); 
     putLine(h, 4, 0, 4, 8); putLine(h, 4, 8, 5, 8); putLine(h, 5, 8, 5, 10); putLine(h, 4, 10, 5, 10); putLine(h, 4, 10, 4, 32); //Left side
-    putBox(h, 6, 0, 12, 4); putLine(h, 6, 0, 6, 4); putLine(h, 6, 4, 8, 4);
-    putBox(h, 8, 4, 12, 6); putLine(h, 8, 4, 8, 6); //phi = 3
-    putBox(h, 6, 6, 12, 8); putLine(h, 6, 6, 8, 6); putLine(h, 6, 6, 6, 8); putLine(h, 6, 8, 7, 8);
-    putBox(h, 7, 8, 12, 10); putLine(h, 7, 8, 7, 10); putLine(h, 6, 10, 7, 10); //phi = 5
-    putBox(h, 6, 10, 12, 20); putLine(h, 6, 10, 6, 20); putLine(h, 6, 20, 8, 20);
-    putBox(h, 8, 20, 12, 22); putLine(h, 8, 20, 8, 22); putLine(h, 6, 22, 8, 22); //phi = 11
-    putBox(h, 6, 22, 12, 24); putLine(h, 6, 22, 6, 24); putLine(h, 6, 24, 8, 24);
-    putBox(h, 8, 24, 12, 26); putLine(h, 8, 24, 8, 26); putLine(h, 6, 26, 8, 26); //phi = 13
-    putBox(h, 6, 26, 12, 32); putLine(h, 6, 26, 6, 32);
+    putBox(h, 8, 0, 12, 32);  putBox(h, 7, 8, 8, 10); 
+    putLine (h, 8, 0, 8, 8); putLine(h, 7, 8, 8, 8); putLine(h, 7, 8, 7, 10); putLine(h, 7, 10, 8, 10);  putLine(h, 8, 10, 8, 32);
 
 
     //Left
@@ -198,7 +191,7 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 0, 64, 1, 96); putLine(h, 1, 64, 1, 96); putLine(h, 0, 96, 1, 96);
 
     //Right
-    putBox(h, 11, 32, 12, 34); putLine(h, 6, 32, 11, 32); putLine(h, 11, 32, 11, 34); //phi 1                 
+    putBox(h, 11, 32, 12, 34); putLine(h, 8, 32, 11, 32); putLine(h, 11, 32, 11, 34); //phi 1                 
     putBox(h, 8, 34, 12, 36);  putLine(h, 8, 34, 11, 34); putLine(h, 8, 34, 8, 36); putLine(h, 10, 36, 8, 36); //phi 2
     putBox(h, 10, 36, 12, 38); putLine(h, 10, 36, 10, 38); //phi 3						
     putBox(h, 8, 38, 12, 40);  putLine(h, 10, 38, 8, 38); putLine(h, 8, 38, 8, 40); putLine(h, 10, 40, 8, 40); //phi 4
@@ -417,17 +410,10 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
   }
 
   if(xAxis=="EEA"){
-    putBox(h, 0, 0, 2, 8);
-    putBox(h, 0, 12, 2, 16);
-    putBox(h, 1, 16, 2, 20);
-    putBox(h, 0, 20, 2, 40);
-    putBox(h, 0, 44, 2, 48);
-    putBox(h, 0, 52, 2, 64);
-    putLine(h, 0, 8, 2, 8);
-    putLine(h, 0, 12, 2, 12);
-    putLine(h, 0, 16, 1, 16); putLine(h, 1, 16, 1, 20); putLine(h, 0, 20, 1, 20);
-    putLine(h, 0, 44, 2, 44); putLine(h, 0, 40, 2, 40); putLine(h, 0, 52, 2, 52);
-    putLine(h, 0, 48, 2, 48);
+	putBox(h, 1, 16, 2, 20);
+	putLine(h, 1, 16, 2, 16);
+	putLine(h, 1, 16, 1, 20);
+	putLine(h, 1, 20, 2, 20);
   }
 
   if(xAxis=="EEC"){
@@ -800,97 +786,96 @@ void MdtRawDataValAlg::mdtchamberId()
 // //   ////////////////////////////////////////////////////////////////////////////////////////////////////
 // //   //Begin Tube List Auto Generation
 // //   ////////////////////////////////////////////////////////////////////////////////////////////////////
+ //      std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(Id),m_mdtIdHelper->stationEta(Id),m_mdtIdHelper->stationPhi(Id),"MDT");
+ ////Given an input text file from Post-Processing, create a map of chamber_name, noisytube
+  
+/*   ATH_MSG_ERROR("Reading in tubes.txt");
+   ifstream fin("tubes.txt",ios::in);
+   char line_[1024];
+   std::map<std::string, std::set<int> > myMap;
+   while( fin.getline(line_,1024) ) {
+     TString line = line_;
+     TString chamName = line(0, line.Index(" "));
+     TRegexp chamName_ = chamName;
+     line(chamName_) = "";
+     line.ReplaceAll(" ","");
+     std::set<int> tubes;
+     std::cout << "Reading In Chamber " << chamName << " From tubes.txt" << std::endl;
+     while( line.Contains(",") ){
+       TString tube = line( 0, line.Index(",") );
+       int tube_n = tube.Atoi();
+       tubes.insert(tube_n);
+       tube+=",";
+       TRegexp tube_ = tube;
+       line(tube_) = "";
+     }
+     int tube_n = line.Atoi();
+     tubes.insert(tube_n);
+     myMap.insert( make_pair(chamName.Data(), tubes) );
+   }
+   ATH_MSG_ERROR("Dump PostProcess Map");
+   for(std::map<std::string,std::set<int> >::const_iterator m_itr = myMap.begin(); m_itr != myMap.end(); ++m_itr){
+     std::cout << "Dumping myMap: This Chamber, " << (*m_itr).first << " Contains " << (*m_itr).second.size() << " Noisy Tubes" << std::endl;
+   }
 
-// //      std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(Id),m_mdtIdHelper->stationEta(Id),m_mdtIdHelper->stationPhi(Id),"MDT");
-//       //       ATH_MSG_DEBUG("ORINTEST (init)" << hardware_name << " " << m_mdtIdHelper->tubeLayerMax(Id) << " " << m_mdtIdHelper->numberOfMultilayers(Id) );
+   //  Given a map of noisy tubes from post-processing determine appropriate identifiers
+   fstream fout("out.cxx",ios::out);
+   ATH_MSG_ERROR("Maps : " << myMap.size() << " Chambers w/ noisy Tubes");
+   fout << "MDTNoisyTubes::MDTNoisyTubes(bool doMask){" << std::endl;
+   fout << "  //This Initializer Automatically Generated w/\n";
+   fout << "  //MdtRawDataValAlg::mdtchamberId() \n" ;
+   fout << "  //To Regenerate w/ new list simply uncomment the relevant portion of the code\n";
+   fout << "  //In the above function and place in your run directory a file named \"tubes.txt\"\n";
+   fout << "  //Which should be of the form:\n";
+   fout << "  //[chambername] [int],[int],[int]\n";
+   fout << "  //Where the ints are tube numbers as generated w/:\n";
+   fout << "  //int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);\n";
+   fout << "  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1)\n";
+   fout << "  //Output will be in your run directory called out.cxx\n\n";
+   fout << "  if(!doMask) return;//Option to turn off tube masking\n" << std::endl;
 
-//   ////Given an input text file from Post-Processing, create a map of chamber_name, noisytube
-//   ATH_MSG_ERROR("Reading in tubes.txt");
-//   fstream fin("tubes.txt",ios::in);
-//   char line_[1024];
-//   std::map<std::string, std::set<int> > myMap;
-//   while( fin.getline(line_,1024) ) {
-//     TString line = line_;
-//     TString chamName = line(0, line.Index(" "));
-//     TRegexp chamName_ = chamName;
-//     line(chamName_) = "";
-//     line.ReplaceAll(" ","");
-//     std::set<int> tubes;
-//     std::cout << "Reading In Chamber " << chamName << " From tubes.txt" << std::endl;
-//     while( line.Contains(",") ){
-//       TString tube = line( 0, line.Index(",") );
-//       int tube_n = tube.Atoi();
-//       tubes.insert(tube_n);
-//       tube+=",";
-//       TRegexp tube_ = tube;
-//       line(tube_) = "";
-//     }
-//     int tube_n = line.Atoi();
-//     tubes.insert(tube_n);
-//     myMap.insert( make_pair(chamName, tubes) );
-//   }
+   //  fout << "  std::string chName;" << std::endl;
+   fout << "  IdentifierHash idHash;" << std::endl;
+   fout << "  std::set<Identifier> tubes;\n" << std::endl;
+   fout << "unsigned long long id = 0;" << std::endl;
 
-//   ATH_MSG_ERROR("Dump PostProcess Map");
-//   for(std::map<std::string,std::set<int> >::const_iterator m_itr = myMap.begin(); m_itr != myMap.end(); ++m_itr){
-//     std::cout << "Dumping myMap: This Chamber, " << (*m_itr).first << " Contains " << (*m_itr).second.size() << " Noisy Tubes" << std::endl;
-//   }
+   for (std::vector<Identifier>::const_iterator j = m_mdtIdHelper->module_begin(); j != m_mdtIdHelper->module_end(); ++j){
+     std::vector<Identifier> chIds;
+     m_mdtIdHelper->idChannels(*j,chIds);
+     std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(*j),m_mdtIdHelper->stationEta(*j),m_mdtIdHelper->stationPhi(*j),"MDT");
+     IdentifierHash idHash; 
+     m_mdtIdHelper->get_module_hash( *j, idHash);
+     std::map<std::string, std::set<int> >::const_iterator m_itr = myMap.find(hardware_name);
+     std::set<int> noisyTubes;
+     if(m_itr==myMap.end()) continue;
+     else noisyTubes = (*m_itr).second;
+     std::cout << "Writing to out.cxx Found Chamber: " << hardware_name << " Hash Id " << idHash << " With " << noisyTubes.size() << " Noisy Tubes" << std::endl;
+     fout << "  //  " << hardware_name << " 	 //" << std::endl;
+     fout << "  idHash = " << idHash << "; " << std::endl;
+     for (std::vector<Identifier>::const_iterator i = chIds.begin(); i != chIds.end(); ++i){
+       int mdtlayer = m_mdtIdHelper->tubeLayer(*i);
+       if (m_mdtIdHelper->multilayer(*i)==2) {
+   	if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
+   	  mdtlayer += 4;
+   	else 
+   	  mdtlayer += 3;
+       }	  
+       int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);
+       ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1);
+       if(noisyTubes.find(mdttube)!= noisyTubes.end()){
+    	   fout << " id = " << *i << ";" << endl;
+   	       fout << "  tubes.insert(static_cast<Identifier>(id)); // hist bin #" << mdttube << endl;
+       }
+     }
+     
+     fout << "  m_noise_map.insert( make_pair(idHash, tubes) );" << std::endl;
+     fout << "  tubes.clear();\n" << std::endl;
+   }
 
-//   //  Given a map of noisy tubes from post-processing determine appropriate identifiers
-//   fstream fout("out.cxx",ios::out);
-//   ATH_MSG_ERROR("Maps : " << myMap.size() << " Chambers w/ noisy Tubes");
-//   fout << "MDTNoisyTubes::MDTNoisyTubes(bool doMask){" << std::endl;
-//   fout << "  //This Initializer Automatically Generated w/\n";
-//   fout << "  //MdtRawDataValAlg::mdtchamberId() \n" ;
-//   fout << "  //To Regenerate w/ new list simply uncomment the relevant portion of the code\n";
-//   fout << "  //In the above function and place in your run directory a file named \"tubes.txt\"\n";
-//   fout << "  //Which should be of the form:\n";
-//   fout << "  //[chambername] [int],[int],[int]\n";
-//   fout << "  //Where the ints are tube numbers as generated w/:\n";
-//   fout << "  //int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);\n";
-//   fout << "  //ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1)\n";
-//   fout << "  //Output will be in your run directory called out.cxx\n\n";
-//   fout << "  if(!doMask) return;//Option to turn off tube masking\n" << std::endl;
-
-//   //  fout << "  std::string chName;" << std::endl;
-//   fout << "  IdentifierHash idHash;" << std::endl;
-//   fout << "  std::set<Identifier> tubes;\n" << std::endl;
-
-//   for (std::vector<Identifier>::const_iterator j = m_mdtIdHelper->module_begin(); j != m_mdtIdHelper->module_end(); ++j){
-//     std::vector<Identifier> chIds;
-//     m_mdtIdHelper->idChannels(*j,chIds);
-//     std::string hardware_name = convertChamberName(m_mdtIdHelper->stationName(*j),m_mdtIdHelper->stationEta(*j),m_mdtIdHelper->stationPhi(*j),"MDT");
-//     IdentifierHash idHash; 
-//     m_mdtIdHelper->get_module_hash( *j, idHash);
-//     std::map<std::string, std::set<int> >::const_iterator m_itr = myMap.find(hardware_name);
-//     std::set<int> noisyTubes;
-//     if(m_itr==myMap.end()) continue;
-//     else noisyTubes = (*m_itr).second;
-//     std::cout << "Writing to out.cxx Found Chamber: " << hardware_name << " Hash Id " << idHash << " With " << noisyTubes.size() << " Noisy Tubes" << std::endl;
-//     fout << "  /**********" << hardware_name << "**********/" << std::endl;
-//     //    fout << "  chName = \"" << hardware_name << "\";" << std::endl;
-//     fout << "  idHash = " << idHash << "; " << std::endl;
-//     for (std::vector<Identifier>::const_iterator i = chIds.begin(); i != chIds.end(); ++i){
-//       int mdtlayer = m_mdtIdHelper->tubeLayer(*i);
-//       if (m_mdtIdHelper->multilayer(*i)==2) {
-//   	if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
-//   	  mdtlayer += 4;
-//   	else 
-//   	  mdtlayer += 3;
-//       }	  
-//       int mdttube= m_mdtIdHelper->tube(*i) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(*i);
-//       ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(*i), mdtlayer-1);
-//       if(noisyTubes.find(mdttube)!= noisyTubes.end()){
-//   	fout << "  tubes.insert( (Identifier) " << *i << "); // hist bin #" << mdttube << endl;
-//       }
-//     }
-//     fout << "  m_noise_map.insert( make_pair(idHash, tubes) );" << std::endl;
-//     fout << "  tubes.clear();\n" << std::endl;
-//   }
-
-//   ATH_MSG_ERROR("Complete Tube Dump");
-//   fout << "}" << std::endl;  
-//   fout.close();
-
+   ATH_MSG_ERROR("Complete Tube Dump");
+   fout << "}" << std::endl;  
+   fout.close();
+*/
 //   ////////////////////////////////////////////////////////////////////////////////////////////////////
 //   //End Tube List Auto Generation
 //   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -936,7 +921,8 @@ int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::stri
     tubeMax = 48*3 + 48*3;
   if( hardware_name == "EEL1A05" || hardware_name == "EEL1C05" )
     tubeMax = 48*3 + 48*3;
-
+  if( hardware_name.substr(0,3) == "BME")
+	  tubeMax = 546;
   return tubeMax;
 } 
 
@@ -1382,3 +1368,341 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
 
 }
 
+StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate){
+  if(region == 0 || region == 1){//Barrel
+    if(crate == 0){ //Crate BA01 or BC01
+      //Add Labels
+      h->SetBins(500,1,1501,76,0,76);
+      h->GetYaxis()->SetBinLabel(1,"BIL");
+      h->GetYaxis()->SetBinLabel(13,"BIS");
+      h->GetYaxis()->SetBinLabel(25,"BME");
+      h->GetYaxis()->SetBinLabel(27,"BML");
+      h->GetYaxis()->SetBinLabel(39,"BMR    ");
+      h->GetYaxis()->SetBinLabel(40,"BMS");
+      h->GetYaxis()->SetBinLabel(52,"BOL");
+      h->GetYaxis()->SetBinLabel(64,"BOR    ");
+      h->GetYaxis()->SetBinLabel(65,"BOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 0; i < 76; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,0,50,0); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,12,50,12);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,24,50,24);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,38,50,38);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,39,50,39);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,51,50,51);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,63,50,63);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,64,50,64);  h->GetListOfFunctions()->Add(l10);
+    }
+
+    else if(crate == 1){ //BA02, BC02
+      h->SetBins(500,1,1501,73,0,73);
+      //Add Labels
+      h->GetYaxis()->SetBinLabel(1,"BIL");
+      h->GetYaxis()->SetBinLabel(13,"BIS");
+      h->GetYaxis()->SetBinLabel(25,"BME");
+      h->GetYaxis()->SetBinLabel(37,"BMS");
+      h->GetYaxis()->SetBinLabel(49,"BOE    ");
+      h->GetYaxis()->SetBinLabel(50,"BOL");
+      h->GetYaxis()->SetBinLabel(62,"BOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 1; i < 73; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l1 = new TLine(1,12,50,12); h->GetListOfFunctions()->Add(l1);
+      TLine* l2 = new TLine(1,24,50,24); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,36,50,36); h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,48,50,48); h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,49,50,49); h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,61,50,61); h->GetListOfFunctions()->Add(l6);
+
+    }
+    else if(crate == 2){ //BA03, BC03
+     //Add Labels
+      h->SetBins(500,1,1501,77,0,77);
+      h->GetYaxis()->SetBinLabel(1,"BIL");
+      h->GetYaxis()->SetBinLabel(7,"BIM");
+      h->GetYaxis()->SetBinLabel(12,"BIR");
+      h->GetYaxis()->SetBinLabel(27,"BIS");
+      h->GetYaxis()->SetBinLabel(30,"BMF");
+      h->GetYaxis()->SetBinLabel(33,"BML");
+      h->GetYaxis()->SetBinLabel(45,"BMS");
+      h->GetYaxis()->SetBinLabel(51,"BOF");
+      h->GetYaxis()->SetBinLabel(55,"BOG");
+      h->GetYaxis()->SetBinLabel(60,"BOL");
+      h->GetYaxis()->SetBinLabel(72,"BOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 0; i < 77; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,44,50,44);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,50,50,50);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,54,50,54);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
+      TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+    }
+
+    else if(crate ==3){ //BA04, BC04
+     //Add Labels
+      h->SetBins(500,1,1501,76,0,76);
+      h->GetYaxis()->SetBinLabel(1,"BIL");
+      h->GetYaxis()->SetBinLabel(7,"BIM");
+      h->GetYaxis()->SetBinLabel(12,"BIR");
+      h->GetYaxis()->SetBinLabel(27,"BIS");
+      h->GetYaxis()->SetBinLabel(30,"BMF");
+      h->GetYaxis()->SetBinLabel(33,"BML");
+      h->GetYaxis()->SetBinLabel(44,"BMS");
+      h->GetYaxis()->SetBinLabel(50,"BOF");
+      h->GetYaxis()->SetBinLabel(54,"BOG");
+      h->GetYaxis()->SetBinLabel(59,"BOL");
+      h->GetYaxis()->SetBinLabel(71,"BOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 0; i < 76; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,43,50,43);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,53,50,53);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
+      TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+    }
+  }
+
+  else{ //Endcap
+    if(crate == 0 || crate == 2){ //EA01, EC01 and EA03, EC03 are the same
+      h->SetBins(500,1,1501,73,0,73);
+      //Add labels
+      h->GetYaxis()->SetBinLabel(1,"BEE");
+      h->GetYaxis()->SetBinLabel(5,"BIS");
+      h->GetYaxis()->SetBinLabel(9,"EEL");
+      h->GetYaxis()->SetBinLabel(13,"EES");
+      h->GetYaxis()->SetBinLabel(17,"EIL");
+      h->GetYaxis()->SetBinLabel(26,"EIS");
+      h->GetYaxis()->SetBinLabel(30,"EML");
+      h->GetYaxis()->SetBinLabel(40,"EMS");
+      h->GetYaxis()->SetBinLabel(50,"EOL");
+      h->GetYaxis()->SetBinLabel(62,"EOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 1; i < 73; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,4,50,4); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,8,50,8);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,12,50,12);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,16,50,16);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,25,50,25);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,39,50,39);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,60,50,60);  h->GetListOfFunctions()->Add(l10);
+    }
+    else if(crate == 1){ //EA02, EC02
+      h->SetBins(500,1,1501,71,0,71);
+      //Add labels
+      h->GetYaxis()->SetBinLabel(1,"BEE");
+      h->GetYaxis()->SetBinLabel(5,"BIS");
+      h->GetYaxis()->SetBinLabel(9,"EEL");
+      h->GetYaxis()->SetBinLabel(12,"EES");
+      h->GetYaxis()->SetBinLabel(16,"EIL");
+      h->GetYaxis()->SetBinLabel(24,"EIS");
+      h->GetYaxis()->SetBinLabel(28,"EML");
+      h->GetYaxis()->SetBinLabel(38,"EMS");
+      h->GetYaxis()->SetBinLabel(48,"EOL");
+      h->GetYaxis()->SetBinLabel(60,"EOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 1; i < 71; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,4,50,4); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,8,50,8);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,15,50,15);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,23,50,23);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,27,50,27);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,37,50,37);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,47,50,47);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
+    }
+    else if(crate == 3){ //EA04, EC04
+      h->SetBins(500,1,1501,72,0,72);
+      //Add labels
+      h->GetYaxis()->SetBinLabel(1,"BEE");
+      h->GetYaxis()->SetBinLabel(5,"BIS");
+      h->GetYaxis()->SetBinLabel(9,"EEL");
+      h->GetYaxis()->SetBinLabel(13,"EES");
+      h->GetYaxis()->SetBinLabel(17,"EIL");
+      h->GetYaxis()->SetBinLabel(25,"EIS");
+      h->GetYaxis()->SetBinLabel(29,"EML");
+      h->GetYaxis()->SetBinLabel(39,"EMS");
+      h->GetYaxis()->SetBinLabel(49,"EOL");
+      h->GetYaxis()->SetBinLabel(61,"EOS");
+      //Add lines
+      h->GetYaxis()->SetTickLength(0);
+      for(int i = 1; i < 72; i++){
+	TLine* l = new TLine(1,i,20,i);
+	h->GetListOfFunctions()->Add(l);
+      }
+      TLine* l2 = new TLine(1,4,50,4); h->GetListOfFunctions()->Add(l2);
+      TLine* l3 = new TLine(1,8,50,8);  h->GetListOfFunctions()->Add(l3);
+      TLine* l4 = new TLine(1,12,50,12);  h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,16,50,16);  h->GetListOfFunctions()->Add(l5);
+      TLine* l6 = new TLine(1,24,50,24);  h->GetListOfFunctions()->Add(l6);
+      TLine* l7 = new TLine(1,28,50,28);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,38,50,38);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,48,50,48);  h->GetListOfFunctions()->Add(l9);
+      TLine* l10 = new TLine(1,60,50,60);  h->GetListOfFunctions()->Add(l10);
+    }
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+
+int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber){
+  int binNum = 999;
+  bool isBEE = false;
+  if(chamber.substr(0,3)=="BEE") isBEE=true;
+  
+  if((region == 0 || region == 1) && !isBEE){ //Barrel
+    if(crate == 1){ //BA01, BC01
+	if(chamber.substr(0,3)=="BIL") binNum = 2*eta + (phi-1)/2 - 1; 
+	else if(chamber.substr(0,3)=="BIS") binNum = 12 + 2*eta + (phi-2)/2 - 1;
+	else if(chamber.substr(0,3)=="BME") binNum = 24 + (eta-3);	
+	else if(chamber.substr(0,3)=="BML") binNum = 26 + 2*eta + (phi-1)/2 - 1;
+	else if(chamber.substr(0,3)=="BMR") binNum = 39;
+	else if(chamber.substr(0,3)=="BMS") binNum = 39 + 2*eta + (phi-2)/2 - 1;
+	else if(chamber.substr(0,3)=="BOL") binNum = 52 + 2*eta + (phi-1)/2 - 1;
+	else if(chamber.substr(0,3)=="BOR") binNum = 64;
+	else if(chamber.substr(0,3)=="BOS") binNum = 64 + 2*eta + (phi-2)/2 - 1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx01");
+	return binNum;
+    } else if(crate == 2){//BA02, BC02
+
+	if(chamber.substr(0,3)=="BIL") binNum = 2*eta + (phi-5)/2 - 1; 
+	else if(chamber.substr(0,3)=="BIS") binNum = 12 + 2*eta + (phi-6)/2 - 1;
+	else if(chamber.substr(0,3)=="BML") binNum = 24 + 2*eta + (phi-5)/2 - 1;
+	else if(chamber.substr(0,3)=="BMS") binNum = 36 + 2*eta + (phi-6)/2 - 1;
+	else if(chamber.substr(0,3)=="BOE") binNum = 49;
+	else if(chamber.substr(0,3)=="BOL") binNum = 49+ 2*eta + (phi-5)/2 - 1;
+	else if(chamber.substr(0,3)=="BOS") binNum = 61 + 2*eta + (phi-6)/2 - 1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx02");
+	return binNum;
+    } else if(crate == 3){//BA03,BC03
+	if(chamber.substr(0,3)=="BIL") binNum = eta;
+	else if(chamber.substr(0,3)=="BIM") binNum = 6 + eta;
+	else if(chamber.substr(0,3)=="BIR") binNum = 11 + eta;
+	else if(chamber.substr(0,3)=="BIS") binNum = 17 + 2*eta + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="BMF") binNum = 29 + eta;
+	else if(chamber.substr(0,3)=="BML") binNum = 32 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="BMS") binNum = 44 + eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 50 + 	eta;
+	else if(chamber.substr(0,4)=="BOG0") binNum = 55;
+	else if(chamber.substr(0,3)=="BOG") binNum = 56 + eta/2;
+	else if(chamber.substr(0,3)=="BOL") binNum = 59 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx03");
+	return binNum;
+    } else if(crate == 4){//BA04, BC04
+
+	if(chamber.substr(0,3)=="BIL") binNum = eta;
+	else if(chamber.substr(0,3)=="BIM") binNum = 6 + eta;
+	else if(chamber.substr(0,3)=="BIR") binNum = 11 + eta;
+	else if(chamber.substr(0,3)=="BIS") binNum = 17 + 2*eta + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="BMF") binNum = 29 + eta;
+	else if(chamber.substr(0,3)=="BML" && eta < 6) binNum = 32 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,7)=="BML6A15" || chamber.substr(0,7)=="BML6C15" ) binNum = 43;
+	else if(chamber.substr(0,3)=="BMS") binNum = 43 + eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 49 + eta;
+	else if(chamber.substr(0,4)=="BOG0") binNum = 54;
+	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2;
+	else if(chamber.substr(0,3)=="BOL") binNum = 58 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,3)=="BOS") binNum = 70 + eta;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx04");
+	return binNum;
+    }
+  } else if(region == 2 || region == 3 || isBEE){
+      if(crate == 1){ //EA01, EC01
+	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-2)/2-1;
+	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-2)/2-1;
+	else if(chamber.substr(0,3)=="EEL") binNum = 8 + 2*eta + (phi-1)/2-1;	
+	else if(chamber.substr(0,3)=="EES") binNum = 12 + 2*eta + (phi-2)/2-1;
+	else if(chamber.substr(0,3)=="EIL" && eta < 5) binNum = 16 + 2*eta + (phi-1)/2-1;
+	else if(chamber.substr(0,3)=="EIL" && eta == 5) binNum = 25;
+	else if(chamber.substr(0,3)=="EIS") binNum = 25 + 2*eta + (phi-2)/2-1;
+	else if(chamber.substr(0,3)=="EML") binNum = 29 + 2*eta + (phi-1)/2-1;
+	else if(chamber.substr(0,3)=="EMS") binNum = 39 + 2*eta + (phi-2)/2-1;
+	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-1)/2-1;
+	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-2)/2-1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex01");	
+	return binNum;
+    } else if(crate == 2){//EA02, EC02
+	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-6)/2-1;
+	else if(chamber.substr(0,3)=="BIS") binNum = 2*(eta-6) + (phi-6)/2-1;
+	else if(chamber.substr(0,4)=="EEL1") binNum = 9;
+	else if(chamber.substr(0,4)=="EEL2") binNum = 9 + (phi-3)/2;
+	else if(chamber.substr(0,3)=="EES") binNum = 11 + 2*eta + (phi-6)/2-1;
+	else if(chamber.substr(0,3)=="EIL") binNum = 15 + 2*eta + (phi-5)/2-1;
+	else if(chamber.substr(0,3)=="EIS") binNum = 23 + 2*eta + (phi-6)/2-1;
+	else if(chamber.substr(0,3)=="EML") binNum = 27 + 2*eta + (phi-5)/2-1;
+	else if(chamber.substr(0,3)=="EMS") binNum = 37 + 2*eta + (phi-6)/2-1;
+	else if(chamber.substr(0,3)=="EOL") binNum = 47 + 2*eta + (phi-5)/2-1;
+	else if(chamber.substr(0,3)=="EOS") binNum = 59 + 2*eta + (phi-6)/2-1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex02");
+	return binNum;
+    } else if(crate == 3){//EA03, EC03
+
+	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="BIS") binNum = 2*(eta-6) + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="EEL") binNum = 8 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="EES") binNum = 12 + 2*eta + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="EIL" && eta < 5) binNum = 16 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,4)=="EIL5") binNum = 25;
+	else if(chamber.substr(0,3)=="EIS") binNum = 25 + 2*eta + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="EML") binNum = 29 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="EMS") binNum = 39 + 2*eta + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-10)/2-1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex03");	
+	return binNum;
+    } else if(crate == 4){//EA04, EC04
+	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="EEL") binNum = 8 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,3)=="EES") binNum = 12 + 2*eta + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="EIL") binNum = 16 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,3)=="EIS") binNum = 24 + 2*eta + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="EML") binNum = 28 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,3)=="EMS") binNum = 38 + 2*eta + (phi-14)/2-1;
+	else if(chamber.substr(0,3)=="EOL") binNum = 48 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,3)=="EOS") binNum = 60 + 2*eta + (phi-14)/2-1;
+	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex04");	
+	return binNum;
+    }
+  }  return -1;
+  
+}
