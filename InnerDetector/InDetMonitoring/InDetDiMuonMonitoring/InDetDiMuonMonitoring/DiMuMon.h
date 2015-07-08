@@ -44,8 +44,8 @@ class DiMuMon : public ManagedMonitorToolBase
   //  virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
   virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
-  //  virtual StatusCode procHistograms();
+  //  virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
+    virtual StatusCode procHistograms();
 
 
   template <class T> void RegisterHisto(MonGroup& mon, T* histo);

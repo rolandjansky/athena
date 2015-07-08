@@ -1,5 +1,5 @@
 DiMuMonDoROOTFile = False
-doFits = False
+doFits = True
 doSaveFits = False
 doJpsi = True
 doZmumu = True
@@ -20,7 +20,6 @@ varsDistrJpsi = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","
 varsVSmeanZmumu = ["eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"]
 varsVSwidthZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg","etaDiff","phiDiff","crtDiff"]
 varsDistrZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
-
 #include( "TrackIsolationTools/TrackIsolationTool_jobOptions.py" )
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -47,8 +46,8 @@ if doJpsi:
                               varsVSwidth = varsVSwidthJpsi,
                               varsDistr = varsDistrJpsi,
                               doFits = doFits,
-                              doSaveFits = doSaveFits,
-                              OutputLevel = 1)
+                              doSaveFits = doSaveFits)
+#                              OutputLevel = 1)
 
 
     ToolSvc += JpsiMon_NoTrig
@@ -68,8 +67,8 @@ if doZmumu:
                                varsVSwidth = varsVSwidthZmumu,
                                varsDistr = varsDistrZmumu,
                                doFits = doFits,
-                               doSaveFits = doSaveFits,
-                               OutputLevel = 1)
+                               doSaveFits = doSaveFits)
+#                               OutputLevel = 1)
 
     ToolSvc += ZmumuMon_NoTrig
     if (InDetFlags.doPrintConfigurables()):
@@ -94,7 +93,7 @@ else:
                                       varsDistr = varsDistrJpsi,
                                       doFits = doFits,
                                       doSaveFits = doSaveFits)
-        JpsiMon_XpressTrig_idperf.TriggerChain = "Jpsimumu_idperf"
+        JpsiMon_XpressTrig_idperf.TriggerChain = "HLT_Jpsimumu_idperf"
         JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
         ToolSvc += JpsiMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
@@ -113,7 +112,7 @@ else:
                                       varsDistr = varsDistrJpsi,
                                       doFits = doFits,
                                       doSaveFits = doSaveFits)
-        JpsiMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        JpsiMon_XpressTrig_2mu.TriggerChain = "HLT_2mu14"
         JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
         ToolSvc += JpsiMon_XpressTrig_2mu
         if (InDetFlags.doPrintConfigurables()):
@@ -134,7 +133,7 @@ else:
                                        varsDistr = varsDistrZmumu,
                                        doFits = doFits,
                                        doSaveFits = doSaveFits)
-        ZmumuMon_XpressTrig_idperf.TriggerChain = "Zmumu_idperf"
+        ZmumuMon_XpressTrig_idperf.TriggerChain = "HLT_Zmumu_idperf"
         ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
         ToolSvc += ZmumuMon_XpressTrig_idperf
         if (InDetFlags.doPrintConfigurables()):
@@ -154,7 +153,7 @@ else:
                                        varsDistr = varsDistrZmumu,
                                        doFits = doFits,
                                        doSaveFits = doSaveFits)
-        ZmumuMon_XpressTrig_2mu.TriggerChain = "2mu14"
+        ZmumuMon_XpressTrig_2mu.TriggerChain = "HLT_2mu14"
         ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
         ToolSvc += ZmumuMon_XpressTrig_2mu
         if (InDetFlags.doPrintConfigurables()):
