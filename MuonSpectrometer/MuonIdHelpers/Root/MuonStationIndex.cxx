@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.cxx 595195 2014-05-02 10:09:21Z krasznaa $
+// $Id: MuonStationIndex.cxx 681315 2015-07-08 12:01:51Z neldik $
 
 // Local include(s):
 #include "MuonIdHelpers/MuonStationIndex.h"
@@ -166,6 +166,12 @@ namespace Muon {
    m_regionLayerToChamberIndexLarge( REGIONLAYER_TO_CHAMBER_INDEX_L,
                                      REGIONLAYER_TO_CHAMBER_INDEX_L +
                                      N_REGIONLAYER_INDEX );
+
+  MuonStationIndex::ChIndex MuonStationIndex::toChamberIndex( StIndex stIndex, bool isSmall ) {
+    if( stIndex == BE && isSmall ) return ChUnknown;
+    return static_cast<ChIndex>( 2*stIndex + !isSmall );
+  }
+
 
    MuonStationIndex::ChIndex
    MuonStationIndex::chIndex( const std::string& index ) {

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.h 594238 2014-04-25 09:00:53Z krasznaa $
+// $Id: MuonStationIndex.h 681315 2015-07-08 12:01:51Z neldik $
 #ifndef MUONIDHELPERS_MUONSTATIONINDEX_H
 #define MUONIDHELPERS_MUONSTATIONINDEX_H
 
@@ -74,6 +74,9 @@ namespace Muon {
 
     /** convert DetectorRegionIndex + LayerIndex + isSmall into ChIndex */
     static ChIndex toChamberIndex( DetectorRegionIndex region, LayerIndex layer, bool isSmall ) ;
+
+    /** convert StIndex + isSmall into ChIndex */
+    static ChIndex toChamberIndex( StIndex stIndex, bool isSmall ) ;
 
     /** convert PhiIndex into a string */
     static const std::string& phiName( PhiIndex index ) ;
