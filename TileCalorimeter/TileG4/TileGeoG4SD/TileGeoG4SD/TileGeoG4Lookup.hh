@@ -17,8 +17,6 @@
 #include <string>
 
 class TileSimHit;
-class IMessageSvc;
-class MsgStream;
 
 class TileGeoG4Cell
 {
@@ -88,7 +86,7 @@ public:
   int nrOfPhysicalSections;
   int nrOfPhysicalSections_negative;
 
-  TileGeoG4Section(IMessageSvc* m_msgSvc);
+  TileGeoG4Section(const int verboseLevel);
   ~TileGeoG4Section();
 
   // Builds correspondence between scintillators and cells, i.e. fills m_ScinToCell
@@ -106,7 +104,7 @@ public:
 private:
   //for each scintillator in the module contains pointer to the corresponding cell
   std::vector<TileGeoG4Cell*> m_ScinToCell;
-  MsgStream * m_log;
+  int m_verboseLevel;
 
 };
 

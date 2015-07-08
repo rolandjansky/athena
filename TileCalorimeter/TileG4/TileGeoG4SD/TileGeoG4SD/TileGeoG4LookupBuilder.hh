@@ -22,13 +22,11 @@
 class TileGeoG4Cell;
 class TileGeoG4Section;
 class StoreGateSvc;
-class IMessageSvc;
-class MsgStream;
 
 class TileGeoG4LookupBuilder
 {
 public:
-  TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, IMessageSvc* msgSvc);
+  TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, const int verboseLevel);
   ~TileGeoG4LookupBuilder();
   void BuildLookup(bool test_beam = false);
   TileGeoG4Section* GetSection(TileDddbManager::TileSections key) const;
@@ -66,8 +64,7 @@ private:
   int m_npmtD4[2][64];  //array of number of PMTs for D4 Cells
   int m_npmtE5[2][64];  //array of number of PMTs for E4' Cells
   
-  IMessageSvc* m_msgSvc;
-  MsgStream * m_log;
+  int m_verboseLevel; //!< Level of verbosity, passed in from above
 };
 
 #endif

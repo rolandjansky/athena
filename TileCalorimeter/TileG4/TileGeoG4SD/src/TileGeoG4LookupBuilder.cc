@@ -10,8 +10,6 @@
 //
 //************************************************************
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -25,22 +23,22 @@
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileDetDescr/TileCellDim.h"    //added by Sergey
 
+#include "G4ios.hh"
 
 TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore,
-                                               IMessageSvc* msgSvc):
+                                               const int verboseLevel):
   m_tileID(0),
   m_dbManager(0),
   m_cellMap(0),
   m_sectionMap(0),
   m_isE5(false),
-  m_msgSvc(msgSvc)
+  m_verboseLevel(verboseLevel)
 {
-  m_log = new MsgStream (msgSvc, "TileGeoG4DMLookupBuilder");
 
   const DataHandle<GeoModelExperiment> theExpt;
   StatusCode sc = pDetStore->retrieve( theExpt, "ATLAS" );
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve GeoModelExperiment from DetectorStore" << endreq;
+    G4cout << "ERROR: Unable to retrieve GeoModelExperiment from DetectorStore" << G4endl;
     abort();
   }
 
@@ -49,14 +47,14 @@ TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore,
     m_dbManager = m_theManager->getDbManager();
   else
   {
-    (*m_log) << MSG::ERROR << "Cannot get TileDetDescrManager" << endreq;
+    G4cout << "ERROR: Cannot get TileDetDescrManager" << G4endl;
     abort();
   }
 
   // retrieve TileID helper from det store
   sc = pDetStore->retrieve(m_tileID);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endreq;
+    G4cout << "ERROR: Unable to retrieve TileID helper from DetectorStore" << G4endl;
     abort();
   }  
 }
@@ -65,7 +63,6 @@ TileGeoG4LookupBuilder::~TileGeoG4LookupBuilder()
 {
   delete m_cellMap;
   delete m_sectionMap;
-  delete m_log;
 }
 
 
@@ -160,10 +157,9 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
 {
   if(!m_dbManager || !m_cellMap)
   {
-    (*m_log) << MSG::ERROR
-             << "CreateGeoG4Cells() - Initialization failed"
-             << "  DdManager = " << m_dbManager << "  CellMap = " << m_cellMap
-             << endreq;
+    G4cout << "ERROR: CreateGeoG4Cells() - Initialization failed"
+           << "  DdManager = " << m_dbManager << "  CellMap = " << m_cellMap
+           << G4endl;
     abort();
   }
 
@@ -176,9 +172,9 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
 
   int nCounter = m_dbManager->GetNumTicl();
   if (m_dbManager->GetNumberOfEnv() == 1) {
-     (*m_log) << MSG::WARNING << "CreateGeoG4Cells() - nCells from DB " << nCounter << endreq;
+     G4cout << "WARNING: CreateGeoG4Cells() - nCells from DB " << nCounter << G4endl;
      nCounter = 45;
-     (*m_log) << MSG::WARNING << "CreateGeoG4Cells() - Changing nCells for barrel-only configuration to " << nCounter << endreq;
+     G4cout << "WARNING: CreateGeoG4Cells() - Changing nCells for barrel-only configuration to " << nCounter << G4endl;
   }
 
   for(counter=0; counter<nCounter; counter++)
@@ -241,9 +237,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
       }
     default:
       {
-        (*m_log) << MSG::ERROR
-                 << "CreateGeoG4Cells() - Unexpected detector ---> " << m_dbManager->TICLdetector()
-                 << endreq;
+        G4cout << "ERROR: CreateGeoG4Cells() - Unexpected detector ---> " << m_dbManager->TICLdetector() << G4endl;
         abort();
       }
     }
@@ -253,9 +247,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
 
     if (m_cellMap->find(nameCell)!=m_cellMap->end())
     {
-        (*m_log) << MSG::ERROR
-                 << "CreateGeoG4Cells() - Attempt to recreate GeoG4Cell with name ---> " << nameCell
-                 << endreq;
+        G4cout << "ERROR CreateGeoG4Cells() - Attempt to recreate GeoG4Cell with name ---> " << nameCell << G4endl;
         abort();
     }
 
@@ -274,8 +266,8 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
     CaloDetDescrElement * caloDDE = m_theManager->get_cell_element(cell_id);
     _cell->sinTh = caloDDE->sinTh();
     _cell->r = caloDDE->r();
-    (*m_log)<< MSG::DEBUG <<"  Cell "<<nameCell<<": cell_id="<<m_tileID->to_string(cell_id,-2)
-            <<"  r="<<_cell->r<<"  sinTh="<<_cell->sinTh <<endreq;
+    if (m_verboseLevel>5) G4cout << "  Cell "<<nameCell<<": cell_id="<<m_tileID->to_string(cell_id,-2)
+            <<"  r="<<_cell->r<<"  sinTh="<<_cell->sinTh <<G4endl;
 
 //added by Sergey
     TileCellDim* cellDim = m_theManager->get_cell_dim(cell_id);
@@ -302,8 +294,8 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells()
         double z=(_cell->zMin2 + _cell->zMax2)/2.;
         _cell->sinTh = sin(theta);
         _cell->r = z*tan(theta);
-        (*m_log)<< MSG::DEBUG <<"  Cell "<<nameCell<<" corrected values: "
-                <<"  r="<<_cell->r<<"  sinTh="<<_cell->sinTh<<"  z="<<z<<"  eta="<<eta<<endreq;
+        if (m_verboseLevel>5) G4cout <<"  Cell "<<nameCell<<" corrected values: "
+                <<"  r="<<_cell->r<<"  sinTh="<<_cell->sinTh<<"  z="<<z<<"  eta="<<eta<<G4endl;
     }
 
     // (*m_log)<< MSG::DEBUG <<" Zmin="<<_cell->zMin<<"  Zmax="<<_cell->zMax
@@ -327,10 +319,8 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
 {
   if(!m_dbManager || !m_sectionMap)
   {
-    (*m_log) << MSG::ERROR
-             << "CreateGeoG4Sections() - Initialization failed"
-             << "  DbManager = " << m_dbManager << "  SectionMap = " << m_sectionMap 
-             << endreq;
+    G4cout << "ERROR: CreateGeoG4Sections() - Initialization failed"
+           << "  DbManager = " << m_dbManager << "  SectionMap = " << m_sectionMap << G4endl; 
     abort();
   }
 
@@ -418,7 +408,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
           cellName = cellPrefix + std::string(buff);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
-        (*m_log)<< MSG::DEBUG <<" TILE_BARREL: samples A, BC, D are filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_BARREL: samples A, BC, D are filled"<<G4endl;
         break;
       }
     case TileDddbManager::TILE_EBARREL:
@@ -450,7 +440,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
           cellName = cellPrefix + std::string(buff);
           sectionCells.push_back(m_cellMap->operator[](cellName));
         }
-        (*m_log)<< MSG::DEBUG <<" TILE_EBARREL: samples A, B, D are filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_EBARREL: samples A, B, D are filled"<<G4endl;
         break;
       }
     case TileDddbManager::TILE_PLUG1:
@@ -462,7 +452,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
 
         // filling PMT array for D4 Cells
         MakeTileGeoG4npmtD4();
-        (*m_log)<< MSG::DEBUG <<" TILE_PLUG1: cell D4 is filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_PLUG1: cell D4 is filled"<<G4endl;
         break;
       }
     case TileDddbManager::TILE_PLUG2:
@@ -474,7 +464,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
 
         // filling PMT array for C10 Cells
         MakeTileGeoG4npmtC10();
-        (*m_log)<< MSG::DEBUG <<" TILE_PLUG2: cell C10 is filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_PLUG2: cell C10 is filled"<<G4endl;
         break;
       }
     case TileDddbManager::TILE_PLUG3:
@@ -485,7 +475,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
         sectionCells.push_back(m_cellMap->operator[](cellName));
         cellName = "E1";
         sectionCells.push_back(m_cellMap->operator[](cellName));
-        (*m_log)<< MSG::DEBUG <<" TILE_PLUG3: cells E2, E1 are filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_PLUG3: cells E2, E1 are filled"<<G4endl;
         break;
       }
     case TileDddbManager::TILE_PLUG4:
@@ -496,36 +486,36 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb)
         sectionCells.push_back(m_cellMap->operator[](cellName));
         cellName = "E3";
         sectionCells.push_back(m_cellMap->operator[](cellName));
-        (*m_log)<< MSG::DEBUG <<" TILE_PLUG4: cells E4, E3 are filled"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" TILE_PLUG4: cells E4, E3 are filled"<<G4endl;
 
         // filling PMT array for E4' Cells
         MakeTileGeoG4npmtE5();
         if (m_isE5) {
             cellName = "E5";  //E4' cells
             sectionCells.push_back(m_cellMap->operator[](cellName));
-            (*m_log)<< MSG::DEBUG <<" TILE_PLUG4: special cells E5(E4') are filled"<<endreq;
+            if (m_verboseLevel>5) G4cout <<" TILE_PLUG4: special cells E5(E4') are filled"<<G4endl;
         }
 
         break;
       }
     default:
       { // Don't do anything
-        (*m_log)<< MSG::DEBUG <<" counter="<<counter<<"  key="<<key<<"  Default: Don't do anything"<<endreq;
+        if (m_verboseLevel>5) G4cout <<" counter="<<counter<<"  key="<<key<<"  Default: Don't do anything"<<G4endl;
         continue;
       }
     }
 
     if (m_isE5 && key==6) m_dbManager->SetCurrentSection(key+10);
     else m_dbManager->SetCurrentSection(key);
-    _section = new TileGeoG4Section(m_msgSvc);
+    _section = new TileGeoG4Section(m_verboseLevel);
 
     _section->nrOfModules = nModules;
     _section->nrOfPeriods = m_dbManager->TILBnperiod();
     _section->nrOfScintillators = m_dbManager->TILBnscin();
 
-    (*m_log)<< MSG::DEBUG <<" counter="<<counter<<"  key="<<key<<"  nrOfModules="
+    if (m_verboseLevel>5) G4cout <<" counter="<<counter<<"  key="<<key<<"  nrOfModules="
             <<_section->nrOfModules<<"  nrOfPeriods="<<_section->nrOfPeriods
-            <<"  nrOfScintillators="<<_section->nrOfScintillators<<endreq;
+            <<"  nrOfScintillators="<<_section->nrOfScintillators<<G4endl;
 
     // iterate through all section cells and group them into samples
     _cell = sectionCells[0];
