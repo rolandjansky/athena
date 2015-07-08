@@ -36,9 +36,9 @@ RpcIdHelper::RpcIdHelper() : MuonIdHelper(), m_DOUBLETR_INDEX(0),
 // Destructor
 
 RpcIdHelper::~RpcIdHelper()
-{
-  // m_Log deleted in base class.
-}
+	{
+	if(m_Log) delete m_Log; m_Log=NULL;
+	}
 
 // Initialize dictionary
 
@@ -50,11 +50,11 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   }
   else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endmsg;
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endreq;
   }
 
   // init base object
@@ -67,7 +67,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   if(!m_dict) {
     (*m_Log) << MSG::ERROR 
 	<< " initialize_from_dict - cannot access MuonSpectrometer dictionary "
-	<< endmsg;
+	<< endreq;
     return 1;
   }
 
@@ -80,7 +80,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'doubletR' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -90,7 +90,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'doubletZ' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -100,7 +100,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'doubletPhi' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -110,7 +110,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'rpcGasGap' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -120,7 +120,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'rpcMeasuresPhi' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -130,7 +130,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
   else {
     (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'rpcStrip' field " 	
-	<< endmsg;
+	<< endreq;
     status = 1;
   }
 
@@ -141,7 +141,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   // save an index to the first region of rpc
   IdDictGroup* rpcGroup =  m_dict->find_group ("rpc");
   if(!rpcGroup) {
-    (*m_Log) << MSG::ERROR << "Cannot find rpc group" << endmsg;
+    (*m_Log) << MSG::ERROR << "Cannot find rpc group" << endreq;
   } else {
     m_GROUP_INDEX =  rpcGroup->regions()[0]->m_index;
   }
@@ -157,18 +157,18 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   m_mea_impl  = region.m_implementation[m_MEASURESPHI_INDEX]; 
   m_str_impl  = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " RPC decode index and bit fields for each level: "  << endmsg;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " TR          "  << m_dbr_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " TZ          "  << m_dbz_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " TPHI        "  << m_dbp_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " gas gap     "  << m_gap_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_mea_impl.show_to_string()  << endmsg; 
-  (*m_Log) << MSG::DEBUG << " strip       "  << m_str_impl.show_to_string()  << endmsg; 
+  (*m_Log) << MSG::DEBUG << " RPC decode index and bit fields for each level: "  << endreq;
+  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endreq;
+  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endreq;
+  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endreq;
+  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " TR          "  << m_dbr_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " TZ          "  << m_dbz_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " TPHI        "  << m_dbp_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " gas gap     "  << m_gap_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " phi         "  << m_mea_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " strip       "  << m_str_impl.show_to_string()  << endreq; 
 
 
   //
@@ -181,7 +181,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField)) {
     (*m_Log) << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " 
 	<< atlasDict->m_name
-	<< endmsg;
+	<< endreq;
     return (1);
   }
 
@@ -189,13 +189,13 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier region_id;
   region_id.add(muonField);
   Range prefix;
-  MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "doubletR");
+  MultiRange m_muon_range = m_dict->build_multirange(region_id, prefix, "doubletR");
  
-  if (muon_range.size() > 0 ) {
+  if (m_muon_range.size() > 0 ) {
     (*m_Log) << MSG::INFO << "MultiRange built successfully to doubletR: " 
-	<< "MultiRange size is " << muon_range.size() << endmsg;
+	<< "MultiRange size is " << m_muon_range.size() << endreq;
   } else {
-    (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endmsg;
+    (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endreq;
   }
 
   // Build MultiRange down to "detectorElement" for all mdt regions
@@ -203,30 +203,30 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   ExpandedIdentifier detectorElement_region;
   detectorElement_region.add(muonField);
   Range detectorElement_prefix;
-  MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region,
+  MultiRange m_muon_detectorElement_range = m_dict->build_multirange(detectorElement_region,
                                                                     detectorElement_prefix, "doubletPhi");
-  if (muon_detectorElement_range.size() > 0 )
+  if (m_muon_detectorElement_range.size() > 0 )
   {
      (*m_Log) << MSG::INFO << "MultiRange built successfully to detectorElement: " 
-         << "DetectorElement MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+         << "DetectorElement MultiRange size is " << m_muon_detectorElement_range.size() << endreq;
   }
   else
   {
-     (*m_Log) << MSG::ERROR << "Muon RPC ReadoutElement MultiRange is empty" << endmsg;
+     (*m_Log) << MSG::ERROR << "Muon RPC ReadoutElement MultiRange is empty" << endreq;
   }
 
   // Build MultiRange down to "rpcStrip" for all rpc regions
   ExpandedIdentifier rpc_region;
   rpc_region.add(muonField);
   Range rpc_prefix;
-  MultiRange muon_channel_range = m_dict->build_multirange(rpc_region, rpc_prefix, 
+  MultiRange m_muon_channel_range = m_dict->build_multirange(rpc_region, rpc_prefix, 
 							     "rpcStrip");
  
-  if (muon_channel_range.size() > 0 ) {
+  if (m_muon_channel_range.size() > 0 ) {
     (*m_Log) << MSG::INFO << "MultiRange built successfully to rpcStrip: " 
-	<< "MultiRange size is " << muon_channel_range.size() << endmsg;
+	<< "MultiRange size is " << m_muon_channel_range.size() << endreq;
   } else {
-    (*m_Log) << MSG::ERROR << "Muon RPC channel MultiRange is empty" << endmsg;
+    (*m_Log) << MSG::ERROR << "Muon RPC channel MultiRange is empty" << endreq;
   }
 
   // build RPC module ranges
@@ -234,21 +234,21 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   int rpcField=-1; 
   status = m_dict->get_label_value("technology", "RPC", rpcField); 
  
-  for (int i = 0; i < (int) muon_range.size(); ++i) {
-    const Range& range = muon_range[i];
+  for (int i = 0; i < (int) m_muon_range.size(); ++i) {
+    const Range& range = m_muon_range[i];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) rpcField ) ) {
 	m_full_module_range.add(range);
 	if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "field size is " << (int) range.cardinality() 
-	    << " field index = " << i << endmsg;
+	    << " field index = " << i << endreq;
       }
     }
   }
 
-  for (int j = 0; j < (int) muon_detectorElement_range.size(); ++j)
+  for (int j = 0; j < (int) m_muon_detectorElement_range.size(); ++j)
   {
-      const Range& range = muon_detectorElement_range[j];
+      const Range& range = m_muon_detectorElement_range[j];
       if (range.fields() > m_TECHNOLOGY_INDEX)
       {
           const Range::field& field = range[m_TECHNOLOGY_INDEX];
@@ -257,54 +257,54 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
               m_full_detectorElement_range.add(range);
               if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
                   << "detectorElement field size is " << (int) range.cardinality() 
-                  << " field index = " << j << endmsg;
+                  << " field index = " << j << endreq;
           }
       }
   }
 
-  for (int j = 0; j < (int) muon_channel_range.size(); ++j) {
-    const Range& range = muon_channel_range[j];
+  for (int j = 0; j < (int) m_muon_channel_range.size(); ++j) {
+    const Range& range = m_muon_channel_range[j];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) rpcField ) ) {
 	m_full_channel_range.add(range);
 	if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "channel field size is " << (int) range.cardinality() 
-	    << " field index = " << j << endmsg;
+	    << " field index = " << j << endreq;
       }
     }
   }
 
   // test to see that the multi range is not empty
   if (m_full_module_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "RPC MultiRange ID is empty for modules" << endmsg;
+    (*m_Log) << MSG::ERROR << "RPC MultiRange ID is empty for modules" << endreq;
     status = 1;
   } else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " full module range size is " << m_full_module_range.size() << endmsg;
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " full module range size is " << m_full_module_range.size() << endreq;
   }
 
     /// test to see that the detectorElement multi range is not empty
   if (m_full_detectorElement_range.size() == 0)
   {
-      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endmsg;
+      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endreq;
       status = 1;
   }
 
   // test to see that the multi range is not empty
   if (m_full_channel_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "RPC MultiRange ID is empty for channels" << endmsg;
+    (*m_Log) << MSG::ERROR << "RPC MultiRange ID is empty for channels" << endreq;
     status = 1;
   } else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " full channel range size is " << m_full_channel_range.size() << endmsg;
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " full channel range size is " << m_full_channel_range.size() << endreq;
   }
 
   // Setup the hash tables for RPC
-  (*m_Log) << MSG::INFO << "Initializing RPC hash indices ... " << endmsg;
+  (*m_Log) << MSG::INFO << "Initializing RPC hash indices ... " << endreq;
   status = init_hashes();
   status = init_detectorElement_hashes(); // doubletZ
   status = init_id_to_hashes();
 
   // Setup hash tables for finding neighbors
-  (*m_Log) << MSG::INFO << "Initializing RPC hash indices for finding neighbors ... " << endmsg;
+  (*m_Log) << MSG::INFO << "Initializing RPC hash indices for finding neighbors ... " << endreq;
   status = init_neighbors();
 
   return (status);
@@ -724,7 +724,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid doubletZ=" << dbz
             << " doubletZMin=" << doubletZMin(id)
             << " doubletZMax=" << doubletZMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -736,7 +736,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid doubletPhi=" << dbp
             << " doubletPhiMin=" << doubletPhiMin(id)
             << " doubletPhiMax=" << doubletPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -748,7 +748,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid gasGap=" << gasG
             << " gasGapMin=" << gasGapMin(id)
             << " gasGapMax=" << gasGapMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -760,7 +760,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid measuresPhi=" << mPhi
             << " measuresPhiMin=" << measuresPhiMin(id)
             << " measuresPhiMax=" << measuresPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -772,7 +772,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid strip=" << str
             << " stripMin=" << stripMin(id)
             << " stripMax=" << stripMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -790,7 +790,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
     {
         (*m_Log) << MSG::WARNING
             << "Invalid stationName=" << name
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -803,7 +803,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << " for stationName=" << name
             << " stationEtaMin=" << stationEtaMin(id)
             << " stationEtaMax=" << stationEtaMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -816,7 +816,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << " for stationName=" << name
             << " stationPhiMin=" << stationPhiMin(id)
             << " stationPhiMax=" << stationPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -829,7 +829,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << " for stationName=" << name
             << " doubletRMin=" << doubletRMin(id)
             << " doubletRMax=" << doubletRMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -849,7 +849,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid doubletZ=" << dbz
             << " doubletZMin=" << doubletZMin(id)
             << " doubletZMax=" << doubletZMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
 
@@ -861,7 +861,7 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
             << "Invalid doubletPhi=" << dbp
             << " doubletPhiMin=" << doubletPhiMin(id)
             << " doubletPhiMax=" << doubletPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -881,7 +881,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     {
         (*m_Log) << MSG::WARNING
             << "Invalid stationName=" << name
-            << endmsg;
+            << endreq;
 	return false;
     }
     if (stationEta < stationEtaMin(id) ||
@@ -892,7 +892,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
             << " for stationName=" << name
             << " stationEtaMin=" << stationEtaMin(id)
             << " stationEtaMax=" << stationEtaMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((stationPhi < stationPhiMin(id)) ||
@@ -903,7 +903,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
             << " for stationName=" << name
             << " stationPhiMin=" << stationPhiMin(id)
             << " stationPhiMax=" << stationPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((doubletR < doubletRMin(id)) ||
@@ -914,7 +914,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
             << " for stationName=" << name
             << " doubletRMin=" << doubletRMin(id)
             << " doubletRMax=" << doubletRMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -938,7 +938,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
             << "Invalid doubletZ=" << doubletZ
             << " doubletZMin=" << doubletZMin(id)
             << " doubletZMax=" << doubletZMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((doubletPhi < doubletPhiMin(id)) ||
@@ -948,7 +948,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
             << "Invalid doubletPhi=" << doubletPhi
             << " doubletPhiMin=" << doubletPhiMin(id)
             << " doubletPhiMax=" << doubletPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((gasGap < gasGapMin(id)) ||
@@ -958,7 +958,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
             << "Invalid gasGap=" << gasGap
             << " gasGapMin=" << gasGapMin(id)
             << " gasGapMax=" << gasGapMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((measuresPhi < measuresPhiMin(id)) ||
@@ -968,7 +968,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
             << "Invalid measuresPhi=" << measuresPhi
             << " measuresPhiMin=" << measuresPhiMin(id)
             << " measuresPhiMax=" << measuresPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((strip < stripMin(id)) ||
@@ -978,7 +978,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
             << "Invalid strip=" << strip
             << " stripMin=" << stripMin(id)
             << " stripMax=" << stripMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -1001,7 +1001,7 @@ bool RpcIdHelper::validPad(const Identifier& id, int stationName,
             << "Invalid doubletZ=" << doubletZ
             << " doubletZMin=" << doubletZMin(id)
             << " doubletZMax=" << doubletZMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     if ((doubletPhi < doubletPhiMin(id)) ||
@@ -1011,7 +1011,7 @@ bool RpcIdHelper::validPad(const Identifier& id, int stationName,
             << "Invalid doubletPhi=" << doubletPhi
             << " doubletPhiMin=" << doubletPhiMin(id)
             << " doubletPhiMax=" << doubletPhiMax(id)
-            << endmsg;
+            << endreq;
 	return false;
     }
     return true;
@@ -1046,13 +1046,13 @@ int RpcIdHelper::init_detectorElement_hashes(void) {
                isInserted = ids.insert(doubletZ_id).second;
                if ( (!isInserted)  && m_Log->level()<=MSG::DEBUG)  (*m_Log) << MSG::DEBUG << "init_detectorElement_hashes " 
                                       << "Please check the dictionary for possible duplication for "
-                                      << id << endmsg;
+                                      << id << endreq;
             } else {
               isInserted = ids.insert(id).second;
 	      if ( !isInserted ) {
 	         (*m_Log) << MSG::ERROR << "init_detectorElement_hashes "
 		     << " Error: duplicated id for detector element id. nid " << (int) nids
-                     << " doubletPhi ID " << id << endmsg; 
+                     << " doubletPhi ID " << id << endreq; 
 		 return (1);
               }
 	    }
@@ -1060,7 +1060,7 @@ int RpcIdHelper::init_detectorElement_hashes(void) {
 	}
     }
     m_detectorElement_hash_max = ids.size();
-    (*m_Log) <<MSG::INFO << "The detector element hash max is " << (int) m_detectorElement_hash_max << endmsg;
+    (*m_Log) <<MSG::INFO << "The detector element hash max is " << (int) m_detectorElement_hash_max << endreq;
     m_detectorElement_vec.resize(m_detectorElement_hash_max);
 
     nids = 0;

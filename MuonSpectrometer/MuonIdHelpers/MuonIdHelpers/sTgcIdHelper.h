@@ -197,9 +197,9 @@ class sTgcIdHelper : public MuonIdHelper {
     ChannelMin     =  1,
     ChannelMax     =  315,
     PadPhiMin      =  1,
-    PadPhiMax      =  8,
+    PadPhiMax      =  6,
     PadEtaMin      =  1,
-    PadEtaMax      =  20 //arbitrary values. these values should be taken from an XML
+    PadEtaMax      =  13
   };
   inline virtual void create_mlog() const;
 };    //end class sTgcIdHelper

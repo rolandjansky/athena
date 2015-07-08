@@ -31,7 +31,7 @@ sTgcIdHelper::sTgcIdHelper() : MuonIdHelper() {
 /*******************************************************************************/
 // Destructor
 sTgcIdHelper::~sTgcIdHelper() {
-  // m_Log deleted in base class.
+  if(m_Log) delete m_Log; m_Log=NULL;
 }
 /*******************************************************************************/
 // Initialize dictionary
@@ -42,10 +42,10 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
     return (0);
   } else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize " << endmsg;
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize " << endreq;
   }
 
   // init base object
@@ -56,7 +56,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
   m_dict = dict_mgr.find_dictionary ("MuonSpectrometer"); 
   if(!m_dict) {
-    (*m_Log) << MSG::ERROR << " initialize_from_dict - cannot access MuonSpectrometer dictionary " << endmsg;
+    (*m_Log) << MSG::ERROR << " initialize_from_dict - cannot access MuonSpectrometer dictionary " << endreq;
     return 1;
   }
 
@@ -65,7 +65,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
   int index = technologyIndex("STGC");
   if (index == -1) {
-    (*m_Log) << MSG::DEBUG << "initLevelsFromDict - there are no sTGC entries in the dictionary! "  << endmsg;
+    (*m_Log) << MSG::DEBUG << "initLevelsFromDict - there are no sTGC entries in the dictionary! "  << endreq;
     return 0;
   }
 
@@ -73,7 +73,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_DETECTORELEMENT_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcMultilayer' field "  << endmsg;
+    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcMultilayer' field "  << endreq;
     status = 1;
   }
  
@@ -81,7 +81,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_GASGAP_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcGasGap' field " << endmsg;
+    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'stgcGasGap' field " << endreq;
     status = 1;
   }
 
@@ -89,7 +89,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_CHANNELTYPE_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channelType' field " 	<< endmsg;
+    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channelType' field " 	<< endreq;
     status = 1;
   }
 
@@ -97,7 +97,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   if (field) {
     m_CHANNEL_INDEX = field->m_index;
   } else {
-    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channel' field " << endmsg;
+    (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'channel' field " << endreq;
     status = 1;
   }
 
@@ -107,7 +107,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   // save an index to the first region of tgc
   IdDictGroup* stgcGroup =  m_dict->find_group ("stgc");
   if(!stgcGroup) {
-    (*m_Log) << MSG::ERROR << "Cannot find stgc group" << endmsg;
+    (*m_Log) << MSG::ERROR << "Cannot find stgc group" << endreq;
   } else {
     m_GROUP_INDEX =  stgcGroup->regions()[0]->m_index;
   }
@@ -121,16 +121,16 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   m_typ_impl   = region.m_implementation[m_CHANNELTYPE_INDEX]; 
   m_cha_impl   = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " sTGC decode index and bit fields for each level: "  << endmsg;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()   << endmsg;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()   << endmsg; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()   << endmsg; 
-  (*m_Log) << MSG::DEBUG << " multilayer   "  << m_mplet_impl.show_to_string() << endmsg; 
-  (*m_Log) << MSG::DEBUG << " gasgap      "  << m_gap_impl.show_to_string()   << endmsg;
-  (*m_Log) << MSG::DEBUG << " channelType "  << m_typ_impl.show_to_string()   << endmsg;  
-  (*m_Log) << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()   << endmsg; 
+  (*m_Log) << MSG::DEBUG << " sTGC decode index and bit fields for each level: "  << endreq;
+  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endreq;
+  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endreq;
+  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()   << endreq;
+  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()   << endreq; 
+  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()   << endreq; 
+  (*m_Log) << MSG::DEBUG << " multilayer   "  << m_mplet_impl.show_to_string() << endreq; 
+  (*m_Log) << MSG::DEBUG << " gasgap      "  << m_gap_impl.show_to_string()   << endreq;
+  (*m_Log) << MSG::DEBUG << " channelType "  << m_typ_impl.show_to_string()   << endreq;  
+  (*m_Log) << MSG::DEBUG << " channel     "  << m_cha_impl.show_to_string()   << endreq; 
  
   //
   // Build multirange for the valid set of identifiers
@@ -140,7 +140,7 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   int muonField = -1;
   const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS"); 
   if (atlasDict->get_label_value("subdet", "MuonSpectrometer", muonField)) {
-    (*m_Log) << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " << atlasDict->m_name << endmsg;
+    (*m_Log) << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field 'subdet' in dictionary " << atlasDict->m_name << endreq;
     return (1);
   }
 
@@ -148,22 +148,22 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   ExpandedIdentifier region_id;
   region_id.add(muonField);
   Range prefix;
-  MultiRange muon_range = m_dict->build_multirange(region_id, prefix, "technology");
-  if (muon_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << muon_range.size() << endmsg;
+  MultiRange m_muon_range = m_dict->build_multirange(region_id, prefix, "technology");
+  if (m_muon_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to Technology: " << "MultiRange size is " << m_muon_range.size() << endreq;
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endreq;
   }
  
   // Build MultiRange down to "detector element" for all sTGC regions
   ExpandedIdentifier detectorElement_region;
   detectorElement_region.add(muonField);
   Range detectorElement_prefix;
-  MultiRange muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "stgcMultilayer");
-  if (muon_detectorElement_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
+  MultiRange m_muon_detectorElement_range = m_dict->build_multirange(detectorElement_region, detectorElement_prefix, "stgcMultilayer");
+  if (m_muon_detectorElement_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " << "Multilayer MultiRange size is " << m_muon_detectorElement_range.size() << endreq;
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endmsg;
+    (*m_Log) << MSG::ERROR << "Muon sTGC detector element MultiRange is empty" << endreq;
   }
 
 
@@ -171,11 +171,11 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   ExpandedIdentifier stgc_region;
   stgc_region.add(muonField);
   Range stgc_prefix;
-  MultiRange muon_channel_range = m_dict->build_multirange(stgc_region, stgc_prefix, "stgcChannel");
-  if (muon_channel_range.size() > 0 ) {
-    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << muon_channel_range.size() << endmsg;
+  MultiRange m_muon_channel_range = m_dict->build_multirange(stgc_region, stgc_prefix, "stgcChannel");
+  if (m_muon_channel_range.size() > 0 ) {
+    (*m_Log) << MSG::INFO << "MultiRange built successfully to channel: " << "MultiRange size is " << m_muon_channel_range.size() << endreq;
   } else {
-    (*m_Log) << MSG::ERROR << "Muon sTGC detector MultiRange is empty for channels" << endmsg;
+    (*m_Log) << MSG::ERROR << "Muon sTGC detector MultiRange is empty for channels" << endreq;
   }
 
   // build sTGC module ranges
@@ -183,59 +183,59 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   int stgcField=-1;
   status = m_dict->get_label_value("technology", "STGC", stgcField); 
 
-  for (int i = 0; i < (int) muon_range.size(); ++i) {
-    const Range& range = muon_range[i];
+  for (int i = 0; i < (int) m_muon_range.size(); ++i) {
+    const Range& range = m_muon_range[i];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_module_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "field size is " << (int) range.cardinality() << " field index = " << i << endmsg;
+	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "field size is " << (int) range.cardinality() << " field index = " << i << endreq;
       }
     }
   }
 
-  for (int j = 0; j < (int) muon_detectorElement_range.size(); ++j) {
-    const Range& range = muon_detectorElement_range[j];
+  for (int j = 0; j < (int) m_muon_detectorElement_range.size(); ++j) {
+    const Range& range = m_muon_detectorElement_range[j];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_detectorElement_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "detector element field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "detector element field size is " << (int) range.cardinality() << " field index = " << j << endreq;
       }
     }
   }
 
-  for (int j = 0; j < (int) muon_channel_range.size(); ++j) {
-    const Range& range = muon_channel_range[j];
+  for (int j = 0; j < (int) m_muon_channel_range.size(); ++j) {
+    const Range& range = m_muon_channel_range[j];
     if (range.fields() > m_TECHNOLOGY_INDEX) {
       const Range::field& field = range[m_TECHNOLOGY_INDEX];
       if ( field.match( (ExpandedIdentifier::element_type) stgcField ) ) {
 	m_full_channel_range.add(range);
-	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "channel field size is " << (int) range.cardinality() << " field index = " << j << endmsg;
+	if (m_Log->level()<=MSG::DEBUG)(*m_Log) << MSG::DEBUG << "channel field size is " << (int) range.cardinality() << " field index = " << j << endreq;
       }
     }
   }
 
   // test to see that the multi range is not empty
   if (m_full_module_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for modules" << endmsg;
+    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for modules" << endreq;
     status = 1;
   }
 
   // test to see that the detector element multi range is not empty
   if (m_full_detectorElement_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for detector elements" << endmsg;
+    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for detector elements" << endreq;
     status = 1;
   }
 
   // test to see that the multi range is not empty
   if (m_full_channel_range.size() == 0) {
-    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for channels" << endmsg;
+    (*m_Log) << MSG::ERROR << "sTGC MultiRange ID is empty for channels" << endreq;
     status = 1;
   }
 
   // Setup the hash tables for sTGC
-  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices ... " << endmsg;
+  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices ... " << endreq;
   status = init_hashes();
   status = init_detectorElement_hashes(); // same as module hash
   status = init_id_to_hashes();
@@ -248,14 +248,14 @@ int sTgcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   const_id_iterator it = channel_begin();
   const_id_iterator it_end =  channel_end();
   for( ;it!=it_end;++it ){
-  if( !is_stgc(*it) )  (*m_Log) << MSG::DEBUG << "BadStgc: not sTGC    " <<  print_to_string(*it) << endmsg;
-  if( !valid(*it) )  (*m_Log) << MSG::DEBUG << "BadStgc: not valid " <<  print_to_string(*it) << endmsg;
+  if( !is_stgc(*it) )  (*m_Log) << MSG::DEBUG << "BadStgc: not sTGC    " <<  print_to_string(*it) << endreq;
+  if( !valid(*it) )  (*m_Log) << MSG::DEBUG << "BadStgc: not valid " <<  print_to_string(*it) << endreq;
   }
 
   */
 
   // Setup hash tables for finding neighbors
-  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices for finding neighbors ... " << endmsg;
+  (*m_Log) << MSG::INFO << "Initializing sTGC hash indices for finding neighbors ... " << endreq;
   status = init_neighbors();
 
   return (status);
@@ -677,7 +677,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	       << "Invalid multilayer=" << mplet
 	       << " multilayerMin=" << multilayerMin(id)
 	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+	       << endreq;
       return false;
     }
     
@@ -688,7 +688,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	     << "Invalid gasGap=" << gasG
 	     << " gasGapMin=" << gasGapMin(id)
 	     << " gasGapMax=" << gasGapMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
 
@@ -699,7 +699,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	     << "Invalid channelType=" << channeltype
 	     << " channelTypeMin=" << channelTypeMin(id)
 	     << " channelTypeMax=" << channelTypeMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
 
@@ -709,7 +709,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	     << "Invalid channel=" << element
 	     << " channelMin=" << channelMin(id)
 	     << " channelMax=" << channelMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   
@@ -721,7 +721,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	       << "Invalid padEta=" << PadEta
 	       << " padEtaMin=" << PadEtaMin
 	       << " padEtaMax=" << PadEtaMax
-	       << endmsg;
+	       << endreq;
       return false;
     }
     if (PadPhi < PadPhiMin || PadPhi > PadPhiMax) {
@@ -729,7 +729,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	       << "Invalid padEPhi" << PadPhi
 	       << " padPhiMin=" << PadPhiMin
 	       << " padPhiMax=" << PadPhiMax
-	       << endmsg;
+	       << endreq;
       return false;
     }
   }
@@ -746,7 +746,7 @@ bool sTgcIdHelper::validElement(const Identifier& id) const {
   if ( ('S' != name[0]) && ('T' != name[1]) ) {
     (*m_Log) << MSG::WARNING
 	     << "Invalid stationName=" << name
-	     << endmsg;
+	     << endreq;
     return false;
   }
 
@@ -758,7 +758,7 @@ bool sTgcIdHelper::validElement(const Identifier& id) const {
 	     << " stationIndex=" << station
 	     << " stationEtaMin=" << stationEtaMin(id)
 	     << " stationEtaMax=" << stationEtaMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   
@@ -770,7 +770,7 @@ bool sTgcIdHelper::validElement(const Identifier& id) const {
 	     << " stationIndex=" << station
 	     << " stationPhiMin=" << stationPhiMin(id)
 	     << " stationPhiMax=" << stationPhiMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   return true;
@@ -786,7 +786,7 @@ bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stati
   if ( ('S' != name[0]) && ('T' != name[1]) ) {
     (*m_Log) << MSG::WARNING
 	     << "Invalid stationName=" << name
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (stationEta < stationEtaMin(id) || stationEta > stationEtaMax(id) ) {
@@ -796,7 +796,7 @@ bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stati
 	     << " stationIndex=" << stationName
 	     << " stationEtaMin=" << stationEtaMin(id)
 	     << " stationEtaMax=" << stationEtaMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (stationPhi < stationPhiMin(id) || stationPhi > stationPhiMax(id) ) {
@@ -806,7 +806,7 @@ bool sTgcIdHelper::validElement(const Identifier& id, int stationName, int stati
 	     << " stationIndex=" << stationName
 	     << " stationPhiMin=" << stationPhiMin(id)
 	     << " stationPhiMax=" << stationPhiMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   return true;
@@ -824,7 +824,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	       << "Invalid multilayer=" << multilayer
 	       << " multilayerMin=" << multilayerMin(id)
 	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+	       << endreq;
       return false;
     }
 
@@ -834,7 +834,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid gasGap=" << gasGap
 	     << " gasGapMin=" << gasGapMin(id)
 	     << " gasGapMax=" << gasGapMax(id) 
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (channelType < channelTypeMin(id) || channelType > channelTypeMax(id) ) {
@@ -842,7 +842,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid channelType=" << channelType
 	     << " channelTypeMin=" << channelTypeMin(id)
 	     << " channelTypeMax=" << channelTypeMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (channel < channelMin(id) || channel > channelMax(id) ) {
@@ -850,7 +850,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid channel=" << channel
 	     << " channelMin=" << channelMin(id)
 	     << " channelMax=" << channelMax(id)
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (channelType == Pad) {
@@ -861,7 +861,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	       << "Invalid padEta=" << PadEta
 	       << " padEtaMin=" << PadEtaMin
 	       << " padEtaMax=" << PadEtaMax
-	       << endmsg;
+	       << endreq;
       return false;
     }
     if (PadPhi < PadPhiMin || PadPhi > PadPhiMax) {
@@ -869,7 +869,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	       << "Invalid padEPhi" << PadPhi
 	       << " padPhiMin=" << PadPhiMin
 	       << " padPhiMax=" << PadPhiMax
-	       << endmsg;
+	       << endreq;
       return false;
     }
   }
@@ -888,7 +888,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	       << "Invalid multilayer=" << multilayer
 	       << " multilayerMin=" << multilayerMin(id)
 	       << " multilayerMax=" << multilayerMax(id)
-	       << endmsg;
+	       << endreq;
       return false;
     }
 
@@ -898,7 +898,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid gasGap=" << gasGap
 	     << " gasGapMin=" << gasGapMin(id)
 	     << " gasGapMax=" << gasGapMax(id) 
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (channelType != Pad ) {
@@ -906,7 +906,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid channelType=" << channelType
 	     << " channelType must be " << Pad
 	     << " when specifying padEta and padPhi"
-	     << endmsg;
+	     << endreq;
     return false;
   }
   int channel = (padPhi - 1) * PadEtaMax + padEta;
@@ -917,7 +917,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << " channelMax=" << channelMax(id)
 	     << " for given padEta=" << padEta
 	     << " and padPhi=" << padPhi
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (padEta < PadEtaMin || padEta > PadEtaMax) {
@@ -925,7 +925,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid padEta=" << padEta
 	     << " padEtaMin=" << PadEtaMin
 	     << " padEtaMax=" << PadEtaMax
-	     << endmsg;
+	     << endreq;
     return false;
   }
   if (padPhi < PadPhiMin || padPhi > PadPhiMax) {
@@ -933,7 +933,7 @@ bool sTgcIdHelper::validChannel(const Identifier& id, int stationName, int stati
 	     << "Invalid padEPhi" << padPhi
 	     << " padPhiMin=" << PadPhiMin
 	     << " padPhiMax=" << PadPhiMax
-	     << endmsg;
+	     << endreq;
     return false;
   }
   return true;

@@ -59,7 +59,7 @@ namespace Muon {
       if( name == "MM" )   m_technologies.push_back(MuonStationIndex::MM);
       if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << ", " << tech << " " << name;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endreq;
     unsigned int nstationsNames = m_mdtIdHelper->stationNameIndexMax()+1;
     m_stationNameData.resize(nstationsNames);
     for( int i=0; i <= m_mdtIdHelper->stationNameIndexMax(); ++i){
@@ -129,7 +129,7 @@ namespace Muon {
 	if( data.isSmall )  msg(MSG::DEBUG) << " Small, ";
 	else                msg(MSG::DEBUG) << " Large, ";
 
-	msg(MSG::DEBUG) << MuonStationIndex::chName(data.chIndex) << "  " << MuonStationIndex::stName(data.stIndex) << endmsg;
+	msg(MSG::DEBUG) << MuonStationIndex::chName(data.chIndex) << "  " << MuonStationIndex::stName(data.stIndex) << endreq;
       }
     }
     return StatusCode::SUCCESS;
@@ -252,8 +252,7 @@ namespace Muon {
       if( rpcIdHelper().doubletR(id) == 1 )  index = MuonStationIndex::BM1;
       else                                   index = MuonStationIndex::BM2;
     }else if( stIndex == MuonStationIndex::BO ){
-      if( rpcIdHelper().doubletR(id) == 1 )  index = MuonStationIndex::BO1;
-      else                                   index = MuonStationIndex::BO2;
+      index = MuonStationIndex::BO1;
     }else if( stIndex == MuonStationIndex::EI ){
       if( isCsc(id) )      index = MuonStationIndex::CSC;
       else if( isTgc(id) ) index = MuonStationIndex::T4;
