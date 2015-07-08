@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 671401 $"
+__version__ = "$Revision: 681272 $"
 __doc__ = "check that 2 ROOT files have same content (containers and sizes)."
 __author__ = "Sebastien Binet"
 
@@ -116,8 +116,9 @@ def main(args):
     
     def tree_infos(tree, args):
         nentries = tree.GetEntriesFast()
-        leaves = [l.GetName() for l in tree.GetListOfLeaves()
-                  if l.GetName() not in args.ignore_leaves]
+        # l.GetBranch().GetName() gives the full leaf path name
+        leaves = [l.GetBranch().GetName() for l in tree.GetListOfLeaves()
+                  if l.GetBranch().GetName() not in args.ignore_leaves]
         return {
             'entries' : nentries,
             'leaves': set(leaves),
