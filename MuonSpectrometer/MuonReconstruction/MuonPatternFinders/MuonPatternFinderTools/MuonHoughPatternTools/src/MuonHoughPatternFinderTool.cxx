@@ -36,7 +36,7 @@
 #include "MuonSegment/MuonSegmentCombination.h" // for csc's
 #include "MuonSegment/MuonSegment.h" 
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+
 
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
@@ -229,9 +229,9 @@ namespace Muon {
 
     // summary
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
-      if( patCombiCol->empty() ) msg() << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endmsg;
+      if( patCombiCol->empty() ) msg() << MSG::DEBUG << " summarizing output: Combined pattern combination empty" << endreq;
       else msg() << MSG::DEBUG << " summarizing Combined pattern combination output: " << std::endl 
-		 << m_printer->print( *patCombiCol ) << endmsg;
+		 << m_printer->print( *patCombiCol ) << endreq;
     }
 
     // clean up tool for next call
@@ -285,10 +285,10 @@ namespace Muon {
     MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns();
     
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
-      if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endmsg;
-      else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endmsg;
-      if( etapatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endmsg;
-      else msg() << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endmsg;
+      if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endreq;
+      else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endreq;
+      if( etapatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Eta pattern combination empty" << endreq;
+      else msg() << MSG::DEBUG << " summarizing Eta pattern combination input: " << std::endl << m_printer->print( *etapatterns ) << endreq;
     }
     
     ATH_MSG_DEBUG ("writePatterns");
@@ -552,12 +552,12 @@ namespace Muon {
   {
     if (1)
       {
-	//msg() << MSG::VERBOSE << "Event through Cut()" << endmsg;
+	//msg() << MSG::VERBOSE << "Event through Cut()" << endreq;
 	return true;
       }
 
     else {
-      //msg() << MSG::VERBOSE << "Event not through Cut()" << endmsg;
+      //msg() << MSG::VERBOSE << "Event not through Cut()" << endreq;
       return false;
     }
   }
@@ -1024,7 +1024,7 @@ namespace Muon {
 	    m_weighthistogram->Fill(0);
 	    m_weighthistogrammdt->Fill(0);
 	  }
-	  //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
+	  //msg() << MSG::DEBUG << "Hit accepted" << endreq;
     
 	} // collection
 	return;
@@ -1271,7 +1271,7 @@ namespace Muon {
 	m_weighthistogram->Fill(weights[i]);
 	m_weighthistogrammdt->Fill(weights[i]);
       }
-      //msg() << MSG::DEBUG << "Hit accepted" << endmsg;
+      //msg() << MSG::DEBUG << "Hit accepted" << endreq;
     
     } // collection
   }
@@ -1406,11 +1406,11 @@ namespace Muon {
       }
     // if (evtStore()->record(cscAssMap,m_cscAssoOutputLocation).isSuccess())
     // {
-    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endmsg;
+    //     msg() << MSG::DEBUG << "stored Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation  << endreq;
     // }
     // else 
     // {
-    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endmsg;
+    //     msg() << MSG::DEBUG << "Failed to store Csc MuonSegPatAssociations at " << m_cscAssoOutputLocation << endreq;
     // }
   }
 
@@ -1683,17 +1683,13 @@ namespace Muon {
     TrkDriftCircleMath::MatchDCWithLine matchWithLine;  
     bool stop = false;
     for( int i = 0; i < 8; i++ ) {
-      if (layerHits.count(i) != 1) continue;
+      if (layerHits.count(i) != 1) continue;    
       DCVec& dci = layerHits[i];
       if (dci.size() > 10) continue;
       DCCit iti = dci.begin();
       DCCit iti_end = dci.end();
       for( ;iti!=iti_end;++iti ) {
 	// One seed selected
-	float tubeRadius=14.6;
-	if((*iti).rot()){ //if no access to rot, can't do anything here
-	  tubeRadius = (*iti).rot()->detectorElement()->innerTubeRadius();
-	}
 	for( int j = 7; j > i; j-- ) {
 	  if (layerHits.count(j) != 1) continue;    
 	  DCVec& dcj = layerHits[j];
@@ -1716,7 +1712,7 @@ namespace Muon {
 	      else if(cospsi < -1. ) cospsi = -1.;
 	      double psi = std::acos(cospsi);
 	      if (psi > 0.3) continue;
-	      matchWithLine.set( *lit, roadWidth, TrkDriftCircleMath::MatchDCWithLine::Road,tubeRadius );
+	      matchWithLine.set( *lit, roadWidth, TrkDriftCircleMath::MatchDCWithLine::Road );
 	      const TrkDriftCircleMath::DCOnTrackVec& hitsOnLine = matchWithLine.match( dcs );
 	      unsigned int matchedHits = matchWithLine.hitsOnTrack();
 	      ATH_MSG_VERBOSE (" Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
