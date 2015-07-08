@@ -232,6 +232,10 @@ TriggerHLTList = [
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMergedAux'+RemoveTauVariables,        'BS ESD AODFULL AODSLIM', 'Tau'), 
     ('xAOD::TauJetContainer#HLT_TrigTauRecPreselection',                           'BS ESD AODFULL AODSLIM', 'Tau'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecPreselectionAux'+RemoveTauVariables,  'BS ESD AODFULL AODSLIM', 'Tau'),
+
+    ('xAOD::TauJetContainer#HLT_TrigTauRecCaloOnly', 				   'BS ESD AODFULL', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecCaloOnlyAux'+RemoveTauVariables, 	   'BS ESD AODFULL', 'Tau'),
+
     ('xAOD::JetContainer#HLT_TrigTauJet',                                          'BS ESD AODFULL AODSLIM', 'Tau'), 
     ('xAOD::JetTrigAuxContainer#HLT_TrigTauJetAux.',                               'BS ESD AODFULL AODSLIM', 'Tau'), 
 
