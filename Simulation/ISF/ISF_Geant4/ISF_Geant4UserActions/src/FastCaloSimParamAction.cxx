@@ -41,6 +41,8 @@
 
 // TileCAL calculators
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "G4SDManager.hh"
+#include "TileGeoG4SD/TileGeoG4SD.hh"
 
 #include "ISF_Event/FCS_StepInfo.h"
 #include "ISF_Event/FCS_StepInfoCollection.h"
@@ -166,8 +168,19 @@ void FastCaloSimParamAction::BeginOfEventAction(const G4Event* )
   if (m_calculator_EMEPS == 0)
     m_calculator_EMEPS = LArEndcapPresamplerCalculator::GetCalculator();
   if (m_calculator_Tile == 0)
-    m_calculator_Tile = TileGeoG4SDCalc::instance();
-
+    {
+      // Get the tile calculator from the SD
+      G4SDManager *sdManager = G4SDManager::GetSDMpointer();
+      TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
+      if (tileSD){
+        m_calculator_Tile = tileSD->GetCalculator();
+      } else {
+        G4ExceptionDescription description;
+        description << "FastCaloSimParamAction::BeginOfEventAction - can't find TileGeoG4SDCalc";
+        G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
+        abort();
+      }
+    }
   if (m_current_transform == 0)
 	m_current_transform = new G4AffineTransform ();
 
@@ -313,7 +326,19 @@ void FastCaloSimParamAction::BeginOfRunAction(const G4Run* )
   if (m_calculator_EMEPS == 0)
     m_calculator_EMEPS = LArEndcapPresamplerCalculator::GetCalculator();
   if (m_calculator_Tile ==0)
-    m_calculator_Tile = TileGeoG4SDCalc::instance();
+    {
+      // Get the tile calculator from the SD
+      G4SDManager *sdManager = G4SDManager::GetSDMpointer();
+      TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
+      if (tileSD){
+        m_calculator_Tile = tileSD->GetCalculator();
+      } else {
+        G4ExceptionDescription description;
+        description << "FastCaloSimParamAction::BeginOfRunAction - can't find TileGeoG4SDCalc";
+        G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
+        abort();
+      }
+    }
 
   if (m_current_transform == 0)
 	m_current_transform = new G4AffineTransform ();
