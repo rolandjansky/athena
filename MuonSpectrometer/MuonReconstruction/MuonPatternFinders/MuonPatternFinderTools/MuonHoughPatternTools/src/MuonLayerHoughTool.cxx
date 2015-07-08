@@ -55,11 +55,6 @@ namespace Muon {
   }
 
   StatusCode MuonLayerHoughTool::initialize() {
-    
-    if( AthAlgTool::initialize().isFailure() ){
-      ATH_MSG_ERROR("Failed to initialize AthAlgTool " );
-      return StatusCode::FAILURE;
-    }
 
     if (m_idHelper.retrieve().isFailure()){
       ATH_MSG_ERROR("Failed to initialize " << m_idHelper );
@@ -193,46 +188,13 @@ namespace Muon {
       }
       ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << name << " found " << m_truthCollections[i]->size());
     }
-  }
-  
-  void MuonLayerHoughTool::reset() {
-    m_foundTruthHits.clear();
-    m_outputTruthHits.clear();
-    m_truthHits.clear();
-    // ?!? auto
-    for( HoughDataPerSectorVec::iterator hdit=m_houghDataPerSectorVec.begin();hdit!=m_houghDataPerSectorVec.end();++hdit ) hdit->cleanUp();
-    m_houghDataPerSectorVec.clear();
-    m_seedMaxima.clear();
-    std::vector<TgcHitClusteringObj*>::iterator clit = m_tgcClusteringObjs.begin();
-    std::vector<TgcHitClusteringObj*>::iterator clit_end = m_tgcClusteringObjs.end();
-    for( ;clit!=clit_end;++clit ) delete *clit;
-    m_tgcClusteringObjs.clear();
 
-    m_detectorHoughTransforms.reset();
-  }
-
-
-  const MuonPatternCombinationCollection* MuonLayerHoughTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-                                                                    const std::vector<const CscPrepDataCollection*>& ,  
-                                                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-                                                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-                                                                    const MuonSegmentCombinationCollection* ) {                                              
-
-    reset();
-    ATH_MSG_DEBUG("MuonLayerHoughTool::find");
-    if( m_doTruth ) getTruth();
-    if( m_ntuple )  m_ntuple->reset();
-
-    if (m_doTruth && m_ntuple){
-      const xAOD::TruthParticleContainer* TruthMuons = evtStore()->tryConstRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
-      if (!TruthMuons) {
-        ATH_MSG_WARNING ("Couldn't retrieve TruthMuons container with key: ");
-	    
-      }
-      else{
-        ATH_MSG_DEBUG("Retrieved truth muons " << TruthMuons->size());
+    if(m_ntuple){
+      const xAOD::TruthParticleContainer* truthMuons = evtStore()->tryConstRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
+      if (truthMuons) {
+        ATH_MSG_DEBUG("Retrieved truth muons " << truthMuons->size());
         int nmuons = 0;
-        for (const auto truthMu: *TruthMuons){
+        for (const auto truthMu: *truthMuons){
           m_ntuple->tpdgId[nmuons] = truthMu->pdgId();
           m_ntuple->tbarcode[nmuons] = truthMu->barcode();
           m_ntuple->tmuonIndex[nmuons] = nmuons;
@@ -252,6 +214,39 @@ namespace Muon {
         m_ntuple->nmuons = nmuons;
       }
     }
+
+  }
+  
+  void MuonLayerHoughTool::reset() {
+    m_foundTruthHits.clear();
+    m_outputTruthHits.clear();
+    m_truthHits.clear();
+    // ?!? auto
+    for( HoughDataPerSectorVec::iterator hdit=m_houghDataPerSectorVec.begin();hdit!=m_houghDataPerSectorVec.end();++hdit ) hdit->cleanUp();
+    m_houghDataPerSectorVec.clear();
+    m_seedMaxima.clear();
+    std::vector<TgcHitClusteringObj*>::iterator clit = m_tgcClusteringObjs.begin();
+    std::vector<TgcHitClusteringObj*>::iterator clit_end = m_tgcClusteringObjs.end();
+    for( ;clit!=clit_end;++clit ) delete *clit;
+    m_tgcClusteringObjs.clear();
+
+    m_detectorHoughTransforms.reset();
+
+    if( m_ntuple )  m_ntuple->reset();
+
+  }
+
+
+  const MuonPatternCombinationCollection* MuonLayerHoughTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+                                                                    const std::vector<const CscPrepDataCollection*>& ,  
+                                                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+                                                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+                                                                    const MuonSegmentCombinationCollection* ) {                                              
+
+    reset();
+    ATH_MSG_DEBUG("MuonLayerHoughTool::find");
+    if( m_doTruth ) getTruth();
+
 
     // create structure to hold data per sector and set the sector indices
     m_houghDataPerSectorVec.resize(16);
@@ -321,7 +316,6 @@ namespace Muon {
     reset();
     ATH_MSG_DEBUG("MuonLayerHoughTool::analyse");
     if( m_doTruth ) getTruth();
-    if( m_ntuple )  m_ntuple->reset();
 
     m_houghDataPerSectorVec.resize(16);
 
