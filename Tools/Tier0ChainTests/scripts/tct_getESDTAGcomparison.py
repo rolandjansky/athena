@@ -20,6 +20,8 @@ if __name__ == "__main__":
         pass
 
     print ('tct_getESDTAGcomparison.py : compare %s,%s with %s,%s' % (releaseArr[7],prevrelease,releaseArr[7],releaseArr[9]))
-    os.system('compareTCTs.py --nightly=%s --rRef=%s --rVal=%s --sum=summaryESDTAGcomp.txt' % (releaseArr[7],prevrelease,releaseArr[9]))
+    cmd = 'compareTCTs.py --nightly=%s --rRef=%s --rVal=%s --sum=summaryESDTAGcomp.txt' % (releaseArr[7],prevrelease,releaseArr[9])
+    print "Actual command (useful for reproducing locally):\n\n%s\n" % cmd
+    os.system(cmd)
     print "ErrorCode=0 (OK)"
     pass
