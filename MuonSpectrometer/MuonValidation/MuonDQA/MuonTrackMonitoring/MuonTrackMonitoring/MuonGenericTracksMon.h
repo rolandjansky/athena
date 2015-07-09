@@ -39,8 +39,8 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h" 
+#include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
 
@@ -87,9 +87,9 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
 
   void FillPullResid(RecoMuonTrackPlots *, const xAOD::TrackParticle*);
   
-  float m_inst_lumi;
+  float m_inst_lumi_bcid;
+  float m_inst_lumi_lb;
   int   m_current_lb;
-  float m_lb_nevents;
 
   TH1* m_hNEvent;//a sample histogram to count the number of events
 
@@ -124,8 +124,8 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source, TString Montype);
 
   // define the different classes of plots;
-  enum SOURCE {Z = 0, JPSI, ALLMUONS, CONTAINER, N_SOURCE};
-  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "AllMuons", "Container", "N_SOURCE"};
+  enum SOURCE {Z = 0, JPSI, ALLMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
+  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "AllMuons", "NonCBMuons", "Container", "N_SOURCE"};
   enum MUON_COMPONENT {TRACK_MS=0, TRACK_ME, TRACK_ID, N_COMPONENTS};
   // Trigger items
   bool m_useTrigger; 
@@ -134,13 +134,14 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
         
   // ATLAS Detector Description
   // Handle for the trig decision tool
-  // ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
   // ToolHandle idHelper
   ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
   ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
-
+  // MCP muon quality tool
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   // MCP T&P helpers
   ToolHandle<IMuonResonanceSelectionTool> m_ZmumuResonanceSelectionTool;
   ToolHandle<IMuonResonancePairingTool>   m_ZmumuResonancePairingTool;

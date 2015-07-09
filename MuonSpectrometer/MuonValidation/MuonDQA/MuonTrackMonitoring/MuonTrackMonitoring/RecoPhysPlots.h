@@ -24,6 +24,7 @@ class RecoPhysPlots:public PlotBase {
 
     TH1* m_Mass;
     TH1* m_occupancy;
+    TH1* m_2occupancy;
 
     TH2* m_Efficiency;
     TH2* m_EffNumerator;

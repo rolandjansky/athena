@@ -35,7 +35,8 @@
 
 MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-  m_inst_lumi(1.0),
+  m_inst_lumi_bcid(0.0),
+  m_inst_lumi_lb(0.0),
   m_current_lb(-1),
 
   m_hNEvent(NULL),
@@ -51,8 +52,8 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   m_oRecoPhysPlots(0),
 
   m_storeGate(0),
-  m_useTrigger(false),
-
+  m_useTrigger(true),
+  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_ZmumuResonanceSelectionTool("MuonResonanceSelectionTool/ZmumuResonanceSelectionTool"),
   m_ZmumuResonancePairingTool("MuonResonancePairingTool/ZmumuResonancePairingTool"),
   m_JpsimumuResonanceSelectionTool("MuonResonanceSelectionTool/JpsimumuResonanceSelectionTool"),
@@ -65,18 +66,17 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   declareProperty("UseTriggerVector",     m_useTrigger); 
   declareProperty("MuonTriggerChainName", m_MuonTriggerChainName);
   declareProperty("Muon_Trigger_Items",   m_muon_triggers);
-
-  //declareProperty("TriggerDecisionTool", 	m_trigDecTool);
+  declareProperty("TriggerDecisionTool",  m_trigDecTool);
   
   declareProperty("MuonCollection",                  m_muonsName            = "Muons");
   declareProperty("MuonSegmentCollection",           m_muonSegmentsName     = "MuonSegments");
   declareProperty("MuonTrackCollection",             m_muonTracksName       = "MuonSpectrometerTrackParticles");
   declareProperty("MuonExtrapolatedTrackCollection", m_muonExtrapTracksName = "ExtrapolatedMuonTrackParticles");
   declareProperty("InDetTrackParticles",             m_innerTracksName      = "InDetTrackParticles");
-  declareProperty("MuonHistSumTool", m_muonHitSummaryTool = std::string("Muon::MuonHitSummaryTool/MuonHitSummaryTool"));
+  declareProperty("MuonHistSumTool",                 m_muonHitSummaryTool   = std::string("Muon::MuonHitSummaryTool/MuonHitSummaryTool"));
+  declareProperty("MuonSelectorTool",                m_muonSelectionTool);
   declareProperty("ZmumuResonanceSelectionTool",     m_ZmumuResonanceSelectionTool);
   declareProperty("JpsimumuResonanceSelectionTool",  m_JpsimumuResonanceSelectionTool);
-  
 }
 
 //======================================================================================//
@@ -109,7 +109,8 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     
   MgmtAttr_t attr = ATTRIB_MANAGED;
 
-  std::string rootpath = "MuonPhysics";
+  //set the path with trigger chain name
+  std::string rootpath = "MuonPhysics/" + m_MuonTriggerChainName;
   
   if(newEventsBlock){}
   if(newLumiBlock){}
@@ -126,60 +127,52 @@ StatusCode MuonGenericTracksMon::bookHistograms()
 
     for (int i = 0; i < SOURCE::N_SOURCE; i++) {
 
-      dirpath = rootpath + "/Overview/" + sources[i];
-      MonGroup mongroup_overview(this, dirpath, run, attr);
-      dirpath = "Overview/" + sources[i];//redefine for hist name
-      m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath, sources[i]));
-      bookInMongroup(*m_oRecoLumiPlots[i], mongroup_overview, sources[i]).ignore();
+		dirpath = "Overview/" + sources[i];//redefine for hist name
+		MonGroup mongroup_overview(this, rootpath + dirpath, run, attr);
+		m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath, sources[i]));
+		bookInMongroup(*m_oRecoLumiPlots[i], mongroup_overview, sources[i]).ignore();
 
-      dirpath = rootpath + "/Segments/" + sources[i];
-      MonGroup mongroup_segments(this, dirpath, run, attr);
-      dirpath = "Segments/" + sources[i];
-      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath));
-      bookInMongroup(*m_oRecoMuonSegmentPlots[i], mongroup_segments, sources[i]).ignore();
+		dirpath = "Segments/" + sources[i];
+		MonGroup mongroup_segments(this, rootpath + dirpath, run, attr);
+		m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath));
+		bookInMongroup(*m_oRecoMuonSegmentPlots[i], mongroup_segments, sources[i]).ignore();
 
-      dirpath = rootpath + "/TracksMS/" + sources[i];
-      MonGroup mongroup_mstracks(this, dirpath, run, attr);
-      dirpath = "TracksMS/" + sources[i];
-      m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
-      bookInMongroup(*m_oRecoMuonMSTrackPlots[i], mongroup_mstracks, sources[i], "MS").ignore();
+		if(i > SOURCE::ALLMUONS){//for MS tracks, only do not CB muons, since it overlaps with ME
+		    dirpath = "TracksMS/" + sources[i];
+		    MonGroup mongroup_mstracks(this, rootpath + dirpath, run, attr);
+		    m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+		    bookInMongroup(*m_oRecoMuonMSTrackPlots[i - 3], mongroup_mstracks, sources[i], "MS").ignore();
+		}
 
-      if(i <= SOURCE::ALLMUONS){
-        dirpath = rootpath + "/TracksME/" + sources[i];
-        MonGroup mongroup_metracks(this, dirpath, run, attr);
-        dirpath = "TracksME/" + sources[i];
-        m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
-        bookInMongroup(*m_oRecoMuonMETrackPlots[i], mongroup_metracks, sources[i], "ME").ignore();
-      }
+		if(i != SOURCE::CONTAINER){//for IDME tracks and Muon, do not do container
+			dirpath = "Muons/" + sources[i];
+			MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
+			m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath));
+			bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, sources[i]).ignore();
 
-      if(i <= SOURCE::ALLMUONS){
-        dirpath = rootpath + "/TracksID/" + sources[i];
-        MonGroup mongroup_idtracks(this, dirpath, run, attr);
-        dirpath = "TracksID/" + sources[i];
-        m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(0, dirpath));
-        bookInMongroup(*m_oRecoMuonIDTrackPlots[i], mongroup_idtracks, sources[i], "ID").ignore();
-      }
+		    dirpath = "TracksME/" + sources[i];
+		    MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
+		    m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+		    bookInMongroup(*m_oRecoMuonMETrackPlots[i], mongroup_metracks, sources[i], "ME").ignore();
 
-      if(i <= SOURCE::ALLMUONS){
-          dirpath = rootpath + "/Muons/" + sources[i];
-          MonGroup mongroup_mutracks(this, dirpath, run, attr);
-          dirpath = "Muons/" + sources[i];
-          m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath));
-          bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, sources[i]).ignore();
-      }
+			dirpath = "TracksID/" + sources[i];
+			MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
+			m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(0, dirpath));
+			bookInMongroup(*m_oRecoMuonIDTrackPlots[i], mongroup_idtracks, sources[i], "ID").ignore();
+		}
 
-      if(i == SOURCE::Z){
-          dirpath = rootpath + "/MuonTrkPhys/" + sources[i];
-          MonGroup mongroup_Zsignal(this, dirpath, run, attr);
-          m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, sources[i]+"/", sources[i]));
-          bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Zsignal, sources[i]).ignore();
-      }
-      if(i == SOURCE::JPSI){
-          dirpath = rootpath + "/MuonTrkPhys/" + sources[i];
-          MonGroup mongroup_Jpsisignal(this, dirpath, run, attr);
-          m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, sources[i]+"/", sources[i]));
-          bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Jpsisignal, sources[i]).ignore();
-      }
+		if(i == SOURCE::Z){
+		    dirpath = rootpath + "/MuonTrkPhys/" + sources[i];
+		    MonGroup mongroup_Zsignal(this, dirpath, run, attr);
+		    m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, sources[i]+"/", sources[i]));
+		    bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Zsignal, sources[i]).ignore();
+		}
+		if(i == SOURCE::JPSI){
+		    dirpath = rootpath + "/MuonTrkPhys/" + sources[i];
+		    MonGroup mongroup_Jpsisignal(this, dirpath, run, attr);
+		    m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, sources[i]+"/", sources[i]));
+		    bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Jpsisignal, sources[i]).ignore();
+		}
     }//end of loopoing over different sources
 
   }//end of new run condition
@@ -253,21 +246,6 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
     }
     else hist.first->SetTitle(Montype + " Track" + sHistTitle);
 
-    //unbook some histograms
-    // if (Montype.Contains("MS")){
-    //   //if (sHistName.Contains("HitContent")){continue;}//only for ID tracks
-    //   //if (sHistName.Contains("residuals")){continue;}//only for MS
-    // }
-
-    // if (Montype.Contains("ID")){
-    //   //if (sHistName.Contains("pulls")) continue;
-    //   //if (sHistName.Contains("residuals")){continue;}
-    // }
-    // if (Montype.Contains("ME")){
-    //   //if (sHistName.Contains("pulls")){continue;}//only for MS
-    //   //if (sHistName.Contains("residuals")){continue;}//only for MS
-    //   //if (sHistName.Contains("HitContent")){continue;}//only for ID tracks
-    // }
     bookInMongroup(hist, mongroup, source).ignore();
   }
   return StatusCode::SUCCESS;
@@ -293,16 +271,23 @@ StatusCode MuonGenericTracksMon::fillHistograms()
     }
 
     ATH_MSG_DEBUG("LB " << eventInfo->lumiBlock() <<
-                  "instant " << ManagedMonitorToolBase::lbLuminosityPerBCID() <<
-                  "average " << ManagedMonitorToolBase::lbAverageLuminosity());
-    m_lb_nevents++;
+                  " instant " << ManagedMonitorToolBase::lbLuminosityPerBCID() <<
+                  " average " << ManagedMonitorToolBase::lbAverageLuminosity() <<
+                  " duration " <<  ManagedMonitorToolBase::lbDuration() << 
+                  " lbint " << ManagedMonitorToolBase::lbInteractionsPerCrossing()
+                  );
     m_current_lb = eventInfo->lumiBlock();
     m_hNEvent->Fill(m_current_lb, 1);
 
-    m_inst_lumi = ManagedMonitorToolBase::lbLuminosityPerBCID();
-    if(m_inst_lumi < 0){
-        ATH_MSG_DEBUG("Weird instantaneous luminosity. Setting to 0.");
-        m_inst_lumi = 0;
+    m_inst_lumi_bcid = ManagedMonitorToolBase::lbLuminosityPerBCID();
+    if(m_inst_lumi_bcid < 0){
+        ATH_MSG_DEBUG("Weird instantaneous luminosity per bcid. Setting to 0.");
+        m_inst_lumi_bcid = 0;
+    }
+    m_inst_lumi_lb = ManagedMonitorToolBase::lbAverageLuminosity();
+    if(m_inst_lumi_lb < 0){
+        ATH_MSG_DEBUG("Weird instantaneous luminosity per lb. Setting to 0.");
+        m_inst_lumi_lb = 0;
     }
 
     // retrieve containers
@@ -332,7 +317,7 @@ StatusCode MuonGenericTracksMon::fillHistograms()
     //   ATH_MSG_WARNING ("Couldn't retrieve muon track container: " << m_innerTracksName);
     //   return StatusCode::RECOVERABLE;
     // }
-
+    // ATH_MSG_WARNING ("MS container size: " << tracksMS->size() << " ME container size: " << METracks->size());
     // select muons from Jpsi & Z
     auto muons_jpsi = m_JpsimumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
     auto muons_Z = m_ZmumuResonanceSelectionTool->selectMuons(Muons, m_isMC, CP::SystematicSet());
@@ -346,26 +331,31 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 
     // plot muons, Z
     if (m_dataType != AthenaMonManager::cosmics){
-      for (auto resonance: resonances_Z)
-      {
-          plot_muon(*resonance.first,  SOURCE::Z);
-          plot_muon(*resonance.second, SOURCE::Z);
-      }
-      plot_resonances(resonances_Z, SOURCE::Z);
+		for (auto resonance: resonances_Z)
+		{
+		  plot_muon(*resonance.first,  SOURCE::Z);
+		  plot_muon(*resonance.second, SOURCE::Z);
+		}
+		plot_resonances(resonances_Z, SOURCE::Z);
 
-      // plot muons, J/Psi
-      for (auto resonance: resonances_jpsi)
-      {
-          plot_muon(*resonance.first,  SOURCE::JPSI);
-          plot_muon(*resonance.second, SOURCE::JPSI);
-      }
-      plot_resonances(resonances_jpsi, SOURCE::JPSI);
+		// plot muons, J/Psi
+		for (auto resonance: resonances_jpsi)
+		{
+		  plot_muon(*resonance.first,  SOURCE::JPSI);
+		  plot_muon(*resonance.second, SOURCE::JPSI);
+		}
+		plot_resonances(resonances_jpsi, SOURCE::JPSI);
     }
 
     // plot muons, all
     for (const xAOD::Muon* muon: *Muons)
     {
-        plot_muon(*muon, SOURCE::ALLMUONS);
+        if(muon->muonType() == xAOD::Muon::Combined) {
+          plot_muon(*muon, SOURCE::ALLMUONS);
+        }
+        else {
+          plot_muon(*muon, SOURCE::NONCBMUONS);
+        }
     }
 
     // plot segments container
@@ -377,19 +367,9 @@ StatusCode MuonGenericTracksMon::fillHistograms()
     // plot tracks (MS) container
     for (const xAOD::TrackParticle* track: *tracksMS)
     {
-        plot_track(*track, SOURCE::CONTAINER);
-    }
-    /*
-    for(const auto idtrk : *IDTracks) {
-      m_oRecoMuonIDTrackPlots[SOURCE::CONTAINER]->fill(*idtrk);
-
+        plot_track(*track, SOURCE::CONTAINER - 3);
     }
     
-    for(const auto metrk : *METracks) {
-      m_oRecoMuonMETrackPlots[SOURCE::CONTAINER]->fill(*metrk);
-
-    }
-    */  
     //finish all the plotting
     for (const xAOD::Muon* muon : muons_jpsi.first) delete muon;
     for (const xAOD::Muon* muon : muons_jpsi.second) delete muon;
@@ -409,11 +389,12 @@ void MuonGenericTracksMon::plot_lumi(
 //======================================================================================//
 {   
     //fill all the luminoisty related plot
-    m_oRecoLumiPlots[SOURCE::Z]->fill(resonances_Z, m_current_lb, m_inst_lumi);
-    m_oRecoLumiPlots[SOURCE::JPSI]->fill(resonances_jpsi, m_current_lb, m_inst_lumi);
-    m_oRecoLumiPlots[SOURCE::ALLMUONS]->fill(Muons, m_current_lb, m_inst_lumi);
-    m_oRecoLumiPlots[SOURCE::CONTAINER]->fill(tracksMS, m_current_lb, m_inst_lumi);
-    m_oRecoLumiPlots[SOURCE::CONTAINER]->fill(MuonSegments, m_current_lb, m_inst_lumi);
+    m_oRecoLumiPlots[SOURCE::Z]->fill(resonances_Z, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
+    m_oRecoLumiPlots[SOURCE::JPSI]->fill(resonances_jpsi, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
+    m_oRecoLumiPlots[SOURCE::ALLMUONS]->fill_CB(Muons, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
+    m_oRecoLumiPlots[SOURCE::NONCBMUONS]->fill_Other(Muons, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
+    m_oRecoLumiPlots[SOURCE::CONTAINER]->fill(tracksMS, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
+    m_oRecoLumiPlots[SOURCE::CONTAINER]->fill(MuonSegments, m_current_lb, m_inst_lumi_bcid, m_inst_lumi_lb);
 }
 
 
@@ -421,11 +402,17 @@ void MuonGenericTracksMon::plot_lumi(
 void MuonGenericTracksMon::plot_muon(const xAOD::Muon& muon, int source)
 //======================================================================================//
 {   
+
+
+    xAOD::Muon::Quality my_quality = m_muonSelectionTool->getQuality(muon);
+    ATH_MSG_DEBUG ("Muon quality value: " << my_quality << " default value " << muon.quality());
+
     m_oRecoMuonPlots[source]->fill(muon);
-    m_oRecoMuonMSTrackPlots[source]->fill(muon, MUON_COMPONENT::TRACK_MS);
+    if (source == SOURCE::NONCBMUONS) m_oRecoMuonMSTrackPlots[source - 3]->fill(muon, MUON_COMPONENT::TRACK_MS);
     m_oRecoMuonMETrackPlots[source]->fill(muon, MUON_COMPONENT::TRACK_ME);
     m_oRecoMuonIDTrackPlots[source]->fill(muon, MUON_COMPONENT::TRACK_ID);
     m_oRecoMuonSegmentPlots[source]->fill(muon);
+    m_oRecoMuonPlots[source]->fill(muon, my_quality);
 }
 
 //======================================================================================//
@@ -564,6 +551,13 @@ StatusCode MuonGenericTracksMon::setupTools()
     return sc;
   }
   ATH_MSG_DEBUG( "Retrieved " << m_JpsimumuResonancePairingTool );
+ 
+  sc = m_muonSelectionTool.retrieve();
+  if (!sc.isSuccess()){
+    ATH_MSG_FATAL( "Could not get " << m_muonSelectionTool ); 
+    return sc;
+  }
+  ATH_MSG_DEBUG( "Retrieved " << m_muonSelectionTool );
 
 
   return StatusCode::SUCCESS;

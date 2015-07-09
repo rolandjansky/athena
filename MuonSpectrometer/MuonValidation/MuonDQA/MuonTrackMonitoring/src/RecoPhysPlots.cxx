@@ -66,6 +66,7 @@ void RecoPhysPlots::initializePlots(){
     m_Mass      = Book1D("m_"+type+"_Mass",      "m_Mass: M_{"+name+"} Mass;Mass [GeV];",              nBins, minBin, maxBin);
 
     m_occupancy = Book1D("m_"+type+"_occupancy", "m_occupancy: M_{"+name+"} Track Occupancy;;N_{#mu}",   8,  0.0,   8.0);
+    m_2occupancy = Book1D("m_"+type+"_2occupancy", "m_2occupancy: M_{"+name+"} Two Track Occupancy;;N_{#mu}",   16,  0.5,   16.5);
 
     m_Efficiency     = Book2D("m_"+type+"_Efficiency",     "m_Efficiency: M_{"+name+"} Efficiency",                 8, 0.0, 8.0, 16, 1.0, 17.0);    
     m_EffNumerator   = Book2D("m_"+type+"_EffNumerator",   "m_EffNumerator: M_Efficiency Numerator",     8, 0.0, 8.0, 16, 1.0, 17.0);    
@@ -112,25 +113,25 @@ void RecoPhysPlots::fill(const float eta_mu_plus, const float eta_mu_minus, cons
     float etaRegionFinePlus    = EtaRegionFine(eta_mu_plus);
     float etaRegionFineMinus   = EtaRegionFine(eta_mu_minus);
   
-    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 3.5)) m_M_EA_EA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 2.5)) m_M_EA_BA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 1.5)) m_M_EA_BC->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 0.5)) m_M_EA_EC->Fill(invariant_mass/1000.0);
-                
-    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 3.5)) m_M_BA_EA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 2.5)) m_M_BA_BA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 1.5)) m_M_BA_BC->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 0.5)) m_M_BA_EC->Fill(invariant_mass/1000.0);
-                
-    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 3.5)) m_M_BC_EA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 2.5)) m_M_BC_BA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 1.5)) m_M_BC_BC->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 0.5)) m_M_BC_EC->Fill(invariant_mass/1000.0);
-                
-    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 3.5)) m_M_EC_EA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 2.5)) m_M_EC_BA->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 1.5)) m_M_EC_BC->Fill(invariant_mass/1000.0);
-    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 0.5)) m_M_EC_EC->Fill(invariant_mass/1000.0);
+    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 3.5)) {m_M_EA_EA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(16);}
+    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 2.5)) {m_M_EA_BA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(15);}
+    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 1.5)) {m_M_EA_BC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(14);}
+    if((etaRegionCoarsePlus == 3.5 && etaRegionCoarseMinus == 0.5)) {m_M_EA_EC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(13);}
+
+    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 3.5)) {m_M_BA_EA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(12);}
+    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 2.5)) {m_M_BA_BA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(11);}
+    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 1.5)) {m_M_BA_BC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(10);}
+    if((etaRegionCoarsePlus == 2.5 && etaRegionCoarseMinus == 0.5)) {m_M_BA_EC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(9);}
+
+    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 3.5)) {m_M_BC_EA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(8);}
+    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 2.5)) {m_M_BC_BA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(7);}
+    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 1.5)) {m_M_BC_BC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(6);}
+    if((etaRegionCoarsePlus == 1.5 && etaRegionCoarseMinus == 0.5)) {m_M_BC_EC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(5);}
+
+    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 3.5)) {m_M_EC_EA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(4);}
+    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 2.5)) {m_M_EC_BA->Fill(invariant_mass/1000.0); m_2occupancy->Fill(3);}
+    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 1.5)) {m_M_EC_BC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(2);}
+    if((etaRegionCoarsePlus == 0.5 && etaRegionCoarseMinus == 0.5)) {m_M_EC_EC->Fill(invariant_mass/1000.0); m_2occupancy->Fill(1);}
 
     m_Mass->Fill(invariant_mass/1000.0);
     m_occupancy->Fill(etaRegionFinePlus);
@@ -142,6 +143,7 @@ void RecoPhysPlots::finalizeRecoPlots(){
 
     LabelCombinedEtaRegions(m_M_Mean->GetXaxis());
     LabelCombinedEtaRegions(m_M_Sigma->GetXaxis());
+    LabelCombinedEtaRegions(m_2occupancy->GetXaxis());
     
     LabelLargeEtaRegions(m_occupancy->GetXaxis());
     LabelLargeEtaRegions(m_Efficiency->GetXaxis());
