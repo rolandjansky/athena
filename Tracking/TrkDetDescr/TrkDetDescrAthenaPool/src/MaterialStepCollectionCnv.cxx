@@ -33,7 +33,7 @@ StatusCode MaterialStepCollectionCnv::initialize()
 {
   if (MaterialStepCollectionCnvBase::initialize().isFailure() )
   {
-    m_log << MSG::FATAL << "Could not initialize MaterialStepCollectionCnvBase" << endmsg;
+    m_log << MSG::FATAL << "Could not initialize MaterialStepCollectionCnvBase" << endreq;
     return StatusCode::FAILURE;
   }
   

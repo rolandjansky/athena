@@ -31,14 +31,14 @@ StatusCode LayerMaterialMapCnv::initialize()
 {
     StatusCode sc = LayerMaterialMapCnvBase::initialize();
     if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
+        m_log << MSG::FATAL << "Could not initialize cnv base" << endreq;
         return sc;
     }
     //-------------------------------------------------------------------------
     // Set up the message stream
     //-------------------------------------------------------------------------
     m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::INFO << "LayerMaterialMapCnv::initialize()" << endmsg;
+    m_log << MSG::INFO << "LayerMaterialMapCnv::initialize()" << endreq;
    
     return StatusCode::SUCCESS;
 }
