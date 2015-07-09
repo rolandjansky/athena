@@ -12,7 +12,7 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_DBREADER_H
-# define MUONGEOMODEL_DBREADER_H
+#define MUONGEOMODEL_DBREADER_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "StoreGate/StoreGateSvc.h"
@@ -21,102 +21,56 @@
 #include <string>
 #include <iostream>
 
-// Nova Objects  for  this class ////////////////////////////
-//#include "NovaObjects/MuchdigGgcd.h"
-//#include "NovaObjects/MuchdigGgsd.h"
-//#include "NovaObjects/MuchdigGgcdClassDef.h"
-//#include "NovaObjects/MuchdigGgsdClassDef.h"
-
-// Nova Objects  for  template functions ///////////////////
-
-// WMDT - Mdt inner structure 
-//#include "NovaObjects/AmdbrdWmdtClassDef.h"
-//#include "NovaObjects/CtbhgeotbWmdtClassDef.h"
+// WMDT - Mdt inner structure
 #include "MuonGMdbObjects/DblQ00Wmdt.h"
 
-// WCSC - Csc inner structure 
-//#include "NovaObjects/AmdbrdWcscClassDef.h"
-//#include "NovaObjects/CtbhgeotbWcscClassDef.h"
+// WCSC - Csc inner structure
 #include "MuonGMdbObjects/DblQ00Wcsc.h"
 
-// WRPC and AWLN - Rpc inner structure 
-//#include "NovaObjects/AmdbrdWrpcClassDef.h"
-//#include "NovaObjects/CtbhgeotbWrpcClassDef.h"
+// WRPC and AWLN - Rpc inner structure
 #include "MuonGMdbObjects/DblQ00Wrpc.h"
-//#include "NovaObjects/AmdbrdAwlnClassDef.h"
-//#include "NovaObjects/CtbhgeotbAwlnClassDef.h"
 #include "MuonGMdbObjects/DblQ00Awln.h"
 
-// WTGC and ATLN - Tgc inner structure 
-//#include "NovaObjects/AmdbrdWtgcClassDef.h"
-//#include "NovaObjects/CtbhgeotbWtgcClassDef.h"
+// WTGC and ATLN - Tgc inner structure
 #include "MuonGMdbObjects/DblQ00Wtgc.h"
-//#include "NovaObjects/AmdbrdAtlnClassDef.h"
-//#include "NovaObjects/CtbhgeotbAtlnClassDef.h"
 #include "MuonGMdbObjects/DblQ00Atln.h"
 
-// WDED - Wded inner structure 
-//#include "NovaObjects/AmdbrdWdedClassDef.h"
-//#include "NovaObjects/CtbhgeotbWdedClassDef.h"
+// WDED - Wded inner structure
 #include "MuonGMdbObjects/DblQ00Wded.h"
 
-// WSPA - Spa inner structure 
-//#include "NovaObjects/AmdbrdWspaClassDef.h"
-//#include "NovaObjects/CtbhgeotbWspaClassDef.h"
+// WSPA - Spa inner structure
 #include "MuonGMdbObjects/DblQ00Wspa.h"
 
-// WSUP - Sup inner structure 
-//#include "NovaObjects/AmdbrdWsupClassDef.h"
-//#include "NovaObjects/CtbhgeotbWsupClassDef.h"
+// WSUP - Sup inner structure
 #include "MuonGMdbObjects/DblQ00Wsup.h"
 
-// WCHV - Chv inner structure 
-//#include "NovaObjects/CtbhgeotbWchvClassDef.h"
+// WCHV - Chv inner structure
 #include "MuonGMdbObjects/DblQ00Wchv.h"
 
-// WCRO - Cro inner structure 
-//#include "NovaObjects/CtbhgeotbWcroClassDef.h"
+// WCRO - Cro inner structure
 #include "MuonGMdbObjects/DblQ00Wcro.h"
 
-// WCMI - Cmi inner structure 
-//#include "NovaObjects/CtbhgeotbWcmiClassDef.h"
+// WCMI - Cmi inner structure
 #include "MuonGMdbObjects/DblQ00Wcmi.h"
 
-// WLBI - Lbi inner structure 
-//#include "NovaObjects/CtbhgeotbWlbiClassDef.h"
+// WLBI - Lbi inner structure
 #include "MuonGMdbObjects/DblQ00Wlbi.h"
 
 // getting layout, and db versions
-//#include "NovaObjects/AmdbrdDbamClassDef.h"
 #include "MuonGMdbObjects/DblQ00Dbam.h"
-//#include "NovaObjects/CtbhgeotbCtbhClassDef.h"
-//#include "NovaObjects/CtbhgeotbMuonClassDef.h"
 
-// Asmp(not used), Atyp, Almn - stations and components 
-//#include "NovaObjects/AmdbrdAsmpClassDef.h"
-//#include "NovaObjects/CtbhgeotbAsmpClassDef.h"
+// Asmp(not used), Atyp, Almn - stations and components
 #include "MuonGMdbObjects/DblQ00Asmp.h"
-//
-//#include "NovaObjects/AmdbrdAtypClassDef.h"
-//#include "NovaObjects/CtbhgeotbAtypClassDef.h"
 #include "MuonGMdbObjects/DblQ00Atyp.h"
-//
-//#include "NovaObjects/AmdbrdAlmnClassDef.h"
-//#include "NovaObjects/CtbhgeotbAlmnClassDef.h"
 #include "MuonGMdbObjects/DblQ00Almn.h"
 
 // Aptp Positions
-//#include "NovaObjects/AmdbrdAptpClassDef.h"
-//#include "NovaObjects/CtbhgeotbAptpClassDef.h"
 #include "MuonGMdbObjects/DblQ00Aptp.h"
 // Aszt Alignements
-//#include "NovaObjects/CtbhgeotbAsztClassDef.h"
 #include "MuonGMdbObjects/DblQ00Aszt.h"
 
 // Acut & Alin cutouts:
-//#include "NovaObjects/AmdbrdAcutClassDef.h"
 #include "MuonGMdbObjects/DblQ00Acut.h"
-//#include "NovaObjects/AmdbrdAlinClassDef.h"
 #include "MuonGMdbObjects/DblQ00Alin.h"
 
 // Service header files

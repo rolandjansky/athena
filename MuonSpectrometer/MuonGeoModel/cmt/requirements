@@ -14,7 +14,6 @@ use AthenaKernel     AthenaKernel-*       Control
 use StoreGate        StoreGate-*          Control
 use AtlasCLHEP       AtlasCLHEP-*         External
 use GaudiInterface   GaudiInterface-*     External
-use RDBAccessSvc     RDBAccessSvc-*       Database/AthenaPOOL
 use GeoModelKernel   GeoModelKernel-*     DetectorDescription/GeoModel
 use GeoModelInterfaces  GeoModelInterfaces-*  DetectorDescription/GeoModel
 use GeoModelUtilities   GeoModelUtilities-*   DetectorDescription/GeoModel
@@ -27,6 +26,7 @@ apply_pattern declare_joboptions files="-s=../share *.txt *.py"
 apply_pattern dual_use_library files=*.cxx
 
 private
+use RDBAccessSvc     RDBAccessSvc-*       Database/AthenaPOOL
 use CLIDSvc               CLIDSvc-*              Control
 use SGTools               SGTools-*              Control
 use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL

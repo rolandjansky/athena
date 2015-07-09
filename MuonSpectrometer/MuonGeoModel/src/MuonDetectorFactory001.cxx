@@ -21,7 +21,6 @@
 #include "MuonReadoutGeometry/GenericMDTCache.h"
 #include "MuonReadoutGeometry/GenericRPCCache.h"
 #include "MuonReadoutGeometry/GenericTGCCache.h"
-#include "MuonGeoModel/ArrayFunction.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 
 #include "IdDictDetDescr/IdDictManager.h" 

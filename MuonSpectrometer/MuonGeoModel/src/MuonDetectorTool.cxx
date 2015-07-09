@@ -62,13 +62,13 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_cachingFlag(1),
       m_enableMdtDeformations(0),
       m_enableMdtAsBuiltParameters(0),
-      m_condDataTool("MuonAlignmentDbTool/MGM_AlignmentDbTool"),
+      m_condDataTool(),
       m_manager(0)
 {
     declareInterface<IGeoModelTool>(this);
     MsgStream log(msgSvc(), "MGM::MuonDetectorTool::MuonDetectorTool"); 
     declareProperty("LayoutName"			, m_layout );
-    declareProperty("UseConditionDb"			, m_accessCondDb = 1);
+    declareProperty("UseConditionDb"			, m_accessCondDb);
     declareProperty("UseAsciiConditionData"		, m_asciiCondData);
     declareProperty("BuildFromNova",m_nova);
     declareProperty("IncludeCutouts"			, m_includeCutouts);
@@ -136,33 +136,18 @@ MuonDetectorTool::initialize()
     //MsgStream log(msgSvc(), name());
     //log<<MSG::INFO<<"Initialize"<<endreq;
     msg(MSG::INFO)<<"Initializing ..."<<endreq;
-    
-    StatusCode sc = m_condDataTool.retrieve();
-    if ( sc.isFailure() )
-    {
-        //log<<MSG::ERROR<<"Could not retrieve MuonAlignmentDbTool"<<endreq;
-        msg(MSG::ERROR) << "Could not retrieve MuonAlignmentDbTool" << endreq;
-    }
-    else
-    {
-        //log<<MSG::INFO<<"MuonAlignmentDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
-        msg(MSG::INFO)<<"MuonAlignmentDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
-    }
+
+    if( !m_condDataTool.empty() ) ATH_CHECK( m_condDataTool.retrieve() );
 
     // Incident Svc 
     ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-    sc = incidentSvc.retrieve();
-    if (sc.isFailure()) {
-        //log << MSG::ERROR << "IncidentSvc not found" << endreq;
-        msg(MSG::ERROR) << "IncidentSvc not found" << endreq;
-        return StatusCode::FAILURE;
-    }  
+    ATH_CHECK( incidentSvc.retrieve() );
     //Cannot remove DE at End of Event (potentially before other components performe some clean-up still using DE) 
     //incidentSvc->addListener(this, "EndEvent");   
     //StoreCleared still takes place at each event and as soon as the event store is cleared
     incidentSvc->addListener(this, "StoreCleared");    
     
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 void MuonDetectorTool::handle(const Incident& inc)
@@ -538,23 +523,28 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
     //if ((detStore->record(m_manager->BLineContainer(),"MDT_B_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
 
     //
-    std::vector<std::string> folderNames = m_condDataTool->abLineFolderNames();
-    std::vector<std::string> foundFolderNames;
-    msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
-    int ic=0;
+
     bool aFolderFound = false;
-    for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
-    {
-        ++ic;
-        msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
-        if (detStore->contains<CondAttrListCollection>(*ifld)) {
-            aFolderFound=true;
-            foundFolderNames.push_back(*ifld);
-            msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
-        }
-        else
-            msg(MSG::INFO)<<" NOT found in the DetStore"<<endreq;
-    }    
+    std::vector<std::string> foundFolderNames;
+
+    if( !m_condDataTool.empty() ){
+      std::vector<std::string> folderNames = m_condDataTool->abLineFolderNames();
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+      int ic=0;
+      for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
+      {
+          ++ic;
+          msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
+          if (detStore->contains<CondAttrListCollection>(*ifld)) {
+              aFolderFound=true;
+              foundFolderNames.push_back(*ifld);
+              msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+          }
+          else
+              msg(MSG::INFO)<<" NOT found in the DetStore"<<endreq;
+      }
+    }
+
     if (!aFolderFound) 
     {
         msg(MSG::INFO)<<"CondAttrListCollection not found in the DetectorStore"<<endreq
