@@ -12,6 +12,9 @@
 #include "MuonHistUtils/RecoInfoPlots.h"
 #include "MuonHistUtils/MomentumPullPlots.h"
 #include "MuonHistUtils/MuonHitSummaryPlots.h"
+#include "MuonHistUtils/MuonIsolationPlots.h"
+#include "MuonHistUtils/MuonParamPlots.h"
+
 
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
@@ -20,6 +23,7 @@ class RecoMuonPlots:public PlotBase {
     public:
       RecoMuonPlots(PlotBase* pParent, std::string sDir);
       void fill(const xAOD::Muon& mu);
+      void fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality);
       
       // Reco only information
       Trk::ParamPlots                 m_oAllPlots;
@@ -28,6 +32,15 @@ class RecoMuonPlots:public PlotBase {
       Muon::MomentumPullPlots         m_oMomentumPullPlots;
       Trk::MSHitPlots                 m_oMSHitPlots; 
       Muon::MuonHitSummaryPlots       m_oMuonHitSummaryPlots;
+      Muon::MuonIsolationPlots        m_oMuonIsolationPlots;
+      Muon::MuonParamPlots            m_oMuonParamPlots;
+
+      //extra monitoring plots
+      Trk::ParamPlots                 m_oAllPlots_tight;
+      Trk::ParamPlots                 m_oAllPlots_medium;
+      Trk::ParamPlots                 m_oAllPlots_loose;
+      Trk::ParamPlots                 m_oAllPlots_veryloose;
+
 };
 
 #endif
