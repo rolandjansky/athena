@@ -14,15 +14,18 @@ use xAODTrigger         xAODTrigger-*          Event/xAOD
 use xAODTrigMuon        xAODTrigMuon-*         Event/xAOD
 use xAODTracking        xAODTracking-*         Event/xAOD
 use TrkValHistUtils     TrkValHistUtils-*      Tracking/TrkValidation
-use TrkEventPrimitives  TrkEventPrimitives-*   Tracking/TrkEvent
 
 private
 use MuonIdHelpers       MuonIdHelpers-*        MuonSpectrometer
 use GeoPrimitives       GeoPrimitives-*        DetectorDescription
 
+private
+#use TrkEventPrimitives  TrkEventPrimitives-*   Tracking/TrkEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkEventPrimitives"
+
 
 ##
 public
-library MuonHistUtils ../src/*.cxx
+library MuonHistUtils ../Root/*.cxx ../src/*.cxx
 apply_pattern installed_library
 

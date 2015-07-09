@@ -3,7 +3,9 @@
 */
 
 #include "MuonHistUtils/MomentumTruthPullPlots.h"
+#ifndef XAOD_ANALYSIS
 #include "xAODTracking/TrackingPrimitives.h"
+#endif // not XAOD_ANALYSIS
 
 namespace Muon{
 
@@ -84,8 +86,9 @@ void MomentumTruthPullPlots::fill(const xAOD::Muon& muon, const xAOD::TrackParti
   if (msTrk) pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
   
   float eloss = 0;
+#ifndef XAOD_ANALYSIS
   if (muon.parameter(eloss,xAOD::Muon::MeasEnergyLoss)) {;}
-
+#endif
   float pTruthMS = 0; //p truth at MS entry
   if (truthMu.isAvailable<float>("MuonEntryLayer_px") &&
       truthMu.isAvailable<float>("MuonEntryLayer_py") &&

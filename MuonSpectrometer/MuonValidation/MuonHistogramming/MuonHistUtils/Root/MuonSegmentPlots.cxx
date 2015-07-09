@@ -37,9 +37,9 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   ,  xypos_barrel(NULL)
   ,  xypos_endcap(NULL)
   ,  rzpos_sectorSmall(NULL)
-  ,  rzpos_sectorSmall_splitY(NULL)
+  //,  rzpos_sectorSmall_splitY(NULL)
   ,  rzpos_sectorLarge(NULL)
-  ,  rzpos_sectorLarge_splitY(NULL)
+  //,  rzpos_sectorLarge_splitY(NULL)
   
   ,  etadir(NULL)
   ,  etadir_barrel(NULL)
@@ -47,28 +47,31 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   ,  phidir(NULL)
   ,  etaphidir(NULL)
 
-								       , chamberIndex(NULL)
+	, chamberIndex(NULL)
+  , chamberIndex_perSector(NULL)
+
+  //,chamberIndex_dtheta(NULL)
 {  
 
   //booking histograms
-  segmentfitChi2 = Book1D("segmentfitChi2", "Segment fit chi2;#chi^{2};Entries", 20,0,200);
-  segmentfitNdof = Book1D("segmentfitNdof", "Segment fit Ndof;N_{dof};Entries", 20,0,20);
-  segmentfitChi2oNdof = Book1D("segmentfitChi2oNdof", "Segment fit chi2/Ndof;Segment fit #chi^{2}/N_{dof};Entries", 20,0,20);
+  segmentfitChi2 = Book1D("segmentfitChi2", "Segment fit #chi^{2};#chi^{2};Entries", 100,0,200);
+  segmentfitNdof = Book1D("segmentfitNdof", "Segment fit N_{dof};N_{dof};Entries", 100,0,20);
+  segmentfitChi2oNdof = Book1D("segmentfitChi2oNdof", "Segment fit #chi^{2}/N_{dof};Segment fit #chi^{2}/N_{dof};Entries", 100,0,20);
   
-  t0 = Book1D("t0","t0;t_0;Entries",100,-50,50);
-  t0_top = Book1D("t0_top","t0 for y>0;t_0;Entries",100,-50,50);
-  t0_bottom = Book1D("t0_bottom","t0 for y<0;t_0;Entries",100,-50,50);
-  t0err = Book1D("t0err","t0 error;t_0 error;Entries",100,0,20);
-  t0err_top = Book1D("t0err_top","t0 error for y>0;t_0 error;Entries",100,0,20);
-  t0err_bottom = Book1D("t0err_bottom","t0 error for y<0;t_0 error;Entries",100,0,20);
+  t0 = Book1D("t0","Segment Refit t_{0};t_{0};Entries",100,-25,25);
+  t0_top = Book1D("t0_top","Segment Refit t_{0} for y>0;t_{0};Entries",100,-25,25);
+  t0_bottom = Book1D("t0_bottom","Segment Refit t_{0} for y<0;t_{0};Entries",100,-25,25);
+  t0err = Book1D("t0err","Segment Refit t_{0} error;t_{0} error;Entries",100,0,10);
+  t0err_top = Book1D("t0err_top","Segment Refit t_{0} error for y>0;t_{0} error;Entries",100,0,10);
+  t0err_bottom = Book1D("t0err_bottom","Segment Refit t_{0} error for y<0;t_{0} error;Entries",100,0,10);
 
   nPrecisionHits = Book1D("nPrecisionHits","Segment precision hits;hits;Entries",20,0,20);
   nPhiLayers = Book1D("nPhiLayers","Segment phi layers;#phi layers;Entries",10,0,10);
   nTrigEtaLayers = Book1D("nTrigEtaLayers","Segment eta trigger layers;#eta trigger layers;Entries",10,0,10);
   nPrecisionHits_nTriggerHits = Book2D("nPrecisionHits_nTriggerHits", "Number of MDT hits vs Tigger station hits; MDT hits; Trigger hits", 20, -0.5, 19.5, 20, -0.5, 19.5);
 
-  B_MDT_nPhiLayers_phi = Book2D("B_MDT_nPhiLayers_phi","(Barrel MDT) Segment phi layers per phi sector;phi sector;#phi Layers",16,0.5,16.5,10,0,10);
-  B_MDT_nPhiLayers_eta = Book2D("B_MDT_nPhiLayers_eta","(Barrel BDT) Segment phi layers per eta index;eta index;#phi Layers",17,-8.5,8.5,10,0,10);
+  B_MDT_nPhiLayers_phi = Book2D("B_MDT_nPhiLayers_phi","(Barrel MDT) Segment phi layers per phi sector;phi sector;#phi Layers",16,0.5,16.5,10,0,5);
+  B_MDT_nPhiLayers_eta = Book2D("B_MDT_nPhiLayers_eta","(Barrel BDT) Segment phi layers per eta index;eta index;#phi Layers",17,-8.5,8.5,10,0,5);
   B_MDT_zeroPhiLayers_eta_phi = Book2D("B_MDT_zeroPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station without phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
   B_MDT_withPhiLayers_eta_phi = Book2D("B_MDT_withPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station with >0 phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
 
@@ -76,21 +79,31 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   sector = Book1D("sector","Segment phi sector;#phi sector;Entries",16,0.5,16.5);
   sector_perStation = Book2D("sector_perStation","Segment #phi sector per station (I/M/O);#phi sector;station",16,0.5,16.5,Muon::MuonStationIndex::StIndexMax,0,Muon::MuonStationIndex::StIndexMax);
 
-  xypos_barrel = Book2D("xypos_barrel","Segment position x-y, barrel;x_{pos};y_{pos}",150,-18000,18000,150,-18000,18000);
-  xypos_endcap = Book2D("xypos_endcap","Segment position x-y, endcap;x_{pos};y_{pos}",150,-18000,18000,150,-18000,18000);
-  rzpos_sectorLarge = Book2D("rzpos_sectorLarge","Segment position r-z, large sectors;z_{pos};r_{pos}",100,-22000,22000,75,0,18000);
-  rzpos_sectorLarge_splitY = Book2D("rzpos_sectorLarge_splitY","Segment position r-z, split top/bottom, large sectors;z_{pos};sgn(y_{pos})r_{pos}",100,-22000,22000,150,-18000,18000);
-  rzpos_sectorSmall = Book2D("rzpos_sectorSmall","Segment position r-z, small sectors;z_{pos};r_{pos}",100,-22000,22000,75,0,18000);
-  rzpos_sectorSmall_splitY = Book2D("rzpos_sectorSmall_splitY","Segment position r-z, split top/bottom, small sectors;z_{pos};sgn(y_{pos})*r_{pos}",100,-22000,22000,150,-18000,18000);
+  xypos_barrel = Book2D("xypos_barrel","Segment position x-y, barrel;x_{pos};y_{pos}",150,-14000,14000,150,-14000,14000);
+  xypos_endcap = Book2D("xypos_endcap","Segment position x-y, endcap;x_{pos};y_{pos}",150,-14000,14000,150,-14000,14000);
+  rzpos_sectorLarge = Book2D("rzpos_sectorLarge","Segment position r-z, large sectors normalized by solid angle;z_{pos};r_{pos}",100,-23000,23000,75,0,14000);
+  //rzpos_sectorLarge_splitY = Book2D("rzpos_sectorLarge_splitY","Segment position r-z, split top/bottom, large sectors;z_{pos};sgn(y_{pos})r_{pos}",100,-23000,23000,150,-14000,14000);
+  rzpos_sectorSmall = Book2D("rzpos_sectorSmall","Segment position r-z, small sectors normalized by solid angle;z_{pos};r_{pos}",100,-23000,23000,75,0,14000);
+  //rzpos_sectorSmall_splitY = Book2D("rzpos_sectorSmall_splitY","Segment position r-z, split top/bottom, small sectors;z_{pos};sgn(y_{pos})*r_{pos}",100,-23000,23000,150,-14000,14000);
 
-  etadir = Book1D("etadir","Segment direction eta;#eta_{dir};Entries",100,-5,5);
-  etadir_barrel = Book1D("etadir_barrel","Segment direction eta, barrel;#eta_{dir};Entries",100,-5,5);
-  etadir_endcap = Book1D("etadir_endcap","Segment direction eta, endcap;#eta_{dir};Entries",100,-5,5);
-  phidir = Book1D("phidir","Segment direction phi;#phi_{dir};Entries",64,-3.2,3.2);
-  etaphidir = Book2D("etaphidir","Segment direction phi vs eta;#eta_{dir};#phi_{dir}",64,-3.2,3.2,64,-3.2,3.2);
+  etadir = Book1D("etadir","Segment pointing direction eta;#eta_{dir};Entries",100,-5,5);
+  etadir_barrel = Book1D("etadir_barrel","Segment pointing direction eta, barrel;#eta_{dir};Entries",100,-5,5);
+  etadir_endcap = Book1D("etadir_endcap","Segment pointing direction eta, endcap;#eta_{dir};Entries",100,-5,5);
+  phidir = Book1D("phidir","Segment pointing direction phi;#phi_{dir};Entries",64,-3.2,3.2);
+  etaphidir = Book2D("etaphidir","Segment pointing direction phi vs eta;#eta_{dir};#phi_{dir}",64,-3.2,3.2,64,-3.2,3.2);
 
-  chamberIndex = Book1D("chamberIndex","Chamber index",Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
-  for (int i=1; i<=chamberIndex->GetXaxis()->GetNbins(); i++) chamberIndex->GetXaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+  chamberIndex = Book1D("chamberIndex","Chamber index; Chamber Index",Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  chamberIndex_perSector = Book2D("chamberIndex_perSector","Number of Segments per Chamber, normalized by solid angle; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  //chamberIndex_dtheta = Book2D("chamberIndex_dtheta","Segment #Delta#theta between position and momentum; #Delta#theta; Chamber Index ", 180, -90.0, 90.0, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  for (int i=1; i<=chamberIndex->GetXaxis()->GetNbins(); i++){
+    chamberIndex->GetXaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+    chamberIndex_perSector->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+    //chamberIndex_dtheta->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+  }
+  for (int i = 0; i < Muon::MuonStationIndex::StIndexMax; i++){
+    sector_etaIndex.push_back(Book2D(Form("%s_etastation_Large", StationName[i]), Form("Number of Segment in %s Large; #phi Sector; #eta Index", StationName[i]), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    sector_etaIndex.push_back(Book2D(Form("%s_etastation_Small", StationName[i]), Form("Number of Segment in %s Small; #phi Sector; #eta Index", StationName[i]), 18, -0.5, 17.5, 19, -9.5, 9.5));
+  }
 }
 
 MuonSegmentPlots::~MuonSegmentPlots() 
@@ -124,7 +137,6 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   sector->Fill(muSeg.sector());
   etaIndex->Fill(muSeg.etaIndex());
 
-
   nPrecisionHits->Fill(muSeg.nPrecisionHits());
   nPhiLayers->Fill(muSeg.nPhiLayers());
   nTrigEtaLayers->Fill(muSeg.nTrigEtaLayers());
@@ -137,8 +149,12 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
     else B_MDT_withPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
   }
 
+
   int chIndex = muSeg.chamberIndex();
+  float chambernorm = 1/Chamberarea[chIndex];//weight of the segment using the chamber eta-phi area
   chamberIndex->Fill(chIndex);
+  if (muSeg.z() > 0) {chamberIndex_perSector->Fill(muSeg.sector(), chIndex);}
+  else{chamberIndex_perSector->Fill(-muSeg.sector(), chIndex, chambernorm);}
   
   bool isBarrel = (chIndex<Muon::MuonStationIndex::BEE)? true: false; // BEE -> endcap
   bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors
@@ -183,21 +199,29 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   phidir->Fill(phi);
   etaphidir->Fill(eta,phi);
 
+  const int StIndex = Muon::MuonStationIndex::toStationIndex(muSeg.chamberIndex());
   if (isBarrel) {
-    xypos_barrel->Fill(x,y);
+    xypos_barrel->Fill(x,y, chambernorm);
     etadir_barrel->Fill(eta);
   } else {
-    xypos_endcap->Fill(x,y);
+    xypos_endcap->Fill(x,y, chambernorm);
     etadir_endcap->Fill(eta);
   }
   if (isSectorLarge) {
-    rzpos_sectorLarge->Fill(z,r);
-    rzpos_sectorLarge_splitY->Fill(z,r*y/fabs(y));
+    rzpos_sectorLarge->Fill(z,r, chambernorm);
+    //rzpos_sectorLarge_splitY->Fill(z,r*y/fabs(y));
+    sector_etaIndex[2*StIndex]->Fill(muSeg.sector(), muSeg.etaIndex());
   } else {
-    rzpos_sectorSmall->Fill(z,r);
-    rzpos_sectorSmall_splitY->Fill(z,r*y/fabs(y));
+    rzpos_sectorSmall->Fill(z,r, chambernorm);
+    //rzpos_sectorSmall_splitY->Fill(z,r*y/fabs(y));
+    sector_etaIndex[2*StIndex + 1]->Fill(muSeg.sector(), muSeg.etaIndex());
   }
 
+
+  // float theta_pos = globalPos.theta();
+  // float theta_dir = globalDir.theta();
+
+  // chamberIndex_dtheta->Fill((theta_pos - theta_dir)*180/3.1415, chIndex);
 }
 
 

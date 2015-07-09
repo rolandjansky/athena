@@ -8,7 +8,7 @@
 #include "xAODMuon/MuonAuxContainer.h"
 
 HLTriggerMuonPlots::HLTriggerMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
-m_oHLTriggerPlots(this, "/", "HLTrigger Muons")
+m_oHLTriggerPlots(this, "/", "HLT Muons")
 {}	
 
 void HLTriggerMuonPlots::fill(const xAOD::Muon& Trigmu){
@@ -41,4 +41,9 @@ void HLTriggerMuonPlots::fill(const xAOD::L2StandAloneMuon& L2SAmu){
 void HLTriggerMuonPlots::fill(const xAOD::L2CombinedMuon& L2CBmu){
   //General HL Plots
   m_oHLTriggerPlots.fill(L2CBmu);
+}
+
+void HLTriggerMuonPlots::fill(const xAOD::L2IsoMuon& L2Isomu){
+  //General HL Plots
+  m_oHLTriggerPlots.fill(L2Isomu);
 }

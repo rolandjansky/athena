@@ -105,10 +105,12 @@ namespace Muon{
       phiMS = -999; //at muon spectrometer entry//@@@
     }
 
+#ifndef XAOD_ANALYSIS
     // measured E-loss
     if (!muon.parameter(elossMeasured,xAOD::Muon::MeasEnergyLoss)) {
       elossMeasured = -999.;
     }
+#endif // not XAOD_ANALYSIS
     
     pTruthMS = 0; //p truth at MS entry
     if (truthMu.isAvailable<float>("MuonEntryLayer_px") &&

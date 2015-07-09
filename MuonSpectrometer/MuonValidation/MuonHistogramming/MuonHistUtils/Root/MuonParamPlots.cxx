@@ -25,7 +25,7 @@ void MuonParamPlots::initializePlots()
   ELossSigma = Book1D("ELossSigma","ELossSigma;ELossSgima [GeV];Entries",50,0,5);
 
   paramELoss = Book1D("paramELoss","paramELoss;paramELoss [GeV];Entries",50,0,10);
-  measELoss = Book1D("measELoss","measELossSigma;measELossSigma [GeV];Entries",50,0,10);
+  measELoss = Book1D("measELoss","measELoss;measELoss [GeV];Entries",50,0,10);
 }
 
 
@@ -33,10 +33,12 @@ void MuonParamPlots::fill(const xAOD::Muon& mu)
 {
   FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2);
   FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2);
+#ifndef XAOD_ANALYSIS
   FillPlot(ELoss,mu,xAOD::Muon::EnergyLoss,0.001);
+  FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001);  
   FillPlot(ELossSigma,mu,xAOD::Muon::EnergyLossSigma,0.001);
   FillPlot(paramELoss,mu,xAOD::Muon::ParamEnergyLoss,0.001);
-  FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001);  
+#endif // not XAOD_ANALYSIS
 }
   
 void MuonParamPlots::FillPlot(TH1* hist, const xAOD::Muon& mu,const xAOD::Muon::ParamDef paramDef,float scale) {

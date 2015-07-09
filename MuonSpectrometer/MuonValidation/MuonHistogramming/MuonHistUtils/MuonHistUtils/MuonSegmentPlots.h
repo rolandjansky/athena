@@ -50,9 +50,9 @@ class MuonSegmentPlots:public PlotBase {
       TH2* xypos_barrel;
       TH2* xypos_endcap;
       TH2* rzpos_sectorSmall;
-      TH2* rzpos_sectorSmall_splitY;
+      //TH2* rzpos_sectorSmall_splitY;
       TH2* rzpos_sectorLarge;
-      TH2* rzpos_sectorLarge_splitY;
+      //TH2* rzpos_sectorLarge_splitY;
 
       TH1* etadir;
       TH1* etadir_barrel;
@@ -61,8 +61,19 @@ class MuonSegmentPlots:public PlotBase {
       TH1* etaphidir;
 
       TH1* chamberIndex;
+      TH2* chamberIndex_perSector;
+
+
+      //TH2* chamberIndex_dtheta;
+      std::vector<TH2*> sector_etaIndex;
 
       const float myPi = 3.14159;
+      const char *StationName[8] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE"};//For filling in monitoring plots
+      const float Chamberarea[17] = {0.465313, 0.589744, 0.393503, 0.516815, 0.404094, 
+                                    0.588759, 0.0700091, 0.204258, 0.50283, 0.577781, 
+                                    0.902194, 0.484968, 0.746214, 0.111742, 0.192025, 
+                                    0.380506, 0.380506};//eta * phi for each sector
+
 };
 }
 

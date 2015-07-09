@@ -2,7 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "MuonHistUtils/MuonHitResidualPlots.h"
+#include <stddef.h> // for NULL
+#include <vector>
+#include "TH2.h" 
+#include "TProfile.h" 
+#include "TrkEventPrimitives/ResidualPull.h"
 
 namespace Muon{
 											   
@@ -28,3 +35,6 @@ void MuonHitResidualPlots::fill(const Trk::ResidualPull& resPull, int stationPhi
 }
 
 }//closing namespace
+
+#endif // not XAOD_ANALYSIS
+
