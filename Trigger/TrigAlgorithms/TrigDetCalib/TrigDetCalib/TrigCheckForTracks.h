@@ -23,6 +23,7 @@
 #include "TrigDetCalib/ITrigROBSelector.h"
 #include "eformat/SourceIdentifier.h"
 
+class StoreGateSvc;
 class TriggerElement;
 class PartialEventBuildingInfo;
 
@@ -91,6 +92,9 @@ ToolHandle<ITrigROBSelector> m_robSelector;
   std::vector<uint32_t> m_extraROBs;    
 
   std::vector<eformat::SubDetector> m_trigResults;
+
+  StoreGateSvc*                           m_storeGate;
+
 
   // Timing:
   ITrigTimerSvc*            m_timerSvc;

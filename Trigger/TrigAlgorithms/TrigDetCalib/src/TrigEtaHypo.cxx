@@ -9,7 +9,7 @@
 //
 // ********************************************************************
 
-#include "TrigEtaHypo.h"
+#include "TrigDetCalib/TrigEtaHypo.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"

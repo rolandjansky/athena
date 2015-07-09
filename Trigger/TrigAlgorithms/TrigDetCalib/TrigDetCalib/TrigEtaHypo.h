@@ -20,6 +20,9 @@
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
+class StoreGateSvc;
+class TriggerElement;
+
 class TrigEtaHypo : public HLT::HypoAlgo {
 
  public:
@@ -46,6 +49,8 @@ class TrigEtaHypo : public HLT::HypoAlgo {
 
   // Switch on Monitoring:
   bool m_doMonitoring;
+
+  StoreGateSvc*                           m_storeGate;
 
   // Timing:
   ITrigTimerSvc*            m_timerSvc;

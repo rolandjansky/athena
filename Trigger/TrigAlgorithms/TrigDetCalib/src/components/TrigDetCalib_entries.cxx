@@ -1,10 +1,9 @@
-#include "../TrigROBSelector.h"
-#include "../TrigROBListWriter.h"
-#include "../TrigSubDetListWriter.h"
-#include "../TrigEtaHypo.h"
-#include "../TrigCheckForTracks.h"
-#include "../ScoutingStreamWriter.h"
-#include "../TrigL1CaloOverflow.h"
+#include "TrigDetCalib/TrigROBSelector.h"
+#include "TrigDetCalib/TrigROBListWriter.h"
+#include "TrigDetCalib/TrigSubDetListWriter.h"
+#include "TrigDetCalib/TrigEtaHypo.h"
+#include "TrigDetCalib/TrigCheckForTracks.h"
+#include "TrigDetCalib/ScoutingStreamWriter.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -14,7 +13,6 @@ DECLARE_ALGORITHM_FACTORY( TrigSubDetListWriter )
 DECLARE_ALGORITHM_FACTORY( TrigEtaHypo )
 DECLARE_ALGORITHM_FACTORY( TrigCheckForTracks )
 DECLARE_ALGORITHM_FACTORY( ScoutingStreamWriter )
-DECLARE_ALGORITHM_FACTORY( TrigL1CaloOverflow )
 
 DECLARE_FACTORY_ENTRIES( TrigDetCalib ) {
     DECLARE_TOOL( TrigROBSelector )
@@ -23,6 +21,5 @@ DECLARE_FACTORY_ENTRIES( TrigDetCalib ) {
     DECLARE_ALGORITHM( TrigEtaHypo )
     DECLARE_ALGORITHM( TrigCheckForTracks )
     DECLARE_ALGORITHM( ScoutingStreamWriter )
-    DECLARE_ALGORITHM( TrigL1CaloOverflow )
 }
 

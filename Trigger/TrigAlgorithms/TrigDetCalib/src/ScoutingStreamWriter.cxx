@@ -4,7 +4,7 @@
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
-#include "ScoutingStreamWriter.h"
+#include "TrigDetCalib/ScoutingStreamWriter.h"
 #include "TrigSteeringEvent/ScoutingInfo.h"
 
 
