@@ -6,47 +6,55 @@ author  Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch>
 branches src cmt doc
 branches run
 
-use     AtlasPolicy             AtlasPolicy-*
 # Athena Control Dependencies 
-use     AtlasROOT               AtlasROOT-*                     External
-use     GaudiInterface          GaudiInterface-*                External
-
-# MuonTrackSummaryHelperTool
-#use     MuonTrackSummaryHelperTool MuonTrackSummaryHelperTool-* MuonSpectrometer/MuonReconstruction/MuonRecTools 
-
-# Athena Monitoring Dependencies 
-#use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
+use		AtlasPolicy							AtlasPolicy-*
+use		AtlasROOT							AtlasROOT-*									External
+use		GaudiInterface						GaudiInterface-*							External
  
+use		AthenaMonitoring					AthenaMonitoring-*							Control
+use		StoreGate							StoreGate-*									Control
+use		EventPrimitives						EventPrimitives-*							Event
+use		FourMomUtils						FourMomUtils-*								Event
+use		GeoPrimitives						GeoPrimitives-*								DetectorDescription
 
-private
-use     AthenaMonitoring        AthenaMonitoring-*              Control
-use     StoreGate               StoreGate-*                     Control
+#use	AsgTools							AsgTools-*									Control/AthToolSupport
+#use	EventPrimitives						EventPrimitives-*							Event
 
 # Trigger Decision
-use     TrigDecisionInterface    TrigDecisionInterface-*        Trigger/TrigEvent
+#use		TrigDecisionInterface				TrigDecisionInterface-*						Trigger/TrigEvent
+use		TrigConfL1Data						TrigConfL1Data-*							Trigger/TrigConfiguration
+#use	TrigConfxAOD						TrigConfxAOD-*								Trigger/TrigConfiguration
 
-use     EventPrimitives         EventPrimitives-*               Event
-#use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD 
-use     MuonRecHelperTools      MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
-use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
-use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent
-# EDM dependencies
-#use     TrkParameters            TrkParameters-*                Tracking/TrkEvent
-use     TrkTrack                 TrkTrack-*                     Tracking/TrkEvent 
 
-use     TrkMultiComponentStateOnSurface     TrkMultiComponentStateOnSurface-*         Tracking/TrkEvent
-use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
-use 	xAODMuon            	xAODMuon-*             		Event/xAOD
-use 	xAODTracking        	xAODTracking-*         		Event/xAOD
-use	TrkValHistUtils		TrkValHistUtils-*      		Tracking/TrkValidation
-use     MuonHistUtils           MuonHistUtils-*                 MuonSpectrometer/MuonValidation/MuonHistogramming
+#XAOD dependencies
+use		xAODEventInfo						xAODEventInfo-*								Event/xAOD 
+use		xAODMuon							xAODMuon-*									Event/xAOD
+use		xAODTracking						xAODTracking-*								Event/xAOD
 
-use     TrkToolInterfaces        TrkToolInterfaces-*            Tracking/TrkTools
-use     TrigConfL1Data           TrigConfL1Data-*               Trigger/TrigConfiguration
+# Track dependencies
+use	TrkParameters						TrkParameters-*								Tracking/TrkEvent
+use		TrkTrack							TrkTrack-*									Tracking/TrkEvent 
+use		TrkEventPrimitives					TrkEventPrimitives-*						Tracking/TrkEvent
+use		TrkToolInterfaces					TrkToolInterfaces-* 						Tracking/TrkTools
+use		TrkValHistUtils						TrkValHistUtils-*							Tracking/TrkValidation
 
+#Muon depenencies
+use		MuonIdHelpers						MuonIdHelpers-*								MuonSpectrometer
+use		MuonHistUtils						MuonHistUtils-*								MuonSpectrometer/MuonValidation/MuonHistogramming
+use		MuonPrepRawData						MuonPrepRawData-*							MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+use		MuonRecHelperTools					MuonRecHelperTools-*						MuonSpectrometer/MuonReconstruction/MuonRecTools
+use		MuonRecToolInterfaces				MuonRecToolInterfaces-*						MuonSpectrometer/MuonReconstruction/MuonRecTools
+use		MuonSelectorTools					MuonSelectorTools-*							PhysicsAnalysis/MuonID
+use		MuonResonanceTools					MuonResonanceTools-*						PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
+#use		MuonCombinedToolInterfaces			MuonCombinedToolInterfaces-*				Reconstruction/MuonIdentification
+
+
+
+
+private
+use		TrkMeasurementBase					TrkMeasurementBase-*						Tracking/TrkEvent
+use		TrkMultiComponentStateOnSurface		TrkMultiComponentStateOnSurface-*			Tracking/TrkEvent
 end_private
-
-
 
 
 # build a component library
