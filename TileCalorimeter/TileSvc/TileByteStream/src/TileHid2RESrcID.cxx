@@ -33,6 +33,7 @@ using eformat::helper::SourceIdentifier;
 TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID)
 {
   setTileHWID(tileHWID);
+  setTileMuRcvHWID(tileHWID); 
 }
 
 void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
@@ -66,14 +67,60 @@ void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
     else if (drawer>0x7 && drawer < 0xFF) ros = 5; // frags from common beam crate
     
     // build ROD id
-    SourceIdentifier sid = SourceIdentifier(detid[ros],id);
+    SourceIdentifier sid = SourceIdentifier(detid[ros],id);    
     uint32_t rod_id =  sid.code();
-           
+
     // add ROD id to the map
     if (frag != 0x16)
       m_frag2ROD[frag] = rod_id;
     else
       m_frag2ROD[frag] = 0x520010;
+  }
+}
+
+void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID)
+{
+  m_tileHWID = tileHWID;
+  if (!m_tileHWID) return;
+
+  // make internal maps
+
+  eformat::SubDetector detid[6];
+
+  detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
+  detid[1] = eformat::TILECAL_BARREL_A_SIDE;  // 0x51 - barrel positive
+  detid[2] = eformat::TILECAL_BARREL_C_SIDE;  // 0x52 - barrel negative
+  detid[3] = eformat::TILECAL_EXT_A_SIDE;     // 0x53 - ext.bar positive
+  detid[4] = eformat::TILECAL_EXT_C_SIDE;     // 0x54 - ext.bar negative
+  detid[5] = eformat::TDAQ_BEAM_CRATE;        // 0x70 - common beam crate
+
+  // iterator over all drawer Identifiers
+  std::vector<HWIdentifier>::const_iterator first = tileHWID->drawer_begin();
+  std::vector<HWIdentifier>::const_iterator  last = tileHWID->drawer_end();
+
+  for ( ; first!=last; ++first) {
+    int ros    = tileHWID->ros(*first);
+    int drawer = tileHWID->drawer(*first);
+    int frag   = tileHWID->frag(*first);
+    uint32_t id = 0;
+
+    //std::cout << "TileHid2RESrcID::setTileMuRcvHWID ros:" << ros << " drawer: " << std::hex <<  drawer << " frag: " << frag << std::dec << std::endl;
+
+    if (ros>2){
+      // Extended Barrel
+      // (put 8 drawers in one ROD - remove last 3 bits)
+      id = (drawer >> 3) + 0x100;
+    } else {
+      // Long Barrel
+      // (put 4 drawers in one ROD - remove last 2 bits)
+      id = (drawer >> 2) + 0x100;
+    }
+    // build ROD id
+    SourceIdentifier sid = SourceIdentifier(detid[ros],id);
+    uint32_t rod_id =  sid.code();
+
+    // add ROD id to the map
+    m_TileMuRcvFrag2ROD[frag] = rod_id;
   }
 }
 
@@ -177,6 +224,9 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
                 if ( fragsize <= idPos || fragsize > size) break; // too small or too big frag - ignore and exit
 
                 int fragtype = upperhalf & 0xFF;
+
+                if (fragtype >= 0x40 && fragtype < 0x50) break;
+
                 if (fragid < 0xff) { // all testbeam frags and laser frag
                     ++nBeamFrag;
                     m_frag2ROD[fragid] = ROBid;
@@ -385,7 +435,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
           cellBuilder->m_correctTime = true;
         }
         log << " and of2=" << ((of2)?"True":"False");
-        cellBuilder->m_of2 = of2;
+        cellBuilder->m_of2 = of2; 
         log << endreq;
         if (channelBuilder && cellBuilder->m_noiseFilterTools.size() != channelBuilder->m_noiseFilterTools.size()) {
           log << MSG::INFO << " and number of NoiseFilterTools from " 
@@ -421,7 +471,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
             << " instead of " << cellBuilder->m_timeMaxThresh << endreq;
         cellBuilder->m_timeMaxThresh = channelBuilder->m_timeMaxThresh;
       }
-    }
+   }
 
     // tune options in TileROD_Decoder
     TileROD_Decoder* rodDecoder=0;
@@ -511,3 +561,23 @@ uint32_t TileHid2RESrcID::getDetID  ( uint32_t ros_id) const
  return    id2.code(); 
 }
 
+uint32_t TileHid2RESrcID::getRobFromTileMuRcvFragID(int frag_id) const
+{
+  // this method returns a RESrcID of the ROB, for a given fragment ID
+  // in eformat V3 ROB and ROD IDs are the same
+  return getRodTileMuRcvID(frag_id);
+}
+
+uint32_t TileHid2RESrcID::getRodTileMuRcvID(int frag_id) const
+{
+  // this method returns a RESrcID for the ROD, for a given fragment ID
+
+  FRAGRODMAP::const_iterator it = m_TileMuRcvFrag2ROD.find(frag_id);
+  if(it == m_TileMuRcvFrag2ROD.end()){
+    std::cout <<" TileHid2RESrcID invalid FRAG ID 0x"<<std::hex<<frag_id<<std::dec<<std::endl;
+    assert(0);
+    return 0;
+  }
+
+  return ( (*it).second ) ;
+}

@@ -35,6 +35,7 @@ public:
   */ 
   TileHid2RESrcID(const TileHWID* tileHWID=0); 
   void setTileHWID (const TileHWID* tileHWID);
+  void setTileMuRcvHWID(const TileHWID* tileHWID);
   void setROD2ROBmap (const std::vector<std::string> & ROD2ROB,
                       MsgStream & log);
 
@@ -44,18 +45,22 @@ public:
   /** make a ROB SrcID for a fragment ID
   */ 
   uint32_t getRobFromFragID  (int frag_id) const;
+  uint32_t getRobFromTileMuRcvFragID (int frag_id) const;
 
   /** make a ROD SrcID for a fragment ID
   */ 
   uint32_t getRodID  (int frag_id) const;
+  uint32_t getRodTileMuRcvID (int frag_id) const;
 
   /** Make a ROB Source ID from a ROD source ID
   */ 
   uint32_t getRobID  ( uint32_t rod_id) const; 
+  uint32_t getRobID_8  ( uint32_t rod_id) const;
 
   /** Make a ROS Source ID from a ROB source ID
   */ 
   uint32_t getRosID  ( uint32_t rob_id) const; 
+  uint32_t getRosID_8  ( uint32_t rob_id) const;
 
   /** Make a SubDetector ID from ROS source ID 
   */
@@ -64,8 +69,9 @@ public:
 private: 
 
   const TileHWID* m_tileHWID;
-  typedef std::map<int, uint32_t> FRAGRODMAP ; 
-  FRAGRODMAP m_frag2ROD ;
+  typedef std::map<int, uint32_t> FRAGRODMAP; 
+  FRAGRODMAP m_frag2ROD, m_TileMuRcvFrag2ROD;
+
 };
 
 #endif 

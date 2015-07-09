@@ -11,7 +11,10 @@
 #include "TileEvent/TileFastRawChannel.h"
 #include "TileEvent/TileDigits.h"
 #include "TileEvent/TileL2.h"
+#include "TileEvent/TileMuonReceiverObj.h"
 
+#include <iomanip>
+#include <sstream>
 #include <algorithm> 
 #include <cassert>
 #include <cmath>
@@ -40,7 +43,12 @@ void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID, bool verbose, unsign
   }
 }
 
+void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID) {
+   m_tileHWID = tileHWID;
+}
+
 void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit::UNIT unit) {
+
   unsigned int OFType = (unsigned int) type;
   if (OFType > 7) {
     OFType = 0;
@@ -76,11 +84,12 @@ void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit
     m_unitType = (rChUnit << 30) | (3 << 27) | (OFType << 24) | (m_type << 16);
     m_rc2bytes5.setUnit(rChUnit);
   }
+
 }
 
-/** convert all TileRawChannels in the current list to 
- a vector of 32bit words
- */
+/** convert all TileRawChannels in the current list to a vector of 32bit words
+*/
+
 void TileROD_Encoder::fillROD(std::vector<uint32_t>& v) {
   switch (m_type) {
     case 4:
@@ -112,18 +121,15 @@ void TileROD_Encoder::fillROD(std::vector<uint32_t>& v) {
   }
 }
 
+
 void TileROD_Encoder::fillROD10(std::vector<uint32_t>& v) {
-  std::vector<const TileL2*>::const_iterator it = m_vTileL2.begin();
-  std::vector<const TileL2*>::const_iterator it_end = m_vTileL2.end();
 
   int currentFrag(-1);
   std::vector<uint32_t>::size_type start = 0;
 
   int NMuons1 = 0, NMuons2 = 0, frag = 0;
 
-  for (; it != it_end; ++it) {
-
-    const TileL2* l2 = (*it);
+  for (const TileL2* l2 : m_vTileL2) {
 
     int ros = ((l2->identify()) | 0xff) >> 8;
     int drawer = (l2->identify()) & 0xff;
@@ -181,17 +187,13 @@ void TileROD_Encoder::fillROD10(std::vector<uint32_t>& v) {
 }
 
 void TileROD_Encoder::fillROD12(std::vector<uint32_t>& v) {
-  std::vector<const TileL2*>::const_iterator it = m_vTileL2.begin();
-  std::vector<const TileL2*>::const_iterator it_end = m_vTileL2.end();
 
   int currentFrag(-1);
   std::vector<uint32_t>::size_type start = 0;
 
   int frag = 0;
 
-  for (; it != it_end; ++it) {
-
-    const TileL2* l2 = (*it);
+  for (const TileL2* l2 : m_vTileL2) {
 
     int ros = (l2->identify()) >> 8;
     int drawer = (l2->identify()) & 0xff;
@@ -235,14 +237,11 @@ void TileROD_Encoder::fillROD12(std::vector<uint32_t>& v) {
 void TileROD_Encoder::fillROD2(std::vector<uint32_t>& v) {
   //std::sort(m_vTileRC.begin(), m_vTileRC.end(), m_order);
 
-  std::vector<const TileFastRawChannel*>::const_iterator it = m_vTileRC.begin();
-  std::vector<const TileFastRawChannel*>::const_iterator it_end = m_vTileRC.end();
-
   int currentFrag(-1);
   std::vector<uint32_t>::size_type start = 0;
 
-  for (; it != it_end; ++it) {
-    const TileFastRawChannel* rc = (*it);
+  for (const TileFastRawChannel* rc : m_vTileRC) {
+
     int frag = rc->frag() | m_unitType; // FRAG TYPE in upper half of the word
 
     if (frag != currentFrag) {
@@ -288,17 +287,15 @@ void TileROD_Encoder::fillROD3(std::vector<uint32_t>& v) {
 
   //std::sort(m_vTileRC.begin(), m_vTileRC.end(), m_order); 
 
-  std::vector<const TileFastRawChannel*>::const_iterator it = m_vTileRC.begin();
-  std::vector<const TileFastRawChannel*>::const_iterator it_end = m_vTileRC.end();
-
   int currentFrag(-1);
   bool first = true;
   short wc16 = 0;
   std::vector<uint32_t>::size_type head = 0;
   std::vector<uint32_t>::size_type count = 0;
 
-  for (; it != it_end; ++it) {
-    const TileFastRawChannel* rc = (*it);
+  for (const TileFastRawChannel* rc : m_vTileRC) {
+
+
     int frag = rc->frag() | m_unitType; // FRAG TYPE in upper half of the word
     int chan = rc->channel();
     int gain = rc->adc();
@@ -366,14 +363,11 @@ void TileROD_Encoder::fillROD3(std::vector<uint32_t>& v) {
 void TileROD_Encoder::fillROD4(std::vector<uint32_t>& v) {
   //std::sort(m_vTileRC.begin(), m_vTileRC.end(), m_order);
 
-  std::vector<const TileFastRawChannel*>::const_iterator it = m_vTileRC.begin();
-  std::vector<const TileFastRawChannel*>::const_iterator it_end = m_vTileRC.end();
-
   int currentFrag(-1);
   std::vector<uint32_t>::size_type start = 0;
 
-  for (; it != it_end; ++it) {
-    const TileFastRawChannel* rc = (*it);
+  for (const TileFastRawChannel* rc : m_vTileRC) {
+
     int frag = rc->frag() | m_unitType; // FRAG TYPE in upper half of the word
 
     if (frag != currentFrag) {
@@ -413,13 +407,10 @@ void TileROD_Encoder::fillROD4(std::vector<uint32_t>& v) {
 }
 
 void TileROD_Encoder::fillRODL2(std::vector<uint32_t>& v) {
-  std::vector<const TileL2*>::const_iterator it = m_vTileL2.begin();
-  std::vector<const TileL2*>::const_iterator it_end = m_vTileL2.end();
 
   std::map<int, const TileL2*> l2_map;
 
-  for (; it != it_end; ++it) {
-    const TileL2* l2 = (*it);
+  for (const TileL2* l2 : m_vTileL2) {
     l2_map[l2->identify()] = l2;
     //std::cout << "l2 id=0x"<<std::hex<<l2->identify()<<std::dec<<std::endl;
   }
@@ -455,14 +446,12 @@ void TileROD_Encoder::fillRODL2(std::vector<uint32_t>& v) {
 }
 
 void TileROD_Encoder::fillROD1(std::vector<uint32_t>& v) {
+
   std::sort(m_vTileDigi.begin(), m_vTileDigi.end(), m_order);
 
-  std::vector<const TileDigits*>::const_iterator it = m_vTileDigi.begin();
-  std::vector<const TileDigits*>::const_iterator it_end = m_vTileDigi.end();
-
   int currentFrag = -1, pos = 0, size = 0;
-  for (; it != it_end; it++) {
-    const TileDigits* digi = (*it);
+  for (const TileDigits* digi : m_vTileDigi) {
+    
     HWIdentifier adcID = digi->adc_HWID();
     int frag = m_tileHWID->frag(adcID) | (0x01 << 16); // FRAG TYPE = 1 in upper half of the word
     if (frag != currentFrag) {
@@ -491,6 +480,358 @@ void TileROD_Encoder::fillROD5D(std::vector<uint32_t>& /* v */) {
   ATH_MSG_ERROR( "fillROD5D -> store digits in frag5 - not yet implemented " );
 }
 
+// == START of TMDB Encoders: Digits, Raw Channel, Decision
+
+// TMDB Digits
+
+void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
+
+  ATH_MSG_DEBUG( "TMDB encoding sub-fragment 0x40: loop over " << m_vTileDigi.size() << " objects" );
+ 
+  // sub-fragment marker
+  // 
+  v.push_back(0xff1234ff);
+
+  // sub-fragment size
+  // set the size for the sub-fragment (3 [header] + 8 [# 32bit word/digit/pmt/module] x N [# digit/pmt/module])
+  v.push_back(59);
+  uint savepos=v.size()-1;
+
+  // type & version: the version is a 16-bit number and is set by fixing the 3th hexadecimal digit (8-12 in bits) to 5 and leaving all other free
+  //
+  uint32_t verfrag      = 0x500;
+  uint32_t type_version = (0x40 << 16) + verfrag; 	
+  v.push_back(type_version);
+
+  v.resize(v.size()+56); // prepare place for extra 56 words
+
+  // counters and temporary words
+  //
+  int  word8bit_cnt = 0;// number of 8bit words collected 1..4
+  int  wc           = 0;// number of blocks of 7 32-bit words saved in ROD fragment 1..8
+  int  chc          = 0;// number of digits inside the tile digits collection
+  uint nsamp = 7;
+  uint32_t word[7];
+  memset(word, 0, sizeof(word));
+
+  for (const TileDigits* digi : m_vTileDigi) {
+
+    if (wc==8) {
+      ATH_MSG_WARNING( "Too many channels per fragment for TMDB frag 0x40 - ignoring all the rest" );
+      break;
+    }
+  
+    // Get identifier(s) and digits for later usage
+    //
+    std::vector<float> digits = digi->samples();
+    nsamp = digits.size();
+    if (nsamp>7) {
+      ATH_MSG_WARNING( "Too many samples in digits for TMDB frag 0x40, using first 7 instead of "<<nsamp );
+      nsamp=7;
+      digits.resize(nsamp);
+    }
+
+    // Digits from TMDB come to fragment in the reverse order i.e. s1->s7 ... s7->s1
+    //
+    std::reverse(digits.begin(),digits.end());
+    
+    // Define two counters: (a) to count for the 8bit sub-fragments (each word has 4 8bit sub-fragments) 
+    //                      (b) to count for the 32bit words (each digit has 7 32bit words)
+    //
+    //                      |  s(i)-m(j)-d6r  |  s(i)-m(j)-d6l  |  s(i)-m(j)-d5r  |  s(i)-m(j)-d5l  |
+    //
+    int shift = word8bit_cnt * 8;
+    for ( uint i=0; i<nsamp; ++i ) {
+      word[i]  += ((int) digits[i]) << shift; 
+    }
+
+    if (msgLvl(MSG::DEBUG)) {
+      HWIdentifier hwid = digi->adc_HWID();
+      int ros     = m_tileHWID->ros(hwid);
+      int drawer  = m_tileHWID->drawer(hwid);
+      int channel = m_tileHWID->channel(hwid);
+      const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R ", " xxx "};
+      int j=std::min(channel,4);
+      for ( uint i=0; i<nsamp; ++i ) {
+        msg(MSG::DEBUG) << ros << "/" << drawer << "/" << channel << strchannel[j]
+                        <<"\tSample "<<7-i<<" bits |" << std::setfill('0') << std::setw(2) 
+                        << shift << "-" << std::setw(2) << shift+7 << std::setfill('0') 
+                        << "| of 32-bit word "<<3 + 8*i + wc<<" "<<digits[i]
+                        <<" "<<MSG::hex<<word[i]<<MSG::dec << endreq;
+      }
+    }
+
+    ++word8bit_cnt;
+
+    // When word8bit_cnt=4 a set of 32bit words word[0..6] are completed and are saved at a position inside the ROD fragment vector:
+    //
+    //   1st 32 bit word holds : | digit0 pmt3 mod0 | digit0 pmt2 mod0 | digit0 pmt1 mod0 | digit0 pmt0 mod0 |
+    //   2nd 32 bit word holds : | digit0 pmt3 mod1 | digit0 pmt2 mod1 | digit0 pmt1 mod1 | digit0 pmt0 mod1 |
+    //   ...
+    //   8th 32 bit word holds : | digit0 pmt3 mod7 | digit0 pmt2 mod7 | digit0 pmt1 mod7 | digit0 pmt0 mod7 |
+    //   ...
+    //
+    // word8bit_cnt is reset to 0 and a new set of words[0..6] is restarted.
+    //
+    if ( word8bit_cnt == 4 ) {
+      for ( uint i=0; i<nsamp; ++i ) {
+        v.at( 3 + 8*i + wc ) = word[i];
+      }
+      ++wc;
+      word8bit_cnt=0;
+      memset(word, 0, sizeof(word));
+    }
+    ++chc;
+  }
+
+  if ( word8bit_cnt != 0  && wc<8 ) { // some extra channels 
+    ATH_MSG_WARNING( "Unexpected number of channels for TMDB frag 0x40" << wc*4 + word8bit_cnt );
+    for ( uint i=0; i<nsamp; ++i ) {
+      v.at( 3 + 8*i + wc ) = word[i];
+    }
+    ++wc;
+    word8bit_cnt=0;
+    memset(word, 0 ,sizeof(word));
+  }
+
+  v.at(savepos)=3+8*7;
+
+  ATH_MSG_DEBUG( "Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc << " save in position: " << savepos );
+
+  // dump fragment
+  //	
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x40)... " << v.size() << endreq;
+    for (size_t i=0; i<v.size(); ++i)
+      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+  }
+
+  return;
+}
+
+// TMDB Raw Channel
+
+void TileROD_Encoder::fillRODTileMuRcvRawChannel(std::vector<uint32_t>&  v) {
+
+  ATH_MSG_DEBUG( "TMDB encoding sub-fragment 0x41: loop over " << m_vTileRC.size() << " objects" );
+
+  const float TMDB_AMPLITUDE_FACTOR = 1.0;
+
+  // sub-fragment marker
+  //
+  v.push_back(0xff1234ff);
+
+  // sub-fragment size
+  //
+  v.push_back(3);
+  uint savepos=v.size()-1;
+
+  // type & version: the version is a 16-bit number and is set by fixing the 3th hexadecimal digit (8-12 in bits) to 5 and leaving all other free
+  //
+  uint32_t verfrag      = 0x500;
+  // FIXME: for the moment (July 2015) we use 32-bit packing only, so we hide 16-bit version under ifdef
+  // if we decide to use 16-bit version, additional flag for encoder should be passed from top-level algorithm
+#ifdef ALLOW16BIT
+  if (use_16bit_packing) verfrag += 2;
+  int32_t word16 = 0x0;
+#endif
+  uint32_t type_version = (0x41 << 16) + verfrag;
+  v.push_back(type_version);
+
+  // counters and temporary words
+  //
+  int wc       = 0;
+  int chc      = 0;
+  uint32_t word  = 0x0;
+
+  for (const TileFastRawChannel* rc : m_vTileRC) {
+
+    // energies of individual pmts 2 words per module  |  d5r(16)  |  d5l(17)  |
+    //                                                 |  d6r(37)  |  d6l(38)  | 
+    //
+    float    f_amp = rc -> amplitude();
+    int32_t  i_amp = lround(f_amp*TMDB_AMPLITUDE_FACTOR) ;
+
+  // FIXME: for the moment (July 2015) we use 32-bit packing only, so we hide 16-bit version under ifdef
+#ifdef ALLOW16BIT
+    switch (verfrag){
+    case 0x502:
+      // 2's complement (binary conversion for negative numbers) 
+      //    x in R and bin_x the binary conversion of x ; (if x<0) then bin_x = 0xffff - abs(x) + 1 (else) bin_x = abs(x)
+      //
+      // v0 : - Feb'15: each 32-bit words holds a cell of a module 16-bit for left side PMT 16 bit for right side pmt
+      //
+      //   1st 32 bit word holds : |    d5r m0    |    d5l m0    |
+      //   2nd 32 bit word holds : |    d6r m0    |    d6l m0    |
+      //   ...
+      //   7th 32 bit word holds : |    d5r m3    |    d5l m3    |
+      //   8th 32 bit word holds : |    d6r m3    |    d6l m3    | 
+      //   ...
+      //      - While reading the FPGA it was noticed a longer word coming out larger that 16-bit
+      //      - Keep this (for now) just for history but it may be that later we understand better the FPGA output
+      //
+      //limit to the range of 16-bit integer
+      if (i_amp>0x7FFF) word16 = 0x7FFF;
+      else if (i_amp<-0x8000) word16 = -0x8000;
+      else word16 = i_amp;
+
+      if (chc&1) {
+        word |= word16 << 16;
+        v.push_back(word);
+        ++wc;
+      } else {
+        word = word16 & 0xFFFF;
+      }
+      break;
+
+    //case 0x500:
+    default:
+#else
+    {
+#endif
+      // vMay'15 current version each 32-bit word is a channel
+      word = (uint32_t)i_amp;
+      v.push_back(word);
+      ++wc;
+    }
+
+    if (msgLvl(MSG::DEBUG)) {
+        int frag_id = rc->frag();
+        int drawer  = (frag_id&0xFF);
+        int ros     = frag_id>>8;
+        int channel = rc->channel();
+        const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R ", " xxx "};
+        int j=std::min(channel,4);
+        msg(MSG::DEBUG) << ros << "/" << drawer << "/" << channel << strchannel[j] 
+                        <<"\tAmp " << f_amp << " " << i_amp << " " 
+                        <<" ch cnt " << chc << " word cnt " << wc 
+                        << " word 0x" <<MSG::hex<< word <<MSG::dec<<endreq;
+    }
+    
+    ++chc;
+  }
+
+  // FIXME: for the moment (July 2015) we use 32-bit packing only, so we hide 16-bit version under ifdef
+#ifdef ALLOW16BIT
+  if (verfrag==0x502 && wc*2 != chc) { // odd number of channels for 16-bit frags
+    v.push_back(word); // saving last channel
+    ++wc;
+  }
+#endif
+
+  v.at(savepos)=3+wc; 
+
+  ATH_MSG_DEBUG("Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc <<" save in position: "<< savepos );
+
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x41)... "<< m_vTileRC.size() <<" "<< v.size() << endreq;
+    for (size_t i=0; i<v.size(); ++i) {
+      msg(MSG::VERBOSE) << i <<"\t"<< v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+    }
+  }
+  return;
+}
+
+// TMDB Decision
+
+void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
+
+  // this is the subfragment type 0x42	
+
+  ATH_MSG_DEBUG( "TMDB encoding sub-fragment 0x42: loop over " << m_vTileMuRcvObj.size() << " objects" );
+
+  // sub-fragment marker
+  //
+  v.push_back(0xff1234ff);
+
+  // sub-fragment size
+  //
+  v.push_back(5);
+  uint savepos = v.size()-1;
+
+  // type & version
+  //
+  uint32_t verfrag      = 0x500;
+  uint32_t type_version = (0x42 << 16) + verfrag;
+  v.push_back(type_version);
+  
+  // counters and temporary words
+  //
+  int wc = 0;
+  int chc= 0;
+  uint32_t result1      = 0x0;
+  uint32_t result2      = 0x0;
+  uint32_t result3      = 0x0;
+
+  for (const TileMuonReceiverObj* tmurcv : m_vTileMuRcvObj) {
+
+    // results are hold in 3 16-bit words.
+    // 
+    //     32nd bit -> |        results2       || results1       | <- 1st bit
+    //                 |          0x0          ||        results3 |
+    // 
+    //     32nd bit -> | m-5 | m-4 | m-3 | m-2 || m-2 | m-1 | m-0 | 0x0 | <- 1st bit
+    //                 |          0x0          || 0x0 | m-7 | m-6 | m-5 |
+    //                 
+    // each 4 bit word is
+    //
+    //                 0      1      2     3    <-- in Obj
+    //              | d56h | d56l | d6h | d6l |
+    //                bit3   bit2  bit1  bit0
+    //   
+  
+    int modid = tmurcv->identify() & 0xff;  
+
+    const std::vector<bool> & slin = tmurcv->GetDecision();
+    int imax = std::min((int)slin.size(),4);
+    uint32_t word4b = 0x0;
+    for (int i=0;i<imax;++i){
+      // slin   d56h d56l  d6h  d6l
+      // word4b bit3 bit2 bit1 bit0
+      if (slin[i]) word4b |= 1 << (3-i);
+    }
+    
+    if (msgLvl(MSG::DEBUG)) {
+      std::stringstream ss;
+      for (const auto & val : slin) {
+          ss<<std::setw(2)<<val;
+      }
+      msg(MSG::DEBUG) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endreq; 
+    }
+    
+    switch (modid%8) {
+    case 0: result1 |= word4b << 4  ; break;
+    case 1: result1 |= word4b << 8  ; break;
+    case 2: result1 |= word4b << 12 ; result2 |= word4b; break;
+    case 3: result2 |= word4b << 4  ; break; 
+    case 4: result2 |= word4b << 8  ; break;
+    case 5: result2 |= word4b << 12 ; result3 |= word4b; break;
+    case 6: result3 |= word4b << 4  ; break;
+    case 7: result3 |= word4b << 8  ; break;
+    }
+    ++chc;
+  }
+
+  ATH_MSG_DEBUG( "Summary : "<<MSG::hex<<" Results 1: 0x"<<result1<<" Results 2: 0x"<<result2<<" Results 3: 0x"<<result3<< MSG::dec );
+
+  v.push_back( result1 | (result2 << 16) ); ++wc;// | 5 4 3 2 | 2 1 0 - |
+  v.push_back( result3 ); ++wc;                  // | - - - - | - 7 6 5 | '-' means free/not set/0x0
+  v.at(savepos)=3+wc;
+
+  ATH_MSG_DEBUG( "Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc <<" save in position: "<< savepos );
+
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x42)... " << v.size() << endreq;
+    for (size_t i=0; i<v.size(); ++i) {
+      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+    }
+  }
+  
+  return;	
+}
+
+// == END of TMDB Encoders
+
 // set the bit accordingly.  
 // the bits are used when reading  TileROD_Decoder::checkBit
 void TileROD_Encoder::setBit(uint32_t* p, int chan) {
@@ -514,25 +855,22 @@ bool TileROD_Encoder::checkBit(const uint32_t* p, int chan) {
 
 void TileROD_Encoder::dumpROD(const std::vector<uint32_t>& v) {
   std::cout << " Dump of Tile ROD block, size =  " << v.size() << std::endl;
-  std::vector<uint32_t>::const_iterator it = v.begin();
-  std::vector<uint32_t>::const_iterator it_end = v.end();
 
   int count = 0, newCount = 3;
-  for (; it != it_end; ++it) {
+  for (const uint32_t data : v) {
     if (count == 0) {
-      msg(MSG::VERBOSE) << "Frag delim = 0x" << std::hex << (*it) << std::dec << endmsg;
+      msg(MSG::VERBOSE) << "Frag delim = 0x" << std::hex << data << std::dec << endmsg;
     } else if (count == -1) {
-      newCount = (*it);
+      newCount = data;
       msg(MSG::VERBOSE) << "Word count = " << newCount << endmsg;
     } else if (count == -2) {
       count += newCount;
-      msg(MSG::VERBOSE) << "Frag ID = 0x" << std::hex << (*it) << std::dec << endmsg;
+      msg(MSG::VERBOSE) << "Frag ID = 0x" << std::hex << data << std::dec << endmsg;
     } else {
       msg(MSG::VERBOSE) << " WORD[" << newCount - count << "] = "
-                        << (*it) << " = 0x" << std::hex << (*it)
+                        << data << " = 0x" << std::hex << data
                         << std::dec << endmsg;
     }
     --count;
   }
-
 }

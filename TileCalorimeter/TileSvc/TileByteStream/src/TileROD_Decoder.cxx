@@ -9,6 +9,10 @@
 #undef private
 #undef protected
 
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
+
 // Implementation of TileROD_Decoder class
 
 // Gaudi includes
@@ -68,7 +72,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
   declareProperty("maskBadDigits", m_maskBadDigits = false); // put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0
   declareProperty("MaxErrorPrint", m_maxErrorPrint = 100);
-  
+
   m_correctAmplitude = false;
   updateAmpThreshold(15.);
   m_timeMinThresh = -25;
@@ -154,7 +158,7 @@ StatusCode TileROD_Decoder::initialize() {
   
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
-  
+ 
   // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
   ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
   ListItem algRC(m_TileDefaultChannelBuilder);
@@ -2352,25 +2356,55 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   
   // STORE PMT INFORMATION
   //PMT1
-  laserObject.setPmt(0,las[HG+10*2],TDC0,-99,-99,TileID::HIGHGAIN);
-  laserObject.setPmt(0,las[LG+10*2],TDC0,-99,-99,TileID::LOWGAIN);
+  laserObject.setPmt(0,las[HG+10*2],TDC0,laserObject.getMean(10,TileID::HIGHGAIN,0),laserObject.getSigma(10,TileID::HIGHGAIN,0),TileID::HIGHGAIN);
+  laserObject.setPmt(0,las[LG+10*2],TDC0,laserObject.getMean(10,TileID::LOWGAIN,0), laserObject.getSigma(10,TileID::LOWGAIN,0), TileID::LOWGAIN);
   //PMT2
-  laserObject.setPmt(1,las[HG+14*2],TDC1,-99,-99,TileID::HIGHGAIN);
-  laserObject.setPmt(1,las[LG+14*2],TDC1,-99,-99,TileID::LOWGAIN);
+  laserObject.setPmt(1,las[HG+14*2],TDC1,laserObject.getMean(14,TileID::HIGHGAIN,0),laserObject.getSigma(14,TileID::HIGHGAIN,0),TileID::HIGHGAIN);
+  laserObject.setPmt(1,las[LG+14*2],TDC1,laserObject.getMean(14,TileID::LOWGAIN,0), laserObject.getSigma(14,TileID::LOWGAIN,0), TileID::LOWGAIN);
   
   // STORE DIODE INFORMATION
   for(int diode=0;diode<10;++diode){
-    laserObject.setDiode(diode,las[HG+diode*2],-99,-99,-99,-99,0.,0.,TileID::HIGHGAIN);
-    laserObject.setDiode(diode,las[LG+diode*2],-99,-99,-99,-99,0.,0.,TileID::LOWGAIN);
+    laserObject.setDiode(diode,las[HG+diode*2],laserObject.getMean( diode,TileID::HIGHGAIN,0),
+                                               laserObject.getSigma(diode,TileID::HIGHGAIN,0),
+                                               laserObject.getMean( diode,TileID::HIGHGAIN,3),
+                                               laserObject.getSigma(diode,TileID::HIGHGAIN,3),0.,0.,TileID::HIGHGAIN);
+    laserObject.setDiode(diode,las[LG+diode*2],laserObject.getMean( diode,TileID::LOWGAIN,0),
+                                               laserObject.getSigma(diode,TileID::LOWGAIN,0),
+                                               laserObject.getMean( diode,TileID::LOWGAIN,3),
+                                               laserObject.getSigma(diode,TileID::LOWGAIN,3),0.,0.,TileID::LOWGAIN);
   } // FOR
-  laserObject.setDiode(10,las[HG+22],-99,-99,-99,-99,0.,0.,TileID::HIGHGAIN); // EXTERNAL CIS 0 HG
-  laserObject.setDiode(10,las[LG+22],-99,-99,-99,-99,0.,0.,TileID::LOWGAIN);  // EXTERNAL CIS 0 LG
-  laserObject.setDiode(11,las[HG+24],-99,-99,-99,-99,0.,0.,TileID::HIGHGAIN); // INTERNAL CIS HG
-  laserObject.setDiode(11,las[LG+24],-99,-99,-99,-99,0.,0.,TileID::LOWGAIN);  // INTERNAL CIS LG
-  laserObject.setDiode(12,las[HG+26],-99,-99,-99,-99,0.,0.,TileID::HIGHGAIN); // PHOTODIODE PHOCAL HG
-  laserObject.setDiode(12,las[LG+26],-99,-99,-99,-99,0.,0.,TileID::LOWGAIN);  // PHOTODIODE PHOCAL LG
-  laserObject.setDiode(13,las[HG+30],-99,-99,-99,-99,0.,0.,TileID::HIGHGAIN); // EXTERNAL CIS HG
-  laserObject.setDiode(13,las[LG+30],-99,-99,-99,-99,0.,0.,TileID::LOWGAIN);  // EXTERNAL CIS LG
+  laserObject.setDiode(10,las[HG+22],laserObject.getMean( 11,TileID::HIGHGAIN,0),
+                                     laserObject.getSigma(11,TileID::HIGHGAIN,0),
+                                     laserObject.getMean( 11,TileID::HIGHGAIN,3),
+                                     laserObject.getSigma(11,TileID::HIGHGAIN,3),0.,0.,TileID::HIGHGAIN); // EXTERNAL CIS 0 HG
+  laserObject.setDiode(10,las[LG+22],laserObject.getMean( 11,TileID::LOWGAIN,0),
+                                     laserObject.getSigma(11,TileID::LOWGAIN,0),
+                                     laserObject.getMean( 11,TileID::LOWGAIN,3),
+                                     laserObject.getSigma(11,TileID::LOWGAIN,3),0.,0.,TileID::LOWGAIN);  // EXTERNAL CIS 0 LG
+  laserObject.setDiode(11,las[HG+24],laserObject.getMean( 12,TileID::HIGHGAIN,0),
+                                     laserObject.getSigma(12,TileID::HIGHGAIN,0),
+                                     laserObject.getMean( 12,TileID::HIGHGAIN,3),
+                                     laserObject.getSigma(12,TileID::HIGHGAIN,3),0.,0.,TileID::HIGHGAIN); // INTERNAL CIS HG
+  laserObject.setDiode(11,las[LG+24],laserObject.getMean( 12,TileID::LOWGAIN,0),
+                                     laserObject.getSigma(12,TileID::LOWGAIN,0),
+                                     laserObject.getMean( 12,TileID::LOWGAIN,3),
+                                     laserObject.getSigma(12,TileID::LOWGAIN,3),0.,0.,TileID::LOWGAIN);  // INTERNAL CIS LG
+  laserObject.setDiode(12,las[HG+26],laserObject.getMean( 13,TileID::HIGHGAIN,0),
+                                     laserObject.getSigma(13,TileID::HIGHGAIN,0),
+                                     laserObject.getMean( 13,TileID::HIGHGAIN,3),
+                                     laserObject.getSigma(13,TileID::HIGHGAIN,3),0.,0.,TileID::HIGHGAIN); // PHOTODIODE PHOCAL HG
+  laserObject.setDiode(12,las[LG+26],laserObject.getMean( 13,TileID::LOWGAIN,0),
+                                     laserObject.getSigma(13,TileID::LOWGAIN,0),
+                                     laserObject.getMean( 13,TileID::LOWGAIN,3),
+                                     laserObject.getSigma(13,TileID::LOWGAIN,3),0.,0.,TileID::LOWGAIN);  // PHOTODIODE PHOCAL LG
+  laserObject.setDiode(13,las[HG+30],laserObject.getMean( 15,TileID::HIGHGAIN,0),
+                                     laserObject.getSigma(15,TileID::HIGHGAIN,0),
+                                     laserObject.getMean( 15,TileID::HIGHGAIN,3),
+                                     laserObject.getSigma(15,TileID::HIGHGAIN,3),0.,0.,TileID::HIGHGAIN); // EXTERNAL CIS HG
+  laserObject.setDiode(13,las[LG+30],laserObject.getMean( 15,TileID::LOWGAIN,0),
+                                     laserObject.getSigma(15,TileID::LOWGAIN,0),
+                                     laserObject.getMean( 15,TileID::LOWGAIN,3),
+                                     laserObject.getSigma(15,TileID::LOWGAIN,3),0.,0.,TileID::LOWGAIN);  // EXTERNAL CIS LG
   
 } // unpack_frag17
 
@@ -3632,7 +3666,8 @@ void TileROD_Decoder::initHid2re() {
   if (m_hid2re) return;
   
   m_hid2re = new TileHid2RESrcID();
-  m_hid2re->setTileHWID(m_tileHWID);
+  m_hid2re->setTileHWID(m_tileHWID);// setting a frag2RODmap
+  m_hid2re->setTileMuRcvHWID(m_tileHWID);// setting a different frag2RODmap dedicated to TMDB
   
   // Check whether we want to overwrite default ROB IDs
   
@@ -3665,6 +3700,14 @@ void TileROD_Decoder::initHid2re() {
       }
     }
   }
+}
+
+void TileROD_Decoder::initTileMuRcvHid2re() {
+  if (m_hid2re) return;
+
+  m_hid2re = new TileHid2RESrcID();
+  m_hid2re->setTileMuRcvHWID(m_tileHWID);
+
 }
 
 uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
@@ -3718,3 +3761,409 @@ uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {
   
   return &((*ofw)[0]);
 }
+
+/* TMDB dedicated functions will have a group of functions for each dedicated container 
+
+
+Each container has 2/3 methods associated
+     - fill            : 
+     - unpacking : decode words
+*/
+
+void TileROD_Decoder::fillCollection_TileMuRcv_Digi(const ROBData* rob , TileDigitsCollection &coll) {
+
+  ATH_MSG_DEBUG( " TileROD_Decoder::fillCollection_TileMuRcv_Digi " );
+
+  int  wc         = 0;
+  bool b_sof      = false;
+  bool b_digiTmdb = false;
+
+  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t sourceid = rob->rod_source_id();
+  int size          = rob->rod_ndata();
+
+  uint32_t sfrag_version = 0x0;
+  uint32_t sfrag_type    = 0x0;
+  int sfrag_size         = 0;
+
+  const uint32_t *p = get_data(rob);
+
+  ATH_MSG_DEBUG( " Trying DECODER over source ID: "<<MSG::hex<<" 0x"<<sourceid<<MSG::dec<<" size of full fragment: "<<size );
+
+  while ( wc < size ) { // iterator over all words for a robid   
+    // first word is the start of the tile subfragment in v3format it is 0xff1234ff
+    if ((*p) == 0xff1234ff) b_sof=true;
+
+    ATH_MSG_DEBUG( " Start of sub-fragment word: "<<MSG::hex<<(*p)<<MSG::dec<<" false/true: "<<b_sof );
+
+    if (b_sof) {
+      // second word is frag size
+      sfrag_size   = *(p+1);
+      // third word is frag version (16-bits) + type (16-bits)
+      sfrag_version = *(p+2) & 0xFFFF;
+      sfrag_type    = *(p+2) >> 16;
+      b_sof = false;
+    }
+
+    if (sfrag_type==0x40) {
+      b_digiTmdb   = true;
+      ATH_MSG_DEBUG( MSG::hex<<" DECODER sub-fragment VERSION= 0x"<<sfrag_version<<" TYPE= 0x"<<sfrag_type<< MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! " );
+      // type and version are identified and we move to the end of the loop
+      wc += size-wc;
+      p  += 3;
+    } else {
+      // carry on looping to search for 0x40
+      wc++;
+      p++;
+    }
+  }
+
+  if ( b_digiTmdb ) {
+    // the TMDB raw channel 0x40
+    uint32_t collID = coll.identify();
+    unpack_frag40( collID, version,  p, sfrag_size-3, coll);
+  }
+
+  //delete_vec(digi);
+
+  return;
+
+}
+
+void TileROD_Decoder::fillCollection_TileMuRcv_RawChannel(const ROBData* rob , TileRawChannelCollection &coll) {
+
+  ATH_MSG_DEBUG( " TileROD_Decoder::fillCollection_TileMuRcv_RawChannel " );
+
+  int wc        = 0;
+  bool b_sof    = false;
+  bool b_rcTmdb = false;
+
+  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t sourceid = rob->rod_source_id();
+  int size          = rob->rod_ndata();
+  int offset = 0;
+
+  uint32_t sfrag_version = 0x0;
+  uint32_t sfrag_type    = 0x0;
+  int sfrag_size = 0;
+
+  const uint32_t *p = get_data(rob);
+
+  ATH_MSG_DEBUG( " Trying DECODER over source ID: "<<MSG::hex<<" 0x"<<sourceid<<MSG::dec<<" size of full fragment: "<<size );
+
+  while ( wc < size ) { // iterator over all words in a robid
+    // first word is the start of the tile subfragment in v3format it is 0xff1234ff
+    if ((*p) == 0xff1234ff) b_sof=true;
+    ATH_MSG_DEBUG( " Start of sub-fragment word : "<<MSG::hex<< (*p)<<MSG::dec<<" false/true : "<<b_sof );
+    // if at the start of the fragment than we should find more information about this (sub-)fragment in the following two words 
+    if (b_sof) {
+      // second word is frag size
+      sfrag_size    = *(p+1);
+      // third word is frag version (16-bits) + type (16-bits)
+      sfrag_version = *(p+2) & 0xFFFF;
+      sfrag_type    = *(p+2) >> 16;
+      b_sof=false;
+    }
+    // for tmdb we will start to have a fragment with three sub-fragments ordered as 0x40 0x41 0x42
+    // we investigate if there are any of type 0x40 before going on 0x41
+    // like this the loop is faster since we can access the size of this sub-fragment
+    //         
+    if (sfrag_type==0x40) {
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION= 0x"<<sfrag_version<<" TYPE= 0x"<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! Keep on looking for 0x41.");
+      offset = sfrag_size;
+      wc += offset;
+      p  += offset;
+    } else if (sfrag_type==0x41) {
+      b_rcTmdb   = true;
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION= 0x"<<sfrag_version<<" TYPE= 0x"<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND!");
+      // type and version are identified and we move to the end of the loop
+      wc += size-wc;
+      p+=3;
+    } else {
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION= 0x"<<sfrag_version<<" TYPE= 0x"<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND!");
+      // carry on looping to search for 0x41
+      wc++;
+      p++;
+    }
+  }
+
+  if ( b_rcTmdb ) {
+    // the TMDB raw channel 0x41
+    //
+    uint32_t collID = coll.identify();
+    unpack_frag41( collID, version,  p, sfrag_size-3, coll);
+  }
+
+  //delete_vec(rc);
+
+return;
+}
+
+StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonReceiverContainer* tileMuRcv)
+{
+
+  ATH_MSG_DEBUG( " TileROD_Decoder::convertTMDBDecision " );
+
+  if (!re) {
+    ATH_MSG_FATAL( "RawEvent passed to 'convert'-function is a null pointer!" );
+    return StatusCode::FAILURE;
+  }
+
+  uint32_t total_sub = re->nchildren();
+
+  for (uint32_t i_rob = 0; i_rob < total_sub; ++i_rob) {
+    const uint32_t* p_rob;
+    re->child(p_rob, i_rob);
+    const eformat::ROBFragment<const uint32_t*> robFrag(p_rob);
+
+    //eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(robFrag.source_id());
+    uint32_t sourceid = robFrag.source_id();
+    uint32_t modid = sourceid>>16;
+    //msg(MSG::VERBOSE) <<MSG::hex<<" sourceId: 0x"<< robFrag.source_id() <<MSG::dec<< endmsg;
+
+    if ( (modid==0x51 || modid==0x52 || modid==0x53 || modid==0x54) && sourceid&0xf00 ) {
+      fillContainer_TileMuRcv_Decision(&robFrag, *tileMuRcv);
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileMuonReceiverContainer &cont) {
+
+  ATH_MSG_DEBUG( "TileROD_Decoder::fillContainer_TileMuRcv_Decision" );
+
+  int wc          = 0;
+  bool b_sof      = false;
+  bool b_deciTmdb = false;
+
+  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t sourceid = rob->rod_source_id();
+  int size          = rob->rod_ndata();
+  int offset        = 0;
+
+  uint32_t sfrag_version = 0x0;
+  uint32_t sfrag_type    = 0x0;
+  int sfrag_size         = 0;
+
+  const uint32_t *p = get_data(rob);
+  std::vector<const uint32_t *> pFragTmdb;
+  m_sizeOverhead = 3;
+
+  ATH_MSG_DEBUG( " Trying DECODER over source ID: " <<MSG::hex<< " 0x" << sourceid <<MSG::dec<< " full fragment size " << size );
+
+  while ( wc < size ) { // iterator over all words in a ROD
+    // first word is the start of the tile subfragment in v3format it is 0xff1234ff
+    if ((*p) == 0xff1234ff)  b_sof=true;
+
+    ATH_MSG_DEBUG( " start of sub-fragment word : " <<MSG::hex<< (*p) <<MSG::dec<< " false/true : " << b_sof );
+
+    if (b_sof) {
+      // second word is frag size
+      sfrag_size    = *(p+1);
+      // third word is frag version [31-16] and type [15-0]
+      sfrag_version = *(p+2) & 0xFFFF;
+      sfrag_type    = *(p+2) >> 16;
+      b_sof=false;
+    }
+    // for tmdb we will start to have three sub-fragments ordered as 0x40 0x41 0x42
+    // we investigate if there are any of type 0x40,0x41 before going on 0x42
+    // like this the loop is faster since we can access the size of this two sub-fragments
+    if (sfrag_type==0x40) {
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! Keep on looking for 0x42.");
+      offset = sfrag_size;
+      wc += offset;
+      p  += offset;
+    } else if (sfrag_type==0x41) {
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! Keep on looking for 0x42.");
+      offset = sfrag_size;
+      wc += offset;
+      p  += offset;
+    } else if (sfrag_type==0x42) {
+      b_deciTmdb = true;
+      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND!" );
+      wc+=size-wc;
+      p+=3;
+    } else {
+     ++p ;
+     ++wc;
+    }
+  }
+  // the TMDB result    0x42
+  //
+  if (b_deciTmdb) unpack_frag42( sourceid, version, p, sfrag_size-3, cont);
+
+return;
+}
+
+void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const uint32_t* p, int datasize, TileDigitsCollection &coll ){
+
+  int ros=(collid>>8);
+  int drawer=collid&0xff;
+  HWIdentifier drawerID = m_tileHWID->drawer_id(ros,drawer);
+  int nchan = 4; // FIXME:  should be different for barrel and ext.barrel, now assuming that only ext.barrel exist
+  int nsamp = datasize / 8; // FIXME: should be changed for barrel 
+  int nsamp1 = nsamp-1;
+  
+  std::vector<float> digits(nsamp);
+
+  // Each 32 bit word is made of four 8-bit words each a ADC of a sample like
+  //
+  //     32nd bit -> |   37/D6R  |   38/D6L  |  16/D5R  |  17/D5L  | <- 1st bit
+  // 
+  // First come 8 words (M0->M7) with sample 0 and so forth i.e. the digits for the first module are placed by words: {0,8,16,24,32,40,48}.
+  // Note that order of samples is inversed with respect to time line, 
+  // i.e. first sample from data should go to the last sample in TileDigits vector
+
+  int wpos=(collid&7)<<2;
+  const unsigned char * adc = reinterpret_cast<const unsigned char *>(p);
+
+  for (int i=0; i<nchan; ++i) {
+    for (int j=0; j<nsamp; ++j) {
+      digits[nsamp1-j] = adc[wpos+32*j];
+    }
+    ++wpos;
+    HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
+    TileDigits *digitmp = new TileDigits(adcID, digits);
+    coll.push_back(digitmp);
+  }
+
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << "TileROD_Decoder::unpack_frag40  frag: 0x"
+                    <<MSG::hex<<collid<<MSG::dec<<" version: "<<version << endreq;
+    int pos=coll.size()-nchan;
+    const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R "," xxx "};
+    for (int i=0;i<nchan;++i) {
+      const std::vector<float> & sample = coll.at(pos+i)->samples();
+      std::stringstream ss;
+      for (const auto & val : sample) {
+        ss<<std::setw(5)<<int(val);
+      }
+      msg(MSG::DEBUG) << " ros:" << ros << " drawer:" << drawer <<" ch:" << i
+                      << strchannel[std::min(i,4)] << ss.str() << endreq;
+    }
+  }
+  
+  return;
+}
+
+void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const uint32_t* p, int datasize, TileRawChannelCollection &coll ){
+
+  int ros=(collid>>8);
+  int drawer=collid&0xff;
+  HWIdentifier drawerID = m_tileHWID->drawer_id(ros,drawer);
+  float calFactorADC2MeV = 1.0;
+
+  int nchan = datasize/8; // we have 8 modules in fragment, number of channels per module is 8 times smaller
+
+  int wpos=(collid&7)<<2;
+
+  if (version == 0) {
+
+    // Each 32 bit word is an energy of a channel pmt
+    //
+    //    32nd bit -> |                     17/D5L                  | <- 1st bit
+    //    32nd bit -> |                     16/D5R                  | <- 1st bit
+    //    32nd bit -> |                     37/D6L                  | <- 1st bit
+    //    32nd bit -> |                     38/D6R                  | <- 1st bit
+    //
+    // Each 4 words respect a module. 
+
+    const int32_t * pp = reinterpret_cast<const int32_t *>(p);
+    pp+=wpos;
+    for (int i=0; i<nchan; ++i) {
+      HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
+      TileRawChannel *rctmp = new TileRawChannel(adcID,(*pp)*calFactorADC2MeV,0.,0.);
+      coll.push_back(rctmp);
+      ++pp;
+    }
+
+  } else {
+
+    // Each 32 bit word is made of two 16-bit words each a energy of a channel pmt
+    //
+    //    32nd bit -> |         16/D5R        |        17/D5L       | <- 1st bit
+    //    32nd bit -> |         38/D6R        |        37/D6L       | <- 1st bit
+    //
+    // Each 2 words respect a module. 
+      
+    nchan*=2; // change number of channels calculated before assuming 16 bits for channel
+    const int16_t * pp = reinterpret_cast<const int16_t *>(p);
+    pp+=wpos;
+    for (int i=0; i<nchan; ++i) {
+      HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
+      TileRawChannel *rctmp = new TileRawChannel(adcID,(*pp)*calFactorADC2MeV,0.,0.);
+      coll.push_back(rctmp);
+      ++pp;
+    }
+  }
+  
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag41  frag: 0x"
+                    <<MSG::hex<<collid<<MSG::dec<<" version: "<<version << endreq;
+    int nbits=(version==0)?32:16;
+    msg(MSG::DEBUG) << " position of " << nbits << "-bit word inside sub-fragment 0x41: " << wpos << endreq;
+    int pos=coll.size()-nchan;
+    const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R "," xxx "};
+    for (int i=0;i<nchan;++i) {
+        msg(MSG::DEBUG) << " ros:" << ros << " drawer:" << drawer <<" ch:" << i
+                        << strchannel[std::min(i,4)] << coll.at(pos+i)->amplitude() << endreq;
+    }
+  }
+
+  return;
+}
+
+void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const uint32_t* p, int datasize, TileMuonReceiverContainer &v ){
+
+  // results are hold in 3 16-bit words.
+  //
+  //    32nd bit -> |        results2       ||        results1       | <- 1st bit
+  //                |          0x0          ||        results3       |
+  //
+  //    32nd bit -> | m-5 | m-4 | m-3 | m-2 || m-2 | m-1 | m-0 | 0x0 | <- 1st bit
+  //                |          0x0          || 0x0 | m-7 | m-6 | m-5 |
+  //
+  // each 4 bit word is
+  //                   0      1      2     3    <-- in Obj
+  //                | d56h | d56l | d6h | d6l |
+  //                  bit3   bit2  bit1  bit0 
+  //
+  // bit-3 -> result.at(0)
+  // bit-2        .
+  // bit-1        .
+  // bit-0 -> result.at(3)
+
+  int drawer = ((sourceid & 0xf0000) >> 8) | ((sourceid & 0x0000f) << 3);
+  uint32_t word = (datasize>1) ? (p[1]<<20) | ((p[0]>>8) & 0xff000) | ((p[0]>>4) & 0xfff) : 0 ;
+  std::vector<bool> result(4);
+
+  for (int j=0; j<8; ++j) { // loop over 8 modules
+    for (int k=0; k<4; ++k) { // loop over 4 bits of one module
+      result[3-k] = ((word&1) != 0);
+      word >>= 1;
+    }
+
+    TileMuonReceiverObj * obj = new TileMuonReceiverObj(drawer,result);
+    v.push_back(obj);
+
+    ++drawer;
+  }
+  
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag42  source ID: 0x"
+                    <<MSG::hex<<sourceid<<MSG::dec<<" version: "<<version << endreq;
+    for (size_t j=v.size()-8; j<v.size(); ++j) {
+      const std::vector<bool> & r = v[j]->GetDecision();
+      std::stringstream ss;
+      for (const auto & val : r) {
+        ss<<std::setw(2)<<val;
+      }
+      msg(MSG::DEBUG) << MSG::hex<<"0x"<<v[j]->GetID() <<MSG::dec
+                      << ss.str() << endreq;
+    }
+  }
+
+  return;
+}
+

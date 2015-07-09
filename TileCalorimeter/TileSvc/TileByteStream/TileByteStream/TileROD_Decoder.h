@@ -44,6 +44,7 @@
 #include "TileEvent/TileL2.h"
 #include "TileEvent/TileContainer.h"
 
+// class TileInfo;
 class TileRawChannelBuilder;
 class TileCellBuilder;
 class TileL2Builder;
@@ -105,6 +106,10 @@ class TileROD_Decoder: public AthAlgTool {
     void fillCollectionL2(const ROBData * rob, TileL2Container & v);
     void fillCollectionL2ROS(const ROBData * rob, TileL2Container & v);
     void fillTileLaserObj(const ROBData * rob, TileLaserObject & v);
+    void fillCollection_TileMuRcv_RawChannel(const ROBData* rob, TileRawChannelCollection& v);
+    void fillCollection_TileMuRcv_Digi(const ROBData* rob, TileDigitsCollection& v);
+    void fillContainer_TileMuRcv_Decision(const ROBData* rob, TileMuonReceiverContainer& v);
+
     void loadRw2Cell(const int section, const std::vector<int>& vec) {
       //    std::cout << vec.size() << std::endl;
       for (unsigned int i = 0; i < vec.size(); ++i) {
@@ -118,6 +123,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     StatusCode convert(const RawEvent* re, TileL2Container* L2Cnt);
     StatusCode convertLaser(const RawEvent* re, TileLaserObject* TileLaserObj);
+    StatusCode convertTMDBDecision(const RawEvent* re, TileMuonReceiverContainer* tileMuRcv); 
 
     void initD0cellsHLT();
     void mergeD0cellsHLT(TileCellCollection&);
@@ -140,6 +146,21 @@ class TileROD_Decoder: public AthAlgTool {
       if (!m_hid2re) initHid2re();
       return m_hid2re;
     }
+
+    const TileHid2RESrcID * getHid2re(int swtRODId) {
+      if (!m_hid2re) {
+        switch (swtRODId) {
+          case 0:
+           initHid2re();
+           break;
+          case 1:
+           initTileMuRcvHid2re();
+           break;
+        }
+      }
+      return m_hid2re;
+    }
+
     /** Check the list of masked drawers */
     void load_list_of_masked_drawers(const std::vector<int>& vec) {
       for (size_t i = 0; i < vec.size(); ++i)
@@ -339,6 +360,13 @@ class TileROD_Decoder: public AthAlgTool {
      at the testbeam or LASTROD in normal ATLAS configuration */
     void unpack_brod(uint32_t version, const uint32_t* p, pBeamVec & pBeam) const;
 
+    /** unpacking methods dedicated to the TMDB ROD format sub-fragments 0x40 0x41 0x42 */
+    void unpack_frag40(uint32_t collid,   uint32_t version, const uint32_t* p, int size, TileDigitsCollection &coll) ;
+    void unpack_frag41(uint32_t collid,   uint32_t version, const uint32_t* p, int size, TileRawChannelCollection &coll) ;
+    void unpack_frag42(uint32_t sourceid, uint32_t version, const uint32_t* p, int size, TileMuonReceiverContainer &v);
+
+    /**/
+
     inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
         TileBeamElemCollection& v) const;
     inline void make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVec & pChannel,
@@ -369,7 +397,10 @@ class TileROD_Decoder: public AthAlgTool {
     TileRawChannel2Bytes m_rc2bytes;
     TileDigits2Bytes m_d2Bytes;
 
+//    std::string m_infoName; 
+
     const TileHWID* m_tileHWID;
+//    const TileInfo* m_tileInfo;
 
     bool m_useFrag0;
     bool m_useFrag1;
@@ -404,10 +435,11 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_calibrateEnergy;
     // next two are needed to handle automatic conversion channels->cells,
     // when HLT request for cells,which are not normally present in ByteStream
-    //TileCellBuilder* m_CellBuilder;
+    // TileCellBuilder* m_CellBuilder;
     std::string m_TileDefaultCellBuilder;
 
     uint32_t m_sizeOverhead;
+
     // fast decoding
     pFRwChVec m_pRwChVec;
     std::vector<int> m_Rw2Cell[4];
@@ -452,11 +484,12 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_correctAmplitude;
 
     TileHid2RESrcID * m_hid2re;
+
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
+    void initTileMuRcvHid2re();
 
     const uint32_t * get_data(const ROBData * rob) {
-
       const uint32_t * p;
       if (rob->rod_status_position()==0 && 
           rob->rod_nstatus() + rob->rod_header_size_word() + rob->rod_trailer_size_word() >= rob->rod_fragment_size_word()) {
@@ -556,12 +589,12 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
                              // and store in collection
     if (m_container) {
       ATH_MSG_VERBOSE( "RawChannel unit is " << m_rChUnit
-                      << "  - setting unit in TileRawChannelConainer " );
+                      << "  - setting unit in TileRawChannelContainer " );
       m_container->set_unit(m_rChUnit);
       m_container->set_type(m_rChType);
       m_container->set_bsflags(m_bsflags);
     } else {
-      ATH_MSG_ERROR( "Can't set unit=" << m_rChUnit << " in TileRawChannelConainer" );
+      ATH_MSG_ERROR( "Can't set unit=" << m_rChUnit << " in TileRawChannelContainer" );
     }
 
     copy_vec(pChannel, v);
@@ -590,6 +623,7 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     m_rawchannelMetaData[5]->push_back(0xFFFF);
     m_rawchannelMetaData[5]->push_back(0xFFFF);
   }
+
   for (unsigned int i = 0; i < 6; ++i) {
     for (size_t j=m_rawchannelMetaData[i]->size(); j<2; ++j) {
       m_rawchannelMetaData[i]->push_back(0);
@@ -650,6 +684,7 @@ void TileROD_Decoder::make_copy(const ROBData * /* rob */, pBeamVec & pBeam,
   delete_vec(pBeam);
 }
 
+
 // ----  Implement the template method: 
 
 /**   fill either TileDigitsCollection or TileRawChannelCollection 
@@ -661,23 +696,23 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   //
   // get info from ROD header
   //
-//  if (msgLvl(MSG::VERBOSE)) {
-//    msg(MSG::VERBOSE) << "ROD header info: " << endmsg
-//    msg(MSG::VERBOSE) << " Format Vers.  " << std::hex << "0x" << rob->rod_version() << std::dec << endmsg;
-//    msg(MSG::VERBOSE) << " Source ID     " << std::hex << "0x" << rob->rod_source_id() << std::dec << endmsg;
-//    msg(MSG::VERBOSE) << " Source ID str " << eformat::helper::SourceIdentifier(rob->source_id()).human().c_str() << endmsg;
-//    msg(MSG::VERBOSE) << " Run number    " << (int) rob->rod_run_no() << endmsg;
-//    msg(MSG::VERBOSE) << " Level1 ID     " << rob->rod_lvl1_id() << endmsg;
-//    msg(MSG::VERBOSE) << " BCID          " << rob->rod_bc_id() << endmsg;
-//    msg(MSG::VERBOSE) << " Lvl1 TrigType " << rob->rod_lvl1_trigger_type() << endmsg;
-//    msg(MSG::VERBOSE) << " Event Type    " << rob->rod_detev_type() << endmsg;
-//    msg(MSG::VERBOSE) << " Fragment size " << rob->rod_fragment_size_word() << endmsg;
-//    msg(MSG::VERBOSE) << " Header   size " << rob->rod_header_size_word() << endmsg;
-//    msg(MSG::VERBOSE) << " Trailer  size " << rob->rod_trailer_size_word() << endmsg;
-//    msg(MSG::VERBOSE) << " N data        " << rob->rod_ndata() << endmsg;
-//    msg(MSG::VERBOSE) << " N status      " << rob->rod_nstatus() << endmsg;
-//    msg(MSG::VERBOSE) << " Status pos    " << rob->rod_status_position() << endmsg;
-//  }
+  //  if (msgLvl(MSG::VERBOSE)) {
+  //    msg(MSG::VERBOSE) << "ROD header info: " << endmsg
+  //    msg(MSG::VERBOSE) << " Format Vers.  " << std::hex << "0x" << rob->rod_version() << std::dec << endmsg;
+  //    msg(MSG::VERBOSE) << " Source ID     " << std::hex << "0x" << rob->rod_source_id() << std::dec << endmsg;
+  //    msg(MSG::VERBOSE) << " Source ID str " << eformat::helper::SourceIdentifier(rob->source_id()).human().c_str() << endmsg;
+  //    msg(MSG::VERBOSE) << " Run number    " << (int) rob->rod_run_no() << endmsg;
+  //    msg(MSG::VERBOSE) << " Level1 ID     " << rob->rod_lvl1_id() << endmsg;
+  //    msg(MSG::VERBOSE) << " BCID          " << rob->rod_bc_id() << endmsg;
+  //    msg(MSG::VERBOSE) << " Lvl1 TrigType " << rob->rod_lvl1_trigger_type() << endmsg;
+  //    msg(MSG::VERBOSE) << " Event Type    " << rob->rod_detev_type() << endmsg;
+  //    msg(MSG::VERBOSE) << " Fragment size " << rob->rod_fragment_size_word() << endmsg;
+  //    msg(MSG::VERBOSE) << " Header   size " << rob->rod_header_size_word() << endmsg;
+  //    msg(MSG::VERBOSE) << " Trailer  size " << rob->rod_trailer_size_word() << endmsg;
+  //    msg(MSG::VERBOSE) << " N data        " << rob->rod_ndata() << endmsg;
+  //    msg(MSG::VERBOSE) << " N status      " << rob->rod_nstatus() << endmsg;
+  //    msg(MSG::VERBOSE) << " Status pos    " << rob->rod_status_position() << endmsg;
+  //  }
 
   uint32_t version = rob->rod_version() & 0xFF;
 
