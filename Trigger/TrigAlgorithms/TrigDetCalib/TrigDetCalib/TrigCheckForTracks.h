@@ -20,8 +20,6 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-//#include "TrkTrack/TrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigDetCalib/ITrigROBSelector.h"
 #include "eformat/SourceIdentifier.h"
 
@@ -59,7 +57,7 @@ ToolHandle<ITrigROBSelector> m_robSelector;
   bool m_acceptAll;
 
   // Save HLT results
-  bool m_addCTPResult, m_addL2Result, m_addEFResult;
+  bool m_addCTPResult, m_addL2Result, m_addEFResult, m_addHLTResult;
 
   // Switch on Monitoring:
 
@@ -84,7 +82,6 @@ ToolHandle<ITrigROBSelector> m_robSelector;
   double           m_etaWidth ;
   double           m_phiWidth ;
   std::string      tracksName ;
-  int              tracksAlgoId;
   bool             doNotPass ;
   bool             lookForAnyTracks ;
 
