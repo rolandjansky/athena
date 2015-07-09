@@ -246,11 +246,10 @@ class CheckForTracks_Trk9_Central(CheckForTracks):
     self.pT_min = 9000.
     self.etaLowEdge = 0.0
     self.etaEdge = 1.4
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -262,11 +261,11 @@ class CheckForTracks_Trk9_Fwd(CheckForTracks):
     self.pT_min = 9000.
     self.etaLowEdge = 1.35
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -279,11 +278,11 @@ class CheckForTracks_Trk9_Central_SiTrack(CheckForTracks):
     self.pT_min = 9000.
     self.etaLowEdge = 0.0
     self.etaEdge = 1.4
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -295,11 +294,11 @@ class CheckForTracks_Trk9_Fwd_SiTrack(CheckForTracks):
     self.pT_min = 9000.
     self.etaLowEdge = 1.35
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -313,11 +312,11 @@ class CheckForTracks_Trk16_Central(CheckForTracks):
     self.pT_min = 16000.
     self.etaLowEdge = 0.0
     self.etaEdge = 1.4
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -329,11 +328,11 @@ class CheckForTracks_Trk16_Fwd(CheckForTracks):
     self.pT_min = 16000.
     self.etaLowEdge = 1.35
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -346,11 +345,11 @@ class CheckForTracks_Trk29_Central(CheckForTracks):
     self.pT_min = 29000.
     self.etaLowEdge = 0.0
     self.etaEdge = 1.4
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -362,11 +361,11 @@ class CheckForTracks_Trk29_Fwd(CheckForTracks):
     self.pT_min = 29000.
     self.etaLowEdge = 1.35
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
@@ -379,69 +378,33 @@ class CheckForTracks_Trk_All(CheckForTracks):
     self.pT_min = 1000.
     self.etaLowEdge = 0.0
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_Tau'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrackCollection_TrigFastTrackFinder_TauIso'
+    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
 
     setCalibMonTools(self)
 
 
-
-class CheckForTracks_eGamma_IDSCAN(CheckForTracks):
-  __slots__ = []
-  def __init__(self, name = 'CheckForTracks_eGamma_IDSCAN'):
-    super(CheckForTracks_eGamma_IDSCAN, self ).__init__( name )
-    self.pT_min = 2000.
-    self.etaLowEdge = 0.0
-    self.etaEdge = 5.0
-    self.lookForAnyTracks = True
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_eGamma'
-    self.tracksAlgoId = 5
-    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
-    self.AddCTPResult = True
-    self.AddL2Result = True
-    self.AddEFResult = False
-    setCalibMonTools(self)
-
-
-class CheckForTracks_eGamma_SiTrk(CheckForTracks):
+class CheckForTracks_eGamma(CheckForTracks):
   __slots__ = []
   def __init__(self, name = 'CheckForTracks_eGamma_SiTrk'):
     super(CheckForTracks_eGamma_SiTrk, self ).__init__( name )
     self.pT_min = 2000.
     self.etaLowEdge = 0.0
     self.etaEdge = 5.0
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_eGamma'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrigFastTrackFinder_eGamma'
     self.lookForAnyTracks = True
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
     setCalibMonTools(self)
 
 
-class CheckForTracks_FullScan_IDSCAN(CheckForTracks):
-  __slots__ = []
-  def __init__(self, name = 'CheckForTracks_FullScan_IDSCAN'):
-    super(CheckForTracks_FullScan_IDSCAN, self ).__init__( name )
-    self.pT_min = 2000.
-    self.etaLowEdge = 0.0
-    self.etaEdge = 5.0
-    self.lookForAnyTracks = True
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_FullScan'
-    self.tracksAlgoId = 5
-    #self.extraROBs = [ 7798784, 8060928, 8126464 ]
-    self.AddCTPResult = True
-    self.AddL2Result = True
-    self.AddEFResult = False
-    setCalibMonTools(self)
-
-
-class CheckForTracks_FullScan_SiTrk(CheckForTracks):
+class CheckForTracks_FullScan(CheckForTracks):
   __slots__ = []
   def __init__(self, name = 'CheckForTracks_FullScan_SiTrk'):
     super(CheckForTracks_FullScan_SiTrk, self ).__init__( name )
@@ -449,11 +412,10 @@ class CheckForTracks_FullScan_SiTrk(CheckForTracks):
     self.etaLowEdge = 0.0
     self.etaEdge = 5.0
     self.lookForAnyTracks = True
-    self.tracksName = 'HLT_TrigL2SiTrackFinder_FullScan'
-    self.tracksAlgoId = 6
+    self.tracksName = 'HLT_TrigFastTrackFinder_FullScan'
     #self.extraROBs = [ 7798784, 8060928, 8126464 ]
     self.AddCTPResult = True
-    self.AddL2Result = True
+    self.AddL2Result = False
     self.AddEFResult = False
     setCalibMonTools(self)
 

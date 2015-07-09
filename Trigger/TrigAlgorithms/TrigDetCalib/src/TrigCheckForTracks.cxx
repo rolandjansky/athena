@@ -23,10 +23,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//#include "TrkTrack/TrackCollection.h"
-#include "TrigInDetEvent/TrigTauTracksInfo.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrack.h"
+#include "TrkTrack/TrackCollection.h"
 
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
@@ -62,13 +59,13 @@ TrigCheckForTracks::TrigCheckForTracks(const std::string& name, ISvcLocator* pSv
   declareProperty("eta_Width",    m_etaWidth = 0.1);
   declareProperty("etaEdge",      m_etaEdge = 5.0, "Upper limit of |eta| range");
   declareProperty("etaLowEdge",   m_etaLowEdge = 0.0, "Lower limit of |eta| range");
-  declareProperty("tracksName",   tracksName = "HLT_TrigL2SiTrackFinder_Tau");  
-  declareProperty("tracksAlgoId",   tracksAlgoId = 6, "AlgoId as in TrigInDetTrack.h/5==strategyB" );  
+  declareProperty("tracksName",   tracksName = "HLT_TrigFastTrackFinder_Tau");  
   declareProperty("doNotPass",           doNotPass = false);        // pass through flag for initial beam items.
   declareProperty("lookForAnyTracks",    lookForAnyTracks = false); // any vs isolated. any is needed for initial beam items.
   declareProperty("AddCTPResult", m_addCTPResult = false, "Add the CTP result to the list of ROBs");
   declareProperty("AddL2Result",  m_addL2Result = false,  "Add the L2 result to the list of ROBs");
   declareProperty("AddEFResult",  m_addEFResult = false,  "Add the EF result to the list of ROBs");
+  declareProperty("AddHLTResult",  m_addHLTResult = false,  "Add the EF result to the list of ROBs");
 
   declareMonitoredStdContainer("nROBs",      m_nROBs);
   declareMonitoredStdContainer("detectors",  m_dets);
@@ -123,6 +120,7 @@ HLT::ErrorCode TrigCheckForTracks::hltInitialize()
   if (m_addCTPResult) m_trigResults.push_back(eformat::TDAQ_CTP);
   if (m_addL2Result)  m_trigResults.push_back(eformat::TDAQ_LVL2);
   if (m_addEFResult)  m_trigResults.push_back(eformat::TDAQ_EVENT_FILTER);
+  if (m_addEFResult)  m_trigResults.push_back(eformat::TDAQ_HLT);
 
   return HLT::OK;
 }
@@ -188,9 +186,9 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   // Retrieve Tracks from StoreGate:
 
-  const TrigInDetTrackCollection* tracks = 0;
+  const TrackCollection* tracks = 0;
 
-  if (m_storeGate->transientContains<TrigInDetTrackCollection>(tracksName)) {
+  if (m_storeGate->transientContains<TrackCollection>(tracksName)) {
     if (msgLvl() <= MSG::DEBUG ) {
       msg()  << MSG::DEBUG << "*** TrackCollection with name "<< tracksName <<" found in StoreGate (transientContains)" << endreq;
     }
@@ -227,21 +225,19 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
       
       int count_IsoTracks = 0;
 
-      for (TrigInDetTrackCollection::const_iterator it = tracks->begin(); it!=tracks->end(); ++it)
+      for (TrackCollection::const_iterator it = tracks->begin(); it!=tracks->end(); ++it)
 	{
-
-	  if ((*it)->algorithmId()!=tracksAlgoId) continue;
-
-	  //dump tracks
-	  const TrigInDetTrackFitPar* ip = (*it)->param();
 	  
-	  //	  msg() << MSG::INFO << (**it) << endreq;
-
+	  const Trk::Perigee *ip = (*it)->perigeeParameters();
+	  if (!ip) continue;
+	  
+	  
 	  m_pT.push_back(ip->pT());
 	  m_eta.push_back(ip->eta());
-	  m_phi.push_back(ip->phi0());
+	  m_phi.push_back(ip->parameters()[Trk::phi]);
 
-	  //	  msg() << MSG::INFO << "pT " << ip->pT() << " eta " << ip->eta() << endreq;	  
+	  
+	  ATH_MSG_DEBUG( "pT " << ip->pT() << " eta " << ip->eta());
 
 	  if (fabs(ip->pT()) < m_pT_min || fabs(ip->eta())>m_etaEdge || fabs(ip->eta())<m_etaLowEdge ) continue;
 	  
@@ -250,17 +246,16 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 	  if (!lookForAnyTracks) 
 	    {
 
-	      for (TrigInDetTrackCollection::const_iterator jt = tracks->begin(); jt!=tracks->end(); ++jt)
+	      for (TrackCollection::const_iterator jt = tracks->begin(); jt!=tracks->end(); ++jt)
 		{
 
-		  if ((*jt)->algorithmId()!=tracksAlgoId) continue;
 
-		  const TrigInDetTrackFitPar* jp = (*jt)->param();
+		  const Trk::Perigee *jp = (*jt)->perigeeParameters();
 		  
 		  //	      msg() << MSG::INFO << "pT " << jp->pT() << " eta " << jp->eta() << endreq;
 		  
 
-		  double dphi = fabs(ip->phi0() - jp->phi0());
+		  double dphi = fabs(ip->parameters()[Trk::phi] - jp->parameters()[Trk::phi]);
 		  if(dphi>M_PI) dphi = 2*M_PI-dphi;
 		  
 		  double dR = sqrt(pow((ip->eta() - jp->eta()),2) + pow(dphi,2));
@@ -280,21 +275,19 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 	    count_IsoTracks += 1;
 
 	    m_ROB_eta.push_back(ip->eta());
-	    m_ROB_phi.push_back(ip->phi0());
+	    m_ROB_phi.push_back(ip->parameters()[Trk::phi]);
 	    m_pT_Iso.push_back(ip->pT());
 
-//	    double etaMIN = std::max(-m_etaEdge, ip->eta() - m_etaWidth);
-//	    double etaMAX = std::min(m_etaEdge,  ip->eta() + m_etaWidth);
 
 	    double etaMIN = ip->eta() - m_etaWidth;
 	    double etaMAX = ip->eta() + m_etaWidth;
 	    
-	    double phiMIN = ip->phi0() - m_phiWidth;
-	    double phiMAX = ip->phi0() + m_phiWidth;
+	    double phiMIN = ip->parameters()[Trk::phi] - m_phiWidth;
+	    double phiMAX = ip->parameters()[Trk::phi] + m_phiWidth;
 	    while (phiMIN < 0)      phiMIN += 2*M_PI;
 	    while (phiMAX > 2*M_PI) phiMAX -= 2*M_PI;
 	    
-	    TrigRoiDescriptor _roi( ip->eta(), etaMIN, etaMAX, ip->phi0(), phiMIN, phiMAX );
+	    TrigRoiDescriptor _roi( ip->eta(), etaMIN, etaMAX, ip->parameters()[Trk::phi], phiMIN, phiMAX );
 
 	    // now add ROBs
 	    HLT::ErrorCode ec = m_robSelector->fillPEBInfo(*pebInfo, _roi, &m_dets, &m_nROBs);
