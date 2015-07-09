@@ -19,14 +19,12 @@ class MuonResolutionPlots:public PlotBase {
   void fill(const xAOD::TrackParticle& muontp, const xAOD::TruthParticle& truthprt);
 
   Trk::ResolutionPlots m_oResolutionPlots;
+  TH2* Res_pT_vs_lowpT;
+  TH2* Res_pT_vs_highpT;
   TH2* Res_pT_vs_pT;
   TH2* Res_pT_vs_eta;
   TH2* Res_pT_vs_phi;
   
-  TProfile *ProfRes_pT_vs_pT;
-  TProfile *ProfRes_pT_vs_eta;
-  TProfile *ProfRes_pT_vs_phi;
-
  private:
   std::string m_sType;
   bool m_doBinnedResolutionPlots;

@@ -21,7 +21,11 @@ class MomentumPullPlots: public PlotBase {
       dpt_cbme(NULL),
       ddpt_cbme(NULL),
       dphi_cbme(NULL),
-      deta_cbme(NULL)
+      deta_cbme(NULL),
+      pt_cbme(NULL),
+      pt_cbid(NULL),
+      pt_meid(NULL)
+
     {}
     void fill(const xAOD::Muon& mu);
 
@@ -34,6 +38,10 @@ class MomentumPullPlots: public PlotBase {
     TH1* ddpt_cbme;
     TH1* dphi_cbme;
     TH1* deta_cbme;
+
+    TH2* pt_cbme;
+    TH2* pt_cbid;
+    TH2* pt_meid;
 
   private:
     void initializePlots();

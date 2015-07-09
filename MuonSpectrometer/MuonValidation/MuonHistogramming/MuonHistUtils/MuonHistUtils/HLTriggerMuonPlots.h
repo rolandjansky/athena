@@ -14,6 +14,7 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
+#include "xAODTrigMuon/L2IsoMuon.h"
 
 //#include "xAODMuon/MuonContainer.h"
 //#include "xAODTruth/TruthParticle.h"
@@ -28,6 +29,7 @@ class HLTriggerMuonPlots:public PlotBase {
       void fill(const xAOD::Muon& mu,const xAOD::Muon& Trigmu);
       void fill(const xAOD::L2StandAloneMuon& L2SAmu);
       void fill(const xAOD::L2CombinedMuon& L2CBmu);
+      void fill(const xAOD::L2IsoMuon& L2Isomu);
       //
       Trk::ParamPlots                   m_oHLTriggerPlots;
 };

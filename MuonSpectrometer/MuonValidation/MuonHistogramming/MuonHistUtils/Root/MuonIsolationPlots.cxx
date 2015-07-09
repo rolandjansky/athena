@@ -26,13 +26,15 @@ m_oNEFlowIso40(this,"", "neflowisol40"),
 
 m_oPtVarCone20(this,"", "ptvarcone20"),
 m_oPtVarCone30(this,"", "ptvarcone30"),
-m_oPtVarCone40(this,"", "ptvarcone40"),
+m_oPtVarCone40(this,"", "ptvarcone40")
 
-//iso corrections
-m_oEtCone_coreCone(this,"","etcone_coreCone"),
-m_oTopoEtCone_coreCone(this,"","topoetcone_coreCone"),
-m_oNEFlowIso_coreCone(this,"","neflowisol_coreCone"),
-m_oEtCone_coreMuon(this,"","etcone_coreMuon")
+#ifndef XAOD_ANALYSIS
+  //iso corrections
+, m_oEtCone_coreCone(this,"","etcone_coreCone")
+, m_oTopoEtCone_coreCone(this,"","topoetcone_coreCone")
+, m_oNEFlowIso_coreCone(this,"","neflowisol_coreCone")
+, m_oEtCone_coreMuon(this,"","etcone_coreMuon")
+#endif // not XAOD_ANALYSIS
 {}	
 
 void MuonIsolationPlots::fill(const xAOD::Muon& muon)
@@ -48,7 +50,7 @@ void MuonIsolationPlots::fill(const xAOD::Muon& muon)
   m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20);
   m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30);
   m_oTopoEtCone40.fill(muon, xAOD::Iso::topoetcone40);
-
+#ifndef XAOD_ANALYSIS
   m_oNEFlowIso20.fill(muon, xAOD::Iso::neflowisol20);
   m_oNEFlowIso30.fill(muon, xAOD::Iso::neflowisol30);
   m_oNEFlowIso40.fill(muon, xAOD::Iso::neflowisol40);
@@ -61,6 +63,7 @@ void MuonIsolationPlots::fill(const xAOD::Muon& muon)
   m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
   m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
   m_oEtCone_coreMuon.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreMuon, xAOD::Iso::coreEnergy);
+#endif // not XAOD_ANALYSIS
 
 }
 
@@ -69,16 +72,35 @@ IsoPlots::IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize):P
 m_sConeSize(sConeSize), cone(NULL), conerel(NULL)
 {}
 
-IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType):PlotBase(pParent, sDir),
-m_sCorrType(sCorrType), isocorr(NULL), isocorr_relPt(NULL), isocorr_relIsocone20(NULL), isocorr_relIsocone30(NULL), isocorr_relIsocone40(NULL)
-{}
-
 void IsoPlots::initializePlots()
 {
   cone    = Book1D(m_sConeSize, m_sConeSize + ";" + m_sConeSize + ";Entries", 60, -5., 25.);
   conerel = Book1D(m_sConeSize + "rel", m_sConeSize + "rel;" + m_sConeSize + "rel;Entries", 40, 0., 2.);
 }
   
+void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType)
+{
+  float fIso = 0;
+  try{
+    muon.isolation(fIso, isoType);
+  }
+  catch(SG::ExcBadAuxVar&){
+    return;
+  }
+  if (fIso) fill(fIso, muon.pt());
+}
+void IsoPlots::fill(float fIso, float fPt)
+{
+  cone->Fill(fIso*0.001);
+  conerel->Fill(fIso/fPt);
+}
+
+
+#ifndef XAOD_ANALYSIS
+IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType):PlotBase(pParent, sDir),
+m_sCorrType(sCorrType), isocorr(NULL), isocorr_relPt(NULL), isocorr_relIsocone20(NULL), isocorr_relIsocone30(NULL), isocorr_relIsocone40(NULL)
+{}
+
 void IsoCorrPlots::initializePlots()
 {
   isocorr = Book1D(m_sCorrType, m_sCorrType + ";" + m_sCorrType + ";Entries", 60, -5., 25.);
@@ -88,12 +110,7 @@ void IsoCorrPlots::initializePlots()
   isocorr_relIsocone40 = Book1D(m_sCorrType + "_relIsocone40", m_sCorrType + "_relIsocone40;" + m_sCorrType+ "_relIsocone40;Entries", 150, -25., 25.);
 }
 
-void IsoPlots::fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType)
-{
-  float fIso = 0;
-  if (muon.isolation(fIso, isoType)) fill(fIso, muon.pt());
-}
-  
+
 void IsoCorrPlots::fill(const xAOD::Muon& muon,
 			const xAOD::Iso::IsolationType &isoType_cone20,
 			const xAOD::Iso::IsolationType &isoType_cone30,
@@ -106,19 +123,18 @@ void IsoCorrPlots::fill(const xAOD::Muon& muon,
     float fIso30 = 0;
     float fIso40 = 0;
     float fIsoCorr = 0;
-    muon.isolation(fIso20, isoType_cone20);
-    muon.isolation(fIso30, isoType_cone30);
-    muon.isolation(fIso40, isoType_cone40);
 
-    if (fIso20 && fIso30 && fIso40 && muon.isolationCaloCorrection(fIsoCorr, flavour, isoCorrType, isoCorrParam)){
-      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr);
+    try{
+      muon.isolation(fIso20, isoType_cone20);
+      muon.isolation(fIso30, isoType_cone30);
+      muon.isolation(fIso40, isoType_cone40);
+      muon.isolationCaloCorrection(fIsoCorr, flavour, isoCorrType, isoCorrParam);      
     }
-}
-
-void IsoPlots::fill(float fIso, float fPt)
-{
-  cone->Fill(fIso*0.001);
-  conerel->Fill(fIso/fPt);
+    catch(SG::ExcBadAuxVar&){
+      return;
+    }
+    if (fIso20 && fIso30 && fIso40)
+      fill(fIso20, fIso30, fIso40, muon.pt(), fIsoCorr);
 }
 
 void IsoCorrPlots::fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr)
@@ -129,5 +145,6 @@ void IsoCorrPlots::fill(float fIso20, float fIso30, float fIso40, float fPt, flo
   isocorr_relIsocone30->Fill(fIsoCorr/fIso30);
   isocorr_relIsocone40->Fill(fIsoCorr/fIso40);
 }
-    
+#endif // not XAOD_ANALYSIS
+
 }//namespace Muon

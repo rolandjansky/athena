@@ -10,22 +10,7 @@
 
 namespace Muon{
 
-class IsoPlots:public PlotBase {
-    public:
-      IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize);
-      void fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType);
-      void fill(float fIso, float fPt);
-      std::string m_sConeSize;
-
-      TH1* cone;   
-      TH1* conerel;
-
-    private:
-      void initializePlots();
-    
-};
-
-
+#ifndef XAOD_ANALYSIS
 class IsoCorrPlots:public PlotBase {
  public:
       IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType);
@@ -49,6 +34,22 @@ class IsoCorrPlots:public PlotBase {
  private:
       void initializePlots();
       
+};
+#endif // not XAOD_ANALYSIS
+
+class IsoPlots:public PlotBase {
+    public:
+      IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize);
+      void fill(const xAOD::Muon& muon, const xAOD::Iso::IsolationType &isoType);
+      void fill(float fIso, float fPt);
+      std::string m_sConeSize;
+
+      TH1* cone;   
+      TH1* conerel;
+
+    private:
+      void initializePlots();
+    
 };
 
  
@@ -77,10 +78,12 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtVarCone30;
      IsoPlots m_oPtVarCone40;
 
+#ifndef XAOD_ANALYSIS
      IsoCorrPlots m_oEtCone_coreCone;
      IsoCorrPlots m_oTopoEtCone_coreCone;
      IsoCorrPlots m_oNEFlowIso_coreCone;
      IsoCorrPlots m_oEtCone_coreMuon;
+#endif // not XAOD_ANALYSIS
 	  
 };
 
