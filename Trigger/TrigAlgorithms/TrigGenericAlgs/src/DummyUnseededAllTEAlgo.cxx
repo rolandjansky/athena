@@ -13,8 +13,7 @@ using namespace PESA;
 
 DummyUnseededAllTEAlgo::DummyUnseededAllTEAlgo(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_was_run(false),
-    m_regionSelector(0)
+    m_was_run(false)
 {
   declareProperty("NumberOfOutputTEs", m_numberOfOutputTEs = 1, "configure the number of output TEs this algorithm will create");
   declareProperty("createRoIDescriptors",  m_createRoIDescriptors=true, "create RoI descriptors ate eta&phi == 0 if set true");
@@ -31,7 +30,7 @@ HLT::ErrorCode DummyUnseededAllTEAlgo::hltInitialize(){
 
   if ( (serviceLocator()->service( m_regionSelectorName, m_regionSelector)).isFailure() ) {
     msg() << MSG::FATAL 
-	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endmsg;
+	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endreq;
     return HLT::BAD_JOB_SETUP;
   };
 
@@ -55,7 +54,7 @@ HLT::ErrorCode DummyUnseededAllTEAlgo::hltExecute(std::vector<std::vector<HLT::T
   if ( msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing DummyUnseededAllTEAlgo (" << name()
 	  << "). This is an unseeded algorithm that will produce exactly "
-	  << m_numberOfOutputTEs << " output TEs." << endmsg;
+	  << m_numberOfOutputTEs << " output TEs." << endreq;
   }
 
 

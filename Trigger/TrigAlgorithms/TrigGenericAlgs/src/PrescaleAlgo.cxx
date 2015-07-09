@@ -11,9 +11,7 @@
 
 #include "TrigGenericAlgs/PrescaleAlgo.h"
 PrescaleAlgo::PrescaleAlgo(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::AllTEAlgo(name, pSvcLocator),
-    m_engine(0)
-{
+  : HLT::AllTEAlgo(name, pSvcLocator) {
    declareProperty("Prescale", m_scaler = 0, "Prescaler value, default is 0 which means no output is created.");
   
 }
@@ -24,7 +22,7 @@ HLT::ErrorCode PrescaleAlgo::hltInitialize() {
   StatusCode rndmStatus = service("AtRanluxGenSvc", p_AtRndmGenSvc, true);
   
   if ( !rndmStatus.isSuccess() || 0 == p_AtRndmGenSvc ) {
-    msg() << MSG::ERROR << " Could not initialize Random Number Service" << endmsg;
+    msg() << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
     return HLT::ERROR;
   }
 
@@ -39,7 +37,7 @@ HLT::ErrorCode PrescaleAlgo::hltExecute(std::vector<std::vector<HLT::TriggerElem
   // check missonfiguration
   if ( input.size() != 1 ) {
     msg() << MSG::ERROR << "Missconfiguration of the " << name() << "  to many/to few input types: "
-	  << input.size() << " while expecting only 1" << endmsg;
+	  << input.size() << " while expecting only 1" << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
   

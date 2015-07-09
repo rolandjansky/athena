@@ -16,7 +16,7 @@ HLT::ErrorCode DummyCombineAlgo::hltExecute(HLT::TEConstVec& /*inputs*/, HLT::Tr
 {
   if ( msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing DummyCombineAlgo (" << name()
-	  << ")." << endmsg;
+	  << ")." << endreq;
   }
 
   // everything's ok
