@@ -32,7 +32,7 @@ const InterfaceID& TileDigitsContByteStreamTool::interfaceID( )
  
 TileDigitsContByteStreamTool::TileDigitsContByteStreamTool( const std::string& type
     , const std::string& name,const IInterface* parent )
-  : AthAlgTool(type,name,parent)
+  : AthAlgTool(type, name, parent)
   , m_verbose(false)
 {
   declareInterface< TileDigitsContByteStreamTool >( this );
@@ -41,93 +41,88 @@ TileDigitsContByteStreamTool::TileDigitsContByteStreamTool( const std::string& t
 }
 
 // destructor 
- 
 
-TileDigitsContByteStreamTool::~TileDigitsContByteStreamTool() {
-}
- 
-
- 
+TileDigitsContByteStreamTool::~TileDigitsContByteStreamTool() {}
 
 StatusCode TileDigitsContByteStreamTool::initialize() {
 
+  ATH_MSG_INFO ("Initializing TileDigitsContByteStreamTool");
+
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
+  // rodid 4 modules/rodid
   m_hid2re.setTileHWID(m_tileHWID);
   m_fea.idMap().setTileHWID(m_tileHWID);
-  /*
-   IProperty* propertyServer(0);
-   sc = serviceLocator()->service("TileROD_Decoder", propertyServer);
-   if (sc.isSuccess() ) {
 
-   bool boolProp;
-   BooleanProperty boolProperty("VerboseOutput",boolProp);
+  // rodid 8 modules/rodid
+  m_TileMuRcv_hid2re.setTileMuRcvHWID(m_tileHWID);
+  m_TileMuRcv_fea.idMap().setTileMuRcvHWID(m_tileHWID);
 
-   sc = propertyServer->getProperty(&boolProperty);
-   if (sc.isSuccess()) {
-   m_verbose = boolProperty.value();
-   }
-   }
-   */
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TileDigitsContByteStreamTool::finalize() {
-
+  ATH_MSG_INFO ("Finalizing TileDigitsContByteStreamTool successfuly");
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsContByteStreamTool::convert(DIGITS* cont,
-    FullEventAssembler<TileHid2RESrcID> *fea) {
-
-  //fea->clear();
-  // m_fea.idMap().setTileHWID(m_tileHWID);
+StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEventAssembler<TileHid2RESrcID> *fea) {
 
   FullEventAssembler<TileHid2RESrcID>::RODDATA* theROD;
-  TileDigitsContainer::const_iterator it_coll = cont->begin();
-  TileDigitsContainer::const_iterator it_coll_end = cont->end();
 
   std::map<uint32_t, TileROD_Encoder> mapEncoder;
 
-  ATH_MSG_DEBUG( " number of collections " << cont->size() );
-  for (; it_coll != it_coll_end; ++it_coll) {
-    const TileDigitsCollection* coll = (*it_coll);
+  ATH_MSG_DEBUG( " number of digits collections " << digitsContainer->size() << " " << evtStore()->proxy(digitsContainer)->name() );
 
-    // the same ROD id for all channels in collection
-    TileDigitsCollection::ID frag_id = coll->identify();
-    uint32_t reid = m_hid2re.getRodID(frag_id);
-    mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 1);
-    TileDigitsCollection::const_iterator it_b = coll->begin();
-    TileDigitsCollection::const_iterator it_e = coll->end();
+  int m         = 0;
+  int n         = 0;
+  uint32_t reid = 0x0;
 
-    int n = 0;
-    for (; it_b != it_e; ++it_b) {
-      const TileDigits* digi = *it_b;
-      mapEncoder[reid].addDigi(digi);
-      ++n;
+  bool isTMDB = evtStore()->proxy(digitsContainer)->name() == "MuRcvDigitsCnt";
+
+  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
+
+    TileDigitsCollection::ID frag_id = digitsCollection->identify(); 
+
+    if (isTMDB){  
+       reid = m_TileMuRcv_hid2re.getRodTileMuRcvID(frag_id);    
+       mapEncoder[reid].setTileHWID(m_tileHWID);
+    } else {
+       reid = m_hid2re.getRodID(frag_id);
+       mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 1);
     }
 
-    ATH_MSG_DEBUG( " collection " << MSG::hex << "0x" << frag_id
+    for (const TileDigits* digits : *digitsCollection) {
+      mapEncoder[reid].addDigi(digits);
+      ++n;
+    }
+    ++m;
+
+    ATH_MSG_DEBUG( " Collection " << m << ": " << MSG::hex << "0x" << frag_id
                   << " ROD " << "0x" << reid
                   << " number of channels " << MSG::dec << n );
   }
 
-  std::map<uint32_t, TileROD_Encoder>::iterator it = mapEncoder.begin();
-  std::map<uint32_t, TileROD_Encoder>::iterator it_end = mapEncoder.end();
-
   TileROD_Encoder* theEncoder;
 
-  // TileROD_Encoder has collected all the channels, now can fill the
-  // ROD block data.
+  // TileROD_Encoder has collected all the channels, now can fill the ROD block data.
 
-  for (; it != it_end; ++it) {
-    theROD = fea->getRodData((*it).first);
-    theEncoder = &((*it).second);
-    if (m_doFragType1)
-      theEncoder->fillROD1(*theROD);
-    if (m_doFragType5)
-      theEncoder->fillROD5D(*theROD);
-    ATH_MSG_DEBUG( "  Number of words in ROD " << theROD->size() );
+  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+
+    theROD = fea->getRodData(reidAndEncoder.first);
+    theEncoder = &(reidAndEncoder.second);
+
+    // RODId is already defined so use it for the exception
+
+    if ((reidAndEncoder.first & 0xf00)) {
+      theEncoder->fillRODTileMuRcvDigi(*theROD);
+    } else {
+      if (m_doFragType1) theEncoder->fillROD1(*theROD);
+      if (m_doFragType5) theEncoder->fillROD5D(*theROD);
+    }
+    
+    ATH_MSG_DEBUG( " Number words in ROD " << MSG::hex <<" 0x"<< reidAndEncoder.first << MSG::dec << " : " << theROD->size() );
   }
 
   return StatusCode::SUCCESS;

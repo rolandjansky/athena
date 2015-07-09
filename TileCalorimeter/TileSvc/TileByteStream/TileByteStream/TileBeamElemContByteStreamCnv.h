@@ -5,7 +5,15 @@
 #ifndef TILEBYTESTREAM_TILEBEAMELEM_BYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEBEAMELEM_BYTESTREAMCNV_H
 
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+
+// Athena includes
+#include "AthenaBaseComps/AthMessaging.h"
+
 
 #include "eformat/ROBFragment.h"
 #include "eformat/FullEventFragment.h"
@@ -13,9 +21,6 @@
 class DataObject;
 class StatusCode;
 class IAddressCreator;
-class ByteStreamCnvSvc; 
-class StoreGateSvc; 
-class MsgStream; 
 class TileBeamElemContainer; 
 class IROBDataProviderSvc;
 class TileHid2RESrcID;
@@ -37,54 +42,57 @@ extern long ByteStream_StorageType;
  * @author Alexander Solodkov
  */
 
-class TileBeamElemContByteStreamCnv: public Converter {
-  friend class CnvFactory<TileBeamElemContByteStreamCnv>;
+class TileBeamElemContByteStreamCnv
+  : public Converter
+  , public ::AthMessaging
+{
+    friend class CnvFactory<TileBeamElemContByteStreamCnv>;
 
- protected:
-  TileBeamElemContByteStreamCnv(ISvcLocator* svcloc);
+  protected:
+    TileBeamElemContByteStreamCnv(ISvcLocator* svcloc);
 
- public:
+  public:
 
-  virtual StatusCode initialize();
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
-  virtual StatusCode finalize();
+    virtual StatusCode initialize();
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+    virtual StatusCode finalize();
 
-  /// Storage type and class ID
-  virtual long repSvcType() const  { return ByteStream_StorageType; }
-  static long storageType()  { return ByteStream_StorageType; }
-  static const CLID& classID();
+    /// Storage type and class ID
+    virtual long repSvcType() const  { return ByteStream_StorageType; }
+    static long storageType()  { return ByteStream_StorageType; }
+    static const CLID& classID();
 
-  inline const eformat::FullEventFragment<const uint32_t*> * eventFragment() const { return m_event; }
-  inline const eformat::ROBFragment<const uint32_t*> * robFragment() const { return m_robFrag; }
-  inline bool  validBeamFrag() const { return m_robFrag != 0; }
+    inline const eformat::FullEventFragment<const uint32_t*> * eventFragment() const { return m_event; }
+    inline const eformat::ROBFragment<const uint32_t*> * robFragment() const { return m_robFrag; }
+    inline bool  validBeamFrag() const { return m_robFrag != 0; }
   
- private: 
+  private: 
+    
+    std::string m_name;
+    
+    /** Pointer to IROBDataProviderSvc */
+    ServiceHandle<IROBDataProviderSvc> m_robSvc;
 
-   /** Pointer to TileBeamElemContainer */
-   TileBeamElemContainer* m_container ; 
+    /** Pointer to TileROD_Decoder */
+    ToolHandle<TileROD_Decoder> m_decoder;
 
-   /** Pointer to StoreGateSvc */
-   StoreGateSvc* m_storeGate; 
+    const eformat::FullEventFragment<const uint32_t*>* m_event;
+    //const EventFormat::Abstract::FullEventFragment * m_event;
+    //const EventFormat::FullEventHeader m_eventHeader;
 
-   const eformat::FullEventFragment<const uint32_t*> * m_event;
-   //const EventFormat::Abstract::FullEventFragment * m_event;
-   //const EventFormat::FullEventHeader m_eventHeader;
+    const eformat::ROBFragment<const uint32_t*>* m_robFrag;
+    // const EventFormat::Abstract::RODFragment * m_rodFrag;
+    // const EventFormat::RODHeader m_RODHeader;
 
-   const eformat::ROBFragment<const uint32_t*> * m_robFrag;
-   // const EventFormat::Abstract::RODFragment * m_rodFrag;
-   // const EventFormat::RODHeader m_RODHeader;
+    std::vector<uint32_t> m_ROBID;
 
-   /** Pointer to IROBDataProviderSvc */
-   IROBDataProviderSvc* m_RobSvc;
+    /** Pointer to TileHid2RESrcID */
+    const TileHid2RESrcID * m_hid2re; 
 
-   std::vector<uint32_t> m_ROBID;
+    /** Pointer to TileBeamElemContainer */
+    TileBeamElemContainer* m_container ; 
 
-  /** Pointer to TileROD_Decoder */
-  TileROD_Decoder* m_decoder;
-
-  /** Pointer to TileHid2RESrcID */
-  const TileHid2RESrcID * m_hid2re; 
 };
 #endif
 

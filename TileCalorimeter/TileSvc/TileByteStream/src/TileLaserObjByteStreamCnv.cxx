@@ -6,10 +6,16 @@
 //renato.febbraro@cern.ch
 //date February 2008
 
-#include "TileByteStream/TileLaserObjByteStreamCnv.h"
-#include "TileByteStream/TileLaserObjByteStreamTool.h"
-#include "TileByteStream/TileROD_Decoder.h"
-#include "TileByteStream/TileHid2RESrcID.h"
+// Gaudi includes
+#include "GaudiKernel/CnvFactory.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObject.h"
+#include "GaudiKernel/IRegistry.h"
+#include "GaudiKernel/IToolSvc.h"
+
+// Athena includes
+#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
@@ -17,157 +23,89 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/IRegistry.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "CLIDSvc/CLASS_DEF.h"
 
+// Tile includes
+#include "TileByteStream/TileLaserObjByteStreamCnv.h"
+#include "TileByteStream/TileLaserObjByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
+#include "TileByteStream/TileHid2RESrcID.h"
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileEvent/TileLaserObject.h"
 
-#include "StoreGate/StoreGate.h"
-#include "CLIDSvc/CLASS_DEF.h"
 
 
-TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc),
-    m_tool(0),
-    m_decoder(0),
-    m_ByteStreamEventAccess(0),
-    m_container(0),
-    m_storeGate(0),
-    m_robFrag(0),
-    m_rdpSvc(0),
-    m_ROBID()
+TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
+  : Converter(ByteStream_StorageType, classID(), svcloc)
+  , ::AthMessaging(msgSvc(), "TileLaserObjByteStreamCnv")
+  , m_name("TileLaserObjByteStreamCnv")
+  , m_robSvc("ROBDataProviderSvc", m_name)
+  , m_decoder("TileROD_Decoder")
+  , m_robFrag(0)
+  , m_ROBID()
+  , m_container(0)
 {
 }
 
-const CLID& TileLaserObjByteStreamCnv::classID(){
-return ClassID_traits<TileLaserObject>::ID() ;
-}
+const CLID& TileLaserObjByteStreamCnv::classID(){ return ClassID_traits<TileLaserObject>::ID();}
 
 
-StatusCode
-TileLaserObjByteStreamCnv::initialize()
-{
-  StatusCode sc = Converter::initialize(); 
-  if (sc.isFailure()) {
-    return sc; 
-  } 
+StatusCode TileLaserObjByteStreamCnv::initialize() {
 
-  MsgStream log(msgSvc(), "TileLaserObjByteStreamCnv");
-  log << MSG::DEBUG<< " initialize " <<endreq; 
+  CHECK(Converter::initialize());
 
-  //Get ByteStreamInputSvc 
-  IService* svc;
-  if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endreq;
-    m_rdpSvc=0;
-  }
-  else {
-    m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
-    if(m_rdpSvc == 0 ) {
-      log<<MSG::ERROR<< " Can't cast to  ByteStreamInputSvc " <<endreq; 
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_MSG_DEBUG(" initialize ");
 
-  // Get ByteStreamCnvSvc
-  if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
-    return StatusCode::FAILURE;
-  }
-  m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
-  if (m_ByteStreamEventAccess==NULL)
-    {
-      log << MSG::ERROR << "  TileLaserObjByteStreamCnv: Can't cast to  ByteStreamCnvSvc " << endreq; 
-      return StatusCode::FAILURE ;
-    }
+  CHECK( m_robSvc.retrieve() );
 
   // retrieve Tool
-  
-  IToolSvc* toolSvc;
-  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-//   std::string toolType = "TileLaserObjByteStreamTool" ;
-//   if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
-//   {
-//     log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
-//     return StatusCode::FAILURE;
-//   }
-
-  if(StatusCode::SUCCESS !=toolSvc->retrieveTool("TileROD_Decoder",m_decoder)) {
-    log << MSG::ERROR << "Can't get TileROD_Decoder"
-	<< endreq;
-    return StatusCode::FAILURE; 
-  }
+  CHECK( m_decoder.retrieve() );
 
   m_ROBID.clear();
   // m_ROBID.push_back( 0x500000 );
   // m_ROBID.push_back( 0x520010 );
-  const TileHid2RESrcID * hid2re = m_decoder->getHid2re();
+  const TileHid2RESrcID* hid2re = m_decoder->getHid2re();
   m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
 
-  return service("StoreGateSvc",m_storeGate) ;
+  return StatusCode::SUCCESS ;
 }
 
 
-StatusCode
-TileLaserObjByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
-{
-  MsgStream log(msgSvc(), "TileLaserObjByteStreamCnv");
-  log << MSG::DEBUG << " Executing createObj method" << endreq;
+StatusCode TileLaserObjByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
 
-  if (!m_rdpSvc) {
-    log << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG( " Executing createObj method" );
 
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); 
   if(!pRE_Addr) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ; 
+    ATH_MSG_ERROR( " Can not cast to ByteStreamAddress " );
     return StatusCode::FAILURE;    
   }
 
-  //  const RawEvent* re = m_rdpSvc->getEvent();
-  //if (!re) {
-  //  log << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endreq;
-  //  return StatusCode::FAILURE;
-  //}
-
   /*FIND ROB*/
   std::vector<const ROBDataProviderSvc::ROBF*> robf;
-  m_rdpSvc->getROBData(m_ROBID, robf);
+  m_robSvc->getROBData(m_ROBID, robf);
 
   // create TileLaserObject
   m_container = new TileLaserObject() ; 
 
   if (robf.size() > 0 ) {
     m_robFrag = robf[0];
-    m_decoder->fillTileLaserObj(m_robFrag,*m_container);
+    m_decoder->fillTileLaserObj(m_robFrag, *m_container);
   } else {
-    log << MSG::DEBUG << " No LASTROD fragment in BS, TileLaserObject will be empty." << endreq;
+    ATH_MSG_DEBUG( " No LASTROD fragment in BS, TileLaserObject will be empty." );
     m_robFrag = 0;
   }
 
-  pObj = StoreGateSvc::asStorable( m_container ) ; 
+  pObj = SG::asStorable( m_container ) ; 
+
   return StatusCode::SUCCESS;  
 }
 
-StatusCode 
-TileLaserObjByteStreamCnv::createRep(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */)
-{
+StatusCode TileLaserObjByteStreamCnv::createRep(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */) {
   // No conversion from TileLaserObj to BS 
 
-  MsgStream log(msgSvc(), "TileLaserObjByteStreamCnv");
-
-  log << MSG::ERROR <<" Can not create BS from TileLaserObject "<<endreq; 
+  ATH_MSG_ERROR( " Can not create BS from TileLaserObject " );
 
   return   StatusCode::FAILURE ; 
 }

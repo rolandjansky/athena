@@ -15,6 +15,7 @@ use TileEvent		  TileEvent-*			TileCalorimeter
 private 
 
 use StoreGate		  StoreGate-*			Control
+use SGTools               SGTools-*                     Control
 use CLIDSvc		  CLIDSvc-*			Control
 use ByteStreamCnvSvc	  ByteStreamCnvSvc-*		Event
 use CaloIdentifier	  CaloIdentifier-*		Calorimeter

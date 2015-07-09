@@ -2,17 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileByteStream/TileDigitsContByteStreamCnv.h"
-#include "TileByteStream/TileDigitsContByteStreamTool.h"
-#include "TileByteStream/TileROD_Decoder.h"
-#include "TileByteStream/TileHid2RESrcID.h"
-
-#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
-#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
-#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "ByteStreamData/RawEvent.h" 
-
+// Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
@@ -22,239 +12,212 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "TileEvent/TileDigitsContainer.h"
+
+// Athena includes 
+#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
+
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
+#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "ByteStreamData/RawEvent.h" 
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "CLIDSvc/CLASS_DEF.h"
+
+
+// Tile includes
+#include "TileByteStream/TileDigitsContByteStreamCnv.h"
+#include "TileByteStream/TileDigitsContByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
+#include "TileByteStream/TileHid2RESrcID.h"
+#include "TileEvent/TileDigitsContainer.h"
 
 #include <vector> 
 #include <string> 
 #include <stdint.h>
 
 
-TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc),
-    m_tool(0),
-    m_ByteStreamEventAccess(0),
-    m_container(0),
-    m_storeGate(0),
-    m_RobSvc(0),
-    m_decoder(0),
-    m_hid2re(0)
+TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc) 
+  : Converter(ByteStream_StorageType, classID(), svcloc)
+  , ::AthMessaging(msgSvc(), "TileDigitsContByteStreamCnv")
+  , m_name("TileDigitsContByteStreamCnv")
+  , m_tool("TileDigitsContByteStreamTool")
+  , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
+  , m_byteStreamCnvSvc(0)
+  , m_storeGate("StoreGateSvc", m_name)
+  , m_robSvc("ROBDataProviderSvc", m_name)
+  , m_decoder("TileROD_Decoder")
+  , m_hid2re(0)
+  , m_containers(2,0)
 {
 }
 
-const CLID& TileDigitsContByteStreamCnv::classID(){
-return ClassID_traits<TileDigitsContainer>::ID() ;
-}
+const CLID& TileDigitsContByteStreamCnv::classID(){ return ClassID_traits<TileDigitsContainer>::ID();}
 
 
-StatusCode
-TileDigitsContByteStreamCnv::initialize()
-{
-  StatusCode sc = Converter::initialize(); 
-  if (sc.isFailure()) {
-    return sc; 
-  } 
+StatusCode TileDigitsContByteStreamCnv::initialize() {
+  
+  CHECK(Converter::initialize());
 
-  MsgStream log(msgSvc(), "TileDigitsContByteStreamCnv");
-  log << MSG::DEBUG<< " initialize " <<endreq; 
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get pointer to Detector Store Service"
-	<< endreq;
-    return sc;
-  }
+  ATH_MSG_DEBUG(" initialize ");
 
   // Get ByteStreamCnvSvc
-  IService* svc;
-  if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
-    return StatusCode::FAILURE;
-  }
-  m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
-  if (m_ByteStreamEventAccess==NULL)
-    {
-      log << MSG::ERROR << "  TileDigitsContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " << endreq; 
-      return StatusCode::FAILURE ;
-    }
+  CHECK( m_byteStreamEventAccess.retrieve() );
+  m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  
-  IToolSvc* toolSvc;
-  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-  std::string toolType = "TileDigitsContByteStreamTool" ; 
-  if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
-  {
-    log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK( m_tool.retrieve() );
 
-  if(StatusCode::SUCCESS !=toolSvc->retrieveTool("TileROD_Decoder",m_decoder)) {
-    log << MSG::ERROR << "Can't get TileROD_Decoder"
-	<< endreq;
-    return StatusCode::FAILURE; 
-  }
-
+  CHECK( m_decoder.retrieve() );
   m_hid2re = m_decoder->getHid2re();
 
-  sc = serviceLocator()->service("ROBDataProviderSvc",m_RobSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR <<" Can't get ROBDataProviderSvc " << endreq;
-  }
+  CHECK( m_robSvc.retrieve() );
 
   // create empty TileDigitsContainer and all collections inside
-  m_container = new TileDigitsContainer(true); 
-  m_container->addRef(); // make sure it's not deleted at the end of event
+  m_containers[0] = new TileDigitsContainer(true); 
+  m_containers[0]->addRef(); // make sure it's not deleted at the end of event
+
+  m_containers[1] =  new TileDigitsContainer(true);
+  m_containers[1]->addRef(); // make sure it's not deleted at the end of event
 
   // Register incident handler
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",
-                                     "TileDigitsContByteStreamCnv");
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", m_name);
   if ( !incSvc.retrieve().isSuccess() ) {
-    log << MSG::WARNING << "Unable to retrieve the IncidentSvc" << endreq;
+    ATH_MSG_WARNING("Unable to retrieve the IncidentSvc");
+  } else {
+    incSvc->addListener(this, "StoreCleared");
   }
-  else {
-    incSvc->addListener(this,"StoreCleared");
-  }
-
-  return service("StoreGateSvc", m_storeGate);
+  
+  CHECK( m_storeGate.retrieve() );
+  
+  return StatusCode::SUCCESS;
 }
 
+StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
 
-StatusCode
-TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
-{
-  MsgStream log(msgSvc(), "TileDigitsContByteStreamCnv");
-  log << MSG::DEBUG << " Executing createObj method" << endreq;
+  ATH_MSG_DEBUG(" Executing createObj method ");
 
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); 
   if(!pRE_Addr) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ; 
+    ATH_MSG_ERROR(" Can not cast to ByteStreamAddress ");
     return StatusCode::FAILURE;    
   }
 
-  std::vector<uint32_t> robid(1); robid[0] = 0;
-  std::vector<const ROBDataProviderSvc::ROBF*> robf;
+  uint32_t newrob = 0x0;
 
-  // iterate over all collections in a container and fill them
-  TileDigitsContainer::const_iterator collItr=m_container->begin();
-  TileDigitsContainer::const_iterator lastColl=m_container->end();
+  for (int icnt = 0; icnt < 2; ++icnt) {
 
-  for(; collItr!=lastColl; ++collItr) {
+    bool isTMDB(icnt == 1);
 
-    const TileDigitsCollection * constColl = (*collItr);
-    TileDigitsCollection * coll = (TileDigitsCollection *)constColl;
-    coll->clear();
-    TileDigitsCollection::ID collID = coll->identify();  
-
-    // find ROB
-    uint32_t newrob = m_hid2re->getRobFromFragID(collID);
-    if (newrob != robid[0]) {
-      robid[0] = m_hid2re->getRobFromFragID(collID);
-      robf.clear();
-      m_RobSvc->getROBData(robid, robf);
-    }
+    std::vector<uint32_t> robid(1); 
+    robid[0] = 0;
+    std::vector<const ROBDataProviderSvc::ROBF*> robf;
     
-    // unpack ROB data
-    if (robf.size() > 0 ) {
-      m_decoder->fillCollection(robf[0],*coll);
+    // iterate over all collections in a container and fill them
+    //
+    for (const TileDigitsCollection* constDigitsCollection : *m_containers[icnt]) {
+      
+      TileDigitsCollection* digitsCollection = const_cast<TileDigitsCollection*>(constDigitsCollection);
+      digitsCollection->clear();
+      TileDigitsCollection::ID collID = digitsCollection->identify();  
+      
+      // find ROB
+      if (isTMDB) {
+        newrob = m_hid2re->getRobFromTileMuRcvFragID(collID);
+      } else {
+        newrob = m_hid2re->getRobFromFragID(collID);
+      }
+
+      if (newrob != robid[0]) {
+        robid[0] = newrob;
+        robf.clear();
+        m_robSvc->getROBData(robid, robf);
+      }
+      
+      if (robf.size() > 0 ) {
+        if (isTMDB) {// reid for TMDB 0x5x010x
+          ATH_MSG_DEBUG(" Decoding TMDB digits in ROD fragment ");
+          m_decoder->fillCollection_TileMuRcv_Digi(robf[0], *digitsCollection);
+        } else {
+          m_decoder->fillCollection(robf[0], *digitsCollection);
+        }
+      }  
+    }
+
+    ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
+
+    if (isTMDB) {
+      CHECK( m_storeGate->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
+    } else {
+      pObj = SG::asStorable( m_containers[icnt] ) ;
     }
   }
 
-  log << MSG::DEBUG<<" Creating Container " << *(pRE_Addr->par()) <<endreq; 
-  pObj = StoreGateSvc::asStorable( m_container ) ; 
+
   return StatusCode::SUCCESS;  
 }
 
 
-StatusCode 
-TileDigitsContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
-{
+StatusCode TileDigitsContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
   // convert TileDigitsContainer in the container into ByteStream
-  MsgStream log(msgSvc(), "TileDigitsContByteStreamCnv");
-  log << MSG::DEBUG << " Executing createRep method" << endreq;
 
-  StatusCode sc;
+  ATH_MSG_DEBUG(" Executing createRep method ");
 
   // uint32_t runnum = re->header()->specific_part()->run_no(); 
 
   // get Full Event Assembler
-  FullEventAssembler<TileHid2RESrcID> *fea = 0;
+  FullEventAssembler<TileHid2RESrcID>* fea = 0;
   std::string key("Tile");
-  sc=m_ByteStreamEventAccess->getFullEventAssembler(fea,key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Cannot get full event assember with key \"Tile\" from ByteStreamEventAccess." << endreq;
-    return sc;
-  }
+  CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea, key) );
 
   // create TileDigitsContainer
   TileDigitsContainer* digicont(0) ; 
-  StoreGateSvc::fromStorable(pObj, digicont ); 
+  SG::fromStorable(pObj, digicont ); 
+
   if(!digicont){
-   log << MSG::ERROR << " Can not cast to TileDigitsContainer " << endreq ; 
+    ATH_MSG_ERROR(" Can not cast to TileDigitsContainer ");
    return StatusCode::FAILURE;    
   } 
 
-  std::string nm = pObj->registry()->name(); 
+  std::string name = pObj->registry()->name(); 
 
-  ByteStreamAddress* addr = new
-      ByteStreamAddress(classID(),nm,""); 
+  ByteStreamAddress* addr = new ByteStreamAddress(classID(), name, ""); 
 
   pAddr = addr; 
 
   // call TileDigitsContByteStreamTool
-  sc=m_tool->convert(digicont,fea);
-  if (sc.isFailure())
-    return sc;
 
-  return StatusCode::SUCCESS;
-
+  return m_tool->convert(digicont, fea);
 }
 
-StatusCode
-TileDigitsContByteStreamCnv::finalize()
-{
-  MsgStream log(msgSvc(), "TileDigitsContByteStreamCnv");
-  log << MSG::DEBUG<<" Clearing Container " <<endreq; 
+StatusCode TileDigitsContByteStreamCnv::finalize() {
 
-  // iterate over all collections in a container and clear them
-  TileDigitsContainer::const_iterator collItr=m_container->begin();
-  TileDigitsContainer::const_iterator lastColl=m_container->end();
+  ATH_MSG_DEBUG(" Clearing Container ");
 
-  for(; collItr!=lastColl; ++collItr) {
-
-    const TileDigitsCollection * constColl = (*collItr);
-    TileDigitsCollection * coll = (TileDigitsCollection *)constColl;
-    coll->clear();
+  for (TileDigitsContainer* digitsContainer : m_containers){
+    for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
+      const_cast<TileDigitsCollection*>(digitsCollection)->clear();
+    }
+    
+    digitsContainer->release(); 
   }
-  m_container->release(); 
 
   return Converter::finalize(); 
-
 }
 
-void TileDigitsContByteStreamCnv::handle(const Incident& incident)
-{
-  if (incident.type() == "StoreCleared")
-  {
-    if (const StoreClearedIncident* inc =
-        dynamic_cast<const StoreClearedIncident*> (&incident))
-    {
-      if (inc->store() == m_storeGate) {
-        TileDigitsContainer::const_iterator collItr=m_container->begin();
-        TileDigitsContainer::const_iterator lastColl=m_container->end();
+void TileDigitsContByteStreamCnv::handle(const Incident& incident) {
 
-        for(; collItr!=lastColl; ++collItr) {
-          const TileDigitsCollection * constColl = (*collItr);
-          TileDigitsCollection * coll = (TileDigitsCollection *)constColl;
-          coll->clear();
+  if (incident.type() == "StoreCleared") {
+    if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
+      if (inc->store() == &*m_storeGate) {
+        for (TileDigitsContainer* digitsContainer : m_containers){
+          for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
+            const_cast<TileDigitsCollection*>(digitsCollection)->clear();
+          }
         }
       }
     }

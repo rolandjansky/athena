@@ -5,8 +5,14 @@
 #ifndef TILEBYTESTREAM_TILEL2_BYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEL2_BYTESTREAMCNV_H
 
+// Gaudi includes
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// Athena includes
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TileEvent/TileContainer.h"
 
@@ -15,7 +21,6 @@ class StatusCode;
 class IAddressCreator;
 class IByteStreamEventAccess;
 class StoreGateSvc; 
-class MsgStream; 
 class IROBDataProviderSvc; 
 class TileL2ContByteStreamTool ; 
 class ByteStreamCnvSvc;
@@ -38,50 +43,54 @@ extern long ByteStream_StorageType;
  */
 
 class TileL2ContByteStreamCnv
-  : public Converter,
-    public IIncidentListener
+  : public Converter
+  , public IIncidentListener
+  , public ::AthMessaging
 {
-  friend class CnvFactory<TileL2ContByteStreamCnv>;
+    friend class CnvFactory<TileL2ContByteStreamCnv>;
 
- protected:
-  TileL2ContByteStreamCnv(ISvcLocator* svcloc);
+  protected:
+    TileL2ContByteStreamCnv(ISvcLocator* svcloc);
 
- public:
+  public:
 
-  typedef TileL2ContByteStreamTool  BYTESTREAMTOOL ; 
+    typedef TileL2ContByteStreamTool  BYTESTREAMTOOL ; 
 
-  virtual StatusCode initialize();
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
-  virtual StatusCode finalize();
+    virtual StatusCode initialize();
+    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
+    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+    virtual StatusCode finalize();
+    
+    /// Incident listener
+    virtual void handle( const Incident& incident );
+    
+    /// Storage type and class ID
+    virtual long repSvcType() const  { return ByteStream_StorageType; }
+    static long storageType()  { return ByteStream_StorageType; }
+    static const CLID& classID();
+    
+  private: 
 
-  /// Incident listener
-  virtual void handle( const Incident& incident );
+    std::string m_name;
 
-  /// Storage type and class ID
-  virtual long repSvcType() const  { return ByteStream_StorageType; }
-  static long storageType()  { return ByteStream_StorageType; }
-  static const CLID& classID();
-
- private: 
-
-  /** Pointer to TileL2ContByteStreamTool */
-  BYTESTREAMTOOL* m_tool ; 
-
-  /** Pointer to TileROD_Decoder */
-  TileROD_Decoder* m_decoder;
-
-  /** Pointer to ByteStreamCnvSvc */
-  ByteStreamCnvSvc* m_ByteStreamEventAccess;
-
-  /** Pointer to TileL2Container */
-  TileL2Container* m_container ; 
-
-  /** Pointer to StoreGateSvc */
-  StoreGateSvc* m_storeGate; 
-
-  /** Pointer to IROBDataProviderSvc */
-  IROBDataProviderSvc *m_rdpSvc;
+    //    BYTESTREAMTOOL* m_tool ;
+    ToolHandle<BYTESTREAMTOOL> m_tool;
+    
+    ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess;
+    ByteStreamCnvSvc* m_byteStreamCnvSvc;
+    
+    /** Pointer to StoreGateSvc */
+    ServiceHandle<StoreGateSvc> m_storeGate; 
+    
+    /** Pointer to IROBDataProviderSvc */
+    ServiceHandle<IROBDataProviderSvc> m_robSvc;
+    
+    /** Pointer to TileROD_Decoder */
+    ToolHandle<TileROD_Decoder> m_decoder;
+    
+    /** Pointer to TileL2Container */
+    TileL2Container* m_container; 
+    
 };
 #endif
 
