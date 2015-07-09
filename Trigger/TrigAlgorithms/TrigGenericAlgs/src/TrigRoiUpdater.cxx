@@ -50,7 +50,11 @@ namespace PESA
     if (instanceName.find("Cosmics") !=std::string::npos){
       m_zHalfWidth = 1000.;
       ATH_MSG_INFO ("Instance " << instanceName << " z range modification: " << m_zHalfWidth);
+    } else if (instanceName.find("BeamSpot") !=std::string::npos){
+      m_zHalfWidth = 175.;
+      ATH_MSG_INFO ("Instance " << instanceName << " z range modification: " << m_zHalfWidth);
     }
+
 
 
     return HLT::OK;
@@ -96,7 +100,7 @@ namespace PESA
 
     if (forIDfound && instanceName.find("IDTrigRoiUpdater_Muon_IDTrig")!=std::string::npos){
       ATH_MSG_DEBUG("don't update roiDecriptor from muFast");
-      return HLT::OK;
+      updateNeeded = false;
     }
 
     if (instanceName.find("Bjet")!=std::string::npos || instanceName.find("bjet")!=std::string::npos){
@@ -126,10 +130,17 @@ namespace PESA
       float diff_eta = 0.5*oldEtaW - m_etaHalfWidth;
       float diff_phi = 0.5*oldPhiW - m_phiHalfWidth;
       
-      float zedm = roi->zedMinus()-m_zHalfWidth;
-      float zedp = roi->zedPlus()+m_zHalfWidth;
+      float zedm(0.), zedp(0.);
+      zedm = roi->zedMinus()-m_zHalfWidth;
+      zedp = roi->zedPlus()+m_zHalfWidth;
+      if (instanceName.find("IDTrigRoiUpdater_BeamSpot_IDTrig")!=std::string::npos){
+	zedm = (roi->zedPlus()+roi->zedMinus())/2.-m_zHalfWidth;
+	zedp = (roi->zedPlus()+roi->zedMinus())/2.+m_zHalfWidth;
+      }
+
       
-      outroi =  new TrigRoiDescriptor(eta, m_inpEtaMinus+diff_eta, m_inpEtaPlus-diff_eta,
+      outroi =  new TrigRoiDescriptor(roi->roiWord(), roi->l1Id(), roi->roiId(),
+				      eta, m_inpEtaMinus+diff_eta, m_inpEtaPlus-diff_eta,
 				      phi, m_inpPhiMinus+diff_phi, m_inpPhiPlus-diff_phi,
 				      roi->zed(), zedm, zedp);
     }

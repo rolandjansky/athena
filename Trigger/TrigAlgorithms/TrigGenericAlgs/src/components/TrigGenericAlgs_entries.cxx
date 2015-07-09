@@ -12,6 +12,7 @@
 #include "../TimeBurner.h"
 #include "../AcceptAnyInput.h"
 #include "../TrigRoiUpdater.h"
+#include "../MergeTopoStarts.h"
 
 
 using namespace PESA;
@@ -28,6 +29,7 @@ DECLARE_ALGORITHM_FACTORY( TimeBurner )
 DECLARE_ALGORITHM_FACTORY( AcceptAnyInput )
 DECLARE_ALGORITHM_FACTORY( SeededSuperRoiAllTEAlgo )
 DECLARE_ALGORITHM_FACTORY( TrigRoiUpdater )
+DECLARE_ALGORITHM_FACTORY( MergeTopoStarts )
 
 
 DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
@@ -43,4 +45,5 @@ DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( AcceptAnyInput )      
     DECLARE_ALGORITHM( SeededSuperRoiAllTEAlgo )      
     DECLARE_ALGORITHM( TrigRoiUpdater )
+    DECLARE_ALGORITHM( MergeTopoStarts )
 }
