@@ -13,4 +13,9 @@ elif ( DetFlags.detdescr.Muon_on() ):
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     GeoModelSvc.DetectorTools += [ MuonDetectorTool() ]
     GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].BuildFromNova = 0
-        
+    if ( not DetFlags.simulate.any_on() ):
+      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = "MuonAlignmentDbTool/MGM_AlignmentDbTool"
+    else:
+      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].TheMuonAlignmentTool = ""
+      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].UseConditionDb = 0
+      GeoModelSvc.DetectorTools[ "MuonDetectorTool" ].UseAsciiConditionData = 0
