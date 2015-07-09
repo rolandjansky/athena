@@ -21,8 +21,7 @@
 #include <map> 
 #include <stdint.h>
 
-static const InterfaceID IID_ITileRawChannelContByteStreamTool("TileRawChannelContByteStreamTool",
-    1, 0);
+static const InterfaceID IID_ITileRawChannelContByteStreamTool("TileRawChannelContByteStreamTool", 1, 0);
 
 const InterfaceID& TileRawChannelContByteStreamTool::interfaceID() {
   return IID_ITileRawChannelContByteStreamTool;
@@ -51,10 +50,17 @@ TileRawChannelContByteStreamTool::~TileRawChannelContByteStreamTool() {
 
 StatusCode TileRawChannelContByteStreamTool::initialize() {
 
+  ATH_MSG_INFO ("Initializing TileRawChannelContByteStreamTool");
+
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
+  // rodid 4 modules/rod
   m_hid2re.setTileHWID(m_tileHWID);
   m_fea.idMap().setTileHWID(m_tileHWID);
+
+  // rodid 8 modules/rod
+  m_TileMuRcv_hid2re.setTileMuRcvHWID(m_tileHWID);
+  m_TileMuRcv_fea.idMap().setTileMuRcvHWID(m_tileHWID);
 
   // get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
@@ -70,90 +76,93 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
 StatusCode TileRawChannelContByteStreamTool::finalize() {
   delete[] m_channels;
 
+  ATH_MSG_INFO ("Finalizing TileRawChannelContByteStreamTool successfuly");
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* cont,
-    FullEventAssembler<TileHid2RESrcID> *fea) {
+StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContainer, FullEventAssembler<TileHid2RESrcID> *fea) {
 
-  //fea->clear();
-  // m_fea.idMap().setTileHWID(m_tileHWID);
+  bool isTMDB = evtStore()->proxy(rawChannelContainer)->name() == "MuRcvRawChCnt";
 
-  // NOTE: conversion from ADC counts to MeV is commented out currently
-  // i.e. units for raw channels in BS remain ADC counts
+  TileFragHash::TYPE contType = rawChannelContainer->get_type();
+  TileRawChannelUnit::UNIT inputUnit = rawChannelContainer->get_unit();
+  TileRawChannelUnit::UNIT outputUnit = inputUnit; 
 
-  TileFragHash::TYPE contType = cont->get_type();
-  TileRawChannelUnit::UNIT inputUnit = cont->get_unit();
-  if (contType == TileFragHash::MF && inputUnit != TileRawChannelUnit::ADCcounts) {
-    ATH_MSG_WARNING( " Wrong container passed to converter - ignoring it ");
-    return StatusCode::SUCCESS;
-  }
-  TileRawChannelUnit::UNIT outputUnit = inputUnit; // TileRawChannelUnit::MegaElectronVolts;
   bool oflCont = (inputUnit < TileRawChannelUnit::OnlineOffset);
 
   FullEventAssembler<TileHid2RESrcID>::RODDATA* theROD;
-  TileRawChannelContainer::const_iterator it_coll = cont->begin();
-  TileRawChannelContainer::const_iterator it_coll_end = cont->end();
+
+  ATH_MSG_DEBUG( " Number of raw channel collections... " << rawChannelContainer->size() << " " << evtStore()->proxy(rawChannelContainer)->name());
 
   std::map<uint32_t, TileROD_Encoder> mapEncoder;
 
   int nch = 0;
-  ATH_MSG_DEBUG( " number of collections " << cont->size() );
-  for (; it_coll != it_coll_end; ++it_coll) {
-    const TileRawChannelCollection* coll = (*it_coll);
+  uint32_t reid = 0x0;
 
-    // the same ROD id for all channels in collection
-    TileRawChannelCollection::ID frag_id = coll->identify();
-    uint32_t reid = m_hid2re.getRodID(frag_id);
+  for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
+
+    TileRawChannelCollection::ID frag_id = rawChannelCollection->identify();
+
+    if (isTMDB) reid = m_TileMuRcv_hid2re.getRodTileMuRcvID(frag_id);
+    else reid = m_hid2re.getRodID(frag_id);
+
     mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 4);
     mapEncoder[reid].setTypeAndUnit(contType, outputUnit);
 
     HWIdentifier drawer_id = m_tileHWID->drawer_id(frag_id);
+
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
-    TileRawChannelCollection::const_iterator it_b = coll->begin();
-    TileRawChannelCollection::const_iterator it_e = coll->end();
-
     int n = 0;
-    for (; it_b != it_e; ++it_b) {
-      const TileRawChannel* rawChan = *it_b;
-      HWIdentifier adc_id = rawChan->adc_HWID();
+
+    for (const TileRawChannel* rawChannel : *rawChannelCollection) {
+
+      HWIdentifier adc_id = rawChannel->adc_HWID();
       int channel = m_tileHWID->channel(adc_id);
       int adc = m_tileHWID->adc(adc_id);
-      float ampl = rawChan->amplitude();
-      float time = rawChan->time();
-      float qual = rawChan->quality();
-      if (oflCont) {
-        if (qual > 15.0) qual = 15.0;
-        if (m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) qual += 16.;
+      float amplitude = rawChannel->amplitude();
+      float time = rawChannel->time();
+      float quality = rawChannel->quality();
+      if (isTMDB) {
+        m_channels[nch].set(frag_id, channel, adc, amplitude, 0., 0.);      
+      } else {
+        if (oflCont) {
+          if (quality > 15.0) quality = 15.0;
+          if (m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) quality += 16.;
+	}
+        //amplitude = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, amplitude, inputUnit, outputUnit);
+        m_channels[nch].set(frag_id, channel, adc, amplitude, time, quality); 
       }
-      //ampl = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, ampl, inputUnit, outputUnit);
-      m_channels[nch].set(frag_id, channel, adc, ampl, time, qual);
+
       mapEncoder[reid].add(&m_channels[nch]);
       ++nch;
       ++n;
     }
 
-    ATH_MSG_DEBUG( " collection " << MSG::hex << "0x" << frag_id
+    ATH_MSG_DEBUG( " Collection " << MSG::hex << "0x" << frag_id
                   << " ROD " << "0x" << reid
                   << " number of channels " << MSG::dec << n );
   }
-
-  std::map<uint32_t, TileROD_Encoder>::iterator it = mapEncoder.begin();
-  std::map<uint32_t, TileROD_Encoder>::iterator it_end = mapEncoder.end();
 
   TileROD_Encoder* theEncoder;
 
   // TileROD_Encoder has collected all the channels, now can fill the
   // ROD block data.
 
-  for (; it != it_end; ++it) {
-    theROD = fea->getRodData((*it).first);
-    theEncoder = &((*it).second);
-    if (m_doFragType4) theEncoder->fillROD4(*theROD);
-    if (m_doFragType5) theEncoder->fillROD5(*theROD);
+  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+
+    theROD = fea->getRodData(reidAndEncoder.first);
+    theEncoder = &(reidAndEncoder.second);
+
+    if ((reidAndEncoder.first & 0xf00)) {
+       theEncoder->fillRODTileMuRcvRawChannel(*theROD);
+    } else {
+      if (m_doFragType4) theEncoder->fillROD4(*theROD);
+      if (m_doFragType5) theEncoder->fillROD5(*theROD);
+    }
+    ATH_MSG_DEBUG( " Number of TileRawChannel words in ROD " << MSG::hex << " 0x" << reidAndEncoder.first << MSG::dec << " : " << theROD->size() );
   }
 
   return StatusCode::SUCCESS;
