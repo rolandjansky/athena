@@ -89,7 +89,7 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
   if (m_oMuonResolutionPlots) m_oMuonResolutionPlots->fill(*primaryTrk, truthMu);
   if (m_oDefParamPullPlots) m_oDefParamPullPlots->fill(*primaryTrk, truthMu);
 
-  if (m_oMomentumTruthPullPlots_NoTail || m_oMomentumTruthPullPlots_NoTail) {
+  if (m_oMomentumTruthPullPlots_NoTail || m_oMomentumTruthPullPlots_Tail) {
     //muon spectrometer track at MS entry (not extrapolated)
     const xAOD::TrackParticle *msTrk(0);  
     //muon extrapolated to IP
@@ -104,7 +104,7 @@ void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, con
     //trying to accomodate both in a way that the code compiles in both releases
     if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid() ) {
       //cool, we got both links:
-      int correctEnumForExtrap = ((int)xAOD::Muon::MuonSpectrometerTrackParticle)+2;
+      //int correctEnumForExtrap = ((int)xAOD::Muon::MuonSpectrometerTrackParticle)+2;
       //msExtrapTrk = mu.trackParticle((xAOD::Muon::TrackParticleType) correctEnumForExtrap);
       msTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
     }
