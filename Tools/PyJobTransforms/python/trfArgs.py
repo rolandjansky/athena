@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 652372 2015-03-06 22:13:05Z graemes $
+#  @version $Id: trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -25,8 +25,6 @@ def addStandardTrfArgs(parser):
     parser.add_argument('--showSteps', action='store_true', help='Show list of executor steps only, then exit')
     parser.add_argument('--dumpPickle', metavar='FILE', help='Interpret command line arguments and write them out as a pickle file')
     parser.add_argument('--dumpJSON', metavar='FILE', help='Interpret command line arguments and write them out as a JSON file')
-    parser.add_argument('--orphanKiller', action='store_true', help="Kill all orphaned children at the end of a job (that is, sharing the transform's pgid, but with ppid=1)." 
-                                                                    "Beware, this is potentially dangerous in a a batch environment")
     parser.add_argument('--reportName', type=argFactory(trfArgClasses.argString, runarg=False), 
                         help='Base name for job reports (default name is "jobReport" for most reports, but "metadata" for classic prodsys XML)')
     parser.add_argument('--reportType', type=argFactory(trfArgClasses.argList, runarg=False), nargs='+', metavar='TYPE',
@@ -81,8 +79,8 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
     parser.add_argument('--maxEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep=maxEventsDefaultSubstep), 
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default substep is "{0}")'.format(maxEventsDefaultSubstep))
-    parser.add_argument('--skipEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep='first'), 
-                        help='Number of events to skip over in the first processing step')
+    parser.add_argument('--skipEvents', group='Athena', nargs='+', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep='first'), 
+                        help='Number of events to skip over in the first processing step (skipping substep can be overridden)')
     parser.add_argument('--asetup', group='Athena', type=argFactory(trfArgClasses.argSubstep, runarg=False), nargs='+', metavar='substep:ASETUP',
                         help='asetup command string to be run before this substep is executed')
     parser.add_argument('--eventAcceptanceEfficiency', type=trfArgClasses.argFactory(trfArgClasses.argSubstepFloat, min=0.0, max=1.0, runarg=False),
@@ -146,7 +144,7 @@ def addDetectorArguments(parser):
     parser.defineArgGroup('Detector', 'General detector configuration options, for simulation and reconstruction')
     parser.add_argument('--DBRelease', group = 'Detector', type=argFactory(trfArgClasses.argSubstep, runarg=False), metavar='substep:DBRelease',  nargs='+',
                         help='Use DBRelease instead of ORACLE. Give either a DBRelease tarball file (e.g., DBRelease-21.7.1.tar.gz) or cvmfs DBRelease directory (e.g., 21.7.1 or current')
-    parser.add_argument('--conditionsTag', group='Detector', type=argFactory(trfArgClasses.argSubstep), metavar='substep:CondTag',  nargs='+',
+    parser.add_argument('--conditionsTag', group='Detector', type=argFactory(trfArgClasses.argSubstepConditions), metavar='substep:CondTag',  nargs='+',
                         help='Conditions tag to set')
     parser.add_argument('--geometryVersion', group='Detector', type=argFactory(trfArgClasses.argSubstep), metavar='substep:GeoVersion',  nargs='+',
                         help='ATLAS geometry version tag')
@@ -316,7 +314,8 @@ class dpdType(object):
     #  @param argclass The argument class to be used for this data
     #  @param treeNames For DPD types only, the tree(s) used for event counting (if @c None then 
     #  no event counting can be done.
-    def __init__(self, name, type = None, substeps = [], argclass = None, treeNames = None):
+    #  @param help Help string to generate for this argument
+    def __init__(self, name, type = None, substeps = [], argclass = None, treeNames = None, help = None):
         self._name = name
         
         ## @note Not very clear how useful this actually is, but we
@@ -361,6 +360,7 @@ class dpdType(object):
         else:
             self._argclass = argclass
                 
+        self._help = help
         self._treeNames = treeNames
             
     @property
@@ -378,6 +378,10 @@ class dpdType(object):
     @property 
     def argclass(self):
         return self._argclass
+
+    @property 
+    def help(self):
+        return self._help
 
     @property 
     def treeNames(self):
@@ -398,8 +402,16 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_SUSYTRUTH', substeps=['a2d'], treeNames=['truth']))
     extraDPDs.append(dpdType('NTUP_HIGHMULT', substeps=['e2a'], treeNames=['MinBiasTree']))
     extraDPDs.append(dpdType('NTUP_PROMPTPHOT', substeps=['e2d', 'a2d'], treeNames=["PAUReco","HggUserData"]))
-    
-    if not NTUPOnly:
+
+    extraDPDs.append(dpdType('NTUP_MCPTP', substeps=['a2d'], help="Ntuple file for MCP Tag and Probe"))
+    extraDPDs.append(dpdType('NTUP_MCPScale', substeps=['a2d'], help="Ntuple file for MCP scale calibration"))
+
+    # Trigger NTUPs (for merging only!)
+    if NTUPOnly:
+        extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGRATE', treeNames=['trig_cost']))
+        extraDPDs.append(dpdType('NTUP_TRIGEBWGHT', treeNames=['trig_cost']))
+    else:
         extraDPDs.append(dpdType('DAOD_HSG2'))
         extraDPDs.append(dpdType('DESDM_ZMUMU'))
 
@@ -416,7 +428,7 @@ def getExtraDPDList(NTUPOnly = False):
 def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMergerArgs = False):
     parser.defineArgGroup('Additional DPDs', 'Extra DPD file types')
     
-    extraDPDs = getExtraDPDList()
+    extraDPDs = getExtraDPDList(NTUPOnly=NTUPMergerArgs)
     
     if NTUPMergerArgs:
         for dpd in extraDPDs:
@@ -425,11 +437,11 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                     parser.add_argument('--input' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=True, io='input', type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), nargs='+',
-                                        help='DPD input {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD input {0} file'.format(dpd.name))
                     parser.add_argument('--output' + dpd.name + '_MRGFile', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output merged {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output merged {0} file'.format(dpd.name))
                     
         pass
     else:
@@ -441,12 +453,12 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                     parser.add_argument('--output' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 else:
                     parser.add_argument('--output' + dpd.name + 'File', 
                                         type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
-                                        help='DPD output {0} file'.format(dpd.name))
+                                        help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 if transform:
                     for executor in transform.executors:
                         if hasattr(executor, 'substep') and executor.substep in dpd.substeps:
@@ -457,13 +469,6 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
 
 def addFileValidationArguments(parser):
     parser.defineArgGroup('File Validation', 'Standard file validation switches')
-    parser.add_argument('--skipFileValidation', '--omitFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --fileValidation BOOL instead')
-    parser.add_argument('--skipInputFileValidation', '--omitInputFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --inputFileValidation BOOL instead')
-    parser.add_argument('--skipOutputFileValidation', '--omitOutputFileValidation', action='store_true', 
-                        group='File Validation', help='DEPRECATED. Use --outputFileValidation BOOL instead')
-
     parser.add_argument('--fileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',
                         group='File Validation', help='If FALSE skip both input and output file validation (default TRUE; warning - do not use this option in production jobs!)')
     parser.add_argument('--inputFileValidation', type = argFactory(trfArgClasses.argBool), metavar='BOOL',

@@ -2,9 +2,8 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Run a Reco job using AthenaMP and test key metadata in the output
-# Note we deliberately keep the ESD as a temporary here, to check this
-# works correctly (with no merging)
+# Run a Reco job and test key metadata in the output
+#
 
 import glob
 import json
@@ -16,17 +15,13 @@ import unittest
 
 from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfReports import pyJobReportToFileDict
-from PyJobTransforms.trfUtils import releaseIsOlderThan
 
-class Reco_tfAthenaMPtest(unittest.TestCase):
+class Reco_tftest(unittest.TestCase):
     
-    def test_runReco_tf(self):
+    def test_runReco_q222_tf(self):
         cmd = ['Reco_tf.py']
         cmd.extend(['--AMI', 'q222'])
-        cmd.extend(['--maxEvents', '24'])
-        cmd.append('--athenaopts=--nprocs=4')  
-        cmd.extend(['--athenaMPMergeTargetSize', 'ESD:0'])  
-            
+        cmd.extend(['--maxEvents', '2'])
         msg.info('Will run this transform: {0}'.format(cmd))
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         while p.poll() is None:
@@ -41,13 +36,10 @@ class Reco_tfAthenaMPtest(unittest.TestCase):
         with open('jobReport.json') as jr:
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
-            dataDict = pyJobReportToFileDict(md)
-            self.assertTrue('ESD' in dataDict.keys())
-            self.assertTrue('AOD' in dataDict.keys())
-            self.assertTrue('HIST' in dataDict.keys())
-            self.assertTrue(len(dataDict['ESD']['subFiles']), 4)
-            self.assertEqual(dataDict['AOD']['subFiles'][0]['nentries'], 24)
-            self.assertEqual(dataDict['HIST']['subFiles'][0]['nentries'], 24)
+            self.assertTrue('resource' in md.keys())
+            self.assertEqual(md['resource']['executor']['AODtoTAG']['eventCount'], 2)
+            self.assertEqual(md['resource']['executor']['ESDtoAOD']['eventCount'], 2)
+            self.assertEqual(md['resource']['executor']['RAWtoESD']['eventCount'], 2)
 
 if __name__ == '__main__':
     unittest.main()

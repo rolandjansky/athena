@@ -5,10 +5,12 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: test_trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
 
 import argparse
+import json
 import os
+import subprocess
 import unittest
 
 import logging
@@ -104,6 +106,26 @@ class trfFloatArgsUnitTests(unittest.TestCase):
         addTeaArguments(tf.parser)
         self.assertRaises(SystemExit, tf.parseCmdLineArgs, ['--mugVolume', 'LOL'])
 
+
+class configureFromJSON(unittest.TestCase):
+    def setUp(self):
+        with open('argdict.json', 'w') as argdict:
+            argdict.write('''{"conditionsTag": {  "all": "CONDBR2-BLKPA-2015-05"  },  "geometryVersion": {  "all": "ATLAS-R2-2015-03-01-00"  },  "preExec": {  "athena": [  "print 'Python says hi!'"  ]  },  "skipEvents": {  "first": 10  },  "testFloat": 4.67,  "testInt": 5 }''')
+    
+    def tearDown(self):
+        for f in 'argdict.json', 'rewrite.json':
+            try:
+                os.unlink(f)
+            except OSError:
+                pass 
+
+    def test_configFromJSON(self):
+        cmd = ['Athena_tf.py', '--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json']
+        self.assertEqual(subprocess.call(cmd), 0)
+        self.maxDiff = None
+        with open('rewrite.json') as rewritten_json:
+            rewrite = json.load(rewritten_json)
+        self.assertEqual(rewrite, {u'argJSON': u'argdict.json', u"conditionsTag": {  u"all": u"CONDBR2-BLKPA-2015-05"  },  u"geometryVersion": {  u"all": u"ATLAS-R2-2015-03-01-00"  },  u"preExec": {  u"athena": [  u"print 'Python says hi!'"  ]  },  u"skipEvents": {  u"first": 10  },  u"testFloat": 4.67,  u"testInt": 5 })
 
 if __name__ == '__main__':
     unittest.main()
