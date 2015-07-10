@@ -17,8 +17,11 @@
 #include "AthLinks/DataLink.h"
 
 // Local include(s):
-#include "xAODHIEvent/versions/HIEventShape_v1.h"
+#include "xAODHIEvent/HIEventShape.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODHIEvent/HIEventShapeAuxContainer.h"
 
+#include "xAODHIEvent/versions/HIEventShape_v1.h"
 #include "xAODHIEvent/versions/HIEventShapeContainer_v1.h"
 #include "xAODHIEvent/versions/HIEventShapeAuxContainer_v1.h"
 

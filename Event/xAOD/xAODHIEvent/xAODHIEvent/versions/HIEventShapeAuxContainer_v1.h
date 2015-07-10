@@ -37,13 +37,6 @@ namespace xAOD {
    }; // class HIEventShapeAuxContainer_v1
 
 } // namespace xAOD
-
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::HIEventShapeAuxContainer_v1, 1170531618, 1 )
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::HIEventShapeAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
-
 #endif // XAODEVENTINFO_VERSIONS_EVENTINFOAUXCONTAINER_V1_H

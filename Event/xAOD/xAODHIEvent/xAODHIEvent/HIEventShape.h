@@ -15,5 +15,6 @@ namespace xAOD {
    /// Definition of the latest event info version
    typedef HIEventShape_v1 HIEventShape;
 }
-
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::HIEventShape, 164650240, 1)
 #endif // XAODEVENTINFO_EVENTINFO_H

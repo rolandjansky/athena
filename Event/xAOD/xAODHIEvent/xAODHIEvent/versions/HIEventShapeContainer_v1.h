@@ -34,10 +34,5 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::HIEventShapeContainer_v1, 1155025655, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEVENTINFO_EVENTINFOCONTAINER_V1_H

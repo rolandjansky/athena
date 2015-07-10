@@ -3,14 +3,6 @@
   <!-- I do not think we need it -->
   <class name="xAOD::HIEventShape_v1"/>
 
-
-  <read sourceClass="xAOD::HIEventShape_v1" version="[1-]"
-        targetClass="xAOD::HIEventShape_v1" source="" target="" >
-    <![CDATA[
-       newObj->setStore( ( SG::IAuxStore* ) 0 );
-     ]]>
-  </read>
-
   <class name="xAOD::HIEventShapeContainer_v1"
          id="FA2C3CB2-71A6-11E4-BB30-02163E010E29" />
   <class name="xAOD::HIEventShapeAuxContainer_v1"
