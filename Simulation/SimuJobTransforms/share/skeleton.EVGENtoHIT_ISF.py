@@ -185,7 +185,7 @@ simFlags.SeedsG4.set_Off()
 ## Set the Run Number (if required)
 if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
-        atlasG4log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
+        atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
@@ -237,10 +237,21 @@ if hasattr(runArgs, 'truthStrategy'):
     ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
     ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
     ISF_Flags.TruthStrategy    = runArgs.truthStrategy
-    if 'MC12' == runArgs.truthStrategy or 'MC15a' == runArgs.truthStrategy:
-        simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-    else:
-        simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+    try:
+        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
+    except RuntimeError:
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+    except ImportError:
+        # Temporary back-compatibility
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
     ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_TruthService'

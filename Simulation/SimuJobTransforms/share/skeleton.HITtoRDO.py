@@ -397,40 +397,21 @@ if NoTriggerConfig(runArgs):
     DetFlags.Print()
 
 ## Output RDO File
-if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO") or hasattr(runArgs,"outputRDO_FILTFile") or hasattr(runArgs,"tmpRDO_FILT"):
+if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
     if hasattr(runArgs,"outputRDOFile"):
-        if hasattr(runArgs,"tmpRDO"):
-            digilog.fatal("Both outputRDOFile and tmpRDO specified - this configuration should not be used!")
-            raise SystemError
         if hasattr(runArgs,"outputRDO_FILTFile"):
             digilog.fatal("Both outputRDOFile and outputRDO_FILTFile specified - this configuration should not be used!")
             raise SystemError
-        if hasattr(runArgs,"tmpRDO_FILT"):
-            digilog.fatal("Both outputRDOFile and tmpRDO_FILT specified - this configuration should not be used!")
-            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
-    elif hasattr(runArgs,"tmpRDO"):
-        if hasattr(runArgs,"outputRDO_FILTFile"):
-            digilog.fatal("Both tmpRDO and outputRDO_FILTFile specified - this configuration should not be used!")
-            raise SystemError
-        if hasattr(runArgs,"tmpRDO_FILT"):
-            digilog.fatal("Both tmpRDO and tmpRDO_FILT specified - this configuration should not be used!")
-            raise SystemError
-        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO )
     elif hasattr(runArgs,"outputRDO_FILTFile"):
-        if hasattr(runArgs,"tmpRDO_FILT"):
-            digilog.fatal("Both outputRDO_FILTFile and tmpRDO_FILT specified - this configuration should not be used!")
-            raise SystemError
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
-    elif hasattr(runArgs,"tmpRDO_FILT"):
-        athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.tmpRDO_FILT )
     if hasattr(runArgs, "AddCaloDigi"):
         AddCaloDigi = runArgs.AddCaloDigi
         if AddCaloDigi:
             digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
             digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
-    digilog.info("no output file (outputRDOFile, outputRDO_FILTFile, tmpRDO or tmpRDO_FILT) specified - switching off output StreamRDO")
+    digilog.info("no output file (outputRDOFile, outputRDO_FILTFile) specified - switching off output StreamRDO")
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags

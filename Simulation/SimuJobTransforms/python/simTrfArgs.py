@@ -66,12 +66,6 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
-    parser.add_argument('--tmpRDO', nargs='+',
-                        type=argFactory(argRDOFile, io='output'),
-                        help='Temporary output RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
-    parser.add_argument('--tmpRDO_FILT', nargs='+',
-                        type=argFactory(argRDOFile, io='output'),
-                        help='Temporary output filtered RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
