@@ -13,9 +13,11 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldServices/AtlasFieldSvcTLS.h"
 #include "MagFieldServices/BFieldCache.h"
 #include "MagFieldServices/BFieldCacheZR.h"
 #include "MagFieldServices/BFieldCond.h"
@@ -67,10 +69,13 @@ namespace MagField {
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
       /** if deriv[9] is given, field derivatives are returned in kT/mm */
-      virtual void getField(const double *xyz, double *bxyz, double *deriv = 0);
-      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0);
+      virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const;
+      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const;
 
     private:
+      /** Retrieve, initialize and return a thread-local storage object */
+      inline struct AtlasFieldSvcTLS &getAtlasFieldSvcTLS() const;
+
       /* // Methods called to get field
          // pointer to actual function
 	 typedef void (AtlasFieldSvc::*FuncPtr)(const double *, double *, double *);
@@ -88,25 +93,25 @@ namespace MagField {
       BFieldZone* findZoneSlow( double z, double r, double phi );
       // fill the cache. return true if successful
       // return false if the position is outside the valid map volume
-      inline bool fillFieldCache(double z, double r, double phi);
-      inline bool fillFieldCacheZR(double z, double r);
+      inline bool fillFieldCache(double z, double r, double phi, AtlasFieldSvcTLS &tls) const;
+      inline bool fillFieldCacheZR(double z, double r, AtlasFieldSvcTLS &tls) const;
 
       // set currents from when DCS is not read
-      StatusCode importCurrents();
+      StatusCode importCurrents(AtlasFieldSvcTLS &tls);
       // initialize map
-      StatusCode initializeMap();
+      StatusCode initializeMap(AtlasFieldSvcTLS &tls);
       // read the field map from an ASCII or ROOT file
       StatusCode readMap( const char* filename );
       StatusCode readMap( std::istream& input );
       StatusCode readMap( TFile* rootfile );
       // write the field map to a ROOT file
-      void writeMap( TFile* rootfile );
+      void writeMap( TFile* rootfile ) const;
       // clear the field map
-      void clearMap();
+      void clearMap(AtlasFieldSvcTLS &tls);
 
       // utility functions used by readMap
-      int read_packed_data( std::istream& input, std::vector<int>& data );
-      int read_packed_int( std::istream& input, int &n );
+      int read_packed_data( std::istream& input, std::vector<int>& data ) const;
+      int read_packed_int( std::istream& input, int &n ) const;
       void buildLUT();
       void buildZR();
 
@@ -147,38 +152,43 @@ namespace MagField {
       // handle for COOL currents
       const DataHandle<CondAttrListCollection> m_currentHandle;
 
-      // internal cache to the current field zone
-      BFieldCache   m_cache;   // full 3d field
-      BFieldCacheZR m_cacheZR; // fast 2d field
-      // pointer to the conductors in the current field zone (biot-savart component)
-      const std::vector<BFieldCond> *m_cond;
-      int m_condsize;
-
       // full 3d map (made of multiple zones)
-      std::vector<BFieldZone> m_zone;
+      std::vector<BFieldZone>        m_zone;
+  
+      // fast 2d map (made of one zone)
+      BFieldMeshZR                  *m_meshZR;
+  
       // data members used in zone-finding
-      std::vector<double> m_edge[3];    // zone boundaries in z, r, phi
-      std::vector<int>    m_edgeLUT[3]; // look-up table for zone edges
-      double              m_invq[3];    // 1/stepsize in m_edgeLUT
+      std::vector<double>            m_edge[3];    // zone boundaries in z, r, phi
+      std::vector<int>               m_edgeLUT[3]; // look-up table for zone edges
+      double                         m_invq[3];    // 1/stepsize in m_edgeLUT
       std::vector<const BFieldZone*> m_zoneLUT; // look-up table for zones
       // more data members to speed up zone-finding
-      double  m_zmin;   // minimum z
-      double  m_zmax;   // maximum z
-      int     m_nz;     // number of z bins in m_zoneLUT
-      double  m_rmax;   // maximum r
-      int     m_nr;     // number of r bins in m_zoneLUT
-      int     m_nphi;   // number of phi bins in m_zoneLUT
-
-      // fast 2d map (made of one zone)
-      BFieldMeshZR *m_meshZR;
+      double                         m_zmin;   // minimum z
+      double                         m_zmax;   // maximum z
+      int                            m_nz;     // number of z bins in zoneLUT
+      double                         m_rmax;   // maximum r
+      int                            m_nr;     // number of r bins in zoneLUT
+      int                            m_nphi;   // number of phi bins in zoneLUT
 
       /* // handle for field manipulator, if any
 	 bool m_doManipulation;
 	 ToolHandle<IMagFieldManipulator> m_manipulator; */
+
   };
 }
 
 // inline functions
+
+//
+// Initialize and return a thread-local storage object
+//
+struct MagField::AtlasFieldSvcTLS&
+MagField::AtlasFieldSvc::getAtlasFieldSvcTLS() const {
+  static thread_local AtlasFieldSvcTLS tls = AtlasFieldSvcTLS();
+  // return thread-local object
+  return tls;
+}
 
 //
 // Search for the zone that contains a point (z, r, phi)
@@ -215,7 +225,7 @@ MagField::AtlasFieldSvc::findZone( double z, double r, double phi ) const
 
 /** fill given magnetic field zone */
 bool
-MagField::AtlasFieldSvc::fillFieldCache(double z, double r, double phi)
+MagField::AtlasFieldSvc::fillFieldCache(double z, double r, double phi, AtlasFieldSvcTLS &tls) const
 {
   // search for the zone
   const BFieldZone* zone = findZone( z, r, phi );
@@ -224,22 +234,25 @@ MagField::AtlasFieldSvc::fillFieldCache(double z, double r, double phi)
       return false;
   }
   // fill the cache
-  zone->getCache( z, r, phi, m_cache );
+  zone->getCache( z, r, phi, tls.cache );
+
   // pointer to the conductors in the zone
-  m_cond = zone->condVector();
-  m_condsize=(int)m_cond->size();
+  tls.cond = zone->condVector();
+
+  // set a flag that the thread-local storage is initialized
+  tls.isInitialized = true;
 
   return true;
 }
 
 /** fill Z-R cache for solenoid */
 bool
-MagField::AtlasFieldSvc::fillFieldCacheZR(double z, double r)
+MagField::AtlasFieldSvc::fillFieldCacheZR(double z, double r, AtlasFieldSvcTLS &tls) const
 {
   // is it inside the solenoid zone?
   if ( m_meshZR && m_meshZR->inside( z, r ) ) {
     // fill the cache
-    m_meshZR->getCache( z, r, m_cacheZR );
+    m_meshZR->getCache( z, r, tls.cacheZR );
   } else {
     // outside solenoid
     return false;

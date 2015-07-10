@@ -42,5 +42,10 @@ apply_pattern component_library
 
 private
 # use this to activate debug info in this package:
-# macro cppdebugflags '$(cppdebugflags_s)'
-# macro_remove componentshr_linkopts "-Wl,-s"
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+#macro_append cppflags " -g"
+#macro_append cppflags " -O0"
+#macro_remove cppflags " -O1"
+#macro_remove cppflags " -O2"
+#macro_remove cppflags " -O3"
