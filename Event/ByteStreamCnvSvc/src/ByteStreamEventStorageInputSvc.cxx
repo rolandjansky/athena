@@ -292,25 +292,16 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
     return 0;
   }
 
-  // Set it for the data provider
-  //m_robProvider->setNextEvent(m_re);
-  //m_robProvider->setEventStatus(m_eventStatus);
-
   // dump
   if (m_dump) {
     DumpFrags::dump(m_re);
-  }
-  // Build a DH for use by other components
-  StatusCode rec_sg = generateDataHeader();
-  if (rec_sg != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
   }
   return(m_re);
 }
 //------------------------------------------------------------------------------
 // Read the next event.
 const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
- 
+
   // Load data buffer from file
   char *buf;
   unsigned int eventSize;
@@ -369,20 +360,9 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
     return 0;
   }
 
-  // Set it for the data provider
-  //m_robProvider->setNextEvent(m_re);
-  //m_robProvider->setEventStatus(m_eventStatus);
-
-  //++m_totalEventCounter;
-
   // dump
   if (m_dump) {
     DumpFrags::dump(m_re);
-  }
-  // Build a DH for use by other components
-  StatusCode rec_sg = generateDataHeader();
-  if (rec_sg != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
   }
   return(m_re);
 }
@@ -518,8 +498,7 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
       const DataHandle<EventInfo> Ei_temp;
       //Ei_temp = m_sgSvc->retrieve<EventInfo>("ByteStreamEventInfo");
       if (m_sgSvc->retrieve(Ei_temp,"ByteStreamEventInfo").isSuccess()) {
-        StatusCode sc = m_sgSvc->remove(Ei_temp.cptr());
-        if (!sc.isSuccess()) {
+        if ((m_sgSvc->remove(Ei_temp.cptr())).isFailure()) {
           ATH_MSG_ERROR("Failed to remove ByteStreamEventInfo");
         }
       }
