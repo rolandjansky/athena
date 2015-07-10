@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfArgClasses.py 679938 2015-07-02 22:09:59Z graemes $
 
 import argparse
 import bz2
@@ -21,10 +21,11 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize, inpFileInterestingKeys
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
+from PyJobTransforms.trfAMI import getAMIClient
 
 
 ## @class argFactory
@@ -225,7 +226,6 @@ class argFloat(argument):
     def __init__(self, value=None, min=None, max=None, runarg=True, name=None):
         self._min = min
         self._max = max
-        desc = {}
         super(argFloat, self).__init__(value = value, runarg = runarg, name=name)
 
     ## @brief Argument value getter
@@ -530,7 +530,7 @@ class argFile(argList):
                               'file_guid': self._generateGUID,
                               '_exists': self._exists,
                               }
-
+        self._fileMetadata = {}
         if multipleOK is None:
             if self._io is 'input':
                 self._multipleOK = True
@@ -601,14 +601,36 @@ class argFile(argList):
     #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = False</tt>
     #  @note The setter protects against the same file being added multiple times
     def valueSetter(self, value):
-        ## @note Impossible to use the argList.value setter here? super() doesn't seem to get it right:
-        #  <tt>super(argFile, self).value = value</tt> results in an attribute error
-        
         prodSysPattern = re.compile(r'(?P<prefix>.*)\[(?P<expand>[\d\.,_]+)\](?P<suffix>.*)')
-       
+
         ## @note First do parsing of string vs. lists to get list of files
         if isinstance(value, (list, tuple)):
-            self._value = list(value)
+            if len(value) > 0 and isinstance(value[0], dict): # Tier-0 style expanded argument with metadata
+                self._value=[]
+                for myfile in value:
+                    try:
+                        self._value.append(myfile['lfn'])
+                        self._resetMetadata(files = [myfile['lfn']])
+                    except KeyError:
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'),
+                                                                  'Filename (key "lfn") not found in Tier-0 file dictionary: {0}'.format(myfile))
+                    for k, v in myfile.iteritems():
+                        if k == 'guid':
+                            self._setMetadata([myfile['lfn']], {'file_guid': v})
+                        elif k == 'events':
+                            self._setMetadata([myfile['lfn']], {'nentries': v})
+                        elif k == 'checksum':
+                            self._setMetadata([myfile['lfn']], {'checksum': v})
+                        elif k == 'dsn':
+                            if not self._dataset:
+                                self.dataset = v
+                            elif self.dataset != v:
+                                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_DATASET'),
+                                                                          'Inconsistent dataset names in Tier-0 dictionary: {0} != {1}'.format(self.dataset, v))
+            else:
+                self._value = list(value)
+                self._getDatasetFromFilename(reset = False)
+                self._resetMetadata()
         elif value==None:
             self._value = []
             return
@@ -621,10 +643,12 @@ class argFile(argList):
                     self._value = [value]
                 else:
                     self._value = value.split(self._splitter)
+                    self._getDatasetFromFilename(reset = False)
+                    self._resetMetadata()
             except (AttributeError, TypeError):
                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'),
                                                           'Failed to convert %s to a list' % str(value))
-                
+
         ## @note Check for duplicates (N.B. preserve the order, just remove the duplicates)
         deDuplicatedValue = []
         for fname in self._value:
@@ -635,10 +659,6 @@ class argFile(argList):
         if len(self._value) != len(deDuplicatedValue):
             self._value = deDuplicatedValue
             msg.warning('File list after duplicate removal: {0}'.format(self._value))
-        
-        ## @note Now look for dataset notation
-        # TODO - handle reset of filenames from AthenaMP without trashing DS name
-        self._getDatasetFromFilename(reset = True)
         
         # Find our URL type (if we actually have files!)
         # At the moment this is assumed to be the same for all files in this instance
@@ -679,7 +699,9 @@ class argFile(argList):
                             newValue.extend(globbedNames)
                     else:
                         # Simple case
-                        newValue.extend(glob.glob(filename))
+                        globbedFiles = glob.glob(filename)
+                        globbedFiles.sort()
+                        newValue.extend(globbedFiles)
                 if len(self._value) > 0 and len(newValue) is 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
@@ -789,9 +811,6 @@ class argFile(argList):
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                       'Multiple file arguments are not supported for {0} (was given: {1}'.format(self, self._value))
             
-        # Reset the self._fileMetadata dictionary
-        self._resetMetadata()
-
     @property
     def io(self):
         return (self._io)
@@ -875,7 +894,7 @@ class argFile(argList):
     def getnentries(self, fast=False):
         totalEvents = 0
         for fname in self._value:
-            events = self.getSingleMetadata(fname, 'nentries', populate = not fast)
+            events = self.getSingleMetadata(fname=fname, metadataKey='nentries', populate = not fast)
             if events is None:
                 msg.debug('Got events=None for file {0} - returning None for this instance'.format(fname))
                 return None
@@ -1031,6 +1050,8 @@ class argFile(argList):
         if files == None:
             files = self._value
         for fname in files:
+            if fname not in self._fileMetadata:
+                self._fileMetadata[fname] = {}
             for k, v in metadataKeys.iteritems():
                 msg.debug('Manualy setting {0} for file {1} to {2}'.format(k, fname, v))
                 self._fileMetadata[fname][k] = v
@@ -1066,10 +1087,11 @@ class argFile(argList):
     
     ## @brief Look for dataset name in dataset#filename Tier0 convention
     #  @detail At the moment all files must be in the same dataset if it's specified. 
-    #          To change this dataset will need to become a per-file metadatum.
-    #  @param @c reset If @c True then forget previous dataset setting. Default is @c True.
+    #          (To change this dataset will need to become a per-file metadatum.)
+    #  @note dsn#lfn notation must be used for @b all input values and all dsn values must be the same
+    #  @param @c reset If @c True then forget previous dataset setting. Default is @c False.
     #  @return @c None. Side effect is to set @c self._metadata.
-    def _getDatasetFromFilename(self, reset = True):
+    def _getDatasetFromFilename(self, reset = False):
         if reset:
             self._dataset = None
         newValue = []
@@ -1078,12 +1100,15 @@ class argFile(argList):
                 (dataset, fname) = filename.split('#', 1)
                 newValue.append(fname)
                 msg.debug('Current dataset: {0}; New dataset {1}'.format(self._dataset, dataset))
-                if (self._dataset is not None) and (self._dataset != dataset):
+                if self._dataset and (self._dataset != dataset):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_DATASET'), 
                                                               'Found inconsistent dataset assignment in argFile setup: %s != %s' % (self._dataset, dataset))
                 self._dataset = dataset
-            else:
-                newValue.append(filename)
+        if len(newValue) == 0:
+            return
+        elif len(newValue) != len (self._value):
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_DATASET'), 
+                                                      'Found partial dataset assignment in argFile setup from {0} (dsn#lfn notation must be uniform for all inputs)'.format(self._value))
         self._value = newValue
     
     ## @brief Determines the size of files.
@@ -1165,6 +1190,33 @@ class argFile(argList):
     ## @brief String representation of a file argument
     def __str__(self):
         return "{0}={1} (Type {2}, Dataset {3}, IO {4})".format(self.name, self.value, self.type, self.dataset, self.io)
+    
+    
+    ## @brief Utility to strip arguments which should not be passed to the selfMerge methods
+    #  of our child classes
+    #  @param copyArgs If @c None copy all arguments by default, otherwise only copy the
+    #  listed keys
+    def _mergeArgs(self, argdict, copyArgs=None):
+        if copyArgs:
+            myargdict = {}
+            for arg in copyArgs:
+                if arg in argdict:
+                    myargdict[arg] = copy.copy(argdict[arg])
+            
+        else:
+            myargdict = copy.copy(argdict)
+        # Never do event count checks for self merging
+        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
+        if 'athenaopts' in myargdict:
+            # Need to ensure that "nprocs" is not passed to merger
+            newopts = []
+            for opt in myargdict['athenaopts'].value:
+                if opt.startswith('--nprocs'):
+                    continue
+                newopts.append(opt)
+            myargdict['athenaopts'] = argList(newopts, runarg=False)
+        return myargdict
+
 
 ## @brief Athena file class
 #  @details Never used directly, but is the parent of concrete classes
@@ -1192,9 +1244,12 @@ class argAthenaFile(argFile):
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
 
+        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files
+        if aftype == 'POOL' and self._io == 'input':
+            retrieveKeys = inpFileInterestingKeys
+
         # N.B. Could parallelise here            
         for fname in myFiles:
-            # athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys, timeout=240+30*len(myFiles), defaultrc=None)
             athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
             if athFileMetadata == None:
                 raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaFileInfo failed')
@@ -1204,31 +1259,6 @@ class argAthenaFile(argFile):
     ## @brief Small wrapper which sets the standard options for doAllFiles and retrieveKeys
     def _getAthInfo(self, files):
         self._callAthInfo(files, doAllFiles = True, retrieveKeys=athFileInterestingKeys)
-
-    ## @brief Utility to strip arguments which should not be passed to the selfMerge methods
-    #  of our child classes
-    #  @param copyArgs If @c None copy all arguments by default, otherwise only copy the
-    #  listed keys
-    def _mergeArgs(self, argdict, copyArgs=None):
-        if copyArgs:
-            myargdict = {}
-            for arg in copyArgs:
-                if arg in argdict:
-                    myargdict[arg] = copy.copy(argdict[arg])
-            
-        else:
-            myargdict = copy.copy(argdict)
-        # Never do event count checks for self merging
-        myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
-        if 'athenaopts' in myargdict:
-            # Need to ensure that "nprocs" is not passed to merger
-            newopts = []
-            for opt in myargdict['athenaopts'].value:
-                if opt.startswith('--nprocs'):
-                    continue
-                newopts.append(opt)
-            myargdict['athenaopts'] = argList(newopts, runarg=False)
-        return myargdict
 
     @property
     def prodsysDescription(self):
@@ -1256,6 +1286,47 @@ class argBSFile(argAthenaFile):
     def prodsysDescription(self):
         desc=super(argBSFile, self).prodsysDescription
         return desc
+    
+    ## @brief Method which can be used to merge files of this type
+    #  @param output Target filename for this merge
+    #  @param inputs List of files to merge
+    #  @param argdict argdict of the transform
+    #  @note @c argdict is not normally used as this is a @em vanilla merge
+    def selfMerge(self, output, inputs, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
+        
+        # First do a little sanity check
+        for fname in inputs:
+            if fname not in self._value:
+                raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
+        
+        from PyJobTransforms.trfExe import bsMergeExecutor, executorConfig
+        
+        ## @note Modify argdict
+        myargdict = self._mergeArgs(argdict)
+        myargdict['maskEmptyInputs'] = argBool(True)
+        myargdict['allowRename'] = argBool(True)
+        myargdict['emptyStubFile'] = argString(output)
+        
+        # We need a athenaExecutor to do the merge
+        # N.B. We never hybrid merge AthenaMP outputs as this would prevent further merging in another
+        # task (hybrid merged files cannot be further bybrid merged) 
+        myDataDictionary = {'BS_MRG_INPUT' : argBSFile(inputs, type=self.type, io='input'),
+                            'BS_MRG_OUTPUT' : argBSFile(output, type=self.type, io='output')}
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = bsMergeExecutor(name='BSMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, exe = 'file_merging',
+                                  inData=set(['BS_MRG_INPUT']), outData=set(['BS_MRG_OUTPUT']))
+        myMerger.doAll(input=set(['BS_MRG_INPUT']), output=set(['BS_MRG_OUTPUT']))
+        
+        # OK, if we got to here with no exceptions, we're good shape
+        # Now update our own list of files to reflect the merge
+        for fname in inputs:
+            self._value.remove(fname)
+        self._value.append(output)
+
+        msg.debug('Post self-merge files are: {0}'.format(self._value))
+        self._resetMetadata(inputs + [output])
     
 
 ## @brief POOL file class.
@@ -2062,6 +2133,36 @@ class argSubstepSteering(argSubstep):
                                                           'Failed to convert string {0!s} to argSubstepSteering'.format(subvalue))
             retvalue.append((matchedParts.group(1), matchedParts.group(2), matchedParts.group(3)))
         return retvalue
+
+
+## @brief Substep class for conditionsTag 
+class argSubstepConditions(argSubstep):
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        msg.debug('Attempting to set argSubstepConditions from {0!s} (type {1}'.format(value, type(value)))
+        # super().value = value workaround:
+        super(self.__class__, self.__class__).value.fset(self, value)
+        
+        current = None
+        for k, v in self._value.iteritems():
+            if "CurrentMC" == v:
+                if current == None:
+                    current = self._amiLookUp(getAMIClient())
+                self._value[k] = current
+
+    def _amiLookUp(self, client):
+        cmd = "COMAGetGlobalTagNameByCurrentState --state=CurrentMC"
+        return str(client.execute(cmd, format = 'dom_object').get_rows().pop()['globalTag'])
+    
+    @property
+    def prodsysDescription(self):
+        desc = {'type': 'substep', 'substeptype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
+        return desc
 
         
 class trfArgParser(argparse.ArgumentParser):

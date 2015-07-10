@@ -523,7 +523,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
 
         if 'outputs' in result[0].keys():
             outputs=deserialiseFromAMIString(result[0]['outputs'])
-            trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
+            trf.outFiles=dict( (k, getOutputFileName(k.lstrip('output').rstrip('File')) ) for k in outputs.iterkeys() )
             trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
     except KeyError as e:
         raise TransformAMIException(AMIerrorCode, "Missing key in AMI data: {0}".format(e))

@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 654738 2015-03-17 14:43:07Z graemes $
+# @version $Id: transform.py 679938 2015-07-02 22:09:59Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -373,12 +373,15 @@ class transform(object):
                 
             self.validateOutFiles()
             
+            msg.debug('Transform executor succeeded')
+            self._exitCode = 0
+            self._exitMsg = trfExit.codeToName(self._exitCode)
+            
         except trfExceptions.TransformNeedCheckException as e:
             msg.warning('Transform executor signaled NEEDCHECK condition: {0}'.format(e.errMsg))
             self._exitCode = e.errCode
             self._exitMsg = e.errMsg
             self.generateReport(fast=False)
-            sys.exit(self._exitCode)
 
         except trfExceptions.TransformException as e:
             msg.critical('Transform executor raised %s: %s' % (e.__class__.__name__, e.errMsg))
@@ -386,19 +389,13 @@ class transform(object):
             self._exitMsg = e.errMsg
             # Try and write a job report...
             self.generateReport(fast=True)
-            sys.exit(self._exitCode)
-        
-        # As the actual executor function is not part of this class we pass the transform as an argument
-        # This means that simple executors do not require explicit subclassing
-        msg.debug('Transform executor succeeded')
-        self._exitCode = 0
-        self._exitMsg = trfExit.codeToName(self._exitCode)
-        
-        # Just in case any stray processes have been left behind...
-        if ('orphanKiller' in self._argdict):
-            infanticide(message=True, listOrphans=True)
-        else:
+
+        finally:
+            # Clean up any orphaned processes and exit here if things went bad
             infanticide(message=True)
+            if self._exitCode:
+                msg.warning('Transform now exiting early with exit code {0} ({1})'.format(e.errCode, e.errMsg))
+                sys.exit(self._exitCode)
         
     ## @brief Setup the executor graph
     #  @note This function might need to be called again when the number of 'substeps' is unknown

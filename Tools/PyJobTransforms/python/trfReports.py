@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 665892 2015-05-08 14:54:36Z graemes $
+#  @version $Id: trfReports.py 681299 2015-07-08 11:28:37Z lerrenst $
 #
 
-__version__ = '$Revision: 665892 $'
+__version__ = '$Revision: 681299 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.1'
+    _reportVersion = '1.0.5'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -171,6 +171,13 @@ class trfJobReport(trfReport):
                                'wallTime': exe.wallTime,}
                 if exe.memStats:
                     exeResource['memory'] = exe.memStats
+                if exe.eventCount:
+                    exeResource['nevents'] = exe.eventCount
+                if exe.athenaMP:
+                    exeResource['mpworkers'] = exe.athenaMP
+                if exe.dbMonitor:
+                    exeResource['dbData'] = exe.dbMonitor['bytes']
+                    exeResource['dbTime'] = exe.dbMonitor['time']
                 myDict['resource']['executor'][executionStep['name']] = exeResource
 
         # Resource consumption
@@ -400,6 +407,7 @@ class trfFileReport(object):
             # move metadata to subFile dict, before it can be compressed
             metaData = self._fileArg._fileMetadata
             for fileName in metaData.keys():
+                msg.info("Examining metadata for file {0}".format(fileName))
                 if basenameReport == False:
                     searchFileName = fileName
                 else:
@@ -562,6 +570,11 @@ class machineReport(object):
                         pass
         except Exception, e:
             msg.warning('Unexpected error while parsing /proc/cpuinfo: {0}'.format(e))
+        try:
+            with open('/etc/machinefeatures/hs06') as hs:
+                machine['hepspec'] = hs.readlines()[0].strip()
+        except IOError, e:
+            msg.info('Could not find HEPSPEC: {0}'.format(e))
         return machine
 
 

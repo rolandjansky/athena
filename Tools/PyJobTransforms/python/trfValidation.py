@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 665892 2015-05-08 14:54:36Z graemes $
+# @version $Id: trfValidation.py 679715 2015-07-02 11:28:03Z lerrenst $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -258,6 +258,8 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails[level] = []
             # Format:
             # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
+        self._dbbytes = None
+        self._dbtime = None
 
 
     def scanLogFile(self, resetReport=False):
@@ -291,11 +293,11 @@ class athenaLogFileReport(logFileReport):
                         continue
                     # Add the G4 exceptipon parsers
                     if 'G4Exception-START' in line > -1:
-                        msg.warning('Detected G4 9.4 exception report - activating G4 exception grabber')
-                        self.g4ExceptionParser(myGen, line, lineCounter)
+                        msg.warning('Detected G4 exception report - activating G4 exception grabber')
+                        self.g4ExceptionParser(myGen, line, lineCounter, 40)
                         continue
                     if '*** G4Exception' in line > -1:
-                        msg.warning('Detected G4 exception report - activating G4 exception grabber')
+                        msg.warning('Detected G4 9.4 exception report - activating G4 exception grabber')
                         self.g494ExceptionParser(myGen, line, lineCounter)
                         continue
                     # Add the python exception parser
@@ -365,6 +367,15 @@ class athenaLogFileReport(logFileReport):
                     else:
                         # Overcounted
                         pass
+                if self._dbbytes is None and 'Total payload read from COOL' in fields['message']:
+                    msg.debug("Found COOL payload information at line {0}".format(line))
+                    a = re.match(r'(\D+)(?P<bytes>\d+)(\D+)(?P<time>\d+[.]?\d*)(\D+)', fields['message'])
+                    self._dbbytes = int(a.group('bytes'))
+                    self._dbtime = float(a.group('time'))
+
+    ## Return data volume and time spent to retrieve information from the database
+    def dbMonitor(self):
+        return {'bytes' : self._dbbytes, 'time' : self._dbtime}
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):
@@ -449,7 +460,7 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
 
 
-    def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount):
+    def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount, g4ExceptionLineDepth):
         g4Report = firstline
         g4lines = 1
         for line, linecounter in lineGenerator:
@@ -458,7 +469,7 @@ class athenaLogFileReport(logFileReport):
             # Test for the closing string
             if 'G4Exception-END' in line:
                 break
-            if g4lines >= 25:
+            if g4lines >= g4ExceptionLineDepth:
                 msg.warning('G4 exception closing string not found within {0} log lines of line {1}'.format(g4lines, firstLineCount))
                 break
 
@@ -682,6 +693,7 @@ class eventMatch(object):
     # All data is taken from _trf dict
     def __init__(self, executor, eventCountConf=None, eventCountConfOverwrite=False):
         self._executor = executor
+        self._eventCount = None
 
         ## @note This double dictionary is formed of INPUT data, then a dictionary of the expected
         #  event counts from different output data types. If there is no exact match for the output
@@ -702,7 +714,7 @@ class eventMatch(object):
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
-        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
@@ -727,6 +739,10 @@ class eventMatch(object):
 
         if self._executor is not None:
             self.configureCheck(override=False)
+
+    @property
+    def eventCount(self):
+        return self._eventCount
 
     ## @brief Setup the parameters needed to define particular checks
     #  @param override If set then configure the checks using this dictionary, which needs
@@ -881,5 +897,5 @@ class eventMatch(object):
                 else:
                     raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),
                                                                      'Unrecognised event count configuration for {inData} to {outData}: "{conf}" is not known'.format(inData=inData, outData=outData, conf=checkConf))
-
+            self._eventCount = expectedEvents
         return True
