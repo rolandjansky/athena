@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 679715 2015-07-02 11:28:03Z lerrenst $
+#  @version $Id: trfReports.py 681299 2015-07-08 11:28:37Z lerrenst $
 #
 
-__version__ = '$Revision: 679715 $'
+__version__ = '$Revision: 681299 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.4'
+    _reportVersion = '1.0.5'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -570,6 +570,11 @@ class machineReport(object):
                         pass
         except Exception, e:
             msg.warning('Unexpected error while parsing /proc/cpuinfo: {0}'.format(e))
+        try:
+            with open('/etc/machinefeatures/hs06') as hs:
+                machine['hepspec'] = hs.readlines()[0].strip()
+        except IOError, e:
+            msg.info('Could not find HEPSPEC: {0}'.format(e))
         return machine
 
 

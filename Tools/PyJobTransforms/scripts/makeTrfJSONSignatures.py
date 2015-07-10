@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: makeTrfJSONSignatures.py 659213 2015-04-07 13:20:39Z graemes $
+# $Id: makeTrfJSONSignatures.py 682012 2015-07-10 07:44:44Z graemes $
 #
 
 ## @brief Dump job transform arguments into a file, JSON encoded
@@ -25,7 +25,7 @@ def _getTransformsFromPATH():
             transforms = [ entry for entry in os.listdir(path_element) if entry.endswith("_tf.py") ]
             for trf in transforms:
                 if trf not in transforms_list:
-                    if trf in ('Athena_tf.py', 'Cat_tf.py', 'Echo_tf.py', 'ExeWrap_tf.py', 'Sleep_tf.py', 'RAWtoESD_tf.py', 'ESDtoAOD_tf.py'):
+                    if trf in ('Athena_tf.py', 'Cat_tf.py', 'Echo_tf.py', 'ExeWrap_tf.py', 'Sleep_tf.py', 'RAWtoESD_tf.py', 'ESDtoAOD_tf.py', 'beamSpotT0_Vertex_tf.py'):
                         # Test transforms - not for production
                         continue
                     transforms_list.append(trf)

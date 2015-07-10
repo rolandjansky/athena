@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 679938 2015-07-02 22:09:59Z graemes $
+#  @version $Id: trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -79,8 +79,8 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
     parser.add_argument('--maxEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep=maxEventsDefaultSubstep), 
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default substep is "{0}")'.format(maxEventsDefaultSubstep))
-    parser.add_argument('--skipEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep='first'), 
-                        help='Number of events to skip over in the first processing step')
+    parser.add_argument('--skipEvents', group='Athena', nargs='+', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep='first'), 
+                        help='Number of events to skip over in the first processing step (skipping substep can be overridden)')
     parser.add_argument('--asetup', group='Athena', type=argFactory(trfArgClasses.argSubstep, runarg=False), nargs='+', metavar='substep:ASETUP',
                         help='asetup command string to be run before this substep is executed')
     parser.add_argument('--eventAcceptanceEfficiency', type=trfArgClasses.argFactory(trfArgClasses.argSubstepFloat, min=0.0, max=1.0, runarg=False),
