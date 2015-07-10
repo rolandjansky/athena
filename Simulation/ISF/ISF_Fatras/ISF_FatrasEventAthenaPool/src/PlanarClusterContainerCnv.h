@@ -5,9 +5,13 @@
 #ifndef PLANARCLUSTERCONTAINERCNV_H
 #define PLANARCLUSTERCONTAINERCNV_H
 
+#define private public
+#define protected public
 #include "ISF_FatrasEvent/PlanarClusterCollection.h"
 #include "ISF_FatrasEvent/PlanarClusterContainer.h"
 #include "GaudiKernel/MsgStream.h"
+#undef private
+#undef protected
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainerCnv_p1.h"
@@ -31,14 +35,21 @@ class PlanarClusterContainerCnv : public PlanarClusterContainerCnvBase
   
 protected:
   PlanarClusterContainerCnv (ISvcLocator* svcloc);
-  virtual ~PlanarClusterContainerCnv() override;
-  virtual PlanarClusterContainer_PERS*   createPersistent (iFatras::PlanarClusterContainer* transCont)  override;
-  virtual iFatras::PlanarClusterContainer* createTransient () override;
+  ~PlanarClusterContainerCnv();
+  virtual PlanarClusterContainer_PERS*   createPersistent (iFatras::PlanarClusterContainer* transCont);
+  virtual iFatras::PlanarClusterContainer* createTransient ();
 
+  // Must initialize ID helpers
+  virtual StatusCode initialize();
 
 private:
+  void                  updateLog();    //!< This method modifies m_log to indicate the current key being converted
+  IMessageSvc*          m_msgSvc;      //!< MsgStream svc
+  MsgStream             m_log;         //!< MsgStream
+
   PlanarClusterContainerCnv_p1   m_converter_p1;
   PlanarClusterContainerCnv_p2   m_converter_p2;
+
 };
 
 
