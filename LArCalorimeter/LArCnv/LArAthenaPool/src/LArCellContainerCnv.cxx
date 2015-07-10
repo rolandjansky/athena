@@ -15,13 +15,12 @@
 #include "SGTools/StorableConversions.h"
 
 
-// false positive:
-// cppcheck-suppress uninitMemberVar
 LArCellContainerCnv::LArCellContainerCnv(ISvcLocator* svcloc)
-  : LArCellContainerCnvBase::T_AthenaPoolCnv(svcloc), 
+    :
+    // Base class constructor
+    LArCellContainerCnvBase::T_AthenaPoolCnv(svcloc), 
     m_detMgr(0)
-{
-}
+{}
 
 
 
@@ -36,40 +35,40 @@ StatusCode LArCellContainerCnv::initialize()
 
     // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "LArCellContainerCnv");
-    log << MSG::INFO << "initialize()" << endmsg;
+    log << MSG::INFO << "initialize()" << endreq;
 
     // get DetectorStore service
     StoreGateSvc *detStore;
     StatusCode sc=service("DetectorStore",detStore);
     if (sc.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	log << MSG::DEBUG << " Found DetectorStore " << endmsg;
+	log << MSG::DEBUG << " Found DetectorStore " << endreq;
     }
     
     // Get the pixel helper from the detector store
     sc = detStore->retrieve(m_detMgr);
     if (sc.isFailure()) {
-	log << MSG::FATAL << "Could not get CaloDetDescrManager !" << endmsg;
+	log << MSG::FATAL << "Could not get CaloDetDescrManager !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the CaloDetDescrManager " << endmsg;
+	log << MSG::DEBUG << " Found the CaloDetDescrManager " << endreq;
     }
 
 //      m_cellId(0)
 //      // Get the calocell id helper from the detector store
 //      sc = detStore->retrieve(m_cellId);
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Could not get CaloCell_ID helper !" << endmsg;
+//  	log << MSG::FATAL << "Could not get CaloCell_ID helper !" << endreq;
 //  	return StatusCode::FAILURE;
 //      } 
 //      else {
-//  	log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endmsg;
+//  	log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endreq;
 //      }
 
-    log << MSG::DEBUG << "Converter initialized" << endmsg;
+    log << MSG::DEBUG << "Converter initialized" << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -84,17 +83,17 @@ StatusCode LArCellContainerCnv::PoolToDataObject(DataObject*& pObj, const Token*
    
     StatusCode sc = LArCellContainerCnvBase::PoolToDataObject(pObj, token);
     if (sc.isFailure()) {
-	log << MSG::FATAL << "Unable to get object from pool" << endmsg;
+	log << MSG::FATAL << "Unable to get object from pool" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	log << MSG::DEBUG << " Found DataObject " << endmsg;
+	log << MSG::DEBUG << " Found DataObject " << endreq;
     }
     
     // Convert DataObject pointer to LArCellContainer*
     LArCellContainer* larCont = 0;
     SG::fromStorable(pObj, larCont );
     if(!larCont) {
-	log << MSG::ERROR << "  failed to cast to LArCellContainer " << endmsg ; 
+	log << MSG::ERROR << "  failed to cast to LArCellContainer " << endreq ; 
 	return StatusCode::FAILURE; 
     }
 

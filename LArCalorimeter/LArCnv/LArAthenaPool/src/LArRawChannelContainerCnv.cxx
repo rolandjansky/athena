@@ -19,7 +19,7 @@ template<>
 LArRawChannelContainer_PERSISTENT*
 LArRawChannelContainerCnv::createPersistent(LArRawChannelContainer* transCont)
 {
-  MsgStream log(msgSvc(), "LArRawChannelContainerConverter" );
+  MsgStream log(messageService(), "LArRawChannelContainerConverter" );
   LArRawChannelContainerCnv_p4   converter;
   LArRawChannelContainer_p4      *persObj = converter.createPersistent( transCont, log );
   return persObj; 
@@ -66,11 +66,11 @@ LArRawChannelContainerCnv::createTransient()
   // old representation of LArRawChannelContainer
   else if( compareClassGuid(guid_p0) )
     {
-      log << MSG::ERROR << "Reading of version 0 of LArRawChannelContainer not supported any more" << endmsg;
+      log << MSG::ERROR << "Reading of version 0 of LArRawChannelContainer not supported any more" << endreq;
     
     } 
   else {
-//      log << MSG::ERROR << "failed trying to read : " << m_token << endmsg;
+//      log << MSG::ERROR << "failed trying to read : " << m_token << endreq;
       throw std::runtime_error("Unsupported persistent version of LArRawChannel container");
     }
   return trans_cont;

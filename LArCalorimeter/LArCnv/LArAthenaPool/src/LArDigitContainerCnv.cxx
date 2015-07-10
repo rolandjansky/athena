@@ -9,15 +9,15 @@
 
 LArDigitContainerCnv::LArDigitContainerCnv(ISvcLocator* svcLoc) : 
   LArDigitContainerCnvBase(svcLoc),
-  m_p0_guid("B15FFDA0-206D-4062-8B5F-582A1ECD5502"),
-  m_p1_guid("F1876026-CDFE-4110-AA59-E441BAA5DE44")
+  p0_guid("B15FFDA0-206D-4062-8B5F-582A1ECD5502"),
+  p1_guid("F1876026-CDFE-4110-AA59-E441BAA5DE44")
 {}
 
 
 
 LArDigitContainerPERS* LArDigitContainerCnv::createPersistent(LArDigitContainer* trans) {
-    MsgStream log(msgSvc(), "LArDigitContainerCnv");
-    log << MSG::DEBUG << "Writing LArDigitContainer_p2" << endmsg;
+    MsgStream log(messageService(), "LArDigitContainerCnv");
+    log << MSG::DEBUG << "Writing LArDigitContainer_p2" << endreq;
     LArDigitContainerPERS* pers=new LArDigitContainerPERS();
     m_converter.transToPers(trans,pers,log); 
     return pers;
@@ -26,15 +26,15 @@ LArDigitContainerPERS* LArDigitContainerCnv::createPersistent(LArDigitContainer*
 
 
 LArDigitContainer* LArDigitContainerCnv::createTransient() {
-   MsgStream log(msgSvc(), "LArDigitContainerCnv" );
-   if (compareClassGuid(m_p0_guid)) {
+   MsgStream log(messageService(), "LArDigitContainerCnv" );
+   if (compareClassGuid(p0_guid)) {
      log << MSG::DEBUG << "Read version p0 of LArDigitContainer. GUID=" 
-	 << m_classID.toString() << endmsg;
+	 << m_classID.toString() << endreq;
      return poolReadObject<LArDigitContainer>();
    }
-   else if (compareClassGuid(m_p1_guid)) {
+   else if (compareClassGuid(p1_guid)) {
      log << MSG::DEBUG << "Reading LArDigitContainer_p1. GUID=" 
-	 << m_classID.toString() << endmsg;
+	 << m_classID.toString() << endreq;
      LArDigitContainer* trans=new LArDigitContainer();
      LArDigitContainer_p1* pers=poolReadObject<LArDigitContainer_p1>();
      m_converter.persToTrans(pers,trans, log);
@@ -43,7 +43,7 @@ LArDigitContainer* LArDigitContainerCnv::createTransient() {
    }
 
    log << MSG::ERROR << "Unsupported persistent version of LArDigitContainer. GUID="
-       << m_classID.toString() << endmsg;
+       << m_classID.toString() << endreq;
    throw std::runtime_error("Unsupported persistent version of Data Collection");
    // not reached
 }
