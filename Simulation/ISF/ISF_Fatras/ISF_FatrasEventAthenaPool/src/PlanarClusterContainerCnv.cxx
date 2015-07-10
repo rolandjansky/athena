@@ -67,7 +67,7 @@ PlanarClusterContainer_PERS* PlanarClusterContainerCnv::createPersistent (iFatra
 
 void PlanarClusterContainerCnv::updateLog(){ 
   
-  DataObject* dObj = getDataObject();
+  const DataObject* dObj = getDataObject();
   if (dObj==0) return; // Can't do much if this fails.
   const std::string  key = (dObj->name());
   
