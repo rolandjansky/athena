@@ -16,7 +16,10 @@ import AthenaCommon.SystemOfUnits as Units
 
 # Common tools, services and algorithms used by jobs:
 addService("BarcodeServices.BarcodeServicesConfig.getMC12BarcodeSvc"          ,  "Barcode_MC12BarcodeSvc"          )
+addService("BarcodeServices.BarcodeServicesConfig.getMC12LLPBarcodeSvc"       ,  "Barcode_MC12LLPBarcodeSvc"       )
+addService("BarcodeServices.BarcodeServicesConfig.getMC12PlusBarcodeSvc"      ,  "Barcode_MC12PlusBarcodeSvc"      )
 addService("BarcodeServices.BarcodeServicesConfig.getMC15aBarcodeSvc"         ,  "Barcode_MC15aBarcodeSvc"         )
+addService("BarcodeServices.BarcodeServicesConfig.getMC15aPlusBarcodeSvc"     ,  "Barcode_MC15aPlusBarcodeSvc"     )
 addService("BarcodeServices.BarcodeServicesConfig.getMC15BarcodeSvc"          ,  "Barcode_MC15BarcodeSvc"          )
 addService("BarcodeServices.BarcodeServicesConfig.getPhysicsProcessBarcodeSvc",  "Barcode_PhysicsProcessBarcodeSvc")
 addService("BarcodeServices.BarcodeServicesConfig.getGlobalBarcodeService"    ,  "Barcode_GlobalBarcodeService"    )
