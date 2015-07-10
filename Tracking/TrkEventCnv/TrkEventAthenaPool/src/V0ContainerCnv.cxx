@@ -10,7 +10,6 @@
 //-----------------------------------------------------------------------------
 
 
-#include "TrkParticleBase/TrackParticleBase.h"
 #include "V0ContainerCnv.h"
 
 #include "TrkEventTPCnv/V0ContainerCnv_tlp1.h"
@@ -36,14 +35,14 @@ StatusCode V0ContainerCnv::initialize()
   StatusCode sc = V0ContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    m_log << MSG::FATAL << "Could not initialize V0ContainerCnvBase" << endmsg;
+    m_log << MSG::FATAL << "Could not initialize V0ContainerCnvBase" << endreq;
     return sc;
   }
 //-------------------------------------------------------------------------
 // Set up the message stream
 //-------------------------------------------------------------------------
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "V0ContainerCnv::initialize()" << endmsg;
+  m_log << MSG::INFO << "V0ContainerCnv::initialize()" << endreq;
   
   return StatusCode::SUCCESS;
   
@@ -97,7 +96,7 @@ V0Container * V0ContainerCnv::createTransient()
        // std::cout << "V0ContainerCnv::createTransient: do new TP p2" << std::endl;
        /*
      usingTPCnvForReading( m_TPConverter );
-     std::unique_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
+     std::auto_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
        */
 
   /* 
@@ -130,7 +129,7 @@ V0Container * V0ContainerCnv::createTransient()
      // std::cout << "V0ContainerCnv::createTransient: do TP p1" << std::endl;
      /*
    usingTPCnvForReading( m_TPConverter );
-   std::unique_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
+   std::auto_ptr< V0Container_PERS >  p_coll( poolReadObject< V0Container_PERS >() );
      */
  
 /* 
@@ -170,11 +169,11 @@ V0Container * V0ContainerCnv::createTransient()
 }//end of create transient method
 
 void V0ContainerCnv::updateLog(){  
-    //const DataObject* dObj = getDataObject();
-    //if (dObj==0) return; // Can't do much if this fails.
-  //const std::string  key = (dObj->name());
+     const DataObject* dObj = getDataObject();
+     if (dObj==0) return; // Can't do much if this fails.
+     const std::string  key = (dObj->name());
  
-     //m_log.m_source="V0ContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
+     m_log.m_source="V0ContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
 }
 
 

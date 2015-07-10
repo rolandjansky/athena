@@ -34,33 +34,33 @@ MVFVxContainerCnv::~MVFVxContainerCnv()
 //-----------------------------------------------------------------------------
 StatusCode MVFVxContainerCnv::initialize()
 {
-    MsgStream log(msgSvc());
+    MsgStream m_log(msgSvc());
     
  StatusCode sc = MVFVxContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    log << MSG::FATAL << "Could not initialize MVFVxContainerCnvBase" << endmsg;
+    m_log << MSG::FATAL << "Could not initialize MVFVxContainerCnvBase" << endreq;
     return sc;
   }
   
 //-------------------------------------------------------------------------
 // Set up the message stream
 //-------------------------------------------------------------------------
-  // log.setLevel( m_msgSvc->outputLevel() );
-  log << MSG::INFO << "MVFVxContainerCnv::initialize()" << endmsg; 
+  // m_log.setLevel( m_msgSvc->outputLevel() );
+  m_log << MSG::INFO << "MVFVxContainerCnv::initialize()" << endreq; 
   return StatusCode::SUCCESS;
 }
 
 MVFVxContainer_PERS * MVFVxContainerCnv::createPersistent( MVFVxContainer *transCont)
 { 
-    MsgStream log(msgSvc());
+    MsgStream m_log(msgSvc());
     // updateLog();
-  return m_TPConverter.createPersistent( transCont, log );
+  return m_TPConverter.createPersistent( transCont, m_log );
 }
 
 MVFVxContainer * MVFVxContainerCnv::createTransient()
 {
-    MsgStream log(msgSvc());
+    MsgStream m_log(msgSvc());
  static pool::Guid p1_guid( "D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" );
  static pool::Guid p0_guid( "6C6999B7-F961-4B72-B6D9-DF71CB2364CC" );
 
@@ -70,10 +70,10 @@ MVFVxContainer * MVFVxContainerCnv::createTransient()
     // std::cout << "MVFVxContainerCnv::createTransient()" << std::endl;
     /*
     usingTPCnvForReading( m_TPConverter );
-    std::unique_ptr< MVFVxContainer_PERS >  p_coll( poolReadObject< MVFVxContainer_PERS >() );
+    std::auto_ptr< MVFVxContainer_PERS >  p_coll( poolReadObject< MVFVxContainer_PERS >() );
     */
     poolReadObject< MVFVxContainer_PERS >( m_TPConverter );
-    p_collection = m_TPConverter.createTransient( log );
+    p_collection = m_TPConverter.createTransient( m_log );
   
  } else if( compareClassGuid( p0_guid ) ) {
     // std::cout << "MVFVxContainerCnv::createTransient: use old converter" << std::endl;  
@@ -106,6 +106,6 @@ void        MVFVxContainerCnv::readObjectFromPool( const std::string& token )
 //      if (dObj==0) return; // Can't do much if this fails.
 //      const std::string  key = (dObj->name());
 //  
-//      log.m_source="MVFVxContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
+//      m_log.m_source="MVFVxContainerCnv: "+key; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
 // }
 

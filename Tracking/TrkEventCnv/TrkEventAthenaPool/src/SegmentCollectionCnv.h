@@ -29,8 +29,13 @@
 //-----------------------------------------------------------------------------
 // Base class definition
 //-----------------------------------------------------------------------------
-typedef Trk::SegmentCollection_tlp3 SegmentCollection_PERS;
-typedef SegmentCollectionCnv_tlp3 SegmentCollectionCNV_PERS;
+// #ifdef __IDENTIFIER_64BIT__
+    typedef Trk::SegmentCollection_tlp3 SegmentCollection_PERS;
+    typedef SegmentCollectionCnv_tlp3 SegmentCollectionCNV_PERS;
+// #else
+//     typedef Trk::SegmentCollection_tlp1 SegmentCollection_PERS;
+//     typedef SegmentCollectionCnv_tlp1 SegmentCollectionCNV_PERS;
+// #endif
 
 typedef T_AthenaPoolCustomCnv<Trk::SegmentCollection, SegmentCollection_PERS> SegmentCollectionCnvBase;
 

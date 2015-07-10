@@ -51,7 +51,7 @@ StatusCode TrackCollectionCnv::initialize()
 {
     StatusCode sc = TrackCollectionCnvBase::initialize();
     if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
+        m_log << MSG::FATAL << "Could not initialize cnv base" << endreq;
         return sc;
     }
 
@@ -61,7 +61,7 @@ StatusCode TrackCollectionCnv::initialize()
     m_log.setLevel( MSG::VERBOSE );
 
     // m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::VERBOSE << "TrackCollectionCnv::initialize()" << endmsg;
+    m_log << MSG::VERBOSE << "TrackCollectionCnv::initialize()" << endreq;
 
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
     bool doInDet(true);
@@ -84,7 +84,7 @@ StatusCode TrackCollectionCnv::initialize()
     //-------------------------------------------------------------------------
     if( !doInDet && !doMuon && !doCalo) {
         m_log << MSG::WARNING << "Could not get any of the extending convertors, and so might have problems later on.";
-        m_log << endmsg;
+        m_log << endreq;
     }
 
     return StatusCode::SUCCESS;
@@ -132,7 +132,7 @@ TrackCollection *TrackCollectionCnv::createTransient()
     else if( compareClassGuid( p1_guid ) )  {
         /*
        usingTPCnvForReading( m_TPConverter );
-       std::unique_ptr< TrackCollection_PERS >
+       std::auto_ptr< TrackCollection_PERS >
 	  p_coll( poolReadObject< TrackCollection_PERS >() );
        p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
        */

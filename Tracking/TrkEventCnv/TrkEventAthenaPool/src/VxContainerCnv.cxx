@@ -39,15 +39,15 @@ StatusCode VxContainerCnv::initialize()
   StatusCode sc = VxContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    m_log << MSG::FATAL << "Could not initialize VxContainerCnvBase" << endmsg;
+    m_log << MSG::FATAL << "Could not initialize VxContainerCnvBase" << endreq;
     return sc;
   }
   
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "VxContainerCnv::initialize()" << endmsg;
+  m_log << MSG::INFO << "VxContainerCnv::initialize()" << endreq;
   
   IConverter  *converter =  m_athenaPoolCnvSvc->converter( CLID(1943140) );
-  m_log << MSG::INFO << "VxContainerCnv: MVFVxCandidate converter=" << converter << endmsg;
+  m_log << MSG::INFO << "VxContainerCnv: MVFVxCandidate converter=" << converter << endreq;
   registerExtendingCnv( converter );
   
   return StatusCode::SUCCESS;
@@ -96,7 +96,7 @@ VxContainer * VxContainerCnv::createTransient()
   if( compareClassGuid( p2_guid ) ) {
   //  std::cout << "VxContainerCnv::createTransient: do new TP 2" << std::endl;  
      usingTPCnvForReading( m_TPConverter );
-     std::unique_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
+     std::auto_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
 
   /*  
      std::cout<<"READING: Dumping the contents of the VxContainer "<<std::endl;
@@ -125,12 +125,12 @@ VxContainer * VxContainerCnv::createTransient()
  //       std::cout << "VxContainerCnv::createTransient: do TP 1" << std::endl;  
         
         // usingTPCnvForReading( m_TPConverter );
-        // std::unique_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
+        // std::auto_ptr< VxContainer_PERS >  p_coll( poolReadObject< VxContainer_PERS >() );
         // p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
         
         VxContainerCnv_tlp1 tmpTPCnv;
         usingTPCnvForReading( tmpTPCnv );
-        std::unique_ptr< Trk::VxContainer_tlp1 >  p_coll( poolReadObject< Trk::VxContainer_tlp1 >() );
+        std::auto_ptr< Trk::VxContainer_tlp1 >  p_coll( poolReadObject< Trk::VxContainer_tlp1 >() );
         p_collection = tmpTPCnv.createTransient( p_coll.get(), m_log );
         
     //    std::cout << "VxContainerCnv::createTransient: done! " << std::endl;
