@@ -34,6 +34,9 @@ def getMC12BarcodeSvc(name="Barcode_MC12BarcodeSvc", **kwargs):
     from BarcodeServices.BarcodeServicesConf import Barcode__LegacyBarcodeSvc
     return Barcode__LegacyBarcodeSvc(name, **kwargs)
 
+def getMC12LLPBarcodeSvc(name="Barcode_MC12LLPBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
 def getMC12PlusBarcodeSvc(name="Barcode_MC12PlusBarcodeSvc", **kwargs):
     return getMC12BarcodeSvc(name, **kwargs)
 
@@ -76,3 +79,15 @@ def getValidationBarcodeSvc(name="Barcode_ValidationBarcodeSvc", **kwargs):
     from BarcodeServices.BarcodeServicesConf import Barcode__ValidationBarcodeSvc
     return Barcode__ValidationBarcodeSvc(name, **kwargs)
 
+def barcodeOffsetForTruthStrategy(strategyName):
+    offsets = {'MC12':      200000,
+               'MC12LLP':   200000,
+               'MC12Plus':  200000,
+               'MC15a':     200000,
+               'MC15aPlus': 200000,
+               'MC15':     1000000
+               }
+    currentOffset=offsets.get(strategyName)
+    if currentOffset==None:
+        raise RuntimeError("No barcode offset listed for truth strategy named "+str(strategyName))
+    return currentOffset
