@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 //include
-#include "BarcodeEvent/Barcode.h"
+#include "BarcodeInterfaces/Barcode.h"
 #include "BarcodeInterfaces/IBarcodeSvc.h"
 
 #include "BarcodeServices/BitCalculator.h"
@@ -32,90 +32,83 @@ namespace Barcode {
 
       This BarcodeService reproduces the barcode treatmend for MC12:
       http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Simulation/G4Sim/MCTruth/src/TruthStrategyManager.cxx
-
+      
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
-  */
-
+     */
+       
   class LegacyBarcodeSvc : public AthService,
                            public IBarcodeSvc,
                            virtual public IIncidentListener {
-  public:
+    public: 
+      
+      /** Constructor with parameters */
+      LegacyBarcodeSvc( const std::string& name, ISvcLocator* pSvcLocator );
+      
+      /** Destructor */
+      virtual ~LegacyBarcodeSvc(); 
+      
+      /** Athena algorithm's interface methods */
+      StatusCode  initialize();
+      StatusCode  finalize();
 
-    /** Constructor with parameters */
-    LegacyBarcodeSvc( const std::string& name, ISvcLocator* pSvcLocator );
+      /** Query the interfaces. **/
+      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
-    /** Destructor */
-    virtual ~LegacyBarcodeSvc();
+      /** Incident to reset the barcodes at the beginning of the event */
+      void handle(const Incident& inc);
 
-    /** Athena algorithm's interface methods */
-    StatusCode  initialize();
-    StatusCode  finalize();
+      /** Generate a new unique vertex barcode, based on the parent particle barcode and
+          the physics process code causing the truth vertex*/
+      virtual VertexBarcode newVertex( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
+                                       PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
 
-    /** Query the interfaces. **/
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+      /** Generate a new unique barcode for a secondary particle, based on the parent
+          particle barcode and the process code of the physics process that created
+          the secondary  */
+      virtual ParticleBarcode newSecondary( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
+                                            PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
 
-    /** Incident to reset the barcodes at the beginning of the event */
-    void handle(const Incident& inc);
+      /** Generate a common barcode which will be shared by all children
+          of the given parent barcode (used for child particles which are 
+          not stored in the mc truth event) */
+      virtual ParticleBarcode sharedChildBarcode( ParticleBarcode parentBC,
+                                                  PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
 
-    /** Generate a new unique vertex barcode, based on the parent particle barcode and
-        the physics process code causing the truth vertex*/
-    virtual VertexBarcode newVertex( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
-                                     PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
-
-    /** Generate a new unique barcode for a secondary particle, based on the parent
-        particle barcode and the process code of the physics process that created
-        the secondary  */
-    virtual ParticleBarcode newSecondary( ParticleBarcode parentBC=Barcode::fUndefinedBarcode,
-                                          PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
-
-    /** Generate a common barcode which will be shared by all children
-        of the given parent barcode (used for child particles which are
-        not stored in the mc truth event) */
-    virtual ParticleBarcode sharedChildBarcode( ParticleBarcode parentBC,
+      /** Update the given barcode (e.g. after an interaction) */
+      virtual ParticleBarcode incrementBarcode( ParticleBarcode oldBC,
                                                 PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
 
-    /** Update the given barcode (e.g. after an interaction) */
-    virtual ParticleBarcode incrementBarcode( ParticleBarcode oldBC,
-                                              PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
+      /** Inform the BarcodeSvc about the largest particle and vertex Barcodes
+          in the event input */
+      virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc);
+      virtual void registerLargestGenEvtVtxBC( VertexBarcode bc);
 
-    /** Inform the BarcodeSvc about the largest particle and vertex Barcodes
-        in the event input */
-    virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc);
-    virtual void registerLargestGenEvtVtxBC( VertexBarcode bc);
+      /** handles to get barcode bitcalculator */
+      virtual inline Barcode::BitCalculator* getBitCalculator() const { return m_bitcalculator; }
+      virtual inline bool hasBitCalculator() const { return (m_bitcalculator!=0); }
 
-    /** Return the secondary particle and vertex offsets */
-    virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const;
-    virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const;
+    private:
+      ServiceHandle<IIncidentSvc>                   m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
 
-    /** Return the barcode increment for each generation of updated particles */
-    virtual Barcode::ParticleBarcode particleGenerationIncrement() const;
+      /** bitwise utility calculator for barcodes */
+      Barcode::BitCalculator*                       m_bitcalculator;
 
-    /** handles to get barcode bitcalculator */
-    virtual inline Barcode::BitCalculator* getBitCalculator() const { return m_bitcalculator; }
-    virtual inline bool hasBitCalculator() const { return (m_bitcalculator!=0); }
+      /** barcode information used for GenVertices */
+      VertexBarcode                                 m_firstVertex;
+      VertexBarcode                                 m_vertexIncrement;
+      VertexBarcode                                 m_currentVertex;
 
-  private:
-    ServiceHandle<IIncidentSvc>                   m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
+      /** barcode information used for secondary GenParticles */
+      ParticleBarcode                               m_firstSecondary;
+      ParticleBarcode                               m_secondaryIncrement;
+      ParticleBarcode                               m_currentSecondary;
+        
+      /** barcode offset for each generation of updated particles */
+      ParticleBarcode                               m_particleGenerationIncrement;
 
-    /** bitwise utility calculator for barcodes */
-    Barcode::BitCalculator*                       m_bitcalculator;
-
-    /** barcode information used for GenVertices */
-    VertexBarcode                                 m_firstVertex;
-    VertexBarcode                                 m_vertexIncrement;
-    VertexBarcode                                 m_currentVertex;
-
-    /** barcode information used for secondary GenParticles */
-    ParticleBarcode                               m_firstSecondary;
-    ParticleBarcode                               m_secondaryIncrement;
-    ParticleBarcode                               m_currentSecondary;
-
-    /** barcode offset for each generation of updated particles */
-    ParticleBarcode                               m_particleGenerationIncrement;
-
-    /** throw error messages if a possible overflow is detected */
-    bool                                          m_doUnderOverflowChecks;
-  };
+      /** throw error messages if a possible overflow is detected */
+      bool                                          m_doUnderOverflowChecks;
+  }; 
 
 
 } // end 'Barcode' namespace
