@@ -4,6 +4,7 @@
 
 // $Id: xAODHIEventShapeContainerCnv.cxx 594317 2014-04-25 17:36:58Z krasznaa $
 
+
 // System include(s):
 #include <exception>
 
@@ -50,12 +51,6 @@ xAODHIEventShapeContainerCnv::createPersistent( xAOD::HIEventShapeContainer* tra
       new xAOD::HIEventShapeContainer( trans->begin(), trans->end(),
                                     SG::VIEW_ELEMENTS );
 
-   // Prepare all objects to be written out:
-   xAOD::HIEventShapeContainer::iterator itr = result->begin();
-   xAOD::HIEventShapeContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      ( *itr )->toPersistent();
-   }
 
    // Return the new container:
    return result;
@@ -68,15 +63,7 @@ xAOD::HIEventShapeContainer* xAODHIEventShapeContainerCnv::createTransient() {
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
-      xAOD::HIEventShapeContainer* ei =
-         poolReadObject< xAOD::HIEventShapeContainer >();
-
-      if(ei->ownPolicy() == SG::VIEW_ELEMENTS ){
-	 xAOD::HIEventShapeContainer *ein = new xAOD::HIEventShapeContainer(ei->begin(),ei->end(),SG::OWN_ELEMENTS);
-	 setStoreLink(ein,m_key);
-	 return ein;
-      } 
-
+      xAOD::HIEventShapeContainer* ei = poolReadObject< xAOD::HIEventShapeContainer >();
       setStoreLink( ei, m_key );
       return ei;
    }
