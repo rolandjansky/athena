@@ -16,4 +16,7 @@ namespace xAOD {
    typedef HIEventShapeAuxContainer_v1 HIEventShapeAuxContainer;
 }
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::HIEventShapeAuxContainer , 1106644859 , 1 )
+
 #endif // XAODEVENTINFO_EVENTINFOAUXCONTAINER_H
