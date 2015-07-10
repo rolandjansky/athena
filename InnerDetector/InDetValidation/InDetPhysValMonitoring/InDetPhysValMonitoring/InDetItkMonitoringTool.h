@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETPHYSVALMONITORING_INDETPHYSVALMONITORINGTOOL_H
-#define INDETPHYSVALMONITORING_INDETPHYSVALMONITORINGTOOL_H
+#ifndef INDETPHYSVALMONITORING_INDETITKMONITORINGTOOL_H
+#define INDETPHYSVALMONITORING_INDETITKMONITORINGTOOL_H
 /**
- * @file InDetPhysValMonitoringTool.h
+ * @file InDetItkMonitoringTool.h
  * header file for class of same name
  * @author shaun roe
  * @date 21 February 2014
@@ -21,22 +21,23 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetPhysValMonitoring/InDetValidationPlots.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "xAODTruth/TruthParticle.h" 
 
 
 //fwd declaration
-class IInDetPhysValDecoratorTool;
+class IInDetItkDecoratorTool;
 class InDetRttPlots;
 
 
 /**
  * Tool to book and fill inner detector histograms for physics validation
  */
-class InDetPhysValMonitoringTool:public ManagedMonitorToolBase{
+class InDetItkMonitoringTool:public ManagedMonitorToolBase{
 public:
 	///Constructor with parameters
-	InDetPhysValMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
+	InDetItkMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
 	///Destructor
-	virtual ~InDetPhysValMonitoringTool();
+	virtual ~InDetItkMonitoringTool();
 	/** \name BaseclassMethods Baseclass methods reimplemented 
 	}**/
 	//@{
@@ -44,10 +45,11 @@ public:
     virtual StatusCode bookHistograms();
     virtual StatusCode fillHistograms();
     virtual StatusCode procHistograms();
+    bool truthSelector(const xAOD::TruthParticle &truth);
 	//@}
 private:
 	///prevent default construction
-	InDetPhysValMonitoringTool();
+	InDetItkMonitoringTool();
 	///TrackParticle container's name
 	std::string m_trkParticleName;
 	///TruthParticle container's name
@@ -56,6 +58,8 @@ private:
 	std::string m_vertexContainerName;
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
+  ///Directory name
+  std::string m_dirName;
 
 
 	///histograms
@@ -70,9 +74,12 @@ private:
   ///Jet Things
   std::string m_jetContainerName;
   float m_maxTrkJetDR;
+  float m_truthMinPt;
+  float m_truthMaxPt;
+  float m_truthMaxEta;
+  float m_truthPdgId;
   bool m_fillTIDEPlots;
   bool m_fillExtraTIDEPlots;
-
 
 
 	template<class T>
@@ -80,7 +87,7 @@ private:
 };
 
 template<class T>
-	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
+	const T* InDetItkMonitoringTool::getContainer(const std::string & containerName){
 		const T * ptr = evtStore()->retrieve< const T >( containerName );
     	if (!ptr) {
         	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");

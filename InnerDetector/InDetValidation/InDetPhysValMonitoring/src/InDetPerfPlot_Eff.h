@@ -12,59 +12,48 @@
  * a lot of this is copied from EfficiencyPlots in the TrkValHistUtils which is dumb
  * the point is that many instances of this will be created so more control of the names
  * is needed.  I don't have permission for that package and time is short...as usual
- **/
+**/
 
 
-
-// local includes
-#include "InDetPlotBase.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTruth/TruthParticle.h"
-
-#include "xAODJet/Jet.h"
-
-// std includes
+//std includes
 #include <string>
 
+//local includes
+#include "TrkValHistUtils/PlotBase.h"
+#include "TrkValHistUtils/ParamPlots.h"
+#include "TrkValHistUtils/EfficiencyPlots.h"
+#include "TrkValHistUtils/EfficiencyPurityCalculator.h"
+#include "xAODBase/IParticle.h"  
+
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_Eff: public InDetPlotBase {
+class InDetPerfPlot_Eff:public PlotBase {
 public:
-  InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& dirName);
-
-  void pro_fill(const xAOD::TruthParticle& truth, float weight);
-  void BT_fill(const xAOD::TruthParticle& truth, float weight);
-  void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
+	InDetPerfPlot_Eff(PlotBase * pParent, const std::string & dirName, std::string particleName = "Tracks");
+	void fillNumerator(const xAOD::IParticle& particle);
+	void fillDenominator(const xAOD::IParticle& particle);
+	
 private:
-  TProfile* m_trackeff_vs_eta;
-  TProfile* m_trackeff_vs_pt;
-  TProfile* m_trackeff_vs_phi;
-  TProfile* m_trackeff_vs_d0;
-  TProfile* m_trackeff_vs_z0;
-  TProfile* m_trackeff_vs_R;
-  TProfile* m_trackeff_vs_Z;
 
-  TProfile* m_trackeff_vs_prodR;
-  TProfile* m_trackeff_vs_prodZ;
+  std::string m_sParticleType;
 
-  TProfile* m_eff_vs_eta_of_daughters;
-  TProfile* m_eff_vs_theta_of_daughters;
-  TProfile* m_eff_vs_theta_tan_of_daughters;
-  TProfile* m_eff_vs_theta_cotan_of_daughters;
-  TProfile* m_eff_vs_phi_of_daughters;
-  TProfile* m_eff_vs_phi_sin_of_daughters;
-  TProfile* m_eff_vs_phi_cos_of_daughters;
+  Trk::ParamPlots m_pDenomPlots;
+  Trk::ParamPlots m_pNumPlots;  
 
-  TProfile* m_trackinjeteff_vs_eta;
-  TProfile* m_trackinjeteff_vs_phi;
-  TProfile* m_trackinjeteff_vs_pt;
-  TProfile* m_trackinjeteff_vs_dr;
-  TProfile* m_trackinjeteff_vs_dr_lt_j50;
-  TProfile* m_trackinjeteff_vs_dr_gr_j100;
-  TProfile* m_trackinjeteff_vs_jetet;
+  TH1* eff_eta;
+  TH1* eff_phi;
+  TH1* eff_pt;
+  TH1* eff_pti;
 
-  // plot base has nop default implementation of this; we use it to book the histos
-  void initializePlots();
+  TH2* eff_eta_pt;
+  TH2* eff_eta_phi;
+	
+	//plot base has nop default implementation of this; we use it to book the histos
+	void initializePlots();
   void finalizePlots();
+	
 };
+
+
+
 
 #endif

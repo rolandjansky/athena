@@ -5,36 +5,26 @@
 /**
  * @file InDetPerfPlot_Pt.cxx
  * @author shaun roe
- * This was the first performance plot class written in this package, more or less
- * simply as a demonstrator.
- **/
+**/
 
 #include "InDetPerfPlot_Pt.h"
 
-InDetPerfPlot_Pt::InDetPerfPlot_Pt(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent, sDir),
-  m_recPt{},
-  m_recPtLow{} {
-  // nop
+InDetPerfPlot_Pt::InDetPerfPlot_Pt(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+  //nop
 }
 
-void
+
+void 
 InDetPerfPlot_Pt::initializePlots() {
-  book(m_recPt, "recpT");
-  book(m_recPtLow, "recPtLow");
+  const bool prependDirectory(false);
+  m_recPt  = Book1D("recpT","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0.,200, prependDirectory);
+  m_recPtLow  = Book1D("recpTlow","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0,20, prependDirectory);
 }
 
-void
-InDetPerfPlot_Pt::fill(const xAOD::IParticle& particle) {
-  const float pt(particle.pt() * .001);
-
-  fillHisto(m_recPt, pt);
-  fillHisto(m_recPtLow, pt);
+void 
+InDetPerfPlot_Pt::fill(const xAOD::IParticle& particle){
+    const float pt(particle.pt()/1000.);
+    m_recPt->Fill(pt);
+    m_recPtLow->Fill(pt);
 }
 
-void
-InDetPerfPlot_Pt::fill(const xAOD::TruthParticle& particle) {
-  const float pt(particle.pt() * 0.001);
-
-  fillHisto(m_recPt, pt);
-  fillHisto(m_recPtLow, pt);
-}

@@ -20,17 +20,12 @@ use AtlasROOT           AtlasROOT-*             External
 use PATCore             PATCore-*               PhysicsAnalysis/AnalysisCommon
 use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecTools   
 use AthenaBaseComps     AthenaBaseComps-*       Control
-use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
-use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
-use InDetReadoutGeometry  InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use xAODBase            xAODBase-*             Event/xAOD
-
 
 private
-use AtlasXercesC        AtlasXercesC-*        	External  
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External
+use xAODBase            xAODBase-*             Event/xAOD
 #use GeneratorUtils      GeneratorUtils-*        Generators
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent
 use InDetRIO_OnTrack            InDetRIO_OnTrack-*      InnerDetector/InDetRecEvent
@@ -38,32 +33,20 @@ use TrkEventPrimitives          TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
 use GeoPrimitives               GeoPrimitives-*         DetectorDescription
 use EventPrimitives     EventPrimitives-*       Event
-use xAODEventInfo	      xAODEventInfo-*		Event/xAOD
+use xAODEventInfo	xAODEventInfo-*		Event/xAOD
+use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
+use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
 use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis 
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
 use xAODJet             xAODJet-*               Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
-use PathResolver         PathResolver-*         Tools
 
 use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
-use AthenaKernel     AthenaKernel-*       Control
-use TrkTrack         TrkTrack-*           Tracking/TrkEvent
-# for the DummyTrackSlimmingTool
-use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools/
-
 
 branches src src/components doc
 
-# I would like to generate a dictionary, but this crashes in compilation:
-#use AtlasReflex   AtlasReflex-*   External
-#apply_pattern lcgdict dict=InDetPhysValMonitoring selectionfile=selection.xml\
-#headerfiles="../InDetPhysValMonitoring/InDetPhysValMonitoringDict.h"
 
-apply_pattern declare_runtime files="*.hdef *.xml *.xsl"
-
-apply_pattern declare_joboptions files="*.py"
-
-
+private
 ## default is to make component library
 library InDetPhysValMonitoring *.cxx components/*.cxx
 apply_tag ROOTEGLibs
@@ -77,4 +60,5 @@ end_private
 # RTT requirement lines
 macro InDetPhysValMonitoring_TestConfiguration "../test/InDetPhysValMonitoring_TestConfiguration.xml"
 apply_pattern declare_runtime files="*.dat" extras="../test/InDetPhysValMonitoring_TestConfiguration.xml ../scripts/make*.C ../scripts/IDPerf*.py ../scripts/IDRTT_*.sh ../ExtraFiles/ALL*.html"
+
 

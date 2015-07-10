@@ -7,43 +7,47 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
-#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticle.h" 
 #include "AsgTools/AsgTool.h"
 
 
-class TrackTruthSelectionTool:
+class TrackTruthSelectionTool: 
   public virtual ::IAsgSelectionTool,
-  public asg::AsgTool  {
-  ASG_TOOL_CLASS1(TrackTruthSelectionTool, IAsgSelectionTool);
-public:
-  TrackTruthSelectionTool(const std::string& name);
-  // TrackTruthSelectionTool(const std::string& type,const std::string& name,const IInterface* parent);
-  virtual
-  ~TrackTruthSelectionTool();
+  public asg::AsgTool  { 
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+     ASG_TOOL_CLASS1( TrackTruthSelectionTool, IAsgSelectionTool );
+
+ public: 
+	TrackTruthSelectionTool(const std::string& name);
+	//TrackTruthSelectionTool(const std::string& type,const std::string& name,const IInterface* parent);
+  virtual ~TrackTruthSelectionTool(); 
+
+  virtual StatusCode  initialize();
+  virtual StatusCode  finalize();
   virtual const Root::TAccept& getTAccept( ) const;
-  virtual const Root::TAccept& accept(const xAOD::IParticle* p) const;
-  virtual const Root::TAccept& accept(const xAOD::TruthParticle* p) const;
-private:
-  mutable Root::TAccept m_accept;
-  std::vector<std::pair<std::string, std::string> > m_cuts;
-  mutable ULong64_t m_numTruthProcessed; // !< a counter of the number of tracks proccessed
-  mutable ULong64_t m_numTruthPassed; // !< a counter of the number of tracks that passed all cuts
-  mutable std::vector<ULong64_t> m_numTruthPassedCuts; // !< tracks the number of tracks that passed each cut family
+  virtual const Root::TAccept& accept( const xAOD::IParticle* p) const;
+  virtual const Root::TAccept& accept( const xAOD::TruthParticle* p) const;
 
-  // Cut values;
+
+ private: 
+
+  mutable Root::TAccept m_accept;
+  std::vector<std::pair<std::string,std::string>> m_cuts;
+  mutable ULong64_t m_numTruthProcessed; //!< a counter of the number of tracks proccessed
+  mutable ULong64_t m_numTruthPassed; //!< a counter of the number of tracks that passed all cuts
+  mutable std::vector<ULong64_t> m_numTruthPassedCuts; //!< tracks the number of tracks that passed each cut family
+
+  // Cut vales;
   float m_maxEta;
   float m_maxPt;
   float m_minPt;
   float m_maxBarcode;
   bool m_requireCharged;
+  bool m_requireDecayBeforePixel;
   bool m_requireStatus1;
-  // max decay radius for secondaries [mm];
-  // set to within (Run2) pixel by default; set to <0 for no cut
-  double m_maxProdVertRadius;
   int m_pdgId;
-};
 
-#endif // > !INDETPHYSVALMONITORING_TRACKTRUTHSELECTORTOOL_H
+}; 
+
+#endif //> !INDETPHYSVALMONITORING_TRACKTRUTHSELECTORTOOL_H
+
