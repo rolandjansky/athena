@@ -52,7 +52,7 @@ StatusCode TrackParticleContainerCnv::initialize()
 TrackParticleContainer_PERS *
 TrackParticleContainerCnv::createPersistent( Rec::TrackParticleContainer *transCont)
 {
-  DataObject* dObj = getDataObject();
+  const DataObject* dObj = getDataObject();
   if (dObj) {
     const std::string  key = (dObj->name());
     m_log.m_source="TrackParticleContainerCnv['"+key+"']"; // A hack - relies on getting access to private data of MsgStream via #define trick. EJWM.
