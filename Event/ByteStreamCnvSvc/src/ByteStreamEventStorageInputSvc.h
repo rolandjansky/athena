@@ -60,6 +60,7 @@ public:
    void         closeBlockIterator(bool clearMetadata=true);
    bool         setSequentialRead();
    bool         ready();
+   StatusCode   generateDataHeader();
 
 private: // internal member functions
    bool loadMetadata();
@@ -105,7 +106,6 @@ private: // properties
 private: // internal helper functions
 
    void buildFragment(void* data, uint32_t eventSize, bool validate);
-   StatusCode generateDataHeader();
    void releaseCurrentEvent();
    bool readerReady();
    bool ROBFragmentCheck();

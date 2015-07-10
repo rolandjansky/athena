@@ -506,9 +506,15 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 }
          ATH_MSG_WARNING("Continue with bad event");
       }
+
       // Set RE for rob data provider svc
-      //m_robProvider->setNextEvent(pre);
-      //m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
+      m_robProvider->setNextEvent(pre);
+      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
+      // Build a DH for use by other components
+      StatusCode rec_sg = m_eventSource->generateDataHeader();
+        if (rec_sg != StatusCode::SUCCESS) {
+           ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
+      }
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
@@ -629,6 +635,13 @@ StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) co
        }
        ATH_MSG_WARNING("Continue with bad event");
     }
+
+    // Build a DH for use by other components
+    StatusCode rec_sg = m_eventSource->generateDataHeader();
+      if (rec_sg != StatusCode::SUCCESS) {
+         ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
+    }
+
     return StatusCode::SUCCESS;
 }
 //________________________________________________________________________________
@@ -935,9 +948,6 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::createAddress(const IEvtSelector::Context& /*it*/,
                 IOpaqueAddress*& iop) const {
-   const RawEvent* pre = m_eventSource->currentEvent();
-   m_robProvider->setNextEvent(pre);
-   m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
    SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
    if (proxy !=0) {
      iop = proxy->address();
