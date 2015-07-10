@@ -27,9 +27,6 @@ public:
    ~DataHeaderCnv();
 
    /// Extend base-class conversion methods
-   virtual StatusCode updateRep(IOpaqueAddress* pAddress, DataObject* pObject);
-   virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject);
-
    virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& tname);
 
    virtual DataHeader_p5* poolReadObject_p5();
