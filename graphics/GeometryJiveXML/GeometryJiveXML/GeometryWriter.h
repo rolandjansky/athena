@@ -153,15 +153,15 @@ namespace JiveXML{
     
     /** Pixel detector manager and ID helper */
     const InDetDD::SiDetectorManager* m_pixel_manager;
-    const PixelID * m_pixelIdHelper;   
+    const PixelID * pixelIdHelper;   
 
     /** Silicon detector manager and ID helper */
     const InDetDD::SiDetectorManager* m_silicon_manager;
-    const SCT_ID * m_sctIdHelper;
+    const SCT_ID * sctIdHelper;
     
     /** TRT detector manager and ID helper */
     const InDetDD::TRT_DetectorManager* m_trt_manager;
-    const TRT_ID * m_trtIdHelper;
+    const TRT_ID * trtIdHelper;
     
     /** Calorimeter detector manager. */
     const CaloDetDescrManager* m_calo_manager;
