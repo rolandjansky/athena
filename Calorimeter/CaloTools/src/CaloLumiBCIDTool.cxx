@@ -11,7 +11,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODEventInfo/EventID.h"
 #include "xAODEventInfo/EventInfo.h"
-
+#include <sys/time.h>
 
 CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type, 
 				  const std::string& name, 
@@ -72,6 +72,9 @@ StatusCode CaloLumiBCIDTool::initialize() {
     msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
     return sc;
   }
+
+  m_lumiVec.reserve(m_bcidMax);
+  m_lumiVec.assign(m_bcidMax,0.0);
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -266,6 +269,75 @@ void CaloLumiBCIDTool::getListOfCells()
   //}
 
 
+  m_minBias.reserve(2000);
+  m_minBias.clear();
+  m_minBias.assign(2000,0.0);
+  m_first.reserve(2000);
+  m_first.clear();
+  m_first.assign(2000,0.0);
+  m_isOnl.reserve(2000);
+  m_isOnl.clear();
+  m_isOnl.assign(2000,0.0);
+
+  m_shape.reserve(2000);
+  m_OFC.reserve(2000);
+
+  m_shape.clear();
+  m_OFC.clear();
+
+  std::vector<float> vec;
+
+
+  std::vector<HWIdentifier>::iterator it = m_hwid_sym.begin();
+  std::vector<HWIdentifier>::iterator it_end = m_hwid_sym.end();
+  int index=0;
+  unsigned int ns = 32;
+  unsigned int nsofc = 32;
+  for(;it!=it_end;++it) {
+    const HWIdentifier id  = *it;
+    m_minBias[index]=0;
+    m_first[index]=0;
+    m_isOnl[index]=0;
+    if(m_cablingService->isOnlineConnected(id)) {
+          //  get MinBiasAverage
+          float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(id);
+          m_minBias[index]=MinBiasAverage;
+          m_isOnl[index]=1;
+
+          unsigned int ifirst= 0;
+          if (m_lar_on_id->isEMBchannel(id)) ifirst=m_firstSampleEMB;
+          if (m_lar_on_id->isEMECchannel(id)) ifirst=m_firstSampleEMEC;
+          if (m_lar_on_id->isHECchannel(id)) ifirst=m_firstSampleHEC;
+          if (m_lar_on_id->isFCALchannel(id)) ifirst=m_firstSampleFCAL;
+          m_first[index] = ifirst;
+
+          //  get Shape
+          ILArShape::ShapeRef_t Shape = m_dd_shape->Shape(id,0);
+          ns = Shape.size();
+          std::vector<float> s;
+          for(unsigned int i = 0 ; i<ns ; i++) s.push_back(Shape[i]);
+          m_shape.push_back(s);
+
+          //  get OFC
+          ILArOFCTool::OFCRef_t OFC;
+          if (m_isMC) OFC = m_OFCTool->OFC_a(id,0) ;
+          else  OFC = m_dd_ofc->OFC_a(id,0,0);
+          nsofc = OFC.size();
+          std::vector<float> sofc;
+          for(unsigned int i = 0 ; i<nsofc ; i++) sofc.push_back(OFC[i]);
+          m_OFC.push_back(sofc);
+
+    } else {
+	  std::vector<float> s;
+          for(unsigned int i = 0 ; i<ns ; i++) s.push_back(0);
+          m_shape.push_back(s);
+          std::vector<float> sofc;
+          for(unsigned int i = 0 ; i<nsofc ; i++) sofc.push_back(0);
+          m_OFC.push_back(sofc);
+    }
+    index++;
+  }
+
 
   return;
 }
@@ -297,7 +369,6 @@ void CaloLumiBCIDTool::handle(const Incident& inc) {
 
 StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
 {
-  //std::cout << " in  CaloLumiBCIDTool::computeValues() " << m_isMC << std::endl;
 
   if (m_ncell==0) getListOfCells();
 
@@ -309,8 +380,8 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
        msg(MSG::WARNING) << " Event info not found in event store . Pileup offsets computed for 0 lumi " << endreq;
      }
      else {
-       xlumiMC = eventInfo->averageInteractionsPerCrossing()/6.31;            // convert from mu/bunch to lumi in 10**30 units per bunch
-                                                                              // 25ns*Nbcid*71mb*10**30 = 25e-9*3564*71e-27*1e30 = 6.31
+       xlumiMC = eventInfo->averageInteractionsPerCrossing()*0.158478605;     // convert from mu/bunch to lumi in 10**30 units per bunch
+                                                                              // 25ns*Nbcid*71mb*10**30 = 25e-9*3564*71e-27*1e30 = 6.31 Use 1/6.31 = 0.158478605
        //std::cout << " mu and xlumiMC for this bcid " << eventInfo->averageInteractionsPerCrossing() << " " << xlumiMC << std::endl;
      }
   }
@@ -319,6 +390,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
     const xAOD::EventInfo* eventInfo;
     if (! evtStore()->retrieve(eventInfo).isSuccess() ) {
       msg(MSG::WARNING) << " Event info not found in event store . Pileup offsets computed for bcid=1 " << endreq;
+      std::cout << " Event info not found in event store . Pileup offsets computed for bcid=1 " << std::endl;
        bcid=1;
      }
      else {
@@ -326,50 +398,96 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
        bcid = eventInfo->bcid();
      }
   }
+
+  // Calculate Luminosity values ONLY around the places Luminosity will be needed
+  accumulateLumi(bcid,xlumiMC);
   //std::cout << " start loop over cells  bcid= " << bcid << std::endl;
   //if (!m_isMC) std::cout << "   lumi for this bcid " << m_lumiTool->lbLuminosityPerBCID(bcid) << std::endl;
-  std::vector<HWIdentifier>::iterator it = m_hwid_sym.begin(); 
-  std::vector<HWIdentifier>::iterator it_end = m_hwid_sym.end(); 
-  int index=0;
-  for(;it!=it_end;++it) {
-    const HWIdentifier id  = *it;
+  size_t total = m_hwid_sym.size();
+
+  if ( (bcid > 34) && (bcid < m_bcidMax-34)) { // Not close to bcid boundary
+
+  for(int index=0 ; index<(int)total; index++) {
+    //const HWIdentifier id  = *it;
     //std::cout << " Identifier " << m_lar_on_id->show_to_string(id) << std::endl;
     float eOFC=0.; 
-    if(m_cablingService->isOnlineConnected(id)) {
+    if(m_isOnl[index]) {
 
       //  get MinBiasAverage
-      float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(id);
+      float MinBiasAverage = m_minBias[index];
+
+      if (MinBiasAverage<0.) MinBiasAverage=0.;
+
+      std::vector<float>& ofc = m_OFC[index];
+      std::vector<float>& samp = m_shape[index];
+      unsigned int nsamples = ofc.size();
+
+      // choise of first sample : i.e sample on the pulse shape to which first OFC sample is applied
+      unsigned int ifirst= 0;
+      if (nsamples==4) ifirst = m_first[index];
+
+
+      unsigned int nshapes = samp.size();
+      if (nshapes < nsamples) {
+//	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
+	return StatusCode::FAILURE;
+      }
+
+      unsigned int ishift = ifirst + bcid ; // correct for first sample
+      for (unsigned int i=0;i<nsamples;i++) {
+          float sumShape=0.;
+          //unsigned int ishift = i + ifirst + bcid ; // correct for first sample
+          unsigned int k = ishift;
+          for (unsigned int j=0;j<nshapes;j++) {
+               float lumi = m_lumiVec[k];
+               sumShape += samp[j]*lumi;
+               k--;
+          }
+          eOFC += sumShape * (ofc[i] );
+          ishift++;
+      }
+      eOFC = eOFC * MinBiasAverage;
+    }     // connected cell
+    else {
+     //std::cout << " disconnected cell ? " << std::endl;
+     eOFC=0.;
+    }
+
+    //std::cout << " index, eOFC " << index << " " << eOFC << std::endl;
+    m_eshift_sym[index]=eOFC;
+
+  }      // loop over cells
+
+
+  } else { // I am close to the boundary
+
+  for(int index=0 ; index<(int)total; index++) {
+    //const HWIdentifier id  = *it;
+    //std::cout << " Identifier " << m_lar_on_id->show_to_string(id) << std::endl;
+    float eOFC=0.; 
+    if(m_isOnl[index]) {
+
+      //  get MinBiasAverage
+      float MinBiasAverage = m_minBias[index];
       //float MinBiasAverage=1.;
 
       if (MinBiasAverage<0.) MinBiasAverage=0.;
 
-      //  get Shape
-      ILArShape::ShapeRef_t Shape = m_dd_shape->Shape(id,0);
-
-      //  get OFC
-      ILArOFCTool::OFCRef_t OFC;
-      if (m_isMC) OFC = m_OFCTool->OFC_a(id,0) ;
-      else  OFC = m_dd_ofc->OFC_a(id,0,0);
-
-      unsigned int nsamples = OFC.size();
+      std::vector<float>& ofc = m_OFC[index];
+      std::vector<float>& samp = m_shape[index];
+      unsigned int nsamples = ofc.size();
 
       // choise of first sample : i.e sample on the pulse shape to which first OFC sample is applied
       unsigned int ifirst= 0;
-      if (nsamples==4) {
-          if (m_lar_on_id->isEMBchannel(id)) ifirst=m_firstSampleEMB;
-          if (m_lar_on_id->isEMECchannel(id)) ifirst=m_firstSampleEMEC;
-          if (m_lar_on_id->isHECchannel(id)) ifirst=m_firstSampleHEC;
-          if (m_lar_on_id->isFCALchannel(id)) ifirst=m_firstSampleFCAL;
-      }
+      if (nsamples==4) ifirst = m_first[index];
 
 
-      unsigned int nshapes = Shape.size();
+      unsigned int nshapes = samp.size();
       if (nshapes < nsamples) {
-	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
+//	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
 	return StatusCode::FAILURE;
       }
 
-      //std::cout << " loop over bcid ";
       for (unsigned int i=0;i<nsamples;i++) {
           float sumShape=0.;
           unsigned int ishift = i + ifirst ; // correct for first sample
@@ -378,15 +496,11 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
                if ((bcid+ishift)<j) k = m_bcidMax+bcid+ishift-j;
                else if ((bcid+ishift)>=(m_bcidMax+j)) k = ishift-j+bcid-m_bcidMax;
                else k = bcid+ishift-j;
+               float lumi = m_lumiVec[k];
 
-               float lumi;
-               if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(k)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-               else lumi = m_lumiTool->lbLuminosityPerBCID(k);  // luminosity in 10**30 units
-               //std::cout <<  "k:lumi " << k << " " << lumi << " ";
-
-               sumShape += Shape[j]*lumi;
+               sumShape += samp[j]*lumi;
           }
-          eOFC += sumShape * (OFC[i] );
+          eOFC += sumShape* (ofc[i] );
       }
       //std::cout << std::endl;
       eOFC = eOFC * MinBiasAverage;
@@ -398,13 +512,25 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
 
     //std::cout << " index, eOFC " << index << " " << eOFC << std::endl;
     m_eshift_sym[index]=eOFC;
-    index++;
 
   }      // loop over cells
+
+  } // end of the check bcid boundary
+
+#ifdef DONTDO // some debug code, please, ignore
+  std::cout << "corrections for BCID : " << bcid << std::endl;
+  for(int index1=0 ; index1<total; index1++) {
+	if ( fabsf(1e9*(m_eshift_sym[index1]) ) > 0.001 ){
+	std::cout << "cell [" << index1 <<"] = " <<(double)(m_eshift_sym[index1]) 
+	<< std::endl;
+	}
+  }
+#endif
 
 
   m_cacheValid=true;
   m_bcid = bcid;
+
   return StatusCode::SUCCESS;
 }
 
@@ -452,4 +578,50 @@ float CaloLumiBCIDTool::average(const Identifier CellID,unsigned int bcid)
   unsigned int index = m_symCellIndex[i2];
   if (index>=m_eshift_sym.size()) return 0.;
   return m_eshift_sym[index];
+}
+
+void CaloLumiBCIDTool::accumulateLumi(const unsigned int bcid, const float xlumiMC) {
+
+  //m_lumiVec.clear();
+  unsigned int m_keep_samples=32;
+  unsigned int m_keep_ofcsamples=32;
+  if ( (bcid > m_keep_samples+5) && (bcid < m_bcidMax-m_keep_ofcsamples-5))  {
+
+  unsigned int a=bcid-(m_keep_samples+4);
+  unsigned int b=bcid+(m_keep_ofcsamples+4);
+  for(unsigned int i=a;i<b;i++){
+     float lumi=0.0;
+     if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
+     else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+     m_lumiVec[i]=(lumi);
+  }
+
+  } else {
+
+  int a=bcid-(m_keep_samples+4);
+  if ( a < 0 ) a=0;
+  unsigned int b=bcid+(m_keep_ofcsamples+4);
+  if ( b >= m_bcidMax ) b=m_bcidMax;
+  for(unsigned int i=(unsigned int)a;i<b;i++){
+     float lumi=0.0;
+     if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
+     else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+     m_lumiVec[i]=(lumi);
+  }
+
+  for(unsigned int i=0;i<m_keep_ofcsamples+4;i++){
+     float lumi=0.0;
+     if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
+     else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+     m_lumiVec[i]=(lumi);
+  }
+  for(unsigned int i=m_bcidMax-m_keep_samples-5;i<m_bcidMax;i++){
+     float lumi=0.0;
+     if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
+     else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+     m_lumiVec[i]=(lumi);
+  }
+
+  }
+
 }

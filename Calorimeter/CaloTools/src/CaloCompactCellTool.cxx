@@ -60,8 +60,8 @@ StatusCode CaloCompactCellTool::getTransient
   const std::vector<CaloCompactCellContainer::value_type> theHeader = theCompactContainer.getHeader();
   logStream << MSG::DEBUG << " getTransient:    using version: "<<theHeader[1] << endreq;
 
-  static DataPool<LArCell> larCellsP(220000);//initialize for the default value will resize latter to full size
-  static DataPool<TileCell> tileCellsP(13000);
+  DataPool<LArCell> larCellsP(220000);//initialize for the default value will resize latter to full size
+  DataPool<TileCell> tileCellsP(13000);
 
   switch (theHeader[1]) {
 

@@ -31,7 +31,6 @@ use AthenaPoolUtilities AthenaPoolUtilities-*        Database/AthenaPOOL
 private
 use xAODBase xAODBase-*   Event/xAOD
 use AthAllocators   AthAllocators-*   Control
-use CaloTriggerTool CaloTriggerTool-* Calorimeter
 end_private
 
 library CaloTools *.cxx components/*.cxx
