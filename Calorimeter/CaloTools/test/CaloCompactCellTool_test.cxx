@@ -14,7 +14,7 @@
 
 #include "CaloTools/CaloCompactCellTool.h"
 #include "CaloTools/CaloCellPacker_400_500.h"
-#include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "TileEvent/TileCell.h"
@@ -674,9 +674,9 @@ void dump_packed (const CaloCompactCellContainer& packed)
 void dump_e (double e)
 {
   if (e > 1000*GeV)
-    e = round (e / 20) * 20;
+    e = round (e * 0.05) * 20;
   else
-    e = round (e / 10) * 10;
+    e = round (e * 0.10) * 10;
   printf ("%8.0f ", e);
 }
 
@@ -1223,7 +1223,7 @@ void runtests ()
 
 float tv_diff (const timeval& tv1, const timeval& tv2)
 {
-  return tv2.tv_sec - tv1.tv_sec + (tv2.tv_usec - tv1.tv_usec) / 1000000.;
+  return tv2.tv_sec - tv1.tv_sec + (tv2.tv_usec - tv1.tv_usec) * 1e-6;
 }
 
 

@@ -79,6 +79,14 @@ private:
   std::vector<float> m_eshift_sym;
   std::vector<int> m_symCellIndex;
 
+  std::vector<float> m_lumiVec;
+  std::vector<float> m_minBias;
+  std::vector<unsigned int> m_first;
+  std::vector<char> m_isOnl;
+
+  std::vector< std::vector< float > > m_shape;
+  std::vector< std::vector< float > > m_OFC;
+
 
 //Functions
   StatusCode initialize();
@@ -95,6 +103,8 @@ private:
   virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
   StatusCode computeValues(unsigned int bcid);
+
+  void accumulateLumi(const unsigned int bcid, const float xlumiMC);
 
 public:    
   

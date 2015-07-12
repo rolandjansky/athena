@@ -187,7 +187,8 @@ StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
       if (MinBiasAverage<0.) MinBiasAverage=0.;
 
       //  get fSampl
-      float fSampl = m_dd_fsampl->FSAMPL(id);
+      const float fSampl = m_dd_fsampl->FSAMPL(id);
+      const float inv_fSampl = 1. / fSampl;
 
       for (int igain=0;igain<3;igain++) {
  
@@ -205,7 +206,7 @@ StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
              return StatusCode::FAILURE;
          }
 
-         float e = MinBiasAverage/fSampl*m_Nminbias;
+         float e = MinBiasAverage*inv_fSampl*m_Nminbias;
 
          float eOFC=0.;
   

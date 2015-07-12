@@ -934,7 +934,7 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
           // A is the part with SigmaNoise 
         float B=OFC_AC_OFC*CNoise*CNoise*AdcPerMev*AdcPerMev;     
           // B is the part with the constant noise (CNoise) 
-        float C=OFC_OFC/(12.);				 
+        float C=OFC_OFC*(1./12.);				 
           // C is the quantification part (effect of the truncation  short(..) )
           //   12.=sqrt(12)*sqrt(12)
         float gain[3]={1.,10.,100.};  
@@ -943,7 +943,7 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       else// USUAL CASE
       {
         float NOISE= OFC_AC_OFC*SigmaNoise*SigmaNoise ;
-        float REST = OFC_OFC/12.;// 12.=sqrt(12)*sqrt(12)
+        float REST = OFC_OFC*(1./12.);// 12.=sqrt(12)*sqrt(12)
         sigma=(NOISE+REST) * Adc2MeVFactor*Adc2MeVFactor;   
       }
       //::::::::::::::::::::::::::::::::::::::
