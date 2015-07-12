@@ -15,14 +15,19 @@
 // old versions in CVS
 //-----------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "LArRecEvent/LArCell.h"
 #include "TileEvent/TileCell.h"
+#undef private
+#undef protected
 
-#include "AthAllocators/DataPool.h"
+#include "DataModel/DataPool.h"
 #include "CaloTools/CaloCompactCellTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloTools/CaloCellPacker_400_500.h"
+#include "GaudiKernel/MsgStream.h"
 
 CaloCompactCellTool::CaloCompactCellTool(const std::string& type,
 					 const std::string& name,
@@ -50,8 +55,10 @@ StatusCode CaloCompactCellTool::getTransient
 (const CaloCompactCellContainer & theCompactContainer,
  CaloCellContainer * theCellContainer)
 {
+  MsgStream logStream(msgSvc(), name());
+
   const std::vector<CaloCompactCellContainer::value_type> theHeader = theCompactContainer.getHeader();
-  ATH_MSG_DEBUG( " getTransient:    using version: "<<theHeader[1]  );
+  logStream << MSG::DEBUG << " getTransient:    using version: "<<theHeader[1] << endreq;
 
   DataPool<LArCell> larCellsP(220000);//initialize for the default value will resize latter to full size
   DataPool<TileCell> tileCellsP(13000);
@@ -72,8 +79,9 @@ StatusCode CaloCompactCellTool::getTransient
     break;
 
   default:
-    ATH_MSG_FATAL( " unknown version " << theHeader[1]
-                   << " requested for unpacking the CaloCompactCellContainer" );
+    logStream << MSG::FATAL << " unknown version " << theHeader[1]
+	      << " requested for unpacking the CaloCompactCellContainer"
+	      << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -86,7 +94,9 @@ StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContai
  CaloCompactCellContainer * theCompactContainer,
  int theVersion )
 {
-  ATH_MSG_DEBUG( "CaloCell container contains " << theCellContainer.size() << " cells. Write compact Ver: " << theVersion  );
+  MsgStream logStream(msgSvc(), name());
+
+  logStream << MSG::DEBUG << "CaloCell container contains " << theCellContainer.size() << " cells. Write compact Ver: " << theVersion <<endreq;
 
   if (theVersion == ICaloCompactCellTool::VERSION_LATEST)
     theVersion = ICaloCompactCellTool::VERSION_504;
@@ -107,8 +117,8 @@ StatusCode CaloCompactCellTool::getPersistent   //fill the CaloCompactCellContai
    break;
 
   default:
-    ATH_MSG_FATAL( " unknown version " << theVersion
-                   << " requested for packing the CaloCellContainer"  );
+    logStream << MSG::FATAL << " unknown version " << theVersion
+	      << " requested for packing the CaloCellContainer" << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

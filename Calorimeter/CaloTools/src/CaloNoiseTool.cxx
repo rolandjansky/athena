@@ -31,44 +31,16 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent) 
   : AthAlgTool(type, name, parent),
-    m_CachedGetNoiseCDDE(nullptr),
-    m_CachedGetNoiseCELL(nullptr),
-    m_highestGain(),
-    m_WithOF(true),
-    m_atlas_id(nullptr),
-    m_calo_id_man(nullptr),
-    m_lar_em_id(nullptr),
-    m_lar_hec_id(nullptr),
-    m_lar_fcal_id(nullptr),
-    m_tile_id(nullptr),
-    m_calo_dd_man(nullptr),
-    m_calocell_id(nullptr),
-    m_cablingService("LArCablingService"),
+    m_WithOF(true), m_cablingService("LArCablingService"),
     m_tileInfoName("TileInfo"),
-    m_tileInfo(nullptr),
-    m_Adc2MeVFactor(0),
-    m_AdcPerMev(0),
-    m_adc2mevTool("LArADC2MeVTool"),
-    m_SigmaNoise(0),
-    m_CNoise(0),
-    m_useRMSpedestal(false),
-    m_RMSpedestal(0),
-    m_OFCTool("LArOFCTool"),
-    m_nsamples(0),
-    m_fSampl(0),
-    m_MinBiasRMS(0),
-    m_Nminbias(-1),
-    m_Nminbias_usedForCache(0),
-    m_WorkMode(1),
-    m_NormalizeAutoCorr(false),
+    m_adc2mevTool("LArADC2MeVTool"),m_OFCTool("LArOFCTool"),
+    m_Nminbias(-1), m_WorkMode(1),
     m_UseLAr(true),m_UseTile(true),m_UseSymmetry(true),
     m_DumpDatabaseHG(false),m_DumpDatabaseMG(false),m_DumpDatabaseLG(false),
     m_isMC(true),
     m_keyNoise("LArNoise"), m_keyPedestal("LArPedestal"), m_keyADC2GeV("LArADC2MeV"), 
     m_keyOFShape("LArOFC_Shape"), m_keyAutoCorr("LArAutoCorr"),
     m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBias("LArMinBias"),
-    m_Nmessages_forTilePileUp(0),
-    m_noiseOK(false),
     m_DiagnosticHG(true),m_DiagnosticMG(true),m_DiagnosticLG(true),
     m_cacheValid(false),m_deltaBunch(1),m_firstSample(0)
 
@@ -115,8 +87,22 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
 StatusCode 
 CaloNoiseTool::initialize()
 {
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK(  service("GeoModelSvc", geoModel) );
+
+  MsgStream log( msgSvc(), name() );
+
+  StoreGateSvc* detStore;
+  if (service("DetectorStore", detStore).isFailure()) {
+    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
+    return StatusCode::FAILURE;
+  }
+
+  const IGeoModelSvc *geoModel=0;
+  StatusCode sc = service("GeoModelSvc", geoModel);
+  if(sc.isFailure())
+  {
+    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
+    return sc;
+  }
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -128,20 +114,29 @@ CaloNoiseTool::initialize()
   }
   else
   {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloNoiseTool::geoInit,this) );
+    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
+			  geoModel,
+			  &CaloNoiseTool::geoInit,this);
+    if(sc.isFailure())
+    {
+      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
+      return sc;
+    }
   }
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode
 CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  ATH_MSG_INFO( "CaloNoiseTool called " << this->name() << " initialize() begin" );
+  MsgStream log( msgSvc(), name() );
+ 
+  log << MSG::INFO
+      << "CaloNoiseTool called " << this->name() << " initialize() begin" 
+      << endreq;
   
   if ((std::string)this->name()=="ToolSvc.calonoisetool") 
-    ATH_MSG_WARNING( "calonoisetool is obsolete. Please use CaloNoiseToolDefault.py"  );
+    log << MSG::WARNING << "calonoisetool is obsolete. Please use CaloNoiseToolDefault.py" <<endreq;
 
   //diagnostic
   m_diagnostic[CaloGain::LARHIGHGAIN]  =m_DiagnosticHG;
@@ -155,8 +150,11 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 
   m_Nmessages_forTilePileUp=0;
 
-  ATH_CHECK( m_cablingService.retrieve() );
-  ATH_MSG_DEBUG( "CablingService retrieved"  );
+  if (m_cablingService.retrieve().isFailure()) {
+    log << MSG::ERROR << "Unable to get CablingService " << endreq;
+    return StatusCode::FAILURE;
+  }
+  else log << MSG::DEBUG << "CablingService retrieved" << endreq;
   
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  
@@ -172,10 +170,12 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
   //FIXME
   m_tile_id = m_calo_id_man->getTileID();
   
-  if (m_tile_id==nullptr)
+  if (m_tile_id==0)
   {
     m_UseTile=false;
-    ATH_MSG_WARNING(" no tile_id -> noise unavailable for Tiles !" );
+    log << MSG::WARNING
+	<<" no tile_id -> noise unavailable for Tiles !" 
+	<< endreq;
   } 
     
   
@@ -199,9 +199,11 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
   if(m_UseLAr) m_CaloHashMin = 0;
   if(m_UseTile && m_UseLAr==false) m_CaloHashMin = m_LArHashMax;
 
-  ATH_MSG_DEBUG( " UseLAr: " <<m_UseLAr<< " UseTile: " <<m_UseTile
-                 << " => CaloHashMin= " <<m_CaloHashMin
-                 << " CaloHashMax= " <<m_CaloHashMax );
+  log << MSG::DEBUG
+      << " UseLAr: " <<m_UseLAr<< " UseTile: " <<m_UseTile
+      << " => CaloHashMin= " <<m_CaloHashMin
+      << " CaloHashMax= " <<m_CaloHashMax
+      << endreq; 
 
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //gain-thresholds 
@@ -234,8 +236,9 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
   {
     StatusCode sc = detStore()->retrieve(m_tileInfo, m_tileInfoName);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING( "Unable to retrieve TileInfo from DetectorStore"
-                       <<"  -> noise unavailable for Tiles !"  );
+      log << MSG::WARNING
+	  << "Unable to retrieve TileInfo from DetectorStore"
+	  <<"  -> noise unavailable for Tiles !" << endreq;
       m_UseTile=false;
     }
   }
@@ -245,37 +248,45 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
   if(m_WorkMode==1 && m_UseLAr)
   {    
     //---- retrieve the ADC2MeV tool ----------------
-    ATH_CHECK( m_adc2mevTool.retrieve() );
-    ATH_MSG_DEBUG( " --ILArADC2MeVTool retrieved"  );
+    if (m_adc2mevTool.retrieve().isFailure()) {
+      log << MSG::ERROR << "Unable to retrieve tool 'LArADC2MeVTool'" << endreq;
+      return StatusCode::FAILURE;
+    }
+    else 
+      log << MSG::DEBUG << " --ILArADC2MeVTool retrieved" << endreq;
 
     if(m_WithOF) {      
       //---- retrieve the OFC Tool ----------------
-      ATH_CHECK( m_OFCTool.retrieve() );
-      ATH_MSG_DEBUG( " -- LArOFCTool retrieved"  );
+      StatusCode sc=m_OFCTool.retrieve();
+      //sc = p_toolSvc->retrieveTool("LArOFCTool", algtool2);
+      if (sc.isFailure())  
+	log << MSG::ERROR << "Unable to retrieve LArOFCTool" << endreq;  
+      else 
+	log << MSG::DEBUG << " -- LArOFCTool retrieved" << endreq;
     }
   }
   
   // Cache, what noise to return
-  m_CachedGetNoiseCDDE=nullptr;
-  m_CachedGetNoiseCELL=nullptr;
+  m_CachedGetNoiseCDDE=NULL;
+  m_CachedGetNoiseCELL=NULL;
   if(m_ReturnNoiseName=="electronicNoise") {
-    ATH_MSG_INFO( "Will cache electronic noise"  );
+    log << MSG::INFO << "Will cache electronic noise" << endreq;  
     m_CachedGetNoiseCDDE=&CaloNoiseTool::elecNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseTool::elecNoiseRMS;
   }
   if(m_ReturnNoiseName=="pileupNoise") {
-    ATH_MSG_INFO( "Will cache pileupNoise noise"  );
+    log << MSG::INFO << "Will cache pileupNoise noise" << endreq;
     m_CachedGetNoiseCDDE=&CaloNoiseTool::pileupNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseTool::pileupNoiseRMS;
   }
   if(m_ReturnNoiseName=="totalNoise") {
-    ATH_MSG_INFO( "Will cache totalNoise noise"  );
+    log << MSG::INFO << "Will cache totalNoise noise" << endreq;
     m_CachedGetNoiseCDDE=&CaloNoiseTool::totalNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseTool::totalNoiseRMS;
   }
-  if(m_CachedGetNoiseCDDE==nullptr || 
-     m_CachedGetNoiseCELL==nullptr) {
-    ATH_MSG_ERROR( "Unknown noise !"  );
+  if(m_CachedGetNoiseCDDE==NULL || 
+     m_CachedGetNoiseCELL==NULL) {
+    log << MSG::ERROR << "Unknown noise !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -289,22 +300,22 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 			     dynamic_cast<ICaloNoiseTool*>(this),
 			     m_dd_noise,m_keyNoise,true);
       if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyNoise  );
+	log << MSG::INFO << "Registered callback for key: " 
+	    << m_keyNoise << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyNoise  );
+	log << MSG::ERROR << "Cannot register callback function for key " 
+	    << m_keyNoise << endreq;
       }
     }else{
       StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
 			     dynamic_cast<ICaloNoiseTool*>(this),
 			     m_dd_pedestal,m_keyPedestal,true);
       if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyPedestal  );
+	log << MSG::INFO << "Registered callback for key: " 
+	    << m_keyPedestal << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyPedestal  );
+	log << MSG::ERROR << "Cannot register callback function for key " 
+	    << m_keyPedestal << endreq;
       }
     }
 
@@ -315,22 +326,22 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 			     dynamic_cast<ICaloNoiseTool*>(this),
 			     m_dd_adc2gev,m_keyADC2GeV,true);
       if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyADC2GeV  );
+	log << MSG::INFO << "Registered callback for key: " 
+	    << m_keyADC2GeV << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyADC2GeV  );
+	log << MSG::ERROR << "Cannot register callback function for key " 
+	    << m_keyADC2GeV << endreq;
       }
 
       sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
                             dynamic_cast<ICaloNoiseTool*>(this),
 			     m_detDHOFC,m_keyOFShape,true);
       if(sc.isSuccess()){
-	ATH_MSG_INFO( "Registered callback for key: " 
-                      << m_keyOFShape  );
+	log << MSG::INFO << "Registered callback for key: " 
+	    << m_keyOFShape << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register callback function for key " 
-                       << m_keyOFShape  );
+	log << MSG::ERROR << "Cannot register callback function for key " 
+	    << m_keyOFShape << endreq;
       }
     }
 
@@ -338,50 +349,50 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 			   dynamic_cast<ICaloNoiseTool*>(this),
 			   m_dd_acorr,m_keyAutoCorr,true);
     if(sc.isSuccess()){
-      ATH_MSG_INFO( "Registered callback for key: " 
-                    << m_keyAutoCorr  );
+      log << MSG::INFO << "Registered callback for key: " 
+	  << m_keyAutoCorr << endreq;
     } else {
-      ATH_MSG_ERROR( "Cannot register callback function for key " 
-                     << m_keyAutoCorr  );
+      log << MSG::ERROR << "Cannot register callback function for key " 
+	  << m_keyAutoCorr << endreq;
     }
   
     if(m_WorkMode==1) 
     {
 
-// get pulse shape, m_fSampl and minBiasRMS to compute pileup noise (MC only)
+// get pulse shape, fSampl and minBiasRMS to compute pileup noise (MC only)
       if(m_isMC){
 
         StatusCode sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
 			      dynamic_cast<ICaloNoiseTool*>(this),
 			      m_dd_shape,m_keyShape,true);
         if(sc.isSuccess()){
-	  ATH_MSG_INFO( "Registered callback for key: " 
-                        << m_keyShape  );
+	  log << MSG::INFO << "Registered callback for key: " 
+	      << m_keyShape << endreq;
         } else {
-	  ATH_MSG_ERROR( "Cannot register callback function for key " 
-                         << m_keyShape  );
+	  log << MSG::ERROR << "Cannot register callback function for key " 
+	      << m_keyShape << endreq;
         }
 
         sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
 			       dynamic_cast<ICaloNoiseTool*>(this),
 			       m_dd_fsampl,m_keyfSampl,true);
         if(sc.isSuccess()){
-	  ATH_MSG_INFO( "Registered callback for key: " 
-                        << m_keyfSampl  );
+	  log << MSG::INFO << "Registered callback for key: " 
+	      << m_keyfSampl << endreq;
 	} else {
-	  ATH_MSG_ERROR( "Cannot register callback function for key " 
-                         << m_keyfSampl  );
+	  log << MSG::ERROR << "Cannot register callback function for key " 
+	      << m_keyfSampl << endreq;
         }
 	
         sc=detStore()->regFcn(&ICaloNoiseTool::LoadCalibration,
 			       dynamic_cast<ICaloNoiseTool*>(this),
 			       m_dd_minbias,m_keyMinBias,true);
         if(sc.isSuccess()){
-	  ATH_MSG_INFO( "Registered callback for key: " 
-                        << m_keyMinBias  );
+	  log << MSG::INFO << "Registered callback for key: " 
+	      << m_keyMinBias << endreq;
          } else {
-	  ATH_MSG_ERROR( "Cannot register callback function for key " 
-                         << m_keyMinBias  );
+	  log << MSG::ERROR << "Cannot register callback function for key " 
+	      << m_keyMinBias << endreq;
          }
       }
 
@@ -390,11 +401,13 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 	  detStore()->regFcn(&ILArADC2MeVTool::LoadCalibration,&(*m_adc2mevTool),
 			      &ICaloNoiseTool::LoadCalibration,
 			      dynamic_cast<ICaloNoiseTool*>(this),true) ) {
-	ATH_MSG_INFO( "Registered callbacks for LArADC2MeVTool -> CaloNoiseTool" 
-                      );
+	log << MSG::INFO 
+	    << "Registered callbacks for LArADC2MeVTool -> CaloNoiseTool" 
+	    << endreq;
       } else {
-	ATH_MSG_ERROR( "Cannot register callbacks for LArADC2MeVTool -> CaloNoiseTool" 
-                       );
+	log << MSG::ERROR 
+	    << "Cannot register callbacks for LArADC2MeVTool -> CaloNoiseTool" 
+	    << endreq;
       }
 
       if(m_WithOF){
@@ -402,9 +415,13 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 	    detStore()->regFcn(&ILArOFCTool::LoadCalibration,&(*m_OFCTool),
 				&ICaloNoiseTool::LoadCalibration,
 				dynamic_cast<ICaloNoiseTool*>(this),true) ) {
-	  ATH_MSG_INFO( "Registered callbacks for LArOFCTool -> CaloNoiseTool" );
+	  log << MSG::INFO 
+	      << "Registered callbacks for LArOFCTool -> CaloNoiseTool" 
+	      << endreq;
 	} else {
-	  ATH_MSG_ERROR( "Cannot register callbacks for LArOFCTool -> CaloNoiseTool"  );
+	  log << MSG::ERROR 
+	      << "Cannot register callbacks for LArOFCTool -> CaloNoiseTool" 
+	      << endreq;
 	}
       }
 
@@ -417,16 +434,21 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
    //currently no database for Tile
   }
 
-  m_CNoise    = 0.456E-3;
-  m_AdcPerMev = 5.*GeV;
+  CNoise    = 0.456E-3;
+  AdcPerMev = 5.*GeV;
 
 
 
   if (m_loadAtBegin) {
-    ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run"  );
+    log << MSG::DEBUG << "Setting callback function to load calibration at begin of run" << endreq;
     // Incident Service: 
-    IIncidentSvc* incSvc = nullptr;
-    ATH_CHECK( service("IncidentSvc", incSvc) );
+    IIncidentSvc* incSvc;
+    StatusCode sc = service("IncidentSvc", incSvc);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "Unable to retrieve pointer to IncidentSvc "
+	       << endreq;
+      return sc;
+    }
     
     //start listening to "BeginRun". The incident should be fired AFTER the IOV callbacks and only once.
     const long priority=std::numeric_limits<long>::min(); //Very low priority
@@ -435,7 +457,7 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 
 
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  ATH_MSG_INFO( "CaloNoiseTool initialize() end"  );
+  log << MSG::INFO << "CaloNoiseTool initialize() end" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -449,7 +471,8 @@ CaloNoiseTool::initContainers()
   //initialize the maps m_ElecNoiseContainer and m_ScaleContainer 
   //(assuming type of elements of the containers is the same for Tile and LAr)
 
-  ATH_MSG_INFO( "initContainers() begin "  );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::INFO << "initContainers() begin " << endreq;
 
   // intialise indices
   this->initIndex(); 
@@ -461,9 +484,10 @@ CaloNoiseTool::initContainers()
     m_pileupNoiseContainer.resize(m_idSymmCaloHashContainer.size());
   m_adc2mevContainer.resize(m_idSymmCaloHashContainer.size());
   //::::::::::::::::::::::::::::::::::::::
-  ATH_MSG_INFO( "initContainers() end : "
+  log << MSG::INFO << "initContainers() end : "
       <<" size of containers = "
-      <<m_idSymmCaloHashContainer.size() );
+      <<m_idSymmCaloHashContainer.size()
+      << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -557,8 +581,10 @@ CaloNoiseTool::initIndex()
       }
       else
       {
-        ATH_MSG_WARNING("CaloNoiseTool::chooseIndex  wrong id ! " 
-                        << m_lar_em_id->show_to_string(id)  );
+        MsgStream log( msgSvc(), name() );
+        log << MSG::WARNING
+            <<"CaloNoiseTool::chooseIndex  wrong id ! " 
+            << m_lar_em_id->show_to_string(id) << endreq ;
         continue ;
       }
 
@@ -639,7 +665,9 @@ CaloNoiseTool::index(const IdentifierHash &idCaloHash)
 StatusCode CaloNoiseTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 {
 
-  ATH_MSG_INFO( "Callback invoked for " << keys.size() << " keys "  );
+  MsgStream log(msgSvc(), name());
+  
+  log << MSG::INFO << "Callback invoked for " << keys.size() << " keys " << endreq;
 
   // invalidates the cache
   m_cacheValid = false; 
@@ -652,10 +680,13 @@ StatusCode CaloNoiseTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 StatusCode 
 CaloNoiseTool::initData()
 {
+  MsgStream log( msgSvc(), name() );
+
   StatusCode sc ;
   sc = this->initContainers();
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "initContainers failed"  );
+    log << MSG::WARNING
+			  << "initContainers failed" << endreq ;
     return sc;
   }
  
@@ -673,19 +704,19 @@ CaloNoiseTool::initData()
     //stores the Adc2MeV factors 
     sc = this->initAdc2MeV();
     if (!sc.isSuccess())  
-      ATH_MSG_ERROR( "initData(): error with initAdc2MeV() "  );
+      log << MSG::ERROR << "initData(): error with initAdc2MeV() " << endreq; 
   }
 
   //calculates and stores the electronic noise
   sc = this->initElecNoise(); 
   if (!sc.isSuccess())  
-    ATH_MSG_ERROR( "initData(): error with initElecNoise() "  );
+    log << MSG::ERROR << "initData(): error with initElecNoise() " << endreq;
 
   //calculates and stores the pileup noise
   if(m_WorkMode==1) {
     sc = this->initPileUpNoise();
     if (!sc.isSuccess())  
-      ATH_MSG_ERROR( "initData(): error with initPileUpNoise() " );
+      log << MSG::ERROR << "initData(): error with initPileUpNoise() "<<endreq;
     }
   
 
@@ -698,7 +729,8 @@ CaloNoiseTool::initData()
 StatusCode 
 CaloNoiseTool::initAdc2MeV() 
 {
-  ATH_MSG_INFO( "initAdc2MeV() begin "  );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::INFO << "initAdc2MeV() begin " << endreq;
   for (unsigned int it=0; it<m_adc2mevContainer.size(); ++it)
   { 
     CaloCell_ID::SUBCALO iCalo = this->caloNum(m_idSymmCaloHashContainer[it]);
@@ -709,8 +741,8 @@ CaloNoiseTool::initAdc2MeV()
       if(iCalo==CaloCell_ID::LAREM || iCalo==CaloCell_ID::LARHEC) 
       { //only for EM and HEC
 	m_adc2mevContainer[it]=m_dd_adc2gev->AllFactors(id);
-	for(float & fac : m_adc2mevContainer[it])
-	  fac *= GeV;
+	for(unsigned int i=0;i<(m_adc2mevContainer[it]).size();++i)
+	  (m_adc2mevContainer[it])[i] *= GeV;
       }
     }
     //::::::::::::::::::::::::::::::::::::::
@@ -733,7 +765,7 @@ CaloNoiseTool::initAdc2MeV()
     } 
     //::::::::::::::::::::::::::::::::::::::
   } 
-  ATH_MSG_INFO( "initAdc2MeV() end "  );
+  log << MSG::INFO << "initAdc2MeV() end " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -746,7 +778,8 @@ CaloNoiseTool::initElecNoise()
   // for the calculation of the electronic noise
 
 
-  ATH_MSG_DEBUG( "initElecNoise() begin "  );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "initElecNoise() begin " << endreq;
  
   for (unsigned int it=0; it<m_elecNoiseRAWContainer.size(); ++it)
   {
@@ -769,29 +802,29 @@ CaloNoiseTool::initElecNoise()
     for(int igain=0;igain<CaloGain::LARNGAIN;++igain)
       if(m_diagnostic[igain])
       {
-	ATH_MSG_INFO("" );
-	ATH_MSG_INFO("===== Diagnostic for  gain "<<igain<<" =====" );
-	ATH_MSG_INFO("" );
+	log<<MSG::INFO<<endreq;
+	log<<MSG::INFO<<"===== Diagnostic for  gain "<<igain<<" ====="<<endreq;
+	log<<MSG::INFO<<endreq;
 	for(int i=0;i<m_nCellsWithProblem[igain];++i)
         {
 	  Identifier id = m_calocell_id->cell_id(m_idHash[i][igain]);
-	  msg(MSG::DEBUG)<<m_idHash[i][igain]<<" "
+	  log<<MSG::DEBUG<<m_idHash[i][igain]<<" "
 	     <<m_lar_em_id->show_to_string(id)
 	     <<" "<<m_nReason[i][igain]<<" : ";
 	  for(int j=0;j<m_nReason[i][igain];++j)
-	    msg(MSG::DEBUG)<<m_reasonName[m_reason[i][j][igain]]<<" ";
-	  msg(MSG::DEBUG)<<endmsg;
+	    log<<MSG::DEBUG<<m_reasonName[m_reason[i][j][igain]]<<" ";
+	  log << MSG::DEBUG<<endreq;
 	}
-	msg(MSG::DEBUG)<<endmsg;
-	ATH_MSG_INFO("N cells with problem(s) = "
-                     <<m_nCellsWithProblem[igain] );
+	log<<MSG::DEBUG<<endreq;
+	log<<MSG::INFO<<"N cells with problem(s) = "
+	   <<m_nCellsWithProblem[igain]<<endreq;
 	for(int i=0;i<10;++i)
-          if(m_itReason[i][igain]>0) 
-            ATH_MSG_INFO(i<<" "<<m_reasonName[i] 
-                         <<": for "<<m_itReason[i][igain]<<" cells" );
+	if(m_itReason[i][igain]>0) 
+	  log<<MSG::INFO<<i<<" "<<m_reasonName[i] 
+	     <<": for "<<m_itReason[i][igain]<<" cells"<<endreq;
       }
 
-  ATH_MSG_DEBUG( "initElecNoise() end "  );
+  log << MSG::DEBUG << "initElecNoise() end " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -803,16 +836,17 @@ CaloNoiseTool::initPileUpNoise()
   // initialize the parameters (the same for each event for each Identifier) 
   // for the calculation of the PileUp noise
 
-  ATH_MSG_DEBUG( "initPileUpNoise() begin "  );
-  ATH_MSG_INFO( "N events of Minimum Bias per bunch crossing =  " 
-                << m_Nminbias );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "initPileUpNoise() begin " << endreq;
+  log << MSG::INFO << "N events of Minimum Bias per bunch crossing =  " 
+                   << m_Nminbias<< endreq;
   //::::::::::::::::::::::::::::::::::::::
   for (unsigned int it=0; it<m_pileupNoiseContainer.size(); ++it)  
     m_pileupNoiseContainer[it]
       =this->calculatePileUpNoise(m_idSymmCaloHashContainer[it],m_Nminbias);
   //::::::::::::::::::::::::::::::::::::::
   m_Nminbias_usedForCache=m_Nminbias;
-  ATH_MSG_DEBUG( "initPileUpNoise() end "  );
+  log << MSG::DEBUG << "initPileUpNoise() end " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -828,11 +862,11 @@ CaloNoiseTool::calculateElecNoiseForLAR(const IdentifierHash & idCaloHash,
 E=SUMi { OFCi * (short[ (PulseShapei*Ehit/Adc2MeV(gain) + Noisei(gain)  
                        + pedestal) ]  
                  - pedestal) * Adc2Mev(gain) ] } 
-   with Noisei =SUMj { cij*Rndm } * m_SigmaNoise
+   with Noisei =SUMj { cij*Rndm } * SigmaNoise
 
    NB:  without short and with cij=identity (no autocorrelation) 
         E=SUMi { NOISEi(gain)*Rndm } 
-        with  NOISEi(gain) = Adc2MeV(gain) * OFCi * m_SigmaNoise(gain)        
+        with  NOISEi(gain) = Adc2MeV(gain) * OFCi * SigmaNoise(gain)        
 
    => Sigma^2=SUMi{NOISEi(gain)*NOISEj(gain)*cij} + quantification part
              =        NOISE(gain)                 +   REST
@@ -844,13 +878,13 @@ E=SUMi { OFCi * (short[ (PulseShapei*Ehit/Adc2MeV(gain) + Noisei(gain)
 E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei ) 
                          * AdcPerGev + pedestal] 
                  - pedestal) } / gain
-   with Noisei =SUMj { cij*Rndm } * m_SigmaNoise
-        CNoisei=SUMj { cij*Rndm } * m_CNoise
+   with Noisei =SUMj { cij*Rndm } * SigmaNoise
+        CNoisei=SUMj { cij*Rndm } * CNoise
 
    NB:  without short and with cij=identity (no autocorrelation) 
         E=SUMi { Ai*Rndm + Bi*Rndm } 
-        with  Ai=(AdcPerGev)     *OFCi*m_SigmaNoise
-              Bi=(AdcPerGev/gain)*OFCi*m_CNoise
+        with  Ai=(AdcPerGev)     *OFCi*SigmaNoise
+              Bi=(AdcPerGev/gain)*OFCi*CNoise
 
    => Sigma^2=SUMi{Ai*Aj*cij + Bi*Bj*cij } + quantification part
              =        A      + (  B        +      C) / gain^2 
@@ -896,10 +930,10 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       //::::::::::::::::::::::::::::::::::::::
       if(iCalo==CaloCell_ID::LARFCAL && m_WorkMode==0)
       {
-        float A=OFC_AC_OFC*m_SigmaNoise*m_SigmaNoise*m_AdcPerMev*m_AdcPerMev; 
-          // A is the part with m_SigmaNoise 
-        float B=OFC_AC_OFC*m_CNoise*m_CNoise*m_AdcPerMev*m_AdcPerMev;     
-          // B is the part with the constant noise (m_CNoise) 
+        float A=OFC_AC_OFC*SigmaNoise*SigmaNoise*AdcPerMev*AdcPerMev; 
+          // A is the part with SigmaNoise 
+        float B=OFC_AC_OFC*CNoise*CNoise*AdcPerMev*AdcPerMev;     
+          // B is the part with the constant noise (CNoise) 
         float C=OFC_OFC*(1./12.);				 
           // C is the quantification part (effect of the truncation  short(..) )
           //   12.=sqrt(12)*sqrt(12)
@@ -908,9 +942,9 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       }
       else// USUAL CASE
       {
-        float NOISE= OFC_AC_OFC*m_SigmaNoise*m_SigmaNoise ;
+        float NOISE= OFC_AC_OFC*SigmaNoise*SigmaNoise ;
         float REST = OFC_OFC*(1./12.);// 12.=sqrt(12)*sqrt(12)
-        sigma=(NOISE+REST) * m_Adc2MeVFactor*m_Adc2MeVFactor;   
+        sigma=(NOISE+REST) * Adc2MeVFactor*Adc2MeVFactor;   
       }
       //::::::::::::::::::::::::::::::::::::::
       if(sigma>0) sigma=sqrt(sigma);
@@ -923,7 +957,7 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
         //	  <<m_lar_em_id->show_to_string(id)<<" gain "<<igain
         //	  <<" : negative root square => WRONG noise "
         //	  <<"(please check if OFC or AutoCorr are correct for this cell)"
-        //	  <<endmsg;
+        //	  <<endreq;
       }
 
       //diagnostic    
@@ -1013,12 +1047,12 @@ CaloNoiseTool::calculatePileUpNoise(const IdentifierHash & idCaloHash,
 
   //in the database, RMS is at the scale of the Hits, 
   // so we need to scale it at the e.m scale using the sampling fraction ...
-  m_MinBiasRMS /= m_fSampl;
+  MinBiasRMS /= fSampl;
 
   //::::::::::::::::::::::::::::::::::::::
 
 // overall normalization factor
-  float  PileUp=m_MinBiasRMS*sqrt(Nminbias);
+  float  PileUp=MinBiasRMS*sqrt(Nminbias);
  
   //::::::::::::::::::::::::::::::::::::::
 
@@ -1050,10 +1084,10 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
      for(int i=0;i<m_nsamples;++i) 
        for(int j=0;j<m_nsamples;++j)  
        { 
-         if(i==j)               m_c[i][j] = 1.; 
+         if(i==j)               c[i][j] = 1.; 
          for(int k=1;k<m_nsamples;++k) 
 	   if(i==j-k || i==j+k)	
-	     m_c[i][j] = m_AutoCorr[k-1];
+	     c[i][j] = AutoCorr[k-1];
        }
   }
 // other case: pileup noise
@@ -1061,13 +1095,13 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
      for (int i=0;i<m_nsamples;i++) {
       for (int j=0;j<m_nsamples;j++)
       {
-        m_c[i][j]=0.;
-        int nsize = m_Shape.size();
+        c[i][j]=0.;
+        int nsize = Shape.size();
         for (int k=0;k<nsize;k++) {
            if ((j-i+k)>=0 && (j-i+k)<nsize) {
              int ibunch=0;
              if ((i+firstSample-k)%m_deltaBunch == 0 ) ibunch=1;
-             m_c[i][j] += ((double) (ibunch)) * (m_Shape[k]) * (m_Shape[j-i+k]);
+             c[i][j] += ((double) (ibunch)) * (Shape[k]) * (Shape[j-i+k]);
            }
         }
       }
@@ -1085,17 +1119,17 @@ CaloNoiseTool::commonCalculations(float & OFC_AC_OFC,float & OFC_OFC,int icase, 
     {   
       tmp=0.; 
       for(int j=0;j<m_nsamples;++j)  	
-	tmp+=m_c[i][j]*m_OFC[j]; 
-      tmp*=m_OFC[i]; 
+	tmp+=c[i][j]*OFC[j]; 
+      tmp*=OFC[i]; 
       OFC_AC_OFC+=tmp;  
-      OFC_OFC+= m_OFC[i] * m_OFC[i]; 
+      OFC_OFC+= OFC[i] * OFC[i]; 
       //std::cout<<"    "<<i<<" "<<OFC_AC_OFC<<" "<<OFC_OFC<<std::endl;
     }
   }
   else //equivalent to have only the third sample (peak)
   {
-    // <=> (*m_OFC)[2]==1, others are null
-    OFC_AC_OFC=m_c[2][2];
+    // <=> (*OFC)[2]==1, others are null
+    OFC_AC_OFC=c[2][2];
     OFC_OFC=1;
   } 
   //::::::::::::::::::::::::::::::::::::::
@@ -1127,14 +1161,14 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
     if(m_WorkMode==0) 
     {
       const std::vector<float>& vAdc2MeVFactor = m_dd_adc2gev->AllFactors(id);
-      m_Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
+      Adc2MeVFactor = vAdc2MeVFactor[igain]*GeV;
     }
     else 
     {      
       int index=this->index(idCaloHash);
-      m_Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
+      Adc2MeVFactor = (m_adc2mevContainer[index])[igain];       
     } 
-    if(PRINT) std::cout<<"m_Adc2MeVFactor="<<m_Adc2MeVFactor<<std::endl;
+    if(PRINT) std::cout<<"Adc2MeVFactor="<<Adc2MeVFactor<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1142,34 +1176,34 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   if(m_retrieve[iSIGMANOISE])
   {
     if(m_isMC)
-      m_SigmaNoise = m_dd_noise->noise(id,igain);
+      SigmaNoise = m_dd_noise->noise(id,igain);
     else          
     {
-      m_RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
-      if(m_RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
-	m_SigmaNoise = m_RMSpedestal;
+      RMSpedestal = m_dd_pedestal->pedestalRMS(id,igain);
+      if(RMSpedestal>(1.0+LArElecCalib::ERRORCODE)) 
+	SigmaNoise = RMSpedestal;
       else
       {     
 	//	MsgStream log(msgSvc(), name());
 	//	log << MSG::WARNING << function_name
 	//	    <<" PedestalRMS vector empty for "
-	//	    <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endmsg;     
-        m_SigmaNoise = 0.;
+	//	    <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;     
+        SigmaNoise = 0.;
       }
     }
-    if(PRINT) std::cout<<"m_SigmaNoise(inADC)="<<m_SigmaNoise<<std::endl;
+    if(PRINT) std::cout<<"SigmaNoise(inADC)="<<SigmaNoise<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    m_AutoCorr = m_dd_acorr->autoCorr(id,igain);
+    AutoCorr = m_dd_acorr->autoCorr(id,igain);
     ////////// 
     if(PRINT) {
       std::cout<<"AutoCorr= ";
-      for(float i : m_AutoCorr)                
-	std::cout<<i<<" ";
+      for(unsigned int i=0;i<AutoCorr.size();++i)                
+	std::cout<<AutoCorr[i]<<" ";
       std::cout<<std::endl;
     }
   }
@@ -1178,13 +1212,13 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //OFC
   if(m_retrieve[iOFC])
   {
-    if(m_WorkMode==0) m_OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
-    else              m_OFC = m_OFCTool->OFC_a(id, igain) ;
+    if(m_WorkMode==0) OFC = m_detDHOFC->OFC_a(id, igain, 0) ;
+    else              OFC = m_OFCTool->OFC_a(id, igain) ;
     /////////
     if(PRINT) {
       std::cout<<"OFC= ";
-      for(float i : m_OFC) 
-	std::cout<<i<<" ";
+      for(unsigned int i=0;i<OFC.size();++i) 
+	std::cout<<OFC[i]<<" ";
       std::cout<<"  Nminbias="<<Nminbias<<std::endl;
     }
   }
@@ -1193,12 +1227,12 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    m_Shape = m_dd_shape->Shape(id,0);
+    Shape = m_dd_shape->Shape(id,0);
     //////////
     if(PRINT) {
       std::cout<<"Shape= ";
-      for(float i : m_Shape) 
-	std::cout<<i<<" ";
+      for(unsigned int i=0;i<Shape.size();++i) 
+	std::cout<<Shape[i]<<" ";
       std::cout<<std::endl;
     }
   }
@@ -1207,16 +1241,16 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
   //MinimumBias RMS 
   if(m_retrieve[iMINBIASRMS])
   {
-    m_MinBiasRMS = m_dd_minbias->minBiasRMS(id);
-    if(PRINT) std::cout<<"MinBiasRMS="<<m_MinBiasRMS<<std::endl;
+    MinBiasRMS = m_dd_minbias->minBiasRMS(id);
+    if(PRINT) std::cout<<"MinBiasRMS="<<MinBiasRMS<<std::endl;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    m_fSampl = m_dd_fsampl->FSAMPL(id);
-    if(PRINT) std::cout<<"fSampl="<<m_fSampl<<std::endl;
+    fSampl = m_dd_fsampl->FSAMPL(id);
+    if(PRINT) std::cout<<"fSampl="<<fSampl<<std::endl;
   }
 
   return this->checkCellDatabase(id,igain,function_name);
@@ -1233,20 +1267,20 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //ADC2MEV
   if(m_retrieve[iADC2MEV]) {
-    if(fabs(m_Adc2MeVFactor)<0.000001) {
+    if(fabs(Adc2MeVFactor)<0.000001) {
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) 
-	this->updateDiagnostic(0,"m_Adc2MeVFactor=0",igain);
+	this->updateDiagnostic(0,"Adc2MeVFactor=0",igain);
     }
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SIGMANOISE
   if(m_retrieve[iSIGMANOISE]) {
-    if(fabs(m_SigmaNoise)<0.000001) {
+    if(fabs(SigmaNoise)<0.000001) {
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) 
-	this->updateDiagnostic(1,"m_SigmaNoise=0",igain);	
+	this->updateDiagnostic(1,"SigmaNoise=0",igain);	
     }
   }
 
@@ -1254,19 +1288,20 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //AUTOCORR
   if(m_retrieve[iAUTOCORR])
   {
-    if (!m_AutoCorr.valid()) 
+    if (!AutoCorr.valid()) 
     {
-      ATH_MSG_WARNING( function_name
-                       <<" AutoCorr invalid for "
-                       <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain );
+      MsgStream log(msgSvc(), name());
+      log << MSG::WARNING << function_name
+	  <<" AutoCorr invalid for "
+	  <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (m_AutoCorr.size()==0) 
+    if (AutoCorr.size()==0) 
     {
       //      MsgStream log(msgSvc(), name());
       //      log << MSG::WARNING << function_name
       //	  <<"  AutoCorr vector empty for "
-      //	  <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endmsg;
+      //	  <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) this->updateDiagnostic(2,"AC empty",igain);
     }
@@ -1275,32 +1310,33 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain])
       {
 	unsigned int n_ACnull=0;
-	for(unsigned int i=0;i<(*m_AutoCorr).size();++i)
-	  if(fabs((*m_AutoCorr)[i])<0.000001) ++n_ACnull;
-	if(n_ACnull==(*m_AutoCorr).size()) 
+	for(unsigned int i=0;i<(*AutoCorr).size();++i)
+	  if(fabs((*AutoCorr)[i])<0.000001) ++n_ACnull;
+	if(n_ACnull==(*AutoCorr).size()) 
 	  this->updateDiagnostic(3,"AC=0",igain);
       }
     */
-    m_nsamples=m_AutoCorr.size()+1;
+    m_nsamples=AutoCorr.size()+1;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //OFC
   if(m_retrieve[iOFC])
   {
-    if (!m_OFC.valid()) 
+    if (!OFC.valid()) 
     {
-      ATH_MSG_WARNING( function_name
-                       <<"  OFC pointer null for "
-                       <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain );
+      MsgStream log(msgSvc(), name());
+      log<<MSG::WARNING<< function_name
+	 <<"  OFC pointer null for "
+	 <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (m_OFC.size()==0) 
+    if (OFC.size()==0) 
     {
       //      MsgStream log(msgSvc(), name());
       //      log<<MSG::WARNING<< function_name
       //	 <<"  OFC vector empty for "
-      //	 <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endmsg;
+      //	 <<m_lar_em_id->show_to_string(id)<<" at gain "<<igain<<endreq;
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) this->updateDiagnostic(4,"OFC empty",igain);
     }
@@ -1308,30 +1344,31 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain]) 
       {
 	unsigned int n_OFCnull=0;
-	for(float i : m_OFC)
-	  if(fabs(i)<0.000001) ++n_OFCnull;
-	if(n_OFCnull==m_OFC.size()) this->updateDiagnostic(5,"OFC=0",igain);
+	for(unsigned int i=0;i<OFC.size();++i)
+	  if(fabs(OFC[i])<0.000001) ++n_OFCnull;
+	if(n_OFCnull==OFC.size()) this->updateDiagnostic(5,"OFC=0",igain);
       }
-    m_nsamples=m_OFC.size();
+    m_nsamples=OFC.size();
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //SHAPE
   if(m_retrieve[iSHAPE])
   {
-    if (!m_Shape.valid()) 
+    if (!Shape.valid()) 
     {
-      ATH_MSG_WARNING( function_name
-                       <<"  Shape pointer null -> PileUp will be 0 for "
-                       <<m_lar_em_id->show_to_string(id) );
+      MsgStream log(msgSvc(), name());
+      log<<MSG::WARNING<< function_name
+	 <<"  Shape pointer null -> PileUp will be 0 for "
+	 <<m_lar_em_id->show_to_string(id)<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
-    if (m_Shape.size()==0) 
+    if (Shape.size()==0) 
     {      
       //      MsgStream log(msgSvc(), name());
       //      log<<MSG::WARNING<< function_name
       //       <<"  Shape vector empty -> PileUp will be 0 for "
-      //       <<m_lar_em_id->show_to_string(id)<<endmsg;
+      //       <<m_lar_em_id->show_to_string(id)<<endreq;
       StatusDatabase=StatusCode::FAILURE;
       if(m_diagnostic[igain]) this->updateDiagnostic(6,"Shape empty",igain);
     }
@@ -1339,9 +1376,9 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
       if(m_diagnostic[igain]) 
       {
 	unsigned int n_SHAPEnull=0;
-	for(float i : m_Shape)
-	  if(fabs(i)<0.000001) ++n_SHAPEnull;
-	if(n_SHAPEnull==m_Shape.size()) 	  
+	for(unsigned int i=0;i<Shape.size();++i)
+	  if(fabs(Shape[i])<0.000001) ++n_SHAPEnull;
+	if(n_SHAPEnull==Shape.size()) 	  
 	  this->updateDiagnostic(7,"Shape=0",igain);
       }	
   }
@@ -1349,22 +1386,24 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //NSAMPLES
   if(m_retrieve[iOFC] && m_retrieve[iAUTOCORR] 
-     && m_OFC.size()!=m_AutoCorr.size()+1)
+     && OFC.size()!=AutoCorr.size()+1)
   {
-    m_nsamples=std::min(m_OFC.size(),m_AutoCorr.size()+1);
-    ATH_MSG_DEBUG("AutoCorr and OFC vectors have not the same "
-                  <<"number of elements"
-                  <<" ("<<m_AutoCorr.size()<<"/"<<m_OFC.size()
-                  <<" ) => will take into account only " << m_nsamples << " samples !"
-                  );
+    m_nsamples=std::min(OFC.size(),AutoCorr.size()+1);
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::DEBUG
+       <<"AutoCorr and OFC vectors have not the same "
+       <<"number of elements"
+       <<" ("<<AutoCorr.size()<<"/"<<OFC.size()
+       <<" ) => will take into account only " << m_nsamples << " samples !"
+       <<endreq;
   }
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  if(m_retrieve[iOFC] && m_retrieve[iSHAPE] && m_OFC.size()==m_Shape.size())
+  if(m_retrieve[iOFC] && m_retrieve[iSHAPE] && OFC.size()==Shape.size())
   {
     float scalar=0;
-    for(unsigned int i=0;i<m_Shape.size();++i)
-      scalar+=m_Shape[i]*m_OFC[i];
+    for(unsigned int i=0;i<Shape.size();++i)
+      scalar+=Shape[i]*OFC[i];
     if((scalar-1)>0.05)
       this->updateDiagnostic(8,"[Shape].[OFC] not 1",igain);
   }
@@ -1373,11 +1412,12 @@ CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
   //SAMPLING FRACTION
   if(m_retrieve[iFSAMPL])
   {
-    if (m_fSampl<0.000001) 
+    if (fSampl<0.000001) 
     {
-      ATH_MSG_WARNING( function_name
-                       <<"  fSampl null -> PileUp will be 0 for "
-                       <<m_lar_em_id->show_to_string(id) );
+      MsgStream log(msgSvc(), name());
+      log<<MSG::WARNING<< function_name
+	 <<"  fSampl null -> PileUp will be 0 for "
+	 <<m_lar_em_id->show_to_string(id)<<endreq;
       StatusDatabase=StatusCode::FAILURE;
     }
   }
@@ -1454,7 +1494,6 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
-    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::ELECTRONICNOISE:
     return elecNoiseRMS(caloDDE,igain,Nminbias,
 			ICaloNoiseToolStep::CELLS);
@@ -1465,7 +1504,6 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
     //  NOTE: igain is not used at the moment for pileupnoise
-    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::PILEUPNOISE:
     return pileupNoiseRMS(caloDDE,igain,Nminbias,
 			  ICaloNoiseToolStep::CELLS);
@@ -1476,7 +1514,6 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
     // continue into normal code (NO break !!)
     igain=m_highestGain[caloDDE->getSubCalo()];
     //  NOTE: igain is only used for the electronics noise at the moment
-    /* FALLTHROUGH */
   case ICalorimeterNoiseTool::TOTALNOISE:
     return totalNoiseRMS(caloDDE,igain,Nminbias,
 			 ICaloNoiseToolStep::CELLS);
@@ -1589,7 +1626,8 @@ CaloNoiseTool::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
 {  
 
   if(!m_cacheValid){
-    ATH_MSG_DEBUG( " in elecNoiseRMS, cache not valid yet" );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::DEBUG<< " in elecNoiseRMS, cache not valid yet"<<endreq;
     StatusCode sc = this->initData();
     if (sc.isFailure()) {
       throw LArConditionsException("Could not compute elecNoiseRMS ");
@@ -1624,30 +1662,35 @@ CaloNoiseTool::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
   } 
 
   if (gain==CaloGain::INVALIDGAIN || gain==CaloGain::UNKNOWNGAIN) {
-    ATH_MSG_WARNING( " ask noise for invalid/unknown gain, will return noise for high gain "  );
+    MsgStream log( msgSvc(), name() );
+    log << MSG::WARNING << " ask noise for invalid/unknown gain, will return noise for high gain " << endreq;
     igain=static_cast<int>(CaloGain::LARHIGHGAIN);
   }
 
   if (iCalo<0 || index<0)
   {
-    ATH_MSG_WARNING( "CaloNoiseTool::elecNoiseRMS  wrong id ! " 
-                     << "iCalo="<<iCalo
-                     << "index="<<index
-                     << "id:" << m_lar_em_id->show_to_string(caloDDE->identify())
-                     );
+    MsgStream log(msgSvc(), name());
+    log<<MSG::WARNING
+       << "CaloNoiseTool::elecNoiseRMS  wrong id ! " 
+       << "iCalo="<<iCalo
+       << "index="<<index
+       << "id:" << m_lar_em_id->show_to_string(caloDDE->identify())
+       << endreq;
     return 0.;
   } 
   else 
   {         
-    const std::vector<float>* sigmaVector = nullptr;
+    const std::vector<float>* sigmaVector = 0;
     if(step==ICaloNoiseToolStep::CELLS)	
       sigmaVector = &m_elecNoiseCELLContainer[index];
     else if(step==ICaloNoiseToolStep::RAWCHANNELS)    
       sigmaVector = &m_elecNoiseRAWContainer[index];
     else 
     {
-      ATH_MSG_WARNING( "CaloNoiseTool::elecNoiseRMS  wrong step !!!  "
-                       <<step );
+      MsgStream log(msgSvc(), name());
+      log<<MSG::WARNING<< "CaloNoiseTool::elecNoiseRMS  wrong step !!!  "
+	 <<step
+	 <<endreq;
       return 0.;
     }
 
@@ -1681,10 +1724,12 @@ CaloNoiseTool::elecNoiseRMS(const CaloDetDescrElement* caloDDE,
       {
 	++shift_gain;
 	if(shift_gain<=igain) retry=true;
-	ATH_MSG_WARNING( "noise is missing for this cell " << m_lar_em_id->show_to_string(caloDDE->identify())
-                         << " at this gain ("
-                         <<gain_wanted<<"), return the noise at next gain ("
-                         <<gain_shifted<<")" );
+	MsgStream log(msgSvc(), name());
+	log<<MSG::WARNING<< "noise is missing for this cell " << m_lar_em_id->show_to_string(caloDDE->identify())
+	   << " at this gain ("
+	   <<gain_wanted<<"), return the noise at next gain ("
+	   <<gain_shifted<<")"
+	   <<endreq;
       }
       //:::::::::::::::::
     }
@@ -1734,9 +1779,10 @@ CaloNoiseTool::elecNoiseRMS3gains(const CaloDetDescrElement* caloDDE,
 VectorContainer* 
 CaloNoiseTool::elecNoiseRMSContainer(const int &iCalo) 
 {
-  ATH_MSG_WARNING( " elecNoiseRMSContainer not implemented " << iCalo  );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::WARNING << " elecNoiseRMSContainer not implemented " << iCalo << endreq ;
   //return &m_elecNoiseContainer_old[iCalo];
-  return nullptr;
+  return 0;
 }
 
 //////////////////////////////////////////////////
@@ -1832,8 +1878,11 @@ CaloNoiseTool::pileupNoiseRMS(const CaloDetDescrElement* caloDDE,
   {
     if(m_Nmessages_forTilePileUp<10)// to not have thousands of messages
     {
-      ATH_MSG_INFO("CaloNoiseTool::pileupNoiseRMS : NOT IMPLEMENTED "
-                   <<"for TILEs ! (-> returns 0. for the moment)" );
+      MsgStream log( msgSvc(), name() );
+      log<<MSG::INFO
+	 <<"CaloNoiseTool::pileupNoiseRMS : NOT IMPLEMENTED "
+	 <<"for TILEs ! (-> returns 0. for the moment)"
+	 <<endreq;    
       ++m_Nmessages_forTilePileUp;
     }
     return 0.;   
@@ -1919,8 +1968,11 @@ CaloNoiseTool::estimatedGain(const CaloCell* caloCell,
     return this->estimatedTileGain(caloCell,caloDDE,step);
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
-                    <<m_lar_em_id->show_to_string(caloDDE->identify()) );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::WARNING
+       <<"CaloNoiseTool::estimatedGain  wrong id ! " 
+       <<m_lar_em_id->show_to_string(caloDDE->identify()) 
+       <<endreq;
     return CaloGain::INVALIDGAIN;
   } 
 }
@@ -1941,15 +1993,21 @@ CaloNoiseTool::estimatedGain(const CaloDetDescrElement* caloDDE,
     return this->estimatedLArGain(iCalo,caloDDE,energy,step);
   else if(iCalo==CaloCell_ID::TILE)
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
-                    <<"with these arguments! " 
-                    << m_lar_em_id->show_to_string(caloDDE->identify()) );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::WARNING
+       <<"CaloNoiseTool::estimatedGain  NOT IMPLEMENTED FOR TILE "
+       <<"with these arguments! " 
+       << m_lar_em_id->show_to_string(caloDDE->identify()) 
+       <<endreq;
     return CaloGain::INVALIDGAIN;
   } 
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::estimatedGain  wrong id ! " 
-                    << m_lar_em_id->show_to_string(caloDDE->identify()) );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::WARNING
+       <<"CaloNoiseTool::estimatedGain  wrong id ! " 
+       << m_lar_em_id->show_to_string(caloDDE->identify()) 
+       <<endreq;
     return CaloGain::INVALIDGAIN;
   } 
 }
@@ -1994,7 +2052,8 @@ CaloNoiseTool::estimatedLArGain(const CaloCell_ID::SUBCALO &iCalo,
       adc=energy/(this->adc2mev(caloDDE,CaloGain::LARMEDIUMGAIN)) + 1000 ;
     else 
     {
-      ATH_MSG_WARNING( "CaloNoiseTool::estimatedGain   wrong step" );
+      MsgStream log( msgSvc(), name() );
+      log<<MSG::WARNING<< "CaloNoiseTool::estimatedGain   wrong step"<<endreq;
     }  
     if(adc<m_HighGainThresh[iCalo])     igain=CaloGain::LARHIGHGAIN;  
     else if(adc>m_LowGainThresh[iCalo]) igain=CaloGain::LARLOWGAIN; 
@@ -2100,11 +2159,14 @@ CaloNoiseTool::adc2mev(const CaloDetDescrElement* caloDDE,
   {
     if(m_WorkMode==0)
     {
-      ATH_MSG_WARNING("CaloNoiseTool::adc2mev(id,gain) : NOT IMPLEMENTED !"
-                      <<"for FCAL (-> returns 5000. for the moment)" );
+      MsgStream log( msgSvc(), name() );
+      log<<MSG::WARNING
+	 <<"CaloNoiseTool::adc2mev(id,gain) : NOT IMPLEMENTED !"
+	 <<"for FCAL (-> returns 5000. for the moment)"
+	 <<endreq;     
       //NOT CLEAR what we should return 
       //(for the moment, returns AdcPerGev from LArDigitMaker)
-      factor=m_AdcPerMev;
+      factor=AdcPerMev;
     }
     else if(m_WorkMode==1)
     {
@@ -2115,14 +2177,20 @@ CaloNoiseTool::adc2mev(const CaloDetDescrElement* caloDDE,
   else if(iCalo==CaloCell_ID::TILE)
   {
     //TILE_PART
-    ATH_MSG_WARNING("CaloNoiseTool::adc2mev(id,gain) : NOT IMPLEMENTED !"
-                    <<"for TILE (-> returns 1. for the moment)" );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::WARNING
+       <<"CaloNoiseTool::adc2mev(id,gain) : NOT IMPLEMENTED !"
+       <<"for TILE (-> returns 1. for the moment)"
+       <<endreq;    
     factor=1.; 
   }  
   else
   {
-    ATH_MSG_WARNING("CaloNoiseTool::adc2mev(id,gain)  wrong id ! " 
-                    <<m_lar_em_id->show_to_string(caloDDE->identify()) );
+    MsgStream log( msgSvc(), name() );
+    log<<MSG::WARNING
+       <<"CaloNoiseTool::adc2mev(id,gain)  wrong id ! " 
+       <<m_lar_em_id->show_to_string(caloDDE->identify()) 
+       <<endreq;
     factor=0.;
   }  
   return factor;
@@ -2139,17 +2207,18 @@ CaloNoiseTool::adc2mev(const Identifier& id,const CaloGain::CaloGain gain)
 
 
 void CaloNoiseTool::handle(const Incident&) {
-  ATH_MSG_DEBUG( "In Incident-handle"  );
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "In Incident-handle" << endreq;
   if (m_cacheValid) {
-    ATH_MSG_DEBUG( "Cached data already computed."  );
+    log << MSG::DEBUG << "Cached data already computed." << endreq;
     return;
   }
   
   StatusCode sc = this->initData();
 
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "handle:  error with initData() "  );
-    ATH_MSG_ERROR( "Failed to update CaloNoiseTool Cache at the begin of run."  );
+    log << MSG::ERROR << "handle:  error with initData() " << endreq;
+    log << MSG::ERROR << "Failed to update CaloNoiseTool Cache at the begin of run." << endreq;
     m_cacheValid=false;
   }
 }

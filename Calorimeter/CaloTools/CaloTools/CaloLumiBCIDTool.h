@@ -25,7 +25,7 @@ class CaloDetDescrElement;
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"

@@ -1137,7 +1137,6 @@ void runtests ()
 {
   ICaloCompactCellTool* tool = 0;
   std::vector<CaloCell*> cells = init (tool);
-  if (!tool) std::abort();
 
   seed = 10;
   test_one (400, ICaloCompactCellTool::VERSION_400, cells, tool, false, true);
@@ -1232,7 +1231,6 @@ void timetests (int nrep)
 {
   ICaloCompactCellTool* tool = 0;
   std::vector<CaloCell*> cells = init (tool);
-  if (!tool) std::abort();
 
   CaloCellContainer* cont = fill_cells (10000, cells, true, true);
 
