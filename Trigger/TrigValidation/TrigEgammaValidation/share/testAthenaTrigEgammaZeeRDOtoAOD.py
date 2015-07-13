@@ -17,6 +17,10 @@ rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=True
+rec.doJetMissingETTag=True
+rec.doMuonCombined=False
+rec.doTau=False
+rec.doBTagging=False
 #rec.doESD.set_Value_and_Lock(False) 
 rec.doESD=True
 doTAG=False
