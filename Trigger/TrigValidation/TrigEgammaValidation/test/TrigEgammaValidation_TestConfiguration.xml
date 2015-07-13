@@ -38,87 +38,6 @@
             <queue>short</queue>
          </athena>
 
-      <chain>
-         <chainName> TrigEgammaValidationChain_old </chainName>
-          <sequential>
-
-           <chainElement>
-            <jobTransform userJobId="RDOtoAOD_MC_transform_old">
-                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu Zee events old </doc>  
-                <jobTransformJobName> RDOtoAOD_MC_transform_old </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/valid1.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s1982_s1964_r6067_tid04771185_00/RDO.04771185._000014.pool.root.1"];acf.PoolAODOutput="AOD.old.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
-                </jobTransformCmd>
-              <group>HelloWorld</group>
-              <queue>long</queue>
-            </jobTransform>
-            <chainfileout>AOD.old.pool.root</chainfileout>
-           </chainElement>
-
-           <chainElement>
-            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_oldchain">
-                <doc> TrigEgammaAnalysisTools on Zee events old </doc>  
-                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_old </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c "FILE='AOD.old.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
-                </jobTransformCmd>
-                <group>HelloWorld</group>
-                <chaindataset_info>
-                  <jobTransformData />
-                    <chaindatasetName>AOD.old.pool.root</chaindatasetName>
-                      <dataset_info>
-                       <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
-                    </dataset_info>
-                  </chaindataset_info>
-                <queue>long</queue>
-            </jobTransform>
-           </chainElement>        
-
-
-         </sequential>
-       </chain>    
-
-      <chain>
-         <chainName> TrigEgammaValidationChain_Zee_nopileup </chainName>
-          <sequential>
-
-           <chainElement>
-            <jobTransform userJobId="RDOtoAOD_MC_transform_Zee_nopileup">
-                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu Zee events no pileup </doc>  
-                <jobTransformJobName> RDOtoAOD_MC_transform_Zee_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6588_tid05292458_00/RDO.05292458._000090.pool.root.1"];acf.PoolAODOutput="AOD.Zee.nopileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
-                </jobTransformCmd>
-              <group>HelloWorld</group>
-              <queue>long</queue>
-            </jobTransform>
-            <chainfileout>AOD.Zee.nopileup.pool.root</chainfileout>
-           </chainElement>
-
-           <chainElement>
-            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_Zee_nopileup_chain">
-                <doc> TrigEgammaAnalysisTools on Zee events with no pileup </doc>  
-                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_Zee_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c "FILE='AOD.Zee.nopileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
-                </jobTransformCmd>
-                <group>HelloWorld</group>
-                <chaindataset_info>
-                  <jobTransformData />
-                    <chaindatasetName>AOD.Zee.nopileup.pool.root</chaindatasetName>
-                      <dataset_info>
-                       <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
-                    </dataset_info>
-                  </chaindataset_info>
-                <queue>long</queue>
-            </jobTransform>
-           </chainElement>        
-
-
-         </sequential>
-       </chain>      
 
       <chain>
          <chainName> TrigEgammaValidationChain_Zee_50ns_pileup </chainName>
@@ -129,7 +48,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu Zee events 50ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_Zee_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6590_tid05292603_00/RDO.05292603._000042.pool.root.1"];acf.PoolAODOutput="AOD.Zee.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6590_tid05292603_00/RDO.05292603._000042.pool.root.1"];acf.PoolAODOutput="AOD.Zee.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -142,7 +61,7 @@
                 <doc> TrigEgammaAnalysisTools on Zee events with 50ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_Zee_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.Zee.50ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.Zee.50ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_Zee_50ns.root ; cp PhysVal.root PhysVal_Zee_50ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -150,14 +69,29 @@
                     <chaindatasetName>AOD.Zee.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_Zee_50ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
+            <chainfileout>PhysVal_Zee_50ns.root</chainfileout>
            </chainElement>        
-
-
          </sequential>
        </chain>    
 
@@ -170,7 +104,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu Zee events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_Zee_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6596_tid05293003_00/RDO.05293003._000176.pool.root.1"];acf.PoolAODOutput="AOD.Zee.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147406.PowhegPythia8_AZNLO_Zee.recon.RDO.e3099_s2578_r6596_tid05293003_00/RDO.05293003._000176.pool.root.1"];acf.PoolAODOutput="AOD.Zee.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -183,7 +117,7 @@
                 <doc> TrigEgammaAnalysisTools on Zee events with 25ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_Zee_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.Zee.25ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.Zee.25ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_Zee_25ns.root ; cp PhysVal.root PhysVal_Zee_25ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -191,57 +125,32 @@
                     <chaindatasetName>AOD.Zee.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_Zee_25ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_Zee_25ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>        
 
-      <chain>
-         <chainName> TrigEgammaValidationChain_ggH125_nopileup </chainName>
-          <sequential>
-
-           <chainElement>
-            <jobTransform userJobId="RDOtoAOD_MC_transform_ggH125_nopileup">
-                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu ggH125 events no pileup </doc>  
-                <jobTransformJobName> RDOtoAOD_MC_transform_ggH125_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6588_tid05292503_00/RDO.05292503._000114.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.nopileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
-                </jobTransformCmd>
-              <group>HelloWorld</group>
-              <queue>long</queue>
-            </jobTransform>
-            <chainfileout>AOD.ggH125.nopileup.pool.root</chainfileout>
-           </chainElement>
-
-           <chainElement>
-            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_ggH125_nopileup_chain">
-                <doc> TrigEgammaAnalysisTools on ggH125 events with no pileup </doc>  
-                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_ggH125_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c "FILE='AOD.ggH125.nopileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
-                </jobTransformCmd>
-                <group>HelloWorld</group>
-                <chaindataset_info>
-                  <jobTransformData />
-                    <chaindatasetName>AOD.ggH125.nopileup.pool.root</chaindatasetName>
-                      <dataset_info>
-                       <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
-                    </dataset_info>
-                  </chaindataset_info>
-                <queue>long</queue>
-            </jobTransform>
-           </chainElement>        
-
-
-         </sequential>
-       </chain>      
 
       <chain>
          <chainName> TrigEgammaValidationChain_ggH125_50ns_pileup </chainName>
@@ -252,7 +161,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu ggH125 events 50ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_ggH125_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6590_tid05292646_00/RDO.05292646._000195.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6590_tid05292646_00/RDO.05292646._000195.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -265,7 +174,7 @@
                 <doc> TrigEgammaAnalysisTools on ggH125 events with 50ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_ggH125_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.ggH125.50ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.ggH125.50ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_ggH125_50ns.root ; cp PhysVal.root PhysVal_ggH125_50ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -273,14 +182,29 @@
                     <chaindatasetName>AOD.ggH125.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_ggH125_50ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_ggH125_50ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>    
 
@@ -293,7 +217,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu ggH125 events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_ggH125_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6596_tid05293048_00/RDO.05293048._000184.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.RDO.e3458_s2578_r6596_tid05293048_00/RDO.05293048._000184.pool.root.1"];acf.PoolAODOutput="AOD.ggH125.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -306,7 +230,7 @@
                 <doc> TrigEgammaAnalysisTools on ggH125 events with 25ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_ggH125_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.ggH125.25ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.ggH125.25ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_ggH125_25ns.root ; cp PhysVal.root PhysVal_ggH125_25ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -314,58 +238,32 @@
                     <chaindatasetName>AOD.ggH125.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_ggH125_25ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_ggH125_25ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>        
 
-
-      <chain>
-         <chainName> TrigEgammaValidationChain_dijet_JZ7W_nopileup </chainName>
-          <sequential>
-
-           <chainElement>
-            <jobTransform userJobId="RDOtoAOD_MC_transform_dijet_JZ7W_nopileup">
-                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu dijet_JZ7W events no pileup </doc>  
-                <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ7W_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6588_tid05292463_00/RDO.05292463._000002.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.nopileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
-                </jobTransformCmd>
-              <group>HelloWorld</group>
-              <queue>long</queue>
-            </jobTransform>
-            <chainfileout>AOD.dijet.JZ7W.nopileup.pool.root</chainfileout>
-           </chainElement>
-
-           <chainElement>
-            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_dijet_JZ7W_nopileup_chain">
-                <doc> TrigEgammaAnalysisTools on dijet_JZ7W events with no pileup </doc>  
-                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_dijet_JZ7W_nopileup </jobTransformJobName>
-                <jobTransformCmd> 
-                athena.py -c "FILE='AOD.dijet.JZ7W.nopileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
-                </jobTransformCmd>
-                <group>HelloWorld</group>
-                <chaindataset_info>
-                  <jobTransformData />
-                    <chaindatasetName>AOD.dijet.JZ7W.nopileup.pool.root</chaindatasetName>
-                      <dataset_info>
-                       <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
-                    </dataset_info>
-                  </chaindataset_info>
-                <queue>long</queue>
-            </jobTransform>
-           </chainElement>        
-
-
-         </sequential>
-       </chain>  
 
 
       <chain>
@@ -377,7 +275,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu dijet_JZ7W events 50ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ7W_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6590_tid05292606_00/RDO.05292606._000004.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6590_tid05292606_00/RDO.05292606._000004.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -390,7 +288,7 @@
                 <doc> TrigEgammaAnalysisTools on dijet_JZ7W events with 50ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_dijet_JZ7W_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.dijet.JZ7W.50ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.dijet.JZ7W.50ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_JZ7W_50ns.root ; cp PhysVal.root PhysVal_JZ7W_50ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -398,14 +296,29 @@
                     <chaindatasetName>AOD.dijet.JZ7W.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_JZ7W_50ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_JZ7W_50ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>    
 
@@ -418,7 +331,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu dijet_JZ7W events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ7W_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6596_tid05293007_00/RDO.05293007._000001.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147917.Pythia8_AU2CT10_jetjet_JZ7W.recon.RDO.e3099_s2578_r6596_tid05293007_00/RDO.05293007._000001.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ7W.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -431,7 +344,7 @@
                 <doc> TrigEgammaAnalysisTools on dijet_JZ7W events with 25ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_dijet_JZ7W_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.dijet.JZ7W.25ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.dijet.JZ7W.25ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_JZ7W_25ns.root ; cp PhysVal.root PhysVal_JZ7W_25ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -439,14 +352,29 @@
                     <chaindatasetName>AOD.dijet.JZ7W.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_JZ7W_25ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_JZ7W_25ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>        
 
@@ -461,7 +389,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu dijet_JZ3W events 50ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ3W_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147913.Pythia8_AU2CT10_jetjet_JZ3W.recon.RDO.e3099_s2578_r6590_tid05292587_00/RDO.05292587._000161.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ3W.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147913.Pythia8_AU2CT10_jetjet_JZ3W.recon.RDO.e3099_s2578_r6590_tid05292587_00/RDO.05292587._000161.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ3W.50ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -474,7 +402,7 @@
                 <doc> TrigEgammaAnalysisTools on dijet_JZ3W events with 50ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_dijet_JZ3W_50ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.dijet.JZ3W.50ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.dijet.JZ3W.50ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_JZ3W_50ns.root ; cp PhysVal.root PhysVal_JZ3W_50ns.root
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -482,14 +410,29 @@
                     <chaindatasetName>AOD.dijet.JZ3W.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_JZ3W_50ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_JZ3W_50ns.root</chainfileout>
+           </chainElement>
          </sequential>
        </chain>    
 
@@ -502,7 +445,7 @@
                 <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu dijet_JZ3W events 25ns pileup </doc>  
                 <jobTransformJobName> RDOtoAOD_MC_transform_dijet_JZ3W_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(500);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147913.Pythia8_AU2CT10_jetjet_JZ3W.recon.RDO.e3099_s2578_r6596_tid05292983_00/RDO.05292983._000115.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ3W.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/valid3.147913.Pythia8_AU2CT10_jetjet_JZ3W.recon.RDO.e3099_s2578_r6596_tid05292983_00/RDO.05292983._000115.pool.root.1"];acf.PoolAODOutput="AOD.dijet.JZ3W.25ns.pileup.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
                 </jobTransformCmd>
               <group>HelloWorld</group>
               <queue>long</queue>
@@ -515,7 +458,7 @@
                 <doc> TrigEgammaAnalysisTools on dijet_JZ3W events with 25ns pileup </doc>  
                 <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_dijet_JZ3W_25ns_pileup </jobTransformJobName>
                 <jobTransformCmd> 
-                athena.py -c "FILE='AOD.dijet.JZ3W.25ns.pileup.pool.root';" TrigEgammaAnalysisTools/testNavZeeTPExample.py
+                athena.py -c "FILE='AOD.dijet.JZ3W.25ns.pileup.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_JZ3W_25ns.root ; cp PhysVal.root PhysVal_JZ3W_25ns.root 
                 </jobTransformCmd>
                 <group>HelloWorld</group>
                 <chaindataset_info>
@@ -523,18 +466,143 @@
                     <chaindatasetName>AOD.dijet.JZ3W.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/user/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_JZ3W_25ns.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
             </jobTransform>
-           </chainElement>        
-
-
+           <chainfileout>PhysVal_JZ3W_25ns.root</chainfileout>
+           </chainElement> 
          </sequential>
        </chain>     
 
+      <chain>
+         <chainName> TrigEgammaValidationChain_ppToJpsie3e3_mc15_13TeV </chainName>
+          <sequential>
 
+           <chainElement>
+            <jobTransform userJobId="RDOtoAOD_MC_transform_ppToJpsie3e3_mc15_13TeV">
+                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu pp to Jpsi e3e3 </doc>  
+                <jobTransformJobName> RDOtoAOD_MC_transform_ppToJpsie3e3 </jobTransformJobName>
+                <jobTransformCmd> 
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r6790_tid05594966_00/RDO.05594966._000001.pool.root.1"];acf.PoolAODOutput="AOD.ppToJpsie3e3.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                </jobTransformCmd>
+              <group>HelloWorld</group>
+              <queue>long</queue>
+            </jobTransform>
+            <chainfileout>AOD.ppToJpsie3e3.pool.root</chainfileout>
+           </chainElement>
+
+           <chainElement>
+            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_ppToJpsie3e3_mc15_13TeV_chain">
+                <doc> TrigEgammaAnalysisTools on pp to Jpsi e3e3 events </doc>  
+                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_ppToJpsie3e3 </jobTransformJobName>
+                <jobTransformCmd> 
+                athena.py -c "FILE='AOD.ppToJpsie3e3.pool.root';"  TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_Jpsi.root ; cp PhysVal.root PhysVal_Jpsi.root
+                </jobTransformCmd>
+                <group>HelloWorld</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>AOD.ppToJpsie3e3.pool.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVaL_Jpsi.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
+            </jobTransform>
+           <chainfileout>PhysVal_Jpsi.root</chainfileout>
+           </chainElement> 
+         </sequential>
+       </chain>     
+
+      <chain>
+         <chainName> TrigEgammaValidationChain_Ggammagamma_mc15_13TeV </chainName>
+          <sequential>
+
+           <chainElement>
+            <jobTransform userJobId="RDOtoAOD_MC_transform_Ggammagamma_mc15_13TeV">
+                <doc> RDOtoAOD_MC_transform Physics_pp_v5 menu Ggammagamma </doc>  
+                <jobTransformJobName> RDOtoAOD_MC_transform_Ggammagamma </jobTransformJobName>
+                <jobTransformCmd> 
+                athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf;acf.EvtMax.set_Value_and_Lock(1000);acf.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/egamma/sampleA/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r6790_tid05594966_00/RDO.05594966._000001.pool.root.1"];acf.PoolAODOutput="AOD.Ggammagamma.pool.root";menu="MC_pp_v5"' TrigEgammaValidation/testAthenaTrigEgammaZeeRDOtoAOD.py
+                </jobTransformCmd>
+              <group>HelloWorld</group>
+              <queue>long</queue>
+            </jobTransform>
+            <chainfileout>AOD.Ggammagamma.pool.root</chainfileout>
+           </chainElement>
+
+           <chainElement>
+            <jobTransform userJobId="AOD_TrigEgammaAnalysisTools_Ggammagamma_mc15_13TeV_chain">
+                <doc> TrigEgammaAnalysisTools on Ggammagamma events </doc>  
+                <jobTransformJobName> AOD_TrigEgammaAnalysisTools_transform_Ggammagamma </jobTransformJobName>
+                <jobTransformCmd> 
+                athena.py -c "FILE='AOD.Ggammagamma.pool.root';" TrigEgammaAnalysisTools_RTT.py ; python plotRTTValidation.py PhysVal.root PhysVal_Ggammagamma.root ; cp PhysVal.root PhysVal_Ggammagamma.root
+                </jobTransformCmd>
+                <group>HelloWorld</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>AOD.Ggammagamma.pool.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <chaindataset_info>
+                  <jobTransformData />
+                    <chaindatasetName>PhysVal_Ggammagamma.root</chaindatasetName>
+                      <dataset_info>
+                       <dc2/>
+                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                <queue>long</queue>
+                 <test>
+                   <modulename>RttLibraryTools</modulename>
+                   <testname>CheckFileRunner</testname>
+                   <arg>
+                      <argname>filePattern</argname>
+                      <argvalue>*.root</argvalue>
+                   </arg>
+                 </test>
+            </jobTransform>
+           <chainfileout>PhysVal_Ggammagamma.root</chainfileout>
+           </chainElement> 
+         </sequential>
+       </chain>     
 	 
       </jobList>
 
@@ -542,6 +610,13 @@
          <jobGroup name="AthenaHelloWorld" parent="Athena">
             <keepFilePattern info="POOL files">*.root</keepFilePattern>
             <keepFilePattern info="txt files">*.txt</keepFilePattern>
+	    <keepFilePattern info="pdf files">*.pdf</keepFilePattern>
+            <auxFilePattern>TrigEgammaAnalysisTools_RTT.py</auxFilePattern>
+            <auxFilePattern>plotRTTValidation.py</auxFilePattern>
+            <testToRemove>
+               <jobGroupName>RTT:Top</jobGroupName>
+               <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
          </jobGroup>
       </jobGroups>
    </rtt>
