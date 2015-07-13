@@ -12,16 +12,18 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMonProfiles::PixelMonProfiles(std::string name, std::string title)
+PixelMonProfiles::PixelMonProfiles(std::string name, std::string title )
 {
 
-  IBL3D = new TProfile2D((name+"_IBL3D").c_str(),("IBL 3D module " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = new TProfile2D((name+"_IBL2D").c_str(),("IBL planar module " + title + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  B0 = new TProfile2D((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = new TProfile2D((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = new TProfile2D((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = new TProfile2D((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C  = new TProfile2D((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  IBL3D = new TProfile2D((name+"_IBL3D").c_str(),(title + ", IBL 3D module " + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = new TProfile2D((name+"_IBL2D").c_str(),(title + ", IBL planar module " + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  IBL   = new TProfile2D((name+"_IBL").c_str(),  (title + ", IBL " + ";eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+  B0    = new TProfile2D((name+"_B0").c_str(),   (title + ", B0 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1    = new TProfile2D((name+"_B1").c_str(),   (title + ", B1 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2    = new TProfile2D((name+"_B2").c_str(),   (title + ", B2 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A     = new TProfile2D((name+"_A" ).c_str(),   (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  C     = new TProfile2D((name+"_C" ).c_str(),   (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+
 
   formatHist();
   
@@ -31,6 +33,7 @@ PixelMonProfiles::~PixelMonProfiles()
 {
    delete IBL3D;
    delete IBL2D;
+   delete IBL;
    delete B0;
    delete B1;
    delete B2;
@@ -48,21 +51,30 @@ void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index, b
    else if(bec==-2) C->Fill(ld,pm,Index);
    else if(bec==0)
    {
-     if(doIBL){ld--;}
+      if(doIBL){ld--;}
       int em  = pixID->eta_module(id);
       if(ld ==0) B0->Fill(em,pm,Index);
       else if(ld ==1) B1->Fill(em,pm,Index);
       else if(ld ==2) B2->Fill(em,pm,Index);
       else if(ld ==-1){
+	   int feid = 0;
+	   int emf = 0;
+      bool dep = false;
 	if(em<6 && em>-7){
-	  IBL2D->Fill(em,pm,Index);
+	   if(pixID->eta_index(id) >= 80) feid = 1;
+	   emf = 2 * em + feid; 
+	   IBL2D->Fill(em,pm,Index);
+      dep = true;
+	}else if(em<-6){
+	   emf = em - 6;
+	   IBL3D->Fill(em+10,pm,Index);
+   }else{
+	   emf = em + 6;
+	   IBL3D->Fill(em-2,pm,Index);
 	}
-	  else if(em<-6){
-	    IBL3D->Fill(em+10,pm,Index);
-	  }
-	  else{
-	    IBL3D->Fill(em-2,pm,Index);
-	  }
+   //std::cout << "!!! " << emf << " " << pm << " " << Index << std::endl;
+	IBL->Fill(emf, pm, Index);
+	if(dep) IBL->Fill(emf+1, pm, Index); /// Temporary!!!! should be removed later
       }
    }
 }
@@ -75,9 +87,20 @@ void PixelMonProfiles::formatHist()
   const int nmod = 13;
   const int nmodIBL2D = 12;
   const int nmodIBL3D = 8;
+  const int nmodIBL = 32;
   const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C","M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
   const char *modIBL2D[nmodIBL2D] = { "M3_C6", "M3_C5", "M2_C4", "M1_C3", "M1_C2", "M1_C1", "M1_A1", "M1_A2", "M2_A3", "M2_A4", "M3_A5", "M3_A6" } ;
   const char *modIBL3D[nmodIBL3D] = {"M4_C8_2","M4_C8_1","M4_C7_2","M4_C7_1","M4_A7_1","M4_A7_2","M4_A8_1","M4_A8_2"};
+
+   const char *modIBL[nmodIBL] = {"C8","","C7","",
+				  "C6","","C5","",
+				  "C4","","C3","",
+				  "C2","","C1","",
+				  "A1","","A2","",
+				  "A3","","A4","",
+				  "A5","","A6","",
+				  "A7","","A8",""};
+
   const int nstaveb = 14;
   const char *staveb[nstaveb] = {
     "S01", "S02", "S03", "S04", "S05", "S06","S07",
@@ -145,6 +168,16 @@ void PixelMonProfiles::formatHist()
       B1->GetXaxis()->SetBinLabel( i+1, mod[i] );
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
+
+   for (int i=0; i<nmodIBL; i++)
+     {
+       IBL->GetXaxis()->SetBinLabel( i+1, modIBL[i] );
+     }
+   for (int i=0; i<nstaveb; i++)
+     {
+       IBL->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+     }
+
    for (int i=0; i<nmodIBL2D; i++)
      {
        IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
@@ -178,6 +211,7 @@ void PixelMonProfiles::formatHist()
    //Make the text smaller
    IBL2D->GetYaxis()->SetLabelSize(0.03);
    IBL3D->GetYaxis()->SetLabelSize(0.03);
+   IBL->GetYaxis()->SetLabelSize(0.03);
    B0->GetYaxis()->SetLabelSize(0.03);
    B1->GetYaxis()->SetLabelSize(0.03);
    B2->GetYaxis()->SetLabelSize(0.03);
@@ -186,12 +220,14 @@ void PixelMonProfiles::formatHist()
    //Move the lable so you can read it
    IBL2D->GetYaxis()->SetTitleOffset(1.35);
    IBL3D->GetYaxis()->SetTitleOffset(1.35);
+   IBL->GetYaxis()->SetTitleOffset(1.35);
    B0->GetYaxis()->SetTitleOffset(1.35);
    B1->GetYaxis()->SetTitleOffset(1.35);
    B2->GetYaxis()->SetTitleOffset(1.35);
    A->GetYaxis()->SetTitleOffset(1.35);
    C->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
+   IBL->SetOption("colz");
    IBL2D->SetOption("colz");
    IBL3D->SetOption("colz");
    B0->SetOption("colz");
@@ -200,14 +236,16 @@ void PixelMonProfiles::formatHist()
    A->SetOption("colz");
    C->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
-   IBL2D->SetMinimum(0.);
-   IBL3D->SetMinimum(0.);
-   B0->SetMinimum(0.);
-   B1->SetMinimum(0.);
-   B2->SetMinimum(0.);
-   A->SetMinimum(0.);
-   C->SetMinimum(0.);
+   IBL->SetMinimum(0.);  IBL->SetMaximum(2.0);    
+   IBL2D->SetMinimum(0.);IBL2D->SetMaximum(2.0);
+   IBL3D->SetMinimum(0.);IBL3D->SetMaximum(2.0);
+   B0->SetMinimum(0.);   B0->SetMaximum(2.0);  
+   B1->SetMinimum(0.);   B1->SetMaximum(2.0);
+   B2->SetMinimum(0.);   B2->SetMaximum(2.0);
+   A->SetMinimum(0.);    A->SetMaximum(2.0);  
+   C->SetMinimum(0.);    C->SetMaximum(2.0);
    //Remvoe the stats box because it's in the way
+   IBL->SetStats(0.);
    IBL2D->SetStats(0.);
    IBL3D->SetStats(0.);
    B0->SetStats(0.);
@@ -222,6 +260,7 @@ StatusCode PixelMonProfiles::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
    sc = group.regHist(IBL2D); 
    sc = group.regHist(IBL3D); 
+   sc = group.regHist(IBL); 
    sc = group.regHist(B0);
    sc = group.regHist(B1);
    sc = group.regHist(B2);

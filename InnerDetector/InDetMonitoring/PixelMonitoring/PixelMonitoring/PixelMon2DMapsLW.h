@@ -24,6 +24,7 @@ class PixelMon2DMapsLW
    public:
   PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist);
       ~PixelMon2DMapsLW();
+      TH2F_LW* IBL;
       TH2F_LW* IBL2D;
       TH2F_LW* IBL3D;
       TH2F_LW* B0;
@@ -32,6 +33,7 @@ class PixelMon2DMapsLW
       TH2F_LW* A;
       TH2F_LW* C;
       void Fill(Identifier &id, const PixelID* pixID, bool doIBL, bool errorHist);
+      void FillNormalized(PixelMon2DMapsLW* old, int nevent);
       void Scale(double number);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist);
 private:
