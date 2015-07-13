@@ -3,6 +3,7 @@
 */
 
 #pragma once
+#ifndef XAOD_ANALYSIS
 #if !defined(TRIGSTEERINGEVENT_HLTEXTRADATA_H)  && !defined(XAOD_STANDALONE)
 #define TRIGSTEERINGEVENT_HLTEXTRADATA_H
 
@@ -14,7 +15,7 @@
  * $Id: $
  */
 
-#include "TrigSteeringEvent/StringSerializer.h"
+#include "TrigSerializeResult/StringSerializer.h"
 #include <string>
 #include <vector>
 
@@ -72,7 +73,7 @@ namespace HLT {
       return (appName.empty() && statusCode==0 && anonymous.empty());
     }
   
-    TrigSteeringEvent::StringSerializer m_stringSerializer;  
+    StringSerializer m_stringSerializer;  
   };
 
   void swap(HLTExtraData&, HLTExtraData&);
@@ -80,3 +81,5 @@ namespace HLT {
 } // namespace HLT
 
 #endif
+
+#endif //XAOD_ANALYSIS

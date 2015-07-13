@@ -17,7 +17,6 @@ int main(){return 0;}
 
 #include "TrigSteeringEvent/HLTExtraData.h"
 #include <vector>
-#include <iostream>
 
 using namespace std;
 using namespace HLT;
@@ -25,14 +24,7 @@ using namespace HLT;
 
 ostream& operator<< (ostream& os, const HLTExtraData& x)
 {
-  os << ">";
-  for (size_t i=0; i < x.appName.size(); i++) {
-    if (isprint (x.appName[i]))
-      os << x.appName[i];
-    else
-      os << "\\0x" << std::hex << (int)x.appName[i] << std::dec;
-  }
-  os << "< " << "[" << x.statusCode << "]";
+  os << ">" << x.appName << "< " << "[" << x.statusCode << "]";
   for (size_t i=0; i<x.anonymous.size(); ++i) os << " " << x.anonymous[i];
   return os;
 }

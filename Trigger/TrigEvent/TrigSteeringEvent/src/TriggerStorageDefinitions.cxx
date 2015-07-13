@@ -16,9 +16,6 @@
 
 #include "TrigNavigation/TypeRegistration.h"
 
-// Avoid checkreq warning.
-#include "xAODTrigger/TrigPassBitsContainer.h"
-
 
 REGISTER_PACKAGE_WITH_NAVI(TrigSteeringEvent)
 

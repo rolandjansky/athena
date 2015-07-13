@@ -10,27 +10,17 @@
 //
 //   $Id: TrigRoiDescriptor.h, v0.1   Fri 08 Jun 2013 23:52:09 CEST sutt $
 
-
-/// nope - should be used for standalone also, perhaps need to 
-///        protect the class def bits
-/// #ifndef XAOD_ANALYSIS
-/// #if !defined(TRIGSTEERINGEVENT_TRIGROIDESCRIPTOR_H)  && !defined(XAOD_STANDALONE)
-
-#ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTOR_H
+#ifndef XAOD_ANALYSIS
+#if !defined(TRIGSTEERINGEVENT_TRIGROIDESCRIPTOR_H)  && !defined(XAOD_STANDALONE)
 #define TRIGSTEERINGEVENT_TRIGROIDESCRIPTOR_H
-
 #include <stdint.h>
 #include <map>
 #include <ostream>
 
-// can we leave this in for standalone running?
-// #ifndef XAOD_STANDALONE
-// #include "CLIDSvc/CLASS_DEF.h"
-// #include "GaudiKernel/MsgStream.h"
 
-#include "xAODCore/CLASS_DEF.h"
+#include "CLIDSvc/CLASS_DEF.h"
+#include "GaudiKernel/MsgStream.h"
 
-// #endif
 
 #include "RoiDescriptor/RoiDescriptor.h"
 
@@ -38,17 +28,16 @@
 
 /**
  * @brief Describes the Region of Ineterest geometry
- *  It has basically 9 parameters
+ *  It has basically 8 parameters
  *
- * -# zed : z position of RoI
- * -# zedPlus  : the most forward zed position of the RoI at the beamline
- * -# zedMinus : the most backward zed position of the RoI at the beamline
- * -# phi : phi position of RoI
- * -# phiPlus  : phi at the most anticlockwise position of the RoI
- * -# phiMinus : phi at the most clockwise position of the RoI
- * -# eta : pseudo-rapidity of RoI at zed
- * -# etaPlus  : pseudo-rapidity at zedPlus
- * -# etaMinus : pseudo-rapidity at zedMinus
+ * -# zed0 : z position of RoI
+ * -# zed half-width
+ * -# phi0 : azimuthal angle (radians) of centre of RoI at origin in range from [-pi, pi]
+ * -# phi half-width
+ * -# eta0 : pseudo-rapidity of centre of RoI at origin
+ * -# eta half-width
+ * -# etaPlus  : pseudo-rapidity at zed0 + zed half-width
+ * -# etaMinus : pseudo-rapidity at zed0 - zed half-width
  * \warning An attempt to cnstruct the objects of this calss with phi0 out of allowed range reasults in throwing exception
  */
 
@@ -118,10 +107,6 @@ public:
 		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
 
 
-  TrigRoiDescriptor( const IRoiDescriptor& roi );
-
-  TrigRoiDescriptor& operator=( const IRoiDescriptor& roi );
-
   // Destructor
   ~TrigRoiDescriptor();
 
@@ -146,16 +131,17 @@ std::string str( const TrigRoiDescriptor& d );                           //<! pr
 std::ostream& operator<<( std::ostream& m, const TrigRoiDescriptor& d ); //<! printing helper (wraps above)
 
 
-// can this be left in or should it be removed?
-// #ifndef XAOD_STANDALONE
-CLASS_DEF(TrigRoiDescriptor, 6455, 1)
-// #endif
+// non-member, non-friend interface methods 
+bool roiContainsZed( const IRoiDescriptor& roi, double _z, double _r );
+bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
 
-/// why is this included here? can't packages which need both 
-/// include it explicitly? 
+
+
+CLASS_DEF(TrigRoiDescriptor, 6455, 1)
+
+
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #endif // TRIGROIDESCRIPTOR_H
 
-
-// #endif //XAOD_ANALYSIS
+#endif //XAOD_ANALYSIS

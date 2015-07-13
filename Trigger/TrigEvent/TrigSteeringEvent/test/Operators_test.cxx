@@ -34,40 +34,40 @@ int main(){return 0;}
 
 int testEqual_TrigRoiDescriptor() {
   MsgStream log(Athena::getMessageSvc(), "testEqual_TrigRoiDescriptor");  
-  log << MSG::INFO << "testing identical RoiDescriptors" << endmsg;
+  log << MSG::INFO << "testing identical RoiDescriptors" << endreq;
   /// why these seemingly random RoI values?
   TrigRoiDescriptor a(0x4545ade3, 34, 2,  3.12, 3.12, 3.12, 0.17, 0.17, 0.17, 2.12, 2.12, 2.12);
   TrigRoiDescriptor b(0x4545ade3, 34, 2,  3.12, 3.12, 3.12, 0.17, 0.17, 0.17, 2.12, 2.12, 2.12);
 
 
   if ( !(a == b) ) {
-    log << MSG::ERROR << "Identical RoIdescriptors found distinct! " << endmsg;
+    log << MSG::ERROR << "Identical RoIdescriptors found distinct! " << endreq;
     return -1;
   }
 
 
-  log << MSG::INFO << "testing distinct RoiDescriptors" << endmsg;
+  log << MSG::INFO << "testing distinct RoiDescriptors" << endreq;
   TrigRoiDescriptor c(0x4545ade2, 34, 2, 3.12, 0.17, 2.12);
   TrigRoiDescriptor d(0x4545ade3, 34, 2, 3.13, 0.17, 2.12);
   TrigRoiDescriptor e(0x4545ade3, 34, 2, 3.12, -0.17, 2.12);
   if ( a == c ) {
-    log << MSG::ERROR << "Different RoIdescriptors found same! " << endmsg;
-    log << MSG::ERROR << a << endmsg;
-    log << MSG::ERROR << c << endmsg;
+    log << MSG::ERROR << "Different RoIdescriptors found same! " << endreq;
+    log << MSG::ERROR << a << endreq;
+    log << MSG::ERROR << c << endreq;
     return -1;
   }
 
   if ( a == d ) {
-    log << MSG::ERROR << "Different RoIdescriptors found same! " << endmsg;
-    log << MSG::ERROR << a << endmsg;
-    log << MSG::ERROR << d << endmsg;
+    log << MSG::ERROR << "Different RoIdescriptors found same! " << endreq;
+    log << MSG::ERROR << a << endreq;
+    log << MSG::ERROR << d << endreq;
     return -1;
   }
 
   if ( a == e ) {
-    log << MSG::ERROR << "Different RoIdescriptors found same! " << endmsg;
-    log << MSG::ERROR << a << endmsg;
-    log << MSG::ERROR << e << endmsg;
+    log << MSG::ERROR << "Different RoIdescriptors found same! " << endreq;
+    log << MSG::ERROR << a << endreq;
+    log << MSG::ERROR << e << endreq;
     return -1;
   }
   return 0;
@@ -82,8 +82,8 @@ int testPrint_TrigRoiDescriptor() {
   TrigRoiDescriptor b(0x4545ade3, 34, 2, 3.12, 0.17, 2.12);
   
   MsgStream log(Athena::getMessageSvc(), "testPrint_TrigRoiDescriptor");
-  log << MSG::INFO << "MSG a " << a << endmsg;
-  log << MSG::INFO << "MSG b " << b << endmsg;
+  log << MSG::INFO << "MSG a " << a << endreq;
+  log << MSG::INFO << "MSG b " << b << endreq;
   return 0;
 }
 
@@ -113,19 +113,19 @@ int testEqual_TrigOperationalInfo() {
 
   MsgStream log(Athena::getMessageSvc(), "testEqual_TrigOperationalInfo");
   if ( !(a == b)  ) {
-    log << MSG::ERROR << "Identical TrigOperationalInfos found distinct! " << endmsg;
+    log << MSG::ERROR << "Identical TrigOperationalInfos found distinct! " << endreq;
     return -1; 
   }
   
 
   if ( (a == c)  ) {
-    log << MSG::ERROR << "Different TrigOperationalInfos found same! " << endmsg;
+    log << MSG::ERROR << "Different TrigOperationalInfos found same! " << endreq;
     return -1; 
   }
 
 
   if ( (a == d)  ) {
-    log << MSG::ERROR << "Different TrigOperationalInfos found same! " << endmsg;
+    log << MSG::ERROR << "Different TrigOperationalInfos found same! " << endreq;
     return -1; 
   }
 
@@ -142,8 +142,8 @@ int testPrint_TrigOperationalInfo() {
   b.set("vb", 9.67);
 
    MsgStream log(Athena::getMessageSvc(), "testPrint_TrigOperationalInfo");
-   log << MSG::INFO << "MSG a " << a << endmsg;
-   log << MSG::INFO << "MSG b " << b << endmsg;
+   log << MSG::INFO << "MSG a " << a << endreq;
+   log << MSG::INFO << "MSG b " << b << endreq;
   //  std::cout << "cout a" << a << std::endl;
   //  std::cout << "cout b" << b << std::endl;
   return 0; 
@@ -159,32 +159,32 @@ int main() {
 
 #if 0
   if ( testEqual_TrigRoiDescriptor() != 0 ) {
-    log << MSG::ERROR << "TrigRoiDescriptor == operator is wrong" << endmsg;
+    log << MSG::ERROR << "TrigRoiDescriptor == operator is wrong" << endreq;
     return -1;
   }
-  log << MSG::INFO << "TrigRoiDescriptor == operator is correct " << endmsg;    
+  log << MSG::INFO << "TrigRoiDescriptor == operator is correct " << endreq;    
   if ( testPrint_TrigRoiDescriptor() != 0 ) {
-    log << MSG::ERROR << "TrigRoiDescriptor << operators are wrong" << endmsg;
+    log << MSG::ERROR << "TrigRoiDescriptor << operators are wrong" << endreq;
     return -1;
     
   }
-  log << MSG::INFO << "TrigRoiDescriptor << operator is correct " << endmsg;    
+  log << MSG::INFO << "TrigRoiDescriptor << operator is correct " << endreq;    
 #endif
 
   // TrigOperationalInfo
 
   if ( testEqual_TrigOperationalInfo() != 0 ) {
-    log << MSG::ERROR << "TrigOperationalInfo == operator is wrong" << endmsg;
+    log << MSG::ERROR << "TrigOperationalInfo == operator is wrong" << endreq;
     return -1;
   }
 
-  log << MSG::INFO << "TrigOperationalInfo == operator is correct " << endmsg;    
+  log << MSG::INFO << "TrigOperationalInfo == operator is correct " << endreq;    
   if ( testPrint_TrigOperationalInfo() != 0 ) {
-    log << MSG::ERROR << "TrigOperationalInfo << operators are wrong" << endmsg;
+    log << MSG::ERROR << "TrigOperationalInfo << operators are wrong" << endreq;
     return -1;
     
   }
-  log << MSG::INFO << "TrigOperationalInfo << operator is correct " << endmsg;    
+  log << MSG::INFO << "TrigOperationalInfo << operator is correct " << endreq;    
 
 
 

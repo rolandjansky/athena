@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <iostream>
 #include <iomanip> 
 
 #include "TrigSteeringEvent/Enums.h"

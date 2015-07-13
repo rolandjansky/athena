@@ -17,9 +17,13 @@ PURPOSE:  temporary class to store the trigger decision
 // INCLUDE HEADER FILES:
 
 #include "TrigSteeringEvent/TriggerDecision.h"
-#include <iomanip>
-#include <iostream>
-#include <string>
+#ifdef HAVE_NEW_IOSTREAMS
+  #include <iomanip>
+  #include <iostream>
+#else
+  #include <iomanip.h>
+  #include <iostream.h>
+#endif
 
 //  END OF HEADER FILES INCLUDE
 
@@ -54,43 +58,43 @@ void TriggerDecision::print(bool print_all) const
     + m_TriggerMapEF.size() - m_ignore.size();
 
   log << MSG::INFO << "TriggerDecision: no of TriggerItems defined in this run "
-	    << NoMenuItem<< endmsg;
+	    << NoMenuItem<< endreq;
 
   // L1
-  log << MSG::INFO << "TriggerDecision: Level 1:" <<endmsg;
+  log << MSG::INFO << "TriggerDecision: Level 1:" <<endreq;
   std::map<std::string,bool>::const_iterator it1 = m_TriggerMapL1.begin();
   std::map<std::string,bool>::const_iterator it1E = m_TriggerMapL1.end();
   for (; it1!=it1E; ++it1) {
 
     if (print_all || it1->second) {
       log << MSG::INFO << "TriggerDecision: L1 Trigger Item " << it1->first
-	  << " " << ((it1->second) ? "is fulfilled" : " did not pass") <<endmsg;
+	  << " " << ((it1->second) ? "is fulfilled" : " did not pass") <<endreq;
     }
   }
   // L2
-  log << MSG::INFO << "TriggerDecision: Level 2:" <<endmsg;
+  log << MSG::INFO << "TriggerDecision: Level 2:" <<endreq;
   std::map<std::string,bool>::const_iterator it2 = m_TriggerMapL2.begin();
   std::map<std::string,bool>::const_iterator it2E = m_TriggerMapL2.end();
   for (; it2!=it2E; ++it2) {
 
     if (print_all || it2->second) {
       log << MSG::INFO << "TriggerDecision: L2 Trigger Item " << it2->first
-	  << " " << ((it2->second) ? "is fulfilled" : " did not pass") <<endmsg;
+	  << " " << ((it2->second) ? "is fulfilled" : " did not pass") <<endreq;
     }
   }
   // EF
-  log << MSG::INFO << "TriggerDecision: Event Filter:" <<endmsg;
+  log << MSG::INFO << "TriggerDecision: Event Filter:" <<endreq;
   std::map<std::string,bool>::const_iterator it = m_TriggerMapEF.begin();
   std::map<std::string,bool>::const_iterator itE = m_TriggerMapEF.end();
   for (; it!=itE; ++it) {
 
     if (print_all || it->second) {
       log << MSG::INFO << "TriggerDecision: EF Trigger Item " << it->first
-	  << " " << ((it->second) ? "is fulfilled" : " did not pass") <<endmsg;
+	  << " " << ((it->second) ? "is fulfilled" : " did not pass") <<endreq;
     }
   }
   if (!print_all && ! isTriggerPassed()) {
-    log << MSG::INFO << "TriggerDecision: No trigger item passed " << endmsg;
+    log << MSG::INFO << "TriggerDecision: No trigger item passed " << endreq;
   }
 }
 
@@ -128,7 +132,7 @@ bool TriggerDecision::isDefined(std::string TriggerItem, unsigned int level) con
       return true;
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
     }
   } else if (level == L2 && m_L2defined) {
     it = m_TriggerMapL2.find(TriggerItem);
@@ -136,7 +140,7 @@ bool TriggerDecision::isDefined(std::string TriggerItem, unsigned int level) con
       return true;
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
     }
   } else if (level == EF && m_EFdefined) {
     it = m_TriggerMapEF.find(TriggerItem);
@@ -144,11 +148,11 @@ bool TriggerDecision::isDefined(std::string TriggerItem, unsigned int level) con
       return true;
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
     }
   } else {
     log << MSG::VERBOSE << "Trigger level enum TrigLevel["
-	<< level << "] not defined!!!" << endmsg;
+	<< level << "] not defined!!!" << endreq;
   }
   return false;
 }
@@ -171,7 +175,7 @@ bool TriggerDecision::isTriggered(std::string TriggerItem) const {
     return ( isTriggered(TriggerItem,EF) );
   } else {
     log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	<< " not defined!!!" << endmsg;
+	<< " not defined!!!" << endreq;
   }
   return false;
 }
@@ -190,7 +194,7 @@ bool TriggerDecision::isTriggered(std::string TriggerItem, unsigned int level) c
       return (it->second);
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
       return false;
     }
   } else if (level == L2 && m_L2defined) {
@@ -199,7 +203,7 @@ bool TriggerDecision::isTriggered(std::string TriggerItem, unsigned int level) c
       return (it->second);
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
       return false;
     }
   } else if (level == EF && m_EFdefined) {
@@ -208,12 +212,12 @@ bool TriggerDecision::isTriggered(std::string TriggerItem, unsigned int level) c
       return (it->second);
     } else {
       log << MSG::VERBOSE << "Trigger Item " << TriggerItem
-	  << " not defined!!!" << endmsg;
+	  << " not defined!!!" << endreq;
       return false;
     }
   } else {
     log << MSG::VERBOSE << "Trigger level enum TrigLevel["
-	<< level << "] not defined!!!" << endmsg;
+	<< level << "] not defined!!!" << endreq;
     return false;
   }
   return false;
@@ -240,7 +244,7 @@ bool TriggerDecision::isTriggerPassed() const
   } else if (m_L1defined) {
     triggered = isPassedL1();
   } else {
-    log << MSG::VERBOSE << "No Trigger Levels defined!!!" << endmsg;
+    log << MSG::VERBOSE << "No Trigger Levels defined!!!" << endreq;
   }
 
   return (triggered);

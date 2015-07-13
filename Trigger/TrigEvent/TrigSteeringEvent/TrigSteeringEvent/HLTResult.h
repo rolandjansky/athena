@@ -196,7 +196,7 @@ namespace HLT {
     /**
      * @brief get error coordinates @see setErrorCoordinates( unsigned int chainCounter, unsigned int step )
      */
-    inline void      getErrorCoordinates( unsigned int & chainCounter, unsigned int & step ) const {
+    inline void      getErrorCoordinates( unsigned int & chainCounter, unsigned int & step ) {
       chainCounter = m_headerResult[IndErrorInChain]; step = m_headerResult[IndErrorInStep]; }
 
 
@@ -251,24 +251,20 @@ namespace HLT {
      * @brief gets ref to the internal array holding places for safe navigation truncations
      */
     std::vector<unsigned int>& getNavigationResultCuts() { return m_navigationResultCuts; }
-    const std::vector<unsigned int>& getNavigationResultCuts() const { return m_navigationResultCuts; }
      
     /**
      * @brief gets ref to the internal array holding places for safe navigation truncations
      */
     std::vector<unsigned int>& getNavigationResultCuts_DSonly() { return m_navigationResultCuts_DSonly; }
-    const std::vector<unsigned int>& getNavigationResultCuts_DSonly() const { return m_navigationResultCuts_DSonly; }
 
     /**
      * @brief gets ref to the internal vector of pairs of CLID and collection name
      */
     std::vector< std::pair <CLID, std::string> >& getNavigationResultIDName() { return m_id_name; }
-    const std::vector< std::pair <CLID, std::string> >& getNavigationResultIDName() const { return m_id_name; }
     /**
      * @brief gets ref to the internal vector of pairs of CLID and collection name
      */
     std::vector< std::pair <CLID, std::string> >& getNavigationResultIDName_DSonly() { return m_id_name_DSonly; }
-    const std::vector< std::pair <CLID, std::string> >& getNavigationResultIDName_DSonly() const { return m_id_name_DSonly; }
 
     /**
      * @brief gets ref to the internal array holding serialized navigation
@@ -296,7 +292,6 @@ namespace HLT {
      * @brief methods to get and set the Scouting Map saved into HLTResult
      */
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() {return  m_modID_id_name;}
-    const std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() const {return  m_modID_id_name;}
     
     void  setScoutingMap(std::map<unsigned int, std::set<std::pair<CLID, std::string> > > map_modid_clid_name) {m_modID_id_name = map_modid_clid_name;}  
 
@@ -304,9 +299,7 @@ namespace HLT {
      * @brief Return object representing the extra payload
      */
     HLTExtraData& getExtraData();
-    inline const HLTExtraData& getExtraData() const {
-      return const_cast<HLTResult*>(this)->getExtraData();
-    }
+    inline const HLTExtraData& getExtraData() const { return getExtraData(); }
 
     /*
      * @brief gets size of the rawResult (in words)
@@ -345,7 +338,6 @@ namespace HLT {
     
 
   private:
-    friend class HLTResultCnv_p1;
 
     /**
      * @brief fixed bits; general trigger and status information
@@ -366,6 +358,11 @@ namespace HLT {
 		    IndConfigPrescalesKey,   //!< configuration key for prescales		    
 		    IndNumOfFixedBit       //!< total number of fixed bits
     };
+
+    /**
+     * @brief Outdated: TODO remove when changing header
+     */
+    void clearHLTResult();
 
     using CutPairs = std::vector<std::pair<unsigned int, unsigned int>>;
     using CutPairVecs = std::pair<CutPairs, CutPairs>;
@@ -402,6 +399,7 @@ namespace HLT {
     bool serialize_body_regular(uint32_t* output,
                                 int& data_size,
                                 unsigned int umax_size,
+                                unsigned int estimated_size,
                                 bool truncating) const;
 
     /*
@@ -439,9 +437,15 @@ namespace HLT {
     void updateExtras();
 
     /**
-     * Estimate the size this HLTResult would ocuppy once serialized.
+     * @brief Outdated: TODO remove when changing header
      */
-    unsigned int estimateSize() const;
+    bool packForStorage(std::vector<uint32_t> &raw,
+                        const unsigned int rob_id = 0);
+
+    unsigned int estimateSize();
+
+    // TODO: remove when changing header
+    unsigned int estimateSize_DS(unsigned int mod_id);
 
     /**
      * Calculate the size of a DS result, given the size of its navigation

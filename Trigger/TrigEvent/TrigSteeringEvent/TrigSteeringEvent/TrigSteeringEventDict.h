@@ -19,7 +19,6 @@
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
 #include "TrigSteeringEvent/TrigPassFlagsCollection.h"
-#include "TrigSteeringEvent/StringSerializer.h"
 
 void dummy_function_for_TrigSteeringEvent_which_forces_dictionaries_generation ( 
    TrigRoiDescriptorCollection   troi,   std::vector<TrigRoiDescriptor*> troi_vec,   std::vector<const TrigRoiDescriptor*> troi_const_vec,

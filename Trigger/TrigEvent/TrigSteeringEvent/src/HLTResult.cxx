@@ -2,16 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
 #include <cassert>
 #include <algorithm>
-#include <numeric>
-#include <utility>
-#include <map>
-#include <set>
 using namespace HLT;
 
 ///
@@ -122,7 +119,8 @@ uint32_t HLTResult::error_bits() const {
   return bits;
 }
 
-unsigned int HLTResult::estimateSize() const {
+// TODO make const when modifying header
+unsigned int HLTResult::estimateSize() {
   return IndNumOfFixedBit
       + m_chainsResult.size() + 1      // size(one word) and payload
       + m_navigationResult.size() + 1
@@ -268,6 +266,13 @@ auto HLTResult::findDSCuts(unsigned int mod_id) const -> CutPairVecs
   return std::make_pair(cuts_dsonly, cuts_reg);
 }
 
+unsigned int HLTResult::estimateSize_DS(const unsigned int /*mod_id*/ )
+{
+  // TODO remove when modifying header
+  assert(false);
+  return 0;
+}
+
 /* static */
 unsigned int HLTResult::calc_total_size_DS(unsigned int ds_nav_size)
 {
@@ -336,7 +341,7 @@ bool HLTResult::serialize_navigation_DS(uint32_t* output,
     serialize_collections(output, data_size, m_navigationResult, dscuts.second);
 
     output[index_for_size_in_nav_preamble] = nav_size; /* the total size needs
-      to be replaced in the navigation preamble as it was originally
+      to be replaced in the navigation preamble as the it was originally
       calculated with all data scouting collections lumped together in the
       navigation. This needs to be corrected once headers can be changed and
       serialization can be requested for each module ID separately.
@@ -378,13 +383,14 @@ inline
 bool HLTResult::serialize_body_regular(uint32_t* output,
                                        int& data_size,
                                        unsigned int umax_size,
+                                       unsigned int estimated_size,
                                        bool truncating) const
 {
   return serialize_indivisible(output, data_size, m_chainsResult, umax_size,
-                               truncating) &&
+                               estimated_size, truncating) &&
          serialize_navigation_reg(output, data_size, umax_size, truncating) &&
          serialize_indivisible(output, data_size, m_extras, umax_size,
-                               truncating);
+                               estimated_size, truncating);
 }
 
 bool HLTResult::serialize_body_DS(uint32_t* output,
@@ -419,7 +425,7 @@ bool HLTResult::serialize_regular(uint32_t*& output,
   return serialize_bootstrap(output, data_size, truncating,
                              max_size, estim_size) &&
          serialize_body_regular(output, data_size,
-                                max_size, truncating);
+                                max_size, estim_size, truncating);
 }
 
 bool HLTResult::serialize_DS(uint32_t*& output,
@@ -490,6 +496,21 @@ bool HLTResult::deserialize(  uint32_t* source, const int data_size ) {
   std::vector<uint32_t> rawResult(&source[0], &source[data_size]);
   return unpackFromStorable(rawResult);
 }
+
+void HLTResult::clearHLTResult() {
+  /// TODO remove when changing header
+  assert(false); // should not be here
+}
+
+bool HLTResult::packForStorage(std::vector<uint32_t>& /*raw*/,
+                               const unsigned int /*mod_id*/)
+{
+  // TODO remove when changing header
+  assert(false); // should not be here
+  return false; // make compiler happy
+}
+
+
 
 bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
 {
@@ -683,3 +704,4 @@ void HLT::swap(HLTResult& lhs, HLTResult& rhs)
   swap(lhs.m_navigationResultCuts_DSonly, rhs.m_navigationResultCuts_DSonly);
 }
 
+#endif //XAOD_ANALYSIS
