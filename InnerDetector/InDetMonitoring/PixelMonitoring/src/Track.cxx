@@ -283,21 +283,21 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
 	    if(m_tsos_hitmap)m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL);
 	    if(m_tsos_hiteff_vs_lumi){
-	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,1.,surfaceID,m_pixelid,m_doIBL);
+	      m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
 	    }
 	  }
 
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
 	    if(m_tsos_holemap)m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL);
 	    if(m_tsos_hiteff_vs_lumi){
-	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
+	      m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
 	    } 
 	  }
 	    
 	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
 	    if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL);
 	    if(m_tsos_hiteff_vs_lumi){
-	      m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
+	      m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
 	    }
 	  }
 	
@@ -428,14 +428,14 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	   m_track_chi2->Fill(-1);
 	   if(m_track_chi2_LB) m_track_chi2_LB->Fill(-1);
 	 }	 
-	 if(m_tracks_per_lumi) m_tracks_per_lumi->Fill(m_lumiBlockNum);
+	 if(m_tracks_per_lumi) m_tracks_per_lumi->Fill(m_manager->lumiBlockNumber());
 	 nTracks++;
 	 }
       }
       if(m_doHoleSearch && !m_doOnline && nholes>0){delete (track);}
       }
 
-   if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_lumiBlockNum,nTracks);
+   if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks);
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
 
@@ -452,9 +452,9 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   }
  
   if(m_trackRate_per_lumi) {
-    double ntrkLB = m_tracks_per_lumi->GetBinContent(m_lumiBlockNum+1); //value m_lumiBlockNum corresponds to bin nbr (m_lumiBlockNum+1)
+    double ntrkLB = m_tracks_per_lumi->GetBinContent(m_manager->lumiBlockNumber()+1); //value LB number corresponds to bin nbr (m_lumiBlockNum+1)
     double trackRateLB = (double) ntrkLB/lengthLB;
-    m_trackRate_per_lumi->Fill(m_lumiBlockNum,trackRateLB);
+    m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
   }
   return StatusCode::SUCCESS;
   

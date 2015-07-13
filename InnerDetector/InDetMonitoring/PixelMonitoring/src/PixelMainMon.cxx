@@ -117,25 +117,18 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_isNewRun = false;
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
+   m_doRefresh = false;
+   isFirstBook = false;
+   m_nRefresh = 0;
 
    //initalize all the histograms to 0 to start
    m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
    m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
-   m_hits_per_lumi_ECA = 0;
-   m_hits_per_lumi_ECC = 0;
-   m_hits_per_lumi_IBL = 0;
-   m_hits_per_lumi_B0 = 0;
-   m_hits_per_lumi_B1 = 0;
-   m_hits_per_lumi_B2 = 0;         
-   m_hit_ToT_ECA = 0;
-   m_hit_ToT_ECC = 0;
-   m_hit_ToT_IBL2D = 0;
-   m_hit_ToT_IBL3D = 0;
-   m_hit_ToT_B0 = 0;
-   m_hit_ToT_B1 = 0;
-   m_hit_ToT_B2 = 0;
+
+   m_avgocc_per_lumi = 0;
+
    m_ToT_vs_eta_IBL = 0;
    m_ToT_vs_eta_B0 = 0;
    m_ToT_vs_eta_B1 = 0;
@@ -151,49 +144,20 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_nlowToT_vs_clussize_ECC = 0;
    m_nlowToT_vs_clussize_ECA = 0;
    m_Lvl1A = 0;
-   m_Lvl1A_B0 = 0;
-   m_Lvl1A_B1 = 0;
-   m_Lvl1A_B2 = 0;
-   m_Lvl1A_IBL = 0;
-   m_Lvl1A_ECA = 0;
-   m_Lvl1A_ECC = 0;
    m_Lvl1ID_PIX = 0;                
    m_Lvl1ID_IBL = 0;                
    m_Lvl1ID_diff_mod_ATLAS_per_LB = 0;
    m_Lvl1ID_absdiff_mod_ATLAS_per_LB = 0;
-   m_Lvl1ID_diff_mod_ATLAS_IBL = 0;
-   m_Lvl1ID_diff_mod_ATLAS_B0 = 0;
-   m_Lvl1ID_diff_mod_ATLAS_B1 = 0;
-   m_Lvl1ID_diff_mod_ATLAS_B2 = 0;
-   m_Lvl1ID_diff_mod_ATLAS_ECC = 0;
-   m_Lvl1ID_diff_mod_ATLAS_ECA = 0;
    m_BCID = 0;                  
    m_Atlas_BCID = 0;            
    m_Atlas_BCID_hits = 0;            
    m_BCID_Profile = 0;          
    m_diff_ROD_BCID = 0;         
-   m_diff_ROD_vs_Module_BCID_IBL = 0;
-   m_diff_ROD_vs_Module_BCID_B0 = 0;
-   m_diff_ROD_vs_Module_BCID_B1 = 0;
-   m_diff_ROD_vs_Module_BCID_B2 = 0;
-   m_diff_ROD_vs_Module_BCID_ECC = 0;
-   m_diff_ROD_vs_Module_BCID_ECA = 0;
    m_occupancy = 0;
    m_occupancyDBM = 0;
    m_average_occupancy = 0;
+   m_average_pixocc = 0;
    m_FE_chip_hit_summary = 0;
-   m_ecA_occupancy_summary_low = 0;    
-   m_ecC_occupancy_summary_low = 0;    
-   m_bar_layI_occupancy_summary_low = 0;
-   m_bar_lay0_occupancy_summary_low = 0;
-   m_bar_lay1_occupancy_summary_low = 0;
-   m_bar_lay2_occupancy_summary_low = 0;
-   m_ecA_occupancy_summary = 0;    
-   m_ecC_occupancy_summary = 0;
-   m_bar_layI_occupancy_summary = 0;
-   m_bar_lay0_occupancy_summary = 0;
-   m_bar_lay1_occupancy_summary = 0;
-   m_bar_lay2_occupancy_summary = 0;
    m_occupancy_time1 = 0;
    m_occupancy_time2 = 0;
    m_occupancy_time3 = 0;
@@ -256,21 +220,9 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tsos_outliermap = 0;
    m_clusters_per_lumi = 0;
    m_clusters_per_lumi_PIX = 0;
-   m_clusters_per_lumi_ECA = 0;
-   m_clusters_per_lumi_ECC = 0;
-   m_clusters_per_lumi_IBL = 0;
-   m_clusters_per_lumi_B0 = 0;
-   m_clusters_per_lumi_B1 = 0;
-   m_clusters_per_lumi_B2 = 0;
    m_largeclusters_per_lumi = 0;
    m_verylargeclusters_per_lumi = 0;
    m_totalclusters_per_lumi = 0;
-   m_totalclusters_per_lumi_ECA = 0;
-   m_totalclusters_per_lumi_ECC = 0;
-   m_totalclusters_per_lumi_IBL = 0;
-   m_totalclusters_per_lumi_B0 = 0;
-   m_totalclusters_per_lumi_B1 = 0;
-   m_totalclusters_per_lumi_B2 = 0;
    m_highNclusters_per_lumi = 0;
    m_cluster_ToT_PIX = 0;
    m_cluster_ToT_IBL = 0;
@@ -335,24 +287,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_groupsize = 0;
    m_cluster_col_width = 0;
    m_cluster_row_width = 0;
-   m_cluster_groupsize_IBL = 0;
-   m_cluster_col_width_IBL = 0;
-   m_cluster_row_width_IBL = 0;
-   m_cluster_groupsize_B0 = 0;
-   m_cluster_col_width_B0 = 0;
-   m_cluster_row_width_B0 = 0;
-   m_cluster_groupsize_B1 = 0;
-   m_cluster_col_width_B1 = 0;
-   m_cluster_row_width_B1 = 0;
-   m_cluster_groupsize_B2 = 0;
-   m_cluster_col_width_B2 = 0;
-   m_cluster_row_width_B2 = 0;
-   m_cluster_groupsize_ECC = 0;
-   m_cluster_col_width_ECC = 0;
-   m_cluster_row_width_ECC = 0;
-   m_cluster_groupsize_ECA = 0;
-   m_cluster_col_width_ECA = 0;
-   m_cluster_row_width_ECA = 0;
    m_cluster_LVL1A = 0;
    m_cluster_LVL1A_PIX = 0;
    m_clus_LVL1A_sizenot1 = 0; 
@@ -374,12 +308,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clusToT_vs_eta_B0 = 0;
    m_clusToT_vs_eta_B1 = 0;
    m_clusToT_vs_eta_B2 = 0;
-   m_clusQ_vs_eta_IBL = 0;
-   m_clusQ_vs_eta_B0 = 0;
-   m_clusQ_vs_eta_B1 = 0;
-   m_clusQ_vs_eta_B2 = 0;
-   m_clusQ_vs_eta_ECC = 0;
-   m_clusQ_vs_eta_ECA = 0;
    m_ToT_vs_clussize_IBL = 0;
    m_ToT_vs_clussize_B0 = 0;
    m_ToT_vs_clussize_B1 = 0;
@@ -390,12 +318,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Q_vs_clussize_B2 = 0;
    m_Q_vs_clussize_ECC = 0;
    m_Q_vs_clussize_ECA = 0;
-   m_clussize_vs_eta_IBL = 0;
-   m_clussize_vs_eta_B0 = 0;
-   m_clussize_vs_eta_B1 = 0;
-   m_clussize_vs_eta_B2 = 0;
-   m_clussize_vs_eta_ECC = 0;
-   m_clussize_vs_eta_ECA = 0;
    m_cluster_occupancy = 0;
    m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
@@ -450,52 +372,19 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_disabledModules_per_lumi_B2 = 0;
    m_error1 = 0;            
    m_errorTypes = 0;        
-   m_errors_per_lumi_PIX = 0;
-   m_errors_per_lumi_ECA = 0;
-   m_errors_per_lumi_ECC = 0;
-   m_errors_per_lumi_IBL = 0;
-   m_errors_per_lumi_B0 = 0;
-   m_errors_per_lumi_B1 = 0;
-   m_errors_per_lumi_B2 = 0;   
-   m_SyncErrors_per_lumi_PIX = 0; 
-   m_SyncErrors_per_lumi_ECA = 0; 
-   m_SyncErrors_per_lumi_ECC = 0; 
-   m_SyncErrors_per_lumi_B0 = 0; 
-   m_SyncErrors_per_lumi_B1 = 0; 
-   m_SyncErrors_per_lumi_B2 = 0; 
-   m_OpticalErrors_per_lumi_PIX = 0; 
-   m_OpticalErrors_per_lumi_ECA = 0; 
-   m_OpticalErrors_per_lumi_ECC = 0; 
-   m_OpticalErrors_per_lumi_B0 = 0; 
-   m_OpticalErrors_per_lumi_B1 = 0; 
-   m_OpticalErrors_per_lumi_B2 = 0; 
-   m_SEU_Errors_per_lumi_PIX = 0; 
-   m_SEU_Errors_per_lumi_ECA = 0; 
-   m_SEU_Errors_per_lumi_ECC = 0; 
-   m_SEU_Errors_per_lumi_B0 = 0; 
-   m_SEU_Errors_per_lumi_B1 = 0; 
-   m_SEU_Errors_per_lumi_B2 = 0; 
-   m_TruncationErrors_per_lumi_PIX = 0; 
-   m_TruncationErrors_per_lumi_ECA = 0; 
-   m_TruncationErrors_per_lumi_ECC = 0; 
-   m_TruncationErrors_per_lumi_B0 = 0; 
-   m_TruncationErrors_per_lumi_B1 = 0; 
-   m_TruncationErrors_per_lumi_B2 = 0; 
-   m_TimeoutErrors_per_lumi_PIX = 0; 
-   m_TimeoutErrors_per_lumi_ECA = 0; 
-   m_TimeoutErrors_per_lumi_ECC = 0; 
-   m_TimeoutErrors_per_lumi_B0 = 0; 
-   m_TimeoutErrors_per_lumi_B1 = 0; 
-   m_TimeoutErrors_per_lumi_B2 = 0; 
+   m_otherROD_per_lumi_IBL = 0; 
+   m_chip_per_lumi_IBL = 0; 
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   m_IBLModErrors = 0; 
-   m_IBLRODErrors = 0; 
+   //m_IBLModErrors = 0; 
+   //m_IBLSyncErrors = 0; 
+   //m_IBLotherRODErrors = 0; 
    m_OpticalErrors = 0;
    m_SEU_Errors = 0;
    m_TimeoutErrors = 0;
+   m_SyncErrorsIBL = 0; 
    m_SyncErrors = 0; 
    m_TruncationErrors = 0;
    m_SyncErrors_mod = 0;
@@ -518,110 +407,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_seu_hamming = 0;
    m_timeout = 0;
    m_FEwarning = 0;
-   m_sync_mod_BCID1_per_lumi_PIX = 0;
-   m_sync_mod_BCID1_per_lumi_ECA = 0;
-   m_sync_mod_BCID1_per_lumi_ECC = 0;
-   m_sync_mod_BCID1_per_lumi_B0 = 0;
-   m_sync_mod_BCID1_per_lumi_B1 = 0;
-   m_sync_mod_BCID1_per_lumi_B2 = 0;
-   m_sync_mod_BCID2_per_lumi_PIX = 0;
-   m_sync_mod_BCID2_per_lumi_ECA = 0;
-   m_sync_mod_BCID2_per_lumi_ECC = 0;
-   m_sync_mod_BCID2_per_lumi_B0 = 0;
-   m_sync_mod_BCID2_per_lumi_B1 = 0;
-   m_sync_mod_BCID2_per_lumi_B2 = 0;
-   m_sync_mod_LVL1ID_per_lumi_PIX = 0;
-   m_sync_mod_LVL1ID_per_lumi_ECA = 0;
-   m_sync_mod_LVL1ID_per_lumi_ECC = 0;
-   m_sync_mod_LVL1ID_per_lumi_B0 = 0;
-   m_sync_mod_LVL1ID_per_lumi_B1 = 0;
-   m_sync_mod_LVL1ID_per_lumi_B2 = 0;
-   m_sync_rod_BCID_per_lumi_PIX = 0;
-   m_sync_rod_BCID_per_lumi_ECA = 0;
-   m_sync_rod_BCID_per_lumi_ECC = 0;
-   m_sync_rod_BCID_per_lumi_B0 = 0;
-   m_sync_rod_BCID_per_lumi_B1 = 0;
-   m_sync_rod_BCID_per_lumi_B2 = 0;
-   m_sync_rod_LVL1ID_per_lumi_PIX = 0;
-   m_sync_rod_LVL1ID_per_lumi_ECA = 0;
-   m_sync_rod_LVL1ID_per_lumi_ECC = 0;
-   m_sync_rod_LVL1ID_per_lumi_B0 = 0;
-   m_sync_rod_LVL1ID_per_lumi_B1 = 0;
-   m_sync_rod_LVL1ID_per_lumi_B2 = 0;
-   m_trunc_mod_EOC_per_lumi_PIX = 0;
-   m_trunc_mod_EOC_per_lumi_ECA = 0;
-   m_trunc_mod_EOC_per_lumi_ECC = 0;
-   m_trunc_mod_EOC_per_lumi_B0 = 0;
-   m_trunc_mod_EOC_per_lumi_B1 = 0;
-   m_trunc_mod_EOC_per_lumi_B2 = 0;
-   m_trunc_mod_hitOF_per_lumi_PIX = 0;
-   m_trunc_mod_hitOF_per_lumi_ECA = 0;
-   m_trunc_mod_hitOF_per_lumi_ECC = 0;
-   m_trunc_mod_hitOF_per_lumi_B0 = 0;
-   m_trunc_mod_hitOF_per_lumi_B1 = 0;
-   m_trunc_mod_hitOF_per_lumi_B2 = 0;
-   m_trunc_mod_EoEOF_per_lumi_PIX = 0;
-   m_trunc_mod_EoEOF_per_lumi_ECA = 0;
-   m_trunc_mod_EoEOF_per_lumi_ECC = 0;
-   m_trunc_mod_EoEOF_per_lumi_B0 = 0;
-   m_trunc_mod_EoEOF_per_lumi_B1 = 0;
-   m_trunc_mod_EoEOF_per_lumi_B2 = 0;
-   m_trunc_rod_HTlim_per_lumi_PIX = 0;
-   m_trunc_rod_HTlim_per_lumi_ECA = 0;
-   m_trunc_rod_HTlim_per_lumi_ECC = 0;
-   m_trunc_rod_HTlim_per_lumi_B0 = 0;
-   m_trunc_rod_HTlim_per_lumi_B1 = 0;
-   m_trunc_rod_HTlim_per_lumi_B2 = 0;
-   m_trunc_rod_FIFOOF_per_lumi_PIX = 0;
-   m_trunc_rod_FIFOOF_per_lumi_ECA = 0;
-   m_trunc_rod_FIFOOF_per_lumi_ECC = 0;
-   m_trunc_rod_FIFOOF_per_lumi_B0 = 0;
-   m_trunc_rod_FIFOOF_per_lumi_B1 = 0;
-   m_trunc_rod_FIFOOF_per_lumi_B2 = 0;
-   m_optical_error_per_lumi_PIX = 0;
-   m_optical_error_per_lumi_ECA = 0;
-   m_optical_error_per_lumi_ECC = 0;
-   m_optical_error_per_lumi_B0 = 0;
-   m_optical_error_per_lumi_B1 = 0;
-   m_optical_error_per_lumi_B2 = 0;
-   m_seu_hit_parity_per_lumi_PIX = 0;
-   m_seu_hit_parity_per_lumi_ECA = 0;
-   m_seu_hit_parity_per_lumi_ECC = 0;
-   m_seu_hit_parity_per_lumi_B0 = 0;
-   m_seu_hit_parity_per_lumi_B1 = 0;
-   m_seu_hit_parity_per_lumi_B2 = 0;
-   m_seu_reg_parity_per_lumi_PIX = 0;
-   m_seu_reg_parity_per_lumi_ECA = 0;
-   m_seu_reg_parity_per_lumi_ECC = 0;
-   m_seu_reg_parity_per_lumi_B0 = 0;
-   m_seu_reg_parity_per_lumi_B1 = 0;
-   m_seu_reg_parity_per_lumi_B2 = 0;
-   m_seu_hamming_per_lumi_PIX = 0;
-   m_seu_hamming_per_lumi_ECA = 0;
-   m_seu_hamming_per_lumi_ECC = 0;
-   m_seu_hamming_per_lumi_B0 = 0;
-   m_seu_hamming_per_lumi_B1 = 0;
-   m_seu_hamming_per_lumi_B2 = 0;
-   m_timeout_per_lumi_PIX = 0;
-   m_timeout_per_lumi_ECA = 0;
-   m_timeout_per_lumi_ECC = 0;
-   m_timeout_per_lumi_B0 = 0;
-   m_timeout_per_lumi_B1 = 0;
-   m_timeout_per_lumi_B2 = 0;
-   m_FEwarning_per_lumi_PIX = 0;
-   m_FEwarning_per_lumi_ECA = 0;
-   m_FEwarning_per_lumi_ECC = 0;
-   m_FEwarning_per_lumi_B0 = 0;
-   m_FEwarning_per_lumi_B1 = 0;
-   m_FEwarning_per_lumi_B2 = 0;
-   m_bad_mod_errors_PIX = 0;
-   m_bad_mod_errors_ECA = 0;
-   m_bad_mod_errors_ECC = 0;
    m_mod_errors_IBL = 0;
-   m_ROD_errors_IBL = 0;
-   m_bad_mod_errors_B0 = 0;
-   m_bad_mod_errors_B1 = 0;
-   m_bad_mod_errors_B2 = 0;
    m_sync_mod_BCID1_per_LB = 0;
    m_sync_mod_BCID1_int_LB = 0;
    m_sync_mod_BCID2_per_LB = 0;
@@ -676,10 +462,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_ToT_LB = 0;      
    m_num_clusters_LB = 0;                                
    m_num_clusters_low_LB = 0;  
+   m_hitmap_mon = 0;
 
    m_pixelid =0;
    pixelmgr =0;
    m_event =0;
+   m_event2 =0;
    m_startTime =0; 
    m_majorityDisabled =0;
    m_lumiBlockNum =0;
@@ -691,6 +479,47 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Pixel_clcontainer =0;
    m_Pixel_spcontainer =0;
    m_tracks =0;
+
+   m_nGood_ECA=0;
+   m_nGood_ECC=0;
+   m_nGood_IBL2D=0;
+   m_nGood_IBL3D=0;
+   m_nGood_B0=0;
+   m_nGood_B1=0;
+   m_nGood_B2=0;
+
+   for( int i=0; i<PixLayer::COUNT; i++){
+      m_ToT_etaphi_mod[i] = 0;
+      m_occupancy_summary_mod[i] = 0;
+      m_occupancy_summary_low_mod[i] = 0;
+      m_diff_ROD_vs_Module_BCID_mod[i] = 0;
+      m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
+      m_Lvl1A_mod[i] = 0;
+      m_hit_ToT_tmp_mod[i] = 0;
+      m_hit_ToT_Mon_mod[i] = 0;
+      m_avgocc_per_lumi_mod[i] = 0;
+      m_hits_per_lumi_mod[i] = 0;
+      m_clusters_per_lumi_mod[i] = 0;
+      m_totalclusters_per_lumi_mod[i] = 0;
+      m_cluster_col_width_mod[i] = 0;
+      m_cluster_row_width_mod[i] = 0;
+      m_cluster_groupsize_mod[i] = 0;
+      m_clusQ_vs_eta_mod[i] = 0;
+      m_clussize_vs_eta_mod[i] = 0;
+      m_errors_per_lumi_mod[i] = 0;
+      m_SyncErrors_per_lumi_mod[i] = 0;
+      m_OpticalErrors_per_lumi_mod[i] = 0;
+      m_SEU_Errors_per_lumi_mod[i] = 0;
+      m_TruncationErrors_per_lumi_mod[i] = 0;
+      m_TimeoutErrors_per_lumi_mod[i] = 0;
+      m_bad_mod_errors_mod[i] = 0;
+      m_errors_etaid_mod[i] = 0;
+      m_errors_etaid_per_evt_mod[i] = 0;
+      m_hit_ToT_LB_mod[i] = 0;
+      for( int j=0; j<ErrorCategory::COUNT; j++){
+         m_ErrorFraction_per_evt[j][i] = 0;
+      }
+   }
 }
    
 PixelMainMon::~PixelMainMon()
@@ -711,7 +540,8 @@ StatusCode PixelMainMon::initialize()
       return StatusCode::FAILURE;
    }
 
-   // Get the dictionary manager from the detector store                                                                                                          
+   // Get the dictionary manager from the detector store
+
    sc = detStore()->retrieve(m_idHelper, "AtlasID");
    if (sc.isFailure()) {
      msg(MSG::ERROR) << "Could not get ID helper !" << endreq;
@@ -740,33 +570,33 @@ StatusCode PixelMainMon::initialize()
    }
 
    if (m_IBLParameterSvc.retrieve().isFailure()) {
-     if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
-     return StatusCode::FAILURE;
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+      return StatusCode::FAILURE;
    } else {
-     if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endreq;
    }
 
    m_doIBL = m_IBLParameterSvc->containsIBL();
    msg(MSG::INFO)<<"doIBL set to "<<m_doIBL<<endreq;
 
    if(m_doIBL && !m_IBLParameterSvc->contains3D()){
-     msg(MSG::WARNING)<<"Assuming hybrid 2D/3D IBL module composition, but geometry is all-planar"<<endreq;
+      msg(MSG::WARNING)<<"Assuming hybrid 2D/3D IBL module composition, but geometry is all-planar"<<endreq;
    }
 
    if(m_doHoleSearch){
-     if ( m_holeSearchTool.retrieve().isFailure() ) {
-       msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
-       return StatusCode::FAILURE;
-     } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
-     }
+      if ( m_holeSearchTool.retrieve().isFailure() ) {
+         msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+         return StatusCode::FAILURE;
+      }else{
+         msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+      }
    }
 
    if ( m_lumiTool.retrieve().isFailure() ) {
-     msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endreq;
-     return StatusCode::FAILURE;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endreq;
+      return StatusCode::FAILURE;
    } else {
-     msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endreq;
    }
 
    //if ( m_trkSummaryTool.retrieve().isFailure() ) {
@@ -787,21 +617,26 @@ StatusCode PixelMainMon::bookHistograms()
 
    const EventInfo* thisEventInfo;
    sc=evtStore()->retrieve(thisEventInfo);
-   if (sc != StatusCode::SUCCESS) {
-     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
-   }
-   else {
-     m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
-     if(m_doOnline){
-       m_runNum = thisEventInfo->event_ID()->run_number();
-       std::stringstream m_runNumStr;
-       m_runNumStr << m_runNum;
-       m_histTitleExt = " (Run " + m_runNumStr.str() + ")";
-     }
-     else m_histTitleExt = "";
-     if(newLumiBlock) {
-       m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
-     }
+   if(sc != StatusCode::SUCCESS) {
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+   }else{
+      m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
+
+      if(m_doOnline){
+         m_runNum = thisEventInfo->event_ID()->run_number();
+         std::stringstream m_runNumStr;
+         m_runNumStr << m_runNum;
+         m_histTitleExt = " (Run " + m_runNumStr.str() + ")";
+      }else{
+         m_histTitleExt = "";
+      }
+      if(newLumiBlock) {
+         m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
+      }
+      if( !isFirstBook ){
+         m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
+         isFirstBook = true;
+      }
    }
 
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "bookHistograms()" << endreq; 
@@ -927,7 +762,6 @@ StatusCode PixelMainMon::bookHistograms()
 StatusCode PixelMainMon::fillHistograms() //get called twice per event 
 {
    //Get required services, we want to repeat as little as possible in the function calls
-
    // Part 1: Get the messaging service, print where you are                
 
    m_event++;       
@@ -936,27 +770,72 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    const EventInfo* thisEventInfo;
    sc=evtStore()->retrieve(thisEventInfo);
    if(sc != StatusCode::SUCCESS) {
-     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
-   } 
-   else {
-     m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
-
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+   }else{
+      m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
+      //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endreq;
+      unsigned int currentdiff = (m_currentTime - m_firstBookTime)/100;
+      if( currentdiff > m_nRefresh ){
+         m_doRefresh = true;
+         m_nRefresh = currentdiff;
+      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
+      }else{
+         m_doRefresh = false;
+      }
    }
 
+   PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
+   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
+
+   m_nGood_ECA=0;
+   m_nGood_ECC=0;
+   m_nGood_IBL2D=0;
+   m_nGood_IBL3D=0;
+   m_nGood_B0=0;
+   m_nGood_B1=0;
+   m_nGood_B2=0;
+
+   for (; idIt != idItEnd; ++idIt)
+   {
+      Identifier WaferID = *idIt;
+      IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
+
+      int Index;
+      if(m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true ) {Index=0;}
+      else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {Index=2;}
+      else {Index=1;}
+       
+      if(Index==0){
+	      int em  = m_pixelid->eta_module(WaferID);
+	      if(m_pixelid->barrel_ec(WaferID)==2)  m_nGood_ECA++;
+	      if(m_pixelid->barrel_ec(WaferID)==-2) m_nGood_ECC++;
+	      if (m_pixelid->barrel_ec(WaferID)==0) {
+	         if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL){
+	            if(em<6 && em>-7){
+	               m_nGood_IBL2D++;
+	            }else{
+	               m_nGood_IBL3D++;
+	            }
+	         }
+	         if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_nGood_B0++;
+	         if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_nGood_B1++;
+	         if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_nGood_B2++;
+	      }
+      }
+   }
    ////////////////////////////////////////////////////////////////
    //fill methods go here
-
    if(m_doStatus) { //fill status histograms first, to check number of disabled modules
-     sc=FillStatusMon();   
-     if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      sc=FillStatusMon();   
+      if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }
 
    if(m_doTrack&&evtStore()->contains< TrackCollection >(m_TracksName))
    {
-     sc=FillTrackMon();
-     if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      sc=FillTrackMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }else{
-     m_storegate_errors->Fill(4.,1.);
+      m_storegate_errors->Fill(4.,1.);
    }
 
    if(m_doRDO&&evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName))
@@ -965,8 +844,8 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }else{
       m_storegate_errors->Fill(1.,1.);  //first 1. is for RDO, second is for container not found
    }
-
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
+
    if(m_doRODError)
    {
       sc=FillRODErrorMon();
@@ -974,7 +853,6 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }else{
       m_storegate_errors->Fill(5.,1.);
    }
-
    if(m_doSpacePoint&&evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName))
    {
       sc=FillSpacePointMon();
@@ -990,7 +868,6 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }else{
       m_storegate_errors->Fill(3.,1.);
    }
-
    return StatusCode::SUCCESS;
 }
 
@@ -1007,14 +884,20 @@ StatusCode PixelMainMon::procHistograms()
      if (m_doTrack) { sc=ProcTrackMon(); }
      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
+   
+   if( m_doOnline ){
+      if(m_doRDO){ sc=ProcHitsMon(); }
+      if (m_doCluster) { sc=ProcClustersMon(); }
+   }
 
-   if(endOfRun)
+   if(!m_doOnline && endOfRun)
    {
       if (m_doRDO)     { sc=ProcHitsMon(); }
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
+  
    return StatusCode::SUCCESS;
 }
 
