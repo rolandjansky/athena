@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 727531 2016-03-03 17:44:38Z krasznaa $
+// $Id: EventInfoCnvTool.h 675986 2015-06-17 13:37:50Z will $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 
@@ -21,8 +21,8 @@
 #include "LumiBlockComps/ILuminosityTool.h"
 #endif
 
-// xAOD include(s):
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+// Local include(s):
+#include "xAODEventInfoCnv/IEventInfoCnvTool.h"
 
 namespace xAODMaker {
 
@@ -34,8 +34,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 727531 $
-    * $Date: 2016-03-03 18:44:38 +0100 (Thu, 03 Mar 2016) $
+    * $Revision: 675986 $
+    * $Date: 2015-06-17 15:37:50 +0200 (Wed, 17 Jun 2015) $
     */
    class EventInfoCnvTool : public AthAlgTool,
                             public virtual IEventInfoCnvTool {
@@ -51,8 +51,7 @@ namespace xAODMaker {
       /// Function that fills an existing xAOD::EventInfo object with data
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
-                                  bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true );
+                                  bool pileUpInfo = false );
 
    private:
 #ifndef XAOD_ANALYSIS
