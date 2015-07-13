@@ -638,6 +638,7 @@ TgcLv1RawDataValAlg::procHistograms(){
       tgclv1_SL_trigger_timing_ES_GM[ac] -> Divide( tgclv1_SL_trigger_timing_num_ES[ac], tgclv1_SL_trigger_timing_denom_ES[ac] );
       tgclv1_LPT_trigger_timing_ES_GM[ac] -> Divide( tgclv1_LPT_trigger_timing_num_ES[ac], tgclv1_LPT_trigger_timing_denom_ES[ac] );
     }// side
+
   } //endOfRun
 
   return StatusCode::SUCCESS;
