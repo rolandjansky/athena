@@ -238,7 +238,7 @@ StatusCode L1CaloMonitoringCaloTool::loadCaloCells()
       const float energy = caloCell->energy();
       const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
       if (index2 < s_maxTowers) { // Tile D cells
-        const float energy2 = energy/2.;
+        const float energy2 = energy*0.5;
         m_energySums[index1] += energy2;
         m_energySums[index2] += energy2;
 	const TileCell* tileCell = dynamic_cast<const TileCell*>(caloCell);

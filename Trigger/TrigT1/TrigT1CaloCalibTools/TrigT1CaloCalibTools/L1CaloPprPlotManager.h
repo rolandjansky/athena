@@ -187,6 +187,9 @@ protected:
 
     TProfile_LW* m_p_online_em_valueVsBCN;
     TProfile_LW* m_p_online_had_valueVsBCN;
+    
+    TProfile2D_LW* m_h_ppm_em_2d_value_BCN_Lumi;
+    TProfile2D_LW* m_h_ppm_had_2d_value_BCN_Lumi;
 
     TProfile* m_p_offline_em_valueVsLumi;
     TProfile* m_p_offline_had_valueVsLumi;
@@ -207,6 +210,7 @@ protected:
     // histogram calorimeter partition maps
     std::map<CaloDivisionEnum, TProfile_LW*> m_map_online_partitionProfile_ValueVsLumi;
     std::map<CaloDivisionEnum, TProfile_LW*> m_map_online_partitionProfile_ValueVsBCN;
+    std::map<CaloDivisionEnum, TProfile2D_LW*> m_map_online_partitionProfile_ValueVsLumiVsBCN;
 
     std::map<CaloDivisionEnum, TProfile*> m_map_offline_partitionProfile_ValueVsLumi;
 

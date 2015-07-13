@@ -17,7 +17,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( LVL1 , L1CaloLArTowerEnergy )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1 , L1CaloOfflineTriggerTowerTools )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1 , L1CaloMonitoringCaloTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1 , L1CaloxAODOfflineTriggerTowerTools )
-DECLARE_ALGORITHM_FACTORY( TriggerTowerThinningAlg )
+DECLARE_NAMESPACE_TOOL_FACTORY( DerivationFramework , TriggerTowerThinningAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( LVL1 , L1CaloTriggerTowerDecoratorAlg )
 
 DECLARE_FACTORY_ENTRIES( TrigT1CaloCalibTools )
@@ -29,7 +29,7 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloCalibTools )
   DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloOfflineTriggerTowerTools )
   DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloMonitoringCaloTool ) 
   DECLARE_NAMESPACE_TOOL( LVL1 , L1CaloxAODOfflineTriggerTowerTools )
-  DECLARE_ALGORITHM( TriggerTowerThinningAlg )
+  DECLARE_NAMESPACE_TOOL( DerivationFramework ,TriggerTowerThinningAlg )
   DECLARE_NAMESPACE_ALGORITHM( LVL1 , L1CaloTriggerTowerDecoratorAlg )  
 
 }

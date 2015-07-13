@@ -619,7 +619,7 @@ namespace LVL1 {
       IdTTL1CellMapType::const_iterator ttL1Cell(map.find(Id));
       IdTTL1CellMapType::const_iterator ttL1Cell_E(map.end());
       if(ttL1Cell != ttL1Cell_E){
-        return ((ttL1Cell->second)->eneTower()) / 1000.0;
+        return ((ttL1Cell->second)->eneTower()) * 1e-3;
       }
       return 0.0;
     }

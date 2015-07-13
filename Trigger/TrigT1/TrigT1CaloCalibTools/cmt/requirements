@@ -10,7 +10,6 @@ use AsgTools                    AsgTools-*                      Control/AthToolS
 use AtlasROOT                   AtlasROOT-*                     External
 use AtlasCORAL                  AtlasCORAL-*                    External
 use StoreGate                   StoreGate-*                     Control
-use DataModel                   DataModel-*                     Control
 use AthenaKernel                AthenaKernel-*                  Control
 use AthenaBaseComps             AthenaBaseComps-*               Control
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
@@ -34,6 +33,7 @@ use TrigT1CaloToolInterfaces    TrigT1CaloToolInterfaces-*      Trigger/TrigT1
 use TrigT1CaloCondSvc           TrigT1CaloCondSvc-*             Trigger/TrigT1
 use TrigT1CaloUtils             TrigT1CaloUtils-*               Trigger/TrigT1
 use xAODTrigL1Calo		xAODTrigL1Calo-*		Event/xAOD
+use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework       
 end_public
 
 private
@@ -46,6 +46,7 @@ use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
 use LArRawEvent                 LArRawEvent-*                   LArCalorimeter
 use LArTools                    LArTools-*                      LArCalorimeter
 use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
+use TrigT1Interfaces            TrigT1Interfaces-*              Trigger/TrigT1
 end_private
 
 apply_tag ROOTGraphicsLibs
