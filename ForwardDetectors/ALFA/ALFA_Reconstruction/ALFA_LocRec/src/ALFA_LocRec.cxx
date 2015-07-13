@@ -84,16 +84,20 @@ AthAlgorithm(name, pSvcLocator)
 	// for the simulation data the value is 0, for the real data the value is 1. Unset value is -1
 	declareProperty("DataType", m_iDataType=1, "data type using in the local reconstruction");
 
-	//reconstruction methods properties
+	//reconstruction methods properties - MDTracking, MDMultiple, ODTracking
 	declareProperty("MultiplicityCutOD", m_iMultiplicityCutOD=30);
 	declareProperty("DistanceCutOD", m_fDistanceCutOD=0.5);
 	declareProperty("LayerCutOD", m_iLayerCutOD=3);
 
 	declareProperty("OverlapCutMD", m_fOverlapCutMD=0.5);
-	declareProperty("MultiplicityCutMD", m_iMultiplicityCutMD=3);
+	declareProperty("MultiplicityCutMD", m_iMultiplicityCutMD=5);
 	declareProperty("NumLayerCutMD", m_iNumLayerCutMD=3);
 	declareProperty("UVCutMD", m_iUVCutMD=3);
 	declareProperty("UVCutMDHalfReco", m_iUVCutMDHalfReco=3);
+
+	//reconstruction methods properties - EdgeMethod
+	declareProperty("EdgeMethod_Opt_Sisters", m_bEdgeMethod_Opt_Sisters = false);
+	declareProperty("EdgeMethod_Opt_UseGaps", m_bEdgeMethod_Opt_UseGaps = false);
 
 	//reconstruction method selection for OD & MD
 	declareProperty("AlgoOD", m_strAlgoOD="ODTracking");
@@ -692,6 +696,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 	mapRecoMethods.insert(pair<string, int>("MDMultiple", 5));
 	mapRecoMethods.insert(pair<string, int>("HalfReco", 6));
 	mapRecoMethods.insert(pair<string, int>("MDGap", 7));
+	mapRecoMethods.insert(pair<string, int>("EdgeMethod", 8));
 
 	vector<int> vecFibSel;
 	vecFibSel.clear();
@@ -953,10 +958,57 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			delete pMDGap;
 			break;
 		}
+	case 8:
+		{
+			Float_t fRecPosX[NTRACK];
+			Float_t fRecPosY[NTRACK];
+			ALFA_EdgeMethod* pEdgeMethod = new ALFA_EdgeMethod(m_bEdgeMethod_Opt_Sisters, m_bEdgeMethod_Opt_UseGaps);
+			pEdgeMethod->Initialize(eRPName-1, m_faMD, m_fbMD, ListMDHits);
+
+			Int_t iNumU[NTRACK], iNumV[NTRACK];
+			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
+			Float_t fOverU[NTRACK], fOverV[NTRACK];
+
+			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+			fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
+
+
+			vector<ALFA_EdgeMethod::Track> tracks;
+			pEdgeMethod->EdgeMethod(eRPName - 1, tracks);
+
+			for (UInt_t iTrack=0; iTrack<tracks.size(); iTrack++)
+			{
+				pEdgeMethod->selectedFibers(eRPName - 1, tracks.at(iTrack), iFibSel);
+
+				iNumU[iTrack]    = tracks.at(iTrack).first.second;
+				iNumV[iTrack]    = tracks.at(iTrack).second.second;
+				fOverU[iTrack]   = tracks.at(iTrack).first.first.second;
+				fOverV[iTrack]   = tracks.at(iTrack).second.first.second;
+				fRecPosX[iTrack] = 0.5*TMath::Sqrt2()*(-tracks.at(iTrack).first.first.first-tracks.at(iTrack).second.first.first);
+				fRecPosY[iTrack] = 0.5*TMath::Sqrt2()*(-tracks.at(iTrack).first.first.first+tracks.at(iTrack).second.first.first);
+
+				if (fRecPosX[iTrack] != -9999.0 && fRecPosY[iTrack] != -9999.0)
+				{
+					vecFibSel.clear();
+					for (Int_t iLayer=0; iLayer<ALFALAYERSCNT*ALFAPLATESCNT; iLayer++)
+					{
+						vecFibSel.push_back(iFibSel[iLayer]);
+					}
+
+					m_pLocRecEvCollection->push_back(new ALFA_LocRecEvent(8, eRPName-1, fRecPosX[iTrack], fRecPosY[iTrack], fOverU[iTrack], fOverV[iTrack], iNumU[iTrack], iNumV[iTrack], vecFibSel));
+				}
+			}
+
+			delete pEdgeMethod;
+			sc = StatusCode::SUCCESS;
+			break;
+		}
 	default:
 		{
 			ATH_MSG_ERROR("Unable to recognize selected algorithm");
-			return StatusCode::FAILURE;
+			std::cout << "strAlgo: " << strAlgo << std::endl;
+			return StatusCode::SUCCESS;
 		}
 	}
 

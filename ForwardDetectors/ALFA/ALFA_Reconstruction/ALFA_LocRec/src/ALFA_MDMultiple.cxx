@@ -512,7 +512,8 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 	Float_t b_pos;
 	Float_t b_neg;
 
-	list<int>::iterator intIter;
+ 	list<int>::iterator intIter;
+
 
 	//clear
 	for (Int_t i=0; i<ALFAPLATESCNT; i++)
@@ -696,17 +697,30 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 						//Removing fibers used for the first track for V Side
 						for (Int_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++)
 						{
-							for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)
-//							for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)   //just for test
+							list<int>::iterator itBeg = m_MapLayers[2*iLayer+1].ListFibers.begin();
+							list<int>::iterator itEnd = m_MapLayers[2*iLayer+1].ListFibers.end();
+							for (; itBeg != itEnd; itBeg++)
 							{
-								if (*intIter==(int)FSel_neg[iLayer])
+								if (*itBeg == (int)FSel_neg[iLayer])
 								{
-//									*intIter = 9999;
-									m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);
-//									m_MapLayers[2*iLayer].ListFibers.erase(intIter);   //just for test
+									m_MapLayers[2*iLayer+1].ListFibers.erase(itBeg);
 									break;
 								}
 							}
+
+
+//							for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)
+////							for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)   //just for test
+//							{
+//// 								if (*intIter==(int)FSel_neg[iLayer])
+//								if (*intIter==(int)FSel_neg[iLayer])
+//								{
+////									*intIter = 9999;
+// 									m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);
+////									m_MapLayers[2*iLayer].ListFibers.erase(intIter);   //just for test
+//									break;
+//								}
+//							}
 						}
 						cnt_step_V++;
 					}
@@ -725,20 +739,32 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 			{
 				for (Int_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++)
 				{
-					for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)
-//					for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)   //just for test
+					list<int>::iterator itBeg = m_MapLayers[2*iLayer].ListFibers.begin();
+					list<int>::iterator itEnd = m_MapLayers[2*iLayer].ListFibers.end();
+					for (; itBeg != itEnd; itBeg++)
 					{
-//						if (*intIter==(int)FSel_pos[iLayer])
-						if (*intIter==(int)FSel_pos_tmp[iLayer])
+						if (*itBeg == (int)FSel_pos_tmp[iLayer])
 						{
-//							*intIter = 9999;
-							m_MapLayers[2*iLayer].ListFibers.erase(intIter);
-//							m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);   //just for test
-//							iNumErasedFibs++;
+							m_MapLayers[2*iLayer].ListFibers.erase(itBeg);
 							break;
 						}
-
 					}
+
+
+//					for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)
+////					for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)   //just for test
+//					{
+////						if (*intIter==(int)FSel_pos[iLayer])
+//						if (*intIter==(int)FSel_pos_tmp[iLayer])
+//						{
+////							*intIter = 9999;
+//							m_MapLayers[2*iLayer].ListFibers.erase(intIter);
+////							m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);   //just for test
+////							iNumErasedFibs++;
+//							break;
+//						}
+
+//					}
 				}
 			}
 			else
@@ -750,19 +776,31 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 
 					for (Int_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++)
 					{
-						for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)
-//						for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)   //just for test
+						list<int>::iterator itBeg = m_MapLayers[2*iLayer].ListFibers.begin();
+						list<int>::iterator itEnd = m_MapLayers[2*iLayer].ListFibers.end();
+						for (; itBeg != itEnd; itBeg++)
 						{
-//							if (*intIter==(int)FSel_pos[iLayer])
-							if (*intIter==(int)FSel_pos_tmp[iLayer])
+							if (*itBeg == (int)FSel_pos_tmp[iLayer])
 							{
-	//							*intIter = 9999;
-								m_MapLayers[2*iLayer].ListFibers.erase(intIter);
-//								m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);   //just for test
-//								iNumErasedFibs++;
+								m_MapLayers[2*iLayer].ListFibers.erase(itBeg);
 								break;
 							}
 						}
+
+
+//						for (intIter=m_MapLayers[2*iLayer].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer].ListFibers.end(); intIter++)
+////						for (intIter=m_MapLayers[2*iLayer+1].ListFibers.begin(); intIter!=m_MapLayers[2*iLayer+1].ListFibers.end(); intIter++)   //just for test
+//						{
+////							if (*intIter==(int)FSel_pos[iLayer])
+//							if (*intIter==(int)FSel_pos_tmp[iLayer])
+//							{
+//	//							*intIter = 9999;
+//								m_MapLayers[2*iLayer].ListFibers.erase(intIter);
+////								m_MapLayers[2*iLayer+1].ListFibers.erase(intIter);   //just for test
+////								iNumErasedFibs++;
+//								break;
+//							}
+//						}
 					}
 				}
 				else break;
