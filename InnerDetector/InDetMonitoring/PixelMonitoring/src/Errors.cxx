@@ -66,6 +66,13 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string modlabel[7];
    modlabel[0]="PIX"; modlabel[1]="ECA"; modlabel[2]="ECC";
    modlabel[3]="B0";  modlabel[4]="B1";  modlabel[5]="B2"; modlabel[6]="IBL";  
+   std::string modlabel2[6];
+   modlabel2[0]="ECA"; modlabel2[1]="ECC";
+   modlabel2[2]="B0";  modlabel2[3]="B1";  modlabel2[4]="B2"; modlabel2[5]="IBL";  
+
+   int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 32};
+   float min_eta[PixLayer::COUNT] = {-0.5, -0.5, -6.5, -6.5, -6.5, -16.5};
+   float max_eta[PixLayer::COUNT] = {2.5, 3.5, 6.5, 6.5, 6.5, 15.5};
 
    /// Set the number of bins, max/min bin
    std::string axisTitle_LB = ";lumi block;# errors/event";
@@ -74,188 +81,69 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    int nbins_ES = 32;   float minbin_ES = -0.5; float maxbin_ES = minbin_ES + (1.0*nbins_ES);
    std::string tmp; 
    std::string tmp2;
+   std::string tmp3[ErrorCategory::COUNT] = {"SyncErrorsFrac_per_event", "OpticalErrorsFrac_per_event", "SEUErrorsFrac_per_event", "TruncationErrorsFrac_per_event", "TimeoutErrorsFrac_per_event"};
 
    /// Define the histograms
-   //for(int i=0; i<32; i++) {
-   //sc = rodHistos.regHist(m_Errors_per_lumi_IBL[i] = TProfile_LW::create( TString::Format("Errors_kBit%i_per_lumi_IBL",i), ("errors per event per LB" + m_histTitleExt + ";lumi block;# errors/event").c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   //}
    sc = rodHistos.regHist(m_otherROD_per_lumi_IBL = TProfile_LW::create("otherROD_per_lumi_IBL", ("Synchronization errors per event per LB" + m_histTitleExt + ";lumi block;# errors/event").c_str(), nbins_LB, minbin_LB, maxbin_LB));
    sc = rodHistos.regHist(m_chip_per_lumi_IBL     = TProfile_LW::create("chip_per_lumi_IBL",     ("Synchronization errors per event per LB" + m_histTitleExt + ";lumi block;# errors/event").c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "errors_per_lumi"; tmp2 = "Number of errors per event per LB";
-   sc = rodHistos.regHist(m_errors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_errors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "SyncErrors_per_lumi"; tmp2 = "Synchronization errors per event per LB";
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "OpticalErrors_per_lumi"; tmp2 = "Optical errors per event per LB";
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_OpticalErrors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "SEU_Errors_per_lumi"; tmp2 = "SEU errors per event per LB";
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_SEU_Errors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "TruncationErrors_per_lumi"; tmp2 = "Truncation errors per event per LB";
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TruncationErrors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "TimeoutErrors_per_lumi"; tmp2 = "Timeout errors per event per LB";
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_IBL = TProfile_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+
+   for( int i=0; i<PixLayer::COUNT; i++){
+      tmp = "errors_per_lumi"; tmp2 = "Number of errors per event per LB";
+      sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "SyncErrors_per_lumi"; tmp2 = "Synchronization errors per event per LB";
+      sc = rodHistos.regHist(m_SyncErrors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "OpticalErrors_per_lumi"; tmp2 = "Optical errors per event per LB";
+      sc = rodHistos.regHist(m_OpticalErrors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "SEU_Errors_per_lumi"; tmp2 = "SEU errors per event per LB";
+      sc = rodHistos.regHist(m_SEU_Errors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "TruncationErrors_per_lumi"; tmp2 = "Truncation errors per event per LB";
+      sc = rodHistos.regHist(m_TruncationErrors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "TimeoutErrors_per_lumi"; tmp2 = "Timeout errors per event per LB";
+      sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_mod[i] = TProfile_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt +  axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+   
+      for( int j=0; j<ErrorCategory::COUNT; j++){
+         sc = rodHistos.regHist(m_ErrorFraction_per_evt[j][i] = TProfile_LW::create( (tmp3[j] + "_" + modlabel2[i]).c_str(), (tmp3[j] + ", " + modlabel2[i] + m_histTitleExt + ";lumi block;# errors/(module, event)").c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      }
+   }
+     
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+   static const int nerrState = 16;
+   std::string histErrorName[nerrState][2];
+   histErrorName[0][0] = "Mod_Sync_BCID1_errors_per_lumi"; histErrorName[0][1] = "Synchronization Module BCID1 errors per event per LB";
+   histErrorName[1][0] = "Mod_Sync_BCID2_errors_per_lumi"; histErrorName[1][1] = "Synchronization Module BCID2 errors per event per LB"; 
+   histErrorName[2][0] = "Mod_Sync_LVL1ID_errors_per_lumi"; histErrorName[2][1] = "Synchronization Module LVL1ID errors per event per LB";
+   histErrorName[3][0] = "ROD_Sync_BCID_errors_per_lumi"; histErrorName[3][1] = "Synchronization ROD BCID errors per event per LB";
+   histErrorName[4][0] = "ROD_Sync_LVL1ID_errors_per_lumi"; histErrorName[4][1] = "Synchronization ROD LVL1ID errors per event per LB";
+   histErrorName[5][0] = "Mod_Trunc_EOC_errors_per_lumi"; histErrorName[5][1] = "Truncation Module EOC errors per event per LB";
+   histErrorName[6][0] = "Mod_Trunc_Hit_Overflow_errors_per_lumi"; histErrorName[6][1] = "Truncation Module Hit Overflow errors per event per LB";
+   histErrorName[7][0] = "Mod_Trunc_EoE_Overflow_errors_per_lumi"; histErrorName[7][1] = "Truncation Module EoE Overflow errors per event per LB";
+   histErrorName[8][0] = "ROD_Trunc_HT_Limit_errors_per_lumi"; histErrorName[8][1] = "Truncation ROD H/T Limit errors per event per LB";
+   histErrorName[9][0] = "ROD_Trunc_ROD_OF_errors_per_lumi"; histErrorName[9][1] = "Truncation ROD Overflow errors per event per LB";
+   histErrorName[10][0] = "Optical_Errors_per_lumi"; histErrorName[10][1] = "Optical Errors per event per LB";
+   histErrorName[11][0] = "SEU_Hit_Parity_per_lumi"; histErrorName[11][1] = "SEU Hit Parity errors per event per LB";
+   histErrorName[12][0] = "SEU_Register_Parity_per_lumi"; histErrorName[12][1] = "SEU Register Parity errors per event per LB";
+   histErrorName[13][0] = "SEU_Hamming_per_lumi"; histErrorName[13][1] = "SEU Hamming Code errors per event per LB";
+   histErrorName[14][0] = "ROD_Timeout_per_lumi"; histErrorName[14][1] = "ROD Formatter Timeout errors per event per LB";
+   histErrorName[15][0] = "FE_Warning_per_lumi"; histErrorName[15][1] = "FE Warning errors per event per LB";
+   for (int i=0; i<PixLayer::COUNT-1; i++) {
+      for(int j=0; j<nerrState; j++){
+         sc = rodExpert.regHist(m_errorStates_per_lumi_mod[i][j] = TProfile_LW::create((histErrorName[j][0] + "_" + modlabel2[i]).c_str(), (histErrorName[j][1] + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
+       }
+   }
 
-   tmp = "Mod_Sync_BCID1_errors_per_lumi"; tmp2 = "Synchronization Module BCID1 errors per event per LB";
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID1_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Mod_Sync_BCID2_errors_per_lumi"; tmp2 = "Synchronization Module BCID2 errors per event per LB"; 
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_BCID2_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Mod_Sync_LVL1ID_errors_per_lumi"; tmp2 = "Synchronization Module LVL1ID errors per event per LB";
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_mod_LVL1ID_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "ROD_Sync_BCID_errors_per_lumi"; tmp2 = "Synchronization ROD BCID errors per event per LB";
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_BCID_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "ROD_Sync_LVL1ID_errors_per_lumi"; tmp2 = "Synchronization ROD LVL1ID errors per event per LB";
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_sync_rod_LVL1ID_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Mod_Trunc_EOC_errors_per_lumi"; tmp2 = "Truncation Module EOC errors per event per LB";
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EOC_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Mod_Trunc_Hit_Overflow_errors_per_lumi"; tmp2 = "Truncation Module Hit Overflow errors per event per LB";
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_hitOF_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Mod_Trunc_EoE_Overflow_errors_per_lumi"; tmp2 = "Truncation Module EoE Overflow errors per event per LB";
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_mod_EoEOF_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "ROD_Trunc_HT_Limit_errors_per_lumi"; tmp2 = "Truncation ROD H/T Limit errors per event per LB";
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_HTlim_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "ROD_Trunc_ROD_OF_errors_per_lumi_PIX"; tmp2 = "Truncation ROD Overflow errors per event per LB";
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_trunc_rod_FIFOOF_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Optical_Errors_per_lumi"; tmp2 = "Optical Errors per event per LB";
-   sc = rodExpert.regHist(m_optical_error_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_optical_error_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_optical_error_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_optical_error_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_optical_error_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_optical_error_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "SEU_Hit_Parity_per_lumi"; tmp2 = "SEU Hit Parity errors per event per LB";
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hit_parity_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "SEU_Register_Parity_per_lumi"; tmp2 = "SEU Register Parity errors per event per LB";
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_reg_parity_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "SEU_Hamming_per_lumi"; tmp2 = "SEU Hamming Code errors per event per LB";
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_seu_hamming_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "ROD_Timeout_per_lumi"; tmp2 = "ROD Formatter Timeout errors per event per LB";
-   sc = rodExpert.regHist(m_timeout_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_timeout_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_timeout_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_timeout_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_timeout_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_timeout_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "FE_Warning_per_lumi"; tmp2 = "FE Warning errors per event per LB";
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_PIX = TProfile_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_ECA = TProfile_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_ECC = TProfile_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_B0  = TProfile_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_B1  = TProfile_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   sc = rodExpert.regHist(m_FEwarning_per_lumi_B2  = TProfile_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_LB).c_str(), nbins_LB, minbin_LB, maxbin_LB));
-   tmp = "Bad_Module_Errors"; tmp2 = "Errors for Bad Module";
-   sc = rodExpert.regHist(m_bad_mod_errors_PIX = TH1I_LW::create( (tmp + "_" + modlabel[0]).c_str(), (tmp2 + ", " + modlabel[0] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_ECA = TH1I_LW::create( (tmp + "_" + modlabel[1]).c_str(), (tmp2 + ", " + modlabel[1] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_ECC = TH1I_LW::create( (tmp + "_" + modlabel[2]).c_str(), (tmp2 + ", " + modlabel[2] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_B0  = TH1I_LW::create( (tmp + "_" + modlabel[3]).c_str(), (tmp2 + ", " + modlabel[3] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_B1  = TH1I_LW::create( (tmp + "_" + modlabel[4]).c_str(), (tmp2 + ", " + modlabel[4] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_B2  = TH1I_LW::create( (tmp + "_" + modlabel[5]).c_str(), (tmp2 + ", " + modlabel[5] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
-   sc = rodExpert.regHist(m_bad_mod_errors_IBL = TH1I_LW::create( (tmp + "_" + modlabel[6]).c_str(), (tmp2 + ", " + modlabel[6] + m_histTitleExt + axisTitle_ES).c_str(), nbins_ES, minbin_ES, maxbin_ES));
+
+   for( int i=0; i<PixLayer::COUNT; i++){
+      tmp = "Bad_Module_Errors"; tmp2 = "Errors for Bad Module";
+      sc = rodExpert.regHist(m_bad_mod_errors_mod[i]  = TH1I_LW::create( (tmp + "_" + modlabel2[i]).c_str(), (tmp2 + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB).c_str(), nbins_ES, minbin_ES, maxbin_ES));
+      tmp = "Errors_EtaID"; tmp2 = "Errors vs Eta Module ID";
+      sc = rodExpert.regHist(m_errors_etaid_mod[i] = TH2F_LW::create((tmp + "_" + modlabel2[i]).c_str(),   (tmp2 + ", " + modlabel2[i] + m_histTitleExt + ";#eta module ID;Error State;# Errors").c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
+      tmp = "Errors_EtaID_per_event"; tmp2 = "Errors vs Eta Module ID/event";
+      sc = rodExpert.regHist(m_errors_etaid_per_evt_mod[i] = TH2F_LW::create((tmp + "_" + modlabel2[i]).c_str(),   (tmp2 + ", " + modlabel2[i] + m_histTitleExt + ";#eta module ID;Error State;# Errors").c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
+   }
 
    sc = rodExpert.regHist(m_mod_errors_IBL = TH1I_LW::create("Module_Errors_IBL",   ("Errors for Modules, IBL" + m_histTitleExt + ";Error State;# Errors").c_str(),32,-0.5,31.5));
-   sc = rodExpert.regHist(m_ROD_errors_IBL = TH1I_LW::create("ROD_Errors_IBL",   ("Errors for RODs, IBL" + m_histTitleExt + ";Error State;# Errors").c_str(),8,-0.5,7.5));
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
    const char * errorBitsPIX[32] = {"ROD Trunc FIFO Overflow",   "ROD Trunc H/T Limit",       "2",                 "3",
@@ -268,10 +156,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
                                     "28",                        "29",                        "30",                "31"
                                     };
 
-   const char* errorBitsFEI4[32] = {"BCID counter","Hamming code 0","Hamming code 1","Hamming code 2","L1_in counter","L1 request counter","L1 register","L1 Trigger ID","readout processor","Fifo_Full flag pulsed","HitOr bus pulsed","11","12","13","3 MSBs of BC and 7 MSBs of L1AC","Skipped trigger counter","Truncated event flag and counter","17","18","19","20","Reset bar RA2b pulsed","Fast PLL clock phase","Fast reference clock phase","Triple redundant mismatch","Write register data error","Address error","Other CMD decoder","CMD decoder bit flip","CMD decoder SEU","Data bus address","Triple redundant mismatch"};
 
-   const char* errorBitsIBLROD[8] = {"Row/ Column Error", "Limit Error", "Timeout Error", "BCID Error", "LVL1ID Error", "Preamble Error", "Masked Link", "Timeout Error"};  //according to pg 67 of RODBOC v1.2.3
-   
    const char* errorBitsIBL[32] = {"Row/ Column Error", "Limit Error",          "Timeout Error",       "BCID Error", 
                                    "LVL1ID Error",      "Preamble Error",       "Masked Link",         "Timeout Error",
                                    "BCID counter",      "Hamming code 0",       "Hamming code 1",      "Hamming code 2",
@@ -282,23 +167,56 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
                                    "28",                "29",                   "30",                  "31"
                                    };
 
+   const char *disk[3] = { "Disk 1", "Disk 2", "Disk 3" };
+   const char *mod[13] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
+   const char *modIBL[32] = {"C8","","C7","",
+				                 "C6","","C5","",
+				                 "C4","","C3","",
+				                 "C2","","C1","",
+				                 "A1","","A2","",
+				                 "A3","","A4","",
+				                 "A5","","A6","",
+				                 "A7","","A8",""};
+
    for (int i=0;i<32;i++){
-      //m_mod_errors_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsFEI4[i]);
       m_mod_errors_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsIBL[i]);
-      m_bad_mod_errors_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsIBL[i]);
-   } 
+   }
 
-   for (int i=0;i<8;i++){
-      m_ROD_errors_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsIBLROD[i]);
-   } 
+
+   for( int i=0; i<PixLayer::COUNT; i++){
+      for( unsigned int x=1; x<=m_errors_etaid_mod[i]->GetNbinsX(); x++){
+         if(i == PixLayer::kECA || i == PixLayer::kECC){
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
+            m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
+         }
+         if(i >= PixLayer::kB0  && i <= PixLayer::kB2){
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
+            m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
+         }
+         if(i == PixLayer::kIBL){
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
+            m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
+         }
+      }
+      for( unsigned int y=1; y<=m_errors_etaid_mod[i]->GetNbinsY(); y++){
+         if(i == PixLayer::kIBL){
+            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
+            m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
+         }else{
+            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
+            m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
+         }
+      }
+   }
 
    for (int i=0;i<32;i++){
-      m_bad_mod_errors_PIX->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
-      m_bad_mod_errors_ECA->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
-      m_bad_mod_errors_ECC->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
-      m_bad_mod_errors_B0->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
-      m_bad_mod_errors_B1->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
-      m_bad_mod_errors_B2->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
+      for( int j=0; j<PixLayer::COUNT; j++){
+         if( j<PixLayer::kIBL ){
+            m_bad_mod_errors_mod[j]->GetXaxis()->SetBinLabel(i+1,errorBitsPIX[i]);
+         }else{
+            m_bad_mod_errors_mod[j]->GetXaxis()->SetBinLabel(i+1,errorBitsIBL[i]);
+         }
+      }
    } 
 
    if(m_doOnline)
@@ -321,12 +239,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    if(m_do2DMaps && !m_doOnline)
    {
       bool errorHist = false;
-      m_IBLModErrors = new PixelMon2DMapsLW("IBLModErrors", ("IBL Chip Errors" + m_histTitleExt).c_str(), m_doIBL, false);  
-      sc = m_IBLModErrors->regHist(rodHistos, m_doIBL, false);
-      m_IBLotherRODErrors = new PixelMon2DMapsLW("IBLotherRODErrors", ("IBL other ROD Errors" + m_histTitleExt).c_str(), m_doIBL, false);  
-      sc = m_IBLotherRODErrors->regHist(rodHistos, m_doIBL, false);
-      m_IBLSyncErrors = new PixelMon2DMapsLW("IBLSyncErrors", ("IBL Synchronisation Errors" + m_histTitleExt).c_str(), m_doIBL, false);
-      sc = m_IBLSyncErrors->regHist(rodHistos, m_doIBL, false);
 
       m_SyncErrors_mod = new PixelMon2DMapsLW("SyncErrors_mod", ("Module Synchronisation Errors" + m_histTitleExt).c_str(), m_doIBL, true);
       sc = m_SyncErrors_mod->regHist(rodHistos, m_doIBL, true);
@@ -339,14 +251,24 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
       m_SyncErrors = new PixelMon2DMapsLW("Sync_Errors", ("Synchronisation Errors" + m_histTitleExt).c_str(), m_doIBL, false);  //to be removed ?
       sc = m_SyncErrors->regHist(rodHistos, m_doIBL, false);
+      m_SyncErrors_per_evt = new PixelMon2DMapsLW("Sync_Errors_per_event", ("Synchronisation Errors/event" + m_histTitleExt).c_str(), m_doIBL, false);  //to be removed ?
+      sc = m_SyncErrors_per_evt->regHist(rodHistos, m_doIBL, false);
       m_TruncationErrors = new PixelMon2DMapsLW("Truncation_Errors", ("Truncation or High Occupancy Errors" + m_histTitleExt).c_str(), m_doIBL, false);  //to be removed ?
       sc = m_TruncationErrors->regHist(rodHistos, m_doIBL, false);
+      m_TruncationErrors_per_evt = new PixelMon2DMapsLW("Truncation_Errors_per_event", ("Truncation or High Occupancy Errors/event" + m_histTitleExt).c_str(), m_doIBL, false);  //to be removed ?
+      sc = m_TruncationErrors_per_evt->regHist(rodHistos, m_doIBL, false);
       m_OpticalErrors = new PixelMon2DMapsLW("Optical_Errors", ("Optical Transmision Errors" + m_histTitleExt).c_str(), m_doIBL, false);
       sc = m_OpticalErrors->regHist(rodHistos, m_doIBL, false);
+      m_OpticalErrors_per_evt = new PixelMon2DMapsLW("Optical_Errors_per_event", ("Optical Transmision Errors/event" + m_histTitleExt).c_str(), m_doIBL, false);
+      sc = m_OpticalErrors_per_evt->regHist(rodHistos, m_doIBL, false);
       m_SEU_Errors = new PixelMon2DMapsLW("SEU_Errors", ("SEU Errors" + m_histTitleExt).c_str(), m_doIBL, false);
       sc = m_SEU_Errors->regHist(rodHistos, m_doIBL, false);
+      m_SEU_Errors_per_evt = new PixelMon2DMapsLW("SEU_Errors_per_event", ("SEU Errors/event" + m_histTitleExt).c_str(), m_doIBL, false);
+      sc = m_SEU_Errors_per_evt->regHist(rodHistos, m_doIBL, false);
       m_TimeoutErrors = new PixelMon2DMapsLW("Timeout_Errors", ("Timeout Errors" + m_histTitleExt).c_str(), m_doIBL, false);
       sc = m_TimeoutErrors->regHist(rodHistos, m_doIBL, false);
+      m_TimeoutErrors_per_evt = new PixelMon2DMapsLW("Timeout_Errors_per_event", ("Timeout Errors/event" + m_histTitleExt).c_str(), m_doIBL, false);
+      sc = m_TimeoutErrors_per_evt->regHist(rodHistos, m_doIBL, false);
 
       tmp = "SyncErrors_mod"; tmp2 = "Module Synchronization Errors"; errorHist = true;
       m_sync_mod_BCID1  = new PixelMon2DMapsLW( (tmp + "_BCID1").c_str(),  (tmp2 + ", BCID1" + m_histTitleExt).c_str(), m_doIBL, errorHist);  sc = m_sync_mod_BCID1->regHist(rodExpert, m_doIBL, errorHist);
@@ -482,70 +404,38 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 {
 
    int LBnum = m_manager->lumiBlockNumber();
-   PixelID::const_id_iterator idIt       = m_pixelid->wafer_begin();
-   PixelID::const_id_iterator idItEnd    = m_pixelid->wafer_end();
-   //unsigned int errors=0;
-   uint64_t errors=0;
-   int nErrors_IBL=0;
-   int nErrors_PIX=0;
-   int nErrors_ECA=0;
-   int nErrors_ECC=0;
-   int nErrors_B0=0;
-   int nErrors_B1=0;
-   int nErrors_B2=0;
+   PixelID::const_id_iterator idIt     = m_pixelid->wafer_begin();
+   PixelID::const_id_iterator idItEnd  = m_pixelid->wafer_end();
 
-   int nErrors_cat_IBL[32] = {0};
-   int nErrors_cat_PIX[16] = {0};
-   int nErrors_cat_ECA[16] = {0};
-   int nErrors_cat_ECC[16] = {0};
-   int nErrors_cat_B0[16] = {0};
-   int nErrors_cat_B1[16] = {0};
-   int nErrors_cat_B2[16] = {0};
+   const float nmodLayer[PixLayerIBL2D3D::COUNT] = {144., 144., 286., 494., 676., 280., 168., 112};
+
+   uint64_t errors=0;
+   int nErrors_mod[PixLayer::COUNT]={0};
+   int nErrors_PIX=0;
+
+   int nErrors_cat_mod[PixLayer::COUNT-1][16] = {0};
 
    int nOtherRODErrors_IBL=0;
    int nChipErrors_IBL=0;
 
-   int nSyncErrors_IBL=0;
-   int nSyncErrors_PIX=0;
-   int nSyncErrors_ECA=0;
-   int nSyncErrors_ECC=0;
-   int nSyncErrors_B0=0;
-   int nSyncErrors_B1=0;
-   int nSyncErrors_B2=0;
-   
-   int nOpticalErrors_IBL=0;
-   int nOpticalErrors_PIX=0;
-   int nOpticalErrors_ECA=0;
-   int nOpticalErrors_ECC=0;
-   int nOpticalErrors_B0=0;
-   int nOpticalErrors_B1=0;
-   int nOpticalErrors_B2=0;
-   
-   int nSEUErrors_IBL=0;
-   int nSEUErrors_PIX=0;
-   int nSEUErrors_ECA=0;
-   int nSEUErrors_ECC=0;
-   int nSEUErrors_B0=0;
-   int nSEUErrors_B1=0;
-   int nSEUErrors_B2=0;
-   
-   int nTruncErrors_IBL=0;
-   int nTruncErrors_PIX=0;
-   int nTruncErrors_ECA=0;
-   int nTruncErrors_ECC=0;
-   int nTruncErrors_B0=0;
-   int nTruncErrors_B1=0;
-   int nTruncErrors_B2=0;
-   
-   int nTimeoutErrors_IBL=0;
-   int nTimeoutErrors_PIX=0;
-   int nTimeoutErrors_ECA=0;
-   int nTimeoutErrors_ECC=0;
-   int nTimeoutErrors_B0=0;
-   int nTimeoutErrors_B1=0;
-   int nTimeoutErrors_B2=0;
+   int nErrorsCategory_permod[ErrorCategory::COUNT][PixLayer::COUNT] = {0};
 
-   /// Pixel ID Loop
+   int nSyncErrors_mod[PixLayer::COUNT] = {0};
+   int nSyncErrors_PIX=0;
+   
+   int nOpticalErrors_mod[PixLayer::COUNT] = {0};
+   int nOpticalErrors_PIX=0;
+   
+   int nSEUErrors_mod[PixLayer::COUNT] = {0};
+   int nSEUErrors_PIX=0;
+   
+   int nTruncErrors_mod[PixLayer::COUNT] = {0};
+   int nTruncErrors_PIX=0;
+   
+   int nTimeoutErrors_mod[PixLayer::COUNT] = {0};
+   int nTimeoutErrors_PIX=0;
+
+   ///// Pixel ID Loop
    for (; idIt != idItEnd; ++idIt) 
    {
       Identifier WaferID = *idIt;
@@ -554,8 +444,12 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
       bool isIBL=false;
       bool isError[16] = {false};
+      bool hasError[ErrorCategory::COUNT] = {false};
 
       if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID)==0 && m_pixelid->layer_disk(WaferID)==0 && m_doIBL){isIBL=true;}
+      
+      int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+
 
       //for (unsigned int kBit=0; kBit<40; kBit++)
       for (unsigned int kBit=0; kBit<32; kBit++)
@@ -565,23 +459,30 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          {
 	         /// Fill the kBit
             if(isIBL){
-	            if(kBit<8){
-	               m_ROD_errors_IBL->Fill(kBit);
-	            }else{
-	            //   m_mod_errors_IBL->Fill(kBit-8);
-	            }
 	            m_mod_errors_IBL->Fill(kBit);
-	         }
+               int em  = m_pixelid->eta_module(WaferID);
+               int feid = 0;
+               int emf = 0;
+               if(em<6 && em>-7){
+                  if(m_pixelid->eta_index(WaferID) >= 80) feid = 1;
+                  emf = 2 * em + feid;
+               }else if(em < -6){
+                  emf = em - 6;
+               }else{
+                  emf = em + 6;
+               }
+               if(pixlayer != 99 ) m_errors_etaid_mod[pixlayer]->Fill(emf, kBit);
+	         }else if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC){
+               m_errors_etaid_mod[pixlayer]->Fill(m_pixelid->layer_disk(WaferID), kBit);
+            }else{
+               if(pixlayer != 99) m_errors_etaid_mod[pixlayer]->Fill(m_pixelid->eta_module(WaferID), kBit);
+            }
+	         if(pixlayer != 99) TH2FSetBinScaled(m_errors_etaid_per_evt_mod[pixlayer], m_errors_etaid_mod[pixlayer], m_event);
+
+
+
   	         if (m_ErrorSvc->isActive(id_hash)&&!m_ErrorSvc->isGood(id_hash)){
-	            if(!isIBL) m_bad_mod_errors_PIX->Fill(kBit);
-	            if(isIBL) m_bad_mod_errors_IBL->Fill(kBit);
-	            if(m_pixelid->barrel_ec(WaferID)==2)  m_bad_mod_errors_ECA->Fill(kBit);
-	            if(m_pixelid->barrel_ec(WaferID)==-2) m_bad_mod_errors_ECC->Fill(kBit);
-	            if(m_pixelid->barrel_ec(WaferID)==0) {
-		            if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_bad_mod_errors_B0->Fill(kBit);
-		            if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_bad_mod_errors_B1->Fill(kBit);
-		            if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_bad_mod_errors_B2->Fill(kBit);
-	            }
+               if(pixlayer != 99) m_bad_mod_errors_mod[pixlayer]->Fill(kBit);
             }
             if(m_error1) m_error1->Fill(kBit);
             //if(msgLvl(MSG::ERROR)) msg(MSG::ERROR)  << "NT: ERROR IS " << errors << endreq;
@@ -590,15 +491,10 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
             if(!isIBL){
                nErrors_PIX++;
             }else{
-               nErrors_IBL++;
+               //nErrors_IBL++;
             } 
-	         if(m_pixelid->barrel_ec(WaferID)==2)  nErrors_ECA++;
-	         if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_ECC++;
-	         if (m_pixelid->barrel_ec(WaferID)==0) {
-	           if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_B0++;
-	           if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_B1++;
-	           if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_B2++;
-	         }
+
+            if(pixlayer != 99) nErrors_mod[pixlayer]++;
 
             int ErrorType =0;
 	         /*
@@ -616,7 +512,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 	           if(kBit==23)                     ErrorType=5;  // optical errors                  (preamble (bitflip))
 	           if(kBit>=5 &&kBit<=7 )           ErrorType=6;  // SEU (single event upset) errors (hit parity, register parity, hammingcode)
 	           if(kBit==22)                     ErrorType=7;  // timeout errors                  (timeout on ROD formatter)
-	         }else{
+	         }else{//CCC CCCC CCCC CCCC CCCC EPpl bzhv  
 	            if(kBit==3||kBit==4||kBit==8) ErrorType = 1;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
 	            if(kBit==0||kBit==18)         ErrorType = 3;  // module truncation error (0:Row/Column error, 18:Truncated event)
 	            if(kBit==1)                   ErrorType = 4;  // ROD truncation error    (1:Limit error)
@@ -631,333 +527,157 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                if(m_errors) m_errors->Fill(ErrorType, WaferID, m_pixelid, m_doIBL);
 
                //fill all the 2d maps for each error type
-               if((ErrorType==1||ErrorType==2) && m_SyncErrors) m_SyncErrors->Fill(WaferID,m_pixelid,m_doIBL, false);  //to be removed ?
-               if((ErrorType==3||ErrorType==4) && m_TruncationErrors) m_TruncationErrors->Fill(WaferID,m_pixelid,m_doIBL, false);  //to be removed ?
+               if((ErrorType==1||ErrorType==2) && m_SyncErrors){
+                  m_SyncErrors->Fill(WaferID,m_pixelid,m_doIBL, false);  //to be removed ?
+                  m_SyncErrors_per_evt->FillNormalized(m_SyncErrors, m_event);  //to be removed ?
+               }
+               if((ErrorType==3||ErrorType==4) && m_TruncationErrors){
+                  m_TruncationErrors->Fill(WaferID,m_pixelid,m_doIBL, false);  //to be removed ?
+                  m_TruncationErrors_per_evt->FillNormalized(m_TruncationErrors, m_event);  //to be removed ?
+               }
                if(ErrorType==1 && m_SyncErrors_mod ) m_SyncErrors_mod ->Fill(WaferID,m_pixelid,m_doIBL, false);
                if(ErrorType==2 && m_SyncErrors_ROD ) m_SyncErrors_ROD ->Fill(WaferID,m_pixelid,m_doIBL, false);
                if(ErrorType==3 && m_TruncErrors_mod) m_TruncErrors_mod->Fill(WaferID,m_pixelid,m_doIBL, false);
                if(ErrorType==4 && m_TruncErrors_ROD) m_TruncErrors_ROD->Fill(WaferID,m_pixelid,m_doIBL, false);
-               if(ErrorType==5 && m_OpticalErrors  ) m_OpticalErrors  ->Fill(WaferID,m_pixelid,m_doIBL, false);
-               if(ErrorType==6 && m_SEU_Errors     ) m_SEU_Errors     ->Fill(WaferID,m_pixelid,m_doIBL, false);
-               if(ErrorType==7 && m_TimeoutErrors  ) m_TimeoutErrors  ->Fill(WaferID,m_pixelid,m_doIBL, false);
-               /// for IBL
-               /*
-	            if((ErrorType==11 || ErrorType==12) && m_IBLSyncErrors){
-                  m_SyncErrors->Fill(WaferID,m_pixelid,m_doIBL, false); 
-                  m_IBLSyncErrors->Fill(WaferID,m_pixelid,m_doIBL,false);
+               if(ErrorType==5 && m_OpticalErrors  ){
+                  m_OpticalErrors->Fill(WaferID,m_pixelid,m_doIBL, false);
+                  m_OpticalErrors_per_evt->FillNormalized(m_OpticalErrors, m_event);  //to be removed ?
                }
-               if((ErrorType==8 || ErrorType==9) && isIBL){
-                  if(m_TruncationErrors) m_TruncationErrors->Fill(WaferID,m_pixelid,m_doIBL, false); 
+               if(ErrorType==6 && m_SEU_Errors ){
+                  m_SEU_Errors->Fill(WaferID,m_pixelid,m_doIBL, false);
+                  m_SEU_Errors_per_evt->FillNormalized(m_SEU_Errors, m_event);  //to be removed ?
                }
-               if((ErrorType==10 || ErrorType==15) && isIBL){
-                  if(m_TimeoutErrors) m_TimeoutErrors->Fill(WaferID,m_pixelid,m_doIBL, false); 
-               }
-               if((ErrorType==13) && isIBL){
-                  if(m_OpticalErrors) m_OpticalErrors->Fill(WaferID,m_pixelid,m_doIBL, false); 
-               }
-               if((ErrorType==13) && isIBL){
-                  if(m_OpticalErrors) m_OpticalErrors->Fill(WaferID,m_pixelid,m_doIBL, false); 
-               }
-               */
 
-	            //if(isIBL && ErrorType>0 && m_IBLotherRODErrors) m_IBLotherRODErrors->Fill(WaferID,m_pixelid,m_doIBL,false);
-	            //if(ErrorType==16 && m_IBLModErrors) m_IBLModErrors->Fill(WaferID,m_pixelid,m_doIBL,false);
-
-	            /// for what???
-               //if(kBit== 1){ErrorType = 8;}
-	            //if(kBit== 2){ErrorType = 9;}
-	            //if(kBit== 3){ErrorType = 10;}
-	            //if(kBit== 4){ErrorType = 11;}
-	            //if(kBit== 5){ErrorType = 12;}
-	            //if(kBit== 6){ErrorType = 13;}
-	            //if(kBit== 7){ErrorType = 14;}
-	            //if(kBit== 8){ErrorType = 15;}
-	            //if(kBit> 8) {ErrorType = 16;} //any IBL chip errors
+               if(ErrorType==7 && m_TimeoutErrors){
+                  m_TimeoutErrors->Fill(WaferID,m_pixelid,m_doIBL, false);
+                  m_TimeoutErrors_per_evt->FillNormalized(m_TimeoutErrors, m_event);  //to be removed ?
+               }
 
 	            if(m_doLumiBlock){
 		            if(m_errors_LB)m_errors_LB->Fill(WaferID,m_pixelid,m_doIBL, true);
 	            }
 	       
 	            /// Count the each error
-               if (ErrorType==1||ErrorType==2){ // Synchronization error other than IBL
-	               if(isIBL) nSyncErrors_IBL++;
+               if (ErrorType==1||ErrorType==2){ 
 	               if(!isIBL) nSyncErrors_PIX++;
-		            if(m_pixelid->barrel_ec(WaferID)==2) nSyncErrors_ECA++;
-		            if(m_pixelid->barrel_ec(WaferID)==-2) nSyncErrors_ECC++;
-		            if(m_pixelid->barrel_ec(WaferID)==0) {
-		              if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nSyncErrors_B0++;
-		              if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nSyncErrors_B1++;
-		              if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nSyncErrors_B2++;
-		            }
+                  if( pixlayer != 99 ){
+                     nSyncErrors_mod[pixlayer]++;
+                     if( !hasError[ErrorCategory::kSync] ){
+                        nErrorsCategory_permod[ErrorCategory::kSync][pixlayer]++;
+                        hasError[ErrorCategory::kSync] = true;
+                     }
+                  }
 	            }
-	            if (ErrorType==3||ErrorType==4){ // Truncation error other than IBL
-		            if(isIBL)nTruncErrors_IBL++;
+	            if (ErrorType==3||ErrorType==4){
 		            if(!isIBL)nTruncErrors_PIX++;
-		            if(m_pixelid->barrel_ec(WaferID)==2) nTruncErrors_ECA++;
-		            if(m_pixelid->barrel_ec(WaferID)==-2) nTruncErrors_ECC++;
-		            if(m_pixelid->barrel_ec(WaferID)==0) {
-		              if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nTruncErrors_B0++;
-		              if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nTruncErrors_B1++;
-		              if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nTruncErrors_B2++;
-		            }
+                  if( pixlayer != 99 ){
+                     nTruncErrors_mod[pixlayer]++;
+                     if( !hasError[ErrorCategory::kTrunc] ){
+                        nErrorsCategory_permod[ErrorCategory::kTrunc][pixlayer]++;
+                        hasError[ErrorCategory::kTrunc] = true;
+                     }
+                  }
 	            }
-	            if (ErrorType==5){ // Optical error other than IBL
-	              if(isIBL)nOpticalErrors_IBL++;
+	            if (ErrorType==5){
 	              if(!isIBL)nOpticalErrors_PIX++;
-		           if(m_pixelid->barrel_ec(WaferID)==2) nOpticalErrors_ECA++;
-		           if(m_pixelid->barrel_ec(WaferID)==-2) nOpticalErrors_ECC++;
-		           if(m_pixelid->barrel_ec(WaferID)==0) {
-		             if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nOpticalErrors_B0++;
-		             if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nOpticalErrors_B1++;
-		             if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nOpticalErrors_B2++;
-		           }
+                 if( pixlayer != 99 ){
+                    nOpticalErrors_mod[pixlayer]++;
+                     if( !hasError[ErrorCategory::kOpt] ){
+                        nErrorsCategory_permod[ErrorCategory::kOpt][pixlayer]++;
+                        hasError[ErrorCategory::kOpt] = true;
+                     }
+                 }
 	            }
-	            if (ErrorType==6){ // SEU error other than IBL
-		            if(isIBL)nSEUErrors_IBL++;
+	            if (ErrorType==6){
 		            if(!isIBL)nSEUErrors_PIX++;
-		            if(m_pixelid->barrel_ec(WaferID)==2) nSEUErrors_ECA++;
-		            if(m_pixelid->barrel_ec(WaferID)==-2) nSEUErrors_ECC++;
-		            if(m_pixelid->barrel_ec(WaferID)==0) {
-		              if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nSEUErrors_B0++;
-		              if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nSEUErrors_B1++;
-		              if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nSEUErrors_B2++;
-		            }
-	            }
-	            if (ErrorType==7){ // Timeout error other than IBL
-	              if(isIBL)nTimeoutErrors_IBL++;
+                  if( pixlayer != 99 ){
+                     nSEUErrors_mod[pixlayer]++;
+                     if( !hasError[ErrorCategory::kSeu] ){
+                        nErrorsCategory_permod[ErrorCategory::kSeu][pixlayer]++;
+                        hasError[ErrorCategory::kSeu] = true;
+                     }
+	               }
+               }
+	            if (ErrorType==7){
 	              if(!isIBL)nTimeoutErrors_PIX++;
-		           if(m_pixelid->barrel_ec(WaferID)==2) nTimeoutErrors_ECA++;
-		           if(m_pixelid->barrel_ec(WaferID)==-2) nTimeoutErrors_ECC++;
-		           if(m_pixelid->barrel_ec(WaferID)==0) {
-		             if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nTimeoutErrors_B0++;
-		             if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nTimeoutErrors_B1++;
-		             if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nTimeoutErrors_B2++;
-		           }
+                 if( pixlayer != 99 ){
+                    nTimeoutErrors_mod[pixlayer]++;
+                     if( !hasError[ErrorCategory::kTout] ){
+                        nErrorsCategory_permod[ErrorCategory::kTout][pixlayer]++;
+                        hasError[ErrorCategory::kTout] = true;
+                     }
+                  }
 	            }
-
-               /// for IBL
-               //if(isIBL && (ErrorType==8 || ErrorType==9)) nTruncErrors_IBL++;
-               //if(isIBL && (ErrorType==10 || ErrorType==15)) nTimeoutErrors_IBL++;
-               //if(isIBL && ErrorType==13) nOpticalErrors_IBL++;
-	            //if(isIBL && (ErrorType==11 || ErrorType==12)) nSyncErrors_IBL++;
-	            //if(isIBL && (ErrorType==8 || ErrorType==9 || ErrorType==10 || ErrorType==13 || ErrorType==14 || ErrorType==15)) nOtherRODErrors_IBL++;
-	            //if(isIBL && (ErrorType==16)) nChipErrors_IBL++;
-	            //CCC CCCC CCCC CCCC CCCC EPpl bzhv
             } // End of if(ErrorType)
-            
+           
+            if( getErrorCategory(kBit, isIBL) != 99 ){
+               if( pixlayer != 99 ) nErrors_cat_mod[pixlayer][getErrorCategory(kBit, isIBL)]++;
+               isError[getErrorCategory(kBit, isIBL)]=true;
+            }
             if(kBit==14){ // module synchronization error other than IBL
 	            if(m_sync_mod_BCID1) m_sync_mod_BCID1->Fill(WaferID,m_pixelid,m_doIBL, true);
                if(m_sync_mod_BCID1_int_LB) m_sync_mod_BCID1_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[0]=true;
-               if(!isIBL)nErrors_cat_PIX[0]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[0]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[0]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[0]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[0]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[0]++;
-               }
             }
             if(kBit==15){ // module synchronization error other than IBL
 	            if(m_sync_mod_BCID2) m_sync_mod_BCID2->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_sync_mod_BCID2_int_LB) m_sync_mod_BCID2_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[1]=true;
-               if(!isIBL)nErrors_cat_PIX[1]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[1]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[1]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[1]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[1]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[1]++;
-               }
             }
             if(kBit==16){ // module synchronization error (LVL1ID) other than IBL
 	            if(m_sync_mod_LVL1ID) m_sync_mod_LVL1ID->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_sync_mod_LVL1ID_int_LB) m_sync_mod_LVL1ID_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[2]=true;
-               if(!isIBL)nErrors_cat_PIX[2]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[2]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[2]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[2]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[2]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[2]++;
-               }
             }
             if(kBit==20){ // ROD synchronization error (BCID) other than IBL
 	            if(m_sync_rod_BCID) m_sync_rod_BCID->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_sync_rod_BCID_int_LB) m_sync_rod_BCID_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[3]=true;
-               if(!isIBL)nErrors_cat_PIX[3]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[3]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[3]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[3]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[3]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[3]++;
-               }
             }
             if(kBit==21){ // ROD synchronization error (LVL1ID) other than IBL
 	            if(m_sync_rod_LVL1ID) m_sync_rod_LVL1ID->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_sync_rod_LVL1ID_int_LB) m_sync_rod_LVL1ID_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[4]=true;
-               if(!isIBL)nErrors_cat_PIX[4]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[4]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[4]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[4]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[4]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[4]++;
-               }
             }
             if(kBit==4){ // Module truncation errors (EOC)
 	            if(m_trunc_mod_EOC) m_trunc_mod_EOC->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_trunc_mod_EOC_int_LB) m_trunc_mod_EOC_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[5]=true;
-               if(!isIBL)nErrors_cat_PIX[5]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[5]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[5]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[5]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[5]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[5]++;
-               }
             }
             if(kBit==12){ // Module truncation errors (hit overflow)
 	            if(m_trunc_mod_hitOF) m_trunc_mod_hitOF->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_trunc_mod_hitOF_int_LB) m_trunc_mod_hitOF_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[6]=true;
-               if(!isIBL)nErrors_cat_PIX[6]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[6]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[6]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[6]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[6]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[6]++;
-               }
             }
             if(kBit==13){ // Module truncation errors (EoE overflow)
 	            if(m_trunc_mod_EoEOF) m_trunc_mod_EoEOF->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_trunc_mod_EoEOF_int_LB) m_trunc_mod_EoEOF_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[7]=true;
-               if(!isIBL)nErrors_cat_PIX[7]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[7]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[7]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[7]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[7]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[7]++;
-               }
             }
             if(kBit==1){ // ROD truncation errors (H/T Limit)
 	            if(m_trunc_rod_HTlim) m_trunc_rod_HTlim->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_trunc_rod_HTlim_int_LB) m_trunc_rod_HTlim_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[8]=true;
-               if(!isIBL)nErrors_cat_PIX[8]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[8]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[8]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[8]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[8]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[8]++;
-               }
             }
             if(kBit==0){ // ROD truncation errors (FIFO Overflow)
 	            if(m_trunc_rod_FIFOOF) m_trunc_rod_FIFOOF->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_trunc_rod_FIFOOF_int_LB) m_trunc_rod_FIFOOF_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[9]=true;
-               if(!isIBL)nErrors_cat_PIX[9]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[9]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[9]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[9]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[9]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[9]++;
-               }
             }
             if(kBit==23){ // optical errors (preable)
 	            if(m_optical_error) m_optical_error->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_optical_error_int_LB) m_optical_error_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[10]=true;
-               if(!isIBL)nErrors_cat_PIX[10]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[10]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[10]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[10]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[10]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[10]++;
-               }
             }
             if(kBit==5){
 	            if(m_seu_hit_parity) m_seu_hit_parity->Fill(WaferID,m_pixelid,m_doIBL,true);
 	            if(m_optical_error_int_LB) m_optical_error_int_LB->Fill(LBnum,WaferID,m_pixelid,m_doIBL,true);
-               if(!isIBL)isError[11]=true;
-               if(!isIBL)nErrors_cat_PIX[11]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[11]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[11]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[11]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[11]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[11]++;
-               }
             }
             if(kBit==6){
 	            if(m_seu_reg_parity) m_seu_reg_parity->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_seu_reg_parity_int_LB) m_seu_reg_parity_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[12]=true;
-               if(!isIBL)nErrors_cat_PIX[12]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[12]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[12]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[12]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[12]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[12]++;
-               }
             }
             if(kBit==7){
 	            if(m_seu_hamming) m_seu_hamming->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_seu_hamming_int_LB) m_seu_hamming_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[13]=true;
-               if(!isIBL)nErrors_cat_PIX[13]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[13]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[13]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[13]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[13]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[13]++;
-               }
             }
             if(kBit==22){
 	            if(m_timeout) m_timeout->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_timeout_int_LB) m_timeout_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[14]=true;
-               if(!isIBL)nErrors_cat_PIX[14]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[14]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[14]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[14]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[14]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[14]++;
-               }
             }            
             if(kBit==8){
 	            if(m_FEwarning) m_FEwarning->Fill(WaferID,m_pixelid,m_doIBL,true);
                if(m_FEwarning_int_LB) m_FEwarning_int_LB->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
-               if(!isIBL)isError[15]=true;
-               if(!isIBL)nErrors_cat_PIX[15]++;
-               if(m_pixelid->barrel_ec(WaferID)==2) nErrors_cat_ECA[15]++;
-               if(m_pixelid->barrel_ec(WaferID)==-2) nErrors_cat_ECC[15]++;
-               if(m_pixelid->barrel_ec(WaferID)==0) {
-                  if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nErrors_cat_B0[15]++;
-                  if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nErrors_cat_B1[15]++;
-                  if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nErrors_cat_B2[15]++;
-               }
             }
-            // FOR IBL
-            if(isIBL){ 
-               //nErrors_cat_IBL[kBit]++;
-            }
-
          }//end bit shifting
       }//end for loop over bits
 
@@ -1034,174 +754,83 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          else m_FEwarning_per_LB->Fill(LBnum,WaferID,m_pixelid,0);           
       }   
    } //end loop over all identifiers
-  
+ /// 
    if(m_error_time1&&m_error_time2&&m_error_time3)FillTimeHisto(double(nErrors_PIX),  m_error_time1, m_error_time2, m_error_time3,10.,60.,360.); //occupancy vs time);
 
    if(m_otherROD_per_lumi_IBL) m_otherROD_per_lumi_IBL->Fill(LBnum,nOtherRODErrors_IBL);
    if(m_chip_per_lumi_IBL) m_chip_per_lumi_IBL->Fill(LBnum,nChipErrors_IBL);
-   for(int i=0; i<32; i++){
-      //if(m_Errors_per_lumi_IBL[i]) m_Errors_per_lumi_IBL[i]->Fill(LBnum, nErrors_cat_IBL[i]);
+
+   for( int i=0; i<PixLayer::COUNT; i++){
+      if(m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(LBnum, nErrors_mod[i]);
    }
 
-   if(m_errors_per_lumi_IBL) m_errors_per_lumi_IBL->Fill(LBnum,nErrors_IBL);
-   if(m_errors_per_lumi_PIX) m_errors_per_lumi_PIX->Fill(LBnum,nErrors_PIX);
-   if(m_errors_per_lumi_ECA) m_errors_per_lumi_ECA->Fill(LBnum,nErrors_ECA);
-   if(m_errors_per_lumi_ECC) m_errors_per_lumi_ECC->Fill(LBnum,nErrors_ECC);
-   if(m_errors_per_lumi_B0)  m_errors_per_lumi_B0 ->Fill(LBnum,nErrors_B0);
-   if(m_errors_per_lumi_B1)  m_errors_per_lumi_B1 ->Fill(LBnum,nErrors_B1);
-   if(m_errors_per_lumi_B2)  m_errors_per_lumi_B2 ->Fill(LBnum,nErrors_B2);
 
-   if(m_sync_mod_BCID1_per_lumi_PIX) m_sync_mod_BCID1_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[0]);
-   if(m_sync_mod_BCID1_per_lumi_ECA) m_sync_mod_BCID1_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[0]);
-   if(m_sync_mod_BCID1_per_lumi_ECC) m_sync_mod_BCID1_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[0]);
-   if(m_sync_mod_BCID1_per_lumi_B0)  m_sync_mod_BCID1_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[0]);
-   if(m_sync_mod_BCID1_per_lumi_B1)  m_sync_mod_BCID1_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[0]);
-   if(m_sync_mod_BCID1_per_lumi_B2)  m_sync_mod_BCID1_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[0]);
+   for( int i=0; i<PixLayer::COUNT-1; i++){
+      for( int j=0; j<16; j++) {
+         if( m_errorStates_per_lumi_mod[i][j] ) m_errorStates_per_lumi_mod[i][j]->Fill(LBnum, nErrors_cat_mod[i][j]);
+      }
+   }
 
-   if(m_sync_mod_BCID2_per_lumi_PIX) m_sync_mod_BCID2_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[1]);
-   if(m_sync_mod_BCID2_per_lumi_ECA) m_sync_mod_BCID2_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[1]);
-   if(m_sync_mod_BCID2_per_lumi_ECC) m_sync_mod_BCID2_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[1]);
-   if(m_sync_mod_BCID2_per_lumi_B0)  m_sync_mod_BCID2_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[1]);
-   if(m_sync_mod_BCID2_per_lumi_B1)  m_sync_mod_BCID2_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[1]);
-   if(m_sync_mod_BCID2_per_lumi_B2)  m_sync_mod_BCID2_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[1]);
-
-   if(m_sync_mod_LVL1ID_per_lumi_PIX) m_sync_mod_LVL1ID_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[2]);
-   if(m_sync_mod_LVL1ID_per_lumi_ECA) m_sync_mod_LVL1ID_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[2]);
-   if(m_sync_mod_LVL1ID_per_lumi_ECC) m_sync_mod_LVL1ID_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[2]);
-   if(m_sync_mod_LVL1ID_per_lumi_B0)  m_sync_mod_LVL1ID_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[2]);
-   if(m_sync_mod_LVL1ID_per_lumi_B1)  m_sync_mod_LVL1ID_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[2]);
-   if(m_sync_mod_LVL1ID_per_lumi_B2)  m_sync_mod_LVL1ID_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[2]);
-
-   if(m_sync_rod_BCID_per_lumi_PIX) m_sync_rod_BCID_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[3]);
-   if(m_sync_rod_BCID_per_lumi_ECA) m_sync_rod_BCID_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[3]);
-   if(m_sync_rod_BCID_per_lumi_ECC) m_sync_rod_BCID_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[3]);
-   if(m_sync_rod_BCID_per_lumi_B0)  m_sync_rod_BCID_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[3]);
-   if(m_sync_rod_BCID_per_lumi_B1)  m_sync_rod_BCID_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[3]);
-   if(m_sync_rod_BCID_per_lumi_B2)  m_sync_rod_BCID_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[3]);
-
-   if(m_sync_rod_LVL1ID_per_lumi_PIX) m_sync_rod_LVL1ID_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[4]);
-   if(m_sync_rod_LVL1ID_per_lumi_ECA) m_sync_rod_LVL1ID_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[4]);
-   if(m_sync_rod_LVL1ID_per_lumi_ECC) m_sync_rod_LVL1ID_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[4]);
-   if(m_sync_rod_LVL1ID_per_lumi_B0)  m_sync_rod_LVL1ID_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[4]);
-   if(m_sync_rod_LVL1ID_per_lumi_B1)  m_sync_rod_LVL1ID_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[4]);
-   if(m_sync_rod_LVL1ID_per_lumi_B2)  m_sync_rod_LVL1ID_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[4]);
-
-   if(m_trunc_mod_EOC_per_lumi_PIX) m_trunc_mod_EOC_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[5]);
-   if(m_trunc_mod_EOC_per_lumi_ECA) m_trunc_mod_EOC_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[5]);
-   if(m_trunc_mod_EOC_per_lumi_ECC) m_trunc_mod_EOC_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[5]);
-   if(m_trunc_mod_EOC_per_lumi_B0)  m_trunc_mod_EOC_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[5]);
-   if(m_trunc_mod_EOC_per_lumi_B1)  m_trunc_mod_EOC_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[5]);
-   if(m_trunc_mod_EOC_per_lumi_B2)  m_trunc_mod_EOC_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[5]);
-
-   if(m_trunc_mod_hitOF_per_lumi_PIX) m_trunc_mod_hitOF_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[6]);
-   if(m_trunc_mod_hitOF_per_lumi_ECA) m_trunc_mod_hitOF_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[6]);
-   if(m_trunc_mod_hitOF_per_lumi_ECC) m_trunc_mod_hitOF_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[6]);
-   if(m_trunc_mod_hitOF_per_lumi_B0)  m_trunc_mod_hitOF_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[6]);
-   if(m_trunc_mod_hitOF_per_lumi_B1)  m_trunc_mod_hitOF_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[6]);
-   if(m_trunc_mod_hitOF_per_lumi_B2)  m_trunc_mod_hitOF_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[6]);
-
-   if(m_trunc_mod_EoEOF_per_lumi_PIX) m_trunc_mod_EoEOF_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[7]);
-   if(m_trunc_mod_EoEOF_per_lumi_ECA) m_trunc_mod_EoEOF_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[7]);
-   if(m_trunc_mod_EoEOF_per_lumi_ECC) m_trunc_mod_EoEOF_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[7]);
-   if(m_trunc_mod_EoEOF_per_lumi_B0) m_trunc_mod_EoEOF_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[7]);
-   if(m_trunc_mod_EoEOF_per_lumi_B1) m_trunc_mod_EoEOF_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[7]);
-   if(m_trunc_mod_EoEOF_per_lumi_B2) m_trunc_mod_EoEOF_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[7]);
-
-   if(m_trunc_rod_HTlim_per_lumi_PIX) m_trunc_rod_HTlim_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[8]);
-   if(m_trunc_rod_HTlim_per_lumi_ECA) m_trunc_rod_HTlim_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[8]);
-   if(m_trunc_rod_HTlim_per_lumi_ECC) m_trunc_rod_HTlim_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[8]);
-   if(m_trunc_rod_HTlim_per_lumi_B0)  m_trunc_rod_HTlim_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[8]);
-   if(m_trunc_rod_HTlim_per_lumi_B1)  m_trunc_rod_HTlim_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[8]);
-   if(m_trunc_rod_HTlim_per_lumi_B2)  m_trunc_rod_HTlim_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[8]);
-
-   if(m_trunc_rod_FIFOOF_per_lumi_PIX) m_trunc_rod_FIFOOF_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[9]);
-   if(m_trunc_rod_FIFOOF_per_lumi_ECA) m_trunc_rod_FIFOOF_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[9]);
-   if(m_trunc_rod_FIFOOF_per_lumi_ECC) m_trunc_rod_FIFOOF_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[9]);
-   if(m_trunc_rod_FIFOOF_per_lumi_B0)  m_trunc_rod_FIFOOF_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[9]);
-   if(m_trunc_rod_FIFOOF_per_lumi_B1)  m_trunc_rod_FIFOOF_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[9]);
-   if(m_trunc_rod_FIFOOF_per_lumi_B2)  m_trunc_rod_FIFOOF_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[9]);
-
-   if(m_optical_error_per_lumi_PIX) m_optical_error_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[10]);
-   if(m_optical_error_per_lumi_ECA) m_optical_error_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[10]);
-   if(m_optical_error_per_lumi_ECC) m_optical_error_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[10]);
-   if(m_optical_error_per_lumi_B0)  m_optical_error_per_lumi_B0 ->Fill(LBnum,nErrors_cat_B0[10]);
-   if(m_optical_error_per_lumi_B1)  m_optical_error_per_lumi_B1 ->Fill(LBnum,nErrors_cat_B1[10]);
-   if(m_optical_error_per_lumi_B2)  m_optical_error_per_lumi_B2 ->Fill(LBnum,nErrors_cat_B2[10]);
-
-   if(m_seu_hit_parity_per_lumi_PIX) m_seu_hit_parity_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[11]);
-   if(m_seu_hit_parity_per_lumi_ECA) m_seu_hit_parity_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[11]);
-   if(m_seu_hit_parity_per_lumi_ECC) m_seu_hit_parity_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[11]);
-   if(m_seu_hit_parity_per_lumi_B0) m_seu_hit_parity_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[11]);
-   if(m_seu_hit_parity_per_lumi_B1) m_seu_hit_parity_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[11]);
-   if(m_seu_hit_parity_per_lumi_B2) m_seu_hit_parity_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[11]);
-
-   if(m_seu_reg_parity_per_lumi_PIX) m_seu_reg_parity_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[12]);
-   if(m_seu_reg_parity_per_lumi_ECA) m_seu_reg_parity_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[12]);
-   if(m_seu_reg_parity_per_lumi_ECC) m_seu_reg_parity_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[12]);
-   if(m_seu_reg_parity_per_lumi_B0) m_seu_reg_parity_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[12]);
-   if(m_seu_reg_parity_per_lumi_B1) m_seu_reg_parity_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[12]);
-   if(m_seu_reg_parity_per_lumi_B2) m_seu_reg_parity_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[12]);
-
-   if(m_seu_hamming_per_lumi_PIX) m_seu_hamming_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[13]);
-   if(m_seu_hamming_per_lumi_ECA) m_seu_hamming_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[13]);
-   if(m_seu_hamming_per_lumi_ECC) m_seu_hamming_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[13]);
-   if(m_seu_hamming_per_lumi_B0) m_seu_hamming_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[13]);
-   if(m_seu_hamming_per_lumi_B1) m_seu_hamming_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[13]);
-   if(m_seu_hamming_per_lumi_B2) m_seu_hamming_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[13]);
-
-   if(m_timeout_per_lumi_PIX) m_timeout_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[14]);
-   if(m_timeout_per_lumi_ECA) m_timeout_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[14]);
-   if(m_timeout_per_lumi_ECC) m_timeout_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[14]);
-   if(m_timeout_per_lumi_B0) m_timeout_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[14]);
-   if(m_timeout_per_lumi_B1) m_timeout_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[14]);
-   if(m_timeout_per_lumi_B2) m_timeout_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[14]);
-
-   if(m_FEwarning_per_lumi_PIX) m_FEwarning_per_lumi_PIX->Fill(LBnum,nErrors_cat_PIX[15]);
-   if(m_FEwarning_per_lumi_ECA) m_FEwarning_per_lumi_ECA->Fill(LBnum,nErrors_cat_ECA[15]);
-   if(m_FEwarning_per_lumi_ECC) m_FEwarning_per_lumi_ECC->Fill(LBnum,nErrors_cat_ECC[15]);
-   if(m_FEwarning_per_lumi_B0) m_FEwarning_per_lumi_B0->Fill(LBnum,nErrors_cat_B0[15]);
-   if(m_FEwarning_per_lumi_B1) m_FEwarning_per_lumi_B1->Fill(LBnum,nErrors_cat_B1[15]);
-   if(m_FEwarning_per_lumi_B2) m_FEwarning_per_lumi_B2->Fill(LBnum,nErrors_cat_B2[15]);
-
-   if(m_SyncErrors_per_lumi_IBL)        m_SyncErrors_per_lumi_IBL      ->Fill(LBnum,nSyncErrors_IBL);
-   if(m_SyncErrors_per_lumi_PIX)        m_SyncErrors_per_lumi_PIX      ->Fill(LBnum,nSyncErrors_PIX);
-   if(m_SyncErrors_per_lumi_ECA)        m_SyncErrors_per_lumi_ECA      ->Fill(LBnum,nSyncErrors_ECA);
-   if(m_SyncErrors_per_lumi_ECC)        m_SyncErrors_per_lumi_ECC      ->Fill(LBnum,nSyncErrors_ECC);
-   if(m_SyncErrors_per_lumi_B0)         m_SyncErrors_per_lumi_B0       ->Fill(LBnum,nSyncErrors_B0);
-   if(m_SyncErrors_per_lumi_B1)         m_SyncErrors_per_lumi_B1       ->Fill(LBnum,nSyncErrors_B1);
-   if(m_SyncErrors_per_lumi_B2)         m_SyncErrors_per_lumi_B2       ->Fill(LBnum,nSyncErrors_B2);
-
-   if(m_TruncationErrors_per_lumi_IBL)  m_TruncationErrors_per_lumi_IBL->Fill(LBnum,nTruncErrors_IBL);
-   if(m_TruncationErrors_per_lumi_PIX)  m_TruncationErrors_per_lumi_PIX->Fill(LBnum,nTruncErrors_PIX);
-   if(m_TruncationErrors_per_lumi_ECA)  m_TruncationErrors_per_lumi_ECA->Fill(LBnum,nTruncErrors_ECA);
-   if(m_TruncationErrors_per_lumi_ECC)  m_TruncationErrors_per_lumi_ECC->Fill(LBnum,nTruncErrors_ECC);
-   if(m_TruncationErrors_per_lumi_B0)   m_TruncationErrors_per_lumi_B0 ->Fill(LBnum,nTruncErrors_B0);
-   if(m_TruncationErrors_per_lumi_B1)   m_TruncationErrors_per_lumi_B1 ->Fill(LBnum,nTruncErrors_B1);
-   if(m_TruncationErrors_per_lumi_B2)   m_TruncationErrors_per_lumi_B2 ->Fill(LBnum,nTruncErrors_B2);
-
-   if(m_OpticalErrors_per_lumi_IBL)     m_OpticalErrors_per_lumi_IBL   ->Fill(LBnum,nOpticalErrors_IBL);
-   if(m_OpticalErrors_per_lumi_PIX)     m_OpticalErrors_per_lumi_PIX   ->Fill(LBnum,nOpticalErrors_PIX);
-   if(m_OpticalErrors_per_lumi_ECA)     m_OpticalErrors_per_lumi_ECA   ->Fill(LBnum,nOpticalErrors_ECA);
-   if(m_OpticalErrors_per_lumi_ECC)     m_OpticalErrors_per_lumi_ECC   ->Fill(LBnum,nOpticalErrors_ECC);
-   if(m_OpticalErrors_per_lumi_B0)      m_OpticalErrors_per_lumi_B0    ->Fill(LBnum,nOpticalErrors_B0);
-   if(m_OpticalErrors_per_lumi_B1)      m_OpticalErrors_per_lumi_B1    ->Fill(LBnum,nOpticalErrors_B1);
-   if(m_OpticalErrors_per_lumi_B2)      m_OpticalErrors_per_lumi_B2    ->Fill(LBnum,nOpticalErrors_B2);
-
-   if(m_SEU_Errors_per_lumi_IBL)        m_SEU_Errors_per_lumi_IBL      ->Fill(LBnum,nSEUErrors_IBL);
-   if(m_SEU_Errors_per_lumi_PIX)        m_SEU_Errors_per_lumi_PIX      ->Fill(LBnum,nSEUErrors_PIX);
-   if(m_SEU_Errors_per_lumi_ECA)        m_SEU_Errors_per_lumi_ECA      ->Fill(LBnum,nSEUErrors_ECA);
-   if(m_SEU_Errors_per_lumi_ECC)        m_SEU_Errors_per_lumi_ECC      ->Fill(LBnum,nSEUErrors_ECC);
-   if(m_SEU_Errors_per_lumi_B0)         m_SEU_Errors_per_lumi_B0       ->Fill(LBnum,nSEUErrors_B0);
-   if(m_SEU_Errors_per_lumi_B1)         m_SEU_Errors_per_lumi_B1       ->Fill(LBnum,nSEUErrors_B1);
-   if(m_SEU_Errors_per_lumi_B2)         m_SEU_Errors_per_lumi_B2       ->Fill(LBnum,nSEUErrors_B2);
-
-   if(m_TimeoutErrors_per_lumi_IBL)     m_TimeoutErrors_per_lumi_IBL   ->Fill(LBnum,nTimeoutErrors_IBL);
-   if(m_TimeoutErrors_per_lumi_PIX)     m_TimeoutErrors_per_lumi_PIX   ->Fill(LBnum,nTimeoutErrors_PIX);
-   if(m_TimeoutErrors_per_lumi_ECA)     m_TimeoutErrors_per_lumi_ECA   ->Fill(LBnum,nTimeoutErrors_ECA);
-   if(m_TimeoutErrors_per_lumi_ECC)     m_TimeoutErrors_per_lumi_ECC   ->Fill(LBnum,nTimeoutErrors_ECC);
-   if(m_TimeoutErrors_per_lumi_B0)      m_TimeoutErrors_per_lumi_B0    ->Fill(LBnum,nTimeoutErrors_B0);
-   if(m_TimeoutErrors_per_lumi_B1)      m_TimeoutErrors_per_lumi_B1    ->Fill(LBnum,nTimeoutErrors_B1);
-   if(m_TimeoutErrors_per_lumi_B2)      m_TimeoutErrors_per_lumi_B2    ->Fill(LBnum,nTimeoutErrors_B2);
    
+   for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+      if(m_SyncErrors_per_lumi_mod[i]) m_SyncErrors_per_lumi_mod[i]->Fill(LBnum, nSyncErrors_mod[i]);
+      if(m_OpticalErrors_per_lumi_mod[i]) m_OpticalErrors_per_lumi_mod[i]->Fill(LBnum, nOpticalErrors_mod[i]);
+      if(m_SEU_Errors_per_lumi_mod[i]) m_SEU_Errors_per_lumi_mod[i]->Fill(LBnum, nSEUErrors_mod[i]);
+      if(m_TimeoutErrors_per_lumi_mod[i]) m_TimeoutErrors_per_lumi_mod[i]->Fill(LBnum, nTimeoutErrors_mod[i]);
+      if(m_TruncationErrors_per_lumi_mod[i]) m_TruncationErrors_per_lumi_mod[i]->Fill(LBnum, nTruncErrors_mod[i]);
+   }
+
+   for( int i=0; i<ErrorCategory::COUNT; i++){
+      for(int j=0; j<PixLayer::COUNT; j++){
+      if(m_ErrorFraction_per_evt[i][j]) m_ErrorFraction_per_evt[i][j]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[j]);
+      }
+   }
+
    return StatusCode::SUCCESS;
 }
+
+int PixelMainMon::getErrorCategory(int bit, bool isibl)
+{
+   int erstate = 99;
+   if(!isibl){
+      switch( bit ){
+         case 14:
+            erstate = 0; break;
+         case 15:
+            erstate = 1; break;
+         case 16:
+            erstate = 2; break;
+         case 20:
+            erstate = 3; break;
+         case 21:
+            erstate = 4; break;
+         case 4:
+            erstate = 5; break;
+         case 12:
+            erstate = 6; break;
+         case 13:
+            erstate = 7; break;
+         case 1:
+            erstate = 8; break;
+         case 0:
+            erstate = 9; break;
+         case 23:
+            erstate = 10; break;
+         case 5:
+            erstate = 11; break;
+         case 6:
+            erstate = 12; break;
+         case 7:
+            erstate = 13; break;
+         case 22:
+            erstate = 14; break;
+         case 8:
+            erstate = 15; break;
+         default:
+            erstate = 99; break;
+      }
+   }else{
+   }
+   return erstate;
+}
+

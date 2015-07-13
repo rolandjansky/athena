@@ -164,15 +164,18 @@ StatusCode PixelMainMon::FillStatusMon(void)
 	      // inactive or bad modules
 	      // should maybe use only inactive modules for these, however, since tracking etc use "disabled module" as !(active+good)
 	      // continue monitoring that quantity for now
-	      nDisabled++;
-	      if(m_pixelid->barrel_ec(WaferID)==2)  nDisabled_ECA++;
-	      if(m_pixelid->barrel_ec(WaferID)==-2) nDisabled_ECC++;
-	      if (m_pixelid->barrel_ec(WaferID)==0) {
-	         if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nDisabled_IBL++;
-	         if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nDisabled_B0++;
-	         if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nDisabled_B1++;
-	         if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nDisabled_B2++;
-	      }
+         if(Index == 2)
+	      {
+            nDisabled++;
+	         if(m_pixelid->barrel_ec(WaferID)==2)  nDisabled_ECA++;
+	         if(m_pixelid->barrel_ec(WaferID)==-2) nDisabled_ECC++;
+	         if (m_pixelid->barrel_ec(WaferID)==0) {
+	            if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nDisabled_IBL++;
+	            if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nDisabled_B0++;
+	            if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nDisabled_B1++;
+	            if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nDisabled_B2++;
+	         }
+         }
 
 	      if (m_Status_modules)
          {
@@ -226,40 +229,35 @@ StatusCode PixelMainMon::FillStatusMon(void)
 
 StatusCode PixelMainMon::ProcStatusMon(void)
 {
-  if(m_status && m_dqStatus && m_occupancy)
-    {
+   if(m_status && m_dqStatus && m_occupancy)
+   {
       if(m_doIBL){
-	for(int i=1;i<=12;i++)
-	  {
-	    for(int j=1;j<=14;j++){
-	      m_dqStatus->IBL2D->SetBinContent(i,j, m_occupancy->IBL2D->GetBinContent(i,j) + m_status->IBL2D->GetBinContent(i,j) );
-	    }	 
-	  }
-	for(int i=1;i<=8;i++)
-	  {
-	    for(int j=1;j<=14;j++){
-	      m_dqStatus->IBL3D->SetBinContent(i,j, m_occupancy->IBL3D->GetBinContent(i,j) + m_status->IBL3D->GetBinContent(i,j) );
-	    }	 
-	  }
+	      for(int i=1;i<=12;i++){
+	         for(int j=1;j<=14;j++){
+	            m_dqStatus->IBL2D->SetBinContent(i,j, m_occupancy->IBL2D->GetBinContent(i,j) + m_status->IBL2D->GetBinContent(i,j) );
+	         }	 
+	      }
+	      for(int i=1;i<=8;i++){
+	         for(int j=1;j<=14;j++){
+	            m_dqStatus->IBL3D->SetBinContent(i,j, m_occupancy->IBL3D->GetBinContent(i,j) + m_status->IBL3D->GetBinContent(i,j) );
+	         }	 
+	      }
       }
-      for(int i=1;i<=13;i++)
-	{
-	  for(int j=1;j<=22;j++)
-	    m_dqStatus->B0->SetBinContent(i,j, m_occupancy->B0->GetBinContent(i,j) + m_status->B0->GetBinContent(i,j) );
-	  for(int j=1;j<=38;j++)                                                                                   
-	    m_dqStatus->B1->SetBinContent(i,j, m_occupancy->B1->GetBinContent(i,j) + m_status->B1->GetBinContent(i,j) );
-	  for(int j=1;j<=52;j++)                                                                                   
-	    m_dqStatus->B2->SetBinContent(i,j, m_occupancy->B2->GetBinContent(i,j) + m_status->B2->GetBinContent(i,j) );
-	}
-      for(int i=1;i<=48;i++)
-	{
-	  for(int j=1;j<=3;j++)
-	    {
-	      m_dqStatus->A->SetBinContent(j,i, m_occupancy->A->GetBinContent(j,i) + m_status->A->GetBinContent(j,i) );
-	      m_dqStatus->C->SetBinContent(j,i, m_occupancy->C->GetBinContent(j,i) + m_status->C->GetBinContent(j,i) );
-	    }
-	}
-    }
-  return StatusCode::SUCCESS;                  
+      for(int i=1;i<=13;i++){
+	      for(int j=1;j<=22;j++)
+	         m_dqStatus->B0->SetBinContent(i,j, m_occupancy->B0->GetBinContent(i,j) + m_status->B0->GetBinContent(i,j) );
+	      for(int j=1;j<=38;j++)                                                                                   
+	         m_dqStatus->B1->SetBinContent(i,j, m_occupancy->B1->GetBinContent(i,j) + m_status->B1->GetBinContent(i,j) );
+	      for(int j=1;j<=52;j++)                                                                                   
+	         m_dqStatus->B2->SetBinContent(i,j, m_occupancy->B2->GetBinContent(i,j) + m_status->B2->GetBinContent(i,j) );
+	   }
+      for(int i=1;i<=48;i++){
+	      for(int j=1;j<=3;j++){
+	         m_dqStatus->A->SetBinContent(j,i, m_occupancy->A->GetBinContent(j,i) + m_status->A->GetBinContent(j,i) );
+	         m_dqStatus->C->SetBinContent(j,i, m_occupancy->C->GetBinContent(j,i) + m_status->C->GetBinContent(j,i) );
+	      }
+	   }
+   }
+   return StatusCode::SUCCESS;                  
 }                                               
 

@@ -14,18 +14,18 @@
 #include <string.h>
 
 PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title)
-
 {
-  IBL3D = new TH2F((name+"_IBL3D").c_str(),("IBL 3D modules " + title + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
-  IBL2D = new TH2F((name+"_IBL2D").c_str(),("IBL planar modules " + title + ";shifted eta index of module;phi index of module").c_str(), 12, -6.5, 5.5, 14, -0.5, 13.5);
-  IBL = new TH2F((name+"_IBL").c_str(),("IBL modules " + title + ";shifted eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
-  B0 = new TH2F((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = new TH2F((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = new TH2F((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = new TH2F((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C  = new TH2F((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+   m_cnt = 0;
+   IBL3D = new TH2F((name+"_IBL3D").c_str(),(title + ", IBL 3D modules " + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
+   IBL2D = new TH2F((name+"_IBL2D").c_str(),(title + ", IBL planar modules " + ";shifted eta index of module;phi index of module").c_str(), 12, -6.5, 5.5, 14, -0.5, 13.5);
+   IBL = new TH2F((name+"_IBL").c_str(),    (title + ", IBL "        + ";shifted eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+   B0 = new TH2F((name+"_B0").c_str(),      (title + ", B0 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
+   B1 = new TH2F((name+"_B1").c_str(),      (title + ", B1 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
+   B2 = new TH2F((name+"_B2").c_str(),      (title + ", B2 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
+   A  = new TH2F((name+"_A" ).c_str(),      (title + ", ECA "             + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+   C  = new TH2F((name+"_C" ).c_str(),      (title + ", ECC "             + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
 
-  formatHist();
+   formatHist();
 }
 
 PixelMon2DMaps::~PixelMon2DMaps()
@@ -40,83 +40,273 @@ PixelMon2DMaps::~PixelMon2DMaps()
    delete C;
 }
 
+void PixelMon2DMaps::Reset()
+{
+   IBL3D->Reset();
+   IBL2D->Reset();
+   IBL->Reset();
+   B0->Reset();
+   B1->Reset();
+   B2->Reset();
+   A->Reset();
+   C->Reset();
+}
+
 void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
    int pm  = pixID->phi_module(id);
 
-   if(bec==2) A->Fill(ld,pm); 
-   else if(bec==-2) C->Fill(ld,pm);
+   if(bec==2) A->Fill(ld, pm);
+   else if(bec==-2) C->Fill(ld, pm);
 
    else if(bec==0)
-     {
-       if(doIBL){ld--;}
-       int em  = pixID->eta_module(id);
-       if(ld ==0){ 
-	 B0->Fill(em,pm);
-       }
-       else if(ld ==1){ 
-	 B1->Fill(em,pm);
-       }
-       else if(ld ==2){ 
-	 B2->Fill(em,pm);
-       }
-       else if(ld ==-1){
-	 int feid = 0;
-	 int emf = 0;
-	 if(em<6 && em>-7){
-	   if(pixID->eta_index(id) >= 80) feid = 1;
-	   emf = 2 * em + feid; 
-	   IBL2D->Fill(em,pm);
-	 }
-	 else if(em<-6){
-	   emf = em - 6;
-	   IBL3D->Fill(em+10,pm); 
-	 }
-	 else{
-	   emf = em + 6;
-	   IBL3D->Fill(em-2,pm); 
-	 }
-	 IBL->Fill(emf,pm);
-       }
-     }
+   {
+      if(doIBL){ld--;}
+      int em  = pixID->eta_module(id);
+      if(ld ==0){ 
+	      B0->Fill(em, pm);
+      }
+      else if(ld ==1){ 
+	      B1->Fill(em, pm);
+      }
+      else if(ld ==2){ 
+	      B2->Fill(em, pm);
+      }
+      else if(ld ==-1){
+	      int feid = 0;
+	      int emf = 0;
+	      if(em<6 && em>-7){
+	         if(pixID->eta_index(id) >= 80) feid = 1;
+	         emf = 2 * em + feid; 
+	         IBL2D->Fill(em, pm);
+	      }
+	      else if(em<-6){
+	         emf = em - 6;
+	         IBL3D->Fill(em+10, pm);
+	      }
+	      else{
+	         emf = em + 6;
+	         IBL3D->Fill(em-2, pm);
+	      }
+	      IBL->Fill(emf, pm);
+      }
+   }
+}
+
+void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight)
+{
+   int bec = pixID->barrel_ec(id);
+   int ld  = pixID->layer_disk(id);
+   int pm  = pixID->phi_module(id);
+
+   if(bec==2) A->Fill(ld, pm, weight);
+   else if(bec==-2) C->Fill(ld, pm, weight);
+
+   else if(bec==0)
+   {
+      if(doIBL){ld--;}
+      int em  = pixID->eta_module(id);
+      if(ld ==0){ 
+	      B0->Fill(em, pm, weight);
+      }
+      else if(ld ==1){ 
+	      B1->Fill(em, pm, weight);
+      }
+      else if(ld ==2){ 
+	      B2->Fill(em, pm, weight);
+      }
+      else if(ld ==-1){
+	      int feid = 0;
+	      int emf = 0;
+	      if(em<6 && em>-7){
+	         if(pixID->eta_index(id) >= 80) feid = 1;
+	         emf = 2 * em + feid; 
+	         IBL2D->Fill(em, pm, weight);
+	      }
+	      else if(em<-6){
+	         emf = em - 6;
+	         IBL3D->Fill(em+10, pm, weight);
+	      }
+	      else{
+	         emf = em + 6;
+	         IBL3D->Fill(em-2, pm, weight);
+	      }
+	      IBL->Fill(emf, pm, weight);
+      }
+   }
 }   
 
 
-void PixelMon2DMaps::Scale (double number)
+//void PixelMon2DMaps::Scale (double number)
+void PixelMon2DMaps::Scale (double number, bool doIBL)
 {
    if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
 
-   A->Scale((float) 1.0/number);
-   C->Scale((float) 1.0/number);
+   A->Scale((float)  1.0/number);
+   C->Scale((float)  1.0/number);
    B0->Scale((float) 1.0/number);
    B1->Scale((float) 1.0/number);
    B2->Scale((float) 1.0/number);
-   IBL2D->Scale((float) 1.0/number);
-   IBL3D->Scale((float) 1.0/number);
-   IBL->Scale((float) 1.0/number);
+   if(doIBL){
+      IBL2D->Scale((float) 1.0/number);
+      IBL3D->Scale((float) 1.0/number);
+      IBL->Scale((float) 1.0/number);
+   }
 }
+
+void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
+//void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, bool doIBL)
+//void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC)
+{
+   double nactivechannels_ECA   = 1.0*nevent*46080;
+   double nactivechannels_ECC   = 1.0*nevent*46080;
+   double nactivechannels_IBL2D = 1.0*nevent*26880*2;
+   double nactivechannels_IBL3D = 1.0*nevent*26880;
+   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
+   double nactivechannels_B0    = 1.0*nevent*46080;
+   double nactivechannels_B1    = 1.0*nevent*46080;
+   double nactivechannels_B2    = 1.0*nevent*46080;
+
+   if (nevent==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
+
+   A->Scale((float)  1.0/nactivechannels_ECA);
+   C->Scale((float)  1.0/nactivechannels_ECC);
+   B0->Scale((float) 1.0/nactivechannels_B0);
+   B1->Scale((float) 1.0/nactivechannels_B1);
+   B2->Scale((float) 1.0/nactivechannels_B2);
+   if(doIBL){
+      IBL2D->Scale((float) 1.0/nactivechannels_IBL2D);
+      IBL3D->Scale((float) 1.0/nactivechannels_IBL3D);
+      IBL->Scale((float) 1.0/nactivechannels_IBL);
+   }
+   /*
+   for(int x=1; x<=A->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=A->GetYaxis()->GetNbins(); y++){
+         A->SetBinContent(x, y, old->A->GetBinContent(x, y)/nactivechannels_ECA );
+      }
+   }
+   for(int x=1; x<=C->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=C->GetYaxis()->GetNbins(); y++){
+         C->SetBinContent(x, y, old->C->GetBinContent(x, y)/nactivechannels_ECC );
+      }
+   }
+   for(int x=1; x<=B0->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=B0->GetYaxis()->GetNbins(); y++){
+         B0->SetBinContent(x, y, old->B0->GetBinContent(x, y)/nactivechannels_B0 );
+      }
+   }
+   for(int x=1; x<=B1->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=B1->GetYaxis()->GetNbins(); y++){
+         B1->SetBinContent(x, y, old->B1->GetBinContent(x, y)/nactivechannels_B1 );
+      }
+   }
+   for(int x=1; x<=B2->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=B2->GetYaxis()->GetNbins(); y++){
+         B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2 );
+      }
+   }
+   if(doIBL){
+   for(int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
+         IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );
+      }
+   }
+   for(int x=1; x<=IBL2D->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=IBL2D->GetYaxis()->GetNbins(); y++){
+         IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D );
+      }
+   }
+   for(int x=1; x<=IBL3D->GetXaxis()->GetNbins(); x++){
+      for(int y=1; y<=IBL3D->GetYaxis()->GetNbins(); y++){
+         IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D );
+      }
+   }
+   }
+   */
+}
+
+void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
+{
+   for(int x=1; x<=A->GetNbinsX(); x++){
+      for(int y=1; y<=A->GetNbinsY(); y++){
+         float content = oldmap->A->GetBinContent(x, y);
+         A->SetBinContent(x, y, content);
+         oldmap->A->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=C->GetNbinsX(); x++){
+      for(int y=1; y<=C->GetNbinsY(); y++){
+         float content = oldmap->C->GetBinContent(x, y);
+         C->SetBinContent(x, y, content);
+         oldmap->C->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=B0->GetNbinsX(); x++){
+      for(int y=1; y<=B0->GetNbinsY(); y++){
+         float content = oldmap->B0->GetBinContent(x, y);
+         B0->SetBinContent(x, y, content);
+         oldmap->B0->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=B1->GetNbinsX(); x++){
+      for(int y=1; y<=B1->GetNbinsY(); y++){
+         float content = oldmap->B1->GetBinContent(x, y);
+         B1->SetBinContent(x, y, content);
+         oldmap->B1->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=B2->GetNbinsX(); x++){
+      for(int y=1; y<=B2->GetNbinsY(); y++){
+         float content = oldmap->B2->GetBinContent(x, y);
+         B2->SetBinContent(x, y, content );
+         oldmap->B2->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=IBL->GetNbinsX(); x++){
+      for(int y=1; y<=IBL->GetNbinsY(); y++){
+         float content = oldmap->IBL->GetBinContent(x, y);
+         IBL->SetBinContent(x, y, content);
+         oldmap->IBL->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=IBL2D->GetNbinsX(); x++){
+      for(int y=1; y<=IBL2D->GetNbinsY(); y++){
+         float content = oldmap->IBL2D->GetBinContent(x, y);
+         IBL2D->SetBinContent(x, y, content);
+         oldmap->IBL2D->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=IBL3D->GetNbinsX(); x++){
+      for(int y=1; y<=IBL3D->GetNbinsY(); y++){
+         float content = oldmap->IBL3D->GetBinContent(x, y);
+         IBL3D->SetBinContent(x, y, content);
+         oldmap->IBL3D->SetBinContent(x, y, 0);
+      }
+   }
+}
+
 
 void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC)
 {
-  double nactivechannels_ECA = 46080*nActive_ECA;
-  double nactivechannels_ECC = 46080*nActive_ECC;
-  double nactivechannels_IBL2D = 26880*2*nActive_IBL2D;
-  double nactivechannels_IBL3D = 26880*nActive_IBL3D;
-  double nactivechannels_IBL = 26880*2*nActive_IBL2D + 26880*nActive_IBL3D;
-  double nactivechannels_B0 = 46080*nActive_B0;
-  double nactivechannels_B1 = 46080*nActive_B1;
-  double nactivechannels_B2 = 46080*nActive_B2;
+   double nactivechannels_ECA   = 1.0*46080*nActive_ECA;
+   double nactivechannels_ECC   = 1.0*46080*nActive_ECC;
+   double nactivechannels_IBL2D = 1.0*26880*2*nActive_IBL2D;
+   double nactivechannels_IBL3D = 1.0*26880*nActive_IBL3D;
+   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
+   double nactivechannels_B0    = 1.0*46080*nActive_B0;
+   double nactivechannels_B1    = 1.0*46080*nActive_B1;
+   double nactivechannels_B2    = 1.0*46080*nActive_B2;
 
-  if(nActive_ECA>0)  A->Scale((double) 1.0/nactivechannels_ECA);
-  if(nActive_ECC>0)  C->Scale((double) 1.0/nactivechannels_ECC);
-  if(nActive_B0>0)  B0->Scale((double) 1.0/nactivechannels_B0);
-  if(nActive_B1>0)  B1->Scale((double) 1.0/nactivechannels_B1);
-  if(nActive_B2>0)  B2->Scale((double) 1.0/nactivechannels_B2);
-  if(nActive_IBL2D>0)   IBL2D->Scale((double) 1.0/nactivechannels_IBL2D);
-  if(nActive_IBL3D>0)   IBL3D->Scale((double) 1.0/nactivechannels_IBL3D);
-  if(nActive_IBL3D>0 || nActive_IBL2D>0)   IBL->Scale((double) 1.0/nactivechannels_IBL);
+   if(nActive_ECA>0)  A->Scale((double) 1.0/nactivechannels_ECA);
+   if(nActive_ECC>0)  C->Scale((double) 1.0/nactivechannels_ECC);
+   if(nActive_B0>0)   B0->Scale((double) 1.0/nactivechannels_B0);
+   if(nActive_B1>0)   B1->Scale((double) 1.0/nactivechannels_B1);
+   if(nActive_B2>0)   B2->Scale((double) 1.0/nactivechannels_B2);
+   if(nActive_IBL2D>0) IBL2D->Scale((double) 1.0/nactivechannels_IBL2D);
+   if(nActive_IBL3D>0) IBL3D->Scale((double) 1.0/nactivechannels_IBL3D);
+   if(nActive_IBL3D>0 || nActive_IBL2D>0) IBL->Scale((double) 1.0/nactivechannels_IBL);
 }
 
 void PixelMon2DMaps::formatHist()

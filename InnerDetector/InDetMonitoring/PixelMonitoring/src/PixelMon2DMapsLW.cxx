@@ -22,14 +22,14 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIB
   std::string phitext = ";phi index of module";
   std::string disktext = ";disk number";
 
-  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), ("IBL 3D modules " + title + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), ("IBL planar modules " + title + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  IBL   = TH2F_LW::create((name+"_IBL").c_str(), ("IBL " + title + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
-  B0 = TH2F_LW::create((name+"_B0").c_str(),("Barrel layer 0 " + title + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = TH2F_LW::create((name+"_B1").c_str(),("Barrel layer 1 " + title + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = TH2F_LW::create((name+"_B2").c_str(),("Barrel layer 2 " + title + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = TH2F_LW::create((name+"_A" ).c_str(),("ECA "            + title + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
-  C  = TH2F_LW::create((name+"_C" ).c_str(),("ECC "            + title + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  IBL   = TH2F_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  B0 = TH2F_LW::create((name+"_B0").c_str(),       (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1 = TH2F_LW::create((name+"_B1").c_str(),       (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2 = TH2F_LW::create((name+"_B2").c_str(),       (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A  = TH2F_LW::create((name+"_A" ).c_str(),       (title + ", ECA " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+  C  = TH2F_LW::create((name+"_C" ).c_str(),       (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
 
   formatHist(doIBL,errorHist);
 }
@@ -92,6 +92,58 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,boo
      }
 }   
 
+void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
+{
+   double nactivechannels_ECA   = 1.0*nevent;
+   double nactivechannels_ECC   = 1.0*nevent;
+   double nactivechannels_IBL2D = 1.0*nevent;
+   double nactivechannels_IBL3D = 1.0*nevent;
+   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
+   double nactivechannels_B0    = 1.0*nevent;
+   double nactivechannels_B1    = 1.0*nevent;
+   double nactivechannels_B2    = 1.0*nevent;
+
+   for(unsigned int x=1; x<=A->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=A->GetYaxis()->GetNbins(); y++){
+         A->SetBinContent(x, y, old->A->GetBinContent(x, y)/nactivechannels_ECA );
+      }
+   }
+   for(unsigned int x=1; x<=C->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=C->GetYaxis()->GetNbins(); y++){
+         C->SetBinContent(x, y, old->C->GetBinContent(x, y)/nactivechannels_ECC );
+      }
+   }
+   for(unsigned int x=1; x<=B0->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=B0->GetYaxis()->GetNbins(); y++){
+         B0->SetBinContent(x, y, old->B0->GetBinContent(x, y)/nactivechannels_B0 );
+      }
+   }
+   for(unsigned int x=1; x<=B1->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=B1->GetYaxis()->GetNbins(); y++){
+         B1->SetBinContent(x, y, old->B1->GetBinContent(x, y)/nactivechannels_B1 );
+      }
+   }
+   for(unsigned int x=1; x<=B2->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=B2->GetYaxis()->GetNbins(); y++){
+         B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2 );
+      }
+   }
+   for(unsigned int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
+         IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );
+      }
+   }
+   for(unsigned int x=1; x<=IBL2D->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=IBL2D->GetYaxis()->GetNbins(); y++){
+         IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D );
+      }
+   }
+   for(unsigned int x=1; x<=IBL3D->GetXaxis()->GetNbins(); x++){
+      for(unsigned int y=1; y<=IBL3D->GetYaxis()->GetNbins(); y++){
+         IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D );
+      }
+   }
+}
 
 // void PixelMon2DMapsLW::Scale (double number)
 // {
