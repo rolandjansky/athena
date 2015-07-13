@@ -228,10 +228,50 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         }
       }
       int x=1;
-      //layer1-3
-      for(int l=0;l<3;l++){
-        for(int c=0;c<5;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+      ////layer1-3
+      //for(int l=0;l<3;l++){
+      //  for(int c=0;c<5;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+      //    for(int bc=0;bc<2;bc++){
+      //      tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //    }
+      //    tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+      ////layer4-7
+      //for(int l=3;l<7;l++){
+      //  for(int c=0;c<6;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c]; 
+      //    for(int bc=0;bc<2;bc++){
+      //      tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //    }
+      //    tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+      ////layer8-9
+      //for(int l=7;l<9;l++){
+      //  for(int c=0;c<2;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c]; 
+      //    for(int bc=0;bc<2;bc++){
+      //      tgceffmapbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //    }
+      //    tgceffmap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapnum[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgceffmapdenom[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+
+      // chamber E1-E4,  layer1-7
+      for(int c=0;c<4;c++){
+	for(int l=1;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT1[c];
           for(int bc=0;bc<2;bc++){
             tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
             tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
@@ -239,12 +279,13 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
           tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+
+	}
       }
-      //layer4-7
-      for(int l=3;l<7;l++){
-        for(int c=0;c<6;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c]; 
+      // chamber E5,  layer4-7
+      for(int c=4;c<5;c++){
+	for(int l=4;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           for(int bc=0;bc<2;bc++){
             tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
             tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
@@ -252,21 +293,37 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
           tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+	}
       }
-      //layer8-9
-      for(int l=7;l<9;l++){
-        for(int c=0;c<2;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c]; 
+      // chamber F,  layer1-7
+      for(int c=5;c<6;c++){
+	for(int l=1;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-            tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
           }
-          tgceffmap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapnum[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapdenom[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+	}
       }
+      // chamber EIFI,  layer8-9
+      for(int c=0;c<2;c++){
+	for(int l=8;l<=9;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberEF[c];
+          for(int bc=0;bc<2;bc++){
+            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+          }
+          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+	}
+      }
+
+
+
       tgceffmap[ac][ws] ->GetXaxis()->LabelsOption("v");
       tgceffmapnum[ac][ws] ->GetXaxis()->LabelsOption("v");
       tgceffmapdenom[ac][ws] ->GetXaxis()->LabelsOption("v");

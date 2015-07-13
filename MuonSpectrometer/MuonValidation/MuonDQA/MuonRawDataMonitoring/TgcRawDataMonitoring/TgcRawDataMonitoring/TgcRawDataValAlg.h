@@ -38,6 +38,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
+#include "TAxis.h"
 
 #include <sstream>
 #include <string.h>
@@ -345,6 +346,7 @@ private:
   void putBox(TH2* h2, float x1, float y1, float x2, float y2);
   void BlankPhi24(TH2 *h2, int binx);
   void BlankStationMap(TH2 *h2);
+  void BlankStripStationMap(TH2 *h2);
 };
 
 #endif 
