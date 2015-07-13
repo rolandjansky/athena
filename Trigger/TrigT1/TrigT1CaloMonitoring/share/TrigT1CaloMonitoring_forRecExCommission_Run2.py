@@ -45,9 +45,6 @@ if l1caloRawMon:
         include(
             'TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py'
         )
-        include(
-            'TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py'
-        )
 
     include("CaloConditions/CaloConditions_jobOptions.py")
     if Offline:
@@ -84,10 +81,10 @@ if l1caloRawMon:
             doPedestalMonitoring=LVL1CaloMonFlags.doPedestalMonitoring(),
             doEtCorrelationMonitoring=(
                 LVL1CaloMonFlags.doEtCorrelationMonitoring() and isCalo),
-            ppmADCMinValue = 60,
-            lumiMax = 2000,
-            fineTimeCut = 20,
-            PathInRootFile = "L1Calo/PPrStabilityMon",
+            ppmADCMinValue=60,
+            lumiMax=2000,
+            fineTimeCut=20,
+            PathInRootFile="L1Calo/PPrStabilityMon",
             # OutputLevel = DEBUG
         )
         ToolSvc += L1PPrStabilityMonTool
@@ -131,7 +128,6 @@ if l1caloRawMon:
             ADCPedestal=32,
             PathInRootFile="L1Calo/PPM",
             ErrorPathInRootFile="L1Calo/PPM/Errors",
-            BeamType=jobproperties.Beam.beamType(),
             #OnlineTest = True,
             #OutputLevel = DEBUG
         )
@@ -212,10 +208,10 @@ if l1caloRawMon:
         #======================================================================
         #===================================== CP =============================
         #=================================== CP-CMX ===========================
-        #====================================================================== 
-        if isData: 
+        #======================================================================
+        if isData:
             # Sasha: Currently pool files does not contain xAOD objects for
-            # CPMTowers, CMXCPTobs and CMXCPHits  
+            # CPMTowers, CMXCPTobs and CMXCPHits
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPMon
             L1CPMMonTool = LVL1__CPMon("L1CPMMonTool")
             ToolSvc += L1CPMMonTool
@@ -223,14 +219,10 @@ if l1caloRawMon:
 
         if isData:
 
-            ### commented out temporarily until we understand the CPSimMon tool###
-            #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ vkousk 24 Feb 2015
-            # from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPSimMon
-            # CPSimMonTool = LVL1__CPSimMon("CPSimMonTool",
-            #                             EmTauTool = "LVL1::L1EmTauTools/L1EmTauTools_Mon",
-            #                             )
-            # ToolSvc += CPSimMonTool
-            # L1CaloMan.AthenaMonTools += [ CPSimMonTool ]
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__CPSimMon
+            CPSimMonTool = LVL1__CPSimMon("CPSimMonTool")
+            ToolSvc += CPSimMonTool
+            L1CaloMan.AthenaMonTools += [CPSimMonTool]
             # ToolSvc.CPMSimBSMonTool.OutputLevel = DEBUG
 
             # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EmTauTools
@@ -253,17 +245,18 @@ if l1caloRawMon:
             #==================================================================
             #=============================== Global Overview ==================
             #==================================================================
-            # from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__OverviewMon
-            # L1OverviewMonTool = LVL1__OverviewMon("L1OverviewMonTool")
-            # ToolSvc += L1OverviewMonTool
-            # L1CaloMan.AthenaMonTools += [ L1OverviewMonTool ]
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__OverviewMon
+            L1OverviewMonTool = LVL1__OverviewMon("L1OverviewMonTool")
+            ToolSvc += L1OverviewMonTool
+            L1CaloMan.AthenaMonTools += [L1OverviewMonTool]
 
-            #from TrigT1CaloMonitoringTools.TrigT1CaloMonitoringToolsConf import TrigT1CaloMonErrorTool
-            # L1MonErrorTool = TrigT1CaloMonErrorTool( name = "TrigT1CaloMonErrorTool",
-            #                                         FlagCorruptEvents = "None"
-            #                                         )
-            #ToolSvc += L1MonErrorTool
-            pass
+            from TrigT1CaloMonitoringTools.TrigT1CaloMonitoringToolsConf import LVL1__TrigT1CaloMonErrorTool
+            L1MonErrorTool = LVL1__TrigT1CaloMonErrorTool(
+                name="TrigT1CaloMonErrorTool",
+                FlagCorruptEvents="None"
+            )
+            ToolSvc += L1MonErrorTool
+            # pass
 
         # if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
         #                                    or rec.triggerStream() == "Muons"

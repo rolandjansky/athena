@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class TH1F_LW;
@@ -28,14 +29,6 @@ class TProfile_LW;
 class TProfile2D_LW;
 
 class StatusCode;
-
-
-
-namespace Trig {
-class IBunchCrossingTool;
-
-static const std::string MC_DIGI_PARAM = "/Digitization/Parameters";
-} //added
 
 // ============================================================================
 namespace LVL1 {
@@ -151,7 +144,7 @@ class TrigT1CaloLWHistogramTool;
  *
  */
 
-class PPrMon: public ManagedMonitorToolBase
+ class PPrMon: public ManagedMonitorToolBase
 {
 
 public:
@@ -164,6 +157,7 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
+
 private:
 
   /// Subdetector partitions
@@ -179,9 +173,6 @@ private:
   int partition(int layer, double eta);
   /// Return subdetector partition name
   std::string partitionName(int part);
-  //Get LHC bunch structure
-  void parseBeamIntensityPattern();
-  std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
   /// xAODTriggerTower Container key
@@ -220,8 +211,6 @@ private:
   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
   /// TT simulation tool for Identifiers
   ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
-  // Tool to retrieve bunch structure
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   // ADC hitmaps
   TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_adc_HitMap;                  ///< eta-phi Map of EM FADC > cut for triggered timeslice
@@ -229,6 +218,9 @@ private:
   // ADC maximum timeslice
   TH1F_LW* m_h_ppm_had_1d_tt_adc_MaxTimeslice;                  ///< HAD Distribution of Maximum Timeslice
   TH1F_LW* m_h_ppm_em_1d_tt_adc_MaxTimeslice;                   ///< EM Distribution of Maximum Timeslice
+
+  /// Bits of BCID Logic Words Vs PeakADC
+  TH2F_LW* m_h_ppm_2d_tt_adc_BcidBits;
 
   // ADC profile hitmaps
   TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap;     ///< eta-phi Profile Map of EM FADC > cut for triggered timeslice
@@ -262,7 +254,6 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Phi;                ///< HAD LUT-CP: Distribution of Peak per phi
 
   TH1F_LW* m_h_ppm_1d_tt_lutcp_LutPerBCN;              ///< Num of LUT-CP > 5 per BC
-  TH2F_LW* m_h_ppm_2d_tt_lutcp_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-CP
 
   //distribution of LUT-JEP peak per detector region
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Et;                  ///< EM LUT-JEP: Distribution of Peak
@@ -274,21 +265,6 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_lutjep_Phi;                ///< HAD LUT-JEP: Distribution of Peak per phi
 
   TH1F_LW* m_h_ppm_1d_tt_lutjep_LutPerBCN;              ///< Num of LUT-JEP > 5 per BC
-  TH2F_LW* m_h_ppm_2d_tt_lutjep_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-JEP
-
-  //Distribution of Pedestal per BCN and Lumi Block
-  TProfile2D_LW* m_h_ppm_em_2d_pedestal_BCN_Lumi;
-  TProfile2D_LW* m_h_ppm_had_2d_pedestal_BCN_Lumi;
-
-  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_Ped_BCN_Lumi;
-  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_Ped_BCN_Lumi;
-
-  //Distribution of Pedestal Correction per BCN and Lumi Block
-  TProfile2D_LW* m_h_ppm_em_2d_pedestalCorrection_BCN_Lumi;
-  TProfile2D_LW* m_h_ppm_had_2d_pedestalCorrection_BCN_Lumi;
-
-  std::map<int, TProfile2D_LW*> m_map_em_partitionProfile_PedCorr_BCN_Lumi;
-  std::map<int, TProfile2D_LW*> m_map_had_partitionProfile_PedCorr_BCN_Lumi;
 
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors

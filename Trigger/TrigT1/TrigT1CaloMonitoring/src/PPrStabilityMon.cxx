@@ -20,6 +20,7 @@
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 
@@ -33,6 +34,7 @@ PPrStabilityMon::PPrStabilityMon(const std::string & type, const std::string & n
   m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
   m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
   m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
+  m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
   m_fineTimePlotManager(0),
   m_pedestalPlotManager(0),
   m_pedestalCorrectionPlotManager(0),
@@ -52,6 +54,7 @@ PPrStabilityMon::PPrStabilityMon(const std::string & type, const std::string & n
   declareProperty("ppmADCMaxValue", m_ppmADCMaxValue = 1023,
                   "Cut on ADC maximum value, used for fine time monitoring");
   declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/PPrStabilityMon");
+  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
   declareProperty("doFineTimeMonitoring", m_doFineTimeMonitoring = true );
   declareProperty("doPedestalMonitoring", m_doPedestalMonitoring = true );
   declareProperty("doPedestalCorrectionMonitoring", m_doPedestalCorrectionMonitoring = true );
@@ -95,6 +98,11 @@ StatusCode PPrStabilityMon::initialize()
 
   sc = m_ttTool.retrieve();
   if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool L1TriggerTowerTool" << endreq; return sc;}
+  
+  CHECK(m_bunchCrossingTool.retrieve()); 
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  CHECK(incSvc.retrieve());
+  incSvc->addListener(this, "BunchConfig");
 
   if (m_doFineTimeMonitoring)
   {
@@ -133,6 +141,16 @@ StatusCode PPrStabilityMon::initialize()
   return StatusCode::SUCCESS;
 
 }
+
+/*---------------------------------------------------------*/
+
+void PPrStabilityMon::handle(const Incident& I)
+{
+  if(I.type() != "BunchConfig") return;
+  parseBeamIntensityPattern();
+}
+
+/*---------------------------------------------------------*/
 
 StatusCode PPrStabilityMon::finalize()
 {
@@ -182,6 +200,16 @@ StatusCode PPrStabilityMon::fillHistograms()
       StatusCode sc2 = m_fineTimePlotManager->getCaloCells();
       if (sc2.isFailure()) {msg(MSG::WARNING) << "Failed to load Calo Cells" << endreq; return sc2;}
     }
+  }
+  
+  //pass bunch structure to pedestal plot manager
+  if (m_doPedestalMonitoring) {
+     m_pedestalPlotManager->SetDistanceFromHeadOfTrain(m_distanceFromHeadOfTrain);
+  }
+  
+  //pass bunch structure to pedestalcorrection plot manager
+  if (m_doPedestalCorrectionMonitoring) {
+     m_pedestalCorrectionPlotManager->SetDistanceFromHeadOfTrain(m_distanceFromHeadOfTrain);
   }
 
   // ================= Container: TriggerTower ===========================
@@ -241,6 +269,72 @@ StatusCode PPrStabilityMon::procHistograms()
 {
   if (endOfRun) {}
   return StatusCode::SUCCESS;
+}
+
+namespace {
+using bcid_t = Trig::IBunchCrossingTool::bcid_type;
+static const bcid_t MAX_BCID = 3564;
+
+template<typename Log, typename Tool, typename ResultVector>
+void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& result) {
+  for (bcid_t bcid = 0; bcid < MAX_BCID; bcid += 20) {
+    // print 20 items at once
+    log << MSG::INFO << "Filled      ";
+    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
+    log << endreq;
+    log << MSG::INFO << "Distance    ";
+    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << result[j].second << " ";
+    log << endreq;
+
+    log << MSG::INFO << "LongGap?    ";
+    for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log <<  std::setw(3) << result[j].first << " ";
+    log << endreq;
+  }
+}
+}
+
+// "Parse" the beam intensity pattern to get the bunch train structure.
+void PPrStabilityMon::parseBeamIntensityPattern()
+{
+  auto BC = Trig::IBunchCrossingTool::BunchCrossings;
+  m_distanceFromHeadOfTrain.assign(MAX_BCID, std::make_pair(false, -10));
+
+  // special case to work around problem in BunchCrossingToolBase
+  ATH_MSG_INFO("NOB: " << m_bunchCrossingTool->numberOfFilledBunches());
+  if(m_bunchCrossingTool->numberOfFilledBunches() <= 1) {
+    // find bcid of filled bunch
+    for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
+      if (m_bunchCrossingTool->isFilled(bcid)) {
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(true, 0);
+        break;
+      }
+    }
+    return;
+  }
+
+  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
+  for (bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
+    if (m_bunchCrossingTool->isFilled(bcid)) {
+      m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(bcid) > 250,
+                                        m_bunchCrossingTool->distanceFromFront(bcid, BC));
+    } else {
+      if (m_bunchCrossingTool->gapAfterBunch(bcid, BC) == 1) {
+        bcid_t head = ((bcid + 1) == MAX_BCID ? 0 : bcid + 1); // wrap around
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(head) > 250,
+                                          -1);
+      } else if (m_bunchCrossingTool->gapBeforeBunch(bcid, BC) == 1) {
+        bcid_t tail = bcid ? bcid - 1 : MAX_BCID - 1; // wrap around
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(tail) > 250,
+                                          m_bunchCrossingTool->distanceFromFront(tail, BC) + 1);
+      } else {
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(false, -10);
+      }
+    }
+  }
+
+  if (msgLvl(MSG::DEBUG)) {
+    printPatternParsingInfo(msg(), m_bunchCrossingTool, m_distanceFromHeadOfTrain);
+  }
 }
 
 // ============================================================================

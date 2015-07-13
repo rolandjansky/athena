@@ -26,24 +26,40 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloEvent/CMXCPHits.h"
-#include "TrigT1CaloEvent/CMXCPTob.h"
-#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"  
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+
+// =============================================================
+// L1 objects
+// =============================================================
+//#include "TrigT1CaloEvent/TriggerTower.h"
+//#include "TrigT1CaloEvent/CMXCPHits.h"
+//#include "TrigT1CaloEvent/CMXCPTob.h"
+//#include "TrigT1CaloEvent/CPMTower.h"
+//#include "xAODTrigL1Calo/CPMTower.h"
+
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloEvent/RODHeader.h"
-#include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
-#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
-#include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
 #include "TrigT1Interfaces/Coordinate.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"  
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
+#include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
+
+// ============================================================================
+// xAOD
+// ============================================================================
+//#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
+#include "xAODTrigL1Calo/CMXCPTobAuxContainer.h"
+#include "xAODTrigL1Calo/CMXCPHitsAuxContainer.h"
+// ============================================================================
+
 
 #include "CPSimMon.h"
 // ============================================================================
@@ -156,8 +172,8 @@ CPSimMon::CPSimMon(const std::string & type,
   declareProperty("CPMTobRoILocation",
                  m_cpmTobRoiLocation = LVL1::TrigT1CaloDefs::CPMTobRoILocation);
   declareProperty("TriggerTowerLocation",
-                 m_triggerTowerLocation =
-		                 LVL1::TrigT1CaloDefs::TriggerTowerLocation);
+		  m_triggerTowerLocation = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+		  //m_triggerTowerLocation = LVL1::TrigT1CaloDefs::TriggerTowerLocation);
   declareProperty("RodHeaderLocation",
                  m_rodHeaderLocation = LVL1::TrigT1CaloDefs::RODHeaderLocation);
   declareProperty("ErrorLocation",
@@ -561,28 +577,28 @@ StatusCode CPSimMon::fillHistograms()
   StatusCode sc;
 
   //Retrieve Trigger Towers from SG
-  const TriggerTowerCollection* triggerTowerTES = 0; 
+  const xAOD::TriggerTowerContainer* triggerTowerTES = 0; 
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation); 
   if( sc.isFailure()  ||  !triggerTowerTES ) {
     msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq; 
   }
 
   //Retrieve Core and Overlap CPM Towers from SG
-  const CpmTowerCollection* cpmTowerTES = 0; 
-  const CpmTowerCollection* cpmTowerOvTES = 0; 
+  const xAOD::CPMTowerContainer* cpmTowerTES = 0; 
+  const xAOD::CPMTowerContainer* cpmTowerOvTES = 0; 
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation); 
   if( sc.isFailure()  ||  !cpmTowerTES ) {
     msg(MSG::DEBUG) << "No Core CPM Tower container found" << endreq; 
   }
-  if (evtStore()->contains<CpmTowerCollection>(m_cpmTowerLocationOverlap)) {
+  if (evtStore()->contains<xAOD::CPMTowerContainer>(m_cpmTowerLocationOverlap)) {
     sc = evtStore()->retrieve(cpmTowerOvTES, m_cpmTowerLocationOverlap); 
   } else sc = StatusCode::FAILURE;
   if( sc.isFailure()  ||  !cpmTowerOvTES ) {
     msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endreq; 
   }
   m_overlapPresent = cpmTowerOvTES != 0;
-  
-  //Retrieve CPM RoIs from SG
+
+  //Retrieve CPM TOB RoIs from SG
   const CpmTobRoiCollection* cpmRoiTES = 0;
   sc = evtStore()->retrieve( cpmRoiTES, m_cpmTobRoiLocation);
   if( sc.isFailure()  ||  !cpmRoiTES ) {
@@ -600,14 +616,14 @@ StatusCode CPSimMon::fillHistograms()
   }
   
   //Retrieve CMX-CP TOBs from SG
-  const CmxCpTobCollection* cmxCpTobTES = 0;
+  const xAOD::CMXCPTobContainer* cmxCpTobTES = 0;
   sc = evtStore()->retrieve( cmxCpTobTES, m_cmxCpTobLocation);
   if( sc.isFailure()  ||  !cmxCpTobTES ) {
     msg(MSG::DEBUG) << "No CMX-CP TOB container found" << endreq; 
   }
-  
+
   //Retrieve CMX-CP Hits from SG
-  const CmxCpHitsCollection* cmxCpHitsTES = 0;
+  const xAOD::CMXCPHitsContainer* cmxCpHitsTES = 0;
   sc = evtStore()->retrieve( cmxCpHitsTES, m_cmxCpHitsLocation);
   if( sc.isFailure()  ||  !cmxCpHitsTES ) {
     msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endreq; 
@@ -615,13 +631,14 @@ StatusCode CPSimMon::fillHistograms()
 
   // Maps to simplify comparisons
   
-  TriggerTowerMap ttMap;
+  TriggerTowerMapEm ttMapEm;
+  TriggerTowerMapEm ttMapHad;
   CpmTowerMap     cpMap;
   CpmTowerMap     ovMap;
   CpmTobRoiMap    crMap;
   CmxCpTobMap     cbMap;
   CmxCpHitsMap    cmMap;
-  setupMap(triggerTowerTES, ttMap);
+  setupMap(triggerTowerTES, ttMapEm, ttMapHad);
   setupMap(cpmTowerTES, cpMap);
   setupMap(cpmTowerOvTES, ovMap);
   setupMap(cpmRoiTES, crMap);
@@ -638,12 +655,16 @@ StatusCode CPSimMon::fillHistograms()
   // Compare Trigger Towers and CPM Towers from data
 
   bool overlap = false;
-  bool mismatchCore = false;
-  bool mismatchOverlap = false;
-  mismatchCore = compare(ttMap, cpMap, errorsCPM, overlap);
+  bool mismatchCoreEm = false;
+  bool mismatchCoreHad = false;
+  bool mismatchOverlapEm = false;
+  bool mismatchOverlapHad = false;
+  mismatchCoreEm  = compareEm(ttMapEm, cpMap, errorsCPM, overlap);
+  mismatchCoreHad = compareHad(ttMapHad, cpMap, errorsCPM, overlap);
   if (m_overlapPresent) {
     overlap = true;
-    mismatchOverlap = compare(ttMap, ovMap, errorsCPM, overlap);
+    mismatchOverlapEm  = compareEm(ttMapEm, ovMap, errorsCPM, overlap);
+    mismatchOverlapHad = compareHad(ttMapHad, ovMap, errorsCPM, overlap);
   }
 
   // Compare RoIs simulated from CPM Towers with CPM RoIs from data
@@ -651,7 +672,7 @@ StatusCode CPSimMon::fillHistograms()
   CpmTobRoiCollection* cpmRoiSIM = 0;
   if (cpmTowerTES || cpmTowerOvTES) {
     cpmRoiSIM = new CpmTobRoiCollection;
-    if (mismatchCore || mismatchOverlap) {
+    if (mismatchCoreEm || mismatchCoreHad || mismatchOverlapEm || mismatchOverlapHad) {
       simulate(cpMap, ovMap, cpmRoiSIM);
     } else {
       simulate(cpMap, cpmRoiSIM);
@@ -665,9 +686,12 @@ StatusCode CPSimMon::fillHistograms()
 
   // Compare CMX-CP TOBs simulated from CPM RoIs with CMX-CP TOBs from data
 
-  CmxCpTobCollection* cmxCpTobSIM = 0;
+  xAOD::CMXCPTobContainer* cmxCpTobSIM = 0;
+  xAOD::CMXCPTobAuxContainer* cmxCpTobSIMAux = 0;
   if (cpmRoiTES) {
-    cmxCpTobSIM = new CmxCpTobCollection;
+    cmxCpTobSIM = new xAOD::CMXCPTobContainer;
+    cmxCpTobSIMAux = new xAOD::CMXCPTobAuxContainer;
+    cmxCpTobSIM->setStore(cmxCpTobSIMAux);
     simulate(cpmRoiTES, cmxCpTobSIM);
   }
   CmxCpTobMap cbSimMap;
@@ -675,49 +699,62 @@ StatusCode CPSimMon::fillHistograms()
   compare(cbSimMap, cbMap, parityMap, errorsCPM, errorsCMX);
   cbSimMap.clear();
   delete cmxCpTobSIM;
+  delete cmxCpTobSIMAux;
 
   // Compare Local sums simulated from CMX-CP TOBs with Local sums from data
 
-  CmxCpHitsCollection* cmxLocalSIM = 0;
+  xAOD::CMXCPHitsContainer* cmxLocalSIM = 0;
+  xAOD::CMXCPHitsAuxContainer* cmxLocalSIMAux = 0;
   if (cmxCpTobTES) {
-    cmxLocalSIM = new CmxCpHitsCollection;
-    simulate(cmxCpTobTES, cmxLocalSIM, LVL1::CMXCPHits::LOCAL);
+    cmxLocalSIM = new xAOD::CMXCPHitsContainer;
+    cmxLocalSIMAux = new xAOD::CMXCPHitsAuxContainer;
+    cmxLocalSIM->setStore(cmxLocalSIMAux);
+    simulate(cmxCpTobTES, cmxLocalSIM, xAOD::CMXCPHits::LOCAL);
   }
   CmxCpHitsMap cmxLocalSimMap;
   setupMap(cmxLocalSIM, cmxLocalSimMap);
-  compare(cmxLocalSimMap, cmMap, errorsCMX, LVL1::CMXCPHits::LOCAL);
+  compare(cmxLocalSimMap, cmMap, errorsCMX, xAOD::CMXCPHits::LOCAL);
   cmxLocalSimMap.clear();
   delete cmxLocalSIM;
+  delete cmxLocalSIMAux;
 
   // Compare Local sums with Remote sums from data
 
-  compare(cmMap, cmMap, errorsCMX, LVL1::CMXCPHits::REMOTE_0);
+  compare(cmMap, cmMap, errorsCMX, xAOD::CMXCPHits::REMOTE_0);
 
   // Compare Total sums simulated from Remote sums with Total sums from data
 
-  CmxCpHitsCollection* cmxTotalSIM = 0;
+  xAOD::CMXCPHitsContainer* cmxTotalSIM = 0;
+  xAOD::CMXCPHitsAuxContainer* cmxTotalSIMAux = 0;
   if (cmxCpHitsTES) {
-    cmxTotalSIM = new CmxCpHitsCollection;
+    cmxTotalSIM = new xAOD::CMXCPHitsContainer;
+    cmxTotalSIMAux = new xAOD::CMXCPHitsAuxContainer;
+    cmxTotalSIM->setStore(cmxTotalSIMAux);
     simulate(cmxCpHitsTES, cmxTotalSIM);
   }
   CmxCpHitsMap cmxTotalSimMap;
   setupMap(cmxTotalSIM, cmxTotalSimMap);
-  compare(cmxTotalSimMap, cmMap, errorsCMX, LVL1::CMXCPHits::TOTAL);
+  compare(cmxTotalSimMap, cmMap, errorsCMX, xAOD::CMXCPHits::TOTAL);
   cmxTotalSimMap.clear();
   delete cmxTotalSIM;
+  delete cmxTotalSIMAux;
 
   // Compare Topo output information simulated from CMX-CP TOBs with Topo info from data
 
-  CmxCpHitsCollection* cmxTopoSIM = 0;
+  xAOD::CMXCPHitsContainer* cmxTopoSIM = 0;
+  xAOD::CMXCPHitsAuxContainer* cmxTopoSIMAux = 0;
   if (cmxCpTobTES) {
-    cmxTopoSIM = new CmxCpHitsCollection;
-    simulate(cmxCpTobTES, cmxTopoSIM, LVL1::CMXCPHits::TOPO_CHECKSUM);
+    cmxTopoSIM = new xAOD::CMXCPHitsContainer;
+    cmxTopoSIMAux = new xAOD::CMXCPHitsAuxContainer;
+    cmxTopoSIM->setStore(cmxTopoSIMAux);
+    simulate(cmxCpTobTES, cmxTopoSIM, xAOD::CMXCPHits::TOPO_CHECKSUM);
   }
   CmxCpHitsMap cmxTopoSimMap;
   setupMap(cmxTopoSIM, cmxTopoSimMap);
-  compare(cmxTopoSimMap, cmMap, errorsCMX, LVL1::CMXCPHits::TOPO_CHECKSUM);
+  compare(cmxTopoSimMap, cmMap, errorsCMX, xAOD::CMXCPHits::TOPO_CHECKSUM);
   cmxTopoSimMap.clear();
   delete cmxTopoSIM;
+  delete cmxTopoSIMAux;
 
   // Update error summary plots
 
@@ -785,7 +822,7 @@ StatusCode CPSimMon::fillHistograms()
 
 //  Compare Trigger Towers and CPM Towers
 
-bool CPSimMon::compare(const TriggerTowerMap& ttMap,
+bool CPSimMon::compareEm(const TriggerTowerMapEm& ttMap,
                        const CpmTowerMap& cpMap, ErrorVector& errors,
                        bool overlap)
 {
@@ -795,8 +832,8 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
  
   bool mismatch = false;
   LVL1::CoordToHardware converter;
-  TriggerTowerMap::const_iterator ttMapIter    = ttMap.begin();
-  TriggerTowerMap::const_iterator ttMapIterEnd = ttMap.end();
+  TriggerTowerMapEm::const_iterator ttMapIter    = ttMap.begin();
+  TriggerTowerMapEm::const_iterator ttMapIterEnd = ttMap.end();
   CpmTowerMap::const_iterator     cpMapIter    = cpMap.begin();
   CpmTowerMap::const_iterator     cpMapIterEnd = cpMap.end();
 
@@ -805,9 +842,7 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     int ttKey = 0;
     int cpKey = 0;
     int ttEm  = 0;
-    int ttHad = 0;
     int cpEm  = 0;
-    int cpHad = 0;
     double eta = 0.;
     double phi = 0.;
     int key = 0;
@@ -820,8 +855,9 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
 
       // TriggerTower but no CPMTower
 
-      const LVL1::TriggerTower* tt = ttMapIter->second;
+      const xAOD::TriggerTower* tt = ttMapIter->second;
       ++ttMapIter;
+      const int layer = tt->layer();
       eta = tt->eta();
       phi = tt->phi();
       if (overlap) { // skip non-overlap TTs
@@ -829,8 +865,10 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
 	const int crate = converter.cpCrateOverlap(coord);
         if (crate >= s_crates) continue;
       }
-      ttEm  = tt->emEnergy();
-      ttHad = tt->hadEnergy();
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 0) { //EM
+	ttEm  = tt->cpET(); 
+      }
       key = ttKey;
 
     } else if ((ttMapIter == ttMapIterEnd) ||
@@ -838,32 +876,33 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
 
       // CPMTower but no TriggerTower
 
-      const LVL1::CPMTower* cp = cpMapIter->second;
+      const xAOD::CPMTower* cp = cpMapIter->second;
       ++cpMapIter;
       eta = cp->eta();
       phi = cp->phi();
       cpEm  = cp->emEnergy();
-      cpHad = cp->hadEnergy();
       key = cpKey;
 
     } else {
 
       // Have both
 
-      const LVL1::TriggerTower* tt = ttMapIter->second;
-      const LVL1::CPMTower*     cp = cpMapIter->second;
+      const xAOD::TriggerTower* tt = ttMapIter->second;
+      const xAOD::CPMTower*     cp = cpMapIter->second;
       ++ttMapIter;
-      ++cpMapIter;
+      ++cpMapIter;      
+      const int layer = tt->layer();
       eta = tt->eta();
       phi = tt->phi();
-      ttEm  = tt->emEnergy();
-      ttHad = tt->hadEnergy();
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 0) { //EM
+	ttEm  = tt->cpET();; 
+      }
       cpEm  = cp->emEnergy();
-      cpHad = cp->hadEnergy();
       key = ttKey;
     }
 
-    if (!ttEm && !ttHad && !cpEm && !cpHad) continue;
+    if (!ttEm && !cpEm) continue;
     
     //  Fill in error plots
 
@@ -876,7 +915,6 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     const int loc = crate * s_modules + cpm - 1;
     const int cpmBins = s_crates * s_modules;
     const int bitEm  = (1 << EMTowerMismatch);
-    const int bitHad = (1 << HadTowerMismatch);
     double phiFPGA = phi;
     if (overlap) {
       const double twoPi    = 2.*M_PI;
@@ -917,9 +955,115 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
     }
     if (hist1) m_histTool->fillCPMEtaVsPhi(hist1, eta, phi);
     if (hist2) hist2->Fill(loc, loc2);
+  }
 
-    hist1 = 0;
-    hist2 = 0;
+  return mismatch;
+}
+
+bool CPSimMon::compareHad(const TriggerTowerMapHad& ttMap,
+                       const CpmTowerMap& cpMap, ErrorVector& errors,
+                       bool overlap)
+{
+  if (m_debug) {
+    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endreq;
+  }
+ 
+  bool mismatch = false;
+  LVL1::CoordToHardware converter;
+  TriggerTowerMapHad::const_iterator ttMapIter    = ttMap.begin();
+  TriggerTowerMapHad::const_iterator ttMapIterEnd = ttMap.end();
+  CpmTowerMap::const_iterator     cpMapIter    = cpMap.begin();
+  CpmTowerMap::const_iterator     cpMapIterEnd = cpMap.end();
+
+  while (ttMapIter != ttMapIterEnd || cpMapIter != cpMapIterEnd) {
+
+    int ttKey = 0;
+    int cpKey = 0;
+    int ttHad = 0;
+    int cpHad = 0;
+    double eta = 0.;
+    double phi = 0.;
+    int key = 0;
+
+    if (ttMapIter != ttMapIterEnd) ttKey = ttMapIter->first;
+    if (cpMapIter != cpMapIterEnd) cpKey = cpMapIter->first;
+
+    if ((cpMapIter == cpMapIterEnd) ||
+                 ((ttMapIter != ttMapIterEnd) && (cpKey > ttKey))) {
+
+      // TriggerTower but no CPMTower
+
+      const xAOD::TriggerTower* tt = ttMapIter->second;
+      ++ttMapIter;
+      const int layer = tt->layer();
+      eta = tt->eta();
+      phi = tt->phi();
+      if (overlap) { // skip non-overlap TTs
+        const LVL1::Coordinate coord(phi, eta);
+	const int crate = converter.cpCrateOverlap(coord);
+        if (crate >= s_crates) continue;
+      }
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 1) { //HAD
+	ttHad = tt->cpET();;
+      }
+      key = ttKey;
+
+    } else if ((ttMapIter == ttMapIterEnd) ||
+                 ((cpMapIter != cpMapIterEnd) && (ttKey > cpKey))) {
+
+      // CPMTower but no TriggerTower
+
+      const xAOD::CPMTower* cp = cpMapIter->second;
+      ++cpMapIter;
+      eta = cp->eta();
+      phi = cp->phi();
+      cpHad = cp->hadEnergy();
+      key = cpKey;
+
+    } else {
+
+      // Have both
+
+      const xAOD::TriggerTower* tt = ttMapIter->second;
+      const xAOD::CPMTower*     cp = cpMapIter->second;
+      ++ttMapIter;
+      ++cpMapIter;      
+      const int layer = tt->layer();
+      eta = tt->eta();
+      phi = tt->phi();
+      //check if the TriggerTower is in EM or HAD layer
+      if (layer == 1) { //HAD
+	ttHad = tt->cpET();;
+      }
+      cpHad = cp->hadEnergy();
+      key = ttKey;
+    }
+
+    if (!ttHad && !cpHad) continue;
+    
+    //  Fill in error plots
+
+    const LVL1::Coordinate coord(phi, eta);
+    const int crate = (overlap) ? converter.cpCrateOverlap(coord)
+                                : converter.cpCrate(coord);
+    const int cpm   = (overlap) ? converter.cpModuleOverlap(coord)
+                                : converter.cpModule(coord);
+    if (crate >= s_crates || cpm > s_modules) continue;
+    const int loc = crate * s_modules + cpm - 1;
+    const int cpmBins = s_crates * s_modules;
+    const int bitHad = (1 << HadTowerMismatch);
+    double phiFPGA = phi;
+    if (overlap) {
+      const double twoPi    = 2.*M_PI;
+      const double piByFour = M_PI/4.;
+      if (phi > 7.*piByFour)   phiFPGA -= twoPi;
+      else if (phi < piByFour) phiFPGA += twoPi;
+    }
+    const int loc2 = fpga(crate, phiFPGA);
+
+    TH2F_LW* hist1 = 0;
+    TH2F_LW* hist2 = 0;
     if (ttHad && ttHad == cpHad) { // non-zero match
       errors[loc] |= bitHad;
       hist1 = (overlap) ? m_h_cpm_had_2d_etaPhi_tt_PpmEqOverlap
@@ -953,6 +1097,8 @@ bool CPSimMon::compare(const TriggerTowerMap& ttMap,
 
   return mismatch;
 }
+
+
 
 //  Compare Simulated RoIs with data
 
@@ -1120,7 +1266,7 @@ void CPSimMon::compare(const CmxCpTobMap& simMap, const CmxCpTobMap& datMap,
     int datIsol   = 0;
     int datOvf    = 0;
 
-    const LVL1::CMXCPTob* tob = 0;
+    const xAOD::CMXCPTob* tob = 0;
     if (simMapIter != simMapIterEnd) simKey = simMapIter->first;
     if (datMapIter != datMapIterEnd) datKey = datMapIter->first;
 
@@ -1150,7 +1296,7 @@ void CPSimMon::compare(const CmxCpTobMap& simMap, const CmxCpTobMap& datMap,
 
       // Have both
 
-      const LVL1::CMXCPTob* tobS = simMapIter->second;
+      const xAOD::CMXCPTob* tobS = simMapIter->second;
       tob = datMapIter->second;
       simEnergy = tobS->energy();
       simIsol   = tobS->isolation();
@@ -1276,10 +1422,10 @@ void CPSimMon::compare(const CmxCpHitsMap& cmxSimMap,
   msg(MSG::DEBUG) << "Compare Simulated CMX Hit Sums and Data CMX Hit Sums"
                   << endreq;
 
-  const bool local  = (selection == LVL1::CMXCPHits::LOCAL);
-  const bool remote = (selection == LVL1::CMXCPHits::REMOTE_0);
-  const bool total  = (selection == LVL1::CMXCPHits::TOTAL);
-  const bool topo   = (selection == LVL1::CMXCPHits::TOPO_CHECKSUM);
+  const bool local  = (selection == xAOD::CMXCPHits::LOCAL);
+  const bool remote = (selection == xAOD::CMXCPHits::REMOTE_0);
+  const bool total  = (selection == xAOD::CMXCPHits::TOTAL);
+  const bool topo   = (selection == xAOD::CMXCPHits::TOPO_CHECKSUM);
   if (!local && !remote && !total && !topo) return;
   std::vector<unsigned int> hits0Sim(s_crates*s_cmxs);
   std::vector<unsigned int> hits1Sim(s_crates*s_cmxs);
@@ -1310,15 +1456,15 @@ void CPSimMon::compare(const CmxCpHitsMap& cmxSimMap,
 
       // Sim CMX Hits but no Data CMX Hits
 
-      const LVL1::CMXCPHits* cmxS = cmxSimMapIter->second;
+      const xAOD::CMXCPHits* cmxS = cmxSimMapIter->second;
       ++cmxSimMapIter;
-      source = cmxS->source();
-      if (local  && source != LVL1::CMXCPHits::LOCAL) continue;
-      if (remote && source != LVL1::CMXCPHits::LOCAL) continue;
-      if (total  && source != LVL1::CMXCPHits::TOTAL) continue;
-      if (topo   && source != LVL1::CMXCPHits::TOPO_CHECKSUM      &&
-                    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_MAP &&
-		    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
+      source = cmxS->sourceComponent();
+      if (local  && source != xAOD::CMXCPHits::LOCAL) continue;
+      if (remote && source != xAOD::CMXCPHits::LOCAL) continue;
+      if (total  && source != xAOD::CMXCPHits::TOTAL) continue;
+      if (topo   && source != xAOD::CMXCPHits::TOPO_CHECKSUM      &&
+                    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_MAP &&
+		    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
       cmxSimHits0 = cmxS->hits0();
       cmxSimHits1 = cmxS->hits1();
       crate       = cmxS->crate();
@@ -1329,17 +1475,17 @@ void CPSimMon::compare(const CmxCpHitsMap& cmxSimMap,
 
       // Data CMX Hits but no Sim CMX Hits
 
-      const LVL1::CMXCPHits* cmxD = cmxMapIter->second;
+      const xAOD::CMXCPHits* cmxD = cmxMapIter->second;
       ++cmxMapIter;
-      source   = cmxD->source();
-      if (local  && source != LVL1::CMXCPHits::LOCAL)    continue;
-      if (remote && source != LVL1::CMXCPHits::REMOTE_0 &&
-                    source != LVL1::CMXCPHits::REMOTE_1 &&
-		    source != LVL1::CMXCPHits::REMOTE_2) continue;
-      if (total  && source != LVL1::CMXCPHits::TOTAL)    continue;
-      if (topo   && source != LVL1::CMXCPHits::TOPO_CHECKSUM      &&
-                    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_MAP &&
-		    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
+      source   = cmxD->sourceComponent();
+      if (local  && source != xAOD::CMXCPHits::LOCAL)    continue;
+      if (remote && source != xAOD::CMXCPHits::REMOTE_0 &&
+                    source != xAOD::CMXCPHits::REMOTE_1 &&
+		    source != xAOD::CMXCPHits::REMOTE_2) continue;
+      if (total  && source != xAOD::CMXCPHits::TOTAL)    continue;
+      if (topo   && source != xAOD::CMXCPHits::TOPO_CHECKSUM      &&
+                    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_MAP &&
+		    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
       cmxHits0 = cmxD->hits0();
       cmxHits1 = cmxD->hits1();
       crate    = cmxD->crate();
@@ -1349,20 +1495,20 @@ void CPSimMon::compare(const CmxCpHitsMap& cmxSimMap,
 
       // Have both
 
-      const LVL1::CMXCPHits* cmxS = cmxSimMapIter->second;
-      const LVL1::CMXCPHits* cmxD = cmxMapIter->second;
+      const xAOD::CMXCPHits* cmxS = cmxSimMapIter->second;
+      const xAOD::CMXCPHits* cmxD = cmxMapIter->second;
       ++cmxSimMapIter;
       ++cmxMapIter;
-      source   = cmxS->source();
-      if (local  && source != LVL1::CMXCPHits::LOCAL)    continue;
-      if (remote && source != LVL1::CMXCPHits::LOCAL    &&
-                    source != LVL1::CMXCPHits::REMOTE_0 &&
-                    source != LVL1::CMXCPHits::REMOTE_1 &&
-		    source != LVL1::CMXCPHits::REMOTE_2) continue;
-      if (total  && source != LVL1::CMXCPHits::TOTAL)    continue;
-      if (topo   && source != LVL1::CMXCPHits::TOPO_CHECKSUM      &&
-                    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_MAP &&
-		    source != LVL1::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
+      source   = cmxS->sourceComponent();
+      if (local  && source != xAOD::CMXCPHits::LOCAL)    continue;
+      if (remote && source != xAOD::CMXCPHits::LOCAL    &&
+                    source != xAOD::CMXCPHits::REMOTE_0 &&
+                    source != xAOD::CMXCPHits::REMOTE_1 &&
+		    source != xAOD::CMXCPHits::REMOTE_2) continue;
+      if (total  && source != xAOD::CMXCPHits::TOTAL)    continue;
+      if (topo   && source != xAOD::CMXCPHits::TOPO_CHECKSUM      &&
+                    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_MAP &&
+		    source != xAOD::CMXCPHits::TOPO_OCCUPANCY_COUNTS) continue;
       cmxSimHits0 = cmxS->hits0();
       cmxSimHits1 = cmxS->hits1();
       cmxHits0    = cmxD->hits0();
@@ -1414,19 +1560,19 @@ void CPSimMon::compare(const CmxCpHitsMap& cmxSimMap,
       m_histTool->fillXVsThresholds(hist1, loc, same, nThresh, 1, offset);
       m_histTool->fillXVsThresholds(hist2, loc, diff, nThresh, 1, offset);
     } else if (remote) {
-      if (source == LVL1::CMXCPHits::LOCAL) {
+      if (source == xAOD::CMXCPHits::LOCAL) {
         if (crate != s_crates-1) {
 	  hits0Sim[crate*s_cmxs+cmx] = cmxSimHits0;
 	  hits1Sim[crate*s_cmxs+cmx] = cmxSimHits1;
         }
       } else {
-        const int remCrate = source - LVL1::CMXCPHits::REMOTE_0;
+        const int remCrate = source - xAOD::CMXCPHits::REMOTE_0;
 	hits0[remCrate*s_cmxs+cmx] = cmxHits0;
 	hits1[remCrate*s_cmxs+cmx] = cmxHits1;
       }
     } else {
       const int locX = crate * s_cmxs + cmx;
-      const int locY = source - LVL1::CMXCPHits::TOPO_CHECKSUM;
+      const int locY = source - xAOD::CMXCPHits::TOPO_CHECKSUM;
       const int cmxBins = s_crates * s_cmxs;
       const int bit = (1 << TopoMismatch);
       TH2F_LW* hist = 0;
@@ -1525,20 +1671,29 @@ void CPSimMon::setLabelsTopo(TH2F_LW* hist)
 
 // Set up TriggerTower map
 
-void CPSimMon::setupMap(const TriggerTowerCollection* coll,
-                                 TriggerTowerMap& map)
+  void CPSimMon::setupMap(const xAOD::TriggerTowerContainer* coll,
+                                 TriggerTowerMapEm& mapEm, TriggerTowerMapHad& mapHad)
 {
   if (coll) {
     LVL1::TriggerTowerKey towerKey;
-    TriggerTowerCollection::const_iterator pos  = coll->begin();
-    TriggerTowerCollection::const_iterator posE = coll->end();
+    xAOD::TriggerTowerContainer::const_iterator pos  = coll->begin();
+    xAOD::TriggerTowerContainer::const_iterator posE = coll->end();
+    int emE = 0;
+    int hadE = 0;
     for (; pos != posE; ++pos) {
+      const xAOD::TriggerTower* tt = (*pos);
+      const int layer = (*pos)->layer();
+      if (layer == 0) emE  = (*pos)->cpET();;
+      if (layer == 1) hadE = (*pos)->cpET();;
       const double eta = (*pos)->eta();
       if (eta > -2.5 && eta < 2.5 &&
-                     ((*pos)->emEnergy() > 0 || (*pos)->hadEnergy() > 0)) {
+                     ( emE > 0 || hadE > 0)) {
         const double phi = (*pos)->phi();
         const int key = towerKey.ttKey(phi, eta);
-        map.insert(std::make_pair(key, *pos));
+        if (emE  > 0) mapEm.insert(std::make_pair(key, tt));
+        if (hadE > 0) mapHad.insert(std::make_pair(key, tt));
+	//what is the problem with *pos???
+	//map.insert(std::make_pair(key, nullptr));
       }
     }
   }
@@ -1546,17 +1701,18 @@ void CPSimMon::setupMap(const TriggerTowerCollection* coll,
 
 // Set up CpmTower map
 
-void CPSimMon::setupMap(const CpmTowerCollection* coll, CpmTowerMap& map)
+  void CPSimMon::setupMap(const xAOD::CPMTowerContainer* coll, CpmTowerMap& map)
 {
   if (coll) {
     LVL1::TriggerTowerKey towerKey;
-    CpmTowerCollection::const_iterator pos  = coll->begin();
-    CpmTowerCollection::const_iterator posE = coll->end();
+    xAOD::CPMTowerContainer::const_iterator pos  = coll->begin();
+    xAOD::CPMTowerContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
+      const xAOD::CPMTower* cp = (*pos);
       const double eta = (*pos)->eta();
       const double phi = (*pos)->phi();
       const int key = towerKey.ttKey(phi, eta);
-      map.insert(std::make_pair(key, *pos));
+      map.insert(std::make_pair(key, cp));
     }
   }
 }
@@ -1582,12 +1738,14 @@ void CPSimMon::setupMap(const CpmTobRoiCollection* coll, CpmTobRoiMap& map)
 
 // Set up CmxCpTob map
 
-void CPSimMon::setupMap(const CmxCpTobCollection* coll, CmxCpTobMap& map,
+  void CPSimMon::setupMap(const xAOD::CMXCPTobContainer* coll, CmxCpTobMap& map,
                                              std::vector<int>* parityMap)
 {
   if (coll) {
-    CmxCpTobCollection::const_iterator pos  = coll->begin();
-    CmxCpTobCollection::const_iterator posE = coll->end();
+    //CmxCpTobCollection::const_iterator pos  = coll->begin();
+    //CmxCpTobCollection::const_iterator posE = coll->end();
+    xAOD::CMXCPTobContainer::const_iterator pos  = coll->begin();
+    xAOD::CMXCPTobContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
       const int crate = (*pos)->crate();
       const int cpm   = (*pos)->cpm();
@@ -1610,15 +1768,17 @@ void CPSimMon::setupMap(const CmxCpTobCollection* coll, CmxCpTobMap& map,
 
 // Set up CmxCpHits map
 
-void CPSimMon::setupMap(const CmxCpHitsCollection* coll, CmxCpHitsMap& map)
+  void CPSimMon::setupMap(const xAOD::CMXCPHitsContainer* coll, CmxCpHitsMap& map)
 {
   if (coll) {
-    CmxCpHitsCollection::const_iterator pos  = coll->begin();
-    CmxCpHitsCollection::const_iterator posE = coll->end();
+    //CmxCpHitsCollection::const_iterator pos  = coll->begin();
+    //CmxCpHitsCollection::const_iterator posE = coll->end();
+    xAOD::CMXCPHitsContainer::const_iterator pos  = coll->begin();
+    xAOD::CMXCPHitsContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
       const int crate  = (*pos)->crate();
       const int cmx    = (*pos)->cmx();
-      const int source = (*pos)->source();
+      const int source = (*pos)->sourceComponent();
       const int key  = (crate*2 +cmx) * 8 + source;
       map.insert(std::make_pair(key, *pos));
     }
@@ -1635,11 +1795,13 @@ void CPSimMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
   // Process a crate at a time to use overlap data
   std::vector<CpmTowerMap> crateMaps(s_crates);
   LVL1::CoordToHardware converter;
-  CpmTowerCollection* tempColl = new CpmTowerCollection;
+  xAOD::CPMTowerContainer* tempColl = new xAOD::CPMTowerContainer;
+  xAOD::CPMTowerAuxContainer* tempCollAux = new xAOD::CPMTowerAuxContainer;
+  tempColl->setStore(tempCollAux);
   CpmTowerMap::const_iterator iter  = towers.begin();
   CpmTowerMap::const_iterator iterE = towers.end();
   for (; iter != iterE; ++iter) {
-    LVL1::CPMTower* tt = ttCheck(iter->second, tempColl);
+    const xAOD::CPMTower* tt = ttCheck(iter->second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
     if (crate >= s_crates) continue;
@@ -1649,7 +1811,7 @@ void CPSimMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
   iter  = (m_overlapPresent) ? towersOv.begin() : towers.begin();
   iterE = (m_overlapPresent) ? towersOv.end()   : towers.end();
   for (; iter != iterE; ++iter) {
-    LVL1::CPMTower* tt = ttCheck(iter->second, tempColl);
+    const xAOD::CPMTower* tt = ttCheck(iter->second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrateOverlap(coord);
     if (crate >= s_crates) continue;
@@ -1657,7 +1819,7 @@ void CPSimMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
   }
   for (int crate = 0; crate < s_crates; ++crate) {
     InternalRoiCollection* intRois = new InternalRoiCollection;
-    m_emTauTool->findRoIs(&crateMaps[crate], intRois);
+    //@@m_emTauTool->findRoIs(&crateMaps[crate], intRois);
     CpmTobRoiCollection* roiTemp = new CpmTobRoiCollection(SG::VIEW_ELEMENTS);
     m_cpCmxTool->formCPMTobRoI(intRois, roiTemp);
     CpmTobRoiCollection::iterator roiIter  = roiTemp->begin();
@@ -1671,16 +1833,17 @@ void CPSimMon::simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
     delete intRois;
   }
   delete tempColl;
+  delete tempCollAux;
 }
 
 // Simulate CPM RoIs from CPM Towers quick version
 
-void CPSimMon::simulate(const CpmTowerMap towers, CpmTobRoiCollection* rois)
+void CPSimMon::simulate(const CpmTowerMap /* towers */, CpmTobRoiCollection* rois)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endreq;
 
   InternalRoiCollection* intRois = new InternalRoiCollection;
-  m_emTauTool->findRoIs(&towers, intRois);
+  //@@m_emTauTool->findRoIs(&towers, intRois);
   m_cpCmxTool->formCPMTobRoI(intRois, rois);
   delete intRois;
 }
@@ -1688,7 +1851,7 @@ void CPSimMon::simulate(const CpmTowerMap towers, CpmTobRoiCollection* rois)
 // Simulate CMX-CP TOBs from CPM RoIs
 
 void CPSimMon::simulate(const CpmTobRoiCollection* rois,
-                              CmxCpTobCollection* tobs)
+			xAOD::CMXCPTobContainer* tobs)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate CMX TOBs from CPM TOB RoIs"
                                << endreq;
@@ -1698,23 +1861,23 @@ void CPSimMon::simulate(const CpmTobRoiCollection* rois,
 
 // Simulate CMX Hit sums from CMX TOBs
 
-void CPSimMon::simulate(const CmxCpTobCollection* tobs,
-                              CmxCpHitsCollection* hits, int selection)
+void CPSimMon::simulate(const xAOD::CMXCPTobContainer* tobs,
+			  xAOD::CMXCPHitsContainer* hits, int selection)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate CMX Hit sums from CMX TOBs"
                                << endreq;
 
-  if (selection == LVL1::CMXCPHits::LOCAL) {
+  if (selection == xAOD::CMXCPHits::LOCAL) {
     m_cpCmxTool->formCMXCPHitsCrate(tobs, hits);
-  } else if (selection == LVL1::CMXCPHits::TOPO_CHECKSUM) {
+  } else if (selection == xAOD::CMXCPHits::TOPO_CHECKSUM) {
     m_cpCmxTool->formCMXCPHitsTopo(tobs, hits);
   }
 }
 
 // Simulate CMX Total Hit sums from Remote/Local
 
-void CPSimMon::simulate(const CmxCpHitsCollection* hitsIn,
-                              CmxCpHitsCollection* hitsOut)
+  void CPSimMon::simulate(const xAOD::CMXCPHitsContainer* hitsIn,
+			  xAOD::CMXCPHitsContainer* hitsOut)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate CMX Total Hit sums from Remote/Local"
                                << endreq;
@@ -1734,8 +1897,7 @@ int CPSimMon::fpga(int crate, double phi)
 
 // Return a tower with zero energy if parity bit is set
 
-LVL1::CPMTower* CPSimMon::ttCheck(LVL1::CPMTower* tt,
-                                  CpmTowerCollection* coll)
+  const xAOD::CPMTower* CPSimMon::ttCheck(const xAOD::CPMTower* tt, xAOD::CPMTowerContainer* coll)
 {
   const LVL1::DataError emError(tt->emError());
   const LVL1::DataError hadError(tt->hadError());
@@ -1743,14 +1905,15 @@ LVL1::CPMTower* CPSimMon::ttCheck(LVL1::CPMTower* tt,
   const int hadParity = hadError.get(LVL1::DataError::Parity);
   if ((emParity && tt->emEnergy()) || (hadParity && tt->hadEnergy())) {
     const int peak = tt->peak();
-    std::vector<int> emEnergyVec(tt->emEnergyVec());
-    std::vector<int> hadEnergyVec(tt->hadEnergyVec());
-    std::vector<int> emErrorVec(tt->emErrorVec());
-    std::vector<int> hadErrorVec(tt->hadErrorVec());
+    std::vector<uint8_t> emEnergyVec(tt->emEnergyVec());
+    std::vector<uint8_t> hadEnergyVec(tt->hadEnergyVec());
+    std::vector<uint8_t> emErrorVec(tt->emErrorVec());
+    std::vector<uint8_t> hadErrorVec(tt->hadErrorVec());
     if (emParity)  emEnergyVec[peak]  = 0;
     if (hadParity) hadEnergyVec[peak] = 0;
-    LVL1::CPMTower* ct = new LVL1::CPMTower(tt->phi(), tt->eta(),
-        emEnergyVec, emErrorVec, hadEnergyVec, hadErrorVec, peak);
+    xAOD::CPMTower* ct = new xAOD::CPMTower();
+    ct->makePrivateStore();
+    ct->initialize(tt->eta(), tt->phi(), emEnergyVec, hadEnergyVec, emErrorVec, hadErrorVec, peak);
     coll->push_back(ct);
     return ct;
   }
