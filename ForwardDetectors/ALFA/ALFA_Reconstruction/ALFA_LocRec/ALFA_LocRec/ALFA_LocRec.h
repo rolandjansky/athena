@@ -50,6 +50,7 @@
 #include "ALFA_LocRec/ALFA_MDGap.h"
 #include "ALFA_LocRec/ALFA_HalfReco.h"
 #include "ALFA_LocRec/ALFA_ODTracking.h"
+#include "ALFA_LocRec/ALFA_EdgeMethod.h"
 
 #include "TROOT.h"
 
@@ -101,18 +102,20 @@ class ALFA_LocRec : public AthAlgorithm
 	private:
 		list<eRPotName> m_ListExistingRPots;
 
-		UInt_t m_eventNum;              //real event number
+		UInt_t m_eventNum;					// real event number
 		Int_t m_iRunNum;
-		Int_t m_iDataType;              //data type (simulation or real data) using in the local reconstruction
-		Int_t m_iEvent;                 //event number from zero value
-		Int_t m_iMultiplicityCutMD;     //for Main Detector
-		Int_t m_iNumLayerCutMD;         //for Main Detector
-		Int_t m_iUVCutMD;               //for Main Detector
-		Int_t m_iUVCutMDHalfReco;       //for Main Detector HalfReco algorithm
-		Int_t m_iMultiplicityCutOD;     //for Overlap Detector
-		Float_t m_fOverlapCutMD;        //for Main Detector
-		Float_t m_fDistanceCutOD;       //for Overlap Detector
-		Float_t m_iLayerCutOD;          //for Overlap Detector
+		Int_t m_iDataType;					// data type (simulation or real data) using in the local reconstruction
+		Int_t m_iEvent;						// event number from zero value
+		Int_t m_iMultiplicityCutMD;			// for Main Detector
+		Int_t m_iNumLayerCutMD;				// for Main Detector
+		Int_t m_iUVCutMD;					// for Main Detector
+		Int_t m_iUVCutMDHalfReco;			// for Main Detector HalfReco algorithm
+		Int_t m_iMultiplicityCutOD;			// for Overlap Detector
+		Float_t m_fOverlapCutMD;			// for Main Detector
+		Float_t m_fDistanceCutOD;			// for Overlap Detector
+		Float_t m_iLayerCutOD;				// for Overlap Detector
+		Bool_t m_bEdgeMethod_Opt_Sisters;	// for EdgeMethod
+		Bool_t m_bEdgeMethod_Opt_UseGaps;	// for EdgeMethod
 
 		//slope, offset and Z-pos for MD fibers [8][2*10][64]
 		Float_t m_faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
