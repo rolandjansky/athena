@@ -69,7 +69,7 @@ JEPCMXMon::JEPCMXMon( const std::string & type, const std::string & name,
     m_h_cmx_1d_tob_TOBsPerCMX(0),
     m_h_cmx_2d_tob_Hitmap(0),
     m_h_cmx_1d_thresh_TotalMainHits(0),
-    m_h_cmx_1d_thresh_TotalFwdHits(0),
+    //m_h_cmx_1d_thresh_TotalFwdHits(0),
     m_h_cmx_1d_thresh_RoIOverflow(0),
     m_h_cmx_1d_topo_DataChecksum(0),
     m_h_cmx_2d_topo_JEMOccupancyMap(0),
@@ -238,9 +238,12 @@ StatusCode JEPCMXMon::bookHistogramsRecurrent()
     m_h_cmx_1d_thresh_TotalMainHits = m_histTool->bookMainJetThresholds(    // 3 bit
       "cmx_1d_thresh_TotalMainHits",
       "Main Jet Multiplicity per Threshold");
-    m_h_cmx_1d_thresh_TotalFwdHits = m_histTool->bookForwardJetThresholds(  // 2 bit
-      "cmx_1d_thresh_TotalFwdHits",
-      "Forward Jet Multiplicity per Threshold");
+    
+    // We don't need this histogram in RUN2. Fix ATR-11607
+    // m_h_cmx_1d_thresh_TotalFwdHits = m_histTool->bookForwardJetThresholds(  // 2 bit
+    //   "cmx_1d_thresh_TotalFwdHits",
+    //   "Forward Jet Multiplicity per Threshold");
+    
     m_h_cmx_1d_thresh_RoIOverflow = m_histTool->book1F("cmx_1d_thresh_RoIOverflow",
       "CMX-Jet Hits RoI Overflow", 3, 0., 3.);
     LWHist::LWHistAxis* axis = m_h_cmx_1d_thresh_RoIOverflow->GetXaxis();
@@ -538,8 +541,9 @@ StatusCode JEPCMXMon::fillHistograms()
       m_histTool->fillThresholds(m_h_cmx_1d_thresh_TotalMainHits, hits1, 5, 3, 5);
     }
     else if (source == LVL1::CMXJetHits::TOTAL_FORWARD) {
-      m_histTool->fillThresholds(m_h_cmx_1d_thresh_TotalFwdHits, hits0, 8, 2);
-      m_histTool->fillThresholds(m_h_cmx_1d_thresh_TotalFwdHits, hits1, 7, 2, 8);
+      // FIX ATR-11607
+      // m_histTool->fillThresholds(m_h_cmx_1d_thresh_TotalFwdHits, hits0, 8, 2);
+      // m_histTool->fillThresholds(m_h_cmx_1d_thresh_TotalFwdHits, hits1, 7, 2, 8);
     }
     // RoI overflow
     if (crate == s_crates-1 && err0.get(DataError::Overflow)) {

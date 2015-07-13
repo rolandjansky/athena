@@ -172,6 +172,7 @@ private:
   int m_simulationADCCut;
   /// Histograms booked flag
   bool m_histBooked;
+  bool m_isRun2;
 
   //=======================
   //   Match/Mismatch plots

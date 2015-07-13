@@ -197,7 +197,7 @@ private:
    TH2F_LW* m_h_cmx_2d_tob_Hitmap;               ///< CMX-Jet TOBs Hit Map
    // CMX Jet Hits
    TH1F_LW* m_h_cmx_1d_thresh_TotalMainHits;     ///< Main Jet Multiplicity per Threshold
-   TH1F_LW* m_h_cmx_1d_thresh_TotalFwdHits;      ///< Forward Jet Multiplicity per Threshold
+   //TH1F_LW* m_h_cmx_1d_thresh_TotalFwdHits;      ///< Forward Jet Multiplicity per Threshold
    TH1F_LW* m_h_cmx_1d_thresh_RoIOverflow;       ///< CMX-Jet Hits RoI Overflow
    /// CMX Jet Topo
    TH1F_LW* m_h_cmx_1d_topo_DataChecksum;        ///< CMX-Jet Topo Output Data Checksum Non-zero

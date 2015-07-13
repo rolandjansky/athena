@@ -61,10 +61,10 @@
 
 #include "JetEfficienciesMonTool.h"
 // ============================================================================
+namespace LVL1 {
+// ============================================================================
 using xAOD::Jet;
 using xAOD::JetContainer;
-// ============================================================================
-namespace LVL1 {
 // ============================================================================
 JetEfficienciesMonTool::JetEfficienciesMonTool(const std::string & type,
         const std::string & name, const IInterface* parent)

@@ -23,6 +23,17 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "DataModel/DataVector.h"
 
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/CPMTower.h"
+#include "xAODTrigL1Calo/CMXCPTob.h"
+#include "xAODTrigL1Calo/CMXCPHits.h"
+
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/CPMTowerContainer.h"
+#include "xAODTrigL1Calo/CMXCPTobContainer.h"
+#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
+
+
 class LWHist;
 class TH1F_LW;
 class TH2F_LW;
@@ -35,12 +46,12 @@ namespace LVL1 {
 // Forward declarations:
 // ============================================================================
 class CPAlgorithm;
-class CPMTower;
-class CMXCPTob;
-class CMXCPHits;
+//class CPMTower;
+//class CMXCPTob;
+//class CMXCPHits;
 class CPMTobRoI;
 class RODHeader;
-class TriggerTower;
+//class TriggerTower;
 class IL1EmTauTools;
 class IL1CPCMXTools;
 class ITrigT1CaloMonErrorTool; 
@@ -191,28 +202,34 @@ private:
                        LocalSumMismatch, RemoteSumMismatch, TotalSumMismatch,
 		       TopoMismatch, NumberOfSummaryBins };
 
-  typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
-  typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
-  typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;
+  //typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
+  //typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
+  //typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;  
+  //typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;  
+  
   typedef DataVector<LVL1::CPMTobRoI>    CpmTobRoiCollection;
-  typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
   typedef DataVector<LVL1::CPAlgorithm>  InternalRoiCollection;
   typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
   
   typedef std::vector<int> ErrorVector;
 
-  typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
-  typedef std::map<int, LVL1::CPMTower*>     CpmTowerMap;
+  //typedef maps @@
+  //typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
+  typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapEm;
+  typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapHad;
+  typedef std::map<int, const xAOD::CPMTower*>     CpmTowerMap;
+  typedef std::map<int, const xAOD::CMXCPTob*>     CmxCpTobMap;
+  typedef std::map<int, const xAOD::CMXCPHits*>    CmxCpHitsMap;
   typedef std::map<int, LVL1::CPMTobRoI*>    CpmTobRoiMap;
-  typedef std::map<int, LVL1::CMXCPTob*>     CmxCpTobMap;
-  typedef std::map<int, LVL1::CMXCPHits*>    CmxCpHitsMap;
 
   static const int s_crates  = 4;
   static const int s_modules = 14;
   static const int s_cmxs    = 2;
   
   /// Compare Trigger Towers and CPM Towers
-  bool  compare(const TriggerTowerMap& ttMap, const CpmTowerMap& cpMap,
+  bool  compareEm(const TriggerTowerMapEm& ttMap, const CpmTowerMap& cpMap,
+                      ErrorVector& errors, bool overlap);
+  bool  compareHad(const TriggerTowerMapHad& ttMap, const CpmTowerMap& cpMap,
                       ErrorVector& errors, bool overlap);
   /// Compare Simulated RoIs with data
   void  compare(const CpmTobRoiMap& roiSimMap, const CpmTobRoiMap& roiMap,
@@ -229,40 +246,41 @@ private:
   /// Set labels for Topo histograms
   void  setLabelsTopo(TH2F_LW* hist);
   /// Set up TriggerTower map
-  void  setupMap(const TriggerTowerCollection* coll, TriggerTowerMap& map);
+  void  setupMap(const xAOD::TriggerTowerContainer* coll,
+                 TriggerTowerMapEm& emmap, TriggerTowerMapHad& hadmap);
   /// Set up CpmTower map
-  void  setupMap(const CpmTowerCollection* coll, CpmTowerMap& map);
+  void  setupMap(const xAOD::CPMTowerContainer* coll, CpmTowerMap& map);
   /// Set up CpmTobRoi map
   void  setupMap(const CpmTobRoiCollection* coll, CpmTobRoiMap& map);
   /// Set up CmxCpTob map
-  void  setupMap(const CmxCpTobCollection* coll, CmxCpTobMap& map,
+  void  setupMap(const xAOD::CMXCPTobContainer* coll, CmxCpTobMap& map,
                                            std::vector<int>* parityMap = 0);
   /// Set up CmxCpHits map
-  void  setupMap(const CmxCpHitsCollection* coll, CmxCpHitsMap& map);
+  void  setupMap(const xAOD::CMXCPHitsContainer* coll, CmxCpHitsMap& map);
   /// Simulate CPM RoIs from CPM Towers
   void  simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
                        CpmTobRoiCollection* rois);
   /// Simulate CPM RoIs from CPM Towers quick version
   void  simulate(const CpmTowerMap towers, CpmTobRoiCollection* rois);
   /// Simulate CMX-CP TOBs from CPM RoIs
-  void  simulate(const CpmTobRoiCollection* rois, CmxCpTobCollection* tobs);
+  void  simulate(const CpmTobRoiCollection* rois, xAOD::CMXCPTobContainer* tobs);
   /// Simulate CMX Hit sums from CMX TOBs
-  void  simulate(const CmxCpTobCollection* tobs,
-                       CmxCpHitsCollection* hits, int selection);
+  void  simulate(const xAOD::CMXCPTobContainer* tobs,
+		 xAOD::CMXCPHitsContainer* hits, int selection);
   /// Simulate CMX Total Hit sums from Remote/Local
-  void  simulate(const CmxCpHitsCollection* hitsIn,
-                       CmxCpHitsCollection* hitsOut);
+  void  simulate(const xAOD::CMXCPHitsContainer* hitsIn,
+		 xAOD::CMXCPHitsContainer* hitsOut);
   /// Return EM FPGA for given crate/phi
   int   fpga(int crate, double phi);
   /// Return a tower with zero energy if parity bit is set
-  LVL1::CPMTower* ttCheck(LVL1::CPMTower* tt, CpmTowerCollection* coll);
+  const xAOD::CPMTower* ttCheck(const xAOD::CPMTower* tt, xAOD::CPMTowerContainer* coll);
   /// Check if LimitedRoISet bit is set
   bool  limitedRoiSet(int crate);
 
   /// CP RoI simulation tool
-  ToolHandle<LVL1::IL1EmTauTools>             m_emTauTool;
+  ToolHandle<LVL1::IL1EmTauTools>        m_emTauTool;
   /// CP-CMX simulation tool
-  ToolHandle<LVL1::IL1CPCMXTools>             m_cpCmxTool;
+  ToolHandle<LVL1::IL1CPCMXTools>         m_cpCmxTool;
   /// Event veto error tool
   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;  
   /// Histogram helper tool
@@ -284,6 +302,8 @@ private:
   /// CPM RoI container StoreGate key
   std::string m_cpmTobRoiLocation;
   /// Trigger Tower container StoreGate key
+  //std::string m_triggerTowerLocation;
+  /// xAODTriggerTower Container key
   std::string m_triggerTowerLocation;
   /// ROD header container StoreGate key
   std::string m_rodHeaderLocation;
