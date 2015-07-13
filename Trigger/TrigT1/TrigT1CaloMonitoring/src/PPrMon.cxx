@@ -61,6 +61,7 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_2d_etaPhi_tt_adc_HitMap(0),
     m_h_ppm_had_1d_tt_adc_MaxTimeslice(0),
     m_h_ppm_em_1d_tt_adc_MaxTimeslice(0),
+    m_h_ppm_2d_tt_adc_BcidBits(0),
     m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap(0),
     m_h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap(0),
     m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice(0),
@@ -81,7 +82,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_lutcp_Eta(0),
     m_h_ppm_had_1d_tt_lutcp_Phi(0),
     m_h_ppm_1d_tt_lutcp_LutPerBCN(0),
-    m_h_ppm_2d_tt_lutcp_BcidBits(0),
     m_h_ppm_em_1d_tt_lutjep_Et(0),
     m_h_ppm_em_1d_tt_lutjep_Eta(0),
     m_h_ppm_em_1d_tt_lutjep_Phi(0),
@@ -89,7 +89,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_lutjep_Eta(0),
     m_h_ppm_had_1d_tt_lutjep_Phi(0),
     m_h_ppm_1d_tt_lutjep_LutPerBCN(0),
-    m_h_ppm_2d_tt_lutjep_BcidBits(0),
     m_h_ppm_1d_ErrorSummary(0),
     m_h_ppm_2d_Status03(0),
     m_h_ppm_2d_Status47(0),
@@ -237,6 +236,23 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                                           " EM Distribution of Maximum Timeslice;time slice",
                                           m_SliceNo, 0, m_SliceNo);
     m_histTool->numbers(m_h_ppm_em_1d_tt_adc_MaxTimeslice, 0, m_SliceNo - 1);
+
+    //------------------------Bits of BCID Logic Words Vs PeakADC -----------------------
+
+    m_h_ppm_2d_tt_adc_BcidBits = m_histTool->book2F("ppm_2d_tt_adc_BcidBits",
+                                   "PPM: Bits of BCID Logic Word Vs. PeakADC", 11, 0., 11., 1023, 0., 1023.);
+    LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_adc_BcidBits->GetXaxis();
+    axis->SetBinLabel(1, "none");
+    axis->SetBinLabel(2, "extBC only");
+    axis->SetBinLabel(3, "satBC only");
+    axis->SetBinLabel(4, "extBC & satBC");
+    axis->SetBinLabel(5, "peakF only");
+    axis->SetBinLabel(6, "extBC & peakF");
+    axis->SetBinLabel(7, "satBC & peakF");
+    axis->SetBinLabel(8, "all");
+    axis->SetBinLabel(9, "sat80low");
+    axis->SetBinLabel(10, "sat80high");
+    axis->SetBinLabel(11, "sat80BC");
 
     //------------------------Average Maximum Timeslice-----------------------
 
@@ -388,17 +404,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_h_ppm_1d_tt_lutcp_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutcp_LutPerBCN",
                                     "Num of LUT-CP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
                                     0xdec, 0, 0xdec);
-    m_h_ppm_2d_tt_lutcp_BcidBits = m_histTool->book2F("ppm_2d_tt_lutcp_BcidBits",
-                                   "PPM: Bits of BCID Logic Word Vs. LUT", 8, 0., 8., 256, 0., 256.);
-    LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_lutcp_BcidBits->GetXaxis();
-    axis->SetBinLabel(1, "none");
-    axis->SetBinLabel(2, "extBC only");
-    axis->SetBinLabel(3, "satBC only");
-    axis->SetBinLabel(4, "extBC & satBC");
-    axis->SetBinLabel(5, "peakF only");
-    axis->SetBinLabel(6, "extBC & peakF");
-    axis->SetBinLabel(7, "satBC & peakF");
-    axis->SetBinLabel(8, "all");
 
     //--------------- distribution of LUT-JEP peak per detector region -----------
 
@@ -423,17 +428,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_h_ppm_1d_tt_lutjep_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutjep_LutPerBCN",
                                      "Num of LUT-JEP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
                                      0xdec, 0, 0xdec);
-    m_h_ppm_2d_tt_lutjep_BcidBits = m_histTool->book2F("ppm_2d_tt_lutjep_BcidBits",
-                                    "PPM: Bits of BCID Logic Word Vs. LUT", 8, 0., 8., 256, 0., 256.);
-    LWHist::LWHistAxis* axis2 = m_h_ppm_2d_tt_lutjep_BcidBits->GetXaxis();
-    axis2->SetBinLabel(1, "none");
-    axis2->SetBinLabel(2, "extBC only");
-    axis2->SetBinLabel(3, "satBC only");
-    axis2->SetBinLabel(4, "extBC & satBC");
-    axis2->SetBinLabel(5, "peakF only");
-    axis2->SetBinLabel(6, "extBC & peakF");
-    axis2->SetBinLabel(7, "satBC & peakF");
-    axis2->SetBinLabel(8, "all");
 
     //-------------------------Summary of Errors------------------------------
 
@@ -738,11 +732,9 @@ StatusCode PPrMon::fillHistograms()
         if (cpET > 5) {
           m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
                                         cpET);
-          // Bunch crossing and BCID bits
+          // Bunch crossing
           m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
         }
-        m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], cpET); //Hanno: Vector entry specified
-
       }
       if (jepET > 0) {
         m_h_ppm_em_1d_tt_lutjep_Eta->Fill(eta, 1);
@@ -751,10 +743,9 @@ StatusCode PPrMon::fillHistograms()
         if (jepET > 5) {
           m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
                                         jepET);
-          // Bunch crossing and BCID bits
+          // Bunch crossing
           m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
         }
-        m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], jepET); //Hanno: Vector entry specified
       }
 
       //---------------------------- EM LUT HitMaps -----------------------------
@@ -807,6 +798,28 @@ StatusCode PPrMon::fillHistograms()
                                       max + 1.);
         m_h_ppm_em_1d_tt_adc_MaxTimeslice->Fill(max);
       }
+
+      //----------------------- Bits of BCID Logic Word ------------------------
+
+      if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size()) {
+        const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+        short unsigned int Peak = (*TriggerTowerIterator)->peak();
+        uint8_t bcidWord = (*TriggerTowerIterator)->bcidVec()[Peak];
+        m_h_ppm_2d_tt_adc_BcidBits->Fill(bcidWord, ADC);
+        
+        // (Sasha Mazurov) We need to check sat80Vec range since currently
+        // this vector is empty in MC
+        if ((*TriggerTowerIterator)->sat80Vec().size() > Peak ) { 
+          uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
+          std::bitset<3> sat80Bitset(sat80Word);
+          for (unsigned int i=0;i<sat80Bitset.size();i++) {
+            if (sat80Bitset.test(i)) {
+              m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);
+            }
+          }
+        }
+      }
+
       //------------------------ Signal shape profile --------------------------
 
       if (cpET > 0) {
@@ -819,12 +832,11 @@ StatusCode PPrMon::fillHistograms()
       }
 
       //---------------------------- SubStatus Word errors ---------------------
-      //----------------------------- em ---------------------------------------
 
       using LVL1::DataError;
 
       if ((*TriggerTowerIterator)-> errorWord()) {
-//
+
         const DataError err((*TriggerTowerIterator)-> errorWord());
 
         const L1CaloCoolChannelId CoolId(m_ttTool->channelID(eta, phi, 0));
@@ -914,10 +926,9 @@ StatusCode PPrMon::fillHistograms()
         if (cpET > 5) {
           m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
                                          cpET);
-          // Bunch crossing and BCID bits
+          // Bunch crossing
           m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
         }
-        m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], cpET);
       }
       if (jepET > 0) {
         m_h_ppm_had_1d_tt_lutjep_Eta->Fill(eta, 1);
@@ -926,10 +937,9 @@ StatusCode PPrMon::fillHistograms()
         if (jepET > 5) {
           m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
                                          jepET);
-          // Bunch crossing and BCID bits
+          // Bunch crossing
           m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
         }
-        m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], jepET);
       }
 
       //---------------------------- had LUT HitMaps -----------------------------
@@ -983,6 +993,27 @@ StatusCode PPrMon::fillHistograms()
         m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
                                        max + 1.);
         m_h_ppm_had_1d_tt_adc_MaxTimeslice->Fill(max);
+      }
+
+      //----------------------- Bits of BCID Logic Word ------------------------
+
+      if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size()) {
+        const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+        short unsigned int Peak = (*TriggerTowerIterator)->peak();
+        uint8_t bcidWord = (*TriggerTowerIterator)->bcidVec()[Peak];
+        m_h_ppm_2d_tt_adc_BcidBits->Fill(bcidWord, ADC);
+        
+        // (Sasha Mazurov) We need to check sat80Vec range since currently
+        // this vector is empty in MC
+        if ((*TriggerTowerIterator)->sat80Vec().size() > Peak ) {
+          uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
+          std::bitset<3> sat80Bitset(sat80Word);
+          for (unsigned int i=0;i<sat80Bitset.size();i++) {
+            if (sat80Bitset.test(i)) {
+              m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);
+            }
+          }
+        }
       }
 
       //------------------------ Signal shape profile --------------------------

@@ -777,8 +777,7 @@ StatusCode CPMon::fillHistograms()
       const int type      = (*crIterator)->type();  // 0=EM, 1=Tau
       const int energy    = (*crIterator)->energy();
       const int isolation = (*crIterator)->isolation();
-      const LVL1::CoordinateRange coord(
-        decoder.coordinate((*crIterator)->roiWord() << 2)); //hack
+      const LVL1::CoordinateRange coord(decoder.coordinate((*crIterator)->roiWord())); 
       const double eta = coord.eta();
       const double phi = coord.phi();
       if (energy) {

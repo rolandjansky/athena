@@ -45,9 +45,6 @@ if l1caloRawMon:
         include(
             'TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py'
         )
-        include(
-            'TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py'
-        )
 
     include("CaloConditions/CaloConditions_jobOptions.py")
     if Offline:

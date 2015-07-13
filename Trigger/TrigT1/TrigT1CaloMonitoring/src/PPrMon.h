@@ -219,6 +219,9 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_adc_MaxTimeslice;                  ///< HAD Distribution of Maximum Timeslice
   TH1F_LW* m_h_ppm_em_1d_tt_adc_MaxTimeslice;                   ///< EM Distribution of Maximum Timeslice
 
+  /// Bits of BCID Logic Words Vs PeakADC
+  TH2F_LW* m_h_ppm_2d_tt_adc_BcidBits;
+
   // ADC profile hitmaps
   TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap;     ///< eta-phi Profile Map of EM FADC > cut for triggered timeslice
   TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap;    ///< eta-phi Profile Map of HAD FADC > cut for triggered timeslice
@@ -251,7 +254,6 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Phi;                ///< HAD LUT-CP: Distribution of Peak per phi
 
   TH1F_LW* m_h_ppm_1d_tt_lutcp_LutPerBCN;              ///< Num of LUT-CP > 5 per BC
-  TH2F_LW* m_h_ppm_2d_tt_lutcp_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-CP
 
   //distribution of LUT-JEP peak per detector region
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Et;                  ///< EM LUT-JEP: Distribution of Peak
@@ -263,7 +265,6 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_lutjep_Phi;                ///< HAD LUT-JEP: Distribution of Peak per phi
 
   TH1F_LW* m_h_ppm_1d_tt_lutjep_LutPerBCN;              ///< Num of LUT-JEP > 5 per BC
-  TH2F_LW* m_h_ppm_2d_tt_lutjep_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-JEP
 
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors
