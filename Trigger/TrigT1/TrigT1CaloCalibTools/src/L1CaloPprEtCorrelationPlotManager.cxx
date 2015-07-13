@@ -102,19 +102,20 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {
     Identifier id;
-    double caloEnergy;
-    double ttCpEnergy;
+    std::vector<float> CaloEnergyLayers;
+    float caloEnergy = 0.;
+    float ttCpEnergy;
     ttCpEnergy=trigTower->cpET();
+
     if (ttCpEnergy <= m_EtMin) return -1000.;
-    caloEnergy = trigTower->auxdataConst< float >("CaloCellEnergy") / cosh( trigTower->eta() );
-//     if(isOnline) { 
-// 	id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),trigTower->layer());
-// 	caloEnergy = m_caloTool->et(id);
-//     }
-//     else {
-//      caloEnergy = m_ttToolOffline->TTCellsEt(trigTower);
-//      caloEnergy = m_xAODttToolOffline->caloCellsET(*trigTower);
-//     }
+    if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
+      CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
+      for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
+        caloEnergy += *it;
+      }
+      caloEnergy = caloEnergy / cosh( trigTower->eta() );
+    }
+
     // round calo energy to nearest GeV in order to compare with L1 energy
     caloEnergy=int(caloEnergy+0.5);
 

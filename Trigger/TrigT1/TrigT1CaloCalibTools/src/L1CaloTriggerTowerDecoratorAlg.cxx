@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 664636 2015-05-04 09:16:44Z amazurov $
+// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 681987 2015-07-10 00:16:05Z morrisj $
 
 // TrigT1 common definitions
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
@@ -38,6 +38,7 @@ namespace LVL1
 
   StatusCode L1CaloTriggerTowerDecoratorAlg::initialize()
   {
+    ATH_MSG_INFO("TrigT1CaloCalibTools/L1CaloTriggerTowerDecoratorAlg::initialize()" );
     CHECK( m_ttTools.retrieve() );
     
     // Return gracefully:
@@ -46,20 +47,19 @@ namespace LVL1
 
   StatusCode L1CaloTriggerTowerDecoratorAlg::execute()
   {
-    //ATH_MSG_INFO( "StoreGate contents:\n\n" << evtStore()->dump() ); 
  
     // Shall I proceed?
     if (evtStore()->contains<xAOD::TriggerTowerContainer>( m_sgKey_TriggerTowers )) {
        
       CHECK( m_ttTools->initCaloCells() );
-  //     CHECK( m_ttTools->initDatabase() );
         
       const xAOD::TriggerTowerContainer* tts(nullptr);
       CHECK( evtStore()->retrieve( tts , m_sgKey_TriggerTowers ) );
       for (const auto x : *tts) {      
     
-        x->auxdecor< float >( m_caloCellEnergy ) = m_ttTools->caloCellsEnergy( *x );
-        x->auxdecor< float >( m_caloCellET ) = m_ttTools->caloCellsET( *x );
+        // Don't need CellEnergy or CellET, figure them out from the byLayer sums. Waste of disk space.
+        // x->auxdecor< float >( m_caloCellEnergy ) = m_ttTools->caloCellsEnergy( *x );
+        // x->auxdecor< float >( m_caloCellET ) = m_ttTools->caloCellsET( *x );
         x->auxdecor< std::vector<float> >( m_caloCellEnergyByLayer ) = m_ttTools->caloCellsEnergyByLayer( *x );
         x->auxdecor< std::vector<float> >( m_caloCellETByLayer ) = m_ttTools->caloCellsETByLayer( *x );   
         x->auxdecor< float >( m_caloCellsQuality ) = m_ttTools->caloCellsQuality( *x );
