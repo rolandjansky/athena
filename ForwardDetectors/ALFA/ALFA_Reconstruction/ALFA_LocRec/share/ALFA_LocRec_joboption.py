@@ -13,9 +13,7 @@ alfaLocRec = TopLocRecSeq.ALFA_LocRec
 
 
 # select reconstruction methods for the MD and the OD
-#alfaLocRec.AlgoMD = "MDMultiple"		#(MDGap, MDMultiple, ...)
-#alfaLocRec.AlgoOD = "ODTracking"
-#alfaLocRec.ListAlgoMD = ["MDMultiple", "HalfReco"]
+#alfaLocRec.ListAlgoMD = ["MDMultiple", "HalfReco", "EdgeMethod"]
 alfaLocRec.ListAlgoMD = ["MDMultiple"]
 alfaLocRec.ListAlgoOD = ["ODTracking"]
 
@@ -23,10 +21,13 @@ alfaLocRec.ListAlgoOD = ["ODTracking"]
 # specify local reconstruction properties
 alfaLocRec.MultiplicityCutOD = 30
 alfaLocRec.DistanceCutOD     = 0.5
-alfaLocRec.MultiplicityCutMD = 10
+alfaLocRec.MultiplicityCutMD = 5
 alfaLocRec.OverlapCutMD      = 0.5
 alfaLocRec.UVCutMD           = 3
 alfaLocRec.NumLayerCutMD     = 3
+
+alfaLocRec.EdgeMethod_Opt_Sisters = False
+alfaLocRec.EdgeMethod_Opt_UseGaps = False
 
 
 # select between a real data (1) or a simulation mode (0),# specify a detector metrology type and its source
