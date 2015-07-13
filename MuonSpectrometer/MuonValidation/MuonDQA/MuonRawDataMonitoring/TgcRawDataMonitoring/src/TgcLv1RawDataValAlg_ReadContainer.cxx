@@ -289,6 +289,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
   for( ; it != ite; it++ ){
     float pt = (*it)->pt();
     float eta = (*it)->eta();
+    float phi = (*it)->phi();
     if( fabs(pt) < ptcut || 
         fabs(eta) < etamin ||
         fabs(eta) > etamax ) continue;
@@ -359,9 +360,44 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
         (*it)->matchChi2() > 100 ) continue;
     */
 
+
+    bool overlapped = false;
+
+    for(unsigned int itr=0; itr<mu_eta->size(); itr++){
+	float deta = fabs(mu_eta->at(itr) - eta);
+	float dphi = fabs(mu_phi->at(itr) - phi);
+	if(dphi > M_PI) dphi = 2*M_PI - dphi;
+	if(sqrt(deta*deta + dphi*dphi) < 0.1){
+	    if(pt > mu_pt->at(itr)){
+		std::vector<float>::iterator ipt;
+		ipt = mu_pt->begin();
+		for(unsigned int j=0; j < itr; j++) ++ipt;
+		mu_pt->erase(ipt);
+
+		std::vector<float>::iterator ieta;
+		ieta = mu_eta->begin();
+		for(unsigned int j=0; j < itr; j++) ++ieta;
+		mu_eta->erase(ieta);
+
+		std::vector<float>::iterator iphi;
+		iphi = mu_phi->begin();
+		for(unsigned int j=0; j < itr; j++) ++iphi;
+		mu_phi->erase(iphi);
+
+		std::vector<float>::iterator iq;
+		iq = mu_q->begin();
+		for(unsigned int j=0; j < itr; j++) ++iq;
+		mu_q->erase(iq);
+
+	    } else overlapped = true;
+	}
+    }
+
+    if(overlapped) continue;
+
     mu_pt->push_back ( pt );
     mu_eta->push_back( eta );
-    mu_phi->push_back( (*it)->phi() );
+    mu_phi->push_back( phi );
     mu_q->push_back  ( (*it)->charge() );
   }
 
@@ -524,7 +560,7 @@ TgcLv1RawDataValAlg::readEventInfo(){
     bool continuesearch=true;
     
     // Check that store contains HLT express
-    const std::string key = "HLT_EXPRESS_OPI_EF";
+    const std::string key = "HLT_EXPRESS_OPI_HLT";
     if( !(*m_activeStore)->contains<TrigOperationalInfoCollection>(key) ){
       m_log << MSG::INFO <<" Missing TrigOperationalInfoCollection: key= " << key <<endreq; continuesearch=false;
     }

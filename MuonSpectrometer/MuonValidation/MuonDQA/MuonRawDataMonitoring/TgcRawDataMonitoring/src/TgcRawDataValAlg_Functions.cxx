@@ -46,6 +46,7 @@
 #include <TF1.h>
 #include <TList.h>
 #include <TBox.h>
+#include <TAxis.h>
 #include <inttypes.h> 
 
 #include <sstream>
@@ -497,15 +498,25 @@ TgcRawDataValAlg::nWireStripMap(int ws, int binx, int biny){//[0:1][1:43][1:48]
   int layer=0;
   int eta = binx-1;
   int station =0;
-  if     (binx<= 5) {layer = 0; eta =  5 - binx; station = 42;}
-  else if(binx<=10) {layer = 1; eta = 10 - binx; station = 42;}
-  else if(binx<=15) {layer = 2; eta = 15 - binx; station = 42;}
-  else if(binx<=21) {layer = 3; eta = 21 - binx; station = 44;}
-  else if(binx<=27) {layer = 4; eta = 27 - binx; station = 44;}
-  else if(binx<=33) {layer = 5; eta = 33 - binx; station = 46;}
-  else if(binx<=39) {layer = 6; eta = 39 - binx; station = 46;}
-  else if(binx<=41) {layer = 7; eta = 41 - binx; station = 48;}
-  else if(binx<=43) {layer = 8; eta = 43 - binx; station = 48;}
+//  if     (binx<= 5) {layer = 0; eta =  5 - binx; station = 42;}
+//  else if(binx<=10) {layer = 1; eta = 10 - binx; station = 42;}
+//  else if(binx<=15) {layer = 2; eta = 15 - binx; station = 42;}
+//  else if(binx<=21) {layer = 3; eta = 21 - binx; station = 44;}
+//  else if(binx<=27) {layer = 4; eta = 27 - binx; station = 44;}
+//  else if(binx<=33) {layer = 5; eta = 33 - binx; station = 46;}
+//  else if(binx<=39) {layer = 6; eta = 39 - binx; station = 46;}
+//  else if(binx<=41) {layer = 7; eta = 41 - binx; station = 48;}
+//  else if(binx<=43) {layer = 8; eta = 43 - binx; station = 48;}
+  if( binx%7>=1 && binx%7<=3 && binx<=28) {layer = (binx-1)%7; eta=4-(binx-1)/7; station = 42;} 
+  else if( binx%7>=4 && binx%7<=5 && binx<=28) {layer = (binx-1)%7; eta=5-(binx-1)/7; station = 44;} 
+  else if( (binx-1)%7>=5 && binx<=28) {layer = (binx-1)%7; eta=5-(binx-1)/7; station = 46;} 
+  else if( binx>28 && binx<=30) {layer = binx-28+3-1; eta=1; station = 44; }
+  else if( binx>30 && binx<=32) {layer = binx-28+3-1; eta=1; station = 46; }
+  else if( binx>32 && binx<=35) {layer = binx-32-1; eta=0; station = 42; }
+  else if( binx>35 && binx<=37) {layer = binx-32-1; eta=0; station = 44; }
+  else if( binx>37 && binx<=39) {layer = binx-32-1; eta=0; station = 46; }
+  else if( binx>39 && binx<=41) {layer = binx-32-1; eta=1; station = 48; }
+  else if( binx>41 && binx<=43) {layer = binx-34-1; eta=0; station = 48; }
 
   if(eta==0) station-=1;
 
@@ -522,15 +533,27 @@ TgcRawDataValAlg::nWireStripMap(int ws, int binx, int biny){//[0:1][1:43][1:48]
 void
 TgcRawDataValAlg::getChamberMapIndexes(int eta, int phi48, int layer, int &binx, int &biny){
   // binx is 0-based
-  if( layer == 0 )      binx =  4-eta;
-  else if( layer == 1 ) binx =  9-eta;
-  else if( layer == 2 ) binx = 14-eta;
-  else if( layer == 3 ) binx = 20-eta;
-  else if( layer == 4 ) binx = 26-eta;
-  else if( layer == 5 ) binx = 32-eta;
-  else if( layer == 6 ) binx = 38-eta;
-  else if( layer == 7 ) binx = 40-eta;
-  else if( layer == 8 ) binx = 42-eta;
+  //if( layer == 0 )      binx =  4-eta;
+  //else if( layer == 1 ) binx =  9-eta;
+  //else if( layer == 2 ) binx = 14-eta;
+  //else if( layer == 3 ) binx = 20-eta;
+  //else if( layer == 4 ) binx = 26-eta;
+  //else if( layer == 5 ) binx = 32-eta;
+  //else if( layer == 6 ) binx = 38-eta;
+  //else if( layer == 7 ) binx = 40-eta;
+  //else if( layer == 8 ) binx = 42-eta;
+  
+  if ( layer < 3){
+    if(eta>0 && eta<=4) binx = 7*(4-eta) + layer;  // E1-E4
+    else if(eta==0) binx = 32 + layer;  // F
+  } else if (layer < 7){
+    if(eta>1 && eta<=5) binx = 7*(5-eta) + layer;  // E1-E4
+    else if(eta==1) binx = 28 + layer-3; // E5 
+    else if(eta==0) binx = 32 + layer; // F 
+  } else if (layer < 9){
+    if(eta==1) binx = 39 + layer-7; // EI
+    else if(eta==0) binx = 41 + layer-7; // FI
+  }
   
   // biny is 1-based
   biny = phi48+2;
@@ -585,22 +608,53 @@ TgcRawDataValAlg::BlankPhi24(TH2 *h, int binx){
 }
 void
 TgcRawDataValAlg::BlankStationMap(TH2 *h){
-  BlankPhi24(h, 5);
-  BlankPhi24(h, 10);
-  BlankPhi24(h, 15);
-  BlankPhi24(h, 21);
-  BlankPhi24(h, 27);
+  // old binning strategy
+  // BlankPhi24(h, 5);
+  // BlankPhi24(h, 10);
+  // BlankPhi24(h, 15);
+  // BlankPhi24(h, 21);
+  // BlankPhi24(h, 27);
+  // BlankPhi24(h, 33);
+  // BlankPhi24(h, 39);
+  // BlankPhi24(h, 40);
+  // BlankPhi24(h, 41);
+  // BlankPhi24(h, 42);
+  // BlankPhi24(h, 43);
+
+  // int x1=h->GetXaxis()->GetBinLowEdge(40);
+  // int x2=h->GetXaxis()->GetBinUpEdge(40);
+  // int x3=h->GetXaxis()->GetBinLowEdge(42);
+  // int x4=h->GetXaxis()->GetBinUpEdge(42);
+  // int y1=h->GetYaxis()->GetBinLowEdge(19);
+  // int y2=h->GetYaxis()->GetBinUpEdge(19);
+  // putBox(h, x1, y1, x2, y2);
+  // putBox(h, x3, y1, x4, y2);
+  // y1=h->GetYaxis()->GetBinLowEdge(35);
+  // y2=h->GetYaxis()->GetBinUpEdge(35);
+  // putBox(h, x1, y1, x2, y2);
+  // putBox(h, x3, y1, x4, y2);
+  // y1=h->GetYaxis()->GetBinLowEdge(43);
+  // y2=h->GetYaxis()->GetBinUpEdge(43);
+  // putBox(h, x1, y1, x2, y2);
+  // putBox(h, x3, y1, x4, y2);
+
   BlankPhi24(h, 33);
+  BlankPhi24(h, 34);
+  BlankPhi24(h, 35);
+  BlankPhi24(h, 36);
+  BlankPhi24(h, 37);
+  BlankPhi24(h, 38);
   BlankPhi24(h, 39);
   BlankPhi24(h, 40);
   BlankPhi24(h, 41);
   BlankPhi24(h, 42);
   BlankPhi24(h, 43);
+
   
   int x1=h->GetXaxis()->GetBinLowEdge(40);
   int x2=h->GetXaxis()->GetBinUpEdge(40);
-  int x3=h->GetXaxis()->GetBinLowEdge(42);
-  int x4=h->GetXaxis()->GetBinUpEdge(42);
+  int x3=h->GetXaxis()->GetBinLowEdge(41);
+  int x4=h->GetXaxis()->GetBinUpEdge(41);
   int y1=h->GetYaxis()->GetBinLowEdge(19);
   int y2=h->GetYaxis()->GetBinUpEdge(19);
   putBox(h, x1, y1, x2, y2);
@@ -613,4 +667,51 @@ TgcRawDataValAlg::BlankStationMap(TH2 *h){
   y2=h->GetYaxis()->GetBinUpEdge(43);
   putBox(h, x1, y1, x2, y2);
   putBox(h, x3, y1, x4, y2);
+}
+
+void
+TgcRawDataValAlg::BlankStripStationMap(TH2 *h){
+  int binsY = 48;//h->GetYaxis()->GetNBins();
+  float x1=h->GetXaxis()->GetBinLowEdge(2);
+  float x2=h->GetXaxis()->GetBinUpEdge(2);
+  for(int i=1;i<=binsY;i++){
+    int biny = i;
+    float y1=h->GetYaxis()->GetBinLowEdge(biny);
+    float y2=h->GetYaxis()->GetBinUpEdge(biny);
+    putBox(h, x1, y1, x2, y2);
+  }
+  x1=h->GetXaxis()->GetBinLowEdge(9);
+  x2=h->GetXaxis()->GetBinUpEdge(9);
+  for(int i=1;i<=binsY;i++){
+    int biny = i;
+    float y1=h->GetYaxis()->GetBinLowEdge(biny);
+    float y2=h->GetYaxis()->GetBinUpEdge(biny);
+    putBox(h, x1, y1, x2, y2);
+  }
+  x1=h->GetXaxis()->GetBinLowEdge(16);
+  x2=h->GetXaxis()->GetBinUpEdge(16);
+  for(int i=1;i<=binsY;i++){
+    int biny = i;
+    float y1=h->GetYaxis()->GetBinLowEdge(biny);
+    float y2=h->GetYaxis()->GetBinUpEdge(biny);
+    putBox(h, x1, y1, x2, y2);
+  }
+  x1=h->GetXaxis()->GetBinLowEdge(23);
+  x2=h->GetXaxis()->GetBinUpEdge(23);
+  for(int i=1;i<=binsY;i++){
+    int biny = i;
+    float y1=h->GetYaxis()->GetBinLowEdge(biny);
+    float y2=h->GetYaxis()->GetBinUpEdge(biny);
+    putBox(h, x1, y1, x2, y2);
+  }
+  x1=h->GetXaxis()->GetBinLowEdge(34);
+  x2=h->GetXaxis()->GetBinUpEdge(34);
+  for(int i=1;i<=binsY;i++){
+    int biny = i;
+    if(i%2==0)continue;  // even bins already blanked by BlankPhi24() 
+    float y1=h->GetYaxis()->GetBinLowEdge(biny);
+    float y2=h->GetYaxis()->GetBinUpEdge(biny);
+    putBox(h, x1, y1, x2, y2);
+  }
+
 }

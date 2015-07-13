@@ -172,12 +172,14 @@ TgcRawDataValAlg::bookHistogramsProfile(){
   
   for(int ac=0;ac<2;ac++){
     // Blank out chambers that don't exist
-    BlankStationMap(tgcwirestripcoin[ac]);
+    BlankStationMap(tgcwirestripcoin[ac]); 
     for(int ws=0;ws<2;ws++){
       // Blank out chambers that don't exist
       BlankStationMap(tgcprofilemap[ac][ws]);
+      if(ws==1) BlankStripStationMap(tgcprofilemap[ac][ws]);
       // Blank out chambers that don't exist
       BlankStationMap(tgcoccupancymap[ac][ws]);
+      if(ws==1) BlankStripStationMap(tgcoccupancymap[ac][ws]);
       
       for(int sec=1;sec<=12;sec++){
         for(int phi=0;phi<=3;phi+=4){
@@ -190,30 +192,65 @@ TgcRawDataValAlg::bookHistogramsProfile(){
         }
       }
       int x=1;
-      //layer1-3
-      for(int l=0;l<3;l++){
-        for(int c=0;c<5;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+      // old binning strategy
+      ////layer1-3
+      //for(int l=0;l<3;l++){
+      //  for(int c=0;c<5;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+      //    tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+      ////layer4-7
+      //for(int l=3;l<7;l++){
+      //  for(int c=0;c<6;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c];
+      //    tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+      ////layer8-9
+      //for(int l=7;l<9;l++){
+      //  for(int c=0;c<2;c++){
+      //    ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c];
+      //    tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //  }
+      //}
+      // chamber E1-E4,  layer1-7
+      for(int c=0;c<4;c++){
+	for(int l=1;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT1[c];
           tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+	}
       }
-      //layer4-7
-      for(int l=3;l<7;l++){
-        for(int c=0;c<6;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c];
+      // chamber E5,  layer4-7
+      for(int c=4;c<5;c++){
+	for(int l=4;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+	}
       }
-      //layer8-9
-      for(int l=7;l<9;l++){
-        for(int c=0;c<2;c++){
-          ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c];
+      // chamber F,  layer1-7
+      for(int c=5;c<6;c++){
+	for(int l=1;l<=7;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
           tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
-        }
+	}
       }
+      // chamber EIFI,  layer8-9
+      for(int c=0;c<2;c++){
+	for(int l=8;l<=9;l++){
+	  ss.str(""); ss << "L" << l << "_" << schamberEF[c];
+          tgcprofilemap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          tgcoccupancymap[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+	}
+      }
+
+
       tgcprofilemap[ac][ws] ->GetXaxis()->LabelsOption("v");
       tgcoccupancymap[ac][ws] ->GetXaxis()->LabelsOption("v");
     }//ws
@@ -230,27 +267,56 @@ TgcRawDataValAlg::bookHistogramsProfile(){
       }
     }
     int x=1;
-    //layer1-3
-    for(int l=0;l<3;l++){
-      for(int c=0;c<5;c++){
-        ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+    ////layer1-3
+    //for(int l=0;l<3;l++){
+    //  for(int c=0;c<5;c++){
+    //    ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
+    //    tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+    //  }
+    //}
+    ////layer4-7
+    //for(int l=3;l<7;l++){
+    //  for(int c=0;c<6;c++){
+    //    ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c];
+    //    tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+    //  }
+    //}
+    ////layer8-9
+    //for(int l=7;l<9;l++){
+    //  for(int c=0;c<2;c++){
+    //    ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c];
+    //    tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+    //  }
+    //}
+    // chamber E1-E4,  layer1-7
+    for(int c=0;c<4;c++){
+      for(int l=1;l<=7;l++){
+        ss.str(""); ss << "L" << l << "_" << schamberT1[c];
         tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
-    //layer4-7
-    for(int l=3;l<7;l++){
-      for(int c=0;c<6;c++){
-        ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c];
+    // chamber E5,  layer4-7
+    for(int c=4;c<5;c++){
+      for(int l=4;l<=7;l++){
+        ss.str(""); ss << "L" << l << "_" << schamberT3[c];
         tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
-    //layer8-9
-    for(int l=7;l<9;l++){
-      for(int c=0;c<2;c++){
-        ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c];
+    // chamber F,  layer1-7
+    for(int c=5;c<6;c++){
+      for(int l=1;l<=7;l++){
+        ss.str(""); ss << "L" << l << "_" << schamberT3[c];
         tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
+    // chamber EIFI,  layer8-9
+    for(int c=0;c<2;c++){
+      for(int l=8;l<=9;l++){
+        ss.str(""); ss << "L" << l << "_" << schamberEF[c];
+        tgcwirestripcoin[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      }
+    }
+
     tgcwirestripcoin[ac] ->GetXaxis()->LabelsOption("v");
   }
   

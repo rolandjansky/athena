@@ -845,7 +845,7 @@ TgcLv1RawDataValAlg::fillTriggerTiming1(int ptcut){//only the earlest triggers i
 
           // Fill timing histograms for different trigger types
           for(int trg=0;trg<4;trg++){
-            if(m_L1TriggerType[trg]>0){
+            if(m_L1TriggerType[trg]>0 && SLpt>0){
               tgclv1sltimingtrg[ac][trg]            ->Fill(SLBC); 
               tgclv1sltimingpttrg[ac][SLpt-1][trg]  ->Fill(SLBC); 
               tgclv1sltimingsectortrg[ac][sect][trg]->Fill(SLBC); 
@@ -890,17 +890,17 @@ TgcLv1RawDataValAlg::fillTriggerTiming1(int ptcut){//only the earlest triggers i
             
             // Fill timing histograms
             tgclv1lpttiming[ac]            ->Fill(LptBC);
-            tgclv1lpttimingpt[ac][SLpt]    ->Fill(LptBC);
+            tgclv1lpttimingpt[ac][SLpt-1]    ->Fill(LptBC);
             tgclv1lpttimingsector[ac][sect]->Fill(LptBC);
             
             // Fill timing maps
-            tgclv1lpttimingmap[ac] -> Fill(etaBCLpt, phi+1);
+            tgclv1lpttimingmap[ac]->Fill(etaBCLpt, phi+1);
             
             // Fill timing histograms for different trigger types
             for(int trg=0;trg<4;trg++){
               if(m_L1TriggerType[trg]>0){
                 tgclv1lpttimingtrg[ac][trg]            ->Fill(LptBC); 
-                tgclv1lpttimingpttrg[ac][SLpt][trg]    ->Fill(LptBC); 
+                tgclv1lpttimingpttrg[ac][SLpt-1][trg]    ->Fill(LptBC); 
                 tgclv1lpttimingsectortrg[ac][sect][trg]->Fill(LptBC); 
               }
             }
