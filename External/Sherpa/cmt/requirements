@@ -7,15 +7,13 @@ use AtlasExternalArea AtlasExternalArea-* External
 use AtlasPolicy AtlasPolicy-*
 use LCG_Configuration
 
-private
-macro LCG_config_version "67c"
-end_private
+macro myLCG_config_version "67c"
 
-macro sherpa_native_version "2.1.1"
+macro sherpa_native_version "2.2.0"
 # NOTE "a" added to Sherpa_native_version - to be removed by next version update
-macro Sherpa_native_version "$(sherpa_native_version)a_lcgcmt$(LCG_config_version)"
+macro Sherpa_native_version "$(sherpa_native_version)a_lcgcmt$(myLCG_config_version)"
 #macro Sherpa_home "$(LCG_external)/MCGenerators/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
-macro Sherpa_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
+macro Sherpa_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
 #macro Sherpa_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt61g/sherpa/$(sherpa_native_version)/$(LCG_ext_system)"
 macro Sherpa_lib "$(Sherpa_home)/lib/SHERPA-MC"
 macro Sherpa_inc "$(Sherpa_home)/include/SHERPA-MC"
