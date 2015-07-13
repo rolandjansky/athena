@@ -24,236 +24,170 @@
 **/
 
 #include "TrigT1CaloCalibTools/TriggerTowerThinningAlg.h"
+// TrigT1 common definitions
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
+namespace DerivationFramework {
 
-TriggerTowerThinningAlg::TriggerTowerThinningAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_thinningSvc( "ThinningSvc",  name ),
-  m_tools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
-  m_triggerTowerLocation("TriggerTowers"),
-  m_caloCellsLocation("AllCalo"),
-  m_larDigitLocation("FREE"),
-  m_tileDigitsLocation("TileDigitsCnt"),
-  m_tileTTL1ContainerName("TileCellTTL1Container"),
-  m_minCaloCellEnergy(0.05),
-  m_minADC(30),
-  m_useRandom(false),
-  m_minRandom(0.03),
-  m_nEventsProcessed(0),
-  m_nEventsAllTriggerTowersKeptByRandom(0),
-  m_nTriggerTowersProcessed(0),
-  m_nTriggerTowersKept(0),
-  m_nTriggerTowersRejected(0),
-  m_random(0)
-{
-  declareProperty("ThinService",m_thinningSvc);
-  declareProperty("TriggerTowerLocation", m_triggerTowerLocation);
-  declareProperty("CaloCellsLocation", m_caloCellsLocation);
-  declareProperty("LArDigitLocatrion", m_larDigitLocation);
-  declareProperty("TileDigitsLocation",m_tileDigitsLocation);
-  declareProperty("TileTTL1ContainerName",m_tileTTL1ContainerName);
-  declareProperty("MinCaloCellEnergy",m_minCaloCellEnergy);
-  declareProperty("MinADC",m_minADC);
-  declareProperty("UseRandom",m_useRandom);
-  declareProperty("MinRandom",m_minRandom);
-}
-
-TriggerTowerThinningAlg::~TriggerTowerThinningAlg(){
-  // Athena 16.0.0 will not let me delete m_random here
-  // The package will compile but the libraries will not build correctly
-  // moving delete m_random; to finalize()
-  // Not really happy about this, but what works works.
-}
-
-StatusCode TriggerTowerThinningAlg::initialize(){
-  StatusCode sc;
-
-  sc = m_tools.retrieve();
-  if(sc.isFailure()){ATH_MSG_INFO("Error loading L1CaloOfflineTriggerTowerTools");return sc;}
-
-  // Random number generator
-  if(m_useRandom == true){
-    m_random = new TRandom3(0);
-  }  
-
-  // Get pointer to ThinningSvc and cache it :
-  // m_thinningSvc is of type IThinningSvc
-  if ( !m_thinningSvc.retrieve().isSuccess() )
-    {
-      if (msgLvl(MSG::ERROR))
-	{
-	  ATH_MSG_ERROR("Unable to retrieve pointer to ThinningSvc");
-	}
-      return sc;
-    }
-  
-  return sc;
-}
-
-StatusCode TriggerTowerThinningAlg::execute(){
-  StatusCode sc;
-
-  // Create the mask to be used for thinning
-  std::vector<bool> mask;
-
-  // Counters
-  unsigned long nKeep(0),nReject(0),nTotal(0);
-  m_nEventsProcessed++;
-
-  // Load everything needed from storeGate
-  // Update the TriggerTowerTools m_tools
-  const CaloCellContainer* cellContainer = 0;
-  sc = evtStore()->retrieve(cellContainer, m_caloCellsLocation);
-  if(sc.isFailure()){return sc;}
-  m_tools->caloCells(cellContainer);
-  
-  if(evtStore()->contains<LArDigitContainer>(m_larDigitLocation)) {
-    const LArDigitContainer* larDigitContainer = 0;
-    sc = evtStore()->retrieve(larDigitContainer,m_larDigitLocation);
-    if(sc.isFailure()){return sc;}
-    m_tools->larDigits(larDigitContainer);
+  TriggerTowerThinningAlg::TriggerTowerThinningAlg(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p),
+    m_thinningSvc( "ThinningSvc",  n ),
+    m_triggerTowerLocation(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
+    m_minCaloCellEnergy(0.05),
+    m_minADC(30),
+    m_useRandom(false),
+    m_minRandom(0.03),
+    m_nEventsProcessed(0),
+    m_nEventsAllTriggerTowersKeptByRandom(0),
+    m_nTriggerTowersProcessed(0),
+    m_nTriggerTowersKept(0),
+    m_nTriggerTowersRejected(0),
+    m_random(0)
+  {
+    declareInterface<DerivationFramework::IThinningTool>(this);    
+    declareProperty("ThinService",m_thinningSvc);
+    declareProperty("TriggerTowerLocation", m_triggerTowerLocation);
+    declareProperty("MinCaloCellEnergy",m_minCaloCellEnergy);
+    declareProperty("MinADC",m_minADC);
+    declareProperty("UseRandom",m_useRandom);
+    declareProperty("MinRandom",m_minRandom);
   }
 
-  if(evtStore()->contains<TileDigitsContainer>(m_tileDigitsLocation)) {
-    const TileDigitsContainer* tileDigitsContainer = 0;
-    sc = evtStore()->retrieve(tileDigitsContainer,m_tileDigitsLocation);
-    if(sc.isFailure()){return sc;}
-    m_tools->tileDigits(tileDigitsContainer);
-  }
-  
-  const TriggerTowerCollection* ttCollection = 0;
-  sc = evtStore()->retrieve(ttCollection, m_triggerTowerLocation);
-  if(sc.isFailure()){return sc;} 
-
-  typedef TriggerTowerCollection::const_iterator Itr;
-  
-  // Should we save the trigger tower or not???
-  // If this is calibration data, then yes - save the lot
-  // Randomly save all trigger towers m_minRandom % of the time.
-  //
-  // If this is collisions data then only save if:
-  // 1.) Any ADC value is greater than m_minADC  OR
-  // 2.) The CaloCell energy is greater than m_minCaloCellEnergy
-
-  bool globalSaveMe(false);
-  // Random number save all
-  if(m_useRandom == true){
-    if(globalSaveMe == false){
-      if(m_random->Rndm() < m_minRandom){
-	globalSaveMe = true;
-	m_nEventsAllTriggerTowersKeptByRandom++;
-      }
-    }
+  TriggerTowerThinningAlg::~TriggerTowerThinningAlg()
+  {
   }
 
-  // Iterate over all trigger towers
-  for(Itr i=ttCollection->begin();i!=ttCollection->end();++i){
-    nTotal++;
+  StatusCode TriggerTowerThinningAlg::initialize(){
+    ATH_MSG_INFO("L1Calo TriggerTowerThinningAlg::initialize()");
 
-    bool saveMe(false);
-    if(globalSaveMe == true){saveMe = true;}
+    // Random number generator
+    if(m_useRandom == true){
+      m_random = new TRandom3(0);
+    }  
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode TriggerTowerThinningAlg::doThinning() const{
+    StatusCode sc;
+
+    // Create the mask to be used for thinning
+    std::vector<bool> mask;
+
+    // Counters
+    unsigned long nKeep(0),nReject(0),nTotal(0);
+    ++m_nEventsProcessed;
     
-    // Test for EM Calo Energy
-    if(saveMe == false){
-      if(m_tools->emTTCellsEnergy((*i)) > m_minCaloCellEnergy){
-	saveMe = true;
-      }
+    // Shall I proceed?
+    if (!evtStore()->contains<xAOD::TriggerTowerContainer>( m_triggerTowerLocation )) {    
+      ATH_MSG_ERROR("No TriggerTowers in input file, so can't do any thinning!");
+      return StatusCode::FAILURE;
     }
     
-    // Test for Had Calo Energy
-    if(saveMe == false){
-      if(m_tools->hadTTCellsEnergy((*i)) > m_minCaloCellEnergy){
-	saveMe = true;
-      }
-    } 
-
-    // Test for EM ADC values
-    typedef std::vector<int>::iterator Itr_tt;
-    if(saveMe == false){
-      std::vector<int> adc = (*i)->emADC();
-      for(Itr_tt j=adc.begin();j!=adc.end();++j){
-	if( (*j) > m_minADC){
-	  saveMe = true;
-	  break;
-	}
-      }
-    } 
+    const xAOD::TriggerTowerContainer* tts(nullptr);
+    CHECK( evtStore()->retrieve( tts , m_triggerTowerLocation ) );
     
-    // Test for Had ADC values
-    if(saveMe == false){
-      std::vector<int> adc = (*i)->hadADC();
-      for(Itr_tt j=adc.begin();j!=adc.end();++j){
-	if( (*j) > m_minADC){
-	  saveMe = true;
-	  break;
-	}
+    mask.assign(tts->size(),false); // default: don't keep any clusters
+    
+    // Should we save the trigger tower or not???
+    // If this is calibration data, then yes - save the lot
+    // Randomly save all trigger towers m_minRandom % of the time.
+    //
+    // If this is collisions data then only save if:
+    // 1.) Any ADC value is greater than m_minADC  OR
+    // 2.) The CaloCell energy is greater than m_minCaloCellEnergy
+
+    bool globalSaveMe(false);
+    // Random number save all
+    if(m_useRandom == true){
+      if(globalSaveMe == false){
+        if(m_random->Rndm() < m_minRandom){
+          globalSaveMe = true;
+          m_nEventsAllTriggerTowersKeptByRandom++;
+        }
       }
     }
 
-    if(saveMe == true){
-      mask.push_back(true);
-      nKeep++;
-    }
-    else{
-      mask.push_back(false);
-      nReject++;
+    // Iterate over all trigger towers
+    for(auto tt : *tts){
+
+      bool saveMe(false);
+      if(globalSaveMe == true){saveMe = true;}
+      
+      // Test for Calo Energy
+      if(saveMe == false){
+        if (tt->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer")) {
+          std::vector<float> caloCellEnergyByLayer = tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
+          float totalCaloCellEnergy(0.);
+          for (auto c : caloCellEnergyByLayer) {
+            totalCaloCellEnergy += c;
+          }
+          if (totalCaloCellEnergy > m_minCaloCellEnergy) {
+            saveMe = true;
+          }
+        }
+      }
+      
+
+      // Test for ADC values
+      if (saveMe == false) {
+        const std::vector<uint16_t> ttADC = tt->adc();
+        for (std::vector<uint16_t>::const_iterator i=ttADC.begin();i!=ttADC.end();++i) {
+          if ( (*i) > m_minADC) {
+            saveMe = true;
+            break;
+          }
+        }
+      }
+
+      // assign result to mask
+      mask[nTotal] = saveMe;
+      
+      ++nTotal;
+    } // End loop over trigger towers
+
+
+    if (m_thinningSvc->filter(*tts,mask,IThinningSvc::Operator::Or).isFailure()) {
+      ATH_MSG_ERROR("Application of thinning service failed! ");
+      return StatusCode::FAILURE;
     }
 
-  } // End loop over trigger towers
+    // Counters
+    m_nTriggerTowersProcessed += nTotal;
+    m_nTriggerTowersKept += nKeep;
+    m_nTriggerTowersRejected += nReject;
+
+    ATH_MSG_DEBUG(" L1Calo Trigger Tower Thinning statistics: keeping " << nKeep << " cells"
+          << " and rejecting " << nReject << " cells");
 
 
-  sc = m_thinningSvc->filter(*ttCollection,mask,IThinningSvc::Operator::Or);
-  if(!sc.isSuccess()){
-    if (msgLvl(MSG::WARNING)){
-      ATH_MSG_ERROR("Could not thin L1Calo Trigger Towers... problem with thinningSvc?? ");
-    }
+    return sc;
   }
 
-  // Counters
-  m_nTriggerTowersProcessed += nTotal;
-  m_nTriggerTowersKept += nKeep;
-  m_nTriggerTowersRejected += nReject;
+  StatusCode TriggerTowerThinningAlg::finalize(){
 
-  if (msgLvl(MSG::DEBUG))
-    {
-      ATH_MSG_DEBUG(" L1Calo Trigger Tower Thinning statistics: keeping " << nKeep << " cells"
-	<< " and rejecting " << nReject << " cells");
-    }
+        ATH_MSG_INFO(
+          "==> finalize " << name() << "...\n"
+          << "***************************************************************\n"
+          << "Results of " << name() << " thinning algorithm:\n"
+          << "-------------");
+        ATH_MSG_INFO(" Number of processed events:  " << m_nEventsProcessed);
 
-  return sc;
-}
-
-StatusCode TriggerTowerThinningAlg::finalize(){
-  // Declare the simple StatusCode
-  StatusCode sc(StatusCode::SUCCESS);
-
-  // Print info messages
-  if (msgLvl(MSG::INFO))
-    {
-      ATH_MSG_INFO(
-	"==> finalize " << name() << "...\n"
-	<< "***************************************************************\n"
-	<< "Results of " << name() << " thinning algorithm:\n"
-	<< "-------------");
-      ATH_MSG_INFO(" Number of processed events:  " << m_nEventsProcessed);
-
-      if(m_nTriggerTowersProcessed > 0) { 
-	ATH_MSG_INFO(
-	  " Average percent of Trigger Towers kept = "
-	  << 100.0 * m_nTriggerTowersKept / (double)m_nTriggerTowersProcessed << " %");
-      }
-      if(m_useRandom == true && m_nEventsProcessed > 0){
-	ATH_MSG_INFO(
-	  " Percentage of events where all Trigger Towers were kept (should be approx "<< 100.0*m_minRandom << ") = "
-	  << 100.0 * m_nEventsAllTriggerTowersKeptByRandom / (double)m_nEventsProcessed);
-      }
-    }
-
-  // This should really be deleted in the destructor
-  // Seems like a dirty hack to do it here
-  // Have to make it so that the package builds properly
-  delete m_random;
+        if(m_nTriggerTowersProcessed > 0) { 
+          ATH_MSG_INFO(
+            " Average percent of Trigger Towers kept = "
+            << 100.0 * m_nTriggerTowersKept / (double)m_nTriggerTowersProcessed << " %");
+        }
+        if(m_useRandom == true && m_nEventsProcessed > 0){
+          ATH_MSG_INFO(
+            " Percentage of events where all Trigger Towers were kept (should be approx "<< 100.0*m_minRandom << ") = "
+            << 100.0 * m_nEventsAllTriggerTowersKeptByRandom / (double)m_nEventsProcessed);
+        }
+      
+    delete m_random;
 
 
-  return sc;
-}
+    return StatusCode::SUCCESS;
+  }
+
+} // namespace
