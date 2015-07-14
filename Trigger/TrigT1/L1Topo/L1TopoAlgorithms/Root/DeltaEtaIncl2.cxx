@@ -10,6 +10,10 @@
 **********************************/
 
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaIncl2.h"
 #include "L1TopoCommon/Exception.h"
@@ -39,14 +43,14 @@ TCS::DeltaEtaIncl2::DeltaEtaIncl2(const std::string & name) : DecisionAlg(name)
    defineParameter("MaxTob1", 0); 
    defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 4);
-   defineParameter("MinEt1",0,0);
-   defineParameter("MinEt2",0,0);
-   defineParameter("MinEt1",0,1);
-   defineParameter("MinEt2",0,1);
-   defineParameter("MinEt1",0,2);
-   defineParameter("MinEt2",0,2);
-   defineParameter("MinEt1",0,3);
-   defineParameter("MinEt2",0,3);
+   defineParameter("MinET1",0,0);
+   defineParameter("MinET2",0,0);
+   defineParameter("MinET1",0,1);
+   defineParameter("MinET2",0,1);
+   defineParameter("MinET1",0,2);
+   defineParameter("MinET2",0,2);
+   defineParameter("MinET1",0,3);
+   defineParameter("MinET2",0,3);
    defineParameter("MinDeltaEta",  0, 0);
    defineParameter("MaxDeltaEta", 127, 0);
    defineParameter("MinDeltaEta",  0, 1);
@@ -73,8 +77,8 @@ TCS::DeltaEtaIncl2::initialize() {
       p_DeltaEtaMin[i] = parameter("MinDeltaEta", i).value();
       p_DeltaEtaMax[i] = parameter("MaxDeltaEta", i).value();
    
-      p_MinET1[i] = parameter("MinEt1",i).value();
-      p_MinET2[i] = parameter("MinEt2",i).value();
+      p_MinET1[i] = parameter("MinET1",i).value();
+      p_MinET2[i] = parameter("MinET2",i).value();
   }
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
@@ -86,6 +90,28 @@ TCS::DeltaEtaIncl2::initialize() {
     TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   // create strings for histogram names
+   ostringstream MyAcceptHist[numberOutputBits()];
+   ostringstream MyRejectHist[numberOutputBits()];
+   
+   for (unsigned int i=0;i<numberOutputBits();i++) {
+     MyAcceptHist[i] << "Accept" << p_DeltaEtaMin[i] << "DEta"; 
+     MyRejectHist[i] << "Reject" << p_DeltaEtaMin[i] << "DEta";
+   }
+
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+     char MyTitle1[100];
+     char MyTitle2[100];
+     string Mys1 = MyAcceptHist[i].str();
+     string Mys2 = MyRejectHist[i].str();
+     std::strcpy(MyTitle1,Mys1.c_str());
+     std::strcpy(MyTitle2,Mys2.c_str());
+     
+     registerHist(m_histAcceptDEta2[i] = new TH1F(MyTitle1,MyTitle1,100,0.,4.));
+     registerHist(m_histRejectDEta2[i] = new TH1F(MyTitle2,MyTitle2,100,0.,4.));
+   }
+
    
    return StatusCode::SUCCESS;
 }
@@ -100,6 +126,9 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
 
       
    if( input.size() == 2) {
+
+      bool iaccept[numberOutputBits()];
+      std::fill_n(iaccept,numberOutputBits(),0);
       
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
@@ -115,7 +144,7 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                // test DeltaEtaMin, DeltaEtaMax
                unsigned int deltaEta = calcDeltaEta( *tob1, *tob2 );
 
-               bool accept[4];
+               bool accept[numberOutputBits()];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
@@ -123,7 +152,13 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                   if( accept[i] ) {
                      decison.setBit(i, true);
                      output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+		     if (!(iaccept[i])) {
+		       iaccept[i]=1;
+		       m_histAcceptDEta2[i]->Fill(deltaEta);
+		     }		     
                   }
+		  else 
+		    m_histRejectDEta2[i]->Fill(deltaEta);
                
 	          TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> " 
                              << (accept[i]?"pass":"fail"));

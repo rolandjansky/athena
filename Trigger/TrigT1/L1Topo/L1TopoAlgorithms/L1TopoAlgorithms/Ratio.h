@@ -31,6 +31,7 @@ namespace TCS {
       parType_t      p_EtaMax = { 49 };
       parType_t      p_HT = { 0 };
       parType_t      p_Ratio[2] = { 0 , 0 };
+      parType_t      p_isXE2 = { 0 };
 
    };
    

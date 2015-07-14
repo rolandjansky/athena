@@ -32,19 +32,16 @@ TCS::RatioSum::RatioSum(const std::string & name) : DecisionAlg(name)
    defineParameter("MaxTob2", 0);
    defineParameter("MaxTob3", 0); 
    defineParameter("NumResultBits", 2);
-   defineParameter("MinET1",0);
+   defineParameter("UseCluster05Granularity",0);
    defineParameter("MinET2",0);
-   defineParameter("MinET3",0);
-   defineParameter("EtaMin1",0);
-   defineParameter("EtaMax1",49);
    defineParameter("EtaMin2",0);
    defineParameter("EtaMax2",49);
+   defineParameter("MinET3",0);
    defineParameter("EtaMin3",0);
    defineParameter("EtaMax3",49);
-   defineParameter("HT",0,0);
-   defineParameter("HT",0,1);
-   defineParameter("SUM",0,0);
-   defineParameter("SUM",0,1);
+   defineParameter("MinMET",0);
+   defineParameter("HT",0);
+   defineParameter("SUM",0);
    defineParameter("Ratio",0,0);
    defineParameter("Ratio",0,1);
    setNumberOutputBits(2);
@@ -64,12 +61,17 @@ TCS::RatioSum::initialize() {
    if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
    if(parameter("MaxTob3").value() > 0) p_NumberLeading3 = parameter("MaxTob3").value();
 
-   p_MinET1  = parameter("MinET1").value();
+
+
+
+   TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
+   TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
+   TRG_MSG_INFO("Maxtob 3          : " << p_NumberLeading3);
+
+   p_MinMET  = parameter("MinMET").value();
    p_MinET2  = parameter("MinET2").value();
    p_MinET3  = parameter("MinET3").value();
 
-   p_EtaMin1 = parameter("EtaMin1").value();
-   p_EtaMax1 = parameter("EtaMax1").value();
    p_EtaMin2 = parameter("EtaMin2").value();
    p_EtaMax2 = parameter("EtaMax2").value();
    p_EtaMin3 = parameter("EtaMin3").value();
@@ -77,12 +79,7 @@ TCS::RatioSum::initialize() {
 
 
 
-   TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
-   TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
-   TRG_MSG_INFO("Maxtob 3          : " << p_NumberLeading3);
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
-   TRG_MSG_INFO("EtaMin1         : " << p_EtaMin1);
-   TRG_MSG_INFO("EtaMax1         : " << p_EtaMax1);
+   TRG_MSG_INFO("MinMET          : " << p_MinMET);
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
    TRG_MSG_INFO("EtaMin2         : " << p_EtaMin2);
    TRG_MSG_INFO("EtaMax2         : " << p_EtaMax2);
@@ -93,15 +90,16 @@ TCS::RatioSum::initialize() {
 
 
 
-   for(int i=0; i<2; ++i) {
-      p_HT[i] = parameter("HT", i).value();
-      p_SUM[i] = parameter("SUM", i).value();
-      p_Ratio[i] = parameter("Ratio", i).value();
+   p_HT = parameter("HT").value();
+   p_SUM = parameter("SUM").value();
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       p_Ratio[i] = parameter("Ratio", i).value();
 
-      TRG_MSG_INFO("Ratio " << i << " : " << p_Ratio[i]);
-      TRG_MSG_INFO("HT " << i << " : " << p_HT[i]);
-      TRG_MSG_INFO("SUM " << i << " : " << p_SUM[i]);
-   }
+       TRG_MSG_INFO("Ratio " << i << " : " << p_Ratio[i]);
+   }    
+   TRG_MSG_INFO("HT " << p_HT);
+   TRG_MSG_INFO("SUM " << p_SUM);
+   
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
    return StatusCode::SUCCESS;
 }
@@ -124,49 +122,55 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
    unsigned int nLeadingele = p_NumberLeading2;
 
 
+
    const TCS::GenericTOB & met = (*input[0])[0];
    
 
    // loop over all jets
+
    unsigned int objC(0);
-   for( TCS::GenericTOB * tob : *input[2]) {
+   for( TCS::GenericTOB * tob : *input[1]) {
       
 
-  
-      if( parType_t(fabs(tob->eta())) > p_EtaMax3 ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin3 ) continue; // Eta cut
-      if( tob->Et() <= p_MinET3 ) continue; // E_T cut
+      if( parType_t(fabs(tob->eta())) > p_EtaMax2 ) continue; // Eta cut
+      if( parType_t(fabs(tob->eta())) < p_EtaMin2 ) continue; // Eta cut
+      if( tob->Et() <= p_MinET2 ) continue; // E_T cut
 
       TRG_MSG_DEBUG("Jet : ET = " << tob->Et());
       ++objC;
-      sumET2 += tob->Et();
+      sumET2 += tob->Et();  
+     
    }
-
+ 
    sumET = sumET2;
+   
 
-   for( TOBArray::const_iterator tob1 = input[1]->begin(); 
-           tob1 != input[1]->end() && distance( input[1]->begin(), tob1) < nLeadingele;
+
+   for( TOBArray::const_iterator tob1 = input[2]->begin(); 
+           tob1 != input[2]->end() && distance( input[2]->begin(), tob1) < nLeadingele;
            ++tob1) 
          {
 	
-          if( parType_t(fabs((*tob1)->eta())) > p_EtaMax2 ) continue; // Eta cut
-          if( parType_t(fabs((*tob1)->eta())) < p_EtaMin2 ) continue; // Eta cut
-          if( (*tob1)->Et() <= p_MinET2 ) continue; // E_T cut
-        
+          if( parType_t(fabs((*tob1)->eta())) > p_EtaMax3 ) continue; // Eta cut
+          if( parType_t(fabs((*tob1)->eta())) < p_EtaMin3 ) continue; // Eta cut
+          if( (*tob1)->Et() <= p_MinET3 ) continue; // E_T cut
           sumET += (*tob1)->Et() ;
 
    }
    
+   
+
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
-      bool accept = objC!=0 && met.Et() > p_MinET1 && sumET!=sumET2 && sumET2 > p_HT[i] && sumET > p_SUM[i] && 10*met.Et() >= p_Ratio[i]*sumET;
 
-      decision.setBit( i, accept );
+    bool accept = objC!=0 && met.Et() > p_MinMET && sumET!=sumET2 && sumET2 > p_HT && sumET > p_SUM && 10*met.Et() >= p_Ratio[i]*sumET;
 
-      if(accept)
-         output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
+    decision.setBit( i, accept );
 
-      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET2 << " SUM = " << sumET);
+    if(accept)
+        output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
+
+    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET2 << " SUM = " << sumET);
 
    }
 

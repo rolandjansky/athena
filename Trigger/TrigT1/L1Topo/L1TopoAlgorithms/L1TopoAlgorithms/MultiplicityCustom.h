@@ -1,20 +1,20 @@
-//  LAR.h
+//  MultiplicityCustom.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
-#ifndef __TopoCore__LAR__
-#define __TopoCore__LAR__
+#ifndef __TopoCore__MultiplicityCustom__
+#define __TopoCore__MultiplicityCustom__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class LAR : public DecisionAlg {
+   class MultiplicityCustom : public DecisionAlg {
    public:
-      LAR(const std::string & name);
-      virtual ~LAR();
+      MultiplicityCustom(const std::string & name);
+      virtual ~MultiplicityCustom();
 
       virtual StatusCode initialize();
 
@@ -28,10 +28,9 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_MinET = { 0 };
+      parType_t      p_Multiplicity = { 0 };
       parType_t      p_EtaMin = { 0 };
-      parType_t      p_EtaMax = { 0 };
-      parType_t      p_PhiMax = { 0 };
-      parType_t      p_PhiMin = { 0 };
+      parType_t      p_EtaMax = { 49 };
 
    };
    

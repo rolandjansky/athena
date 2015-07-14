@@ -28,7 +28,8 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_TMassMin[6] = {0, 0, 0,0,0,0};
-      parType_t      p_MinET1 = { 0 };
+      parType_t      p_MinET1[6] = { 0,0,0,0,0,0 };
+      parType_t      p_MinET2[6] = { 0,0,0,0,0,0 };
 
    };
    

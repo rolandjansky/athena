@@ -17,7 +17,7 @@ TCS::ClusterSelect::ClusterSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 120 ); // for fw
    defineParameter( "InputWidth1stStage", 30 ); // for fw
    defineParameter( "OutputWidth", 6 );
-   defineParameter( "MinEt", 0 );
+   defineParameter( "MinET", 0 );
    defineParameter( "IsoMask", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
@@ -30,7 +30,7 @@ TCS::ClusterSelect::~ClusterSelect() {}
 TCS::StatusCode
 TCS::ClusterSelect::initialize() {
    m_numberOfClusters = parameter("OutputWidth").value();
-   m_et = parameter("MinEt").value();
+   m_et = parameter("MinET").value();
    m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();

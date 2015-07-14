@@ -9,6 +9,10 @@
 **********************************/
 
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/JetHT.h"
 #include "L1TopoCommon/Exception.h"
@@ -29,7 +33,7 @@ TCS::JetHT::JetHT(const std::string & name) : DecisionAlg(name)
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits",6);
    defineParameter("NumRegisters", 2); 
-   defineParameter("MinEt",0);
+   defineParameter("MinET",0);
    defineParameter("MinEta",0);
    defineParameter("MaxEta",31);
    defineParameter("MinHt",0,0);
@@ -49,7 +53,7 @@ TCS::StatusCode
 TCS::JetHT::initialize() {
    p_NumberLeading1 = parameter("InputWidth").value();
    if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
-   p_MinET  = parameter("MinEt").value();
+   p_MinET  = parameter("MinET").value();
    p_EtaMin = parameter("MinEta").value();
    p_EtaMax = parameter("MaxEta").value();
 
@@ -62,6 +66,29 @@ TCS::JetHT::initialize() {
       TRG_MSG_INFO("HT " << i << " : " << p_HT[i]);
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   // create strings for histogram names
+   ostringstream MyAcceptHist[numberOutputBits()];
+   ostringstream MyRejectHist[numberOutputBits()];
+   
+   for (unsigned int i=0;i<numberOutputBits();i++) {
+     MyAcceptHist[i] << "Accept" << p_HT[i] << "HT"; 
+     MyRejectHist[i] << "Reject" << p_HT[i] << "HT";
+   }
+
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+     char MyTitle1[100];
+     char MyTitle2[100];
+     string Mys1 = MyAcceptHist[i].str();
+     string Mys2 = MyRejectHist[i].str();
+     std::strcpy(MyTitle1,Mys1.c_str());
+     std::strcpy(MyTitle2,Mys2.c_str());
+     
+     registerHist(m_histAcceptHT[i] = new TH1F(MyTitle1,MyTitle1,100,0,p_HT[i]*2));
+     registerHist(m_histRejectHT[i] = new TH1F(MyTitle2,MyTitle2,100,0,p_HT[i]*2));
+   }
+
+
    return StatusCode::SUCCESS;
 }
 
@@ -101,8 +128,13 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
 
       decision.setBit( i, accept );
 
-      if(accept)
+      if(accept) {
          output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
+	 m_histAcceptHT[i]->Fill(sumET);
+      }
+      else
+	m_histRejectHT[i]->Fill(sumET);
+
 
       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET);
 

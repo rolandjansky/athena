@@ -45,9 +45,10 @@ TCS::RatioMatch::RatioMatch(const std::string & name) : DecisionAlg(name)
    defineParameter("NumResultBits", 2);
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);
-   defineParameter("EtaMin",0);
-   defineParameter("EtaMax",49);
-   defineParameter("DeltaR",0);
+   // FW version assumes clusters so no deltar, also no eta
+   //defineParameter("EtaMin",0);
+   //defineParameter("EtaMax",49);
+   //defineParameter("DeltaR",0);
    defineParameter("Ratio",0,0);
    defineParameter("Ratio",0,1);
    setNumberOutputBits(2);
@@ -66,20 +67,20 @@ TCS::RatioMatch::initialize() {
 
    p_MinET1  = parameter("MinET1").value();
    p_MinET2  = parameter("MinET2").value();
-   p_EtaMin = parameter("EtaMin").value();
-   p_EtaMax = parameter("EtaMax").value();
-   p_DeltaR     = parameter("DeltaR").value();
+//   p_EtaMin = parameter("EtaMin").value();
+//   p_EtaMax = parameter("EtaMax").value();
+//   p_DeltaR     = parameter("DeltaR").value();
    
 
    TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
    TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
    TRG_MSG_INFO("MinET1          : " << p_MinET1);
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
-   TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
-   TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
-   TRG_MSG_INFO("DeltaR          : " << p_DeltaR);
+//   TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
+//   TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
+//   TRG_MSG_INFO("DeltaR          : " << p_DeltaR);
 
-   for(int i=0; i<2; ++i) {
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_Ratio[i] = parameter("Ratio", i).value();
       TRG_MSG_INFO("Ratio " << i << " : " << p_Ratio[i]);
    }
@@ -115,15 +116,20 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
                  ++tob2) {
 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin ) continue; // Eta cut
+             //  if( parType_t(fabs((*tob2)->eta())) > p_EtaMax ) continue; // Eta cut
+             //  if( parType_t(fabs((*tob2)->eta())) < p_EtaMin ) continue; // Eta cut
 
 	       // test DeltaR2Min, DeltaR2Max
-               deltaR2 = calcDeltaR2( *tob1, *tob2 );
+               //deltaR2 = calcDeltaR2( *tob1, *tob2 );
+               // test Deltaeta, Deltaphi
+               //                
+               if (((*tob1)->eta() != (*tob2)->eta()) || ((*tob1)->phi() != (*tob2)->phi()) ) continue; // EM does not matches TAU
                //
+	       //
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                   accept[i] = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+                   accept[i] =  10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+//                   accept[i] = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
                    if( accept[i] ) {
                        decision.setBit(i, true);
                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));

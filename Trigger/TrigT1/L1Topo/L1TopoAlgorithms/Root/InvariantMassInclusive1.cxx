@@ -9,6 +9,10 @@
 **********************************/
 
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/InvariantMassInclusive1.h"
 #include "L1TopoCommon/Exception.h"
@@ -81,11 +85,11 @@ TCS::InvariantMassInclusive1::~InvariantMassInclusive1(){}
 TCS::StatusCode
 TCS::InvariantMassInclusive1::initialize() {
    if(parameter("MaxTob").value() > 0) {
-    p_NumberLeading1 = parameter("MaxTob").value();
-    p_NumberLeading2 = parameter("MaxTob").value();
+      p_NumberLeading1 = parameter("MaxTob").value();
+      p_NumberLeading2 = parameter("MaxTob").value();
    } else {
-    p_NumberLeading1 = parameter("InputWidth").value();
-    p_NumberLeading2 = parameter("InputWidth").value();
+      p_NumberLeading1 = parameter("InputWidth").value();
+      p_NumberLeading2 = parameter("InputWidth").value();
    }
 
    p_OneBarrel = parameter("RequireOneBarrel").value();
@@ -101,14 +105,36 @@ TCS::InvariantMassInclusive1::initialize() {
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
    TRG_MSG_INFO("RequireOneBarrel : " << p_OneBarrel);
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-    TRG_MSG_INFO("InvMassMin   : " << p_InvMassMin[i]);
-    TRG_MSG_INFO("InvMassMax   : " << p_InvMassMax[i]);
+      TRG_MSG_INFO("InvMassMin   : " << p_InvMassMin[i]);
+      TRG_MSG_INFO("InvMassMax   : " << p_InvMassMax[i]);
 
    
-    TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
-    TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
+      TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
+      TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   // create strings for histogram names
+   ostringstream MyAcceptHist[numberOutputBits()];
+   ostringstream MyRejectHist[numberOutputBits()];
+   
+   for (unsigned int i=0;i<numberOutputBits();i++) {
+     MyAcceptHist[i] << "Accept" << sqrt(p_InvMassMin[i]) << "INVM"; 
+     MyRejectHist[i] << "Reject" << sqrt(p_InvMassMin[i]) << "INVM";
+   }
+
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+     char MyTitle1[100];
+     char MyTitle2[100];
+     string Mys1 = MyAcceptHist[i].str();
+     string Mys2 = MyRejectHist[i].str();
+     std::strcpy(MyTitle1,Mys1.c_str());
+     std::strcpy(MyTitle2,Mys2.c_str());
+     
+     registerHist(m_histAcceptINV1[i] = new TH1F(MyTitle1,MyTitle1,100,0,1+sqrt(p_InvMassMax[i])));
+     registerHist(m_histRejectINV1[i] = new TH1F(MyTitle2,MyTitle2,100,0,2*sqrt(p_InvMassMin[i])));
+   }
+
  
    return StatusCode::SUCCESS;
 }
@@ -121,9 +147,10 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                              Decision & decison )
 {
 
-   if(input.size() == 1) {
-
-
+   if(input.size() == 1) {     
+     
+      bool iaccept[numberOutputBits()];
+      std::fill_n(iaccept,numberOutputBits(),0);
 
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
@@ -145,7 +172,7 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
 	       unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
 
 
-               bool accept[6];
+               bool accept[numberOutputBits()];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
@@ -156,7 +183,13 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                   if( accept[i] ) {
                      decison.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+		     if (!(iaccept[i])) {
+		       iaccept[i]=1;
+		       m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+		     }		     
                   }
+		  else 
+		    m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " invmass2 = " << invmass2);
 
                }
@@ -167,5 +200,6 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
       TCS_EXCEPTION("InvariantMassInclusive1 alg must have either 1  inputs, but got " << input.size());
 
    }
+
    return TCS::StatusCode::SUCCESS;
 }

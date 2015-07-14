@@ -2,12 +2,20 @@ package L1TopoAlgorithms
 
 # General dependencies
 use  DetCommonPolicy    *
-use  Boost              *      LCG_Interfaces
 
 # Trigger dependencies
 use L1TopoInterfaces    *      Trigger/TrigT1/L1Topo
 use L1TopoEvent         *      Trigger/TrigT1/L1Topo
-use L1TopoSimulationUtils  *   Trigger/TrigT1/L1Topo
+
+private
+use  ROOT                   *   LCG_Interfaces
+use  Boost                  *   LCG_Interfaces
+use  L1TopoSimulationUtils  *   Trigger/TrigT1/L1Topo
+
+
+macro_append ROOT_linkopts " -lHist "
+end_private
+
 
 # CMT package configuration
 apply_pattern detcommon_shared_generic_library files=../Root/*.cxx

@@ -46,19 +46,16 @@ TCS::DisambiguationDRIncl2::DisambiguationDRIncl2(const std::string & name) : De
    defineParameter("MaxTob1", 0); 
    defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 2);
-   defineParameter("MinET1",1);
-   defineParameter("MinET2",1);
-   defineParameter("MinET3",1);
-   defineParameter("EtaMin1",0);
-   defineParameter("EtaMax1",49);
-   defineParameter("EtaMin2",0);
-   defineParameter("EtaMax2",49);
-   defineParameter("EtaMin3",0);
-   defineParameter("EtaMax3",49);
-   defineParameter("DRCutMin",0);
-   defineParameter("DRCutMax",0);
-   defineParameter("DisambDR",0,0);
-   defineParameter("DisambDR",0,1); 
+   defineParameter("ClusterOnly",0);
+   defineParameter("MinET1",1,0);
+   defineParameter("MinET2",1,0);
+   defineParameter("DisambDRSqrMin",0,0);
+   defineParameter("DisambDRSqrMax",0,0);
+   defineParameter("MinET1",1,1);
+   defineParameter("MinET2",1,1);
+   defineParameter("DisambDRSqrMin",0,1);
+   defineParameter("DisambDRSqrMax",0,1);
+ 
    setNumberOutputBits(2);
 }
 
@@ -73,26 +70,24 @@ TCS::DisambiguationDRIncl2::initialize() {
    if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
 
 
-   p_MinET1 = parameter("MinET1").value();
-   p_MinET2 = parameter("MinET2").value();
-   p_EtaMin1 = parameter("EtaMin1").value();
-   p_EtaMax1 = parameter("EtaMax1").value();
-   p_EtaMin2 = parameter("EtaMin2").value();
-   p_EtaMax2 = parameter("EtaMax2").value();
-   p_DRCutMin = parameter("DRCutMin").value();
-   p_DRCutMax = parameter("DRCutMax").value();
 
 
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+      p_MinET1[i] = parameter("MinET1",i).value();
+      p_MinET2[i] = parameter("MinET2",i).value();
+
+      p_DRCutMin[i] = parameter("DisambDRSqrMin", i).value();
+      p_DRCutMax[i] = parameter("DisambDRSqrMax", i).value();
+
+      TRG_MSG_INFO("MinET1          " << i << " : "<< p_MinET1[i]);
+      TRG_MSG_INFO("MinET2          " << i << " : "<< p_MinET2[i]);
+      TRG_MSG_INFO("DisambDRmin         " << i << " : "<< p_DRCutMin[i]);
+      TRG_MSG_INFO("DisambDRmax       " << i << " : "<< p_DRCutMax[i]);
 
 
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
-   TRG_MSG_INFO("EtaMin1         : " << p_EtaMin1);
-   TRG_MSG_INFO("EtaMax1         : " << p_EtaMax1);
-   TRG_MSG_INFO("MinET2          : " << p_MinET2);
-   TRG_MSG_INFO("EtaMin2         : " << p_EtaMin2);
-   TRG_MSG_INFO("EtaMax2         : " << p_EtaMax2);
-   TRG_MSG_INFO("DRCutMin           : " << p_DRCutMin);
-   TRG_MSG_INFO("DRCutMax           : " << p_DRCutMax);
+   }
+
+
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
 
@@ -116,17 +111,11 @@ TCS::DisambiguationDRIncl2::process( const std::vector<TCS::TOBArray const *> & 
            ++tob1)
          {
 
-            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
 
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
@@ -134,7 +123,10 @@ TCS::DisambiguationDRIncl2::process( const std::vector<TCS::TOBArray const *> & 
 
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     accept[i] = deltaR2Cut > p_DRCutMin && deltaR2Cut <= p_DRCutMax ;
+                     if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+		     if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+
+                     accept[i] = deltaR2Cut > p_DRCutMin[i] && deltaR2Cut <= p_DRCutMax[i] ;
                
                      if( accept[i] ) {
                        decision.setBit(i, true);

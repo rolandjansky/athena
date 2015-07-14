@@ -10,6 +10,10 @@
 **********************************/
 
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
@@ -37,12 +41,16 @@ TCS::DeltaPhiIncl2::DeltaPhiIncl2(const std::string & name) : DecisionAlg(name)
    defineParameter("InputWidth2", 8);
    defineParameter("MaxTob1", 0); 
    defineParameter("MaxTob2", 0); 
-   defineParameter("NumResultBits", 1);
-   defineParameter("MinEt1",0);
-   defineParameter("MinEt2",0); 
+   defineParameter("NumResultBits", 2);
+   defineParameter("MinET1",0,0);
+   defineParameter("MinET2",0,0); 
    defineParameter("MinDeltaPhi",  0, 0);
    defineParameter("MaxDeltaPhi", 31, 0);
-   setNumberOutputBits(1);
+   defineParameter("MinET1",0,1);
+   defineParameter("MinET2",0,1);
+   defineParameter("MinDeltaPhi",  0, 1);
+   defineParameter("MaxDeltaPhi", 31, 1);
+   setNumberOutputBits(2);
 }
 
 TCS::DeltaPhiIncl2::~DeltaPhiIncl2(){}
@@ -54,20 +62,44 @@ TCS::DeltaPhiIncl2::initialize() {
    p_NumberLeading2 = parameter("InputWidth2").value();
    if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
    if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
-   for(int i=0; i<1; ++i) {
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_DeltaPhiMin[i] = parameter("MinDeltaPhi", i).value();
       p_DeltaPhiMax[i] = parameter("MaxDeltaPhi", i).value();
+      p_MinET1[i] = parameter("MinET1",i).value();
+      p_MinET2[i] = parameter("MinET2",i).value();
+      
+      TRG_MSG_INFO("DeltaPhiMin   : " << p_DeltaPhiMin[i]);
+      TRG_MSG_INFO("DeltaPhiMax   : " << p_DeltaPhiMax[i]);
+      TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
+      TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
+
    }
-   p_MinET1 = parameter("MinEt1").value();
-   p_MinET2 = parameter("MinEt2").value();
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
-   TRG_MSG_INFO("DeltaPhiMin0   : " << p_DeltaPhiMin[0]);
-   TRG_MSG_INFO("DeltaPhiMax0   : " << p_DeltaPhiMax[0]);
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
-   TRG_MSG_INFO("MinET2          : " << p_MinET2);
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   // create strings for histogram names
+   ostringstream MyAcceptHist[numberOutputBits()];
+   ostringstream MyRejectHist[numberOutputBits()];
+   
+   for (unsigned int i=0;i<numberOutputBits();i++) {
+     MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i] << "DPHI" << p_DeltaPhiMax[i];
+     MyRejectHist[i] << "Reject" << p_DeltaPhiMin[i] << "DPHI" << p_DeltaPhiMax[i];
+   }
+
+
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+     char MyTitle1[100];
+     char MyTitle2[100];
+     string Mys1 = MyAcceptHist[i].str();
+     string Mys2 = MyRejectHist[i].str();
+     std::strcpy(MyTitle1,Mys1.c_str());
+     std::strcpy(MyTitle2,Mys2.c_str());
+     
+     registerHist(m_histAcceptDPhi2[i] = new TH1F(MyTitle1,MyTitle1,100,0,3.4));
+     registerHist(m_histRejectDPhi2[i] = new TH1F(MyTitle2,MyTitle2,100,0,3.4));
+   }
    
    return StatusCode::SUCCESS;
 }
@@ -82,30 +114,44 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
 
       
    if( input.size() == 2) {
+
+      bool iaccept[numberOutputBits()];
       
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
 
-            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaPhiMin, DeltaPhiMax
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
 
-               bool accept[1];
-               for(unsigned int i=0; i<1; ++i) {
+               bool accept[3];
+               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+
                   accept[i] = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
                   if( accept[i] ) {
                      decison.setBit(i, true);
                      output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+		     //if (i == 0) {
+		       if (!iaccept[i]) {
+			 iaccept[i]=1;
+			 m_histAcceptDPhi2[i]->Fill(deltaPhi);
+		       }
+		       //}
                   }
+		  else {
+		    //if (i==0)
+		    m_histRejectDPhi2[i]->Fill(deltaPhi);
+		  }
+
                }
                TRG_MSG_DEBUG("DeltaPhi = " << deltaPhi << " -> " 
                              << (accept[0]?"pass":"fail"));

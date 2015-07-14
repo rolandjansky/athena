@@ -30,10 +30,11 @@ TCS::Ratio::Ratio(const std::string & name) : DecisionAlg(name)
    defineParameter("MaxTob1", 0); 
    defineParameter("MaxTob2", 0);
    defineParameter("NumResultBits", 2);
-   defineParameter("MinET1",0);
+   defineParameter("isXE2",0);
    defineParameter("MinET2",0);
    defineParameter("EtaMin",0);
    defineParameter("EtaMax",49);
+   defineParameter("MinET1",0);
    defineParameter("HT",0);
    defineParameter("Ratio",0,0);
    defineParameter("Ratio",0,1);
@@ -56,6 +57,9 @@ TCS::Ratio::initialize() {
    TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
    TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
    TRG_MSG_INFO("HT             : " << p_HT);
+
+   p_isXE2 = parameter("isXE2").value();
+   TRG_MSG_INFO("isXE2             : " << p_isXE2);
 
    for(int i=0; i<2; ++i) {
       p_Ratio[i] = parameter("Ratio", i).value();
@@ -101,6 +105,8 @@ TCS::Ratio::process( const std::vector<TCS::TOBArray const *> & input,
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
       bool accept = objC!=0 && met.Et() > p_MinET1 && 10*met.Et() >= p_Ratio[i]*sumET;
+
+      if (p_isXE2) accept = objC!=0 && met.Et() > p_MinET1 && 10*(met.Et()*met.Et()) >= p_Ratio[i]*sumET;
 
       decision.setBit( i, accept );
 

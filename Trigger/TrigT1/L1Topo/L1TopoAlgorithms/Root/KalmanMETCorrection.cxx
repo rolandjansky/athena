@@ -21,17 +21,9 @@ using namespace std;
 
 TCS::KalmanMETCorrection::KalmanMETCorrection(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("InputWidth1", 9);
-   defineParameter("InputWidth2", 9);
-   defineParameter("MaxTob1", 0); 
-   defineParameter("MaxTob2", 0); 
+   defineParameter("InputWidth", 9);
    defineParameter("NumResultBits", 6);
-   defineParameter("MinEt", 0,0);
-   defineParameter("MinEt", 0,1);
-   defineParameter("MinEt", 0,2);
-   defineParameter("MinEt", 0,3); 
-   defineParameter("MinEt", 0,4);
-   defineParameter("MinEt", 0,5);
+   defineParameter("MinET", 0);
    defineParameter("KFXE",0,0);
    defineParameter("KFXE",0,1);
    defineParameter("KFXE",0,2);
@@ -47,23 +39,19 @@ TCS::KalmanMETCorrection::~KalmanMETCorrection(){}
 TCS::StatusCode
 TCS::KalmanMETCorrection::initialize() {
    
-   p_NumberLeading1 = parameter("InputWidth1").value();
-   p_NumberLeading2 = parameter("InputWidth2").value();
-   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
-   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
+   p_NumberLeading2 = parameter("InputWidth").value();
+
+   p_MinEt = parameter("MinET").value();
 
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_XE[i] = parameter("KFXE",i).value();
 
-      p_MinEt[i] = parameter("MinEt",i).value();
    }
-   TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);  
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
     TRG_MSG_INFO("KFXE   : " << p_XE[i]);
-    TRG_MSG_INFO("MinET          : " << p_MinEt[i]);
-
    }
+   TRG_MSG_INFO("MinET          : " << p_MinEt);
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
    
@@ -90,8 +78,10 @@ TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & in
 
    double  KFmet = 0;
    double KFmetphi = 0;
-   double summetx = met.Et()*cos(met.phiDouble());
-   double summety = met.Et()*sin(met.phiDouble());
+//   double summetx = met.Et()*cos(met.phiDouble());
+//   double summety = met.Et()*sin(met.phiDouble());
+   double summetx = met.Ex();
+   double summety = met.Ey();
    double corrfactor = 0;
   
    TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
@@ -104,7 +94,7 @@ TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & in
            ++tob) 
          {
 
-       if( (*tob)->Et() <= p_MinEt[0] ) continue; // E_T cut
+       if( (*tob)->Et() <= p_MinEt ) continue; // E_T cut
        int ipt = LUTobj.getetbin((*tob)->Et());
        int jeta = LUTobj.getetabin(abs((*tob)->etaDouble()));
 

@@ -1,20 +1,20 @@
-//  DeltaPhiIncl1.h
+//  NotMatch.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
-#ifndef __TopoCore__DeltaPhiIncl1__
-#define __TopoCore__DeltaPhiIncl1__
+#ifndef __TopoCore__NotMatch__
+#define __TopoCore__NotMatch__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DeltaPhiIncl1 : public DecisionAlg {
+   class NotMatch : public DecisionAlg {
    public:
-      DeltaPhiIncl1(const std::string & name);
-      virtual ~DeltaPhiIncl1();
+      NotMatch(const std::string & name);
+      virtual ~NotMatch();
 
       virtual StatusCode initialize();
 
@@ -25,13 +25,16 @@ namespace TCS {
       
 
    private:
-
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_DeltaPhiMin[2] = {0, 0};
-      parType_t      p_DeltaPhiMax[2] = {0, 0};
-      parType_t      p_MinET1[2] = { 0,0 };
-      parType_t      p_MinET2[2] = { 0,0 };
+      parType_t      p_MinET1[2]  = { 0,0 };
+      parType_t      p_EtaMin1[2]  = { 0,0 };
+      parType_t      p_EtaMax1[2]  = { 49,49 };
+      parType_t      p_MinET2[2]  = { 0,0 };
+      parType_t      p_EtaMin2[2]  = { 0,0 };
+      parType_t      p_EtaMax2[2]  = { 49,49 };
+      parType_t      p_DRCut[2] = { 0,0 };
+
    };
    
 }

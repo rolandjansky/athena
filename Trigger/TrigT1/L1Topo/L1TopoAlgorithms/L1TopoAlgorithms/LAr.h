@@ -1,20 +1,20 @@
-//  DeltaPhiIncl1.h
+//  LAr.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
-#ifndef __TopoCore__DeltaPhiIncl1__
-#define __TopoCore__DeltaPhiIncl1__
+#ifndef __TopoCore__LAr__
+#define __TopoCore__LAr__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DeltaPhiIncl1 : public DecisionAlg {
+   class LAr : public DecisionAlg {
    public:
-      DeltaPhiIncl1(const std::string & name);
-      virtual ~DeltaPhiIncl1();
+      LAr(const std::string & name);
+      virtual ~LAr();
 
       virtual StatusCode initialize();
 
@@ -27,11 +27,12 @@ namespace TCS {
    private:
 
       parType_t      p_NumberLeading1 = { 0 };
-      parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_DeltaPhiMin[2] = {0, 0};
-      parType_t      p_DeltaPhiMax[2] = {0, 0};
-      parType_t      p_MinET1[2] = { 0,0 };
-      parType_t      p_MinET2[2] = { 0,0 };
+      parType_t      p_MinET = { 0 };
+      parType_t      p_EtaMin = { 0 };
+      parType_t      p_EtaMax = { 0 };
+      parType_t      p_PhiMax = { 0 };
+      parType_t      p_PhiMin = { 0 };
+
    };
    
 }

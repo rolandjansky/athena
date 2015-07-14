@@ -1,5 +1,5 @@
 /*********************************
- * LAR.cpp
+ * LAr.cpp
  * Created by Joerg Stelzer on 11/16/12.
  * Modified by V SOrin 2014
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
@@ -11,17 +11,17 @@
 
 #include <cmath>
 
-#include "L1TopoAlgorithms/LAR.h"
+#include "L1TopoAlgorithms/LAr.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-REGISTER_ALG_TCS(LAR)
+REGISTER_ALG_TCS(LAr)
 
 using namespace std;
 
 
 
-TCS::LAR::LAR(const std::string & name) : DecisionAlg(name)
+TCS::LAr::LAr(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
@@ -34,11 +34,11 @@ TCS::LAR::LAR(const std::string & name) : DecisionAlg(name)
    setNumberOutputBits(1);
 }
 
-TCS::LAR::~LAR(){}
+TCS::LAr::~LAr(){}
 
 
 TCS::StatusCode
-TCS::LAR::initialize() {
+TCS::LAr::initialize() {
    p_NumberLeading1 = parameter("InputWidth").value();
    if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
    p_PhiMin = parameter("PhiMin").value();
@@ -61,7 +61,7 @@ TCS::LAR::initialize() {
 
 
 TCS::StatusCode
-TCS::LAR::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::LAr::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
@@ -99,7 +99,7 @@ TCS::LAR::process( const std::vector<TCS::TOBArray const *> & input,
 
    } else {
 
-      TCS_EXCEPTION("LAR alg must have  1 input, but got " << input.size());
+      TCS_EXCEPTION("LAr alg must have  1 input, but got " << input.size());
 
    }
    return TCS::StatusCode::SUCCESS;

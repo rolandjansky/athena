@@ -31,6 +31,9 @@ namespace TCS {
       parType_t      p_EtaMax = { 49 };
       parType_t      p_HT[6] = { 0 , 0,0,0,0,0 };
 
+      TH1 * m_histAcceptHT[6];
+      TH1 * m_histRejectHT[6];
+
    };
    
 }
