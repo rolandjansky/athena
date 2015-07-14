@@ -112,6 +112,128 @@ void testPtErr() {
    
 }
 
+namespace {
+  class Cov_t
+  {
+  public:
+    Cov_t(double cov_x, double cov_y, double cov_xy) {
+      m_cov[0]=cov_x;
+      m_cov[1]=cov_y;
+      m_cov[2]=cov_xy;
+    }
+
+    double x() const { return m_cov[0]; }
+    double y() const { return m_cov[1]; }
+    double xy() const { return m_cov[2]; }
+  private:
+    double m_cov[3];
+  };
+
+  template <class T>
+  bool checkEqual(T ref, T value ) {
+    if (std::abs(ref) * std::numeric_limits<T>::epsilon() < 4*std::numeric_limits<T>::min() ) {
+      return std::abs( value - ref ) < 4*std::numeric_limits<T>::epsilon();
+    }
+    else {
+      return std::abs( value - ref ) < 4*std::numeric_limits<T>::epsilon() * ref;
+    }
+  }
+
+  double toRad(double deg) {
+    return deg * M_PI/180;
+  }
+
+  double sqr( double a) {
+    return a*a;
+  }
+}
+
+void test_d0significance() {
+  xAOD::TrackParticleAuxContainer aux;
+  xAOD::TrackParticleContainer tpc;
+  tpc.setStore( &aux );
+
+  std::vector<Cov_t>  beamspot_sigma_list;
+  std::vector<float> phi_list;
+  std::vector<bool>   valid;
+
+  phi_list.push_back(0.) ;
+  phi_list.push_back(toRad(60)) ;
+  phi_list.push_back(toRad(90)) ;
+  phi_list.push_back(toRad(210)) ;
+  phi_list.push_back(M_PI+acos(1/sqrt(2))) ;
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 * 0.) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 ) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 *.6) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.01, 0.015, -0.015*0.01 *.6) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -0.015*0.01) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -0.015*0.01*(1.+1e-6)) );
+  valid.push_back(false);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01*(1.+1e-6)) );
+  valid.push_back(false);
+
+  float ref_d0=1;
+  float ref_z0=10;
+  float ref_d0_uncert=.05;
+  float ref_z0_uncert=.5;
+  float ref_qoverp = 1/30e3;
+  float ref_theta=60/180*M_PI;
+  std::vector<bool>::const_iterator valid_iter = valid.begin();
+  for (const Cov_t &beamspot_sigma: beamspot_sigma_list) {
+    for( const float &phi: phi_list) {
+      assert( valid_iter != valid.end());
+      xAOD::TrackParticle* p = new xAOD::TrackParticle();
+      tpc.push_back( p );
+      p->setDefiningParameters(ref_d0, ref_z0, phi, ref_theta, ref_qoverp);
+      xAOD::ParametersCovMatrix_t cov;
+      cov(0,0)=xAOD::TrackingHelpers::sqr(ref_d0_uncert);
+      cov(1,1)=xAOD::TrackingHelpers::sqr(ref_z0_uncert);
+      p->setDefiningParametersCovMatrix(cov);
+
+      double vx_cov=beamspot_sigma.x();
+      double vy_cov=beamspot_sigma.y();
+      double vxy_cov=beamspot_sigma.xy();
+      double expected_d0_uncert_2=sqr(ref_d0_uncert) + sin(phi)*(sin(phi)*sqr(vx_cov)-cos(phi)*vxy_cov)+cos(phi)*(cos(phi)*sqr(vy_cov)-sin(phi)*vxy_cov);
+      double _phi =p->phi();
+      assert( checkEqual<float>(_phi, phi));
+      assert( checkEqual<float>(ref_d0, p->d0()));
+      double _d0_uncert = p->definingParametersCovMatrixVec()[0];
+      assert( checkEqual<float>(sqr(ref_d0_uncert), _d0_uncert));
+      expected_d0_uncert_2=p->definingParametersCovMatrixVec()[0]  + sin(_phi)*(sin(_phi)*sqr(vx_cov)-cos(_phi)*vxy_cov)+cos(_phi)*(cos(_phi)*sqr(vy_cov)-sin(_phi)*vxy_cov);
+
+      assert( expected_d0_uncert_2 >= 0.);
+      double expected_d0_significance = ref_d0 / sqrt( expected_d0_uncert_2);
+      expected_d0_significance = p->d0() / sqrt( expected_d0_uncert_2);
+
+      try {
+        if (*valid_iter) {
+          double d0_significance = xAOD::TrackingHelpers::d0significanceUnsafe(p, beamspot_sigma.x(), beamspot_sigma.y(), beamspot_sigma.xy());
+          assert( checkEqual<float>( d0_significance, expected_d0_significance ) );
+        }
+        double d0_significance = xAOD::TrackingHelpers::d0significance(p, beamspot_sigma.x(), beamspot_sigma.y(), beamspot_sigma.xy());
+        assert( checkEqual<float>( d0_significance, expected_d0_significance ) );
+      }
+      catch( std::exception &) {
+        assert( !( *valid_iter ) );
+      }
+    }
+    assert( valid_iter != valid.end());
+    ++valid_iter;
+  }
+}
+
 int main() {
    std::cout << "Run:" << __FILE__ << std::endl;
    // Create the main containers to test:
@@ -268,6 +390,8 @@ int main() {
 
 
    testPtErr();
+
+   test_d0significance();
 
    std::cout << "PASSED:" << __FILE__ << std::endl;
    return 0;
