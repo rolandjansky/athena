@@ -17,7 +17,7 @@ namespace xAOD {
     static SG::AuxElement::Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     if( !acc.isAvailable( *tp ) ) {
       throw std::runtime_error("TrackParticle without covariance matrix for the defining parameters.");
-    }    
+    }
   }
   }
 
@@ -28,16 +28,28 @@ namespace xAOD {
     return true;
   }
 
-  double TrackingHelpers::d0significance(const xAOD::TrackParticle *tp) {
-    checkTPAndDefiningParamCov(tp);
-    double d0 = tp->d0();
-    // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
-    double sigma_d0 = tp->definingParametersCovMatrixVec().at(0);
-    if (sigma_d0<=0.) {
-      throw std::runtime_error("TrackParticle with zero or negative d0 uncertainty.");
+  namespace TrackingHelpers {
+    inline double _d0significance(const xAOD::TrackParticle *tp, double d0_uncert_beam_spot_2) {
+      checkTPAndDefiningParamCov(tp);
+      double d0 = tp->d0();
+      // elements in definingParametersCovMatrixVec should be : sigma_d0^2, sigma_d0_z0, sigma_z0^2
+      double sigma_d0 = tp->definingParametersCovMatrixVec().at(0);
+      if (sigma_d0<=0.) {
+        throw std::runtime_error("TrackParticle with zero or negative d0 uncertainty.");
+      }
+      return d0/sqrt(sigma_d0+d0_uncert_beam_spot_2);
     }
-    return d0/sqrt(sigma_d0);
+  }
 
+  double TrackingHelpers::d0significance(const xAOD::TrackParticle *tp) {
+    return _d0significance(tp,0.);
+  }
+
+  double TrackingHelpers::d0significance(const xAOD::TrackParticle *tp, double beam_sigma_x, double beam_sigma_y, double beam_sigma_xy) {
+    if (!checkBeamSpotSigma(beam_sigma_x, beam_sigma_y, beam_sigma_xy)) {
+      throw std::runtime_error("Beamspot covariance matrix is invalid.");
+    }
+    return _d0significance(tp,d0UncertaintyBeamSpot2(tp->phi(),beam_sigma_x, beam_sigma_y, beam_sigma_xy));
   }
 
   double TrackingHelpers::z0significance(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {
@@ -63,7 +75,7 @@ namespace xAOD {
     if (sigma_z0<=0.) {
       throw std::runtime_error("TrackParticle with zero or negative z0 uncertainty.");
     }
-    return z0/sqrt(sigma_z0);    
+    return z0/sqrt(sigma_z0);
   }
 
   double TrackingHelpers::pTErr2(const xAOD::TrackParticle *tp) {
