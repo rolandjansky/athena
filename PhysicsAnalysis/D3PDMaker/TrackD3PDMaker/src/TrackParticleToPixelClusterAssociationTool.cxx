@@ -159,16 +159,16 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
   m_locThetaOldNotCor = 0;
   */
 
-  m_pixelClusterForAssociation.clear();
+  pixelClusterForAssociation.clear();
 
-  const InDet::PixelClusterContainer* riocont; 
+  const InDet::PixelClusterContainer* m_riocont; 
   if(!evtStore()->contains<InDet::PixelClusterContainer>("PixelClusters")){ 
 
 	REPORT_MESSAGE (MSG::WARNING) << "No pixel clusters....";
 
   } 
   else {
-    StatusCode sc = evtStore()->retrieve(riocont, "PixelClusters");
+    StatusCode sc = evtStore()->retrieve(m_riocont, "PixelClusters");
     if(sc.isFailure()) {
       	REPORT_MESSAGE (MSG::WARNING) << "Could not get clusters....";
     }
@@ -215,7 +215,7 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
 
           pixelClusterIdentifier.push_back(pixelClusterID);
 
-          m_pixelClusterForAssociation.push_back(*it);
+          pixelClusterForAssociation.push_back(*it);
 
           REPORT_MESSAGE (MSG::DEBUG) << "(2)TESTASSOC TSoS-Type is: "<<   (*it)->types().to_ulong();
 
@@ -224,8 +224,8 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
     }
   }
 
-  m_clusItr = m_pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
-  m_clusEnd = m_pixelClusterForAssociation.end(); 
+  m_clusItr = pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
+  m_clusEnd = pixelClusterForAssociation.end(); 
 
   return StatusCode::SUCCESS;
 }
