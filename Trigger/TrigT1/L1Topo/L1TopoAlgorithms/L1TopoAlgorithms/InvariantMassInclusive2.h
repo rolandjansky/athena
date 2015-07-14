@@ -17,10 +17,6 @@ namespace TCS {
       virtual ~InvariantMassInclusive2();
 
       virtual StatusCode initialize();
- 
-      virtual StatusCode processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                                  const std::vector<TCS::TOBArray *> & output,
-                                  Decision & decison );
 
       
       virtual StatusCode process( const std::vector<TCS::TOBArray const *> & input,
@@ -36,11 +32,6 @@ namespace TCS {
       parType_t      p_InvMassMax[6] = {0, 0, 0,0,0,0};
       parType_t      p_MinET1[6] = { 0,0,0,0,0,0 };
       parType_t      p_MinET2[6] = { 0,0,0,0,0,0 };
-      parType_t      p_ApplyEtaCut = { 0 };
-      parType_t      p_MinEta1 = { 0 };
-      parType_t      p_MaxEta1 = { 0 };
-      parType_t      p_MinEta2 = { 0 };
-      parType_t      p_MaxEta2 = { 0 };
 
    };
    

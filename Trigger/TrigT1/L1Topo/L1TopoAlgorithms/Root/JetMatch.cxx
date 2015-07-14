@@ -57,14 +57,6 @@ TCS::JetMatch::initialize() {
    return StatusCode::SUCCESS;
 }
 
-TCS::StatusCode
-TCS::JetMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                     const std::vector<TCS::TOBArray *> & output,
-                     Decision & decision )
-
-{
-	return process(input,output,decision);
-}
 
 
 TCS::StatusCode
@@ -75,6 +67,7 @@ TCS::JetMatch::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=1) {
       TCS_EXCEPTION("JetMatch alg must have exactly 1 input list, but got " << input.size());
+      return TCS::StatusCode::FAILURE;
    }
 
    // vector of passing tob

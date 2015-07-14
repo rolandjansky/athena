@@ -15,11 +15,10 @@
 REGISTER_ALG_TCS(GenericListGenerator)
 
 // constructor
-TCS::GenericListGenerator::GenericListGenerator(const std::string & name)
-: SortingAlg(name),
-  m_jetsize(JetTOB::JS1)
+TCS::GenericListGenerator::GenericListGenerator(const std::string & name) : SortingAlg(name)
 {
    defineParameter( "JetSize", 0 );
+
 }
 
 

@@ -41,16 +41,6 @@ TCS::METCut::initialize() {
 
 
 TCS::StatusCode
-TCS::METCut::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                     const std::vector<TCS::TOBArray *> & output,
-                     Decision & decision )
-
-{
-	return process(input,output,decision);
-}
-
-
-TCS::StatusCode
 TCS::METCut::process( const std::vector<TCS::TOBArray const *> & input,
                       const std::vector<TCS::TOBArray *> & /*output*/,
                       Decision & decision )
@@ -58,10 +48,12 @@ TCS::METCut::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=1) {
       TCS_EXCEPTION("METCut alg must have exactly one input list (MET list), but got " << input.size());
+      return TCS::StatusCode::FAILURE;
    }
 
    if (input[0]->size()!=1) {
       TCS_EXCEPTION("METCut alg needs input list with a single MET TOB, got " << input[0]->size());
+      return TCS::StatusCode::FAILURE;
    }
 
    const TCS::GenericTOB & met = (*input[0])[0];

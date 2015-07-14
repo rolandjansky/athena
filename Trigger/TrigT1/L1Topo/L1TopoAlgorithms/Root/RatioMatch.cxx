@@ -22,7 +22,6 @@ using namespace std;
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << name() << ":     "
 
-/* NOT USED
 namespace {
    unsigned int
    calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
@@ -35,7 +34,6 @@ namespace {
 
    }
 }
-*/
 
 
 TCS::RatioMatch::RatioMatch(const std::string & name) : DecisionAlg(name)
@@ -91,14 +89,6 @@ TCS::RatioMatch::initialize() {
 }
 
 
-TCS::StatusCode
-TCS::RatioMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                     const std::vector<TCS::TOBArray *> & output,
-                     Decision & decision )
-
-{
-	return process(input,output,decision);
-}
 
 TCS::StatusCode
 TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
@@ -108,6 +98,7 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=2) {
       TCS_EXCEPTION("RatioMatch alg must have exactly 2 input lists, but got " << input.size());
+      return TCS::StatusCode::FAILURE;
    }
 
    unsigned int deltaR2 = 999;
@@ -135,17 +126,22 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
                if (((*tob1)->eta() != (*tob2)->eta()) || ((*tob1)->phi() != (*tob2)->phi()) ) continue; // EM does not matches TAU
                //
 	       //
+               bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                   bool accept = false;
-                   accept =  10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
-//                   accept = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
-                   if( accept ) {
+                   accept[i] =  10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+//                   accept[i] = deltaR2 <= p_DeltaR && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+                   if( accept[i] ) {
                        decision.setBit(i, true);
                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                    }
-                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2  );
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2  );
+
                }
+
             }
+
         }
+
+
    return TCS::StatusCode::SUCCESS;
 }

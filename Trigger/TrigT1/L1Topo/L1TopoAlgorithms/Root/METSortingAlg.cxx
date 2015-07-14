@@ -7,9 +7,6 @@
 #include "L1TopoEvent/MetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
-#include <cmath>
-
-using std::sqrt;
 
 REGISTER_ALG_TCS(METSortingAlg)
 
@@ -36,6 +33,7 @@ TCS::METSortingAlg::sort(const InputTOBArray & input, TOBArray & output) {
 
    if(input.size()!=1) {
       TCS_EXCEPTION("MET sort alg expects exactly single MET TOB, got " << input.size());
+      return TCS::StatusCode::FAILURE;
    }
 
    const MetTOBArray & mets = dynamic_cast<const MetTOBArray&>(input);

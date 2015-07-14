@@ -18,9 +18,6 @@ namespace TCS {
 
       virtual StatusCode initialize();
 
-      virtual StatusCode processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                                  const std::vector<TCS::TOBArray *> & output,
-                                  Decision & decison );
       
       virtual StatusCode process( const std::vector<TCS::TOBArray const *> & input,
                                   const std::vector<TCS::TOBArray *> & output,
@@ -37,8 +34,8 @@ namespace TCS {
       parType_t      p_MinET2[6] = { 0 ,0,0,0,0,0};
       parType_t      p_OneBarrel = { 0 };
 
-      TH1 * m_histAcceptINV1[6] = {};
-      TH1 * m_histRejectINV1[6] = {};
+      TH1 * m_histAcceptINV1[6];
+      TH1 * m_histRejectINV1[6];
 
    };
    

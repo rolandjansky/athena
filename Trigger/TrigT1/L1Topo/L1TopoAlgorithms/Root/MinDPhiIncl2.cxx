@@ -1,5 +1,5 @@
 /*********************************
- * MinDeltaPhiIncl2.cpp
+ * MinDPhiIncl2.cpp
  * Created by Veronica Sorin  on 14/8/14.
  *
  * @brief algorithm calculates the min phi-distance between  two lists and applies delta-phi criteria
@@ -8,23 +8,19 @@
 **********************************/
 
 #include <cmath>
-#include <string>
-#include <iostream>
-#include <sstream>
 #include <algorithm>
-#include "TH1F.h"
 
 
-#include "L1TopoAlgorithms/MinDeltaPhiIncl2.h"
+#include "L1TopoAlgorithms/MinDPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-REGISTER_ALG_TCS(MinDeltaPhiIncl2)
+REGISTER_ALG_TCS(MinDPhiIncl2)
 
 using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::MinDeltaPhiIncl2:     "
+#define LOG cout << "TCS::MinDPhiIncl2:     "
 
 
 
@@ -41,7 +37,7 @@ namespace {
 }
 
 
-TCS::MinDeltaPhiIncl2::MinDeltaPhiIncl2(const std::string & name) : DecisionAlg(name)
+TCS::MinDPhiIncl2::MinDPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth1", 9);
    defineParameter("InputWidth2", 9);
@@ -56,11 +52,11 @@ TCS::MinDeltaPhiIncl2::MinDeltaPhiIncl2(const std::string & name) : DecisionAlg(
    setNumberOutputBits(3);
 }
 
-TCS::MinDeltaPhiIncl2::~MinDeltaPhiIncl2(){}
+TCS::MinDPhiIncl2::~MinDPhiIncl2(){}
 
 
 TCS::StatusCode
-TCS::MinDeltaPhiIncl2::initialize() {
+TCS::MinDPhiIncl2::initialize() {
    p_NumberLeading1 = parameter("InputWidth1").value();
    p_NumberLeading2 = parameter("InputWidth2").value();
    if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
@@ -79,35 +75,13 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("MinET1         : " << p_MinET1);
    TRG_MSG_INFO("MinET2         : " << p_MinET2);
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
-
-   // create strings for histogram names
-   ostringstream MyAcceptHist[numberOutputBits()];
-   ostringstream MyRejectHist[numberOutputBits()];
-   
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 
-     MyRejectHist[i] << "Reject" << p_DeltaPhiMin[i]  << "MinDPhi2";
-   }
-
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-     char MyTitle1[100];
-     char MyTitle2[100];
-     string Mys1 = MyAcceptHist[i].str();
-     string Mys2 = MyRejectHist[i].str();
-     std::strcpy(MyTitle1,Mys1.c_str());
-     std::strcpy(MyTitle2,Mys2.c_str());
-     
-     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1,MyTitle1,100,0,3.5));
-     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2,MyTitle2,100,0,3.5));
-   }
-
    return StatusCode::SUCCESS;
 }
 
 
 
 TCS::StatusCode
-TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::MinDPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             const std::vector<TCS::TOBArray *> & output,
                             Decision & decison )
 {
@@ -161,20 +135,15 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
          if( accept[i] ) {
             decison.setBit(i, true);
             output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
-	    m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
-
+         
             TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
          }
-	 else
-	   m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
-
          TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail"));
       }
 
-
    } else {
 
-      TCS_EXCEPTION("MinDeltaPhiIncl2 alg must have 2 inputs, but got " << input.size());
+      TCS_EXCEPTION("MinDPhiIncl2 alg must have 2 inputs, but got " << input.size());
 
    }
 

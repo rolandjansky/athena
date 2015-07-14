@@ -58,14 +58,6 @@ TCS::LAr::initialize() {
    return StatusCode::SUCCESS;
 }
 
-TCS::StatusCode
-TCS::LAr::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
-                     const std::vector<TCS::TOBArray *> & output,
-                     Decision & decision )
-
-{
-	return process(input,output,decision);
-}
 
 
 TCS::StatusCode
@@ -87,8 +79,8 @@ TCS::LAr::process( const std::vector<TCS::TOBArray const *> & input,
          {
             
             if( parType_t((*tob1)->Et()) <= p_MinET ) continue; // ET cut
-            if( parType_t((*tob1)->eta()) <= p_EtaMin ) continue; // ETa cut
-            if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue; // ETa cut
+            if( parType_t(abs((*tob1)->eta())) <= p_EtaMin ) continue; // ETa cut
+	    if( parType_t(abs((*tob1)->eta())) >= p_EtaMax ) continue; // ETa cut
             if( parType_t(abs((*tob1)->phi())) <= p_PhiMin ) continue; // phi cut
             if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue; // phi cut
 
