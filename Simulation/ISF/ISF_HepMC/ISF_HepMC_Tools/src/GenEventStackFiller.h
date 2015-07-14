@@ -29,7 +29,6 @@ namespace HepMC {
   class GenParticle;
 }
 class IPartPropSvc;
-class PileUpMergeSvc;
 class McEventCollection;
 
 namespace ISF {
@@ -70,6 +69,7 @@ namespace ISF {
       /** loop over McEventCollection */
       StatusCode  processMergedColls(ISF::ISFParticleContainer& particleColl) const;
       StatusCode  processSingleColl(ISF::ISFParticleContainer& particleColl) const;
+      StatusCode  processPileupColl(ISF::ISFParticleContainer& particleColl) const;
       StatusCode  mcEventCollLooper(ISF::ISFParticleContainer& particleColl, McEventCollection* mcCollection, int nPileupCounter=0) const;
 
       /** ParticlePropertyService and ParticleDataTable */
@@ -78,6 +78,8 @@ namespace ISF {
 
       std::string                           m_inputMcEventCollection;   //!< name of input McEventCollection
       std::string                           m_outputMcEventCollection;  //!< name of output McEventCollection
+      std::string                           m_pileupMcEventCollection;  //!< name of additional Pileup McEventCollection
+      std::string                           m_outputPileupMcEventCollection;  //!< name of additional Pileup output McEventCollection
       bool                                  m_recordOnlySimulated;      //!< record only simulated particles in output truth collection
       bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
 
@@ -85,7 +87,6 @@ namespace ISF {
       GenParticleFilters                    m_genParticleFilters;       //!< HepMC::GenParticle filter
 
       ServiceHandle<Barcode::IBarcodeSvc>   m_barcodeSvc;               //!< the ISF barcode service
-      ServiceHandle<PileUpMergeSvc>         m_pMergeSvc;
 
       mutable int     m_largestBc;
       mutable int     m_uniqueBc;
@@ -94,6 +95,8 @@ namespace ISF {
       mutable int     m_current_event_index;
       mutable int     m_current_bcid;
       mutable double  m_bunch_spacing;
+
+      bool m_doHardScatter;
   };
 
 }

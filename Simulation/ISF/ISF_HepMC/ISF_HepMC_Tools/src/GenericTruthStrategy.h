@@ -26,8 +26,8 @@ namespace ISF {
   typedef std::set<int>                 PDGCodesSet;
 
   /** @class GenericTruthStrategy
-  
-      TODO
+
+      A multi-purpose implementation of an ISF TruthStrategy.
   
       @author Elmar.Ritsch -at- cern.ch
      */
@@ -45,21 +45,21 @@ namespace ISF {
      StatusCode  finalize();
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( const ITruthIncident& incident) const;
+     bool pass( ITruthIncident& incident) const;
 
 	  private:
-     /** primary kinetic energy / transverse momentum cuts
+     /** parent kinetic energy / transverse momentum cuts
          (pT is stored as pT^2 which allows for faster comparisons) */
-     bool                                   m_usePrimaryPt;        //!< use pT or Ekin cuts?
-     double                                 m_primaryPt2;          //!< primary particle
-     double                                 m_primaryEkin;         //!< primary particle
+     bool                                   m_useParentPt;         //!< use pT or Ekin cuts?
+     double                                 m_parentPt2;           //!< parent particle
+     double                                 m_parentEkin;          //!< parent particle
 
-     /** primary kinetic energy / transverse momentum cuts
+     /** child particle kinetic energy / transverse momentum cuts
          (pT is stored as pT^2 which allows for faster comparisons) */
-     bool                                   m_useSecondaryPt;      //!< use pT or Ekin cuts?
-     double                                 m_secondaryPt2;        //!< pT momentum cut
-     double                                 m_secondaryEkin;       //!< Ekin cut
-     bool                                   m_allowSecondaryOrPrimaryPass; //!< pass cuts if primary did not
+     bool                                   m_useChildPt;          //!< use pT or Ekin cuts?
+     double                                 m_childPt2;            //!< pT momentum cut
+     double                                 m_childEkin;           //!< Ekin cut
+     bool                                   m_allowChildrenOrParentPass; //!< pass cuts if parent did not
 
      /** vertex type (physics code) checks */
      VertexTypesVector                      m_vertexTypesVector;  //!< Python property
@@ -70,8 +70,8 @@ namespace ISF {
      unsigned                               m_vertexTypeRangeLength;
 
      /** PDG code checks */
-     PDGCodesVector                         m_primPdgCodesVector;  //!< Python property
-     PDGCodesSet                            m_primPdgCodes;        //!< optimized for search
+     PDGCodesVector                         m_parentPdgCodesVector;  //!< Python property
+     PDGCodesSet                            m_parentPdgCodes;        //!< optimized for search
    }; 
   
 }

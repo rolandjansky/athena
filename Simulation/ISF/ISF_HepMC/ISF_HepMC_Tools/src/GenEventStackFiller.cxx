@@ -39,7 +39,6 @@
 #include "HepPDT/DecayData.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
-#include "PileUpTools/PileUpMergeSvc.h"
 
 /** Constructor **/
 ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::string& n, const IInterface* p)
@@ -48,12 +47,13 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
     m_particleDataTable(0),
     m_inputMcEventCollection("GEN_EVENT"),
     m_outputMcEventCollection("TruthEvent"),
+    m_pileupMcEventCollection(""),
+    m_outputPileupMcEventCollection(""),
     m_recordOnlySimulated(false),
     m_useGeneratedParticleMass(false),
     m_genEventManipulators(),
     m_genParticleFilters(),
     m_barcodeSvc("ISF_BarcodeService",n),
-    m_pMergeSvc("PileUpMergeSvc", n),
     m_largestBc(0),
     m_uniqueBc(0),
     m_current_event_time(0.0),
@@ -73,6 +73,11 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
   declareProperty("PurgeOutputCollectionToSimulatedParticlesOnly",
                   m_recordOnlySimulated,
                   "Record only particles that were taken as Input for the Simulation.");
+  declareProperty("PileupMcEventCollection",m_pileupMcEventCollection,
+      "StoreGate collection name of pileup generator McEventCollection");
+  declareProperty("OutputPileupMcEventCollection",
+      m_outputPileupMcEventCollection,
+      "StoreGate collection name of pileup truth McEventCollection");
   // particle mass from particle data table?
   declareProperty("UseGeneratedParticleMass",
                   m_useGeneratedParticleMass,
@@ -95,10 +100,10 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
                   "ParticlePropertyService to retrieve the PDT.");
   // bunch spacing
   declareProperty( "BunchSpacing", m_bunch_spacing = 50.0 );
-  // the pileup merge service
-  declareProperty("PileUpMergeService",
-                  m_pMergeSvc,
-                  "The pile-up merge service.");
+
+  // don't do hard scatter
+  declareProperty( "DoHardScatter", m_doHardScatter = true,
+		   "Flag to turn off hard scatter for debugging of pileup" ); 
 }
 
 
@@ -142,29 +147,16 @@ StatusCode  ISF::GenEventStackFiller::initialize()
 /** Returns the Particle Stack, should register truth */
 StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& particleColl) const
 {
-  // check is pileup merge service has been configured.
-  // if so, retrieve merged mceventcollection set and process that
-  // if not, retrieve regular mceventcollection
-  if(!m_pMergeSvc.empty()) {
-    if (!(m_pMergeSvc.retrieve()).isSuccess()) {
-      msg(MSG::WARNING) << "fillStack(): Can not find PileUpMergeSvc. Assuming no merge pileup collections at EvGen level." << endreq;
-      //return StatusCode::RECOVERABLE;
-    }
-  }
-
   // MB : reset barcode counter for each event
   m_uniqueBc = 0;
   m_largestBc = 0;
 
   StatusCode sc;
-  if (!m_pMergeSvc.empty()) {
-    // 1. pileup merge service has been configured.
-    // retrieve and process merged mceventcollection set
-    sc = processMergedColls(particleColl);
-  } else {
-    // 2. try to retrieve and process regular mceventcollection, as usual
-    sc = processSingleColl(particleColl);
-  }
+  // retrieve and process regular mceventcollection, as usual
+  sc = processSingleColl(particleColl);
+  // added by RJH, process additional inline pileup collections if requested
+  if (sc.isSuccess() && m_pileupMcEventCollection!="") 
+    sc = processPileupColl(particleColl);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Unable to fill initial particle collection");
@@ -180,7 +172,7 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
 }
 
 
-/** process merged (hard-scatter+pileup) mcevent collections */
+/** process single (hard-scatter-only) mcevent collection */
 StatusCode
 ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleColl) const
 {
@@ -206,61 +198,40 @@ ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleC
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_VERBOSE( "Created particle collection with length " << particleColl.size() );
+  ATH_MSG_DEBUG( "Created particle collection with length " << particleColl.size() );
 
   return StatusCode::SUCCESS;
 }
 
 
-/** process single (hard-scatter-only) mcevent collection */
-StatusCode
-ISF::GenEventStackFiller::processMergedColls(ISF::ISFParticleContainer& particleColl) const
+// addd by RJH process pileup mcevent collection
+StatusCode 
+ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer& 
+					    particleColl) const
 {
-  //PRECONDITIONS
-  //first get the list of McEventCollections
-  typedef PileUpMergeSvc::TimedList<McEventCollection>::type TimedTruthList;
-  TimedTruthList truthList;
-  if (!m_pMergeSvc->retrieveSubEvtsData(m_inputMcEventCollection, truthList).isSuccess() ) {
-    ATH_MSG_ERROR("processMergedColls(): Cannot find TimedTruthList with key " << m_inputMcEventCollection );
+  // Retrieve pileup collecton from StoreGate
+  const McEventCollection* inputCollection=0;
+  if (evtStore()->retrieve(inputCollection,m_pileupMcEventCollection).isFailure()) {
+    ATH_MSG_ERROR("Coould not retrieve " << m_pileupMcEventCollection << 
+		  "from StoreGateSvc");
+    return StatusCode::FAILURE;
+  }
+  // create copy
+  McEventCollection *mcCollection=new McEventCollection(*inputCollection);
+  StatusCode status=mcEventCollLooper(particleColl,mcCollection,1);
+  if (status!=StatusCode::SUCCESS) return status;
+
+  // record this additional collection to Storegate
+  bool allowMods(true);
+  if (evtStore()->record(mcCollection, m_outputPileupMcEventCollection, 
+			 allowMods).isFailure()) {
+    ATH_MSG_ERROR( "Could not record " << m_outputPileupMcEventCollection << 
+		   " to StoreGateSvc. Abort.");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_VERBOSE( "Size of truthlist " << truthList.size() );
-
-  m_number_of_gen_minbias = 0;
-  //     number_of_gen_events
-  TimedTruthList::iterator timedTruthListIter(truthList.begin()), endOfTimedTruthList(truthList.end());
-  //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
-  bool is_intime_pileup = true;
-
-  int number_of_mb_events=0;
-
-  for (; timedTruthListIter != endOfTimedTruthList; ++timedTruthListIter, ++number_of_mb_events ){
-    const PileUpTimeEventIndex& currentPileUpTimeEventIndex(timedTruthListIter->first);
-    McEventCollection *mcCollection = new McEventCollection(*(timedTruthListIter->second));
-
-    m_current_event_time = currentPileUpTimeEventIndex.time();
-    m_current_event_index = currentPileUpTimeEventIndex.index();
-
-    // Loop over McEventCollection
-    StatusCode status = mcEventCollLooper( particleColl , mcCollection, number_of_mb_events );
-    if ( status != StatusCode::SUCCESS ) { return status; }
-
-    // record the GenEvent as 'TruthEvent' to StoreGate
-    if( is_intime_pileup ){
-      bool allowMods(true);
-      if (evtStore()->record(mcCollection, m_outputMcEventCollection, allowMods).isFailure()) {
-        ATH_MSG_ERROR( "Could not record " << m_outputMcEventCollection << " to StoreGateSvc. Abort.");
-        //       delete mcCollection;  // do we need this? (let's wait for mr. coverity's opinion)
-        return StatusCode::FAILURE;
-      }
-    }
-    ATH_MSG_VERBOSE( "Created particle collection with length " << particleColl.size() );
-    is_intime_pileup = false;
-  }
-
-  ATH_MSG_VERBOSE(" number_of_gen_minbias " << m_number_of_gen_minbias << " number_of_mb_events " << number_of_mb_events);
-
+  ATH_MSG_DEBUG( "After adding pileup, particle collection has length " << 
+		 particleColl.size() );
   return StatusCode::SUCCESS;
 }
 
@@ -271,6 +242,10 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 {
   // ensure unique barcode for merged pileup collisions
   int bcPileupOffset = ( nPileupCounter>0 ? m_largestBc+1 : 0 ); 
+
+  ATH_MSG_DEBUG("Starting mcEVentCollLooper for pileup " << nPileupCounter
+		<< " bcPileupOffset " << bcPileupOffset << " with "
+		<< particleColl.size() << " ISF particles");
 
   McEventCollection::iterator eventIt    = mcCollection->begin();
   McEventCollection::iterator eventItEnd = mcCollection->end();
@@ -284,9 +259,17 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
   std::vector<HepMC::GenParticle*> goodparticles;
 
   // loop over the event in the mc collection
-  for ( ; eventIt != eventItEnd; ++eventIt) {
+  int npile=0;
+  for ( ; eventIt != eventItEnd; ++eventIt,++npile) {
     // skip empty events
     if ( *eventIt == 0) continue;
+
+    // RJH - for pileup, calculate bcid from signal-process-id
+    int bcid=0;
+    if (nPileupCounter>0) {
+      bcid=((*eventIt)->signal_process_id())/10000;
+      ATH_MSG_DEBUG("Pileup index " << npile << " mapped to BCID " << bcid);
+    }
 
     ATH_MSG_VERBOSE(" signal_process_id " << (*eventIt)->signal_process_id() );
     ATH_MSG_VERBOSE(" event number " << (*eventIt)->event_number() );
@@ -322,12 +305,13 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 	int bc=(*it)->barcode();
 	pMap[bc]=(*it);
       }
-      
-      for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
 
-	particles.push_back(it->second);
+      if (m_doHardScatter || bcid==1) {
+	for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
+
+	  particles.push_back(it->second);
+	}
       }
-
     }
 
     // ---- LOOP over GenParticles  -------------------------------------------------------
@@ -361,10 +345,10 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       for ( ; passFilter && filterIt!=filterEnd; ++filterIt) {
 	// determine if the particle passes current filter
 	passFilter = (*filterIt)->pass(*tParticle);
-	ATH_MSG_DEBUG("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
+	ATH_MSG_VERBOSE("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
 		     << (passFilter ? "true, will keep particle."
 			 : "false, will remove particle."));
-	ATH_MSG_DEBUG("Particle: ("
+	ATH_MSG_VERBOSE("Particle: ("
 		     <<tParticle->momentum().px()<<", "
 		     <<tParticle->momentum().py()<<", "
 		     <<tParticle->momentum().pz()<<"), pdgCode: "
@@ -403,7 +387,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 	continue;
       }
       
-      ATH_MSG_DEBUG( "GenParticle with Barcode '" << pBarcode
+      ATH_MSG_VERBOSE( "GenParticle with Barcode '" << pBarcode
 		     << "' passed all cuts, adding it to the initial ISF particle list.");
       
       // -> particle origin (TODO: add proper GeoID, collision/cosmics)
@@ -461,10 +445,11 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
       if ( m_barcodeSvc->hasBitCalculator() ) {
 	// first gen-event in the list is the hard scatter.
-	if (m_current_event_index==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
+	// RJH - change thsi to use the pileupCounter parameter
+	if (nPileupCounter==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
 	else { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,false); }
-	// bcid
-	int bcid = int( m_current_event_time / m_bunch_spacing );
+	// bcid - RJH now set this above from signal-process-id of pileup
+	// int bcid = int( m_current_event_time / m_bunch_spacing );
 	m_barcodeSvc->getBitCalculator()->SetBCID(extrabc,bcid);
 	// parent pid
 	int absPDG = abs( pPdgId );
@@ -479,6 +464,8 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       
       // push back the particle into the collection
       particleColl.push_back(sParticle);
+
+      if (!m_doHardScatter) return StatusCode::SUCCESS;
     }
     
     /*
@@ -500,7 +487,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part) const {
   // default value: generated particle mass
   double mass = part.generated_mass();
-  ATH_MSG_DEBUG("part.generated_mass, mass="<<mass);
+  ATH_MSG_VERBOSE("part.generated_mass, mass="<<mass);
 
   // 1. use PDT mass?
   if ( !m_useGeneratedParticleMass) {
@@ -510,7 +497,7 @@ double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part)
       : 0 ;
     if (pData) {
       mass = pData->mass();
-      ATH_MSG_DEBUG("using pData mass, mass="<<mass);
+      ATH_MSG_VERBOSE("using pData mass, mass="<<mass);
     }
     else
       ATH_MSG_WARNING( "Unable to find mass of particle with PDG ID '" << absPDG << "' in ParticleDataTable. Will set mass to generated_mass: " << mass);
@@ -521,6 +508,6 @@ double ISF::GenEventStackFiller::getParticleMass(const HepMC::GenParticle &part)
 
 StatusCode  ISF::GenEventStackFiller::finalize()
 {
-  ATH_MSG_VERBOSE("Finalizing ...");
+  ATH_MSG_DEBUG("Finalizing ...");
   return StatusCode::SUCCESS;
 }

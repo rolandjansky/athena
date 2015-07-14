@@ -50,7 +50,7 @@ StatusCode  ISF::CylinderVolumeTruthStrategy::finalize()
     return StatusCode::SUCCESS;
 }
 
-bool ISF::CylinderVolumeTruthStrategy::pass( const ITruthIncident& ti) const
+bool ISF::CylinderVolumeTruthStrategy::pass( ITruthIncident& ti) const
 {
   // the current truth incident radius
   double r = ti.position().rho();
