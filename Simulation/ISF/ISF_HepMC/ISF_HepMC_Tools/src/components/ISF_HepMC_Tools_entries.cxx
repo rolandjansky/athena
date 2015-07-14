@@ -11,6 +11,7 @@
 #include "../GenericTruthStrategy.h"
 #include "../CylinderVolumeTruthStrategy.h"
 #include "../ValidationTruthStrategy.h"
+#include "../LLPTruthStrategy.h"
 #include "../GenParticleSimWhiteList.h"
 #include "../GenParticleInteractingFilter.h"
 
@@ -26,6 +27,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenParticlePositionFilter    )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenericTruthStrategy         )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , CylinderVolumeTruthStrategy  )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , ValidationTruthStrategy      )
+DECLARE_NAMESPACE_TOOL_FACTORY( ISF , LLPTruthStrategy             )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenParticleSimWhiteList      )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenParticleInteractingFilter )
 
@@ -42,6 +44,7 @@ DECLARE_FACTORY_ENTRIES( ISF_HepMC_Tools ) {
   DECLARE_NAMESPACE_TOOL( ISF ,  GenericTruthStrategy         )
   DECLARE_NAMESPACE_TOOL( ISF ,  CylinderVolumeTruthStrategy  )
   DECLARE_NAMESPACE_TOOL( ISF ,  ValidationTruthStrategy      )
+  DECLARE_NAMESPACE_TOOL( ISF ,  LLPTruthStrategy             )
   DECLARE_NAMESPACE_TOOL( ISF ,  GenParticleSimWhiteList      )
   DECLARE_NAMESPACE_TOOL( ISF ,  GenParticleInteractingFilter )
 }

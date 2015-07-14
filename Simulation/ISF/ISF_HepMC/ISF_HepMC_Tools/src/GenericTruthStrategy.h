@@ -26,8 +26,8 @@ namespace ISF {
   typedef std::set<int>                 PDGCodesSet;
 
   /** @class GenericTruthStrategy
-  
-      TODO
+
+      A multi-purpose implementation of an ISF TruthStrategy.
   
       @author Elmar.Ritsch -at- cern.ch
      */

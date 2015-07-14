@@ -39,7 +39,6 @@
 #include "HepPDT/DecayData.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
-#include "PileUpTools/PileUpMergeSvc.h"
 
 /** Constructor **/
 ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::string& n, const IInterface* p)
@@ -55,7 +54,6 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
     m_genEventManipulators(),
     m_genParticleFilters(),
     m_barcodeSvc("ISF_BarcodeService",n),
-    m_pMergeSvc("PileUpMergeSvc", n),
     m_largestBc(0),
     m_uniqueBc(0),
     m_current_event_time(0.0),
@@ -102,10 +100,10 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
                   "ParticlePropertyService to retrieve the PDT.");
   // bunch spacing
   declareProperty( "BunchSpacing", m_bunch_spacing = 50.0 );
-  // the pileup merge service
-  declareProperty("PileUpMergeService",
-                  m_pMergeSvc,
-                  "The pile-up merge service.");
+
+  // don't do hard scatter
+  declareProperty( "DoHardScatter", m_doHardScatter = true,
+		   "Flag to turn off hard scatter for debugging of pileup" ); 
 }
 
 
@@ -149,32 +147,16 @@ StatusCode  ISF::GenEventStackFiller::initialize()
 /** Returns the Particle Stack, should register truth */
 StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& particleColl) const
 {
-  // check is pileup merge service has been configured.
-  // if so, retrieve merged mceventcollection set and process that
-  // if not, retrieve regular mceventcollection
-  if(!m_pMergeSvc.empty()) {
-    if (!(m_pMergeSvc.retrieve()).isSuccess()) {
-      msg(MSG::WARNING) << "fillStack(): Can not find PileUpMergeSvc. Assuming no merge pileup collections at EvGen level." << endreq;
-      //return StatusCode::RECOVERABLE;
-    }
-  }
-
   // MB : reset barcode counter for each event
   m_uniqueBc = 0;
   m_largestBc = 0;
 
   StatusCode sc;
-  if (!m_pMergeSvc.empty()) {
-    // 1. pileup merge service has been configured.
-    // retrieve and process merged mceventcollection set
-    sc = processMergedColls(particleColl);
-  } else {
-    // 2. try to retrieve and process regular mceventcollection, as usual
-    sc = processSingleColl(particleColl);
-    // added by RJH, process additional inline pileup collections if requested
-    if (sc.isSuccess() && m_pileupMcEventCollection!="") 
-      sc = processPileupColl(particleColl);
-  }
+  // retrieve and process regular mceventcollection, as usual
+  sc = processSingleColl(particleColl);
+  // added by RJH, process additional inline pileup collections if requested
+  if (sc.isSuccess() && m_pileupMcEventCollection!="") 
+    sc = processPileupColl(particleColl);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Unable to fill initial particle collection");
@@ -221,58 +203,6 @@ ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleC
   return StatusCode::SUCCESS;
 }
 
-
-/** process merged (hard-scatter+pileup) mcevent collections */
-StatusCode
-ISF::GenEventStackFiller::processMergedColls(ISF::ISFParticleContainer& particleColl) const
-{
-  //PRECONDITIONS
-  //first get the list of McEventCollections
-  typedef PileUpMergeSvc::TimedList<McEventCollection>::type TimedTruthList;
-  TimedTruthList truthList;
-  if (!m_pMergeSvc->retrieveSubEvtsData(m_inputMcEventCollection, truthList).isSuccess() ) {
-    ATH_MSG_ERROR("processMergedColls(): Cannot find TimedTruthList with key " << m_inputMcEventCollection );
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_VERBOSE( "Size of truthlist " << truthList.size() );
-
-  m_number_of_gen_minbias = 0;
-  //     number_of_gen_events
-  TimedTruthList::iterator timedTruthListIter(truthList.begin()), endOfTimedTruthList(truthList.end());
-  //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
-  bool is_intime_pileup = true;
-
-  int number_of_mb_events=0;
-
-  for (; timedTruthListIter != endOfTimedTruthList; ++timedTruthListIter, ++number_of_mb_events ){
-    const PileUpTimeEventIndex& currentPileUpTimeEventIndex(timedTruthListIter->first);
-    McEventCollection *mcCollection = new McEventCollection(*(timedTruthListIter->second));
-
-    m_current_event_time = currentPileUpTimeEventIndex.time();
-    m_current_event_index = currentPileUpTimeEventIndex.index();
-
-    // Loop over McEventCollection
-    StatusCode status = mcEventCollLooper( particleColl , mcCollection, number_of_mb_events );
-    if ( status != StatusCode::SUCCESS ) { return status; }
-
-    // record the GenEvent as 'TruthEvent' to StoreGate
-    if( is_intime_pileup ){
-      bool allowMods(true);
-      if (evtStore()->record(mcCollection, m_outputMcEventCollection, allowMods).isFailure()) {
-        ATH_MSG_ERROR( "Could not record " << m_outputMcEventCollection << " to StoreGateSvc. Abort.");
-        //       delete mcCollection;  // do we need this? (let's wait for mr. coverity's opinion)
-        return StatusCode::FAILURE;
-      }
-    }
-    ATH_MSG_VERBOSE( "Created particle collection with length " << particleColl.size() );
-    is_intime_pileup = false;
-  }
-
-  ATH_MSG_VERBOSE(" number_of_gen_minbias " << m_number_of_gen_minbias << " number_of_mb_events " << number_of_mb_events);
-
-  return StatusCode::SUCCESS;
-}
 
 // addd by RJH process pileup mcevent collection
 StatusCode 
@@ -375,12 +305,13 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 	int bc=(*it)->barcode();
 	pMap[bc]=(*it);
       }
-      
-      for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
 
-	particles.push_back(it->second);
+      if (m_doHardScatter || bcid==1) {
+	for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
+
+	  particles.push_back(it->second);
+	}
       }
-
     }
 
     // ---- LOOP over GenParticles  -------------------------------------------------------
@@ -533,6 +464,8 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       
       // push back the particle into the collection
       particleColl.push_back(sParticle);
+
+      if (!m_doHardScatter) return StatusCode::SUCCESS;
     }
     
     /*

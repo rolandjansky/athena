@@ -72,19 +72,48 @@ def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     return ISF__GenParticlePositionFilter(name, **kwargs)
 
 def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
-    kwargs.setdefault('CheckRegion'  , [ 1 ] )  # only ID, see AtlasDetDescr/AtlasRegion.h
+    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
+    import ROOT, cppyy
+    cppyy.loadDictionary('AtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr
+
+    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID ] )
     return getParticlePositionFilter(name, **kwargs)
 
 def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwargs):
-    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3 ] )  # ID+Fwd+Calo, see AtlasDetDescr/AtlasRegion.h
+    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
+    import ROOT, cppyy
+    cppyy.loadDictionary('AtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr
+
+    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+                                            AtlasRegion.fAtlasForward,
+                                            AtlasRegion.fAtlasCalo ] )
     return getParticlePositionFilter(name, **kwargs)
 
 def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
-    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4  ] )  # ID+Fwd+Calo+MS, see AtlasDetDescr/AtlasRegion.h
+    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
+    import ROOT, cppyy
+    cppyy.loadDictionary('AtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr
+
+    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+                                            AtlasRegion.fAtlasForward,
+                                            AtlasRegion.fAtlasCalo,
+                                            AtlasRegion.fAtlasMS ] )
     return getParticlePositionFilter(name, **kwargs)
 
 def getParticlePositionFilterWorld(name="ISF_ParticlePositionFilterWorld", **kwargs):
-    kwargs.setdefault('CheckRegion'  , [ 1, 2, 3, 4, 5 ] ) # ISF+Fwd+Calo+MS+Cavern, see AtlasDetDescr/AtlasRegion.h
+    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
+    import ROOT, cppyy
+    cppyy.loadDictionary('AtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr
+
+    kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
+                                            AtlasRegion.fAtlasForward,
+                                            AtlasRegion.fAtlasCalo,
+                                            AtlasRegion.fAtlasMS,
+                                            AtlasRegion.fAtlasCavern ] )
     return getParticlePositionFilter(name, **kwargs)
 
 def getParticlePositionFilterDynamic(name="ISF_ParticlePositionFilterDynamic", **kwargs):
@@ -151,7 +180,6 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
                                                                            'ISF_GenParticleInteractingFilter',
                                                                           ])
     kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
-    kwargs.setdefault("PileUpMergeService"                                  , '')
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenEventStackFiller
     return ISF__GenEventStackFiller(name, **kwargs)
@@ -255,3 +283,13 @@ def getValidationTruthStrategy(name="ISF_ValidationTruthStrategy", **kwargs):
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__ValidationTruthStrategy
     return ISF__ValidationTruthStrategy(name, **kwargs);
+
+def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
+    kwargs.setdefault('PassProcessCodeRangeLow',  200 )
+    kwargs.setdefault('PassProcessCodeRangeHigh', 299 )
+    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault('PassProcessCategory',      9   ) # == 
+
+    from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__LLPTruthStrategy
+    return ISF__LLPTruthStrategy(name, **kwargs);
