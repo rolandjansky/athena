@@ -109,8 +109,14 @@ namespace ISF {
 
     bool                                      m_storeExtraBCs;
     bool                                      m_passWholeVertex;
-    bool                                      m_alwaysAttachDeadParentEndVertex; //!< attach end vertex to all parent particles if they die
+
+    std::vector<bool>                         m_forceEndVtxRegionsVec; //!< property containing AtlasRegions for which
+                                                                              //   to write end-vtx
+    bool                                      m_forceEndVtx[AtlasDetDescr::fNumAtlasRegions]; //!< attach end vertex to
+                                                                                                     //   all parent particles if they die
+
     bool                                      m_quasiStableParticlesIncluded; //!< does this job simulate quasi-stable particles.
+
   };
 }
 

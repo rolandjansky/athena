@@ -55,7 +55,8 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_screenEmptyPrefix(),
   m_storeExtraBCs(true),
   m_passWholeVertex(true),
-  m_alwaysAttachDeadParentEndVertex(false),
+  m_forceEndVtxRegionsVec(),
+  m_forceEndVtx(),
   m_quasiStableParticlesIncluded(false)
 {
     // the particle stack filler tool
@@ -69,12 +70,14 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
     declareProperty("SkipIfNoParentBarcode",             m_skipIfNoParentBarcode   );
     declareProperty("IgnoreUndefinedBarcodes",           m_ignoreUndefinedBarcodes );
     declareProperty("PassWholeVertices",                 m_passWholeVertex         );
-    declareProperty("AlwaysAttachEndVertexIfParentDies", m_alwaysAttachDeadParentEndVertex);
-    // the truth strategies for the different SimGeoIDs
+    // the truth strategies for the different AtlasDetDescr regions
     declareProperty("BeamPipeTruthStrategies",           m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
     declareProperty("IDTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
     declareProperty("CaloTruthStrategies",               m_geoStrategyHandles[AtlasDetDescr::fAtlasCalo]    );
     declareProperty("MSTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasMS]      );
+    declareProperty("CavernTruthStrategies",             m_geoStrategyHandles[AtlasDetDescr::fAtlasCavern]  );
+    // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
+    declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
 
     declareProperty("StoreExtraBarcodes",                m_storeExtraBCs);
     declareProperty("QuasiStableParticlesIncluded",      m_quasiStableParticlesIncluded);
@@ -123,7 +126,8 @@ StatusCode ISF::HepMC_TruthSvc::initialize()
     // (removes the gaudi overhead in each call)
     m_barcodeSvcQuick = &(*m_barcodeSvc);
 
-    // retrieve all registered geo strategies (Athena Alg Tools)
+    // retrieve the strategies for each atlas region (Athena Alg Tools)
+    // and setup whether we want to write end-vertices in this region whenever a truth particle dies
     for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
       if ( m_geoStrategyHandles[geoID].retrieve().isFailure() ) {
         ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve TruthStrategy Tool Array for SimGeoID="
@@ -139,6 +143,12 @@ StatusCode ISF::HepMC_TruthSvc::initialize()
       for ( unsigned short i = 0; i < curNumStrategies; ++i) {
         m_geoStrategies[geoID][i] = &(*m_geoStrategyHandles[geoID][i]);
       }
+
+      // create an end-vertex for all truth particles ending in the current AtlasRegion?
+      bool forceEndVtx = std::find( m_forceEndVtxRegionsVec.begin(),
+                                    m_forceEndVtxRegionsVec.end(),
+                                    geoID ) != m_forceEndVtxRegionsVec.end();
+      m_forceEndVtx[geoID] = forceEndVtx;
     }
 
     ATH_MSG_VERBOSE( "initialize() successful" );
@@ -265,7 +275,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
     //  -> child particles will NOT be added to the TruthEvent collection
     
     // attach parent particle end vertex if it gets killed by this interaction
-    if (m_alwaysAttachDeadParentEndVertex && !ti.parentSurvivesIncident() ) {
+    if ( m_forceEndVtx[geoID] && !ti.parentSurvivesIncident() ) {
       HepMC::GenVertex *vtx = createGenVertexFromTruthIncident( ti);
       m_mcEvent->add_vertex( vtx);
     }
@@ -371,28 +381,15 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
-  std::vector<double> weights(2);
+  std::vector<double> weights(1);
   weights[0] = static_cast<double>(parentBC);
-  weights[1] = static_cast<double>(processCode); //now saved in GenVertex::id() ATLASSIM-2055
 
-  // Check for a previous end vertex on this particle.  If one existed, snip it
+  // Check for a previous end vertex on this particle.  If one existed, then we should put down next to this
+  //  a new copy of the particle.  This is the agreed upon version of the quasi-stable particle truth, where
+  //  the vertex at which we start Q-S simulation no longer conserves energy, but we keep both copies of the
+  //  truth particles
   bool setPersistent = true;
   HepMC::GenParticle *parent = ti.parentParticle( setPersistent );
-  if (parent->end_vertex()){
-    if(m_quasiStableParticlesIncluded) {
-      ATH_MSG_VERBOSE("Parent particle found with an end vertex attached.");
-      ATH_MSG_VERBOSE("Will delete the old vertex and swap in the new one.");
-    }
-    else {
-      ATH_MSG_WARNING("Parent particle found with an end vertex attached.  This should only happen");
-      ATH_MSG_WARNING("in the case of simulating quasi-stable particles.  That functionality");
-      ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
-      ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
-    }
-    HepMC::GenVertex * old_vtx = parent->end_vertex();
-    old_vtx->remove_particle( parent );
-    delete old_vtx; // This should be nice and iterative
-  }
 
   // generate vertex
   Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( parentBC, processCode );
@@ -408,10 +405,31 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
   HepMC::GenVertex *vtx = new HepMC::GenVertex( ti.position(), vtxID, weights );
   vtx->suggest_barcode( vtxbcode );
 
-  // add parent particle to vtx
-  vtx->add_particle_in( parent );
-  ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
-  ATH_MSG_VERBOSE ( "Parent: " << *parent);
+  if (parent->end_vertex()){
+    if(!m_quasiStableParticlesIncluded) {
+      ATH_MSG_WARNING("Parent particle found with an end vertex attached.  This should only happen");
+      ATH_MSG_WARNING("in the case of simulating quasi-stable particles.  That functionality");
+      ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
+      ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
+    }
+    HepMC::GenParticle *new_parent = new HepMC::GenParticle( *parent ); // Copy the old guy
+
+    // Change the barcode
+    new_parent->suggest_barcode( m_barcodeSvcQuick->newSecondary( parentBC ) );
+
+    // Add the new parent to the old production vertex
+    parent->production_vertex()->add_particle_out( new_parent );
+
+    // Now add the new vertex to the new parent
+    vtx->add_particle_in( new_parent );
+    ATH_MSG_VERBOSE ( "QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
+    ATH_MSG_VERBOSE ( "Parent: " << *parent);
+  } else { // Normal simulation
+    // add parent particle to vtx
+    vtx->add_particle_in( parent );
+    ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
+    ATH_MSG_VERBOSE ( "Parent: " << *parent);
+  }
 
   return vtx;
 }
