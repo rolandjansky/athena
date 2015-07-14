@@ -29,9 +29,9 @@ namespace TCS {
       parType_t      p_NumberLeading2 = { 0 };
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
-      parType_t      p_EtaMin = { 0 };
-      parType_t      p_EtaMax = { 49 };
-      parType_t      p_DeltaR = { 0 };
+//      parType_t      p_EtaMin = { 0 };
+//      parType_t      p_EtaMax = { 49 };
+//      parType_t      p_DeltaR = { 0 };
       parType_t      p_Ratio[2] = { 0 , 0 };
 
    };

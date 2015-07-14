@@ -17,7 +17,7 @@ TCS::MuonSelect::MuonSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 32 ); // for FW
    defineParameter( "InputWidth1stStage", 16 ); // for FW
    defineParameter( "OutputWidth", 6 );
-   defineParameter( "MinEt", 0 );
+   defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 7);
 }
@@ -31,7 +31,7 @@ TCS::MuonSelect::initialize() {
    m_numberOfMuons = parameter("InputWidth").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_et = parameter("MinEt").value();
+   m_et = parameter("MinET").value();
 
    return TCS::StatusCode::SUCCESS;
 }
@@ -63,4 +63,5 @@ TCS::MuonSelect::sort(const InputTOBArray & input, TOBArray & output) {
    }
    return TCS::StatusCode::SUCCESS;
 }
+
 

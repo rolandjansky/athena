@@ -43,14 +43,25 @@ TCS::TransverseMassInclusive1::TransverseMassInclusive1(const std::string & name
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 6);
+   defineParameter("MinET1",0,0);
+   defineParameter("MinET2",0,0);
    defineParameter("MinMTSqr",  0, 0);
+   defineParameter("MinET1",0,1);
+   defineParameter("MinET2",0,1);
    defineParameter("MinMTSqr",  0, 1);
+   defineParameter("MinET1",0,2);
+   defineParameter("MinET2",0,2);
    defineParameter("MinMTSqr", 0, 2);
+   defineParameter("MinET1",0,3);
+   defineParameter("MinET2",0,3);
    defineParameter("MinMTSqr", 0, 3);
+   defineParameter("MinET1",0,4);
+   defineParameter("MinET2",0,4);
    defineParameter("MinMTSqr", 0, 4);
+   defineParameter("MinET1",0,5);
+   defineParameter("MinET2",0,5);
    defineParameter("MinMTSqr", 0, 5);
-   defineParameter("MinET1",0);
-   
+ 
    setNumberOutputBits(6);
 }
 
@@ -67,14 +78,15 @@ TCS::TransverseMassInclusive1::initialize() {
 
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_TMassMin[i] = parameter("MinMTSqr", i).value();
-   } 
-   p_MinET1 = parameter("MinET1").value();
-   TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
-   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-    TRG_MSG_INFO("TMassMin   : " << p_TMassMin[i]);
+    
+      p_MinET1[i] = parameter("MinET1",i).value();
+      TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
+      p_MinET2[i] = parameter("MinET2",i).value();
+      TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
+
+      TRG_MSG_INFO("TMassMin   : " << p_TMassMin[i]);
    }
-   
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
+   TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);   
    TRG_MSG_INFO("number output : " << numberOutputBits());
  
    return StatusCode::SUCCESS;
@@ -97,12 +109,10 @@ TCS::TransverseMassInclusive1::process( const std::vector<TCS::TOBArray const *>
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
             
             for( TOBArray::const_iterator tob2 = input[1]->begin();
                  tob2 != input[1]->end() ;
                  ++tob2) {
-
 
                // T Mass calculation
              
@@ -112,6 +122,9 @@ TCS::TransverseMassInclusive1::process( const std::vector<TCS::TOBArray const *>
                bool accept[6];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
+		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+
+                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
 
                   accept[i] = tmass2 >= p_TMassMin[i] ; // 
                   if( accept[i] ) {

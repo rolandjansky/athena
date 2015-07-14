@@ -41,26 +41,26 @@ namespace {
 
 TCS::DisambiguationDRIncl3::DisambiguationDRIncl3(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("InputWidth1", 9);
-   defineParameter("InputWidth2", 9);
-   defineParameter("InputWidth3", 9);
+   defineParameter("InputWidth1", 5);
+   defineParameter("InputWidth2", 3);
+   defineParameter("InputWidth3", 3);
    defineParameter("MaxTob1", 0); 
    defineParameter("MaxTob2", 0); 
    defineParameter("MaxTob3", 0);
    defineParameter("NumResultBits", 2);
-   defineParameter("MinET1",1);
-   defineParameter("MinET2",1);
-   defineParameter("MinET3",1);
-   defineParameter("EtaMin1",0);
-   defineParameter("EtaMax1",49);
-   defineParameter("EtaMin2",0);
-   defineParameter("EtaMax2",49);
-   defineParameter("EtaMin3",0);
-   defineParameter("EtaMax3",49);
-   defineParameter("DRCutMin",0);
-   defineParameter("DRCutMax",0);
-   defineParameter("DisambDR",0,0);
-   defineParameter("DisambDR",0,1); 
+   defineParameter("MinET1",1,0);
+   defineParameter("MinET2",1,0);
+   defineParameter("MinET3",1,0);
+   defineParameter("DisambDRSqr",0,0);
+   defineParameter("DisambDRSqrMin",0,0);
+   defineParameter("DisambDRSqrMax",0,0);
+   defineParameter("MinET1",1,1);
+   defineParameter("MinET2",1,1);
+   defineParameter("MinET3",1,1);
+   defineParameter("DisambDRSqr",0,1);
+   defineParameter("DisambDRSqrMin",0,1);
+   defineParameter("DisambDRSqrMax",0,1);
+
    setNumberOutputBits(2);
 }
 
@@ -78,37 +78,29 @@ TCS::DisambiguationDRIncl3::initialize() {
    if(parameter("MaxTob3").value() > 0) p_NumberLeading3 = parameter("MaxTob3").value();
 
 
-   p_MinET1 = parameter("MinET1").value();
-   p_MinET2 = parameter("MinET2").value();
-   p_MinET3 = parameter("MinET3").value();
-   p_EtaMin1 = parameter("EtaMin1").value();
-   p_EtaMax1 = parameter("EtaMax1").value();
-   p_EtaMin2 = parameter("EtaMin2").value();
-   p_EtaMax2 = parameter("EtaMax2").value();
-   p_EtaMin3 = parameter("EtaMin3").value();
-   p_EtaMax3 = parameter("EtaMax3").value();
-   p_DRCutMin = parameter("DRCutMin").value();
-   p_DRCutMax = parameter("DRCutMax").value();
 
-   for(int i=0; i<2; ++i) {
-      p_DisambDR[i] = parameter("DisambDR", i).value();
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+      p_MinET1[i] = parameter("MinET1",i).value();
+      p_MinET2[i] = parameter("MinET2",i).value();
+      p_MinET3[i] = parameter("MinET3",i).value();
+
+      p_DRCutMin[i] = parameter("DisambDRSqrMin", i).value();
+      p_DRCutMax[i] = parameter("DisambDRSqrMax", i).value();
+
+      p_DisambDR[i] = parameter("DisambDRSqr", i).value();
+
+      TRG_MSG_INFO("MinET1          " << i << " : "<< p_MinET1[i]);
+      TRG_MSG_INFO("MinET2          " << i << " : "<< p_MinET2[i]);
+      TRG_MSG_INFO("MinET3          " << i << " : "<< p_MinET3[i]);
+
+      TRG_MSG_INFO("DisambDRmin         " << i << " : "<< p_DRCutMin[i]);
+      TRG_MSG_INFO("DisambDRmax       " << i << " : "<< p_DRCutMax[i]);
+      TRG_MSG_INFO("DisambDR         : " << p_DisambDR[i]);
+
+
    }
 
 
-
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
-   TRG_MSG_INFO("EtaMin1         : " << p_EtaMin1);
-   TRG_MSG_INFO("EtaMax1         : " << p_EtaMax1);
-   TRG_MSG_INFO("MinET2          : " << p_MinET2);
-   TRG_MSG_INFO("EtaMin2         : " << p_EtaMin2);
-   TRG_MSG_INFO("EtaMax2         : " << p_EtaMax2);
-   TRG_MSG_INFO("MinET3          : " << p_MinET3);
-   TRG_MSG_INFO("EtaMin3         : " << p_EtaMin3);
-   TRG_MSG_INFO("EtaMax3         : " << p_EtaMax3);
-   TRG_MSG_INFO("DisambDR0         : " << p_DisambDR[0]);
-   TRG_MSG_INFO("DisambDR1         : " << p_DisambDR[1]);
-   TRG_MSG_INFO("DRCutMin           : " << p_DRCutMin);
-   TRG_MSG_INFO("DRCutMax           : " << p_DRCutMax);
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
 
@@ -132,36 +124,33 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
            ++tob1)
          {
 
-            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
 
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
-               if (deltaR2Cut > p_DRCutMax) continue;
-               if (deltaR2Cut <= p_DRCutMin) continue;
                
 	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
                  tob3 != input[2]->end() ;
                  ++tob3) {
 
-                    if( parType_t((*tob3)->Et()) <= p_MinET3) continue; // ET cut
-                    if( parType_t(fabs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
-                    if( parType_t(fabs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
                
 		    unsigned int deltaR13 = calcDeltaR2( *tob1, *tob3 );
 		    unsigned int deltaR23 = calcDeltaR2( *tob2, *tob3 );
 
                     bool accept[3];
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
+   		       if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+ 	   	       if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                       if( parType_t((*tob3)->Et()) <= p_MinET3[i]) continue; // ET cut
+
+		       // test DeltaR2Min, DeltaR2Max
+		       if (deltaR2Cut > p_DRCutMax[i]) continue;
+		       if (deltaR2Cut <= p_DRCutMin[i]) continue;
+		       //
                        accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
                        if( accept[i] ) {
                          decision.setBit(i, true);

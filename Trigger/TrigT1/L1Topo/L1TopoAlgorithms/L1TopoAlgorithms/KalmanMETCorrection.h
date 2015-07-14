@@ -29,7 +29,7 @@ namespace TCS {
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
       parType_t      p_XE[6] = {0, 0, 0,0,0,0};
-      parType_t      p_MinEt[6] = { 0 ,0,0,0,0,0};
+      parType_t      p_MinEt = { 0 };
 
    };
    

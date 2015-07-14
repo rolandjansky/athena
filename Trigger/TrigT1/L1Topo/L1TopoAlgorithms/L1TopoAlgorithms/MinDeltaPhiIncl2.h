@@ -1,20 +1,19 @@
-//  DeltaPhiIncl1.h
+//  MinDeltaPhiIncl2.h
 //  TopoCore
-//  Created by Joerg Stelzer on 11/16/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+//  Created by Veronica Sorin 
 
-#ifndef __TopoCore__DeltaPhiIncl1__
-#define __TopoCore__DeltaPhiIncl1__
+#ifndef __TopoCore__MinDeltaPhiIncl2__
+#define __TopoCore__MinDeltaPhiIncl2__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DeltaPhiIncl1 : public DecisionAlg {
+   class MinDeltaPhiIncl2 : public DecisionAlg {
    public:
-      DeltaPhiIncl1(const std::string & name);
-      virtual ~DeltaPhiIncl1();
+      MinDeltaPhiIncl2(const std::string & name);
+      virtual ~MinDeltaPhiIncl2();
 
       virtual StatusCode initialize();
 
@@ -28,10 +27,13 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_DeltaPhiMin[2] = {0, 0};
-      parType_t      p_DeltaPhiMax[2] = {0, 0};
-      parType_t      p_MinET1[2] = { 0,0 };
-      parType_t      p_MinET2[2] = { 0,0 };
+      parType_t      p_DeltaPhiMin[3] = {0, 0, 0};
+      parType_t      p_MinET1 = { 0 };
+      parType_t      p_MinET2 = { 0 };
+
+      TH1 * m_histAcceptMinDPhi2[3];
+      TH1 * m_histRejectMinDPhi2[3];
+
    };
    
 }
