@@ -425,9 +425,6 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
   G4PrimaryParticle* particle =
     new G4PrimaryParticle(particle_definition,px,py,pz);
 
-  // The only way we get here is if we are running quasi-stable particle sim
-  particle->SetTrackID( gp.barcode() );
-
   if (gp.end_vertex()){
     // Add all necessary daughter particles
     for (HepMC::GenVertex::particles_out_const_iterator iter=gp.end_vertex()->particles_out_const_begin();
@@ -508,9 +505,6 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
     const ISF::HepMC_TruthBinding *mctruth = dynamic_cast<const ISF::HepMC_TruthBinding* >(truth);
     if (mctruth) {
       HepMC::GenParticle* genpart= &(mctruth->truthParticle());
-
-      // Set the track ID in G4 - this will be used to pass around the barcodes
-      particle->SetTrackID( genpart->barcode() );
 
       ppi->SetParticle(genpart);
       ppi->SetRegenerationNr(0); // // *AS* this may not be true if this is not a real primary particle

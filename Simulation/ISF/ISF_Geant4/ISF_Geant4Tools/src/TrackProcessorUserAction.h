@@ -62,9 +62,7 @@ namespace iGeant4 {
     ISF::ISFParticle* newISFParticle(G4Track* aTrack, const ISF::ISFParticle* parent, AtlasDetDescr::AtlasRegion  nextGeoID);
 
     /** kills the given G4Track, converts it into an ISFParticle and returns it to the ISF particle broker */
-    ISF::ISFParticle* returnParticleToISF( G4Track *aTrack,
-                                           ISF::ISFParticle *parentISP,
-                                           AtlasDetDescr::AtlasRegion nextGeoID );
+    void returnParticleToISF( G4Track *aTrack, ISF::ISFParticle *parentISP, AtlasDetDescr::AtlasRegion nextGeoID );
 
     HepMC::GenParticle* findMatchingDaughter(HepMC::GenParticle* parent, bool verbose) const;
 

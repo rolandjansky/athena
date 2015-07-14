@@ -34,11 +34,6 @@ use MCTruth               MCTruth-*               Simulation/G4Sim
 use SimHelpers            SimHelpers-*            Simulation/G4Sim
 use StoreGate             StoreGate-*             Control
 
-########## Tracking ############################################################
-use GeoPrimitives         GeoPrimitives-*         DetectorDescription
-use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
-use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
-
 public
 library ISF_Geant4Tools *.cxx components/*.cxx
 apply_pattern component_library

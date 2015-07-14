@@ -260,27 +260,8 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::childParticle(unsigned short i,
 
   hepParticle = convert( thisChild );
 
-  const G4DynamicParticle *g4DynParticle  = thisChild->GetDynamicParticle();
-  G4PrimaryParticle       *g4PrimParticle = g4DynParticle ? g4DynParticle->GetPrimaryParticle() : 0;
-
-  if ( g4PrimParticle ) {
-    // This is a secondary that came from a parent particle
-    //  It seems like a good idea to get back at the parent particle
-    //  and from there use the gen particle.  But in the step *right* 
-    //  before this, the gen particles are all deleted, so this info   
-    //  is not actually available at this point.  If only.
-
-    // See if it should be stable
-    if ( g4PrimParticle->GetDaughter() ){
-      hepParticle->set_status(2);
-    }
-    // Now we know that we have to deal with the barcode specially
-    hepParticle->suggest_barcode( g4PrimParticle->GetTrackID() );
-
-  } else {
-    // Normal situation - no parent particle
-    hepParticle->suggest_barcode( newBarcode );
-  }
+  // Normal situation - no parent particle
+  hepParticle->suggest_barcode( newBarcode );
   
   // create new TrackInformation (with link to hepParticle)
   // and attach it to G4Track
