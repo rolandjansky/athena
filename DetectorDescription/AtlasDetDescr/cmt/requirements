@@ -3,6 +3,7 @@ package AtlasDetDescr
 author	  RD Schaffer <R.D.Schaffer@cern.ch>
 
 use AtlasPolicy AtlasPolicy-* 
+use AtlasReflex     AtlasReflex-*    External
 use Identifier      Identifier-*     DetectorDescription 
 use IdDict          IdDict-*         DetectorDescription
 use CLIDSvc         CLIDSvc-*        Control
@@ -15,5 +16,6 @@ library AtlasDetDescr AtlasDetectorID.cxx AtlasDetectorIDHelper.cxx AtlasRegionH
 
 apply_pattern installed_library
 
+apply_pattern lcgdict dict=AtlasDetDescr selectionfile=selection.xml headerfiles="../AtlasDetDescr/AtlasDetDescrDict.h"
 
 
