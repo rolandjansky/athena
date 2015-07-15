@@ -143,7 +143,8 @@ class CaloCellGetter (Configured)  :
                             svcMgr.ByteStreamAddressProviderSvc.TypeNames+=["TileBeamElemContainer/TileBeamElemCnt",
                                                                             "TileDigitsContainer/TileDigitsCnt",
                                                                             "TileL2Container/TileL2Cnt",
-                                                                            "TileLaserObject/TileLaserObj" ]
+                                                                            "TileLaserObject/TileLaserObj",
+                                                                            "TileMuonReceiverContainer/TileMuRcvCnt" ]
                     except:
                         mlog.warning("Cannot add TileDigitsContainer/TileDigitsCnt et al. to bytestream list")
 
