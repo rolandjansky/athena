@@ -44,7 +44,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer']    
+    allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer','RoundRobin']    
     StoredValue = 'SharedQueue'
 
 class PreCountedEvents(JobProperty):
