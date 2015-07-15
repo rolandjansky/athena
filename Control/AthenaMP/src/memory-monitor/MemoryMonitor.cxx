@@ -16,11 +16,10 @@ int ReadSmaps(pid_t mother_pid, unsigned long values[4], bool verbose){
       snprintf(smaps_buffer,32,"pstree -A -p %ld | tr \\- \\\\n",(long)mother_pid);
       FILE* pipe = popen(smaps_buffer, "r");
       if (pipe==0) {
-         if (verbose)
-           std::cerr << "MemoryMonitor: unable to open pstree pipe!" << std::endl;
+	if (verbose) 
+	  std::cerr << "MemoryMonitor: unable to open pstree pipe!" << std::endl;
         return 1;
       }
-
       char buffer[256];
       std::string result = "";
       while(!feof(pipe)) {
@@ -67,7 +66,7 @@ std::condition_variable cv;
 std::mutex cv_m;
 bool sigusr1 = false;
 
-void SignalCallbackHandler(int /*signal*/) { std::unique_lock<std::mutex> l(cv_m); sigusr1 = true; cv.notify_one(); }
+void SignalCallbackHandler(int /*signal*/) { std::unique_lock<std::mutex> l(cv_m); sigusr1 = true; cv.notify_one(); };
 
 int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int interval){
      
@@ -79,13 +78,6 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      int iteration = 1;
      time_t lastIteration = time(0) - interval;
      time_t currentTime;
-     
-     struct stat st;
-     std::stringstream ss;
-     ss << "/proc/" << mpid;
-     if (stat(ss.str().c_str(), &st) != 0) return -1;
-     int timestamp = st.st_mtime;
-     int lastTimestamp = timestamp;
 
      std::ofstream file;
      file.open(filename);
@@ -93,19 +85,14 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
 
      
      // Monitoring loop until process exits
-     while(kill(mpid, 0) == 0 && sigusr1 == false && lastTimestamp == timestamp){
-        if (stat(ss.str().c_str(), &st) < 0)
-          break;
-        lastTimestamp = st.st_mtime;
+     while(kill(mpid, 0) == 0 && sigusr1 == false){
+        
         if (time(0) - lastIteration > interval){
           
           iteration = iteration + 1;
           ReadSmaps( mpid, values);
 
-          // Remove \n from ctime output before writing into output file
           currentTime = time(0);
-          //char* t = ctime(&currenTime);
-          //t[strlen(t) - 1] = '\0'; 
           file << currentTime << "\t" << values[0]<< "\t" << values[1] << "\t" << values[2] << "\t" << values[3] << std::endl;  
 
           // Compute statistics
@@ -166,6 +153,7 @@ int main(int argc, char *argv[]){
       std::cerr << "Bad PID.\n";
       return 1;
     }
+
     MemoryMonitor(pid, filename, jsonSummary, interval);
 
     return 0;
