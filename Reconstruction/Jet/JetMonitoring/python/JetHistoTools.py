@@ -46,15 +46,26 @@ compactSpecification = {
     "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 3.), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
-    "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
-    "N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ),
+    # binning optimisation from Emma Tolley
+    #"FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
+    "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",24,0,24), ("FracSamplingMaxIndex", "int") ),
+    # binning optimisation from Emma Tolley
+    #"N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ),
+    "N90Constituents"  : (("N90Constituents; N90Constituents;",15,0,15), ("N90Constituents", "float") ),
     "CentroidR"        : (("CentroidR; CentroidR;",100,0,7500), ("CentroidR", "float") ),
     "OotFracClusters5" : (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters5", "float") ),
-    "OotFracClusters10": (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
-    #SumPtTrkPt500/pT (= CHF) To add soon, need to talk to P-A for that
-    #LeadingClusterCenterLambda : To be included in next derivation, activate, once supported in mon. release
-    #LeadingClusterSecondR : To be included in next derivation, activate, once supported in mon. release
-
+    "OotFracClusters10": (("OotFracClusters10; OotFracClusters10;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
+    #
+    #CBG
+    "ptN"               : (("Jet Pt;Pt [GeV];", 100, 0., 2000.) ,     ("pt","float","gev" ) ),
+    "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,1000.), ("LeadingClusterCenterLambda", "float") ),
+    "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,1000.), ("LeadingClusterSecondLambda", "float") ),
+    # binning optimisation from Emma Tolley
+    #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ),
+    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,10000.), ("LeadingClusterSecondR", "float") ),
+    "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ),
+    #CBG
+    #
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where

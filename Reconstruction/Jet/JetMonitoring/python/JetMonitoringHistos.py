@@ -5,8 +5,8 @@ from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTo
 from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
 
-def commonMonitoringTool(container, refcontainer=""):
-    filler = JetContainerHistoFiller(container+"HistoFiller",JetContainer = container)
+def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
+    filler = JetContainerHistoFiller(container+pathSuffix+"HistoFiller",JetContainer = container, HistoDir=container+pathSuffix+'/')
 
     # Give a list of predefined tools from jhm or a combination of such tools
     filler.HistoTools = [
@@ -48,6 +48,10 @@ def commonMonitoringTool(container, refcontainer=""):
             jhm.CentroidR,
             jhm.OotFracClusters5,
             jhm.OotFracClusters10,
+            jhm.ptN,
+            jhm.LeadingClusterCenterLambda,
+            jhm.LeadingClusterSecondLambda,
+            jhm.LeadingClusterSecondR,
 
             # energy per sampling
             jhm.PreSamplerB,
@@ -81,7 +85,9 @@ def commonMonitoringTool(container, refcontainer=""):
                 # track variables
                 jhm.tool("JVF[0]"),
                 jhm.SumPtTrkPt1000,
-                jhm.GhostTrackCount, ]
+                jhm.GhostTrackCount,
+                jhm.CHF,
+                ]
             
         
         if refcontainer:
@@ -94,28 +100,35 @@ def commonMonitoringTool(container, refcontainer=""):
 
 
 
-if jetFlags.useTracks == False:
-    athenaMonTool = JetMonitoringTool(HistoTools = [
-        
-        commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,
-        commonMonitoringTool( "AntiKt4EMTopoJets" ),
-        commonMonitoringTool( "AntiKt10LCTopoJets" ),   
-        #commonMonitoringTool( "AntiKt3PV0TrackJets" ),
-        ],
-                                      IntervalType = 6,) # 6 is 'Interval_t::run' interval
-else:
-     athenaMonTool = JetMonitoringTool(HistoTools = [
-         
-         commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,
-         commonMonitoringTool( "AntiKt4EMTopoJets" ),
-         commonMonitoringTool( "AntiKt10LCTopoJets" ),   
-         commonMonitoringTool( "AntiKt3PV0TrackJets" ),
-         ],
-                                       IntervalType = 6,) # 6 is 'Interval_t::run' interval
-
+athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,                                                  
+                                                  commonMonitoringTool( "AntiKt4EMTopoJets" ),
+                                                  commonMonitoringTool( "AntiKt10LCTopoJets" ),       
+                                                  ],
+                                  IntervalType = 6,) # 6 is 'Interval_t::run' interval
+if jetFlags.useTracks:
+    athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
 
 ToolSvc += athenaMonTool
 
-def athenaMonitoringTool():
-    return athenaMonTool
 
+
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+if DQMonFlags.useTrigger() :
+    athenaMonTool_trig = JetMonitoringTool("JetMonitoring_trig",HistoTools =
+                                           [
+                                               commonMonitoringTool( "AntiKt4LCTopoJets", pathSuffix='_trig' ),
+                                               commonMonitoringTool( "AntiKt4EMTopoJets", pathSuffix='_trig' ),
+                                               commonMonitoringTool( "AntiKt10LCTopoJets", pathSuffix='_trig' )
+                                               ] , IntervalType = 6 )
+    ToolSvc += athenaMonTool_trig
+    athenaMonTool_trig.TrigDecisionTool =  ToolSvc.monTrigDecTool
+    athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
+    #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 
+    #athenaMonTool_trig.OutputLevel = 2
+
+
+def athenaMonitoringTools():
+    if DQMonFlags.useTrigger():
+        return [  athenaMonTool, athenaMonTool_trig ]
+    else:
+        return [  athenaMonTool ]
