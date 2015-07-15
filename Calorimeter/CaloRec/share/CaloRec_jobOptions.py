@@ -320,3 +320,6 @@ if rec.doWritexAOD():
     #    pass
     
     
+#L1Calo Trigger tower decoration
+if globalflags.DataSource()=='data' and rec.doESD():
+    include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")
