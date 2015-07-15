@@ -21,6 +21,7 @@ use AthenaMPTools       AthenaMPTools-*         Control
 use AthenaInterprocess  AthenaInterprocess-*    Control
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use StoreGate           StoreGate-*             Control
+use PersistentDataModel PersistentDataModel-*   Database
 
 branches src src/components doc python share
 
@@ -40,7 +41,11 @@ apply_pattern declare_scripts files="\
 library AthenaMP *.cxx components/*.cxx memory-profiler/getPss.cc
 apply_pattern component_library
 
+#macro_remove cppflags " -pedantic"  
+#macro_remove cppflags " -pedantic"  
+
 application getSharedMemory memory-profiler/getSharedMemory.cc memory-profiler/getPss.cc application_suffix=""
+application MemoryMonitor memory-monitor/MemoryMonitor.cxx application_suffix="" 
 
 end_private
 
