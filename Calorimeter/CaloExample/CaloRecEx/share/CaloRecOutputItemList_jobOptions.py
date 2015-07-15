@@ -69,6 +69,11 @@ CaloESDList += ["TileRawChannelContainer#TileRawChannelFlt"]
 CaloESDList += ["TileMuContainer#TileMuObj"]
 CaloESDList += ["TileL2Container#TileL2Cnt"]
 
+# Tile TMDB output
+CaloESDList += ["TileDigitsContainer#MuRcvDigitsCnt"]
+CaloESDList += ["TileRawChannelContainer#MuRcvRawChCnt"]
+CaloESDList += ["TileMuonReceiverContainer#TileMuRcvCnt"]
+
 # Cosmic muons reconstructed with Tile muon fitter
 if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam' :
     CaloESDList +=["TileCosmicMuonContainer#TileCosmicMuonHT","TileCosmicMuonContainer#TileCosmicMuonMF"]
