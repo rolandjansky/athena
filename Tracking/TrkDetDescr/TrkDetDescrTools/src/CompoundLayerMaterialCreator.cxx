@@ -46,18 +46,71 @@ StatusCode Trk::CompoundLayerMaterialCreator::finalize()
     return StatusCode::SUCCESS;
 }
 
-const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::Layer&, const Trk::LayerMaterialRecord& lmr) const
+const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
     // get the material matrix
     const Trk::MaterialPropertiesMatrix& materialMatrix = lmr.associatedLayerMaterial();
     // get the bin untility
-    const Trk::BinUtility* cbinutil = lmr.binUtility();
+    const Trk::BinUtility* binUtility = lmr.binUtility();
     // if there's no bin utility - bail out
-    if (!cbinutil){
+    if (!binUtility){
         ATH_MSG_WARNING( "No BinUtility given - Bailing out." );
-        return 0;
+        return nullptr;
     } else 
-        ATH_MSG_DEBUG( "BinUtility provided, creating binned array in dimensions " << cbinutil->max(0)+1 << " x " << cbinutil->max(1)+1 );
+        ATH_MSG_DEBUG( "BinUtility provided, creating binned array in dimensions " << binUtility->max(0)+1 << " x " << binUtility->max(1)+1 );
+    // return the created compound material
+    return createCompoundLayerMaterial(materialMatrix,*binUtility);
+}    
+
+const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::convertLayerMaterial(const Trk::LayerMaterialProperties& lmProperties) const
+{
+    
+    // the return object
+    const Trk::LayerMaterialProperties* bLayerMaterial = nullptr;
+    // get the binUtility of the LayerMaterialProperties
+    const Trk::BinUtility* bUtility = lmProperties.binUtility();
+    // we have a bin utility, get the matrix and fill it
+    if (bUtility){
+        // prepare the matrix
+        // nF x nS
+        size_t nBins0  = bUtility->max(0)+1;
+        size_t nBins1  = bUtility->max(1)+1;
+        // create the MaterialMatrix
+        Trk::MaterialPropertiesMatrix materialMatrix;
+        materialMatrix.reserve(nBins1);
+        // fill the matrix
+        for (size_t ibin1 = 0; ibin1 < nBins1; ++ibin1) {
+            // create the vector first
+            Trk::MaterialPropertiesVector materialVector;
+            materialVector.reserve(nBins0);
+            // loop over local 1 bins
+            for (size_t ibin0 = 0; ibin0 < nBins0; ++ibin0) {
+                // get the material from the properties and push them into the matrix (no cloning !)
+                const Trk::MaterialProperties* mProperties = lmProperties.material(ibin0,ibin1);
+                materialVector.push_back(mProperties);
+            }
+            // now pus the vector into the matrix
+            materialMatrix.push_back(materialVector);
+        }
+        
+        // create the material
+        ATH_MSG_VERBOSE("Converting the MaterialPropertiesMatrix into a CompressedLayerMaterial.");
+        bLayerMaterial = createCompoundLayerMaterial(materialMatrix,*bUtility);
+        
+    } else {
+        // must be homogenous material, can be transformed into a 0-bin material, would be silly though
+        ATH_MSG_DEBUG("No BinUtility provided - return a simple clone.");
+        bLayerMaterial = lmProperties.clone();
+    }
+    // 
+    return bLayerMaterial;
+}    
+
+const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCompoundLayerMaterial(const Trk::MaterialPropertiesMatrix& materialMatrix, const Trk::BinUtility& lBinUtility) const
+{
+    
+    
+    
     
     // analyse the material bins
     double tMin   = 10e10, xMin  = 10e10, lMin  = 10e10, aMin   = 10e10, zMin   = 10e10, rMin = 10e10;
@@ -81,7 +134,7 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLay
     ATH_MSG_VERBOSE( "Max values for t, x0, l0, a, z, rho estimated." );
     
     // the bin matrices in the store    
-    Trk::ValueMatrix binMatrix( cbinutil->max(1)+1, Trk::ValueVector(cbinutil->max(0)+1, static_cast<unsigned char>(0) ) );
+    Trk::ValueMatrix binMatrix( lBinUtility.max(1)+1, Trk::ValueVector(lBinUtility.max(0)+1, static_cast<unsigned char>(0) ) );
     // 255 bins, the 0 bin indicates empy
     Trk::ValueStore tStore, xStore, lStore, aStore, zStore, rStore;
     // set the store min, max
@@ -108,7 +161,7 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLay
     ATH_MSG_VERBOSE( "Material stores prepared, now preparing composition matrix." );
     
     // the compound material 
-    std::vector< std::vector< Trk::MaterialComposition > > compositionMatrix( cbinutil->max(1)+1, std::vector< Trk::MaterialComposition >( cbinutil->max(0)+1, Trk::MaterialComposition()) ); 
+    std::vector< std::vector< Trk::MaterialComposition > > compositionMatrix( lBinUtility.max(1)+1, std::vector< Trk::MaterialComposition >( lBinUtility.max(0)+1, Trk::MaterialComposition()) ); 
     
     ATH_MSG_VERBOSE( "Composition matrix created." );
     
@@ -136,6 +189,9 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLay
    ATH_MSG_VERBOSE( "Returning the new compound material." );  
    
    // now create the compound material propertis 
-   return new Trk::CompoundLayerMaterial(*cbinutil, tStore, xStore, lStore, aStore, zStore, rStore, compositionMatrix, m_fullCompoundCalculation);
-}    
-    
+   return new Trk::CompoundLayerMaterial(lBinUtility, tStore, xStore, lStore, aStore, zStore, rStore, compositionMatrix, m_fullCompoundCalculation);
+
+}
+
+
+   

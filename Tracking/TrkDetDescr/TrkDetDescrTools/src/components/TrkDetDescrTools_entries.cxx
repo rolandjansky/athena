@@ -6,7 +6,9 @@
 #include "TrkDetDescrTools/GeometryBuilder.h"
 #include "TrkDetDescrTools/GenericGeometryBuilder.h"
 #include "TrkDetDescrTools/LayerArrayCreator.h"
+#include "TrkDetDescrTools/LayerProvider.h"
 #include "TrkDetDescrTools/LayerMaterialProvider.h"
+#include "TrkDetDescrTools/LayerMaterialConverter.h"
 #include "TrkDetDescrTools/InputLayerMaterialProvider.h"
 #include "TrkDetDescrTools/TrackingVolumeArrayCreator.h"
 #include "TrkDetDescrTools/TrackingVolumeHelper.h"
@@ -20,7 +22,9 @@ DECLARE_TOOL_FACTORY( CompressedLayerMaterialCreator )
 DECLARE_TOOL_FACTORY( GeometryBuilder )
 DECLARE_TOOL_FACTORY( GenericGeometryBuilder )
 DECLARE_TOOL_FACTORY( LayerArrayCreator )
+DECLARE_TOOL_FACTORY( LayerProvider )
 DECLARE_TOOL_FACTORY( LayerMaterialProvider )
+DECLARE_TOOL_FACTORY( LayerMaterialConverter )
 DECLARE_TOOL_FACTORY( InputLayerMaterialProvider )
 DECLARE_TOOL_FACTORY( TrackingVolumeArrayCreator )
 DECLARE_TOOL_FACTORY( TrackingVolumeHelper )
@@ -35,10 +39,10 @@ DECLARE_FACTORY_ENTRIES( TrkDetDescrTools )
     DECLARE_TOOL( GeometryBuilder )
     DECLARE_TOOL( GenericGeometryBuilder )
     DECLARE_TOOL( LayerArrayCreator )
+    DECLARE_TOOL( LayerProvider )
     DECLARE_TOOL( LayerMaterialProvider )
+    DECLARE_TOOL( LayerMaterialConverter )
     DECLARE_TOOL( InputLayerMaterialProvider )    
     DECLARE_TOOL( TrackingVolumeArrayCreator )
     DECLARE_TOOL( TrackingVolumeHelper )
 }
-
-
