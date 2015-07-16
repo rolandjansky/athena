@@ -22,6 +22,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h"
 
 namespace DerivationFramework {
 
@@ -59,6 +60,7 @@ namespace DerivationFramework {
     float m_trigMatchDeltaR;
     bool m_doTrigMatch;
 
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     std::string m_muonSGKey;
     std::vector<std::string> m_muonIDKeys;
     float m_muonPtCut;

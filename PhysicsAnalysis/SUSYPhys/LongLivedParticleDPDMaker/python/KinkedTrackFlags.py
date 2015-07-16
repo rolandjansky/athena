@@ -26,8 +26,8 @@ class KinkedTrack_containerFlags(JobProperty):
     jetCollectionName = "AntiKt4LCTopoJets"
     electronCollectionName = "Electrons"
     muonCollectionName = "Muons"
-    #METCollectionName = "MET_LocHadTopo"
     METCollectionName = "MET_Reference_AntiKt4LCTopo"
+    METTermName = "FinalTrk" # or "FinalClus" ??
     egClusterCollectionName = "egammaClusters"
     msTrackCollectionName = "MuonSpectrometerTrackParticles"
     pass
@@ -38,23 +38,22 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        "HLT_j80_xe80_dphi1_L1J40_DPHI-J20s2XE50",
-        "HLT_j80_xe80_dphi1_L1J40_DPHI-J20XE50",
-        "HLT_j80_xe80_dphi1_L1J40_DPHI-Js2XE50",
-        "HLT_j80_xe80_dphi1_L1J40_DPHI-CJ20XE50",
-        "HLT_j100_xe80_L1J40_DPHI-Js2XE50",
-        "HLT_j100_xe80_L1J40_DPHI-J20s2XE50",
-        "HLT_j100_xe80_L1J40_DPHI-J20XE50",
-        "HLT_j100_xe80_L1J40_DPHI-CJ20XE50"
+        "HLT_j80_xe80_dphi10_L1J40_DPHI-J20s2XE50",
+        "HLT_j80_xe80_dphi10_L1J40_DPHI-J20XE50",
+        "HLT_j100_xe80_dphi10_L1J40_DPHI-J20s2XE50",
+        "HLT_j100_xe80_dphi10_L1J40_DPHI-J20XE50",
+        "HLT_j80_xe80",
+        "HLT_j100_xe80"
         ]
-    cutEtMin = 120.0*Units.GeV
+    cutsEtMin = [120.0*Units.GeV, 60.0*Units.GeV]
     cutEtaMax = 3.2
     doLeptonVeto = True
     electronIDKey = "Tight"
-    muonIDKey = "Tight"
+    muonIDKey = "Medium"
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
-    cutMetMin = 0  # no cut
+    cutMetMin = -1  # no cut
+    jetMetDphiMin = 1.0
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_singleJetMetFilterFlags)
 
@@ -63,24 +62,30 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
-        "HLT_e24_medium_iloose",
-        "HLT_e24_tight_iloose",
-        "HLT_e26_tight_iloose",
-        "HLT_e28_tight_iloose",
-        "HLT_e24_tight_iloose_L1EM20VH",
+        #"HLT_e24_medium_iloose",
+        #"HLT_e24_tight_iloose",
+        #"HLT_e26_tight_iloose",
+        #"HLT_e28_tight_iloose",
+        "HLT_e24_medium_iloose_L1EM18VH",
+        "HLT_e24_lhmedium_iloose_L1EM18VH",
+        "HLT_e24_medium_iloose_L1EM20VH",
         "HLT_e24_lhmedium_iloose_L1EM20VH",
+        "HLT_e24_tight_iloose_L1EM20VH",
         "HLT_e24_lhtight_iloose_L1EM20VH",
+        "HLT_e26_tight_iloose",
         "HLT_e26_lhtight_iloose"
         ]
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
     electronEtaMax = 2.5
-    electronIDKeys = ["Tight", "Medium"]
+    electronIDKeys = ["Tight"]
     clusterEtMin = 15*Units.GeV
     clusterEtaMax = 2.5
     diElectronMassLow = (91.1876-40)*Units.GeV
     diElectronMassHigh = (91.1876+40)*Units.GeV
     deltaPhiMax = 1.5
+    preScaleClusterEtMax = 60.0*Units.GeV
+    preScale = 5
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZeeFilterFlags)
 
@@ -90,21 +95,23 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
     StoredValue  = True
     triggerNames = [
         "HLT_mu20_iloose",
-        "HLT_mu24_iloose",
-        "HLT_mu24_imedium",
-        "HLT_mu26_imedium",
         "HLT_mu20_iloose_L1MU15",
-        "HLT_mu24_iloose_L1MU15"
+        "HLT_mu24_iloose",
+        "HLT_mu24_iloose_L1MU15",
+        "HLT_mu24_imedium",
+        "HLT_mu26_imedium"
         ]
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV
     muonEtaMax = 2.5
-    muonIDKeys = ["Tight"]
+    muonIDKeys = ["Medium"]
     trackPtMin = 15*Units.GeV
     trackEtaMax = 2.5
     diMuonMassLow = (91.1876-40)*Units.GeV
     diMuonMassHigh = (91.1876+40)*Units.GeV
     deltaPhiMax = 1.5
+    preScaleTrackPtMax = 60.0*Units.GeV
+    preScale = 5
     pass
 primRPVLLDESDM.add_JobProperty(KinkedTrack_ZmumuFilterFlags)
 

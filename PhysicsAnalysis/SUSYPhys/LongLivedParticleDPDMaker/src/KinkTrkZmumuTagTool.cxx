@@ -22,6 +22,7 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   m_trigMatchTool("TrigMatchTool/TrigMatchTool"),
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
+  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_muonSGKey("Muons"),
   m_muonIDKeys(std::vector<std::string>()),
   m_muonPtCut(0),
@@ -81,6 +82,8 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::initialize()
     CHECK(m_trigMatchTool.retrieve());
     ATH_MSG_INFO("TrgMatchTool retrived successfully");
   }
+
+  CHECK(m_muonSelectionTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -182,7 +185,9 @@ bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon 
   bool passID(false);
   for (unsigned int i=0; i<m_muonIDKeys.size(); i++) {
     int qflag(0);
-    if (m_muonIDKeys[i] == "Loose") {
+    if (m_muonIDKeys[i] == "VeryLoose") {
+      qflag = xAOD::Muon::VeryLoose;
+    } else if (m_muonIDKeys[i] == "Loose") {
       qflag = xAOD::Muon::Loose;
     } else if (m_muonIDKeys[i] == "Medium" ) {
       qflag = xAOD::Muon::Medium;
@@ -193,21 +198,9 @@ bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon 
       qflag = xAOD::Muon::Medium;
     }
 
-    if (muon->quality() == xAOD::Muon::Tight) {
-      if ( qflag == xAOD::Muon::Tight ) {
-        passID = true;
-        break;
-      }
-    } else if (muon->quality() == xAOD::Muon::Medium) {
-      if ( qflag == xAOD::Muon::Medium || qflag == xAOD::Muon::Tight ) {
-        passID = true;
-        break;
-      }
-    } else if (muon->quality() == xAOD::Muon::Loose) {
-      if ( qflag == xAOD::Muon::Loose || qflag == xAOD::Muon::Medium || qflag == xAOD::Muon::Tight ) {
-        passID = true;
-        break;
-      }
+    if ( m_muonSelectionTool->getQuality(*muon) <= qflag ) {
+      passID = true;
+      break;
     }
   }
   if (!passID) return false;

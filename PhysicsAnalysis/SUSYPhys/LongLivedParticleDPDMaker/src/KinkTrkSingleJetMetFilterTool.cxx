@@ -7,6 +7,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "FourMomUtils/P4Helpers.h"
 #include <vector>
 
 /// Service Constructor
@@ -21,13 +22,15 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_jetSGKey("AntiKt4LCTopoJets"),
   m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
+  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_muonSGKey("Muons"),
   m_muonIDKey("Medium"),
   m_electronSGKey("ElectronCollection"),
   m_electronIDKey("Tight"),
   m_metCut(-1),
-  m_jetPtCut(0),
+  m_jetPtCuts(std::vector<float>()),
   m_jetEtaMax(3.2),
+  m_jetMetDphiMin(-1),
   m_leptonPtCut(30.0),
   m_leptonEtaMax(2.5)
   {
@@ -42,8 +45,9 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
     declareProperty("ElectronContainerKey", m_electronSGKey);
     declareProperty("ElectronIDKey", m_electronIDKey);
     declareProperty("MetCut", m_metCut);
-    declareProperty("JetPtCut", m_jetPtCut);
+    declareProperty("JetPtCuts", m_jetPtCuts);
     declareProperty("JetEtaMax", m_jetEtaMax);
+    declareProperty("JetMetDphiMin", m_jetMetDphiMin);
     declareProperty("LeptonPtCut", m_leptonPtCut);
     declareProperty("LeptonEtaMax", m_leptonEtaMax);
   }
@@ -57,6 +61,8 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::~KinkTrkSingleJetMetFilterTo
 StatusCode DerivationFramework::KinkTrkSingleJetMetFilterTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
+
+  CHECK(m_muonSelectionTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -84,63 +90,68 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
 
   // Retrieve MET container 
-  if (m_metCut > 0) {
-    const xAOD::MissingETContainer* metContainer(0);
-    const xAOD::MissingET* met;
-
-    ATH_CHECK( evtStore()->retrieve(metContainer, m_metSGKey) );	
-    met = (*metContainer)[m_metTerm];
-    if (!met) {
-      ATH_MSG_ERROR("Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey);
-      return acceptEvent; 
-    }
-    //ATH_MSG_DEBUG("MET and phi are " << met->met() << " " << met->phi());
-  
-    if (met->met() < m_metCut) return acceptEvent; 
+  const xAOD::MissingETContainer* metContainer(0);
+  const xAOD::MissingET* met(0);
+  ATH_CHECK( evtStore()->retrieve(metContainer, m_metSGKey) );	
+  met = (*metContainer)[m_metTerm];
+  if (!met) {
+    ATH_MSG_ERROR("Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey);
+    return acceptEvent; 
   }
+  //ATH_MSG_DEBUG("MET and phi are " << met->met() << " " << met->phi());
+  if (met->met() < m_metCut) return acceptEvent; 
 
   // Loop over jets
-  std::vector<int> goodJetIndices;
   const DataVector<xAOD::Jet>* jetContainer(0);
   ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey) );
   ATH_MSG_DEBUG("retrieved jet collection size "<< jetContainer->size());
-  
-  DataVector<xAOD::Jet>::const_iterator jetItr;
-  int i = 0;
-  for (jetItr=jetContainer->begin(); jetItr!=jetContainer->end(); ++jetItr) {
-      if ( (*jetItr)->pt() > m_jetPtCut && fabs((*jetItr)->eta()) < m_jetEtaMax ) goodJetIndices.push_back(i);
-      i++;
+
+  bool passJet1(false);
+  std::vector<const xAOD::Jet*> goodJets;
+  for (const auto jet: *jetContainer) {
+    for (unsigned int i=0; i<m_jetPtCuts.size(); i++) {
+      if (jet->pt() > m_jetPtCuts[i] && fabs(jet->eta()) < m_jetEtaMax) {
+        if (i==0) passJet1 = true; 
+        goodJets.push_back(jet);
+        break;
+      }
+    }
   }
-  if (goodJetIndices.size() == 0) {
-      return acceptEvent; 
-  } 
+
+  if (!passJet1) return acceptEvent;
+
+  float minDphi = 9999;
+  for (unsigned int i=0; i<goodJets.size(); i++) {
+    if (i >= m_jetPtCuts.size()) break;
+    if (fabs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi())) < minDphi) {
+      minDphi = fabs(P4Helpers::deltaPhi(goodJets.at(i)->phi(), met->phi()));
+    }
+  }
+  if (minDphi < m_jetMetDphiMin) return acceptEvent; 
   
   if (m_LeptonVeto) {
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
     ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey) );	
+    int qflag(0);
+    if (m_muonIDKey == "VeryLoose") {
+      qflag = xAOD::Muon::VeryLoose;
+    } else if (m_muonIDKey == "Loose") {
+      qflag = xAOD::Muon::Loose;
+    } else if (m_muonIDKey == "Medium") {
+      qflag = xAOD::Muon::Medium;
+    } else if (m_muonIDKey == "Tight") {
+      qflag = xAOD::Muon::Tight;
+    } else {
+      ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKey << ". Use Medium instead.");
+      qflag = xAOD::Muon::Medium;
+    }
+
     for (auto muon: *muons) {
       bool passID(false);
-      int qflag(0);
-      if (m_muonIDKey == "Loose") {
-        qflag = xAOD::Muon::Loose;
-      } else if (m_muonIDKey == "Medium") {
-        qflag = xAOD::Muon::Medium;
-      } else if (m_muonIDKey == "Tight") {
-        qflag = xAOD::Muon::Tight;
-      } else {
-        ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKey << ". Use Tight instead.");
-        qflag = xAOD::Muon::Tight;
+      if (m_muonSelectionTool->getQuality(*muon) <= qflag) {
+        passID = true;
       }
-
-      if (muon->quality() == xAOD::Muon::Tight) {
-        if ( qflag == xAOD::Muon::Tight )  passID = true;
-      } else if (muon->quality() == xAOD::Muon::Medium) {
-        if ( qflag == xAOD::Muon::Medium || qflag == xAOD::Muon::Tight ) passID = true;
-      } else if (muon->quality() == xAOD::Muon::Loose) {
-        if ( qflag == xAOD::Muon::Loose || qflag == xAOD::Muon::Medium || qflag == xAOD::Muon::Tight ) passID = true;
-      }
-
       if (muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax && passID) {
         return acceptEvent; 
       }

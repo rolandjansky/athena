@@ -13,12 +13,15 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
 #import AthenaCommon.SystemOfUnits as Units
 jetContainer = primRPVLLDESDM.KinkedTrack_containerFlags.jetCollectionName
 electronContainer = primRPVLLDESDM.KinkedTrack_containerFlags.electronCollectionName
 muonContainer = primRPVLLDESDM.KinkedTrack_containerFlags.muonCollectionName
 METContainer = primRPVLLDESDM.KinkedTrack_containerFlags.METCollectionName
+METTerm = primRPVLLDESDM.KinkedTrack_containerFlags.METTermName
 egClusterContainer = primRPVLLDESDM.KinkedTrack_containerFlags.egClusterCollectionName
 msTrackContainer = primRPVLLDESDM.KinkedTrack_containerFlags.msTrackCollectionName
 
@@ -32,8 +35,9 @@ def KinkTrkTriggerFilterString(flags):
 
 
 
+
 #====================================================================
-# Skimming tools
+# JetMetFilter
 #====================================================================
 #KinkTrkJetTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
 #                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags))
@@ -48,14 +52,15 @@ KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTo
                                                                                    LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
                                                                                    JetContainerKey      = jetContainer,
                                                                                    ElectronContainerKey = electronContainer,
-                                                                                   ElectronIDKey       = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
+                                                                                   ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
                                                                                    MuonContainerKey     = muonContainer,
-                                                                                   MuonIDKey           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.muonIDKey,
+                                                                                   MuonIDKey            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.muonIDKey,
                                                                                    MetContainerKey      = METContainer,
-                                                                                   MetTerm              = "FinalTrk", # or "FinalClus" ??
+                                                                                   MetTerm              = METTerm,
                                                                                    MetCut               = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMin,
-                                                                                   JetPtCut             = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtMin,
+                                                                                   JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMin,
                                                                                    JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
+                                                                                   JetMetDphiMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetDphiMin,
                                                                                    LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                    LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
@@ -74,7 +79,9 @@ RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 
 
 
-### Filters for Zll
+#====================================================================
+# Zee/Zmumu filter
+#====================================================================
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZeeTagTool
 KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 = "KinkTrkZeeTagTool",
                                                            Triggers             = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames,
@@ -115,10 +122,11 @@ KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            =
 print KinkTrkZmumuTagTool
 ToolSvc += KinkTrkZmumuTagTool
 
-# Kernel for the augmentation tools
+## Kernel for the augmentation tools
 topSequence += DerivationFramework__DerivationKernel( "KinkTrkAugmentationKernel",
                                                       AugmentationTools = [KinkTrkZeeTagTool, KinkTrkZmumuTagTool])
 
+## Trigger filters
 KinkTrkZeeTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
                                                                           expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZeeFilterFlags))
 #KinkTrkZeeTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
@@ -131,29 +139,72 @@ KinkTrkZmumuTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name
 #                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames)
 ToolSvc += KinkTrkZmumuTriggerFilterTool
 
-KinkTrkZeeStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeellStringSkimmingTool",
-                                                                           expression = 'count(abs(KinkTrkDiEleMass)>0)>=1')
-ToolSvc += KinkTrkZeeStringSkimmingTool
 
-KinkTrkZeeFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeFilterTool",
-                                                                 FilterList=[KinkTrkZeeTriggerFilterTool, KinkTrkZeeStringSkimmingTool],
-                                                                 OutputLevel=INFO)
-ToolSvc+= KinkTrkZeeFilterTool
+## Selecting low-pT probe electrons
+KinkTrkZeeLowPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeLowPtSkimmingTool",
+                                                                          expression = 'count(abs(KinkTrkDiEleMass)>0)>=1 && count(KinkTrkProbeEleEt>=%f)==0' % primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScaleClusterEtMax)
+ToolSvc += KinkTrkZeeLowPtSkimmingTool
+
+## Selecting high-pT probe electrons
+KinkTrkZeeHighPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeHighPtSkimmingTool",
+                                                                           expression = 'count(abs(KinkTrkDiEleMass)>0)>=1 && count(KinkTrkProbeEleEt>=%f)>=1' % primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScaleClusterEtMax)
+ToolSvc += KinkTrkZeeHighPtSkimmingTool
+
+## Prescale for low-pT probes
+KinkTrkZeePrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkZeePrescaleTool",
+                                                           Prescale = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScale)
+ToolSvc += KinkTrkZeePrescaleTool
+
+KinkTrkZeeLowPtFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeLowPtFilterTool",
+                                                                      FilterList = [KinkTrkZeeLowPtSkimmingTool, KinkTrkZeePrescaleTool])
+ToolSvc += KinkTrkZeeLowPtFilterTool
+
+KinkTrkZeeFilterTool = DerivationFramework__FilterCombinationOR(name = "KinkTrkZeeFilterTool",
+                                                                FilterList = [KinkTrkZeeLowPtFilterTool, KinkTrkZeeHighPtSkimmingTool])
+ToolSvc += KinkTrkZeeFilterTool
+
+KinkTrkZeeFinalFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeFinalFilterTool",
+                                                                      FilterList=[KinkTrkZeeTriggerFilterTool, KinkTrkZeeFilterTool],
+                                                                      OutputLevel=INFO)
+ToolSvc+= KinkTrkZeeFinalFilterTool
 
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZeeFilterKernel",
-                                                     SkimmingTools = [KinkTrkZeeFilterTool])
+                                                     SkimmingTools = [KinkTrkZeeFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZeeFilterKernel"])
 
-KinkTrkZmumuStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuStringSkimmingTool",
-                                                                             expression = 'count(abs(KinkTrkDiMuMass)>0)>=1')
-ToolSvc += KinkTrkZmumuStringSkimmingTool
 
-KinkTrkZmumuFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuFilterTool",
-                                                                 FilterList=[KinkTrkZmumuTriggerFilterTool, KinkTrkZmumuStringSkimmingTool],
-                                                                 OutputLevel=INFO)
-ToolSvc+= KinkTrkZmumuFilterTool
+##
+## Selecting low-pT probe muons
+KinkTrkZmumuLowPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuLowPtSkimmingTool",
+                                                                            expression = 'count(abs(KinkTrkDiMuMass)>0)>=1 && count(KinkTrkProbeMuPt>=%f)==0' % primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScaleTrackPtMax)
+ToolSvc += KinkTrkZmumuLowPtSkimmingTool
 
+## Selecting high-pT probe muons
+KinkTrkZmumuHighPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuHighPtSkimmingTool",
+                                                                             expression = 'count(abs(KinkTrkDiMuMass)>0)>=1 && count(KinkTrkProbeMuPt>=%f)>=1'% primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScaleTrackPtMax)
+ToolSvc += KinkTrkZmumuHighPtSkimmingTool
+
+## Prescale for low-pT probes
+KinkTrkZmumuPrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkZmumuPrescaleTool",
+                                                             Prescale = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScale)
+ToolSvc += KinkTrkZmumuPrescaleTool
+
+KinkTrkZmumuLowPtFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuLowPtFilterTool",
+                                                                        FilterList = [KinkTrkZmumuLowPtSkimmingTool, KinkTrkZmumuPrescaleTool])
+ToolSvc += KinkTrkZmumuLowPtFilterTool
+
+KinkTrkZmumuFilterTool = DerivationFramework__FilterCombinationOR(name = "KinkTrkZmumuFilterTool",
+                                                                  FilterList = [KinkTrkZmumuLowPtFilterTool, KinkTrkZmumuHighPtSkimmingTool])
+ToolSvc += KinkTrkZmumuFilterTool
+
+
+KinkTrkZmumuFinalFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuFinalFilterTool",
+                                                                        FilterList=[KinkTrkZmumuTriggerFilterTool, KinkTrkZmumuFilterTool],
+                                                                        OutputLevel=INFO)
+ToolSvc+= KinkTrkZmumuFinalFilterTool
+
+## Prescale for low-pT electron probes
 topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZmumuFilterKernel",
-                                                     SkimmingTools = [KinkTrkZmumuFilterTool])
+                                                     SkimmingTools = [KinkTrkZmumuFinalFilterTool])
 RPVLLfilterNames.extend(["RPVLL_KinkedTrackZmumuFilterKernel"])
 
