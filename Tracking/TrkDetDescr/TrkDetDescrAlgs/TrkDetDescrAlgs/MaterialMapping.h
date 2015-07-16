@@ -50,6 +50,7 @@ namespace Trk {
     class BinnedLayerMaterial;
     class CompressedLayerMaterial;
     class ElementTable;
+    class IExtrapolationEngine;
     class IMaterialMapper;
     class ILayerMaterialAnalyser;
     class ILayerMaterialCreator;
@@ -86,8 +87,9 @@ namespace Trk {
       private:
 
         /** Associate the Step to the Layer */
-        bool associateHit(const Trk::TrackingVolume& tvol,
+        bool associateHit(const Trk::Layer& tvol,
                           const Amg::Vector3D& pos,
+                          const Amg::Vector3D& layerHitPosition,
                           double stepl,
                           const Trk::Material& mat);
 
@@ -106,6 +108,9 @@ namespace Trk {
         /** Tracking Geometry */
         ServiceHandle<Trk::ITrackingGeometrySvc>             m_trackingGeometrySvc;       //!< Name of the TrackingGeometrySvc
         mutable const TrackingGeometry*                      m_trackingGeometry;          //!< The underlying TrackingGeometry
+
+        bool                                                 m_checkForEmptyHits;         //!< use extrapoaltion engine to check for empty hits
+        ToolHandle<IExtrapolationEngine>                     m_extrapolationEngine;       //!< cross-check for empty hit scaling
         
         std::string                                          m_mappingVolumeName;
         const Trk::TrackingVolume*                           m_mappingVolume;
@@ -116,6 +121,7 @@ namespace Trk {
                                                              
         /** general steering */                              
         double                                               m_etaCutOff;
+        int                                                  m_etaSide;                       //!< needed for debugging: -1 negative | 0 all | 1 positive
         bool                                                 m_useLayerThickness;             //!< use the actual layer thickness
         int                                                  m_associationType;
 
@@ -134,7 +140,10 @@ namespace Trk {
         std::string                                          m_inputEventElementTable;        //!< input event table
         
         // the material maps ordered with layer keys
-        std::map<const Layer*,  LayerMaterialRecord >        m_layerRecords;
+        std::map<const Layer*,  LayerMaterialRecord >        m_layerRecords;                  //!< this is the general record for the search
+        std::map<const Layer*, bool >                        m_layersRecordedPerEvent;        //!< these are the layers hit per event - for empty hit scaling
+        double                                               m_accumulatedMaterialXX0;        //!< the accumulated material information 
+        double                                               m_accumulatedRhoS;
         
         // statistics for steps
         size_t                                               m_mapped;
