@@ -161,7 +161,7 @@ PP="$PP"'|^StorageSvc Info EventInfo_p'
 PP="$PP"'|^EventSelector +INFO reinit'
 PP="$PP"'|^evt no'
 PP="$PP"'|^ItemListSvc +INFO'
-PP="$PP"'|^RootDatabase.open (Success|Always)|I/O reinitialization'
+PP="$PP"'|^RootDatabase.open Success|I/O reinitialization'
 PP="$PP"'|^StorageSvc Info'
 PP="$PP"'|^RootCollection Info'
 PP="$PP"'|^RootCollectionSchemaEditor Warning'
@@ -169,25 +169,10 @@ PP="$PP"'|already in TClassTable'
 PP="$PP"'|PluginService::SetDebug|setting LC_ALL'
 PP="$PP"'|including file'
 PP="$PP"'|Environment initialised for data access|building of dictionaries now off|Cannot find any ShowMembers function'
-PP="$PP"'|^...1034h$'
-PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
-PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
-PP="$PP"'|^RootDatabase.open Info'
-
-# StoreGate INFO messages changed to VERBOSE
-PP="$PP"'|^(StoreGateSvc|DetectorStore|MetaDataStore|InputMetaDataStore|TagMetaDataStore) +(INFO|VERBOSE) (Stop|stop|Start)'
-
-# ubsan
-PP="$PP"'|bits/regex.h:1545'
-
-# auxids can differ.
-PP="$PP"'|has different type than the branch'
-
-# Gaudi changes
-PP="$PP"'|INFO massageEventInfo:'
-
-
+PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
+PP="$PP"'|^...1034h$'
+PP="$PP"'|^TimelineSvc'
 
 test=$1
 if [ -z "$testStatus" ]; then
@@ -196,23 +181,21 @@ else
     # check exit status
     joblog=${test}.log
     if [ "$testStatus" = 0 ]; then
-	reflog=../share/${test}.ref
+	reflog=../test/${test}.ref
 	if [ -r $reflog ]; then
             jobdiff=${joblog}-todiff
             refdiff=`basename ${reflog}`-todiff
-            sed 's/.[[][?]1034h//' < $joblog | egrep -v "$PP" > $jobdiff
-            sed 's/.[[][?]1034h//' < $reflog | egrep -v "$PP" > $refdiff
+            egrep -v "$PP" < $joblog > $jobdiff
+            egrep -v "$PP" < $reflog > $refdiff
             diff -a -u $jobdiff $refdiff
 	    diffStatus=$?
 	    if [ $diffStatus != 0 ] ; then
 		echo "post.sh> ERROR: $joblog and $reflog differ"
-                exit $diffStatus
 	    fi
 	else
 	    tail $joblog
 	    echo "post.sh> WARNING: reference output $reflog not available "
 	    echo  " post.sh> Please check ${PWD}/$joblog"
-            exit 1
 	fi
     else
 	tail $joblog
