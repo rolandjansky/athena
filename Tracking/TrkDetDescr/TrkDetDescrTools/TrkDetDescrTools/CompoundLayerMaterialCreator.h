@@ -11,6 +11,7 @@
 
 // Trk
 #include "TrkDetDescrInterfaces/ILayerMaterialCreator.h"
+#include "TrkGeometry/MaterialProperties.h"
 // Gaudi & Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -27,11 +28,13 @@ namespace Trk {
 
     class LayerMaterialProperties;
     class LayerMaterialRecord;
-    class Layer;
+    class BinUtility;
 
     /** @class CompoundLayerMaterialCreator
 
-        LayerMaterialProperties creator for CompoundLayerMaterial
+        LayerMaterialProperties creator for CompoundLayerMaterial (i.e. a composit of materials)
+    
+        The convertLayerMaterial() method converts into CompoundLayerMaterial (if possible).
 
       @author Andreas.Salzburger@cern.ch
      */
@@ -52,9 +55,15 @@ namespace Trk {
         StatusCode finalize();
 
         /** process the material properties */
-        const LayerMaterialProperties* createLayerMaterial(const Layer& layer, const LayerMaterialRecord& lmr) const;
+        const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
+        
+        /** create layer material properties from layer material properties - simply clones */
+        const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
 
     private:
+        /** private method that can be called by both create/convertLayerMaterial */
+        const LayerMaterialProperties* createCompoundLayerMaterial(const MaterialPropertiesMatrix& lmm, const BinUtility& lmbu) const;
+        
         bool        m_fullCompoundCalculation;
 
     };

@@ -6,6 +6,8 @@ author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
 #################################################################
 # public use statements
 use AtlasPolicy            AtlasPolicy-*
+use AthenaKernel           AthenaKernel-*           Control
+use AtlasXercesC           AtlasXercesC-*           External
 use GeoPrimitives          GeoPrimitives-*          DetectorDescription
 use GaudiInterface         GaudiInterface-*         External
 use AthenaBaseComps        AthenaBaseComps-*        Control
@@ -24,6 +26,7 @@ use SubDetectorEnvelopes   SubDetectorEnvelopes-*   AtlasGeometryCommon
 
 public
 library TrkDetDescrTools *.cxx components/*.cxx
+apply_pattern installed_library
 apply_pattern component_library
 
 private

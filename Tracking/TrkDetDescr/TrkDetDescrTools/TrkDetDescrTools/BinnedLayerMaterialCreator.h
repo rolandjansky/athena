@@ -18,16 +18,17 @@
 
 namespace Trk {
 
-    class MaterialProperties;
     class LayerMaterialProperties;
     class LayerMaterialRecord;
-    class Layer;
 
     /** @class BinnedLayerMaterialCreator
 
         LayerMaterialProperties creator for BinnedLayerMaterial
 
-      @author Andreas.Salzburger@cern.ch
+        The convert LayerMaterialProperties method converts the given LayerMaterial of any type
+        into a binned LayerMaterialMap BinnedLayerMaterial 
+         
+        @author Andreas.Salzburger@cern.ch
      */
 
     class BinnedLayerMaterialCreator : public AthAlgTool, virtual public ILayerMaterialCreator {
@@ -46,7 +47,11 @@ namespace Trk {
         StatusCode finalize();
 
         /** process the material properties */
-        const LayerMaterialProperties* createLayerMaterial(const Layer& layer, const LayerMaterialRecord& lmr) const;
+        const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
+        
+        /** create layer material properties from layer material properties - simply clones */
+        const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
+        
         
     private:
         double                  m_compressedMaterialThickness;
