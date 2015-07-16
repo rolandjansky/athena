@@ -35,7 +35,6 @@ Trk::CylinderVolumeCreator::CylinderVolumeCreator(const std::string& t, const st
   m_layerArrayCreator("Trk::LayerArrayCreator/LayerArrayCreator"),
   m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
-  m_passiveLayerThickness(1*Gaudi::Units::mm),
   m_passiveLayerPhiBins(1),
   m_passiveLayerRzBins(100)
 {
@@ -269,10 +268,8 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
 
     // create the layer r/z positions
     std::vector<double> layerPositions;
-    layerPositions.reserve(materialLayers);
     if (materialLayers > 1){
-        //double step = cylinder ? (max-min)/(materialLayers-1) : (max-min)/(materialLayers-1);
-        const double step=(max-min)/(materialLayers-1);
+        double step = cylinder ? (max-min)/(materialLayers-1) : (max-min)/(materialLayers-1);
         for (unsigned int il = 0; il < materialLayers; ++il)
             layerPositions.push_back(min+il*step);
     } else

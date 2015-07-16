@@ -44,10 +44,8 @@ Trk::GeometryBuilder::GeometryBuilder(const std::string& t, const std::string& n
   m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
   m_inDetGeometryBuilder(""),
-  m_caloGeometry{},
   m_caloGeometryBuilder(""),
-  m_muonGeometry{},
-  m_muonGeometryBuilder(""),
+  m_muonGeometryBuilder("")  ,
   m_compactify(true),
   m_synchronizeLayers(true)
 {
@@ -80,22 +78,43 @@ StatusCode Trk::GeometryBuilder::initialize()
 {
 
     // Retrieve the volume array creator  ----------------------------------------------------
-    ATH_CHECK(m_trackingVolumeArrayCreator.retrieve()); 
+    if (m_trackingVolumeArrayCreator.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_trackingVolumeArrayCreator );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeArrayCreator );
 
     // Retrieve the tracking volume helper  --------------------------------------------------    
-    ATH_CHECK (m_trackingVolumeHelper.retrieve()); 
+    if (m_trackingVolumeHelper.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_trackingVolumeHelper );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO( "Retrieved tool " << m_trackingVolumeHelper );
+
     // Geometries =============================================================================
     // (I) Inner Detector ---------------------------------------------------------------------
     if (!m_inDetGeometryBuilder.empty()) {
-        ATH_CHECK(m_inDetGeometryBuilder.retrieve());
+        if (m_inDetGeometryBuilder.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Failed to retrieve tool " << m_inDetGeometryBuilder );
+            return StatusCode::FAILURE;
+        } else
+            ATH_MSG_INFO( "Retrieved tool " << m_inDetGeometryBuilder );
     }
     // (C) Calorimeter --------------------------------------------------------------------------
     if (!m_caloGeometryBuilder.empty()) {
-        ATH_CHECK (m_caloGeometryBuilder.retrieve());
+        if (m_caloGeometryBuilder.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Failed to retrieve tool " << m_caloGeometryBuilder );
+            return StatusCode::FAILURE;
+        } else
+            ATH_MSG_INFO( "Retrieved tool " << m_caloGeometryBuilder );
     }
     // (M) Muon System -------------------------------------------------------------------------
     if (!m_muonGeometryBuilder.empty()) {
-        ATH_CHECK(m_muonGeometryBuilder.retrieve());
+        if (m_muonGeometryBuilder.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Failed to retrieve tool " << m_muonGeometryBuilder );
+            return StatusCode::FAILURE;
+        } else
+            ATH_MSG_INFO( "Retrieved tool " << m_muonGeometryBuilder );
     }
 
     // if no world dimensions are declared, take default ones
@@ -112,7 +131,7 @@ StatusCode Trk::GeometryBuilder::initialize()
 				    m_worldMaterialProperties[3],
 				    m_worldMaterialProperties[4]);
 
-    ATH_MSG_DEBUG( " initialize() successful" );
+    ATH_MSG_INFO( " initialize() successful" );
 
     return StatusCode::SUCCESS;
 }
@@ -120,7 +139,7 @@ StatusCode Trk::GeometryBuilder::initialize()
 // finalize
 StatusCode Trk::GeometryBuilder::finalize()
 {
-    ATH_MSG_DEBUG( "finalize() successful." );
+    ATH_MSG_INFO( "finalize() successful." );
     return StatusCode::SUCCESS;
 }
 
