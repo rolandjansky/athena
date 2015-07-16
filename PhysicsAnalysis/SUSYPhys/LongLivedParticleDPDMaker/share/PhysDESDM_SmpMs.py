@@ -46,28 +46,20 @@ offlineObjectFilterNames=[]
 
 ## configure muon filters
 
-from D2PDMaker.D2PDMakerConf import D2PDMuonSelector
-
-muonCollNames=["CaloESDMuonCollection", "CaloMuonCollection", "MuGirlLowBetaCollection", "MuidESDMuonCollection", "MuidMuonCollection",
-               "StacoESDMuonCollection", "StacoMuonCollection"]
-
-for mucoll in muonCollNames:
-    muonFilterName = 'SmpMs_MuFilter_'+mucoll
-    muonFilter = D2PDMuonSelector(muonFilterName)
-    offlineObjectFilterNames.append( muonFilterName )
-    muonFilter.ptMin = primRPVLLDESDM.SmpMs_muonFilterFlags.cutEtMin
-    muonFilter.inputCollection = mucoll
-    muonFilter.minNumberPassed=1
-    topSequence+=muonFilter
+from EventUtils.EventUtilsConf import CutAlg
 
 
-###from PrimaryDPDMaker.MuonFilter import MuonFilter
-###muonFilterName = 'SmpMs_MuonFilter'
-###topSequence += MuonFilter(muonFilterName)
-###offlineObjectFilterNames.append( muonFilterName )
-###topSequence.SmpMs_MuonFilter.cutPtMinMu = primRPVLLDESDM.SmpMs_muonFilterFlags.cutEtMin
-###topSequence.SmpMs_MuonFilter.cutContainerMu=primRPVLLDESDM.SmpMs_muonFilterFlags.cutContainerMu
-###topSequence.SmpMs_MuonFilter.usingAOD=primRPVLLDESDM.SmpMs_muonFilterFlags.usingAOD
+muonFilterName = 'SmpMs_MuonFilter'
+cutString="count( Muons.pt > "
+cutString+=str(primRPVLLDESDM.DV_muonFilterFlags.cutEtMin)
+cutString+=" ) > 1"
+
+
+muonFilter = CutAlg(muonFilterName,
+                    Cut=cutString)
+offlineObjectFilterNames.append( muonFilterName )
+topSequence+=muonFilter
+
 
 ########### combine the offline filters
 

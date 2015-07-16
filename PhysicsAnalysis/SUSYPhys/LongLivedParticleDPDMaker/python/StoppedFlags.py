@@ -44,8 +44,7 @@ class Stopped_jetFilterFlags(JobProperty):
     cutEtaMin = 0
     cutEtaMax = 1.3
     cutPSFracMax = 0.95
-    #jetCollectionName='AntiKt4TopoJets'
-    jetCollectionName='AntiKt4TopoEMJets'
+    jetCollectionName='AntiKt4EMTopoJets'
     pass
 primRPVLLDESDM.add_JobProperty(Stopped_jetFilterFlags)
 

@@ -95,7 +95,7 @@ class SmpCaloId_trackParticleFilterFlags(JobProperty):
     cutPixelHitsMin         = 3
     cutSCTHitsMin           = 6
     cutSiliconHitsMin       = 0
-    cutInputCollection      = 'TrackParticleCandidate'
+    cutInputCollection      = 'InDetTrackParticles'
     cutOutputLinkCollection = 'SmpId_TrackParticleLinkCollection'
     usingAOD = False
     pass

@@ -9,257 +9,202 @@
 ##
 ##-----------------------------------------------------------------------------
 
-if primRPVLLDESDM.KinkedTrack_do2010Skim() :
-    ###################################
-    ### configuration for 2010 data ###
-    ###################################
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
-    ### configure trigger filters
-    if len(primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames) == 0:
-        if rec.triggerStream() == "Egamma":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags.EgammaTriggerNames
-        elif rec.triggerStream() == "JetTauEtmiss":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags.JetTauEtmissTriggerNames
-        elif rec.triggerStream() == "Muons":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags.MuonsTriggerNames
-        elif rec.triggerStream() == "": # for MC the string will be empty, but we want to use all of the triggers
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.EgammaTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.JetTauEtmissTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.MuonsTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.EgammaTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.JetTauEtmissTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.MuonsTriggerNames
-        else:
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = ["dummy"] # back-up, to prevent empty-string failure in test jobs if no triggers used
+#import AthenaCommon.SystemOfUnits as Units
+jetContainer = primRPVLLDESDM.KinkedTrack_containerFlags.jetCollectionName
+electronContainer = primRPVLLDESDM.KinkedTrack_containerFlags.electronCollectionName
+muonContainer = primRPVLLDESDM.KinkedTrack_containerFlags.muonCollectionName
+METContainer = primRPVLLDESDM.KinkedTrack_containerFlags.METCollectionName
+METTerm = primRPVLLDESDM.KinkedTrack_containerFlags.METTermName
+egClusterContainer = primRPVLLDESDM.KinkedTrack_containerFlags.egClusterCollectionName
+msTrackContainer = primRPVLLDESDM.KinkedTrack_containerFlags.msTrackCollectionName
 
-    # get rid of potential doubles in the trigger lists, since attempting to add identical algs generates an ERROR
-    primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = list(set(primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames))
+def KinkTrkTriggerFilterString(flags):
+    selectionString = ''
+    if flags.triggerNames:
+        triggers = list(set(flags.triggerNames))
+        selectionString += '(' + ' || '.join(triggers) + ')'
 
-    triggerFilterNames=[]
+    return selectionString
 
-    from PrimaryDPDMaker.TriggerFilter import TriggerFilter
-    for trigName in primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames:
-        TriggerFilterName = "KinkedTrack_TriggerFilter_"+trigName
-        topSequence += TriggerFilter( TriggerFilterName,
-                                  trigger = trigName )
-        triggerFilterNames.append( TriggerFilterName )
-        pass
 
-    # Create a combined filter by ORing together all the trigger filters
-    combinedTriggerFilterName = "KinkedTrack_CombinedTriggerFilter"
-    topSequence += LogicalFilterCombiner( combinedTriggerFilterName )
-    triggerFilterCounter = 0
-    cmdstring = ""
-    for triggerFilterName in triggerFilterNames :
-        if triggerFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += triggerFilterName
-        triggerFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedTriggerFilter.cmdstring = cmdstring    
 
-    offlineObjectFilterNames=[]
 
-    ## configure a singlejetmet filter
-    ## ( searching for chargino direct production associated with ISR jet )
-    if primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags() :
-        from LongLivedParticleDPDMaker.SingleJetMetFilter import SingleJetMetFilter
-        singleJetMetFilterName = 'KinkedTrack_SingleJetMetFilter'
-        topSequence += SingleJetMetFilter(singleJetMetFilterName)
-        offlineObjectFilterNames.append( singleJetMetFilterName )
-        topSequence.KinkedTrack_SingleJetMetFilter.jetCollectionName = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetCollectionName
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEt1Min = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEt1Min
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEta1Max = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEta1Max
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEt2Min = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEt2Min
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEta2Max = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEta2Max
-        topSequence.KinkedTrack_SingleJetMetFilter.doSecondJetVeto = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doSecondJetVeto
-        topSequence.KinkedTrack_SingleJetMetFilter.requireMet = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.requireMet
-        topSequence.KinkedTrack_SingleJetMetFilter.metCollectionNames = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.metCollectionNames
-        topSequence.KinkedTrack_SingleJetMetFilter.cutMetMin = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMin
-        pass
+#====================================================================
+# JetMetFilter
+#====================================================================
+#KinkTrkJetTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
+#                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags))
+KinkTrkJetTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkJetTriggerFilterTool",
+                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.triggerNames)
+#print KinkTrkJetTriggerFilter
+ToolSvc += KinkTrkJetTriggerFilterTool
 
-    ## configure a multijetmet filter
-    ## ( searching for charginos via colored production )
-    #if primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags() :
-        #from LongLivedParticleDPDMaker.MultiJetMetFilter import MultiJetMetFilter
-        #multiJetMetFilterName = 'KinkedTrack_MultiJetMetFilter'
-        #topSequence += MultiJetMetFilter(multiJetMetFilterName)
-        #offlineObjectFilterNames.append( multiJetMetFilterName )
-        #topSequence.KinkedTrack_MultiJetMetFilter.jetCollectionName = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.jetCollectionName
-        #topSequence.KinkedTrack_MultiJetMetFilter.cutsEtMin = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutsEtMin
-        #topSequence.KinkedTrack_MultiJetMetFilter.cutEtaMax = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutEtaMax
-        #topSequence.KinkedTrack_MultiJetMetFilter.requireMet = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.requireMet
-        #topSequence.KinkedTrack_MultiJetMetFilter.metCollectionNames = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.metCollectionNames
-        #topSequence.KinkedTrack_MultiJetMetFilter.cutMetMin = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutMetMin
-        #pass
-    
-    ########### combine the offline filters
-    
-    combinedOfflineFilterName = "KinkedTrack_CombinedOfflineFilter"
-    topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
-    
-    offlineFilterCounter = 0
-    cmdstring = ""
-    for offlineFilterName in offlineObjectFilterNames :
-        if offlineFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += offlineFilterName
-        offlineFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedOfflineFilter.cmdstring=cmdstring
-    
-    ########### combine the trigger and offline filters
-    
-    KinkedTrackCombinedFilter=LogicalFilterCombiner("KinkedTrackCombinedFilter")
-    topSequence+=KinkedTrackCombinedFilter
-    
-    topSequence.KinkedTrackCombinedFilter.cmdstring="KinkedTrack_CombinedTriggerFilter and KinkedTrack_CombinedOfflineFilter"    
 
-elif primRPVLLDESDM.KinkedTrack_do2011Skim() :    
-    ###################################
-    ### configuration for 2011 data ###
-    ###################################
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkSingleJetMetFilterTool
+KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(name                 = "KinkTrkSingleJetMetFilterTool",
+                                                                                   LeptonVeto           = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doLeptonVeto,
+                                                                                   JetContainerKey      = jetContainer,
+                                                                                   ElectronContainerKey = electronContainer,
+                                                                                   ElectronIDKey        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.electronIDKey,
+                                                                                   MuonContainerKey     = muonContainer,
+                                                                                   MuonIDKey            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.muonIDKey,
+                                                                                   MetContainerKey      = METContainer,
+                                                                                   MetTerm              = METTerm,
+                                                                                   MetCut               = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMin,
+                                                                                   JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMin,
+                                                                                   JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
+                                                                                   JetMetDphiMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetDphiMin,
+                                                                                   LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
+                                                                                   LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
-    ### configure trigger filters
-    if len(primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames) == 0:
-        if rec.triggerStream() == "Egamma":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.EgammaTriggerNames
-        elif rec.triggerStream() == "JetTauEtmiss":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.JetTauEtmissTriggerNames
-        elif rec.triggerStream() == "Muons":
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.MuonsTriggerNames
-        elif rec.triggerStream() == "": # for MC the string will be empty, but we want to use all of the triggers
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.EgammaTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.JetTauEtmissTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2010.MuonsTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.EgammaTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.JetTauEtmissTriggerNames
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames += primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.MuonsTriggerNames
-        else:
-            primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = ["dummy"] # back-up, to prevent empty-string failure in test jobs if no triggers used
+print KinkTrkSingleJetMetFilterTool
+ToolSvc += KinkTrkSingleJetMetFilterTool
 
-    # get rid of potential doubles in the trigger lists, since attempting to add identical algs generates an ERROR
-    primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames = list(set(primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames))
 
-    triggerFilterNames=[]
-    triggerDPhiFilterNames=[]
+KinkTrkJetFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkJetFilterTool",
+                                                                 FilterList=[KinkTrkJetTriggerFilterTool, KinkTrkSingleJetMetFilterTool],
+                                                                 OutputLevel=INFO)
+ToolSvc+= KinkTrkJetFilterTool
 
-    from PrimaryDPDMaker.TriggerFilter import TriggerFilter
-    for trigName in primRPVLLDESDM.KinkedTrack_triggerFilterFlags2011.TriggerNames:
-        TriggerFilterName = "KinkedTrack_TriggerFilter_"+trigName
-        topSequence += TriggerFilter( TriggerFilterName,
-                                  trigger = trigName )
-        if "dphi" in trigName:
-            triggerDPhiFilterNames.append( TriggerFilterName )
-        else:
-            triggerFilterNames.append( TriggerFilterName )
-        pass
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackJetFilterKernel",
+                                                     SkimmingTools = [KinkTrkJetFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackJetFilterKernel"])
 
-    # Create a combined filter by ORing together all the trigger filters
-    combinedTriggerFilterName = "KinkedTrack_CombinedTriggerFilter"
-    topSequence += LogicalFilterCombiner( combinedTriggerFilterName )
-    triggerFilterCounter = 0
-    cmdstring = ""
-    for triggerFilterName in triggerFilterNames :
-        if triggerFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += triggerFilterName
-        triggerFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedTriggerFilter.cmdstring = cmdstring    
 
-    combinedDPhiTriggerFilterName = "KinkedTrack_CombinedDPhiTriggerFilter"
-    topSequence += LogicalFilterCombiner( combinedDPhiTriggerFilterName )
-    triggerDPhiFilterCounter = 0
-    cmdstring = ""
-    for triggerFilterName in triggerDPhiFilterNames :
-        if triggerDPhiFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += triggerFilterName
-        triggerDPhiFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedDPhiTriggerFilter.cmdstring = cmdstring    
 
-    ## configure a multijetmet filter
-    ## ( searching for charginos via colored production )
-    offlineMultiJetMetFilterNames=[]
+#====================================================================
+# Zee/Zmumu filter
+#====================================================================
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZeeTagTool
+KinkTrkZeeTagTool = DerivationFramework__KinkTrkZeeTagTool(name                 = "KinkTrkZeeTagTool",
+                                                           Triggers             = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames,
+                                                           TriggerMatchDeltaR   = 0.1,
+                                                           RequireTriggerMatch  = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.doTriggerMatch,
+                                                           ElectronContainerKey = electronContainer,
+                                                           ElectronIDKeys       = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.electronIDKeys,
+                                                           ElectronPtMin        = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.electronPtMin,
+                                                           ElectronEtaMax       = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.electronEtaMax,
+                                                           ClusterContainerKey  = egClusterContainer,
+                                                           ClusterEtMin         = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.clusterEtMin,
+                                                           ClusterEtaMax        = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.clusterEtaMax,
+                                                           DiEleMassLow         = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassLow,
+                                                           DiEleMassHigh        = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.diElectronMassHigh,
+                                                           DeltaPhiMax          = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.deltaPhiMax,
+                                                           StoreGateKeyPrefix   = "KinkTrk")
 
-    if primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags() :
-        from LongLivedParticleDPDMaker.MultiJetMetFilter import MultiJetMetFilter
-        multiJetMetFilterName = 'KinkedTrack_MultiJetMetFilter'
-        topSequence += MultiJetMetFilter( multiJetMetFilterName )
-        offlineMultiJetMetFilterNames.append( multiJetMetFilterName )
-        topSequence.KinkedTrack_MultiJetMetFilter.jetCollectionName = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.jetCollectionName
-        topSequence.KinkedTrack_MultiJetMetFilter.cutsEtMin = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutsEtMin
-        topSequence.KinkedTrack_MultiJetMetFilter.cutEtaMax = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutEtaMax
-        topSequence.KinkedTrack_MultiJetMetFilter.requireMet = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.requireMet
-        topSequence.KinkedTrack_MultiJetMetFilter.metCollectionNames = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.metCollectionNames
-        topSequence.KinkedTrack_MultiJetMetFilter.cutMetMin = primRPVLLDESDM.KinkedTrack_multiJetMetFilterFlags.cutMetMin
-        pass
-    
-    ## configure a singlejetmet filter
-    ## ( searching for chargino direct production associated with ISR jet )
-    offlineSingleJetMetFilterNames=[]
+print KinkTrkZeeTagTool
+ToolSvc += KinkTrkZeeTagTool
 
-    if primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags() :
-        from LongLivedParticleDPDMaker.SingleJetMetFilter import SingleJetMetFilter
-        singleJetMetFilterName = 'KinkedTrack_SingleJetMetFilter'
-        topSequence += SingleJetMetFilter(singleJetMetFilterName)
-        offlineSingleJetMetFilterNames.append( singleJetMetFilterName )
-        topSequence.KinkedTrack_SingleJetMetFilter.jetCollectionName = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetCollectionName
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEt1Min = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEt1Min
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEta1Max = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEta1Max
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEt2Min = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEt2Min
-        topSequence.KinkedTrack_SingleJetMetFilter.cutEta2Max = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEta2Max
-        topSequence.KinkedTrack_SingleJetMetFilter.doSecondJetVeto = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.doSecondJetVeto
-        topSequence.KinkedTrack_SingleJetMetFilter.requireMet = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.requireMet
-        topSequence.KinkedTrack_SingleJetMetFilter.metCollectionNames = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.metCollectionNames
-        topSequence.KinkedTrack_SingleJetMetFilter.cutMetMin = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetMin
-        pass
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__KinkTrkZmumuTagTool
+KinkTrkZmumuTagTool = DerivationFramework__KinkTrkZmumuTagTool(name            = "KinkTrkZmumuTagTool",
+                                                           Triggers            = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames,
+                                                           TriggerMatchDeltaR  = 0.1,
+                                                           RequireTriggerMatch = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.doTriggerMatch,
+                                                           MuonContainerKey    = muonContainer,
+                                                           MuonIDKeys          = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.muonIDKeys,
+                                                           MuonPtMin           = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.muonPtMin,
+                                                           MuonEtaMax          = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.muonEtaMax,
+                                                           TrackContainerKey   = msTrackContainer,
+                                                           TrackPtMin          = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.trackPtMin,
+                                                           TrackEtaMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.trackEtaMax,
+                                                           DiMuonMassLow       = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassLow,
+                                                           DiMuonMassHigh      = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.diMuonMassHigh,
+                                                           DeltaPhiMax         = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.deltaPhiMax,
+                                                           StoreGateKeyPrefix  = "KinkTrk")
 
-    ########### combine the offline filters
-    
-    combinedOfflineMultiJetMetFilterName = "KinkedTrack_CombinedOfflineMultiJetMetFilter"
-    topSequence += LogicalFilterCombiner( combinedOfflineMultiJetMetFilterName )
-    offlineMultiJetMetFilterCounter = 0
-    cmdstring = ""
-    for offlineFilterName in offlineMultiJetMetFilterNames :
-        if offlineMultiJetMetFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += offlineFilterName
-        offlineMultiJetMetFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedOfflineMultiJetMetFilter.cmdstring=cmdstring
+print KinkTrkZmumuTagTool
+ToolSvc += KinkTrkZmumuTagTool
 
-    combinedOfflineSingleJetMetFilterName = "KinkedTrack_CombinedOfflineSingleJetMetFilter"
-    topSequence += LogicalFilterCombiner( combinedOfflineSingleJetMetFilterName )
-    offlineSingleJetMetFilterCounter = 0
-    cmdstring = ""
-    for offlineFilterName in offlineSingleJetMetFilterNames :
-        if offlineSingleJetMetFilterCounter > 0 :
-            cmdstring += " or "
-            pass
-        cmdstring += offlineFilterName
-        offlineSingleJetMetFilterCounter += 1
-        pass
-    topSequence.KinkedTrack_CombinedOfflineSingleJetMetFilter.cmdstring=cmdstring
-    
-    ########### combine the trigger and offline filters
-    
-    KinkedTrackCombinedFilter=LogicalFilterCombiner("KinkedTrackCombinedFilter")
-    topSequence+=KinkedTrackCombinedFilter
-    
-    topSequence.KinkedTrackCombinedFilter.cmdstring="( KinkedTrack_CombinedTriggerFilter and KinkedTrack_CombinedOfflineMultiJetMetFilter ) or ( KinkedTrack_CombinedDPhiTriggerFilter and KinkedTrack_CombinedOfflineSingleJetMetFilter)"
-    
-########### add this to the global top filter
-    
-if topCmdString.__len__() > 0:
-    topCmdString+=" or "
-    pass
-topCmdString+="KinkedTrackCombinedFilter"
- 
+## Kernel for the augmentation tools
+topSequence += DerivationFramework__DerivationKernel( "KinkTrkAugmentationKernel",
+                                                      AugmentationTools = [KinkTrkZeeTagTool, KinkTrkZmumuTagTool])
+
+## Trigger filters
+KinkTrkZeeTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
+                                                                          expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZeeFilterFlags))
+#KinkTrkZeeTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkZeeTriggerFilterTool",
+#                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.triggerNames)
+ToolSvc += KinkTrkZeeTriggerFilterTool
+
+KinkTrkZmumuTriggerFilterTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuTriggerFilterTool",
+                                                                            expression = KinkTrkTriggerFilterString(primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags))
+#KinkTrkZmumuTriggerFilterTool = DerivationFramework__TriggerSkimmingTool(name = "KinkTrkZmumuTriggerFilterTool",
+#                                                                       TriggerListOR = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.triggerNames)
+ToolSvc += KinkTrkZmumuTriggerFilterTool
+
+
+## Selecting low-pT probe electrons
+KinkTrkZeeLowPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeLowPtSkimmingTool",
+                                                                          expression = 'count(abs(KinkTrkDiEleMass)>0)>=1 && count(KinkTrkProbeEleEt>=%f)==0' % primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScaleClusterEtMax)
+ToolSvc += KinkTrkZeeLowPtSkimmingTool
+
+## Selecting high-pT probe electrons
+KinkTrkZeeHighPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZeeHighPtSkimmingTool",
+                                                                           expression = 'count(abs(KinkTrkDiEleMass)>0)>=1 && count(KinkTrkProbeEleEt>=%f)>=1' % primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScaleClusterEtMax)
+ToolSvc += KinkTrkZeeHighPtSkimmingTool
+
+## Prescale for low-pT probes
+KinkTrkZeePrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkZeePrescaleTool",
+                                                           Prescale = primRPVLLDESDM.KinkedTrack_ZeeFilterFlags.preScale)
+ToolSvc += KinkTrkZeePrescaleTool
+
+KinkTrkZeeLowPtFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeLowPtFilterTool",
+                                                                      FilterList = [KinkTrkZeeLowPtSkimmingTool, KinkTrkZeePrescaleTool])
+ToolSvc += KinkTrkZeeLowPtFilterTool
+
+KinkTrkZeeFilterTool = DerivationFramework__FilterCombinationOR(name = "KinkTrkZeeFilterTool",
+                                                                FilterList = [KinkTrkZeeLowPtFilterTool, KinkTrkZeeHighPtSkimmingTool])
+ToolSvc += KinkTrkZeeFilterTool
+
+KinkTrkZeeFinalFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZeeFinalFilterTool",
+                                                                      FilterList=[KinkTrkZeeTriggerFilterTool, KinkTrkZeeFilterTool],
+                                                                      OutputLevel=INFO)
+ToolSvc+= KinkTrkZeeFinalFilterTool
+
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZeeFilterKernel",
+                                                     SkimmingTools = [KinkTrkZeeFinalFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackZeeFilterKernel"])
+
+
+##
+## Selecting low-pT probe muons
+KinkTrkZmumuLowPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuLowPtSkimmingTool",
+                                                                            expression = 'count(abs(KinkTrkDiMuMass)>0)>=1 && count(KinkTrkProbeMuPt>=%f)==0' % primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScaleTrackPtMax)
+ToolSvc += KinkTrkZmumuLowPtSkimmingTool
+
+## Selecting high-pT probe muons
+KinkTrkZmumuHighPtSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "KinkTrkZmumuHighPtSkimmingTool",
+                                                                             expression = 'count(abs(KinkTrkDiMuMass)>0)>=1 && count(KinkTrkProbeMuPt>=%f)>=1'% primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScaleTrackPtMax)
+ToolSvc += KinkTrkZmumuHighPtSkimmingTool
+
+## Prescale for low-pT probes
+KinkTrkZmumuPrescaleTool = DerivationFramework__PrescaleTool(name = "KinkTrkZmumuPrescaleTool",
+                                                             Prescale = primRPVLLDESDM.KinkedTrack_ZmumuFilterFlags.preScale)
+ToolSvc += KinkTrkZmumuPrescaleTool
+
+KinkTrkZmumuLowPtFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuLowPtFilterTool",
+                                                                        FilterList = [KinkTrkZmumuLowPtSkimmingTool, KinkTrkZmumuPrescaleTool])
+ToolSvc += KinkTrkZmumuLowPtFilterTool
+
+KinkTrkZmumuFilterTool = DerivationFramework__FilterCombinationOR(name = "KinkTrkZmumuFilterTool",
+                                                                  FilterList = [KinkTrkZmumuLowPtFilterTool, KinkTrkZmumuHighPtSkimmingTool])
+ToolSvc += KinkTrkZmumuFilterTool
+
+
+KinkTrkZmumuFinalFilterTool = DerivationFramework__FilterCombinationAND(name = "KinkTrkZmumuFinalFilterTool",
+                                                                        FilterList=[KinkTrkZmumuTriggerFilterTool, KinkTrkZmumuFilterTool],
+                                                                        OutputLevel=INFO)
+ToolSvc+= KinkTrkZmumuFinalFilterTool
+
+## Prescale for low-pT electron probes
+topSequence += DerivationFramework__DerivationKernel("RPVLL_KinkedTrackZmumuFilterKernel",
+                                                     SkimmingTools = [KinkTrkZmumuFinalFilterTool])
+RPVLLfilterNames.extend(["RPVLL_KinkedTrackZmumuFilterKernel"])
+

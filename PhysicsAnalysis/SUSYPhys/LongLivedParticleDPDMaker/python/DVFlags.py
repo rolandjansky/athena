@@ -7,77 +7,81 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
-class DV_triggerFilterFlags(JobProperty):
+class DV_containerFlags(JobProperty):
     statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    TriggerNames = [] # only put trigger names in this list if you want to override the below stream-specific ones
-    EgammaTriggerNames = [
-		# "EF_g40_loose",
-		# "EF_g60_loose",
-		# "EF_e60_loose",
-		# "EF_g80_loose",
-		# "EF_g100_loose",
-        "EF_g120_loose",
-        "EF_2g40_loose"
-	]
-    JetTauEtmissTriggerNames = ["EF_xe80_tclcw",
-                                "EF_j80_a4tchad_xe100_tclcw_loose",
-                                "EF_4j80_a4tchad_L2FS",
-                                "EF_5j55_a4tchad_L2FS",
-                                "EF_6j45_a4tchad_L2FS_5L2j15"]
-    MuonsTriggerNames = [
-#        "EF_mu40_MSonly",
-#        "EF_mu40_MSonly_barrel",
-#        "EF_mu40_MSonly_barrel_medium",
-#        "EF_mu40_MSonly_barrel_tight",        
-        "EF_mu50_MSonly_barrel_tight"
-    ]
+    photonCollectionName='Photons'
+    electronCollectionName='Electrons'
+    muonCollectionName='Muons'
+    jetCollectionName="AntiKt4EMTopoJets"
+    METCollectionName="MET_LocHadTopo"
     pass
-primRPVLLDESDM.add_JobProperty(DV_triggerFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_containerFlags)
+
+class DV_MultiJetTriggerFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    triggers = ["HLT_4j100","HLT_5j85","HLT_5j85_lcw","HLT_5j75_0eta250","EF_6j70","HLT_6j45_0eta240","HLT_7j45"]
+    pass
+primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
 ### multi-jet filter just to verify trigger - 4j80 OR 5j55 OR 6j45
-class DV_multiJetFilterFlags(JobProperty):
+
+class DV_4JetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    jetCollectionName = "AntiKt6TopoEMJets"
-    jetPtCut=[80.0*Units.GeV, 55.0*Units.GeV, 45.0*Units.GeV]
-    nJetPassed=[4,5,6]
+    cutEtMin=100.0*Units.GeV
+    nPassed=4
     pass
-primRPVLLDESDM.add_JobProperty(DV_multiJetFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags)
 
-class DV_looseFancyJetFilterFlags(JobProperty):
+class DV_5JetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    jetPtCut=45.0*Units.GeV
-    nJetPassed=1
-    MaxSumPtTrk=5.0*Units.GeV
+    cutEtMin=75.0*Units.GeV
+    nPassed=5
     pass
-primRPVLLDESDM.add_JobProperty(DV_looseFancyJetFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags)
 
-
-class DV_fancyJetFilterFlags(JobProperty):
+class DV_6JetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    jetPtCut=50.0*Units.GeV
-    nJetPassed=2
-    MaxSumPtTrk=5.0*Units.GeV
+    cutEtMin=50.0*Units.GeV
+    nPassed=6
     pass
-primRPVLLDESDM.add_JobProperty(DV_fancyJetFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags)
 
-class DV_ISRFilterFlags(JobProperty):
+class DV_7JetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=45.0*Units.GeV
+    nPassed=7
+    pass
+primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags)
+
+class DV_MuonFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    jetCollectionName = "AntiKt6TopoEMJets"    
-    jetPtCut=110.0*Units.GeV
-    deltaPhiCut=2.0
-    cutMetMin=100.0*Units.GeV
+    cutEtMin=60.0*Units.GeV
+    triggers=["HLT_mu60_0eta105_msonly"]
+    nPassed=1
     pass
-primRPVLLDESDM.add_JobProperty(DV_ISRFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_MuonFilterFlags)
+
+class DV_PhotonFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue= True
+    cutEtMin=140.0*Units.GeV
+    triggers=["HLT_g140_loose"]
+    nPassed=1
+    pass
+primRPVLLDESDM.add_JobProperty(DV_PhotonFilterFlags)
 
 
 class DV_METFilterFlags(JobProperty):
@@ -86,95 +90,46 @@ class DV_METFilterFlags(JobProperty):
     StoredValue=True
     cutMetMin=100.0*Units.GeV
     deltaPhiCut=0.1
+    triggers=["HLT_xe100","HLT_xe100_tc_lcw","HLT_xe100_tc_lcw_wEFMu","HLT_xe100_wEFMu"]
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
-class DV_muonFilterFlags(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    cutEtMin = 50*Units.GeV
-    cutEtaMax = 1.1
-    cutContainerMu='all'
-    usingAOD=False
+class DV_SingleTracklessJetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=["bool"]
+    StoredValue=True
+    cutEtMin=50.0*Units.GeV
+    cutEtaMax=2.5
+    cutSumPtTrkMax=5.0*Units.GeV
     pass
-primRPVLLDESDM.add_JobProperty(DV_muonFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_SingleTracklessJetFilterFlags)
 
-class DV_d0FilterFlagsMuon(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    muD0Cut = 1.5
-    muPtCut=50.0*Units.GeV
-    muEtaCut=1.1
+class DV_DoubleTracklessJetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=["bool"]
+    StoredValue=True
+    cutEtMin=50.0*Units.GeV
+    cutEtaMax=2.5
+    cutSumPtTrkMax=5.0*Units.GeV
     pass
-primRPVLLDESDM.add_JobProperty(DV_d0FilterFlagsMuon)
+primRPVLLDESDM.add_JobProperty(DV_DoubleTracklessJetFilterFlags)
 
-class DV_d0FilterFlagsEgamma(JobProperty):
+class DV_MeffFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    electronD0Cut=1.5
-    electronPtCut=110.0*Units.GeV
-    electronEtaCut=5.0
+    cutMeffMin=1.0*Units.TeV ##
+    cutMEToverMeffMin=0.3   ## note that these two cuts are ORed in the code!
+    cutJetPtMin=40.0*Units.GeV
+    cutJetEtaMax=2.5
+    cutMETMin=80.0*Units.GeV
     pass
-primRPVLLDESDM.add_JobProperty(DV_d0FilterFlagsEgamma)
+primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 
-class DV_d0FilterFlagsDiElectron(JobProperty):
+class DV_PrescalerFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    dielectronD0Cut=1.5
-    dielectronPtCut=40.0*Units.GeV
-    dielectronEtaCut=5.0
+    prescale=10
     pass
-primRPVLLDESDM.add_JobProperty(DV_d0FilterFlagsDiElectron)
-
-class DV_photonFilterFlags(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue= True
-    photonPtCut=110.0*Units.GeV
-    minPhotonPassed=1
-    pass
-primRPVLLDESDM.add_JobProperty(DV_photonFilterFlags)
-
-class DV_photonFilterFlags2(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue= True
-    photonPtCut=40.0*Units.GeV
-    minPhotonPassed=2
-    pass
-primRPVLLDESDM.add_JobProperty(DV_photonFilterFlags2)
-
-class DV_jetFilterFlagsMuon(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    jetPtCut=50.0*Units.GeV
-    nJetPassed=2   
-    pass
-primRPVLLDESDM.add_JobProperty(DV_jetFilterFlagsMuon)
-
-class DV_jetFilterFlagsEgamma(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-    jetCollectionName = "AntiKt4TopoEMJets"
-    jetPtCut=40.0*Units.GeV
-    MaxSumPtTrk=5.0*Units.GeV
-    nJetPassed=2
-    pass
-primRPVLLDESDM.add_JobProperty(DV_jetFilterFlagsEgamma)
-
-class DV_stealthFilterFlags(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    cutMinTrackSd0 = 15.0
-    cutMinTrackpT = 2000.0
-    cutMinTrackEta = 2.5
-    cutMinNTracks = 30
-    pass
-primRPVLLDESDM.add_JobProperty(DV_stealthFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
