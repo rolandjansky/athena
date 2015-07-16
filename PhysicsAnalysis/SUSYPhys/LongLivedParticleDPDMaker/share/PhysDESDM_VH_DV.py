@@ -42,23 +42,23 @@ for triggerFilterName in triggerFilterNames :
 topSequence.VH_DV_CombinedTriggerFilter.cmdstring = cmdstring    
 filtersToBookkeep+=["VH_DV_CombinedTriggerFilter"]
 
-##  a real jet filter
-from LongLivedParticleDPDMaker.FancyJetFilter import FancyJetFilter
+##  a fancy jet filter
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import FancyJetFilterAlg
 jetFilterName = "VH_DV_JetFilter"
-topSequence += FancyJetFilter(jetFilterName)
+topSequence += FancyJetFilterAlg(jetFilterName)
 topSequence.VH_DV_JetFilter.cutEtMin=primRPVLLDESDM.VH_DV_jetFilterFlags.jetPtCut
-topSequence.VH_DV_JetFilter.cutEtMax=14.0*Units.TeV
 topSequence.VH_DV_JetFilter.minNumberPassed=primRPVLLDESDM.VH_DV_jetFilterFlags.nJetPassed
 topSequence.VH_DV_JetFilter.cutSumPtTrkMax=primRPVLLDESDM.VH_DV_jetFilterFlags.MaxSumPtTrk
-topSequence.VH_DV_JetFilter.jetCollectionName = "AntiKt4TopoEMJets"
+topSequence.VH_DV_JetFilter.jetCollectionName = "AntiKt4LCTopoJets"
 filtersToBookkeep+=["VH_DV_JetFilter"]
 
 ## METfilter
-from PrimaryDPDMaker.MissingEtFilter import MissingEtFilter
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DVMETFilterAlg
+##from PrimaryDPDMaker.MissingEtFilter import MissingEtFilter
 missingetFilterName = 'VH_DV_MissingEtFilter'
-topSequence += MissingEtFilter(missingetFilterName)
+topSequence += DVMETFilterAlg(missingetFilterName)
 topSequence.VH_DV_MissingEtFilter.cutMetMin = primRPVLLDESDM.VH_DV_missingetFilterFlags.cutMetMin
-topSequence.VH_DV_MissingEtFilter.requireMet = True
+##topSequence.VH_DV_MissingEtFilter.requireMet = True
 filtersToBookkeep+=["VH_DV_MissingEtFilter"]
 
 jetMetFilterName = "VH_DV_JetMetFilter"
@@ -66,81 +66,91 @@ topSequence += LogicalFilterCombiner( jetMetFilterName)
 topSequence.VH_DV_JetMetFilter.cmdstring = "VH_DV_JetFilter and VH_DV_MissingEtFilter"
 filtersToBookkeep+=["VH_DV_JetMetFilter"]
 
+from EventUtils.EventUtilsConf import CutAlg
+
 if rec.triggerStream() == "Muons" or rec.triggerStream() == "":
+    cutString="count( Muons.pt > "
+    cutString+=str(primRPVLLDESDM.VH_DV_muonFilterFlags.cutEtMin)
+    cutString+=" && abs(Muons.eta) < "
+    cutString+=str(primRPVLLDESDM.VH_DV_muonFilterFlags.cutEtaMax)
+    cutString+=" ) > 0"
+    muonFilterName = 'VH_DV_MuonFilter'
+    
+    muonFilter = CutAlg(muonFilterName,
+                        Cut=cutString)
 
-	offlineMuonFilterNames=[]
-	from D2PDMaker.D2PDMakerConf import D2PDMuonSelector
-	muonCollNames=["MuidESDMuonCollection", "MuidMuonCollection", "StacoESDMuonCollection", "StacoMuonCollection"]
-	for mucoll in muonCollNames:
-		muonFilterName = 'VH_DV_MuFilter_'+mucoll
-		muonFilter = D2PDMuonSelector(muonFilterName)
-		offlineMuonFilterNames.append( muonFilterName )
-		muonFilter.ptMin = primRPVLLDESDM.VH_DV_muonFilterFlags.cutEtMin
-		muonFilter.absEtaMax = primRPVLLDESDM.VH_DV_muonFilterFlags.cutEtaMax
-		muonFilter.inputCollection = mucoll
-		muonFilter.minNumberPassed=1
-		topSequence+=muonFilter
+    topSequence+=muonFilter
 
-	########### combine the offline filters
-	muonFilterName = "VH_DV_MuonFilter"
-	topSequence += LogicalFilterCombiner( muonFilterName )
-	muonFilterCounter = 0
-	cmdstring = ""
-	for muFilterName in offlineMuonFilterNames :
-		if muonFilterCounter > 0 :
-			cmdstring += " or "
-			pass
-		cmdstring += muFilterName
-		muonFilterCounter += 1
-		pass
-	topSequence.VH_DV_MuonFilter.cmdstring=cmdstring ##+ " and VH_DV_JetFilter2"
-	filtersToBookkeep+=["VH_DV_MuonFilter"]
 
-	combinedOfflineFilterName = "VH_DV_CombinedMuonsOfflineFilter"
-	topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
-	cmdstring = "VH_DV_MuonFilter and VH_DV_JetMetFilter"
-	topSequence.VH_DV_CombinedMuonsOfflineFilter.cmdstring=cmdstring 
-	filtersToBookkeep+=["VH_DV_CombinedMuonsOfflineFilter"]
+    combinedOfflineFilterName = "VH_DV_CombinedMuonsOfflineFilter"
+    topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
+    cmdstring = "VH_DV_MuonFilter and VH_DV_JetMetFilter"
+    topSequence.VH_DV_CombinedMuonsOfflineFilter.cmdstring=cmdstring 
+    filtersToBookkeep+=["VH_DV_CombinedMuonsOfflineFilter"]
 	
 if rec.triggerStream() == "Egamma" or rec.triggerStream() == "":
 
-	from PrimaryDPDMaker.ElectronFilter import ElectronFilter
-	electronFilterName = 'VH_DV_ElectronFilter'
-	topSequence += ElectronFilter(electronFilterName)
-	topSequence.VH_DV_ElectronFilter.cutEtMin = primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtMin
-	topSequence.VH_DV_ElectronFilter.cutEtaMax = primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtaMax
-	topSequence.VH_DV_ElectronFilter.cutIsEM=primRPVLLDESDM.VH_DV_electronFilterFlags.cutIsEM
-	topSequence.VH_DV_ElectronFilter.cutAuthor=primRPVLLDESDM.VH_DV_electronFilterFlags.cutAuthor
-	topSequence.VH_DV_ElectronFilter.electronCollectionName=primRPVLLDESDM.VH_DV_electronFilterFlags.electronCollectionName
-	filtersToBookkeep+=["VH_DV_ElectronFilter"]
+    electronFilterName = 'VH_DV_ElectronFilter'
+    cutString="count( "
+    cutString+= primRPVLLDESDM.VH_DV_electronFilterFlags.electronCollectionName
+    cutString+=".pt > "
+    cutString += str(primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtMin)
+    cutString+= " && abs("
+    cutString+= primRPVLLDESDM.VH_DV_electronFilterFlags.electronCollectionName
+    cutString+=".eta) < "
+    cutString+= str(primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtaMax)
+    cutString+=" ) > 0"
+    topSequence += CutAlg(electronFilterName,
+                          Cut=cutString)
+    filtersToBookkeep+=["VH_DV_ElectronFilter"]
+##    topSequence += ElectronFilter(electronFilterName)
+##    topSequence.VH_DV_ElectronFilter.cutEtMin = primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtMin
+##    topSequence.VH_DV_ElectronFilter.cutEtaMax = primRPVLLDESDM.VH_DV_electronFilterFlags.cutEtaMax
+##    topSequence.VH_DV_ElectronFilter.cutIsEM=primRPVLLDESDM.VH_DV_electronFilterFlags.cutIsEM
+##    topSequence.VH_DV_ElectronFilter.cutAuthor=primRPVLLDESDM.VH_DV_electronFilterFlags.cutAuthor
+##    topSequence.VH_DV_ElectronFilter.electronCollectionName=primRPVLLDESDM.VH_DV_electronFilterFlags.electronCollectionName
 
-	electronFilterName = 'VH_DV_DiElectronFilter'
-	topSequence += ElectronFilter(electronFilterName)
-	topSequence.VH_DV_DiElectronFilter.cutEtMin = primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtMin
-	topSequence.VH_DV_DiElectronFilter.cutEtaMax = primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtaMax
-	topSequence.VH_DV_DiElectronFilter.cutIsEM=primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutIsEM
-	topSequence.VH_DV_DiElectronFilter.cutAuthor=primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutAuthor
-	topSequence.VH_DV_DiElectronFilter.electronCollectionName=primRPVLLDESDM.VH_DV_DielectronFilterFlags.electronCollectionName
-	topSequence.VH_DV_DiElectronFilter.minNumberPassed = 2
-	filtersToBookkeep+=["VH_DV_DiElectronFilter"]
 
-	combinedOfflineFilterName = "VH_DV_CombinedWOfflineFilter"
-	topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
-	cmdstring = "VH_DV_ElectronFilter and VH_DV_JetMetFilter"
-	topSequence.VH_DV_CombinedWOfflineFilter.cmdstring=cmdstring 
-	filtersToBookkeep+=[combinedOfflineFilterName]
+    electronFilterName = 'VH_DV_DiElectronFilter'
+    cutString="count( "
+    cutString+= primRPVLLDESDM.VH_DV_DielectronFilterFlags.electronCollectionName
+    cutString+=".pt > "
+    cutString += str(primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtMin)
+    cutString+= " && abs("
+    cutString+= primRPVLLDESDM.VH_DV_DielectronFilterFlags.electronCollectionName
+    cutString+=".eta) < "
+    cutString+= str(primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtaMax)
+    cutString+=" ) > 1"
+    topSequence += CutAlg(electronFilterName,
+                          Cut=cutString)
+    filtersToBookkeep+=["VH_DV_DiElectronFilter"]
 
-	combinedOfflineFilterName = "VH_DV_CombinedZOfflineFilter"
-	topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
-	cmdstring = "VH_DV_DiElectronFilter and VH_DV_JetFilter"
-	topSequence.VH_DV_CombinedZOfflineFilter.cmdstring=cmdstring 
-	filtersToBookkeep+=[combinedOfflineFilterName]
+##    topSequence += ElectronFilter(electronFilterName)
+##    topSequence.VH_DV_DiElectronFilter.cutEtMin = primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtMin
+##    topSequence.VH_DV_DiElectronFilter.cutEtaMax = primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutEtaMax
+##    topSequence.VH_DV_DiElectronFilter.cutIsEM=primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutIsEM
+##    topSequence.VH_DV_DiElectronFilter.cutAuthor=primRPVLLDESDM.VH_DV_DielectronFilterFlags.cutAuthor
+##    topSequence.VH_DV_DiElectronFilter.electronCollectionName=primRPVLLDESDM.VH_DV_DielectronFilterFlags.electronCollectionName
+##    topSequence.VH_DV_DiElectronFilter.minNumberPassed = 2
 
-	combinedOfflineFilterName = "VH_DV_CombinedEgammaOfflineFilter"
-	topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
-	cmdstring = "VH_DV_CombinedWOfflineFilter or VH_DV_CombinedZOfflineFilter"
-	topSequence.VH_DV_CombinedEgammaOfflineFilter.cmdstring=cmdstring 
-	filtersToBookkeep+=[combinedOfflineFilterName]
+    
+    combinedOfflineFilterName = "VH_DV_CombinedWOfflineFilter"
+    topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
+    cmdstring = "VH_DV_ElectronFilter and VH_DV_JetMetFilter"
+    topSequence.VH_DV_CombinedWOfflineFilter.cmdstring=cmdstring 
+    filtersToBookkeep+=[combinedOfflineFilterName]
+    
+    combinedOfflineFilterName = "VH_DV_CombinedZOfflineFilter"
+    topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
+    cmdstring = "VH_DV_DiElectronFilter and VH_DV_JetFilter"
+    topSequence.VH_DV_CombinedZOfflineFilter.cmdstring=cmdstring 
+    filtersToBookkeep+=[combinedOfflineFilterName]
+    
+    combinedOfflineFilterName = "VH_DV_CombinedEgammaOfflineFilter"
+    topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
+    cmdstring = "VH_DV_CombinedWOfflineFilter or VH_DV_CombinedZOfflineFilter"
+    topSequence.VH_DV_CombinedEgammaOfflineFilter.cmdstring=cmdstring 
+    filtersToBookkeep+=[combinedOfflineFilterName]
 
 
 ########### combine the trigger and offline filters
@@ -151,7 +161,7 @@ if rec.triggerStream() == "Muons":
 elif rec.triggerStream() == "Egamma":
     topSequence+=VH_DVCombinedFilter
     topSequence.VH_DVCombinedFilter.cmdstring="VH_DV_CombinedTriggerFilter and VH_DV_CombinedEgammaOfflineFilter"
-elif rec.triggerStream() == "": #MC
+else:
     combinedOfflineFilterName = "VH_DV_CombinedEgammaMuonsOfflineFilter"
     topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
     cmdstring = "VH_DV_CombinedEgammaOfflineFilter or VH_DV_CombinedMuonsOfflineFilter"

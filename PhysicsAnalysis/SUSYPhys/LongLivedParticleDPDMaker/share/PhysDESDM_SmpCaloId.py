@@ -26,7 +26,7 @@ from PrimaryDPDMaker.TriggerFilter import TriggerFilter
 for trigName in primRPVLLDESDM.SmpCaloId_triggerFilterFlags.TriggerNames:
     TriggerFilterName = "SmpCaloId_TriggerFilter_"+trigName
     topSequence += TriggerFilter( TriggerFilterName,
-                                  trigger = trigName )
+                                  trigger = trigName)
     triggerFilterNames.append( TriggerFilterName )
     pass
 
@@ -46,39 +46,78 @@ topSequence.SmpCaloId_CombinedTriggerFilter.cmdstring = cmdstring
 filtersToBookkeep+=["SmpCaloId_CombinedTriggerFilter"]
 
 offlineObjectFilterNames=[]
+#=#=
+#=#=## configure muon filters
+#=#=
+#=#=#from D2PDMaker.D2PDMakerConf import D2PDMuonSelector
+#=#=#
+#=#=#muonCollNames=["CaloESDMuonCollection", "CaloMuonCollection", "MuGirlLowBetaCollection", "MuidESDMuonCollection", "MuidMuonCollection",
+#=#=#               "StacoESDMuonCollection", "StacoMuonCollection"]
+#=#=#
+#=#=#for mucoll in muonCollNames:
+#=#=#    muonFilterName = 'SmpCaloId_MuFilter_'+mucoll
+#=#=#    muonFilter = D2PDMuonSelector(muonFilterName)
+#=#=#    offlineObjectFilterNames.append( muonFilterName )
+#=#=#    muonFilter.ptMin = primRPVLLDESDM.SmpCaloId_muonFilterFlags.cutEtMin
+#=#=#    muonFilter.inputCollection = mucoll
+#=#=#    muonFilter.minNumberPassed=1
+#=#=#    topSequence+=muonFilter
+#=#=
+#=#=## configure a track particle filter
+#=#=
+#=#=#from EventUtils.EventUtilsConf import ParticleSelectionAlg
+#=#=#trackParticleFilterName = 'SmpCaloId_TrackParticleFilter'
+#=#=#topSequence += ParticleSelectionAlg(trackParticleFilterName,
+#=#=#                                   InputContainer="InDetTrackParticles",
+#=#=#                                    OutputContainer="SmpCaloId_SelectedTrackParticles",
+#=#=#                                    Selection="pt>10000.")
+#=#=
+#=#=
+#=#from EventUtils.EventUtilsConf import CutAlg
+#=#cutString="count( "
+#=#cutString+= primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection
+#=#cutString+=".pt > "
+#=#cutString+= str(primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPtMin)
+#=#cutString+= " && "
+#=#cutString+= primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection
+#=#cutString+=".numberOfBLayerHits >="
+#=#cutString+=str(primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutBLayerHitsMin)
+#=#cutString+=" ) >= 1 "
+#=#print "NICK SmpCaloId cutString is ",cutString
 
-## configure muon filters
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import SmpTrackFilterAlg
 
-#from D2PDMaker.D2PDMakerConf import D2PDMuonSelector
-#
-#muonCollNames=["CaloESDMuonCollection", "CaloMuonCollection", "MuGirlLowBetaCollection", "MuidESDMuonCollection", "MuidMuonCollection",
-#               "StacoESDMuonCollection", "StacoMuonCollection"]
-#
-#for mucoll in muonCollNames:
-#    muonFilterName = 'SmpCaloId_MuFilter_'+mucoll
-#    muonFilter = D2PDMuonSelector(muonFilterName)
-#    offlineObjectFilterNames.append( muonFilterName )
-#    muonFilter.ptMin = primRPVLLDESDM.SmpCaloId_muonFilterFlags.cutEtMin
-#    muonFilter.inputCollection = mucoll
-#    muonFilter.minNumberPassed=1
-#    topSequence+=muonFilter
-
-## configure a track particle filter
-from D2PDMaker.D2PDMakerConf import D2PDTrackParticleSelector
 trackParticleFilterName = 'SmpCaloId_TrackParticleFilter'
-topSequence += D2PDTrackParticleSelector( trackParticleFilterName,
-                                          ptMin                = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPtMin,
-                                          numberBLayerHitsMin  = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutBLayerHitsMin,
-                                          numberPixelHitsMin   = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPixelHitsMin,
-                                          numberSCTHitsMin     = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSCTHitsMin, 
-                                          numberSiliconHitsMin = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSiliconHitsMin,
-                                          inputCollection      = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection,
-                                          outputLinkCollection = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutOutputLinkCollection,
-                                          minNumberPassed      = 1 )
+topSequence+=SmpTrackFilterAlg(trackParticleFilterName,
+                               ptMin                = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPtMin,
+                               numberBLayerHitsMin  = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutBLayerHitsMin,
+                               numberPixelHitsMin   = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPixelHitsMin,
+                               numberSCTHitsMin     = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSCTHitsMin, 
+                               numberSiliconHitsMin = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSiliconHitsMin,
+                               inputCollection      = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection,
+                               minNumberPassed      = 1)
+
+##topSequence += CutAlg(trackParticleFilterName,
+##                      Cut = cutString)
+
 offlineObjectFilterNames.append( trackParticleFilterName )
 
-########### combine the offline filters
-
+#=#=
+#=#=from D2PDMaker.D2PDMakerConf import D2PDTrackParticleSelector
+#=#=
+#=#=topSequence += D2PDTrackParticleSelector( trackParticleFilterName,
+#=#=                                          ptMin                = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPtMin,
+#=#=                                          numberBLayerHitsMin  = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutBLayerHitsMin,
+#=#=                                          numberPixelHitsMin   = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPixelHitsMin,
+#=#=                                          numberSCTHitsMin     = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSCTHitsMin, 
+#=#=                                          numberSiliconHitsMin = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutSiliconHitsMin,
+#=#=                                          inputCollection      = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection,
+#=#=                                          outputLinkCollection = primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutOutputLinkCollection,
+#=#=                                          minNumberPassed      = 1 )
+#=#=offlineObjectFilterNames.append( trackParticleFilterName )
+#=#=
+#=#=########### combine the offline filters
+#=#=
 combinedOfflineFilterName = "SmpCaloId_CombinedOfflineFilter"
 topSequence += LogicalFilterCombiner( combinedOfflineFilterName )
 
@@ -91,8 +130,10 @@ for offlineFilterName in offlineObjectFilterNames :
     cmdstring += offlineFilterName
     offlineFilterCounter += 1
     pass
+print "NICK cmdstring of OfflineObjectFilter is ",cmdstring
 topSequence.SmpCaloId_CombinedOfflineFilter.cmdstring=cmdstring
 filtersToBookkeep+=["SmpCaloId_CombinedOfflineFilter"]
+#=#=#=#=
 
 ########### combine the trigger and offline filters
 
@@ -100,6 +141,7 @@ SmpCaloIdCombinedFilter=LogicalFilterCombiner("SmpCaloIdCombinedFilter")
 topSequence+=SmpCaloIdCombinedFilter
 
 topSequence.SmpCaloIdCombinedFilter.cmdstring="SmpCaloId_CombinedTriggerFilter and SmpCaloId_CombinedOfflineFilter"
+##topSequence.SmpCaloIdCombinedFilter.cmdstring="SmpCaloId_CombinedTriggerFilter"
 
 ########### add this to the global top filter
 
