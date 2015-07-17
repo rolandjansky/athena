@@ -67,6 +67,9 @@ public:
   StatusCode finalize();
   StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
 
+  StatusCode IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS);
+
+
   StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
   
   // Get a list of offlineIds from a RobId.
@@ -103,6 +106,10 @@ public:
   uint32_t getRow(Identifier * pixelId, Identifier offlineId);
   uint32_t getFEwrtSlink(Identifier *pixelId);
   unsigned int getLocalFEI4(const uint32_t fe, const uint64_t onlineId);
+
+
+  int getHitDiscCnfg(const uint32_t robId, const int link);
+  int getHitDiscCnfg(Identifier* pixelId);
   
   bool isIBL(const uint32_t robId);
   bool isIBL(const Identifier& id);
@@ -132,6 +139,7 @@ private:
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
   std::string m_dataString ;
   std::string m_key;
+  std::string m_keyFEI4;
   unsigned int m_callback_calls;
 
   const PixelID* m_idHelper;

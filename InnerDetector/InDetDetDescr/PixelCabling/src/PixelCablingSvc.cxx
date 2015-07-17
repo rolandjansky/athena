@@ -34,7 +34,7 @@
 #include "CoolKernel/IObject.h"
 
 
-#define PIXEL_DEBUG
+//#define PIXEL_DEBUG
 
 
 using namespace std;
@@ -61,7 +61,9 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_cablingTool("PixelFillCablingData_Final"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
-    m_dataString(""),m_key("/PIXEL/ReadoutSpeed"),
+    m_dataString(""),
+    m_key("/PIXEL/ReadoutSpeed"),
+    m_keyFEI4("/PIXEL/HitDiscCnfg"),
     m_callback_calls(0),
     m_idHelper(0),
     m_cabling(0),
@@ -80,6 +82,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     declareProperty("Coral_Connectionstring", m_coraldbconnstring = "oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"); // used to configure CORAL based tool
     declareProperty("DictionaryTag", m_dictTag="PIXEL");
     declareProperty("ConnectivityTag", m_connTag="PIT-ALL-V39");
+    declareProperty("KeyFEI4", m_keyFEI4 = "/PIXEL/HitDiscCnfg");
     declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
 }
 
@@ -113,6 +116,7 @@ PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string
     m_dictTag = other.m_dictTag;
     m_connTag = other.m_connTag;
     m_key = other.m_key;
+    m_keyFEI4 = other.m_keyFEI4;
 }
 
 ////////////////////////
@@ -128,6 +132,7 @@ PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
         m_dictTag = other.m_dictTag;
         m_connTag = other.m_connTag;
         m_key = other.m_key;
+        m_keyFEI4 = other.m_keyFEI4;
     }
     return *this;
 }
@@ -166,6 +171,7 @@ StatusCode PixelCablingSvc::initialize( )
     else {
         msg(MSG::DEBUG) << "DetectorStore service found" << endreq;
     }
+
 
 
     // Get the PixelID Helper
@@ -346,15 +352,46 @@ StatusCode PixelCablingSvc::initialize( )
         return StatusCode::FAILURE;
     }
 */
-    // Register callback
-    const DataHandle<AthenaAttributeList> attrList;
-    sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack,
-                            dynamic_cast<IPixelCablingSvc*>(this),
-                            attrList, m_key);
-    if (!sc.isSuccess()) {
-        ATH_MSG_FATAL("Unable to register callback");
-        return StatusCode::FAILURE;
+
+    // Register callback to ReadoutSpeed
+    const DataHandle<AthenaAttributeList> attrlist_rs;
+    if (m_detStore->contains<AthenaAttributeList>(m_key)) {
+
+        sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack,
+                                dynamic_cast<IPixelCablingSvc*>(this),
+                                attrlist_rs, m_key);
+        // If regFcn fails even when folder is present -> abort
+        if (!sc.isSuccess()) {
+            ATH_MSG_FATAL("Unable to register readoutspeed callback");
+            return StatusCode::FAILURE;
+        }
     }
+    else {
+        ATH_MSG_INFO("Folder " << m_key << " not found, using default readoutspeed"
+                     << " values (all modules at SINGLE_40)");
+    }
+
+    // Register callback to HitDiscCnfg
+    if (m_IBLpresent) {
+        const DataHandle<AthenaAttributeList> attrlist_hdc;
+        if (m_detStore->contains<AthenaAttributeList>(m_keyFEI4)) {
+
+            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_HitDiscCnfg,
+                                    dynamic_cast<IPixelCablingSvc*>(this),
+                                    attrlist_hdc, m_keyFEI4);
+
+            // If regFcn fails even when folder is present -> abort
+            if (!sc.isSuccess()) {
+                ATH_MSG_FATAL("Unable to register HitDiscCnfg callback");
+                return StatusCode::FAILURE;
+            }
+        }
+        else {
+            ATH_MSG_INFO("Folder " << m_keyFEI4 << " not found, using default HitDiscCnfg"
+                         << " values (all FEs at HitDiscCnfg = 3)");
+        }
+    }
+
 
 
     return sc;
@@ -937,6 +974,11 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
         return StatusCode::FAILURE;
     }
 
+    if (msgLvl(MSG::DEBUG)) {
+        ATH_MSG_DEBUG("AthenaAttributeList for " << m_key << ":");
+        attrlist->print(std::cout);
+    }
+
     const coral::Blob& blob=(*attrlist)["readoutspeed_per_ROD"].data<coral::Blob>();
     const char* p = static_cast<const char*>(blob.startingAddress());
     unsigned int len = blob.size();
@@ -973,6 +1015,100 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
         ATH_MSG_INFO("                     -----   refilled Pixel cabling maps  -----");
     }
     ATH_MSG_INFO("                     -----   DONE  Callback "<<m_callback_calls<<"  -----");
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+
+////////////////////////
+// callback for changing the FE-I4 HitDiscCnfg property
+////////////////////////
+StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+
+    m_callback_calls++;
+
+    ATH_MSG_INFO("                     -----   HitDiscCnfg callback   -----");
+    for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
+        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I << "\n\t\t\t\t\t-----mtst-----\n");
+
+
+
+    const AthenaAttributeList* attrlist = 0;
+    StatusCode sc = m_detStore->retrieve(attrlist, m_keyFEI4);
+    if(!sc.isSuccess()){
+        ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
+        return StatusCode::FAILURE;
+    }
+
+    if (msgLvl(MSG::DEBUG)) {
+        ATH_MSG_DEBUG("AthenaAttributeList for " << m_key << ":");
+        attrlist->print(std::cout);
+    }
+
+    const coral::Blob& blob=(*attrlist)["HitDiscCnfgData"].data<coral::Blob>();
+    const uint32_t* p = static_cast<const uint32_t*>(blob.startingAddress());
+
+
+    uint32_t cooldata;
+    unsigned int len = blob.size()/sizeof(uint32_t);
+    ATH_MSG_DEBUG("blob.size() = " << blob.size() << ", len = " << len);
+
+
+    for (unsigned int i = 0; i < len; ++i) {
+
+        cooldata = *p++;
+
+        ATH_MSG_DEBUG("Got hitdisccnfgData[" << i << "] = 0x" << std::hex << cooldata << std::dec);
+
+        // The implementation below uses one common value, one common 3D value,
+        // and an exception list of individual FEs, in order to save DB space.
+        // Here we convert this into only one common value and an exception list, i.e.
+        // if the 3D FEs have a different common value they are all added to the exception list
+
+        // Update the most common value, identified by 0xH0000000, where H = 00HH
+        if ((cooldata & 0x8FFFFFFF) == 0x0) {
+            ATH_MSG_DEBUG("Setting common HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
+            m_cabling->setCommonHitDiscCngf((cooldata&0x30000000) >> 28);
+        }
+
+        // Update all 3D sensors with a common value, identified by 0xZ0000000, where Z = 10hh
+        else if ((cooldata & 0x8FFFFFFF) == 0x80000000) {
+
+            ATH_MSG_DEBUG("Setting common 3D HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
+
+            // Loop over list of robs, find the 3D sensors and insert them in HitDiscCnfg map
+            for (auto robid : m_cabling->get_allRobs()) {
+
+                // Skip non-IBL ROBs (DBM is not affected by the common 3D value)
+                if (!isIBL(robid)) continue;
+
+                for (int link = 0 ; link < 8 ; ++link) {
+
+                    if (((robid&0xF)==1 && link > 3) || (((robid&0xF)==2) && link < 4))  {
+                        m_cabling->add_entry_HitDiscCnfg((robid | (link >> 24)), (cooldata & 0x30000000) >> 28);
+                    }
+                }
+            }
+        }
+
+
+        // Update a single link, 0xHLDDRRRR
+        else {
+            ATH_MSG_DEBUG("Setting HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28)
+                          << " for ROB 0x" << std::hex << (cooldata & 0xFFFFFF)
+                          << ", link " << std::dec << ((cooldata & 0xF000000) >> 24));
+            m_cabling->add_entry_HitDiscCnfg((cooldata & 0xFFFFFFF), (cooldata & 0x30000000) >> 28);
+        }
+
+    }
+
+    ATH_MSG_INFO("                     -----   DONE  Callback " << m_callback_calls << "  -----");
+
+    // Print map contents
+    if (msgLvl(MSG::DEBUG)) m_cabling->printHitDiscCnfg();
+
 
     return StatusCode::SUCCESS;
 }
@@ -1048,3 +1184,27 @@ PixelCablingSvc::moduletype PixelCablingSvc::getModuleType(const Identifier& id)
 
     return isType;
 }
+
+
+
+////////////////////////
+// getHitDiscCnfg - wrapper function to PixelCablingData::getHitDiscCnfg
+////////////////////////
+int PixelCablingSvc::getHitDiscCnfg(const uint32_t robId, const int link) {
+    return m_cabling->getHitDiscCnfg((link << 24) | robId);
+}
+
+
+////////////////////////
+// getHitDiscCnfg - overloaded function to be used by offline
+////////////////////////
+int PixelCablingSvc::getHitDiscCnfg(Identifier* pixelId) {
+
+    uint32_t robId = getRobId(m_idHelper->wafer_id(*pixelId));
+    int link = getFEwrtSlink(pixelId);
+    return getHitDiscCnfg(robId, link);
+}
+
+
+
+

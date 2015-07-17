@@ -78,6 +78,13 @@ class PixelCablingData
    std::string find_entry_offlineDCS(const Identifier);
    uint64_t getOnlineIdFromRobId(const uint32_t robid, const uint32_t link);
 
+   // FE-I4 HitDiscCnfg functions
+   void setCommonHitDiscCngf(int hitdisccnfg) {m_commonHitDiscCnfg = hitdisccnfg;}
+   void add_entry_HitDiscCnfg(const uint32_t, const int);
+   int getHitDiscCnfg(const uint32_t frontendId);
+   void printHitDiscCnfg(); // for debugging
+
+
    std::vector<uint32_t>& get_allRods();
    std::vector<uint32_t>& get_allRobs();
    unsigned int get_size_onoff() {return m_idMap_onoff.size();}    // get the size of the on-off map
@@ -97,6 +104,7 @@ class PixelCablingData
    std::map<std::string, Identifier> get_idMapDCSoff();
 
 
+
  private:
 
 
@@ -109,6 +117,12 @@ class PixelCablingData
    boost::unordered_map<std::string, Identifier> m_idMapDCSoff; // DCS name -> offline identifier
 
    std::map<uint32_t,bool> m_rodReadoutMap; // save readout speed for each ROD. false=40MBit, true=80MBit
+
+   // JUNE16:
+   // Map of HitDiscCnfg values for each IBL FE
+   // Format: [0xLDDRRR, H], where L = link, DD = subdet id, RRRR = rob id, H = HitDiscCnfg
+   boost::unordered_map<uint32_t, int> m_HitDiscCnfgMap;
+   int m_commonHitDiscCnfg;
 
 
    std::vector<uint32_t>* m_allRods;   // vector containing all RODs in the m_idMap_rodrob

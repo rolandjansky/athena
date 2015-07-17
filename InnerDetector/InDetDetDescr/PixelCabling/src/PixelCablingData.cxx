@@ -46,6 +46,8 @@ std::size_t hash_value(Identifier const& id) {
 PixelCablingData::PixelCablingData() {
     m_allRods = new std::vector<uint32_t>;
     m_allRobs = new std::vector<uint32_t>;
+
+    m_commonHitDiscCnfg = 3;
 }
 
 
@@ -299,6 +301,56 @@ uint64_t PixelCablingData::getOnlineIdFromRobId(const uint32_t robid, const uint
 
     return 0;
 }
+
+
+
+
+
+////////////////////////
+// add_entryHitDiscCngf - insert or modify entry in map
+////////////////////////
+void PixelCablingData::add_entry_HitDiscCnfg(const uint32_t frontendId, const int hitdisccnfg) {
+
+    // Insert new key-value pair
+    if (m_HitDiscCnfgMap.find(frontendId) == m_HitDiscCnfgMap.end()) {
+        m_HitDiscCnfgMap.insert(std::make_pair(frontendId, hitdisccnfg));
+    }
+    // Modify an existing entry
+    else {
+        m_HitDiscCnfgMap[frontendId] = hitdisccnfg;
+    }
+}
+
+
+
+////////////////////////
+// getHitDiscCnfg - get HitDiscCnfg mode for given FE-I4
+////////////////////////
+int PixelCablingData::getHitDiscCnfg(const uint32_t frontendId) {
+
+    // Search the map for given frontend id
+    // If not found, return the common HitDiscCnfg setting.
+    boost::unordered_map<uint32_t,int>::const_iterator iter(m_HitDiscCnfgMap.find(frontendId));
+    if (iter != m_HitDiscCnfgMap.end()) return iter->second;
+    else return m_commonHitDiscCnfg;
+
+}
+
+
+////////////////////////
+// printHitDiscCnfg - print the contents of the  HitDiscCnfg map
+////////////////////////
+void PixelCablingData::printHitDiscCnfg() {
+
+    std::cout << "Common HitDiscCnfg value: " << m_commonHitDiscCnfg << std::endl;
+    std::cout << "Contents of HitDiscCnfg map: " << std::endl;
+    boost::unordered_map<uint32_t,int>::const_iterator iter = m_HitDiscCnfgMap.begin();
+    for (; iter != m_HitDiscCnfgMap.end(); iter++) {
+        std::cout << "  FE ID: 0x" << std::hex << iter->first << "  -  HDC = " << std::dec << iter->second << std::endl;
+    }
+}
+
+
 
 // void PixelCablingData::copy_offonMap (std::map< Identifier, uint64_t> &outputMap){
 //   outputMap = m_idMap_offon;
