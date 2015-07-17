@@ -13,7 +13,6 @@ use  StoreGate                  StoreGate-*                     Control
 #use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
 use  VP1Base                    VP1Base-*                       graphics/VP1
 use  VP1Qt                      VP1Qt-*                         graphics/VP1
-use  ISF_FatrasDetDescrModel    ISF_FatrasDetDescrModel-*       Simulation/ISF/ISF_Fatras
 
 #Eigen migration
 #use  TrkEventPrimitives        TrkEventPrimitives-*            Tracking/TrkEvent
@@ -43,7 +42,6 @@ use  TileDetDescr               TileDetDescr-*                  TileCalorimeter
 use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
 use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
 use  VP1HEPVis                  VP1HEPVis-*                     graphics/VP1
-
 public
 
 apply_pattern qt4based_library

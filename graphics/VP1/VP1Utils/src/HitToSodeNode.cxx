@@ -33,10 +33,8 @@
 #include <cmath>
 
 
-
-
-
-
+#include "EventPrimitives/EventPrimitivesToStringConverter.h"
+#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 class HitToSoNode::Imp {
 public:
@@ -148,6 +146,8 @@ SoTransform * HitToSoNode::createTransform(const Trk::RIO_OnTrack& rio, bool use
 }
 
 SoTransform * HitToSoNode::createTGC_Transform(const Trk::RIO_OnTrack& rio, bool useSurfacePositionOnly) const {
+  // std::cout<<"createTGC_Transform for:\n"<<rio<<std::endl;
+
   const TgcIdHelper * idhelper = VP1DetInfo::tgcIDHelper();
   const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rio.detectorElement()); 
 
@@ -158,11 +158,15 @@ SoTransform * HitToSoNode::createTGC_Transform(const Trk::RIO_OnTrack& rio, bool
   const Trk::Surface& theSurface = rio.detectorElement()->surface(rio.identify());
   SoTransform * theHitTransform =0;
   if (idhelper->isStrip( rio.identify() )){
+    // std::cout<<"Strip"<<std::endl;
+    
       // for phi strips, use sinstereo to get correct orientation
 
     double angle = getTGCAngle(rio.identify());
 
     Amg::RotationMatrix3D localRot;
+    localRot.setIdentity();
+    
     if (0 < detEl->getStationEta()) { 
 //      localRot.setPhi (angle);
     	Amg::setPhi(localRot, angle);
@@ -170,11 +174,17 @@ SoTransform * HitToSoNode::createTGC_Transform(const Trk::RIO_OnTrack& rio, bool
 //      localRot.setPhi (-angle);
       Amg::setPhi(localRot, -angle);
     }
+    // std::cout<<"Local ROT = "<<localRot<<std::endl;
 
+    Amg::toString(localRot);
     localRot *= theSurface.transform().rotation();
+
+    // std::cout<<"translation = "<<Amg::toString(theSurface.transform().translation())<<std::endl;
 
 //    HepGeom::Transform3D trans (localRot, theSurface.transform().translation());
     Amg::Transform3D trans = Amg::getTransformFromRotTransl(localRot, theSurface.transform().translation() );
+    
+    // std::cout<<"transform = "<<Amg::toString(trans)<<std::endl;
 
     theHitTransform = VP1LinAlgUtils::toSoTransform(trans);
   } else {
@@ -245,8 +255,8 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
     Identifier id=rio.identify();
     fillValues(id, rio.detectorElement(), stripLength, stripWidth, stripThickness, localposStrip);
 
-  // std::cout<<"Got back: "<<stripLength<<","<<stripWidth<<","<<stripThickness<<std::endl;
-  // std::cout<<"LocalposStrip="<<*localposStrip<<std::endl;
+  //std::cout<<"Got back: "<<stripLength<<","<<stripWidth<<","<<stripThickness<<std::endl;
+  //std::cout<<"LocalposStrip="<<*localposStrip<<std::endl;
 
   // if (static_cast<PRDCollHandle_TGC*>(collHandle())->project())
   //   striplength += 300.0;//Fixme: Rough extension for now
@@ -260,18 +270,15 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
     }
 
     if (!blockGP){
+      SoSeparator * gpSep = new SoSeparator;
         SoTranslation * localtransGP = new SoTranslation;
         localtransGP->translation.setValue(static_cast<float>( (*localposROT)[Trk::locX]),
             static_cast<float>( (*localposROT)[Trk::locY]),
             0.0f);
-        shape_detailed->addChild(localtransGP);
-
-        shape_detailed->addChild(d->nodeManager.getShapeNode_Cross(10));
-        SoTranslation * localtransGPBack = new SoTranslation;
-        localtransGPBack->translation.setValue(static_cast<float>( -(*localposROT)[Trk::locX]),
-            static_cast<float>( -(*localposROT)[Trk::locY]),
-            0.0f);
-        shape_detailed->addChild(localtransGPBack); // back to centre of surface
+            
+        gpSep->addChild(localtransGP);
+        gpSep->addChild(d->nodeManager.getShapeNode_Cross(10));
+        shape_detailed->addChild(gpSep);
     }
 
 
@@ -280,12 +287,12 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
         static_cast<float>( (*localposStrip)[Trk::locY]),
         0.0f);
 
+
     shape_simple->addChild(localtrans0);
     shape_simple->addChild( d->nodeManager.getShapeNode_Strip(stripLength));
 
     shape_detailed->addChild(localtrans0);
     shape_detailed->addChild(d->nodeManager.getShapeNode_Strip(stripLength,stripWidth,stripThickness));
-
     // Transform back to centre of Surface
     SoTranslation * localtrans1 = new SoTranslation;
     localtrans1->translation.setValue(static_cast<float>( -(*localposStrip)[Trk::locX]),
@@ -295,10 +302,11 @@ void HitToSoNode::buildStripShapes(const Trk::RIO_OnTrack& rio, SoSeparator*&sha
     shape_detailed->addChild(localtrans1);
 
     delete localposStrip;
-    delete localposROT;
+    delete localposROT;    
 }
 
 void HitToSoNode::fillValues(Identifier& id, const Trk::TrkDetElementBase* baseDetEl, double& striplength, double& stripWidth, double& stripThickness, Amg::Vector2D*& localposStrip){
+
     const AtlasDetectorID * idhelper = VP1DetInfo::atlasIDHelper();
     if (!idhelper) return;
     if (idhelper->is_muon(id)){
@@ -349,7 +357,7 @@ void HitToSoNode::fillTGCValues(Identifier& id, const Trk::TrkDetElementBase* ba
     Amg::Vector3D globalPos_a = detEl->channelPos( id );
     bool ok = detEl->surface( id ).globalToLocal(globalPos_a, dummy, localPos_a);
     if (ok) {
-    		localposStrip = &localPos_a;
+    		localposStrip = new Amg::Vector2D(localPos_a);
     }
     else{
     	VP1Msg::message("fillTGCValues - Could not get localposStrip!!");
@@ -386,13 +394,13 @@ void HitToSoNode::fillRPCValues(Identifier& id, const Trk::TrkDetElementBase* ba
     Amg::Vector3D globalPos_a = detEl->stripPos( id );
     bool ok = detEl->surface( id ).globalToLocal(globalPos_a, dummy, localPos_a);
     if (ok) {
-    	localposStrip = &localPos_a;
+    	localposStrip = new Amg::Vector2D(localPos_a);
     }
     else{
     	VP1Msg::message("fillRPCValues - Could not get localposStrip!!");
     }
 
-    // std::cout<<"HitToSoNode::fillRPCValues channelPos = "<<detEl->stripPos( id )<<std::endl;
+    //std::cout<<"HitToSoNode::fillRPCValues channelPos = "<<detEl->stripPos( id )<<std::endl;
 
     if( !localposStrip )
     {
@@ -424,7 +432,7 @@ void HitToSoNode::fillCSCValues(Identifier& id, const Trk::TrkDetElementBase* ba
     Amg::Vector3D globalPos_a = detEl->stripPos( id );
     bool ok = detEl->surface( id ).globalToLocal(globalPos_a, dummy, localPos_a);
     if (ok) {
-    	localposStrip = &localPos_a;
+    	localposStrip = new Amg::Vector2D(localPos_a);
     }
     else{
     	VP1Msg::message("fillCSCValues - Could not get localposStrip!!");
