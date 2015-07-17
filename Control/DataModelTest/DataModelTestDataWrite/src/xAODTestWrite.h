@@ -17,11 +17,7 @@
 #define DATAMODELTESTDATAWRITE_XAODTESTWRITE_H
 
 
-//#include "DataModelTestDataWrite/HVec.h"
-#include "DataModelTestDataCommon/CVec.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 
 
 namespace DMTest {
@@ -61,17 +57,8 @@ public:
 
 
 private:
-  /// Test writing container with additional data.
-  StatusCode write_cvec_with_data();
-
-  /// Test schema evolution involving view container.
-  //StatusCode write_htest();
-
   /// Event counter.
   int m_count;
-
-  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
-  //SG::WriteHandleKey<DMTest::HVec> m_hvecKey;
 };
 
 

@@ -30,8 +30,4 @@ typedef G_v1 G;
 
 
 
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::G, 9744, 1)
-
-
 #endif // not DATAMODELTESTDATAWRITE_G_H

@@ -30,8 +30,4 @@ typedef GVec_v1 GVec;
 } // namespace DMTest
 
 
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::GVec, 9741, 1)
-
-
 #endif // not DATAMODELTESTDATAWRITE_GVEC_H
