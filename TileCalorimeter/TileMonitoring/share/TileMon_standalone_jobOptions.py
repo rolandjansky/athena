@@ -4,152 +4,172 @@
 #
 #==============================================================
 
+
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-topSequence += AthenaMonManager( "ManagedAthenaTileMon" )
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+from AthenaCommon import CfgMgr
+toolSvc = CfgMgr.ToolSvc()
+
+topSequence += CfgMgr.AthenaMonManager(name                  = 'ManagedAthenaTileMon'
+                                       , FileKey             = 'SHIFT'
+                                       , ManualDataTypeSetup = True
+                                       , DataType            = 'cosmics'
+                                       , Environment         = 'online'
+                                       , ManualRunLBSetup    = True
+                                       , Run                 = RunNumber
+                                       , LumiBlock           = 1)
+
 ManagedAthenaTileMon = topSequence.ManagedAthenaTileMon
 
-from AthenaCommon.AppMgr import ServiceMgr
 
-ManagedAthenaTileMon.FileKey = "SHIFT"
-ManagedAthenaTileMon.ManualDataTypeSetup = True
-ManagedAthenaTileMon.DataType            = "cosmics"
-if athenaCommonFlags.isOnline():
-    ManagedAthenaTileMon.Environment         = "online"
-else:
-    ManagedAthenaTileMon.Environment         = "online"
-    #ManagedAthenaTileMon.Environment         = "tier0"
+toolSvc += CfgMgr.TileDQFragMonTool(name                          = 'TileDQFragMon'
+                                    , OutputLevel                 = INFO
+                                    , TileRawChannelContainerDSP  = "TileRawChannelCnt"
+                                    , TileRawChannelContainerOffl = jobproperties.TileRecFlags.TileRawChannelContainer()
+                                    , TileDigitsContainer         = "TileDigitsCnt"
+                                    , NegAmpHG                    = -200.
+                                    , NegAmpLG                    = -15.
+                                    , SkipMasked                  = True
+                                    , SkipGapCells                = True
+                                    , doOnline                    = athenaCommonFlags.isOnline()
+                                    , doPlots                     = False
+                                    , CheckDCS                    = hasattr(svcMgr, "TileDCSSvc")
+                                    , histoPathBase               = "Tile/DMUErrors")
 
-#ManagedAthenaTileMon.ManualRunLBSetup    = False
-ManagedAthenaTileMon.ManualRunLBSetup    = True
-ManagedAthenaTileMon.Run                 = RunNumber
-ManagedAthenaTileMon.LumiBlock           = 1
+ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileDQFragMon ]
+
+toolSvc += CfgMgr.TileRODMonTool( name             = 'TileRODMon'
+                                  , OutputLevel    = INFO
+                                  , histoPathBase  = "/Tile/ROD"
+                                  , doOnline       =  athenaCommonFlags.isOnline())
+
+ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileRODMon ];
 
 
-from TileMonitoring.TileMonitoringConf import TileDQFragMonTool
-TileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
-                                  OutputLevel        = 3, 
-                                  TileRawChannelContainerDSP    = "TileRawChannelCnt",
-                                  TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer(),
-                                  TileDigitsContainer           = "TileDigitsCnt",
-                                  NegAmpHG           = -200.,
-                                  NegAmpLG           = -15.,
-                                  SkipMasked         = True,
-                                  SkipGapCells       = True,
-                                  doOnline           = athenaCommonFlags.isOnline(),
-                                  doPlots            = False,   
-                                  CheckDCS           = hasattr(ServiceMgr, "TileDCSSvc"),
-                                  histoPathBase      = "Tile/DMUErrors");
+if doTileTMDBDigitsMon:
+    toolSvc += CfgMgr.TileTMDBDigitsMonTool(name                  = 'TileTMDBDigitsMon'
+                                            , OutputLevel         = INFO
+                                            , TileDigitsContainer = "MuRcvDigitsCnt"
+                                            , histoPathBase       = "/Tile/TMDBDigits")
+ 
+    if (athenaCommonFlags.isOnline()):
+        toolSvc.TileTMDBDigitsMon.SummaryUpdateFrequency = 1000
 
-ToolSvc += TileDQFragMon;
-ManagedAthenaTileMon.AthenaMonTools += [ TileDQFragMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileTMDBDigitsMon ]
+    print toolSvc.TileTMDBDigitsMon
 
-from TileMonitoring.TileMonitoringConf import TileRODMonTool
-TileRODMon = TileRODMonTool( name             = 'TileRODMon',
-                             OutputLevel      = 3,
-                             histoPathBase    = "/Tile/ROD",
-                             doOnline         =  athenaCommonFlags.isOnline());
-ToolSvc += TileRODMon;
-ManagedAthenaTileMon.AthenaMonTools += [ TileRODMon ];
+if doTileTMDBRawChannelMon:
+    toolSvc += CfgMgr.TileTMDBRawChannelMonTool(name		= 'TileTMDBRawChannelDspMon'
+						, OutputLevel	= INFO
+                                                , NotDSP           = False
+						, TileRawChannelContainer = "MuRcvRawChCnt"
+						, histoPathBase = "/Tile/TMDBRawChannel/Dsp")
 
+
+    ManagedAthenaTileMon.AthenaMonTools += [toolSvc.TileTMDBRawChannelDspMon ]
+    print toolSvc.TileTMDBRawChannelDspMon
+
+    toolSvc += CfgMgr.TileTMDBRawChannelMonTool(name		          = 'TileTMDBRawChannelMon'
+						, OutputLevel	          = INFO
+						, TileRawChannelContainer = "TileMuRcvRawChannelOpt2"
+                                                , NotDSP                   = True
+                                                , AmplitudeThresholdForTime = 10.0
+						, histoPathBase           = "/Tile/TMDBRawChannel")
+
+
+    ManagedAthenaTileMon.AthenaMonTools += [toolSvc.TileTMDBRawChannelMon ]
+    print toolSvc.TileTMDBRawChannelMon
 
 if doTileL2Mu:
 
-    from TileMonitoring.TileMonitoringConf import TileL2MonTool
-    TileL2MuMon = TileL2MonTool(name                = 'TileL2MuMon',
-                                OutputLevel         = 3, 
-                                histoPathBase       = "/Tile/L2Muon");
-    ToolSvc += TileL2MuMon;
-    ManagedAthenaTileMon.AthenaMonTools += [ TileL2MuMon ];
+    toolSvc += CfgMgr.TileL2MonTool(name                = 'TileL2MuMon'
+                                    , OutputLevel         = INFO
+                                    , histoPathBase       = "/Tile/L2Muon")
+
+    ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileL2MuMon ]
 
 
 if doTileCells:
     
-    from TileMonitoring.TileMonitoringConf import TileCellMonTool
-    TileCellMon = TileCellMonTool(name               = 'TileCellMon',
-                                  OutputLevel        = 3, 
-                                  doOnline           = athenaCommonFlags.isOnline(),
-                                  cellsContainerName = "AllCalo",
-                                  histoPathBase      = "/Tile/Cell");
+    toolSvc += CfgMgr.TileCellMonTool(name                 = 'TileCellMon'
+                                      , OutputLevel        = INFO
+                                      , doOnline           = athenaCommonFlags.isOnline()
+                                      , cellsContainerName = "AllCalo"
+                                      , histoPathBase      = "/Tile/Cell")
 
     if (jobproperties.Beam.beamType() == 'singlebeam'):
-        TileCellMon.FillTimeHistograms = True
-        TileCellMon.energyThresholdForTime = 150.0
+        toolSvc.TileCellMon.FillTimeHistograms = True
+        toolSvc.TileCellMon.energyThresholdForTime = 150.0
 
-    ToolSvc += TileCellMon;
-    ManagedAthenaTileMon.AthenaMonTools += [ TileCellMon ];
+    ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileCellMon ]
 
     if doTowers:
-        from TileMonitoring.TileMonitoringConf import TileTowerMonTool
-        TileTowerMon = TileTowerMonTool(name                = 'TileTowerMon',
-                                        OutputLevel         = 3, 
-                                        towersContainerName = "TileTower",
-                                        histoPathBase       = "/Tile/Tower");
-        ToolSvc += TileTowerMon;
-        ManagedAthenaTileMon.AthenaMonTools += [ TileTowerMon ];
+
+        toolSvc += CfgMgr.TileTowerMonTool(name                  = 'TileTowerMon'
+                                           , OutputLevel         = INFO
+                                           , towersContainerName = "TileTower"
+                                           , histoPathBase       = "/Tile/Tower")
+
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileTowerMon ]
 
     if doClusters:
-        from TileMonitoring.TileMonitoringConf import TileClusterMonTool
-        TileClusterMon = TileClusterMonTool(name              = 'TileClusterMon',
-                                            OutputLevel           = 3,
-                                            clustersContainerName = "TileTopoCluster",
-                                            histoPathBase       = "/Tile/Cluster");
-        ToolSvc += TileClusterMon;
-        ManagedAthenaTileMon.AthenaMonTools += [ TileClusterMon ];
+
+        toolSvc += CfgMgr.TileClusterMonTool(name                    = 'TileClusterMon'
+                                             , OutputLevel           = INFO
+                                             , clustersContainerName = "TileTopoCluster"
+                                             , histoPathBase         = "/Tile/Cluster")
+
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileClusterMon ]
 
     if doTileMuId:
-        from TileMonitoring.TileMonitoringConf import TileMuIdMonTool
-        TileMuIdMon = TileMuIdMonTool(name                = 'TileMuIdMon',
-                                      OutputLevel         = 3, 
-                                      histoPathBase       = "/Tile/Muid");
-        ToolSvc += TileMuIdMon;
-        ManagedAthenaTileMon.AthenaMonTools += [ TileMuIdMon ];
+
+        toolSvc += CfgMgr.TileMuIdMonTool(name                  = 'TileMuIdMon'
+                                          , OutputLevel         = INFO
+                                          , histoPathBase       = "/Tile/Muid")
+
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileMuIdMon ]
 
     if doTileMuonFit:
-        from TileMonitoring.TileMonitoringConf import TileMuonFitMonTool
-        TileMuonFitMon = TileMuonFitMonTool(name                = 'TileMuonFitMon',
-                                            OutputLevel         = 3, 
-                                            UseLVL1             = False,
-                                            histoPathBase       = "/Tile/MuonFit");
-        ToolSvc += TileMuonFitMon;
-        ManagedAthenaTileMon.AthenaMonTools += [ TileMuonFitMon ];
+
+        toolSvc += CfgMgr.TileMuonFitMonTool(name                  = 'TileMuonFitMon'
+                                             , OutputLevel         = INFO
+                                             , UseLVL1             = False
+                                             , histoPathBase       = "/Tile/MuonFit")
+
+        ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileMuonFitMon ]
 
 
     # MBTS monitoring
     if doMBTS:
-        topSequence += AthenaMonManager( "ManagedAthenaMBTSMon" )
+        topSequence += CfgMgr.AthenaMonManager(name                  = 'ManagedAthenaMBTSMon'
+                                               , FileKey             = 'SHIFT'
+                                               , ManualDataTypeSetup = True
+                                               , DataType            = 'cosmics'
+                                               , Environment         = 'online'
+                                               , ManualRunLBSetup    = True
+                                               , Run                 = RunNumber
+                                               , LumiBlock           = 1)
+
         ManagedAthenaMBTSMon = topSequence.ManagedAthenaMBTSMon
 
-        ManagedAthenaMBTSMon.FileKey = "SHIFT"
-        ManagedAthenaMBTSMon.ManualDataTypeSetup = True
-        ManagedAthenaMBTSMon.DataType            = "cosmics"
-        if athenaCommonFlags.isOnline():
-            ManagedAthenaMBTSMon.Environment         = "online"
-        else:
-            ManagedAthenaMBTSMon.Environment         = "online"
-            #ManagedAthenaTileMon.Environment         = "tier0"
-
-        #ManagedAthenaTileMon.ManualRunLBSetup    = False
-        ManagedAthenaMBTSMon.ManualRunLBSetup    = True
-        ManagedAthenaMBTSMon.Run                 = RunNumber
-        ManagedAthenaMBTSMon.LumiBlock           = 1
 
         from TileMonitoring.TileMonitoringConf import TileMBTSMonTool
-        TileMBTSMon = TileMBTSMonTool(  name            = 'TileMBTSMon',
-                                        OutputLevel     = 3,
-                                        histoPathBase   = "/Tile/MBTS",
-                                        LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc",
-                                        doOnline        = athenaCommonFlags.isOnline(),
-                                        readTrigger     = doTrigger);
+        toolSvc += CfgMgr.TileMBTSMonTool( name            = 'TileMBTSMon'
+                                           , OutputLevel     = INFO
+                                           , histoPathBase   = "/Tile/MBTS"
+                                           , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
+                                           , doOnline        = athenaCommonFlags.isOnline()
+                                           , readTrigger     = doTrigger)
 
-        ToolSvc += TileMBTSMon;
-        ManagedAthenaMBTSMon.AthenaMonTools += [ TileMBTSMon ];
+        ManagedAthenaMBTSMon.AthenaMonTools += [ toolSvc.TileMBTSMon ]
 
-        print ManagedAthenaMBTSMon;
+        print ManagedAthenaMBTSMon
 
-print ManagedAthenaTileMon;
+print ManagedAthenaTileMon
 
 
 import os
@@ -162,7 +182,7 @@ if not  athenaCommonFlags.isOnline() or storeHisto or athenaCommonFlags.isOnline
         svcMgr += THistSvc("THistSvc")
     if os.path.exists(RootHistOutputFileName):
         os.remove(RootHistOutputFileName)
-    svcMgr.THistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
+    svcMgr.THistSvc.Output = [MonitorOutput + " DATAFILE='" + RootHistOutputFileName + "' OPT='RECREATE'"]
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")

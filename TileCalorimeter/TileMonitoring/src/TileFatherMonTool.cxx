@@ -19,6 +19,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/TileID.h"
 
+
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileContainer.h"
@@ -64,6 +65,7 @@ TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("MBTSCellContainerID", m_MBTSCellContainerID = "MBTSContainer");
+  declareProperty("CellsContainerName" , m_cellsContainerName = "AllCalo"); //SG Cell Container
 
   // conversion from ROS index to partition index
   m_ros2partition[TileHWID::BEAM_ROS] = NumPart;
@@ -212,7 +214,7 @@ void TileFatherMonTool::fillEvtInfo()
 
   if (m_evtNum != TileFatherMonTool::m_lastevent) {
     TileFatherMonTool::m_lastevent = m_evtNum;
-    collcand();
+    checkIsCollision();
   }
 
 }
@@ -263,200 +265,106 @@ void TileFatherMonTool::get_eventTrigs(uint32_t lvl1info) {
 }
 
 /*---------------------------------------------------------*/
-void TileFatherMonTool::collcand() {
+void TileFatherMonTool::checkIsCollision() {
   /*---------------------------------------------------------*/
 
-  TileFatherMonTool::m_tdiff = -999.;
-  TileFatherMonTool::m_iscoll = false;
-
-//  Int_t MBTS_cont = -1;		//Lukas
-//  Int_t ECells_cont = -1;		//Lukas
-//  Float_t t_diff_MBTS = -999;		//Lukas
-//  Float_t t_diff_ECells = -999;		//Lukas
+  TileFatherMonTool::m_time_difference = -999.;
+  TileFatherMonTool::m_is_collision = false;
 
   if (m_MBTSCellContainerID.size() > 0) {
 
-    const TileCellContainer* theMBTScontainer;
+    const TileCellContainer* mbts_container;
 
-//    MBTS_cont = 1;	//Lukas
-
-    if (evtStore()->retrieve(theMBTScontainer, m_MBTSCellContainerID).isFailure()) {
+    if (evtStore()->retrieve(mbts_container, m_MBTSCellContainerID).isFailure()) {
       ATH_MSG_INFO( "Can't find TileCellContainer with name " << m_MBTSCellContainerID
-                    << " in TES. No CollCand evaluation possible!" );
+                    << " in TES. No checking if it is collision possible!" );
 
       ATH_MSG_INFO( "Will not try to read this container anymore!" );
 
       m_MBTSCellContainerID = "";
 
-      // MBTS_cont=2;	//Lukas
     } else {
-      // MBTS_cont=3;	//Lukas
 
-      int tHitsA = 0, tHitsC = 0;
-      double timeA = 0., timeC = 0.;
-      int counter = -1;
+      int nHitsA = 0;
+      int nHitsC = 0;
+      double timeA = 0.;
+      double timeC = 0.;
 
-      TileCellContainer::const_iterator iCell = theMBTScontainer->begin();
-      TileCellContainer::const_iterator lastCell = theMBTScontainer->end();
-
-      for (; iCell != lastCell; ++iCell) {
-        Identifier id;
-        const TileCell* mbtsCell = *iCell;   // pointer to cell object
-        if (mbtsCell != 0) {
-          id = mbtsCell->ID();
-
-          // Calculate MBTS counter from "side", "tower" and "module"
-          // Counter goes 0-31.
-          // EBA-inner:0-7,EBA-outer:8-15,EBC-inner:16-23,EBC-outer:24-31
-          // tower is 1 for outer counter (lower eta) and 0 for inner counter (higher eta)
-          // module counts from 0-7 in increasing phi
-          // side is -1 for EBC 1 for EBA
-          //int counter = (m_tileID->module(id)*2+1) - m_tileID->tower(id);
-          counter = (m_tileID->module(id)) + 8 * (m_tileID->tower(id));
-          if (m_tileID->side(id) < 0) // EBC side
-            counter += 16;
-
-          if (mbtsCell->energy() < 0.27) continue; //threshold approx 60./222.
-          if (TMath::Abs(mbtsCell->time()) < 1.e-5) continue; //
-
-          if (counter < 0) continue;
-          if (counter < 16) {
-            tHitsA++;
-            timeA += mbtsCell->time();
-          } else {
-            tHitsC++;
-            timeC += mbtsCell->time();
-          }
-
-        } // end if cell not empty
+      for (const TileCell* mbts_cell : *mbts_container) {
+        if (mbts_cell->energy() < 0.27 || TMath::Abs(mbts_cell->time()) < 1.e-5) continue; //threshold approx 60./222.
+        
+        if (m_tileTBID->side(mbts_cell->ID()) > 0) {
+          ++nHitsA;
+          timeA += mbts_cell->time();
+        } else {
+          ++nHitsC;
+          timeC += mbts_cell->time();
+        }
+        
       } // end Cell loop
-
-      if (tHitsA > 1 && tHitsC > 1) {
-        TileFatherMonTool::m_tdiff = timeA / tHitsA - timeC / tHitsC;
-//        t_diff_MBTS = TileFatherMonTool::m_tdiff;	//Lukas testing
-
-        if (TMath::Abs(TileFatherMonTool::m_tdiff) < 7.5) {
-          TileFatherMonTool::m_iscoll = true;
-          // MBTS_cont = 4;	//Lukas
+      
+      if (nHitsA > 1 && nHitsC > 1) {
+        TileFatherMonTool::m_time_difference = timeA / nHitsA - timeC / nHitsC;
+        if (TMath::Abs(TileFatherMonTool::m_time_difference) < 7.5) {
+          TileFatherMonTool::m_is_collision = true;
         }
       }
     }
-  } else {
-    // MBTS_cont = 0;	//Lukas
   }
 
-  //Lukas
-  //if(MBTS_cont != 4){
-  if (false) {	//only for testing
+  if (!TileFatherMonTool::m_is_collision && !m_cellsContainerName.empty()) {
 
-    //Lukas; code from TileCellMonTool.cxx
-
-    // Pointer to a Tile cell container
     const CaloCellContainer* cell_container;
 
-    std::string cellsContName = "AllCalo";
+    if (evtStore()->retrieve(cell_container, m_cellsContainerName).isFailure()) {
+      ATH_MSG_INFO( "TileCellMonTool: Retrieval of Tile cells from container " << m_cellsContainerName 
+                    << " failed! No checking if it is collision possible!" );
+      ATH_MSG_INFO( "Will not try to read this container anymore!" );
 
-    //Retrieve Cell collection from SG
+      m_cellsContainerName = "";
 
-    if (evtStore()->retrieve(cell_container, cellsContName).isFailure()) {
-      ATH_MSG_WARNING( "TileCellMonTool: Retrieval of Tile cells from container " << cellsContName << " failed" );
-
-      // ECells_cont=0;
     } else {
-      int tHitsA = 0, tHitsC = 0;
-      double timeA = 0., timeC = 0.;
+      int nHitsA = 0;
+      int nHitsC = 0;
+      double timeA = 0.0;
+      double timeC = 0.0;
 
-      // ECells_cont=1;
+      for (const CaloCell* cell : *cell_container) {
 
-      CaloCellContainer::const_iterator iCell = cell_container->begin();
-      CaloCellContainer::const_iterator lastCell = cell_container->end();
-
-      for (; iCell != lastCell; ++iCell) {
-
-        const CaloCell* cell_ptr = *iCell;     // pointer to cell object
-        Identifier id = cell_ptr->ID();
+        Identifier id = cell->ID();
 
         if (m_tileID->is_tile(id)) {
 
-          const TileCell* tile_cell = dynamic_cast<const TileCell*>(cell_ptr);
-          if (tile_cell == 0) continue;
-
-          int samp = std::min(m_tileID->sample(id), (int) AllSamp);
-          int side = m_tileID->side(id);
+          const TileCell* tile_cell = dynamic_cast<const TileCell*>(cell);
 
           // get the cell energy, time
-          double time = cell_ptr->time();
-          double energy = cell_ptr->energy();
+          double time = tile_cell->time();
+          double energy = tile_cell->energy();
 
-          if (energy < 0.27) continue; //threshold approx 60./222. ???????????????????????????????????? is this same for ECells as for MBTS?
-          if (TMath::Abs(time) < 1.e-5) continue;
-          if (side > 0) {
-            if (samp == 3) {
-              tHitsA++;
+          if (energy < 500.0 || TMath::Abs(time) < 1.e-5) continue; 
+
+          if (m_tileID->sample(id) == TileID::SAMP_E) {
+            if (m_tileID->side(id) == TileID::POSITIVE) {
+              ++nHitsA;
               timeA += time;
-            }
-
-          } else if (side < 0) {
-            if (samp == 3) {
-              tHitsC++;
+            } else {
+              ++nHitsC;
               timeC += time;
             }
           } //if partition
         } // end if tile_cell
       } // end of loop over the Cells
 
-      if (tHitsA > 1 && tHitsC > 1) {
-        TileFatherMonTool::m_tdiff = timeA / tHitsA - timeC / tHitsC;
-        // t_diff_ECells = TileFatherMonTool::m_tdiff;	//Lukas testing
+      if (nHitsA > 1 && nHitsC > 1) {
+        TileFatherMonTool::m_time_difference = timeA / nHitsA - timeC / nHitsC;
 
-        if (TMath::Abs(TileFatherMonTool::m_tdiff) < 7.5) {
-          TileFatherMonTool::m_iscoll = true;
+        if (TMath::Abs(TileFatherMonTool::m_time_difference) < 7.5) {
+          TileFatherMonTool::m_is_collision = true;
         }
       }
     } //sc1 else
 
-  } //if(MBTS)
-  /*
-   //++++++Testing++++++
-  if (MBTS_cont < 0) ATH_MSG_WARNING( MSG::WARNING << "MBTS_cont==-1" );
-  if (ECells_cont < 0) ATH_MSG_WARNING( "ECells_cont==-1" );
-
-  // MBTSvsECells possible values> 0;1;2;3;
-
-  if ((MBTS_cont == 3) == false && (ECells_cont == 1) == false) { //MBTS and ECells fail
-    if (TileFatherMonTool::m_iscoll) {
-      ATH_MSG_WARNING( "MBTSvsECells	0	is_coll	1	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    } else {
-      ATH_MSG_WARNING( "MBTSvsECells	0	is_coll	0	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    }
   }
-
-  if ((MBTS_cont == 3) == true && (ECells_cont == 1) == false) { //MBTS works and ECells fails
-    if (TileFatherMonTool::m_iscoll) {
-      ATH_MSG_WARNING( "MBTSvsECells	1	is_coll	1	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    } else {
-      ATH_MSG_WARNING( "MBTSvsECells	1	is_coll	0	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    }
-  }
-
-  if ((MBTS_cont == 3) == false && (ECells_cont == 1) == true) { //MBTS fails and ECells works
-    if (TileFatherMonTool::m_iscoll) {
-      ATH_MSG_WARNING( "MBTSvsECells	2	is_coll	1	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    } else {
-      ATH_MSG_WARNING( "MBTSvsECells	2	is_coll	0	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    }
-  }
-
-  if ((MBTS_cont == 3) == true && (ECells_cont == 1) == true) { //MBTS and ECells works
-    if (TileFatherMonTool::m_iscoll) {
-      ATH_MSG_WARNING( "MBTSvsECells	3	is_coll	1	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-
-    } else {
-      ATH_MSG_WARNING( "MBTSvsECells	3	is_coll	0	t_diff_ECells	" << t_diff_ECells << "	t_diff_MBTS	" << t_diff_MBTS );
-    }
-  }
-   */
-  //Lukas
 }
 
 //Generic Method to set the bin labels of an axis
@@ -504,7 +412,7 @@ void TileFatherMonTool::ShiftTprofile(TProfile* histo, int delta_lb) {
 }
 
 
-bool TileFatherMonTool::m_iscoll = false;
+bool TileFatherMonTool::m_is_collision = false;
 unsigned int TileFatherMonTool::m_lastevent = 0;
-float TileFatherMonTool::m_tdiff = 999.;
+float TileFatherMonTool::m_time_difference = 999.;
 

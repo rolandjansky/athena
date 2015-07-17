@@ -37,6 +37,7 @@ class TMultiGraph;
 class TAxis;
 class StoreGateSvc;
 class TileID;
+class TileTBID;
 class TileHWID;
 class TileCablingService;
 
@@ -179,6 +180,7 @@ protected:
 
   const TileID* m_tileID;
   const TileHWID* m_tileHWID;
+  const TileTBID* m_tileTBID;
   const TileCablingService* m_cabling;
 
   bool m_savePng;
@@ -200,6 +202,15 @@ protected:
   inline std::string getCellName(unsigned int ros, unsigned int channel) {
     if (ros < 3) return m_LBcellName[channel];
     else return m_EBcellName[channel];
+  };
+
+
+  std::string m_TMDB_LB_cell_names[8] = {"D0", "D1L", "D1R", "D2R", "D2L", "D3L", "D3R", ""}; // should be corrected at some time
+  std::string m_TMDB_EB_cell_names[4] = {"D5L", "D5R", "D6L", "D6R"};
+
+  inline std::string getTMDBCellName(unsigned int ros, unsigned int channel) {
+    if (ros < 3) return m_TMDB_LB_cell_names[channel];
+    else return m_TMDB_EB_cell_names[channel];
   };
 
 

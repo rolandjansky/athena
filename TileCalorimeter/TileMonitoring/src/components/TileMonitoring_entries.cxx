@@ -14,6 +14,8 @@
 #include "TileMonitoring/TileRODMonTool.h"
 #include "TileMonitoring/TileJetMonTool.h"
 #include "TileMonitoring/TileDigiNoiseMonTool.h"
+#include "TileMonitoring/TileTMDBDigitsMonTool.h"
+#include "TileMonitoring/TileTMDBRawChannelMonTool.h"
 #include "TileMonitoring/TileCellNoiseMonTool.h"
 #include "TileMonitoring/TileRawChannelTimeMonTool.h"
 #include "TileMonitoring/TileRawChannelNoiseMonTool.h"
@@ -33,6 +35,8 @@ DECLARE_TOOL_FACTORY(TileDQFragMonTool )
 DECLARE_TOOL_FACTORY(TileRODMonTool )
 DECLARE_TOOL_FACTORY(TileJetMonTool )
 DECLARE_TOOL_FACTORY(TileDigiNoiseMonTool )
+DECLARE_TOOL_FACTORY(TileTMDBDigitsMonTool )
+DECLARE_TOOL_FACTORY(TileTMDBRawChannelMonTool )
 DECLARE_TOOL_FACTORY(TileCellNoiseMonTool )
 DECLARE_TOOL_FACTORY(TileRawChannelTimeMonTool )
 DECLARE_TOOL_FACTORY(TileRawChannelNoiseMonTool )
@@ -53,6 +57,8 @@ DECLARE_FACTORY_ENTRIES(TileMonitoring) {
   DECLARE_ALGTOOL(TileRODMonTool )
   DECLARE_ALGTOOL(TileJetMonTool )
   DECLARE_ALGTOOL(TileDigiNoiseMonTool )
+  DECLARE_ALGTOOL(TileTMDBDigitsMonTool )
+  DECLARE_ALGTOOL(TileTMDBRawChannelMonTool )
   DECLARE_ALGTOOL(TileCellNoiseMonTool )
   DECLARE_ALGTOOL(TileRawChannelTimeMonTool )
   DECLARE_ALGTOOL(TileRawChannelNoiseMonTool )

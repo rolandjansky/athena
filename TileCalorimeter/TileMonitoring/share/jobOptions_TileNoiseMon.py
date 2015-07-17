@@ -54,7 +54,6 @@ if doTileMonDQ:
 if doTileDigiNoiseMon:
     toolSvc += CfgMgr.TileDigiNoiseMonTool(name               = 'TileDigiNoiseMon'
                                            , OutputLevel        = WARNING
-                                           , bigain             = True
                                            , TileDigitsContainer = "TileDigitsCnt"
                                            , histoPathBase = "/Tile/DigiNoise"
                                            , FillEmptyFromDB = True

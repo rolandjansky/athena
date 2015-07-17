@@ -65,6 +65,8 @@ class TileMBTSMonTool: public TileFatherMonTool {
     TProfile* m_h_sumEnergy;
     TProfile* m_h_sumEnergy_wTBP;
     TProfile* m_h_sumTime;
+    TH1F* m_h_timeA;
+    TH1F* m_h_timeC;
     TH1F* m_h_timeDiff;
     TH2F* m_h_timeDiffLumi;
     TH2S* m_h_coinEnergyHits;
@@ -146,7 +148,6 @@ class TileMBTSMonTool: public TileFatherMonTool {
 
     double m_energyCut[32];  // Controls entries in m_hasHit
     std::string m_CTPcabling;  // Controls CTP mapping to use
-    const TileTBID* m_tileTBID;
 
     int m_MBTSchannels[2][64];
     int m_MBTScounters[2][64];

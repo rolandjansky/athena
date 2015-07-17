@@ -147,6 +147,22 @@ if ReadESD:
     #rec.readRDO.set_Value_and_Lock(False)
     #rec.doWriteESD.set_Value_and_Lock(False)
 
+    # Temporarily
+    from AthenaCommon.DetFlags import DetFlags
+    DetFlags.ID_setOff()
+    DetFlags.Muon_setOff()
+    DetFlags.Truth_setOff()
+    DetFlags.LVL1_setOff()
+
+    DetFlags.dcs.Tile_setOn()
+    DetFlags.detdescr.ID_setOff()
+    DetFlags.detdescr.Muon_setOff()
+    DetFlags.detdescr.LAr_setOn()
+    DetFlags.detdescr.Tile_setOn()
+    DetFlags.detdescr.LVL1_setOn()
+    DetFlags.Print()
+
+
 if ReadAOD:
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock(FileNameVec)
     rec.readAOD.set_Value_and_Lock(True)
@@ -174,13 +190,13 @@ rec.doMonitoring.set_Value_and_Lock(False)
 rec.doPerfMon.set_Value_and_Lock(False)
 rec.doDetailedPerfMon.set_Value_and_Lock(False)
 rec.doSemiDetailedPerfMon.set_Value_and_Lock(False)
-rec.OutputLevel.set_Value_and_Lock(WARNING)
+rec.OutputLevel.set_Value_and_Lock(INFO)
 # RecExCommon
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 if not 'MonitorOutput' in dir():
 #   MonitorOutput="SHIFT"
-   MonitorOutput="EXPERT"
+   MonitorOutput="Tile"
 
 #**************************************************************
 #
@@ -212,11 +228,17 @@ ManagedAthenaTileMon.Run                 = RunNumber
 ManagedAthenaTileMon.LumiBlock           = 1
 
 from TileMonitoring.TileMonitoringConf import TileJetMonTool
-TileJetMonTool = TileJetMonTool(name               = 'TileJetMonTool',
+TileJetMonTool = TileJetMonTool(name              = 'TileJetMonTool',
                                 jetPtMin          = 20000.0,
                                 jetEtaMax         = 1.4,
-                                jetCollectionName = 'AntiKt4TopoEMJets',
-                                OutputLevel        = INFO);
+                                jetCollectionName = 'AntiKt4EMTopoJets',
+                                do_1dim_histos    = True,
+                                do_2dim_histos    = True,
+                                do_enediff_histos = True,
+                                energyChanMin     = 2000,
+                                energyChanMax     = 4000,
+                                enediff_threshold = 2000,
+                                OutputLevel       = INFO);
 ToolSvc += TileJetMonTool;    
 ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ];
 

@@ -606,7 +606,7 @@ StatusCode TileRODMonTool::fillHistograms()
   memset(m_evTref, 0, sizeof(m_evTref));
 
   // Compute Collision Candidates variable to fill Timing Monitoring plot
-  //LF: NOT NEEDED, already done once. collcand();  // m_iscoll=true if TMBTSc-TMBSa < 7.5ns
+  //LF: NOT NEEDED, already done once. collcand();  // m_is_collision=true if TMBTSc-TMBSa < 7.5ns
 
   
 
@@ -790,7 +790,7 @@ StatusCode TileRODMonTool::fillHistograms()
               m_TileDspRefSummary[1][vecIndx(element)]->Fill((ros - 1) * 32 + (rod - 1) * 4 + dsp, tdsp - tref);
             }
 
-            if (m_iscoll == true)
+            if (m_is_collision == true)
               m_TdspProfile[ros - 1][vecIndx(element)]->Fill(drawer + 1, chan, tdsp, 1);
 
           }
