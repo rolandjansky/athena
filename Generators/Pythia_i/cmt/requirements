@@ -101,7 +101,7 @@ macro_append PythiaLibFiles " PythiaDummies/fhsetflags.F"
 macro_append PythiaLibFiles " PythiaDummies/fhsetpara.F"
 
 apply_pattern named_dual_use_library library="Pythia_i" files=$(PythiaLibFiles)
-macro_append  Pythia_i_shlibflags  "$(HepMC_IO_linkopts)"
+macro_append  Pythia_i_shlibflags  " $(HepMC_IO_linkopts) "
 
 macro_append Pythia_i_cppflags '-DPY6VERSION=\"$(pythia_native_version)\" '
 
