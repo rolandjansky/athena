@@ -4,3 +4,4 @@ use AtlasPolicy      AtlasPolicy-*
 
 use GaudiInterface   GaudiInterface-*    External
 
+use Geant4           Geant4-*            External
