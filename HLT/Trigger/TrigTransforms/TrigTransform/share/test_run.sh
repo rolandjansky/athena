@@ -31,8 +31,10 @@ runTest12=false
 runTest22=false
 # 03 run via a JSON file (otherwise as 01) - works
 # 13 as 03 but with debug stream=True - works (BS file renaming to be finalised)
+# 23 like 13 but with copy of file to test input ending with .data
 runTest03=false
 runTest13=false
+runTest23=false
 # 04 uses dumpOptions to show that athenaopts gives the same as DB args as in 01 - works
 runTest04=false
 # 05 run using testPhysicsV5 instead of from DB - works
@@ -54,6 +56,7 @@ if [ "$*" == "" ]; then
     runTest22=true
     runTest03=true
     runTest13=true
+    runTest23=true
     runTest04=true
     runTest05=true
     runTest00J=true
@@ -100,6 +103,11 @@ fi
 if [ "$1" == "13" ]; then
     echo "***Selected: runTest13***"
     runTest13=true
+fi
+
+if [ "$1" == "23" ]; then
+    echo "***Selected: runTest23***"
+    runTest23=true
 fi
 
 if [ "$1" == "04" ]; then
@@ -582,6 +590,48 @@ grep lfn metadata.xml
 #diff ../runTest01_BSRDO_BS/jobReport.json jobReport.json
 #echo "---compare jobReport.txt to runTest01"
 #diff ../runTest01_BSRDO_BS/jobReport.txt jobReport.txt
+
+cd ..
+
+echo "************"
+
+fi
+
+##############################################################################
+
+if $runTest23 ; then
+
+echo -e "\n******runTest23: BSRDO->BS with copy of file first ******"
+
+rm -rf runTest23_BSRDO_BS
+mkdir runTest23_BSRDO_BS
+cd runTest23_BSRDO_BS
+
+xrdcp -f root://eosatlas//eos/atlas/atlasdatadisk/rucio/data15_cos/fe/0c/data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 .
+
+mv data15_cos.00253010.physics_IDCosmic.merge.RAW._lb0010._SFO-ALL._0001.1 data15_13TeV.00271595.debug_PUTimeout.daq.RAW._lb0000._SFO-5._0004.data
+
+echo "{\
+\"outputBSFile\": \"data15_13TeV.00271595.debugrec_hlt.reproc.RAW.g17#data15_13TeV.00271595.debugrec_hlt.reproc.RAW.g17._0073\", \
+\"inputBS_RDOFile\": [\"data15_13TeV.00271595.debug_all.daq.RAW#data15_13TeV.00271595.debug_PUTimeout.daq.RAW._lb0000._SFO-5._0004.data\"], \
+\"ignoreErrors\": \"True\", \
+\"athenaopts\": \"-c testPhysicsV5=True\" \
+}" \
+> data15_cos.00271595.debug_all.daq.RAW.g17.dbgrec.task._0005.job.argdict.json 
+
+Trig_reco_tf.py --argJSON=data15_cos.00271595.debug_all.daq.RAW.g17.dbgrec.task._0005.job.argdict.json \
+> log.txt 2>&1
+
+echo "***trf command***"
+grep "command line was" log.txt
+echo "***trf end status***"
+tail log.txt -n 1
+echo "***runTest23: BSRDO->BS completed***"
+
+echo "---test BS file created---$ ls data15_13TeV.00271595.debugrec_hlt.reproc.RAW.g17._0073"
+ls data15_13TeV.00271595.debugrec_hlt.reproc.RAW.g17._0073
+echo "---test metadata---$ grep lfn metadata.xml"
+grep lfn metadata.xml
 
 cd ..
 

@@ -6,15 +6,15 @@
 from PyUtils import RootUtils
 ROOT = RootUtils.import_root()
 from ROOT import std
-import PyCintex
+import cppyy
 from CLIDComps.clidGenerator import clidGenerator
 
 clidg = clidGenerator("")
 
-PyCintex.makeNamespace('HLT')
-ActualHLTResult = PyCintex.makeClass('HLT::HLTResult')
+cppyy.makeNamespace('HLT')
+ActualHLTResult = cppyy.makeClass('HLT::HLTResult')
 
-stringSerializer = PyCintex.makeClass('StringSerializer')()
+stringSerializer = cppyy.makeClass('StringSerializer')()
 
 class hltResult(ActualHLTResult):
   def __init__(self):
@@ -81,8 +81,8 @@ def get_feature_data_blob(data, index):
 def deserialize_string(lwords):
   """Wrapper for the C++ StringSerializer"""
   
-  v = PyCintex.makeClass('std::vector<unsigned int>')()
-  s = PyCintex.makeClass('std::string')()
+  v = cppyy.makeClass('std::vector<unsigned int>')()
+  s = cppyy.makeClass('std::string')()
   v.reserve(len(lwords))
   for w in lwords: v.push_back(w)
   stringSerializer.deserialize(v, s)
@@ -98,7 +98,7 @@ def print_ranges(l):
     print "%-16d%16d" % ( (i+1)*32, i*32)
 
 def print_chain(counter, s):
-  ch = PyCintex.makeClass('HLT::Chain')(s)
+  ch = cppyy.makeClass('HLT::Chain')(s)
   #ch.deserialize(s)
   print ".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
         % ( counter, ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(),\
