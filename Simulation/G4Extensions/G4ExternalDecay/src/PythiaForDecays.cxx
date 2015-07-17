@@ -34,12 +34,13 @@ extern "C" {
   int  pycomp_(int*);
   void py1ent_(int&, int&, double&, double&, double&);
   void pyhepc_(int*);
-  void pygldc_();//ACH for gluino decay
-  void pysqdc_(int*);//ACH for stop/sbottom decay
   PPYJETS pyjets_;
   void pylist_(int*);
   void pyexec_();
 }
+void pygldc_() {}//ACH for gluino decay
+void pysqdc_(int*) {}//ACH for stop/sbottom decay
+
 
 PythiaForDecays* PythiaForDecays::fgInstance = 0;
 
