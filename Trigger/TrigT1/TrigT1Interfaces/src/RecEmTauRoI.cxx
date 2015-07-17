@@ -1,4 +1,4 @@
-// $Id: RecEmTauRoI.cxx 639958 2015-01-16 14:30:44Z watsona $
+// $Id: RecEmTauRoI.cxx 683786 2015-07-17 11:57:28Z watsona $
 /***************************************************************************
                         RecEmTauRoI.cxx  -  description
                            -------------------
@@ -103,7 +103,7 @@ namespace LVL1 {
       // Extract the properties of the passed thresholds:
       //
 
-      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 1 : -1 );
+      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 0 : -1 );
       int iphi = int( (m_coordRange.phiRange().min()+0.025) * 32 / M_PI );
 
       for( vector< unsigned int >::const_iterator itp = passed_thresholds.begin();
@@ -143,7 +143,7 @@ namespace LVL1 {
       
       std::string triggerType = ( m_type == TrigT1CaloDefs::EMRoIWordType ? L1DataDef::emType() : L1DataDef::tauType() );
     
-      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 1 : -1 );
+      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 0 : -1 );
       int iphi = int( (m_coordRange.phiRange().min()+0.025) * 32 / M_PI );
       
       unsigned int isolWord = isolation();
