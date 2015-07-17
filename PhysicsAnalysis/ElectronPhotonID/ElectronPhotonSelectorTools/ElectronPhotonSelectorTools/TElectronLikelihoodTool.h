@@ -174,6 +174,28 @@ namespace Root {
     /// Standard destructor
     ~TElectronLikelihoodTool();
 
+  private:
+    class SafeTH1{
+    
+    public:
+      SafeTH1(TH1F* hist);
+      ~SafeTH1();
+
+      int GetNbinsX();
+      int FindBin(double);
+      double GetBinContent(int);
+      double GetBinLowEdge(int);
+      double Integral();
+
+    private:
+      std::vector<float> m_binContent;
+      double m_firstBinLowEdge;
+      double m_lastBinLowEdge;
+      double m_binWidth;
+      double m_integral;
+    };
+
+
     // Main methods
   public:
     /// Initialize this class
@@ -348,7 +370,7 @@ namespace Root {
       return GetLikelihoodBitmask(vars);
     };
     
-    
+
   public:
     /** @brief cut min on b-layer hits*/
     std::vector<int> CutBL;
@@ -475,8 +497,7 @@ namespace Root {
     static const unsigned int  fnDiscEtBins     = 9; // number of discs stored, excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14; // 19
-    TH1F*               fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    double              fPDFIntegrals[2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    TElectronLikelihoodTool::SafeTH1*               fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
     static const char*  fVariables                      [14]; // 
     //static const double cutDiscriminant [1][6][10];     // [ip][et][eta]
 
