@@ -151,7 +151,7 @@ def addTriggerArgs(parser):
     parser.add_argument('--testPhysicsV4', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                           help='Please do not use this command, to be deleted', group='Trigger')
     parser.add_argument('--writeBS', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                          help='Needed if running BSRDO to BS step (default: True)', group='Trigger', default=trfArgClasses.argBool(True, runarg=True))
+                          help='Needed if running BSRDO to BS step in athena (default: True)', group='Trigger', default=trfArgClasses.argBool(True, runarg=True))
     parser.add_argument('--inputBS_RDOFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', runarg=True, type='bs'),
                         help='Input bytestream file', group='Trigger')
@@ -192,7 +192,13 @@ def addTriggerArgs(parser):
                         'N.B. option consistency is not checked.', group='Trigger')
     parser.add_argument('--precommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                         help='precommand for athenaHLT aka -c', group='Trigger')
-    
+    parser.add_argument('--postcommand', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
+                        help='postcommand for athenaHLT aka -C', group='Trigger')
+    parser.add_argument('--eventmodifier', nargs='+', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
+                        help='event-modifier for athenaHLT aka -Z', group='Trigger')
+    parser.add_argument('--prodSysBSRDO', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='For prodsys to make sure uses inputBS_RDOFile rather than inputBSFile when running the b2r step', group='Trigger')
+
 
 def addTriggerDBArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
@@ -216,9 +222,8 @@ def addTriggerDBArgs(parser):
                         help='DBlvl1pskey', group='TriggerDB')
     parser.add_argument('--DBextra', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='DBextra', group='TriggerDB')
-     
-        
-                        
+
+
 def addDebugArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Debug', 'Specific options related to the trigger debug recovery')

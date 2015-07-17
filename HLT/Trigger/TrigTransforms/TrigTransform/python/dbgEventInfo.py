@@ -12,7 +12,7 @@ import os
 import commands
 from TrigTransform.dbgHltResult import * 
 #hltResult
-import PyCintex
+import cppyy
 
 from PyUtils import RootUtils
 ROOT = RootUtils.import_root()
@@ -210,7 +210,7 @@ class dbgEventInfo:
         
     def get_chain(self,counter, s):
         #Prints chains and their information
-        ch = PyCintex.makeClass('HLT::Chain')(s)
+        ch = cppyy.makeClass('HLT::Chain')(s)
         #ch.deserialize(s)
         print ".... chain %-3d : %s Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
             % ( counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str())
