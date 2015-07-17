@@ -30,7 +30,7 @@ class PythiaForDecays
 
    G4ParticleDefinition* GetParticleDefinition(const int) const;
 
-   static  PythiaForDecays* s_instance;
+   static  PythiaForDecays* fgInstance;
 };
 
 #endif
