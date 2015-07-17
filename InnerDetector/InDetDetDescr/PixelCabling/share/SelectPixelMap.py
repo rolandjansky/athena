@@ -14,6 +14,13 @@ from AthenaCommon.Logging import logging
 #geoFlags.dump()
 
 
+if not ('conddb' in dir()):
+    IOVDbSvc = Service("IOVDbSvc")
+    from IOVDbSvc.CondDB import conddb
+
+if conddb.dbdata == "CONDBR2" and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+    conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
+
 
 # Online mode: Let PixelCablingSvc choose the most recent map
 if (athenaCommonFlags.isOnline == True):
@@ -63,6 +70,7 @@ else:
         # Run2:
         elif (geoFlags.Run() == "RUN2" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == True)):
 
+
             # Do map selection based on run number
             runNum = GetRunNumber()
 
@@ -97,4 +105,3 @@ try:
     logging.getLogger("PixelCablingSvc").info("Selected map from jobOpts: %s", ServiceMgr.PixelCablingSvc.MappingFile)
 except:
     logging.getLogger("PixelCablingSvc").info("Map not selected from jobOpts")
-        

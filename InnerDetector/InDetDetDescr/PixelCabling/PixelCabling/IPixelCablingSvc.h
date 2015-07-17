@@ -32,7 +32,10 @@ class IPixelCablingSvc: virtual public IInterface {
   static const InterfaceID& interfaceID( ) ;
 
   // change readout speed
-  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) = 0;  
+  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) = 0;
+
+  // change FE-I4 hit discriminator threshold level
+  virtual StatusCode IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS) = 0;
 
   // Get a list of offlineIds from a RobId.
   virtual void getOfflineList(std::vector<IdentifierHash>& offlineIdHashList, int robid) = 0;
@@ -78,6 +81,8 @@ class IPixelCablingSvc: virtual public IInterface {
   enum moduletype {DBM, IBL, PIX_BARREL, PIX_ENDCAP, NONE};
   virtual moduletype getModuleType(const Identifier& id) = 0;
 
+  virtual int getHitDiscCnfg(const uint32_t robId, const int link) = 0;
+  virtual int getHitDiscCnfg(Identifier* pixelId) = 0;
 
 
    // Wrappers to PixelCablingData -- get maps
