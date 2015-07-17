@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenu_v1.cxx 631658 2014-11-27 18:53:39Z lheinric $
+// $Id: TriggerMenu_v1.cxx 683716 2015-07-17 10:03:58Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -149,7 +149,7 @@ namespace xAOD {
 
    bool TriggerMenu_v1::chainSignatureLogicsAvailable() const {
 
-      static Accessor< std::vector< std::vector< uint32_t > > > acc( "chainSignatureLogics" );
+      static Accessor< std::vector< std::vector< int > > > acc( "chainSignatureLogics" );
       return acc.isAvailable( *this );
    }
   
