@@ -15,6 +15,7 @@
 #include "TileMonitoring/TilePaterMonTool.h"
 
 #include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 
@@ -71,6 +72,7 @@ TilePaterMonTool::TilePaterMonTool(const std::string & type, const std::string &
   : ManagedMonitorToolBase(type, name, parent)
   , m_tileID(0)
   , m_tileHWID(0)
+  , m_tileTBID(0)
   , m_cabling(0)
 /*---------------------------------------------------------*/
 {
@@ -97,6 +99,7 @@ StatusCode TilePaterMonTool:: initialize()
 
   CHECK( detStore()->retrieve(m_tileID) );
   CHECK( detStore()->retrieve(m_tileHWID) );
+  CHECK( detStore()->retrieve(m_tileTBID) );
 
   m_cabling = TileCablingService::getInstance();
 

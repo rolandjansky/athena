@@ -14,7 +14,6 @@
 
 #include "TileMonitoring/TileMBTSMonTool.h"
 
-#include "CaloIdentifier/TileTBID.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileCell.h"
@@ -90,7 +89,6 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_lvl1ConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
   , m_pitID(32, 0)
   , m_ctpID(32, 0)
-  , m_tileTBID(0)
   , m_counterExist(32, false)
   , m_old_lumiblock(-1)
 {
@@ -140,7 +138,6 @@ StatusCode TileMBTSMonTool:: initialize(){
   ATH_MSG_INFO( "in initialize()" );
 
   CHECK( m_beamInfo.retrieve() );
-  CHECK( detStore()->retrieve(m_tileTBID) );
   CHECK( TileFatherMonTool::initialize() );
 
   memset(m_MBTSchannels, -1, sizeof(m_MBTSchannels));

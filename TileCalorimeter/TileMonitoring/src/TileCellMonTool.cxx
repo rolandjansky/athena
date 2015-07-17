@@ -346,6 +346,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
       
     SetBinLabel(m_TileCellDetailOccMap[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
     SetBinLabel(m_TileCellDetailOccMap[ part ][ element ]->GetXaxis(),m_moduleLabel[part]);
+    m_TileCellDetailOccMap[ part ][ element ]->SetOption("COLZ");
 
     m_TileCellEneDiffChanMod[ part ].push_back( bookProfile2D(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                               "tileCellEneDiffChanMod_"+m_PartNames[part] + m_TrigNames[trig],
@@ -372,6 +373,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     SetBinLabel(m_TileChanPartTime[part][element]->GetXaxis(),  m_moduleLabel[part]);
     SetBinLabel(m_TileChanPartTime[part][element]->GetYaxis(), m_cellchLabel[part]);
     m_TileChanPartTime[part][element]->SetZTitle("Average Channel Time (ns)");
+    m_TileChanPartTime[part][element]->SetOption("COLZ");
 
     // Tile Cell average digi time temperature plot for each partition.
     histName = "tileDigiPartTime_"+m_PartNames[part] + m_TrigNames[trig];
@@ -481,6 +483,7 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
     m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig],"tileCellEneEtaPhi"+m_SampStrNames[sample] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile 2D Cell "+m_SampStrNames[sample]+" Energy Average depostion (MeV) (entries = events)",21,-2.025, 2.025,64,-3.15,3.15,-2.e6, 2.e6) );
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetYaxis()->SetTitle("#phi");
+    m_TileCellEneEtaPhiSamp[sample][ element ]->SetOption("COLZ");
 
   }
 
@@ -944,7 +947,7 @@ StatusCode TileCellMonTool::fillHistograms() {
             m_TileCellEtaPhiOvThrSamp[ samp ][ vecInd ]->Fill(eta, phi, 1.);
     
             // Fill channel timing histograms.
-            if (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms) {
+            if (m_is_collision || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms) {
     
               if (ch1Ok && ene1 > m_ThresholdForTime) {
                 
@@ -1060,7 +1063,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                 
                 if ((ene1 > m_ThresholdForTime
                      || ene2 > m_ThresholdForTime)
-                    && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
+                    && (m_is_collision || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                   
                   m_TileCellTimeDiffSamp[ partition ][ samp ][ vecInd ]->Fill(tdiff, 1.);
                   m_TileCellTimeDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(tdiff, 1.);
@@ -1074,7 +1077,7 @@ StatusCode TileCellMonTool::fillHistograms() {
               m_TileCellEneBal[ partition ]->Fill(module, eratio);
 
               if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                  && (m_iscoll || m_fillTimeHistograms)) {
+                  && (m_is_collision || m_fillTimeHistograms)) {
                 
                 m_TileCellTimBal[ partition ]->Fill(module, tdiff);
               }
@@ -1092,7 +1095,7 @@ StatusCode TileCellMonTool::fillHistograms() {
                   // also store the energy ratio diff/energy
 
                   if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                      && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
+                      && (m_is_collision || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                     
                     m_TileCellTimeDiffSamp[ NumPart  ][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
                     m_TileCellTimeDiffSamp[ partition][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
@@ -1105,7 +1108,7 @@ StatusCode TileCellMonTool::fillHistograms() {
 
                 if (TMath::Abs(tdiff) > m_TimBalThreshold 
                     && (ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
-                    && (m_iscoll || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
+                    && (m_is_collision || m_eventTrigs[i]==Trig_b7 || m_fillTimeHistograms)) {        
                   
                   m_TileCellTimBalModPart[ vecInd ]->Fill(module, fpartition, 1.0);
                 }
@@ -1312,15 +1315,6 @@ StatusCode TileCellMonTool::procHistograms() {
 
   if (endOfRun) {
     ATH_MSG_INFO( "in procHistograms()" );
-    // set up new minimum value in occupancy plots with average energy
-    // in order to avoid empty bins on these histograms on Tier0
-    for (int partition = 0; partition < NPartHisto; ++partition) {
-      for (TProfile2D* occupancy_map : m_TileCellDetailOccMap[partition]) {
-        double range = occupancy_map->GetMaximum() - occupancy_map->GetMinimum();
-        double new_mimimum = occupancy_map->GetMinimum() - 0.1 * range;
-        occupancy_map->SetMinimum(new_mimimum);
-      }
-    }
   }
 
 

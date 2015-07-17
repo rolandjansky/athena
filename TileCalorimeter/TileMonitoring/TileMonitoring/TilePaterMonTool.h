@@ -37,6 +37,7 @@ class TMultiGraph;
 class TAxis;
 class StoreGateSvc;
 class TileID;
+class TileTBID;
 class TileHWID;
 class TileCablingService;
 
@@ -179,6 +180,7 @@ protected:
 
   const TileID* m_tileID;
   const TileHWID* m_tileHWID;
+  const TileTBID* m_tileTBID;
   const TileCablingService* m_cabling;
 
   bool m_savePng;

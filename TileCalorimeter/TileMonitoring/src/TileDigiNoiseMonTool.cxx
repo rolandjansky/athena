@@ -153,8 +153,8 @@ StatusCode TileDigiNoiseMonTool::bookNoiseHistograms() {
           m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(0, 10);
         } else {
           m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetTitle("Pedestal [ADC]");
-          if (m_fillPedestalDifference) m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(-5, 5);
-          else m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(20, 80);
+          //          if (m_fillPedestalDifference) m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(-5, 5);
+          //          else m_finalNoiseMap[ros][adc][noisetype]->GetZaxis()->SetRangeUser(20, 80);
         }
         m_finalNoiseMap[ros][adc][noisetype]->SetTitle(histTitle);
 

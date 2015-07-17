@@ -2,11 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
-  TODO:
-  - upravit volani book2F, resp nastavit spravne m_path. Pouzit to co
-  je zakomentovane v http://alxr.usatlas.bnl.gov/lxr-stb6/source/atlas/TileCalorimeter/TileMonitoring/src/TileFatherMonTool.cxx#077,  http://alxr.usatlas.bnl.gov/lxr-stb6/source/atlas/TileCalorimeter/TileMonitoring/src/TileFatherMonTool.cxx#101
-*/
 // ********************************************************************
 //
 // NAME:     TileJetMonTool.cxx
@@ -15,6 +10,16 @@
 // AUTHOR:   Tomas Davidek (Tomas.Davidek@cern.ch)
 //           
 //
+// Changes 07.07.2015
+// - by default, only histograms with channel time and cell time per partition
+//   are created and filled. 2D histograms per channel, 1D histograms per 
+//   channel and energy difference histograms are optionally created
+//   (see switches do_1dim_histos, do_2dim_histos, do_enediff_histos)
+// - improvement in detecting the special channels (C10 special, E1 merged, E4')
+//   implemented as suggested by Sasha
+// - avoid duplicate entries when a cell/channel is part of more clusters
+//   (such a cell appears multiple times in the list of cells associated to
+//   the given jet)
 // ********************************************************************
 
 #include "xAODJet/JetContainer.h"
@@ -34,9 +39,11 @@
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-
-
-#include "TH2F.h"
+// added by TD
+#include "TileIdentifier/TileFragHash.h"
+//#include "CaloIdentifier/Tile_Base_ID.h"
+//#include "TH2F.h"
+//#include "TH1F.h"
 //#include "TProfile.h"
 
 #include <iostream>
@@ -58,6 +65,9 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("energyChanMin", m_energyChanMin = 2000);
   declareProperty("energyChanMax", m_energyChanMax = 4000);
   declareProperty("do_1dim_histos", m_do_1dim_histos = false);
+  declareProperty("do_2dim_histos", m_do_2dim_histos = false);
+  declareProperty("do_enediff_histos", m_do_enediff_histos = false);
+  declareProperty("enediff_threshold", m_enediff_threshold = 2000);
   m_path = "/Tile/Jet";
 
   m_partname[0] = "LBA";
@@ -77,7 +87,6 @@ TileJetMonTool::~TileJetMonTool() {
 /*---------------------------------------------------------*/
 StatusCode TileJetMonTool::initialize() {
 /*---------------------------------------------------------*/
-
 
   ATH_MSG_INFO("in initialize()");
 
@@ -114,12 +123,20 @@ StatusCode TileJetMonTool::fillHistograms() {
   ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), lumiblock ");
 
 
+  used_cells.clear();
+
+  int ijet = 0;
   for (const xAOD::Jet* jet : *jetContainer) {
     if ((jet->pt() > m_jetPtMin) && (fabs(jet->eta()) < m_jetEtaMax)) {
       if (isGoodJet(*jet)) {
+	ATH_MSG_DEBUG("TileJetMonTool::fillHistograms, jet " << ijet 
+		      << ", eta " << jet->eta()
+		      << ", phi " << jet->phi() 
+		      << ", constituents " << jet->numConstituents());
         CHECK(fillTimeHistograms(*jet, LumiBlock));
       }
     }
+    ijet++;
   }
 
   ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), end-of-loops ");
@@ -130,21 +147,23 @@ StatusCode TileJetMonTool::fillHistograms() {
 StatusCode TileJetMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  float sum = 0;
-
-  for (int p = 0; p < NPART; ++p) {
-    for (const TH2* channelTimeHistogram : m_TileChanTime[p]) {
-      if (channelTimeHistogram->GetEntries() != 0)
-        ATH_MSG_DEBUG( "Not empty: name/entries => "  
-                       << channelTimeHistogram->GetName() 
-                       << "/" << channelTimeHistogram->GetEntries());
-      
-      sum += channelTimeHistogram->GetEntries();
+  float sum_channel = 0;
+  for (const TH1* channelTimeHistogram : m_TilePartTime) {
+    if (channelTimeHistogram->GetEntries() != 0) {
+      sum_channel += channelTimeHistogram->GetEntries();
     }
   }
 
-
-  ATH_MSG_INFO( "Total number of entries in histograms: " << sum );
+  float sum_cell = 0;
+  for(int p = 0; p < NPART; ++p) {
+    for (const TH1* cellTimeHistogram : m_TilePartCellTime[p]) {
+      if (cellTimeHistogram->GetEntries() != 0) {
+	sum_cell += cellTimeHistogram->GetEntries();
+      }
+    }
+  }
+  ATH_MSG_INFO( "Total number of entries in histograms: channels " 
+		<< sum_channel << ", cells " << sum_cell);
 
   return StatusCode::SUCCESS;
 }
@@ -154,57 +173,105 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in TileJetMonTool::bookTimeHistograms()" );
-
-
+  
+  
   // book histograms for all channels, even if some of them remain empty 
   // in the end
   std::string runNumStr = getRunNumStr();
   std::string htitle;
   std::string moduleName;
   char chnum[3]; // must be of length 3, since the last char is supposed to be '\0'
+  char indexnum[3]; // must be of length 3, since the last char is supposed to be '\0'
+  // energy upper limits of the cell-time histograms
+  cell_ene_up.push_back(500);
+  cell_ene_up.push_back(1000);
+  cell_ene_up.push_back(2000);
+  cell_ene_up.push_back(4000);
+  cell_ene_up.push_back(6000);
+  cell_ene_up.push_back(8000);
+  cell_ene_up.push_back(10000);
+  cell_ene_up.push_back(13000);
+  cell_ene_up.push_back(16000);
+  cell_ene_up.push_back(20000);
   //  TH2F *hist;
   for (int p = 0; p < NPART; ++p) {
     // first, create the total timing histograms for each partition
     // these histograms have fine time binning
-    m_TilePartTime.push_back( book1F( m_partname[p]
-				      , m_partname[p], m_partname[p]
-				      , 600, -30.0, 30.0));
-    if ( p >= 2){
-      m_TileEBTime_NoScint.push_back( book1F( m_partname[p]
-					      , m_partname[p] + "_NoScint", m_partname[p] + "_NoScint"
-					      , 600, -30.0, 30.0));
+    m_TilePartTime.push_back( book1F( "ChanTime/" + m_partname[p],
+				      m_partname[p], m_partname[p],
+				      600, -30.0, 30.0));
+    if ( p >= 2) {
+      m_TileEBTime_NoScint.push_back( book1F( "ChanTime/" + m_partname[p],
+					      m_partname[p] + "_NoScint", m_partname[p] + "_NoScint",
+					      600, -30.0, 30.0));
     }
+    // now cell-time
+    for(unsigned int i=0; i <= cell_ene_up.size(); ++i) {
+      sprintf(indexnum, "%02d", i);
+      m_TilePartCellTime[p].push_back
+	( book1F( "CellTime/" + m_partname[p],
+		  "Cell_" + m_partname[p] + "_slice_" + indexnum, 
+		  "Cell_" + m_partname[p] + "_slice_" + indexnum,
+		  600, -30.0, 30.0));
+    }
+    if ( p >= 2) {
+      for(unsigned int i=0; i <= cell_ene_up.size(); ++i) {
+	sprintf(indexnum, "%02d", i);
+	m_TileEBCellTime_NoScint[p-2].push_back
+	  (book1F( "CellTime/" + m_partname[p],
+		   "Cell_" + m_partname[p] + "_NoScint_slice_" + indexnum, 
+		   "Cell_" + m_partname[p] + "_NoScint_slice_" + indexnum, 
+		   600, -30.0, 30.0));
+      }
+    }
+    
+    
     for (unsigned int m = 0; m < TileCalibUtils::MAX_DRAWER; ++m) {
       moduleName = TileCalibUtils::getDrawerString(p + 1, m);
-
+      
       for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
-
+	
         sprintf(chnum, "%02d", channel);
-        htitle = "Time in " + moduleName + "_ch_" + chnum;
-
-        /* TH2F histograms are too much in memory. Trying to book only 10 LB
-         and set rebin-bit */
-        m_TileChanTime[p].push_back( book2F( m_partname[p]
-					     , moduleName + "_ch_" + chnum, moduleName + "_ch_" + chnum
-					     , 10, 0, 10, 120, -30.0, 30.0));
-        //	m_TileChanTime[p][m*TileCalibUtils::MAX_CHAN+ch]->SetBit(TH1::kCanRebin);
-        /*
-         m_TileChanTime[p].push_back(bookProfile( m_partname[p],
-                                                  moduleName+"_ch_"+chnum,
-                                                  moduleName+"_ch_"+chnum,
-                                                  1500,0.5,1500.5,-30.0,30.0));
-         */
-
+	if (m_do_2dim_histos) {
+	  htitle = "Time in " + moduleName + "_ch_" + chnum + " vs lumiblock";
+	  /* TH2F histograms are too much in memory. Trying to book only 10 LB
+	     and set rebin-bit */
+	  m_TileChanTime[p].push_back( book2F( "ChanTime/" + m_partname[p],
+					       moduleName + "_ch_" + chnum + "_2d", 
+					       htitle,
+					       10, 0, 10, 120, -30.0, 30.0));
+	  //	m_TileChanTime[p][m*TileCalibUtils::MAX_CHAN+ch]->SetBit(TH1::kCanRebin);
+	  /*
+	    m_TileChanTime[p].push_back(bookProfile( m_partname[p],
+	    moduleName+"_ch_"+chnum,
+	    moduleName+"_ch_"+chnum,
+	    1500,0.5,1500.5,-30.0,30.0));
+	  */
+	}
 	if (m_do_1dim_histos) {
-	  m_TileChanTime1D[p].push_back( book1F( m_partname[p]
-						 , moduleName + "_ch_" + chnum + "_1d"
-						 , moduleName + "_ch_" + chnum + "_1d"
-						 , 600, -30.0, 30.0));
+	  htitle = "Time in " + moduleName + "_ch_" + chnum;
+	  m_TileChanTime1D[p].push_back( book1F( "ChanTime/" + m_partname[p],
+						 moduleName + "_ch_" + chnum + "_1d",
+						 htitle,
+						 600, -30.0, 30.0));
+	}
+	if ((m_do_enediff_histos) && (channel%2 == 0)) {
+	  // each cell has one odd and one even channel
+	  m_TileEneDiff_LG[p].push_back( book1F( "Enediff/" + m_partname[p],
+						 moduleName + "_enediff_LG_ch1_" + chnum,
+						 moduleName + "_enediff_LG_ch1_" + chnum,
+						 
+						 100,-1,1));
+	  m_TileEneDiff_HG[p].push_back( book1F( "Enediff/" + m_partname[p],
+						 moduleName + "_enediff_HG_ch1_" + chnum,
+						 moduleName + "_enediff_HG_ch1_" + chnum,
+						 
+						 100,-1,1));
 	}
       }
     }
-  }
-
+  } // end-of-loop over partitions
+  
   ATH_MSG_INFO( "All histograms booked " );
 
   return StatusCode::SUCCESS;
@@ -216,10 +283,21 @@ void TileJetMonTool::clearTimeHistograms() {
 /*---------------------------------------------------------*/
   m_TilePartTime.clear();
   m_TileEBTime_NoScint.clear();
+
   for (int p = 0; p < NPART; ++p) {
-    m_TileChanTime[p].clear();
+    m_TilePartCellTime[p].clear();
+    if (p >= 2) {
+      m_TileEBCellTime_NoScint[p-2].clear();
+    }
+    if (m_do_2dim_histos) {
+      m_TileChanTime[p].clear();
+    }
     if (m_do_1dim_histos) {
       m_TileChanTime1D[p].clear();
+    }
+    if (m_do_enediff_histos) {
+      m_TileEneDiff_LG[p].clear();
+      m_TileEneDiff_HG[p].clear();
     }
   }
 }
@@ -232,7 +310,27 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
   ATH_MSG_VERBOSE( "in fillTimeHistograms()" );
 
   if( jet.numConstituents() == 0) return StatusCode::SUCCESS;
+  /*
+  // My original idea was to loop over clusters, then over cells, 
+  // and for each cell use the calo cluster weight.
+  // First, I can't get it compiled
+  // Second, Sasha thinks it is easier to keep the list of cells
+  // already used and compare. Using std::set instead of std::vector
+  // since std:set::find() should be faster than std::vector::find().
+  xAOD::JetConstituentVector cluster_vec = jet.getConstituents();
+  xAOD::JetConstituentVector::const_iterator clusterIt = cluster_vec.begin();
+  xAOD::JetConstituentVector::const_iterator clusterItE = cluster_vec.end();
 
+  for( ; clusterIt != clusterItE; clusterIt++) {
+    const CaloCluster *cluster = (*clusterIt);
+    const CaloCluster::cell_iterator cellIt = cluster->cell_begin();
+    const CaloCluster::cell_iterator cellItE = cluster->cell_end();
+    for( ; cellIt != cellItE; ++cellIt) {
+      const CaloCell* cell = (*cellIt);
+      double weight = cluster->getCellWeight(cell);
+    }
+  }
+  */
   jet::JetCellAccessor::const_iterator cellIt =  jet::JetCellAccessor::begin(&jet);
   jet::JetCellAccessor::const_iterator cellItE = jet::JetCellAccessor::end(&jet);
      
@@ -244,14 +342,18 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
 
       const TileCell *tilecell = (TileCell*) cell;
       Identifier id = tilecell->ID();
+      if (used_cells.find(id) == used_cells.end()) {
+	used_cells.insert(id);
+      } else {
+	continue;
+      }
+      //      int section= m_tileID->section(id);
+      int module = m_tileID->module(id); // ranges 0..63
+      int sample = m_tileID->sample(id); // ranges 0..3 (A, BC, D, E)
       int part1 = 0;
       int part2 = 0;
-      int mod1 = -1;
-      int mod2 = -1;
       int chan1 = -1;
       int chan2 = -1;
-      int pmt1 = -1;
-      int pmt2 = -1;
       uint32_t bad1 = 0;
       uint32_t bad2 = 0;
       int gain1 = tilecell->gain1();
@@ -264,9 +366,7 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
       if (hash1 != TileHWID::NOT_VALID_HASH) {
         HWIdentifier adc_id = m_tileHWID->adc_id(hash1, gain1);
         part1 = m_tileHWID->ros(adc_id);
-        mod1 = m_tileID->module(id);
         chan1 = m_tileHWID->channel(adc_id);
-        pmt1 = m_cabling->channel2hole(part1, chan1);
         bad1 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
       }
       
@@ -276,79 +376,114 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
       if (hash2 != TileHWID::NOT_VALID_HASH) {
         HWIdentifier adc_id = m_tileHWID->adc_id(hash2, gain2);
         part2 = m_tileHWID->ros(adc_id);
-        mod2 = m_tileID->module(id);
         chan2 = m_tileHWID->channel(adc_id);
-        pmt2 = m_cabling->channel2hole(part2, chan2);
         bad2 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
       }
-      
-      float ene1 = (pmt1 > 0) ? tilecell->ene1() : -1;
-      float ene2 = (pmt2 > 0) ? tilecell->ene2() : -1;
-      
+            
       //        ATH_MSG_INFO( "This is Tile cell " << icell
       //                      << ": pmts " << pmt1 << "," << pmt2
       //                      << ", ene "  << ene1 << "," << ene2 );
       
-      
+      Bool_t is_good1 = isGoodChannel(part1, module, chan1, bad1, qbit1, id);
+      Bool_t is_good2 = isGoodChannel(part2, module, chan2, bad2, qbit2, id);
+      float ene1 = is_good1 ? tilecell->ene1() : -1;
+      float ene2 = is_good2 ? tilecell->ene2() : -1;
+
       /*
-        Now really fill the histograms
+        Now really fill the histograms time vs lumiblock and 1dim time
       */
       char sLumiBlock[10];
       sprintf(sLumiBlock, "%d", LumiBlock);
-      if (isGoodChannel(part1, mod1, pmt1, bad1, qbit1, ene1)) {
-        
-        ATH_MSG_DEBUG( "Filling in time for " << TileCalibUtils::getDrawerString(part1, mod1)
-                       << ", ch " << chan1
-                       << ", LB " << sLumiBlock 
-                       << ", time: " << tilecell->time1());
-        
-        m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * mod1 + chan1]->Fill(sLumiBlock, tilecell->time1(), 1);
-	if (m_do_1dim_histos) {
-	  m_TileChanTime1D[part1 - 1][TileCalibUtils::MAX_CHAN * mod1 + chan1]->Fill(tilecell->time1(), 1);
-	}
-	m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
-	if (part1 >= 3 && chan1 != 0 && chan1 != 1 && chan1 != 12 && chan1 != 13) m_TileEBTime_NoScint[part1 - 3]->Fill(tilecell->time1());
-      }
-      if (isGoodChannel(part2, mod2, pmt2, bad2, qbit2, ene2)) {
-        ATH_MSG_DEBUG( "Filling in time for " << TileCalibUtils::getDrawerString(part2, mod2)
-                       << ", ch " << chan2
-                       << ", LB " << sLumiBlock 
-                       << ", time: " << tilecell->time2());
 
-        m_TileChanTime[part2 - 1][TileCalibUtils::MAX_CHAN * mod2 + chan2]->Fill(sLumiBlock, tilecell->time2(), 1);
+      // first channel
+      if (is_good1 && (ene1 > m_energyChanMin) && (ene1 < m_energyChanMax)) {
 	if (m_do_1dim_histos) {
-	  m_TileChanTime1D[part2 - 1][TileCalibUtils::MAX_CHAN * mod2 + chan2]->Fill(tilecell->time2(), 1);
+	  m_TileChanTime1D[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(tilecell->time1(), 1);
 	}
-	m_TilePartTime[part2 - 1]->Fill(tilecell->time2());
-	if (part2 >= 3 && chan2 != 0 && chan2 != 1 && chan2 != 12 && chan2 != 13) m_TileEBTime_NoScint[part2 - 3]->Fill(tilecell->time2());
+	if (m_do_2dim_histos) {
+	  m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(sLumiBlock, tilecell->time1(), 1);
+	}
+	// general histograms, only require non-affected channels
+	if (bad1 < 2) {
+	  m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
+	  ATH_MSG_DEBUG( "Filling in time1 for " << TileCalibUtils::getDrawerString(part1, module)
+			 << ", ch " << chan1
+			 << ", ene " << ene1
+			 << ", LB " << sLumiBlock 
+			 << ", time: " << tilecell->time1());
+	  if ((part1 >= 3) && (sample < TileID::SAMP_E)) {
+	    m_TileEBTime_NoScint[part1 - 3]->Fill(tilecell->time1());
+	  }
+	}
+      }
+      // second channel
+      if (is_good2 && (ene2 > m_energyChanMin) && (ene2 < m_energyChanMax)) {
+	if (m_do_1dim_histos) {
+	  m_TileChanTime1D[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(tilecell->time2(), 1);
+	}
+	if (m_do_2dim_histos) {
+	  m_TileChanTime[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(sLumiBlock, tilecell->time2(), 1);
+	}
+	// general histograms, only require non-affected channels
+	if (bad2 < 2) {
+	  ATH_MSG_DEBUG( "Filling in time2 for " << TileCalibUtils::getDrawerString(part2, module)
+			 << ", ch " << chan2
+			 << ", ene " << ene2
+			 << ", LB " << sLumiBlock 
+			 << ", time: " << tilecell->time2()
+			 <<" (qbit2 " << qbit2 << ", ch1 " << chan1 << ", ene1 " << ene1 << ", bad1 " << bad1 << ", qbit1 " << qbit1 << ")" );
+	  m_TilePartTime[part2 - 1]->Fill(tilecell->time2());
+	  if ((part2 >= 3) && (sample < TileID::SAMP_E)) {
+	    m_TileEBTime_NoScint[part2 - 3]->Fill(tilecell->time2());
+	  }
+	}
+      }
+      /* 
+	 Now filling the cell-based histograms
+      */
+      if ((is_good1) && (is_good2)) {
+	if (m_do_enediff_histos && (gain1 == gain2) && 
+	    (ene1+ene2 > m_enediff_threshold))  { 
+	  // EneDiff histograms, HG-HG and LG-LG combinations only
+	  int evenchan = (chan1%2 == 0) ? chan1 : chan2;
+	  if (gain1 == 0) {
+	    m_TileEneDiff_LG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
+	  } else {
+	    m_TileEneDiff_HG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
+	  }
+	}
+	if ((bad1 < 2) && (bad2 < 2)) {
+	  // cell-time histograms, only overall, require not affected channels
+	  int index = find_index(ene1+ene2);
+	  ATH_MSG_DEBUG( "Filling in cell-time for " << TileCalibUtils::getDrawerString(part2, module)
+			 << ", ch1 " << chan1  
+			 << ", ch2 " << chan2  
+			 << ", ene " << ene1+ene2
+			 << ", index " << index
+			 << ", time: " << tilecell->time());
+	  m_TilePartCellTime[part1-1][index]->Fill(tilecell->time());
+	  if ((part1 >= 3) && (sample < TileID::SAMP_E)) { // not Gap cells
+	    m_TileEBCellTime_NoScint[part1-3][index]->Fill(tilecell->time());
+	  }
+	}
       }
     }
   }
-  
   return StatusCode::SUCCESS;
 }
-/*
- A jak to udelame s celami, ktere jsou ve vice clusterech v jednom jetu ??
- */
 
-bool TileJetMonTool::isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, float energy) {
-  /*
-  ATH_MSG_DEBUG( "isGoodChannel: mod " << TileCalibUtils::getDrawerString(part, mod)
-                 << ", pmt " << pmt 
-                 << ", bad " << bad 
-                 << ", qbit " << qbit
-                 << ", ene " << energy );
-  */
+bool TileJetMonTool::isGoodChannel(int part, int mod, int chan, uint32_t bad, unsigned int qbit, Identifier id) {
 
   if ((part <= 0) || (part > NPART)) return false;// invalid partition
 
   if ((mod < 0) || (mod >= (int) TileCalibUtils::MAX_DRAWER)) return false;  // invalid module number
 
-  if (pmt <= 0) return false;   // non-existing PMT (empty hole)
+  if (m_cabling->channel2hole(part, chan) <= 0) 
+    return false; // non-existing PMT (empty hole)
 
   if (((qbit & TileCell::MASK_BADCH) != 0) || // masked as bad
       ((qbit & TileCell::MASK_TIME) != TileCell::MASK_TIME) ||  // flagged
-      ((qbit & FLAG_OF2) != FLAG_OF2)) // not reco'ed with OF2
+      ((qbit & TileCell::MASK_ALGO) == TileFragHash::OptFilterDsp)) // in DSP
 
     /* Sasha navrhuje asi jednodussi:
      mask = TileCell::MASK_BADCH | TileCell:MASK_OVER | TileCell::MASK_TIME
@@ -361,11 +496,14 @@ bool TileJetMonTool::isGoodChannel(int part, int mod, int pmt, uint32_t bad, uns
    Meaning:
    0 = good, 1 = noisy, 2 = affected, 3 = bad, 4 = otherwise
    */
-  if (bad > 1) return false;
+  if (bad > 2) return false;
 
-  /* Masking on the fly not really needed, since we are reading ESD */
-  if ((energy < m_energyChanMin) || (energy > m_energyChanMax)) return false;
-  return true;
+  /* 
+     Now check for special C10, merged E1, E4'
+     C10 spec is ok only if channel = 5 (i.e. pmt=6). The other is pmt=5
+     E1 merged and E4' should be dropped if channel = 12 (i.e. pmt=13)
+  */
+  return ((( chan != 4) && (chan != 12)) || m_cabling->TileGap_connected(id));
 }
 
 bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
@@ -431,4 +569,13 @@ bool TileJetMonTool::isBad(BadJetCategory criteria, double quality, double NegE,
 
   }
   return false;
+}
+
+unsigned int TileJetMonTool::find_index(const float energy) {
+  for(unsigned int i=0; i < cell_ene_up.size(); ++i) {
+    if (energy < cell_ene_up[i]) {
+      return i;
+    }
+  }
+  return(cell_ene_up.size());
 }

@@ -151,15 +151,16 @@ class TileFatherMonTool: public TilePaterMonTool
 /// Vector containing the list of triggers passed by the event
   std::vector<int> m_eventTrigs;
 
-  static bool  m_iscoll;
+  static bool  m_is_collision;
   static unsigned int m_lastevent;
-  static float m_tdiff;
+  static float m_time_difference;
 
 protected:
 
 private:
-  void collcand(); //moved to private. Should not be called from the derived classes.
+  void checkIsCollision(); //moved to private. Should not be called from the derived classes.
   std::string m_MBTSCellContainerID;
+  std::string m_cellsContainerName;
 
 };
 

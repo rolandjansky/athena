@@ -20,7 +20,8 @@
 
 class ITileBadChanTool;
 
-
+#include "TH1F.h"
+#include "TH2F.h"
 
 // Define flags & constants not defined anywhere else
 #define FLAG_OF2 0x2   // OF2 has been applied
@@ -47,7 +48,8 @@ class TileJetMonTool: public TileFatherMonTool {
     void clearTimeHistograms();
     StatusCode fillTimeHistograms(const xAOD::Jet& jet, uint32_t LumiBlock);
 
-    bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, float energy);
+    unsigned int find_index(const float energy);
+    bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, Identifier id);
     bool isGoodJet(const xAOD::Jet& jet);
 
     /* copy & paste from JetD3PDMaker/src/JetCaloUtilsFillerTool.h. It is defined
@@ -59,7 +61,8 @@ class TileJetMonTool: public TileFatherMonTool {
 
     bool isBad(BadJetCategory criteria, double quality, double NegE, double emf, double hecf,
         double time, double fmax, double eta, double chf, double HecQ);
-
+  
+  
   private:
 
     float m_jetPtMin;
@@ -69,8 +72,12 @@ class TileJetMonTool: public TileFatherMonTool {
     float m_energyChanMin;
     float m_energyChanMax;
     bool m_do_1dim_histos;
+    bool m_do_2dim_histos;
+    bool m_do_enediff_histos;
+    float m_enediff_threshold;
 
     std::string m_partname[NPART];
+    std::set<Identifier> used_cells;  // cells already used in the given event
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //Tile bad channel tool
 
@@ -86,8 +93,14 @@ class TileJetMonTool: public TileFatherMonTool {
     // channels 0, 1, 12, 13 are not included in the sum
     std::vector<TH1F*> m_TileEBTime_NoScint;
 
+  // vector for enediff histograms
+  std::vector<TH1F*> m_TileEneDiff_LG[NPART];
+  std::vector<TH1F*> m_TileEneDiff_HG[NPART];
 
-
+  // vector for total cell histograms
+  std::vector<TH1F*> m_TilePartCellTime[NPART];
+  std::vector<TH1F*> m_TileEBCellTime_NoScint[NPART];
+  std::vector<float> cell_ene_up;
 };
 
 #endif
