@@ -12,6 +12,7 @@
  * $Id: HepMcParticleLink.h,v 1.11 2007-09-13 05:53:34 dquarrie Exp $
  **/
 #include <cassert>
+#include <cstdint> /*int32_t etc*/
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
 #include <limits>  /* numeric_limits */
@@ -25,14 +26,15 @@ class IProxyDict;
 
 class HepMcParticleLink {
 public:  
-  typedef unsigned int index_type;
+  typedef uint32_t barcode_type;
+  typedef uint16_t index_type;
 
   /// \name structors
   //@{
   HepMcParticleLink() { init_dict(); }
-  HepMcParticleLink(index_type barCode, index_type eventIndex = 0) :
+  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex = 0) :
     m_extBarcode(barCode, eventIndex) { init_dict(); }
-  HepMcParticleLink(const HepMC::GenParticle* p, index_type eventIndex = 0);
+  HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex = 0);
   HepMcParticleLink(const HepMcParticleLink& rhs) : 
     m_ptrs(rhs.m_ptrs),
     m_extBarcode(rhs.m_extBarcode),
@@ -73,7 +75,11 @@ public:
   //@{
   int barcode() const { return int(m_extBarcode.barcode()); } //FIXME ret type
   index_type eventIndex() const { return index_type(m_extBarcode.eventIndex()); }
-  long compress() const { return (this->barcode() << 16) + this->eventIndex(); };
+  ///hash the 32 bit barcode and 16 bit eventindex into a 32bit int
+  barcode_type compress() const { 
+    return ( ((m_extBarcode.barcode()&0xFFFF) << 16) | 
+	     m_extBarcode.eventIndex() ); 
+  };
   //@}
   
   static const std::string DEFAULTKEY;
@@ -86,14 +92,14 @@ public:
   class ExtendedBarCode {
   public:
     ExtendedBarCode() : m_BC(0), m_evtIndex(0) {}
-    ExtendedBarCode(index_type barcode, index_type eventIndex) :
+    ExtendedBarCode(barcode_type barcode, index_type eventIndex) :
       m_BC(barcode), m_evtIndex(eventIndex)
     {
       assert(eventIndex < std::numeric_limits<unsigned short>::max()); 
     }
 
-    unsigned long barcode() const { return m_BC; }
-    unsigned short eventIndex() const { return m_evtIndex; }
+    barcode_type barcode() const { return m_BC; }
+    index_type eventIndex() const { return m_evtIndex; }
     bool operator == (const ExtendedBarCode& rhs ) const
     { 
       return ( (this->m_BC)==(rhs.m_BC) && (this->m_evtIndex)==(rhs.m_evtIndex) ) ;
@@ -116,8 +122,8 @@ public:
     }
     
   private:
-    unsigned long m_BC;
-    unsigned short m_evtIndex;
+    barcode_type m_BC;
+    index_type m_evtIndex;
   }
 #ifdef __GNUC__
   __attribute__ ((packed))

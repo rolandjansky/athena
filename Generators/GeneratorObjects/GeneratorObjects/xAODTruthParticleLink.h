@@ -7,8 +7,8 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include <algorithm>
 
