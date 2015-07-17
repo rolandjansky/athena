@@ -171,7 +171,7 @@ elif 'TriggerType' in dir():
     import os
     os.environ['TDAQ_IPC_TIMEOUT'] = '240000'
 else:
-    ByteStreamEmonInputSvc.KeyCount = 100
+    ByteStreamEmonInputSvc.KeyCount = 50
     
 if 'TriggerType' in dir():
     ByteStreamEmonInputSvc.TriggerType = TriggerType

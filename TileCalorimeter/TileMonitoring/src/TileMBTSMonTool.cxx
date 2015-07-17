@@ -14,7 +14,6 @@
 
 #include "TileMonitoring/TileMBTSMonTool.h"
 
-#include "CaloIdentifier/TileTBID.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileCell.h"
@@ -53,6 +52,8 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_h_sumEnergy(0)
   , m_h_sumEnergy_wTBP(0)
   , m_h_sumTime(0)
+  , m_h_timeA(0)
+  , m_h_timeC(0)
   , m_h_timeDiff(0)
   , m_h_timeDiffLumi(0)
   , m_h_coinEnergyHits(0)
@@ -88,7 +89,6 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_lvl1ConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
   , m_pitID(32, 0)
   , m_ctpID(32, 0)
-  , m_tileTBID(0)
   , m_counterExist(32, false)
   , m_old_lumiblock(-1)
 {
@@ -138,7 +138,6 @@ StatusCode TileMBTSMonTool:: initialize(){
   ATH_MSG_INFO( "in initialize()" );
 
   CHECK( m_beamInfo.retrieve() );
-  CHECK( detStore()->retrieve(m_tileTBID) );
   CHECK( TileFatherMonTool::initialize() );
 
   memset(m_MBTSchannels, -1, sizeof(m_MBTSchannels));
@@ -343,6 +342,8 @@ StatusCode TileMBTSMonTool::bookHistograms() {
   m_h_sumEnergy = bookProfile("Cell", "SummaryEnergy", "Average MBTS Energy", 32, 0, 32);
   m_h_sumEnergy_wTBP = bookProfile("Cell", "SummaryEnergy_wTBP", "Average MBTS Energy with Trigger", 32, 0, 32);
   m_h_sumTime = bookProfile("Cell", "SummaryTime", "Average MBTS Time (Energy above threshold)", 32, 0, 32);
+  m_h_timeA = book1F("Cell", "Time_A", "Time MBTS on A side", 151, -75.5, 75.5);
+  m_h_timeC = book1F("Cell", "Time_C", "Time MBTS on C side", 151, -75.5, 75.5);
   m_h_timeDiff = book1F("Cell", "TimeDiff_A-C", "Time Difference between MBTS on A and C side", 151, -75, 75);
   m_h_timeDiffLumi = book2F("Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 1500, -0.5, 1499.5, 151, -75, 75);
   m_h_coinEnergyHits = book2S("Cell", "CoinEnergyHits", "Coincident Hits(energy) between two MBTS counters", 32, 0, 32, 32, 0, 32);
@@ -371,6 +372,8 @@ StatusCode TileMBTSMonTool::fillHistograms() {
     m_h_sumEnergy->GetYaxis()->SetTitle("Average Energy [pC]");
     setBinLabels((TH1*) m_h_sumTime, 1);
     m_h_sumTime->GetYaxis()->SetTitle("Average Time [ns]");
+    m_h_timeA->GetXaxis()->SetTitle("Average Time [ns]");
+    m_h_timeC->GetXaxis()->SetTitle("Average Time [ns]");
     m_h_timeDiff->GetXaxis()->SetTitle("Time difference, A-side - C-side [ns]");
     m_h_timeDiffLumi->GetXaxis()->SetTitle("Luminosity Block");
     m_h_timeDiffLumi->GetYaxis()->SetTitle("Time difference, A-side - C-side [ns]");
@@ -768,6 +771,9 @@ StatusCode TileMBTSMonTool::fillHistograms() {
     m_h_timeDiff->Fill(tdiff, 1.0);
     m_h_timeDiffLumi->Fill(LB, tdiff);
   }
+
+  if (tHitsA > 0) m_h_timeA->Fill(timeA / tHitsA);
+  if (tHitsC > 0) m_h_timeC->Fill(timeC / tHitsC);
 
   if (m_useTrigger) {
     m_h_bcidEnergyA->Fill(l1aBCID, bcidEnergyA);

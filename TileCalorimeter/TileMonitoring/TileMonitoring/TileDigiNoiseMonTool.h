@@ -41,6 +41,8 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     virtual StatusCode procHistograms();
 
   private:
+
+    StatusCode bookNoiseHistograms();
     StatusCode updateSummaryHistograms();
 
     std::string m_digitsContainerName;
@@ -69,6 +71,7 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     bool m_fillEmtyFromDB;
     bool m_fillPedestalDifference;
     std::vector<uint32_t> m_triggerTypes;
+    bool m_histogramsNotBooked;
 };
 
 #endif
