@@ -6,89 +6,86 @@
 
 namespace LVL1MUONIF {
 
-  Lvl1MuCTPIInput::Lvl1MuCTPIInput() {}
+  Lvl1MuCTPIInput::Lvl1MuCTPIInput() {
+    for (size_t isys=0; isys<NumberOfMuonSystem; isys++){
+      isFilledOutOfTimeCandidates[isys] = false;
+    }}
 
+  /////////////
   Lvl1MuCTPIInput::Lvl1MuCTPIInput( const Lvl1MuCTPIInput& right ) {
     *this = right;
   }
 
+  /////////////
   Lvl1MuCTPIInput::~Lvl1MuCTPIInput() {
     clearAll();
   }
 
+  /////////////
+
   Lvl1MuCTPIInput& Lvl1MuCTPIInput::operator=( const Lvl1MuCTPIInput& right ) {
     if ( this != &right ) {
-      size_t id, id_sector;
       clearAll();
-      // Barrel
-      if ( !right.isEmpty( Barrel ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfBarrelSector ;++id_sector ) {
-            m_barrel[ id ].push_back( ( right.m_barrel[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-      // Endcap
-      if ( !right.isEmpty( Endcap ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfEndcapSector ;++id_sector ) {
-            m_endcap[ id ].push_back( ( right.m_endcap[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-      // Forward
-      if ( !right.isEmpty( Forward ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfForwardSector ;++id_sector ) {
-            m_forward[ id ].push_back( ( right.m_forward[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-
-    }
+      for (size_t idSys=0; idSys<NumberOfMuonSystem; idSys++){
+	for( size_t ip=0; ip<right.m_data[idSys].size(); ip++){
+	  int bc=((right.m_data[idSys]).at(ip)).first;
+	  Lvl1MuVect vSL(((right.m_data[idSys]).at(ip)).second);
+	  m_data[idSys].push_back(std::make_pair(bc,vSL));
+	}
+	isFilledOutOfTimeCandidates[idSys] = right.isFilledOutOfTimeCandidates[idSys];
+      }	
+    }  
     return *this;
   }
 
 
 
-  const Lvl1MuSectorLogicData&
-  Lvl1MuCTPIInput::getSectorLogicData( size_t systemAddress,
-                                       size_t subSystemAddress,
-                                       size_t sectorAddress ) const {
-    static Lvl1MuBarrelSectorLogicData dummy;
-    if ( isEmpty( systemAddress ) ) return dummy;
+  /////////////
+  const Lvl1MuSectorLogicData& Lvl1MuCTPIInput::getSectorLogicData( size_t systemAddress,
+								    size_t subSystemAddress,
+								    size_t sectorAddress,
+								    int    bcid             ) const {
 
-    if ( systemAddress == Barrel ) {
-      return ( m_barrel[ subSystemAddress ] ) [ sectorAddress ];
-    } else if ( systemAddress == Endcap ) {
-      return ( m_endcap[ subSystemAddress ] ) [ sectorAddress ];
-    } else if ( systemAddress == Forward ) {
-      return ( m_forward[ subSystemAddress ] ) [ sectorAddress ];
+    static Lvl1MuBarrelSectorLogicData dummy;
+    for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
+      int bc=((m_data[systemAddress]).at(ip)).first;
+      if (bc != bcid) continue;
+      const Lvl1MuVect* vSL = &( ((m_data[systemAddress]).at(ip)).second);
+      return *(vSL->at(getSystemIndex(systemAddress,subSystemAddress,sectorAddress)));
     }
     return dummy;
   }
 
+  /////////////
   void Lvl1MuCTPIInput::setSectorLogicData( const Lvl1MuSectorLogicData& data,
-      size_t systemAddress,
-      size_t subSystemAddress,
-      size_t sectorAddress ) {
-
-    if ( isEmpty( systemAddress ) ) reserve( systemAddress );
-
-    if ( systemAddress == Barrel ) {
-      ( m_barrel[ subSystemAddress ] ) [ sectorAddress ] = data;
-    } else if ( systemAddress == Endcap ) {
-      ( m_endcap[ subSystemAddress ] ) [ sectorAddress ] = data;
-    } else if ( systemAddress == Forward ) {
-      ( m_forward[ subSystemAddress ] ) [ sectorAddress ] = data;
+					    size_t systemAddress,
+					    size_t subSystemAddress,
+					    size_t sectorAddress,
+					    int    bcid             ) {
+    size_t ip=0;
+    if (isEmpty(systemAddress,bcid)) {
+      ip = reserve( systemAddress, bcid );
+    } else {
+      ip = getBcidIndex( systemAddress, bcid );
     }
 
+    Lvl1MuVect* vSL = const_cast<Lvl1MuVect*>(&(((m_data[systemAddress]).at(ip)).second));
+    size_t idx= getSystemIndex(systemAddress,subSystemAddress,sectorAddress);
+    if ( systemAddress == Barrel ) {
+      *dynamic_cast<Lvl1MuBarrelSectorLogicData*>(vSL->at(idx)) = data;
+    } else if ( systemAddress == Endcap ) {
+      *dynamic_cast<Lvl1MuEndcapSectorLogicData*>(vSL->at(idx))= data;
+    } else if ( systemAddress == Forward ) {
+      *dynamic_cast<Lvl1MuForwardSectorLogicData*>(vSL->at(idx))= data;
+    }
   }
 
+  /////////////
   void Lvl1MuCTPIInput::setSectorLogicData( const unsigned int & sectorWord,
-      size_t systemAddress,
-      size_t subSystemAddress,
-      size_t sectorAddress ) {
+					    size_t systemAddress,
+					    size_t subSystemAddress,
+					    size_t sectorAddress,
+					    int    bcid              )  {
     // convert to SectorLogicData
     Lvl1MuSectorLogicData * pData;
     if ( systemAddress == Barrel ) {
@@ -101,245 +98,123 @@ namespace LVL1MUONIF {
       return ;
     }
     pData->convertFromWordFormat( sectorWord );
-    setSectorLogicData( *pData, systemAddress, subSystemAddress, sectorAddress );
+    setSectorLogicData( *pData, systemAddress, subSystemAddress, sectorAddress, bcid );
     delete pData;
   }
 
+  /////////////
   void Lvl1MuCTPIInput::merge( const Lvl1MuCTPIInput& right ) {
-    size_t id, id_sector;
-
-    // Barrel
-    if ( isEmpty( Barrel ) ) {
-      if ( !right.isEmpty( Barrel ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfBarrelSector ;++id_sector ) {
-            m_barrel[ id ].push_back( ( right.m_barrel[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-    }
-
-    // Endcap
-    if ( isEmpty( Endcap ) ) {
-      if ( !right.isEmpty( Endcap ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfEndcapSector ;++id_sector ) {
-            m_endcap[ id ].push_back( ( right.m_endcap[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-    }
-
-    // Forward
-    if ( isEmpty( Forward ) ) {
-      if ( !right.isEmpty( Forward ) ) {
-        for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-          for ( id_sector = 0; id_sector < NumberOfForwardSector ;++id_sector ) {
-            m_forward[ id ].push_back( ( right.m_forward[ id ] ) [ id_sector ] );
-          }
-        }
-      }
-    }
+    if ( this == &right ) return;
+    
+    for (size_t idSys=0; idSys<NumberOfMuonSystem; idSys++){
+      for( size_t ip=0; ip<right.m_data[idSys].size(); ip++){
+	int bc=((right.m_data[idSys]).at(ip)).first;
+	if (isEmpty( idSys, bc)){
+	  Lvl1MuVect vSL(((right.m_data[idSys]).at(ip)).second);
+	  m_data[idSys].push_back(std::make_pair(bc,vSL));
+	  isFilledOutOfTimeCandidates[idSys] = right.isFilledOutOfTimeCandidates[idSys];
+	}
+      }	
+    }  
 
   }
 
-  void Lvl1MuCTPIInput::reserve( size_t systemAddress ) {
-    size_t id, id_sector;
+  /////////////
+  size_t Lvl1MuCTPIInput::reserve( size_t systemAddress ,
+				   int    bcid)          {
+    
+    Lvl1MuVect* vSL =0;
+    
     if ( systemAddress == Barrel ) {
-      Lvl1MuBarrelSectorLogicData bData;
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        for ( id_sector = 0; id_sector < NumberOfBarrelSector ;++id_sector ) {
-          m_barrel[ id ].push_back( bData );
-        }
+      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfBarrelSector*NumberOfMuonSubSystem);
+      for ( size_t id = 0; id < NumberOfBarrelSector*NumberOfMuonSubSystem; id++ ) {
+	vSL->at(id) = new Lvl1MuBarrelSectorLogicData;
       }
 
     } else if ( systemAddress == Endcap ) {
-      Lvl1MuEndcapSectorLogicData eData;
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        for ( id_sector = 0; id_sector < NumberOfEndcapSector ;++id_sector ) {
-          m_endcap[ id ].push_back( eData );
-        }
+      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfEndcapSector*NumberOfMuonSubSystem);
+      for ( size_t id = 0; id < NumberOfEndcapSector*NumberOfMuonSubSystem; id++ ) {
+	vSL->at(id) = new Lvl1MuEndcapSectorLogicData;
       }
 
     } else if ( systemAddress == Forward ) {
-      Lvl1MuForwardSectorLogicData fData;
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        for ( id_sector = 0; id_sector < NumberOfForwardSector ;++id_sector ) {
-          m_forward[ id ].push_back( fData );
-        }
+      vSL = new std::vector<Lvl1MuSectorLogicData*>(NumberOfForwardSector*NumberOfMuonSubSystem);
+      for ( size_t id = 0; id < NumberOfForwardSector*NumberOfMuonSubSystem; id++ ) {
+	vSL->at(id) = new Lvl1MuForwardSectorLogicData;
       }
-
     }
+    size_t ip = m_data[systemAddress].size();
+    m_data[systemAddress].push_back( std::make_pair(bcid, *vSL) );
+
+    if (bcid!=0) isFilledOutOfTimeCandidates[systemAddress] = true; 
+
+    return ip;
   }
 
-  bool Lvl1MuCTPIInput::isEmpty( size_t systemAddress ) const {
-    if ( systemAddress == Barrel ) {
-      return ( m_barrel[ 0 ].size() == 0 );
-    } else if ( systemAddress == Endcap ) {
-      return ( m_endcap[ 0 ].size() == 0 );
-    } else if ( systemAddress == Forward ) {
-      return ( m_forward[ 0 ].size() == 0 );
+  /////////////
+  bool Lvl1MuCTPIInput::isEmpty( size_t systemAddress,
+				 int    bcid           ) const {
+    for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
+      int bc=((m_data[systemAddress]).at(ip)).first;
+      if (bc == bcid) return false;;
     }
     return true;
   }
 
+  /////////////
+  bool Lvl1MuCTPIInput::isEmptyAll(int bcid) const {
+    if ( isEmpty(Barrel,bcid) && isEmpty(Endcap,bcid) && isEmpty(Forward,bcid) ) {
+	return true;
+      } else {
+	return false;
+      }
+  }
+
+  /////////////
   void Lvl1MuCTPIInput::clear( size_t systemAddress ) {
-    size_t id;
-    if ( systemAddress == Barrel ) {
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        m_barrel[ id ].clear();
+    for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
+      Lvl1MuVect* vSL = &(((m_data[systemAddress]).at(ip)).second);
+      for ( size_t iSL=0; iSL<vSL->size(); iSL++){
+	delete vSL->at(iSL);
       }
-    } else if ( systemAddress == Endcap ) {
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        m_endcap[ id ].clear();
-      }
-    } else if ( systemAddress == Forward ) {
-      for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-        m_forward[ id ].clear();
-      }
+      vSL->clear(); 
     }
+    m_data[systemAddress].clear();
   }
 
+  /////////////
   void Lvl1MuCTPIInput::clearAll() {
-    size_t id;
-    for ( id = 0; id < NumberOfMuonSubSystem; id++ ) {
-      m_barrel[ id ].clear();
-      m_endcap[ id ].clear();
-      m_forward[ id ].clear();
+    for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
+      m_data[ id ].clear();
     }
   }
+  
+  //// routine for testing purposes only
+  void Lvl1MuCTPIInput::duplicateToOtherBC(int bcidOffset) {
 
-  bool Lvl1MuCTPIInput::retrieveInWordFormat( std::ifstream& fIn, bool ascii ) {
-    size_t systemAddress;
-    size_t subSystemAddress;
-    size_t sectorAddress;
-    Lvl1MuSectorLogicData::SectorLogicWord wordData;
+    std::cout << "I am faking candidates for testing - do you really want that??" << std::endl;
 
-    size_t totalWordCount =
-      2 * ( Lvl1MuCTPIInput::numberOfBarrelSector()
-            + Lvl1MuCTPIInput::numberOfEndcapSector()
-            + Lvl1MuCTPIInput::numberOfForwardSector() );
-    // read fixed size length
-    for ( size_t count = 0; count < totalWordCount; ++count ) {
-      // read in one word
-      if ( !ascii ) {
-        fIn.read( ( char* ) ( &systemAddress ), sizeof systemAddress );
-        fIn.read( ( char* ) ( &subSystemAddress ), sizeof subSystemAddress );
-        fIn.read( ( char* ) ( &sectorAddress ), sizeof sectorAddress );
-        fIn.read( ( char* ) ( &wordData ), sizeof wordData );
-      } else {
-        fIn >> systemAddress >> subSystemAddress >> sectorAddress >> wordData;
-      }
-      if ( fIn.eof() ) break;
-      if ( fIn.fail() ) {
-        std::cerr << "Lvl1MuCTPIInput::retrieveInWordFormat ";
-        std::cerr << " Error in reading file ";
-        std::cout << "  at " << count << "-th data" << std::endl;
-        return false;
-      }
+    std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ] = m_data;
 
-      // convert to SectorLogicData
-      Lvl1MuSectorLogicData* pData = 0;
-      if ( systemAddress == Barrel ) {
-        pData = new Lvl1MuBarrelSectorLogicData();
-      } else if ( systemAddress == Endcap ) {
-        pData = new Lvl1MuEndcapSectorLogicData();
-      } else if ( systemAddress == Forward ) {
-        pData = new Lvl1MuForwardSectorLogicData();
-      }
-      if (pData) {
-        pData->convertFromWordFormat( wordData );
-
-        setSectorLogicData( *pData, systemAddress, subSystemAddress, sectorAddress );
-        delete pData;
-      }
+    for (std::vector<Lvl1MuVectWithBC>::iterator itb = dataCopy[Barrel].begin(); itb !=dataCopy[Barrel].end(); ++itb){
+      (*itb).first =bcidOffset ;
     }
+    std::vector<Lvl1MuVectWithBC>::iterator itb = m_data[Barrel].end();
+    m_data[Barrel].insert(itb, dataCopy[Barrel].begin(), dataCopy[Barrel].end());
 
-    return true;
+    for (std::vector<Lvl1MuVectWithBC>::iterator ite = dataCopy[Endcap].begin(); ite !=dataCopy[Endcap].end(); ++ite){
+      (*ite).first =bcidOffset ;
+    }
+    std::vector<Lvl1MuVectWithBC>::iterator ite = m_data[Endcap].end();
+    m_data[Endcap].insert(ite, dataCopy[Endcap].begin(), dataCopy[Endcap].end());
+
+    for (std::vector<Lvl1MuVectWithBC>::iterator itf = dataCopy[Forward].begin(); itf !=dataCopy[Forward].end(); ++itf){
+      (*itf).first =bcidOffset ;
+    }
+    std::vector<Lvl1MuVectWithBC>::iterator itf = m_data[Forward].end();
+    m_data[Forward].insert(itf, dataCopy[Forward].begin(), dataCopy[Forward].end());
   }
 
-  bool Lvl1MuCTPIInput::storeInWordFormat( std::ofstream& fOut,
-      bool ascii,
-      size_t systemAddress,
-      size_t subSystemAddress,
-      size_t sectorAddress ) {
-    // Get Word Format Data
-    const Lvl1MuSectorLogicData & data = getSectorLogicData( systemAddress, subSystemAddress, sectorAddress );
-    Lvl1MuSectorLogicData::SectorLogicWord wordData;
-    wordData = data.getWordFormat();
-
-    // write out
-    if ( !ascii ) {
-      fOut.write( ( char* ) ( &systemAddress ), sizeof systemAddress );
-      fOut.write( ( char* ) ( &subSystemAddress ), sizeof subSystemAddress );
-      fOut.write( ( char* ) ( &sectorAddress ), sizeof sectorAddress );
-      fOut.write( ( char* ) ( &wordData ), sizeof wordData );
-    } else {
-      fOut << systemAddress << " ";
-      fOut << subSystemAddress << " ";
-      fOut << sectorAddress << " ";
-      fOut << wordData << std::endl;
-    }
-    return !fOut.fail();
-  }
-
-  bool Lvl1MuCTPIInput::storeInWordFormat( std::ofstream& fOut, bool ascii ) {
-    size_t systemAddress;
-    size_t subAddress;
-    size_t side, id;
-
-    // --------- Barrel Sector ---------------------------
-    systemAddress = idBarrelSystem();
-    for ( side = 0; side < 2; ++side ) {
-      if ( side == 0 ) {
-        subAddress = idSideC();
-      } else {
-        subAddress = idSideA();
-      }
-      for ( id = 0; id < numberOfBarrelSector() ;++id ) {
-        if ( !storeInWordFormat( fOut, ascii, systemAddress, subAddress, id ) ) {
-          std::cerr << "Lvl1MuCTPIInput::storeInWordFormat ";
-          std::cerr << " Error in writing file " << std::endl;
-          return false;
-        }
-      }
-    }
-
-    // --------- Endcap Sector ---------------------------
-    systemAddress = idEndcapSystem();
-    for ( side = 0; side < 2; ++side ) {
-      if ( side == 0 ) {
-        subAddress = idSideC();
-      } else {
-        subAddress = idSideA();
-      }
-      for ( id = 0; id < numberOfEndcapSector() ;++id ) {
-        if ( !storeInWordFormat( fOut, ascii, systemAddress, subAddress, id ) ) {
-          std::cerr << "Lvl1MuCTPIInput::storeInWordFormat ";
-          std::cerr << " Error in writing file " << std::endl;
-          return false;
-        }
-      }
-    }
-
-    // --------- Forward Sector ---------------------------
-    systemAddress = idForwardSystem();
-    for ( side = 0; side < 2; ++side ) {
-      if ( side == 0 ) {
-        subAddress = idSideC();
-      } else {
-        subAddress = idSideA();
-      }
-      for ( id = 0; id < numberOfForwardSector() ;++id ) {
-        if ( !storeInWordFormat( fOut, ascii, systemAddress, subAddress, id ) ) {
-          std::cerr << "Lvl1MuCTPIInput::storeInWordFormat ";
-          std::cerr << " Error in writing file " << std::endl;
-          return false;
-        }
-      }
-    }
-    return true;
-  }
 
   std::ostream& operator<<( std::ostream& out, const Lvl1MuCTPIInput& right ) {
 
@@ -349,57 +224,67 @@ namespace LVL1MUONIF {
 
     out << "--------- Barrel Sector ---------------------------" << std::endl;
     systemAddress = right.idBarrelSystem();
-    for ( side = 0; side < 2; ++side ) {
+    for ( side = 0; side < right.NumberOfMuonSubSystem; ++side ) {
       if ( side == 0 ) {
         out << "   ------ A Side (Z>0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideA();
       } else {
-        out << "   ------ C Side (C>0)  ---------------------------" << std::endl;
+        out << "   ------ C Side (Z<0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideC();
       }
       for ( id = 0; id < right.numberOfBarrelSector() ;++id ) {
         out << "      --- Sector ID  :  " << id << "   ----------" << std::endl;
-        out << right.getSectorLogicData( systemAddress, subSystemAddress, id );
-        out << std::endl;
+	for( size_t ip=0; ip < right.m_data[systemAddress].size(); ip++){
+	  int bc=((right.m_data[systemAddress]).at(ip)).first;
+	  out << right.getSectorLogicData( systemAddress, subSystemAddress, id, bc );
+	  out << " BC: " << bc;
+	  out << std::endl;
+	}
       }
     }
 
     out << "--------- Endcap Sector ---------------------------" << std::endl;
     systemAddress = right.idEndcapSystem();
-    for ( side = 0; side < 2; ++side ) {
+    for ( side = 0; side < right.NumberOfMuonSubSystem; ++side ) {
       if ( side == 0 ) {
         out << "   ------ A Side (Z>0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideA();
       } else {
-        out << "   ------ C Side (C>0)  ---------------------------" << std::endl;
+        out << "   ------ C Side (Z<0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideC();
       }
       for ( id = 0; id < right.numberOfEndcapSector() ;++id ) {
         out << "      --- Sector ID  :  " << id << "   ----------" << std::endl;
-        out << right.getSectorLogicData( systemAddress, subSystemAddress, id );
-        out << std::endl;
+	for( size_t ip=0; ip < right.m_data[systemAddress].size(); ip++){
+	  int bc=((right.m_data[systemAddress]).at(ip)).first;
+	  out << right.getSectorLogicData( systemAddress, subSystemAddress, id, bc );
+	  out << " BC: " << bc;
+	  out << std::endl;
+	}
       }
     }
 
     out << "--------- Forward Sector ---------------------------" << std::endl;
     systemAddress = right.idForwardSystem();
-    for ( side = 0; side < 2; ++side ) {
+    for ( side = 0; side < right.NumberOfMuonSubSystem; ++side ) {
       if ( side == 0 ) {
         out << "   ------ A Side (Z>0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideA();
       } else {
-        out << "   ------ C Side (C>0)  ---------------------------" << std::endl;
+        out << "   ------ C Side (Z<0)  ---------------------------" << std::endl;
         subSystemAddress = right.idSideC();
       }
       for ( id = 0; id < right.numberOfForwardSector() ;++id ) {
         out << "      --- Sector ID  :  " << id << "   ----------" << std::endl;
-        out << right.getSectorLogicData( systemAddress, subSystemAddress, id );
-        out << std::endl;
+	for( size_t ip=0; ip < right.m_data[systemAddress].size(); ip++){
+	  int bc=((right.m_data[systemAddress]).at(ip)).first;
+	  out << right.getSectorLogicData( systemAddress, subSystemAddress, id, bc );
+	  out << " BC: " << bc;
+	  out << std::endl;
+	}
       }
     }
 
     return out;
-
   }
-
 }
