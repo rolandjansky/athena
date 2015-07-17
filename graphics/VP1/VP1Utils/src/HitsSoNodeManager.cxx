@@ -4,7 +4,6 @@
 
 #include "VP1Utils/HitsSoNodeManager.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoPointSet.h>
@@ -306,10 +305,8 @@ SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, doub
     cube->ref();
     return cube;
   }
-  /** Can never reach this line (coverity 31149)
   std::cout << "Returning zero!" << std::endl;
   return 0;
-  **/
 }
 
 //____________________________________________________________________
