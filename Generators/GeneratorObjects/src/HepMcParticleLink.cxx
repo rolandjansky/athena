@@ -34,7 +34,7 @@ namespace {
 }
 
 HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part, 
-				     index_type eventIndex) :
+				     uint32_t eventIndex) :
     m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex),
     m_have_particle (true)
 {

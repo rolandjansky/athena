@@ -8,7 +8,7 @@
 
 
 // #include "GeneratorObjects/McEvent.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
