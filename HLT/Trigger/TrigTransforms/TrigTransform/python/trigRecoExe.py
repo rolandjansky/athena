@@ -220,7 +220,7 @@ class trigRecoExecutor(athenaExecutor):
         
         
         
-        msg.info("Check for created BS files")
+        msg.info("Search for created BS files, and rename if single file found")
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
         if 'BS' in self.conf.dataDictionary:
@@ -228,23 +228,28 @@ class trigRecoExecutor(athenaExecutor):
             #create expected string by taking only some of input
             # removes uncertainty of which parts of the filename are used by athenaHLT
             split_argInDict = argInDict.value[0].split('.')
-            #try to drop at least the last parts of the input string
-            # to remove any potential ._####.data already in argInDict
-            # otherwise just take first element
-            if(len(split_argInDict)>3):
-               expectedOutputFileName = '.'.join(split_argInDict[0:len(split_argInDict)-3])
-            else:
-               expectedOutputFileName = split_argInDict[0]
-            #expect file from athenaHLT to end _###.data so add .data ending
+            #drop most of the input string to remove any potential ._####.data 
+            # already in argInDict - so just take first element from input
+            expectedOutputFileName = split_argInDict[0]
+            #expect file from athenaHLT to end _###.data so add ending
+            #TODO  a better ending check could be *_????.data
             expectedOutputFileName+='*.data'
             #keep dataset in case need to update argument
             dataset_argInDict = argInDict._dataset
             #list to store the filenames of files matching expectedOutputFileName
             matchedOutputFileNames = []
-            #loop over all files in folder to find matching outputs
+            #list of input files that could be in the same folder and need ignoring
+            ignoreInputFileNames = []
+            for dataType, dataArg in self.conf.dataDictionary.iteritems():
+                if dataArg.io == 'input':
+                    ignoreInputFileNames.append(dataArg.value[0])
+            #loop over all files in folder to find matching output files
             for file in os.listdir('.'):
                 if fnmatch.fnmatch(file, expectedOutputFileName):
-                    matchedOutputFileNames.append(file)
+                    if file in ignoreInputFileNames:
+                        msg.info('Ignoring input file: %s' % file)
+                    else: 
+                        matchedOutputFileNames.append(file)
             #check there are file matches and rename appropriately
             if(len(matchedOutputFileNames)>1):
                 msg.warning('Multiple BS files found: will only rename internal arg')
@@ -269,33 +274,7 @@ class trigRecoExecutor(athenaExecutor):
         #Run PostRun step debug_stream analysis if debug_stream=True
         if 'debug_stream' in self.conf.argdict:
             msg.info("debug_stream analysis in postExecute")
-
-            # TODO is the code below now redundant?
-            #      also line 312: self.conf.dataDictionary['BS']._resetMetadata()
-            #
-            # #Rename input to handle Tier-0 naming convention and work around for athenaHLT 0001.data default output
-            # argInDict = self.conf.dataDictionary['BS']
-            # inputFile = argInDict.value[0]
-            # expectedInput = str()
-            # if not inputFile.endswith(".data") and inputFile[-1:].isdigit():
-            #     ending = re.split('[^\d]',inputFile)[-1]
-            #     li = inputFile.rsplit(ending,1)
-            #     expectedInput = '0001.data'.join(li)
-            #     inputFile = inputFile+".data"
-            #     argInDict.value[0] = inputFile
-            # else :
-            #     expectedInput = inputFile.replace(".data",'._0001.data')
-            #     if expectedInput.endswith("_0001._0001.data"):
-            #         expectedInput = inputFile
-            # 
-            # msg.info('Renaming {0} to {1}'.format(expectedInput, inputFile))
-            # try:
-            #     os.rename(expectedInput, inputFile)
-            # except OSError, e:
-            #     msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-            #     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-            #                                                     'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-                
+    
             #set default file name for debug_stream analysis output
             fileNameDbg = ['debug-stream-monitoring.root']
             if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
@@ -310,6 +289,9 @@ class trigRecoExecutor(athenaExecutor):
 
             #do debug_stream postRun step
             dbgStream.dbgPostRun(argInDict,fileNameDbg)
+            #
+            # TODO is the reset now redundant? (not needed for reprocessing)
+            #
             #now reset metadata for outputBSFile needed for trf file validation
             self.conf.dataDictionary['BS']._resetMetadata()
 
