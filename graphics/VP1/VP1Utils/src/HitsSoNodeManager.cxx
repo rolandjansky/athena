@@ -266,7 +266,7 @@ SoNode* HitsSoNodeManager::getShapeNode_ProjectedDriftTube( double halfLength, d
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, double depth )
 {
-  std::cout << "HitsSoNodeManager::getShapeNode_Strip()" << std::endl;
+  //std::cout << "HitsSoNodeManager::getShapeNode_Strip()" << std::endl;
 
   d->sanitiseParameterValueAllowZero(length);
   d->sanitiseParameterValueAllowZero(width);
@@ -305,12 +305,15 @@ SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, doub
     cube->ref();
     return cube;
   }
+  std::cout << "Returning zero!" << std::endl;
+  return 0;
 }
+
 //____________________________________________________________________
 SoNode* HitsSoNodeManager::getShapeNode_Wire( double length, double minWidth, double maxWidth, double depth )
 {
 
-  std::cout << "HitsSoNodeManager::getShapeNode_Wire()" << std::endl;
+  //std::cout << "HitsSoNodeManager::getShapeNode_Wire()" << std::endl;
 
   d->sanitiseParameterValueAllowZero(length);
   d->sanitiseParameterValueAllowZero(minWidth);
@@ -356,7 +359,7 @@ SoNode* HitsSoNodeManager::getShapeNode_Wire( double length, double minWidth, do
 SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, double maxWidth, double depth )
 {
 
-  std::cout << "HitsSoNodeManager::getShapeNode_Pad()" << std::endl;
+  //std::cout << "HitsSoNodeManager::getShapeNode_Pad()" << std::endl;
 
   d->sanitiseParameterValueAllowZero(length);
   d->sanitiseParameterValueAllowZero(minWidth);
@@ -374,7 +377,7 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
       return getShapeNode_Point();
     }
     //Return a line:
-    std::cout << "maxWidth==0.0 && depth==0, returning a line..." << std::endl;
+    //std::cout << "maxWidth==0.0 && depth==0, returning a line..." << std::endl;
     SoVertexProperty * scatVtxProperty = new SoVertexProperty();
     scatVtxProperty->vertex.set1Value(0, 0.0f,-length*0.5f,0.0f);
     scatVtxProperty->vertex.set1Value(1, 0.0f, length*0.5f,0.0f);
@@ -385,7 +388,7 @@ SoNode* HitsSoNodeManager::getShapeNode_Pad( double length, double minWidth, dou
     line->ref();
     return line;
   } else {
-    std::cout << "returning a box..." << std::endl;
+    //std::cout << "returning a box..." << std::endl;
     //Return a box.
     SoGenericBox::initClass();
     SoGenericBox* trd = new SoGenericBox;
