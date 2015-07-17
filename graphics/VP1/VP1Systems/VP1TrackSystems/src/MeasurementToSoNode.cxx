@@ -4,7 +4,6 @@
 
 #include "VP1TrackSystems/MeasurementToSoNode.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoSphere.h>
@@ -116,29 +115,23 @@ Trk::MeasurementToSoNode::createMeasSep(  const Trk::MeasurementBase& meas)
         case TrkObjToString::MDT:
         {
             const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
-            if (rot){
-              measurements = toSoNodes( *rot );
-              theHitTransform=createTransform(*rot, detType);
-            }
+            measurements = toSoNodes( *rot );
+            theHitTransform=createTransform(*rot, detType);
             break;
         }
         case TrkObjToString::CompetingROT:
         {
             const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*>(&meas);
-            if (crot){
-              measurements = toSoNodes(*crot);
-              const Trk::RIO_OnTrack* mostProbROT =  &(crot->rioOnTrack( crot->indexOfMaxAssignProb ()));
-              theHitTransform=createTransform( static_cast<const Trk::MeasurementBase&>(*mostProbROT), TrkObjToString::type( mostProbROT ));
-            }
+            measurements = toSoNodes(*crot);
+            const Trk::RIO_OnTrack* mostProbROT =  &(crot->rioOnTrack( crot->indexOfMaxAssignProb ()));
+            theHitTransform=createTransform( static_cast<const Trk::MeasurementBase&>(*mostProbROT), TrkObjToString::type( mostProbROT ));
             break;
         }
         case TrkObjToString::PseudoMeasurement:
         {
             const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&meas) ;
-            if (pseudo){
-              measurements = toSoNodes(*pseudo);
-              theHitTransform=createTransform( *pseudo, detType);
-            }
+            measurements = toSoNodes(*pseudo);
+            theHitTransform=createTransform( *pseudo, detType);
             break;
         }
         case TrkObjToString::Segment:
@@ -227,10 +220,10 @@ Trk::MeasurementToSoNode::toSoNode(const Trk::TrkDetElementBase* baseDetEl, Iden
   case TrkObjToString::Pixel:
   case TrkObjToString::SCT:
     {
-      const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(baseDetEl);
-      if(detEl){ // by definition this should never fail
-        theHitMarker = toSoNode(detEl, id, prdType, locPos);
-      }
+      const InDetDD::SiDetectorElement* detEl =
+        dynamic_cast<const InDetDD::SiDetectorElement*>(baseDetEl);
+      assert(detEl!=0); // by definition this should never fail
+      theHitMarker = toSoNode(detEl, id, prdType, locPos);
       break;
     }
   case TrkObjToString::MDT:
@@ -241,26 +234,26 @@ Trk::MeasurementToSoNode::toSoNode(const Trk::TrkDetElementBase* baseDetEl, Iden
     }
   case TrkObjToString::CSC:
     {
-      const MuonGM::CscReadoutElement* detEl = dynamic_cast<const MuonGM::CscReadoutElement*>(baseDetEl);
-      if(detEl){ // by definition this should never fail
-        theHitMarker=toSoNode( detEl, id );
-      }
+      const MuonGM::CscReadoutElement* detEl =
+        dynamic_cast<const MuonGM::CscReadoutElement*>(baseDetEl);
+      assert(detEl!=0); // by definition this should never fail
+      theHitMarker=toSoNode( detEl, id );
       break;
     }
   case TrkObjToString::RPC:
     {
-      const MuonGM::RpcReadoutElement* detEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(baseDetEl);
-      if(detEl){ // by definition this should never fail
-        theHitMarker=toSoNode( detEl, id );
-      }
+      const MuonGM::RpcReadoutElement* detEl =
+        dynamic_cast<const MuonGM::RpcReadoutElement*>(baseDetEl);
+      assert(detEl!=0); // by definition this should never fail
+      theHitMarker=toSoNode( detEl, id );
       break;
     }
   case TrkObjToString::TGC:
     {
-      const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(baseDetEl);
-      if(detEl){ // by definition this should never fail
-        theHitMarker=toSoNode( detEl, id );
-      }
+      const MuonGM::TgcReadoutElement* detEl =
+        dynamic_cast<const MuonGM::TgcReadoutElement*>(baseDetEl);
+      assert(detEl!=0); // by definition this should never fail
+      theHitMarker=toSoNode( detEl, id );
       break;
     }
 
@@ -310,7 +303,8 @@ Trk::MeasurementToSoNode::toSoNodeDriftTube(const Trk::TrkDetElementBase* detEl,
   //////std::cout<<"Drift tube : isSimpleView = "<<isSimpleView(type)<<std::endl;
   SoNode *theHitMarker = 0;
   const Trk::CylinderBounds* ccbo = dynamic_cast<const Trk::CylinderBounds*>(&(detEl->surface(id).bounds()));
-  if (not ccbo) return theHitMarker;  
+  assert(ccbo!=0);
+
   
   double hlength = ccbo->halflengthZ(); // the halflength of the actual tube
   
@@ -481,7 +475,7 @@ Trk::MeasurementToSoNode::createTransform(  const Trk::MeasurementBase& mb, TrkO
 
   SoTransform*   theHitTransform = VP1LinAlgUtils::toSoTransform(theSurface.transform());
 
-  Amg::Vector3D theHitGPos={-999.0,-999.0,-999.0} ;
+  Amg::Vector3D theHitGPos ;
   // Amg::Vector3D theHitGPos = mb.globalPosition();
   if ( detType==TrkObjToString::MDT || detType==TrkObjToString::TRT )
      {
@@ -496,25 +490,22 @@ Trk::MeasurementToSoNode::createTransform(  const Trk::MeasurementBase& mb, TrkO
          case TrkObjToString::CSC:
          {
            const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack* >(&mb);
-            if (csc){
-              theHitGPos = csc->detectorElement()->stripPos( csc->identify() );
-            }
+            assert(csc);
+            theHitGPos = csc->detectorElement()->stripPos( csc->identify() );;
             break;
           }
          case TrkObjToString::TGC:
          {
            const Muon::TgcClusterOnTrack* tgc = dynamic_cast<const Muon::TgcClusterOnTrack* >(&mb);
-            if (tgc && tgc->detectorElement()){
-              theHitGPos = tgc->detectorElement()->channelPos( tgc->identify() ); 
-            }
+            assert(tgc && tgc->detectorElement());
+            theHitGPos = tgc->detectorElement()->channelPos( tgc->identify() ); 
             break;
           }
          case TrkObjToString::RPC:
          {
            const Muon::RpcClusterOnTrack* rpc = dynamic_cast<const Muon::RpcClusterOnTrack* >(&mb);
-            if (rpc){
-              theHitGPos = rpc->detectorElement()->stripPos( rpc->identify() );
-            }
+            assert(rpc);
+            theHitGPos = rpc->detectorElement()->stripPos( rpc->identify() );
             break;
           }
          case TrkObjToString::SCT: 
@@ -526,8 +517,8 @@ Trk::MeasurementToSoNode::createTransform(  const Trk::MeasurementBase& mb, TrkO
            delete tempHitGPos;
            break;
          }
-         //case TrkObjToString::MDT:  can't reach here
-         //case TrkObjToString::TRT: can't reach here
+         case TrkObjToString::MDT:
+         case TrkObjToString::TRT:
          default:
            // shouldn't ever get in here!
         	 // initializations to avoid warnings
