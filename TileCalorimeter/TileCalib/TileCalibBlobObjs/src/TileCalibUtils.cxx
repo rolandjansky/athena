@@ -153,84 +153,80 @@ TileCalibUtils::getDrawerString(unsigned int ros, unsigned int drawer)
 
 //
 //_____________________________________________________________________________
-unsigned int 
-TileCalibUtils::getDefaultDrawerIdx(unsigned int drawerIdx)
-{
+unsigned int TileCalibUtils::getDefaultDrawerIdx(unsigned int drawerIdx) {
+
   //=== Global Detector defaults in  0 -  3
   //=== 
-  //===  Defaults for LBA         in  4 -  7
-  //===  Defaults for LBC         in  8 - 11
-  //===  Defaults for EBA         in 12 - 15
-  //===  Defaults for EBC         in 16 - 19
+  //===  Defaults for LB         in  4 - 11
+  //===  Defaults for EB         in 12 - 19
   //===
-  //===  Defaults per partition:
-  //===   LBA in  4
-  //===   LBC in  8
-  //===   EBA in 12
-  //===   EBC in 16
   //===
   //===  Defaults are further shifted in extended barrel: 
   //---   + 1 for Inner MBTS and special C10
   //---   + 2 for Outer MBTS
-  //---   + 3 for E4'
+  //---   + 3 for Merged E1
+  //---   + 4 for E4'
+  //---   + 5 for Special D40 with missing D4: EBA15/EBC18
+  //---   + 6 for Special D4 reduced in size
+  //---   + 7 for D4 on the top of EB around special D4
   //
   //---  e.g.:
 
-  //---   EBA                            in 12 
-  //---   EBA (Inner MBTS + special C10) in 13 
-  //---   EBA (Outer MBTS)               in 14 
+  //---   LB                                         in  4
 
-  //---   EBC                            in 16 
-  //---   EBC (Inner MBTS + special C10) in 17 
-  //---   EBC (Outer MBTS)               in 18 
-  //---   EBC (E4')                      in 19
+  //---   EB                                         in 12 
+  //---   EB (Inner MBTS + special C10)              in 13 
+  //---   EB (Outer MBTS)                            in 14 
+  //---   EB (Merged E1)                             in 15 
+  //---   EB (E4')                                   in 16 
+  //---   EB (Special D40: EBA15/EBC18)              in 17 
+  //---   EB (Special D4 reduced in size)            in 18
+  //---   EB (D4 on the top of EB around specail D4) in 19
 
 
     //=== defaults for defaults
-  if(drawerIdx < MAX_DRAWR0){
-    unsigned int mod = drawerIdx % 4;
+  if(drawerIdx < MAX_DRAWR0) {
+    if (drawerIdx < 4) return 0;
+    unsigned int mod = (drawerIdx - 4) % 8;
     return mod > 0 ? drawerIdx - mod : 0;
   }
   
   
   //=== defaults for existing drawers
   drawerIdx -= MAX_DRAWR0;
-  
-  if (drawerIdx < MAX_DRAWER) { // LBA
-    return 4;
-  } else if(drawerIdx < 2 * MAX_DRAWER) { // LBC
-    return 8; 
-  } else if (drawerIdx < 3 * MAX_DRAWER) { // EBA
+  if (drawerIdx < 2 * MAX_DRAWER) return 4; // LB
     
-    int  OffsetEBA[] = { 0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBA08
-                         0, 0, 0, 0, 0, 0, 0, 0,
-                         0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBA24
-                         0, 0, 0, 0, 0, 0, 0, 0,
-                         0, 0, 0, 0, 0, 0, 1, 1, // Inner MBTS + special C10: EBA39, EBA40
-                         1, 1, 2, 0, 0, 0, 0, 0, // Inner MBTS + special C10: EBA41, EBA42; Outer MBTS: EBA43
-                         0, 0, 0, 0, 0, 2, 1, 1, // Outer MBTS: EBA54; Inner MBTS + special C10: EBA55, EBA56
-                         1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C10: EBA57, EBA58
+  drawerIdx -= 2 * MAX_DRAWER;
+  if (drawerIdx < MAX_DRAWER) { // EBA
+    
+    int  OffsetEBA[] = { 0, 0, 0, 0, 0, 0, 3, 2, // Merged E+1: EBA07; Outer MBTS: EBA08
+                         0, 0, 0, 0, 7, 6, 5, 7, // D+4: EBA13, EBA16; Special D+4: EBA14; Special D+40: EBA15
+                         7, 6, 6, 7, 0, 0, 0, 2, // D+4: EBA17, EBA20; Special D+4: EBA18, EBA19; Outer MBTS: EBA24
+                         3, 0, 0, 0, 0, 0, 0, 0, // Merged E+1:  EBA25
+                         0, 0, 0, 0, 0, 0, 1, 1, // Inner MBTS + special C+10: EBA39, EBA40
+                         1, 1, 2, 3, 0, 0, 0, 0, // Inner MBTS + special C+10: EBA41, EBA42; Outer MBTS: EBA43; Merged E+1: EBA44
+                         0, 0, 0, 0, 3, 2, 1, 1, // Merged E+1: EBA53; Outer MBTS: EBA54; Inner MBTS + special C+10: EBA55, EBA56
+                         1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C+10: EBA57, EBA58
                          
     };
     
-    return 12 + OffsetEBA[drawerIdx % MAX_DRAWER];
+    return 12 + OffsetEBA[drawerIdx];
     
-  } else { // EBC
-    
-    int  OffsetEBC[] = { 0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBC08
-                         0, 0, 0, 0, 0, 0, 0, 0,
-                         0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBC24
-                         0, 0, 0, 0, 3, 0, 0, 3, // E4': EBC29, EBC32
-                         0, 3, 0, 0, 3, 0, 1, 1, // E4': EBC34, EBC37; Inner MBTS + special C10: EBC39, EBC40
-                         1, 1, 2, 0, 0, 0, 0, 0, // Inner MBTS + special C10: EBC41, EBC42; Outer MBTS: EBC43
-                         0, 0, 0, 0, 0, 2, 1, 1, // Outer MBTS: EBC54; Inner MBTS + special C10: EBC55, EBC56
-                         1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C10: EBC57, EBC58
-    };
-    
-    return 16 + OffsetEBC[drawerIdx % MAX_DRAWER];
-    
-  }
-    
+  } 
+
+  // EBC
+  drawerIdx -= MAX_DRAWER;
+  int  OffsetEBC[] = { 0, 0, 0, 0, 0, 0, 3, 2, // Merged E-1: EBC07; Outer MBTS: EBC08
+                       0, 0, 0, 0, 7, 6, 6, 7, // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15; 
+                       7, 5, 6, 7, 0, 0, 0, 2, // D-4: EBC17, EBC20; Special D-40 EBC18; Special D-4: EBC19; Outer MBTS: EBC24
+                       3, 0, 0, 3, 4, 0, 3, 4, // Merged E-1:  EBC25, EBC28, EBC31; E-4': EBC29, EBC32
+                       0, 4, 3, 0, 4, 3, 1, 1, // E-4': EBC34, EBC37; Merged E-1: EBC35, EBC38; Inner MBTS + special C-10: EBC39, EBC40
+                       1, 1, 2, 3, 0, 0, 0, 0, // Inner MBTS + special C-10: EBC41, EBC42; Outer MBTS: EBC43; Merged E-1: EBC44
+                       0, 0, 0, 0, 3, 2, 1, 1, // Merged E-1: EBC53; Outer MBTS: EBC54; Inner MBTS + special C-10: EBC55, EBC56
+                       1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C-10: EBC57, EBC58
+  };
+  
+  return 12 + OffsetEBC[drawerIdx];
   
 }
 
