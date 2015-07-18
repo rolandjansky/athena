@@ -38,7 +38,7 @@ StatusCode RootFileTransformationsTool::reorderBaskets(std::string fileName, std
    ATH_MSG_INFO("Reordering baskets on file " << fileName << " using " << option);
 
    std::string optFileName = fileName+".opt.root";   
-   remove(optFileName.c_str());
+   (void) remove(optFileName.c_str());
       
    cobs* mcobs = new cobs(fileName, optFileName);
 
@@ -85,7 +85,7 @@ StatusCode RootFileTransformationsTool::resizeBaskets(std::string fileName, std:
    ATH_MSG_INFO ("Optimizing basket sizes of the file " << fileName << "\tusing " << algo << "\ttreesToExclude: "<< treesToExclude << "\tmemPerTree: " << memPerTree << "\ttotal memory: " << maxMemory << "\tmin compression: " << minComp);
 
    std::string optFileName = fileName+".opt.root";
-   remove(optFileName.c_str());
+   (void) remove(optFileName.c_str());
    
    cobs* mcobs = new cobs(fileName, optFileName);   
    // mcobs->setDebugLevel(1);

@@ -474,7 +474,7 @@ void cobs::SimpleOptimizeBaskets(TTree* tree, unsigned long memory, float minCom
         // cout<<basketSize[i]<<"\t"<<baskets[i]<<endl;
     }
     if (m_debug) cout<<"<cobs::SimpleOptimizeBaskets> Total memory buffer: "
-                     <<totMem/1000<<" kb total baskets: "<<totBas<<"\tmin BS: "<<minBs<<"\tmax BS: "<<maxBs<<endl;
+                     <<totMem * 1e-3 <<" kb total baskets: "<<totBas<<"\tmin BS: "<<minBs<<"\tmax BS: "<<maxBs<<endl;
     //cout<<"-------------------------------------------------------------------------------------------------"<<endl;
     delete [] totSize;      
     delete [] basketSize;

@@ -55,7 +55,7 @@ void HistoPile::Fill(Float_t f)
 //          cout << ">>>CLONE HISTO<<< " << path << endl;
           fCurrHist = (TH1F*)refHist->Clone(path);
           fCurrHist->Reset();
-          fCurrHist->SetBit(TH1::kCanRebin,0);    // don't allow rebinning binning
+          fCurrHist->SetCanExtend(TH1::kNoAxis);    // don't allow rebinning binning
 //          fCurrHist->SetDirectory(0);
         //cout << fCurrHist->Hash() << " " << refHist->Hash() << endl; 
           fHistos->AddLast(fCurrHist);
@@ -65,7 +65,7 @@ void HistoPile::Fill(Float_t f)
     if (!fCurrHist) {  
         // some default - tbc
         fCurrHist =  new TH1F(path,path,40,f/2.,f*2.); 
-        fCurrHist->SetBit(TH1::kCanRebin);
+        fCurrHist->SetCanExtend(TH1::kAllAxes);
         fCurrHist->SetDirectory(0);
         fHistos->AddLast(fCurrHist);
 //        cout << ">>>NEW HISTO<<< " << path << endl;
@@ -85,7 +85,7 @@ void HistoPile::Save()
 	TH1F* hist;
 	while ((hist = (TH1F *)next() ))
 	{
-	  hist->SetBit(TH1::kCanRebin,0);
+	  hist->SetCanExtend(TH1::kNoAxis);
 	  hist->SetDirectory(file);
 	  hist->Write();
 	  //cout << hist->GetName() << endl;

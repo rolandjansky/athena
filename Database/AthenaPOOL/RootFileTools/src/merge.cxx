@@ -82,8 +82,10 @@ namespace {
     char* p = ::strstr(txt,"[CNT=");
     if ( p ) {
       char* q = strchr(p+4,']');
-      *q = 0;
-      return p+5;
+      if (q) {
+        *q = 0;
+        return p+5;
+      }
     }
     return 0;
   }
