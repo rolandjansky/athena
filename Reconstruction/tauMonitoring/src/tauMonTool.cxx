@@ -32,6 +32,7 @@ tauMonTool::tauMonTool( const std::string & type,
 		m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
 	declareProperty("doTrigger", m_doTrigger, "Run trigger aware monitoring. Only if trigger data is available");
+	declareProperty( "TauEleJetMbtsTriggerItems", m_trigItems, "vector<vector<string> > to itemize tau like triggers ");
 }
 
 tauMonTool::~tauMonTool() {}
@@ -48,6 +49,18 @@ StatusCode tauMonTool::bookHistograms()
 	//--------------------
 	std::string folderName = "Tau";
 	MonGroup mainFolder (this, folderName, run);
+        MonGroup lowStatFds( this, folderName, lowStat ) ;
+
+        if ( newRun || newLowStatInterval ) 
+        { 
+          if ( bookBasicPlots(m_basic_LS, lowStatFds,"" ).isFailure() )  
+            ATH_MSG_ERROR("Couldn't book Low Stat basic histograms");
+	  if ( bookHistos( m_tauLS, folderName , lowStat ).isFailure() )		
+            ATH_MSG_ERROR("Couldn't book Low Stat histograms");
+        } ;
+
+// http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/JetTagging/JetTagMonitoring/src/JetTagMonitoring.cxx#0362
+
 	if ( bookBasicPlots(m_basicPlots, mainFolder,"" ).isFailure() )	 	ATH_MSG_ERROR("Couldn't book basicPlots histograms");
 	// Tau Barrel Monitoring groups
 	if ( bookHistos(m_tauB, folderName + "/TauB", run).isFailure())		ATH_MSG_ERROR("Couldn't book barrel histograms");
@@ -65,28 +78,49 @@ StatusCode tauMonTool::bookHistograms()
 			// create trigger folder and trigger summary histogram
 			//--------------------
 			MonGroup tau_Trigger (this, "Tau/Trigger", run);
-			StatusCode sc = Book1DHist ( &m_triggers, &tau_Trigger, "m_triggers", "Fired triggers per tau candidate", 4, 0.5, 4.5);
+			StatusCode sc = Book1DHist ( &m_triggers, &tau_Trigger, "TriggerChains", "Fired triggers per tau candidate", 5, 0.5, 5.5);
 			if (sc.isSuccess()) {
 				m_triggers->GetXaxis()->SetBinLabel(1,"EM");
 				m_triggers->GetXaxis()->SetBinLabel(2,"Jet");
 				m_triggers->GetXaxis()->SetBinLabel(3,"Taus");
 				m_triggers->GetXaxis()->SetBinLabel(4,"MBTS");
+				m_triggers->GetXaxis()->SetBinLabel(5,"Unchecked");
+
 			} else {
 				ATH_MSG_ERROR("Couldn't book m_triggers histogram");
 			}
 
+                        MonGroup tau_Trigger_Tau (this, "Tau/Trigger/TauTrig" , run);
+			MonGroup tau_Trigger_Em  (this, "Tau/Trigger/EleTrig"  , run);
+                        MonGroup tau_Trigger_Jet (this, "Tau/Trigger/JetTrig" , run);
+			MonGroup tau_Trigger_Mbts(this, "Tau/Trigger/Mbts", run);
+
 			//--------------------
 			// book trigger plots
 			//--------------------
-			MonGroup tau_Trigger_Jet (this, "Tau/Trigger/Jet" , run);
-			MonGroup tau_Trigger_Em  (this, "Tau/Trigger/Em"  , run);
-			MonGroup tau_Trigger_Tau (this, "Tau/Trigger/Tau" , run);
-			MonGroup tau_Trigger_Mbts(this, "Tau/Trigger/Mbts", run);
+                        CHECK( Book2DHist ( &m_triggers_vs_LB, &tau_Trigger, "TriggerChains_LB", "Triggered chain vs Lumiblock; trigger;Lumiblock", 5, 0.5, 5.5, m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0) );
+			m_triggers_vs_LB->GetXaxis()->SetBinLabel(1,"EM");
+			m_triggers_vs_LB->GetXaxis()->SetBinLabel(2,"Jet");
+			m_triggers_vs_LB->GetXaxis()->SetBinLabel(3,"Taus");
+			m_triggers_vs_LB->GetXaxis()->SetBinLabel(4,"MBTS");
+			m_triggers_vs_LB->GetXaxis()->SetBinLabel(5,"Unchecked");
 
-			if ( bookBasicPlots(m_jetPlots,  tau_Trigger_Jet ,"jet_" ).isFailure() ) ATH_MSG_ERROR("Couldn't book jetTrigger histograms");
-			if ( bookBasicPlots(m_emPlots,   tau_Trigger_Em  ,"em_"  ).isFailure() ) ATH_MSG_ERROR("Couldn't book emTrigger histograms");
-			if ( bookBasicPlots(m_tauPlots,  tau_Trigger_Tau ,"tau_" ).isFailure() ) ATH_MSG_ERROR("Couldn't book tauTrigger histograms");
-			if ( bookBasicPlots(m_mbtsPlots, tau_Trigger_Mbts,"mbts_").isFailure() ) ATH_MSG_ERROR("Couldn't book mbtsTrigger histograms");
+
+                        if ( bookBasicPlots(m_tauBasePlots, tau_Trigger_Tau ,"tau_" ).isFailure() ) ATH_MSG_ERROR("Couldn't book Tau trigger histograms");
+                        if ( bookHistos( m_tauPlots, "Tau/Trigger/TauTrig", run).isFailure()) 
+          ATH_MSG_ERROR("Couldn't book Tau trigger histograms");
+
+                        if ( bookBasicPlots(m_jetPlots,  tau_Trigger_Jet ,"jet_" ).isFailure() )
+          ATH_MSG_ERROR("Couldn't book jetTrigger histograms");
+			if ( bookBasicPlots(m_emPlots,   tau_Trigger_Em  ,"em_"  ).isFailure() )
+          ATH_MSG_ERROR("Couldn't book emTrigger histograms");
+                        if ( bookBasicPlots(m_mbtsPlots, tau_Trigger_Mbts,"mbts_").isFailure() )
+          ATH_MSG_ERROR("Couldn't book mbtsTrigger histograms");
+/**
+                        if ( bookHistos( m_emPlots, "Tau/Trigger/EleTriggers", run).isFailure())         ATH_MSG_ERROR("Couldn't book Electron trigger histograms"); 
+                        if ( bookHistos( m_jetPlots, "Tau/Trigger/JetTriggers", run).isFailure())         ATH_MSG_ERROR("Couldn't book Jet trigger histograms"); 
+                        if ( bookHistos( m_mbtsPlots, "Tau/Trigger/MBTTriggers", run).isFailure())         ATH_MSG_ERROR("Couldn't book MiniBias trigger histograms"); 
+**/
 
 		} else {
 			ATH_MSG_ERROR("couldn't retrieve trigger info");
@@ -108,8 +142,6 @@ StatusCode tauMonTool::bookHistograms()
 //--------------------------------------------------------------------------------
 StatusCode tauMonTool::fillHistograms()
 {
-	ATH_MSG_DEBUG("StatusCode tauMonTool::fillHistograms,  doTrigger = " << m_doTrigger);
-
 	//--------------------
 	//figure out current LB
 	//--------------------
@@ -120,12 +152,13 @@ StatusCode tauMonTool::fillHistograms()
 	}
 
 	//LAr event veto: skip events rejected by LAr
+
 	if(evtInfo->errorState(EventInfo::LAr)==EventInfo::Error){
+		ATH_MSG_WARNING("SKIP for LAR error");
 		return StatusCode::SUCCESS;
 	}
 
 	m_currentLB = evtInfo->lumiBlock();
-
 	//--------------------
 	//Figure out trigger stuff
 	//--------------------
@@ -133,27 +166,44 @@ StatusCode tauMonTool::fillHistograms()
 	bool emPassed   = false;
 	bool tauPassed  = false;
 	bool mbtsPassed = false;
+        double emrndm = 0 ;
+        double jetrndm = 0 ;
 
-	if (m_doTrigger) {
-		if  (! m_trigDec.empty())  {
-			const Trig::ChainGroup* jetChain  = m_trigDec->getChainGroup("L1_J.*");
-			const Trig::ChainGroup* emChain   = m_trigDec->getChainGroup("L1_EM.*");
-			const Trig::ChainGroup* tauChain  = m_trigDec->getChainGroup("L1_TAU.*");
-			const Trig::ChainGroup* mbtsChain = m_trigDec->getChainGroup("L1_MBTS.*");
+/**
+        std::vector<string> items ;
+        const Trig::ChainGroup* full = m_trigDec->getChainGroup(".*") ;
+        if ( m_currentLB <= 1 )  
+**/
 
-			jetPassed  = jetChain ->isPassed();
-			emPassed   = emChain  ->isPassed();
-			tauPassed  = tauChain ->isPassed();
-			mbtsPassed = mbtsChain->isPassed();
-
-			//how to get the list of items, ie:
-			//std::vector<std::string>  jetList =  jetChain->getListOfTriggers();
-		} else {
-			ATH_MSG_ERROR("couldn't read trigger info");
-			return StatusCode::FAILURE;
-		}
-	}
-
+	if ( m_doTrigger ) 
+        {
+          if ( ! m_trigDec.empty() ) 
+          {
+            for ( unsigned int grp = 0 ; grp < m_trigItems.size() ; grp ++ )
+            {
+              int pass = 0 ;
+              for ( unsigned int t = 0 ; t < ( m_trigItems[grp]).size() ; t ++ )
+              {
+                const Trig::ChainGroup* cg 
+                  = m_trigDec->getChainGroup( ( m_trigItems[grp][t] ).c_str() ) ;
+                if ( cg->isPassed() ) pass ++ ;
+              }
+              if ( pass > 0 )
+              { 
+                if ( grp == 0 ) tauPassed = true ;
+                else if ( grp == 1 && ! tauPassed ) emPassed = true ;
+                else if ( grp == 2 && ! ( emPassed || tauPassed ) ) jetPassed = true ;
+                else {  if ( grp == 3 && ! ( jetPassed || emPassed || tauPassed  ) )  
+                          mbtsPassed = true ; }
+              }
+            }
+          } else 
+          { 
+            ATH_MSG_ERROR("couldn't read trigger info");
+            return StatusCode::FAILURE;
+          }
+        }  
+   
 	//--------------------
 	//Get Tau container
 	//--------------------
@@ -164,6 +214,7 @@ StatusCode tauMonTool::fillHistograms()
 	}
 
 	int ntaus   = tau_container->size();
+
 	int ntausB  = 0;
 	int ntausCR = 0;
 	int ntausE  = 0;
@@ -180,48 +231,75 @@ StatusCode tauMonTool::fillHistograms()
 		//prepare author vector
 		// FF: there is no author flag anymore, but leave functionality to further use
 		//--------------------
-		std::vector<int> author;
-		author.push_back(1);
+          std::vector<int> author;
+          author.push_back(1);
 
 		//--------------------
 		// fill other basic histograms
 		//--------------------
-		fillBasicPlots( m_basicPlots,author, tau);
-		if (m_doTrigger) {
-			if (! m_trigDec.empty()) {
-				if (  emPassed) { fillBasicPlots(m_emPlots, author, tau);   m_triggers->Fill(1); }
-				if ( jetPassed) { fillBasicPlots(m_jetPlots, author, tau);  m_triggers->Fill(2); }
-				if ( tauPassed) { fillBasicPlots(m_tauPlots, author, tau);  m_triggers->Fill(3); }
-				if (mbtsPassed) { fillBasicPlots(m_mbtsPlots, author, tau); m_triggers->Fill(4); }
-			}
-		}
+          fillBasicPlots( m_basicPlots,author, tau);
+          fillBasicPlots( m_basic_LS,author, tau);
+
+          if (m_doTrigger) {
+            if (! m_trigDec.empty()) {
+              if ( tauPassed) { 
+                if (fillHistogramsTauTrig(m_tauPlots, tau).isFailure()) 
+                  ATH_MSG_ERROR("Failed to fill Tau Trigger histograms");  
+                fillBasicPlots(m_tauBasePlots, author, tau) ;
+                m_triggers->Fill(3); 
+                m_triggers_vs_LB->Fill( 3, m_currentLB ) ;
+              }
+              else if (  emPassed && emrndm < 0.5 ) { 
+                fillBasicPlots(m_emPlots, author, tau) ;
+                m_triggers->Fill(1); 
+                m_triggers_vs_LB->Fill( 1, m_currentLB ) ;
+              }
+              else if ( jetPassed && jetrndm < 0.5 ) { 
+                fillBasicPlots(m_jetPlots, author, tau) ;
+                m_triggers->Fill(2); 
+                m_triggers_vs_LB->Fill( 2, m_currentLB ) ;
+              }
+              else if (mbtsPassed) { 
+                fillBasicPlots(m_mbtsPlots, author, tau) ;
+                m_triggers->Fill(4); 
+                m_triggers_vs_LB->Fill( 4, m_currentLB ) ;
+              }
+              else { 
+                m_triggers->Fill(5) ;
+                m_triggers_vs_LB->Fill( 5, m_currentLB ) ;
+              }
+            }
+	  }
 
 		//--------------------
 		// fill histograms
 		//--------------------
-		float pTGev = tau->pt() / GeV;
-		float abs_eta = fabs(tau->eta());
+          float pTGev = tau->pt() / GeV;
+          float abs_eta = fabs(tau->eta());
 
-		if (abs_eta <= CRACK_MIN ) {
-			if (fillHistograms(m_tauB, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill barrel histograms");
-			ntausB++;
-			if (pTGev > 100.0){ nHighPTtausB++; }
-		}
-		if (abs_eta > CRACK_MAX ) {
-			if (fillHistograms(m_tauE, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill endcap histograms");
-			ntausE++;
-			if (pTGev > 100.0){ nHighPTtausE++; }
-		}
-		if (abs_eta > CRACK_MIN && abs_eta < CRACK_MAX ) {
-			if (fillHistograms(m_tauCR, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill crack histograms");
-			ntausCR++;
-			if (pTGev > 100.0){ nHighPTtausCR++; }
-		}
+          if (abs_eta <= CRACK_MIN ) {
+            if (fillHistograms(m_tauB, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill barrel histograms");
+            ntausB++;
+            if (pTGev > 100.0){ nHighPTtausB++; }
+          }
+          if (abs_eta > CRACK_MAX ) {
+            if (fillHistograms(m_tauE, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill endcap histograms");
+            ntausE++;
+            if (pTGev > 100.0){ nHighPTtausE++; }
+          }
+          if (abs_eta > CRACK_MIN && abs_eta < CRACK_MAX ) {
+            if (fillHistograms(m_tauCR, author, tau).isFailure()) ATH_MSG_ERROR("Failed to fill crack histograms");
+            ntausCR++;
+            if (pTGev > 100.0){ nHighPTtausCR++; }
+	  }
+
+          if (fillHistogramsLowStat(m_tauLS, tau).isFailure()) 
+            ATH_MSG_ERROR("Failed to fill Low Stat histograms");
 
 		//-----------------------
 		//Fill physics histograms
 		//-----------------------
-		if(fillPhysicsHistograms(tau).isFailure()) ATH_MSG_ERROR("Failed to fill physics histograms");
+          if(fillPhysicsHistograms(tau).isFailure()) ATH_MSG_ERROR("Failed to fill physics histograms");
 
 	} // end of loop over taus
 
@@ -229,21 +307,34 @@ StatusCode tauMonTool::fillHistograms()
 	// fill ntaus
 	//--------------------
 	m_basicPlots.h_ntaus->Fill(ntaus);
-	m_basicPlots.h_nHighPTtaus->Fill(nHighPTtausB + nHighPTtausCR + nHighPTtausE);
+        int hitau = nHighPTtausB + nHighPTtausCR + nHighPTtausE ;
+	m_basicPlots.h_nHighPTtaus->Fill( hitau );
+	m_basic_LS.h_ntaus->Fill(ntaus);
+	m_basic_LS.h_nHighPTtaus->Fill( hitau );
+
 	if (m_doTrigger)
 		if (! m_trigDec.empty()) {
+			if ( tauPassed) 
+                        {
+                          m_tauBasePlots.h_ntaus->Fill(ntaus);
+                          m_tauBasePlots.h_nHighPTtaus->Fill( 
+                            nHighPTtausB + nHighPTtausCR + nHighPTtausE );
+                        } 
+
 			if ( jetPassed) m_jetPlots .h_ntaus->Fill(ntaus);
 			if (  emPassed) m_emPlots  .h_ntaus->Fill(ntaus);
-			if ( tauPassed) m_tauPlots .h_ntaus->Fill(ntaus);
 			if (mbtsPassed) m_mbtsPlots.h_ntaus->Fill(ntaus);
 		}
 
 	m_tauB .kinFolder.h_ntaus->Fill(ntausB);
 	m_tauCR.kinFolder.h_ntaus->Fill(ntausCR);
 	m_tauE .kinFolder.h_ntaus->Fill(ntausE);
+
 	m_tauB .trkFolder.h_nHighPTtaus->Fill(nHighPTtausB);
 	m_tauCR.trkFolder.h_nHighPTtaus->Fill(nHighPTtausCR);
 	m_tauE .trkFolder.h_nHighPTtaus->Fill(nHighPTtausE);
+        m_tauLS.trkFolder.h_nHighPTtaus->Fill( hitau  ) ;
+
 
 	return StatusCode::SUCCESS;
 }
@@ -263,9 +354,14 @@ StatusCode tauMonTool::procHistograms()
 
 
 		//fill the vs_LB plots
-		for (unsigned int iN=0; iN<6; iN++) {
+//		for (unsigned int iN=0; iN<6; iN++) {
+		for (unsigned int iN=0; iN<1; iN++) {
 			if (m_currentLB <= m_maxNLB) {
 				m_basicPlots.h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB,m_basicPlots.h_ntausLB[iN]);
+				m_basic_LS.h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB,m_basic_LS.h_ntausLB[iN]);
+				if (m_doTrigger && ! m_trigDec.empty() ) 
+                                  m_tauBasePlots  .h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB,  m_tauBasePlots.h_ntausLB[iN]);
+/**
 				if (m_doTrigger)
 					if  (! m_trigDec.empty()) {
 						m_jetPlots  .h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB,  m_jetPlots.h_ntausLB[iN]);
@@ -273,10 +369,15 @@ StatusCode tauMonTool::procHistograms()
 						m_tauPlots  .h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB,  m_tauPlots.h_ntausLB[iN]);
 						m_mbtsPlots .h_ntaus_vs_LB[iN]->SetBinContent(m_currentLB, m_mbtsPlots.h_ntausLB[iN]);
 					}
+**/
 			}
 
 			//reset counters
 			m_basicPlots.h_ntausLB[iN] = 0;
+			m_basic_LS.h_ntausLB[iN] = 0;
+                        if (m_doTrigger && ! m_trigDec.empty() ) 
+                          m_tauBasePlots.h_ntausLB[iN] = 0;
+/**
 			if (m_doTrigger)
 				if  (! m_trigDec.empty()) {
 					m_jetPlots  .h_ntausLB[iN] = 0;
@@ -284,6 +385,7 @@ StatusCode tauMonTool::procHistograms()
 					m_tauPlots  .h_ntausLB[iN] = 0;
 					m_mbtsPlots .h_ntausLB[iN] = 0;
 				}
+**/
 		}
 	}
 
@@ -308,16 +410,21 @@ void tauMonTool::fillBasicPlots(s_basicPlots& someBasicPlots, std::vector<int> a
 	float phi     = tau->phi();
 	int   charge  = (int) tau->charge();
 	int numTracks = (int) tau->nTracks();
-
+        int numClusters = (int) tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
 	someBasicPlots.h_eta      ->Fill( eta );
 	someBasicPlots.h_phi      ->Fill( phi );
 	someBasicPlots.h_et       ->Fill( et );
 	someBasicPlots.h_charge   ->Fill( charge);
 	someBasicPlots.h_numTracks->Fill( numTracks );
+        someBasicPlots.h_nclst    ->Fill( numClusters ) ;
 
 	someBasicPlots.h_EtVsEta  ->Fill( eta, et);
 	someBasicPlots.h_EtVsPhi  ->Fill( phi, et);
 	someBasicPlots.h_PhiVsEta ->Fill( eta, phi);
+
+	if ( et > 15.0 ) someBasicPlots.h_PhiVsEta_et15 ->Fill( eta, phi);
+	if ( et > 15.0 && tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) 
+          someBasicPlots.h_PhiVsEta_et15_BDTLoose ->Fill( eta, phi);
 
 	someBasicPlots.h_Eta_vs_LB->Fill( eta, m_currentLB);
 	someBasicPlots.h_Phi_vs_LB->Fill( phi, m_currentLB);
@@ -327,26 +434,46 @@ void tauMonTool::fillBasicPlots(s_basicPlots& someBasicPlots, std::vector<int> a
 
 StatusCode tauMonTool::fillHistograms(s_mainFolder& mainFolder, std::vector<int> author, const xAOD::TauJet* tau)
 {
-	if ( fillKinHistos  (mainFolder.kinFolder, author, tau) . isFailure())  ATH_MSG_ERROR("Failed to fill kinematic histograms");
+        if ( fillKinHistos  (mainFolder.kinFolder, tau) . isFailure())  
+          ATH_MSG_ERROR("Failed to fill kinematic histograms");
 	if ( fillIDHistos   (mainFolder.idFolder, tau) . isFailure())   		ATH_MSG_ERROR("Failed to fill identification histograms");
+	if ( fillTrackHistos(mainFolder.trkFolder, tau) . isFailure())  		ATH_MSG_ERROR("Failed to fill traking histograms");
+	if ( fillCaloHistos (mainFolder.caloFolder, tau) . isFailure()) 		ATH_MSG_ERROR("Failed to fill calorimeter histograms");
+	if ( fillSubStructureHistos (mainFolder.sbstrctFolder, tau) . isFailure())	ATH_MSG_ERROR("Failed to fill calorimeter histograms");
+	return  StatusCode::SUCCESS;
+}
+
+StatusCode tauMonTool::fillHistogramsLowStat(s_mainFolder& mainFolder, const xAOD::TauJet* tau)
+{
 	if ( fillTrackHistos(mainFolder.trkFolder, tau) . isFailure())  		ATH_MSG_ERROR("Failed to fill traking histograms");
 	if ( fillCaloHistos (mainFolder.caloFolder, tau) . isFailure()) 		ATH_MSG_ERROR("Failed to fill calorimeter histograms");
 	return  StatusCode::SUCCESS;
 }
 
-StatusCode tauMonTool::fillKinHistos(s_kinFolder& folder, std::vector<int> author, const xAOD::TauJet* tau)
+
+StatusCode tauMonTool::fillHistogramsTauTrig(s_mainFolder& mainFolder, const xAOD::TauJet* tau)
 {
-	for (unsigned int iA=0; iA < author.size(); iA++) folder.h_author->Fill(author[iA]);
+	if ( fillIDHistos   (mainFolder.idFolder, tau) . isFailure())   		ATH_MSG_ERROR("Failed to fill identification histograms");
+	if ( fillTrackHistos(mainFolder.trkFolder, tau) . isFailure())  		ATH_MSG_ERROR("Failed to fill traking histograms");
+	if ( fillCaloHistos (mainFolder.caloFolder, tau) . isFailure()) 		ATH_MSG_ERROR("Failed to fill calorimeter histograms");
+	if ( fillSubStructureHistos (mainFolder.sbstrctFolder, tau) . isFailure())	ATH_MSG_ERROR("Failed to fill calorimeter histograms");
+	return  StatusCode::SUCCESS;
+}
+
+StatusCode tauMonTool::fillKinHistos(s_kinFolder& folder, const xAOD::TauJet* tau)
+{
+//       for (unsigned int iA=0; iA < author.size(); iA++) folder.h_author->Fill(author[iA]);
 
 	float eta     = tau->eta();
 	float et      = tau->pt() / GeV;
 	float phi     = tau->phi();
-	int   charge  = (int) tau->charge();
+        int   charge  = (int) tau->charge();
 
-	folder.h_eta->Fill( eta );
+ 	folder.h_eta->Fill( eta );
 	folder.h_phi->Fill( phi );
 	folder.h_et->Fill( et );
 	folder.h_charge->Fill( charge);
+
 	folder.h_PhiVsEta->Fill( eta, phi);
 	folder.h_Eta_vs_LB->Fill( eta, m_currentLB);
 	folder.h_Phi_vs_LB->Fill( phi, m_currentLB);
@@ -374,7 +501,7 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 	folder.h_BDTJetScoreSigTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
 	folder.h_BDTJetScoreSigTrans ->Fill(tau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans));
 
-	if(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose)){
+	if(tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) && tau->pt() >= 15000.0 ){
 		if ( fillBDTHistos   (folder.BDTLooseFolder, tau) . isFailure()) ATH_MSG_ERROR("Failed to fill JetBDTLoose histograms");
 	}
 
@@ -387,6 +514,8 @@ StatusCode tauMonTool::fillIDHistos(s_idFolder& folder,  const xAOD::TauJet* tau
 
 StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* tau)
 {
+	if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
+
 	folder.h_massTrkSys            ->Fill( tau->detail<float>(xAOD::TauJetParameters::massTrkSys) / GeV);
 	folder.h_trkWidth2             ->Fill( tau->detail<float>(xAOD::TauJetParameters::trkWidth2) );
 	folder.h_trFlightPathSig       ->Fill( tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig) );
@@ -398,7 +527,7 @@ StatusCode tauMonTool::fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* 
 	//--------------------
 	// track info
 	//--------------------
-	if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
+//     if ( tau->nTracks() == 0) return StatusCode::SUCCESS;
 
 	const xAOD::TrackParticle* track = tau->track(0);
 	const Trk::Perigee perigee = track->perigeeParameters();
@@ -458,6 +587,61 @@ StatusCode tauMonTool::fillBDTHistos(s_BDTFolder& folder, const xAOD::TauJet* ta
 	return StatusCode::SUCCESS;
 }
 
+
+StatusCode tauMonTool::fillSubStructureHistos( s_sbstrctFolder& folder, const xAOD::TauJet* tau)
+{
+
+   //  CaloCluster variabls
+        folder.h_InvMass->Fill( tau->detail<float>( xAOD::TauJetParameters::effTopoInvMass ) / GeV ) ;
+        folder.h_L2EOverAllClusterE->Fill( tau->detail<float>( xAOD::TauJetParameters::lead2ClusterEOverAllClusterE ) ) ;
+        folder.h_IsoCorr->Fill( tau->detail<float>( xAOD::TauJetParameters::caloIsoCorrected ) / GeV ) ;
+
+  // Track ( association ) variabls
+        folder.h_PSSFrac->Fill( tau->detail<float>( xAOD::TauJetParameters::PSSFraction ) ) ;
+        folder.h_EMFracTrk->Fill( tau->detail<float>( xAOD::TauJetParameters::ChPiEMEOverCaloEME ) ) ;
+        folder.h_RptApprox->Fill( tau->detail<float>( xAOD::TauJetParameters::ptRatioEflowApprox ) ) ;
+
+        int nShot = tau->nShotPFOs() ;
+        folder.h_nShot->Fill( nShot ) ;
+        for ( int s = 0 ; s < nShot ; s++ ) 
+        {
+          const xAOD::PFO* shot = tau->shotPFO( s ) ;
+          if ( shot != NULL ) 
+          {
+            float pt3 = -9.0 ;
+            shot->attribute(xAOD::PFODetails::PFOAttributes::tauShots_pt3, pt3 ) ;
+            folder.h_stpt3->Fill( pt3 / GeV ) ;
+          }
+        }
+
+       // charged pion substraction 
+
+        unsigned nNeutPFO = tau->nProtoNeutralPFOs(); ;
+        folder.h_nNeutPFO->Fill( nNeutPFO ) ;
+        for ( unsigned int np = 0 ; np < nNeutPFO ; np ++ ) 
+        {
+          const xAOD::PFO* npfo = tau->protoNeutralPFO( np ) ;
+          float bdtScore = npfo->bdtPi0Score();
+          folder.h_pi0bdt->Fill( bdtScore ) ;
+        }
+
+       //  results from panTau 
+        int panmode = -1 ;
+        tau->panTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode, panmode); 
+        folder.h_panmode->Fill( panmode ) ;
+
+        float pphi = tau->phiPanTauCellBased() ;
+        if ( pphi > -100 )
+        {
+          folder.h_panpt->Fill( tau->ptPanTauCellBased() / GeV  ) ;
+          folder.h_paneta->Fill( tau->etaPanTauCellBased() ) ;
+          folder.h_panphi->Fill( pphi ) ;
+        }
+
+        return StatusCode::SUCCESS;
+}
+
+
 StatusCode tauMonTool::fillPhysicsHistograms(const xAOD::TauJet* tau)
 {
 	float eta = tau->eta();
@@ -479,32 +663,38 @@ StatusCode tauMonTool::bookBasicPlots(s_basicPlots& someBasicPlots, MonGroup &aG
 
 	for (unsigned int iN=0; iN<6; iN++) someBasicPlots.h_ntausLB[iN]=0;
 
-	CHECK( Book1DHist ( &someBasicPlots.h_author, &aGroup, prefix + "tauAuthor", "Author of tau candidates", 5, 0.5, 5.5 ) );
-	someBasicPlots.h_author->GetXaxis()->SetBinLabel(1, "All Caloseed");
-	someBasicPlots.h_author->GetXaxis()->SetBinLabel(2, "All Trackseed");
-	someBasicPlots.h_author->GetXaxis()->SetBinLabel(3, "Both Seeds");
+	CHECK( Book1DHist ( &someBasicPlots.h_author, &aGroup, prefix + "tauAuthor", "Author of tau candidates(obsolete)", 5, 0.5, 5.5 ) );
+	someBasicPlots.h_author->GetXaxis()->SetBinLabel(1, "CaloOrTrack Seeds");
+	someBasicPlots.h_author->GetXaxis()->SetBinLabel(2, "All Caloseed");
+	someBasicPlots.h_author->GetXaxis()->SetBinLabel(3, "All Trackseed");
 	someBasicPlots.h_author->GetXaxis()->SetBinLabel(4, "Caloseed ONLY");
 	someBasicPlots.h_author->GetXaxis()->SetBinLabel(5, "Trackseed ONLY");
 
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus, &aGroup, prefix + "nTauCandidates", "Number of tau candidates;Number of Taus per Event", 31, -0.5, 30.5) );
 	CHECK( Book1DHist ( &someBasicPlots.h_eta, &aGroup, prefix + "tauEta", "Eta of tau candidates);Eta);Number of Candidates", 51, -2.55, 2.55) );
-	CHECK( Book1DHist ( &someBasicPlots.h_phi, &aGroup, prefix + "tauPhi", "Phi of tau candidates);Phi);Number of Candidates", 65, -3.1415936-0.098174/2., 3.1415936+0.098174/2.) );
+	CHECK( Book1DHist ( &someBasicPlots.h_phi, &aGroup, prefix + "tauPhi", "Phi of tau candidates);Phi);Number of Candidates", 65, -3.1415926-0.098174/2., 3.1415926+0.098174/2.) );
 	CHECK( Book1DHist ( &someBasicPlots.h_et, &aGroup, prefix + "tauEt", "Et of tau candidates);Transverse Energy (GeV) );Number of Candidates", 50, 0.0, 250.0) );
 	CHECK( Book1DHist ( &someBasicPlots.h_charge, &aGroup, prefix + "tauCharge", "Charge of tau candidates);Charge);Number of Candidates", 11, -5.5, 5.5) );
 	CHECK( Book1DHist ( &someBasicPlots.h_numTracks, &aGroup, prefix + "tauNumTracks", "Number of Tracks for tau candidates);Number of Tracks);Number of Candidates", 21, -0.5, 20.5) );
-	CHECK( Book1DHist ( &someBasicPlots.h_nHighPTtaus, &aGroup, prefix + "nHighPtTauCandidates", "Number of High pT tau candidates);Number of Taus per Event", 31, -0.5, 30.5) );
+	CHECK( Book1DHist ( &someBasicPlots.h_nclst, &aGroup, prefix + "nCluster","Number of CaloTopoClusters", 40, 0, 40 ) );
+	CHECK( Book1DHist ( &someBasicPlots.h_nHighPTtaus, &aGroup, prefix + "nHighPtTauCandidates", "Number of High pT tau candidates;Number of Taus per Event", 21, -0.5, 20.5) );
 	CHECK( Book2DHist ( &someBasicPlots.h_EtVsEta, &aGroup, prefix + "tauEtVsEta", "Tau Et vs. Eta);Eta);Transverse Energy (GeV) );Number of Candidates",  51, -2.55, 2.55, 100, 0, 200) );
 	CHECK( Book2DHist ( &someBasicPlots.h_EtVsPhi, &aGroup, prefix + "tauEtVsPhi", "Tau Et vs. Phi);Phi);Transverse Energy (GeV)", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64., 100, 0, 200) );
-	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta, &aGroup, prefix + "tauPhiVsEta", "Tau Phi vs. Eta);Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
+	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta, &aGroup, prefix + "tauPhiVsEta", "Tau Phi vs. Eta;Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
+	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta_et15, &aGroup, prefix + "tauPhiVsEta_et15", "Tau Phi vs. Eta (Et>15GeV); Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
+
+	CHECK( Book2DHist ( &someBasicPlots.h_PhiVsEta_et15_BDTLoose, &aGroup, prefix + "tauPhiVsEta_et15_BDTLoose", "Tau Phi vs. Eta (BDTLoose,Et>15GeV); Eta);Phi);Number of Candidates", 51, -2.55, 2.55, 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
+
 	CHECK( Book2DHist ( &someBasicPlots.h_Eta_vs_LB, &aGroup, prefix + "tauEtaVsLB", "Tau Eta vs Lumiblock);Eta);Lumiblock", 51, -2.55, 2.55, m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0 ) );
 	CHECK( Book2DHist ( &someBasicPlots.h_Phi_vs_LB, &aGroup, prefix + "tauPhiVsLB", "Tau Phi vs Lumiblock);Phi);Lumiblock", 65, PHIMIN+PHIMIN/64, PHIMAX+PHIMAX/64, m_maxNLB/10+1, -5.0, (double)m_maxNLB+5.0 ) );
-	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[0], &aGroup, prefix + "z_ntauLB", "Total number of tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
+	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[0], &aGroup, prefix + "nTauPerLB", "Total number of tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
+/**
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[1], &aGroup, prefix + "zz_nCaloTauLB", "Number of calo-seeded tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[2], &aGroup, prefix + "zz_nTrkTauLB", "Number of trk-seeded tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[3], &aGroup, prefix + "zzz_nMergTauLB", "Number of merged tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[4], &aGroup, prefix + "zzzz_nXCaloTauLB", "Number of excl cal tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
 	CHECK( Book1DHist ( &someBasicPlots.h_ntaus_vs_LB[5], &aGroup, prefix + "zzzz_nXTrkTauLB", "Number of excl trk tau candidates per LB);Luminosity Block);Number of Candidates", m_maxNLB, 0, m_maxNLB) );
-
+**/
 	return StatusCode::SUCCESS;
 }
 
@@ -514,10 +704,19 @@ StatusCode tauMonTool::bookHistos(s_mainFolder& mainFolder, std::string folderNa
 
 	MonGroup folder(this, folderName, interval);
 
-	if ( bookKinHistos(mainFolder.kinFolder, folder) .isFailure() ) 				ATH_MSG_ERROR("Couldn't book kinematic histograms");
-	if ( bookIDHistos(mainFolder.idFolder, folderName, interval).isFailure() )		ATH_MSG_ERROR("Couldn't book identification histograms");
-	if ( bookTrackHistos(mainFolder.trkFolder, folderName, interval).isFailure() )	ATH_MSG_ERROR("Couldn't book track histograms");
+        if ( ! ( folderName == "Tau/Trigger/TauTrig" || folderName == "Tau" ) )
+        {
+	  if ( bookKinHistos(mainFolder.kinFolder, folder ) .isFailure() ) 				    ATH_MSG_ERROR("Couldn't book kinematic histograms");
+        }
+
 	if ( bookCaloHistos(mainFolder.caloFolder, folderName, interval).isFailure() )	ATH_MSG_ERROR("Couldn't book calorimeter histograms");
+	if ( bookTrackHistos(mainFolder.trkFolder, folderName, interval).isFailure() )	ATH_MSG_ERROR("Couldn't book track histograms");
+// these folders are assumed not DIRECTLY booked under Tau, there shold be middle layer.
+        if ( folderName != "Tau" )
+        {
+          if ( bookIDHistos(mainFolder.idFolder, folderName, interval).isFailure() )		ATH_MSG_ERROR("Couldn't book identification histograms");
+          if ( bookSubStructureHistos(mainFolder.sbstrctFolder, folderName, interval).isFailure() ) ATH_MSG_ERROR("Couldn't book SubStructure histograms");
+        }
 
 	return StatusCode::SUCCESS;
 }
@@ -526,12 +725,14 @@ StatusCode tauMonTool::bookKinHistos(s_kinFolder& folder,  MonGroup &aGroup)
 {
 	std::string prefix = this->fixName(aGroup.system());
 
+
 	CHECK( Book1DHist ( &folder.h_author, &aGroup, prefix + "_tauAuthor", "Author of tau candidate", 5, 0.5, 5.5) );
-	folder.h_author->GetXaxis()->SetBinLabel(1, "All Caloseed");
-	folder.h_author->GetXaxis()->SetBinLabel(2, "All Trackseed");
-	folder.h_author->GetXaxis()->SetBinLabel(3, "Both Seeds");
+	folder.h_author->GetXaxis()->SetBinLabel(1, "CaloOrTrack Seeds");
+	folder.h_author->GetXaxis()->SetBinLabel(2, "All Caloseed");
+	folder.h_author->GetXaxis()->SetBinLabel(3, "All Trackseed");
 	folder.h_author->GetXaxis()->SetBinLabel(4, "Caloseed ONLY");
 	folder.h_author->GetXaxis()->SetBinLabel(5, "Trackseed ONLY");
+
 
 	CHECK( Book1DHist ( &folder.h_ntaus, &aGroup, prefix + "_nTauCandidates", "Number of tau candidates;Number of Taus per Event", 31, -0.5, 30.5) );
 	CHECK( Book1DHist ( &folder.h_eta, &aGroup, prefix + "_tauEta", "Eta of tau candidates;Eta;Number of Candidates", 51, -2.55, 2.55) );
@@ -607,7 +808,7 @@ StatusCode tauMonTool::bookTrackHistos(s_trkFolder& folder,std::string folderNam
 	CHECK( Book1DHist ( &folder.h_phi, &aGroup, folderName + "_phi","Track Phi;Phi", 65, PHIMIN+PHIMIN/64., PHIMAX+PHIMAX/64.) );
 	CHECK( Book1DHist ( &folder.h_eta, &aGroup, folderName + "_eta","Track Eta;Eta", 51, -2.55, 2.55) );
 	CHECK( Book1DHist ( &folder.h_pT, &aGroup, folderName + "_pT","Track pT;Transverse Momentum (GeV)", 50, 0.0, 150.0) );
-	CHECK( Book1DHist ( &folder.h_nHighPTtaus, &aGroup, folderName + "_nHighPTtaus","Number of High-pT Tau Candidates;Number of Taus per Event", 31, -0.5, 30.5) );
+	CHECK( Book1DHist ( &folder.h_nHighPTtaus, &aGroup, folderName + "_nHighPTtaus","Number of High-pT Tau Candidates;Number of Taus per Event", 21, -0.5, 20.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHighThresholdHits, &aGroup, folderName + "_numberOfTRTHighThresholdHits","Number of TRT High Threshold Hits;Number of High Threshold TRT Hits", 15, -0.5, 14.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHits, &aGroup, folderName + "_numberOfTRTHits","Number of TRT Low Threshold Hits;Number of Low Threshold TRT Hits", 101, -0.5, 100.5) );
 	CHECK( Book1DHist ( &folder.h_numberOfTRTHighThresholdOutliers, &aGroup, folderName + "_numberOfTRTHighThresholdOutliers","Number of TRT High Threshold Outliers;Number of TRT High Threshold Outliers", 26, -0.5, 25.5) );
@@ -653,9 +854,9 @@ StatusCode tauMonTool::bookBDTLooseHistos(s_BDTFolder& folder, std::string folde
 	folderName = this->fixName(folderName);
 
 	CHECK( Book1DHist ( &folder.h_et, &aGroup, folderName + "_et", "Et of Tau Candidate;Et (GeV) );Number of Candidates", 50, 0.0, 250.0) );
-	CHECK( Book1DHist ( &folder.h_eta, &aGroup, folderName + "_eta", "Eta of Tau Candidate;Eta;Number of Candidates", 51, -2.55, 2.55) );
-	CHECK( Book1DHist ( &folder.h_phi, &aGroup, folderName + "_phi", "Phi of Tau Candidate;Phi;Number of Candidates", 65, PHIMIN+PHIMIN/64, PHIMAX+PHIMAX/64) );
-	CHECK( Book1DHist ( &folder.h_nTracks, &aGroup, folderName + "_numTracks", "Number of Tracks;Number of Tracks;Number of Candidates", 21, -0.5, 20.5) );
+	CHECK( Book1DHist ( &folder.h_eta, &aGroup, folderName + "_eta", "Eta of Tau Candidate (Et>15GeV);Eta;Number of Candidates", 51, -2.55, 2.55) );
+	CHECK( Book1DHist ( &folder.h_phi, &aGroup, folderName + "_phi", "Phi of Tau Candidate (Et>15GeV);Phi;Number of Candidates", 65, PHIMIN+PHIMIN/64, PHIMAX+PHIMAX/64) );
+	CHECK( Book1DHist ( &folder.h_nTracks, &aGroup, folderName + "_numTracks", "Number of Tracks (Et>15GeV);Number of Tracks;Number of Candidates", 21, -0.5, 20.5) );
 
 	return StatusCode::SUCCESS;
 }
@@ -693,6 +894,34 @@ StatusCode tauMonTool::bookPhysicsHistograms()
 	CHECK( Book2DHist (&m_pTVsEta_Tau_W, &tau_W, "tau_pTVsEta", "Pt vs. Eta of Tau Candidates;Eta;Pt (GeV)", 51, -2.55, 2.55, 100, 0.0, 150.0) );
 
 	return StatusCode::SUCCESS;
+}
+
+
+StatusCode tauMonTool::bookSubStructureHistos( s_sbstrctFolder& folder,std::string folderName, Interval_t interval)
+{
+
+	folderName = folderName + "/SubStructure";
+	MonGroup aGroup(this, folderName, interval);
+	folderName = this->fixName(folderName);
+
+	CHECK( Book1DHist ( &folder.h_nShot, &aGroup, folderName + "_nShot","number of shots ; shot number ", 20, 0, 20 ) );
+	CHECK( Book1DHist ( &folder.h_InvMass, &aGroup, folderName + "_InvMassEffClusters","Invariant mass of effective clusters in shot; invariant mass (GeV)", 30, 0, 15. ) );
+	CHECK( Book1DHist ( &folder.h_L2EOverAllClusterE, &aGroup, folderName + "_EfracL2EffCluster","Energy fraction of leading two effective clusters in shot; energy fraction", 15, 0, 1.5 ) );
+	CHECK( Book1DHist ( &folder.h_PSSFrac, &aGroup, folderName + "_PSSFracEffCluster","Energy fraction for PreSampling and sampling layers in effective clusters in shot; Sampling energy fraction", 10, 0, 1.0 ) );
+	CHECK( Book1DHist ( &folder.h_stpt3, &aGroup, folderName + "_shots_pt3","weighted cell pt in 3x3 window in shots; pt3 (GeV) ", 24, 0, 12 ) );
+
+	CHECK( Book1DHist ( &folder.h_RptApprox, &aGroup, folderName + "_ptRatioApprox","Ratio of pt to shot total energy for associated tracks; track pt ratio", 20, 0, 2.0 ) );
+	CHECK( Book1DHist ( &folder.h_EMFracTrk, &aGroup, folderName + "_EMFracTrk","Ratio of pt to shot electromagnetic energy for associated tracks; track pt ratio in EM", 15, 0, 1.5 ) );
+	CHECK( Book1DHist ( &folder.h_IsoCorr, &aGroup, folderName + "_EisoEffCluster","Isolation Energy after correction in effective clusters ; isolation energy (GeV)", 10, 0, 50.0 ) );
+
+	CHECK( Book1DHist ( &folder.h_nNeutPFO, &aGroup, folderName + "_NumNeutPFO","Number of neutral ParticleFlow objects ; PFO number", 20, 0, 20 ) );
+	CHECK( Book1DHist ( &folder.h_pi0bdt, &aGroup, folderName + "_BDTscoreAsP0","BDT score indentifying pion zero ; BDT score", 15, 0, 1.2 ) );
+	CHECK( Book1DHist ( &folder.h_panmode, &aGroup, folderName + "_PanMode","tau decay mode from PanTau ; mode ", 8, 0, 8 ) );
+	CHECK( Book1DHist ( &folder.h_panpt, &aGroup, folderName + "_PanPt","tau Pt from PanTau ; substructure pt (GeV)", 20, 0, 200 ) );
+	CHECK( Book1DHist ( &folder.h_paneta, &aGroup, folderName + "_PanEta","tau Eta from PanTau ; substructure Eta", 16, -3.2, 3.2 ) );
+	CHECK( Book1DHist ( &folder.h_panphi, &aGroup, folderName + "_PanPhi","tau Phi from PanTau ; substructure Phi", 16, -3.2, 3.2 ) );
+
+        return StatusCode::SUCCESS;
 }
 
 
@@ -742,4 +971,5 @@ void tauMonTool::addBinLabelIDHistos(TH1* h)
 	h->GetXaxis()->SetBinLabel(1, "False");
 	h->GetXaxis()->SetBinLabel(2, "True");
 }
+
 
