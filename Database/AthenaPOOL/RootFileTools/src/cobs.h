@@ -11,7 +11,15 @@ class cobs {
 
 public:
         
-    cobs() {};
+    cobs()
+      : m_useCINTlibrary(false),
+        m_compressionLevel(0),
+        m_splitLevel(0),
+        m_dedicatedMemory(0),
+        m_minCompressionFactor(0),
+        m_debug(false),
+        m_showBranches(false)
+    {}
     cobs(std::string inputFile);
     cobs(std::string inputFile, std::string outputFile);
 
