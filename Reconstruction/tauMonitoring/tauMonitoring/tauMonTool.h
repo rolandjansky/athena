@@ -54,18 +54,22 @@ protected:
 		TH1* h_et;
 		TH1* h_charge;
 		TH1* h_numTracks;
+                TH1* h_nclst;
 		TH1* h_nHighPTtaus;
 
 		TH2* h_EtVsEta;
 		TH2* h_EtVsPhi;
 		TH2* h_PhiVsEta;
+		TH2* h_PhiVsEta_et15;
+		TH2* h_PhiVsEta_et15_BDTLoose ;
 
 		TH2* h_Eta_vs_LB;
 		TH2* h_Phi_vs_LB;
-	} m_basicPlots, m_emPlots, m_jetPlots, m_tauPlots, m_mbtsPlots, m_AtlasReady;
+	} m_basicPlots, m_tauBasePlots, m_emPlots, m_jetPlots, m_mbtsPlots, m_basic_LS;
 
 	//trigger
 	TH1* m_triggers;
+	TH2* m_triggers_vs_LB;
 
 	struct s_BDTFolder{
 		TH1* h_et;
@@ -155,13 +159,31 @@ protected:
 		TH2* h_Phi_vs_LB;
 	};
 
+        struct s_sbstrctFolder {
+               TH1* h_nShot ;
+               TH1* h_InvMass ;
+               TH1* h_L2EOverAllClusterE ;
+               TH1* h_IsoCorr ;
+               TH1* h_PSSFrac ;
+               TH1* h_RptApprox ;
+               TH1* h_EMFracTrk ;
+               TH1* h_nNeutPFO ;
+               TH1* h_stpt3 ;
+               TH1* h_pi0bdt ;
+               TH1* h_panmode ;
+               TH1* h_panpt ;
+               TH1* h_paneta ;
+               TH1* h_panphi ;
+        } ;
+
 	struct s_mainFolder {
 		s_idFolder   idFolder;
 		s_trkFolder  trkFolder;
 		s_caloFolder caloFolder;
 		s_kinFolder  kinFolder;
+                s_sbstrctFolder sbstrctFolder ;
 
-	} m_tauB, m_tauCR, m_tauE;
+	} m_tauB, m_tauCR, m_tauE, m_tauPlots, m_tauLS ;
 
 	// Z details
 	TH1* m_eta_Tau_Z;
@@ -174,6 +196,7 @@ protected:
 private:
 	StoreGateSvc* m_storeGate;
 	ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+        std::vector< std::vector< std::string > > m_trigItems ;
 
 	StatusCode bookBasicPlots(s_basicPlots& trigPlots, MonGroup &aGroup, std::string preffix);
 	void fillBasicPlots(s_basicPlots& someBasicPlots, std::vector<int> author, const xAOD::TauJet* tau);
@@ -183,16 +206,21 @@ private:
 	StatusCode bookIDHistos(s_idFolder& folder,std::string folderName, Interval_t interval) ;
 	StatusCode bookTrackHistos(s_trkFolder& folder,std::string folderName, Interval_t interval);
 	StatusCode bookCaloHistos(s_caloFolder& folder,std::string folderName, Interval_t interval);
+	StatusCode bookSubStructureHistos(s_sbstrctFolder& folder,std::string folderName, Interval_t interval);
 	StatusCode bookBDTLooseHistos(s_BDTFolder& folder,std::string folderName, Interval_t interval);
 	StatusCode bookBDTMedHistos(s_BDTFolder& folder,std::string folderName, Interval_t interval);
 	StatusCode bookPhysicsHistograms();
 	//StatusCode bookOldHistograms();
 
 	StatusCode fillHistograms(s_mainFolder& mainFolder, std::vector<int> author, const xAOD::TauJet* tau);
-	StatusCode fillKinHistos(s_kinFolder& folder, std::vector<int> author, const xAOD::TauJet* tau) ;
+	StatusCode fillHistogramsTauTrig(s_mainFolder& mainFolder, const xAOD::TauJet* tau);
+	StatusCode fillHistogramsLowStat(s_mainFolder& mainFolder, const xAOD::TauJet* tau);
+
+	StatusCode fillKinHistos(s_kinFolder& folder, const xAOD::TauJet* tau) ;
 	StatusCode fillIDHistos(s_idFolder& folder, const xAOD::TauJet* tau);
 	StatusCode fillTrackHistos(s_trkFolder& folder, const xAOD::TauJet* tau);
 	StatusCode fillCaloHistos(s_caloFolder& folder, const xAOD::TauJet* tau);
+	StatusCode fillSubStructureHistos(s_sbstrctFolder&, const xAOD::TauJet* tau);
 	StatusCode fillBDTHistos(s_BDTFolder&, const xAOD::TauJet* tau);
 	StatusCode fillPhysicsHistograms(const xAOD::TauJet* tau);
 
