@@ -39,8 +39,9 @@ class PowhegConfig_HZj(PowhegConfig_base) :
 
     ## Set optimised integration parameters
     self.ncall1   = 40000
-    self.ncall2   = 30000
-    self.nubound  = 5000
+    self.ncall2   = 150000
+    self.nubound  = 100000
+    self.xupbound = 4
     self.foldx    = 5
     self.foldy    = 10
     self.foldphi  = 5

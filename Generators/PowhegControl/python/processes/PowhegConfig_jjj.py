@@ -21,8 +21,7 @@ class PowhegConfig_jjj(PowhegConfig_base) :
     self._powheg_executable += '/trijet/pwhg_main'
 
     ## Logger warnings for unvalidated process
-    self.logger.warning( 'Born suppression is enabled by default! This should NOT be used in conjunction with J-slicing.' )
-    self.logger.warning( 'Negative weight fraction is outside usual recommendations - check final distributions with care!' )
+    self.logger.warning( 'Negative weight fraction will probably be outside usual recommendations - check final distributions with care!' )
 
     ## Add process specific options
     self.add_parameter( 'brpar_diexp', -1 )
@@ -38,11 +37,11 @@ class PowhegConfig_jjj(PowhegConfig_base) :
 
     ## Set optimised integration parameters
     self.ncall1   = 800000
-    self.ncall1rm = 2000000
+    # self.ncall1rm = 2000000
     self.ncall2   = 1750000
     self.nubound  = 1000000
     self.itmx1    = 2
-    self.itmx1rm  = 2
+    # self.itmx1rm  = 2
     self.itmx2    = 10
     self.ixmax    = 5
     self.iymax    = 5

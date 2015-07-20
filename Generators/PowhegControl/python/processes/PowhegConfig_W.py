@@ -36,8 +36,8 @@ class PowhegConfig_W(PowhegConfig_base) :
     self.nubound = 20000
 
     ## Override defaults
+    self.mass_low        = 2.5
+    self.mass_high       = 2.0 * self.beam_energy
     self.withdamp        = 1
     self.withsubtr       = 1
     self.withnegweights  = 1
-    self.mass_low        = 2.5
-    self.mass_high       = 2.0 * self.beam_energy

@@ -55,10 +55,10 @@ class V2Decorator(object) :
       self.decorated.fix_parameter( 'xgriditeration', 1,  desc='(default 1) iteration level for the calculation of the importance sampling grid (only relevant for parallelstage=1).' )
 
     ## Set remnant properties to be equal to regular properties if not set
-    if self.decorated.itmx1rm is None : self.decorated.itmx1rm = self.decorated.itmx1
-    if self.decorated.itmx2rm is None : self.decorated.itmx2rm = self.decorated.itmx2
-    if self.decorated.ncall1rm is None : self.decorated.ncall1rm = self.decorated.ncall1
-    if self.decorated.ncall2rm is None : self.decorated.ncall2rm = self.decorated.ncall2
+    if self.decorated.itmx1rm is None : self.decorated.itmx1rm = -1 #self.decorated.itmx1
+    if self.decorated.itmx2rm is None : self.decorated.itmx2rm = -1 #self.decorated.itmx2
+    if self.decorated.ncall1rm is None : self.decorated.ncall1rm = -1 #self.decorated.ncall1
+    if self.decorated.ncall2rm is None : self.decorated.ncall2rm = -1 #self.decorated.ncall2
 
     ## Fix integration parameters before printing list for user
     [ self.decorated.fix_parameter( parameter ) for parameter in ('itmx1rm', 'itmx2rm', 'ncall1rm', 'ncall2rm', 'parallelstage') ]

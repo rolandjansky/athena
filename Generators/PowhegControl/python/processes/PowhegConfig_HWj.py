@@ -19,8 +19,8 @@ class PowhegConfig_HWj(PowhegConfig_base) :
     self._powheg_executable += '/HWJ/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'bornsuppfactW', -1 )
-    self.add_parameter( 'kappa_ghw', 1, desc='multiplicative kappa-factor of the Higgs-W coupling' )
+    self.add_parameter( 'bornsuppfactW', -1, desc='(default -1, Powheg default)' )
+    self.add_parameter( 'kappa_ghw',      1, desc='multiplicative kappa-factor of the Higgs-W coupling' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'Higgs mass window' )
@@ -36,12 +36,14 @@ class PowhegConfig_HWj(PowhegConfig_base) :
     self.add_parameter_set( 'W mass window' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 150000
-    self.ncall2   = 100000
-    self.nubound  = 100000
-    self.foldx    = 5
-    self.foldy    = 5
-    self.foldphi  = 10
+    self.itmx1    = 2
+    self.ncall1   = 50000
+    self.ncall2   = 70000
+    self.nubound  = 60000
+    self.xupbound = 8 
+    self.foldx    = 10
+    self.foldy    = 10 
+    self.foldphi  = 5
 
     ## Override defaults
     self.doublefsr   = 1

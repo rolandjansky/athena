@@ -65,22 +65,22 @@ class IntegrationGridTester(object):
 
     # Calculate test statistics
     try :
-      inclusive_xs_test = inclusive_xs_error / inclusive_xs
+      inclusive_xs_test = 100 * inclusive_xs_error / inclusive_xs
     except : # catch all exceptions
       inclusive_xs_test = float('nan')
     try :
-      negative_weight_test = sum_of_negative_weights / sum_of_total_weights
+      negative_weight_test = 100 * sum_of_negative_weights / sum_of_total_weights
     except : # catch all exceptions
       negative_weight_test = float('nan')
     try :
-      upper_bound_test = n_upper_bound_failures / n_events
+      upper_bound_test = 100 * n_upper_bound_failures / n_events
     except : # catch all exceptions
       upper_bound_test = float('nan')
 
     # Write output
     try :
-      getattr( logger, ['warning','info'][0.0 < inclusive_xs_test < 0.01] )( 'Integration test :: {0:>25} : {1:5f}'.format('cross-section uncertainty', inclusive_xs_test) )
-      getattr( logger, ['warning','info'][0.0 < negative_weight_test < 0.01] )( 'Integration test :: {0:>25} : {1:5f}'.format('negative weight fraction', negative_weight_test) )
-      getattr( logger, ['warning','info'][0.0 < upper_bound_test < 0.01] )( 'Integration test :: {0:>25} : {1:5f}'.format('upper bound violations', upper_bound_test) )
+      getattr( logger, ['warning','info'][0.0 < inclusive_xs_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('cross-section uncertainty', inclusive_xs_test) )
+      getattr( logger, ['warning','info'][0.0 < negative_weight_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('negative weight fraction', negative_weight_test) )
+      getattr( logger, ['warning','info'][0.0 < upper_bound_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('upper bound violations', upper_bound_test) )
     except : # catch all exceptions
       pass

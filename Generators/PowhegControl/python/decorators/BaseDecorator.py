@@ -49,7 +49,7 @@ class BaseDecorator(object) :
     self.decorated.add_parameter( 'foldx', 1,        desc='(default process-dependent) number of folds on x (csi) integration', parameter='foldcsi' )
     self.decorated.add_parameter( 'foldy', 1,        desc='(default process-dependent) number of folds on y integration' )
     self.decorated.add_parameter( 'foldphi', 1,      desc='(default process-dependent) number of folds on phi integration' )
-    self.decorated.add_parameter( 'use_old_grid', 1, desc='(default 1, enabled) use old grid if file pwggrids.dat is present; otherwise regenerate', parameter='use-old-grid' )
+    self.decorated.fix_parameter( 'use-old-grid', 1, desc='(default 1, enabled) use old grid if file pwggrids.dat is present; otherwise regenerate' )
     # Born suppression : may be needed in presence of processes where the Born cross section vanishes in some phase-space region
     self.decorated.add_parameter( 'bornktmin', -1,                         desc='(default -1, use Powheg default) generation cut: minimum kt in underlying Born' )
     self.decorated.fix_parameter( 'bornonly', [0,1][self.decorated.is_LO], desc='(default process-dependent) calculate Born only' )
@@ -88,8 +88,8 @@ class BaseDecorator(object) :
       self.decorated.add_parameter( 'ixmax', 1,          desc='(default process-dependent) number of intervals (<= 10) in x (csi) grid to compute upper bounds', parameter='icsimax' )
       self.decorated.add_parameter( 'iymax', 1,          desc='(default process-dependent) number of intervals (<= 10) in y grid to compute upper bounds' )
       self.decorated.add_parameter( 'nubound', 10000,    desc='(default process-dependent) number of calls to setup upper bounds for radiation' )
-      self.decorated.fix_parameter( 'radregion', -1,     desc='(default -1, all regions) only generate radiation in the selected singular region' )
-      self.decorated.add_parameter( 'use_old_ubound', 1, desc='(default 1, enabled) read norm of upper bounding function from pwgubound.dat, if present', parameter='use-old-ubound' )
+      self.decorated.add_parameter( 'radregion', -1,     desc='(default -1, all regions) only generate radiation in the selected singular region' )
+      self.decorated.fix_parameter( 'use-old-ubound', 1, desc='(default 1, enabled) read norm of upper bounding function from pwgubound.dat, if present' )
       self.decorated.add_parameter( 'xupbound', 2,       desc='(default process-dependent) increase upper bound for radiation generation by this factor' )
 
   def finalise(self) :

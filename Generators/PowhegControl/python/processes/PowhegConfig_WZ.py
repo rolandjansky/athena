@@ -27,6 +27,7 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     self.add_parameter_set( 'anomalous coupling' )
     self.add_parameter_set( 'diboson' )
     self.add_parameter_set( 'diboson interference' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'running width' )
