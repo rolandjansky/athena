@@ -8,4 +8,4 @@ fi
 set -e
 set -u
 
-JERTester $ASG_TEST_FILE_MC
+JERTester $ROOTCORE_TEST_FILE

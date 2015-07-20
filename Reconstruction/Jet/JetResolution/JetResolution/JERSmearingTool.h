@@ -30,9 +30,9 @@
 ///
 /// @author Steve Farrell <steven.farrell@cern.ch>
 ///
-class JERSmearingTool : public asg::AsgTool,
-                        public IJERSmearingTool,
-                        public CP::CorrectionTool<xAOD::JetContainer>
+class JERSmearingTool : public IJERSmearingTool,
+                        public CP::CorrectionTool<xAOD::JetContainer>,
+                        public asg::AsgTool
 {
 
     /// Proper constructor for Athena
@@ -44,9 +44,6 @@ class JERSmearingTool : public asg::AsgTool,
     JERSmearingTool(const std::string& name);
     /// Copy constructor for reflex in Athena
     JERSmearingTool(const JERSmearingTool& other);
-
-    /// We shouldn't need assignment; regardless, it's not implemented
-    JERSmearingTool& operator=(const JERSmearingTool&) = delete;
 
     /// @name Methods implementing the asg::IAsgTool interface
     /// @{

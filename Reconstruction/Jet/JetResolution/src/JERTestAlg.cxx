@@ -3,6 +3,7 @@
 */
 
 // EDM includes
+//#include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
 
 // Local includes

@@ -12,7 +12,7 @@
 // Local includes
 #include "JetResolution/IJERSmearingTool.h"
 
-/// A testing algorithm for the dual-use JER tools in Athena
+/// A testing algorith for the dual-use JER tools in Athena
 ///
 /// @author Steve Farrell <steven.farrell@cern.ch>
 ///
@@ -21,7 +21,7 @@ class JERTestAlg : public AthAlgorithm
 
   public:
 
-    /// Standard algorithm constructor
+    /// Standard Algorith constructor
     JERTestAlg(const std::string& name, ISvcLocator* svcLoc);
 
     /// Initialize the algorithm
