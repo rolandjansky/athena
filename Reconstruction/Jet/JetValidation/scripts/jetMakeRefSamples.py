@@ -108,7 +108,7 @@ def runStep(inputFile):
         inputType="RDO"
         inputDataType=inputType
         outputType="ESD"
-        preExec='''from RecExConfig.RecFlags import rec;rec.doTrigger=False'''
+        preExec='''from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doBTagging=False'''
 
     elif "RAW" in inputFileBase:
         inputType="RAW"
