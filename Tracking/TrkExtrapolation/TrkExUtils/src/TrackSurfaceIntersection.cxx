@@ -35,23 +35,27 @@ Trk::TrackSurfaceIntersection::~TrackSurfaceIntersection()
 
 //Overload of << operator for both, MsgStream and std::ostream for debug output
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackSurfaceIntersection& tsfi)
-{
+{   
+    const std::streamsize ss = sl.precision();
     sl << std::setiosflags(std::ios::fixed);
     sl << std::setprecision(7);
     sl << MSG::DEBUG << "Trk::TrackSurfaceIntersection  " << std::endl;
     sl << "    position  [mm]   =  (" << tsfi.position().x() << ", " << tsfi.position().y() << ", " << tsfi.position().z() << ")" << std::endl;
     sl << "    direction [mm]   =  (" << tsfi.direction().x() << ", " << tsfi.direction().y() << ", " << tsfi.direction().z() << ")" << std::endl;
     sl << "    delta pathlength =   " << tsfi.pathlength() << std::endl;
+    sl.precision (ss);
     return sl;  
 }
 
 std::ostream& Trk::operator << ( std::ostream& sl, const Trk::TrackSurfaceIntersection& tsfi)
 {
+    const std::streamsize ss = sl.precision();
     sl << std::setiosflags(std::ios::fixed);
     sl << std::setprecision(7);
     sl << "Trk::TrackSurfaceIntersection  " << std::endl;
     sl << "    position  [mm]   =  (" << tsfi.position().x() << ", " << tsfi.position().y() << ", " << tsfi.position().z() << ")" << std::endl;
     sl << "    direction [mm]   =  (" << tsfi.direction().x() << ", " << tsfi.direction().y() << ", " << tsfi.direction().z() << ")" << std::endl;
     sl << "    delta pathlength =   " << tsfi.pathlength() << std::endl;  
+    sl.precision (ss);
     return sl;
 }   

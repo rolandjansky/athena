@@ -17,6 +17,7 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkSurfaces/Surface.h"
 
 #ifndef TRKEXUTILS_CHECKPATHMACRO
 #define TRKEXUTILS_CHECKPATHMACRO
@@ -28,7 +29,7 @@ namespace Trk {
     class MaterialProperties;
     class TrackingVolume;
     class Layer;
-    class Surface;
+    //class Surface;
     
     /** enumeration to decode - for Extrapolation steering 
          - they are used as bits in the configuration integer
@@ -49,7 +50,8 @@ namespace Trk {
          CollectMaterial               = 10,  // collect all material on the way
          CollectJacobians              = 11,  // collect the transport jacobians
          CollectPathSteps              = 12,  // collect the single path steps
-         AvoidFallback                 = 13   // don't fallback to propagation
+         AvoidFallback                 = 13,  // don't fallback to propagation
+	 FATRAS                        = 14   // force initial radialDirection to be outward
       };
       
     };
@@ -218,6 +220,10 @@ namespace Trk {
 	                                                        
             const T*                                lastBoundaryParameters; //!< this is the last boundary surface to prevent loops
             const Surface*                          lastBoundarySurface;    //!< this is the last boundary surface to prevent loops
+	    
+	    const T*                                lastLeadParameters;     //!< this is for caching the last valid parameters before the lead parameters
+	    PropDirection                           propDirection;          //!< this is the propagation direction
+	    int                                     radialDirection;        //!< for checking if navigation is radially towards the IP, this has consequences for entering cylinders
             
             GeometrySignature                       nextGeometrySignature;  //!< when a boundary is reached the geometry signature is updated to the next volume one
                                                     
@@ -242,15 +248,16 @@ namespace Trk {
                 
             ExtrapolationConfig                     extrapolationConfiguration; //!< overall global configuration
 
-            float                                   time;                    // timing info 
-            EnergyLoss*                             eLoss;                   // cumulated energy loss     
-            float                                   zOaTrX;                  //! z/A*rho*dInX0 (for average calculations)
-            float                                   zX;                      //! z*dInX0 (for average calculations)
+            float                                   time;                   //!< timing info 
+            EnergyLoss*                             eLoss;                  //!< cumulated energy loss     
+            float                                   zOaTrX;                 //!< z/A*rho*dInX0 (for average calculations)
+            float                                   zX;                     //!< z*dInX0 (for average calculations)
+	    
   
             
         
           /** start parameters are compulsory  */  
-          ExtrapolationCell(const T& sParameters, unsigned int econfig=1) :
+          ExtrapolationCell(const T& sParameters, PropDirection pDir=alongMomentum, unsigned int econfig=1) :
             startParameters(&sParameters),
             startVolume(0),
             startLayer(0),
@@ -264,6 +271,9 @@ namespace Trk {
             leadLayerSurface(0),
             lastBoundaryParameters(0),
             lastBoundarySurface(0),
+	    lastLeadParameters(&sParameters),
+            propDirection(pDir),
+            radialDirection(1),
             nextGeometrySignature(Trk::Unsigned),
             navigationStep(0),
             pathLength(0.),
@@ -282,8 +292,8 @@ namespace Trk {
 	    extrapolationConfiguration(econfig),
 	    eLoss(0),
 	    zOaTrX(0.),
-	    zX(0.)
-        {}
+            zX(0.)
+	  {}
 
           /** add a configuration mode */
           void addConfigurationMode(ExtrapolationMode::eMode em) {
@@ -332,7 +342,6 @@ namespace Trk {
 	  	       (checkConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0) && reachedLimit(materialL0,materialLimitL0,tolerance) ) );
           }
           
-          
           /** prepare destination as new start point - optimised for Kalman filtering */
           void restartAtDestination();
           
@@ -345,6 +354,35 @@ namespace Trk {
 	  /** set ParticleHypothesis */
 	  void setParticleHypothesis(const ParticleHypothesis& hypo) {
 	    pHypothesis = hypo;
+	  }
+
+	  /** estimate the radial direction of the extrapolation cell */
+	  void setRadialDirection() {
+	    // in FATRAS extrapolation mode force radial direction to be outwards (+1)
+	    if (checkConfigurationMode(ExtrapolationMode::FATRAS))
+	      radialDirection = 1; 
+	    else { 
+	      // if the endSurface is given, it is used to evaluate the radial direction
+	      // else the leadParamenters are used
+	      if ( endSurface ) {
+		if ( leadParameters->position().perp() > endSurface->globalReferencePoint().perp() )
+		  radialDirection = -1; 		
+	      } else {
+		if ( leadParameters->position().perp() >  (leadParameters->position() + propDirection*leadParameters->momentum().unit()).perp() ) 
+		  radialDirection = -1; 
+	      }
+	    }
+	  }
+	  
+          /** check whether the propagation stays compatible with initial radial direction */
+	  bool checkRadialCompatibility () const {
+	    // this checks the radial compatibility - not needed for outwards moving
+	    if (radialDirection > 0) return true;
+	    // this was radially inwards moving and stays like this
+	    if (leadParameters->position().perp() > (leadParameters->position() + propDirection*leadParameters->momentum().unit()).perp()) 
+	      return true;
+	    // radial direction changed 
+	    return false;
 	  }
        
       private :
@@ -368,6 +406,7 @@ namespace Trk {
         leadLayerSurface            = 0;
         lastBoundaryParameters      = 0;
         lastBoundarySurface         = 0;
+	    lastLeadParameters          = startParameters;
         navigationStep              = 0;
         pathLength                  = 0.;
         materialX0                  = 0.;
@@ -380,8 +419,8 @@ namespace Trk {
     template <class T> void ExtrapolationCell<T>::finalize(const ExtrapolationCode& ec) { 
       // set the leadParameters to the endParameters if anything happened here and the code wass succesful
       if (ec.isSuccessOrRecovered() && leadParameters != startParameters){ 
-          // end parameters are the last lead parameters 
-	endParameters = leadParameters->clone();
+          // end parameters are the last lead parameters !< @TODO check if we need a clone here! should not be necessary
+	      endParameters = leadParameters->clone();
       }
       // now do the cleanup - will delete the step content if eCode is failure
       emptyGarbageBin(ec); 
@@ -465,6 +504,8 @@ namespace Trk {
            // the overal material
            materialX0 += sfactor * mprop->thicknessInX0();
            materialL0 += sfactor * mprop->thicknessInL0();
+	   zOaTrX     += mprop->zOverAtimesRho()* sfactor * mprop->thicknessInX0();
+	   zX         += mprop->averageZ()* sfactor * mprop->thicknessInX0();
        }
     }
     
@@ -497,9 +538,7 @@ namespace Trk {
            extrapolationSteps[extrapolationSteps.size()-1].materialScaling  = sfactor;
        }
     }
-    
 
-        
 } // end of namespace
 
 #endif // TRKEXUTILS_SOLUTIONSELECTOR_H
