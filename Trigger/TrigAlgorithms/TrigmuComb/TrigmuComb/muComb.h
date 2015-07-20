@@ -66,6 +66,10 @@ class muComb : public HLT::FexAlgo
 
   std::string m_paramSet;
     
+  int    drptMatch(double, double, double,
+                   double, double, double, int, 
+		   double&, double&, double&, double&, double&);
+
   int    drptMatch(const xAOD::L2StandAloneMuon* feature, 
                    double, double, double, int, 
 		   double&, double&, double&, double&, double&);
