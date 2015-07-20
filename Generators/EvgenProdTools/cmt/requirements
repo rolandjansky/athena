@@ -17,9 +17,7 @@ use TruthUtils        TruthUtils-*        Generators
 use GaudiInterface    GaudiInterface-*    External
 use EventInfo         EventInfo-*         Event
 
-use IOVDbMetaDataTools IOVDbMetaDataTools-* Database
-use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
-use IOVDbDataModel IOVDbDataModel-* Database
+
 end_private
 
 #use AtlasHepMC       AtlasHepMC-*       External
