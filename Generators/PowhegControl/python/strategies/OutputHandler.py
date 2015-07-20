@@ -1,21 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl OutputHandler
+#  Translate raw process output into athena-logged output
 #
-#   Write output to stdout
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
-# import subprocess
 
-###############################################################################
-#
-#  Print single buffer to screen
-#
-###############################################################################
+##  Print single buffer to screen
 def print_process_buffer( output_prefix, output_stream, logger ) :
   while True :
     output = output_stream.readline().rstrip()
@@ -23,11 +15,7 @@ def print_process_buffer( output_prefix, output_stream, logger ) :
     logger.info( '{0}{1}'.format(output_prefix,output) )
 
 
-###############################################################################
-#
-#  Print Powheg output to screen
-#
-###############################################################################
+##  Print output from all processes to screen
 def write_output( process_list, logger ) :
   n_processes = len(process_list)
   while process_list :

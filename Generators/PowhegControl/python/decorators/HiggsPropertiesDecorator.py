@@ -8,16 +8,15 @@
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
 
-class HiggsPropertiesDecorator :
+class HiggsPropertiesDecorator(object) :
+
+  ## Define decorator name string
+  name = 'Higgs properties'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'hmass '+str(ATLASCommonParameters.mass_H)+'   ! mass of Higgs boson in GeV\n' )
-      f.write( 'hwidth '+str(ATLASCommonParameters.width_H)+' ! width of Higgs boson in GeV\n' )
+    self.decorated.add_parameter( 'mass_H', ATLASCommonParameters.mass_H,   desc='(default ATLAS) mass of Higgs boson in GeV', parameter='hmass' )
+    self.decorated.add_parameter( 'width_H', ATLASCommonParameters.width_H, desc='(default ATLAS) width of Higgs boson in GeV', parameter='hwidth' )

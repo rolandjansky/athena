@@ -8,24 +8,18 @@
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
 
-class HVJDecorator :
+class HVJDecorator(object) :
+
+  ## Define decorator name string
+  name = 'Higgs+V+jet'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.kappa_ghb     = 1.0
-    self.decorated.kappa_ght     = 1.0
-    self.decorated.use_massive_b = True
-    self.decorated.use_massive_t = True
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'bmass '+str(ATLASCommonParameters.mass_b)+'                   ! b quark mass\n' )
-      f.write( 'kappa_ghb '+str(self.decorated.kappa_ghb)+'                   ! multiplicative kappa-factor of the Higgs-bottom coupling\n' )
-      f.write( 'kappa_ght '+str(self.decorated.kappa_ght)+'                   ! multiplicative kappa-factor of the Higgs-top coupling\n' )
-      f.write( 'massivebottom '+str( [0,1][self.decorated.use_massive_b] )+'  ! if 1 include bottom quark loops\n' )
-      f.write( 'massivetop '+str( [0,1][self.decorated.use_massive_t] )+'     ! if 1 include top quark loops\n' )
+    self.decorated.fix_parameter( 'bmass', ATLASCommonParameters.mass_b, desc='(default ATLAS) b quark mass' )
+    self.decorated.add_parameter( 'kappa_ghb', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-bottom coupling' )
+    self.decorated.add_parameter( 'kappa_ght', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-top coupling' )
+    self.decorated.add_parameter( 'use_massive_b', 1,                    desc='(default 1, enabled) enable bottom quark loops', parameter='massivebottom' )
+    self.decorated.add_parameter( 'use_massive_t', 1,                    desc='(default 1, enabled) enable charm quark loops', parameter='massivetop' )

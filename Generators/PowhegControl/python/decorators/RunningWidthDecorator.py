@@ -6,17 +6,14 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
-class RunningWidthDecorator :
+class RunningWidthDecorator(object) :
+
+  ## Define decorator name string
+  name = 'running width'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.runningwidth = 1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'runningwidth '+str(self.decorated.runningwidth)+' ! (default 0) if 1 using running width\n' )
+    self.decorated.add_parameter( 'runningwidth', 0, desc='(default 0, disabled) use running width' )

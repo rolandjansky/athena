@@ -8,23 +8,22 @@
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
 
-class CKMDecorator :
+class CKMDecorator(object) :
+
+  ## Define decorator name string
+  name = 'CKM'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'CKM_Vud '+str(ATLASCommonParameters.CKM_Vud)+' ! CKM element \n' )
-      f.write( 'CKM_Vus '+str(ATLASCommonParameters.CKM_Vus)+' ! CKM element \n' )
-      f.write( 'CKM_Vub '+str(ATLASCommonParameters.CKM_Vub)+' ! CKM element \n' )
-      f.write( 'CKM_Vcd '+str(ATLASCommonParameters.CKM_Vcd)+' ! CKM element \n' )
-      f.write( 'CKM_Vcs '+str(ATLASCommonParameters.CKM_Vcs)+' ! CKM element \n' )
-      f.write( 'CKM_Vcb '+str(ATLASCommonParameters.CKM_Vcb)+' ! CKM element \n' )
-      f.write( 'CKM_Vtd '+str(ATLASCommonParameters.CKM_Vtd)+' ! CKM element \n' )
-      f.write( 'CKM_Vts '+str(ATLASCommonParameters.CKM_Vts)+' ! CKM element \n' )
-      f.write( 'CKM_Vtb '+str(ATLASCommonParameters.CKM_Vtb)+' ! CKM element \n' )
+    self.decorated.fix_parameter( 'CKM_Vud', ATLASCommonParameters.CKM_Vud, desc='(default, ATLAS) CKM element: Vud' )
+    self.decorated.fix_parameter( 'CKM_Vus', ATLASCommonParameters.CKM_Vus, desc='(default, ATLAS) CKM element: Vus' )
+    self.decorated.fix_parameter( 'CKM_Vub', ATLASCommonParameters.CKM_Vub, desc='(default, ATLAS) CKM element: Vub' )
+    self.decorated.fix_parameter( 'CKM_Vcd', ATLASCommonParameters.CKM_Vcd, desc='(default, ATLAS) CKM element: Vcd' )
+    self.decorated.fix_parameter( 'CKM_Vcs', ATLASCommonParameters.CKM_Vcs, desc='(default, ATLAS) CKM element: Vcs' )
+    self.decorated.fix_parameter( 'CKM_Vcb', ATLASCommonParameters.CKM_Vcb, desc='(default, ATLAS) CKM element: Vcb' )
+    self.decorated.fix_parameter( 'CKM_Vtd', ATLASCommonParameters.CKM_Vtd, desc='(default, ATLAS) CKM element: Vtd' )
+    self.decorated.fix_parameter( 'CKM_Vts', ATLASCommonParameters.CKM_Vts, desc='(default, ATLAS) CKM element: Vts' )
+    self.decorated.fix_parameter( 'CKM_Vtb', ATLASCommonParameters.CKM_Vtb, desc='(default, ATLAS) CKM element: Vtb' )

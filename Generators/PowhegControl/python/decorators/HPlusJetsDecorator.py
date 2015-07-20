@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class HPlusJetsDecorator :
+class HPlusJetsDecorator(object) :
+
+  ## Define decorator name string
+  name = 'H+jets'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.bwcutoff = 15
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'bwcutoff '+str(self.decorated.bwcutoff)+' ! Mass window is hmass +- bwcutoff*hwidth\n' )
+    self.decorated.add_parameter( 'bwcutoff', 15, desc='(default 15) Mass window is hmass +/- bwcutoff * hwidth' )

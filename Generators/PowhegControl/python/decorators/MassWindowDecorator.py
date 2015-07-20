@@ -7,21 +7,17 @@
 
 #! /usr/bin/env python
 
-class MassWindowDecorator :
+class MassWindowDecorator(object) :
+
+  ## Define decorator name string
+  name = 'mass window'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.mass_low  = -1
-    self.decorated.mass_high = -1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'mass_low '+str(self.decorated.mass_low)+'   ! M_V > mass low\n' )
-      f.write( 'mass_high '+str(self.decorated.mass_high)+' ! M_V < mass high\n' )
-      f.write( 'masswindow_low -1                           ! disabled: use mass low instead\n' )
-      f.write( 'masswindow_high -1                          ! disabled: use mass high instead\n' )
+    self.decorated.add_parameter( 'mass_low', -1,        desc='(default -1) If set then require M_object > mass_low; otherwise allow internal Powheg computation.' )
+    self.decorated.add_parameter( 'mass_high', -1,       desc='(default -1) If set then require M_object < mass_high; otherwise allow internal Powheg computation.' )
+    self.decorated.fix_parameter( 'masswindow_low', -1,  desc='(default -1, disabled) use mass_low instead' )
+    self.decorated.fix_parameter( 'masswindow_high', -1, desc='(default -1, disabled) use mass_high instead' )
