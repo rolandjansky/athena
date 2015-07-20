@@ -160,14 +160,14 @@ StatusCode HLTTauMonTool::Emulation(){
 //
  // Print the decision for all the tested chains and the TDT decision
  for (auto it: m_emulation_l1_tau) {  
-  if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
+  //if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
   bool emulation_decision = m_l1emulationTool->decision(it);
   ATH_MSG_INFO(it << " emulation : " << emulation_decision);
   setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
   if(emulation_decision) hist("hL1EmulationPassEmul")->Fill(it.c_str(),1.);
   auto chain_group = getTDT()->getChainGroup(it);  
   bool cg_passes_event = chain_group->isPassed();
-  if(m_bootstrap) if(getTDT()->isPassedBits(it) & TrigDefs::L1_isPassedBeforePrescale) cg_passes_event = true; 
+  //if(getTDT()->isPassedBits(it) & TrigDefs::L1_isPassedBeforePrescale) cg_passes_event = true; 
   ATH_MSG_INFO(it << " TDT : " <<  cg_passes_event);
   setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
   if(cg_passes_event) hist("hL1EmulationPassTDT")->Fill(it.c_str(),1.);

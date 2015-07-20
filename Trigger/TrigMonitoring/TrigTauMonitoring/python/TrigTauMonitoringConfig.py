@@ -4,18 +4,19 @@
 def TrigTauMonitoringTool():
 
 	full_tau = [
-                  'tau5_perf_ptonly_L1TAU8',
+#                  'tau5_perf_ptonly_L1TAU8',
                   
                   ## cosmics
-                  'tau1_cosmic_track_L1MU4_EMPTY',
-                  'tau1_cosmic_ptonly_L1MU4_EMPTY',
-                  'tau8_cosmic_ptonly',
-                  'tau8_cosmic_track',
+#                  'tau1_cosmic_track_L1MU4_EMPTY',
+#                  'tau1_cosmic_ptonly_L1MU4_EMPTY',
+#                  'tau8_cosmic_ptonly',
+#                  'tau8_cosmic_track',
                   
                   ## Run-II - No BDT: main track-based items
 		#  'tau25_idperf_track',
 		#  'tau25_idperf_tracktwo',
                 #  'tau25_perf_tracktwo',
+		  'tau25_perf_track',
                   'tau25_perf_tracktwo_L1TAU12',
                   'tau25_perf_ptonly',
                   'tau25_perf_ptonly_L1TAU12',
@@ -72,63 +73,63 @@ def TrigTauMonitoringTool():
                   'tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12',
                   'tau125_medium1_tracktwo_tau50_medium1_tracktwo_L1TAU12',
                   
-                  # Tau + Electron
-                  # Low-threshold with jets
-                  'e17_medium_tau25_medium1_tracktwo',
-                  'e17_lhmedium_tau25_medium1_tracktwo',
-                  # Isolated Variant
-                  'e17_medium_iloose_tau25_medium1_tracktwo',
-                  'e17_lhmedium_iloose_tau25_medium1_tracktwo',
-                  # Tau + Electron main L1Topo
-                  'e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
-                  'e17_lhmedium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
-                  # Isolated variant
-                  'e17_medium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
-                  'e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
-                  # Tau + electron back-up L1Topo
-                  'e17_medium_tau25_medium1_tracktwo_L1EM15TAU12I-J25',
-                  'e17_lhmedium_tau25_medium1_tracktwo_L1EM15TAU12I-J25',
-                  'e17_medium_tau25_medium1_tracktwo_L1EM15-TAU12I',
-                  'e17_lhmedium_tau25_medium1_tracktwo_L1EM15-TAU12I',
-                  # High-threshold
-                  'e17_medium_tau80_medium1_tracktwo',
-                  'e17_lhmedium_tau80_medium1_tracktwo',
-                  'e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40',
-                  'e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40',
-                  
-                  # Tau + Muon
-                  'mu14_tau25_medium1_tracktwo',
-                  'mu14_tau35_medium1_tracktwo_L1TAU20',
-                  'mu14_tau35_medium1_tracktwo', 
-                  'mu14_iloose_tau25_medium1_tracktwo', 
-                  'mu14_iloose_tau35_medium1_tracktwo',
-                  # With L1Topo
-                  'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25',
-                  'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I',
-                  'mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25',
-                  
-                  # Tau + MET
-                  'tau35_medium1_tracktwo_xe70_L1XE45',
-                  'tau35_medium1_tracktwo_L1TAU20_xe70_L1XE45',
-                  
-                  # Ditau + MET
-                  'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12_xe50',
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo_xe50',
-                  
-                  # Tau + e + MET
-                  'e17_medium_tau25_medium1_tracktwo_xe50',
-                  'e17_lhmedium_tau25_medium1_tracktwo_xe50',
-                  'e17_medium_iloose_tau25_medium1_tracktwo_xe50',
-                  'e17_lhmedium_iloose_tau25_medium1_tracktwo_xe50',
-                  # With L1Topo
-                  'e17_medium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I',
-                  'e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I',
-                  'e17_medium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I',
-                  'e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I',
-                  
-                  # Tau + mu + MET
-                  'mu14_tau25_medium1_tracktwo_xe50',
-                  'mu14_iloose_tau25_medium1_tracktwo_xe50'
+#                  # Tau + Electron
+#                  # Low-threshold with jets
+#                  'e17_medium_tau25_medium1_tracktwo',
+#                  'e17_lhmedium_tau25_medium1_tracktwo',
+#                  # Isolated Variant
+#                  'e17_medium_iloose_tau25_medium1_tracktwo',
+#                  'e17_lhmedium_iloose_tau25_medium1_tracktwo',
+#                  # Tau + Electron main L1Topo
+#                  'e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+#                  # Isolated variant
+#                  'e17_medium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+#                  'e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+#                  # Tau + electron back-up L1Topo
+#                  'e17_medium_tau25_medium1_tracktwo_L1EM15TAU12I-J25',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_L1EM15TAU12I-J25',
+#                  'e17_medium_tau25_medium1_tracktwo_L1EM15-TAU12I',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_L1EM15-TAU12I',
+#                  # High-threshold
+#                  'e17_medium_tau80_medium1_tracktwo',
+#                  'e17_lhmedium_tau80_medium1_tracktwo',
+#                  'e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40',
+#                  'e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40',
+#                  
+#                  # Tau + Muon
+#                  'mu14_tau25_medium1_tracktwo',
+#                  'mu14_tau35_medium1_tracktwo_L1TAU20',
+#                  'mu14_tau35_medium1_tracktwo', 
+#                  'mu14_iloose_tau25_medium1_tracktwo', 
+#                  'mu14_iloose_tau35_medium1_tracktwo',
+#                  # With L1Topo
+#                  'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25',
+#                  'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I',
+#                  'mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25',
+#                  
+#                  # Tau + MET
+#                  'tau35_medium1_tracktwo_xe70_L1XE45',
+#                  'tau35_medium1_tracktwo_L1TAU20_xe70_L1XE45',
+#                  
+#                  # Ditau + MET
+#                  'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12_xe50',
+#                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo_xe50',
+#                  
+#                  # Tau + e + MET
+#                  'e17_medium_tau25_medium1_tracktwo_xe50',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_xe50',
+#                  'e17_medium_iloose_tau25_medium1_tracktwo_xe50',
+#                  'e17_lhmedium_iloose_tau25_medium1_tracktwo_xe50',
+#                  # With L1Topo
+#                  'e17_medium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I',
+#                  'e17_medium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I',
+#                  'e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I',
+#                  
+#                  # Tau + mu + MET
+#                  'mu14_tau25_medium1_tracktwo_xe50',
+#                  'mu14_iloose_tau25_medium1_tracktwo_xe50'
                   
                   
         ]
@@ -136,13 +137,11 @@ def TrigTauMonitoringTool():
 
 	# Setup emulation 
 	emul_l1_tau = [ 
-		'L1_J12',
-		'L1_TAU12',
-		'L1_TAU12IM',
 		'L1_TAU60',
+		'L1_EM15HI_2TAU12IM_J25_3J12',
 		'L1_TAU20IM_2TAU12IM',
 		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-		'L1_MU10_TAU12IM',
+		'L1_MU10_TAU12IM_J25_2J12',
 		'L1_TAU20_2TAU12_XE35',
 		'L1_TAU20_2J20_XE45'
 	]
@@ -171,7 +170,7 @@ def TrigTauMonitoringTool():
 	HLTTauMon = HLTTauMonTool(name			 = 'HLTTauMon',
 				  histoPathBase		 = "/Trigger/HLT",
 				  monitoring_tau	 = hltmonList.monitoring_tau,
-				  primary_tau		 = [],#full_tau, #[]
+				  primary_tau		 = [], #full_tau, #[]
 				  prescaled_tau		 = [],
 				  LowestSingleTau 	 = hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
 				  EffOffTauPtCut	 = 20000.,  #MeV
@@ -180,15 +179,14 @@ def TrigTauMonitoringTool():
 				  doTruth		 = False,
 				  doRealZtautauEff       = False,
 				  doBootstrap		 = False,
-				  doEmulation		 = True,
+				  doEmulation		 = False,
 				  emulation_l1_tau       = emul_l1_tau,
 				  emulation_hlt_tau      = emul_hlt_tau,
 				  L1EmulationTool        = Level1Emulator,
 #				  HltEmulationTool       = HltEmulator,
 				  doTestTracking	 = False,
-				  doIncludeL1deactivateTE 	= False,
-				  doIncludePreseldeactivateTE 	= False,
-				  doIncludeHLTdeactivateTE 	= False,
+				  L1TriggerCondition  	 = "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
+				  HLTTriggerCondition 	 = "Physics",
                                   nTrkMax	= -1,
 				  nTrkMin	= -1,
 				  PtMax		= -1., #MeV
