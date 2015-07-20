@@ -54,12 +54,8 @@ namespace muCombUtil {
   double getCombinedAverage(double, double, double, double);
   ///Get sigma of weighted mean
   double getCombinedAverageSigma(double, double);
-  ///Get OLD style (i.e. muFast time) Chi2
+  ///Get Chi2
   double getChi2(int&,   double, 
-		 double, double, double, double, double, double, 
-		 double, double, double, double, double, double, bool);
-  ///Get Std Chi2
-  double getStdChi2(int&,
 		 double, double, double, double, double, double, 
 		 double, double, double, double, double, double, bool);
 }

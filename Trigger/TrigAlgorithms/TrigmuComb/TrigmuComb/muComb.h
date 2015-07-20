@@ -21,7 +21,7 @@
 #include "GaudiKernel/NTuple.h"
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -53,7 +53,7 @@ class muComb : public HLT::FexAlgo
   StoreGateSvc*        m_pStoreGate;
     
   /** Pointer to the ROB data provider */
-  //ROBDataProviderSvc*  m_pROBDataProvider;
+  ROBDataProviderSvc*  m_pROBDataProvider;
       
   /** Handle to the G4 backExtrapolator tool */
   ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  
@@ -79,7 +79,7 @@ class muComb : public HLT::FexAlgo
 		 double&, double&, double&, double&, double&, int&);
 
   int    g4Match(const xAOD::L2StandAloneMuon* feature,
-                 double, double, double, double, double, double, double,
+                 double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 
  private:
@@ -98,14 +98,14 @@ class muComb : public HLT::FexAlgo
    *  0: auto select best option
    *  1: simplified R,(Pt) matching
    */
-  Gaudi::CheckedProperty<int> m_AlgoStrategy;
+  IntegerProperty m_AlgoStrategy;
 
   /** muComb charge assignment strategy:
    *  0: useMuFast
    *  1: use ID
    *  2: use resolution model
    */
-  Gaudi::CheckedProperty<int> m_ChargeStrategy;
+  IntegerProperty m_ChargeStrategy;
 
   /** ID Track collection used for matching */
   StringProperty m_ID_algo_to_use;
