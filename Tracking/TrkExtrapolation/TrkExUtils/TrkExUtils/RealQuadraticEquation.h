@@ -45,7 +45,7 @@ namespace Trk {
     double second;
     RQESolutionType solutions;
 
-    RealQuadraticEquation( double alpha, double beta, double gamma):first{},second{} {
+    RealQuadraticEquation( double alpha, double beta, double gamma) {
       double discriminant = beta*beta - 4*alpha*gamma;
       if (discriminant<0) solutions = none;
       else {

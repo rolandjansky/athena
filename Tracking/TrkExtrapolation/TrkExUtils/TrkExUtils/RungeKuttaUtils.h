@@ -22,6 +22,7 @@ namespace Trk {
   class ConeSurface           ;
   class DiscSurface           ;
   class PlaneSurface          ;
+  class PerigeeSurface        ;
   class CylinderSurface       ;
   class StraightLineSurface   ;
   class PatternTrackParameters;
@@ -143,6 +144,8 @@ namespace Trk {
 
       void transformDiscToGlobal        
 	(bool,const Trk::Surface*,const double*,double*) const;
+      void transformPerigeeToGlobal        
+	(bool,const Trk::Surface*,const double*,double*) const;
       void transformPlaneToGlobal       
 	(bool,const Trk::Surface*,const double*,double*) const;
       void transformCylinderToGlobal    
@@ -162,6 +165,8 @@ namespace Trk {
       void transformGlobalToDisc
 	(const Trk::Surface*,bool,double*,double*,double*) const;
       void transformGlobalToPlane
+	(const Trk::Surface*,bool,double*,double*,double*) const;
+      void transformGlobalToPerigee
 	(const Trk::Surface*,bool,double*,double*,double*) const;
       void transformGlobalToCylinder
   	(const Trk::Surface*,bool,double*,double*,double*) const;
@@ -208,6 +213,7 @@ namespace Trk {
    
       void jacobianTransformCurvilinearToDisc        (double*,double*) const;
       void jacobianTransformCurvilinearToPlane       (double*,double*) const;
+      void jacobianTransformCurvilinearToPerigee     (double*,double*) const;
       void jacobianTransformCurvilinearToCylinder    (double*,double*) const;
       void jacobianTransformCurvilinearToStraightLine(double*,double*) const;
 

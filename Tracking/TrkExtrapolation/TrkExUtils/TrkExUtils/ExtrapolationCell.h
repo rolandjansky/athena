@@ -64,27 +64,27 @@ namespace Trk {
       public:
         /** Constructor */
         ExtrapolationConfig(unsigned int evalue=0) :
-          m_value(evalue)
+          value(evalue)
         {}
         
         /** Copy Constructor */
         ExtrapolationConfig(const ExtrapolationConfig& eConfig) :
-          m_value(eConfig.m_value)
+          value(eConfig.value)
         {}
         
         /** add a configuration mode */
         void addMode(ExtrapolationMode::eMode em) {
             // set the bit corresponding to this mode
-            m_value |= (1 << int(em));
+            value |= (1 << int(em));
         }
         
         /** check the configuration mode */
         bool checkMode(ExtrapolationMode::eMode em) const  {
             // check if the bit is set or not
-            return (m_value & (1 << int(em)));
+            return (value & (1 << int(em)));
         }
       private:
-        unsigned int m_value;
+        unsigned int value;
         
     };
     
@@ -320,7 +320,6 @@ namespace Trk {
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
           void addMaterial(double sfactor, const MaterialProperties* mprop=nullptr);
-	  void addMaterial(double step, const Material* mat=nullptr);
           
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
@@ -507,20 +506,6 @@ namespace Trk {
            materialL0 += sfactor * mprop->thicknessInL0();
 	   zOaTrX     += mprop->zOverAtimesRho()* sfactor * mprop->thicknessInX0();
 	   zX         += mprop->averageZ()* sfactor * mprop->thicknessInX0();
-       }
-    }
-    
-    template <class T>  void ExtrapolationCell<T>::addMaterial(double step,
-                                                               const Material* mat)
-    {  
-    
-       // fill the material if there
-       if (mat && step>0.){
-           // the overal material
-           materialX0 += step/mat->X0;
-           materialL0 += step/mat->L0;
-	   zOaTrX     += mat->zOverAtimesRho()* step/mat->X0;
-	   zX         += mat->averageZ()* step/mat->X0;
        }
     }
     
