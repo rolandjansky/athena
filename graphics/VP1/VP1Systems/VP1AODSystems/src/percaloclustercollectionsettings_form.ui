@@ -234,9 +234,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_calocluster_drawsettings">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>Draw options</string>
      </property>

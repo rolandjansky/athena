@@ -40,11 +40,7 @@ class JetCollectionSettingsButton::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():theclass(0),editwindow(0),matButton(0), last_scale(0.0), last_useDefaultCuts{},
-	last_randomJetColours{}, last_useMaxR{}, last_maxR(0.0), last_bTaggingEnabled{},
-	last_bTaggingCut(0.0),last_bTaggingRenderingSkin{}, last_bTaggingRenderingMaterial{},
-	m_jetMaterialDefault(nullptr), materialFallback(nullptr),
-	dim(0) {}
+	Imp():theclass(0),editwindow(0),matButton(0), dim(0) {}
 
 	// the main class
 	JetCollectionSettingsButton * theclass;
@@ -85,20 +81,13 @@ public:
 	bool last_bTaggingRenderingSkin;
 	bool last_bTaggingRenderingMaterial;
 
-	// jet material
-	SoMaterial* m_jetMaterialDefault;
-
 	// b-tagging material
 	SoMaterial * materialFallback;
-
-	// material functions
 	SoMaterial * getMat(VP1MaterialButton*) const;
 	SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
-	SoMaterial * createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const;
 
 
 	int dim;
-	QString name;
 	QPoint dragStartPosition;
 
 	void initEditWindow();
@@ -109,11 +98,6 @@ public:
 SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b) const
 {
   return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0,0.2/*brightness*/);
-}
-//____________________________________________________________________
-SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const
-{
-  return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0, brightness, transparency);
 }
 
 //____________________________________________________________________
@@ -126,11 +110,9 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	// create a parent widget
 	editwindow = new QWidget(0,Qt::WindowStaysOnTopHint); // parent widget
 
-	// init the different UIs, with the same parent widget
+	// init UI, with the same parent widget
 	editwindow_ui.setupUi(editwindow);
 	ui_disp.setupUi(editwindow);
-
-
 
 	//// CUSTOMIZE "Momentum cuts" widget
 	// change labels to match jets' nomenclature
@@ -149,17 +131,9 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	// compose UI: adding to the default GUI the "display" custom cuts for jets
 	editwindow_ui.verticalLayout_additional_widgets->layout()->addWidget( ui_disp.groupBox_jet_display );
 
-	// set b-tagging taggers
-	ui_disp.bTaggingComboBox->clear(); // remove all taggers defined in the .ui file
-	QStringList bTagList;
-	bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
-	ui_disp.bTaggingComboBox->insertItems(0, bTagList);
-
-	// set b-tagging "Material" checked by default ("Skin" will be optional)
+	// set "Material" checked by default ("Skin" will be optional)
 	ui_disp.radioButton_material->setChecked(true);
 
-	// x-y projection
-	ui_disp.groupBox_IDprojection->setEnabled(false); // TODO: check what it did in previous versions and fix it!
 
 	// when creating a new controller, check if b-tagging checkbox is enabled,
 	// for example from a config file or from a drag&drop from another collection
@@ -167,6 +141,12 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 		theclass->possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
 	else
 		theclass->possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
+
+
+	// default material for b-jets
+	materialFallback = createMaterial(116,255,228);
+	materialFallback->ref();
+
 }
 
 //____________________________________________________________________
@@ -242,16 +222,18 @@ bool JetCollectionSettingsButton::is_bTaggingMaterialEnabled() const
 
 
 //____________________________________________________________________
-JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim, QString name)
+JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim)
 : VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
 //: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
 {
 	d->dim = _dim;
-	d->name = name;
 
 	d->theclass = this;
 	d->initEditWindow();
 
+	// default material for b-jets
+	d->materialFallback = d->createMaterial(116,255,228);
+	d->materialFallback->ref();
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -332,6 +314,7 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 	connect(d->ui_disp.radioButton_skins, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingSkin(bool)) );
 
 
+
 	// Material button
 	connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
 	connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
@@ -339,27 +322,12 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
 	setAcceptDrops(true);
 
-	QTimer::singleShot(0, this, SLOT(updateButton()));
-
-	////////////////////////
-	//  Custom Materials  //
-	////////////////////////
-
-	std::cout << "setting jet custom materials..." << std::endl;
-
-
-
-	// create default material for b-jets
-	d->materialFallback = d->createMaterial(116,255,228, 0.2, 0.3); // light greenish-blue (R,G,B, brightness, transparency)
-	d->materialFallback->ref();
-
-
 
 	// init material for b-tagged jet
 	d->ui_disp.matButton_btaggedJets->setMaterial(d->materialFallback);
 
-//	updateButton();
 
+	QTimer::singleShot(0, this, SLOT(updateButton()));
 
 }
 
@@ -380,7 +348,7 @@ void JetCollectionSettingsButton::updateButton()
 {
 	if (objectName().isEmpty())
 		setObjectName("JetCollectionSettingsButton");
-	messageVerbose("jet - setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
+	messageVerbose("setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
 	VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
 }
 
@@ -409,11 +377,6 @@ bool JetCollectionSettingsButton::setMaterial(SoMaterial*mat)
 	if (!d->matButton) d->initEditWindow();
 	d->matButton->setMaterial(mat);
 	return true;
-}
-
-VP1MaterialButton* JetCollectionSettingsButton::getMaterialButton() const
-{
-	return d->matButton;
 }
 
 void JetCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
@@ -714,11 +677,8 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 	updateButton();
 
 	// after restoring the state, check if b-tagging checkbox is enabled,
-	messageDebug("updating b-tagging status for collection " + d->name + "...");
-	if (d->ui_disp.bTaggingCheckBox->isChecked()) {
+	if (d->ui_disp.bTaggingCheckBox->isChecked())
 		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
-
-	}
 	else
 		possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
 
@@ -881,7 +841,7 @@ void JetCollectionSettingsButton::possibleChange_maxR()
 //____________________________________________________________________
 void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
 {
-	messageVerbose("possibleChange_bTaggingEnabled() - "+str(bb));
+	messageVerbose("possibleChange_bTaggingEnabled()");
 
 	d->ui_disp.bTaggingAlgLabel->setEnabled(bb);
 	d->ui_disp.bTagginWeightCutLabel->setEnabled(bb);
@@ -889,6 +849,7 @@ void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
 	d->ui_disp.bTaggingSpinBox->setEnabled(bb);
 	d->ui_disp.groupBox_btagging_render->setEnabled(bb);
 	d->ui_disp.matButton_btaggedJets->setEnabled(bb);
+
 	emit bTaggingEnabledChanged(bb);
 }
 

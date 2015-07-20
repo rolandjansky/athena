@@ -57,14 +57,34 @@ class IParticleCollHandle_CaloCluster::Imp {
 
 public:
 
-  Imp () : theclass(nullptr), updateGUICounter(0), collSettingsButton(nullptr), sephelper(nullptr),
-  considerTransverseEnergies{},showOutlines{},last_highestEnergy(0.0){}
+//  Imp () : theclass(0), updateGUICounter(0), collSettingsButton(0), scale(1.0), randomColours(false), bTaggingTagger("MV1"), bTaggingCut(0.98), bTaggingSwitch(0), bTaggingTexture(0), bTaggingMaterial(0) {}
+  Imp () : theclass(0), updateGUICounter(0), collSettingsButton(0) {}
 
   IParticleCollHandle_CaloCluster * theclass;
   int updateGUICounter;
   CaloClusterCollectionSettingsButton* collSettingsButton;
 
   VP1ExtraSepLayerHelper * sephelper;
+//  QString key;
+
+
+//   settings
+//  double scale = 1.0; // dummy value. The actual default value is set in the IParticleHandle_CaloCluster::Imp class definition.
+////  bool randomColours = false;
+//  bool isMaxR = false; // default
+//  double maxR = 1.0; // dummy value. The actual default value is set in the IParticleHandle_CaloCluster::Imp class definition.
+
+//  // b-tagging
+//  std::string bTaggingTagger;
+//  double bTaggingCut;
+//  SoSwitch   *bTaggingSwitch;
+//  SoTexture2* bTaggingTexture;
+//  SoMaterial* bTaggingMaterial;
+
+
+  //	SoMaterial*        defaultParametersMaterial; /// This will be given to the VP1MaterialButton in
+
+
 
   // settings
   bool considerTransverseEnergies;
@@ -304,8 +324,6 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
   connect(controller,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
   setCutAllowedPt(controller->cutAllowedPt());
 
-  connect(controller,SIGNAL(energyTypeChanged()),this,SLOT(rebuildAllObjects()));
-
   connect(controller,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
   setCutAllowedEta(controller->cutAllowedEta());
 
@@ -333,16 +351,7 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
 
 }
 
-void IParticleCollHandle_CaloCluster::resetCachedValuesCuts()
-{
-	// kinetic cuts
-	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
-	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
-	// other settings
-	setScale( d->collSettingsButton->scale() ); // FIXME:
 
-}
 
 //____________________________________________________________________
 //SoMaterial* IParticleCollHandle_CaloCluster::defaultParameterMaterial() const {
@@ -361,32 +370,34 @@ const CaloClusterCollectionSettingsButton& IParticleCollHandle_CaloCluster::coll
 
 
 //____________________________________________________________________
-void IParticleCollHandle_CaloCluster::rebuildAllObjects()
-{
-	VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::rebuildAllObjects()");
-
-	recheckCutStatusOfAllHandles();
-	recheckCutStatusOfAllNotVisibleHandles(); // Redundant, but needed! TODO: remove this when new 'contains' is ready
-}
-
-
-//____________________________________________________________________
 bool IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy() const
 {
   VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy()");
-  return d->collSettingsButton->isTransverseEnergy();
+  return d->considerTransverseEnergies;
 }
+
+
 
 //____________________________________________________________________
 void IParticleCollHandle_CaloCluster::setShowVolumeOutLines(bool b)
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::setShowVolumeOutLines()");
 
-  if (d->showOutlines==b) return;
+  if (d->showOutlines==b)
+    return;
 
   d->showOutlines=b;
 
-  if (!isLoaded()) return
+  if (!isLoaded())
+    return;
+
+//  largeChangesBegin();
+//  foreach(Imp::ClusterHandle*cluster,d->clusters)
+//    if (cluster->genericBox())
+//      cluster->genericBox()->drawEdgeLines = b;
+//  largeChangesEnd();
+
+
   largeChangesBegin();
   handleIterationBegin();
   AODHandleBase* handle=0;
@@ -405,6 +416,89 @@ void IParticleCollHandle_CaloCluster::setShowVolumeOutLines(bool b)
 
 }
 
+
+
+////____________________________________________________________________
+//bool IParticleCollHandle_CaloCluster::isRandomColors() const
+//{
+//  VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isRandomColors()");
+//  return d->randomColours;
+//}
+
+////____________________________________________________________________
+//bool IParticleCollHandle_CaloCluster::isMaxR() const
+//{
+//	VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isMaxR()");
+//	return d->isMaxR;
+//}
+
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setRandomJetColours(const bool& b)
+//{
+//  messageVerbose("IParticleCollHandle_CaloCluster::setRandomJetColours() - b: "+QString::number(b));
+//
+//  if (d->randomColours == b)
+//    return;
+//
+//  d->randomColours = b;
+//  std::cout << "isRandom: " << d->randomColours << std::endl;;
+//
+//  if (!isLoaded())
+//    return;
+//
+//  largeChangesBegin();
+//  int ijet = 0;
+//  handleIterationBegin();
+//  AODHandleBase* handle=0;
+//  while ((handle=getNextHandle()))
+//  {
+//    ++ijet;
+//    IParticleHandle_CaloCluster* jet = dynamic_cast<IParticleHandle_CaloCluster*>(handle);
+//    if (jet && jet->has3DObjects()) {
+//      messageVerbose("considering jet: "+QString::number(ijet));
+//      int randomColors = isRandomColors();
+//      messageVerbose("setting random material on jet: "+QString::number(ijet)+" - random colors? "+QString::number(randomColors));
+//      //			std::cout << "isRandomColors() --> " << isRandomColors() << std::endl;
+//      jet->updateMaterial( randomColors );
+//
+//    } else {
+//      message("ERROR Handle of wrong type!");
+//    }
+//  }
+//  largeChangesEnd();
+//}
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::rerandomise()
+//{
+//  messageVerbose("IParticleCollHandle_CaloCluster::rerandomise()");
+//
+//  if (!isLoaded()) {
+//    messageVerbose("IParticleCollHandle_CaloCluster::rerandomise() - Returning.");
+//    return;
+//  }
+//  if (!isRandomColors()) {
+//    VP1Msg::message("'Random jet colours' is not checked. Nothing to do. Returning.");
+//    return;
+//  }
+//
+//  largeChangesBegin();
+//  handleIterationBegin();
+//  unsigned int ijet;
+//  AODHandleBase* handle=0;
+//  while ((handle=getNextHandle()))
+//  {
+//    ++ijet;
+//    IParticleHandle_CaloCluster* jet = dynamic_cast<IParticleHandle_CaloCluster*>(handle);
+//    if (jet && jet->has3DObjects()) {
+//      jet->rerandomiseMaterial();
+//    } else {
+//      message("ERROR Handle of wrong type!");
+//    }
+//  }
+//  largeChangesEnd();
+//}
 
 //____________________________________________________________________
 bool IParticleCollHandle_CaloCluster::load()
@@ -431,7 +525,8 @@ bool IParticleCollHandle_CaloCluster::load()
   const_cast< xAOD::CaloClusterContainer* >( coll )->setStore(
     ( SG::IAuxStore* ) coll->getConstStore() );
 
-
+  //Make appropriate CaloCluster handles:
+  // hintNumberOfTracksInEvent(coll->size());
   xAOD::CaloClusterContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
     d->possiblyUpdateGUI();
@@ -439,7 +534,12 @@ bool IParticleCollHandle_CaloCluster::load()
       messageDebug("WARNING: Ignoring null CaloCluster pointer.");
       continue;
     }
-   
+    /*
+    if ((*it)->charge()==0.0) {
+    messageDebug("WARNING: Ignoring  which claims to be neutral (charge()==0.0).");
+    continue;
+    }
+    */
     addHandle(new IParticleHandle_CaloCluster(this,*it));
   }
 
@@ -460,38 +560,38 @@ bool IParticleCollHandle_CaloCluster::cut(AODHandleBase* c) {
 	  message("CaloCluster::cut() --- to be implemented......");
 
 
-    //------ ENERGY CUTS
-    double jEnergy = handle->energyForCuts();
-    double jEnergySqr = jEnergy * jEnergy; // in IParticleCollHandleBase the allowedPt is stored as squared, to avoid square-root operations
-    messageVerbose("object's energy, object's energy^2, allowedPt^2, isPtAll: " + QString::number(jEnergy) + " - " + QString::number(jEnergySqr) + " - " + getCutAllowedPt().toString() + " - " + QString::number(int(getPtAllowall()))  );
-    if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
-      messageVerbose("Energy cut not passed");
-      return false;
-    }
-
-    //------ ETA CUTS
-    messageVerbose("object's eta, etaCut, EtaAll: " + QString::number(handle->eta()) + " - " + getCutAllowedEta().toString() + " - " + QString::number(int(getEtaAllowall())) );
-    if (!getEtaAllowall() && !getCutAllowedEta().contains(handle->eta())) {
-      messageVerbose("Eta cut not passed");
-      return false;
-    }
-
-    //------ PHI CUTS
-    if (!getPhiAllowall() ) {
-      double phi = handle->phi();
-      bool ok(false);
-      foreach (VP1Interval phirange, getCutAllowedPhi() ) {
-        messageVerbose("object's phi, phiCut, PhiAll: " + QString::number(phi)  + " - " + phirange.toString() + " - " + QString::number(int(getPhiAllowall())) );
-        if (phirange.contains(phi)||phirange.contains(phi+2*M_PI)||phirange.contains(phi-2*M_PI)) {
-          ok = true;
-          break;
-        }
-      }
-      if (!ok) {
-        messageVerbose("Phi cut not passed");
-        return false;
-      }
-    }
+//    //------ ENERGY CUTS
+//    messageVerbose("jet's energy, allowedPt^2, PtAll: - " + QString::number(handle->energyForCuts()) + " - " + getCutAllowedPt().toString() + " - " + QString::number(int(getPtAllowall()))  );
+//    double jEnergy = handle->energyForCuts();
+//    double jEnergySqr = jEnergy * jEnergy; // in IParticleCollHandleBase the allowedPt is stored as squared, to avoid square-root operations
+//    if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
+//      messageVerbose("Pt cut not passed");
+//      return false;
+//    }
+//
+//    //------ ETA CUTS
+//    messageVerbose("jet's eta, etaCut, EtaAll: " + QString::number(handle->eta()) + " - " + getCutAllowedEta().toString() + " - " + QString::number(int(getEtaAllowall())) );
+//    if (!getEtaAllowall() && !getCutAllowedEta().contains(handle->eta())) {
+//      messageVerbose("Eta cut not passed");
+//      return false;
+//    }
+//
+//    //------ PHI CUTS
+//    if (!getPhiAllowall() ) {
+//      double phi = handle->phi();
+//      bool ok(false);
+//      foreach (VP1Interval phirange, getCutAllowedPhi() ) {
+//        messageVerbose("jet's phi, phiCut, PhiAll: " + QString::number(phi)  + " - " + phirange.toString() + " - " + QString::number(int(getPhiAllowall())) );
+//        if (phirange.contains(phi)||phirange.contains(phi+2*M_PI)||phirange.contains(phi-2*M_PI)) {
+//          ok = true;
+//          break;
+//        }
+//      }
+//      if (!ok) {
+//        messageVerbose("Phi cut not passed");
+//        return false;
+//      }
+//    }
 //
 //    //------ OTHER CUTS
 //    messageVerbose("Other cuts??? Calling base method...");
@@ -530,12 +630,13 @@ double IParticleCollHandle_CaloCluster::highestVisibleClusterEnergy() const
 double IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()
 {
 	messageDebug("IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()");
-	 if (!isLoaded()){
+	 if (!isLoaded())
 		 messageDebug("Not loaded. Returning...");
-	   return 0;
-    }
-  double e = 0;
+	    return 0;
 
+  double e = 0;
+//  if (this->visible()) {
+//	  largeChangesBegin(); // not needed here...
 	    handleIterationBegin();
 	    AODHandleBase* handle=0;
 	    while ((handle=getNextHandle()))
@@ -550,7 +651,15 @@ double IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()
 	  		  message("ERROR Handle of wrong type!");
 	  	  }
 	    }
+//	    largeChangesEnd();
 
+
+//    foreach(Imp::ClusterHandle*cluster,clusters) {
+//      if (cluster->attached()&&e<cluster->energyForLengthAndCuts(this))
+//	e=cluster->energyForLengthAndCuts(this);
+//    }
+
+//  }
   return e;
 }
 
@@ -565,6 +674,180 @@ void IParticleCollHandle_CaloCluster::recheckHighestVisibleClusterEnergy()
   emit highestVisibleClusterEnergyChanged();
 }
 
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingEnabled(const bool& flag) {
+//  messageVerbose("IParticleCollHandle_CaloCluster::setBTaggingEnabled - "+str(flag));
+//  d->bTaggingSwitch->whichChild = (flag ? SO_SWITCH_ALL : SO_SWITCH_NONE);
+//  if (flag)
+//    setBTaggingMaterialChanged(true); // we set default "Material"
+//}
+
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingSkin(const QString &filename){
+//
+//  if (d->collSettingsButton->bTaggingRenderingSkin()) {
+//
+//    //remove the previous skin and material
+//    d->bTaggingSwitch->removeChild(d->bTaggingTexture);
+//    d->bTaggingSwitch->removeChild(d->bTaggingMaterial);
+//    //		delete d->bTaggingTexture;
+//    //		delete d->bTaggingMaterial;
+//    d->bTaggingTexture = 0;
+//    d->bTaggingMaterial = 0;
+//
+//    // setting the texture
+//    d->bTaggingTexture = new SoTexture2;
+//    d->bTaggingMaterial = new SoMaterial;
+//
+//    // original from Joe, for skins/textures
+//    std::string fName = PathResolver::find_file (filename.toStdString()+".png", "DATAPATH");
+//    messageVerbose("texture found: " + QString::fromStdString(fName) );
+//    d->bTaggingTexture->filename.setValue(fName.c_str());
+//
+//    // adding the texture to the SoSwitch
+//    d->bTaggingSwitch->addChild(d->bTaggingTexture);
+//  }
+//
+//  updateBTaggingSwitchAllJets(); // update switch all jets
+//  updateBTaggingAllJets(); // update cut for all jets
+//}
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingMaterial(SoMaterial* mat)
+//{
+//  messageVerbose("IParticleCollHandle_CaloCluster::setBTaggingMaterial()");
+//
+//  if (d->collSettingsButton->bTaggingRenderingMaterial()) {
+//
+//    messageVerbose("Updating the material node");
+//
+//    //std::cout << "Updating - old mat: " << d->bTaggingMaterial << "..." << std::endl; // it continues below...
+//
+//    //remove the previous skin and material
+//    d->bTaggingSwitch->removeChild(d->bTaggingTexture);
+//    d->bTaggingSwitch->removeChild(d->bTaggingMaterial);
+//    //		delete d->bTaggingTexture;
+//    //		delete d->bTaggingMaterial;
+//    d->bTaggingTexture = 0;
+//    d->bTaggingMaterial = 0;
+//
+//    //		float r = 0.4; float g = 0.15; float b = 0.0; float br = 0.8; float tr = 0.3; // reddish color
+//    //		VP1MaterialButton::setMaterialParameters( mat, r, g, b, br /*brightness*/, tr /*transparency*/ );
+//
+//    if (! mat) {
+//      messageVerbose("taking the material from the controller");
+//      d->bTaggingMaterial = d->collSettingsButton->bTaggingMaterial();
+//      d->bTaggingSwitch->addChild( d->bTaggingMaterial );
+//    }
+//    else {
+//      messageVerbose("taking the argument material");
+//      d->bTaggingMaterial = mat;
+//      d->bTaggingSwitch->addChild( d->bTaggingMaterial );
+//    }
+//
+//    //std::cout << "--> new mat: " << d->bTaggingMaterial << std::endl;
+//
+//    updateBTaggingSwitchAllJets(); // update switch all jets
+//    updateBTaggingAllJets(); // update cut for all jets
+//  }
+//}
+
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingTagger(const QString & tagger){
+//
+//  //	std::cout << "current bTaggingTagger: " << d->bTaggingTagger << " - new: " << tagger << std::endl;
+//
+//  if (d->bTaggingTagger == tagger.toStdString())
+//    return;
+//
+//  d->bTaggingTagger = tagger.toStdString();
+//
+//  if (!isLoaded())
+//    return;
+//
+//  messageVerbose("BTaggingTagger change to: " +tagger+ " (with cut: " + QString::number(d->bTaggingCut) + "). Updating "+str(getHandlesList().count())+" jets");
+//
+//  updateBTaggingAllJets(); // update all jets
+//}
+
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingCut(const double& wCut){
+//
+//  std::cout << d->bTaggingCut << std::endl;
+//
+//  if (d->bTaggingCut == wCut)
+//    return;
+//
+//  d->bTaggingCut = wCut;
+//
+//  if (!isLoaded())
+//    return;
+//
+//  messageVerbose("BTaggingCut change to "+str(d->bTaggingCut)+". Updating "+str(getHandlesList().count())+" jets");
+//
+//  updateBTaggingAllJets(); // update all jets
+//
+//}
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::updateBTaggingAllJets()
+//{
+//  messageVerbose("IParticleCollHandle_CaloCluster::updateBTaggingAllJets()");
+//  largeChangesBegin();
+//  handleIterationBegin();
+//  AODHandleBase* handle=0;
+//  while ((handle=getNextHandle()))
+//  {
+//    IParticleHandle_CaloCluster* jet = dynamic_cast<IParticleHandle_CaloCluster*>(handle);
+//    if (jet && jet->has3DObjects()) {
+//      jet->updateBTagging(d->bTaggingTagger, d->bTaggingCut);
+//    } else {
+//      message("ERROR Handle of wrong type!");
+//    }
+//  }
+//
+//
+//  largeChangesEnd();
+//}
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::updateBTaggingSwitchAllJets()
+//{
+//  messageVerbose("IParticleCollHandle_CaloCluster::updateBTaggingSwitchAllJets()");
+//  largeChangesBegin();
+//  handleIterationBegin();
+//  AODHandleBase* handle=0;
+//  while ((handle=getNextHandle()))
+//  {
+//    IParticleHandle_CaloCluster* jet = dynamic_cast<IParticleHandle_CaloCluster*>(handle);
+//    if (jet && jet->has3DObjects()) {
+//      jet->updateBTaggingSwitch(d->bTaggingSwitch);
+//    } else {
+//      message("ERROR Handle of wrong type!");
+//    }
+//  }
+//  largeChangesEnd();
+//}
+//
+//
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingMaterialChanged(const bool& ok)
+//{
+//  if (ok) {
+//    messageVerbose("IParticleCollHandle_CaloCluster::setBTaggingMaterialChanged()");
+//    setBTaggingMaterial();
+//  }
+//}
+//
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setBTaggingSkinChanged(const bool& ok) {
+//  if (ok)
+//    setBTaggingSkin(d->collSettingsButton->bTaggingSkin());
+//}
 
 
 //____________________________________________________________________
@@ -623,29 +906,7 @@ void IParticleCollHandle_CaloCluster::setState(const QByteArray&state)
     setExtraWidgetsState(extraWidgetState);
 
   // MATERIAL SETTINGS / CUTS
-  messageDebug("restoring material collection button...");
   des.restore(d->collSettingsButton);
 
-  messageDebug("reset all caches storing values for cuts...");
-  resetCachedValuesCuts();
 
-  messageDebug("recheck all handles...");
-  recheckCutStatusOfAllVisibleHandles();
 }
-
-void IParticleCollHandle_CaloCluster::dumpToJSON( std::ofstream& str) const {
-  str << "\""<<name().toLatin1().data()<<"\":{";
-  
-  unsigned int num=0;
-  for (auto handle : getHandlesList() ) {
-    if (handle->visible()) {
-      if (num) str <<",\n";
-      str << "\"Clus "<<num++<< "\":{";
-      handle->dumpToJSON(str);
-      str << "}";
-    }
-  }
-  
-  str << "}";
-}
-

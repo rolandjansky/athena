@@ -37,10 +37,7 @@
 //____________________________________________________________________
 class MuonCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0),
-  last_trackTubeRadius(0.0), last_minimumQuality(0), dim(0){
-    //nop
-  }
+  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
   MuonCollectionSettingsButton * theclass;
   QWidget * editwindow;
   Ui::MuonCollectionSettingsForm editwindow_ui;

@@ -34,7 +34,6 @@
 
 
 // Coin3D
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoMaterial.h>
@@ -57,12 +56,7 @@ QStringList IParticleCollHandle_Jet::availableCollections( IVP1System*sys )
 class IParticleCollHandle_Jet::Imp {
 public:
 
-  Imp () : theclass(nullptr), updateGUICounter(0), collSettingsButton(nullptr), scale(1.0), 
-    randomColours(false), m_jetMaterialDefault(nullptr), bTaggingTagger("MV1"), 
-    bTaggingCut(0.98), bTaggingSwitch(nullptr), 
-    bTaggingTexture(nullptr), bTaggingMaterial(nullptr) {}
-
-  QString name;
+  Imp () : theclass(0), updateGUICounter(0), collSettingsButton(0), scale(1.0), randomColours(false), bTaggingTagger("MV1"), bTaggingCut(0.98), bTaggingSwitch(0), bTaggingTexture(0), bTaggingMaterial(0) {}
 
   IParticleCollHandle_Jet * theclass;
   int updateGUICounter;
@@ -73,9 +67,6 @@ public:
   bool randomColours = false;
   bool isMaxR = false; // default
   double maxR = 1.0; // dummy value. The actual default value is set in the IParticleHandle_Jet::Imp class definition.
-
-  // jet materials
-  SoMaterial* m_jetMaterialDefault;
 
   // b-tagging
   std::string bTaggingTagger;
@@ -104,8 +95,6 @@ const QString& name, xAOD::Type::ObjectType type)
   d->theclass = this;
   d->updateGUICounter = 0;
   d->collSettingsButton=0;
-
-  d->name = name;
 
   //==========
   // b-tagging
@@ -147,29 +136,17 @@ IParticleCollHandle_Jet::~IParticleCollHandle_Jet()
 //____________________________________________________________________
 void IParticleCollHandle_Jet::init(VP1MaterialButtonBase*)
 {
-	messageDebug("IParticleCollHandle_Jet::init()");
+  // std::cout<<"IParticleCollHandle_Jet::init 1"<<std::endl;
 
-  d->collSettingsButton = new JetCollectionSettingsButton(0, 25, d->name); // 0 and 25 are default values
+  //	d->matButton = new JetCollectionSettingsButton; // TODO: update for jet
+  //	d->matButton->setMaterialText(name());
+  d->collSettingsButton = new JetCollectionSettingsButton;
   d->collSettingsButton->setMaterialText(name());
 
-  // 1st - CALLING THE "init" OF THE BASE CLASS
-  // NOTE!!
-  // It must be called before other material/button settings,
-  // otherwise they get overridden
   // std::cout<<"Calling VP1StdCollection::init with d->matButton (JetCollectionSettingsButton)="<<d->matButton<<std::endl;
-  VP1StdCollection::init(d->collSettingsButton);  //--->this call is required!! Passing in d->collSettingsButton means we have the more complex button that allows cuts
+  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button.
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
-
-
-
-  // create semi-transparent material for all jets, with the default color
-  	d->m_jetMaterialDefault = VP1MaterialButton::createMaterial(defaultColor(), 0.2, 0.3);  // RGBcolor, brightness, transparency
-  	d->m_jetMaterialDefault->ref();
-  // init material for all jets
-  	d->collSettingsButton->setMaterial(d->m_jetMaterialDefault);
-  	messageVerbose("set new jet color=" + str(d->collSettingsButton->getMaterialButton()->lastAppliedDiffuseColour()));
-
 
   // std::cout<<"IParticleCollHandle_Jet::init 2"<<std::endl;
   // std::cout<<"swi: "<<collSwitch()<<std::endl;
@@ -200,17 +177,14 @@ void IParticleCollHandle_Jet::init(VP1MaterialButtonBase*)
   d->bTaggingSwitch->ref();
   //  d->bTaggingTexture->ref();
   //  d->bTaggingMaterial->ref();
-
-  //updateBTaggingAllJets();
   //==========
+
 
 }
 
 
 //____________________________________________________________________
-void IParticleCollHandle_Jet::setupSettingsFromControllerSpecific(AODSystemController*)
-{
-	messageDebug("IParticleCollHandle_Jet::setupSettingsFromControllerSpecific()");
+void IParticleCollHandle_Jet::setupSettingsFromControllerSpecific(AODSystemController*) {
 
   JetCollectionSettingsButton* controller = d->collSettingsButton;
 
@@ -240,7 +214,7 @@ void IParticleCollHandle_Jet::setupSettingsFromControllerSpecific(AODSystemContr
 
   // maxR
   connect(controller, SIGNAL(maxRChanged(const double&)), this, SLOT(setMaxR(const double&)));
-//  connect(controller, SIGNAL(signalMaxR(bool)), this, SLOT(setIsMaxR(bool)));
+  connect(controller, SIGNAL(signalMaxR(bool)), this, SLOT(setIsMaxR(bool)));
 
   // b-tagging
   connect(controller, SIGNAL(bTaggingEnabledChanged(const bool&)), this, SLOT(setBTaggingEnabled(const bool&)));
@@ -420,7 +394,7 @@ void IParticleCollHandle_Jet::rerandomise()
 
   largeChangesBegin();
   handleIterationBegin();
-  unsigned int ijet(0);
+  unsigned int ijet;
   AODHandleBase* handle=0;
   while ((handle=getNextHandle()))
   {    
@@ -499,8 +473,6 @@ bool IParticleCollHandle_Jet::cut(AODHandleBase* c) {
     if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
       messageVerbose("Pt cut not passed");
       return false;
-    } else {
-      messageVerbose("Pt cut passed!!");
     }
 
     //------ ETA CUTS
@@ -556,9 +528,8 @@ void IParticleCollHandle_Jet::showParametersChanged(bool val) {
 void IParticleCollHandle_Jet::setBTaggingEnabled(const bool& flag) {
   messageVerbose("IParticleCollHandle_Jet::setBTaggingEnabled - "+str(flag));
   d->bTaggingSwitch->whichChild = (flag ? SO_SWITCH_ALL : SO_SWITCH_NONE);
-  if (flag) {
+  if (flag)
     setBTaggingMaterialChanged(true); // we set default "Material"
-  }
 }
 
 
@@ -687,6 +658,8 @@ void IParticleCollHandle_Jet::updateBTaggingAllJets()
       message("ERROR Handle of wrong type!");
     }
   }
+  
+
   largeChangesEnd();
 }
 
@@ -762,8 +735,6 @@ QByteArray IParticleCollHandle_Jet::persistifiableState() const
 //____________________________________________________________________
 void IParticleCollHandle_Jet::setState(const QByteArray&state)
 {
-  messageDebug("IParticleCollHandle_Jet::setState()");
-
   VP1Deserialise des(state);
   des.disableUnrestoredChecks();
   if (des.version()!=0&&des.version()!=1) {
@@ -784,46 +755,7 @@ void IParticleCollHandle_Jet::setState(const QByteArray&state)
     setExtraWidgetsState(extraWidgetState);
 
   // MATERIAL SETTINGS / CUTS
-  messageDebug("restoring material collection button...");
   des.restore(d->collSettingsButton);
 
-  messageDebug("reset all caches storing values for cuts...");
-  resetCachedValuesCuts();
-
-  messageDebug("recheck all handles...");
-  recheckCutStatusOfAllVisibleHandles();
 
 }
-
-
-void IParticleCollHandle_Jet::resetCachedValuesCuts()
-{
-	// kinetic cuts
-	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
-	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
-	setScale( this->scale() );
-	// colouring
-	setRandomJetColours(d->collSettingsButton->randomJetColours());
-	// b-tagging
-	setBTaggingEnabled(d->collSettingsButton->bTaggingEnabled());
-	setBTaggingTagger(d->collSettingsButton->bTaggingTagger());
-	setBTaggingCut(d->collSettingsButton->bTaggingCut());
-}
-
-void IParticleCollHandle_Jet::dumpToJSON( std::ofstream& str) const {
-  str << "\""<<name().toLatin1().data()<<"\":{";
-  
-  unsigned int num=0;
-  for (auto handle : getHandlesList() ) {
-    if (handle->visible()) {
-      if (num) str <<",\n";
-      str << "\"Jet "<<num++<< "\":{";
-      handle->dumpToJSON(str);
-      str << "}";
-    }
-  }
-  
-  str << "}";
-}
-

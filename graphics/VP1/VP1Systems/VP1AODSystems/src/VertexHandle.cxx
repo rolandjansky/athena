@@ -26,7 +26,6 @@
 
 #include "VP1Utils/SurfaceToSoNode.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -51,7 +50,7 @@ public:
 
   static int nvtxhandles;
 
-  Imp(VertexHandle*tc, const xAOD::Vertex* vtx) : theclass(tc), vertex(vtx), collHandle(nullptr),sep(nullptr), sphere(nullptr){}
+  Imp(VertexHandle*tc, const xAOD::Vertex* vtx) : theclass(tc), vertex(vtx), sep(0), sphere(0){}
   ~Imp() { }
   VertexHandle * theclass;
   const xAOD::Vertex* vertex;

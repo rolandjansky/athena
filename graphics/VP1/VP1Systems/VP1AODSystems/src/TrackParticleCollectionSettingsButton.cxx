@@ -36,11 +36,7 @@
 //____________________________________________________________________
 class TrackParticleCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), defaultParametersMatButton(nullptr),
-  trackDrawStyle(0), trackLightModel(0),last_trackTubeRadius(0.0),last_cutOnlyVertexAssocTracks{},
-  last_useDefaultCuts{},dim(0){
-    //nop
-  }
+  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
   TrackParticleCollectionSettingsButton * theclass;
   QWidget * editwindow;
   Ui::TrackParticleCollectionSettingsForm editwindow_ui;

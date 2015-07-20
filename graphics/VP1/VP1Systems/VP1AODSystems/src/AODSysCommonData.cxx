@@ -17,7 +17,6 @@
 #include "VP1AODSystems/AODSystemController.h"
 #include "AODHandleBase.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoSeparator.h>
