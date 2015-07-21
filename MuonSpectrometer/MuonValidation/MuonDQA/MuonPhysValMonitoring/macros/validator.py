@@ -48,8 +48,8 @@ class Validator(object):
   def __init__(self, structDirs, exclude, compareFunc, normalization):
       super(Validator, self).__init__()
       self.structDirs = structDirs
-      self.excludedStrings = exclude.split("|")
-      print self.excludedStrings
+      #self.excludedStrings = exclude.split("|")
+      #print self.excludedStrings
       self.CompareFunc = compareFunc
       self.DoNormalization = normalization
   
@@ -61,9 +61,19 @@ class Validator(object):
   def CompareDirectories(self, refDir, testDir, dirName):
     if (self.structDirs): GoToDirectory(dirName)
     newRefDir = refDir.GetDirectory(dirName)
-    newTestDir = testDir.GetDirectory(dirName)
-  
-    for key in newRefDir.GetListOfKeys():
+    if not testDir:
+      print 'ERROR --------- test dir not found: ', dirName
+      newTestDir=0
+      return
+    else:
+      newTestDir = testDir.GetDirectory(dirName)
+    
+    theDir = newRefDir
+    # if not newRefDir:
+    #   print 'ERROR --------- reference dir not found: ', dirName
+    #   theDir = newTestDir
+
+    for key in theDir.GetListOfKeys():
      
       obj = key.ReadObj()
 
@@ -73,42 +83,40 @@ class Validator(object):
       
       if obj.IsA().InheritsFrom(ROOT.TH1.Class()):
         testHist = newTestDir.Get(key.GetName())
-        self.CompareHistograms(obj, testHist, newRefDir.GetPath())
+        if testHist:
+          self.CompareHistograms(obj, testHist, newRefDir.GetPath())
       elif obj.IsA().InheritsFrom(ROOT.TDirectory.Class()):
         self.CompareDirectories(newRefDir, newTestDir, obj.GetName())
     if (self.structDirs): os.chdir("..")
   
   def CompareHistograms(self, refHist, testHist, path):
-    print self.excludedStrings, refHist.GetName()
-    if any(exString in refHist.GetName() for exString in self.excludedStrings): 
-      print "Skipped " + path + "/" + refHist.GetName()
-      return
+    # print self.excludedStrings, refHist.GetName()
+    # if any(exString in refHist.GetName() for exString in self.excludedStrings): 
+    #   print "Skipped " + path + "/" + refHist.GetName()
+    #   return
 
-    if self.CompareFunc(refHist, testHist): print path + refHist.GetName() + " looks ok"
+    #@@@if self.CompareFunc(refHist, testHist): print path + refHist.GetName() + " looks ok"
     #else:
     self.MakeComparisonPlot(refHist, testHist, path)
   
   def MakeComparisonPlot(self,refHist, testHist, path):
-    def SetBounds(refHist, testHist, setMinToZero):
-
-      if setMinToZero:        
-        maximum = max(refHist.GetMaximum(), testHist.GetMaximum())
-        maximum = maximum + 0.1*abs(maximum)
-        minimum = min(refHist.GetMinimum(), testHist.GetMinimum())
-        minimum = minimum - 0.1*abs(minimum)
-
-        if minimum<0:
-            refHist.SetMinimum(minimum)
-            maximum = -minimum
-        else:
-            refHist.SetMinimum(0)
-        refHist.SetMaximum(maximum)
-      else:
-        refHist.SetMinimum(0.35)
-        refHist.SetMaximum(1.65)
+    def SetBounds(refHist, testHist, ymin=0, ymax=0):
+      if (ymin==0 and ymax==0):
+        ymin = min(refHist.GetMinimum(), testHist.GetMinimum())
+        ymax = max(refHist.GetMaximum(), testHist.GetMaximum())
+        if ymin>0 and ymax>0:
+          ymin = 0
+        else:          
+          ymin = ymin - 0.15*abs(ymin)
+        ymax = ymax+ 0.15*ymax
+        # if ymin<0 and ymax>0:
+        #     if ymax>0 and abs(minimum)>ymax:
+        #   ymax = -minimum
+      refHist.SetMinimum(ymin)
+      refHist.SetMaximum(ymax)
       return refHist
-    
-    
+    ################################## end SetBounds
+            
     # try:
     #   refHist.Scale(1.0/refHist.Integral())
     #   testHist.Scale(1.0/testHist.Integral())
@@ -146,8 +154,8 @@ class Validator(object):
       elif i2>0:
         testHist.Scale(i1/i2)
         
-    refHist = SetBounds(refHist, testHist, True)
-
+    refHist = SetBounds(refHist, testHist)
+    
     ref_textsize = 24./(padMain.GetWh()*padMain.GetAbsHNDC())
     refHist.GetYaxis().SetLabelSize( ref_textsize )
     refHist.GetXaxis().SetLabelSize( 0 )
@@ -156,8 +164,9 @@ class Validator(object):
 
     # testHist.GetYaxis().SetTextFont(43)
     # testHist.GetYaxis().SetTextSizePixels(20)
-
-    refHist.Draw("hist")
+    refHist.SetMarkerSize(0)
+    refHist.SetLineColor(ROOT.kRed)
+    refHist.Draw("ehist")
     testHist.Draw("sameE")
 
 
@@ -166,14 +175,16 @@ class Validator(object):
     padRatio.cd()
     ratioHist = testHist.Clone()
     ratioHist.Divide(refHist)
-    ratioHist = SetBounds(ratioHist, ratioHist, False)
+    #ratioHist = SetBounds(ratioHist, ratioHist, 0.84,1.16)
+    ratioHist = SetBounds(ratioHist, ratioHist, 0.94,1.06)
     for i in range(ratioHist.GetNbinsX()):
       nref = refHist.GetBinContent(i)
       ntest = testHist.GetBinContent(i)
       if nref == 0 or ntest == 0:
         ratioHist.SetBinError(i, 0)
       else:
-        error = nref/ntest*math.sqrt((refHist.GetBinError(i)/nref)**2 + (testHist.GetBinError(i)/ntest)**2)
+        #error = nref/ntest*math.sqrt((refHist.GetBinError(i)/nref)**2 + (testHist.GetBinError(i)/ntest)**2)
+        error = nref/ntest* max(refHist.GetBinError(i)/nref, testHist.GetBinError(i)/ntest) 
         ratioHist.SetBinError(i, error)
 
     ratioHist_textsize = 24./(padRatio.GetWh()*padRatio.GetAbsHNDC())
@@ -224,6 +235,7 @@ def main( argv ):
 
   validator = Validator( args.structDirs, args.exclude, SameHist, args.normalize )
   validator.CompareFiles(os.path.abspath(args.reference), os.path.abspath(args.test), args.directory)
+  #validator.CompareFiles(os.path.abspath(args.test), os.path.abspath(args.reference), args.directory)
  #======================================================================
 
 if __name__ == "__main__":

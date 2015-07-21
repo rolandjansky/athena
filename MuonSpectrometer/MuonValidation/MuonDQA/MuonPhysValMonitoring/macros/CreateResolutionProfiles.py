@@ -12,6 +12,7 @@ from array import array
 import itertools
 from math import sqrt
 import ROOT
+from ROOT import *
 
 #---------------------------------------------------------------------------
 
@@ -19,97 +20,88 @@ def SetYrange( hist ):
     #adjust y range so negative bins will show
     ymax = hist.GetBinContent( hist.GetMaximumBin() ) + hist.GetBinError( hist.GetMaximumBin() )
     ymin = hist.GetBinContent( hist.GetMinimumBin() ) - hist.GetBinError( hist.GetMinimumBin() )
-    c = 0.2*( ymax - ymin )
-    ymax += c
-    ymin -= c
+    #c = 0.2*( ymax - ymin )
+    #ymax += c
+    #ymin -= c
+    ymax += 0.2*ymax
+    ymin -= 0.2*ymax
     hist.GetYaxis().SetRangeUser( ymin, ymax )
 
 #---------------------------------------------------------------------------
-
-def AddGaussian( hist ):
-    if hist.GetEntries() < 2:
-        return False
-    gaus2 = ROOT.TF1( "gaus2", "gaus", hist.GetMean()-1.5*hist.GetRMS(), hist.GetMean()+1.5*hist.GetRMS() )
-    gaus = ROOT.TF1( "gaus", "gaus", hist.GetXaxis().GetBinLowEdge(1), hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX()) )
-    if int(hist.Fit(gaus2,"RQ")) != 0:
-        return False
-    hist.GetListOfFunctions().Add(gaus)
-    f1 = hist.GetFunction("gaus")
-    f1.SetParameters( hist.GetFunction("gaus2").GetParameters() )
-    hist.GetListOfFunctions().Remove( gaus2 )
-
-    f1.SetLineColor(ROOT.kRed)
-    return f1
-
-#---------------------------------------------------------------------------
-
-def GetProfilesFromTH2( hist, doAverage = False ):
-    #get bin edges from x-axis (use same binning as original)
+def GetProfilesFromTH2( hist, doAverage ): 
     binedges = [ hist.GetXaxis().GetBinLowEdge(1) ]
     binedges += [ hist.GetXaxis().GetBinUpEdge(i) for i in range( 1, hist.GetNbinsX()+1 ) ]
-    #remove last bin (200-1000) if nothing there
-    if hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX()) == 1000 and hist.GetBinContent(hist.GetNbinsX()) < 3:
+    if hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX()) == 1000 and hist.GetBinContent(hist.GetNbinsX()) < 3:    #remove last bin (200-1000) if nothing there
         binedges = binedges[:-1]
     nBins = len(binedges) - 1
 
     prof_ave = ROOT.TH1D( 'ave', 'ave', nBins, array( 'f', binedges ) )
     prof_std = ROOT.TH1D( 'std', 'std', nBins, array( 'f', binedges ) )
-
     binnedRes = {}
     for i in range( 1, nBins + 1 ):
         h = hist.ProjectionY( hist.GetName()+'_p_y', i, i )
         n = h.GetEntries()
-        fit = AddGaussian( h )
-        if fit:
-            prof_ave.SetBinContent( i, fit.GetParameter(1) )
-            prof_std.SetBinContent( i, fit.GetParameter(2) )
-            prof_ave.SetBinError( i, prof_ave.GetBinContent(i)/sqrt(n) )
-            if n > 10:
-                prof_std.SetBinError( i, prof_std.GetBinContent(i)/sqrt(2*(n-1)) )
-            else:
-                prof_std.SetBinError( i, h.GetRMSError() )
-
+        if n<20:
+            continue
+        ## fit range
+        xmin = h.GetMean()-3*h.GetRMS()
+        xmax = h.GetMean()+3*h.GetRMS()
+        h.GetXaxis().SetRangeUser(xmin,xmax)
+        print '>>> ' , h.GetName()
+        mean, meanErr, sigma, sigmaErr, frame = fit(h, -0.5, 0.5) ## call the fit method
+        prof_ave.SetBinContent( i, mean )
+        prof_ave.SetBinError( i, meanErr )
+        prof_std.SetBinContent( i, sigma )
+        prof_std.SetBinError( i, sigmaErr )
         name = '{0}_{1}'.format( binedges[i-1], binedges[i] )
-        binnedRes[name] = h.Clone(name)
-        del h, fit
-
+        binnedRes[name] = frame.Clone(name)
+        #del h, fit
     SetYrange( prof_ave )
     SetYrange( prof_std )
+    return prof_ave,prof_std,binnedRes
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
-    #Get overall ave and stdev and plot line on each profile
-    if doAverage:
-        h = hist.ProjectionY( hist.GetName()+'_p_y', 1, nBins )
-        fit = AddGaussian( h )
-        if fit:
-            ave = fit.GetParameter(1)
-            sig = fit.GetParameter(2)
-            h.Delete()
+# Simple fit method ................................................
+#  F = f1 * Gauss(mean,sigma) + (1-f1) Gauss(mean,sigma) x Exp(tau)
+# ..................................................................
 
-            tot_ave = ROOT.TF1( 'aveline', "[0]", binedges[0], binedges[-1] )
-            prof_ave.GetListOfFunctions().Add( tot_ave )
-            f1 = prof_ave.GetFunction( 'aveline' )
-            f1.SetParameter( 0, ave )
-            f1.SetLineColor( ROOT.kRed )
+def fit(h, emin,emax):
+    x = RooRealVar('x','x',emin,emax);
+    if (h.GetEntries()<20):
+        return 0,0,0,0,x.frame()
+    mean = RooRealVar('mean','mean',-0.001,-0.01,0.01);
+    sigma = RooRealVar('sigma','#sigma',0.02, 0.01, 0.3);
+    Gauss = RooGaussian('Gauss','Gauss',x,mean,sigma);
+    f1 = RooRealVar('f1','f1',0.8,0.,1.);
+    
+    GaussModel = RooGaussModel('GaussModel','Gauss',x,mean,sigma)
+    tau = RooRealVar('tau','tau',0.02,0.,1.)
+    tailmodel = RooDecay('tailmodel','ExpxGaus',x,tau,GaussModel,RooDecay.DoubleSided);
+    model = RooAddPdf('model','G1+E2',Gauss,tailmodel,f1)
+    
+    hdata = RooDataHist('hdata','hist', RooArgList(x), h);
+    model.fitTo(hdata,RooFit.PrintLevel(-1),RooFit.Verbose(kFALSE));
+    frame = x.frame();
 
-            tot_sig = ROOT.TF1( 'sigline', "[0]", binedges[0], binedges[-1] )
-            prof_std.GetListOfFunctions().Add( tot_sig )
-            f2 = prof_std.GetFunction( 'sigline' )
-            f2.SetParameter( 0, sig )
-            f2.SetLineColor( ROOT.kRed )
-        del h,fit
-
-    return prof_ave, prof_std, binnedRes
-
+    hdata.plotOn(frame)
+    model.plotOn(frame,RooFit.LineColor(ROOT.kRed))
+    model.plotOn(frame,RooFit.Components('tailmodel'),RooFit.DrawOption('F'),RooFit.FillColor(ROOT.kOrange),RooFit.MoveToBack())
+    return mean.getVal(), mean.getError(), sigma.getVal(), sigma.getError(), frame
+#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 #create pt res and scale profiles vs pt, eta, phi from 2D histograms
 def CreateProfile( infile, HistDir, HistName, Var, MuonType, doAverage = False, doBinned = False ):
     hist = infile.Get(HistDir).Get(HistName)
+    if hist.IsA().InheritsFrom(ROOT.TProfile.Class()):
+        return
     xtitle = MuonType + ' Muon '
-    if Var == 'pT':
-         xtitle += 'Transverse Momentum [GeV]'
+    if 'pT' in Var:
+         xtitle += 'pT [GeV]'
     else:
         xtitle += Var
+
     prof_ave, prof_std, binnedRes = GetProfilesFromTH2( hist, doAverage = doAverage )
 
     prof_ave.SetName( HistName.replace( 'pT_vs', 'PtScale_vs' ) )
@@ -137,14 +129,45 @@ def CreateProfile( infile, HistDir, HistName, Var, MuonType, doAverage = False, 
         bindir = infile.GetDirectory( HistDir ).mkdir( bindirname )
 
     if doBinned:
-        for name, plot in binnedRes.iteritems():
-            split = HistName.find('resolution')+10
+        canv = ROOT.TCanvas("canv","",800,800);
+        canv.Divide(3,3)
+        ipad = 0
+        icanv = 0
+        storePlots = 'resPlots/'+os.path.split(infile.GetName())[1].replace('.root','')
+        if not os.path.exists(storePlots):
+            os.makedirs(storePlots)
+            print('Creating directory: '+storePlots)
+
+        for x1,name,plot in sorted([ (float(name.split('_')[0]), name, plot) for name, plot in binnedRes.iteritems() ]):
             plot.SetName( 'bin_' + name.replace('-','m') )
             plot.SetTitle( 'pT Resolution {0} < {1} < {2}'.format( name.split('_')[0], Var, name.split('_')[1] ) )
             plot.SetYTitle( 'Entries' )
-            if not bindir.WriteTObject( plot, plot.GetName(), "Overwrite" ):
-                print('WARNING failed to write histogram to file: ' + bindirpath + '/' + plot.GetName() )
-                # print( 'INFO Writing histogram to file: ' + HistDir + '/' + prof_std.GetName() )
+            t=ROOT.TCanvas()
+#            if not bindir.WriteTObject( plot, plot.GetName(), "Overwrite" ):
+#                print('WARNING failed to write histogram to file: ' + bindirpath + '/' + plot.GetName() )
+            ipad+=1
+            if ipad>9:
+                canv.cd()
+                canv.SaveAs(storePlots+'/'+HistDir.replace('/','_')+'_PtResFits_{0}_bins_{1}.pdf'.format(Var,icanv))
+                canv.Clear()
+                canv.Divide(3,3)
+                icanv+=1
+                ipad=1
+            canv.cd(ipad)
+            t = ROOT.TLatex()
+            t.SetNDC(); t.SetTextColor(1);
+            tit = name.replace('m','-').replace('_','<'+Var+'<')
+            mu = mu_err = sigma = sigma_err = 0
+            canv.cd(ipad)
+            plot.Draw()
+            t.DrawLatex(0.2,0.96,plot.GetTitle())
+            resultMeanLab ='#mu = {0:0.2g} #pm {1:0.2g}'.format( mu, mu_err )
+            resultSigmaLab ='#sigma = {0:0.2g} #pm {1:0.2g}'.format( sigma, sigma_err )
+            t.DrawLatex(0.2,0.85,'#splitline{'+resultMeanLab+'}{'+resultSigmaLab+'}')
+
+        canv.cd()
+        canv.SaveAs(storePlots+'/'+HistDir.replace('/','_')+'_PtResFits_{0}_bins_{1}.pdf'.format(Var,icanv))
+        canv.Close()
 
     del prof_ave, prof_std, binnedRes
 #---------------------------------------------------------------------------
@@ -161,17 +184,16 @@ def main( args ):
         return
 
     doAverage = False
-    doBinned = False
+    doBinned = True
     if len(args) > 2:
         doAverage = bool( 'doAverage' in args[2:] )
-        doBinned = bool( 'doBinned' in args[2:] )
+        doBinned  = bool( 'doBinned'  in args[2:] )
 
     print( 'Opening file: ' + filename )
     infile = ROOT.TFile.Open( filename, 'update' )
 
     MuonTypes = [ 'Prompt' ]
-    ResTypes = [ '', 'ID', 'MS' ]
-    BinVars = [ 'pT', 'eta', 'phi' ]
+    BinVars = [ 'pT','lowpT','highpT','eta', 'phi' ]
 
     for MuonType in MuonTypes:
         if not infile.Get( 'Muons/' + MuonType ):
@@ -180,19 +202,22 @@ def main( args ):
         AuthDir = infile.Get( 'Muons/{0}/matched'.format( MuonType ) )
         Authors = [ i.GetName() for i in AuthDir.GetListOfKeys() if AuthDir.Get( i.GetName() ).InheritsFrom( 'TDirectory' ) ]
         for Author in Authors:
+            if Author=='MSTrackParticles' or Author=='CaloTag' or Author=='AllMuons' or Author=='Tight' or Author=='Loose' or Author=='VeryLoose':
+                continue
             HistDir = 'Muons/{0}/matched/{1}/resolution'.format( MuonType, Author )
             FileDir = infile.Get( HistDir )
             if not FileDir:
                 print( 'INFO TDirectory not found: ' + HistDir )
                 continue
-            for ResType, Var in itertools.product( ResTypes, BinVars ):
-                HistName = '_'.join( HistDir.split('/') ) + '_Res{0}_pT_vs_{1}'.format( ResType, Var )
-                if not FileDir.Get( HistName ):
-                    print( 'INFO Histogram not found: ' + HistName )
-                    continue
-
-                CreateProfile( infile, HistDir, HistName, Var, MuonType, doAverage = doAverage, doBinned = doBinned )
-
+            for Var in BinVars:
+                resTypes= [ '','ID','MS' ]
+                for resType in resTypes:
+                    HistName = '_'.join( HistDir.split('/') ) + '_Res{0}_pT_vs_{1}'.format( resType, Var )
+                    if not FileDir.Get( HistName ):
+                        #print( 'INFO Histogram not found: ' + HistName )
+                        continue
+                    CreateProfile( infile, HistDir, HistName, Var, MuonType, doAverage = doAverage, doBinned = doBinned )
+                
     infile.Close()
 
 #---------------------------------------------------------------------------

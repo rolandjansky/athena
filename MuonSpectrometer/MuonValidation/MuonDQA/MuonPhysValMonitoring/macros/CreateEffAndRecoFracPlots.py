@@ -20,19 +20,21 @@ def SetBinomialError( ratio, den ):
         for j in range(1,ratio.GetNbinsY()+1):
             for i in range(1,ratio.GetNbinsX()+1):
                 n = den.Integral(i,i,j,j)
-                if n <= 0:
+                p = ratio.GetBinContent(i,j)
+                if n <= 0 or p>=1:
                     ratio.SetBinError( i, j, 0 )
                     continue
-                p = ratio.GetBinContent(i,j)
-                ratio.SetBinError( i, j, (p*(1-p)/n)**0.5 )
+                else:
+                    ratio.SetBinError( i, j, (p*(1-p)/n)**0.5 )
     elif 'TH1' in ratio.IsA().GetName():
         for i in range(1,ratio.GetNbinsX()+1):
             n = den.Integral(i,i)
-            if n <= 0:
+            p = ratio.GetBinContent(i)
+            if n <= 0 or p>=1:
                 ratio.SetBinError( i, 0 )
                 continue
-            p = ratio.GetBinContent(i)
-            ratio.SetBinError( i, (p*(1-p)/n)**0.5 )
+            else:
+                ratio.SetBinError( i, (p*(1.-p)/n)**0.5 )
     else:
         print( 'WARNING ' + ratio.GetName() + 'is not a TH1 or TH2' )
 
@@ -42,17 +44,20 @@ def SetBinomialError( ratio, den ):
 
 def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle = '', plottype = '', doAverage = False ):
     #require plottype variable for setting plot title, etc
-    #plottype = 'Eff' or 'RecoFrac' to create efficiency or reco fraction histogram
-    if plottype == 'Eff':
-        typeName = 'Efficiency'
+    #plottype = 'eff' or 'RecoFrac' to create efficiency or reco fraction histogram
+    if plottype == 'eff':
+        typeName = 'efficiency'
     elif plottype == 'RecoFrac':
         typeName = 'Reco Fraction'
+    elif plottype == 'purity':
+        typeName = 'purity'
     else:
-        print('plottype must be one of the following: \'Eff\', \'RecoFrac\'' )
+        print('plottype must be one of the following: \'eff\', \'RecoFrac\', \'purity\'' )
         return
 
     PlotNamePrefix = numHist.GetName()[:numHist.GetName().find('_kinematics')] + '_' + typeName.replace(' ','')
 
+    #create ratio hist for given eta range
     if (eta1 != None and eta2 != None):
         PlotName = PlotNamePrefix + '_' + var.split('_')[1] + '_etaRange_{0}_{1}'.format(eta1,eta2).replace('-','m').replace('.','p')
         PlotTitle = var.split('_',1)[1].capitalize() + ' ' + typeName
@@ -80,30 +85,41 @@ def CreateRatioPlot( infile, numHist, denHist, var, eta1=None, eta2=None, xtitle
     else:
         PlotTitle = var.capitalize() +  ' ' + typeName
         PlotName = PlotNamePrefix + '_' + var
+        #create variable bin histogram for pt to group high bins together
         if var == 'pt':
             #initial pt hist is in bins of 1 GeV
-            ptBins = [ 5, 10, 20, 30, 40, 50, 65, 80, 100, 200, 1000 ]
-            if numHist.GetNbinsX() == 200 or ( numHist.GetNbinsX() == 1000 and ( numHist.Integral(200,1000) == 0 or denHist.Integral(200,1000) == 0 ) ):
-                ptBins.remove(1000)
-            num = ROOT.TH1F( 'num_'+var, '', len(ptBins)-1, array( 'f', ptBins ) )
-            den = ROOT.TH1F( 'den_'+var, '', len(ptBins)-1, array( 'f', ptBins ) )
+
+            #@@@
+            ptBins = [ 0, 5, 10, 20, 30, 40, 50, 65, 80, 100, 200 ]
+            # if numHist.GetNbinsX() == 200 or ( numHist.GetNbinsX() == 1000 and ( numHist.Integral(200,1000) == 0 or denHist.Integral(200,1000) == 0 ) ):
+            #     ptBins.remove(1000)
+            num = ROOT.TH1D( 'num_'+var, '', len(ptBins)-1, array( 'f', ptBins ) )
+            den = ROOT.TH1D( 'den_'+var, '', len(ptBins)-1, array( 'f', ptBins ) )
             for i in range( 1, numHist.GetNbinsX() + 1 ):
                 num.Fill( numHist.GetXaxis().GetBinCenter(i), numHist.GetBinContent(i) )
                 den.Fill( denHist.GetXaxis().GetBinCenter(i), denHist.GetBinContent(i) )
+            #@@@
+            # num = numHist.Clone()
+            # den = denHist.Clone()
+        #rebin eta and phi
         else:
             num = numHist.Clone()
             den = denHist.Clone()
             if 'TH1' in numHist.IsA().GetName():
-                num.Rebin(4)
-                den.Rebin(4)
+                num.Rebin(2)
+                den.Rebin(2)
             else:
-                num.Rebin2D(4,4)
-                den.Rebin2D(4,4)
+                num.Rebin2D(2,2)
+                den.Rebin2D(2,2)
+
+    ## @@@ for eff turn-on curve:
+    # num.GetXaxis().SetRangeUser(0,15)
+    # den.GetXaxis().SetRangeUser(0,15)
 
     ratio = num.Clone( PlotName )
-    ratio.Divide( num, den, 1, 1, "B" )
+    ratio.Divide( num, den, 1, 1 )
     ratio.SetTitle( PlotTitle )
-    SetBinomialError( ratio, den )
+    SetBinomialError( ratio, den ) #root binomial error is different - custom done
 
     # Define x and y-axis name from histogram name (var)
     if 'TH2' in ratio.IsA().GetName():
@@ -205,12 +221,15 @@ def main( argv ):
                 if not matchHist:
                     print( 'WARNING histogram not found: '+matchHistName )
                     continue
-                CreateRatioPlot( infile, matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
+                CreateRatioPlot( infile, matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
                 if var == 'eta_phi' or var == 'eta_pt':
-                    CreateRatioPlot( infile, matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
-                    CreateRatioPlot( infile, matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
-                    CreateRatioPlot( infile, matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
-                    CreateRatioPlot( infile, matchHist, truthHist, var,  2.0, 2.5, muType+' Muon '+Xtitles[var], plottype = 'Eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var,  0, 2.5, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var,  2.5, 2.7, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
+
+                    CreateRatioPlot( infile, matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
+                    CreateRatioPlot( infile, matchHist, truthHist, var,  2.0, 2.5, muType+' Muon '+Xtitles[var], plottype = 'eff', doAverage = doAverage )
 
     #Reco Fraction plots
     for muType in muonTypesReco:
@@ -244,6 +263,40 @@ def main( argv ):
                     print( 'WARNING plot not found: ' + allplot )
                     continue
                 CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = muType + ' Muon ' + Xtitles[var], plottype = 'RecoFrac', doAverage = doAverage )
+
+    #Purity plots (matched/reco)
+    ### for muType in muonTypesReco:
+    muType = 'All'
+    if not infile.Get( 'Muons/' + muType ):
+        print( 'INFO TDirectory not found: Muons/' + muType )
+    else:
+        #get list of authors from matched dir
+        AuthDir = infile.Get( 'Muons/{0}/matched'.format( muType ) )
+        if Authors == []:
+            Authors = [ i.GetName() for i in AuthDir.GetListOfKeys() if AuthDir.Get( i.GetName() ).InheritsFrom( 'TDirectory' ) ]
+        for author in Authors:
+            typedir = 'Muons/{0}/matched/{1}/kinematicsReco'.format( muType, author )
+            alldir = 'Muons/{0}/reco/{1}/kinematics'.format( muType, author )
+            typeRecoDir = infile.Get( typedir )
+            allRecoDir = infile.Get( alldir )
+            if not typeRecoDir:
+                print( 'INFO TDirectory not found: '+typedir )
+                continue
+            if not allRecoDir:
+                print( 'INFO TDirectory not found: '+alldir )
+                continue
+            for var in Variables:
+                typeplot = typedir.replace('/','_') + '_' + var
+                allplot = alldir.replace('/','_') + '_' + var
+                typeRecoHist = typeRecoDir.Get( typeplot )
+                allRecoHist = allRecoDir.Get( allplot )
+                if not typeRecoHist:
+                    print( 'WARNING plot not found: ' + typeplot )
+                    continue
+                if not allRecoHist:
+                    print( 'WARNING plot not found: ' + allplot )
+                    continue
+                CreateRatioPlot( infile, typeRecoHist, allRecoHist, var, xtitle = muType + ' Muon ' + Xtitles[var], plottype = 'purity', doAverage = doAverage )
 
     #unmatched muon reco fraction
     muType = 'UnmatchedRecoMuons'

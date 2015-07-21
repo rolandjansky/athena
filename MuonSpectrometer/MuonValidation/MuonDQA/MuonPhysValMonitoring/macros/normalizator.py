@@ -22,7 +22,7 @@ def browseDir( dir ):
         obj = key.ReadObj()
 
         #2D histograms cannot be compared, tprofiles and efficiencies should not be normalized; skip
-        if obj.IsA().InheritsFrom(ROOT.TH2.Class()) or obj.IsA().InheritsFrom(ROOT.TProfile.Class()) or "Efficiency" in obj.GetName() or 'RecoFraction' in obj.GetName() or "PtResol" in obj.GetName() or "PtScale" in obj.GetName() or "Prof" in obj.GetName():
+        if obj.IsA().InheritsFrom(ROOT.TH2.Class()) or obj.IsA().InheritsFrom(ROOT.TProfile.Class()) or "Eff" in obj.GetName() or 'RecoFraction' in obj.GetName() or 'Purity' in obj.GetName() or "PtResol" in obj.GetName() or "PtScale" in obj.GetName() or "Prof" in obj.GetName() or "Fit" in obj.GetName():
             continue
 
         if obj.IsA().InheritsFrom(ROOT.TH1.Class()) :

@@ -5,25 +5,34 @@
 #ifndef MUONPHYSVALMONITORING_MUONTRACKVALIDATIONPLOTS_H
 #define MUONPHYSVALMONITORING_MUONTRACKVALIDATIONPLOTS_H
 
-#include "RecoMuonTrackPlots.h"
-#include "TruthRelatedMuonTrackPlots.h"
+#include "TrkValHistUtils/PlotBase.h"
+#include "MuonHistUtils/RecoMuonTrackPlotOrganizer.h"
+#include "MuonHistUtils/TruthRelatedMuonPlotOrganizer.h"
+
+#include "TrkValHistUtils/MSHitPlots.h"
+#include "MuonHistUtils/IDHitSummaryPlots.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
 class MuonTrackValidationPlots:public PlotBase {
   public:
-    MuonTrackValidationPlots(PlotBase* pParent, std::string sDir, bool isData=false);
+    MuonTrackValidationPlots(PlotBase* pParent, std::string sDir, std::string sTrackType, bool isData=false);
     ~MuonTrackValidationPlots();
 
     // Reco only information
-    RecoMuonTrackPlots          *m_oRecoMuonTrackPlots;
+    Muon::RecoMuonTrackPlotOrganizer *m_oRecoMuonTrackPlots;
+    Muon::IDHitSummaryPlots     *m_oIDHitPlots;
+    Trk::MSHitPlots             *m_oMSHitPlots;
+    
     // Truth related plots
-    TruthRelatedMuonTrackPlots  *m_oMatchedMuonTrackPlots;
+    Muon::TruthRelatedMuonPlotOrganizer  *m_oMatchedMuonTrackPlots;
 
     void fill(const xAOD::TrackParticle& muTP);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP);
 
+ private:
+    std::string m_sTrackType;
 };
 
 #endif
