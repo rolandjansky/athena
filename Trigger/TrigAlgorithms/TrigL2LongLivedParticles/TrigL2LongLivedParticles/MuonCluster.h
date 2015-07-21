@@ -25,11 +25,8 @@
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigMuonEvent/TrigMuonClusterFeature.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigInDetEvent/TrigInDetTrack.h"
 
 #define kMAX_ROI 20
-
-//class IRegSelSvc;
 
 class MuonCluster : public HLT::AllTEAlgo {
 public:
@@ -98,15 +95,12 @@ protected:
   int mCluNum;
   /** Number of Jet with Log(h/e)<0.5 **/
   int mNumJet;
-  
-  /** Use ID. */
-  BooleanProperty           m_UseID;
-  /** ID Algorthm to use. */
-  StringProperty            m_ID_algo_to_use;
-  /** ID algorithm. */
-  TrigInDetTrack::AlgoId m_algoId;
+
+  /** Minimum Et for jets in calorimeter based isolation. */
+  double m_minJetEt;  
+
   /** Minimum Pt for tracks in ID based isolation. */
-  double     m_PtMinID;
+  double m_PtMinID;
   /** A property which specifies the matching of the track and of the cluster */
   float mDeltaRTrk;
   /** Cut on Tracks */
@@ -116,8 +110,7 @@ protected:
   TrigMuonClusterFeature muonRoiCluster;
 
   /** calculcate the deltaR between two Rois */
-  float DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator,
-	       lvl1_muclu_roi );
+  float DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator, lvl1_muclu_roi );
   float DeltaR(lvl1_muclu_roi , lvl1_muclu_roi );
   std::string m_featureLabel; //!< label for the mucluster  feature in the HLT Navigation
   bool m_useCachedResult;          //!< internal caching: true when the hltExecute will run in cached mode

@@ -26,10 +26,8 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
 //ID TRACKING
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackHelper.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "CxxUtils/fpcompare.h"
 
 using namespace std;
 
@@ -43,13 +41,13 @@ MuonCluster::MuonCluster(const std::string& name, ISvcLocator* svc)
   mNumJet = -1;
   mNumTrk = -1;
 
-  declareProperty("DeltaR",              mDeltaR=0.4,                     "radius of the muon cluster");
-  declareProperty("DeltaRJet",           mDeltaRJet=0.7,                  "distance between jet and muon cluster");
-  declareProperty("DeltaRTrk",           mDeltaRTrk=0.4,                  "distance between track and muon cluster");
-  declareProperty("MuonCluLabel",        m_featureLabel = "MuonCluster",  "label for the MuonCluster feature in the HLT Navigation");
-  declareProperty("UseID",               m_UseID = true,                  "to use or not the ID informations");
-  declareProperty("IDalgo",              m_ID_algo_to_use = "STRATEGY_B", "ID tracking algorithm");
-  declareProperty("PtMinID",             m_PtMinID = 5000.0,              "minimum Pt (MeV) for ID track");
+  declareProperty("DeltaR",       mDeltaR=0.4,                    "radius of the muon cluster");
+  declareProperty("DeltaRJet",    mDeltaRJet=0.7,                 "distance between jet and muon cluster");
+  declareProperty("DeltaRTrk",    mDeltaRTrk=0.4,                 "distance between track and muon cluster");
+  declareProperty("MuonCluLabel", m_featureLabel = "MuonCluster", "label for the MuonCluster feature in the HLT Navigation");
+  declareProperty("MinJetEt",     m_minJetEt = 30000.0,             "minimum Et (MeV) to consider a jet for isolation");
+  declareProperty("PtMinID",      m_PtMinID = 5000.0,             "minimum Pt (MeV) for ID track");
+
   declareMonitoredVariable("RoIEta", mCluEta);
   declareMonitoredVariable("RoIPhi", mCluPhi);
   declareMonitoredVariable("NumClu", mCluNum);
@@ -72,8 +70,6 @@ HLT::ErrorCode MuonCluster::hltInitialize() {
   msg() << MSG::INFO << "DeltaRJet : " << mDeltaRJet << endreq;
   msg() << MSG::INFO << "DeltaRTrk : " << mDeltaRTrk << endreq;
   msg() << MSG::INFO << "MuonCluLabel : " << m_featureLabel << endreq;
-  msg() << MSG::INFO << "UseID : " << m_UseID << endreq;
-  msg() << MSG::INFO << "IDalgo : " << m_ID_algo_to_use << endreq;
 
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Retrieve service StoreGateSvc" << endreq;
@@ -105,18 +101,6 @@ HLT::ErrorCode MuonCluster::hltInitialize() {
 			 &TrigTimer::elapsed);
   declareMonitoredObject("Finalization", *(mTimers[ITIMER_FINAL]), 
 			 &TrigTimer::elapsed);
-  //Set ID Algo to use
-  std::string algoId = m_ID_algo_to_use;
-  if      (algoId=="IDSCAN")     m_algoId = TrigInDetTrack::IDSCANID;
-  else if (algoId=="SITRACK")    m_algoId = TrigInDetTrack::SITRACKID;
-  else if (algoId=="STRATEGY_A") m_algoId = TrigInDetTrack::STRATEGY_A_ID;
-  else if (algoId=="STRATEGY_B") m_algoId = TrigInDetTrack::STRATEGY_B_ID;
-  else if (algoId=="STRATEGY_C") m_algoId = TrigInDetTrack::STRATEGY_C_ID;
-  else if (algoId=="TRTXK")      m_algoId = TrigInDetTrack::TRTXKID;
-  else if (algoId=="TRTSEG")     m_algoId = TrigInDetTrack::TRTLUTID;
-  else                           m_algoId = TrigInDetTrack::IDSCANID;
-	
-
    
   msg() << MSG::INFO << "initialize() success" << endreq;
 
@@ -330,11 +314,9 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   for (xAOD::JetContainer::const_iterator jet = vectorOfJets->begin(); jet != vectorOfJets->end(); jet++) {
     
     double etjet  = (*jet)->p4().Et();
-    // XAOD::JET OBJECT NEEDS TO BE DECORATED WITH EMFRAC BY UPSTREAM ALGORITHM - CAN'T DO ANYTHING AT THIS STAGE
-    double ehjet  = 1;
-    double emjet  = 1;
-    //double ehjet  = (*jet)->getAttribute<float>(xAOD::JetAttribute::EMFrac);
-    //double emjet  = (*jet)->getAttribute<float>(xAOD::JetAttribute::EMFrac);
+    if(etjet <= m_minJetEt) continue;
+
+    double jetEMF = (*jet)->getAttribute<float>("EMFrac");
     double jetEta = (*jet)->eta();
     double jetPhi = (*jet)->phi();
     double erat = -99999999.;
@@ -348,15 +330,22 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       msg() << MSG::DEBUG << "HLT jet /eta=" << jetEta << " /phi= " << jetPhi << "/Et= " << etjet << "/DR= " << dR << endreq;
 
     if (dR<mDeltaRJet) {
-      if (emjet > 0. && ehjet >= 0.) erat = log10(ehjet/emjet);
-      if (emjet <= 0. && ehjet > 0.) erat = 9999999;
-      if (emjet <= 0. && ehjet <= 0.) erat = 9999999;
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet log10 of had / em energy ratio: " << erat << endreq;
+      double zero = 0.;
+      double one = 1.;
+      if (CxxUtils::fpcompare::greater(jetEMF,zero)){
+        if(CxxUtils::fpcompare::greater_equal(jetEMF,one)) erat = -999.;
+        else erat = log10(double(1./jetEMF - 1.));
+      } else {
+        erat = 999; 
+      }   
+      if (msgLvl() <= MSG::DEBUG) 
+	    msg() << MSG::DEBUG << "Jet log10 of had/em energy ratio: " << erat << endreq;
+      
       if (erat<=0.5) {
         njets++;
       }
     }
-  }
+  } 
 
   mNumJet = njets;
 
@@ -371,54 +360,51 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     msg() << MSG::DEBUG << "Accessing the ID track collection" << endreq;
 
   int ntrk = 0;
-  if(m_UseID) {
 
-    for (HLT::TEVec::const_iterator it = tes_in[0].begin();it != tes_in[0].end(); ++it) {
-      std::vector<const TrigInDetTrackCollection*> vectorOfTrackCollections;
-      HLT::ErrorCode ect = getFeatures(*it,vectorOfTrackCollections, "");
+  for (HLT::TEVec::const_iterator it = tes_in[0].begin();it != tes_in[0].end(); ++it) {
 
-      if( ect!=HLT::OK ) {
-        if (msgLvl() <= MSG::DEBUG) { 
-          msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endreq;
-        }
-      }else{
-        if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size()
-                << " InDetTrackCollections " << endreq;
-        }
-        std::vector<const TrigInDetTrackCollection*>::iterator
-        theTrackColl = vectorOfTrackCollections.begin(),
-        endTrackColl = vectorOfTrackCollections.end(); 
+    std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
+    HLT::ErrorCode ect = getFeatures(*it,vectorOfTrackCollections, "InDetTrigTrackingxAODCnv_Muon_IDTrig");
+    
+    if( ect!=HLT::OK ) {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << " Failed to get tracks" << endreq;
+    } else {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size() << " collections of tracks " << endreq;
+
+      std::vector<const xAOD::TrackParticleContainer*>::iterator
+	theTrackColl = vectorOfTrackCollections.begin(),
+	endTrackColl = vectorOfTrackCollections.end(); 
              
-        for( ; theTrackColl != endTrackColl;  theTrackColl++){
+      for( ; theTrackColl != endTrackColl;  theTrackColl++) {
            
-          TrigInDetTrackCollection::const_iterator 
-          track     = (*theTrackColl)->begin(),
-          lasttrack = (*theTrackColl)->end();
+	xAOD::TrackParticleContainer::const_iterator
+	  track     = (*theTrackColl)->begin(),
+	  lasttrack = (*theTrackColl)->end();
        
-          for(; track !=lasttrack; track++ ){
+	for(; track !=lasttrack; track++ ) {
   
-            if( (*track)->algorithmId() != m_algoId ) continue;
-            if (!((*track)->param())) continue;
+	  float theta   = (*track)->theta();
+	  float qOverPt = (*track)->qOverP()/TMath::Sin(theta);
+	  float pT      = (1/qOverPt);
 
-            double pt_idtr = (*track)->param()->pT();
-            if (fabs(pt_idtr) <= m_PtMinID) continue;
+	  if (fabs(pT) <= m_PtMinID) continue;
+	  
+	  double phi  = (*track)->phi0();
+	  double eta  = (*track)->eta();
 
-            double phi_id  = (*track)->param()->phi0();
-            double eta_id  = (*track)->param()->eta();
+	  if(msgLvl() <= MSG::DEBUG)
+	    msg() << MSG::DEBUG << "track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
 
-            if(msgLvl() <= MSG::DEBUG)
-              msg() << MSG::DEBUG << "trying " << m_ID_algo_to_use << " track with " << "pt=" << pt_idtr << ", eta=" << eta_id << ", phi=" << phi_id  << endreq;
+	  double delta_etat = mCluEta - eta;
+	  double delta_phit = HLT::wrapPhi(mCluPhi - phi);
 
-            double delta_etat = mCluEta - eta_id;
-            double delta_phit = HLT::wrapPhi(mCluPhi - phi_id);
-
-            double dRt = sqrt( (delta_etat*delta_etat) + (delta_phit*delta_phit) );
-            if (dRt<mDeltaRTrk) {
-              ntrk++;
-            }
-          }
-        }
+	  double dRt = sqrt( (delta_etat*delta_etat) + (delta_phit*delta_phit) );
+	  if (dRt<mDeltaRTrk) {
+	    ntrk++;
+	  }
+	}
       }
     }
   }
@@ -435,7 +421,6 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
   //WRITE FEATURE 
   m_clu_feature = new TrigMuonClusterFeature(mCluEta,mCluPhi, mCluNum, mNumJet, mNumTrk);
-
     
   // finished now debugging
   if (msgLvl() <= MSG::DEBUG) {  
