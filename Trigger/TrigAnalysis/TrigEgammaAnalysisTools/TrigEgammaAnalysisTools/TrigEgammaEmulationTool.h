@@ -5,7 +5,7 @@
 #ifndef TrigEgammaEmulationTool_H
 #define TrigEgammaEmulationTool_H
 
-#include "TrigEgammaAnalysisTools/TrigEgammaNavZeeTPBaseTool.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 
 class TrigEgammaEmulationTool
 : public TrigEgammaAnalysisBaseTool,
@@ -18,9 +18,11 @@ public:
   ~TrigEgammaEmulationTool() {};
 
   StatusCode childInitialize();
+  StatusCode childBook();
   StatusCode childExecute();
   StatusCode childFinalize();
 protected:
+  StatusCode PrintL1FAILURE(const std::string, bool, bool);
   StatusCode TDCounts();
   bool EmulationEF(const std::string);
   bool EmulationPhotonEF(const std::string);
@@ -32,11 +34,6 @@ protected:
   std::string m_dir;
 
 private:
-  std::map<std::string,int> m_counterBits;
-  std::map<std::string,int> m_counterBitsL1;
-  std::map<std::string,int> m_counterEmulationHLT;
-  std::map<std::string,int> m_counterEmulationL1;
-  int m_eventCounter;
   const xAOD::ElectronContainer *m_offElectrons;
   const xAOD::ElectronContainer *m_onlElectrons;
   const xAOD::PhotonContainer *m_onlPhotons;
@@ -50,6 +47,18 @@ private:
   ToolHandleArray<IAsgElectronIsEMSelector> m_electronCaloIsEMTool;
   ToolHandleArray<IAsgPhotonIsEMSelector> m_photonCaloIsEMTool;
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronCaloLHTool;
+  
+  std::map<std::string,int> m_counterBits;
+  std::map<std::string,int> m_counterBitsL1;
+  std::map<std::string,int> m_counterEmulationHLT;
+  std::map<std::string,int> m_counterEmulationL1;
+  int m_eventCounter;
+  /*! List of triggers from menu */
+  std::vector<std::string> m_trigInputList;
+ /*! List of trigger categories for MaM */
+  std::vector<std::string> m_categories; 
+  /*! List of triggers to study */
+  std::vector<std::string> m_trigList; 
 };
 
 #endif
