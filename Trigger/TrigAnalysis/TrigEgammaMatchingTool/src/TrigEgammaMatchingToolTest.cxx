@@ -51,6 +51,9 @@ StatusCode TrigEgammaMatchingToolTest::finalize() {
   for (auto iter = m_counterBits.begin(); iter != m_counterBits.end(); iter++) {
       ATH_MSG_INFO(iter->first << " == " << iter->second);
   }
+  for (auto iter = m_counterMatch1Bits.begin(); iter != m_counterMatch1Bits.end(); iter++) {
+      ATH_MSG_INFO(iter->first << " " << iter->second << " " << m_counterMatch2Bits[iter->first] << " " <<  m_counterMatch3Bits[iter->first]); 
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -86,10 +89,34 @@ StatusCode TrigEgammaMatchingToolTest::execute() {
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
           for(unsigned int ilist = 0; ilist != m_triggerList.size(); ilist++) {
+              const HLT::TriggerElement *finalFC; 
               std::string trigger = m_triggerList.at(ilist);
-              if(m_matchTool->match(eg,trigger)) ATH_MSG_DEBUG("REGTEST:: Matched Electron with tool for " << trigger);
+              ATH_MSG_DEBUG("Test Matching Method 1");
+              if(m_matchTool->match(eg,trigger)){
+                  ATH_MSG_DEBUG("REGTEST:: Method 1 Matched Electron with tool for " << trigger);
+                  m_counterMatch1Bits[trigger]++;
+              }
+              else ATH_MSG_DEBUG("REGTEST::Fails method 3 " << trigger);
+              ATH_MSG_DEBUG("Test mathcing method 2");
+              if(m_matchTool->match(eg,trigger,finalFC)){
+                  ATH_MSG_DEBUG("REGTEST:: Method 2 Matched Electron with tool for " << trigger);
+                  if ( finalFC != NULL ){ 
+                      if ( (m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC)).te() != NULL ){ 
+                          if( (m_trigdec->ancestor<xAOD::ElectronContainer>(finalFC)).te()->getActiveState()){
+                              ATH_MSG_DEBUG("REGTEST::Passed Matching " << trigger);
+                                m_counterMatch2Bits[trigger]++;
+                          }
+                          else ATH_MSG_DEBUG("REGTEST::Fails method 2");
+                      }
+                  }
+              }
+              ATH_MSG_DEBUG("REGTEST::Test Matching method 3");
+              if(m_matchTool->matchHLT(eg,trigger)){
+                  ATH_MSG_DEBUG("REGTEST:: Method 3 Matched Electron with tool for " << trigger);
+                  m_counterMatch3Bits[trigger]++;
+              }
+              else ATH_MSG_DEBUG("REGTEST::Fails method 3");
           }
-        
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer");
       }

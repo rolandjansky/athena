@@ -41,6 +41,9 @@ namespace Trig{
 
             std::vector<std::string> m_triggerList;
             std::map<std::string,int> m_counterBits;
+            std::map<std::string,int> m_counterMatch1Bits;
+            std::map<std::string,int> m_counterMatch2Bits;
+            std::map<std::string,int> m_counterMatch3Bits;
             StoreGateSvc * m_storeGate;
     }; 
 }

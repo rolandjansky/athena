@@ -51,14 +51,15 @@ namespace Trig {
 
     /*! Calls match with a FeatureContainer for a given triggerfor HLT only 
      * Note does not use DeactiviateTEs
-     * Returns closest EF object to offline object */ 
+     * Returns closest EF object to offline object 
+     * Requires TrigPassBits only works in Athena*/ 
     const xAOD::Egamma* TrigEgammaMatchingTool::closestHLTObject(const xAOD::Egamma *eg,const std::string trigger){
 
         if(eg==NULL) {
             ATH_MSG_DEBUG("NULL Offline object");
             return false;
         }
-        Trig::FeatureContainer fc = m_trigDecTool->features("HLT_"+trigger);
+        Trig::FeatureContainer fc = m_trigDecTool->features(trigger);
         double deltaR=0.;
         double dRMax = 100;
         const xAOD::Electron *elEF = 0;
@@ -70,12 +71,12 @@ namespace Trig {
             for(auto feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
                 if(cont == NULL) {
-                    ATH_MSG_WARNING("Electron container from TE NULL");
+                    ATH_MSG_DEBUG("Electron container from TE NULL");
                     continue;
                 }
                 for(const auto& el : *cont){
                     if(el == NULL) {
-                        ATH_MSG_WARNING("Electron from TE NULL");
+                        ATH_MSG_DEBUG("Electron from TE NULL");
                         continue;
                     }
                     deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi()); 
@@ -93,12 +94,12 @@ namespace Trig {
             for(auto feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
                 if(cont == NULL) {
-                    ATH_MSG_WARNING("Photon Container from TE NULL");
+                    ATH_MSG_DEBUG("Photon Container from TE NULL");
                     continue;
                 }
                 for(const auto& ph : *cont){
                     if(ph == NULL) {
-                        ATH_MSG_WARNING("Photon from TE NULL");
+                        ATH_MSG_DEBUG("Photon from TE NULL");
                         continue;
                     }
                     deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi()); 
@@ -117,7 +118,7 @@ namespace Trig {
      * Note does not use DeactiviateTEs */ 
     bool TrigEgammaMatchingTool::matchHLT(const xAOD::Egamma *eg,const std::string trigger){
 
-        Trig::FeatureContainer fc = m_trigDecTool->features("HLT_"+trigger);
+        Trig::FeatureContainer fc = m_trigDecTool->features(trigger);
         double deltaR=0.; 
         if(eg->type()==xAOD::Type::Electron){
             const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (eg);
@@ -129,7 +130,7 @@ namespace Trig {
             for(auto feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
                 if(cont == NULL) {
-                    ATH_MSG_WARNING("Electron container from TE NULL");
+                    ATH_MSG_DEBUG("Electron container from TE NULL");
                     continue;
                 }
                 for(const auto& el : *cont){
@@ -162,7 +163,7 @@ namespace Trig {
                 }
                 for(const auto& ph : *cont){
                     if(ph == NULL) {
-                        ATH_MSG_WARNING("Photon from TE NULL");
+                        ATH_MSG_DEBUG("Photon from TE NULL");
                         continue;
                     }
                     if(ph->caloCluster() && phOff->caloCluster())
@@ -182,21 +183,25 @@ namespace Trig {
         finalFC=NULL;
         ATH_MSG_DEBUG("Match HLT Photon");
         // Get the container of online electrons associated to passed items
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
 
-        auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+#ifdef XAOD_ANALYSIS
+        const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+#else
+        const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+#endif // XAOD_ANALYSIS
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 
         for(auto feat : vec){
             const xAOD::PhotonContainer *cont = feat.cptr();
             if(cont == NULL) {
-                ATH_MSG_WARNING("Photon Container from TE NULL");
+                ATH_MSG_DEBUG("Photon Container from TE NULL");
                 continue;
             }
             ATH_MSG_DEBUG("EF Size " << cont->size());
             for(const auto& ph : *cont){
                 if(ph == NULL) {
-                    ATH_MSG_WARNING("Photon from TE NULL");
+                    ATH_MSG_DEBUG("Photon from TE NULL");
                     continue;
                 }
                 deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi()); 
@@ -213,9 +218,13 @@ namespace Trig {
         ATH_MSG_DEBUG("Match HLT electron");
         finalFC=NULL;
         // Get the container of online electrons associated to passed items
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
 
-        auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+#ifdef XAOD_ANALYSIS
+            const auto vec = fc.containerFeature<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+#else
+            const auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+#endif // XAOD_ANALYSIS
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 
         for(auto feat : vec){
@@ -227,7 +236,7 @@ namespace Trig {
             ATH_MSG_DEBUG("EF Size " << cont->size());
             for(const auto& el : *cont){
                 if(el == NULL) {
-                    ATH_MSG_WARNING("Electron from TE NULL");
+                    ATH_MSG_DEBUG("Electron from TE NULL");
                     continue;
                 }
                 deltaR = dR(eg->trackParticle()->eta(),eg->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi()); 
@@ -243,20 +252,25 @@ namespace Trig {
     bool TrigEgammaMatchingTool::matchHLTCalo(const xAOD::Egamma *eg,const std::string trigger,const HLT::TriggerElement*& finalFC){
         ATH_MSG_DEBUG("Match HLT CaloCluster");
         finalFC=NULL;
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
-        auto vec = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
+#ifdef XAOD_ANALYSIS
+            const auto vec = fc.containerFeature<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+#else
+             const auto vec = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+#endif // XAOD_ANALYSIS
+        
         ATH_MSG_DEBUG("EFCal  FC Size " << vec.size());
         double deltaR=0.;
         for(auto feat : vec){
             const xAOD::CaloClusterContainer *cont = feat.cptr();
             ATH_MSG_DEBUG("EF Calo Size " << cont->size());
             if(cont == NULL) {
-                ATH_MSG_WARNING("CaloCluster Container from TE NULL");
+                ATH_MSG_DEBUG("CaloCluster Container from TE NULL");
                 continue;
             }
             for(const auto& clus : *cont){
                 if(clus == NULL) {
-                    ATH_MSG_WARNING("CaloCluster from TE NULL");
+                    ATH_MSG_DEBUG("CaloCluster from TE NULL");
                     continue;
                 }
                 if(eg->type()==xAOD::Type::Electron){
@@ -278,8 +292,13 @@ namespace Trig {
     bool TrigEgammaMatchingTool::matchL2Photon(const xAOD::Photon *eg,const std::string trigger,const HLT::TriggerElement*& finalFC){
         finalFC=NULL;
         ATH_MSG_DEBUG("Match L2 Photon");
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
+
+#ifdef XAOD_ANALYSIS
+        auto vec = fc.containerFeature<xAOD::TrigPhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+#else
         auto vec = fc.get<xAOD::TrigPhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+#endif
         ATH_MSG_DEBUG("L2 FC Size " << vec.size());
         double deltaR=0.;
         for(auto feat : vec){
@@ -291,7 +310,7 @@ namespace Trig {
             ATH_MSG_DEBUG("L2 Size " << cont->size());
             for(const auto& l2 : *cont){
                 if(l2 == NULL) {
-                    ATH_MSG_WARNING("TrigElectron from TE NULL");
+                    ATH_MSG_DEBUG("TrigElectron from TE NULL");
                     continue;
                 }
                 deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l2->eta(),l2->phi()); 
@@ -307,20 +326,24 @@ namespace Trig {
     bool TrigEgammaMatchingTool::matchL2Electron(const xAOD::Electron *eg,const std::string trigger,const HLT::TriggerElement*& finalFC){
         finalFC=NULL;
         ATH_MSG_DEBUG("Match L2 Electron");
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
+#ifdef XAOD_ANALYSIS
+        auto vec = fc.containerFeature<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+#else
         auto vec = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
+#endif
         ATH_MSG_DEBUG("L2 FC Size " << vec.size());
         double deltaR=0.;
         for(auto feat : vec){
             const xAOD::TrigElectronContainer *cont = feat.cptr();
             if(cont == NULL) {
-                ATH_MSG_WARNING("TrigElectron Container from TE NULL");
+                ATH_MSG_DEBUG("TrigElectron Container from TE NULL");
                 continue;
             }
             ATH_MSG_DEBUG("L2 Size " << cont->size());
             for(const auto& l2 : *cont){
                 if(l2 == NULL) {
-                    ATH_MSG_WARNING("TrigElectron from TE NULL");
+                    ATH_MSG_DEBUG("TrigElectron from TE NULL");
                     continue;
                 }
                 deltaR = dR(eg->trackParticle()->eta(),eg->trackParticle()->phi(), l2->eta(),l2->phi()); 
@@ -336,13 +359,18 @@ namespace Trig {
 
     bool TrigEgammaMatchingTool::matchL2Calo(const xAOD::Egamma *eg,const std::string trigger,const HLT::TriggerElement*& finalFC){
         finalFC=NULL;
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
+#ifdef XAOD_ANALYSIS   
+        ATH_MSG_DEBUG("No matching for TrigEMCluster in AnalysisBase");
+        return false;
+#else
         auto vec = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
+
         ATH_MSG_DEBUG("L2 FC Size " << vec.size());
         for(auto feat : vec){
             const xAOD::TrigEMCluster *em = feat.cptr();
             if(em == NULL) {
-                ATH_MSG_WARNING("TrigEMCluster from TE NULL");
+                ATH_MSG_DEBUG("TrigEMCluster from TE NULL");
                 continue;
             }
             ATH_MSG_DEBUG("TrigEMCluster << " << em->et() );
@@ -358,47 +386,19 @@ namespace Trig {
                 return true;
             }
         }
-
+#endif
         return false;
 
     }
 
-    bool TrigEgammaMatchingTool::matchL1( const xAOD::Egamma*
-#ifndef XAOD_ANALYSIS
-                                          eg
-#endif // XAOD_ANALYSIS
-                                          , const std::string
-#ifndef XAOD_ANALYSIS
-                                          trigger
-#endif // XAOD_ANALYSIS
-                                          , const HLT::TriggerElement*& finalFC ){
-
+    bool TrigEgammaMatchingTool::matchL1( const xAOD::Egamma* eg, const std::string trigger,const HLT::TriggerElement*& finalFC ){
        finalFC=NULL;
 
-#if defined(ASGTOOL_STANDALONE) || defined(XAOD_ANALYSIS)
-        if(m_trigDecTool->isPassed("L1_EM.*")) return false;
-        /*const xAOD::EMTauRoIContainer *emTauRoIs=0;
-        StatusCode sc = evtStore()->retrieve(emTauRoIs,"LVL1EmTauRoIs");
-        if(!sc) { 
-            ATH_MSG_ERROR("No L1 EM Objects retrieved");
-            return false;
-        }
-        for(const auto &l1 : emTauRoIs){
-            if(eg->type()==xAOD::Type::Electron){
-                const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-                deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), l1->eta(),l1->phi());
-            }
-            else if (eg->type()==xAOD::Type::Photon)
-                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l1->eta(),l1->phi());
-            if(deltaR < m_dRL1){
-                finalFC = (itEmTau.te());
-                return true;
-            }
-        }*/
-
+#ifdef XAOD_ANALYSIS   
+       if(m_trigDecTool->isPassed("L1_EM.*")) return true;
 #else
         double deltaR=0.;
-        auto fc = (m_trigDecTool->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
         auto initRois = fc.get<TrigRoiDescriptor>();
         if ( initRois.size() < 1 ) return false;
         auto itEmTau = m_trigDecTool->ancestor<xAOD::EmTauRoI>(initRois[0]);
@@ -424,6 +424,40 @@ namespace Trig {
 
     }
 
+    /*bool TrigEgammaMatchingTool::matchL1( const xAOD::Egamma* eg, const std::string trigger){
+       finalFC=NULL;
+
+#ifdef XAOD_ANALYSIS   
+       if(m_trigDecTool->isPassed("L1_EM.*")) return true;
+#else
+        double deltaR=0.;
+        auto fc = (m_trigDecTool->features(trigger));
+        auto initRois = fc.get<TrigRoiDescriptor>();
+        if ( initRois.size() < 1 ) return false;
+        auto cont = m_trigDecTool->ancestor<xAOD::EmTauRoIContainer>(initRois);
+        for(const auto &l1 : cont){
+            //const xAOD::EmTauRoI *l1 = feat.cptr();
+            if(l1 == NULL) {
+                ATH_MSG_DEBUG("EMTauRoI from TE NULL");
+                return false;
+            }
+
+            if(eg->type()==xAOD::Type::Electron){
+                const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+                deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), l1->eta(),l1->phi());
+            }
+            else if (eg->type()==xAOD::Type::Photon)
+                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l1->eta(),l1->phi());
+
+            if(deltaR < m_dRL1){
+                finalFC = (itEmTau.te());
+                return true;
+            }
+        }
+#endif
+        return false; // otherwise, someone matched!
+
+    }*/
     bool TrigEgammaMatchingTool::match(const xAOD::Egamma *eg,const std::string trigger,const HLT::TriggerElement*& finalFC){
         // Set TE to NULL
         // If no match easy check
@@ -459,16 +493,20 @@ namespace Trig {
         const HLT::TriggerElement* finalFC;
         bool passed = false;
         if( match(eg,trigger,finalFC) ){
+            if( finalFC == NULL) return false;
             if(eg->type()==xAOD::Type::Electron){
-                if ( (m_trigDecTool->ancestor<xAOD::ElectronContainer>(finalFC)).te() != NULL)
-                    passed = true;
+                if ( (m_trigDecTool->ancestor<xAOD::ElectronContainer>(finalFC)).te() != NULL){
+                    if( (m_trigDecTool->ancestor<xAOD::ElectronContainer>(finalFC)).te()->getActiveState())
+                        passed = true;
+                }
             }
             else if(eg->type()==xAOD::Type::Photon){
-                if ( (m_trigDecTool->ancestor<xAOD::PhotonContainer>(finalFC)).te() != NULL)
-                    passed = true;
+                if ( (m_trigDecTool->ancestor<xAOD::PhotonContainer>(finalFC)).te() != NULL){
+                    if( (m_trigDecTool->ancestor<xAOD::PhotonContainer>(finalFC)).te()->getActiveState())
+                        passed = true;
+                }
             }
         }
-        if( finalFC == NULL) return false;
         return passed;
     }
 
