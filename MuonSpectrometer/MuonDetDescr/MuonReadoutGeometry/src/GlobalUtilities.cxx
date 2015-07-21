@@ -45,9 +45,8 @@ std::string buildString(int i, int ncha)
 int strtoint(std::string str, unsigned int istart, unsigned int length)
 {
   //std::cout<<"using substring<"<<str.substr(istart,length)<<">"<<std::endl;
-  std::istringstream s(str.substr(istart,length));
-  int result;
-  s >> result;
+  std::string s(str.substr(istart,length));
+  int result = std::stoi(s);
   return result;
 }
 

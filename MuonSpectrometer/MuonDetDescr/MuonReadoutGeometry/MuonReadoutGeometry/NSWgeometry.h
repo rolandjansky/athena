@@ -945,10 +945,10 @@ static const float MDT_HALF_OPENING[SECTORS_IN_OCTANT] ={ 8.5, 14.0};
 //static const float MM_STEREO_ANGLE[4] = {0.,0.,0.02618, -0.02618};
 static const float MM_STEREO_ANGLE[4] = {0.,0.,0., 0.};
 
-//static const float MM_STEREO_ANGLE_ML1[4] = {0.,0.,0.02618, -0.02618};
-//static const float MM_STEREO_ANGLE_ML2[4] = {0.02618,-0.02618,0.,0.};
-static const float MM_STEREO_ANGLE_ML1[4] = {0.,0.,0.,0.};
-static const float MM_STEREO_ANGLE_ML2[4] = {0.,0.,0.,0.};
+static const float MM_STEREO_ANGLE_ML1[4] = {0.,0.,0.02618, -0.02618};
+static const float MM_STEREO_ANGLE_ML2[4] = {0.02618,-0.02618,0.,0.};
+//static const float MM_STEREO_ANGLE_ML1[4] = {0.,0.,0.,0.};
+//static const float MM_STEREO_ANGLE_ML2[4] = {0.,0.,0.,0.};
 
 // readout at entry (1) or exit(-1) from sensitive volume ( for particle coming from IP )
 static const int MM_READOUT[4] = {-1, 1,-1, 1};  
