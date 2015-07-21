@@ -8,61 +8,56 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doMuonTree):
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool /*doMuonTree*/):
   PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData)
 
 {
   if (!m_isData) {
     m_truthSelections[0] = "all"; //no selection on truth muons (minimum selection is |eta|<2.5, pt>5 GeV, defined in MuonPhysValMonitoringTool::handleTruthMuon() 
     m_truthSelections[1] = "MSAcceptance"; //truth muons in MS acceptance (at least 4 associated hits in the MS)
-
+    
     //histogram classes for all muons
     for(const auto truthSelection : m_truthSelections) {
-      m_oTruthMuonPlots.push_back(new TruthMuonPlots(this,"truth/"+truthSelection));
+      m_oTruthMuonPlots.push_back(new Muon::TruthMuonPlotOrganizer(this,"truth/"+truthSelection));
     }
-    m_oTruthRelatedMuonPlots = new TruthRelatedMuonPlots(this, "matched/AllMuons", doBinnedResolutionPlots, doMuonTree);
+    m_oTruthRelatedMuonPlots = new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/AllMuons", doBinnedResolutionPlots);//, doMuonTree);
   }
   //histogram classes for all muons
-  m_oRecoMuonPlots = new RecoMuonPlots(this, "reco/AllMuons");
-  
+  m_oRecoMuonPlots = new Muon::RecoMuonPlotOrganizer(this, "reco/AllMuons");
+
+
   //define a histogram class for each of the selected muon qualities
   for(unsigned int i=0; i<Muon::EnumDefs::nMuonQualities(); i++) {
     std::string sQuality = Muon::EnumDefs::toString( (xAOD::Muon::Quality) i);
-    m_oRecoMuonPlots_perQuality.push_back(new RecoMuonPlots(this, "reco/"+sQuality));
-    if (!m_isData) m_oTruthRelatedMuonPlots_perQuality.push_back(new TruthRelatedMuonPlots(this, "matched/"+sQuality, false)); //disable binned resolution plots for qualities 
-    //m_oTruthRelatedMuonPlots_perQuality.push_back(new TruthRelatedMuonPlots(this, "matched/"+sQuality, doBinnedResolutionPlots));    
+    m_oRecoMuonPlots_perQuality.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/"+sQuality));
+    if (!m_isData) {
+      bool doBinnedPlots = false;
+      if (sQuality=="Medium") doBinnedPlots=true;
+      m_oTruthRelatedMuonPlots_perQuality.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/"+sQuality, doBinnedPlots));
+    }
   }
 
-  //define a histogram class for each of the selected muon authors (+one inclusive for all authors
+  //define a histogram class for each of the selected muon authors (+one inclusive for all authors)
   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
     std::string sAuthor = Muon::EnumDefs::toString( (xAOD::Muon::Author) m_selectedAuthors[i] );
-    m_oRecoMuonPlots_perAuthor.push_back(new RecoMuonPlots(this, "reco/"+sAuthor));
-    if (!m_isData) m_oTruthRelatedMuonPlots_perAuthor.push_back(new TruthRelatedMuonPlots(this, "matched/"+sAuthor, doBinnedResolutionPlots));
-
+    m_oRecoMuonPlots_perAuthor.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/"+sAuthor));
+    if (!m_isData) m_oTruthRelatedMuonPlots_perAuthor.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/"+sAuthor, doBinnedResolutionPlots));
   }
 }
 
 MuonValidationPlots::~MuonValidationPlots()
 {
-  delete m_oRecoMuonPlots;
-  m_oRecoMuonPlots=0;
-
   if (!m_isData) {
     delete m_oTruthRelatedMuonPlots;
     m_oTruthRelatedMuonPlots=0;    
 
-    for (unsigned int i=0; i<m_oTruthMuonPlots.size(); i++) {    
-      TruthMuonPlots *truthMuonPlots = m_oTruthMuonPlots[i];
-      delete truthMuonPlots;
-      truthMuonPlots = 0;
-    }
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_perQuality.size(); i++) {    
-      TruthRelatedMuonPlots *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perQuality[i];
+      Muon::TruthRelatedMuonPlotOrganizer *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perQuality[i];
       delete truthRelatedMuonPlots;
       truthRelatedMuonPlots = 0;
     }
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_perAuthor.size(); i++) {    
-      TruthRelatedMuonPlots *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perAuthor[i];
+      Muon::TruthRelatedMuonPlotOrganizer *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perAuthor[i];
       delete truthRelatedMuonPlots;
       truthRelatedMuonPlots = 0;
     }
@@ -71,12 +66,12 @@ MuonValidationPlots::~MuonValidationPlots()
 
 
   for (unsigned int i=0; i<m_oRecoMuonPlots_perQuality.size(); i++) {    
-    RecoMuonPlots *recoMuonPlots = m_oRecoMuonPlots_perQuality[i];    
+    Muon::RecoMuonPlotOrganizer *recoMuonPlots = m_oRecoMuonPlots_perQuality[i];    
     delete recoMuonPlots;
     recoMuonPlots = 0;
   }
   for (unsigned int i=0; i<m_oRecoMuonPlots_perAuthor.size(); i++) {    
-    RecoMuonPlots *recoMuonPlots = m_oRecoMuonPlots_perAuthor[i];
+    Muon::RecoMuonPlotOrganizer *recoMuonPlots = m_oRecoMuonPlots_perAuthor[i];
     delete recoMuonPlots;
     recoMuonPlots = 0;
   }        

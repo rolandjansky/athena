@@ -129,7 +129,8 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
         ratioHist = testHist.Clone()
         ratioHist.Divide( refHist )
         ratioHist.SetMarkerColor( ROOT.kBlack )
-        ratioHist = SetBounds( ratioHist, ratioHist )
+        ratioHist.SetMaximum(1.2)
+        ratioHist.SetMinimum(0.8)
         ratioHist.SetLineColor( ROOT.kBlack )
         ratioHist.GetYaxis().SetTitle( "test / ref" )
         xtitle = ratioHist.GetXaxis().GetTitle()
@@ -292,7 +293,7 @@ def main():
     for i in badEnvVars:
        os.unsetenv(i)
     if args.compile:
-        stat, out = getstatusoutput( 'cd %s; pdflatex -halt-on-error %s; pdflatex -halt-on-error %s; cd %s'%( args.directory, texfile, texfile, os.environ['OLDPWD'] ) )
+        stat, out = getstatusoutput( 'cd %s; pdflatex -halt-on-error %s; pdflatex -halt-on-error %s'%( args.directory, texfile, texfile ) )
         if stat != 0:
             print out
 
