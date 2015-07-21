@@ -12,16 +12,15 @@
 //
 //************************************************************
 
-#include "MinBiasScintillator/MinBiasScintillatorSD.hh"
+#include "MinBiasScintillatorSD.h"
+
 #include "CaloIdentifier/TileTBID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
-#include "TileSimUtils/TileG4SimOptions.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-
-//#include "DetectorDescriptionStore.h"
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
+#include "CxxUtils/make_unique.h"// For make unique
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "G4HCofThisEvent.hh"
 #include "G4VPhysicalVolume.hh"
@@ -32,161 +31,135 @@
 #include "G4TransportationManager.hh"
 #include "G4Navigator.hh"
 #include "G4Trd.hh"
-
 #include "G4UImanager.hh"
 #include "G4ios.hh"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <cassert>
 
-static SensitiveDetectorEntryT<MinBiasScintillatorSD> minbiasscintillatorSD("MinBiasScintillatorSD");
-
-MinBiasScintillatorSD::MinBiasScintillatorSD(G4String name)
-  : FadsSensitiveDetector(name),
-    m_hitsCollection(0),
-    m_msg("MinBiasScintillatorSD"),
-    m_containerName("MBTSHits"),
-    m_iamowner(true),
-    m_hit()
-{  
+MinBiasScintillatorSD::MinBiasScintillatorSD(const G4String& name, const std::string& hitCollectionName, const MinBiasScintSDOptions& opts)
+  : G4VSensitiveDetector(name),
+    m_HitColl(hitCollectionName),
+    m_numberOfHitsInCell(nCell,0),
+    m_tempSimHit(nCell,nullptr)
+{
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode status = svcLocator->service("StoreGateSvc", m_sgSvc);
-  if(status.isFailure())
+  StoreGateSvc* detStore(NULL);
+  if(svcLocator->service("DetectorStore", detStore).isFailure())
     {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "StoreGateSvc not found!" << endreq;
-    }
-  else
-    {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGateSvc initialized" << endreq;
-    }
-
-  status = svcLocator->service("DetectorStore", m_detStore);
-  if(status.isFailure())
-    {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "DetectorStoreSvc not found!" << endreq;
-    }
-  else
-    {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DetectorStoreSvc initialized" << endreq;
+      G4ExceptionDescription description;
+      description << "MinBiasScintillatorSD constructor - can't find DetStore";
+      G4Exception("MinBiasScintillatorSD", "NoDetStore", FatalException, description);
+      abort();
     }
 
-
- const TileG4SimOptions* tileG4SimOptions;
-  status = m_detStore->retrieve(tileG4SimOptions);
-  if (status.isFailure()) {
-    m_deltaT = 5.0 * CLHEP::ns;
-    m_deltaTvec.resize(1); m_deltaTvec[0]=m_deltaT;
-    m_timeCut = 402.5 * CLHEP::ns;
-    m_doBirk = true;
-    m_doTOFCorr = true;
-    if (m_deltaT>0.0) m_timeCut = ((int)(m_timeCut/m_deltaT) + 0.5) * m_deltaT;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TileG4SimOptions was not found in DetectorStore" << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Setting deltaTHit to "<< m_deltaT/CLHEP::ns << " ns. " << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Setting timeCut to " << m_timeCut/CLHEP::ns << " ns. " << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Setting doBirk to "    << (m_doBirk    ? "true" : "false") << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Setting doTOFCorr to " << (m_doTOFCorr ? "true" : "false") << endreq;
-  }
-  else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TileG4SimOptions retrieved" << endreq;
-    m_deltaT = tileG4SimOptions->GetDeltaTHit() * CLHEP::ns;
-    m_deltaTvec = tileG4SimOptions->GetDeltaTHitVector();
-    for (int i=m_deltaTvec.size()-1; i>-1; --i) m_deltaTvec[i] *= CLHEP::ns;
-    if (m_deltaTvec.size()%3 != 1 || m_deltaT<=0.0) { m_deltaTvec.resize(1); m_deltaTvec[0]=m_deltaT; } // protection agaist wrong vector size
-    m_timeCut = tileG4SimOptions->GetTimeCut() * CLHEP::ns;
-    m_doBirk = tileG4SimOptions->GetDoBirk();
-    m_doTOFCorr = tileG4SimOptions->GetDoTOFCorrection();
-    if (m_deltaT>0.0) m_timeCut = ((int)(m_timeCut/m_deltaT) + 0.5) * m_deltaT;
-    if (m_deltaTvec.size()>1) {
+  m_deltaT = opts.deltaTHit[opts.deltaTHit.size()-1] * CLHEP::ns;
+  m_deltaTvec = opts.deltaTHit;
+  for (int i=m_deltaTvec.size()-1; i>-1; --i) { m_deltaTvec[i] *= CLHEP::ns; }
+  if (m_deltaTvec.size()%3 != 1 || m_deltaT<=0.0) { m_deltaTvec.resize(1); m_deltaTvec[0]=m_deltaT; } // protection agaist wrong vector size
+  m_timeCut = opts.timeCut * CLHEP::ns;
+  if (m_deltaT>0.0) m_timeCut = ((int)(m_timeCut/m_deltaT) + 0.5) * m_deltaT;
+  if (m_deltaTvec.size()>1)
+    {
       // m_deltaTvec.size() is 3*Nwindows+1, therefore iisize/3 is number of windows (extra element ignored)
       unsigned int ilast = m_deltaTvec.size()-1;  // accounting for extra element, ilast is multiple of 3
       unsigned int nWindows = ilast/3;            // exact integer division, remainder=0
-      if (msgLvl(MSG::INFO)) 
-	{
-	  msg(MSG::INFO) << "Using deltaTHit = ";
-	  for(unsigned int ii=0; ii<nWindows; ++ii) {
-	    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << m_deltaTvec[3*ii]/CLHEP::ns << " ns for window [" << m_deltaTvec[3*ii+1] << "," << m_deltaTvec[3*ii+2] << "] ";
-	  }
-	  msg(MSG::INFO) << "and " << m_deltaTvec[ilast]/CLHEP::ns <<" ns outside this window"<< endreq;
-	}
-    } else {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Using deltaTHit = " << m_deltaT/CLHEP::ns << " ns. " << endreq;
+      if (verboseLevel>5)
+        {
+          G4cout << "MinBiasScintillatorSD INFO Using deltaTHit = ";
+          for(unsigned int ii=0; ii<nWindows; ++ii) {
+            if (verboseLevel>5) { G4cout << m_deltaTvec[3*ii]/CLHEP::ns << " ns for window [" << m_deltaTvec[3*ii+1] << "," << m_deltaTvec[3*ii+2] << "] "; }
+          }
+          G4cout << "and " << m_deltaTvec[ilast]/CLHEP::ns <<" ns outside this window"<< G4endl;
+        }
     }
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Using timeCut = "  << m_timeCut/CLHEP::ns << " ns. " << endreq;
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Using doBirk = "    << (m_doBirk    ? "true" : "false") << endreq;
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Using doTOFCorr = " << (m_doTOFCorr ? "true" : "false") << endreq;
-  }
-  if ( ! (m_deltaT > 0.0) )
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "deltaT is not set, ignore hit time in ProcessHits()" << endreq;
+  else
+    {
+      if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO Using deltaTHit = " << m_deltaT/CLHEP::ns << " ns. " << G4endl; }
+    }
+  if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO Using timeCut = "  << m_timeCut/CLHEP::ns << " ns. " << G4endl; }
+  if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO Using doBirk = "    << (m_options.doBirk    ? "true" : "false") << G4endl; }
+  if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO Using doTOFCorr = " << (m_options.doTOFCorrection ? "true" : "false") << G4endl; }
 
-  if ( ! m_doTOFCorr && m_timeCut < 1000*CLHEP::ns ) {
-    // assuming that if TOF correction is disabled, then we are running cosmic simulation
-    // and should not use too restrictive time cut
-    m_timeCut = 100000*CLHEP::ns;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TOF correction is disabled, settting time cut to " 
-        << m_timeCut/CLHEP::ns << " ns. " << endreq;
-  }
+  if ( !(m_deltaT > 0.0) )
+    {
+      if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO deltaT is not set, ignore hit time in ProcessHits()" << G4endl; }
+    }
+  if ( !m_options.doTOFCorrection && (m_timeCut < 1000*CLHEP::ns) )
+    {
+      // assuming that if TOF correction is disabled, then we are running cosmic simulation
+      // and should not use too restrictive time cut
+      m_timeCut = 100000*CLHEP::ns;
+      G4cout << "MinBiasScintillatorSD WARNING TOF correction is disabled, settting time cut to "
+             << m_timeCut/CLHEP::ns << " ns. " << G4endl;
+    }
 
   m_lateHitTime = 100000*CLHEP::ns - m_deltaT;
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "All hits with time above " << m_timeCut/CLHEP::ns 
-					<< " ns will be stored with time = " << m_lateHitTime/CLHEP::ns << " ns." << endreq;
+  if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD INFO All hits with time above " << m_timeCut/CLHEP::ns
+                               << " ns will be stored with time = " << m_lateHitTime/CLHEP::ns << " ns." << G4endl; }
 
   // position of MBTS cells
   double Z[2] = {-3510.*CLHEP::mm, 3510.*CLHEP::mm};
   double R[2] = {  290.*CLHEP::mm,  660.*CLHEP::mm};
 
-  status = m_detStore->retrieve(m_tileTBID);
-  if(status.isFailure())
+  if(detStore->retrieve(m_tileTBID).isFailure())
     {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "No TileTBID helper" << endreq;
+      G4ExceptionDescription description;
+      description << "MinBiasScintillatorSD constructor - No TileTBID helper";
+      G4Exception("MinBiasScintillatorSD", "NoTileTBID", FatalException, description);
+      abort();
     }
-  else 
+  if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD DEBUG TileTBID helper retrieved" << G4endl; }
+  const MbtsDetDescrManager *mbtsMgr(NULL); //!< Pointer to MbtsDetDescrManager
+  if (detStore->retrieve(mbtsMgr).isFailure())
     {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TileTBID helper retrieved" << endreq;
-
-    const MbtsDetDescrManager* mbtsMgr; //!< Pointer to MbtsDetDescrManager
-    status = m_detStore->retrieve(mbtsMgr);
-    if (status.isFailure()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
-          << "Unable to retrieve MbtsDetDescrManager from DetectorStore" << endreq;
-      mbtsMgr = 0;
+      G4cout << "MinBiasScintillatorSD WARNING Unable to retrieve MbtsDetDescrManager from DetectorStore" <<G4cout;
     }
 
-    for (int side=0; side<nSide; ++side) {
-      for (int eta=0; eta<nEta; ++eta) {
-        for (int phi=0; phi<nPhi; ++phi) {
-          m_id[cell_index(side,phi,eta)] = m_tileTBID->channel_id((side>0)?1:-1,phi,eta);
+  for (int side=0; side<nSide; ++side)
+    {
+      for (int eta=0; eta<nEta; ++eta)
+        {
+          for (int phi=0; phi<nPhi; ++phi)
+            {
+              m_channelID[cell_index(side,phi,eta)] = m_tileTBID->channel_id((side>0)?1:-1,phi,eta);
+            }
+          // approximate coordinates
+          m_deltaT_cell[dist_index(side,eta)] = sqrt(Z[side]*Z[side]+R[eta]*R[eta])/CLHEP::c_light;
+          if (mbtsMgr)
+            {
+              const CaloDetDescrElement *dde = mbtsMgr->get_element(m_channelID[cell_index(side,0,eta)]);
+              // temporary fix for rel 15.6.10
+              if (!dde && side==0)
+                {
+                  dde=mbtsMgr->get_element(m_tileTBID->channel_id(0,0,eta));
+                }
+              if (dde)
+                {
+                  float x = dde->x();
+                  float y = dde->y();
+                  float z = dde->z();
+                  if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD DEBUG MBTS "
+                                                << " side = " << ((side>0)?1:-1)
+                                                << " eta = " << eta
+                                                << " Z = " << z
+                                                << " R = " << sqrt(x*x+y*y) << G4endl; }
+                  m_deltaT_cell[dist_index(side,eta)] = sqrt(x*x+y*y+z*z)/CLHEP::c_light;
+                }
+            }
         }
-        // approximate coordinates
-        m_deltaT_cell[dist_index(side,eta)] = sqrt(Z[side]*Z[side]+R[eta]*R[eta])/CLHEP::c_light;
-        if (mbtsMgr) {
-          const CaloDetDescrElement * dde = mbtsMgr->get_element(m_id[cell_index(side,0,eta)]);
-          // temporary fix for rel 15.6.10
-          if (!dde && side==0) dde=mbtsMgr->get_element(m_tileTBID->channel_id(0,0,eta));
-          if (dde) {
-            float x = dde->x();
-            float y = dde->y();
-            float z = dde->z();
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-              << "MBTS " 
-              << " side = " << ((side>0)?1:-1)
-              << " eta = " << eta
-              << " Z = " << z
-              << " R = " << sqrt(x*x+y*y) << endreq;
-            m_deltaT_cell[dist_index(side,eta)] = sqrt(x*x+y*y+z*z)/CLHEP::c_light;
-          }
+    } //end of loop over side
+  if (verboseLevel>10)
+    {
+      G4cout << "MinBiasScintillatorSD DEBUG Distance to MBTS cells (in mm): ";
+      for (unsigned int i=0; i<sizeof(m_deltaT_cell)/sizeof(double); ++i)
+        {
+          G4cout << m_deltaT_cell[i]*CLHEP::c_light/CLHEP::mm << ", ";
         }
-      }
+      G4cout << G4endl;
     }
-  }
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance to MBTS cells (in mm): ";
-  for (unsigned int i=0; i<sizeof(m_deltaT_cell)/sizeof(double); ++i)
-    msg(MSG::DEBUG) << m_deltaT_cell[i]*CLHEP::c_light/CLHEP::mm << ", ";
-  msg(MSG::DEBUG) << endreq;
+  return;
 }
 
 MinBiasScintillatorSD::~MinBiasScintillatorSD()
@@ -195,209 +168,181 @@ MinBiasScintillatorSD::~MinBiasScintillatorSD()
 
 void MinBiasScintillatorSD::Initialize(G4HCofThisEvent* /* HCE */)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing SD" << endreq;
+  if (verboseLevel>0)
+    {
+      G4cout << "MinBiasScintillatorSD::Initialize()" << G4endl;
+    }
 
-  memset(m_nhits,0,sizeof(m_nhits));
+#ifdef ATHENAHIVE
+  // Temporary fix for Hive until isValid is fixed
+  m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
+#else
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
+#endif
 }
 
 G4bool MinBiasScintillatorSD::ProcessHits(G4Step* aStep,G4TouchableHistory* /* ROhist */)
 {
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "i am in Min Bias Scint process hit" << endreq; 
-    
-  if ( aStep->GetTotalEnergyDeposit() == 0. )
-  {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Edep=0" << endreq;
-    return false;
-  }
+  if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD::ProcessHits()" << G4endl; }
 
-  G4StepPoint * preStep = aStep->GetPreStepPoint();
-  G4double totalTime = aStep->GetPostStepPoint()->GetGlobalTime();//------
-  G4ThreeVector preStepPointPosition = preStep->GetPosition();
-  G4TouchableHistory * theTouchable = (G4TouchableHistory*)(preStep->GetTouchable());
-  G4VPhysicalVolume * physVol = theTouchable->GetVolume();
-//  G4LogicalVolume * logiVol = physVol->GetLogicalVolume();
-//if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "GlobalTime = " << totalTime << endreq;
-  
-  
-  std::string volName = physVol->GetName();
-  std::string volNumber = volName.substr(volName.size()-1,1); 
-  int side = (preStepPointPosition.z()>0) ? 1 : 0;
+  if ( aStep->GetTotalEnergyDeposit() == 0. ) //FIXME checking equality with floating point number
+    {
+      if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD::ProcessHits VERBOSE Edep=0" << G4endl; }
+      return false;
+    }
+
+  const G4StepPoint *preStep = aStep->GetPreStepPoint();
+  const G4ThreeVector preStepPointPosition = preStep->GetPosition();
+  const G4TouchableHistory *theTouchable = (G4TouchableHistory*)(preStep->GetTouchable());
+  const G4VPhysicalVolume *physVol = theTouchable->GetVolume();
+  //  G4LogicalVolume *logiVol = physVol->GetLogicalVolume();
+  //if (verboseLevel>5) { G4cout << "GlobalTime = " << totalTime << G4endl; }
+
+
+  const std::string volName = physVol->GetName();
+  const std::string volNumber = volName.substr(volName.size()-1,1);
+  const int side = (preStepPointPosition.z()>0) ? 1 : 0;
   int phi  = physVol->GetCopyNo(); // should be in the range [0,nPhi) or 16969 if there is no any copyNo
   // for new geometry copyNo is taken from envelope
   if ( phi > nPhi ) phi = theTouchable->GetVolume(3)->GetCopyNo();
   int eta  = atoi(volNumber.c_str())-1;
   int ind  = cell_index(side,phi,eta);
-  //if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "R = " 
+  //if (verboseLevel>5) { G4cout << "R = "
   //    << sqrt(preStepPointPosition.x()*preStepPointPosition.x()+preStepPointPosition.y()*preStepPointPosition.y())
   //    << " Z = " << preStepPointPosition.z()
-  //    << " eta = " << eta << endreq;
+  //    << " eta = " << eta << G4endl; }
 
-  if (ind>=nCell || ind<0) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Hit in "
-        << side << "/" << phi << "/" << eta
-        << " index=" <<ind<<" is outside range [0,"<<nCell-1<<"]"<< endreq;
-    return false;
-  }
+  if (ind>=nCell || ind<0)
+    {
+      G4cout << "MinBiasScintillatorSD::ProcessHits ERROR Hit in "
+             << side << "/" << phi << "/" << eta
+             << " index=" <<ind<<" is outside range [0,"<<nCell-1<<"]"<< G4endl;
+      return false;
+    }
 
   // Take into account Birk's saturation law in organic scintillators.
-  G4double edep;
-  if (m_doBirk)
-    edep = BirkLaw(aStep);
-  else
-    edep = aStep->GetTotalEnergyDeposit();
+  const G4double edep(BirkLaw(aStep));
 
-  double time = totalTime;
-
+  double time(aStep->GetPostStepPoint()->GetGlobalTime());
   // time correction - subtract time of flight to the cell from ATLAS center
-  if (m_doTOFCorr) {
-    time -= m_deltaT_cell[dist_index(side,eta)];
-  }
+  if (m_options.doTOFCorrection)
+    {
+      time -= m_deltaT_cell[dist_index(side,eta)];
+    }
   // check that hit time is within limits
   // if not - put it to maximum allowed time
-  if (time > m_timeCut ) {
-    time = m_lateHitTime;
-  }
-  
-  // find deltaT for given time 
+  if (time > m_timeCut )
+    {
+      time = m_lateHitTime;
+    }
+
+  // find deltaT for given time
   m_deltaT = deltaT(time);
 
-//  if(logiVol.find("MBTS") !=G4String::npos) // not clear which name to use, but it's not needed
+  //  if(logiVol.find("MBTS") !=G4String::npos) // not clear which name to use, but it's not needed
   {
-    if ( m_nhits[ind] > 0 )
-    { 
-      // hit already exists
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Additional hit in "
-						  << side << "/" << phi << "/" << eta 
-						  << " ene=" << edep << " time=" << time << endreq;
-      m_hit[ind]->add(edep,time,m_deltaT);
-    }
+    if ( m_tempSimHit[ind] )
+      {
+        // hit already exists
+        if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD::ProcessHits VERBOSE Additional hit in "
+                                      << side << "/" << phi << "/" << eta
+                                      << " energy=" << edep << " time=" << time << G4endl; }
+        m_tempSimHit[ind]->add(edep,time,m_deltaT);
+      }
     else
-    {
-      // First hit in a cell
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "First hit in "
-						  << side << "/" << phi << "/" << eta 
-						  << " ene=" << edep << " time=" << time << endreq;
-      m_hit[ind] = new TileSimHit(m_id[ind],edep,time,m_deltaT);  
-    }
-    ++m_nhits[ind];
-  }  
+      {
+        // First hit in a cell
+        if (verboseLevel>10) { G4cout << "MinBiasScintillatorSD::ProcessHits VERBOSE First hit in "
+                                      << side << "/" << phi << "/" << eta
+                                      << " energy=" << edep << " time=" << time << G4endl; }
+        m_tempSimHit[ind] = new TileSimHit(m_channelID[ind],edep,time,m_deltaT);
+        m_numberOfHitsInCell[ind]=0;
+      }
+    ++m_numberOfHitsInCell[ind];
+  }
   return true;
 }
 
-void MinBiasScintillatorSD::EndOfEvent(G4HCofThisEvent* /* HCE */)
+void MinBiasScintillatorSD::EndOfAthenaEvent()
 {
-  if (! m_iamowner || m_allowMods) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Looking for '" << m_containerName 
-	 << "' collection in StoreGate" << endreq;
-
-    m_hitsCollection = m_hitCollHelper.RetrieveNonconstCollection<TileHitVector>(m_containerName);
-    /*
-    StatusCode status = m_sgSvc->retrieve(m_hitsCollection,m_containerName);
-    m_iamowner = (status.isFailure());
-    if (m_iamowner) 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "'" << m_containerName 
-          << "' collection not found, need to create it" << endreq;
-    */
-  }
-
-  else {
-    m_hitsCollection = new TileHitVector(m_containerName); 
-    StatusCode status = m_sgSvc->record(m_hitsCollection,m_hitsCollection->Name(),true);
-    if (status.isFailure())
-      {
-	if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can't initialize '" << m_containerName << "' collection" << endreq; 
-      }
-    else
-      {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "I have initialized '" << m_containerName << "' collection" << endreq; 
-      }
-  }
-  
-  for (int ind=0; ind<nCell; ++ind) {
-    int nhit= m_nhits[ind];
-    if (nhit>0) {
-      if (msgLvl(MSG::DEBUG)) 
-	msg(MSG::DEBUG)
-	  << "Cell id=" << m_tileTBID->to_string(m_id[ind])
-	  << " nhit=" << nhit << " ene=" << m_hit[ind]->energy()
-	  << endreq;
-      m_hitsCollection->Insert(TileHit(m_hit[ind]));
-      delete m_hit[ind];
-    } else {
-      if (msgLvl(MSG::VERBOSE)) 
-	msg(MSG::VERBOSE)
-	  << "Cell id=" << m_tileTBID->to_string(m_id[ind])
-	  << " nhit=0"  << endreq;
+  //Convert TileSimHits to TileHits and insert into output collection
+  for (int ind=0; ind<nCell; ++ind)
+    {
+      if (m_tempSimHit[ind])
+        {
+          if (verboseLevel>5)
+            {
+              G4cout
+                << "MinBiasScintillatorSD::EndOfAthenaEvent DEBUG Cell id=" << m_tileTBID->to_string(m_channelID[ind])
+                << " nhit=" << m_numberOfHitsInCell[ind] << " energy=" << m_tempSimHit[ind]->energy()
+                << G4endl;
+            }
+          m_HitColl->Insert(TileHit(m_tempSimHit[ind]));
+          //Clean up as we go through.
+          delete m_tempSimHit[ind];
+          m_tempSimHit[ind]=nullptr;
+        }
+      else
+        {
+          if (verboseLevel>10)
+            {
+              G4cout
+                << "MinBiasScintillatorSD::EndOfAthenaEvent VERBOSE Cell id=" << m_tileTBID->to_string(m_channelID[ind])
+                << " nhit=0"  << G4endl;
+            }
+        }
     }
-  }
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total number of hits is " << m_hitsCollection->size() << endreq;
-
-  if (m_iamowner && !m_allowMods) {
-    /*
-    StatusCode status = m_sgSvc->setConst(m_hitsCollection);
-    if(status.isFailure())
-      {
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't lock Collection '" << m_containerName << "'" << endreq;
-      }
-    else
-      {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection '" << m_containerName << "' is locked " << endreq;
-      }
-    */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "setting collection "<<m_hitsCollection->Name()<<" to const" << endreq;
-    m_hitCollHelper.SetConstCollection<TileHitVector>(m_hitsCollection);
-  }
+  std::vector<int> t1(nCell,0); m_numberOfHitsInCell.swap(t1);
+  if (verboseLevel>5) { G4cout << "MinBiasScintillatorSD::EndOfAthenaEvent DEBUG Total number of hits is " << m_HitColl->size() << G4endl; }
 }
 
 G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const
 {
-// *** apply BIRK's saturation law to energy deposition ***
-// *** only organic scintillators implemented in this version MODEL=1
-//
-// Note : the material is assumed ideal, which means that impurities
-//        and aging effects are not taken into account
-//
-// algorithm : edep = destep / (1. + RKB*dedx + C*(dedx)**2)
-//
-// the basic units of the coefficient are g/(MeV*cm**2)
-// and de/dx is obtained in MeV/(g/cm**2)
-//
-// exp. values from NIM 80 (1970) 239-244 :
-//
-// RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
-//
+  // Skip the rest of the method if we aren't using Birk's law.
+  if(!m_options.doBirk) { return aStep->GetTotalEnergyDeposit(); }
 
-    const G4String myMaterial = "Scintillator";
-    const G4double birk1 = 0.0130*CLHEP::g/(CLHEP::MeV*CLHEP::cm2);
-    const G4double birk2 = 9.6e-6*CLHEP::g/(CLHEP::MeV*CLHEP::cm2)*CLHEP::g/(CLHEP::MeV*CLHEP::cm2);
+  // *** apply BIRK's saturation law to energy deposition ***
+  // *** only organic scintillators implemented in this version MODEL=1
+  //
+  // Note : the material is assumed ideal, which means that impurities
+  //        and aging effects are not taken into account
+  //
+  // algorithm : edep = destep / (1. + RKB*dedx + C*(dedx)**2)
+  //
+  // the basic units of the coefficient are g/(MeV*cm**2)
+  // and de/dx is obtained in MeV/(g/cm**2)
+  //
+  // exp. values from NIM 80 (1970) 239-244 :
+  //
+  // RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
+  //
+  const G4String myMaterial("Scintillator");
+  const G4double birk1(0.0130*CLHEP::g/(CLHEP::MeV*CLHEP::cm2));
+  const G4double birk2(9.6e-6*CLHEP::g/(CLHEP::MeV*CLHEP::cm2)*CLHEP::g/(CLHEP::MeV*CLHEP::cm2));
 
-    G4double destep      = aStep->GetTotalEnergyDeposit();
-//  doesn't work with shower parameterisation
-//  G4Material* material = aStep->GetTrack()->GetMaterial();
-//  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
-    G4Material* material = aStep->GetPreStepPoint()->GetMaterial();
-    G4double charge      = aStep->GetPreStepPoint()->GetCharge();
+  const G4double destep(aStep->GetTotalEnergyDeposit());
+  //  doesn't work with shower parameterisation
+  //  G4Material* material = aStep->GetTrack()->GetMaterial();
+  //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
+  const G4Material*material = aStep->GetPreStepPoint()->GetMaterial();
+  const G4double charge(aStep->GetPreStepPoint()->GetCharge());
 
-// --- no saturation law for neutral particles ---
-// ---  and materials other than scintillator  ---
-    if ( (charge!=0.) && (material->GetName()==myMaterial) ) {
-        G4double rkb = birk1;
-// --- correction for particles with more than 1 charge unit ---
-// --- based on alpha particle data (only apply for MODEL=1) ---
-        if (fabs(charge) > 1.0 ) rkb *= 7.2/12.6;
-
-        G4double dedx = destep/(aStep->GetStepLength())/(material->GetDensity());
-
-        G4double response = destep/(1. + rkb*dedx + birk2*dedx*dedx);
-
-        if (-2==verboseLevel) {
-	  G4cout << " Destep: " << destep/CLHEP::keV << " keV"
-                   << " response after Birk: "  << response/CLHEP::keV << " keV" << G4endl;
+  // --- no saturation law for neutral particles ---
+  // ---  and materials other than scintillator  ---
+  if ( (charge!=0.) && (material->GetName()==myMaterial) ) //FIXME checking for non-equality for a floating point number
+    {
+      G4double rkb = birk1;
+      // --- correction for particles with more than 1 charge unit ---
+      // --- based on alpha particle data (only apply for MODEL=1) ---
+      if (fabs(charge) > 1.0 ) { rkb *= 7.2/12.6; }
+      const G4double dedx = destep/(aStep->GetStepLength())/(material->GetDensity());
+      const G4double response = destep/(1. + rkb*dedx + birk2*dedx*dedx);
+      if (-2==verboseLevel)
+        {
+          G4cout << " Destep: " << destep/CLHEP::keV << " keV"
+                 << " response after Birk: "  << response/CLHEP::keV << " keV" << G4endl;
         }
-        return response;
-    } else {
-        return destep;
+      return response;
     }
+  return destep;
 }
-

@@ -12,48 +12,47 @@
 //
 //************************************************************
 
-#ifndef MinBiasScintillatorSD_H
-#define MinBiasScintillatorSD_H 
+#ifndef MINBIASSCINTILLATOR_MINBIASSCINTILLATORSD_H
+#define MINBIASSCINTILLATOR_MINBIASSCINTILLATORSD_H
 
+// Base class
+#include "G4VSensitiveDetector.hh"
+
+// For the hits
+#include "TileSimEvent/TileHitVector.h"
+#include "StoreGate/WriteHandle.h"
+
+#include "MinBiasScintSDOptions.h"
+
+// STL headers
 #include <vector>
 
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "TileSimEvent/TileHitVector.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-
-using namespace FADS;
-
+// G4 needed classes
 class G4Step;
-class G4HCofThisEvent;
-class StoreGateSvc;
-//class MinBiasScintillatorDescription;
-class TileTBID;
-//class AthenaHitsCollectionHelper;
+class G4TouchableHistory;
 
-class MinBiasScintillatorSD : public FadsSensitiveDetector
+class TileTBID;
+
+class MinBiasScintillatorSD : public G4VSensitiveDetector
 {
 public:
-  MinBiasScintillatorSD(G4String);
+  MinBiasScintillatorSD(const G4String& name, const std::string& hitCollectionName, const MinBiasScintSDOptions& opts);
   ~MinBiasScintillatorSD();
 
-  void Initialize(G4HCofThisEvent*);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
-private:
-  TileHitVector* m_hitsCollection;
-  AthenaHitsCollectionHelper m_hitCollHelper;
+  virtual void Initialize(G4HCofThisEvent*) override final;
 
-  //MinBiasScintillatorDescription* detectorDescription;
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
-  mutable Athena::MsgStreamMember m_msg;
+  virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
+
+  void EndOfAthenaEvent();
+
+private:
+  // Options for the SD configuration
+  const MinBiasScintSDOptions m_options;
+
+  // The hits collection
+  SG::WriteHandle<TileHitVector> m_HitColl;
 
   const TileTBID* m_tileTBID;
-  std::string m_containerName;
-  bool  m_iamowner;
 
   static const int nSide = 2;
   static const int nPhi  = 8;
@@ -63,10 +62,20 @@ private:
 
   inline int cell_index(int side, int phi, int eta) const { return (side*nPhi+phi)*nEta+eta; }
   inline int dist_index(int side, int eta) const { return side*nEta+eta; }
-  
-  int m_nhits[nCell];
-  TileSimHit* m_hit[nCell];
-  Identifier m_id[nCell];
+
+  /** @brief number of contributions to the energy in each cell
+      (size=nCell).
+   */
+  std::vector<int> m_numberOfHitsInCell;
+
+  /** @brief local temporary TileSimHit for each cell (size=nCell).
+   */
+  std::vector<TileSimHit*> m_tempSimHit;
+
+  /** @brief array to cache look-ups of Identifiers for each cell
+      (size=nCell).
+   */
+  Identifier m_channelID[nCell];
 
   /** @brief granularity in time for hits
    */
@@ -77,15 +86,6 @@ private:
    */
   double m_timeCut;
 
-  /** @brief set to true to apply Birks' law
-   */
-  bool   m_doBirk;
-
-  /** @brief true if time of flight correction is applied
-      for particles coming from ATLAS center
-   */
-  bool   m_doTOFCorr;
-
   /** @brief time for hits which are above m_timeCut threshold
       it is equal to m_tilesize_deltaT - m_deltaT
    */
@@ -95,7 +95,7 @@ private:
 
   G4double BirkLaw(const G4Step* aStep) const;
 
-  /** @brief function to provide correct deltaT bin 
+  /** @brief function to provide correct deltaT bin
       width for given time
   */
 
@@ -110,4 +110,4 @@ private:
   }
 };
 
-#endif
+#endif //MINBIASSCINTILLATOR_MINBIASSCINTILLATORSD_H
