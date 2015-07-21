@@ -6,7 +6,6 @@ author Stefano Giagu <stefano.giagu@cern.ch>
 # ============================================================================================
 public
 use	AtlasPolicy		AtlasPolicy-*
-use	TrigInDetEvent		TrigInDetEvent-*		Trigger/TrigEvent
 use	TrigMuonEvent		TrigMuonEvent-*			Trigger/TrigEvent
 use	TrigInterfaces		TrigInterfaces-*		Trigger/TrigSteer
 use	TrigTimeAlgs		TrigTimeAlgs-*			Trigger/TrigTools
@@ -14,14 +13,21 @@ use	TrigT1Interfaces	TrigT1Interfaces-*		Trigger/TrigT1
 
 # ============================================================================================
 private
+use	CaloEvent		CaloEvent-*			Calorimeter
+use     AthContainers           AthContainers-*                 Control
+use     FourMomUtils            FourMomUtils-*                  Event
 use	xAODJet			xAODJet-*			Event/xAOD
+use     xAODTracking            xAODTracking-*                  Event/xAOD
 use	AtlasCLHEP		AtlasCLHEP-*			External
 use	AtlasROOT		AtlasROOT-*			External
 use	GaudiInterface		GaudiInterface-*		External
+use     JetEvent                JetEvent-*              	Reconstruction/Jet
 use	PathResolver		PathResolver*			Tools
 use	TrigCaloEvent		TrigCaloEvent-*			Trigger/TrigEvent
+use 	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
 use	TrigParticle		TrigParticle-*			Trigger/TrigEvent
 use	TrigSteeringEvent	TrigSteeringEvent-*		Trigger/TrigEvent
+use     CxxUtils                CxxUtils-*                      Control
 
 private
 apply_tag ROOTMathLibs

@@ -2,14 +2,32 @@
 
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonCluster
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigMuonJetFex
+from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigJetSplitter
+
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING,ERROR
+
+
+def getJetSplitterInstance( ):
+    return JetSplitter( name="JetSplitter" )
+
+
+class JetSplitter (TrigJetSplitter):
+    __slots__ = []
+    
+    def __init__(self, name):
+        super( JetSplitter, self ).__init__( name )
+        
+        self.JetInputKey  = "TrigJetRec"
+        self.JetOutputKey = "SplitJet"
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4
+        self.JetLogRatio     = 1.2
 
 
 class MuonClusterConfig(MuonCluster): 
    __slots__ = []
-   def __init__ (self, name="MuonClusterConfig", IDtracking="STRATEGY_B"): 
+   def __init__ (self, name="MuonClusterConfig"): 
         super(MuonClusterConfig, self).__init__(name)
 
         from TrigL2LongLivedParticles.TrigL2LongLivedParticlesMonitoring import TrigMuonClusterValidationMonitoring, TrigMuonClusterOnlineMonitoring, TrigMuonClusterCosmicMonitoring
@@ -24,11 +42,9 @@ class MuonClusterConfig(MuonCluster):
         self.AthenaMonTools = [ validation, online, time, cosmic]
  
         # muClu Parameters
-        self.IDalgo      = IDtracking
         self.DeltaR      = 0.4
         self.DeltaRJet   = 0.7
         self.DeltaRTrk   = 0.4
-        self.OutputLevel = INFO       
        
 
 class TrigL2MuonJetFexGlobal (TrigMuonJetFex):
@@ -39,15 +55,12 @@ class TrigL2MuonJetFexGlobal (TrigMuonJetFex):
         self.Instance                    = "L2"
 
 
-
 class TrigEFMuonJetFexGlobal (TrigMuonJetFex):
     __slots__ = []
     def __init__(self, name):
         super( TrigEFMuonJetFexGlobal, self ).__init__( name )
 
         self.Instance       = "EF"
-
-
 
 
 class L2MuonJetFex (TrigL2MuonJetFexGlobal):
