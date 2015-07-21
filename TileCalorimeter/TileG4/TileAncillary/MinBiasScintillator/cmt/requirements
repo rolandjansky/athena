@@ -1,33 +1,29 @@
 package MinBiasScintillator
 
-author Alexander Solodkov 
+author Alexander Solodkov
 
 use AtlasPolicy            AtlasPolicy-*
 use AtlasDoxygen           AtlasDoxygen-*               Tools
 
-use AthenaKernel           AthenaKernel-*               Control
-use FadsSensitiveDetector  FadsSensitiveDetector-*      Simulation/G4Sim/FADS
-use SimHelpers             SimHelpers-*                 Simulation/G4Sim 
-use TileSimEvent           TileSimEvent-*               TileCalorimeter
-
 private
-
+use AtlasCLHEP             AtlasCLHEP-*                 External
+use CaloDetDescr           CaloDetDescr-*               Calorimeter
+use CaloIdentifier         CaloIdentifier-*             Calorimeter
+use CxxUtils               CxxUtils-*                   Control
+use G4AtlasTools           G4AtlasTools-*               Simulation/G4Atlas
 use Geant4                 Geant4-*                     External
 use GaudiInterface         GaudiInterface-*             External
 use StoreGate              StoreGate-*                  Control
-use CaloIdentifier         CaloIdentifier-*             Calorimeter
-use CaloDetDescr           CaloDetDescr-*               Calorimeter
-use TileSimUtils           TileSimUtils-*               TileCalorimeter
-
+use TileSimEvent           TileSimEvent-*               TileCalorimeter
 end_private
 
-library MinBiasScintillator ../src/*.cc
-
-apply_pattern linked_library
+apply_pattern declare_python_modules files="*.py"
+library MinBiasScintillator *.cc *.cxx components/*.cxx
+apply_pattern component_library
 
 #=======================================================
 private
 
-macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.cc "
+macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.h *.cc *.cxx"
 
 end_private
