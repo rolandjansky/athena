@@ -1,11 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# Create dictionary for MaM
+TrigEgammaMaMDict = {
+        'primary_single_ele':['e24_lhmedium_L1EM18VH'],
+        'primary_single_ele_cutbased':['e24_medium_L1EM18VH'],
+        'primary_double_ele':['2e12_lhloose_L12EM10VH'],
+        'primary_double_ele_cutbased':['2e12_loose_L12EM10VH'],
+        'monitoring_ele_idperf':['e24_lhmedium_idperf_L1EM20VH'],
+        'monitoring_ele_idperf_cutbased':['e24_medium_idperf_L1EM20VH'],
+        'monitoring_Zee':['e24_lhtight_L1EM20VH_e15_etcut_Zee'],
+        'monitoring_Jpsiee':['e5_lhtight_e4_etcut_Jpsiee'],
+        'primary_single_pho':['g120_loose'],
+        'primary_double_pho':['g35_loose_g25_loose'] }
+  
 from TrigEgammaAnalysisTools import TrigEgammaAnalysisToolsConf
+from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
+
 from egammaRec.Factories import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue 
 from egammaMVACalib.egammaMVACalibConf import egammaMVATool
 mvatool = egammaMVATool("mvatool",folder="egammaMVACalib/v1")
 ToolSvc += mvatool
+
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import PyCintex
@@ -20,173 +36,75 @@ from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
 ElectronPidTools()
 PhotonPidTools()
 
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu
+from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
+from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
-# Offline ++ selectors
-from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
-LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP)
-LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMLooseSelectorCutDefs.conf"
-ToolSvc+=LooseElectronSelector
-MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP)
-MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMMediumSelectorCutDefs.conf"
-ToolSvc+=MediumElectronSelector
-TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP)
-TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMTightSelectorCutDefs.conf"
-ToolSvc+=TightElectronSelector
+# Offline ++ selectors -- taken from release
+# Can be removed after comparison with r6630
+#from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
+#LooseElectronSelector = ConfiguredAsgElectronIsEMSelector("LooseElectronSelector", egammaPID.ElectronIDLoosePP)
+#ToolSvc+=LooseElectronSelector
+#MediumElectronSelector = ConfiguredAsgElectronIsEMSelector("MediumElectronSelector", egammaPID.ElectronIDMediumPP)
+#ToolSvc+=MediumElectronSelector
+#TightElectronSelector = ConfiguredAsgElectronIsEMSelector("TightElectronSelector", egammaPID.ElectronIDTightPP)
+#ToolSvc+=TightElectronSelector
 # Likelihood
-from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
-LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
-LooseLHSelector.primaryVertexContainer="PrimaryVertices" 
+#from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
+#LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
+#LooseLHSelector.primaryVertexContainer="PrimaryVertices" 
+#ToolSvc+=LooseLHSelector
+#MediumLHSelector = ConfiguredAsgElectronLikelihoodTool("MediumLHSelector", LikeEnum.Medium)
+#MediumLHSelector.primaryVertexContainer="PrimaryVertices"
+#ToolSvc+=MediumLHSelector
+#TightLHSelector = ConfiguredAsgElectronLikelihoodTool("TightLHSelector", LikeEnum.Tight)
+#TightLHSelector.primaryVertexContainer="PrimaryVertices"
+#ToolSvc+=TightLHSelector
+
+# Offline selectors -- taken from latest conf
+LooseElectronSelector=CfgMgr.AsgElectronIsEMSelector("LooseElectronSelector")
+LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
+ToolSvc+=LooseElectronSelector
+MediumElectronSelector=CfgMgr.AsgElectronIsEMSelector("MediumElectronSelector")
+MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
+ToolSvc+=MediumElectronSelector
+TightElectronSelector=CfgMgr.AsgElectronIsEMSelector("TightElectronSelector")
+TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
+ToolSvc+=TightElectronSelector
+
+LooseLHSelector=CfgMgr.AsgElectronLikelihoodTool("LooseLHSelector")
+LooseLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"
 ToolSvc+=LooseLHSelector
-MediumLHSelector = ConfiguredAsgElectronLikelihoodTool("MediumLHSelector", LikeEnum.Medium)
-MediumLHSelector.primaryVertexContainer="PrimaryVertices"
+MediumLHSelector=CfgMgr.AsgElectronLikelihoodTool("MediumLHSelector")
+MediumLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"
 ToolSvc+=MediumLHSelector
-TightLHSelector = ConfiguredAsgElectronLikelihoodTool("TightLHSelector", LikeEnum.Tight)
-TightLHSelector.primaryVertexContainer="PrimaryVertices"
+TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("TightLHSelector")
+TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"
 ToolSvc+=TightLHSelector
+
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+#lumiTool = LuminosityToolOnline()
+#ToolSvc += lumiTool 
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
+#lumiTool = LuminosityToolDefault()
+#ToolSvc += lumiTool
+#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+#lumiOnlineTool = LuminosityToolOnline("LuminosityToolOnline")
+#ToolSvc += lumiOnlineTool
+
+IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
 triggerlist = default
-EgammaMatchTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaMatchingTool,name="TrigEgammaMatchingTool",DeltaR=0.07,L1DeltaR=0.15)
+#EgammaMatchTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaMatchingTool,name="TrigEgammaMatchingTool",DeltaR=0.07,L1DeltaR=0.15)
+from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
+EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool");
+ToolSvc += EgammaMatchTool
 # Base tool configuration here as example
 # All tools inherit these triggerlist properties
 # These are triggerlist in constructor as well
 # Using Factories need to set for each tool
-TrigEgammaNavZeeTPBaseTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPBaseTool, name = "TrigEgammaNavZeeTPBaseTool",
-        DirectoryPath = 'NavZeeTPBase',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
-        OfflineTagSelector='Tight', 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e28_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        )
 
-TrigEgammaNavZeeTPCounts = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPCounts, name = "TrigEgammaNavZeeTPCounts",
-        OutputLevel=1,
-        DirectoryPath='NavZeeTPCounts',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
-        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e28_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        )
-
-TrigEgammaNavZeeTPEff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPEff, name = "TrigEgammaNavZeeTPEff",
-        DirectoryPath='NavZeeTPEff',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
-        #ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
-        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e28_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        )
-
-TrigEgammaNavZeeTPRes = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPRes, name = "TrigEgammaNavZeeTPRes",
-        DirectoryPath='NavZeeTPRes',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
-        #ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPP, # Set differently than base tool
-        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e28_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        )
-
-TrigEgammaNavZeeTPIneff = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPIneff, name = "TrigEgammaNavZeeTPIneff",
-        DirectoryPath='NavZeeTPIneff',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation"],
-        ElectronOnlPPSelector=[ ToolSvc.AsgElectronIsEMTightSelector,ToolSvc.AsgElectronIsEMMediumSelector,ToolSvc.AsgElectronIsEMLooseSelector ],
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
-        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e28_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        )
-
-TrigEgammaNavZeeTPPerf = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPPerf, name = "TrigEgammaNavZeeTPPerf",
-        DirectoryPath='NavZeeTPPerf',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
-        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
-        ZeeLowerMass=80,
-        ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
-        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
-        OfflineProbeSelector='Loose', 
-        ForceProbePid=False, 
-        OppositeCharge=True,
-        OfflineTagMinEt=25,
-        OfflineProbeMinEt=24,
-        TagTrigger="e24_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        )
-
-TrigEgammaNavZeeTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavZeeTPNtuple, name ="TrigEgammaNavZeeTPNtuple",
+TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPNtuple, name ="TrigEgammaNavTPNtuple",
         DirectoryPath='NavZeeTPNtuple',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool, 
@@ -196,17 +114,14 @@ TrigEgammaNavZeeTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNav
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
         ZeeUpperMass=100,
-        OfflineTagIsEM=egammaPID.ElectronTightPPIso,
         OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
         OfflineProbeSelector='Loose', 
         ForceProbePid=False, 
         OppositeCharge=True,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
-        TagTrigger="e24_tight_iloose",
-        ProbeTriggerList=triggerlist,
-        dR = 0.07,
-        doRinger=False,
+        TagTriggerList="e24_tight_iloose",
+        TriggerList=triggerlist,
         )
 
 TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtuple, name ="TrigEgammaNavNtuple",
@@ -218,8 +133,48 @@ TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtupl
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         TriggerList=triggerlist,
+        OfflineDirectoryPath='Offline/Egamma/Ntuple', 
+        DoOfflineDump=False,
+        dR=0.07,
+        )
+
+TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPAnalysisTool, name = "TrigEgammaNavTPAnalysisTool",
+        DirectoryPath='NavTPAnalysis',
+        ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool,
+        MVACalibTool=mvatool,
+        ApplyMVACalib=False,
+        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        ZeeLowerMass=80,
+        ZeeUpperMass=100,
+        OfflineTagSelector='Tight', # 1=tight, 2=medium, 3=loose 
+        OfflineProbeSelector='Loose', 
+        ForceProbePid=False, 
+        OppositeCharge=True,
+        OfflineTagMinEt=25,
+        OfflineProbeMinEt=24,
+        RemoveCrack=True,
+        TagTriggerList=["e26_tight_iloose"],
+        TriggerList=triggerlist,
+        IsEMLabels=IneffLabels,
+        CutLabels=["Events","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"],
+        ProbeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","GoodPid","NearbyJet","Isolated",],
+        TagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","PassTrigger","MatchTrigger"],
+        )
+
+TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavAnalysisTool, name ="TrigEgammaNavAnalysisTool",
+        DirectoryPath='NavAnalysis',
+        ElectronKey = 'Electrons',
+        MatchTool = EgammaMatchTool, 
+        MVACalibTool=mvatool,
+        ApplyMVACalib=False,
+        ForcePidSelection=True,
+        ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
+        ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        IsEMLabels=IneffLabels,
+        TriggerList=triggerlist,
         dR = 0.07,
-        doRinger=False,
         )
 
 
@@ -227,6 +182,7 @@ TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmul
         DirectoryPath='Emulation',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool,
+        TriggerList=triggerlist,
         PhotonOnlPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
             ToolSvc.AsgPhotonIsEMMediumSelector,
             ToolSvc.AsgPhotonIsEMLooseSelector],
@@ -249,14 +205,6 @@ TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmul
             ToolSvc.AsgElectronLHMediumCaloSelector,
             ToolSvc.AsgElectronLHLooseCaloSelector,
             ToolSvc.AsgElectronLHVLooseCaloSelector ],
-        )
-
-TrigEgammaValidationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaValidationTool, name = "TrigEgammaValidationTool",
-        DirectoryPath='Validation',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        PhotonPid = 'Tight',
-        TriggerList=triggerlist,
         )
 
 # Function to return triggerlist tools
