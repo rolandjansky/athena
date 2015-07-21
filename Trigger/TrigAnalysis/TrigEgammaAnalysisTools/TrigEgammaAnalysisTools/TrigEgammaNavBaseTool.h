@@ -27,11 +27,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODTrigRinger/TrigRingerRings.h"
-#include "xAODTrigRinger/TrigRingerRingsContainer.h"
-//#include "xAODCaloRings/RingSetContainer.h" 
-//#include "xAODCaloRings/CaloRingsContainer.h"
-//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
@@ -73,7 +68,6 @@ protected:
   ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline object and matched TE */
   std::vector<std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> > m_objTEList;
-  std::vector<std::pair<const xAOD::Egamma*,const xAOD::Egamma *> > m_objList;
   /*! List of triggers from menu */
   std::vector<std::string> m_trigInputList;
   /*! List of trigger categories for MaM */
@@ -118,7 +112,6 @@ private:
   /*! Jet container for probe selection */
   const xAOD::JetContainer* m_jets;
  
-  
   /* TP selection properties */
  
   /*! Define the PID for tag electron */
@@ -127,10 +120,15 @@ private:
   std::string m_offProbeTightness;
   /*! Map of trigger name and L1 item */
   //std::map<std::string,std::string> m_triggerMap;
-  /*! force probe isolation */
-  bool m_forceProbeIsolation;
   /*! Define isolation working point for Probe electron */
   std::string m_offProbeIsolation;  
+
+protected:/// Protect type is used here becouse this can be access by inheritance. Some analysis
+  ///will change this flags. make everything auto by protect access!
+  /*! force probe isolation */
+  bool m_forceProbeIsolation;
+  /*! force pid and crack selection into electron navigation */
+  bool m_forcePidSelection;
 };
 
 #endif

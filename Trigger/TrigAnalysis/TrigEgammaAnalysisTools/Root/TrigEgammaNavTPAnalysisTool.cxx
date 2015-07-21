@@ -23,6 +23,9 @@ TrigEgammaNavTPAnalysisTool( const std::string& myname )
 : TrigEgammaNavTPBaseTool(myname) {
   declareProperty("DirectoryPath",m_dir="NavTPAnalysisTool");
   declareProperty("IsEMLabels",m_labels);
+  declareProperty("CutLabels",m_cutlabels);
+  declareProperty("ProbeLabels",m_probelabels);
+  declareProperty("TagLabels",m_taglabels);
 }
 
 //**********************************************************************
@@ -59,7 +62,8 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     }
     // Book histograms for average efficiencies and counters
     const int nTrigger = (int) m_trigList.size();
-    addDirectory(m_dir);
+    addDirectory(m_dir+"/Counters");
+    addHistogram(new TH1I("CutCounter", "Event Selection; Cut ; Count", 6, 0., 6));
     addHistogram(new TH1F("nProbes", "Number of Probes; Trigger ; Count", nTrigger, 0., nTrigger));
     addHistogram(new TH1F("nProbesL1", "Number of L1 Probes; Trigger ; Count", nTrigger, 0., nTrigger));
     addHistogram(new TH1F("nProbesL2", "Number of L2 Probes; Trigger ; Count", nTrigger, 0., nTrigger));
@@ -84,6 +88,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     setLabels(hist1("EffL2Calo"),m_trigList);
     setLabels(hist1("EffEFCalo"),m_trigList);
     setLabels(hist1("EffHLT"),m_trigList);
+    setLabels(hist1("CutCounter"),m_cutlabels);
     // Book the histograms per signature
     for (int i = 0; i < (int) m_trigList.size(); i++) {
         bookPerSignature(m_trigList[i]);
@@ -97,8 +102,10 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
 void TrigEgammaNavTPAnalysisTool::bookPerSignature(const std::string trigger){
     ATH_MSG_DEBUG("Now booking histograms");
     std::string basePath = m_dir+"/"+trigger;
+    addDirectory(basePath);
+    addHistogram(new TH1F("ProbeCutCounter", "Number of Probes; Cut ; Count", 12, 0., 12));
+    addHistogram(new TH1F("TagCutCounter", "Number of Tags; Cut ; Count", 10, 0., 10));
     bookAnalysisHistos(basePath);
-
 }
 
 
@@ -106,25 +113,36 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 {
 
     m_eventCounter++;
+    m_eventInfo=0;
+    cd(m_dir+"/Counters");
+    hist1("CutCounter")->Fill("Events",1);
 
+    if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
+        ATH_MSG_ERROR("Failed to retrieve eventInfo ");
+        return StatusCode::FAILURE;
+    }
+    unsigned int runNumber               = m_eventInfo->runNumber();
+    unsigned int eventNumber             = m_eventInfo->eventNumber();
     // Event Wise Selection (independent of the required signatures)
     if ( !TrigEgammaNavTPBaseTool::EventWiseSelection() ) return StatusCode::SUCCESS;
-
+    hist1("CutCounter")->Fill("EventWise",1);
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
         std::string probeTrigger = m_trigList.at(ilist);
 
         std::string type="";
+        bool isL1=false;
         float etthr=0;
         float l1thr=0;
         std::string l1type="";
         std::string pidname="";
         bool perf=false;
         bool etcut=false;
-        parseTriggerName(probeTrigger,"Loose",type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
-        std::string basePath = m_dir+"/"+probeTrigger+"/Efficiency/";
+        parseTriggerName(probeTrigger,"Loose",isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+        std::string basePath = m_dir+"/"+probeTrigger +"/Efficiency/" ;
+        cd(m_dir+"/"+probeTrigger);
         if ( executeTandP(probeTrigger).isFailure() )
             return StatusCode::FAILURE;
-
+        
         // Just for counting
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
             const xAOD::Electron* offEl = m_probeElectrons[i].first;
@@ -138,107 +156,34 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             bool passedEFCalo=false;
             bool passedEF=false;
             const HLT::TriggerElement* feat = m_probeElectrons[i].second;
-
+            
+            inefficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_probeElectrons[i]); // Requires offline match
             resolution(m_dir+"/"+probeTrigger,m_probeElectrons[i]); // Requires offline match
             
             float avgmu=0.;
             if(m_lumiTool)
                 avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
 
-            cd(m_dir);
+            cd(m_dir+"/Counters");
             if(et > etthr + 1.0)
                 hist1("nProbes")->AddBinContent(ilist+1);
-            
-
             if ( feat ) {
                 passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
                 passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
                 passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
                 passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
-                if( passedL1Calo){
-                    cd(m_dir);
-                    if(et > etthr + 1.0)
+                if(et > etthr + 1.0){
+                    if( passedL1Calo)
                         hist1("nProbesL1")->AddBinContent(ilist+1);
-                }
-                if( passedL2Calo ){
-                    cd(m_dir);
-                    if(et > etthr + 1.0)
+                    if( passedL2Calo )
                         hist1("nProbesL2Calo")->AddBinContent(ilist+1);
-                }
-                if( passedL2 ){
-                    cd(m_dir);
-                    if(et > etthr + 1.0)
+                    if( passedL2 )
                         hist1("nProbesL2")->AddBinContent(ilist+1);
-                }
-                if( passedEFCalo ){
-                    cd(m_dir);
-                    if(et > etthr + 1.0)
+                    if( passedEFCalo )
                         hist1("nProbesEFCalo")->AddBinContent(ilist+1);
-                }
-                if( passedEF ){
-                    cd(m_dir);
-                    if(et > etthr + 1.0)
+                    if( passedEF )
                         hist1("nProbesHLT")->AddBinContent(ilist+1);
-                }
-                else {
-                    ATH_MSG_DEBUG("Fails EF, find nearby candidates");
-                    // Inefficiency analysis
-                    const xAOD::Electron* selEF = NULL;
-                    const xAOD::Photon* selPh = NULL;
-                    const xAOD::CaloCluster* selClus = NULL;
-                    const xAOD::TrackParticle* selTrk = NULL;
-                    const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
-                    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
-                    const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
-                    const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat);
-                    float dRmax=0.15;
-                    if ( EFEl != NULL ){
-                        ATH_MSG_DEBUG("Retrieved ElectronContainer for inefficiency");
-                        for(const auto& el : *EFEl){
-                            float dr=dR(eta,phi,el->eta(),el->phi());
-                            if ( dr<dRmax){
-                                dRmax=dr;
-                                selEF = el;
-                            } // dR
-                        } // loop over EFEl
-                    } //FC exists
-                    dRmax=0.15;
-                    if ( EFPh != NULL ){
-                        ATH_MSG_DEBUG("Retrieved PhotonnContainer for inefficiency " << EFPh->size());
-                        for(const auto& ph : *EFPh){
-                            float dr=dR(eta,phi,ph->eta(),ph->phi());
-                            if ( dr<dRmax){
-                                dRmax=dr;
-                                selPh = ph;
-                            } // dR
-                        } // loop over EFEl
-                        ATH_MSG_DEBUG("Closest electron dR " << dRmax);
-                    } //FC exists
-                    else ATH_MSG_DEBUG("Photon Container NULL");
-                    if ( EFClus != NULL ){
-                        ATH_MSG_DEBUG("Retrieved PhotonContainer for inefficiency");
-                        for(const auto& clus : *EFClus){
-                            float dr=dR(eta,phi,clus->eta(),clus->phi());
-                            if(dr<dRmax){
-                                dRmax=dr;
-                                selClus = clus;
-                            } // dR
-                        } // loop over EFPh
-                    } //FC exists
-                    dRmax=0.15;
-                    if ( EFTrk != NULL ){
-                        ATH_MSG_DEBUG("Retrieved PhotonContainer for inefficiency");
-                        for(const auto& trk : *EFTrk){
-                            float dr=dR(eta,phi,trk->eta(),trk->phi());
-                            if(dr<dRmax){
-                                dRmax=dr;
-                                selTrk = trk;
-                            } // dR
-                        } // loop over EFPh
-                    } //FC exists
-                    // Call inefficiency method in AnalysisBaseTool
-                    fillInefficiency(basePath+"HLT",selEF,selPh,selClus,selTrk);
                 }
             } // Features
             fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,et,eta,phi,avgmu,mass);
@@ -248,13 +193,14 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             fillEfficiency(basePath+"HLT",passedEF,etthr,et,eta,phi,avgmu,mass);
         } // End loop over electrons
     } // End loop over trigger list
-
+    cd(m_dir+"/Counters");
+    hist1("CutCounter")->Fill("Success",1);
     return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
 {
-    cd(m_dir);
+    cd(m_dir+"/Counters");
 
     hist1("nProbes")->Sumw2();
     

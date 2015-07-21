@@ -29,7 +29,7 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
         /*! Method to book histograms for each MaM category */
         void bookPerCategory(const std::string);
         void efficiency(const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-        void inefficiency(const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
+
         
         /*! Online persisted containers */
         const xAOD::EventInfo *m_eventInfo;

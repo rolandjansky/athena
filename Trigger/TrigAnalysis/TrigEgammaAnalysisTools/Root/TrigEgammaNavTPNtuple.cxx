@@ -165,7 +165,7 @@ bool TrigEgammaNavTPNtuple::executeProbesDump(){
           const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(feat);
           if(emCluster){
 
-            if( !fillTrigCaloRings( feat ) ){
+            if( !fillTrigCaloRings( emCluster ) ){
               ATH_MSG_DEBUG("Cound not attach the TrigRinger information into the tree.");
             }
             //m_trig_L1_accept          = true;
@@ -239,7 +239,6 @@ bool TrigEgammaNavTPNtuple::fillEvent(){
 
 
 bool TrigEgammaNavTPNtuple::fillPhoton( const xAOD::Photon *ph ){
-    if(!ph) return false;
   return true;
 }
 
@@ -380,56 +379,14 @@ bool TrigEgammaNavTPNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
 }
 
 
-bool TrigEgammaNavTPNtuple::fillTrigCaloRings( const HLT::TriggerElement *te ){
-  
-  const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(te);
-  if(!emCluster)  return false;
-  
-  Trig::FeatureContainer fc = (m_trigdec->features("HLT_.*",TrigDefs::alsoDeactivateTEs));
-  const std::vector< Trig::Feature<xAOD::TrigRingerRings > > vec_featRinger = fc.get< xAOD::TrigRingerRings >("",TrigDefs::alsoDeactivateTEs);
-  for( Trig::Feature<xAOD::TrigRingerRings > featRinger : vec_featRinger ){
-    const xAOD::TrigRingerRings *ringer = featRinger.cptr(); 
-    if(emCluster->RoIword() ==  (getFeature<xAOD::TrigEMCluster>(featRinger.te()))->RoIword() ){
-      for(unsigned i = 0; i < ringer->size();++i){
-        m_trig_L2_calo_rings->push_back(ringer->rings()[i]);
-      } // loop over rings
-      return true;
-    }
-  }
-  return false;
+bool TrigEgammaNavTPNtuple::fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster ){
+  return TrigEgammaAnalysisBaseTool::getTrigCaloRings(emCluster, *m_trig_L2_calo_rings);
 }
 
 
 bool TrigEgammaNavTPNtuple::fillCaloRings( const xAOD::Electron *el ){
-
-    
-  m_el_ringsE->clear();
-  if(!el) return false;
-  /*auto m_ringsELReader = xAOD::getCaloRingsReader();
-
-  // First, check if we can retrieve decoration: 
-  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr); 
-  try { 
-    caloRingsELVec = &(m_ringsELReader->operator()(*el)); 
-  } catch ( const std::exception &e) { 
-    ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
-  } 
-
-  if ( caloRingsELVec->empty() ){ 
-    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
-    return false;
-  }
-
-  // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
-  if (clrings) clrings->exportRingsTo(*m_el_ringsE);
-  else{
-    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
-    return false;
-  }*/
-  return true;
+  return TrigEgammaAnalysisBaseTool::getCaloRings(el, *m_el_ringsE );
 }
-
 
 /*
  * book, link, clear, alloc and release method divide in:

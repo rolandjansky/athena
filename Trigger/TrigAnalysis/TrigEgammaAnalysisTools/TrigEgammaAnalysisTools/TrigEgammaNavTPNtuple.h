@@ -58,8 +58,8 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     bool fillElectron     ( const xAOD::Electron      *el );
     bool fillPhoton       ( const xAOD::Photon        *ph );
     bool fillCaloRings    ( const xAOD::Electron      *el );
-    bool fillTrigCaloRings( const HLT::TriggerElement *te );
-
+    bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
+ 
     /* Space memory manager */
     void alloc_space();
     void release_space();

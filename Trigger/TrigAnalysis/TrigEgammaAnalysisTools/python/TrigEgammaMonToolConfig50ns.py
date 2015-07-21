@@ -2,6 +2,9 @@
 
 def TrigEgammaMonTool():
     from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon import CfgMgr
+    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
+    from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaEmulationTool
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool
     from TrigEgammaAnalysisTools.TrigEgammaProbelist import default # to import probelist
@@ -12,6 +15,28 @@ def TrigEgammaMonTool():
     # Set final list from triggers available in data
     import TriggerMenu.menu.Physics_pp_v5 as physics_menu
     from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+    # Offline selectors -- taken from latest conf
+    # Offline tunes for 50 ns
+    LooseElectronSelector=CfgMgr.AsgElectronIsEMSelector("LooseElectron50nsSelector")
+    LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMLooseSelectorCutDefs.conf"
+    ToolSvc+=LooseElectronSelector
+    MediumElectronSelector=CfgMgr.AsgElectronIsEMSelector("MediumElectron50nsSelector")
+    MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMMediumSelectorCutDefs.conf"
+    ToolSvc+=MediumElectronSelector
+    TightElectronSelector=CfgMgr.AsgElectronIsEMSelector("TightElectron50nsSelector")
+    TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMTightSelectorCutDefs.conf"
+    ToolSvc+=TightElectronSelector
+
+    LooseLHSelector=CfgMgr.AsgElectronLikelihoodTool("LooseLH50nsSelector")
+    LooseLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodLooseOfflineConfig2015.conf"
+    ToolSvc+=LooseLHSelector
+    MediumLHSelector=CfgMgr.AsgElectronLikelihoodTool("MediumLH50nsSelector")
+    MediumLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodMediumOfflineConfig2015.conf"
+    ToolSvc+=MediumLHSelector
+    TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("TightLH50nsSelector")
+    TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodTightOfflineConfig2015.conf"
+    ToolSvc+=TightLHSelector
 
     physics_menu.setupMenu()
     egammaMenu = TriggerFlags.EgammaSlice.signatures()
@@ -41,11 +66,15 @@ def TrigEgammaMonTool():
     Analysis = TrigEgammaNavAnalysisTool(name='NavAnalysis',
             DirectoryPath=basePath+'Analysis',
             TriggerList=probelist, 
+            ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
+            ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
             File="",
             OutputLevel=0,DetailedHistograms=False)
     TPAnalysis = TrigEgammaNavTPAnalysisTool(name='NavTPAnalysis',
             DirectoryPath=basePath+'TPAnalysis',
             TriggerList=probelist, 
+            ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
+            ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
             File="",
             TagTriggerList=tagItems,
             RemoveCrack=False,

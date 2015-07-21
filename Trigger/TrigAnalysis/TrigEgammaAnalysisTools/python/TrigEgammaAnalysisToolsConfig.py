@@ -62,23 +62,23 @@ from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEM
 
 # Offline selectors -- taken from latest conf
 LooseElectronSelector=CfgMgr.AsgElectronIsEMSelector("LooseElectronSelector")
-LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMLooseSelectorCutDefs.conf"
+LooseElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
 ToolSvc+=LooseElectronSelector
 MediumElectronSelector=CfgMgr.AsgElectronIsEMSelector("MediumElectronSelector")
-MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMMediumSelectorCutDefs.conf"
+MediumElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
 ToolSvc+=MediumElectronSelector
 TightElectronSelector=CfgMgr.AsgElectronIsEMSelector("TightElectronSelector")
-TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronIsEMTightSelectorCutDefs.conf"
+TightElectronSelector.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
 ToolSvc+=TightElectronSelector
 
 LooseLHSelector=CfgMgr.AsgElectronLikelihoodTool("LooseLHSelector")
-LooseLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodLooseOfflineConfig2015.conf"
+LooseLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"
 ToolSvc+=LooseLHSelector
 MediumLHSelector=CfgMgr.AsgElectronLikelihoodTool("MediumLHSelector")
-MediumLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodMediumOfflineConfig2015.conf"
+MediumLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"
 ToolSvc+=MediumLHSelector
 TightLHSelector=CfgMgr.AsgElectronLikelihoodTool("TightLHSelector")
-TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/ElectronLikelihoodTightOfflineConfig2015.conf"
+TightLHSelector.ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"
 ToolSvc+=TightLHSelector
 
 #from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
@@ -91,6 +91,7 @@ ToolSvc+=TightLHSelector
 #lumiOnlineTool = LuminosityToolOnline("LuminosityToolOnline")
 #ToolSvc += lumiOnlineTool
 
+IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
 triggerlist = default
@@ -153,9 +154,13 @@ TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgamma
         OppositeCharge=True,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
+        RemoveCrack=True,
         TagTriggerList=["e26_tight_iloose"],
         TriggerList=triggerlist,
-        IsEMLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","All"],
+        IsEMLabels=IneffLabels,
+        CutLabels=["Events","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"],
+        ProbeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","GoodPid","NearbyJet","Isolated",],
+        TagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","PassTrigger","MatchTrigger"],
         )
 
 TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavAnalysisTool, name ="TrigEgammaNavAnalysisTool",
@@ -164,8 +169,10 @@ TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNa
         MatchTool = EgammaMatchTool, 
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
+        ForcePidSelection=True,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
+        IsEMLabels=IneffLabels,
         TriggerList=triggerlist,
         dR = 0.07,
         )

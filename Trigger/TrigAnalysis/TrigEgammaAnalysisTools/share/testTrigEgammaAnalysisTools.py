@@ -69,6 +69,8 @@ if 'OUTPUT' in dir():
     outputName = OUTPUT
 elif 'DOTIER0' in dir():
     outputName = ''
+elif 'DO50ns' in dir():
+    outputName = ''
 else:
     outputName = 'Validation'
 
@@ -76,7 +78,6 @@ if('TAG' in dir()):
     tagItem = TAG 
 else: 
     tagItem = 'e26_tight_iloose'
-
 
 athenaCommonFlags.FilesInput=finallist
 athenaCommonFlags.EvtMax=nov
@@ -137,6 +138,31 @@ if 'DOTIER0' in dir():
     
     from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig
     TrigEgammaMonToolConfig.TrigEgammaMonTool()
+    HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
+    HLTMonManager.FileKey = "GLOBAL"
+
+elif 'DO50ns' in dir():
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+    topSequence += AthenaMonManager( "HLTMonManager")
+    HLTMonManager = topSequence.HLTMonManager
+
+    ################ Mon Tools #################
+
+    #Global HLTMonTool
+
+    from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
+    HLTMon = HLTMonTool(name               = 'HLTMon',
+                   histoPathBase      = "HLT");
+
+
+    ToolSvc += HLTMon;
+    HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+    
+    from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig50ns
+    TrigEgammaMonToolConfig50ns.TrigEgammaMonTool()
     HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
     HLTMonManager.FileKey = "GLOBAL"
 

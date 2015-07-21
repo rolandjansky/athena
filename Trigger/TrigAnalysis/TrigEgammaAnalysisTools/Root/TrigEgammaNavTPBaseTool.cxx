@@ -129,10 +129,12 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
         ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
 	return false;
     }
+    hist1("CutCounter")->Fill("RetrieveElectrons",1);
     if ( m_offElectrons->size() < 2 ) { // Not enough events for T&P
 	ATH_MSG_DEBUG("Not enough Electrons for T&P");
 	return false;
     }
+    hist1("CutCounter")->Fill("TwoElectrons",1);
     // get jet container of interest
     m_jets = 0;
     m_applyJetNearProbeSelection=true;
@@ -147,7 +149,7 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
     // missing more selections
     // check Minimal Trigger Requirements
     if ( !MinimalTriggerRequirement() ) return false;
-
+    hist1("CutCounter")->Fill("PassTrigger",1);
     return true;
 }
 
@@ -168,24 +170,32 @@ StatusCode TrigEgammaNavTPBaseTool::executeTandP(const std::string probeTrigItem
     clearProbeList(); // Clear Probes after each trigger
     ATH_MSG_DEBUG("Execute TandP BaseTool " << m_offElectrons->size());
     float etthr=0;
+    bool isL1=false;
     float l1thr=0;
     std::string type="";
     std::string l1type="";
     std::string pidname="";
     bool perf=false;
     bool etcut=false;
-    parseTriggerName(probeTrigItem,m_defaultProbeTightness,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
- 
+    parseTriggerName(probeTrigItem,m_defaultProbeTightness,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+
+    std::string trigName="";
+    if(isL1) trigName="L1_"+probeTrigItem;
+    else trigName="HLT_"+probeTrigItem;
     // Set the pid for the Probe after parsing trigger name
     // Not needed, just pass the pidname to the method
     m_offProbeTightness = pidname;
     for(const auto& elTag : *m_offElectrons){
         if( ! isTagElectron(elTag) ) continue;
         for(const auto& elProbe : *m_offElectrons){
+            hist1("ProbeCutCounter")->Fill("Electrons",1);
             if(elProbe==elTag) continue;
+            hist1("ProbeCutCounter")->Fill("NotTag",1);
             // Check opposite charge
             if(m_oppositeCharge && (elProbe->charge() == elTag->charge()) ) continue;
+            hist1("ProbeCutCounter")->Fill("OS",1);
             if(!m_oppositeCharge && (elProbe->charge() != elTag->charge()) ) continue;
+            hist1("ProbeCutCounter")->Fill("SS",1);
             ATH_MSG_DEBUG("Execute TandP BaseTool OS"); 
             //Must be an easy way with IParticle
             TLorentzVector el1;
@@ -197,13 +207,15 @@ StatusCode TrigEgammaNavTPBaseTool::executeTandP(const std::string probeTrigItem
                 ATH_MSG_DEBUG("tag and probe pair not in Z mass window");
                 continue;
             } else {
+                hist1("ProbeCutCounter")->Fill("ZMass",1);
                 ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
                 if(!isGoodProbeElectron(elProbe,probeTrigItem,etthr,pidname)) continue; //Ensure passing offline electron selection
+                hist1("ProbeCutCounter")->Fill("GoodProbe",1);
                 const HLT::TriggerElement *finalFC;
 
                 // Use matching tool and create pair of offline probe and TE
-                if ( m_matchTool->match(elProbe, probeTrigItem, finalFC)){
+                if ( m_matchTool->match(elProbe, trigName, finalFC)){
                     std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(elProbe,finalFC);
                     m_probeElectrons.push_back(pairProbe);
                     m_mee.push_back(tpPairMass);                
@@ -229,6 +241,7 @@ void TrigEgammaNavTPBaseTool::clearProbeList(){
 
 bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 
+    hist1("TagCutCounter")->Fill("Electrons",1);
     // Tag the event
     // Require offline tight electron
     // Match to e24_tight1_L1EM20V
@@ -241,28 +254,31 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("No track Particle");
         return false;
     }
+    hist1("TagCutCounter")->Fill("HasTrack",1);
     ATH_MSG_DEBUG("Track pt " << trk->pt());
     const xAOD::CaloCluster *clus = el->caloCluster();
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
-   
+    hist1("TagCutCounter")->Fill("HasCluster",1);
 
     ATH_MSG_DEBUG("Cluster E "<<clus->e());
     ATH_MSG_DEBUG("Selecting Tag Electron PID");
     if(!el->passSelection(m_offTagTightness)) return false;
-    
+    hist1("TagCutCounter")->Fill("GoodPid",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
     if( !(el->e()/cosh(el->trackParticle()->eta())  > m_tagMinEt*GeV) ){
         return false;
     }
+    hist1("TagCutCounter")->Fill("Et",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Eta");
     //fiducial detector acceptance region
     if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 ){
         return false;
     }
+    hist1("TagCutCounter")->Fill("Eta",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Decision");
     // Check matching to a given trigger
     // The statement below is more general
@@ -276,18 +292,19 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;
     }
+    hist1("TagCutCounter")->Fill("PassTrigger",1);
     ATH_MSG_DEBUG("Matching Tag Electron FC");
     bool tagMatched=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList.at(ilist);
-        if( m_matchTool->matchHLT(el,tag) )
+        if( m_matchTool->match(el,"HLT_"+tag) )
                 tagMatched=true;
     }
     if(!tagMatched){
         ATH_MSG_DEBUG("Failed a match ");
         return false; // otherwise, someone matched!
     }
-
+    hist1("TagCutCounter")->Fill("MatchTrigger",1);
     ATH_MSG_DEBUG("Found a tag electron");
     return true;
 }
@@ -324,10 +341,12 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
         ATH_MSG_DEBUG("No track Particle");
         return false;
     }
+    hist1("ProbeCutCounter")->Fill("HasTrack",1);
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
+    hist1("ProbeCutCounter")->Fill("HasCluster",1);
     //fiducial detector acceptance region
     if(m_rmCrack){
         if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 
@@ -335,9 +354,11 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
             return false;
         }
     }
+    hist1("ProbeCutCounter")->Fill("Eta",1);
     if( !(el->e()/cosh(el->trackParticle()->eta())  > (etthr-5.0)*GeV) ){
         return false;
     }
+    hist1("ProbeCutCounter")->Fill("Et",1);
     if(m_forceProbePid){ // Use common probe pid for all triggers
         if(!el->passSelection(m_defaultProbeTightness)) return false;
         // Rerun offline selection
@@ -349,6 +370,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
         // Rerun offline selection
         if(!ApplyElectronPid(el,pidname)) return false;
     }
+    hist1("ProbeCutCounter")->Fill("GoodPid",1);
     if(m_applyJetNearProbeSelection){
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
@@ -364,9 +386,11 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
             return false; 
         }
     }
+    hist1("ProbeCutCounter")->Fill("NearbyJet",1);
     if (m_forceProbeIsolation) {
       if (!isIsolated(el, m_offProbeIsolation)) {
 	return false;
+        hist1("ProbeCutCounter")->Fill("Isolated",1);
       }
     }
     return true; // Good probe electron

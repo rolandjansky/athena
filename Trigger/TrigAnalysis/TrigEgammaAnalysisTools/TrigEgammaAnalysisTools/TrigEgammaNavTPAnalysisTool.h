@@ -29,6 +29,9 @@ private:
   void bookPerSignature(const std::string);
   
   unsigned int m_eventCounter;
+  const xAOD::EventInfo *m_eventInfo;
+  std::vector<std::string> m_probelabels;
+  std::vector<std::string> m_taglabels;
 };
 
 #endif

@@ -396,6 +396,7 @@ bool TrigEgammaEmulationTool::EmulationPhotonEF(const std::string trigger){
   trigItem.erase( 0, 4); //Removes HLT_ prefix from name
   bool isPassed=false;
   std::string type="";
+  bool isL1=false;
   float etthr=0;
   float l1thr=0;
   std::string l1type="";
@@ -406,7 +407,7 @@ bool TrigEgammaEmulationTool::EmulationPhotonEF(const std::string trigger){
   bool idperf = false;
   if (boost::contains(trigItem,"iloose")) isolation = true;
   if (boost::contains(trigItem,"idperf")) idperf = true;
-  parseTriggerName(trigItem,"Loose",type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
+  parseTriggerName(trigItem,"Loose",isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
   ATH_MSG_DEBUG(trigItem <<" Etcut " << etthr << " l1 cut " << l1thr << " l1type " << l1type << " pid " << pidname << " isolation " << isolation 
           << " etcut " << etcut << " idperf " << idperf << " perf " << perf);
   if (boost::contains(pidname,"1")) return false; // Not emulating Run1
@@ -508,6 +509,7 @@ bool TrigEgammaEmulationTool::EmulationEF(const std::string trigger){
   trigItem.erase( 0, 4); //Removes HLT_ prefix from name
   bool isPassed=false;
   std::string type ="";
+  bool isL1=false;
   float etthr=0;
   float l1thr=0;
   std::string l1type="";
@@ -519,7 +521,7 @@ bool TrigEgammaEmulationTool::EmulationEF(const std::string trigger){
   ATH_MSG_DEBUG("Emulating EF with " << m_onlElectrons->size() << " Electrons");
   if (boost::contains(trigItem,"iloose")) isolation = true;
   if (boost::contains(trigItem,"idperf")) idperf = true;
-  parseTriggerName(trigItem,"Loose",type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
+  parseTriggerName(trigItem,"Loose",isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
   ATH_MSG_DEBUG(trigItem <<" Etcut " << etthr << " l1 cut " << l1thr << " l1type " << l1type << " pid " << pidname << " isolation " << isolation 
           << " etcut " << etcut << " idperf " << idperf << " perf " << perf);
   if (perf){

@@ -11,6 +11,8 @@ TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgamm
   declareProperty("DirectoryPath",          m_dir="NavNtuple"                 );
   declareProperty("DoOfflineDump",          m_doOfflineDump=false             ); 
   declareProperty("OfflineDirectoryPath",   m_offDir = "Offline/Egamma/Ntuple");
+  ///Set base tool configuration
+  m_forcePidSelection=false;
 }
 
 
@@ -60,8 +62,10 @@ StatusCode TrigEgammaNavNtuple::childBook(){
     bookPhotonBranches( t );
     bookTriggerBranches( t );
     bookMonteCarloBranches( t );
-    ATH_MSG_DEBUG("Alredy to attach the tree: " << trigItem);
+    ATH_MSG_DEBUG("Already to attach the tree: " << trigItem);
     addTree(t, m_dir);
+    //string name = trigItem+"_monitoring";
+    //addHistogram(new TH1F(name.c_str(), "Monitoring; status; Count", 3, 0., 3.));
   }
 
   ///Only offline egamma ntuple
@@ -211,22 +215,22 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
   for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
     std::string trigItem = m_trigList.at(ilist);
     
-    if ( executeNavigation(trigItem).isFailure() )
+    if ( executeNavigation(trigItem).isFailure() ){
+      ATH_MSG_DEBUG("executeNavigation failure! continue...");
       return StatusCode::FAILURE;
-
+    }
     TTree *t = tree( trigItem, m_dir);
     linkEventBranches(t); 
     linkElectronBranches(t);
     linkPhotonBranches(t);
     linkTriggerBranches(t);
     linkMonteCarloBranches(t);
-   
+    ATH_MSG_DEBUG("ObjTEList size is: " << m_objTEList.size());
     for(unsigned int i = 0; i != m_objTEList.size(); ++i){
 
       const xAOD::Electron* el =static_cast<const xAOD::Electron*> (m_objTEList[i].first);
       const xAOD::Photon*   ph =static_cast<const xAOD::Photon*>   (m_objTEList[i].first);
       const HLT::TriggerElement *feat = m_objTEList[i].second;
-
       if(feat == NULL){
         ATH_MSG_WARNING("TriggerElement is NULL");
         continue;
@@ -240,7 +244,7 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
       if(!fillMonteCarlo( el ) ){
         ATH_MSG_WARNING("Cound not found any TruthParticle for this Electron");
       }
-
+        
 
       ///Start trigger analisys...
       const xAOD::EmTauRoI *emTauRoI = getFeature<xAOD::EmTauRoI>(feat);
@@ -268,7 +272,7 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
           m_trig_L2_calo_wstot      = emCluster->wstot();
           m_trig_L2_calo_accept     = ancestorPassed<xAOD::TrigEMCluster>(feat);
          
-          if(!fillTrigCaloRings( feat )){
+          if(!fillTrigCaloRings( emCluster )){
             ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
           }
    
@@ -413,7 +417,6 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
 
 
 bool TrigEgammaNavNtuple::fillPhoton( const xAOD::Photon *ph ){
-    if(!ph) return false;
   return true;
 }
 
@@ -462,66 +465,15 @@ bool TrigEgammaNavNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
 
 
 
-bool TrigEgammaNavNtuple::fillTrigCaloRings( const HLT::TriggerElement *te ){
- 
-  m_trig_L2_calo_rings->clear();
-  const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(te);
-  if(!emCluster)  return false;
 
-  Trig::FeatureContainer fc = (m_trigdec->features("HLT_.*",TrigDefs::alsoDeactivateTEs));
-  const std::vector< Trig::Feature<xAOD::TrigRingerRings > > vec_featRinger = fc.get< xAOD::TrigRingerRings >("",TrigDefs::alsoDeactivateTEs);
-  for( Trig::Feature<xAOD::TrigRingerRings > featRinger : vec_featRinger ){
-    const xAOD::TrigRingerRings *ringer = featRinger.cptr();
-    if(emCluster->RoIword() ==  (getFeature<xAOD::TrigEMCluster>(featRinger.te()))->RoIword() ){
-      for(unsigned i = 0; i < ringer->size();++i){
-        m_trig_L2_calo_rings->push_back(ringer->rings()[i]);
-      } // loop over rings
-      return true;
-    }
-  }
-  return false;
+bool TrigEgammaNavNtuple::fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster ){
+  return TrigEgammaAnalysisBaseTool::getTrigCaloRings(emCluster, *m_trig_L2_calo_rings);
 }
 
 
 bool TrigEgammaNavNtuple::fillCaloRings( const xAOD::Electron *el ){
-
-
-  m_el_ringsE->clear();
-  if(!el) return false;
-  /*auto m_ringsELReader = xAOD::getCaloRingsReader();
-
-  // First, check if we can retrieve decoration: 
-  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr); 
-  try { 
-    caloRingsELVec = &(m_ringsELReader->operator()(*el)); 
-  } catch ( const std::exception &e) { 
-    ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
-  } 
-
-  if ( caloRingsELVec->empty() ){ 
-    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
-    return false;
-  }
-
-
-  // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
-  // For now, we are using only the first cluster 
-  
-  if(clrings) clrings->exportRingsTo(*m_el_ringsE);
-  else{
-    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
-    return false;
-  }
-  */
-  return true;
+  return TrigEgammaAnalysisBaseTool::getCaloRings(el, *m_el_ringsE );
 }
-
-
-
-
-
-
 
 /*
  * book, link, clear, alloc and release method divide in:

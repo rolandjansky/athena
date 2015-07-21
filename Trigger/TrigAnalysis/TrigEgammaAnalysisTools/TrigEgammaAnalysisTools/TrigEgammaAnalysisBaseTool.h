@@ -14,10 +14,16 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 
+#include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+//#include "xAODCaloRings/RingSetContainer.h" 
+//#include "xAODCaloRings/CaloRingsContainer.h"
+//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 //class MonGroup;
 class TrigEgammaAnalysisBaseTool
@@ -68,7 +74,7 @@ private:
 protected:
   // Methods
   /*! Simple setter to pick up correct probe PID for given trigger */
-  void parseTriggerName(const std::string,const std::string, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
+  void parseTriggerName(const std::string,const std::string, bool, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Creates static map to return L1 item from trigger name */
   std::string getL1Item(std::string trigger);
 
@@ -82,15 +88,18 @@ protected:
   /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
   void fillEfficiency(const std::string,bool,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
 
+  void fillL2CaloResolution(const std::string, const xAOD::TrigEMCluster *,const xAOD::Egamma *);
   void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
   void fillHLTAbsResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
   void fillShowerShapes(const std::string, const xAOD::Egamma *); // Online and Offline fillers
   void fillTracking(const std::string, const xAOD::Electron *); // Online and Offline fillers
   void fillEFCalo(const std::string,const xAOD::CaloCluster *);
   void fillL2Electron(const std::string,const xAOD::TrigElectron *);
+  void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
  
   /*! Inefficiency analysis */
+  void inefficiency(const std::string,const unsigned int, const unsigned int,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
  
   /*! Resolution methods */
@@ -121,6 +130,11 @@ protected:
   float getEaccordion(const xAOD::Egamma *eg);
   float getE0Eaccordion(const xAOD::Egamma *eg);
   float getAvgMu();
+  
+  /* trig rings and offline rings helper method for feature extraction from xaod */
+  bool getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE );
+  bool getTrigCaloRings( const xAOD::TrigEMCluster *emCluster, std::vector<float> &ringsE );
+
 
   //Class Members
   // Athena services
@@ -151,11 +165,16 @@ protected:
   std::string m_offElContKey;
   /*! String for offline container key */
   std::string m_offPhContKey;
+  /*! Cut Counter Labels for histograms */
+  std::vector<std::string> m_cutlabels;
   /*! IsEM Labels for histograms */
   std::vector<std::string> m_labels;
   // Common data members
   /*! creates map of category and triggers for each category */
   //std::map<std::string,std::vector<std::string>> m_mamMap;
+  //
+  //Include more detailed histograms
+  bool m_detailedHists;
 
   /*! C Macros for plotting */  
 #define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Egamma* eg);

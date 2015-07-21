@@ -36,6 +36,7 @@
 #include "TrigEgammaAnalysisTools/ValidationException.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+
 using namespace std;
 //**********************************************************************
 
@@ -53,6 +54,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("File",m_file="Validation_Zee");
     declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
     declareProperty("LuminosityToolOnline", m_lumiBlockMuTool, "Luminosity Tool Online");
+    declareProperty("DetailedHistograms", m_detailedHists=false);
     m_storeGate = nullptr;
     m_histsvc = nullptr;
     m_parent = nullptr;
@@ -186,6 +188,8 @@ void TrigEgammaAnalysisBaseTool::addHistogram(TH1 *h, const std::string &dir) {
     if (!h)
         throw ValidationException("TrigEgammaAnalysisBaseTool::addHistogram(TH1 *h == 0, ...)!");
 
+
+    h->Sumw2(); //Invoke Sumw2 for all histograms
     std::vector<std::string>::iterator dirItr;
     std::string theDir;
     if (dir == "") {
@@ -390,68 +394,90 @@ TTree *TrigEgammaAnalysisBaseTool::tree(const std::string &treeName, const std::
 }
 
 
-void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std::string defaultPid,std::string &type, 
+void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std::string defaultPid,bool isL1,std::string &type, 
         float &threshold, float &l1threshold, std::string &l1type, std::string &pidname, bool &etcut, bool &perf){
-    std::string l1item = getL1Item(trigger);
-    ATH_MSG_DEBUG("Trigger L1item " << trigger << " " << l1item);
-    std::vector<std::string> strs;
-    boost::split(strs,trigger,boost::is_any_of("_"));
-    for (std::vector<std::string>::iterator it = strs.begin(); it != strs.end(); ++it)
-    {
-        ATH_MSG_DEBUG("Trigger parse "  << *it);
-    }
-    // Set probe Pid from second part of trigger name
-    // Non pid triggers use default Probe which is set as a property
-   
-
-    if(boost::contains(strs.at(0),"e")) type = "electron";
-    else if(boost::contains(strs.at(0),"g")) type = "photon";
-    else ATH_MSG_ERROR("Cannot set trigger type from name");
-    if(boost::contains(strs.at(1),"perf")){
-        pidname = defaultPid;
-        perf=true;
-        ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
-    }
-    else if(boost::contains(strs.at(1),"L2Star")){
-        pidname = defaultPid; 
-        perf=true;
-        ATH_MSG_DEBUG("L2Star " << perf << " " << pidname );
-    }
-    else if(boost::contains(strs.at(1),"hiptrt")){
-        pidname = defaultPid; 
-        perf=true;
-        ATH_MSG_DEBUG("hiptrt " << perf << " " << pidname );
-    }
-    else if( strs.at(1)== "etcut"){
-        pidname = defaultPid;
-        etcut=true;
-    }
-    else pidname = getProbePid(strs.at(1));
-
-    //Get the L1 information
-
-    if(boost::contains(strs.back(),"L1")){
-        std::string l1info = strs.back();
+    
+    // Analyze L1 or HLT item
+    bool result = boost::starts_with( trigger , "L1" );
+    if (result) {
+        std::string l1info = trigger; 
         l1info.erase(0,4);
         l1type = boost::trim_copy_if(l1info, boost::is_digit());
         std::string l1cut = boost::trim_copy_if(l1info, !boost::is_digit());
         l1threshold = atof(l1cut.c_str());
-
-        ATH_MSG_DEBUG("L1 item " << l1info << " " << l1threshold << " " << l1type);
+        threshold = l1threshold;
+        isL1=true;
     }
+    else {
 
-    // Get the threshold
-    std::string str_thr = strs.at(0);
-    str_thr.erase( 0, 1);
-    threshold = atof(str_thr.c_str());
+        std::string l1item = getL1Item(trigger);
+        ATH_MSG_DEBUG("Trigger L1item " << trigger << " " << l1item);
+        std::vector<std::string> strs;
+        boost::split(strs,trigger,boost::is_any_of("_"));
+        for (std::vector<std::string>::iterator it = strs.begin(); it != strs.end(); ++it)
+        {
+            ATH_MSG_DEBUG("Trigger parse "  << *it);
+        }
+        // Set probe Pid from second part of trigger name
+        // Non pid triggers use default Probe which is set as a property
 
-    ATH_MSG_DEBUG(trigger << " " << type << " " << pidname << " " << threshold); 
+
+        if(boost::contains(strs.at(0),"e")) type = "electron";
+        else if(boost::contains(strs.at(0),"g")) type = "photon";
+        else ATH_MSG_ERROR("Cannot set trigger type from name");
+        if(boost::contains(strs.at(1),"perf")){
+            pidname = defaultPid;
+            perf=true;
+            ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
+        }
+        else if(boost::contains(strs.at(1),"L2Star")){
+            pidname = defaultPid; 
+            perf=true;
+            ATH_MSG_DEBUG("L2Star " << perf << " " << pidname );
+        }
+        else if(boost::contains(strs.at(1),"hiptrt")){
+            pidname = defaultPid; 
+            perf=true;
+            ATH_MSG_DEBUG("hiptrt " << perf << " " << pidname );
+        }
+        else if( strs.at(1)== "etcut"){
+            pidname = defaultPid;
+            etcut=true;
+        }
+        else pidname = getProbePid(strs.at(1));
+
+        //Get the L1 information
+
+        if(boost::contains(strs.back(),"L1")){
+            std::string l1info = strs.back();
+            l1info.erase(0,4);
+            l1type = boost::trim_copy_if(l1info, boost::is_digit());
+            std::string l1cut = boost::trim_copy_if(l1info, !boost::is_digit());
+            l1threshold = atof(l1cut.c_str());
+
+            ATH_MSG_DEBUG("L1 item " << l1info << " " << l1threshold << " " << l1type);
+        }
+
+        // Get the threshold
+        std::string str_thr = strs.at(0);
+        str_thr.erase( 0, 1);
+        threshold = atof(str_thr.c_str());
+
+        isL1=false; 
+        ATH_MSG_DEBUG(trigger << " " << type << " " << pidname << " " << threshold);
+    }
 
 }
 void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     std::vector <std::string> dirnames;
     ATH_MSG_DEBUG("Booking Path " << basePath);
-   
+  
+    float etabins[21]={-2.47,-2.37,-2.01,-1.81,-1.52,-1.37,-1.15,-0.8,-0.6,-0.1,
+        0.0,0.1,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
+    float etbins[31]={0.,2.,4.,6.,8.,10.,
+        12.,14.,16.,18.,20.,22.,24.,26.,28.,
+        30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,65.,70.,100.};
+
     dirnames.push_back(basePath + "/Efficiency/L1Calo");
     dirnames.push_back(basePath + "/Efficiency/L2Calo");
     dirnames.push_back(basePath + "/Efficiency/L2");
@@ -461,26 +487,26 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_DEBUG(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
+        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
         addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
-        addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
         addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
         addHistogram(new TH1F("match_mee", "Trigger Matched Offline M(ee); m_ee [GeV] ; Count", 50, 50, 150.));
         
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 50, 0., 100.));
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
         addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
-        addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
         addHistogram(new TH1F("mee", "Offline M(ee); m_ee [GeV] ; Count", 50, 50, 150.));
         
-        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon", 50, 0., 100.));
-        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 50, 0., 100.));
+        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
+        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
         addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
-        addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
         addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 50, 0, 100));
 
@@ -503,14 +529,14 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     
     dirnames.clear();
     dirnames.push_back(basePath + "/Distributions/Offline");
-
+    dirnames.push_back(basePath + "/Distributions/HLT");
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_DEBUG(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 50, 0., 100.));
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30,etbins)); 
         addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
-        addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("eta", "eta; eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "phi; phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("e011", "e011; e011 ; Count", 165, -15., 150.));
         addHistogram(new TH1F("e132", "e132; e132 ; Count", 165, -15., 150.));
@@ -520,6 +546,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("ethad1", "ethad1; ehad1 ; Count", 50, -0.5, 0.5));
         addHistogram(new TH1F("weta1", "weta1; weta1 ; Count", 50, 0., 1.));
         addHistogram(new TH1F("weta2", "weta2; weta2 ; Count", 50, 0., 0.05));
+        addHistogram(new TH1F("wtots1", "wtots1; wtots1 ; Count", 50, 0., 0.05));
         addHistogram(new TH1F("f1", "f1; f1 ; Count", 50, -0.1, 1.1));
         addHistogram(new TH1F("f3", "f3; f3 ; Count", 50, -0.1, 0.25));
         addHistogram(new TH1F("e2tsts1", "e2tsts1; e2tsts1 ; Count", 50, 0., 100.));
@@ -528,6 +555,15 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("Rhad", "Rhad; Rhad ; Count", 50, -0.25, 0.25));
         addHistogram(new TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 50, -1., 1.));
         addHistogram(new TH1F("deta1", "deta1; deta1 ; Count", 90, -0.03, 0.03));
+        if(m_detailedHists){
+            addHistogram(new TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",
+                        50, -2.47, 2.47,
+                        90, -0.03, 0.03));
+        }
+        addHistogram(new TH1F("deta1_EMECA", "deta1 EMEC-A; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMECC", "deta1 EMEC-C; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMEBA", "deta1 EMEB-A; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMEBC", "deta1 EMEB-A; deta1 ; Count", 90, -0.03, 0.03));
         addHistogram(new TH1F("deta2", "deta2; deta2 ; Count", 90, -0.03, 0.03));
         addHistogram(new TH1F("dphi2", "dphi2; dphi2 ; Count", 100, -0.25, 0.25));
         addHistogram(new TH1F("dphiresc", "dphiresc; dphiresc ; Count", 100, -0.1, 0.1));
@@ -542,14 +578,14 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0));
     }
     dirnames.clear();
-    dirnames.push_back(basePath + "/Distributions/HLT");
+    /*dirnames.push_back(basePath + "/Distributions/HLT");
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_DEBUG(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("pt", "HLT p_{T}; p_{T} [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("et", "HLT E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
-        addHistogram(new TH1F("highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 1000.));
-        addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("pt", "HLT p_{T}; p_{T} [GeV] ; Count", 30,etbins));
+        addHistogram(new TH1F("et", "HLT E_{T}; E_{T} [GeV]; Count", 30,etbins));
+        addHistogram(new TH1F("highet", "HLT E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
+        addHistogram(new TH1F("eta", "eta; eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "phi; phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("e011", "e011; e011 ; Count", 165, -15., 150.));
         addHistogram(new TH1F("e132", "e132; e132 ; Count", 165, -15., 150.));
@@ -567,6 +603,15 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("Rhad", "Rhad; Rhad ; Count", 50,-0.25, 0.25));
         addHistogram(new TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 50, -1., 1.));
         addHistogram(new TH1F("deta1", "deta1; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMECA", "deta1 EMEC-A; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMECC", "deta1 EMEC-C; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMEBA", "deta1 EMEB-A; deta1 ; Count", 90, -0.03, 0.03));
+        addHistogram(new TH1F("deta1_EMEBC", "deta1 EMEB-A; deta1 ; Count", 90, -0.03, 0.03));
+        if(m_detailedHists){
+            addHistogram(new TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",
+                        50, -2.47, 2.47,
+                        90, -0.03, 0.03));
+        }
         addHistogram(new TH1F("deta2", "deta2; deta2 ; Count", 90, -0.03, 0.03));
         addHistogram(new TH1F("dphi2", "dphi2; dphi2 ; Count", 100, -0.25, 0.25));
         addHistogram(new TH1F("dphiresc", "dphiresc; dphiresc ; Count", 100, -0.1, 0.1));
@@ -579,7 +624,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("charge","charge; charge; Count", 4,-2,2));
         addHistogram(new TH1F("ptcone20", "ptcone20; ptcone20; Count", 100, 0.0, 5.0));
         addHistogram(new TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 100, 0.0, 0.5));
-    }
+    }*/
     dirnames.clear();
     dirnames.push_back(basePath + "/Distributions/EFCalo");
     for (int i = 0; i < (int) dirnames.size(); i++) {
@@ -590,7 +635,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("energyBE2", "Cluster Energy BE2; E [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("energyBE3", "Cluster Energy BE3; E [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("energy", "Cluster Energy BE3; E [GeV] ; Count", 50, 0., 100.));
-        addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("eta", "eta; eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "phi; phi ; Count", 50, -3.14, 3.14));
         addHistogram(new TH1F("eta_calo", "eta_calo; eta_calo ; Count", 50, -2.47, 2.47));
         addHistogram(new TH1F("phi_calo", "phi_calo; phi_calo ; Count", 50, -3.14, 3.14));
@@ -608,9 +653,35 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         ATH_MSG_DEBUG(dirnames[i]);
         addDirectory(dirnames[i]);
         addHistogram(new TH1F("trkClusDeta", "Trk Clus Deta; deta ; Count", 50, -0.5, 0.5));
-        addHistogram(new TH1F("trkClusDphi", "Trk Clus Dphi; dphi ; Count", 50, -0.5, 0.5));
-    
+        addHistogram(new TH1F("trkClusDphi", "Trk Clus Dphi; dphi ; Count", 50, -0.5, 0.5)); 
     }
+
+    /*
+    dirnames.clear();
+    dirnames.push_back(basePath + "/Distributions/L2Calo");
+    for (int i = 0; i < (int) dirnames.size(); i++) {
+        ATH_MSG_DEBUG(dirnames[i]);
+        addDirectory(dirnames[i]);
+        addHistogram(new TH1F("et", "HLT E_{T}; E_{T} [GeV]; Count", 50, 0., 100.));
+        addHistogram(new TH1F("eta", "#eta; #eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("phi", "#phi; #phi ; Count", 50, -3.14, 3.14));
+        addHistogram(new TH1F("ringer_nnOutput", "Discriminator distribution; nnOutput ; Count", 100, -1, 1));
+        addHistogram(new TH2F("ringer_etVsEta", "ringer count as function of #eta and E_{t}; #eta; E_{t} [GeV]; Count",
+                              NETABINS,ETABINS, NETBINS, ETBINS ));
+        
+        for(unsigned layer =0; layer < 7; ++layer){
+          unsigned minRing, maxRing;  std::string strLayer;
+          ringer::TrigCaloRingsHelper::parseCaloFeatures( layer, minRing, maxRing, strLayer );
+          addDirectory(dirnames[i]+"/rings_"+strLayer);
+          for(unsigned r=minRing; r<=maxRing; ++r){
+            stringstream ss_title, ss;
+            ss_title << "ringer_ring#" << r;  ss << "L2Calo ringer ("<< strLayer <<"); ring#" << r << " E [MeV]; Count";
+            addHistogram(new TH1F(ss_title.str().c_str(), ss.str().c_str(), 200, -20, 1500.));
+          }
+        }///Loop for each calo layers    
+    }///L2Calo monitoring
+    */
+
     dirnames.clear();
     dirnames.push_back(basePath + "/Distributions/L1Calo");
     for (int i = 0; i < (int) dirnames.size(); i++) {
@@ -620,7 +691,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("roi_et", "RoI word Cluster Energy; E [GeV] ; Count", 50, 0., 100.));
         addHistogram(new TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.));
         addHistogram(new TH1F("hadCore", "Hadronic Isolation; E [GeV] ; Count", 50, -1., 20.));
-        addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47));
+        addHistogram(new TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5));
         addHistogram(new TH1F("phi", "phi; phi ; Count", 50, -3.14, 3.14));
     }
     dirnames.clear();
@@ -638,7 +709,9 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         ATH_MSG_DEBUG(dirnames[i]);
         addDirectory(dirnames[i]);
         addHistogram(new TH1F("pt", "HLT p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 200, -1.5, 1.5));
-        addHistogram(new TH1F("et", "HLT E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.5, 0.5));
+        addHistogram(new TH1F("et", "HLT E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+        addHistogram(new TH1F("et_cnv", "HLT E_{T} resolution for converted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+        addHistogram(new TH1F("et_uncnv", "HLT E_{T} resolution for unconverted Photons; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
         addHistogram(new TH1F("eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.2, 0.2));
         addHistogram(new TH1F("phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.2, 0.2));
 
@@ -648,6 +721,21 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2F("res_etVsEt", "HLT E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
                               50, 0., 100.,
                               200, -0.1, 0.1));
+        
+        addHistogram(new TH2F("res_cnv_etVsEta", "HLT E_{T} resolution as function of #eta for converted Photons; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, -2.47, 2.47,
+                              200, -0.1, 0.1));
+        addHistogram(new TH2F("res_cnv_etVsEt", "HLT E_{T} resolution as function of E_{T} for converted Photons; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, 0., 100.,
+                              200, -0.1, 0.1));
+        
+        addHistogram(new TH2F("res_uncnv_etVsEta", "HLT E_{T} resolution as function of #eta for unconverted Photons; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, -2.47, 2.47,
+                              200, -0.1, 0.1));
+        addHistogram(new TH2F("res_uncnv_etVsEt", "HLT E_{T} resolution as function of E_{T} for unconverted Photons; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, 0., 100.,
+                              200, -0.1, 0.1));
+        
         addHistogram(new TH2F("res_ptcone20_relVsEta", "HLT ptcone20/pt resolution as function of #eta; #eta; (on-off)/off; Count",
                               50, -2.47, 2.47,
                               200, -0.1, 0.1));
@@ -666,32 +754,147 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
 	addHistogram(new TH1F("res_etInEta2", "HLT E_{T} resolution in #eta = [1.55,1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
 	addHistogram(new TH1F("res_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
 
+	addHistogram(new TH1F("res_cnv_etInEta0", "HLT E_{T} resolution in #eta = [0,1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_cnv_etInEta1", "HLT E_{T} resolution in #eta = [1.37,1.52]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_cnv_etInEta2", "HLT E_{T} resolution in #eta = [1.55,1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_cnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+        
+	addHistogram(new TH1F("res_uncnv_etInEta0", "HLT E_{T} resolution in #eta = [0,1.37]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_uncnv_etInEta1", "HLT E_{T} resolution in #eta = [1.37,1.52]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_uncnv_etInEta2", "HLT E_{T} resolution in #eta = [1.55,1.8]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+	addHistogram(new TH1F("res_uncnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
+
         // Relative resolutions
         addHistogram(new TH1F("e011", "e011 resolution; (e011(on)-e011(off))/e011(off) ; Count", 50, -0.05, 0.05));
         addHistogram(new TH1F("e132", "e132 resolution; (e132(on)-e132(off))/e132(off) ; Count", 50, -0.05, 0.05));
         addHistogram(new TH1F("e237", "e237 resolution; (e237(on)-e237(off))/e237(off) ; Count", 50, -0.05, 0.05));
         addHistogram(new TH1F("e277", "e277 resolution; (e277(on)-e277(off))/e277(off) ; Count", 50, -0.05, 0.05));
         addHistogram(new TH1F("ethad", "ethad resolution; (ethad(on)-ethad(off))/ethad(off) ; Count", 100, -0.5, 0.5));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_ethadVsEta", "HLT E_{T} Had resolution as function of #eta; #eta; (ethad(on)-ethad(off))/ethad(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.5, 0.5));
+            addHistogram(new TH2F("res_ethadVsEt", "HLT E_{T} Had resolution as function of E_{T}; E_{T} [GeV]; (ethad(on)-ethad(off))/ethad(off); Count",
+                        50, 0., 100.,
+                        50, -0.5, 0.5));
+	}
         addHistogram(new TH1F("ethad1", "ethad1 resolution; (ethad1(on)-ethad1(off))/ethad1(off) ; Count", 100, -0.5, 0.5));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_ethad1VsEta", "HLT E_{T} Had1 resolution as function of #eta; #eta; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.5, 0.5));
+            addHistogram(new TH2F("res_ethad1VsEt", "HLT E_{T} Had1 resolution as function of E_{T}; E_{T} [GeV]; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                        50, 0., 100.,
+                              50, -0.5, 0.5));
+	}
         addHistogram(new TH1F("Rhad", "Rhad resolution; (Rhad(on)-Rhad(off))/Rhad(off) ; Count", 50, -10., 10.));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_RhadVsEta", "HLT E_{T} Rhad resolution as function of #eta; #eta; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_RhadVsEt", "HLT E_{T} RHad resolution as function of E_{T}; E_{T} [GeV]; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+	}
         addHistogram(new TH1F("Rhad1", "Rhad1; Rhad1 resolution; (Rhad1(on)-Rhad1(off))/Rhad1(off)", 50, -10., 10.));
-        addHistogram(new TH1F("Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 50, -0.05, 0.05));
-        addHistogram(new TH1F("Rphi", "Rphi resolution; (Rphi(on)-Rphi(off))/Rphi(off) ; Count", 50, -0.05, 0.05));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_Rhad1VsEta", "HLT E_{T} Rhad1 resolution as function of #eta; #eta; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_Rhad1VsEt", "HLT E_{T} RHad1 resolution as function of E_{T}; E_{T} [GeV]; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+	}
+        addHistogram(new TH1F("Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 80, -0.02, 0.02));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_RetaVsEta", "HLT Reta resolution as function of #eta; #eta; (Reta(on)-Reta(off))/Reta(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_RetaVsEt", "HLT Reta resolution as function of E_{T}; E_{T} [GeV]; (Reta(on)-Reta(off))/Reta(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+	}
+        addHistogram(new TH1F("Rphi", "Rphi resolution; (Rphi(on)-Rphi(off))/Rphi(off) ; Count", 80, -0.02, 0.02));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_RphiVsEta", "HLT Rphi resolution as function of #eta; #eta; (Rphi(on)-Rphi(off))/Rphi(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.05, 0.05));
+            addHistogram(new TH2F("res_RphiVsEt", "HLT Rphi resolution as function of E_{T}; E_{T} [GeV]; (Rphi(on)-Rphi(off))/Rphi(off); Count",
+                        50, 0., 100.,
+                        50, -0.05, 0.05));
+	}
         addHistogram(new TH1F("weta1", "weta1 resolution; (weta1(on)-weta1(off))/weta1(off) ; Count", 50, -0.05, 0.05));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_weta1VsEta", "HLT weta1 resolution as function of #eta; #eta; (weta1(on)-weta1(off))/weta1(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.05, 0.05));
+            addHistogram(new TH2F("res_weta1VsEt", "HLT weta1 resolution as function of E_{T}; E_{T} [GeV]; (weta1(on)-weta1(off))/weta1(off); Count",
+                        50, 0., 100.,
+                        50, -0.05, 0.05));
+	}
         addHistogram(new TH1F("weta2", "weta2 resolution; (weta2(on)-weta2(off))/weta2(off) ; Count", 50, -0.05, 0.05));
-        addHistogram(new TH1F("f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 50, -0.05, 0.05));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_weta2VsEta", "HLT weta2 resolution as function of #eta; #eta; (weta2(on)-weta2(off))/weta2(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.05, 0.05));
+            addHistogram(new TH2F("res_weta2VsEt", "HLT weta2 resolution as function of E_{T}; E_{T} [GeV]; (weta2(on)-weta2(off))/weta2(off); Count",
+                        50, 0., 100.,
+                        50, -0.05, 0.05));
+	}
+        addHistogram(new TH1F("wtots1", "wtots1 resolution; (wtots1(on)-wtots1(off))/wtots1(off) ; Count", 50, -0.05, 0.05));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_wtots1VsEta", "HLT wtots1 resolution as function of #eta; #eta; (wtots1(on)-wtots1off))/wtots1(off); Count",
+                        50,-2.47,2.47,
+                        50, -0.05, 0.05));
+            addHistogram(new TH2F("res_wtots1VsEt", "HLT wtots1 resolution as function of E_{T}; E_{T} [GeV]; (wtots1(on)-wtots1(off))/wtots1(off); Count",
+                        50, 0., 100.,
+                        50, -0.05, 0.05));
+	}
+        addHistogram(new TH1F("f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 80, -0.02, 0.02));
+	if ( m_detailedHists ) {
+            addHistogram(new TH2F("res_f1VsEta", "HLT f1 resolution as function of #eta; #eta; (f1(on)-f1(off))/f1(off); Count",
+                        50, -2.47, 2.47,
+                        50, -0.05, 0.05));
+            addHistogram(new TH2F("res_f1VsEt", "HLT f1 resolution as function of E_{T}; E_{T} [GeV]; (f1(on)-f1(off))/f1(off); Count",
+                        50, 0., 100.,
+                        50, -0.05, 0.05));
+	}
         addHistogram(new TH1F("f3", "f3 resolution; (f3(on)-f3(off))/f3(off) ; Count", 50, -0.05, 0.05));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_f3VsEta", "HLT f3 resolution as function of #eta; #eta; (f3(on)-f3(off))/f3(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_f3VsEt", "HLT f3 resolution as function of E_{T}; E_{T} [GeV]; (f3(on)-f3(off))/f3(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+	}
         addHistogram(new TH1F("e2tsts1", "e2tsts1 resolution; e2tsts1 ; Count", 50, -10, 10.));
-        addHistogram(new TH1F("eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 200, -0.001, 0.001));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_e2tsts1VsEta", "HLT e2tsts1 resolution as function of #eta; #eta; (e2tsts1(on)-e2tsts1(off))/e2tsts1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_e2tsts1VsEt", "HLT e2tsts1 resolution as function of E_{T}; E_{T} [GeV]; (e2tsts1(on)-e2tsts1(off))/e2tsts1(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+	}
+        addHistogram(new TH1F("eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 60, -0.0015, 0.0015));
+	if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_eratioVsEta", "HLT eratio resolution as function of #eta; #eta; (eratio(on)-eratio(off))/eratio(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.001, 0.001));
+        addHistogram(new TH2F("res_eratioVsEt", "HLT eratio resolution as function of E_{T}; E_{T} [GeV]; (eratio(on)-eratio(off))/eratio(off); Count",
+                              50, 0., 100.,
+                              50, -0.001, 0.001));
+	}
         addHistogram(new TH1F("deta1", "deta1; deta1 ; (deta1(on)-deta1(off))/deta1(off)", 100, -1., 1.));
         addHistogram(new TH1F("deta2", "deta2; deta2 ; (deta2(on)-deta2(off))/deta2(off)", 100, -1., 1.));
         addHistogram(new TH1F("dphi2", "dphi2; dphi2 ; (dphi2(on)-dphi2(off))/dphi2(off)", 100, -1., 1.));
         addHistogram(new TH1F("dphiresc", "dphiresc; (dphires(on)-dphires(off))/dphires(off) ; Count", 100, -1., 1.));
         addHistogram(new TH1F("d0", "resolution d0; (d0(on)-d0(off))/(d0(off)) ; Count", 100, -0.5, 0.5));
         addHistogram(new TH1F("d0sig", "resolution d0sig; (d0sig(on)-d0sig(off))/(d0sig(off) ; Count", 50, -10, 10));
-        addHistogram(new TH1F("eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off))/eProbHT(off)); Count",50, -1, 1));
+        addHistogram(new TH1F("eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off))/eProbHT(off)); Count",200, -1, 1));
         addHistogram(new TH1F("nscthits","resolution nSCTHit; (nSCTHits(on)-nSCTHits(off); Count",20, -10, 10));
-        addHistogram(new TH1F("npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -10, 10));
+        addHistogram(new TH1F("npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -5, 5));
         addHistogram(new TH1F("ptcone20", "resolution ptcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1));
         addHistogram(new TH1F("ptcone20_rel", "resolution ptcone20/pt; ptcone20/pt (on-off)/off; Count", 200, -0.1, 0.1));
     }
@@ -725,11 +928,17 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2F("res_ptcone20_relVsMu", "HLT ptcone20/pt resolution as function of avg #mu; #mu; on-off; Count",
                               50, 0, 100,
                               200, -0.2, 0.2));
+        addHistogram(new TH2F("ptcone20_onVsOff", "online ptcone20 vs offline ptcone20; offline [MeV]; online [MeV]; Count",
+                              200, 0.0, 10000.0,
+                              200, 0.0, 10000.0));
+        addHistogram(new TH2F("ptcone20_rel_onVsOff", "online ptcone20/pt vs offline ptcone20/pt; offline; online; Count",
+                              200, 0.0, 0.2,
+                              200, 0.0, 0.2));
 
-	addHistogram(new TH1F("res_etInEta0", "HLT E_{T} resolution in #eta = [0,1.37]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
-	addHistogram(new TH1F("res_etInEta1", "HLT E_{T} resolution in #eta = [1.37,1.52]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
-	addHistogram(new TH1F("res_etInEta2", "HLT E_{T} resolution in #eta = [1.55,1.8]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
-	addHistogram(new TH1F("res_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
+      	addHistogram(new TH1F("res_etInEta0", "HLT E_{T} resolution in #eta = [0,1.37]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
+      	addHistogram(new TH1F("res_etInEta1", "HLT E_{T} resolution in #eta = [1.37,1.52]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
+      	addHistogram(new TH1F("res_etInEta2", "HLT E_{T} resolution in #eta = [1.55,1.8]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
+      	addHistogram(new TH1F("res_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.1, 0.1));
 
         // Relative resolutions
         addHistogram(new TH1F("e011", "e011 resolution; (e011(on)-e011(off)) ; Count", 50, -0.05, 0.05));
@@ -756,25 +965,137 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("d0sig", "resolution d0sig; (d0sig(on)-d0sig(off)) ; Count", 50, -10, 10));
         addHistogram(new TH1F("eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1));
         addHistogram(new TH1F("nscthits","resolution nSCTHit; (nSCTHits(on)-nSCTHits(off); Count",20, -10, 10));
-        addHistogram(new TH1F("npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -10, 10));
+        addHistogram(new TH1F("npixhits","resolution nPixHit; (nPixHits(on)-nPixHits(off)); Count",10, -5, 5));
         addHistogram(new TH1F("ptcone20", "resolution ptcone20; ptcone20 (on-off); Count", 200, -20, 20));
         addHistogram(new TH1F("ptcone20_rel", "resolution ptcone20/pt; ptcone20/pt (on-off); Count", 200, -0.1, 0.1));
+        addHistogram(new TH1F("wtots1", "wtots1 resolution; (wtots1(on)-wtots1(off)) ; Count", 50, -0.05, 0.05));
     }
     
     dirnames.clear();
-    dirnames.push_back(basePath + "/Resolutions/L2");
+    //dirnames.push_back(basePath + "/Resolutions/L2");
     dirnames.push_back(basePath + "/Resolutions/L2Calo");
+    dirnames.push_back(basePath + "/Resolutions/L2Calo_vs_HLT");
     for (int i = 0; i < (int) dirnames.size(); i++) {
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("et","res_et",160,-40.0,40.0));
-        addHistogram(new TH2F("et_eta","res_et_eta",50,-2.5,2.5,160,-40.0,40.0));
-        addHistogram(new TH2F("et_et","res_et_et",80,0,80,160,-40.0,40.0));
+        addHistogram(new TH1F("pt", "L2Calo p_{T} resolution; (p_{T}(on)-p_{T}(off))/p_{T}(off) ; Count", 200, -1.5, 1.5));
+        addHistogram(new TH1F("et", "L2Calo E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.5, 0.5));
+        addHistogram(new TH1F("eta", "L2Calo #eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.2, 0.2));
+        addHistogram(new TH1F("phi", "L2Calo #phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.2, 0.2));
+
+        addHistogram(new TH2F("res_etVsEta", "L2Calo E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, -2.47, 2.47,
+                              200, -0.1, 0.1));
+        addHistogram(new TH2F("res_etVsEt", "L2Calo E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
+                              50, 0., 100.,
+                              200, -0.1, 0.1));
+
+
+        addHistogram(new TH1F("ethad", "ethad resolution; (ethad(on)-ethad(off))/ethad(off) ; Count", 100, -0.5, 0.5));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_ethadVsEta", "L2Calo E_{T} Had resolution as function of #eta; #eta; (ethad(on)-ethad(off))/ethad(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.5, 0.5));
+        addHistogram(new TH2F("res_ethadVsEt", "L2Calo E_{T} Had resolution as function of E_{T}; E_{T} [GeV]; (ethad(on)-ethad(off))/ethad(off); Count",
+                              50, 0., 100.,
+                              50, -0.5, 0.5));
+        }
+        addHistogram(new TH1F("ethad1", "ethad1 resolution; (ethad1(on)-ethad1(off))/ethad1(off) ; Count", 100, -0.5, 0.5));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_ethad1VsEta", "L2Calo E_{T} Had1 resolution as function of #eta; #eta; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.5, 0.5));
+        addHistogram(new TH2F("res_ethad1VsEt", "L2Calo E_{T} Had1 resolution as function of E_{T}; E_{T} [GeV]; (ethad1(on)-ethad1(off))/ethad1(off); Count",
+                              50, 0., 100.,
+                              50, -0.5, 0.5));
+        }
+        addHistogram(new TH1F("Rhad", "Rhad resolution; (Rhad(on)-Rhad(off))/Rhad(off) ; Count", 50, -10., 10.));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_RhadVsEta", "L2Calo E_{T} Rhad resolution as function of #eta; #eta; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_RhadVsEt", "L2Calo E_{T} RHad resolution as function of E_{T}; E_{T} [GeV]; (Rhad(on)-Rhad(off))/Rhad(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+        }
+        addHistogram(new TH1F("Rhad1", "Rhad1; Rhad1 resolution; (Rhad1(on)-Rhad1(off))/Rhad1(off)", 50, -10., 10.));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_Rhad1VsEta", "L2Calo E_{T} Rhad1 resolution as function of #eta; #eta; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_Rhad1VsEt", "L2Calo E_{T} RHad1 resolution as function of E_{T}; E_{T} [GeV]; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+        }
+        addHistogram(new TH1F("Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 50, -0.05, 0.05));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_RetaVsEta", "L2Calo Reta resolution as function of #eta; #eta; (Reta(on)-Reta(off))/Reta(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_RetaVsEt", "L2Calo Reta resolution as function of E_{T}; E_{T} [GeV]; (Reta(on)-Reta(off))/Reta(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+        }
+        addHistogram(new TH1F("weta1", "weta1 resolution; (weta1(on)-weta1(off))/weta1(off) ; Count", 50, -0.05, 0.05));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_weta1VsEta", "L2Calo weta1 resolution as function of #eta; #eta; (weta1(on)-weta1(off))/weta1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_weta1VsEt", "L2Calo weta1 resolution as function of E_{T}; E_{T} [GeV]; (weta1(on)-weta1(off))/weta1(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+        }
+        addHistogram(new TH1F("weta2", "weta2 resolution; (weta2(on)-weta2(off))/weta2(off) ; Count", 50, -0.05, 0.05));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_weta2VsEta", "L2Calo weta2 resolution as function of #eta; #eta; (weta2(on)-weta2(off))/weta2(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_weta2VsEt", "L2Calo weta2 resolution as function of E_{T}; E_{T} [GeV]; (weta2(on)-weta2(off))/weta2(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+        }
+        addHistogram(new TH1F("f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 50, -0.05, 0.05));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_f1VsEta", "L2Calo f1 resolution as function of #eta; #eta; (f1(on)-f1(off))/f1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_f1VsEt", "L2Calo f1 resolution as function of E_{T}; E_{T} [GeV]; (f1(on)-f1(off))/f1(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+        }
+        addHistogram(new TH1F("f3", "f3 resolution; (f3(on)-f3(off))/f3(off) ; Count", 50, -0.05, 0.05));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_f3VsEta", "L2Calo f3 resolution as function of #eta; #eta; (f3(on)-f3(off))/f3(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.05, 0.05));
+        addHistogram(new TH2F("res_f3VsEt", "L2Calo f3 resolution as function of E_{T}; E_{T} [GeV]; (f3(on)-f3(off))/f3(off); Count",
+                              50, 0., 100.,
+                              50, -0.05, 0.05));
+        }
+        addHistogram(new TH1F("e2tsts1", "e2tsts1 resolution; e2tsts1 ; Count", 50, -10, 10.));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_e2tsts1VsEta", "L2Calo e2tsts1 resolution as function of #eta; #eta; (e2tsts1(on)-e2tsts1(off))/e2tsts1(off); Count",
+                              50, -2.47, 2.47,
+                              50, -10, 10));
+        addHistogram(new TH2F("res_e2tsts1VsEt", "L2Calo e2tsts1 resolution as function of E_{T}; E_{T} [GeV]; (e2tsts1(on)-e2tsts1(off))/e2tsts1(off); Count",
+                              50, 0., 100.,
+                              50, -10, 10));
+        }
+        addHistogram(new TH1F("eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 200, -0.001, 0.001));
+        if ( m_detailedHists ) {
+        addHistogram(new TH2F("res_eratioVsEta", "L2Calo eratio resolution as function of #eta; #eta; (eratio(on)-eratio(off))/eratio(off); Count",
+                              50, -2.47, 2.47,
+                              50, -0.001, 0.001));
+        addHistogram(new TH2F("res_eratioVsEt", "L2Calo eratio resolution as function of E_{T}; E_{T} [GeV]; (eratio(on)-eratio(off))/eratio(off); Count",
+                              50, 0., 100.,
+                              50, -0.001, 0.001));
+        }
     }
 
 }
 
 void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr,
         const float et, const float eta, const float phi,const float avgmu /*=0.*/,const float mass /*=0.*/){
+
     cd(dir);
     hist1("et")->Fill(et);
     hist1("highet")->Fill(et);
@@ -813,35 +1134,8 @@ void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPas
 
 }
 
-//void TrigEgammaAnalysisBaseTool::fillHistos(const std::string dir,const float etthr,
-//        const float et, const float eta, const float phi,const float avgmu /*=0.*/,const float mass /*=0.*/){
-/*    cd(dir);
-    hist1("et")->Fill(et);
-    hist1("highet")->Fill(et);
-    hist1("mee")->Fill(mass);
-    if(et > etthr+1.0){
-        hist1("eta")->Fill(eta);
-        hist1("phi")->Fill(phi);
-        hist1("mu")->Fill(avgmu);
-    }
-}*/
-
-//void TrigEgammaAnalysisBaseTool::fillMatchHistos(const std::string dir,const float etthr,
-//        const float et, const float eta, const float phi,const float avgmu /*=0.*/,const float mass /*=0.*/){
-/*    cd(dir);
-    hist1("match_et")->Fill(et);
-    hist1("match_highet")->Fill(et);
-    hist1("match_mee")->Fill(mass);
-    if(et > etthr+1.0){
-        hist1("match_eta")->Fill(eta);
-        hist1("match_phi")->Fill(phi);
-        hist1("match_mu")->Fill(avgmu);
-    }
-}*/
-
 void TrigEgammaAnalysisBaseTool::finalizeEfficiency(std::string dir){
     cd(dir);
-
     // No longer requires, using TProfile for efficiency
 }
 
@@ -883,9 +1177,37 @@ void TrigEgammaAnalysisBaseTool::fillEFCalo(const std::string dir, const xAOD::C
 
 void TrigEgammaAnalysisBaseTool::fillL2Electron(const std::string dir, const xAOD::TrigElectron *el){
     cd(dir);
-    if(!el) ATH_MSG_WARNING("TrigElectron NULL");
+    if(!el) ATH_MSG_DEBUG("TrigElectron NULL");
 
 }
+
+void TrigEgammaAnalysisBaseTool::fillL2Calo(const std::string dir, const xAOD::TrigEMCluster *emCluster){
+  cd(dir);
+  if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
+  /*
+  ATH_MSG_DEBUG("L2 Calo distributions.");
+  bool hasRings = false;
+  std::vector<float> ringsE;
+  hist1("et")->Fill(emCluster->et()/1.e3);
+  hist1("eta")->Fill(emCluster->eta());
+  hist1("phi")->Fill(emCluster->phi());
+  hasRings = getTrigCaloRings(emCluster, ringsE );
+  if(hasRings){
+    hist2("ringer_etVsEta")->Fill(emCluster->eta(), emCluster->et()/1.e3);
+    ///Fill rings pdf for each ring
+    for(unsigned layer =0; layer < 7; ++layer){
+      unsigned minRing, maxRing;  std::string strLayer;
+      ringer::TrigCaloRingsHelper::parseCaloFeatures( layer, minRing, maxRing, strLayer );
+      cd(dir+"/rings_"+strLayer);
+      for(unsigned r=minRing; r<=maxRing; ++r){
+        stringstream ss;
+        ss << "ringer_ring#" << r;
+        hist1(ss.str())->Fill( ringsE.at(r) );
+      }///loop into rings
+    }///loop for each calo layer
+  }*/
+}
+
 
 void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
     cd(dir);
@@ -904,6 +1226,7 @@ void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xA
     hist1("Rphi")->Fill(getShowerShape_Rphi(eg));
     hist1("weta1")->Fill(getShowerShape_weta1(eg));
     hist1("weta2")->Fill(getShowerShape_weta2(eg));
+    hist1("wtots1")->Fill(getShowerShape_wtots1(eg));
     hist1("f1")->Fill(getShowerShape_f1(eg));
     hist1("f3")->Fill(getShowerShape_f3(eg));
     if(eg->type()==xAOD::Type::Electron){
@@ -928,7 +1251,16 @@ void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD:
     cd(dir);  
     ATH_MSG_DEBUG("Fill tracking");
     if(!eg) ATH_MSG_DEBUG("Online pointer fails"); 
+    float cleta = eg->caloCluster()->eta();
     hist1("deta1")->Fill(getCaloTrackMatch_deltaEta1(eg));
+    if(cleta > 1.375 && cleta < 3.2)
+        hist1("deta1_EMECA")->Fill(getCaloTrackMatch_deltaEta1(eg));
+    if(cleta < -1.375 && cleta > -3.2)
+        hist1("deta1_EMECC")->Fill(getCaloTrackMatch_deltaEta1(eg));
+    if(cleta > 0 && cleta < 1.375)
+        hist1("deta1_EMEBA")->Fill(getCaloTrackMatch_deltaEta1(eg));
+    if(cleta < 0 && cleta > -1.375)
+        hist1("deta1_EMEBC")->Fill(getCaloTrackMatch_deltaEta1(eg));
     hist1("deta2")->Fill(getCaloTrackMatch_deltaEta2(eg));
     hist1("dphi2")->Fill(getCaloTrackMatch_deltaPhi2(eg));
     hist1("dphiresc")->Fill(getCaloTrackMatch_deltaPhiRescaled2(eg));
@@ -940,20 +1272,26 @@ void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD:
     hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
     hist1("charge")->Fill(eg->charge());
     hist1("pt")->Fill(getTrack_pt(eg)/1e3);
-
+    if (m_detailedHists ) {
+        hist2("deta1_vs_clusterEta")->Fill(getCluster_eta(eg),getCaloTrackMatch_deltaEta1(eg));
+    }
 }
 
 void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const xAOD::Egamma *onl, const xAOD::Egamma *off){
    
     cd(dir);
     ATH_MSG_DEBUG("Fill Resolution");
+    float getOnlEt=0;
     if(onl->type()==xAOD::Type::Electron){
         const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
+        float deltaR = 999.0;
+	deltaR = dR(elonl->caloCluster()->eta(),elonl->caloCluster()->phi(), eloff->caloCluster()->eta(),eloff->caloCluster()->phi() );
         hist1("pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff))/getTrack_pt(eloff));
         hist1("et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
         hist1("eta")->Fill((elonl->trackParticle()->eta()-eloff->trackParticle()->eta())/eloff->trackParticle()->eta());
         hist1("phi")->Fill((elonl->trackParticle()->phi()-eloff->trackParticle()->phi())/eloff->trackParticle()->phi());
+	getOnlEt = getEt(elonl);
 
 	hist2("res_etVsEta")->Fill(elonl->trackParticle()->eta(),
 				   (getEt(elonl)-getEt(eloff))/getEt(eloff)
@@ -966,9 +1304,9 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
 	  hist1("res_etInEta0")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
 	else if( feta >=1.37 && feta <= 1.52 )
 	  hist1("res_etInEta1")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
-	else if( feta >= 1.55 && feta < 1.8 )
+	else if( feta >= 1.52 && feta < 1.81 )
 	  hist1("res_etInEta2")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
-	else if( feta >= 1.8 && feta < 2.45 )
+	else if( feta >= 1.81 && feta < 2.47 )
 	  hist1("res_etInEta3")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
         
         hist1("deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-getCaloTrackMatch_deltaEta1(eloff))/getCaloTrackMatch_deltaEta1(eloff));
@@ -980,26 +1318,24 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
         hist1("eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl) - getTrackSummaryFloat_eProbabilityHT(eloff))/getTrackSummaryFloat_eProbabilityHT(eloff));
         hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
+
+        // ptcone20 isolation
         if (getIsolation_ptcone20(eloff) > 0) {
           hist1("ptcone20")->Fill((getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff))/getIsolation_ptcone20(eloff));
           if (getEt(elonl) > 0 && getEt(eloff) > 0) {
-            hist1("ptcone20_rel")->Fill((getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff)));
+            hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff));
+            hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
+                                                 getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff));
+            hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
+                                                getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff));
+            hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
+                                                getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff));
+            hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
+                                            getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff))/(getIsolation_ptcone20(eloff));
           }
-          hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
-                                               (getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff))
-                                               );
-          hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
-                                              (getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff))
-                                              );
-          hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
-                                              (getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff))/(getIsolation_ptcone20(eloff)/getEt(eloff))
-                                              );
-          hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
-                                          (getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff))/(getIsolation_ptcone20(eloff))
-                                          );
         }
-    }
-    else{ 
+	
+    } else{ 
       hist1("et")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
       hist1("eta")->Fill((onl->eta()-off->eta())/off->eta());
       hist1("phi")->Fill((onl->phi()-off->phi())/off->phi());
@@ -1011,6 +1347,44 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
 				 (getCluster_et(onl)-getCluster_et(off))/getCluster_et(off)
 				 );
       float feta = fabs(onl->eta());
+      const xAOD::Photon* phoff =static_cast<const xAOD::Photon*> (off);
+      if(xAOD::EgammaHelpers::isConvertedPhoton(phoff)) {
+          hist1("et_cnv")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          hist2("res_cnv_etVsEta")->Fill(onl->eta(),
+                  (getCluster_et(onl)-getCluster_et(off))/getCluster_et(off)
+                  );
+          hist2("res_cnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
+                  (getCluster_et(onl)-getCluster_et(off))/getCluster_et(off)
+                  );
+
+          if( feta < 1.37 )
+              hist1("res_cnv_etInEta0")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >=1.37 && feta <= 1.52 )
+              hist1("res_cnv_etInEta1")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >= 1.52 && feta < 1.81 )
+              hist1("res_cnv_etInEta2")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >= 1.81 && feta < 2.47 )
+              hist1("res_cnv_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+      }
+      else {
+          hist1("et_uncnv")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          hist2("res_uncnv_etVsEta")->Fill(onl->eta(),
+                  (getCluster_et(onl)-getCluster_et(off))/getCluster_et(off)
+                  );
+          hist2("res_uncnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
+                  (getCluster_et(onl)-getCluster_et(off))/getCluster_et(off)
+                  );
+
+          if( feta < 1.37 )
+              hist1("res_uncnv_etInEta0")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >=1.37 && feta <= 1.52 )
+              hist1("res_uncnv_etInEta1")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >= 1.52 && feta < 1.81 )
+              hist1("res_uncnv_etInEta2")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+          else if( feta >= 1.81 && feta < 2.47 )
+              hist1("res_uncnv_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
+      }
+    
       if( feta < 1.37 )
 	hist1("res_etInEta0")->Fill((getCluster_et(onl)-getCluster_et(off))/getCluster_et(off));
       else if( feta >=1.37 && feta <= 1.52 )
@@ -1026,21 +1400,118 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
     hist1("e237")->Fill((getShowerShape_e237(onl)-getShowerShape_e237(off))/getShowerShape_e237(off));
     hist1("e277")->Fill((getShowerShape_e277(onl)-getShowerShape_e277(off))/getShowerShape_e277(off));
     hist1("ethad")->Fill((getShowerShape_ethad(onl)-getShowerShape_ethad(off))/getShowerShape_ethad(off));
+    if (m_detailedHists ) {
+	hist2("res_ethadVsEta")->Fill(onl->eta(),
+				   (getShowerShape_ethad(onl)-getShowerShape_ethad(off))/getShowerShape_ethad(off)
+				      );
+	hist2("res_ethadVsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_ethad(onl)-getShowerShape_ethad(off))/getShowerShape_ethad(off)
+				   );
+    }
     hist1("ethad1")->Fill((getShowerShape_ethad1(onl)-getShowerShape_ethad1(off))/getShowerShape_ethad1(off));
+    if (m_detailedHists ) {
+	hist2("res_ethad1VsEta")->Fill(onl->eta(),
+				   (getShowerShape_ethad1(onl)-getShowerShape_ethad1(off))/getShowerShape_ethad1(off)
+				   );
+	hist2("res_ethad1VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_ethad1(onl)-getShowerShape_ethad1(off))/getShowerShape_ethad1(off)
+				   );
+    }
     hist1("Rhad")->Fill((getShowerShape_Rhad(onl)-getShowerShape_Rhad(off))/getShowerShape_Rhad(off));
+    if (m_detailedHists ) {
+	hist2("res_RhadVsEta")->Fill(onl->eta(),
+				   (getShowerShape_Rhad(onl)-getShowerShape_Rhad(off))/getShowerShape_Rhad(off)
+				   );
+	hist2("res_RhadVsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_Rhad(onl)-getShowerShape_Rhad(off))/getShowerShape_Rhad(off)
+				   );
+    }
     hist1("Rhad1")->Fill((getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off))/getShowerShape_Rhad1(off));
+    if (m_detailedHists ) {
+	hist2("res_Rhad1VsEta")->Fill(onl->eta(),
+				   (getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off))/getShowerShape_Rhad1(off)
+				   );
+	hist2("res_Rhad1VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off))/getShowerShape_Rhad1(off)
+				   );
+    }
     hist1("Reta")->Fill((getShowerShape_Reta(onl)-getShowerShape_Reta(off))/getShowerShape_Reta(off));
+    if (m_detailedHists ) {
+	hist2("res_RetaVsEta")->Fill(onl->eta(),
+				   (getShowerShape_Reta(onl)-getShowerShape_Reta(off))/getShowerShape_Reta(off)
+				   );
+	hist2("res_RetaVsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_Reta(onl)-getShowerShape_Reta(off))/getShowerShape_Reta(off)
+				   );
+    }
     hist1("Rphi")->Fill((getShowerShape_Rphi(onl)-getShowerShape_Rphi(off))/getShowerShape_Rphi(off));
+    if (m_detailedHists ) {
+	hist2("res_RphiVsEta")->Fill(onl->eta(),
+				   (getShowerShape_Rphi(onl)-getShowerShape_Rphi(off))/getShowerShape_Rphi(off)
+				   );
+	hist2("res_RphiVsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_Rphi(onl)-getShowerShape_Rphi(off))/getShowerShape_Rphi(off)
+				   );
+    }
     hist1("weta1")->Fill((getShowerShape_weta1(onl)-getShowerShape_weta1(off))/getShowerShape_weta1(off));
+    if (m_detailedHists ) {
+	hist2("res_weta1VsEta")->Fill(onl->eta(),
+				   (getShowerShape_weta1(onl)-getShowerShape_weta1(off))/getShowerShape_weta1(off)
+				   );
+	hist2("res_weta1VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_weta1(onl)-getShowerShape_weta1(off))/getShowerShape_weta1(off)
+				   );
+    }
     hist1("weta2")->Fill((getShowerShape_weta2(onl)-getShowerShape_weta2(off))/getShowerShape_weta2(off));
+    if (m_detailedHists ) {
+	hist2("res_weta2VsEta")->Fill(onl->eta(),
+				   (getShowerShape_weta2(onl)-getShowerShape_weta2(off))/getShowerShape_weta2(off)
+				   );
+	hist2("res_weta2VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_weta2(onl)-getShowerShape_weta2(off))/getShowerShape_weta2(off)
+				   );
+    }
+    hist1("wtots1")->Fill((getShowerShape_wtots1(onl)-getShowerShape_wtots1(off))/getShowerShape_wtots1(off));
+    if (m_detailedHists ) {
+	hist2("res_weta2VsEta")->Fill(onl->eta(),
+				   (getShowerShape_wtots1(onl)-getShowerShape_wtots1(off))/getShowerShape_wtots1(off)
+				   );
+	hist2("res_weta2VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_wtots1(onl)-getShowerShape_wtots1(off))/getShowerShape_wtots1(off)
+				   );
+    }
     hist1("f1")->Fill((getShowerShape_f1(onl)-getShowerShape_f1(off))/getShowerShape_f1(off));
+    if (m_detailedHists ) {
+	hist2("res_f1VsEta")->Fill(onl->eta(),
+				   (getShowerShape_f1(onl)-getShowerShape_f1(off))/getShowerShape_f1(off)
+				   );
+	hist2("res_f1VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_f1(onl)-getShowerShape_f1(off))/getShowerShape_f1(off)
+				   );
+    }
     hist1("f3")->Fill((getShowerShape_f3(onl)-getShowerShape_f3(off))/getShowerShape_f3(off));
+    if (m_detailedHists ) {
+	hist2("res_f3VsEta")->Fill(onl->eta(),
+				   (getShowerShape_f3(onl)-getShowerShape_f3(off))/getShowerShape_f3(off)
+				   );
+	hist2("res_f3VsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_f3(onl)-getShowerShape_f3(off))/getShowerShape_f3(off)
+				   );
+    }
     hist1("eratio")->Fill((getShowerShape_Eratio(onl)-getShowerShape_Eratio(off))/getShowerShape_Eratio(off));
+    if (m_detailedHists ) {
+	hist2("res_eratioVsEta")->Fill(onl->eta(),
+				   (getShowerShape_Eratio(onl)-getShowerShape_Eratio(off))/getShowerShape_Eratio(off)
+				   );
+	hist2("res_eratioVsEt")->Fill( getOnlEt/1e3,
+				   (getShowerShape_Eratio(onl)-getShowerShape_Eratio(off))/getShowerShape_Eratio(off)
+				   );
+    }
 }
 void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,const xAOD::Egamma *onl, const xAOD::Egamma *off){
    
     cd(dir);
-    ATH_MSG_DEBUG("Fill Resolution");
+    ATH_MSG_DEBUG("Fill Abs Resolution");
     if(onl->type()==xAOD::Type::Electron){
         const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
@@ -1060,17 +1531,21 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
         if (getEt(elonl) > 0 && getEt(eloff) > 0) {
           hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
-                                           getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
+                                               getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
-                                          getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
+                                              getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
-                                              getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff)
-                                              );
+                                              getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
         }
         //ptcone20
         hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
-                                        getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff)
-                                        );
+                                        getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff));
+        hist2("ptcone20_onVsOff")->Fill(getIsolation_ptcone20(eloff),
+                                        getIsolation_ptcone20(elonl));
+        if (getEt(elonl) > 0 && getEt(eloff) > 0) {
+          hist2("ptcone20_rel_onVsOff")->Fill(getIsolation_ptcone20(eloff)/getEt(eloff),
+                                              getIsolation_ptcone20(elonl)/getEt(elonl));
+        }
 
 	float feta = fabs(elonl->trackParticle()->eta());
 	if( feta < 1.37 )
@@ -1124,9 +1599,135 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
     hist1("Rphi")->Fill((getShowerShape_Rphi(onl)-getShowerShape_Rphi(off)));
     hist1("weta1")->Fill((getShowerShape_weta1(onl)-getShowerShape_weta1(off)));
     hist1("weta2")->Fill((getShowerShape_weta2(onl)-getShowerShape_weta2(off)));
+    hist1("wtots1")->Fill((getShowerShape_wtots1(onl)-getShowerShape_wtots1(off)));
     hist1("f1")->Fill((getShowerShape_f1(onl)-getShowerShape_f1(off)));
     hist1("f3")->Fill((getShowerShape_f3(onl)-getShowerShape_f3(off)));
     hist1("eratio")->Fill((getShowerShape_Eratio(onl)-getShowerShape_Eratio(off)));
+}
+
+void TrigEgammaAnalysisBaseTool::fillL2CaloResolution(const std::string dir,const xAOD::TrigEMCluster *onl, const xAOD::Egamma *off){
+
+    cd(dir);
+    ATH_MSG_DEBUG("Fill Resolution");
+    if(off->type()==xAOD::Type::Electron){
+        const xAOD::TrigEMCluster* elonl =onl;
+        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
+        float deltaR = 999.0;
+        deltaR = dR(elonl->eta(),elonl->phi(), eloff->caloCluster()->eta(),eloff->caloCluster()->phi() );
+
+
+        hist1("et")->Fill(((elonl->et())-getEt(eloff))/getEt(eloff));
+        hist1("eta")->Fill((elonl->eta()-eloff->caloCluster()->eta())/eloff-> caloCluster()->eta());
+        hist1("phi")->Fill((elonl->phi()-eloff->caloCluster()->phi())/eloff->caloCluster()->phi());
+
+        hist2("res_etVsEta")->Fill(elonl->eta(),
+                                   ((elonl->et())-getEt(eloff))/getEt(eloff)
+                                   );
+        hist2("res_etVsEt")->Fill( (elonl->et())/1e3,
+                                   ((elonl->et())-getEt(eloff))/getEt(eloff)
+                                   );
+
+    float elonl_ethad = elonl->energy( CaloSampling::HEC0 ); elonl_ethad += elonl->energy( CaloSampling::HEC1 );
+    elonl_ethad += elonl->energy( CaloSampling::HEC2 ); elonl_ethad += elonl->energy( CaloSampling::HEC3 );
+    elonl_ethad += elonl->energy( CaloSampling::TileBar0 ); elonl_ethad += elonl->energy( CaloSampling::TileExt0 ); 
+    elonl_ethad += elonl->energy( CaloSampling::TileBar1 ); elonl_ethad += elonl->energy( CaloSampling::TileExt1 ); 
+    elonl_ethad += elonl->energy( CaloSampling::TileBar2 ); elonl_ethad += elonl->energy( CaloSampling::TileExt2 ); 
+    elonl_ethad /= TMath::CosH(elonl->eta() );
+    hist1("ethad")->Fill((elonl_ethad-getShowerShape_ethad(off))/getShowerShape_ethad(off));
+    if (m_detailedHists ) {
+        hist2("res_ethadVsEta")->Fill(elonl->eta(),
+                                   (elonl_ethad-getShowerShape_ethad(eloff))/getShowerShape_ethad(eloff)
+                                   );
+        hist2("res_ethadVsEt")->Fill( elonl->et()/1e3,
+                                   (elonl_ethad-getShowerShape_ethad(eloff))/getShowerShape_ethad(eloff)
+                                   );
+    }
+    hist1("ethad1")->Fill(( (onl->ehad1()/TMath::Abs(onl->eta()) )-getShowerShape_ethad1(off))/getShowerShape_ethad1(off));
+    if (m_detailedHists ) {
+        hist2("res_ethad1VsEta")->Fill(elonl->eta(),
+                                   ( (elonl->ehad1()/TMath::Abs(onl->eta()) )-getShowerShape_ethad1(eloff))/getShowerShape_ethad1(eloff)
+                                   );
+        hist2("res_ethad1VsEt")->Fill( elonl->et()/1e3,
+                                   ( (elonl->ehad1()/TMath::Abs(onl->eta()) )-getShowerShape_ethad1(eloff))/getShowerShape_ethad1(eloff)
+                                   );
+    }
+    float elonl_Rhad = elonl_ethad / onl->energy() ;
+    hist1("Rhad")->Fill(( elonl_Rhad-getShowerShape_Rhad(off))/getShowerShape_Rhad(off));
+    if (m_detailedHists ) {
+        hist2("res_RhadVsEta")->Fill(elonl->eta(),
+                                   ( elonl_Rhad-getShowerShape_Rhad(eloff))/getShowerShape_Rhad(eloff)
+                                   );
+        hist2("res_RhadVsEt")->Fill( elonl->et()/1e3,
+                                   ( elonl_Rhad-getShowerShape_Rhad(eloff))/getShowerShape_Rhad(eloff)
+                                   );
+    }
+    float elonl_Rhad1 = onl->ehad1() / onl->energy() ;
+    hist1("Rhad1")->Fill(( elonl_Rhad1-getShowerShape_Rhad1(off))/getShowerShape_Rhad1(off));
+    if (m_detailedHists ) {
+        hist2("res_Rhad1VsEta")->Fill(elonl->eta(),
+                                   ( elonl_Rhad1-getShowerShape_Rhad1(eloff))/getShowerShape_Rhad1(eloff)
+                                   );
+        hist2("res_Rhad1VsEt")->Fill( elonl->et()/1e3,
+                                   ( elonl_Rhad1-getShowerShape_Rhad1(eloff))/getShowerShape_Rhad1(eloff)
+                                   );
+    }
+    float onl_reta= 999.0;
+    if ( fabsf ( onl->e277() ) > 0.01 ) onl_reta = onl->e237() / onl->e277();
+    hist1("Reta")->Fill( (onl_reta -getShowerShape_Reta(off))/getShowerShape_Reta(off));
+    if (m_detailedHists ) {
+        hist2("res_RetaVsEta")->Fill(elonl->eta(),
+                                   ( onl_reta-getShowerShape_Reta(eloff))/getShowerShape_Reta(eloff)
+                                   );
+        hist2("res_RetaVsEt")->Fill( elonl->et()/1e3,
+                                   ( onl_reta-getShowerShape_Reta(eloff))/getShowerShape_Reta(eloff)
+                                   );
+    }
+    hist1("weta2")->Fill(( (onl->weta2())-getShowerShape_weta2(off))/getShowerShape_weta2(off));
+    if (m_detailedHists ) {
+        hist2("res_weta2VsEta")->Fill(elonl->eta(),
+                                   ( (elonl->weta2())-getShowerShape_weta2(eloff))/getShowerShape_weta2(eloff)
+                                   );
+        hist2("res_weta2VsEt")->Fill( elonl->et()/1e3,
+                                   ( (elonl->weta2())-getShowerShape_weta2(eloff))/getShowerShape_weta2(eloff)
+                                   );
+    }
+
+    float onl_f1 = onl->energy(CaloSampling::EMB1)+onl->energy(CaloSampling::EME1);
+    onl_f1 /= onl->energy();
+    hist1("f1")->Fill(( (onl_f1)-getShowerShape_f1(off))/getShowerShape_f1(off));
+    if (m_detailedHists ) {
+        hist2("res_f1VsEta")->Fill(elonl->eta(),
+                                   ( (onl_f1)-getShowerShape_f1(eloff))/getShowerShape_f1(eloff)
+                                   );
+        hist2("res_f1VsEt")->Fill( elonl->et()/1e3,
+                                   ( (onl_f1)-getShowerShape_f1(eloff))/getShowerShape_f1(eloff)
+                                   );
+    }
+    float onl_f3 = onl->energy(CaloSampling::EMB3)+onl->energy(CaloSampling::EME3);
+    onl_f3 /= onl->energy();
+    hist1("f3")->Fill(( (onl_f3)-getShowerShape_f3(off))/getShowerShape_f3(off));
+    if (m_detailedHists ) {
+        hist2("res_f3VsEta")->Fill(elonl->eta(),
+                                   ( (onl_f3)-getShowerShape_f3(eloff))/getShowerShape_f3(eloff)
+                                   );
+        hist2("res_f3VsEt")->Fill( elonl->et()/1e3,
+                                   ( (onl_f3)-getShowerShape_f3(eloff))/getShowerShape_f3(eloff)
+                                   );
+    }
+    float onl_eratio = 999.0;
+    if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 ) 
+	onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
+    hist1("eratio")->Fill(( (onl_eratio)-getShowerShape_Eratio(off))/getShowerShape_Eratio(off));
+    if (m_detailedHists ) {
+        hist2("res_eratioVsEta")->Fill(elonl->eta(),
+                                   ( (onl_eratio)-getShowerShape_Eratio(eloff))/getShowerShape_Eratio(eloff)
+                                   );
+        hist2("res_eratioVsEt")->Fill( elonl->et()/1e3,
+                                   ( (onl_eratio)-getShowerShape_Eratio(eloff))/getShowerShape_Eratio(eloff)
+                                   );
+    }
+    }
+
 }
 
 void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xAOD::Electron *selEF,const xAOD::Photon *selPh,const xAOD::CaloCluster *clus,const xAOD::TrackParticle *trk){
@@ -1148,7 +1749,7 @@ void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xA
     hist1("IsEmLHFailMedium")->Fill(lastbinIsEMLH+0.5);
     hist1("IsEmLHFailLoose")->Fill(lastbinIsEMLH+0.5);
   
-    if(selPh==NULL) ATH_MSG_WARNING("Regtest:: No photon found!");
+    if(selPh==NULL) ATH_MSG_DEBUG("fillIneffiency::No photon found!");
     if(selEF!=NULL){
         ATH_MSG_DEBUG("REGTEST::Inefficiency Electron pt, eta, phi "<< selEF->pt() << " " << selEF->eta() << " " << selEF->phi());
 
@@ -1191,7 +1792,7 @@ void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xA
     }
     else {
         if(trk==NULL && clus!=NULL){
-            ATH_MSG_DEBUG("REGTEST::Inefficiency No Electron, nearby cluster"); 
+            ATH_MSG_DEBUG("fillInefficiency::No Electron, nearby cluster"); 
             // No electron candidate but we have photon
             // Do something for hasCluster
             hist1("IsEmFailTight")->Fill( (lastbinIsEM-3) + 0.5);
@@ -1202,7 +1803,7 @@ void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xA
             hist1("IsEmLHFailLoose")->Fill( (lastbinIsEMLH-3) + 0.5);
         }
         if(clus==NULL && trk!=NULL){
-            ATH_MSG_DEBUG("REGTEST::Inefficiency No Electron, no cluster"); 
+            ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
             // No electron candidate but we have photon
             // Do something for hasCluster
             hist1("IsEmFailTight")->Fill( (lastbinIsEM-2) + 0.5);
@@ -1213,7 +1814,7 @@ void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xA
             hist1("IsEmLHFailLoose")->Fill( (lastbinIsEMLH-2) + 0.5);
         }
         if(clus==NULL && trk==NULL){
-            ATH_MSG_DEBUG("REGTEST::Inefficiency No Electron, no cluster"); 
+            ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
             // Unknown failure
             hist1("IsEmFailTight")->Fill( (lastbinIsEM-1) + 0.5);
             hist1("IsEmFailMedium")->Fill( (lastbinIsEM-1) + 0.5);
@@ -1226,6 +1827,107 @@ void TrigEgammaAnalysisBaseTool::fillInefficiency(const std::string dir,const xA
     if(clus!=NULL) ATH_MSG_DEBUG("REGTEST::Inefficiency Cluster " << clus->et() << " " << clus->eta() << " " << clus->phi());
     if(trk!=NULL) ATH_MSG_DEBUG("REGTEST::Inefficiency Track " << trk->pt() << " " << trk->eta() << " " << trk->phi());
     else ATH_MSG_DEBUG("REGTEST::Inefficiency No track");
+}
+
+void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
+        const unsigned int runNumber, const unsigned int eventNumber, const float etthr, 
+        std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+    ATH_MSG_DEBUG("Start Inefficiency Analysis ======================= " << basePath);
+    // Inefficiency analysis
+    float et=0.;
+    const xAOD::Egamma* eg =pairObj.first;
+    const HLT::TriggerElement *feat = pairObj.second; 
+    if(pairObj.first->type()==xAOD::Type::Electron){
+        ATH_MSG_DEBUG("Offline Electron");
+        const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+        et = getEt(el)/1e3;
+    }
+    else  et=eg->caloCluster()->et()/1e3;
+
+    float eta = eg->eta();
+    float phi = eg->phi();
+    ATH_MSG_DEBUG("Offline et, eta, phi " << et << " " << eta << " " << phi);
+    const xAOD::Electron* selEF = NULL;
+    const xAOD::Photon* selPh = NULL;
+    const xAOD::CaloCluster* selClus = NULL;
+    const xAOD::TrackParticle* selTrk = NULL;
+    
+    // Can we acquire L1 information 
+    //
+    //auto initRois = fc.get<TrigRoiDescriptor>();
+    //if ( initRois.size() < 1 ) ATH_MSG_DEBUG("No L1 RoI"); 
+    //auto itEmTau = m_trigDecTool->ancestor<xAOD::EmTauRoI>(initRois[0]);
+    ATH_MSG_DEBUG("Retrieve L1");
+    const auto* EmTauRoI = getFeature<xAOD::EmTauRoI>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Electron");
+    const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Photons");
+    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Cluster");
+    const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
+    ATH_MSG_DEBUG("Retrieve EF Trk");
+    const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat);
+    float dRmax=0.5;
+    bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
+    bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
+    if(EmTauRoI==NULL) ATH_MSG_DEBUG("L1 EmTauRoI NULL pointer");
+    if(!passedEF && passedEFCalo){
+        ATH_MSG_DEBUG("REGEST::Fails EF Electron, passes EFCalo Hypo Run " << runNumber << " Event " << eventNumber);
+        if ( EFEl != NULL ){
+            ATH_MSG_DEBUG("Retrieved ElectronContainer for inefficiency " << EFEl->size());
+            for(const auto& el : *EFEl){
+                float dr=dR(eta,phi,el->eta(),el->phi());
+                if ( dr<dRmax){
+                    dRmax=dr;
+                    selEF = el;
+                } // dR
+            } // loop over EFEl
+            ATH_MSG_DEBUG("Closest electron dR " << dRmax);
+        } //FC exists
+        else ATH_MSG_DEBUG("Electron Container NULL");
+        dRmax=0.5;
+        if ( EFPh != NULL ){
+            ATH_MSG_DEBUG("Retrieved PhotonnContainer for inefficiency " << EFPh->size());
+            for(const auto& ph : *EFPh){
+                float dr=dR(eta,phi,ph->eta(),ph->phi());
+                if ( dr<dRmax){
+                    dRmax=dr;
+                    selPh = ph;
+                } // dR
+            } // loop over EFEl
+            ATH_MSG_DEBUG("Closest electron dR " << dRmax);
+        } //FC exists
+        else ATH_MSG_DEBUG("Photon Container NULL");
+        dRmax=0.5;
+        if ( EFClus != NULL ){
+            ATH_MSG_DEBUG("Retrieved ClusterContainer for inefficiency " << EFClus->size());
+            for(const auto& clus : *EFClus){
+                float dr=dR(eta,phi,clus->eta(),clus->phi());
+                if(dr<dRmax){
+                    dRmax=dr;
+                    selClus = clus;
+                } // dR
+            } // loop over EFPh
+            ATH_MSG_DEBUG("Closest cluster dR " << dRmax);
+        }
+        else ATH_MSG_DEBUG("CaloCluster Container NULL");
+        dRmax=0.5;
+        if ( EFTrk != NULL ){
+            ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrk->size());
+            for(const auto& trk : *EFTrk){
+                float dr=dR(eta,phi,trk->eta(),trk->phi());
+                if(dr<dRmax){
+                    dRmax=dr;
+                    selTrk = trk;
+                } // dR
+            } // loop over EFPh
+            ATH_MSG_DEBUG("Closest track dR " << dRmax);
+        } //FC exists
+        else ATH_MSG_DEBUG("TrackParticle Container NULL");
+
+        fillInefficiency(basePath,selEF,selPh,selClus,selTrk);
+    }
+    ATH_MSG_DEBUG("End Inefficiency Analysis ======================= " << basePath);
 }
 
 void TrigEgammaAnalysisBaseTool::resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
@@ -1241,7 +1943,7 @@ void TrigEgammaAnalysisBaseTool::resolutionL2Photon(const std::string,std::pair<
     if(L2Ph != NULL){
         for(const auto& ph : *L2Ph){
             if(ph == NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
+                ATH_MSG_DEBUG("TrigPhoton from TE NULL");
                 continue;
             }
             deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->eta(),ph->phi());
@@ -1276,7 +1978,7 @@ void TrigEgammaAnalysisBaseTool::resolutionL2Electron(const std::string dir,std:
     if(L2El!=NULL){
         for(const auto& el : *L2El){
             if(el==NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
+                ATH_MSG_DEBUG("TrigElectron from TE NULL");
                 continue;
             }
             deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), el->eta(),el->phi());
@@ -1310,7 +2012,7 @@ void TrigEgammaAnalysisBaseTool::resolutionEFCalo(const std::string dir,std::pai
     if(EFCalo!=NULL){
         for(const auto& clus : *EFCalo){
             if(clus==NULL) {
-                ATH_MSG_WARNING("Photon from TE NULL");
+                ATH_MSG_DEBUG("CaloCluster from TE NULL");
                 continue;
             }
             deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), clus->eta(),clus->phi());
@@ -1355,7 +2057,7 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
                     continue;
                 }
                 if(ph == NULL) {
-                    ATH_MSG_WARNING("Photon from TE NULL");
+                    ATH_MSG_DEBUG("Photon from TE NULL");
                     continue;
                 }
                 deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
@@ -1380,6 +2082,8 @@ void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,s
     std::string dir2 = basePath + "/AbsResolutions/HLT";
     std::string dir3 = basePath + "/Distributions/HLT";
     std::string dir4 = basePath + "/Distributions/Offline";
+    std::string dir5 = basePath + "/Resolutions/L2Calo";
+    std::string dir6 = basePath + "/Resolutions/L2Calo_vs_HLT";
 
     const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
     const HLT::TriggerElement *feat = pairObj.second; 
@@ -1403,7 +2107,7 @@ void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,s
                     continue;
                 }
                 if(el == NULL) {
-                    ATH_MSG_WARNING("Electron from TE NULL");
+                    ATH_MSG_DEBUG("Electron from TE NULL");
                     continue;
                 }
                 deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
@@ -1420,9 +2124,14 @@ void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,s
             fillShowerShapes(dir4,elOff); // Fill Offline shower shapes
             fillTracking(dir3,elEF); // Fill HLT shower shapes
             fillTracking(dir4,elOff); // Fill Offline shower shapes
+	    const xAOD::TrigEMCluster* clus = getFeature<xAOD::TrigEMCluster>(feat);
+	    if ( clus != NULL ) {
+		fillL2CaloResolution(dir5,clus, elOff );
+		fillL2CaloResolution(dir6,clus, elEF );
+	    }
         }
     } // Feature
-    else ATH_MSG_WARNING("NULL Feature");
+    else ATH_MSG_DEBUG("NULL Feature");
 }
 
 void TrigEgammaAnalysisBaseTool::resolution(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
@@ -1451,13 +2160,15 @@ bool TrigEgammaAnalysisBaseTool::isIsolated(const xAOD::Electron *eg, const std:
     return false;
   }
   float ptcone20_rel = ptcone20/eg->pt();
+  ATH_MSG_DEBUG("Relative isolation value " << ptcone20_rel);
   if (isolation == "Loose"){
-    ATH_MSG_DEBUG("Relative isolation value " << ptcone20_rel);
     if (ptcone20_rel > 0.1) {
       ATH_MSG_DEBUG("Probe failing isolation");
       return false;
+    } else {
+      ATH_MSG_DEBUG("Probe passing isolation");
+      return true;
     }
-    ATH_MSG_DEBUG("Probe passing isolation");
   }
   else {
     ATH_MSG_DEBUG("No valid working point defined for " << isolation << " continue without isolation");
@@ -2004,3 +2715,59 @@ std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
     return m_triggerMap[trigger];
 
 }
+
+
+
+bool TrigEgammaAnalysisBaseTool::getTrigCaloRings( const xAOD::TrigEMCluster *emCluster, std::vector<float> &ringsE){
+  ringsE.clear();
+  if(!emCluster)  return false;
+
+  Trig::FeatureContainer fc = (m_trigdec->features("HLT_.*",TrigDefs::alsoDeactivateTEs));
+  const std::vector< Trig::Feature<xAOD::TrigRingerRings > > vec_featRinger = fc.get< xAOD::TrigRingerRings >("",TrigDefs::alsoDeactivateTEs);
+  ATH_MSG_DEBUG("L2Calo Rings FC Size " << vec_featRinger.size());
+  for( Trig::Feature<xAOD::TrigRingerRings > featRinger : vec_featRinger ){
+    const xAOD::TrigRingerRings *ringer = featRinger.cptr();
+    if(emCluster->RoIword() ==  (getFeature<xAOD::TrigEMCluster>(featRinger.te()))->RoIword() ){
+      ATH_MSG_DEBUG("L2Calo Rings matched with TrigEMCluster object.");
+      for(unsigned i = 0; i < ringer->size();++i){
+        ringsE.push_back(ringer->rings()[i]);
+      } // loop over rings
+      return true;
+    }
+  }
+  return false;
+}
+
+
+bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE ){
+  ringsE.clear();
+  /*auto m_ringsELReader = xAOD::getCaloRingsReader();
+
+  // First, check if we can retrieve decoration: 
+  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr); 
+  try { 
+    caloRingsELVec = &(m_ringsELReader->operator()(*el)); 
+  } catch ( const std::exception &e) { 
+    ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
+  } 
+
+  if ( caloRingsELVec->empty() ){ 
+    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
+    return false;
+  }
+
+
+  // For now, we are using only the first cluster 
+  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
+  // For now, we are using only the first cluster 
+  
+  if(clrings) clrings->exportRingsTo(*ringsE);
+  else{
+    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
+    return false;
+  }
+  */
+  return true;
+}
+
+
