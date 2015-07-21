@@ -47,16 +47,16 @@ PlotPages = OrderedDict()
 PlotComments = {}
 
 #kinematics
-PlotPages[ 'Kinematics - pt, eta, phi' ] = [ 
+PlotPages[ r'Kinematics - $p_T$, $\eta$, $\phi$' ] = [ 
     'Muons/All/reco/AllMuons/kinematics/Muons_All_reco_AllMuons_kinematics_pt',
     'Muons/All/reco/AllMuons/kinematics/Muons_All_reco_AllMuons_kinematics_eta',
     'Muons/All/reco/AllMuons/kinematics/Muons_All_reco_AllMuons_kinematics_phi' ]
-#PlotComments[ 'Kinematics - pt, eta, phi' ] = 'PUT COMMENTS HERE IF YOU WANT'
+#PlotComments[ r'Kinematics - $p_T$, $\eta$, $\phi$' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ 'Kinematics - d0, z0' ] = [
+PlotPages[ r'Kinematics - $d_0$, $z_0$' ] = [
     'Muons/All/reco/AllMuons/parameters/Muons_All_reco_AllMuons_parameters_d0',
     'Muons/All/reco/AllMuons/parameters/Muons_All_reco_AllMuons_parameters_z0' ]
-#PlotComments[ 'Kinematics - d0 (left), z0 (right)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+#PlotComments[ r'Kinematics - $d_0$, $z_0$' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 #layers
 PlotPages[ 'Precision Layers' ] = [
@@ -100,74 +100,81 @@ PlotPages[ 'Track Fit Quality' ] = [
 #PlotComments[ 'Track Fit Quality' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 #Resolution
-PlotPages[ 'Resolution (MS+ID)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtResol_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtResol_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtResol_vs_phi' ]
-#PlotComments[ 'Resolution (MS+ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+PlotPages[ 'Resolution (Combined)' ] = [
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtResol_vs_pT',
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtResol_vs_eta',
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtResol_vs_phi' ]
+#PlotComments[ 'Resolution (Combined)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ 'Resolution (ID)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtResol_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtResol_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtResol_vs_phi' ]
-#PlotComments[ 'Resolution (ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+# PlotPages[ 'Resolution (ID)' ] = [
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtResol_vs_pT',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtResol_vs_eta',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtResol_vs_phi' ]
+# #PlotComments[ 'Resolution (ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ 'Resolution (MS)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtResol_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtResol_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtResol_vs_phi' ]
-#PlotComments[ 'Resolution (MS)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+# PlotPages[ 'Resolution (MS)' ] = [
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtResol_vs_pT',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtResol_vs_eta',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtResol_vs_phi' ]
+# #PlotComments[ 'Resolution (MS)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 #Momentum scale
-PlotPages[ r'$p_T$ Scale (MS+ID)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtScale_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtScale_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_Res_PtScale_vs_phi' ]
-#PlotComments[ r'$p_T$ Scale (MS+ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+PlotPages[ r'$p_T$ Scale (Combined)' ] = [
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtScale_vs_pT',
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtScale_vs_eta',
+   'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_Res_PtScale_vs_phi' ]
+#PlotComments[ r'$p_T$ Scale (Combined)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ r'$p_T$ Scale (ID)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtScale_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtScale_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResID_PtScale_vs_phi' ]
-#PlotComments[ r'$p_T$ Scale (ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+# PlotPages[ r'$p_T$ Scale (ID)' ] = [
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtScale_vs_pT',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtScale_vs_eta',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResID_PtScale_vs_phi' ]
+# #PlotComments[ r'$p_T$ Scale (ID)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ r'$p_T$ Scale (MS)' ] = [
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtScale_vs_pT',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtScale_vs_eta',
-   'Muons/All/matched/AllMuons/resolution/Muons_All_matched_AllMuons_resolution_ResMS_PtScale_vs_phi' ]
-#PlotComments[ r'$p_T$ Scale (MS)' ] = 'PUT COMMENTS HERE IF YOU WANT'
+# PlotPages[ r'$p_T$ Scale (MS)' ] = [
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtScale_vs_pT',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtScale_vs_eta',
+#    'Muons/Prompt/matched/MuidCo/resolution/Muons_Prompt_matched_MuidCo_resolution_ResMS_PtScale_vs_phi' ]
+# #PlotComments[ r'$p_T$ Scale (MS)' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 #Pulls
-PlotPages[ 'Track Pull Plots - $q/P$, $\theta$, $\phi$' ] = [
+PlotPages[ r'Track Pull Plots - $q/P$, $\theta$, $\phi$' ] = [
     'Muons/All/matched/AllMuons/Pulls/Muons_All_matched_AllMuons_Pulls_Pull_qOverP',
     'Muons/All/matched/AllMuons/Pulls/Muons_All_matched_AllMuons_Pulls_Pull_theta',
     'Muons/All/matched/AllMuons/Pulls/Muons_All_matched_AllMuons_Pulls_Pull_phi' ]
-#PlotComments[ 'Track Pull Plots - $q/P$, $\theta$, $\phi$' ] = 'PUT COMMENTS HERE IF YOU WANT'
+#PlotComments[ r'Track Pull Plots - $q/P$, $\theta$, $\phi$' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ 'Track Pull Plots - $d_0$, $z_0$' ] = [
+PlotPages[ r'Track Pull Plots - $d_0$, $z_0$' ] = [
     'Muons/All/matched/AllMuons/Pulls/Muons_All_matched_AllMuons_Pulls_Pull_d0',
     'Muons/All/matched/AllMuons/Pulls/Muons_All_matched_AllMuons_Pulls_Pull_z0' ]
-#PlotComments[ 'Efficiency' ] = 'PUT COMMENTS HERE IF YOU WANT'
+#PlotComments[ r'Track Pull Plots - $d_0$, $z_0$' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-#Efficiency
+# #Efficiency
 PlotPages[ 'Efficiency' ] = [
-    'Muons/All/matched/AllMuons/Efficiency/Muons_All_matched_AllMuons_Efficiency_pt',
-    'Muons/All/matched/AllMuons/Efficiency/Muons_All_matched_AllMuons_Efficiency_eta',
-    'Muons/All/matched/AllMuons/Efficiency/Muons_All_matched_AllMuons_Efficiency_phi' ]
+    'Muons/All/matched/AllMuons/efficiency/Muons_All_matched_AllMuons_efficiency_pt',
+    'Muons/All/matched/AllMuons/efficiency/Muons_All_matched_AllMuons_efficiency_eta',
+    'Muons/All/matched/AllMuons/efficiency/Muons_All_matched_AllMuons_efficiency_phi' ]
 #PlotComments[ 'Efficiency' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-#Reco fraction
-PlotPages[ 'Reco Fraction - Inflight Muons' ] = [
-    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_pt',
-    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_eta',
-    'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_phi' ]
-#PlotComments[ 'Reco Fraction - Inflight Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
+#Purity
+PlotPages[ 'Purity' ] = [
+    'Muons/All/matched/AllMuons/purity/Muons_All_matched_AllMuons_purity_pt',
+    'Muons/All/matched/AllMuons/purity/Muons_All_matched_AllMuons_purity_eta',
+    'Muons/All/matched/AllMuons/purity/Muons_All_matched_AllMuons_purity_phi' ]
+#PlotComments[ 'Purity' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
-PlotPages[ 'Reco Fraction - NonIsolated Muons' ] = [
-    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_pt',
-    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_eta',
-    'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_phi' ]
-# PlotComments[ 'Reco Fraction - Rest Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
+# #Reco fraction
+# PlotPages[ 'Reco Fraction - Inflight Muons' ] = [
+#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_pt',
+#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_eta',
+#     'Muons/InFlight/reco/AllMuons/RecoFraction/Muons_InFlight_reco_AllMuons_RecoFraction_phi' ]
+# #PlotComments[ 'Reco Fraction - Inflight Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
+
+# PlotPages[ 'Reco Fraction - NonIsolated Muons' ] = [
+#     'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_pt',
+#     'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_eta',
+#     'Muons/NonIsolated/reco/AllMuons/RecoFraction/Muons_NonIsolated_reco_AllMuons_RecoFraction_phi' ]
+# # PlotComments[ 'Reco Fraction - NonIsolated Muons' ] = 'PUT COMMENTS HERE IF YOU WANT'
 
 PlotPages[ 'Reco Fraction - Unmatched All Authors' ] = [
     'Muons/UnmatchedRecoMuons/RecoFraction/Muons_UnmatchedRecoMuons__RecoFraction_pt',

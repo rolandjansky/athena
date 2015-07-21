@@ -5,9 +5,9 @@
 #ifndef MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
 #define MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
 
-#include "RecoMuonPlots.h"
-#include "TruthMuonPlots.h"
-#include "TruthRelatedMuonPlots.h"
+#include "MuonHistUtils/RecoMuonPlotOrganizer.h"
+#include "MuonHistUtils/TruthMuonPlotOrganizer.h"
+#include "MuonHistUtils/TruthRelatedMuonPlotOrganizer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTruth/TruthParticle.h"
@@ -26,13 +26,13 @@ class MuonValidationPlots:public PlotBase {
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_truthSelections;    
  
-    RecoMuonPlots *m_oRecoMuonPlots;
-    TruthRelatedMuonPlots *m_oTruthRelatedMuonPlots;
-    std::vector<RecoMuonPlots*> m_oRecoMuonPlots_perQuality;
-    std::vector<RecoMuonPlots*> m_oRecoMuonPlots_perAuthor;
-    std::vector<TruthRelatedMuonPlots*> m_oTruthRelatedMuonPlots_perQuality;
-    std::vector<TruthRelatedMuonPlots*> m_oTruthRelatedMuonPlots_perAuthor;
-    std::vector<TruthMuonPlots*> m_oTruthMuonPlots;    
+    Muon::RecoMuonPlotOrganizer *m_oRecoMuonPlots;
+    Muon::TruthRelatedMuonPlotOrganizer *m_oTruthRelatedMuonPlots;
+    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_perQuality;
+    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_perAuthor;
+    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perQuality;
+    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perAuthor;
+    std::vector<Muon::TruthMuonPlotOrganizer*> m_oTruthMuonPlots;
 
  private:
     void fillRecoMuonPlots(const xAOD::Muon& mu);

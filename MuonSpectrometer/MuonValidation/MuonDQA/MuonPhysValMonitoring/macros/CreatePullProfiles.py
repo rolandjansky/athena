@@ -10,17 +10,19 @@ from CreateResolutionProfiles import *
 #---------------------------------------------------------------------------
 
 #create profile plots for pull parameters vs pt from 2D histograms
-def CreateProfile( infile, HistDir, HistName, Var, TrackType, doAverage = False ):
+def CreateProfile( infile, HistDir, HistName, Var, doAverage = False ):
     hist = infile.Get(HistDir).Get(HistName)
-    prof_ave, prof_std, projHists = GetProfilesFromTH2( hist, doAverage = doAverage )
+    if not hist:
+        return
+    prof_ave, prof_std, projHists = GetProfilesFromTH2( hist, doAverage = doAverage )    
 
     prof_ave.SetName( hist.GetName().replace( '_vs_', '_ProfMean_vs_' ) )
-    prof_ave.SetTitle( Var + ' Pull{0} vs pt (Mean)'.format('' if TrackType=='' else ' '+TrackType) )
+    prof_ave.SetTitle( Var + ' Pull vs pt (Mean)' )
     prof_ave.SetXTitle( 'Transverse Momentum [GeV]' )
     prof_ave.SetYTitle( Var + ' Pull Mean' )
 
     prof_std.SetName( hist.GetName().replace( '_vs_', '_ProfStDev_vs_' ) )
-    prof_std.SetTitle( Var + ' Pull{0} vs pt (StDev)'.format('' if TrackType=='' else ' '+TrackType) )
+    prof_std.SetTitle( Var + ' Pull vs pt (StDev)' )
     prof_std.SetXTitle( 'Transverse Momentum [GeV]' )
     prof_std.SetYTitle( Var + ' Pull StdDev' )
 
@@ -48,8 +50,7 @@ def main( args ):
 
     infile = ROOT.TFile.Open( filename, 'update' )
 
-    MuonTypes = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
-    TrackTypes = [ '', 'ID', 'MS' ]
+    MuonTypes = [ 'All', 'Prompt' ] #, 'InFlight', 'NonIsolated' ]
     Variables = [ 'phi', 'theta', 'qOverP', 'd0', 'z0' ]
 
     for MuonType in MuonTypes:
@@ -64,12 +65,12 @@ def main( args ):
             if not Dir:
                 print( 'INFO TDirectory not found: ' + DirName )
                 continue
-            for TrackType, var in itertools.product( TrackTypes, Variables ):
-                HistName = '_'.join( DirName.split('/') ) + '_Pull{0}_'.format(TrackType) + var + '_vs_pt'
+            for var in Variables:
+                HistName = '_'.join( DirName.split('/') ) + '_Pull_{0}_vs_pt'.format(var)
                 if not Dir.Get( HistName ):
                     print( 'INFO Histogram not found: ' + HistName )
                     continue
-                CreateProfile( infile, DirName, HistName, var, TrackType, doAverage = doAverage )
+                CreateProfile( infile, DirName, HistName, var, doAverage = doAverage )
     infile.Close()
 
 #---------------------------------------------------------------------------

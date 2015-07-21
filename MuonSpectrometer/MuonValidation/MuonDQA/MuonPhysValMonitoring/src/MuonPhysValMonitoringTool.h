@@ -28,6 +28,9 @@
 // Tools
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
+#include "MuonResonanceTools/IMuonResonancePairingTool.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -37,10 +40,7 @@
 #include "TriggerMuonValidationPlots.h"
 #include "MuonTrackValidationPlots.h"
 #include "MuonSegmentValidationPlots.h"
-#include "TruthMuonPlots.h"
-#include "RecoMuonPlots.h"
-#include "RecoMuonTrackPlots.h"
-#include "TruthRelatedMuonTrackPlots.h"
+
 // Forward declaration
 namespace Rec {
    class IMuonPrintingTool;
@@ -88,16 +88,17 @@ class MuonPhysValMonitoringTool
 
   /// Default constructor: 
   MuonPhysValMonitoringTool();
-  
+
   void handleMuon(const xAOD::Muon* mu);
   void handleTruthMuon(const xAOD::TruthParticle* truthMu);
-  void handleMuonTrack(const xAOD::TrackParticle* muTP);
+  void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
   void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   void handleMuonTrigger(  std::vector<const xAOD::Muon*> m_vEFMuonsSelected, std::vector<const xAOD::Muon*> m_vRecoMuons);
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
   void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAmu);
   void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBmu);
+  void handleMuonL2Trigger(const xAOD::L2IsoMuon* L2Isomu);
   
   void printMuonDebug(const xAOD::Muon* mu);
   void printMuonL1TriggerDebug(const xAOD::MuonRoI* TrigL1mu);
@@ -107,7 +108,7 @@ class MuonPhysValMonitoringTool
   const xAOD::Muon* findRecoMuon(const xAOD::TruthParticle* truthMu);
   const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
   xAOD::Muon* getCorrectedMuon(const xAOD::Muon &mu);
-  
+    
   const xAOD::TrackParticleContainer* MSTracks;
   
   TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
@@ -119,17 +120,21 @@ class MuonPhysValMonitoringTool
 
 
   // Containers
+  std::string m_tracksName;
   std::string m_muonsName;
   std::string m_muonsTruthName;
   std::string m_muonTracksName;
+  std::string m_muonExtrapolatedTracksName;
   std::string m_muonSegmentsName;
   std::string m_muonSegmentsTruthName;
   std::string m_muonL1TrigName;
   std::string m_muonL2SAName;
   std::string m_muonL2CBName;
+  std::string m_muonL2IsoName;
   std::string m_muonEFCombTrigName;
   std::string m_trigDecisionKey;
   std::vector<std::string> m_muonItems;
+  std::vector<std::string> m_L1Seed;
 
   // Configurable properties
   std::map<std::string,int> m_counterBits;
@@ -152,21 +157,30 @@ class MuonPhysValMonitoringTool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+  //ToolHandle<Muon::MuonTrackSelectorTool> m_trackSelector;
+  ToolHandle<Trk::ITrackSelectorTool> m_trackSelector;
+  ToolHandle<IMuonResonanceSelectionTool> m_muonResonanceSelectionTool;
+  ToolHandle<IMuonResonancePairingTool>   m_muonResonancePairingTool;
 
  
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
   std::vector<std::string> m_selectMuonCategoriesStr;
   MuonPhysValMonitoringTool::MUCATEGORY getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
-
+  bool passesAcceptanceCuts(const xAOD::IParticle* prt);
+  float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
+  
   // Hists
   std::vector<MuonValidationPlots*> m_muonValidationPlots;
   std::vector<TriggerMuonValidationPlots*> m_TriggerMuonValidationPlots;
-  std::vector<MuonTrackValidationPlots*> m_muonTrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonMSTrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonMETrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonIDTrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonIDSelectedTrackValidationPlots;
   std::vector<MuonSegmentValidationPlots*> m_muonSegmentValidationPlots;
-  RecoMuonPlots*       m_oUnmatchedRecoMuonPlots;
-  TruthMuonPlots*      m_oUnmatchedTruthMuonPlots;
-  RecoMuonTrackPlots*  m_oUnmatchedRecoMuonTrackPlots;
+  Muon::RecoMuonPlotOrganizer*       m_oUnmatchedRecoMuonPlots;
+  Muon::TruthMuonPlotOrganizer*      m_oUnmatchedTruthMuonPlots;
+  Muon::RecoMuonTrackPlotOrganizer*  m_oUnmatchedRecoMuonTrackPlots;
   Muon::MuonSegmentPlots* m_oUnmatchedRecoMuonSegmentPlots;
 
   //overview hists
@@ -174,19 +188,42 @@ class MuonPhysValMonitoringTool
   TH1F* h_overview_reco_category;
   std::vector<TH1F*> h_overview_reco_authors;
 
+  std::vector<const xAOD::TruthParticle*> m_vMatchedTruthMuons;
   std::vector<const xAOD::Muon*> m_vMatchedMuons;
   std::vector<const xAOD::TrackParticle*> m_vMatchedMuonTracks;
   std::vector<const xAOD::MuonSegment*> m_vMatchedMuonSegments;
+  std::vector<const xAOD::TrackParticle*> m_vZmumuIDTracks;
+  std::vector<const xAOD::TrackParticle*> m_vZmumuMSTracks;
+  std::vector<const xAOD::TrackParticle*> m_vZmumuMETracks;
+  std::vector<const xAOD::Muon*> m_vZmumuMuons;
   std::vector<const xAOD::Muon*> m_vEFMuons;
   std::vector<const xAOD::Muon*> m_vEFMuonsSelected;
   std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuons;
   std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuonsSelected;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuons;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuonsSelected;
+  std::vector<const xAOD::L2IsoMuon*> m_vL2IsoMuons;
+  std::vector<const xAOD::L2IsoMuon*> m_vL2IsoMuonsSelected;
+
   std::vector<const xAOD::Muon*> m_vRecoMuons;
+  std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen_CB;
+  std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen_MS;
+  std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen;
+  int SelectedAuthor;
 
-
-}; 
+  template<class T>
+  const T* getContainer( const std::string & containerName);
+};
+  
+  template<class T>
+  const T* MuonPhysValMonitoringTool::getContainer(const std::string & containerName){
+    const T * ptr = evtStore()->retrieve< const T >( containerName );
+    if (!ptr) {
+      ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
+    }
+    return ptr;
+  }
+ 
 
 
 
