@@ -2,15 +2,13 @@
 # Very handy for debugging crashes on the grid when you know what track caused the crash
 # Most powerful in conjunction with the verbose selector area
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-from AthenaCommon.CfgGetter import getPublicTool
+def verboseSelectorArea_setup():
+    print 'Firing up the verbose selector'
+    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+    myAction = PyG4Atlas.UserAction('G4UserActions', 'VerboseSelector', ['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+    #myAction.set_Properties( {"Xmin" : "-25000" , "Xmax":"25000" , "Ymin":"-25000","Ymax":"25000","Zmin":"-30000","Zmax":"30000","targetEvent":"11","verboseLevel":"1"} )
+    myAction.set_Properties( {"targetTrack":"1","targetBarcode":"1","targetEvent":"11","verboseLevel":"1"} )
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myAction)
 
-verboseSelector= getPublicTool('VerboseSelector',tryDefaultConfigurable=True).TargetEvent=1
-verboseSelector.TargetTrack=15932
-verboseSelector.VerboseLevel=2
-verboseSelector.TargetBarcode=-1
-
-UAStore.addAction('VerboseSelector',['EndOfEvent','BeginOfTracking','EndOfTracking'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.InitFunctions.add_function("preInitG4", verboseSelectorArea_setup)

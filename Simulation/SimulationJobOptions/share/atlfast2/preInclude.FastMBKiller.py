@@ -1,19 +1,16 @@
 #########################################################
 #
-# SimulationJobOptions/preInclude.FastMBKiller.py
+# SimulationJobOptions/postOptions.FastMBKiller.py
 # Zach Marshall
 #
 # Requested for the Atlfast-II and MinBias groups
 #########################################################
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-from AthenaCommon.CfgGetter import getPublicTool
+def fastmbkiller_setup():
+    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+    myAction = PyG4Atlas.UserAction('G4UserActions','FastIDKiller', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    myAction.set_Properties( {"Z":"3600" , "R":"1400"} )
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myAction)
 
-FastMBKiller=getPublicTool('FastIDKiller/FastMBKiller',tryDefaultConfigurable=True)
-FastMBKiller.Z=3600
-FastMBKiller.R=14
-
-UAStore.addAction(FastMBKiller, ['BeginOfRun','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.InitFunctions.add_function("preInitG4", fastmbkiller_setup)

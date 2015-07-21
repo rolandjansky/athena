@@ -10,8 +10,11 @@
 # energy above a certain threshold.
 #########################################################
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-UAStore.addAction('FastIDKiller', ['BeginOfRun','Step'])
+def fastidkiller_setup():
+    ## Add the FastIDKiller to the UserActions
+    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+    myAction = PyG4Atlas.UserAction('G4UserActions', 'FastIDKiller', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myAction)
+
+from G4AtlasApps.SimFlags import simFlags
+simFlags.InitFunctions.add_function("preInitG4", fastidkiller_setup)

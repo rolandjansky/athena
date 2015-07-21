@@ -15,29 +15,35 @@ topSequence = AlgSequence()
 
 from AthenaCommon.DetFlags import DetFlags
 if DetFlags.pileup.any_on():
-    index = 0
-    for alg in topSequence:
-        index += 1 #count position
-        if 'PileUpToolsAlg' in alg.name():
-            from AthenaCommon.CfgGetter import getPublicTool
-            alg.PileUpTools+=[getPublicTool("MergeHijingParsTool")]
-            break
-        if 'MergeMcEventCollection' == alg.name():
-            from MCTruthSimAlgs.MCTruthSimAlgsConf import MergeHijingPars
-            mergeHijingPars = MergeHijingPars()
-            topSequence.insert(index, mergeHijingPars)
-            break
+   from MCTruthSimAlgs.MCTruthSimAlgsConf import MergeHijingPars
+   mergeHijingPars = MergeHijingPars()
+   index = 0
+   for alg in topSequence:
+      index += 1 #count position
+      if 'MergeMcEventCollection' == alg.name():
+         topSequence.insert(index, mergeHijingPars)
 else:
-    try:
-        from TruthIO.TruthIOConf import PrintHijingPars
-    except:
-        from TruthExamples.TruthExamplesConf import PrintHijingPars
-    topSequence += PrintHijingPars()
-
+   try:
+      from TruthIO.TruthIOConf import PrintHijingPars
+   except:
+      from TruthExamples.TruthExamplesConf import PrintHijingPars
+   topSequence += PrintHijingPars()
 
 ## configure Athena for POOL persistency
-streamAlgs = ['StreamHITS','StreamRDO','StreamESD','StreamAOD']
-for stream in streamAlgs:
-    outStream =  getattr(topSequence, stream, None)
-    if outStream is not None:
-        outStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]
+if hasattr(topSequence, 'StreamHITS'):
+    outStream = topSequence.StreamHITS
+elif hasattr(topSequence, 'StreamRDO'):
+    outStream = topSequence.StreamRDO
+else:
+   ## temporary back-compatibility
+   outStreams = AlgSequence( "Streams" )
+   if hasattr(outStreams, 'StreamHITS'):
+      outStream = outStreams.StreamHITS
+   elif hasattr(outStreams, 'StreamRDO'):
+      outStream = outStreams.StreamRDO
+   else:
+      #We should avoid creating the AthenaPoolOutputStream
+      #outside the core Sim/Digi python code
+      raise AttributeError("AthenaPoolOutputStream not found")
+
+outStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]

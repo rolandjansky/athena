@@ -1,11 +1,10 @@
 # Modify the hit wrapping action to wrap on 150 ns
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-from AthenaCommon.CfgGetter import getPublicTool
+def cbwrapper_setup():
+    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+    myAction = PyG4Atlas.UserAction('G4UserActions', 'HitWrapper', ['EndOfEvent'])
+    myAction.set_Properties( {"WrapTime" : "150"} )
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myAction)
 
-getPublicTool('HitWrapper',tryDefaultConfigurable=True).WrapTime=150
-UAStore.addAction('HitWrapper',['EndOfEvent'])
-
+from G4AtlasApps.SimFlags import simFlags
+simFlags.InitFunctions.add_function("postInit", cbwrapper_setup)
