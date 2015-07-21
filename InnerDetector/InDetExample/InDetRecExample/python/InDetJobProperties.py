@@ -1421,6 +1421,9 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTIDE_Ambi, False)
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
+    if rec.doExpressProcessing() :
+        self.checkThenSet(self.useBeamConstraint,False)
+
   def init(self):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in InDetRecExample/InDetRec_jobOptions.py!!

@@ -40,6 +40,19 @@ if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
           SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
   except:
       pass
+  
+  try:
+      if InDetFlags.ForceCoolVectorPayload():
+          SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  except:
+      pass
+      
+  try:
+      if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
+          print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+          SCTConfigurationFolderPath=''
+  except:
+      pass
         
   #to read SCT cabling from db 
   from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
