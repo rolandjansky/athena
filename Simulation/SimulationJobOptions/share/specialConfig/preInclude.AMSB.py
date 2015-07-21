@@ -1,10 +1,5 @@
-#################################################################
-#	preInclude.AMSB.py - Chiara Debenedetti, 3 Jun 2011	#
-#################################################################
-
-
 def get_and_fix_PDGTABLE(replace):
-    import os, shutil
+    import os, shutil, re
 
     # Download generic PDGTABLE (overwrite existing one if it exists)
     os.system('get_files -remove -data PDGTABLE.MeV')
@@ -13,26 +8,25 @@ def get_and_fix_PDGTABLE(replace):
     # an example line to illustrate the fixed format, see PDGTABLE.MeV for more details
     # M 1000022                          0.E+00         +0.0E+00 -0.0E+00 ~chi(0,1)     0
 
+    lines = open('PDGTABLE.MeV.org').readlines()
+    for pdgid,mass,name,charge in replace:
+        if not re.search(r'[MW]\s+'+str(pdgid)+'\s+\S+', ''.join(lines)):
+            lines.append('M' + str(pdgid).rjust(8) +''.ljust(26) +
+                         ('%11.5E' % mass).ljust(15) +
+                         '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
+                         name.strip() + ''.ljust(6) + charge.strip() + '\n')
+            lines.append('W' + str(pdgid).rjust(8) +''.ljust(26) +
+                         '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
+                         name.strip() + ''.ljust(6) + charge.strip() + '\n')
+        else:
+            for i in xrange(len(lines)):
+                if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
+                    l = lines[i]
+                    lines[i] = l[0:35] + ('%11.5E' % mass).ljust(14) + l[49:]
+
     update = open('PDGTABLE.MeV', 'w')
-    for l in open('PDGTABLE.MeV.org'):
-
-        for r in replace:
-            if l.find(r[1]) > -1:
-                ll = l.split()
-            
-                if ll[0] == r[0] and ll[1] == r[1]:
-                    l = l[0:35] + ('%11.5E' % r[2]).strip().ljust(14) + l[49:]
-                    continue
-        
-        update.write(l)
+    update.write(''.join(lines))
     update.close()
-
-
-def load_files_for_AMSB_scenario(simdict):
-    C1Mass = eval(simdict["AMSBC1Mass"])
-    N1Mass = eval(simdict["AMSBN1Mass"])
-    # patching PDGTABLE
-    get_and_fix_PDGTABLE([('M', '1000022', N1Mass), ('M', '1000024', C1Mass)])
 
 
 doG4SimConfig = True
@@ -52,14 +46,17 @@ except:
     from G4AtlasApps import AtlasG4Eng
     simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
 
-load_files_for_AMSB_scenario(simdict)
+C1Mass = eval(simdict["AMSBC1Mass"])
+N1Mass = eval(simdict["AMSBN1Mass"])
+# patching PDGTABLE
+get_and_fix_PDGTABLE([(1000022, N1Mass, '~chi(0,1)', '0'), (1000024, C1Mass, '~chi(+,1)', '+')])
 
 if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     def amsb_processlist():
         from G4AtlasApps import AtlasG4Eng
         AtlasG4Eng.G4Eng.gbl.G4Commands().process.list()
-	
+
     simFlags.InitFunctions.add_function("postInit", amsb_processlist)
 
     def amsb_setparams():
