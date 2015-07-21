@@ -18,14 +18,12 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
   m_sType(sType),
   m_doBinnedResolutionPlots(doBinnedResolutionPlots)
 {
-  //inline bin definitions
-  Double_t resolution_ptBins[9] = {5, 10, 20, 30, 40, 50, 60, 100, 200};
-  Double_t resolution_etaBins[10] = {-2.7, -2.5, -1.7, -1.05, -0.1, 0.1, 1.05, 1.7, 2.5, 2.7};
-  Double_t resolution_phiBins[9] = {-3.15, -2.4, -1.6, -0.8, 0, 0.8, 1.6, 2.4, 3.15};
-    
-  std::pair<Int_t,Double_t*> ptBins(6,resolution_ptBins);
-  std::pair<Int_t,Double_t*> etaBins(9,resolution_etaBins);
-  std::pair<Int_t,Double_t*> phiBins(8,resolution_phiBins);
+  const int sizeOf_ptBins=7;
+  Double_t ptBins[sizeOf_ptBins] = {5, 15, 30, 45, 60, 100, 200};
+  const int sizeOf_etaBins=10;
+  Double_t etaBins[sizeOf_etaBins] = {-2.7, -2.5, -1.7, -1.05, -0.1, 0.1, 1.05, 1.7, 2.5, 2.7};
+  const int sizeOf_phiBins=9;
+  Double_t phiBins[sizeOf_phiBins] = {-3.15, -2.4, -1.6, -0.8, 0, 0.8, 1.6, 2.4, 3.15};
 
   //book 2D hists
   if (m_doBinnedResolutionPlots) {
@@ -33,11 +31,11 @@ MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, st
     Res_pT_vs_highpT  = Book2D("Res"+m_sType+"_pT_vs_highpT","Res"+m_sType+"_pT vs high pT;pT [GeV];(pT-pTtruth)/pTtruth",10,100.,1000., 100,-0.5,0.5);
 
     Res_pT_vs_pT  = Book2D("Res"+m_sType+"_pT_vs_pT","Res"+m_sType+"_pT vs pT;pT [GeV];(pT-pTtruth)/pTtruth",
-			   ptBins.first, ptBins.second,  100,-0.5,0.5);
+			   sizeOf_ptBins-1, &ptBins[0],  100,-0.5,0.5);
     Res_pT_vs_eta = Book2D("Res"+m_sType+"_pT_vs_eta","Res"+m_sType+"_pT vs eta;eta,eta-etatruth",
-			   etaBins.first, etaBins.second, 100,-0.5,0.5);
+			   sizeOf_etaBins-1, &etaBins[0], 100,-0.5,0.5);
     Res_pT_vs_phi = Book2D("Res"+m_sType+"_pT_vs_phi","Res"+m_sType+"_pT vs phi;phi,phi-phitruth",
-			   phiBins.first, phiBins.second, 100,-0.5,0.5);					
+			   sizeOf_phiBins-1, &phiBins[0], 100,-0.5,0.5);					
   }
 
 }
