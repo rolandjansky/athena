@@ -13,13 +13,6 @@
 
 class GeoMaterial;
 
-struct DetectorPositionParameters {
-	DetectorPositionParameters():Zposition(0),Radius(0),PhiStart(0) {;}
-	double Zposition;
-	double Radius;
-	double PhiStart;
-};
-
 class AGDDDetector: public AGDDVolume {
 public:
 	AGDDDetector(std::string s):AGDDVolume(s),_small_x(0),_large_x(0),_y(0),_z(0) {}
@@ -36,7 +29,7 @@ public:
 	void large_x(double x) {_large_x=x;}
 	void y(double yval) {_y=yval;}
 	void z(double zval) {_z=zval;}
-    void subType(std::string s) {sType=s;}
+        void subType(std::string s) {sType=s;}
 	double small_x() {return _small_x;}
 	double large_x() {return _large_x;}
 	double y() {return _y;}
@@ -50,7 +43,6 @@ public:
 	std::string DetectorID() {return detectorID;}
 	
 	void SetAddressAndPosition(AGDDDetectorPositioner*) ;
-	DetectorPositionParameters position;
 	
 	std::vector<AGDDDetectorPositioner*>& GetDetectorPositioners();
 	
