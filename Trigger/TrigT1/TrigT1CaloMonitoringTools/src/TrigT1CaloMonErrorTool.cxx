@@ -39,7 +39,7 @@ namespace LVL1 {
 // Constructor
 
 TrigT1CaloMonErrorTool::TrigT1CaloMonErrorTool(
-  const std::string& name = "TrigT1CaloMonErrorTool")
+  const std::string& name)
   : AsgTool(name)
 {
 
