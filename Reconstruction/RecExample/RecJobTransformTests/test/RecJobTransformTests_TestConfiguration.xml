@@ -210,7 +210,7 @@
       <outfile>${T_PREFIX}-RecoESDZeeJet-${T_RELEASE}.pool.root</outfile>
       <logfile>${T_PREFIX}-RecoZeeJet-${T_RELEASE}.log</logfile>
       <signature>
-	--inputRDOFile "${T_INFILE}" --outputESDFile "${T_OUTFILE}" --outputAODFile "${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root"  --maxEvents 10 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-22" --postInclude KitValidation/kv_reflex.py
+	--inputRDOFile "${T_INFILE}" --outputESDFile "${T_OUTFILE}" --outputAODFile "${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root"  --maxEvents 10 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-32" --postInclude KitValidation/kv_reflex.py
       </signature>
       <copyfiles>
 	${T_OUTFILE} ${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
