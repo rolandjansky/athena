@@ -39,10 +39,6 @@ void chamberPositionerHandler::ElementHandle()
 	double phi0=getAttributeAsDouble("phi0",0.);
 	int iWedge=getAttributeAsInt("wedge_number",8);
 	
-	mCham->position.Zposition=zPos;
-	mCham->position.Radius=radius;
-	mCham->position.PhiStart=phi0;
-	
 	std::string zLayout=getAttributeAsString("zLayout","Z_SYMMETRIC");
 	std::string type=getAttributeAsString("type","BARREL");
 	std::string chType=getAttributeAsString("chamberType");
@@ -53,8 +49,7 @@ void chamberPositionerHandler::ElementHandle()
 	double dPhi=360./iWedge;
 	
 
-	const double pi=M_PI;
-	const double degrad=pi/180.;
+	const double degrad=M_PI/180.;
 
 	if (iSectors.size()!= (unsigned int) iWedge) throw;
 	
@@ -70,6 +65,9 @@ void chamberPositionerHandler::ElementHandle()
 			CLHEP::HepRotation crot;
 			if (type=="ENDCAP") 
 			{
+				//	fix to ensure right order of planes			
+				crot.rotateZ(180.*degrad);
+				//
 				crot.rotateY(90*degrad);
 				crot.rotateZ(Wedge*degrad);
 			}
@@ -86,7 +84,14 @@ void chamberPositionerHandler::ElementHandle()
 			p->ID.sideIndex=1;
 			p->ID.etaIndex=etaIndex;
 			p->ID.detectorType=detectorType;
+			
+			p->position.Zposition=zpos;
+			p->position.Radius=radius;
+			p->position.PhiStart=phi0;
+			p->position.Phi=Wedge;
+			
 			mCham->SetAddressAndPosition(p);
+			
 		}
 		if (zLayout!="Z_POSITIVE")
         {
@@ -95,6 +100,9 @@ void chamberPositionerHandler::ElementHandle()
             CLHEP::HepRotation crot;
             if (type=="ENDCAP")
             {
+				//	fix to ensure right order of planes			
+				crot.rotateZ(180.*degrad);
+				//
                 crot.rotateY(90*degrad);
                 crot.rotateZ(-Wedge*degrad);
 				crot.rotateX(180.*degrad);
@@ -112,6 +120,12 @@ void chamberPositionerHandler::ElementHandle()
 			p->ID.sideIndex=-1;
 			p->ID.etaIndex=-etaIndex;
 			p->ID.detectorType=detectorType;
+			
+			p->position.Zposition=-zpos;
+			p->position.Radius=radius;
+			p->position.PhiStart=phi0;
+			p->position.Phi=Wedge;
+			
 			mCham->SetAddressAndPosition(p);
         }
  	}

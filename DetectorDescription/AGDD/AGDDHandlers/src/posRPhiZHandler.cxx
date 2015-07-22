@@ -26,8 +26,7 @@ void posRPhiZHandler::ElementHandle()
 	phi=vvv[1];
 	zpos=vvv[2];
 
-	const double pi=2.*asin(1.);
-	const double degrad=pi/180.;
+	const double degrad=M_PI/180.;
 	
 	CLHEP::Hep3Vector cvec;
 	CLHEP::HepRotation crot;

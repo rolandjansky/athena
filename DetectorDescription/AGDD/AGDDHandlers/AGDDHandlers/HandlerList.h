@@ -48,6 +48,8 @@
 #include "AGDDHandlers/tubsHandler.h"
 #include "AGDDHandlers/unionHandler.h"
 #include "AGDDHandlers/varHandler.h"
+#include "AGDDHandlers/versionHandler.h"
+#include "AGDDHandlers/importHandler.h"
 
 #include "AGDDHandlers/IbeamHandler.h"
 #include "AGDDHandlers/UbeamHandler.h"

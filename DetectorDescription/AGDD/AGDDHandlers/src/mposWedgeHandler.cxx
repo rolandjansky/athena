@@ -26,8 +26,7 @@ void mposWedgeHandler::ElementHandle()
 	CLHEP::Hep3Vector cvec;
 	CLHEP::HepRotation crot;
 
-	const double pi=2*asin(1.);
-	const double degrad=pi/180.;
+	const double degrad=M_PI/180.;
 	
 	double radius=0;
 	for (int i=0;i<iWedge;i++)

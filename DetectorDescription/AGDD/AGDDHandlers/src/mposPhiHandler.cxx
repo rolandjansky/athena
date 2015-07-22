@@ -54,8 +54,7 @@ void mposPhiHandler::ElementHandle()
 	CLHEP::HepRotation crot;
 	
 	vvv=getAttributeAsVector("rot",res);
-	const double pi=2*asin(1.);
-	const double deg=pi/180.;
+	const double deg=M_PI/180.;
 	if (res) 
 	{
 		crot.rotateX(vvv[0]*deg);
@@ -63,7 +62,7 @@ void mposPhiHandler::ElementHandle()
 		crot.rotateZ(vvv[2]*deg);
 	}
 
-	const double degrad=pi/180.;
+	const double degrad=M_PI/180.;
 	
 	for (int i=0;i<icopy;i++)
 	{

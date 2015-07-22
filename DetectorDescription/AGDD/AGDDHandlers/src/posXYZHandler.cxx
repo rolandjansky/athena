@@ -32,8 +32,7 @@ void posXYZHandler::ElementHandle()
 		cvec =CLHEP::Hep3Vector(X_Y_Z[0],X_Y_Z[1],X_Y_Z[2]);
 	}
 	std::vector<double> rot=getAttributeAsVector("rot",rotRet);
-	const double pi=2*asin(1.);
-	const double deg=pi/180.;
+	const double deg=M_PI/180.;
 	if (rotRet) 
 	{
 		crot=CLHEP::HepRotation();
