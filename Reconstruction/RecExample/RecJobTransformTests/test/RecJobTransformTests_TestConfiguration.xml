@@ -210,7 +210,7 @@
       <outfile>${T_PREFIX}-RecoESDZeeJet-${T_RELEASE}.pool.root</outfile>
       <logfile>${T_PREFIX}-RecoZeeJet-${T_RELEASE}.log</logfile>
       <signature>
-	--inputRDOFile "${T_INFILE}" --outputESDFile "${T_OUTFILE}" --outputAODFile "${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root"  --maxEvents 10 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-22" --postInclude KitValidation/kv_reflex.py
+	--inputRDOFile "${T_INFILE}" --outputESDFile "${T_OUTFILE}" --outputAODFile "${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root"  --maxEvents 10 --autoConfiguration everything --conditionsTag="OFLCOND-RUN12-SDR-32" --postInclude KitValidation/kv_reflex.py
       </signature>
       <copyfiles>
 	${T_OUTFILE} ${T_PREFIX}-RecoAODZeeJet-${T_RELEASE}.pool.root ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
@@ -560,13 +560,11 @@
       </jobTransform>
       
       <!-- Test runs on splash events -->
-      <!-- XS: please update with splashevent from 2015 -->
       <jobTransform userJobId="splash_events">
 	<doc> Reco_tf runs on splash events with all streams</doc>
 	<jobTransformJobName>RecoTf_splash_events</jobTransformJobName>
 	<jobTransformCmd>
-	  Reco_tf.py --inputBSFile /afs/cern.ch/atlas/maxidisk/d74/rtt_data/data10_7TeV.00152164.physics_MinBias.merge.RAW._lb0002._0001.1 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --geometryVersion="ATLAS-R1-2012-02-00-00" --outputESDFile myESD.pool.root --outputNTUP_MUONCALIBFile muonCalib.root --outputHISTFile myMergedMonitoring.root --outputTAGFile myTAG.pool.root --maxEvents 300 --preExec 'rec.doTrigger=False;'
-
+	  export TRF_ECHO=True; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/Data_13TeV/data15_comm.00265545.physics_MinBias.merge.RAW._lb0048._SFO-ALL._0001.1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2015-04" --geometryVersion="ATLAS-R2-2015-03-01-00" --outputESDFile myESD.pool.root --outputNTUP_MUONCALIBFile muonCalib.root --outputHISTFile myMergedMonitoring.root --outputTAGFile myTAG.pool.root --maxEvents 300 --preExec 'rec.doTrigger=False;'
 	</jobTransformCmd>
 	<group>RecTrf</group>
 	<queue>medium</queue>
