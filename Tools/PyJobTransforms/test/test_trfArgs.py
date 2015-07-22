@@ -5,11 +5,12 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
+#  @version $Id: test_trfArgs.py 684898 2015-07-22 15:31:17Z graemes $
 
 import argparse
 import json
 import os
+import os.path as path
 import subprocess
 import unittest
 
@@ -120,7 +121,12 @@ class configureFromJSON(unittest.TestCase):
                 pass 
 
     def test_configFromJSON(self):
-        cmd = ['Athena_tf.py', '--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json']
+        if 'ATN_PACKAGE' in os.environ:
+            # While running in ATN Athena_tf.py is not yet in the PATH
+            cmd = [path.join(os.environ['ATN_PACKAGE'], 'scripts', 'Athena_tf.py')]
+        else:
+            cmd = ['Athena_tf.py']
+        cmd.extend(['--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json'])
         self.assertEqual(subprocess.call(cmd), 0)
         self.maxDiff = None
         with open('rewrite.json') as rewritten_json:
