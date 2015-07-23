@@ -125,7 +125,8 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
 
   template < typename T> class SpacePointSelector {
   public:
-    SpacePointSelector(T& t) : m_filter(t) {};
+    SpacePointSelector(T& t) : m_filter(t), m_pIDC(nullptr) {};
+    SpacePointSelector() = delete;
     ~SpacePointSelector(){};
     void operator() (int id) {
       TrigSiSpacePointContainer::const_iterator collIt = m_pIDC->indexFind(id);

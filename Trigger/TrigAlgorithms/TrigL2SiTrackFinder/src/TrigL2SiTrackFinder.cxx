@@ -72,6 +72,8 @@ TrigL2SiTrackFinder::TrigL2SiTrackFinder(const std::string& name, ISvcLocator* p
   m_doShift(false), 
   //m_generateRoI(false), 
   m_useRoiDescriptorWidths(false), 
+  m_pixelSpacePointsContainer(nullptr),
+  m_sctSpacePointsContainer(nullptr),
   m_ntracks(0),
   m_nPixSPsInRoI(0),
   m_nSCTSPsInRoI(0),
@@ -945,25 +947,31 @@ void TrigL2SiTrackFinder::runResidualMonitoring(const TrigInDetTrack* pT) {
   for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
     //msg() << MSG::INFO << (*it) << endreq;
     switch(it->regionId()) {
-    case 1 :
+    case Region::PixBarrel :
       m_pixResPhiBarrel.push_back(it->phiResidual());
       m_pixPullPhiBarrel.push_back(it->phiPull());
       m_pixResEtaBarrel.push_back(it->etaResidual());
       m_pixPullEtaBarrel.push_back(it->etaPull());
       break;
-    case 2 :
+    case Region::PixEndcap :
       m_pixResPhiEC.push_back(it->phiResidual());
       m_pixPullPhiEC.push_back(it->phiPull());
       m_pixResEtaEC.push_back(it->etaResidual());
       m_pixPullEtaEC.push_back(it->etaPull());
       break;
-    case 3 :
+    case Region::SctBarrel :
       m_sctResBarrel.push_back(it->phiResidual());
       m_sctPullBarrel.push_back(it->phiPull());
       break;
-    case 4 :
+    case Region::SctEndcap :
       m_sctResEC.push_back(it->phiResidual());
       m_sctPullEC.push_back(it->phiPull());
+      break;
+    case Region::IBL :
+      break;
+    case Region::Undefined :
+      break;
+    default :
       break;
     }
   }

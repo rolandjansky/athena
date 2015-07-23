@@ -65,25 +65,25 @@ class TrigL2SiTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('dataErrors',
                                              type='TH1F',
                                              title="Data Errors",
-                                             xbins = 5 , xmin=0., xmax=5.,
+                                             xbins = 4 , xmin=0., xmax=4.,
                              labels='SP_Abort : SP_Recoverable : TRT_Abort : TRT_Recoverable' ) ]
         # SCT Errors are defined in : InnerDetector/InDetConditions/SCT_ConditionsServices/SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h
         self.Histograms += [ defineHistogram('dataErrors_SCT',
                                              type='TH1F',
                                              title="SCT Data Errors",
-                                             xbins = 15 , xmin=0., xmax=15,
+                                             xbins = 14 , xmin=0., xmax=14,
                              labels='SCT_Decoding : SCT_TimeOut : SCT_BCID : SCT_LVL1ID : SCT_Preamble : SCT_Formatter : SCT_Trailer : SCT_TrailerOverFlow : SCT_HeaderTrailerLimit : SCT_ABCD : SCT_Raw : SCT_MaskedLink : SCT_RODClockError : SCT_TruncatedROD' ) ]
         # PIX Errors are defined in : InnerDetector/InDetConditions/PixelConditionsServices/PixelConditionsServices/IPixelByteStreamErrorsSvc.h
         self.Histograms += [ defineHistogram('dataErrors_PIX',
                                              type='TH1F',
                                              title="Pixel Data Errors",
-                                             xbins = 10 , xmin=0., xmax=10.,
+                                             xbins = 9 , xmin=0., xmax=9.,
                              labels='PIX_TimeOut : PIX_BCID : PIX_LVL1ID : PIX_Preamble : PIX_Trailer : PIX_Flagged : PIX_DisabledFE : PIX_TruncatedROD : PIX_Decoding')]
         # TRT Errors are defined in : InnerDetector/InDetConditions/TRT_ConditionsServices/src/TRT_ByteStream_ConditionsSvc.cxx
         self.Histograms += [ defineHistogram('dataErrors_TRT',
                                              type='TH1F',
                                              title="TRT Data Errors",
-                                             xbins = 10 , xmin=0., xmax=10.,
+                                             xbins = 6 , xmin=0., xmax=6.,
                              labels='TRT_LVL1ID : TRT_BCID : TRT_MISSING : TRT_ERROR : TRT_SID : TRT_ROB')]
     def addSiTimingHistograms(self,nbin,min,max):
         self.Histograms += [ defineHistogram('time_SiDataRegSel',
