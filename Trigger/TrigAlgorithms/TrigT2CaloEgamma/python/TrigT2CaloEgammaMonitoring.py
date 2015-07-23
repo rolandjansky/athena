@@ -11,7 +11,7 @@ class TrigT2CaloEgammaValMonitoring(TrigGenericMonitoringToolConfig) :
       self.Histograms = [defineHistogram('Eta', type='TH1F', title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5) ]
       self.Histograms += [defineHistogram('Phi',type='TH1F', title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2) ]
       self.Histograms += [defineHistogram('Eta,Phi',type='TH2F',title="#eta vs #phi of Clusters; #eta; #phi", xbins=50,xmin=-2.5,xmax=2.5, ybins=64,ymin=-3.2,ymax=3.2) ]                
-      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4) ]
+      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=70,xmin=0,xmax=7e4) ]
       self.Histograms += [defineHistogram('Had1Et',type='TH1F',
                                           title="Had E_{T} of Clusters (first had layer); Had E_{T} [MeV]; number of RoIs",
                                           xbins=60,xmin=0,xmax=5e3) ]
@@ -114,7 +114,7 @@ class TrigT2CaloEgammaCosmicMonitoring(TrigGenericMonitoringToolConfig) :
       self.Histograms = [defineHistogram('Eta', type='TH1F', title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5) ]
       self.Histograms += [defineHistogram('Phi',type='TH1F', title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2) ]
       self.Histograms += [defineHistogram('Eta,Phi',type='TH2F',title="#eta vs #phi of Clusters; #eta; #phi", xbins=50,xmin=-2.5,xmax=2.5, ybins=64,ymin=-3.2,ymax=3.2) ]                
-      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4) ]
+      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=70,xmin=0,xmax=7e4) ]
       self.Histograms += [defineHistogram('Had1Et',type='TH1F',
                                           title="Had E_{T} of Clusters (first had layer); Had E_{T} [MeV]; number of RoIs",
                                           xbins=60,xmin=0,xmax=5e3) ]
@@ -155,7 +155,7 @@ class TrigT2CaloEgammaOnMonitoring(TrigGenericMonitoringToolConfig) :
       self.Histograms = [defineHistogram('Eta', type='TH1F', title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5) ]
       self.Histograms += [defineHistogram('Phi',type='TH1F', title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2) ]
       self.Histograms += [defineHistogram('Eta,Phi',type='TH2F',title="#eta vs #phi of Clusters; #eta; #phi", xbins=50,xmin=-2.5,xmax=2.5, ybins=64,ymin=-3.2,ymax=3.2) ]                
-      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4) ]
+      self.Histograms += [defineHistogram('Et',type='TH1F',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=70,xmin=0,xmax=7e4) ]
       self.Histograms += [defineHistogram('Had1Et',type='TH1F',
                                           title="Had E_{T} of Clusters (first had layer); Had E_{T} [MeV]; number of RoIs",
                                           xbins=60,xmin=0,xmax=5e3) ]
