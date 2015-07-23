@@ -169,6 +169,7 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   rtrigEmCluster.setEta(etaL1);
   rtrigEmCluster.setPhi(phiL1);
   rtrigEmCluster.setNCells(ncells);
+  rtrigEmCluster.setEt ( rtrigEmCluster.energy()/cosh(etaL1) );
         
   // Finished save EMShowerMinimal time
   if (!m_timersvc.empty()) m_timer[4]->stop();      
