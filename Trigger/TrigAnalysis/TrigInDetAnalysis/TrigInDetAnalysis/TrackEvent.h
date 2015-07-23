@@ -85,11 +85,19 @@ public:
   // iterators
   std::vector<TrackChain>::iterator begin() { return m_chains.begin(); }
   std::vector<TrackChain>::iterator end()   { return m_chains.end(); }
+
+  std::vector<TrackChain>::const_iterator begin() const { return m_chains.begin(); }
+  std::vector<TrackChain>::const_iterator end()   const { return m_chains.end(); }
   
   /// vector operator
   TrackChain& operator[](int i) { return m_chains.at(i); }
 
   const std::vector<TrackVertex> vertices() const { return m_vertices; }
+
+  std::vector<std::string> chainnames() const;
+
+  void erase( const std::string& name );
+
 
 private:
  
