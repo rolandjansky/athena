@@ -6,11 +6,14 @@
 #define AGDDsTGC_H
 
 #include "AGDDKernel/AGDDDetector.h"
+#include "MuonGeoModel/sTGC_Technology.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
 class GeoMaterial;
+
+using MuonGM::sTGC_Technology;
 
 struct sTGCReadoutParameters {
     double sPadWidth;
@@ -53,19 +56,41 @@ public:
 		_z=v[3];
 		_yCutout=v[4];
 	}
+	
+	double sWidth() {return _small_x;}
+	double lWidth() {return _large_x;}
+	double Length() {return _y;}
+	double Tck()    {return _z;}
 
 	void yCutout(double y) {_yCutout=y;}
 	double yCutout() {return _yCutout;}
+	
+	void xFrame(double y) {_xFrame=y;}
+	double xFrame() {return _xFrame;}
+	
+	void ysFrame(double y) {_ysFrame=y;}
+	double ysFrame() {return _ysFrame;}
+	
+	void ylFrame(double y) {_ylFrame=y;}
+	double ylFrame() {return _ylFrame;}
 
 	void CreateVolume();
 	void CreateSolid();
 
 	sTGCReadoutParameters roParameters;
+	
+	sTGCReadoutParameters& GetReadoutParameters() {return roParameters;}
 
 	static AGDDsTGC* GetCurrent() {return current;}
+	
+	sTGC_Technology* GetTechnology();
 private:
 
 	double _yCutout;
+	
+	double _xFrame;
+	double _ysFrame;
+	double _ylFrame;
 	
 	static AGDDsTGC* current;
 	void SetDetectorAddress(AGDDDetectorPositioner*);

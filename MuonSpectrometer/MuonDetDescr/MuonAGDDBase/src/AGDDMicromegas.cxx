@@ -20,8 +20,11 @@
 
 #include "MuonGeoModel/MicromegasComponent.h"
 #include "MuonGeoModel/Micromegas.h"
+#include "MuonGeoModel/MYSQL.h"
 
 AGDDMicromegas* AGDDMicromegas::current=0;
+
+using MuonGM::MYSQL;
 
 AGDDMicromegas::AGDDMicromegas(std::string s): AGDDDetector(s,"Micromegas")
 {
@@ -103,4 +106,11 @@ void AGDDMicromegas::SetDetectorAddress(AGDDDetectorPositioner* p)
 		stringone<<"sMD"<<ctype<<"-"<<etaIndex<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
 		//std::cout<<" stringone "<<stringone.str()<<std::endl;
 		p->ID.detectorAddress=stringone.str();
+}
+
+MM_Technology* AGDDMicromegas::GetTechnology()
+{
+   MYSQL* mysql = MYSQL::GetPointer();   
+   MM_Technology* t = (MM_Technology*) mysql->GetTechnology(name);
+   return t;
 }

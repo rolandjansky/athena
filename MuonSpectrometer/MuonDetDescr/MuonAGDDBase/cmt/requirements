@@ -10,15 +10,13 @@ use GaudiInterface      	GaudiInterface-*        External
 library MuonAGDDBase *.cxx
 apply_pattern installed_library
 
-apply_pattern install_runtime
-
 public
 use AGDDKernel		    	AGDDKernel-*		 	DetectorDescription/AGDD
 use AGDDControl		    	AGDDControl-*			DetectorDescription/AGDD
+use MuonGeoModel            MuonGeoModel-*          MuonSpectrometer
 
 private
 use StoreGate               StoreGate-*             Control
 use GeoModelInterfaces      GeoModelInterfaces-*    DetectorDescription/GeoModel
-use MuonGeoModel            MuonGeoModel-*          MuonSpectrometer
 use AGDDModel				AGDDModel-*				DetectorDescription/AGDD
 use GeoModelKernel      	GeoModelKernel-*        DetectorDescription/GeoModel

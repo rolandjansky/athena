@@ -8,9 +8,12 @@
 #include <map>
 
 class AGDDsTGC;
+class AGDDDetectorPositioner;
 
 typedef std::map<std::string,AGDDsTGC*> sTGCMap;
 typedef std::map<std::string,AGDDsTGC*>::const_iterator sTGCIterator;
+
+typedef std::pair<AGDDsTGC*,AGDDDetectorPositioner*> AGDDPositionedDetector;
 
 class sTGCDetectorHelper {
 public:
@@ -19,6 +22,9 @@ public:
 	sTGCIterator sTGC_end()   {return sTGCList.end();}
 	
 	AGDDsTGC* Get_sTGCDetector(char type,int ieta,int iphi,int layer=1,char side='A');
+	AGDDsTGC* Get_sTGCDetectorType(std::string type);
+	AGDDPositionedDetector Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
+	
 private:
 	sTGCMap sTGCList;
 

@@ -22,8 +22,11 @@
 
 #include "MuonGeoModel/sTGCComponent.h"
 #include "MuonGeoModel/sTGC.h"
+#include "MuonGeoModel/MYSQL.h"
 
 #include <sstream>
+
+using MuonGM::MYSQL;
 
 AGDDsTGC* AGDDsTGC::current=0;
 
@@ -100,4 +103,11 @@ void AGDDsTGC::SetDetectorAddress(AGDDDetectorPositioner* p)
 		stringone<<"sTG"<<ctype<<"-"<<sType.substr(2,1)<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
 		//std::cout<<" stringone "<<stringone.str()<<std::endl;
 		p->ID.detectorAddress=stringone.str();
+}
+
+sTGC_Technology* AGDDsTGC::GetTechnology()
+{
+   MYSQL* mysql = MYSQL::GetPointer();   
+   sTGC_Technology* t = (sTGC_Technology*) mysql->GetTechnology(name);
+   return t;
 }

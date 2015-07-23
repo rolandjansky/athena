@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonAGDDBase/sTGCDetectorHelper.h"
-#include "MuonAGDDBase/AGDDsTGC.h"
+#include "MuonAGDDBase/MMDetectorHelper.h"
 #include "MuonAGDDBase/AGDDMicromegas.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
@@ -11,7 +10,7 @@
 
 #include <vector>
 
-sTGCDetectorHelper::sTGCDetectorHelper()
+MMDetectorHelper::MMDetectorHelper()
 {
 	AGDDDetectorStore* ds=AGDDDetectorStore::GetDetectorStore();
 	detectorList vl= ds->GetDetectorList();
@@ -19,28 +18,25 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 	for ( auto vl_iter: vl)
 	{
 		std::cout<<"detector "<<vl_iter.second->GetName()<<std::endl;
-		AGDDsTGC* st=dynamic_cast<AGDDsTGC*>(vl_iter.second);
-		//AGDDMicromegas* st1=dynamic_cast<AGDDMicromegas*>(st);
-		std::cout<<" st pointer "<<st<<std::endl;
+		AGDDMicromegas* st=dynamic_cast<AGDDMicromegas*>(vl_iter.second);
 		if (st) 
-			sTGCList[vl_iter.first]=st;
+			MicromegasList[vl_iter.first]=st;
 	}
 	
 }
 
-AGDDsTGC* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta,int iphi,int layer,char side) 
+AGDDMicromegas* MMDetectorHelper::Get_MMDetector(char type,int ieta,int iphi,int layer,char side)
 {
 	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
 	
-	AGDDsTGC* tgc=0;
+	AGDDMicromegas* mm=0;
 	
 	for (unsigned int i=0;i<ps->size();i++)
 	{
 		AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
 		if (dp)
 		{
-			std::cout<<"++++++++ detectorType "<<dp->ID.detectorType<<std::endl;
-			if (dp->ID.detectorType != "sTGC") continue;
+			if (dp->ID.detectorType != "Micromegas") continue;
 			std::string dad=dp->ID.detectorAddress;
 		
 			char dtype=dad[3];
@@ -57,18 +53,18 @@ AGDDsTGC* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta,int iphi,int l
 			if (dside!=side) continue;
 			
 			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
-			tgc=dynamic_cast<AGDDsTGC*>(dp->theDetector);
+			mm=dynamic_cast<AGDDMicromegas*>(dp->theDetector);
 		}
 	}
-	if (!tgc) std::cout<<" could not find a positioned sTGC!!!! "<<std::endl;
-	return tgc;
+	if (!mm) std::cout<<" could not find a positioned Micromegas!!!! "<<std::endl;
+	return mm;
 }
 
-AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer,char side) 
+AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int ieta,int iphi,int layer,char side)
 {
 	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
 	
-	AGDDsTGC* tgc=0;
+	AGDDMicromegas* mm=0;
 	AGDDDetectorPositioner* dp=0;
 	
 	for (unsigned int i=0;i<ps->size();i++)
@@ -76,8 +72,7 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 		dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
 		if (dp)
 		{
-			std::cout<<"++++++++ detectorType "<<dp->ID.detectorType<<std::endl;
-			if (dp->ID.detectorType != "sTGC") continue;
+			if (dp->ID.detectorType != "Micromegas") continue;
 			std::string dad=dp->ID.detectorAddress;
 		
 			char dtype=dad[3];
@@ -94,16 +89,16 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 			if (dside!=side) continue;
 			
 			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
-			tgc=dynamic_cast<AGDDsTGC*>(dp->theDetector);
+			mm=dynamic_cast<AGDDMicromegas*>(dp->theDetector);
 		}
 	}
-	if (!tgc) std::cout<<" could not find a positioned sTGC!!!! "<<std::endl;
-	AGDDPositionedDetector p_sTGC(tgc,dp);
-	return p_sTGC;
+	if (!mm) std::cout<<" could not find a positioned Micromegas!!!! "<<std::endl;
+	AGDDPositionedDetector p_mm(mm,dp);
+	return p_mm;
 }
 
-AGDDsTGC* sTGCDetectorHelper::Get_sTGCDetectorType(std::string type)
+AGDDMicromegas* MMDetectorHelper::Get_MMDetectorType(std::string type)
 {
-	if (sTGCList.find(type) != sTGCList.end()) return sTGCList[type];
+	if (MicromegasList.find(type) != MicromegasList.end()) return MicromegasList[type];
 	return nullptr;
 }
