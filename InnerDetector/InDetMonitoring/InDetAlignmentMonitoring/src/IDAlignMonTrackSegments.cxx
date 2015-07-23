@@ -22,7 +22,8 @@
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
 #include "TrackSelectionTool.h"
 #include <iostream>
-
+using std::cout;
+using std::endl;
 
 struct IDAlignMonTrackSegments::UpperLowerHistograms{
 
@@ -78,16 +79,15 @@ IDAlignMonTrackSegments::IDAlignMonTrackSegments( const std::string & type, cons
    //m_trackSumTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
    m_trackSplitter(""),
    m_useCTBSplitTracks(true),
-   m_deltaD0Range(0.25),
-   m_deltaD0Range2D(1.0),
+   m_deltaD0Range(0.5),
+   m_deltaD0Range2D(5),
    m_deltaPhiRange(0.005),
    m_deltaPhiRange2D(0.02),
    m_deltaQoverPtRange(0.1),
    m_deltaQoverPtRange2D(0.4),
    m_deltaPtQoverPtRange(0.5),
    m_deltaPtQoverPtRange2D(0.5),
-   m_deltaZ0Range(0.6),
-   m_d0Range(150),
+   m_d0Range(800),
    m_upperPhi(0),
    m_triggerChainName("NoTriggerSelection"),	
    m_upper_hist(new UpperLowerHistograms),
@@ -127,7 +127,6 @@ IDAlignMonTrackSegments::IDAlignMonTrackSegments( const std::string & type, cons
   declareProperty("DeltaQoverPtRange2D", m_deltaQoverPtRange2D);
   declareProperty("DeltaQoverPtRange", m_deltaPtQoverPtRange);
   declareProperty("DeltaQoverPtRange2D", m_deltaPtQoverPtRange2D);
-  declareProperty("DeltaZ0Range", m_deltaZ0Range);
   declareProperty("D0Range", m_d0Range);
   declareProperty("UpperPhi", m_upperPhi);
   declareProperty("trackSumTool", m_trackSumTool);
@@ -171,13 +170,13 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
   m_events=0;
   
   //initialize tools and services
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endreq;
   StatusCode sc = setupTools();
   if (sc.isFailure()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to initialize tools/services!" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to initialize tools/services!" << endreq;
     return StatusCode::SUCCESS;
   } 
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endreq;
 
   
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
@@ -213,17 +212,17 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_upper_hist->nhitsPix);  
     m_upper_hist->nhitsSct = TH1F_LW::create("nhits_sctUp","Number of SCT hits for every track in Upper Track Collection",21,-0.5,20.5);
     RegisterHisto(al_mon,m_upper_hist->nhitsSct);  
-    m_upper_hist->phi0 = TH1F_LW::create("Upper_phi0","#phi_{0}^{Upper}", 60,-3.14,m_upperPhi);
+    m_upper_hist->phi0 = TH1F_LW::create("Upper_phi0","#phi_{0}^{Upper}",100,-3.14,m_upperPhi);
     RegisterHisto(al_mon,m_upper_hist->phi0);  
     m_upper_hist->eta0 = TH1F_LW::create("Upper_eta0","#eta_{0}^{Upper}",100,-2.1,2.1);
     RegisterHisto(al_mon,m_upper_hist->eta0);  
-    m_upper_hist->d0 = TH1F_LW::create("Upper_d0","d_{0}^{Upper}; d_{0} [mm]", 80,-1*m_d0Range,m_d0Range);
+    m_upper_hist->d0 = TH1F_LW::create("Upper_d0","d_{0}^{Upper}",100,-1*m_d0Range,m_d0Range);
     RegisterHisto(al_mon,m_upper_hist->d0);  
-    m_upper_hist->z0 = TH1F_LW::create("Upper_z0","z_{0}^{Upper}; z_{0} [mm]", 50, -500, 500);
+    m_upper_hist->z0 = TH1F_LW::create("Upper_z0","z_{0}^{Upper}",100,-1000,1000);
     RegisterHisto(al_mon,m_upper_hist->z0);  
-    m_upper_hist->qOverPt = TH1F_LW::create("Upper_qOverPt","q/p_{T}^{Upper}; q/p_{T} [GeV^{-1}]",100,-0.05,0.05);
+    m_upper_hist->qOverPt = TH1F_LW::create("Upper_qOverPt","Q/p_{T}^{Upper} (1/GeV)",100,-1,1);
     RegisterHisto(al_mon,m_upper_hist->qOverPt);  
-    m_upper_hist->pt = TH1F_LW::create("Upper_pt","p_{T}^{Upper}; p_{T} [GeV]", 100, 0., 100.0);
+    m_upper_hist->pt = TH1F_LW::create("Upper_pt","p_{T}^{Low} - p_{T}^{Upper}",100,0,100.0);
     RegisterHisto(al_mon,m_upper_hist->pt);  
 
     //Lower Tracks 
@@ -235,17 +234,17 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_lower_hist->nhitsPix);  
     m_lower_hist->nhitsSct = TH1F_LW::create("nhits_sctLow","Number of SCT hits for every track in Lower Track Collection",21,-0.5,20.5);
     RegisterHisto(al_mon,m_lower_hist->nhitsSct);  
-    m_lower_hist->phi0 = TH1F_LW::create("Lower_phi0","#phi_{0}^{Low} ", 60,-3.14,m_upperPhi);
+    m_lower_hist->phi0 = TH1F_LW::create("Lower_phi0","#phi_{0}^{Low} ",100,-3.14,m_upperPhi);
     RegisterHisto(al_mon,m_lower_hist->phi0);  
     m_lower_hist->eta0 = TH1F_LW::create("Lower_eta0","#eta_{0}^{Low} ",100,-2.1,2.1);
     RegisterHisto(al_mon,m_lower_hist->eta0);  
-    m_lower_hist->d0 = TH1F_LW::create("Lower_d0","d_{0}^{Low}; d_{0} [mm]", 80,-1*m_d0Range,m_d0Range);
+    m_lower_hist->d0 = TH1F_LW::create("Lower_d0","d_{0}^{Low} ",100,-1*m_d0Range,m_d0Range);
     RegisterHisto(al_mon,m_lower_hist->d0);  
-    m_lower_hist->z0 = TH1F_LW::create("Lower_z0","z_{0}^{Low}; z_{0} [mm]", 50, -500, 500);
+    m_lower_hist->z0 = TH1F_LW::create("Lower_z0","z_{0}^{Low} ",100,-1000,1000);
     RegisterHisto(al_mon,m_lower_hist->z0);  
-    m_lower_hist->qOverPt = TH1F_LW::create("Lower_qOverPt","q/p_{T}^{Low}; q/p_{T} [GeV^{-1}]",100,-0.05,0.05);
+    m_lower_hist->qOverPt = TH1F_LW::create("Lower_qOverPt","Q/p_{T}^{Low} - Q/p_{T}^{Upper} (1/GeV)",100,-0.1,0.1);
     RegisterHisto(al_mon,m_lower_hist->qOverPt);  
-    m_lower_hist->pt = TH1F_LW::create("Lower_pt","p_{T}^{Low}; p_{T} [GeV]", 100, 0.,100.0);
+    m_lower_hist->pt = TH1F_LW::create("Lower_pt","p_{T}^{Low} - p_{T}^{Upper}",100,0,100.0);
     RegisterHisto(al_mon,m_lower_hist->pt);  
     
     
@@ -259,7 +258,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
       //======== d0 =========
       m_delta_d0->dTp[charge] = MakeHist("delta_d0"+histNames[charge]
 					 ,"d_{0}^{Low} - d_{0}^{Upper}"+chargeNames[charge]+"; #Delta d_{0} [mm]"
-					 , 50, -m_deltaD0Range, m_deltaD0Range);
+					 ,100,-1*m_deltaD0Range,m_deltaD0Range);
       RegisterHisto(al_mon,m_delta_d0->dTp[charge]);  
 
       m_delta_d0->dTpPull[charge] = MakeHist("delta_d0_Pull"+histNames[charge]
@@ -269,12 +268,12 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
       
       m_delta_d0->VsD0[charge] = MakeHist("delta_d0VsD0"+histNames[charge]
 					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]+"; d_{0}^{Upper} [mm]; #Delta d_{0} [mm]"
-					  , 9,-m_d0Range, m_d0Range,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
+					  ,8,-1*m_d0Range,m_d0Range,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsD0[charge]);  
 
       m_delta_d0->VsPhi0[charge] = MakeHist("delta_d0VsPhi0"+histNames[charge]
 					    ,"d_{0}^{Low} - d_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]+"; #phi_{0}^{Upper} [mm]; #Delta d_{0} [mm]" 
-					    ,9,-3.14,m_upperPhi,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
+					    ,8,-3.14,m_upperPhi,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsPhi0[charge]);  
 
       m_delta_d0->VsPt[charge] = MakeHist("delta_d0VsPt"+histNames[charge]
@@ -284,48 +283,48 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_d0->VsEta[charge] = MakeHist("delta_d0VsEta"+histNames[charge]
 					   ,"d_{0}^{Low} - d_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]+"; #eta^{Upper}; #Delta d_{0} [mm]" 
-					   ,11,-2.1,2.1,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
+					   ,50,-2.1,2.1,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsEta[charge]);  
 
       m_delta_d0->VsZ0[charge] = MakeHist("delta_d0VsZ0"+histNames[charge]
 					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs z_{0}^{Upper}"+chargeNames[charge]+"; #z_{0}^{Upper} [mm]; #Delta d_{0} [mm]" 
-					  ,11, -500., 500., 50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
+					  ,50,-1000,1000,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsZ0[charge]);  
       
       //========= z0
       m_delta_z0->dTp[charge] = MakeHist("delta_z0"+histNames[charge]
 					 ,"z_{0}^{Upper} - z_{0}^{Low}"+chargeNames[charge]+"; #Delta z_{0} [mm]"
-					 ,50, -m_deltaZ0Range, m_deltaZ0Range); 
+					 ,100,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->dTp[charge]);  
 
       m_delta_z0->dTpPull[charge] = MakeHist("delta_z0_Pull"+histNames[charge]
 					     ,"z_{0}^{Upper} - z_{0}^{Low} / #sigma_{z_{0}}"+chargeNames[charge]+"; #Delta z_{0} pull"
-					     ,50, -m_deltaZ0Range, m_deltaZ0Range); 
+					     ,100,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->dTpPull[charge]);  
 
       m_delta_z0->VsD0[charge] = MakeHist("delta_z0VsD0"+histNames[charge]
 					  ,"z_{0}^{Upper} - z_{0}^{low} Vs d_{0}^{Upper}"+chargeNames[charge]+"; z_{0}^{Upper} [mm]; #Delta z_{0} [mm]"
-					  ,9,-1*m_d0Range,m_d0Range,50, -m_deltaZ0Range, m_deltaZ0Range); 
+					  ,8,-1*m_d0Range,m_d0Range,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsD0[charge]);  
 
       m_delta_z0->VsPhi0[charge] = MakeHist("delta_z0VsPhi0"+histNames[charge]
 					    ,"z_{0}^{Upper} - z_{0}^{Low} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					    ,9,-3.14,m_upperPhi, 50, -m_deltaZ0Range, m_deltaZ0Range); 
+					    ,8,-3.14,m_upperPhi,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsPhi0[charge]);  
       
       m_delta_z0->VsPt[charge] = MakeHist("delta_z0VsPt"+histNames[charge]
 					  ,"z_{0}^{Upper} - z_{0}^{Low} Vs p_{T}^{Upper}"+chargeNames[charge]
-					  ,10,0,100,50, -m_deltaZ0Range, m_deltaZ0Range); 
+					  ,10,0,100,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsPt[charge]);  
 
       m_delta_z0->VsEta[charge] = MakeHist("delta_z0VsEta"+histNames[charge]
 					   ,"z_{0}^{Upper} - z_{0}^{Low} Vs #eta^{Upper}"+chargeNames[charge]
-					   ,11,-2.1,2.1, 50, -m_deltaZ0Range, m_deltaZ0Range); 
+					   ,50,-2.1,2.1,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsEta[charge]);  
       
       m_delta_z0->VsZ0[charge] = MakeHist("delta_z0VsZ0"+histNames[charge]
 					  ,"z_{0}^{Upper} - z_{0}^{Low} Vs z_{0}^{Upper}"+chargeNames[charge]
-					  ,11,-500., 500., 50, -m_deltaZ0Range, m_deltaZ0Range); 
+					  ,50,-800,800,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsZ0[charge]);  
       
       //====== phi0 ========
@@ -342,27 +341,27 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
       
       m_delta_phi0->VsD0[charge] = MakeHist("delta_phi0VsD0"+histNames[charge]
 					    ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs D0^{Upper}"+chargeNames[charge]
-					    ,9,-1*m_d0Range,m_d0Range,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					    ,8,-1*m_d0Range,m_d0Range,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsD0[charge]);  
 
       m_delta_phi0->VsPhi0[charge] = MakeHist("delta_phi0VsPhi0"+histNames[charge]
 					      ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs #phi_0^{Upper}"+chargeNames[charge]
-					      ,9,-3.14,m_upperPhi,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					      ,8,-3.14,m_upperPhi,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsPhi0[charge]);  
       
       m_delta_phi0->VsPt[charge] = MakeHist("delta_phi0VsPt"+histNames[charge]
 					    ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
-					    ,11,0,100,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					    ,10,0,100,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsPt[charge]);  
 
       m_delta_phi0->VsEta[charge] = MakeHist("delta_phi0VsEta"+histNames[charge]
 					     ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]
-					     ,11,-2.1,2.1,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					     ,50,-2.1,2.1,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsEta[charge]);  
 
       m_delta_phi0->VsZ0[charge] = MakeHist("delta_phi0VsZ0"+histNames[charge]
 					    ,"#phi_{0}^{Low} - #phi_{0}^{Upper} Vs Z0^{Upper}"+chargeNames[charge]
-					    ,11, -500., 500.,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
+					    ,50,-1000,1000,50,-1*m_deltaPhiRange2D,m_deltaPhiRange2D);
       RegisterHisto(al_mon,m_delta_phi0->VsZ0[charge]);  
 
       //======= eta0 =======
@@ -378,27 +377,27 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       m_delta_eta0->VsD0[charge] = MakeHist("delta_eta0VsD0"+histNames[charge]
 					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs D0^{Upper}"+chargeNames[charge]
-					    ,9,-1*m_d0Range,m_d0Range,50,-0.02, 0.02);
+					    ,8,-1*m_d0Range,m_d0Range,50,-0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsD0[charge]);  
 
       m_delta_eta0->VsPhi0[charge] = MakeHist("delta_eta0VsPhi0"+histNames[charge]
 					      ,"#eta_{0}^{Upper} - #eta_{0}^{low} Vs Phi0^{Upper}"+chargeNames[charge]
-					      ,9,-3.14,m_upperPhi,50, -0.02, 0.02);
+					      ,8,-3.14,m_upperPhi,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPhi0[charge]);  
 
       m_delta_eta0->VsPt[charge] = MakeHist("delta_eta0VsPt"+histNames[charge]
 					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs p_{T}^{Upper}"+chargeNames[charge]
-					    ,11,0,100,50, -0.02, 0.02);
+					    ,10,0,100,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPt[charge]);  
 
       m_delta_eta0->VsEta[charge] = MakeHist("delta_eta0VsEta"+histNames[charge]
 					     ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs #eta_{0}^{Upper}"+chargeNames[charge]
-					     ,51,-2.1,2.1,50, -0.02, 0.02);
+					     ,50,-2.1,2.1,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsEta[charge]);  
 
       m_delta_eta0->VsZ0[charge] = MakeHist("delta_eta0VsZ0"+histNames[charge]
 					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs Z0^{Upper}"+chargeNames[charge]
-					    ,11,-500., 500.,50, -0.02, 0.02);
+					    ,50,-1000,1000,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsZ0[charge]);  
 
       //======= qOverPt    
@@ -508,32 +507,32 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
     //========== charge
     m_delta_charge->dTp[0] = MakeHist("delta_charge"
-				      ,"Charge^{upper} - Charge^{lower}; #Delta q"
+				      ,"Charge^{upper} - Charge^{lower}"
 				      ,5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->dTp[0]);  
     
     m_delta_charge->VsD0[0] = MakeHist("delta_chargeVsD0"
-				       ,"Charge^{upper} - Charge^{lower} Vs d_{0}^{Upper}; d_{0} [mm]; #Delta q"
+				       ,"Charge^{upper} - Charge^{lower} Vs d_{0}^{Upper}"
 				       ,8,-1*m_d0Range,m_d0Range, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsD0[0]);  
 
     m_delta_charge->VsPhi0[0] = MakeHist("delta_chargeVsPhi0"
-					 ,"Charge^{upper} - Charge^{lower} Vs #phi_{0}^{Upper}; #phi [rad]; #Delta q"
+					 ,"Charge^{upper} - Charge^{lower} Vs #phi_{0}^{Upper}"
 					 ,8,-3.14,m_upperPhi, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsPhi0[0]);  
 
     m_delta_charge->VsZ0[0] = MakeHist("delta_chargeVsZ0"
-				       ,"Charge^{upper} - Charge^{lower} Vs z_{0}^{Upper}; z_{0} [mm]; #Delta q"
-				       ,50,-500,500, 5, -2.5, 2.5);
+				       ,"Charge^{upper} - Charge^{lower} Vs z_{0}^{Upper}"
+				       ,50,-1000,1000, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsZ0[0]);  
 
     m_delta_charge->VsPt[0] = MakeHist("delta_chargeVsPt"
-				       ,"Charge^{upper} - Charge^{lower} Vs p_{T}^{Upper}; p_{T} [GeV]; #Delta q"
+				       ,"Charge^{upper} - Charge^{lower} Vs p_{T}^{Upper}"
 				       ,10,0,100, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsPt[0]);  
 
     m_delta_charge->VsEta[0] = MakeHist("delta_chargeVsEta"
-					,"Charge^{upper} - Charge^{lower} Vs #eta^{Upper}; #eta; #Delta q"
+					,"Charge^{upper} - Charge^{lower} Vs #eta^{Upper}"
 					,50,-2.1,2.1, 5,-2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsEta[0]);  
     
@@ -564,7 +563,7 @@ void IDAlignMonTrackSegments::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
   //histo->Sumw2();//TK: fixme
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1F_LW Histogram:" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1F_LW Histogram:" << endreq;
   }
 }
 
@@ -573,7 +572,7 @@ void IDAlignMonTrackSegments::RegisterHisto(MonGroup& mon, TH2F_LW* histo) {
   //histo->Sumw2();//TK: fixme
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2F_LW Histogram:" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2F_LW Histogram:" << endreq;
   }
 }
 
@@ -589,36 +588,36 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   const DataVector<Trk::Track>* tracksUpper(0);
   const DataVector<Trk::Track>* tracksLower(0);
 
-  //if (false) {
-  //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
-  //	      << "                                                                 lower track collection = "<< m_lowerTracksName 
-  //	      << std::endl;
-  //}
+  if (false) {
+    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
+	      << "                                                                 lower track collection = "<< m_lowerTracksName 
+	      << std::endl;
+  }
 
   if(m_useCTBSplitTracks){
     
     if(!evtStore()->contains<TrackCollection>(m_upperTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endreq;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endreq;
       return StatusCode::SUCCESS;
     }
     
     if (!evtStore()->contains<TrackCollection>(m_lowerTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endreq;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endreq;
       return StatusCode::SUCCESS;
     }
     
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
     }
 
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
     }
     
   }else{
@@ -626,8 +625,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //We only need the inputTracks if we're splitting them ourselves
     if (!evtStore()->contains<TrackCollection>(m_inputTracksName)){
       if(m_events == 1){ 
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endreq;
+      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endreq;
       return StatusCode::SUCCESS;
     }
     
@@ -635,49 +634,49 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     const DataVector<Trk::Track>* tracksIn; 
     StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endmsg;
-      
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endreq;
+      if (false) std::cout << " -- SALVA -- No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << std::endl;
     }else{
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endmsg;
-      
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endreq;
+      if (false) std::cout << " -- SALVA -- Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << std::endl;
     }
-    //if (false) {
-    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
-    //		<< " with size: " <<  tracksIn->size()                                                                 
-    //		<< std::endl;
-    //}
+    if (false) {
+      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
+		<< " with size: " <<  tracksIn->size()                                                                 
+		<< std::endl;
+    }
     //This records the upper and lower track collections to storeGate 
     m_trackSplitter->splitTracks(tracksIn);
-    //if (false) {
-    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
-    //		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
-    //		<< std::endl;
-    //}
+    if (false) {
+      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
+		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
+		<< std::endl;
+    }
     //Get the Upper Tracks
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
-      
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
+      std::cout << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << std::endl;
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
-      
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
+      if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endl;
     }
 
   }
 
-  //if (false) {
-  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- retrieve upper and lower track segments that satisfy the track selection " << std::endl
-  //	      << "                                                     upper track collection = "<< m_upperTracksName << "   size: " << tracksUpper->size() << std::endl
-  //	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
-  //	      << std::endl;
-  //}
+  if (false) {
+    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- retrieve upper and lower track segments that satisfy the track selection " << std::endl
+	      << "                                                     upper track collection = "<< m_upperTracksName << "   size: " << tracksUpper->size() << std::endl
+	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
+	      << std::endl;
+  }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endmsg;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endreq;
   
   //===============================================================
   // Filling the upper and lower tracks and their differences
@@ -691,10 +690,10 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   for (; trackItrUpper != trackItrUpperE; ++trackItrUpper) { 
     const Trk::Track* trackUpper = *trackItrUpper;
     if(trackUpper == NULL){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endreq;
       continue;
     }else
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Got the "<< nTracksUpper << " Upper Track" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Got the "<< nTracksUpper << " Upper Track" << endreq;
 
     const Trk::TrackSummary* summary = NULL;       
     summary = m_trackSumTool->createSummary(*trackUpper);
@@ -757,7 +756,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     }
     else
       {
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endreq;
       }
 
     //if (false) {
@@ -767,7 +766,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //		<< "  FILLING " 
     //		<< std::endl;
     //}
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endreq;
     m_upper_hist->nhitstrt->Fill(nHitsTRTUp);
     m_upper_hist->nhitsSi->Fill(nHitsSCTUp + nHitsPixUp);
     m_upper_hist->nhitsPix->Fill(nHitsPixUp);
@@ -781,9 +780,9 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information 
     //on track at each (inner)detector surface it crosses eg hit used to fit track
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track Upper = " << nTracksUpper << endmsg;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Eta = " << eta0Up << ", phi = " << phi0Up << endmsg;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Pix = " << nHitsPixUp << ", SCT = " << nHitsSCTUp << ", TRT = " << nHitsTRTUp << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track Upper = " << nTracksUpper << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Eta = " << eta0Up << ", phi = " << phi0Up << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Track Pix = " << nHitsPixUp << ", SCT = " << nHitsSCTUp << ", TRT = " << nHitsTRTUp << endreq;
 
     float mindR = 10000; 
     float Matched_Low_d0 = -99;
@@ -808,7 +807,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       
       const Trk::Track* trackLower = *trackItrLower;
       if(trackLower == NULL){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endreq;
 	continue;
       }
 
@@ -864,12 +863,12 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
       }
       else
 	{
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Lower Perigee not retrieved" << endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Lower Perigee not retrieved" << endreq;
 	}
 
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track = " << nTracksLower << endmsg;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track Eta = " << eta0Low << ", phi = " << phi0Low << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track = " << nTracksLower << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Track Eta = " << eta0Low << ", phi = " << phi0Low << endreq;
       
       if(nTracksUpper ==0 ){//only fill the lower tracks once
 	
@@ -923,7 +922,7 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     if(matchFound){
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "there was a match found " <<endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "there was a match found " <<endreq;
       
       for(unsigned int charge=0; charge<3; ++charge){
 
@@ -1020,11 +1019,11 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   
   delete tracksLower;
   delete tracksUpper;
-  //if (true) {
-  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- COMPLETED -- "<< m_upperTracksName << " size: " << tracksUpper->size() 
-  //	      << "    "<< m_lowerTracksName << " size: " << tracksLower->size() 
-  //	      << std::endl;
-  //}
+  if (true) {
+    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- COMPLETED -- "<< m_upperTracksName << " size: " << tracksUpper->size() 
+	      << "    "<< m_lowerTracksName << " size: " << tracksLower->size() 
+	      << std::endl;
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -1035,36 +1034,36 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 //---------------------------------------------------------------------------------------
 StatusCode IDAlignMonTrackSegments::setupTools()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setupTools()" << endreq;
   
   if (m_trackSplitter.empty()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No track splitter tool configured"<< endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No track splitter tool configured"<< endreq;
   } else if (m_trackSplitter.retrieve().isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_trackSplitter.typeAndName() << endmsg; 
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_trackSplitter.typeAndName() << endreq; 
   } else 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieved tool " << m_trackSplitter.typeAndName() << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieved tool " << m_trackSplitter.typeAndName() << endreq;
       
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endreq;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
   }
   
   //Get TrackSelectionTools
   
   if (m_trackSelectionUpper.retrieve().isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Can not retrieve TrackSelection tool of type "
-	<< m_trackSelectionUpper.typeAndName() << endmsg;
+	<< m_trackSelectionUpper.typeAndName() << endreq;
     return StatusCode::SUCCESS;
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionUpper.typeAndName() << endmsg;
+  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionUpper.typeAndName() << endreq;
   
   if (m_trackSelectionLower.retrieve().isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Can not retrieve TrackSelection tool of type "
-	<< m_trackSelectionLower.typeAndName() << endmsg;
+	<< m_trackSelectionLower.typeAndName() << endreq;
     return StatusCode::SUCCESS;
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionLower.typeAndName() << endmsg;
+  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelectionLower.typeAndName() << endreq;
 
   
   return StatusCode::SUCCESS;

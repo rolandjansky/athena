@@ -9,8 +9,8 @@
 #include <sstream>
 #include <math.h>
 
-#include "xAODEventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -208,8 +208,8 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
    m_doHitQuality(false)
 {
   m_minLB=-0.5;
-  m_maxLB=3023.5;
-  m_nLB = 3024;
+  m_maxLB=1023.5;
+  m_nLB = 1024;
   m_trackSelection = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
   m_holeSearchTool = ToolHandle<Trk::ITrackHoleSearchTool>("InDetHoleSearchTool");
@@ -220,8 +220,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_maxSiliconEffWindow = 1.05;
   m_triggerChainName = "NoTriggerSelection";
   m_doHoleSearch = true;
-  m_extendedPlots= false;
-  m_mapSplit=1;
 
   InitializeHistograms();
   
@@ -238,8 +236,6 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   declareProperty("SCT_Manager"            , m_SCT_Manager);
   declareProperty("TRT_Manager"            , m_TRT_Manager);
   declareProperty("trackSumTool"           , m_trackSumTool);
-  declareProperty("NSplitMap"              , m_mapSplit);
-  declareProperty("useExtendedPlots"       , m_extendedPlots);
 }
 
 
@@ -340,92 +336,92 @@ StatusCode IDAlignMonEfficiencies::initialize()
   //ID Helper
   sc = detStore()->retrieve(m_idHelper, "AtlasID" );
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get AtlasDetectorID !" << endreq;
     return StatusCode::SUCCESS;
   }else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found AtlasDetectorID" << endreq;
   }
 
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Pixel ID helper !" << endreq;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelIDHelper" << endreq;
 
   sc = detStore()->retrieve(m_sctID, "SCT_ID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT ID helper !" << endreq;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endreq;
 
   sc = detStore()->retrieve(m_trtID, "TRT_ID");
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get TRT ID helper !" << endreq;
     return StatusCode::SUCCESS;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized TRTIDHelper" << endreq;
 
   //Pixel Manager
   sc = detStore()->retrieve(m_PIX_Mgr,m_Pixel_Manager);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get PIX_Manager !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get PIX_Manager !" << endreq;
     return StatusCode::FAILURE;
    }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelManager" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized PixelManager" << endreq;
   //SCT Manager 
   
   sc = detStore()->retrieve(m_SCT_Mgr, m_SCT_Manager);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT_Manager !" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get SCT_Manager !" << endreq;
     return StatusCode::FAILURE;
   }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endreq;
 
 
   if ( m_holeSearchTool.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve tool " << m_holeSearchTool << endmsg;
+    msg(MSG::WARNING) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
   }
 
   if ( m_trackSelection.retrieve().isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSelection << endreq;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endreq;
   }                                  
  
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize ManagedMonitorToolBase!" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to initialize ManagedMonitorToolBase!" << endreq;
     return StatusCode::SUCCESS;
   } 
 
   if (m_hitQualityTool.empty()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << 
       "No hit quality tool configured - not hit quality cuts will be imposed"
-	<< endmsg;
+	<< endreq;
     m_doHitQuality = false;
   } else if (m_hitQualityTool.retrieve().isFailure()) {
     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve "<< m_hitQualityTool 
-	<<" (to apply hit quality cuts to Si hits) "<< endmsg;
+	<<" (to apply hit quality cuts to Si hits) "<< endreq;
     m_doHitQuality = false;
    } else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
 	<< "Hit quality tool setup "
-	<< "- hit quality cuts will be applied to Si hits" << endmsg;
+	<< "- hit quality cuts will be applied to Si hits" << endreq;
     m_doHitQuality = true;
   }
 
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endreq;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
   }
 
   return StatusCode::SUCCESS;
@@ -443,7 +439,6 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
 
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/HitEfficiencies";
   MonGroup al_mon ( this, outputDirName, run );
-  MonGroup al_mon_ls ( this, outputDirName, lowStat );
   
   
 
@@ -513,61 +508,36 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     for (int i=2; i<=nx;i++) m_noholes_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
     RegisterHisto(al_mon,m_noholes_vs_layer_ecc) ;  
 
-    if (m_extendedPlots)
-      {
-	m_overlapX_vs_layer_barrel = new TH1F("overlapX_vs_layer_barrel","X Overlap Hits (one per overlap) vs. layer in the barrel",12,-0.5,11.5);  
-	for (int i=1;i<=12;i++) m_overlapX_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapX_vs_layer_barrel);
-	m_overlapX_vs_layer_eca = new TH1F("overlapX_vs_layer_eca","X Overlap Hits (one per overlap) vs. layer in the barrel eca",21,-0.5,20.5);   
-	for (int i=2; i<=nx;i++) m_overlapX_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapX_vs_layer_eca) ; 
-	m_overlapX_vs_layer_ecc = new TH1F("overlapX_vs_layer_ecc","X Overlap Hits (one per overlap) vs. layer in the barrel ecc",21,-0.5,20.5);    
-	for (int i=2; i<=nx;i++) m_overlapX_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
-	RegisterHisto(al_mon,m_overlapX_vs_layer_ecc) ; 
-	
-	m_overlapY_vs_layer_barrel = new TH1F("overlapY_vs_layer_barrel","Y Overlap Hits (one per overlap) vs. layer in the barrel",12,-0.5,11.5);  
-	for (int i=1; i<=12;i++) m_overlapY_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapY_vs_layer_barrel);
-	m_overlapY_vs_layer_eca = new TH1F("overlapY_vs_layer_eca","Y Overlap Hits (one per overlap) vs. layer in the barrel eca",21,-0.5,20.5);   
-	for (int i=2; i<=nx;i++) m_overlapY_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapY_vs_layer_eca) ; 
-	m_overlapY_vs_layer_ecc = new TH1F("overlapY_vs_layer_ecc","Y Overlap Hits (one per overlap) vs. layer in the barrel ecc",21,-0.5,20.5);    
-	for (int i=2; i<=nx;i++) m_overlapY_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
-	RegisterHisto(al_mon,m_overlapY_vs_layer_ecc) ; 
-	
-	m_overlapX_eff_vs_layer_barrel = new TProfile("overlapX_eff_vs_layer_barrel","fraction of OverlapX hits vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
-	for (int i=1; i<=12;i++) m_overlapX_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
-	RegisterHisto(al_mon,m_overlapX_eff_vs_layer_barrel) ;  
-	m_overlapX_eff_vs_layer_eca = new TProfile("overlapX_eff_vs_layer_eca","fraction of OverlapX hits vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
-	for (int i=2; i<=nx;i++) m_overlapX_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapX_eff_vs_layer_eca) ; 
-	m_overlapX_eff_vs_layer_ecc = new TProfile("overlapX_eff_vs_layer_ecc","fraction of OverlapX hits vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
-	for (int i=2; i<=nx;i++) m_overlapX_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapX_eff_vs_layer_ecc) ; 
-	
-	m_overlapY_eff_vs_layer_barrel = new TProfile("overlapY_eff_vs_layer_barrel","fraction of OverlapY hits vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
-	for (int i=1; i<=12;i++) m_overlapY_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
-	RegisterHisto(al_mon,m_overlapY_eff_vs_layer_barrel) ;  
-	m_overlapY_eff_vs_layer_eca = new TProfile("overlapY_eff_vs_layer_eca","fraction of OverlapY hits vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
-	for (int i=2; i<=nx;i++) m_overlapY_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapY_eff_vs_layer_eca) ; 
-	m_overlapY_eff_vs_layer_ecc = new TProfile("overlapY_eff_vs_layer_ecc","fraction of OverlapY hits vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
-	for (int i=2; i<=nx;i++) m_overlapY_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-	RegisterHisto(al_mon,m_overlapY_eff_vs_layer_ecc) ; 
-	
-      }
-    
-	
+    m_overlapX_vs_layer_barrel = new TH1F("overlapX_vs_layer_barrel","X Overlap Hits (one per overlap) vs. layer in the barrel",12,-0.5,11.5);  
+    for (int i=1;i<=12;i++) m_overlapX_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapX_vs_layer_barrel);
+    m_overlapX_vs_layer_eca = new TH1F("overlapX_vs_layer_eca","X Overlap Hits (one per overlap) vs. layer in the barrel eca",21,-0.5,20.5);   
+    for (int i=2; i<=nx;i++) m_overlapX_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapX_vs_layer_eca) ; 
+    m_overlapX_vs_layer_ecc = new TH1F("overlapX_vs_layer_ecc","X Overlap Hits (one per overlap) vs. layer in the barrel ecc",21,-0.5,20.5);    
+    for (int i=2; i<=nx;i++) m_overlapX_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
+    RegisterHisto(al_mon,m_overlapX_vs_layer_ecc) ; 
+
+    m_overlapY_vs_layer_barrel = new TH1F("overlapY_vs_layer_barrel","Y Overlap Hits (one per overlap) vs. layer in the barrel",12,-0.5,11.5);  
+    for (int i=1; i<=12;i++) m_overlapY_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapY_vs_layer_barrel);
+    m_overlapY_vs_layer_eca = new TH1F("overlapY_vs_layer_eca","Y Overlap Hits (one per overlap) vs. layer in the barrel eca",21,-0.5,20.5);   
+    for (int i=2; i<=nx;i++) m_overlapY_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapY_vs_layer_eca) ; 
+    m_overlapY_vs_layer_ecc = new TH1F("overlapY_vs_layer_ecc","Y Overlap Hits (one per overlap) vs. layer in the barrel ecc",21,-0.5,20.5);    
+    for (int i=2; i<=nx;i++) m_overlapY_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);     
+    RegisterHisto(al_mon,m_overlapY_vs_layer_ecc) ; 
+
     //book efficiencie by layers 
     m_measurements_eff_vs_layer_barrel = new TProfile("measurements_eff_vs_layer_barrel","measurements per possible hit vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
     for (int i=1; i<=12;i++) m_measurements_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
-    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_barrel) ;  
+    RegisterHisto(al_mon,m_measurements_eff_vs_layer_barrel) ;  
     m_measurements_eff_vs_layer_eca = new TProfile("measurements_eff_vs_layer_eca","measurements per possible hit vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
     for (int i=2; i<=nx;i++) m_measurements_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_eca) ; 
+    RegisterHisto(al_mon,m_measurements_eff_vs_layer_eca) ; 
     m_measurements_eff_vs_layer_ecc = new TProfile("measurements_eff_vs_layer_ecc","measurements per possible hit vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
     for (int i=2; i<=nx;i++) m_measurements_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_ecc) ;  
+    RegisterHisto(al_mon,m_measurements_eff_vs_layer_ecc) ;  
 
     m_outliers_eff_vs_layer_barrel = new TProfile("outliers_eff_vs_layer_barrel","outliers per possible hit vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
     for (int i=1; i<=12;i++) m_outliers_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
@@ -598,7 +568,27 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     m_noholes_eff_vs_layer_ecc = new TProfile("noholes_eff_vs_layer_ecc","noholes per possible hit vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
     for (int i=2; i<=nx;i++) m_noholes_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
     RegisterHisto(al_mon,m_noholes_eff_vs_layer_ecc) ; 
-    
+
+    m_overlapX_eff_vs_layer_barrel = new TProfile("overlapX_eff_vs_layer_barrel","fraction of OverlapX hits vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
+    for (int i=1; i<=12;i++) m_overlapX_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
+    RegisterHisto(al_mon,m_overlapX_eff_vs_layer_barrel) ;  
+    m_overlapX_eff_vs_layer_eca = new TProfile("overlapX_eff_vs_layer_eca","fraction of OverlapX hits vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
+    for (int i=2; i<=nx;i++) m_overlapX_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapX_eff_vs_layer_eca) ; 
+    m_overlapX_eff_vs_layer_ecc = new TProfile("overlapX_eff_vs_layer_ecc","fraction of OverlapX hits vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
+    for (int i=2; i<=nx;i++) m_overlapX_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapX_eff_vs_layer_ecc) ; 
+
+    m_overlapY_eff_vs_layer_barrel = new TProfile("overlapY_eff_vs_layer_barrel","fraction of OverlapY hits vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
+    for (int i=1; i<=12;i++) m_overlapY_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
+    RegisterHisto(al_mon,m_overlapY_eff_vs_layer_barrel) ;  
+    m_overlapY_eff_vs_layer_eca = new TProfile("overlapY_eff_vs_layer_eca","fraction of OverlapY hits vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
+    for (int i=2; i<=nx;i++) m_overlapY_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapY_eff_vs_layer_eca) ; 
+    m_overlapY_eff_vs_layer_ecc = new TProfile("overlapY_eff_vs_layer_ecc","fraction of OverlapY hits vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
+    for (int i=2; i<=nx;i++) m_overlapY_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
+    RegisterHisto(al_mon,m_overlapY_eff_vs_layer_ecc) ; 
+
     m_measurements_eff_vs_Eta_Phi_pix_eca = new TProfile2D("measurements_eff_vs_Eta_Phi_pix_eca","hit eff. vs. Eta-Phi-ID in Pixel ECA",3,-0.5,2.5,48,-0.5,47.5,0.,1.);
     RegisterHisto(al_mon,m_measurements_eff_vs_Eta_Phi_pix_eca);
     m_measurements_eff_vs_Eta_Phi_pix_ecc = new TProfile2D("measurements_eff_vs_Eta_Phi_pix_ecc","hit eff. vs. Eta-Phi-ID in Pixel ECC",3,-0.5,2.5,48,-0.5,47.5,0.,1.);
@@ -631,38 +621,34 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     m_measurements_vs_Eta_Phi_sct_ecc = new TH2F("measurements_vs_Eta_Phi_sct_ecc","measurements vs. Eta-Phi-ID in SCT ECC",9,-0.5,8.5,52,-0.5,51.5);
     RegisterHisto(al_mon,m_measurements_vs_Eta_Phi_sct_ecc);
 
-    if (m_extendedPlots)
-      {
-	// 3d histograms of measurements in SCT end caps
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s0 = new TH3F("measurements_vs_Eta_Phi_sct_eca_3d_s0","measurements vs. Eta-Phi-ID in SCT ECA (side 0)"
-							   ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetXTitle("Disk");
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetYTitle("#eta ring");
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetZTitle("#phi sector");
-	RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_eca_3d_s0);
-	
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s1 = new TH3F("measurements_vs_Eta_Phi_sct_eca_3d_s1","measurements vs. Eta-Phi-ID in SCT ECA (side 1)"
-							   ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetXTitle("Disk");
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetYTitle("#eta ring");
-	m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetZTitle("#phi sector");
-	RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_eca_3d_s1);
+    // 3d histograms of measurements in SCT end caps
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s0 = new TH3F("measurements_vs_Eta_Phi_sct_eca_3d_s0","measurements vs. Eta-Phi-ID in SCT ECA (side 0)"
+						    ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetXTitle("Disk");
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetYTitle("#eta ring");
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s0->SetZTitle("#phi sector");
+    RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_eca_3d_s0);
 
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 = new TH3F("measurements_vs_Eta_Phi_sct_ecc_3d_s0","measurements vs. Eta-Phi-ID in SCT ECC (side 0)"
-							   ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetXTitle("Disk");
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetYTitle("#eta ring");
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetZTitle("#phi sector");
-	RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_ecc_3d_s0);
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s1 = new TH3F("measurements_vs_Eta_Phi_sct_eca_3d_s1","measurements vs. Eta-Phi-ID in SCT ECA (side 1)"
+						    ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetXTitle("Disk");
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetYTitle("#eta ring");
+    m_measurements_vs_Eta_Phi_sct_eca_3d_s1->SetZTitle("#phi sector");
+    RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_eca_3d_s1);
 
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 = new TH3F("measurements_vs_Eta_Phi_sct_ecc_3d_s1","measurements vs. Eta-Phi-ID in SCT ECC (side 1)"
-							   ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetXTitle("Disk");
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetYTitle("#eta ring");
-	m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetZTitle("#phi sector");
-	RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_ecc_3d_s1);
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 = new TH3F("measurements_vs_Eta_Phi_sct_ecc_3d_s0","measurements vs. Eta-Phi-ID in SCT ECC (side 0)"
+						    ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetXTitle("Disk");
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetYTitle("#eta ring");
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s0->SetZTitle("#phi sector");
+    RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_ecc_3d_s0);
 
-      }
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 = new TH3F("measurements_vs_Eta_Phi_sct_ecc_3d_s1","measurements vs. Eta-Phi-ID in SCT ECC (side 1)"
+						    ,9,-0.5,8.5, 3,-0.5,2.5, 52,-0.5,51.5);
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetXTitle("Disk");
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetYTitle("#eta ring");
+    m_measurements_vs_Eta_Phi_sct_ecc_3d_s1->SetZTitle("#phi sector");
+    RegisterHisto(al_mon, m_measurements_vs_Eta_Phi_sct_ecc_3d_s1);
 
     m_hits_vs_Eta_Phi_sct_eca = new TH2F("hits_vs_Eta_Phi_sct_eca","hits vs. Eta-Phi-ID in SCT ECA",9,-0.5,8.5,52,-0.5,51.5);
     RegisterHisto(al_mon,m_hits_vs_Eta_Phi_sct_eca);
@@ -684,7 +670,7 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     makePIXEndCapsHistograms(al_mon);
     makeSCTBarrelHistograms(al_mon);
     makeSCTEndCapsHistograms(al_mon);
-    makeTRTHistograms(al_mon, al_mon_ls);
+    makeTRTHistograms(al_mon);
 
     m_histosBooked++;
   }
@@ -728,7 +714,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endreq;
   }
   histo->GetYaxis()->SetTitle("Number of Hits on Tracks"); 
   const char* HistName = histo->GetName();
@@ -746,7 +732,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH1 Histogram:" << endreq;
   }
   histo->GetYaxis()->SetTitle("Number of Hits on Tracks"); 
   const char* HistName = histo->GetName();
@@ -764,7 +750,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile* histo, const
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile Histogram:" << endreq;
   }
 
   if(yAxisName != ""){
@@ -788,7 +774,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH2* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TH2 Histogram:" << endreq;
   }
   histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
   histo->GetYaxis()->SetTitle("Module Phi Identifier"); 
@@ -799,7 +785,7 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
   //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endreq;
   }
   histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
   histo->GetYaxis()->SetTitle("Module Phi Identifier");     
@@ -818,21 +804,21 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
   m_events++;
 
 
-  const DataHandle<xAOD::EventInfo> eventInfo;
+  const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
-    msg(MSG::ERROR) << "Cannot get event info." << endmsg;
+    msg(MSG::ERROR) << "Cannot get event info." << endreq;
     return StatusCode::FAILURE;
   }
-  unsigned int LumiBlock = eventInfo->lumiBlock();
+  unsigned int LumiBlock = eventInfo->event_ID()->lumi_block();
   
-  if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
-    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;}
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endmsg;
+  if (!evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName)) {
+    if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;}
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;
     return StatusCode::SUCCESS;
   }
   
   // get TrackCollection
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  DataVector<Trk::Track>* trks = m_trackSelection->selectTracksNew(m_tracksName);
   DataVector<Trk::Track>::const_iterator trksItr  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   for (; trksItr != trksItrE; ++trksItr) {
@@ -853,7 +839,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
     
     //if (measPer==0) {
-    //  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
+    //  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
     //}
     //else{  
     //  CLHEP::HepVector perigeeParams = measPer->parameters();    
@@ -888,7 +874,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     }
     else
       {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
       }
     //if (trkphi<0) trkphi+=2*m_Pi;
     
@@ -910,13 +896,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to loop over TSOS"<<endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to loop over TSOS"<<endreq;
      
     for (; TSOSItr != TSOSItrE; ++TSOSItr) {
 
       //check that we have track parameters defined for the surface (pointer is not null)
       if(!((*TSOSItr)->trackParameters())) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit skipped because no associated track parameters" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit skipped because no associated track parameters" << endreq;
 	continue;
       }
       
@@ -934,7 +920,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       if(!rio) isPseudoMeasurement = true;
       
       if(isPseudoMeasurement){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "found a pseudomeasurement skipping it!" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "found a pseudomeasurement skipping it!" << endreq;
 	continue;
       }
 
@@ -969,16 +955,16 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
 
 	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endreq;
 	  
 	  const Trk::RIO_OnTrack* hit = m_hitQualityTool->getGoodHit(*TSOSItr);
 	  if(hit==NULL) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endreq;
 	    continue;
 	  }
-	    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endmsg;
+	    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endreq;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endmsg;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endreq;
       }
 
       /** Get information for the TRT hits */
@@ -999,7 +985,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       // fill histograms with all posible hit types: measurements, outliers & holes
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"have a measurement/outlier/hole"<<endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"have a measurement/outlier/hole"<<endreq;
 
 	// all possible hits
 	// dealing with PIXEL tsos
@@ -1016,13 +1002,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  else if (barrelEC==2){ 
 	    m_hits_vs_layer_eca -> Fill(layerDisk); 
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_eca -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk,modPhi);
 	  }
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_ecc -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // end of pix
@@ -1061,7 +1047,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       // now, let's fill histograms only for hits on track = measurements
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
 	
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to find overlaps"<<endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to find overlaps"<<endreq;
 	
 	bool foundXOverlap = false;
 	bool foundYOverlap = false;
@@ -1070,11 +1056,11 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	//for SCT module overlaps there will be two overlaps corresponding to the two different sides
 	//this shouldn't effect the overlap efficiency since an SCT module has two hits, one for each side
 	if (detType==0 || detType==1){
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is pixel or SCT - looking for overlaps" << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is pixel or SCT - looking for overlaps" << endreq;
 	  //const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(mesb);
 	  //std::pair<const Trk::TrackStateOnSurface*,const Trk::TrackStateOnSurface*> overlap = findOverlapHit(*trksItr,hitOnTrack);
 	  std::pair<const Trk::TrackStateOnSurface*,const Trk::TrackStateOnSurface*> overlap = findOverlapHit(*trksItr,mesb);
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap search complete" << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap search complete" << endreq;
 	  //these will be NULL if no overlap is found
 	  if(overlap.first) foundXOverlap = true;
 	  if(overlap.second) foundYOverlap = true;
@@ -1091,68 +1077,57 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    
 	    
 	    
-	    //msg(MSG::WARNING) <<"Pix barrel, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
+	    //msg(MSG::WARNING) <<"Pix barrel, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
 	    
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel barrel hit"<<endmsg;
+	    if(foundXOverlap) m_overlapX_vs_layer_barrel-> Fill(layerDisk);
+	    if(foundYOverlap) m_overlapY_vs_layer_barrel-> Fill(layerDisk);
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel barrel hit"<<endreq;
 	    m_measurements_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_measurements_vs_LB_pix_b[layerDisk]      -> Fill(float(LumiBlock));
 	    m_measurements_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_measurements_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
 	    m_measurements_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	    
-	    if (m_extendedPlots)
-	      {
-		if(foundXOverlap){
-		  m_overlapX_vs_layer_barrel-> Fill(layerDisk);
-		  m_overlapX_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-		  m_overlapX_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-		}
-		if(foundYOverlap){
-		  m_overlapY_vs_layer_barrel-> Fill(layerDisk);
-		  m_overlapY_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-		  m_overlapY_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-		} 
-	      }
+	    if(foundXOverlap){
+	      m_overlapX_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_overlapX_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    }
+	    if(foundYOverlap){
+	      m_overlapY_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_overlapY_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    } 
 	  } // end of PIX barrel 
 	  
 	  else if (barrelEC == 2){	    
-	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endmsg;
+	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endreq;
 	    m_measurements_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
+	    if(foundXOverlap) m_overlapX_vs_layer_eca-> Fill(layerDisk);
+	    if(foundYOverlap) m_overlapY_vs_layer_eca-> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    m_measurements_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
-	    if (m_extendedPlots) {
-	      if(foundXOverlap){
-		m_overlapX_vs_layer_eca-> Fill(layerDisk);
-		m_overlapX_vs_Phi_pix_eca[layerDisk]-> Fill(modPhi);
-	      }
-	      if(foundYOverlap){
-		m_overlapY_vs_layer_eca-> Fill(layerDisk);
-		m_overlapY_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	      }
-	    }
+	    m_measurements_vs_LB_pix_eca -> Fill(float(LumiBlock));
+	    
+	    if(foundXOverlap) m_overlapX_vs_Phi_pix_eca[layerDisk]-> Fill(modPhi);
+	    if(foundYOverlap) m_overlapY_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
 	    
 	    m_measurements_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  } // ECA
 	  else if (barrelEC == -2){ 
 	    
-	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endmsg;
+	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endreq;
 	    m_measurements_vs_layer_ecc -> Fill(layerDisk);
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
+	    if(foundXOverlap) m_overlapX_vs_layer_ecc-> Fill(layerDisk);
+	    if(foundYOverlap) m_overlapY_vs_layer_ecc-> Fill(layerDisk);  
 	    m_measurements_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_measurements_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
-	    if (m_extendedPlots){
-	      if(foundXOverlap){
-		m_overlapX_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi); 
-		m_overlapX_vs_layer_ecc-> Fill(layerDisk);
-	      }
-	      if(foundYOverlap){
-		m_overlapY_vs_layer_ecc-> Fill(layerDisk);  
-		m_overlapY_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	      }
-	    }
+	    m_measurements_vs_LB_pix_ecc -> Fill(float(LumiBlock));
+	    if(foundXOverlap)
+	      m_overlapX_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi); 
+	    if(foundYOverlap)
+	      m_overlapY_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
+	    
 	    m_measurements_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  } //ECC
 	}// End of PIXELS
@@ -1161,10 +1136,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	else if (detType==1){
 	  if(barrelEC == 0){ 
 	    
-	    //msg(MSG::WARNING) <<"SCT barrel, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endmsg;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit"<<endmsg;
+	    //msg(MSG::WARNING) <<"SCT barrel, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit"<<endreq;
 	    m_measurements_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
+	    if(foundXOverlap) m_overlapX_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide);
+	    if(foundYOverlap) m_overlapY_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide); 
+	    
 	    m_measurements_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
 	    
 	    if (sctSide == 0) m_measurements_vs_Eta_Phi_sct_s0_b[layerDisk] -> Fill(modEta,modPhi);
@@ -1173,68 +1151,54 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_measurements_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
 	    m_measurements_vs_LB_sct_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_measurements_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	    if (m_extendedPlots) {
-	      if(foundXOverlap){
-		m_overlapX_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide);
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 1"<<endmsg;
-		m_overlapX_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
-		m_overlapX_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
-	      }
-	      if(foundYOverlap){
-		m_overlapY_vs_layer_barrel-> Fill(m_NPixLayers + 2*layerDisk + sctSide); 
-		if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 2"<<endmsg;
-		m_overlapY_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
-		m_overlapY_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
-	      }
+	    if(foundXOverlap){
+	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 1"<<endreq;
+	      m_overlapX_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	      m_overlapX_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+	    }
+	    if(foundYOverlap){
+	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct barrel hit 2"<<endreq;
+	      m_overlapY_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	      m_overlapY_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
 	    }
 	  }//barrel
 	  else if (barrelEC == 2){ 
 	    
-	    //msg(MSG::WARNING) <<"SCT eca, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endmsg;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct eca hit"<<endmsg;
+	    //msg(MSG::WARNING) <<"SCT eca, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct eca hit"<<endreq;
 	    m_measurements_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	    if(foundXOverlap) m_overlapX_vs_layer_eca-> Fill(3 + 2*layerDisk + sctSide);
+	    if(foundYOverlap) m_overlapY_vs_layer_eca-> Fill(3 + 2*layerDisk + sctSide);
 	    m_measurements_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
 	    m_measurements_vs_LB_sct_eca -> Fill(float(LumiBlock));
+	    if(foundXOverlap)
+	      m_overlapX_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
+	    if(foundYOverlap)
+	      m_overlapY_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
 	    m_measurements_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
-	    if (m_extendedPlots)
-	      {
-		if(foundXOverlap)
-		  {
-		    m_overlapX_vs_layer_eca-> Fill(3 + 2*layerDisk + sctSide);
-		    m_overlapX_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
-		  }
-		if(foundYOverlap)
-		  {
-		    m_overlapY_vs_layer_eca-> Fill(3 + 2*layerDisk + sctSide);
-		    m_overlapY_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
-		  }
-		if (sctSide == 0) m_measurements_vs_Eta_Phi_sct_eca_3d_s0 -> Fill(layerDisk, modEta, modPhi);
-		if (sctSide == 1) m_measurements_vs_Eta_Phi_sct_eca_3d_s1 -> Fill(layerDisk, modEta, modPhi);
-	      }
+	    if (sctSide == 0) m_measurements_vs_Eta_Phi_sct_eca_3d_s0 -> Fill(layerDisk, modEta, modPhi);
+	    if (sctSide == 1) m_measurements_vs_Eta_Phi_sct_eca_3d_s1 -> Fill(layerDisk, modEta, modPhi);
 	  }//ECA
 	  else if (barrelEC == -2){
 	    
-	    //msg(MSG::WARNING) <<"SCT ecc, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
-	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct ecc hit"<<endmsg;
+	    //msg(MSG::WARNING) <<"SCT ecc, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct ecc hit"<<endreq;
 	    m_measurements_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	    if(foundXOverlap) m_overlapX_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
+	    if(foundYOverlap) m_overlapY_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
+	    
 	    m_measurements_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
 	    m_measurements_vs_LB_sct_ecc -> Fill(float(LumiBlock));
+	    if(foundXOverlap)
+	      m_overlapX_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);  
+	    if(foundYOverlap)
+	      m_overlapY_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
+
 	    m_measurements_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
-	    if (m_extendedPlots)
-	      {
-		if(foundXOverlap){
-		  m_overlapX_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
-		  m_overlapX_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);  
-		}
-		if(foundYOverlap){
-		  m_overlapY_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
-		  m_overlapY_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
-		}
-		if (sctSide == 0) m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 -> Fill(layerDisk, modEta, modPhi);
-		if (sctSide == 1) m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 -> Fill(layerDisk, modEta, modPhi);
-	      }
+	    if (sctSide == 0) m_measurements_vs_Eta_Phi_sct_ecc_3d_s0 -> Fill(layerDisk, modEta, modPhi);
+	    if (sctSide == 1) m_measurements_vs_Eta_Phi_sct_ecc_3d_s1 -> Fill(layerDisk, modEta, modPhi);
 
 	  }//ECC
 	}//SCT
@@ -1252,27 +1216,24 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){ 	    
-	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endmsg;   
+	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endreq;   
 	    m_outliers_vs_layer_barrel -> Fill(layerDisk);
 	    m_noholes_vs_layer_barrel -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_outliers_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_outliers_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_outliers_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_outliers_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }//barrel
 
 	  else if (barrelEC == 2){ 
 	    m_outliers_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
-	    m_outliers_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_outliers_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }//ECA
 
 	  // ECC
 	  else if (barrelEC == -2){ 
 	    m_outliers_vs_layer_ecc -> Fill(layerDisk);
-	    m_outliers_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }//ecc
@@ -1281,7 +1242,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- sct -- outliers in SCT
 	else if (detType==1){
 	  if (barrelEC == 0){ 
-	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
+	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endreq;
 	    
 	    m_outliers_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
@@ -1313,7 +1274,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     
     const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
     if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endreq;
       continue;
     }
     delete summary;
@@ -1358,15 +1319,15 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  sctSide   = m_sctID->side(surfaceID);
 	}
 	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hole quality cuts to Silicon hole..." << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hole quality cuts to Silicon hole..." << endreq;
 	  
 	  if(!m_hitQualityTool->getGoodHole(*HTSOSItr)) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole failed quality cuts and is rejected." << endmsg;
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole failed quality cuts and is rejected." << endreq;
 	    continue;
 	  }
-	  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole passed quality cuts" << endmsg;
+	  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole passed quality cuts" << endreq;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole quality cuts NOT APPLIED to Silicon hole." << endmsg;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole quality cuts NOT APPLIED to Silicon hole." << endreq;
       }
       
       
@@ -1376,9 +1337,11 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){
-	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endmsg;
+	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endreq;
 	  
-	   
+	    m_hits_vs_layer_barrel -> Fill(layerDisk);
+	    
+	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
 	    bool knownType = false;
 	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
 	      knownType = true;
@@ -1392,11 +1355,9 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	      knownType = true;
 	      //std::cout << " Type: Hole ";
 	    }
-	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- "<<std::endl;
-	    
+	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- ";
+	    std::cout << std::endl; 
   
-	     m_hits_vs_layer_barrel -> Fill(layerDisk);
-	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
 	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_hits_vs_LB_pix_b[layerDisk]  -> Fill(float(LumiBlock));
 	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
@@ -1408,13 +1369,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_layer_eca -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	    m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_eca -> Fill(float(LumiBlock));
 	  } // eca
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_ecc[layerDisk]  -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_ecc  -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  } // ecc
 	} // pixels
@@ -1423,7 +1384,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	else if (detType==1){
 	  if (barrelEC == 0)
 	    { 
-	      //msg(MSG::WARNING) <<"SCT barrel hole, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << modPhi << ", side=" << m_sctID->side(surfaceID) << endmsg;
+	      //msg(MSG::WARNING) <<"SCT barrel hole, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << modPhi << ", side=" << m_sctID->side(surfaceID) << endreq;
 
 	      m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	      
@@ -1461,19 +1422,16 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1502,9 +1460,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
       // filling histograms for holes being outliers
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
-	
-	//This section has to be removed. There is no hole flagged as outlier. I've checked it (PF)
-	
 	// holes per layer and per hit
 	// --- pixel
 	if (detType==0){
@@ -1512,20 +1467,17 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_layer_barrel -> Fill(layerDisk);
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1555,9 +1507,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
       // filling histograms for holes being measurements 
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-
-	//This has to be removed. There are no holes flagged as measurements. Checked it. PF
-
 	// holes per layer and per hit
 	// --- pixel
 	if (detType==0){
@@ -1566,19 +1515,16 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1613,13 +1559,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 }
 
 void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
   int Nbins;
   Nbins = h_num->GetNbinsX();
-
   for (int bin=0; bin!=Nbins; ++bin) {
     int Npass = int(h_num->GetBinContent(bin+1));
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
@@ -1635,47 +1576,39 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* 
 }
 
 void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TProfile* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endreq;
   int Nbins;
   Nbins = h_num->GetNbinsX();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nbins is  " << Nbins << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nbins is  " << Nbins << endreq;
   for (int bin=0; bin!=Nbins; ++bin) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bin is  " << bin << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bin is  " << bin << endreq;
     int Npass = int(h_num->GetBinContent(bin+1));
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
     
     float binSize = (h_denom->getXMax() - h_denom->getXMin())/h_denom->GetNbinsX();
     //double x = h_denom->GetBinCenter(bin+1);
     double x = h_denom->getXMin() + binSize * bin + binSize/2;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endreq;
     for (int pass=0; pass<Npass; ++pass) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pass is  " << pass << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pass is  " << pass << endreq;
       h_eff->Fill(x,1.);
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nfail is  " << Nfail << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nfail is  " << Nfail << endreq;
     for (int fail=0; fail<Nfail; ++fail) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fail is  " << fail << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fail is  " << fail << endreq;
       h_eff->Fill(x,0.);
     }
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out of loop  " << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out of loop  " << endreq;
   SetMinWindow(h_eff, m_minSiliconEffWindow, m_maxSiliconEffWindow); 
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving makeEffHisto  " << Nbins << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving makeEffHisto  " << Nbins << endreq;
   return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
   int Nbins;
   Nbins = h_num->GetNbinsX();
   for (int bin=0; bin!=Nbins; ++bin) {
@@ -1694,10 +1627,6 @@ void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TP
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
   int Nbins;
   int NbinsY;
   Nbins = h_num->GetNbinsX();
@@ -1721,10 +1650,6 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
@@ -1753,10 +1678,6 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_ef
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
-  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
-      h_eff->Reset("ICE");
-  }
-
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
@@ -1799,12 +1720,13 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endreq;
   if( endOfLowStat ) {
   }
   if( endOfLumiBlock ) {
   }
-  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) {
+  if( endOfRun ) {
+    
     // -----------------------------------------------------------------------
     //
     // normalize: divide measurement / outliers / holes by number of possible hits
@@ -1812,7 +1734,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     
     for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) {
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endmsg;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
 	continue;}
       makeEffHisto(m_measurements_vs_Eta_Phi_pix_b[iLayer], m_hits_vs_Eta_Phi_pix_b[iLayer], m_measurements_eff_vs_Eta_Phi_pix_b[iLayer]);
       makeEffHisto(m_measurements_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_measurements_eff_vs_Eta_pix_b[iLayer]);
@@ -1822,24 +1744,16 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
       makeEffHisto(m_holes_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_holes_eff_vs_Eta_pix_b[iLayer]);
       makeEffHisto(m_outliers_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_outliers_eff_vs_Phi_pix_b[iLayer]);
       makeEffHisto(m_holes_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_holes_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapX_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapX_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapY_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapY_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapX_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapX_eff_vs_Eta_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapY_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapY_eff_vs_Eta_pix_b[iLayer]);
       makeEffHisto(m_outliers_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_outliers_eff_vs_pT_pix_b[iLayer]);
       makeEffHisto(m_holes_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_holes_eff_vs_pT_pix_b[iLayer]);
 
-      if (m_extendedPlots)
-	{
-	  makeOverlapFracHisto(m_overlapX_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapX_eff_vs_Phi_pix_b[iLayer]);
-	  makeOverlapFracHisto(m_overlapY_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapY_eff_vs_Phi_pix_b[iLayer]);
-	  makeOverlapFracHisto(m_overlapX_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapX_eff_vs_Eta_pix_b[iLayer]);
-	  makeOverlapFracHisto(m_overlapY_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapY_eff_vs_Eta_pix_b[iLayer]);
-	}
-      
 
-
-      //LB plots - Barrel
+      //LB plots
       makeEffHisto(m_measurements_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_measurements_eff_vs_LB_pix_b[iLayer]);
-      makeEffHisto(m_outliers_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_outliers_eff_vs_LB_pix_b[iLayer]);
-      makeEffHisto(m_holes_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_holes_eff_vs_LB_pix_b[iLayer]);
-      
       
 
 
@@ -1847,44 +1761,33 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 
     for (int iECIndex = 0; iECIndex < m_PIX_Mgr->numerology().numEndcaps(); ++iECIndex) {
       int iSide = m_PIX_Mgr->numerology().endcapId(iECIndex);
-      for (int iDisk=0; iDisk < m_PIX_Mgr->numerology().numDisks();++iDisk)
+      for (int iWheel=0; iWheel < m_PIX_Mgr->numerology().numDisks();++iWheel)
 	{
-	  if (!m_PIX_Mgr->numerology().useDisk(iDisk)){//To check if the Disk is in use.
-	    msg(MSG::WARNING) << "Disk "<<iDisk<<" Not in Use"<<endmsg;
+	  if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
 	    continue;}
 	  
 	  if (iSide>0)
 	    {
-	      makeEffHisto(m_measurements_vs_Phi_pix_eca[iDisk],m_hits_vs_Phi_pix_eca[iDisk],m_measurements_eff_vs_Phi_pix_eca[iDisk]);
-	      makeEffHisto(m_measurements_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_measurements_eff_vs_LB_pix_eca[iDisk]);
-	      makeEffHisto(m_holes_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_holes_eff_vs_LB_pix_eca[iDisk]);
-	      makeEffHisto(m_outliers_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_outliers_eff_vs_LB_pix_eca[iDisk]);
+	      makeEffHisto(m_measurements_vs_Phi_pix_eca[iWheel],m_hits_vs_Phi_pix_eca[iWheel],m_measurements_eff_vs_Phi_pix_eca[iWheel]);
 	      
 	    }
 	  if (iSide<0)
 	    {
-	      makeEffHisto(m_measurements_vs_Phi_pix_ecc[iDisk],m_hits_vs_Phi_pix_ecc[iDisk],m_measurements_eff_vs_Phi_pix_ecc[iDisk]);
-	      makeEffHisto(m_measurements_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_measurements_eff_vs_LB_pix_ecc[iDisk]);
-	      makeEffHisto(m_holes_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_holes_eff_vs_LB_pix_ecc[iDisk]);
-	      makeEffHisto(m_outliers_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_outliers_eff_vs_LB_pix_ecc[iDisk]);
+	      makeEffHisto(m_measurements_vs_Phi_pix_ecc[iWheel],m_hits_vs_Phi_pix_ecc[iWheel],m_measurements_eff_vs_Phi_pix_ecc[iWheel]);
 	      
-	    }
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	}//Disk loop
+	    }	  
+	}//Wheel loop
       
     }//Endcap loop
     
-
+    makeEffHisto(m_measurements_vs_LB_pix_eca,m_hits_vs_LB_pix_eca,m_measurements_eff_vs_LB_pix_eca);
+    makeEffHisto(m_measurements_vs_LB_pix_ecc,m_hits_vs_LB_pix_ecc,m_measurements_eff_vs_LB_pix_ecc);
+    
     for (int iLayer=0; iLayer < m_SCT_Mgr->numerology().numLayers();++iLayer) 
       {
 	if (!m_SCT_Mgr->numerology().useLayer(iLayer)){
-	  msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endmsg;
+	  msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
 	  continue;}
 	makeEffHisto(m_measurements_vs_Eta_Phi_sct_b[iLayer], m_hits_vs_Eta_Phi_sct_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_b[iLayer]);	 
 	makeEffHisto(m_measurements_vs_Eta_sct_b[iLayer],m_hits_vs_Eta_sct_b[iLayer],m_measurements_eff_vs_Eta_sct_b[iLayer]);
@@ -1893,6 +1796,10 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 	makeEffHisto(m_measurements_vs_Phi_sct_b[iLayer],m_hits_vs_Phi_sct_b[iLayer],m_measurements_eff_vs_Phi_sct_b[iLayer]);
 	makeEffHisto(m_outliers_vs_Phi_sct_b[iLayer],m_hits_vs_Phi_sct_b[iLayer],m_outliers_eff_vs_Phi_sct_b[iLayer]);
 	makeEffHisto(m_holes_vs_Phi_sct_b[iLayer],m_hits_vs_Phi_sct_b[iLayer],m_holes_eff_vs_Phi_sct_b[iLayer]);
+	makeOverlapFracHisto(m_overlapX_vs_Phi_sct_b[iLayer],m_measurements_vs_Phi_sct_b[iLayer],m_overlapX_eff_vs_Phi_sct_b[iLayer]);
+	makeOverlapFracHisto(m_overlapY_vs_Phi_sct_b[iLayer],m_measurements_vs_Phi_sct_b[iLayer],m_overlapY_eff_vs_Phi_sct_b[iLayer]);
+	makeOverlapFracHisto(m_overlapX_vs_Eta_sct_b[iLayer],m_measurements_vs_Eta_sct_b[iLayer],m_overlapX_eff_vs_Eta_sct_b[iLayer]);
+	makeOverlapFracHisto(m_overlapY_vs_Eta_sct_b[iLayer],m_measurements_vs_Eta_sct_b[iLayer],m_overlapY_eff_vs_Eta_sct_b[iLayer]);
 	makeEffHisto(m_measurements_vs_pT_sct_b[iLayer],m_hits_vs_pT_sct_b[iLayer],m_measurements_eff_vs_pT_sct_b[iLayer]);
 	makeEffHisto(m_outliers_vs_pT_sct_b[iLayer],m_hits_vs_pT_sct_b[iLayer],m_outliers_eff_vs_pT_sct_b[iLayer]);
 	makeEffHisto(m_holes_vs_pT_sct_b[iLayer],m_hits_vs_pT_sct_b[iLayer],m_holes_eff_vs_pT_sct_b[iLayer]);
@@ -1901,15 +1808,6 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 	makeEffHisto (m_measurements_vs_Eta_Phi_sct_s0_b[iLayer], m_hits_vs_Eta_Phi_sct_s0_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_s0_b[iLayer]);
 	makeEffHisto (m_measurements_vs_Eta_Phi_sct_s1_b[iLayer], m_hits_vs_Eta_Phi_sct_s1_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_s1_b[iLayer]);
 	makeEffHisto (m_measurements_vs_LB_sct_b[iLayer], m_hits_vs_LB_sct_b[iLayer], m_measurements_eff_vs_LB_sct_b[iLayer]);
-
-	if (m_extendedPlots)
-	  {
-	    makeOverlapFracHisto(m_overlapX_vs_Phi_sct_b[iLayer],m_measurements_vs_Phi_sct_b[iLayer],m_overlapX_eff_vs_Phi_sct_b[iLayer]);
-	    makeOverlapFracHisto(m_overlapY_vs_Phi_sct_b[iLayer],m_measurements_vs_Phi_sct_b[iLayer],m_overlapY_eff_vs_Phi_sct_b[iLayer]);
-	    makeOverlapFracHisto(m_overlapX_vs_Eta_sct_b[iLayer],m_measurements_vs_Eta_sct_b[iLayer],m_overlapX_eff_vs_Eta_sct_b[iLayer]);
-	    makeOverlapFracHisto(m_overlapY_vs_Eta_sct_b[iLayer],m_measurements_vs_Eta_sct_b[iLayer],m_overlapY_eff_vs_Eta_sct_b[iLayer]);
-	  }
-	
 	
       }
 
@@ -1919,7 +1817,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 	for (int iWheel=0; iWheel < m_SCT_Mgr->numerology().numDisks();++iWheel)
 	  {
 	    if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	      msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
+	      msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
 	      continue;}
 	    
 	    if (iSide>0)
@@ -1956,23 +1854,20 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     makeEffHisto(m_noholes_vs_layer_barrel,m_hits_vs_layer_barrel,m_noholes_eff_vs_layer_barrel);
     makeEffHisto(m_noholes_vs_layer_eca,m_hits_vs_layer_eca,m_noholes_eff_vs_layer_eca);
     makeEffHisto(m_noholes_vs_layer_ecc,m_hits_vs_layer_ecc,m_noholes_eff_vs_layer_ecc);
-    
-    if (m_extendedPlots)
-      {
-	makeEffHisto(m_overlapX_vs_layer_barrel,m_measurements_vs_layer_barrel,m_overlapX_eff_vs_layer_barrel);
-	makeEffHisto(m_overlapX_vs_layer_eca,m_measurements_vs_layer_eca,m_overlapX_eff_vs_layer_eca);
-	makeEffHisto(m_overlapX_vs_layer_ecc,m_measurements_vs_layer_ecc,m_overlapX_eff_vs_layer_ecc);
-	makeEffHisto(m_overlapY_vs_layer_barrel,m_measurements_vs_layer_barrel,m_overlapY_eff_vs_layer_barrel);
-	makeEffHisto(m_overlapY_vs_layer_eca,m_measurements_vs_layer_eca,m_overlapY_eff_vs_layer_eca);
-	makeEffHisto(m_overlapY_vs_layer_ecc,m_measurements_vs_layer_ecc,m_overlapY_eff_vs_layer_ecc);
-      }
+
+    makeEffHisto(m_overlapX_vs_layer_barrel,m_measurements_vs_layer_barrel,m_overlapX_eff_vs_layer_barrel);
+    makeEffHisto(m_overlapX_vs_layer_eca,m_measurements_vs_layer_eca,m_overlapX_eff_vs_layer_eca);
+    makeEffHisto(m_overlapX_vs_layer_ecc,m_measurements_vs_layer_ecc,m_overlapX_eff_vs_layer_ecc);
+    makeEffHisto(m_overlapY_vs_layer_barrel,m_measurements_vs_layer_barrel,m_overlapY_eff_vs_layer_barrel);
+    makeEffHisto(m_overlapY_vs_layer_eca,m_measurements_vs_layer_eca,m_overlapY_eff_vs_layer_eca);
+    makeEffHisto(m_overlapY_vs_layer_ecc,m_measurements_vs_layer_ecc,m_overlapY_eff_vs_layer_ecc);
 
     /**  TRT Processing */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Doint the TRT pocessing" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Doint the TRT pocessing" << endreq;
     /** TRT Barrel */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Barrel" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Barrel" << endreq;
     for(int i=0; i<3;i++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "layer is " << i << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "layer is " << i << endreq;
       makeEffHisto(m_trt_b_hist->outliers_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->outliers_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->hits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->hits_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->tubeHits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->tubeHits_eff_vs_phiSector[i]);
@@ -1981,10 +1876,10 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     makeEffHisto(m_trt_b_hist->hits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->hits_eff_vs_StrawLay);
     makeEffHisto(m_trt_b_hist->tubeHits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->tubeHits_eff_vs_StrawLay);
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Endcap" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Endcap" << endreq;
     /**  TRT Endcap */
     for(unsigned int endcap = 0; endcap<2; ++endcap){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "endcap is " << endcap << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "endcap is " << endcap << endreq;
       makeEffHisto(m_trt_ec_hist->outliers_vs_ring[endcap], 
 		   m_trt_ec_hist->totHits_vs_ring[endcap], 
 		   m_trt_ec_hist->outliers_eff_vs_ring[endcap]);
@@ -2009,7 +1904,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 		   m_trt_ec_hist->totHits_vs_phiSector[endcap],
 		   m_trt_ec_hist->tubeHits_eff_vs_phiSector[endcap]);
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endreq;
     //========================
   
     
@@ -2186,13 +2081,13 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   // returns two Trk::TrackStateOnSurface, one for a potential x overlaps and one for a potential y overlap
   // if no overlap is found the corresponding Trk::TrackStateOnSurface will be null
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in  IDAlignMonEfficiencies::findOverlapHit()"<< endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in  IDAlignMonEfficiencies::findOverlapHit()"<< endreq;
 
   const Trk::TrackStateOnSurface* xOverlap = NULL;
   const Trk::TrackStateOnSurface* yOverlap = NULL;
 
   if(!hit) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is NULL; abandoning overlap search"<< endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is NULL; abandoning overlap search"<< endreq;
     std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
     return result;
   }
@@ -2200,12 +2095,12 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   Identifier hitId;
   if (hit->associatedSurface().associatedDetectorElement()!=NULL) hitId = hit->associatedSurface().associatedDetectorElement()->identify();
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit doesn't have an associated detector element; abandoning overlap search"<< endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit doesn't have an associated detector element; abandoning overlap search"<< endreq;
     std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
     return result;
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "obtained hit identifier"<< endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "obtained hit identifier"<< endreq;
   int detType = 99; 
   int barrelEC = 99;
   int layerDisk = 99;
@@ -2215,7 +2110,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   if (m_idHelper->is_sct(hitId)) detType = 1;
   if (m_idHelper->is_trt(hitId)) detType = 2;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "determined hit detector type = "<< detType << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "determined hit detector type = "<< detType << endreq;
 
   //determining Si module physical position
   if (detType==0){//pixel
@@ -2234,7 +2129,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   }
 
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "**************looking for overlaps for new hit detType = " << detType 
-	    << ", modEta = " << modEta << ", modPhi = " << modPhi << endmsg;
+	    << ", modEta = " << modEta << ", modPhi = " << modPhi << endreq;
 
 
   int nHits = 0;
@@ -2252,7 +2147,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     Identifier hitId2;
     if (hit2->associatedSurface().associatedDetectorElement()!=NULL) hitId2 = hit2->associatedSurface().associatedDetectorElement()->identify();
     else {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hit tested for overlap doesn't have an associated detector element"<< endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hit tested for overlap doesn't have an associated detector element"<< endreq;
       continue;
     }
 
@@ -2277,28 +2172,28 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     }
 
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit " << nHits << " for overlap, detType2 = " << detType2 
-	       << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endmsg;
+	       << ", modEta2 = " << modEta2 << ", modPhi2 = " << modPhi2 << endreq;
 
     if(!(*tsos2)->type(Trk::TrackStateOnSurface::Measurement)) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endreq;
       continue;
     }
 
     if(detType!=detType2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same detector" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same detector" << endreq;
       continue;
     }
     if(barrelEC!=barrelEC2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same barrel/endcap" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same barrel/endcap" << endreq;
       continue;
     }
     if(layerDisk!=layerDisk2) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same layer/disk" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because not the same layer/disk" << endreq;
       continue;
     }
 
     if(modEta==modEta2 && modPhi==modPhi2){
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because this is the original hit (or the opposite side for SCT)" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because this is the original hit (or the opposite side for SCT)" << endreq;
       continue;
     }
 
@@ -2309,7 +2204,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       const InDetDD::SiDetectorElement *siDet2 = dynamic_cast<const InDetDD::SiDetectorElement*>(hit2->associatedSurface().associatedDetectorElement());
       bool stereo2 = siDet2->isStereo();
       if(stereo!=stereo2){
-	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SCT overlap rejected because the modules are not both stereo/radial modules" << endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SCT overlap rejected because the modules are not both stereo/radial modules" << endreq;
 	continue;
       }
     }
@@ -2325,23 +2220,23 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     
     if(covariance==NULL) {
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endreq;
       continue;
     }
 
     if((modEta==modEta2 && modPhi!=modPhi2) || (modEta-modEta2 == 1 && modPhi==modPhi2)){
       //potentially an overlap hit - apply hit quality cuts if tool configured
       if((detType2==0 || detType2==1) && m_doHitQuality) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endreq;
 	
 	hit2 = m_hitQualityTool->getGoodHit(*tsos2);
 	if(hit2==NULL) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endreq;
 	  continue;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap hit passed quality cuts" << endmsg;
+	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap hit passed quality cuts" << endreq;
       }
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to overlap hit." << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to overlap hit." << endreq;
     }
 
 
@@ -2380,24 +2275,24 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	close = true;
       }
       if(close){  //end add by TG
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endmsg;
-	//	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endmsg;
-	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endreq;
+	//	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endreq;
+	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endreq;
 	xOverlap = (*tsos2);
       } //added by LT
       
     }
     if(modEta-modEta2 == 1 && modPhi==modPhi2){
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endmsg;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endreq;
+      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endreq;
+      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endreq;
       yOverlap = (*tsos2);
     }
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endmsg;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modPhi2 = " << modPhi2 << endreq;
   }
 
 
@@ -2408,13 +2303,13 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 }
 
-void IDAlignMonEfficiencies::makeTRTHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
+void IDAlignMonEfficiencies::makeTRTHistograms(MonGroup& al_mon){
 
   //Make the Barrel histograms
-  makeTRTBarrelHistograms(al_mon, al_mon_ls);
+  makeTRTBarrelHistograms(al_mon);
 
   //Make the Endcap histograms
-  makeTRTEndcapHistograms(al_mon, al_mon_ls);
+  makeTRTEndcapHistograms(al_mon);
 
 }
 
@@ -2423,7 +2318,7 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
   for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) 
     {
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use"<<endmsg;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use"<<endreq;
 	continue;}    
       float EtaModules= m_PIX_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_PIX_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2)
       float EtaModulesMin;// = -EtaModules/2-0.5;
@@ -2466,14 +2361,10 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       m_measurements_vs_Phi_pix_b.push_back(new TH1F(("measurements_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
       RegisterHisto(al_mon,m_measurements_vs_Phi_pix_b[iLayer]);
       //hits on track by layer Overlap
-      
-      if (m_extendedPlots)
-	{
-	  m_overlapX_vs_Phi_pix_b.push_back(new TH1F(("overlapX_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
-	  RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_b[iLayer]); 
-	  m_overlapY_vs_Phi_pix_b.push_back(new TH1F(("overlapY_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
-	  RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_b[iLayer]); 
-	}
+      m_overlapX_vs_Phi_pix_b.push_back(new TH1F(("overlapX_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
+      RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_b[iLayer]); 
+      m_overlapY_vs_Phi_pix_b.push_back(new TH1F(("overlapY_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
+      RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_b[iLayer]); 
       //outliers by layer
       m_outliers_vs_Phi_pix_b.push_back(new TH1F(("outliers_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Phi-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
       RegisterHisto(al_mon,m_outliers_vs_Phi_pix_b[iLayer]); 
@@ -2492,34 +2383,16 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       m_measurements_vs_LB_pix_b.push_back(new TH1F(("measurements_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_pix_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_b[iLayer]);
-
-      //holes vs LB by layer
-      m_holes_vs_LB_pix_b.push_back(new TH1F(("holes_vs_LB_pix_b"+intToString(iLayer)).c_str(),("holes per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
-      RegisterHisto(al_mon,m_holes_vs_LB_pix_b[iLayer]); 
-
-      m_holes_eff_vs_LB_pix_b.push_back(new TProfile(("holes_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("holes eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_b[iLayer]);
+      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
+      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_b[iLayer]);        
       
-      //outliers vs LB by layer
-      
-      m_outliers_vs_LB_pix_b.push_back(new TH1F(("outliers_vs_LB_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
-      RegisterHisto(al_mon,m_outliers_vs_LB_pix_b[iLayer]); 
-
-      m_outliers_eff_vs_LB_pix_b.push_back(new TProfile(("outliers_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_b[iLayer]);
-
       
       //overlap efficiency by layer
-      if (m_extendedPlots)
-	{
-	  m_overlapX_eff_vs_Phi_pix_b.push_back(new TProfile(("overlapX_eff_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_b[iLayer]); 
-	  //overlap efficiency by layer
-	  m_overlapY_eff_vs_Phi_pix_b.push_back(new TProfile(("overlapY_eff_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_b[iLayer]);
-	}
+      m_overlapX_eff_vs_Phi_pix_b.push_back(new TProfile(("overlapX_eff_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_b[iLayer]); 
+      //overlap efficiency by layer
+      m_overlapY_eff_vs_Phi_pix_b.push_back(new TProfile(("overlapY_eff_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel barrel layer"+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_b[iLayer]);
       //outlier eff by layer
       m_outliers_eff_vs_Phi_pix_b.push_back(new TProfile(("outliers_eff_vs_Phi_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Phi-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
       RegisterHisto(al_mon,m_outliers_eff_vs_Phi_pix_b[iLayer]); 
@@ -2532,14 +2405,11 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       //measured hits vs eta
       m_measurements_vs_Eta_pix_b.push_back( new TH1F(("measurements_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
       RegisterHisto(al_mon,m_measurements_vs_Eta_pix_b[iLayer]);
-      if (m_extendedPlots)
-	{
-	  //hits overlap Eta
-	  m_overlapX_vs_Eta_pix_b.push_back(new TH1F(("overlapX_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
-	  RegisterHisto(al_mon,m_overlapX_vs_Eta_pix_b[iLayer]);
-	  m_overlapY_vs_Eta_pix_b.push_back(new TH1F(("overlapY_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
-	  RegisterHisto(al_mon,m_overlapY_vs_Eta_pix_b[iLayer]);
-	}
+      //hits overlap Eta
+      m_overlapX_vs_Eta_pix_b.push_back(new TH1F(("overlapX_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
+      RegisterHisto(al_mon,m_overlapX_vs_Eta_pix_b[iLayer]);
+      m_overlapY_vs_Eta_pix_b.push_back(new TH1F(("overlapY_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
+      RegisterHisto(al_mon,m_overlapY_vs_Eta_pix_b[iLayer]);
       //outliers vs Eta
       m_outliers_vs_Eta_pix_b.push_back(new TH1F(("outliers_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax));  
       RegisterHisto(al_mon,m_outliers_vs_Eta_pix_b[iLayer]);
@@ -2550,14 +2420,11 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       //measurements eff vs Eta
       m_measurements_eff_vs_Eta_pix_b.push_back( new TProfile(("measurements_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax, 0., 1.));
       RegisterHisto(al_mon,m_measurements_eff_vs_Eta_pix_b[iLayer]) ; 
-      if (m_extendedPlots)
-	{
-	  //OverlapX eff vs Eta
-	  m_overlapX_eff_vs_Eta_pix_b.push_back(new TProfile(("overlapX_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapX_eff_vs_Eta_pix_b[iLayer]) ;
-	  m_overlapY_eff_vs_Eta_pix_b.push_back(new TProfile(("overlapY_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapY_eff_vs_Eta_pix_b[iLayer]) ;
-	}
+      //OverlapX eff vs Eta
+      m_overlapX_eff_vs_Eta_pix_b.push_back(new TProfile(("overlapX_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapX_eff_vs_Eta_pix_b[iLayer]) ;
+      m_overlapY_eff_vs_Eta_pix_b.push_back(new TProfile(("overlapY_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapY_eff_vs_Eta_pix_b[iLayer]) ;
       //Outliers eff vs Eta
       m_outliers_eff_vs_Eta_pix_b.push_back(new TProfile(("outliers_eff_vs_Eta_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Eta-ID in Pixel barrel layer "+intToString(iLayer)).c_str(),EtaModules, EtaModulesMin, EtaModulesMax, 0., 1.));  
       RegisterHisto(al_mon,m_outliers_eff_vs_Eta_pix_b[iLayer]) ; 
@@ -2597,7 +2464,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	{
 	  int rings=0;
 	  if (!m_PIX_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
 	    continue;}
 	  else
 	    {
@@ -2611,59 +2478,24 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	    }	  
 	  if (iSide>0)
 	    {
-	      
-	      m_hits_vs_Phi_pix_eca.push_back( new TH1F(("hits_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel eca Disk "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      //hits for endcaps
+	      m_hits_vs_Phi_pix_eca.push_back( new TH1F(("hits_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_hits_vs_Phi_pix_eca[iWheel]) ;
-	      
-	      //vs LB
-  
-	      m_hits_vs_LB_pix_eca.push_back ( new TH1F(("hits_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_hits_vs_LB_pix_eca[iWheel]);  
-	      
-	      m_measurements_vs_LB_pix_eca.push_back( new TH1F(("measurements_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("possible measurements vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_measurements_vs_LB_pix_eca[iWheel]);  
-	      
-	      m_measurements_eff_vs_LB_pix_eca.push_back(new TProfile(("measurements_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_eca[iWheel]);
-	      
-	      //outliers
-
-	      m_outliers_vs_LB_pix_eca.push_back( new TH1F(("outliers_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("outliers vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_outliers_vs_LB_pix_eca[iWheel]);  
-	      
-	      m_outliers_eff_vs_LB_pix_eca.push_back(new TProfile(("outliers_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_eca[iWheel]);
-
-	      //holes
-
-	      m_holes_vs_LB_pix_eca.push_back( new TH1F(("holes_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("holes vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_holes_vs_LB_pix_eca[iWheel]);  
-	      
-	      m_holes_eff_vs_LB_pix_eca.push_back(new TProfile(("holes_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("holes eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_eca[iWheel]);
-	      
-	      	      
-	      
-	      if (m_extendedPlots)
-		{
-		  //overlaps by layer
-		  m_overlapY_vs_Phi_pix_eca.push_back(new  TH1F(("overlapY_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
-		  RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_eca[iWheel]) ; 
-		  m_overlapX_vs_Phi_pix_eca.push_back(new  TH1F(("overlapX_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
-		  RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_eca[iWheel]) ;  
-		  
-		  m_overlapX_eff_vs_Phi_pix_eca.push_back(new  TProfile(("overlapX_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
-		  RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_eca[iWheel]) ;
-		  m_overlapY_eff_vs_Phi_pix_eca.push_back(new  TProfile(("overlapY_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
-		  RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_eca[iWheel]) ; 
-		}
+	      //overlaps by layer
+	      m_overlapY_vs_Phi_pix_eca.push_back(new  TH1F(("overlapY_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_eca[iWheel]) ; 
+	      m_overlapX_vs_Phi_pix_eca.push_back(new  TH1F(("overlapX_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_eca[iWheel]) ;  
 	      //hits on track for endcaps
 	      m_measurements_vs_Phi_pix_eca.push_back(new  TH1F(("measurements_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("possible measurements vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_measurements_vs_Phi_pix_eca[iWheel]) ;  
 	      //efficiencies for endcaps
 	      m_measurements_eff_vs_Phi_pix_eca.push_back(new  TProfile(("measurements_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("measurements per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
 	      RegisterHisto(al_mon,m_measurements_eff_vs_Phi_pix_eca[iWheel]) ; 
-	      
+	      m_overlapX_eff_vs_Phi_pix_eca.push_back(new  TProfile(("overlapX_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
+	      RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_eca[iWheel]) ;
+	      m_overlapY_eff_vs_Phi_pix_eca.push_back(new  TProfile(("overlapY_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
+	      RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_eca[iWheel]) ; 
 
 	      
 
@@ -2674,61 +2506,46 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	      //hits for endcaps
 	      m_hits_vs_Phi_pix_ecc.push_back( new TH1F(("hits_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_hits_vs_Phi_pix_ecc[iWheel]) ;
-
-	      //vs LB
-	      
-	      m_hits_vs_LB_pix_ecc.push_back( new TH1F(("hits_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("possible hits vs. LB-ID in Pixel ECC  Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_hits_vs_LB_pix_ecc[iWheel]);  
-	      
-	      m_measurements_vs_LB_pix_ecc.push_back( new TH1F(("measurements_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("possible measurements vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_measurements_vs_LB_pix_ecc[iWheel]);  
-	      
-	      m_measurements_eff_vs_LB_pix_ecc.push_back(new TProfile(("measurements_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_ecc[iWheel]);
-	      
-	      //outliers
-
-	      m_outliers_vs_LB_pix_ecc.push_back( new TH1F(("outliers_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("outliers vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_outliers_vs_LB_pix_ecc[iWheel]);  
-	      
-	      m_outliers_eff_vs_LB_pix_ecc.push_back(new TProfile(("outliers_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_ecc[iWheel]);
-
-	      //holes
-
-	      m_holes_vs_LB_pix_ecc.push_back( new TH1F(("holes_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("holes vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
-	      RegisterHisto(al_mon,m_holes_vs_LB_pix_ecc[iWheel]);  
-	      
-	      m_holes_eff_vs_LB_pix_ecc.push_back(new TProfile(("holes_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("holes eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
-	      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_ecc[iWheel]);
-
-
-	      if (m_extendedPlots)
-		{
-		  //overlaps by layer
-		  m_overlapY_vs_Phi_pix_ecc.push_back(new  TH1F(("overlapY_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
-		  RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_ecc[iWheel]) ; 
-		  m_overlapX_vs_Phi_pix_ecc.push_back(new  TH1F(("overlapX_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
-		  RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_ecc[iWheel]) ;  
-		  m_overlapX_eff_vs_Phi_pix_ecc.push_back(new  TProfile(("overlapX_eff_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
-		  RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_ecc[iWheel]) ;
-		  m_overlapY_eff_vs_Phi_pix_ecc.push_back(new  TProfile(("overlapY_eff_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
-		  RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_ecc[iWheel]) ;
-		}
-
-	      
-	      
+	      //overlaps by layer
+	      m_overlapY_vs_Phi_pix_ecc.push_back(new  TH1F(("overlapY_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      RegisterHisto(al_mon,m_overlapY_vs_Phi_pix_ecc[iWheel]) ; 
+	      m_overlapX_vs_Phi_pix_ecc.push_back(new  TH1F(("overlapX_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      RegisterHisto(al_mon,m_overlapX_vs_Phi_pix_ecc[iWheel]) ;  
 	      //hits on track for endcaps
 	      m_measurements_vs_Phi_pix_ecc.push_back(new  TH1F(("measurements_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("possible measurements vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_measurements_vs_Phi_pix_ecc[iWheel]) ;  
 	      //efficiencies for endcaps
 	      m_measurements_eff_vs_Phi_pix_ecc.push_back(new  TProfile(("measurements_eff_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("measurements per possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
 	      RegisterHisto(al_mon,m_measurements_eff_vs_Phi_pix_ecc[iWheel]) ; 
-	      	      
+	      m_overlapX_eff_vs_Phi_pix_ecc.push_back(new  TProfile(("overlapX_eff_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
+	      RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_pix_ecc[iWheel]) ;
+	      m_overlapY_eff_vs_Phi_pix_ecc.push_back(new  TProfile(("overlapY_eff_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
+	      RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_pix_ecc[iWheel]) ;
+
+	      
+	      
 	    }
 	}
     }
-    
+  //vs LB
+  
+  m_hits_vs_LB_pix_eca = new TH1F("hits_vs_LB_pix_eca","possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB);  
+  RegisterHisto(al_mon,m_hits_vs_LB_pix_eca);  
+  m_measurements_vs_LB_pix_eca  = new TH1F("measurements_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB);  
+  RegisterHisto(al_mon,m_measurements_vs_LB_pix_eca);
+  m_measurements_eff_vs_LB_pix_eca = new TProfile("measurements_eff_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
+  RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_eca); 
+  
+  //vs LB
+  
+  m_hits_vs_LB_pix_ecc = new TH1F("hits_vs_LB_pix_ecc","possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB);  
+  RegisterHisto(al_mon,m_hits_vs_LB_pix_ecc);
+  m_measurements_vs_LB_pix_ecc = new TH1F("measurements_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB);  
+  RegisterHisto(al_mon,m_measurements_vs_LB_pix_ecc);
+  m_measurements_eff_vs_LB_pix_ecc = new TProfile("measurements_eff_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.); 
+  RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_ecc); 
+  
+
 }
 
 void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
@@ -2737,7 +2554,7 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
     {
       //ATH_MSG_INFO("iLayer= " << iLayer); 
       if (!m_SCT_Mgr->numerology().useLayer(iLayer)){
-	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not Present"<<endmsg;
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not Present"<<endreq;
 	continue;}
       float maxPhiModulesPerLayer = m_SCT_Mgr->numerology().numPhiModulesForLayer(iLayer);
       //just for checking purposes. Not useful. I will cancel it soon. Peo
@@ -2767,7 +2584,7 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       m_measurements_vs_LB_sct_b.push_back(new TH1F(("measurements_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_sct_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      m_measurements_eff_vs_LB_sct_b.push_back(new TProfile(("measurements_eff_vs_LB_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in SCT barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
       RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_b[iLayer]); 
       
 
@@ -2812,19 +2629,11 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       //hits on track by layer
       m_measurements_vs_Phi_sct_b.push_back(new TH1F(("measurements_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
       RegisterHisto(al_mon,m_measurements_vs_Phi_sct_b[iLayer]);
-      if (m_extendedPlots)
-	{
-	  //hits on track by layer Overlap
-	  m_overlapX_vs_Phi_sct_b.push_back(new TH1F(("overlapX_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));
-	  RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_b[iLayer]);
-	  m_overlapY_vs_Phi_sct_b.push_back(new TH1F(("overlapY_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
-	  RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_b[iLayer]); 
-	  //overlap efficiency by layer
-	  m_overlapX_eff_vs_Phi_sct_b.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_b[iLayer]); 
-	  m_overlapY_eff_vs_Phi_sct_b.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_b[iLayer]); 
-	}
+      //hits on track by layer Overlap
+      m_overlapX_vs_Phi_sct_b.push_back(new TH1F(("overlapX_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));
+      RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_b[iLayer]);
+      m_overlapY_vs_Phi_sct_b.push_back(new TH1F(("overlapY_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
+      RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_b[iLayer]); 
       //outliers by layer
       m_outliers_vs_Phi_sct_b.push_back(new TH1F(("outliers_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  
       RegisterHisto(al_mon,m_outliers_vs_Phi_sct_b[iLayer]); 
@@ -2834,6 +2643,11 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       //hit efficiency by layer
       m_measurements_eff_vs_Phi_sct_b.push_back(new TProfile(("measurements_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
       RegisterHisto(al_mon,m_measurements_eff_vs_Phi_sct_b[iLayer]); 
+      //overlap efficiency by layer
+      m_overlapX_eff_vs_Phi_sct_b.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_b[iLayer]); 
+      m_overlapY_eff_vs_Phi_sct_b.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_b[iLayer]); 
       //outliers eff by layer
       m_outliers_eff_vs_Phi_sct_b.push_back(new TProfile(("outliers_eff_vs_Phi_sct_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Phi-ID in SCT barrel layer "+intToString(iLayer)).c_str(),maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5, 0., 1.));  
       RegisterHisto(al_mon,m_outliers_eff_vs_Phi_sct_b[iLayer]);
@@ -2846,19 +2660,11 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       //measured hits vs eta
       m_measurements_vs_Eta_sct_b.push_back(new TH1F(("measurements_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
       RegisterHisto(al_mon,m_measurements_vs_Eta_sct_b[iLayer]) ;
-      if (m_extendedPlots)
-	{
-	  //hits overlap Eta
-	  m_overlapX_vs_Eta_sct_b.push_back(new TH1F(("overlapX_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
-	  RegisterHisto(al_mon,m_overlapX_vs_Eta_sct_b[iLayer]) ;
-	  m_overlapY_vs_Eta_sct_b.push_back(new TH1F(("overlapY_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
-	  RegisterHisto(al_mon,m_overlapY_vs_Eta_sct_b[iLayer]) ;
-	  //OverlapX eff vs Eta
-	  m_overlapX_eff_vs_Eta_sct_b.push_back(new TProfile(("overlapX_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapX_eff_vs_Eta_sct_b[iLayer]) ;
-	  m_overlapY_eff_vs_Eta_sct_b.push_back(new TProfile(("overlapY_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
-	  RegisterHisto(al_mon,m_overlapY_eff_vs_Eta_sct_b[iLayer]) ;
-	}
+      //hits overlap Eta
+      m_overlapX_vs_Eta_sct_b.push_back(new TH1F(("overlapX_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
+      RegisterHisto(al_mon,m_overlapX_vs_Eta_sct_b[iLayer]) ;
+      m_overlapY_vs_Eta_sct_b.push_back(new TH1F(("overlapY_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
+      RegisterHisto(al_mon,m_overlapY_vs_Eta_sct_b[iLayer]) ;
       //outliers vs eta
       m_outliers_vs_Eta_sct_b.push_back(new TH1F(("outliers_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.));  
       RegisterHisto(al_mon,m_outliers_vs_Eta_sct_b[iLayer]);
@@ -2868,7 +2674,11 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
       //measurements eff vs Eta
       m_measurements_eff_vs_Eta_sct_b.push_back( new TProfile(("measurements_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2, 0., 1.));
       RegisterHisto(al_mon,m_measurements_eff_vs_Eta_sct_b[iLayer]) ; 
-      
+      //OverlapX eff vs Eta
+      m_overlapX_eff_vs_Eta_sct_b.push_back(new TProfile(("overlapX_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapX per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapX_eff_vs_Eta_sct_b[iLayer]) ;
+      m_overlapY_eff_vs_Eta_sct_b.push_back(new TProfile(("overlapY_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("overlapY per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules,EtaModules, 0., 1.));  
+      RegisterHisto(al_mon,m_overlapY_eff_vs_Eta_sct_b[iLayer]) ;
       //Outliers eff vs Eta
       m_outliers_eff_vs_Eta_sct_b.push_back(new TProfile(("outliers_eff_vs_Eta_sct_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. Eta-ID in SCT barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2., 0., 1.));  
       RegisterHisto(al_mon,m_outliers_eff_vs_Eta_sct_b[iLayer]) ; 
@@ -2907,7 +2717,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
 	{
 	  int rings=0;
 	  if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endmsg;
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
 	    continue;}
 	  else
 	    {
@@ -2924,23 +2734,19 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
 	    
 	    m_hits_vs_Phi_sct_eca.push_back(new TH1F(("hits_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
 	    RegisterHisto(al_mon,m_hits_vs_Phi_sct_eca[iWheel]) ;
-	    if (m_extendedPlots)
-	      {
-		m_overlapX_vs_Phi_sct_eca.push_back(new TH1F(("overlapX_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
-		RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_eca[iWheel]) ;
-		m_overlapY_vs_Phi_sct_eca.push_back(new TH1F(("overlapY_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
-		RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_eca[iWheel]) ;  
-		m_overlapX_eff_vs_Phi_sct_eca.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
-		RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_eca[iWheel]) ;  
-		m_overlapY_eff_vs_Phi_sct_eca.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
-		RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_eca[iWheel]) ;
-	      }
-
+	    m_overlapX_vs_Phi_sct_eca.push_back(new TH1F(("overlapX_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
+	    RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_eca[iWheel]) ;
+	    m_overlapY_vs_Phi_sct_eca.push_back(new TH1F(("overlapY_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
+	    RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_eca[iWheel]) ;  
 	    m_measurements_vs_Phi_sct_eca.push_back(new TH1F(("measurements_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("possible measurements vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
 	    RegisterHisto(al_mon,m_measurements_vs_Phi_sct_eca[iWheel]) ; 
 	    m_measurements_eff_vs_Phi_sct_eca.push_back(new TProfile(("measurements_eff_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("measurements per possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
 	    RegisterHisto(al_mon,m_measurements_eff_vs_Phi_sct_eca[iWheel]) ; 
-	    
+	    m_overlapX_eff_vs_Phi_sct_eca.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
+	    RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_eca[iWheel]) ;  
+	    m_overlapY_eff_vs_Phi_sct_eca.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_eca"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT eca layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
+	    RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_eca[iWheel]) ;
+
 	     
       
 	     
@@ -2948,23 +2754,19 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
 	  else if (iSide<0){ //ECC
 	    m_hits_vs_Phi_sct_ecc.push_back(new TH1F(("hits_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
 	    RegisterHisto(al_mon,m_hits_vs_Phi_sct_ecc[iWheel]) ;
-	    if (m_extendedPlots)
-	      {
-		m_overlapX_vs_Phi_sct_ecc.push_back(new TH1F(("overlapX_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
-		RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_ecc[iWheel]) ;
-		m_overlapY_vs_Phi_sct_ecc.push_back(new TH1F(("overlapY_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
-		RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_ecc[iWheel]) ;
-		m_overlapX_eff_vs_Phi_sct_ecc.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
-		RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_ecc[iWheel]) ;  
-		m_overlapY_eff_vs_Phi_sct_ecc.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
-		RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_ecc[iWheel]) ;
-	      }
-	    
+	    m_overlapX_vs_Phi_sct_ecc.push_back(new TH1F(("overlapX_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),(" X Overlap Eff. vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
+	    RegisterHisto(al_mon,m_overlapX_vs_Phi_sct_ecc[iWheel]) ;
+	    m_overlapY_vs_Phi_sct_ecc.push_back(new TH1F(("overlapY_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),(" Y Overlap Eff. vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
+	    RegisterHisto(al_mon,m_overlapY_vs_Phi_sct_ecc[iWheel]) ;
 	    m_measurements_vs_Phi_sct_ecc.push_back(new TH1F(("measurements_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("possible measurements vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5));  
 	    RegisterHisto(al_mon,m_measurements_vs_Phi_sct_ecc[iWheel]) ;
 	    m_measurements_eff_vs_Phi_sct_ecc.push_back(new TProfile(("measurements_eff_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("measurements per possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
 	    RegisterHisto(al_mon,m_measurements_eff_vs_Phi_sct_ecc[iWheel]) ;
-	    	    
+	    m_overlapX_eff_vs_Phi_sct_ecc.push_back(new TProfile(("overlapX_eff_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("overlapX per possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
+	    RegisterHisto(al_mon,m_overlapX_eff_vs_Phi_sct_ecc[iWheel]) ;  
+	    m_overlapY_eff_vs_Phi_sct_ecc.push_back(new TProfile(("overlapY_eff_vs_Phi_sct_ecc"+intToString(iWheel)).c_str(),("overlapY per possible hits vs. Phi-ID in SCT ecc layer "+intToString(iWheel)).c_str(),maxModulesPerRing,-0.5,maxModulesPerRing-0.5, 0., 1.));  
+	    RegisterHisto(al_mon,m_overlapY_eff_vs_Phi_sct_ecc[iWheel]) ;
+	    
 	    
 	    
 	  }
@@ -2977,7 +2779,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_eca); 	    
   m_measurements_vs_LB_sct_eca = new TH1F("measurements_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_eca); 
-  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.,1.);  
+  m_measurements_eff_vs_LB_sct_eca = new TProfile("measurements_eff_vs_LB_sct_eca","measurements per possible hits vs. LB-ID in SCT ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_eca);
 
   //vs LB
@@ -2987,13 +2789,13 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
   RegisterHisto(al_mon,m_hits_vs_LB_sct_ecc); 
   m_measurements_vs_LB_sct_ecc = new TH1F("measurements_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB);  
   RegisterHisto(al_mon,m_measurements_vs_LB_sct_ecc); 
-  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.,1.);  
+  m_measurements_eff_vs_LB_sct_ecc =new TProfile("measurements_eff_vs_LB_sct_ecc","measurements per possible hits vs. LB-ID in SCT ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
   RegisterHisto(al_mon,m_measurements_eff_vs_LB_sct_ecc); 
 }
 
 
   
-void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
+void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon){
     
   /** Barrel plots
    //==================== */
@@ -3012,7 +2814,7 @@ void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup&
     RegisterHisto(al_mon,m_trt_b_hist->hits_vs_phiSector[lay]) ;  
 
     m_trt_b_hist->hits_eff_vs_phiSector[lay] = MakeProfile("hits_eff_vs_phiSector_trt_b"+intToString(lay),"Ratio Hits to total measurements vrs phi sector for TRT Barrel layer "+intToString(lay),32,0,32, 0., 1.,"Phi Sector","Ratio of Hits to Total Measurements");
-    RegisterHisto(al_mon_ls,m_trt_b_hist->hits_eff_vs_phiSector[lay],"Fraction of Precision Hits") ;  
+    RegisterHisto(al_mon,m_trt_b_hist->hits_eff_vs_phiSector[lay],"Fraction of Precision Hits") ;  
 
     /** tube hits in the barrel modules */
     m_trt_b_hist->tubeHits_vs_phiSector[lay] = MakeHist("tubeHits_vs_phiSector_trt_b"+intToString(lay),"Tube Hits vrs phi sector for TRT Barrel layer "+intToString(lay),32,0,32, "Phi Sector","Number of Tube Hits");
@@ -3057,7 +2859,7 @@ void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup&
   return;
 }
     
-void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
+void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon){
   
   /** EndCap */
   std::string endcapName[2] = {"Endcap_A","Endcap_C"};
@@ -3079,7 +2881,7 @@ void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup&
     RegisterHisto(al_mon,m_trt_ec_hist->hits_vs_ring[endcap]);
     
     m_trt_ec_hist->hits_eff_vs_ring[endcap] = MakeProfile("hits_eff_vs_ring_trt_ec_"+endcapName[endcap],"Ratio of hits to total measurements vs Ring for "+endcapName[endcap] ,40,0,40, 0., 1.,"Endcap Ring","Ratio of Hits to Total Measurements");
-    RegisterHisto(al_mon_ls,m_trt_ec_hist->hits_eff_vs_ring[endcap],"Fraction of Precision Hits");  
+    RegisterHisto(al_mon,m_trt_ec_hist->hits_eff_vs_ring[endcap],"Fraction of Precision Hits");  
     
     /** tube hits vs ring */
     m_trt_ec_hist->tubeHits_vs_ring[endcap] = MakeHist("tubeHits_vs_ring_trt_ec_"+endcapName[endcap],"tube Hits vs Ring for "+endcapName[endcap],40,0,40,"Endcap Ring","Tube Hits");

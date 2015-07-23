@@ -89,18 +89,18 @@ StatusCode IDAlignMonTruthComparison::initialize()
 
   // AG: init truthToTrack
   if (m_truthToTrack.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_truthToTrack << endreq;
   }
 
   // AG: init trackSelection
   if (m_trackSelection.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelection << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelection << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_trackSelection << endreq;
   }
 
   return sc;
@@ -334,7 +334,7 @@ void IDAlignMonTruthComparison::RegisterHisto(MonGroup& mon, TH1* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endmsg;
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endreq;
   }
 }
 
@@ -342,7 +342,7 @@ void IDAlignMonTruthComparison::RegisterHisto(MonGroup& mon, TProfile* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endmsg;
+    msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endreq;
   }
 }
 
@@ -351,7 +351,7 @@ void IDAlignMonTruthComparison::RegisterHisto(MonGroup& mon, TH2* histo) {
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endmsg;
+    msg(MSG::ERROR) << "Cannot book TH2 Histogram:" << endreq;
   }
 }
 
@@ -368,27 +368,27 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
   StatusCode sc = StatusCode :: SUCCESS;
   sc = evtStore()->retrieve(RecCollection, m_tracksName);  
   if (sc.isFailure()) {
-    if (msgLvl(MSG::VERBOSE)) msg() <<"Track collection \"" << m_tracksName << "\" not found." << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() <<"Track collection \"" << m_tracksName << "\" not found." << endreq;
     return StatusCode::SUCCESS;
   }
   if (RecCollection)  
     {
       if (msgLvl(MSG::VERBOSE)) 
-	msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endmsg;
+	msg() << "Retrieved " << m_tracksName << " with size " << RecCollection->size() << " reconstructed tracks from storegate" << endreq;
     }
   else 
     {
-      if (msgLvl(MSG::VERBOSE)) msg()<<"Problem in retrieving " << m_tracksName << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg()<<"Problem in retrieving " << m_tracksName << endreq;
       return StatusCode::SUCCESS;
     }
 
   // get TrackTruthCollection
   const TrackTruthCollection  * TruthMap  = NULL;
   if (StatusCode::SUCCESS!=evtStore()->retrieve(TruthMap,m_tracksTruthName)) {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Cannot find " << m_tracksTruthName  << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Cannot find " << m_tracksTruthName  << endreq;
     return StatusCode::SUCCESS;
   } else {
-    if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName << " with size " << TruthMap->size() <<" found in StoreGate" << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Track Truth Collection with name " << m_tracksTruthName << " with size " << TruthMap->size() <<" found in StoreGate" << endreq;
   }
     
   
@@ -420,7 +420,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
     
     if (covariance==0) {
-      msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
+      msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
     }
     else{  
       AmgVector(5) perigeeParams = measPer->parameters();    
@@ -436,7 +436,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     }
     if (trkphi<0) trkphi+=2*m_Pi;
 
-    if (msgLvl(MSG::VERBOSE)) msg() << "Found good track with phi, PT = " << trkphi << ", " << trkpt << endmsg; 
+    if (msgLvl(MSG::VERBOSE)) msg() << "Found good track with phi, PT = " << trkphi << ", " << trkpt << endreq; 
     
     if (TruthMap) {	
 
@@ -459,14 +459,14 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		if (genparptr->production_vertex()) { 
 		  
 		  if(genparptr->pdg_id() == 0){
-		    msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<endmsg; 
+		    msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<endreq; 
 		    //msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<genparptr->status()<<" mass "<< genparptr->momentum().m() <<" pt "<<genparptr->momentum().et()<<" eta "
 		    // <<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "<<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x"
-		    // <<genparptr->production_vertex()->position().x()<< " y "<<genparptr->production_vertex()->position().y()<<" z "<<genparptr->production_vertex()->position().z()<<endmsg;                    
+		    // <<genparptr->production_vertex()->position().x()<< " y "<<genparptr->production_vertex()->position().y()<<" z "<<genparptr->production_vertex()->position().z()<<endreq;                    
 		  }else{
 		    
 		    const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
-		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
+		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
 		    
 		    if ( generatedTrackPerigee) {
 		      float m_track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
@@ -480,7 +480,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		      float m_track_truth_charge       = 1; 
 		      if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
 		      if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
-		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endmsg; 
+		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endreq; 
 
 		      m_truthpT->Fill(m_track_truth_pt);
 		      m_truthphi->Fill(m_track_truth_phi);
@@ -561,11 +561,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 
 		    }
 		  }
-		} else msg(MSG::WARNING) << " no genparptr->production_vertex() " << endmsg; 
-	      } else msg(MSG::WARNING) << " no genparptr found " << endmsg; 
-	    } else msg(MSG::WARNING) << " HMPL not Valid " << endmsg; 
+		} else msg(MSG::WARNING) << " no genparptr->production_vertex() " << endreq; 
+	      } else msg(MSG::WARNING) << " no genparptr found " << endreq; 
+	    } else msg(MSG::WARNING) << " HMPL not Valid " << endreq; 
 	}
-    } else msg(MSG::WARNING) << " No TruthMap found " << endmsg; 
+    } else msg(MSG::WARNING) << " No TruthMap found " << endreq; 
   }
   
   float ptfirst = ptlast;
@@ -585,7 +585,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
     const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
     
     if (covariance==0) {
-      msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
+      msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endreq; 
     }
     else{  
       AmgVector(5) perigeeParams = measPer->parameters(); 
@@ -620,11 +620,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		if (genparptr->production_vertex()) { 
 		  
 		  if(genparptr->pdg_id() == 0){
-		    msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<endmsg;              
+		    msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<endreq;              
 		  }else{
 		    
 		    const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
-		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
+		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
 		    
 		    if ( generatedTrackPerigee) {
 		      float m_track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
@@ -635,7 +635,7 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		      //float m_track_truth_charge       = 1; 
 		      //if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
 		      if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
-		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endmsg; 
+		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endreq; 
 
 
 		      if(trkpt > ptlast && trkpt < ptfirst && chargefirst*charge < 0 && trkpt > 15){

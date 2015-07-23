@@ -10,14 +10,12 @@ class Module:
         self.Rx = 0
         self.Ry = 0
         self.Rz = 0
-        self.Bx = 0
         self.ETx = 0
         self.ETy = 0
         self.ETz = 0
         self.ERx = 0
         self.ERy = 0
         self.ERz = 0
-        self.EBx = 0
         self.Hits = 0
         self.Tracks = 0
         self.Det = "None"
@@ -89,10 +87,10 @@ class Module:
     
     def PrintValues(self):
     #   info = "%6s %6s %6s %6s %6s %6s %6s %12s %12s %12s %12s %12s %12s %12s\n" % (str(self.index),
-        info = "%s %s %s %s %s %s %s %s %s\n" % (str(self.index),                                   
+        info = "%s %s %s %s %s %s %s %s\n" % (str(self.index),                                   
         str(self.Tx)[:12],str(self.Ty)[:12],str(self.Tz)[:12],
         str(self.Rx)[:12],str(self.Ry)[:12],str(self.Rz)[:12],
-        str(self.Bx)[:12],str(self.Hits))
+        str(self.Hits))
         return info
         
         
@@ -108,8 +106,6 @@ class Module:
         self.Ry = Ry
     def setRz(self, Rz):
         self.Rz = Rz
-    def setBx(self, Bx):
-        self.Bx = Bx
     def setETx(self, ETx):
         self.ETx = ETx
     def setETy(self, ETy):
@@ -122,8 +118,6 @@ class Module:
         self.ERy = ERy
     def setERz(self, ERz):
         self.ERz = ERz
-    def setEBx(self, EBx):
-        self.EBx = EBx
         
     def setHits(self,hits):
         self.Hits = hits
@@ -144,8 +138,6 @@ class Module:
             return "Ry",self.Ry
         elif DoF == 5:
             return "Rz",self.Rz
-        elif DoF == 6:
-            return "Bx",self.Bx
         else:
             return "Unknown", 0
             
@@ -162,8 +154,6 @@ class Module:
             return "ERy",self.ERy
         elif DoF == 5:
             return "ERz",self.ERz
-        elif DoF == 6:
-            return "EBx",self.EBx
         else:
             return "Unknown", 0
 

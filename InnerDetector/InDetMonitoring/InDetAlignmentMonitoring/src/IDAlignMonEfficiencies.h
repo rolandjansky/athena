@@ -88,9 +88,9 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   void makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff);
   void makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff);
 
-  void makeTRTHistograms(MonGroup& al_monitoring,MonGroup& al_monitoring_ls);
-  void makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup& al_mon_ls);
-  void makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup& al_mon_ls);
+  void makeTRTHistograms(MonGroup& al_monitoring);
+  void makeTRTBarrelHistograms(MonGroup& al_mon);
+  void makeTRTEndcapHistograms(MonGroup& al_mon);
   void makePIXBarrelHistograms(MonGroup& al_mon);
   void makePIXEndCapsHistograms(MonGroup& al_mon);
   void makeSCTBarrelHistograms(MonGroup& al_mon);
@@ -323,40 +323,22 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   std::vector<TProfile*> m_measurements_eff_vs_Phi_sct_b;
   
   std::vector<TProfile*> m_measurements_eff_vs_LB_pix_b;
-  std::vector<TProfile*> m_holes_eff_vs_LB_pix_b;
-  std::vector<TProfile*> m_outliers_eff_vs_LB_pix_b;
   std::vector<TH1F*> m_measurements_vs_LB_pix_b;
-  std::vector<TH1F*> m_holes_vs_LB_pix_b;
-  std::vector<TH1F*> m_outliers_vs_LB_pix_b;
   std::vector<TH1F*> m_hits_vs_LB_pix_b;
 
   std::vector<TProfile*> m_measurements_eff_vs_LB_sct_b;
   std::vector<TH1F*> m_measurements_vs_LB_sct_b;
   std::vector<TH1F*> m_hits_vs_LB_sct_b;
 
-  std::vector<TProfile*> m_measurements_eff_vs_LB_pix_eca;
-  std::vector<TProfile*> m_measurements_eff_vs_LB_pix_ecc;
-   std::vector<TProfile*> m_holes_eff_vs_LB_pix_eca;
-  std::vector<TProfile*> m_holes_eff_vs_LB_pix_ecc;
-   std::vector<TProfile*> m_outliers_eff_vs_LB_pix_eca;
-  std::vector<TProfile*> m_outliers_eff_vs_LB_pix_ecc;
-  
-  std::vector<TH1F*>     m_hits_vs_LB_pix_eca;
-  std::vector<TH1F*>     m_outliers_vs_LB_pix_eca;
-  std::vector<TH1F*>     m_holes_vs_LB_pix_eca;
-  std::vector<TH1F*>     m_measurements_vs_LB_pix_eca;
-  std::vector<TH1F*>     m_hits_vs_LB_pix_ecc;
-  std::vector<TH1F*>     m_outliers_vs_LB_pix_ecc;
-  std::vector<TH1F*>     m_holes_vs_LB_pix_ecc;
-  std::vector<TH1F*>     m_measurements_vs_LB_pix_ecc;
-  
-  
+  TProfile* m_measurements_eff_vs_LB_pix_eca;
+  TH1F*     m_hits_vs_LB_pix_eca;
+  TH1F*     m_measurements_vs_LB_pix_eca;
   TProfile* m_measurements_eff_vs_LB_sct_eca;
   TH1F*     m_hits_vs_LB_sct_eca;
   TH1F*     m_measurements_vs_LB_sct_eca;
-  
-  
-  
+  TProfile* m_measurements_eff_vs_LB_pix_ecc;
+  TH1F*     m_hits_vs_LB_pix_ecc;
+  TH1F*     m_measurements_vs_LB_pix_ecc;
   TProfile* m_measurements_eff_vs_LB_sct_ecc;
   TH1F*     m_hits_vs_LB_sct_ecc;
   TH1F*     m_measurements_vs_LB_sct_ecc;
@@ -440,14 +422,12 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   float m_maxSiliconEffWindow;
   std::string m_triggerChainName;
   bool m_doHoleSearch;
-  bool m_extendedPlots;
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
   int m_checkrate;
   int m_NPixLayers;
   int m_events;
-  int m_mapSplit;
   int m_histosBooked;
   bool m_doHitQuality;
   float m_minLB;

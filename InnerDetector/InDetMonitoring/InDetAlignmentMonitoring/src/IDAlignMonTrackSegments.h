@@ -102,7 +102,6 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   float m_deltaQoverPtRange2D;
   float m_deltaPtQoverPtRange;
   float m_deltaPtQoverPtRange2D;
-  float m_deltaZ0Range;
   float m_d0Range;
   float m_upperPhi;
   std::string m_triggerChainName;

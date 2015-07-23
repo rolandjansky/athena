@@ -83,16 +83,16 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
 
-  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1F* projection);
-  TGraphErrors* ConvertHistoInGraph(TH1F*);
+  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1D* projection);
+  TGraphErrors* ConvertHistoInGraph(TH1D*);
 
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
   void MakeTRTEndcapHistograms(MonGroup& al_mon);
   void MakeSiliconHistograms(MonGroup&);
-  void fillTRTHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float hitGlobalR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitGlobalR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
   unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
 
   /** Convert from an int to a string */
@@ -111,7 +111,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
   void RegisterHisto(MonGroup& mon, TProfile2D* histo);
-  void RegisterHisto(MonGroup& mon, TH3* histo);
   
   void InitializeHistograms();
 
@@ -131,7 +130,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   StatusCode getSiResiduals(const Trk::Track*, const Trk::TrackStateOnSurface*, bool, double*);
   const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::Track*, const Trk::TrackStateOnSurface*);
   void meanRMSProjections(TH2F*, TH1F*, int);
-  void meanRMSProjection2D(TH3F*, TH2F*, int, bool);
+  void meanRMSProjection2D(TH3F*, TH2F*, int);
   void fillRMSFromProfile(TProfile*, TProfile*);
   void fillGaussianMeanOrWidth(TH2F*, TH1F*, float, float, int);
   bool trackRequiresRefit(const Trk::Track*);
@@ -196,8 +195,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_LBGranularity;
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;
-  bool m_useGausFit;
-  float m_maxPtEC; // threshold for low-pt EC distributions
   
   //tools
   const AtlasDetectorID*                m_idHelper;
@@ -437,31 +434,15 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock_planars;
-
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_3d;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_planars_3d;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave0;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave1;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave2;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave3;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave4;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave5;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave6;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave7;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave8;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave9;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave10;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave11;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave12;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave13;
-
+  
+  
   //IBL fit magnitude and baseline as a function of LumiBlock
   
-  TH1F* m_mag_vs_LB;
-  TH1F* m_base_vs_LB;
+  TH1D* m_mag_vs_LB;
+  TH1D* m_base_vs_LB;
 
-  TH1F* m_mag_vs_LB_planars;
-  TH1F* m_base_vs_LB_planars;
+  TH1D* m_mag_vs_LB_planars;
+  TH1D* m_base_vs_LB_planars;
 
 
   
@@ -549,10 +530,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_pix_b_pullsy;
   std::vector<TH3F*> m_pix_b_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_pix_b_yresvsmodetaphi_3ds;
-  // -replaced by detailed std::vector<TH3F*> m_pix_b_biased_xresvsmodetaphi_3ds;
-  // std::vector<TH3F*> m_pix_b_biased_yresvsmodetaphi_3ds;
-  std::vector<TH3F*> m_pix_b_detailed_xresvsmodetaphi_3ds;
-  std::vector<TH3F*> m_pix_b_detailed_yresvsmodetaphi_3ds;
+  std::vector<TH3F*> m_pix_b_biased_xresvsmodetaphi_3ds;
+  std::vector<TH3F*> m_pix_b_biased_yresvsmodetaphi_3ds;
   std::vector<TH1F*> m_pix_b_top_residualsx;
   std::vector<TH1F*> m_pix_b_top_residualsy;
   std::vector<TH1F*> m_pix_b_btm_residualsx;
@@ -888,7 +867,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
   float m_z_fix;
   int m_minIBLhits;
-  bool m_doIBLLBPlots;
+  
 };
 
 #endif

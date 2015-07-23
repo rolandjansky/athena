@@ -54,13 +54,13 @@ StatusCode TrackSelectionAlg::initialize()
 
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endreq;
     return StatusCode::FAILURE;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
   }
 
-  msg(MSG::INFO) << "TrackSelectionAlg initialized" << endmsg;
+  msg(MSG::INFO) << "TrackSelectionAlg initialized" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -89,19 +89,19 @@ StatusCode TrackSelectionAlg::execute()
   //retrieving input track collection from Storegate
   StatusCode sc = evtStore()->retrieve(tracks,m_inputTrackCol);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endmsg;
+    msg(MSG::ERROR) << "No TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endreq;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_inputTrackCol<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
   }
 
   //getting primary vertex collection from Storegate
   const VxContainer* vertices;// = new VxContainer; // commented out by Priscilla bug CID30178
   StatusCode scv = evtStore()->retrieve(vertices,"VxPrimaryCandidate");
   if (scv.isFailure()) {
-    msg(MSG::ERROR) << "No Collection with name " << "VxPrimaryCandidate" <<" found in StoreGate" << endmsg;
+    msg(MSG::ERROR) << "No Collection with name " << "VxPrimaryCandidate" <<" found in StoreGate" << endreq;
   } 
-  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name " << "VxPrimaryCandidate" << " with size " << vertices->size() <<" found in StoreGate" << endmsg;
+  else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name " << "VxPrimaryCandidate" << " with size " << vertices->size() <<" found in StoreGate" << endreq;
   
   
   //choosing the primary vertex with the largest number of associated tracks
@@ -124,7 +124,7 @@ StatusCode TrackSelectionAlg::execute()
 
   //if there is no primary vertex set to zero
   if(vertices->size() < 1){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0.0"<<endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0.0"<<endreq;
     zVtx=0.0;
   }
   
@@ -182,7 +182,7 @@ bool TrackSelectionAlg::makeTrackCuts(Trk::Track* track, float zVtx)
   int nhblay = 0;
 
   if(summary==0){
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not create TrackSummary  - Track will likely fail hits requirements" << endmsg;}  
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not create TrackSummary  - Track will likely fail hits requirements" << endreq;}  
   else{
 
     nhpix = summary->get(Trk::numberOfPixelHits);
