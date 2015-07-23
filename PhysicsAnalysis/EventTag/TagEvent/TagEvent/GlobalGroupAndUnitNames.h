@@ -15,7 +15,7 @@
 
 namespace Grp {
     //static const int NGroupNames = 16;
-    enum { Nav=0, Time=1, Vertex=2, Quality=3, PhysicsElectron=4, PhysicsPhoton=5, PhysicsMuon=6, PhysicsTau=7,   PhysicsJetmet=8, TriggerL1=9, TriggerL2=10, TriggerEF=11, TriggerStream=12, QualityDetector=13, QualityPhysics=14,  RawSummary=15, Test=16, NGroupNames=17 };
+    enum { Nav=0, Time=1, Vertex=2, Quality=3, PhysicsElectron=4, PhysicsPhoton=5, PhysicsMuon=6, PhysicsTau=7,   PhysicsJetmet=8, TriggerL1=9, TriggerHLT=10, TriggerStream=11, QualityDetector=12, QualityPhysics=13,  RawSummary=14, Test=15, NGroupNames=16 };
     
 }    
     
@@ -30,8 +30,7 @@ static const std::string GroupNames[Grp::NGroupNames] = {  "NAV",
                                                            "PHYSICS_TAU",
                                                            "PHYSICS_JETMET",
                                                            "TRIGGER_L1",
-                                                           "TRIGGER_L2", 
-                                                           "TRIGGER_EF",
+                                                           "TRIGGER_HLT",
                                                            "TRIGGER_STREAM", 
                                                            "QUALITY_DETECTOR", 
                                                            "QUALITY_PHYSICS",
