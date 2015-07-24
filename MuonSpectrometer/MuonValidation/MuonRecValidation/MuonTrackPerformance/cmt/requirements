@@ -22,6 +22,21 @@ library MuonTrackPerformance *.cxx components/*.cxx
 
 private
 
+use EventPrimitives EventPrimitives-* Event
+use Identifier Identifier-* DetectorDescription
+use TrkMeasurementBase TrkMeasurementBase-* Tracking/TrkEvent
+use TrkPrepRawData TrkPrepRawData-* Tracking/TrkEvent
+
+use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
+
+use MuonSegmentTaggerToolInterfaces MuonSegmentTaggerToolInterfaces-* Reconstruction/MuonIdentification/MuonSegmentTaggers
+use MuonSegmentMakerToolInterfaces  MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
+
+use MuonLayerEvent  MuonLayerEvent-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonLayerHough MuonLayerHough-* MuonSpectrometer/MuonReconstruction/MuonRecUtils
+use MuonClusterization *        MuonSpectrometer/MuonReconstruction/MuonDataPrep
+use MuonRecValidationNtuples MuonRecValidationNtuples-* MuonSpectrometer/MuonValidation/MuonRecValidation
+
 use AtlasHepMC                  AtlasHepMC-*                    External
 use AtlasROOT                   AtlasROOT-*                     External
 use StoreGate                   StoreGate-*                     Control
