@@ -32,7 +32,7 @@ namespace Muon {
     m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
     m_clusterSegmentFinder("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
-    m_recoValidationTool("") // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
+    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
 
  {
     declareInterface<IMuonLayerSegmentFinderTool>(this);
@@ -66,7 +66,7 @@ namespace Muon {
     ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
-    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
+    ATH_CHECK(m_recoValidationTool.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -98,7 +98,7 @@ namespace Muon {
   }
 
   void MuonLayerSegmentFinderTool::findMdtSegmentsFromHough( const MuonSystemExtension::Intersection& intersection,
-                                                             const MuonLayerPrepRawData& /*layerPrepRawData*/,
+                                                             const MuonLayerPrepRawData& layerPrepRawData,
                                                              std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
     unsigned int nprevSegments = segments.size(); // keep track of what is already there
@@ -169,20 +169,17 @@ namespace Muon {
       const MuonHough::MuonLayerHough::Maximum& maximum = **mit;
       float residual = maximum.pos - y;
       float residualTheta = maximum.theta - theta;
+      float pull = residual/errx;
       float refPos = (maximum.hough != nullptr) ? maximum.hough->m_descriptor.referencePosition : 0;
-      float maxwidth = (maximum.binposmax-maximum.binposmin);
-      if( maximum.hough ) maxwidth *= maximum.hough->m_binsize;
-      float pull = residual/sqrt(errx*errx+maxwidth*maxwidth/12.);
+      ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos
+                    << "," << maximum.pos << ") residual " << residual << " pull " << pull
+                    << " angle " << maximum.theta << " residual " << residualTheta );
       
       // fill validation content
       if( !m_recoValidationTool.empty() ) m_recoValidationTool->add( intersection, maximum );
 
-      ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos
-                    << "," << maximum.pos << ") residual " << residual << " pull " << pull
-                    << " angle " << maximum.theta << " residual " << residualTheta );
-
       // select maximum
-      if( std::abs(pull) > 5 ) continue;
+      if( std::abs(residual) > 400 ) continue;
 
       // loop over hits in maximum and add them to the hit list
       std::vector<const MdtDriftCircleOnTrack*> mdts;
@@ -287,7 +284,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& /*intersection*/,
+  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& intersection,
                                                         const MuonLayerPrepRawData& layerPrepRawData,
                                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
