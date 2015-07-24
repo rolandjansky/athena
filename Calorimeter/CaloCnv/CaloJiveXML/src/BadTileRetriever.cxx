@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/BadTileRetriever.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -26,7 +26,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 namespace JiveXML {
 
@@ -38,7 +38,7 @@ namespace JiveXML {
    **/
   BadTileRetriever::BadTileRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("BadTILE"){
+    typeName("BadTILE"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -61,8 +61,11 @@ namespace JiveXML {
 
   StatusCode BadTileRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
+    if ( !service("ToolSvc", m_toolSvc) )
+      return StatusCode::FAILURE;
+    
     return StatusCode::SUCCESS;	
   }
   
@@ -71,23 +74,23 @@ namespace JiveXML {
    */
   StatusCode BadTileRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
     const CaloCellContainer* cellContainer;
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 
-	  "Could not retrieve Calorimeter Cells for Tile " << endmsg;
+	  "Could not retrieve Calorimeter Cells for Tile " << endreq;
 //        return StatusCode::SUCCESS;
       }
 
     if(m_tile){
       DataMap data = getBadTileData(cellContainer);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endreq;
 //        return StatusCode::SUCCESS;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endreq;
       }
     }
     //Tile cells retrieved okay
@@ -101,18 +104,18 @@ namespace JiveXML {
    */
   const DataMap BadTileRetriever::getBadTileData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadTileData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadTileData()" << endreq;
     char rndStr[30];
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
     DataVect idVec; idVec.reserve(cellContainer->size());
     DataVect energyVec; energyVec.reserve(cellContainer->size());
 
-//    m_sub; m_sub.reserve(cellContainer->size());
-    m_sub.clear();
-//     msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endmsg;
+//    sub; sub.reserve(cellContainer->size());
+    sub.clear();
+//     msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endreq;
 	  
 //Loop Over CaloCellContainer to retrieve TileCell information
 
@@ -124,7 +127,7 @@ namespace JiveXML {
       double energyGeV;
       //int cellInd;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
 
       for(;it1!=it2;it1++){
       
@@ -147,19 +150,19 @@ namespace JiveXML {
     } // doBadTile
     
     // write values into DataMap
-    DataMap["phi"] = phi;
-    DataMap["eta"] = eta;
-    DataMap["sub"] = m_sub;
-    DataMap["id"] = idVec;
-    DataMap["energy"] = energyVec;
+    m_DataMap["phi"] = phi;
+    m_DataMap["eta"] = eta;
+    m_DataMap["sub"] = sub;
+    m_DataMap["id"] = idVec;
+    m_DataMap["energy"] = energyVec;
     
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // getTileData
 
@@ -170,24 +173,24 @@ namespace JiveXML {
     if(m_calocell_id->is_tile_barrel(cellid))
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  m_sub.push_back(DataType(2));
+	  sub.push_back(DataType(2));
 	else
-	  m_sub.push_back(DataType(3));
+	  sub.push_back(DataType(3));
       }
     else if(m_calocell_id->is_tile_extbarrel(cellid))
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  m_sub.push_back(DataType(0));
+	  sub.push_back(DataType(0));
 	else
-	  m_sub.push_back(DataType(5));
+	  sub.push_back(DataType(5));
       }
     //else in ITC or scint
     else
       {
 	if(m_calocell_id->is_tile_negative(cellid))
-	  m_sub.push_back(DataType(1));
+	  sub.push_back(DataType(1));
 	else
-	  m_sub.push_back(DataType(4));
+	  sub.push_back(DataType(4));
       }
   }
 

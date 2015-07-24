@@ -9,7 +9,6 @@ use AthenaBaseComps       AthenaBaseComps-*          Control
 private
 
 use AtlasCLHEP            AtlasCLHEP-*               External
-use AthenaKernel          AthenaKernel-*             Control
 
 use Identifier            Identifier-*               DetectorDescription
 
@@ -27,7 +26,7 @@ use TileCalibBlobObjs     TileCalibBlobObjs-*        TileCalorimeter/TileCalib
 public
 
 use CaloIdentifier        CaloIdentifier-*           Calorimeter
-use LArCabling            LArCabling-*               LArCalorimeter
+use LArTools              LArTools-*                 LArCalorimeter
 use TileEvent             TileEvent-*                TileCalorimeter
 use TileConditions        TileConditions-*           TileCalorimeter
 use GaudiInterface        GaudiInterface-*           External

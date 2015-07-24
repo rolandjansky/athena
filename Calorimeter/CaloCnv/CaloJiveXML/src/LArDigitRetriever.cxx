@@ -19,7 +19,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/TileID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 using CLHEP::GeV;
 
@@ -33,9 +33,7 @@ namespace JiveXML {
    **/
   LArDigitRetriever::LArDigitRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("LArDigit"),
-    m_larCablingSvc("LArCablingService")
-  {
+    typeName("LArDigit"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -72,8 +70,11 @@ namespace JiveXML {
 
   StatusCode LArDigitRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
+    if ( !service("ToolSvc", m_toolSvc) )
+      return StatusCode::FAILURE;
+    
     return StatusCode::SUCCESS;        
   }
    
@@ -82,7 +83,7 @@ namespace JiveXML {
    */
   StatusCode LArDigitRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
     if (m_doLArDigit || m_doHECDigit || m_doFCalDigit){ 
       m_doDigit = true; 
@@ -92,37 +93,37 @@ namespace JiveXML {
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 
-          "Could not retrieve Calorimeter Cells" << endmsg;
+          "Could not retrieve Calorimeter Cells" << endreq;
 //        return StatusCode::SUCCESS;
       }
 
    if(m_fcal){
       DataMap data = getLArDigitData(cellContainer,"FCAL",CaloCell_ID::LARFCAL);
       if ( FormatTool->AddToEvent("FCAL", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading FCAL data" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading FCAL data" << endreq;
 //        return StatusCode::SUCCESS;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCAL retrieved" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCAL retrieved" << endreq;
       }
     }
 
     if(m_lar){
       DataMap data = getLArDigitData(cellContainer,"LAr",CaloCell_ID::LAREM);
       if ( FormatTool->AddToEvent("LAr", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading LAr data" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading LAr data" << endreq;
 //        return StatusCode::SUCCESS;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endreq;
       }
     }
 
     if(m_hec){
       DataMap data = getLArDigitData(cellContainer,"HEC",CaloCell_ID::LARHEC);
       if ( FormatTool->AddToEvent("HEC", m_sgKey, &data).isFailure()){
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading HEC data" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading HEC data" << endreq;
 //        return StatusCode::SUCCESS;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HEC retrieved" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HEC retrieved" << endreq;
       }
     }
     
@@ -141,10 +142,10 @@ namespace JiveXML {
   {
     
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArDigitData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArDigitData()" << endreq;
     
     char rndStr[30];
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -164,8 +165,8 @@ namespace JiveXML {
     DataVect cellPedestal; cellPedestal.reserve(cellContainer->size());
     DataVect adc2Mev; adc2Mev.reserve(cellContainer->size());
      
-//    m_sub; m_sub.reserve(cellContainer->size());
-    m_sub.clear(); // need to clear before each event, otherwise appended
+//    sub; sub.reserve(cellContainer->size());
+    sub.clear(); // need to clear before each event, otherwise appended
 
     DataVect LArSampleIndexVec; LArSampleIndexVec.reserve(cellContainer->size());
 
@@ -180,30 +181,31 @@ namespace JiveXML {
     }
 
     if (scLArDigit.isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDigits" << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDigits" << endreq;
     }
 
 //--- initialize the LArCablingService tool, which can be 
 //--- used to convert between online and hardware ID--
 
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
+    if (m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc).isFailure()){
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    }
 
     const ILArPedestal* larPedestal;
     if ( detStore()->retrieve(larPedestal).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr Pedestal" << endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr Pedestal" << endreq;
     }
     
     const LArOnlineID* onlineId;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(),Could not get LArOnlineID!" << endmsg;
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(),Could not get LArOnlineID!" << endreq;
     }
      
     IAlgTool* algtool;
     ILArADC2MeVTool* adc2mevTool=0;
 
-    if ( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
+    if ( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
     } else {
       adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
     }
@@ -252,7 +254,7 @@ namespace JiveXML {
         if ( adc2mevTool ){
           polynom_adc2mev = &(adc2mevTool->ADC2MEV(LArId,largain));
 	}else{
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not access LAr ADC2MeV Tool" <<endmsg;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not access LAr ADC2MeV Tool" <<endreq;
 	}
         
         if ( Index >= 0 ){ // can be -1
@@ -341,8 +343,8 @@ namespace JiveXML {
               dx.push_back(DataType(elt->dx()*0.1));
               dy.push_back(DataType(elt->dy()*0.1));
               
-              if (m_calocell_id->pos_neg(LArId)==2) m_sub.push_back(DataType(1));
-                else  m_sub.push_back(DataType(0));
+              if (m_calocell_id->pos_neg(LArId)==2) sub.push_back(DataType(1));
+                else  sub.push_back(DataType(0));
 
 
               cellTime = (*cellContainer)[Index]->time();
@@ -459,8 +461,8 @@ namespace JiveXML {
             dx.push_back(DataType( elt->dx()*0.1 ));
             dy.push_back(DataType( elt->dy()*0.1 ));
               
-            if (m_calocell_id->pos_neg(cellid)==2) m_sub.push_back(DataType(1));
-              else m_sub.push_back(DataType(0));
+            if (m_calocell_id->pos_neg(cellid)==2) sub.push_back(DataType(1));
+              else sub.push_back(DataType(0));
             if (m_doFCalDigit){
               LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
               for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(0));
@@ -476,36 +478,36 @@ namespace JiveXML {
     // write values into DataMap
 
     if(!(datatype=="FCAL")){
-      DataMap["phi"] = phi;
-      DataMap["eta"] = eta;
+      m_DataMap["phi"] = phi;
+      m_DataMap["eta"] = eta;
     } else {
-      DataMap["x"] = x;
-      DataMap["y"] = y;
-      DataMap["dx"] = dx;
-      DataMap["dy"] = dy;
+      m_DataMap["x"] = x;
+      m_DataMap["y"] = y;
+      m_DataMap["dx"] = dx;
+      m_DataMap["dy"] = dy;
     }
 
-    DataMap["energy"] = energy;
-    DataMap["id"] = idVec;
-    DataMap["channel"] = channel;
-    DataMap["feedThrough"] = feedThrough;
-    DataMap["slot"] = slotVec;
+    m_DataMap["energy"] = energy;
+    m_DataMap["id"] = idVec;
+    m_DataMap["channel"] = channel;
+    m_DataMap["feedThrough"] = feedThrough;
+    m_DataMap["slot"] = slotVec;
     
     // adc counts
-    DataMap["cellTime"] = cellTimeVec;
-    DataMap["cellGain"] = cellGain;
-    DataMap["cellPedestal"] = cellPedestal;
-    DataMap["adc2Mev"] = adc2Mev;
+    m_DataMap["cellTime"] = cellTimeVec;
+    m_DataMap["cellGain"] = cellGain;
+    m_DataMap["cellPedestal"] = cellPedestal;
+    m_DataMap["adc2Mev"] = adc2Mev;
 
-    DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
+    m_DataMap[LArSampleIndexStr] = LArSampleIndexVec; // adcCounts
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // getTileData
 
@@ -515,11 +517,11 @@ namespace JiveXML {
   void LArDigitRetriever::calcEMLayerSub(Identifier& cellid)
   {
     if(abs(m_calocell_id->pos_neg(cellid))==1)
-      m_sub.push_back(DataType(1));
+      sub.push_back(DataType(1));
     if(abs(m_calocell_id->pos_neg(cellid))==2)
-      m_sub.push_back(DataType(2));
+      sub.push_back(DataType(2));
     if(abs(m_calocell_id->pos_neg(cellid))==3)
-      m_sub.push_back(DataType(0));
+      sub.push_back(DataType(0));
     
   }
 
@@ -528,9 +530,9 @@ namespace JiveXML {
   void LArDigitRetriever::calcHECLayerSub(Identifier& cellid)
   {
     if(m_calocell_id->pos_neg(cellid)==2)
-      m_sub.push_back(DataType(1));
+      sub.push_back(DataType(1));
     else
-      m_sub.push_back(DataType(0));
+      sub.push_back(DataType(0));
   }
   
 

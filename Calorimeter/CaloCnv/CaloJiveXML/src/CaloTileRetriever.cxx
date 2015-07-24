@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/CaloTileRetriever.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -26,7 +26,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 namespace JiveXML {
 
@@ -38,7 +38,7 @@ namespace JiveXML {
    **/
   CaloTileRetriever::CaloTileRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("TileDigit") {
+    typeName("TileDigit") {
 
    //Only declare the interface
    declareInterface<IDataRetriever>(this);
@@ -63,7 +63,10 @@ namespace JiveXML {
 
   StatusCode CaloTileRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+
+    if ( !service("ToolSvc", m_toolSvc) )
+      return StatusCode::FAILURE;
 
     return StatusCode::SUCCESS;
   }
@@ -73,22 +76,22 @@ namespace JiveXML {
    */
   StatusCode CaloTileRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
     const CaloCellContainer* cellContainer;
     if (!evtStore()->retrieve(cellContainer,m_sgKey)) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  <<
-        "Could not retrieve Calorimeter Cells for Tile " << endmsg;
+        "Could not retrieve Calorimeter Cells for Tile " << endreq;
       return StatusCode::SUCCESS;
     }
 
     if (m_tile) {
       DataMap data = getCaloTileData(cellContainer);
       if ( FormatTool->AddToEvent("TILE", m_sgKey, &data).isFailure()) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endreq;
         return StatusCode::SUCCESS;
       } else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endreq;
       }
     }
     //Tile cells retrieved okay
@@ -102,9 +105,9 @@ namespace JiveXML {
    */
   const DataMap CaloTileRetriever::getCaloTileData(const CaloCellContainer* cellContainer) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getTileData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getTileData()" << endreq;
     char rndStr[30];
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -134,25 +137,25 @@ namespace JiveXML {
     DataVect pmt2Number; pmt2Number.reserve(cellContainer->size());
     DataVect pmt2ADCStatus; pmt2ADCStatus.reserve(cellContainer->size());
 
-//    m_sub; m_sub.reserve(cellContainer->size());
-    m_sub.clear();
-//    msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endmsg;
+//    sub; sub.reserve(cellContainer->size());
+    sub.clear();
+//    msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endreq;
 
     std::string adcCounts1Str = "adcCounts1 multiple=\"0\"";
     std::string adcCounts2Str = "adcCounts2 multiple=\"0\"";
 
     StatusCode scTileDigit = StatusCode::FAILURE;
     StatusCode scTileRawChannel = StatusCode::FAILURE;
-    const TileID* tileID;
-    const TileHWID* tileHWID;
-    const TileInfo* tileInfo;
-    const TileCablingService* cabling=0;
-    ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool"); //!< Tile Bad Channel tool
-    ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
+    const TileID* m_tileID;
+    const TileHWID* m_tileHWID;
+    const TileInfo* m_tileInfo;
+    const TileCablingService* m_cabling=0;
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool("TileBadChanTool"); //!< Tile Bad Channel tool
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
     const TileDigitsContainer *tileDigits;
     const TileRawChannelContainer* RawChannelCnt;
     TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
-    cabling = TileCablingService::getInstance();
+    m_cabling = TileCablingService::getInstance();
     double energyGeV;
     double amplitude = 0.;
     const int vsize = cellContainer->size();  //5184;
@@ -173,28 +176,28 @@ namespace JiveXML {
 
     //===== retrieving everything which is needed for Tile
 
-    StatusCode sc = detStore()->retrieve(tileID);
+    StatusCode sc = detStore()->retrieve(m_tileID);
     if ( sc.isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileID" <<endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileID" <<endreq;
 
-    sc = detStore()->retrieve(tileHWID);
+    sc = detStore()->retrieve(m_tileHWID);
     if ( sc.isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileHWID" <<endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileHWID" <<endreq;
 
     //=== get TileInfo
-    sc = detStore()->retrieve(tileInfo, "TileInfo");
+    sc = detStore()->retrieve(m_tileInfo, "TileInfo");
     if (sc.isFailure())
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileInfo"<< endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve TileInfo"<< endreq;
 
     //=== get TileBadChanTool
-    sc = tileBadChanTool.retrieve();
+    sc = m_tileBadChanTool.retrieve();
     if ( sc.isFailure() )
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << tileBadChanTool << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << m_tileBadChanTool << endreq;
 
     //=== get TileCondToolEmscale
-    sc = tileToolEmscale.retrieve();
+    sc = m_tileToolEmscale.retrieve();
     if (sc.isFailure())
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << tileToolEmscale << endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getCaloTileData(), Could not retrieve " << m_tileToolEmscale << endreq;
 
 
     if (m_doTileDigit) {
@@ -209,7 +212,7 @@ namespace JiveXML {
       }
 
       if (scTileDigit.isFailure())
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getTileData(), Could not retrieve TileDigits" << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getTileData(), Could not retrieve TileDigits" << endreq;
     }
 
 
@@ -232,7 +235,7 @@ namespace JiveXML {
       }
 
       if (scTileRawChannel.isFailure())
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "in getTileData(), Could not retrieve TileRawchannel" << endmsg;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "in getTileData(), Could not retrieve TileRawchannel" << endreq;
     }
 
 
@@ -258,21 +261,21 @@ namespace JiveXML {
           if (cellInd < 0) continue;
 
           HWIdentifier hwid=(*chItr)->adc_HWID();
-          int adc       = tileHWID->adc(hwid);
-          int channel   = tileHWID->channel(hwid);
-          int drawer    = tileHWID->drawer(hwid);
-          int ros       = tileHWID->ros(hwid);
-          int PMT = abs( cabling->channel2hole(ros,channel) );
+          int adc       = m_tileHWID->adc(hwid);
+          int channel   = m_tileHWID->channel(hwid);
+          int drawer    = m_tileHWID->drawer(hwid);
+          int ros       = m_tileHWID->ros(hwid);
+          int PMT = abs( m_cabling->channel2hole(ros,channel) );
           int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-          uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+          uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
 
           amplitude = (*chItr)->amplitude();
           //Change amplitude units to ADC counts
           if (TileRawChannelUnit::ADCcounts < RChUnit && RChUnit < TileRawChannelUnit::OnlineADCcounts) {
-            amplitude /= tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
+            amplitude /= m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0, TileRawChannelUnit::ADCcounts, RChUnit);
           } else if (RChUnit > TileRawChannelUnit::OnlineADCcounts) {
             // Should never get here due to offlineRch test above.
-            //amplitude = tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
+            //amplitude = m_tileToolEmscale->undoOnlCalib(drawerIdx, channel, adc, amplitude, RChUnit);
             std::abort();
           }
 
@@ -446,7 +449,7 @@ namespace JiveXML {
         }
         else {  //// don't have TileRawChannel container, but want raw amplitude (for DPD input)
 
-          float maxTime = (tileInfo->NdigitSamples()/2) * 25;
+          float maxTime = (m_tileInfo->NdigitSamples()/2) * 25;
 
           if (noch1 /* || pmt1digit[cellInd].empty() */ ) { //invalid gain - channel missing or digits not include in DPD
             pmt1RawAmplitude.push_back(DataType(0));
@@ -455,23 +458,23 @@ namespace JiveXML {
             pmt1Number.push_back(DataType(0));
             pmt1Pedestal.push_back(DataType(0));  //The is no pedestal in DPD.
           } else {
-            HWIdentifier hwid = cabling->s2h_adc_id(tileID->adc_id(cellid,0,gain1));
+            HWIdentifier hwid = m_cabling->s2h_adc_id(m_tileID->adc_id(cellid,0,gain1));
 
-            int adc       = tileHWID->adc(hwid);
-            int channel   = tileHWID->channel(hwid);
-            int drawer    = tileHWID->drawer(hwid);
-            int ros       = tileHWID->ros(hwid);
-            int PMT = abs( cabling->channel2hole(ros,channel) );
+            int adc       = m_tileHWID->adc(hwid);
+            int channel   = m_tileHWID->channel(hwid);
+            int drawer    = m_tileHWID->drawer(hwid);
+            int ros       = m_tileHWID->ros(hwid);
+            int PMT = abs( m_cabling->channel2hole(ros,channel) );
             int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-            float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
+            float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
                                                           TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
             float amp = theTileCell->ene1() / scale;
             float time = theTileCell->time1();
 
             int qbit = (theTileCell->qbit1() & TileCell::MASK_TIME);
-            if ((qual1 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
+            if ((qual1 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= m_tileInfo->TimeCalib(hwid,0.0);
 
-            uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+            uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
             if (badch1) tileAdcStatus += 10;
 
             pmt1RawAmplitude.push_back(DataType(amp));
@@ -488,23 +491,23 @@ namespace JiveXML {
             pmt2Number.push_back(DataType(0));
             pmt2Pedestal.push_back(DataType(0));  //The is no pedestal in DPD
           } else {
-            HWIdentifier hwid = cabling->s2h_adc_id(tileID->adc_id(cellid,1,gain2));
+            HWIdentifier hwid = m_cabling->s2h_adc_id(m_tileID->adc_id(cellid,1,gain2));
 
-            int adc       = tileHWID->adc(hwid);
-            int channel   = tileHWID->channel(hwid);
-            int drawer    = tileHWID->drawer(hwid);
-            int ros       = tileHWID->ros(hwid);
-            int PMT = abs( cabling->channel2hole(ros,channel) );
+            int adc       = m_tileHWID->adc(hwid);
+            int channel   = m_tileHWID->channel(hwid);
+            int drawer    = m_tileHWID->drawer(hwid);
+            int ros       = m_tileHWID->ros(hwid);
+            int PMT = abs( m_cabling->channel2hole(ros,channel) );
             int drawerIdx = TileCalibUtils::getDrawerIdx(ros,drawer);
-            float scale = tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
+            float scale = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, 1.0,
                                                             TileRawChannelUnit::ADCcounts, TileRawChannelUnit::MegaElectronVolts);
             float amp = theTileCell->ene2() / scale;
             float time = theTileCell->time2();
 
             int qbit = (theTileCell->qbit2() & TileCell::MASK_TIME);
-            if ((qual2 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= tileInfo->TimeCalib(hwid,0.0);
+            if ((qual2 != 0 || qbit != 0 || amp != 0.0) && (fabs(time) < maxTime && time != 0.0)) time -= m_tileInfo->TimeCalib(hwid,0.0);
 
-            uint32_t tileAdcStatus = tileBadChanTool->encodeStatus(tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
+            uint32_t tileAdcStatus = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc));
             if (badch2) tileAdcStatus += 10;
 
             pmt2RawAmplitude.push_back(DataType(amp));
@@ -517,58 +520,58 @@ namespace JiveXML {
       } //if (m_doTileCellDetails)
     } // end cell iterator
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in Tile in GeV : " <<  energyAllTile<< endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in Tile in GeV : " <<  energyAllTile<< endreq;
 
     if ( !pmt1digit.empty() ) pmt1digit.clear();
     if ( !pmt2digit.empty() ) pmt2digit.clear();
 
     // write values into DataMap
-    DataMap["phi"] = phi;
-    DataMap["eta"] = eta;
-    DataMap["sub"] = m_sub;
-    DataMap["id"] = idVec;
-    DataMap["energy"] = energyVec;
+    m_DataMap["phi"] = phi;
+    m_DataMap["eta"] = eta;
+    m_DataMap["sub"] = sub;
+    m_DataMap["id"] = idVec;
+    m_DataMap["energy"] = energyVec;
 
 
     //BadCells
     if (m_doBadTile==true) {
-      DataMap["BadCell"]= BadCell;
+      m_DataMap["BadCell"]= BadCell;
     }
 
     if (m_doTileCellDetails) {
-      DataMap["pmt1Energy"] = pmt1Energy;
-      DataMap["pmt1Time"] = pmt1Time;
-      DataMap["pmt1Chi2"] = pmt1Chi2;
-      DataMap["pmt1Gain"] = pmt1Gain;
+      m_DataMap["pmt1Energy"] = pmt1Energy;
+      m_DataMap["pmt1Time"] = pmt1Time;
+      m_DataMap["pmt1Chi2"] = pmt1Chi2;
+      m_DataMap["pmt1Gain"] = pmt1Gain;
 
-      DataMap["pmt2Energy"] = pmt2Energy;
-      DataMap["pmt2Time"] = pmt2Time;
-      DataMap["pmt2Chi2"] = pmt2Chi2;
-      DataMap["pmt2Gain"] = pmt2Gain;
+      m_DataMap["pmt2Energy"] = pmt2Energy;
+      m_DataMap["pmt2Time"] = pmt2Time;
+      m_DataMap["pmt2Chi2"] = pmt2Chi2;
+      m_DataMap["pmt2Gain"] = pmt2Gain;
 
-      DataMap["pmt1RawAmplitude"] = pmt1RawAmplitude;
-      DataMap["pmt1RawTime"] = pmt1RawTime;
-      DataMap["pmt1ADCStatus"] = pmt1ADCStatus;
-      DataMap["pmt1Number"] = pmt1Number;
-      DataMap["pmt1Pedestal"] = pmt1Pedestal;
+      m_DataMap["pmt1RawAmplitude"] = pmt1RawAmplitude;
+      m_DataMap["pmt1RawTime"] = pmt1RawTime;
+      m_DataMap["pmt1ADCStatus"] = pmt1ADCStatus;
+      m_DataMap["pmt1Number"] = pmt1Number;
+      m_DataMap["pmt1Pedestal"] = pmt1Pedestal;
 
-      DataMap["pmt2RawAmplitude"] = pmt2RawAmplitude;
-      DataMap["pmt2RawTime"] = pmt2RawTime;
-      DataMap["pmt2ADCStatus"] = pmt2ADCStatus;
-      DataMap["pmt2Number"] = pmt2Number;
-      DataMap["pmt2Pedestal"] = pmt2Pedestal;
+      m_DataMap["pmt2RawAmplitude"] = pmt2RawAmplitude;
+      m_DataMap["pmt2RawTime"] = pmt2RawTime;
+      m_DataMap["pmt2ADCStatus"] = pmt2ADCStatus;
+      m_DataMap["pmt2Number"] = pmt2Number;
+      m_DataMap["pmt2Pedestal"] = pmt2Pedestal;
     }
 
-    DataMap[adcCounts1Str] = adcCounts1Vec;
-    DataMap[adcCounts2Str] = adcCounts2Vec;
+    m_DataMap[adcCounts1Str] = adcCounts1Vec;
+    m_DataMap[adcCounts2Str] = adcCounts2Vec;
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // getTileData
 
@@ -579,24 +582,24 @@ namespace JiveXML {
     if (m_calocell_id->is_tile_barrel(cellid))
     {
       if (m_calocell_id->is_tile_negative(cellid))
-        m_sub.push_back(DataType(2));
+        sub.push_back(DataType(2));
       else
-        m_sub.push_back(DataType(3));
+        sub.push_back(DataType(3));
     }
     else if (m_calocell_id->is_tile_extbarrel(cellid))
     {
       if (m_calocell_id->is_tile_negative(cellid))
-        m_sub.push_back(DataType(0));
+        sub.push_back(DataType(0));
       else
-        m_sub.push_back(DataType(5));
+        sub.push_back(DataType(5));
     }
     //else in ITC or scint
     else
     {
       if (m_calocell_id->is_tile_negative(cellid))
-        m_sub.push_back(DataType(1));
+        sub.push_back(DataType(1));
       else
-        m_sub.push_back(DataType(4));
+        sub.push_back(DataType(4));
     }
   }
 

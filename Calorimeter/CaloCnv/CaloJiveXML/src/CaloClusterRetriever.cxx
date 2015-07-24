@@ -7,9 +7,9 @@
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 namespace JiveXML {
 
@@ -21,7 +21,7 @@ namespace JiveXML {
    **/
   CaloClusterRetriever::CaloClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("Cluster"){
+    typeName("Cluster"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -41,22 +41,22 @@ namespace JiveXML {
    */
   StatusCode CaloClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
     const DataHandle<CaloClusterContainer> iterator, end;
     const CaloClusterContainer* ccc;
 
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endreq;
 
     if ( evtStore()->retrieve(ccc, m_sgKeyFavourite).isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endmsg; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endreq; 
     }else{
       DataMap data = getData(ccc);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyFavourite+"_ESD", &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endmsg;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endreq;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") CaloCluster retrieved" << endmsg;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") CaloCluster retrieved" << endreq;
       }
     }
 
@@ -64,7 +64,7 @@ namespace JiveXML {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
-	 "Unable to retrieve iterator for CaloCluster collection" << endmsg;
+	 "Unable to retrieve iterator for CaloCluster collection" << endreq;
 //        return false;
       }
       
@@ -74,15 +74,15 @@ namespace JiveXML {
         if ( m_doWriteHLT ){ position = 99; } // override SG key find
 
 //      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " CaloCluster: HLTAutoKey in " << iterator.key() << " at position " 
-//	    << position << endmsg;
+//	    << position << endreq;
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
 	  if (iterator.key()!=m_sgKeyFavourite) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_ESD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") CaloCluster retrieved" << endmsg;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") CaloCluster retrieved" << endreq;
 	    }
           }
 	}
@@ -93,12 +93,12 @@ namespace JiveXML {
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
        if ( evtStore()->contains<CaloClusterContainer>(*keyIter) ){ // to avoid some SG dumps
 	if ( !evtStore()->retrieve( ccc, (*keyIter) ).isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
           DataMap data = getData(ccc);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter)+"_ESD", &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
 	  }
 	}
        }
@@ -117,9 +117,9 @@ namespace JiveXML {
    */
   const DataMap CaloClusterRetriever::getData(const CaloClusterContainer* ccc) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endreq;
 
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(ccc->size());
     DataVect eta; eta.reserve(ccc->size());
@@ -162,21 +162,21 @@ namespace JiveXML {
     }
 
     // Start with mandatory entries
-    DataMap["phi"] = phi;
-    DataMap["eta"] = eta;
-    DataMap["et"] = et;
-    DataMap[tagCells] = cells;
-    DataMap["numCells"] = numCellsVec;
-    DataMap["id"] = idVec;
+    m_DataMap["phi"] = phi;
+    m_DataMap["eta"] = eta;
+    m_DataMap["et"] = et;
+    m_DataMap[tagCells] = cells;
+    m_DataMap["numCells"] = numCellsVec;
+    m_DataMap["id"] = idVec;
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // retrieve
 

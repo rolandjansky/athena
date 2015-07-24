@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/CaloHECRetriever.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -18,9 +18,9 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 namespace JiveXML {
 
@@ -32,9 +32,7 @@ namespace JiveXML {
    **/
   CaloHECRetriever::CaloHECRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("HEC"),
-    m_larCablingSvc("LArCablingService")
-  {
+    typeName("HEC"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -63,8 +61,11 @@ namespace JiveXML {
 
   StatusCode CaloHECRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
+    if ( !service("ToolSvc", m_toolSvc) )
+      return StatusCode::FAILURE;
+    
     return StatusCode::SUCCESS;	
   }
    
@@ -73,12 +74,12 @@ namespace JiveXML {
    */
   StatusCode CaloHECRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
 	return false;
       }
 
@@ -87,7 +88,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
         return false;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HEC retrieved" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "HEC retrieved" << endreq;
       }
     }
     //HEC cells retrieved okay
@@ -101,9 +102,9 @@ namespace JiveXML {
    */
   const DataMap CaloHECRetriever::getHECData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getHECData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getHECData()" << endreq;
 
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -125,26 +126,28 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LARHEC);
 
     
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
+   StatusCode scTool=m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
+   if(scTool.isFailure()){
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+      }
 
     const ILArPedestal* larPedestal = nullptr;
     if(m_doHECCellDetails){
 	if( detStore()->retrieve(larPedestal).isFailure() ){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(), Could not retrieve LAr Pedestal" << endmsg;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(), Could not retrieve LAr Pedestal" << endreq;
 	}
       }
       
     const LArOnlineID* onlineId = nullptr;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(),Could not get LArOnlineID!" << endmsg;
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(),Could not get LArOnlineID!" << endreq;
      }
 
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doHECCellDetails){
-	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
+	if( m_toolSvc->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getHECData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
@@ -209,35 +212,35 @@ namespace JiveXML {
 	  }
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in HEC (LAr) in GeV : " <<  energyAllLArHEC << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in HEC (LAr) in GeV : " <<  energyAllLArHEC << endreq;
 
     // write values into DataMap
-    DataMap["phi"] = phi;
-    DataMap["eta"] = eta;
-    DataMap["energy"] = energy;
-    DataMap["id"] = idVec;
-    DataMap["channel"] = channel;
-    DataMap["feedThrough"] = feedThrough;
-    DataMap["slot"] = slot;
+    m_DataMap["phi"] = phi;
+    m_DataMap["eta"] = eta;
+    m_DataMap["energy"] = energy;
+    m_DataMap["id"] = idVec;
+    m_DataMap["channel"] = channel;
+    m_DataMap["feedThrough"] = feedThrough;
+    m_DataMap["slot"] = slot;
     //Bad Cells
     if (m_doBadHEC==true) {
-      DataMap["BadCell"] = BadCell;
+      m_DataMap["BadCell"] = BadCell;
     }
     // adc counts
     if ( m_doHECCellDetails){
-       DataMap["cellTime"] = cellTimeVec;
-       DataMap["cellGain"] = cellGain;
-       DataMap["cellPedestal"] = cellPedestal;
-       DataMap["adc2Mev"] = adc2Mev;
+       m_DataMap["cellTime"] = cellTimeVec;
+       m_DataMap["cellGain"] = cellGain;
+       m_DataMap["cellPedestal"] = cellPedestal;
+       m_DataMap["adc2Mev"] = adc2Mev;
     }
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // getHECData
 

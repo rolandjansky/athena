@@ -4,7 +4,7 @@
 
 #include "CaloJiveXML/BadLArRetriever.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "EventContainers/SelectAllObject.h"
 
@@ -18,9 +18,9 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "Identifier/HWIdentifier.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 namespace JiveXML {
 
@@ -32,9 +32,7 @@ namespace JiveXML {
    **/
   BadLArRetriever::BadLArRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("BadLAr"),
-    m_larCablingSvc("LArCablingService")
-  {
+    typeName("BadLAr"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -59,8 +57,11 @@ namespace JiveXML {
 
   StatusCode BadLArRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
 
+    if ( !service("ToolSvc", m_toolSvc) )
+      return StatusCode::FAILURE;
+    
     return StatusCode::SUCCESS;	
   }
   
@@ -69,12 +70,12 @@ namespace JiveXML {
    */
   StatusCode BadLArRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
 	return false;
       }
 
@@ -83,7 +84,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
         return false;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad cell retrieved" << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad cell retrieved" << endreq;
       }
     }
     //LAr cells retrieved okay
@@ -97,9 +98,9 @@ namespace JiveXML {
    */
   const DataMap BadLArRetriever::getBadLArData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadLArData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadLArData()" << endreq;
 
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect phi; phi.reserve(cellContainer->size());
     DataVect eta; eta.reserve(cellContainer->size());
@@ -114,20 +115,22 @@ namespace JiveXML {
     CaloCellContainer::const_iterator it1 = cellContainer->beginConstCalo(CaloCell_ID::LAREM);
     CaloCellContainer::const_iterator it2 = cellContainer->endConstCalo(CaloCell_ID::LAREM);
 
-
-    if(m_larCablingSvc.retrieve().isFailure())
-      ATH_MSG_ERROR ("Could not retrieve LArCablingService");
+    
+    StatusCode scTool=m_toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
+    if(scTool.isFailure()){
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    }
       
-    const LArOnlineID* onlineId;
-    if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getBadLArData(),Could not get LArOnlineID!" << endmsg;
+    const LArOnlineID* m_onlineId;
+    if ( detStore()->retrieve(m_onlineId, "LArOnlineID").isFailure()) {
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getBadLArData(),Could not get LArOnlineID!" << endreq;
     }
 
     if (m_doBadLAr==true) {
 
       double energyGeV;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
       
       for(;it1!=it2;it1++){
 
@@ -146,30 +149,30 @@ namespace JiveXML {
 	idVec.push_back(DataType((Identifier::value_type)(*it1)->ID().get_compact() ));
 	phi.push_back(DataType((*it1)->phi()));
 	eta.push_back(DataType((*it1)->eta()));
-	channel.push_back(DataType(onlineId->channel(LArhwid))); 
-	feedThrough.push_back(DataType(onlineId->feedthrough(LArhwid))); 
-	slot.push_back(DataType(onlineId->slot(LArhwid))); 
+	channel.push_back(DataType(m_onlineId->channel(LArhwid))); 
+	feedThrough.push_back(DataType(m_onlineId->feedthrough(LArhwid))); 
+	slot.push_back(DataType(m_onlineId->slot(LArhwid))); 
 
       } // end cell iterator
 
     } // doBadLAr
 
     // write values into DataMap
-    DataMap["phi"] = phi;
-    DataMap["eta"] = eta;
-    DataMap["energy"] = energy;
-    DataMap["id"] = idVec;
-    DataMap["channel"] = channel;
-    DataMap["feedThrough"] = feedThrough;
-    DataMap["slot"] = slot;
+    m_DataMap["phi"] = phi;
+    m_DataMap["eta"] = eta;
+    m_DataMap["energy"] = energy;
+    m_DataMap["id"] = idVec;
+    m_DataMap["channel"] = channel;
+    m_DataMap["feedThrough"] = feedThrough;
+    m_DataMap["slot"] = slot;
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // getBadLArData
 
