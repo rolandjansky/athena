@@ -30,17 +30,17 @@
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
+#include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
 
 class JetPileupCorrection;
 class ResidualOffsetCorrection;
 class EtaJESCorrection;
 class GlobalSequentialCorrection;
 class InsituDataCorrection;
+class JMSCorrection;
 
 class JetCalibrationTool
-  : virtual public asg::AsgTool,
-    virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase { 
+  : virtual public ::JetCalibrationToolBase {
 
   ASG_TOOL_CLASS2(JetCalibrationTool, IJetCalibrationTool, IJetModifier)
 
@@ -57,6 +57,7 @@ public:
                      TString config = "", 
                      TString calibSeq = "JetArea_Offset_AbsoluteEtaJES_Insitu",
                      bool isData = true,
+		     bool mass = false,
                      TString rhoKey = "auto",
                      TString dir = "JetCalibTools/CalibrationConfigs/");
 
@@ -100,7 +101,9 @@ private:
   std::string m_jetAlgo;
   std::string m_config;
   std::string m_calibSeq;
+  std::string m_calibAreaTag;
   bool m_isData;
+  bool m_mass;
   std::string m_rhoKey;
   std::string m_dir;
 
@@ -119,6 +122,7 @@ private:
   EtaJESCorrection * m_etaJESCorr;
   GlobalSequentialCorrection * m_globalSequentialCorr;
   InsituDataCorrection * m_insituDataCorr;
+  JMSCorrection * m_jetMassCorr;
 
 }; 
 

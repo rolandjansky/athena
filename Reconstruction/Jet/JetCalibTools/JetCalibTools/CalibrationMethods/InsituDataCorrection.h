@@ -31,7 +31,7 @@ class InsituDataCorrection
  public:
   InsituDataCorrection();
   InsituDataCorrection(const std::string& name);
-  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo);
+  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag);
   virtual ~InsituDataCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
@@ -40,17 +40,24 @@ class InsituDataCorrection
   virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
  private:
-  double getInsituCorr(double pt, double eta) const;
+  double getInsituCorr(double pt, double eta, std::string calibstep) const;
   TH2D * combineCalibration(TH2D *h2d, TH1D *h);
  
  private:
   TEnv * m_config;
-  TString m_jetAlgo;
+  TString m_jetAlgo, m_calibAreaTag;
 
   TH2D * m_insituCorr;
   double m_insituEtaMax, m_insituPtMin, m_insituPtMax;
 
-  std::vector<double> m_resOffsetMu, m_resOffsetNPV;
+  TH2D * m_insituCorr_ResidualMCbased;
+  double m_insituEtaMax_ResidualMCbased, m_insituPtMin_ResidualMCbased, m_insituPtMax_ResidualMCbased;
+
+  bool m_applyRelativeandAbsoluteInsitu;
+  bool m_applyEtaRestrictionRelativeandAbsolute;
+
+  bool m_applyResidualMCbasedInsitu;
+  bool m_applyEtaRestrictionResidualMCbased;
 
 };
 

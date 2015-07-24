@@ -7,7 +7,7 @@
 
 EtaJESCorrection::EtaJESCorrection()
   : asg::AsgTool( "EtaJESCorrection::EtaJESCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
@@ -15,15 +15,15 @@ EtaJESCorrection::EtaJESCorrection()
 
 EtaJESCorrection::EtaJESCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
 { }
 
-EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo)
+EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_mass(mass),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
@@ -41,7 +41,9 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   m_jetStartScale = m_config->GetValue("EtaJESStartingScale","JetPileupScaleMomentum");
 
   //TString calibFile = FindFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
-  TString calibFile = PathResolverFindCalibFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
+  TString absoluteJESCalibFile = m_config->GetValue("AbsoluteJES.CalibFile","");
+  absoluteJESCalibFile.Insert(14,m_calibAreaTag);
+  TString calibFile = PathResolverFindCalibFile(absoluteJESCalibFile.Data());
   m_config->ReadFile(calibFile, kEnvLocal);
   ATH_MSG_INFO("  \n\nReading absolute calibration factors from:\n    " << calibFile << "\n");
   m_jesDesc = m_config->GetValue("AbsoluteJES.Description","");
@@ -53,6 +55,14 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   m_lowPtExtrap = m_config->GetValue("LowPtJESExtrapolationMethod",0);
   //For order 2 extrapolation only, set the minimum value of the response for Et = 0
   m_lowPtMinR = m_config->GetValue("LowPtJESExtrapolationMinimumResponse",0.25);
+  //Allowing to use different minPt_JES depending on eta (only for extrapolation methon 1)
+  m_useSecondaryminPt_JES = m_config->GetValue(m_jetAlgo+".UseSecondaryMinPtForETAJES", false);
+  //Starting eta for secondary minPt_JES (Default |eta|>=1.9) (Used only if UseSecondaryMinPtForETAJES is true)
+  m_etaSecondaryminPt_JES = m_config->GetValue(m_jetAlgo+".EtaSecondaryMinPtForETAJES", 1.9);
+  //SecondaryminPt_JES (Default 7 GeV) (Used only if UseSecondaryMinPtForETAJES is true)
+  m_secondaryminPt_JES = m_config->GetValue(m_jetAlgo+".SecondaryMinPtForETAJES",7);
+  // Freeze JES correction at maximum values of energy for each eta bin
+  m_freezeJESatHighE = m_config->GetValue(m_jetAlgo+".FreezeJEScorrectionatHighE", false);
 
   // From mswiatlo, help from dag: variable eta binning
   std::vector<double> etaBins = JetCalibUtils::VectorizeD(m_config->GetValue("JES.EtaBins",""));
@@ -67,12 +77,20 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   }
   m_etaBinAxis = new TAxis(etaBins.size()-1,&etaBins[0]);
 
+  m_applyMassCorrection = m_config->GetValue("ApplyMassCorrection",false);
+
+  if(m_mass){ // Only for the calibration sequence: EtaMassJES
+    if(m_applyMassCorrection) ATH_MSG_INFO("  Jet mass correction will be applied.\n");
+    else { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!"); return StatusCode::FAILURE; }
+  }
+
   for (uint ieta=0;ieta<etaBins.size()-1;++ieta) {
 
     // Read in absolute JES calibration factors
     TString key=Form("JES.%s_Bin%d",m_jetAlgo.Data(),ieta);
     std::vector<double> params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
-    if (params.size()!=s_nPar) { ATH_MSG_FATAL( "Cannot read JES calib constants " << key ); return StatusCode::FAILURE; }
+    s_nPar = params.size();
+    if (s_nPar<s_nParMin || s_nPar>s_nParMax) { ATH_MSG_FATAL( "Cannot read JES calib constants " << key ); return StatusCode::FAILURE; }
     for (uint ipar=0;ipar<s_nPar;++ipar) m_JESFactors[ieta][ipar] = params[ipar];
 
       //Protections for high order extrapolation methods at low Et (Et < _minPt_JES)
@@ -80,7 +98,12 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
 	//Calculate the slope of the response curve at the minPt for each eta bin
 	//Used in the GetLowPtJES method when Pt < minPt
 	const double *factors = m_JESFactors[ieta];
-	const double Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
+	double Ecutoff;
+	if(!m_useSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
+	else {
+	  if(fabs(etaBins[ieta]) < m_etaSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
+	  else{ Ecutoff = m_secondaryminPt_JES*cosh(etaBins[ieta]);}
+	}
 	const double Rcutoff = getLogPolN(factors,Ecutoff);
 	const double Slope = getLogPolNSlope(factors,Ecutoff);
 	if(Slope > Rcutoff/Ecutoff) ATH_MSG_FATAL("Slope of calibration curve at minimum ET is too steep for the JES factors of etabin " << ieta << ", eta = " << etaBins[ieta] );
@@ -108,6 +131,21 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
     if (params.size()!=s_nPar) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
     for (uint ipar=0;ipar<s_nPar;++ipar) m_etaCorrFactors[ieta][ipar] = params[ipar];
 
+    if(m_freezeJESatHighE){ // Read starting energy values to freeze JES correction
+      key=Form("EmaxJES.%s_Bin%d",m_jetAlgo.Data(),ieta);
+      params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
+      if (params.size()!=1) { ATH_MSG_FATAL( "Cannot read starting energy for the freezing of JES correction " << key ); return StatusCode::FAILURE; }
+      for (uint ipar=0;ipar<1;++ipar) m_energyFreezeJES[ieta] = params[ipar];
+    }
+
+    if(m_applyMassCorrection) {
+        // Read in absolute JMS calibration factors
+        key=Form("MassCorr.%s_Bin%d",m_jetAlgo.Data(),ieta);
+        params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
+        if (params.size()!=s_nPar) {ATH_MSG_FATAL( "Cannot read JMS calib constants " << key ); return StatusCode::FAILURE;}
+        for (uint ipar=0;ipar<s_nPar;++ipar) m_JMSFactors[ieta][ipar] = params[ipar];
+    }
+
   }
 
   return StatusCode::SUCCESS;
@@ -125,8 +163,11 @@ StatusCode EtaJESCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const 
   xAOD::JetFourMom_t calibP4 = jetStartP4*getJES( jetStartP4.e(), detectorEta );
 
   const double etaCorr = calibP4.eta() + getEtaCorr( calibP4.e(), detectorEta );
+  double massCorr;
+  if(!m_applyMassCorrection) massCorr = calibP4.mass();
+  else{ massCorr = jetStartP4.mass()*getMassCorr(calibP4.e(), detectorEta); }
   TLorentzVector TLVjet;
-  TLVjet.SetPtEtaPhiM( calibP4.P()/cosh(etaCorr),etaCorr,calibP4.phi(),calibP4.mass() );
+  TLVjet.SetPtEtaPhiM( calibP4.P()/cosh(etaCorr),etaCorr,calibP4.phi(),massCorr );
   calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
   
   //Transfer calibrated jet properties to the Jet object
@@ -142,14 +183,28 @@ double EtaJESCorrection::getJES(double E_uncorr, double eta_det) const {
 
   double E = E_uncorr/m_GeV; // E in GeV
   //Check if the Pt goes below the minimum value, if so use the special GetLowPtJES method
-  if ( E/cosh(eta_det) < m_minPt_JES ) {
-    double R = getLowPtJES(E,eta_det);
-    return 1.0/R;
+  if(m_useSecondaryminPt_JES){
+    if(fabs(eta_det) < m_etaSecondaryminPt_JES && E/cosh(eta_det) < m_minPt_JES){
+      double R = getLowPtJES(E,eta_det);
+      return 1.0/R;
+    }
+    if(fabs(eta_det) >= m_etaSecondaryminPt_JES && E/cosh(eta_det) < m_secondaryminPt_JES){
+      double R = getLowPtJES(E,eta_det);
+      return 1.0/R;
+    }
+  }else{
+    if ( E/cosh(eta_det) < m_minPt_JES ) {
+      double R = getLowPtJES(E,eta_det);
+      return 1.0/R;
+    }
   }
 
   // Get the factors
   int ieta = getEtaBin(eta_det);
   const double *factors = m_JESFactors[ieta];
+
+  // Freeze correction
+  if(m_freezeJESatHighE && E>m_energyFreezeJES[ieta] && m_energyFreezeJES[ieta]!=-1) E = m_energyFreezeJES[ieta];
   
   // Calculate the jet response and then the JES as 1/R
   double R = getLogPolN(factors,E);
@@ -194,6 +249,18 @@ double EtaJESCorrection::getEtaCorr(double E_corr, double eta_det) const {
   // This is ( reco_eta - truth_eta )
   // to make it an additive correction return the negative value
   return -etaCorr;
+}
+
+double EtaJESCorrection::getMassCorr(double E_corr, double eta_det) const {
+
+  if (!m_applyMassCorrection) { ATH_MSG_FATAL( "You can't apply the mass correction unless you specify ApplyMassCorrection: true in the configuration file!" ); return StatusCode::FAILURE; }
+
+  int ieta = getEtaBin(eta_det);
+  const double *factors = m_JMSFactors[ieta];
+  double E = ( E_corr/cosh(eta_det)<5.0*m_GeV ? 5.0*cosh(eta_det) : E_corr/m_GeV ); // E in GeV
+
+  double massR = getLogPolN(factors,E);
+  return 1.0/massR;
 }
 
 double EtaJESCorrection::getLogPolN(const double *factors, double x) const {

@@ -28,28 +28,31 @@
 
 GlobalSequentialCorrection::GlobalSequentialCorrection()
   : asg::AsgTool( "GlobalSequentialCorrection::GlobalSequentialCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35),
-    m_etaGapMin(0), m_etaGapMax(0), m_punchThroughMinPt(50)
+    //m_etaGapMin(0), m_etaGapMax(0),
+    m_punchThroughMinPt(50)
    
 { }
 
 GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35),
-    m_etaGapMin(0), m_etaGapMax(0), m_punchThroughMinPt(50)
+    //m_etaGapMin(0), m_etaGapMax(0),
+    m_punchThroughMinPt(50)
    
 { }
 
-GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo)
+GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag),
     m_binSize(0.1), m_depth(0),
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35),
-    m_etaGapMin(0), m_etaGapMax(0), m_punchThroughMinPt(50)
+    //m_etaGapMin(0), m_etaGapMax(0),
+    m_punchThroughMinPt(50)
 { }
 
 GlobalSequentialCorrection::~GlobalSequentialCorrection() {
@@ -61,19 +64,26 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   ATH_MSG_INFO("  \nInitializing the Global Sequential Calibration tool\n\n");
 
   m_jetStartScale = m_config->GetValue("GSCStartingScale","JetEtaJESScaleMomentum");
+  m_turnOffTrackCorrections = m_config->GetValue("TurnOffTrackCorrections", false);
+  m_turnOffStartingpT = m_config->GetValue("TurnOffStartingpT", 1200);
+  m_turnOffEndpT = m_config->GetValue("TurnOffEndpT", 2000);
+  m_pTResponseRequirementOff = m_config->GetValue("PTResponseRequirementOff", false);
 
   if ( !m_config ) { ATH_MSG_FATAL("Config file not specified. Aborting."); return StatusCode::FAILURE; }
   if ( m_jetAlgo.EqualTo("") ) { ATH_MSG_FATAL("No jet algorithm specified. Aborting."); return StatusCode::FAILURE; }
 
   //find the ROOT file containing response histograms, path comes from the config file.
   TString GSCFile = m_config->GetValue("GSCFactorsFile","empty");
-  if ( GSCFile.EqualTo("empty") ) ATH_MSG_FATAL("NO GSCFactorsFile specified. Aborting.");
-  //TString fileName = FindFile(GSCFile);
+  if ( GSCFile.EqualTo("empty") ) { 
+    ATH_MSG_FATAL("NO GSCFactorsFile specified. Aborting.");
+    return StatusCode::FAILURE;
+  }
+  GSCFile.Insert(14,m_calibAreaTag);
   TString fileName = PathResolverFindCalibFile(GSCFile.Data());
   TFile *inputFile = TFile::Open(fileName);
   if (!inputFile) ATH_MSG_FATAL("Cannot open GSC factors file" << fileName);
 
-  TString depthString = m_config->GetValue("depthString","Full");
+  TString depthString = m_config->GetValue("GSCDepth","Full");
   if ( !depthString.Contains("Tile0") && !depthString.Contains("EM3") && !depthString.Contains("nTrk") && !depthString.Contains("trackWIDTH") && 
        !depthString.Contains("PunchThrough") && !depthString.Contains("Full") ) {
     ATH_MSG_FATAL("depthString flag not properly set, please check your config file.");
@@ -165,14 +175,36 @@ double GlobalSequentialCorrection::getTrackWIDTHResponse(double pT, uint etabin,
   if (trackWIDTH<=0) return 1;
   if ( etabin >= m_respFactorstrackWIDTH.size() ) return 1.;
   //jets with no tracks are assigned a trackWIDTH of -1, we use the trackWIDTH=0 correction in those cases
-  double trackWIDTHResponse = readPtJetPropertyHisto(pT, trackWIDTH, m_respFactorstrackWIDTH[etabin]);
+  double trackWIDTHResponse;
+  if(m_turnOffTrackCorrections){
+    if(pT>=m_turnOffStartingpT && pT<=m_turnOffEndpT){
+      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, trackWIDTH, m_respFactorstrackWIDTH[etabin]);
+      trackWIDTHResponse = (1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT);
+      trackWIDTHResponse *= pT;
+      trackWIDTHResponse += 1 - (m_turnOffEndpT*(1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT));
+      return trackWIDTHResponse;
+    }
+    else if(pT>m_turnOffEndpT) return 1;
+  }
+  trackWIDTHResponse = readPtJetPropertyHisto(pT, trackWIDTH, m_respFactorstrackWIDTH[etabin]);
   return trackWIDTHResponse;
 }
 
 double GlobalSequentialCorrection::getNTrkResponse(double pT, uint etabin, double nTrk) const {
   if (nTrk<=0) return 1; //nTrk < 0 is unphysical, nTrk = 0 is a special case, so return 1 for nTrk <= 0
   if ( etabin >= m_respFactorsnTrk.size() ) return 1.;
-  double nTrkResponse = readPtJetPropertyHisto(pT, nTrk, m_respFactorsnTrk[etabin]);
+  double nTrkResponse;
+  if(m_turnOffTrackCorrections){
+    if(pT>=m_turnOffStartingpT && pT<=m_turnOffEndpT){
+      double responseatStartingpT = readPtJetPropertyHisto(m_turnOffStartingpT, nTrk, m_respFactorsnTrk[etabin]);
+      nTrkResponse = (1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT);
+      nTrkResponse *= pT;
+      nTrkResponse += 1 - (m_turnOffEndpT*(1-responseatStartingpT)/(m_turnOffEndpT-m_turnOffStartingpT));
+      return nTrkResponse;
+    }
+    else if(pT>m_turnOffEndpT) return 1;
+  }
+  nTrkResponse = readPtJetPropertyHisto(pT, nTrk, m_respFactorsnTrk[etabin]);
   return nTrkResponse;
 }
 
@@ -205,7 +237,7 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
     return 1;
   }
   double PunchThroughResponse = readPtJetPropertyHisto(E,log(Nsegments),m_respFactorsPunchThrough[etabin]);
-  if ( PunchThroughResponse > 1 ) return 1;
+  if(!m_pTResponseRequirementOff && PunchThroughResponse>1) return 1;
   return PunchThroughResponse;
 }
 
@@ -215,15 +247,15 @@ double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, do
   int etabin = eta/m_binSize;
   double Corr=1;
   //Using bit sequence check to determine which GS corrections to apply.
-  if (m_depth & ApplyTile0)      Corr*=1./getTile0Response(jetP4.pt(), etabin, Tile0);
-  if (m_depth & ApplyEM3)        Corr*=1./getEM3Response(jetP4.pt()*Corr, etabin, EM3);
-  if (m_depth & ApplynTrk)       Corr*=1/getNTrkResponse(jetP4.pt()*Corr, etabin, nTrk);
-  if (m_depth & ApplytrackWIDTH) Corr*=1/getTrackWIDTHResponse(jetP4.pt()*Corr,etabin,trackWIDTH); 
+  if (m_depth & ApplyTile0)      Corr*=1./getTile0Response(jetP4.pt()/m_GeV, etabin, Tile0);
+  if (m_depth & ApplyEM3)        Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
+  if (m_depth & ApplynTrk)       Corr*=1/getNTrkResponse(jetP4.pt()/m_GeV*Corr, etabin, nTrk);
+  if (m_depth & ApplytrackWIDTH) Corr*=1/getTrackWIDTHResponse(jetP4.pt()/m_GeV*Corr,etabin,trackWIDTH); 
   if ( jetP4.pt() < m_punchThroughMinPt ) return Corr; //Applying punch through correction to low pT jets introduces a bias, default threshold is 50 GeV
   //eta binning for the punch through correction differs from the rest of the GSC, so the eta bin is determined in the GetPunchThroughResponse method
   else if (m_depth & ApplyPunchThrough) {
     jetP4*=Corr; //The punch through correction is binned in E instead of pT, so we determine E from the corrected jet here
-    Corr*=1/getPunchThroughResponse(jetP4.e(),eta,Nsegments);
+    Corr*=1/getPunchThroughResponse(jetP4.e()/m_GeV,eta,Nsegments);
   }
   return Corr;
 }
@@ -276,22 +308,33 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
 
   std::vector<float> samplingFrac = jet.getAttribute<std::vector<float> >("EnergyPerSampling");
   //vector<int> that holds the number of tracks with pT > 1 GeV for different primary vertices
-  std::vector<int> nTrk = jet.getAttribute<std::vector<int> >("NumTrkPt1000");
+  std::vector<int> nTrk;
+  //if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000_IDLoose",nTrk) ) {
+    //ATH_MSG_WARNING("Failed to retrieve NumTrkPt1000_IDLoose, using NumTrkPt1000 instead. This may be buggy.");
+    if( !jet.getAttribute<std::vector<int> >("NumTrkPt1000",nTrk) ) {
+      ATH_MSG_ERROR("Failed to retrieve NumTrkPt1000!");
+      return StatusCode::FAILURE;
+    }
+  //}
   //vector<float> that holds the trackWIDTH variable calculated with tracks of pT > 1 GeV for different primary vertices
-  std::vector<float> trackWIDTH = jet.getAttribute<std::vector<float> >("TrackWidthPt1000");
-  //vector<const MuonSegment* > that holds the ghost associated muon segments behind each jet
-  int Nsegments = 0;
-  std::vector<const xAOD::MuonSegment*> vecMuonSegments;
-  if ( jet.getAssociatedObjects("GhostMuonSegment", vecMuonSegments) )
-    Nsegments = vecMuonSegments.size();
-  else 
-    ATH_MSG_WARNING("Couldn't retrieve GhostMuonSegment jet associated object, punch through correction won't be applied");
+  std::vector<float> trackWIDTH;
+  //if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000_IDLoose",trackWIDTH) ) {
+    //ATH_MSG_WARNING("Failed to retrieve TrackWidthPt1000_IDLoose, using TrackWidthPt1000 instead. This may be buggy.");
+    if( !jet.getAttribute<std::vector<float> >("TrackWidthPt1000",trackWIDTH) ) {
+      ATH_MSG_ERROR("Failed to retrieve TrackWidthPt1000!");
+      return StatusCode::FAILURE;
+    }
+  //}
+  //Nsegments number of ghost associated muon segments behind each jet
+  int Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
+
+  xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
 
   xAOD::JetFourMom_t jetStartP4;
   ATH_CHECK( setStartP4(jet) );
   jetStartP4 = jet.jetP4();
 
-  float jetE = jetStartP4.e();
+  float jetE_constitscale = jetconstitP4.e();
   float detectorEta = jet.getAttribute<float>("DetectorEta");
   //Entry 0 of the nTrk and trackWIDTH vectors should correspond to PV0
   //other entries are for other primary vertices in the event
@@ -300,10 +343,10 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   //EM3 and Tile0 fraction calculations
   //EM3 = (EMB3+EME3)/energy, Tile0 = (TileBar0+TileExt0)/energy
   //Check the map above to make sure the correct entries of samplingFrac are being used
-  float EM3 = (samplingFrac[3]+samplingFrac[7])/jetE;
-  float Tile0 = (samplingFrac[12]+samplingFrac[18])/jetE;
+  float EM3 = (samplingFrac[3]+samplingFrac[7])/jetE_constitscale;
+  float Tile0 = (samplingFrac[12]+samplingFrac[18])/jetE_constitscale;
 
-  xAOD::JetFourMom_t calibP4 = jetStartP4*getGSCCorrection( jetStartP4, detectorEta, trackWIDTHPV0, nTrkPV0, Tile0, EM3, Nsegments );
+  xAOD::JetFourMom_t calibP4 = jetStartP4*getGSCCorrection( jetStartP4, fabs(detectorEta), trackWIDTHPV0, nTrkPV0, Tile0, EM3, Nsegments );
 
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetGSCScaleMomentum",calibP4);
