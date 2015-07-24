@@ -24,6 +24,10 @@
 #include <TEnv.h>
 #include <TLorentzVector.h>
 
+//JetInterface includes
+#include "JetInterface/IJetModifier.h"
+#include "JetInterface/ISingleJetModifier.h"
+
 //Package includes
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibUtils.h"
@@ -31,7 +35,9 @@
 class JetCalibrationToolBase
   : virtual public asg::AsgTool,
     virtual public CP::CorrectionTool< xAOD::JetContainer >,
-    virtual public ::IJetCalibrationTool
+    virtual public ::IJetCalibrationTool,
+    virtual public ::IJetModifier,
+    virtual public ::ISingleJetModifier
 { 
 
   ASG_TOOL_CLASS( JetCalibrationToolBase, IJetCalibrationTool )
@@ -91,6 +97,7 @@ private:
   std::string m_jetAlgo;
   std::string m_config;
   std::string m_calibSeq;
+  std::string m_calibAreaTag;
   bool m_isData;
   std::string m_dir;
 

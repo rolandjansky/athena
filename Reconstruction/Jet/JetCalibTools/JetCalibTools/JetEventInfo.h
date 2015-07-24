@@ -8,7 +8,7 @@
 class JetEventInfo {
 
  public:
-  JetEventInfo() : m_filled(false), m_rho(0), m_mu(0), m_npv(0) { }
+  JetEventInfo() : m_rho(0), m_mu(0), m_npv(0) { }
   virtual ~JetEventInfo() { }
 
   void setRho(double rho) { m_rho = rho; }
@@ -20,7 +20,7 @@ class JetEventInfo {
   double NPV() { return m_npv; }
 
  private:
-  bool m_filled;
+  //bool m_filled;
   double m_rho;
   double m_mu;
   double m_npv;

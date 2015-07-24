@@ -29,7 +29,7 @@ class ResidualOffsetCorrection
  public:
   ResidualOffsetCorrection();
   ResidualOffsetCorrection(const std::string& name);
-  ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, bool isData);
+  ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData);
   virtual ~ResidualOffsetCorrection();
 
   //virtual bool initializeTool(TEnv * config, TString jetAlgo, bool isData);
@@ -46,7 +46,7 @@ class ResidualOffsetCorrection
  
  private:
   TEnv * m_config;
-  TString m_jetAlgo;
+  TString m_jetAlgo, m_calibAreaTag;
   bool m_isData;
 
   NPVBeamspotCorrection * m_npvBeamspotCorr;

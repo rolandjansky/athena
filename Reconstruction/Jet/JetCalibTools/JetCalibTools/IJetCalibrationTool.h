@@ -15,6 +15,7 @@
 #define JETCALIBTOOL_IJETCALIBRATIONTOOL_H
 
 #include "PATInterfaces/CorrectionCode.h"
+#include "AsgTools/IAsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/ISingleJetModifier.h"
 
@@ -24,8 +25,7 @@
 //Package includes
 #include "JetCalibTools/JetEventInfo.h"
 
-class IJetCalibrationTool : public virtual ::IJetModifier,
-                            public virtual ::ISingleJetModifier {
+class IJetCalibrationTool : virtual public asg::IAsgTool {
 
   ASG_TOOL_INTERFACE( IJetCalibrationTool )
 

@@ -28,7 +28,7 @@ class EtaJESCorrection
  public:
   EtaJESCorrection();  
   EtaJESCorrection(const std::string& name);
-  EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo);
+  EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass);
   virtual ~EtaJESCorrection();
 
   //virtual bool initializeTool(TEnv * config, TString jetAlgo);
@@ -41,6 +41,7 @@ class EtaJESCorrection
   double getJES(double E_uncorr, double eta_det) const;
   double getLowPtJES(double E_uncorr, double eta_det) const;
   double getEtaCorr(double E_corr, double eta_det) const;
+  double getMassCorr(double E_corr, double eta_det) const;
   double getLogPolN(const double *factors, double x) const;
   double getLogPolNSlope(const double *factors, double x) const;
   int getEtaBin(double eta_det) const;
@@ -48,25 +49,36 @@ class EtaJESCorrection
  private:
   TEnv * m_config;
   TString m_jetAlgo;
+  TString m_calibAreaTag;
+  bool m_mass;
+  bool m_freezeJESatHighE;
 
   TString m_jesDesc;
   double m_minPt_JES, m_minPt_EtaCorr, m_maxE_EtaCorr;
   unsigned int m_lowPtExtrap;
   double m_lowPtMinR;
+  bool m_applyMassCorrection;
+  bool m_useSecondaryminPt_JES;
+  double m_etaSecondaryminPt_JES;
+  double m_secondaryminPt_JES;
 
   TAxis * m_etaBinAxis;
 
-  // 90 eta bins, and up to 7 parameter for the pol-fit
+  // 90 eta bins, and up to 9 parameter for the pol-fit
   const static unsigned int s_nEtaBins=90;
-  const static unsigned int s_nPar=7;
-  double m_JESFactors[s_nEtaBins][s_nPar];
+  const static unsigned int s_nParMin=7;
+  const static unsigned int s_nParMax=9;
+  unsigned int s_nPar; // number of parameters in config file
+  double m_JESFactors[s_nEtaBins][s_nParMax];
   double m_JES_MinPt_Slopes[s_nEtaBins];
   double m_JES_MinPt_E[s_nEtaBins];
   double m_JES_MinPt_R[s_nEtaBins];
-  double m_JES_MinPt_Rmin[s_nEtaBins];
+  //double m_JES_MinPt_Rmin[s_nEtaBins];
   double m_JES_MinPt_Param1[s_nEtaBins];
   double m_JES_MinPt_Param2[s_nEtaBins];
-  double m_etaCorrFactors[s_nEtaBins][s_nPar];
+  double m_etaCorrFactors[s_nEtaBins][s_nParMax];
+  double m_JMSFactors[s_nEtaBins][s_nParMax];
+  double m_energyFreezeJES[s_nEtaBins];
 
 };
 

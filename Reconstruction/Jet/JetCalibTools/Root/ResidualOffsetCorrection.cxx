@@ -7,19 +7,19 @@
 
 ResidualOffsetCorrection::ResidualOffsetCorrection()
   : asg::AsgTool( "ResidualOffsetCorrection::ResidualOffsetCorrection" ),
-    m_config(NULL), m_jetAlgo(""), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
 ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name)
   : asg::AsgTool( name ),
-    m_config(NULL), m_jetAlgo(""), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
-ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, bool isData)
+ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData)
   : asg::AsgTool( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_isData(isData),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_isData(isData),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
@@ -45,8 +45,9 @@ StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
   if (m_NPV_ref==-99) { ATH_MSG_FATAL("OffsetCorrection.DefaultNPVRef not specified."); return StatusCode::FAILURE; }
 
   //Add the residual offset correction factors to the config TEnv
-  //TString calibFile = FindFile(m_config->GetValue("ResidualOffset.CalibFile",""));
-  TString calibFile = PathResolverFindCalibFile(m_config->GetValue("ResidualOffset.CalibFile",""));
+  TString ResidualOffsetCalibFile = m_config->GetValue("ResidualOffset.CalibFile","");
+  ResidualOffsetCalibFile.Insert(14,m_calibAreaTag);
+  TString calibFile = PathResolverFindCalibFile(ResidualOffsetCalibFile.Data());
   m_config->ReadFile(calibFile, kEnvLocal);
   //Retrieve information specific to the residual offset correction from the TEnv
   TString offsetName = m_config->GetValue("ResidualOffsetCorrection.Name","");

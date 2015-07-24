@@ -6,19 +6,19 @@
 
 JetPileupCorrection::JetPileupCorrection()
   : asg::AsgTool( "JetPileupCorrection::JetPileupCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
-JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool doOrigin, bool isData)
+JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
@@ -44,8 +44,9 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   ATH_MSG_INFO(" \n");
 
   if ( m_doResidual ) { 
-    m_residualOffsetCorr = new ResidualOffsetCorrection(name,m_config,m_jetAlgo,m_isData);
-    ATH_CHECK( m_residualOffsetCorr->initializeTool(name) );
+    std::string suffix = "_Residual";
+    m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData);
+    ATH_CHECK( m_residualOffsetCorr->initializeTool(name+suffix) );
   }
 
   if ( m_doResidual && m_useFull4vectorArea ) { 

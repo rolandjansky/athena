@@ -33,7 +33,7 @@ class GlobalSequentialCorrection
 
   GlobalSequentialCorrection();
   GlobalSequentialCorrection(const std::string& name);
-  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo); //Apply the full GS calibration by default
+  GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag); //Apply the full GS calibration by default
   virtual ~GlobalSequentialCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
@@ -103,15 +103,18 @@ class GlobalSequentialCorrection
 
   //Private members set in the constructor
   TEnv * m_config;
-  TString m_jetAlgo, m_depthString;
+  TString m_jetAlgo, m_depthString, m_calibAreaTag;
 
   //Private members set during initialization
   VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough;
   double m_binSize;
   uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin;
-  double m_etaGapMin, m_etaGapMax;
+  //double m_etaGapMin, m_etaGapMax;
   VecD m_punchThroughEtaBins;
   double m_punchThroughMinPt;
+  bool m_turnOffTrackCorrections;
+  bool m_pTResponseRequirementOff;
+  double m_turnOffStartingpT, m_turnOffEndpT;
 
 };
 
