@@ -27,7 +27,7 @@ class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaEvent/egammaPIDdefsObs.h"
+#include "egammaEvent/egammaPIDdefs.h"
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -48,8 +48,6 @@ class StoreGateSvc;
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-
 #include <map>
 #include <vector>
 
@@ -66,7 +64,7 @@ namespace Trig{
 }
 
 namespace Trk{
-  class VxTrackAtVertex;
+  //  class VxTrackAtVertex;
   class Track;
 }
 
@@ -122,7 +120,6 @@ class IDPerfMonEoverP : public AthAlgorithm
 
   bool fillLastMeasurement(const Trk::Track* track,const int fitter)const;
 
-  double correctIP_PV(int electron_i, bool do_d0);
 
  private:
 
@@ -235,8 +232,7 @@ class IDPerfMonEoverP : public AthAlgorithm
 
 
   //Vertex Resolution Information
-  mutable int   m_associatedToVtx[NOS_ELECTRONS];
-  mutable VxPos m_vxpos[NOS_ELECTRONS];
+  mutable int    m_associatedToVtx[NOS_ELECTRONS];
 
   //Vertex information
   mutable int   m_nbpv;
@@ -311,19 +307,14 @@ class IDPerfMonEoverP : public AthAlgorithm
   double m_smallClusterEta;
   double m_smallTrackTheta;
   double m_smallCharge;
-  double m_smalld0;
-  double m_smallz0;
 
   std::vector<int> FillSimpleTree();
   bool passWenuSelection(std::vector<int>& electrons);
   bool passZeeSelection(std::vector<int>& electrons);
   double getMassCluster(int el1, int el2);
 
-  //Likelihood tool:
-  std::string m_lhTune;
-  AsgElectronLikelihoodTool* m_LHToolLoose2015; //!
-  AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
-  AsgElectronLikelihoodTool* m_LHToolTight2015; //!
+
+
 };
 
 #endif

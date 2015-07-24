@@ -318,7 +318,7 @@ from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
 ElectronRefitterTool = egammaTrkRefitterTool(name = 'ElectronRefitterTool',
 #                                            FitterTool = GSFTrackFitter,
                                             FitterTool = GX2TrackFitter,
-                                            matEffects = 3,
+                                            matEffects = 1,
                                             minNoSiHits = -1,
                                             useBeamSpot = False,
                                             OutputLevel =4)
@@ -329,7 +329,6 @@ ElectronRefitterTool2 = egammaTrkRefitterTool(name = 'ElectronRefitterTool2',
                                             FitterTool = GX2TrackFitter,
                                             matEffects = 3,
                                             minNoSiHits = -1,
-                                            RemoveTRTHits = True,
                                             useBeamSpot = False,
                                             OutputLevel =4)
 ToolSvc += ElectronRefitterTool2
@@ -339,7 +338,7 @@ MuonRefitterTool = egammaTrkRefitterTool(name = 'MuonRefitterTool',
                                             matEffects = 2,
                                             minNoSiHits = -1,
          				    useBeamSpot = False,
-                                            OutputLevel =4)
+                                            OutputLevel =1)
 ToolSvc += MuonRefitterTool
 
 
@@ -349,7 +348,7 @@ MuonRefitterTool2 = egammaTrkRefitterTool(name = 'MuonRefitterTool2',
                                             minNoSiHits = -1,
 					    RemoveTRTHits = True,
 					    useBeamSpot = False,
-                                            OutputLevel =4)
+                                            OutputLevel =1)
 ToolSvc += MuonRefitterTool2
 
 

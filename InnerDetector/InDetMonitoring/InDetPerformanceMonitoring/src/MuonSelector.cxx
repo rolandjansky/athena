@@ -54,8 +54,6 @@ MuonSelector::MuonSelector()
   m_pxMuon = NULL;
   m_bLock  = false;
 
-
-
   m_coneSize        = 0.4;
   m_ucJMuon_Cut     = 0; //not used
   m_IsoCut          = 0.2;
@@ -147,7 +145,7 @@ void MuonSelector::Init()
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
 
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "Unable to retrieve ToolSvc " << endmsg;
+    (*m_msgStream) << MSG::ERROR << "Unable to retrieve ToolSvc " << endreq;
     return;
   }
   PARENT::Init();
@@ -237,7 +235,7 @@ bool MuonSelector::passPtCuts()
     }
   }
 
-  (*m_msgStream) << MSG::DEBUG << " this muon did not pass the PtCuts:" << endmsg;
+  (*m_msgStream) << MSG::DEBUG << " this muon did not pass the PtCuts:" << endreq;
   return false;
 }
 
@@ -275,10 +273,8 @@ bool MuonSelector::passIPCuts()
     const xAOD::TrackParticle* IDTrk = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     extd0 = IDTrk->d0();
     extz0 = IDTrk->z0()+IDTrk->vz();
-    if(m_doDebug){
-      std::cout << " the IDTrack muon d0:  " << extd0 << std::endl;
-      std::cout << " the IDTrack muon z0:  " << extz0 << std::endl;
-    }
+    std::cout << " the IDTrack muon (InDetTrackParticle) d0:  " << extd0 << std::endl;
+    std::cout << " the IDTrack muon (InDetTrackParticle) z0:  " << extz0 << std::endl;
     //if( IDTrk->track() ) {
     //      const Trk::Track* IDTrkTrack = IDTrk->track();
     //      if(IDTrkTrack) {
