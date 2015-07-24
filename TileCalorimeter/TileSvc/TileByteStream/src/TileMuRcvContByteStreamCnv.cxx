@@ -54,19 +54,19 @@ StatusCode TileMuRcvContByteStreamCnv::initialize()
 
   MsgStream log(msgSvc(), "TileMuRcvContByteStreamCnv");
 
-  log << MSG::DEBUG << " initialize() " << endmsg; 
+  log << MSG::DEBUG << " initialize() " << endreq; 
 
   // Get ByteStreamInputSvc
   // 
   IService* svc;
   if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endmsg;
+    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endreq;
     m_rdpSvc=0;
   }
   else {
     m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
     if(m_rdpSvc == 0 ) {
-      log<<MSG::ERROR<< " Can't cast to  ByteStreamInputSvc " <<endmsg; 
+      log<<MSG::ERROR<< " Can't cast to  ByteStreamInputSvc " <<endreq; 
       return StatusCode::FAILURE;
     }
   }
@@ -74,13 +74,13 @@ StatusCode TileMuRcvContByteStreamCnv::initialize()
   // Get ByteStreamCnvSvc  [svc]
   //
   if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
+    log << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
     return StatusCode::FAILURE;
   }
   m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamEventAccess==NULL)
     {
-      log << MSG::ERROR << "  TileMuRcvContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " << endmsg; 
+      log << MSG::ERROR << "  TileMuRcvContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " << endreq; 
       return StatusCode::FAILURE ;
     }
 
@@ -89,17 +89,17 @@ StatusCode TileMuRcvContByteStreamCnv::initialize()
   IToolSvc* toolSvc;
 
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    log << MSG::ERROR << " Can't get ToolSvc " << endmsg;
+    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
     return StatusCode::FAILURE;
   }
 
   if(StatusCode::SUCCESS != toolSvc->retrieveTool("TileMuRcvContByteStreamTool",m_tool)) {
-    log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
+    log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
     return StatusCode::FAILURE;
   }
 
   if(StatusCode::SUCCESS != toolSvc->retrieveTool("TileROD_Decoder",m_decoder)) {
-    log << MSG::ERROR << "Can't get TileROD_Decoder" << endmsg;
+    log << MSG::ERROR << "Can't get TileROD_Decoder" << endreq;
     return StatusCode::FAILURE; 
   }
 
@@ -119,13 +119,13 @@ StatusCode TileMuRcvContByteStreamCnv::initialize()
   //
   ServiceHandle<IIncidentSvc> incSvc( "IncidentSvc", "TileMuRcvContByteStreamCnv");
   if ( !incSvc.retrieve().isSuccess() ) {
-    log << MSG::WARNING << "Unable to retrieve the IncidentSvc" << endmsg;
+    log << MSG::WARNING << "Unable to retrieve the IncidentSvc" << endreq;
   }
   else {
     incSvc->addListener(this,"StoreCleared");
   }
 
-  log << MSG::DEBUG << " End of initialize() " << endmsg;
+  log << MSG::DEBUG << " End of initialize() " << endreq;
 
   return service("StoreGateSvc",m_storeGate) ;
 }
@@ -136,29 +136,29 @@ StatusCode TileMuRcvContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObje
 
   MsgStream log(msgSvc(), "TileMuRcvContByteStreamCnv");
 
-  log << MSG::DEBUG << " Executing createObj method" << endmsg;
+  log << MSG::DEBUG << " Executing createObj method" << endreq;
 
   if (!m_rdpSvc) {
-    log << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endmsg;
+    log << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endreq;
     return StatusCode::FAILURE;
   }
 
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
   if(!pRE_Addr) {
-    log << MSG::ERROR << " Can't cast to ByteStreamAddress " << endmsg ;
+    log << MSG::ERROR << " Can't cast to ByteStreamAddress " << endreq ;
     return StatusCode::FAILURE;
   }
 
   const RawEvent* re = m_rdpSvc->getEvent();
   if (!re) {
-    log << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endmsg;
+    log << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
   StatusCode sc=m_decoder->convertTMDBDecision(re,m_container);
   if (sc!=StatusCode::SUCCESS) {
-    log << MSG::WARNING << "Conversion tool returned an error. TileMuonReceiverContainer might be empty." << endmsg;
+    log << MSG::WARNING << "Conversion tool returned an error. TileMuonReceiverContainer might be empty." << endreq;
   }
 
   // new container will not own elements, i.e. TileMuonReceiverContainer will not be deleted
@@ -173,7 +173,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
   // convert TileMuonsReceiverObj's in the container into ByteStream
   //
   MsgStream log(msgSvc(), "TileMuRcvContByteStreamCnv");
-  log << MSG::DEBUG << " Executing createRep method " << endmsg;
+  log << MSG::DEBUG << " Executing createRep method " << endreq;
 
   StatusCode sc;
 
@@ -184,7 +184,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
   sc=m_ByteStreamEventAccess->getFullEventAssembler(fea,key);
 
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't get full event assember with key \"Tile\" from ByteStreamEventAccess." << endmsg;
+    log << MSG::ERROR << "Can't get full event assember with key \"Tile\" from ByteStreamEventAccess." << endreq;
     return sc;
   }
 
@@ -194,7 +194,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
   StoreGateSvc::fromStorable(pObj, muRcvCont );
 
   if(!muRcvCont){
-    log << MSG::ERROR << " Can't cast to TileMuonReceiverContainer " << endmsg;
+    log << MSG::ERROR << " Can't cast to TileMuonReceiverContainer " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -215,7 +215,7 @@ StatusCode TileMuRcvContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddres
 StatusCode TileMuRcvContByteStreamCnv::finalize()
 {
   MsgStream log(msgSvc(), "TileMuRcvContByteStreamCnv");
-  log << MSG::DEBUG << " Clearing TileMuonReceiverContainer " << endmsg; 
+  log << MSG::DEBUG << " Clearing TileMuonReceiverContainer " << endreq; 
 
   m_container->clear();
 
