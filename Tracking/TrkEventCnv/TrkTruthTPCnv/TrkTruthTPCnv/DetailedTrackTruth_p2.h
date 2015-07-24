@@ -17,8 +17,7 @@
 
 namespace Trk {
 
-  class DetailedTrackTruth_p2 {
-  public:
+  struct DetailedTrackTruth_p2 {
     SubDetHitStatistics_p0 m_hitsCommon;
     SubDetHitStatistics_p0 m_hitsTrack;
     SubDetHitStatistics_p0 m_hitsTruth; //! This is a new member in p2

@@ -19,7 +19,7 @@
 #include <vector>
 #include <utility>
 
-class TrackTruthVector : 
+struct TrackTruthVector : 
   public std::vector<std::pair< ElementLink< DataVector<Trk::Track> >, TrackTruth> > 
 {};
 

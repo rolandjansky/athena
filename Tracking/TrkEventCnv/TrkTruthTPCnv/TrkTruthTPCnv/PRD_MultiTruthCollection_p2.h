@@ -15,8 +15,7 @@
 #include <vector>
 
 namespace Trk {
-  class PRD_MultiTruthCollection_p2 {
-  public:
+  struct PRD_MultiTruthCollection_p2 {
     // the lore is that Root does not split std::pair, so make our own class
     struct Entry {
       unsigned long long id; // the Identifier

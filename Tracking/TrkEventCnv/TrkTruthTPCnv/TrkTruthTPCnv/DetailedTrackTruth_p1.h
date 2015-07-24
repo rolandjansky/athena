@@ -16,8 +16,7 @@
 #include "CLIDSvc/CLASS_DEF.h"
 
 namespace Trk {
-  class DetailedTrackTruth_p1 {
-  public:
+  struct DetailedTrackTruth_p1 {
     SubDetHitStatistics_p0 m_hitsCommon;
     SubDetHitStatistics_p0 m_hitsTrack;
     TruthTrajectory_p1 m_trajectory;
