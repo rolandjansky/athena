@@ -750,8 +750,8 @@ namespace Muon {
 	 << " z " << std::fixed << std::setprecision(0) << std::setw(6) << pars.position().z()
 	 << " theta " << std::fixed << std::setprecision(5) << std::setw(7) << pars.momentum().theta()
 	 << " phi " << std::fixed << std::setprecision(3) << std::setw(6) << pars.momentum().phi()
-	 << " q*p(GeV) "   << std::scientific << std::setprecision(3) << std::setw(10) << pars.momentum().mag()*pars.charge()/1000.
-	 << " pt(Gev) "    << std::scientific << std::setprecision(3) << std::setw(9) << pars.momentum().perp()/1000.;
+	 << " q*p(GeV) "   << std::scientific << std::setprecision(3) << std::setw(10) << pars.momentum().mag()*pars.charge()*1e-3
+         << " pt(Gev) "    << std::scientific << std::setprecision(3) << std::setw(9) << pars.momentum().perp()*1e-3;
 
     return sout.str();
   }
