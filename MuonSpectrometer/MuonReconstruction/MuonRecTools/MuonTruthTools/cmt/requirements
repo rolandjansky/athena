@@ -5,6 +5,7 @@ manager Niels van Eldik
 private
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AtlasROOT                  AtlasROOT-*                     External
 use  GaudiInterface             GaudiInterface-*                External
 use  AtlasHepMC                 AtlasHepMC-*                    External
 #use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
