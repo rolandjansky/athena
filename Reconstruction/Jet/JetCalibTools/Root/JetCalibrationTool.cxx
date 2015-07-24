@@ -96,7 +96,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   TString jetAlgo = m_jetAlgo;
   TString config = m_config;
   TString calibSeq = m_calibSeq;
-  std::string dir = m_dir;
+  TString dir = m_dir;
 
   ATH_MSG_INFO("===================================\n\n");
   ATH_MSG_INFO("  Initializing the xAOD Jet Calibration Tool\n");
@@ -110,8 +110,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; }
   m_calibAreaTag.insert(0,"CalibArea-00-04-50/"); // Hard-coding the CalibArea tag
-  dir.insert(14,m_calibAreaTag); // Obtaining the path of the configuration file
-  std::string configPath=dir+m_config; // Full path
+  m_dir.insert(14,m_calibAreaTag); // Obtaining the path of the configuration file
+  std::string configPath=m_dir+m_config; // Full path
   TString fn =  PathResolverFindCalibFile(configPath);
 
   ATH_MSG_INFO("  Reading global JES settings from:\n    " << m_config << "\n");
