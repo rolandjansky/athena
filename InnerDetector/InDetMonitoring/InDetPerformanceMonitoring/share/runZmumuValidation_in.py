@@ -46,7 +46,6 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-#globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-07")
 #globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-REPPST-007-08")
 #globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-16-00-01")
 
@@ -81,10 +80,6 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(False)
 rec.doTruth.set_Value_and_Lock(False)
 
-
-from LArConditionsCommon.LArCondFlags import larCondFlags
-larCondFlags.LoadElecCalib.set_Value_and_Lock(True)
-
 #rec.doMonitoring.set_Value_and_Lock(True)
 #from AthenaMonitoring.DQMonFlags import DQMonFlags
 #DQMonFlags.doInDetPerfMon.set_Value_and_Lock(True)
@@ -99,66 +94,13 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-#DetFlags.Calo_setOn()
+DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
-
-DetFlags.makeRIO.Calo_setOff()
-DetFlags.detdescr.Calo_setOn()
-
-#inputCollections = ["Iter3_AlignmentConstants.root"]
 
 #USE temporary to DEBUG
 #from AthenaCommon.AppMgr import theApp
 #theApp.ReflexPluginDebugLevel=1
-
-
-
-from GaudiSvc.GaudiSvcConf import THistSvc
-
-# add LumiBlockMetaDataTool to ToolSvc and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
-
-# add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
-svcMgr += MetaDataSvc( "MetaDataSvc" )
-svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
-
-# Configure the goodrunslist selector tool
-from GoodRunsLists.GoodRunsListsConf import *
-ToolSvc += GoodRunsListSelectorTool()
-GoodRunsListSelectorTool.GoodRunsListVec = [ '$TestArea/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-
-
-## This Athena job consists of algorithms that loop over events;
-## here, the (default) top sequence is used:
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-job = AlgSequence()
-seq = AthSequencer("AthFilterSeq")
-
-## AthFilterSeq is always executed before the top sequence, and is configured such that
-## any follow-up sequence (eg. top sequence) is not executed in case GRLTriggerAlg1 does
-## not pass the event
-## In short, the sequence AthFilterSeq makes sure that all algs in the job sequence
-## are skipped when an event gets rejects
-from GoodRunsListsUser.GoodRunsListsUserConf import *
-seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!
-#seq.GRLTriggerAlg1.TriggerSelectionRegistration = 'L1_MBTS_1' ## set this to your favorite trigger, eg. L1_MBTS_1_1
-
-## Add the ntuple dumper to the top sequence, as usual
-## DummyDumperAlg1 is run in the top sequence, but is not executed in case GRLTriggerAlg1 rejects the event.
-job += DummyDumperAlg('DummyDumperAlg1')
-# job.DummyDumperAlg1.RootFileName = 'selection1.root'
-ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output = ["new DATAFILE='selection1.root' TYP='ROOT' OPT='RECREATE'"];
-job.DummyDumperAlg1.GRLNameVec = [ 'LumiBlocks_GoodDQ0', 'IncompleteLumiBlocks_GoodDQ0' ]
-
-
-
-
 
 
 readPool = False
@@ -207,6 +149,8 @@ include ("InDetRecExample/InDetRecConditionsAccess.py")
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 
+from GaudiSvc.GaudiSvcConf import THistSvc
+ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["ZmumuValidation DATAFILE='ZmumuValidationOut.root' OPT='RECREATE'"]
 include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
 
@@ -215,8 +159,9 @@ iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
                                      ReFitterTool1 = MuonRefitterTool,
                                      ReFitterTool2 = MuonRefitterTool2,
 				     OutputTracksName =  "SelectedMuons",
-#				     isMC = True,
-				     isMC = False,
+				     isMC = True,
+
+#				     isMC = False,
 				     doIsoSelection = False,
                                      OutputLevel= DEBUG)
 
@@ -225,6 +170,7 @@ iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
 job += iDPerfMonZmumu
 
 trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
+
 #StoreGateSvc = Service("StoreGateSvc")
 #StoreGateSvc.Dump = True
 include ("InDetPerformanceMonitoring/TrackMonitoring.py")

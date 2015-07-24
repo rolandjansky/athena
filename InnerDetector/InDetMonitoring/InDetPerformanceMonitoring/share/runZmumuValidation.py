@@ -168,8 +168,8 @@ iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
                                      ReFitterTool1 = MuonRefitterTool,
                                      ReFitterTool2 = MuonRefitterTool2,
 				     OutputTracksName =  "SelectedMuons",
-#				     isMC = True,
-				     isMC = False,
+				     isMC = True,
+#				     isMC = False,
 				     doIsoSelection = False,
                                      OutputLevel= DEBUG)
 

@@ -337,8 +337,8 @@ MuonRefitterTool = egammaTrkRefitterTool(name = 'MuonRefitterTool',
                                             FitterTool = GX2TrackFitter,
                                             matEffects = 2,
                                             minNoSiHits = -1,
-																						useBeamSpot = False,
-                                            OutputLevel =4)
+         				    useBeamSpot = False,
+                                            OutputLevel =1)
 ToolSvc += MuonRefitterTool
 
 
@@ -347,8 +347,8 @@ MuonRefitterTool2 = egammaTrkRefitterTool(name = 'MuonRefitterTool2',
                                             matEffects = 2,
                                             minNoSiHits = -1,
 					    RemoveTRTHits = True,
-																						useBeamSpot = False,
-                                            OutputLevel =4)
+					    useBeamSpot = False,
+                                            OutputLevel =1)
 ToolSvc += MuonRefitterTool2
 
 
