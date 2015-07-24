@@ -245,7 +245,7 @@ StatusCode TrigDataAccessATLFAST::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS)
 // Finalize method for all tools
 StatusCode TrigDataAccessATLFAST::finalize(){
         if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::INFO) << "in finalize() by TrigDataAccess" << endreq;
+          ATH_MSG_INFO( "in finalize() by TrigDataAccess" );
 	}
 #ifdef DOBYTESTREAMCNV
 	if ( m_iov_called ){
@@ -284,9 +284,9 @@ void TrigDataAccessATLFAST::RegionSelectorRobID (const int sampling,
 	  m_pRegionSelector->DetROBIDListUint(detid, roi, m_vrodid32);
         }
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_vrodid32.size() = " << m_vrodid32.size() << endreq;
+          ATH_MSG_DEBUG( "m_vrodid32.size() = " << m_vrodid32.size() );
 	  for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
-	    msg(MSG::DEBUG) << "m_vrodid32[" << i << "]=" << m_vrodid32[i] << endreq;
+            ATH_MSG_DEBUG( "m_vrodid32[" << i << "]=" << m_vrodid32[i] );
 	}
 }  // End of RegionSelectorRobID
 
@@ -306,9 +306,9 @@ void TrigDataAccessATLFAST::RegionSelectorListID (const int sampling,
 	}
 	
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() = " << m_rIds.size() << endreq;
+          ATH_MSG_DEBUG( "m_rIds.size() = " << m_rIds.size() );
 	  for(unsigned int i = 0; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}	
 } // End of RegionSelectorListID
 
@@ -324,11 +324,9 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 		LArTT_Selector<LArCellCont>::const_iterator& End,
 		const unsigned int /*sample*/, bool /*prepare*/) {
         if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " <<
-	    m_rIds.size() << endreq;
+          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" <<
-	      m_rIds[i] << endreq;
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
 
 	Begin=End;
@@ -365,9 +363,9 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
-			    << "; Phi: " << (*m_it)->phi() <<
-	      "; Energy: " << (*m_it)->energy() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+                           << "; Phi: " << (*m_it)->phi() <<
+                           "; Energy: " << (*m_it)->energy() );
 	  } // End of for printout cells
 	}
 	return StatusCode::SUCCESS;
@@ -401,10 +399,10 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
-			    << "; Phi: " << (*m_itt)->phi() <<
-	      "; Energy: " << (*m_itt)->energy() << 
-	      "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+                           << "; Phi: " << (*m_itt)->phi() <<
+                           "; Energy: " << (*m_itt)->energy() << 
+                           "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;
@@ -432,8 +430,8 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
                 m_robFrags[i]->rod_data(roddata1);
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if (roddatasize < 3) {
-                        msg(MSG::FATAL) << "Error reading bytestream"<<
-                        "event: Empty ROD block (less than 3 words)" << endreq;
+                        ATH_MSG_FATAL( "Error reading bytestream"<<
+                           "event: Empty ROD block (less than 3 words)" );
                         return StatusCode::FAILURE;
                 } // End of if small size
                 m_lardecoder->setRobFrag(m_robFrags[i]);
@@ -448,10 +446,10 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 #ifndef NDEBUG
         for(LArFebEnergyCollection::const_iterator it = Begin; 
               it!=End; ++it){
-              msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId() 
+              ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId() 
                        << " Feb Ex = " << (*it)->getFebEx()
                        << " Feb Ey = " << (*it)->getFebEy() 
-                       << " Feb Ez = " << (*it)->getFebEz() << endreq;
+                       << " Feb Ez = " << (*it)->getFebEz() );
         }
 #endif
 */
@@ -465,11 +463,9 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
                 const DETID /*detid*/, bool /*prepare*/) {
 
         if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " <<
-	    m_rIds.size() << endreq;
+          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" <<
-	      m_rIds[i] << endreq;
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
 
         Begin=End;
@@ -496,9 +492,9 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 	  int i=0;
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
-			    << "; Phi: " << (*m_it)->phi() <<
-	      "; Energy: " << (*m_it)->energy() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+                           << "; Phi: " << (*m_it)->phi() <<
+                           "; Energy: " << (*m_it)->energy() );
 	    i++;
 	  } // End of for printout cells
 	}
@@ -531,10 +527,10 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
-			    << "; Phi: " << (*m_itt)->phi() <<
-	      "; Energy: " << (*m_itt)->energy() <<
-	      "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+                           << "; Phi: " << (*m_itt)->phi() <<
+                           "; Energy: " << (*m_itt)->energy() <<
+                           "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;
@@ -576,8 +572,8 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
                 m_robFrags[i]->rod_data(roddata1);
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if(roddatasize < 3) {
-                       msg(MSG::FATAL) << "Error reading bytestream " <<
-                                  "event: Empty ROD block (less than 3 words)" << endreq;
+                       ATH_MSG_FATAL( "Error reading bytestream " <<
+                                  "event: Empty ROD block (less than 3 words)" );
                        return StatusCode::FAILURE;
                 }
                 m_lardecoder->setRobFrag(m_robFrags[i]);
@@ -592,10 +588,10 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 #ifndef NDEBUG
         for(LArFebEnergyCollection::const_iterator it = Begin;
               it!=End; ++it){
-              msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId()
+              ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId()
                        << " Feb Ex = " << (*it)->getFebEx()
                        << " Feb Ey = " << (*it)->getFebEy()
-                       << " Feb Ez = " << (*it)->getFebEz() << endreq;
+                       << " Feb Ez = " << (*it)->getFebEz() );
         }
 #endif
 */
@@ -627,7 +623,7 @@ void TrigDataAccessATLFAST::handle(const Incident & inc ) {
 
 template<class T>
 void TrigDataAccessATLFAST::fillColl(const DataHandle<CaloCellContainer>& input, T& output){
-	typedef typename T::const_iterator IT;
+	typedef typename T::iterator IT;
 	IT it,end;
 	it=  output.begin();
 	end= output.end();

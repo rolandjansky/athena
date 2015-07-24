@@ -4,7 +4,6 @@
 
 
 // Infrastructure
-#include "GaudiKernel/MsgStream.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 
 T2GeometryTool::T2GeometryTool(const std::string &type, const std::string & name,

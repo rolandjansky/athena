@@ -9,10 +9,22 @@ ToolSvc+=TrigDataAccess()
 ToolSvc.TrigDataAccess.loadFullCollections = ( TriggerFlags.doEF() or TriggerFlags.doHLT() )
 ToolSvc.TrigDataAccess.loadAllSamplings    = ( TriggerFlags.doLVL2() or TriggerFlags.doHLT() )
 
-#from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
-#theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
-#ToolSvc+=theCaloLumiBCIDTool
-#ToolSvc.TrigDataAccess.CaloLumiBCIDTool = theCaloLumiBCIDTool
+if 'ApplyOffsetCorrectionInHLT' in dir() :
+      print 'TrigDataAccessConfigured.py: will configure the HLT to apply offset correction'
+      if globalflags.DataSource()=='data':
+            if athenaCommonFlags.isOnline:
+                  conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/OFC")
+                  from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
+                  theLArCondSvc=LArFlatConditionSvc()
+                  svcMgr+=theLArCondSvc
+                  svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
+                  theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
+      
+      from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+      theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
+      ToolSvc+=theCaloLumiBCIDTool
+      ToolSvc.TrigDataAccess.CaloLumiBCIDTool = theCaloLumiBCIDTool
+      ToolSvc.TrigDataAccess.ApplyOffsetCorrection=True
 
 transientBS = (rec.readRDO() and not globalflags.InputFormat()=='bytestream')
 if ( transientBS or TriggerFlags.writeBS() ):

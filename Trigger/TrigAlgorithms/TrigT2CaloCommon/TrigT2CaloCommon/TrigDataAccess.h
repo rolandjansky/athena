@@ -23,7 +23,7 @@
 #define TRIGT2CALOCOMMON_TRIGDATAACCESS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
