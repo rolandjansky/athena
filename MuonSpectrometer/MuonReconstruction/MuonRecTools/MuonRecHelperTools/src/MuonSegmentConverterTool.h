@@ -18,6 +18,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
+#include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
 
 static const InterfaceID IID_MuonSegmentConverterTool("xAODMaker::IMuonSegmentConverterTool",1,0);
 
@@ -49,9 +50,14 @@ namespace Muon {
     xAOD::MuonSegment* convert( const MuonSegment& seg, xAOD::MuonSegmentContainer* container = 0 ) const;
 
   private:
+
+    /** helper function to dress output segment with cluster hit timing information */
+    void addClusterTiming( const MuonSegment& seg , xAOD::MuonSegment& xaodSeg) const;
+
     ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;
     ToolHandle<MuonIdHelperTool>  m_idHelper;
     ToolHandle<MuonEDMHelperTool> m_edmHelper;
+    ToolHandle<IMuonHitTimingTool> m_hitTimingTool;
 
   };
   

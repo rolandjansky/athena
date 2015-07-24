@@ -20,6 +20,7 @@ use MuonIdHelpers MuonIdHelpers-* MuonSpectrometer
 use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use xAODMuon xAODMuon-* Event/xAOD
 use xAODMuonCnv xAODMuonCnv-* Event/xAOD
+
 use TrkEventPrimitives TrkEventPrimitives-* Tracking/TrkEvent
 use TrkTrack TrkTrack-* Tracking/TrkEvent
 use TrkTrackSummary TrkTrackSummary-* Tracking/TrkEvent
@@ -33,12 +34,13 @@ use TrkSurfaces TrkSurfaces-* Tracking/TrkDetDescr
 use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
 
 use MuonRIO_OnTrack  MuonRIO_OnTrack-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRecToolInterfaces MuonRecToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonPrepRawData MuonPrepRawData-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
 use  AthLinks                   AthLinks-*                      Control
 use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
-
+use AtlasROOT AtlasROOT-* External
 
 
 
