@@ -2286,6 +2286,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
         //                    HG EQUALS 0  WHEN  TILEID::HIGHGAIN EQUALS 1
         // THIS CONFUSING INDEXING IS TAKEN CARE OF IN THE FOLLOWING TWO LINES AND WILL *NOT*
         // BE PROPAGATED FURTHER DOWN THE CHAIN. THIS MEANS THAT AFTER THIS LG=0 AND HG=1
+	laserObject.setCalibType(int(p[31]));
         laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+LG]), double(ssq[channel*2+LG]), nevt, TileID::LOWGAIN);
         laserObject.setCalib(channel,int(p[31]), double(sum[channel*2+HG]), double(ssq[channel*2+HG]), nevt, TileID::HIGHGAIN);
         
