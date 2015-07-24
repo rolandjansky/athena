@@ -2,7 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "ParticleTruth/TrackParticleTruthCollection.h"
+#undef private
+#undef protected
+
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
 
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
@@ -28,7 +33,7 @@ void TrackParticleTruthCollectionCnv_p1::persToTrans( const Rec::TrackParticleTr
 {
     trans->clear();
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans(): PERS size = " << pers->m_entries.size() << endmsg;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans(): PERS size = " << pers->m_entries.size() << endreq;
 
     dataLinkConverter.persToTrans(pers->m_trackCollectionLink, TrackParticleTruthCollectionAccessor::trackParticleContainerLink(trans), msg);
 
@@ -40,7 +45,7 @@ void TrackParticleTruthCollectionCnv_p1::persToTrans( const Rec::TrackParticleTr
         trans->insert(trans->end(), std::make_pair(el, TrackParticleTruth(link, i->probability)) );
     }
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans() DONE" << endmsg;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::persToTrans() DONE" << endreq;
 }
 
 void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCollection* trans, 
@@ -48,8 +53,8 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
                                                       MsgStream& msg ) 
 {
     if (msg.level() <= MSG::DEBUG) {
-        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers()" << endmsg;
-        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers(): input size = " << trans->size() << endmsg;
+        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers()" << endreq;
+        msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers(): input size = " << trans->size() << endreq;
     }
   
     dataLinkConverter.transToPers(trans->trackParticleContainerLink(), pers->m_trackCollectionLink, msg);
@@ -67,7 +72,7 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
         // thinned
         ElementLinkInt_p3 el_p;
         TrackLinkCnv_t    elCnv_p;
-        elCnv_p.transToPers(itrans->first.link(), el_p, msg);
+        elCnv_p.transToPers(itrans->first.m_EL, el_p, msg);
         if (0 != el_p.m_SGKeyHash) {
             entry.index = el_p.m_elementIndex; // save index from ElementLink
             entry.probability = truth.probability();
@@ -76,5 +81,5 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
         }
     }
 
-    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers() DONE" << endmsg;
+    if (msg.level() <= MSG::DEBUG) msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p1::transToPers() DONE" << endreq;
 }

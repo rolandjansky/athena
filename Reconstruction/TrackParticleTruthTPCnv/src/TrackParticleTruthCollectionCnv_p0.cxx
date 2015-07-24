@@ -22,10 +22,10 @@ void TrackParticleTruthCollectionCnv_p0::persToTrans( const Rec::TrackParticleTr
                                               TrackParticleTruthCollection* trans, 
                                               MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::persToTrans(): PERS size = "<<pers->size()<<endmsg;
+  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::persToTrans(): PERS size = "<<pers->size()<<endreq;
 
   if(pers->empty()) {
-    msg<<MSG::WARNING<<"persToTrans(): can't find out the corresponding TrackCollection for the empty TrackParticleTruthCollection_p0 (old-format)"<<endmsg;
+    msg<<MSG::WARNING<<"persToTrans(): can't find out the corresponding TrackCollection for the empty TrackParticleTruthCollection_p0 (old-format)"<<endreq;
   }
   else {
     //static (const) DataLink<Rec::TrackParticleContainer>                 = 
@@ -36,14 +36,14 @@ void TrackParticleTruthCollectionCnv_p0::persToTrans( const Rec::TrackParticleTr
     }
   }
 
-  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::persToTrans() DONE"<<endmsg;
+  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::persToTrans() DONE"<<endreq;
 }
 
 void TrackParticleTruthCollectionCnv_p0::transToPers( const TrackParticleTruthCollection*, 
                                               Rec::TrackParticleTruthCollection_p0* , 
                                               MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers()"<<endmsg;
+  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers()"<<endreq;
   throw std::runtime_error("TrackParticleTruthCollectionCnv_p0::transToPers() is not implemented, _p1 or later is meant to be used.");
-  //never reached msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers() DONE"<<endmsg;
+  //never reached msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers() DONE"<<endreq;
 }
