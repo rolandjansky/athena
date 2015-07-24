@@ -58,9 +58,10 @@ class IDPerfMonZmumu : public AthAlgorithm
  private:
   // Private class member functions.
   void RegisterHistograms();
-    void FillRecParameters(const Trk::Track* track, double charge);
+  void FillRecParameters(const Trk::Track* track, double charge);
     //void FillRecParameters(const xAOD::TrackParticle* trackparticle, double charge);
   StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
+  const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
 
   // The Z0 tagger.
   ZmumuEvent     m_xZmm;

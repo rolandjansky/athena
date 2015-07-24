@@ -432,8 +432,8 @@ StatusCode IDPerfMonZmumu::execute()
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);
 
 
-  if (!p1 || !p2) {
-     ATH_MSG_WARNING("TrackParticles missing!  Skipping Event");
+  if (!p1->track() || !p2->track()) {
+     ATH_MSG_WARNING("Track missing!  Skipping Event");
      return StatusCode::SUCCESS;
   }
 
@@ -459,21 +459,24 @@ StatusCode IDPerfMonZmumu::execute()
     defaultMuonTrk1 = new Trk::Track(*p1->track());
 
     fitStatus = m_TrackRefitter1->refitTrack( p1->track(),egam );
-    if (fitStatus == StatusCode::SUCCESS) {
-      refit1MuonTrk1 = m_TrackRefitter1->refittedTrack();
-			muonTrksRefit1->push_back(refit1MuonTrk1);
-    } else {
-       ATH_MSG_WARNING("Track Refit1 Failed. Skipping Event");
+    if (fitStatus.isFailure()) {
+       ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
        return StatusCode::SUCCESS;
+    } else {
+      refit1MuonTrk1 = m_TrackRefitter1->refittedTrack();
+      muonTrksRefit1->push_back(refit1MuonTrk1);
+      ATH_MSG_DEBUG("Successfully refitted (1) track");
     }
 
+
     fitStatus = m_TrackRefitter2->refitTrack( p1->track(),egam );
-    if (fitStatus == StatusCode::SUCCESS) {
-      refit2MuonTrk1 = m_TrackRefitter2->refittedTrack();
-			muonTrksRefit2->push_back(refit2MuonTrk1);
+    if (fitStatus.isFailure()) {
+      ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
+      return StatusCode::SUCCESS;
     } else {
-       ATH_MSG_WARNING("Track Refit2 Failed. Skipping Event");
-       return StatusCode::SUCCESS;
+      refit2MuonTrk1 = m_TrackRefitter2->refittedTrack();
+      muonTrksRefit2->push_back(refit2MuonTrk1);
+      ATH_MSG_DEBUG("Successfully refitted (2) track");
     }
 
   }
@@ -482,21 +485,24 @@ StatusCode IDPerfMonZmumu::execute()
     defaultMuonTrk2 = new Trk::Track(*p2->track());
 
     fitStatus = m_TrackRefitter1->refitTrack( p2->track(),egam );
-    if (fitStatus == StatusCode::SUCCESS) {
+    if (fitStatus.isFailure()) {
+      ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
+      return StatusCode::SUCCESS;
+    } else {
       refit1MuonTrk2 = m_TrackRefitter1->refittedTrack();
       muonTrksRefit1->push_back(refit1MuonTrk2);
-		} else {
-       ATH_MSG_WARNING("Track Refit1 Failed. Skipping Event");
-       return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG("Successfully refitted (1) track");
     }
 
+
     fitStatus = m_TrackRefitter2->refitTrack( p2->track(),egam );
-    if (fitStatus == StatusCode::SUCCESS) {
+    if (fitStatus.isFailure()) {
+      ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
+      return StatusCode::SUCCESS;
+    } else {
       refit2MuonTrk2 = m_TrackRefitter2->refittedTrack();
       muonTrksRefit2->push_back(refit2MuonTrk2);
-		} else {
-       ATH_MSG_WARNING("Track Refit2 Failed. Skipping Event");
-       return StatusCode::SUCCESS;
+      ATH_MSG_DEBUG("Successfully refitted (2) track");
     }
   }
 
@@ -516,7 +522,7 @@ StatusCode IDPerfMonZmumu::execute()
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed storing " << m_outputTracksName + "Refit1" << endreq;
   } else {
-		if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stored "<< muonTrksRefit1->size() << " " << m_outputTracksName  + "Refit1" <<" into StoreGate" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Stored "<< muonTrksRefit1->size() << " " << m_outputTracksName  + "Refit1" <<" into StoreGate" << endreq;
 	}
 
   sc = evtStore()->record(muonTrksRefit2, m_outputTracksName + "Refit2", false);
@@ -557,40 +563,50 @@ StatusCode IDPerfMonZmumu::execute()
   }
 
   //fill default ID parameters
-  FillRecParameters(defaultMuonTrk1, p1->charge());
-  FillRecParameters(defaultMuonTrk2, p2->charge());
-  m_defaultTree->Fill();
-
+  if (muonTrks->size()<2){
+    ATH_MSG_WARNING("Default muon tracks are missing!");
+  }else{
+    FillRecParameters(defaultMuonTrk1, p1->charge());
+    FillRecParameters(defaultMuonTrk2, p2->charge());
+    m_defaultTree->Fill();
+  }
   //fill refit1 ID parameters
+  if (muonTrksRefit1->size()<2) {
+    ATH_MSG_WARNING("Refit1 muon tracks are missing!");
+  }else{
   FillRecParameters(refit1MuonTrk1, p1->charge());
   FillRecParameters(refit1MuonTrk2, p2->charge());
 
 
-     ATH_MSG_DEBUG("fill refit1Tree with parameters : ");
-     ATH_MSG_DEBUG("######   (negative)   ########## ");
-     ATH_MSG_DEBUG("Negative px: " << m_negative_px << "\n"
-	       << "Negative py: " << m_negative_py << "\n"
-	       << "Negative pz: " << m_negative_pz << "\n"
-	       << "Negative d0: " << m_negative_d0 << "\n"
-     << "Negative z0: " << m_negative_z0 << "\n");
+  ATH_MSG_DEBUG("fill refit1Tree with parameters : ");
+  ATH_MSG_DEBUG("######   (negative)   ########## ");
+  ATH_MSG_DEBUG("Negative px: " << m_negative_px << "\n"
+		<< "Negative py: " << m_negative_py << "\n"
+		<< "Negative pz: " << m_negative_pz << "\n"
+		<< "Negative d0: " << m_negative_d0 << "\n"
+		<< "Negative z0: " << m_negative_z0 << "\n");
 
 
-     ATH_MSG_DEBUG("######   (positive)   ########## ");
-     ATH_MSG_DEBUG( "Positive px: " << m_positive_px << "\n"
-		    << "Positive py: " << m_positive_py << "\n"
-		    << "Positive pz: " << m_positive_pz << "\n"
-		    << "Positive d0: " << m_positive_d0 << "\n"
-		    << "Positive z0: " << m_positive_z0 << "\n");
+  ATH_MSG_DEBUG("######   (positive)   ########## ");
+  ATH_MSG_DEBUG( "Positive px: " << m_positive_px << "\n"
+		 << "Positive py: " << m_positive_py << "\n"
+		 << "Positive pz: " << m_positive_pz << "\n"
+		 << "Positive d0: " << m_positive_d0 << "\n"
+		 << "Positive z0: " << m_positive_z0 << "\n");
 
 
 
   m_refit1Tree->Fill();
-
+  }
   //fill refit2 ID parameters
-  FillRecParameters(refit2MuonTrk1, p1->charge());
-  FillRecParameters(refit2MuonTrk2, p2->charge());
-  m_refit2Tree->Fill();
 
+  if (muonTrksRefit2->size()<2) {
+    ATH_MSG_WARNING("Refit2 muon tracks are missing!");
+  }else{
+    FillRecParameters(refit2MuonTrk1, p1->charge());
+    FillRecParameters(refit2MuonTrk2, p2->charge());
+    m_refit2Tree->Fill();
+  }
 
   //fill Combined parameters
   const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
@@ -684,7 +700,8 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 {
   double momX(0),momY(0),momZ(0), vtxX(0),vtxY(0),vtxZ(0);
   //  const xAOD::TruthParticle* truthParticle = xAOD::TruthHelpers::getTruthParticle( *trackParticle );
-  const xAOD::TruthParticle* truthParticle = xAOD::EgammaHelpers::getTruthParticle( trackParticle );
+  //  const xAOD::TruthParticle* truthParticle = xAOD::EgammaHelpers::getTruthParticle( trackParticle );
+  const xAOD::TruthParticle* truthParticle = getTruthParticle( *trackParticle );
         if(truthParticle->hasProdVtx()){
 	  vtxX = truthParticle->prodVtx()->x();
 	  vtxY = truthParticle->prodVtx()->y();
@@ -742,6 +759,33 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 
 
     return StatusCode::SUCCESS;
+}
+
+
+const xAOD::TruthParticle* IDPerfMonZmumu::getTruthParticle( const xAOD::IParticle& p ) {
+
+
+  /// A convenience type declaration
+  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+
+  /// A static accessor for the information
+  static SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
+
+  // Check if such a link exists on the object:
+  if( ! acc.isAvailable( p ) ) {
+    return 0;
+  }
+
+  // Get the link:
+  const Link_t& link = acc( p );
+
+  // Check if the link is valid:
+  if( ! link.isValid() ) {
+    return 0;
+  }
+
+  // Everything has passed, let's return the pointer:
+  return *link;
 }
 
 StatusCode IDPerfMonZmumu::finalize()
