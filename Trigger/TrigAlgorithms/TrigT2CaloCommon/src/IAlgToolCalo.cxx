@@ -33,41 +33,28 @@
 // Retrieval of all Tools to be used during run
 StatusCode IAlgToolCalo::initialize()
 {
-
         ATH_MSG_DEBUG("in initialize() by IAlgToolCalo");
 
-	// Algorithms need m_larMgr
-	if ((detStore()->retrieve(m_larMgr)).isFailure()) {
-	  msg(MSG::ERROR) << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-	  return StatusCode::FAILURE;
-	}
-
-	if ((m_data.retrieve()).isFailure()) {
-	  msg(MSG::ERROR) << "Could not get m_data" << endreq;
-	  return StatusCode::FAILURE;
-	}
-
-        if ((m_geometryTool.retrieve()).isFailure()) {
-	  msg(MSG::ERROR) << "Could not get m_geometryTool" << endreq;
-	  return StatusCode::FAILURE;
-        }
-
+        ATH_CHECK( detStore()->retrieve(m_larMgr) );
+	ATH_CHECK( m_data.retrieve() );
+        ATH_CHECK( m_geometryTool.retrieve() );
 
         // Initialize timing service in order to perform some measures
         // of performance
         if( (m_timersvc.retrieve()).isFailure() ) {
-	  msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endreq;
+          ATH_MSG_WARNING( name() <<
+                           ": Unable to locate TrigTimer Service" );
 	  // Does not need to fail the Algorithm if no timing service is found
         } // End of if timing service
         // Initialize four timers for RegionSelector, ByteStreamCnv,
         // Algorithm time, Saving EMShowerMinimal
         if (!m_timersvc.empty()) {
 		if ( name().find("Fex",0) == std::string::npos) 
-		  msg(MSG::INFO) << " Name of Alg not found" << endreq;
+                  ATH_MSG_WARNING( " Name of Alg not found" );
 		else {
                 std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
                 //basename+=(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-                msg(MSG::INFO) << "BaseName is : " << basename << endreq;
+                ATH_MSG_INFO( "BaseName is : " << basename );
 		HLT::FexAlgo *p = dynamic_cast<HLT::FexAlgo*>(const_cast<IInterface*>(parent()));
 		/*
                 m_timer[0] = m_timersvc->addItem(basename+"Total");
@@ -102,7 +89,7 @@ StatusCode IAlgToolCalo::initialize()
 // Finalize method for all tools
 // nothing realy important done here
 StatusCode IAlgToolCalo::finalize(){
-  msg(MSG::DEBUG) << "in finalize() by IAlgToolCalo" << endreq;
+  ATH_MSG_DEBUG( "in finalize() by IAlgToolCalo" );
   return StatusCode::SUCCESS;
 } // End of finalize
 
@@ -386,7 +373,7 @@ void IAlgToolCalo::storeCells( void ) {
 	}
 	} else {
 	     ATH_MSG_DEBUG("Creating Container RoILArCells");
-             m_ContainerLAr = new CaloCellContainer();
+          m_ContainerLAr = new CaloCellContainer();
 	
              if ( evtStore()->record(m_ContainerLAr,"RoILArCells").isFailure() ){
 	        ATH_MSG_ERROR("Error! Could not store Container");
@@ -410,12 +397,12 @@ void IAlgToolCalo::storeCells( void ) {
                 CaloCell* larcell = (CaloCell*)(*m_it)->clone();
                 m_ContainerLAr->push_back(larcell);
         }
-        msg(MSG::DEBUG) << "LAr Container size : " << m_ContainerLAr->size() << endreq;
+        ATH_MSG_DEBUG( "LAr Container size : " << m_ContainerLAr->size() );
         // Now I have a Tile container
         if ( tiledecoded )
 	  for ( m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) {
 	    CaloCell* tilecell = (CaloCell*)(*m_itt)->clone();
 	    m_ContainerTile->push_back(tilecell);
 	  }
-        msg(MSG::DEBUG) << "Tile Container size : "<< m_ContainerTile->size() << endreq;
+        ATH_MSG_DEBUG( "Tile Container size : "<< m_ContainerTile->size() );
 }

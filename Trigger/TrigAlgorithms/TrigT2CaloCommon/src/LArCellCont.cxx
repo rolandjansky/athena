@@ -22,7 +22,7 @@
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_corrBCIDref( m_corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_larCablingSvc(0)
+LArCellCont::LArCellCont() : m_corrBCIDref( m_corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_larCablingSvc(0), m_BCIDcache(false)
 {}
 
 StatusCode
@@ -153,9 +153,9 @@ for(  ;  beg != end;  ++beg ){
 }
 std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
 int m_indexsetmax = m_indexset.size();
-int maxBCID=3564;
-m_corrBCID.resize(maxBCID);
-for( int bcid=0; bcid<maxBCID; ++bcid) {
+//int maxBCID=3564;
+m_corrBCID.resize(1);
+for( int bcid=0; bcid<1; ++bcid) {
 std::vector<float>& BCID0=m_corrBCID[bcid];
 BCID0.resize(m_indexsetmax+1);
 std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
@@ -231,7 +231,8 @@ m_hashSym.resize(onlineId->febHashMax());
 	mapItEnd = collMap.end();
 	for (;mapIt!=mapItEnd;++mapIt) {
 		// Ones needs to dump the mapped vector to an allocated vector
-		std::vector<LArCell*> *vec = new std::vector<LArCell*>;
+                DataVector<LArCell> *vec = new DataVector<LArCell>(SG::VIEW_ELEMENTS);
+		vec->reserve(mapIt->second.size());
 		for(std::vector<LArCell*>::const_iterator it
 		  = mapIt->second.begin(); it != mapIt->second.end(); it++)
 		{
@@ -313,6 +314,7 @@ void LArCellCont::applyBCIDCorrection(const unsigned int& rodid){
   LArCellCollection* col = (*m_it);
   unsigned int itsize = col->size();
   std::vector<int>& hashTab = m_hashSym[idx];
+  if ( !m_BCIDcache ) { updateBCID(); m_BCIDcache=true; m_corrBCIDref = m_corrBCID[0]; }
   for(unsigned int i=0; i< itsize; ++i){
     float cor = m_corrBCIDref[ hashTab[i] ];
     LArCell* cell = col->operator[](i);
@@ -332,25 +334,24 @@ LArCellCont::findsec(const unsigned int& rodid) const{
 }
 
 void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned int BCID){
-  if ( BCID < m_corrBCID.size() ) { m_corrBCIDref = m_corrBCID[BCID]; }
-  if ( m_lumi_block != lumi_block ) {
+  if ( m_bcid != BCID  ) {
 #ifdef TRIGLARCELLDEBUG
-    std::cout << "Update : CURRENT lumi_block = " << lumi_block << " <--> PREVIOUS lumi_block = " << m_lumi_block << std::endl;
+    std::cout << "Update : CURRENT lumi_block, BCID = " << lumi_block << ", " << BCID << " <--> PREVIOUS lumi_block = " << m_lumi_block << ", " << m_bcid << std::endl;
 #endif
-    updateBCID(); m_lumi_block = lumi_block;
+    m_lumi_block = lumi_block; m_bcid = BCID; 
+    m_BCIDcache=false;
   }    
 }
 
 void LArCellCont::updateBCID() {
   //std::clock_t startT,endT;
   //startT = clock();
+  int bcid=m_bcid;
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
   int m_indexsetmax = m_indexset.size();
-  int maxBCID=3564;
-  m_corrBCID.resize(maxBCID);
+  //m_corrBCID.resize(1);
   if ( (m_larCablingSvc == 0) || (m_caloLumiBCIDTool==0) ) return;
-  for( int bcid=0; bcid<maxBCID; ++bcid) {
-    std::vector<float>& BCID0=m_corrBCID[bcid];
+    std::vector<float>& BCID0=m_corrBCID[0];
     BCID0.resize(m_indexsetmax+1);
     std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
     for( ; beg != end ; ++beg ) {
@@ -362,7 +363,6 @@ void LArCellCont::updateBCID() {
 	BCID0[idx] = corr;
       }
     } // end of HWID
-  } //end of BCID
   //endT = clock();
   //std::cout << "Total time [ms] " << (double)(endT-startT) << " for " << m_indexset.size() << " x " << maxBCID << std::endl;
   return; 

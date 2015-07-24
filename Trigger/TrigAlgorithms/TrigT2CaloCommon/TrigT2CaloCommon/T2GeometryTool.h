@@ -17,7 +17,6 @@
 #ifndef TRIGT2CALO_T2GEOMETRY
 #define TRIGT2CALO_T2GEOMETRY
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/IT2GeometryTool.h"
 #include <iostream>
@@ -154,11 +153,11 @@ private :
 	double m_CellPhiWidMin[7], m_CellPhiWidMax[7];
 
 	/** Reference changed to vectors */
-	int  m_nStripetaEM[4];// 0.075, 0.075, 0.075, 0.1
-	int  m_nStripphiEM[4];// 0.2, 0.2, 0.175, 0.175;
+	//int  m_nStripetaEM[4];// 0.075, 0.075, 0.075, 0.1
+	//int  m_nStripphiEM[4];// 0.2, 0.2, 0.175, 0.175;
 
-	int  m_nStripetaHAD[3];  // 0.2, 0.2, 0.2
-	int  m_nStripphiHAD[3];  // 0.2, 0.2, 0.2
+	//int  m_nStripetaHAD[3];  // 0.2, 0.2, 0.2
+	//int  m_nStripphiHAD[3];  // 0.2, 0.2, 0.2
 
 	int  m_nStripetaEMnar[4];// 0.075,0.075,0.075,0.1
 	int  m_nStripphiEMnar[4];  // 0.2, 0.2, 0.125, 0.2
@@ -200,18 +199,15 @@ inline int T2GeometryTool::EtaPhiRangeInt(const int layer,
   double CellPhiMin=0.;
   double CellPhiMax=0.;
 
-  CellEtaMin = aeta - dgra*nStripEta/2.;
+  CellEtaMin = aeta - dgra*nStripEta*0.5;
   int EtaMinSign = 1;
   if ( CellEtaMin < 0. ) {
     EtaMinSign = -1;
     CellEtaMin = fabs(CellEtaMin );  // need a non-negative value
   }
-  if (msgLvl(MSG::DEBUG)) {
-    // log removed, this is not an AlgTool
-    msg(MSG::DEBUG) << "At start of EtaPhiRange. layer " << layer 
-		    << " aeta " << aeta << " dgra " << dgra << " netaregions " << netaregions
-		    << " First CellEtaMin " << CellEtaMin << endreq;
-  }
+  ATH_MSG_DEBUG( "At start of EtaPhiRange. layer " << layer <<
+                 " aeta " << aeta << " dgra " << dgra << " netaregions " << netaregions
+                 << " First CellEtaMin " << CellEtaMin );
 
   // Go by cell edges not centres since boundaries are at edges.
   // Determine correct cell edges below, if seed is exactly at a cell
@@ -240,7 +236,7 @@ if( CellEtaMin < m_etareg[layer][netaregions]){
       CellEtaMin = dgra1*trunc(CellEtaMin) + m_etareg[layer][irmin];
 
       CellEtaMin = CellEtaMin*EtaMinSign; // correct for edge that spans 0
-      CellEtaMax = aeta + dgra*nStripEta / 2.;
+      CellEtaMax = aeta + dgra*nStripEta * 0.5;
 
 
         for (irmax=irmin;irmax<netaregions;irmax++) {
@@ -273,7 +269,7 @@ if( CellEtaMin < m_etareg[layer][netaregions]){
 
   double dgrap= m_phiGran[layer][0]; // phi granularity at eta=0
   int nphiregions=m_nphireg[layer]; // number of different phi regions
-  CellPhiMin = energyPhi - dgrap*nStripPhi/2;
+  CellPhiMin = energyPhi - dgrap*nStripPhi*0.5;
 
 if (fabs(CellEtaMin) < m_phireg[layer][nphiregions]){
   for (irmin=0;irmin<nphiregions;irmin++) {
@@ -351,31 +347,32 @@ inline int T2GeometryTool::EtaPhiRange(const int nCaloType,const int nCaloSamp,
 
   }
      
-  if (msgLvl(MSG::DEBUG)) {
-    // log removed, this is not an AlgTool
-    msg(MSG::DEBUG) << "At end of EtaPhiRange. layer " << layer 
-		    << " CellEtaNorMin : " << m_CellEtaNorMin[layer] << " CellEtaNorMax : " 
-		    << m_CellEtaNorMax[layer] << " CellPhiNorMin : " << m_CellPhiNorMin[layer] 
-		    << " CellPhiNorMax : " << m_CellPhiNorMax[layer] << " deta : " 
-		    << m_CellEtaNorMin[layer] - energyEta << " dphi : "  
-		    << m_CellPhiNorMin[layer] - energyPhi << endreq;
-    
-    msg(MSG::DEBUG) << " Nar variables ----> CellEtaNarMin : " 
-		    << m_CellEtaNarMin[layer]
-		    << " CellEtaNarMax : " << m_CellEtaNarMax[layer]  << " CellPhiNarMin : " 
-		    << m_CellPhiNarMin[layer] << " CellPhiNarMax : " << m_CellPhiNarMax[layer]
-		    << " detaNar : " << m_CellEtaNarMin[layer] - energyEta << " dphiNar : "
-		    << m_CellPhiNarMin[layer] - energyPhi << endreq;
-    
-    msg(MSG::DEBUG) << " Wid variables ----> CellEtaWidMin : " 
-		    << m_CellEtaWidMin[layer] << " CellEtaWidMax : " << m_CellEtaWidMax[layer]
-		    << " CellPhiWidMin : "  << m_CellPhiWidMin[layer] << " CellPhiWidMax : " 
-		    << m_CellPhiWidMax[layer] << " detaWid : " 
-		    << m_CellEtaWidMin[layer] - energyEta << " dphiWid : "
-		    << m_CellPhiWidMin[layer] - energyPhi << endreq;
-  }
-  
-  return 0;
+  // log removed, this is not an AlgTool
+  ATH_MSG_DEBUG( "At end of EtaPhiRange. layer " << layer 
+                 << " CellEtaNorMin : " << m_CellEtaNorMin[layer] << " CellEtaNorMax : " 
+                 << m_CellEtaNorMax[layer] << " CellPhiNorMin : " << m_CellPhiNorMin[layer] 
+                 << " CellPhiNorMax : " << m_CellPhiNorMax[layer] << " deta : " 
+                 << m_CellEtaNorMin[layer] - energyEta << " dphi : "  
+                 << m_CellPhiNorMin[layer] - energyPhi );
+
+  ATH_MSG_DEBUG( " Nar variables ----> CellEtaNarMin : " 
+                 << m_CellEtaNarMin[layer]
+                 << " CellEtaNarMax : " << m_CellEtaNarMax[layer]  << " CellPhiNarMin : " 
+                 << m_CellPhiNarMin[layer] << " CellPhiNarMax : " << m_CellPhiNarMax[layer]
+                 << " detaNar : " << m_CellEtaNarMin[layer] - energyEta << " dphiNar : "
+                 << m_CellPhiNarMin[layer] - energyPhi );
+
+  ATH_MSG_DEBUG( " Wid variables ----> CellEtaWidMin : " 
+                 << m_CellEtaWidMin[layer] << " CellEtaWidMax : " << m_CellEtaWidMax[layer]
+                 << " CellPhiWidMin : "  << m_CellPhiWidMin[layer] << " CellPhiWidMax : " 
+                 << m_CellPhiWidMax[layer] << " detaWid : " 
+                 << m_CellEtaWidMin[layer] - energyEta << " dphiWid : "
+                 << m_CellPhiWidMin[layer] - energyPhi );
+
+
+
+
+	return 0;
 } // End of EtaPhiRange
 
 inline bool T2GeometryTool::CellInNorCluster( const int nCaloType, 
@@ -387,6 +384,7 @@ inline bool T2GeometryTool::CellInNorCluster( const int nCaloType,
   if (nCaloSamp < 0 || nCaloSamp > 3 ||
       (nCaloSamp == 3 && nCaloType == 1))
     ATH_MSG_ERROR("Invalid CaloSamp");
+
   int layer = nCaloType*4+nCaloSamp;
 
         int IetaPass=0;

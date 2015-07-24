@@ -51,8 +51,6 @@
 // Retrieval of all Tools to be used during run
 StatusCode TrigDataAccess::initialize()
 {
-        ATH_MSG_DEBUG("in initialize() by TrigDataAccess");
-
 	// Some tools are necessary for the Algorithm to run
 	// The RegionSelector is being retrieved here
         if( (m_pRegionSelector.retrieve()).isFailure() ) {
@@ -274,8 +272,8 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
                 if ( m_fullCellContainer->at(i) == NULL ){
                         Identifier id = theCaloCCIDM->cell_id(i);
                         if ( id!=0 ){
-                        CaloDetDescrElement* el = theCaloDDM->get_element(id);
-                        m_fullCellContainer->at(i) = (new CaloCell(el,0,0,0,(CaloGain::CaloGain)0) );
+                          const CaloDetDescrElement* el = theCaloDDM->get_element(id);
+                          m_fullCellContainer->at(i) = (new CaloCell(el,0,0,0,(CaloGain::CaloGain)0) );
                         }
                 }
 
@@ -374,19 +372,17 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
 	  m_pRegionSelector->DetHashIDList(FCALEM,0,tmproi,m_rIdsfcalem0);
           m_pRegionSelector->DetHashIDList(TILE,tmproi,m_rIdstile);
           m_alltile.clear();
-	  std::vector<uint32_t> tilelists;
-          //for(unsigned int i=0;i<m_rIdstile.size();i++)
-          //m_alltile.push_back(m_tilecell->find_rod(m_rIdstile[i]));
-          for(unsigned int i=0;i<m_rIdstile.size();i++){
-	   bool include=true;
-	   uint32_t tilerodid = m_tilecell->find_rod(m_rIdstile[i]);
-           m_alltile.push_back(tilerodid);
-	   for(unsigned int j=0;j<tilelists.size();j++)
-		if ( tilelists.at(j) == tilerodid ) include=false;
-           if ( include ) tilelists.push_back ( tilerodid );
-	  }
-          m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), tilelists.begin(), tilelists.end() );
-          tilelists.clear();
+          std::vector<uint32_t> tilelists; 
+          for(unsigned int i=0;i<m_rIdstile.size();i++){ 
+           bool include=true; 
+           uint32_t tilerodid = m_tilecell->find_rod(m_rIdstile[i]); 
+           m_alltile.push_back(tilerodid); 
+           for(unsigned int j=0;j<tilelists.size();j++) 
+                if ( tilelists.at(j) == tilerodid ) include=false; 
+           if ( include ) tilelists.push_back ( tilerodid ); 
+          } 
+          m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), tilelists.begin(), tilelists.end() ); 
+          tilelists.clear(); 
           // TTEM 
           m_rIdsem0.insert(m_rIdsem0.end(),m_rIdsem1.begin(),m_rIdsem1.end());
           m_rIdsem0.insert(m_rIdsem0.end(),m_rIdsem2.begin(),m_rIdsem2.end());
@@ -490,15 +486,15 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
 	  sort(m_full_vrodid32.begin(),m_full_vrodid32.end());
 
 	  m_full_vrodid32.erase(std::unique(m_full_vrodid32.begin(),m_full_vrodid32.end()),m_full_vrodid32.end());
-	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();}
+	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();} 
         } 
-	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();}
+	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();} 
 
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_vrodid32.size() = " << m_vrodid32.size() << endreq;
-	  for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
-	    msg(MSG::DEBUG) << "m_vrodid32[" << i << "]=" << m_vrodid32[i]<< endreq;
-	}
+          ATH_MSG_DEBUG( "m_vrodid32.size() = " << m_vrodid32.size() );
+          for(unsigned int i = 0 ; i < m_vrodid32.size() ; i++)
+            ATH_MSG_DEBUG( "m_vrodid32[" << i << "]=" << m_vrodid32[i]);
+        }
 }  // End of RegionSelectorRobID
 
 
@@ -520,10 +516,10 @@ void TrigDataAccess::RegionSelectorListID (const int sampling, const IRoiDescrip
         }
 
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() = " << m_rIds.size() << endreq;
-	  for(unsigned int i = 0; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
-	}
+          ATH_MSG_DEBUG( "m_rIds.size() = " << m_rIds.size() );
+          for(unsigned int i = 0; i < m_rIds.size() ; i++)
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+        }
 
 } // End of RegionSelectorListID
 
@@ -534,12 +530,11 @@ StatusCode TrigDataAccess::LoadCollections (
 		LArTT_Selector<LArCellCont>::const_iterator& Begin,
 		LArTT_Selector<LArCellCont>::const_iterator& End,
 		const unsigned int /*sample*/, bool /*prepare*/) {
-
-        if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " << m_rIds.size() << endreq;
-	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
-	}
+	if (msgLvl(MSG::DEBUG)) {
+          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
+          for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
+        }
         // Resets error flag
         m_error=0;
 	Begin=End=m_sel->end();
@@ -566,9 +561,9 @@ StatusCode TrigDataAccess::LoadCollections (
 		LArCellCollection *m_col = *it;
         	m_lardecoder->setsecfeb(m_larcell->findsec(source_id));
         	if ( !m_lardecoder->check_valid(m_robFrags[i],msg()) ){
-		  msg(MSG::WARNING) << "Error reading bytestream"
-				    << "event: Bad ROB block (eformat checks) : 0x"
-				    << std::hex << source_id << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream"<<
+                                   "event: Bad ROB block (eformat checks) : 0x"
+                                   << std::hex << source_id << std::dec );
 		  // Data seems corrupted
 		  m_error|=0x20000000;
 		  reset_LArCol ( m_col );
@@ -578,9 +573,9 @@ StatusCode TrigDataAccess::LoadCollections (
         	  m_robFrags[i]->rod_data(roddata1);
         	  size_t roddatasize = m_robFrags[i]->rod_ndata();
         	  if (roddatasize < 3) {
-		    msg(MSG::WARNING) << "Error reading bytestream"
-				      <<"event: Empty ROD block (less than 3 words) : 0x"
-				      << std::hex << source_id << std::dec << endreq;
+                    ATH_MSG_WARNING( "Error reading bytestream"<<
+                                     "event: Empty ROD block (less than 3 words) : 0x"
+                                     << std::hex << source_id << std::dec );
 		    // Data seems corrupted
 		    m_error|=0x20000000;
 		    reset_LArCol ( m_col );
@@ -623,9 +618,9 @@ StatusCode TrigDataAccess::LoadCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
-			    << "; Phi: " << (*m_it)->phi() 
-			    << "; Energy: " << (*m_it)->energy() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+                           << "; Phi: " << (*m_it)->phi() 
+                           << "; Energy: " << (*m_it)->energy() );
 	  } // End of for printout cells
 	}
 	return StatusCode::SUCCESS;
@@ -656,6 +651,9 @@ StatusCode TrigDataAccess::LoadCollections (
 		size_t roddatasize = m_robFrags[0]->rod_ndata();
 		// insert data into vector (to be removed soon)
 		if (roddatasize < 3) {
+                  ATH_MSG_WARNING( "Error reading bytestream"<<
+                                   "event: Empty ROD block (less than 3 words) : 0x"
+                                   << std::hex << m_tile[0] << std::dec );
 		  msg(MSG::WARNING) << "Error reading bytestream "
 				    << "event: Empty ROD block (less than 3 words) : 0x"
 				    << std::hex << m_tile[0] << std::dec << endreq;
@@ -677,10 +675,10 @@ StatusCode TrigDataAccess::LoadCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
-			    << "; Phi: " << (*m_itt)->phi() 
-			    << "; Energy: " << (*m_itt)->energy() 
-			    << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+                           << "; Phi: " << (*m_itt)->phi() 
+                           << "; Energy: " << (*m_itt)->energy() 
+                           << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;
@@ -715,8 +713,8 @@ StatusCode TrigDataAccess::LoadMBTS (
                 if ( m_robFrags.size()!=0 && m_col != NULL ) {
                 size_t roddatasize = m_robFrags[0]->rod_ndata();
                 if (roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream MBTS"
-				    <<"event: Empty ROD block (less than 3 words)" << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream MBTS"<<
+                                   "event: Empty ROD block (less than 3 words)" );
 		  return StatusCode::SUCCESS;
                 } // End of if small size
 		if ( !m_tilecell->cached((*ids)[i]))
@@ -780,9 +778,9 @@ StatusCode TrigDataAccess::LoadCollections (
                   m_robFrags[i]->rod_data(roddata1);
                   size_t roddatasize = m_robFrags[i]->rod_ndata();
                   if (roddatasize < 3) {
-		    msg(MSG::WARNING) << "Error reading bytestream FEB"
-				      << "event: Empty ROD block (less than 3 words) : 0x"
-				      << std::hex << source_id << std::dec << endreq;
+                    ATH_MSG_WARNING( "Error reading bytestream FEB"<<
+                                     "event: Empty ROD block (less than 3 words) : 0x"
+                                     << std::hex << source_id << std::dec );
 		    // Data seems corrupted
 		    m_error|=0x20000000;
 		    //return StatusCode::SUCCESS;
@@ -801,10 +799,10 @@ StatusCode TrigDataAccess::LoadCollections (
 
 	if (msgLvl(MSG::DEBUG)) {
 	  for(LArFebEnergyCollection::const_iterator it = Begin; it!=End; ++it){
-	    msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId() 
-			    << " Feb Ex = " << (*it)->getFebEx()
-			    << " Feb Ey = " << (*it)->getFebEy() 
-			    << " Feb Ez = " << (*it)->getFebEz() << endreq;
+            ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId() 
+                           << " Feb Ex = " << (*it)->getFebEx()
+                           << " Feb Ey = " << (*it)->getFebEy() 
+                           << " Feb Ez = " << (*it)->getFebEz() );
 	  }
 	}
         return StatusCode::SUCCESS;
@@ -816,18 +814,18 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 LArTT_Selector<LArCellCont>::const_iterator& End,
                 const DETID detid, bool /*prepare*/) {
         if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " << m_rIds.size() << endreq;
+          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
 	// Resets error flag
 	m_error=0;
         Begin=End=m_sel->end();
-	if ( detid == 0 ) {
-            m_robDataProvider->addROBData( m_vrodid32lar );
-            m_robDataProvider->getROBData( m_vrodid32lar, m_robFrags );
-            m_robFrags.clear();
-	}
+        if ( detid == 0 ) { 
+            m_robDataProvider->addROBData( m_vrodid32lar ); 
+            m_robDataProvider->getROBData( m_vrodid32lar, m_robFrags ); 
+            m_robFrags.clear(); 
+        } 
 	m_robFrags.clear();
 	bool rob_miss=false;
 	size_t  checkSize = 0;
@@ -888,9 +886,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
            LArCellCollection *m_col = *it;
            m_lardecoder->setsecfeb(m_larcell->findsec(source_id));
            if ( !m_lardecoder->check_valid(m_robFrags[i],msg()) ) {
-	     msg(MSG::WARNING) << "Error reading bytestream"
-			       << "event: Bad ROB block (eformat checks) : 0x"
-			       << std::hex << source_id << std::dec << endreq;
+             ATH_MSG_WARNING( "Error reading bytestream"
+                              << "event: Bad ROB block (eformat checks) : 0x"
+                              << std::hex << source_id << std::dec );
 	     m_error|=0x20000000;
 	     reset_LArCol ( m_col );
            } else {
@@ -899,9 +897,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                   size_t roddatasize = m_robFrags[i]->rod_ndata();
                 // insert data into vector (to be removed soon)
                   if (roddatasize < 3) {
-		    msg(MSG::WARNING) << "Error reading bytestream"
-				      <<"event: Empty ROD block (less than 3 words) : 0x"
-				      << std::hex << source_id << std::dec << endreq;
+                    ATH_MSG_WARNING( "Error reading bytestream"
+                                     <<"event: Empty ROD block (less than 3 words) : 0x"
+                                     << std::hex << source_id << std::dec );
 		    // Data seems corrupted
 		    m_error|=0x20000000;
 		    reset_LArCol ( m_col );
@@ -941,9 +939,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
 	  int i=0;
 	  LArTT_Selector<LArCellCont>::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
-			    << "; Phi: " << (*m_it)->phi() 
-			    <<"; Energy: " << (*m_it)->energy() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+                           << "; Phi: " << (*m_it)->phi() 
+                           <<"; Energy: " << (*m_it)->energy() );
 	    i++;
 	  } // End of for printout cells
 	}
@@ -958,17 +956,16 @@ StatusCode TrigDataAccess::LoadFullCollections (
         m_error=0;
         m_robFrags.clear();
 
-	if ( sample == 0 ) {
-            m_robDataProvider->addROBData( m_alltile );
-            m_robDataProvider->getROBData( m_alltile, m_robFrags );
-            m_robFrags.clear();
-	}
-
+        if ( sample == 0 ) { 
+            m_robDataProvider->addROBData( m_alltile ); 
+            m_robDataProvider->getROBData( m_alltile, m_robFrags ); 
+            m_robFrags.clear(); 
+        } 
         int i = sample;
         Begin=End;
-                //m_tile[0] = m_tilecell->find_rod(m_rIdstile[i]);
-                m_tile[0] = m_alltile[i];
+//                m_tile[0] = m_tilecell->find_rod(m_rIdstile[i]);
 //              m_tile[0] = m_tilecell->find_rod(m_rIdstile[0]);
+		m_tile[0] = m_alltile[i]; 
                 m_robDataProvider->addROBData(m_tile);
                 m_robDataProvider->getROBData(m_tile,m_robFrags);
 		// Number of ROBs smaller than requested is below
@@ -980,9 +977,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 size_t roddatasize = m_robFrags[0]->rod_ndata();
                 // insert data into vector (to be removed soon)
                 if (roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream"
-				    << "event: Empty ROD block (less than 3 words)" 
-				    << std::hex << m_tile[0] << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream"
+                                   << "event: Empty ROD block (less than 3 words)" 
+                                   << std::hex << m_tile[0] << std::dec );
 		  // Data seems corrupted
 		  m_error|=0x20000000;
 		  return StatusCode::SUCCESS;
@@ -1001,10 +998,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
 	if (msgLvl(MSG::DEBUG)) {
 	  TileCellCollection::const_iterator m_itt = Begin;
 	  for (m_itt=Begin;m_itt!=End;++m_itt){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_itt)->eta()
-			    << "; Phi: " << (*m_itt)->phi()
-			    << "; Energy: " << (*m_itt)->energy()
-			    << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
+                           << "; Phi: " << (*m_itt)->phi()
+                           << "; Energy: " << (*m_itt)->energy()
+                           << "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;
@@ -1042,9 +1039,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 m_robFrags[i]->rod_data(roddata1);
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if(roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream " 
-				    << "event: Empty ROD block (less than 3 words) : 0x"
-				    << std::hex << source_id << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream " 
+                                   << "event: Empty ROD block (less than 3 words) : 0x"
+                                   << std::hex << source_id << std::dec );
 		  m_error|=0x20000000; 
 		  //return StatusCode::SUCCESS;
                 } else {
@@ -1053,9 +1050,8 @@ StatusCode TrigDataAccess::LoadFullCollections (
                        m_error|=m_lardecoder->report_error();
 		}
 	    } else {
-	      msg(MSG::WARNING) << "Error reading bytestream"
-				<< "event: Bad ROB block (eformat checks) "
-				<< endreq;
+              ATH_MSG_WARNING( "Error reading bytestream"
+                               << "event: Bad ROB block (eformat checks) " );
 	      // Data seems corrupted
 	      m_error|=0x20000000;
 	    }
@@ -1073,9 +1069,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 if(roddatasize < 3) {
                        uint32_t source_id = m_robFrags[i]->source_id();
-                       msg(MSG::WARNING) << "Error reading bytestream " 
-					 << "event: Empty ROD block (less than 3 words) : 0x"
-					 << std::hex << source_id << std::dec << endreq;
+                       ATH_MSG_WARNING( "Error reading bytestream " 
+                                        << "event: Empty ROD block (less than 3 words) : 0x"
+                                        << std::hex << source_id << std::dec );
                        m_error|=0x20000000;
                        //return StatusCode::SUCCESS;
                 } else {
@@ -1084,9 +1080,8 @@ StatusCode TrigDataAccess::LoadFullCollections (
                       m_error|=m_lardecoder->report_error();
                 }
 	      } else {
-		msg(MSG::WARNING) << "Error reading bytestream"
-				  << "event: Bad ROB block (eformat checks) "
-				  << endreq;
+		ATH_MSG_WARNING( "Error reading bytestream"
+                                 << "event: Bad ROB block (eformat checks) " );
 		// Data seems corrupted
 		m_error|=0x20000000;
 	      }
@@ -1097,13 +1092,13 @@ StatusCode TrigDataAccess::LoadFullCollections (
         End = m_febcoll->end();
 
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "This is the detectorID = " << detid << endreq;
-	  msg(MSG::DEBUG) << "This is the febcoll size = " << m_febcoll->size() << endreq;
+          ATH_MSG_DEBUG( "This is the detectorID = " << detid );
+          ATH_MSG_DEBUG( "This is the febcoll size = " << m_febcoll->size() );
 	  for(LArFebEnergyCollection::const_iterator it = Begin; it!=End; ++it){
-	    msg(MSG::DEBUG) << " Feb ID = " << (*it)->getFebId()
-			    << " Feb Ex = " << (*it)->getFebEx()
-			    << " Feb Ey = " << (*it)->getFebEy()
-			    << " Feb Ez = " << (*it)->getFebEz() << endreq;
+            ATH_MSG_DEBUG( " Feb ID = " << (*it)->getFebId()
+                           << " Feb Ex = " << (*it)->getFebEx()
+                           << " Feb Ey = " << (*it)->getFebEy()
+                           << " Feb Ez = " << (*it)->getFebEz() );
 	  }
 	}
         return StatusCode::SUCCESS;
@@ -1134,9 +1129,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 // insert data into vector (to be removed soon)
 
                 if (roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream"
-				    << "event: Empty ROD block (less than 3 words)"
-				    << std::hex << m_tile[0] << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream"
+                                   << "event: Empty ROD block (less than 3 words)"
+                                   << std::hex << m_tile[0] << std::dec );
 		  // Data seems corrupted
 		  m_error|=0x20000000;
 		  return StatusCode::SUCCESS;
@@ -1153,9 +1148,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
              //const uint32_t* roddata1 = 0; // commented out since not used (J Stelzer)
              if(roddatasize < 3) {
              	    uint32_t source_id = m_robFrags[i]->source_id();
-                    msg(MSG::WARNING) << "Error reading bytestream " 
-				      << "event: Empty ROD block (less than 3 words) : 0x"
-				      << std::hex << source_id << std::dec << endreq;
+                    ATH_MSG_WARNING( "Error reading bytestream " 
+                                     << "event: Empty ROD block (less than 3 words) : 0x"
+                                     << std::hex << source_id << std::dec );
                     m_error|=0x20000000;
                     //return StatusCode::SUCCESS;
              } else {
@@ -1172,9 +1167,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		CaloCellContainer::const_iterator& Begin,
                 CaloCellContainer::const_iterator& End){
         if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << "m_rIds.size() in LoadColl = " << m_rIds.size() << endreq;
+          ATH_MSG_DEBUG( "m_rIds.size() in LoadColl = " << m_rIds.size() );
 	  for(unsigned int i = 0 ; i < m_rIds.size() ; i++)
-	    msg(MSG::DEBUG) << "m_rIds[" << i << "]=" << m_rIds[i] << endreq;
+            ATH_MSG_DEBUG( "m_rIds[" << i << "]=" << m_rIds[i] );
 	}
         // Resets error flag
         m_error=0;
@@ -1187,7 +1182,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 
         m_robDataProvider->addROBData( m_vrodid32fullDet );
         m_robDataProvider->getROBData( m_vrodid32fullDet, m_robFrags );
-        m_robFrags.clear();
+	m_robFrags.clear();
         m_robDataProvider->getROBData( m_vrodid32lar, m_robFrags );
         checkSize = m_vrodid32lar.size();
 
@@ -1209,9 +1204,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
            LArCellCollection *m_col = *it;
            m_lardecoder->setsecfeb(m_larcell->findsec(source_id));
            if ( !m_lardecoder->check_valid(m_robFrags[i],msg()) ) {
-	     msg(MSG::WARNING) << "Error reading bytestream"
-			       << "event: Bad ROB block (eformat checks) : 0x"
-			       << std::hex << source_id << std::dec << endreq;
+             ATH_MSG_WARNING( "Error reading bytestream"
+                              << "event: Bad ROB block (eformat checks) : 0x"
+                              << std::hex << source_id << std::dec );
 	     m_error|=0x20000000;
 	     reset_LArCol ( m_col );
            } else {
@@ -1220,9 +1215,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 size_t roddatasize = m_robFrags[i]->rod_ndata();
                 // insert data into vector (to be removed soon)
                 if (roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream"
-				    << "event: Empty ROD block (less than 3 words) : 0x"
-				    << std::hex << source_id << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream"
+                                   << "event: Empty ROD block (less than 3 words) : 0x"
+                                   << std::hex << source_id << std::dec );
 		  // Data seems corrupted
 		  m_error|=0x20000000;
 		  reset_LArCol ( m_col );
@@ -1273,9 +1268,9 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 size_t roddatasize = m_robFrags[0]->rod_ndata();
                 // insert data into vector (to be removed soon) 
                 if (roddatasize < 3) {
-		  msg(MSG::WARNING) << "Error reading bytestream"
-				    << "event: Empty ROD block (less than 3 words)"
-				    << std::hex << m_tile[0] << std::dec << endreq;
+                  ATH_MSG_WARNING( "Error reading bytestream"
+                                   << "event: Empty ROD block (less than 3 words)"
+                                   << std::hex << m_tile[0] << std::dec );
 		  // Data seems corrupted 
 		  m_error|=0x20000000;
 		  return StatusCode::SUCCESS;
@@ -1295,15 +1290,15 @@ StatusCode TrigDataAccess::LoadFullCollections (
 
 	if (msgLvl(MSG::DEBUG)) {
 	  int i=0;
-	  msg(MSG::DEBUG) << "m_fullCellContainer->size() within LoadFullCol : " << m_fullCellContainer->size() << endreq;
+          ATH_MSG_DEBUG( "m_fullCellContainer->size() within LoadFullCol : " << m_fullCellContainer->size() );
 	  CaloCellContainer::const_iterator m_it;
 	  for ( m_it=Begin; m_it != End; ++m_it ){
-	    msg(MSG::DEBUG) << "Eta: " << (*m_it)->eta()
-			    << "; Phi: " << (*m_it)->phi()
-			    << "; Energy: " << (*m_it)->energy() << endreq;
+            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
+                           << "; Phi: " << (*m_it)->phi()
+                           << "; Energy: " << (*m_it)->energy() );
 	    i++;
 	  } // End of for printout cells
-	  msg(MSG::DEBUG) << "number of counted cells : " << i << endreq;
+          ATH_MSG_DEBUG( "number of counted cells : " << i );
 	}
         return StatusCode::SUCCESS;
 } // End of method
@@ -1312,7 +1307,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 void TrigDataAccess::handle(const Incident & inc ) {
         const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
          if(!eventInc) {
-             std::cout << " Unable to get EventInfo from either EventStore or BeginRun incident" << std::endl;
+             ATH_MSG_WARNING(" Unable to get EventInfo from either EventStore or BeginRun incident");
              return;
          }
          else {

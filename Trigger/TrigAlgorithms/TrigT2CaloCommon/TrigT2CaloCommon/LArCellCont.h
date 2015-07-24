@@ -102,7 +102,7 @@ private:
 	/** this event number */
 	unsigned int m_event;
 	/** One needs to destroy the TT vectors */
-	std::vector<std::vector<LArCell*>*> m_vecs;
+	std::vector<DataVector<LArCell>*> m_vecs;
 
 	/** A tool to help mask cells */
 	ILArBadChannelMasker* m_masker;		
@@ -124,8 +124,12 @@ private:
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */
         float m_lumi_block;
+	unsigned int m_bcid;
+	
 	/** Needs also the LArCablingSvc */
 	LArCablingService* m_larCablingSvc;  
+	/** flag to only update cache when trying to apply corrections */
+	bool m_BCIDcache;
 };
 
 #endif
