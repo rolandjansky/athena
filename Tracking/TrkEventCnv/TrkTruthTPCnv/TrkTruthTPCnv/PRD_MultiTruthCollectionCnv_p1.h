@@ -13,7 +13,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PixelID.h"
 #include "TrkTruthTPCnv/PRD_MultiTruthCollection_p1.h"
 
 class MsgStream;
@@ -30,7 +30,7 @@ public:
   /** Method creating the transient representation of @c Analysis::PRD_MultiTruthCollection
    *  from its persistent representation @c PRD_MultiTruthCollection_p1
    */
-  PRD_MultiTruthCollectionCnv_p1(): m_isInitialized(0)  {};
+  PRD_MultiTruthCollectionCnv_p1(): m_pixId{},m_storeGate{},m_isInitialized(0)  {};
 
   virtual void persToTrans( const Trk::PRD_MultiTruthCollection_p1* persObj, 
                             PRD_MultiTruthCollection* transObj, 
