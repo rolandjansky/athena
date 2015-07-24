@@ -14,11 +14,11 @@
 #
 #   1) Specify the input in here
 #      - One file
-#PoolInput = ["/home/wdic/data15_comm.00264034.physics_MinBias.recon.ESD.x322._lb0805._SFO-1._0001.1"]
+PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/data/lowMuRun/group.det-indet.data15_13TeV.00267358.physics_MinBias.DxAODMinBias.f597.ConvKSv004_EXT0/group.det-indet.5709497.EXT0._000011.DxAODMinBias.pool.root"]
 #   2) Feed files when executing the script
-if 'inputFiles' in dir():
-  print inputFiles
-PoolInput = inputFiles
+#if 'inputFiles' in dir():
+#  print inputFiles
+#PoolInput = inputFiles
 
 # number of event to process
 EvtMax=-1
@@ -93,9 +93,9 @@ DetFlags.ID_setOn()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
 
-
 DetFlags.makeRIO.Calo_setOff()
 DetFlags.detdescr.Calo_setOn()
+
 
 #USE temporary to DEBUG
 #from AthenaCommon.AppMgr import theApp
@@ -147,26 +147,16 @@ include ("InDetRecExample/InDetRecConditionsAccess.py")
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-from InDetDiMuonMonitoring.InDetDiMuonMonitoringConf import DiMuMon
-varsVSmeanZmumu = ["eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"]
-varsVSwidthZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg","etaDiff","phiDiff","crtDiff"]
-varsDistrZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
+from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonKshort
+iDPerfMonKshort = IDPerfMonKshort(name = 'IDPerfMonKshort',
+                                  tracksName = "InDetTrackParticles",
+                                  #CheckRate = 1000,
+                                  triggerChainName = "NoTriggerSelection",
+                                  VxContainerName = "V0UnconstrVertices",
+                                  VxPrimContainerName = "PrimaryVertices",
+                                  OutputLevel = DEBUG)
 
-ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
-                               resonName = "Zmumu",
-                               minInvmass = 60.,
-                               maxInvmass = 120.,
-                               nMassBins = 60,
-                               triggerChainName = "NoTrig",
-                               regions = ["All","BB","EAEA","ECEC"],
-                               varsVSmean = varsVSmeanZmumu,
-                               varsVSwidth = varsVSwidthZmumu,
-                               varsDistr = varsDistrZmumu,
-                               doFits = True,
-                               doSaveFits = False,
-                               OutputLevel = VERBOSE)
-
-ToolSvc += ZmumuMon
+ToolSvc += iDPerfMonKshort
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -178,11 +168,11 @@ IDPerfMonManager = AthenaMonManager(name                = "IDPerfMonManager",
                                     ManualRunLBSetup    = True,
                                     Run                 = 1,
                                     LumiBlock           = 1)
-IDPerfMonManager.AthenaMonTools += [ ZmumuMon ]
+IDPerfMonManager.AthenaMonTools += [ iDPerfMonKshort ]
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["DiMuMon DATAFILE='./DiMuMon.root' OPT='RECREATE'"]
-IDPerfMonManager.FileKey = "DiMuMon"
+ServiceMgr.THistSvc.Output += ["IDPerfMon DATAFILE='./IDPerfMon.root' OPT='RECREATE'"]
+IDPerfMonManager.FileKey = "IDPerfMon"
 
 topSequence += IDPerfMonManager
