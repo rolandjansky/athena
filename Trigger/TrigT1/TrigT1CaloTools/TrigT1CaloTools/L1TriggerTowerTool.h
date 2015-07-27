@@ -21,6 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
+#include "xAODTrigL1Calo/TriggerTower.h"
 
 class CaloIdManager;
 class CaloLVL1_ID;
@@ -66,6 +67,7 @@ namespace LVL1
       virtual void handle(const Incident&);
       /** Retrieve pointers to the L1Calo conditions containers */
       virtual StatusCode retrieveConditions();
+
       /** Take in vector of ADC digits, return PPrASIC results */
       virtual void process(const std::vector<int> &digits,
                            double eta, double phi, int layer,
@@ -75,6 +77,8 @@ namespace LVL1
       virtual void process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
                            std::vector<int> &et, std::vector<int> &bcidResults,
                            std::vector<int> &bcidDecisions, bool useJepLut = true);
+
+      virtual void simulateChannel(const xAOD::TriggerTower& tt, std::vector<int>& outCpLut, std::vector<int>& outJepLut, std::vector<int>& bcidResults, std::vector<int>& bcidDecisions);
 
       virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
                                       int bcid, float mu, std::vector<int_least16_t>& correctionOut);
