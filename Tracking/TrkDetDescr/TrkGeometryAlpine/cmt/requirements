@@ -1,0 +1,18 @@
+package TrkGeometryAlpine
+author LAPP Team
+
+public
+use AtlasPolicy           AtlasPolicy-*
+use TrkGeometry           TrkGeometry-*            Tracking/TrkDetDescr
+
+private
+use TrkDetElementBase     TrkDetElementBase-*      Tracking/TrkDetDescr
+use TrkSurfaces           TrkSurfaces-*            Tracking/TrkDetDescr
+use TrkParameters         TrkParameters-*          Tracking/TrkEvent
+use AtlasROOT             AtlasROOT-*              External
+
+public
+library TrkGeometryAlpine *.cxx
+apply_pattern installed_library
+apply_pattern component_library
+
