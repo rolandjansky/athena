@@ -127,7 +127,7 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
   // note: threshold vector index (not value) is preferred
   // to name PPM LUT histograms (see below, buffer_name) to
   // spare some Data Quality configuration file changes
-  unsigned int defaultThresh[] = {0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 33, 45, 50};
+  unsigned int defaultThresh[] = {0, 1, 3, 5, 10, 20, 35, 50};
   std::vector<unsigned int> defaultThreshVec (defaultThresh,
       defaultThresh + sizeof(defaultThresh) / sizeof(unsigned int) );
   declareProperty("LUTHitMap_ThreshVec",
@@ -240,19 +240,21 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     //------------------------Bits of BCID Logic Words Vs PeakADC -----------------------
 
     m_h_ppm_2d_tt_adc_BcidBits = m_histTool->book2F("ppm_2d_tt_adc_BcidBits",
-                                   "PPM: Bits of BCID Logic Word Vs. PeakADC", 11, 0., 11., 1023, 0., 1023.);
+                                   "PPM: Bits of BCID Logic Word Vs. PeakADC", 13, 0., 13., 1023, 0., 1023.);
     LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_adc_BcidBits->GetXaxis();
-    axis->SetBinLabel(1, "none");
+    axis->SetBinLabel(1, "none (40MHz)");
     axis->SetBinLabel(2, "extBC only");
     axis->SetBinLabel(3, "satBC only");
     axis->SetBinLabel(4, "extBC & satBC");
     axis->SetBinLabel(5, "peakF only");
     axis->SetBinLabel(6, "extBC & peakF");
     axis->SetBinLabel(7, "satBC & peakF");
-    axis->SetBinLabel(8, "all");
+    axis->SetBinLabel(8, "all (40MHz)");
     axis->SetBinLabel(9, "sat80low");
     axis->SetBinLabel(10, "sat80high");
-    axis->SetBinLabel(11, "sat80BC");
+    axis->SetBinLabel(11, "sat80BC only");
+    axis->SetBinLabel(12, "sat80BC & extBC");
+    axis->SetBinLabel(13, "sat80BC & peakF");
 
     //------------------------Average Maximum Timeslice-----------------------
 
@@ -386,7 +388,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_histTool->setMonGroup(&TT_LutCpPeakDist);
 
     m_h_ppm_em_1d_tt_lutcp_Et = m_histTool->book1F("ppm_em_1d_tt_lutcp_Et",
-                                "EM LUT-CP: Distribution of Peak;em LUT Peak [GeV]",
+                                "EM LUT-CP: Distribution of Peak;em LUT Peak",
                                 m_MaxEnergyRange - 1, 1, m_MaxEnergyRange);
     m_h_ppm_em_1d_tt_lutcp_Eta = m_histTool->bookPPMEmEta("ppm_em_1d_tt_lutcp_Eta",
                                  "EM LUT-CP: Distribution of Peak per #eta");
@@ -394,7 +396,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                                  "EM LUT-CP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
 
     m_h_ppm_had_1d_tt_lutcp_Et = m_histTool->book1F("ppm_had_1d_tt_lutcp_Et",
-                                 "HAD LUT-CP: Distribution of Peak;had LUT Peak [GeV]",
+                                 "HAD LUT-CP: Distribution of Peak;had LUT Peak",
                                  m_MaxEnergyRange - 1, 1, m_MaxEnergyRange);
     m_h_ppm_had_1d_tt_lutcp_Eta = m_histTool->bookPPMHadEta("ppm_had_1d_tt_lutcp_Eta",
                                   "HAD LUT-CP: Distribution of Peak per #eta");
@@ -814,7 +816,10 @@ StatusCode PPrMon::fillHistograms()
           std::bitset<3> sat80Bitset(sat80Word);
           for (unsigned int i=0;i<sat80Bitset.size();i++) {
             if (sat80Bitset.test(i)) {
-              m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);
+              if (i < 2) {m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);}
+              else if ( bcidWord == char(0) || bcidWord == char(2) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(10, ADC);} //sat80BC & sat40BC or only sat80BC algorithms
+              else if ( bcidWord == char(1) || bcidWord == char(3) || bcidWord == char(5) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(11, ADC);} //sat80BC & extBC
+              else if ( bcidWord == char(4) || bcidWord == char(5) || bcidWord == char(6) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(12, ADC);} //sat80BC & peakF
             }
           }
         }
@@ -1010,7 +1015,10 @@ StatusCode PPrMon::fillHistograms()
           std::bitset<3> sat80Bitset(sat80Word);
           for (unsigned int i=0;i<sat80Bitset.size();i++) {
             if (sat80Bitset.test(i)) {
-              m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);
+              if (i < 2) {m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);}
+              else if ( bcidWord == char(0) || bcidWord == char(2) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(10, ADC);} //sat80BC & sat40BC or only sat80BC algorithms
+              else if ( bcidWord == char(1) || bcidWord == char(3) || bcidWord == char(5) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(11, ADC);} //sat80BC & extBC
+              else if ( bcidWord == char(4) || bcidWord == char(5) || bcidWord == char(6) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(12, ADC);} //sat80BC & peakF
             }
           }
         }

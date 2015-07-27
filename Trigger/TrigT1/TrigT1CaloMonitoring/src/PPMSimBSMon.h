@@ -16,23 +16,15 @@
 #define PPMSIMBSMON_H
 
 #include <string>
-#include <algorithm> //added by Hanno for on-the-fly vector conversion
 #include <vector>
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "DataModel/DataVector.h"
-
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-
 
 class TH2F_LW;
 class TH2I_LW;
-
-class StatusCode;
-
 
 // ============================================================================
 namespace LVL1 {
@@ -131,19 +123,8 @@ public:
 
 private:
 
-  typedef DataVector<xAOD::TriggerTower> TriggerTowerContainer;
-  
   typedef std::vector<int> ErrorVector;
   
-  template <typename DST, typename SRC>
-  std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
-    using std::begin;
-    using std::end;
-    std::vector<DST> d(s.size());
-    std::transform(begin(s), end(s), begin(d), [](SRC v){return static_cast<DST>(v);}); 
-    return d;
-  } 
-
   /// Fill error event number histogram
   void  fillEventSample(int crate, int module);
 
@@ -157,22 +138,16 @@ private:
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
       
-  /// Debug printout flag
-  bool m_debug;
-
   /// Root directory name
   std::string m_rootDir;
 
   /// Trigger Tower container StoreGate key
   std::string m_triggerTowerLocation;
 
-  /// Number of events
-  int m_events;
   /// Cut on ADC digits for re-simulation
   int m_simulationADCCut;
   /// Histograms booked flag
   bool m_histBooked;
-  bool m_isRun2;
 
   //=======================
   //   Match/Mismatch plots

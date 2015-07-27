@@ -119,7 +119,7 @@ if l1caloRawMon:
         L1PPrMonTool = LVL1__PPrMon(
             name="L1PPrMonTool",
             LUTHitMap_ThreshVec=[
-                0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 33, 45, 50],
+                0, 1, 3, 5, 10, 20, 35, 50],
             LUTHitMap_LumiBlocks=10,
             ADCHitMap_Thresh=50,
             MaxEnergyRange=256,
