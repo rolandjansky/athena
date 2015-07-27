@@ -167,6 +167,14 @@ class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuild
         # add to ToolSvc
         ToolSvc += InDetCylinderVolumeCreator        
         
+        # the envelope definition service
+        from SubDetectorEnvelopes.SubDetectorEnvelopesConf import DetDescrDBEnvelopeSvc
+        AtlasEnvelopeSvc = DetDescrDBEnvelopeSvc('AtlasEnvelopeSvcDefinitionSvc')
+        # set the output level for the Envelope service
+        AtlasEnvelopeSvc.OutputLevel      = TrkDetFlags.InDetBuildingOutputLevel()  
+        # add to SvcMgr
+        ServiceMgr += AtlasEnvelopeSvc
+        
         # the tracking geometry builder
         InDet__RobustTrackingGeometryBuilder.__init__(self,namePrefix+name,\
                                                       BeamPipeBuilder   = BeamPipeBuilder,\
@@ -175,9 +183,9 @@ class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuild
                                                       ColorCodes        = colors,
                                                       BarrelEntryLayers = [ 2, 2, 2 ],
                                                       EndcapEntryLayers = [ 1, 0, 1 ],
-                                                      EnvelopeDefinitionSvc = 'AtlasGeometry_EnvelopeDefSvc',
+                                                      EnvelopeDefinitionSvc = AtlasEnvelopeSvc,
                                                       VolumeEnclosureDiscPositions = [ 3000., 3450. ],
-                                                      TrackingVolumeCreator      = InDetCylinderVolumeCreator,
+                                                      TrackingVolumeCreator     = InDetCylinderVolumeCreator,
                                                       LayerArrayCreator         = InDetLayerArrayCreator,
                                                       BuildBoundaryLayers       = TrkDetFlags.InDetBuildMaterialBoundaries(),
                                                       ReplaceAllJointBoundaries = TrkDetFlags.InDetBuildJointBoundaries(),

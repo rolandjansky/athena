@@ -9,6 +9,7 @@
 #include "InDetTrackingGeometry/SiLayerBuilder.h"
 #include "InDetTrackingGeometry/PixelOverlapDescriptor.h"
 #include "InDetTrackingGeometry/SCT_OverlapDescriptor.h"
+#include "InDetTrackingGeometry/DiscOverlapDescriptor.h"
 //InDet include
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -47,7 +48,8 @@
 
 std::vector<const Trk::CylinderLayer*> InDet::SiLayerBuilder::s_splitCylinderLayers;
 std::vector<const Trk::DiscLayer*>     InDet::SiLayerBuilder::s_splitDiscLayers;
-
+double InDet::SiLayerBuilder::s_splitRadius = 0.;
+    
 // constructor
 InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
@@ -61,13 +63,13 @@ InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n
   m_barrelLayerBinsPhi(1),
   m_barrelEnvelope(0.1),
   m_barrelEdbTolerance(0.05),
+  m_endcapRingLayout(false),
   m_endcapLayerBinsR(100),
   m_endcapLayerBinsPhi(1),
   m_endcapEnvelope(0.1),
   m_endcapComplexRingBinning(true),
   m_identification("Pixel"),
-  m_splitMode(false),
-  m_splitRadius(0.),
+  m_splitMode(0),
   m_splitTolerance(10.),   
   m_runGeometryValidation(true)
 {
@@ -84,6 +86,7 @@ InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n
   declareProperty("BarrelEnvelope"                   , m_barrelEnvelope);
   declareProperty("BarrelEdbTolerance"               , m_barrelEdbTolerance);
   // For the Active Endcap Material
+  declareProperty("EndcapRingLayout"                 , m_endcapRingLayout);
   declareProperty("EndcapAdditionalLayerPositionsZ"  , m_endcapAdditionalLayerPosZ);
   declareProperty("EndcapAdditionalLayerType"        , m_endcapAdditionalLayerType);
   declareProperty("EndcapLayerBinsR"                 , m_endcapLayerBinsR);
@@ -94,7 +97,6 @@ InDet::SiLayerBuilder::SiLayerBuilder(const std::string& t, const std::string& n
   declareProperty("Identification"                   , m_identification);
   // split mode for multiple pixel systems (upgrade)
   declareProperty("SplitMode"                        , m_splitMode);
-  declareProperty("SplitRadius"                      , m_splitRadius);
   declareProperty("SplitTolerance"                   , m_splitTolerance);      
   // Validation
   declareProperty("GeometryValidation"               , m_runGeometryValidation);
@@ -109,7 +111,7 @@ InDet::SiLayerBuilder::~SiLayerBuilder()
 StatusCode InDet::SiLayerBuilder::initialize()
 {
 
-    ATH_MSG_INFO( "initialize()" );
+    ATH_MSG_DEBUG( "initialize()" );
     // get Pixel Detector Description Manager
     if (m_pixelCase){
         const InDetDD::PixelDetectorManager* pixMgr = 0;
@@ -140,7 +142,7 @@ StatusCode InDet::SiLayerBuilder::initialize()
 // finalize
 StatusCode InDet::SiLayerBuilder::finalize()
 {
-    ATH_MSG_INFO( "finalize() successful" );
+    ATH_MSG_DEBUG( "finalize() successful" );
     return StatusCode::SUCCESS;
 }
 
@@ -152,10 +154,15 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   // split mode 2nd part return the already built layers 
   if (m_splitMode && s_splitCylinderLayers.size() ){
       ATH_MSG_DEBUG( "[ Split mode/ Part 2 ] Returning " << s_splitCylinderLayers.size() << " cylinder layers." );
+      ATH_MSG_VERBOSE( "                       Split radius was set to " << s_splitRadius );
       std::vector<const Trk::CylinderLayer*>* splitCylinderLayers = dressCylinderLayers(s_splitCylinderLayers);
       s_splitCylinderLayers.clear();
       return splitCylinderLayers; 
+  } else if (m_splitMode){
+      ATH_MSG_DEBUG( "[ Split mode/ Part 1 ] Initializing." );
+      s_splitRadius = m_splitMode < 0 ? 10e10 : 0.;
   }
+  
   // sanity check for ID Helper
   if (!m_pixIdHelper && !m_sctIdHelper){
        ATH_MSG_ERROR("Neither Pixel nor SCT Detector Manager or ID Helper could be retrieved - giving up.");
@@ -198,6 +205,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
  
   // cache needed
   double minHalflengthZ         = 10e10;
+  double maxHalflengthZ         = 0;
   size_t sumCheckBarrelModules  = 0;
   size_t barrelModules          = 0;
  
@@ -253,8 +261,8 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
            layerHalfLength[currentlayer] =  layerMinZ[currentlayer]*layerMinZ[currentlayer] > layerMaxZ[currentlayer]*layerMaxZ[currentlayer] ?
                fabs(layerMinZ[currentlayer]) : layerMaxZ[currentlayer];
            // get the haflength of the layer
-           minHalflengthZ = layerHalfLength[currentlayer] < minHalflengthZ ? 
-                            layerHalfLength[currentlayer] : minHalflengthZ;
+           takeSmaller( minHalflengthZ, layerHalfLength[currentlayer]);
+           takeBigger( maxHalflengthZ, layerHalfLength[currentlayer]);
            ATH_MSG_VERBOSE("      -> Determined Layer z range with  : " << layerMinZ[currentlayer] << " / " << layerMaxZ[currentlayer] );
            ATH_MSG_VERBOSE("      -> Symmetric half length taken    : " << layerHalfLength[currentlayer]);
        }
@@ -273,12 +281,10 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
        }
        takeSmaller( layerRmin[currentlayer], currentRmin );
        takeBigger(  layerRmax[currentlayer], currentRmax );
-           
-       if (m_splitMode){
-          // set the split radius to be at the maximum first
-          m_splitRadius = layerRadius[currentlayer] > m_splitRadius ? layerRadius[currentlayer] : m_splitRadius;
-          ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius (temporarily) set to : " << m_splitRadius );
-       }
+
+       // handle the split mode
+       if (m_splitMode > 0) takeBigger(s_splitRadius, layerRadius[currentlayer]);
+       else if (m_splitMode < 0) takeSmaller (s_splitRadius, layerRadius[currentlayer]);
            
        // fill the Surface vector
        Amg::Vector3D orderPosition((*sidetIter)->center());
@@ -319,14 +325,15 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       bool nonEquidistantBinning = false;
       {
           // calculate the average bin size
-          double averageBinSize = (layerMaxZ[layerCounter]-layerMinZ[layerCounter])/(layerZsectors[layerCounter]);
+          const double averageBinSize = (layerMaxZ[layerCounter]-layerMinZ[layerCounter])/(layerZsectors[layerCounter]);
+          const double inv_averageBinSize2 = 1. / (averageBinSize*averageBinSize);
           // loop over the boundaries and check if theyare outside the tolerance
           auto bIter  = layerZboundaries[layerCounter].begin();
           auto bIterE = layerZboundaries[layerCounter].end();
           for ( ++bIter; bIter != bIterE; ++bIter ){
               float cZ = (*bIter);
               float pZ = (*(bIter-1));
-              nonEquidistantBinning =  (cZ-pZ)*(cZ-pZ)/(averageBinSize*averageBinSize) < (1.-m_barrelEdbTolerance) *(1.-m_barrelEdbTolerance);
+              nonEquidistantBinning =  (cZ-pZ)*(cZ-pZ)*inv_averageBinSize2 < (1.-m_barrelEdbTolerance) *(1.-m_barrelEdbTolerance);
               if (nonEquidistantBinning){
                   ATH_MSG_VERBOSE("Non-equidistant binning for (Silicon) Surfaces on this layer with radius " << layerRadiusIter << " detected. ");
                   ATH_MSG_VERBOSE("Difference " << (cZ-pZ)/averageBinSize << " at a allowed tolerance of : " << m_barrelEdbTolerance );
@@ -406,7 +413,11 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       currentLayerExtend = layerHalfLength[layerCounter];
       
       // check if split has been done
-      splitDone = m_splitMode && fabs(layerHalfLength[layerCounter]-minHalflengthZ) > m_splitTolerance;
+      // split mode < 0 : compare to maxHalfLength
+      // split mode > 0 : compare to minHalflength
+      double compareHalfLengthZ = m_splitMode < 0 ? maxHalflengthZ : minHalflengthZ;
+      
+      splitDone = m_splitMode && fabs(layerHalfLength[layerCounter]-compareHalfLengthZ) > m_splitTolerance;
       if (m_splitMode){
            ATH_MSG_DEBUG( "[ Split mode / part 1 ] Layer Halflength determined as: " << layerHalfLength[layerCounter]);
            ATH_MSG_DEBUG( "                               while minHalflengthZ is: " << minHalflengthZ );
@@ -467,9 +478,10 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
           if (activeLayer) s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
-          m_splitRadius =  currentLayerRadius < m_splitRadius ? currentLayerRadius : m_splitRadius;
-          ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius (temproarily) set to : " << m_splitRadius );
+          if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
+          ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius (temproarily) set to : " << s_splitRadius );
        } else {
+          if (m_splitMode < 0) takeBigger ( s_splitRadius, currentLayerRadius );
           if (activeLayer) cylinderDetectionLayers.push_back(activeLayer);
        } 
        // increase the layer counter --- it is built
@@ -478,7 +490,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   } // layer construction
   // --------------------------- enf of detection layer construction loop ----------------------------------
 
-  ATH_MSG_DEBUG("Creating the Final CylinderLayer collection with (potentially) additional layers.");
+  ATH_MSG_DEBUG("Creating the final CylinderLayer collection with (potentially) additional layers.");
   std::vector< const Trk::CylinderLayer* >* cylinderLayers = dressCylinderLayers(cylinderDetectionLayers);
   
   // multiply the check number in case of SCT 
@@ -489,8 +501,9 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
      ATH_MSG_WARNING( barrelModules-sumCheckBarrelModules << " Modules not registered properly in binned array." );       
 
   if (m_splitMode)
-     ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius determined as : " << m_splitRadius );
+     ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius determined as : " << s_splitRadius );
 
+  ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
   return cylinderLayers;   
 } 
       
@@ -501,8 +514,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::discLayers() 
   // split mode 2nd 
   if (m_splitMode && s_splitDiscLayers.size() ){
     ATH_MSG_DEBUG( "[ Split mode/ Part 2 ] Returning " << s_splitDiscLayers.size() << " disc layers." );
-    std::vector<const Trk::DiscLayer*>* splitDiscs = 
-      new std::vector<const Trk::DiscLayer*>(s_splitDiscLayers);
+    std::vector<const Trk::DiscLayer*>* splitDiscs = new std::vector<const Trk::DiscLayer*>(s_splitDiscLayers);
     s_splitDiscLayers.clear();
     return splitDiscs; 
   }
@@ -745,6 +757,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
             
        // prepare the binned array, it can be with one to several rings            
        Trk::BinnedArray<Trk::Surface>* currentBinnedArray = 0;
+       std::vector<Trk::BinUtility*>* singleBinUtils = new std::vector<Trk::BinUtility*>;
        if (discRsectors==1){
             double halfPhiStep = M_PI/discPhiSectors[discCounter][0];
             // protection in case phi value was fluctuating around 0 or M_PI in parsing
@@ -794,7 +807,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
                                                               Trk::binR);
             ATH_MSG_VERBOSE("Steering bin utility constructed as : " << *currentSteerBinUtility);
             // the single phi bin utilities
-            std::vector<Trk::BinUtility*>* singleBinUtils = new std::vector<Trk::BinUtility*>;
+            //std::vector<Trk::BinUtility*>* singleBinUtils = new std::vector<Trk::BinUtility*>;
             singleBinUtils->reserve(discRsectors);
             for (size_t irings=0; irings < discRsectors; ++irings){
                     double halfPhiStep = M_PI/discPhiSectors[discCounter][irings];
@@ -850,8 +863,8 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         sumCheckEndcapModules +=  dsumCheckSurfaces;   
            
         // force same size for material collection - may be refined later
-        double rMin = m_splitMode ? discRmin[discCounter] : minRmin;
-        double rMax = m_splitMode ? discRmax[discCounter] : maxRmax;
+        double rMin = (m_splitMode || m_endcapRingLayout) ? discRmin[discCounter] : minRmin;
+        double rMax = (m_splitMode || m_endcapRingLayout) ? discRmax[discCounter] : maxRmax;
        
         ATH_MSG_DEBUG( "  -> With Rmin/Rmax (corr) :  " << minRmin << " / " << maxRmax );
        
@@ -867,7 +880,8 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         Trk::OverlapDescriptor* olDescriptor = 0;
         if (m_pixelCase)
             olDescriptor = new InDet::PixelOverlapDescriptor;
-        else olDescriptor = new  InDet::SCT_OverlapDescriptor;
+        //else olDescriptor = new  InDet::SCT_OverlapDescriptor;
+	else olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, singleBinUtils);
         
         // layer creation
         Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
@@ -881,7 +895,20 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         // register the layer to the surfaces --- if necessary to the other sie as well
         const std::vector<const Trk::Surface*>& layerSurfaces     = currentBinnedArray->arrayObjects();
         registerSurfacesToLayer(layerSurfaces,*activeLayer);
-        discLayers->push_back(activeLayer);
+        if (m_splitMode){
+            ATH_MSG_DEBUG( "[ Split mode ] Checking if this layer needs to be cached." );
+            if (m_splitMode < 0 && rMin > s_splitRadius){
+                ATH_MSG_VERBOSE( "            Split mode is negative and rMin > splitRadius (" << rMin  << " > " << s_splitRadius << ").");
+                ATH_MSG_VERBOSE( "            -> Caching this disk.");
+                s_splitDiscLayers.push_back(activeLayer);
+            }
+            else if (m_splitMode > 0 && rMax < s_splitRadius){
+                ATH_MSG_VERBOSE( "            Split mode is positive and rMax < splitRadius (" << rMax  << " < " << s_splitRadius << ").");
+                ATH_MSG_VERBOSE( "            -> Caching this disk.");
+                s_splitDiscLayers.push_back(activeLayer);
+            }
+        } else 
+            discLayers->push_back(activeLayer);
        // increase the disc counter by one
        ++discCounter;     
   }  
@@ -984,7 +1011,7 @@ std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::dressCylinderLa
         for ( ; addLayerIter != addLayerIterEnd && addLayerTypeIter != addLayerTypeIterEnd; ) {
             // build the passive layer if it is smaller the current cylLayerIter - or if it is the last one 
             if ( m_splitMode && s_splitCylinderLayers.size() ){
-                ATH_MSG_DEBUG("Called in split mode with split radius = " << m_splitRadius );
+                ATH_MSG_DEBUG("Called in split mode with split radius = " << s_splitRadius );
                 ATH_MSG_DEBUG("[- X -] Skipping additional layer " );
                 ATH_MSG_DEBUG( "  -> With Radius     :  " << *addLayerIter   );       
                 // increase the additional layer radii

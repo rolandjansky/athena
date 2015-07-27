@@ -110,9 +110,7 @@ namespace InDet {
 
       // enclosing endcap/cylinder layer 
       ServiceHandle<IEnvelopeDefSvc>                 m_enclosingEnvelopeSvc;                //!< the service to provide the ID envelope size
-      int                                            m_enclosingBarrelEntryLayerConfig;     //!< the entry layer config for the enclosing volume
       std::vector<double>                            m_enclosingCylinderRadius;             //!< the cylinder layer inside the enclosing volume
-      int                                            m_enclosingEndcapEntryLayerConfig;     //!< the entry layer config for the enclosing volume
       std::vector<double>                            m_enclosingDiscPositionZ;              //!< the disc position inside the enclosing volume
       
       double                                         m_layerEnvelopeCover;       //!< innermost - outermost 

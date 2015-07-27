@@ -115,8 +115,8 @@ namespace InDet {
       size_t                                         m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
       double                                         m_barrelEnvelope;                 //!< envelope around rMin/rMax
       double                                         m_barrelEdbTolerance;             //!< tolerance in percent how much the bin sizes can change
-                                                                                       //   to still allow for equidistant binning  
-                                                     
+
+      bool                                           m_endcapRingLayout;               //!< will not synchronise the rMin/rMax
       std::vector<double>                            m_endcapAdditionalLayerPosZ;      //!< Create additional endcaps at these z positions
       std::vector<int>                               m_endcapAdditionalLayerType;      //!< material layer 1 - navigation layer 0 ( for volume adjustment )
       size_t                                         m_endcapLayerBinsR;               //!< Barrel bins for the material in r
@@ -126,10 +126,10 @@ namespace InDet {
                                                      
       std::string                                    m_identification;                  //!< string identification  
       
-      bool                                           m_splitMode;                       //!< Check for the SLHC/split case 
-      mutable double                                 m_splitRadius;                     //!< Split radius for multiple pixel systems
+      int                                            m_splitMode;                       //!< Check for the split mode : -1 | 0 | 1 
       double                                         m_splitTolerance;                  //!< difference in layer half length to provoke the split
-           
+
+      static double                                  s_splitRadius;                     //!< Split radius for multiple pixel systems
       static std::vector<const Trk::CylinderLayer*>  s_splitCylinderLayers;             //!< cached SLHC/split cylinder layers for projective layout
       static std::vector<const Trk::DiscLayer*>      s_splitDiscLayers;                 //!< cached SLHC/split disc layers for projective layout
                                                      
