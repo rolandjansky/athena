@@ -167,33 +167,73 @@ MdtVsTgcRawDataValAlg::BlankPhi24(TH2 *h, int binx){
   }
 }
 void
-MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h){
-  BlankPhi24(h, 5);
-  BlankPhi24(h, 10);
-  BlankPhi24(h, 15);
-  BlankPhi24(h, 21);
-  BlankPhi24(h, 27);
-  BlankPhi24(h, 33);
-  BlankPhi24(h, 39);
-  BlankPhi24(h, 40);
-  BlankPhi24(h, 41);
-  BlankPhi24(h, 42);
-  BlankPhi24(h, 43);
-  
-  int x1=h->GetXaxis()->GetBinLowEdge(40);
-  int x2=h->GetXaxis()->GetBinUpEdge(40);
-  int x3=h->GetXaxis()->GetBinLowEdge(42);
-  int x4=h->GetXaxis()->GetBinUpEdge(42);
-  int y1=h->GetYaxis()->GetBinLowEdge(19);
-  int y2=h->GetYaxis()->GetBinUpEdge(19);
-  putBox(h, x1, y1, x2, y2);
-  putBox(h, x3, y1, x4, y2);
-  y1=h->GetYaxis()->GetBinLowEdge(35);
-  y2=h->GetYaxis()->GetBinUpEdge(35);
-  putBox(h, x1, y1, x2, y2);
-  putBox(h, x3, y1, x4, y2);
-  y1=h->GetYaxis()->GetBinLowEdge(43);
-  y2=h->GetYaxis()->GetBinUpEdge(43);
-  putBox(h, x1, y1, x2, y2);
-  putBox(h, x3, y1, x4, y2);
+MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h, int ws){
+  bool m_rebin=true;
+  if(m_rebin){//use new bin
+    if(ws==0){//Wire
+      for(int i=33; i<44;i++)BlankPhi24(h,i);
+      int x1=h->GetXaxis()->GetBinLowEdge(40);
+      int x2=h->GetXaxis()->GetBinUpEdge(40);
+      int x3=h->GetXaxis()->GetBinLowEdge(41);
+      int x4=h->GetXaxis()->GetBinUpEdge(41);
+      int y1=h->GetYaxis()->GetBinLowEdge(19);
+      int y2=h->GetYaxis()->GetBinUpEdge(19);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+      y1=h->GetYaxis()->GetBinLowEdge(35);
+      y2=h->GetYaxis()->GetBinUpEdge(35);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+      y1=h->GetYaxis()->GetBinLowEdge(43);
+      y2=h->GetYaxis()->GetBinUpEdge(43);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+    }else{//Strip
+      for(int i=29; i<39;i++)BlankPhi24(h,i);
+      int x1=h->GetXaxis()->GetBinLowEdge(35);
+      int x2=h->GetXaxis()->GetBinUpEdge(35);
+      int x3=h->GetXaxis()->GetBinLowEdge(36);
+      int x4=h->GetXaxis()->GetBinUpEdge(36);
+      int y1=h->GetYaxis()->GetBinLowEdge(19);
+      int y2=h->GetYaxis()->GetBinUpEdge(19);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+      y1=h->GetYaxis()->GetBinLowEdge(35);
+      y2=h->GetYaxis()->GetBinUpEdge(35);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+      y1=h->GetYaxis()->GetBinLowEdge(43);
+      y2=h->GetYaxis()->GetBinUpEdge(43);
+      putBox(h, x1, y1, x2, y2);
+      putBox(h, x3, y1, x4, y2);
+    }
+  }else{//use old bin
+    BlankPhi24(h, 5);
+    BlankPhi24(h, 10);
+    BlankPhi24(h, 15);
+    BlankPhi24(h, 21);
+    BlankPhi24(h, 27);
+    BlankPhi24(h, 33);
+    BlankPhi24(h, 39);
+    BlankPhi24(h, 40);
+    BlankPhi24(h, 41);
+    BlankPhi24(h, 42);
+    BlankPhi24(h, 43);
+    int x1=h->GetXaxis()->GetBinLowEdge(40);
+    int x2=h->GetXaxis()->GetBinUpEdge(40);
+    int x3=h->GetXaxis()->GetBinLowEdge(42);
+    int x4=h->GetXaxis()->GetBinUpEdge(42);
+    int y1=h->GetYaxis()->GetBinLowEdge(19);
+    int y2=h->GetYaxis()->GetBinUpEdge(19);
+    putBox(h, x1, y1, x2, y2);
+    putBox(h, x3, y1, x4, y2);
+    y1=h->GetYaxis()->GetBinLowEdge(35);
+    y2=h->GetYaxis()->GetBinUpEdge(35);
+    putBox(h, x1, y1, x2, y2);
+    putBox(h, x3, y1, x4, y2);
+    y1=h->GetYaxis()->GetBinLowEdge(43);
+    y2=h->GetYaxis()->GetBinUpEdge(43);
+    putBox(h, x1, y1, x2, y2);
+    putBox(h, x3, y1, x4, y2);
+  }
 }

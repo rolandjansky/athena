@@ -48,6 +48,8 @@
 
 #include "MuonDQAUtils/TGCDQAUtils.h"
 #include "MuonDQAUtils/MuonDQAFitFunc.h"
+//use new mdt segment container
+#include "xAODMuon/MuonSegmentContainer.h"
 
 #include "SegmTrack.h"
 
@@ -165,6 +167,9 @@ public:
                           MonGroup &mdtvstgclv1_expert_c);
   void maphists(const Trk::SegmentCollection *m_segmcollection,             // Fills TGC&MDT data positions
                 const Muon::TgcPrepDataContainer *tgc_prepcontainer);
+  void maphists(const xAOD::MuonSegmentContainer *m_newsegment,             // Fills TGC&MDT data positions
+                const Muon::TgcPrepDataContainer *tgc_prepcontainer);
+
   void maphistsfinalize();                                                  // Finalize histograms used in maphists
   // number of~ hists
   TH1 *mvt_cutspassed[2];        // [AC]
@@ -177,8 +182,15 @@ public:
                           MonGroup &mdtvstgclv1_expert_c);
   void tgceffcalc(const Trk::SegmentCollection     *m_segmcollection,                      // Fills efficiency histograms using subsidiary functions
                   const Muon::TgcPrepDataContainer *tgc_prepcontainer);
-  void SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,                     // Sorts MDT segments into stations
+  void tgceffcalc(const xAOD::MuonSegmentContainer *m_newsegment,                      // Fills efficiency histograms using subsidiary functions
+                  const Muon::TgcPrepDataContainer *tgc_prepcontainer);
+
+ 	void SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,                     // Sorts MDT segments into stations
                        vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
+  void SortMDTSegments(const xAOD::MuonSegmentContainer *m_newsegment,                     // Sorts MDT segments into stations
+                       vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
+
+
   void DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],              // Runs checks on DQ of segments
                           vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4]);
   void MatchMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],                // Matches up segments in different stations into SegmTracks
@@ -191,11 +203,11 @@ public:
                            const Muon::TgcPrepDataContainer *tgc_prepcontainer);
   void tgceffcalcfinalize();                                                               // Finalize histograms used in tgceffcalc
   // Subsidiary functions used for managing StationMap style histograms
-  int  getStationMapIndex(int x, int l, int stationFE, int stationEta, int stationPhi);
-  void labelStationMap(TH2 *h2, int i=-1);
+  int  getStationMapIndex(int k, int x, int l, int stationFE, int stationEta, int stationPhi);
+  void labelStationMap(TH2 *h2, int i=-1, int k=-1);
   void putBox(TH2* h2, float x1, float y1, float x2, float y2);
   void BlankPhi24(TH2 *h2, int binx);
-  void BlankStationMap(TH2 *h2);
+  void BlankStationMap(TH2 *h2, int ws);
   
   // efficiencies
   TH2* eff_stationmapbase[2][2][4];     // [AC][WireStrip][EffNumDenomError]

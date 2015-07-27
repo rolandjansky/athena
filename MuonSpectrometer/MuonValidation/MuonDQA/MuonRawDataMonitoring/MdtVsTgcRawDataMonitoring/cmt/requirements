@@ -24,6 +24,7 @@ use     MuonSegment             MuonSegment-*                   MuonSpectrometer
 use     TrkSegment              TrkSegment-*                    Tracking/TrkEvent
 use     TrkTrack                TrkTrack-*                      Tracking/TrkEvent
 use     muonEvent               muonEvent-*                     Reconstruction/MuonIdentification
+use     xAODMuon                xAODMuon-*                      Event/xAOD
 
 private
 use     EventPrimitives         EventPrimitives-*               Event
