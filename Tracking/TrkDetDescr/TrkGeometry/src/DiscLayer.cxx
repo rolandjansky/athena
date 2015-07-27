@@ -48,7 +48,7 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           Trk::SurfaceArray* surfaceArray,
                           double thickness,
                           Trk::OverlapDescriptor* olap,
-                          Trk::ApproachDescriptor* ades,
+                          Trk::IApproachDescriptor* ades,
                           int laytyp) :
   DiscSurface(transform, dbounds),
   Layer(surfaceArray, thickness, olap, laytyp),
@@ -67,7 +67,7 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           const Trk::LayerMaterialProperties& laymatprop,
                           double thickness,
                           Trk::OverlapDescriptor* olap,
-                          Trk::ApproachDescriptor* ades,
+                          Trk::IApproachDescriptor* ades,
                           int laytyp) :
   DiscSurface(transform, dbounds),
   Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
@@ -95,11 +95,6 @@ Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& tr
 {
     DiscSurface::associateLayer(*this);
     if (m_surfaceArray) buildApproachDescriptor();    
-}
-
-Trk::DiscLayer::~DiscLayer()
-{
-    delete m_approachDescriptor;
 }
 
 Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
@@ -150,7 +145,7 @@ void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
        m_center = new Amg::Vector3D(m_transform->translation());
        delete m_normal; 
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
-       // rebuild that - deletes the current one
+       // rebuild that
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();       
 }
@@ -182,17 +177,15 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         }
     }
 
-    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-        // rebuild the approach descriptor - delete the current approach descriptor
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
         buildApproachDescriptor();
-    }
     
 }
 
 /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
 const Trk::Surface& Trk::DiscLayer::approachSurface(const Amg::Vector3D& pos,
                                                     const Amg::Vector3D& dir,
-                                                    Trk::BoundaryCheck& bcheck) const
+                                                    const Trk::BoundaryCheck& bcheck) const
 {
     if (m_approachDescriptor){
         // get the test surfaces from the approach Descriptor
@@ -222,7 +215,7 @@ const Trk::Surface& Trk::DiscLayer::approachSurface(const Amg::Vector3D& pos,
 const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
                                                       const Amg::Vector3D& mom,
                                                       Trk::PropDirection pDir,
-                                                      Trk::BoundaryCheck& bcheck,
+                                                      const Trk::BoundaryCheck& bcheck,
                                                       bool resolveSubSurfaces,
                                                       const Trk::ICompatibilityEstimator*) const
 { 
@@ -236,9 +229,7 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 
 /** build approach surfaces */
 void Trk::DiscLayer::buildApproachDescriptor() const {
-    // delete the current approach descriptor
-    delete m_approachDescriptor;
-    // create the surface container   
+    // delete the surfaces    
     Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
     // get the center
     const Amg::Vector3D aspPosition(center()+0.5*thickness()*normal());

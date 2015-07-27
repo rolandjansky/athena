@@ -248,17 +248,39 @@ void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
 const Trk::Surface& Trk::Layer::surfaceOnApproach(const Amg::Vector3D&,
                                                   const Amg::Vector3D&,
                                                   Trk::PropDirection,
-                                                  Trk::BoundaryCheck&,
+                                                  const Trk::BoundaryCheck&,
                                                   bool,
                                                   const Trk::ICompatibilityEstimator*) const
 { return surfaceRepresentation(); }
                                                      
 
+size_t Trk::Layer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces,
+				      const Trk::TrackParameters& pars,
+				      Trk::PropDirection pdir,
+				      const Trk::BoundaryCheck& bcheck,
+                      bool materialSurfacesOnly,
+				      const Trk::Surface* startSurface,
+				      const Trk::Surface* endSurface,
+				      const Trk::ICompatibilityEstimator* ice) const
+{
+  return getCompatibleSurfaces(cSurfaces, pars, pdir, bcheck, materialSurfacesOnly, startSurface, endSurface, ice);
+}
+
+size_t Trk::Layer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces,
+				      const Trk::NeutralParameters& pars,
+				      Trk::PropDirection pdir,
+				      const Trk::BoundaryCheck& bcheck,
+                      bool materialSurfacesOnly,
+				      const Trk::Surface* startSurface,
+				      const Trk::Surface* endSurface,
+				      const Trk::ICompatibilityEstimator* ice) const
+{
+  return getCompatibleSurfaces(cSurfaces, pars, pdir, bcheck, materialSurfacesOnly, startSurface, endSurface, ice);
+}
+
 inline bool Trk::Layer::hasSubStructure(bool resolveSensitive) const 
 {
     if (resolveSensitive && m_surfaceArray)
         return true;
-    //!< TODO for cylinders with material substructure this, has to go here       
     return false;
 }
-

@@ -64,6 +64,9 @@ namespace Trk {
                                   double s,
                                   const Trk::Material& mat);
 
+        /** adding the information about an empty hit scaling- particle crossed layer, but no mapping information */
+        void associateEmptyHit(const Amg::Vector3D& pos);
+
         /** finalize the Event */
         AssociatedMaterial* finalizeEvent(const Trk::Layer& lay, bool fullHit = false);
 
@@ -91,7 +94,8 @@ namespace Trk {
         int                                                          m_steps;
         Amg::Vector3D                                                m_pos;
                                                                      
-        //!< event related information                               
+        //!< event related information
+        bool                                                         m_emptyHitCase;                             
         double                                                       m_s;
         double                                                       m_s_in_x0;
         double                                                       m_s_in_l0;

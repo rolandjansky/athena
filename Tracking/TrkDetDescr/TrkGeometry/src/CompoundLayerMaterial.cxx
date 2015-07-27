@@ -113,7 +113,8 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
 {
     // get the size
     double thickness = m_thicknessBins.value(bin0,bin1);
-    if (thickness == 0.) return 0;
+    // no thickness or no x0 - return a null pointer
+    if (thickness == 0.) return nullptr;
     double x0   = 0.;
     double l0   = 0.;
     double a    = 0.;
@@ -140,9 +141,13 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
          z   = m_zBins.value(bin0,bin1);
          rho = m_rhoBins.value(bin0,bin1);
     }
+    // record the material composition
+    Trk::MaterialComposition* mComposition = new Trk::MaterialComposition(m_composition[bin1][bin0]); 
+    // check for 0 material
+    if (x0 == 0.) return nullptr;
     // set it and return 
     //!< @TODO measure if this is slow
-    m_materialProperties->setMaterial(Trk::Material(x0,l0,a,z,rho),thickness);
+    m_materialProperties->setMaterial(Trk::Material(x0,l0,a,z,rho,0.,mComposition),thickness);
     return m_materialProperties;
 }
 

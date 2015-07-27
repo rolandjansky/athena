@@ -174,18 +174,29 @@ namespace Trk {
     virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
                                              const Amg::Vector3D& dir,
                                              PropDirection pdir,
-                                             BoundaryCheck& bcheck,
+                                             const BoundaryCheck& bcheck,
                                              bool resolveSubSurfaces = 0,
                                              const ICompatibilityEstimator* ice = 0) const;
 
     /** get compatible surfaces starting from charged parameters */
-    template <class T>  size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-                                                  const T& pars,
-                                                  PropDirection pdir,
-                                                  BoundaryCheck& bcheck,
-                                                  const Surface* startSurface = 0,
-                                                  const Surface* endSurface = 0,
-                                                  const ICompatibilityEstimator* ice = 0) const;
+    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
+			                          const TrackParameters& pars,
+			                          PropDirection pdir,
+			                          const BoundaryCheck& bcheck,
+                                      bool materialSurfacesOnly = true,
+			                          const Surface* startSurface = 0,
+			                          const Surface* endSurface = 0,
+			                          const ICompatibilityEstimator* ice = 0) const;
+
+    /** get compatible surfaces starting from neutral parameters */
+    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
+    			                      const NeutralParameters& pars,
+    			                      PropDirection pdir,
+    			                      const BoundaryCheck& bcheck,
+                                      bool materialSurfacesOnly = true,
+    			                      const Surface* startSurface = 0,
+    			                      const Surface* endSurface = 0,
+    			                      const ICompatibilityEstimator* ice = 0) const;
 
     /** Has sub-structure method: 
         - sub-structure depending on : 
@@ -230,6 +241,16 @@ namespace Trk {
     double getRef() const;
 
   private:
+    /** get compatible surfaces starting from charged parameters */
+    template <class T>  size_t getCompatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
+                                                     const T& pars,
+                                                     PropDirection pdir,
+                                                     const BoundaryCheck& bcheck,
+                                                     bool materialSurfacesOnly = true,
+                                                     const Surface* startSurface = 0,
+                                                     const Surface* endSurface = 0,
+                                                     const ICompatibilityEstimator* ice = 0) const;
+
     void compactify(size_t& cSurfaces, size_t& tSurfaces) const;                    //!< propagate TrackingGeometry owner downstream
       
     void registerLayerIndex(const LayerIndex& lIdx) const;                          //!< register layer index for material map registration
@@ -297,13 +318,14 @@ namespace Trk {
   }
 
   /** returns all Compatible surfaces with given BoundaryCheck */
-  template <class T> size_t Layer::compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-                                                      const T& pars,
-                                                      PropDirection pDir,
-                                                      BoundaryCheck& bcheck,
-                                                      const Surface* startSurface,
-                                                      const Surface* endSurface,
-                                                      const ICompatibilityEstimator*) const
+  template <class T> size_t Layer::getCompatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
+                                                         const T& pars,
+                                                         PropDirection pDir,
+                                                         const BoundaryCheck& bcheck,
+                                                         bool materialSurfacesOnly,
+                                                         const Surface* startSurface,
+                                                         const Surface* endSurface,
+                                                         const ICompatibilityEstimator*) const
   {
       // fast exit - nothing to do
       if (!m_surfaceArray || !m_overlapDescriptor) return 0;
@@ -320,8 +342,11 @@ namespace Trk {
       if (endSurface){
           // intersect the end surface
           Intersection endInter = endSurface->straightLineIntersection(pos,dir,fDirection,bcheck);
-          if (endInter.valid)
+          // non-valid intersection with the end surface provided at this layer indicates wrong direction or faulty setup
+          // -> do not return compatible surfaces since they may lead you on a wrong navigation path 
+          if (endInter.valid && endInter.pathLength > 0.)
               maxPathLength = endInter.pathLength;
+          else return 0;
       }
       
       // clear the vector, just in case
@@ -339,15 +364,16 @@ namespace Trk {
           bool acceptSurfaces = m_overlapDescriptor->reachableSurfaces(testSurfaces, *tSurface, pos, dir);
           // boolean said you can directly take the surfaces from the reachable surfaces
           if (acceptSurfaces) {
-              // no end surface is given - accept totally
-              if (!endSurface)
+              // no start nor end surface is given - accept totally if not configured to only collect material surfaces
+              if (!startSurface && !endSurface && !materialSurfacesOnly)
                   cSurfaces = testSurfaces;
               else { // endSurface was given - check for maxPathLength && endSurface
                   for (auto& tSurface : testSurfaces){
                       // exclude the startSurface and endSurface from this loop 
                       if (tSurface.object == endSurface || tSurface.object == startSurface) continue;
                       // accept if in path range
-                      if (tSurface.intersection.pathLength < maxPathLength) cSurfaces.push_back(tSurface);
+                      if (tSurface.intersection.pathLength < maxPathLength && (!materialSurfacesOnly || tSurface.object->materialLayer()) ) 
+                          cSurfaces.push_back(tSurface);
                   }
               }
           } else if (testSurfaces.size()) {
@@ -355,13 +381,14 @@ namespace Trk {
                   // exclude the endSurface
                   if (tSurface.object == endSurface || tSurface.object == startSurface) continue;
                   // minimize the computational cost
-                  Intersection tsfInter = tSurface.object->straightLineIntersection(pos,dir,fDirection,bcheck);
+                  Intersection tsfInter = tSurface.object->straightLineIntersection(pos,dir,fDirection,false);
                   // check if the intersection is valid and the maxPathLength has not been exceeded
                   if (tsfInter.valid && tsfInter.pathLength < maxPathLength ){
                       // resulting propDirection
                       PropDirection rDir = fDirection ? pDir : ( tsfInter.pathLength > 0 ? alongMomentum : oppositeMomentum );
-                      // and the surfaces & direction to push back     
-                      cSurfaces.push_back(SurfaceIntersection(tsfInter,tSurface.object,rDir));
+                      // and the surfaces & direction to push back - take only material surfaces if configured to do so
+                      if (!materialSurfacesOnly || tSurface.object->materialLayer())
+                          cSurfaces.push_back(SurfaceIntersection(tsfInter,tSurface.object,rDir));
                   } 
               }
           }
@@ -371,12 +398,9 @@ namespace Trk {
       if (layerMaterialProperties() &&  layerSurface != startSurface && layerSurface != endSurface ){
           // self intersection
           Intersection lInter = surfaceRepresentation().straightLineIntersection(pos,dir,fDirection,bcheck);
-          if (lInter.valid){
-              // resulting propDirection
-              PropDirection rDir = fDirection ? pDir : ( lInter.pathLength > 0 ? alongMomentum : oppositeMomentum );
-              // and the surfaces & direction to push back     
-              cSurfaces.push_back(SurfaceIntersection(lInter,layerSurface,rDir));
-          }   
+          // allow only if it is in the maximal path length 
+          if (lInter.valid && lInter.pathLength < maxPathLength)
+              cSurfaces.push_back(SurfaceIntersection(lInter,layerSurface,pDir));
       }
       // now sort it 
       std::sort(cSurfaces.begin(),cSurfaces.end());
