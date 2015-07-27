@@ -21,6 +21,7 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
+#include "xAODTrigL1Calo/TriggerTower.h"
 
 namespace LVL1
 {
@@ -40,15 +41,17 @@ class IL1TriggerTowerTool : virtual public IAlgTool  {
           
     virtual StatusCode retrieveConditions() = 0;
 
-    // the useJepLut parameters is ignored for Run-1 data
     virtual void process(const std::vector<int> &digits,
                          double eta, double phi, int EmHad,
                          std::vector<int> &et, std::vector<int> &bcidResults,
                          std::vector<int> &bcidDecisions, bool useJepLut = true) = 0;
-
+ 
     virtual void process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
                          std::vector<int> &et, std::vector<int> &bcidResults,
                          std::vector<int> &bcidDecisions, bool useJepLut = true) = 0;
+
+
+    virtual void simulateChannel(const xAOD::TriggerTower& tt, std::vector<int>& outCpLut, std::vector<int>& outJepLut, std::vector<int>& bcidResults, std::vector<int>& bcidDecisions) = 0;
 
     virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
                                     int bcid, float mu, std::vector<int_least16_t>& correctionOut) = 0;
