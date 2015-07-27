@@ -63,8 +63,6 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         for l in proc_peek.readlines():
             # Look for an output line 
             if 'output' not in l.split('#')[0].split(): continue
-            # See if they have a '-f' in there
-            if '-f' not in l.split('#')[0].split(): continue
             # Check how many things before the options start
             tmplist = l.split('#')[0].split(' -')[0]
             # if two things, second is the directory
@@ -94,27 +92,39 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     return thedir
 
 
-def get_default_runcard(isNLO=False):
+#def get_default_runcard(isNLO=False):
+#    # Get the run card from the installation
+#    if isNLO:
+#        mglog.info('Fetching default NLO run_card.dat')
+#        if os.access(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        else:
+#            raise RuntimeError('Cannot find default NLO run_card.dat!')
+#    else:
+#        mglog.info('Fetching default LO run_card.dat')
+#        if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        else:
+#            raise RuntimeError('Cannot find default LO run_card.dat!')
+
+
+
+def get_default_runcard(proc_dir='PROC_mssm_0'):
     # Get the run card from the installation
-    if isNLO:
-        mglog.info('Fetching default NLO run_card.dat')
-        if os.access(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat','run_card.SM.dat')
-            return 'run_card.SM.dat'
-        else:
-            raise RuntimeError('Cannot find default NLO run_card.dat!')
+    run_card_loc=proc_dir+'/Cards/run_card.dat'
+    mglog.info('Fetching default run_card.dat')
+    if os.access(run_card_loc,os.R_OK):
+        shutil.copy(run_card_loc,'run_card.SM.dat')
+        return 'run_card.SM.dat'
     else:
-        mglog.info('Fetching default LO run_card.dat')
-        if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
-            return 'run_card.SM.dat'
-        elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
-            return 'run_card.SM.dat'
-        else:
-            raise RuntimeError('Cannot find default LO run_card.dat!')
-
-
+        raise RuntimeError('Cannot find default run_card.dat! I was looking here: %s'%run_card_loc)
+    
+    
 def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None):
     try:
         from __main__ import opts
@@ -1133,6 +1143,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
             if masses['1000022']<xqcut*4.: xqcut = masses['1000022']*0.22
         elif 'C1N2'==gentype:
             if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+        elif 'Stau'==gentype:
+            if masses['1000015']<xqcut*4.: xqcut = masses['1000015']*0.25
         else:
             if 'G' in gentype or 'ALL' in gentype:
                 if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
