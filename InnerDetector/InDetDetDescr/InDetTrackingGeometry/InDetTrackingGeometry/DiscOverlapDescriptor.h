@@ -54,17 +54,10 @@ namespace InDet {
     
     /** Constructor */
     DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = 0,
-			  std::vector<Trk::BinUtility*>* singleBinUtils = 0);
+			  const std::vector<Trk::BinUtility*>* singleBinUtils = 0);
     
     /** Destructor */
-    virtual ~DiscOverlapDescriptor() {
-      if (m_singleBinUtils) {
-	std::vector<Trk::BinUtility*>::iterator binIter = m_singleBinUtils->begin();
-	for ( ; binIter != m_singleBinUtils->end(); ++binIter)
-	  delete *binIter;
-      }
-      delete m_singleBinUtils;
-    }
+    virtual ~DiscOverlapDescriptor() {}
     
     /**Pseudo-Constructor*/
     DiscOverlapDescriptor* clone() const;
@@ -82,7 +75,7 @@ namespace InDet {
   private:
     
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
-    std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
+    const std::vector<Trk::BinUtility*>*            m_singleBinUtils;
     
     
   };
