@@ -26,7 +26,7 @@ namespace Trk {
   class VolumeBounds;
   class LayerMaterialProperties;
   class OverlapDescriptor;
-  class ApproachDescriptor;
+  class IApproachDescriptor;
   
   /**
    @class DiscLayer
@@ -67,7 +67,7 @@ namespace Trk {
                   SurfaceArray* surfaceArray,
                   double isontolerance = 0.,
                   OverlapDescriptor* od = 0,
-                  ApproachDescriptor* ad = 0,
+                  IApproachDescriptor* ad = 0,
                   int laytyp=int(Trk::active));
                 
         /**Constructor with DiscSurface components, 
@@ -78,7 +78,7 @@ namespace Trk {
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
                   OverlapDescriptor* od = 0,
-                  ApproachDescriptor* ad = 0,
+                  IApproachDescriptor* ad = 0,
                   int laytyp=int(Trk::active)); 
  
         /**Copy constructor of DiscLayer*/
@@ -91,7 +91,7 @@ namespace Trk {
         DiscLayer& operator=(const DiscLayer&);
               
         /**Destructor*/
-        virtual ~DiscLayer();  
+        virtual ~DiscLayer(){}  
                 
         /** Transforms the layer into a Surface representation for extrapolation */
         const DiscSurface& surfaceRepresentation() const override;
@@ -100,7 +100,7 @@ namespace Trk {
         const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
                                          const Amg::Vector3D& mom, 
                                          PropDirection pdir,
-                                         BoundaryCheck& bcheck,
+                                         const BoundaryCheck& bcheck,
                                          bool resolveSubSurfaces = 0,
                                          const ICompatibilityEstimator* ice = 0) const override;
       
@@ -128,9 +128,9 @@ namespace Trk {
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
-                                      BoundaryCheck& bcheck) const;    
-                                          
-       mutable ApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
+                                      const BoundaryCheck& bcheck) const;    
+     protected:
+       mutable IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

@@ -32,6 +32,8 @@ namespace Trk {
         ValueMatrix  valueBinMatrix;
         
         double value(unsigned char ibin0, unsigned char ibin1) {
+            // allows for single entry
+            if (!valueBinMatrix.size()) return valueMin;
             // get the entry from the matrix
             unsigned int ibin = static_cast<unsigned int>(valueBinMatrix[static_cast<unsigned int>(ibin1)][static_cast<unsigned int>(ibin0)]);
             if (!ibin) return 0.;

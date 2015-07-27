@@ -27,6 +27,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord()
   m_minFraction(0.),  
   m_steps(0),
   m_pos(Amg::Vector3D(0.,0.,0.)),
+  m_emptyHitCase(false),
   m_s(0.),
   m_s_in_x0(0.),  
   m_s_in_l0(0.),  
@@ -152,6 +153,7 @@ void Trk::LayerMaterialRecord::associateGeantinoHit(const Amg::Vector3D& pos,
                                                     const Trk::Material& mat)
 {
     m_steps++;
+    
     m_s                 += s;
     // path association method
     m_pos               += pos;
@@ -182,11 +184,28 @@ void Trk::LayerMaterialRecord::associateGeantinoHit(const Amg::Vector3D& pos,
     } 
 }
 
+void Trk::LayerMaterialRecord::associateEmptyHit(const Amg::Vector3D& pos)
+{
+    // just remember that you had an empty hit
+    m_emptyHitCase      = true;
+    // take the position to increase the event counter by one
+    m_pos               = pos;
+}
+
 Trk::AssociatedMaterial* Trk::LayerMaterialRecord::finalizeEvent(const Trk::Layer& lay, bool fullHit)
 {
-    // only if there was a single step in the event
-    if (m_steps){
+    Trk::AssociatedMaterial* fullHitMaterial = nullptr;
+    // empty hit scaling 
+    if (m_emptyHitCase){
+        // averge the hit positions
+        int rBin0 = m_binUtility ? m_binUtility->bin(m_pos, 0) : 0;
+        int rBin1 = ( m_binUtility  && m_binUtility->dimensions() > 1) ? m_binUtility->bin(m_pos, 1) : 0;
+        // simply increas the event counter
+        m_run_events[rBin1][rBin0]++;
+    // material hit collection        
+    } else if (m_steps){
 
+        // only if there was a single step in the event
         Amg::Vector3D hitPosition(m_pos*1./(m_steps));
         // get the correction factor depending on the layer type 
         double corrFactorInv = fabs(1./lay.surfaceRepresentation().pathCorrection(hitPosition,hitPosition));
@@ -200,11 +219,11 @@ Trk::AssociatedMaterial* Trk::LayerMaterialRecord::finalizeEvent(const Trk::Laye
         m_run_pos[rBin1][rBin0]         += hitPosition; 
         m_run_s_in_x0[rBin1][rBin0]     += m_s_in_x0*corrFactorInv;
         m_run_s_in_l0[rBin1][rBin0]     += m_s_in_l0*corrFactorInv;
-        // a & z are normalised to rho/s
+        // a & z are normalised to rho
         m_run_a[rBin1][rBin0]           += m_a/m_rho;
         m_run_z[rBin1][rBin0]           += m_z/m_rho;
-        // rho is always - condensed to the chosen layer thickness
-        m_run_rho[rBin1][rBin0]         += m_rho/m_layerThickness * corrFactorInv;
+        // rho is normalised to the layer thickness times corection factor
+        m_run_rho[rBin1][rBin0]         += m_rho*corrFactorInv/m_layerThickness; // ST
 
         // add to the run element table 
         for (auto& eIter: m_elements) {
@@ -215,17 +234,6 @@ Trk::AssociatedMaterial* Trk::LayerMaterialRecord::finalizeEvent(const Trk::Laye
             else 
                  m_run_elements[rBin1][rBin0][eIter.first] += nef;
         }
-        
-        // reset event variables
-        m_steps             = 0;
-        m_pos               = Amg::Vector3D(0.,0.,0.);
-        m_s                 = 0.;
-        m_s_in_x0           = 0.;
-        m_s_in_l0           = 0.;
-        m_a                 = 0.;
-        m_z                 = 0.;
-        m_rho               = 0.;
-        m_elements.clear();
     
         // just for validation purpose
         if (fullHit){
@@ -246,14 +254,26 @@ Trk::AssociatedMaterial* Trk::LayerMaterialRecord::finalizeEvent(const Trk::Laye
             double l0 = m_layerThickness/s_in_l0;
         
             /** Constructor with explicit arguments  */
-            return new Trk::AssociatedMaterial(hitPosition,
+            fullHitMaterial =  new Trk::AssociatedMaterial(hitPosition,
                                                m_run_s[rBin1][rBin0] * eventNorm,
                                                x0, l0, a, z, rho, corrFactorInv,
                                                lay.enclosingTrackingVolume(),&lay);
-        } 
+        }
     }
     
-    return 0;
+    // reset event variables
+    m_emptyHitCase      = false;
+    m_steps             = 0;
+    m_pos               = Amg::Vector3D(0.,0.,0.);
+    m_s                 = 0.;
+    m_s_in_x0           = 0.;
+    m_s_in_l0           = 0.;
+    m_a                 = 0.;
+    m_z                 = 0.;
+    m_rho               = 0.;
+    m_elements.clear();
+    
+    return fullHitMaterial;
 
 }
 
@@ -272,7 +292,7 @@ void Trk::LayerMaterialRecord::finalizeRun(bool recordElements)
             Trk::MaterialProperties* binMaterial = 0;
             if (m_run_events[ibin1][ibin0]) {
 
-                // average the position from the recorded events - for the projection factor
+                // The event norm
                 double eventNorm     = 1./double(m_run_events[ibin1][ibin0]) ;                  
 
                 // normalize the value by number of recorded events - each event counts the same
@@ -288,6 +308,7 @@ void Trk::LayerMaterialRecord::finalizeRun(bool recordElements)
                 double x0 = m_layerThickness/m_run_s_in_x0[ibin1][ibin0];
                 double l0 = m_layerThickness/m_run_s_in_l0[ibin1][ibin0];
 
+                // prepare the material composition 
                 Trk::MaterialComposition* matComposition = 0;
                 if (recordElements){
                     // pre-loop to get a sample 

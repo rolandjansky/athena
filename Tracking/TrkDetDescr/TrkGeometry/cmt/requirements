@@ -10,7 +10,7 @@ use AthenaKernel          AthenaKernel-*             Control
 use CLIDSvc               CLIDSvc-*                  Control
 use DataModel             DataModel-*                Control
 use GaudiInterface        GaudiInterface-*           External  
-use GeoPrimitives	      GeoPrimitives-*            DetectorDescription
+use GeoPrimitives	  GeoPrimitives-*            DetectorDescription
 use TrkEventPrimitives    TrkEventPrimitives-*       Tracking/TrkEvent
 use TrkParameters         TrkParameters-*            Tracking/TrkEvent
 use TrkNeutralParameters  TrkNeutralParameters-*     Tracking/TrkEvent

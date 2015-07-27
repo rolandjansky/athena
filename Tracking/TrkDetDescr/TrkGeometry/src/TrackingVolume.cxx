@@ -559,7 +559,7 @@ const Trk::LayerIntersection<Amg::Vector3D>
                    Trk::TrackingVolume::closestMaterialLayer(const Amg::Vector3D& gp,
                                                         const Amg::Vector3D& dir, 
                                                         PropDirection pDir,
-                                                        BoundaryCheck bchk) const
+                                                        const BoundaryCheck& bchk) const
 {
   
   // the layer candidates to check
@@ -1228,9 +1228,12 @@ void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelop
   if (confLayers){
     msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endreq;
     for (auto& clayIter : confLayers->arrayObjects())
-        if (clayIter)
-            clayIter->resizeLayer(volumeBounds(),envelope);
-         else
+        if (clayIter){
+            if (clayIter->surfaceRepresentation().type() == Trk::Surface::Cylinder && !(center().isApprox(clayIter->surfaceRepresentation().center())) )
+                clayIter->resizeAndRepositionLayer(volumeBounds(),center(),envelope);
+            else 
+                clayIter->resizeLayer(volumeBounds(),envelope);
+        }  else
             msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endreq;
   }
   // case b : container volume -> step down

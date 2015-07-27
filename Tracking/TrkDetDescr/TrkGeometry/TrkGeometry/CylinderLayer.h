@@ -26,7 +26,7 @@ namespace Trk {
 class CylinderBounds;
 class LayerMaterialProperties;
 class OverlapDescriptor;
-class ApproachDescriptor;
+class IApproachDescriptor;
 
   /**
    @class CylinderLayer
@@ -66,7 +66,7 @@ class ApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
                       OverlapDescriptor* od = 0,
-                      ApproachDescriptor* ad = 0,
+                      IApproachDescriptor* ad = 0,
                       int laytyp=int(Trk::active));
                 
         /**Constructor with CylinderSurface components,
@@ -77,7 +77,7 @@ class ApproachDescriptor;
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
                       OverlapDescriptor* od = 0,
-                      ApproachDescriptor* ad = 0,
+                      IApproachDescriptor* ad = 0,
                       int laytyp=int(Trk::active));
                       
         /**Concentric Layer: Constructor with CylinderSurface components and  MaterialProperties */
@@ -92,7 +92,7 @@ class ApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
                       OverlapDescriptor* od = 0,
-                      ApproachDescriptor* ad = 0,
+                      IApproachDescriptor* ad = 0,
                       int laytyp=int(Trk::active));
                 
         /**Concentric Layer: Constructor with CylinderSurface components,
@@ -102,7 +102,7 @@ class ApproachDescriptor;
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
                       OverlapDescriptor* od = 0,
-                      ApproachDescriptor* ad = 0,
+                      IApproachDescriptor* ad = 0,
                       int laytyp=int(Trk::active));
                               
         /**Copy constructor of CylinderLayer*/
@@ -132,7 +132,7 @@ class ApproachDescriptor;
         const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
                                          const Amg::Vector3D& dir,
                                          PropDirection pdir,
-                                         BoundaryCheck& bcheck,
+                                         const BoundaryCheck& bcheck,
                                          bool resolveSubSurfaces = 0,
                                          const ICompatibilityEstimator* ice = 0) const override;
         
@@ -153,10 +153,11 @@ class ApproachDescriptor;
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
-                                      BoundaryCheck& bcheck) const;
+                                      const BoundaryCheck& bcheck) const;
 
+     protected:
        /** surfaces on approach to the layer */
-       mutable ApproachDescriptor*  m_approachDescriptor;
+       mutable IApproachDescriptor*  m_approachDescriptor;
        
        
   };

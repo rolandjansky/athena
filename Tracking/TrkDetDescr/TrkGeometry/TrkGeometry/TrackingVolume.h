@@ -217,7 +217,7 @@ namespace Trk {
                                                 const Layer* eLayer,
                                                 const T& parameters, 
                                                 PropDirection pDir = alongMomentum,
-                                                BoundaryCheck bchk = true,
+                                                const BoundaryCheck& bchk = true,
                                                 bool resolveSubSurfaces = false) const;
 
 
@@ -230,7 +230,7 @@ namespace Trk {
                             closestMaterialLayer(const Amg::Vector3D& gp, 
                                                  const Amg::Vector3D& dir, 
                                                  PropDirection pDir = alongMomentum,
-                                                 BoundaryCheck bchk = true ) const;
+                                                 const BoundaryCheck& bchk = true ) const;
             
       /** Return the associated sub Volume, returns THIS if no subVolume exists */
       const TrackingVolume* associatedSubVolume(const Amg::Vector3D& gp) const;
@@ -410,11 +410,11 @@ namespace Trk {
       mutable const LayerArray*                                             m_confinedLayers;   //!< Array of Layers inside the Volume
       mutable const TrackingVolumeArray*                                    m_confinedVolumes;  //!< Array of Volumes inside the Volume
       //(b)                                                                 
-      mutable const std::vector<const DetachedTrackingVolume*>*        m_confinedDetachedVolumes; //!< Detached subvolumes
-      // additionally                                                       
-      mutable const std::vector<const TrackingVolume*>*                m_confinedDenseVolumes;    //!< Unordered subvolumes
-      //(b)                                                                 
-      mutable const std::vector<const Layer*>*                         m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
+      mutable const std::vector<const DetachedTrackingVolume*>*             m_confinedDetachedVolumes; //!< Detached subvolumes
+      // additionally                                                            
+      mutable const std::vector<const TrackingVolume*>*                     m_confinedDenseVolumes;    //!< Unordered subvolumes
+      //(b)                                                                      
+      mutable const std::vector<const Layer*>*                              m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
                                                                             
       mutable GlueVolumesDescriptor*                                        m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
                                                                             
@@ -512,17 +512,22 @@ namespace Trk {
                                                              const Layer* eLayer,
                                                              const T& pars, 
                                                              PropDirection pDir,
-                                                             BoundaryCheck bchk,
+                                                             const BoundaryCheck& bchk,
                                                              bool resolveSubSurfaces) const
   {
       // get position and momentum from the parameters
       const Amg::Vector3D& gp = pars.position();
       const Amg::Vector3D& gm = pars.momentum();
-      // the layer intersections
+      // the layer intersections 
       std::vector< LayerIntersection<T> > lIntersections;
+      // assign the direction
+      const Amg::Vector3D& dir = ( pDir == alongMomentum ? gm.unit() : Amg::Vector3D(-1*gm.unit()));
+      // the confinedLayers
       if (m_confinedLayers){
-          // assign the direction
-          const Amg::Vector3D& dir = ( pDir == alongMomentum ? gm.unit() : Amg::Vector3D(-1*gm.unit()));
+          // cache the longest path length to avoid punch-through to the other side
+          Trk::Intersection     sLayerIntersection(Amg::Vector3D(0.,0.,0),0.,true,0.);
+          const Trk::Surface*   sLayerSurface  = 0;
+          double validPathLength = 0.;
           // start layer given or not - test layer
           const Trk::Layer* tLayer = sLayer ? sLayer : associatedLayer(gp);
           if (tLayer){
@@ -531,23 +536,46 @@ namespace Trk {
                   if (tLayer->layerMaterialProperties() || tLayer->surfaceArray() || tLayer == eLayer){
                       // get the approaching surface 
                       const Surface& tSurface = tLayer->surfaceOnApproach(gp,dir,pDir,bchk,resolveSubSurfaces);
-                      // always give the start layer to test - even without intersection
-                      if (tLayer == sLayer)
-                          lIntersections.push_back(LayerIntersection<T>(Trk::Intersection(gp,0.,true),tLayer,&tSurface,0,pDir));
-                      else {
-                          Trk::Intersection lIntersection = tSurface.straightLineIntersection(gp,dir,true,bchk);
-                          if (lIntersection.valid)
-                              lIntersections.push_back(LayerIntersection<T>(lIntersection,tLayer,&tSurface,0,pDir));
-                          else if (eLayer) break;
-                      }      
+                      // calculate the intersection with the layer
+                      Trk::Intersection lIntersection = tSurface.straightLineIntersection(gp,dir,true,bchk);
+                      // (a) if the current layer is NOT the start layer - intersection is ok
+                      if (tLayer != sLayer && lIntersection.valid){
+                          lIntersections.push_back(LayerIntersection<T>(lIntersection,tLayer,&tSurface,0,pDir));
+                          validPathLength = lIntersection.pathLength;
+                      } else if (tLayer == sLayer) {
+                          // (b) the current layer is the start layer - we need to cache it and check with the path length
+                          //     this avoids potential punch-through to other side of 
+                          sLayerIntersection = lIntersection;
+                          sLayerSurface      = &tSurface;
+                      } else if (tLayer == eLayer) {
+                          // (c) it is the end layer after all - provide it and break the loop
+                          lIntersections.push_back(LayerIntersection<T>(lIntersection,tLayer,&tSurface,0,pDir));
+                          break;
+                      }
                   } 
                   // move to next one or break because you reached the end layer
                   tLayer = (tLayer == eLayer ) ? 0 :  tLayer->nextLayer(gp,dir);
               } while (tLayer);
           }
-          // sort them accordingly
-          std::sort(lIntersections.begin(),lIntersections.end());
+          
+          // final check for compatibility of the start layer in order to avoid punch-through
+          if (sLayer && sLayerIntersection.valid && sLayerIntersection.pathLength < validPathLength)
+              lIntersections.push_back(LayerIntersection<T>(sLayerIntersection,sLayer,sLayerSurface,0,pDir));
+          
       }
+      // and the arbitraray layers
+      if (m_confinedArbitraryLayers){
+          // loop over the layers and intersect them
+          for (auto& layer : (*m_confinedArbitraryLayers)){
+              // intersections
+              Trk::Intersection lIntersection = layer->surfaceRepresentation().straightLineIntersection(gp,dir,true,bchk);
+              if (lIntersection.valid)
+                  lIntersections.push_back(LayerIntersection<T>(lIntersection,layer,&(layer->surfaceRepresentation()),0,pDir));
+          }
+      }
+
+      // sort them accordingly to the path length
+      std::sort(lIntersections.begin(),lIntersections.end());
       // and return
       return lIntersections;
   }

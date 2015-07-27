@@ -48,7 +48,7 @@ Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   Trk::SurfaceArray* surfaceArray,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
-                                  Trk::ApproachDescriptor* ades,
+                                  Trk::IApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
   Layer(surfaceArray, thickness, olap, laytyp),
@@ -67,7 +67,7 @@ Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   const Trk::LayerMaterialProperties& laymatprop,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
-                                  Trk::ApproachDescriptor* ades,
+                                  Trk::IApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
   Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
@@ -96,7 +96,7 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   Trk::SurfaceArray* surfaceArray,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
-                                  Trk::ApproachDescriptor* ades,
+                                  Trk::IApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(cbounds),
   Layer(surfaceArray, thickness, olap, laytyp),
@@ -113,7 +113,7 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   const Trk::LayerMaterialProperties& laymatprop,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
-                                  Trk::ApproachDescriptor* ades,
+                                  Trk::IApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(cbounds),
   Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
@@ -201,10 +201,8 @@ void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
        delete m_normal;
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
 
-       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-           // build the new approach descriptor - deletes the current one
+       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();
-       }
 }
 
 void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
@@ -232,18 +230,15 @@ void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope
         }
     }
     
-    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-        // build the approach descriptor - delete the current approach descriptor
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
         buildApproachDescriptor();
-    }
-
     
 }
 
 /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
 const Trk::Surface& Trk::CylinderLayer::approachSurface(const Amg::Vector3D& pos,
                                                         const Amg::Vector3D& dir,
-                                                        Trk::BoundaryCheck& bcheck) const
+                                                        const Trk::BoundaryCheck& bcheck) const
 {
     if (m_approachDescriptor){
         // get the test surfaces from the approach Descriptor
@@ -273,7 +268,7 @@ const Trk::Surface& Trk::CylinderLayer::approachSurface(const Amg::Vector3D& pos
 const Trk::Surface& Trk::CylinderLayer::surfaceOnApproach(const Amg::Vector3D& pos,
                                                           const Amg::Vector3D& mom,
                                                           Trk::PropDirection pDir,
-                                                          Trk::BoundaryCheck& bcheck,
+                                                          const Trk::BoundaryCheck& bcheck,
                                                           bool resolveSubSurfaces,
                                                           const Trk::ICompatibilityEstimator*) const
 { 
