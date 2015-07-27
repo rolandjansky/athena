@@ -20,8 +20,6 @@
 //STD
 #include <vector>
 
-class BinnedLayerMaterialCnv_p1;
-
 namespace Trk {
 
   class BinUtility;
@@ -120,7 +118,6 @@ namespace Trk {
       virtual std::ostream& dump(std::ostream& sl) const = 0;
                                             
     protected :
-      friend class ::BinnedLayerMaterialCnv_p1;
       double               m_splitFactor;     //!< the split factor in favour of oppositePre
 
   };

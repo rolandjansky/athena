@@ -21,8 +21,6 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 
-class CompoundLayerMaterialCnv_p1;
-
 namespace Trk {
 
     typedef std::vector<unsigned char> ValueVector;
@@ -77,22 +75,22 @@ namespace Trk {
         virtual ~CompoundLayerMaterial();
         
         /**Pseudo-Constructor clone()*/ 
-        virtual CompoundLayerMaterial* clone() const override;
+        CompoundLayerMaterial* clone() const;
         
         /** Assignment operator */
         CompoundLayerMaterial& operator=(const CompoundLayerMaterial& lmp);
     
         /** Scale operator */
-        virtual CompoundLayerMaterial& operator*=(double scale) override;
+        CompoundLayerMaterial& operator*=(double scale);
     
         /** Return the BinUtility */
         const BinUtility* binUtility() const override;
         
         /** Update the BinUtility if necessary - passing ownership of the utility class*/
-        virtual void updateBinning(BinUtility* bu) const override;
+        void updateBinning(BinUtility* bu) const; 
         
         /**Return method for full material description of the Layer */
-        virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
+        const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
         
         /** Access the single bin */
         const MaterialProperties* material(size_t bin0, size_t bin1) const override;
@@ -110,8 +108,6 @@ namespace Trk {
         std::ostream& dump(std::ostream& sl) const override;      
     
       private:
-        friend class ::CompoundLayerMaterialCnv_p1;
-
         mutable MaterialProperties*                                 m_materialProperties; //!< the ones you return
           
         mutable BinUtility*                                         m_binUtility;         //!< the helper for the bin finding 

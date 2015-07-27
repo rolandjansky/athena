@@ -97,10 +97,6 @@ Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& tr
     if (m_surfaceArray) buildApproachDescriptor();    
 }
 
-Trk::DiscLayer::~DiscLayer() {
-  delete m_approachDescriptor;
-}
-
 Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
 {
   if (this!=&dlay){
@@ -149,7 +145,7 @@ void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
        m_center = new Amg::Vector3D(m_transform->translation());
        delete m_normal; 
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
-       // rebuild that - deletes the current one
+       // rebuild that
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();       
 }
@@ -181,10 +177,8 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         }
     }
 
-    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-        // rebuild the approach descriptor - delete the current approach descriptor
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
         buildApproachDescriptor();
-    }
     
 }
 
@@ -235,14 +229,11 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 
 /** build approach surfaces */
 void Trk::DiscLayer::buildApproachDescriptor() const {
-    // delete the current approach descriptor
-    delete m_approachDescriptor;
-    // create the surface container   
+    // delete the surfaces    
     Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
     // get the center
-    const auto halfThickness=0.5*thickness()*normal();
-    const Amg::Vector3D aspPosition(center()+halfThickness);
-    const Amg::Vector3D asnPosition(center()-halfThickness);
+    const Amg::Vector3D aspPosition(center()+0.5*thickness()*normal());
+    const Amg::Vector3D asnPosition(center()-0.5*thickness()*normal());
     // create the new surfaces
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.getPtr());
     if (db){ 

@@ -14,8 +14,6 @@
 //STD
 #include <iostream>
 
-class MaterialPropertiesCnv_p1;
-
 namespace Trk {
 
   /** 
@@ -116,8 +114,6 @@ namespace Trk {
       void setMaterial(const Material& mp, float thickness=1.) const;
                                                                                   
     protected:
-      friend class ::MaterialPropertiesCnv_p1;
-
       /** Set dEdX       - important for material calibarion */
       virtual void setDeDx(float dEdX) const;        
       

@@ -52,11 +52,6 @@ namespace Trk {
                               const std::vector< unsigned short int >& materialIndices,
                               double splitFactor=0.);
 
-      CompressedLayerMaterial(std::unique_ptr<Trk::BinUtility> binutility,
-                              const MaterialPropertiesVector&& fullProperties,
-                              const std::vector< unsigned short int >& materialIndices,
-                              double splitFactor=0.);
-
       /**Copy Constructor */  
       CompressedLayerMaterial(const CompressedLayerMaterial& mprop);
       
@@ -70,13 +65,13 @@ namespace Trk {
       CompressedLayerMaterial& operator=(const CompressedLayerMaterial& lmp);
 
       /** Scale operator */
-      virtual CompressedLayerMaterial& operator*=(double scale) override;
+      CompressedLayerMaterial& operator*=(double scale);
 
       /** Return the BinUtility */
       const BinUtility* binUtility() const override;
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const override;
+      void updateBinning(BinUtility* bu) const;
        
       /**Return method for full material description of the Layer - for all bins*/
       const MaterialPropertiesVector& fullMaterial() const;

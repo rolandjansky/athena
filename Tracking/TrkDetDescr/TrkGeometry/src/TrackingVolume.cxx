@@ -968,34 +968,39 @@ void Trk::TrackingVolume::createLayerAttemptsCalculator()
 }
 
 void Trk::TrackingVolume::interlinkLayers() {
+  
   if (m_confinedLayers){
-    const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
-    // forward loop
-    const Trk::Layer* lastLayer = 0;
-    std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
-    for ( ; layerIter != layers.end(); ++layerIter)
-      { 
-	if (*layerIter) {
-	  // register the layers
-	  (**layerIter).m_binUtility    = m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : 0; 
-	  (**layerIter).m_previousLayer = lastLayer;
-	  // register the volume
-	  (**layerIter).encloseTrackingVolume(*this); 
-	}
-	lastLayer = (*layerIter);
-      }
-    // backward loop
-    lastLayer = 0;
-    layerIter = layers.end();
-    --layerIter;
-    for ( ; ; --layerIter)
-      { 
-	if (*layerIter)
-	  (**layerIter).m_nextLayer = lastLayer;
-	lastLayer = (*layerIter);
-	if (layerIter == layers.begin()) break;
-      }
-  }
+      // get the BinUtility
+      const Trk::BinUtility* layerBinUtils = m_confinedLayers->binUtility();
+      if (layerBinUtils) {
+         const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
+         // forward loop
+         const Trk::Layer* lastLayer = 0;
+         std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
+         for ( ; layerIter != layers.end(); ++layerIter)
+            { 
+              if (*layerIter) {
+                 // register the layers
+                 (**layerIter).m_binUtility    = layerBinUtils; 
+                 (**layerIter).m_previousLayer = lastLayer;
+                 // register the volume
+                 (**layerIter).encloseTrackingVolume(*this); 
+                 }
+              lastLayer = (*layerIter);
+            }
+        // backward loop
+        lastLayer = 0;
+        layerIter = layers.end();
+        --layerIter;
+        for ( ; ; --layerIter)
+            { 
+              if (*layerIter)
+                 (**layerIter).m_nextLayer = lastLayer;
+              lastLayer = (*layerIter);
+              if (layerIter == layers.begin()) break;
+            }
+       }
+   }
 }
 
 const Trk::LayerArray* Trk::TrackingVolume::checkoutConfinedLayers() const
@@ -1217,11 +1222,11 @@ void  Trk::TrackingVolume::moveTV(Amg::Transform3D& transform) const {
 void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
-  msgstream << MSG::VERBOSE << "  -> synchronizing Layer dimensions of TrackingVolume '" << volumeName() << "'." << endmsg;     
+  msgstream << MSG::VERBOSE << "  -> synchronizing Layer dimensions of TrackingVolume '" << volumeName() << "'." << endreq;     
     
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
-    msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endmsg;
+    msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endreq;
     for (auto& clayIter : confLayers->arrayObjects())
         if (clayIter){
             if (clayIter->surfaceRepresentation().type() == Trk::Surface::Cylinder && !(center().isApprox(clayIter->surfaceRepresentation().center())) )
@@ -1229,12 +1234,12 @@ void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelop
             else 
                 clayIter->resizeLayer(volumeBounds(),envelope);
         }  else
-            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endmsg;
+            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endreq;
   }
   // case b : container volume -> step down
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes){
-    msgstream << MSG::VERBOSE << "  ---> no confined layers, working on " << confVolumes->arrayObjects().size() << " confined volumes." << endmsg;
+    msgstream << MSG::VERBOSE << "  ---> no confined layers, working on " << confVolumes->arrayObjects().size() << " confined volumes." << endreq;
     for (auto& cVolumesIter : confVolumes->arrayObjects())
         cVolumesIter->synchronizeLayers(msgstream, envelope);
   } 
@@ -1271,7 +1276,7 @@ void  Trk::TrackingVolume::screenDump(MsgStream& msg) const
 {
   msg << "[[ Trk::TrackingVolume ]] called: " << volumeName() << std::endl;
   msg << '\t' << '\t' << "# position (x,y,z) : " << center().x() << ", " << center().y() << ", " << center().z() << std::endl;
-  msg << '\t' << '\t' << "# bounds           : " << volumeBounds()     << endmsg;
+  msg << '\t' << '\t' << "# bounds           : " << volumeBounds()     << endreq;
 
 }
 

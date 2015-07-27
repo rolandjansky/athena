@@ -126,13 +126,13 @@ void Trk::TrackingGeometry::compactify(MsgStream& msg, const TrackingVolume* vol
     for (auto bLayerIter = m_boundaryLayers.begin(); bLayerIter != m_boundaryLayers.end(); ++bLayerIter)
         bLayerIter->first->surfaceRepresentation().setOwner(Trk::TGOwn);
     msg << MSG::VERBOSE << "  --> set TG ownership of " << m_boundaryLayers.size() << " boundary layers." << std::endl;    
-    msg << MSG::VERBOSE << endmsg;
+    msg << MSG::VERBOSE << endreq;
 
 }
 
 void Trk::TrackingGeometry::synchronizeLayers(MsgStream& msg, const TrackingVolume* vol) const
 {
-    msg << MSG::VERBOSE << "====== Calling TrackingGeometry::synchronizeLayers() ===== " << endmsg;
+    msg << MSG::VERBOSE << "====== Calling TrackingGeometry::synchronizeLayers() ===== " << endreq;
     const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
     tVolume->synchronizeLayers(msg);    
 }
@@ -152,7 +152,7 @@ void Trk::TrackingGeometry::printVolumeHierarchy(MsgStream& msg) const
     const Trk::TrackingVolume* highestVolume = highestTrackingVolume();
     int level = 0;
     if (highestVolume) printVolumeInformation(msg, *highestVolume, level);
-    msg << endmsg;
+    msg << endreq;
 }
 
 void Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg, const Trk::TrackingVolume& tvol, int lvl) const

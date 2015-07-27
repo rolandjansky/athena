@@ -11,9 +11,9 @@
 
 namespace TrkDetDetDescrPoolRegister {
      /** the standard vector of MaterialStep */
-     std::vector<Trk::MaterialStep*>                            registerMaterialStepVector;
+     std::vector<Trk::MaterialStep*>                            m_registerMaterialStepVector;
      /** the DataVector of MaterialStep */
-     DataVector<Trk::MaterialStep>                              registerMaterialStepDataVector;    
+     DataVector<Trk::MaterialStep>                              m_registerMaterialStepDataVector;    
 }
 
 #endif

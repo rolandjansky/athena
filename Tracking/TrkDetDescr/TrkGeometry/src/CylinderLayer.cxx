@@ -201,10 +201,8 @@ void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
        delete m_normal;
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
 
-       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-           // build the new approach descriptor - deletes the current one
+       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();
-       }
 }
 
 void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
@@ -232,11 +230,8 @@ void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope
         }
     }
     
-    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
-        // build the approach descriptor - delete the current approach descriptor
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
         buildApproachDescriptor();
-    }
-
     
 }
 
