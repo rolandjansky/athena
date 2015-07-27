@@ -38,8 +38,6 @@ InDet::RobustTrackingGeometryBuilder::RobustTrackingGeometryBuilder(const std::s
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/CylinderVolumeCreator"),  
   m_layerArrayCreator("Trk::LayerArrayCreator/LayerArrayCreator"),
   m_enclosingEnvelopeSvc("AtlasEnvelopeDefSvc", n),
-  m_enclosingBarrelEntryLayerConfig(1),
-  m_enclosingEndcapEntryLayerConfig(1),
   m_layerEnvelopeCover(2*Gaudi::Units::mm),
   m_buildBoundaryLayers(true),
   m_replaceJointBoundaries(true),
@@ -58,9 +56,7 @@ InDet::RobustTrackingGeometryBuilder::RobustTrackingGeometryBuilder(const std::s
   declareProperty("ColorCodes",                       m_colorCodesConfig);  
   // envelope definition service
   declareProperty("EnvelopeDefinitionSvc",            m_enclosingEnvelopeSvc );
-  declareProperty("BarrelEnclosureEntryLayers",       m_enclosingBarrelEntryLayerConfig);
   declareProperty("VolumeEnclosureCylinderRadii",     m_enclosingCylinderRadius);
-  declareProperty("EndcapEnclosureEntryLayers",       m_enclosingEndcapEntryLayerConfig);
   declareProperty("VolumeEnclosureDiscPositions",     m_enclosingDiscPositionZ);
   // helper tools  
   declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
@@ -200,7 +196,8 @@ const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeome
                const Trk::CylinderBounds& cylBounds = (cylIter)->surfaceRepresentation().bounds();               
                double currentR = cylBounds.r();
                // rmin/rmax with thicknes in mind
-               double currentRmin = binningType!=Trk::biequidistant ? currentR - 0.5*(cylIter)->thickness() : currentR + 0.5*(cylIter)->thickness() - m_layerEnvelopeCover;               
+               double currentRmin = binningType!=Trk::biequidistant ? 
+                   currentR - 0.5*(cylIter)->thickness()-m_layerEnvelopeCover : currentR + 0.5*(cylIter)->thickness()-m_layerEnvelopeCover;               
                double currentRmax = currentR + 0.5*(cylIter)->thickness() + m_layerEnvelopeCover;
                // safe  
                double extendZ  = cylIter->surfaceRepresentation().center().z() < 0. ?

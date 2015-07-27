@@ -40,7 +40,7 @@ InDet::BeamPipeBuilder::BeamPipeBuilder(const std::string& t, const std::string&
   m_beamPipeThickness(1.*Gaudi::Units::mm),
   m_beamPipeX0(352.8*Gaudi::Units::mm),
   m_beamPipeL0(407.*Gaudi::Units::mm),
-  m_beamPipedEdX(0.2945*Gaudi::Units::MeV/Gaudi::Units::mm),
+  //m_beamPipedEdX(0.2945*Gaudi::Units::MeV/Gaudi::Units::mm),
   m_beamPipeA(9.012),
   m_beamPipeZ(4.),
   m_beamPipeRho(1.848e-3),
@@ -82,14 +82,14 @@ StatusCode InDet::BeamPipeBuilder::initialize()
   } else if (m_beamPipeFromDb)
       ATH_MSG_DEBUG("Successfully retrieved BeamPipe detector manager '" << m_beamPipeMgrName << "'." );
   
-  ATH_MSG_INFO( "initialize()" );
+  ATH_MSG_DEBUG( "initialize()" );
   return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode InDet::BeamPipeBuilder::finalize()
 {
-    ATH_MSG_INFO( "finalize() successful" );
+    ATH_MSG_DEBUG( "finalize() successful" );
     return StatusCode::SUCCESS;
 }
 

@@ -71,7 +71,7 @@ namespace InDet {
          void addPhiNeighbours(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
                                InDetDD::SiDetectorElement& sElement) const;
 
-                                                      
+	 bool m_robustMode;
      };
 
      

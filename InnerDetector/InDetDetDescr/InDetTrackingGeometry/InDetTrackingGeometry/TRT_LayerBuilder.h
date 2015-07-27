@@ -6,8 +6,8 @@
 // TRT_LayerBuilder.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETTRACKINGGEOMETRY_TRT_LAYERBUILDERN_H
-#define INDETTRACKINGGEOMETRY_TRT_AYERBUILDERN_H
+#ifndef INDETTRACKINGGEOMETRY_TRT_LAYERBUILDER_H
+#define INDETTRACKINGGEOMETRY_TRT_LAYERBUILDER_H
 
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -108,6 +108,6 @@ namespace InDet {
 } // end of namespace
 
 
-#endif // INDETTRACKINGGEOMETRY_SCTLAYERBUILDERN_H
+#endif // INDETTRACKINGGEOMETRY_TRT_LAYERBUILDER_H
 
 
