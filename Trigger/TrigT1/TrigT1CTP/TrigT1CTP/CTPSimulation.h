@@ -15,10 +15,12 @@
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
+//#include "TrigConfigSvc/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 // local includes:
 #include "TrigT1CTP/ISpecialTrigger.h"
+
 
 // For handling different CTP versions:
 #include "CTPfragment/CTPdataformatVersion.h"
@@ -107,7 +109,7 @@ namespace LVL1CTP {
 
       void collectStatistic();
 
-      StatusCode bookHists();
+
 
       // Needed services:
       ServiceHandle<ITHistSvc> m_histSvc;
@@ -152,7 +154,7 @@ namespace LVL1CTP {
       bool        m_doRNDM;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_doPSCL;                                    //!< property, see @link CTPSimulation::CTPSimulation @endlink
       bool        m_IsData;                                   //!< property, see @link CTPSimulation::CTPSimulation @endlink
-     Gaudi::CheckedProperty<int> m_prescaleMode;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
+      IntegerProperty m_prescaleMode;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
       // Properties: StoreGate location of input
       std::string m_jetEnergyConfLoc;                         //!< property, see @link CTPSimulation::CTPSimulation @endlink
       std::string m_muonCTPLoc;                               //!< property, see @link CTPSimulation::CTPSimulation @endlink
@@ -178,8 +180,6 @@ namespace LVL1CTP {
       bool        m_applyBunchGroup;                          //!< property, see @link CTPSimulation::CTPSimulation @endlink
       // Properties: detectorStore location of bunchgroups
       std::string m_BunchGroupLoc;                            //!< property, see @link CTPSimulation::CTPSimulation @endlink
-
-      std::string m_histbase { "/EXPERT/" };                 
       /**
        * If IntroduceArtificialTriggerOffsets is set to true, and a text
        * file with the configuration of the trigger offsets is defined via
@@ -196,7 +196,7 @@ namespace LVL1CTP {
       ResultBuilder* m_resultBuilder;                         //!< handle to result builder (for easy data access)
 
       // additional monitoring variables
-      std::vector<float> m_prescales;                         //!< prescale set (for monitoring)
+      std::vector<int> m_prescales;                           //!< prescale set (for monitoring)
 
       std::vector<int> m_countsBP;                            //!< Counts for summary BP
       std::vector<int> m_countsAP;                            //!< Counts for summary AP
