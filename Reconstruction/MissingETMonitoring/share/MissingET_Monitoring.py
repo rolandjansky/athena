@@ -21,7 +21,8 @@ if DQMonFlags.useTrigger():
     triggerList     = [""]   # All triggers
 #     triggerList    += ["EF_xe30_FEB_L1EM5"]   # updated on March, 2012 (Heavy Ion runs)
 #     triggerList    += ["EF_xe25_FEB_L1TE90"]   # updated on March, 2012
-    triggerList    += ["EF_xe30"]   # updated on June, 2013
+#    triggerList    += ["EF_xe30"]   # updated on June, 2013
+    triggerList    += ["L1_XE35"]   # updated on June, 2013
     triggerList    += ["EF_xe80"]   # updated on June, 2013
 else:
     triggerList = [""]
@@ -43,7 +44,7 @@ for trigger in triggerList:
     metMonTool.TriggerChain = trigger
    
     #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
 
     if trigger != "":
@@ -70,7 +71,7 @@ for trigger in triggerList:
     metMonTool.muoColKey    = ""
     metMonTool.jetColKey    = "AntiKt4LCTopoJets"
     metMonTool.TriggerChain = trigger
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
     metMonTool.badJets = True
     if trigger != "":
@@ -95,7 +96,7 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
@@ -114,7 +115,7 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
@@ -133,7 +134,7 @@ for trigger in triggerList:
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
@@ -154,7 +155,7 @@ for trigger in triggerList:
     metMonTool.muoColKey    = ""
     metMonTool.metCut       = 80
     metMonTool.TriggerChain = trigger
-    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
