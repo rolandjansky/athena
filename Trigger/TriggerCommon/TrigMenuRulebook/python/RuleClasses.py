@@ -30,9 +30,9 @@ class TriggerRule:
                    "end_of_fill"])
     
     #These type rules will be enforced
-    float_keys = ["rate", "maxRate", "inputRate", "inputMaxRate", "PTRate", "ESRate", "PS",  "PS_slope","PTValue","ESValue", "fraction", "end_of_fill"]
+    float_keys = ["rate", "maxRate", "inputRate", "inputMaxRate", "PTRate", "ESRate", "PS",  "PS_slope","PTValue","ESValue", "fraction", "end_of_fill", "rerun"]
     int_keys = ["lumi"]
-    bool_keys  = ["rerun", "propagate"]
+    bool_keys  = ["propagate"]
     allowed_scales = ["lumi", "bunches"]
 
     def __str__(self):

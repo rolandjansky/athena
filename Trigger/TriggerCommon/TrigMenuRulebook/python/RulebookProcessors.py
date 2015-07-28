@@ -10,13 +10,13 @@ import math, sys
 from disabledOK import can_be_disabled
 import xml.etree.cElementTree as ET
 
-maxPS = 1.62E7
+maxPS =  16777215
 
 class RuleWriter:
     """Class to produce an XML with the tree's PS values
     """
     def __init__(self, node_list, metadata, xml_file):
-        
+
         self.xml_file  = open(xml_file,'w')
         self.node_list = node_list
         self.metadata  = metadata
@@ -39,13 +39,11 @@ class RuleWriter:
             output_text += '  </bunchgrouptype>\n'
         output_text += '</bunchgroup>\n' 
         output_text += '  <level>\n'
-        
+
         output_text_l1 = ""
-        output_text_l2 = ""
-        output_text_ef = ""
+        output_text_hlt = ""
 
         for node in self.node_list:
-
             if node.name.startswith('L1'):
                 if not '<lvl_name>L1</lvl_name>' in output_text_l1:
                     output_text_l1 += '    <lvl_name>L1</lvl_name>\n'
@@ -53,36 +51,30 @@ class RuleWriter:
                 output_text_l1 += '      <sig_name>%s</sig_name>\n' % node.name
                 output_text_l1 += '      <chain_prescale>%3.1f</chain_prescale>\n' % node.ps
                 output_text_l1 += '    </signature>\n'
-            
-            if node.name.startswith('L2'):
-                if not '<lvl_name>L2</lvl_name>' in output_text_l2:
-                    output_text_l2 += '  </level>\n'
-                    output_text_l2 += '  <level>\n'
-                    output_text_l2 += '    <lvl_name>L2</lvl_name>\n'
-                output_text_l2 += '    <signature>\n'
-                output_text_l2 += '      <sig_name>%s</sig_name>\n' % node.name
-                output_text_l2 += '      <chain_prescale>%3.1f</chain_prescale>\n' % node.ps
-                output_text_l2 += '      <passthrough>%d</passthrough>\n' % int(node.pt)
-                output_text_l2 += '    </signature>\n'
 
-            if node.name.startswith('EF'):
-                if not '<lvl_name>EF</lvl_name>' in output_text_ef:
-                    output_text_ef += '  </level>\n'
-                    output_text_ef += '  <level>\n'
-                    output_text_ef += '    <lvl_name>EF</lvl_name>\n'
-                output_text_ef += '    <signature>\n'
-                output_text_ef += '      <sig_name>%s</sig_name>\n' % node.name
-                output_text_ef += '      <chain_prescale>%3.1f</chain_prescale>\n' % node.ps
-                output_text_ef += '      <passthrough>%d</passthrough>\n' % int(node.pt)
-                output_text_ef += '      <express_prescale>%3.1f</express_prescale>\n' % node.es
-                output_text_ef += '    </signature>\n'
-               
+            if node.name.startswith('HLT'):
+                if not '<lvl_name>HLT</lvl_name>' in output_text_hlt:
+                    output_text_hlt += '  </level>\n'
+                    output_text_hlt += '  <level>\n'
+                    output_text_hlt += '    <lvl_name>HLT</lvl_name>\n'
+                output_text_hlt += '    <signature>\n'
+                output_text_hlt += '      <sig_name>%s</sig_name>\n' % node.name
+                output_text_hlt += '      <chain_prescale>%3.1f</chain_prescale>\n' % node.ps
+                rerun_prescale = -1 # default value
+                if node.rule != None:
+                  if 'rerun' in node.rule:
+                    rerun_prescale = node.rule['rerun']
+                output_text_hlt += '      <rerun_prescale>%3.1f</rerun_prescale>\n' % rerun_prescale 
+                output_text_hlt += '      <passthrough>%d</passthrough>\n' % int(node.pt)
+                output_text_hlt += '      <express_prescale>%3.1f</express_prescale>\n' % node.es
+                output_text_hlt += '    </signature>\n'
+
         output_text += output_text_l1
-        output_text += output_text_l2
-        output_text += output_text_ef
+        output_text += output_text_hlt
+
         output_text += '  </level>\n'
         output_text += '</trigger>\n'
-            
+
         self.xml_file.writelines(output_text)
 
 class RuleReader:
@@ -92,18 +84,37 @@ class RuleReader:
 
     def special_cases(self):
         """Handle hacks for special cases here"""
-        
+
         # L1 random trigger rates do not show up correctly in the
         # rates file. Calculate their rates here.
+        # bunch_rate = 5e6 / 3554.
+        # assuming the 40M evenly populated the total bunch groups
+        bunch_rate = 40e6 / 3564.
+ 
+        self.l1_items["L1_RD0_FILLED"].signature["rd_rate"] = self.config["target_filled"] * bunch_rate
+        self.l1_items["L1_RD1_FILLED"].signature["rd_rate"] = self.config["target_filled"] * bunch_rate 
+        self.l1_items["L1_RD2_FILLED"].signature["rd_rate"] = self.config["target_filled"] * bunch_rate        
+        self.l1_items["L1_RD0_EMPTY"].signature["rd_rate"] = self.config["target_empty"] * bunch_rate
+        self.l1_items["L1_RD1_EMPTY"].signature["rd_rate"] = self.config["target_empty"] * bunch_rate
+        self.l1_items["L1_RD2_EMPTY"].signature["rd_rate"] = self.config["target_empty"] * bunch_rate
 
-        bunch_rate = 5e6 / 3554.
-        self.l1_items["L1_RD0_FILLED"].signature["rd_rate"] = self.config["online_filled"] * bunch_rate
-        self.l1_items["L1_RD1_FILLED"].signature["rd_rate"] = self.config["online_filled"] * bunch_rate 
-        self.l1_items["L1_RD0_EMPTY"].signature["rd_rate"] = self.config["online_empty"] * bunch_rate
-        self.l1_items["L1_RD1_EMPTY"].signature["rd_rate"] = self.config["online_empty"] * bunch_rate
-        self.l1_items["L1_RD0_UNPAIRED_ISO"].signature["rd_rate"] = self.config["online_unpaired_iso"] * bunch_rate
-        self.l1_items["L1_RD0_FIRSTEMPTY"].signature["rd_rate"] = self.config["online_empty_after_filled"] * bunch_rate
-        
+        self.l1_items["L1_RD3_FILLED"].signature["rd_rate"] = self.config["target_filled"] * bunch_rate 
+        self.l1_items["L1_RD3_EMPTY"].signature["rd_rate"] = self.config["target_empty"] * bunch_rate
+        ##THESE need to be fixed from outside!! Need change in interface
+        self.l1_items["L1_RD0_ABORTGAPNOTCALIB"].signature["rd_rate"] = self.config["target_abortgapnotcalib"] * bunch_rate
+        self.l1_items["L1_RD0_BGRP9"].signature["rd_rate"] = self.config["target_BGRP9"] * bunch_rate
+        self.l1_items["L1_RD2_BGRP12"].signature["rd_rate"] = self.config["target_BGRP12"] * bunch_rate
+
+        #print "Check RD rates: : ",self.l1_items["L1_RD3_FILLED"], self.config["online_filled"],self.l1_items["L1_RD3_FILLED"].signature["rd_rate"]
+        #print "Check RD rates: : ",self.l1_items["L1_RD3_EMPTY"], self.config["online_empty"],self.l1_items["L1_RD3_EMPTY"].signature["rd_rate"]        
+        #print "Check RD rates: : ",self.l1_items["L1_RD0_ABORTGAPNOTCALIB"] , self.config["online_abortgapnotcalib"],self.l1_items["L1_RD0_ABORTGAPNOTCALIB"].signature["rd_rate"]
+        #print "Check RD rates: : ", self.l1_items["L1_RD0_BGRP9"]  , self.config["online_BGRP9"], self.l1_items["L1_RD0_BGRP9"].signature["rd_rate"]
+        #print "Check RD rates: : ", self.l1_items["L1_RD2_BGRP11"], self.config["online_BGRP11"],self.l1_items["L1_RD0_BGRP9"].signature["rd_rate"]
+
+        self.l1_items["L1_RD0_UNPAIRED_ISO"].signature["rd_rate"] = self.config["target_unpaired_iso"] * bunch_rate
+        self.l1_items["L1_RD0_FIRSTEMPTY"].signature["rd_rate"] = self.config["target_empty_after_filled"] * bunch_rate
+
+
         pass
 
     def __init__(self, config, rules, logger = None):
@@ -114,7 +125,7 @@ class RuleReader:
             self.log = create_logger("RuleReader", config["verbosity"])
         else:
             self.log = logger
-            
+
         self.log.info('Verbosity level set to %s' % logging.getLevelName(self.log.level))
 
         self.online_rates = read_online_rates(ET.parse(config["online_xml"]).getroot(), 
@@ -127,7 +138,6 @@ class RuleReader:
                                    self.config["target_lumi"],
                                    self.config["use_lowest_rule"]
                                    )
-
         ## After getting the rules we want to allow the user to modify
         ## the target luminosity
         self.config["target_lumi"] = int(self.config["target_lumi"] * self.config["scale_lumi"])
@@ -140,27 +150,21 @@ class RuleReader:
             if l1_node.rule != None and "depends_on" in l1_node.rule:
                 self.dependent_items[l1_node.name] = l1_node
 
-            for l2_node in l1_node.daughters:
-                self.all_items[l2_node.name] = l2_node
-                if l2_node.rule != None and "depends_on" in l2_node.rule:
-                    self.dependent_items[l2_node.name] = l2_node
 
-                for ef_node in l2_node.daughters:
-                    self.all_items[ef_node.name] = ef_node
-                    if ef_node.rule != None and "depends_on" in ef_node.rule:
-                        self.dependent_items[ef_node.name] = ef_node
-                        
+            for hlt_node in l1_node.daughters:
+                self.all_items[hlt_node.name] = hlt_node
+                if hlt_node.rule != None and "depends_on" in hlt_node.rule:
+                    self.dependent_items[hlt_node.name] = hlt_node
+
         self.special_cases()
         self.check_for_missing_triggers(rules)
-
-
-        self.nsig = 3
+        self.nsig = 6
 
     def check_for_missing_triggers(self, rules):
         """Iterate over the list of rules, notify the user about any
         which are not matched by an item in the menu
         """
-        
+
         for trigger in rules.keys() :
             disabled = True
             for r in rules[trigger] :
@@ -168,23 +172,28 @@ class RuleReader:
                     disabled = False
             if disabled :
                 continue 
-            if not trigger in self.all_items.keys() :
-                self.log.error("No trigger exist in menu for rule '%s'" % str(trigger))
+            if not trigger in self.all_items.keys() : 
+                sys.exit("FATAL: No trigger exist in menu for rule '%s', rulebook failed exiting" % str(trigger))
 
-                         
+
+
     def calc_sf(self, trigger_node):
         """Calculate a scaling factor for the trigger rate taking into
         account bunch structure if necessary"""
 
+        # Rate for random calculated by bunch structure, no scaling for bunch structure
+        if  ("L1_RD" == trigger_node.name[:5]):
+            return 1
+
         if (trigger_node.rule != None \
             and "scaling" in trigger_node.rule \
             and trigger_node.rule["scaling"] == "bunches"
-            ) or ("L1_RD" == trigger_node.name[:5]):
-
+            ):
+            
             if self.config["disable_bunch_scaling"]:
                 self.log.debug("Bunch scaling is disabled, returning scale factor of 1 for %s" % trigger_node.name)
                 return 1
-            
+
             if trigger_node.is_unpaired_iso():
                 online_bunches = self.config["online_unpaired_iso"]
                 target_bunches = self.config["target_unpaired_iso"]
@@ -200,7 +209,7 @@ class RuleReader:
             elif trigger_node.is_firstempty():
                 online_bunches = self.config["online_empty_after_filled"]
                 target_bunches = self.config["target_empty_after_filled"]
-                
+
             elif trigger_node.is_empty():
                 online_bunches = self.config["online_empty"]
                 target_bunches = self.config["target_empty"]  
@@ -208,12 +217,11 @@ class RuleReader:
             else:
                 online_bunches = self.config["online_filled"]
                 target_bunches = self.config["target_filled"]
-                
+
             self.log.debug("Applying a scaling for %s from %s to %s!" % (trigger_node.name, online_bunches, target_bunches))
 
             try:
-                #print target_bunches
-                #print online_bunches
+                print "Applying a scaling for %s from %s to %s!" % (trigger_node.name, online_bunches, target_bunches)
                 return target_bunches / online_bunches
             except ZeroDivisionError:
                 self.log.error("Online bunch structure is unknown!")
@@ -224,20 +232,24 @@ class RuleReader:
 
         else:
             try:
-                return self.config["target_lumi"] / float(self.config["online_lumi"])
+                # Yanyan: this is a fix to some strange issue that the online_lumi is not zeroed
+                if self.config["online_lumi"] < 1e-20:
+                    return 1.0;
+                else:
+                    return self.config["target_lumi"] / float(self.config["online_lumi"])
             except ZeroDivisionError:
                 return 1.0
 
     def check_depends(self, dependencies):
         for item_name in dependencies.split(","):
             try:
-                if self.all_items[item_name].ps != 1:
+                if self.all_items[item_name].ps != 1:                    
                     return True
             except KeyError:
                 sys.exit("\n*** Check dependency rule for %s; item doesn't exist\nExit\n " %item_name)
-                
+
         return False
-        
+
 
     def apply_rule(self, trigger_node, input_rate, node_eff, total_ps):
         """Interpret the rule and apply it to the given trigger item
@@ -268,7 +280,7 @@ class RuleReader:
                 rate = input_rate
                 target_rate = trigger_node.rule["inputRate"]
                 target_max_rate = trigger_node.rule.get("inputMaxRate", target_rate)
-                
+
             else:
                 rate = input_rate * node_eff
                 target_rate = trigger_node.rule["rate"]
@@ -287,7 +299,7 @@ class RuleReader:
                         prescale = -1
 
         elif "fraction" in trigger_node.rule:
-               
+
             if len(trigger_node.rule["depends_on"].split(",")) != 1:
                 raise ValueError("Don't know how to handle a fraction rule with multiple dependencies: %s" % trigger_node)
 
@@ -300,7 +312,7 @@ class RuleReader:
                 target_rate = 0
             else:
                 target_rate = trigger_node.rule["fraction"] * dependency.rate if dependency.ps > 0 else 0.
-                
+
             target_max_rate = trigger_node.rule.get("maxRate", target_rate)
 
             if float(rate) > float(target_max_rate):
@@ -313,17 +325,18 @@ class RuleReader:
                 try:
                     prescale = rate / target_rate
                 except ZeroDivisionError:
-                    prescale = -1                 
+                    prescale = -1
 
         if trigger_node.rule.get("rerun", False) and prescale == -1:
             prescale = 0
-            
+
         #Only keep 3 significant figures
         output = round_figures(prescale, self.nsig) 
         output = round_figures(prescale, self.nsig)
         if trigger_node.name[0:3] == "L1_":
             output = math.floor(output)
         if output > maxPS:
+            self.log.error("%r, prescale is %i, exceeding the maximum %i, now set to %i!!" % (trigger_node.name, output, maxPS, maxPS-1))
             output = round_figures(maxPS-1, self.nsig)
         return output
         
@@ -338,7 +351,7 @@ class RuleReader:
         overlaps = set(dependencies) & set(self.dependent_items.keys())
         if len(overlaps) > 0:
             raise ValueError("Recursive dependencies with %s" % overlaps)
-        
+
 
     def set_defaults(self, nodes = None, def_val = None):
         """ Set default prescale to -1 (or user value) if there is a
@@ -362,33 +375,16 @@ class RuleReader:
                 l1_rules = True
 
             l1_daughter_rules = False
-            for l2_node in l1_node.daughters:
-                
-                l2_rules = False
+            for hlt_node in l1_node.daughters:
+                hlt_rules = False
                 #Tell L1 a rule's been found, no need to look at the daughters
-                if l2_node.rule != None  and rate_keys & set(l2_node.rule.keys()):
+                if hlt_node.rule != None  and rate_keys & set(hlt_node.rule.keys()):
                     l1_daughter_rules = True
-                    l2_rules = True
-                
-                l2_daughter_rules = False
-                for ef_node in l2_node.daughters:
-
-                    #Tell L1 and L2 a rule's been found
-                    if ef_node.rule != None and rate_keys & set(ef_node.rule.keys()):
-                        l2_daughter_rules = True
-                        l1_daughter_rules = True
-                
-                    if ef_node.rule == None:
-                        if not ef_node.name in can_be_disabled :
-                            self.log.error('Trigger chain %s --> %s --> %s has no rules and will be disabled' % (l1_node.name, l2_node.name, ef_node.name))
-                        ef_node.ps = def_val
-                
-                #We should only get here if the L1 and L2 has no rule, check daughter rules and set default value if necessary
-                if l2_daughter_rules == False and l2_rules == False:
-                    if len(l2_node.daughters) == 0:
-                        if not l2_node.name in can_be_disabled :
-                            self.log.error('Trigger chain %s --> %s has no rules and will be disabled' % (l1_node.name, l2_node.name))
-                    l2_node.ps = def_val
+                    hlt_rules = True
+                if hlt_node.rule == None:
+                    if not hlt_node.name in can_be_disabled :
+                      self.log.error('Trigger chain %s --> %s has no rules and will be disabled' % (l1_node.name, hlt_node.name))
+                    hlt_node.ps = def_val
 
             #We should only get here if the L1 has no rule, check daughter rules and set default value if necessary
             if l1_daughter_rules == False and l1_rules == False:
@@ -401,13 +397,13 @@ class RuleReader:
         """Emmit warning message and set default value for items where a
         rule depends on an unknown rate
         """
-        
+
         if node.signature == None:
             self.log.debug("No reference rate found for %s" %node.name)
             if node.rule != None and len(set(["rate", "maxRate"]) & set(node.rule.keys())) > 0:
                 self.log.error("Can't set target rate if no reference rate found - setting PS = -1 for %s" % node.name)
                 node.rule = {"PS" : -1}
-                  
+
             node.signature = {"rate" : 0, "prescale" : 0}           
 
     def first_pass(self):
@@ -443,54 +439,28 @@ class RuleReader:
                 l1_node.rate *= 1 / l1_node.ps
             except ZeroDivisionError:
                 l1_node.rate = 0.
-            
-            for l2_node in l1_node.daughters:
-                #self.log.debug("  L2: %s" % l2_node.name)
-                if l2_node.signature == None:
-                    self.handle_undefined_rate(l2_node)
 
+            for hlt_node in l1_node.daughters:
+                #self.log.debug("  HLT: %s" % hlt_node.n[ame)
+                # random rates are defined through bunch groups
+                if hlt_node.signature == None and 'L1_RD' != l1_node.name[:5]:
+                    self.handle_undefined_rate(hlt_node)
+                                    
                 try:
-                    l2_eff = calc_eff(l2_node, l1_node)
+                    hlt_eff = calc_eff(hlt_node, l1_node, self.config['list_of_streamers'])
                 except ValueError,e:
-                    self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, l2_node.name))
-                    l2_eff = 1
-
-   
-                if l2_node.rule  != None and "depends_on" not in l2_node.rule:
-                    l2_node.ps = self.apply_rule(l2_node, 
-                                                 l1_node.rate,
-                                                 l2_eff,
-                                                 l1_node.ps)
-
-                l2_node.rate = l1_node.rate * l2_eff / l2_node.ps if l2_node.ps > 0 else 0.
-#                 if l1_node.ps == -1 and l2_node.ps > 0 and (l2_node.rule == None or not l2_node.rule.get("rerun", False)):
-#                     l2_node.ps = -1
-    
-                for ef_node in l2_node.daughters:
-                    #self.log.debug("    EF: %s" % ef_node.name)
-                    if ef_node.signature == None:
-                        self.handle_undefined_rate(ef_node)
-
-                    try:
-                        ef_eff = calc_eff(ef_node, l2_node)
-                    except ValueError,e:
-                        self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l2_node.name, ef_node.name))
-                        ef_eff = 1
+                    self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, hlt_node.name))
+                    hlt_eff = 1
                     
-                    if ef_node.rule != None and "depends_on" not in ef_node.rule:
-                        ef_node.ps = self.apply_rule(ef_node, 
-                                                     l2_node.rate,
-                                                     ef_eff,
-                                                     l1_node.ps * l2_node.ps)
 
-                    try:
-                        ef_node.rate = l2_node.rate * ef_eff / ef_node.ps
-                    except ZeroDivisionError:
-                        ef_node.rate = 0.
+                if hlt_node.rule  != None and "depends_on" not in hlt_node.rule:
+                    hlt_node.ps = self.apply_rule(hlt_node, 
+                                                 l1_node.rate,
+                                                 hlt_eff,
+                                                 l1_node.ps)
+                    
+                hlt_node.rate = l1_node.rate * hlt_eff / hlt_node.ps if hlt_node.ps > 0 else 0.
 
-#                     if l2_node.ps == -1 and ef_node.ps > 0  and (ef_node.rule == None or not ef_node.rule.get("rerun", False)):
-#                         ef_node.ps = -1
-                        
         self.log.debug("Done looping over trigger tree")
 
     def resolve_dependencies(self):
@@ -520,53 +490,32 @@ class RuleReader:
                                              l1_node.rate,
                                              1.,
                                              1)
-    
+
             try:
                 l1_node.rate *= 1 / l1_node.ps
             except ZeroDivisionError:
                 l1_node.rate = 0
 
-            for l2_node in l1_node.daughters:
+            for hlt_node in l1_node.daughters:
                 try:
-                    l2_eff = calc_eff(l2_node, l1_node)
+                    hlt_eff = calc_eff(hlt_node, l1_node,self.config['list_of_streamers'])
+                    print "BETTA: ",self.config['list_of_streamers']
                 except ValueError,e:
-                    self.log.warning(str(e)+": Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, l2_node.name))
-                    l2_eff = 1                
-    
-                if l2_node.rule != None and "depends_on" in l2_node.rule:
-                    l2_node.ps = self.apply_rule(l2_node, 
+                    self.log.warning(str(e)+": Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, hlt_node.name))
+                    hlt_eff = 1
+
+                if hlt_node.rule != None and "depends_on" in hlt_node.rule:
+                    hlt_node.ps = self.apply_rule(hlt_node, 
                                                  l1_node.rate,
-                                                 l2_eff,
+                                                 hlt_eff,
                                                  l1_node.ps)
-                          
+
                 try:
-                    l2_node.rate = l1_node.rate * l2_eff / l2_node.ps
+                    hlt_node.rate = l1_node.rate * hlt_eff / hlt_node.ps
                 except ZeroDivisionError:
-                    l2_node.rate = 0
+                    hlt_node.rate = 0
 
-#                 if l1_node.ps == -1 and l2_node.ps > 0  and (l2_node.rule == None or not l2_node.rule.get("rerun", False)):
-#                     l2_node.ps = -1
-    
-                for ef_node in l2_node.daughters:
-                    try:
-                        ef_eff = calc_eff(ef_node, l2_node)
-                    except ValueError,e:
-                        self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l2_node.name, ef_node.name))
-                        ef_eff = 1
-                        
-                    if ef_node.rule != None  and "depends_on" in ef_node.rule:
-                        ef_node.ps = self.apply_rule(ef_node, 
-                                                     l2_node.rate,
-                                                     ef_eff,
-                                                     l1_node.ps * l2_node.ps)
-                    try:
-                        ef_node.rate = l2_node.rate * ef_eff / ef_node.ps
-                    except ZeroDivisionError:
-                        ef_node.rate = 0
 
-#                     if l2_node.ps == -1 and ef_node.ps > 0  and (ef_node.rule == None or not ef_node.rule.get("rerun", False)):
-#                         ef_node.ps = -1
-                
     def optimize_node(self, node):
         """Check the PS values of a node's daughters and move the PS up if possible"""
 
@@ -579,8 +528,8 @@ class RuleReader:
         #if node.rule != None and node.rule.get("PTRate", 0) > 0:
         #    pt_ps = node.parents[0].rate / (node.rule["PTRate"] * node.ps)
         #    prescales.append(pt_ps)
-                
-        
+
+
         for daughter in node.daughters:
 
             #A daughter with the propagate flag set to false should
@@ -593,9 +542,9 @@ class RuleReader:
                 else:
                     prescales.append(1)
 
-            if node.name in ["L1_multiseed", "L1_unseeded", "L2_unseeded", "L2_multiseed"]:
+            if node.name in ["L1_multiseed", "L1_unseeded" ]:
                 prescales.append(1)
-        
+
             d_ps = self.optimize_node(daughter)
 
             if d_ps > 0:
@@ -618,14 +567,14 @@ class RuleReader:
             min_ps = min(prescales)
         except ValueError:
             min_ps = 1.
-            
+
         #At L1, PS values are expected to be integers, so find
         #greatest common denominator
-        
+
         if node.name[0:2] == "L1":
             min_ps = math.floor(min_ps)
             #min_ps = reduce(fractions.gcd, prescales)
-                
+
         #Nodes which explicitely set their PS or rate should not be
         #optimized, unless a daughter over-rides this with the
         #"propagate" flag
@@ -660,7 +609,7 @@ class RuleReader:
 
         if node.ps <= 0:
             node.rate = 0
-        
+
         if (node.rule != None and not node.rule.get("propagate", True)):
             return 1.0
         else:
@@ -669,10 +618,10 @@ class RuleReader:
 
     def optimize_all(self):
         """Run the optimization on the entire set of known l1 nodes"""
-    
+
         for l1_node in self.l1_items.values():
             self.optimize_node(l1_node)
-            
+
 
     def apply_ES_PT(self, parent_node, daughter_node, parent_rate):
         """For a given parent_node, daughter_node pair with parent
@@ -691,10 +640,13 @@ class RuleReader:
             daughter_node.pt = 0
 
         try:
+            #self.log.error("Here3, %s, %s: %f %f %f " % (parent_node, daughter_node, parent_rate, calc_eff(daughter_node, parent_node), daughter_node.ps ))
+            #self.log.error("Here3, %s, %s: %f " % (parent_node, daughter_node, parent_rate ))
             daughter_node.es = round_figures(
-                parent_rate * calc_eff(daughter_node, parent_node) \
+                parent_rate * calc_eff(daughter_node, parent_node,self.config['list_of_streamers']) \
                 / (daughter_node.ps * daughter_node.rule.get("ESRate", 0))
                 , self.nsig)
+
         except ValueError:
             daughter_node.es = 0
         except ZeroDivisionError:
@@ -702,7 +654,7 @@ class RuleReader:
 
         if "PTValue" in daughter_node.rule:
             daughter_node.pt = daughter_node.rule["PTValue"]
-            
+
         if "ESValue" in daughter_node.rule:
             daughter_node.es = daughter_node.rule["ESValue"]
 
@@ -717,7 +669,7 @@ class RuleReader:
 
         if items == None:
             items = self.l1_items
-        
+
         for l1_node in items.values():
 
             if l1_node.ps != 0:
@@ -727,35 +679,31 @@ class RuleReader:
             else:
                 l1_rate = 0
 
-            for l2_node in l1_node.daughters:
-                self.apply_ES_PT(l1_node, l2_node, l1_rate)
+            for hlt_node in l1_node.daughters:
+                self.apply_ES_PT(l1_node, hlt_node, l1_rate)
 
                 try:
-                    l2_eff = calc_eff(l2_node, l1_node)
+                    hlt_eff = calc_eff(hlt_node, l1_node,self.config["list_of_streamers"])
                 except ValueError,e:
-                    self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, l2_node.name))
-                    l2_eff = 1
-                    
+                    self.log.warning(str(e)+" : Could not calculate a sensible efficiency for %s to %s, assuming 100%% efficiency" % (l1_node.name, hlt_node.name))
+                    hlt_eff = 1
+
                 try:
-                    l2_rate = l1_rate * l2_eff / l2_node.ps
+                    hlt_rate = l1_rate * hlt_eff / hlt_node.ps
                 except ZeroDivisionError:
-                    l2_rate = 0
-
-                for ef_node in l2_node.daughters:
-                    self.apply_ES_PT(l2_node, ef_node, l2_rate)
-
+                    hlt_rate = 0
 
     def print_summary(self):
         """Make a human readable dump of the menu's current state"""
 
         output = ""
 
-        output += "\n%s" % ("-" * 230)
-        output += "\n%60s %60s %60s" % ("l1_name", "l2_name", "ef_name")
+        output += "\n%s" % ("-" * 150)
+        output += "\n%60s %60s" % ("l1_name", "hlt_name")
 
         for l1_node in self.l1_items.values():
-            output += "\n%s" % ("-" * 230)
-            
+            output += "\n%s" % ("-" * 150)
+
             if l1_node.ndaughters() == 0:
                 output += "\nname:%55s" % (l1_node.name)
                 output += "\nrate:%55s" % (l1_node.rate)
@@ -765,29 +713,18 @@ class RuleReader:
                 output += "\nes:%57s" % (l1_node.es)
                 output += "\n"
 
-            for l2_node in l1_node.daughters:
+            for hlt_node in l1_node.daughters:
 
-                if l2_node.ndaughters() == 0:
-                    output += "\nname:%55s %60s" % (l1_node.name, l2_node.name)
-                    output += "\nrate:%55s %60s" % (l1_node.rate, l2_node.rate)
-                    output += "\nrule:%55s %60s" % (l1_node.rule, l2_node.rule)
-                    output += "\nps:%57s %60s" % (l1_node.ps, l2_node.ps)
-                    output += "\npt:%57s %60s" % (l1_node.pt, l2_node.pt)
-                    output += "\nes:%57s %60s" % (l1_node.es, l2_node.es)
+                if hlt_node.ndaughters() == 0:
+                    output += "\nname:%55s %60s" % (l1_node.name, hlt_node.name)
+                    output += "\nrate:%55s %60s" % (l1_node.rate, hlt_node.rate)
+                    output += "\nrule:%55s %60s" % (l1_node.rule, hlt_node.rule)
+                    output += "\nps:%57s %60s" % (l1_node.ps, hlt_node.ps)
+                    output += "\npt:%57s %60s" % (l1_node.pt, hlt_node.pt)
+                    output += "\nes:%57s %60s" % (l1_node.es, hlt_node.es)
                     output += "\n"
-
-                for ef_node in l2_node.daughters:
-
-                    output += "\nname:%55s %60s %60s" % (l1_node.name, l2_node.name, ef_node.name)
-                    output += "\nrate:%55s %60s %60s" % (l1_node.rate, l2_node.rate, ef_node.rate)
-                    output += "\nrule%55s %60s %60s" % (l1_node.rule, l2_node.rule, ef_node.rule)
-                    output += "\nps:%57s %60s %60s" % (l1_node.ps, l2_node.ps, ef_node.ps)                    
-                    output += "\npt:%57s %60s %60s" % (l1_node.pt, l2_node.pt, ef_node.pt)                    
-                    output += "\nes:%57s %60s %60s" % (l1_node.es, l2_node.es, ef_node.es)                    
-                    output += "\n"
-
         return output
-        
+
     def compute_ps(self):
         """Invoke the series of methods necessary for calculating the full set of prescales
         """
@@ -799,26 +736,26 @@ class RuleReader:
 
         self.log.debug("First pass of prescale calculations")
         self.first_pass()
-        
+
         if self.log.level == logging.DEBUG:
             print self.print_summary()
-            
+
         self.log.debug("First optimization")
         self.optimize_all()
-        
+
         if self.log.level == logging.DEBUG:
             print self.print_summary()
-            
+
         self.log.debug("Dependencies")
         self.resolve_dependencies()
         if self.log.level == logging.DEBUG:
             print self.print_summary()
-            
+
         self.log.debug("Second Optimization" )
         self.optimize_all()
         if self.log.level == logging.DEBUG:
             print self.print_summary()
-            
+
         self.log.debug("ES and PT")
         self.compute_ES_and_PT()
         if self.log.level == logging.DEBUG:
@@ -840,14 +777,15 @@ def check_rulebook_for_duplicates(rulebook, logger = None):
     #filename = find_file_in_env(rulebook+".py", "PYTHONPATH")
     filename = rulebook
     #print "EAS: %s" % filename
-    
+
     rulebook_file = open(filename,"r")
     trigger_list_in_rulebook = []
     found_error = False
     for line in rulebook_file:
-        if ":" in line :
+        if ":" in line and "if" not in line :
+        #if ":" in line and "if" not in line :            
             trigger = (line.split(":")[0]).strip(" ")
-            if any(level in trigger for level in ["L1", "L2", "EF"] ) and "#" not in trigger:
+            if any(level in trigger for level in ["L1", "HLT"] ) and ("#" not in trigger or "::" in trigger):
                 if trigger in trigger_list_in_rulebook:
                     logger.error("Rule defined more than once for trigger %s\n" %trigger)
                     found_error = True
@@ -868,7 +806,7 @@ class OutputChecker:
             self.log = create_logger("OutputChecker", 2)
         else:
             self.log = logger
-        
+
         self.l1_items = l1_items
         self.all_items = all_items
         self.rules = rules
@@ -904,12 +842,12 @@ class OutputChecker:
         output = True
         if self.hlt_xml == None:
             return output
-        
+
         rerun_chains = []
         for hlt_item in ET.parse(self.hlt_xml).getroot().findall("CHAIN_LIST/CHAIN"):
             if hlt_item.get('rerun_prescale') == "1":
                 rerun_chains.append(hlt_item.get('chain_name'))
-        
+
         for node in self.all_items.values():
             if node.rule != None and node.rule.get("rerun", False) and node.name not in rerun_chains:
                 self.log.error("Node %s has rerun in the rulebook, but not the xml" % node.name)
@@ -923,7 +861,7 @@ class OutputChecker:
         output = True
         if self.hlt_xml == None:
             return output
-        
+
         express_chains = []
         for hlt_item in ET.parse(self.hlt_xml).getroot().findall("CHAIN_LIST/CHAIN"):
             for stream_tag in hlt_item.findall("STREAMTAG_LIST/STREAMTAG"):
@@ -946,7 +884,7 @@ class OutputChecker:
             if node.ps > 0 and node.ps < 1:
                 self.log.error("Node %s has positive PS < 1.0 (%s)" % (node.name, node.ps))
                 output &= False
-                
+
             if node.name[0:2] == "L1" and node.ps != int(node.ps):
                 self.log.error("Node %s has a fractional PS at L1 (%s)" % (node.name, node.ps))
                 output &= False
@@ -958,7 +896,7 @@ class OutputChecker:
             if node.ps < -1:
                 self.log.error("Node %s has a PS < -1 (%s)" % (node.name, node.ps))
                 output &= False
-                
+
         return output
 
     def check_signs(self):
@@ -969,32 +907,27 @@ class OutputChecker:
             if node.total_ps() > 0 and node.rate < 0:
                 self.log.error("Node %s has a positive prescale (%s) but a negative rate (%s)" % (node.name, node.total_ps(), node.rate))
                 output &= False
-                
+
             elif node.total_ps() < 0 and node.rate > 0:
                 self.log.error("Node %s has a negative prescale (%s) but a positive rate (%s)" % (node.name, node.total_ps(), node.rate))
                 output &= False
-                
+
         return output
-                
+
     def check_orphans(self):
         """Give a warning if there is an item at the end of a chain with no explicit rule and isn't disabled"""
-        
+
         output = True
         for l1_node in self.l1_items.values():
             if len(l1_node.daughters) == 0 and l1_node.rule == None and l1_node.ps != -1:
                 self.log.error("Node %s ends the chain with no rule, but isn't disabled" % l1_node.name)
                 output &= False
-                
-            for l2_node in l1_node.daughters:
-                if len(l2_node.daughters) == 0 and l2_node.rule == None and l2_node.ps != -1:
-                    self.log.error("Node %s ends the chain with no rule, but isn't disabled" % l2_node.name)
+
+            for hlt_node in l1_node.daughters:
+                if hlt_node.rule == None and hlt_node.ps != -1:
+                    self.log.error("Node %s ends the chain with no rule, but isn't disabled" % hlt_node.name)
                     output &= False
-                    
-                for ef_node in l2_node.daughters:
-                    if ef_node.rule == None and ef_node.ps != -1:
-                        self.log.error("Node %s ends the chain with no rule, but isn't disabled" % ef_node.name)
-                        output &= False
-                        
+
         return output
 
     def check_max_rates(self):
