@@ -228,8 +228,10 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 	    return retVal;
 	  }
 
-	  if(verbose) std::cout << "TOKEN : " << token << std::endl;
-	  newTokens.push_back(token);
+	  if(token.size()) {
+	    if(verbose) std::cout << "TOKEN : " << token << std::endl;
+	    newTokens.push_back(token);
+	  }
 	}
 	startpos = i+1;
       }
