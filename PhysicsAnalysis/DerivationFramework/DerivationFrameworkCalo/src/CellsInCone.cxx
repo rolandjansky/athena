@@ -6,7 +6,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/Egamma.h"
-#include "CellsInCone.h"
+#include "DerivationFrameworkCalo/CellsInCone.h"
 
 void DerivationFramework::CellsInCone::egammaSelect(xAOD::CaloCluster* inputCl, 
 						    const CaloCellContainer* inputcells, const xAOD::Egamma* eg, const double dr){

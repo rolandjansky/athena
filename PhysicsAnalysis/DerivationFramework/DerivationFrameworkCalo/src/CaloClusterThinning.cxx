@@ -8,7 +8,7 @@
 // Author: Simone Mazza (simone.mazza@mi.infn.it)
 
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
-#include "ClustersInCone.h"
+#include "DerivationFrameworkCalo/ClustersInCone.h"
 
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
@@ -19,8 +19,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaContainer.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODJet/JetContainer.h"
 
 #include <vector>
 #include <string>
@@ -38,7 +36,6 @@ DerivationFramework::CaloClusterThinning::CaloClusterThinning(const std::string&
   m_npassTopo(0),
   m_is_muons(false),
   m_is_egamma(false),
-  m_is_tau(false),
   m_run_calo(false),
   m_run_topo(false),
   m_sgKey(""),
@@ -46,8 +43,7 @@ DerivationFramework::CaloClusterThinning::CaloClusterThinning(const std::string&
   m_TopoClSGKey(""),
   m_selectionString(""),
   m_coneSize(-1.0),
-  m_and(false),
-  m_parser(0)
+  m_and(false)
 {
   declareInterface<DerivationFramework::IThinningTool>(this);
   declareProperty("ThinningService", m_thinningSvc);
@@ -118,7 +114,6 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
 {
   m_is_muons = false;
   m_is_egamma = false;
-  m_is_tau = false;
 
   // Retrieve egCluster collection
   const xAOD::CaloClusterContainer* importedCaloCluster;
@@ -181,13 +176,8 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
   if (testMuons) {
     m_is_muons  = true;
   }
-  const xAOD::TauJetContainer* testTaus = dynamic_cast<const xAOD::TauJetContainer*>(importedParticles);
-  if (testTaus) {
-    m_is_tau = true;
-  }
-  
-  if( !(m_is_egamma || m_is_muons || m_is_tau) ) {
-    ATH_MSG_ERROR("This tool only works with Egamma, Muons and Taus, " << m_sgKey << " is not a compatible collection");
+  if( !(m_is_egamma || m_is_muons) ) {
+    ATH_MSG_ERROR("This tool only works with Egamma and Muons, " << m_sgKey << " is not a compatible collection");
     return StatusCode::FAILURE;
   }
 
@@ -350,29 +340,6 @@ StatusCode DerivationFramework::CaloClusterThinning::particleCluster(  std::vect
     if(it != cps->end()){
       int ItsCluster = std::distance(cps->begin(), it);
       mask[ItsCluster] = true;
-    }
-  }
-
-  if (m_is_tau){
-    const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (particle);
-    if(!tau){
-      ATH_MSG_ERROR("TauJet cast failed");
-      return StatusCode::FAILURE;
-    }
-    xAOD::JetConstituentVector vec = tau->jet()->getConstituents();
-    xAOD::JetConstituentVector::iterator it = vec.begin();
-    xAOD::JetConstituentVector::iterator itE = vec.end();
-    TLorentzVector LC_P4=tau->p4(xAOD::TauJetParameters::DetectorAxis);    
-    for( ; it!=itE; it++){
-      TLorentzVector cluster_P4;
-      cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),1);
-      if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
-      const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );
-      auto it_cps = std::find(cps->begin(), cps->end(), cl);
-      if( it_cps != cps->end()){
-	int ItsCluster = std::distance(cps->begin(), it_cps);
-	mask[ItsCluster] = true;
-      }
     }
   }
 
