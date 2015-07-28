@@ -40,11 +40,8 @@ namespace LVL1CTP {
    }
 
    void CTPTriggerItem::setPrescaleCounter( int counter ) {
-
-      if( counter > m_prescale ) m_counter = 1;
-      else m_counter = counter;
-      return;
-
+     m_counter = counter;       
+     return; 
    }
 
    unsigned int CTPTriggerItem::itemPos() const {
