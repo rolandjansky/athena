@@ -46,7 +46,8 @@ def main():
     if 'userArgs=' in sys.argv[-1]:
         if len([word for word in ("import", "os", "sys", "open", "file", "compile", "eval") if word in sys.argv[-1]]):
             sys.exit("ERROR: Cannot handle user argument: %s" % sys.argv[-1])
-        exec sys.argv[-1]
+        #exec sys.argv[-1]
+        userArgs=sys.argv[-1]
         sys.argv=sys.argv[:-1]
     else:
         userArgs={}
@@ -74,16 +75,28 @@ def main():
     p.add_option('--online_empty_after_filled', type  = "int",                                       dest = "online_empty_after_filled", help = "# empty_after_filled bunches in rates xml"                                            )
     p.add_option('--online_unp_iso',       type  = "int",                                            dest = "online_unpaired_iso",    help = "# unpaired_iso bunches in rates xml"                                                     )
     p.add_option('--online_unp_noniso',    type  = "int",                                            dest = "online_unpaired_noniso", help = "# unpaired_noniso bunches in rates xml"                                                  )
+    p.add_option('--online_abortgapnotcalib',    type  = "int",                                      dest = "online_abortgapnotcalib", help = "# bunches in abortgapnotcalib rates xml"                                                  )
+    p.add_option('--online_BGRP9',           type  = "int",                                          dest = "online_bgrp9", help = "# bunches in BGRP9 rates xml"                                                  )
+    p.add_option('--online_BGRP11',           type  = "int",                                          dest = "online_bgrp11", help = "# bunches in BGRP11 rates xml"                                                  )
+    p.add_option('--online_BGRP12',           type  = "int",                                          dest = "online_bgrp12", help = "# bunches in BGRP12 rates xml"                                                  )
     p.add_option('--target_filled',        type  = "int",         default = 700,                     dest = "target_filled",          help = "# target filled bunches"                                                                 )
     p.add_option('--target_empty',         type  = "int",         default = 2000,                    dest = "target_empty",           help = "# target empty bunches"                                                                  )
     p.add_option('--target_empty_after_filled', type  = "int",         default = 100,                dest = "target_empty_after_filled", help = "# target empty_after_filled bunches"                                                  )
     p.add_option('--target_unp_iso',       type  = "int",         default = 100,                     dest = "target_unpaired_iso",    help = "# target unpaired_iso bunches"                                                           )
     p.add_option('--target_unp_noniso',    type  = "int",         default = 10,                      dest = "target_unpaired_noniso", help = "# target unpaired_noniso bunches"                                                        )
+    p.add_option('--target_abortgapnotcalib',    type  = "int",                                      dest = "target_abortgapnotcalib", help = "# bunches in abortgapnotcalib rates xml"                                                  )
+    p.add_option('--target_BGRP9',           type  = "int",                                          dest = "target_bgrp9", help = "# bunches in BGRP9 rates xml"                                                  )
+    p.add_option('--target_BGRP11',           type  = "int",                                          dest = "target_bgrp11", help = "# bunches in BGRP11 rates xml"                                                  )
+    p.add_option('--target_BGRP12',           type  = "int",                                          dest = "target_bgrp12", help = "# bunches in BGRP12 rates xml"                                                  )
     p.add_option('--use_lowest_rule',      action = "store_true", default = True,                    dest = "use_lowest_rule",        help = "optionally use the lowest available rule when none has been defined for the target lumi" )
     p.add_option('--log',                  type  = "str",         default = "",                      dest = "log",                    help = "optionally print the final state of the trigger tree to a log file"                      )
     p.add_option('--debug',                action = "store_true",                                    dest = "debug",                  help = "enable debug output"                                                                     )
     p.add_option('-q', '--quiet',          action = "store_true",                                    dest = "quiet",                  help = "disable most output"                                                                     )
-    p.add_option('-v', '--verbosity',      type  = "int",         default = 2,                       dest = "verbosity",              help = "set level of detail on the output (values from 0 to 5)"                                  )
+    p.add_option('-v', '--verbosity',      type  = "int",         default = 2,                       dest = "verbosity",              help = "set level of detail on the output (values from 0 to 5)"   
+                               )
+    p.add_option( '--streamers',      type  = "str",         default = "noalg,",   dest = "list_of_streamers",      help = "List of streamers for which the efficiency is set to 1"
+                 )
+
 
     #*#** Note2: we should make it read the xml from a release too. 
     
@@ -224,16 +237,25 @@ def main():
                      "target_empty_after_filled" : options.target_empty_after_filled,
                      "target_unpaired_iso"       : options.target_unpaired_iso,
                      "target_unpaired_noniso"    : options.target_unpaired_noniso,
+                     "target_abortgapnotcalib"   : options.target_abortgapnotcalib,
+                     "target_BGRP9"              : options.target_bgrp9,
+                     "target_BGRP11"             : options.target_bgrp11,
+                     "target_BGRP12"             : options.target_bgrp12,
                      "online_xml"                : options.online_xml,
                      "online_lumi"               : options.online_lumi,
                      "online_filled"             : options.online_filled,
                      "online_empty"              : options.online_empty,
                      "online_empty_after_filled" : options.online_empty_after_filled,
                      "online_unpaired_iso"       : options.online_unpaired_iso,
-                     "online_unpaired_noniso"    : options.online_unpaired_noniso,
+                     "online_unpaired_noniso"    : options.online_unpaired_noniso,                     
+                     "online_abortgapnotcalib"   : options.online_abortgapnotcalib,
+                     "online_BGRP9"              : options.online_bgrp9,
+                     "online_BGRP11"             : options.online_bgrp11,
+                     "online_BGRP12"             : options.online_bgrp12,
                      "use_lowest_rule"           : options.use_lowest_rule,
                      "log"                       : options.log,
                      "verbosity"                 : options.verbosity,
+                     "list_of_streamers"         : options.list_of_streamers, 
         }
 
     reader = RuleReader(configuration, rules, logger)

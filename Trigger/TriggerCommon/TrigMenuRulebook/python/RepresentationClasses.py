@@ -108,16 +108,24 @@ class TriggerNode:
 class TriggerSignature:
     """Represent a trigger's online parameters"""
     
-    required_keys = set(["sig_name", "evts_passed", 
-                         "evts_passed_weighted", "rate", "rate_err", 
-                         "prescale", "passthrough", "lower_chain_name",
-                         "efficiency", "efficiency_err", 
-                         "prescaled_efficiency"])
+    required_keys = set(["sig_name",
+                         "evts_passed", 
+                         "evts_passed_weighted",
+                         "rate",
+                         "rate_err", 
+                         "chain_prescale",
+                         "passthrough",
+                         "lower_chain_name",
+                         "efficiency",
+                         "efficiency_err", 
+                         "prescaled_efficiency"
+                         ])
                         #*#** , "prescaled_efficiency_err","sig_counter",
                         #*#** ])
                         #*#** --> this didn't exist in the offline xml. Leave it out for now.
     float_keys = ["evts_passed", "evts_passed_weighted", "rate", "rate_err",
-                  "prescale", "passthrough", "efficiency", "efficiency_err",
+                  "chain_prescale", "passthrough",
+                  "efficiency", "efficiency_err",
                   "prescaled_efficiency"]
                   #*#**, "prescaled_efficiency_err", "sig_counter",]
                   #*#** --> this didn't exist in the offline xml. Leave it out for now.
@@ -127,11 +135,11 @@ class TriggerSignature:
         if set([key.tag for key in xml]) < self.required_keys:
             raise KeyError("Item must have %s:" % self.required_keys)
 
-
         for key in self.required_keys:
             value = xml.find(key).text
             if key in self.float_keys:
-                value = float(value)
+                    value = float(value)
+            if key == "chain_prescale" : key = "prescale"
             self.parameters[key] = value
 
         self.lumi = lumi

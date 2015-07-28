@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------------
 # Create and configure option parser
 #
-
+from TriggerMenu.l1.PrescaleHelper import getCutFromPrescale 
 from optparse import OptionParser
 p = OptionParser(usage="usage: python cnvXML.py --lv1xml=... --hltxml=... --ps_name=... --ps_xml=...", version="1.0")
 
@@ -59,7 +59,7 @@ log = getLog('cnvXML')
 import xml.etree.cElementTree as ET
 
 def readPsFile(fname):
-    
+
     def fill(level):
         items = []
         v = level.findall('signature')
@@ -67,26 +67,24 @@ def readPsFile(fname):
             items.append( [x.findtext('sig_name'),
                            x.findtext('chain_prescale'),
                            x.findtext('passthrough'),
-                           x.findtext('express_prescale')],)
+                           x.findtext('express_prescale'),
+                           x.findtext('rerun_prescale')],)
         print 'N items: %d (%s)' % (len(items), level.findtext('lvl_name'))
         return items
-        
-                          
+
+
     doc = ET.parse(fname)
     root = doc.getroot()
     levels = root.findall('level')
-    l1_items, l2_chains, ef_chains = [], [], []
+    l1_items, hlt_chains = [], []
     for level in levels:
         lvl_name = level.findtext('lvl_name')
         if lvl_name == 'L1':
             l1_items = fill(level)
-        elif lvl_name == 'L2':
-            l2_chains = fill(level)
-        elif lvl_name == 'EF':
-            ef_chains = fill(level)
+        elif lvl_name == 'HLT':
+            hlt_chains = fill(level)
 
-    print         
-    return (l1_items, l2_chains, ef_chains)
+    return (l1_items, hlt_chains)
 
 #-----------------------------------------------------------------------------
 # Read menu XML file
@@ -106,12 +104,13 @@ def readXmlConfig(l1xml, hltxml):
     name2id['TriggerMenu:id']   = root.find('TriggerMenu').get('id')    
     name2id['PrescaleSet:name'] = root.find('PrescaleSet').get('name')
 
+    
     if name2id['LVL1Config:id'] == None or name2id['LVL1Config:id'] == '1':
         name2id['LVL1Config:id'] = "307" #"272"
         log.warning('==> LVL1 ID set to '+name2id['LVL1Config:id']+' (hardcoded - SMK 1372)')
         
     if name2id['TriggerMenu:id'] == None or name2id['TriggerMenu:id'] == '1':
-        name2id['TriggerMenu:id'] = "708" #"141" #"119"
+        name2id['TriggerMenu:id'] =  "141" #"119"
         log.warning('==> Menu ID set to '+name2id['TriggerMenu:id']+' (hardcoded - SMK 1372)')
                 
     v = root.findall('TriggerMenu/TriggerItem')
@@ -132,7 +131,7 @@ def readXmlConfig(l1xml, hltxml):
         log.warning('==> HLT_MENU name set to '+name2id['HLT_MENU:name']+' (hardcoded in cnvXML.py)')
 
     if name2id['HLT_MENU:id'] == None:
-        name2id['HLT_MENU:id'] = "422"
+        name2id['HLT_MENU:id'] = ""
         log.warning('==> HLT_MENU id set to '+name2id['HLT_MENU:id']+' (hardcoded - SMK 1114)')
         
     name2id['HLT_MENU:name']
@@ -149,7 +148,7 @@ def readXmlConfig(l1xml, hltxml):
 #-----------------------------------------------------------------------------
 # XML writing function
 #
-def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, l2_chains, ef_chains, name2id, ps_name): 
+def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, hlt_chains, name2id, ps_name): 
     f = open(ps_l1xml, 'w')
     f.write('<?xml version="1.0" ?>\n')
 
@@ -173,8 +172,10 @@ def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, l2_chains, ef_chains, name2id, ps_
     for item in l1_items:
         ctpid = '-1'
         if item[0] in name2id.keys(): ctpid = name2id[item[0]]
-        f.write('    <Prescale ctpid="%s" n="%i" m="0" d="0">%s</Prescale>\n' \
-                % (ctpid, float(item[1]), item[1]))
+        cutvalue = getCutFromPrescale(float(item[1]))
+        f.write('    <Prescale ctpid="%s" cut="%s" value="%s"/>\n'  \
+            % (ctpid, cutvalue, item[1]))
+
     f.write('  </PrescaleSet>\n')
     f.write('</LVL1Config>\n')
     f.close()
@@ -187,20 +188,20 @@ def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, l2_chains, ef_chains, name2id, ps_
         f.write('  <Meta type="%s" lumi_min="%s" lumi_max="%s"></Meta>\n' % m.groups() )
     f.write('  <CHAIN_LIST>\n')
     print
-    for item in l2_chains+ef_chains:
+    for item in hlt_chains:
         id = None
         level = ''
         if item[0] in name2id.keys(): id = name2id[item[0]]
-        if len(item[0]) > 2: level = item[0][0:2]
+        if len(item[0]) > 2: level = item[0][0:3]
 
         if id == None:
             log.debug('Won t do anything with trigger not in P1 menu: %s' %item[0])
             continue
         
         if (item[3] == None):
-            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s"></CHAIN>\n' % (id, item[0], level, item[1], item[2]))
+            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[4]))
         else:
-            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" express_stream="%s"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[3]))
+            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" express_stream="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[3], item[4]))
 
     f.write('  </CHAIN_LIST>\n')
     f.write('</HLT_MENU>\n')
@@ -211,7 +212,7 @@ def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, l2_chains, ef_chains, name2id, ps_
 #-----------------------------------------------------------------------------
 # Check consistency of two Menus/XML files
 #
-def CheckMenus(l1_items, l2_chains, ef_chains, name2id):
+def CheckMenus(l1_items, hlt_chains, name2id):
 
     ignores = ['LVL1Config', 'TriggerMenu', 'PrescaleSet', 'TriggerMenu', 'HLTMenu', 'HLT_MENU']    
     no_matches = []
@@ -225,7 +226,7 @@ def CheckMenus(l1_items, l2_chains, ef_chains, name2id):
 
         match = False
         
-        for item in l1_items+l2_chains+ef_chains:
+        for item in l1_items+hlt_chains:
             if len(item) < 1:
                 log.warning('Item list size error in CheckMenus')
                 continue
@@ -240,10 +241,13 @@ def CheckMenus(l1_items, l2_chains, ef_chains, name2id):
 
     no_matches.sort()
 
-    for t in no_matches:
-        log.info('Trigger is in P1 menu but has no PS rule: %s' %t)
+    if len(no_matches) > 0:
+      log.info('FATAL: found %r inconsistencies between the HLT and L1 menu, L1 item doesn not exist for' %len(no_matches))     
+      for t in no_matches:
+          log.info('%s' %t)
+      sys.exit("FATAL: CheckMenu failed and exiting")
 
-def modifyPS(l1_items, l2_chains, ef_chains):
+def modifyPS(l1_items, hlt_chains):
     """Post processing of the prescale sets in order to deal with the number of
 bunches and limitations of the rate prediction"""
     # (sig_name, ps, pt, express_ps)
@@ -310,20 +314,20 @@ if __name__ == '__main__':
     #
     # Read LV1 and HLT xml files for trigger names, PS and PT
     #
-    (l1_items, l2_chains, ef_chains) = readPsFile(options.ps_xml)
-    # modifyPS(l1_items, l2_chains, ef_chains) # Done in processRules.py
+    (l1_items, hlt_chains) = readPsFile(options.ps_xml)
     
     #
     # Build look up table from trigger names to chain counters/L1 items
     #
     name2id = readXmlConfig(options.lv1xml, options.hltxml)
-    
-    #
-    # Write out LV1 and HLT PS keys
-    #    
-    writeXmlPS(ps_lv1xml_out, ps_hltxml_out, l1_items, l2_chains, ef_chains, name2id, options.ps_name)
 
     #
     # Consistency check
     #
-    CheckMenus(l1_items, l2_chains, ef_chains, name2id)
+    CheckMenus(l1_items, hlt_chains, name2id)   
+
+    #
+    # Write out LV1 and HLT PS keys
+    #    
+    writeXmlPS(ps_lv1xml_out, ps_hltxml_out, l1_items, hlt_chains, name2id, options.ps_name)
+

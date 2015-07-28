@@ -19,7 +19,7 @@ or
 
 python runRuleBook.py ... 'userArgs = {"argument1" : value1, "argument2" : value2}'
 
-A dictionary is just one possibility. It is up to the user to
+qA dictionary is just one possibility. It is up to the user to
 determine what data type should be held by args, and how the values
 should be used in their functions.
 
