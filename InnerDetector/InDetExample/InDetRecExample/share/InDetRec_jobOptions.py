@@ -73,6 +73,8 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
       elif InDetFlags.doVtxLumi():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
+      elif InDetFlags.doVtxBeamSpot():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxBeamSpot")
       elif InDetFlags.doCosmics():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
       elif InDetFlags.doHeavyIon():

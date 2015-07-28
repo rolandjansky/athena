@@ -206,6 +206,12 @@ class doVtxLumi(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doVtxBeamSpot(InDetFlagsJobProperty):
+    """Turn running of vertex BeamSpot reconstruction on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doMinimalReco(InDetFlagsJobProperty):
     """Turn running of minimal reconstruction on and off"""
     statusOn     = True
@@ -1291,6 +1297,44 @@ class InDetJobProperties(JobPropertyContainer):
        DetFlags.detdescr.TRT_setOn()
        DetFlags.dcs.TRT_setOff()
 
+    # --- special setup for vtxbeamspot stream processing   
+    elif (self.doVtxBeamSpot()):
+       print "----> InDetJobProperties for vertex lumi"
+       self.checkThenSet(self.doNewTracking          , True )
+       self.checkThenSet(self.doLowPt                , False)
+       self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doBeamGas              , False)
+       self.checkThenSet(self.doBeamHalo             , False)
+       self.checkThenSet(self.doxKalman              , False)
+       self.checkThenSet(self.doiPatRec              , False)
+       self.checkThenSet(self.doBackTracking         , False)
+       self.checkThenSet(self.doTRTStandalone        , False)
+       self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doVertexFinding        , True)
+       self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
+       self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
+       self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
+       self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
+       self.checkThenSet(self.doV0Finder             , False)
+       self.checkThenSet(self.doSimpleV0Finder       , False)      
+       self.checkThenSet(self.doConversions          , False )        
+       self.checkThenSet(self.doStatistics           , False) 
+       self.checkThenSet(self.doTrackSegmentsPixel   , False )
+       self.checkThenSet(self.doTrackSegmentsSCT     , False )
+       self.checkThenSet(self.doTrackSegmentsTRT     , False )
+       self.checkThenSet(self.doSlimming             , False )
+       self.checkThenSet(self.useBeamConstraint      , False )
+       self.checkThenSet(self.selectSCTIntimeHits    , False )
+       # --- turn off brem
+       self.checkThenSet(self.doBremRecovery         , False)
+       self.checkThenSet(self.doCaloSeededBrem       , False)
+       self.checkThenSet(self.doHadCaloSeededSSS     , False)
+       # --- turn off TRT
+       DetFlags.makeRIO.TRT_setOff()
+       DetFlags.TRT_setOff()
+       DetFlags.detdescr.TRT_setOn()
+       DetFlags.dcs.TRT_setOff()
+
     # --- special case minimal reconstruction setup
     elif (self.doMinimalReco()):
        print "----> InDetJobProperties for minimal reconstruction"
@@ -1838,6 +1882,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '*'
        print '* --------------------> Special reconstruction for vertex lumi measurement !'
        print '*'
+    if self.doVtxBeamSpot() :
+       print '*'
+       print '* --------------------> Special reconstruction for vertex beamspot measurement !'
+       print '*'
     if self.doCosmics() :
        print '*'
        print '* --------------------> Special reconstruction for cosmics !'
@@ -2280,6 +2328,7 @@ _list_InDetJobProperties = [Enabled,
                             doBeamGas,
                             doBeamHalo,
                             doVtxLumi,
+                            doVtxBeamSpot,
                             doCosmics,
                             doHeavyIon,
                             doParticleCreation,
