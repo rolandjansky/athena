@@ -31,8 +31,6 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 
-#include "InternalCache.h"
-
 class IRoiDescriptor;
 class TrigRoiDescriptor;
 class TrigTimer;
@@ -60,7 +58,6 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   virtual HLT::ErrorCode hltInitialize();
   virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
-  virtual HLT::ErrorCode hltEndEvent();
   virtual HLT::ErrorCode hltFinalize();
 
   using HLT::FexAlgo::prepareRobRequests;
@@ -85,7 +82,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   // run in caloTag mode
-  HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
+  HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout);
 
   // run the MS+CB reconstruction of TrigMuonEF
   HLT::ErrorCode runMSCBReconstruction(const IRoiDescriptor* muonRoI,
@@ -98,7 +95,6 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   /// Function to get ID track particle links from trigger element
   HLT::ErrorCode getIDTrackParticleLinks(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
-  HLT::ErrorCode getIDTrackParticleLinksL2(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
 
   /// Function to build combined tracks
   HLT::ErrorCode buildCombinedTracks(const MuonCandidateCollection* muonCandidates,
@@ -154,7 +150,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   // Output xAOD muons
   xAOD::MuonContainer* m_muonContainer;
-  //xAOD::SlowMuonContainer* m_slowMuonContainer;
+  xAOD::SlowMuonContainer* m_slowMuonContainer;
 
   // Output tagged TrackParticles
   xAOD::TrackParticleContainer* m_ctTrackParticleContainer;
@@ -229,14 +225,6 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   bool m_doMuonFeature;
   bool m_useL2Info;
-  bool m_doCache;
-
-  //Map to cache
-  std::map<std::vector<std::vector<IdentifierHash> >, InternalCache*> m_CacheMap;
-  std::map<std::vector<std::vector<IdentifierHash> >, InternalCache*> m_CacheMapTMEFonly;
-  
-  // list of IdentifierHash for PRD in RoI
-  std::vector<std::vector<IdentifierHash> > m_hashlist;
 
 };
 

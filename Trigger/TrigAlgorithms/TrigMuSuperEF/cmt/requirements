@@ -8,7 +8,6 @@ private
 use AtlasPolicy	      AtlasPolicy-* 
 use GaudiInterface    GaudiInterface-*			  External
 use CxxUtils          CxxUtils-*                          Control
-use AthenaKernel      AthenaKernel-*                      Control
 
 # trigger generalities
 use TrigInterfaces              TrigInterfaces-*                Trigger/TrigSteer
@@ -48,7 +47,6 @@ use TrkToolInterfaces		TrkToolInterfaces-*             Tracking/TrkTools
 use xAODMuon			xAODMuon-*			Event/xAOD
 use xAODTracking		xAODTracking-*			Event/xAOD
 
-#use xAODCore                    xAODCore-*                      Event/xAOD
 # Inform cmake that this package has private header files (transparent to CMT)
 apply_pattern cmake_add_command command="include_directories(src)"
 
