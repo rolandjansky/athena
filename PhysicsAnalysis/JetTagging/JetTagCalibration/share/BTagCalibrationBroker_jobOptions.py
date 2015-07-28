@@ -1,13 +1,17 @@
-
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-if athenaCommonFlags.isOnline():
-  BTaggingFlags.CalibrationFolderRoot="/GLOBAL/Onl/BTagCalib/"
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.DataSource()=='data':
+  BTaggingFlags.CalibrationFolderRoot=BTaggingFlags.CalibrationFolderRoot.replace("/GLOBAL","/GLOBAL/Onl")
   connSchema="GLOBAL"
-  print "#BTAG# running online -> btag calib root folder is /GLOBAL/Onl/BTagCalib/"
+  message = "#BTAG# accessing online conditions DB"
+  if not athenaCommonFlags.isOnline():
+    message = message + " (via offline replica)"
+  print message
 else:
-  BTaggingFlags.CalibrationFolderRoot="/GLOBAL/BTagCalib/"
   connSchema="GLOBAL_OFL"
-  print "#BTAG# running offline -> btag calib root folder is /GLOBAL/BTagCalib/"
+  print "#BTAG# accessing offline conditions DB"
+
+print "#BTAG# running in reco mode -> btag calibration root folder is CalibrationFolderRoot =", BTaggingFlags.CalibrationFolderRoot
 
 theFolders = []
 if BTaggingFlags.IP1D:
@@ -68,14 +72,14 @@ if "AntiKt4TopoEM" not in JetCollectionForCalib:
 
 from JetTagCalibration.JetTagCalibrationConf import Analysis__CalibrationBroker
 BTagCalibrationBrokerTool = Analysis__CalibrationBroker(
-                                                          name = "BTagCalibrationBrokerTool",
-                                                          folderRoot = BTaggingFlags.CalibrationFolderRoot,
-                                                          folders = theFolders,
-                                                          channels = JetCollectionForCalib,
-                                                          channelAliases = BTaggingFlags.CalibrationChannelAliases,
-                                                          shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   
-                                                          OutputLevel = BTaggingFlags.OutputLevel
-                                                       )
+  name = "BTagCalibrationBrokerTool",
+  folderRoot = BTaggingFlags.CalibrationFolderRoot,
+  folders = theFolders,
+  channels = JetCollectionForCalib,
+  channelAliases = BTaggingFlags.CalibrationChannelAliases,
+  shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   
+  OutputLevel = BTaggingFlags.OutputLevel
+)
 ToolSvc += BTagCalibrationBrokerTool
 theApp.Dlls+=['DetDescrCondExample','DetDescrCondTools']
 
@@ -88,7 +92,19 @@ if BTaggingFlags.CalibrationSingleFolder:
 
 for folder in theFolders:
   if BTaggingFlags.CalibrationFromLocalReplica:
-    conddb.addFolder("","<dbConnection>sqlite://X;schema=mycool.db;dbname=OFLP200</dbConnection> "+folder+" <tag>"+BTaggingFlags.CalibrationTag+"</tag>")
+    dbname="OFLP200"
+    #For data, use COMP200 for Run 1, CONDBR2 for Run 2
+    if globalflags.DataSource()=='data':
+      from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+      # Run() only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
+      # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones.
+      # Hence if Run() is undefined,
+      # presence of IBL is used to switch between Run1/Run2
+      if (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False)):
+        dbname="COMP200"
+      else:
+        dbname="CONDBR2"
+    conddb.addFolder("","<dbConnection>sqlite://X;schema=mycool.db;dbname="+dbname+"</dbConnection> "+folder+" <tag>"+BTaggingFlags.CalibrationTag+"</tag>")
   else:
     if BTaggingFlags.CalibrationFromCERN:
       conddb.addFolder("","<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_GLOBAL;dbname=OFLP200</dbConnection> "+folder+" <tag>"+BTaggingFlags.CalibrationTag+"</tag>") 

@@ -63,6 +63,12 @@ namespace Analysis {
     for(uint i=0;i<m_folders.size();i++) {
       ATH_MSG_DEBUG( "#BTAG# Folder " << m_folders[i]);
     }
+    // List of channels:
+    ATH_MSG_DEBUG( "#BTAG# Original channels " );
+
+    for(uint i=0;i<m_originalChannels.size();i++) {
+      ATH_MSG_DEBUG("#BTAG# Channel " << m_originalChannels[i] );
+    }
     // Decode channel aliases:
     for(std::vector<std::string>::const_iterator aliasI = m_channelAliases.value().begin(),
 	  aliasE = m_channelAliases.value().end(); 
@@ -76,13 +82,12 @@ namespace Analysis {
 	std::string jetc= aliasI->substr(0, delim);
 	std::vector<std::string> jeta = tokenize(aliasI->substr(delim+2), ",");
 	m_channelAliasesMultiMap.insert(std::make_pair(jetc, jeta) );
+	// Add to list of channels to which aliases will be attached
+	// (necessary because getJetAuthor used in taggers does not use
+	//  jet collection name but standardised info)
+	if (std::find(m_originalChannels.begin(), m_originalChannels.end(),jetc)
+	    == m_originalChannels.end()) m_originalChannels.push_back(jetc);
       }
-    }
-    // List of channels:
-    ATH_MSG_DEBUG( "#BTAG# Original channels " );
-
-    for(uint i=0;i<m_originalChannels.size();i++) {
-      ATH_MSG_DEBUG("#BTAG# Channel " << m_originalChannels[i] );
     }
     // Prepare histo maps:
     // m_histos.reserve(m_folders.size()*m_channels.size());

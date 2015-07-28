@@ -66,6 +66,31 @@ public:
                              const std::string& channel,
                              const std::string& histoname,
 			     bool status);
+
+  std::map<std::string, std::string> m_ossMap;
+  inline void storeStr(const std::string& folder, const std::string& channel, const std::string& histoname, std::string oss) {
+    std::string key = folder + channel + histoname;
+    m_ossMap[key] = oss;//m_ossMap.insert( std::make_pair(key,oss) );
+  }
+  inline std::string getStr(const std::string& folder, const std::string& channel, const std::string& histoname) {
+    std::string key = folder + channel + histoname;
+    return m_ossMap[key];
+  }
+
+
+  struct calibMV2{    std::vector<std::string> inputVars;    std::string str;    TObject* obj;  };
+  std::map<std::string, calibMV2> m_calibMap;
+  inline void storeCalib(const std::string& folder, const std::string& channel, const std::string& histoname,
+		       std::vector<std::string> inputVars, std::string str, TObject* obj ) {
+    std::string key = folder + channel + histoname;
+    calibMV2 calib;    calib.inputVars = inputVars;    calib.str=str;    calib.obj=obj;
+    m_calibMap[key] = calib;
+  }
+  inline calibMV2 getCalib(const std::string& folder, const std::string& channel, const std::string& histoname) {
+    std::string key = folder + channel + histoname;
+    return m_calibMap[key];
+  }
+  
   void printStatus() const;
   virtual StatusCode callBack( IOVSVC_CALLBACK_ARGS );
   // helper functions:
