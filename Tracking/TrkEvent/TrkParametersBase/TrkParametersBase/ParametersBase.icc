@@ -88,6 +88,24 @@ template <int DIM, class T> Trk::ParametersBase<DIM, T>& Trk::ParametersBase<DIM
 }
 
 
+template <int DIM, class T>
+Trk::ParametersBase<DIM, T>&
+Trk::ParametersBase<DIM, T>::operator=(Trk::ParametersBase<DIM, T>&& pbas)
+{
+ if (this != &pbas){
+    delete m_covariance;
+    m_covariance = pbas.m_covariance;
+    pbas.m_covariance = 0;
+
+    m_parameters = std::move(pbas.m_parameters);
+    m_position   = std::move(pbas.m_position);
+    m_momentum   = std::move(pbas.m_momentum);
+    m_chargeDefinition = std::move(pbas.m_chargeDefinition);
+ }
+ return(*this);
+}
+
+
 // private method for parameters update (controlled via friend list)
 template <int DIM, class T>  AmgSymMatrix(DIM)* Trk::ParametersBase<DIM, T>::checkoutCovariance() const
 {

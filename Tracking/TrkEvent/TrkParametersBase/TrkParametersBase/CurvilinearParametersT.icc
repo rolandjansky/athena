@@ -88,6 +88,8 @@ template <int DIM, class T, class S> Trk::CurvilinearParametersT<DIM, T, S>::Cur
     m_cIdentifier(cIdentifier)
        
 {
+    // flip the charge according to its value
+    if (charge < 0.) Trk::ParametersBase<DIM, T>::m_chargeDefinition.flipSign();
     // assign the parameters
     Trk::ParametersBase<DIM, T>::m_parameters[locX]   = 0.;
     Trk::ParametersBase<DIM, T>::m_parameters[locY]   = 0.;

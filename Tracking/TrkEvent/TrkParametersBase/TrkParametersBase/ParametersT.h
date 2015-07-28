@@ -21,6 +21,8 @@
 
 class MsgStream;
 
+class TrackParametersCnv_p2;
+
 namespace Trk {
   /**
   @class ParametersT
@@ -52,6 +54,7 @@ namespace Trk {
     public:
          
       friend class MaterialEffectsEngine;
+      friend class ::TrackParametersCnv_p2;
           
         
   	  /** default constructor */
@@ -92,6 +95,9 @@ namespace Trk {
       
       /** Assignment operator */
       ParametersT& operator= (const ParametersT& rhs);
+
+      /** Move assignment operator */
+      ParametersT& operator= (ParametersT&& rhs);
       
       //**Destructor*/
       virtual ~ParametersT ();
@@ -118,13 +124,13 @@ namespace Trk {
           Update method for single defined parameters parameters,
           this deletes the covariance and overwrites if the pointer value differs  */ 
       void updateParameter(DefinedParameter updatedParameter,
-                           AmgSymMatrix(DIM)* updatedCovariance = 0) const;
+                           AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
                                    
       /** ---- PRIVATE METHOD: access is controlled via friend list 
           Update method for measurement parameter update and material effects update,
           this deletes the covariance and overwrites if the pointer value differs  */ 
       void updateParameters(const AmgVector(DIM)& updatedParameters,
-                            AmgSymMatrix(DIM)* updatedCovariance = 0) const;  
+                            AmgSymMatrix(DIM)* updatedCovariance = 0) const override; 
   
       mutable const S*                m_surface;          //!< surface template
       

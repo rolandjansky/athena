@@ -28,6 +28,12 @@
 
 class MsgStream;
 
+template <typename PARMS> class TrackParametersCovarianceCnv;
+template< class SURFACE_CNV, class ATA_SURFACE > class MeasuredNeutralAtaSurfaceCnv_p1;
+class TrackParametersCnv_p1;
+class TrackParametersCnv_p2;
+class NeutralParametersCnv_p1;
+
 namespace Trk {
 
   class Surface;
@@ -63,6 +69,14 @@ namespace Trk {
     public:
         
       friend class MaterialEffectsEngine;
+      template <typename PARMS> friend class ::TrackParametersCovarianceCnv;
+      template< class SURFACE_CNV, class ATA_SURFACE > friend class MeasuredNeutralAtaSurfaceCnv_p1;
+      friend class ::TrackParametersCnv_p1;
+      friend class ::TrackParametersCnv_p2;
+      friend class ::NeutralParametersCnv_p1;
+
+      typedef AmgVector(DIM) parameters_t;
+      static const int dim = DIM;
         
       /** Default constructor */
       ParametersBase(AmgSymMatrix(DIM)* covariance = 0);
@@ -82,8 +96,11 @@ namespace Trk {
       /** Desctructor */
       virtual ~ParametersBase();
       
-      /** Assignmnet operator */
+      /** Assignment operator */
       ParametersBase& operator=(const ParametersBase& pbase);
+      
+      /** Move assignment operator */
+      ParametersBase& operator=(ParametersBase&& pbase);
       
       /** Access method for the parameters */
       const AmgVector(DIM)& parameters() const { return m_parameters; }             

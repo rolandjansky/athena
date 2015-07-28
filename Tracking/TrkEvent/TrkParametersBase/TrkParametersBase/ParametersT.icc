@@ -122,7 +122,7 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
    // fill the vector now
    ParametersBase<DIM,T>::m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   
 }
-         
+          
 // Constructor with mixed arguments 2 - uses global <-> local for parameters 
 template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT 
     (double loc1, double loc2,
@@ -187,6 +187,22 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>& Trk::Parameter
       m_surface           = ( rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface );
 	}
 	return(*this);
+}
+
+template <int DIM, class T, class S>
+Trk::ParametersT<DIM, T, S>& Trk::ParametersT<DIM, T, S>::operator=
+    (Trk::ParametersT<DIM, T, S>&& rhs)
+{
+  if (this!=&rhs)
+  {
+    if ( m_surface && m_surface->isFree() ) delete m_surface;
+    m_surface = rhs.m_surface;
+    rhs.m_surface = nullptr;
+
+    // call the base class assignment operator
+    Trk::ParametersBase<DIM,T>::operator=(std::move(rhs));
+  }
+  return(*this);
 }
 
 // Destructor
