@@ -119,6 +119,7 @@ class TriggerRule:
             ('inputRate' in kwargs and not 'inputMaxRate' in kwargs)
             ):
             raise KeyError('rate and inputRate with a depends_on must specify a max: %s' % kwargs)
+           
         
         #Store the keywords
         self.rules = kwargs.copy()
@@ -136,10 +137,7 @@ class TriggerRule:
 
         if "scaling" in self.rules and self.rules["scaling"] not in self.allowed_scales:
             raise ValueError("Scaling must be one of the following: %s" % self.allowed_scales)
-  
-        if 'ESValue' in self.rules:
-            if self.rules['ESValue'] < 0.: 
-                raise ValueError('ESValue can not be negative, please fix')
+            
 
 if True:
 

@@ -8,9 +8,6 @@ tag = 'Physics_pp_v5_EB'
 # Approx time in hours (default: 1)
 ebTime = 1.
 
-# Approx start lumi in multiples of 10**33
-ebLumi = 2.1
-
 # Bunch groups to take enhanced bias data in
 ebPhysics = True
 ebEmpty = True
@@ -21,21 +18,22 @@ ebAbortgapnotcalib = True
 
 rules={} 
 #=======================================
+# first import physics_pp_v5_wL1Calo as it is
 
-import Physics_pp_v5_rules
+import Physics_pp_v5_wL1Calo_rules
 
-rules.update(Physics_pp_v5_rules.rules)
+rules.update(Physics_pp_v5_wL1Calo_rules.rules)
 
 if (ebPhysics):
   rules.update({
-    'HLT_noalg_eb_L1RD3_FILLED':                { 1 : TriggerRule(rate=60/ebTime,        comment='EnhancedBias 60 Hz chain ') , },
-    'HLT_eb_low_L1RD2_FILLED':                  { 1 : TriggerRule(PS=3.00*ebTime,        comment='EnhancedBias 60 Hz chain ') , },
-    'HLT_eb_high_L1RD2_FILLED':                 { 1 : TriggerRule(PS=2.00*ebTime,        comment='EnhancedBias 60 Hz chain ') , },
-    'HLT_noalg_eb_L1PhysicsLow_noPS':           { 1 : TriggerRule(PS=42.1*ebTime*ebLumi, comment='EnhancedBias 120 Hz chain '), }, #L dependent
-    'HLT_noalg_eb_L1PhysicsHigh_noPS':          { 1 : TriggerRule(PS=2.10*ebTime*ebLumi, comment='EnhancedBias 10 Hz chain ') , }, #L dependent
+    'HLT_noalg_eb_L1RD3_FILLED':                { 1 : TriggerRule(rate=60/ebTime,   comment='EnhancedBias 60 Hz chain '), },
+    'HLT_eb_low_L1RD2_FILLED':                  { 1 : TriggerRule(PS=4.00*ebTime,   comment='EnhancedBias 60 Hz chain '), },
+    'HLT_eb_high_L1RD2_FILLED':                 { 1 : TriggerRule(PS=1.00,          comment='EnhancedBias 60 Hz chain '), },
+    'HLT_noalg_eb_L1PhysicsLow_noPS':           { 1 : TriggerRule(PS=54.00*ebTime,  comment='EnhancedBias 120 Hz chain '), },
+    'HLT_noalg_eb_L1PhysicsHigh_noPS':          { 1 : TriggerRule(PS=2.00*ebTime,   comment='EnhancedBias 10 Hz chain '), },
 
-    'L1_RD3_FILLED':                            { 1: TriggerRule(rate=60/ebTime,     comment='set to 60 Hz'),},
-    'L1_RD2_FILLED':                            { 1: TriggerRule(rate=8000/ebTime,   comment='set to 8000 Hz'),},
+    'L1_RD3_FILLED':                            {1: TriggerRule(rate=60/ebTime,     comment='set to 60 Hz'),},
+    'L1_RD2_FILLED':                            {1: TriggerRule(rate=8000/ebTime,   comment='set to 8000 Hz'),},
  
     # Unprescaled L1 items
     'L1_2MU6':                                  { 1 : TriggerRule(PS=1.00, comment='EnhancedBias unprescaled L1 seed item '), },

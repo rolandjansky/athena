@@ -1,8 +1,10 @@
 #!/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 """
 Script to prepare prescale keys for P1 using the rates rulebook
+
 usage:
 python runRuleBook.py
   With no options, will create keys in 25% incremenents (100, 125,
@@ -11,7 +13,8 @@ python runRuleBook.py
   rules.py file are the same, you're ok).
 
 python runRuleBook.py 100, 200
-  Create key for the specified comma-separated lumi points
+  With just one option, will create key for the specified
+  comma-separated lumi points
 
 python runRuleBook.py 100,200 myDir
   With a second option, the script will also run rate predictions for
@@ -22,19 +25,29 @@ Variables to edit by hand
    The location of your xml files, these can be taken from the
    release, downloaded from P1 using the TT, etc...
    Default is to use files from release, so should only need to change if menu at P1 doesn't match release
+
 2) rulebook
    The name of your rulebook file (removing the trailing '.py').
-   Typically this will be 'Physics_pp_v6_rules', but you may
+   Typically this will be 'Physics_pp_v4_rules', but you may
    want to use the Standby keys.
+
 3) filled_bunches, empty_bunches, unpaired_isolated, unpaired_nonisolated, abortgap, bgrp9, bgrp11, bgrp12
-   The number of bunches in each of the bunch groups, check the bunch group ID key in the
+
+   The number of bunches in each of the bunch groups. In stable
+   running this doesn't need to be edited. If you're unlucky and this
+   changes a lot during your shift, you can get these values by
+   feeding the appropriate bunch group ID key in the
    https://atlas-trigconf.cern.ch/ interface.
+
    The getBunchGroups.py script will return the values to fill in for
    a specific bunch group ID
-4) list_of_streamers  
+
+4) list_of_streamers
+   
     This list is used to identify, from the chain name, which items are streamers.
     The rulebook then set the efficiency to 1. This is especially important if the chains are
-    seeded by random triggers    
+    seeded by random triggers
+    
 """
 
 import sys
@@ -46,44 +59,184 @@ from collections import namedtuple
 SummaryEntry = namedtuple('SummaryEntry', 'l1file hltfile lowlumi highlumi comment')
 import xml.etree.cElementTree as ET
 
-from runOptions import *
 
-#--------------------------
+###
+### START CONFIGURATION
+###
+
+doUseOnline = False
+doPhysics = True
+doCosmic = False 
+doStandby = False
+doVdM = False
+
+
+doDBRuleBookDownload = False # False python rule book is used, True DB rules are used
+
+## Sept 2012, ALFA setting (BGR: 507)
+#filled_bunches = 2
+#empty_bunches = 3425
+#empty_after_filled_bunches = 2
+#unp_iso_bunches = 2
+#unp_noniso_bunches = 2
+
+##NOTE THAT WE NEED TO UPDATE THIS TO THE EXPECTED BUNCH STRUCTURE THE PS SHOULD BE USED WITH
+##otherwise, the PS values may be wrong
+
+# 1003 setting - all fill/all empty (see https://atlas-trigconf.cern.ch/bunchgroups?key=1003) for Cosmic runs
+#filled_bunches = 3474
+#empty_bunches = 3473
+#empty_after_filled_bunches = 1470
+#unp_iso_bunches = 18
+#unp_noniso_bunches = 80
+#abortgapnotcalib_bunches= 0 
+#bgrp9_bunches=0
+#bgrp11_bunches=0 
+#bgrp12_bunches=0 
+
+###Bunch structure for loss map
+#filled_bunches = 1
+#empty_bunches = 3441
+#empty_after_filled_bunches = 5
+#unp_iso_bunches = 2
+#unp_noniso_bunches = 0
+#abortgapnotcalib_bunches= 29
+#bgrp9_bunches=29
+#bgrp11_bunches=1
+#bgrp12_bunches=0 
+
+##Possible bunch structure for 2bunches (same as 1098)
+#filled_bunches = 2
+#empty_bunches = 3416
+#empty_after_filled_bunches = 10
+#unp_iso_bunches = 2
+#unp_noniso_bunches = 2
+#abortgapnotcalib_bunches= 29
+#bgrp9_bunches=145
+#bgrp11_bunches=2
+#bgrp12_bunches=0 
+
+
+###Possible bunch structure for 38bunches (same as 1181)
+#filled_bunches = 38
+#empty_bunches = 3317
+#empty_after_filled_bunches = 58
+#unp_iso_bunches = 1
+#unp_noniso_bunches = 24
+#abortgapnotcalib_bunches= 29  
+#bgrp9_bunches=62 
+#bgrp11_bunches=38
+#bgrp12_bunches=0 
+
+###Possible bunch structure for 110bunches (same as 1180)
+#filled_bunches = 110
+#empty_bunches = 3092
+#empty_after_filled_bunches = 130
+#unp_iso_bunches = 6
+#unp_noniso_bunches = 6
+#abortgapnotcalib_bunches= 29  
+#bgrp9_bunches=62 
+#bgrp11_bunches=110
+#bgrp12_bunches=0 
+
+###Possible bunch structure for 254bunches (same as 1180, changing only filled and empy)
+#filled_bunches = 254 #1
+#empty_bunches = 2759 #3
+#empty_after_filled_bunches = 290 #6
+#unp_iso_bunches = 12 #4
+#unp_noniso_bunches = 72 #5
+#abortgapnotcalib_bunches= 29  
+#bgrp9_bunches=62 
+#bgrp11_bunches=110
+#bgrp12_bunches=0 
+#
+
+###Possible bunch structure for 434 bunches (same as 1180, changing only filled and empy) #BGRP Set 1192
+#filled_bunches = 434 #1
+#empty_bunches = 2362 #3
+#empty_after_filled_bunches = 490 #6
+#unp_iso_bunches = 12 #4
+#unp_noniso_bunches = 72 #5
+#abortgapnotcalib_bunches= 29  
+#bgrp9_bunches=62 
+#bgrp11_bunches=110
+#bgrp12_bunches=0 
+
+####Possible bunch structure for 434 bunches (same as 1180, changing only filled and empy) #BGRP Set 1195                                                     
+#filled_bunches = 426 #1                                                                                                     
+#empty_bunches = 2330 #3                                                                                                                                      
+#empty_after_filled_bunches = 478 #6                                                                                                                  
+#unp_iso_bunches = 20 #4                                                                                                                                 
+#unp_noniso_bunches = 80 #5                                                                                                                 
+#abortgapnotcalib_bunches= 29 #8
+#bgrp9_bunches=63   # afterglow so not important for physics 
+#bgrp11_bunches=110  # vdm scan
+#bgrp12_bunches=0 
+
+###Possible bunch structure for 704 bunches (same as 1180, changing only filled and empy) #BGRP Set 1195                                                     
+filled_bunches = 704 #1                                                                                                     
+empty_bunches = 1642 #3                                                                                                                                 
+empty_after_filled_bunches = 786 #6                                                                                                                  
+unp_iso_bunches = 90 #4                                                                                                                                 
+unp_noniso_bunches = 30 #5                                                                                                                 
+abortgapnotcalib_bunches= 29 #8
+bgrp9_bunches=63   # afterglow so not important for physics 
+bgrp11_bunches=110  # vdm scan
+bgrp12_bunches=0 
+
+
+
+###Possible bunch structure for 220bunches (same as 1180, changing only filled and empy)
+#filled_bunches = 220
+#empty_bunches = 2872
+#empty_after_filled_bunches = 130
+#unp_iso_bunches = 6
+#unp_noniso_bunches = 6
+#abortgapnotcalib_bunches= 29  
+#bgrp9_bunches=62 
+#bgrp11_bunches=110
+#bgrp12_bunches=0 
+#
+
+
+#By default we pickup menu xml files from release
+#l1_xml = "/afs/cern.ch/atlas/software/releases/17.1.6/AtlasP1HLT/17.1.6.5/InstallArea/XML/TriggerMenuXML/LVL1config_Physics_pp_v5.xml"
+#hlt_xml = "/afs/cern.ch/atlas/software/releases/17.1.6/AtlasP1HLT/17.1.6.5/InstallArea/XML/TriggerMenuXML/HLTconfig_Physics_pp_v5_20.2.1.3.xml"
 l1_xml = "l1.xml"
 hlt_xml = "hlt.xml"
+#cost_xml ="/afs/cern.ch/work/y/yygao/public/Trigger/rates/TrigRate_mcv5-20.2.1.2.2-13TeV-nops-L2.0e34_HLT_SMK_72_L1_27_HLT_50.xml"
+cost_xml="/afs/cern.ch/user/n/nagano/public/SMK_2162/TrigRate_ppv5-20.2.1.5-13TeV-nops-L2.0e34_HLT_SMK_119_L1_33_HLT_86.xml"
 
-# Download cost xml from https://atlas-trig-cost.cern.ch/RateProcessings-2016/
-#cost_xml="/afs/cern.ch/user/i/igrabows/public/TrigRate_hiv3-20.2.3.8.1-data11-nops-L3.7e27_HLT_SMK_225_L1_61_HLT_159.xml" #2015HIv3 
-#cost_xml="/afs/cern.ch/user/t/tamartin/public/TrigRate_ppv5-20.2.3.9.1-5TeV-nops-L4.0e32_HLT_SMK_230_L1_62_HLT_161.xml" #2015ppv5
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13260-noPS_HLT_SMK_273_L1_86_HLT_198.xml" #2016ppv6 20.7.4.1
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13315-noPS_HLT_SMK_279_L1_86_HLT_202.xml" #2016ppv6 20.7.4.2
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13374-noPS_HLT_SMK_281_L1_86_HLT_204.xml" #2016ppv6 20.7.4.2 tightperf #TM-00-15-93
-#cost_xml="/afs/cern.ch/work/x/xella/public/TrigRate_rate-prediction-ATR-13473-noPS_HLT_SMK_294_L1_91_HLT_227.xml" #2016ppv6 20.11.0.2 tightperf #TM-00-16-21-01
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13514-noPS_HLT_SMK_296_L1_91_HLT_230.xml" #2016ppv6 20.11.0.2.1 tightperf #TM-00-16-30
-cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13536-noPS_HLT_SMK_300_L1_91_HLT_232.xml" #2016ppv6 20.11.0.2.1 tightperf #TM-00-16-40 
 
-#--------------------------
-# List of identifier in HLT streamers name, for which efficiency is 1, has to be set by hand 
-# This should matter only if the streamer is seeded by random triggers
+## List of identifier in HLT streamers name, for which efficiency is 1, but has to be set by hand 
+## This should matter only if the streamer is seeded by random triggers
 list_of_streamers="noalg,sct_noise,HLT_lumipeb"
-#--------------------------
+
+###
+### END CONFIGURATION
+###
 
 
-#---------------------------------------------
+
 #In case the user hasn't run cmt make
+
 def round_figures(value, precision):
     """Returns x rounded to n significant figures."""
+
     if value == 0:
         return 0
 
     abs_value = abs(value)
+
     round_value =  round(abs_value,
                        int(precision - math.ceil(math.log10(abs(abs_value))))
                        )
+
     return math.copysign(round_value, value)
-#---------------------------------------------
+
 def run_command(command, useimports):
     """Convert the command string to arguments for the imported processRules module"""
+
     if useimports:
         import shlex
         command = "processRules " + command
@@ -97,7 +250,8 @@ def run_command(command, useimports):
         status = os.system(command)
 
     return status
-#---------------------------------------------
+
+
 def PrintSummaryXML(alias, summary):
     def indent(elem, level=0):
         i = "\n" + level*"  "
@@ -121,35 +275,41 @@ def PrintSummaryXML(alias, summary):
         ET.SubElement(treeroot.getroot(),'SET',entry._asdict())
     indent(treeroot.getroot())
     treeroot.write("Set_%s.xml" % alias)
-#-----------------------------------------------
+
+
+
 
 if "userArgs=" in sys.argv[-1]:
     userArgs=sys.argv[-1]
     sys.argv = sys.argv[:-1]
 
+
 lumi_list  = []
 npoints = 4
 
 if len(sys.argv) > 1:
-    lumi_list = [float(i) for i in sys.argv[1].split(",")]
-elif lumi_points:
-    from copy import deepcopy
-    lumi_list = deepcopy(lumi_points)
-    print "Using user input list"
+    lumi_list = [int(i) for i in sys.argv[1].split(",")]
 else:
-    lumi_list = [1000, 1500, 2000, 2500, 3000,3500,4000, 4500, 5000, 5500, 6000] 
-    print "No user defined lumi points given"
+    #lumi_list = [1000, 1500,2000] 
+    #lumi_list = [120, 160, 200, 240] 
+    #lumi_list = [ 7400]
+    #lumi_list = sorted([int(round_figures(100 *(1.25**i), 2)) for i in range(npoints)])
+    ##insted of 500, use the maxLumi*1.25, just to be sure
+    #lumi_list = sorted([int(round_figures(500 /(1.25**i), 2)) for i in range(npoints)])
+    #lumi_list = sorted([int(round_figures(800 /(1.25**i), 2)) for i in range(npoints)] +[1000,1250,1500,2000])
+    lumi_list = sorted([int(round_figures(1000 /(1.25**i), 2)) for i in range(npoints)] +[1250,1500,1750,2000])
+    #lumi_list = sorted([int(round_figures(500 /(1.25**i), 2)) for i in range(npoints)])
+    # lumi_list = sorted([int(round_figures(961 * (1.25**i), 2)) for i in range(npoints)] + [9000])  # this gives [960, 1200, 1500, 1900, 2300, 2900, 3700, 4600, 5700, 7200, 9000, 9000]
 
-lumi_list_sorted = list(lumi_list)    
-lumi_list_sorted.sort()
-if lumi_list != lumi_list_sorted:
-  sys.exit("runRulebook failed, lumi points are not in increasing order, please fix this!")
+    ##96945
+    ##lumi_list = sorted(list(set([int(round_figures(961 * (1.25**i), 2)) for i in range(npoints)] + [9000])))
 
 lumi_list = zip([lumi_list[0]/1.25] + lumi_list,lumi_list)
 
-print 'Lumi list that is used to generate keys: ', lumi_list
+print lumi_list
+#sleep 10
 
-#---------------------------------------------
+### Things to edit by hand
 if doDBRuleBookDownload:
     rulebook = ["Cosmic_pp_v4_RULES"]
     for i in rulebook:
@@ -157,30 +317,23 @@ if doDBRuleBookDownload:
         command="python download_rulebook_from_DB.py %s" % (ii[0])
         os.system(command)
 else:
-    rulebook =  ["Physics_pp_v6_rules", "Cosmic_pp_v6_rules", "Standby_pp_v6_rules"]
-#    rulebook =  ["Physics_HI_v3_rules", "Cosmic_pp_v5_rules","Standby_HI_v3_rules"]    
-    if doVdM == True:
-        #if dolowmu == True:
-        #    rulebook =  ["Physics_pp_v5_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_LossMap_rules","Physics_pp_v5_VdM_LowMu_rules"]
-        #else:
-        print "---------------------------------------"
-        print "Running Physics_HI_v3_VdM__rules"
-        print "---------------------------------------"
-        rulebook =  ["Physics_HI_v3_rules", "Cosmic_pp_v5_rules","Standby_HI_v3_rules","Physics_HI_v3_VdM_rules"]
-    elif doEB == True:
-        print "RUNNING EB PHYSCIS RuleBooK"
-        rulebook =  ["Physics_pp_v5_EB_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_rules","Physics_pp_v5_VdM_rules"]
-#---------------------------------------------
+    #rulebook =  ["Physics_pp_v5_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_rules","Physics_pp_v5_VdM_rules"]
+    rulebook =  ["Physics_pp_v5_wL1Calo_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_rules","Physics_pp_v5_VdM_rules"]
+    #rulebook =  ["Physics_pp_v5_EB_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_rules","Physics_pp_v5_VdM_rules"] 
+    #rulebook =  ["Physics_pp_v5_ToroidOff_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_rules","Physics_pp_v5_VdM_rules"]
+    #rulebook =  ["Physics_pp_v5_LossMap_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_LossMap_rules","Physics_pp_v5_VdM_rules"]
+
 rulebook = ["TrigMenuRulebook.%s" % r for r in rulebook]
-#---------------------------------------------
+
 useimports = True
+
 
 if "TrigMenuRulebook/scripts" in os.getcwd():
     os.system("ln -s ../python TrigMenuRulebook &> /dev/null")
     os.system("ln -s ../share/%s" % l1_xml)
     os.system("ln -s ../share/%s" % hlt_xml)
-    os.system("ln -s %s" % cost_xml)
-    #os.system("ln -s ../share/%s" % cost_xml)
+    os.system("ln -s ../share/%s" % cost_xml)
+
 else:
     os.system('get_files -xmls %s' % cost_xml)
     os.system('get_files -xmls %s' % l1_xml)
@@ -193,7 +346,13 @@ if doCosmic or doStandby:
     print "=====> Will also generate Cosmic and Standby prescales"
     print
 
+# Latest ntuples - based on 2012 data
+#ebntp="/eos/atlas/atlasdatadisk/data12_8TeV/NTUP_TRIGRATE/r3647/data12_8TeV.00202798.physics_EnhancedBias.recon.NTUP_TRIGRATE.r3647_tid00814396_00/
+
 ebntp="/afs/cern.ch/user/l/lipeles/eos/atlas/atlasdatadisk/data12_8TeV/NTUP_TRIGRATE/r4034_p966/data12_8TeV.00212967.physics_EnhancedBias.merge.NTUP_TRIGRATE.r4034_p966_tid01012172_00"
+
+
+
 
 os.system("echo $PWD")
 
@@ -216,46 +375,17 @@ if len(sys.argv)>2:
 PrescaleSetSummary = {}
 PrescaleSetSummary['PHYSICS'] = []
 
-#---------------------------------------------
-if doPhysics:
-    if doEB == True:
-        print "enabled EB"
-        from TrigMenuRulebook.RuleTools import read_online_metadata
-        metadata_mapping = {1: "filled_bunches",
-                            3: "empty_bunches",
-                            4: "unp_iso_bunches",
-                            5: "unp_noniso_bunches",
-                            6: "empty_after_filled_bunches",
-                            8: "abortgapnotcalib_bunches",
-                            9: "bgrp9_bunches",
-                           10: "bgrp10_bunches",
-                           11: "bgrp11_bunches",
-                           12: "bgrp12_bunches",
-        } 
-        online_metadata = read_online_metadata(ET.parse(cost_xml).getroot(), metadata_mapping)
-        filled_bunches = int(online_metadata["filled_bunches"]) 
-        empty_bunches = int(online_metadata["empty_bunches"]) 
-        empty_after_filled_bunches = int(online_metadata["empty_after_filled_bunches"]) 
-        unp_iso_bunches = int(online_metadata["unp_iso_bunches"])
-        unp_noniso_bunches = int(online_metadata["unp_noniso_bunches"]) 
-        abortgapnotcalib_bunches = int(online_metadata["abortgapnotcalib_bunches"]) 
-        bgrp9_bunches = int(online_metadata["bgrp9_bunches"])
-        bgrp10_bunches = int(online_metadata["bgrp10_bunches"]) 
-        bgrp11_bunches = int(online_metadata["bgrp11_bunches"]) 
-        bgrp12_bunches = int(online_metadata["bgrp12_bunches"]) 
 
- 
+if doPhysics:
     for (lower_lumi_point, lumi_point) in lumi_list:
 
         print "*** Running:", lumi_point
         logname="log_"+str(lumi_point)
         
         command = "--rulebook=%s --log=rulebook_%s.log --force-rates-metadata --use_lowest_rule --hlt-xml=%s --lvl1-xml=%s --target_lumi=%s " % (rulebook[0], lumi_point, hlt_xml, l1_xml, lumi_point)
-        command += " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp10_bunches,bgrp11_bunches, bgrp12_bunches)
+        command += " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp11_bunches, bgrp12_bunches)
         command += " --rates-xml=%s" % cost_xml
         command += " --streamers=%s" %list_of_streamers
-        if ignoreErrors:
-            command += "  --ignore-errors"
         if "userArgs" in dir():
             command += ' "%s"' % userArgs
         print
@@ -270,14 +400,6 @@ if doPhysics:
         print lower_lumi_point, lumi_point
         short_rulebookname = rulebook[0].split('.')[1].split('_rules')[0]
         prescale_name = "%s_%04.1f_%04.1fe32"%(short_rulebookname, (float(lower_lumi_point)/100.),float(lumi_point)/100.)
-        lowlumi_name = '%.1fe32' % (float(lower_lumi_point)/100.)
-        highlumi_name = '%.1fe32' % (float(lumi_point)/100.)
-
-        if lumi_point < 0.01: 
-           prescale_name = "%s_%04.1f_%04.1fe26"%(short_rulebookname, (float(lower_lumi_point)*1e4),float(lumi_point)*1e4)
-           lowlumi_name = '%.1fe26' % (float(lower_lumi_point)*1e4)
-           highlumi_name = '%.1fe26' % (float(lumi_point)*1e4)
-
         prescale_name += "_%sb" % filled_bunches
         if prescale_name.startswith('TrigMenuRulebook.'):
             prescale_name = prescale_name[17:]
@@ -290,13 +412,15 @@ if doPhysics:
             mv_command = "mv RuleBook_*PS_%s* %s"%(prescale_name,prescale_dir)
             status = os.system(mv_command)
             if status != 0:
-                sys.exit("Move failed") 
+                sys.exit("Move failed")
+
 
         PrescaleSetSummary['PHYSICS'] += [SummaryEntry(l1file='RuleBook_LV1PS_%s.xml' % prescale_name,
                                                        hltfile='RuleBook_HLTPS_%s.xml' % prescale_name,
-                                                       lowlumi=lowlumi_name,
-                                                       highlumi=highlumi_name,
+                                                       lowlumi='%.1fe32' % (float(lower_lumi_point)/100.),
+                                                       highlumi='%.1fe32' % (float(lumi_point)/100.),
                                                        comment='Physics')]
+
 
         if len(sys.argv)>2:
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
@@ -317,30 +441,30 @@ if doPhysics:
         PrintSummaryXML('PHYSICS', PrescaleSetSummary)
 
 
-#---------------------------------------------
 def doCosmicStandbyPrescales(what):
-    lumi_ref = 1.0
+
+
+    lumi_ref = 1
+
     extra_command = ""
+
     if what == "Cosmic":
         tryRulebook = rulebook[1]
     elif what == "Standby":
         tryRulebook = rulebook[2]
     elif what == "VdM":
-        lumi_ref = 10.0
         tryRulebook = rulebook[3]
 
     print "*** Running "+what
 
     command = "--rulebook=%s --log=rulebook_%s.log --force-rates-metadata --use_lowest_rule --hlt-xml=%s --lvl1-xml=%s --target_lumi=%s" % (tryRulebook, what, hlt_xml, l1_xml, lumi_ref)
     command += " --streamers=%s" %list_of_streamers
-    if ignoreErrors:
-        command += "  --ignore-errors"
     if what == "Cosmic":
-        print "*** Cosmic Run ***"        
-        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp10_bunches,bgrp11_bunches,bgrp12_bunches)
+        print "*** Cosmic Run, set target_empty to 3000 ***"        
+        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,3000, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp11_bunches,bgrp12_bunches)
 
     elif what == "Standby" or what=="VdM":
-        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches, bgrp10_bunches,  bgrp11_bunches,bgrp12_bunches)
+        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp11_bunches,bgrp12_bunches)
     command += " --rates-xml=%s" % cost_xml
 
     print
@@ -368,24 +492,23 @@ def doCosmicStandbyPrescales(what):
 
 
 
-#---------------------------------------------
 if doCosmic:
     doCosmicStandbyPrescales("Cosmic")
 
-#---------------------------------------------
 if doStandby:
     doCosmicStandbyPrescales("Standby")
 
-#---------------------------------------------
 if doVdM:
     doCosmicStandbyPrescales("VdM")
 
-#---------------------------------------------
+
+
+
 if make_prescale_dir == True:
     mv_command = "mv Set_*.xml %s" % prescale_dir
     os.system(mv_command)
 
-#---------------------------------------------
+
 if doUseOnline == True:
     print
     print "... Tarring prescales directory"
