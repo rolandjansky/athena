@@ -43,10 +43,10 @@ LVL1CTP::ItemMap::ItemMap( const TrigConf::ItemContainer& item_vector,
       if (randEngine != 0) { // change prescale offset randomly if requested
          long random = CLHEP::RandFlat::shootInt(randEngine, m_map[ *it ]->prescale());
          m_map[ *it ]->setPrescaleCounter( random );
-
+	 int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale(  m_map[*it]->prescale() );
          std::ostringstream message;
          message << "REGTEST - random prescale offset for "  << std::setw( 30 ) << ( *it )->name() << ": " 
-                 << std::setw( 8 ) << m_map[*it]->prescaleCounter() << "/" << std::setw( 8 ) << m_map[*it]->prescale();
+                 << std::setw( 8 ) << m_map[*it]->prescaleCounter() << "/" << std::setw( 8 ) << m_map[*it]->prescale() <<" (cut="<< cut<<")";
          m_logger.send( MSG::DEBUG, message.str() );
       }
 

@@ -640,8 +640,8 @@ LVL1CTP::ResultBuilder::constructResultWord(unsigned int wrd_num, WrdType type )
                //const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() == m_itemMap->getItem( *item )->prescale();
                //for float prescales
                int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( *item )->prescale() );
-               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() <= cut;
-            
+               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() >= cut;
+	       //	       std::cout <<"ResultBuilder FPP TAP: PScounter="<<m_itemMap->getItem( *item )->prescaleCounter() <<" PScut="<<cut <<std::endl;
             
                result |= CTPUtil::alignBits( ( decision & pass_prescale ? 1 : 0 ),
                                              m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num,
@@ -651,12 +651,9 @@ LVL1CTP::ResultBuilder::constructResultWord(unsigned int wrd_num, WrdType type )
 						
             } else if( type == TAV ) {
 						
-               //const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() == m_itemMap->getItem( *item )->prescale();	 
-            
                //for float prescales
                int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( *item )->prescale() );
-               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() <= cut;
-            
+               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() >= cut;
             
                const bool pass_veto = true; // xxx apply dead time
 						
