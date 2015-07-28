@@ -277,10 +277,28 @@ if len(txtFile):
               cellData[dictKey] = noise
               dictKey  = (cellNeg,gain)
               cellData[dictKey] = noise
+              if (cellName=='spE1'):
+                  for cellNm in 'mbE+1' 'mbE-1' 'e4E+1' 'e4E-1':
+                      cellN = modName+cellNm
+                      dictKey  = (cellN,gain)
+                      if not dictKey in cellData:
+                          cellData[dictKey] = noise
           else:
               cellN = modName+cellName
               dictKey  = (cellN,gain)
               cellData[dictKey] = noise
+              if (cellName=='sp+E1'):
+                  for cellNm in 'mbE+1' 'e4E+1':
+                      cellN = modName+cellNm
+                      dictKey  = (cellN,gain)
+                      if not dictKey in cellData:
+                          cellData[dictKey] = noise
+              if (cellName=='sp-E1'):
+                  for cellNm in 'mbE-1' 'e4E-1':
+                      cellN = modName+cellNm
+                      dictKey  = (cellN,gain)
+                      if not dictKey in cellData:
+                          cellData[dictKey] = noise
           icell+=1
       else:
           if useNames is not None and useNames:

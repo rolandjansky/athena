@@ -305,7 +305,11 @@ def getFolderTag(db, folderPath, globalTag):
         if isinstance(db, (str, unicode)):
             if 'OFLP200' in db or 'MC' in db:
                 schema='COOLOFL_TILE/OFLP200'
-                globalTag='OFLCOND-RUN12-SDR-21'
+                if not globalTag.startswith("OFLCOND"):
+                   if globalTag.startswith("RUN"):
+                      globalTag='OFLCOND-'+globalTag
+                   else:
+                      globalTag='OFLCOND-RUN12-SDR-31'
                 log.info("Using Simulation global tag \'%s\'" % globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
@@ -697,6 +701,45 @@ class TileBlobReader(TileCalibLogger):
             return "<no comment found>"
         
     #____________________________________________________________________
+    def getDefault(self, ros, drawer):
+        """
+        Returns a default drawer number (among first 20 COOL channels) for any drawer in any partition
+        """
+        if ros==0:
+           if drawer<=4 or drawer==12 or drawer>=20:
+              drawer1=0
+           elif drawer<12:
+              drawer1=4
+           else:
+              drawer1=12
+        elif ros==1 or ros==2:
+           drawer1=4
+        elif ros==3:
+           OffsetEBA = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E+1: EBA07; Outer MBTS: EBA08
+                         0, 0, 0, 0, 7, 6, 5, 7, #// D+4: EBA13, EBA16; Special D+4: EBA14; Special D+40: EBA15
+                         7, 6, 6, 7, 0, 0, 0, 2, #// D+4: EBA17, EBA20; Special D+4: EBA18, EBA19; Outer MBTS: EBA24
+                         3, 0, 0, 0, 0, 0, 0, 0, #// Merged E+1:  EBA25
+                         0, 0, 0, 0, 0, 0, 1, 1, #// Inner MBTS + special C+10: EBA39, EBA40
+                         1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C+10: EBA41, EBA42; Outer MBTS: EBA43; Merged E+1: EBA44
+                         0, 0, 0, 0, 3, 2, 1, 1, #// Merged E+1: EBA53; Outer MBTS: EBA54; Inner MBTS + special C+10: EBA55, EBA56
+                         1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C+10: EBA57, EBA58
+           drawer1 = 12 + OffsetEBA[drawer]
+        elif ros==4:
+           OffsetEBC = [ 0, 0, 0, 0, 0, 0, 3, 2, #// Merged E-1: EBC07; Outer MBTS: EBC08
+                         0, 0, 0, 0, 7, 6, 6, 7, # // D-4: EBC13, EBC16; Special D-4: EBC14, EBC15; 
+                         7, 5, 6, 7, 0, 0, 0, 2, #// D-4: EBC17, EBC20; Special D-40 EBC18; Special D-4: EBC19; Outer MBTS: EBC24
+                         3, 0, 0, 3, 4, 0, 3, 4, #// Merged E-1:  EBC25, EBC28, EBC31; E-4': EBC29, EBC32
+                         0, 4, 3, 0, 4, 3, 1, 1, #// E-4': EBC34, EBC37; Merged E-1: EBC35, EBC38; Inner MBTS + special C-10: EBC39, EBC40
+                         1, 1, 2, 3, 0, 0, 0, 0, #// Inner MBTS + special C-10: EBC41, EBC42; Outer MBTS: EBC43; Merged E-1: EBC44
+                         0, 0, 0, 0, 3, 2, 1, 1, #// Merged E-1: EBC53; Outer MBTS: EBC54; Inner MBTS + special C-10: EBC55, EBC56
+                         1, 1, 0, 0, 0, 0, 0, 0] #// Inner MBTS + special C-10: EBC57, EBC58
+           drawer1 = 12 + OffsetEBC[drawer]
+        else:
+           drawer1=0
+
+        return (0,drawer1)
+
+    #____________________________________________________________________
     def getDrawer(self, ros, drawer, pointInTime, printError=True, useDefault=True):
         """
         Returns a TileCalibDrawer object for the given ROS and drawer.
@@ -724,8 +767,7 @@ class TileBlobReader(TileCalibLogger):
                     if ros==0 and drawer==0:
                         raise Exception('No default available')
                     #=== follow default policy
-                    drawer = 4 * ros
-                    ros    = 0
+                    ros,drawer = self.getDefault(ros,drawer)
                     chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                     obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
                     blob = obj.payload()[0]
@@ -784,8 +826,7 @@ class TileBlobReader(TileCalibLogger):
                     if ros==0 and drawer==0:
                         raise Exception('No default available')
                     #=== follow default policy
-                    drawer = 4 * ros
-                    ros    = 0
+                    ros,drawer = self.getDefault(ros,drawer)
                     chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                     obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
                     blob = obj.payload()[0]
@@ -876,8 +917,7 @@ class TileBlobReader(TileCalibLogger):
                 if ros==0 and drawer==0:
                     raise Exception('No default available')
                 #=== follow default policy
-                drawer = 4 * ros
-                ros    = 0
+                ros,drawer = self.getDefault(ros,drawer)
                 chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                 obj = self.__folder.findObject(sinceCool, chanNum, self.__tag)
                 blob = obj.payload()[0]
@@ -970,23 +1010,24 @@ class TileASCIIParser(TileCalibLogger):
                 raise Exception("%s is not calibId=%s" % (type,calibId))
 
             #=== decode fragment
-            if not (frag.startswith('0x') or frag.startswith('h_')): #akamensh
+            if not (frag.startswith('0x') or frag.startswith('-0x') or frag.startswith('h_')): #akamensh
                 raise Exception("Misformated fragment %s" % frag)
-            if frag.startswith('0x'):
-                ros = int(frag[2])
-                mod = int(frag[3:],16)
+            if frag.startswith('0x') or frag.startswith('-0x'):
+                frg = int(frag,16)
+                ros = frg>>8
+                if frg<0: mod = (-frg)&255
+                else: mod = frg&255
                 chn = int(chan)
             elif frag.startswith('h_'):
                 part_dict = {'LBA':1,'LBC':2,'EBA':3,'EBC':4}
                 partname = str(frag[2:5])
                 ros=part_dict[partname]
-                ros_dec=ros-1
                 mod = int(frag[5:])-1
                 if (chan.startswith('ch')):
                     chn = int(chan[2:])
                 else:
                     pmt = int (chan)
-                    chn=self.PMT2channel(ros_dec,mod,pmt)
+                    chn=self.PMT2channel(ros,mod,pmt)
 
             #=== fill dictionary
             dictKey = (ros,mod,chn)
@@ -1006,7 +1047,7 @@ class TileASCIIParser(TileCalibLogger):
     #____________________________________________________________________
     def PMT2channel(self,ros,drawer,pmt):
         "Reorder the PMTs (SV: how to get that from region.py???)"
-        "This takes ros [0-3], drawer [0-63], pmt [1-48]"     
+        "This takes ros [1-4], drawer [0-63], pmt [1-48]"     
 
         PMT2chan_Special={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9, 
                       11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17, 19:18, 20:19, 
@@ -1028,14 +1069,10 @@ class TileASCIIParser(TileCalibLogger):
                      33:30,29:31,30:32,35:33,36:34,34:35,44:36,38:37,37:38,43:39,42:40,
                      41:41,39:42,40:43,45:44,46:45,47:46,48:47}
 
-        if ros == 2 and drawer == 14:
-            return PMT2chan_Special[pmt]
-
-        if ros == 3 and drawer == 17:
-            return PMT2chan_Special[pmt]
-  
-        if ros <= 1: 
+        if ros <= 2: 
             chan = PMT2chan_LB[pmt]
+        elif (ros == 3 and drawer == 14) or (ros == 4 and drawer == 17):
+            chan = PMT2chan_Special[pmt]
         else:
             chan = PMT2chan_EB[pmt]
     
@@ -1104,15 +1141,19 @@ class TileASCIIParser2(TileCalibLogger):
                 raise Exception("Multiline format not implemented yet")
 
             #=== decode fragment 
-            if frag.startswith('0x'):
-                ros = int(frag[2])
-                mod = int(frag[3:],16)
+            if frag.startswith('0x') or frag.startswith('-0x'):
+                frg = int(frag,16)
+                ros = frg>>8
+                if frg<0: mod = (-frg)&255
+                else: mod = frg&255
             elif (frag.startswith("AUX") or 
                   frag.startswith("LBA") or 
                   frag.startswith("LBC") or 
                   frag.startswith("EBA") or 
-                  frag.startswith("EBC")):
-                part_dict = {'AUX':0,'LBA':1,'LBC':2,'EBA':3,'EBC':4}
+                  frag.startswith("EBC") or
+                  frag.startswith("ALL") or
+                  frag.startswith("XXX") ):
+                part_dict = {'AUX':0,'LBA':1,'LBC':2,'EBA':3,'EBC':4,'ALL':5,'XXX':-1}
                 partname = str(frag[0:3])
                 ros=part_dict[partname]
                 mod = int(frag[3:])-1
@@ -1123,8 +1164,52 @@ class TileASCIIParser2(TileCalibLogger):
             adc = int(gain)
             
             #=== fill dictionary
-            dictKey = (ros,mod,chn,adc)
-            self.__dataDict[dictKey] = data
+            if ros<0:
+               rosmin=0
+               rosmax=5
+            elif ros>=5:
+               rosmin=1
+               rosmax=5
+            else:
+               rosmin=ros
+               rosmax=ros+1
+
+            if mod<0 or mod>=64:
+               modmin=0
+               modmax=64
+            else:
+               modmin=mod
+               modmax=mod+1
+
+            allchannels=True
+            if chn<-2:
+               chnmin=0
+               chnmax=-chn
+            elif chn<0:
+               chnmin=0
+               chnmax=48
+               allchannels=(chn==-1) # if chn=-2 only connected channels will be updated
+            else:
+               chnmin=chn
+               chnmax=chn+1
+
+            if adc<-1:
+               adcmin=0
+               adcmax=-adc
+            elif adc<0:
+               adcmin=0
+               adcmax=2
+            else:
+               adcmin=adc
+               adcmax=adc+1
+
+            for ros in xrange(rosmin,rosmax):
+               for mod in xrange(modmin,modmax):
+                  for chn in xrange(chnmin,chnmax):
+                     if allchannels or self.channel2PMT(ros,mod,chn)>0: 
+                        for adc in xrange (adcmin,adcmax):
+                           dictKey = (ros,mod,chn,adc)
+                           self.__dataDict[dictKey] = data
 
     #____________________________________________________________________
     def getData(self, ros, drawer, channel, adc):
@@ -1137,6 +1222,34 @@ class TileASCIIParser2(TileCalibLogger):
         import copy
         return copy.deepcopy(self.__dataDict)
         
+    #____________________________________________________________________
+    def channel2PMT(self,ros,drawer,chan):
+        "Convert channel numbet to PMT number, negative for disconnected channels"
+        "This takes ros [1-4], drawer [0-63], chan [0-47]"     
+
+        chan2PMT_LB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                      27, 26, 25, 30, 29, 28,-33,-32, 31, 36, 35, 34,
+                      39, 38, 37, 42, 41, 40, 45,-44, 43, 48, 47, 46 ]
+        
+        chan2PMT_EB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                      13, 14, 15, 16, 17, 18,-19,-20, 21, 22, 23, 24,
+                     -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
+                      44, 38, 37, 43, 42, 41,-45,-39,-40,-48,-47,-46 ]
+
+        chan2PMT_Sp=[ -1, -2, -3, -4,  5,  6,  7,  8,  9, 10, 11, 12, # first 4 do not exist
+                      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, # PMT 19 and 20 exist
+                     -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
+                      44, 38, 37, 43, 42, 41,-45,-39,-40,-48,-47,-46 ]
+
+        if ros <= 2: 
+            pmt = chan2PMT_LB[chan]
+        elif (ros == 3 and drawer == 14) or (ros == 4 and drawer == 17):
+            pmt = chan2PMT_Sp[chan]
+        else:
+            pmt = chan2PMT_EB[chan]
+    
+        return pmt
 
 #======================================================================
 #===
@@ -1184,11 +1297,13 @@ class TileASCIIParser3(TileCalibLogger):
                 raise Exception("%s is not calibId=%s" % (type, calibId))
 
             #=== decode fragment 
-            if not frag.startswith('0x'):
+            if not (frag.startswith('0x') or frag.startswith('-0x')):
                 raise Exception("Misformated fragment %s" % frag)
 
-            ros = int(frag[2])
-            mod = int(frag[3:],16)
+            frg = int(frag,16)
+            ros = frg>>8
+            if frg<0: mod = (-frg)&255
+            else: mod = frg&255
             
             #=== fill dictionary
             dictKey = (ros, mod)

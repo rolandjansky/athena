@@ -157,6 +157,11 @@ log = getLogger("readFromCool")
 import logging
 log.setLevel(logging.DEBUG)
 f=open('output.ascii', 'w')
+if run2!=run and tag2==tag and folderPath2==folderPath and folderPath.startswith("/TILE/OFL02/TIME"):
+    fd=open('from_%d_to_%d.dif'%(run2,run), 'w')
+    writedif=True
+else:
+    writedif=False
 
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 log.info("Initializing folder %s with tag %s" % (folderPath2, folderTag2))
@@ -268,6 +273,8 @@ for ros in xrange(0,5):
                                 f.write('%s chann %2d adc %d ind %d val1 %s val2 %s  diff %f \n' % (modName,chn,adc,ind,hex(int(v[ind])),hex(int(v2[ind])),dv12))                             
                             else:       # floats
                                 f.write('%s chann %2d adc %d ind %d val1 %.4f val2 %.4f  diff %.4f %.2f%%\n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12,dv12percent))
+                                if writedif and adc==0 and ind==0:
+                                    fd.write("%s ch %2d %.4f\n" % (modName,chn,dv12))
                                 
 #                        f.write(s + "\n")
                     
@@ -275,4 +282,5 @@ for ros in xrange(0,5):
 db.closeDatabase()
 db2.closeDatabase()
 f.close()
+if writedif: fd.close()
 
