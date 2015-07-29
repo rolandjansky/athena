@@ -77,6 +77,7 @@ namespace MC {
       if (apid == 1000022 || apid == 5100022) return true;
       if (apid == 39 || apid == 1000039 || apid == 5000039) return true;
       if (apid == 3000015) return true;
+      if (apid == 9000001 || apid == 9000002 || apid == 9000003 || apid == 9000004 || apid == 9000005 || apid == 9000006) return true;// exotic particles from monotop model - see ATLASSIM-2142
     }
     return false;
   }
