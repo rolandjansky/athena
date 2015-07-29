@@ -106,10 +106,21 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   else {
 
     double angle=360./nSectors*CLHEP::deg;
-    //	  HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::TranslateZ3D(endblockZpos)*HepGeom::RotateZ3D(ladderTilt);
     HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
     double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();
-    
+
+    if(gmt_mgr->PixelStaveAxe()==1)   
+      {
+	//  Point that defines the center of the cooling pipe
+	HepGeom::Point3D<double> centerCoolingPipe = gmt_mgr->IBLStaveRotationAxis() ;
+	HepGeom::Point3D<double> centerCoolingPipe_inv = -centerCoolingPipe;
+	
+	// Transforms
+	HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
+	double staveRadius = gmt_mgr->IBLStaveRadius() ;
+	
+	transRadiusAndTilt = HepGeom::TranslateX3D(staveRadius)*staveTrf;
+      }
     
     for(int ii = 0; ii < nSectors; ii++) {
       gmt_mgr->SetPhi(ii);
@@ -276,7 +287,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   m_supportPhysA->add(xformA);
   m_supportPhysA->add(ringphysA);
   
-  CLHEP::Hep3Vector ring_posC(0.0,0.0,-staveRing.GetPositionAlongZAxis()+serviceZpos+dogLegStaveLength*0.5+layerZshift);
+  CLHEP::Hep3Vector ring_posC(0.0,0.0,-staveRing.GetPositionAlongZAxis()+serviceZpos+dogLegStaveLength*0.5-layerZshift);
   GeoTransform* xformC  = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),ring_posC));
   m_supportPhysC->add(tagC);
   m_supportPhysC->add(xformC);
