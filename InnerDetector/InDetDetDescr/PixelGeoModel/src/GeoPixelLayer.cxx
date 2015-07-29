@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "PixelGeoModel/GeoPixelLayer.h"
 #include "PixelGeoModel/GeoPixelLadder.h"
 #include "PixelGeoModel/GeoPixelTMT.h"
@@ -82,7 +83,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     {
       gmt_mgr->SetIBLPlanarModuleNumber(staveSupport->PixelNPlanarModule());
       gmt_mgr->SetIBL3DModuleNumber(staveSupport->PixelN3DModule());
-
     }
 
   if(!staveSupport)
@@ -312,13 +312,19 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
   //  In case of IBL stave detailed descriptiob
   bool bAddIBLStaveRings=false;
-  if(gmt_mgr->GetLD()==0&&gmt_mgr->ibl()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<7)
+  if(gmt_mgr->GetLD()==0&&gmt_mgr->ibl()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<8)
     {
       bAddIBLStaveRings=true;
       double safety = 0.001 * CLHEP::mm;
       double outerRadius = gmt_mgr->IBLSupportMidRingInnerRadius();  
       rmax=outerRadius-safety;
+
+      if(gmt_mgr->PixelStaveAxe()==1) {
+	double outerRadius = gmt_mgr->IBLSupportMidRingOuterRadius();  
+	rmax=outerRadius+safety;
+      }
       gmt_mgr->msg(MSG::INFO)<<"Layer IBL / stave ring :  outer radius max  "<<rmax<<endreq;
+
     }
 
 // 
@@ -340,9 +346,24 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // A few variables needed below
   //  
-  double angle=(nSectors>0)?(360./(double)nSectors*CLHEP::deg):(360.*CLHEP::deg);
+  double angle=(nSectors>0)?(360./(double)nSectors)*CLHEP::deg:(360.*CLHEP::deg);
   HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
   double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();
+
+  // IBL rotations are defined vs the cooling pipe center...
+  if(gmt_mgr->GetLD()==0&&gmt_mgr->ibl()&&gmt_mgr->PixelStaveAxe()==1)   
+    {
+
+      //  Point that defines the center of the cooling pipe
+      HepGeom::Point3D<double> centerCoolingPipe = gmt_mgr->IBLStaveRotationAxis() ;
+      HepGeom::Point3D<double> centerCoolingPipe_inv = -centerCoolingPipe;
+
+      // Transforms
+      HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
+      double staveRadius = gmt_mgr->IBLStaveRadius() ;
+
+      transRadiusAndTilt = HepGeom::TranslateX3D(staveRadius)*staveTrf;
+    }
 
   //
   // Loop over the sectors and place everything
@@ -470,6 +491,15 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       m_xformSupportA = staveRingService.getSupportTrfA();
       m_xformSupportC = staveRingService.getSupportTrfC();
       m_xformSupportMidRing = staveRingService.getSupportTrfMidRing();
+      
+      if(gmt_mgr->PixelStaveAxe()==1) {
+	GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
+	GeoTransform *xformSupportMidRing = new GeoTransform(HepGeom::Transform3D());
+	GeoVPhysVol *supportPhysMidRing = getSupportMidRing();
+	layerPhys->add(tagM);
+	layerPhys->add(xformSupportMidRing);
+	layerPhys->add(supportPhysMidRing);
+      }
 
     }
 
