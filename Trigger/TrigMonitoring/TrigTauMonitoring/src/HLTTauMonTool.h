@@ -147,6 +147,8 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_emulation;
   bool m_RealZtautauEff;
   std::vector<std::string> CutItems;
+  std::vector<std::string> TauCutFlow;
+  std::vector<std::string> MuCutFlow;
   bool m_bootstrap;
 
   unsigned int m_L1flag;

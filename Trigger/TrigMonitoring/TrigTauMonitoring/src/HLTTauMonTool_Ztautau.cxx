@@ -5,7 +5,7 @@
 /*    @file HLTTauMonTool_Ztautauemulation.cxx
  *    
  *    Real Ztauau L1 & HLT trigger efficiency 
- *    created by bali
+ *    created by Babar Ali (babar.ali@cern.ch)
  */
 
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -115,16 +115,19 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       ATH_MSG_WARNING("Failed to retrieve TruthParticle container. Exiting.");
       return StatusCode::FAILURE;
     }
-    
+  
+  hist("hCutFlow")->Fill(CutItems.at(0).c_str(),1.);
+  hist("hTauCutFlow")->Fill(TauCutFlow.at(0).c_str(),1.);
+  hist("hMuCutFlow")->Fill(MuCutFlow.at(0).c_str(),1.);
+
   TLorentzVector Tau_TLV(0.,0.,0.,0.);
   TLorentzVector Muon_TLV(0.,0.,0.,0.);
   TLorentzVector MET_TLV(0.,0.,0.,0.);
 
   double tauPt_dum = -1., muPt_dum = -1.;
   float Tau_charge = -99.0, Muon_charge = -99.0;
-  int Tau_ntrack = -1;
-  bool selected_tau = false;
-  bool selected_mu = false;
+  bool selected_tau = false, selected_mu = false;
+  int Tau_ntrack = -1, count_selected_tau = 0, count_selected_mu = 0, count_cand_tau = 0, count_cand_mu = 0;
  
   xAOD::TauJetContainer::const_iterator recoItr, reco_cont_end = reco_cont->end();
   for(recoItr=reco_cont->begin(); recoItr!=reco_cont_end; ++recoItr)
@@ -132,15 +135,28 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
     TLorentzVector TauTLV = (*recoItr)->p4();
     double pt_Tau = TauTLV.Pt();
     double eta_Tau = TauTLV.Eta();
+    double phi_Tau = TauTLV.Phi();
     int ntrack_Tau = (*recoItr)->nTracks();
     bool good_Tau = (*recoItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
     float charge_Tau = (*recoItr)->charge();
-    
-    if(!good_Tau) continue;      
+
+    hist("hRealBSTauPt")->Fill(pt_Tau/1000.);
+    hist("hRealBSTauEta")->Fill(eta_Tau);
+    hist("hRealBSTauPhi")->Fill(phi_Tau);
+    hist("hRealBSTauNTrack")->Fill(ntrack_Tau);
+  
+    count_cand_tau++;
     if(pt_Tau<20000.) continue;
+    hist("hTauCutFlow")->Fill(TauCutFlow.at(1).c_str(),1.);
     if(fabs(eta_Tau) > 2.47) continue;
+    hist("hTauCutFlow")->Fill(TauCutFlow.at(2).c_str(),1.);
     if(fabs(charge_Tau) != 1.0) continue;
+    hist("hTauCutFlow")->Fill(TauCutFlow.at(3).c_str(),1.);
     if(ntrack_Tau!=1 && ntrack_Tau!=3) continue;
+    hist("hTauCutFlow")->Fill(TauCutFlow.at(4).c_str(),1.);
+    if(!good_Tau) continue;
+    hist("hTauCutFlow")->Fill(TauCutFlow.at(5).c_str(),1.);
+    count_selected_tau++;
     if(tauPt_dum < pt_Tau)
       {
 	tauPt_dum = pt_Tau;
@@ -150,7 +166,14 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	selected_tau = true;
       }
     }
-  
+
+  hist("hRealSelectedTau")->Fill(count_selected_tau);
+  hist("hRealCandTau")->Fill(count_cand_tau);
+  hist("hRealASTauPt")->Fill(Tau_TLV.Pt()/1000.);
+  hist("hRealASTauEta")->Fill(Tau_TLV.Eta());
+  hist("hRealASTauPhi")->Fill(Tau_TLV.Phi());
+  hist("hRealASTauNTrack")->Fill(Tau_ntrack);
+
   xAOD::MuonContainer::const_iterator muonItr, muon_cont_end = muon_cont->end();
   for(muonItr=muon_cont->begin(); muonItr!=muon_cont_end; ++muonItr)
     {
@@ -158,16 +181,57 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       TLorentzVector MuonTLV = (*muonItr)->p4();
       double pt_mu = MuonTLV.Pt();
       double eta_mu = MuonTLV.Eta();
+      double phi_mu = MuonTLV.Phi();
       
       ATH_MSG_DEBUG("Muon Type " << (*muonItr)->muonType());
       ATH_MSG_DEBUG("Muon quality " << (*muonItr)->quality());
       ATH_MSG_DEBUG("MuonAuthor " << (*muonItr)->author());
+      
+      hist("hRealBSMuPt")->Fill(pt_mu/1000.);
+      hist("hRealBSMuEta")->Fill(eta_mu);
+      hist("hRealBSMuPhi")->Fill(phi_mu);
 
+      float etcone = 0.0, ptcone = 0.0, etcone20Rel = 0.0, ptcone20Rel = 0.0;
+      if (!muon.isolation(etcone,xAOD::Iso::etcone20))
+	{
+	  ATH_MSG_WARNING("No EtCone defined for muon.");
+	}
+      else
+	{
+	  etcone20Rel = etcone/pt_mu;
+	}
+      if (!muon.isolation(ptcone,xAOD::Iso::ptcone20))
+	{
+	  ATH_MSG_WARNING("No ptCone defined for muon.");
+	}
+      else
+	{
+	  ptcone20Rel = ptcone/pt_mu;
+	}
+      
+      count_cand_mu++;
       if(pt_mu<22000.) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(1).c_str(),1.);
       if(fabs(eta_mu)>2.4) continue;
-      //if((*muonItr)->quality() != xAOD::Muon::Tight) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(2).c_str(),1.);
       if((*muonItr)->author() != xAOD::Muon::MuidCo) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(3).c_str(),1.);
       if(! muon.passesIDCuts() ) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(4).c_str(),1.);
+      if(etcone20Rel > 0.2) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(5).c_str(),1.);
+      if(ptcone20Rel > 0.06) continue;
+      hist("hMuCutFlow")->Fill(MuCutFlow.at(6).c_str(),1.);
+      count_selected_mu++;      
+      if(selected_mu)
+	{
+	  selected_mu = false;
+	  count_selected_mu = 0;
+	  Muon_TLV.Clear();
+	  Muon_charge = -99;
+	  break;
+	  cout << " Found 2nd MUON : " << endl;
+	}
       if(muPt_dum < pt_mu)
 	{
 	  muPt_dum = pt_mu;
@@ -176,7 +240,12 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
 	  selected_mu = true;
 	}
     }
- 
+  hist("hRealSelectedMu")->Fill(count_selected_mu);
+  hist("hRealCandMu")->Fill(count_cand_mu);
+  hist("hRealASMuPt")->Fill(Muon_TLV.Pt()/1000.);
+  hist("hRealASMuEta")->Fill(Muon_TLV.Eta());
+  hist("hRealASMuPhi")->Fill(Muon_TLV.Phi());
+
   const xAOD::MissingET  *m_off_met = 0;
   float off_met = -9e9;
   //float off_met_phi = -9e9;
@@ -190,66 +259,8 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       ATH_MSG_DEBUG("m_off_met:" << m_off_met );
       MET_TLV.SetPxPyPzE(off_ex,off_ey,0,off_met);
     }
-  //==============================================================================================
- //loop over truth particle container to get taus and muons
-
-  double TrtauPt_dum = -1., TrmuPt_dum = -1.;
-  std::vector<TLorentzVector> tlv_truthTau;
-  std::vector<TLorentzVector> tlv_truthMuon;
-    
-  xAOD::TruthParticleContainer::const_iterator truthItr,truth_cont_end = truth_cont->end();
-  for(truthItr=truth_cont->begin(); truthItr != truth_cont_end; ++truthItr)
-    {
-      //Truth taus
-      if(abs((*truthItr)->pdgId()) == 15  && (*truthItr)->status() == 2) 
-	{
-	  examineTruthTau(**truthItr);
-	  double pt  = (*truthItr)->auxdata<double>("pt_vis");
-	  double eta = (*truthItr)->auxdata<double>("eta_vis");
-	  double phi = (*truthItr)->auxdata<double>("phi_vis");
-	  double m   = (*truthItr)->auxdata<double>("m_vis");
-	  bool lep = (*truthItr)->auxdata<bool>("IsLeptonicTau");
-	  if(pt >=20000. && !lep && fabs(eta) < 2.47) 
-	    {
-	      TLorentzVector TruthTauTLV;
-	      TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
-	      tlv_truthTau.push_back(TruthTauTLV);
-	    }
-	}
-      // Truth muons
-      if(abs((*truthItr)->pdgId()) == 13 && (*truthItr)->status() == 1)
-	{
-	  TLorentzVector TruthMuonTLV((*truthItr)->p4());
-	  double pt_mu = TruthMuonTLV.Pt();
-	  double eta_mu = TruthMuonTLV.Eta();
-	  if(pt_mu >= 22000. && fabs(eta_mu) < 2.4)
-	    {
-	      tlv_truthMuon.push_back(TruthMuonTLV);
-	    }
-	}
-    }
-  bool truth_Ltau = false, truth_Lmu = false;
-  for(unsigned int tau=0; tau < tlv_truthTau.size(); tau++)
-   {
-     
-     if(TrtauPt_dum < tlv_truthTau.at(tau).Pt()) 
-       {
-	 TrtauPt_dum = tlv_truthTau.at(tau).Pt();
-	 truth_Ltau = true;
-       }
-   }
-  for(unsigned int mu = 0; mu < tlv_truthMuon.size(); mu++)
-    {
-      if(TrmuPt_dum < tlv_truthMuon.at(mu).Pt()) 
-	{
-	  TrmuPt_dum = tlv_truthMuon.at(mu).Pt();
-	  truth_Lmu = true;
-	}
-    }
-  if(truth_Ltau) hist("hCutFlow")->Fill(CutItems.at(4).c_str(),1.);
-  if(truth_Lmu)  hist("hCutFlow")->Fill(CutItems.at(5).c_str(),1.);
-  if(truth_Ltau && truth_Lmu) hist("hCutFlow")->Fill(CutItems.at(6).c_str(),1.);
-  //===========================================================================================================
+  //MET
+  hist("hRealMET")->Fill(off_met/1000.);
   
   float ltau_charge = -99.0;
   double mltau_vis = -99.0;
@@ -257,9 +268,16 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
   double mt = -99.0;
   double ltau_dphi = -99.0;
 
-  hist("hCutFlow")->Fill(CutItems.at(0).c_str(),1.);
-  if(selected_tau) hist("hCutFlow")->Fill(CutItems.at(1).c_str(),1.);
-  if(selected_mu)  hist("hCutFlow")->Fill(CutItems.at(2).c_str(),1.);
+  if(selected_tau) 
+    {
+      hist("hRealMuTau")->Fill(count_selected_mu); 
+      hist("hCutFlow")->Fill(CutItems.at(1).c_str(),1.);
+    }
+  if(selected_mu)
+    {
+      hist("hRealTauMu")->Fill(count_selected_tau);
+      hist("hCutFlow")->Fill(CutItems.at(2).c_str(),1.);
+    }
   if(selected_tau && selected_mu)
     {
       hist("hCutFlow")->Fill(CutItems.at(3).c_str(),1.);   
@@ -288,15 +306,11 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       hist("hRealTauMuDPhi")->Fill(ltau_dphi);
       hist("hRealTauMuCharge")->Fill(ltau_charge);
     }
-  //MET
-  hist("hRealMET")->Fill(off_met/1000.);
-  
-  //if(ltau_charge == 0) hist("hCutFlow")->Fill(CutItems.at(4).c_str(),1.);
-  //if(mltau_vis > 42000 && mltau_vis < 82000) hist("hCutFlow")->Fill(CutItems.at(5).c_str(),1.);
-  //if(ltau_dphi > 2.4) hist("hCutFlow")->Fill(CutItems.at(6).c_str(),1.);
-  //if(cos_dphi > -0.15) hist("hCutFlow")->Fill(CutItems.at(7).c_str(),1.);
-  //if(mt < 50000.) hist("hCutFlow")->Fill(CutItems.at(8).c_str(),1.);
-     
+    
+  if(ltau_charge == 0) hist("hCutFlow")->Fill(CutItems.at(4).c_str(),1.);
+  if(mltau_vis > 42000 && mltau_vis < 82000) hist("hCutFlow")->Fill(CutItems.at(5).c_str(),1.);
+  if(ltau_dphi > 2.4) hist("hCutFlow")->Fill(CutItems.at(6).c_str(),1.);
+      
   //selection
   if(ltau_charge == 0. &&
      mltau_vis > 42000. && mltau_vis < 82000. &&
@@ -317,5 +331,3 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
      
   return StatusCode::SUCCESS;
 }
-
-

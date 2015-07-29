@@ -159,6 +159,7 @@ StatusCode HLTTauMonTool::Emulation(){
 //  //m_l1emulationTool->PrintCounters();
 //
  // Print the decision for all the tested chains and the TDT decision
+
  for (auto it: m_emulation_l1_tau) {  
   //if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
   bool emulation_decision = m_l1emulationTool->decision(it);
@@ -197,7 +198,13 @@ StatusCode HLTTauMonTool::Emulation(){
  //   ATH_MSG_WARNING("Level of emulation not valid, exiting!"); return StatusCode::FAILURE;
  // }  
 
-  return StatusCode::SUCCESS;
+ // clear the decoration at the end of the run
+ l1taus->clearDecorations();
+ l1jets->clearDecorations();
+ l1muons->clearDecorations();
+ l1xe->clearDecorations();
+ tauHLTCont->clearDecorations();
+ return StatusCode::SUCCESS;
 
 }
 
