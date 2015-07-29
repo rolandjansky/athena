@@ -40,10 +40,6 @@ using InDetDD::PixelDetectorManager;
 #include <iostream>
 #include <sstream>
 
-
-
-
-
 using namespace std;
 
 OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps)
@@ -591,6 +587,18 @@ double OraclePixGeoManager::PixelChipGap(bool isModule3D)
     return db()->getDouble(PixelModule,"CHIPGAP",moduleType3D())*mmcm();
 
   return db()->getDouble(PixelModule,"CHIPGAP",moduleType())*mmcm();
+}
+
+double OraclePixGeoManager::PixelChipOffset(bool isModule3D) 
+{
+   if(!ibl()||GetLD()!=0||!isBarrel()||!(db()->testField(PixelModule,"CHIPOFFSET"))){
+     return 0.;
+   }
+
+  if(isModule3D)
+    return db()->getDouble(PixelModule,"CHIPOFFSET",moduleType3D())*mmcm();
+
+  return db()->getDouble(PixelModule,"CHIPOFFSET",moduleType())*mmcm();
 }
 
 double OraclePixGeoManager::PixelChipThickness(bool isModule3D)  {
@@ -1516,6 +1524,16 @@ int OraclePixGeoManager::PixelStaveLayout()
   return db()->getInt(PixelStave,"LAYOUT",index);
 }
 
+int OraclePixGeoManager::PixelStaveAxe()
+{
+  if (!ibl()) return 0;
+  int index = PixelStaveIndex(currentLD);
+
+  if (db()->testField(PixelStave,"STAVEAXE",index))
+    return db()->getInt(PixelStave,"STAVEAXE",index);
+  return 0;
+}
+
 double OraclePixGeoManager::PixelLayerRadius() 
 {
   double radius = db()->getDouble(PixelLayer,"RLAYER",currentLD)*mmcm();
@@ -1679,6 +1697,54 @@ double OraclePixGeoManager::PixelLadderSupportLength()
 }
 
 // IBL detailed stave support only
+
+HepGeom::Point3D<double> OraclePixGeoManager::IBLStaveRotationAxis() 
+{
+  // set layer to 0  (in order to read read IBL data)
+  int currentLD_tmp = currentLD;
+  currentLD = 0;
+
+  double boardThick = PixelBoardThickness();
+  double chipThick = PixelChipThickness();
+  double chipGap = PixelChipGap();
+
+  double xCenterCoolingPipe = boardThick*.5+chipThick+chipGap+                // from sensor sensor to plate
+    IBLStaveFacePlateThickness() + IBLStaveFacePlateGreaseThickness() +       // plate thickness (grease + plate)
+    IBLStaveTubeMiddlePos();                                                  // from plate to colling pipe center
+  double yCenterCoolingPipe = IBLStaveMechanicalStaveOffset();
+  HepGeom::Point3D<double> centerCoolingPipe(xCenterCoolingPipe, yCenterCoolingPipe, 0.);
+
+  currentLD = currentLD_tmp;  
+  return centerCoolingPipe;
+}
+
+
+double OraclePixGeoManager::IBLStaveRadius() 
+{
+  // set layer to 0  (in order to read read IBL data)
+  int currentLD_tmp = currentLD;
+  currentLD = 0;
+
+  //  Point that defines the center of the cooling pipe
+  HepGeom::Point3D<double> centerCoolingPipe_inv = -IBLStaveRotationAxis();
+  HepGeom::Point3D<double> origin(0.,0.,0.);
+  double layerRadius = PixelLayerRadius();
+  double ladderTilt  = PixelLadderTilt();
+  
+  // Transforms
+  HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
+  HepGeom::Point3D<double> sensorPos = staveTrf*origin;
+  
+  double yPos = sensorPos.y();
+  HepGeom::Point3D<double> sensorPos_layer(sqrt(layerRadius*layerRadius-yPos*yPos),yPos,0.);
+  
+  double staveRadius = sensorPos_layer.x()-sensorPos.x();
+
+  currentLD = currentLD_tmp;  
+  return staveRadius;
+}
+
+
 double OraclePixGeoManager::IBLStaveFacePlateThickness() 
 {
   //  int index = PixelStaveIndex(currentLD);

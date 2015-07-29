@@ -312,6 +312,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   double PixelChipWidth(bool isModule3D=false);
   double PixelChipLength(bool isModule3D=false);
   double PixelChipGap(bool isModule3D=false);
+  double PixelChipOffset(bool isModule3D=false);
   double PixelChipThickness(bool isModule3D=false);
 
   // Module services
@@ -409,6 +410,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // Pixel Layers/Ladder Geometry
   int PixelStaveIndex(int layer);
   int PixelStaveLayout();
+  int PixelStaveAxe();
   double PixelLayerRadius();
   double PixelLayerGlobalShift();
   double PixelLadderLength();
@@ -422,6 +424,8 @@ class OraclePixGeoManager : public PixelGeometryManager {
   double PixelLadderCableOffsetY();
 
   // Stave support (IBL)
+  HepGeom::Point3D<double> IBLStaveRotationAxis(); 
+  double IBLStaveRadius();
   double IBLStaveFacePlateThickness(); 
   double IBLStaveMechanicalStaveWidth();
   double IBLStaveMechanicalStaveEndBlockLength();

@@ -10,6 +10,7 @@ class GeoLogVol;
 class GeoPixelSiCrystal;
 
 class GeoPixelModule : public GeoVPixelFactory {
+
  public:
   GeoPixelModule(GeoPixelSiCrystal &theSensor);
   virtual GeoVPhysVol* Build();
@@ -22,7 +23,11 @@ class GeoPixelModule : public GeoVPixelFactory {
   double ModuleServiceThickness() const { return m_moduleSvcThickness; }
   double ModuleServiceWidth() const { return m_moduleSvcWidth; }
   Identifier getID();
+
  private:
+
+  const GeoShape*  addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans);
+
   const GeoLogVol* theModule;
   Identifier _id;
   GeoPixelSiCrystal& m_theSensor;

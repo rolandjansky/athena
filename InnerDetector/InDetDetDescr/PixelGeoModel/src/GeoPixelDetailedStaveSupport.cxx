@@ -59,7 +59,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double radialShift=0.;
   double radialShiftThickN=0.;
 
-  if(staveLayout==5||staveLayout==6)     // 75/25 or 50/50
+  if(staveLayout==5||staveLayout==6||staveLayout==7)     // 75/25 or 50/50
     {
       GeoPixelSiCrystal theSensor3D(isBLayer,true);
       GeoPixelModule pm3D(theSensor3D);
@@ -99,7 +99,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // Module 3D geometry
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
-  if(staveLayout==5||staveLayout==6)     // 75/25 or 50/50
+  if(staveLayout==5||staveLayout==6||staveLayout==7)     // 75/25 or 50/50 or 75/25 review
     {
       // Get the 3D module description
       bool isModule3D=true;
@@ -107,7 +107,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
       GeoPixelModule pm3D(theSensor3D);     
       Module3DLength=pm3D.Length();
 
-      if(staveLayout==5)  // 75/25
+      if(staveLayout==5||staveLayout==7)  // 75/25
 	{
 	  Module3DNumber=(ModuleNumber/4)*2;
 	  ModuleNumber=ModuleNumber*0.75;
@@ -327,10 +327,18 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double maxFlex4y = foamMidY+(-FlexOffset+flexHalfWidth)*vDirY;
   //  double maxFlex3x = maxFlex4x+MaxFlexThickness*vPerpDirX;
   //  double maxFlex3y = maxFlex4y+MaxFlexThickness*vPerpDirY;
-  double maxFlex4x_wings = foamMidX+(-FlexOffset+flexHalfWidth+2.*wingHalfWidth+.5)*vDirX;                  // SES - fixme
+  double maxFlex4x_wings = foamMidX+(-FlexOffset+flexHalfWidth+2.*wingHalfWidth+.5)*vDirX;                  
   double maxFlex4y_wings = foamMidY+(-FlexOffset+flexHalfWidth+2.*wingHalfWidth+.5)*vDirY;
   double maxFlex3x_wings = maxFlex4x_wings+MaxFlexThickness*vPerpDirX;
   double maxFlex3y_wings = maxFlex4y_wings+MaxFlexThickness*vPerpDirY;
+
+  if(gmt_mgr->PixelStaveAxe()==1){
+    wingHalfWidth = WingWidth*.5*.6;
+    maxFlex4x_wings = foamMidX+(-FlexOffset+flexHalfWidth+2.*wingHalfWidth+.5)*vDirX;                  
+    maxFlex4y_wings = foamMidY+(-FlexOffset+flexHalfWidth+2.*wingHalfWidth+.5)*vDirY;
+    maxFlex3x_wings = maxFlex4x_wings+MaxFlexThickness*vPerpDirX;
+    maxFlex3y_wings = maxFlex4y_wings+MaxFlexThickness*vPerpDirY;
+  }
 
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
@@ -344,16 +352,17 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   std::vector<double> xShape, yShape;
   std::vector<int>iShapeExcept;
 
-  xShape.push_back(plate1x);  yShape.push_back(plate1y); iShapeExcept.push_back(1);
-  xShape.push_back(omega1x);   yShape.push_back(omega1y); iShapeExcept.push_back(0);
+  double yStaveOffset = gmt_mgr->IBLStaveMechanicalStaveOffset();
+  double plate1y_tmp = std::min(plate1y,-pm.Width()*.5-yStaveOffset);
+  double omega1y_tmp = std::min(omega1y,-pm.Width()*.5-yStaveOffset);
+
+  xShape.push_back(plate1x);  yShape.push_back(plate1y_tmp); iShapeExcept.push_back(1);
+  xShape.push_back(omega1x);   yShape.push_back(omega1y_tmp); iShapeExcept.push_back(0);
   xShape.push_back(omega2x);   yShape.push_back(omega2y); iShapeExcept.push_back(0);
   xShape.push_back(omega3x);   yShape.push_back(omega3y); iShapeExcept.push_back(0);
   
   xShape.push_back(maxFlex1x);   yShape.push_back(maxFlex1y); iShapeExcept.push_back(0);
   xShape.push_back(maxFlex2x);   yShape.push_back(maxFlex2y); iShapeExcept.push_back(0);
-  
-  //xShape.push_back(maxFlex3x);   yShape.push_back(maxFlex3y);
-  // xShape.push_back(maxFlex4x);   yShape.push_back(maxFlex4y);
   
   xShape.push_back(maxFlex3x_wings);   yShape.push_back(maxFlex3y_wings); iShapeExcept.push_back(0);
   xShape.push_back(maxFlex4x_wings);   yShape.push_back(maxFlex4y_wings); iShapeExcept.push_back(0);
@@ -613,7 +622,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
       // Add flex in 3D model : A component
       CLHEP::Hep3Vector cableflex_pos((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,ModulePosZ+flexGapZ*0.5);
-      GeoTransform* cableflex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
+      //      GeoTransform* cableflex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos));
+      GeoTransform* cableflex_xform = new GeoTransform(HepGeom::Translate3D(cableflex_pos)*HepGeom::RotateZ3D(fabs(flex_angle)));
 
       GeoLogVol * cableflex_logVol = 0;
       if(bFlexAndWing||bFlexConstantThickness)
@@ -629,19 +639,23 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
 	  if(iModule==0)
 	    {
-	      double wingPos = FlexOffset+flexHalfWidth+2.*m_SafetyMargin+0.5;               // SES - fixme
-	      double flex1x = foamMidX+(wingPos+wingHalfWidth)*vDirX;
-	      double flex1y = foamMidY+(wingPos+wingHalfWidth)*vDirY;
-	      double flex2x = flex1x+WingThick*vPerpDirX;
-	      double flex2y = flex1y+WingThick*vPerpDirY;
-	      double flex4x = foamMidX+(wingPos)*vDirX;
-	      double flex4y = foamMidY+(wingPos)*vDirY;
-	      double flex3x = flex4x+WingThick*vPerpDirX;
-	      double flex3y = flex4y+WingThick*vPerpDirY;
-	  
-	      wingFlexPosX = (flex1x+flex2x+flex3x+flex4x)*0.25;
-	      wingFlexPosY = (flex1y+flex2y+flex3y+flex4y)*0.25;
 	      WingThick = 0.06;
+	      double flex1x_tmp = flex4x;
+	      double flex1y_tmp = flex4y;
+	      double flex2x_tmp = flex4x+2.*wingHalfWidth*vDirX;
+	      double flex2y_tmp = flex4y+2.*wingHalfWidth*vDirY;
+	      double flex4x_tmp = flex1x_tmp+WingThick*vPerpDirX;
+	      double flex4y_tmp = flex1y_tmp+WingThick*vPerpDirY;
+	      double flex3x_tmp = flex2x_tmp+WingThick*vPerpDirX;
+	      double flex3y_tmp = flex2y_tmp+WingThick*vPerpDirY;
+
+	      maxFlex3x_wings = flex3x_tmp;
+	      maxFlex3y_wings = flex3y_tmp;
+	      maxFlex4x_wings = flex4x_tmp;
+	      maxFlex4y_wings = flex4y_tmp;
+	      wingFlexPosX = (flex1x_tmp+flex2x_tmp+flex3x_tmp+flex4x_tmp)*0.25;
+	      wingFlexPosY = (flex1y_tmp+flex2y_tmp+flex3y_tmp+flex4y_tmp)*0.25;
+
 	      double wingHalfLength = 12.15*.5;
 	      GeoBox* wingflex_shape = new GeoBox(WingThick*0.5,wingHalfWidth,wingHalfLength);
 	      
@@ -652,9 +666,10 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  
 
 	  // Add flex in 3D model : A component
+
 	  double zPos = (iModule+.5)*ModuleLength_flex+(iModule+.5)*ModuleGap_flex;
 	  CLHEP::Hep3Vector wingflex_posA(wingFlexPosX, wingFlexPosY , zPos-ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA));
+	  GeoTransform* wingflex_xformA = new GeoTransform(HepGeom::Translate3D(wingflex_posA)*HepGeom::RotateZ3D(fabs(flex_angle)));
 	  
 	  GeoPhysVol * wingflex_logVolPV_1 = new GeoPhysVol(wingflex_logVol);
 	  GeoNameTag* wingflex_tag = new GeoNameTag(wingName.str());
@@ -663,7 +678,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  logVolPV->add(wingflex_logVolPV_1);
 
 	  CLHEP::Hep3Vector wingflex_posA_2(wingFlexPosX, wingFlexPosY , zPos+ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformA_2 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posA_2));
+	  GeoTransform* wingflex_xformA_2 = new GeoTransform(HepGeom::Translate3D(wingflex_posA_2)*HepGeom::RotateZ3D(fabs(flex_angle)));
 	  
 	  GeoPhysVol * wingflex_logVolPV_2 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
@@ -673,7 +688,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
 	  // Add flex in 3D model : C component
 	  CLHEP::Hep3Vector wingflex_posC(wingFlexPosX, wingFlexPosY , -zPos-ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC));
+	  GeoTransform* wingflex_xformC = new GeoTransform(HepGeom::Translate3D(wingflex_posC)*HepGeom::RotateZ3D(fabs(flex_angle)));
 	  
 	  GeoPhysVol * wingflex_logVolPV_C1 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
@@ -681,7 +696,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  logVolPV->add(wingflex_logVolPV_C1);
 
 	  CLHEP::Hep3Vector wingflex_posC_2(wingFlexPosX, wingFlexPosY , -zPos+ModuleLength_flex*.25);
-	  GeoTransform* wingflex_xformC_2 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),wingflex_posC_2));
+	  GeoTransform* wingflex_xformC_2 = new GeoTransform(HepGeom::Translate3D(wingflex_posC_2)*HepGeom::RotateZ3D(fabs(flex_angle)));
 	  
 	  GeoPhysVol * wingflex_logVolPV_C2 = new GeoPhysVol(wingflex_logVol);
 	  logVolPV->add(wingflex_tag);
@@ -705,8 +720,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	  lname << "StaveFlex_"<<iFlexModule<<"C";
 
 	  CLHEP::Hep3Vector cableflex_pos2((flex1x+flex2x+flex3x+flex4x)*0.25,(flex1y+flex2y+flex3y+flex4y)*0.25,-ModulePosZ-flexGapZ*0.5);
-	  GeoTransform* cableflex_xform2 = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,-fabs(flex_angle)),cableflex_pos2));
-	  //	  GeoLogVol * cableflex_logVol = new GeoLogVol(lname.str(),cableflex_shape,cableflex_material);
+	  GeoTransform* cableflex_xform2 = new GeoTransform(HepGeom::Translate3D(cableflex_pos2)*HepGeom::RotateZ3D(fabs(flex_angle)));
 	  GeoLogVol * cableflex_logVol = 0;
 
 	  const GeoMaterial* scaledFlexMaterial=0;

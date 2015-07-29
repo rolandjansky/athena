@@ -34,6 +34,7 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   m_moduleSvcThickness = 0.;
   m_moduleSvcWidth = 0.;
   nbModuleSvc = gmt_mgr->PixelModuleServiceNumber();
+  int svcType = (m_isModule3D) ? 1 : 0;
 
   //
   // The Dimensions are in separate routines
@@ -62,52 +63,43 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
     const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
     const GeoShape & shiftedBox = (*moduleBox) << HepGeom::TranslateX3D(shift);
     const GeoShape * moduleShape = &shiftedBox;
-    
+
     if(m_moduleSvcThickness<0.001) {
       theModule = new GeoLogVol(logName,moduleShape,air);
     }
     else {
+      const GeoShape * gblShape = 0;
+      gblShape = addShape(gblShape, moduleShape, HepGeom::Transform3D() );
+
       double svcWidth = width*.6;
       m_moduleSvcWidth = svcWidth;
       const GeoBox* moduleSvcBox1 = new GeoBox(m_moduleSvcThickness*.5,svcWidth*.25,length*.5);
       double yShift = width*.5-svcWidth*.75;
       double xShift = thickness*.5+m_moduleSvcThickness*.5; 
-      const GeoShape &shiftedSvcBox1 = (*moduleSvcBox1) << (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift));
+      gblShape = addShape(gblShape, moduleSvcBox1, (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift)) );
 
       const GeoBox* moduleSvcBox2 = new GeoBox(m_moduleSvcThickness*.25,svcWidth*.25,length*.5);
       yShift = width*.5-svcWidth*.25;
       xShift = thickness*.5+m_moduleSvcThickness*.25; 
-      const GeoShape &shiftedSvcBox2 = (*moduleSvcBox2) << (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift));
+      gblShape = addShape(gblShape, moduleSvcBox2, (HepGeom::TranslateX3D(-xShift)*HepGeom::TranslateY3D(-yShift)) );
 
-      GeoShapeUnion *moduleSvcShapeWing = 0;
       for(int iSvc=0; iSvc<nbModuleSvc; iSvc++)
 	{
-	  //	  int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
+	  int type = gmt_mgr->PixelModuleServiceModuleType(iSvc);
 	  std::string name = gmt_mgr->PixelModuleServiceName(iSvc);
-	  
-	  if(name=="WingFlex"){
+	  double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+
+	  if(type==svcType&&(name=="WingFlex"||offsetX<0)) {
 	    double width_svc = gmt_mgr->PixelModuleServiceWidth(iSvc);
 	    double thick_svc = gmt_mgr->PixelModuleServiceThick(iSvc);
-	    double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
 	    double offsetY = gmt_mgr->PixelModuleServiceOffsetY(iSvc);
-	    //	    double offsetZ = gmt_mgr->PixelModuleServiceOffsetZ(iSvc);
 	    double xPos = -0.5*(gmt_mgr->PixelBoardThickness(m_isModule3D)-gmt_mgr->PixelHybridThickness(m_isModule3D)) - offsetX - thick_svc*.5;
-
 	    const GeoBox* moduleSvcBox3 = new GeoBox(thick_svc*.5+.01,width_svc*.5+.01,length*.5+.01);
-	    const GeoShape &shiftedSvcBox3 = (*moduleSvcBox3) << (HepGeom::TranslateX3D(xPos)*HepGeom::TranslateY3D(offsetY));
-	    moduleSvcShapeWing = new GeoShapeUnion(moduleShape, &shiftedSvcBox3);
+	    gblShape = addShape(gblShape, moduleSvcBox3, (HepGeom::TranslateX3D(xPos)*HepGeom::TranslateY3D(offsetY)) );
 	  }
 	}
 
-
-      GeoShapeUnion *moduleSvcShape = 0;
-      if(moduleSvcShapeWing==0)
-	moduleSvcShape = new GeoShapeUnion(moduleShape, &shiftedSvcBox1);
-      else
-	moduleSvcShape = new GeoShapeUnion(moduleSvcShapeWing, &shiftedSvcBox1);
-      GeoShapeUnion *moduleSvcGblShape = new GeoShapeUnion(moduleSvcShape, &shiftedSvcBox2);
-
-      theModule = new GeoLogVol(logName,moduleSvcGblShape,air);	
+      theModule = new GeoLogVol(logName,gblShape,air);	
     }
   }
   
@@ -151,15 +143,14 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   GeoPixelChip pc(m_isModule3D);
   double chipxpos = 0.5*(gmt_mgr->PixelBoardThickness(m_isModule3D)+gmt_mgr->PixelChipThickness(m_isModule3D))+gmt_mgr->PixelChipGap(m_isModule3D);
-  GeoTransform* xform = new GeoTransform(HepGeom::TranslateX3D(chipxpos));
+  double chipypos =gmt_mgr->PixelChipOffset(m_isModule3D);
+  GeoTransform* xform = new GeoTransform(HepGeom::TranslateX3D(chipxpos)*HepGeom::TranslateY3D(chipypos));
   modulePhys->add(xform);
   modulePhys->add(pc.Build() );
-  //
-  // Add the silicon element to the list of detector elements...
-  //
 
-
+  //
   // Add the module services
+  //
   if(nbModuleSvc==0) return modulePhys;
   
   int svcType = (m_isModule3D) ? 1 : 0;
@@ -171,7 +162,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
 	double length = gmt_mgr->PixelModuleServiceLength(iSvc);
 	double width = gmt_mgr->PixelModuleServiceWidth(iSvc);
 	double thick = gmt_mgr->PixelModuleServiceThick(iSvc);
-	double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc);
+	double offsetX = gmt_mgr->PixelModuleServiceOffsetX(iSvc); 
 	double offsetY = gmt_mgr->PixelModuleServiceOffsetY(iSvc);
 	double offsetZ = gmt_mgr->PixelModuleServiceOffsetZ(iSvc);
 	std::string name = gmt_mgr->PixelModuleServiceName(iSvc);
@@ -280,10 +271,12 @@ double GeoPixelModule::Thickness() {
 }
 
 double GeoPixelModule::Width() {
+
+  double chipypos =fabs(gmt_mgr->PixelChipOffset(m_isModule3D));
   double width = max( max(
                      gmt_mgr->PixelBoardWidth(m_isModule3D),
                      gmt_mgr->PixelHybridWidth(m_isModule3D)),
-                     gmt_mgr->PixelChipWidth(m_isModule3D));
+                     gmt_mgr->PixelChipWidth(m_isModule3D)+2.*chipypos);
   return width;
 }
 double GeoPixelModule::Length() {
@@ -302,4 +295,16 @@ double GeoPixelModule::Length() {
 
 Identifier GeoPixelModule::getID() {
   return _id;
+}
+
+
+const GeoShape * GeoPixelModule::addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans)
+{
+  const GeoShape * shiftedShape = &(*nextShape << trans);
+  if (lastShape) {
+    lastShape = &(lastShape->add(*shiftedShape));
+  } else {
+    lastShape = shiftedShape;
+  }
+  return lastShape;
 }
