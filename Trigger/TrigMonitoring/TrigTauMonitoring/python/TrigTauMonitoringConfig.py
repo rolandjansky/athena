@@ -4,18 +4,19 @@
 def TrigTauMonitoringTool():
 
 	full_tau = [
-                  'tau5_perf_ptonly_L1TAU8',
+#                  'tau5_perf_ptonly_L1TAU8',
                   
                   ## cosmics
-                  'tau1_cosmic_track_L1MU4_EMPTY',
-                  'tau1_cosmic_ptonly_L1MU4_EMPTY',
-                  'tau8_cosmic_ptonly',
-                  'tau8_cosmic_track',
+#                  'tau1_cosmic_track_L1MU4_EMPTY',
+#                  'tau1_cosmic_ptonly_L1MU4_EMPTY',
+#                  'tau8_cosmic_ptonly',
+#                  'tau8_cosmic_track',
                   
                   ## Run-II - No BDT: main track-based items
 		#  'tau25_idperf_track',
 		#  'tau25_idperf_tracktwo',
                 #  'tau25_perf_tracktwo',
+		  'tau25_perf_track',
                   'tau25_perf_tracktwo_L1TAU12',
                   'tau25_perf_ptonly',
                   'tau25_perf_ptonly_L1TAU12',
@@ -136,13 +137,11 @@ def TrigTauMonitoringTool():
 
 	# Setup emulation 
 	emul_l1_tau = [ 
-		'L1_J12',
-		'L1_TAU12',
-		'L1_TAU12IM',
 		'L1_TAU60',
+		'L1_EM15HI_2TAU12IM_J25_3J12',
 		'L1_TAU20IM_2TAU12IM',
 		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-		'L1_MU10_TAU12IM',
+		'L1_MU10_TAU12IM_J25_2J12',
 		'L1_TAU20_2TAU12_XE35',
 		'L1_TAU20_2J20_XE45'
 	]
@@ -171,7 +170,7 @@ def TrigTauMonitoringTool():
 	HLTTauMon = HLTTauMonTool(name			 = 'HLTTauMon',
 				  histoPathBase		 = "/Trigger/HLT",
 				  monitoring_tau	 = hltmonList.monitoring_tau,
-				  primary_tau		 = [],#full_tau, #[]
+				  primary_tau		 = [], #full_tau, #[]
 				  prescaled_tau		 = [],
 				  LowestSingleTau 	 = hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
 				  EffOffTauPtCut	 = 20000.,  #MeV
@@ -180,15 +179,14 @@ def TrigTauMonitoringTool():
 				  doTruth		 = False,
 				  doRealZtautauEff       = False,
 				  doBootstrap		 = False,
-				  doEmulation		 = True,
+				  doEmulation		 = False,
 				  emulation_l1_tau       = emul_l1_tau,
 				  emulation_hlt_tau      = emul_hlt_tau,
 				  L1EmulationTool        = Level1Emulator,
 #				  HltEmulationTool       = HltEmulator,
 				  doTestTracking	 = False,
-				  doIncludeL1deactivateTE 	= False,
-				  doIncludePreseldeactivateTE 	= False,
-				  doIncludeHLTdeactivateTE 	= False,
+				  L1TriggerCondition  	 = "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
+				  HLTTriggerCondition 	 = "Physics",
                                   nTrkMax	= -1,
 				  nTrkMin	= -1,
 				  PtMax		= -1., #MeV

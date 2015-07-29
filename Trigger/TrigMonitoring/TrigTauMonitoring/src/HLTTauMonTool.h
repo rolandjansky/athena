@@ -99,7 +99,7 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
   StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
-  StatusCode RealZTauTauEfficiency(const std::string & trigItem);
+  StatusCode RealZTauTauEfficiency();
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
@@ -127,6 +127,7 @@ class HLTTauMonTool : public IHLTMonTool {
   float deltaR(float eta1, float eta2, float phi1, float phi2);
   float deltaR(const xAOD::TauJet* aEFTau, const xAOD::EmTauRoI* l1Tau);
   void plotUnderOverFlow(TH1* hist);
+  void cloneProfile(const std::string name, const std::string folder);
   void cloneHistogram(const std::string name, const std::string folder); 
   void cloneHistogram2(const std::string name, const std::string folder);
   /* StatusCode OfflineEfficiency(const std::string & trigItem); */
@@ -146,15 +147,17 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_emulation;
   bool m_RealZtautauEff;
   std::vector<std::string> CutItems;
+  std::vector<std::string> TauCutFlow;
+  std::vector<std::string> MuCutFlow;
   bool m_bootstrap;
 
   unsigned int m_L1flag;
   unsigned int m_Preselectionflag;
   unsigned int m_HLTflag;
-  bool m_doIncludeL1deactivateTE;
-  bool m_doIncludePreseldeactivateTE;
-  bool m_doIncludeHLTdeactivateTE;
-  
+  unsigned int m_L1TriggerCondition;
+  unsigned int m_HLTTriggerCondition;
+  std::string m_L1StringCondition; 
+  std::string m_HLTStringCondition;
 
   ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_l1emulationTool;
   ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
