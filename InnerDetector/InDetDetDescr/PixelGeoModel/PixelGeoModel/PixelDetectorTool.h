@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class PixelGeoModelAthenaComps;
-class IGeoDbTagSvc;
+class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 class ISiLorentzAngleSvc;
@@ -48,14 +48,13 @@ private:
   ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc; 
   bool m_dc1Geometry;
   bool m_alignable;
-  bool m_tweakIBLDist; // whether to tweak L3 transforms with IBLDist
   bool m_initialLayout;
   bool m_devVersion;
   bool m_buildDBM;
   ToolHandle< IGeoSubDetTool > m_bcmTool;
   ToolHandle< IGeoSubDetTool > m_blmTool;
   ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
-  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
+  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
   ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
