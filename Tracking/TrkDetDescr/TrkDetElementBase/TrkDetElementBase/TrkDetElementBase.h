@@ -40,7 +40,7 @@ namespace Trk
   class TrkDetElementBase : public GeoVDetectorElement {
   
     public:
-    
+            
       /** Constructor from GeoVFullPhysVolume */
       TrkDetElementBase(const GeoVFullPhysVol* fullPhysVol); 
       
@@ -60,7 +60,7 @@ namespace Trk
       virtual const Amg::Transform3D & transform(const Identifier& id) const = 0;
     
       /**Return surface associated with this detector element*/
-      virtual const Surface& surface () const = 0;
+      virtual const Surface & surface () const = 0;
       
       /**Return surface associated with this identifier, which should come from the
       PrepRawData object 
@@ -69,7 +69,10 @@ namespace Trk
       surfaces per detector element). For other detector elements it will just
       return surface() ... the Identifier is ignored.
       */
-      virtual const Surface& surface (const Identifier& id) const = 0;
+      virtual const Surface & surface (const Identifier& id) const = 0;
+            
+      /** Returns the full list of all detection surfaces associated to this detector element */
+      virtual const std::vector<const Surface*>& surfaces() const = 0;
      
       /**Return the boundaries of the element*/
       virtual const SurfaceBounds & bounds() const = 0;
@@ -92,6 +95,9 @@ namespace Trk
       /**Return the normal of the surface associated with this identifier
        In the case of silicon it returns the same as normal()*/  
       virtual const Amg::Vector3D & normal(const Identifier& id) const = 0;
+      
+     protected:
+       mutable std::vector<const Trk::Surface*> m_surfaces;  
     
     };
 
