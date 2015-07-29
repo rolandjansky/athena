@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainer.cpp 726071 2016-02-25 09:23:05Z krasznaa $
+// $Id: DbContainer.cpp 664792 2015-05-04 17:31:32Z gemmeren $
 //====================================================================
 //  DbContainerObj handle implementation
 //--------------------------------------------------------------------

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObject.h 726071 2016-02-25 09:23:05Z krasznaa $
+// $Id: DbObject.h 633141 2014-12-02 18:40:19Z gemmeren $
 //====================================================================
 //  DbObject definition
 //--------------------------------------------------------------------

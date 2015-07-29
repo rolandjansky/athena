@@ -3,7 +3,7 @@
 */
 
 //====================================================================
-// $Id: IStorageExplorer.h 726071 2016-02-25 09:23:05Z krasznaa $
+// $Id: IStorageExplorer.h 590734 2014-04-01 21:49:36Z gemmeren $
 //
 //  Package    : pool/StorageSvc (The pool framework)
 //

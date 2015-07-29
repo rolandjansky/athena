@@ -3,7 +3,7 @@
 */
 
 
-// $Id: OODatabaseImp.cpp 726071 2016-02-25 09:23:05Z krasznaa $
+// $Id: OODatabaseImp.cpp 590734 2014-04-01 21:49:36Z gemmeren $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -14,6 +14,7 @@
 
 /// Framework include files
 #include "StorageSvc/DbTypeInfo.h"
+#include "StorageSvc/DbClassLoader.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/OODatabaseImp.h"
 
@@ -24,14 +25,17 @@ OODatabaseImp::OODatabaseImp(void* ctxt, const DbType& typ)
 : m_refCount(0), 
   m_type(typ),
   m_name(""),
+  m_classLoader(0),
   m_context(ctxt)
 {
   DbInstanceCount::increment(this);
+  setClassLoader(new DbClassLoader());
 }
 
 // Standard destructor
 OODatabaseImp::~OODatabaseImp()   {
   DbInstanceCount::decrement(this);
+  releasePtr( m_classLoader );
 }
 
 // IInterface implementation: Decrease reference count
@@ -64,3 +68,13 @@ DbStatus OODatabaseImp::initialize(const std::string& nam)  {
   return status;
 }
 
+/// Set the class loader
+void OODatabaseImp::setClassLoader(IClassLoader* loader) {
+  releasePtr( m_classLoader );
+  m_classLoader = loader;
+}
+
+/// Allow access to the class loader
+IClassLoader* OODatabaseImp::classLoader() const  {
+  return m_classLoader;
+}

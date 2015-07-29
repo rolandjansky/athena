@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbImplementation.cpp 726071 2016-02-25 09:23:05Z krasznaa $
+// $Id: DbImplementation.cpp 458019 2011-09-09 10:11:57Z mnowak $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -35,3 +35,7 @@ DbImplementation::~DbImplementation()   {
   releasePtr( m_ooDB );
 }
 
+/// Access to the class loader
+IClassLoader* DbImplementation::loader() const {
+  return db() ? db()->classLoader() : 0; 
+}

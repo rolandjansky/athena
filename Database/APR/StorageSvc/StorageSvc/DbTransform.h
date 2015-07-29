@@ -6,8 +6,6 @@
 #ifndef POOL_DBTRANSFORM_H
 #define POOL_DBTRANSFORM_H
 
-#include <string>
-
 // Framework includes
 #include "StorageSvc/DbStatus.h"
 
@@ -38,7 +36,7 @@ namespace pool  {
     /// Access entry in shape registry
     static DbStatus regShape    (const DbTypeInfo*  shape);
 
-   /// keep shape until the end
+    /// keep shape until the end
     static void ownShape(const DbTypeInfo*  shape);
     
    /// Access entry in shape registry

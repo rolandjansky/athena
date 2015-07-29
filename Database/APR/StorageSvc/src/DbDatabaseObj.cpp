@@ -58,7 +58,7 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
   DbPrint log( m_dom.name() );
   DbInstanceCount::increment(this);
   m_logon = pfn;
-  std::unique_ptr<DbToken> tok(new DbToken());
+  auto_ptr<DbToken> tok(new DbToken());
   tok->setTechnology(dom.type().type());
   tok->setClassID(Guid::null());
   tok->setDb(fid);
@@ -169,7 +169,7 @@ DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
     }
     else if ( mode() != pool::READ ) {
       const Guid& dbn = pTok->dbID();
-      std::unique_ptr<DbToken> link(new DbToken());
+      auto_ptr<DbToken> link(new DbToken());
       link->fromString(pTok->toString());
       link->oid().first = m_linkVec.size();
       link->setKey(DbToken::TOKEN_FULL_KEY);
@@ -329,7 +329,7 @@ DbStatus DbDatabaseObj::open()   {
         const Guid& guid = m_string_t->shapeID();
 
         // Add link to "##Shapes" container
-        std::unique_ptr<DbToken> l1(new DbToken());
+        auto_ptr<DbToken> l1(new DbToken());
         l1->setDb(name());
         l1->setCont("##Shapes");
         l1->setTechnology(type().type());
@@ -343,7 +343,7 @@ DbStatus DbDatabaseObj::open()   {
         m_linkVec.push_back( l1.release() );
 
         // Add link to "##Links" container
-        std::unique_ptr<DbToken> l2(new DbToken());
+        auto_ptr<DbToken> l2(new DbToken());
         l2->setDb(name());
         l2->setCont("##Links");
         l2->setTechnology(type().type());
@@ -393,7 +393,7 @@ DbStatus DbDatabaseObj::open()   {
         if ( m_links.open(dbH,"##Links",m_string_t,type(),mode()).isSuccess() )  {
           DbIter<DbString> it;
           for ( it.scan(m_links, m_string_t); it.next().isSuccess(); )   {
-            std::unique_ptr<DbToken> link(new DbToken());
+            auto_ptr<DbToken> link(new DbToken());
             link->fromString(**it);
             // Update the transient list of links
             if ( s_localDb == link->dbID() ) {
@@ -718,10 +718,7 @@ std::string DbDatabaseObj::cntName(const Token& token) {
       }
       if ( lnk < int(m_linkVec.size()) )   {
 	DbToken* link = m_linkVec[lnk];
-        if ( link != 0 ) {
-          if ( token.contID().empty() ) const_cast<Token*>(&token)->setCont(link->contID());
-          return link->contID(); // in ##Links
-        }
+        return link != 0 ? link->contID() : ""; // in ##Links
       }
     }
   }
