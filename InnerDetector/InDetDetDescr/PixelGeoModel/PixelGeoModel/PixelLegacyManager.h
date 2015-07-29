@@ -3,7 +3,7 @@
 */
 
 #ifndef PixelLegacyManager_H
-#define PixelLegacyManagerr_H
+#define PixelLegacyManager_H
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include <string>

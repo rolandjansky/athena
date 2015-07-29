@@ -19,6 +19,7 @@
 
 GeoVPhysVol* DBM_ModuleCage::Build() {
 
+  // safety, to make sure volumes don't overlap
   double safety = 0.005*CLHEP::mm;
 
   // Telescope dimension
@@ -62,6 +63,8 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
   const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
   const GeoMaterial* aluminium = mat_mgr->getMaterial("std::Aluminium");
   const GeoMaterial* DBMRod_mat = mat_mgr->getMaterial("pix::DBMRod");
+
+
 
   //**** 3-layers unit volume forming the module cage
   const GeoBox* containerBox = new GeoBox(mainPlateX/2. + safety, layerUnitY/2. + safety, layerUnitZ/2.);

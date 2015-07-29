@@ -49,6 +49,8 @@ private:
   HepGeom::Transform3D m_transform;
   double m_thicknessP;
   double m_thicknessN;
+  double m_thicknessN_svc;
+  double m_width_svc;
   double m_SafetyMargin;
   bool m_bVerbose;
 

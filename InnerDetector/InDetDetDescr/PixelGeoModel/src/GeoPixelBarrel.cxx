@@ -102,14 +102,16 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 	  barrelPhys->add(tagSupportC);
 	  barrelPhys->add(xformSupportC);
 	  barrelPhys->add(supportPhys_C);
-	  
+
 	  // ----------- middle of stave services 
-	  GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
-	  GeoVPhysVol *m_xformSupportMidRing = layer.getSupportMidRing();
-	  GeoTransform *m_supportPhysMidRing = layer.getSupportTrfMidRing();
-	  barrelPhys->add(tagM);
-	  barrelPhys->add(m_xformSupportMidRing);
-	  barrelPhys->add(m_supportPhysMidRing);
+	  if(gmt_mgr->PixelStaveAxe()==0) {
+	    GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
+	    GeoTransform *xformSupportMidRing = layer.getSupportTrfMidRing();
+	    GeoVPhysVol *supportPhysMidRing = layer.getSupportMidRing();
+	    barrelPhys->add(tagM);
+	    barrelPhys->add(xformSupportMidRing);
+	    barrelPhys->add(supportPhysMidRing);
+	  }
 	  
 	  // ----------- end of stave PP0 services (insde barrel)
 	  

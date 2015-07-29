@@ -158,7 +158,21 @@ public:
   virtual double PixelChipWidth(bool isModule3D=false)=0;
   virtual double PixelChipLength(bool isModule3D=false)=0;
   virtual double PixelChipGap(bool isModule3D=false)=0;
+  virtual double PixelChipOffset(bool isModule3D=false)=0; 
   virtual double PixelChipThickness(bool isModule3D=false)=0;
+
+  // Module services
+  virtual int PixelModuleServiceNumber()=0;
+  virtual double PixelModuleServiceLength(int svc)=0;
+  virtual double PixelModuleServiceWidth(int svc)=0;
+  virtual double PixelModuleServiceThick(int svc)=0;
+  virtual double PixelModuleServiceOffsetX(int svc)=0;
+  virtual double PixelModuleServiceOffsetY(int svc)=0;
+  virtual double PixelModuleServiceOffsetZ(int svc)=0;
+  virtual int PixelModuleServiceModuleType(int svc)=0;
+  virtual int PixelModuleServiceFullSize(int svc)=0;
+  virtual std::string PixelModuleServiceName(int svc)=0;
+  virtual std::string PixelModuleServiceMaterial(int svc)=0;
 
   // Disk Carbon Structure
   virtual double PixelECCarbonRMin(std::string)=0;
@@ -230,6 +244,7 @@ public:
 
   // Pixel Layers Geomtry
   virtual int PixelStaveLayout()=0;
+  virtual int PixelStaveAxe()=0;
   virtual double PixelLayerRadius()=0;
   virtual double PixelLayerGlobalShift()=0;
   virtual double PixelLadderLength()=0;
@@ -253,6 +268,8 @@ public:
   virtual int PixelStaveIndex(int layer)=0;
 
   // Stave support (IBL)
+  virtual HepGeom::Point3D<double> IBLStaveRotationAxis()=0; 
+  virtual double IBLStaveRadius()=0;
   virtual double IBLStaveFacePlateThickness()=0; 
   virtual double IBLStaveMechanicalStaveWidth()=0;
   virtual double IBLStaveMechanicalStaveEndBlockLength()=0;

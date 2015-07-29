@@ -72,7 +72,6 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double zStartPosC = -zmax+layerZshift;
   // Caution : section 0 is in thebarrel volume that is already globally shifted
   if(m_section==0){    
-    zStartPosA=zmin;
     zStartPosC=-zmax; 
   }
   if(m_section==1) zStartPosA=zmin; 
@@ -80,6 +79,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double innerRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",zmin,zmax)+safety;
   double outerRadius = gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin,zmax)-safety;
   double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();  
+  double layerRadius = gmt_mgr->PixelLayerRadius();
 
   double halfLengthA = (zmax-zmin)*0.5-deltaLength*.5;
   double halfLengthC = (zmax-zmin)*0.5+deltaLength*.5;
@@ -109,6 +109,12 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double TubeOuterDiam = gmt_mgr->IBLStaveTubeOuterDiameter();
   double TubeInnerDiam = gmt_mgr->IBLStaveTubeInnerDiameter();
   double cooling_angle = -2.154*CLHEP::deg;
+
+  if(gmt_mgr->PixelStaveAxe()==1)   
+    {
+      cooling_radius = 34.7 + layerRadius-33.25;
+      cooling_angle = -.1*CLHEP::deg;
+    }
 
   const GeoTube* service_coolingPipeA = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthA);
   const GeoTube* service_coolingPipeC = new GeoTube(0.0,TubeOuterDiam*0.5,halfLengthC);
@@ -141,6 +147,9 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   GeoLogVol* flex_logVolC = 0;
 
   double flex_angle = -15.001*CLHEP::deg;
+  if(gmt_mgr->PixelStaveAxe()==1)   
+    flex_angle += 2.14*CLHEP::deg;
+
   double flex_rot=0.30265;
   flex_rot=-0.30265*.5;
   double flex_rmin=0, flex_rmax=0;
@@ -154,7 +163,6 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     int secIdx=(m_section==3)?3:1;
     flex_rmin = gmt_mgr->IBLFlexPP0Rmin(secIdx);
     flex_rmax = gmt_mgr->IBLFlexPP0Rmax(secIdx);
-    
     
     std::string flexMatName="noFlexMatDefined";
     if(m_section==0)

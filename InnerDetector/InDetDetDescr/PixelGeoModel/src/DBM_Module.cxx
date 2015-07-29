@@ -6,6 +6,7 @@
 #include "PixelGeoModel/DBM_Module.h"
 
 #include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoBox.h"
 
@@ -82,8 +83,41 @@ GeoVPhysVol* DBM_Module::Build()
     double substrate_Z = gmt_mgr->DBMCeramicZ();
     
     //distances from bottom of the ceramic
+    //Hardcoded!
     double bot2Chip = 0.0*CLHEP::mm;
     double bot2Diamond = 1.685*CLHEP::mm;
+
+
+    //---------------------------------------------
+    // Get parameters for alignable Transform
+  
+    // Position of the corner closest to IP and beamline
+    // Hardcoded, so if change then change in GeoPixelEnvelope and DBM_Det too
+    double ZToIP = 887.002*CLHEP::mm;
+    double RToBeam = 46.678*CLHEP::mm;
+
+    // layer spacing
+    double Zspacing = gmt_mgr->DBMSpacingZ();
+    double Rspacing = gmt_mgr->DBMSpacingRadial();
+    // gap between V-slide and first main plate
+    double layer1Space = gmt_mgr->DBMSpace();
+
+    // parameters for rotating the 3-layer unit
+    double angle = gmt_mgr->DBMAngle(); // telescope tilting angle in degree
+    double bracketZ = gmt_mgr->DBMBracketZ(); // total thickness of the bracket unit,
+    double trapBackY = gmt_mgr->DBMTrapezBackY();
+    double trapBackShortZ = gmt_mgr->DBMTrapezBackShortZ();
+    double coolingSidePlateY = gmt_mgr->DBMCoolingSidePlateY();
+    double brcktLockZ = gmt_mgr->DBMBrcktLockZ();
+  
+    //double lyRadius = sqrt(layerUnitY*layerUnitY/4 + layerUnitZ*layerUnitZ/4);
+    //double lyAngle = atan(layerUnitY/layerUnitZ);
+    // position of the 3-layer unit's corner closest to the IP and beamline, which is the rotation point
+    double layerUnitPos_Y = (trapBackY/cos(angle) - coolingSidePlateY)*cos(angle);
+    double layerUnitPos_Z = coolingSidePlateY*sin(angle) + trapBackShortZ + bracketZ - brcktLockZ; 
+    //---------------------------------------------
+
+
 
     const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
     //first try the Diamond
@@ -130,17 +164,17 @@ GeoVPhysVol* DBM_Module::Build()
     Identifier idwafer;
     idwafer = idHelper->wafer_id(dbmdet,gmt_mgr->GetLD(),gmt_mgr->Phi(),gmt_mgr->Eta());
 
-//     if (gmt_mgr->msgLvl(MSG::INFO)) {
-//       gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "check identifier:" << endreq; 
-//       gmt_mgr->msg(MSG::INFO) << "is pixel = " << idHelper->is_pixel(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "is barrel = " << idHelper->is_barrel(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "barrelendcap = " << idHelper->barrel_ec(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "layer = " << idHelper->layer_disk(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "phi_module = " << idHelper->phi_module(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "eta module = " << idHelper->eta_module(idwafer) << endreq;
-//       gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endreq;
-//    }
+    // if (gmt_mgr->msgLvl(MSG::INFO)) {
+    //   gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "check identifier for side="<< dbmdet <<" layer=" << gmt_mgr->GetLD() << " phi=" << gmt_mgr->Phi() << " eta=" << gmt_mgr->Eta() << endreq; 
+    //   gmt_mgr->msg(MSG::INFO) << "is pixel = " << idHelper->is_pixel(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "is barrel = " << idHelper->is_barrel(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "barrelendcap = " << idHelper->barrel_ec(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "layer = " << idHelper->layer_disk(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "phi_module = " << idHelper->phi_module(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "eta module = " << idHelper->eta_module(idwafer) << endreq;
+    //   gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endreq;
+    //}
 
     SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, dbmDiamondPhys, gmt_mgr->commonItems());
     
@@ -181,6 +215,26 @@ GeoVPhysVol* DBM_Module::Build()
     dbmModulePhys->add(xform);
     dbmModulePhys->add(dbmSubstPhys);
     
+    //-----------------------------------------------------
+    //Add to alignable transform
+    //  DBM has only level 0 alignable transform.
+    //  So, a transform w.r.t global position is created.
+    //  This mean the alignable pos below should be 
+    //  the global position of the sensor
+
+    int layer = gmt_mgr->GetLD();
+    double sensorPosInModuleCage_Z = layer1Space + layer*Zspacing - (substrate_Z + chip_thick + air_gap + diamond_Z/2.);
+    double sensorPosInModuleCage_Y = Rspacing + bot2Diamond + diamond_Y/2.;
+    double globPosZ = ZToIP + layerUnitPos_Z + (sensorPosInModuleCage_Z * cos(angle) - sensorPosInModuleCage_Y * sin(angle));
+    double globPosY = RToBeam + layerUnitPos_Y + (sensorPosInModuleCage_Z * sin(angle) + sensorPosInModuleCage_Y * cos(angle));
+
+    CLHEP::HepRotation rmX10;
+    rmX10.rotateX(-10.*CLHEP::deg);
+    CLHEP::Hep3Vector alignTransformPos(0, globPosY, globPosZ);
+    GeoAlignableTransform *xformAlign = new GeoAlignableTransform(HepGeom::Transform3D(rmX10, alignTransformPos));
+    DDmgr->addAlignableTransform(0, idwafer, xformAlign, dbmDiamondPhys);
+    //-----------------------------------------------------
+
     return dbmModulePhys;
 }
 
