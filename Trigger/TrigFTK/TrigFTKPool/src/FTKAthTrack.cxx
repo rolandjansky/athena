@@ -15,7 +15,7 @@ FTKAthTrack::FTKAthTrack() :
    m_ctheta(0), m_chi2(0), m_origchi2(0), m_nmissing(0), 
    m_typemask(0), m_bitmask(0), m_ncoords(0), m_coord(0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
-   m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.)
+   m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.), m_patternID(0)
 {
    // nothing to do
 }
@@ -26,7 +26,7 @@ FTKAthTrack::FTKAthTrack(int ncoords) :
    m_ctheta(0), m_chi2(0), m_origchi2(0), m_nmissing(0), 
    m_typemask(0), m_bitmask(0), m_ncoords(ncoords),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
-   m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.)
+   m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.), m_patternID(0)
 {
   m_coord = new float[m_ncoords];
   for (int ix=0;ix!=m_ncoords;++ix) m_coord[ix] = 0.f;
@@ -60,6 +60,8 @@ FTKAthTrack::FTKAthTrack(const FTKAthTrack &cpy)
    
    m_HW_rejected = cpy.m_HW_rejected;
    m_HW_track    = cpy.m_HW_track;
+
+   m_patternID = cpy.m_patternID;
 
    m_coord = new float[m_ncoords];
    for (int i=0;i<m_ncoords;++i)
