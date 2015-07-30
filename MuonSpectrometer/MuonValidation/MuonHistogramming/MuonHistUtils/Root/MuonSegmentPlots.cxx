@@ -94,11 +94,16 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
 
   chamberIndex = Book1D("chamberIndex","Chamber index; Chamber Index",Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
   chamberIndex_perSector = Book2D("chamberIndex_perSector","Number of Segments per Chamber, normalized by solid angle; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  eff_chamberIndex_perSector_numerator = Book2D("eff_chamberIndex_perSector_numerator","Number of expected hits for Segments per Chamber; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  eff_chamberIndex_perSector_denominator = Book2D("eff_chamberIndex_perSector_denominator","Number of recorded precision hits for Segments per Chamber; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
+  eff_chamberIndex_perSector = Book2D("eff_chamberIndex_perSector","precision layer hit efficiency per chamber; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
   //chamberIndex_dtheta = Book2D("chamberIndex_dtheta","Segment #Delta#theta between position and momentum; #Delta#theta; Chamber Index ", 180, -90.0, 90.0, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
   for (int i=1; i<=chamberIndex->GetXaxis()->GetNbins(); i++){
     chamberIndex->GetXaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
     chamberIndex_perSector->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-    //chamberIndex_dtheta->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+    eff_chamberIndex_perSector_numerator->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+    eff_chamberIndex_perSector_denominator->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
+    eff_chamberIndex_perSector->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
   }
   for (int i = 0; i < Muon::MuonStationIndex::StIndexMax; i++){
     sector_etaIndex.push_back(Book2D(Form("%s_etastation_Large", StationName[i]), Form("Number of Segment in %s Large; #phi Sector; #eta Index", StationName[i]), 18, -0.5, 17.5, 19, -9.5, 9.5));
@@ -153,8 +158,12 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   int chIndex = muSeg.chamberIndex();
   float chambernorm = 1/Chamberarea[chIndex];//weight of the segment using the chamber eta-phi area
   chamberIndex->Fill(chIndex);
-  if (muSeg.z() > 0) {chamberIndex_perSector->Fill(muSeg.sector(), chIndex);}
-  else{chamberIndex_perSector->Fill(-muSeg.sector(), chIndex, chambernorm);}
+  int sectorIndex = muSeg.sector();
+  if (muSeg.z() < 0) { sectorIndex = - sectorIndex;}
+  //fill the count of segments
+  chamberIndex_perSector->Fill(sectorIndex, chIndex, chambernorm);
+  eff_chamberIndex_perSector_numerator->Fill(sectorIndex, chIndex, (muSeg.nPrecisionHits() > Chamberexpectedhits[chIndex]) ? Chamberexpectedhits[chIndex]:muSeg.nPrecisionHits());
+  eff_chamberIndex_perSector_denominator->Fill(sectorIndex, chIndex, Chamberexpectedhits[chIndex]);
   
   bool isBarrel = (chIndex<Muon::MuonStationIndex::BEE)? true: false; // BEE -> endcap
   bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors

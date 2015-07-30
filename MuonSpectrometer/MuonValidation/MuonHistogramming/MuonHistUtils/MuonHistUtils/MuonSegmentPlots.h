@@ -62,7 +62,9 @@ class MuonSegmentPlots:public PlotBase {
 
       TH1* chamberIndex;
       TH2* chamberIndex_perSector;
-
+      TH2* eff_chamberIndex_perSector_numerator;
+      TH2* eff_chamberIndex_perSector_denominator;
+      TH2* eff_chamberIndex_perSector;
 
       //TH2* chamberIndex_dtheta;
       std::vector<TH2*> sector_etaIndex;
@@ -72,7 +74,9 @@ class MuonSegmentPlots:public PlotBase {
       const float Chamberarea[17] = {0.465313, 0.589744, 0.393503, 0.516815, 0.404094, 
                                     0.588759, 0.0700091, 0.204258, 0.50283, 0.577781, 
                                     0.902194, 0.484968, 0.746214, 0.111742, 0.192025, 
-                                    0.380506, 0.380506};//eta * phi for each sector
+                                    0.380506, 0.380506};//eta * phi for each chamber
+      const float Chamberexpectedhits[17] = {8.0, 8.0, 6.0, 6.0, 6.0, 6.0, 4.0,
+                                    8.0, 8.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 4.0, 4.0};//number of expected hits for each chamber
 
 };
 }
