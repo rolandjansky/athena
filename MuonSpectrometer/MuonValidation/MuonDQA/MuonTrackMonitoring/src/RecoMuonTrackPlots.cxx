@@ -94,21 +94,21 @@ void RecoMuonTrackPlots::fill(const xAOD::TrackParticle& muTP){
     }
     else if (techid==Muon::MuonStationIndex::RPC){
       if (measuresPhi)
-	m_oResidualPlots_RPC_phi.fill(*resPull,stationPhi);
+        m_oResidualPlots_RPC_phi.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_RPC_eta.fill(*resPull,stationPhi);
+        m_oResidualPlots_RPC_eta.fill(*resPull,stationPhi);
     }
     else if (techid==Muon::MuonStationIndex::TGC){
       if (measuresPhi)
-	m_oResidualPlots_TGC_strip.fill(*resPull,stationPhi);
+        m_oResidualPlots_TGC_strip.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_TGC_wire.fill(*resPull,stationPhi);
+        m_oResidualPlots_TGC_wire.fill(*resPull,stationPhi);
     }
     else if (techid==Muon::MuonStationIndex::CSCI){ //it's CSCI, not CSC!!!
       if (measuresPhi)
-	m_oResidualPlots_CSC_phi.fill(*resPull,stationPhi);
+        m_oResidualPlots_CSC_phi.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_CSC_eta.fill(*resPull,stationPhi);
+        m_oResidualPlots_CSC_eta.fill(*resPull,stationPhi);
     }
     delete resPull;
   }

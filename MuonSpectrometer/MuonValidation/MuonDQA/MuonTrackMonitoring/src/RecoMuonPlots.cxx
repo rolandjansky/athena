@@ -21,7 +21,40 @@ RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pPare
 , m_oAllPlots_medium(this, "/Medium/", "Medium")
 , m_oAllPlots_loose(this, "/Loose/", "Loose")
 , m_oAllPlots_veryloose(this, "/Veryloose/", "Veryloose")
+, m_eff_tight(NULL)
+, m_eff_medium(NULL)
+, m_eff_loose(NULL)
+, m_eff_veryloose(NULL)
 {}
+
+void RecoMuonPlots::initializePlots(){
+  //be very careful here, bin size is the same as the defult value
+  //std::vector<HistData> hists = m_oAllPlots.retrieveBookedHistograms(); // HistData -> std::pair<TH1*, std::string>
+  int xbins = 64;
+  int ybins = 64;
+  float xmin = -3.2;
+  float xmax = 3.2;
+  float ymin = -3.2;
+  float ymax = 3.2;
+  // for (auto hist: hists) {
+  //   TString sHistName = hist.first->GetName();
+  //   TString sHistTitle = hist.first->GetTitle();
+  //   //change the axis get label
+  //   if (sHistName.Contains("_eta_phi")){
+  //     xmin = hist.first->GetXaxis()->GetXmin();
+  //     xmax = hist.first->GetXaxis()->GetXmax();
+  //     ymin = hist.first->GetYaxis()->GetXmin();
+  //     ymax = hist.first->GetYaxis()->GetXmax();
+  //     xbins = hist.first->GetXaxis()->GetNbins();
+  //     ybins = hist.first->GetXaxis()->GetNbins();
+  //   }
+  // }
+  //now register!
+  m_eff_tight = Book2D("_Tight_eff", "Tight Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_medium = Book2D("_Medium_eff", "Medium Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_loose = Book2D("_Loose_eff", "Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_veryloose = Book2D("_Veryloose_eff", "Very Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+}
 
 void RecoMuonPlots::fill(const xAOD::Muon& mu){
   //General Plots
@@ -40,9 +73,9 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu){
 }
 
 void RecoMuonPlots::fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality){
-  //General Plots
-  if (my_quality == xAOD::Muon::Tight) m_oAllPlots_tight.fill(mu);
-  else if (my_quality == xAOD::Muon::Medium) m_oAllPlots_medium.fill(mu);
-  else if (my_quality == xAOD::Muon::Loose) m_oAllPlots_loose.fill(mu);
-  else if (my_quality == xAOD::Muon::VeryLoose) m_oAllPlots_veryloose.fill(mu);
+  //General Plots; inclusive
+  if (my_quality <= xAOD::Muon::Tight) m_oAllPlots_tight.fill(mu);
+  if (my_quality <= xAOD::Muon::Medium) m_oAllPlots_medium.fill(mu);
+  if (my_quality <= xAOD::Muon::Loose) m_oAllPlots_loose.fill(mu);
+  if (my_quality <= xAOD::Muon::VeryLoose) m_oAllPlots_veryloose.fill(mu);
 }

@@ -41,6 +41,14 @@ class RecoMuonPlots:public PlotBase {
       Trk::ParamPlots                 m_oAllPlots_loose;
       Trk::ParamPlots                 m_oAllPlots_veryloose;
 
+      //extra monitoring efficiency plots; filled in post processing
+      TH2* m_eff_tight;
+      TH2* m_eff_medium;
+      TH2* m_eff_loose;
+      TH2* m_eff_veryloose;
+
+    private:
+      void initializePlots();
 };
 
 #endif
