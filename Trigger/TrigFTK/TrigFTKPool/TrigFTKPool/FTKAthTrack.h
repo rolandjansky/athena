@@ -15,7 +15,7 @@ private:
   int m_sectorID; // Sector identifier
   int m_trackID; // Unique track ID in this bank
 
-  float m_invpt; // 1/(2*Pt)
+  float m_invpt; // 1/(2*Pt) // aka 0.5*invpt
   float m_d0; // impact paramter
   float m_phi; // phi of the track
   float m_z0; // z0
@@ -59,7 +59,7 @@ public:
   const int& getSectorID() const { return m_sectorID; }
   const int& getTrackID() const { return m_trackID; }
   float getParameter(int) const;
-  const float& getInvPt() const { return m_invpt; }
+  const float& getHalfInvPt() const { return m_invpt; }
   float getPt() const { return .5/m_invpt; }
   const float& getIP() const { return m_d0; }
   const float& getPhi() const { return m_phi; }
@@ -89,7 +89,7 @@ public:
   void setSectorID(int v) { m_sectorID = v; }
   void setTrackID(int v) { m_trackID = v; }
   void setParameter(int,float);
-  void setInvPt(float v) { m_invpt = v; }
+  void setHalfInvPt(float v) { m_invpt = v; }
   void setIP(float v) { m_d0 = v; }
   void setPhi(float v,bool ForceRange=true);
   void setZ0(float v) {m_z0 = v;}

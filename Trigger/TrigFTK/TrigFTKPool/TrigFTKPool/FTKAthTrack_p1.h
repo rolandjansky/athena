@@ -15,7 +15,7 @@ private:
   int m_sectorID; // Sector identifier
   int m_trackID; // Unique track ID in this bank
 
-  float m_invpt; // 1/(2*Pt)
+  float m_invpt; // 1/(2*Pt), aka half of 1/pt
   float m_d0; // impact paramter
   float m_phi; // phi of the track
   float m_z0; // z0
