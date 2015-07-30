@@ -1,0 +1,4 @@
+<lcgdict>
+  <enum pattern="AtlasDetDescr::*"/>
+  <class name="AtlasDetDescr::ROOT6_NamespaceAutoloadHook" />   
+</lcgdict>
