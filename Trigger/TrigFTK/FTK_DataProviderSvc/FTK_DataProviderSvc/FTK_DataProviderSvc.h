@@ -5,7 +5,6 @@
 #ifndef FTK_DATAPROVIDERSVC_H
 #define FTK_DATAPROVIDERSVC_H
 
-#include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -22,11 +21,13 @@
 
 //#include "TrkFitterInterfaces/ITrackFitter.h"
 //#include "TrkFitterUtils/FitterTypes.h"
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 
-//#include "InDetPrepRawData/PixelClusterCollection.h"
-//#include "InDetPrepRawData/SCT_ClusterCollection.h"
-//#include "InDetPrepRawData/PixelClusterContainer.h"
-//#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
@@ -42,6 +43,8 @@ class IdentifierHash;
 class IPixelOfflineCalibSvc;
 class IRoiDescriptor;
 //class IFTK_UncertaintyTool;
+class PRD_MultiTruthCollection;
+class McEventCollection;
 
 namespace Trk {
   class Track;
@@ -59,11 +62,11 @@ namespace InDetDD {
 
 namespace InDet {
   class PixelCluster;
+  class PixelClusterOnTrack;
   class SCT_Cluster;
   class IVertexFinder;
 
 }
-
 
 
 
@@ -104,11 +107,18 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  protected:
 
  InDet::PixelCluster* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster, float eta);
- InDet::SCT_Cluster*  createSCT_Cluster( const FTK_RawSCT_Cluster&);
+ InDet::SCT_Cluster*  createSCT_Cluster( const IdentifierHash hash, const int strip, const int w);
+ 
+ StatusCode getTruthCollections();
+ void createSCT_Truth(Identifier id, int barCode);
+ void createPixelTruth(Identifier id, int barCode);
+
+ InDet::SCT_ClusterCollection*  getSCT_ClusterCollection(IdentifierHash hashId);
+ InDet::PixelClusterCollection* getPixelClusterCollection(IdentifierHash hashId);
+
+
 
  private:
-
-
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
@@ -126,6 +136,13 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
+
+  double m_trainingBeamspotX;
+  double m_trainingBeamspotY;
+  double m_trainingBeamspotZ;
+  double m_trainingBeamspotTiltX;
+  double m_trainingBeamspotTiltY;
+
 
   const FTK_RawTrackContainer* m_ftk_tracks;
 
@@ -167,8 +184,42 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::string m_trackParticleCacheName;
   std::string m_VxContainerCacheName;
   std::string  m_VertexContainerCacheName;
-  MsgStream *athenaLog;
+  bool m_doTruth;
+  std::string m_ftkPixelTruthName;
+  std::string m_ftkSctTruthName;
+  std::string m_mcTruthName;              
+
+  const McEventCollection*  m_mcEventCollection;
+  bool m_collectionsReady;
+  PRD_MultiTruthCollection* m_ftkPixelTruth;
+  PRD_MultiTruthCollection* m_ftkSctTruth;
+
+
+  // collection of FTK clusters
+  std::string m_PixelClusterContainerName; // name of the collection
+  InDet::PixelClusterContainer* m_PixelClusterContainer; // pixel container object
+  std::string m_SCT_ClusterContainerName; // name of the collection
+  InDet::SCT_ClusterContainer* m_SCT_ClusterContainer; // SCT container object
+
+  double m_pTscaleFactor;
+
+  bool m_fixBadTracks;
+  bool m_rejectBadTracks;
+  float m_dPhiCut;
+  float m_dEtaCut;
 
 };
+
+inline bool compareFTK_Clusters (InDet::SiClusterOnTrack* cl1, InDet::SiClusterOnTrack* cl2) {
+   
+  //  double r1 = cl1->globalPosition().x()*cl1->globalPosition().x() + cl1->globalPosition().y()*cl1->globalPosition().y();
+  //double r2 = cl2->globalPosition().x()*cl2->globalPosition().x() + cl2->globalPosition().y()*cl2->globalPosition().y();
+  //r1+=cl1->globalPosition().z()*cl1->globalPosition().z();
+  //r2+=cl2->globalPosition().z()*cl2->globalPosition().z();
+
+  return (cl1->globalPosition().mag()<cl2->globalPosition().mag());
+  
+}
+
 
 #endif
