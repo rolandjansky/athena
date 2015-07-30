@@ -21,13 +21,15 @@ use FTK_DataProviderInterfaces FTK_DataProviderInterfaces-* Trigger/TrigFTK
 use TrkTrack		       TrkTrack-*		  Tracking/TrkEvent
 use VxVertex            VxVertex-*       Tracking/TrkEvent
 use xAODTracking                xAODTracking-*            Event/xAOD
+use InDetPrepRawData 		InDetPrepRawData-* 	InnerDetector/InDetRecEvent
+use InDetRIO_OnTrack           InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent
 
 private
+use AtlasCLHEP      		AtlasCLHEP-*        	External
 use EventInfo                  EventInfo-*                Event
 use AtlasDetDescr              AtlasDetDescr-*            DetectorDescription
 use GeoPrimitives              GeoPrimitives-*            DetectorDescription
 use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDetDescr
-use InDetRIO_OnTrack           InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent
 use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkEventPrimitives         TrkEventPrimitives-*       Tracking/TrkEvent
 use TrkParameters              TrkParameters-*            Tracking/TrkEvent
@@ -39,11 +41,14 @@ use TrkFitterUtils             TrkFitterUtils-*           Tracking/TrkFitter
 use TrkToolInterfaces		TrkToolInterfaces-*        Tracking/TrkTools
 use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkTruthData                TrkTruthData-*               Tracking/TrkEvent
+use GeneratorObjects            GeneratorObjects-*           Generators 
+use AtlasHepMC                  AtlasHepMC-*                 External 
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
 #end_private
-
+apply_pattern declare_runtime extras="../share/FTK_DataProviderLoad.py"
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_xmls extras="-s=../share *.dtd *.xml"
