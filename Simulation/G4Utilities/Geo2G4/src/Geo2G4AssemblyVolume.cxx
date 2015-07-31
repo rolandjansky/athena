@@ -192,7 +192,6 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
                                     G4LogicalVolume*  pMotherLV,
                                     G4Transform3D&    transformation,
                                     G4int copyNumBase,
-                                    G4bool ITkScheme,
                                     G4bool surfCheck )
 {
   unsigned int  numberOfDaughters;
@@ -248,10 +247,7 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
       //  take into account eventual reflection)
       //
       int ccn=numberOfDaughters + i;
-      if (i<copyNumbers.size() && copyNumbers[i]) {
-         if(ITkScheme) ccn=copyNumbers[i];
-         else ccn=copyNumbers[i]+copyNumBase;
-      }
+      if (i<copyNumbers.size() && copyNumbers[i]) ccn=copyNumbers[i]+copyNumBase;
 
       G4PhysicalVolumesPair pvPlaced
         = G4ReflectionFactory::Instance()->Place( Tfinal,
@@ -272,10 +268,8 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
     {
       // Place volumes in this assembly with composed transformation
       //
-      if(ITkScheme) triplets[i].GetAssembly()->MakeImprint( triplets[i].GetAssembly(), pMotherLV,
-                                                            Tfinal, i*100+copyNumBase, ITkScheme, surfCheck ); 
-      else MakeImprint( triplets[i].GetAssembly(), pMotherLV,
-                        Tfinal, i*100+copyNumBase, ITkScheme, surfCheck ); 
+      MakeImprint( triplets[i].GetAssembly(), pMotherLV,
+                   Tfinal, i*100+copyNumBase, surfCheck ); 
     }
     else
     {
@@ -290,7 +284,6 @@ void Geo2G4AssemblyVolume::MakeImprint( G4LogicalVolume*  pMotherLV,
                                     G4ThreeVector&    translationInMother,
                                     G4RotationMatrix* pRotationInMother,
                                     G4int copyNumBase,
-                                    G4bool ITkScheme,
                                     G4bool surfCheck )
 {
   // If needed user can specify explicitely the base count from which to start
@@ -311,13 +304,12 @@ void Geo2G4AssemblyVolume::MakeImprint( G4LogicalVolume*  pMotherLV,
 
   G4Transform3D transform( *pRotationInMother,
                             translationInMother );
-  MakeImprint(this, pMotherLV, transform, copyNumBase, ITkScheme, surfCheck);
+  MakeImprint(this, pMotherLV, transform, copyNumBase, surfCheck);
 }
 
 void Geo2G4AssemblyVolume::MakeImprint( G4LogicalVolume*  pMotherLV,
                                     G4Transform3D&    transformation,
                                     G4int copyNumBase,
-                                    G4bool ITkScheme,
                                     G4bool surfCheck )
 {
   // If needed user can specify explicitely the base count from which to start
@@ -326,7 +318,7 @@ void Geo2G4AssemblyVolume::MakeImprint( G4LogicalVolume*  pMotherLV,
   // copy numbers start from the count equal to current number of daughter
   // volumes before a imprint is made
 
-  MakeImprint(this, pMotherLV, transformation, copyNumBase, ITkScheme, surfCheck);
+  MakeImprint(this, pMotherLV, transformation, copyNumBase, surfCheck);
 }
 
 unsigned int Geo2G4AssemblyVolume::GetInstanceCount() const
