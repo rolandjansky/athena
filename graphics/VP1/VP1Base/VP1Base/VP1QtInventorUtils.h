@@ -16,7 +16,6 @@
 #ifndef VP1QTINVENTORUTILS_H
 #define VP1QTINVENTORUTILS_H
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <QtCore/QString>
 #include <QtCore/QByteArray>
@@ -120,8 +119,6 @@ public:
 
   static bool writeGraphToFile(SoNode*root, const QString& filename);//returns false in case of errors
   static SoSeparator* readGraphFromFile(const QString& filename);//returns 0 in case of errors
-
-  static bool writeGraphToVRMLFile(SoNode*root, const QString& filename);//returns false in case of errors
 
   ///////////////////////////////////////////////////////////
   //    Simple materials (color/brightness/transparency)   //

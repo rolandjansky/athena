@@ -13,7 +13,6 @@
 // Joe Boudreau May 2008
 //
 //_____________________________________________________________________________
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbLinear.h>
 
 #include <QtCore/QByteArray>

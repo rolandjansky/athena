@@ -77,16 +77,10 @@ IVP1System::IVP1System(const QString & n, const QString & i, const QString & c)
 IVP1System::~IVP1System()
 {
   if (verbose())
-    messageVerbose("IVP1System() Destructor. Start...");
-
+    messageVerbose("~IVP1System()");
   assert(d->state==UNCREATED||d->state==CONSTRUCTED);
   assert(!d->controller);
-
-  if(!d==0) {
-	  delete d;
-	  d=0;
-  }
-  VP1Msg::messageDebug("IVP1System() Destructor. END.");
+  delete d;
 }
 
 //_______________________________________________________

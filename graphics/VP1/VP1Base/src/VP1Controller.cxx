@@ -33,7 +33,6 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QButtonGroup>
 #include <QtCore/QTimer>
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbColor4f.h>
 #include <Inventor/nodes/SoMaterial.h>
 
@@ -411,7 +410,6 @@ QByteArray VP1Controller::saveSettings() const
   //Warn unsaved:
   if (d->collWidget)
     s.ignoreWidget(d->collWidget);
-
   s.warnUnsaved((QWidget*)(this));
   QPair<QPushButton*,QWidget*> b2d;
   foreach (Imp::DialogInfo* di,d->dialogs)

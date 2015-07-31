@@ -5,7 +5,6 @@
 #ifndef SOCOOPERATIVESELECTION_H
 #define SOCOOPERATIVESELECTION_H
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSelection.h>
 #include <Inventor/fields/SoSFNode.h>
 

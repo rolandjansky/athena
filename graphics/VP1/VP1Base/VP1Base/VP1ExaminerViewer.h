@@ -18,7 +18,6 @@
 #define VP1EXAMINERVIEWER_H
 
 #include "VP1Base/VP1String.h"
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <QtCore/QObject>
 class QPixmap;
@@ -72,7 +71,6 @@ public:
 	bool startTourEachEvent() const;
 	void startCustomTour();
 	void dumpSceneToFile(QString filename="");//empty file names causes file dialog to be launched
-	void dumpSceneToVRMLFile(QString filename="");//empty file names causes file dialog to be launched
 	void produceSVGImage(QString filename="");//empty file names causes file dialog to be launched
 	void produceEPSImage(QString filename="");//empty file names causes file dialog to be launched
 

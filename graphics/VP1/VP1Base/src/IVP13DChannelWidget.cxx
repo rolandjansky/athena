@@ -23,7 +23,6 @@
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
 
-#include <Inventor/C/errors/debugerror.h>
 #include "Inventor/Qt/SoQtRenderArea.h"
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include "Inventor/nodes/SoNode.h"
@@ -128,7 +127,7 @@ void IVP13DChannelWidget::goingToNextEvent()
 }
 
 //_______________________________________________________
-QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool /*batch*/)
+QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
 	VP1Msg::messageVerbose("IVP13DChannelWidget::getSnapshot()");
 

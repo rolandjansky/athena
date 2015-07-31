@@ -4,7 +4,6 @@
 
 #include "VP1Base/VP1ExtraSepLayerHelper.h"
 #include "VP1Base/VP1Msg.h"
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <map>

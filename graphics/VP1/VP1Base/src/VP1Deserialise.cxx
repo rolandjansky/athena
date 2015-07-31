@@ -154,7 +154,6 @@ QDataStream * VP1Deserialise::stream()
 //____________________________________________________________________
 void VP1Deserialise::restore( SoMaterial* m )
 {
-  messageDebug("VP1Deserialise::restore(SoMaterial)");
   QByteArray ba(restoreByteArray());
   if (!m||ba.isEmpty())
     return;
@@ -164,7 +163,6 @@ void VP1Deserialise::restore( SoMaterial* m )
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1MaterialButton* mb)
 {
-  messageDebug("VP1Deserialise::restore(VP1MaterialButton)");
   d->handle(mb);
   SoMaterial * m(0);
   QList<SoMaterial*> mats = mb ? mb->handledMaterials() : QList<SoMaterial*>();
@@ -188,7 +186,6 @@ QColor VP1Deserialise::restoreColor()
 {
   QColor c;
   (*(d->state)) >> c;
-  messageDebug("VP1Deserialise::restore(QColor) - name: " + c.name());
   if (verbose())
     messageVerbose("Restoring color "+str(c));
   return c;
@@ -197,7 +194,6 @@ QColor VP1Deserialise::restoreColor()
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1ColorSelectButton*cb)
 {
-  messageDebug("VP1Deserialise::restore(VP1ColorSelectButton) - name: " + cb->objectName());
   d->handle(cb);
   QColor c = restoreColor();
   if (c.isValid()&&cb&&cb->color()!=c) {
@@ -210,7 +206,6 @@ void VP1Deserialise::restore(VP1ColorSelectButton*cb)
 //____________________________________________________________________
 void VP1Deserialise::restore(PhiSectionWidget* phi)
 {
-  messageDebug("VP1Deserialise::restore(PhiSectionWidget) - name: " + phi->objectName());
   d->handle(phi);
   QByteArray ba(restoreByteArray());
   if (phi&&ba != QByteArray()) {
@@ -233,18 +228,10 @@ QByteArray VP1Deserialise::restoreByteArray()
 //____________________________________________________________________
 void VP1Deserialise::restore(QCheckBox *cb )
 {
-  messageDebug("VP1Deserialise::restore(QCheckBox) - name: " + cb->objectName());
-
   d->handle(cb);
-
   bool b = restoreBool();
-
-  messageDebug("bool b: "+QString::number(b));
-  messageDebug("bool cb: "+QString::number( cb->isChecked() ));
-
   if (cb->isChecked()!=b) {
     d->block(cb);
-    messageDebug("setting - checked: "+QString::number( b ));
     cb->setChecked(b);
     d->unblock();
   }
@@ -253,7 +240,6 @@ void VP1Deserialise::restore(QCheckBox *cb )
 //____________________________________________________________________
 void VP1Deserialise::restore(QGroupBox*gb)
 {
-  messageDebug("VP1Deserialise::restore(QGroupBox) - name: " + gb->objectName());
   if (!gb->isCheckable())
     message("WARNING: Asked to handled GroupBox which is not checkable: "+gb->objectName());
   d->handle(gb);
@@ -268,7 +254,6 @@ void VP1Deserialise::restore(QGroupBox*gb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QComboBox *cb)
 {
-  messageDebug("VP1Deserialise::restore(QComboBox) - name: " + cb->objectName());
   d->handle(cb);
   QString t = restoreString();
   if (t.isEmpty())
@@ -286,7 +271,6 @@ void VP1Deserialise::restore(QComboBox *cb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QLineEdit* le)
 {
-  messageDebug("VP1Deserialise::restore(QLineEdit) - name: " + le->objectName());
   d->handle(le);
   QString s = restoreString();
   if (s!=le->text()) {
@@ -299,7 +283,6 @@ void VP1Deserialise::restore(QLineEdit* le)
 //____________________________________________________________________
 void VP1Deserialise::restore(QDoubleSpinBox *sb, const double& unit )
 {
-  messageDebug("VP1Deserialise::restore(QDoubleSpinBox) - name: " + sb->objectName());
   d->handle(sb);
   double dbl = (unit == 1.0 ? restoreDouble() : restoreDouble()/unit);
   dbl = std:: max(std::min(dbl,sb->maximum()),sb->minimum());
@@ -313,7 +296,6 @@ void VP1Deserialise::restore(QDoubleSpinBox *sb, const double& unit )
 //____________________________________________________________________
 void VP1Deserialise::restore(QSpinBox *sb)
 {
-  messageDebug("VP1Deserialise::restore(QSpinBox) - name: " + sb->objectName());
   d->handle(sb);
   qint32 i = restoreInt();
   i = std:: max(std::min(i,sb->maximum()),sb->minimum());
@@ -327,7 +309,6 @@ void VP1Deserialise::restore(QSpinBox *sb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QSlider *s)
 {
-  messageDebug("VP1Deserialise::restore(QSlider) - name: " + s->objectName());
   d->handle(s);
   qint32 i = restoreInt();
   i = std:: max(std::min(i,s->maximum()),s->minimum());
@@ -341,7 +322,6 @@ void VP1Deserialise::restore(QSlider *s)
 //____________________________________________________________________
 void VP1Deserialise::restore(QToolBox *tb)
 {
-  messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
   d->handle(tb);
   qint32 i = restoreInt();
   if (i>=0&&i<tb->count()&&i!=tb->currentIndex()) {
@@ -354,7 +334,6 @@ void VP1Deserialise::restore(QToolBox *tb)
 //____________________________________________________________________
 void VP1Deserialise::restoreByTitle(QToolBox *tb)
 {
-  messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
   d->handle(tb);
   QString s = restoreString();
   int itarget (-1);
@@ -426,10 +405,8 @@ void VP1Deserialise::restore( QRadioButton * rb0,
   QList<QRadioButton *> l;
   l << rb0 << rb1 << rb2 << rb3 << rb4 << rb5 << rb6 << rb7 << rb8 << rb9;
   for (qint32 i = 0; i < l.count(); ++i) {
-    if (l.at(i)) {
-    	messageDebug("VP1Deserialise::restore(QRadioButton) - name: " + l.at(i)->objectName());
+    if (l.at(i))
       d->handle(l.at(i));
-    }
   }
   //We only change any state if we have a pointer to the one needing to be checked:
   if (ichecked<0||ichecked>=l.count()||!l.at(ichecked))
@@ -447,8 +424,6 @@ void VP1Deserialise::restore( QRadioButton * rb0,
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1CollectionWidget*cw)
 {
-    	messageDebug("VP1Deserialise::restore(VP1CollectionWidget) - name: " + cw->objectName());
-    	messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- start...");
   d->handle(cw);
   ignoreWidget(cw);//To ignore all children of the collection widget.
   QByteArray ba(restoreByteArray());
@@ -465,14 +440,11 @@ void VP1Deserialise::restore(VP1CollectionWidget*cw)
   d->block(cw);
   cw->addStateInfo(cwstates,true/*overwrite existing*/);
   d->unblock();
-  messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- end.");
 }
 
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase) - name: " + w->objectName());
-    	messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- start...");
   d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -482,7 +454,6 @@ void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
     w->restoreFromState(ba);
     d->unblock();
   }
-  messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- end.");
 }
 ////____________________________________________________________________
 //void VP1Deserialise::restore(JetCollectionSettingsButton*w)
@@ -503,7 +474,6 @@ void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1EtaPhiCutWidget*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1EtaPhiCutWidget) - name: " + w->objectName());
   d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -521,7 +491,6 @@ void VP1Deserialise::restore(VP1EtaPhiCutWidget*w)
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1DrawOptionsWidget*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1DrawOptionsWidget) - name: " + w->objectName());
   d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -590,7 +559,6 @@ void VP1Deserialise::ignoreObsoletePhiSectionWidgetState()
 //____________________________________________________________________
 void VP1Deserialise::ignoreWidget(QWidget*w)
 {
-    	messageDebug("VP1Deserialise::ignoreWidget(QWidget) - name: " + w->objectName());
   if (w)
     d->ignoredWidgets.insert(w);
 }

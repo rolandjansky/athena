@@ -18,7 +18,6 @@
 #define VP1CUSTOMSTEREOEDITOR_H
 
 #include <QtGui/QWidget>
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbBasic.h>
 
 

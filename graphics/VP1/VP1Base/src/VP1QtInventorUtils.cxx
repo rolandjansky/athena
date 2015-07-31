@@ -38,8 +38,6 @@
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/SoDB.h>
 #include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/actions/SoToVRML2Action.h>
-#include <Inventor/VRMLnodes/SoVRMLGroup.h>
 
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -151,7 +149,7 @@ public:
 		} endianTest;
 		ImageRec *image;
 		int swapFlag;
-		//int x;
+		int x;
 
 		endianTest.testWord = 1;
 		if (endianTest.testByte[0] == 1) {
@@ -170,46 +168,34 @@ public:
 			exit(1);
 		}
 
-		int bytesRead = fread(image, 1, 12, image->file);
-        
-    if (!bytesRead) {
-      fprintf(stderr, "fread failed!\n");
-    }
-        /**if (image == NULL) { //image cannot be null here, it has been used!
-            fprintf(stderr, "image == NULL!\n");
-            return (ImageRec *)malloc(sizeof(ImageRec));
-        } **/
+		fread(image, 1, 12, image->file);
 
 		if (swapFlag) {
 			ConvertShort(&image->imagic, 6);
 		}
 
-        
-        const unsigned int colourBuffSize=image->xsize*256u;
-		    image->tmp = (unsigned char *)malloc(colourBuffSize);
-		    image->tmpR = (unsigned char *)malloc(colourBuffSize);
-		    image->tmpG = (unsigned char *)malloc(colourBuffSize);
-		    image->tmpB = (unsigned char *)malloc(colourBuffSize);
-		    if (image->tmp == NULL || image->tmpR == NULL || image->tmpG == NULL ||
-			    	image->tmpB == NULL) {
-			    fprintf(stderr, "Out of memory!\n");
-			    exit(1);
-		    }
-        
-    //should test upper limits on x here...but what is sensible? 1Mb? 100Mb?
+		image->tmp = (unsigned char *)malloc(image->xsize*256);
+		image->tmpR = (unsigned char *)malloc(image->xsize*256);
+		image->tmpG = (unsigned char *)malloc(image->xsize*256);
+		image->tmpB = (unsigned char *)malloc(image->xsize*256);
+		if (image->tmp == NULL || image->tmpR == NULL || image->tmpG == NULL ||
+				image->tmpB == NULL) {
+			fprintf(stderr, "Out of memory!\n");
+			exit(1);
+		}
+
+
 		if ((image->type & 0xFF00) == 0x0100) {
-			size_t x = ((size_t)image->ysize * (size_t)image->zsize) * sizeof(unsigned);
+			x = (image->ysize * image->zsize) * sizeof(unsigned);
 			image->rowStart = (unsigned *)malloc(x);
 			image->rowSize = (int *)malloc(x);
 			if (image->rowStart == NULL || image->rowSize == NULL) {
-				fprintf(stderr, "Out of memory!\n"); 
+				fprintf(stderr, "Out of memory!\n");
 				exit(1);
 			}
 			image->rleEnd = 512 + (2 * x);
-			const int fseekRetVal= fseek(image->file, 512, SEEK_SET);
-      if (fseekRetVal !=0){
-        fprintf(stderr, "Something very wrong with fseek near line 205 of VP1QtInventorUtils.cxx");
-      }
+			fseek(image->file, 512, SEEK_SET);
+
 			size_t bytesRead = 0;
 			bytesRead = fread(image->rowStart, 1, x, image->file);
 			VP1Msg::messageDebug("bytesRead(rowStart): " + QString::number(bytesRead));
@@ -247,12 +233,9 @@ public:
 
 		if (image) {
 			if ((image->type & 0xFF00) == 0x0100) {
-				
-                int okseek = fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
-				int okread = fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
+				fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
+				fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
 						image->file);
-
-                if( !okseek || !okread ) VP1Msg::messageDebug("fseek or fread failed!!");
 
 				iPtr = image->tmp;
 				oPtr = buf;
@@ -274,9 +257,7 @@ public:
 					}
 				}
 			} else {
-			      const unsigned int yDim(y*image->xsize), zDim(z*image->xsize*image->ysize);
-            int okstatus = fseek(image->file, 512u+yDim+zDim, SEEK_SET);
-            if (okstatus) { VP1Msg::messageDebug("fseek failed!!"); }
+			fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize), SEEK_SET);
 
 			size_t bytesRead = 0;
 			bytesRead = fread(buf, 1, image->xsize, image->file);
@@ -300,19 +281,14 @@ public:
 
 		if(!image)
 			return NULL;
-        
 		(*width)=image->xsize;
 		(*height)=image->ysize;
 		(*components)=image->zsize;
-		const unsigned int imageWidth =  image->xsize;
-		const unsigned int imageHeight = image->ysize;
-		const unsigned int uintSize(sizeof(unsigned)), ucharSize(sizeof(unsigned char));
-		const unsigned int colourBufSize=imageWidth*ucharSize;
-		base = (unsigned *)malloc(imageWidth*imageHeight*uintSize);
-		rbuf = (unsigned char *)malloc(colourBufSize);
-		gbuf = (unsigned char *)malloc(colourBufSize);
-		bbuf = (unsigned char *)malloc(colourBufSize);
-		abuf = (unsigned char *)malloc(colourBufSize);
+		base = (unsigned *)malloc(image->xsize*image->ysize*sizeof(unsigned));
+		rbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
+		gbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
+		bbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
+		abuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
 		if(!base || !rbuf || !gbuf || !bbuf) {
 			ImageClose(image);
 			if (base) free(base);
@@ -362,7 +338,6 @@ public:
 	static size_t buffer_size;
 	static void * buffer_realloc(void * bufptr, size_t size);
 	static QString buffer_writeaction(SoNode * root);
-	static void buffer_vrmlwriteaction(SoNode * root, const QString& filename);
 
 	static bool lineWidthAndPointSizeNeedsInit;
 	static double allowedLineWidthMin;
@@ -405,12 +380,9 @@ QPixmap VP1QtInventorUtils::pixmapFromRGBFile(const QString& filename)
 //____________________________________________________________________
 QImage VP1QtInventorUtils::imageFromRGBFile(const QString& filename)
 {
-	int width = 0;
-    int height = 0;
-    int components = 0;
-
+	int width, height, components;
 	unsigned * imagedata = Imp::read_texture(filename.toStdString().c_str(), &width, &height, &components);
-    if( width == 0 || height == 0 ) std::cout << "VP1QtInventorUtils::imageFromRGBFile - read_texture failed?" << std::endl;
+
 
 	unsigned char * data = reinterpret_cast<unsigned char*>(imagedata);
 
@@ -712,8 +684,8 @@ QString VP1QtInventorUtils::transparencyType2PrettyString( SoGLRenderAction::Tra
 	case SoGLRenderAction::ADD: return "Add"; break;
 	case SoGLRenderAction::DELAYED_ADD: return "Delayed add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_ADD: return "Sorted object add"; break;
-	case SoGLRenderAction::BLEND: return "Blend (Best for Geo volumes)"; break;
-	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend (Best for physics objects: jets, tracks, ...)"; break;
+	case SoGLRenderAction::BLEND: return "Blend"; break;
+	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_ADD: return "Sorted object sorted triangle add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND: return "Sorted object sorted triangle blend"; break;
 	case SoGLRenderAction::NONE: return "None"; break;
@@ -1402,24 +1374,6 @@ QString VP1QtInventorUtils::Imp::buffer_writeaction(SoNode * root)
 }
 
 //_____________________________________________________________________________________
-void VP1QtInventorUtils::Imp::buffer_vrmlwriteaction(SoNode * root, const QString& filename)
-{
-	SoToVRML2Action vwa;
-	
-	vwa.apply(root);
-	SoVRMLGroup * newroot = vwa.getVRML2SceneGraph();
-
-    SoOutput out;
-    out.openFile(qPrintable(filename));
-    out.setHeaderString("#VRML V2.0 utf8");
-    SoWriteAction wra(&out);
-    wra.apply(newroot);
-    out.closeFile();
-	newroot->unref();
-	return;
-}
-
-//_____________________________________________________________________________________
 bool VP1QtInventorUtils::writeGraphToFile(SoNode*root, const QString& filename)
 {
 	if (!root)
@@ -1448,29 +1402,6 @@ SoSeparator* VP1QtInventorUtils::readGraphFromFile(const QString& filename)
 		return 0;
 	return SoDB::readAll(&in);
 }
-
-
-//_____________________________________________________________________________________
-bool VP1QtInventorUtils::writeGraphToVRMLFile(SoNode*root, const QString& filename)
-{
-	if (!root)
-		return false;
-
-	root->ref();
-	Imp::buffer_vrmlwriteaction(root, filename);
-	root->unrefNoDelete();
-
-	// QFile data(filename);
-	// if (data.open(QFile::WriteOnly | QFile::Truncate)) {
-	// 	QTextStream out(&data);
-	// 	out << s << endl;
-	// 	return true;
-	// } else {
-	// 	return false;
-	// }
-	return true;
-}
-
 
 /////////////////// OBSOLETE /////////////////////
 #include "VP1Base/VP1MaterialButton.h"
