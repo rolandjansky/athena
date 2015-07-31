@@ -79,12 +79,13 @@ class Converter {
 	unsigned multiPattern = 0;
 
 	double chi2    = (*trackitr)->chi2();
+	double dof     = 0;
 
 	// Shift d0 and z0 according to beam position
 	ipCorr(d0, z0, d0, z0, phi, eta, pT);
 	
 	// Create and save Track  
-	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta,  phi,  z0,  d0,  pT, chi2, 
+	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta,  phi,  z0,  d0,  pT, chi2, dof, 
 								   deta, dphi, dz0, dd0, dpT, 
 								   nBlayerHits, nPixelHits, nSctHits, nSiHits, 
 								   nStrawHits, nTrHits, hitPattern, multiPattern, 
@@ -138,6 +139,7 @@ class Converter {
 
       const Trk::FitQuality *quality   = (*trackitr)->fitQuality();
       double chi2 = quality->chiSquared();
+      double dof  = quality->numberDoF();
 
       unsigned bitmap = 0;
       
@@ -149,7 +151,7 @@ class Converter {
       ipCorr(d0, z0, d0, z0, phi, eta, pT);
 
       // Create and save Track  
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2, 
+      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2, dof, 
 								 deta, dphi, dz0, dd0, dpT,
 								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								 nStrawHits, nTrHits, bitmap, 0,
@@ -209,7 +211,8 @@ class Converter {
       
       const Trk::FitQuality *quality   = trackitr->fitQuality();
       double chi2 = quality->chiSquared();
-      
+      double dof  = quality->quality->numberDoF();
+
       unsigned bitmap = 0;
       
       for ( int ih=0 ; ih<20 ; ih++ ) {
@@ -220,7 +223,7 @@ class Converter {
       ipCorr(d0, z0, d0, z0, phi, eta, pT);
       
       // Create and save Track  
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2, dof,
 								 deta, dphi, dz0, dd0, dpT,
 								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								 nStrawHits, nTrHits, bitmap, 0,

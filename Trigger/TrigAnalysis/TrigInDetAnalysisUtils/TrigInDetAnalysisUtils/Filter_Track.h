@@ -28,6 +28,10 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
+/// sadly need to include a root dependency, but no matter - the TIDA::Track 
+/// class itself inherets from TObject already, so perhaps the boat has sailed 
+/// on that concern long ago
+#include "TMath.h"
 
 
 // generic selection cut selection function 
@@ -38,10 +42,11 @@ public:
   
   Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,  
 		int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,  
-		int minStrawHits, int minTrHits ) :
+		int minStrawHits, int minTrHits, double prob=0 ) :
     m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), 
     m_minPixelHits(minPixelHits),   m_minSctHits(minSctHits),     m_minSiHits(minSiHits),   
-    m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits) 
+    m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits),
+    m_prob(prob)
   { } 
 
   bool select(const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) { 
@@ -52,6 +57,7 @@ public:
     if( t->pixelHits()<m_minPixelHits || t->sctHits()<m_minSctHits || t->siHits()<m_minSiHits || t->bLayerHits()<m_minBlayerHits ) selected = false;
     // Select track trt hit content
     if( t->strawHits()<m_minStrawHits || t->trHits()<m_minTrHits ) selected = false;
+    if( TMath::Prob( t->chi2(), t->dof() )<m_prob ) selected = false;
     return selected;
   } 
 
@@ -71,6 +77,7 @@ private:
   int  m_minStrawHits;
   int  m_minTrHits;
   
+  double  m_prob;
 };
 
 

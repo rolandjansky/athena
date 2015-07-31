@@ -70,6 +70,9 @@ public:
   //  TrigTrackSelector( bool (*selector)(const TrigInDetAnalysis::Track*)=NULL ) : TrackSelector(selector) {  } 
   TrigTrackSelector( TrackFilter* selector );
 
+  ~TrigTrackSelector() { clear(); }
+
+
   void setBeamline( double x, double y, double z=0) { xBeam = x; yBeam = y; zBeam=z; }
 
   double getBeamX() const { return xBeam; } 
