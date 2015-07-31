@@ -25,16 +25,18 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
 
+
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
-class IFTK_DataProviderTool;
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
 class ITrigL2SpacePointTruthTool;
+class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
+class ITrigZFinder;
 class IRegSelSvc;
 class TrigRoiDescriptor;
 class TrigSiSpacePointBase;
@@ -44,14 +46,12 @@ namespace InDet {
   class ISiTrackMaker; 
 }
 
-namespace MagField {	
-  class IMagFieldSvc;
-}
-
 namespace Trk {
   class ITrackSummaryTool;
   class SpacePoint;
 }
+
+class IFTK_DataProviderSvc;
 
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
@@ -98,22 +98,27 @@ protected:
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
   ToolHandle<ITrigL2SpacePointTruthTool> m_TrigL2SpacePointTruthTool;
+  ToolHandle<ITrigL2ResidualCalculator> m_trigL2ResidualCalculator;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
+  ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
+  ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
+  std::string m_ftkDataProviderSvcName;
 
-  // ToolHandle<IFTK_DataProviderTool> m_ftkReader;
  
-  ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;
-
   double m_shift_x, m_shift_y;
 
   // Control flags
 
-  bool m_ftkMode;
+  bool m_doCloneRemoval;
+  bool m_ftkMode;//If True: Retrieve FTK tracks
+  bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
   bool m_doTrigInDetTrack;
+  bool m_doZFinder;
+  bool m_doResMonitoring;
 
   // Cuts and settings
   TrigCombinatorialSettings m_tcs;
@@ -121,16 +126,16 @@ protected:
   int  m_minHits;
 
   int                     m_nSeeds;       //!< Number seeds 
-  int                     m_nTracksNew;      //!< Number found tracks 
   int                     m_nfreeCut;     // Min number free clusters 
 
-  int                     m_nUsedLayers;
 
   bool m_retrieveBarCodes;
 
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
+  float m_doublet_dR_Max;
+  float m_seedRadBinWidth;
 
   bool m_checkSeedRedundancy;
 
@@ -174,10 +179,28 @@ protected:
   std::vector<float> m_trk_dPhi0;
   std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
+  //
+  std::vector<double> m_iblResPhi;
+  std::vector<double> m_iblResEta;
+  std::vector<double> m_iblPullPhi;
+  std::vector<double> m_iblPullEta;
+  std::vector<double> m_pixResPhiBarrel;
+  std::vector<double> m_pixResEtaBarrel;
+  std::vector<double> m_pixPullPhiBarrel;
+  std::vector<double> m_pixPullEtaBarrel;
+  std::vector<double> m_sctResBarrel;
+  std::vector<double> m_sctPullBarrel;
+  std::vector<double> m_pixResPhiEC;
+  std::vector<double> m_pixResEtaEC;
+  std::vector<double> m_pixPullPhiEC;
+  std::vector<double> m_pixPullEtaEC;
+  std::vector<double> m_sctResEC;
+  std::vector<double> m_sctPullEC;
 
   // Monitoring member functions 
 
   void fillMon(const TrackCollection& tracks);
+  void runResidualMonitoring(const Trk::Track& track);
 
   void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
 			       const std::map<int,int>&,
@@ -187,12 +210,12 @@ protected:
   //Setup functions
   void clearMembers();
   void getBeamSpot();
-  void getMagField();
   HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Timers 
 
   TrigTimer* m_SpacePointConversionTimer;
+  TrigTimer* m_ZFinderTimer;
   TrigTimer* m_PatternRecoTimer; 
   TrigTimer* m_TripletMakingTimer; 
   TrigTimer* m_CombTrackingTimer; 
@@ -203,7 +226,6 @@ protected:
   std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
     m_outputCollectionSuffix;
 
-  unsigned int m_l1Id;
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;
   unsigned int m_countRoIwithTracks;
@@ -215,13 +237,14 @@ protected:
   int m_nSignalDetected;
   int m_nSignalTracked;
   int m_nSignalClones;
+  int m_minSignalSPs;
+
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
 
-  int m_minSignalSPs;
 
-  Trk::ParticleHypothesis m_particleHypothesis = Trk::pion;//particle hypothesis to attach to each track - usually pion, can be set to other values
+  Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
 
   std::map<Identifier, std::vector<long int> > m_siClusterMap;
 

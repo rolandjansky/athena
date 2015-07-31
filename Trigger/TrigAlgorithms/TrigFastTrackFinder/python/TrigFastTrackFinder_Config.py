@@ -55,7 +55,7 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="Last Step Successfully Executed",
                                              xbins = 8 , xmin=-0.5, xmax=7.5,
-                             labels='Start : GetRoI : GetSPs : MissingLayers : ZFinder : Groups : TrackFit' ) ]
+                             labels='Start : GetRoI : GetSPs : ZFinder : Triplets : TrackMaker : TrackFitter : TrackConverter' ) ]
    
     def addTrackHistograms(self):
         self.Histograms += [ defineHistogram('trk_nSiHits',
@@ -98,6 +98,14 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="Number of seeds",
                                              xbins = 1000, xmin=-0.5, xmax=999.5)]
+        self.Histograms += [ defineHistogram('roi_nZvertices',
+                                             type='TH1F',
+                                             title="Number of z vertices",
+                                             xbins = 60 ,  xmin=-0.5, xmax=49.5)] 
+        self.Histograms += [ defineHistogram('roi_zVertices',
+                                             type='TH1F',
+                                             title="ZFinder Vertices",
+                                             xbins = 501, xmin=-250, xmax=250)]
 
         #self.Histograms += [ defineHistogram('sp_x , sp_y',
         #                                     type='TH2F',
@@ -126,16 +134,83 @@ class TrigFastTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              type='TH1F',
                                              title="Pure PattReco time",
                                              xbins = nbin , xmin=0.0, xmax=200.0)]
+    def addResidualHistograms(self):
+        self.Histograms += [ defineHistogram('hit_IBLPhiResidual',
+                                             type='TH1F',
+                                             title="IBL hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_IBLEtaResidual',
+                                             type='TH1F',
+                                             title="IBL hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_IBLPhiPull',
+                                             type='TH1F',
+                                             title="IBL hit-track phi pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_IBLEtaPull',
+                                             type='TH1F',
+                                             title="IBL hit-track eta pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelPhiResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelEtaResidual',
+                                             type='TH1F',
+                                             title="Pixel Barrel hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelPhiPull',
+                                             type='TH1F',
+                                             title="Pixel Barrel hit-track phi pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_PIXBarrelEtaPull',
+                                             type='TH1F',
+                                             title="Pixel Barrel hit-track eta pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelResidual',
+                                             type='TH1F',
+                                             title="SCT Barrel hit-track residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_SCTBarrelPull',
+                                             type='TH1F',
+                                             title="SCT Barrel hit-track pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapPhiResidual',
+                                             type='TH1F',
+                                             title="Pixel EC hit-track phi residual",
+                                             xbins = 100, xmin=-0.5, xmax=0.5)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapEtaResidual',
+                                             type='TH1F',
+                                             title="Pixel EC hit-track eta residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapPhiPull',
+                                             type='TH1F',
+                                             title="Pixel EC hit-track phi pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_PIXEndCapEtaPull',
+                                             type='TH1F',
+                                             title="Pixel EC hit-track eta pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
+        self.Histograms += [ defineHistogram('hit_SCTEndCapResidual',
+                                             type='TH1F',
+                                             title="SCT EC hit-track residual",
+                                             xbins = 100, xmin=-1.0, xmax=1.0)]
+        self.Histograms += [ defineHistogram('hit_SCTEndCapPull',
+                                             type='TH1F',
+                                             title="SCT EC hit-track pull",
+                                             xbins = 100, xmin=-5., xmax=5.)]
     
    
 
 class TrigFastTrackFinder_OnlineMonitoring(TrigFastTrackFinder_CommonMonitoring):
-    def __init__ (self, name="TrigFastTrackFinder_OnlineMonitoring"):
+    def __init__ (self, name="TrigFastTrackFinder_OnlineMonitoring", doResMon=False):
         super(TrigFastTrackFinder_OnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
         self.addSPHistograms()
         self.addDataErrorHistograms()
         self.addTrackHistograms()
+        if doResMon:
+          self.addResidualHistograms()
         self.Histograms += [ defineHistogram('trk_a0',
                                              type='TH1F',
                                              title="a0",
@@ -154,14 +229,17 @@ class TrigFastTrackFinder_OnlineMonitoring(TrigFastTrackFinder_CommonMonitoring)
                                              xbins = 100, xmin=-0.5, xmax=99.5)]
 
 
+
 class TrigFastTrackFinder_ValidationMonitoring(TrigFastTrackFinder_CommonMonitoring):
-    def __init__ (self, name="TrigFastTrackFinder_ValidationMonitoring"):
+    def __init__ (self, name="TrigFastTrackFinder_ValidationMonitoring", doResMon=False):
         super(TrigFastTrackFinder_ValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
         self.addSPHistograms()
         self.addTimingHistograms(150,0.,150.)
         self.addDataErrorHistograms()
         self.addTrackHistograms()
+        if doResMon:
+          self.addResidualHistograms()
         self.Histograms += [ defineHistogram('trk_a0',
                                              type='TH1F',
                                              title="a0",
@@ -182,12 +260,14 @@ class TrigFastTrackFinder_ValidationMonitoring(TrigFastTrackFinder_CommonMonitor
 
 #Cosmic Monitoring
 class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring):
-    def __init__ (self, name="TrigFastTrackFinder_Cosmic_Monitoring"):
+    def __init__ (self, name="TrigFastTrackFinder_Cosmic_Monitoring", doResMon=False):
         super(TrigFastTrackFinder_Cosmic_Monitoring, self).__init__(name)
         self.defineTarget("Cosmic")
         self.addSPHistograms()
         self.addDataErrorHistograms()
         self.addTrackHistograms()
+        if doResMon:
+          self.addResidualHistograms()
         self.Histograms += [ defineHistogram('trk_a0',
                                              type='TH1F',
                                              title="a0",
@@ -208,6 +288,8 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
 def remapper(type):
     remap  = {
         "Muon"     : "muon",
+        "MuonCore" : "muonCore",
+        "MuonIso"  : "muonIso",
         "eGamma"   : "electron",
         "Tau"      : "tau",
         "TauCore"  : "tauCore",
@@ -218,6 +300,8 @@ def remapper(type):
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
         "Cosmic"   : "cosmics",
+        "FTK"      : "ftk",
+        "FTKrefit" : "ftkrefit",
     }
     if type in remap.keys():
       return remap[type]
@@ -243,16 +327,17 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.LayerNumberTool=numberingTool
 
         timeHist = TrigTimeHistToolConfig("Time")
-        timeHist.TimerHistLimits = [0,2000]
-        self.AthenaMonTools = [ TrigFastTrackFinder_ValidationMonitoring("TrigFastTrackFinder_ValidationMonitoring"),
-                                TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring"),
-                                timeHist ]
+        timeHist.TimerHistLimits = [0,10000]
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+        self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
+        self.AthenaMonTools = [ TrigFastTrackFinder_ValidationMonitoring("TrigFastTrackFinder_ValidationMonitoring", self.doResMon),
+                                TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
+                                timeHist ]
 
         #Spacepoint conversion
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
-        spTool = TrigSpacePointConversionTool()
-        spTool.DoPhiFiltering = True#Not currently configured
+        spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool' + remapped_type)
+        spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
         spTool.UseBeamTilt = False
         ToolSvc += spTool
         self.SpacePointProviderTool=spTool
@@ -270,6 +355,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
         self.TripletDoPSS   = False
         self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
+        self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
+        self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
@@ -315,7 +402,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           TrackMaker_FTF.RoadTool.CosmicTrack=True
         ToolSvc += TrackMaker_FTF
-        self.offlineTrackMaker = TrackMaker_FTF
+        self.initialTrackMaker = TrackMaker_FTF
 
         from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
         theTrigInDetTrackFitter = TrigInDetTrackFitter()
@@ -328,8 +415,30 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         ToolSvc += theTrigInDetTrackFitter
         self.trigInDetTrackFitter = theTrigInDetTrackFitter
 
+        self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
+        if (self.doZFinder):
+          from IDScanZFinder.IDScanZFinderConf import TrigZFinder
+          theTrigZFinder = TrigZFinder()
+          theTrigZFinder.NumberOfPeaks = 3
+          theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
+          ToolSvc += theTrigZFinder
+          self.trigZFinder = theTrigZFinder
+
+        
+        if remapped_type=="ftk" or remapped_type=="ftkrefit":
+            from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+            self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
+            self.FTK_Mode=True
+        if remapped_type=="ftkrefit":    
+            self.FTK_Refit=True
+
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+        from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
+        resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
+        ToolSvc += resCalc
+        self.TrigL2ResidualCalculator = resCalc
+        self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
         print self
 
 
@@ -337,17 +446,9 @@ class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Muon"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Muon","Muon")
 
-class TrigFastTrackFinder_FullScan(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FullScan"):
-    TrigFastTrackFinderBase.__init__(self,"TrigFastTrackFinder_FullScan","FullScan")
-
 class TrigFastTrackFinder_eGamma(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_eGamma"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_eGamma","eGamma")
-
-class TrigFastTrackFinder_eGamma_L2(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_eGamma_L2"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_eGamma_L2","eGamma")
 
 class TrigFastTrackFinder_Tau(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Tau"):
@@ -365,6 +466,10 @@ class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Jet"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Jet","Jet")
 
-class TrigFastTrackFinder_Cosmic(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_Cosmic"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Cosmic","Cosmic")
+class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_FTK"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTK","FTK")
+
+class TrigFastTrackFinder_FTKrefit(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_FTKrefit"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKrefit","FTKrefit")

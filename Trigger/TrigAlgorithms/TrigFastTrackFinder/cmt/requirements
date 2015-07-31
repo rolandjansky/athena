@@ -29,6 +29,7 @@ private
 # Tracking
 
 use     AtlasTBB                        AtlasTBB-*                      External
+use     CxxUtils            CxxUtils-*         Control
 use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*   Trigger/TrigEvent
 use 	TrkRIO_OnTrack			TrkRIO_OnTrack-*		Tracking/TrkEvent 
 use     InDetRIO_OnTrack                InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent 
@@ -47,4 +48,4 @@ use InDetBeamSpotService        InDetBeamSpotService-*     InnerDetector/InDetCo
 use AthenaBaseComps              AthenaBaseComps-*	   Control
 use InDetPrepRawData     	 InDetPrepRawData-*	   InnerDetector/InDetRecEvent 
 use SiSpacePointsSeed            SiSpacePointsSeed-*       InnerDetector/InDetRecEvent 
-use MagFieldInterfaces           MagFieldInterfaces-*      MagneticField 
+use   	FTK_DataProviderInterfaces    FTK_DataProviderInterfaces-*    Trigger/TrigFTK
