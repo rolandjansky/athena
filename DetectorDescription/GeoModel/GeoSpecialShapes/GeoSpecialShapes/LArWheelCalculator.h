@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
-#define GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
+#ifndef __LArWheelCalculator_H__
+#define __LArWheelCalculator_H__
 
 // This class separates some of the geometry details of the LAr
 // endcap.
@@ -57,9 +57,6 @@ class LArWheelCalculator
 
 	LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zside = 1);
 	virtual ~LArWheelCalculator();
-
-        LArWheelCalculator (const LArWheelCalculator&) = delete;
-        LArWheelCalculator& operator= (const LArWheelCalculator&) = delete;
 
 	static const char *LArWheelCalculatorTypeString(LArWheelCalculator_t);
 	static double GetFanHalfThickness(LArWheelCalculator_t);
@@ -203,4 +200,4 @@ class LArWheelCalculator
 CLASS_DEF(LArWheelCalculator , 900345678 , 1)
 
 
-#endif // GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
+#endif // __LArWheelCalculator_H__

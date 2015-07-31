@@ -19,7 +19,6 @@ apply_pattern installed_library
 
 private
 use CxxUtils       CxxUtils-*          Control
-use AthenaKernel   AthenaKernel-*      Control
 use GaudiInterface GaudiInterface-*    External
 use RDBAccessSvc   RDBAccessSvc-*      Database/AthenaPOOL
 use GeoModelUtilities    GeoModelUtilities-*       DetectorDescription/GeoModel
@@ -32,4 +31,3 @@ apply_tag ROOTMathLibs
 # Make dict for LArGeoChecker
 use AtlasReflex  AtlasReflex-* External -no_auto_imports
 apply_pattern lcgdict dict=LArGeoChecker selectionfile=selection.xml headerfiles="../GeoSpecialShapes/LArGeoCheckerDict.h"
-

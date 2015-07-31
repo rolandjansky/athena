@@ -14,8 +14,8 @@
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "AthenaKernel/Units.h"
-using Athena::Units::mm;
+#include "GaudiKernel/PhysicalConstants.h"
+using namespace Gaudi::Units;
 
 
 namespace LArWheelCalculator_Impl {
@@ -53,19 +53,19 @@ namespace LArWheelCalculator_Impl {
 			std::string sag_file = sagging_opt_value.substr(5);
 			msg << MSG::DEBUG
 			    << "geting sagging parameters from file "
-				<< sag_file << " ..." << endmsg;
+				<< sag_file << " ..." << endreq;
 			FILE *F = fopen(sag_file.c_str(), "r");
 			if(F == 0){
 		   		msg << MSG::FATAL
 				    << "cannot open EMEC sagging parameters file "
 					<< sag_file
-					<< endmsg;
+					<< endreq;
 				throw std::runtime_error("LArWheelCalculator: read sagging parameters from file");
 			}
 			int s, w, t, n;
 			double p0, p1, p2, p3, p4;
 			while(!feof(F)
-			&& fscanf(F, "%80d %80d %80d %80d %80le %80le %80le %80le %80le",
+			&& fscanf(F, "%d %d %d %d %le %le %le %le %le",
 			          &s, &w, &t, &n, &p0, &p1, &p2, &p3, &p4) == 9)
 			{
 				if(s == lwc()->m_AtlasZside
@@ -81,17 +81,17 @@ namespace LArWheelCalculator_Impl {
 					msg << MSG::VERBOSE
 					    << "sagging for " << s << " " << w << " " << t
 						<< " " << n << ": " << p0 << " " << p1 << " "
-						<< p2 << " " << p3 << endmsg;
+						<< p2 << " " << p3 << endreq;
 				}
 			}
 			fclose(F);
 		} else {
 			double a, b, c, d;
-			if(sscanf(sagging_opt_value.c_str(), "%80le %80le %80le %80le", &a, &b, &c, &d) != 4){
+			if(sscanf(sagging_opt_value.c_str(), "%le %le %le %le", &a, &b, &c, &d) != 4){
 	    		msg << MSG::ERROR
 				    << "wrong value(s) "
 					<< " for EMEC sagging parameters: "
-					<< sagging_opt_value << ", defaults are used" << endmsg;
+					<< sagging_opt_value << ", defaults are used" << endreq;
 			} else {
 				for(int j = 0; j < lwc()->m_NumberOfFans; j ++){
 					if(lwc()->m_isInner){
@@ -106,7 +106,7 @@ namespace LArWheelCalculator_Impl {
 		}
 //	}
 	  msg << MSG::INFO  << "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << std::endl
-	    << "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << endmsg;
+	    << "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << endreq;
 	}
 // Represents aproximate, probably underestimate, distance to the
 // neutral fibre of the vertical fan. Sign of return value means

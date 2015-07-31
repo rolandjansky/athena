@@ -12,12 +12,14 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PhysicalConstants.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+
+#include "GaudiKernel/PhysicalConstants.h"
+using namespace Gaudi::Units;
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
@@ -26,11 +28,6 @@
 
 #include "./LArWheelCalculator_Impl/DistanceCalculatorFactory.h"
 #include "./LArWheelCalculator_Impl/FanCalculatorFactory.h"
-
-#include "AthenaKernel/Units.h"
-using namespace Athena::Units;
-using Gaudi::Units::twopi;
-
 
 // The radial boundaries of the inner and outer wheels are defined
 // by values of eta, the distance from z=0 to the front face of the
@@ -120,15 +117,15 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
   MsgStream msg(msgSvc, "LArWheelCalculator");
   msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
       << " (type " << LArWheelCalculatorTypeString(m_type)
-      << "):" << endmsg;
+      << "):" << endreq;
 
 #ifdef LARWC_DTNF_NEW
-  msg << MSG::VERBOSE << "compiled with new DTNF" << endmsg;
+  msg << MSG::VERBOSE << "compiled with new DTNF" << endreq;
 #endif
 
   // Access source of detector parameters.
   msg << MSG::VERBOSE
-      << "initializing data members from DB..." << endmsg;
+      << "initializing data members from DB..." << endreq;
 
   IGeoModelSvc *geoModel;
   IRDBAccessSvc* rdbAccess;
@@ -204,11 +201,11 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
       << "m_zShift               : " << m_zShift / cm << " [cm]" << std::endl
       << "Phi rotation           : " << (m_phiRotation? "true": "false") << std::endl
       << "eta wheels limits      : " << m_eta_low << ", " << m_eta_mid << ", " << m_eta_hi
-      << endmsg;
+      << endreq;
   msg << MSG::VERBOSE << "hardcoded constants: " << std::endl
       << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
       << "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
-      << endmsg;
+      << endreq;
 
   // Constructor initializes the geometry.
 
@@ -305,16 +302,16 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
   // value read above
   // std::string sagging_opt_value = (*DB_EMECParams)[0]->getString("SAGGING");
 
-    msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endmsg;
+    msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endreq;
 
   // the same condition is in DistanceCalculatorFactory::Create
   m_SaggingOn = (sagging_opt_value != "" && sagging_opt_value != "off")? true: false;
 
   m_distanceCalcImpl = LArWheelCalculator_Impl::DistanceCalculatorFactory::Create(sagging_opt_value, this, rdbAccess, larVersionKey);
   if (m_SaggingOn) {
-    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endmsg;
+    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endreq;
   } else {
-    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endmsg;
+    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endreq;
   }
 
   m_fanCalcImpl = LArWheelCalculator_Impl::FanCalculatorFactory::Create(m_SaggingOn, m_isModule, this, rdbAccess, larVersionKey);
@@ -334,16 +331,16 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
     EMECParams_recs.param(slant_params,  "OUTERSLANTPARAM");
   }
 
-  msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endmsg;
+  msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endreq;
 
            if(slant_params != "" && slant_params != "default"){
              double a, b, c, d, e;
-             if(sscanf(slant_params.c_str(), "%80le %80le %80le %80le %80le", &a, &b, &c, &d, &e) != 5){
+             if(sscanf(slant_params.c_str(), "%le %le %le %le %le", &a, &b, &c, &d, &e) != 5){
                msg << MSG::ERROR
                    << "LArWheelCalculator: ERROR: wrong value(s) "
                    << "for EMEC slant angle parameters: "
                    << slant_params << ", "
-                   << "defaults are used" << endmsg;
+                   << "defaults are used" << endreq;
              } else {
                m_slant_parametrization[0] = a;
                m_slant_parametrization[1] = b;
@@ -356,7 +353,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
 
   fill_sincos_parameterization(); // initialize sin&cos parameterization
 
-  msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endmsg;
+  msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endreq;
 
   msg << MSG::VERBOSE << "Data members:" << std::endl
       << "m_AtlasZside              = " << m_AtlasZside << std::endl
@@ -372,14 +369,14 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
       << "SaggingOn                 = " << (m_SaggingOn? "true": "false") << std::endl
       << "Slant parameters          : ";
   for(int i = 0; i < 5; i ++) msg << " " << m_slant_parametrization[i];
-  msg << endmsg;
+  msg << endreq;
 
   if(m_isModule){
     msg << MSG::VERBOSE
         << "module_init: FirstFan = " << m_FirstFan
         << ", LastFan = " << m_LastFan
         << ", ZeroFanPhi = " << m_ZeroFanPhi
-        << endmsg;
+        << endreq;
   }
 
   //m_fan_number = -1000;
@@ -510,13 +507,13 @@ double LArWheelCalculator::GetWheelInnerRadius(double *r) const
     r[1] = m_zWheelBackFace  * tanThetaInner;
   } else {
     double tanThetaMid   = 2. * exp(-m_eta_mid) / (1. - exp(-2.*m_eta_mid));
-    double inv_tanThetaOuter = (1. - exp(-2.*m_eta_low)) / (2. * exp(-m_eta_low));
+    double tanThetaOuter = 2. * exp(-m_eta_low) / (1. - exp(-2.*m_eta_low));
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
     r[0] = m_zWheelFrontFace * tanThetaMid + m_HalfGapBetweenWheels;
-    r[1] = m_rOuterCutoff * inv_tanThetaOuter * tanThetaMid + m_HalfGapBetweenWheels;
+    r[1] = m_rOuterCutoff / tanThetaOuter * tanThetaMid + m_HalfGapBetweenWheels;
     r[2] = m_zWheelBackFace  * tanThetaMid + m_HalfGapBetweenWheels;
-    zMid = m_rOuterCutoff * inv_tanThetaOuter - m_zWheelFrontFace;
+    zMid = m_rOuterCutoff / tanThetaOuter - m_zWheelFrontFace;
   }
   return zMid;
 }
