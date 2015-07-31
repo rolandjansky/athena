@@ -8,7 +8,9 @@ use GaudiInterface      GaudiInterface-*       			External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
 use TagEvent		TagEvent-*		  		PhysicsAnalysis/EventTag
 use xAODMuon		xAODMuon-*				Event/xAOD 
-
+use MuonSelectorTools 	MuonSelectorTools-* 			PhysicsAnalysis/MuonID
+use xAODEventInfo          xAODEventInfo-*         Event/xAOD
+use IsolationSelection     IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
 private
 
 use xAODTracking	xAODTracking-*				Event/xAOD

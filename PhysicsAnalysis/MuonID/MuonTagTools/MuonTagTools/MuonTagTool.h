@@ -8,8 +8,6 @@
 /*****************************************************************************
 Name    : MuonTagTool.h
 Package : offline/PhysicsAnalysis/MuonID/MuonTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : build the Muon Tag objects - MuonTagCollection.h. 
 	  The Muon Tag fragment is built here
 *****************************************************************************/
@@ -20,61 +18,61 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 #include "GaudiKernel/ToolHandle.h"
 #include <inttypes.h>
 #include "xAODMuon/MuonContainer.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <map>
 
-/*namespace Analysis {
-  class MuonContainer;
-  class Muon;
+
+namespace CP {
+  class IIsolationSelectionTool;
 }
-*/
 
 /** Interface ID for MuonTagTool*/  
 static const InterfaceID IID_MuonTagTool("MuonTagTool", 1, 0);
 
 class MuonTagTool : public AthAlgTool {
-
-public:
+  
+ public:
   
   /** Standard Constructor */
   MuonTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-
+  
   /** AlgTool and IAlgTool interface methods */
   static const InterfaceID& interfaceID( ) { return IID_MuonTagTool; };
-
+  
   /** Overriding initialize, finalize and execute */
   virtual StatusCode initialize();
   virtual StatusCode attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, const int max);
   virtual StatusCode execute(TagFragmentCollection& muonTagCol, const int max);
   virtual StatusCode finalize();
-
-protected:
-
-   /** Standard destructor */
-   virtual ~MuonTagTool( );
-
-private:
-
-   inline int bit2int(int b) const { return 1<<b; };
-   
-   /** private function to get impact parameter */
-   void getMuonImpactParameter (const xAOD::Muon*,double& d0, double& z0, double& dd0, double& dz0, double& theta);
-   
-   
-   
-   /** Properties */
-   std::vector<std::string> m_containerNames;
+  
+ protected:
+  
+  /** Standard destructor */
+  virtual ~MuonTagTool( );
+  
+ private:
+  
+  inline int bit2int(int b) const { return 1<<b; };
+  
+  /** private function to get impact parameter */
+  void getMuonImpactParameter (const xAOD::Muon*,double& d0, double& z0);
+  
+  /** Properties */
+  std::vector<std::string> m_containerNames;
   double m_cut_Et;
   double m_DRcut;
-  std::vector<float> m_caloisocutvalues;
-  std::vector<float> m_caloisorelcutvalues;
-  std::vector<float> m_trackisocutvalues;
-  std::vector<float> m_trackisorelcutvalues;
+  std::vector<float> m_etconeisocutvalues;
+  std::vector<float> m_etconeisorelcutvalues;
+  std::vector<float> m_ptconeisocutvalues;
+  std::vector<float> m_ptconeisorelcutvalues;
   double m_maxD0preselection;
-
+  
   bool m_cosmics;
   bool m_doInDet;
-  double m_maxD0tight, m_maxZ0tight, m_maxD0signLoose, m_maxD0signTight;
-
+  double m_maxD0tight, m_maxZ0tight, m_maxZ0loose, m_maxD0signLoose, m_maxD0signTight;
+  
   /** the attribute names */
   std::vector<std::string> m_ptStr;
   std::vector<std::string> m_etaStr;
@@ -85,9 +83,19 @@ private:
   std::vector<std::string> m_nprecHoleLayStr;
   std::vector<std::string> m_nphiLayStr;
   std::vector<std::string> m_isoStr;
+  
+  /** Since release 20.1.6 we use the analysis muon selector tool */
+  ToolHandle<CP::IMuonSelectionTool> m_muon_selection_tool;
+  
+  /** Muon isolation tool */
+  ToolHandle<CP::IIsolationSelectionTool> m_loose_trackonly_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_loose_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
 
   /** PV StoreGate key */
   std::string m_vxCandidate;
- };
+};
 
 #endif // MUONTAGTOOL_H
