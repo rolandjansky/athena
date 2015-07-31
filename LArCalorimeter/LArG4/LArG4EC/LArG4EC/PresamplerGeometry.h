@@ -64,7 +64,7 @@ namespace LArG4 {
 
 
       struct Clockwork;
-      Clockwork *m_c;
+      Clockwork *c;
 
       PresamplerGeometry (const PresamplerGeometry&);
       PresamplerGeometry& operator= (const PresamplerGeometry&);

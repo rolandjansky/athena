@@ -35,14 +35,9 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "globals.hh"
-#include "AthenaKernel/Units.h"
 // 03-Jan-2002 WGS: For 'copysign'.
 #include <cmath>
 #include <climits>
-
-
-namespace Units = Athena::Units;
-
 
 // Standard implementation of a singleton pattern.
 
@@ -54,15 +49,15 @@ LArEndcapPresamplerCalculator* LArEndcapPresamplerCalculator::GetCalculator()
 
 
 LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator() :
-  m_birksLaw(NULL)
+  birksLaw(NULL)
 {
   // Constructor initializes the geometry.
 
   // Make sure we don't have any undefined values.
-  //m_identifier = LArG4Identifier();
+  m_identifier = LArG4Identifier();
 
-  //m_time = 0.;
-  //m_energy = 0.;
+  m_time = 0.;
+  m_energy = 0.;
   m_isInTime = false;
 
   StoreGateSvc* detStore;
@@ -96,13 +91,13 @@ StoreGate interface");
   if(emecOptions->EMECBirksLaw()){
           const double Birks_LAr_density = 1.396;
           const double Birks_k = emecOptions->EMECBirksk();
-          m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+          birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
   }
 
 
-   if(m_birksLaw) {
+   if(birksLaw) {
      std::cout << " LArEndcapPresamplerCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArEndcapPresamplerCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
+     std::cout << " LArEndcapPresamplerCalculator:   parameter k    " << birksLaw->k() << std::endl;
    }
    else
      std::cout << " LArEndcapPresamplerCalculator: Birks' law OFF" << std::endl;
@@ -114,13 +109,11 @@ StoreGate interface");
 
 
 LArEndcapPresamplerCalculator::~LArEndcapPresamplerCalculator() {
-  if (m_birksLaw) delete m_birksLaw;
+  if (birksLaw) delete birksLaw;
 }
 
-G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
+G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step)
 {
-  // make sure hdata is reset
-  hdata.resize(1);
   // Given a G4Step, find the identifier in the LAr EMEC associated
   // with that point.
 
@@ -129,15 +122,15 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   // with the hit and it should be ignored.
 
   double energy = a_step->GetTotalEnergyDeposit();
-  if (m_birksLaw) {
-       G4double wholeStepLengthCm = a_step->GetStepLength() / Units::cm;
+  if (birksLaw) {
+       G4double wholeStepLengthCm = a_step->GetStepLength() / CLHEP::cm;
        G4double efield = 10.;  // 10 kV/cm simple approximation of electric field
-       energy = (*m_birksLaw)(energy, wholeStepLengthCm,efield);
+       energy = (*birksLaw)(energy, wholeStepLengthCm,efield);
   }
 
 
   // First, get the energy.
-  hdata[0].energy = energy;
+  m_energy = energy;
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
@@ -149,17 +142,17 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
-  if (hdata[0].time > m_OOTcut)
+  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  if (m_time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Use the geometry routine to determine the identifier.
-  hdata[0].id = m_geometry->CalculateIdentifier( a_step );
+  m_identifier = m_geometry->CalculateIdentifier( a_step );
 
-  if ( hdata[0].id == LArG4Identifier() )
+  if ( m_identifier == LArG4Identifier() )
     return false;
-  else
-    return true;
+
+  return true;
 }
