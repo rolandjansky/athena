@@ -507,17 +507,21 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::finalizeEvent() {
 
 
 /** add a new particle to the stack and link it to its parent */
-void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particle, const ISFParticle* parent) {
+void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particle, const ISFParticle* /*parent*/) {
   // this call does not make much sense with no given particle
   assert(particle);
 
-  // set extraBC for daughter to parent extraBC (may be overwritten later by a better extraBC)
-  if (parent) {
-    Barcode::ParticleBarcode extrabc = parent->getExtraBC();
-    particle->setExtraBC( extrabc );
-  }
+  // FIXME This next block of code will not work if we are using
+  // anything other than the LegacyBarcodeService at the moment. ATLASSIM-2146
+  // // set extraBC for daughter to parent extraBC (may be overwritten later by a better extraBC)
+  // if ( m_barcodeSvc->hasBitCalculator() ) {
+  //   Barcode::ParticleBarcode extrabc = parent->getExtraBC();
+  //   particle->setExtraBC( extrabc );
+  // }
+  // else {
+  //   ATH_MSG_ERROR ( m_barcodeSvc.name() << " has no bit calculator!" );
+  // }
 
-  // register particle
   registerParticle(particle);
 
   // get the particle's next geoID
