@@ -41,6 +41,7 @@ class TTree;
 namespace ISF {
 
   class IGeoIDSvc;
+  class IStackFiller;
   class IEntryLayerTool;
   class ISimulationSelector;
 
@@ -69,7 +70,7 @@ namespace ISF {
       StatusCode  finalize();
 
       /** Initialize the particle broker */
-      StatusCode initializeEvent(ISFParticleContainer&& simParticles);
+      StatusCode initializeEvent();
 
       /** Finalize the event in the broker service */
       virtual StatusCode finalizeEvent();
@@ -97,6 +98,7 @@ namespace ISF {
       /** Query the interfaces. **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   
+      void registerParticle( ISFParticle* particle, ISF::EntryLayer layer=ISF::fUnsetEntryLayer, bool takeOwnership=false); // will register particle on entry layer of next region or exit layer if MS
 
     private:
       /** Default constructor */
@@ -121,12 +123,19 @@ namespace ISF {
           SimulationSelector that selects the particle */
       ISF::SimSvcID identifySimID( const ISF::ISFParticle* p);
 
+      /** store the simulation flavor of SimulationSelector that has selected the particle */
+      void storeSimulationFlavor( ISF::ISFParticle* p );
+
+      /** AthenaTool for reading in the initial (eg. EvGen)_particle list */
+      ToolHandle<IStackFiller>                  m_particleStackFiller;
+
       /** AthenaTool responsible for writing Calo/Muon Entry/Exit Layer collection */
       ToolHandle<IEntryLayerTool>               m_entryLayerTool;
+      IEntryLayerTool                          *m_entryLayerToolQuick;   //!< minimize Gaudi overhead
 
       /** AthenaTool responsible for proritizing the particles and determine their simulation order */
       ToolHandle<IParticleOrderingTool>         m_orderingTool;
-      bool                                      m_hasOrderingTool;
+      IParticleOrderingTool                    *m_orderingToolQuick;//!< minimize Gaudi overhead
 
       /** the geo identifier service used to route the particle into the right
           SimulationSelector chain */
@@ -172,6 +181,10 @@ namespace ISF {
       int                                       m_val_pdg;
       float                                     m_val_p;
       float                                     m_val_x, m_val_y, m_val_z;
+
+      ISF::SimulationFlavor                     m_simflavor;
+
+      std::vector<ISF::ISFParticle*>            m_extraParticles;
   };
 
   /** Get the current stack size */
