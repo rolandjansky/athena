@@ -12,8 +12,8 @@
 #include "ISF_Interfaces/ISimHitSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-//#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
-//#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
@@ -197,8 +197,8 @@ namespace ISF {
     std::string                                                    m_cosmicPerigeeTrackCollectionName;
 
     std::vector<FADS::FadsSensitiveDetector*> m_sd;
-    //ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
-    //ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+    ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+    ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
   };
 }

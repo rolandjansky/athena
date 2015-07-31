@@ -109,9 +109,9 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_muonExitLayerTrackCollectionName("MuonExitLayer"),
   m_cosmicPerigeeTracks(nullptr),
   m_cosmicPerigeeTrackCollectionName("CosmicPerigee"),
-  m_sd(0)//,
-  //m_senDetTool("SensitiveDetectorMasterTool"),
-  //m_fastSimTool("FastSimulationMasterTool")
+  m_sd(0),
+  m_senDetTool("SensitiveDetectorMasterTool"),
+  m_fastSimTool("FastSimulationMasterTool")
 {
   // validation output section
   declareProperty( "ValidationOutput",
@@ -164,8 +164,8 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
 
   declareProperty("CosmicPerigee_TrackCollection",   m_cosmicPerigeeTrackCollectionName );
 
-  //declareProperty("SensitiveDetectorMasterTool", m_senDetTool );
-  //declareProperty("FastSimulationMasterTool", m_fastSimTool );
+  declareProperty("SensitiveDetectorMasterTool", m_senDetTool );
+  declareProperty("FastSimulationMasterTool", m_fastSimTool );
 }
 
 
@@ -237,11 +237,11 @@ StatusCode ISF::SimHitSvc::initializeEvent()
     {
       (**it).Initialize(0);
     }
-  // if(!m_senDetTool)
-  //   {
-  //     CHECK(m_senDetTool.retrieve());
-  //   }
-  //CHECK(m_senDetTool->BeginOfAthenaEvent());
+  if(!m_senDetTool)
+    {
+      CHECK(m_senDetTool.retrieve());
+    }
+  CHECK(m_senDetTool->BeginOfAthenaEvent());
 
 
   // Inner Detector
@@ -314,16 +314,16 @@ StatusCode ISF::SimHitSvc::releaseEvent()
       (**it).EndOfEvent(0);
     }
 
-  // if(!m_senDetTool)
-  //   {
-  //     CHECK(m_senDetTool.retrieve().isFailure());
-  //   }
-  // CHECK(m_senDetTool->EndOfAthenaEvent());
-  // if(!m_fastSimTool)
-  //   {
-  //     CHECK(m_fastSimTool.retrieve().isFailure());
-  //   }
-  // CHECK(m_fastSimTool->EndOfAthenaEvent());
+  if(!m_senDetTool)
+    {
+      CHECK(m_senDetTool.retrieve().isFailure());
+    }
+  CHECK(m_senDetTool->EndOfAthenaEvent());
+  if(!m_fastSimTool)
+    {
+      CHECK(m_fastSimTool.retrieve().isFailure());
+    }
+  CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   if (m_validationOutput)
     {
