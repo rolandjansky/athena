@@ -127,13 +127,11 @@ private:
     std::string m_itADistHistName; //!< Name of histogram for in-time amplitude distribution
     std::string m_ootADistHistName; //!< Name of  histogram for out-of-time amplitude distribution
     
-    bool m_simQIE; //!<Raw PMT pulses are generated if the option is set to true. The option is intended to simulate the QIE FEB.
-
     int m_seed;
     int m_BunchSpacing; //!< Time between pulses in ms 25, 50 or 75
-    int m_nSamples;  //!< number of read out samples
-    int m_nPul;  //!< number of pileup pulses 
-    int m_nPul_eff;  //Used for symetrization of PU in computation
+    int nSamp;  //!< number of read out samples
+    int nPul;  //!< number of pileup pulses 
+    int nPul_eff;  //Used for symetrization of PU in computation
     std::vector<float> m_PUAmp;
     
     //Members for simulator

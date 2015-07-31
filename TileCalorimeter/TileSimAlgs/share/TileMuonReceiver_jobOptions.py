@@ -32,8 +32,7 @@ toolSvc += CfgMgr.TileRawChannelBuilderMF('TileMuRcvRawChannelBuilderMF'
                                           , PedestalMode = 0
                                           , DefaultPedestal = TileMuRcvPedestal
                                           , calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                                          , TileCondToolOfc = toolSvc.TileCondToolMuRcvOfc
-                                          , TileCondToolOfcOnFly = toolSvc.TileCondToolMuRcvOfc)
+                                          , TileCondToolOfcCool = toolSvc.TileCondToolMuRcvOfc)
 
 #  Random number engine in TilePulseForTileMuonReceiver
 from Digitization.DigitizationFlags import jobproperties
@@ -43,7 +42,6 @@ topSequence = AlgSequence()
 
 #  Set up TilePulseForTileMuonReceiver
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
-#                                                   , OutputLevel = VERBOSE 
                                                    , IntegerDigits = True
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
@@ -55,7 +53,6 @@ topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver
 jobproperties.Digitization.rndmSeedList.addSeed("Tile_PulseForTileMuonReceiver", 4789899, 989240512)
 
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
-#                                                , OutputLevel = VERBOSE 
 						, MuonReceiverEneThreshCellD6Low = 500
 						, MuonReceiverEneThreshCellD6andD5Low = 500
 						, MuonReceiverEneThreshCellD6High = 600
