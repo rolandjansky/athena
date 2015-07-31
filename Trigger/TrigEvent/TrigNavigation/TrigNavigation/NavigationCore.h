@@ -51,6 +51,7 @@ class TrigBStoxAODTool;
 
 namespace HLT {
   class TrigNavigationSlimmingTool;
+  class TrigEDMSizes;
   /**
    * @brief The NavigationCore class, adds on top of the TrigNavStructure the EDM read-only handling
    *
@@ -162,10 +163,16 @@ namespace HLT {
      *         if false then truncated because of missing space - if output.size() != 0
      *         if false and output.size() == 0 internal error
      */
-    bool serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts ) const;
-    bool serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name) const;
-    bool serialize_DSonly( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name) const;
-    bool deserialize( const std::vector<uint32_t>& input );
+    bool serialize(std::vector<uint32_t>& output,
+                   std::vector<unsigned int>& cuts) const;
+    bool serialize(std::vector<uint32_t>& output,
+                   std::vector<unsigned int>& cuts,
+                   std::vector<std::pair<CLID, std::string> >& clid_name) const;
+    bool serialize_DSonly(std::vector<uint32_t>& output,
+                          std::vector<unsigned int>& cuts,
+                          std::vector<std::pair<CLID, std::string> >& clid_name)
+                          const;
+    bool deserialize(const std::vector<uint32_t>& input);
 
     /**
      * @brief reports on number of features which were unpacked frm BS but never accessed
@@ -539,6 +546,33 @@ namespace HLT {
     static std::string m_unspecifiedLabel;
     
     HLTNavDetails::IHolder* prepareOneHolder(CLID clid, const std::string& label);
+
+    // general serialize
+    bool serialize(std::vector<uint32_t>& output,
+                   std::vector<unsigned int>& cuts,
+                   std::vector<std::pair<CLID, std::string> >& clid_name,
+                   bool dscouting) const; // TODO: when changing header, merge
+                                          // this method with the one that does
+                                          // not have the last bool parameter,
+                                          // using default dscouting=false and
+                                          // leaving it public
+    // serialization helpers
+    size_t serialize_bootstrap(std::vector<uint32_t>& output,
+        std::vector<unsigned int>& cuts,
+        std::vector<std::pair<CLID, std::string> >& clid_name) const;
+    void serialize_features_offline(std::vector<uint32_t>& output,
+        std::vector<unsigned int>& cuts,
+        std::vector<std::pair<CLID, std::string> >& clid_name) const;
+    void serialize_features_online(std::vector<uint32_t>& output,
+        std::vector<unsigned int>& cuts,
+        std::vector<std::pair<CLID, std::string> >& clid_name,
+        bool dscouting) const;
+    size_t serializeFeature(std::vector<uint32_t>& output,
+        std::vector<unsigned int>& cuts,
+        std::vector<std::pair<CLID, std::string> >& clid_name,
+        HLTNavDetails::IHolder * holderPtr,
+        bool online) const;
+    TrigEDMSizes * get_edm_sizes() const;
 
   };
 

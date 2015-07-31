@@ -120,7 +120,7 @@ HLTNavDetails::HolderImp<STORED, CONTAINER>::~HolderImp() {
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
 HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& label, uint16_t idx ) {
-  typedef Holder<STORED> H;
+  //typedef Holder<STORED> H;
   if ( not m_containerProxy.empty() ) {
     return 0;
   }
@@ -771,7 +771,7 @@ bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HL
 template<class STORED, class CONTAINER>
 bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getElementLinks(ElementLinkVector<CONTAINER>& cont,  
 								  HLT::TriggerElement::ObjectIndex idx) {
-  typedef Holder<STORED> H;
+  //typedef Holder<STORED> H;
   if ( !syncWithSG() )
     return false;
 
@@ -786,7 +786,7 @@ bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getElementLinks(ElementLinkVec
 template<class STORED, class CONTAINER>
 bool HLTNavDetails::HolderImp<STORED, CONTAINER>::getElementLinks(ElementLinkVector<CONTAINER>& cont) {
  
-  typedef Holder<STORED> H;
+  //typedef Holder<STORED> H;
   if ( !syncWithSG() )
     return false;
   HMLOG(VERBOSE) << "HolderImp::getElementLinks (ELV) getting all objects" << endreq;

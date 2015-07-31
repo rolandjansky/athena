@@ -11,10 +11,10 @@
 #include "TrigNavigation/TypeRegistration.h"
 
 HLT_BEGIN_TYPE_REGISTRATION
-  HLT_REGISTER_TYPE(struct TestA, struct TestA, struct DataVector<TestA>, struct TestAuxA)
-  HLT_REGISTER_TYPE(struct TestB, struct TestBContainer, struct TestBContainer, struct TestAuxB)
-  HLT_REGISTER_TYPE(struct TestC, struct TestC, struct DataVector<TestC>)
-  HLT_REGISTER_TYPE(struct TestD, struct TestDContainer, struct TestDContainer)
+  HLT_REGISTER_TYPE(class TestA, class TestA, class DataVector<TestA>, class TestAuxA)
+  HLT_REGISTER_TYPE(class TestB, class TestBContainer, class TestBContainer, class TestAuxB)
+  HLT_REGISTER_TYPE(class TestC, class TestC, class DataVector<TestC>)
+  HLT_REGISTER_TYPE(class TestD, class TestDContainer, class TestDContainer)
 HLT_END_TYPE_REGISTRATION(TrigNavigationUnitTest)
 
 #define LTYPEMAPCLASS(name)\

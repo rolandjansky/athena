@@ -29,7 +29,7 @@
 #include "TestUtils.h"
 
 double interval( struct timeval& begin, struct timeval& end) {
-  return (end.tv_sec - begin.tv_sec)*1000. + (end.tv_usec - begin.tv_usec)/1000.;
+  return (end.tv_sec - begin.tv_sec)*1000. + (end.tv_usec - begin.tv_usec)*1e-3;
 }
 using namespace HLT;
 /*
