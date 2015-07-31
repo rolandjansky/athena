@@ -28,14 +28,14 @@
         {ATH_MSG_WARNING(x); ++this->m_numGenWarnings;} \
     else if (this->m_numGenWarnings == this->m_maxNumGenWarnings) \
         {ATH_MSG_INFO("PixelRodDecoder: suppressing further general warnings"); ++this->m_numGenWarnings;} \
-    else {/* No warning */}
+    else {++this->m_numGenWarnings; /* No warning */}
 
 #define lvl1id_bcid_warning(x) \
     if (this->m_numBCIDWarnings < this->m_maxNumBCIDWarnings) \
         {ATH_MSG_WARNING(x); ++this->m_numBCIDWarnings;} \
     else if (this->m_numBCIDWarnings == this->m_maxNumBCIDWarnings) \
         {ATH_MSG_INFO("PixelRodDecoder: suppressing further BCID/LVL1ID warnings"); ++this->m_numBCIDWarnings;} \
-    else {/* No warning */}
+    else {++this->m_numBCIDWarnings; /* No warning */}
 
 
 
@@ -126,6 +126,11 @@ StatusCode PixelRodDecoder::finalize() {
     msg(MSG::VERBOSE) << "in PixelRodDecoder::finalize" << endreq;
     msg(MSG::DEBUG) << masked_errors << " times BCID and LVL1ID error masked" << endreq;
 #endif
+
+    ATH_MSG_INFO("Total number of warnings (output limit)");
+    ATH_MSG_INFO("General (corruption / illegal value)\t" << m_numGenWarnings << " (" << m_maxNumGenWarnings << ")");
+    ATH_MSG_INFO("Unexpected BCID / LVL1ID            \t" << m_numBCIDWarnings << " (" << m_maxNumBCIDWarnings << ")");
+
     return StatusCode::SUCCESS;
 }
 
@@ -157,6 +162,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     if (robFrag->nstatus() != 0) {
         const uint32_t* rob_status;
         robFrag->status(rob_status);
+
         if ((*rob_status) != 0) {
             addRODError(robId,*rob_status);
 
@@ -174,6 +180,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             }
         }
     }
+
 
     unsigned int errorcode = 0;
     // m_errors->reset(); // reset the collection of errors
@@ -242,6 +249,17 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
     robFrag->rod_data(vint);
 
+    int hitDiscCnfg = 3;    // FE-I4 hit discrimination setting
+
+
+    // Do a check on IBL Slink ID
+    eformat::helper::SourceIdentifier sid_rob(robId);
+    sLinkSourceId = (sid_rob.module_id()) & 0x000F; // retrieve S-Link number from the source Identifier (0xRRRL, L = Slink number)
+    if (m_pixelCabling->isIBL(robId) && sLinkSourceId  > 0x3) { // Check if SLink number for the IBL is correct!
+        generalwarning("In ROB 0x" << std::hex << robId <<  ": IBL/DBM SLink number not in correct range (0-3): SLink = "
+                       << std::dec << sLinkSourceId);
+    }
+
 
 
 
@@ -267,8 +285,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Header word found" << endreq;
 
             if (link_start) {    // if header found before last header was closed by a trailer -> error
-                generalwarning("Unexpected link header found: 0x" << std::hex << rawDataWord
-                                  << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec);
+                generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord
+                                  << ", data corruption" << std::dec);
                 m_errors->addDecodingError();
             }
             else {
@@ -300,6 +318,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 msg(MSG::VERBOSE) << "Decoding the IBL/DBM header word: 0x" << std::hex << rawDataWord << std::dec << endreq;
 #endif
 
+
                 // IBL header data format: 001nnnnnFLLLLLLLLLLLLLBBBBBBBBBB
                 mBCID = decodeBCID_IBL(rawDataWord);   // decode IBL BCID: B
                 mLVL1ID = decodeL1ID_IBL(rawDataWord);   // decode IBL LVL1ID: L
@@ -309,20 +328,20 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (decodeFeI4Bflag_IBL(rawDataWord)) m_errors->addFlaggedError(); // decode FeI4B flag bit: F
 
 
-                eformat::helper::SourceIdentifier sid_rob(robId);
-                sLinkSourceId = (sid_rob.module_id()) & 0x000F; // retrieve S-Link number from the source Identifier (0xRRRL, L = Slink number)
-                if (sLinkSourceId  > 0x3) { // Check if SLink number for the IBL is correct!
-                    generalwarning("IBL/DBM SLink number not in correct range (0-3): SLink = " << sLinkSourceId);
-                }
-
                 fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
                 mLink = fe_IBLheader; // this is used to retrieve the onlineId. It contains only the 3 LSBs of the nnnnn, indicating the number of FE w.r.t. the SLink
                 sLinkHeader = extractSLinkfromLinkNum(linkNum_IBLheader); // this is used to check that the (redundant) info is correctly transmitted
 
 
+                // Get the hit discrimination configuration setting for this FE
+                hitDiscCnfg = m_pixelCabling->getHitDiscCnfg(robId, mLink);
+                //ATH_MSG_DEBUG("HitDiscCngf = " << hitDiscCnfg << " for ROB 0x" << std::hex
+                //             << robId << ", link 0x" << mLink << std::dec);
+
                 if (sLinkHeader != sLinkSourceId) {
-                    generalwarning("SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
-                                    << ", number from link header = 0x" << sLinkHeader << std::dec);
+                    generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                   << ": SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
+                                   << ", number from link header = 0x" << sLinkHeader << std::dec);
                 }
 
                 // If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
@@ -330,25 +349,28 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     // Check that L1ID is the same for all fragments
                     if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
-                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": got header with LVL1ID unequal to previous one (LVL1ID = 0x"
-                                        << mLVL1ID << ", prevLVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                                            << ": frame header LVL1ID differs from previous one (current frame LVL1ID = 0x"
+                                            << mLVL1ID << ", previous frame LVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
                     }
                     // Check that BCIDs are consecutive
                     if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_IBL) {
-                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": got header with non-consecutive BCIDs (BCID = 0x"
-                                      << mBCID << ", prevBCID = 0x" << prevBCID << ")" << std::dec);
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                                            << ": frame header with non-consecutive BCID (current BCID = 0x"
+                                            << mBCID << ", previous BCID = 0x" << prevBCID << ")" << std::dec);
                     }
                 }
                 else {  // If decoding new FE, check BCID offset
                     offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
                     if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
-                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << std::dec << ": got FE header with unexpected BCID offset"
-                                        << " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << ")");
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << std::dec << ": FE header with unexpected BCID offset"
+                                        << " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << " from ROB)");
                     }
                     // Check that first fragment from each FE starts at the same BCID
                     if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
-                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ": BCID starts at different value than in previous FE (BCID = 0x" << mBCID
-                                        << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
+                        lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                                            << ": FE BCID starts at different value than in previous FE (current BCID = 0x"
+                                            << mBCID << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
                     }
                     prevStartingBCID = mBCID;
                 }
@@ -416,7 +438,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             // Get onlineId
             onlineId = m_pixelCabling->getOnlineIdFromRobId(robId, mLink);
             if (onlineId == 0) {
-                generalwarning("Got invalid onlineId (= 0), from robID = 0x" << std::hex << robId << ", link = 0x" << mLink);
+                generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                               << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
             }
 
 #ifdef PIXEL_DEBUG
@@ -441,8 +464,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
 
             if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
-                generalwarning("Unknown OnlineId identifier - not found by mapping - ROBID: 0x" << std::hex << robId
-                                << " link: 0x" << mLink << std::dec);
+                generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                               << ": Unknown OnlineId identifier in FE header - not found by mapping" << std::dec);
                 m_errors->addDecodingError();
                 link_start = false;   // resetting link (module) header found flag
                 continue;   // skip this word and process next one
@@ -530,7 +553,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     else if ((rawDataWord & PRB_HIT_IBL_MASK) == PRB_HIT_NOTCONDENSED) { // it's a IBL not-condensed hit word
                         if (countHitCondensedWords != 0) { // I received some IBL words, but less than 4, there was an error in the rod transmission
-                            generalwarning("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
+                            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                           << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
+                                           << std::hex << rawDataWord << std::dec << ")");
                             m_errors->addDecodingError();
                             countHitCondensedWords = 0;
                         }
@@ -555,7 +580,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
                     }
                     else { // it is an IBL/DBM hit word, but it hasn't been recognised
-                        generalwarning("IBL/DBM hit word 0x" << std::hex << rawDataWord << " not recognised" << std::dec);
+                        generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                                       << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
                         m_errors->addDecodingError();
                     }
 
@@ -573,7 +599,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                         if (countHitCondensedWords != 0)
                         { // I received some IBL words, but less than 4, there was an error in the rod transmission
-                            generalwarning("Unexpected interruption of flow of IBL condensed words - data corruption - hit(s) ignored");
+                            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                           << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
+                                           << std::hex << rawDataWord << std::dec << ")");
                             m_errors->addDecodingError();
                             countHitCondensedWords = 0;
                         }
@@ -702,10 +730,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         msg(MSG::VERBOSE) << "ROW[" << i << "] = 0x"  << std::hex << row[i] << std::dec << ",  COL[" << i << "] = 0x"
                                           << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec << endreq;
 #endif
-                        if ((tot[i] & 0xF0) == 0x00) {  // First 4-bits of tot[i] can not be equal to 1111
-                            generalwarning("Illegal IBL TOT code: ToT1 = 0x" << std::hex << (tot[i] >> 4) << " - ROB = 0x" << robId
-                                              << ", hit word 0x" << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
-                                              << "ToT1 = 0x" << std::hex << IBLtot[0] << "ToT2 = 0x" << IBLtot[1]);
+
+                        // ToT1 equal 0 means no hit, regardless of HitDiscCnfg
+                        if ((tot[i] & 0xF0) == 0x00) {
+                            generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                                           << ": First IBL ToT field is 0 - hit word 0x" << rawDataWord
+                                           << " decodes to ToT1 = 0" << (tot[i] >> 4) << ", ToT2 = 0x"
+                                           << (tot[i] & 0xF) << ", row = " << std::dec << row[i]
+                                           << " col = " << col[i] << std::dec);
                             continue;
                         }
 
@@ -722,7 +754,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m << endreq;
 #endif
                                 if (pixelId == invalidPixelId) {
-                                    generalwarning("Illegal pixelId");
+                                    generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                                                   << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
+                                                   << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
+                                                   << std::dec << row[i] << " col = " << col[i] << std::dec);
                                     m_errors->addInvalidIdentifier();
                                     continue;
                                 }
@@ -731,17 +766,32 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #ifdef PIXEL_DEBUG
                                 msg(MSG::VERBOSE) << "Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec << endreq;
 #endif
-                                m_coll->push_back(new RDO(pixelId, IBLtot[0], mBCID,mLVL1ID,mLVL1A)); // insert the first part of the ToT info in the Collection
+
+                                // Now do some interpreting of the ToT values
+                                if (hitDiscCnfg == 2 && IBLtot[0] == 2) IBLtot[0] = 16;
+                                if (hitDiscCnfg == 2 && IBLtot[1] == 2) IBLtot[1] = 16;
+
+                                // Insert the first part of the ToT info in the collection
+                                m_coll->push_back(new RDO(pixelId, IBLtot[0], mBCID,mLVL1ID,mLVL1A));
+
 
 #ifdef PIXEL_DEBUG
                                 msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
 #endif
-                                if ((IBLtot[1] != 0x0) && (IBLtot[1] != 0xF)) {  // Consider both 0x0 and 0xF to indicate no hit
+
+                                // Second ToT field:
+                                // For HitDiscCnfg 0-2, consider 0 to indicate no hit
+                                // For HitDiscCng = 3, consider also F to indicate no hit
+                                if (IBLtot[1] != 0x0 && (IBLtot[1] != 0xF || hitDiscCnfg != 3)) {
                                     if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
                                         // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
-                                        generalwarning("Illegal IBL row number for second ToT field: ROB = 0x" << std::hex << robId
-                                                          << ", hit word 0x"<< rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
-                                                          << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
+
+
+                                        generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                                                       << ": Illegal IBL row number for second ToT field, hit word 0x"
+                                                       << rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
+                                                       << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
+
                                         m_errors->addInvalidIdentifier();
                                         continue;
                                     }
@@ -760,12 +810,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                         msg(MSG::VERBOSE) << "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max << endreq;
 #endif
                                         if (pixelId == invalidPixelId) {
-                                            generalwarning("Illegal pixelId");
+                                            generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                                                           << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
+                                                           << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
+                                                           << std::dec << row[i] << " col = " << col[i] << std::dec);
                                             m_errors->addInvalidIdentifier();
                                             continue;
                                         }
 
                                         m_coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
+
 #ifdef PIXEL_DEBUG
                                         msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
 #endif
@@ -773,7 +827,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 }
                             } // end of the if that checks that Row and Column of the IBL have a value > 0 and smaller than the maximum of the FE-I4.
                             else {
-                                generalwarning("Illegal IBL/DBM row and/or column number associated with a hit");
+                                generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                                               << ": Illegal IBL row/col number, hit word 0x"
+                                               << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
+                                               << " (ToT1 = 0x" << std::hex << (tot[i] >> 4) << " ToT2 = 0x" << (tot[i] & 0xF) << ")");
                                 m_errors->addInvalidIdentifier();
                                 continue;
                             }
@@ -785,7 +842,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
 
                     if (pixelId == invalidPixelId) {
-                        generalwarning("Illegal pixelId");
+                        generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                                       << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
+                                       << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
                         m_errors->addInvalidIdentifier();
                         continue;
                     }
@@ -799,7 +858,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             } // end of the if (link_start)
 
             else { // no header found before hit -> error
-                generalwarning("unexpected hit dataword found - data corruption - hit ignored");
+                generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                               << ": Unexpected hit dataword: " << rawDataWord << " - hit ignored");
                 m_errors->addDecodingError();
                 continue;
             }
@@ -813,7 +873,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "link trailer found" << endreq;   // trailer found debug message
             }
             else {   // no header found before trailer -> error
-                generalwarning("Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec << " link: " << mLink);
+                generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                               << ": Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption");
                 m_errors->addDecodingError();
                 continue;
             }
@@ -843,7 +904,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     m_errors->addTimeOutError();
                 if (trailererror & (1 << 7)) // condensed mode bit => W
                     if (!receivedCondensedWords) {
-                        generalwarning("In ROB " << std::hex << robId
+                        generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
                                         << ": condensed mode bit is set, but no condensed words received" << std::dec);
                     }
                 if (trailererror & (1 << 6)) // link masked by PPC => P
@@ -873,14 +934,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                 // Do checks on info in trailer vs header
                 if (linkNum_IBLword != linkNum_IBLheader) {
-                    generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
-                                      << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+                    generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                   <<  ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
+                                   << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
                 }
 
                 if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL)) {
-                    generalwarning("In ROB 0x" << std::hex << robId << ": Trailer BCID does not match header (trailer BCID = 0x"
-                                      << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
-                                      << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
+                    generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                   << ": Trailer BCID does not match header (trailer BCID = 0x"
+                                   << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
+                                   << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
                 }
 
 
@@ -927,8 +990,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 //                sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
 //                if ((sLinkWord != sLinkHeader) || (fe_IBLword != fe_IBLheader))
                 if (linkNum_IBLword != linkNum_IBLheader) {
-                   generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword
-                                     << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+                   generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                  << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword
+                                  << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
                 }
 
                 serviceCodeCounter = decodeServiceCodeCounter_IBL(rawDataWord); // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
@@ -946,7 +1010,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     errorcode = errorcode | (encodedServiceCodes << 8);
                 }
                 else {
-                    generalwarning("Got out-of-bounds service code: " << serviceCode << " (counter: " << serviceCodeCounter << "), ignored");
+                    generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                                   << ": Got out-of-bounds service code: " << std::dec << serviceCode << " (counter: "
+                                   << serviceCodeCounter << "), ignored");
                 }
 
 
@@ -1020,7 +1086,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
         //-------------------------------------------------------------------------------------------- UNKNOWN WORD
         default:
-            generalwarning("Unknown word type found, " << std::hex << rawDataWord << std::dec << ", ignoring");
+            generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                           << ": Unknown word type found, 0x" << std::hex << rawDataWord << std::dec << ", ignoring");
             m_errors->addDecodingError();
 
         } // end of switch
@@ -1046,7 +1113,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                             errmsg.append(tempstr);
                         }
                     }
-                    generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE");
+                    generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE" << std::dec);
                     generalwarning("[FE number] : [# headers] - " << errmsg);
                     break;
                 }
