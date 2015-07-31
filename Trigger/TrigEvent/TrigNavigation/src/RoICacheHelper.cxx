@@ -19,7 +19,7 @@ using namespace HLT;
 enum RoICacheHelper::CachingMode RoICacheHelper::s_cachingMode=RoICacheHelper::HistoryBased;
 
 bool RoICacheHelper::cache ( TriggerElement* te ) {
-  std::vector<struct CacheEntry>::iterator it;
+  std::vector<class CacheEntry>::iterator it;
 
   // look into cache entries for cache holding same RoI
   it = find(m_caches.begin(), m_caches.end(), te); // we have overloaded operator==
@@ -45,10 +45,16 @@ bool RoICacheHelper::cache ( TriggerElement* te ) {
     if ( fvec.size() < it->end()  || it->begin() > it->end()  ) {
       return false;
     }
-    
-    for ( unsigned int i = it->begin() ; i < it->end(); i++ ) {
-      te->addFeature(it->holder()->getFeatureAccessHelpers()[i]);
+
+
+    unsigned int begin = it->begin();
+    unsigned int end = it->end();    
+    TriggerElement::FeatureVec temp(it->holder()->getFeatureAccessHelpers().begin()+begin, 
+				    it->holder()->getFeatureAccessHelpers().begin()+end);
+    for ( auto fea: temp){
+      te->addFeature(fea);
     }
+  
     //    te->getFeatureAccessHelpers().insert(te->getFeatureAccessHelpers().end(), b, e);
     //    te->featuresKeyPrint().insert(te->featuresKeyPrint().end(), b, e);
     //    std::cerr << "after caching size: " << te->getFeatureAccessHelpers().size() << std::endl;
@@ -59,7 +65,7 @@ bool RoICacheHelper::cache ( TriggerElement* te ) {
 
 
 bool RoICacheHelper::isInputAccepted ( const TriggerElement* te ) {
-  std::vector<struct CacheEntry>::iterator it;
+  std::vector<class CacheEntry>::iterator it;
   it = find(m_caches.begin(), m_caches.end(), te);
   if ( m_caches.end() != it ) {
     if (it->holder())
@@ -70,7 +76,7 @@ bool RoICacheHelper::isInputAccepted ( const TriggerElement* te ) {
 }
 
 bool RoICacheHelper::needsExecution ( const TriggerElement* te ) {
-  std::vector<struct CacheEntry>::iterator it;
+  std::vector<class CacheEntry>::iterator it;
   it = find(m_caches.begin(), m_caches.end(), te);
   if ( m_caches.end() == it ) {
     m_caches.push_back( CacheEntry(te) );

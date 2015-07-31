@@ -148,7 +148,7 @@ namespace HLT {
       unsigned int m_end;
     };
 
-    std::vector<struct CacheEntry> m_caches;   //!< caches for all RoIs
+    std::vector<class CacheEntry> m_caches;   //!< caches for all RoIs
   };
 }
 

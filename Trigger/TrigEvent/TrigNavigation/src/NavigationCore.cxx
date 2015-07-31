@@ -115,8 +115,7 @@ bool NavigationCore::addBlob(std::vector<uint32_t>& output,
   output.push_back(blob1.size()+blob2.size());
   output.insert(output.end(), blob1.begin(), blob1.end());
   output.insert(output.end(), blob2.begin(), blob2.end());
-  //  copy(blob.begin(), blob.end(), std::ostream_iterator<int>(std::cerr, " A "));
-  //  std::cerr << std::endl;
+
   return true;
 }
 
@@ -266,180 +265,230 @@ bool doSingleHolderDeserialization(const std::vector<uint32_t>& dataBlob, HLTNav
   return true;  
 }
 
-
-bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts ) const {
-  std::vector<std::pair<CLID, std::string> > clid_name;
-  clid_name.clear();
-  return serialize(output, cuts, clid_name);
-}
-
-bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name ) const {
-
+inline
+size_t NavigationCore::serialize_bootstrap(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name) const {
   cuts.clear();
   clid_name.clear();
 
   // version
   unsigned int version=4;
   output.push_back(version);
+  auto ret = output.size();
 
-  MLOG(DEBUG) << "NavigationCore::serialize: serializing with version " << version << endreq;
-
-  unsigned int totalSizeIndex = output.size();
-  output.push_back(0); // reserve one word (accessible under the index totalSize), it is 0 if there was truncation here
+  output.push_back(0); // reserve one word (accessible under the returned index)
+                       // It is 0 if there was truncation here
                        // and != output.size() if truncation using cuts
-
   cuts.push_back(output.size()); // mark a cut place
 
-  bool tesSerializationStatus = serializeTEs(output);
+  MLOG(DEBUG) << "NavigationCore::serialize: serializing with version "
+              << version << endreq;
 
+  return ret;
+}
 
-  MLOG(DEBUG) << "serializes: TEsm status: " << tesSerializationStatus << " size: " << output.size() << endreq;
+inline
+void NavigationCore::serialize_features_offline(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name) const {
 
-
-  cuts.push_back(output.size()); // mark a cut place
-
-
-  // SERIALIZE FEATURES
   std::vector<uint32_t> headerBlob;
   std::vector<uint32_t> dataBlob;
 
+  for(const auto& featByLabel : m_featuresByLabel) {
+    for(const auto& strToHolderPtr : featByLabel.second) {
+      MLOG(DEBUG) << "attempting to serialize feature: " << featByLabel.first
+                  << " " << strToHolderPtr.first << ". Current payload size is "
+                  << output.size() << endreq;
 
-  if ( m_classesToPayload.empty() ) { // this is offline case
-    FeaturesStructureLabelIndexed::const_iterator clidIt;
-    for ( clidIt = m_featuresByLabel.begin(); clidIt != m_featuresByLabel.end(); ++clidIt ) {
-      std::map<std::string, IHolder*>::const_iterator holderIt;
-      for ( holderIt = clidIt->second.begin(); holderIt != clidIt->second.end(); ++holderIt ) {
-
-        MLOG(DEBUG) << "serialization of featue attempting : " << clidIt->first << " " << holderIt->first << endreq;
-
-        IHolder *holder = holderIt->second;
-        if ( ! holder ) {
-          MLOG(DEBUG) << "serialization of feature skipped, nothing know on this objects"  << endreq;
-          continue;
-        }
-        MLOG(DEBUG) << "serialization of feature: " << holder->typeClid() << " label: " << holder->label()
-                    << " size of payload: " << output.size() << endreq;
-
-        headerBlob.clear();
-        dataBlob.clear();
-        bool status = doSingleHolderSerialization(headerBlob, dataBlob, holder, m_serializerSvc, false );
-        addBlob( output, headerBlob, dataBlob );
-	clid_name.push_back(std::pair < CLID, std::string> (holder->typeClid(), holder->label()));
-        cuts.push_back(output.size()); // mark truncation point
-        MLOG(DEBUG) << "serialization of feature: " << holder->typeClid() << " label: " << holder->label()
-                    << " size of blob: " << headerBlob.size()+dataBlob.size() << " done with status: " << status  << endreq;
-      }
-    }
-  } else { // this is online case when list of classes to payload is not empty
-    // prepare sizes object
-    //
-    std::string name_TrigEDMSizes("TrigEDMSizes");
-
-    // check if SG contains a previously registered TrigEDMSizes object
-    // reuse it and update it
-    // this is an issue when running L2 and EF together in athena
-    TrigEDMSizes* sizes(0);
-    if ( m_storeGate->transientContains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name_TrigEDMSizes) ) {
-      MLOG(DEBUG) << "A previously registered object of type = (HLT::TrigEDMSizes) and name = " << name_TrigEDMSizes << " was found in SG." << endreq;
-      const TrigEDMSizes* sizesSG(0) ;
-      if ( m_storeGate->retrieve(sizesSG, name_TrigEDMSizes).isFailure() ) {
-        MLOG(WARNING) << "There was an error when retrieving the old object of type = (HLT::TrigEDMSizes) and name = " << name_TrigEDMSizes << " from SG." << endreq;
+      auto holderPtr = strToHolderPtr.second;
+      if(holderPtr) {
+        serializeFeature(output,
+                         cuts,
+                         clid_name,
+                         holderPtr,
+                         false);
       } else {
-        sizes = const_cast<TrigEDMSizes*>(sizesSG);
-      }
-    } else {
-      if ( m_storeGate->contains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name_TrigEDMSizes) ) {
-        MLOG(DEBUG) << "An object of type = (HLT::TrigEDMSizes) and name = " << name_TrigEDMSizes << " accessible through SG was found." << endreq;
-        const TrigEDMSizes* sizesSG(0) ;
-        if ( m_storeGate->retrieve(sizesSG, name_TrigEDMSizes).isFailure() ) {
-          MLOG(WARNING) << "There was an error when retrieving the object contained in SG of type = (HLT::TrigEDMSizes) and name = " << name_TrigEDMSizes << "." << endreq;
-        } else {
-          sizes = const_cast<TrigEDMSizes*>(sizesSG);
-        }
-      } else {
-        sizes = new TrigEDMSizes();
-        m_storeGate->record(sizes, name_TrigEDMSizes).setChecked(); //
-        MLOG(DEBUG) << "A new object of type = (HLT::TrigEDMSizes) and name = " << name_TrigEDMSizes << " was registered in SG." << endreq;
-      }
-    }
-    
-    MLOG(DEBUG) << "serialization: number of classes to payload: " << m_classesToPayload.size() << endreq;
-
-    std::vector<std::pair<CLID, std::string> >::const_iterator cl;
-    for ( cl =  m_classesToPayload.begin();  cl != m_classesToPayload.end(); ++cl ) {
-      CLID clid = cl->first;
-      std::string key = cl->second;
-      MLOG(DEBUG) << "serialization (ordered) of featue attempting : " << clid << " " << key << endreq;
-      FeaturesStructureLabelIndexed::const_iterator clidIt = m_featuresByLabel.find(clid);
-      if ( clidIt != m_featuresByLabel.end() ) {
-        std::map<std::string, IHolder*>::const_iterator holderIt = clidIt->second.find(key);
-        if ( holderIt != clidIt->second.end() ) {
-          IHolder *holder = holderIt->second;
-          if ( ! holder ) {
-            MLOG(DEBUG) << "serialization (ordered) of feature skipped, nothing know on this objects"  << endreq;
-            continue;
-          }
-          MLOG(DEBUG) << "serialization (ordered) of feature: " << holder->typeClid() << " label: " << holder->label()
-                      << " size of payload: " << output.size() << endreq;
-          headerBlob.clear();
-          dataBlob.clear();
-          bool status = doSingleHolderSerialization(headerBlob, dataBlob, holder, m_serializerSvc, true );
-          addBlob( output, headerBlob, dataBlob );
-	  clid_name.push_back(std::pair < CLID, std::string> (holder->typeClid(), holder->label()));
-          cuts.push_back(output.size()); // mark truncation point
-          MLOG(DEBUG) << "serialization of feature: " << holder->typeClid() << " label: " << holder->label()
-                      << " size of blob: " << headerBlob.size()+dataBlob.size() << " done with status: " << status << endreq;
-          if (sizes) sizes->addObject(holder->collectionName(), holder->label(), dataBlob.size(), output.size() );
-        }
+        MLOG(DEBUG) << "holder empty, serialization skipped" << endreq;
       }
     }
   }
+}
 
-  MLOG(DEBUG) << "serialization done" << endreq;
+inline
+void NavigationCore::serialize_features_online(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name,
+    bool dscouting) const
+{
+  const auto& cls = dscouting ? m_classesToPayload_DSonly : m_classesToPayload;
+  MLOG(DEBUG) << "serialization: number of classes to payload"
+              << (dscouting ? " (dscouting)" : "") << ": "
+              << cls.size() << endreq;
+
+  auto edmSizesPtr = get_edm_sizes(); // prepare sizes object
+
+  for(const auto& cl : cls)
+  {
+    const auto& clid = cl.first;
+    const auto& key = cl.second;
+    auto serializing = false;
+    MLOG(DEBUG) << "attempting serialization (ordered) of feature: "
+                << clid << " " << key << endreq;
+
+    auto featByLabelIt = m_featuresByLabel.find(clid);
+    if(featByLabelIt != m_featuresByLabel.end()) {
+      auto holderIt = featByLabelIt->second.find(key);
+      if(holderIt != featByLabelIt->second.end()) {
+        auto holderPtr = holderIt->second;
+        if(holderPtr) {
+          serializing = true;
+
+          auto dataSize = serializeFeature(output,
+                                           cuts,
+                                           clid_name,
+                                           holderPtr,
+                                           /*online*/ true);
+
+          edmSizesPtr->addObject(holderPtr->collectionName(),
+                                 holderPtr->label(),
+                                 dataSize,
+                                 output.size());
+        }
+      }
+    }
+
+    if(!serializing) {
+      MLOG(DEBUG) << "Missing information for this feature. Serialization "
+                     "(ordered) skipped" << endreq;
+    }
+  }
+}
+
+inline
+size_t NavigationCore::serializeFeature(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name,
+    IHolder * holderPtr,
+    bool online) const {
+  // blobs made static to reuse and avoid de/re-allocation in each call
+  static std::vector<uint32_t> headerBlob{}, dataBlob{};
+  headerBlob.clear(); dataBlob.clear();
+
+  bool status = doSingleHolderSerialization(headerBlob,
+                                            dataBlob,
+                                            holderPtr,
+                                            m_serializerSvc,
+                                            online);
+  addBlob(output, headerBlob, dataBlob);
+  clid_name.emplace_back(holderPtr->typeClid(), holderPtr->label());
+  cuts.push_back(output.size()); // mark truncation point
+
+  MLOG(DEBUG) << "Feature serialized with status " << status
+              << ". Size of blob: " << headerBlob.size() + dataBlob.size()
+              << endreq;
+
+  return dataBlob.size();
+}
+
+inline
+TrigEDMSizes * NavigationCore::get_edm_sizes() const {
+  auto name = std::string{"TrigEDMSizes"};
+  auto& id = ClassID_traits<TrigEDMSizes>::ID();
+  const TrigEDMSizes* sizesSG{nullptr};
+
+  // check if SG contains a previously registered TrigEDMSizes object
+  // reuse it and update it
+  // this is an issue when running L2 and EF together in athena
+  if (m_storeGate->transientContains(id, name)){
+    MLOG(DEBUG) << "A previously registered object of type HLT::TrigEDMSizes "
+                   "and name " << name << " was found in SG." << endreq;
+    if(m_storeGate->retrieve(sizesSG, name).isFailure()) {
+      MLOG(WARNING) << "There was an error when retrieving the old object of "
+                       "type HLT::TrigEDMSizes and name " << name << " from SG."
+                    << endreq;
+    }
+  } else if(m_storeGate->contains(id, name)) {
+    MLOG(DEBUG) << "An object of type HLT::TrigEDMSizes and name " << name
+                << " accessible through SG was found." << endreq;
+    if(m_storeGate->retrieve(sizesSG, name).isFailure()) {
+      MLOG(WARNING) << "There was an error when retrieving the object "
+                       "contained in SG of type HLT::TrigEDMSizes and name "
+                    << name << endreq;
+    }
+  }
+
+  auto sizes = const_cast<TrigEDMSizes*>(sizesSG);
+  if(!sizes) {
+    sizes = new TrigEDMSizes();
+    m_storeGate->record(sizes, name).setChecked();
+    MLOG(DEBUG) << "A new object of type HLT::TrigEDMSizes and name " << name
+                << " was registered in SG." << endreq;
+  }
+
+  return sizes;
+}
+
+bool NavigationCore::serialize( std::vector<uint32_t>& output,
+                                std::vector<unsigned int>& cuts ) const {
+  std::vector<std::pair<CLID, std::string> > clid_name;
+  return serialize(output, cuts, clid_name);
+}
+
+bool NavigationCore::serialize(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name) const
+{
+  // TODO: when changing header, merge this method with the one that does not
+  // have the last bool parameter, using default dscouting=false and leaving it
+  // public
+  return serialize(output, cuts, clid_name, false);
+}
+
+bool NavigationCore::serialize(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name,
+    bool dscouting) const
+{
+  // This part is not currently used in the DS, but it is ready for when headers
+  // can be updated and a serialization per Module ID is possible
+  unsigned int totalSizeIndex = serialize_bootstrap(output, cuts, clid_name);
+
+  if(dscouting)
+  { /* Here we add a replacement for the trigger elements, which are not
+       included in the DS case */
+    output.push_back(output.size()+2); /* current size plus one word for this
+                                          size, plus one word for the number of
+                                          TEs */
+    output.push_back(0); // number of TEs
+  }
+  else
+  {
+    bool tesSerializationStatus = serializeTEs(output);
+    MLOG(DEBUG) << "serializes: TEsm status: " << tesSerializationStatus
+                << " size: " << output.size() << endreq;
+  }
+  cuts.push_back(output.size()); // mark a cut place
+
+  if(!m_classesToPayload.empty() || dscouting) {
+    serialize_features_online(output, cuts, clid_name, dscouting);
+  } else {
+    serialize_features_offline(output, cuts, clid_name);
+  }
 
   output[totalSizeIndex] = output.size();
+
+  MLOG(DEBUG) << "serialization done"
+              << (dscouting ? " (data scouting)" : "") << endreq;
   return true;
 }
 
-bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name ) const {
-  
-  cuts.clear();
-  clid_name.clear();
-  
-  cuts.push_back(output.size()); // mark a cut place
-  
-  std::vector<uint32_t> headerBlob;
-  std::vector<uint32_t> dataBlob;
-
-  std::vector<std::pair<CLID, std::string> >::const_iterator cl_DS;
-  for ( cl_DS =  m_classesToPayload_DSonly.begin();  cl_DS != m_classesToPayload_DSonly.end(); ++cl_DS ) {
-    CLID clid = cl_DS->first;
-    std::string key = cl_DS->second;
-    MLOG(DEBUG) << "serialization (ordered) of feature attempting : " << clid << " " << key << endreq;
-    FeaturesStructureLabelIndexed::const_iterator clidIt = m_featuresByLabel.find(clid);
-    if ( clidIt != m_featuresByLabel.end() ) {
-      std::map<std::string, IHolder*>::const_iterator holderIt = clidIt->second.find(key);
-      if ( holderIt != clidIt->second.end() ) {
-	IHolder *holder = holderIt->second;
-	if ( ! holder ) {
-	  MLOG(DEBUG) << "serialization (ordered) of feature skipped, nothing know on this objects"  << endreq;
-	  continue;
-	}
-	MLOG(DEBUG) << "serialization (ordered) of feature: " << holder->typeClid() << " label: " << holder->label()
-		    << " size of payload: " << output.size() << endreq;
-	headerBlob.clear();
-	dataBlob.clear();
-	bool status = doSingleHolderSerialization(headerBlob, dataBlob, holder, m_serializerSvc, true );
-	addBlob( output, headerBlob, dataBlob );
-	clid_name.push_back(std::pair < CLID, std::string> (holder->typeClid(), holder->label()));
-	cuts.push_back(output.size()); // mark truncation point
-	MLOG(DEBUG) << "serialization of feature: " << holder->typeClid() << " label: " << holder->label()
-		    << " size of blob: " << headerBlob.size()+dataBlob.size() << " done with status: " << status << endreq;
-	//if (sizes) sizes->addObject(holder->collectionName(), holder->label(), dataBlob.size(), output.size() );
-      }
-    }
-  }
-  return true;
+bool NavigationCore::serialize_DSonly(std::vector<uint32_t>& output,
+    std::vector<unsigned int>& cuts,
+    std::vector<std::pair<CLID, std::string> >& clid_name ) const
+{
+  return serialize(output, cuts, clid_name, true);
 }
 
 

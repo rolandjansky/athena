@@ -564,7 +564,7 @@ __attribute__((__used__))
 TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te, const std::string& label,
 							const T* obj) {
 
-  typedef typename Features2Container<T>::type Container;
+  //typedef typename Features2Container<T>::type Container;
   if ( obj == 0 ) 
     return TrigFeatureLink();
   TriggerElement::FeatureVec features_access_helpers;  
