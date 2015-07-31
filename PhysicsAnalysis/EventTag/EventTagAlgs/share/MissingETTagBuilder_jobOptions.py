@@ -14,14 +14,14 @@ ToolSvc += metMaker
 
 metMakerAlg = CfgMgr.met__METMakerAlg( "METMakerAlg",
                                        Maker = metMaker,
-                                       InputJets = "AntiKt4LCTopoJets_TAGcalib", # calibrated jet collection for TAG file format
+                                       InputJets = "AntiKt4TopoJets_TAGcalib", # calibrated jet collection for TAG file format
                                        InputElectrons = "Electrons",
                                        InputPhotons = "Photons",
                                        InputTaus = "TauJets",
                                        InputMuons = "Muons",
-                                       METName = "MET_Reference_AntiKt4LCTopo_TAGcalib",
-                                       METMapName = "METAssoc_AntiKt4LCTopo",
-                                       METCoreName= "MET_Core_AntiKt4LCTopo"
+                                       METName = "MET_Reference_AntiKt4Topo_TAGcalib",
+                                       METMapName = "METAssoc_AntiKt4EMTopo",
+                                       METCoreName= "MET_Core_AntiKt4EMTopo"
                                        #OutputLevel=Lvl.VERBOSE
                                        )
 

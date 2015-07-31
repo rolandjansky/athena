@@ -8,7 +8,7 @@ if not rec.doTrigger():
 
 # GlobalEventTagBuilder must run always
 include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
-include( "EventTagUtils/RegistrationStreamLumiTrig_jobOptions.py")
+include( "EventTagUtils/RegistrationStreamTrig_jobOptions.py")
 import traceback
 if EventTagFlags.doElectron():
     try:
@@ -76,5 +76,5 @@ from EventTagAlgs.EventTagGlobal import EventTagGlobal
 tagmetadatalist = [ "TagAthenaAttributeList#"+EventTagGlobal.AttributeList ] 
 tagmetadatalist += ["CollectionMetadataContainer#GlobalTriggerTagBuilder.GlobalTriggerTagTool"]
 tagmetadatalist += ["CollectionMetadataContainer#GlobalEventTagBuilder.GlobalEventTagTool"]
-tagmetadatalist += ["CollectionMetadataContainer#RegistrationStreamLumiTrig"]
+tagmetadatalist += ["CollectionMetadataContainer#RegistrationStreamTrig"]
 #tagmetadatalist += ["CollectionMetadataContainer#DPDTagTool"]

@@ -10,7 +10,7 @@ GlobalTriggerTagBuilder   = GlobalTriggerTagBuilder(
      name                 = "GlobalTriggerTagBuilder",
      GlobalTriggerTagTool = GlobalTriggerTagTool,
      AttributeList        = EventTagGlobal.AttributeList,
-     MaxNumber            = [24, 32, 32],
+     MaxNumber            = [48, 32, 32],
      CheckAttribute       = False)
 
 topSequence += GlobalTriggerTagBuilder
