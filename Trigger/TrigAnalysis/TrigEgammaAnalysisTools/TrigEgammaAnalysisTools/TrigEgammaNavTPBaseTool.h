@@ -68,6 +68,10 @@ protected:
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
   void clearProbeList(); 
+  /*! Return pseudo-lifetime of Jpsi */
+  float GetPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*);
+  /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */
+  double simple_lxy(int ,double, double, double , double , double , double , double, double );
   /*! Dual-use tool for MVA calibration */
   ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline electron probe and matched TE */
@@ -90,7 +94,9 @@ protected:
   bool m_rmCrack;
   /*! Directory name for each algorithm */
   std::string m_dir;
-  // Additional monitoring function   
+  
+  const xAOD::EventInfo* m_eventInfo;
+
 private:
   // ToolHandles
   //

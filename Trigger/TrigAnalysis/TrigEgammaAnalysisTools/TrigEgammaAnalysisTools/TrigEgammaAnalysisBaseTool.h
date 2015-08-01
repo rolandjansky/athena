@@ -74,7 +74,9 @@ private:
 protected:
   // Methods
   /*! Simple setter to pick up correct probe PID for given trigger */
-  void parseTriggerName(const std::string,const std::string, bool, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
+  void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
+  /*! Split double object trigger in two simple object trigger */
+  bool splitTriggerName(const std::string, std::string &, std::string &);
   /*! Creates static map to return L1 item from trigger name */
   std::string getL1Item(std::string trigger);
 
@@ -97,7 +99,8 @@ protected:
   void fillL2Electron(const std::string,const xAOD::TrigElectron *);
   void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
- 
+  void fillL1CaloResolution(const std::string, const xAOD::EmTauRoI*, const xAOD::Egamma*);
+  void fillL1CaloAbsResolution(const std::string, const xAOD::EmTauRoI*, const xAOD::Egamma*);
   /*! Inefficiency analysis */
   void inefficiency(const std::string,const unsigned int, const unsigned int,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
@@ -149,6 +152,8 @@ protected:
   ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
+  /*! Set Jpsiee */
+  bool m_doJpsiee;
 
   
   // Infra-structure members
@@ -175,6 +180,8 @@ protected:
   //
   //Include more detailed histograms
   bool m_detailedHists;
+  /*! default probe pid for trigitems that don't have pid in their name */
+  std::string m_defaultProbePid;
 
   /*! C Macros for plotting */  
 #define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Egamma* eg);
@@ -291,7 +298,7 @@ TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te){
 template<class T>
 bool
 TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te){
-    if ( te == NULL ) return NULL;
+    if ( te == NULL ) return false;
     if ( (m_trigdec->ancestor<T>(te)).te() == NULL )
         return false;
     return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());

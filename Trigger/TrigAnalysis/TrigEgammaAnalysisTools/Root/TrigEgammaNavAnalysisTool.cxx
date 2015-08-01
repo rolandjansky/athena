@@ -29,14 +29,19 @@ StatusCode TrigEgammaNavAnalysisTool::childInitialize(){
 StatusCode TrigEgammaNavAnalysisTool::childBook(){
 
     ATH_MSG_DEBUG("Now configuring chains for analysis");
-    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
+    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*, L1_EM.*");
     for (int j = 0; j < (int) selectElectronChains.size(); j++) {
         ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
     }
     std::vector<std::string> selectPhotonChains  = m_trigdec->getListOfTriggers("HLT_g.*");
 
     for (int i = 0; i < (int) m_trigInputList.size(); i++) {
-        std::string trigname = "HLT_"+m_trigInputList[i];
+        std::string trigname = "";
+        if (!boost::starts_with(m_trigInputList[i], "L1" )) {
+            trigname = "HLT_"+m_trigInputList[i];
+        } else {
+            trigname = m_trigInputList[i];
+        }
         for (int j = 0; j < (int) selectElectronChains.size(); j++) {
             size_t found = trigname.find(selectElectronChains[j]);
             if(found != std::string::npos) {
@@ -148,8 +153,15 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         std::string pidname="";
         bool perf=false;
         bool etcut=false;
-        parseTriggerName(trigger,"Loose",isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
-        
+	parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+
+	std::string trigname="";
+	if (isL1) {
+	  trigname = trigger;
+	} else {
+	  trigname = "HLT_"+trigger;
+	}
+
         if ( executeNavigation(trigger).isFailure() ){
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
@@ -160,10 +172,10 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             inefficiency(m_dir+"/"+trigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_objTEList[i]); // Requires offline match
             resolution(m_dir+"/"+trigger,m_objTEList[i]); // Requires offline match
         }
-       
+
         // Retrieve FeatureContainer for a given trigger
         ATH_MSG_DEBUG("Retrieve features for chain");
-        auto fc = (m_trigdec->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigdec->features(trigname, TrigDefs::alsoDeactivateTEs));
         auto initRois = fc.get<TrigRoiDescriptor>("initialRoI");
         
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());

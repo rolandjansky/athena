@@ -393,3 +393,10 @@ probeListPhotonTriggers = [
 	"g70_loose",
 	"g80_loose",
 ]
+
+defaultJpsi=[
+         "e5_loose",
+         "e5_lhloose",
+         "e5_vloose",
+         "e5_lhvloose",
+]

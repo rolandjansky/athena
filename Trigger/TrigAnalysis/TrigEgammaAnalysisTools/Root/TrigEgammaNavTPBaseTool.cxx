@@ -22,6 +22,7 @@
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "string"
 #include <algorithm>
@@ -123,6 +124,16 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
             << ", EF: " << m_trigdec->isPassed( "EF_.*" )
             << ", HLT: " << m_trigdec->isPassed( "HLT_.*" ) );
     ATH_MSG_DEBUG("Apply EventWise selection");
+  
+    if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
+        ATH_MSG_ERROR("Failed to retrieve eventInfo ");
+        return StatusCode::FAILURE;
+    }
+    if (m_eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
+        ATH_MSG_DEBUG("Event not passing LAr");
+        return false;
+    }
+    hist1("CutCounter")->Fill("LAr",1);
     // Check Size of Electron Container
     m_offElectrons = 0;
     if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){
@@ -180,7 +191,7 @@ StatusCode TrigEgammaNavTPBaseTool::executeTandP(const std::string probeTrigItem
     parseTriggerName(probeTrigItem,m_defaultProbeTightness,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
 
     std::string trigName="";
-    if(isL1) trigName="L1_"+probeTrigItem;
+    if(isL1) trigName=probeTrigItem;
     else trigName="HLT_"+probeTrigItem;
     // Set the pid for the Probe after parsing trigger name
     // Not needed, just pass the pidname to the method
@@ -197,6 +208,22 @@ StatusCode TrigEgammaNavTPBaseTool::executeTandP(const std::string probeTrigItem
             if(!m_oppositeCharge && (elProbe->charge() != elTag->charge()) ) continue;
             hist1("ProbeCutCounter")->Fill("SS",1);
             ATH_MSG_DEBUG("Execute TandP BaseTool OS"); 
+            if(m_doJpsiee){
+
+              float  Jpsieelifetime = GetPseudoLifetime(elTag,elProbe);
+
+              if(  dR(elTag->caloCluster()->eta(),elTag->caloCluster()->phi(),
+                      elProbe->caloCluster()->eta(),elProbe->caloCluster()->phi()) <= 0.2 ){
+                ATH_MSG_DEBUG("dR(elTag,elProbe)<0.2");
+                continue;
+
+              }
+              else if(Jpsieelifetime<-1 || 0.2<Jpsieelifetime){
+                ATH_MSG_DEBUG("tag and probe pair not in Jpsi lifetime window");
+                continue;
+              }
+
+            }
             //Must be an easy way with IParticle
             TLorentzVector el1;
             TLorentzVector el2;
@@ -265,7 +292,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 
     ATH_MSG_DEBUG("Cluster E "<<clus->e());
     ATH_MSG_DEBUG("Selecting Tag Electron PID");
-    if(!el->passSelection(m_offTagTightness)) return false;
+    if (!ApplyElectronPid(el, m_offTagTightness)) return false;
     hist1("TagCutCounter")->Fill("GoodPid",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
@@ -275,18 +302,36 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     hist1("TagCutCounter")->Fill("Et",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Eta");
     //fiducial detector acceptance region
-    if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 ){
+    float absEta = fabs(el->caloCluster()->etaBE(2));
+    if ((absEta > 1.37 && absEta < 1.52) || absEta > 2.47) {
         return false;
     }
     hist1("TagCutCounter")->Fill("Eta",1);
+
+    ATH_MSG_DEBUG("Checking electron object quality");
+    if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
+    hist1("TagCutCounter")->Fill("IsGoodOQ",1);
+
     ATH_MSG_DEBUG("Selecting Tag Electron Decision");
     // Check matching to a given trigger
     // The statement below is more general
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-        std::string tag = m_tagTrigList.at(ilist);
+      std::string tag = m_tagTrigList.at(ilist);
+      if(m_doJpsiee){
+        std::string p1trigger;
+        std::string p2trigger;
+        if(splitTriggerName(tag,p1trigger,p2trigger)){
+          if(fabs(p1trigger.find("tight"))<10) tag=p1trigger;
+          if(fabs(p2trigger.find("tight"))<10) tag=p2trigger;
+        }
+        if( m_matchTool->match(el,"HLT_"+tag) )
+          tagPassed=true;
+      }
+      else{
         if(m_trigdec->isPassed("HLT_"+tag) ) 
-            tagPassed=true; 
+          tagPassed=true; 
+      }
     }
     if(!tagPassed) {
         ATH_MSG_DEBUG("Failed tag trigger "); 
@@ -349,9 +394,9 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
     hist1("ProbeCutCounter")->Fill("HasCluster",1);
     //fiducial detector acceptance region
     if(m_rmCrack){
-        if ( (fabs(el->eta())>1.37 && fabs(el->eta())<1.52) || fabs(el->eta())>2.47 
-           ){
-            return false;
+        float absEta = fabs(el->caloCluster()->etaBE(2));
+        if ((absEta > 1.37 && absEta < 1.52) || absEta > 2.47) {
+            return false; 
         }
     }
     hist1("ProbeCutCounter")->Fill("Eta",1);
@@ -359,6 +404,11 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el, cons
         return false;
     }
     hist1("ProbeCutCounter")->Fill("Et",1);
+
+    ATH_MSG_DEBUG("Checking electron object quality");
+    if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
+    hist1("ProbeCutCounter")->Fill("IsGoodOQ",1);
+
     if(m_forceProbePid){ // Use common probe pid for all triggers
         if(!el->passSelection(m_defaultProbeTightness)) return false;
         // Rerun offline selection
@@ -401,4 +451,52 @@ bool TrigEgammaNavTPBaseTool::passedTrigger(const HLT::TriggerElement* obj){
     if ( obj->getActiveState() ) passed = true;
     return passed;
 }
+float TrigEgammaNavTPBaseTool::GetPseudoLifetime(const xAOD::Electron *el1,const xAOD::Electron *el2){
 
+  TLorentzVector el1track;
+  TLorentzVector el2track;
+
+  float Et1=hypot(el1->caloCluster()->m(),el1->caloCluster()->pt())/cosh(el1->trackParticle()->eta());
+  float Et2=hypot(el2->caloCluster()->m(),el2->caloCluster()->pt())/cosh(el1->trackParticle()->eta());
+
+  el1track.SetPtEtaPhiM(Et1, el1->trackParticle()->eta(), el1->trackParticle()->phi(),0.511);
+  el2track.SetPtEtaPhiM(Et2, el2->trackParticle()->eta(), el2->trackParticle()->phi(), 0.511);
+
+  float lxy=simple_lxy(0,
+                       el1->trackParticle()->d0() , el2->trackParticle()->d0(),
+                       el1->trackParticle()->phi(),   el2->trackParticle()->phi(),
+                       Et1,              Et2,
+                       0.0,                  0.0);
+
+  float  m_ptEECalo  = (el1track+el2track).Pt();
+
+  return lxy*3096.916/(0.299792458*m_ptEECalo);
+
+}
+double TrigEgammaNavTPBaseTool::simple_lxy(int flag,   double d1,  double d2, double phi1, double phi2, double pt1, double pt2, double vx, double vy)
+{
+  double simple = -99999.;
+
+  //require minimum opening angle of 1 microradian.                                                                                                                                                                 
+  if(fabs(phi1 - phi2) < 1e-6) return simple;
+
+  double simpleXv = (-d2*cos(phi1) + d1*cos(phi2)) / sin(phi2-phi1);
+  double simpleYv = (-d2*sin(phi1) + d1*sin(phi2)) / sin(phi2-phi1);
+
+  double rxy  = sqrt((simpleXv-vx)*(simpleXv-vx) +
+                     (simpleYv-vy)*(simpleYv-vy) );
+
+  double f1 = (fabs(pt1)*cos(phi1)+fabs(pt2)*cos(phi2));
+  double f2 = (fabs(pt1)*sin(phi1)+fabs(pt2)*sin(phi2));
+  double  c = sqrt( f1*f1 + f2*f2 );
+
+  if ( c == 0 ) return simple;
+
+  double a =  (simpleXv-vx)*f1;
+  double b =  (simpleYv-vy)*f2;
+
+  if (flag == 1)
+    return rxy;
+  else
+    return (a+b)/c;
+}

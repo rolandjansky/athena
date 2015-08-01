@@ -148,9 +148,9 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( std::string trigItem ){
   std::string pidname="";
   bool perf=false;
   bool etcut=false;
-  parseTriggerName(trigItem,"Loose",isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+  parseTriggerName(trigItem,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
   std::string trigName="";
-  if(isL1) trigName="L1_"+trigItem;
+  if(isL1) trigName= trigItem;
   else trigName="HLT_"+trigItem;
   if(type == "electron") return executeElectronNavigation( trigName,etthr,pidname );
   else if(type=="photon") return executePhotonNavigation( trigName,etthr,pidname );
@@ -208,12 +208,12 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
         // Rerun offline selection
         if(!ApplyElectronPid(eg,pidname)) continue;
         if (m_forceProbeIsolation) {
-	        if (!isIsolated(eg, m_offProbeIsolation)) {
-	          continue;
-	        }
+            if (!isIsolated(eg, m_offProbeIsolation)) {
+                continue;
+            }
         }
       }
-      
+
       if ( m_matchTool->match(eg, trigItem, te)){
           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(eg,te);
           m_objTEList.push_back(pair);
