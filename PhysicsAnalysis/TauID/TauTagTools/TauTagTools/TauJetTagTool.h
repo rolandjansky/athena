@@ -8,13 +8,14 @@
 /*****************************************************************************
 Name    : TauJetTagTool.h
 Package : offline/PhysicsAnalysis/TauID/TauTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : build the TauJet Tag objects - TauJetTagCollection.h. 
 	  The TauJet Tag fragment is built here
 *****************************************************************************/
 
+// Framework includes
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -22,6 +23,10 @@ Purpose : build the TauJet Tag objects - TauJetTagCollection.h.
 
 /** Interface ID for TauJetTagTool*/  
 static const InterfaceID IID_TauJetTagTool("TauJetTagTool", 1, 0);
+
+namespace TauAnalysisTools {
+  class ITauSelectionTool;
+}
 
 class TauJetTagTool : public AthAlgTool {
 
@@ -47,10 +52,20 @@ protected:
 private:
 
   /** Properties */
-  std::string m_containerName;
-  std::string m_tauDetailContainer;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_eleBDTLoose;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_eleBDTMedium;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_eleBDTTight;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_muonVeto;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTLoose;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTMedium;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTTight;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHLoose;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHMedium;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHTight;
+
   double m_tauJetPtCut;
-  
+
+  std::string m_containerName;
 
   /** the attribute names */
   std::vector<std::string> m_ptStr; 

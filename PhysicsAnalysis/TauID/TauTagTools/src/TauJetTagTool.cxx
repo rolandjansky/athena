@@ -5,8 +5,6 @@
 /*****************************************************************************
 Name    : TauJetTagTool.cxx
 Package : offline/PhysicsAnalysis/TauID/TauTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : create a collection of TauJetTag
 
 *****************************************************************************/
@@ -22,6 +20,8 @@ Purpose : create a collection of TauJetTag
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
+#include "TauAnalysisTools/ITauSelectionTool.h"
+
 #include <sstream>
 
 //using namespace Analysis;
@@ -29,15 +29,39 @@ Purpose : create a collection of TauJetTag
 /** the constructor */
 TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-  AthAlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ),
+  m_eleBDTLoose(),
+  m_eleBDTMedium(),
+  m_eleBDTTight(),
+  m_muonVeto(),
+  m_jetBDTLoose(),
+  m_jetBDTMedium(),
+  m_jetBDTTight(),
+  m_jetLLHLoose(),
+  m_jetLLHMedium(),
+  m_jetLLHTight(),
+  m_tauJetPtCut(15000.),
+  m_containerName()
+{
 
   /** TauJet AOD Container Name */
   declareProperty("Container",     m_containerName);
 
-  /** selection cut of Pt */
-  declareProperty("EtCut",              m_tauJetPtCut = 15.0*CLHEP::GeV);
-  //  declareProperty("TauDetailContainer", m_tauDetailContainer = "TauRecDetailsContainer");
- 
+  /** selection cut of Pt */ 
+  declareProperty("EtCut",         m_tauJetPtCut = 15.0*CLHEP::GeV); 
+
+  /** selection tool */
+  declareProperty("EleBDTLooseTauSelectionTool",     m_eleBDTLoose );
+  declareProperty("EleBDTMediumTauSelectionTool",    m_eleBDTMedium);
+  declareProperty("EleBDTTightTauSelectionTool",     m_eleBDTTight );
+  declareProperty("MuonVetoTauSelectionTool",        m_muonVeto    );
+  declareProperty("JetBDTSigLooseTauSelectionTool",  m_jetBDTLoose );
+  declareProperty("JetBDTSigMediumTauSelectionTool", m_jetBDTMedium);
+  declareProperty("JetBDTSigTightTauSelectionTool",  m_jetBDTTight );
+  declareProperty("JetLLHSigLooseTauSelectionTool",  m_jetLLHLoose );
+  declareProperty("JetLLHSigMediumTauSelectionTool", m_jetLLHMedium);
+  declareProperty("JetLLHSigTightTauSelectionTool",  m_jetLLHTight );
+
   declareInterface<TauJetTagTool>( this );
 }
 
@@ -106,7 +130,6 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
 
   ATH_MSG_DEBUG( "in execute()" );
 
- 
   /** retrieve the AOD tauJet container */
   const xAOD::TauJetContainer *tauJetContainer;
   StatusCode sc = evtStore()->retrieve( tauJetContainer, m_containerName);
@@ -117,71 +140,59 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
   ATH_MSG_DEBUG( "AOD TauJet container successfully retrieved" );
 
   xAOD::TauJetContainer userContainer(  SG::VIEW_ELEMENTS );
-				      //tauJetContainer->begin(),tauJetContainer->end(),
-
   userContainer = *tauJetContainer;
- //std::copy (const_cast<TauJetContainer*>(tauJetContainer)->begin(), const_cast<TauJetContainer*>(tauJetContainer)->end(), std::back_inserter(userContainer));
-  AnalysisUtils::Sort::pT( &userContainer );//CHANGE ALSO IN THE OTHER CODE
+  AnalysisUtils::Sort::pT( &userContainer );
 
   /** make the selection */
   int i=0;
   xAOD::TauJetContainer::const_iterator tauJetItr  = userContainer.begin();
   xAOD::TauJetContainer::const_iterator tauJetItrE = userContainer.end();
-  for (; tauJetItr != tauJetItrE; ++tauJetItr) { 
-    /** select  TauJets */
 
-    /////////ASK FOR THE DETAILS NEW FUNCTION
+  for (; tauJetItr != tauJetItrE && i< max; ++tauJetItr) { 
 
-    //    const Analysis::TauCommonDetails* theDetails = (*tauJetItr)->details<Analysis::TauCommonDetails>(m_tauDetailContainer);
- 
-    //    if ( !theDetails ) continue; 
-    
     ATH_MSG_DEBUG( "Before the tau selection" );
 
-    bool select =  ( (*tauJetItr)->pt() > m_tauJetPtCut ) && 
-      //      ( (*tauJetItr)->numTrack()==1 ||  (*tauJetItr)->numTrack()==3 ) &&
-      ( (*tauJetItr)->nTracks()==1 ||  (*tauJetItr)->nTracks()==3 ) &&
-      ( fabs((*tauJetItr)->charge()) == 1.0 )    && 
-      ( (*tauJetItr)->isTau(xAOD::TauJetParameters::JetBDTSigLoose)) ;
-
+    bool select =  ( (*tauJetItr)->pt() > m_tauJetPtCut )          &&   // pt cut 
+      ( (*tauJetItr)->nTracks()==1 || (*tauJetItr)->nTracks()==3 ) &&   // 1 or 3 tracks 
+      ( fabs((*tauJetItr)->charge()) == 1.0 )                      &&   // right charge 
+      ( m_jetBDTLoose->accept(**tauJetItr) );                           // loose BDT preselection 
 
     if ( select ) { 
   
-       if ( i<max ) {
-	 
-	 ATH_MSG_DEBUG( "While doing the tau selection" );
-    
-          /** pt */
-          tauJetTagColl.insert( m_ptStr[i], (*tauJetItr)->pt() * (*tauJetItr)->charge() );
+      ATH_MSG_DEBUG( "Filling selected tau" );
+      
+      /** pt */
+      tauJetTagColl.insert( m_ptStr[i], (*tauJetItr)->pt() * (*tauJetItr)->charge() );
  
-          /** eta */
-          tauJetTagColl.insert( m_etaStr[i], (*tauJetItr)->eta() );
+      /** eta */
+      tauJetTagColl.insert( m_etaStr[i], (*tauJetItr)->eta() );
+      
+      /** phi */
+      tauJetTagColl.insert( m_phiStr[i], (*tauJetItr)->phi() );
+      
+      /** PID */
+      unsigned int pid = 0;
+      if ((*tauJetItr)->nTracks()==1)       pid |= 1<<0;
+      if ((*tauJetItr)->nTracks()==3)       pid |= 1<<1;
+      
+      if (m_eleBDTLoose->accept(**tauJetItr))    pid |= 1<<8;
+      if (m_eleBDTMedium->accept(**tauJetItr))   pid |= 1<<9;
+      if (m_eleBDTTight->accept(**tauJetItr))    pid |= 1<<10;
+      if (m_muonVeto->accept(**tauJetItr))       pid |= 1<<11;
+      if (m_jetBDTLoose->accept(**tauJetItr))    pid |= 1<<17;
+      if (m_jetBDTMedium->accept(**tauJetItr))   pid |= 1<<12;
+      if (m_jetBDTTight->accept(**tauJetItr))    pid |= 1<<13;
+      if (m_jetLLHLoose->accept(**tauJetItr))    pid |= 1<<14;
+      if (m_jetLLHMedium->accept(**tauJetItr))   pid |= 1<<15;
+      if (m_jetLLHTight->accept(**tauJetItr))    pid |= 1<<16;
+      
+      tauJetTagColl.insert( m_pidStr[i], pid );
+      
+      /** we got one more tau written */
+      i++;
 
-          /** phi */
-          tauJetTagColl.insert( m_phiStr[i], (*tauJetItr)->phi() );
-
-	  /** PID */
-	  unsigned int pid = 0;
-	  if ((*tauJetItr)->nTracks()==1)       pid |= 1<<0;
-	  if ((*tauJetItr)->nTracks()==3)       pid |= 1<<1;
-
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::EleBDTLoose))       pid |= 1<<8;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::EleBDTMedium))      pid |= 1<<9;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::EleBDTTight))       pid |= 1<<10;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::MuonVeto))          pid |= 1<<11;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::JetBDTSigMedium))   pid |= 1<<12;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::JetBDTSigTight))    pid |= 1<<13;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::TauLlhLoose))       pid |= 1<<14;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::TauLlhMedium))      pid |= 1<<15;
-	  if ((*tauJetItr)->isTau(xAOD::TauJetParameters::TauLlhTight))       pid |= 1<<16;
-	  
-          tauJetTagColl.insert( m_pidStr[i], pid );
-
-       }
+    }
    
-       /** count the total number of tauJets */
-       i++;
-    }  
   }
 
   /** number of selected TauJet */
