@@ -57,7 +57,7 @@ namespace Trig {
 
         if(eg==NULL) {
             ATH_MSG_DEBUG("NULL Offline object");
-            return false;
+            return NULL;
         }
         Trig::FeatureContainer fc = m_trigDecTool->features(trigger);
         double deltaR=0.;
@@ -401,23 +401,24 @@ namespace Trig {
         auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
         auto initRois = fc.get<TrigRoiDescriptor>();
         if ( initRois.size() < 1 ) return false;
-        auto itEmTau = m_trigDecTool->ancestor<xAOD::EmTauRoI>(initRois[0]);
-        const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-        if(l1 == NULL) {
-            ATH_MSG_DEBUG("EMTauRoI from TE NULL");
-            return false;
-        }
-     
-        if(eg->type()==xAOD::Type::Electron){
-            const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-            deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), l1->eta(),l1->phi());
-        }
-        else if (eg->type()==xAOD::Type::Photon)
-            deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l1->eta(),l1->phi());
+        for (auto initRoi: initRois) {
+            auto itEmTau = m_trigDecTool->ancestor<xAOD::EmTauRoI>(initRoi);
+            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+            if(l1 == NULL) {
+                ATH_MSG_DEBUG("EMTauRoI from TE NULL");
+                return false;
+            }
+            if(eg->type()==xAOD::Type::Electron){
+                const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+                deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), l1->eta(),l1->phi());
+            }
+            else if (eg->type()==xAOD::Type::Photon)
+                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l1->eta(),l1->phi());
 
-        if(deltaR < m_dRL1){
-            finalFC = (itEmTau.te());
-            return true;
+            if(deltaR < m_dRL1){
+                finalFC = (itEmTau.te());
+                return true;
+            }
         }
 #endif
         return false; // otherwise, someone matched!*/
