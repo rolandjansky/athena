@@ -77,10 +77,11 @@ public:
 	   chainNames[i] != "Taus3"     &&
 	   chainNames[i] != "Bjets" )   { 
 	
-	//	std::cout << "chain[" << i << "] " << chainNames[i] << std::endl;
+	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
 	m_chainNames.push_back( ChainString(chainNames[i]) );
 
+	
       }
 
       if ( chainNames[i]=="Offline" )   m_doOffline   = true;

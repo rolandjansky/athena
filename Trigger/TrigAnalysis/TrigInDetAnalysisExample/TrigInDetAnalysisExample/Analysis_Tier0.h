@@ -65,6 +65,7 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nVtxeff;
 
   TProfile* h_pTres;
+  TProfile* h_ipTres;
   TProfile* h_etares;
   TProfile* h_phires;
   TProfile* h_d0res;
@@ -77,11 +78,17 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nsctvseta;
   TProfile* h_nsctvsphi;
 
+  TProfile* h_ntrtvseta;
+  TProfile* h_ntrtvsphi;
+
   TProfile* h_npixvseta_rec;
   TProfile* h_npixvsphi_rec;
 
   TProfile* h_nsctvseta_rec;
   TProfile* h_nsctvsphi_rec;
+
+  TProfile* h_ntrtvseta_rec;
+  TProfile* h_ntrtvsphi_rec;
 
 
   TProfile* h_d0vsphi;
@@ -99,6 +106,7 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_npix;
   TH1D* h_nsct;
   TH1D* h_nsihits;
+  TH1D* h_ntrt;
 
   TH1D* h_trkpT_rec;
   TH1D* h_trketa_rec;
@@ -109,9 +117,11 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_npix_rec;
   TH1D* h_nsct_rec;
   TH1D* h_nsihits_rec;
+  TH1D* h_ntrt_rec;
 
 
   TH1D* h_trkpT_residual;
+  TH1D* h_trkipT_residual;
   TH1D* h_trketa_residual;
   TH1D* h_trkphi_residual;
   TH1D* h_trkd0_residual;

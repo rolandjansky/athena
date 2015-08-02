@@ -162,9 +162,16 @@ protected:
       }
     }
 
+
     static bool first = true;
 
+
+
     if ( first ) {
+
+      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endreq;
+
+
       std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
@@ -253,6 +260,9 @@ protected:
     m_selectorRef = &selectorRef;
     TrigTrackSelector selectorTest( &filterTest );
     m_selectorTest = &selectorTest;
+
+    m_selectorRef->setBeamline(  xbeam, ybeam );
+    //   m_selectorRef->setBeamline(  -0.693, -0.617 );
 
     /// now start everything going for this event properly ...
 

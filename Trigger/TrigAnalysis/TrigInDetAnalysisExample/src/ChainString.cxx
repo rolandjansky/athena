@@ -22,6 +22,7 @@ ChainString::ChainString(const ChainString& s) :
   std::string(s), 
   mhead(s.mhead), mtail(s.mtail), mextra(s.mextra),
   melement(s.melement), mroi(s.mroi), 
+  mvtx(s.mvtx),
   mpassed(s.mpassed) {  
 
 }
@@ -34,7 +35,7 @@ void ChainString::parse() {
     
     std::vector<std::string> fields;
 
-    //    std::cout << "\nChainString::parse() " << _s << std::endl;
+    //    std::cout << "\nChainString::parse() [" << _s << "]" << std::endl;
     
     std::string pass = chomp(_s,";");
     if ( pass!="" ) mpassed = ( pass=="DTE" ? false : true );    
@@ -104,7 +105,7 @@ void ChainString::parse() {
     std::cout << "index :     " << mextra   << std::endl;
     std::cout << "te :        " << melement << std::endl;
     std::cout << "roi :       " << mroi     << std::endl;
-    std::cout << "vtx :       " << mroi     << std::endl;
+    std::cout << "vtx :       " << mvtx     << std::endl;
     std::cout << "pass :      " << mpassed  << std::endl;
 #endif   
     

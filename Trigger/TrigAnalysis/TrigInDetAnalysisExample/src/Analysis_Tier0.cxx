@@ -76,19 +76,25 @@ void Analysis_Tier0::initialise() {
   h_z0eff   = new TProfile ("Eff_z0",  "z0 efficiency",     50, -225.,  225.);
   h_nVtxeff = new TProfile ("Eff_nVtx",  "nVtx efficiency", 41,   -0.5,  40.5);
 
-  h_npixvseta     = new TProfile ("npix vs eta",      "offline npix vs eta;offline #eta;# mean number of offline pixel hits", 30,   -2.5,  2.5);
-  h_npixvseta_rec = new TProfile ("npix vs eta rec",  "trigger npix vs eta;trigger #eta;# mean number of trigger pixel hits", 30,   -2.5,  2.5);
+  /// han config too stufid to deal with spaces in histogram names
+  h_npixvseta     = new TProfile ("npix_vs_eta",      "offline npix vs eta;offline #eta;# mean number of offline pixel hits", 30,   -2.5,  2.5);
+  h_npixvseta_rec = new TProfile ("npix_vs_eta_rec",  "trigger npix vs eta;trigger #eta;# mean number of trigger pixel hits", 30,   -2.5,  2.5);
 
-  h_nsctvseta     = new TProfile ("nsct vs eta",      "offline nsct vs eta;offline #eta;# mean number of offline sct hits", 30,   -2.5,  2.5);
-  h_nsctvseta_rec = new TProfile ("nsct vs eta rec",  "trigger nsct vs eta;trigger #eta;# mean number of trigger sct hits", 30,   -2.5,  2.5);
+  h_nsctvseta     = new TProfile ("nsct_vs_eta",      "offline nsct vs eta;offline #eta;# mean number of offline sct hits", 30,   -2.5,  2.5);
+  h_nsctvseta_rec = new TProfile ("nsct_vs_eta_rec",  "trigger nsct vs eta;trigger #eta;# mean number of trigger sct hits", 30,   -2.5,  2.5);
 
+  h_ntrtvseta     = new TProfile ("ntrt_vs_eta",      "offline ntrt vs eta;offline #eta;# mean number of offline trt hits", 30,   -2.5, 2.5 );
+  h_ntrtvseta_rec = new TProfile ("ntrt_vs_eta_rec",  "trigger ntrt vs eta;trigger #eta;# mean number of trigger trt hits", 30,   -2.5, 2.5 );
 
+  h_npixvsphi     = new TProfile ("npix_vs_phi",      "offline npix vs phi;offline #phi;# mean number of offline pixel hits", 30,   -M_PI,  M_PI);
+  h_npixvsphi_rec = new TProfile ("npix_vs_phi_rec",  "trigger npix vs phi;trigger #phi;# mean number of trigger pixel hits", 30,   -M_PI,  M_PI);
 
-  h_npixvsphi     = new TProfile ("npix vs phi",      "offline npix vs phi;offline #phi;# mean number of offline pixel hits", 30,   -M_PI,  M_PI);
-  h_npixvsphi_rec = new TProfile ("npix vs phi rec",  "trigger npix vs phi;trigger #phi;# mean number of trigger pixel hits", 30,   -M_PI,  M_PI);
+  h_nsctvsphi     = new TProfile ("nsct_vs_phi",      "offline nsct vs phi;offline #phi;# mean number of offline sct hits", 30,   -M_PI,  M_PI);
+  h_nsctvsphi_rec = new TProfile ("nsct_vs_phi_rec",  "trigger nsct vs phi;trigger #phi;# mean number of trigger sct hits", 30,   -M_PI,  M_PI);
 
-  h_nsctvsphi     = new TProfile ("nsct vs phi",      "offline nsct vs phi;offline #phi;# mean number of offline sct hits", 30,   -M_PI,  M_PI);
-  h_nsctvsphi_rec = new TProfile ("nsct vs phi rec",  "trigger nsct vs phi;trigger #phi;# mean number of trigger sct hits", 30,   -M_PI,  M_PI);
+  h_ntrtvsphi     = new TProfile ("ntrt_vs_phi",      "offline ntrt vs phi;offline #phi;# mean number of offline trt hits", 30,   -M_PI, M_PI );
+  h_ntrtvsphi_rec = new TProfile ("ntrt_vs_phi_rec",  "trigger ntrt vs phi;trigger #phi;# mean number of trigger trt hits", 30,   -M_PI, M_PI );
+
 
 
   addHistogram(h_total_efficiency);
@@ -105,22 +111,39 @@ void Analysis_Tier0::initialise() {
   addHistogram( h_nsctvseta ); 
   addHistogram( h_nsctvseta_rec ); 
 
+  addHistogram( h_ntrtvseta ); 
+  addHistogram( h_ntrtvseta_rec ); 
+
   addHistogram( h_npixvsphi ); 
   addHistogram( h_npixvsphi_rec ); 
 
   addHistogram( h_nsctvsphi ); 
   addHistogram( h_nsctvsphi_rec ); 
 
+  addHistogram( h_ntrtvsphi ); 
+  addHistogram( h_ntrtvsphi_rec ); 
+
   /// trigger tracking differential resolutions
 
+  /// change all these residiuals to be vs eta, rather than vs themselves
+
   //  h_pTres  = new TProfile("Res_pT", "pT residual;pT [Gev];pT_{trig}-pT_{ref} [GeV]",   25,    0.,   100.);
-  h_pTres  = new TProfile("Res_pT", "pT residual;pT [Gev];pT_{trig}-pT_{ref} [GeV]",      25,   &ptbins[0]   );
-  h_etares = new TProfile("Res_eta", "Eta residual;#eta;#eta_{trig}-#eta_{ref}", 25,   -2.5,    2.5);
-  h_phires = new TProfile("Res_phi", "Phi residual;#phi;#phi_{trig}-#phi_{ref}", 25,   -M_PI, M_PI);
-  h_d0res  = new TProfile("Res_d0", "d0 residual;d0 [mm];d0_{trig}-d0_{ref} [mm]",   50,  -10.,    10.);
-  h_z0res  = new TProfile("Res_z0", "z0 residual;z0 [mm];z0_{trig}-z0_{ref} [mm]",   50, -225.,   225.);
+  // h_pTres  = new TProfile("Res_pT", "pT residual;pT [Gev];pT_{trig}-pT_{ref} [GeV]",      25,   &ptbins[0]   );
+  // h_ipTres = new TProfile("Res_ipT", "ipT residual;pT^{-1} [Gev^{-1}];1/pT_{trig}-1/pT_{ref} [GeV^{-1}]", 55, -5, 5   );
+  // h_etares = new TProfile("Res_eta", "Eta residual;#eta;#eta_{trig}-#eta_{ref}", 25,   -2.5,    2.5);
+  // h_phires = new TProfile("Res_phi", "Phi residual;#phi;#phi_{trig}-#phi_{ref}", 25,   -M_PI, M_PI);
+  // h_d0res  = new TProfile("Res_d0", "d0 residual;d0 [mm];d0_{trig}-d0_{ref} [mm]",   50,  -10.,    10.);
+  // h_z0res  = new TProfile("Res_z0", "z0 residual;z0 [mm];z0_{trig}-z0_{ref} [mm]",   50, -225.,   225.);
+
+  h_pTres  = new TProfile("Res_pT", "pT residual;#Delta pT [Gev];#eta_{ref}",     25,  -2.5, 2.5   );
+  h_ipTres = new TProfile("Res_ipT", "ipT residual;#Delta pT^{-1} [Gev^{-1}];#eta_{ref}", 25, -2.5, 2.5); 
+  h_etares = new TProfile("Res_eta", "Eta residual;#Delta #eta;#eta_{ref}", 25,   -2.5,    2.5);
+  h_phires = new TProfile("Res_phi", "Phi residual;#Delta #phi;#eta_{ref}", 25,   -2.5,  2.5);
+  h_d0res  = new TProfile("Res_d0", "d0 residual;#Delta d0 [mm];#eta_{ref}",  25,   -2.5,  2.5);
+  h_z0res  = new TProfile("Res_z0", "z0 residual;#Delta z0 [mm];#eta_{ref}",  25,   -2.5,  2.5);
 
   addHistogram(h_pTres);
+  addHistogram(h_ipTres);
   addHistogram(h_etares);
   addHistogram(h_phires);
   addHistogram(h_d0res);
@@ -128,13 +151,15 @@ void Analysis_Tier0::initialise() {
 
   /// residuals
 
-  h_trkpT_residual  = new TH1D("residual_pT" , "track pT residual",  25, -100.0,    100.0  );
-  h_trkphi_residual = new TH1D("residual_phi", "track Phi residual", 50,   -0.02,     0.02 );
-  h_trketa_residual = new TH1D("residual_eta", "track Eta residual", 50,   -0.02,     0.02 );
-  h_trkd0_residual  = new TH1D("residual_d0" , "track d0 residual ", 50,   -2.5,      2.5  );
-  h_trkz0_residual  = new TH1D("residual_z0" , "track z0 residual",  50,  -10.0,     10.0  );
+  h_trkpT_residual  = new TH1D("residual_pT" , "track pT residual",   25, -100.0,    100.0  );
+  h_trkipT_residual = new TH1D("residual_ipT", "track ipT residual",  55,   -5.5,      5.5  );
+  h_trkphi_residual = new TH1D("residual_phi", "track Phi residual",  50,   -0.02,     0.02 );
+  h_trketa_residual = new TH1D("residual_eta", "track Eta residual",  50,   -0.02,     0.02 );
+  h_trkd0_residual  = new TH1D("residual_d0" , "track d0 residual ", 251,   -2.5,      2.5  );
+  h_trkz0_residual  = new TH1D("residual_z0" , "track z0 residual",  800,  -40.0,     40.0  );
 
   addHistogram(h_trkpT_residual);
+  addHistogram(h_trkipT_residual);
   addHistogram(h_trkphi_residual);
   addHistogram(h_trketa_residual);
   addHistogram(h_trkd0_residual);
@@ -148,6 +173,9 @@ void Analysis_Tier0::initialise() {
 
   h_nsihits     = new TH1D("nsiHits",     "nsiHits",     41,  -0.5,     40.5  );
   h_nsihits_rec = new TH1D("nsiHits_rec", "nsiHits_rec", 41,  -0.5,     40.5  );
+
+  h_ntrt     = new TH1D("ntrt",     "ntrt",      91,  -0.5,     91.5  );
+  h_ntrt_rec = new TH1D("ntrt_rec", "ntrt_rec",  91,  -0.5,     91.5  );
 
   addHistogram( h_npix );
   addHistogram( h_nsct );
@@ -214,14 +242,17 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
 
     h_npixvseta->Fill( referenceEta,  (*reference)->pixelHits() ); 
     h_nsctvseta->Fill( referenceEta,  (*reference)->sctHits() ); 
+    h_ntrtvseta->Fill( referenceEta,  (*reference)->strawHits() ); 
 
     h_npixvsphi->Fill( referencePhi,  (*reference)->pixelHits() ); 
     h_nsctvsphi->Fill( referencePhi,  (*reference)->sctHits() ); 
+    h_ntrtvsphi->Fill( referencePhi,  (*reference)->strawHits() ); 
 
 
     h_npix->Fill(  (*reference)->pixelHits() ); 
     h_nsct->Fill(  (*reference)->sctHits() ); 
     h_nsihits->Fill(  (*reference)->siHits() ); 
+    h_ntrt->Fill(  (*reference)->strawHits() ); 
    
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
@@ -233,12 +264,21 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
       /// NB: do we want to fill the actual *trigger* quantities, or the 
       /// offline quantities for the *matched* tracks?
 
-      /// residual profiles vs the reference variable
-      h_pTres->Fill( referencePT*0.001, (test->pT() - referencePT)*0.001 );
+      /// residual profiles vs the reference variable      
+      // h_pTres->Fill( referencePT*0.001, (test->pT() - referencePT)*0.001 );
+      // h_ipTres->Fill( 1000/referencePT, (1000/test->pT() - 1000/referencePT) );
+      // h_etares->Fill( referenceEta, test->eta() - referenceEta );
+      // h_phires->Fill( referencePhi, phi(test->phi() - referencePhi) );
+      // h_d0res->Fill( referenceD0, test->a0() - referenceD0 );
+      // h_z0res->Fill( referenceZ0, test->z0() - referenceZ0  );
+
+      /// residual profiles vs eta - the more easy to understand
+      h_pTres->Fill( referenceEta, (test->pT() - referencePT)*0.001 );
+      h_ipTres->Fill( referenceEta, (1000/test->pT() - 1000/referencePT) );
       h_etares->Fill( referenceEta, test->eta() - referenceEta );
-      h_phires->Fill( referencePhi, phi(test->phi() - referencePhi) );
-      h_d0res->Fill( referenceD0, test->a0() - referenceD0 );
-      h_z0res->Fill( referenceZ0, test->z0() - referenceZ0  );
+      h_phires->Fill( referenceEta, phi(test->phi() - referencePhi) );
+      h_d0res->Fill( referenceEta, test->a0() - referenceD0 );
+      h_z0res->Fill( referenceEta, test->z0() - referenceZ0  );
 
 #if 0
       /// reference tracks values for tracks with a reference track match (not test track values) 
@@ -260,6 +300,7 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
 
       /// 1d residual distributions 
       h_trkpT_residual->Fill( (test->pT() - referencePT)*0.001 );
+      h_trkipT_residual->Fill( (1000/test->pT() - 1000/referencePT) );
       h_trketa_residual->Fill( test->eta() - referenceEta );
       h_trkphi_residual->Fill( phi(test->phi() - referencePhi) );
       h_trkd0_residual->Fill(  test->a0() - referenceD0 );
@@ -277,6 +318,8 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
       h_nsct_rec->Fill(  test->sctHits() ); 
       h_nsihits_rec->Fill(  test->siHits() ); 
     
+      h_ntrt_rec->Fill(  test->strawHits() ); 
+
     }
     //    else { 
     //      if ( referencePT*0.001 > 10 ) { /// in GeV
