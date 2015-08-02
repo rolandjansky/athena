@@ -157,12 +157,11 @@ def TrigIDtrkMonitoringTool():
 		tidatau.UseHighestPT = False
 		tidatau.ntupleChainNames += [
 			"Offline",
-			"HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
-			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
-			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
-			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
-			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-			"HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
+			"HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
+			"HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_FTF",
+			"HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
+			"HLT_tau.*idperf.*tracktwp:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
+			"HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3"
 			]
 		ToolSvc += tidatau;
 		list += [ "TrigTestBase/IDTauTool" ]
@@ -202,7 +201,7 @@ def TrigIDtrkMonitoringTool():
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
 			# muon based chains
 			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
 			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
@@ -220,7 +219,7 @@ def TrigIDtrkMonitoringTool():
 		tidabjetshift.ntupleChainNames += [
 			"Offline",
 			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 			]
@@ -241,6 +240,9 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidabphys.ntupleChainNames += [
 			"Offline",
+			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_FTF",
+			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_EFID",
 			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_EFID",
 			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
 			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
@@ -277,9 +279,10 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaminbias.ntupleChainNames += [
 			"Offline",
-			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_EFID",
+			"HLT_mb_.*_hmtperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
 			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
-			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
+			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF",
+			"HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1:key=InDetTrigTrackingxAODCnv_minBias_EFID"
 			]
 		ToolSvc += tidaminbias;
 		list += [ "TrigTestBase/IDminBiasTool" ]
