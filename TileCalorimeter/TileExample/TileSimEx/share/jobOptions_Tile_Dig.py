@@ -2,7 +2,7 @@
 #
 # Job options file for Digitization
 #
-# Full ATLAS or TileCal Testbeam setup, TileCal only digitization
+# Full ATLAS setup, TileCal only digitization
 #
 #==============================================================
 
@@ -31,59 +31,43 @@ topSequence = AlgSequence()
 # configuration flags
 #--------------------------------------------------------------
 
-# - Number of events to be processed
-if not 'EvtMax' in dir():
-    EvtMax = -1
-
-if not 'FileSuffix' in dir():
-    FileSuffix = ''
-
 if not 'TileTB' in dir():
-    TileTB = ('Geo' in dir() and (Geo=='5B' or Geo=='3B' or Geo=='2B2EB'))
+    TileTB = False
 
 if TileTB:
     ConddbTag = 'OFLCOND-MC12-SDR-27'
     DetGeo = 'ctbh8'
     DetDescrVersion = 'ATLAS-CTB-01'
-    if not 'Geo' in dir():
-        Geo = '5B'
-    TileVersionOverride = 'TileTB-%s-00' % Geo
+    TileVersionOverride = 'TileTB-5B-00'
     if not 'doHitNtuple' in dir():
         doHitNtuple = True
 
     if not 'doD3PD' in dir():
         doD3PD = True
-        doD3PDHit = False
+        doD3PDHit = True
         doD3PDHitInfo = False
         doD3PDCellInfo = False
 
     if not 'PoolHitsInput' in dir():
-        PoolHitsInput = 'tiletb%s.HITS.pool.root' % FileSuffix
-
-    if not 'PoolRDOOutput' in dir():
-        PoolRDOOutput = 'tiletb%s.DIGITS.pool.root' % FileSuffix
-
-    FileSuffix = 'tb'+FileSuffix
+        PoolHitsInput = 'tile.hits.pool.root'
 
     if not 'TruthSGKey' in dir():
         TruthSGKey = 'TruthEvent'
 
+# - Number of events to be processed
+if not 'EvtMax' in dir():
+    EvtMax = 10
+
 # - input file with hits 
 if not 'PoolHitsInput' in dir():
-    PoolHitsInput = 'HITS%s.pool.root' % FileSuffix
+    PoolHitsInput = 'HITS.pool.root'
 
 # - output file with digits 
 if not 'PoolRDOOutput' in dir():
-    PoolRDOOutput = 'DIGITS%s.pool.root' % FileSuffix
-
-if not 'NTUPOutput' in dir():
-    NTUPOutput = 'tile%s.ntup.root' % FileSuffix
-
-if not 'AANTOutput' in dir():
-    AANTOutput = 'tile%s.aant.root' % FileSuffix
+    PoolRDOOutput = 'DIGITS.pool.root'
 
 if not 'D3PDOutput' in dir():
-    D3PDOutput = 'tile%s.d3pd.root' % FileSuffix
+    D3PDOutput = 'tile_d3pd.root'
 
 if not 'ConddbTag' in dir():
     ConddbTag = 'OFLCOND-RUN12-SDR-23'
@@ -94,9 +78,8 @@ if not 'DetGeo' in dir():
 if not 'DetDescrVersion' in dir():
     DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
 
-# commented out - do not set any override by default
-#if not 'TileVersionOverride' in dir():
-#    TileVersionOverride = 'TileCal-GEO-08'
+if not 'TileVersionOverride' in dir():
+    TileVersionOverride = 'TileCal-GEO-08'
 
 if not 'doD3PD' in dir():
     doD3PD = False
@@ -105,7 +88,7 @@ if not 'doD3PDHit' in dir():
     doD3PDHit = False
 
 if not 'doD3PDHitInfo' in dir():
-    doD3PDHitInfo = False
+    doD3PDHitInfo = True
 
 if not 'doD3PDDigit' in dir():
     doD3PDDigit = False
@@ -125,9 +108,6 @@ if not 'doD3PDMBTS' in dir():
 if not 'doHitNtuple' in dir():
     doHitNtuple = False
 
-if not 'doDigitsNtuple' in dir():
-    doDigitsNtuple = False
-
 if not 'doRawChannelNtuple' in dir():
     doRawChannelNtuple = False
 
@@ -146,7 +126,6 @@ if not 'doCaloNoise' in dir():
 from AthenaCommon.AthenaCommonFlags import jobproperties
 #jobproperties.AthenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails.
 
-theApp.EvtMax = EvtMax
 jobproperties.AthenaCommonFlags.EvtMax = EvtMax
 jobproperties.AthenaCommonFlags.PoolHitsInput=[ PoolHitsInput ]
 jobproperties.AthenaCommonFlags.PoolRDOOutput=PoolRDOOutput
@@ -200,6 +179,7 @@ globalflags.InputFormat.set_Value_and_Lock('pool')
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock('collisions')
 
+
 from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag(ConddbTag);
 logTileDig.info( 'ConddbTag = %s' % (ConddbTag) )
@@ -207,17 +187,16 @@ logTileDig.info( 'ConddbTag = %s' % (ConddbTag) )
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 logTileDig.info( 'DetDescrVersion = %s' % (jobproperties.Global.DetDescrVersion()) )
+jobproperties.Global.DetGeo = "ctbh8"
 
 from AtlasGeoModel import SetGeometryVersion
-jobproperties.Global.DetGeo = DetGeo
 from AtlasGeoModel import GeoModelInit
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.IgnoreTagDifference = True
 logTileDig.info( 'GeoModelSvc.AtlasVersion = %s' % (GeoModelSvc.AtlasVersion) )
-if 'TileVersionOverride' in dir():
-    GeoModelSvc.TileVersionOverride = TileVersionOverride
-    logTileDig.info( 'GeoModelSvc.TileVersionOverride = %s' % (GeoModelSvc.TileVersionOverride) )
+GeoModelSvc.TileVersionOverride = TileVersionOverride
+logTileDig.info( 'GeoModelSvc.TileVersionOverride = %s' % (GeoModelSvc.TileVersionOverride) )
 
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
@@ -240,31 +219,15 @@ if not TileTB:
 # jobproperties.Digitization.numberOfBeamGas=0.5
 # jobproperties.Digitization.beamGasInputCols=['', '']
 
+include.block ( 'TileL2Algs/TileL2Algs_jobOptions.py' )
+
+include( 'Digitization/Digitization.py' )
+
 topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
-if doD3PDHit or doD3PDDigit or doD3PDRawChannel or doD3PDCell or doD3PDCellInfo or doD3PDMBTS or doDigitsNtuple or doRawChannelNtuple or doTileNtuple or doRDO:
-
-    include.block ( 'TileL2Algs/TileL2Algs_jobOptions.py' )
-
-    if TileTB:
-        # special settings for TileConditions, to make sure that COOL is not used
-        TileUseCOOL=False
-
-        # setting Fit method only
-        from TileRecUtils.TileRecFlags import jobproperties
-        jobproperties.TileRecFlags.doTileFit = True
-
-    include( 'Digitization/Digitization.py' )
-
-    if TileTB:
-        jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
-        # avoid MBTS hits
-        ToolSvc.TileHitVecToCntTool.TileHitVectors=['TileHitVec']
-
-else:
-    include( "TileConditions/TileConditions_jobOptions.py" )
-    include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
-    svcMgr.EventSelector.InputCollections = [ PoolHitsInput ]
+if TileTB:
+    # avoid MBTS hits
+    ToolSvc.TileHitVecToCntTool.TileHitVectors=['TileHitVec']
 
 if doD3PDCell or doD3PDCellInfo or doD3PDMBTS :
     # create TileCell from TileRawChannel and store it in CaloCellContainer
@@ -343,17 +306,17 @@ if doTileNtuple:
     if not hasattr(svcMgr, 'THistSvc'):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
-    svcMgr.THistSvc.Output += [ "AANT DATAFILE='"+AANTOutput+"' OPT='RECREATE' " ]
+    svcMgr.THistSvc.Output += [ "AANT DATAFILE='tile_aant.root' OPT='RECREATE' " ]
     #svcMgr.THistSvc.MaxFileSize = 32768
     
 
-if (doHitNtuple or doDigitsNtuple or doRawChannelNtuple):
+if (doHitNtuple or doRawChannelNtuple):
 
     if not hasattr(svcMgr, 'NtupleSvc'):
         from GaudiSvc.GaudiSvcConf import NTupleSvc
         svcMgr += NTupleSvc()
     NTupleSvc = svcMgr.NTupleSvc
-    NTupleSvc.Output = [ "NTUP DATAFILE='"+NTUPOutput+"' OPT='NEW' " ]
+    NTupleSvc.Output = [ "NTUP DATAFILE='tile_ntup.root' OPT='NEW' " ]
 
 
 if doHitNtuple:
@@ -366,45 +329,25 @@ if doHitNtuple:
     theTileHitToNtuple.NTupleLoc = '/NTUP'
 
 
-if doDigitsNtuple:
-    #--- Create TileCal h40 ntuple with all digits ---------
-    from TileRec.TileRecConf import TileDigitsToNtuple
-    theTileDigitsToNtuple = TileDigitsToNtuple()
-    topSequence += theTileDigitsToNtuple
-    theTileDigitsToNtuple.TileDigitsContainer = 'TileDigitsCnt'
-    theTileDigitsToNtuple.NTupleLoc = '/NTUP'
-
-
 if doRawChannelNtuple:
     #--- Create TileCal h70 ntuple with all raw channels ---------
     from TileRec.TileRecConf import TileRawChannelToNtuple
     theTileRawChannelToNtuple = TileRawChannelToNtuple()
     topSequence += theTileRawChannelToNtuple
-    theTileRawChannelToNtuple.TileRawChannelContainer = 'TileRawChannelFit'
+    theTileRawChannelToNtuple.TileRawChannelContainer = 'TileRawChannelCnt'
     theTileRawChannelToNtuple.NTupleLoc = '/NTUP'
 
 
 if doTileNtuple:
     doSim = True
-    if TileTB:
-        #--- Create TileCal h1000 ntuple with RawChannels ---------
-        topSequence += CfgMgr.TileTBAANtuple( TBperiod = 2003, NSamples = 7, BSInput = False, 
-                                              CompleteNtuple = False, UnpackAdder = False,
-                                              TileRawChannelContainerFlat = "", 
-                                              TileRawChannelContainerOpt = "",
-                                              TileRawChannelContainerFit = "TileRawChannelFit",
-                                              TileBeamElemContainer = "",
-                                              TileLaserObject = "",
-                                              beamFragList = [ ]  )
-    else:
-        #--- Create TileCal h2000 ntuple with RawChannels ---------
-        include( 'TileRec/TileDefaults_jobOptions.py' )
-        include( 'TileRec/TileNtuple_jobOptions.py' )
-        TileNtuple.TileRawChannelContainer  = 'TileRawChannelCnt'
-        TileNtuple.TileBeamElemContainer = ''
-        TileNtuple.TileDigitsContainer = 'TileDigitsCnt'
-        TileNtuple.TileDigitsContainerFlt = ''
-        TileNtuple.StreamName  = 'AANT'
+    #--- Create TileCal h2000 ntuple with RawChannels ---------
+    include( 'TileRec/TileDefaults_jobOptions.py' )
+    include( 'TileRec/TileNtuple_jobOptions.py' )
+    TileNtuple.TileRawChannelContainer  = 'TileRawChannelCnt'
+    TileNtuple.TileBeamElemContainer = ''
+    TileNtuple.TileDigitsContainer = 'TileDigitsCnt'
+    TileNtuple.TileDigitsContainerFlt = ''
+    TileNtuple.StreamName  = 'AANT'
 
 # from TileSimAlgs.TileSimAlgsConf import *
 # theTilePulseForTileMuonReceiver=TilePulseForTileMuonReceiver()
