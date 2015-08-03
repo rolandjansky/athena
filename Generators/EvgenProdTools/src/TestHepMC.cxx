@@ -29,6 +29,12 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("EffFailThreshold", m_eff_fail_threshold=0.98); // fraction
   declareProperty("AccuracyMargin",   m_accur_margin=0.); //MeV
 
+  declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
+  m_vertexStatuses.push_back( 1 );
+  m_vertexStatuses.push_back( 3 );
+  m_vertexStatuses.push_back( 4 );
+
+
   declareProperty("THistSvc", m_thistSvc);
 
   declareProperty("DoHist", m_doHist=true); //histograming yes/no true/false
@@ -151,6 +157,10 @@ StatusCode TestHepMC::initialize() {
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle1_Energy", m_h_beamparticle1_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
+
+  ATH_MSG_INFO("No decay vertex is ignored for particles with status (list):" );
+  for ( unsigned int i = 0; i < m_vertexStatuses.size(); i++ ) ATH_MSG_INFO("            : " << m_vertexStatuses.at(i) );
+  ATH_MSG_INFO("Vertex statuses finsihed");
 
   }
 
@@ -435,7 +445,9 @@ StatusCode TestHepMC::execute() {
 
       // Check for unstables with no end vertex, such as undecayed gluons, Ws, Zs, and h [not status 3 to avoid probles with photos]
       if (!(*pitr)->end_vertex() &&
-          ((pstatus != 1 && pstatus != 3 && pstatus != 4) || ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
+          ( ( std::find( m_vertexStatuses.begin(), m_vertexStatuses.end(), pstatus ) == m_vertexStatuses.end() ) 
+	    || 
+	    ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
         unstNoEnd.push_back(pbarcode);
         ++m_unstableNoEndVtxCheckRate;
       }

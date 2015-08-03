@@ -49,6 +49,8 @@ public:
   double      m_accur_margin;
   bool m_doHist;
 
+  std::vector<int> m_vertexStatuses;
+
   int m_nPass;
   int m_nFail;
 
