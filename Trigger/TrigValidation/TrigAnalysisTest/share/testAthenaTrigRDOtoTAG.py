@@ -41,6 +41,8 @@ TriggerFlags.enableMonitoring = [ 'Validation', 'Time', 'Log' ]
 #------------ This is for ATN/RTT tests only ---------
 #TriggerFlags.triggerMenuSetup = 'undefined_no_prescale'
 TriggerFlags.triggerMenuSetup = 'Physics_pp_v5'
+if  ('menu' in dir()):
+    TriggerFlags.triggerMenuSetup=menu 
 TriggerFlags.L1PrescaleSet = ''
 TriggerFlags.HLTPrescaleSet = ''
 TriggerFlags.doHLT=True

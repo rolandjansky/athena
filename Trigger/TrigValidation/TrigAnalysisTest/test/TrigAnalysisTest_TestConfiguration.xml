@@ -195,7 +195,7 @@
         
         <TEST name="PhysValMonitoring" type="script" suite="triganalysis_val_MC_Slim"> 
             <options_atn>trigtest.pl --test PhysValMonitoring --run PhysValMonitoring --conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
+            <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -394,7 +394,7 @@
                 </doc>
                 <jobTransformJobName>LeakCheck_MC_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc49-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py
                 </jobTransformCmd>
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
@@ -406,7 +406,7 @@
                 </doc>
                 <jobTransformJobName>LeakCheck_Physics_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc49-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'RunningRTT=TRUE;menu="Physics_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py
                 </jobTransformCmd>
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue>
@@ -953,7 +953,7 @@
                                 </testToRemove>
                                 <testToRemove>
                                     <jobGroupName>TrigAnalysisTestIOTests</jobGroupName>
-                                    <testidentifier>chainDump</testidentifier>
+                                    <testidentifier>chainDump_chainDump</testidentifier>
                                 </testToRemove>
                             </athena>
                         </chainElement>
@@ -981,7 +981,7 @@
                                 </testToRemove>
                                 <testToRemove>
                                     <jobGroupName>TrigAnalysisTestIOTests</jobGroupName>
-                                    <testidentifier>chainDump</testidentifier>
+                                    <testidentifier>chainDump_chainDump</testidentifier>
                                 </testToRemove>
                             </athena>
                         </chainElement>
@@ -989,6 +989,144 @@
                     
                 </sequential>
             </chain>
+            
+            
+            
+            
+            
+            
+            <chain>
+                <chainName>AthenaTrigESDAOD_Perf_and_HLTMons_MC_pp_v5_chain</chainName>
+                <abortOnError />
+                <sequential>
+                    
+                    <chainElement>
+                        <athena userJobId="RDOtoESD_MC_pp_v5" doMonitoring="True">
+                            <doc> Menu: MC_pp_v5 Sample: top - produces AOD 100 events</doc>
+                            <displayName>RDOtoAOD_MC_pp_v5</displayName>
+                            <commandLineFlags>
+                                RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
+                            </commandLineFlags>
+                            <options>testAthenaTrigRDOtoAOD.py</options>
+                            <group>TrigAnalysisTestIOTests</group>
+                            <queue>long</queue>
+                            <athenaCommonFlags />
+                        </athena>
+                        <chainfileout>AOD.pool.root</chainfileout>
+                    </chainElement>
+                    
+                    <parallel>
+                        
+                        <sequential>
+                        <chainElement>
+                            <athena userJobId="ESDtoAOD_MC_pp_v5" doMonitoring="True">
+                                <doc> Menu: MC_pp_v5 Sample: top - produces AOD 100 events</doc>
+                                <displayName>RDOtoAOD_MC_pp_v5</displayName>
+                                <commandLineFlags>
+                                    RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
+                                </commandLineFlags>
+                                <options>testAthenaTrigRDOtoAOD.py</options>
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue>
+                                <athenaCommonFlags />
+                            </athena>
+                            <chainfileout>AOD.pool.root</chainfileout>
+                        </chainElement>
+                        
+                        
+                        <chainElement>
+                            <athena userJobId="HLTMon">
+                                <doc> AthenaTrigAOD_TrigEDMCheck on Menu: MC_pp_v5 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigEDMCheck_MC_pp_v5</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigEDMCheck.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue> 
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump_chainDump</testidentifier>
+                                </testToRemove>
+                            </athena>
+                        </chainElement>
+                        
+                        
+                        <chainElement>
+                            <athena userJobId="PhysValMon_ESD">
+                                <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v5 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v5</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue> 
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump_chainDump</testidentifier>
+                                </testToRemove>
+                            </athena>
+                        </chainElement>
+                        
+                        </sequential>
+                        
+                        <chainElement>
+                            <athena userJobId="PhysValMon_xAOD">
+                                <doc> AthenaTrigAOD_TrigDecTool on Menu: MC_pp_v5 Sample: top AOD from RDO</doc>
+                                <displayName>AthenaTrigAOD_TrigDecTool_MC_pp_v5</displayName>
+                                <commandLineFlags>RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=["AOD.pool.root"]</commandLineFlags>
+                                <options>testAthenaTrigAOD_TrigDecTool.py</options>
+                                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                                <group>TrigAnalysisTestIOTests</group>
+                                <queue>long</queue> 
+                                <chaindataset_info>
+                                    <dc2/>
+                                    <chaindatasetName>AOD.pool.root</chaindatasetName>
+                                    <dataset_info>
+                                        <dc2 />
+                                        <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc6-gcc47-opt/AtlasProduction/Trigger/TrigValidation/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_chain/file_link_broken_on_purpose_to_spot_RTT_errors_AOD.pool.root</datasetName>
+                                    </dataset_info>
+                                </chaindataset_info>
+                                <testToRemove>
+                                    <jobGroupName>RTT:Top</jobGroupName>
+                                    <testidentifier>CheckFileRunner0</testidentifier>
+                                </testToRemove>
+                                <testToRemove>
+                                    <jobGroupName>TrigAnalysisTestIOTests</jobGroupName>
+                                    <testidentifier>chainDump_chainDump</testidentifier>
+                                </testToRemove>
+                            </athena>
+                        </chainElement>
+                    </parallel>
+                    
+                </sequential>
+            </chain>
+            
+            
+            
             
             <athena  userJobId="RDOtoAOD_MC_pp_v5_loose_mc_prescale" doMonitoring="True">
                 <doc>
