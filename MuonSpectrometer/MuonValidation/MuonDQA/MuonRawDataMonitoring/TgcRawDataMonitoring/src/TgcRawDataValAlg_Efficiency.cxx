@@ -212,6 +212,16 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 
   for(int ac=0;ac<2;ac++){
     for(int ws=0;ws<2;ws++){
+      BlankStationMap(tgceffmap[ac][ws]);  
+      if(ws==1) BlankStripStationMap(tgceffmap[ac][ws]);
+      for(int bc=0; bc<2; bc++){
+        BlankStationMap(tgceffmapbc[ac][ws][bc]);
+        BlankStationMap(tgceffmapnumbc[ac][ws][bc]);                                                                                                     
+        if(ws==1){
+          BlankStripStationMap(tgceffmapbc[ac][ws][bc]);
+          BlankStripStationMap(tgceffmapnumbc[ac][ws][bc]);
+        }
+      }
       for(int sec=1;sec<=12;sec++){
         for(int phi=0;phi<=3;phi+=4){
           ss.str(""); ss << side[ac];
