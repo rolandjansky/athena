@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "EvgenProdTools/CopyEventWeight.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
@@ -47,3 +49,5 @@ StatusCode CopyEventWeight::execute() {
 
   return StatusCode::SUCCESS;
 }
+
+#endif

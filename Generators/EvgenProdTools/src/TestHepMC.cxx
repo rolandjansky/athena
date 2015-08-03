@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "EvgenProdTools/TestHepMC.h"
 #include "GaudiKernel/DataSvc.h"
 
@@ -18,12 +20,20 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("MaxVtxDisp",       m_max_dist = 1000.); // mm;
   declareProperty("EnergyDifference", m_energy_diff = 1000.); // MeV
   declareProperty("EnergyDifferenceError", m_max_energy_diff = 100000.); // MeV
+  declareProperty("CmeDifference", m_cme_diff = 1.); // MeV
   declareProperty("DumpEvent",        m_dumpEvent = false);
   declareProperty("MinTau",           m_min_tau = 1/300.); // ns; corresponds to 1mm
   declareProperty("MaxNonG4Energy",   m_nonG4_energy_threshold = 100.); //MeV
   declareProperty("TauEffThreshold",  m_tau_eff_threshold = 0.1); // fraction 
   declareProperty("EffWarnThreshold", m_eff_warn_threshold=0.99); // fraction
   declareProperty("EffFailThreshold", m_eff_fail_threshold=0.98); // fraction
+  declareProperty("AccuracyMargin",   m_accur_margin=0.); //MeV
+
+  declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
+  m_vertexStatuses.push_back( 1 );
+  m_vertexStatuses.push_back( 3 );
+  m_vertexStatuses.push_back( 4 );
+
 
   declareProperty("THistSvc", m_thistSvc);
 
@@ -148,6 +158,10 @@ StatusCode TestHepMC::initialize() {
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_beamparticle2_Energy", m_h_beamparticle2_Energy));
   CHECK(m_thistSvc->regHist("/TestHepMCname/h_cmEnergyDiff", m_h_cmEnergyDiff));
 
+  ATH_MSG_INFO("No decay vertex is ignored for particles with status (list):" );
+  for ( unsigned int i = 0; i < m_vertexStatuses.size(); i++ ) ATH_MSG_INFO("            : " << m_vertexStatuses.at(i) );
+  ATH_MSG_INFO("Vertex statuses finsihed");
+
   }
 
   //open the files and read G4particle_whitelist.txt
@@ -234,7 +248,8 @@ StatusCode TestHepMC::execute() {
       const double sumE = beams.first->momentum().e() + beams.second->momentum().e();
       const double sumP = beams.first->momentum().pz() + beams.second->momentum().pz();
       cmenergy = sqrt(sumE*sumE - sumP*sumP);
-      if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > 1) {
+
+      if (m_cm_energy > 0 && fabs(cmenergy - m_cm_energy) > m_cme_diff) {
         ATH_MSG_FATAL("Beam particles have incorrect energy: " << m_cm_energy/1000. << " GeV expected, vs. " << cmenergy/1000. << " GeV found");
         setFilterPassed(false);
        if (m_doHist){
@@ -286,16 +301,23 @@ StatusCode TestHepMC::execute() {
 
         HepMC::GenVertex::particle_iterator par = (*vitr)->particles_begin(HepMC::parents);
         for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
-          std::cout << "Outgoing particle : " << std::endl;
-          (*par)->print();
-          std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
-          std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
-          std::cout << "parents info: " << std::endl;
+	  //  std::cout << "Outgoing particle : " << std::endl;
+	  //          (*par)->print();
+          ATH_MSG_WARNING("Outgoing particle : ");
+          if (m_dumpEvent) (*par)->print();
+          ATH_MSG_WARNING("production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z());
+          ATH_MSG_WARNING("end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z());
+          ATH_MSG_WARNING("parents info: ");
+	  //	  std::cout << "production vertex = " << (*par)->production_vertex()->point3d().x() << ", " << (*par)->production_vertex()->point3d().y() << ", " << (*par)->production_vertex()->point3d().z() << endl;
+	  //	  std::cout << "end vertex        = " << (*par)->end_vertex()->point3d().x() << ", " << (*par)->end_vertex()->point3d().y() << ", " << (*par)->end_vertex()->point3d().z() << endl;
+	  //   std::cout <<  << std::endl;
           if ((*par)->production_vertex()) {
             HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
             for(; p_parents != (*par)->production_vertex()->particles_end(HepMC::parents); ++p_parents) {
-              cout << "\t";
-              (*p_parents)->print();
+	      // cout << "\t";
+	      if (m_dumpEvent) (*p_parents)->print();
+	      ATH_MSG_WARNING("\t");
+          
             }
           }
 
@@ -353,7 +375,7 @@ StatusCode TestHepMC::execute() {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record momenta");
         ++m_partMomentumNANandINFCheckRate;
         ++m_nFail;
-        if (m_dumpEvent) (*itr)->print();
+        if (m_dumpEvent) (*pitr)->print();
         setFilterPassed(false);
         return StatusCode::SUCCESS;
       }
@@ -373,7 +395,8 @@ StatusCode TestHepMC::execute() {
           double plifetime = pd->lifetime()*1e+12;  // why lifetime doesn't come in common units???
           if (plifetime != 0 && plifetime < m_min_tau) { // particles with infinite lifetime get a 0 in the PDT
             ATH_MSG_WARNING("Stable particle found with lifetime = " << plifetime << "~ns!!");
-            (*pitr)->print();
+	    if (m_dumpEvent) (*pitr)->print();
+
             ++m_Status1ShortLifetime;
             ++m_nFail;
             setFilterPassed(false);
@@ -385,7 +408,7 @@ StatusCode TestHepMC::execute() {
           vector<int>::size_type count = 0;
           while (susyPart==0 && (count < m_SusyPdgID_tab.size() )){
 	    // no warning for SUSY particles from the list susyParticlePdgid.txt
-            if (m_SusyPdgID_tab[count] == ppdgid) {
+            if (m_SusyPdgID_tab[count] == abs(ppdgid)) {
 	      //  cout << "susy particle " << ppdgid << endl;
               susyPart=1;
 	    }
@@ -393,14 +416,18 @@ StatusCode TestHepMC::execute() {
 	  }
 	  if (susyPart==0){
             ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
-            (*pitr)->print();
+	    if (m_dumpEvent) (*pitr)->print();
+    
 	  }
         }
       }
 
       //Check that stable particles are known by G4 or they are non-interacting
-      HepPDT::ParticleID pid(ppdgid);         
-      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus())) {
+      HepPDT::ParticleID pid(ppdgid);
+      int first_dig = ppdgid;
+      while(first_dig > 9) first_dig /= 10;
+         
+      if ((pstatus == 1 ) && (!(*pitr)->end_vertex()) && (!nonint.operator()(*pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
 
            int known_byG4 = 0;
            vector<int>::size_type count =0;
@@ -418,12 +445,15 @@ StatusCode TestHepMC::execute() {
 
       // Check for unstables with no end vertex, such as undecayed gluons, Ws, Zs, and h [not status 3 to avoid probles with photos]
       if (!(*pitr)->end_vertex() &&
-          ((pstatus != 1 && pstatus != 3 && pstatus != 4) || ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
+          ( ( std::find( m_vertexStatuses.begin(), m_vertexStatuses.end(), pstatus ) == m_vertexStatuses.end() ) 
+	    || 
+	    ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
         unstNoEnd.push_back(pbarcode);
         ++m_unstableNoEndVtxCheckRate;
       }
 
       // Sum final state mom/energy, and note negative energy / tachyonic particles
+      //     std::cout << "status " << pstatus << " e " << pmom.e() << " pz " << pmom.pz()<< std::endl;
       if ( pstatus == 1 && !(*pitr)->end_vertex() ) {
         totalPx += pmom.px();
         totalPy += pmom.py();
@@ -431,7 +461,7 @@ StatusCode TestHepMC::execute() {
         totalE  += pmom.e();
         if (pmom.e() < 0) {negEnPart.push_back(pbarcode); ++m_negativeEnergyTachyonicCheckRate;}
         const double aener = fabs(pmom.e());
-        if ( aener < fabs(pmom.px()) || aener < fabs(pmom.py()) || aener < fabs(pmom.pz()) ) {
+        if ( aener+m_accur_margin < fabs(pmom.px()) || aener+m_accur_margin < fabs(pmom.py()) || aener+m_accur_margin < fabs(pmom.pz()) ) {
           tachyons.push_back(pbarcode);
           ++m_negativeEnergyTachyonicCheckRate;
         }
@@ -521,9 +551,13 @@ StatusCode TestHepMC::execute() {
     double lostE = fabs(totalE - cmenergy);
     if (lostE > m_energy_diff) {
       ATH_MSG_WARNING("ENERGY BALANCE FAILED : E-difference = " << lostE << " MeV");
-      //if (m_dumpEvent || lostE > m_max_energy_diff) (*itr)->print();
+
+	  //	  std::cout << "balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE << std::endl;
+      ATH_MSG_WARNING("balance " << totalPx << " " << totalPy << " " << totalPz << " " << totalE);
+      
      if (m_doHist){
       m_h_energyImbalance->Fill(lostE*1.E-03);
+      //     std::cout << "hidt filled " << std::endl;
      }
       if (m_dumpEvent) (*itr)->print();
       setFilterPassed(false);
@@ -676,3 +710,6 @@ StatusCode TestHepMC::finalize() {
 
   return StatusCode::SUCCESS;
 }
+
+
+#endif

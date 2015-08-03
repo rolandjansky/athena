@@ -2,18 +2,22 @@ package EvgenProdTools
 
 author Andy Buckley <andy.buckley@cern.ch>
 author Zach Marshall <zach.marshall@cern.ch>
+author Will Buttinger <will@cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 use AtlasHepMC        AtlasHepMC-*        External
 use AtlasROOT         AtlasROOT-*         External
 use GeneratorModules  GeneratorModules-*  Generators
 use TruthHelper       TruthHelper-*       Generators/GenAnalysisTools
+use AthenaBaseComps  AthenaBaseComps-*  Control
 
 private
 use AthenaKernel      AthenaKernel-*      Control
 use TruthUtils        TruthUtils-*        Generators
 use GaudiInterface    GaudiInterface-*    External
 use EventInfo         EventInfo-*         Event
+
+
 end_private
 
 #use AtlasHepMC       AtlasHepMC-*       External
