@@ -15,16 +15,23 @@
 #ifndef __TRK_FILTERING_NODES_H__
 #define __TRK_FILTERING_NODES_H__
 
+#include "TrkDistributedKalmanFilter/TrkBaseNode.h"
+
+
+
 namespace Trk {	
+/** inheriting from this, should not fwd declare
 	class TrkBaseNode;
+**/
 	class TrkTrackState;
 	class TrkPlanarSurface;
+
 	class PrepRawData;
 
   class TrkFilteringNode1D : public TrkBaseNode
     {
     public:
-      TrkFilteringNode1D(){};
+      TrkFilteringNode1D():m_B{},m_D{},m_H{},m_K{},m_resid{},m_m{},m_V{}{/** nop **/};
       virtual ~TrkFilteringNode1D(){};
       virtual int m_getKalmanGain(double[5][2]);
       virtual int m_getResiduals(double[2]);
@@ -42,7 +49,7 @@ namespace Trk {
   class TrkFilteringNode2D : public TrkBaseNode 
     {
     public:
-      TrkFilteringNode2D(){};
+      TrkFilteringNode2D():m_B{},m_D{},m_H{},m_K{},m_resid{},m_m{},m_V{}{/** nop **/};
       virtual ~TrkFilteringNode2D(){};
       virtual int m_getKalmanGain(double[5][2]);
       virtual int m_getResiduals(double[2]);

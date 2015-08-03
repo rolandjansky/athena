@@ -23,23 +23,22 @@ namespace Trk
 
   TrkPlanarSurface::TrkPlanarSurface(double c[3],double n[3],double m[3][3], double rl, const Surface* pS):
     m_radLength(rl), 
+    m_input{},
     m_trkSurface(pS)
   {
     int i,j;
     m_Params[3]=0.0;m_Rc=0.0;
-    for(i=0;i<3;i++)
-      {
-	m_Center[i]=c[i];
-	m_Normal[i]=n[i];
-	m_Params[i]=n[i];
-	m_Params[3]-=n[i]*c[i];
-	m_Rc+=c[i]*c[i];
-      }
-    for(i=0;i<3;i++)
-      {
-	for(j=0;j<3;j++)
-	  m_L[i][j]=m[i][j];
-      }
+    for(i=0;i<3;i++){
+			m_Center[i]=c[i];
+			m_Normal[i]=n[i];
+			m_Params[i]=n[i];
+			m_Params[3]-=n[i]*c[i];
+			m_Rc+=c[i]*c[i];
+    }
+    for(i=0;i<3;i++){
+	    for(j=0;j<3;j++)
+	      m_L[i][j]=m[i][j];
+    }
     m_Rc=sqrt(m_Rc);
     m_calculateInverseTransform();
     m_breakPoint=false;

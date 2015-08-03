@@ -19,11 +19,11 @@
 
 namespace Trk {
 
-  TrkBaseNode::TrkBaseNode()
+  TrkBaseNode::TrkBaseNode():m_chi2Cut{},m_nodeType{},m_pSurface{},m_pPRD{}
   {
     m_ndof=0;m_dChi2=0.0;
     m_nodeState=1;
-    m_pTrackState=NULL;
+    m_pTrackState=nullptr;
   }
 	
   bool TrkBaseNode::m_isValidated()
