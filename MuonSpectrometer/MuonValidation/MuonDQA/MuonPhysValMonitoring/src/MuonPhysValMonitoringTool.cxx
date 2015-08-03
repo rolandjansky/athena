@@ -132,6 +132,7 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
   m_muonItems.push_back("HLT_mu0_perf");		m_L1Seed.push_back("L1_MU4");
   m_muonItems.push_back("HLT_mu4");			m_L1Seed.push_back("L1_MU4");
   m_muonItems.push_back("HLT_mu4_idperf");		m_L1Seed.push_back("L1_MU4");
+  SelectedAuthor = 0;
 }
 
 // Destructor

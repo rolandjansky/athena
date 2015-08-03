@@ -34,6 +34,7 @@ TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::s
       if (m_doTrigMuonEFValidation) m_oEFTriggerChainRELEfficiencyPlots.push_back(new TriggerEfficiencyPlots(this, "trigger/"+m_chains[i]+"_wrt_"+m_seeds[i]+"_Efficiency/WHOLE_DETECT/")); 
     }  
   }
+  PlateauTreshold=0.;
 }
 
 TriggerMuonValidationPlots::~TriggerMuonValidationPlots()
