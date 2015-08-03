@@ -41,7 +41,9 @@ namespace Trk {
       void m_setTrackState(double A[5]);
       void m_setSmootherGain(double A[5][5]);
       void m_setPreviousState(TrkTrackState*);
-	  void m_runSmoother();
+      void m_runSmoother();
+      void m_applyMultipleScattering();
+      void m_applyEnergyLoss(int);
       inline double m_getTrackState(int i)
 	{
 	  return m_Rk[i];
@@ -62,9 +64,6 @@ namespace Trk {
       TrkPlanarSurface* m_pSurface;
       TrkTrackState* m_pPrevState;
       double m_A[5][5];
-    private:
-      void m_applyMultipleScattering();
-      void m_applyEnergyLoss(int);
     };
 }
 
