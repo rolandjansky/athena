@@ -279,8 +279,10 @@ namespace InDetDD {
       virtual const Trk::Surface & surface() const;
     
       //@}
-    
-    
+
+      /** Returns the full list of surfaces associated to this detector element */
+      virtual const std::vector<const Trk::Surface*>& surfaces() const;
+
       /**
       
       @name Module Frame 
@@ -671,6 +673,7 @@ namespace InDetDD {
       mutable double m_lorentzCorrection; 
       
       mutable Trk::Surface * m_surface;
+      mutable std::vector<const Trk::Surface*> m_surfaces;
 
     };
     

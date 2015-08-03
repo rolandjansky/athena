@@ -789,6 +789,20 @@ SiDetectorElement::surface() const
   return *m_surface;
 }
   
+const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
+{
+    if (!m_surfaces.size()){
+        // get this surface
+        m_surfaces.push_back(&surface());
+        // get the other side surface
+        if (otherSide()){
+            m_surfaces.push_back(&(otherSide()->surface()));
+        }
+    }
+    // return the surfaces
+    return m_surfaces;
+}  
+  
 const Trk::SurfaceBounds & 
 SiDetectorElement::bounds() const
 {

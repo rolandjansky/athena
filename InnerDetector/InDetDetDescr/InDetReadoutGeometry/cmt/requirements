@@ -8,10 +8,11 @@ use DetDescrConditions DetDescrConditions-* DetectorDescription/DetDescrCond
 use IdDictDetDescr     IdDictDetDescr-*     DetectorDescription
 use TRT_ConditionsData TRT_ConditionsData-* InnerDetector/InDetConditions
 use StoreGate	       StoreGate-*          Control
-use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 
 public
 
+use SGTools	       SGTools-*          Control
+use StoreGate	       StoreGate-*          Control
 use AtlasPolicy	       AtlasPolicy-*
 use AtlasCLHEP	       AtlasCLHEP-*         External 
 use GaudiInterface     GaudiInterface-*     External
