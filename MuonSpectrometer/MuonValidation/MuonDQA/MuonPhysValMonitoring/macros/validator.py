@@ -7,12 +7,13 @@ author: Felix Socher  <Felix.Socher@cern.ch>"""
 
 
 import ROOT
-from ROOT import *
+from ROOT import TFile, TH1
 import sys
 import argparse
 import re
 import os
 import math
+
 
 def GoToDirectory(directory):
   cwd = os.getcwd()
@@ -81,7 +82,6 @@ class Validator(object):
         continue
       
       if obj.IsA().InheritsFrom(ROOT.TH1.Class()):
-        print key.GetName()
         testHist = newTestDir.Get(key.GetName())
         if testHist:
           self.CompareHistograms(obj, testHist, newRefDir.GetPath())
@@ -122,11 +122,11 @@ class Validator(object):
     #   testHist.Scale(1.0/testHist.Integral())
     # except:
     #   return
+  
     canvas = ROOT.TCanvas( "", "", 900, 900 )
     padMain = ROOT.TPad( 'padMain', 'padMain', 0, 0.3, 1, 1 )
     padMain.SetBottomMargin( 0.02 )
     padMain.Draw()
-    #padMain.SetLogy(1) #@@@
     padRatio = ROOT.TPad( 'padRatio', 'padRatio', 0, 0, 1, 0.3 )
     padRatio.SetTopMargin( 0.01 )
     padRatio.SetBottomMargin( 0.25 )
@@ -134,20 +134,19 @@ class Validator(object):
     ROOT.TLine()
     padMain.cd()
 
-    #leg = ROOT.TLegend(0.82,0.78,0.96,0.94)
-    leg = ROOT.TLegend(0.8,0.76,0.96,0.94)  
+    leg = ROOT.TLegend(0.82,0.78,0.96,0.94)
     #leg.SetFillColor(ROOT.kWhite)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    leg.SetTextSizePixels(32)
-    leg.AddEntry(refHist, "ref", 'lp')
+    leg.SetTextSizePixels(24)
+    leg.AddEntry(refHist, "ref", 'lf')
     leg.AddEntry(testHist, "test",'lp')
   
     refHist.SetLineColor(17)
-    #refHist.SetFillColor(30)
+    refHist.SetFillColor(17)
 
-    if self.DoNormalization and not "_Eff_" in refHist.GetName() and not "_eff" in refHist.GetName():
+    if self.DoNormalization and not "_Eff_" in refHist.GetName():
       i1 = 1.*refHist.Integral()
       i2 = 1.*testHist.Integral()
       if i1>i2:
@@ -157,37 +156,27 @@ class Validator(object):
         
     refHist = SetBounds(refHist, testHist)
     
-    ref_textsize = 32./(padMain.GetWh()*padMain.GetAbsHNDC())
+    ref_textsize = 24./(padMain.GetWh()*padMain.GetAbsHNDC())
     refHist.GetYaxis().SetLabelSize( ref_textsize )
     refHist.GetXaxis().SetLabelSize( 0 )
     refHist.GetXaxis().SetTitleSize( 0 )
-    refHist.GetYaxis().SetTitleSize( 1.3*ref_textsize )
-    refHist.GetYaxis().SetTitleOffset(1)
-    refHist.GetYaxis().SetTitleColor( kAzure )
+    refHist.GetYaxis().SetTitleSize( ref_textsize )
 
     # testHist.GetYaxis().SetTextFont(43)
     # testHist.GetYaxis().SetTextSizePixels(20)
     refHist.SetMarkerSize(0)
     refHist.SetLineColor(ROOT.kRed)
-    #refHist.GetYaxis().SetRangeUser(0.00001,refHist.GetMaximum()*5) ##@@@
+    refHist.Draw("ehist")
+    testHist.Draw("sameE")
 
-    #testHist.Rebin(2)
-    #refHist.Rebin(2);
 
-    if refHist.GetMaximum()>testHist.GetMaximum():
-      refHist.DrawCopy("e")
-      testHist.DrawCopy("ehistsame")
-      refHist.DrawCopy("ehistsame")
-    else:
-      testHist.DrawCopy("ehist")
-      refHist.DrawCopy("ehistsame")
-      
+    
     leg.Draw()
     padRatio.cd()
     ratioHist = testHist.Clone()
     ratioHist.Divide(refHist)
     #ratioHist = SetBounds(ratioHist, ratioHist, 0.84,1.16)
-    ratioHist = SetBounds(ratioHist, ratioHist, 0.941,1.059)
+    ratioHist = SetBounds(ratioHist, ratioHist, 0.94,1.06)
     for i in range(ratioHist.GetNbinsX()):
       nref = refHist.GetBinContent(i)
       ntest = testHist.GetBinContent(i)
@@ -198,12 +187,10 @@ class Validator(object):
         error = nref/ntest* max(refHist.GetBinError(i)/nref, testHist.GetBinError(i)/ntest) 
         ratioHist.SetBinError(i, error)
 
-    ratioHist_textsize = 32./(padRatio.GetWh()*padRatio.GetAbsHNDC())
+    ratioHist_textsize = 24./(padRatio.GetWh()*padRatio.GetAbsHNDC())
     ratioHist.GetYaxis().SetLabelSize( ratioHist_textsize )
     ratioHist.GetXaxis().SetLabelSize( ratioHist_textsize )
-    ratioHist.GetXaxis().SetTitleSize( 1.2*ratioHist_textsize )
-    ratioHist.GetXaxis().SetTitleOffset(0.75)
-    ratioHist.GetXaxis().SetTitleColor(kAzure)
+    ratioHist.GetXaxis().SetTitleSize( ratioHist_textsize )
     ratioHist.GetYaxis().SetTitleSize( ratioHist_textsize )
     ratioHist.GetYaxis().SetTitleOffset(0.6)
 
@@ -225,12 +212,6 @@ class Validator(object):
       npath = re.sub(r"[:,./]", "_", npath+"/")
 
     canvas.cd()
-    t = ROOT.TLatex();
-    t.SetNDC()
-    t.SetTextColor(1)
-    t.SetTextSize(0.03);
-    t.DrawLatex(0.,0.97,refHist.GetName()) #@@@
-
     canvas.SaveAs(npath + refHist.GetName() + ".pdf")
     canvas.Close()
 
@@ -249,13 +230,9 @@ def main( argv ):
   parser.add_argument( '-n', '--normalize', default = False, action = "store_true", help = 'normalize histograms with larger stats for better comparison')
   args = parser.parse_args()
 
-  #ROOT.gROOT.Macro("rootlogon.C")
+  ROOT.gROOT.Macro("rootlogon.C")
   ROOT.gROOT.SetBatch()
-  #ROOT.gROOT.LoadMacro("./AtlasUtils.C") 
-  ROOT.gROOT.LoadMacro("./AtlasStyle.C")
 
-  SetAtlasStyle()
-  
   validator = Validator( args.structDirs, args.exclude, SameHist, args.normalize )
   validator.CompareFiles(os.path.abspath(args.reference), os.path.abspath(args.test), args.directory)
   #validator.CompareFiles(os.path.abspath(args.test), os.path.abspath(args.reference), args.directory)

@@ -9,6 +9,9 @@
 #include "MuonHistUtils/RecoMuonTrackPlotOrganizer.h"
 #include "MuonHistUtils/TruthRelatedMuonPlotOrganizer.h"
 
+#include "TrkValHistUtils/MSHitPlots.h"
+#include "MuonHistUtils/IDHitSummaryPlots.h"
+
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
@@ -19,6 +22,9 @@ class MuonTrackValidationPlots:public PlotBase {
 
     // Reco only information
     Muon::RecoMuonTrackPlotOrganizer *m_oRecoMuonTrackPlots;
+    Muon::IDHitSummaryPlots     *m_oIDHitPlots;
+    Trk::MSHitPlots             *m_oMSHitPlots;
+    
     // Truth related plots
     Muon::TruthRelatedMuonPlotOrganizer  *m_oMatchedMuonTrackPlots;
 

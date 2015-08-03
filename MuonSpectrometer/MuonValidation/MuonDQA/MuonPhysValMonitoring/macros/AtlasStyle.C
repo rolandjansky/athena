@@ -6,7 +6,6 @@
 // ATLAS Style, based on a style file from BaBar
 //
 #include "TStyle.h"
-TStyle* AtlasStyle();
 
 void SetAtlasStyle ()
 {

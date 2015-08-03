@@ -28,8 +28,7 @@ use xAODTrigger         xAODTrigger-*           Event/xAOD
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
 use MuonHistUtils       MuonHistUtils-*         MuonSpectrometer/MuonValidation/MuonHistogramming
 use MuonSelectorTools   MuonSelectorTools-*	PhysicsAnalysis/MuonID
-use IsolationSelection  IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
-
+use MuonResonanceTools  MuonResonanceTools-*  PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
 use TrigDecisionTool    TrigDecisionTool-*  	Trigger/TrigAnalysis
 use TrkToolInterfaces   TrkToolInterfaces-*	Tracking/TrkTools
 use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*    Reconstruction/MuonIdentification
