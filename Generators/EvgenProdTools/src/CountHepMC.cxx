@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #include "EvgenProdTools/CountHepMC.h"
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IAlgManager.h"
@@ -104,3 +106,5 @@ StatusCode CountHepMC::finalize() {
   ATH_MSG_INFO("Events passing all checks and written = " << m_nPass);
   return StatusCode::SUCCESS;
 }
+
+#endif
