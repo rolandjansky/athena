@@ -68,7 +68,7 @@ namespace jet {
   struct VecAttIndexFiller : public HistoFiller, public AccessorAndHisto<std::vector<T>, TH1F> {
     VecAttIndexFiller(const std::string & attname, TH1F* h, size_t index, bool gev1) : AccessorAndHisto<std::vector<T>,TH1F>(attname,h, gev1), m_index(index) {}
 
-    virtual void fill(const xAOD::Jet & j){
+    virtual void fill(const xAOD::Jet & j){      
       const std::vector<T> & vec = this->m_accessor( j);
       if( vec.size() > m_index) this->m_h->Fill( vec[m_index]*scale1 );
     }
@@ -94,7 +94,7 @@ namespace jet {
   struct AttvsVecAttIndexFiller : public HistoFiller, public AccessorAndHisto2<std::vector<T>,T, HTYPE> {
     AttvsVecAttIndexFiller(const std::string & att1,const std::string & att2  , HTYPE* h, size_t index , bool gev1, bool gev2, bool swapAxis=false) : AccessorAndHisto2<std::vector<T>,T, HTYPE>(att1,att2,h, gev1, gev2) , m_index(index), m_swap(swapAxis){}
 
-    virtual void fill(const xAOD::Jet & j){
+    virtual void fill(const xAOD::Jet & j){        
       const std::vector<T> & vec = this->m_accessor( j);    
       if( vec.size() > m_index) {
         if( m_swap) this->m_h->Fill( this->m_accessor2(j)*scale2, vec[m_index]*scale1 ) ;
@@ -219,8 +219,8 @@ int JetAttributeHisto::buildHistos(){
                                                        bookHisto( m_histoDef->buildTH1F() ), gev1 );
         else 
           m_histoFiller = new VecAttIndexFiller<float>(m_attNames[0], 
-                                                       bookHisto( m_histoDef->buildTH1F() ) , gev1 ,
-                                                       m_selectedIndex );
+                                                       bookHisto( m_histoDef->buildTH1F() ) , m_selectedIndex , gev1
+                                                        );
       }
       break;
     default:
