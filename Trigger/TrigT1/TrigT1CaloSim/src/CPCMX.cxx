@@ -212,7 +212,7 @@ StatusCode CPCMX::execute( )
 	   
 	   // Decode TOB word 
 	   CPTopoTOB tob( crate, cmx, (*word) );
-	   int ieta = tob.ieta();
+	   int ieta = tob.ieta() - 1;
 	   int iphi = tob.iphi();
            if (iphi < 0) iphi += 64;
 	   int et = tob.et();

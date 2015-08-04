@@ -21,6 +21,8 @@
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/JetElementAuxContainer.h"
 
 //LVL1 Calo trigger includes
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
@@ -51,7 +53,8 @@ forms JetElements, which it then places back into the TES.
 */
 class Run2JetElementMaker : public AthAlgorithm
 {
-  typedef DataVector<JetElement> JECollection;
+  typedef xAOD::JetElementContainer     JECollection;
+  typedef xAOD::JetElementAuxContainer  JEAuxCollection;
   
  public:
 

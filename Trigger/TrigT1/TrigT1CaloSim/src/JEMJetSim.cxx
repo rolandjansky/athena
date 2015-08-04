@@ -26,7 +26,7 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1CaloEvent/JetElementCollection.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
 #include "TrigT1CaloEvent/JEMTobRoI_ClassDEF.h"
 #include "TrigT1CaloEvent/JetCMXData_ClassDEF.h"
 #include "TrigT1CaloEvent/JetInput.h"
@@ -137,8 +137,8 @@ StatusCode JEMJetSim::execute( )
   m_allTOBs      = new DataVector<JEMTobRoI>;  // Container to hold all TOB RoIs in event
 
   // Retrieve the JetElementContainer
-  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
-    const DataVector<JetElement>* storedJEs;
+  if (evtStore()->contains<xAOD::JetElementContainer>(m_JetElementLocation)) {
+    const DataVector<xAOD::JetElement>* storedJEs;
     StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of JetElementCollection - zero would indicate a problem

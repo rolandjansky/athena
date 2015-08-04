@@ -13,22 +13,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigT1CaloToolInterfaces/IL1JEPEtSumsTools.h"
-#include "TrigT1CaloToolInterfaces/IL1JEPHitsTools.h"
 
 class StoreGateSvc;
 
 namespace LVL1 {
-
-class CMMEtSums;
-class CMMJetHits;
-class CMMRoI;
-class JEMEtSums;
-class JEMHits;
-class JEMRoI;
-class JetElement;
-class JetROI;
-
 
 /** Algorithm to make CMM-Jet hits and CMM-Energy sums containers.
  *
@@ -50,36 +38,6 @@ class JEPCMMMaker : public AthAlgorithm {
 
  private:
 
-   typedef DataVector<JetElement>    JetElementCollection;
-   typedef DataVector<JetROI>        JetRoiCollection;
-   typedef DataVector<JEMHits>       JetHitsCollection;
-   typedef DataVector<JEMEtSums>     EnergySumsCollection;
-   typedef DataVector<JEMRoI>        JemRoiCollection;
-   typedef DataVector<CMMJetHits>    CmmJetCollection;
-   typedef DataVector<CMMEtSums>     CmmEnergyCollection;
-
-   /// Make CMM-Jet
-   StatusCode makeCmmJet();
-
-   /// Make CMM-Energy
-   StatusCode makeCmmEnergy();
-
-   /// Make JEM RoI container
-   StatusCode makeJemRoi();
-
-   /// Make CMM RoI container
-   StatusCode makeCmmRoi();
-
-   /// Make JEP bytestream container
-   StatusCode makeJepBsCollection();
-
-   /// Make JEP RoI bytestream container
-   StatusCode makeJepRoiBsCollection();
-
-   /// Tool for EtSums
-   ToolHandle<LVL1::IL1JEPEtSumsTools> m_jepEtSumsTool;
-   /// Tool for Hits
-   ToolHandle<LVL1::IL1JEPHitsTools>   m_jepHitsTool;
    /// Jet elements container StoreGate key
    std::string m_jetElementLocation;
    /// Jet hits container StoreGate key

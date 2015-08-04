@@ -23,7 +23,7 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1CaloEvent/JetElementCollection.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
 #include "TrigT1CaloEvent/JEMEtSums_ClassDEF.h"
 #include "TrigT1CaloEvent/EnergyCMXData_ClassDEF.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
@@ -105,8 +105,8 @@ StatusCode JEMEnergySim::execute( )
 
   // form module sums
   m_jemContainer = new DataVector<ModuleEnergy>;  
-  if (evtStore()->contains<JetElementCollection>(m_JetElementLocation)) {
-    const DataVector<JetElement>* jetelements;
+  if (evtStore()->contains<xAOD::JetElementContainer>(m_JetElementLocation)) {
+    const DataVector<xAOD::JetElement>* jetelements;
   
     StatusCode sc = evtStore()->retrieve(jetelements,m_JetElementLocation);
     if ( sc==StatusCode::SUCCESS ) {

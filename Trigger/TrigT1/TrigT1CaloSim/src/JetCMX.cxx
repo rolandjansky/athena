@@ -189,7 +189,18 @@ StatusCode JetCMX::execute( )
 	   
 	   // Decode TOB word 
 	   JetTopoTOB tob( crate, (*word) );
-	   int ieta = tob.ieta();
+	   int etaindex = tob.etaIndex();	   
+	   int ieta = 2*(etaindex-15) - 1;
+	   if (etaindex < 4 || etaindex > 27) {
+	     if (etaindex == 0)      ieta = -39;
+	     else if (etaindex == 0) ieta = -39;
+	     else if (etaindex == 1) ieta = -30;
+	     else if (etaindex == 2) ieta = -28;
+	     else if (etaindex == 3) ieta = -26;
+	     else if (etaindex == 28) ieta = 26;
+	     else if (etaindex == 29) ieta = 28;
+	     else if (etaindex >= 30) ieta = 39;
+	   }
 	   int iphi = tob.iphi();
            if (iphi < 0) iphi += 64;
 	   int etLarge = tob.etLarge();
