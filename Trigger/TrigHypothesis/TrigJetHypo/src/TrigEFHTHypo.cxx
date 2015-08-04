@@ -50,6 +50,12 @@ class ISvcLocator;
 TrigEFHTHypo::TrigEFHTHypo(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
+  m_timersvc = nullptr;
+
+  m_accepted=0;
+  m_rejected=0;
+  m_errors=0;
+
   declareProperty("Etcut",        m_EtCut        = 30*CLHEP::GeV  );   // Default: 30 GeV
   declareProperty("HTcut",        m_HTCut        = 350*CLHEP::GeV );   // Default: 350 GeV
   declareProperty("etaMincut",    m_etaMinCut    = 0.     );   // Default: 0
@@ -58,7 +64,7 @@ TrigEFHTHypo::TrigEFHTHypo(const std::string& name, ISvcLocator* pSvcLocator):
 
   // Monitored variables...
   declareMonitoredVariable("cutCounter"  , m_cutCounter  );
-
+  
   
   declareMonitoredStdContainer("phi"	 , m_jetphi      );
   declareMonitoredStdContainer("et" 	 , m_jetet       );
@@ -121,10 +127,6 @@ HLT::ErrorCode TrigEFHTHypo::hltInitialize()
     msg() << MSG::DEBUG << "Initialization:" << endreq;
     msg() << MSG::DEBUG	  << "ptJetCut: " << m_EtCut << endreq;
   }  
-
-  m_accepted=0;
-  m_rejected=0;
-  m_errors=0;
 
   return HLT::OK;
 }

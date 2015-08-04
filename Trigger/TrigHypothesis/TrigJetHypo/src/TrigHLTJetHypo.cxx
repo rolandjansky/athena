@@ -40,6 +40,12 @@
 TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
+  
+  m_accepted=0;
+  m_rejected=0;
+  m_errors=0;
+  m_timersvc = nullptr;
+
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
 
@@ -101,10 +107,6 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
           << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
   }   
-  
-  m_accepted=0;
-  m_rejected=0;
-  m_errors=0;
   
   for (std::size_t i = 0; i != m_EtThresholds.size(); ++i){
     m_conditions.push_back(Condition(m_etaMins[i],

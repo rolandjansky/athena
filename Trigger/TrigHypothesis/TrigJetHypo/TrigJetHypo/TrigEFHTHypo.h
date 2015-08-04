@@ -25,7 +25,6 @@
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 class TrigEFHTHypo : public HLT::HypoAlgo {
@@ -87,11 +86,6 @@ class TrigEFHTHypo : public HLT::HypoAlgo {
   double m_jetphi2       ;
   double m_jeteta2       ;
   
-
-  //IHistogramSvc* m_histsvc;
-
-  StoreGateSvc*                           m_storeGate;
-
   // Timing:
 
   ITrigTimerSvc*            m_timersvc;
