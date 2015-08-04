@@ -50,11 +50,9 @@
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
-            <auxFilePattern>TIDA*.dat</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>data-cosmic-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-cosmic-ref.root</auxFilePattern>
-#           include "TrigInDetValidation_aux.xml"
-	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
          <athenaCommonFlags /> 
          </athena>

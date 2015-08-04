@@ -34,12 +34,15 @@ if athenaCommonFlags.FilesInput()==[]:
     ]
   
 
-rec.RootNtupleOutput="ntupleInDetMuonSlice.root"
-
 rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
-(idtrigChainlist, tidaAnalysischains) = muonChains(rMC)
+rID=False
+if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  rID = True
+
+(idtrigChainlist, tidaAnalysischains) = muonChains(rMC,rID)
+
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()

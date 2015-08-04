@@ -62,10 +62,10 @@
 
 
 	    <auxFilePattern>data-minBias-reference.root</auxFilePattern>
-            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+
             <auxFilePattern>expert-monitoring-minBias-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
-	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
 
           <athenaCommonFlags /> 
 	  <alwaysRunPostProc />

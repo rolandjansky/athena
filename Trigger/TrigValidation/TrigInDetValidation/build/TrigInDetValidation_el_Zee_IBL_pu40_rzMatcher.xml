@@ -1,13 +1,13 @@
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_pu46'>
-           <doc>Electron Zee, pu46, run2 chains</doc>
-           <displayName>ElectronSlice- Zee mu=46, run2 chains</displayName>
-           <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40_rzMatcher'>
+           <doc>Zee, pu40, IBL, run2 chains</doc>
+           <displayName>Zee pu40, IBL, run2 chains</displayName>
+           <commandLineFlags>EventMax=5000;runMergedChain=True;PdgId=11</commandLineFlags>
            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_el_sample5.xml"
+#          include "samples/TrigInDetValidation_el_sample4.xml"
 
 	   
            <action position="1">   
@@ -19,11 +19,10 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>TIDAdata11-rtt.dat -f data-electron-merge.root -p 11 -b Test_bin.dat </argvalue>
+               <argvalue>TIDAdata11-rtt-rzMatcher.dat -f data-electron-merge.root -b Test_bin.dat </argvalue>
              </arg>
            </action>
-	   
-	   
+	   	   
 
 	    <action position="2">    
               <modulename>RttLibraryTools</modulename> 
@@ -34,9 +33,10 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
               </arg>
             </action>
+
 
 	    <action position="3">    
               <modulename>RttLibraryTools</modulename> 
@@ -47,9 +47,10 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e24_medium_idperf_TrigFastTrackFinder_eGamma HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
               </arg>
             </action>
+
 
 	    <action position="4">    
               <modulename>RttLibraryTools</modulename> 
@@ -60,11 +61,9 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root  HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
-
-
 
 	    <action position="5">    
               <modulename>RttLibraryTools</modulename> 
@@ -75,15 +74,13 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_pu46-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40_rzMatcher-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
-
-
 
 
 	   
@@ -93,12 +90,12 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_Zee_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_Zee_pu46-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_Zee_IBL_pu40_rzMatcher-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40_rzMatcher-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
-
+	   
            <athenaCommonFlags /> 
          </athena>
 

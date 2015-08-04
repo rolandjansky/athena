@@ -1,14 +1,14 @@
-         <athena userJobId='TrigInDetValidation_minBias_mergeDataPrep'>
-            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample - merged data preparation</doc>
-            <displayName>FullScan on di-jet events</displayName>
-	    <commandLineFlags>EventMax=1000;doMergedDataPrep=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+         <athena trendId='muonPileupTrend' userJobId='TrigInDetValidation_mu_Zmumu_pu40_run1'>
+            <doc>Z->mumu pu40</doc>
+            <displayName>MuonSlice, Zmumu pu40</displayName>
+	    <commandLineFlags>EventMax=4000;</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_minBias_sample0.xml"
-	    
+#          include "samples/TrigInDetValidation_mu_sample4.xml"
+
             <action position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -18,9 +18,10 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-monitor-merge.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-muon-pileup.root -p 13  -b Test_bin.dat </argvalue>
                 </arg>
             </action>
+
 
 	    <action position="2">    
               <modulename>RttLibraryTools</modulename> 
@@ -31,7 +32,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root EF_InDetMonMergeDP_FS_InDetTrigParticleCreation_FullScan_EFID -d EF-plots </argvalue>
+                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID   -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -44,7 +45,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_0 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_1 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_2  L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_3 -d L2-plots </argvalue>
+                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -54,19 +55,19 @@
 
 
 
+
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_mergeDataPrep-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-minBias_mergeDataPrep-ref.root</auxFilePattern>
+	    <auxFilePattern>data-mu_Zmumu_pu40-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_Zmumu_pu40-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 
-          <athenaCommonFlags /> 
+	  <athenaCommonFlags />
 	  </athena>
-
 
 
