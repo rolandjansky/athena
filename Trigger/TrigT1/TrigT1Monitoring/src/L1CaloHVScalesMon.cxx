@@ -44,14 +44,17 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 #include "L1CaloHVScalesMon.h"
+// ============================================================================
+const int L1CaloHVScalesMon::s_numEmHVPlots;
+const int L1CaloHVScalesMon::s_numHadHVPlots;
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -60,8 +63,8 @@ L1CaloHVScalesMon::L1CaloHVScalesMon(const std::string & type,
 				     const IInterface* parent)
   : ManagedMonitorToolBase ( type, name, parent ),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
-    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
@@ -87,8 +90,8 @@ L1CaloHVScalesMon::L1CaloHVScalesMon(const std::string & type,
 {
   declareProperty("LArHVCorrTool", m_LArHVCorrTool);
   declareProperty("CaloCellContainer", m_caloCellContainerName = "AllCalo");
-  declareProperty("xAODTriggerTowerContainer", 
-                   m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+  declareProperty("TriggerTowerContainer",
+                  m_TriggerTowerContainerName = "TriggerTowers");
   declareProperty("PathInRootFile",
                   m_PathInRootFile = "LVL1_Interfaces/Calorimeter") ;
   declareProperty("DoHVDifference", m_hvDifference = true);
@@ -110,7 +113,7 @@ StatusCode L1CaloHVScalesMon:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
   
@@ -119,45 +122,45 @@ StatusCode L1CaloHVScalesMon:: initialize()
 
   sc = m_cells2tt.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endreq;
     return sc;
   }
 
   sc = m_larEnergy.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloLArTowerEnergy" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloLArTowerEnergy" << endreq;
     return sc;
   }
 
   sc = m_ttIdTools.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endreq;
     return sc;
   }
 
   sc = m_ttTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endreq;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_LArHVCorrTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool LArHVCorrTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate Tool LArHVCorrTool" << endreq;
     return sc;
   }
 
@@ -165,11 +168,11 @@ StatusCode L1CaloHVScalesMon:: initialize()
   const CaloLVL1_ID* lvl1_id = 0;
   sc = detStore()->retrieve(lvl1_id, "CaloLVL1_ID");
   if (sc.isFailure() || !lvl1_id) {
-    msg(MSG::ERROR) << "Could not get CaloLVL1_ID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get CaloLVL1_ID helper !" << endreq;
     return sc;
   }
   else {
-    //msg(MSG::DEBUG) << " Found the CaloLVL1_ID helper. " << endmsg;
+    //msg(MSG::DEBUG) << " Found the CaloLVL1_ID helper. " << endreq;
     m_lvl1Helper = (CaloLVL1_ID*) lvl1_id;
   }
 
@@ -177,14 +180,14 @@ StatusCode L1CaloHVScalesMon:: initialize()
     // L1Calo conditions service
     sc = m_l1CondSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve L1CaloCondSvc" << endmsg;
+      msg(MSG::ERROR) << "Could not retrieve L1CaloCondSvc" << endreq;
       return sc;
     }
 
     // Retrieve cabling & tt services
     sc = m_ttSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve CaloTriggerTowerService Tool" << endmsg;
+      msg(MSG::ERROR) << "Could not retrieve CaloTriggerTowerService Tool" << endreq;
       return sc;
     }
   }
@@ -205,7 +208,7 @@ StatusCode L1CaloHVScalesMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
   
-  msg(MSG::DEBUG) << "in L1CaloHVScalesMon::bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "in L1CaloHVScalesMon::bookHistograms" << endreq;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -370,7 +373,7 @@ StatusCode L1CaloHVScalesMon::bookHistogramsRecurrent()
 
     StatusCode sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
-      msg(MSG::WARNING) << "Conditions not retrieved " << endmsg;
+      msg(MSG::WARNING) << "Conditions not retrieved " << endreq;
     }
   }
 
@@ -385,17 +388,17 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   if (m_events > 0) return StatusCode::SUCCESS;
 
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -406,7 +409,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   const CaloCellContainer* caloCellContainer = 0;
   sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName); 
   if(!sc.isSuccess() || !caloCellContainer) {
-    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endmsg; 
+    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endreq; 
     return StatusCode::SUCCESS;
   }
 
@@ -418,11 +421,11 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   if (m_hvDifference) {
     sc = m_l1CondSvc->retrieve(hvCorrectionsContainer);
     if (sc.isFailure() || !hvCorrectionsContainer) {
-      msg(MSG::WARNING) << "Could not retrieve HVCorrectionsContainer" << endmsg;
+      msg(MSG::WARNING) << "Could not retrieve HVCorrectionsContainer" << endreq;
     }
     sc = m_l1CondSvc->retrieve(rxLayersContainer);
     if (sc.isFailure() || !rxLayersContainer) {
-      msg(MSG::WARNING) << "Could not retrieve RxLayersContainer" << endmsg;
+      msg(MSG::WARNING) << "Could not retrieve RxLayersContainer" << endreq;
     }
   }
 
@@ -456,7 +459,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
       const double scale = m_LArHVCorrTool->Scale(cellId);
       if (debug && scale < 1.) {
         msg(MSG::DEBUG) << " Current Mean Scale " << scale << " for sampling " << sampling
-                        << " eta/phi " << eta << "/" << phi << endmsg;
+                        << " eta/phi " << eta << "/" << phi << endreq;
       }
       if (layer == 0) {
         m_histTool->fillPPMEmEtaVsPhi(m_h_emHVScale, eta, phi, scale);
@@ -533,19 +536,19 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   // =========================================================================
 
   //Retrieve TriggerTowers from SG
-  const xAOD::TriggerTowerContainer* triggerTowerTES = 0;
-  sc = evtStore()->retrieve(triggerTowerTES, m_xAODTriggerTowerContainerName);
-  if(sc==StatusCode::FAILURE || !triggerTowerTES) {           
-    msg(MSG::INFO) << "No xAODTriggerTower found in TES at "
-                   << m_xAODTriggerTowerContainerName << endmsg ; 
+  const TriggerTowerCollection* TriggerTowerTES = 0; 
+  sc = evtStore()->retrieve(TriggerTowerTES, m_TriggerTowerContainerName); 
+  if(sc==StatusCode::FAILURE || !TriggerTowerTES) {
+    msg(MSG::INFO) << "No TriggerTower found in TES at "
+                   << m_TriggerTowerContainerName << endreq ;
     return StatusCode::SUCCESS;
-  }                                                           
-    
-  xAOD::TriggerTowerContainer::const_iterator ttIterator =
-	      triggerTowerTES->begin();
-  xAOD::TriggerTowerContainer::const_iterator ttIteratorEnd =
-	      triggerTowerTES->end();
-  
+  }
+      
+  TriggerTowerCollection::const_iterator TriggerTowerIterator =
+                                                      TriggerTowerTES->begin(); 
+  TriggerTowerCollection::const_iterator TriggerTowerIteratorEnd =
+                                                      TriggerTowerTES->end(); 
+      
   Identifier em_ident;
   Identifier had_ident;
   L1CaloCoolChannelId em_coolId;
@@ -555,10 +558,11 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
   const std::vector<float> defaultLayerMeans(maxSamplings, defaultMean);
   std::vector<unsigned int> rxIds;
 
-  for (; ttIterator != ttIteratorEnd; ++ttIterator) {
+  for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
+                                                    ++TriggerTowerIterator) {
 	  
-    const double eta = (*ttIterator)->eta();
-    const double phi = (*ttIterator)->phi();
+    const double eta = (*TriggerTowerIterator)->eta();
+    const double phi = (*TriggerTowerIterator)->phi();
     const double absEta = fabs(eta);
 
     em_ident = m_ttTool->identifier(eta, phi, 0);
@@ -593,7 +597,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	const L1CaloHVCorrections* pHV1 = 0;
         pHV1 = hvCorrectionsContainer->hvCorrections(coolId1);
 	const double refMean1 = (pHV1) ? (double)pHV1->rxMean() : defaultMean;
-	double refMean = (double)refMean1;
+	double refMean = refMean1;
 	const std::vector<int>& ncells1(pTL1->ncells());
 	int n1 = 0;
 	int n2 = 0;
@@ -625,11 +629,11 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	  currentMean = m_h_emHVScale->GetBinContent(binx, biny);
 	  currentNCells = m_h_emHVEntry->GetBinContent(binx, biny);
           if (debug && currentNCells != n1+n2) {
-	    msg(MSG::DEBUG) << "NCells differ at eta/phi " << eta << "/" << phi << endmsg;
+	    msg(MSG::DEBUG) << "NCells differ at eta/phi " << eta << "/" << phi << endreq;
 	  }
 	  diffMean = (currentNCells == n1+n2) ? (currentMean - refMean)/refMean : 0.;
 	  if (diffMean != 0.) {
-            m_histTool->fillPPMEmEtaVsPhi(m_h_emHVScaleDif, eta, phi, diffMean);
+	    m_histTool->fillPPMEmEtaVsPhi(m_h_emHVScaleDif, eta, phi, diffMean);
 	  }
 	} else {
 	  m_histTool->fillPPMHadEtaVsPhi(m_h_hadHVScaleRef, eta, phi, refMean);
@@ -637,11 +641,11 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	  currentMean = m_h_hadHVScale->GetBinContent(binx, biny);
 	  currentNCells = m_h_hadHVEntry->GetBinContent(binx, biny);
           if (debug && currentNCells != n1+n2) {
-	    msg(MSG::DEBUG) << "NCells differ at eta/phi " << eta << "/" << phi << endmsg;
+	    msg(MSG::DEBUG) << "NCells differ at eta/phi " << eta << "/" << phi << endreq;
 	  }
 	  diffMean = (currentNCells == n1+n2) ? (currentMean - refMean)/refMean : 0.;
 	  if (diffMean != 0.) {
-            m_histTool->fillPPMHadEtaVsPhi(m_h_hadHVScaleDif, eta, phi, diffMean);
+	    m_histTool->fillPPMHadEtaVsPhi(m_h_hadHVScaleDif, eta, phi, diffMean);
 	  }
 	}
 	for (unsigned int rx = 0; rx < nRx; ++rx) {
@@ -674,7 +678,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	    const int sampling = *it;
 	    if (debug && refMean < 1.) {
 	      msg(MSG::DEBUG) << " Reference Mean Scale " << refMean << " for sampling " << sampling
-	                      << " eta/phi " << eta << "/" << phi << endmsg;
+	                      << " eta/phi " << eta << "/" << phi << endreq;
             }
             int sample = sampling%4;
 	    if (layer == 0) {
@@ -688,7 +692,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	        diffMean = (currentNCells == (*ic)) ? (currentMean - refMean)/refMean : 0.;
 	        if (debug && currentNCells != (*ic)) {
 	          msg(MSG::DEBUG) << "NCells differ for sampling " << sampling 
-		                  << " eta/phi " << eta << "/" << phi << endmsg;
+		                  << " eta/phi " << eta << "/" << phi << endreq;
 	        }
 	        if (diffMean != 0.) {
 	          m_histTool->fillPPMEmEtaVsPhi(m_v_emHVScalesDif[sample], eta, phi, diffMean);
@@ -703,7 +707,7 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 	        currentNCells = m_v_hadHVEntries[sample]->GetBinContent(binx, biny);
 	        if (debug && currentNCells != (*ic)) {
 		  msg(MSG::DEBUG) << "NCells differ for sampling " << sampling
-		                  << " eta/phi " << eta << "/" << phi << endmsg;
+		                  << " eta/phi " << eta << "/" << phi << endreq;
 		}
 	        diffMean = (currentNCells == (*ic)) ? (currentMean - refMean)/refMean : 0.;
 	        if (diffMean != 0.) {

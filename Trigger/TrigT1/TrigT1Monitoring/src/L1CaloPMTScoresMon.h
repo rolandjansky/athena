@@ -36,7 +36,7 @@ class IL1CaloCells2TriggerTowers;
 class IL1CaloTTIdTools;
 class IL1TriggerTowerTool;
 class ITrigT1CaloMonErrorTool;
-class TrigT1CaloLWHistogramTool;
+class TrigT1CaloLWHistogramToolV1;
 // ============================================================================
 
 /** Monitoring of mean Tile PMT gains by TriggerTower
@@ -136,7 +136,7 @@ private:
   /// Event veto tool
   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramToolV1> m_histTool;
   /// CaloCell to TriggerTower mapping tool
   ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
   /// Tool for Identifier to eta/phi mappings
@@ -148,8 +148,8 @@ private:
 
   /// CaloCellContainer StoreGate key
   std::string m_caloCellContainerName;
-  /// xAODTriggerTower collection StoreGate key
-  std::string m_xAODTriggerTowerContainerName;
+  /// TriggerTower collection StoreGate key
+  std::string m_TriggerTowerContainerName;
 
   /// Root histograms directory
   std::string m_PathInRootFile;

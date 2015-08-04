@@ -38,12 +38,12 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramToolV1.h"
 
 #include "L1CaloPMTScoresMon.h"
 // ============================================================================
@@ -57,8 +57,8 @@ L1CaloPMTScoresMon::L1CaloPMTScoresMon(const std::string & type,
 				       const IInterface* parent)
   : ManagedMonitorToolBase ( type, name, parent ),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
-    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
+    m_errorTool("LVL1::TrigT1CaloMonErrorToolV1/TrigT1CaloMonErrorToolV1"),
+    m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_ttIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
     m_tileBadChanTool("TileBadChanTool"),
@@ -71,8 +71,8 @@ L1CaloPMTScoresMon::L1CaloPMTScoresMon(const std::string & type,
 {
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("CaloCellContainer", m_caloCellContainerName = "AllCalo");
-  declareProperty("xAODTriggerTowerContainer",
-                  m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+  declareProperty("TriggerTowerContainer",
+                  m_TriggerTowerContainerName = "TriggerTowers");
   declareProperty("PathInRootFile",
                   m_PathInRootFile = "LVL1_Interfaces/Calorimeter") ;
 
@@ -93,7 +93,7 @@ StatusCode L1CaloPMTScoresMon:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
   
@@ -102,44 +102,44 @@ StatusCode L1CaloPMTScoresMon:: initialize()
 
   sc = m_cells2tt.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloCells2TriggerTowers" << endreq;
     return sc;
   }
 
   sc = m_ttIdTools.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1CaloTTIdTools" << endreq;
     return sc;
   }
 
   sc = m_ttTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to locate tool L1TriggerTowerTool" << endreq;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = detStore()->retrieve(m_tileHWID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve TileHWID helper from DetectorStore" << endmsg;
+    msg(MSG::ERROR) << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
     return sc;
   }
   sc = m_tileBadChanTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not access tileBadChanTool" << endmsg;
+    msg(MSG::ERROR) << "Could not access tileBadChanTool" << endreq;
     return sc;
   }
 
@@ -159,7 +159,7 @@ StatusCode L1CaloPMTScoresMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
   
-  msg(MSG::DEBUG) << "in L1CaloPMTScoresMon::bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "in L1CaloPMTScoresMon::bookHistograms" << endreq;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -203,7 +203,7 @@ StatusCode L1CaloPMTScoresMon::bookHistogramsRecurrent()
 
     StatusCode sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
-      msg(MSG::WARNING) << "Conditions not retrieved " << endmsg;
+      msg(MSG::WARNING) << "Conditions not retrieved " << endreq;
     }
   }
 
@@ -218,17 +218,17 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   if (m_events > 0) return StatusCode::SUCCESS;
 
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -239,7 +239,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   const CaloCellContainer* caloCellContainer = 0;
   sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName); 
   if(!sc.isSuccess() || !caloCellContainer) {
-    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endmsg; 
+    msg(MSG::WARNING) << "No CaloCellContainer found at AllCalo" << endreq; 
     return StatusCode::SUCCESS;
   }
 
@@ -248,9 +248,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   // =========================================================================
   // ================= CaloCells  ============================================
   // =========================================================================
- 
-  // KW CHECK IF THIS IS OK!!!!
- 
+  
   CaloCellContainer::const_iterator CaloCellIterator    = caloCellContainer->begin();
   CaloCellContainer::const_iterator CaloCellIteratorEnd = caloCellContainer->end();
   
@@ -260,7 +258,7 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
     const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
     if (!caloDDE->is_tile()) continue;
 
-    //const Identifier cellId(caloCell->ID());
+    const Identifier cellId(caloCell->ID());
     const Identifier invalidId(0);
     Identifier ttId1(0);
     Identifier ttId2(0);
@@ -295,27 +293,28 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
   // =================== TriggerTowers =======================================
   // =========================================================================
 
-  //Retrieve xAODTriggerTowers from SG
-  const xAOD::TriggerTowerContainer* triggerTowerTES = 0; 
-  sc = evtStore()->retrieve(triggerTowerTES, m_xAODTriggerTowerContainerName); 
-  if(sc==StatusCode::FAILURE || !triggerTowerTES) {
-    msg(MSG::INFO) << "No xAODTriggerTower found in TES at "
-                   << m_xAODTriggerTowerContainerName << endmsg ;
+  //Retrieve TriggerTowers from SG
+  const TriggerTowerCollection* TriggerTowerTES = 0; 
+  sc = evtStore()->retrieve(TriggerTowerTES, m_TriggerTowerContainerName); 
+  if(sc==StatusCode::FAILURE || !TriggerTowerTES) {
+    msg(MSG::INFO) << "No TriggerTower found in TES at "
+                   << m_TriggerTowerContainerName << endreq ;
     return StatusCode::SUCCESS;
   }
       
-  xAOD::TriggerTowerContainer::const_iterator ttIterator =
-                                                      triggerTowerTES->begin(); 
-  xAOD::TriggerTowerContainer::const_iterator ttIteratorEnd =
-                                                      triggerTowerTES->end(); 
+  TriggerTowerCollection::const_iterator TriggerTowerIterator =
+                                                      TriggerTowerTES->begin(); 
+  TriggerTowerCollection::const_iterator TriggerTowerIteratorEnd =
+                                                      TriggerTowerTES->end(); 
       
   L1CaloCoolChannelId had_coolId;
 
-  for (; ttIterator != ttIteratorEnd; ++ttIterator) {
+  for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
+                                                    ++TriggerTowerIterator) {
 	  
-    double eta = (*ttIterator)->eta();
+    double eta = (*TriggerTowerIterator)->eta();
     if (fabs(eta) > 1.5) continue;
-    double phi = (*ttIterator)->phi();
+    double phi = (*TriggerTowerIterator)->phi();
 
     had_coolId = m_ttTool->channelID(eta, phi, 1);
     bool had_disabled = m_ttTool->disabledChannel(had_coolId);
@@ -403,3 +402,4 @@ double L1CaloPMTScoresMon::tileNonNominal(const CaloCell* cell)
 }
 // ============================================================================
 }  // end namespace
+// ============================================================================

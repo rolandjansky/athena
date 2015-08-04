@@ -91,7 +91,7 @@ StatusCode L1CaloLevel2Mon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) return sc;
@@ -99,14 +99,14 @@ StatusCode L1CaloLevel2Mon::initialize()
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -117,7 +117,7 @@ StatusCode L1CaloLevel2Mon::initialize()
 StatusCode L1CaloLevel2Mon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in L1CaloLevel2Mon::bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "in L1CaloLevel2Mon::bookHistograms" << endreq;
   
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -179,17 +179,17 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in L1CaloLevel2Mon::fillHistograms" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "in L1CaloLevel2Mon::fillHistograms" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt or with ROB errors
 
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
  
@@ -197,7 +197,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
   const ROIB::RoIBResult* roib_rdo = 0;
   StatusCode sc = evtStore()->retrieve(roib_rdo, m_L2_RoIBResultLocation);
   if ( sc.isFailure() || !roib_rdo ) {
-    msg(MSG::WARNING) << "ERROR retrieving RoIB RDO from store!" << endmsg;
+    msg(MSG::WARNING) << "ERROR retrieving RoIB RDO from store!" << endreq;
     return sc;
   }
 
@@ -210,7 +210,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
   sc = evtStore()->retrieve(L1Calo_JEMRoI, m_L1Calo_JEMRoILocation);
   if (sc == StatusCode::FAILURE || !L1Calo_JEMRoI) {
     msg(MSG::INFO) << "No JEMRoI found in TES at " << m_L1Calo_JEMRoILocation
-                   << endmsg;
+                   << endreq;
     return StatusCode::SUCCESS;
   }
  
@@ -245,7 +245,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 	      	          << " location "         << roi->location()
 		          << " RoI "
 		          << m_histTool->thresholdString(roi->hits(), nthresh)
-		          << endmsg;
+		          << endreq;
         }
       } else if (roIType == LVL1::TrigT1CaloDefs::JetEtRoIWordType) {
         L2_JetEtHits = it2->jetEt();
@@ -285,7 +285,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 	              << " RoI "
 		      << m_histTool->thresholdString(
 		                           (*it_L1Calo_JEMRoI)->hits(), nthresh)
-	              << endmsg;
+	              << endreq;
     }
   }
 
@@ -326,7 +326,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 			<< m_histTool->thresholdString(hits, nthresh)
 		        << " L2: RoI "
 			<< m_histTool->thresholdString(hitsL2, nthresh)
-		        << endmsg;
+		        << endreq;
       }
       m_h_l2_1d_L1NeL2Summary->Fill(JetType);
       m_h_l2_2d_JEMRoIErrors->Fill(jem, crate);
@@ -352,7 +352,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 	                << " L2: RoI "
 			<< m_histTool->thresholdString(
 			                       (*it_L2_JEMRoI)->hits(), nthresh)
-	                << endmsg;
+	                << endreq;
       }
       m_h_l2_1d_L1NeL2Summary->Fill(JetType);
       m_h_l2_2d_JEMRoIErrors->Fill((*it_L2_JEMRoI)->jem(),
@@ -367,7 +367,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
   sc = evtStore()->retrieve (L1Calo_CR, m_L1Calo_CMMRoILocation);
   if (sc == StatusCode::FAILURE || !L1Calo_CR) {
     msg(MSG::INFO) << "No L1Calo CMM RoI found in TES at "
-                   << m_L1Calo_CMMRoILocation << endmsg;
+                   << m_L1Calo_CMMRoILocation << endreq;
     return StatusCode::SUCCESS;    
   }
 
@@ -420,7 +420,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
   sc = evtStore()->retrieve(L1Calo_CPMRoI, m_L1Calo_CPMRoILocation);
   if (sc == StatusCode::FAILURE || !L1Calo_CPMRoI) {
     msg(MSG::INFO) << "No CPMRoI found in TES at " << m_L1Calo_CPMRoILocation
-                   << endmsg;
+                   << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -447,7 +447,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 			  << " location "        << roi->location()
 		          << " RoI "
 			  << m_histTool->thresholdString(roi->hits(), nthresh)
-			  << endmsg;
+			  << endreq;
         }
       }
     }
@@ -469,7 +469,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 	              << " RoI "
 		      << m_histTool->thresholdString(
 		                         (*it_L1Calo_CPMRoI)->hits(), nthresh)
-	              << endmsg;
+	              << endreq;
     }
   }
 
@@ -511,7 +511,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 			<< m_histTool->thresholdString(hits, nthresh)
 			<< " L2: RoI "
 			<< m_histTool->thresholdString(hitsL2, nthresh)
-			<< endmsg;
+			<< endreq;
       }
       const int hitsEmL2  = hitsL2 & 0xff;
       const int hitsTauL2 = (hitsL2 >> 8) & 0xff;
@@ -552,7 +552,7 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 			<< m_histTool->thresholdString(hitsL1, nthresh)
 			<< " L2: RoI "
 			<< m_histTool->thresholdString(hits, nthresh)
-		        << endmsg;
+		        << endreq;
       }
       if (hitsEm) {
         m_h_l2_1d_L1NeL2Summary->Fill(EMType);
