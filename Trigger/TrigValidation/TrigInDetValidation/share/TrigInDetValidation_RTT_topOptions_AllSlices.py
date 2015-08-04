@@ -67,24 +67,26 @@ if athenaCommonFlags.FilesInput()==[]:
 rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
+if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  rID = True
 
 tidaAnalysischains = []
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-(electronChainlist, electronAnalysischains) = electronChains(rMC)
+(electronChainlist, electronAnalysischains) = electronChains(rMC, rID)
 tidaAnalysischains += electronAnalysischains
 
-(muonChainlist, muonAnalysischains) = muonChains(rMC)
+(muonChainlist, muonAnalysischains) = muonChains(rMC, rID)
 tidaAnalysischains += muonAnalysischains
 
-(tauChainlist, tauAnalysischains) = tauChains(rMC)
+(tauChainlist, tauAnalysischains) = tauChains(rMC, rID)
 tidaAnalysischains += tauAnalysischains
 
-(bjetChainlist, bjetAnalysischains) = bjetChains(rMC)
+(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID)
 tidaAnalysischains += bjetAnalysischains
 
-(minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC)
+(minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC, rID)
 tidaAnalysischains += minBiasAnalysischains
 
 def resetSigs():
@@ -105,6 +107,4 @@ def resetSigs():
   TriggerFlags.MinBiasSlice.setAll();
   TriggerFlags.MinBiasSlice.signatures = minBiasChainlist
 
-rec.RootNtupleOutput="ntupleInDetElectronSlice.root"
-  
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")

@@ -88,12 +88,12 @@
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
-            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+
 	    <auxFilePattern>data-el_single_e_7-80_larged0-reference.root</auxFilePattern>
             <auxFilePattern>expert-monitoring-el_single_e_7-80_larged0-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>	
-	    <auxFilePattern>Test_bin.dat</auxFilePattern>
+
 
          <athenaCommonFlags /> 
          </athena>

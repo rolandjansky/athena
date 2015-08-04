@@ -30,7 +30,7 @@
 
             <auxFilePattern>expert-monitoring-minBias_pileUp-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"	    
-            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
+
 
           <athenaCommonFlags /> 
 	  </athena>

@@ -22,8 +22,6 @@ if athenaCommonFlags.FilesInput()==[]:
       "/afs/cern.ch/user/m/masik/afswork/group.det-indet.valid1.108865.CosSimPixVolSolOnTorOn.s1922_s1927_RDO_12June_maxEvents.140611233257/group.det-indet.630146_006090.EXT0._00014.RDO.root"
 ]
 
-rec.RootNtupleOutput="ntupleInDetMuonSlice.root"
-
 from TriggerMenu import useNewTriggerMenu
 use_new_tm = useNewTriggerMenu()
 
