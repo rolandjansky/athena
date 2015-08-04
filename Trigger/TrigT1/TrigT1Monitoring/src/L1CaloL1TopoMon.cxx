@@ -35,7 +35,7 @@
 #include "TrigT1Interfaces/FrontPanelCTP.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 
-#include "TrigT1CaloEvent/CMXJetTobCollection.h"
+#include "xAODTrigL1Calo/CMXJetTobContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 #include "L1TopoRDO/Helpers.h"
@@ -299,7 +299,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
 
   StatusCode sc = StatusCode::SUCCESS;
-  std::vector<LVL1::CMXJetTob*> cmxtobs;  
+  std::vector<xAOD::CMXJetTob*> cmxtobs;  
 
   // Validate properly unpacked input from L1Calo
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
@@ -309,7 +309,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 
   // Retrieve CMX tobs
   bool cmx_ematch=true;
-  const DataHandle<CMXJetTobCollection> cmxtob = 0;
+  const DataHandle<xAOD::CMXJetTobContainer> cmxtob = 0;
   sc = evtStore()->retrieve(cmxtob);
   if (sc.isFailure() || !cmxtob) {
     ATH_MSG_DEBUG ("No CMX tobs found in TES");
