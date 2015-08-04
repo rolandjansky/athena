@@ -14,7 +14,11 @@
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class StoreGateSvc; 
+class StoreGateSvc;
+class Identifier;
+class IPixelCablingSvc;
+class PixelID;
+class IBLParameterSvc;
 
 namespace PixelCalib{
   class PixelOfflineCalibData;
@@ -81,12 +85,21 @@ class PixelOfflineCalibSvc : public AthService, virtual public IPixelOfflineCali
       virtual double getEndcapDeltaX() const;
       virtual double getEndcapDeltaY() const;
 
+      virtual int getIBLToToverflow(Identifier* PixID) const; //{return -99; /* dummy return value */}
+      virtual int getIBLToToverflow() const; //{return -99; /* dummy return value */}
+      virtual void readHDC();
     private:
 
-      ServiceHandle<StoreGateSvc>  m_sgSvc;
       ToolHandle<IPixelRecoDbTool >  m_dbTool;
       mutable PixelCalib::PixelOfflineCalibData* m_pat; 
-         
+      ServiceHandle< StoreGateSvc > m_detStore;
+      ServiceHandle<IPixelCablingSvc> m_pixelCabling;
+      ServiceHandle<StoreGateSvc>  m_sgSvc;
+      ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+      int m_HitDiscCnfg;
+      int m_IBLToToverflowBin;
+    
+      const PixelID* m_pixel_id;
     }; 
 
 #endif 

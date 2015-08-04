@@ -21,18 +21,29 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "PixelConditionsTools/IPixelRecoDbTool.h"
+
+#include "InDetIdentifier/PixelID.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
+
 //================ Constructor =================================================
 
 PixelOfflineCalibSvc::PixelOfflineCalibSvc(const std::string& name, ISvcLocator* sl)
   : 
   AthService(name, sl),
-  m_sgSvc("StoreGateSvc",name),
   m_dbTool("PixelRecoDbTool"),
-  m_pat(0)
+  m_pat(0),
+  m_detStore("DetectorStore", name),
+  m_pixelCabling("PixelCablingSvc",name),
+  m_sgSvc("StoreGateSvc",name),
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_HitDiscCnfg(-1),
+  m_IBLToToverflowBin(0)
 {
   //  template for property declaration
   declareProperty("StoreGateSvc"   , m_sgSvc);
   declareProperty("PixelRecoDbTool", m_dbTool);
+  declareProperty("OverrideIBLToToverflowBin", m_IBLToToverflowBin);
 }
 
 //================ Destructor =================================================
@@ -68,6 +79,13 @@ StatusCode PixelOfflineCalibSvc::initialize()
   }
   msg(MSG::INFO) << "Service::initialize() successful in " << name() << endreq;
   */
+  
+  StatusCode sc = m_detStore.retrieve();
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve detector store");
+    return StatusCode::FAILURE;
+  }
+
   if (m_sgSvc.retrieve().isFailure()){
     msg(MSG::FATAL) << "Could not retrieve StoreGateSvc!" << endreq;
     return StatusCode::FAILURE;
@@ -85,6 +103,33 @@ StatusCode PixelOfflineCalibSvc::initialize()
     msg(MSG::INFO) 
       << "Retrieved tool " <<  m_dbTool.type() << endreq;
   }
+
+// IBL Overflow:
+    
+    if (m_pixelCabling.retrieve().isFailure()) {
+        msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCabling << endreq;
+        return StatusCode::FAILURE;
+    } else
+        msg(MSG::INFO) << "Retrieved service " << m_pixelCabling << endreq;
+    
+    //if (m_sgSvc->retrieve(m_pixel_id, "PixelID").isFailure()) {
+    if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
+        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+        return StatusCode::FAILURE;
+    } else
+        msg(MSG::INFO) << "Retrieved Pixel ID helper" << endreq;
+
+    if (m_IBLParameterSvc.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Could not retrieve IBLParameterSvc");
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc);
+
+    // Read HitDiscCnfg from COOL:
+    if (m_IBLParameterSvc->containsIBL()) {
+        readHDC();
+    }
+    
   return StatusCode::SUCCESS;
 }
 
@@ -448,9 +493,70 @@ double PixelOfflineCalibSvc::getEndcapDeltaY() const
   return m_pat->getPixelChargeInterpolationParameters()->getDeltaYendcap();
 }
 
+int PixelOfflineCalibSvc::getIBLToToverflow() const
+{
+  int overflow;
+  if( m_IBLToToverflowBin != 0 ) {
+    overflow = m_IBLToToverflowBin;
+  } else {
+    if( m_HitDiscCnfg == 0 ) overflow = 14;
+    if( m_HitDiscCnfg == 1 ) overflow = 15;
+    if( m_HitDiscCnfg == 2 ) overflow = 16;
+    if( m_HitDiscCnfg == 3 ) overflow = 14;
+    if( m_HitDiscCnfg > 3 )msg(MSG::FATAL) << " IBL FE-I4 chips have non physical values for HitDiscCnfg" << endreq; 
+  }
+  return overflow;
+}
 
+int PixelOfflineCalibSvc::getIBLToToverflow(Identifier*) const
+{
+  // The version with pixel identifier is the same as without identifier. In case it is needed in the future, it should be recoded.
+   
+  int overflow;
+  if( m_IBLToToverflowBin != 0 ) {
+    overflow = m_IBLToToverflowBin;
+  } else {
+    if( m_HitDiscCnfg == 0 ) overflow = 14;
+    if( m_HitDiscCnfg == 1 ) overflow = 15;
+    if( m_HitDiscCnfg == 2 ) overflow = 16;
+    if( m_HitDiscCnfg == 3 ) overflow = 14;
+    if( m_HitDiscCnfg > 3 )msg(MSG::FATAL) << " IBL FE-I4 chips have non physical values for HitDiscCnfg" << endreq; 
+  }
+  return overflow;
+}
 
+void PixelOfflineCalibSvc::readHDC() {
 
+    int nchip = 0;
+    std::vector<int> HDCOccurence(5,0);
+    for( int phi_index = 0; phi_index < 14; phi_index++ ){
+      for( int eta_index = -10; eta_index < 10; eta_index++ ){
+        Identifier  thiswafer = m_pixel_id->wafer_id(0,0,phi_index,eta_index);
+	uint32_t maxFE = 2;
+	if( eta_index < -6 || eta_index > 5 )maxFE = 1;
+	for( uint32_t FE_index = 0; FE_index < maxFE; FE_index++ ){
+	  Identifier FirstPix = m_pixelCabling->getPixelId(thiswafer,FE_index,1,1);
+	  int HitDiscCnfg = m_pixelCabling->getHitDiscCnfg(&FirstPix);
+          nchip++;
+	  if ( HitDiscCnfg > 3 ) HitDiscCnfg = 4;
+	  HDCOccurence[HitDiscCnfg]++;
+	  msg(MSG::DEBUG) <<  " Eta = " << eta_index << " Phi = " << phi_index << " FE = " << FE_index << " HitDiscCnfg = " << HitDiscCnfg << endreq;
+	}
+      }
+    }  	      
+    
+    int imax = HDCOccurence.at(0);
+    for ( int ihdc = 0; ihdc < 5; ihdc++ ){	    
+      msg(MSG::INFO) << " HitDiscCnfg Occurence " << ihdc << " is " << HDCOccurence.at(ihdc) << endreq;
+      if ( HDCOccurence.at(ihdc) == nchip )m_HitDiscCnfg = ihdc;
+      if ( HDCOccurence.at(ihdc) > imax ) imax = ihdc;
+    }
+    
+    if ( m_HitDiscCnfg == -1 ){
+      msg(MSG::WARNING) << " IBL FE-I4 chips have different values of HitDiscCnfg" << endreq; 
+      m_HitDiscCnfg = imax;
+      if ( m_HitDiscCnfg == 4 ) msg(MSG::FATAL) << " IBL FE-I4 chips have non physical values for HitDiscCnfg" << endreq;
+    }  
+    msg(MSG::INFO) << " m_HitDiscCnfg = " << m_HitDiscCnfg << endreq;
 
-
-
+}
