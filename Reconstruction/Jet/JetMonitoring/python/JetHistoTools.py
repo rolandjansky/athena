@@ -20,6 +20,80 @@ compactSpecification = {
     #  - binning is ("title;labelx;labely", nbins, xlow, xup) as in TH1 ctor
     #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")    
     # 
+
+#
+#  Jet moments added from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2JetMoments/
+#
+    "KtDR"             : (("KtDR;KtDR;",100,0,10),("KtDR","float")),
+#
+    "Tau1"             : (("Tau1;Tau1;",100,0,1.0),("Tau1","float")),
+    "Tau2"             : (("Tau2;Tau2;",100,0,1.0),("Tau2","float")),
+    "Tau3"             : (("Tau3;Tau3;",100,0,1.0),("Tau3","float")),
+    "Tau1_wta"         : (("Tau1_wta;Tau1_wta;",100,0,1.0),("Tau1_wta","float")),
+    "Tau2_wta"         : (("Tau2_wta;Tau2_wta;",100,0,1.0),("Tau2_wta","float")),
+    "Tau3_wta"         : (("Tau3_wta;Tau3_wta;",100,0,1.0),("Tau3_wta","float")),
+    "Tau21"            : (("Tau21;Tau21;",100,0,1.0),("Tau21","float")),
+    "Tau32"            : (("Tau32;Tau32;",100,0,1.0),("Tau32","float")),
+    "Tau21_wta"        : (("Tau21_wta;Tau21_wta;",100,0,1.0),("Tau21_wta","float")),
+    "Tau32_wta"        : (("Tau32_wta;Tau32_wta;",100,0,1.0),("Tau32_wta","float")),
+#
+    "Dip12"            : (("Dip12;Dip12;",100,-1,2),("Dip12","float")),
+    "Dip13"            : (("Dip13;Dip13;",100,-1,2),("Dip13","float")),
+    "Dip23"            : (("Dip23;Dip23;",100,-1,2),("Dip23","float")),
+    "DipExcl12"        : (("DipExcl12;DipExcl12;",100,-1,2),("DipExcl12","float")),
+#
+    "Split12"          : (("Split12;Split12;",100,0,5000),("Split12","float")),
+    "Split23"          : (("Split23;Split23;",100,0,5000),("Split23","float")),
+    "Split34"          : (("Split34;Split34;",100,0,5000),("Split34","float")),
+#
+    "ZCut12"           : (("ZCut12;ZCut12;",100,0,1.0),("ZCut12","float")),
+    "ZCut23"           : (("ZCut23;ZCut23;",100,0,1.0),("ZCut23","float")),
+    "ZCut34"           : (("ZCut34;ZCut34;",100,0,1.0),("ZCut34","float")),
+#
+    "Angularity"       : (("Angularity;Angularity;",100,-.1,.1), ("Angularity","float")),
+#
+    "PlanarFlow"       : (("PlanarFlow;PlanarFlow;",100,-1,1.1),("PlanarFlow","float")),
+#
+    "Mu12"             : (("Mu12;Mu12;",100,0,1.0),("Mu12","float")),
+#
+    "ECF1"             : (("ECF1;ECF1;",100,0,10000),("ECF1","float")),
+    "ECF2"             : (("ECF2;ECF2;",100,0,10000),("ECF2","float")),
+    "ECF3"             : (("ECF3;ECF3;",100,0,10000),("ECF3","float")),
+    "ECF1_Beta2"       : (("ECF1_Beta2;ECF1_Beta2;",100,-1,1),("ECF1_Beta2","float")),
+    "ECF2_Beta2"       : (("ECF2_Beta2;ECF2_Beta2;",100,-1,1),("ECF2_Beta2","float")),
+    "ECF3_Beta2"       : (("ECF3_Beta2;ECF3_Beta2;",100,-1,1),("ECF3_Beta2","float")),
+#
+    "C1"               : (("C1;C1;",100,-1,1), ("C1","float")),
+    "C2"               : (("C2;C2;",100,-1,1), ("C2","float")),
+    "D2"               : (("D2;D2;",100,-1,1), ("D2","float")),
+    "C1_Beta2"         : (("C1;C1;",100,-1,1), ("C1","float")),
+    "C2_Beta2"         : (("C2_Beta2;C2_Beta2;",100,-1,1), ("C2_Beta2","float")),
+    "D2_Beta2"         : (("D2_Beta2;D2_Beta2;",100,-1,1), ("D2_Beta2","float")),
+#
+    "ThrustMin"        : (("ThrustMin;ThrustMin;",100,-1,2),("ThrustMin","float")),
+    "ThrustMaj"        : (("ThrustMaj;ThrustMaj;",100,-1,2),("ThrustMaj","float")),
+    "FoxWolfram0"      : (("FoxWolfram0;FoxWolfram0;",100,-1,1),("FoxWolfram0","float")),
+    "FoxWolfram1"      : (("FoxWolfram0;FoxWolfram1;",100,-1,1),("FoxWolfram1","float")),
+    "FoxWolfram2"      : (("FoxWolfram0;FoxWolfram2;",100,-1,1),("FoxWolfram2","float")),
+    "FoxWolfram3"      : (("FoxWolfram0;FoxWolfram3;",100,-1,1),("FoxWolfram3","float")),
+    "FoxWolfram4"      : (("FoxWolfram0;FoxWolfram4;",100,-1,1),("FoxWolfram4","float")),
+    "Sphericity"       : (("Sphericity;Sphericity;",100,0,1),("Sphericity","float")),
+    "Aplanarity"       : (("Aplanarity;Aplanarity;",100,0,1),("Aplanarity","float")),
+#
+    "PullMag"          : (("PullMag;PullMag;",100,0,100),("PullMag","float")),
+    "PullPhi"          : (("PullPhi;PullPhi;",100,-6.3,6.3),("PullPhi","float")),
+    "Pull_C00"         : (("Pull_C00;Pull_C00;",100,-1,1),("Pull_C00","float")), 
+    "Pull_C01"         : (("Pull_C01;Pull_C01;",100,-1,1),("Pull_C01","float")),                                                                                         
+    "Pull_C10"         : (("Pull_C10;Pull_C10;",100,-1,1),("Pull_C10","float")),                                                                                         
+    "Pull_C11"         : (("Pull_C11;Pull_C11;",100,-1,1),("Pull_C11","float")),                                                                                         
+#   
+    "Charge"           : (("Charge;Charge;",100,-2,2),("Charge","float")),
+#
+    "ShowerDeconstructionW": (("ShowerDeconstructionW;ShowerDeconstructionW;",100,-100,100),("ShowerDeconstructionW","float")),
+    "ShowerDeconstructionTop": (("ShowerDeconstructionTop;ShowerDeconstructionTop;",100,-100,100),("ShowerDeconstructionTop","float")),
+#
+    "Volatility"       : (("Volatility;Volatility;",100,-100,100),("Volatility","float")),
+#
     "pt"               : (("Jet Pt;Pt [MeV];", 100, 0, 200) ,     ("pt","float","gev" ) ),    
     "Width"            : (("Jet Width;Width;", 50, 0, 1.0) ,         ("Width","float" ) ),
     "Width15"          : (("Jet Width;Width;", 50, 0, 1.5) ,         ("Width","float" ) ),
@@ -46,26 +120,26 @@ compactSpecification = {
     "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 3.), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
-    # binning optimisation from Emma Tolley
+    # binning optimisation from Emma Tolley 
     #"FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
     "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",24,0,24), ("FracSamplingMaxIndex", "int") ),
     # binning optimisation from Emma Tolley
-    #"N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ),
+    #"N90Constituents"  : (("N90Constituents; N90Constituents;",50,0,10), ("N90Constituents", "float") ), 
     "N90Constituents"  : (("N90Constituents; N90Constituents;",15,0,15), ("N90Constituents", "float") ),
     "CentroidR"        : (("CentroidR; CentroidR;",100,0,7500), ("CentroidR", "float") ),
     "OotFracClusters5" : (("OotFracClusters5; OotFracClusters5;",50,-0.1,1.2), ("OotFracClusters5", "float") ),
     "OotFracClusters10": (("OotFracClusters10; OotFracClusters10;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
-    #
     #CBG
-    "ptN"               : (("Jet Pt;Pt [GeV];", 100, 0., 2000.) ,     ("pt","float","gev" ) ),
+    "ptN"               : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ), 
     "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,1000.), ("LeadingClusterCenterLambda", "float") ),
     "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,1000.), ("LeadingClusterSecondLambda", "float") ),
-    # binning optimisation from Emma Tolley
-    #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ),
-    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,10000.), ("LeadingClusterSecondR", "float") ),
-    "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ),
-    #CBG
-    #
+    # binning optimisation from Emma Tolley 
+    #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ), 
+    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,10000.), ("LeadingClusterSecondR", "float") ), 
+    "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
+    #CBG 
+    # 
+
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
@@ -171,3 +245,5 @@ def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix=""
     for k,v in otherArgs.iteritems():
         setattr(selTool, k, v)
     return selTool
+
+
