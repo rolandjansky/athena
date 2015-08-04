@@ -32,7 +32,7 @@ EgammaTagTool::EgammaTagTool (const std::string& type, const std::string& name,
   declareProperty("PhotonContainer",   m_photonContainer   = "PhotonCollection");
   /** selection cut of Pt */
   declareProperty("ElectronPtCut",     m_electronPtCut = 20.0*CLHEP::GeV);
-  declareProperty("PhotonPtCut",       m_photonPtCut = 10.0*CLHEP::GeV);
+  declareProperty("PhotonPtCut",       m_photonPtCut   = 10.0*CLHEP::GeV);
   /** mass cut for Z */
   declareProperty("MassZLow",          m_massZLow   = 45.*CLHEP::GeV );
   declareProperty("MassZHigh",         m_massZHigh  = 180.*CLHEP::GeV);
@@ -40,7 +40,7 @@ EgammaTagTool::EgammaTagTool (const std::string& type, const std::string& name,
   declareProperty("MissingEtObject",   m_missingEtObject = "MET_RefFinal");
   declareProperty("MissingEtCut",      m_missingEtCut    = 25.*CLHEP::GeV );
   declareProperty("WElectronPtCut",    m_welectronPtCut  = 15.*CLHEP::GeV );
-  declareProperty("MissingEtTerm",     m_missingEtTerm= "Final");
+  declareProperty("MissingEtTerm",     m_missingEtTerm   = "Final");
 
   declareInterface<EgammaTagTool>( this );
 }
@@ -84,7 +84,7 @@ StatusCode EgammaTagTool::execute(TagFragmentCollection& egammaTagCol, const int
   ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   /** Flags for Z and W events */ 
-  m_flagZeeEvent = false;
+  m_flagZeeEvent  = false;
   m_flagWenuEvent = false;
   
   //===================================================
