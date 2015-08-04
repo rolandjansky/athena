@@ -55,6 +55,8 @@ private:
   public:
     ResException(const std::string& s) { std::cerr<<s<<std::endl; }
   };
+
+  enum ERROR { OK, HISTOWIDTH, BINWIDTH, EMPTY }; 
   
 public:
   
@@ -171,7 +173,10 @@ public:
 
     // get the major bin edges
     std::vector<double> a1;
-    for ( int i=1 ; i<=h->GetNbinsX()+1 ; i++ ) a1.push_back(h->GetBinLowEdge(i));
+
+    TAxis* cock = h->GetXaxis();
+
+    for ( int i=1 ; i<=cock->GetNbins()+1 ; i++ ) a1.push_back(cock->GetBinLowEdge(i));
   
     // get the y bin limits
     TH1D* s = h->ProjectionY("_duff", 1, 1, "e");
@@ -666,6 +671,8 @@ private:
   /// and new rms95 error estimates
   static bool oldrms95;
   static bool scalerms95;
+
+  static ERROR ErrorSet; //! don't persistify this 
 
   ClassDef(Resplot, 1)
 

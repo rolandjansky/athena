@@ -32,25 +32,26 @@ ifeq ($(CMTCONFIG),)
     # "PUT YOUR BASE DIRECTORY HERE"
     # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
     # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
-    ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
+#    ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
+    ATLASBASE = $(HOME)/sub/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
 
     USEATHENALIBS = 0	
 
-    ifeq ($(USER),sutt)
-       # sutt uses with_version_directory so need the versions
-       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
-       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
-       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
+#    ifneq ($(USER),sutt)
+#       # sutt uses with_version_directory so need the versions
+#       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
+#       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
+#       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
 #      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
-       TIDUB = ../..
-    else
+#       TIDUB = ../..
+#    else
        TID   = $(ATLASBASE)/TrigInDetAnalysis
        TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
        TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
        TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
-    endif
+#    endif
 
     CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
 
@@ -147,7 +148,7 @@ RM  = rm
 TAR = tar
 
 
-COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o 
+COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o  $(OBJDIR)/AtlasStyle.o  $(OBJDIR)/AtlasLabels.o 
 CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o 
 CHOBJECTS = $(OBJDIR)/chains.o 
 WOBJECTS  = $(OBJDIR)/wmain.o 
@@ -308,6 +309,7 @@ archive :
 	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
 
 install : all 
+	cp $(EXEDIR)/comparitor $(EXEDIR)/chains $(HOME)/bin; 
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

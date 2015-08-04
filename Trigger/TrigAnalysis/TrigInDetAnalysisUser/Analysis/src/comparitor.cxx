@@ -11,6 +11,7 @@
 
 // #include <stdlib.h>
 #include <cstdio>
+#include <cstdlib>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h> 
@@ -20,6 +21,7 @@
 #include <vector>
 
 #include "TrigInDetAnalysis/Efficiency.h"
+
 #include "Resplot.h"
 #include "utils.h"
 #include "label.h"
@@ -41,6 +43,8 @@
 
 #include "computils.h"
 
+#include "AtlasStyle.h"
+#include "AtlasLabels.h"
 
 
 int usage(const std::string& name, int status) { 
@@ -50,11 +54,21 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -t, --tag value   \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k, --key value   \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d, --dir value   \t creates output files into directory, \"value\" \n";
-  s << "    -e, --efficiencies\t make test efficiencies with respect to reference \n";
-  s << "    -h, --help        \t this help\n";
+  s << "    -t,  --tag value   \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value   \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value   \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies\t make test efficiencies with respect to reference \n";
+  s << "    -r,  --refit       \t refit all resplots\n";
+  s << "    -l,  --labels      \t use specified labels for key\n";
+  s << "    -b   --bayes       \t calculate Basyesian efficiency iuncertaintiesr\n";
+  s << "    -as, --atlasstyle  \t use ATLAS style\n";
+  s << "    -ns, --nostats     \t do not show stats for mean and rms\n";
+  s << "    -nr, --noref       \t do not plot reference histograms\n";
+  s << "    -np, --noplots     \t do not actually make any plot\n";
+  s << "    -nw, --nowatermark \t do not plot the release watermark\n"; 
+  s << "         --nopng       \t do not print png files\n"; 
+  s << "         --deleteref   \t delete unused reference histograms\n"; 
+  s << "    -h,  --help        \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -64,27 +78,173 @@ int usage(const std::string& name, int status) {
 
 
 
+
+
+/// class to store information about axes, limits, whether it is 
+/// log or linear scale etc
+
+class AxisInfo { 
+
+public:
+
+  AxisInfo( const std::string& s ) : 
+    m_info(s), 
+    m_log(false),
+    m_autoset(false),
+    m_symmetric(false),
+    m_rangeset(false),
+    m_lo(0),
+    m_hi(0)
+  { 
+    std::vector<std::string> keys = split( s, ":" );
+    
+    //    std::cout << "\n\n" << s << "\nnkeys " << keys.size() << std::endl; 
+
+    if ( keys.size()>0 ) m_tag = keys[0];
+    
+    if ( keys.size()>1 && keys[1]=="log" ) m_log = true;
+
+    if ( keys.size()>2 ) { 
+      if      ( keys[2]=="auto" )      m_autoset = true;
+      else if ( keys[2]=="autosym" ) { m_autoset = true; m_symmetric = true; }
+      else { 
+	if ( keys.size()<4 ) { 
+	  std::cerr << "not enough values for the axis range: " << s << std::endl;
+	  std::exit(-1);
+	}
+	m_rangeset = true;
+	
+	m_lo = std::atof(keys[2].c_str());
+	m_hi = std::atof(keys[3].c_str());
+      }
+    }
+  }
+
+  
+  /// accessors 
+
+  std::string tag() const { return m_tag; }
+
+  bool   log()  const { return m_log; }
+
+  bool   autoset() const { return m_autoset; }
+  
+  bool   symmetric() const { return m_symmetric; }
+
+  bool   rangeset() const { return m_rangeset; }
+  double lo() const { return m_lo; } 
+  double hi() const { return m_hi; } 
+  
+public:
+
+  static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
+    
+    std::string _s = s;
+    size_t pos = _s.find(t);
+    
+    std::vector<std::string> tags;
+    
+    while ( pos!=std::string::npos ) { 
+      tags.push_back( chop(_s,t) );
+      pos = _s.find(t);
+    }
+    
+    tags.push_back(_s);
+    
+    return tags;
+  } 
+  
+
+public:
+
+  std::string m_info;
+  
+  std::string m_tag;
+
+  bool   m_log;
+  bool   m_autoset;
+  bool   m_symmetric;
+
+  bool   m_rangeset;
+  double m_lo; 
+  double m_hi;
+
+};
+
+
+inline std::ostream& operator<<( std::ostream& s, const AxisInfo& a ) { 
+  s << "[ " << a.tag() << ( a.log() ? " : log" : "" ) << " ";
+  if ( a.autoset() ) s << " : auto";
+  else if ( a.rangeset() ) { 
+    s << " : range " << a.lo() << " - " << a.hi();
+  }
+  s << " ]";
+  return s; 
+}
+
+
+
+
+
+
 int main(int argc, char** argv) { 
 
-  gStyle->SetPadRightMargin(0.05);
-  gStyle->SetPadTopMargin(0.05);
-  
   if ( argc<4 ) return usage(argv[0], -1);
 
-
+  /// control stuff
+  
   std::string tag = "";
   std::string key = "";
 
   std::string dir = "";
 
+  std::string ftestname = "";
+  std::string frefname  = "";
+
   TFile* _ftest = 0;
   TFile* _fref  = 0;
 
+  bool   effset = false;
+  double effmin =  90;
+  double effmax = 102;
+
+
+  /// control flags and labels
+
+  std::vector<std::string> usrlabels;
+  bool uselabels    = false;
+  bool addinglabels = false;
+
+  std::vector<std::string> taglabels;
+  bool addingtags  = false;
+
   bool make_ref_efficiencies = false;
+  bool refit_resplots        = false;
+
+  bool _bayes      = false;
+  bool nopng       = false;
+  bool nostats     = false;
+  bool noref       = false;
+  bool atlasstyle  = false;
+  bool deleteref   = false;
+  bool nowatermark = false;
+  bool noplots     = false;
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
     std::string arg  = argv[i];
+
+    if ( arg.find("-")!=0 && addinglabels ) { 
+      usrlabels.push_back( arg );
+      continue;
+    }
+    else addinglabels = false;
+
+    if ( arg.find("-")!=0 && addingtags ) { 
+      taglabels.push_back( arg );
+      continue;
+    }
+    else addingtags = false;
 
     if ( arg=="-h" || arg=="--help" ) { 
        return usage(argv[0], 0);
@@ -92,6 +252,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-t" || arg=="--tag" ) { 
       if ( ++i<argc ) tag=std::string("-")+argv[i];
       else return usage(argv[0], -1);
+    }
+    else if ( arg=="-l" || arg=="--labels" ) { 
+      addinglabels = true;
     }
     else if ( arg=="-k" || arg=="--key" ) { 
       if ( ++i<argc ) key=argv[i];
@@ -101,19 +264,68 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) dir=argv[i];
       else return usage(argv[0], -1);
     }
+    else if ( arg=="--taglabels" ) { 
+      addingtags = true;
+    }
+    else if ( arg=="-yrange" ) { 
+      effset = true;
+      if ( ++i<argc ) effmin=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+      if ( ++i<argc ) effmax=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    }
     else if ( arg=="-e" || arg=="--efficiencies" ) { 
       make_ref_efficiencies = true;
     }
+    else if ( arg=="-r" || arg=="--refit" ) { 
+      refit_resplots = true;
+    }
+    else if ( arg=="-nw" || arg=="--nowatermark" ) {
+      nowatermark = true;
+      Plots::setwatermark(!nowatermark);
+    }
+    else if ( arg=="-ns" || arg=="--nostats" ) { 
+      nostats = true;
+    }
+    else if ( arg=="-nr" || arg=="--noref" ) { 
+      Plotter::setplotref(false);
+      noref = true;
+    }
+    else if ( arg=="-b" || arg=="--bayes" ) { 
+      _bayes = true;
+    }
+    else if ( arg=="-np" || arg=="--noplots" ) { 
+      noplots = true;
+    }
+    else if ( arg=="--deleteref" ) { 
+      deleteref = true;
+    }
+    else if (              arg=="--nopng" ) { 
+      nopng = true;
+    }
+    else if ( arg=="-as" || arg=="--atlasstyle" ) { 
+      atlasstyle = true;
+    }
+    else if ( arg.find("-")==0 ) {
+      std::cerr << "unknown option: " << arg << "\n" << std::endl;
+      return usage(argv[0], -4);
+    }
     else { 
       if ( _ftest==0 ) { 
-	if ( exists(arg) ) _ftest = new TFile( arg.c_str() );
+	if ( exists(arg) ) { 
+	  ftestname = arg;
+	  _ftest = new TFile( ftestname.c_str() );
+	}
 	else { 
 	  std::cerr << "main(): test file " << arg << " does not exist" << std::endl;
 	  return -1;
 	}	    
       }
       else if ( _fref==0 ) { 
-	if ( exists(arg) ) _fref = new TFile( arg.c_str() );
+	if ( exists(arg) ) {
+	  frefname = arg;
+	  _fref = new TFile( frefname.c_str() );
+	}
 	else { 
 	  if ( _ftest ) delete _ftest;
 	  std::cerr << "main(): ref file  " << arg << " does not exist" << std::endl;
@@ -129,13 +341,53 @@ int main(int argc, char** argv) {
     }
   }
 
+  std::cout << argv[0] << " options:" << std::endl;
+  std::cout << "\tATLAS style:                 " << ( atlasstyle ? "true" : "false" ) << std::endl; 
+  std::cout << "\tBayesian uncertainties:      " << ( _bayes ? "true" : "false" ) << std::endl; 
+  std::cout << "\trefit resplot uncertainties: " << ( refit_resplots ? "true" : "false" ) << std::endl; 
+  std::cout << "\tsuppress mean and rms stats: " << ( nostats ? "true" : "false" ) << std::endl;  
+  std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
+  std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
+  if ( usrlabels.size()>0 )    std::cout << "\tlabels:   " << usrlabels << std::endl;  
+  if ( taglabels.size()>0 ) std::cout << "\textra text:   " << taglabels << std::endl;  
+
+
+  if ( atlasstyle ) { 
+    SetAtlasStyle();
+    
+    gStyle->SetPadLeftMargin(0.14);
+    gStyle->SetPadBottomMargin(0.15);
+    
+  }
+  else {
+    gStyle->SetPadLeftMargin(0.105);
+    gStyle->SetPadBottomMargin(0.105);
+  }
+
+  gStyle->SetPadRightMargin(0.03);
+  gStyle->SetPadTopMargin(0.05);
+
+  if ( chains.size()<4 ) { 
+    std::cout << "Chains: " << chains << std::endl;
+  }
+  else {  
+    std::cout << "Chains: " << std::endl;
+    for ( unsigned ic=0 ; ic<chains.size() ; ic++ ) std::cout << "\t" << chains[ic] << std::endl;
+  }    
+
+  if ( usrlabels.size()>0 ) std::cout << "labels " << usrlabels << std::endl;
+
+  if ( usrlabels.size()>0 && usrlabels.size()==chains.size() ) uselabels = true;
+
 
   /// get release data
 
-  std::vector<std::string> release_data;
-
-  TTree*   dataTree    = (TTree*)_ftest->Get("dataTree");
+  TTree*   dataTree = 0;
   TString* releaseData = new TString("");
+
+  dataTree = (TTree*)_ftest->Get("dataTree");
+  
+  std::vector<std::string> release_data;
   
   if ( dataTree ) { 
     dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
@@ -146,10 +398,11 @@ int main(int argc, char** argv) {
       std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
     }
   }
-
+  
+  
   if ( release_data.size()>0 ) { 
     if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
-
+    
     //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
     //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
     
@@ -157,125 +410,139 @@ int main(int argc, char** argv) {
     release += " " + chop(release_data[0], " " ) + ")";
   }
 
-
+  
+  
   // Make output directory                                                                                                                           
   if (dir != "") {
     dir += "/";
     if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
-    else                              std::cerr << "main() output will be sent to directory " << dir << std::endl; 
+    else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
   }
 
   TFile& ftest = *_ftest;
   TFile& fref  = *_fref;
 
-  
   std::vector<std::string> chainnames;
+
 
   chainnames.resize(chains.size());
   chainnames.clear();
 
   int NeventTest=0;
   int NeventRef=0;
+
   TH1D* htestev = (TH1D*)ftest.Get("event") ;
   TH1D* hrefev  = (TH1D*)fref.Get("event") ;
+
+  std::cout << "htestev " << htestev << " " << hrefev  << std::endl;
+
 
   NeventTest = htestev->GetEntries();
   NeventRef  = hrefev->GetEntries();
 
-  const int Nhistos = 39;
-  std::string histos[Nhistos] = { 
-    "pT",
-    "a0",
-    "a0_rec",
-   /// efficiencies
-    "pT_eff",       
-    "eta_eff", 
-    "phi_eff", 
-    "d0_eff", 
-    "a0_eff", 
-    "z0_eff", 
-    "eff_vs_mu", 
-    "roi_dphi_eff",
-    "roi_deta_eff",
-    "roi_dR_eff",
-    /// standard residuals
-    "ipT_res", 
-    "eta_res", 
-    "phi_res", 
-    "z0_res",
-    "a0_res",
-    /// residuals vs track parameters
-    "rd0_vs_pt/sigma",
-    "rd0_vs_signed_pt/sigma",
-    "rd0_vs_ABS_pt/sigma",
-    "rd0_vs_eta/sigma",
-    "ript_vs_pt/sigma",
-    "reta_vs_pt/sigma",
-    "reta_vs_eta/sigma",
-    "rd0_vs_eta/sigma",
-    "ript_vs_eta/sigma",
-    "rzed_vs_eta/sigma",
-    "rzed_vs_pt/sigma",
-    "rzed_vs_signed_pt/sigma",
-    "rzed_vs_ABS_pt/sigma",
-    "rzed_vs_zed/sigma",
-    "reta_vs_ipt/sigma",
-    "rphi_vs_ipt/sigma",
-    "rzed_vs_ipt/sigma",
-    "ript_vs_ipt/sigma",
-    "rpt_vs_ipt/sigma",
-    "rd0_vs_ipt/sigma",
-    "ntracks_rec"
+  std::vector<std::string> savedhistos;
+  savedhistos.push_back("event");
+
+
+  const int Nhistos = 47;
+  std::string _histos[Nhistos][6] = { 
+
+    /// distributions - 4
+    //  { "pT",  "p_{T}",   "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT",      "p_{T}",   "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "a0",      "a0",      "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",  "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "z0",      "z0",      "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
+
+    /// efficiencies - 10 
+    //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",    "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "d0_eff",       "Efficiency d0",    "xaxis:lin:-3:3",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
+    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
+ 
+    { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },
+    { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },       
+    { "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",   "Efficiency [%]" },       
+
+    /// standard residuals - 5 
+    { "ipT_res", "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",  "Normalised entries" },       
+    { "eta_res", "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",  "Normalised entries" },       
+    { "phi_res", "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",  "Normalised entries" },
+    //    { "z0_res",  "Residual z0", "xaxis:lin:-7:10",         "#Delta z_{0} [mm]",            "yaxis:lin:0:0.035",  "Normalised entries" },
+    { "z0_res",  "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",  "Normalised entries" },
+    { "a0_res",  "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",  "Normalised entries" },       
+ 
+    /// residuals vs track parameters - 17
+    //    { "rd0_vs_pt/sigma",    "Residual d vs p_{T}",          "xaxis:lin:0:100",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
+    { "rd0_vs_pt/sigma",          "Residual d vs p_{T}",          "xaxis:lin:auto",      "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
+    { "rd0_vs_signed_pt/sigma",   "Residual d vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },    
+    // { "rd0_vs_ABS_pt/sigma",   "Residual d vs absolute p_{T}", "xaxis:log:1:100",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },       
+    { "rd0_vs_eta/sigma",         "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d_{0} resolution [mm]" },                    
+    // { "rd0_vs_eta/sigma",      "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:0.015:0.05",  "d_{0} resolution [mm]" },                    
+    { "rd0_vs_ipt/sigma",         "Residual d vs 1/p_{T}",        "xaxis:lin",           "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "d_{0} resolution [mm]" },                       
+
+    //    { "ript_vs_pt/sigma",   "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:1:100",    "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" },
+    { "ript_vs_pt/sigma",         "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" },
+    { "ript_vs_eta/sigma",        "Residual 1/p_{T} vs #eta",     "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
+    { "ript_vs_ipt/sigma",        "Residual 1/p_{T} vs 1/p_{T}",  "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
+    //   { "rpt_vs_ipt/sigma",    "Residual p_{T} vs 1/p_{T}",    "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "",                "p_{T} resolution [GeV]" },      
+
+    //    { "reta_vs_pt/sigma",   "Residual #eta p_{T}",          "xaxis:log:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution" },            
+    { "reta_vs_pt/sigma",         "Residual #eta p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution" },            
+    { "reta_vs_eta/sigma",        "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "#eta resolution" },            
+    //   { "reta_vs_eta/sigma",   "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:1e-4:1.4e-3",  "#eta resolution" },            
+    { "reta_vs_ipt/sigma",        "Residual #eta vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "#eta resolution" },            
+
+    //    { "rphi_vs_pt/sigma",   "Residual #phi vs p_{T}",       "xaxis:lin:auto",     "p_{T} [GeV]",           "yaxis:lin:auto", "#phi resolution" },
+    { "rphi_vs_pt/sigma",         "Residual #phi vs p_{T}",       "xaxis:lin:1:100",    "p_{T} [GeV]",           "yaxis:lin:auto", "#phi resolution" },
+    { "rphi_vs_ipt/sigma",        "Residual #phi vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "#phi resolution" },
+
+    { "rzed_vs_eta/sigma",        "Residual z vs #eta",           "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    //    { "rzed_vs_pt/sigma",   "Residual z vs p_{T}",          "xaxis:log:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    { "rzed_vs_pt/sigma",         "Residual z vs p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    { "rzed_vs_signed_pt/sigma",  "Residual z vs signed p_{T}",   "xaxis:lin:-100:100", "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    //  { "rzed_vs_ABS_pt/sigma", "Residual z vs absolute p_{T}", "xaxis:lin:1:100",    "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    { "rzed_vs_zed/sigma",        "Residual z vs z",              "xaxis:lin:-250:250", "Offline z [mm]",        "yaxis:lin:auto", "z_{0} resolution [mm]" },
+    { "rzed_vs_ipt/sigma",        "Residual z vs 1/p_{T}",        "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "z_{0} resolution [mm]" },
+
+ 
+
+    /// track multiplicity - 1
+    { "ntracks_rec",             "number of reconstructed tracks", "xaxis:lin:auto",   "N trigger tracks",     "yaxis:log:auto", "Entries"  },
+
+    /// hit multiplicity - 6
+    { "npix_eta/mean",           "mean number of pixel hits",  "xaxis:lin",   "Offline #eta",   "yaxis:lin:3:6",  "Pixel hits"    },
+    { "nsct_eta/mean",           "mean number of SCT hits",    "xaxis:lin",   "Offline #eta",   "yaxis:lin:7:10", "SCT clusters"  },
+
+    //    { "npix_pt/mean",           "mean number of pixel hits",  "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Pixel hits"    },
+    //    { "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "SCT clusters"  },
+
+    //    { "npixh_pt/mean",           "mean number of pixel holes",  "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:6",  "Pixel holes"    },
+    //    { "nscth_pt/mean",           "mean number of SCT holes",    "xaxis:lin:0.7:250",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:10", "SCT holes"  },
+
+    { "npix_pt/mean",           "mean number of pixel hits",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Pixel hits"    },
+    { "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "SCT clusters"  },
+
+    { "npixh_pt/mean",           "mean number of pixel holes",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:6",  "Pixel holes"    },
+    { "nscth_pt/mean",           "mean number of SCT holes",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:10", "SCT holes"  },
+
+
+    /// chi2 and chi2 probability - 3
+    { "Chi2prob/1d",           "Chi2 probability",       "xaxis:lin",         "track #chi^{2} Probability",   "yaxis:lin:auto",  "Entries"  },
+    { "Chi2dof/1d",            "Chi2 per dof",           "xaxis:lin",         "track #chi^{2} per dof",       "yaxis:log:auto",  "Entries"  },
+    { "Chi2/1d",               "Chi2",                   "xaxis:lin",         "Offline track #chi^{2}",       "yaxis:lin",       "Entries"  },
+
+    { "Chi2prob/mean",         "Chi2 probability vs pT", "xaxis:log:auto",    "Offline p_{T} [GeV]",          "yaxis:lin",  "mean track #Chi^{2} Probability"  }
+
   };
   
+
+  std::string histos[Nhistos];
   
-  std::string histonames[Nhistos] = { 
-    "P_{T}",
-    "a0",
-    "a0 rec",
-
-    "Efficiency P_{T}", 
-    "Efficiency #eta", 
-    "Efficiency #phi", 
-    "Efficiency d0", 
-    "Efficiency a0", 
-    "Efficiency z0", 
-    "Efficiency <#mu>", 
-    "Efficiency #Delta#phi(RoI)",
-    "Efficiency #Delta#eta(RoI)",
-    "Efficiency #DeltaR(RoI)",
-    
-    "Residual 1/P_{T}", 
-    "Residual #eta", 
-    "Residual #phi", 
-    "Residual z0",
-    "Residual a0",
-    
-    "Residual d vs P_{T}",
-    "Residual d vs signed P_{T}",
-    "Residual d vs absolute P_{T}",
-    "Residual d vs #eta",
-    "Residual 1/P_{T} vs P_{T}",
-    "Residual #eta vs P_{T}",
-    "Residual #eta vs #eta",
-    "Residual d vs #eta",
-    "Residual 1/P_{T} vs #eta",
-    "Residual z vs #eta",
-    "Residual z vs P_{T}",
-    "Residual z vs signed P_{T}",
-    "Residual z vs absolute P_{T}",
-    "Residual z vs z",
-    "Residual #eta vs 1/P_{T}",
-    "Residual #phi vs 1/P_{T}",
-    "Residual z vs 1/P_{T}",
-    "Residual 1/P_{T} vs 1/P_{T}",
-    "Residual P_{T} vs 1/P_{T}",
-    "Residual d vs 1/P_{T}",
-    "Number of reconstructed tracks"
-  }; 
-
-
-
 
 
   const int Nhistos2D = 2;
@@ -294,10 +561,20 @@ int main(int argc, char** argv) {
 
   //  std::cout << "size of chains " << chains.size() << std::endl;
 
-  std::cout << "main() processing chains : " << chains << std::endl; 
-  
+  if ( chains.size()<4 ) { 
+    std::cout << "main() processing chains : " << chains << std::endl; 
+  }
+  else { 
+    std::cout << "main() processing chains : " << std::endl;
+    for ( unsigned ic=0 ; ic<chains.size() ; ic++ ) std::cout << "\t" << chains[ic] << std::endl;
+  }
+
+
   if ( chains.empty() ) return 0;
   for ( unsigned int j=0; j<chains.size(); j++)  {
+
+
+      /// why is this all inside the loop over chains ????
 
       gStyle->SetPadRightMargin(0.05);
       gStyle->SetPadTopMargin(0.05);
@@ -312,6 +589,9 @@ int main(int argc, char** argv) {
 
       for (int ii=0;ii<100;ii++) MyPalette[ii] = FI+ii;
 
+      ////////////////////
+
+
       if ( chains[j]=="FTK_TrackParticle"){
 
           for ( int i=0 ; i<Nhistos2D ; i++ ) {
@@ -323,6 +603,8 @@ int main(int argc, char** argv) {
               TH2F* htest2D = (TH2F*)ftest.Get((chains[j]+"/"+histos2D[i]).c_str()) ;
               TH2F* href2D  = (TH2F*)fref.Get((chains[j]+"/"+histos2D[i]).c_str()) ;
            
+	      savedhistos.push_back( chains[j]+"/"+histos2D[i] );
+
 	      std::string plotname;
               plotname += "FTK_";
               plotname += histos2D[i].c_str();
@@ -355,26 +637,17 @@ int main(int argc, char** argv) {
       }
   }
 
+  /// so we can easily limit the number of histograms drawn
+  int _Nhistos = Nhistos;
 
-  for ( int i=0 ; i<Nhistos ; i++ ) {
+  for ( int i=0 ; i<_Nhistos ; i++ ) {
+
+    //    if ( i!=17 ) continue;
+
+    histos[i] = _histos[i][0];
 
     //    std::cout << "main() processing histos[" << i <<  "] " << (i<10 ? " " : "" ) << (chains[0]+"/"+histos[i]) << std::endl;
-    std::cout << "main() processing histos[" << i <<  "] " << (i<10 ? " " : "" ) << histos[i] << std::endl;
-
-#if 0
-    //  Quick tests for new histograms
-    TH1D* hNewRef  = (TH1D*)fref.Get((chains[0]+"/"+histos[i]).c_str());
-    if ( hNewRef==0 ) {
-      std::cout << "       no ref histogram :    " << (chains[0]+"/"+histos[i]) << " - skipping" << std::endl;
-      continue;
-    }
-
-    TH1D* hNewTest = (TH1D*)ftest.Get((chains[0]+"/"+histos[i]).c_str());
-    if ( hNewTest==0 ) {
-      std::cout << "       no test histogram :   " << (chains[0]+"/"+histos[i]) << " - skipping" << std::endl;
-      continue;
-    }
-#endif
+    std::cout << "main() processing histos[" << i <<  "] " << (i<10 ? " " : "" ) << histos[i] << "\t" << AxisInfo( _histos[i][2] ) << std::endl;
 
     //    std::vector<Plotter> plots;
 
@@ -387,19 +660,54 @@ int main(int argc, char** argv) {
     TCanvas* c1 = new TCanvas(label("canvas-%d",i).c_str(),"histogram",800,600);
     c1->cd();
 
+    
+
+
+    /// legends ....
     Legend legend;
-    // efficiencies or residuals?
-    //    if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.4-chains.size()*0.07, 0.40 );
-    if ( contains(histos[i],"eff") ) legend = Legend( 0.15, 0.25, 0.15, 0.15+chains.size()*0.06 );
-    else                             legend = Legend( 0.15, 0.25, 0.92-chains.size()*0.06, 0.92 );
-
     Legend legend_eff;
+
+
+    double xpos  = 0.15;
+    double ypos  = 0.93;
+    if ( contains(histos[i],"eff") ) ypos = 0.15;
+
+    if ( atlasstyle ) { 
+      xpos  = 0.18;
+      if ( ypos>0.5 ) ypos = 0.85; 
+      else            ypos = 0.18;
+    }
+
+    /// calculate all the postions for the items in the legend
+
+    int Nlines = chains.size() + taglabels.size();
+
+    std::vector<double> ypositions;
+
+    double deltay = (chains.size()*0.06-0.005)/chains.size();
+
+    double ylo = ypos;
+    double yhi = ypos;
+    
+    if ( ypos>0.5 ) ylo -= Nlines*deltay;
+    else            yhi += Nlines*deltay;
+    
+    for ( int ilines=0 ; ilines<Nlines ; ilines++ ) { 
+      ypositions.push_back( yhi - deltay*(ilines+0.5) );
+    }
+
+
     // efficiencies or residuals?
-    if ( contains(histos[i],"eff") ) legend_eff = Legend( 0.15, 0.25, 0.15, 0.15+chains.size()*0.06 );
-    else                             legend_eff = Legend( 0.15, 0.25, 0.92-chains.size()*0.06, 0.92  );
+    //    if ( contains(histos[i],"eff") ) {
+    legend     = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+    legend_eff = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+    //    }
+    //    else {
+    //      legend     = Legend( xpos, xpos+0.1, ypos-chains.size()*0.06-0.01, ypos );
+    //      legend_eff = Legend( xpos, xpos+0.1, ypos-chains.size()*0.06-0.01, ypos  );
+    //    }
 
 
-   
     std::vector<std::string> Mean;
     std::vector<std::string> RMS;
   
@@ -414,61 +722,91 @@ int main(int argc, char** argv) {
     MeanRef.clear();
     RMSRef.clear();
 
-    std::string plotname; 
+    std::string plotname = ""; 
 
-    std::string xaxis = "";
-    std::string yaxis = "";
 
-    /// work out axis labels
-    /// x axis
-    if ( contains(histos[i],"vs_pt") || histos[i]=="pT")  xaxis = "Offline P_{T} [GeV]";
-    if ( contains(histos[i],"vs_signed_pt") )             xaxis = "Signed Offline P_{T} [GeV]";
-    if ( contains(histos[i],"vs_absolute_pt") )           xaxis = "Absolute Offline P_{T} [GeV]";
-    if ( contains(histos[i],"vs_eta") )                   xaxis = "Offline #eta"; 
-    if ( contains(histos[i],"vs_zed") )                   xaxis = "Offline z_{0} [mm]"; 
-    if ( contains(histos[i],"a0" ) && 
-	 !contains(histos[i],"vs" ))                      xaxis = "Offline a_{0} [mm]"; 
-    if ( contains(histos[i],"d0") && 
-	 !contains(histos[i],"vs" ))                       xaxis = "Offline d_{0} [mm]"; 
-    if ( contains(histos[i],"mu") )                       xaxis = "<#mu>"; 
-    if ( contains(histos[i],"vs_ipt") )                   xaxis = "true 1/P_{T} [GeV^{-1}]";
-	 
-
-    if ( contains(histos[i],"eff") )  { 
-      yaxis = "Efficiency [%]"; 
-      if ( contains(histos[i],"z0") ) xaxis = "z_{0} [mm]";
-      if ( contains(histos[i],"pT") ) xaxis = "P_{T} [GeV]";
-      if ( contains(histos[i],"d0") ) xaxis = "d_{0} [mm]";
-      if ( contains(histos[i],"a0") ) xaxis = "a_{0} [mm]";
-    }
-    if ( contains(histos[i],"ript") ) yaxis = "rms_{95} 1/P_{T} residual [GeV^{-1}]"; 
-    if ( contains(histos[i],"reta") ) yaxis = "rms_{95} #eta residual"; 
-    if ( contains(histos[i],"rzed") ) yaxis = "rms_{95} z_{0} residual [mm]"; 
-    if ( contains(histos[i],"rd0") )  yaxis = "rms_{95} d_{0} residual [mm]"; 
-   
     int mean_power = 0;
     int rms_power  = 0;
     bool power_set = false;;
     
 
-    bool uselogx = false;
- 
+    std::string xaxis = _histos[i][3];
+    std::string yaxis = _histos[i][5];
+
+    AxisInfo xinfo( _histos[i][2] ); 
+    AxisInfo yinfo( _histos[i][4] ); 
+
+    //    bool uselogx = xinfo.log();
+    //    bool uselogy = yinfo.log();
+
+
+
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
       std::cout << "       processing chain[" << j << "]   " << chains[j] << std::endl;
-            
-      TH1D* htest = (TH1D*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
-      TH1D* href  = (TH1D*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+   
+      TH1F* htest = 0;
+      TH1F* href  = 0;
 
       TH1F* htestnum = 0;
+      TH1F* htestden = 0;
       TH1F* hrefnum  = 0;
+
+      TGraphAsymmErrors* tgtest = 0;
+  
+      if ( refit_resplots && contains(histos[i],"/sigma") ) { 
+
+    	    std::cout << "       refitting:  " << histos[i] << std::endl;
+
+	    Resplot::setoldrms95(false);
+
+	    std::string _tmp = histos[i];
+	    std::string base = chop( _tmp, "/sigma" );
+  
+	    TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
+	    TH2D* _href2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
+
+	    savedhistos.push_back( chains[j]+"/"+base+"/2d" );
+
+
+	    if ( _htest2d==0 || _href2d==0 ) continue;
+
+	    /// get the test histogram
+
+	    //	    std::cout << "test " << _htest2d << std::endl;
+	    Resplot rtest("tmp", _htest2d);
+	    rtest.Finalise(Resplot::FitNull95);
+	    htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0);
+
+	    /// NB: DON'T Refit the reference, since only the central values
+	    ///     are plotted
+	    //	 std::cout << "ref " << _href2d << std::endl;
+	    //   Resplot rref("tmp", _href2d);
+	    //   rref.Finalise(Resplot::FitNull95);
+	    //   href = (TH1F*)rref.Sigma()->Clone("rref_sigma"); href->SetDirectory(0);
+
+	    /// still get the reference histo
+	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+
+	    savedhistos.push_back( chains[j]+"/"+histos[i] );
+
+      }
+      else { 
+        htest = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
+	href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+	savedhistos.push_back( chains[j]+"/"+histos[i] );
+      }
+
       
+
       if ( make_ref_efficiencies ) { 
 	if ( htest && href ) { 
 	  if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
 	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
 	    hrefnum  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+	    
+	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
 	    
 	    //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
 
@@ -477,7 +815,24 @@ int main(int argc, char** argv) {
       }
 
 
+      if ( _bayes ) { 
+	if ( htest && contains( std::string(htest->GetName()), "_eff" ) ) {
 
+	  htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+	  htestden = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_d").c_str()) ;
+
+	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
+	  savedhistos.push_back( chains[j]+"/"+histos[i]+"_d" );
+
+	  std::cout << "Bayesian error calculation " << htestnum << " " << htestden << std::endl;
+
+	  if ( htestnum && htestden ) { 
+	    Efficiency e( htestnum, htestden, "" );
+	    tgtest = e.Bayes();
+	  }
+	}
+      }
+      
       if ( htest==0 ) { 
 	std::cout << "       no test histogram :   " << (chains[j]+"/"+histos[i]) << std::endl;
 	continue;
@@ -488,169 +843,63 @@ int main(int argc, char** argv) {
 	continue;
       }
       
-      if ( xaxis!="" ) {
-	htest->GetYaxis()->SetTitleOffset(1.5);
-	href->GetYaxis()->SetTitleOffset(1.5);
-	htest->GetXaxis()->SetTitle(xaxis.c_str());
-	htest->GetYaxis()->SetTitle(yaxis.c_str());
-	href->GetXaxis()->SetTitle(xaxis.c_str());
-	href->GetYaxis()->SetTitle(yaxis.c_str());
-      }
 
-      //to stop negative y axis because of error bars, need 0.01 to have log scale
-      // JK - change this to 0.005 for d0 only?
-      if ( contains(histos[i],"vs") ) { 
-	if ( !contains(histos[i],"eff") ) { 
-	  if ( contains(histos[i],"vs_zed") ) { 
-	    htest->GetXaxis()->SetRangeUser(-200,200);
-	    href->GetXaxis()->SetRangeUser(-200,200);
-	  }
-	  htest->SetMinimum(0.01);
-	  href->SetMinimum(0.01);
-	  if ( contains(histos[i],"vs_pt") ) { 
-	    htest->GetXaxis()->SetRangeUser(0,100);
-	    href->GetXaxis()->SetRangeUser(0,100);
-	    htest->SetMinimum(0.001);
-	    href->SetMinimum(0.001);
-	  }
-	}
-	else { 
-	  //to stop negative y axis because of error bars, need 0.01 to have log scale
-	  htest->SetMinimum(0.01);
-	  href->SetMinimum(0.01);
-	}
-      }
-      
-      if ( histos[i]=="d0" || histos[i]=="d0_rec" ||
-	   histos[i]=="a0" || histos[i]=="a0_rec" ) { 
-	htest->GetXaxis()->SetRangeUser( -10, 10 ); 
-	href->GetXaxis()->SetRangeUser( -10, 10 ); 
-      }
+      htest->GetYaxis()->SetTitleOffset(1.5); 
+      htest->GetXaxis()->SetTitleOffset(1.5); 
+      htest->GetXaxis()->SetTitle(xaxis.c_str());
+      htest->GetYaxis()->SetTitle(yaxis.c_str());
+
+      href->GetYaxis()->SetTitleOffset(1.5);
+      href->GetXaxis()->SetTitleOffset(1.5);
+      href->GetXaxis()->SetTitle(xaxis.c_str());
+      href->GetYaxis()->SetTitle(yaxis.c_str());
+
 
       if ( contains(histos[i],"ntracks") ) {
-	htest->Rebin(10);
-        href->Rebin(10);
+	htest->Rebin(2);
+        href->Rebin(2);
         htest->Sumw2();
         href->Sumw2();
-        htest->Scale(1./NeventTest);
-        href->Scale(1./NeventRef);
+	//    htest->Scale(1./NeventTest);
+	//    href->Scale(1./NeventRef);
       }
 
-      // ADDED BY JK - custom d0 residual lower limit. Precursor to implementing automatic lower range finder.
-      if ( contains(histos[i],"rd0") ) {
-	htest->SetMinimum(0.005);
-	href->SetMinimum(0.005);
-      }
-      
-      //      if ( contains(histos[i],"res") ) { 
-      //	htest->SetMinimum(0.01);
-      //	href->SetMinimum(0.01);
-      //      }
 
+      /// only set the plot name once )  
+      if ( plotname == "" ) { 
 
-      if ( contains(histos[i],"res") ) { 
-	htest->SetMinimum(0.00);
-	href->SetMinimum(0.00);
-      }
-
-      //axis labels
-      if ( key!="" ) { 
-	htest->SetTitle("");
-        href->SetTitle("");
-	plotname = key+"_";
-      }
-      else if(contains(chains[j],"EF")){
-	htest->SetTitle("");
-        href->SetTitle("");
-	plotname = "EF_";
-      }
-      else if(contains(chains[j],"L2")){
-	htest->SetTitle("");
-	href->SetTitle("");
-	plotname = "L2_";
-      }
-      else if(contains(chains[j],"HLT")){
-	htest->SetTitle("");
-	href->SetTitle("");
-	plotname = "HLT_";
-      }
-      else if(contains(chains[j],"FTK")){
-	htest->SetTitle(("FTK "+histonames[i]).c_str());
-	href->SetTitle(("FTK "+histonames[i]).c_str());
-	plotname = "FTK_";
-      }
-
-      plotname += histos[i]; 
-
-      /// replace the "/" in the filename so we don't try to 
-      /// make plots in subdirectories by accident  
-      replace(plotname, "/", "_"); 
-
-      //change efficiencies
-      if(contains(histos[i],"eff")) {
-	if(histos[i]=="pT_eff") { 
-	  //	  href->SetMinimum(60);
-	  href->GetXaxis()->SetRangeUser(1,100);
-	  htest->GetXaxis()->SetRangeUser(1,100);
-	  c1->SetLogx();
-	  uselogx = true;
+	if ( key!="" ) { 
+	  htest->SetTitle("");
+	  href->SetTitle("");
+	  plotname = key+"_";
 	}
-	if(histos[i]=="z0_eff") { 
-	  //	  href->SetMinimum(60);
-	  href->GetXaxis()->SetRangeUser(-200,200);
+	else if(contains(chains[j],"FTK")){
+	  htest->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  href->SetTitle(("FTK "+ _histos[i][1]).c_str());
+	  plotname = "FTK_";
 	}
-	if(histos[i]=="eff_vs_mu") { 
-	  //	  href->SetMinimum(60);
-	  href->GetXaxis()->SetRangeUser(0,40);
-	  htest->GetXaxis()->SetRangeUser(0,40);
+	else if(fcontains(chains[j],"HLT_")){
+	  htest->SetTitle("");
+	  href->SetTitle("");
+	  plotname = "HLT_";
 	}
-	if(histos[i]=="d0_eff" || histos[i]=="a0_eff") { 
-	  //	  href->SetMinimum(60);
-	  std::vector<double> limits = findxrangeuser( href, true );
-	  if ( limits[0]<-3 || limits[1]>3 ) { 
-	    xrangeuser( href, true );
-	    xrangeuser( htest, true );
-	  }
-	  else { 
-	    href->GetXaxis()->SetRangeUser(-3,3);
-	    htest->GetXaxis()->SetRangeUser(-3,3);
-	  }
+	else if(fcontains(chains[j],"EF_")){
+	  htest->SetTitle("");
+	  href->SetTitle("");
+	  plotname = "EF_";
 	}
-	href->SetMinimum(90);
-	href->SetMaximum(102);
-	htest->SetMinimum(90);
-	htest->SetMaximum(102);
-      }
+	else if(fcontains(chains[j],"L2_")){
+	  htest->SetTitle("");
+	  href->SetTitle("");
+	  plotname = "L2_";
+	}
+	
+	plotname += histos[i]; 
 
-
-      if(histos[i]=="pT") { 
-	href->GetXaxis()->SetRangeUser(1,100);
-	htest->GetXaxis()->SetRangeUser(1,100);
-      }
-
-      if(contains(histos[i],"rd0_vs_pt" ))  {
-        htest->GetXaxis()->SetRangeUser(0,80);
-        href->GetXaxis()->SetRangeUser(0,80);
-      }
-
-      if(contains(histos[i],"rd0_vs_eta" ))  {
-      	href->GetYaxis()->SetMoreLogLabels(true);
- 	htest->GetYaxis()->SetMoreLogLabels(true);
-	//	href->SetMaximum(2.);
-	//     	href->SetMinimum(0.02);
-	//    	htest->SetMaximum(2.);
-	//    	htest->SetMinimum(0.02);
-	//    	href->SetMaximum(0.5);
-	//	href->SetMinimum(0);
-	//   	htest->SetMaximum(0.5);
-	//	htest->SetMinimum(0);
-      }
-
-
-      if ( contains(href->GetYaxis()->GetTitle(),"z0" ) ||
-	   contains(htest->GetYaxis()->GetTitle(),"z0" ) ){
-	href->SetMaximum(0.6);
-	htest->SetMaximum(0.6);
+	/// replace the "/" in the filename so we don't try to 
+	/// make plots in subdirectories by accident  
+	replace(plotname, "/", "_"); 
+	
       }
 
       std::string c = chains[j];
@@ -668,9 +917,12 @@ int main(int argc, char** argv) {
 
       c = "  " + c;
 
-      //      plots.push_back( Plotter( htest, href, plotname ) );
-      plots.push_back( Plotter( htest, href, c ) );
+      /// calculate and set axis limits
 
+      //      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
+
+      if ( uselabels )  plots.push_back( Plotter( htest, href, usrlabels[j], tgtest ) );
+      else              plots.push_back( Plotter( htest, href, c, tgtest ) );
 
       if ( make_ref_efficiencies ) { 
 	
@@ -703,7 +955,7 @@ int main(int argc, char** argv) {
 	
 	/// resolutions 
 
-	TF1* d95 = Resplot::FitNull95( htest );
+	TF1* d95 = Resplot::FitNull95( (TH1D*)htest );
 	
 	double   mean_95 = d95->GetParameter(1);
 	double  dmean_95 = d95->GetParError(1);
@@ -738,23 +990,6 @@ int main(int argc, char** argv) {
 		  << "\tmean:     " << mean_95 << " +- " << dmean_95 << " : pow " << mean_power
 		  << "\trms:     "  <<  rms_95 << " +- " << drms_95  << " : pow " << rms_power << std::endl; 
 
-#if 0       	
-	if(histos[i]=="ipT_res") {
-	  Mean.push_back(label("mean_{95} = %5.3lf #pm %5.3lf GeV^{-1}", mean_95, dmean_95));
-	  RMS.push_back(label( "rms_{95}   = %5.3lf #pm %5.3lf GeV^{-1}", rms_95,  drms_95));
-	}
-	else { 
-	  if ( mean_95>=1e-3 &&  rms_95>=1e-3 ) { 
-   	    Mean.push_back(label("mean_{95} = %6.4lf #pm %6.4lf ", mean_95, dmean_95));
-	    RMS.push_back(label( "rms_{95}   = %6.4lf #pm %6.4lf ", rms_95,  drms_95));
-	  }
-	  else { 
-	    Mean.push_back(label("mean_{95} = ( %5.2lf #pm %5.2lf ) #times 10^{-3}", mean_95*1000, dmean_95*1000));
-	    RMS.push_back(label( "rms_{95}   = ( %5.2lf #pm %5.2lf ) #times 10^{-3}", rms_95*1000,  drms_95*1000));
-	  }
-
-	}
-#endif
 
 	if ( mean_power == 0 ) { 
 	  Mean.push_back(label("mean_{95}  = %4.2lf #pm %4.2lf", mean_95, dmean_95) );
@@ -774,7 +1009,7 @@ int main(int argc, char** argv) {
 	}
 
 	
-	TF1* d95ref = Resplot::FitNull95( href );
+	TF1* d95ref = Resplot::FitNull95( (TH1D*)href );
 	
 	double   mean_95ref = d95ref->GetParameter(1);
         double  dmean_95ref = d95ref->GetParError(1);
@@ -785,7 +1020,6 @@ int main(int argc, char** argv) {
                   << "\tmean ref: " << mean_95ref << " +- " << dmean_95ref << " : pow " << mean_power
 		  << "\trms ref: "  <<  rms_95ref << " +- " << drms_95ref  << " : pow " << rms_power << std::endl;
 	
-
 	if ( mean_power == 0 ) { 
 	  MeanRef.push_back(label("mean_{95} ref = %4.2lf #pm %4.2lf", mean_95ref, dmean_95ref) );
 	}
@@ -794,6 +1028,7 @@ int main(int argc, char** argv) {
 				  mean_95ref*std::pow(10,double(mean_power)), dmean_95ref*std::pow(10,double(mean_power)), -mean_power ) );
 	  
 	}
+	  
 
 	if ( rms_power == 0 ) { 
 	  RMSRef.push_back(label( "rms_{95}  ref = %4.2lf #pm %4.2lf", rms_95ref,  drms_95ref ) ); 
@@ -802,61 +1037,90 @@ int main(int argc, char** argv) {
 	  RMSRef.push_back(label( "rms_{95}  ref = ( %4.2lf #pm %4.2lf ) #times 10^{%d}", 
 				  rms_95ref*std::pow(10,double(rms_power)),  drms_95ref*std::pow(10,double(rms_power)), -rms_power ) );
 	}
-					   
-
-#if 0
-	if(histos[i]=="ipT_res") {
-          MeanRef.push_back(label("mean_{95} ref = %5.3lf #pm %5.3lf GeV^{-1}", mean_95ref, dmean_95ref));
-          RMSRef.push_back(label( "rms_{95}  ref = %5.3lf #pm %5.3lf GeV^{-1}", rms_95ref,  drms_95ref));
-        }
-        else {
-	  if ( mean_95ref>=1e-3 &&  rms_95ref>=1e-3 ) { 
-	    MeanRef.push_back(label("mean_{95} ref = %6.4lf #pm %6.4lf ", mean_95ref, dmean_95ref));
-	    RMSRef.push_back(label( "rms_{95}  ref = %6.4lf #pm %6.4lf ", rms_95ref,  drms_95ref));
-	  }
-	  else {
-	    MeanRef.push_back(label("mean_{95} ref = ( %5.2lf #pm %5.2lf ) #times 10^{-3}", mean_95ref*1000, dmean_95ref*1000));
-	    RMSRef.push_back(label( "rms_{95}  ref = ( %5.2lf #pm %5.2lf ) #times 10^{-3}", rms_95ref*1000,  drms_95ref*1000));
-	  }
-        }
-#endif
+       				   
 	
         htest->Sumw2();
         href->Sumw2();
         htest->Scale(1./NeventTest);
         href->Scale(1./NeventRef);
-	
+
       }
       
     }  
 
-    if ( contains(histos[i],"_res")) {
-      /// use 20 times the max from any of the plots as the upper limit so there's room for the key 
-      /// (as all residual plots are on a log scale)   
-      plots.Max(20);  
 
-      if ( contains(histos[i],"ipT")) plots.xrange(false);   // sets the xrange to something sensible (and symmetric)
-      else                            plots.xrange(true);  // sets the xrange to something sensible
+    if ( !noplots ) { 
+
+      /// try to localise all axis range setting, log, lin sclaes etc
+      /// to this one place 
+      
+      plots.SetLogy(yinfo.log());
+      plots.SetLogx(xinfo.log());
+      
+      if      ( xinfo.autoset() )  plots.xrange(xinfo.symmetric()); 
+      else if ( xinfo.rangeset() ) plots.SetRangeUser( xinfo.lo(), xinfo.hi() );
+      
+      if ( yinfo.autoset() ) { 
+	
+	double rmin = 0;
+	double rmax = 0;
+	
+	if ( xinfo.rangeset() ) { 
+	  rmin = plots.realmin( xinfo.lo(), xinfo.hi() );
+	  rmax = plots.realmax( xinfo.lo(), xinfo.hi() );
+	}
+	else {
+	  rmin = plots.realmin();
+	  rmax = plots.realmax();
+	}
+	
+	if ( yinfo.log() ) { 
+	  double delta = std::log10(rmax)-std::log10(rmin);
+	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())) );
+	  plots.Min( rmin*std::pow(10,-delta*0.1) );
+	}
+	else { 
+	  double delta = rmax-rmin;
+	  plots.Max( rmax+delta*0.1*chains.size() );
+	  plots.Min( rmin-delta*0.1 );
+	}
+	
+      }
+      else {  
+	if ( yinfo.rangeset() ) { 
+	  plots.Min(yinfo.lo());
+	  plots.Max(yinfo.hi());
+	}
+      }
+      
+      
+      if ( contains(histos[i],"_eff") ) { 
+	if ( effset ) { 
+	  plots.Max(effmax);
+	  plots.Min(effmin);
+	}
+      }
+      
+      ///    if ( contains(histos[i],"_res"))  plots.xrange(true);
+      //      if ( contains(histos[i],"_res") ) plots.MaxScale( 100 ); 
+      
+      //    plots.limits();
+      
+      /// actually draw the plot here ...
+      
+      plots.Draw( legend );
+      
+      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, "for approval" );
+      
+      for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
+	//      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histos[i] << ")" << std::endl;
+	DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
+      }
     }
+    
 
 
-    if ( contains(histos[i],"_vs_") && !contains(histos[i],"eff") ) { 
-      std::cout << "plots: " << histos[i] << std::endl;
-      /// use 1.5 times the actual maximum so room for the key
-      plots.Max(1.5); 
-
-      //      if ( contains(histos[i],"z0_vs_") plots.Max(0.6);
-
-    }
-
-    //    if ( contains(histos[i],"sigma") ) plots.Min(0.3); 
-    if ( contains(histos[i],"sigma") ){ 
-      // plots.LogY(true);
-      plots.Min(0); 
-    }
-
-
-    plots.Draw( legend );
     /*if ( histos[i],"eff")) {
       ATLASFORAPP_LABEL(0.15,0.2,1,0.05);
       myText(      0.7,0.3,1,"#sqrt{s}= 8 TeV", 0.045);
@@ -869,64 +1133,131 @@ int main(int argc, char** argv) {
       }
     */
     
-    if ( uselogx ) c1->SetLogx(true);
-    
-
-    if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-      c1->SetLogy(true);
-
-      if ( contains(histos[i],"_res") ){
-	for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
-	  if ( j<MeanRef.size() ) { 
-	    DrawLabel( 0.13, (0.6-j*0.035), MeanRef[j], colours[j%6] );
-	    DrawLabel( 0.13, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
-	    DrawLabel( 0.62, (0.6-j*0.035), Mean[j],  colours[j%6] );
-	    DrawLabel( 0.62, (0.6-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+    if ( !nostats && !noplots ) { 
+      if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
+	if ( contains(histos[i],"_res") ){
+	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
+	    if ( j<MeanRef.size() ) {
+	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );
+	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+	      DrawLabel( 0.62, (0.6-j*0.035), Mean[j],  colours[j%6] );
+	      DrawLabel( 0.62, (0.6-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+	    }
 	  }
 	}
       }
-
-    }
-
-    if ( histos[i]=="d0" || histos[i]=="d0_rec" || 
-	 histos[i]=="a0" || histos[i]=="a0_rec" ||
-	 histos[i]=="ntracks_rec" || histos[i]=="ntracks" ) c1->SetLogy(true);
-
-
-    if ( plotname!="" ) { 
-      //      plots.back().Print( dir+plotname+tag+".C" );
-      plots.back().Print( dir+plotname+tag+".pdf" );
-      plots.back().Print( dir+plotname+tag+".png" );
-    }    
-
-
-    if ( make_ref_efficiencies ) { 
-
-      plots_eff.SetXaxisTitle( plots.GetXaxisTitle() ); 
-      plots_eff.SetYaxisTitle( plots.GetYaxisTitle() ); 
-
-      plots_eff.Draw( legend_eff );
-
-      if ( contains(plotname,"pT") && contains(plotname,"eff") ) { 
-	gPad->SetLogx(true);
-      }
-
-      if ( plotname!="" ) { 
-	plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
-	plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
-	gPad->SetLogx(true);
-      }    
-
       
     }
 
-    //    std::cout << "delete c1 " << c1 << std::endl;
-    delete c1;
-    //  std::cout << "deleted " << std::endl;
+#if 0
+    if ( uselogx ) c1->SetLogx(true);
+    else           c1->SetLogx(false);
+
+    if ( uselogy ) c1->SetLogy(true);
+    else           c1->SetLogy(false);
+#endif
+
     
+    if ( !noplots ) { 
+
+      if ( plotname!="" ) { 
+	//      plots.back().Print( dir+plotname+tag+".C" );
+	plots.back().Print( dir+plotname+tag+".pdf" );
+	if ( !nopng ) plots.back().Print( dir+plotname+tag+".png" );
+      }    
+      
+      
+      if ( make_ref_efficiencies ) { 
+	
+	plots_eff.SetXaxisTitle( plots.GetXaxisTitle() ); 
+	plots_eff.SetYaxisTitle( plots.GetYaxisTitle() ); 
+	
+	plots_eff.Draw( legend_eff );
+	
+	
+	if ( plotname!="" ) { 
+	  plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
+	  if ( !nopng ) plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
+	  gPad->SetLogx(true);
+	}    
+	
+	
+      }
+      
+      //    std::cout << "delete c1 " << c1 << std::endl;
+      delete c1;
+      //  std::cout << "deleted " << std::endl;
+      
+    }
   }
-  
-  
+
+
+  /// if deleting all non-used reference histograms 
+
+  if ( deleteref ) {
+    
+    if ( _fref ) { 
+    
+      /// clean up reference file
+      
+      std::cout << "main() cleaning up reference file" << std::endl;
+
+      TFile* newout = new TFile(".newout.root","recreate"); 
+      newout->cd();
+      
+      /// copy the release tree is need be 
+
+      if ( dataTree ) dataTree->Write("dataTree");
+      
+      TDirectory* base = gDirectory;
+      
+      for ( unsigned i=0 ; i<savedhistos.size() ; i++ ) { 
+	
+	//	std::cout << i << " " << savedhistos[i] << std::endl;
+	
+	std::vector<std::string> dirs = AxisInfo::split( savedhistos[i], "/" );
+	
+	for ( unsigned j=0 ; j<dirs.size()-1 ; j++ ) { 
+	  //   std::cout << "\t" << dirs[j] << std::endl;
+	  TDirectory* renedir = gDirectory->GetDirectory( dirs[j].c_str() );
+	  if ( renedir==0 ) gDirectory->mkdir( dirs[j].c_str() );
+	  gDirectory->cd( dirs[j].c_str() );
+	}
+	
+	TH1* href  = (TH1*)fref.Get( savedhistos[i].c_str() );
+	if ( href ) {
+	  //	  std::cout << i << " " << savedhistos[i] << " 0x" << href << std::endl;
+	  href->Write( dirs.back().c_str() );
+	}
+      
+          
+	base->cd();
+      }
+    
+      newout->Close();
+    
+    }
+  }
+
+  /// close files
+
+  if ( _ftest ) _ftest->Close();
+  if ( _fref )  _fref->Close();
+      
+
+  /// now actually overwrite the old reference file
+
+  if ( deleteref ) { 
+    //    std::cout << "ref " << frefname << "\ttest " << ftestname << std::endl; 
+    if ( frefname !=  ftestname ) { 
+      std::string cmd = std::string("mv ") + frefname + " " + frefname + ".bak";
+      std::system( cmd.c_str() );
+      
+      cmd = std::string("mv .newout.root ") + std::string(frefname);
+      std::system( cmd.c_str() );
+    }
+  }  
+ 
   if ( _ftest ) delete _ftest;
   if ( _fref )  delete _fref;
 

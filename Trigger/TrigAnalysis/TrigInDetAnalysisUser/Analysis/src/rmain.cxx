@@ -35,6 +35,7 @@
 #include "ReadCards.h"
 #include "utils.h"
 
+
 #include "lumiList.h"
 #include "dataset.h"
 
@@ -42,7 +43,7 @@
 
 #include "BinConfig.h"
 
-
+#include "zbeam.h"
 
 // useful function to return a string with the 
 // current date   
@@ -109,7 +110,8 @@ int GetChainAuthor(std::string chainName) {
 
 template<class T>
 std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) { 
-  for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i] << std::endl;
+  if ( v.size()<5 ) for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
+  else              for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\n\t" << v[i];
   return s;
 }
 
@@ -195,6 +197,11 @@ extern BinConfig cosmicBinConfig;
 
 // #define DATA
 
+
+bool contains( const std::string& s, const std::string& r ) { 
+  return s.find(r)!=std::string::npos;
+}
+
 int main(int argc, char** argv) 
 {
 
@@ -272,8 +279,6 @@ int main(int argc, char** argv)
 
   std::cout << time_str() << std::endl;
 
-  
-
   ReadCards inputdata(datafile);
 
   inputdata.print();
@@ -322,6 +327,8 @@ int main(int argc, char** argv)
   int nsct = 6;
   int nbl = -1;
 
+  double chi2prob = 0;
+
   //int npix_rec = 1; // JK removed (unused)
   //int nsct_rec = -1;  // JK removed (unused)
 
@@ -349,6 +356,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("npix") ) npix = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsct") ) nsct = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )  nbl  = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("chi2prob") )  chi2prob  = inputdata.GetValue("chi2prob");
 
   /// only if not set from the command line
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
@@ -452,36 +460,45 @@ int main(int argc, char** argv)
   std::vector<double> beamTest;
   std::vector<double> beamRef;
 
-  if ( inputdata.isTagDefined("BeamTestx") )     beamTest.push_back(inputdata.GetValue("BeamTestx"));
-  if ( inputdata.isTagDefined("BeamTesty") )     beamTest.push_back(inputdata.GetValue("BeamTesty"));
 
-#if 0  
-  if ( beamTest.size()!=2 ) {
-    beamTest.clear();
-    beamTest.push_back(0);
-    beamTest.push_back(0);
+  bool correctBeamlineRef  = false;
+  bool correctBeamlineTest = false;
+
+  if ( inputdata.isTagDefined("CorrectBeamlineRef") )   correctBeamlineRef  = ( inputdata.GetValue("CorrectBeamlineRef") == 0 ? false : true );
+  if ( inputdata.isTagDefined("CorrectBeamlineTest") )  correctBeamlineTest = ( inputdata.GetValue("CorrectBeamlineTest") == 0 ? false : true );
+
+
+  if ( inputdata.isTagDefined("BeamTest") )     beamTest = inputdata.GetVector("BeamTest");
+  else { 
+    if ( inputdata.isTagDefined("BeamTestx") )  beamTest.push_back(inputdata.GetValue("BeamTestx"));
+    if ( inputdata.isTagDefined("BeamTesty") )  beamTest.push_back(inputdata.GetValue("BeamTesty"));
   }
-#endif
-
-
-  if ( inputdata.isTagDefined("BeamRefx") )    beamRef.push_back(inputdata.GetValue("BeamRefx"));
-  if ( inputdata.isTagDefined("BeamRefy") )    beamRef.push_back(inputdata.GetValue("BeamRefy"));
-
-#if 0
-  if ( beamRef.size()!=2 ) {
-    beamRef.clear();
-    beamRef.push_back(0);
-    beamRef.push_back(0);
-  }
-#endif
   
-  if ( ( beamTest.size()!=2 && beamTest.size()!=0 ) || 
-       ( beamRef.size()!=2  && beamRef.size()!=0  ) ) { 
+  
+  if ( inputdata.isTagDefined("BeamRef") )      beamRef = inputdata.GetVector("BeamRef");
+  else { 
+    if ( inputdata.isTagDefined("BeamRefx") )   beamRef.push_back(inputdata.GetValue("BeamRefx"));
+    if ( inputdata.isTagDefined("BeamRefy") )   beamRef.push_back(inputdata.GetValue("BeamRefy"));
+  }
+  
+
+
+  if ( ( beamTest.size()!=0 && beamTest.size()!=2 && beamTest.size()!=3 ) || 
+       (  beamRef.size()!=0 &&  beamRef.size()!=2 &&  beamRef.size()!=3 ) ) {
     std::cerr << "incorrectly specified beamline position" << std::endl;
     return (-1);
   }
+
+  if ( beamTest.size()>0 ) correctBeamlineTest = true;
+  if (  beamRef.size()>0 ) correctBeamlineRef  = true;
+
+  if ( correctBeamlineRef )  std::cout << "main() correcting beamline for reference tracks" << std::endl;
+  if ( correctBeamlineTest ) std::cout << "main() correcting beamline for test tracks"      << std::endl;
   
-  std::cout << "beamref " << beamRef << "\tbeamtest " << beamTest << std::endl;
+  
+
+  if ( beamRef.size()>0 )  std::cout << "beamref  " << beamRef   << std::endl;
+  if ( beamTest.size()>0 ) std::cout << "beamtest " << beamTest << std::endl;
 
   double a0v = 1000;
   double z0v = 2000;
@@ -511,6 +528,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("DebugPrintout") )  debugPrintout = ( inputdata.GetValue("DebugPrintout")==0 ? false : true );
 
 
+  bool monitorZBeam = false;
+  if ( inputdata.isTagDefined("MonitorinZBeam") )  monitorZBeam = ( inputdata.GetValue("MonitorZBeam")==0 ? false : true );
 
   ReadCards* binningConfig = &inputdata;
 
@@ -541,6 +560,11 @@ int main(int argc, char** argv)
 
   /// truth articles
 
+  /// reminder: this is the *new* constructor - it now has too many parameters 
+  //  Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,
+  //                int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,
+  //                int minStrawHits, int minTrHits, double prob=0 ) :
+
   Filter_Track filter_kine( eta, 1000,  zed, pT, -1, -1,   -1, -1,  -2, -2);
 
 
@@ -548,7 +572,7 @@ int main(int argc, char** argv)
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2);
+  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob ); /// include chi2 probability cut 
   Filter_etaPT filter_etaPT(eta,pT);
   //  Filter_True filter_passthrough;
   // use an actual filter requiring at least 1 silicon hit
@@ -610,14 +634,14 @@ int main(int argc, char** argv)
   // NtupleTrackSelector  refTracks(&filter_off); 
   TrackFilter* refFilter;
   TrackFilter* truthFilter;
-  if      ( refChain=="Offline" )           refFilter = &filter_off;
-  else if ( refChain=="Electrons" )         refFilter = &filter_off;
-  else if ( refChain=="ElectronsMedium" )   refFilter = &filter_off;
-  else if ( refChain=="Muons" )             refFilter = &filter_muon;
-  else if ( refChain=="Taus" )              refFilter = &filter_off;
-  else if ( refChain=="Taus3" )             refFilter = &filter_off;
-  else if ( refChain=="Truth" && pdgId!=0 ) refFilter = &filter_truth;
-  else if ( refChain=="Truth" && pdgId==0 ) refFilter = &filter_off;
+  if      ( refChain=="Offline" )            refFilter = &filter_off;
+  else if ( contains(refChain,"Electrons") ) refFilter = &filter_off;
+  //  else if ( refChain=="ElectronsMedium" )    refFilter = &filter_off;
+  else if ( refChain=="Muons" )              refFilter = &filter_muon;
+  else if ( refChain=="Taus" )               refFilter = &filter_off;
+  else if ( refChain=="Taus3" )              refFilter = &filter_off;
+  else if ( refChain=="Truth" && pdgId!=0 )  refFilter = &filter_truth;
+  else if ( refChain=="Truth" && pdgId==0 )  refFilter = &filter_off;
   else { 
     std::cerr << "unknown reference chain defined" << std::endl;
     return (-1);
@@ -920,15 +944,19 @@ int main(int argc, char** argv)
   unsigned event_counter = 0;
 
 
-
-
   int maxtime = track_ev->time_stamp();
   int mintime = track_ev->time_stamp();
 
-
-
   //  int Nentries = data->GetEntries();
   
+  typedef std::pair<int,double> zpair; 
+  std::vector<zpair>  refz;
+  std::vector<zpair>  testz;
+
+  std::vector<double> beamline_ref;
+  std::vector<double> beamline_test;
+
+
   /// so we can specify the number of entries 
   /// we like, rather than run on all of them
   for (unsigned int i=0; i<Nentries ; i++ ) {
@@ -975,7 +1003,7 @@ int main(int argc, char** argv)
                 << "\tlb "     << track_ev->lumi_block() 
                 << "\tchains " << track_ev->chains().size()
                 << "\ttime "   << track_ev->time_stamp();
-      std::cout << "\t : processed " << i << " events so far (" << (100*i)/Nentries << "%)\t" << time_str() << std::endl;
+      std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
       //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
     }
   
@@ -1002,7 +1030,6 @@ int main(int argc, char** argv)
     const std::vector<TrackChain>& chains = track_ev->chains();
 
 
-
     dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(0);
     //// get the truth tracks if required
     if ( truthMatch ) { 
@@ -1018,6 +1045,9 @@ int main(int argc, char** argv)
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
         offTracks.selectTracks( chains[ic].rois()[0].tracks() );
+	//extract beamline position values from rois
+	beamline_ref = chains[ic].rois()[0].user();
+	// std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
 	break;
       }
     }
@@ -1150,27 +1180,38 @@ int main(int argc, char** argv)
         TIDARoiDescriptor roi( troi.roi() );
 	
 	//extract beamline position values from rois
-	const std::vector<double>& beamline = chain.rois()[ir].user();
-
+	//	const std::vector<double>& beamline = chain.rois()[ir].user();
+	beamline_test = chain.rois()[ir].user();
 	
+	//	std::cout << "beamline: " << chain.name() << "  " << beamline_test << std::endl; 
+
 	//set values of track analysis to these so can access elsewhere
 	for ( int i=analyses.size() ; i-- ; ) {
+
           TrackAnalysis* analy_track = analyses[i];
-
-	  if ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
-	  else { 
-	    if ( !inputdata.isTagDefined("BeamTest") && beamline.size()>=2) {
-	      analy_track->setBeamTest( beamline[0], beamline[1] );
+	  
+	  if ( correctBeamlineTest ) { 
+	    if      ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
+	    //	    else if ( beamTest.size()==3 ) analy_track->setBeamTest( beamTest[0], beamTest[1], beamTest[2] );
+	    else { 
+	      if ( !inputdata.isTagDefined("BeamTest") ) {
+		if      ( beamline_test.size()==2 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1] );
+		//		else if ( beamline_test.size()==3 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1], beamline_test[2] );
+	      }
 	    }
 	  }
-
-	  if ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
-	  else { 
-	    if ( !inputdata.isTagDefined("BeamRef") && beamline.size()>=2) {
-	      analy_track->setBeamRef(  beamline[0], beamline[1] );
+	  
+	  if ( correctBeamlineRef ) { 
+	    if      ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
+	    //	    else if ( beamRef.size()==3 ) analy_track->setBeamRef( beamRef[0], beamRef[1], beamRef[2] );
+	    else { 
+	      if ( !inputdata.isTagDefined("BeamRef") ) { 
+		if      ( beamline_ref.size()==2 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1] );
+		//		else if ( beamline_ref.size()==3 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1], beamline_ref[2] );
+	      }
 	    }
 	  }
-
+	  
 	}
 	
 	testTracks.clear();
@@ -1227,6 +1268,13 @@ int main(int argc, char** argv)
 
 	}
 	else {
+	  
+	  if ( monitorZBeam ) { 
+	    if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
+	      refz.push_back(  zpair( lb, beamline_ref[2]) );
+	      testz.push_back( zpair( lb, beamline_test[2]) );
+	    }
+	  }
 
 	  _matcher->match( refp, testp);
 	  analitr->second->execute( refp, testp, _matcher );
@@ -1299,8 +1347,9 @@ int main(int argc, char** argv)
     }
   }
 
- 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
+
+  if ( monitorZBeam ) zbeam _zbeam( refz, testz );
 
   foutdir->cd();
   

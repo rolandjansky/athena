@@ -66,7 +66,9 @@ int main(int argc, char** argv) {
 
   for ( unsigned i=0 ; i<files.size() ; i++ ) {
     
-    TFile finput( files[i].c_str() );
+    TFile* _finput = TFile::Open( files[i].c_str() );
+    TFile&  finput = *_finput;
+
     if (!finput.IsOpen()) {
       std::cerr << "Error: could not open output file" << std::endl;
       exit(-1);

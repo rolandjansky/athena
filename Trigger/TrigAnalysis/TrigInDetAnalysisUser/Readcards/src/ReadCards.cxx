@@ -19,8 +19,13 @@
 
 #include <stdio.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "utils.h"
 #include "ReadCards.h"
+
+
 
 std::vector<std::string> ReadCards::mPath;
 
@@ -68,12 +73,32 @@ void ReadCards::Construct(const std::string& filename) {
     exit(0);      
   }
 
-  mFile.open(mFileName.c_str());
+
+  int pid = getpid();
+
+  char tfile[256];
+
+  if ( mFileName.find("/")==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
+  else                                          std::sprintf( tfile, ".readcards-%d", pid );
+
+  char cmd[256];
+  std::sprintf( cmd, "cpp -P %s > %s", mFileName.c_str(), tfile );
+
+  std::system( cmd );
+
+  std::cout << "pid: " << pid << "  " << tfile << std::endl;
+
+  //  ReadCards inputdata(datafile);                                                                                                                  
+  //  mFile.open(mFileName.c_str());
+  mFile.open(tfile);
   cout << "ReadCards::Construct() opening " << mFileName << endl; 
   ReadParam();
   //  cout << "ReadCards::Construct() read  " 
   //       << mValues.size() << " entries" << endl; 
   mFile.close();
+
+  std::sprintf( cmd, "rm %s", tfile );
+  std::system( cmd );
 
   //  print();
 }
