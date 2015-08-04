@@ -7,24 +7,19 @@ use CxxUtils            CxxUtils-*              Control
 use AtlasCLHEP		AtlasCLHEP-*		External
 
 use JetUtils		JetUtils-*		Reconstruction/Jet
-#use MissingETEvent 	MissingETEvent-*	Reconstruction
 use AnalysisUtils	AnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
 use xAODCore            xAODCore-*              Event/xAOD
-use xAODJet             xAODJet-*               Event/xAOD
 use xAODMissingET       xAODMissingET-*         Event/xAOD
 use xAODParticleEvent   xAODParticleEvent-*     Event/xAOD 	
 use JetSelectorTools JetSelectorTools-* PhysicsAnalysis/JetMissingEtID
 use JetCalibTools       JetCalibTools-*         Reconstruction/Jet
 
 public 
+use xAODJet             xAODJet-*               Event/xAOD
 use AtlasPolicy		AtlasPolicy-*
 use AthenaPoolUtilities	AthenaPoolUtilities-*	Database/AthenaPOOL
 use GaudiInterface	GaudiInterface-*	External
 use AthenaBaseComps	AthenaBaseComps-*	                Control
-
-#use StoreGate           StoreGate-*		Control
-
-
 use TagEvent		TagEvent-*		PhysicsAnalysis/EventTag
 
 
