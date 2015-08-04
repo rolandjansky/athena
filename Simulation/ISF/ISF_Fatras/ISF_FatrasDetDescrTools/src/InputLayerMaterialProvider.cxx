@@ -67,24 +67,24 @@ Trk::LayerMaterialProperties * iFatras::InputLayerMaterialProvider::handleMateri
   
   layerBinUtilityX += layerBinUtilityY;
   
-  Trk::MaterialPropertiesMatrix * materialMatrix = new Trk::MaterialPropertiesMatrix(m_NbinsX);
+  Trk::MaterialPropertiesMatrix  * materialMatrix = new Trk::MaterialPropertiesMatrix(m_NbinsX);
 
   for ( unsigned int x = 0; x < m_NbinsX; x++) {
     for ( unsigned int y = 0; y < m_NbinsY; y++) {
      if (y >= (m_NbinsY-m_NbinsSupport)/2 && y < (m_NbinsY+m_NbinsSupport)/2)
-       materialMatrix->at(x).push_back( new Trk::MaterialProperties( m_sensorThickness+m_supportPathX0,
-								     m_sensorThickness/m_sensorPathX0 + m_supportPathX0/m_supportPathX0,
-								     m_materialL0,
-								     m_materialA,
-								     m_materialZ,
-								     m_materialRho ));
+       (materialMatrix->at(x)).push_back( new Trk::MaterialProperties( m_sensorThickness+m_supportPathX0,
+								       m_sensorThickness/m_sensorPathX0 + m_supportPathX0/m_supportPathX0,
+								       m_materialL0,
+								       m_materialA,
+								       m_materialZ,
+								       m_materialRho ));
      else
-       materialMatrix->at(x).push_back( new Trk::MaterialProperties( m_sensorThickness,
-								     m_sensorThickness/m_sensorPathX0,
-								     m_materialL0,
-								     m_materialA,
-								     m_materialZ,
-								     m_materialRho ));
+       (materialMatrix->at(x)).push_back( new Trk::MaterialProperties( m_sensorThickness,
+								       m_sensorThickness/m_sensorPathX0,
+								       m_materialL0,
+								       m_materialA,
+								       m_materialZ,
+								       m_materialRho ));
     }
   }
 

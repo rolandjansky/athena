@@ -10,9 +10,21 @@
 class XMLDumper():
     def __init__(self, name = 'InDetXMLDumper', fileName = 'test.xml'):
         self.out_file = open(fileName,"w")
-        
+        self.pixel_builders = []
+        self.sct_builders = []
+        self.trt_builders = []
 
-    def dump(self, PixelLayerBuilder, SCT_LayerBuilder, TRT_LayerBuilder):
+    def addPixelBuilder(self, builder):
+        self.pixel_builders.append(builder)
+
+    def addSCTBuilder(self, builder):
+        self.sct_builders.append(builder)
+        
+    def addTRTBuilder(self, builder):
+        self.trt_builders.append(builder)
+        
+    def dump(self):
+    #, IBLLayerBuilder, PixelLayerBuilder, SCT_LayerBuilder, TRT_LayerBuilder):
         self.out_file.write("<!--\n The InnerDetector identifier is arranged as follows \n \
 \tInnerDetector\n \
 \t\tpart=Pixel\n \
@@ -30,7 +42,7 @@ class XMLDumper():
 \t\t\t\tlayer phi_module straw_layer straw\n \
 \t\t\tside=endcap\n \
 \t\t\t\twheel phi_module straw_layer straw\n -->\n")
-
+        
         self.out_file.write('<IdDictionary name="InnerDetector" >\n')
         self.out_file.write('  <field name="part" >\n')
         self.out_file.write('    <label name="Pixel" value="1" />\n')
@@ -38,7 +50,7 @@ class XMLDumper():
         self.out_file.write('    <label name="TRT" value="3" />\n')
         self.out_file.write('  </field>\n')
 
-        self.out_file.write('  <field name="barrel_endcap">')
+        self.out_file.write('  <field name="barrel_endcap">\n')
         self.out_file.write('    <label name="negative_endcap" value="-2" />\n')
         self.out_file.write('    <label name="negative_barrel" value="-1" />\n')
         self.out_file.write('    <label name="barrel"          value="0" />\n')
@@ -46,164 +58,97 @@ class XMLDumper():
         self.out_file.write('    <label name="positive_endcap" value="+2"  />\n')
         self.out_file.write('  </field>\n')
 
-        if PixelLayerBuilder:        
-            for layer in range(PixelLayerBuilder.BarrelLayers):
+        layer_offset = 0
+        disk_offset = 0
+
+        for pix_builder in self.pixel_builders:
+            for layer in range(pix_builder.BarrelLayers):
                 self.out_file.write('  <region group="pixel" >\n')
-                self.out_file.write('    <range field="part" value="'+PixelLayerBuilder.Identification+'" />\n')
+                self.out_file.write('    <range field="part" value="'+pix_builder.Identification+'" />\n')
                 self.out_file.write('    <range field="barrel_endcap" value="barrel" />\n')
-                self.out_file.write('    <range field="layer" value="'+str(layer)+'" />\n')
+                self.out_file.write('    <range field="layer" value="'+str(layer_offset+layer)+'" />\n')
+                times = 1
+                if pix_builder.LayerSCTlike:
+                    times = 2
                 self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="'+
-                                    str(PixelLayerBuilder.LayerPhiSectors[layer]-1)+'" wraparound="TRUE" />\n')
+                                    str(pix_builder.LayerPhiSectors[layer]*times-1)+'" wraparound="TRUE" />\n')
                 self.out_file.write('    <range field="eta_module" minvalue="-'+
-                                    str((PixelLayerBuilder.LayersZsectors[layer])/2)+'" maxvalue="'+
-                                    str((PixelLayerBuilder.LayersZsectors[layer])/2)+'" />\n')
+                                    str((pix_builder.LayersZsectors[layer])/2)+'" maxvalue="'+
+                                    str((pix_builder.LayersZsectors[layer])/2)+'" />\n')
                 self.out_file.write('    <range field="phi_index" minvalue="0" maxvalue="'+
-                                    str(int(PixelLayerBuilder.LayerLengthXmin[layer]/PixelLayerBuilder.LayerPitchX[layer]))+'" />\n')
+                                    str(int(pix_builder.LayerLengthXmin[layer]/pix_builder.LayerPitchX[layer]))+'" />\n')
                 self.out_file.write('    <range field="eta_index" minvalue="0" maxvalue="'+
-                                    str(int(PixelLayerBuilder.LayerLengthY[layer]/PixelLayerBuilder.LayerPitchY[layer]))+'" />\n')
+                                    str(int(pix_builder.LayerLengthY[layer]/pix_builder.LayerPitchY[layer]))+'" />\n')
                 self.out_file.write('  </region>\n')
-                
-            for disk in range(PixelLayerBuilder.EndcapDiscs):
-                for ring in range(len(PixelLayerBuilder.DiscPhiSectors[disk])):
+
+            layer_offset += pix_builder.BarrelLayers
+
+            
+            for disk in range(pix_builder.EndcapDiscs):
+                for ring in range(len(pix_builder.DiscPhiSectors[disk])):
+                    iring = len(pix_builder.DiscPhiSectors[disk])-ring-1
                     self.out_file.write('  <region group="pixel" >\n')
                     self.out_file.write('    <range field="part" value="Pixel" />\n')
                     self.out_file.write('    <range field="barrel_endcap" values="negative_endcap positive_endcap" />\n')
-                    self.out_file.write('    <range field="disk" value="'+str(disk)+'" />\n')
+                    self.out_file.write('    <range field="disk" value="'+str(disk_offset+disk)+'" />\n')
                     self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="'+
-                                        str(PixelLayerBuilder.DiscPhiSectors[disk][ring]-1)+'" wraparound="TRUE" />\n')
-                    self.out_file.write('    <range field="eta_module" value="0" />\n')
+                                        str(pix_builder.DiscPhiSectors[disk][iring]-1)+'" wraparound="TRUE" />\n')
+                    self.out_file.write('    <range field="eta_module" value="'+str(ring)+'" />\n')
                     self.out_file.write('    <range field="phi_index" minvalue="0" maxvalue="'+
-                                        str(int(PixelLayerBuilder.DiscLengthXmin[disk][ring]/PixelLayerBuilder.DiscPitchX[disk][ring]))+'" />\n')
+                                        str(int(pix_builder.DiscLengthXmin[disk][iring]/pix_builder.DiscPitchX[disk][iring]))+'" />\n')
                     self.out_file.write('    <range field="eta_index" minvalue="0" maxvalue="'+
-                                        str(int(PixelLayerBuilder.DiscLengthY[disk][ring]/PixelLayerBuilder.DiscPitchY[disk][ring]))+'" />\n')
+                                        str(int(pix_builder.DiscLengthY[disk][iring]/pix_builder.DiscPitchY[disk][iring]))+'" />\n')
+                    self.out_file.write('  </region>\n')
+            
+            disk_offset  += pix_builder.EndcapDiscs
+       
+        layer_offset = 0
+        disk_offset = 0
+
+        for sct_builder in self.sct_builders:
+            for layer in range(sct_builder.BarrelLayers):
+                self.out_file.write('  <region group="sct" >\n')
+                self.out_file.write('    <range field="part" value="'+sct_builder.Identification+'" />\n')
+                self.out_file.write('    <range field="barrel_endcap" value="barrel" />\n')
+                self.out_file.write('    <range field="layer" value="'+str(layer_offset+layer)+'" />\n')
+                self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="'+
+                                    str(sct_builder.LayerPhiSectors[layer]-1)+'" wraparound="TRUE" />\n')
+                
+                min_val = -(sct_builder.LayersZsectors[layer]/2)
+                max_val = sct_builder.LayersZsectors[layer]/2
+                values = range(min_val, max_val)
+                
+                if not sct_builder.LayersZsectors[layer]%2:
+                    values.remove(0)
+                    self.out_file.write('    <range field="eta_module" values="')
+                for value in values:
+                    self.out_file.write(str(value)+' ')
+                self.out_file.write(str((sct_builder.LayersZsectors[layer])/2)+'" />\n')
+                self.out_file.write('    <range field="side" minvalue="0" maxvalue="1" />\n')
+                self.out_file.write('    <range field="strip" minvalue="0" maxvalue="'+
+                                    str(int(sct_builder.LayerLengthXmin[layer]/sct_builder.LayerPitchX[layer]))+'" />\n')
+                self.out_file.write('  </region>\n')
+
+            layer_offset += sct_builder.BarrelLayers
+            
+            for disk in range(sct_builder.EndcapDiscs):
+                for ring in range(len(sct_builder.DiscPhiSectors[disk])):
+                    iring = len(sct_builder.DiscPhiSectors[disk])-ring-1
+                    self.out_file.write('  <region group="sct" >\n')
+                    self.out_file.write('    <range field="part" value="'+sct_builder.Identification+'" />\n')
+                    self.out_file.write('    <range field="barrel_endcap" values="negative_endcap positive_endcap" />\n')
+                    self.out_file.write('    <range field="disk" value="'+str(disk_offset+disk)+'" />\n')
+                    self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="'+
+                                        str(sct_builder.DiscPhiSectors[disk][iring]-1)+'" wraparound="TRUE" />\n')
+                    self.out_file.write('    <range field="eta_module" value="'+str(ring)+'" />\n')
+                    self.out_file.write('    <range field="side" minvalue="0" maxvalue="1" />\n')
+                    self.out_file.write('    <range field="strip" minvalue="0" maxvalue="'+
+                                        str(int(sct_builder.DiscLengthXmin[disk][iring]/sct_builder.DiscPitchX[disk][iring]))+'" />\n')
                     self.out_file.write('  </region>\n')
 
-        if SCT_LayerBuilder:
-
-            self.out_file.write('  <subregion name="SCT_barrel">\n')
-            self.out_file.write('    <range field="part" value="SCT" />\n')
-            self.out_file.write('    <range field="barrel_endcap" value="barrel" />\n')
-            self.out_file.write('  </subregion>\n')
+            disk_offset  += sct_builder.EndcapDiscs
             
-            self.out_file.write('  <subregion name="SCT_endcap">\n')
-            self.out_file.write('    <range field="part" value="SCT" />\n')
-            self.out_file.write('    <range field="barrel_endcap" values="negative_endcap positive_endcap" />\n')
-            self.out_file.write('  </subregion>\n')
-            
-            self.out_file.write('  <subregion name="SCT_eta_module">\n')
-            self.out_file.write('    <range field="side" minvalue="0" maxvalue="1" />\n')
-            self.out_file.write('    <range field="strip" minvalue="0" maxvalue="767" />\n')
-            self.out_file.write('  </subregion>\n')
-                               
-            self.out_file.write('  <subregion name="SCT_phi_negative_barrel_module">\n')
-            self.out_file.write('    <range field="eta_module" minvalue="-6" maxvalue="-1" next_value="1" />\n')
-            self.out_file.write('    <reference subregion="SCT_eta_module" />\n')
-            self.out_file.write('  </subregion>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="0" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_negative_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="1" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_negative_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="2" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="47" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_negative_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="3" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="55"  wraparound="TRUE"/>\n')
-            self.out_file.write('    <reference subregion="SCT_phi_negative_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-
-            self.out_file.write('  <subregion name="SCT_phi_positive_barrel_module">\n')
-            self.out_file.write('    <range field="eta_module" minvalue="+1" maxvalue="+6" prev_value="-1" />\n')
-            self.out_file.write('    <reference subregion="SCT_eta_module" />\n')
-            self.out_file.write('  </subregion>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="0" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="31" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_positive_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="1" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_positive_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="2" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="47" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_positive_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct" >\n')
-            self.out_file.write('    <reference subregion="SCT_barrel" />\n')
-            self.out_file.write('    <range field="layer" value="3" />\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="55" wraparound="TRUE" />\n')
-            self.out_file.write('    <reference subregion="SCT_phi_positive_barrel_module" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <subregion name="SCT_ring_0">\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE" />\n')
-            self.out_file.write('    <range field="eta_module" value="0" />\n')
-            self.out_file.write('    <reference subregion="SCT_eta_module" />\n')
-            self.out_file.write('  </subregion>\n')
-            
-            self.out_file.write('  <subregion name="SCT_ring_1">\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />\n')
-            self.out_file.write('    <range field="eta_module" value="1" />\n')
-            self.out_file.write('    <reference subregion="SCT_eta_module" />\n')
-            self.out_file.write('  </subregion>\n')
-
-            self.out_file.write('  <subregion name="SCT_ring_1_2">\n')
-            self.out_file.write('    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE" />\n')
-            self.out_file.write('    <range field="eta_module" minvalue="1" maxvalue="2" />\n')
-            self.out_file.write('    <reference subregion="SCT_eta_module" />\n')
-            self.out_file.write('  </subregion>\n')
-
-            self.out_file.write('  <region group="sct"  name="SCT_endcap_ring0_disks08">\n')
-            self.out_file.write('    <reference subregion="SCT_endcap" />\n')
-            self.out_file.write('    <range field="disk" minvalue="0" maxvalue="8" />\n')
-            self.out_file.write('    <reference subregion="SCT_ring_0" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct"  name="SCT_endcap_ring1_disk0">\n')
-            self.out_file.write('    <reference subregion="SCT_endcap" />\n')
-            self.out_file.write('    <range field="disk" value="0" />\n')
-            self.out_file.write('    <reference subregion="SCT_ring_1" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct"  name="SCT_endcap_rings12_disks15">\n')
-            self.out_file.write('    <reference subregion="SCT_endcap" />\n')
-            self.out_file.write('    <range field="disk" minvalue="1" maxvalue="5" />\n')
-            self.out_file.write('    <reference subregion="SCT_ring_1_2" />\n')
-            self.out_file.write('  </region>\n')
-            
-            self.out_file.write('  <region group="sct"  name="SCT_endcap_ring1_disks67">\n')
-            self.out_file.write('    <reference subregion="SCT_endcap" />\n')
-            self.out_file.write('    <range field="disk" minvalue="6" maxvalue="7" />\n')
-            self.out_file.write('    <reference subregion="SCT_ring_1" />\n')
-            self.out_file.write('  </region>\n')
-
-        if TRT_LayerBuilder:
+        for trt_builder in self.trt_builders:
 
             self.out_file.write('  <subregion name="TRT_barrel">\n')
             self.out_file.write('    <range field="part" value="TRT" />\n')
@@ -410,6 +355,7 @@ class XMLDumper():
         self.out_file.close()
 
 
+    
 
         
         
