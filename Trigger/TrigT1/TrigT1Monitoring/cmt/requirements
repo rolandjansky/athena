@@ -31,6 +31,7 @@ use TrigT1CaloCalibToolInterfaces  TrigT1CaloCalibToolInterfaces-*  Trigger/Trig
 use TrigT1CaloCalibConditions   TrigT1CaloCalibConditions-*  Trigger/TrigT1
 use TrigT1CaloCondSvc           TrigT1CaloCondSvc-*     Trigger/TrigT1
 use TrigT1CaloEvent             TrigT1CaloEvent-*       Trigger/TrigT1
+use xAODTrigL1Calo                xAODTrigL1Calo-*                Event/xAOD
 use TrigT1CaloToolInterfaces    TrigT1CaloToolInterfaces-*   Trigger/TrigT1
 use TrigT1Interfaces    	TrigT1Interfaces-*    	Trigger/TrigT1
 use TrigT1Result 		TrigT1Result-*		Trigger/TrigT1
