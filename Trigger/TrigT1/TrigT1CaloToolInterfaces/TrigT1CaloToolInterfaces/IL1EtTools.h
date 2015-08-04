@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "DataModel/DataVector.h"
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
 //#include "TrigT1CaloUtils/ModuleEnergy.h"
 //#include "TrigT1CaloUtils/CrateEnergy.h"
 //#include "TrigT1CaloUtils/SystemEnergy.h"
@@ -33,21 +33,21 @@ Interface definition for L1EtTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void moduleSums(const DataVector<JetElement>* jetelements,
+    virtual void moduleSums(const xAOD::JetElementContainer* jetelements,
                             DataVector<ModuleEnergy>* modules, int slice = -1) = 0;
-    virtual void moduleSums(const std::map<int, JetElement*>* jemap,
+    virtual void moduleSums(const std::map<int, xAOD::JetElement*>* jemap,
                             DataVector<ModuleEnergy>* modules, int slice = -1) = 0;
     virtual void crateSums(const DataVector<ModuleEnergy>* modules,
-                            DataVector<CrateEnergy>* crates, float etaMax = 5.) = 0 ;
+                            DataVector<CrateEnergy>* crates, float etaMax = 5., bool restricted = false) = 0 ;
     virtual void crateSums(const DataVector<EnergyCMXData>* modules,
-                            DataVector<CrateEnergy>* crates, float etaMax = 5.) = 0 ;
-    virtual void crateSums(const DataVector<JetElement>* jetelements,
-                           DataVector<CrateEnergy>* crates, int slice = -1) = 0;
-    virtual void crateSums(const std::map<int, JetElement*>* jemap,
-                           DataVector<CrateEnergy>* crates, int slice = -1) = 0;
+                            DataVector<CrateEnergy>* crates, float etaMax = 5., bool restricted = false) = 0 ;
+    virtual void crateSums(const xAOD::JetElementContainer* jetelements,
+                           DataVector<CrateEnergy>* crates, int slice = -1, float etaMax = 5., bool restricted = false) = 0;
+    virtual void crateSums(const std::map<int, xAOD::JetElement*>* jemap,
+                           DataVector<CrateEnergy>* crates, int slice = -1, float etaMax = 5., bool restricted = false) = 0;
     virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates)  = 0;
-    virtual SystemEnergy systemSums(const DataVector<JetElement>* jetelements, int slice = -1) = 0;
-    virtual SystemEnergy systemSums(const std::map<int, JetElement*>* jemap, int slice = -1) = 0;
+    virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMax = 5., bool restricted = false) = 0;
+    virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, float etaMax = 5., bool restricted = false) = 0;
   
   };
 

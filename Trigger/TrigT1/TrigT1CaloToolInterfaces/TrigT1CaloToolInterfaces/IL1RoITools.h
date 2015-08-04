@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "DataModel/DataVector.h"
+#include "xAODTrigL1Calo/JetElement.h"
 
 class LVL1_ROI;
 class EmTau_ROI;
@@ -37,7 +38,7 @@ Interface definition for L1RoITools
     virtual void findJetROIs(const DataVector<TriggerTower>* tts, std::vector<Jet_ROI>& rois, int slice = -1) = 0;
     virtual void findJetROIs(const DataVector<JetElement>* jes, std::vector<Jet_ROI>& rois, int slice = -1) = 0;
     virtual void findEnergySumROI(const DataVector<TriggerTower>* tts, std::vector<EnergySum_ROI>& rois, int slice = -1) = 0;
-    virtual void findEnergySumROI(const DataVector<JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice = -1) = 0;
+    virtual void findEnergySumROI(const DataVector<xAOD::JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice = -1) = 0;
     virtual void findJetETROI(const std::vector<Jet_ROI>& jets, std::vector<JetET_ROI>& rois) = 0;
     virtual void findEmTauTTIDs(float roiEta, float roiPhi, std::vector<unsigned int>& coolIDs) = 0;
     virtual void findEmTauTTIDs(const EmTau_ROI& roi, std::vector<unsigned int>& coolIDs) = 0;
