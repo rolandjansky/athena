@@ -12,76 +12,92 @@ import sys
 
 ref_file_name = './maxbipartite_ref.txt'
 
-def run():
-    version = open('../cmt/version.cmt').readlines()[0].strip()
-    cwd = os.getcwd()
-    fns = sorted([f for f in os.listdir('.') if f.startswith('fn_')])
-    fns = [f.strip() for f in fns]
-    tlines = ['max-bipartite version %s' % version]
-    print fns
+
+def read_ref(f):
+    with open(ref_file_name) as ifile:
+        for l in ifile:
+            if l.startswith(f): return l.strip()
+    print 'Error: %s not in ref file %s' % (f, ref_file_name)
+    sys.exit(0)
+
+
+def is_exe_found(exe):
+    paths = os.environ['PATH'].split(':')
+    for p in paths:
+        if os.path.exists(os.path.join(p, exe)): return True
+    return False
+
+
+def run(exe, f):
+
+    sys.stdout.write('%s\r' % 'reading %s' % f)
+    sys.stdout.flush()
     
-    for fn in fns:
-        print 'reading ', fn
-        try:
-            lines =  subprocess.check_output(["TrigHLTJetHypoTests.exe", fn]).split(
-                '\n')
-        except Exception, e:
-            raise RuntimeError('Error reading file %s: %s' % (fn, str(e)))
+    try:
+        lines =  subprocess.check_output([exe, f]).split('\n')
+    except Exception, e:
+        print 'Error processing file %s: %s' % (f, str(e))
+        sys.exit(0)
         
-        tlines.append('%s %s' % (fn, lines[-2]))
-    return tlines
+    return lines[-2]
 
 
-def write_reference():
+def write_reference(exe, td):
     print 'will write reference file ', ref_file_name
-    lines = run()
+    lines = run(exe, td)
         
     text = '\n'.join(lines)
     open(ref_file_name, 'w').write(text)
 
 
-def cmp():
-    print 'will compare with reference file ', ref_file_name
-    n_lines = run()
-    r_lines = open(ref_file_name).readlines()
-    r_lines = [l.strip() for l in r_lines]
+def cmp(exe, testdir):
 
-    if len(n_lines) != len(r_lines):
-        print 'files to compare have different lengths'
-        return
+    ref_file_fn  = os.path.join(testdir)
+    print 'will compare with reference file ', ref_file_fn
+    version = open('../cmt/version.cmt').readlines()[0].strip()
+    print 'max-bipartite version %s' % version
 
-    z = zip(n_lines, r_lines)
-    print 'comparing %s %s' % z[0]
+    fns = sorted([f for f in os.listdir(testdir) if f.startswith('fn_')])
+
     n = 0
-    for zz in z[1:]:
-        if zz[0] != zz[1]:
-            print 'difference:'
-            print '  ' + zz[0]
-            print '  ' + zz[1]
+    for f in fns:
+        result = run(exe, os.path.join(testdir, f.strip()))
+        result = '%s %s' % (f, result)
+        expected = read_ref(f)
+        if result != expected:
+            print 'failure:'
+            print 'obtained %s' % result
+            print 'expected %s' % expected
+            print 'bailing out'
+            sys.exit(0)
         n += 1
-        
-    print 'done'
+
+    print '%d comparison tests passed' % n
 
 
 def usage():
     print 'python run_maxbipartite_regression.py'
     print 'options: '
     print '-w  read inputs and write reference file: '
+    print '-t  directory with input and reression files [default: cwd]: '
     print '  default: read inputs and compare to the reference file'
 
 if __name__ == '__main__':
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hw", [])
+        opts, args = getopt.getopt(sys.argv[1:], "hwt:", [])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     write = False
+    testdir = os.getcwd()
     for o, a in opts:
         if o == "-w":
             write = True
+        if o == "-t":
+            testdir  = a
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -89,8 +105,18 @@ if __name__ == '__main__':
             assert False, "unhandled option"
     # ...
 
+    if not os.path.exists(testdir):
+        'test directory %s does not exists' % testdit
+        sys.exit(0)
+
+    print 'test directory: ', testdir
+
+    exe = 'TrigHLTJetHypoTests.exe'
+    if not is_exe_found(exe):
+        print 'Executable %s is not found on $PATH' % exe
+        sys.exit(0)
 
     if write:
-        write_reference()
+        write_reference(exe, testdir)
     else:
-        cmp()
+        cmp(exe, testdir)

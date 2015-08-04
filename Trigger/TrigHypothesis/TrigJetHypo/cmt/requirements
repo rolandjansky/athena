@@ -25,7 +25,6 @@ use     xAODJet                 xAODJet-*                Event/xAOD
 #use     TrigSerializeResult     TrigSerializeResult-*   Trigger/TrigDataAccess
 #use     AnalysisTriggerEvent    AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use	CaloInterface		CaloInterface-*		Calorimeter
-use	CaloGeoHelpers		CaloGeoHelpers-*	Calorimeter
 #use DataCollection	DataCollection-*	External
 
 #apply_pattern cmake_add_command command="find_package(tdaq-common)"
@@ -59,6 +58,7 @@ use     xAODCaloEvent           xAODCaloEvent-*          Event/xAOD
 use	xAODEventInfo		xAODEventInfo-*		Event/xAOD
 use	LArCellRec		LArCellRec-*		LArCalorimeter
 use	LArRecEvent		LArRecEvent-*		LArCalorimeter
+use	CaloGeoHelpers		CaloGeoHelpers-*	Calorimeter
 #use     HLTtdaqcommon		*		HLT/HLTExternal
 use 	TDAQCPolicy		*
 macro_append TrigJetHypoLib_shlibflags " $(tdaqc_linkopts) -lhltinterface"
