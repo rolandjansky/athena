@@ -18,10 +18,19 @@ Purpose : build the Photon Tag objects - PhotonTagCollection.h.
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-
+#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IsolationSelectionTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include <map>
 
 class PhotonTagCollection;
+
+// forward declarations
+namespace CP {
+  class IIsolationSelectionTool;
+}
+class IAsgPhotonIsEMSelector;
+
 
 /** Interface ID for PhotonTagTool */  
 static const InterfaceID IID_PhotonTagTool("PhotonTagTool", 1, 0);
@@ -52,8 +61,8 @@ private:
   /** Properties */
   std::string m_containerName;
   double m_cut_Et;
-  std::vector<float> m_caloisocutvalues;
-  std::vector<float> m_trackisocutvalues;
+  std::vector<float> m_etconeisocutvalues;
+  std::vector<float> m_ptconeisocutvalues;
 
   /** the attribute names */
   std::vector<std::string> m_ptStr;
@@ -62,9 +71,17 @@ private:
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_isoStr;
 
-  AsgElectronLikelihoodTool* m_loose_Likelihood;//!
-  AsgElectronLikelihoodTool* m_medium_Likelihood;//!
-  AsgElectronLikelihoodTool* m_tight_Likelihood;//!
+  /**photon shower shape fudge*/
+  bool m_isFullsim;
+  ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_shower_shape_fudge;
+
+  ToolHandle<IAsgPhotonIsEMSelector>      m_loose_cut_based; 
+  ToolHandle<IAsgPhotonIsEMSelector>      m_tight_cut_based; 
+
+  ToolHandle<CP::IIsolationSelectionTool> m_cone40_calo_isolation;//!
+  ToolHandle<CP::IIsolationSelectionTool> m_cone40_isolation;//!
+  ToolHandle<CP::IIsolationSelectionTool> m_cone20_isolation;//!
+
  };
 
 #endif // PHOTONTAGTOOL_H
