@@ -30,9 +30,8 @@
 #include "TrigJetHypo/TrigEFJetHypoNoise.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-#ifdef ONLINEIS
+#include "hltinterface/IInfoRegister.h"
 #include "hltinterface/ContainerFactory.h"
-#endif
 
 class ISvcLocator;
 
@@ -49,6 +48,8 @@ TrigEFJetHypoNoise::TrigEFJetHypoNoise(const std::string& name, ISvcLocator* pSv
   declareProperty("NoiseTool",   m_noisyROTool);
 
   declareProperty( "BadFEBCut", m_MinBadFEB=5 );
+  declareProperty( "TimeToClear", m_timeTagPosToClear=300);
+  declareProperty( "ISPublishTime", m_publishTime=180);
 
 }
 
@@ -78,12 +79,13 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltInitialize()
   m_errors=0;
   m_isInterface = false;
 
+  m_timeTagPosRec = 0;
+
   if ( m_noisyROTool.retrieve().isFailure() ){
 	msg() << MSG::WARNING << "Could not retrieve tool, no noise burst hunting" << endreq;
 	return HLT::OK;
   }
 
-#ifdef ONLINEIS
   auto cfact = hltinterface::ContainerFactory::getInstance();
   if ( cfact ) {
       msg() << MSG::DEBUG << "Got the factory for TDAQ interface, will try to register vectors" << endreq;
@@ -100,7 +102,6 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltInitialize()
           m_isInterface = false;
       }
   } // if cfact
-#endif
   
   return HLT::OK;
   
@@ -164,30 +165,53 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
 
 
   if ( flag != 0x0 ) {
-	if ( msgDebug ) msg() << MSG::INFO << "LAr Noise detected : ";
+	if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise detected : ";
 	pass = true;
   }
-        else if ( msgDebug ) msg() << MSG::INFO << "LAr Noise not detected!" << endreq;
+        else if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endreq;
 
+  const xAOD::EventInfo* evt;
+  if ( (store()->retrieve(evt)).isFailure() ) {
+  	msg(MSG::DEBUG) << endreq;
+  	msg(MSG::ERROR) << "Cannot access eventinfo" << endreq;
+  } 
+  long int thisTimeStamp = 0;
+  if ( evt ) thisTimeStamp = evt->timeStamp();
+  if ( m_isInterface ) { // only clear up if the vector is being filled
+       if ( ( ( thisTimeStamp - m_timeTagPosRec) > m_timeTagPosToClear ) ){
+
+		    std::vector<long>& ee = m_IsObject->getIntVecField(m_evntPos);
+		    std::vector<long>& tt = m_IsObject->getIntVecField(m_timeTagPos);
+		    std::vector<long>& ttn = m_IsObject->getIntVecField(m_timeTagPosns);
+		    int toBeCleared = 0;
+		    for(unsigned int dd=0;dd<tt.size();dd++){
+			if ( ( thisTimeStamp - tt[dd] )  < m_publishTime ) {
+				toBeCleared = (int)dd-1;
+				break;
+			}
+		    }
+		    if ( toBeCleared > 0 ) {
+			ee.erase(ee.begin(),ee.begin()+(toBeCleared) );
+			tt.erase(tt.begin(),tt.begin()+(toBeCleared) );
+			ttn.erase(ttn.begin(),ttn.begin()+(toBeCleared) );
+		    }
+
+
+        	m_timeTagPosRec = thisTimeStamp ; // records to remember when things were cleared
+       }
+  }
   if ( pass ) {
-	const xAOD::EventInfo* evt;
-	if ( (store()->retrieve(evt)).isFailure() ) {
-		msg(MSG::DEBUG) << endreq;
-		msg(MSG::ERROR) << "Cannot access eventinfo" << endreq;
-	}
-	else {
+	if ( evt ) {
 		if ( msgDebug ) msg() << MSG::DEBUG << "at event number : "
 			<< evt->eventNumber() << "; LB : "
 			<< evt->lumiBlock() << "; timeStamp : "
 			<< evt->timeStamp() << "; timeStamp ns : "
 			<< evt->timeStampNSOffset() << endreq;
-#ifdef ONLINEIS
 		if ( m_isInterface ) {
 		    m_IsObject->appendField(m_evntPos,std::vector<long>{flag});
 		    m_IsObject->appendField(m_timeTagPos,std::vector<long>{(long int)evt->timeStamp()});
 		    m_IsObject->appendField(m_timeTagPosns,std::vector<long>{(long int)evt->timeStampNSOffset()});
 		}
-#endif
 	}
   }
 
