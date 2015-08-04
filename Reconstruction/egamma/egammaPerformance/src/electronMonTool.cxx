@@ -7,6 +7,9 @@
 //      2014-05-21 Author: Remi Lafaye (Annecy) 
 //      2015-01-26 Author: Bertrand LAFORGE (LPNHE Paris)
 //
+//      2015-05-22 Add monitoring of LH Medium and Tight electrons, cut based Medium and Tight electrons
+//                 Add LumiAware distributions
+//
 //      NAME:    electronMonTool.cxx
 //      PACKAGE: offline/Reconstruction/egamma/egammaPerformance
 //      PURPOSE: Shifter should look for the following defects:
@@ -70,204 +73,304 @@
 
 
 #include "egammaPerformance/electronMonTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronxAODHelpers.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include <vector>
-#include <string>
-#include <iostream>
 
 electronMonTool::electronMonTool(const std::string & type, const std::string & name, const IInterface* parent) : 
-  egammaMonToolBase(type,name,parent),  
-  m_hN (nullptr),
-  m_hEt (nullptr),
-  m_hEta (nullptr),
-  m_hPhi (nullptr),
-  m_hEtaPhi (nullptr),
-  m_hTopoEtCone40 (nullptr),
-  m_hPtCone20 (nullptr),
-  m_hTightN (nullptr),
-  m_hTightEt (nullptr),
-  m_hTightEta (nullptr),
-  m_hTightPhi (nullptr),
-  m_hTightEtaPhi (nullptr),
-  m_hTightTopoEtCone40 (nullptr),
-  m_hTightPtCone20 (nullptr)
+  egammaMonToolBase(type,name,parent)
 {
 
   // Name of the electron collection
   declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
   this->egammaMonToolBase::initialize();
 
+  m_LhMediumElectrons = new electronHist(std::string("LhMedium"));
+  m_LhMediumElectrons->m_lumiBlockNumber = 0;
+  m_LhMediumElectrons->m_nElectronsInCurrentLB = 0;
+  m_LhMediumElectrons->m_nElectronsPerLumiBlock.clear();
+  m_LhMediumElectrons->m_nElectronsPerRegion.clear();
+  m_LhMediumElectrons->m_nElectrons=0;
+
+  m_CbMediumElectrons = new electronHist(std::string("CbMedium"));
+  m_CbMediumElectrons->m_lumiBlockNumber = 0;
+  m_CbMediumElectrons->m_nElectronsInCurrentLB = 0;
+  m_CbMediumElectrons->m_nElectronsPerLumiBlock.clear();
+  m_CbMediumElectrons->m_nElectronsPerRegion.clear();
+  m_CbMediumElectrons->m_nElectrons=0;
+
+  m_LhTightElectrons = new electronHist(std::string("LhTight"));
+  m_LhTightElectrons->m_lumiBlockNumber = 0;
+  m_LhTightElectrons->m_nElectronsInCurrentLB = 0;
+  m_LhTightElectrons->m_nElectronsPerLumiBlock.clear();
+  m_LhTightElectrons->m_nElectronsPerRegion.clear();
+  m_LhTightElectrons->m_nElectrons=0;
+
+  m_CbTightElectrons = new electronHist(std::string("CbTight"));
+  m_CbTightElectrons->m_lumiBlockNumber = 0;
+  m_CbTightElectrons->m_nElectronsInCurrentLB = 0;
+  m_CbTightElectrons->m_nElectronsPerLumiBlock.clear();
+  m_CbTightElectrons->m_nElectronsPerRegion.clear();
+  m_CbTightElectrons->m_nElectrons=0;
+
+  m_currentLB = -1;
+
 }
 
 electronMonTool::~electronMonTool()
 {
+
+  delete m_CbTightElectrons;
+  delete m_LhTightElectrons;
+  delete m_CbMediumElectrons;
+  delete m_LhMediumElectrons;
+
 }
 
-StatusCode electronMonTool::bookHistograms()
+StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHist)
 {
-  ATH_MSG_DEBUG("electronMonTool::bookHistograms()");
+
+  ATH_MSG_DEBUG("electronMonTool::bookHistogramsForOneElectron()");
 
   int start, end;
   start = 0;
   end = ENDCAP;
 
-  // Create groups
-  MonGroup electronGroup(this,"egamma/electrons",run); // to be re-booked every new run
-  
-  // Create sub groups
-  MonGroup electronTrkGroup      (this,"egamma/electrons/Track",            run); // to be re-booked every new run
-  MonGroup electronIdGroup       (this,"egamma/electrons/ID",               run); // to be re-booked every new run
-
   // MAIN PANEL
-  bookTH1F(m_hN,                 electronGroup,"electronN",                 "Number of MEDIUM electrons",40, 0.0, 40.0);
-  bookTH1F(m_hEt,                electronGroup,"electronEt",                "MEDIUM electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi,            electronGroup,"electronEtaPhi",            "MEDIUM electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hEta,               electronGroup,"electronEta",               "MEDIUM electron #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,               electronGroup,"electronPhi",               "MEDIUM electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTopoEtCone40,      electronGroup,"electronTopoEtcone40",      "MEDIUM electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
-  bookTH1F(m_hPtCone20,          electronGroup,"electronPtcone20",          "MEDIUM electron Isolation Energy PtCone20", 64, -10000., 40000.);
-  bookTH1F(m_hTightN,            electronGroup,"electronTightN",            "Number of TIGHT electrons",40, 0.0, 40.0);
-  bookTH1F(m_hTightEt,           electronGroup,"electronTightEt",           "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hTightEtaPhi,       electronGroup,"electronTightEtaPhi",       "TIGHT electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hTightEta,          electronGroup,"electronTightEta",          "TIGHT electron #eta", 64, -3.2, 3.2);
-  bookTH1F(m_hTightPhi,          electronGroup,"electronTightPhi",          "TIGHT electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTightTopoEtCone40, electronGroup,"electronTightTopoEtcone40", "TIGHT electron Isolation Energy TopoEtCone40", 64, -10000., 30000.);
-  bookTH1F(m_hTightPtCone20,     electronGroup,"electronTightPtcone20",     "TIGHT electron Isolation Energy PtCone20", 64, -10000., 30000.);
-  bookTH1F(m_hTime, electronGroup,"electronTime", "Time associated with the MEDIUM electron cluster [ns]", 90, -30., 60.);
+  std::string hname = std::string("electronN") + myHist.m_nameOfElectronType;
+  std::string hlongname =  std::string("Number of electrons") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hN, *m_electronGroup, hname, hlongname, 40, 0.0, 40.0);
 
-  bookTH1FperRegion(m_hvEt, electronGroup,"electronEt", "MEDIUM electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
-  bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"electronTopoEtCone40", "Medium electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
-  bookTH1FperRegion(m_hvPtCone20, electronGroup,"electronPtcone20", "Medium electron Isolation Energy PtCone20 [MeV]", 64, -10000., 40000.,start,end);
-  bookTH1FperRegion(m_hvTime,electronGroup,"electronTime", "MEDIUM electron time [ns]",90, -30.0, 60.0,start,end);
+  hname = std::string("electronEt") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron transverse energy [MeV]") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hEt, *m_electronGroup, hname, hlongname, 100, -1000.0, 250000.0);
+
+  hname = std::string("electronEtaPhi") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
+  hname = std::string("electronEta") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hEta, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2);
+
+  hname = std::string("electronPhi") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #phi") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2);
+
+  hname = std::string("electronTopoEtCone40") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron Topocluster Isolation Energy") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hTopoEtCone40, *m_electronGroup, hname, hlongname, 64, -10000., 40000.);
+
+  hname = std::string("electronPtCone20") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron Track Isolation Energy") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hPtCone20, *m_electronGroup, hname, hlongname, 64, -10000., 40000.);
+
+  hname = std::string("electronTime") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Time associated with electron cluster [ns]") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hTime, *m_electronGroup, hname, hlongname, 90, -30., 60.);
+
+  // PER REGION IN EXPERT PANEL
+  hname = std::string("electronN") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron number ; Nel ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvN, *m_electronGroup, hname, hlongname ,40, 0.0, 40.0,start,end);
+
+  hname = std::string("electronEta") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta distribution ; #eta ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvEta, *m_electronGroup, hname, hlongname,64, -3.2, 3.2,start,end);
+
+  hname = std::string("electronPhi") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #phi distribution ; #phi ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2,start,end);
+
+  hname = std::string("electronEt") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron Et distribution ; Et [MeV] ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvEt, *m_electronGroup, hname, hlongname, 100, -1000.0, 250000.0,start,end);
+
+  hname = std::string("electronTopoEtCone40") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron Isolation Energy TopoEtCone40 [MeV] ; Eiso ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvTopoEtCone40, *m_electronGroup, hname, hlongname, 64, -10000., 40000.,start,end);
+
+  hname = std::string("electronPtCone20") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron PtCone20 distribution ; PtCone20 ; Nevents") + std::string (" (")
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvPtCone20, *m_electronGroup, hname, hlongname, 64, -10000., 40000.,start,end);
+
+  hname = std::string("electronTime") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron time [ns] ; Time [ns] ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvTime, *m_electronGroup, hname, hlongname, 90, -30.0, 60.0,start,end);
 
   // TRACK PANEL
-  bookTH1FperRegion(m_hvTightNOfBLayerHits,electronTrkGroup,"electronTightNOfBLayerHits",  "TIGHT electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);
-  bookTH1FperRegion(m_hvTightNOfSiHits,    electronTrkGroup,"electronTightNOfSiHits", "TIGHT electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
-  bookTH1FperRegion(m_hvTightNOfTRTHits,   electronTrkGroup,"electronTightNOfTRTHits",     "TIGHT electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
-  bookTH1FperRegion(m_hvTightNOfTRTHighThresholdHits, electronTrkGroup,"electronTightNOfTRTHighThresholdHits",     "TIGHT electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
+  hname = std::string("electronNOfBLayersHits") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron number of track B-Layer Hits ; N B-layer hits ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvNOfBLayerHits, *m_electronTrkGroup, hname, hlongname, 6,-0.5,5.5,start,end);
+
+  hname = std::string("electronNOfSiHits") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron number of track precision Hits ;N Si hits;Nevents") + std::string (" (")
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvNOfSiHits, *m_electronTrkGroup,hname, hlongname, 26,-0.5,25.5,start,end);
+
+  hname = std::string("electronNOfTRTHits") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron number of TRT Hits ;N TRT hits;Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvNOfTRTHits, *m_electronTrkGroup, hname, hlongname, 51,-0.5,50.5,start,end);
+
+  hname = std::string("electronNOfTRTHighThresholdHits") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron number of High Threshold TRT Hits ;N TRT High Threshold hits;Nevents") + std::string (" (")
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvNOfTRTHighThresholdHits, *m_electronTrkGroup, hname, hlongname, 51,-0.5,50.5,start,end);
+
+  hname = std::string("electronDeltaEta1") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents") 
+    + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvDeltaEta1, *m_electronTrkGroup,hname, hlongname, 50,-0.05,0.05,start,end);
+
+  hname = std::string("electronDeltaPhi2") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("electron track match #Delta #phi (2nd sampling) ;#Delta #phi ; Nevents") 
+    + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvDeltaPhi2, *m_electronTrkGroup, hname, hlongname, 50,-0.15,0.1,start,end);
+
+  hname = std::string("electronTrackd0") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("electron track match d0 ; d0 ; Nevents") 
+    + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvd0, *m_electronTrkGroup, hname, hlongname, 100,-5.,5.,start,end);
 
   // ID PANEL
-  bookTH1FperRegion(m_hvEhad1         , electronIdGroup,"electronEhad1",          "MEDIUM electron energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,start,end);
-  bookTH1FperRegion(m_hvEoverP        , electronIdGroup,"electronEoverP",         "MEDIUM electron match track E over P ;E/p;Nevents", 50,0,5,start,end);
-  bookTH1FperRegion(m_hvCoreEM        , electronIdGroup,"electronCoreEM",         "MEDIUM electron core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,start,end);
-  bookTH1FperRegion(m_hvF1            , electronIdGroup,"electronF1",             "MEDIUM electron fractional energy in 1st sampling;F1; Nevents", 50, -0.2,1.0,start,end);
-  bookTH1FperRegion(m_hvF2            , electronIdGroup,"electronF2",             "MEDIUM electron fractional energy in 2nd sampling;F2; Nevents", 50, -0.2,1.0,start,end);
-  bookTH1FperRegion(m_hvF3            , electronIdGroup,"electronF3",             "MEDIUM electron fractional energy in 3rd sampling;F3; Nevents", 50, -0.2,1.0,start,end);
-  bookTH1FperRegion(m_hvRe233e237     , electronIdGroup,"electronRe233e237",      "MEDIUM electron uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents", 50, 0., 2.,start,end);
-  bookTH1FperRegion(m_hvRe237e277     , electronIdGroup,"electronRe237e277",      "MEDIUM electron uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, 0., 2.,start,end);
+  hname = std::string("electronEhad1") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron energy leakage in 1st hadronic sampling ; Ehad 1; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvEhad1, *m_electronIdGroup, hname, hlongname, 50, -1000., 10000.,start,end);
 
-  // EXPERT PER REGION PANEL
-  bookTH1FperRegion(m_hvN,       electronGroup,"electronN",  "Number of MEDIUM electrons",40, 0.0, 40.0,start,end);
-  bookTH1FperRegion(m_hvEta,     electronGroup,"electronEta","MEDIUM electron #eta",64, -3.2, 3.2,start,end);
-  bookTH1FperRegion(m_hvPhi,     electronGroup,"electronPhi","MEDIUM electron #phi",64, -3.2, 3.2,start,end);
-  bookTH1FperRegion(m_hvTightN,  electronGroup,"electronTightN",  "Number of TIGHT electrons",40, 0.0, 40.0,start,end);
-  bookTH1FperRegion(m_hvTightEt, electronGroup,"electronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
-  bookTH1FperRegion(m_hvTightEta,electronGroup,"electronTightEta","TIGHT electron #eta",64, -3.2, 3.2,start,end);
-  bookTH1FperRegion(m_hvTightPhi,electronGroup,"electronTightPhi","TIGHT electron #phi",64, -3.2, 3.2,start,end);
+  hname = std::string("electronEoverP") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron match track E over P ; E/p ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvEoverP, *m_electronIdGroup, hname, hlongname, 50,0,5,start,end);
 
-  // EXPERT TRACK PANEL
-  bookTH1FperRegion(m_hvNOfBLayerHits ,         electronTrkGroup,"electronNOfBLayerHits", "MEDIUM electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);
-  bookTH1FperRegion(m_hvNOfSiHits,              electronTrkGroup,"electronNOfSiHits", "MEDIUM electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
-  bookTH1FperRegion(m_hvNOfTRTHits    ,         electronTrkGroup,"electronNOfTRTHits", "MEDIUM electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
-  bookTH1FperRegion(m_hvNOfTRTHighThresholdHits,electronTrkGroup,"electronNOfHighThresholdTRTHits", "MEDIUM electron number of High threshold TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
-  bookTH1FperRegion(m_hvDeltaEta1,              electronTrkGroup,"electronDeltaEta1", "MEDIUM electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
-  bookTH1FperRegion(m_hvDeltaPhi2,              electronTrkGroup,"electronDeltaPhi2", "MEDIUM electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,start,end);
-  bookTH1FperRegion(m_hvTightDeltaEta1,         electronTrkGroup,"electronTightDeltaEta1", "TIGHT electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
-  bookTH1FperRegion(m_hvTightDeltaPhi2,         electronTrkGroup,"electronTightDeltaPhi2", "TIGHT electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,start,end);
- 
+  hname = std::string("electronCoreEM") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron core energy in EM calorimeter ;E [MeV]; Nevents") + std::string (" (")
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvCoreEM, *m_electronIdGroup, hname, hlongname, 50, -5000., 250000.,start,end);
+
+  hname = std::string("electronF1") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron fractional energy in 1st sampling ; F1 ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvF1, *m_electronIdGroup, hname, hlongname, 50, -0.2,1.0,start,end);
+
+  hname = std::string("electronF2") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron fractional energy in 2nd sampling ; F2 ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvF2, *m_electronIdGroup,hname, hlongname, 50, -0.2,1.0,start,end);
+
+  hname = std::string("electronF3") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron fractional energy in 3rd sampling ; F3 ; Nevents") + std::string (" (") 
+    + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvF3, *m_electronIdGroup, hname, hlongname, 50, -0.2,1.0,start,end);
+
+  hname = std::string("electronRe233e237") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents") 
+    + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvRe233e237, *m_electronIdGroup, hname, hlongname, 50, 0., 2.,start,end);
+
+  hname = std::string("electronRe237e277") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents") 
+    + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1FperRegion(myHist.m_hvRe237e277, *m_electronIdGroup, hname, hlongname, 50, 0., 2.,start,end);
+
+  // LUMI DEPENDANT PANEL
+
+  hname = std::string("LBEvoNElectrons") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Number of Electrons vs LB") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH1F(myHist.m_hLB_N, *m_electronLBGroup, hname, hlongname, 2000, -0.5, 1999.5);
+
   return StatusCode::SUCCESS;
+
 }
 
-StatusCode electronMonTool::fillHistograms()
+
+StatusCode electronMonTool::bookHistograms()
 {
-  ATH_MSG_DEBUG("electronMonTool::fillHistograms()");
+  ATH_MSG_DEBUG("electronMonTool::bookHistograms()");
 
-  if (!hasGoodTrigger("single electron")) return StatusCode::SUCCESS; 
+  // Create groups
+  m_electronGroup = new MonGroup(this,"egamma/electrons",run); // to be re-booked every new run
+  // Create sub groups
+  m_electronTrkGroup = new MonGroup(this,"egamma/electrons/Track",            run); // to be re-booked every new run
+  m_electronIdGroup = new MonGroup(this,"egamma/electrons/ID",               run); // to be re-booked every new run
+  m_electronLBGroup = new MonGroup(this,"egamma/electrons/LBMon",            run); // to be re-booked every new run
 
-  //check whether Lar signalled event bad
-  if(hasBadLar()) {
-    ATH_MSG_DEBUG("electronMonTool::hasBadLar()");
-    return StatusCode::SUCCESS;
-  }
-  
-  // Get electron container
-  const xAOD::ElectronContainer* electron_container=0;
-  StatusCode sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
-  if(sc.isFailure() || !electron_container){
-    ATH_MSG_VERBOSE("no electron container found in TDS");
+  StatusCode sc;
+  sc = bookHistogramsForOneElectronType(*m_LhMediumElectrons);
+  if(sc.isFailure()){
+    ATH_MSG_VERBOSE("Could not book Histos");
     return StatusCode::FAILURE;
   } 
 
-  // Check that the auxiliary store association was made successfully:
-  if( ! electron_container->hasStore() ) {
-    ATH_MSG_DEBUG("No auxiliary store got associated to the electron container with key: " << m_ElectronContainer);
+  sc = bookHistogramsForOneElectronType(*m_CbMediumElectrons);
+  if(sc.isFailure()){
+    ATH_MSG_VERBOSE("Could not book Histos");
     return StatusCode::FAILURE;
-  }
+  } 
 
-  //
+  sc = bookHistogramsForOneElectronType(*m_LhTightElectrons);
+  if(sc.isFailure()){
+    ATH_MSG_VERBOSE("Could not book Histos");
+    return StatusCode::FAILURE;
+  } 
 
-  xAOD::ElectronContainer::const_iterator e_iter = electron_container->begin();
-  xAOD::ElectronContainer::const_iterator e_end  = electron_container->end();
-  ATH_MSG_DEBUG("Number of electrons: " << electron_container->size());
+  sc = bookHistogramsForOneElectronType(*m_CbTightElectrons);
+  if(sc.isFailure()){
+    ATH_MSG_VERBOSE("Could not book Histos");
+    return StatusCode::FAILURE;
+  } 
 
-  int n_tot = 0;
-  int n_tot_tight = 0;
-  std::vector<int> n_el, n_el_tight;
-  n_el.resize(NREGION,0);
-  n_el_tight.resize(NREGION,0);
-  for (; e_iter!=e_end; e_iter++){
-    if(!(*e_iter)) continue;
-    if((*e_iter)->author(xAOD::EgammaParameters::AuthorElectron)==0) continue;
+  return StatusCode::SUCCESS;
+}
+
+StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer::const_iterator e_iter, 
+							 electronHist& myHist){
 
     // Basic kinematics
     float et  = (*e_iter)->pt();
     float eta = (*e_iter)->eta();
     float phi = (*e_iter)->phi();      
     int ir = GetRegion(eta);
+
     ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
+    
+    ++myHist.m_nElectronsPerRegion[ir];  
+    ++myHist.m_nElectrons;  
+  
+    myHist.m_nElectronsInCurrentLB++;
 
-    ++n_tot;
-    ++(n_el[ir]);
-    if(m_hEt)     m_hEt->Fill(et);
-    if(m_hEtaPhi) m_hEtaPhi->Fill(eta,phi);
-    if(m_hEta)    m_hEta->Fill(eta);
-    if(m_hPhi)    m_hPhi->Fill(phi);
+    if(myHist.m_hEt)     myHist.m_hEt->Fill(et);
+    if(myHist.m_hEtaPhi) myHist.m_hEtaPhi->Fill(eta,phi);
+    if(myHist.m_hEta)    myHist.m_hEta->Fill(eta);
+    if(myHist.m_hPhi)    myHist.m_hPhi->Fill(phi);
 
-    fillTH1FperRegion(m_hvEt,ir,et);
-    fillTH1FperRegion(m_hvEta,ir,eta);
-    fillTH1FperRegion(m_hvPhi,ir,phi);
+    myHist.m_hLB_N->Fill(m_currentLB);
+
+    fillTH1FperRegion(myHist.m_hvEt,ir,et);
+    fillTH1FperRegion(myHist.m_hvEta,ir,eta);
+    fillTH1FperRegion(myHist.m_hvPhi,ir,phi);
 
     // Cluster track match details
     float deltaEta1 = -999.0;
     if( (*e_iter)->trackCaloMatchValue(deltaEta1, xAOD::EgammaParameters::deltaEta1) ) {
-      fillTH1FperRegion(m_hvDeltaEta1,ir,deltaEta1);
+      fillTH1FperRegion(myHist.m_hvDeltaEta1,ir,deltaEta1);
     }
     float deltaPhi2 = -999.0;
     if( (*e_iter)->trackCaloMatchValue(deltaPhi2, xAOD::EgammaParameters::deltaPhi2) ) {
-      fillTH1FperRegion(m_hvDeltaPhi2,ir,deltaPhi2);
+      fillTH1FperRegion(myHist.m_hvDeltaPhi2,ir,deltaPhi2);
     }
 
     // Isolation Energy 
     float topoetcone40;
     if( (*e_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
-      m_hTopoEtCone40->Fill(topoetcone40);
+      myHist.m_hTopoEtCone40->Fill(topoetcone40);
     }
     float ptcone20;
     if( (*e_iter)->isolationValue(ptcone20,xAOD::Iso::ptcone20)) {
-      m_hPtCone20->Fill(ptcone20);
+      myHist.m_hPtCone20->Fill(ptcone20);
     }
 
-    fillTH1FperRegion(m_hvTopoEtCone40,ir,topoetcone40);
-    fillTH1FperRegion(m_hvPtCone20,ir,ptcone20);
+    fillTH1FperRegion(myHist.m_hvTopoEtCone40,ir,topoetcone40);
+    fillTH1FperRegion(myHist.m_hvPtCone20,ir,ptcone20);
     ATH_MSG_DEBUG("isolation topocone40=" << topoetcone40 << " ptcone20=" << ptcone20 );    
 
     // Shower shape variable details
@@ -279,28 +382,28 @@ StatusCode electronMonTool::fillHistograms()
     float e237  = 0.0;
     float e277  = 0.0;
     if( (*e_iter)->showerShapeValue(ehad1, xAOD::EgammaParameters::ehad1) ) {
-      fillTH1FperRegion(m_hvEhad1,ir,ehad1);
+      fillTH1FperRegion(myHist.m_hvEhad1,ir,ehad1);
     }
     if( (*e_iter)->showerShapeValue(ecore, xAOD::EgammaParameters::ecore) ) {
-      fillTH1FperRegion(m_hvCoreEM,ir,ecore);    
+      fillTH1FperRegion(myHist.m_hvCoreEM,ir,ecore);    
     }
     if( (*e_iter)->showerShapeValue(f1, xAOD::EgammaParameters::f1) ) {
-      fillTH1FperRegion(m_hvF1,ir,f1);    
+      fillTH1FperRegion(myHist.m_hvF1,ir,f1);    
     }
     if( (*e_iter)->showerShapeValue(f3, xAOD::EgammaParameters::f3) ) {
-      fillTH1FperRegion(m_hvF3,ir,f3);    
+      fillTH1FperRegion(myHist.m_hvF3,ir,f3);    
     }
     if( (*e_iter)->showerShapeValue(e237, xAOD::EgammaParameters::e237) ) {
       float Re233e237 = 0.0;
       if( e237!=0 && (*e_iter)->showerShapeValue(e233, xAOD::EgammaParameters::e233) ) {
 	Re233e237 = e233 / e237;
       }
-      fillTH1FperRegion(m_hvRe233e237,ir,Re233e237);
+      fillTH1FperRegion(myHist.m_hvRe233e237,ir,Re233e237);
       float Re237e277 = 0.0;
       if( e237!=0 && (*e_iter)->showerShapeValue(e277, xAOD::EgammaParameters::e277) ) {
 	if(e277!=0) Re237e277 = e237 / e277;
       }
-      fillTH1FperRegion(m_hvRe237e277,ir,Re237e277);
+      fillTH1FperRegion(myHist.m_hvRe237e277,ir,Re237e277);
     }
 
     // Associated track details
@@ -311,17 +414,22 @@ StatusCode electronMonTool::fillHistograms()
     unsigned char numberOfSCTHits=-1;
     unsigned char numberOfTRTHits=-1;
     if(t) {
-      trackp = t->pt()/cosh(t->eta());
+      trackp = t->pt()*cosh(t->eta());
       // retrieve track summary information
       if( t->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ) {
-	fillTH1FperRegion(m_hvNOfBLayerHits,ir,numberOfBLayerHits);
+	fillTH1FperRegion(myHist.m_hvNOfBLayerHits,ir,numberOfBLayerHits);
       }
       if( t->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) && t->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) ) {
-	fillTH1FperRegion(m_hvNOfSiHits,ir,numberOfPixelHits+numberOfSCTHits);
+	fillTH1FperRegion(myHist.m_hvNOfSiHits,ir,numberOfPixelHits+numberOfSCTHits);
       }
       if( t->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) ) {
-	fillTH1FperRegion(m_hvNOfTRTHits,ir,numberOfTRTHits);
+	fillTH1FperRegion(myHist.m_hvNOfTRTHits,ir,numberOfTRTHits);
       }
+      if(t->d0()) {
+	fillTH1FperRegion(myHist.m_hvd0,ir,t->d0());
+      }
+
+
     } else ATH_MSG_DEBUG( "Error attempting to retrieve associated track");
 
     // Associated cluster details
@@ -329,51 +437,166 @@ StatusCode electronMonTool::fillHistograms()
     if (aCluster) {
       float ep = 0;	
       if(trackp !=0) ep = aCluster->e()/trackp;
-      fillTH1FperRegion(m_hvEoverP,ir,ep);
+      fillTH1FperRegion(myHist.m_hvEoverP,ir,ep);
       double ec = aCluster->et()*cosh(aCluster->eta());
       float f2 = 0.0;
       if(ec!=0) f2 = aCluster->energyBE(2)/ec;
-      fillTH1FperRegion(m_hvF2,ir,f2);    
+      fillTH1FperRegion(myHist.m_hvF2,ir,f2);    
 
       float time= aCluster->time();
-      m_hTime->Fill(time);
-      fillTH1FperRegion(m_hvTime,ir,time);
+      myHist.m_hTime->Fill(time);
+      fillTH1FperRegion(myHist.m_hvTime,ir,time);
 
     } else ATH_MSG_WARNING( "Can't get CaloCluster" );
 
-    // TIGHT electrons
-    bool isTight;
-    if((*e_iter)->passSelection(isTight,"Tight")) { // TightPP: says menu not defined for electrons
-      if(isTight) {
-	n_tot_tight++;
-	++(n_el_tight[ir]);
-	if(m_hTightEt)     m_hTightEt->Fill(et);
-	if(m_hTightEtaPhi) m_hTightEtaPhi->Fill(eta,phi);
-	if(m_hTightEta)    m_hTightEta->Fill(eta);
-	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
-	fillTH1FperRegion(m_hvTightEt,ir,et);
-	fillTH1FperRegion(m_hvTightEta,ir,eta);
-	fillTH1FperRegion(m_hvTightPhi,ir,phi);
-	fillTH1FperRegion(m_hvTightDeltaEta1,ir,deltaEta1);
-	fillTH1FperRegion(m_hvTightDeltaPhi2,ir,deltaPhi2);
-	fillTH1FperRegion(m_hvTightNOfBLayerHits,ir,numberOfBLayerHits);
-	fillTH1FperRegion(m_hvTightNOfSiHits,ir,numberOfPixelHits+numberOfSCTHits);
-	fillTH1FperRegion(m_hvTightNOfTRTHits,ir,numberOfTRTHits);
-	m_hTightTopoEtCone40->Fill(topoetcone40);
-	m_hTightPtCone20->Fill(ptcone20);
+    return StatusCode::SUCCESS;
+}
+
+StatusCode electronMonTool::fillHistograms() {
+  ATH_MSG_DEBUG("electronMonTool::fillHistograms()");
+  
+  if (!hasGoodTrigger("single electron")) return StatusCode::SUCCESS; 
+  
+  //check whether Lar signalled event bad
+  if(hasBadLar()) {
+    ATH_MSG_DEBUG("electronMonTool::hasBadLar()");
+    return StatusCode::SUCCESS;
+  }
+  
+  //--------------------
+  //figure out current LB
+  //--------------------
+  const DataHandle<xAOD::EventInfo> evtInfo;
+  StatusCode sc = m_storeGate->retrieve(evtInfo); 
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("couldn't retrieve event info");
+    return StatusCode::FAILURE;
+  }
+
+  unsigned int previousLB = m_currentLB;
+  m_currentLB = evtInfo->lumiBlock();
+
+  //deal with the change of LB
+  if (m_currentLB>previousLB) {
+
+    // update the by LB variables
+    m_LhMediumElectrons->m_nElectronsPerLumiBlock.push_back(m_LhMediumElectrons->m_nElectronsInCurrentLB);
+    m_CbMediumElectrons->m_nElectronsPerLumiBlock.push_back(m_CbMediumElectrons->m_nElectronsInCurrentLB);
+    m_LhTightElectrons->m_nElectronsPerLumiBlock.push_back(m_LhTightElectrons->m_nElectronsInCurrentLB);
+    m_CbTightElectrons->m_nElectronsPerLumiBlock.push_back(m_CbTightElectrons->m_nElectronsInCurrentLB);
+
+    // Reset counters
+    m_LhMediumElectrons->m_nElectronsInCurrentLB=0;
+    m_CbMediumElectrons->m_nElectronsInCurrentLB=0;
+    m_LhTightElectrons->m_nElectronsInCurrentLB=0;
+    m_CbTightElectrons->m_nElectronsInCurrentLB=0;
+  }
+
+  // Get electron container
+  const xAOD::ElectronContainer* electron_container=0;
+  sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
+  if(sc.isFailure() || !electron_container){
+    ATH_MSG_VERBOSE("no electron container found in TDS");
+    return StatusCode::FAILURE;
+  } 
+
+  // Check that the auxiliary store association was made successfully:
+  if( ! electron_container->hasStore() ) {
+    ATH_MSG_DEBUG("No auxiliary store got associated to the electron container with key: " << m_ElectronContainer);
+    return StatusCode::FAILURE;
+  }
+
+  // Loop on electron container
+
+  xAOD::ElectronContainer::const_iterator e_iter = electron_container->begin();
+  xAOD::ElectronContainer::const_iterator e_end  = electron_container->end();
+  ATH_MSG_DEBUG("Number of electrons: " << electron_container->size());
+
+  m_LhMediumElectrons->m_nElectrons = 0;
+  m_CbMediumElectrons->m_nElectrons = 0;
+  m_LhTightElectrons->m_nElectrons  = 0;
+  m_CbTightElectrons->m_nElectrons  = 0;
+
+  m_LhMediumElectrons->m_nElectronsPerRegion.resize(NREGION,0);
+  m_CbMediumElectrons->m_nElectronsPerRegion.resize(NREGION,0);
+  m_LhTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
+  m_CbTightElectrons->m_nElectronsPerRegion.resize(NREGION,0);
+
+  for (; e_iter!=e_end; e_iter++){
+    if(!(*e_iter)) continue;
+    
+    // Formally unnecessary because all electrons in the container have these authors by construction
+    if (!((*e_iter)->author(xAOD::EgammaParameters::AuthorElectron)|| (*e_iter)->author(xAOD::EgammaParameters::AuthorAmbiguous))) continue;
+
+    //reject electrons outside the kinematic acceptance
+    if (!((*e_iter)->pt()> 7000. || fabs((*e_iter)->eta()) < 2.47 )) continue;
+
+    // Check what electron is being processed
+    bool isGood;
+    // CbMedium
+    if((*e_iter)->passSelection(isGood,"Medium")) {
+      if(isGood) {
+	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_CbMediumElectrons);
+	if (sc.isFailure()) {
+	  ATH_MSG_ERROR("couldn't book histograms");
+	  return StatusCode::FAILURE;
+	}
       }
-    } else {
-      ATH_MSG_WARNING( "Electron selection menu Tight is not defined" );
-    }
+    }  else ATH_MSG_WARNING( "Electron selection menu Medium is not defined" );
+
+    // LhMedium
+    if((*e_iter)->passSelection(isGood,"LHMedium")) {
+      if(isGood) {
+	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_LhMediumElectrons); 
+	if (sc.isFailure()) {
+	  ATH_MSG_ERROR("couldn't book histograms");
+	  return StatusCode::FAILURE;
+	}
+      }
+    }  else ATH_MSG_WARNING( "Electron selection LHMedium is not defined" );
+
+    // CbTight
+    if((*e_iter)->passSelection(isGood,"Tight")) { 
+      if(isGood) { 
+	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_CbTightElectrons); 
+	if (sc.isFailure()) {
+	  ATH_MSG_ERROR("couldn't book histograms");
+	  return StatusCode::FAILURE;
+	}
+      }
+    }  else ATH_MSG_WARNING( "Electron selection menu Tight is not defined" );
+
+    // LhTight
+    if((*e_iter)->passSelection(isGood,"LHTight")) {
+      if(isGood) {
+	StatusCode sc = fillHistogramsForOneElectron(e_iter, *m_LhTightElectrons);  
+	if (sc.isFailure()) {
+	  ATH_MSG_ERROR("couldn't book histograms");
+	  return StatusCode::FAILURE;
+	}
+      }
+    }  else ATH_MSG_WARNING( "Electron selection menu LHTight is not defined" );
+
   }
 
   // Fill number of electrons histograms
-  m_hN->Fill(n_tot);
-  m_hTightN->Fill(n_tot_tight);
+  m_CbMediumElectrons->m_hN->Fill(m_CbMediumElectrons->m_nElectrons);
+  m_LhMediumElectrons->m_hN->Fill(m_LhMediumElectrons->m_nElectrons);
+  m_CbTightElectrons->m_hN->Fill(m_CbTightElectrons->m_nElectrons);
+  m_LhTightElectrons->m_hN->Fill(m_LhTightElectrons->m_nElectrons);
+
   for(int i=0;i<NREGION;i++) {
-    fillTH1FperRegion(m_hvN,i,n_el[i]);
-    fillTH1FperRegion(m_hvTightN,i,n_el_tight[i]);
+    fillTH1FperRegion(m_CbMediumElectrons->m_hvN,i,m_CbMediumElectrons->m_nElectrons);
+    fillTH1FperRegion(m_LhMediumElectrons->m_hvN,i,m_LhMediumElectrons->m_nElectrons);
+    fillTH1FperRegion(m_CbTightElectrons->m_hvN,i,m_CbTightElectrons->m_nElectrons);
+    fillTH1FperRegion(m_LhTightElectrons->m_hvN,i,m_LhTightElectrons->m_nElectrons);
   }
 
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode electronMonTool::procHistograms()
+{
   return StatusCode::SUCCESS;
 }

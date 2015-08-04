@@ -13,7 +13,97 @@
 #define electronMonTool_H
 
 #include "egammaPerformance/egammaMonToolBase.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/StatusCode.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "AthenaMonitoring/AthenaMonManager.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronxAODHelpers.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include <vector>
+#include <string>
+#include <iostream>
+
+class electronHist
+{
+ public :
+
+  std::string m_nameOfElectronType;
+
+  enum electronType
+   {
+      LhMedium=0,
+      CbMedium,
+      LhTight,
+      CbTight,
+      NumberOfTypesToMonitor
+   };
+
+  // electrons histograms
+  TH1 *m_hN;                // Histogram for number of electrons
+  TH1 *m_hEt;               // Histogram for electron transverse energies
+  TH1 *m_hEta;              // Histogram for electron eta
+  TH1 *m_hPhi;              // Histogram for electron phi
+  TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
+  TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
+  TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
+  TH1 *m_hTime;         // Histogram for electron cluster time
+  
+  // electron ID per region histograms
+  std::vector<TH1*> m_hvEhad1;         
+  std::vector<TH1*> m_hvEoverP;        
+  std::vector<TH1*> m_hvCoreEM;        
+  std::vector<TH1*> m_hvF1;            
+  std::vector<TH1*> m_hvF2;            
+  std::vector<TH1*> m_hvF3;            
+  std::vector<TH1*> m_hvRe233e237;     
+  std::vector<TH1*> m_hvRe237e277;     
+  
+  // electrons per region histograms
+  std::vector<TH1*> m_hvN;   // Histograms for number of electrons
+  std::vector<TH1*> m_hvEt;  // Histograms for electron transverse energies
+  std::vector<TH1*> m_hvEta; // Histograms for electron transverse eta
+  std::vector<TH1*> m_hvPhi; // Histograms for electron transverse phi
+  std::vector<TH1*> m_hvDeltaEta1;   // electron track histograms
+  std::vector<TH1*> m_hvDeltaPhi2;     
+  std::vector<TH1*> m_hvNOfBLayerHits; 
+  std::vector<TH1*> m_hvNOfSiHits;
+  std::vector<TH1*> m_hvNOfTRTHits;    
+  std::vector<TH1*> m_hvNOfTRTHighThresholdHits;
+  std::vector<TH1*> m_hvd0;
+  std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
+  std::vector<TH1*> m_hvPtCone20;  // Histograms for electron track-based isolation transverse energies
+  std::vector<TH1*> m_hvTime;  // Histograms for electron times
+
+  // Monitoring per lumiblock
+
+  unsigned int m_lumiBlockNumber;
+  unsigned int m_nElectronsInCurrentLB;
+  std::vector<int> m_nElectronsPerLumiBlock;
+  std::vector<int> m_nElectronsPerRegion;
+  unsigned int m_nElectrons;
+
+  TH1 *m_hLB_N; // Histogram for number of electrons vs LB
+
+ electronHist(std::string name):
+    m_hN (nullptr),
+    m_hEt (nullptr),
+    m_hEta (nullptr),
+    m_hPhi (nullptr),
+    m_hEtaPhi (nullptr),
+    m_hTopoEtCone40 (nullptr),
+    m_hPtCone20 (nullptr),
+    m_hTime (nullptr)
+    {
+      m_nameOfElectronType = name;
+    }
+
+    ~electronHist(){
+    }
+};
 
 class electronMonTool : public egammaMonToolBase
 {
@@ -24,8 +114,13 @@ class electronMonTool : public egammaMonToolBase
   virtual ~electronMonTool();
   
   virtual StatusCode bookHistograms();
+  virtual StatusCode bookHistogramsForOneElectronType(electronHist& myHist);
+
   virtual StatusCode fillHistograms();
-     
+  virtual StatusCode fillHistogramsForOneElectron(xAOD::ElectronContainer::const_iterator e_iter,
+						  electronHist& myHist);
+  virtual StatusCode procHistograms();
+
  private:
 
  protected:
@@ -33,61 +128,20 @@ class electronMonTool : public egammaMonToolBase
 
   std::string m_ElectronContainer; // Container name for electrons
 
-  // Loose electrons histograms
-  TH1 *m_hN;                // Histogram for number of electrons
-  TH1 *m_hEt;               // Histogram for electron transverse energies
-  TH1 *m_hEta;              // Histogram for electron eta
-  TH1 *m_hPhi;              // Histogram for electron phi
-  TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
-  TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
-  TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
-  TH1 *m_hTime;         // Histogram for electron cluster time
+  // LH Medium electrons histograms
+  electronHist *m_LhMediumElectrons;
+  // Medium cut based electrons histograms
+  electronHist *m_CbMediumElectrons;
+  // LH Tight electrons histograms
+  electronHist *m_LhTightElectrons;
+  // Cut based Tight electrons histograms
+  electronHist *m_CbTightElectrons;
 
-  // Loose electrons per region histograms
-  std::vector<TH1*> m_hvN;   // Histograms for number of electrons
-  std::vector<TH1*> m_hvEt;  // Histograms for electron transverse energies
-  std::vector<TH1*> m_hvEta; // Histograms for electron transverse eta
-  std::vector<TH1*> m_hvPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvDeltaEta1;   // electron track histograms
-  std::vector<TH1*> m_hvDeltaPhi2;     
-  std::vector<TH1*> m_hvNOfBLayerHits; 
-  std::vector<TH1*> m_hvNOfSiHits;
-  std::vector<TH1*> m_hvNOfTRTHits;    
-  std::vector<TH1*> m_hvNOfTRTHighThresholdHits;    
-  std::vector<TH1*> m_hvTopoEtCone40;  // Histograms for electron calo-based isolation transverse energies
-  std::vector<TH1*> m_hvPtCone20;  // Histograms for electron track-based isolation transverse energies
-  std::vector<TH1*> m_hvTime;  // Histograms for electron times
+  MonGroup* m_electronGroup; 
+  MonGroup* m_electronTrkGroup;
+  MonGroup* m_electronIdGroup;
+  MonGroup* m_electronLBGroup;
 
-  // Tight electrons histograms
-  TH1 *m_hTightN;            // Histogram for number of electrons
-  TH1 *m_hTightEt;           // Histogram for electron transverse energies
-  TH1 *m_hTightEta;          // Histogram for electron eta
-  TH1 *m_hTightPhi;          // Histogram for electron phi
-  TH2 *m_hTightEtaPhi;       // Histogram for electron eta,phi
-  TH1 *m_hTightTopoEtCone40; // Histogram for electron isolation energy TopoEtcone40 
-  TH1 *m_hTightPtCone20;     // Histogram for electron isolation energy PtCone20 
-
-  // Tight electrons per region histograms
-  std::vector<TH1*> m_hvTightN;   // Histograms for number of electrons
-  std::vector<TH1*> m_hvTightEt;  // Histograms for electron transverse energies
-  std::vector<TH1*> m_hvTightEta; // Histograms for electron transverse eta
-  std::vector<TH1*> m_hvTightPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvTightDeltaEta1;   // electron track histograms
-  std::vector<TH1*> m_hvTightDeltaPhi2;     
-  std::vector<TH1*> m_hvTightNOfBLayerHits; 
-  std::vector<TH1*> m_hvTightNOfSiHits;
-  std::vector<TH1*> m_hvTightNOfTRTHits;    
-  std::vector<TH1*> m_hvTightNOfTRTHighThresholdHits;    
-
-  // electron ID per region histograms
-  std::vector<TH1*> m_hvEhad1;         
-  std::vector<TH1*> m_hvEoverP;        
-  std::vector<TH1*> m_hvCoreEM;        
-  std::vector<TH1*> m_hvF1;            
-  std::vector<TH1*> m_hvF2;            
-  std::vector<TH1*> m_hvF3;            
-  std::vector<TH1*> m_hvRe233e237;     
-  std::vector<TH1*> m_hvRe237e277;     
 };
 
 #endif

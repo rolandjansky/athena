@@ -45,11 +45,14 @@ egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string
   m_region[ENDCAP]="ENDCAP";
   m_region[FORWARD]="FORWARD";
 
+  m_currentLB = 0;
   m_storeGate = 0;
 }
 
 egammaMonToolBase::~egammaMonToolBase()
 {
+  ATH_MSG_DEBUG("egammaMonToolBase::~egammaMonToolBase()");
+
 }
 
 StatusCode egammaMonToolBase::initialize()
@@ -223,7 +226,9 @@ void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
     return;
   }
 
-  for(int i=0;i<=nbins+1;i++){
+  ATH_MSG_DEBUG("egammaMonToolBase::FillEfficiencies(): start new computation");
+
+  for(int i=1;i<nbins+1;++i){
     double eps     = 0.;
     double err     = 0.;
     double Yref    = href->GetBinContent(i);
@@ -231,7 +236,13 @@ void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
       double A   = h->GetBinContent(i);
       eps = A/Yref;
       err = sqrt(eps*(1-eps)/Yref);
-    }
+
+      // convert to percent 
+      eps *= 100.;
+      err *= 100.;
+
+    } 
+
     h->SetBinContent(i,eps);
     h->SetBinError(i,err);
   }
@@ -266,9 +277,9 @@ bool egammaMonToolBase::hasGoodTrigger(std::string comment){
       if (m_trigdec->isPassed(vec[i])) {
 	ATH_MSG_DEBUG("Active Trigger found : " << vec[i] );
       }
-      else {
-	ATH_MSG_DEBUG("Passive Trigger found : " << vec[i] );
-      }
+      //      else {
+      //	ATH_MSG_DEBUG("Passive Trigger found : " << vec[i] );
+      //      }
     } 
   }
   else {

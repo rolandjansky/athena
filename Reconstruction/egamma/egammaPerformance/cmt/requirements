@@ -10,9 +10,6 @@ apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 
 use TestPolicy TestPolicy-*
-use xAODEventInfo    xAODEventInfo-*     Event/xAOD
-use StoreGate        StoreGate-*         Control
-#use MissingETEvent  MissingETEvent-*    Reconstruction
 
 apply_pattern validate_xml
 end_private
@@ -22,11 +19,15 @@ use GaudiInterface       GaudiInterface-*        External
 use AtlasROOT            AtlasROOT-*             External
 use xAODEgamma           xAODEgamma-*            Event/xAOD 
 
+use xAODEventInfo    xAODEventInfo-*     Event/xAOD
+use StoreGate        StoreGate-*         Control
+
 use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigParticle         TrigParticle-*          Trigger/TrigEvent
 use TrigDecisionTool     TrigDecisionTool-*      Trigger/TrigAnalysis 
 use CoraCool             CoraCool-*              Database -no_auto_imports
 
+#use MissingETEvent  MissingETEvent-*    Reconstruction
 
 apply_pattern dual_use_library files=*.cxx
 
