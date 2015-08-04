@@ -41,7 +41,6 @@ rec.doAOD=False
 rec.doWriteESD=False
 rec.doWriteAOD=False
 rec.doWriteTAG=False
-rec.RootNtupleOutput="ntupleInDetPhotonSlice.root"
 
 #reenable ID algorithms
 from InDetRecExample.InDetJobProperties import InDetFlags

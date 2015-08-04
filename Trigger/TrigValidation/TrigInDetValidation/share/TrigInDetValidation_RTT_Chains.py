@@ -1,12 +1,12 @@
 from TriggerMenu import useNewTriggerMenu 
 use_new_tm = useNewTriggerMenu() 
 
-def electronChains(runMergedChain):
+def electronChains(runMergedChain, doIDNewTracking):
 
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
 
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
@@ -52,12 +52,12 @@ def electronChains(runMergedChain):
 
   return (idTrigChainlist, tidaAnalysischains)
 
-def muonChains(runMergedChain):
+def muonChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
 
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
@@ -102,14 +102,14 @@ def muonChains(runMergedChain):
 
   return (idTrigChainlist, tidaAnalysischains)
 
-def tauChains(runMergedChain):
+def tauChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
 
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
-  
+
   if not use_new_tm:
     idTrigChainlist += [
       'tau29_IDTrkNoCut'
@@ -151,11 +151,12 @@ def tauChains(runMergedChain):
   return (idTrigChainlist, tidaAnalysischains)
 
 
-def bjetChains(runMergedChain):
+def bjetChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
   if not use_new_tm:
@@ -185,11 +186,13 @@ def bjetChains(runMergedChain):
       ]
   return (idTrigChainlist, tidaAnalysischains)
 
-def beamspotChains(runMergedChain):
+def beamspotChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
+
   idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   tidaAnalysischains += [
@@ -198,12 +201,12 @@ def beamspotChains(runMergedChain):
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
-def minBiasChains(runMergedChain):
+def minBiasChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
 
-  if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
 
   if not use_new_tm:

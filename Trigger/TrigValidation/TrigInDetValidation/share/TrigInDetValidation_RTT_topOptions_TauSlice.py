@@ -46,7 +46,11 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
-(idtrigChainlist, tidaAnalysischains) = tauChains(rMC)
+rID=False
+if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  rID = True
+
+(idtrigChainlist, tidaAnalysischains) = tauChains(rMC,rID)
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()

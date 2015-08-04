@@ -35,7 +35,11 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
-(idtrigChainlist, tidaAnalysischains) = minBiasChains(rMC)
+rID=False
+if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  rID = True
+
+(idtrigChainlist, tidaAnalysischains) = minBiasChains(rMC,rID)
 
 def resetSigs():
   TriggerFlags.Slices_all_setOff()
@@ -43,7 +47,5 @@ def resetSigs():
   TriggerFlags.MinBiasSlice.signatures = idtrigChainlist
                                            
   
-
-rec.RootNtupleOutput="ntupleInDetMonitorSlice.root"
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")

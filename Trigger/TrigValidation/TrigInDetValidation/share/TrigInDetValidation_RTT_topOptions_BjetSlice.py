@@ -37,14 +37,16 @@ if athenaCommonFlags.FilesInput()==[]:
       "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_bjet5200/mc10_14TeV.105568.ttbar_Pythia.digit.RDO.e662_s1107_d459_tid254598_00/RDO.254598._000103.pool.root.1"
       ]
 
-rec.RootNtupleOutput="ntupleInDetBjetSlice.root"
-
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
 rMC = False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
-(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC)
+rID=False
+if 'doIDNewTracking' in dir() and doIDNewTracking==True:
+  rID = True
+
+(idtrigChainlist, tidaAnalysischains) = bjetChains(rMC,rID)
 
 def resetSigs():
   #TriggerFlags.doMuon=False         #dependency of L1Topo
