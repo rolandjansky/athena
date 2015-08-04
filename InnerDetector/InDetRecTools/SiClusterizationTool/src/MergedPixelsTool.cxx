@@ -16,6 +16,7 @@
 
 #include "SiClusterizationTool/MergedPixelsTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+//#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetRawData/InDetRawDataCollection.h"
@@ -35,6 +36,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -66,7 +68,11 @@ namespace InDet {
     m_modifiedOrigClusters(0),   
     m_splitOrigClusters(0),   
     m_splitProdClusters(0),   
-    m_largeClusters(0)
+    m_largeClusters(0),
+    m_overflowIBLToT(0),
+    m_pixofflinecalibSvc("PixelOfflineCalibSvc", name)
+    //m_detStore("DetectorStore", name),
+    //m_idHelper(0)
     {
       declareInterface<IPixelClusteringTool>(this);
       /// for cluster splitting
@@ -96,6 +102,22 @@ namespace InDet {
       }  
 
 
+    //// Get an Identifier helper object
+    //sc = m_detStore.retrieve();
+    //if(!sc.isSuccess()){
+      //  ATH_MSG_FATAL("Unable to retrieve detector store");
+        //return StatusCode::FAILURE;
+    //}
+    //else {
+      //  msg(MSG::DEBUG) << "DetectorStore service found" << endreq;
+    //}
+ 
+    //// Get the PixelID Helper
+    //if (m_detStore->retrieve(m_idHelper, "PixelID").isFailure()) {
+      //  msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+        //return StatusCode::FAILURE;
+    //}
+    
 // for the cluster splitting
         if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
             ATH_MSG_FATAL( "Could not retrieve the split probability tool " << m_splitProbTool << "'.");
@@ -116,20 +138,28 @@ namespace InDet {
         // (b) EndEvent needed for memory cleanup
         m_incidentSvc->addListener( this, IncidentType::EndEvent);
 
-        return PixelClusteringToolBase::initialize();
+        if (m_pixofflinecalibSvc.retrieve().isFailure()){
+            ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
+            return StatusCode::FAILURE;
+        }
+        
+        m_overflowIBLToT = m_pixofflinecalibSvc->getIBLToToverflow();
+	 
+	return PixelClusteringToolBase::initialize();
     }
 
 
     StatusCode MergedPixelsTool::finalize()
     {
+     
       ATH_MSG_DEBUG("------------------- Clusterization Statistics ------------------------");
       ATH_MSG_DEBUG("-- # Processed Pixel Clusters     : " << m_processedClusters);
-      if(m_processedClusters){ 
+      if(m_processedClusters){
 	ATH_MSG_DEBUG("-- # Clusters modified  (%)       : " << m_modifiedOrigClusters << " (" << double(m_modifiedOrigClusters)/double(m_processedClusters) << ")" );
 	ATH_MSG_DEBUG("-- # Clusters split into more (%) : " << m_splitOrigClusters << " (" << double(m_splitOrigClusters)/double(m_processedClusters) << ")" );
 	ATH_MSG_DEBUG("-- # Split Clusters created       : " << m_splitProdClusters);
 	ATH_MSG_DEBUG("-- # Large Pixel Clusters (%)     : " << m_largeClusters << " (" << double(m_largeClusters)/double(m_processedClusters) << ")" );
-      }  
+      }
       return StatusCode::SUCCESS;
     }
 
@@ -682,28 +712,36 @@ PixelCluster* MergedPixelsTool::makeCluster
             (design->positionFromColumnRow(col,row)); 
         sumOfPositions += siLocalPosition;
 
-        if (row == rowMin) qRowMin += *tot;
+
+        // check overflow for IBL
+        int realtot = *tot;
+	if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(rId) == 0 && pixelID.layer_disk(rId) == 0 ) {
+	  if (*tot >= m_overflowIBLToT ) realtot = m_overflowIBLToT;
+          msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(rId) << " layer_disque = " <<  pixelID.layer_disk(rId) << " ToT = " << *tot << " Real ToT = " << realtot << endreq;
+	}
+	   
+        if (row == rowMin) qRowMin += realtot;
         if (row < rowMin){ 
             rowMin = row; 
-            qRowMin = *tot;
+            qRowMin = realtot;
         }
 
-        if (row == rowMax) qRowMax += *tot;
+        if (row == rowMax) qRowMax += realtot;
         if (row > rowMax){
             rowMax = row;
-            qRowMax = *tot;
+            qRowMax = realtot;
         }
 
-        if (col == colMin) qColMin += *tot;
+        if (col == colMin) qColMin += realtot;
         if (col < colMin){
             colMin = col;
-            qColMin = *tot;
+            qColMin = realtot;
         }
 
-        if (col == colMax) qColMax += *tot;
+        if (col == colMax) qColMax += realtot;
         if (col > colMax){
             colMax = col;
-            qColMax = *tot;
+            qColMax = realtot;
         }
         tot++;
     } 

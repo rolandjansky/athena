@@ -39,10 +39,15 @@
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
+#include "PixelGeoModel/IBLParameterSvc.h" 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+
+//get std::isnan()
+#include <cmath>
 
 
 
@@ -68,7 +73,10 @@ namespace InDet {
           m_useRecenteringNNWithouTracks(false),
           m_useRecenteringNNWithTracks(false),
           m_correctLorShiftBarrelWithoutTracks(0.),
-          m_correctLorShiftBarrelWithTracks(0.)
+          m_correctLorShiftBarrelWithTracks(0.),
+          m_IBLParameterSvc("IBLParameterSvc",n),
+          m_overflowIBLToT(0),
+          m_offlineCalibSvc("PixelOfflineCalibSvc", n)
   {
     // histogram loading from COOL
     declareProperty("CoolFolder",                   m_coolFolder);
@@ -167,6 +175,25 @@ namespace InDet {
         return StatusCode::FAILURE;
     }
     
+    if ( !m_offlineCalibSvc.empty() ) {
+      StatusCode sc = m_offlineCalibSvc.retrieve();
+      if (sc.isFailure() || !m_offlineCalibSvc ) {
+        ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
+        return StatusCode::RECOVERABLE;
+      }
+      else{
+        ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
+      }
+    }
+
+    if (m_IBLParameterSvc.retrieve().isFailure()) { 
+        ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
+        return StatusCode::FAILURE; 
+    } else  
+        ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+
+    m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+
     return StatusCode::SUCCESS;
   }
   
@@ -253,7 +280,12 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     }
     for (int s=0;s<sizeY;s++)
     {
-      inputData.push_back(norm_pitch(input.vectorOfPitchesY[s],m_addIBL));
+      const double rawPitch(input.vectorOfPitchesY[s]);
+    	const double normPitch(norm_pitch(rawPitch,m_addIBL));
+    	if (std::isnan(normPitch)){
+    	  ATH_MSG_ERROR("NaN returned from norm_pitch, rawPitch = "<<rawPitch<<" addIBL = "<<m_addIBL);
+    	}
+      inputData.push_back(normPitch);
     }
     inputData.push_back(norm_layerNumber(input.ClusterPixLayer));
     inputData.push_back(norm_layerType(input.ClusterPixBarrelEC));
@@ -983,31 +1015,50 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
   std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
   std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
+ 
+  std::vector<int>  totListRecreated;
+  std::vector<int>::const_iterator totRecreated = totListRecreated.begin();    
 
 
-  if (!chList.size() && totList.size()){
+  //if (!chList.size() && totList.size()){
+  //
+  // Recreate both charge list and ToT list to correct for the IBL ToT overflow (and later for small hits):
       ATH_MSG_VERBOSE("Charge list is not filled ... re-creating it.");
-      for ( ; rdosBegin!= rdosEnd &&  tot != totList.end(); ++tot, ++rdosBegin ){
+      for ( ; rdosBegin!= rdosEnd &&  tot != totList.end(); ++tot, ++rdosBegin, ++totRecreated ){
            // recreate the charge: should be a method of the calibSvc
+        int tot0 = *tot;
+        if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(*rdosBegin) == 0 && pixelID.layer_disk(*rdosBegin) == 0 ) {
+	  if ( tot0 >= m_overflowIBLToT ) tot0 = m_overflowIBLToT;
+          msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(*rdosBegin) << " layer_disque = " <<  pixelID.layer_disk(*rdosBegin) << " ToT = " << *tot << " Real ToT = " << tot0 << endreq;
+        }
            float ch = 0;
            float A = m_calibSvc->getQ2TotA(*rdosBegin);
-           if ( A>0. && ((*tot)/A)<1. ) {
+           if ( A>0. && (tot0/A)<1. ) {
              float E = m_calibSvc->getQ2TotE(*rdosBegin);
              float C = m_calibSvc->getQ2TotC(*rdosBegin);
-             ch = (C*(*tot)/A-E)/(1-(*tot)/A);
+             ch = (C*(tot0)/A-E)/(1-(tot0)/A);
            } else ch=0.;
              chListRecreated.push_back(ch);
+             totListRecreated.push_back(tot0);
       }
       // reset the rdo iterator
       rdosBegin = rdos.begin();
       rdosEnd = rdos.end();
       // and the tot iterator
       tot = totList.begin();
-  }
+      totRecreated = totListRecreated.begin();
+  //}
 
   // take the original charge list or the recreated one
-  std::vector<float>::const_iterator charge = chList.size() ? chList.begin() : chListRecreated.begin();
-  std::vector<float>::const_iterator chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
+  // std::vector<float>::const_iterator charge = chList.size() ? chList.begin() : chListRecreated.begin();
+  // std::vector<float>::const_iterator chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
+
+  // Always use recreated charge and ToT lists:
+     std::vector<float>::const_iterator charge = chListRecreated.begin();
+     std::vector<float>::const_iterator chargeEnd = chListRecreated.end();
+     tot = totListRecreated.begin();
+     std::vector<int>::const_iterator totEnd = totListRecreated.end();
+ 
 
   InDetDD::SiLocalPosition sumOfWeightedPositions(0,0,0);
   double sumOfTot=0;
@@ -1017,7 +1068,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   int colMin = 999;
   int colMax = 0;
 
-  for (; rdosBegin!= rdosEnd && charge != chargeEnd && tot != totList.end(); ++rdosBegin, ++charge, ++tot)
+  for (; rdosBegin!= rdosEnd && charge != chargeEnd && tot != totEnd; ++rdosBegin, ++charge, ++tot)
   {
 
     Identifier rId =  *rdosBegin;
@@ -1124,9 +1175,12 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   }
 
   rdosBegin = rdos.begin();
-  charge = chList.size() ? chList.begin() : chListRecreated.begin();
-  chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
-  tot = totList.begin();    
+  //charge = chList.size() ? chList.begin() : chListRecreated.begin();
+  //chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
+  //tot = totList.begin();    
+  charge = chListRecreated.begin();
+  chargeEnd = chListRecreated.end();
+  tot = totListRecreated.begin();    
 
   ATH_MSG_VERBOSE(" Putting together the n. " << rdos.size() << " rdos into a matrix." );
 

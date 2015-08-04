@@ -142,6 +142,7 @@ private:
   ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc;  
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
+  int                                                 m_overflowIBLToT;                                                                                          
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
 
   // Parametrization of the Pixel errors
