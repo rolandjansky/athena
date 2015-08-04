@@ -9,11 +9,9 @@
 #include <memory>
 
 namespace  {
-  std::unique_ptr<JetCleaningTool> veryLooseBadTool;
   std::unique_ptr<JetCleaningTool> looseBadTool;
-  std::unique_ptr<JetCleaningTool> mediumBadTool;
   std::unique_ptr<JetCleaningTool> tightBadTool;
-
+  
   StatusCode initJetSelector (std::unique_ptr<JetCleaningTool>& ptr,
                               JetCleaningTool::CleaningLevel level)
   {
@@ -26,15 +24,12 @@ namespace  {
     if (inited) return StatusCode::SUCCESS;
     inited = true;
 
-    if (initJetSelector (veryLooseBadTool, JetCleaningTool::VeryLooseBad).isFailure())
-      return StatusCode::FAILURE;
     if (initJetSelector (looseBadTool,     JetCleaningTool::LooseBad).isFailure())
-      return StatusCode::FAILURE;
-    if (initJetSelector (mediumBadTool,    JetCleaningTool::MediumBad).isFailure())
       return StatusCode::FAILURE;
     if (initJetSelector (tightBadTool,     JetCleaningTool::TightBad).isFailure())
       return StatusCode::FAILURE;
-
+    
+    
     return StatusCode::SUCCESS;
 
   }

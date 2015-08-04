@@ -8,8 +8,6 @@
 /*****************************************************************************
 Name    : JetMissingEtTagTool.h
 Package : offline/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and MissingEtTag.h 
 	  The JetMissingEt Tag fragments are built here
 *****************************************************************************/
@@ -18,11 +16,13 @@ Purpose : build the JetMissingEt Tag objects - ParticleJetTagCollection.h and Mi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "xAODJet/JetContainer.h"
 
 #include <map>
 
 // forward declaration
 class IJetCalibrationTool;
+
 
 class JetMetTagTool : public AthAlgTool {
 
@@ -44,13 +44,14 @@ public:
   virtual StatusCode execute(TagFragmentCollection& missingEtTag);
   virtual StatusCode execute(TagFragmentCollection& jetTagCol, const int max);
   virtual StatusCode finalize();
-
-
-
+  
   //   Standard destructor
   virtual ~JetMetTagTool( );
 
 private:
+  
+  /**Calibrate and record a shallow copy of a given jet container */
+  const xAOD::JetContainer* calibrateAndRecordShallowCopyJetCollection(const xAOD::JetContainer * jetContainer);
 
   /** Jet calibration tool handle */
   ToolHandle<IJetCalibrationTool>        m_jetCalibrationTool;

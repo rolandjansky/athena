@@ -8,8 +8,6 @@
 /*****************************************************************************
 Name    : JetMissingEtIdentificationTagTool.h
 Package : offline/PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : build the JetMissingEtIdentification Tag object - AnalysisTag.h. 
 	  The JetMissingEtIdentification Analysis Tag fragment is built here
           Jet identification method and MissingEt Calculation detailed information 
@@ -48,17 +46,15 @@ protected:
    virtual ~JetMissingEtIdentificationTagTool( );
 
 private:
-   /** Jet calibration tool handle */
-    ToolHandle<IJetCalibrationTool>        m_jetCalibrationTool;
-
-  /** Properties */
-  std::string m_jetContainerName;
-  std::string m_missingEtObjectName;
-  double m_badjetPtCut;
-  bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
-  /** Event Store */
-
- };
+   
+   /** Properties */
+   std::string m_jetContainerName;
+   std::string m_missingEtObjectName;
+   double m_badjetPtCut;
+   bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
+   /** Event Store */
+   
+};
 
 #endif // JETMISSINGETIDENTIFICATIONTAGTOOL_H
 
