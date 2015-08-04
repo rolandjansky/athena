@@ -303,4 +303,3 @@ HLT::ErrorCode TrigL2JetDphiHypo::hltFinalize()
 
   return HLT::OK;
 }
-

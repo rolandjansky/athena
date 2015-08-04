@@ -283,7 +283,6 @@ class EFJetHypoNoiseConfig (TrigEFJetHypoNoise):
         self.NoiseTool = theLArNoisyROTool
 
 
-
 class EFCentJetHypo (EFJetHypoBase):
     __slots__ = []
     def __init__(self, name = "EFCentJetHypo",ef_thr=20*GeV,etaMin=0,etaMax=3.2):

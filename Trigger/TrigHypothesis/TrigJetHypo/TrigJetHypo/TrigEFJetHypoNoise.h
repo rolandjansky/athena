@@ -19,10 +19,13 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CaloInterface/ILArNoisyROTool.h"
 
-#ifdef ONLINEIS
-#include "hltinterface/IInfoRegister.h"
-#endif
+//#ifdef ONLINEIS
+//#include "hltinterface/IInfoRegister.h"
+//#endif
 
+namespace hltinterface{
+  class GenericHLTContainer;
+}
 class StoreGateSvc;
 class TriggerElement;
 
@@ -68,13 +71,16 @@ class TrigEFJetHypoNoise : public HLT::HypoAlgo {
   std::vector<TrigTimer*>   m_timers;
   unsigned int m_MinBadFEB;
 
-#ifdef ONLINEIS
+//#ifdef ONLINEIS
   std::shared_ptr<hltinterface::GenericHLTContainer> m_IsObject;
-#endif
+//#endif
   size_t m_evntPos;
   size_t m_timeTagPos;
   size_t m_timeTagPosns;
   bool m_isInterface;
+  long int m_timeTagPosToClear;
+  long int m_timeTagPosRec;
+  long int m_publishTime;
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
 
