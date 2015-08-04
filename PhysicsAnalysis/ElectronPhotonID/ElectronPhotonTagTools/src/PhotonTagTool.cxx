@@ -5,35 +5,43 @@
 /*****************************************************************************
 Name    : PhotonTagTool.cxx
 Package : offline/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
-Author  : Ketevi A. Assamagan
-Created : January 2006
 Purpose : create a collection of PhotonTag
 
 *****************************************************************************/
 
 #include "GaudiKernel/Property.h"
-
 #include "StoreGate/StoreGateSvc.h"
-
+#include "xAODCore/ShallowCopy.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
+#include "xAODParticleEvent/IParticleLink.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaEnums.h"
-
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 #include "TagEvent/PhotonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+
 
 #include <sstream>
 
-//using namespace Analysis;
 
 /** the constructor */
 PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-  AthAlgTool( type, name, parent )
+  AthAlgTool( type, name, parent ),
+  m_isFullsim(false),
+  m_shower_shape_fudge(""),
+  m_loose_cut_based(),
+  m_tight_cut_based(),
+  /**Initializing private member for the isolation tool*/
+  m_cone40_calo_isolation(""),
+  m_cone40_isolation(""),
+  m_cone20_isolation("")
 {
   /** Photon AOD Container Name */
   declareProperty("Container",     m_containerName = "PhotonCollection");
@@ -41,11 +49,25 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
   /** selection cut of Pt */
   declareProperty("EtCut",         m_cut_Et = 7.0*CLHEP::GeV);
 
-  /** Calo Isolation cut values */
-  declareProperty("CaloIsoCutValues",m_caloisocutvalues, "Cut values for calo isolation");
+  /** Etcone Isolation cut values */
+  declareProperty("EtconeIsoCutValues",m_etconeisocutvalues, "Cut values for etcone isolation");
 
-  /** Calo Isolation cut values */
-  declareProperty("TrackIsoCutValues",m_trackisocutvalues, "Cut values for track isolation");
+  /** Ptcone Isolation cut values */
+  declareProperty("PtconeIsoCutValues",m_ptconeisocutvalues, "Cut values for ptcone isolation");
+
+  /**Shower shape fudge*/
+  declareProperty("isFullsim"            ,m_isFullsim = false);
+  declareProperty("PhotonShowerFudgeTool",m_shower_shape_fudge);
+
+  /**Photon Selector Tools */
+  declareProperty("LooseSelector",         m_loose_cut_based);
+  declareProperty("TightSelector",         m_tight_cut_based);
+
+  /**Photon Isolation Tool names*/
+  declareProperty("cone40CaloOnlyIsoTool", m_cone40_calo_isolation);
+  declareProperty("cone40IsoTool",         m_cone40_isolation);
+  declareProperty("cone20IsoTool",         m_cone20_isolation);
+  
   
   declareInterface<PhotonTagTool>( this );
 }
@@ -54,8 +76,28 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
 
 /** initialization - called once at the begginning */
 StatusCode  PhotonTagTool::initialize() {
-  ATH_MSG_DEBUG( "in intialize()" );
- 
+
+  ATH_MSG_DEBUG( "in initialize()" );
+  /**retrieve and check shower shape fudge tool*/
+  if (m_isFullsim) CHECK(m_shower_shape_fudge.retrieve());
+  /** retrieve and check the photon selector tools*/
+  CHECK(m_loose_cut_based.retrieve());
+  CHECK(m_tight_cut_based.retrieve());
+
+  /** retrieve and check the photon isolation tool*/
+  CHECK(m_cone20_isolation.retrieve());
+  CHECK(m_cone40_isolation.retrieve());
+  CHECK(m_cone40_calo_isolation.retrieve());
+  
+    if (m_etconeisocutvalues.size() > 4) {
+    ATH_MSG_FATAL ("More than four Etcone values are not permitted");
+    return StatusCode::FAILURE;
+  }
+  if (m_ptconeisocutvalues.size() > 4) {
+    ATH_MSG_FATAL ("More than four ptcone values are not permitted");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -110,8 +152,6 @@ StatusCode PhotonTagTool::attributeSpecification(std::map<std::string,AthenaAttr
 }
 
 
-
-
 /** execute - called on every event */
 StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& max) {
 
@@ -121,186 +161,240 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
   const xAOD::PhotonContainer *photonContainer;
   StatusCode sc = evtStore()->retrieve( photonContainer, m_containerName);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No AOD Photon container found in SG" );
+    ATH_MSG_WARNING( "No xAOD Photon container found in SG" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG( "AOD Photon container successfully retrieved" );
+  ATH_MSG_DEBUG( "xAOD Photon container successfully retrieved" );
+  
+  // create a shallow copy of the photon container
+  std::pair< xAOD::PhotonContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*photonContainer);
+  xAOD::PhotonContainer *photonContainerShallowCopy           = shallowCopy.first;
+  xAOD::ShallowAuxContainer *photonAuxContainerShallowCopy = shallowCopy.second;
+  
+  CHECK( evtStore()->record(photonContainerShallowCopy,    "PhotonsShallowTAG"));
+  CHECK( evtStore()->record(photonAuxContainerShallowCopy, "PhotonsShallowTAGAux."));
+  
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
+  for ( xAOD::Photon *shallowCopyPhoton : * photonContainerShallowCopy ) {
 
+    /**applying shower shape correction*/
+    if (m_isFullsim) CP::CorrectionCode correctionCode = m_shower_shape_fudge->applyCorrection(*shallowCopyPhoton);
+    
+    const xAOD::IParticleLink originLink( *photonContainer, shallowCopyPhoton->index() );
+    accSetOriginLink(*shallowCopyPhoton) = originLink;
+  }
+  CHECK(evtStore()->setConst(photonContainerShallowCopy ));
+  CHECK(evtStore()->setConst(photonAuxContainerShallowCopy ));
+  
   xAOD::PhotonContainer userContainer( SG::VIEW_ELEMENTS );
-  userContainer = *photonContainer;
+  userContainer = *photonContainerShallowCopy;
   AnalysisUtils::Sort::pT( &userContainer );
-
+  
+  
   /** make the selection */
   int i=0;
   int nConverted = 0;
   xAOD::PhotonContainer::const_iterator photonItr  = userContainer.begin();
   xAOD::PhotonContainer::const_iterator photonItrE = userContainer.end();
   for (; photonItr != photonItrE; ++photonItr) { 
+
+    bool passPtCut = (*photonItr)->pt() > m_cut_Et;
+    bool isLoose   = m_loose_cut_based->accept(*photonItr);
     
-     /** photon selection - to be implemented */
-     bool select = (*photonItr)->pt() > m_cut_Et;
+    bool select    = passPtCut && isLoose;
 
-     if ( select) { 
+    /**Apply loose preselection using the xAOD info and pT cut*/
+    if ( select) { 
+      
+      if ( i<max ) {
+        /**Filling TAG variables*/
 
-       if ( i<max ) {
+        /** pt */
+        pTagColl.insert( m_ptStr[i], (*photonItr)->pt() );
+        
+        /** eta */
+        pTagColl.insert( m_etaStr[i], (*photonItr)->eta() );
+        
+        /** phi */
+        pTagColl.insert( m_phiStr[i], (*photonItr)->phi() );
+         
+        /** Retrieving tighness info from xAOD */
+        unsigned int tightness = 0x0;
+        if (isLoose) tightness |= (1<<0);//loose
 
-          /** pt */
-          pTagColl.insert( m_ptStr[i], (*photonItr)->pt() );
+        bool isTight = m_tight_cut_based->accept(*photonItr);
+        if (isTight) tightness |= (1<<1);//tight
+        
+        /** Photon Object Quality*/
+        bool isGoodOQ = (*photonItr)->isGoodOQ(xAOD::EgammaParameters::BADCLUSPHOTON);
+        if (isGoodOQ) tightness |= (1<<2);
+        
+        /**  Using Isolation Tool to fill bit from 4 to 6 with cone20,cone40,cone40caloonly*/
+        if(m_cone20_isolation->accept(**photonItr))      tightness |= (1 << 4);
+        if(m_cone40_isolation->accept(**photonItr))      tightness |= (1 << 5);
+        if(m_cone40_calo_isolation->accept(**photonItr)) tightness |= (1 << 6);
 
-          /** eta */
-          pTagColl.insert( m_etaStr[i], (*photonItr)->eta() );
-
-          /** phi */
-          pTagColl.insert( m_phiStr[i], (*photonItr)->phi() );
-
-          /** varying levels of tighness cuts */
-          unsigned int tightness = 0x0;
-	  
-	  bool val_loose=0;
-	  bool val_tight=0;
-
-	  if(!(*photonItr)->passSelection(val_loose,"Loose")){
-	    ATH_MSG_ERROR( "No loose selection exits" );
-	  }
-	  
-	  if(!(*photonItr)->passSelection(val_tight,"Tight")){
-	    ATH_MSG_ERROR( "No Tight selection exits" );
-	  }
-	 
-
-	  if (val_loose  == 1 ) tightness |= (1<<0);//loose
-
-	  if (val_tight  == 1 ) tightness |= (1<<1);//tight
-	  
-          pTagColl.insert( m_tightStr[i], tightness );
-
-          /** test for converted photon - and set the conversion flag */
-          if ((*photonItr)->nVertices() != 0) nConverted++;
-
-          /** Isolation of Photons */
-
-          unsigned int iso = 0x0;
-            /* Calo Isolation in bits from 0 to 23 */
-            float elEt = (*photonItr)->pt();
-            float etcone = 0;
-	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::etcone20))){
-	      ATH_MSG_DEBUG( "No isolation etcone20pt defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
-		}
-	    }
-	    
-	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
-	      ATH_MSG_DEBUG( "No isolation topoetcone20 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
-		}
-	    }
-	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){
-	      ATH_MSG_DEBUG( "No isolation topoetcone40 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
-		}
+        pTagColl.insert( m_tightStr[i], tightness );
+        
+        /** test for converted photon - and set the conversion flag */
+        if ((*photonItr)->nVertices() != 0) nConverted++;
+        
+        /** Isolation of Photons */
+        
+        unsigned int iso = 0x0;
+        float elEt = (*photonItr)->pt();
+        float etcone = 0;
+        /** now start filling the isolation information */
+        
+        /** let's compute the etcone20 isolation of the photon */
+        if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::etcone20))){
+          ATH_MSG_DEBUG( "No etcone20 defined" );
+        }
+        else{
+          /* Etcone20/pt are bits 0 and 1 */
+          for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++)
+            {
+              /** apply etcone20/pt cuts first */
+              if ( m_etconeisocutvalues[j] < 1.0 )
+                {
+                  float relIso = etcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << j;
+                }
+              /**apply absolute etconse20 cut*/
+              /* Etcone20 are bits 2 and 3 */
+              else if ( etcone < m_etconeisocutvalues[j] ) iso |= 1 << j; 
             }
-            /* Track Isolation in bits from 24 to 29 (note only 6 bits!)*/
-            float ptcone =0;
-	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
-	      ATH_MSG_DEBUG( "No isolation ptcone20 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = ptcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
-		    }
-		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
-		}
-	    }
-	    if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone30))){	
-	      ATH_MSG_DEBUG( "No isolation topoetcone30 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (12+j);
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (12+j); // absolute isolation
-		}
-	    }
-	    
-	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone30))){
-	      ATH_MSG_DEBUG( "No isolation ptcone30 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-		{ 
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = ptcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (20+j);
-		    }
-		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (20+j);
-		}
-	    }
-	    
-	    if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone40))){
-	      ATH_MSG_DEBUG( "No isolation ptcone40 defined" );
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-		{ 
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = ptcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (28+j);
-		    }
-		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (28+j);
-		}
-	    }
-	    
-	    pTagColl.insert( m_isoStr[i], iso );
-	    
-       }
-       
-       /** counter total number of accepted loose photons */
-       i++;
-     }
+        }
+        /** let's compute the topoetcone20 isolation of the photon */
+        if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
+          ATH_MSG_DEBUG( "No topoetcone20 defined" );
+        }
+        else{
+          /* TopoEtcone20/pt are bits 8 and 9 */
+          for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++)
+            {
+              /** apply topoetcone20/pt cuts first */
+              if ( m_etconeisocutvalues[j] < 1.0 )
+                {
+                  float relIso = etcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (8+j);
+                }
+              /**apply absolute topoetcone20 cut*/
+              /* TopoEtcone20 are bits 10 and 11 */
+              else if ( etcone < m_etconeisocutvalues[j] ) iso |= 1 << (8+j);
+            }
+        }
+         /** let's compute the topoetcone40 isolation of the photon */
+        if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){
+          ATH_MSG_DEBUG( "No isolation topoetcone40 defined" );
+        }
+        else{
+          /* TopoEtcone40/pt are bits 16 and 17 */
+          for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++)
+            {
+              /** apply topoetcone40/pt cuts first */
+              if ( m_etconeisocutvalues[j] < 1.0 )
+                {
+                  float relIso = etcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (16+j);
+                }
+              /**apply absolute topoetcone40 cut*/
+              /* TopoEtcone40 are bits 17 and 18 */
+              else if ( etcone < m_etconeisocutvalues[j] ) iso |= 1 << (16+j); 
+            }
+        }
+        /** let's compute the ptcone20 isolation of the photon */
+        float ptcone =0;
+        if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
+          ATH_MSG_DEBUG( "No isolation ptcone20 defined" );
+        }
+        else{
+          /* ptcone20/pt are bits 24 and 25 */
+          for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++)
+            {
+              /** apply ptcone20/pt cuts first */
+              if ( m_ptconeisocutvalues[j] < 1.0 ) 
+                {
+                  float relIso = ptcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_ptconeisocutvalues[j] ) iso |= 1 << (24+j);
+                }
+              /**apply absolute ptcone20 cut*/
+              /* ptcone20 are bits 26 and 27 */
+              else if ( ptcone < m_ptconeisocutvalues[j] ) iso |= 1 << (24+j);
+            }
+        }
+         /** let's compute the topoetcone30 isolation of the photon */
+        if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone30))){ 
+          ATH_MSG_DEBUG( "No isolation topoetcone30 defined" );
+        }
+        else{
+          /* topoEtcone30/pt are bits 12 and 13 */
+          for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++)
+            {
+              /** apply topoEtcone30/pt cuts first */
+              if ( m_etconeisocutvalues[j] < 1.0 )
+                {
+                  float relIso = etcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (12+j);
+                }
+              /**apply absolute topoetcone30 cut*/
+              /* topoetcone30 are bits 14 and 15 */
+              else if ( etcone < m_etconeisocutvalues[j] ) iso |= 1 << (12+j); 
+            }
+        }
+        /** let's compute the ptcone30 isolation of the photon */
+        if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone30))){
+          ATH_MSG_DEBUG( "No isolation ptcone30 defined" );
+        }
+        else{
+          /* ptcone30/pt are bits 20 and 21 */
+          for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++)
+            { 
+              /** apply ptcone30/pt cuts first */
+              if ( m_ptconeisocutvalues[j] < 1.0 ) 
+                {
+                  float relIso = ptcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_ptconeisocutvalues[j] ) iso |= 1 << (20+j);
+                }
+              /**apply absolute ptcone30 cut*/
+              /* ptcone30 are bits 22 and 23 */
+              else if ( ptcone < m_ptconeisocutvalues[j] ) iso |= 1 << (20+j);
+            }
+        }
+        /** let's compute the ptcone40 isolation of the photon */
+        if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone40))){
+          ATH_MSG_DEBUG( "No isolation ptcone40 defined" );
+        }
+        else{
+          /* ptcone30/pt are bits 28 and 29 */
+          for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++)
+            { 
+              /** apply ptcone40/pt cuts first */
+              if ( m_ptconeisocutvalues[j] < 1.0 ) 
+                {
+                  float relIso = ptcone;
+                  if ( elEt != 0.0 ) relIso = relIso/elEt;
+                  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (28+j);
+                }
+              /**apply absolute ptcone40 cut*/
+              /* ptcone40 are bits 30 and 31 */
+              else if ( ptcone < m_ptconeisocutvalues[j] ) iso |= 1 << (28+j);
+            }
+        }
+
+        pTagColl.insert( m_isoStr[i], iso );
+        
+      }
+      
+      /** counter total number of accepted loose photons */
+      i++;
+    }
   }
   
   /** insert the number of loose photons */

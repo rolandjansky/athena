@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef ELECTRONTAGTOOL_H 
 #define ELECTRONTAGTOOL_H 
 
@@ -19,11 +20,18 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <map>
 
 class ElectronTagCollection;
+
+namespace CP {
+  class IIsolationSelectionTool;
+}
 
 /** Interface ID for ElectronTagTool*/  
 static const InterfaceID IID_ElectronTagTool("ElectronTagTool", 1, 0);
@@ -55,8 +63,8 @@ private:
   /** Properties */
   std::vector<std::string> m_containerNames;
   double m_cut_Et;
-  std::vector<float> m_caloisocutvalues;
-  std::vector<float> m_trackisocutvalues;
+  std::vector<float> m_etconeisocutvalues;
+  std::vector<float> m_ptconeisocutvalues;
 
   /** the attribute names */
   std::vector<std::string> m_ptStr;
@@ -65,11 +73,26 @@ private:
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_fwdStr;
   std::vector<std::string> m_isoStr;
-  
+
+  /** electron cut-based ID tool */
+  ToolHandle<IAsgElectronIsEMSelector> m_loose_cut_based;
+  ToolHandle<IAsgElectronIsEMSelector> m_medium_cut_based;
+  ToolHandle<IAsgElectronIsEMSelector> m_tight_cut_based;
+
+  /** electron likelihood ID tool */
   ToolHandle<IAsgElectronLikelihoodTool> m_loose_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_medium_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_tight_likelihood;
- };
+
+  /** electron isolation tool */
+  ToolHandle<CP::IIsolationSelectionTool> m_loose_trackonly_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_loose_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
+  
+  
+};
 
 #endif // ELECTRONTAGTOOL_H
 
