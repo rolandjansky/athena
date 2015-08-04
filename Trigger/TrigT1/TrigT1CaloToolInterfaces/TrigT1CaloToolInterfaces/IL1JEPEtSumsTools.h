@@ -13,6 +13,7 @@
 
 namespace LVL1 
 {
+using namespace xAOD;
 
 class CMMEtSums;
 class JEMEtSums;
@@ -28,7 +29,7 @@ Interface definition for L1JEPEtSumsTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void formJEMEtSums(const DataVector<JetElement>*  jetElementVec,
+    virtual void formJEMEtSums(const DataVector<xAOD::JetElement>*  jetElementVec,
                                DataVector<JEMEtSums>* jemEtSumsVec) const = 0;
     virtual void formCMMEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,
                                DataVector<CMMEtSums>* cmmEtSumsVec) const = 0;

@@ -17,6 +17,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "DataModel/DataVector.h"
 #include "xAODTrigL1Calo/CPMTower.h"
+#include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 
 namespace LVL1 
 {
@@ -42,9 +43,9 @@ class CPMTobRoI;
       
       virtual void findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice = -1) = 0;
      
-      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobRoI>* rois, int slice = -1) = 0;
+      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1) = 0;
      
-      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobRoI>* rois, int slice = -1) = 0;
+      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1) = 0;
       
       virtual void findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, int crate, int module,
                                   DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,

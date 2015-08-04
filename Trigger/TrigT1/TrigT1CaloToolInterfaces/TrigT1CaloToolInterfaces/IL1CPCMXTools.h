@@ -10,6 +10,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 //#include "TrigT1CaloUtils/CPAlgorithm.h"
+
+#include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
@@ -33,11 +35,15 @@ namespace LVL1
                                   DataVector<CPMTobRoI>*      cpmRoiVec) const = 0;
     virtual void formCPMTobRoI(const DataVector<EmTauROI>* emTauRoiVec,
                                   DataVector<CPMTobRoI>*   cpmRoiVec) const = 0;
-    virtual void formCMXCPTob(const DataVector<CPMTobRoI>*   cpmRoiVec,
+    
+    virtual void formCMXCPTob(const xAOD::CPMTobRoIContainer*   cpmRoiVec,
                               xAOD::CMXCPTobContainer* cmxTobVec) const = 0;
+    
     virtual void formCMXCPTob(
-                 const std::vector<const DataVector<CPMTobRoI>*>& cpmRoiColls,
+                 const std::vector<const xAOD::CPMTobRoIContainer*>& cpmRoiColls,
                  xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const = 0;
+    
+
     virtual void formCMXCPHits(const xAOD::CMXCPTobContainer*  cmxTobVec,
                                xAOD::CMXCPHitsContainer* cmxHitsVec) const = 0;
     virtual void formCMXCPHitsCrate(const xAOD::CMXCPTobContainer* cmxTobVec,

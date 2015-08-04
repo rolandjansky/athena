@@ -9,13 +9,24 @@
 #define ILVL1L1JETELEMENTTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "xAODTrigL1Calo/TriggerTower.h"
-#include "TrigT1CaloEvent/TriggerTower.h"
+#include "DataModel/DataVector.h"
+// ============================================================================
+// xAOD
+// ============================================================================
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+// ============================================================================
+// LVL1
+// ============================================================================
 #include "TrigT1CaloEvent/JetElement.h"
+#include "TrigT1CaloEvent/TriggerTower.h"
+// ============================================================================
 #include <map>
 
 namespace LVL1 
 {
+class TriggerTower;
+class JetElement;
 
 /**
 Interface definition for L1JetTools
@@ -28,9 +39,11 @@ Interface definition for L1JetTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void makeJetElements(const DataVector<xAOD::TriggerTower>* tts, DataVector<JetElement>* jetElements) = 0;
+    virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements) = 0;
+    virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, std::map<int, xAOD::JetElement*>* map) = 0;
+
+    // depricated methods
     virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements) = 0;
-    virtual void mapJetElements(const DataVector<JetElement>* jetElements, std::map<int, JetElement*>* map) = 0;
     
   };
 

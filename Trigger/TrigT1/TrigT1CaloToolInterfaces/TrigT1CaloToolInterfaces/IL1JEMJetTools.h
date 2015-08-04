@@ -10,13 +10,17 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "DataModel/DataVector.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/JEMTobRoIContainer.h"
+
 
 namespace LVL1 
 {
 class JEMJetAlgorithm;
-class JEMTobRoI;
 class JetInput;
-class JetElement;
+
+// amazurov: for deprecated method
+class JEMTobRoI;
 
 /**
 Interface definition for L1JEMJetTools
@@ -29,13 +33,21 @@ Interface definition for L1JEMJetTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMTobRoI>* rois) = 0;
-    virtual void findRoIs(const DataVector<JetElement>* jes, DataVector<JEMTobRoI>* rois, int slice = -1) = 0;
+    virtual void findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois) = 0;
+    virtual void findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice = -1) = 0;
     virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois) = 0;
-    virtual void findRoIs(const DataVector<JetElement>* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) = 0;
+    
+    virtual void findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) = 0;
+    
+    virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
+                                xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData) = 0;
+
+    // DEPRECATED(amazurov): use findJEMResults with AOD::JEMTobRoIContainer
     virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
                                 DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData) = 0;
-    virtual void mapJetInputs(const DataVector<JetElement>* jes, std::map<int, JetInput*>* elements, int slice = -1) = 0;
+
+    
+    virtual void mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice = -1) = 0;
     virtual JEMJetAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) = 0;
     virtual void formSums(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) = 0;
     virtual void formSums(uint32_t roiWord, const std::map<int, JetInput*>* elements) = 0;

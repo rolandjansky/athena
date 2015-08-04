@@ -9,7 +9,9 @@
 #define ILVL1L1JETCMXTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
-
+#include "xAODTrigL1Calo/JEMTobRoIContainer.h"
+#include "xAODTrigL1Calo/CMXJetTobContainer.h"
+#include "xAODTrigL1Calo/CMXJetHitsContainer.h"
 
 namespace LVL1 
 {
@@ -29,26 +31,25 @@ Interface definition for L1JetCMXTools
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    // enter declaration of your interface-defining member functions here
-    virtual void formJEMTobRoI(const DataVector<JetAlgorithm>* jetAlgorithmVec,
-                                     DataVector<JEMTobRoI>*    jemRoiVec) const = 0;
-    virtual void formJEMTobRoI(const DataVector<JetROI>*    jetRoiVec,
-                                     DataVector<JEMTobRoI>* jemRoiVec) const = 0;
-    virtual void formCMXJetTob(const DataVector<JEMTobRoI>* jemRoiVec,
-                                     DataVector<CMXJetTob>* cmxTobVec) const = 0;
+    virtual void formCMXJetTob(const xAOD::JEMTobRoIContainer* jemRoiVec,
+                                xAOD::CMXJetTobContainer* cmxTobVec) const = 0;
+
     virtual void formCMXJetTob(
-                 const std::vector<const DataVector<JEMTobRoI>*>& jemRoiColls,
-                 DataVector<CMXJetTob>* cmxTobVec, int peak) const = 0;
-    virtual void formCMXJetHits(const DataVector<CMXJetTob>* cmxTobVec,
-                                DataVector<CMXJetHits>* cmxHitsVec) const = 0;
-    virtual void formCMXJetHitsCrate(const DataVector<CMXJetTob>* cmxTobVec,
-                                DataVector<CMXJetHits>* cmxHitsCrate) const = 0;
+                 const std::vector<const xAOD::JEMTobRoIContainer*>& jemRoiColls,
+                 xAOD::CMXJetTobContainer* cmxTobVec, int peak) const = 0;
+
+    virtual void formCMXJetHits(const xAOD::CMXJetTobContainer* cmxTobVec,
+                                xAOD::CMXJetHitsContainer* cmxHitsVec) const = 0;
+
+    virtual void formCMXJetHitsCrate(const xAOD::CMXJetTobContainer* cmxTobVec,
+                                xAOD::CMXJetHitsContainer* cmxHitsCrate) const = 0;
     virtual void formCMXJetHitsSystem(
-                                const DataVector<CMXJetHits>* cmxHitsCrate,
-                                DataVector<CMXJetHits>* cmxHitsSys) const = 0;
-    virtual void formCMXJetHitsTopo(const DataVector<CMXJetTob>* cmxTobVec,
-                                DataVector<CMXJetHits>* cmxHitsTopo) const = 0;
-      
+                                const xAOD::CMXJetHitsContainer* cmxHitsCrate,
+                                xAOD::CMXJetHitsContainer* cmxHitsSys) const = 0;
+    virtual void formCMXJetHitsTopo(const xAOD::CMXJetTobContainer* cmxTobVec,
+                                xAOD::CMXJetHitsContainer* cmxHitsTopo) const = 0;
+
+
   };
 
   inline const InterfaceID& LVL1::IL1JetCMXTools::interfaceID()

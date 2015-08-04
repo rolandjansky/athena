@@ -9,10 +9,14 @@
 #define ILVL1L1ENERGYCMXTOOLS_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/JEMEtSumsContainer.h"
+#include "xAODTrigL1Calo/CMXEtSumsContainer.h"
 
 
-namespace LVL1 
+namespace LVL1
 {
+using namespace xAOD;
 
 class CMXEtSums;
 class JEMEtSums;
@@ -28,19 +32,19 @@ Interface definition for L1EnergyCMXTools
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    virtual void formJEMEtSums(const DataVector<JetElement>*  jetElementVec,
-                               DataVector<JEMEtSums>* jemEtSumsVec) const = 0;
-    virtual void formCMXEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,
-                               DataVector<CMXEtSums>* cmxEtSumsVec) const = 0;
-    virtual void formCMXEtSumsModule(const DataVector<JEMEtSums>* jemEtSumsVec,
-                               DataVector<CMXEtSums>* cmxEtSumsMod) const = 0;
-    virtual void formCMXEtSumsCrate(const DataVector<CMXEtSums>* cmxEtSumsMod,
-                               DataVector<CMXEtSums>* cmxEtSumsCrate) const = 0;
+    virtual void formJEMEtSums(const xAOD::JetElementContainer*  jetElementVec,
+                               xAOD::JEMEtSumsContainer* jemEtSumsVec) const = 0;
+    virtual void formCMXEtSums(const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsVec) const = 0;
+    virtual void formCMXEtSumsModule(const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsMod) const = 0;
+    virtual void formCMXEtSumsCrate(const xAOD::CMXEtSumsContainer* cmxEtSumsMod,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsCrate) const = 0;
     virtual void formCMXEtSumsSystem(
-                               const DataVector<CMXEtSums>* cmxEtSumsCrate,
-                               DataVector<CMXEtSums>* cmxEtSumsSys) const = 0;
-    virtual void formCMXEtSumsEtMaps(const DataVector<CMXEtSums>* cmxEtSumsSys,
-                               DataVector<CMXEtSums>* cmxEtSumsMaps) const = 0;
+                               const xAOD::CMXEtSumsContainer* cmxEtSumsCrate,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsSys) const = 0;
+    virtual void formCMXEtSumsEtMaps(const xAOD::CMXEtSumsContainer* cmxEtSumsSys,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsMaps) const = 0;
       
   };
 
