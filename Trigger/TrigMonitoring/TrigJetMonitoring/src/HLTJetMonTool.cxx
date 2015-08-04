@@ -31,7 +31,7 @@
 
 #include "boost/tokenizer.hpp"
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 HLTJetMonTool::HLTJetMonTool(   
     const std::string & type, 
@@ -52,7 +52,7 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("DoL1Efficiency",      m_doL1TrigEff = true);
   declareProperty("DoOfflineJets",       m_doOFJets = true);
   declareProperty("DoHLTEfficiency",     m_doHLTTrigEff = true);
-  //declareProperty("DoLumiWeight",        m_doLumiWeight = false);
+  //  declareProperty("DoLumiWeight",        m_doLumiWeight = true);
 
   declareProperty("L1xAODJetKey",        m_L1xAODJetKey = "LVL1JetRoIs");
   declareProperty("HLTJetKeys",          m_HLTJetKeys, "SG Keys to access HLT Jet Collections");
@@ -68,6 +68,10 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("monitoring_jet",	 m_monitoring_jet, "Primary HLT monitoring triggers");
   //declareProperty("BasicL1Chains",     m_basicL1Trig, "L1 Chains for Basic Jet Trigger Histograms");
   //declareProperty("BasicHLTChains",    m_basicHLTTrig, "HLT Chains for Basic Jet Trigger Histograms");
+
+  declareProperty("L1DijetChains",       m_l1_DijetChains,"L1 for Dijet Histos");
+  declareProperty("HLTDijetChains",      m_hlt_DijetChains,"HLT for Dijet Histos");
+  declareProperty("OFDijetChains",       m_of_DijetChains,"OF for Dijet Histos");
 
   declareProperty("primary_l1jet",	 m_primary_l1jet, "Primary L1 triggers for Jet Efficiency");
   declareProperty("primary_jet",	 m_primary_jet,   "Primary HLT triggers for Jet Efficiency");
@@ -133,7 +137,7 @@ HLTJetMonTool::HLTJetMonTool(
 
   //declareProperty("JetChainsRegex",     m_chainsByRegexp);
 
-  declareProperty("EMFractionCut",      m_emfracCut);
+  declareProperty("EMFractionCut",      m_emfracCut = 0.9);
 
   declareProperty("DoOFJetSelectionForBasicHists",     m_doselOFBasicHists = false);
   declareProperty("DoOFJetSelectionForTrigEff",        m_doselOFJets = false);
@@ -175,7 +179,8 @@ HLTJetMonTool::HLTJetMonTool(
 
 } // end HLTJetMonTool c'tor
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 void HLTJetMonTool::clearVectors() {
   //m_ofemfracCut.clear();
   m_HLTJetC.clear();
@@ -185,7 +190,11 @@ void HLTJetMonTool::clearVectors() {
   m_monitoring_jet.clear();
   m_primary_l1jet.clear();
   m_primary_jet.clear();
-  
+
+  m_l1_DijetChains.clear();
+  m_hlt_DijetChains.clear();
+  m_of_DijetChains.clear();  
+
   m_basicL1Trig.clear();
   m_basicHLTTrig.clear();
 
@@ -207,7 +216,7 @@ void HLTJetMonTool::clearVectors() {
 
   // Jet ET bins
   m_jEtnbins.clear();
-  m_jEtbinlo.clear();
+ m_jEtbinlo.clear();
   m_jEtbinhi.clear();
 
   // Jet eta bins
@@ -247,13 +256,13 @@ void HLTJetMonTool::clearVectors() {
   m_l1binhiEt.clear();
   m_hltbinhiEt.clear();
 }
-// ------------------------------------------------------------------------------------
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 HLTJetMonTool::~HLTJetMonTool() {
   ATH_MSG_INFO( "in HLTJetMonTool::~HLTJetMonTool() " );
 } // end ~HLTJetMonTool
 
-// ------------------------------------------------------------------------------------
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::init() {
 
@@ -263,7 +272,16 @@ StatusCode HLTJetMonTool::init() {
 
   ATH_MSG_INFO( "in HLTJetMonTool::init()" );
 
-  //Luminosity information
+  //Lorentz Vectors for Jets
+
+  std::vector<TLorentzVector> v_HLTjet;
+  std::vector<TLorentzVector> v_L1jet;
+  std::vector<TLorentzVector> v_OFjet;
+  std::vector<int> v_HLTindex;
+  std::vector<int> v_L1index;
+  std::vector<int> v_OFindex;
+
+   //Luminosity information
 
   lumi_weight=1.;
   m_lumiBlock=-1;
@@ -284,7 +302,6 @@ StatusCode HLTJetMonTool::init() {
     return StatusCode::FAILURE;
   }
   
-
   // Monitoring trigger names specified through the congfiguration file or menu database, for menu-aware monitoring
   if(m_monitoring_l1jet.empty()) m_monitoring_l1jet.push_back("L1_J15");
   if(m_monitoring_jet.empty())   m_monitoring_jet.push_back("j60");
@@ -297,10 +314,10 @@ StatusCode HLTJetMonTool::init() {
   for( ; k< m_monitoring_l1jet.size(); ++k) {
     ATH_MSG_INFO( "monitoring_l1jet : " << m_monitoring_l1jet[k].c_str() );
 
-    // std::vector<std::string> selectChains = getTDT()->getListOfTriggers(m_monitoring_l1jet[k].c_str()); //this will configure the chain only if the chain is in the TDT
+    //  std::vector<std::string> selectChains = getTDT()->getListOfTriggers(m_monitoring_l1jet[k].c_str()); //this will configure the chain only if the chain is in the TDT
     // if (selectChains.size()){
     m_basicL1Trig.insert(std::pair<std::string,std::string>(m_monitoring_l1jet[k].c_str(),m_monitoring_l1jet[k].c_str()));
-    }
+  }
   // }
  
   // Fill trigger for HLT basic plots. String pairs of the form ("MonGroup name","HLT Filter Name")
@@ -323,6 +340,18 @@ StatusCode HLTJetMonTool::init() {
     ATH_MSG_INFO( "primary_jet : " << m_primary_jet[k].c_str() );
     m_HLTChains.insert(std::pair<std::string,std::string>(m_primary_jet[k].c_str(),m_primary_jet[k].c_str()));
   }
+
+  // L1 Chains for DiJet histos
+  k = 0;
+  for ( ; k < m_l1_DijetChains.size(); ++k){
+    ATH_MSG_INFO( "L1 DiJet chains : "<< m_l1_DijetChains[k].c_str() );
+  }
+  // L1 Chains for DiJet histos
+  k = 0;
+  for ( ; k < m_of_DijetChains.size(); ++k){
+    ATH_MSG_INFO( "OF DiJet chains : "<< m_of_DijetChains[k].c_str() );
+  }
+
 
   // defaults for bins
   // Jet Multiplicity bins
@@ -460,7 +489,7 @@ StatusCode HLTJetMonTool::init() {
 
 } // end init
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::book( ) {
 
@@ -567,7 +596,7 @@ StatusCode HLTJetMonTool::book( ) {
 
 } // end book
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 void HLTJetMonTool::bookJetHists() {
@@ -578,9 +607,9 @@ void HLTJetMonTool::bookJetHists() {
   std::vector<std::string> bookvars;
   std::string varlist;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  // bookBasicHists - 
-  // L1 histograms in m_L1dir
+  //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //:: bookBasicHists - 
+  //:: L1 histograms in m_L1dir
   levels.push_back("L1");
   varlist = "n;et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
 
@@ -602,16 +631,16 @@ void HLTJetMonTool::bookJetHists() {
   if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
   bookBasicHists(levels,bookvars);
   
-  ///////////////////////////////////////////////////////////////////////////////
-  // bookBasicHists - 
-  // HLT histograms in m_HLTdir
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //:: bookBasicHists - 
+  //:: HLT histograms in m_HLTdir
   setCurrentMonGroup(HLTdir);
   levels.clear(); levels.push_back("HLT");
 
   unsigned int k = 0; 
   for(JetSigIter hj= m_HLTJetKeys.begin(); hj != m_HLTJetKeys.end(); ++hj, k++) {
     // book histograms for each HLT jet container 
-    varlist = "n;et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+    varlist = "n;et;high_et;eta;phi;emfrac;hecfrac;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
     nvar = basicKineVar(varlist,bookvars);
     if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -635,10 +664,10 @@ void HLTJetMonTool::bookJetHists() {
   }
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
-  //                     - "et;eta;phi;phi_vs_eta;"; // all with L1 prefix
-  //
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //::  fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
+  //::                      - "et;eta;phi;phi_vs_eta;"; // all with L1 prefix
+  //:: 
 
   // L1 Chains
   varlist="et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;";
@@ -664,13 +693,13 @@ void HLTJetMonTool::bookJetHists() {
     bookBasicHists(levels,bookvars);
   }
     
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // fillBasicHLTforChain - "l1et_vs_hltet;l1eta_vs_hlteta;l1phi_vs_hltphi;"
-  //                     - "et;eta;phi;phi_vs_eta;et_EffRelL2;eta_EffRelL2;phi_EffRelL2" // with HLT prefix
+  //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //:: fillBasicHLTforChain - "l1et_vs_hltet;l1eta_vs_hlteta;l1phi_vs_hltphi;"
+  //::                     - "et;eta;phi;phi_vs_eta;et_EffRelL2;eta_EffRelL2;phi_EffRelL2" // with HLT prefix
 
   // HLT Chains
   // HLT basic histograms
-  varlist="et;leading_et;eta;phi;phi_vs_eta;emfrac;hecfrac;e_vs_eta;e_vs_phi;sigma_vs_lb;";
+  varlist="et;leading_et;high_et;eta;phi;phi_vs_eta;emfrac;hecfrac;e_vs_eta;e_vs_phi;sigma_vs_lb;";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); /*levels.push_back("L1");*/
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
@@ -701,12 +730,12 @@ void HLTJetMonTool::bookJetHists() {
   }
   */
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Offline Jets - 
-  // OF m_OFpfx for each offline jet container
-  // OF histograms will be in their respective folder by container names
-  // Example: if m_OFpfx = "OF_" and m_OFJetKeys[] = {"AntiKt4LCTopoJets", "AntiKt10EMTopoJets"}
-  // then dirs will be {"Rec_AntiKt4LCTopoJets", "Rec_AntiKt10EMTopoJets"}
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //:: Offline Jets - 
+  //:: OF m_OFpfx for each offline jet container
+  //:: OF histograms will be in their respective folder by container names
+  //:: Example: if m_OFpfx = "OF_" and m_OFJetKeys[] = {"AntiKt4LCTopoJets", "AntiKt10EMTopoJets"}
+  //:: then dirs will be {"Rec_AntiKt4LCTopoJets", "Rec_AntiKt10EMTopoJets"}
 
   if(m_doOFJets) {
     k = 0; // FIXME
@@ -763,6 +792,34 @@ void HLTJetMonTool::bookJetHists() {
     } // end for JetSigIter
   } // end if(m)doOFJets)
 
+
+  //::::::::::::::::::::::::::::::::::::::::BOOK DIJET HISTOS::::::::::::::::::::::::::::::::::::::::::::::::
+
+  for(JetSigIter l1= m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1 ) {
+    for (unsigned int k=0; k < m_l1_DijetChains.size(); ++k){
+      
+      if (m_l1_DijetChains[k] == (*l1).first){ //book L1 vs L1
+	setCurrentMonGroup(m_monGroups[(*l1).first]);
+	bookDijetHistos((*l1).first,(*l1).first);
+      }
+    }
+
+    for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj) { //book L1 vs OF
+      for (unsigned int k=0; k < m_l1_DijetChains.size(); ++k){
+	for (unsigned int j=0; j < m_of_DijetChains.size(); ++j){
+
+	  if (m_l1_DijetChains[k] == (*l1).first && m_of_DijetChains[j] == (*ofj).second){
+	    setCurrentMonGroup(m_monGroups[(*l1).first]);
+	    bookDijetHistos((*l1).first,(*ofj).second);
+	  }
+	}
+      }
+    } //loop OF
+  } //loop L1
+
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
   if(m_debuglevel) {
     std::ostringstream mongrps;
     std::map<std::string, std::string>::iterator it = m_monGroups.begin();
@@ -770,11 +827,63 @@ void HLTJetMonTool::bookJetHists() {
       mongrps << Form("\n\t%10s <==> %10s",((*it).first).c_str(), ((*it).second).c_str());
     ATH_MSG_DEBUG( mongrps.str() );
   }
-  // -------------------------------------------------------------------- //
 
 } // end bookJetHists
 
-// ------------------------------------------------------------------------------------
+  // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+  //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+void HLTJetMonTool::bookDijetHistos(const std::string& trigjet, const std::string& ofjet) {
+
+
+  int   nbinsEt = m_jEtnbins[0];
+  float binloEt = m_jEtbinlo[0];
+  float binhiEt = m_jEtbinhi[0];
+
+
+  if (trigjet==ofjet){
+ 
+    //L1/HLT lead Et vs. OF lead Et
+    TString htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading E_{T}^{jet} [GeV]; Subleading E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
+    TString hname = Form("%s_leadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
+    addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
+    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    
+  }else{
+    
+    //L1/HLT lead Et vs. OF lead Et
+    TString htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading L1 E_{T}^{jet} [GeV]; Leading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
+    TString hname = Form("%s_leadEt_vs_%s_leadEt",trigjet.c_str(), ofjet.c_str());
+    addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
+    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    
+    //L1/HLT lead Et vs. OF sublead Et
+    htitle = Form("%s E_{T} w.r.t %s E_{T}; Leading L1 E_{T}^{jet} [GeV]; Subleading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
+    hname = Form("%s_leadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
+    addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
+    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    
+    //L1/HLT sublead Et vs. OF lead Et
+    htitle = Form("%s E_{T} w.r.t %s E_{T}; Subleading L1 E_{T}^{jet} [GeV]; Leading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
+    hname = Form("%s_subleadEt_vs_%s_leadEt",trigjet.c_str(), ofjet.c_str());
+    addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
+    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+    
+    //L1/HLT sublead Et vs. OF sublead Et
+    htitle = Form("%s E_{T} w.r.t %s E_{T}; Subleading L1 E_{T}^{jet} [GeV]; Subleading OF  E_{T}^{jet} [GeV]",trigjet.c_str(), ofjet.c_str());
+    hname = Form("%s_subleadEt_vs_%s_subleadEt",trigjet.c_str(), ofjet.c_str());
+    addHistogram(new TH2F(hname, htitle,nbinsEt,binloEt,binhiEt,nbinsEt,binloEt,binhiEt));
+    ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
+  }
+}//EoF
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet) {
 
@@ -811,7 +920,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
       //}
 
 
-      //********************************************* 1D HISTOS **************************************************************************
+      //::::::::::::::::::::::::::::: 1D HISTOS :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     // eff vs. pt
     TString htitle = Form("%s : %s Efficiency w.r.t %s vs. p_{T}; p_{T}^{jet} [GeV]; Efficiency", ContainerName.Data(), trigItem.Data(), ofjet.c_str());
@@ -877,10 +986,10 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     addHistogram(new TH1F(hname, htitle,100,-1,1));
     
 
-    //********************************************************************************************************************************************
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-    //********************************************** 2D HISTOS ***********************************************************************************
+    //::::::::::::::::::::::::::::::: 2D HISTOS :::::::::::::::::::::::::::::::::::::::::::::::::::
 
     // eff vs. pt vs. eta
     htitle = Form("%s : %s Efficiency w.r.t %s vs. p_{T} vs. #eta; p_{T}^{jet} [GeV]; #eta^{jet}", ContainerName.Data(), trigItem.Data(), ofjet.c_str());
@@ -911,73 +1020,13 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     ATH_MSG_DEBUG("Booked " << hname << "(" << nbinsEt << "," << binloEt << "," << binhiEt << ")" );
 
 
-    //*******************************************************************************************************************************************
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   } // end for
 
 } // end bookTrigEffHist
 
-
-// ------------------------------------------------------------------------------------
-/*
-void HLTJetMonTool::bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg ) {
-
-  //if(k >= m_OFJetKeys.size()) return;
-
-  std::string OFalg = ofjAlg; //m_OFJetKeys[k];
-  //std::string OFalg_short = Form("%s%d",m_OFpfx.c_str(),k);
-
-  TString htitle = "histogram title"; 
-  TString hname = "hist2d_name"; 
-
-  bool m_notOF = (level1 == "L1") && (level2 == "HLT");
-  std::string lvlUp = "Offline", lvlUpt = "Offline hist", lvlDown = level1;
-
-  if(m_notOF) {
-    lvlUp = level2; 
-    lvlUpt = level2;
-  } else {
-    //lvlUp = OFalg_short;
-    lvlUp = m_OFpfx;
-    lvlUpt = OFalg;
-  }
-
-  // DeltaEta vs Eta ---------------------
-  htitle = Form("#Delta#eta(%s, %s) vs. %s #eta ; %s #eta; #Delta#eta",lvlUpt.c_str(), lvlDown.c_str(), lvlUpt.c_str(), lvlUpt.c_str()) ;
-  hname = Form("%s%sdeta_vs_%seta",lvlUp.c_str(), lvlDown.c_str(), lvlUp.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jDepnbins[0],m_jDepbinlo[0],m_jDepbinhi[0],m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));  
-
-  // DeltaPhi vs Phi ---------------------
-  htitle = Form("#Delta#varphi(%s, %s) vs. %s #varphi ; %s #varphi [rad]; #Delta#varphi [rad]",lvlUpt.c_str(), lvlDown.c_str(), lvlUpt.c_str(), lvlUpt.c_str()) ;
-  hname = Form("%s%sdphi_vs_%sphi",lvlUp.c_str(), lvlDown.c_str(), lvlUp.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jDepnbins[0],m_jDepbinlo[0],m_jDepbinhi[0],m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));  
-
-  // DeltaEt vs Et  ---------------------
-  htitle = Form("#DeltaE_{T}(%s, %s) vs. %s E_{T} ; %s E_{T} [GeV]; #DeltaE_{T} [GeV]",lvlUpt.c_str(), lvlDown.c_str(), lvlUpt.c_str(), lvlUpt.c_str());
-
-  hname = Form("%s%sdEt_vs_%sEt",lvlUp.c_str(), lvlDown.c_str(), lvlUp.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jEtnbins[0],m_jEtbinlo[0],m_jEtbinhi[0],m_jDEtnbins[0],m_jDEtbinlo[0],m_jDEtbinhi[0]));  
-
-  // Et vs Et ---------------------
-  htitle = Form("Correlation: %s E_{T} vs. %s E_{T}; %s E_{T} [GeV]; %s E_{T} [GeV]",lvlUpt.c_str(), lvlDown.c_str(),lvlDown.c_str(), lvlUpt.c_str());
-  hname = Form("%s_vs_%s_Et",lvlUp.c_str(), lvlDown.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jEtnbins[0],m_jEtbinlo[0],m_jEtbinhi[0],m_jEtnbins[0],m_jEtbinlo[0],m_jEtbinhi[0]));
-
-  // Phi vs Phi ---------------------
-  htitle = Form("Correlation: %s #varphi vs. %s #varphi; %s #varphi [rad]; %s #varphi [rad]",lvlUpt.c_str(), lvlDown.c_str(),lvlDown.c_str(), lvlUpt.c_str());
-  hname = Form("%s_vs_%s_phi",lvlUp.c_str(), lvlDown.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0],m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
-
-  // Eta vs Eta ---------------------
-  htitle = Form("Correlation: %s #eta vs. %s #eta; %s #eta; %s #eta",lvlUpt.c_str(), lvlDown.c_str(),lvlDown.c_str(), lvlUpt.c_str());
-  hname = Form("%s_vs_%s_eta",lvlUp.c_str(), lvlDown.c_str());
-  addHistogram(new TH2F(hname, htitle,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0],m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
-
-
-} // end bookCorrHist
-*/
-
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<std::string>& bookvars) {
   ATH_MSG_DEBUG("bookBasicHists for level: " << level );
@@ -1011,6 +1060,13 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
         htitle = Form("%s transverse energy; E_{T} [GeV]; entries/%3.1f GeV",title.Data(),m_jEtperbin[0]);
         hname = Form("%sJet_Et",lvl.Data());
         addHistogram(new TH1F(hname, htitle,m_jEtnbins[0],m_jEtbinlo[0],m_jEtbinhi[0]));
+      }
+
+      // jet High ET
+      if(*var == "high_et") {
+        htitle = Form("%s transverse energy; E_{T} [GeV]; entries/%3.1f GeV",title.Data(),m_jEtperbin[0]*2);
+        hname = Form("%sJet_HighEt",lvl.Data());
+        addHistogram(new TH1F(hname, htitle,m_jEtnbins[0]*2,m_jEtbinlo[0],m_jEtbinhi[0]*2));
       }
 
       // leading jet ET
@@ -1147,7 +1203,7 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
         addHistogram(new TH2F(hname, htitle, m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0], m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
       }
 
-      //******************************LUMINOSITY HISTOS****************************************************************
+      //::::::::::::::::::::::: LUMINOSITY HISTOS :::::::::::::::::::::::::::::::::::::::::::::::::
  
       if(*var == "sigma_vs_lb") {
 	htitle = Form("%s #sigma vs. LumiBlock; N. LumiBlock; N/L",title.Data());
@@ -1155,7 +1211,7 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
 	addHistogram(new TH1F(hname, htitle,10000,0,10000));
       }
 
-      //***************************************************************************************************************
+      //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       
     } // for chain
 
@@ -1163,7 +1219,7 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
 
 } // end bookJetHist
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void HLTJetMonTool::setHistProperties(TH1* h) {
 
@@ -1189,7 +1245,7 @@ void HLTJetMonTool::set2DHistProperties(TH2* h) {
 
 } // end set2DHistProperties
 
-// ------------------------------------------------------------------------------------
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::retrieveContainers() {
 
@@ -1240,7 +1296,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
 
 } // end retrieveContainers
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 int HLTJetMonTool::retrieveLumiBlock(){
   
@@ -1284,7 +1340,7 @@ StatusCode HLTJetMonTool::fill() {
 
 } // end fill()
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::fillJetHists() {
 
@@ -1296,7 +1352,7 @@ StatusCode HLTJetMonTool::fillJetHists() {
   m_lumiBlock=retrieveLumiBlock(); //get lb number
   v_lbn.push_back(m_lumiBlock);
 
-  // ATH_MSG_INFO("lbLumiWeight() = "<<lbLumiWeight()<<" lumi_weight = "<<lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<v_lbn.front()<<" last v_lbn = "<<v_lbn.back());
+  //  ATH_MSG_INFO("lbLumiWeight() = "<<lbLumiWeight()<<" lumi_weight = "<<lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<v_lbn.front()<<" last v_lbn = "<<v_lbn.back());
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = fillBasicHists();
@@ -1316,11 +1372,19 @@ StatusCode HLTJetMonTool::fillJetHists() {
     ATH_MSG_INFO ( "HLTJetMonTool::fillOfflineHists() returned success" );    
   }
 
+// fill dijet monitoring hists
+    sc = fillDiJetHists();
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_INFO ( "HLTJetMonTool::fillDiJetHists() returned success" );    
+
   return StatusCode::SUCCESS;
 
 } // end fillJetHists
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::fillBasicHists() {
 
@@ -1347,12 +1411,8 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       double ene = et * cosh(eta);
       double phi = (*it_L1)->phi();
       
-      // if (lbLumiWeight()>0 && m_doLumiWeight){//get weight from luminosity of the corresponding BCID
-      //	lumi_weight=1/lbLumiWeight();
-      // }
-
       if(m_debuglevel)
-        ATH_MSG_DEBUG( "et =  " << et <<  "\teta = " << eta << "\tene = " << ene );
+	ATH_MSG_INFO( "et =  " << et <<  "\teta = " << eta << "\tene = " << ene << "\tphi = "<<phi );
 
       if((h = hist("L1Jet_Et"))) { 
         if(m_debuglevel)
@@ -1363,7 +1423,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       if((h  = hist("L1Jet_phi")))          h->Fill(phi,lumi_weight);
 
       if((h  = hist("L1Sigma_vs_LB"))){      
-	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	//	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
 	h->Fill(m_lumiBlock,lumi_weight);
       }
 
@@ -1379,12 +1439,18 @@ StatusCode HLTJetMonTool::fillBasicHists() {
     }
 
     // begin fill L1  per chain -- will be filled in L1/EF by using ancestor methods 
-      for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) {
+
+    v_L1jet.clear();
+    v_L1index.clear();
+    v_L1index.push_back(0);
+    n_index=0;    
+
+    for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) {
       setCurrentMonGroup(m_monGroups[(*l1).first]);
       ATH_MSG_INFO("Calling fillBasicL1forChain(" << (*l1).second << ", " << m_l1EtThres[(*l1).second] << ")" );
       fillBasicL1forChain((*l1).second, m_l1EtThres[(*l1).second]);     
-      } // end fill L1 per chain
-   
+    } // end fill L1 per chain
+    
   } // end if m_L1RoiC
 
   // fill HLT jets
@@ -1399,47 +1465,43 @@ StatusCode HLTJetMonTool::fillBasicHists() {
     if(jetcoll) {
       std::string lvl = m_HLTpfx; 
       std::string mgrp = m_monGroups[Form("%s%d",m_HLTpfx.c_str(),k)];
-	  
+      
       if(m_debuglevel)ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
       setCurrentMonGroup(mgrp);
-
+      
       if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
-	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	//	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
 	h->Fill(m_lumiBlock,lumi_weight);
       }
-
+      
       unsigned int n_HLTJet = 0;
       for(const auto & thisjet : *jetcoll) {
         n_HLTJet++;
-
-	if(m_debuglevel) {
-	      //checks jet variables
-	      ATH_MSG_INFO( "REGTEST Looking at jet " << n_HLTJet);
-	      ATH_MSG_INFO( "REGTEST    pt: " << thisjet->pt() );
-	      ATH_MSG_INFO( "REGTEST    eta: " << thisjet->eta() );
-	      ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
-	      ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
-	      ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
-	      ATH_MSG_INFO( "REGTEST    emfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac) ); 
-	      ATH_MSG_INFO( "REGTEST    hecfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac) ); 
-	      ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
-	      ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
-	      ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
-	      ATH_MSG_INFO( "REGTEST    type: " << thisjet->type() );
-	      ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
-	      ATH_MSG_INFO( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
-	      ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
-	      ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
-	      ATH_MSG_INFO( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
+	
+      	if(m_debuglevel) {
+	  //checks jet variables
+	  ATH_MSG_INFO( "REGTEST Looking at jet " << n_HLTJet);
+	  ATH_MSG_INFO( "REGTEST    pt: " << thisjet->pt() );
+	  ATH_MSG_INFO( "REGTEST    eta: " << thisjet->eta() );
+	  ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
+	  ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
+	  ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
+	  ATH_MSG_INFO( "REGTEST    emfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac) ); 
+	  ATH_MSG_INFO( "REGTEST    hecfrac: " << thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac) ); 
+	  ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
+	  ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
+	  ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
+	  ATH_MSG_INFO( "REGTEST    type: " << thisjet->type() );
+	  ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << thisjet->getAlgorithmType() );
+	  ATH_MSG_INFO( "REGTEST    size parameter: " << thisjet->getSizeParameter() );
+	  ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << thisjet->getInputType() );
+	  ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << thisjet->getConstituentsSignalState() );
+	  ATH_MSG_INFO( "REGTEST    number of constituents: " << thisjet->numConstituents() );      
 	}
-
+	
         // for basic hists, don't cut eta/pt
         //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
-
-	//	if (lbLumiWeight()>0 && m_doLumiWeight){ //get weight from luminosity of the corresponding BCID
-	//  lumi_weight=1/lbLumiWeight();
-	//	}
-
+	
         double e = (thisjet->e())/CLHEP::GeV;
         double et = 0., epsilon = 1.e-3;
         if(thisjet->pt() > epsilon) et = (thisjet->pt())/CLHEP::GeV;
@@ -1449,8 +1511,9 @@ StatusCode HLTJetMonTool::fillBasicHists() {
  	double  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	double  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
         if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
-
+	
         if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,lumi_weight);
+	if((h  = hist(Form("%sJet_HighEt",lvl.c_str()))))       h->Fill(et,lumi_weight);
         if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,lumi_weight);
         if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,lumi_weight);
         if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,lumi_weight);
@@ -1458,7 +1521,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi,lumi_weight);
         if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))    h2->Fill(eta,e,lumi_weight);
         if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))    h2->Fill(phi,e,lumi_weight);
-
+	
         // note: if this histogram turns out to be empty, it means:
         // emfraction is always 0 because the energies for different 
         // samplings are not filled at HLT
@@ -1468,11 +1531,19 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         // restore signal state
         // done automatically by sigstateH ??
       } // end for thisjet
+      
       if((h = hist(Form("%sJet_n",lvl.c_str()))))  h->Fill(n_HLTJet,lumi_weight);
+    
     } // end if jetcoll
   } // end for k [HLT jet containers]
 
   // fill HLT per chain -- begin
+
+  v_HLTjet.clear();
+  v_HLTindex.clear();
+  v_HLTindex.push_back(0);
+  n_index=0;
+
   for(JetSigIter hltit = m_HLTChains.begin(); hltit != m_HLTChains.end(); ++hltit) {
     setCurrentMonGroup(m_monGroups[(*hltit).first]);
     ATH_MSG_INFO("Calling fillBasicHLTforChain(" << (*hltit).second << ", " << m_hltEtThres[(*hltit).second] << ")" );
@@ -1482,6 +1553,13 @@ StatusCode HLTJetMonTool::fillBasicHists() {
   
   // fill offline jets in one loop
   // offline jets are in (0, 1, ..., N-1)th elements 
+
+  v_OFjet.clear();
+  v_OFindex.clear();
+  n_index=0;
+  v_OFindex.push_back(n_index);
+  TLorentzVector v_thisjet;
+
   if(m_doOFJets) {
     ATH_MSG_INFO ("Filling OF Jets");
     unsigned int Nelem = m_OFJetC.size();
@@ -1503,15 +1581,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	  for(const auto & thisjet : *jetcoll) {
             n_OFJet++;
+
             if(!thisjet) continue;
 
             // for basic hists, don't cut eta/pt
             //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
-
-	   
-	    // if (lbLumiWeight()>0 && m_doLumiWeight){//get weight from luminosity of the corresponding BCID
-	    //  lumi_weight=1/lbLumiWeight();
-	    // }
 
             double e = (thisjet->e())/CLHEP::GeV;
             double et = 0., epsilon = 1.e-3;
@@ -1523,6 +1597,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	    double  emfrac  =  thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac);
 	    double  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac);
             if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
+
+
+	    v_thisjet.SetPtEtaPhiE(thisjet->pt()/CLHEP::GeV,eta,phi,e);
+	    v_OFjet.push_back(v_thisjet);
+	    n_index++;
 
             if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,lumi_weight);
             if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,lumi_weight);
@@ -1545,6 +1624,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	  if((h = hist(Form("%sJet_n",lvl.c_str()))))  h->Fill(n_OFJet,lumi_weight);
 	  setCurrentMonGroup(mgrp);
       } // if jetcoll
+      v_OFindex.push_back(n_index);
     } // end for k
   } // if(m_doOFJets)
 
@@ -1552,7 +1632,8 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 } // end fillBasicHists
 
-// ------------------------------------------------------------------------------------
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 /*
 bool HLTJetMonTool::evtSelTriggersPassed() {
 
@@ -1569,12 +1650,15 @@ bool HLTJetMonTool::evtSelTriggersPassed() {
 } // end evtSelTriggersPassed 
 */
 
-// **********************************************************************************************************************
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double thrHLT, const std::string& theContainer ) {
   
 
   TH1 *h(0); 
   TH2 *h2(0); 
+
+  TLorentzVector v_thisjet;
 
   double count=0;
   
@@ -1583,7 +1667,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
   if (getTDT()->isPassed(Form("HLT_%s",theChain.c_str()))) {
 
     if((h  = hist("HLTSigma_vs_LB"))){
-      h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
       h->Fill(m_lumiBlock,lumi_weight);
     }
 
@@ -1595,10 +1678,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
      for(auto jcont : JetFeatureContainers) {
        for (auto j : *jcont.cptr()) {
 
-	 // if (lbLumiWeight()>0 && m_doLumiWeight){//get weight from luminosity of the corresponding BCID
-	 //  lumi_weight=1/lbLumiWeight();
-	 // }
-
 	 double e = (j->e())/CLHEP::GeV;
 	 double et = 0., epsilon = 1.e-3;
 	 if(j->pt() > epsilon) et = (j->pt())/CLHEP::GeV;
@@ -1609,8 +1688,13 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   double phi     = j->phi();
 	   double emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac);
 	   double hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac);
-	   
+
+	   v_thisjet.SetPtEtaPhiE(j->pt(),j->eta(), j->phi(),j->e());
+	   v_HLTjet.push_back(v_thisjet);
+           n_index++;
+		   
 	   if((h  = hist("HLTJet_Et")))            h->Fill(et,      lumi_weight);
+	   if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      lumi_weight);
 	   if((h  = hist("HLTJet_eta")))           h->Fill(eta,     lumi_weight);
 	   if((h  = hist("HLTJet_phi")))           h->Fill(phi,     lumi_weight);
 	   if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  lumi_weight);
@@ -1630,11 +1714,14 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
        }// loop over jet container
      }// loop over features container
+
+     v_HLTindex.push_back(n_index);
+
   }// if chain passed
 }//EoF
 
 
-// *****************************************************************************************
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrEt ) {
 
@@ -1642,13 +1729,16 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
 
   TH1 *h(0); 
   TH2 *h2(0); 
-  
-  ATH_MSG_DEBUG("fillBasicL1forChain: ITEM: " << theChain.c_str() << " passed TDT: "<<getTDT()->isPassed(theChain.c_str()));
+
+  TLorentzVector v_thisjet; //create a 4vector for the single jets in the event
+ 
 
   if (getTDT()->isPassed(theChain.c_str())){
 
+    ATH_MSG_DEBUG("TDTPassed!");
+
     if((h  = hist("L1Sigma_vs_LB"))){
-      h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+      //   h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
       h->Fill(m_lumiBlock,lumi_weight);
     }
     
@@ -1656,13 +1746,13 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
     for(Trig::FeatureContainer::combination_const_iterator chIt = chainFeatures.getCombinations().begin(); 
         chIt != chainFeatures.getCombinations().end(); ++chIt ) {
       
+      ATH_MSG_DEBUG("loop features");
+
       std::vector< Trig::Feature<TrigRoiDescriptor> > theRoIdesc = chIt->get<TrigRoiDescriptor>("initialRoI");
       for(std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator combIt = theRoIdesc.begin(); 
           combIt!= theRoIdesc.end(); ++combIt){
 
-	//	if (lbLumiWeight()>0 && m_doLumiWeight){ //get weight from luminosity of the corresponding BCID
-	//  lumi_weight=1/lbLumiWeight();
-	//	}
+	ATH_MSG_DEBUG("loop roidesc");	
 
         if(!(combIt->cptr())) continue;
         if((h = hist("L1Jet_roidesc_eta")))  h->Fill(combIt->cptr()->eta(),lumi_weight);
@@ -1675,10 +1765,6 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
         xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
 	
         for (; it_L1 != it_e_L1; ++it_L1) {
-
-	  // if (lbLumiWeight()>0 && m_doLumiWeight){ //get weight from luminosity of the corresponding BCID
-	  //  lumi_weight=1/lbLumiWeight();
-	  // }
 
           double et = ((*it_L1)->et4x4())/CLHEP::GeV;
 	  if(et < 1.e-3) et = 0;
@@ -1704,6 +1790,12 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
             bool l1_thr_pass = (et > thrEt);
             ATH_MSG_DEBUG("CHAIN: " << theChain << " " << et << "\tthreshold = " << thrEt << "\tpass = " << l1_thr_pass);
             if(l1_thr_pass) {
+	      
+	      v_thisjet.SetPtEtaPhiE(et,eta,phi,ene);
+	      v_L1jet.push_back(v_thisjet);
+	      n_index++;
+	     
+
               if((h  = hist("L1Jet_Et")))           h->Fill(et,lumi_weight);
               if((h  = hist("L1Jet_eta")))          h->Fill(eta,lumi_weight);
               if((h  = hist("L1Jet_phi")))          h->Fill(phi,lumi_weight); 
@@ -1718,8 +1810,184 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
       } // for combIt
     } // l2It
   } // L2 chain isPassed
+
+v_L1index.push_back(n_index);
+
 } //EoF
-// *********************************************************************************
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+//:::::::::::::::::::::::::::::::::FILL DIJET HISTS::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+StatusCode HLTJetMonTool::fillDiJetHists() {
+
+  TH2* h2(0);
+
+  int count=0;
+  int count1=0;
+  int count2=0;
+  int count3=0;
+  int index_lead=0;
+  double ptlead=-999;
+  double ptsublead=-999;
+  bool l1lead=false;
+  bool l1sublead=false;
+  bool oflead=false;
+  bool ofsublead=false;
+  TLorentzVector v_jet;
+  TLorentzVector v_leadjet;
+  TLorentzVector v_subleadjet;
+  TLorentzVector v_ofleadjet;
+  TLorentzVector v_ofsubleadjet;
+
+
+ //:::::::::::::::::::::::SELECT L1 JETS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+ 
+ for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) { 
+   std::string theChain=(*l1).second;  
+   ptlead=-999;
+   ptsublead=-999;
+   index_lead=0;
+   l1lead=false;
+   l1sublead=false;
+   ATH_MSG_DEBUG("for "<<v_L1index[count]<<" to "<<v_L1index[count+1]);
+   
+   for (int i=v_L1index[count]; i<v_L1index[count+1]; ++i) {
+     v_jet=v_L1jet[i];
+     ATH_MSG_DEBUG("jet n "<<i+1<<" pt = "<<v_jet.Pt());
+     
+     if (v_jet.Pt() >= ptlead){ //select leading
+       v_leadjet=v_jet;
+       ptlead=v_jet.Pt();
+       index_lead=i;
+       l1lead=true;
+       ATH_MSG_DEBUG("is leading");
+     }
+   }
+   
+   count++;
+   
+   for (int i=v_L1index[count1]; i<v_L1index[count1+1]; ++i) { //select subleading
+     v_jet=v_L1jet[i];
+     ATH_MSG_DEBUG("jet n "<<i+1<<" pt = "<<v_jet.Pt());
+     
+     if (v_jet.Pt()>=ptsublead && i != index_lead){
+       v_subleadjet=v_jet;
+       ptsublead=v_jet.Pt();
+       l1sublead=true;
+       ATH_MSG_DEBUG("is subleading");
+     }
+   }
+   
+   count1++;
+   
+   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+   
+     
+   //::::::::::::::::::FILL L1 vs L1 HISTO IN ONE LOOP::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+   
+   
+    for (unsigned int k=0; k < m_l1_DijetChains.size(); ++k){
+      
+      ATH_MSG_DEBUG("L1 Chain "<<theChain.c_str()<<" Dijet Chain "<<m_l1_DijetChains[k].c_str());
+      
+      if (theChain == m_l1_DijetChains[k]){
+	ATH_MSG_DEBUG("pass");
+	setCurrentMonGroup(m_monGroups[(*l1).first]);
+	
+	if (l1lead && l1sublead){
+	  if((h2 = hist2(Form("%s_leadEt_vs_%s_subleadEt",theChain.c_str(),theChain.c_str())))) h2->Fill(v_leadjet.Et(),v_subleadjet.Et(),lumi_weight);
+	  
+	}
+      }   
+    }
+
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+    //:::::::::::::::::::::::SELECT OF JETS::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    
+    count2=0;
+    count3=0;
+
+    
+    for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj) {
+      ptlead=-999;
+      ptsublead=-999;
+      index_lead=0;
+      oflead=false;
+      ofsublead=false;	
+      ATH_MSG_DEBUG("for "<<v_OFindex[count]<<" to "<<v_OFindex[count+1]);
+      
+      for (int i=v_OFindex[count2]; i<v_OFindex[count2+1]; ++i) {
+	v_jet=v_OFjet[i];
+	ATH_MSG_DEBUG("jet n "<<i+1<<" pt = "<<v_jet.Pt());
+	
+	if (v_jet.Pt() >= ptlead){ //select leading
+	  v_ofleadjet=v_jet;
+	  ptlead=v_jet.Pt();
+	  index_lead=i;
+	  oflead=true;
+	  ATH_MSG_DEBUG("is leading");
+	}
+      }
+      
+      count2++;
+      
+      for (int i=v_OFindex[count3]; i<v_OFindex[count3+1]; ++i) { //select subleading
+	v_jet=v_OFjet[i];
+	ATH_MSG_DEBUG("jet n "<<i+1<<" pt = "<<v_jet.Pt());
+	
+	if (v_jet.Pt()>=ptsublead && i != index_lead){
+	  v_ofsubleadjet=v_jet;
+	  ptsublead=v_jet.Pt();
+	  ofsublead=true;
+	  ATH_MSG_DEBUG("is subleading");
+	}
+      }
+      
+      count3++;
+    
+  //::::::::::::::::::FILL L1 vs OF HISTO IN ONE LOOP::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+    for (unsigned int k=0; k < m_l1_DijetChains.size(); ++k){      
+      for (unsigned int j=0; j < m_of_DijetChains.size(); ++j){
+	ATH_MSG_DEBUG("L1 Chain "<<theChain.c_str()<<" Dijet Chain "<<m_l1_DijetChains[k].c_str());
+      
+	if (theChain == m_l1_DijetChains[k] && (*ofj).second == m_of_DijetChains[j]){
+	  ATH_MSG_DEBUG("pass");
+	  setCurrentMonGroup(m_monGroups[(*l1).first]);
+	  
+	  if (l1lead && l1sublead && oflead && ofsublead){
+	    if((h2 = hist2(Form("%s_subleadEt_vs_%s_subleadEt",theChain.c_str(),((*ofj).second).c_str()))))    h2->Fill(v_subleadjet.Et(),v_ofsubleadjet.Et(),lumi_weight);
+	    if((h2 = hist2(Form("%s_leadEt_vs_%s_leadEt",theChain.c_str(),((*ofj).second).c_str()))))          h2->Fill(v_leadjet.Et(),v_ofleadjet.Et(),lumi_weight);
+	    if((h2 = hist2(Form("%s_leadEt_vs_%s_subleadEt",theChain.c_str(),((*ofj).second).c_str()))))       h2->Fill(v_leadjet.Et(),v_ofsubleadjet.Et(),lumi_weight);
+	    if((h2 = hist2(Form("%s_subleadEt_vs_%s_leadEt",theChain.c_str(),((*ofj).second).c_str()))))       h2->Fill(v_subleadjet.Et(),v_ofleadjet.Et(),lumi_weight);	    
+	  }
+	}
+      } 
+    }
+
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    } //end OF JetCol loop
+    
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    
+ } // for L1 Chain
+ 
+ //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ 
+ return StatusCode::SUCCESS;
+ 
+} //EoF
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
 
 bool HLTJetMonTool::isChainActive(const std::string& theChain ) {
   bool isactive = true;
@@ -1730,7 +1998,7 @@ bool HLTJetMonTool::isChainActive(const std::string& theChain ) {
 
 } // end isChainActive
 
-// *********************************************************************************
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 bool HLTJetMonTool::selectJet(const Jet *jet) {
 
@@ -1778,7 +2046,8 @@ bool HLTJetMonTool::selectJet(const Jet *jet) {
 
 } // end selectJet
 
-// ------------------------------------------------------------------------------------
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::..
+
 bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, double larq, double hecq, double time,
     double sumpttrk, double eta, double pt, double fmax, double negE) {
 
@@ -1822,10 +2091,10 @@ bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, 
 
 }
 
-// ***********************************************************************************
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-// ***********************************************************************************
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 StatusCode HLTJetMonTool::fillOfflineHists() {
 
@@ -1879,10 +2148,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	setCurrentMonGroup(mgrp_eff);
 
 
-	//	if (isLeadingJet(jet,jetcoll)){ //ask only for leading OF jets to be matched
-
-
-	//************************************ OF vs L1 **********************************************************
+	//:::::::::::::::::::::::::: OF vs L1 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 	ATH_MSG_DEBUG("Filling Denominator Histograms for L1");
@@ -1973,7 +2239,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 	  count=0;
 
-	//******************************** OF vs HLT ***************************************************************************
+	//::::::::::::::::::::::::::: OF vs HLT ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	  ATH_MSG_DEBUG("Filling Denominator Histograms for HLT");
 
@@ -2063,16 +2329,9 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	}//loop over unmatched jets
 
 
-	//*******************************************************************************************************************************
-
-
-	//	} // isLeadingJet
+	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
       } // for loop over OF jet
-
-
-      //Here should be fill turn-on curves
-
     } // if jetcoll
   } // for k (loop over all ref coll's)
 
@@ -2080,12 +2339,12 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 } // end fillOfflineHists
 
-// **************************************************************************************************************************************
+// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
 
-// **************************************************************************************************************************************
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 bool HLTJetMonTool::passedChainTest( const xAOD::Jet *jet, std::vector<std::string>& mFound,  std::vector<TLorentzVector>& mFoundJets, std::vector<std::string>& mUnmatched, std::vector<TLorentzVector>& mUnmatchedJets,const std::string& level) {
 
@@ -2168,6 +2427,7 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   v_ofjets.clear();
   
   if (njets==nleading && njets>0){
+    ATH_MSG_DEBUG("is leading");
     return true;
   }else{
     return false; 
@@ -2214,12 +2474,11 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 	  v_L1.SetPtEtaPhiE(et,eta,phi,ene);
 	  
 	  double DR=v_OF.DeltaR(v_L1);
-
 	  //double DR=delta_r((*it_L1)->eta(),(*it_L1)->phi(),jet->eta(),jet->phi());
 	  
 	  ATH_MSG_DEBUG("Jet pt= "<<et<<" Jet eta= "<<eta<< "Et thresh = "<<thrHLT);
 	      
-	  if (DR<DRmin){
+	  if (DR<DRmin){ //select best matching jet
 	   
 	    DRmin=DR;
 	    //  v_best_match=v_L1;	   
@@ -2316,17 +2575,27 @@ StatusCode HLTJetMonTool::proc( ) {
     JetSigIter lIt;
     
     unsigned int Nelem = m_OFJetC.size();
-    for(unsigned int k = 0; k < Nelem; k++ ) {
+
+    for(unsigned int k = 0; k < Nelem; k++ ) { //OF Chains
       const xAOD::JetContainer *jetcoll = m_OFJetC[k];
       if(jetcoll) {
+	std::string lvl = m_OFpfx; 
+	std::string mgrp = m_monGroups[Form("%s%d",m_OFpfx.c_str(),k)];
+	setCurrentMonGroup(mgrp);
+	
+	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){      
+	  h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	}
+
+
+	//::::::::::::::::::::::::::::::::FILL TURN-ON CURVES::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 	std::string malg = Form("%s%d",m_OFpfx.c_str(),k);
-	std::string mgrp = m_monGroups[malg];
+	mgrp = m_monGroups[malg];
 	std::string mgrp_eff = m_monGroups[Form("%s%dEff",m_OFpfx.c_str(),k)];
 
 	setCurrentMonGroup(mgrp_eff);
-	
-	//**************************************** FILL TURN-ON CURVES********************************************************************
-	
+		
 	for(lIt = m_L1Items.begin(); lIt != m_L1Items.end(); ++lIt) {
 	  std::string L1itemName = (*lIt).first;       
 	  
@@ -2409,10 +2678,55 @@ StatusCode HLTJetMonTool::proc( ) {
 	  }
 	} //End Loop over HLT
 	
-	//*******************************************************************************************************************************
+	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
       }//if jetcoll
-    }//loop over jetcoll 
+    }//loop over jetcoll
+
+
+    //::::::::::::::::::::::::::::::::::::::SET HISTOGRAM PROPERTIES:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+    setCurrentMonGroup(m_monGroups["L1"]);
+  
+    if((h = hist("L1Sigma_vs_LB"))) { //basic L1
+      h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+    }
+
+    for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) { //L1 Chain
+      setCurrentMonGroup(m_monGroups[(*l1).first]);
+      if((h  = hist("L1Sigma_vs_LB"))){
+	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+      }     
+    }
+
+    unsigned int NHLTelem = m_HLTJetC.size();//basic HLT
+    
+    for(unsigned int k = 0; k < NHLTelem; k++ ) {
+      const xAOD::JetContainer *jetcoll = 0;
+      jetcoll = m_HLTJetC[k];
+      
+      if(jetcoll) {
+	std::string lvl = m_HLTpfx; 
+	std::string mgrp = m_monGroups[Form("%s%d",m_HLTpfx.c_str(),k)];
+	setCurrentMonGroup(mgrp);
+	
+	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
+	  h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	}
+      }
+    }
+
+    for(JetSigIter hltit = m_HLTChains.begin(); hltit != m_HLTChains.end(); ++hltit) { // HLT Chain
+      setCurrentMonGroup(m_monGroups[(*hltit).first]);
+        
+      if((h  = hist("HLTSigma_vs_LB"))){
+	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+      } 
+    } 
+    
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ 
     
     return StatusCode::SUCCESS;
 } // end proc
