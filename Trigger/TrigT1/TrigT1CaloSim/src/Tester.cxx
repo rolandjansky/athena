@@ -183,10 +183,6 @@ StatusCode Tester::execute( )
   if (m_mode&m_dumpRoICells) {dumpROICells();}
 
   if (m_mode&m_dumpJEMResults) {dumpJEMResults();}
-
-  if (m_mode&m_testEtTool) {testEtTool();}
-
-  if (m_mode&m_testJetTool) {testJetTool();}
   
   if (m_mode&m_dumpEDM) {dumpEDM();}
 
@@ -362,74 +358,7 @@ void LVL1::Tester::compareROIWords(){
 	return;
 }//end of compareROIWords
 
-/** loads the EmTauROIs from the TES.*/
-void LVL1::Tester::testJetTool(){
-  const t_JetROICollection* ROIs;
-  StatusCode sc1 = evtStore()->retrieve(ROIs, m_JetROILocation);
-  StatusCode scTool = m_JetTool.retrieve();
-
-  const DataVector<JetElement>* storedJEs;
-  std::map<int, JetInput*>* jetInputs = new std::map<int, JetInput*>;
-  if (scTool.isSuccess()) {
-    StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
-    if ( sc==StatusCode::SUCCESS ) m_JetTool->mapJetInputs(storedJEs,jetInputs);
-  }
-
-  if( ! ROIs ) {
-    ATH_MSG_DEBUG("No ROIs found in TES at "<< m_JetROILocation);
-	delete jetInputs;
-        return;
-  } else {
-    ATH_MSG_DEBUG("Found "<<ROIs->size() << " ROI(s)");
-
-    t_JetROICollection::const_iterator it ;
-
-    for( it  = ROIs->begin(); it < ROIs->end(); ++it){
-       int tempROIword=(*it)->roiWord();
-       ATH_MSG_DEBUG("ROI has ROIword : " << std::hex
-           <<  tempROIword << std::dec << endreq
-           << "eta         : " << (*it)->eta() << endreq
-           << "phi         : " << (*it)->phi() << endreq
-           << "ET 4x4      : " << (*it)->clusterEnergy4() << endreq
-           << "ET 6x6      : " << (*it)->clusterEnergy6() << endreq
-           << "ET 8x8      : " << (*it)->clusterEnergy8() );
-       if (scTool.isSuccess()) {
-         JetAlgorithm test = m_JetTool->findRoI((*it)->eta(), (*it)->phi(), jetInputs);
-         ATH_MSG_DEBUG( "JetAlgorithm gives: " << endreq
-             << "ROIword     : " << test.RoIWord() << endreq
-             << "isEtMax     : " << test.isEtMax() << endreq
-             << "eta         : " << test.eta() << endreq
-             << "phi         : " << test.phi() << endreq
-             << "ET 4x4      : " << test.ET4x4() << endreq
-             << "ET 6x6      : " << test.ET6x6() << endreq
-             << "ET 8x8      : " << test.ET8x8() );
-       }
-    }
-  }
-
   // Now test new jet trigger implementation
-  
-  if (scTool.isSuccess()) {
-    DataVector<JetAlgorithm>* rois = new DataVector<JetAlgorithm>;
-    m_JetTool->findRoIs(storedJEs, rois);
-    DataVector<JetAlgorithm>::iterator cpw = rois->begin();
-    for ( ; cpw != rois->end(); cpw++) {
-        ATH_MSG_DEBUG("JetAlgorithm has properties : " << endreq << std::hex
-           << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endreq
-           << "eta         : " << (*cpw)->eta() << endreq
-           << "phi         : " << (*cpw)->phi() << endreq
-           << "ET 4x4      : " << (*cpw)->ET4x4() << endreq
-           << "ET 6x6      : " << (*cpw)->ET6x6() << endreq
-           << "ET 8x8      : " << (*cpw)->ET8x8() );
-    }
-    delete rois;
-  }
-
-  delete jetInputs;
-  
-  return;
-} // end of testJetTool()
-
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::dumpEDM(){
@@ -1087,31 +1016,5 @@ void LVL1::Tester::dumpJEMResults(){
      }
   }
   
-}
-/** test the ETmiss/ETsum tool */
-void LVL1::Tester::testEtTool(){
-
-   ATH_MSG_INFO( "testEtTool" );
-
-   StatusCode sc = m_EtTool.retrieve();
-   if (sc.isFailure()) ATH_MSG_ERROR( "Problem retrieving EtTool" );
-
-   const DataVector<JetElement>* storedJEs;
-   sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
-   if (sc.isFailure()) ATH_MSG_ERROR ( "Problem retrieving JetElements" );
-   
-   DataVector<ModuleEnergy> modules;
-   m_EtTool->moduleSums(storedJEs, &modules);
-   DataVector<CrateEnergy>  crates;
-   m_EtTool->crateSums(&modules, &crates);
-   SystemEnergy result = m_EtTool->systemSums(&crates);
-
-   ATH_MSG_INFO( "Final Ex, Ey, ET = " << result.ex() << ", "
-       << result.ey() << ", " << result.et() );
-
-   ATH_MSG_INFO( "RoI Words: " << endreq
-       << "   Word 0: " << std::hex <<  result.roiWord0() << std::dec << endreq
-       << "   Word 1: " << std::hex <<  result.roiWord1() << std::dec << endreq
-       << "   Word 2: " << std::hex <<  result.roiWord2() << std::dec );
 }
 

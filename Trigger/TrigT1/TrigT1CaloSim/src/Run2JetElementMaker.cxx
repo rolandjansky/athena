@@ -13,7 +13,6 @@
 // This algorithm includes
 #include "TrigT1CaloSim/Run2JetElementMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloEvent/JetElement_ClassDEF.h"
 
 
 namespace LVL1 {
@@ -31,7 +30,7 @@ Run2JetElementMaker::Run2JetElementMaker( const std::string& name, ISvcLocator* 
   : AthAlgorithm( name, pSvcLocator ), 
     m_JetElementTool("LVL1::L1JetElementTools/L1JetElementTools")
 {
-  m_triggerTowerLocation = "xAODTriggerTowers" ;
+  m_triggerTowerLocation = TrigT1CaloDefs::xAODTriggerTowerLocation;;
   m_jetElementLocation   = TrigT1CaloDefs::JetElementLocation;
 
   // This is how you declare the parameters to Gaudi so that
@@ -84,7 +83,9 @@ StatusCode Run2JetElementMaker::execute( )
   ATH_MSG_DEBUG ( "Executing" ) ;
 
   // What we are (hopefully) going to make:
-  JECollection* vectorOfJEs = new JECollection;
+  JECollection* vectorOfJEs    = new JECollection;
+  JEAuxCollection* jeAuxVector = new JEAuxCollection;
+  vectorOfJEs->setStore(jeAuxVector);
 	
   // Retrieve TriggerTowers from StoreGate 
   if (evtStore()->contains<xAOD::TriggerTowerContainer>(m_triggerTowerLocation)) {
@@ -100,12 +101,15 @@ StatusCode Run2JetElementMaker::execute( )
   else ATH_MSG_WARNING( "No TriggerTowerContainer at " << m_triggerTowerLocation );
   
   // Save JetElements in the TES
-  StatusCode sc = evtStore()->record(vectorOfJEs, m_jetElementLocation);
-  if (sc.isFailure())
-    ATH_MSG_WARNING( "Failed to write JetElements to TES at " << m_jetElementLocation );
+  CHECK( evtStore()->record( jeAuxVector, m_jetElementLocation + "Aux." ) );
+  CHECK( evtStore()->record( vectorOfJEs, m_jetElementLocation ) );
+
+  // Report success for debug purposes
+  ATH_MSG_DEBUG("Stored JetElements in TES at "<< m_jetElementLocation );
 																	 
   // and we're done
   vectorOfJEs=0;
+  jeAuxVector=0;
   return StatusCode::SUCCESS;
 }//end execute
 
