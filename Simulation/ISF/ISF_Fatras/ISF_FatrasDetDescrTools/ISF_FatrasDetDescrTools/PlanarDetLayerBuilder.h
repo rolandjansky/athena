@@ -17,6 +17,8 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilder.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkSurfaces/SurfaceCollection.h"
+
 // ISF
 #include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
 
@@ -86,51 +88,79 @@ namespace iFatras {
     /**  Private methods to create the detector elements*/
     const std::vector<const iFatras::PlanarDetElement*>* CreateElements(unsigned int layerCounter, bool isCylinder = true) const;
     iFatras::PlanarDetElement* CylinderDetElement(unsigned int layerCounter, unsigned int Phi, unsigned int Z) const;
+    std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& detectionLayers ) const;
+
     iFatras::PlanarDetElement* DiscDetElement(unsigned int discCounter, unsigned int iring, unsigned int Phi) const;
     
-    const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
-    const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
-    //const Trk::LayerMaterialProperties* surfaceLayerMaterial(double pitchX, double lengthX, double pitchY, double lengthY) const; //!< helper method to construct single surface material
-     
+    const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz, bool isActive = true) const;  //!< helper method to construct barrel material
+    const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax, bool isActive = true) const; //!< helper method to construct endcap material
+    
     void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
+
+    void layerToSurfaceCollection(Trk::Layer *layer) const;
+    
+    void computeRadiusMinMax(Amg::Transform3D trf, iFatras::PlanarDetElement* moduleTmp, double &rMin, double &rMax) const;
     
     bool                                           m_pixelCase;                      //!< flag for pixel/sct
     const InDetDD::SiDetectorManager*              m_siMgr;                          //!< the Si Detector Manager
     std::string                                    m_siMgrLocation;                  //!< the location of the Pixel Manager
-    const PixelID*                          m_pixIdHelper;                    //!< pixel Id Helper 
-    const SCT_ID*                           m_sctIdHelper;                    //!< sct Id Helper
+    const PixelID*                                 m_pixIdHelper;                    //!< pixel Id Helper 
+    const SCT_ID*                                  m_sctIdHelper;                    //!< sct Id Helper
 
     iFatras::IdHashDetElementCollection*           m_detElementMap;
     std::string                                    m_detElementMapName;
 
     bool                                           m_setLayerAssociation;  //!< Set Layer Association
     std::string                                    m_identification;       //!< string identification  
+    bool                                           m_moreSurfacesToOverlapDescriptor;
 
     // barrel layer section                        
     size_t                                                         m_barrelLayerBinsZ;               //!< Barrel bins for the material in z 
     size_t                                                         m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
     size_t                                                         m_barrelLayers;
+    size_t                                                         m_layerOffset; // for identifier you need to know how many layers of the same type you already have
+    bool                                                           m_layerEquidistantBinning;
+    mutable std::vector< std::vector<float> >                      m_layerZboundaries;
     std::vector<size_t>                                            m_layerZsectors;
     std::vector<size_t>                                            m_layerPhiSectors;
     std::vector<double>                                            m_layerTilt;
+    std::vector<double>                                            m_layerTiltedTilt;
     std::vector<double>                                            m_layerMinPhi;
     std::vector<double>                                            m_layerMaxPhi;
+    std::vector<double>                                            m_layerPhiOffset;
+    std::vector<double>                                            m_layerTiltedPhiOffset;
     std::vector<double>                                            m_layerMinZ;
     std::vector<double>                                            m_layerMaxZ;
     std::vector<double>                                            m_layerRadius;
+    std::vector<double>                                            m_layerTiltedRadius;
+    mutable std::vector<double>                                    m_layerRmin;
+    mutable std::vector<double>                                    m_layerRmax;
+    std::vector<double>                                            m_layerRseparation; // distance in R between elements on the same stave (this means same phi and different eta)
+    std::vector<double>                                            m_layerTiltedRseparation;
+    std::vector<double>                                            m_layerZseparation; // distance in Z (space between consecutive elements)
+    std::vector<double>                                            m_layerTiltedZseparation; // distance in Z (space between consecutive elements on the same ring) for tilted elements
+    std::vector<double>                                            m_layerTiltedZgroups;
+    std::vector< std::vector<double> >                             m_layerTiltedZposition;
+    std::vector< double >                                          m_layerBarrelZposition;
     std::vector<double>                                            m_layerThickness;
     std::vector<double>                                            m_layerLengthY;
+    std::vector<double>                                            m_layerTiltedLengthY;
     std::vector<double>                                            m_layerLengthXmin;
     std::vector<double>                                            m_layerLengthXmax;
+    std::vector<double>                                            m_layerTiltedLengthXmin;
+    std::vector<double>                                            m_layerTiltedLengthXmax;
     std::vector<double>                                            m_layerPitchX;
     std::vector<double>                                            m_layerPitchY;
     std::vector<double>                                            m_layerRotation;
-    //    std::vector<double>                                            m_layerSeparation;
+    std::vector< std::vector<double> >                             m_layerMultipleRotation;
     bool                                                           m_layerSCTlike;
+    bool                                                           m_layerInvertOtherSurface;
     std::vector<double>                                            m_layerStereo;
-    std::vector<double>                                            m_layerStereoSeparation; // Fill with 0s if don't want SCT-like structure 
+    std::vector<double>                                            m_layerTiltedStereo;
+    std::vector<double>                                            m_layerStereoSeparation; 
+    std::vector<double>                                            m_layerTiltedStereoZSeparation;
     std::vector<double>                                            m_layerAdditionalLayerR;
-    mutable std::vector<const std::vector<const PlanarDetElement*>* >          m_barrelElements;
+    mutable std::vector<const std::vector<const PlanarDetElement*>* >      m_barrelElements;
     mutable std::vector< std::vector<Trk::SurfaceOrderPosition> >          m_layerSurfaces;
     mutable PlanarDetElement*                                              m_firstLayerElement;
     mutable PlanarDetElement*                                              m_previousLayerElement; 
@@ -140,6 +170,7 @@ namespace iFatras {
     size_t                                                         m_endcapLayerBinsR;               //!< Endcap bins for the material in r
     size_t                                                         m_endcapLayerBinsPhi;             //!< Endcap bins for the material in phi
     size_t                                                         m_endcapDiscs;
+    size_t                                                         m_discOffset; // for identifier you need to know how many discs of the same type you already have
     std::vector< std::vector<double> >                             m_discPhiSectors; // need to be std::vector< std::vector<double> > because of the parser
     std::vector<double>                                            m_discZpos;
     std::vector<double>                                            m_discThickness;
@@ -154,10 +185,11 @@ namespace iFatras {
     std::vector< std::vector<double> >                             m_discLengthXmax; 
     std::vector< std::vector<double> >                             m_discPitchX;
     std::vector< std::vector<double> >                             m_discPitchY;
-    std::vector< std::vector<double> >                             m_discSeparation;
+    std::vector< std::vector<double> >                             m_discSeparation; //separation between elements on the same ring in the same disk
+    std::vector< std::vector<double> >                             m_ringDisplacement; //displacement of one ring wrt middle position
     bool                                                           m_discSCTlike;
     std::vector< std::vector<double> >                             m_discStereo;
-    std::vector< std::vector<double> >                             m_discStereoSeparation; // Fill with 0s if don't want SCT-like structure 
+    std::vector< std::vector<double> >                             m_discStereoSeparation; 
     std::vector<double>                                            m_discAdditionalLayerPosZ;
     mutable std::vector<const std::vector<const PlanarDetElement*>* >          m_endcapElements;
     mutable std::vector< std::vector<Trk::SurfaceOrderPosition> >          m_discSurfaces;
@@ -175,19 +207,22 @@ namespace iFatras {
     double                                         m_customMaterialZ;                 //!< give a custom material : average Z
     double                                         m_customMaterialRho;               //!< give a custom material : average density
        
-    bool       m_checkGeo;
-
-    ITHistSvc* m_thistSvc;
+    double                                         m_barrelEnvelope;                 //!< envelope around rMin/rMax
+    double                                         m_endcapEnvelope;                 //!< envelope around zMin/zMax
+    
+    // For Debugging
+    bool                m_checkGeo;
+    ITHistSvc*          m_thistSvc;
     TFile*              m_outputFile;  //!< the root file 
     TTree*              m_currentTree; //!< the tree to store information from pixel and SCT 
+    mutable double      m_x_local;
+    mutable double      m_y_local;
+    mutable double      m_x_global;
+    mutable double      m_y_global;
+    mutable double      m_z_global;
 
-    mutable double           m_x_local;
-    mutable double           m_y_local;
-
-    mutable double           m_x_global;
-    mutable double           m_y_global;
-    mutable double           m_z_global;
-
+    mutable SurfaceCollection*   m_surfcoll;
+    
   };
   
   inline const std::vector< const Trk::PlaneLayer* >* PlanarDetLayerBuilder::planarLayers() const
