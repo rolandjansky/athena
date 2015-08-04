@@ -1,5 +1,5 @@
 package xAODTruth
-# $Id: requirements 637507 2014-12-29 15:49:10Z jcatmore $
+# $Id: requirements 687341 2015-08-04 13:07:53Z krasznaa $
 
 author Andy Buckley <andy.buckley@cern.ch>
 author James Catmore <james.catmore@cern.ch>
@@ -25,10 +25,17 @@ library xAODTruth ../Root/*.cxx
 apply_pattern installed_library
 
 private
+
 use TruthUtils      TruthUtils-*       Generators
+use AtlasReflex     AtlasReflex-*      External
 
-use AtlasReflex   AtlasReflex-*   External
-
+# Generate a dictionary for the package:
 apply_pattern lcgdict dict=xAODTruth selectionfile=selection.xml \
                       headerfiles="../xAODTruth/xAODTruthDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTruth
+
+# Specify the unit test(s) of the package:
+use TestTools       TestTools-*        AtlasTest
+apply_pattern UnitTest_run unit_test=ut_xaodtruth_particle

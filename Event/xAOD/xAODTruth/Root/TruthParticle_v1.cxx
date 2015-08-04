@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthParticle_v1.cxx 623284 2014-10-22 14:07:48Z krasznaa $
+// $Id: TruthParticle_v1.cxx 687313 2015-08-04 12:07:38Z krasznaa $
 
 // System include(s):
 #include <cmath>
@@ -130,8 +130,10 @@ namespace xAOD {
 
    double TruthParticle_v1::pt() const {
 
-      // Do the calculation by hand. Could make it faster
-      return std::sqrt( px() * px() + py() * py() );
+      // Do the calculation by hand:
+      const double localPx = static_cast< double >( px() );
+      const double localPy = static_cast< double >( py() );
+      return std::sqrt( localPx * localPx + localPy * localPy );
    }
 
    double TruthParticle_v1::eta() const {

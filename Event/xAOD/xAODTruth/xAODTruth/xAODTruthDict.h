@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTruthDict.h 622193 2014-10-16 16:08:34Z krasznaa $
+// $Id: xAODTruthDict.h 670153 2015-05-27 11:42:29Z tbisanz $
 #ifndef XAODTRUTH_XAODTRUTHDICT_H
 #define XAODTRUTH_XAODTRUTHDICT_H
 
@@ -25,6 +25,9 @@
 #include "xAODTruth/versions/TruthEventAuxContainer_v1.h"
 #include "xAODTruth/versions/TruthPileupEventContainer_v1.h"
 #include "xAODTruth/versions/TruthPileupEventAuxContainer_v1.h"
+#include "xAODTruth/versions/TruthMetaDataContainer_v1.h"
+#include "xAODTruth/versions/TruthMetaDataAuxContainer_v1.h"
+#include "xAODTruth/xAODTruthHelpers.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRUTH {
@@ -34,6 +37,8 @@ namespace {
       xAOD::TruthEventBaseContainer_v1   c3;
       xAOD::TruthEventContainer_v1       c4;
       xAOD::TruthPileupEventContainer_v1 c5;
+      xAOD::TruthMetaDataContainer_v1    c6;
+
       // The smart pointer types:
       DataLink< xAOD::TruthParticleContainer_v1 > dl1;
       std::vector< DataLink< xAOD::TruthParticleContainer_v1 > > dl2;

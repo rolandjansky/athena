@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 623284 2014-10-22 14:07:48Z krasznaa $ -->
+<!-- $Id: selection.xml 670153 2015-05-27 11:42:29Z tbisanz $ -->
 <lcgdict>
 
   <!-- The TruthParticle_v1 class(es): -->
@@ -42,6 +42,8 @@
          id="6290F297-F529-40EE-9FE5-1C577678306D" />
   <class name="xAOD::TruthPileupEventContainer_v1"
          id="05ECB16C-A36F-4853-8BB7-C9E7A84B4677" />
+  <class name="xAOD::TruthMetaDataContainer_v1"
+         id="754BDA89-C0D9-43BF-B468-32E10C1690FE" />
 
   <class name="xAOD::TruthParticleAuxContainer_v1"
          id="BA8FA08F-8DD6-420D-97D5-8B54EABECD65" />
@@ -51,6 +53,8 @@
          id="1B945EFD-4F7D-4BDD-9FB1-6FB975315961" />
   <class name="xAOD::TruthPileupEventAuxContainer_v1"
          id="9E9DD653-247C-4D5E-B14C-538EADEA6CD2" />
+  <class name="xAOD::TruthMetaDataAuxContainer_v1"
+         id="E2EF5F89-DFFA-4225-823E-29E40130A7B2" />
 
   <!-- Smart pointers for TruthParticle_v1: -->
   <class name="DataLink<xAOD::TruthParticleContainer_v1>" />
@@ -66,12 +70,7 @@
   <class name="std::vector<ElementLink<xAOD::TruthVertexContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::TruthVertexContainer_v1> > >" />
 
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-  </exclusion>
+  <!-- The helper functions: -->
+  <function pattern="xAOD::TruthHelpers::*" />
 
 </lcgdict>
