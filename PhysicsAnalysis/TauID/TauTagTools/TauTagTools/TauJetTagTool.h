@@ -62,6 +62,7 @@ private:
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHLoose;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHMedium;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHTight;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_eleOLR;
 
   double m_tauJetPtCut;
 

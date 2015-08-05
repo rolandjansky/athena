@@ -40,6 +40,7 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
   m_jetLLHLoose(),
   m_jetLLHMedium(),
   m_jetLLHTight(),
+  m_eleOLR(),
   m_tauJetPtCut(15000.),
   m_containerName()
 {
@@ -61,6 +62,7 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
   declareProperty("JetLLHSigLooseTauSelectionTool",  m_jetLLHLoose );
   declareProperty("JetLLHSigMediumTauSelectionTool", m_jetLLHMedium);
   declareProperty("JetLLHSigTightTauSelectionTool",  m_jetLLHTight );
+  declareProperty("EleOLRTauSelectionTool",          m_eleOLR );
 
   declareInterface<TauJetTagTool>( this );
 }
@@ -185,6 +187,7 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
       if (m_jetLLHLoose->accept(**tauJetItr))    pid |= 1<<14;
       if (m_jetLLHMedium->accept(**tauJetItr))   pid |= 1<<15;
       if (m_jetLLHTight->accept(**tauJetItr))    pid |= 1<<16;
+      if (m_eleOLR->accept(**tauJetItr))         pid |= 1<<18;
       
       tauJetTagColl.insert( m_pidStr[i], pid );
       
