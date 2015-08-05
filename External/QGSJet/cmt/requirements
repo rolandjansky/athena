@@ -9,7 +9,7 @@ macro my_LCG_config_version "67c"
 macro QGSJet_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/crmc"
 #macro QGSJet_home "$(LCG_external)/MCGenerators/crmc"
 macro QGSJet_version "1.5.4"
-macro QGSJET_native_version "$(QGSJet_version)_lcgcmt$(my_LCG_config_version)"
+macro QGSJet_native_version "$(QGSJet_version)_lcgcmt$(my_LCG_config_version)"
 macro QGSJet_system "$(LCG_ext_system)" \
       slc4&gcc43&32 "slc4_ia32_gcc34" \
       slc4&gcc43    "slc4_amd64_gcc34" \
