@@ -137,58 +137,73 @@ void ISF::EntryLayerTool::handle( const Incident& inc ) {
 }
 
 
+/** Check if given particle passes the EntryLayer filters */
+bool ISF::EntryLayerTool::passesFilters( const ISFParticle& particle) {
+  bool pass = true;
+  for ( size_t curFilter=0; pass && (curFilter<m_numParticleFilters); curFilter++) {
+    // check current filter
+    pass = m_particleFilter[curFilter]->passFilter( particle);
+  }
+
+  return pass;
+}
+
+
+/** Identify the corresponding entry layer for the given particle (may return 
+    ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
+ISF::EntryLayer ISF::EntryLayerTool::identifyEntryLayer( const ISFParticle& particle) {
+  // the return value
+  ISF::EntryLayer layerHit = ISF::fUnsetEntryLayer;
+
+  const Amg::Vector3D &pos = particle.position();
+
+  // check if particle on ID and/or Calo surface
+  bool onIDSurface   = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasID)   == ISF::fSurface);
+  bool onCaloSurface = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasCalo) == ISF::fSurface);
+
+  // on CaloEntry layer ?
+  if ( onIDSurface && onCaloSurface ) {
+    layerHit = ISF::fAtlasCaloEntry;
+  }
+
+  // no surface hit yet -> test MS volume surface hit
+  else {
+    // check if particle on MS surface
+    bool onMSSurface   = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasMS) == ISF::fSurface);
+
+    // on MuonEntry layer ?
+    if (onCaloSurface && onMSSurface) {
+      layerHit = ISF::fAtlasMuonEntry;
+    }
+    // on MuonExit layer ?
+    else if (onMSSurface) {
+      layerHit = ISF::fAtlasMuonExit;
+    }
+  }
+  return layerHit;
+}
+
+
 /** Add the given particle to the corresponding Entry/Exit layer if applicable */
 ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& particle, ISF::EntryLayer layerHit)
 {
   // (1.) check whether the particle actually passes all the filters
   //      -> rather fast usually
-  {
-    bool pass = true;
-    for ( size_t curFilter=0; pass && (curFilter<m_numParticleFilters); curFilter++) {
-      // check current filter
-      pass = m_particleFilter[curFilter]->passFilter( particle);
-    }
+  if ( !passesFilters(particle) ) {
     // return if not passed
-    if (!pass)
-      return ISF::fUnsetEntryLayer;
+    return ISF::fUnsetEntryLayer;
   }
 
-  // at this point all filters are passed
+  // (2.) check whether the particle lies on any entry surface
+  //      -> this goes second because computation intensive routines
+  //         are used for this
 
-  if (layerHit == ISF::fUnsetEntryLayer) {
-
-    // (2.) check whether the particle lies on any entry surface
-    //      -> this goes second because computation intensive routines
-    //         are used for this
-
-    const Amg::Vector3D &pos = particle.position();
-
-    // check if particle on ID and/or Calo surface
-    bool onIDSurface   = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasID)   == ISF::fSurface);
-    bool onCaloSurface = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasCalo) == ISF::fSurface);
-
-    // on CaloEntry layer ?
-    if ( onIDSurface && onCaloSurface ) {
-      layerHit = ISF::fAtlasCaloEntry;
-    }
-
-    // no surface hit yet -> test MS volume surface hit
-    else {
-      // check if particle on MS surface
-      bool onMSSurface   = (m_geoIDSvcQuick->inside( pos, AtlasDetDescr::fAtlasMS) == ISF::fSurface);
-
-      // on MuonEntry layer ?
-      if (onCaloSurface && onMSSurface) {
-        layerHit = ISF::fAtlasMuonEntry;
-      }
-      // on MuonExit layer ?
-      else if (onMSSurface) {
-        layerHit = ISF::fAtlasMuonExit;
-      }
-    }
+  if ( layerHit == ISF::fUnsetEntryLayer) {
+    layerHit = identifyEntryLayer( particle);
   }
 
-  // particle is on a boundary surface -> add it to TrackRecordCollection
+  // (3.) if particle is on a boundary surface
+  //        -> add it to TrackRecordCollection
   if ( layerHit != ISF::fUnsetEntryLayer) {
     ATH_MSG_VERBOSE( "Particle >>" << particle << "<< hit boundary surface, "
                      "adding it to '" << m_SGName[layerHit] << "' TrackRecord collection");
