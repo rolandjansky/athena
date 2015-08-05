@@ -34,14 +34,14 @@ class DetElementSurface : public Surface
     DetElementSurface( const Surface& rhs) : Surface(rhs), m_id(rhs.associatedDetectorElementIdentifier()) {}
 // Normally the Surface copy ctor sets the Identifier to be invalid. Store it, to get around this.
     bool                        operator==(const  Trk::Surface&) const { return false;}
-    Surface *                   clone () const { return 0; }
+    Surface *                   clone () const { return nullptr; }
     bool                        insideBounds(const Amg::Vector2D &, double, double) const {return false;}
     bool insideBoundsCheck(const Amg::Vector2D& /*locpos*/, const BoundaryCheck& /*bchk*/) const { return false;}
-    const Amg::Vector3D *       localToGlobal (const Amg::Vector2D &) const { return 0; }
-    const Amg::Vector3D *       localToGlobal (const LocalParameters &) const { return 0; }
-    const Amg::Vector2D *       globalToLocal (const Amg::Vector3D &, const double) const { return 0; }
+    const Amg::Vector3D *       localToGlobal (const Amg::Vector2D &) const { return nullptr; }
+    const Amg::Vector3D *       localToGlobal (const LocalParameters &) const { return nullptr; }
+    const Amg::Vector2D *       globalToLocal (const Amg::Vector3D &, const double) const { return nullptr; }
     virtual DistanceSolution    straightLineDistanceEstimate (const Amg::Vector3D &, const Amg::Vector3D &) const { return DistanceSolution(); }
-    const SurfaceBounds &       bounds () const { return *((RectangleBounds*)0); } 
+    const SurfaceBounds &       bounds () const { return *((RectangleBounds*)0); }
     MsgStream &                 dump (MsgStream &sl) const { return sl;}
     std::ostream &              dump (std::ostream &sl) const { return sl;};
     const Identifier            associatedDetectorElementIdentifier() const {return m_id;}
@@ -71,6 +71,7 @@ class DetElementSurface : public Surface
 private:
     Identifier  m_id;
 };
+
 
 }
 

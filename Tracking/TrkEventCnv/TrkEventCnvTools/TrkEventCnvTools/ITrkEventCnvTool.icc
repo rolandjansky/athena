@@ -23,7 +23,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot){
 //  IdentContIndex(rot->m_rio.index()).isValid();
 
     bool isPersistifiable = 
-      ! rot->m_rio.key() == 0
+      rot->m_rio.key() != 0
          && IdentContIndex(rot->m_rio.index()).isValid();
 
     if (isPersistifiable) 
