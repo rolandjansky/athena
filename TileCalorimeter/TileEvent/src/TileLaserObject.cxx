@@ -25,6 +25,7 @@ TileLaserObject::TileLaserObject()
   , m_daqtype(0)
   , m_BCID(0)
   , m_version(0)
+  , m_calibtype(-1)
 {
 /*  for(int type=0;type<nbTypes;++type){
     m_lascalib.push_back(std::vector<TileLasCalib>());
@@ -71,11 +72,22 @@ bool TileLaserObject::isSet(int chan, int gain, int type) const{
   return m_lascalib[type][chan].isSet(gain);
 } // getSigma
 
+void TileLaserObject::setCalibType(int type) {
+  m_calibtype = type;
+}
+
+int TileLaserObject::getCalibType() const{
+  return m_calibtype;
+}
+
 void TileLaserObject::setCalib(int chan, int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain){
   if(!m_lascalib[type][chan].isSet(gain)){
     m_lascalib[type][chan].setCalib(type,sumXinQDC,sumX2inQDC,nevts,gain);
   } // IF
 } // setCalib
+
+
+
 
 int TileLaserObject::getDiodeADC(const unsigned int i, const unsigned int gain) const
 {
