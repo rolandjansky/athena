@@ -10,17 +10,17 @@ from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauSelection
 
 EleBDTLooseTauSelectionTool = TauAnalysisTools__TauSelectionTool("EleBDTLooseTauSelectionTool")
 EleBDTLooseTauSelectionTool.SelectionCuts = 1<<8 # CutEleBDTWP
-EleBDTLooseTauSelectionTool.EleBDTWP   = 2    # ELEIDBDTLOOSE
+EleBDTLooseTauSelectionTool.EleBDTWP      = 2    # ELEIDBDTLOOSE
 ToolSvc += EleBDTLooseTauSelectionTool
 
 EleBDTMediumTauSelectionTool = TauAnalysisTools__TauSelectionTool("EleBDTMediumTauSelectionTool")
 EleBDTMediumTauSelectionTool.SelectionCuts = 1<<8 # CutEleBDTWP
-EleBDTMediumTauSelectionTool.EleBDTWP   = 3    # ELEIDBDTMEDIUM
+EleBDTMediumTauSelectionTool.EleBDTWP      = 3    # ELEIDBDTMEDIUM
 ToolSvc += EleBDTMediumTauSelectionTool
 
 EleBDTTightTauSelectionTool = TauAnalysisTools__TauSelectionTool("EleBDTTightTauSelectionTool")
 EleBDTTightTauSelectionTool.SelectionCuts = 1<<8 # CutEleBDTWP
-EleBDTTightTauSelectionTool.EleBDTWP   = 4    # ELEIDBDTTIGHT
+EleBDTTightTauSelectionTool.EleBDTWP      = 4    # ELEIDBDTTIGHT
 ToolSvc += EleBDTTightTauSelectionTool
 
 MuonVetoTauSelectionTool = TauAnalysisTools__TauSelectionTool("MuonVetoTauSelectionTool")
@@ -57,6 +57,11 @@ JetLLHSigTightTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
 JetLLHSigTightTauSelectionTool.JetIDWP       = 9    # JETIDLLHTIGHT
 ToolSvc += JetLLHSigTightTauSelectionTool
 
+EleOLRTauSelectionTool = TauAnalysisTools__TauSelectionTool("EleOLRTauSelectionTool")
+EleOLRTauSelectionTool.SelectionCuts = 1<<10 # CutEleOLR
+EleOLRTauSelectionTool.EleOLR        = True
+ToolSvc += EleOLRTauSelectionTool
+
 from TauTagTools.TauTagToolsConf import \
 TauJetTagTool as ConfiguredTauJetTagTool
 TauJetTagTool=ConfiguredTauJetTagTool(
@@ -71,6 +76,7 @@ TauJetTagTool=ConfiguredTauJetTagTool(
      JetBDTSigTightTauSelectionTool  = JetBDTSigTightTauSelectionTool,
      JetLLHSigLooseTauSelectionTool  = JetLLHSigLooseTauSelectionTool,
      JetLLHSigMediumTauSelectionTool = JetLLHSigMediumTauSelectionTool,
-     JetLLHSigTightTauSelectionTool  = JetLLHSigTightTauSelectionTool
+     JetLLHSigTightTauSelectionTool  = JetLLHSigTightTauSelectionTool,
+     EleOLRTauSelectionTool          = EleOLRTauSelectionTool
      )
 ToolSvc += TauJetTagTool
