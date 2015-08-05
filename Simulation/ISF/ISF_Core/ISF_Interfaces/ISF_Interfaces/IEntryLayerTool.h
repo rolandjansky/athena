@@ -34,9 +34,17 @@ namespace ISF {
 
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IEntryLayerTool; }
-       
+
+       /** Check if given particle passes the EntryLayer filters */
+       virtual bool passesFilters( const ISFParticle& particle) = 0;
+
+       /** Identify the corresponding entry layer for the given particle (may return 
+           ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
+       virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle) = 0;
+
        /** Add the given particle to the corresponding Entry/Exit layer if applicable */
-       virtual ISF::EntryLayer registerParticle(const ISFParticle& isp, EntryLayer layer=fUnsetEntryLayer) = 0;
+       virtual ISF::EntryLayer registerParticle( const ISFParticle& particle,
+                                                 EntryLayer layer=fUnsetEntryLayer) = 0;
   };
 
 } // end of namespace
