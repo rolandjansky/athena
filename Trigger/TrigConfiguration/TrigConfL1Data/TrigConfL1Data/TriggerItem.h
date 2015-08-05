@@ -72,7 +72,7 @@ namespace TrigConf {
       int m_CtpId;
       unsigned int m_TriggerType; // 8 bit word (4 bit for secondary partitions
       unsigned int m_Partition; // 8 bit word
-      unsigned short m_Monitor; // 0x1 TBP, 0x2 TAP, 0x4 TAV
+      unsigned short m_Monitor; // 0x1 TBP_LF, 0x2 TAP_LF, 0x4 TAV_LF, 0x8 TBP_LF, 0x10 TAP_LF, 0x20 TAV_LF, 
       friend std::ostream & operator<<(std::ostream &, const TrigConf::TriggerItem &);
    };
 

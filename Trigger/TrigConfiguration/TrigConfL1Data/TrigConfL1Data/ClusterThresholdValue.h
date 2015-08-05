@@ -31,7 +31,7 @@ namespace TrigConf {
       uint16_t hadIsolationMask() const { return m_HadIsolationMask; } // deprecated
       uint16_t isolationMask() const { return m_IsolationMask; }
 
-      virtual int thresholdValueCount() const;
+      virtual int thresholdValueCount() const override;
 
       // setters
       void setEmIsolation(float v)  { m_EmIsolation = v; }   // deprecated
@@ -44,8 +44,8 @@ namespace TrigConf {
       void setHadIsolationMask(uint16_t mask) { m_HadIsolationMask = mask; } // deprecated
       void setIsolationMask(uint16_t mask) { m_IsolationMask = mask; }
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
-      void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
+      void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const override;
       
    private:
       float m_EmIsolation;

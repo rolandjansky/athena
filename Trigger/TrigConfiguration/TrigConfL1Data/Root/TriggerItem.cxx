@@ -125,16 +125,14 @@ TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) 
       << "\" definition=\"" << final_def
       << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4) << "\"";
    if(monitor()!=0) {
-      string s("");
-      if(monitor()&0x1) s += "TBP";
-      if(monitor()&0x2) {
-         if(s!="") s+="|";
-         s += "TAP";
-      }
-      if(monitor()&0x4) {
-         if(s!="") s+="|";
-         s += "TAV";
-      }
+      string s("LF:");
+      s += (monitor() & 0x04 ? '1' : '0');
+      s += (monitor() & 0x02 ? '1' : '0');
+      s += (monitor() & 0x01 ? '1' : '0');
+      s += "|HF:";
+      s += (monitor() & 0x20 ? '1' : '0');
+      s += (monitor() & 0x10 ? '1' : '0');
+      s += (monitor() & 0x08 ? '1' : '0');
       xmlfile << " monitor=\"" << s << "\"";
    }
    xmlfile << ">" << endl;

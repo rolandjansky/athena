@@ -45,7 +45,7 @@ namespace TrigConf {
       float        ptcut() const { return m_Ptcut; }
       float        priority() const { return m_Priority; }
       int          ptCutCount() const { return thresholdValueCount(); }
-      int          thresholdValueCount() const;
+      virtual int  thresholdValueCount() const;
       unsigned int window() const { return m_Window; }
       virtual JetWindowSize::Size windowSize() const { return m_WindowSize; }
       int        phimin() const { return m_PhiMin; }

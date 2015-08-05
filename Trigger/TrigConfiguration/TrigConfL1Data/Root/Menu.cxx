@@ -180,6 +180,12 @@ namespace {
       return x->thresholdBit()<y->thresholdBit();
    }
 
+   bool compPIT(PIT *x, PIT *y) {
+      if(x->pitNumber() != y->pitNumber())
+         return x->pitNumber() < y->pitNumber();
+      return x->thresholdBit()<y->thresholdBit();
+   }
+
 }
 
 
@@ -217,6 +223,16 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          sort(sortedMon.begin(),sortedMon.end(),compMonByID);
          for(ThresholdMonitor* thrm : sortedMon)
             thrm->print(indent + "  ", detail);
+      }
+
+      if(detail>=3 && m_PITs.size()>0) {
+         cout << indent << "==================================" << endl;
+         cout << indent << " PITs:" << endl;
+         cout << indent << "==================================" << endl;
+         auto sortedPITs = m_PITs;
+         sort(sortedPITs.begin(),sortedPITs.end(),compPIT);
+         for(PIT* pit : sortedPITs)
+            pit->print(indent + "  ");
       }
 
       if(detail>=3) {
