@@ -141,6 +141,21 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     addHistogram( new TH1F("Number_Of_Events",        "Number_Of_Event; LB ; Events Per 2LBs",  400, 1., 801.), histdirrate );
     hist( "Number_Of_Events", histdirrate ) -> Sumw2(); 
+    addHistogram( new TH1F("mu24_imedium_Trigger_numbers_breakdown",        "Event; breakdown; event breakdown",  14, 0.5, 14.5), histdirrate );
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(1,"Total events");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(2,"Triggered");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(3,"EF_passedRaw");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(4,"EF_passThrough");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(5,"EF_prescaled");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(6,"EF_resurrected");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(7,"L2_passedRaw");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(8,"L2_passThrough");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(9,"L2_prescaled");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(10,"L2_resurrected");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(11,"L1_isPassedAfterPrescale");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(12,"L1_isPassedBeforePrescale");
+    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(13,"L1_isPassedAfterVeto");
+
 
     //pt > 4GeV
     addHistogram( new TH1F("Number_Of_Moore_MS_Muons_4GeV_Cut", "Number_Of_Moore_MS_Muon_4GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), histdirrate );
@@ -1457,6 +1472,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
 
   hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
 
+
   //Trigger aware
   for( std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
     ATH_MSG_DEBUG( it->first );
@@ -1465,6 +1481,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
       //ATH_MSG_FATAL(" pass" << *it );
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
+
       
     }
     //cosmic
@@ -1535,31 +1552,31 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
 
   if (m_requestESchains) {
     std::vector<std::string>::iterator itrES;
-    if (0 == errcnt) {  // fill eschains bit only when we have no error on getting ES bit
+    // if (0 == errcnt) {  // fill eschains bit only when we have no error on getting ES bit  //attention
       for (itrES = vs_ESstd.begin(); itrES != vs_ESstd.end(); itrES++) {
-	if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain
-	  // if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
+	// if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain //attention
+	   if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
 	  m_passedES[ESSTD] = true;
 	  ATH_MSG_DEBUG("----- CommonDQA: ESstd " << *itrES << " and EF " << *itrES << " passed");
 	}
       }
       for (itrES = vs_EStag.begin(); itrES != vs_EStag.end(); itrES++) {
-	if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain
-	  // if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
+	//if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain //attention
+	   if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
 	  m_passedES[ESTAG] = true;
 	  ATH_MSG_DEBUG("----- CommonDQA: EStag " << *itrES << " and EF " << *itrES << " passed");
 	}
       }
       for (itrES = vs_ESid.begin(); itrES != vs_ESid.end(); itrES++) {
-	if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain
-	  // if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
+	//if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain //attention
+	   if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain 
 	  m_passedES[ESID] = true;
 	  ATH_MSG_DEBUG("----- CommonDQA: ESid " << *itrES << " and EF " << *itrES << " passed");
 	}
       }
       for (itrES = vs_ESindep.begin(); itrES != vs_ESindep.end(); itrES++) {
-	if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain
-	  // if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
+	//if (isPassedES(m_esvect, *itrES)) { // YY modified: no request on lower chain //attention
+	   if (getTDT()->isPassed(*itrES)) { // YY modified: no request on lower chain
 	  m_passedES[ESINDEP] = true;
 	  ATH_MSG_DEBUG("----- CommonDQA: ESindep " << *itrES << " and EF " << *itrES << " passed");
 	}
@@ -1582,7 +1599,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
 	  ATH_MSG_DEBUG("----- CommonDQA: ESHIindep " << *itrES << " and EF " << *itrES << " passed");
 	}
       }
-    }
+    // }
   } else {
     // enabling just standard-chain histogram only
     m_passedES[ESSTD] = true;
@@ -4499,7 +4516,8 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
       << " event #" << event_handle->event_ID()->event_number() 
       << " has express stream tag");  */
 
-  const std::string key = "HLT_EXPRESS_OPI_HLT";
+  //const std::string key = "HLT_EXPRESS_OPI_HLT";
+  const std::string key = "HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT";
 
   if (!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
     if (errcnt < 1) {
