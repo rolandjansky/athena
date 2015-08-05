@@ -105,6 +105,12 @@ class Simulator(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ATLFASTII'
+    def KernelName(self):
+        if self.statusOn:
+            return 'ISF_Kernel_' + self.StoredValue
+    def configFlagsMethodName(self):
+        if self.statusOn:
+            return 'configureFlags' + self.StoredValue
 
 ## TODO Setting this should automatically update dependent jobproperties.
 class TruthStrategy(JobProperty):
