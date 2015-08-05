@@ -97,15 +97,6 @@ TileDigits::TileDigits( const HWIdentifier& HWid,
 }
 
 
-TileDigits::TileDigits( const HWIdentifier& HWid,
-                        std::vector<float>&& digits )
-  
-  : TileRawData( HWid )
-    , m_digits ( std::move(digits) )
-{
-}
-
-
 void TileDigits::print() const
 {
     std::cout << (std::string) (*this) << std::endl;

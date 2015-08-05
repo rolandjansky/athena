@@ -35,8 +35,6 @@ public:
 
     TileTTL1(const Identifier& id, const std::vector<float>& digits );
 
-    TileTTL1(const Identifier& id, std::vector<float>&& digits );
-
     ~TileTTL1() {}
 
     /* Access methods */

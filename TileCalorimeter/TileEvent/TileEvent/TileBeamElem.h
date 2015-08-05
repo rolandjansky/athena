@@ -34,7 +34,6 @@ public:
     TileBeamElem(const Identifier& id, const std::vector<uint32_t>& digits );
 
     TileBeamElem(const HWIdentifier& HWid, const std::vector<uint32_t>& digits );
-    TileBeamElem(const HWIdentifier& HWid, std::vector<uint32_t>&& digits );
   
     TileBeamElem(const HWIdentifier& HWid, uint32_t digit );
   
@@ -46,7 +45,7 @@ public:
 
     inline int size(void) const { return m_digits.size(); }
   
-    inline const std::vector<uint32_t>&  get_digits(void)  const { return m_digits; }
+    inline std::vector<uint32_t>  get_digits(void)  const { return m_digits; }
 
     std::string whoami   (void) const { return "TileBeamElem"; }
     void        print    (void) const;

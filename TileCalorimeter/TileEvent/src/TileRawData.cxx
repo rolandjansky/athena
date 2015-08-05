@@ -31,6 +31,10 @@
 // get cabling
 TileCablingService * s_cabling = TileCablingService::getInstance();
 
+TileRawData::TileRawData( const HWIdentifier& hwid ) : m_adc_hwid( hwid )
+{
+}
+
 TileRawData::TileRawData( const Identifier& id )
 {
     m_adc_hwid = s_cabling->s2h_adc_id(id);

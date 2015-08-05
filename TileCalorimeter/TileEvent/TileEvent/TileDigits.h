@@ -44,8 +44,6 @@ public:
 
     TileDigits(const HWIdentifier& HWid, const std::vector<float>& digits );
 
-    TileDigits(const HWIdentifier& HWid, std::vector<float>&& digits );
-
 
     /** @return number of samples */
     int nsamples() const { return m_digits.size(); }
