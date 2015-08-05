@@ -220,6 +220,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH1* overalladc_Lumi; // all chambers adc
   TH1* overalltdccut_segm_PR_Lumi[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccutPRLumi[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* overalladc_segm_PR_Lumi[4]; // all chambers adc superimposed per region
+  TH1* overalladcPRLumi[4]; // all chambers adc superimposed per region
+  TH1* overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
   TH1* overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccut_RPCtrig; // all chambers tdc superimposed with adc cut
@@ -250,9 +253,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* mdteffperchamber_InnerMiddleOuter[4];
   TH2* mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
   TH2* mdtoccvslb[4][3];
-
   TH2* mdtoccvslb_by_crate[4][4];
-
   /////End from old BS
 
   ///////////For t0 calculations//////////

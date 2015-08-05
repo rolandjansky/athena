@@ -91,7 +91,8 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
  mdteventsLumi_big(0),
  nummdtchamberswithhits(0),
  nummdtchamberswithhits_ADCCut(0),
- mdtchamberstat(0)
+ mdtchamberstat(0),
+ m_hist_hash_list(0)
 {
 	//  Declare the properties
 	declareProperty("DoMdtEsd",                m_doMdtESD=false);
@@ -164,7 +165,6 @@ StatusCode MdtRawDataValAlg::initialize()
 {
 
 	//initialize to stop coverity bugs
-	 m_hist_hash_list = 0;
 	 m_activeStore = 0;
      m_mdtIdHelper=0;
 	 p_MuonDetectorManager=0;
@@ -177,6 +177,9 @@ StatusCode MdtRawDataValAlg::initialize()
 	   overalltdcadcPRLumi[i]=0;
 	   overalltdccut_segm_PR_Lumi[i]=0;
 	   overalltdccutPRLumi[i]=0;
+           overalladc_segm_PR_Lumi[i]=0;
+           overalladcPRLumi[i]=0;	
+           overalladccutPRLumi[i]=0;	
 	   overalltdccutPRLumi_RPCtrig[i]=0;
 	   overalltdccutPRLumi_TGCtrig[i]=0;
 	   overallPR_mdt_DRvsDT[i]=0;
@@ -553,6 +556,21 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
 		sc = regHist((TH1F*) overalltdccutPRLumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
 		sc = regHist((TH1F*) overalltdccutPRLumi[enumEndCapA]->Clone(), mg->mongroup_ecA_shift);
 		sc = regHist((TH1F*) overalltdccutPRLumi[enumEndCapC]->Clone(), mg->mongroup_ecC_shift);
+		
+		//Book adc adccut per region on & off segment
+		sc = regHist((TH1F*) overalladc_segm_PR_Lumi[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
+                sc = regHist((TH1F*) overalladc_segm_PR_Lumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
+                sc = regHist((TH1F*) overalladc_segm_PR_Lumi[enumEndCapA]->Clone(), mg->mongroup_ecA_shift);
+                sc = regHist((TH1F*) overalladc_segm_PR_Lumi[enumEndCapC]->Clone(), mg->mongroup_ecC_shift);
+                sc = regHist((TH1F*) overalladcPRLumi[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
+                sc = regHist((TH1F*) overalladcPRLumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
+                sc = regHist((TH1F*) overalladcPRLumi[enumEndCapA]->Clone(), mg->mongroup_ecA_shift);
+                sc = regHist((TH1F*) overalladcPRLumi[enumEndCapC]->Clone(), mg->mongroup_ecC_shift);
+                sc = regHist((TH1F*) overalladccutPRLumi[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
+                sc = regHist((TH1F*) overalladccutPRLumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
+                sc = regHist((TH1F*) overalladccutPRLumi[enumEndCapA]->Clone(), mg->mongroup_ecA_shift);
+                sc = regHist((TH1F*) overalladccutPRLumi[enumEndCapC]->Clone(), mg->mongroup_ecC_shift);
+	
 		//TriggerAware TDC
 		sc = regHist((TH1F*) overalltdccutPRLumi_RPCtrig[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
 		sc = regHist((TH1F*) overalltdccutPRLumi_RPCtrig[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
@@ -909,6 +927,33 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
 				80, 0., 1400.,mg->mongroup_ecA_shiftLumi);
 		sc = bookMDTHisto_overview(overalltdccutPRLumi[enumEndCapC], "MDTTDC_Summary_ADCCut_EC", "[nsec]", "Number of Entries",
 				80, 0., 1400.,mg->mongroup_ecC_shiftLumi);
+		
+		//Book adc adccut per region on & off segment
+		sc = bookMDTHisto_overview(overalladc_segm_PR_Lumi[enumBarrelA], "MDTADC_segm_Summary_BA", "[adc counts]", "Number of Entries",
+                                100, 0.5, 400.5,mg->mongroup_brA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladc_segm_PR_Lumi[enumBarrelC], "MDTADC_segm_Summary_BC", "[adc counts]", "Number of Entries",
+                                100, 0.5, 400.5,mg->mongroup_brC_shiftLumi);
+                sc = bookMDTHisto_overview(overalladc_segm_PR_Lumi[enumEndCapA], "MDTADC_segm_Summary_EA", "[adc counts]", "Number of Entries",
+                                100, 0.5, 400.5,mg->mongroup_ecA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladc_segm_PR_Lumi[enumEndCapC], "MDTADC_segm_Summary_EC", "[adc counts]", "Number of Entries",
+                                100, 0.5, 400.5,mg->mongroup_ecC_shiftLumi);
+                sc = bookMDTHisto_overview(overalladcPRLumi[enumBarrelA], "MDTADC_Summary_BA", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_brA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladcPRLumi[enumBarrelC], "MDTADC_Summary_BC", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_brC_shiftLumi);
+                sc = bookMDTHisto_overview(overalladcPRLumi[enumEndCapA], "MDTADC_Summary_EA", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_ecA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladcPRLumi[enumEndCapC], "MDTADC_Summary_EC", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_ecC_shiftLumi);
+                sc = bookMDTHisto_overview(overalladccutPRLumi[enumBarrelA], "MDTADC_Summary_ADCCut_BA", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_brA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladccutPRLumi[enumBarrelC], "MDTADC_Summary_ADCCut_BC", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_brC_shiftLumi);
+                sc = bookMDTHisto_overview(overalladccutPRLumi[enumEndCapA], "MDTADC_Summary_ADCCut_EA", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_ecA_shiftLumi);
+                sc = bookMDTHisto_overview(overalladccutPRLumi[enumEndCapC], "MDTADC_Summary_ADCCut_EC", "[adc counts]", "Number of Entries",
+                                100, 0., 400.,mg->mongroup_ecC_shiftLumi);
+
 		//TriggerAware TDC
 		sc = bookMDTHisto_overview(overalltdccutPRLumi_RPCtrig[enumBarrelA], "MDTTDC_Summary_ADCCut_BA_RPC", "[nsec]", 
 				"Number of Entries", 80, 0., 1400.,mg->mongroup_brA_shiftLumi);
@@ -1464,6 +1509,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
 
 	// Fill Barrel - Endcap Multilayer Hits
 	if(!isNoisy) overalltdcadcPRLumi[iregion]->Fill(tdc, adc);
+	if(!isNoisy) overalladcPRLumi[iregion]->Fill(adc);
 	if( (mdtCollection)->adc()>m_ADCCut && !isNoisy) {
 
 		mdthitsperchamber_InnerMiddleOuterLumi[ibarrel]->AddBinContent( chamber->GetMDTHitsPerChamber_IMO_Bin(), 1. );
@@ -1475,7 +1521,8 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
 		//We put the "extras" on the inner histogram to avoid creating separate histogram.
 		mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->AddBinContent(chamber->GetMDTHitsPerML_byLayer_Bin(mlayer_n), 1.) ;
 		mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->SetEntries(mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->GetEntries()+1) ;
-
+ 	
+  		overalladccutPRLumi[iregion]->Fill(adc);	
 		overalltdccutPRLumi[iregion]->Fill(tdc);
 		if( HasTrigBARREL() ) overalltdccutPRLumi_RPCtrig[iregion]->Fill(tdc);
 		if( HasTrigENDCAP() ) overalltdccutPRLumi_TGCtrig[iregion]->Fill(tdc);
@@ -1599,16 +1646,17 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 				if(overalladc_segm_Lumi) overalladc_segm_Lumi->Fill(mrot->prepRawData()->adc());
 				if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
 					store_ROTs.insert(tmpid);	  
+
+					double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
+					//	    double tdc = mrot->driftTime()+500;
+
+					int iregion = chamber->GetRegionEnum();
+					int ilayer = chamber->GetLayerEnum();
+					int statphi = chamber->GetStationPhi();
+					int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
+					if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(mrot->prepRawData()->adc());				
+
 					if(mrot->prepRawData()->adc()>m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
-
-						double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
-						//	    double tdc = mrot->driftTime()+500;
-
-						int iregion = chamber->GetRegionEnum();
-						int ilayer = chamber->GetLayerEnum();
-						int statphi = chamber->GetStationPhi();
-						int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-
 						if(statphi > 15) {
 							ATH_MSG_ERROR( "MDT StaionPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
 							continue;
@@ -1618,6 +1666,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 						//Fill Overview Plots
 						if(overalltdccut_segm_Lumi) overalltdccut_segm_Lumi->Fill(tdc);
 						if(overalltdccut_segm_PR_Lumi[iregion]) overalltdccut_segm_PR_Lumi[iregion]->Fill(tdc);
+
 						if(mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]) {
 							mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->AddBinContent( chamber->GetMDTHitsPerChamber_IMO_Bin(), 1. );
 							mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->SetEntries(mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->GetEntries()+1);
@@ -1684,7 +1733,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 				Amg::Vector3D  segPosG(segment->globalPosition());
 				Amg::Vector3D  segDirG(segment->globalDirection());
 				Amg::Vector3D  segPosL  = gToStation*segPosG;
-				Amg::Vector3D  segDirL = gToStation*segDirG;
+				Amg::Vector3D  segDirL = gToStation.linear()*segDirG;
 				MuonCalib::MTStraightLine segment_track = MuonCalib::MTStraightLine(segPosL, segDirL, Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
 
 				// Loop over tubes in chamber, find those along segment
