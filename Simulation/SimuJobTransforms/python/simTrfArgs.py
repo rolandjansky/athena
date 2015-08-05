@@ -66,12 +66,6 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
-    parser.add_argument('--tmpRDO', nargs='+',
-                        type=argFactory(argRDOFile, io='output'),
-                        help='Temporary output RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
-    parser.add_argument('--tmpRDO_FILT', nargs='+',
-                        type=argFactory(argRDOFile, io='output'),
-                        help='Temporary output filtered RDO file (for when running as part of a multi-step transform, where RDO file preservation is not required.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
@@ -80,19 +74,19 @@ def addPileUpTrfArgs(parser):
                         type=argFactory(argBool),
                         help='Calculates the number of background events that will be require for a given pile-up configuration.', group='PileUp')
     parser.add_argument('--inputLowPtMinbiasHitsFile','--LowPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for low pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputHighPtMinbiasHitsFile','--HighPtMinbiasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for high pT minimum bias pile-up sub-events', group='PileUp')
     parser.add_argument('--inputCavernHitsFile', '--cavernHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for cavern background sub-events', group='PileUp')
     parser.add_argument('--inputBeamHaloHitsFile', '--beamHaloHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam halo sub-events', group='PileUp'),
     parser.add_argument('--inputBeamGasHitsFile', '--beamGasHitsFile', nargs='+',
-                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO']),
+                        type=argFactory(argHITSFile, io='input', executor=['HITtoRDO'], auxiliaryFile=True),
                         help='Input HITS file for beam gas sub-events', group='PileUp')
     parser.add_argument('--numberOfLowPtMinBias',
                         type=argFactory(argFloat),

@@ -122,8 +122,6 @@ def HitsFilePeeker(runArgs, skeletonLog):
                 exec cmd
             except:
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
-        #hacks to reproduce the sub-set of DetFlags left on by RecExCond/AllDet_detDescr.py
-        DetFlags.simulate.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
         DetFlags.pileup.all_setOff()
