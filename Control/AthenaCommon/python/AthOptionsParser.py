@@ -4,7 +4,7 @@
 # @purpose the central module to parse command line options of athena.py
 # @date December 2009
 
-__version__ = "$Revision: 596655 $"
+__version__ = "$Revision: 672545 $"
 __doc__ = "a module to parse command line options for athena.py"
 __author__ = "Sebastien Binet"
 
@@ -31,8 +31,10 @@ _userlongopts = [
     "dump-configuration=",
     "tcmalloc", "stdcmalloc", "preloadlib=",
     "nprocs=",
+    "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
     "minimal",                     # private, undocumented
+    "threads=",
     ]
 
 _allowed_values = {
@@ -86,6 +88,9 @@ Accepted command line options:
      --stdcmalloc                     ...  use libc malloc for memory allocation
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1
+     --threads=n                      ...  number of threads for Hive. 
+                                           With AthenaMP, number of threads per worker
+     --debugWorker                    ...  pause AthenaMP workers at bootstrap until SIGUSR1 signal received
  [<file1>.py [<file2>.py [...]]]      ...  scripts to run
  """
 
@@ -138,6 +143,8 @@ def parse(chk_tcmalloc=True):
     opts.memchk_mode = ''        # no mode selected by default 
     opts.do_heap_mon = False     # default is not to do any heap monitoring
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
+    opts.threads = 0             # enable Hive if >= 1
+    opts.debug_worker = False    # pause AthenaMP worker after bootstrap until SIGUSR1 received
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
     opts.user_opts = []          # left-over opts after '-'
@@ -365,12 +372,26 @@ def parse(chk_tcmalloc=True):
                 _help_and_exit()
             opts.nprocs = arg
 
+        elif opt in ("--threads",):
+            if not arg:
+                arg = 0
+            try: arg = int(arg)
+            except Exception,err:
+                print "ERROR:",err
+                _help_and_exit()
+            opts.threads = arg
+
+        elif opt in ("--debugWorker",):
+            opts.debug_worker = True
+
     # overwrite nprovs if ATHENA_PROC_NUMBER is set
     envNProcs = os.getenv('ATHENA_PROC_NUMBER')
     if envNProcs :
         envNProcs = int(envNProcs)
         print "ATHENA_PROC_NUMBER set to ", envNProcs, " will run by default with --nprocs=", envNProcs
         opts.nprocs = envNProcs      # enable AthenaMP if >= 1 or == -1
+        from ConcurrencyFlags import jobproperties as jps
+        jps.ConcurrencyFlags.NumProcs = envNProcs
     
     # for the benefit of PyROOT
     if not opts.display and not '-b' in sys.argv:

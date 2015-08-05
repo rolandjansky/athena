@@ -76,9 +76,8 @@ else:
    if DbgStage.value == "init":
       hookDebugger()
 
-
+ ## setup multi-process running and debugging
    if not opts.minimal and opts.nprocs and (opts.nprocs >= 1 or opts.nprocs==-1):
-      _msg.info ("enabling AthenaMP with [%s] sub-workers", opts.nprocs)
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       import AthenaMP.PyComps as _amppy
       svcMgr += _amppy.MpEvtLoopMgr(NWorkers=opts.nprocs)

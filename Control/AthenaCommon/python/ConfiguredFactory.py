@@ -1255,12 +1255,14 @@ class ConfiguredFactory(object):
         self.logger().debug( "importing configDb modules..." )
         nFiles = 0
         startTime = time.time()
-        for path in sys.path:
+
+        paths = [p for p in sys.path if p.endswith ('InstallArea/python')]
+        if not paths: paths = sys.path
+
+        for path in paths:
             if not os.path.exists( path ):
                 continue
-            
-            if not path.endswith( "InstallArea/python" ):
-                continue
+            if not os.path.isdir (path): continue
          
             self.logger().verbose( "searching in %s..." % path )
          

@@ -3,7 +3,7 @@
 # DetFlags : Author Tadashi Maeno
 #            Mods: David Rousseau, Paolo Calafiura, M. Gallas ( more flags and 
 #                   tasks) 
-# detectors : ID = bpipe pixel SCT TRT BCM
+# detectors : ID = bpipe pixel SCT TRT BCM DBM
 #             Forward = Lucid ZDC ALFA AFP FwdRegion
 #             LAr = em HEC FCal 
 #             Calo = em HEC FCal Tile
@@ -26,6 +26,7 @@
 #   writeRDOPool : write RDO in pool
 #   readRIOPool  : read RIO from pool 
 #   writeRIOPool : write RIO in pool
+#   overlay : overlay setup
 
 #
 # Some tasks are OR of other classes. They can only be used to test, not to set.
@@ -38,7 +39,7 @@
 # tasks can be switched on/off for all detectors:
 #    DetFlags.geometry.all_setOn() (or all_setOff()
 # a task for a given subdetector can be switched on/off
-#    DetFlags.readRDO.Pixel_setOn() (or setOff() )
+#    DetFlags.readRDO.pixel_setOn() (or setOff() )
 # setting off/on a group of subdetectors (e.g. LAr or Muon) switch off/on
 #     all the corresponding subdetectors
 # a subdetector can be switched on/off for all tasks:
@@ -67,6 +68,7 @@ class DetFlags:
             self._flag_SCT   = False
             self._flag_TRT   = False
             self._flag_BCM   = False
+            self._flag_DBM   = False
             # Forward
             self._flag_Lucid = False
             self._flag_ZDC = False
@@ -137,12 +139,14 @@ class DetFlags:
             self.SCT_setOn()
             self.TRT_setOn()
             self.BCM_setOn()
+            self.DBM_setOn()
         def ID_setOff (self):
             self.bpipe_setOff()
             self.pixel_setOff()
             self.SCT_setOff()
             self.TRT_setOff()
             self.BCM_setOff()
+            self.DBM_setOff()
         def Calo_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
@@ -200,9 +204,9 @@ class DetFlags:
         def Forward_allOn (self):
             return self.ALFA_on() & self.ZDC_on() & self.Lucid_on() & self.AFP_on() & self.FwdRegion_on()
         def ID_on (self):
-            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on()
+            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on() | self.DBM_on()
         def ID_allOn (self):
-            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on()
+            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on() & self.DBM_on()
         def LAr_on (self):
             return self.em_on() | self.HEC_on() | self.FCal_on() 
         def LAr_allOn (self):
@@ -269,6 +273,7 @@ class DetFlags:
     writeRDOPool = SubDetectors()
     readRIOPool  = SubDetectors()    
     writeRIOPool = SubDetectors()
+    overlay = SubDetectors()
     
     # task list
     _taskList = []
@@ -287,6 +292,7 @@ class DetFlags:
     _taskList.append(writeRDOPool)
     _taskList.append(readRIOPool)
     _taskList.append(writeRIOPool)
+    _taskList.append(overlay)
 
     # ORed tasks
     haveRIO = ORedTask(makeRIO)
@@ -327,6 +333,10 @@ class DetFlags:
         cls._setAllTask('BCM','setOn')
     def BCM_setOff (cls):
         cls._setAllTask('BCM','setOff')
+    def DBM_setOn (cls):
+        cls._setAllTask('DBM','setOn')
+    def DBM_setOff (cls):
+        cls._setAllTask('DBM','setOff')
 
     def ALFA_setOn (cls):
         cls._setAllTask('ALFA','setOn')
@@ -452,6 +462,8 @@ class DetFlags:
         return cls._anyTask_on('TRT')
     def BCM_on (cls):
         return cls._anyTask_on('BCM')
+    def DBM_on (cls):
+        return cls._anyTask_on('DBM')
 
     def ALFA_on (cls):
         return cls._anyTask_on('ALFA')
@@ -512,7 +524,7 @@ class DetFlags:
 
     # show flags
     def Print (cls):
-        id  =["bpipe","pixel","SCT","TRT","BCM"]
+        id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
         calo=["em","HEC","FCal","Tile"]
         muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
@@ -526,7 +538,7 @@ class DetFlags:
         format = "%13s :"
         alldets=id+forward+calo+muon+truth+l1+bf
         for det in alldets:
-            format += "%6s"
+            format += "%"+str(max(6,len(det)+1))+"s" #"%10s"
             item.append(det)
         # print detectors row
         print format % tuple(item)
@@ -560,6 +572,8 @@ class DetFlags:
     TRT_setOff   = classmethod(TRT_setOff)
     BCM_setOn    = classmethod(BCM_setOn)
     BCM_setOff   = classmethod(BCM_setOff)
+    DBM_setOn    = classmethod(DBM_setOn)
+    DBM_setOff   = classmethod(DBM_setOff)
     ALFA_setOn = classmethod(ALFA_setOn)
     ALFA_setOff= classmethod(ALFA_setOff)
     AFP_setOn = classmethod(AFP_setOn)
@@ -615,6 +629,7 @@ class DetFlags:
     SCT_on       = classmethod(SCT_on)
     TRT_on       = classmethod(TRT_on)
     BCM_on       = classmethod(BCM_on)
+    DBM_on       = classmethod(DBM_on)
     ALFA_on      = classmethod(ALFA_on)
     AFP_on       = classmethod(AFP_on)
     ZDC_on       = classmethod(ZDC_on)
