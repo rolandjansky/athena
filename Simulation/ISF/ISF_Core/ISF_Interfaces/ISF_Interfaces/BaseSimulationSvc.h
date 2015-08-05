@@ -128,7 +128,7 @@ namespace ISF {
         for ( ; partIt != partItEnd; partIt++) {
           ATH_MSG_VERBOSE( m_screenOutputPrefix <<  "Starting simulation of particle: " << (*partIt) );
           if ( this->simulate(**partIt).isFailure()) {
-            ATH_MSG_WARNING("Simulation of particle failed!" << endmsg <<
+            ATH_MSG_WARNING("Simulation of particle failed!" << endreq <<
                             "   -> simulator: " << this->simSvcDescriptor() <<
                             "   -> particle : " << (ISFParticle&)(**partIt) );
             success = false;
