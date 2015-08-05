@@ -71,6 +71,8 @@ public:
   int getN(int chan, int gain, int type) const;
   int getType(int chan, int gain, int type) const;
   bool isSet(int chan, int gain, int type) const;
+  void setCalibType(int type);
+  int  getCalibType() const;
   void setCalib(int chan, int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain);
   int getDaqType() const;
   
@@ -139,15 +141,9 @@ public:
               const int interlock,
               const int alarm);
   
-  // DAQ TYPES ARE RELEVANT FOR LASERII
-  // DAQ TYPE   HEX   DEC
-  // Pedestal   0x10  16
-  // Alpha      0x11  17
-  // Led        0x12  18
-  // Linearity  0x13  19
-  // Laser      0x14  20
   void setDaqType(const unsigned int daqtype);
-  
+  enum daqType {daqPedestal=0x10, daqAlpha, daqLed, daqLinearity, daqLaser}; 
+
 private:
   
   TileLaserControl m_slowCtrl;
@@ -160,8 +156,26 @@ private:
   TileLaserPLC m_plc;
   
   int m_daqtype;
+  // DAQ TYPES ARE RELEVANT FOR LASERII
+  // DAQ TYPE   HEX   DEC
+  // Pedestal   0x10  16
+  // Alpha      0x11  17
+  // Led        0x12  18
+  // Linearity  0x13  19
+  // Laser      0x14  20
   int m_BCID;
   int m_version;
+
+  int m_calibtype;
+  // Calibe types are relevant for laserII
+  // Pedestal 0
+  // Pedestal 1
+  // Led      2
+  // Alpha
+
+ public:  
+  enum calibType {Pedestal0, Pedestal1, LED, Alpha}; 
+
 };
 
 CLASS_DEF(TileLaserObject, 2940, 0)
