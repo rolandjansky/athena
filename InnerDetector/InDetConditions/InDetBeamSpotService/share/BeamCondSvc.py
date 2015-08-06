@@ -2,4 +2,9 @@
 
 include.block("InDetBeamSpotService/BeamCondSvc.py")
 from IOVDbSvc.CondDB import conddb
-conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos")
+from RecExConfig.RecFlags import rec
+# If express processing, point beam spot to online folder results
+if(rec.doExpressProcessing()):
+    conddb.addFolder('INDET_ONL','/Indet/Onl/Beampos <key>/Indet/Beampos</key>')
+else:
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos")
