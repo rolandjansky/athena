@@ -32,13 +32,15 @@ class PixelMon2DMaps
       TH2F* B2;
       TH2F* A;
       TH2F* C;
+      TH2F* DBMA;
+      TH2F* DBMC;
       int m_cnt;
       void Reset();
       void Fill(Identifier &id, const PixelID* pixID, bool doIBL);
       void WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight);
       //void Scale(double number);
       void Scale(double number, bool doIBL);
-      void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC);
+      void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC);
       void ScaleBynPixnEvt(int nevent, bool doIBL);
       //void FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, bool doIBL);
       //void FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC);

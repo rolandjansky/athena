@@ -21,7 +21,7 @@
 //#include "TrkParameters/MeasuredPerigee.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include "TrkTrack/TrackCollection.h"            
+#include "TrkTrack/TrackCollection.h"
 //#include "StoreGate/StoreGateSvc.h"
 //#include "StoreGate/StoreGate.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
@@ -33,12 +33,14 @@
 #include "PixelMonitoring/PixelMonProfiles.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 
 #include <stdint.h>
 #include <vector>
 #include <sstream>
 
-#include "GaudiKernel/StatusCode.h"       
+#include "GaudiKernel/StatusCode.h"
 //#include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -129,14 +131,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
 
    m_avgocc_per_lumi = 0;
 
-   m_ToT_vs_eta_IBL = 0;
-   m_ToT_vs_eta_B0 = 0;
-   m_ToT_vs_eta_B1 = 0;
-   m_ToT_vs_eta_B2 = 0;
-   m_ToT_vs_phi_IBL = 0;
-   m_ToT_vs_phi_B0 = 0;
-   m_ToT_vs_phi_B1 = 0;
-   m_ToT_vs_phi_B2 = 0;
+   //m_ToT_vs_eta_IBL = 0;
+   //m_ToT_vs_eta_B0 = 0;
+   //m_ToT_vs_eta_B1 = 0;
+   //m_ToT_vs_eta_B2 = 0;
+   //m_ToT_vs_phi_IBL = 0;
+   //m_ToT_vs_phi_B0 = 0;
+   //m_ToT_vs_phi_B1 = 0;
+   //m_ToT_vs_phi_B2 = 0;
    m_nlowToT_vs_clussize_IBL = 0;
    m_nlowToT_vs_clussize_B0 = 0;
    m_nlowToT_vs_clussize_B1 = 0;
@@ -154,7 +156,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_BCID_Profile = 0;          
    m_diff_ROD_BCID = 0;         
    m_occupancy = 0;
-   m_occupancyDBM = 0;
+   m_occupancy_10min = 0;
    m_average_occupancy = 0;
    m_average_pixocc = 0;
    m_FE_chip_hit_summary = 0;
@@ -386,27 +388,32 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_TimeoutErrors = 0;
    m_SyncErrorsIBL = 0; 
    m_SyncErrors = 0; 
+   m_SyncCategory = 0; 
+   m_TruncationCategory = 0; 
+   m_OpticalCategory = 0; 
+   m_SEUCategory = 0; 
+   m_TimeoutCategory = 0; 
    m_TruncationErrors = 0;
-   m_SyncErrors_mod = 0;
-   m_SyncErrors_ROD = 0;
-   m_TruncErrors_mod = 0;
-   m_TruncErrors_ROD = 0;
-   m_sync_mod_BCID1 = 0;   
-   m_sync_mod_BCID2 = 0;   
-   m_sync_mod_LVL1ID = 0;
-   m_sync_rod_BCID = 0;   
-   m_sync_rod_LVL1ID = 0;   
-   m_trunc_mod_EOC = 0;
-   m_trunc_mod_hitOF = 0;
-   m_trunc_mod_EoEOF = 0;
-   m_trunc_rod_HTlim = 0;
-   m_trunc_rod_FIFOOF = 0;
-   m_optical_error = 0;
-   m_seu_hit_parity = 0;
-   m_seu_reg_parity = 0;
-   m_seu_hamming = 0;
-   m_timeout = 0;
-   m_FEwarning = 0;
+   //m_SyncErrors_mod = 0;
+   //m_SyncErrors_ROD = 0;
+   //m_TruncErrors_mod = 0;
+   //m_TruncErrors_ROD = 0;
+   //m_sync_mod_BCID1 = 0;   
+   //m_sync_mod_BCID2 = 0;   
+   //m_sync_mod_LVL1ID = 0;
+   //m_sync_rod_BCID = 0;   
+   //m_sync_rod_LVL1ID = 0;   
+   //m_trunc_mod_EOC = 0;
+   //m_trunc_mod_hitOF = 0;
+   //m_trunc_mod_EoEOF = 0;
+   //m_trunc_rod_HTlim = 0;
+   //m_trunc_rod_FIFOOF = 0;
+   //m_optical_error = 0;
+   //m_seu_hit_parity = 0;
+   //m_seu_reg_parity = 0;
+   //m_seu_hamming = 0;
+   //m_timeout = 0;
+   //m_FEwarning = 0;
    m_mod_errors_IBL = 0;
    m_sync_mod_BCID1_per_LB = 0;
    m_sync_mod_BCID1_int_LB = 0;
@@ -494,7 +501,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_occupancy_summary_low_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
-      m_Lvl1A_mod[i] = 0;
+      //m_Lvl1A_mod[i] = 0;
+      m_Lvl1A_10min_mod[i] = 0;
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
@@ -506,19 +514,46 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_cluster_groupsize_mod[i] = 0;
       m_clusQ_vs_eta_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
+      //m_errors_per_lumi_mod[i] = 0;
+      //m_SyncErrors_per_lumi_mod[i] = 0;
+      //m_OpticalErrors_per_lumi_mod[i] = 0;
+      //m_SEU_Errors_per_lumi_mod[i] = 0;
+      //m_TruncationErrors_per_lumi_mod[i] = 0;
+      //m_TimeoutErrors_per_lumi_mod[i] = 0;
+      m_bad_mod_errors_mod[i] = 0;
+      m_errors_etaid_mod[i] = 0;
+      m_errors_etaid_per_evt_mod[i] = 0;
+      m_hit_ToT_LB_mod[i] = 0;
+      //for( int j=0; j<ErrorCategory::COUNT; j++){
+      //   m_ErrorFraction_per_evt[j][i] = 0;
+      //}
+   }
+   for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
       m_errors_per_lumi_mod[i] = 0;
       m_SyncErrors_per_lumi_mod[i] = 0;
       m_OpticalErrors_per_lumi_mod[i] = 0;
       m_SEU_Errors_per_lumi_mod[i] = 0;
       m_TruncationErrors_per_lumi_mod[i] = 0;
       m_TimeoutErrors_per_lumi_mod[i] = 0;
-      m_bad_mod_errors_mod[i] = 0;
-      m_errors_etaid_mod[i] = 0;
-      m_errors_etaid_per_evt_mod[i] = 0;
-      m_hit_ToT_LB_mod[i] = 0;
+      m_ErrorBit_per_lumi_mod[i] = 0;
+      m_Error_per_lumi_mod[i] = 0;
       for( int j=0; j<ErrorCategory::COUNT; j++){
          m_ErrorFraction_per_evt[j][i] = 0;
+         m_ErrorCategoryMap[j] = 0;
       }
+   }
+   for( int i=0; i<PixLayerIBL2D3DDBM::COUNT; i++){
+      m_hit_ToT[i] = 0;
+   }
+   for( int i=0; i<PixLayerDBM::COUNT; i++){
+      m_Lvl1A_mod[i] = 0;
+   }
+   for( int i=0; i<ErrorCategoryMODROD::COUNT; i++){
+      m_ErrorTypeMap[i] = 0;
+   }
+   for( int i=0; i<16; i++){
+      m_ErrorStateMap[i] = 0;
+      m_ErrorStateMap_per_LB[i] = 0;
    }
 }
    
@@ -752,6 +787,12 @@ StatusCode PixelMainMon::bookHistograms()
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
       }
+      //if(m_doStatus)
+      //{
+         sc=BookPixelDCSMon();
+         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
+      //}
       //}
 
       return StatusCode::SUCCESS;
@@ -868,6 +909,14 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }else{
       m_storegate_errors->Fill(3.,1.);
    }
+
+   //if(m_doCluster&&evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName))
+   //{
+      sc=FillPixelDCSMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   //}else{
+   //   m_storegate_errors->Fill(3.,1.);
+   //}
    return StatusCode::SUCCESS;
 }
 
@@ -895,6 +944,7 @@ StatusCode PixelMainMon::procHistograms()
       if (m_doRDO)     { sc=ProcHitsMon(); }
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
+      /*if(....){*/ sc=ProcPixelDCSMon(); //}
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
   

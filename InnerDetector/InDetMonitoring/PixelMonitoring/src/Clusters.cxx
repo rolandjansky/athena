@@ -350,10 +350,10 @@ StatusCode PixelMainMon::BookClustersMon(void)
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_cluster_occupancy = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
       sc = m_cluster_occupancy->regHist(clusterShift);
-      tmp = "Cluster_Occupancy_DBM"; tmp2 = "Cluster occupancy";
+      //tmp = "Cluster_Occupancy_DBM"; tmp2 = "Cluster occupancy";
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-      m_clusocc_DBM = new DBMMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
-      sc = m_clusocc_DBM->regHist(clusterShift);
+      //m_clusocc_DBM = new DBMMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
+      //sc = m_clusocc_DBM->regHist(clusterShift);
       tmp = "Average_Cluster_Occupancy"; tmp2 = "Average cluster occupancy";
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_average_cluster_occupancy = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());

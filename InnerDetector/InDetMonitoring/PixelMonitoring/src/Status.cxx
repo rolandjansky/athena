@@ -45,6 +45,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
    m_status = new PixelMonProfiles("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str());
    sc = m_status->regHist(statusHistos);
+   m_status->SetMaxValue( 2.0 );
 
    if(m_doModules)
    {
