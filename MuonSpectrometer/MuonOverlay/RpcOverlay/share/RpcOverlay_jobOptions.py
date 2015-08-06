@@ -28,8 +28,8 @@ job.RpcOverlay.DigitizationTool.EvtStore                 = job.RpcOverlay.MCStor
 job.RpcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = True
 job.RpcOverlay.ConvertRDOToDigitTool.DataStore           = job.RpcOverlay.DataStore
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-if OverlayFlags.doSignal():
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+if overlayFlags.doSignal==True:
    job.RpcOverlay.CopyObject = True
 
 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import RpcDigitToRpcRDO
