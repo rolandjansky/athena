@@ -14,9 +14,9 @@ ToolSvc += MuonRdoToMuonDigitTool
 #jobproperties.Digitization.rndmSeedList.addSeed("RPC_Digitization", 49261510, 105132394 )
 
 #new way
-if not hasattr(ToolSvc, 'Rpc_OverlayDigitizationTool'):
+if not hasattr(ToolSvc, 'RpcDigitizationTool'):
    from AthenaCommon import CfgGetter
-   RpcDigitizationTool = CfgGetter.getPrivateTool("Rpc_OverlayDigitizationTool")
+   RpcDigitizationTool = CfgGetter.getPrivateTool("RpcDigitizationTool", checkType=True)
 
 from RpcOverlay.RpcOverlayConf import RpcOverlay
 job += RpcOverlay()
@@ -24,7 +24,7 @@ job.RpcOverlay.mainInputRPC_Name                         = "RPC_DIGITS"
 job.RpcOverlay.overlayInputRPC_Name                      = "RPC_DIGITS"
 job.RpcOverlay.DigitizationTool                          = RpcDigitizationTool
 job.RpcOverlay.ConvertRDOToDigitTool                     = MuonRdoToMuonDigitTool
-#job.RpcOverlay.DigitizationTool.EvtStore                 = job.RpcOverlay.MCStore
+job.RpcOverlay.DigitizationTool.EvtStore                 = job.RpcOverlay.MCStore
 job.RpcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = True
 job.RpcOverlay.ConvertRDOToDigitTool.DataStore           = job.RpcOverlay.DataStore
 
