@@ -14,15 +14,15 @@ use AtlasHepMC          AtlasHepMC-*            External
 use AtlasROOT           AtlasROOT-*             External
 use Geant4              Geant4-*                External
 use TestPolicy          TestPolicy-*
-use CxxUtils            CxxUtils-*              Control
+
 use Identifier          Identifier-*            DetectorDescription
 use GeoAdaptors         GeoAdaptors-*           DetectorDescription/GeoModel
 use GeoPrimitives       GeoPrimitives-*         DetectorDescription
-use G4AtlasInterfaces	G4AtlasInterfaces-*	Simulation/G4Atlas
+
 use EventInfo           EventInfo-*             Event
 use GeneratorObjects    GeneratorObjects-*      Generators
 
-use G4AtlasTools	G4AtlasTools-*          Simulation/G4Atlas
+use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
 use HitManagement       HitManagement-*         Simulation
 use MCTruth             MCTruth-*               Simulation/G4Sim
 use TrackRecord         TrackRecord-*           Simulation/G4Sim

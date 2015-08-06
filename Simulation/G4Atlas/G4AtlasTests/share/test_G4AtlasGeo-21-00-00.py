@@ -20,14 +20,13 @@ athenaCommonFlags.EvtMax = 3
 
 ## Set global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-19"
+jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SIM-00"
 
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 simFlags.SimLayout.set_On()
-simFlags.SimLayout='ATLAS-R2-2015-03-01-00_VALIDATION'
-simFlags.RunNumber=222525
+simFlags.SimLayout='ATLAS-GEO-21-00-00_VALIDATION'
 
 ## Use single particle generator
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

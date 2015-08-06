@@ -120,7 +120,10 @@ myTest = MySimSkeleton()
 ## Register callback functions in the sim init process:
 
 ## Set the G4 verbosity level
-#simFlags.G4Commands += ['/tracking/verbose 1']
+def enable_verbose_tracking():
+    g4Command = AtlasG4Eng.G4Eng.gbl.G4Commands()
+    g4Command.tracking.verbose(1)
+#simFlags.InitFunctions.add_function(1, enable_verbose_tracking)
 
 ## Change the world volume y range
 def change_worldvolume_y():
