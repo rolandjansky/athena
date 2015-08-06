@@ -19,6 +19,7 @@ public:
   StatusCode processEvent();
 
  private:
+  std::string m_collection;
   // general inner detector
   TH2 *m_indetBarrel, *m_indetLongView;
   // specialised (TRT)

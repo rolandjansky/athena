@@ -39,19 +39,25 @@ StatusCode SiHitsTestTool::initialize()
   _TH2D(m_indetLongView,"idet_zr",100,-3200.,3200.,100,0.,1200.);
   _SET_TITLE(m_indetLongView, "indet hit distribution","z [mm]","r [mm]");
 
-  std::string detName("Pixel");
+  std::string detName("Pixel"); std::string detpathName("Pixel");
   // initialise pixel or SCT variables:
   if (m_collection=="PixelHits") {
-    detName = "Pixel";
+    detName = "Pixel"; detpathName = "Pixel";
+  }
+  else if (m_collection=="PileupPixelHits") {
+    detName = "PileupPixel"; detpathName = "Pixel";
   }
   else if (m_collection=="SCT_Hits") {
-    detName = "SCT";    
+    detName = "SCT"; detpathName = "SCT";
+  }
+  else if (m_collection=="PileupSCT_Hits") {
+    detName = "PileupSCT"; detpathName = "SCT";  
   }
   else {
-    ATH_MSG_ERROR("SiHitsTestTool for "<<name()<<"not supported !!!\n");
+    ATH_MSG_ERROR("collection: "<<m_collection<<", SiHitsTestTool for "<<name()<<" not supported !!!\n");
     return StatusCode::FAILURE;
   }
-  m_path+=detName+"/";
+  m_path+=detpathName+"/";
   _TH2D(m_hits_xy,(detName+"_xy").c_str(),100,-1200.,1200.,100,-1200.,1200.);
   _SET_TITLE(m_hits_xy, "hit distribution","x [mm]","y [mm]");
   _TH2D(m_hits_zr,(detName+"_zr").c_str(),100,-3200.,3200.,100,0.,1200.);

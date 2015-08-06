@@ -9,7 +9,17 @@ def PixelHitsTestTool(name="PixelHitsTestTool", **kwargs):
 def SCT_HitsTestTool(name="SCT_HitsTestTool", **kwargs):
     kwargs.setdefault("CollectionName", "SCT_Hits")
     return CfgMgr.SiHitsTestTool(name, **kwargs)              
-def TrtHitsTestTool(name="TRT", **kwargs):
+def TrtHitsTestTool(name="TrtHitsTestTool", **kwargs):
+    kwargs.setdefault("CollectionName", "TRTUncompressedHits")
+    return CfgMgr.TrtHitsTestTool(name, **kwargs)             
+def PileupPixelHitsTestTool(name="PileupPixelHitsTestTool", **kwargs):
+    kwargs.setdefault("CollectionName", "PileupPixelHits")
+    return CfgMgr.SiHitsTestTool(name, **kwargs)              
+def PileupSCT_HitsTestTool(name="PileupSCT_HitsTestTool", **kwargs):
+    kwargs.setdefault("CollectionName", "PileupSCT_Hits")
+    return CfgMgr.SiHitsTestTool(name, **kwargs)              
+def PileupTrtHitsTestTool(name="PileupTrtHitsTestTool", **kwargs):
+    kwargs.setdefault("CollectionName", "PileupTRTUncompressedHits")
     return CfgMgr.TrtHitsTestTool(name, **kwargs)             
 ## def LArHitsTestTool(name="LArHitsTestTool", **kwargs):
 ##     return CfgMgr.LArHitsTestTool(name, **kwargs)             

@@ -12,13 +12,16 @@
 
 TrtHitsTestTool::TrtHitsTestTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SimTestToolBase(type, name, parent),
+    m_collection("TRTUncompressedHits"),
     m_indetBarrel(0), m_indetLongView(0),
     m_hits_time_photons(0), m_hits_edep_photons(0), 
     m_hits_time_nonphotons(0), m_hits_edep_nonphotons(0),
     m_hits_xy(0), m_hits_zr(0),
     m_hits_edep_zr_photons(0), m_hits_edep_zr_nonphotons(0),
     m_hits_log_barcode(0)
-{  }
+{  
+    declareProperty("CollectionName",  m_collection="TRTUncompressedHits");
+}
 
 StatusCode TrtHitsTestTool::initialize() 
 {
@@ -29,7 +32,10 @@ StatusCode TrtHitsTestTool::initialize()
   _TH2D(m_indetLongView,"idet_zr",100,-3200.,3200.,100,0.,1200.);
   _SET_TITLE(m_indetLongView, "indet hit distribution [All]","z [mm]","r [mm]");
 
-  m_path+="TRT/";
+  if (m_collection=="TRTUncompressedHits") m_path+="TRT/";
+  else if (m_collection=="PileupTRTUncompressedHits") m_path+="PileupTRT/";
+  else { std::cerr<<"unsupported CollectionName for "<< this->name()<<std::endl; }
+
   _TH2D(m_hits_xy,"trt_xy",100,-1200.,1200.,100,-1200.,1200.);
   _SET_TITLE(m_hits_xy, "hit distribution [All]","x [mm]","y [mm]");
   _TH2D(m_hits_zr,"trt_zr",100,-3200.,3200.,100,0.,1200.);
@@ -57,7 +63,7 @@ StatusCode TrtHitsTestTool::initialize()
 StatusCode TrtHitsTestTool::processEvent() {
  
   const DataHandle<TRTUncompressedHitCollection> p_collection;
-  if (evtStore()->retrieve(p_collection,"TRTUncompressedHits").isSuccess()) {
+  if (evtStore()->retrieve(p_collection,m_collection).isSuccess()) {
     for (TRTUncompressedHitConstIter i_hit=p_collection->begin() ; i_hit!=p_collection->end() ; ++i_hit) {
       GeoTRTUncompressedHit ghit(*i_hit);
       HepGeom::Point3D<double> u = ghit.getGlobalPosition();
