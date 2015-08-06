@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RODHeader_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
+// $Id: RODHeader_v1.cxx 685662 2015-07-27 10:30:15Z amazurov $
 
 // System include(s):
 #include <cmath>
@@ -30,6 +30,22 @@ namespace xAOD{
   AUXSTORE_OBJECT_SETTER_AND_GETTER( RODHeader_v1 , std::vector<unsigned int> , statusWords , setStatusWords )    
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( RODHeader_v1 , unsigned int , payloadSize , setPayloadSize )  
   
+  void RODHeader_v1::initialize(uint32_t version, uint32_t sourceId, uint32_t run,
+                          uint32_t lvl1Id,  uint32_t bcId,     uint32_t trigType,
+                          uint32_t detType, const std::vector<uint32_t>& statusWords,
+                          uint32_t nData) {
+    setVersion(version);
+    setSourceId(sourceId);
+    setRun(run);
+    setLvl1Id(lvl1Id);
+    setBcid(bcId);
+    setTrigType(trigType);
+    setDetType(detType);
+    setStatusWords(statusWords);
+    setPayloadSize(nData);
+  }
+
+
   // Header data
   int RODHeader_v1::majorVersion()  const
   {

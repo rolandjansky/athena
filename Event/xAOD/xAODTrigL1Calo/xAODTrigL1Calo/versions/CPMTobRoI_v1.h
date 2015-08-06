@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTobRoI_v1.h 652818 2015-03-09 22:54:24Z morrisj $
+// $Id: CPMTobRoI_v1.h 687286 2015-08-04 11:20:22Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CPMTOBROI_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CPMTOBROI_V1_H
 
@@ -18,8 +18,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652818 $
-  /// $Date: 2015-03-09 23:54:24 +0100 (Mon, 09 Mar 2015) $
+  /// $Revision: 687286 $
+  /// $Date: 2015-08-04 13:20:22 +0200 (Tue, 04 Aug 2015) $
 
   class CPMTobRoI_v1 : public SG::AuxElement {
     public:
@@ -27,7 +27,8 @@ namespace xAOD{
       CPMTobRoI_v1();
       /// Default desturctor
       virtual ~CPMTobRoI_v1(){}         
-
+      virtual void initialize(int crate, int cpm, int chip, int location,
+      						  int type, int energy, int isol);
       /// get roiWord
       uint32_t roiWord() const;
       /// set roiWord

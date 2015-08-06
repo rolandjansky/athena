@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXCPTobAuxContainer_v1.h 652810 2015-03-09 22:33:00Z morrisj $
+// $Id: CMXCPTobAuxContainer_v1.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXCPTOBAUXCONTAINER_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMXCPTOBAUXCONTAINER_V1_H
 
@@ -22,8 +22,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652810 $
-  /// $Date: 2015-03-09 23:33:00 +0100 (Mon, 09 Mar 2015) $
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $
 
   class CMXCPTobAuxContainer_v1 : public AuxContainerBase {
     public:
@@ -39,7 +39,7 @@ namespace xAOD{
       std::vector<uint8_t> peak;
       std::vector<std::vector<uint8_t> > energyVec;
       std::vector<std::vector<uint8_t> > isolationVec;
-      std::vector<std::vector<uint8_t> > errorVec;
+      std::vector<std::vector<uint32_t> > errorVec;
       std::vector<std::vector<uint16_t> > presenceMapVec;
 
   }; // class CMXCPTobAuxContainer_v1

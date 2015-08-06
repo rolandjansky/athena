@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTower_v2.cxx 660145 2015-04-13 06:57:50Z amazurov $
+// $Id: CPMTower_v2.cxx 687949 2015-08-06 15:48:49Z amazurov $
 
 // System include(s):
 #include <cmath>
@@ -31,8 +31,8 @@ namespace xAOD{
   void CPMTower_v2::initialize(const float eta,const float phi,
               const std::vector<uint8_t>& emEnergyVec,
               const std::vector<uint8_t>& hadEnergyVec,
-              const std::vector<uint8_t>& emErrorVec,
-              const std::vector<uint8_t>& hadErrorVec,
+              const std::vector<uint32_t>& emErrorVec,
+              const std::vector<uint32_t>& hadErrorVec,
               const uint8_t peak)
   { 
     setEta( eta );
@@ -46,8 +46,8 @@ namespace xAOD{
   
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , emEnergyVec , setEmEnergyVec )  
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , hadEnergyVec , setHadEnergyVec )    
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint8_t> , hadErrorVec , setHadErrorVec )     
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint32_t> , emErrorVec , setEmErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint32_t> , hadErrorVec , setHadErrorVec )     
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , eta , setEta )   
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , phi , setPhi )  
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , uint8_t , peak , setPeak )  
@@ -79,17 +79,17 @@ namespace xAOD{
     return 0;        
   }
   
-  uint8_t CPMTower_v2::emError() const
+  uint32_t CPMTower_v2::emError() const
   {
     return emSliceError(peak());
   }
   
-  uint8_t CPMTower_v2::hadError() const
+  uint32_t CPMTower_v2::hadError() const
   {
     return hadSliceError(peak());
   }
   
-  uint8_t CPMTower_v2::emSliceError(unsigned int slice) const
+  uint32_t CPMTower_v2::emSliceError(unsigned int slice) const
   {
     if( slice < emErrorVec().size() ){
       return emErrorVec()[ slice ];
@@ -97,7 +97,7 @@ namespace xAOD{
     return 0;      
   }
   
-  uint8_t CPMTower_v2::hadSliceError(unsigned int slice) const
+  uint32_t CPMTower_v2::hadSliceError(unsigned int slice) const
   {
     if( slice < hadErrorVec().size() ){
       return hadErrorVec()[ slice ];

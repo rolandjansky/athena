@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXEtSums_v1.cxx 663426 2015-04-28 11:45:23Z amazurov $
+// $Id: CMXEtSums_v1.cxx 687949 2015-08-06 15:48:49Z amazurov $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -29,9 +29,9 @@ namespace xAOD{
                                 const std::vector<uint16_t>& etVec,
                                 const std::vector<uint16_t>& exVec,
                                 const std::vector<uint16_t>& eyVec,
-                                const std::vector<uint8_t>& etErrorVec,
-                                const std::vector<uint8_t>& exErrorVec,
-                                const std::vector<uint8_t>& eyErrorVec,
+                                const std::vector<uint32_t>& etErrorVec,
+                                const std::vector<uint32_t>& exErrorVec,
+                                const std::vector<uint32_t>& eyErrorVec,
                                 const uint8_t peak)
   {
     setCrate( crate );
@@ -48,21 +48,21 @@ namespace xAOD{
   
   /// add data to existing object
   /// add Et
-  void CMXEtSums_v1::addEt(const std::vector<uint16_t>& etVec,const std::vector<uint8_t>& etErrorVec)
+  void CMXEtSums_v1::addEt(const std::vector<uint16_t>& etVec,const std::vector<uint32_t>& etErrorVec)
   {
     setEtVec( etVec );
     setEtErrorVec( etErrorVec );
   }
   
   /// add Ex
-  void CMXEtSums_v1::addEx(const std::vector<uint16_t>& exVec,const std::vector<uint8_t>& exErrorVec)
+  void CMXEtSums_v1::addEx(const std::vector<uint16_t>& exVec,const std::vector<uint32_t>& exErrorVec)
   {
     setExVec( exVec );
     setExErrorVec( exErrorVec );    
   }
   
   /// add Ey
-  void CMXEtSums_v1::addEy(const std::vector<uint16_t>& eyVec,const std::vector<uint8_t>& eyErrorVec)
+  void CMXEtSums_v1::addEy(const std::vector<uint16_t>& eyVec,const std::vector<uint32_t>& eyErrorVec)
   {
     setEyVec( eyVec );
     setEyErrorVec( eyErrorVec );    
@@ -74,9 +74,9 @@ namespace xAOD{
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint16_t> , etVec , setEtVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint16_t> , exVec , setExVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint16_t> , eyVec , setEyVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint8_t> , etErrorVec , setEtErrorVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint8_t> , exErrorVec , setExErrorVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint8_t> , eyErrorVec , setEyErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint32_t> , etErrorVec , setEtErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint32_t> , exErrorVec , setExErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXEtSums_v1 , std::vector<uint32_t> , eyErrorVec , setEyErrorVec )
 
   /// Peak functions - return value of peak bunch crossing
   /// Assuming we have got the timing calibration correct,
@@ -101,19 +101,19 @@ namespace xAOD{
   }
 
   /// get etErrorVec at peak bunch crossing
-  uint8_t CMXEtSums_v1::etError() const
+  uint32_t CMXEtSums_v1::etError() const
   {
     return etErrorVec()[ peak() ];
   }
 
   /// get exErrorVec at peak bunch crossing
-  uint8_t CMXEtSums_v1::exError() const
+  uint32_t CMXEtSums_v1::exError() const
   {
     return exErrorVec()[ peak() ];
   }
 
   /// get eyErrorVec at peak bunch crossing
-  uint8_t CMXEtSums_v1::eyError() const
+  uint32_t CMXEtSums_v1::eyError() const
   {
     return eyErrorVec()[ peak() ];
   }

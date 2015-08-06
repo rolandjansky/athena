@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigL1CaloDict.h 652824 2015-03-09 23:24:32Z morrisj $
+// $Id: xAODTrigL1CaloDict.h 681007 2015-07-07 13:34:12Z morrisj $
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 
@@ -99,6 +99,10 @@
 #include "xAODTrigL1Calo/versions/CMXEtSumsContainer_v1.h"
 #include "xAODTrigL1Calo/versions/CMXEtSumsAuxContainer_v1.h"
 
+#include "xAODTrigL1Calo/versions/CMXRoI_v1.h"
+#include "xAODTrigL1Calo/versions/CMXRoIContainer_v1.h"
+#include "xAODTrigL1Calo/versions/CMXRoIAuxContainer_v1.h"
+
 #include "xAODTrigL1Calo/versions/CPMTower_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTowerContainer_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTowerAuxContainer_v2.h"
@@ -135,6 +139,7 @@
 #include "xAODTrigL1Calo/CMXEtSumsAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetHitsAuxContainer.h"
 #include "xAODTrigL1Calo/CMXJetTobAuxContainer.h"
+#include "xAODTrigL1Calo/CMXRoIAuxContainer.h"
 #include "xAODTrigL1Calo/CPMHitsAuxContainer.h"
 #include "xAODTrigL1Calo/CPMRoIAuxContainer.h"
 #include "xAODTrigL1Calo/CPMTobRoIAuxContainer.h"
@@ -316,7 +321,16 @@ namespace {
     ElementLinkVector< xAOD::CMXEtSumsContainer_v1 > CMXEtSums_v1_l3;
     std::vector< DataLink< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l4;
     std::vector< ElementLink< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l5;
-    std::vector< ElementLinkVector< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l6;        
+    std::vector< ElementLinkVector< xAOD::CMXEtSumsContainer_v1 > > CMXEtSums_v1_l6;  
+    
+    // CMXRoI
+    xAOD::CMXRoIContainer_v1 CMXRoI_v1_c1;
+    DataLink< xAOD::CMXRoIContainer_v1 > CMXRoI_v1_l1;
+    ElementLink< xAOD::CMXRoIContainer_v1 > CMXRoI_v1_l2;
+    ElementLinkVector< xAOD::CMXRoIContainer_v1 > CMXRoI_v1_l3;
+    std::vector< DataLink< xAOD::CMXRoIContainer_v1 > > CMXRoI_v1_l4;
+    std::vector< ElementLink< xAOD::CMXRoIContainer_v1 > > CMXRoI_v1_l5;
+    std::vector< ElementLinkVector< xAOD::CMXRoIContainer_v1 > > CMXRoI_v1_l6;     
    
     // CPMTower  
     xAOD::CPMTowerContainer_v2 CPMTower_v2_c1;

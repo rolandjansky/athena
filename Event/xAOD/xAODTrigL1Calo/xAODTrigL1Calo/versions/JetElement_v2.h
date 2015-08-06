@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElement_v2.h 652807 2015-03-09 21:52:07Z morrisj $
+// $Id: JetElement_v2.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_JETELEMENT_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JETELEMENT_V2_H
 
@@ -20,8 +20,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652807 $
-  /// $Date: 2015-03-09 22:52:07 +0100 (Mon, 09 Mar 2015) $  
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $  
   
   class JetElement_v2 : public SG::AuxElement{
     public:
@@ -35,11 +35,11 @@ namespace xAOD {
       
       /// initialize
       virtual void initialize(const float eta,const float phi,const unsigned int key,
-                              const std::vector<uint16_t>& emEnergyVec,
-                              const std::vector<uint16_t>& hadEnergyVec,
-                              const std::vector<uint8_t>& emErrorVec,
-                              const std::vector<uint8_t>& hadErrorVec,
-                              const std::vector<uint8_t>& linkErrorVec,
+                              const std::vector<uint16_t>& emJetElementETVec,
+                              const std::vector<uint16_t>& hadJetElementETVec,
+                              const std::vector<uint32_t>& emJetElementErrorVec,
+                              const std::vector<uint32_t>& hadJetElementErrorVec,
+                              const std::vector<uint32_t>& linkErrorVec,
                               const uint8_t peak);
       
       /// get eta
@@ -62,45 +62,45 @@ namespace xAOD {
       /// set key
       void setPeak(uint8_t);
       
-      /// get emEnergyVec - emEnergy for all time slices
-      const std::vector<uint16_t>& emEnergyVec() const;
-      /// set emEnergyVec - emEnergy for all time slices
-      void setEmEnergyVec(const std::vector<uint16_t>&);
+      /// get emJetElementETVec - emJetElementET for all time slices
+      const std::vector<uint16_t>& emJetElementETVec() const;
+      /// set emJetElementETVec - emJetElementET for all time slices
+      void setEmJetElementETVec(const std::vector<uint16_t>&);
       
-      /// get hadEnergyVec - hadEnergy for all time slices
-      const std::vector<uint16_t>& hadEnergyVec() const;
-      /// set hadEnergyVec - hadEnergy for all time slices
-      void setHadEnergyVec(const std::vector<uint16_t>&); 
+      /// get hadJetElementETVec - hadJetElementET for all time slices
+      const std::vector<uint16_t>& hadJetElementETVec() const;
+      /// set hadJetElementETVec - hadJetElementET for all time slices
+      void setHadJetElementETVec(const std::vector<uint16_t>&); 
       
-      /// get emErrorVec - emError for all time slices
-      const std::vector<uint8_t>& emErrorVec() const;
-      /// set emErrorVec - emError for all time slices
-      void setEmErrorVec(const std::vector<uint8_t>&);
+      /// get emJetElementErrorVec - emJetElementError for all time slices
+      const std::vector<uint32_t>& emJetElementErrorVec() const;
+      /// set emJetElementErrorVec - emJetElementError for all time slices
+      void setEmJetElementErrorVec(const std::vector<uint32_t>&);
       
-      /// get hadErrorVec - hadError for all time slices
-      const std::vector<uint8_t>& hadErrorVec() const;
-      /// set hadErrorVec - hadError for all time slices
-      void setHadErrorVec(const std::vector<uint8_t>&);      
+      /// get hadJetElementErrorVec - hadJetElementError for all time slices
+      const std::vector<uint32_t>& hadJetElementErrorVec() const;
+      /// set hadJetElementErrorVec - hadJetElementError for all time slices
+      void setHadJetElementErrorVec(const std::vector<uint32_t>&);      
 
       /// get linkErrorVec - linkError for all time slices
-      const std::vector<uint8_t>& linkErrorVec() const;
+      const std::vector<uint32_t>& linkErrorVec() const;
       /// set linkErrorVec - linkError for all time slices
-      void setLinkErrorVec(const std::vector<uint8_t>&); 
+      void setLinkErrorVec(const std::vector<uint32_t>&); 
       
 
-      /// get emEnery for emEnergyVec[peak]  - time slice that (hopefully) contains the collision  
-      unsigned int emEnergy()  const;
-      /// get hadEnery for hadEnergyVec[peak]  - time slice that (hopefully) contains the collision 
-      unsigned int hadEnergy() const;
-      /// get total energy. returns emEnergy() + hadEnergy()
-      unsigned int energy()    const;
+      /// get emJetElementET for emJetElementETVec[peak]  - time slice that (hopefully) contains the collision  
+      unsigned int emJetElementET()  const;
+      /// get hadJetElementET for hadJetElementETVec[peak]  - time slice that (hopefully) contains the collision 
+      unsigned int hadJetElementET() const;
+      /// get total et. returns emJetElementET() + hadJetElementET()
+      unsigned int et()    const;
 
-      /// get emEnery for emEnergyVec[slice] - time slice for arbitary slice
-      unsigned int emSliceEnergy(unsigned int slice) const;
-      /// get hadEnery for hadEnergyVec[slice] - time slice for arbitary slice
-      unsigned int hadSliceEnergy(unsigned int slice) const;
-      /// get total energy. returns emSliceEnergy(slice) + hadSliceEnergy(slice)
-      unsigned int sliceEnergy(unsigned int slice) const;
+      /// get emJetElementET for emJetElementETVec[slice] - time slice for arbitary slice
+      unsigned int emJetElementETSlice(unsigned int slice) const;
+      /// get hadJetElementET for hadJetElementETVec[slice] - time slice for arbitary slice
+      unsigned int hadJetElementETSlice(unsigned int slice) const;
+      /// get total et. returns emJetElementETSlice(slice) + hadJetElementETSlice(slice)
+      unsigned int sliceET(unsigned int slice) const;
 
       /// is JetElement saturated?
       bool isSaturated()    const;
@@ -109,12 +109,12 @@ namespace xAOD {
       /// is Had component of JetElement saturated?
       bool isHadSaturated() const;
       
-      /// get emError for emErrorVec[peak] - time slice that (hopefully) contains the collision
-      uint8_t emError()   const;
-      /// get hadError for hadErrorVec[peak] - time slice that (hopefully) contains the collision
-      uint8_t hadError()  const;
+      /// get emJetElementError for emJetElementErrorVec[peak] - time slice that (hopefully) contains the collision
+      uint32_t emJetElementError()   const;
+      /// get hadJetElementError for hadJetElementErrorVec[peak] - time slice that (hopefully) contains the collision
+      uint32_t hadJetElementError()  const;
       /// get linkError for linkErrorVec[peak] - time slice that (hopefully) contains the collision
-      uint8_t linkError() const;
+      uint32_t linkError() const;
     
     private:
       static const int m_saturationThreshold = 1023;
