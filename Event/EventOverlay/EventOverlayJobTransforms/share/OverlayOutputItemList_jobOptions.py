@@ -1,7 +1,7 @@
 include.block ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" )
 
 from AthenaCommon.AppMgr import ServiceMgr
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 
 # The output - overlay
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -13,64 +13,64 @@ print "ACH123 new OverlayOutputItemList_jobOptions.py"
 outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
-if OverlayFlags.doTruth():
+if DetFlags.overlay.Truth_on():
    outStream.ItemList += [
                              "McEventCollection#*",
                              "TrackRecordCollection#*"
                            ]
-   if OverlayFlags.doCSC():
+   if DetFlags.overlay.CSC_on():
       outStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
-   if OverlayFlags.doMDT():
+   if DetFlags.overlay.MDT_on():
       outStream.ItemList += [ "MuonSimDataCollection#MDT_SDO" ]
-   if OverlayFlags.doRPC():
+   if DetFlags.overlay.RPC_on():
       outStream.ItemList += [ "MuonSimDataCollection#RPC_SDO" ]
-   if OverlayFlags.doTGC():
+   if DetFlags.overlay.TGC_on():
       outStream.ItemList += [ "MuonSimDataCollection#TGC_SDO" ]
-   if OverlayFlags.doLAr() or OverlayFlags.doTile():
+   if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
       outStream.ItemList += [ "CaloCalibrationHitContainer#*" ]
-   if OverlayFlags.doPixel():
+   if DetFlags.overlay.pixel_on():
       outStream.ItemList += [ "InDetSimDataCollection#PixelSDO_Map" ]
-   if OverlayFlags.doSCT():
+   if DetFlags.overlay.SCT_on():
       outStream.ItemList += [ "InDetSimDataCollection#SCT_SDO_Map" ]
-   if OverlayFlags.doTRT():
+   if DetFlags.overlay.TRT_on():
       outStream.ItemList += [ "InDetSimDataCollection#TRT_SDO_Map" ]
-   if OverlayFlags.doBCM():
+   if DetFlags.overlay.BCM_on():
       outStream.ItemList += [ "InDetSimDataCollection#BCM_SDO_Map" ] 
 
-if OverlayFlags.doPixel():
+if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["PixelRDO_Container#*"]
-if OverlayFlags.doSCT():
+if DetFlags.overlay.SCT_on():
    outStream.ItemList += ["SCT_RDO_Container#*"]
-if OverlayFlags.doTRT():
+if DetFlags.overlay.TRT_on():
    outStream.ItemList += ["TRT_RDO_Container#*"]
 
-if OverlayFlags.doLAr():
+if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArRawChannelContainer#*"]
    outStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
-if OverlayFlags.doTile():
+if DetFlags.overlay.Tile_on():
    if isRealData:
       outStream.ItemList += [ "TileDigitsContainer#*" ]
    else:
       outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]
    outStream.ItemList += [ "TileRawChannelContainer#*" ]
 
-if OverlayFlags.doCSC():
+if DetFlags.overlay.CSC_on():
    outStream.ItemList += [ "CscRawDataContainer#*" ]
    outStream.ItemList += [ "CscDigitContainer#*" ]
-if OverlayFlags.doMDT():
+if DetFlags.overlay.MDT_on():
    outStream.ItemList += [ "MdtCsmContainer#*" ]
 #   outStream.ItemList += [ "MdtDigitContainer#*" ]
-if OverlayFlags.doRPC():
+if DetFlags.overlay.RPC_on():
    outStream.ItemList += [ "RpcPadContainer#*" ]
 #   outStream.ItemList += [ "RpcDigitContainer#*" ]
-if OverlayFlags.doTGC():
+if DetFlags.overlay.TGC_on():
    outStream.ItemList += [ "TgcRdoContainer#*" ]
 #   outStream.ItemList += [ "TgcDigitContainer#*" ]
 
-if OverlayFlags.doBCM():
+if DetFlags.overlay.BCM_on():
    outStream.ItemList+=["BCM_RDO_Container#*"]
 
-if OverlayFlags.doLVL1():
+if DetFlags.overlay.LVL1_on():
    outStream.ItemList+=["LArTTL1Container#*"]
    outStream.ItemList+=["TileTTL1Container#*"]
    outStream.ItemList+=[

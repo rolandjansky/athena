@@ -1,8 +1,8 @@
 include.block ( "EventOverlayJobTransforms/InDetMcSignal_jobOptions.py" )
 
 from AthenaCommon.GlobalFlags import globalflags
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
+from AthenaCommon.DetFlags import DetFlags
+if DetFlags.overlay.Pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
 
    from OverlayCommonAlgs.OverlayCommonAlgsConf import SaveInDetObjects
    job += SaveInDetObjects()

@@ -16,6 +16,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.doCSCs.set_Value_and_Lock(True)
@@ -55,10 +56,12 @@ if hasattr(runArgs,"outputRDOFile"): athenaCommonFlags.PoolRDOOutput.set_Value_a
 
 OverlayCollection = runArgs.outputRDOFile
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 SignalCollection = runArgs.signalRDOFile
 if runArgs.signalRDOFile=="NONE":
-   OverlayFlags.set_SignalOff()
+   overlayFlags.doSignal=False
+else:
+    overlayFlags.doSignal=True
 
 if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
@@ -72,7 +75,7 @@ jobproperties.Digitization.rndmSvc=runArgs.digiRndmSvc
 SignalInputCollections = runArgs.inputHitsFile
 
 readBS = True
-OverlayFlags.set_BkgOff() #ACH
+overlayFlags.doBkg=False #ACH
 
 #GlobalFlags.InputFormat.set_bytestream()
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
@@ -120,7 +123,7 @@ if runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
    if len(globalflags.ConditionsTag())!=0:
       conddb.setGlobalTag(globalflags.ConditionsTag())
 
-OverlayFlags.Print()
+DetFlags.Print()
 
 # LVL1 Trigger Menu
 if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
@@ -164,30 +167,30 @@ theApp.EvtMax = runArgs.maxEvents
 
 include ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
 
-if OverlayFlags.doTruth():
+if DetFlags.overlay.Truth_on():
    include ( "EventOverlayJobTransforms/TruthOverlay_jobOptions.py" )
 
-if OverlayFlags.doBCM() or OverlayFlags.doLUCID():
+if DetFlags.overlay.BCM_on() or DetFlags.overlay.Lucid_on():
    include ( "EventOverlayJobTransforms/BeamOverlay_jobOptions.py" )
 
-if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
+if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
 
    include ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
-if OverlayFlags.doLAr() or OverlayFlags.doTile():
+if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if OverlayFlags.doCSC() or OverlayFlags.doMDT() or OverlayFlags.doRPC() or OverlayFlags.doTGC():
+if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
-if OverlayFlags.doLVL1():
+if DetFlags.overlay.LVL1_on():
    include ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 # save the overlay output first
 include ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" )
 
 # now save the signal information in the same job
-if OverlayFlags.doSignal():
+if overlayFlags.doSignal==True:
    include ( "EventOverlayJobTransforms/SignalOutputItemList_jobOptions.py" )
 
 # For random number initialization
@@ -209,7 +212,7 @@ ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
 conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
 conddb.addOverride("/LAR/ElecCalib/fSampl/Symmetry",runArgs.fSampltag+runArgs.samplingFractionDbTag )
 
-#if OverlayFlags.doSignal():
+#if DetFlags.overlay.Signal_on():
 #   InputDBConnection = "COOLOFL_LAR/COMP200"
 #   conddb.addFolder("","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"+"<dbConnection>"+InputDBConnection+"</dbConnection>")
 #   conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","")

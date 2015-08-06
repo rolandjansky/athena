@@ -1,21 +1,21 @@
 include.block ( "EventOverlayJobTransforms/SignalOutputItemList_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 
 #copy stuff back into the MC before persistency
 from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyObjects
 
-if OverlayFlags.doTruth():
+if DetFlags.overlay.Truth_on():
    job += CopyObjects("CopyTruth")
    job.CopyTruth.TruthObjects = True
 
 # copy InDet objects back into Signal event store
-if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
+if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
    job += CopyObjects("CopyInDet")
    job.CopyInDet.InDetObjects = True
 
-if OverlayFlags.doCSC() or OverlayFlags.doMDT() or OverlayFlags.doRPC() or OverlayFlags.doTGC():
+if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
    job += CopyObjects("CopyMuons")
    job.CopyMuons.MuonObjects = True
 
@@ -41,58 +41,58 @@ signalStream.Store = "TemporaryStore"
 
 signalStream.ItemList += [ "EventInfo#*", "EventStreamInfo#*", "PileUpEventInfo#*" ]
 
-if OverlayFlags.doTruth():
+if DetFlags.overlay.Truth_on():
    signalStream.ItemList += [
                              "McEventCollection#*",
                              "TrackRecordCollection#*"
                            ]
-   if OverlayFlags.doCSC():
+   if DetFlags.overlay.CSC_on():
       signalStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
-   if OverlayFlags.doMDT():
+   if DetFlags.overlay.MDT_on():
       signalStream.ItemList += [ "MuonSimDataCollection#MDT_SDO" ]
-   if OverlayFlags.doRPC():
+   if DetFlags.overlay.RPC_on():
       signalStream.ItemList += [ "MuonSimDataCollection#RPC_SDO" ]
-   if OverlayFlags.doTGC():
+   if DetFlags.overlay.TGC_on():
       signalStream.ItemList += [ "MuonSimDataCollection#TGC_SDO" ]
-   if OverlayFlags.doLAr() or OverlayFlags.doTile():
+   if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
       signalStream.ItemList += [ "CaloCalibrationHitContainer#*" ]
-   if OverlayFlags.doPixel():
+   if DetFlags.overlay.pixel_on():
       signalStream.ItemList += [ "InDetSimDataCollection#PixelSDO_Map" ]
-   if OverlayFlags.doSCT():
+   if DetFlags.overlay.SCT_on():
       signalStream.ItemList += [ "InDetSimDataCollection#SCT_SDO_Map" ]
-   if OverlayFlags.doTRT():
+   if DetFlags.overlay.TRT_on():
       signalStream.ItemList += [ "InDetSimDataCollection#TRT_SDO_Map" ]
-   if OverlayFlags.doBCM():
+   if DetFlags.overlay.BCM_on():
       signalStream.ItemList += [ "InDetSimDataCollection#BCM_SDO_Map" ] 
 
-if OverlayFlags.doPixel():
+if DetFlags.overlay.pixel_on():
    signalStream.ItemList += ["PixelRDO_Container#*"]
-if OverlayFlags.doSCT():
+if DetFlags.overlay.SCT_on():
    signalStream.ItemList += ["SCT_RDO_Container#*"]
-if OverlayFlags.doTRT():
+if DetFlags.overlay.TRT_on():
    signalStream.ItemList += ["TRT_RDO_Container#*"]
 
-if OverlayFlags.doLAr():
+if DetFlags.overlay.LAr_on():
     signalStream.ItemList+=["LArRawChannelContainer#*"]
     signalStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
-if OverlayFlags.doTile():
+if DetFlags.overlay.Tile_on():
     signalStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]
     signalStream.ItemList += ["TileL2Container#TileL2Cnt"]
     signalStream.ItemList += [ "TileRawChannelContainer#*" ]
 
-if OverlayFlags.doCSC():
+if DetFlags.overlay.CSC_on():
    signalStream.ItemList += [ "CscRawDataContainer#*" ]
-if OverlayFlags.doMDT():
+if DetFlags.overlay.MDT_on():
    signalStream.ItemList += [ "MdtCsmContainer#*" ]
-if OverlayFlags.doRPC():
+if DetFlags.overlay.RPC_on():
    signalStream.ItemList += [ "RpcPadContainer#*" ]
-if OverlayFlags.doTGC():
+if DetFlags.overlay.TGC_on():
    signalStream.ItemList += [ "TgcRdoContainer#*" ]
 
-if OverlayFlags.doBCM():
+if DetFlags.overlay.BCM_on():
    signalStream.ItemList+=["BCM_RDO_Container#*"]
 
-if OverlayFlags.doLVL1():
+if DetFlags.overlay.LVL1_on():
    signalStream.ItemList+=["LArTTL1Container#*"]
    signalStream.ItemList+=["TileTTL1Container#*"]
    signalStream.ItemList+=[

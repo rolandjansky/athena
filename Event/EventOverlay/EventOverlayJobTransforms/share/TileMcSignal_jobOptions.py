@@ -4,7 +4,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon import CfgGetter
 
-if OverlayFlags.doTile():
+if DetFlags.overlay.Tile_on():
 #copy stuff back into the MC before persstency
    from OverlayCommonAlgs.OverlayCommonAlgsConf import RemoveObjects
    job += RemoveObjects("RemoveTileOldMC")

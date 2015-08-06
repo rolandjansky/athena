@@ -1,11 +1,11 @@
 
 include.block ( "EventOverlayJobTransforms/BeamOverlay_jobOptions.py" )
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
-if OverlayFlags.doBCM():
+if DetFlags.overlay.BCM_on():
     protectedInclude( "InDetBCM_EventAthenaPool/InDetBCM_EventAthenaPool_joboptions.py" )
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()

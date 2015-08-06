@@ -30,9 +30,9 @@ jobproperties.Digitization.rndmSeedList.addSeed( pupStream, 123, 345 )
 
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
-include ("EventOverlayJobTransforms/synchFlags_jobOptions.py")
-print "================ OverlayFlags ================ "
-OverlayFlags.Print()
+#include ("EventOverlayJobTransforms/synchFlags_jobOptions.py")
+print "================  DetFlags  ================ "
+DetFlags.Print()
 
 #if globalflags.InputFormat()=='bytestream':
 if readBS:

@@ -9,7 +9,7 @@ import os
 
 from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argBSFile, argPOOLFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool #, argSubstepString
 
-## Add arguments whose default properties have to be overridden for the Overlay Chain
+## Arguments whose default properties have to be overridden for the Overlay Chain
 def addOverlayChainOverrideArgs(parser):
     parser.defineArgGroup('Overlay Chain', 'Overlay Chain transform arguments')
     parser.add_argument('--skipEvents', group='Overlay Chain', type=argFactory(argSubstepInt, defaultSubstep='EVNTtoHITS'),
@@ -30,8 +30,12 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--outputBS_SKIMFile', '--outputBSFile',
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_SKIM'),
                         help='Output skimmed BS file', group='Overlay Filter')
-    parser.add_argument('--eventIdFile',
-                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'), help='The name of the file to write to for EventIdModifierSvc lines', group='Overlay Filter')
+
+#    parser.add_argument('--eventIdFile',
+#                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'), help='The name of the file to write to for EventIdModifierSvc lines', group='Overlay Filter')
+    parser.add_argument('--outputTXT_EVENTIDFile', default = 'events.txt',
+                        type=argFactory(argFile, io = 'output', type='TXT', subtype='TXT_EVENTID'), help='The name of the file to write the EventIdModifierSvc config for the EVNTtoHITS step', group='Overlay Filter')
+    
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='Job number', group='Overlay Filter')
@@ -41,7 +45,7 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--maxFilesPerSubjob',
                         type=argFactory(argSubstepInt, defaultSubstep='overlayBSFilt'),
                         help='Number of bytestream input files for each athena subjob', group='Overlay Filter')
-
+   
 # jobNumber=102
 # InputDataTarFile=/afs/cern.ch/work/e/efeld/overlay/prep/mytar.tar.gz
 # InputLbnMapFile=lbn_anal_map.txt
@@ -77,3 +81,12 @@ def addOverlayPoolTrfArgs(parser):
     parser.add_argument('--inputRDO_BKGFile', nargs='+',
                         type=argFactory(argRDOFile, io='input'),
                         help='Input RAW RDO for pileup overlay', group='EventOverlayPool')
+
+
+#Add input txt file to EVNTtoHITS step
+def addOverlayInputSimArgs(parser):
+    parser.defineArgGroup('EventOverlayInputSim', 'EventOverlayInputSim')
+    parser.add_argument('--inputTXT_EVENTIDFile', nargs='+',
+                    type=argFactory(argFile, io='input', type='TXT', subtype='TXT_EVENTID'),
+                    help='The name of the file to read to configure the EventIdModifierSvc', group='EventOverlayInputSim')
+

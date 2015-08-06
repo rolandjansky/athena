@@ -1,14 +1,15 @@
 include.block ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
 from Digitization.DigitizationFlags import jobproperties
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon import CfgMgr
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
-if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
+if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
 
-    if OverlayFlags.doBkg():
+    if overlayFlags.doBkg==True:
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo1")
        job.BkgRdo1.InDetObjects = True
@@ -23,7 +24,7 @@ if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
     #if readBS and isRealData:
     #   include( "InDetCosmicRecExample/InDetCosmicFlags_jobOptions.py" )
 
-    if OverlayFlags.doPixel():
+    if DetFlags.overlay.pixel_on():
         protectedInclude( "PixelDigitization/PixelDigitization_jobOptions.py" )
         from AthenaCommon import CfgGetter
         CfgGetter.getPublicTool("PixelDigitizationTool",checkType=True).EvtStore = "BkgEvent_0_SG"
@@ -35,7 +36,7 @@ if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
     else:
         indetovl.do_Pixel = False
 
-    if OverlayFlags.doSCT():
+    if DetFlags.overlay.SCT_on():
 
         # Setup the ReadCalibChip folders and Svc
         if isRealData:
@@ -71,7 +72,7 @@ if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
     else:
         indetovl.do_SCT = False
 
-    if OverlayFlags.doTRT():
+    if DetFlags.overlay.TRT_on():
         if isRealData:
            conddb.blockFolder("/TRT/Cond/DigVers")
            #conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
@@ -110,7 +111,7 @@ if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
     else:
         indetovl.do_TRT = False
 
-    if OverlayFlags.doSignal():
+    if overlayFlags.doSignal==True:
        include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
     job += indetovl

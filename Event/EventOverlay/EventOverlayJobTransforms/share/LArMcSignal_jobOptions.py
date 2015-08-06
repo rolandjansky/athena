@@ -4,7 +4,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from LArROD.LArRODFlags import larRODFlags
 
 # calorimeter
-if OverlayFlags.doLAr():
+if DetFlags.overlay.LAr_on():
 
    # Remove some objects from MC event store before re-running digitization
    from OverlayCommonAlgs.OverlayCommonAlgsConf import RemoveObjects

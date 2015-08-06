@@ -60,8 +60,9 @@ if hasattr( runArgs, "TriggerBit"):
 else:
     filAlg.TriggerBit = -1
 
-if hasattr( runArgs, "EventIdFile"):
-    filAlg.EventIdFile=runArgs.EventIdFile # The name of the file to write to for EventIdModifierSvc lines
+#    if hasattr( runArgs, "EventIdFile"):
+if hasattr( runArgs, "outputTXT_EVENTIDFile"):
+    filAlg.EventIdFile=runArgs.outputTXT_EVENTIDFile # The name of the file to write to for EventIdModifierSvc lines
 else:
     filAlg.EventIdFile=""
 

@@ -6,9 +6,8 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 from Digitization.DigitizationFlags import jobproperties
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
 
-if OverlayFlags.doLVL1():
+if DetFlags.overlay.LVL1_on():
 
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()

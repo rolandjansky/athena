@@ -8,28 +8,28 @@ include.block ( "EventOverlayJobTransforms/MuonMcSignal_jobOptions.py" )
 # for CSC, Digit -> RDO was already done during overlay and 
 # should not be repeated here
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 
 theApp.Dlls += [ "MuonByteStreamCnvTest" ]
 theApp.Dlls += [ "TrigT1RPChardware" ]
 theApp.Dlls += [ "TrigT1RPCsteering" ]
 theApp.Dlls += [ "TrigT1RPCmonitoring" ]
 
-if OverlayFlags.doMDT():
+if DetFlags.overlay.MDT_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MdtDigitToMdtRDO
         job += MdtDigitToMdtRDO( "SigMdtDigitToMdtRDO" )
         job.SigMdtDigitToMdtRDO.Store = job.MdtOverlay.MCStore
         #ACH if readBS==False:
            #ACH job += MdtDigitToMdtRDO( "BkgMdtDigitToMdtRDO" )
            #ACH job.BkgMdtDigitToMdtRDO.Store = job.MdtOverlay.TempBkgStore
-if OverlayFlags.doRPC():
+if DetFlags.overlay.RPC_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import RpcDigitToRpcRDO
         job += RpcDigitToRpcRDO( "SigRpcDigitToRpcRDO" )
         job.SigRpcDigitToRpcRDO.Store = job.RpcOverlay.MCStore
         #ACH if readBS==False:
            #ACH job += RpcDigitToRpcRDO( "BkgRpcDigitToRpcRDO" )
            #ACH job.BkgRpcDigitToRpcRDO.Store = job.RpcOverlay.TempBkgStore
-if OverlayFlags.doTGC():
+if DetFlags.overlay.TGC_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import TgcDigitToTgcRDO
         job += TgcDigitToTgcRDO( "SigTgcDigitToTgcRDO" )
         job.SigTgcDigitToTgcRDO.Store = job.TgcOverlay.MCStore

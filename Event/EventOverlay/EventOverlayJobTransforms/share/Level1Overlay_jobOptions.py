@@ -3,11 +3,11 @@ include.block ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
 from Digitization.DigitizationFlags import jobproperties
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-if OverlayFlags.doLVL1():
+if DetFlags.overlay.LVL1_on():
 
-    if OverlayFlags.doBkg():
+    if overlayFlags.doBkg==True:
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo5")
        job.BkgRdo5.Level1Objects = True

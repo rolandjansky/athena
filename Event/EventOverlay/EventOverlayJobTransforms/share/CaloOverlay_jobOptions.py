@@ -4,20 +4,21 @@ include.block ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 from AthenaCommon.Resilience import treatException,protectedInclude
 
 from Digitization.DigitizationFlags import jobproperties
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-if OverlayFlags.doBkg():
-   if OverlayFlags.doLAr():
+if overlayFlags.doBkg==True:
+   if DetFlags.overlay.LAr_on():
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo2")
        job.BkgRdo2.LArObjects = True
-   if OverlayFlags.doTile():
+   if DetFlags.overlay.Tile_on():
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo3")
        job.BkgRdo3.TileObjects = True
                                
                             
-if OverlayFlags.doLAr() or OverlayFlags.doTile():
+if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
 
    jobproperties.Digitization.doCaloNoise=False
 
@@ -31,7 +32,7 @@ if OverlayFlags.doLAr() or OverlayFlags.doTile():
    include( "LArIdCnv/LArIdCnv_joboptions.py" )
    include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
-if OverlayFlags.doLAr():
+if DetFlags.overlay.LAr_on():
 
     from AthenaCommon.GlobalFlags import GlobalFlags
     
@@ -60,7 +61,7 @@ if OverlayFlags.doLAr():
        job.LArRawChannelBuilder.DataLocation = "LArDigitContainer_MC"
 
 #----------------------------------------------------------------
-if OverlayFlags.doTile():
+if DetFlags.overlay.Tile_on():
 
     include( "TileIdCnv/TileIdCnv_jobOptions.py" )
     include( "TileConditions/TileConditions_jobOptions.py" )        

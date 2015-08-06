@@ -11,18 +11,29 @@ else:
     svcMgr.EvtIdModifierSvc.Modifiers = []
 svcMgr.EvtIdModifierSvc.OutputLevel=DEBUG
 
-include("events.txt")
-#svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=167776, evt_nbr=18, time_stamp=1269948350, lbk_nbr=124, nevts=1)
+fname=None
 
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+fname=overlayFlags.EventIDTextFile()
 
-#set the max number of events
-fname = "events.txt"
+#if hasattr(runArgs,'inputTXT_EVENTIDFile'):
+#fname=runArgs.inputTXT_EVENTIDFile[0]
+
+if fname == None:
+    print 'g4runnumber.py: No eventID file provided!'
+    raise RuntimeError
+
+print "fname  ", fname
+
+include(fname)
+
 num_lines = 0
+
 with open(fname, 'r') as f:
     for line in f:
         num_lines += 1
         print line,
-print "Number of lines in events.txt is "+str(num_lines)
+print "Number of lines in TXT_EVENTID is "+str(num_lines)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax.unlock()
 athenaCommonFlags.EvtMax.set_Value_and_Lock(num_lines)
@@ -33,7 +44,7 @@ if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
     svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
     svcMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [svcMgr.EvtIdModifierSvc.Modifiers[0], 2147483647]
     ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
-
+    
 #use conditions from this run number and timestamp
 svcMgr.EventSelector.RunNumber = svcMgr.EvtIdModifierSvc.Modifiers[0]
 svcMgr.EventSelector.OverrideRunNumber = True
@@ -41,4 +52,4 @@ svcMgr.EventSelector.OverrideEventNumber = True
 svcMgr.EventSelector.InitialTimeStamp = svcMgr.EvtIdModifierSvc.Modifiers[2]
 print svcMgr.EventSelector
 svcMgr.TagInfoMgr.OutputLevel=DEBUG
-
+    

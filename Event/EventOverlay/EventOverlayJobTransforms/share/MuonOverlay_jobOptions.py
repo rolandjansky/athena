@@ -3,19 +3,20 @@ include.block ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from Digitization.DigitizationFlags import digitizationFlags
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+from AthenaCommon.DetFlags import DetFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags,mooreFlags,muonboyFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from RecExConfig.RecFlags import rec as recFlags
 
-if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or OverlayFlags.doTGC():
+if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
    
     include( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
  
     import MuonRecExample.MuonReadCalib
     if readBS and isRealData:
        theApp.Dlls += [ "MuonByteStream"]
-       if OverlayFlags.doCSC():
+       if DetFlags.overlay.CSC_on():
           from MuonRecExample.MuonRecFlags import muonRecFlags
           muonRecFlags.doCSCs.set_Value_and_Lock = True
 
@@ -24,7 +25,7 @@ if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or Overl
        muonByteStreamFlags.RpcDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
        muonByteStreamFlags.MdtDataType = "atlas"#FIXME should not be setting jobproperties at this point in the configuration.
 
-    if OverlayFlags.doBkg():
+    if overlayFlags.doBkg==True:
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo4")
        job.BkgRdo4.MuonObjects = True
@@ -36,7 +37,7 @@ if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or Overl
     if readBS:
        include("MuonRecExample/MuonReadBS_jobOptions.py")
 
-    if OverlayFlags.doCSC():
+    if DetFlags.overlay.CSC_on():
         if readBS:
            ToolSvc.CscRawDataProviderTool.EvtStore = "OriginalEvent_SG"
         include ( "CscOverlay/CscOverlay_jobOptions.py" )
@@ -52,7 +53,7 @@ if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or Overl
         #print "ACH123: NumSamples = 2 for MakeRDOTool"
         #job.CscOverlay.MakeRDOTool.NumSamples=2
         
-    if OverlayFlags.doMDT():
+    if DetFlags.overlay.MDT_on():
         if not hasattr(ToolSvc, 'MdtDigitizationTool'):
             from AthenaCommon import CfgGetter
             ToolSvc += CfgGetter.getPrivateTool("MdtDigitizationTool", checkType=True)
@@ -67,7 +68,7 @@ if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or Overl
         #job.MdtOverlay.OutputLevel = VERBOSE
         #job.MdtDigitToMdtRDO.OutputLevel = VERBOSE
 
-    if OverlayFlags.doRPC():
+    if DetFlags.overlay.RPC_on():
         include ( "RpcOverlay/RpcOverlay_jobOptions.py" )
         #job.RpcOverlay.DataStore = "BkgEvent_2_SG"
         if readBS:
@@ -76,7 +77,7 @@ if OverlayFlags.doMDT() or OverlayFlags.doCSC() or OverlayFlags.doRPC() or Overl
         #job.RpcOverlay.OutputLevel = VERBOSE
         #job.RpcDigitToRpcRDO.OutputLevel = VERBOSE
 
-    if OverlayFlags.doTGC():
+    if DetFlags.overlay.TGC_on():
         include ( "TgcOverlay/TgcOverlay_jobOptions.py" )
         #job.TgcOverlay.DataStore = "BkgEvent_2_SG"
         if readBS:

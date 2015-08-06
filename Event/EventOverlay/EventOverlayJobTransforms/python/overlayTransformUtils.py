@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 664098 2015-04-30 14:12:37Z jchapman $
+#  @version $Id: overlayTransformUtils.py 687841 2015-08-06 09:20:13Z tkharlam $
 
 import os
 import re
@@ -137,6 +137,8 @@ def addOverlayChainOverrideArguments(parser):
 def addCommonOverlayArguments(parser):
     from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
     addForwardDetTrfArgs(parser)
+    from EventOverlayJobTransforms.overlayTrfArgs import addOverlayInputSimArgs
+    addOverlayInputSimArgs(parser)
 
 def addUniqueOverlayBSFilterArguments(parser):
     from EventOverlayJobTransforms.overlayTrfArgs import addOverlayBSFilterArgs
@@ -170,7 +172,7 @@ def addOverlay_BSArguments(parser):
 ### Add Sub-step Methods
 def addOverlayBSFilterSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'BSFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS'], outData = ['BS_SKIM']))
+                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS'], outData = ['BS_SKIM','TXT_EVENTID']))
 
 def addOverlay_PoolSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',

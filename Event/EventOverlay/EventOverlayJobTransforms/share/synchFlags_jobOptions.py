@@ -3,115 +3,112 @@
 
 from AthenaCommon.DetFlags import DetFlags
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-
-
 if DetFlags.ID_on():
-    OverlayFlags.set_InDetOn()
+    DetFlags.overlay.ID_setOn()
 else:
-    OverlayFlags.set_InDetOff()
+    DetFlags.overlay.ID_setOff()
         
 if DetFlags.pixel_on():
-    OverlayFlags.set_PixelOn()
+    DetFlags.overlay.pixel_setOn()
 else:
-    OverlayFlags.set_PixelOff()
+    DetFlags.overlay.pixel_setOff()
 
 if DetFlags.TRT_on():
-    OverlayFlags.set_TRTOn()
+    DetFlags.overlay.TRT_setOn()
 else:
-    OverlayFlags.set_TRTOff()
+    DetFlags.overlay.TRT_setOff()
 
 if DetFlags.SCT_on():
-    OverlayFlags.set_SCTOn()
+    DetFlags.overlay.SCT_setOn()
 else:
-    OverlayFlags.set_SCTOff()
+    DetFlags.overlay.SCT_setOff()
 
 
 #if DetFlags.Beam_on():
-#    OverlayFlags.set_BeamOn()
+#    DetFlags.overlay.set_BeamOn()
 #else:
-#    OverlayFlags.set_BeamOff()
+#    DetFlags.overlay.set_BeamOff()
                 
 if DetFlags.BCM_on():
-    OverlayFlags.set_BCMOn()
+    DetFlags.overlay.BCM_setOn()
 else:
-    OverlayFlags.set_BCMOff()
+    DetFlags.overlay.BCM_setOff()
                 
     
 if DetFlags.Calo_on():
-    OverlayFlags.set_CaloOn()
+    DetFlags.overlay.Calo_setOn()
 else:
-    OverlayFlags.set_CaloOff()
+    DetFlags.overlay.Calo_setOff()
     
 if DetFlags.LAr_on():
-    OverlayFlags.set_LArOn()
+    DetFlags.overlay.LAr_setOn()
 else:
-    OverlayFlags.set_LArOff()
+    DetFlags.overlay.LAr_setOff()
 
 if DetFlags.Tile_on():
-    OverlayFlags.set_TileOn()
+    DetFlags.overlay.Tile_setOn()
 else:
-    OverlayFlags.set_TileOff()
+    DetFlags.overlay.Tile_setOff()
 
                 
 if DetFlags.Muon_on():
-    OverlayFlags.set_MuonOn()
+    DetFlags.overlay.Muon_setOn()
 else:
-    OverlayFlags.set_MuonOff()
+    DetFlags.overlay.Muon_setOff()
 
 if DetFlags.MDT_on():
-    OverlayFlags.set_MDTOn()
+    DetFlags.overlay.MDT_setOn()
 else:
-    OverlayFlags.set_MDTOff()
+    DetFlags.overlay.MDT_setOff()
 
 if DetFlags.CSC_on():
-    OverlayFlags.set_CSCOn()
+    DetFlags.overlay.CSC_setOn()
 else:
-    OverlayFlags.set_CSCOff()
+    DetFlags.overlay.CSC_setOff()
 
 if DetFlags.TGC_on():
-    OverlayFlags.set_TGCOn()
+    DetFlags.overlay.TGC_setOn()
 else:
-    OverlayFlags.set_TGCOff()
+    DetFlags.overlay.TGC_setOff()
 
 if DetFlags.RPC_on():
-    OverlayFlags.set_RPCOn()
+    DetFlags.overlay.RPC_setOn()
 else:
-    OverlayFlags.set_RPCOff()
+    DetFlags.overlay.RPC_setOff()
 
 if DetFlags.Forward_on():
-    OverlayFlags.set_ForwardOn()
+    DetFlags.overlay.Forward_setOn()
 #else:
-#    OverlayFlags.set_ForwardOff()
+#    DetFlags.overlay.set_ForwardOff()
 
 if DetFlags.Lucid_on():
-    OverlayFlags.set_LucidOn()
+    DetFlags.overlay.Lucid_setOn()
 #else:
-#    OverlayFlags.set_LucidOff()
+#    DetFlags.overlay.set_LucidOff()
 
 if DetFlags.ALFA_on():
-    OverlayFlags.set_ALFAOn()
+    DetFlags.overlay.ALFA_setOn()
 #else:
-#    OverlayFlags.set_ALFAOff()
+#    DetFlags.overlay.set_ALFAOff()
                 
 if DetFlags.ZDC_on():
-    OverlayFlags.set_ZDCOn()
+    DetFlags.overlay.ZDC_setOn()
 #else:
-#    OverlayFlags.set_ZDCOff()
+#    DetFlags.overlay.set_ZDCOff()
 
                 
 #if DetFlags.Trigger_on():
-#    OverlayFlags.set_TriggerOn()
+#    DetFlags.overlay.set_TriggerOn()
 #else:
-#    OverlayFlags.set_TriggerOff()
+#    DetFlags.overlay.set_TriggerOff()
                 
 if DetFlags.LVL1_on():
-    OverlayFlags.set_LVL1On()
+    DetFlags.overlay.LVL1_setOn()
 else:
-    OverlayFlags.set_LVL1Off()
+    DetFlags.overlay.LVL1_setOff()
 
 #Synchronizing of truth flag does not work
 #if DetFlags.Truth_on():
-#    OverlayFlags.set_TruthOn()
+#    DetFlags.overlay.set_TruthOn()
 #else:
-#    OverlayFlags.set_TruthOff()
+#    DetFlags.overlay.set_TruthOff()
