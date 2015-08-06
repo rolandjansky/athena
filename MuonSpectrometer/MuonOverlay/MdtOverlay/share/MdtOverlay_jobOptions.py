@@ -36,8 +36,8 @@ job.MdtOverlay.DigitizationTool.EvtStore                 = job.MdtOverlay.MCStor
 job.MdtOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = True
 job.MdtOverlay.ConvertRDOToDigitTool.DataStore           = job.MdtOverlay.DataStore
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-if OverlayFlags.doSignal():
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+if overlayFlags.doSignal==True:
    job.MdtOverlay.CopyObject = True
 
 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MdtDigitToMdtRDO
