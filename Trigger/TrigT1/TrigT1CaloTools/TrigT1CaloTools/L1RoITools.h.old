@@ -25,6 +25,8 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/JetElementAuxContainer.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/JetAlgorithm.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
@@ -78,7 +80,7 @@ namespace LVL1
      virtual void findJetROIs(const DataVector<JetElement>* jes, std::vector<Jet_ROI>& rois, int slice = -1);
      /** Form vector of EnergySum_ROI */
      virtual void findEnergySumROI(const DataVector<TriggerTower>* tts, std::vector<EnergySum_ROI>& rois, int slice = -1);
-     virtual void findEnergySumROI(const DataVector<JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice = -1);
+     virtual void findEnergySumROI(const DataVector<xAOD::JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice = -1);
      /** Form JetET_ROI */
      virtual void findJetETROI(const std::vector<Jet_ROI>& jets, std::vector<JetET_ROI>& rois);
      

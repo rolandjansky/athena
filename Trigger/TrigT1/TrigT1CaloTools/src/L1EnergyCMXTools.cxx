@@ -5,7 +5,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrigT1CaloEvent/CMXEtSums.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElement.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
@@ -34,7 +34,7 @@ L1EnergyCMXTools::L1EnergyCMXTools(const std::string& type,
 /** Destructor */
 
 L1EnergyCMXTools::~L1EnergyCMXTools()
-{       
+{
 }
 
 
@@ -48,7 +48,7 @@ StatusCode L1EnergyCMXTools::initialize()
 
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() 
+    msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
                     << endreq;
     return sc;
   } else if (m_debug) {
@@ -71,9 +71,9 @@ StatusCode L1EnergyCMXTools::initialize()
     msg(MSG::ERROR) << "Couldn't retrieve EtTool" << endreq;
     return sc;
   }
-  
+
   msg(MSG::INFO) << "Initialization completed" << endreq;
-  
+
   return sc;
 }
 
@@ -91,28 +91,28 @@ StatusCode L1EnergyCMXTools::finalize()
 /** form JEMEtSums from JetElements */
 
 void L1EnergyCMXTools::formJEMEtSums(
-                                const DataVector<JetElement>* jetElementVec,
-                                      DataVector<JEMEtSums>* jemEtSumsVec) const
+  const xAOD::JetElementContainer* jetElementVec,
+  xAOD::JEMEtSumsContainer* jemEtSumsVec) const
 {
   // Find number of slices
   int peak = 0;
   unsigned int nslices = 1;
-  DataVector<JetElement>::const_iterator iter  = jetElementVec->begin();
-  DataVector<JetElement>::const_iterator iterE = jetElementVec->end();
+  xAOD::JetElementContainer::const_iterator iter  = jetElementVec->begin();
+  xAOD::JetElementContainer::const_iterator iterE = jetElementVec->end();
   for (; iter != iterE; ++iter) {
-    if ((*iter)->emEnergyVec().size() > nslices) {
-      nslices = (*iter)->emEnergyVec().size();
+    if ((*iter)->emJetElementETVec().size() > nslices) {
+      nslices = (*iter)->emJetElementETVec().size();
       peak = (*iter)->peak();
       break;
     }
-    if ((*iter)->hadEnergyVec().size() > nslices) {
-      nslices = (*iter)->hadEnergyVec().size();
+    if ((*iter)->hadJetElementETVec().size() > nslices) {
+      nslices = (*iter)->hadJetElementETVec().size();
       peak = (*iter)->peak();
       break;
     }
   }
   // Process each slice
-  std::map<int, JetElement*>* jeMap = new std::map<int, JetElement*>;
+  std::map<int, xAOD::JetElement*>* jeMap = new std::map<int, xAOD::JetElement*>;
   m_jeTool->mapJetElements(jetElementVec, jeMap);
   MultiSliceModuleEnergy modulesVec;
   for (unsigned int slice = 0; slice < nslices; ++slice) {
@@ -130,8 +130,8 @@ void L1EnergyCMXTools::formJEMEtSums(
 
 /** form complete CMXEtSums from JEMEtSums */
 
-void L1EnergyCMXTools::formCMXEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,
-                                     DataVector<CMXEtSums>* cmxEtSumsVec) const
+void L1EnergyCMXTools::formCMXEtSums(const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+                                     xAOD::CMXEtSumsContainer* cmxEtSumsVec) const
 {
   formCMXEtSumsModule(jemEtSumsVec, cmxEtSumsVec);
   // Convert to internal containers
@@ -167,25 +167,28 @@ void L1EnergyCMXTools::formCMXEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,
 /** form partial CMXEtSums (module) from JEMEtSums */
 
 void L1EnergyCMXTools::formCMXEtSumsModule(
-                                    const DataVector<JEMEtSums>* jemEtSumsVec,
-                                    DataVector<CMXEtSums>* cmxEtSumsMod) const
+  const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+  xAOD::CMXEtSumsContainer* cmxEtSumsMod) const
 {
-  DataVector<JEMEtSums>::const_iterator pos  = jemEtSumsVec->begin();
-  DataVector<JEMEtSums>::const_iterator pose = jemEtSumsVec->end();
+  xAOD::JEMEtSumsContainer::const_iterator pos  = jemEtSumsVec->begin();
+  xAOD::JEMEtSumsContainer::const_iterator pose = jemEtSumsVec->end();
   for (; pos != pose; ++pos) {
-    const JEMEtSums* sums = *pos;
-    ErrorVector err(sums->EtVec().size());
-    cmxEtSumsMod->push_back(new CMXEtSums(sums->crate(), sums->module(),
-                            sums->EtVec(), sums->ExVec(), sums->EyVec(),
-			    err, err, err, sums->peak()));
+    const xAOD::JEMEtSums* sums = *pos;
+    ErrorVector err(sums->etVec().size());
+    auto item = new xAOD::CMXEtSums;
+    item->makePrivateStore();
+    item->initialize(sums->crate(), sums->module(),
+                     sums->etVec(), sums->exVec(), sums->eyVec(),
+                     err, err, err, sums->peak());
+    cmxEtSumsMod->push_back(item);
   }
 }
 
 /** form partial CMXEtSums (crate) from module CMXEtSums */
 
 void L1EnergyCMXTools::formCMXEtSumsCrate(
-                                   const DataVector<CMXEtSums>* cmxEtSumsMod,
-                                   DataVector<CMXEtSums>* cmxEtSumsCrate) const
+  const xAOD::CMXEtSumsContainer* cmxEtSumsMod,
+  xAOD::CMXEtSumsContainer* cmxEtSumsCrate) const
 {
   // Convert to internal containers
   int peak = 0;
@@ -212,8 +215,8 @@ void L1EnergyCMXTools::formCMXEtSumsCrate(
 /** form partial CMXEtSums (system) from crate CMXEtSums */
 
 void L1EnergyCMXTools::formCMXEtSumsSystem(
-                                   const DataVector<CMXEtSums>* cmxEtSumsCrate,
-                                   DataVector<CMXEtSums>* cmxEtSumsSys) const
+  const xAOD::CMXEtSumsContainer* cmxEtSumsCrate,
+  xAOD::CMXEtSumsContainer* cmxEtSumsSys) const
 {
   // Convert to internal containers
   int peak = 0;
@@ -240,8 +243,8 @@ void L1EnergyCMXTools::formCMXEtSumsSystem(
                                                   from system CMXEtSums */
 
 void L1EnergyCMXTools::formCMXEtSumsEtMaps(
-                                   const DataVector<CMXEtSums>* cmxEtSumsSys,
-                                   DataVector<CMXEtSums>* cmxEtSumsMap) const
+  const xAOD::CMXEtSumsContainer* cmxEtSumsSys,
+  xAOD::CMXEtSumsContainer* cmxEtSumsMap) const
 {
   // Convert to internal objects
   int peak = 0;
@@ -257,22 +260,22 @@ void L1EnergyCMXTools::formCMXEtSumsEtMaps(
 /** Convert CMXEtSums container to internal ModuleEnergy containers */
 
 void L1EnergyCMXTools::etSumsToModuleEnergy(
-                       const DataVector<CMXEtSums>* etSums, 
-                       MultiSliceModuleEnergy& modulesVec, int& peak) const
+  const xAOD::CMXEtSumsContainer* etSums,
+  MultiSliceModuleEnergy& modulesVec, int& peak) const
 {
   peak = 0;
   unsigned int nslices = 0;
-  DataVector<CMXEtSums>::const_iterator pos  = etSums->begin();
-  DataVector<CMXEtSums>::const_iterator pose = etSums->end();
+  xAOD::CMXEtSumsContainer::const_iterator pos  = etSums->begin();
+  xAOD::CMXEtSumsContainer::const_iterator pose = etSums->end();
   for (; pos != pose; ++pos) {
-    const CMXEtSums* sums = *pos;
-    int source = sums->source();
+    const xAOD::CMXEtSums* sums = *pos;
+    int source = sums->sourceComponent();
     if (source > 15) continue;
     int crate  = sums->crate();
     if (sums->peak() > peak) peak = sums->peak();
-    const EnergyVector& ex(sums->ExVec());
-    const EnergyVector& ey(sums->EyVec());
-    const EnergyVector& et(sums->EtVec());
+    const EnergyVector& ex(sums->exVec());
+    const EnergyVector& ey(sums->eyVec());
+    const EnergyVector& et(sums->etVec());
     unsigned int slices = et.size();
     if (slices > nslices) {
       for (unsigned int i = nslices; i < slices; ++i) {
@@ -290,28 +293,28 @@ void L1EnergyCMXTools::etSumsToModuleEnergy(
 
 /** Convert CMXEtSums container to internal CrateEnergy containers */
 
-void L1EnergyCMXTools::etSumsToCrateEnergy(const DataVector<CMXEtSums>* etSums, 
-                       MultiSliceCrateEnergy& crateVec, int& peak) const
+void L1EnergyCMXTools::etSumsToCrateEnergy(const xAOD::CMXEtSumsContainer* etSums,
+    MultiSliceCrateEnergy& crateVec, int& peak) const
 {
   peak = 0;
   unsigned int nslices = 0;
-  DataVector<CMXEtSums>::const_iterator pos  = etSums->begin();
-  DataVector<CMXEtSums>::const_iterator pose = etSums->end();
+  xAOD::CMXEtSumsContainer::const_iterator pos  = etSums->begin();
+  xAOD::CMXEtSumsContainer::const_iterator pose = etSums->end();
   for (; pos != pose; ++pos) {
-    const CMXEtSums* sums = *pos;
+    const xAOD::CMXEtSums* sums = *pos;
     int crate  = sums->crate();
     if (crate != 1) continue;
-    int source = sums->source();
-    if (source != CMXEtSums::LOCAL_STANDARD &&
-        source != CMXEtSums::REMOTE_STANDARD) continue;
-    if (source == CMXEtSums::REMOTE_STANDARD) crate = 0;
+    int source = sums->sourceComponent();
+    if (source != xAOD::CMXEtSums::LOCAL_STANDARD &&
+        source != xAOD::CMXEtSums::REMOTE_STANDARD) continue;
+    if (source == xAOD::CMXEtSums::REMOTE_STANDARD) crate = 0;
     if (sums->peak() > peak) peak = sums->peak();
-    const EnergyVector& ex(sums->ExVec());
-    const EnergyVector& ey(sums->EyVec());
-    const EnergyVector& et(sums->EtVec());
-    const ErrorVector&  exErrVec(sums->ExErrorVec());
-    const ErrorVector&  eyErrVec(sums->EyErrorVec());
-    const ErrorVector&  etErrVec(sums->EtErrorVec());
+    const EnergyVector& ex(sums->exVec());
+    const EnergyVector& ey(sums->eyVec());
+    const EnergyVector& et(sums->etVec());
+    const ErrorVector&  exErrVec(sums->exErrorVec());
+    const ErrorVector&  eyErrVec(sums->eyErrorVec());
+    const ErrorVector&  etErrVec(sums->etErrorVec());
     unsigned int slices = et.size();
     if (slices > nslices) {
       for (unsigned int i = nslices; i < slices; ++i) {
@@ -335,24 +338,24 @@ void L1EnergyCMXTools::etSumsToCrateEnergy(const DataVector<CMXEtSums>* etSums,
 /** Convert CMXEtSums container to internal SystemEnergy objects */
 
 void L1EnergyCMXTools::etSumsToSystemEnergy(
-                       const DataVector<CMXEtSums>* etSums, 
-                       MultiSliceSystemEnergy& systemVec, int& peak) const
+  const xAOD::CMXEtSumsContainer* etSums,
+  MultiSliceSystemEnergy& systemVec, int& peak) const
 {
   peak = 0;
   int restricted = 0; //@@vkousk
-  DataVector<CMXEtSums>::const_iterator pos  = etSums->begin();
-  DataVector<CMXEtSums>::const_iterator pose = etSums->end();
+  xAOD::CMXEtSumsContainer::const_iterator pos  = etSums->begin();
+  xAOD::CMXEtSumsContainer::const_iterator pose = etSums->end();
   for (; pos != pose; ++pos) {
-    const CMXEtSums* sums = *pos;
-    int source = sums->source();
-    if (source != CMXEtSums::TOTAL_STANDARD) continue;
+    const xAOD::CMXEtSums* sums = *pos;
+    int source = sums->sourceComponent();
+    if (source != xAOD::CMXEtSums::TOTAL_STANDARD) continue;
     if (sums->peak() > peak) peak = sums->peak();
-    const EnergyVector& ex(sums->ExVec());
-    const EnergyVector& ey(sums->EyVec());
-    const EnergyVector& et(sums->EtVec());
-    const ErrorVector&  exErrVec(sums->ExErrorVec());
-    const ErrorVector&  eyErrVec(sums->EyErrorVec());
-    const ErrorVector&  etErrVec(sums->EtErrorVec());
+    const EnergyVector& ex(sums->exVec());
+    const EnergyVector& ey(sums->eyVec());
+    const EnergyVector& et(sums->etVec());
+    const ErrorVector&  exErrVec(sums->exErrorVec());
+    const ErrorVector&  eyErrVec(sums->eyErrorVec());
+    const ErrorVector&  etErrVec(sums->etErrorVec());
     unsigned int slices = et.size();
     for (unsigned int sl = 0; sl < slices; ++sl) {
       DataError exErr(exErrVec[sl]);
@@ -362,8 +365,8 @@ void L1EnergyCMXTools::etSumsToSystemEnergy(
                                            etErr.get(DataError::Overflow),
                                            exErr.get(DataError::Overflow),
                                            eyErr.get(DataError::Overflow),
-					   restricted,
-					   m_configSvc));
+                                           restricted,
+                                           m_configSvc));
     }
   }
 }
@@ -371,12 +374,12 @@ void L1EnergyCMXTools::etSumsToSystemEnergy(
 /** Convert internal ModuleEnergy containers to JEMEtSums container */
 
 void L1EnergyCMXTools::moduleEnergyToEtSums(
-                       const MultiSliceModuleEnergy& modulesVec,
-		       DataVector<JEMEtSums>* jemEtSumsVec, int peak) const
+  const MultiSliceModuleEnergy& modulesVec,
+  xAOD::JEMEtSumsContainer* jemEtSumsVec, int peak) const
 {
-  std::map<int, JEMEtSums*> etMap;
+  std::map<int, xAOD::JEMEtSums*> etMap;
   unsigned int nslices = modulesVec.size();
-  std::vector<unsigned int> dummy(nslices);
+  std::vector<uint16_t> dummy(nslices);
   for (unsigned int slice = 0; slice < nslices; ++slice) {
     const DataVector<ModuleEnergy>* modules = modulesVec[slice];
     DataVector<ModuleEnergy>::const_iterator pos  = modules->begin();
@@ -392,23 +395,25 @@ void L1EnergyCMXTools::moduleEnergyToEtSums(
       if (ex == 0 && ey == 0 && et == 0) continue;
       int crate = energy->crate();
       int module = energy->module();
-      JEMEtSums* sums = 0;
-      int key = crate*100 + module;
-      std::map<int, JEMEtSums*>::iterator iter = etMap.find(key);
+      xAOD::JEMEtSums* sums = 0;
+      int key = crate * 100 + module;
+      std::map<int, xAOD::JEMEtSums*>::iterator iter = etMap.find(key);
       if (iter == etMap.end()) {
-        sums = new JEMEtSums(crate, module, dummy, dummy, dummy, peak);
-	etMap.insert(std::make_pair(key, sums));
-	jemEtSumsVec->push_back(sums);
+        sums = new xAOD::JEMEtSums;
+        sums->makePrivateStore();
+        sums->initialize(crate, module, dummy, dummy, dummy, peak);
+        etMap.insert(std::make_pair(key, sums));
+        jemEtSumsVec->push_back(sums);
       } else sums = iter->second;
-      std::vector<unsigned int> exVec(sums->ExVec());
-      std::vector<unsigned int> eyVec(sums->EyVec());
-      std::vector<unsigned int> etVec(sums->EtVec());
+      std::vector<uint16_t> exVec(sums->exVec());
+      std::vector<uint16_t> eyVec(sums->eyVec());
+      std::vector<uint16_t> etVec(sums->etVec());
       exVec[slice] = ex;
       eyVec[slice] = ey;
       etVec[slice] = et;
-      sums->addEx(exVec);
-      sums->addEy(eyVec);
-      sums->addEt(etVec);
+      sums->setExVec(exVec);
+      sums->setEyVec(eyVec);
+      sums->setEtVec(etVec);
     }
   }
 }
@@ -416,13 +421,13 @@ void L1EnergyCMXTools::moduleEnergyToEtSums(
 /** Convert internal CrateEnergy containers to CMXEtSums container */
 
 void L1EnergyCMXTools::crateEnergyToEtSums(
-                       const MultiSliceCrateEnergy& cratesVec,
-		       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const
+  const MultiSliceCrateEnergy& cratesVec,
+  xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const
 {
-  std::map<int, CMXEtSums*> etMap;
+  std::map<int, xAOD::CMXEtSums*> etMap;
   unsigned int nslices = cratesVec.size();
-  std::vector<unsigned int> dummy(nslices);
-  std::vector<int>          error(nslices);
+  std::vector<uint16_t> dummy(nslices);
+  std::vector<uint32_t>          error(nslices);
   for (unsigned int slice = 0; slice < nslices; ++slice) {
     const DataVector<CrateEnergy>* crates = cratesVec[slice];
     DataVector<CrateEnergy>::const_iterator pos  = crates->begin();
@@ -438,54 +443,56 @@ void L1EnergyCMXTools::crateEnergyToEtSums(
       if (ex == 0 && ey == 0 && et == 0 &&
           exOverflow == 0 && eyOverflow == 0 && etOverflow == 0) continue;
       int crate = energy->crate();
-      CMXEtSums* sums = 0;
-      int source = CMXEtSums::LOCAL_STANDARD;
+      xAOD::CMXEtSums* sums = 0;
+      int source = xAOD::CMXEtSums::LOCAL_STANDARD;
       for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
-          int key = crate*100 + source;
-          std::map<int, CMXEtSums*>::iterator iter = etMap.find(key);
+          int key = crate * 100 + source;
+          std::map<int, xAOD::CMXEtSums*>::iterator iter = etMap.find(key);
           if (iter == etMap.end()) {
-            sums = new CMXEtSums(crate, source, dummy, dummy, dummy,
-	                         error, error, error, peak);
-	    etMap.insert(std::make_pair(key, sums));
-	    cmxEtSumsVec->push_back(sums);
+            sums = new xAOD::CMXEtSums;
+            sums->makePrivateStore();
+            sums->initialize(crate, source, dummy, dummy, dummy,
+                             error, error, error, peak);
+            etMap.insert(std::make_pair(key, sums));
+            cmxEtSumsVec->push_back(sums);
           } else sums = iter->second;
-          std::vector<unsigned int> exVec(sums->ExVec());
-          std::vector<unsigned int> eyVec(sums->EyVec());
-          std::vector<unsigned int> etVec(sums->EtVec());
-	  std::vector<int> exErr(sums->ExErrorVec());
-	  std::vector<int> eyErr(sums->EyErrorVec());
-	  std::vector<int> etErr(sums->EtErrorVec());
+          std::vector<uint16_t> exVec(sums->exVec());
+          std::vector<uint16_t> eyVec(sums->eyVec());
+          std::vector<uint16_t> etVec(sums->etVec());
+          std::vector<uint32_t> exErr(sums->exErrorVec());
+          std::vector<uint32_t> eyErr(sums->eyErrorVec());
+          std::vector<uint32_t> etErr(sums->etErrorVec());
           exVec[slice] = ex;
           eyVec[slice] = ey;
           etVec[slice] = et;
-	  if (exOverflow) {
-	    DataError dEx(exErr[slice]);
-	    dEx.set(DataError::Overflow);
-	    exErr[slice] = dEx.error();
-	  }
-	  if (eyOverflow) {
-	    DataError dEy(eyErr[slice]);
-	    dEy.set(DataError::Overflow);
-	    eyErr[slice] = dEy.error();
-	  }
-	  if (etOverflow) {
-	    DataError dEt(etErr[slice]);
-	    dEt.set(DataError::Overflow);
-	    etErr[slice] = dEt.error();
-	  }
+          if (exOverflow) {
+            DataError dEx(exErr[slice]);
+            dEx.set(DataError::Overflow);
+            exErr[slice] = dEx.error();
+          }
+          if (eyOverflow) {
+            DataError dEy(eyErr[slice]);
+            dEy.set(DataError::Overflow);
+            eyErr[slice] = dEy.error();
+          }
+          if (etOverflow) {
+            DataError dEt(etErr[slice]);
+            dEt.set(DataError::Overflow);
+            etErr[slice] = dEt.error();
+          }
           sums->addEx(exVec, exErr);
           sums->addEy(eyVec, eyErr);
           sums->addEt(etVec, etErr);
-	  if (source == CMXEtSums::LOCAL_STANDARD) {
-	    source = CMXEtSums::LOCAL_RESTRICTED;
-	  } else {
-	    source = CMXEtSums::REMOTE_RESTRICTED;
-	  }
-	}
-	if (crate == 1) break;
-	crate = 1;
-	source = CMXEtSums::REMOTE_STANDARD;
+          if (source == xAOD::CMXEtSums::LOCAL_STANDARD) {
+            source = xAOD::CMXEtSums::LOCAL_RESTRICTED;
+          } else {
+            source = xAOD::CMXEtSums::REMOTE_RESTRICTED;
+          }
+        }
+        if (crate == 1) break;
+        crate = 1;
+        source = xAOD::CMXEtSums::REMOTE_STANDARD;
       }
     }
   }
@@ -494,14 +501,14 @@ void L1EnergyCMXTools::crateEnergyToEtSums(
 /** Convert internal SystemEnergy objects to CMXEtSums object */
 
 void L1EnergyCMXTools::systemEnergyToEtSums(
-                       const MultiSliceSystemEnergy& systemVec,
-		       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const
+  const MultiSliceSystemEnergy& systemVec,
+  xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const
 {
-  CMXEtSums* sums1 = 0;
-  CMXEtSums* sums2 = 0;
+  xAOD::CMXEtSums* sums1 = 0;
+  xAOD::CMXEtSums* sums2 = 0;
   unsigned int nslices = systemVec.size();
-  std::vector<unsigned int> data(nslices);
-  std::vector<int>          error(nslices);
+  std::vector<uint16_t> data(nslices);
+  std::vector<uint32_t>          error(nslices);
   for (unsigned int slice = 0; slice < nslices; ++slice) {
     SystemEnergy* energy = systemVec[slice];
     unsigned int ex = energy->exTC();
@@ -513,20 +520,22 @@ void L1EnergyCMXTools::systemEnergyToEtSums(
     if (ex == 0 && ey == 0 && et == 0 &&
         exOverflow == 0 && eyOverflow == 0 && etOverflow == 0) continue;
     for (int i = 0; i < 2; ++i) {
-      CMXEtSums*& sums((i == 0) ? sums1 : sums2);
+      xAOD::CMXEtSums* sums((i == 0) ? sums1 : sums2);
       if ( !sums ) {
-        int source = (i == 0) ? CMXEtSums::TOTAL_STANDARD
-                              : CMXEtSums::TOTAL_RESTRICTED;
-        sums = new CMXEtSums(1, source, data, data, data,
-                                        error, error, error, peak);
+        int source = (i == 0) ? xAOD::CMXEtSums::TOTAL_STANDARD
+                     : xAOD::CMXEtSums::TOTAL_RESTRICTED;
+        sums = new xAOD::CMXEtSums;
+        sums->makePrivateStore();
+        sums->initialize(1, source, data, data, data,
+                                   error, error, error, peak);
         cmxEtSumsVec->push_back(sums);
       }
-      std::vector<unsigned int> exVec(sums->ExVec());
-      std::vector<unsigned int> eyVec(sums->EyVec());
-      std::vector<unsigned int> etVec(sums->EtVec());
-      std::vector<int> exErr(sums->ExErrorVec());
-      std::vector<int> eyErr(sums->EyErrorVec());
-      std::vector<int> etErr(sums->EtErrorVec());
+      std::vector<uint16_t> exVec(sums->exVec());
+      std::vector<uint16_t> eyVec(sums->eyVec());
+      std::vector<uint16_t> etVec(sums->etVec());
+      std::vector<uint32_t> exErr(sums->exErrorVec());
+      std::vector<uint32_t> eyErr(sums->eyErrorVec());
+      std::vector<uint32_t> etErr(sums->etErrorVec());
       exVec[slice] = ex;
       eyVec[slice] = ey;
       etVec[slice] = et;
@@ -555,35 +564,39 @@ void L1EnergyCMXTools::systemEnergyToEtSums(
 /** Convert maps from internal SystemEnergy objects to CMXEtSums objects */
 
 void L1EnergyCMXTools::etMapsToEtSums(
-                       const MultiSliceSystemEnergy& systemVec,
-		       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const
+  const MultiSliceSystemEnergy& systemVec,
+  xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const
 {
-  CMXEtSums* sumEt1    = 0;
-  CMXEtSums* sumEt2    = 0;
-  CMXEtSums* missEt1   = 0;
-  CMXEtSums* missEt2   = 0;
-  CMXEtSums* missEtSig = 0;
+  xAOD::CMXEtSums* sumEt1    = 0;
+  xAOD::CMXEtSums* sumEt2    = 0;
+  xAOD::CMXEtSums* missEt1   = 0;
+  xAOD::CMXEtSums* missEt2   = 0;
+  xAOD::CMXEtSums* missEtSig = 0;
   unsigned int nslices = systemVec.size();
-  std::vector<unsigned int> data(nslices);
-  std::vector<int>          error(nslices);
+  std::vector<uint16_t> data(nslices);
+  std::vector<uint32_t>          error(nslices);
   for (unsigned int slice = 0; slice < nslices; ++slice) {
     SystemEnergy* energy = systemVec[slice];
     unsigned int etSumHits  = energy->etSumHits();
     if (etSumHits) {
       if ( !sumEt1 ) {
-        sumEt1 = new CMXEtSums(1, CMXEtSums::SUM_ET_STANDARD,
-	                       data, data, data, error, error, error, peak);
-        sumEt2 = new CMXEtSums(1, CMXEtSums::SUM_ET_RESTRICTED,
-	                       data, data, data, error, error, error, peak);
+        sumEt1 = new xAOD::CMXEtSums;
+        sumEt1->makePrivateStore();
+        sumEt1->initialize(1, CMXEtSums::SUM_ET_STANDARD,
+                               data, data, data, error, error, error, peak);
+        sumEt2 = new xAOD::CMXEtSums;
+        sumEt2->makePrivateStore();
+        sumEt2->initialize(1, CMXEtSums::SUM_ET_RESTRICTED,
+                               data, data, data, error, error, error, peak);
         cmxEtSumsVec->push_back(sumEt1);
         cmxEtSumsVec->push_back(sumEt2);
       }
-      std::vector<unsigned int> etVec1(sumEt1->EtVec());
+      std::vector<uint16_t> etVec1(sumEt1->etVec());
       etVec1[slice] = etSumHits;
       sumEt1->addEx(etVec1, error);
       sumEt1->addEy(etVec1, error);
       sumEt1->addEt(etVec1, error);
-      std::vector<unsigned int> etVec2(sumEt2->EtVec());
+      std::vector<uint16_t> etVec2(sumEt2->etVec());
       etVec2[slice] = etSumHits;
       sumEt2->addEx(etVec2, error);
       sumEt2->addEy(etVec2, error);
@@ -592,19 +605,24 @@ void L1EnergyCMXTools::etMapsToEtSums(
     unsigned int etMissHits = energy->etMissHits();
     if (etMissHits) {
       if ( !missEt1 ) {
-        missEt1 = new CMXEtSums(1, CMXEtSums::MISSING_ET_STANDARD,
-	                        data, data, data, error, error, error, peak);
-        missEt2 = new CMXEtSums(1, CMXEtSums::MISSING_ET_RESTRICTED,
-	                        data, data, data, error, error, error, peak);
+        missEt1 = new xAOD::CMXEtSums;
+        missEt1->makePrivateStore();
+        missEt1->initialize(1, CMXEtSums::MISSING_ET_STANDARD,
+                                data, data, data, error, error, error, peak);
+        
+        missEt2 = new xAOD::CMXEtSums;
+        missEt2->makePrivateStore();
+        missEt2->initialize(1, CMXEtSums::MISSING_ET_RESTRICTED,
+                                data, data, data, error, error, error, peak);
         cmxEtSumsVec->push_back(missEt1);
         cmxEtSumsVec->push_back(missEt2);
       }
-      std::vector<unsigned int> etVec1(missEt1->EtVec());
+      std::vector<uint16_t> etVec1(missEt1->etVec());
       etVec1[slice] = etMissHits;
       missEt1->addEx(etVec1, error);
       missEt1->addEy(etVec1, error);
       missEt1->addEt(etVec1, error);
-      std::vector<unsigned int> etVec2(missEt2->EtVec());
+      std::vector<uint16_t> etVec2(missEt2->etVec());
       etVec2[slice] = etMissHits;
       missEt2->addEx(etVec2, error);
       missEt2->addEy(etVec2, error);
@@ -613,11 +631,13 @@ void L1EnergyCMXTools::etMapsToEtSums(
     unsigned int etMissSigHits = energy->metSigHits();
     if (etMissSigHits) {
       if ( !missEtSig ) {
-        missEtSig = new CMXEtSums(1, CMXEtSums::MISSING_ET_SIG_STANDARD,
-	                          data, data, data, error, error, error, peak);
+        missEtSig = new xAOD::CMXEtSums;
+        missEtSig->makePrivateStore();
+        missEtSig->initialize(1, CMXEtSums::MISSING_ET_SIG_STANDARD,
+                                  data, data, data, error, error, error, peak);
         cmxEtSumsVec->push_back(missEtSig);
       }
-      std::vector<unsigned int> etVec(missEtSig->EtVec());
+      std::vector<uint16_t> etVec(missEtSig->etVec());
       etVec[slice] = etMissSigHits;
       missEtSig->addEx(etVec, error);
       missEtSig->addEy(etVec, error);

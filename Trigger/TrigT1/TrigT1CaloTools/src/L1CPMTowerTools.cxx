@@ -277,8 +277,8 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       // That way if one layer is missing from TT collection we have a 0 entered already
       std::vector<uint8_t> emET(1);
       std::vector<uint8_t> hadET(1);
-      std::vector<uint8_t> emError(1);
-      std::vector<uint8_t> hadError(1);
+      std::vector<uint32_t> emError(1);
+      std::vector<uint32_t> hadError(1);
       // Both should contain same number of samples, and same peak position
       int Peak = 0;
       

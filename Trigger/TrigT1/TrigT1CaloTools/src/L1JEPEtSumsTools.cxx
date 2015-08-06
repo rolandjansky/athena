@@ -7,7 +7,7 @@
 
 #include "TrigT1CaloEvent/CMMEtSums.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElement.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
@@ -84,28 +84,28 @@ StatusCode L1JEPEtSumsTools::finalize()
 /** form JEMEtSums from JetElements */
 
 void L1JEPEtSumsTools::formJEMEtSums(
-                                const DataVector<JetElement>* jetElementVec,
+                                const DataVector<xAOD::JetElement>* jetElementVec,
                                       DataVector<JEMEtSums>* jemEtSumsVec) const
 {
   // Find number of slices
   int peak = 0;
   unsigned int nslices = 1;
-  DataVector<JetElement>::const_iterator iter  = jetElementVec->begin();
-  DataVector<JetElement>::const_iterator iterE = jetElementVec->end();
+  DataVector<xAOD::JetElement>::const_iterator iter  = jetElementVec->begin();
+  DataVector<xAOD::JetElement>::const_iterator iterE = jetElementVec->end();
   for (; iter != iterE; ++iter) {
-    if ((*iter)->emEnergyVec().size() > nslices) {
-      nslices = (*iter)->emEnergyVec().size();
+    if ((*iter)->emJetElementETVec().size() > nslices) {
+      nslices = (*iter)->emJetElementETVec().size();
       peak = (*iter)->peak();
       break;
     }
-    if ((*iter)->hadEnergyVec().size() > nslices) {
-      nslices = (*iter)->hadEnergyVec().size();
+    if ((*iter)->hadJetElementETVec().size() > nslices) {
+      nslices = (*iter)->emJetElementETVec().size();
       peak = (*iter)->peak();
       break;
     }
   }
   // Process each slice
-  std::map<int, JetElement*>* jeMap = new std::map<int, JetElement*>;
+  std::map<int, xAOD::JetElement*>* jeMap = new std::map<int, xAOD::JetElement*>;
   m_jeTool->mapJetElements(jetElementVec, jeMap);
   MultiSliceModuleEnergy modulesVec;
   for (unsigned int slice = 0; slice < nslices; ++slice) {

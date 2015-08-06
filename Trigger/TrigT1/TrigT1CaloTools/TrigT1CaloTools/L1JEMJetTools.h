@@ -17,12 +17,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
 #include "TrigT1CaloEvent/JetInput.h"
-#include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloUtils/JetInputKey.h"
 #include "TrigT1CaloUtils/JEMJetAlgorithm.h"
-#include "TrigT1CaloEvent/JEMTobRoI.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include "xAODTrigL1Calo/JetElementContainer.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -42,7 +42,6 @@ namespace LVL1
   class L1JEMJetTools : virtual public IL1JEMJetTools, public AthAlgTool
     {
     public:
-      typedef DataVector<JetElement>          JECollection ;
       
       L1JEMJetTools(const std::string&,const std::string&,const IInterface*);
 
@@ -55,20 +54,24 @@ namespace LVL1
       virtual StatusCode finalize  ();
       
       /** Convert user-supplied JetElements to map of JetInputs. Can specify which time slice of data to use */
-      virtual void mapJetInputs(const DataVector<JetElement>* jes, std::map<int, JetInput*>* elements, int slice = -1) ;
+      virtual void mapJetInputs(const xAOD::JetElementContainer* jes, std::map<int, JetInput*>* elements, int slice = -1) ;
 
       /** Return vector of TOB RoI objects derived from user-specified inputs. JetElements can be multi-slice */
-      virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMTobRoI>* rois) ;
-      virtual void findRoIs(const DataVector<JetElement>* jes, DataVector<JEMTobRoI>* rois, int slice = -1) ;
+      virtual void findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEMTobRoIContainer* rois) ;
+      virtual void findRoIs(const xAOD::JetElementContainer* jes, xAOD::JEMTobRoIContainer* rois, int slice = -1) ;
 
       /** Return vector of RoI objects derived from user-specified inputs. JetElements can be multi-slice */
       virtual void findRoIs(const std::map<int, JetInput*>* elements, DataVector<JEMJetAlgorithm>* rois) ;
-      virtual void findRoIs(const DataVector<JetElement>* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) ;
+      virtual void findRoIs(const xAOD::JetElementContainer* jes, DataVector<JEMJetAlgorithm>* rois, int slice = -1) ;
       
       /** Form JEM results for specified crate/module using user-supplied map of input towers
           Adds to DataVector of JEMTobRoI and returns backplane data words*/
       virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
-                                  DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData);
+                                  xAOD::JEMTobRoIContainer* rois, std::vector<unsigned int>& jetCMXData);
+      /** Form JEM results for specified crate/module using user-supplied map of input towers
+          Adds to DataVector of JEMTobRoI and returns backplane data words*/
+      virtual void findJEMResults(const std::map<int, JetInput*>* inputs, int crate, int module,
+                                DataVector<JEMTobRoI>* rois, std::vector<unsigned int>& jetCMXData);
 
       /** Return RoI object for specified location */
       virtual JEMJetAlgorithm findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements) ;

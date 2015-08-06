@@ -70,11 +70,11 @@ namespace LVL1
      
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobRoI>* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice = -1);
      
       /** Form CPM results for specified crate/module using user-supplied vector of input towers
           This version fills a vector of CPMTobRoI for the whole detector */
-      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobRoI>* rois, int slice = -1);
+      virtual void findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice = -1);
       
       /** Form CPM results for specified crate/module using user-supplied map of input towers
           This version adds to DataVector of CPMTobRoI and returns backplane data words*/
