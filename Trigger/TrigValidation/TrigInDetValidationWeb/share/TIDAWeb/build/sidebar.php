@@ -43,11 +43,17 @@
 //        $plots = scandir("$plot_directory");
 
           foreach ($job_types as &$job_type) { 
-
+	   
             foreach ($dirs as &$dir) { 
+
 	      if ( strpos($dir,$job_type) != true  ) continue;
-	      if ( !(strpos($dir,'run2') == true ) && strpos($dir,'cosmic') != true  && ( strpos($dir,'minBias') != true ) ) continue;  
+//	      if ( !(strpos($dir,'run2') == true ) && strpos($dir,'cosmic') != true  && ( strpos($dir,'minBias') != true ) ) continue;  
 //	      if ( !(strpos($dir,'run2') == true && strpos($dir,'_pu') == true ) && strpos($dir,'cosmic') != true  && strpos($dir,'minBias') != true  ) continue;
+	      if (   strpos($dir,'run1') == true   ) continue; 
+	      if (   strpos($dir,'merge') == true   ) continue; 
+
+  	      if (   strpos($dir,'el_single_e_7-80_pu40') == true  && !( strpos($dir,'IBL') == true || strpos($dir,'large') == true ) ) continue;
+	      if (   strpos($dir,'Jpsi') == true   ) continue;  
  	      if (   strpos($dir,'single_e_5_run2') == true ) continue;
    
 	      if ( $dir != "." && $dir != ".." ) {  
