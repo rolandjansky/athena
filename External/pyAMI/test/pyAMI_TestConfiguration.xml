@@ -11,6 +11,10 @@
                 <jobTransformJobName>pyAMITest</jobTransformJobName>
                 <jobTransformCmd>python pyAMITest.py > pyAMITest.out</jobTransformCmd>
                 <group>pyAMIRTT</group>
+                <testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
             </jobTransform>
         </jobList>
         <jobGroups>

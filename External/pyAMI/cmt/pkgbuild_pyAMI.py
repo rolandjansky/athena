@@ -1,4 +1,4 @@
 from PyCmt.pkgbuild.distutils_support import *
 
 pkg_name = 'pyAMI'
-pkg_ver = '5.0.2'
+pkg_ver = '5.0.3.2'
