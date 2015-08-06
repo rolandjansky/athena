@@ -21,8 +21,8 @@ job.TgcOverlay.DigitizationTool.EvtStore                  = job.TgcOverlay.MCSto
 job.TgcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = True
 job.TgcOverlay.ConvertRDOToDigitTool.DataStore           = job.TgcOverlay.DataStore
 
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-if OverlayFlags.doSignal():
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+if overlayFlags.doSignal==True:
    job.TgcOverlay.CopyObject = True
 
 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import TgcDigitToTgcRDO
