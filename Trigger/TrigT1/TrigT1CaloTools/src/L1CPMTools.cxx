@@ -206,7 +206,7 @@ void L1CPMTools::findCPMResults(const std::map<int, xAOD::CPMTower*>* towers, in
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobRoI>* rois, int slice) {
+void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) {
 
   /** Need a map of CPMTowers as input */
   std::map<int, xAOD::CPMTower*>* towers = new std::map<int, xAOD::CPMTower*>;
@@ -223,10 +223,9 @@ void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVec
 
 }
 
-
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, DataVector<CPMTobRoI>* rois, int slice) {
+void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, xAOD::CPMTobRoIContainer* rois, int slice) {
 
   /** Clear results vector to be safe */
   rois->clear();
@@ -255,13 +254,13 @@ void L1CPMTools::findCPMTobRoIs(const std::map<int, xAOD::CPMTower*>* towers, Da
 
           // Did this pass as an EM TOB?
           if (tob.isEMRoI()) { 
-            CPMTobRoI* emRoI = tob.EMCPMTobRoI();
+            xAOD::CPMTobRoI* emRoI = tob.EMCPMTobRoI();
             if (emRoI != 0) rois->push_back(emRoI);
           } 
 
           // Did this pass as a Tau TOB?
           if (tob.isTauRoI()) { 
-            CPMTobRoI* tauRoI = tob.TauCPMTobRoI();
+            xAOD::CPMTobRoI* tauRoI = tob.TauCPMTobRoI();
             if (tauRoI != 0) rois->push_back(tauRoI);
           } 
          

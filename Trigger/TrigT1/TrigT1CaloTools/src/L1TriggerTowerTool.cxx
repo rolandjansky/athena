@@ -205,9 +205,8 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
   return StatusCode::SUCCESS;
 }
 
-/** All-in-one routine - give it the ADC counts, coordinate and layer, and
+/** All-in-one routine - give it the ADC counts and TT identifier, and
     it returns the results */
-    
 void L1TriggerTowerTool::process(const std::vector<int> &digits, double eta, double phi, int layer,
              std::vector<int> &et, std::vector<int> &bcidResults,
              std::vector<int> &bcidDecisions, bool useJepLut /* = true */)
@@ -219,9 +218,9 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, double eta, dou
   process(digits, id, et, bcidResults, bcidDecisions, useJepLut);
 }
 
+
 /** All-in-one routine - give it the ADC counts and TT identifier, and
     it returns the results */
-    
 void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId,
                                  std::vector<int> &et, std::vector<int> &bcidResults,
                                  std::vector<int> &bcidDecisions, bool useJepLut /* = true */)
@@ -232,14 +231,14 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
     printVec(digits);
     ATH_MSG_VERBOSE( " channelID: " << MSG::hex << channelId.id() << MSG::dec );
   }
-  
+ 
   /// Initialise
   et.clear();
   bcidResults.clear();
   bcidDecisions.clear();
 
   ATH_MSG_VERBOSE( "::process: ---- FIR filter ----" );
-      
+     
   /// emulate FIR filter
   std::vector<int> filter;
   fir(digits, channelId, filter);
@@ -276,6 +275,86 @@ void L1TriggerTowerTool::process(const std::vector<int> &digits, const L1CaloCoo
   applyEtRange(lutOutput, decisionRange, channelId, et);
 
   ATH_MSG_VERBOSE( "::process: ==== Leaving Process ====" );
+}
+
+namespace {
+// helper function to convert vectors of different type
+template <typename DST, typename SRC>
+std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
+   std::vector<DST> d(s.size());
+   std::transform(std::begin(s), std::end(s), std::begin(d),
+		  [](SRC v){return static_cast<DST>(v);});
+   return d;
+} 
+}
+
+/** All-in-one routine - give it the TT identifier, and  it returns the results */
+void L1TriggerTowerTool::simulateChannel(const xAOD::TriggerTower& tt, std::vector<int>& outCpLut, std::vector<int>& outJepLut, std::vector<int>& bcidResults, std::vector<int>& bcidDecisions)
+{
+  const auto& digits = convertVectorType<int>(tt.adc());
+  L1CaloCoolChannelId channelId {tt.coolId()}; 
+
+  if (m_debug) {
+    ATH_MSG_VERBOSE( "::simulateChannel: ==== Entered Process ====" );
+    ATH_MSG_VERBOSE( "::simulateChannel: digits: ");
+    printVec(digits);
+    ATH_MSG_VERBOSE( "::simulateChannel: channelID: " << MSG::hex << channelId.id() << MSG::dec );
+  }
+  
+  /// Initialise
+  outCpLut.clear();
+  outJepLut.clear();
+  bcidResults.clear();
+  bcidDecisions.clear();
+      
+  /// emulate FIR filter
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- FIR filter ----" );
+  std::vector<int> filter;
+  fir(digits, channelId, filter);
+  if (m_debug) printVec(filter);
+
+
+  /// apply pedestal correction
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- pedestalCorrection ----" );
+  // the correction is only available for each LUT slice in the read-out (not ADC/Filter slice)
+  // therefore we can only apply it to the #LUT central filter slices
+  const std::size_t nCorr = tt.correctionEnabled().size();
+  const std::size_t filterOffset = filter.size()/2 - nCorr/2;
+  for(std::size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+    filter[filterOffset + iCorr] -= tt.correction()[iCorr] * tt.correctionEnabled()[iCorr];
+  }
+  if (m_debug)  printVec(filter);
+
+  std::vector<int> lutInput;
+  dropBits(filter, channelId, lutInput);
+
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- BCID algorithms ----" );
+
+  /// emulate the two BCID algorithms
+  bcid(filter, digits, channelId, bcidResults);
+
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- BCID decisions ----" );
+
+  /// evaluate BCID decisions
+  std::vector<int> decisionRange;
+  bcidDecisionRange(lutInput, digits, channelId, decisionRange);
+  bcidDecision(bcidResults, decisionRange, channelId, bcidDecisions);
+
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- LUT ET calculation ----" );
+
+  /// LUT ET calculation
+  std::vector<int> cpLutOutput, jepLutOutput;
+  cpLut(lutInput, channelId, cpLutOutput);
+  jepLut(lutInput, channelId, jepLutOutput);
+
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ---- use ET range ----" );
+
+  /// Use ET range to return appropriate ET value
+  /// do not test BCID here, since no guarantee enough ADC samples to evaluate it reliably
+  applyEtRange(cpLutOutput, decisionRange, channelId, outCpLut);
+  applyEtRange(jepLutOutput, decisionRange, channelId, outJepLut);
+
+  if (m_debug) ATH_MSG_VERBOSE( "::simulateChannel: ==== Leaving Process ====" );
 }
 
 /** Evaluate both peak-finder and saturated BCID algorithms and return

@@ -39,8 +39,6 @@ namespace LVL1
   class L1JetElementTools : virtual public IL1JetElementTools, public AthAlgTool
     {
     public:
-      typedef DataVector<xAOD::TriggerTower>    xAODTTCollection ;
-      typedef DataVector<TriggerTower>          TTCollection ;
       
       L1JetElementTools(const std::string&,const std::string&,const IInterface*);
 
@@ -53,11 +51,11 @@ namespace LVL1
       virtual StatusCode finalize  ();
 
       /** Fill DataVector of JetElements from user-supplied TriggerTowers */
+      virtual void makeJetElements(const xAOD::TriggerTowerContainer* tts, xAOD::JetElementContainer* jetElements);
+      virtual void mapJetElements(const xAOD::JetElementContainer* jetElements, std::map<int, xAOD::JetElement*>* map);
+
+      // @DEPRICATED(amazurov)
       virtual void makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements);
-      /** Fill DataVector of JetElements from user-supplied TriggerTowers */
-      virtual void makeJetElements(const DataVector<xAOD::TriggerTower>* tts, DataVector<JetElement>* jetElements);
-      /** Fill map of JetElements from DataVector */
-      virtual void mapJetElements(const DataVector<JetElement>* jetElements, std::map<int, JetElement*>* map);
             
     private:
 

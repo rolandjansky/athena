@@ -18,8 +18,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DataModel/DataVector.h"
 #include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
-//#include "xAODTrigL1Calo/CMXCPTob.h"
-//#include "xAODTrigL1Calo/CMXCPHits.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
@@ -63,18 +61,18 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
      /** standard Athena-Algorithm method */
     virtual StatusCode finalize  ();
       
-     /** CPAlgorithm to CPMTobRoI conversion */
+    /** CPAlgorithm to CPMTobRoI conversion */   //function deprecated
     virtual void formCPMTobRoI(const DataVector<CPAlgorithm>* cpAlgorithmVec,
                                   DataVector<CPMTobRoI>*      cpmRoiVec) const;
-     /** EmTauROI to CPMTobRoI conversion */
+     /** EmTauROI to CPMTobRoI conversion */     //function deprecated
     virtual void formCPMTobRoI(const DataVector<EmTauROI>* emTauRoiVec,
                                   DataVector<CPMTobRoI>*   cpmRoiVec) const;
      /** form CMX-CP TOBs from RoIs - single slice */
-    virtual void formCMXCPTob(const DataVector<CPMTobRoI>*   cpmRoiVec,
+    virtual void formCMXCPTob(const xAOD::CPMTobRoIContainer*   cpmRoiVec,
 			      xAOD::CMXCPTobContainer* cmxTobVec) const;
      /** form CMX-CP TOBs from RoIs - multiple slices */
     virtual void formCMXCPTob(
-                 const std::vector<const DataVector<CPMTobRoI>*>& cpmRoiColls,
+                 const std::vector<const xAOD::CPMTobRoIContainer*>& cpmRoiColls,
                  xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const;
      /** form complete CMX-CP hits from CMX-CP TOBs */
     virtual void formCMXCPHits(const xAOD::CMXCPTobContainer*  cmxTobVec,
@@ -91,8 +89,8 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
       
   private:
       
-    typedef std::vector<uint8_t>   HitsVector;
-    typedef std::vector<uint8_t>   ErrorVector;
+    typedef std::vector<uint32_t>   HitsVector;
+    typedef std::vector<uint32_t>   ErrorVector;
 
     /** Temporary for testing until CPAlgorithm and EmTauROI are updated */
     std::pair<uint32_t,uint32_t> roiWord(const EmTauROI* roi) const;
@@ -104,8 +102,10 @@ class L1CPCMXTools : virtual public IL1CPCMXTools, public AthAlgTool
                       unsigned int& hadIsol, unsigned int& hadVeto) const;
     void unpackTauIsol(int energy, int isol, unsigned int& emIsol,
                        unsigned int& hadIsol) const;
-    void getHits(const xAOD::CMXCPTob* tob,
-		 HitsVector& hit0, HitsVector& hit1) const;
+    //void getHits(const xAOD::CMXCPTob* tob,
+    //		 HitsVector& hit0, HitsVector& hit1) const;
+    void getHits(const xAOD::CMXCPTob* tob, HitsVector& hits) const;
+
     void addOverflow(ErrorVector& hitErr, const ErrorVector& tobErr) const;
 
     /** Add hits from second vector to first */

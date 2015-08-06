@@ -16,7 +16,7 @@ use TrigT1CaloUtils TrigT1CaloUtils-* Trigger/TrigT1
 use TrigT1CaloToolInterfaces TrigT1CaloToolInterfaces-* Trigger/TrigT1
 use TrigConfInterfaces   TrigConfInterfaces-* Trigger/TrigConfiguration
 use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
-use AnalysisTriggerEvent AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
+# use AnalysisTriggerEvent AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="*.root *.txt"

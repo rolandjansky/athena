@@ -28,6 +28,7 @@
 
 namespace LVL1 
 {
+using namespace xAOD;
 
 class CMMEtSums;
 class JEMEtSums;
@@ -66,7 +67,7 @@ class L1JEPEtSumsTools : virtual public IL1JEPEtSumsTools, public AthAlgTool
     virtual StatusCode finalize  ();
       
      /** form JEMEtSums from JetElements */
-    virtual void formJEMEtSums(const DataVector<JetElement>* jetElementVec,
+    virtual void formJEMEtSums(const DataVector<xAOD::JetElement>* jetElementVec,
                                DataVector<JEMEtSums>* jemEtSumsVec) const;
      /** form complete CMMEtSums from JEMEtSums */
     virtual void formCMMEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,

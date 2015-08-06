@@ -24,13 +24,12 @@
 #include "TrigT1CaloToolInterfaces/IL1EnergyCMXTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
 
+#include "xAODTrigL1Calo/JEMEtSumsContainer.h"
+#include "xAODTrigL1Calo/CMXEtSumsContainer.h"
+  
 
-namespace LVL1 
+namespace LVL1
 {
-
-class CMXEtSums;
-class JEMEtSums;
-class JetElement;
 class ModuleEnergy;
 class CrateEnergy;
 class SystemEnergy;
@@ -65,55 +64,55 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     virtual StatusCode finalize  ();
       
      /** form JEMEtSums from JetElements */
-    virtual void formJEMEtSums(const DataVector<JetElement>* jetElementVec,
-                               DataVector<JEMEtSums>* jemEtSumsVec) const;
+    virtual void formJEMEtSums(const xAOD::JetElementContainer* jetElementVec,
+                               xAOD::JEMEtSumsContainer* jemEtSumsVec) const;
      /** form complete CMXEtSums from JEMEtSums */
-    virtual void formCMXEtSums(const DataVector<JEMEtSums>* jemEtSumsVec,
-                               DataVector<CMXEtSums>* cmxEtSumsVec) const;
+    virtual void formCMXEtSums(const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsVec) const;
      /** form partial CMXEtSums (module) from JEMEtSums */
-    virtual void formCMXEtSumsModule(const DataVector<JEMEtSums>* jemEtSumsVec,
-                               DataVector<CMXEtSums>* cmxEtSumsMod) const;
+    virtual void formCMXEtSumsModule(const xAOD::JEMEtSumsContainer* jemEtSumsVec,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsMod) const;
      /** form partial CMXEtSums (crate) from module CMXEtSums */
-    virtual void formCMXEtSumsCrate(const DataVector<CMXEtSums>* cmxEtSumsMod,
-                               DataVector<CMXEtSums>* cmxEtSumsCrate) const;
+    virtual void formCMXEtSumsCrate(const xAOD::CMXEtSumsContainer* cmxEtSumsMod,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsCrate) const;
      /** form partial CMXEtSums (system) from crate CMXEtSums */
     virtual void formCMXEtSumsSystem(
-                               const DataVector<CMXEtSums>* cmxEtSumsCrate,
-                               DataVector<CMXEtSums>* cmxEtSumsSys) const;
+                               const xAOD::CMXEtSumsContainer* cmxEtSumsCrate,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsSys) const;
      /** form partial CMXEtSums (sumEt/missingEt maps) from system CMXEtSums */
-    virtual void formCMXEtSumsEtMaps(const DataVector<CMXEtSums>* cmxEtSumsSys,
-                               DataVector<CMXEtSums>* cmxEtSumsMap) const;
+    virtual void formCMXEtSumsEtMaps(const xAOD::CMXEtSumsContainer* cmxEtSumsSys,
+                               xAOD::CMXEtSumsContainer* cmxEtSumsMap) const;
     
         
   private:
 
-    typedef std::vector<unsigned int>              EnergyVector;
-    typedef std::vector<int>                       ErrorVector;
+    typedef std::vector<uint16_t>              EnergyVector;
+    typedef std::vector<uint32_t>                       ErrorVector;
     typedef std::vector<DataVector<ModuleEnergy>*> MultiSliceModuleEnergy;
     typedef std::vector<DataVector<CrateEnergy>*>  MultiSliceCrateEnergy;
     typedef std::vector<SystemEnergy*>             MultiSliceSystemEnergy;
 
     /** Convert CMXEtSums container to internal ModuleEnergy containers */
-    void etSumsToModuleEnergy(const DataVector<CMXEtSums>* etSums,
+    void etSumsToModuleEnergy(const xAOD::CMXEtSumsContainer* etSums,
                        MultiSliceModuleEnergy& modulesVec, int& peak) const;
     /** Convert CMXEtSums container to internal CrateEnergy containers */
-    void etSumsToCrateEnergy(const DataVector<CMXEtSums>* etSums,
+    void etSumsToCrateEnergy(const xAOD::CMXEtSumsContainer* etSums,
                        MultiSliceCrateEnergy& crateVec, int& peak) const;
     /** Convert CMXEtSums container to internal SystemEnergy objects */
-    void etSumsToSystemEnergy(const DataVector<CMXEtSums>* etSums,
+    void etSumsToSystemEnergy(const xAOD::CMXEtSumsContainer* etSums,
                        MultiSliceSystemEnergy& systemVec, int& peak) const;
     /** Convert internal ModuleEnergy containers to JEMEtSums container */
     void moduleEnergyToEtSums(const MultiSliceModuleEnergy& modulesVec,
-                       DataVector<JEMEtSums>* jemEtSumsVec, int peak) const;
+                       xAOD::JEMEtSumsContainer* jemEtSumsVec, int peak) const;
     /** Convert internal CrateEnergy containers to CMXEtSums container */
     void crateEnergyToEtSums(const MultiSliceCrateEnergy& cratesVec,
-                       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const;
+                       xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const;
     /** Convert internal SystemEnergy objects to CMXEtSums object */
     void systemEnergyToEtSums(const MultiSliceSystemEnergy& systemVec,
-                       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const;
+                       xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const;
     /** Convert maps from internal SystemEnergy objects to CMXEtSums objects */
     void etMapsToEtSums(const MultiSliceSystemEnergy& systemVec,
-                       DataVector<CMXEtSums>* cmxEtSumsVec, int peak) const;
+                       xAOD::CMXEtSumsContainer* cmxEtSumsVec, int peak) const;
 
     /** trigger configuration service */
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;

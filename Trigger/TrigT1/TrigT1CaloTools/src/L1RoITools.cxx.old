@@ -187,7 +187,7 @@ void L1RoITools::findJetROIs(const DataVector<TriggerTower>* tts, std::vector<Je
 }
 
 /** Form list of EnergySum_ROI from user-supplied vector of JetElements */
-void L1RoITools::findEnergySumROI(const DataVector<JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice){
+void L1RoITools::findEnergySumROI(const DataVector<xAOD::JetElement>* jes, std::vector<EnergySum_ROI>& rois, int slice){
 
   rois.clear();
 
@@ -213,13 +213,16 @@ void L1RoITools::findEnergySumROI(const DataVector<JetElement>* jes, std::vector
 void L1RoITools::findEnergySumROI(const DataVector<TriggerTower>* tts, std::vector<EnergySum_ROI>& rois, int slice){
 
   /** Need to convert TriggerTowers to JetElements */
-  DataVector<JetElement>* jes = new DataVector<JetElement>;
+  DataVector<xAOD::JetElement>* jes = new DataVector<xAOD::JetElement>;
+  xAOD::JetElementAuxContainer* jeAux = new xAOD::JetElementAuxContainer;
+  jes->setStore(jeAux);
   m_JetElementTool->makeJetElements(tts, jes);
 
   /** Now use this tool to form EnergySum_ROIs from them */
   findEnergySumROI(jes, rois, slice);
 
   delete jes;
+  delete jeAux;
 }
 
 
