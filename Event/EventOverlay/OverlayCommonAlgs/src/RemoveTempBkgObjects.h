@@ -6,20 +6,17 @@
 // before adding new ones
 // Piyali.Banerjee@cern.ch February 2011
 
-#ifndef REMOVETEMPBKGOBJECTS_H
-#define REMOVETEMPBKGOBJECTS_H
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#ifndef OVERLAYCOMMONALGS_REMOVETEMPBKGOBJECTS_H
+#define OVERLAYCOMMONALGS_REMOVETEMPBKGOBJECTS_H
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 
 class RemoveTempBkgObjects : public OverlayAlgBase  {
 
 public:
-  
+
   RemoveTempBkgObjects(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -34,4 +31,4 @@ private:
 
 };
 
-#endif/*REMOVETEMPBKGOBJECTS_H*/
+#endif/*OVERLAYCOMMONALGS_REMOVETEMPBKGOBJECTS_H*/

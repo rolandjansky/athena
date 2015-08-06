@@ -3,7 +3,7 @@
 */
 
 
-#include "OverlayCommonAlgs/SaveInDetObjects.h"
+#include "SaveInDetObjects.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Container.h"

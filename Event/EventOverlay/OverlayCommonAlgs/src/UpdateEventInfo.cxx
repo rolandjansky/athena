@@ -6,7 +6,7 @@
 
 // Piyali Banerjee, March 2011
 
-#include "OverlayCommonAlgs/UpdateEventInfo.h"
+#include "UpdateEventInfo.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
@@ -73,17 +73,17 @@
 #include "TrigT1CaloEvent/JEMRoI.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #include "TrigT1CaloEvent/CMMRoI.h"
-#include "TrigT1CaloEvent/CPMTower.h" 
-#include "TrigT1CaloEvent/EmTauROI.h" 
-#include "TrigT1CaloEvent/EmTauROI_ClassDEF.h" 
-#include "TrigT1CaloEvent/JetROI.h" 
-#include "TrigT1CaloEvent/JetROI_ClassDEF.h" 
-#include "TrigT1CaloEvent/RODHeader.h" 
-#include "TrigT1CaloEvent/EnergyRoI.h" 
-#include "TrigT1CaloEvent/JetEtRoI.h" 
-#include "TrigT1CaloEvent/JEPBSCollection.h" 
-#include "TrigT1CaloEvent/JEPRoIBSCollection.h" 
-#include "TrigT1CaloEvent/CPBSCollection.h" 
+#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloEvent/EmTauROI.h"
+#include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
+#include "TrigT1CaloEvent/JetROI.h"
+#include "TrigT1CaloEvent/JetROI_ClassDEF.h"
+#include "TrigT1CaloEvent/RODHeader.h"
+#include "TrigT1CaloEvent/EnergyRoI.h"
+#include "TrigT1CaloEvent/JetEtRoI.h"
+#include "TrigT1CaloEvent/JEPBSCollection.h"
+#include "TrigT1CaloEvent/JEPRoIBSCollection.h"
+#include "TrigT1CaloEvent/CPBSCollection.h"
 #include "TrigT1Interfaces/JetCTP.h"
 #include "TrigT1Interfaces/EmTauCTP.h"
 #include "TrigT1Interfaces/EnergyCTP.h"
@@ -102,55 +102,60 @@
 //================================================================
 UpdateEventInfo::UpdateEventInfo(const std::string &name, ISvcLocator *pSvcLocator) :
   OverlayAlgBase(name, pSvcLocator)
-  , m_storeGateTemp("StoreGateSvc/TemporaryStore", name)
+  , m_storeGateTemp("StoreGateSvc/TemporaryStore", name),m_count(0),m_infoType("MyEvent")
 
 {
-   declareProperty("TempStore", m_storeGateTemp, "help");
-   declareProperty("InfoType", m_infoType="MyEvent");
+  declareProperty("TempStore", m_storeGateTemp, "help");
+  declareProperty("InfoType", m_infoType);
 }
 
 //================================================================
 StatusCode UpdateEventInfo::overlayInitialize()
 {
-  MsgStream log(msgSvc(), name());
-  if (m_storeGateTemp.retrieve().isFailure()) {
-     log << MSG::INFO << "UpdateEventInfo::initialize: StoreGate[temp] service not found !" << endreq;
-     return StatusCode::FAILURE;
-  }
+  if (m_storeGateTemp.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR ( "overlayInitialize(): StoreGate[temp] service not found !" );
+      return StatusCode::FAILURE;
+    }
   m_count = 0;
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode UpdateEventInfo::overlayFinalize() 
+StatusCode UpdateEventInfo::overlayFinalize()
 {
   return StatusCode::SUCCESS;
 }
 
 //================================================================
-StatusCode UpdateEventInfo::overlayExecute() {
-  MsgStream log(msgSvc(), name());
-
+StatusCode UpdateEventInfo::overlayExecute()
+{
   //std::cout << "UpdateEventInfo::execute() begin" << std::endl;
   //std::cout << m_storeGateMC->dump() << std::endl;
   //std::cout << m_storeGateTemp->dump() << std::endl;
   //std::cout << m_storeGateData->dump() << std::endl;
   //std::cout << m_storeGateOutput->dump() << std::endl;
-  
+
   /** first, remove the EventInfo in the MC store */
   if (m_storeGateTemp->contains<EventInfo>(m_infoType) )
-     removeAllObjectsOfType<EventInfo>(&*m_storeGateTemp);
-
-  /** Copy the EventInfo from the data store to the MC store 
+    {
+      removeAllObjectsOfType<EventInfo>(&*m_storeGateTemp);
+    }
+  /** Copy the EventInfo from the data store to the MC store
       the out MC RDO must be reconstructed with the MC conditions */
   const EventInfo * oldEvtInfo = 0;
-  if (m_storeGateOutput->retrieve(oldEvtInfo, m_infoType).isSuccess() ) {
-     EventInfo * newEvtInfo = new EventInfo ( *oldEvtInfo );    
-     if ( m_storeGateTemp->record( newEvtInfo, m_infoType ).isFailure() ) 
-        log << MSG::WARNING << "could not record EventInfo to MC output storeGate, key= " << m_infoType << endreq;
-  } else {
-    log << MSG::WARNING << "Could retrieve EventInfo from data store, key = " << m_infoType << endreq;  
-  }
+  if (m_storeGateOutput->retrieve(oldEvtInfo, m_infoType).isSuccess() )
+    {
+      EventInfo * newEvtInfo = new EventInfo ( *oldEvtInfo );
+      if ( m_storeGateTemp->record( newEvtInfo, m_infoType ).isFailure() )
+        {
+          ATH_MSG_WARNING ( "overlayExecute(): Could not record EventInfo to MC output storeGate, key= " << m_infoType );
+        }
+    }
+  else
+    {
+      ATH_MSG_WARNING ( "overlayExecute(): Could retrieve EventInfo from data store, key = " << m_infoType );
+    }
 
   /** Copy MC information to temp */
   checkBeforeRemove<McEventCollection>(&*m_storeGateTemp);
@@ -170,13 +175,14 @@ StatusCode UpdateEventInfo::overlayExecute() {
   copyAllObjectsOfType<DataHeader>(&*m_storeGateTemp, &*m_storeGateMC);
 
   /** Copy Inner Detector stuff */
-  if ( m_count > 0 ) { 
-     checkBeforeRemove<TRTUncompressedHitCollection>(&*m_storeGateTemp);
-     checkBeforeRemove<TRT_RDO_Container>(&*m_storeGateTemp);
-     checkBeforeRemove<SCT_RDO_Container>(&*m_storeGateTemp);
-     checkBeforeRemove<PixelRDO_Container>(&*m_storeGateTemp);
-     checkBeforeRemove<SiHitCollection>(&*m_storeGateTemp);
-  }
+  if ( m_count > 0 )
+    {
+      checkBeforeRemove<TRTUncompressedHitCollection>(&*m_storeGateTemp);
+      checkBeforeRemove<TRT_RDO_Container>(&*m_storeGateTemp);
+      checkBeforeRemove<SCT_RDO_Container>(&*m_storeGateTemp);
+      checkBeforeRemove<PixelRDO_Container>(&*m_storeGateTemp);
+      checkBeforeRemove<SiHitCollection>(&*m_storeGateTemp);
+    }
   copyAllObjectsOfType<TRTUncompressedHitCollection>(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<TRT_RDO_Container>(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<SCT_RDO_Container>(&*m_storeGateTemp, &*m_storeGateMC);
@@ -213,20 +219,21 @@ StatusCode UpdateEventInfo::overlayExecute() {
   copyAllObjectsOfType<TileHitVector>(&*m_storeGateTemp, &*m_storeGateMC);
 
   /** Copy muon objects */
-  if ( m_count > 0 ) {
-     checkBeforeRemove<RPCSimHitCollection>(&*m_storeGateTemp);
-     checkBeforeRemove<TGCSimHitCollection>(&*m_storeGateTemp);
-     checkBeforeRemove<CSCSimHitCollection>(&*m_storeGateTemp);
-     checkBeforeRemove<MDTSimHitCollection>(&*m_storeGateTemp);
-     checkBeforeRemove<CscDigitContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<MdtDigitContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<RpcDigitContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<TgcDigitContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<CscRawDataContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<MdtCsmContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<RpcPadContainer>(&*m_storeGateTemp);
-     checkBeforeRemove<TgcRdoContainer>(&*m_storeGateTemp);
-  }
+  if ( m_count > 0 )
+    {
+      checkBeforeRemove<RPCSimHitCollection>(&*m_storeGateTemp);
+      checkBeforeRemove<TGCSimHitCollection>(&*m_storeGateTemp);
+      checkBeforeRemove<CSCSimHitCollection>(&*m_storeGateTemp);
+      checkBeforeRemove<MDTSimHitCollection>(&*m_storeGateTemp);
+      checkBeforeRemove<CscDigitContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<MdtDigitContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<RpcDigitContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<TgcDigitContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<CscRawDataContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<MdtCsmContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<RpcPadContainer>(&*m_storeGateTemp);
+      checkBeforeRemove<TgcRdoContainer>(&*m_storeGateTemp);
+    }
 
   copyAllObjectsOfType<RPCSimHitCollection>(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<TGCSimHitCollection>(&*m_storeGateTemp, &*m_storeGateMC);
@@ -242,9 +249,10 @@ StatusCode UpdateEventInfo::overlayExecute() {
   copyAllObjectsOfType<TgcRdoContainer>(&*m_storeGateTemp, &*m_storeGateMC);
 
   /** Copy beam related objects */
-  if ( m_count > 0 ) {
-     checkBeforeRemove<BCM_RDO_Container>(&*m_storeGateTemp);
-  }
+  if ( m_count > 0 )
+    {
+      checkBeforeRemove<BCM_RDO_Container>(&*m_storeGateTemp);
+    }
   copyAllObjectsOfType<BCM_RDO_Container>(&*m_storeGateTemp, &*m_storeGateMC);
 
   /** Copy level 1 objects */
@@ -270,11 +278,11 @@ StatusCode UpdateEventInfo::overlayExecute() {
   checkBeforeRemove< DataVector<LVL1::EmTauROI> >(&*m_storeGateTemp);
   checkBeforeRemove< DataVector<LVL1::JetROI> >(&*m_storeGateTemp);
   checkBeforeRemove< DataVector<LVL1::RODHeader> >(&*m_storeGateTemp);
-// SlinkWord and vector<int> are commented out because their class 
-// definitions have no CLASS_DEF and so sizeof() is unable to estimate 
-// their size and so they cannot be retrieved from StoreGate
-// checkBeforeRemove< DataVector<LVL1CTP::SlinkWord> >(&*m_storeGateTemp);
-// checkBeforeRemove< std::vector<unsigned int> >(&*m_storeGateTemp);
+  // SlinkWord and vector<int> are commented out because their class
+  // definitions have no CLASS_DEF and so sizeof() is unable to estimate
+  // their size and so they cannot be retrieved from StoreGate
+  // checkBeforeRemove< DataVector<LVL1CTP::SlinkWord> >(&*m_storeGateTemp);
+  // checkBeforeRemove< std::vector<unsigned int> >(&*m_storeGateTemp);
   checkBeforeRemove<LVL1::JetCTP>(&*m_storeGateTemp);
   checkBeforeRemove<LVL1::EmTauCTP>(&*m_storeGateTemp);
   checkBeforeRemove<LVL1::EnergyCTP>(&*m_storeGateTemp);
@@ -313,11 +321,11 @@ StatusCode UpdateEventInfo::overlayExecute() {
   copyAllObjectsOfType< DataVector<LVL1::EmTauROI> >(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType< DataVector<LVL1::JetROI> >(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType< DataVector<LVL1::RODHeader> >(&*m_storeGateTemp, &*m_storeGateMC);
-// SlinkWord and vector<int> are commented out because their class 
-// definitions have no CLASS_DEF and so sizeof() is unable to estimate 
-// their size and so they cannot be retrieved from StoreGate
-// copyAllObjectsOfType< DataVector<LVL1CTP::SlinkWord> >(&*m_storeGateTemp, &*m_storeGateMC);
-// copyAllObjectsOfType< std::vector<unsigned int> >(&*m_storeGateTemp, &*m_storeGateMC);
+  // SlinkWord and vector<int> are commented out because their class
+  // definitions have no CLASS_DEF and so sizeof() is unable to estimate
+  // their size and so they cannot be retrieved from StoreGate
+  // copyAllObjectsOfType< DataVector<LVL1CTP::SlinkWord> >(&*m_storeGateTemp, &*m_storeGateMC);
+  // copyAllObjectsOfType< std::vector<unsigned int> >(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<LVL1::JetCTP>(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<LVL1::EmTauCTP>(&*m_storeGateTemp, &*m_storeGateMC);
   copyAllObjectsOfType<LVL1::EnergyCTP>(&*m_storeGateTemp, &*m_storeGateMC);

@@ -6,7 +6,7 @@
 // before adding new ones
 // Piyali.Banerjee@cern.ch February 2011
 
-#include "OverlayCommonAlgs/RemoveTempBkgObjects.h"
+#include "RemoveTempBkgObjects.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"

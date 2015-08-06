@@ -2,26 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // Remove objects before adding new ones
 //
 // Keetvi A. Assamagan
 
-#ifndef UPDATEEVENTINFO_H
-#define UPDATEEVENTINFO_H
+#ifndef OVERLAYCOMMONALGS_UPDATEEVENTINFO_H
+#define OVERLAYCOMMONALGS_UPDATEEVENTINFO_H
 
 #include <string>
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 
 class UpdateEventInfo: public OverlayAlgBase  {
 public:
-  
+
   UpdateEventInfo(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -34,6 +30,6 @@ protected:
   std::string m_infoType;
 };
 
-#include "OverlayCommonAlgs/UpdateEventInfo.icc"
+#include "UpdateEventInfo.icc"
 
-#endif/*UPDATEEVENTINFO_H*/
+#endif/*OVERLAYCOMMONALGS_UPDATEEVENTINFO_H*/

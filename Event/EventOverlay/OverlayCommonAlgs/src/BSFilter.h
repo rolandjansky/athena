@@ -2,20 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _BSFILTER_H 
-#define _BSFILTER_H 
+#ifndef OVERLAYCOMMONALGS_BSFILTER_H
+#define OVERLAYCOMMONALGS_BSFILTER_H
 
 #include <string>
-#include <vector>
 #include <map>
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-class StoreGateSvc;
 
 class BSFilter : public AthAlgorithm
-{ 
- public: 
+{
+ public:
 
   BSFilter( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~BSFilter();
@@ -23,7 +19,7 @@ class BSFilter : public AthAlgorithm
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 
- protected: 
+ protected:
   int All, pass, EventCounter;
   int m_trigbit;
   std::string m_filterfile;
@@ -31,13 +27,11 @@ class BSFilter : public AthAlgorithm
   public:
     int trig, nvtx; double dt;
     int magic;
-    filterinfo(){magic=99999;}
+    filterinfo(): trig(0),nvtx(0), dt(0.0),magic(99999) {}
   };
   std::map< int, std::map < int, filterinfo > > filtermap;
-  MsgStream mLog;
-  StoreGateSvc* m_storeGate;
 
-  FILE *efile; 
+  FILE *efile;
   std::string m_EventIdFile;
-}; 
-#endif 
+};
+#endif //OVERLAYCOMMONALGS_BSFILTER_H

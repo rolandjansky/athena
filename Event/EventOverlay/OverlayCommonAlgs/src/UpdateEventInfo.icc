@@ -19,7 +19,7 @@ void UpdateEventInfo::checkBeforeRemove(StoreGateSvc *sg)
         for ( ; data != dataEnd; data++ ) {
            ATH_MSG_DEBUG("checkBeforeRemove<"<<templateClassName<<">(): Working on p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
            std::string key = sg->proxy(data.cptr())->name();
-           if ( sg->contains<TypeToBeRemoved>(key) ) {              
+           if ( sg->contains<TypeToBeRemoved>(key) ) {
               if (!sg->removeDataAndProxy(data.cptr()).isSuccess()) {
                  ATH_MSG_WARNING("checkBeforeRemove<"<<templateClassName<<">(): problem removing object p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
               }

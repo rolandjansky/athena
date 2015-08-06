@@ -3,24 +3,21 @@
 */
 
 //
-// Ketevi A. Assamagan, October 2009 
+// Ketevi A. Assamagan, October 2009
 
-#ifndef SAVEINDETOBJECTS_H
-#define SAVEINDETOBJECTS_H
+#ifndef OVERLAYCOMMONALGS_SAVEINDETOBJECTS_H
+#define OVERLAYCOMMONALGS_SAVEINDETOBJECTS_H
 
 
 #include <string>
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 
 class SaveInDetObjects : public OverlayAlgBase  {
 public:
-  
+
   SaveInDetObjects(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -37,6 +34,6 @@ private:
 
 };
 
-#include "OverlayCommonAlgs/SaveInDetObjects.icc"
+#include "SaveInDetObjects.icc"
 
-#endif/*COPYOBJECTS_H*/
+#endif/*OVERLAYCOMMONALGS_COPYOBJECTS_H*/

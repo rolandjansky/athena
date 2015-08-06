@@ -7,7 +7,7 @@
 //// Piyali.Banerjee@cern.ch; September 2010
 /////////////////////////////////////////////////////////////////
 
-#include "OverlayCommonAlgs/DeepCopyObjects.h"
+#include "DeepCopyObjects.h"
 
 DeepCopyObjects::DeepCopyObjects(const std::string &name, ISvcLocator *pSvcLocator) :
   OverlayAlgBase(name, pSvcLocator), 

@@ -7,23 +7,20 @@
 //// Piyali.Banerjee@cern.ch; September 2010
 ////////////////////////////////////////////////////////////////
 
-#ifndef DEEPCOPYOBJECTS_H
-#define DEEPCOPYOBJECTS_H
+#ifndef OVERLAYCOMMONALGS_DEEPCOPYOBJECTS_H
+#define OVERLAYCOMMONALGS_DEEPCOPYOBJECTS_H
 
 #include <string>
 #include <iostream>
 #include <typeinfo>
 #include <typeinfo>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 #include "OverlayAlgBase/OverlayAlgBase.h"
 
 #include "StoreGate/DataHandle.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "EventInfo/EventInfo.h" 
-#include "EventInfo/EventType.h" 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventType.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -49,12 +46,12 @@
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonRDO/TgcRdoContainer.h"
-#include "MuonRDO/RpcPadContainer.h"    
-#include "MuonRDO/RpcSectorLogicContainer.h"  
+#include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/RpcSectorLogicContainer.h"
 
 #include "MuonDigitContainer/CscDigitContainer.h"
-#include "MuonDigitContainer/MdtDigitContainer.h" 
-#include "MuonDigitContainer/RpcDigitContainer.h" 
+#include "MuonDigitContainer/MdtDigitContainer.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
 #include "LArRawEvent/LArTTL1Container.h"
@@ -73,13 +70,13 @@
 #include "TrigT1CaloEvent/JEMRoI.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #include "TrigT1CaloEvent/CMMRoI.h"
-#include "TrigT1CaloEvent/CPMTower.h" 
+#include "TrigT1CaloEvent/CPMTower.h"
 
 class DeepCopyObjects : public OverlayAlgBase  {
 public:
-  
+
   DeepCopyObjects(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -91,30 +88,30 @@ protected:
 
 private:
 
-/*
-  template<class TypeToBeCopied> void 
-  copyInDetObject(StoreGateSvc* to, StoreGateSvc *from);
+  /*
+    template<class TypeToBeCopied> void
+    copyInDetObject(StoreGateSvc* to, StoreGateSvc *from);
 
-  template<class TypeToBeCopied> void 
-  copyTruthObject(StoreGateSvc* to, StoreGateSvc *from);
+    template<class TypeToBeCopied> void
+    copyTruthObject(StoreGateSvc* to, StoreGateSvc *from);
 
-  template<class TypeToBeCopied> void 
-  copyLArObject(StoreGateSvc* to, StoreGateSvc *from); 
+    template<class TypeToBeCopied> void
+    copyLArObject(StoreGateSvc* to, StoreGateSvc *from);
 
-  template<class TypeToBeCopied> void 
-  copyTileObject(StoreGateSvc* to, StoreGateSvc *from); 
+    template<class TypeToBeCopied> void
+    copyTileObject(StoreGateSvc* to, StoreGateSvc *from);
 
-  template<class TypeToBeCopied> void 
-  copyLevel1Object(StoreGateSvc* to, StoreGateSvc *from);
+    template<class TypeToBeCopied> void
+    copyLevel1Object(StoreGateSvc* to, StoreGateSvc *from);
 
-  template<class TypeToBeCopied, class Datum> void 
-  copyMuonObjectDigit(StoreGateSvc* from, StoreGateSvc *to);
-*/
+    template<class TypeToBeCopied, class Datum> void
+    copyMuonObjectDigit(StoreGateSvc* from, StoreGateSvc *to);
+  */
 
-  template<class TypeToBeCopied> void 
+  template<class TypeToBeCopied> void
   copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from);
 
-  template <class TypeToBeCopied> void 
+  template <class TypeToBeCopied> void
   printEveryObjectOfType(StoreGateSvc* stg);
 
   bool m_evtinfo;
@@ -126,5 +123,4 @@ private:
   bool m_level1;
 };
 
-#endif/*DEEPCOPYOBJECTS_H*/
-
+#endif/*OVERLAYCOMMONALGS_DEEPCOPYOBJECTS_H*/
