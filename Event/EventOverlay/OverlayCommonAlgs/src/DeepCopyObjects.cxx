@@ -37,7 +37,7 @@ DeepCopyObjects::printEveryObjectOfType(StoreGateSvc* stg)
 
    if(keys.empty()) {
      log << MSG::WARNING << "printEveryObjectOfType<" << templateClassName
-         << ">(): no keys found" << endmsg;
+         << ">(): no keys found" << endreq;
    }
 
    std::cout << "printEveryObjectOfType<" << templateClassName
@@ -53,7 +53,7 @@ DeepCopyObjects::printEveryObjectOfType(StoreGateSvc* stg)
          log << MSG::WARNING << "printEveryObjectOfType<"
              << templateClassName
              << ">(): problem retrieving object with pointer="
-             << object << ", key=" << *k << endmsg;
+             << object << ", key=" << *k << endreq;
      } 
 
    }
@@ -76,7 +76,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 
   if(keys.empty()) { 
      log << MSG::WARNING << "copyMuonobjectRDO<" << templateClassName
-         << ">(): no keys found" << endmsg; 
+         << ">(): no keys found" << endreq; 
   } 
 
   for (KeyList::const_iterator k=keys.begin(); k!=keys.end(); ++k) {  
@@ -85,7 +85,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
        if (from->retrieve(oldObject, *k).isFailure()){  
           log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName 
               <<">(): problem retrieving container with key = "
-              << *k << endmsg;  
+              << *k << endreq;  
           continue;  
        }  
       
@@ -142,7 +142,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 	  if (newObject->addCollection(element, collectionNo).isFailure()) { 
 	     log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
                  << ">(): problem adding collection with vector index = "
-                 << collectionNo << endmsg; 
+                 << collectionNo << endreq; 
 	  }  
           collectionNo++;
        }
@@ -150,7 +150,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
         if (!to->record(newObject, *k).isSuccess()) {
            log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
                << ">(): problem recording new container with key = " 
-               << *k << endmsg;
+               << *k << endreq;
         }
     } 
     else if (classNum == 4187){ // MdtCsmContainer
@@ -158,7 +158,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (from->retrieve(oldObject, *k).isFailure()){  
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem retrieving container with key = "
-            << *k << endmsg;  
+            << *k << endreq;  
 	continue;  
       }  
       
@@ -190,14 +190,14 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 	if (newObject->addCollection(element, (*iFirst)->identifyHash()).isFailure()) {
 	  log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
               << ">(): problem adding collection with hash = "
-              << (*iFirst)->identifyHash() << endmsg;
+              << (*iFirst)->identifyHash() << endreq;
 	} 
       }
       
       if (!to->record(newObject, *k).isSuccess()) {
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem recording new container with key = "
-            <<*k << endmsg;
+            <<*k << endreq;
       }
     }  
     else if (classNum == 4190){  // RpcPadContainer
@@ -205,7 +205,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (from->retrieve(oldObject, *k).isFailure()){   
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             <<">(): problem retrieving container with key = "<< *k 
-            << endmsg;   
+            << endreq;   
 	continue;   
       }   
 
@@ -243,7 +243,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 	  log << MSG::WARNING << "copyMuonObjectRDO<"
               << templateClassName 
               << ">(): problem adding collection with hash = "
-              << (*iFirst)->identifyHash() << endmsg; 
+              << (*iFirst)->identifyHash() << endreq; 
 	}  
       } 
    
@@ -251,7 +251,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 	log << MSG::WARNING << "copyMuonObjectRDO<"
             << templateClassName
             << ">(): problem recording new container with "
-            << "key=" << *k << endmsg; 
+            << "key=" << *k << endreq; 
       } 
     } 
     else if (classNum == 1298668563){ //RpcSectorLogicContainer
@@ -259,7 +259,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (from->retrieve(oldObject, *k).isFailure()){   
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem retrieving container with key = "
-            << *k << endmsg;   
+            << *k << endreq;   
 	continue;   
       }   
     
@@ -296,7 +296,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (!to->record(newObject, *k).isSuccess()) { 
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem recording new container with key = "
-            << *k << endmsg; 
+            << *k << endreq; 
       } 
     }
     else if (classNum == 4186){ // TgcRdoContainer
@@ -304,7 +304,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (from->retrieve(oldObject, *k).isFailure()){   
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem retrieving container with key = "
-            << *k << endmsg;   
+            << *k << endreq;   
 	continue;   
       }   
       
@@ -337,7 +337,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
 	if (newObject->addCollection(element, collectionNo).isFailure()) { 
 	  log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
               << ">(): problem adding collection with vector index = "
-              << collectionNo << endmsg; 
+              << collectionNo << endreq; 
 	}  
         collectionNo++;
       } 
@@ -345,7 +345,7 @@ DeepCopyObjects::copyMuonObjectRDO(StoreGateSvc* to, StoreGateSvc *from)
       if (!to->record(newObject, *k).isSuccess()) {
 	log << MSG::WARNING << "copyMuonObjectRDO<" << templateClassName
             << ">(): problem recording new container with key = "
-            << *k << endmsg;
+            << *k << endreq;
       }
     }
   }
@@ -460,7 +460,7 @@ StatusCode DeepCopyObjects::overlayExecute() {
     KeyList keys = m_storeGateFrom->keys<EventInfo>(); 
     if(keys.empty()) { 
       log << MSG::WARNING << "no object of type EventInfo in source store " 
-          << m_storeGateFrom->name() << endmsg; 
+          << m_storeGateFrom->name() << endreq; 
     } 
 
     for (KeyList::const_iterator k=keys.begin(); k!=keys.end(); ++k) {  
@@ -468,7 +468,7 @@ StatusCode DeepCopyObjects::overlayExecute() {
        if (m_storeGateFrom->retrieve(oldEvtInfo, *k).isFailure()) {
           log << MSG::WARNING << "could not retrieve object with " 
               << "key = " << *k << " from store " 
-              << m_storeGateFrom->name() << endmsg; 
+              << m_storeGateFrom->name() << endreq; 
           continue;
         }
 
@@ -477,7 +477,7 @@ StatusCode DeepCopyObjects::overlayExecute() {
           log << MSG::WARNING 
               << "could not record EventInfo to target store "
               << m_storeGateTo->name() << " with key= " 
-              << *k << endmsg; 
+              << *k << endreq; 
         }
     } 
   }

@@ -7,8 +7,6 @@ use GaudiInterface      GaudiInterface-*        External
 
 
 private
-use xAODEventInfo	xAODEventInfo-*		Event/xAOD
-use xAODCnvInterfaces	xAODCnvInterfaces-*	Event/xAOD
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AthenaKernel        AthenaKernel-*          Control
 use AtlasROOT           AtlasROOT-*             External
@@ -37,10 +35,6 @@ use TrackRecord         TrackRecord-*           Simulation/G4Sim
 use TrigT1CaloEvent     TrigT1CaloEvent-*       Trigger/TrigT1
 use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
 use TrigT1Result        TrigT1Result-*          Trigger/TrigT1
-use TrigConfInterfaces  TrigConfInterfaces-*    Trigger/TrigConfiguration
-use TrigConfHLTData     TrigConfHLTData-*       Trigger/TrigConfiguration
-use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
-
 end_private
 
 library OverlayCommonAlgs *.cxx components/*.cxx

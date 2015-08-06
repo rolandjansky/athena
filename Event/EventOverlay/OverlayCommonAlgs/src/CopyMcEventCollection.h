@@ -14,8 +14,6 @@
 #include <string>
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 class CopyMcEventCollection : public OverlayAlgBase  {
 public:
@@ -30,7 +28,6 @@ protected:
   std::string m_infoType;
   bool m_realdata, m_checkeventnumbers;
   ServiceHandle<StoreGateSvc> m_storeGateData2;
-  ToolHandle< xAODMaker::IEventInfoCnvTool > m_cnvTool;
 
 };
 

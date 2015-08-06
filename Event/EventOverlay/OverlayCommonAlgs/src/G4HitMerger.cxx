@@ -25,7 +25,8 @@
 std::ostream&
 operator<<(std::ostream& o, const McEventCollection& in)
 {
-  boost::io::ios_flags_saver ifs(o);
+  std::ios  state(NULL);
+  state.copyfmt(o);
   o << "# GenEvents: " << in.size() << '\n';
   int count(0);
   for (McEventCollection::const_iterator evt = in.begin(); evt != in.end(); ++evt) {
@@ -40,6 +41,7 @@ operator<<(std::ostream& o, const McEventCollection& in)
                                  (*p)->momentum().e());
       o << "Track " << std::setw(3) << iTrk << " pdgId " << std::setw(5) << (*p)->pdg_id() << " barcode " << std::setw(6) << (*p)->barcode()
         << " 4-mom ( " << std::setprecision(7) << std::setw(10) << fv.px() << " , " << std::setw(10) <<  fv.py() << " , " << std::setw(10) << fv.pz() << ") pt " << fv.perp() << '\n';
+      o.copyfmt(state);
     }
   }
   return o;
@@ -123,13 +125,13 @@ StatusCode G4HitMerger::execute()
   //first get the list of McEventCollections
   //  StatusCode sc(StatusCode::FAILURE);
   //  if (! (sc = m_mergeSvc->retrieveSubEvtsData(truthCollKey, truthList)).isSuccess() ) {
-  //    msglog<<MSG::ERROR<< "execute: Can not find TimedTruthList with key "<< truthCollKey << endmsg;
+  //    msglog<<MSG::ERROR<< "execute: Can not find TimedTruthList with key "<< truthCollKey << endreq;
   //    return StatusCode::RECOVERABLE;;
   //  }
   //  int nInputMcEventColls(truthList.size());
   //  //and check it is not empty
   //  if (0 == nInputMcEventColls) {
-  //    msglog<<MSG::ERROR<< "execute: TimedTruthList with key " << truthCollKey<< " is empty" << endmsg;
+  //    msglog<<MSG::ERROR<< "execute: TimedTruthList with key " << truthCollKey<< " is empty" << endreq;
   //    return StatusCode::RECOVERABLE;
   //  }
   //
@@ -138,7 +140,7 @@ StatusCode G4HitMerger::execute()
   //  McEventCollection* pOvrlMcEvColl(new McEventCollection(*(lI->second)));
   //
   //  sc = evtStore()->record(pOvrlMcEvColl, truthCollKey);
-  //  if (!sc.isSuccess()) msglog<<MSG::ERROR<<"Could not write MCEventCollection!"<<endmsg;
+  //  if (!sc.isSuccess()) msglog<<MSG::ERROR<<"Could not write MCEventCollection!"<<endreq;
 
 
 
@@ -192,7 +194,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
@@ -294,7 +296,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
@@ -346,7 +348,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
@@ -396,7 +398,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
@@ -445,7 +447,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
@@ -495,7 +497,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container

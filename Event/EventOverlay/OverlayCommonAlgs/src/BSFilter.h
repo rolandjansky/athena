@@ -8,7 +8,6 @@
 #include <string>
 #include <map>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 class BSFilter : public AthAlgorithm
 {
@@ -24,17 +23,15 @@ class BSFilter : public AthAlgorithm
   int All, pass, EventCounter;
   int m_trigbit;
   std::string m_filterfile;
-  class filterinfo{ 
+  class filterinfo{
   public:
     int trig, nvtx; double dt;
     int magic;
     filterinfo(): trig(0),nvtx(0), dt(0.0),magic(99999) {}
   };
-  std::map< int, std::map < uint64_t, filterinfo > > filtermap;
+  std::map< int, std::map < int, filterinfo > > filtermap;
 
   FILE *efile;
   std::string m_EventIdFile;
-
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf;
 };
 #endif //OVERLAYCOMMONALGS_BSFILTER_H
