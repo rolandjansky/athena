@@ -28,7 +28,8 @@ BeamCondSvc::BeamCondSvc(const std::string& name, ISvcLocator* svc) :
   par_sigz(53.),
   par_sigxy(0.),
   par_tiltx(0.),
-  par_tilty(0.)
+  par_tilty(0.),
+  m_status(0)
 {
   // declare properties
   declareProperty("useDB",par_usedb);
