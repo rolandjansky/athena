@@ -74,7 +74,7 @@ StatusCode CmxCpTobByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
   const std::string nmAux = nm + "Aux.";
   ATH_MSG_DEBUG("Creating xAOD::CMXCPTob interface objects '" << nm << "'");
 
-  xAOD::CMXCPTobContainer* const cpmCollection =
+  xAOD::CMXCPTobContainer* const container =
       new xAOD::CMXCPTobContainer;
 
   // Create link with AUX container
@@ -82,12 +82,12 @@ StatusCode CmxCpTobByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
   ATH_MSG_DEBUG("Creating store with data link to '" << nmAux);
 
   for(size_t i=0; i < link->size(); ++i){
-     cpmCollection->push_back(new xAOD::CMXCPTob());
+     container->push_back(new xAOD::CMXCPTob());
   }
   // ========================================================================== 
-  cpmCollection->setStore(link);
-  pObj = SG::asStorable(cpmCollection);
-  ATH_MSG_DEBUG("Number of xAOD CPM Towers created: " << cpmCollection->size());
+  container->setStore(link);
+  pObj = SG::asStorable(container);
+  ATH_MSG_DEBUG("Number of xAOD::CMXCPTob created: " << container->size());
 
   return StatusCode::SUCCESS;
 }

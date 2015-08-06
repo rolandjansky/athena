@@ -15,7 +15,6 @@
 
 class DataObject;
 class IOpaqueAddress;
-class IROBDataProviderSvc;
 class ISvcLocator;
 class StatusCode;
 
@@ -62,8 +61,7 @@ private:
   /// Tool that does the actual work
   ToolHandle<LVL1BS::RodHeaderByteStreamTool> m_tool;
 
-  /// Service for reading bytestream
-  ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
+
 
   /// Message log
   mutable MsgStream m_log;

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_XMXCPTOBBYTESTREAMAUXCNV_H
-#define TRIGT1CALOBYTESTREAM_XMXCPTOBBYTESTREAMXAUXCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_CMXCPTOBBYTESTREAMAUXCNV_H
+#define TRIGT1CALOBYTESTREAM_CMXCPTOBBYTESTREAMAUXCNV_H
 
 #include <string>
 
@@ -64,7 +64,7 @@ private:
   std::string m_name;
 
   /// Do the main job - retrieve xAOD TriggerTowers from robs
-  ToolHandle<CpByteStreamV2Tool> m_cpmReadTool;
+  ToolHandle<CpByteStreamV2Tool> m_readTool;
 };
 
 

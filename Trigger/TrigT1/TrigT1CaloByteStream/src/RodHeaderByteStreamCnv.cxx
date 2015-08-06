@@ -35,7 +35,6 @@ RodHeaderByteStreamCnv::RodHeaderByteStreamCnv( ISvcLocator* svcloc )
     : Converter( ByteStream_StorageType, classID(), svcloc ),
       m_name("RodHeaderByteStreamCnv"),
       m_tool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool"),
-      m_robDataProvider("ROBDataProviderSvc", m_name),
       m_log(msgSvc(), m_name), m_debug(false)
 {
 }
@@ -74,17 +73,6 @@ StatusCode RodHeaderByteStreamCnv::initialize()
     return sc;
   } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
 
-  // Get ROBDataProvider
-  sc = m_robDataProvider.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_robDataProvider << endreq;
-    return sc ;
-  } else {
-    m_log << MSG::DEBUG << "Retrieved service "
-          << m_robDataProvider << endreq;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -103,29 +91,10 @@ StatusCode RodHeaderByteStreamCnv::createObj( IOpaqueAddress* pAddr,
   }
 
   const std::string nm = *( pBS_Addr->par() );
-
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endreq;
-
-  // get SourceIDs
-  const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
-
-  // get ROB fragments
-  IROBDataProviderSvc::VROBFRAG robFrags;
-  m_robDataProvider->getROBData( vID, robFrags );
-
   // size check
   DataVector<LVL1::RODHeader>* const rhCollection =
                                            new DataVector<LVL1::RODHeader>;
-  if (m_debug) {
-    m_log << MSG::DEBUG << " Number of ROB fragments is " << robFrags.size()
-          << endreq;
-  }
-  if (robFrags.size() == 0) {
-    pObj = SG::asStorable(rhCollection) ;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode sc = m_tool->convert(robFrags, rhCollection);
+  StatusCode sc = m_tool->convert(nm, rhCollection);
   if ( sc.isFailure() ) {
     m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
     delete rhCollection;

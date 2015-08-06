@@ -60,9 +60,14 @@ class JepRoiByteStreamV2Tool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to JEM RoIs
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::JEMTobRoI>* jeCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::JEMTobRoI>* jeCollection);
    /// Convert ROB fragments to CMX RoIs
+   StatusCode convert(const std::string& name,
+                      LVL1::CMXRoI* cmCollection);
+   
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       LVL1::CMXRoI* cmCollection);
 
@@ -87,6 +92,7 @@ class JepRoiByteStreamV2Tool : public AthAlgTool {
    StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
                         CollectionType collection);
 
+   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
    /// Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 

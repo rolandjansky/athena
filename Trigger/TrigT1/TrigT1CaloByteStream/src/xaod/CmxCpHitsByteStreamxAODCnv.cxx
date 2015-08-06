@@ -86,7 +86,7 @@ StatusCode CmxCpHitsByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
   // ========================================================================== 
   cphitsCollection->setStore(link);
   pObj = SG::asStorable(cphitsCollection);
-  ATH_MSG_DEBUG("Number of xAOD CPM Towers created: " << cphitsCollection->size());
+  ATH_MSG_DEBUG("Number of xAOD::CMXCPHits created: " << cphitsCollection->size());
 
   return StatusCode::SUCCESS;
 }

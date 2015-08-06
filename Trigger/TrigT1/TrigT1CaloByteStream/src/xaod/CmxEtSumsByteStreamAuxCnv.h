@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMAUXCNV_H
-#define TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMAUXCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_CMXETSUMSBYTESTREAMAUXCNV_H
+#define TRIGT1CALOBYTESTREAM_CMXETSUMSBYTESTREAMAUXCNV_H
 
 #include <string>
 
@@ -29,24 +29,24 @@ extern long ByteStream_StorageType;
 
 
 namespace LVL1BS {
-class CpByteStreamV2Tool;
+class JepByteStreamV2Tool;
 
 /** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
  *
  *  @author alexander.mazurov@cern.ch
  */
 
-class CmxCpHitsByteStreamAuxCnv: public Converter, public ::AthMessaging {
+class CmxEtSumsByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CmxCpHitsByteStreamAuxCnv>;
+  friend class CnvFactory<CmxEtSumsByteStreamAuxCnv>;
 
 protected:
 
-  CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc);
+  CmxEtSumsByteStreamAuxCnv(ISvcLocator* svcloc);
 
 public:
 
-  virtual ~CmxCpHitsByteStreamAuxCnv(){};
+  virtual ~CmxEtSumsByteStreamAuxCnv(){};
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -64,7 +64,7 @@ private:
   std::string m_name;
 
   /// Do the main job - retrieve xAOD TriggerTowers from robs
-  ToolHandle<CpByteStreamV2Tool> m_readTool;
+  ToolHandle<JepByteStreamV2Tool> m_readTool;
 };
 
 

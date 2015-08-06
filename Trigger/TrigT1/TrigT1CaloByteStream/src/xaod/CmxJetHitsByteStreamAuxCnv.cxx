@@ -36,34 +36,32 @@
 // ============================================================================
 // TrigT1
 // ============================================================================
-#include "TrigT1CaloEvent/CMXCPHits.h"
-#include "TrigT1CaloEvent/CMXCPTob.h"
-#include "TrigT1CaloEvent/CPMTower.h"
+#include "TrigT1CaloEvent/CMXJetHits.h"
 // ============================================================================
 // xAOD
 // ============================================================================
-#include "xAODTrigL1Calo/CPMTower.h"
-#include "xAODTrigL1Calo/CPMTowerContainer.h"
-#include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
+#include "xAODTrigL1Calo/CMXJetHits.h"
+#include "xAODTrigL1Calo/CMXJetHitsContainer.h"
+#include "xAODTrigL1Calo/CMXJetHitsAuxContainer.h"
 // ============================================================================
 // Local
 // ============================================================================
-#include "CpmTowerByteStreamAuxCnv.h"
-#include "../CpByteStreamV2Tool.h"
+#include "CmxJetHitsByteStreamAuxCnv.h"
+#include "../JepByteStreamV2Tool.h"
 #include "../ToString.h"
 // ============================================================================
 
 namespace LVL1BS {
-CpmTowerByteStreamAuxCnv::CpmTowerByteStreamAuxCnv(ISvcLocator* svcloc) :
+CmxJetHitsByteStreamAuxCnv::CmxJetHitsByteStreamAuxCnv(ISvcLocator* svcloc) :
   Converter(ByteStream_StorageType, classID(), svcloc),
-  AthMessaging(svcloc != 0 ? msgSvc() : 0, "CpmTowerByteStreamAuxCnv"),
-  m_name("CpmTowerByteStreamAuxCnv"),
-  m_cpmReadTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
+  AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxJetHitsByteStreamAuxCnv"),
+  m_name("CmxJetHitsByteStreamAuxCnv"),
+  m_readTool("LVL1BS::JepByteStreamV2Tool/JepByteStreamV2Tool")
 {
 }
 
-const CLID& CpmTowerByteStreamAuxCnv::classID() {
-  return ClassID_traits<xAOD::CPMTowerAuxContainer>::ID();
+const CLID& CmxJetHitsByteStreamAuxCnv::classID() {
+  return ClassID_traits<xAOD::CMXJetHitsAuxContainer>::ID();
 }
 
 //  Init method gets all necessary services etc.
@@ -71,18 +69,18 @@ const CLID& CpmTowerByteStreamAuxCnv::classID() {
 #ifndef PACKAGE_VERSION
 #define PACKAGE_VERSION "unknown"
 #endif
-StatusCode CpmTowerByteStreamAuxCnv::initialize() {
+StatusCode CmxJetHitsByteStreamAuxCnv::initialize() {
   ATH_MSG_DEBUG(
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
 
   CHECK(Converter::initialize());
-  CHECK(m_cpmReadTool.retrieve());
+  CHECK(m_readTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
 
 // createObj should create the RDO from bytestream.
-StatusCode CpmTowerByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
+StatusCode CmxJetHitsByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
     DataObject*& pObj) {
   ATH_MSG_DEBUG("createObj() called");
   // -------------------------------------------------------------------------
@@ -92,44 +90,41 @@ StatusCode CpmTowerByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   const std::string nm = *(pBS_Addr->par());
   ATH_MSG_DEBUG("Creating Objects " << nm);
 
-  auto aux = new xAOD::CPMTowerAuxContainer;
-  xAOD::CPMTowerContainer cpmCollection;
-  cpmCollection.setStore(aux);
+  auto aux = new xAOD::CMXJetHitsAuxContainer;
+  xAOD::CMXJetHitsContainer jetCollection;
+  jetCollection.setStore(aux);
   // -------------------------------------------------------------------------
-  DataVector<LVL1::CPMTower> cpmTowerVector;
-  StatusCode sc = m_cpmReadTool->convert(nm, &cpmTowerVector);
+  DataVector<LVL1::CMXJetHits> cmxJetHitsVector;
+  StatusCode sc = m_readTool->convert(nm, &cmxJetHitsVector);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Failed to create objects");
     delete aux;
     return sc;
   }
 
-  for (auto ct : cpmTowerVector) {
-    xAOD::CPMTower* item = new xAOD::CPMTower();
-    cpmCollection.push_back(item);
-    std::vector<uint8_t> emEnergyVec(ct->emEnergyVec().begin(), ct->emEnergyVec().end());
-    std::vector<uint8_t> hadEnergyVec(ct->hadEnergyVec().begin(), ct->hadEnergyVec().end());
-    std::vector<uint32_t> emErrorVec(ct->emErrorVec().begin(), ct->emErrorVec().end());
-    std::vector<uint32_t> hadErrorVec(ct->hadErrorVec().begin(), ct->hadErrorVec().end());
+  for (auto jet : cmxJetHitsVector) {
+    xAOD::CMXJetHits* item = new xAOD::CMXJetHits();
+    jetCollection.push_back(item);
 
-    item->initialize(ct->eta(), ct->phi(),
-                     emEnergyVec,
-                     hadEnergyVec,
-                     emErrorVec,
-                     hadErrorVec,
-                     uint8_t(ct->peak()));
+    std::vector<uint32_t> hitsVec0(jet->hitsVec0().begin(), jet->hitsVec0().end());
+    std::vector<uint32_t> hitsVec1(jet->hitsVec1().begin(), jet->hitsVec1().end());
+    std::vector<uint32_t> errorVec0(jet->errorVec0().begin(), jet->errorVec0().end());
+    std::vector<uint32_t> errorVec1(jet->errorVec1().begin(), jet->errorVec1().end());
+
+    item->initialize(jet->crate(), jet->source(),
+                     hitsVec0, hitsVec1, errorVec0, errorVec1, jet->peak());
   }
 
   // -------------------------------------------------------------------------
-  //ATH_MSG_VERBOSE(ToString(cpmCollection));
-  ATH_MSG_DEBUG("Number of readed CPM towers: " << aux->size());
+  //ATH_MSG_VERBOSE(ToString(jetCollection));
+  ATH_MSG_DEBUG("Number of readed CMXJetHits: " << aux->size());
   // -------------------------------------------------------------------------
   pObj = SG::asStorable(aux);
   return StatusCode::SUCCESS;
 }
 
 // createRep should create the bytestream from RDOs.
-StatusCode CpmTowerByteStreamAuxCnv::createRep(DataObject* /*pObj*/,
+StatusCode CmxJetHitsByteStreamAuxCnv::createRep(DataObject* /*pObj*/,
     IOpaqueAddress*& /*pAddr*/) {
   return StatusCode::FAILURE;
 }

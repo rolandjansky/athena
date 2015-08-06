@@ -56,7 +56,7 @@ CmxCpHitsByteStreamAuxCnv::CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc) :
   Converter(ByteStream_StorageType, classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxCpHitsByteStreamAuxCnv"),
   m_name("CmxCpHitsByteStreamAuxCnv"),
-  m_cpmReadTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
+  m_readTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
 {
 }
 
@@ -74,7 +74,7 @@ StatusCode CmxCpHitsByteStreamAuxCnv::initialize() {
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
 
   CHECK(Converter::initialize());
-  CHECK(m_cpmReadTool.retrieve());
+  CHECK(m_readTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -95,7 +95,7 @@ StatusCode CmxCpHitsByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   cmxCpHitsContainer.setStore(aux);
   // -------------------------------------------------------------------------
   DataVector<LVL1::CMXCPHits> cmxCpHitsVector;
-  StatusCode sc = m_cpmReadTool->convert(nm, &cmxCpHitsVector);
+  StatusCode sc = m_readTool->convert(nm, &cmxCpHitsVector);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Failed to create objects");
     delete aux;
@@ -105,10 +105,10 @@ StatusCode CmxCpHitsByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   for (auto ch : cmxCpHitsVector) {
     xAOD::CMXCPHits* item = new xAOD::CMXCPHits();
     cmxCpHitsContainer.push_back(item);
-    std::vector<uint8_t> hitsVec0(ch->hitsVec0().begin(), ch->hitsVec0().end());
-    std::vector<uint8_t> hitsVec1(ch->hitsVec1().begin(), ch->hitsVec1().end());
-    std::vector<uint8_t> errorVec0(ch->errorVec0().begin(), ch->errorVec0().end());
-    std::vector<uint8_t> errorVec1(ch->errorVec1().begin(), ch->errorVec1().end());
+    std::vector<uint32_t> hitsVec0(ch->hitsVec0().begin(), ch->hitsVec0().end());
+    std::vector<uint32_t> hitsVec1(ch->hitsVec1().begin(), ch->hitsVec1().end());
+    std::vector<uint32_t> errorVec0(ch->errorVec0().begin(), ch->errorVec0().end());
+    std::vector<uint32_t> errorVec1(ch->errorVec1().begin(), ch->errorVec1().end());
 
     item->initialize(ch->crate(), ch->cmx(), ch->source(),
                      hitsVec0, hitsVec1, errorVec0, errorVec1, ch->peak());
@@ -116,7 +116,7 @@ StatusCode CmxCpHitsByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
 
   // -------------------------------------------------------------------------
   //ATH_MSG_VERBOSE(ToString(cpmCollection));
-  ATH_MSG_DEBUG("Number of readed CMXCpHits: " << aux->size());
+  ATH_MSG_DEBUG("Number of readed CMXCPHits: " << aux->size());
   // -------------------------------------------------------------------------
   pObj = SG::asStorable(aux);
   return StatusCode::SUCCESS;
