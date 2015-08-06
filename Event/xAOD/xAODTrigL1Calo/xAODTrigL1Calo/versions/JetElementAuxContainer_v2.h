@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElementAuxContainer_v2.h 652807 2015-03-09 21:52:07Z morrisj $
+// $Id: JetElementAuxContainer_v2.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_JETELEMENTAUXCONTAINER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JETELEMENTAUXCONTAINER_V2_H
 
@@ -22,8 +22,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652807 $
-  /// $Date: 2015-03-09 22:52:07 +0100 (Mon, 09 Mar 2015) $    
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $    
 
   class JetElementAuxContainer_v2 : public AuxContainerBase {
   public:
@@ -35,11 +35,11 @@ namespace xAOD{
     std::vector<float> phi;    
     std::vector<unsigned int> key;
     std::vector<uint8_t>    peak;
-    std::vector<std::vector<uint16_t> > emEnergyVec;
-    std::vector<std::vector<uint16_t> > hadEnergyVec;
-    std::vector<std::vector<uint8_t> > emErrorVec;
-    std::vector<std::vector<uint8_t> > hadErrorVec;
-    std::vector<std::vector<uint8_t> > linkErrorVec;
+    std::vector<std::vector<uint16_t> > emJetElementETVec;
+    std::vector<std::vector<uint16_t> > hadJetElementETVec;
+    std::vector<std::vector<uint32_t> > emJetElementErrorVec;
+    std::vector<std::vector<uint32_t> > hadJetElementErrorVec;
+    std::vector<std::vector<uint32_t> > linkErrorVec;
     
   }; // class JetElementAuxContainer_v2 
 } // namespace xAOD

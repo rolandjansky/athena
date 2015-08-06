@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMTobRoI_v1.h 652818 2015-03-09 22:54:24Z morrisj $
+// $Id: JEMTobRoI_v1.h 685662 2015-07-27 10:30:15Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_JEMTOBROI_V1_H
 #define XAODTRIGL1CALO_VERSIONS_JEMTOBROI_V1_H
 
@@ -18,8 +18,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652818 $
-  /// $Date: 2015-03-09 23:54:24 +0100 (Mon, 09 Mar 2015) $
+  /// $Revision: 685662 $
+  /// $Date: 2015-07-27 12:30:15 +0200 (Mon, 27 Jul 2015) $
 
   class JEMTobRoI_v1 : public SG::AuxElement {
     public:
@@ -44,7 +44,10 @@ namespace xAOD{
       /// Return energy large window size
       int energyLarge() const;
       /// Return energy small window size
-      int energySmall() const;      
+      int energySmall() const; 
+
+      virtual void initialize(const int crate, const int jem, const int frame,
+        const int location, const int energyLarge, const int energySmall );     
       
     private:
 

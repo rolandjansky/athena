@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetTob_v1.h 652810 2015-03-09 22:33:00Z morrisj $
+// $Id: CMXJetTob_v1.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXJETTOB_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMXJETTOB_V1_H
 
@@ -21,8 +21,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652810 $
-  /// $Date: 2015-03-09 23:33:00 +0100 (Mon, 09 Mar 2015) $
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $
 
   class CMXJetTob_v1 : public SG::AuxElement {
     public:
@@ -38,14 +38,14 @@ namespace xAOD{
       virtual void initialize(const uint8_t crate,const uint8_t jem,const uint8_t frame,const uint8_t loc,
                               const std::vector<uint16_t>& energyLargeVec,
                               const std::vector<uint16_t>& energySmallVec,
-                              const std::vector<uint8_t>& errorVec,
+                              const std::vector<uint32_t>& errorVec,
                               const std::vector<uint16_t>& presenceMapVec,
                               const uint8_t peak);
       
       /// add data to existing object
       void addTob(const std::vector<uint16_t>& energyLargeVec,
                   const std::vector<uint16_t>& energySmallVec,
-                  const std::vector<uint8_t>& errorVec,
+                  const std::vector<uint32_t>& errorVec,
                   const std::vector<uint16_t>& presenceMapVec);
       
       
@@ -85,9 +85,9 @@ namespace xAOD{
       void setEnergySmallVec(const std::vector<uint16_t>&);
 
       /// get errorVec
-      const std::vector<uint8_t>& errorVec() const;
+      const std::vector<uint32_t>& errorVec() const;
       /// set errorVec
-      void setErrorVec(const std::vector<uint8_t>&);
+      void setErrorVec(const std::vector<uint32_t>&);
 
       /// get presenceMapVec
       const std::vector<uint16_t>& presenceMapVec() const;
@@ -105,7 +105,7 @@ namespace xAOD{
       uint16_t energySmall() const;
 
       /// get errorVec at peak bunch crossing
-      uint8_t error() const;
+      uint32_t error() const;
 
       /// get presenceMapVec at peak bunch crossing
       uint16_t presenceMap() const;

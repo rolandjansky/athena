@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElement_v2.cxx 652807 2015-03-09 21:52:07Z morrisj $
+// $Id: JetElement_v2.cxx 687949 2015-08-06 15:48:49Z amazurov $
 
 // System include(s):
 #include <cmath>
@@ -30,20 +30,20 @@ namespace xAOD{
   
   /// initialize
   void JetElement_v2::initialize(const float eta,const float phi,const unsigned int key,
-                                 const std::vector<uint16_t>& emEnergyVec,
-                                 const std::vector<uint16_t>& hadEnergyVec,
-                                 const std::vector<uint8_t>& emErrorVec,
-                                 const std::vector<uint8_t>& hadErrorVec,
-                                 const std::vector<uint8_t>& linkErrorVec,
+                                 const std::vector<uint16_t>& emJetElementETVec,
+                                 const std::vector<uint16_t>& hadJetElementETVec,
+                                 const std::vector<uint32_t>& emJetElementErrorVec,
+                                 const std::vector<uint32_t>& hadJetElementErrorVec,
+                                 const std::vector<uint32_t>& linkErrorVec,
                                  const uint8_t peak)
   {  
     setEta( eta );
     setPhi( phi );
     setKey( key );
-    setEmEnergyVec( emEnergyVec );
-    setHadEnergyVec( hadEnergyVec );
-    setEmErrorVec( emErrorVec );
-    setHadErrorVec( hadErrorVec );
+    setEmJetElementETVec( emJetElementETVec );
+    setHadJetElementETVec( hadJetElementETVec );
+    setEmJetElementErrorVec( emJetElementErrorVec );
+    setHadJetElementErrorVec( hadJetElementErrorVec );
     setLinkErrorVec( linkErrorVec );
     setPeak( peak );
   }
@@ -53,75 +53,75 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , phi , setPhi )  
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , unsigned int , key , setKey )  
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , uint8_t , peak , setPeak )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , emEnergyVec , setEmEnergyVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , hadEnergyVec , setHadEnergyVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , hadErrorVec , setHadErrorVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint8_t> , linkErrorVec , setLinkErrorVec )    
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , emJetElementETVec , setEmJetElementETVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint16_t> , hadJetElementETVec , setHadJetElementETVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint32_t> , emJetElementErrorVec , setEmJetElementErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint32_t> , hadJetElementErrorVec , setHadJetElementErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint32_t> , linkErrorVec , setLinkErrorVec )    
 
-  unsigned int JetElement_v2::emEnergy()  const
+  unsigned int JetElement_v2::emJetElementET()  const
   {
-    if( emEnergyVec()[ peak() ] < m_layerSaturationThreshold) {
-      return emEnergyVec()[ peak() ];
+    if( emJetElementETVec()[ peak() ] < m_layerSaturationThreshold) {
+      return emJetElementETVec()[ peak() ];
     }
     return m_layerSaturationThreshold;    
   }
   
-  unsigned int JetElement_v2::hadEnergy() const
+  unsigned int JetElement_v2::hadJetElementET() const
   {
-    if( hadEnergyVec()[ peak() ] < m_layerSaturationThreshold) {
-      return hadEnergyVec()[ peak() ];
+    if( hadJetElementETVec()[ peak() ] < m_layerSaturationThreshold) {
+      return hadJetElementETVec()[ peak() ];
     }
     return m_layerSaturationThreshold;      
   }
   
-  unsigned int JetElement_v2::energy()    const
+  unsigned int JetElement_v2::et()    const
   {
     
-    if( ( emEnergy()  >= m_layerSaturationThreshold ) ||
-        ( hadEnergy() >= m_layerSaturationThreshold ) ||
-        ( ( emEnergy() + hadEnergy() ) >= m_saturationThreshold ) ){
+    if( ( emJetElementET()  >= m_layerSaturationThreshold ) ||
+        ( hadJetElementET() >= m_layerSaturationThreshold ) ||
+        ( ( emJetElementET() + hadJetElementET() ) >= m_saturationThreshold ) ){
           return m_saturationThreshold;
     }
-    return emEnergy() + hadEnergy();
+    return emJetElementET() + hadJetElementET();
   }
 
-  unsigned int JetElement_v2::emSliceEnergy(unsigned int slice) const
+  unsigned int JetElement_v2::emJetElementETSlice(unsigned int slice) const
   {
-    if( slice < emEnergyVec().size() ) {
-      if( emEnergyVec()[ slice ] < m_layerSaturationThreshold ) {
-        return emEnergyVec()[ slice ];
+    if( slice < emJetElementETVec().size() ) {
+      if( emJetElementETVec()[ slice ] < m_layerSaturationThreshold ) {
+        return emJetElementETVec()[ slice ];
       }
       return m_layerSaturationThreshold;
     }
     return 0;    
   }
   
-  unsigned int JetElement_v2::hadSliceEnergy(unsigned int slice) const
+  unsigned int JetElement_v2::hadJetElementETSlice(unsigned int slice) const
   {
-    if( slice < hadEnergyVec().size() ) {
-      if( hadEnergyVec()[ slice ] < m_layerSaturationThreshold ) {
-        return hadEnergyVec()[ slice ];
+    if( slice < hadJetElementETVec().size() ) {
+      if( hadJetElementETVec()[ slice ] < m_layerSaturationThreshold ) {
+        return hadJetElementETVec()[ slice ];
       }
       return m_layerSaturationThreshold;
     }
     return 0;     
   }
   
-  unsigned int JetElement_v2::sliceEnergy(unsigned int slice) const
+  unsigned int JetElement_v2::sliceET(unsigned int slice) const
   {
-    if( ( emSliceEnergy(slice)  >= m_layerSaturationThreshold ) ||
-        ( hadSliceEnergy(slice) >= m_layerSaturationThreshold ) ||
-        ( ( emSliceEnergy(slice) + hadSliceEnergy(slice) ) >= m_saturationThreshold ) ){
+    if( ( emJetElementETSlice(slice)  >= m_layerSaturationThreshold ) ||
+        ( hadJetElementETSlice(slice) >= m_layerSaturationThreshold ) ||
+        ( ( emJetElementETSlice(slice) + hadJetElementETSlice(slice) ) >= m_saturationThreshold ) ){
           return m_saturationThreshold;
        }
-    return emSliceEnergy(slice) + hadSliceEnergy(slice); 
+    return emJetElementETSlice(slice) + hadJetElementETSlice(slice); 
   }
   
 
   bool JetElement_v2::isSaturated()    const
   {
-    if( energy() == m_saturationThreshold ){
+    if( et() == m_saturationThreshold ){
       return true;
     }
     return false;
@@ -129,7 +129,7 @@ namespace xAOD{
   
   bool JetElement_v2::isEmSaturated()  const
   {
-    if( emEnergy() == m_layerSaturationThreshold ){
+    if( emJetElementET() == m_layerSaturationThreshold ){
       return true;
     }
     return false;
@@ -137,23 +137,23 @@ namespace xAOD{
   
   bool JetElement_v2::isHadSaturated() const
   {
-    if( hadEnergy() == m_layerSaturationThreshold ){
+    if( hadJetElementET() == m_layerSaturationThreshold ){
       return true;
     }
     return false;    
   }
   
-  uint8_t JetElement_v2::emError()   const
+  uint32_t JetElement_v2::emJetElementError()   const
   {
-    return emErrorVec()[ peak() ];
+    return emJetElementErrorVec()[ peak() ];
   }
   
-  uint8_t JetElement_v2::hadError()  const
+  uint32_t JetElement_v2::hadJetElementError()  const
   {
-    return hadErrorVec()[ peak() ];
+    return hadJetElementErrorVec()[ peak() ];
   }
   
-  uint8_t JetElement_v2::linkError() const
+  uint32_t JetElement_v2::linkError() const
   {
     return linkErrorVec()[ peak() ];
   }

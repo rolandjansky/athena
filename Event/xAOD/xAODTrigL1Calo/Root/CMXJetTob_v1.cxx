@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetTob_v1.cxx 652812 2015-03-09 22:37:27Z morrisj $
+// $Id: CMXJetTob_v1.cxx 687949 2015-08-06 15:48:49Z amazurov $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -30,7 +30,7 @@ namespace xAOD{
   void CMXJetTob_v1::initialize(const uint8_t crate,const uint8_t jem,const uint8_t frame,const uint8_t loc,
                                 const std::vector<uint16_t>& energyLargeVec,
                                 const std::vector<uint16_t>& energySmallVec,
-                                const std::vector<uint8_t>& errorVec,
+                                const std::vector<uint32_t>& errorVec,
                                 const std::vector<uint16_t>& presenceMapVec,
                                 const uint8_t peak)
   {
@@ -49,7 +49,7 @@ namespace xAOD{
   /// add data to existing object
   void CMXJetTob_v1::addTob(const std::vector<uint16_t>& energyLargeVec,
                             const std::vector<uint16_t>& energySmallVec,
-                            const std::vector<uint8_t>& errorVec,
+                            const std::vector<uint32_t>& errorVec,
                             const std::vector<uint16_t>& presenceMapVec)
   {
     setEnergyLargeVec( energyLargeVec );
@@ -65,7 +65,7 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CMXJetTob_v1 , uint8_t , peak , setPeak )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXJetTob_v1 , std::vector<uint16_t> , energyLargeVec , setEnergyLargeVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXJetTob_v1 , std::vector<uint16_t> , energySmallVec , setEnergySmallVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXJetTob_v1 , std::vector<uint8_t> , errorVec , setErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXJetTob_v1 , std::vector<uint32_t> , errorVec , setErrorVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXJetTob_v1 , std::vector<uint16_t> , presenceMapVec , setPresenceMapVec )
 
   /// Peak functions - return value of peak bunch crossing
@@ -85,7 +85,7 @@ namespace xAOD{
   }
 
   /// get errorVec at peak bunch crossing
-  uint8_t CMXJetTob_v1::error() const
+  uint32_t CMXJetTob_v1::error() const
   {
     return errorVec()[ peak() ];
   }

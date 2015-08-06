@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetHitsAuxContainer_v1.h 663426 2015-04-28 11:45:23Z amazurov $
+// $Id: CMXJetHitsAuxContainer_v1.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXJETHITSAUXCONTAINER_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMXJETHITSAUXCONTAINER_V1_H
 
@@ -22,8 +22,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 663426 $
-  /// $Date: 2015-04-28 13:45:23 +0200 (Tue, 28 Apr 2015) $
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $
 
   class CMXJetHitsAuxContainer_v1 : public AuxContainerBase {
     public:
@@ -34,10 +34,10 @@ namespace xAOD{
       std::vector<uint8_t> crate;
       std::vector<uint8_t> sourceComponent;
       std::vector<uint8_t> peak;
-      std::vector<std::vector<uint8_t> > hitsVec0;
-      std::vector<std::vector<uint8_t> > hitsVec1;
-      std::vector<std::vector<uint8_t> > errorVec0;
-      std::vector<std::vector<uint8_t> > errorVec1;
+      std::vector<std::vector<uint32_t> > hitsVec0;
+      std::vector<std::vector<uint32_t> > hitsVec1;
+      std::vector<std::vector<uint32_t> > errorVec0;
+      std::vector<std::vector<uint32_t> > errorVec1;
 
   }; // class CMXJetHitsAuxContainer_v2
 } // namespace xAOD

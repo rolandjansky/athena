@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXCPTob_v1.cxx 652811 2015-03-09 22:35:53Z morrisj $
+// $Id: CMXCPTob_v1.cxx 687949 2015-08-06 15:48:49Z amazurov $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -33,7 +33,7 @@ namespace xAOD{
                                const uint8_t cpm,const uint8_t chip,const uint8_t loc,
                                const std::vector<uint8_t>& energyVec,
                                const std::vector<uint8_t>& isolationVec,
-                               const std::vector<uint8_t>& errorVec,
+                               const std::vector<uint32_t>& errorVec,
                                const std::vector<uint16_t>& presenceMapVec,
                                const uint8_t peak)
   {
@@ -52,7 +52,7 @@ namespace xAOD{
   /// add data to existing object
   void CMXCPTob_v1::addTob(const std::vector<uint8_t>& energyVec,
                            const std::vector<uint8_t>& isolationVec,
-                           const std::vector<uint8_t>& errorVec,
+                           const std::vector<uint32_t>& errorVec,
                            const std::vector<uint16_t>& presenceMapVec)
   {
     setEnergyVec( energyVec );
@@ -69,7 +69,7 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CMXCPTob_v1 , uint8_t , peak , setPeak )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXCPTob_v1 , std::vector<uint8_t> , energyVec , setEnergyVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXCPTob_v1 , std::vector<uint8_t> , isolationVec , setIsolationVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXCPTob_v1 , std::vector<uint8_t> , errorVec , setErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXCPTob_v1 , std::vector<uint32_t> , errorVec , setErrorVec )
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CMXCPTob_v1 , std::vector<uint16_t> , presenceMapVec , setPresenceMapVec )
 
   /// Peak functions - return value of peak bunch crossing
@@ -89,7 +89,7 @@ namespace xAOD{
   }
 
   /// get errorVec at peak bunch crossing
-  uint8_t CMXCPTob_v1::error() const
+  uint32_t CMXCPTob_v1::error() const
   {
     return errorVec()[ peak() ];
   }

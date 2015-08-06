@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXCPHits_v1.h 663426 2015-04-28 11:45:23Z amazurov $
+// $Id: CMXCPHits_v1.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXCPHITS_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMXCPHITS_V1_H
 
@@ -21,8 +21,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 663426 $
-  /// $Date: 2015-04-28 13:45:23 +0200 (Tue, 28 Apr 2015) $
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $
 
   class CMXCPHits_v1 : public SG::AuxElement {
     public:
@@ -40,17 +40,17 @@ namespace xAOD{
       
       /// initialize
       virtual void initialize(const uint8_t crate,const uint8_t cmx,const uint8_t source,
-                              const std::vector<uint8_t>& hitsVec0,
-                              const std::vector<uint8_t>& hitsVec1,
-                              const std::vector<uint8_t>& errorVec0,
-                              const std::vector<uint8_t>& errorVec1,
+                              const std::vector<uint32_t>& hitsVec0,
+                              const std::vector<uint32_t>& hitsVec1,
+                              const std::vector<uint32_t>& errorVec0,
+                              const std::vector<uint32_t>& errorVec1,
                               const uint8_t peak);
       
       /// add hits to existing object
-      void addHits(const std::vector<uint8_t>& hitsVec0,
-                   const std::vector<uint8_t>& hitsVec1,
-                   const std::vector<uint8_t>& errorVec0,
-                   const std::vector<uint8_t>& errorVec1);
+      void addHits(const std::vector<uint32_t>& hitsVec0,
+                   const std::vector<uint32_t>& hitsVec1,
+                   const std::vector<uint32_t>& errorVec0,
+                   const std::vector<uint32_t>& errorVec1);
       
       /// get crate
       uint8_t crate() const;
@@ -73,40 +73,40 @@ namespace xAOD{
       void setPeak(uint8_t);
 
       /// get hitsVec0
-      const std::vector<uint8_t>& hitsVec0() const;
+      const std::vector<uint32_t>& hitsVec0() const;
       /// set hitsVec0
-      void setHitsVec0(const std::vector<uint8_t>&);
+      void setHitsVec0(const std::vector<uint32_t>&);
 
       /// get hitsVec1
-      const std::vector<uint8_t>& hitsVec1() const;
+      const std::vector<uint32_t>& hitsVec1() const;
       /// set hitsVec1
-      void setHitsVec1(const std::vector<uint8_t>&);
+      void setHitsVec1(const std::vector<uint32_t>&);
 
       /// get errorVec0
-      const std::vector<uint8_t>& errorVec0() const;
+      const std::vector<uint32_t>& errorVec0() const;
       /// set errorVec0
-      void setErrorVec0(const std::vector<uint8_t>&);
+      void setErrorVec0(const std::vector<uint32_t>&);
 
       /// get errorVec1
-      const std::vector<uint8_t>& errorVec1() const;
+      const std::vector<uint32_t>& errorVec1() const;
       /// set errorVec1
-      void setErrorVec1(const std::vector<uint8_t>&);
+      void setErrorVec1(const std::vector<uint32_t>&);
 
       /// Peak functions - return value of peak bunch crossing
       /// Assuming we have got the timing calibration correct,
       /// This is the bunch crossing containing the collision
 
       /// get hitsVec0 at peak bunch crossing
-      uint8_t hits0() const;
+      uint32_t hits0() const;
 
       /// get hitsVec1 at peak bunch crossing
-      uint8_t hits1() const;
+      uint32_t hits1() const;
 
       /// get errorVec0 at peak bunch crossing
-      uint8_t error0() const;
+      uint32_t error0() const;
 
       /// get errorVec1 at peak bunch crossing
-      uint8_t error1() const;
+      uint32_t error1() const;
 
   }; // class CMXCPHits_v1
 } // namespace xAOD

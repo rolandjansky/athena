@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTower_v2.h 652807 2015-03-09 21:52:07Z morrisj $
+// $Id: CPMTower_v2.h 687949 2015-08-06 15:48:49Z amazurov $
 #ifndef XAODTRIGL1CALO_VERSIONS_CPMTOWER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_CPMTOWER_V2_H
 
@@ -20,8 +20,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 652807 $
-  /// $Date: 2015-03-09 22:52:07 +0100 (Mon, 09 Mar 2015) $  
+  /// $Revision: 687949 $
+  /// $Date: 2015-08-06 17:48:49 +0200 (Thu, 06 Aug 2015) $  
   
   class CPMTower_v2 : public SG::AuxElement{
     public:
@@ -37,8 +37,8 @@ namespace xAOD {
       virtual void initialize(const float eta,const float phi,
                               const std::vector<uint8_t>& emEnergyVec,
                               const std::vector<uint8_t>& hadEnergyVec,
-                              const std::vector<uint8_t>& emErrorVec,
-                              const std::vector<uint8_t>& hadErrorVec,
+                              const std::vector<uint32_t>& emErrorVec,
+                              const std::vector<uint32_t>& hadErrorVec,
                               const uint8_t peak);
       
       /// get emEnergyVec - emEnergy for all time slices
@@ -52,14 +52,14 @@ namespace xAOD {
       void setHadEnergyVec(const std::vector<uint8_t>&);  
       
       /// get emErrorVec - emError for all time slices
-      const std::vector<uint8_t>& emErrorVec() const;
+      const std::vector<uint32_t>& emErrorVec() const;
       /// set emErrorVec - emError for all time slices
-      void setEmErrorVec(const std::vector<uint8_t>&);
+      void setEmErrorVec(const std::vector<uint32_t>&);
       
       /// get hadErrorVec - hadError for all time slices
-      const std::vector<uint8_t>& hadErrorVec() const;
+      const std::vector<uint32_t>& hadErrorVec() const;
       /// set hadErrorVec - hadError for all time slices
-      void setHadErrorVec(const std::vector<uint8_t>&);      
+      void setHadErrorVec(const std::vector<uint32_t>&);      
           
       /// get eta
       float eta() const;
@@ -86,14 +86,14 @@ namespace xAOD {
       uint8_t hadSliceEnergy(unsigned int slice) const;
 
       // get emError for emErrorVec[peak]  - time slice that (hopefully) contains the collision
-      uint8_t emError() const;
+      uint32_t emError() const;
       // get hadError for hadErrorVec[peak]  - time slice that (hopefully) contains the collision
-      uint8_t hadError() const;
+      uint32_t hadError() const;
       
       /// get emError for emErrorVec[slice] - time slice for arbitary slice
-      uint8_t emSliceError(unsigned int slice) const;
+      uint32_t emSliceError(unsigned int slice) const;
       /// get hadError for hadErrorVec[slice] - time slice for arbitary slice
-      uint8_t hadSliceError(unsigned int slice) const;
+      uint32_t hadSliceError(unsigned int slice) const;
 
   };
 } // namespace xAOD
