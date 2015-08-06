@@ -426,13 +426,6 @@ class EventIdFileArg(StringArg):
     def isFullArgument(self):
         return True
 
-class TrigFileArg(StringArg):
-    """The input text file for trigger info lines"""
-    def __init__(self,help='default',name='TrigFile'):
-        StringArg.__init__(self,help,name)        
-    def isFullArgument(self):
-        return True
-
 class LbnMapFileArg(StringArg):
     """The lbn_map_file for the selector to read in"""
     def __init__(self,help='default',name='LbnMapFile'):
@@ -566,7 +559,6 @@ class BSFilterJobTransform( JobTransform ):
         self.add( OutputBSFilterFileArg49(),default="" )
 
         self.add( EventIdFileArg(), default="" )
-        self.add( TrigFileArg(), default="" )
         self.add( LbnMapFileArg(), default="lbn_anal_map.txt" )
         self.add( UniqArg(), default="" )
         self.add( TriggerBitArg(), default=5 )

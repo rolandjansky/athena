@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 744063 2016-04-29 22:49:04Z ahaas $
+#  @version $Id: overlayTransformUtils.py 687841 2015-08-06 09:20:13Z tkharlam $
 
 import os
 import re
@@ -21,58 +21,47 @@ import PyJobTransforms.trfValidation as trfValidation
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfExe import athenaExecutor
 
+## @brief write me
+#  numbers
 class BSJobSplitterExecutor(athenaExecutor):
 
     def preExecute(self, input = set(), output = set()):
-        msg.info('Preparing for BSJobSplitterExecutor execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
-
-        #See if we need to unpack a TAR file
-        if 'hitarFile' in self.conf.argdict:
-            print "Untarring inputHITARFile", self.conf.argdict['hitarFile'].value
-            try:
-                f=tarfile.open(name=self.conf.argdict['hitarFile'].value[0])
-                f.list()
-                f.extractall()
-                f.close()
-            except Exception, e:
-                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error while unpacking and extracting HI input files for transform: {0}'.format(e))
+        msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         # There are two ways to configure this transform:
         # - Give an inputZeroBiasBSFile argument directly
-        # - Give a inputBSCONFIGFile and jobNumber argument
+        # - Give a overlayConfigFile and jobNumber argument
         # Check now that we have a configuration that works
 
-        if 'inputZeroBiasBSFile' in self.conf.argdict and 'inputBSCONFIGFile' in self.conf.argdict:
-            #raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Both inputZeroBiasBSFile and inputBSCONFIGFile have been specified - please use only one.')
-            del self.conf.argdict['inputZeroBiasBSFile']
-            print "WARNING - removed the inputZeroBiasBSFile argument, because inputZeroBiasBSFile and inputBSCONFIGFile were already specified"
+        if 'inputZeroBiasBSFile' in self.conf.argdict and 'overlayConfigFile' in self.conf.argdict:
+            raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Both inputZeroBiasBSFile and overlayConfigFile have been specified - please use only one.')
 
-        if 'inputBSCONFIGFile' in self.conf.argdict:
+        if 'overlayConfigFile' in self.conf.argdict:
             if 'jobNumber' not in self.conf.argdict:
-                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'inputBSCONFIGFile is specified, but no jobNumber was given.')
+                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'overlayConfigFile is specified, but no jobNumber was given.')
             # Job number has to wrap around from 500, dropping back to 1
             wrappedJobNumber = (self.conf.argdict['jobNumber'].value-1)%500 + 1
 
             self._inputFilelist = 'filelist_{0}.txt'.format(wrappedJobNumber)
-            self._lbnList = 'lbn_anal_map_{0}.txt'.format(wrappedJobNumber)
+            self._lblList = 'lbn_anal_map_{0}.txt'.format(wrappedJobNumber)
 
             try:
-                print self.conf.argdict['inputBSCONFIGFile'].value
-                f=tarfile.open(name=self.conf.argdict['inputBSCONFIGFile'].value[0])
+                f=tarfile.open(name=self.conf.argdict['overlayConfigFile'].value)
                 f.extract('filelist_{0}.txt'.format(wrappedJobNumber))
                 f.extract('lbn_anal_map_{0}.txt'.format(wrappedJobNumber))
                 f.close()
+
                 bsInputs = open(self._inputFilelist).readline().rstrip().split(',')
                 self.conf.addToArgdict('inputZeroBiasBSFile', trfArgClasses.argBSFile(bsInputs, io='input', type='BS', subtype='BS_ZeroBias'))
-                self.conf.addToDataDictionary('ZeroBiasBS', self.conf.argdict['inputZeroBiasBSFile'])
-                input.add('ZeroBiasBS')
+                self.conf.addToDataDictionary('BS', self.conf.argdict['inputZeroBiasBSFile'])
+                input.add('BS')
                 msg.info('Validating resolved input bytestream files')
-                trfValidation.performStandardFileValidation({'ZeroBiasBS': self.conf.argdict['inputZeroBiasBSFile']}, io='input')
+                trfValidation.performStandardFileValidation({'BS': self.conf.argdict['inputZeroBiasBSFile']}, io='input')
             except Exception, e:
                 raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error while unpacking and extracting input files for transform: {0}'.format(e))
 
             # Now setup correct input arguments
-            self.conf.argdict['InputLbnMapFile'] = trfArgClasses.argString(self._lbnList)
+            self.conf.argdict['InputLbnMapFile'] = trfArgClasses.argString(self._lblList)
             self.conf.argdict['InputFileMapFile'] = trfArgClasses.argString(self._inputFilelist)
 
         else:
@@ -181,17 +170,9 @@ def addOverlay_BSArguments(parser):
     addCommonOverlayArguments(parser)
 
 ### Add Sub-step Methods
-def addOverlayBSTrigFilterSubstep(executorSet):
-    od = ['BS_TRIGSKIM']
-    for n in range(1,50): od+=['BS_TRIGSKIM'+str(n)]
-    executorSet.add(BSJobSplitterExecutor(name = 'BSTrigFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSTrigFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BS_SKIM'], outData=od ))
 def addOverlayBSFilterSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'BSFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BSCONFIG'], outData = ['BS_SKIM','TXT_EVENTID']))
-def addOverlayHITARMakerSubstep(executorSet):
-    executorSet.add(BSJobSplitterExecutor(name = 'HITARMaker', skeletonFile = 'EventOverlayJobTransforms/skeleton.HITARMaker_tf.py', substep='HITARMaker',
-                                          inData = ['TXT_EVENTID'], outData = ['TAR_CONFIG']))
+                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS'], outData = ['BS_SKIM','TXT_EVENTID']))
 
 def addOverlay_PoolSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
@@ -204,10 +185,6 @@ def addOverlay_BSSubstep(executorSet):
                                    inData = [('HITS', 'BS_SKIM')], outData = ['RDO', 'RDO_SGNL']))
 
 ### Append Sub-step Methods
-def appendOverlayBSTrigFilterSubstep(trf):
-    executor = set()
-    addOverlayBSTrigFilterSubstep(executor)
-    trf.appendToExecutorSet(executor)
 def appendOverlayBSFilterSubstep(trf):
     executor = set()
     addOverlayBSFilterSubstep(executor)

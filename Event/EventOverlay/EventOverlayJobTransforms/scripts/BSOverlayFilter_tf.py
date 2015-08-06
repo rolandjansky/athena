@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Transform for preparation of BS overlay
-# @version $Id: BSOverlayFilter_tf.py 733403 2016-04-01 18:38:53Z ahaas $ 
+# @version $Id: BSOverlayFilter_tf.py 664293 2015-05-01 09:47:58Z jchapman $ 
 
 import os.path
 import sys
@@ -20,7 +20,7 @@ from EventOverlayJobTransforms.overlayTransformUtils import BSJobSplitterExecuto
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--eventIdFile', '--execOnly', '--fileValidation', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputFileValidation', '--inputZeroBiasBSFile', '--inputFilterFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputBS_SKIMFile', '--outputFileValidation', '--overlayConfigFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--triggerBit', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
+ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--eventIdFile', '--execOnly', '--fileValidation', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputFileValidation', '--inputZeroBiasBSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputBS_SKIMFile', '--outputFileValidation', '--overlayConfigFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--triggerBit', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -39,10 +39,8 @@ def main():
 
 def getTransform():
     executorSet = set()
-    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlayBSFilterArguments, addOverlayBSTrigFilterSubstep, addOverlayHITARMakerSubstep
-    addOverlayBSTrigFilterSubstep(executorSet)
+    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlayBSFilterArguments
     addOverlayBSFilterSubstep(executorSet)
-    addOverlayHITARMakerSubstep(executorSet)
     trf = transform(executor = executorSet, description = 'Filter BS data based on trigger bit')
     addAthenaArguments(trf.parser)
     addOverlayBSFilterArguments(trf.parser)

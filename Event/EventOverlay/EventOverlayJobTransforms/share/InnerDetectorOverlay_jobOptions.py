@@ -2,7 +2,7 @@ include.block ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon import CfgMgr, CfgGetter
+from AthenaCommon import CfgMgr
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
@@ -25,12 +25,13 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
     #   include( "InDetCosmicRecExample/InDetCosmicFlags_jobOptions.py" )
 
     if DetFlags.overlay.pixel_on():
-        job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
-
+        protectedInclude( "PixelDigitization/PixelDigitization_jobOptions.py" )
+        from AthenaCommon import CfgGetter
+        CfgGetter.getPublicTool("PixelDigitizationTool",checkType=True).EvtStore = "BkgEvent_0_SG"
         indetovl.do_Pixel = True
         if readBS and isRealData:
            job.InDetPixelRawDataProvider.EvtStore = "OriginalEvent_SG"
-           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
+           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
     else:
         indetovl.do_Pixel = False
@@ -56,15 +57,17 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         from InDetOverlay.InDetOverlayConf import DynConfSCT
         job += DynConfSCT()
 
-        job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
-        CfgGetter.getPublicTool("SCT_DigitizationTool").InputObjectName="SCT_Hits"
+
+        protectedInclude( "SCT_Digitization/SCT_Digitization_jobOptions.py" )
+        if hasattr(job.SCT_Digitization, "DigitizationTool"):
+            from AthenaCommon import CfgGetter
+            CfgGetter.getPublicTool("SCT_DigitizationTool",checkType=True).EvtStore = "BkgEvent_0_SG"
+        else:
+            job.SCT_Digitization.EvtStore  = "BkgEvent_0_SG"
         indetovl.do_SCT = True
         if readBS and isRealData:
-           #job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG/SCT_RDOs"
-           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG/SCT_LVL1ID"
-           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG/SCT_BCID"
-           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
+           job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
+           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
     else:
         indetovl.do_SCT = False
@@ -74,22 +77,36 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            conddb.blockFolder("/TRT/Cond/DigVers")
            #conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True)
+        protectedInclude( "TRT_Digitization/TRT_Digitization_jobOptions.py" )
+        if hasattr(job.TRTDigitization, "DigitizationTool"):
+            job.TRTDigitization.DigitizationTool.EvtStore = "BkgEvent_0_SG"
+        else:
+            job.TRTDigitization.EvtStore   = "BkgEvent_0_SG"
+        ### AG: FIXME: support old TRT digi for now.  The following block should be removed.
+        try:
+            job.TRTDigitization.StoreName   = "BkgEvent_0_SG"
+            log.warning("TRTDigitization has ambiguous event store setup: two StoreGate handles!")
+        except:
+            log.info("InnerDetectorOverlay_jobOptions.py: caught an exception when trying to configure TRTDigitization using pre-AthAlgorithm StoreName. Time to remove this oboslete jO code.")
 
-        job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
-  
         indetovl.do_TRT = True
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
-  
+           ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
+           #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::TRT_DriftCircleContainer/TRT_DriftCircle" ]
+           if hasattr(job.TRTDigitization, "DigitizationTool"):
+               job.TRTDigitization.DigitizationTool.Override_getT0FromData = 1
+           else:
+               job.TRTDigitization.Override_getT0FromData = 1
+
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
            InDetTRTCalDbSvc = TRT_CalDbSvc()
            ServiceMgr += InDetTRTCalDbSvc
           #from IOVDbSvc.CondDB import conddb
 #           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
 #           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")
-      #     conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibRt-HLT-UPD1-01</tag>")
-       #    conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibT0-HLT-UPD1-01</tag>")
+           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibRt-HLT-UPD1-01</tag>")
+           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibT0-HLT-UPD1-01</tag>")
            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
     else:
         indetovl.do_TRT = False

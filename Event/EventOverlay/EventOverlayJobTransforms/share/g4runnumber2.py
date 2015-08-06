@@ -1,7 +1,6 @@
 
 #set the max number of events
-from OverlayCommonAlgs.OverlayFlags import overlayFlags
-fname = overlayFlags.EventIDTextFile()
+fname = "events.txt"
 num_lines = 0
 with open(fname, 'r') as f:
     for line in f:
@@ -17,5 +16,5 @@ athenaCommonFlags.EvtMax.set_Value_and_Lock(num_lines)
 #new MC12 way, should be a preInclude
 from G4AtlasApps.SimFlags import SimFlags
 SimFlags.load_atlas_flags()
-SimFlags.VertexOverrideEventFile.set_Value_and_Lock(fname)
+SimFlags.VertexOverrideEventFile.set_Value_and_Lock("events.txt")
 

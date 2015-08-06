@@ -5,25 +5,8 @@ BSFilterLog.info( '****************** STARTING BSFilter *****************' )
 BSFilterLog.info( '**** Transformation run arguments' )
 BSFilterLog.info( str(runArgs) )
 
-if hasattr( runArgs, 'trfSubstepName'):
-    if runArgs.trfSubstepName=="BSFilter" and hasattr(runArgs, 'InputLbnMapFile') and hasattr( runArgs, "triggerBit"):
-        delattr(runArgs, 'InputLbnMapFile')
-        BSFilterLog.info( '**** Removed InputLbnMapFile argument: transformation run arguments are now...' )
-        BSFilterLog.info( str(runArgs) )
-
 #---------------------------
 theApp.EvtMax = runArgs.maxEvents
-svcMgr.MessageSvc.infoLimit=100000
-svcMgr.MessageSvc.defaultLimit=100000
-
-from AthenaCommon.GlobalFlags  import globalflags
-globalflags.InputFormat = "bytestream"
-globalflags.DataSource = "data"
-from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-if hasattr( runArgs, 'inputZeroBiasBSFile'):
-    athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
-else:
-    athenaCommonFlags.FilesInput=runArgs.inputBS_SKIMFile
 
 #---------------------------
 ## Run performance monitoring (memory logging)
@@ -38,25 +21,19 @@ BSFilterLog.info( '**** ByteStreamInputSvc configuration' )
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
 # ByteStreamInputSvc.FullFileName = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
-if hasattr( runArgs, 'inputZeroBiasBSFile'):
-    ByteStreamInputSvc.FullFileName=runArgs.inputZeroBiasBSFile
-else:
-    ByteStreamInputSvc.FullFileName=runArgs.inputBS_SKIMFile
+ByteStreamInputSvc.FullFileName = runArgs.inputZeroBiasBSFile
+
 print ByteStreamInputSvc
 
 # ---------------------------
 # Service to write out BS events
 BSFilterLog.info( '**** ByteStreamOutputSvc configuration' )
-for n in range(0,runArgs.noutputs):
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
-    if hasattr( runArgs, 'outputBS_SKIMFile'):
-        bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
-    else:
-        if n==0: myn=""
-        else: myn=str(n)
-        bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+myn,OutputDirectory='./',SimpleFileName=getattr(runArgs,"outputBS_TRIGSKIM"+myn+"File"))
-    svcMgr += bsOutputSvc
-    print bsOutputSvc
+
+from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
+bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
+svcMgr += bsOutputSvc
+
+print bsOutputSvc
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamFilter configuration' )
@@ -69,31 +46,28 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-#svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
-                                                  "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
 
-# main alg
-from OverlayCommonAlgs.OverlayCommonAlgsConf import BSFilter
+from OverlayCommonAlgs.OverlayCommonAlgsConf import  BSFilter
 filAlg = BSFilter("BSFilter")
 topSequence += filAlg
 if hasattr( runArgs, "triggerBit"):
     filAlg.TriggerBit = runArgs.triggerBit
-    #to get HLT info decoded
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.configurationSourceList=['ds']
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter()
 else:
     filAlg.TriggerBit = -1
+
+#if hasattr(runArgs, 'eventIdFile'):
+#    filAlg.EventIdFile=runArgs.eventIdFile # The name of the file to write to for EventIdModifierSvc lines
+#else:
+#    filAlg.EventIdFile=""
 
 if hasattr(runArgs, 'outputTXT_EVENTIDFile'):
     filAlg.EventIdFile=runArgs.outputTXT_EVENTIDFile # The name of the file to write to for EventIdModifierSvc lines
 else:
     filAlg.EventIdFile=""
 
-if hasattr( runArgs, "inputFilterFile") and not hasattr( runArgs, 'InputLbnMapFile'): #don't filter if you're skimming using the map file
-    filAlg.filterfile=runArgs.inputFilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
+if hasattr( runArgs, "FilterFile"): #TODO currently no such argument
+    filAlg.filterfile=runArgs.FilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
 else:
     filAlg.filterfile = ""
 
@@ -104,13 +78,8 @@ if hasattr( runArgs, 'InputLbnMapFile'):
     from OverlayCommonAlgs.OverlayCommonAlgsConf import ByteStreamMultipleOutputStreamCopyTool
     bsCopyTool = ByteStreamMultipleOutputStreamCopyTool("MultipleOutputStreamBSCopyTool")
     bsCopyTool.lbn_map_file = runArgs.InputLbnMapFile
-    if hasattr( runArgs, "inputFilterFile"): bsCopyTool.trigfile = runArgs.inputFilterFile
-    else: bsCopyTool.trigfile = ""
-    bsCopyTool.NoutputSvc = runArgs.noutputs
-    for n in range(0,runArgs.noutputs):
-        if n==0: myn=""
-        else: myn=str(n)
-        setattr(bsCopyTool,"ByteStreamOutputSvc"+str(n),getattr(svcMgr,"BSESOutputSvc"+myn))
+    bsCopyTool.NoutputSvc = 1
+    bsCopyTool.ByteStreamOutputSvc0=bsOutputSvc
 else:
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamOutputStreamCopyTool
     bsCopyTool = ByteStreamOutputStreamCopyTool("OutputStreamBSCopyTool")
@@ -133,11 +102,8 @@ OutputStreamBSCopy.AcceptAlgs =["BSFilter"]
 print topSequence
 
 # ---------------------------
-# Post-include/exec
+# Post-include
+
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
-if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
-    for cmd in runArgs.postExec:
-        exec(cmd)
-

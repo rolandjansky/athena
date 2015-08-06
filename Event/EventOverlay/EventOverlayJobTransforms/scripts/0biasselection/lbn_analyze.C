@@ -23,14 +23,14 @@ public:
 };
 
 FILE *outfile=fopen("lbn_anal_map.txt","w");
-int debug=1;
+int debug=0;
 
 std::map< int, int > eventcounts;
 void readeventcounts(int run){
   eventcounts.clear();
   char buf[50];
   sprintf(buf,"lbnevents_%d.txt",run);
-  if (debug) printf("Opening %s, eventcounts size is %lu\n",buf,eventcounts.size());
+  if (debug) printf("Opening %s, eventcounts size is %d\n",buf,eventcounts.size());
   FILE *fp = fopen(buf,"r");
   if (!fp) printf("Failed to open %s!!!\n",buf);
   char *line=new char[500];
@@ -48,7 +48,7 @@ void readeventcounts(int run){
        assert(false);
      }
   }
-  if (debug) printf("Closing %s, eventcounts size is %lu\n",buf,eventcounts.size());
+  if (debug) printf("Closing %s, eventcounts size is %d\n",buf,eventcounts.size());
   fclose(fp); 
 }
 
@@ -57,9 +57,9 @@ void lbn_analyze(int stream, int nwanted)
    FILE *fp = fopen("lbn","r");
    if (!fp) printf("Failed to open lbn input file!!!\n");
    char *line=new char[500];
-   int run,lbn,L1Acc,beforeps,afterps,valid; //L1p,L2p,L3p
+   int run,lbn,L1Acc,beforeps,afterps,L1p,L2p,L3p,valid; 
    int liveL1,livebp,liveap;
-   float instlumi,dt,avevtperbx,live,L1p,HLTp,LARp;
+   float instlumi,dt,avevtperbx,live;
    //float intlumi,intlumitrig;
    int grun=0;
    float gtotaltotallumi=0,gtotaltotallumiprescaled=0;
@@ -76,11 +76,10 @@ void lbn_analyze(int stream, int nwanted)
    while (fgets(line,480,fp)) {
      if (line[0]!='-') continue;
      
-//   int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %d, L2Presc: %d, L3Presc: %d, Valid: %d", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&L2p,&L3p,&valid);
-     int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %f, HLTPresc: %f, Valid: %d, LAr ready fraction: %f", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&HLTp,&valid,&LARp);
-
+     int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %d, L2Presc: %d, L3Presc: %d, Valid: %d", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&L2p,&L3p,&valid);
+     
      if (s>8){
-       if (debug) printf("Got %d values : run=%d, lbn=%d, L1Acc=%d, instlumi=%f, L1p=%f, dt=%f, live=%f, afterps=%d \n",s,run,lbn,L1Acc,instlumi,L1p,dt,live,afterps);
+       if (debug) printf("- run=%d, lbn=%d, L1Acc=%d, instlumi=%f,L1p=%d, dt=%f, afterps=%d",run,lbn,L1Acc,instlumi,L1p,dt,afterps);
        
        if (run!=grun){
 	 if (grun>0){//change of run
@@ -115,7 +114,7 @@ void lbn_analyze(int stream, int nwanted)
 	 gtotallumiprescaled+= instlumi*dt*live/L1p;
 	 gtotallumi+= instlumi*dt*live;
        }
-       if (debug) printf("grun=%d, gtotallumi=%f, gtotallumiprescaled=%f\n",grun,gtotallumi,gtotallumiprescaled);
+       if (debug) printf(", s=%d, grun=%d, gtotallumi=%f, gtotallumiprescaled=%f\n",s,grun,gtotallumi,gtotallumiprescaled);
      }//good line
    }//loop over lines in file
    
@@ -125,9 +124,9 @@ void lbn_analyze(int stream, int nwanted)
    gtotaltotallumi+=gtotallumi; gtotaltotallumiprescaled+=gtotallumiprescaled;
 
    fclose(fp);
-   printf("- %lu runs, gtotaltotallumi=%f, gtotaltotallumiprescaled=%f\n",runmap.size(),gtotaltotallumi,gtotaltotallumiprescaled);
+   printf("- %d runs, gtotaltotallumi=%f, gtotaltotallumiprescaled=%f\n",runmap.size(),gtotaltotallumi,gtotaltotallumiprescaled);
 
-   if (runmap.size()<1) {printf("- runmap size is %lu, quitting!\n",runmap.size()); return;}
+   if (runmap.size()<1) {printf("- runmap size is %d, quitting!\n",runmap.size()); return;}
    //return;
 
    //check the total lumi...

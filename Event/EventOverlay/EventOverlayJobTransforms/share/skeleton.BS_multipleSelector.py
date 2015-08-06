@@ -41,7 +41,6 @@ ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
 theApp.EvtMax = EvtMax
 #theApp.SkipEvents = SkipEvents #doesn't work
 MessageSvc.OutputLevel = INFO
-MessageSvc.defaultLimit = 10000;
 ByteStreamInputSvc.FullFileName = BSInput
 #ByteStreamInputSvc.ValidateEvent=False
 #ByteStreamInputSvc.DumpFlag = True
@@ -55,8 +54,13 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
-
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+    "ROIB::RoIBResult/RoIBResult",
+    "MuCTPI_RDO/MUCTPI_RDO",
+    "CTP_RDO/CTP_RDO",
+    "MuCTPI_RIO/MUCTPI_RIO",
+    "CTP_RIO/CTP_RIO"
+    ]
 from OverlayCommonAlgs.OverlayCommonAlgsConf import  BSFilter, ByteStreamMultipleOutputStreamCopyTool
 filAlg=BSFilter("BSFilter")
 filAlg.TriggerBit=TriggerBit # The trigger bit to select
@@ -64,13 +68,13 @@ filAlg.EventIdFile=runArgs.EventIdFile # Not really used, but writes out the Eve
 topSequence+=filAlg
 print filAlg
 
-# BS MultipleOutputStreamTool
+# BS OutputStream Tool
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
 bsCopyTool = ByteStreamMultipleOutputStreamCopyTool("MultipleOutputStreamBSCopyTool")
-svcMgr.ToolSvc += bsCopyTool
 bsCopyTool.lbn_map_file = runArgs.LbnMapFile
 bsCopyTool.skipevents = SkipEvents
-bsCopyTool.trigfile = runArgs.TrigFile
+svcMgr.ToolSvc += bsCopyTool
+
 bsCopyTool.NoutputSvc = Noutputs
 for i in range(0,bsCopyTool.NoutputSvc):
     if len(streamvec)>0:

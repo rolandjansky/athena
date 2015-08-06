@@ -10,6 +10,6 @@ if DetFlags.overlay.BCM_on():
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
     from AthenaCommon import CfgGetter
-    job += CfgGetter.getAlgorithm("BCM_OverlayDigitization")
-
+    job += CfgGetter.getAlgorithm("BCM_Digitization/BCM_Digitization", tryDefaultConfigurable=True)
+    job.BCM_Digitization.DigitizationTool.EvtStore = "BkgEvent_0_SG"
 
