@@ -1,11 +1,12 @@
 import re
 
 InFiles = [
+"root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00272531/data15_13TeV.00272531.express_express.merge.RAW/data15_13TeV.00272531.express_express.merge.RAW._lb0123._SFO-ALL._0001.1",
     #"/afs/cern.ch/work/h/hristova/public/M9/256147/data15_cos.00256147.physics_L1Calo.merge.RAW._lb0500._SFO-ALL._0001.1"
     #"/afs/cern.ch/work/v/vkousk/public/L1Calo/data15_cos.00255313.physics_CosmicCalo.merge.RAW._lb0700._SFO-ALL._0001.1"
     #    "/afs/cern.ch/user/t/tcorneli/public/PROC/extractedEvents8.data",
     #    "/afs/cern.ch/work/g/geisler/public/misc/l1caloruns/data15_calib.00252372.calibration_L1CaloPprPhos4ScanPars.daq.RAW._lb0000._SFO-1._0001.data",
-    "/afs/cern.ch/work/h/hmeyerzt/public/data/data15_cos.00252223.physics_CosmicCalo.merge.RAW._lb0025._SFO-ALL._0001.1",
+ #   "/afs/cern.ch/work/h/hmeyerzt/public/data/data15_cos.00252223.physics_CosmicCalo.merge.RAW._lb0025._SFO-ALL._0001.1",
     #    "/afs/cern.ch/user/r/rhowen/ppmData/ppmBcMuxRamp.data",
     #     "/afs/cern.ch/user/r/rhowen/ppmData/ppmBcMuxRamp_Compressed.data",
     #    "/afs/cern.ch/user/r/rhowen/ppmData/ppmnMCMRamp2_Compressed.data",
@@ -53,7 +54,7 @@ xaodStream = MSMgr.NewPoolRootStream("StreamXAOD", OutFile)
 
 # Decorate trigger towers with Calo Cells?
 # This should be setup better
-decorateTT = True
+#decorateTT = True
 
 # Number of events (-1 == all events)
 
@@ -74,7 +75,20 @@ xaod = [
     (True, "TriggerTower", "xAODTriggerTowers"),
     (True, "CPMTower", "CPMTowers"),
     (True, "CMXCPTob", "CMXCPTobs"),
-    (True, "CMXCPHits", "CMXCPHits")
+    (True, "CMXCPHits", "CMXCPHits"),
+    (True, "CMXCPHits", "CMXCPHits"),
+    (True, "CMXJetTob", "CMXJetTobs"),
+    (True, "CMXJetHits", "CMXJetHits"),
+    (True, "CMXEtSum", "CMXEtSums"),
+    (True, "JEMEtSum", "JEMEtSums"),
+    (True, "CPMTobRoI", "CPMTobRoIs"),
+
+    (True, "CPMTobRoI", "CPMTobRoIsRoIB"),
+    (True, "JetElement", "JetElements"),
+    (True, "JetElement", "JetElementsOverlap"),
+    (True, "CMXRoI", "CMXRoIs"),
+    (True, "CMXRoI", "CMXRoIsRoIB"),
+    (True, "RODHeader", "RODHeaders"),
 ]
 
 for enabled, prefix, key in xaod:

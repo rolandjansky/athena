@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMAUXCNV_H
-#define TRIGT1CALOBYTESTREAM_CMXCPHITSBYTESTREAMAUXCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_CPMTOBROIBYTESTREAMXAODCNV_H
+#define TRIGT1CALOBYTESTREAM_CPMTOBROIBYTESTREAMXAODCNV_H
 
 #include <string>
 
@@ -16,37 +16,32 @@
 #include "AthenaBaseComps/AthMessaging.h"
 
 class DataObject;
-class IByteStreamEventAccess;
 class IOpaqueAddress;
-class IROBDataProviderSvc;
 class ISvcLocator;
 class StatusCode;
 
 template <typename> class CnvFactory;
-
+class StoreGateSvc;
 // Externals
 extern long ByteStream_StorageType;
 
-
 namespace LVL1BS {
-class CpByteStreamV2Tool;
-
-/** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
+/** ByteStream converter for CmxTob.
  *
  *  @author alexander.mazurov@cern.ch
  */
 
-class CmxCpHitsByteStreamAuxCnv: public Converter, public ::AthMessaging {
+class CpmTobRoiByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CmxCpHitsByteStreamAuxCnv>;
+  friend class CnvFactory<CpmTobRoiByteStreamxAODCnv>;
 
 protected:
 
-  CmxCpHitsByteStreamAuxCnv(ISvcLocator* svcloc);
+  CpmTobRoiByteStreamxAODCnv(ISvcLocator* svcloc);
 
 public:
 
-  virtual ~CmxCpHitsByteStreamAuxCnv(){};
+  virtual ~CpmTobRoiByteStreamxAODCnv(){};
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -59,15 +54,12 @@ public:
   static  long storageType(){ return ByteStream_StorageType; }
 
   static const CLID& classID();
+
 private:
   /// Converter name
   std::string m_name;
-
-  /// Do the main job - retrieve xAOD TriggerTowers from robs
-  ToolHandle<CpByteStreamV2Tool> m_readTool;
 };
 
-
-
 } // end namespace
+
 #endif

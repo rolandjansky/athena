@@ -56,7 +56,7 @@ CmxCpTobByteStreamAuxCnv::CmxCpTobByteStreamAuxCnv(ISvcLocator* svcloc) :
   Converter(ByteStream_StorageType, classID(), svcloc),
   AthMessaging(svcloc != 0 ? msgSvc() : 0, "CmxCpTobByteStreamAuxCnv"),
   m_name("CmxCpTobByteStreamAuxCnv"),
-  m_cpmReadTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
+  m_readTool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool")
 {
 }
 
@@ -74,7 +74,7 @@ StatusCode CmxCpTobByteStreamAuxCnv::initialize() {
     "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
 
   CHECK(Converter::initialize());
-  CHECK(m_cpmReadTool.retrieve());
+  CHECK(m_readTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -95,7 +95,7 @@ StatusCode CmxCpTobByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   cpmCollection.setStore(aux);
   // -------------------------------------------------------------------------
   DataVector<LVL1::CMXCPTob> cmxCpTobVector;
-  StatusCode sc = m_cpmReadTool->convert(nm, &cmxCpTobVector);
+  StatusCode sc = m_readTool->convert(nm, &cmxCpTobVector);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Failed to create objects");
     delete aux;
@@ -107,7 +107,7 @@ StatusCode CmxCpTobByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
     cpmCollection.push_back(item);
     std::vector<uint8_t> energyVec(ct->energyVec().begin(), ct->energyVec().end());
     std::vector<uint8_t> isolationVec(ct->isolationVec().begin(), ct->isolationVec().end());
-    std::vector<uint8_t> errorVec(ct->errorVec().begin(), ct->errorVec().end());
+    std::vector<uint32_t> errorVec(ct->errorVec().begin(), ct->errorVec().end());
     std::vector<uint16_t> presenceMapVec(ct->presenceMapVec().begin(), ct->presenceMapVec().end());
 
     item->initialize(ct->crate(), ct->cmx(),
@@ -121,7 +121,7 @@ StatusCode CmxCpTobByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
 
   // -------------------------------------------------------------------------
   //ATH_MSG_VERBOSE(ToString(cpmCollection));
-  ATH_MSG_DEBUG("Number of readed CMXCpTob: " << aux->size());
+  ATH_MSG_DEBUG("Number of readed CMXCPTob: " << aux->size());
   // -------------------------------------------------------------------------
   pObj = SG::asStorable(aux);
   return StatusCode::SUCCESS;

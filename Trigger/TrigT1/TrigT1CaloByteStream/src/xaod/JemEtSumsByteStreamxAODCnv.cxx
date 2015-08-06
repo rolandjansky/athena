@@ -24,26 +24,26 @@
 #include "SGTools/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "xAODTrigL1Calo/CPMTower.h"
-#include "xAODTrigL1Calo/CPMTowerContainer.h"
-#include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
+#include "xAODTrigL1Calo/JEMEtSums.h"
+#include "xAODTrigL1Calo/JEMEtSumsContainer.h"
+#include "xAODTrigL1Calo/JEMEtSumsAuxContainer.h"
 
-#include "CpmTowerByteStreamxAODCnv.h"
+#include "JemEtSumsByteStreamxAODCnv.h"
 
 namespace LVL1BS {
 
-CpmTowerByteStreamxAODCnv::CpmTowerByteStreamxAODCnv(ISvcLocator* svcloc) :
+JemEtSumsByteStreamxAODCnv::JemEtSumsByteStreamxAODCnv(ISvcLocator* svcloc) :
     Converter(ByteStream_StorageType, classID(), svcloc),
-    AthMessaging(svcloc != 0 ? msgSvc() : 0, "CpmTowerByteStreamxAODCnv"),
-    m_name("CpmTowerByteStreamxAODCnv")
+    AthMessaging(svcloc != 0 ? msgSvc() : 0, "JemEtSumsByteStreamxAODCnv"),
+    m_name("JemEtSumsByteStreamxAODCnv")
 {
 
 }
 
 // CLID
 
-const CLID& CpmTowerByteStreamxAODCnv::classID() {
-  return ClassID_traits<xAOD::CPMTowerContainer>::ID();
+const CLID& JemEtSumsByteStreamxAODCnv::classID() {
+  return ClassID_traits<xAOD::JEMEtSumsContainer>::ID();
 }
 
 //  Init method gets all necessary services etc.
@@ -52,7 +52,7 @@ const CLID& CpmTowerByteStreamxAODCnv::classID() {
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode CpmTowerByteStreamxAODCnv::initialize() {
+StatusCode JemEtSumsByteStreamxAODCnv::initialize() {
   ATH_MSG_DEBUG(
       "Initializing " << m_name << " - package version " << PACKAGE_VERSION);
 
@@ -63,7 +63,7 @@ StatusCode CpmTowerByteStreamxAODCnv::initialize() {
 
 // createObj should create the RDO from bytestream.
 
-StatusCode CpmTowerByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
+StatusCode JemEtSumsByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
     DataObject*& pObj) {
   ATH_MSG_DEBUG("createObj() called");
   // -------------------------------------------------------------------------
@@ -72,29 +72,29 @@ StatusCode CpmTowerByteStreamxAODCnv::createObj(IOpaqueAddress* pAddr,
   // -------------------------------------------------------------------------
   const std::string nm = *(pBS_Addr->par());
   const std::string nmAux = nm + "Aux.";
-  ATH_MSG_DEBUG("Creating xAOD::CPMTower interface objects '" << nm << "'");
+  ATH_MSG_DEBUG("Creating xAOD::JemEtSums interface objects '" << nm << "'");
 
-  xAOD::CPMTowerContainer* const cpmCollection =
-      new xAOD::CPMTowerContainer;
+  xAOD::JEMEtSumsContainer* const cmxJetContainer =
+      new xAOD::JEMEtSumsContainer;
 
   // Create link with AUX container
-  DataLink<xAOD::CPMTowerAuxContainer> link(nmAux);
+  DataLink<xAOD::JEMEtSumsAuxContainer> link(nmAux);
   ATH_MSG_DEBUG("Creating store with data link to '" << nmAux);
 
   for(size_t i=0; i < link->size(); ++i){
-     cpmCollection->push_back(new xAOD::CPMTower());
+     cmxJetContainer->push_back(new xAOD::JEMEtSums());
   }
   // ========================================================================== 
-  cpmCollection->setStore(link);
-  pObj = SG::asStorable(cpmCollection);
-  ATH_MSG_DEBUG("Number of CPMTowers created: " << cpmCollection->size());
+  cmxJetContainer->setStore(link);
+  pObj = SG::asStorable(cmxJetContainer);
+  ATH_MSG_DEBUG("Number of JEMEtSums created: " << cmxJetContainer->size());
 
   return StatusCode::SUCCESS;
 }
 
 // createRep should create the bytestream from RDOs.
 
-StatusCode CpmTowerByteStreamxAODCnv::createRep(DataObject* /*pObj*/,
+StatusCode JemEtSumsByteStreamxAODCnv::createRep(DataObject* /*pObj*/,
     IOpaqueAddress*& /*pAddr*/) {
   return StatusCode::FAILURE;
 }

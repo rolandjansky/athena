@@ -45,6 +45,7 @@ JepRoiByteStreamV2Tool::JepRoiByteStreamV2Tool(const std::string& type,
     const std::string& name,
     const IInterface*  parent)
   : AthAlgTool(type, name, parent),
+    m_robDataProvider("ROBDataProviderSvc", name),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_crates(2), m_modules(16), m_frames(8), m_maxRoiWords(6),
     m_srcIdMap(0), m_subBlock(0), m_rodStatus(0), m_fea(0)
@@ -123,6 +124,18 @@ StatusCode JepRoiByteStreamV2Tool::finalize()
 // Conversion bytestream to JEM RoI
 
 StatusCode JepRoiByteStreamV2Tool::convert(
+    const std::string& sgKey,
+    DataVector<LVL1::JEMTobRoI> *const collection)
+{
+ const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "JepRoiByteStreamV2Tool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, collection);
+}
+
+StatusCode JepRoiByteStreamV2Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::JEMTobRoI>* const jeCollection)
 {
@@ -133,8 +146,20 @@ StatusCode JepRoiByteStreamV2Tool::convert(
 // Conversion bytestream to CMX RoI
 
 StatusCode JepRoiByteStreamV2Tool::convert(
+    const std::string& sgKey,
+    LVL1::CMXRoI* cmCollection)
+{
+  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "JepRoiByteStreamV2Tool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, cmCollection);
+}
+
+StatusCode JepRoiByteStreamV2Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  LVL1::CMXRoI* const cmCollection)
+  LVL1::CMXRoI* cmCollection)
 {
   m_cmCollection = cmCollection;
   return convertBs(robFrags, CMX_ROI);

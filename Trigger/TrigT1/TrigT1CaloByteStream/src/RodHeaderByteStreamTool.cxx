@@ -32,9 +32,10 @@ const InterfaceID& RodHeaderByteStreamTool::interfaceID()
 // Constructor
 
 RodHeaderByteStreamTool::RodHeaderByteStreamTool(const std::string& type,
-                                                 const std::string& name,
-	    			                 const IInterface*  parent)
+    const std::string& name,
+    const IInterface*  parent)
   : AthAlgTool(type, name, parent),
+    m_robDataProvider("ROBDataProviderSvc", name),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
     m_srcIdMap(0)
 {
@@ -98,9 +99,22 @@ StatusCode RodHeaderByteStreamTool::finalize()
 
 // Conversion bytestream to RODHeaders
 
+// Conversion bytestream to CMX-CP TOBs
 StatusCode RodHeaderByteStreamTool::convert(
-                            const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::RODHeader>* const rhCollection)
+  const std::string& sgKey,
+  DataVector<LVL1::RODHeader>* const rhCollection)
+{
+  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  // // get ROB fragments
+  IROBDataProviderSvc::VROBFRAG robFrags;
+  m_robDataProvider->getROBData(vID, robFrags, "RodHeaderByteStreamTool");
+  ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
+  return convert(robFrags, rhCollection);
+}
+
+StatusCode RodHeaderByteStreamTool::convert(
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  DataVector<LVL1::RODHeader>* const rhCollection)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -126,8 +140,8 @@ StatusCode RodHeaderByteStreamTool::convert(
       (*rob)->status(robData);
       if (*robData != 0) {
         m_errorTool->robError(robid, *robData);
-	if (debug) msg() << "ROB status error - skipping fragment" << endreq;
-	continue;
+        if (debug) msg() << "ROB status error - skipping fragment" << endreq;
+        continue;
       }
     }
 
@@ -168,13 +182,13 @@ StatusCode RodHeaderByteStreamTool::convert(
     // Save
 
     rhCollection->push_back(new LVL1::RODHeader(version, sourceId, run, lvl1Id,
-                                bcId, trigType, detType, statusWords, nData));
+                            bcId, trigType, detType, statusWords, nData));
     if (debug) {
       msg() << MSG::hex
             << "ROD Header version/sourceId/run/lvl1Id/bcId/trigType/detType/nData: "
-	    << version << "/" << sourceId << "/" << run << "/" << lvl1Id << "/"
-	    << bcId << "/" << trigType << "/" << detType << "/" << nData
-	    << endreq << "ROD Status Words:";
+            << version << "/" << sourceId << "/" << run << "/" << lvl1Id << "/"
+            << bcId << "/" << trigType << "/" << detType << "/" << nData
+            << endreq << "ROD Status Words:";
       std::vector<uint32_t>::const_iterator pos  = statusWords.begin();
       std::vector<uint32_t>::const_iterator pose = statusWords.end();
       for (; pos != pose; ++pos) msg() << " " << *pos;
@@ -188,7 +202,7 @@ StatusCode RodHeaderByteStreamTool::convert(
 // Return reference to vector with all possible Source Identifiers
 
 const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
-                                                      const std::string& sgKey)
+  const std::string& sgKey)
 {
   const bool pp      = isAppended(sgKey, "PP");
   const bool cp      = isAppended(sgKey, "CP");
@@ -211,7 +225,7 @@ const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
     std::vector<int> slinks(4);
     for (int i = 1; i < 4; ++i) slinks[i] = i;
     fillRobIds(all, 8, 0, slinks, 0, eformat::TDAQ_CALO_PREPROC,
-                                                  m_sourceIDsPP);
+               m_sourceIDsPP);
     if (pp) return m_sourceIDsPP;
   }
   // CP
@@ -219,14 +233,14 @@ const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
     std::vector<int> slinks(2);
     slinks[1] = 2;
     fillRobIds(all, 4, 8, slinks, 0, eformat::TDAQ_CALO_CLUSTER_PROC_DAQ,
-                                                           m_sourceIDsCP);
+               m_sourceIDsCP);
     if (cp) return m_sourceIDsCP;
   }
   // CP RoI
   if (all || cpRoi) {
     const std::vector<int> slinks(1);
     fillRobIds(all, 4, 8, slinks, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
-                                                        m_sourceIDsCPRoI);
+               m_sourceIDsCPRoI);
     if (cpRoi) return m_sourceIDsCPRoI;
   }
   // JEP
@@ -234,14 +248,14 @@ const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
     std::vector<int> slinks(4);
     for (int i = 1; i < 4; ++i) slinks[i] = i;
     fillRobIds(all, 2, 12, slinks, 0, eformat::TDAQ_CALO_JET_PROC_DAQ,
-                                                       m_sourceIDsJEP);
+               m_sourceIDsJEP);
     if (jep) return m_sourceIDsJEP;
   }
   // JEP RoI
   if (all || jepRoi) {
     const std::vector<int> slinks(1);
     fillRobIds(all, 2, 12, slinks, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
-                                                    m_sourceIDsJEPRoI);
+               m_sourceIDsJEPRoI);
     if (jepRoi) return m_sourceIDsJEPRoI;
   }
   // Don't include RoIBs (LVL2) in complete set
@@ -249,14 +263,14 @@ const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
   if (cpRoib) {
     const std::vector<int> slinks(1, 2);
     fillRobIds(false, 4, 8, slinks, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
-                                                         m_sourceIDsCPRoIB);
+               m_sourceIDsCPRoIB);
     return m_sourceIDsCPRoIB;
   }
   // JEP RoIB
   if (jepRoib) {
     const std::vector<int> slinks(1, 2);
     fillRobIds(false, 2, 12, slinks, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
-                                                     m_sourceIDsJEPRoIB);
+               m_sourceIDsJEPRoIB);
     return m_sourceIDsJEPRoIB;
   }
   return m_sourceIDs;
@@ -265,24 +279,24 @@ const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
 // Fill vector with ROB IDs for given sub-detector
 
 void RodHeaderByteStreamTool::fillRobIds(const bool all, const int numCrates,
-                                         const int crateOffset,
-				         const std::vector<int>& slinks,
-				 	 const int daqOrRoi,
-				         const eformat::SubDetector subdet,
-				         std::vector<uint32_t>& detSourceIDs)
+    const int crateOffset,
+    const std::vector<int>& slinks,
+    const int daqOrRoi,
+    const eformat::SubDetector subdet,
+    std::vector<uint32_t>& detSourceIDs)
 {
   if (all && !detSourceIDs.empty()) {
     std::copy(detSourceIDs.begin(), detSourceIDs.end(),
-                                    std::back_inserter(m_sourceIDs));
+              std::back_inserter(m_sourceIDs));
   } else {
     for (int crate = 0; crate < numCrates; ++crate) {
       const int numSlinks = slinks.size();
       for (int i = 0; i < numSlinks; ++i) {
         const uint32_t rodId = m_srcIdMap->getRodID(crate + crateOffset,
-	                                   slinks[i], daqOrRoi, subdet);
+                               slinks[i], daqOrRoi, subdet);
         const uint32_t robId = m_srcIdMap->getRobID(rodId);
-	if (all) m_sourceIDs.push_back(robId);
-	else     detSourceIDs.push_back(robId);
+        if (all) m_sourceIDs.push_back(robId);
+        else     detSourceIDs.push_back(robId);
       }
     }
   }
@@ -291,7 +305,7 @@ void RodHeaderByteStreamTool::fillRobIds(const bool all, const int numCrates,
 // Return true if StoreGate key ends in given string
 
 bool RodHeaderByteStreamTool::isAppended(const std::string& sgKey,
-                                         const std::string& flag) const
+    const std::string& flag) const
 {
   const std::string::size_type pos = sgKey.find(flag);
   return (pos != std::string::npos && pos == sgKey.length() - flag.length());

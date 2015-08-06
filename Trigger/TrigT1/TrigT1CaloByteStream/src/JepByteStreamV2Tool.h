@@ -66,18 +66,28 @@ class JepByteStreamV2Tool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to jet elements
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::JetElement>* jeCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::JetElement>* jeCollection);
    /// Convert ROB fragments to energy sums
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::JEMEtSums>* etCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::JEMEtSums>* etCollection);
    /// Convert ROB fragments to CMX TOBs
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::CMXJetTob>* tobCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CMXJetTob>* tobCollection);
    /// Convert ROB fragments to CMX jet hits
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::CMXJetHits>* hitCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CMXJetHits>* hitCollection);
    /// Convert ROB fragments to CMX energy sums
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::CMXEtSums>* etCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CMXEtSums>* etCollection);
 
@@ -101,6 +111,7 @@ class JepByteStreamV2Tool : public AthAlgTool {
    typedef std::map<int, LVL1::CMXJetTob*>               CmxTobMap;
    typedef std::map<int, LVL1::CMXJetHits*>              CmxHitsMap;
    typedef std::map<int, LVL1::CMXEtSums*>               CmxSumsMap;
+
    typedef IROBDataProviderSvc::VROBFRAG::const_iterator ROBIterator;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      ROBPointer;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
@@ -152,6 +163,7 @@ class JepByteStreamV2Tool : public AthAlgTool {
    /// Get jet hits subBlock source ID from CMXJetHits source type
    int jetSubBlockSourceId(int source);
 
+   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
    /// Channel mapping tool
    ToolHandle<LVL1::IL1CaloMappingTool> m_jemMaps;
    /// Error collection tool

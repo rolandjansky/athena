@@ -21,6 +21,7 @@
 class IInterface;
 class InterfaceID;
 class StatusCode;
+class IROBDataProviderSvc;
 
 namespace LVL1 {
   class RODHeader;
@@ -52,6 +53,9 @@ class RodHeaderByteStreamTool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to RODHeaders
+   StatusCode convert(const std::string& name,
+                      DataVector<LVL1::RODHeader>* rhCollection);
+
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::RODHeader>* rhCollection);
 
@@ -73,6 +77,8 @@ class RodHeaderByteStreamTool : public AthAlgTool {
    /// Return true if StoreGate key ends in given string
    bool isAppended(const std::string& sgKey, const std::string& flag) const;
 
+  /// Service for reading bytestream
+   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
    /// Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 

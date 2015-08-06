@@ -56,6 +56,8 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to CPM RoIs
+   StatusCode convert(const std::string& robFrags,
+                      DataVector<LVL1::CPMTobRoI>* roiCollection);
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
                       DataVector<LVL1::CPMTobRoI>* roiCollection);
 
@@ -77,6 +79,7 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
    /// Set up CPM RoI map
    void setupCpmRoiMap(const CpmRoiCollection* roiCollection);
 
+   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
    /// Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 
