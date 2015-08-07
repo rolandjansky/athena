@@ -43,10 +43,10 @@ def LuminosityToolOfflineRun1(name="LuminosityTool"):
 
     # Now configure DB based on the environment
     from IOVDbSvc.CondDB import conddb
-    from InDetRecExample.InDetJobProperties import InDetFlags
+    from RecExConfig.RecFlags import rec
 
     # Check if this is express stream or bulk
-    if not InDetFlags.useBeamConstraint():
+    if rec.doExpressProcessing():
         lumiFolder  = "/TRIGGER/LUMI/LBLESTONL"
         if not conddb.folderRequested( lumiFolder ):
             conddb.addFolder('TRIGGER_ONL', lumiFolder)
@@ -109,12 +109,12 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
 
     # Set up DB configuration
     from IOVDbSvc.CondDB import conddb
-    from InDetRecExample.InDetJobProperties import InDetFlags
+    from RecExConfig.RecFlags import rec
 
     lumiTool = LuminosityTool(name)
 
     # Check if this is express stream or bulk
-    if not InDetFlags.useBeamConstraint():
+    if rec.doExpressProcessing():
         lumiFolder  = "/TRIGGER/LUMI/OnlPrefLumi"
         if not conddb.folderRequested( lumiFolder ):
             conddb.addFolder('TRIGGER_ONL', lumiFolder)

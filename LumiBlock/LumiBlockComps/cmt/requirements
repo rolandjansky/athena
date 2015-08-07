@@ -16,6 +16,7 @@ use StoreGate                   StoreGate-*             Control
 use LumiCalc			LumiCalc-*		LumiBlock
 use CoolLumiUtilities		CoolLumiUtilities-*	Database
 use xAODLuminosity		xAODLuminosity-*     Event/xAOD
+use LumiBlockData               LumiBlockData-*      LumiBlock
 
 private
 use AtlasCOOL  			AtlasCOOL-*  	     External
