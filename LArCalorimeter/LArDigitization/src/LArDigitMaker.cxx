@@ -8,13 +8,15 @@
 // +  invoking new LArPileUpTool to do all the work                           +
 // +                                                                          +
 // +==========================================================================+
-//
+// 
 #include "LArDigitization/LArDigitMaker.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 //----------------------------------------------------------------------------------
 
 LArDigitMaker::LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator), 
     m_LArPileUpTool("LArPileUpTool",this)
 {
   declareProperty("LArPileUpTool",m_LArPileUpTool,"Tool to perform the real work");
@@ -25,7 +27,7 @@ LArDigitMaker::LArDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
 // ----------------------------------------------------------------------------------
 
 LArDigitMaker::~LArDigitMaker()
-{
+{  
   return;
 }
 
@@ -35,9 +37,10 @@ LArDigitMaker::~LArDigitMaker()
 StatusCode LArDigitMaker::initialize()
 {
 
-  ATH_MSG_DEBUG("initialize LArDigitMaker");
+  ATH_MSG_INFO("  initialize LArDigitMaker");
 
-  if (m_LArPileUpTool.retrieve().isFailure())
+  StatusCode sc = m_LArPileUpTool.retrieve();
+  if (sc.isFailure())
   {
      ATH_MSG_ERROR(" Unable to access LArPileUpTool");
      return StatusCode::FAILURE;
