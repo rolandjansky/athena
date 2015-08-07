@@ -10,17 +10,44 @@
 #include "G4LogicalVolumeStore.hh"
 
 SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : G4VSensitiveDetector(name)
-  , AthAlgTool(type,name,parent)
+  : AthAlgTool(type,name,parent)
+#ifndef ATHENAHIVE
+    , m_SD(nullptr)
+#endif
 {
   declareProperty("LogicalVolumeNames" , m_volumeNames );
+  declareProperty("NoVolumes", m_noVolumes=false );
+  declareProperty("OutputCollectionNames", m_outputCollectionNames );
 }
 
 // Athena method, used to get out the G4 geometry and set up the SDs
-StatusCode SensitiveDetectorBase::initialize(){
+StatusCode SensitiveDetectorBase::initializeSD()
+{
+  ATH_MSG_VERBOSE( name() << "::initializeSD()" );
+
+  // Make sure SD isn't already registered
+  if(getSD())
+    {
+      ATH_MSG_ERROR("Trying to create a SD which already exists!");
+      return StatusCode::FAILURE;
+    }
+
+  // Make the SD stored by this tool
+  auto* sd = makeSD();
+  if(!sd)
+    {
+      ATH_MSG_ERROR("Failed to create SD!");
+      return StatusCode::FAILURE;
+    }
+  setSD(sd);
+
+  // Set the verbosity information on this thing
+  if(msgLvl(MSG::VERBOSE)) getSD()->SetVerboseLevel(10);
+  else if(msgLvl(MSG::DEBUG)) getSD()->SetVerboseLevel(5);
+
   // Add the sensitive detector to the SD manager in G4
   G4SDManager* SDmanager = G4SDManager::GetSDMpointer();
-  SDmanager->AddNewDetector(this);
+  SDmanager->AddNewDetector(getSD());
   ATH_MSG_DEBUG( "Initialized and added SD " << name() );
 
   // Go through the logical volumes and hook the SDs up
@@ -31,7 +58,7 @@ StatusCode SensitiveDetectorBase::initialize(){
     for (auto ilv : *logicalVolumeStore ){
       if (ilv->GetName() == myvol.data()){
         ++found; // Do not break on found to protect against multiple volumes with the same name
-        ilv->SetSensitiveDetector(this);
+        ilv->SetSensitiveDetector(getSD());
         gotOne = true;
       } // Found a volume!
     } // Loop over all the volumes in the geometry
@@ -44,29 +71,11 @@ StatusCode SensitiveDetectorBase::initialize(){
   } // Loop over my volumes
 
   // Crash out if we have failed to assign a volume - this is bad news!
-  if (!gotOne){
-    ATH_MSG_ERROR( "Failed to assign *any* volume to SD " << name() );
+  if (!gotOne && !m_noVolumes){
+    ATH_MSG_ERROR( "Failed to assign *any* volume to SD " << name() << " and expected at least one." );
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
-}
-  
-// Just the end of a G4 event
-void SensitiveDetectorBase::EndOfEvent(G4HCofThisEvent*){
-  // Can be called - this may not do anything for many ATLAS SDs
-}
-
-// End of an athena event - store the hit collection in SG at this point
-void SensitiveDetectorBase::Gather(){
-  ATH_MSG_ERROR("Should not be called on base class!");
-  throw "ShouldNotBeCalledOnBaseClass";
-}
-
-// Process hits - pure virtual, as all derived classes should (and do) override this
-G4bool SensitiveDetectorBase::ProcessHits(G4Step*,G4TouchableHistory*){
-  ATH_MSG_ERROR("Should not be called on base class!");
-  throw "ShouldNotBeCalledOnBaseClass";
 }
 
 StatusCode
@@ -77,4 +86,29 @@ SensitiveDetectorBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
     return StatusCode::SUCCESS;
   }
   return AlgTool::queryInterface( riid, ppvIf );
+}
+
+G4VSensitiveDetector* SensitiveDetectorBase::getSD()
+{
+#ifdef ATHENAHIVE
+  // Get current thread-ID
+  const auto tid = std::this_thread::get_id();
+  // Retrieve it from the SD map
+  auto sdPair = m_sdThreadMap.find(tid);
+  if(sdPair == m_sdThreadMap.end()) return nullptr;
+  return sdPair->second;
+#else
+  return m_SD;
+#endif
+}
+
+void SensitiveDetectorBase::setSD(G4VSensitiveDetector* sd)
+{
+#ifdef ATHENAHIVE
+  const auto tid = std::this_thread::get_id();
+  ATH_MSG_DEBUG("Creating and registering SD " << sd << " in thread " << tid);
+  m_sdThreadMap.insert( std::make_pair(tid, sd) );
+#else
+  m_SD = sd;
+#endif
 }
