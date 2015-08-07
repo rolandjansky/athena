@@ -39,7 +39,7 @@ public:
 private:
  EMAP m_emap; 
  DIGMAP m_digmap;
- StoreGateSvc* m_storeGateSvc;
+ //StoreGateSvc* m_storeGateSvc;
  int m_ncellem,m_ncellhec,m_ncellfcal;
  const DataHandle<CaloIdManager> m_caloIdMgr;
  const LArEM_ID*   m_larem_id;
