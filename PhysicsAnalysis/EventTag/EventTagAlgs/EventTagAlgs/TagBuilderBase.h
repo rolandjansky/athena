@@ -37,10 +37,10 @@ private:
   void incMaxNumOfBuilder();
   
   // maximum number of builder
-  static int s_maxNumOfBuilder;
+  static int maxNumOfBuilder;
 
   // number of builder to be executed
-  static int s_numOfBuilder;
+  static int numOfBuilder;
 
   // Supported Types
   std::set<std::string> m_supportedTypes;
