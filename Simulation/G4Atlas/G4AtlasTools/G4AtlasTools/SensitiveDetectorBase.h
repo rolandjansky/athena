@@ -8,48 +8,65 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "G4AtlasInterfaces/ISensitiveDetector.h"
-#include "G4VSensitiveDetector.hh"
 
 // Members
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
+#include "G4VSensitiveDetector.hh"
+#ifdef ATHENAHIVE
+#  include "tbb/concurrent_unordered_map.h"
+#endif
 
 // STL library
 #include <string>
 #include <vector>
+#include <thread>
 
-class SensitiveDetectorBase : virtual public ISensitiveDetector , public G4VSensitiveDetector , public AthAlgTool {
+class SensitiveDetectorBase : virtual public ISensitiveDetector , public AthAlgTool {
  public:
-  // Basic constructor and destructor
+  /// Basic constructor and destructor
   SensitiveDetectorBase(const std::string& type, const std::string& name, const IInterface *parent);
   virtual ~SensitiveDetectorBase() {}
 
-  /** Athena method, used to get out the G4 geometry and set up the SDs
-    This naming is horrible, but the G4 method called Initialize is called at the beginning
-    of every event.  This method is the one that is called ONLY by athena at the
-    beginning of the job. */
-  StatusCode initialize() override;
+  /** Used to get out the G4 geometry and set up the SDs.  Separate from the AthAlgTool
+    initialize() method because it might need to be run on several threads in Geant4MT.
+    Note that the G4 method called Initialize is called at the beginning of every G4Event. */
+  StatusCode initializeSD() override;
 
-  /** Just the end of a G4 event.  The collection that is passed, G4HCofThisEvent,
-    is not used in any ATLAS code and should not be #included anywhere (just forward
-    defined).  We always use custom hit collections. */
-  virtual void EndOfEvent(G4HCofThisEvent*) override;
+  /** Beginning of an athena event.  This is where collection initialization should happen.
+    If we are using a WriteHandle, then this could be empty. */
+  virtual StatusCode SetupEvent() override { return StatusCode::SUCCESS; }
 
-  /** End of an athena event - store the hit collection in SG at this point */
-  virtual void Gather() override;
-
-  /** Process hits - all derived classes should (and do) override this.  The inputs
-    are the current step, which is used by every SD to extract position and energy
-    information, as well as particle type and process, and a touchable history, used
-    in some SDs to get a more precise location inside the geometry tree */
-  virtual G4bool ProcessHits(G4Step*,G4TouchableHistory*) override;
+  /** End of an athena event - store the output collection in SG at this point.  If we are
+    using a WriteHandle, then this can be empty! */
+  virtual StatusCode Gather() override { return StatusCode::SUCCESS; }
 
   /** Query interface method to make athena happy */
   virtual StatusCode queryInterface(const InterfaceID&, void**);
 
  protected:
-  std::vector<std::string> m_volumeNames;   ///!< All the volumes to which this SD is assigned
-  AthenaHitsCollectionHelper m_hitCollHelp; ///!< Hit collection helper, used by many SDs for SG interfaces
 
+  /// Retrieve the current SD. In hive, this means the thread-local SD.
+  /// Otherwise, it is simply the single SD.
+  G4VSensitiveDetector* getSD();
+
+  std::vector<std::string> m_volumeNames; ///!< All the volumes to which this SD is assigned
+  std::vector<std::string> m_outputCollectionNames; ///!< Names of all output collections written out by this SD.
+  bool m_noVolumes;                       //!< This SensitiveDetector has no volumes associated with it.
+
+ private:
+
+  /// Set the current SD. In hive, this gets assigned as the thread-local SD
+  void setSD(G4VSensitiveDetector*);
+
+#ifdef ATHENAHIVE
+  /// Thread-to-SD concurrent map type
+  typedef tbb::concurrent_unordered_map < std::thread::id,
+                                          G4VSensitiveDetector*,
+                                          std::hash<std::thread::id> > SDThreadMap_t;
+  /// Concurrent map of SDs, one for each thread
+  SDThreadMap_t m_sdThreadMap;
+#else
+  G4VSensitiveDetector* m_SD;             ///!< The sensitive detector to which this thing corresponds
+#endif
 };
 
 #endif
