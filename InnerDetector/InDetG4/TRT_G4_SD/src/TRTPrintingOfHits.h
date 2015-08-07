@@ -2,16 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef TRT_G4_SD_TRTPrintingOfHits_hh
+#define TRT_G4_SD_TRTPrintingOfHits_hh
 
-#ifndef TRTPrintingOfHits_hh
-#define TRTPrintingOfHits_hh
-
-#include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 
 class TRTUncompressedHit;
 class TRTOutputFile;
-
 
 class TRTPrintingOfHits
 {
@@ -36,4 +33,4 @@ class TRTPrintingOfHits
 
 };
 
-#endif
+#endif //TRT_G4_SD_TRTPrintingOfHits_hh
