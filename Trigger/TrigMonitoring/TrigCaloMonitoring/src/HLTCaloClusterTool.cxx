@@ -35,7 +35,7 @@ HLTCaloClusterTool::~HLTCaloClusterTool() {
 }
 
 StatusCode HLTCaloClusterTool::init() {
-   (*m_log) << MSG::DEBUG << "Initializing" << endmsg;
+   (*m_log) << MSG::DEBUG << "Initializing" << endreq;
    return StatusCode::SUCCESS;
 
 }
@@ -117,7 +117,7 @@ StatusCode HLTCaloClusterTool::book(bool newEventsBlock, bool newLumiBlock, bool
    }else if ( newEventsBlock || newLumiBlock ){
      return StatusCode::SUCCESS;
    }
-   msg(MSG::DEBUG)<< "End of book" << endmsg;
+   msg(MSG::DEBUG)<< "End of book" << endreq;
    return StatusCode::SUCCESS;
 }
 
@@ -135,13 +135,13 @@ StatusCode HLTCaloClusterTool::fill() {
    //Offline
    const xAOD::PhotonContainer* caloOFF = 0;
    if( (evtStore()->retrieve(caloOFF, m_CaloClusterOfflineContainerName)).isFailure() ) {
-      msg(MSG::DEBUG)<< "No Offline Calo Cluster Container found"<< endmsg;
+      msg(MSG::DEBUG)<< "No Offline Calo Cluster Container found"<< endreq;
       return StatusCode::SUCCESS;
    }
    xAOD::PhotonContainer::const_iterator OFFbeg;
    xAOD::PhotonContainer::const_iterator OFFend;
 
-   if(caloOFF->size()!=0) msg(MSG::DEBUG)<< "Got Offline Cluster Container Size:  "<<caloOFF->size()<< endmsg;
+   if(caloOFF->size()!=0) msg(MSG::DEBUG)<< "Got Offline Cluster Container Size:  "<<caloOFF->size()<< endreq;
 
 
    hist("NOffCluster")->Fill(caloOFF->size());
@@ -160,14 +160,14 @@ StatusCode HLTCaloClusterTool::fill() {
 
          const xAOD::TrigEMClusterContainer* EMColl = 0;
          if( (evtStore()->retrieve(EMColl, m_CaloClusterL2ContainerName)).isFailure() ) {
-            msg(MSG::DEBUG)<< "No TrigT2CaloEgamma Cluster Container found"<< endmsg;
+            msg(MSG::DEBUG)<< "No TrigT2CaloEgamma Cluster Container found"<< endreq;
             return StatusCode::SUCCESS;
          }
 
 
          hist(("NOnCluster"+(*ii)).c_str())->Fill(EMColl->size());
          if ( EMColl->size()==0 || caloOFF->size()==0 ){
-            msg(MSG::DEBUG)<< "Not possible to perform comparison" << endmsg;
+            msg(MSG::DEBUG)<< "Not possible to perform comparison" << endreq;
             continue;
          }
 
@@ -206,9 +206,9 @@ StatusCode HLTCaloClusterTool::fill() {
             if((*OFFbeg)->caloCluster()->et()>m_L2EtCut){
                if (deltaPhi((*MatchEM)->phi(),(*OFFbeg)->caloCluster()->phi())>3.1){
                   if ( msglevel <= MSG::DEBUG ){
-                     msg(MSG::DEBUG)<< "The Online Cluster Et:  "<< (*MatchEM)->et()  << "  eta:  " << (*MatchEM)->eta()  <<  "  phi:  " << (*MatchEM)->phi() << endmsg;	
-                     msg(MSG::DEBUG)<< "The Offline Cluster Et:  "<< (*OFFbeg)->caloCluster()->et()  << "  eta:  " << (*OFFbeg)->caloCluster()->eta()  <<  "  phi:  " << (*OFFbeg)->caloCluster()->phi() << endmsg;	
-                     msg(MSG::DEBUG)<< "Offline Cluster Container Size:  "<<caloOFF->size()<< "Online Cluster Container Size:  "<<EMColl->size()<< endmsg;
+                     msg(MSG::DEBUG)<< "The Online Cluster Et:  "<< (*MatchEM)->et()  << "  eta:  " << (*MatchEM)->eta()  <<  "  phi:  " << (*MatchEM)->phi() << endreq;	
+                     msg(MSG::DEBUG)<< "The Offline Cluster Et:  "<< (*OFFbeg)->caloCluster()->et()  << "  eta:  " << (*OFFbeg)->caloCluster()->eta()  <<  "  phi:  " << (*OFFbeg)->caloCluster()->phi() << endreq;	
+                     msg(MSG::DEBUG)<< "Offline Cluster Container Size:  "<<caloOFF->size()<< "Online Cluster Container Size:  "<<EMColl->size()<< endreq;
                   }
                }
 
@@ -253,10 +253,10 @@ StatusCode HLTCaloClusterTool::fill() {
                   hist2(("RetaOnOff"+(*ii)).c_str())->Fill(RetaOn,RetaOff);
                   hist2(("RstripOnOff"+(*ii)).c_str())->Fill(RstripOn,RstripOff);
 
-                  msg(MSG::DEBUG)<< "RetaOnline:  "<<RetaOn<< endmsg;
-                  msg(MSG::DEBUG)<< "RstripOnline:  "<<RstripOn<< endmsg;
-                  msg(MSG::DEBUG)<< "RetaOffline:  "<<RetaOff<< endmsg;
-                  msg(MSG::DEBUG)<< "RstripOffline:  "<<RstripOff<< endmsg;
+                  msg(MSG::DEBUG)<< "RetaOnline:  "<<RetaOn<< endreq;
+                  msg(MSG::DEBUG)<< "RstripOnline:  "<<RstripOn<< endreq;
+                  msg(MSG::DEBUG)<< "RetaOffline:  "<<RetaOff<< endreq;
+                  msg(MSG::DEBUG)<< "RstripOffline:  "<<RstripOff<< endreq;
                }
                if((*MatchEM)->et()/(*OFFbeg)->caloCluster()->et()<0.7||(*MatchEM)->et()/(*OFFbeg)->caloCluster()->et()>1.3) hist2(("etaphiDifferent"+(*ii)).c_str())->Fill((*MatchEM)->eta(),(*MatchEM)->phi());
                if (m_ntuple) ((TNtuple*)tree("Details"))->Fill((*MatchEM)->et(),(*MatchEM)->eta(),(*MatchEM)->phi(),(*OFFbeg)->caloCluster()->et(),(*OFFbeg)->caloCluster()->eta(),(*OFFbeg)->caloCluster()->phi() ); 
@@ -280,7 +280,7 @@ StatusCode HLTCaloClusterTool::fill() {
       if((*ii).compare("EgammaEF")==0){
          const xAOD::PhotonContainer* caloON = 0;
          if( (evtStore()->retrieve(caloON, m_CaloClusterEFContainerName)).isFailure()) {
-            msg(MSG::DEBUG)<< "No Online Calo Cluster Container found"<< endmsg;
+            msg(MSG::DEBUG)<< "No Online Calo Cluster Container found"<< endreq;
             return StatusCode::SUCCESS;
          }
 
@@ -291,7 +291,7 @@ StatusCode HLTCaloClusterTool::fill() {
          hist(("NOnCluster"+(*ii)).c_str())->Fill(caloON->size());
 
          if ( caloON->size()==0 || caloOFF->size()==0 ){
-            msg(MSG::DEBUG)<< "Not possible to perform comparison" << endmsg;
+            msg(MSG::DEBUG)<< "Not possible to perform comparison" << endreq;
             continue;
          }
          xAOD::PhotonContainer::const_iterator ONbeg = caloON->begin();
@@ -333,9 +333,9 @@ StatusCode HLTCaloClusterTool::fill() {
             if((*OFFbeg)->caloCluster()->et()>m_EFEtCut){
                if (deltaPhi((*Match)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->phi())>3.1){
                   if ( msglevel <= MSG::DEBUG ){
-                     msg(MSG::DEBUG)<< "The Online Cluster Et:  "<< (*Match)->caloCluster()->et()  << "  eta:  " << (*Match)->caloCluster()->eta()  <<  "  phi:  " << (*Match)->caloCluster()->phi() << endmsg;	
-                     msg(MSG::DEBUG)<< "The Offline Cluster Et:  "<< (*OFFbeg)->caloCluster()->et()  << "  eta:  " << (*OFFbeg)->caloCluster()->eta()  <<  "  phi:  " << (*OFFbeg)->caloCluster()->phi() << endmsg;	
-                     msg(MSG::DEBUG)<< "Offline Cluster Container Size:  "<<caloOFF->size()<< "Online Cluster Container Size:  "<<caloON->size()<< endmsg;
+                     msg(MSG::DEBUG)<< "The Online Cluster Et:  "<< (*Match)->caloCluster()->et()  << "  eta:  " << (*Match)->caloCluster()->eta()  <<  "  phi:  " << (*Match)->caloCluster()->phi() << endreq;	
+                     msg(MSG::DEBUG)<< "The Offline Cluster Et:  "<< (*OFFbeg)->caloCluster()->et()  << "  eta:  " << (*OFFbeg)->caloCluster()->eta()  <<  "  phi:  " << (*OFFbeg)->caloCluster()->phi() << endreq;	
+                     msg(MSG::DEBUG)<< "Offline Cluster Container Size:  "<<caloOFF->size()<< "Online Cluster Container Size:  "<<caloON->size()<< endreq;
                   }
                }
 
@@ -410,10 +410,10 @@ StatusCode HLTCaloClusterTool::fill() {
                   hist2(("RetaOnOff"+(*ii)).c_str())->Fill(RetaOn,RetaOff);
                   hist2(("RstripOnOff"+(*ii)).c_str())->Fill(RstripOn,RstripOff);
 
-                  msg(MSG::DEBUG)<< "RetaOnline:  "<<RetaOn<< endmsg;
-                  msg(MSG::DEBUG)<< "RstripOnline:  "<<RstripOn<< endmsg;
-                  msg(MSG::DEBUG)<< "RetaOffline:  "<<RetaOff<< endmsg;
-                  msg(MSG::DEBUG)<< "RstripOffline:  "<<RstripOff<< endmsg;
+                  msg(MSG::DEBUG)<< "RetaOnline:  "<<RetaOn<< endreq;
+                  msg(MSG::DEBUG)<< "RstripOnline:  "<<RstripOn<< endreq;
+                  msg(MSG::DEBUG)<< "RetaOffline:  "<<RetaOff<< endreq;
+                  msg(MSG::DEBUG)<< "RstripOffline:  "<<RstripOff<< endreq;
 
                }
                if((*Match)->caloCluster()->et()/(*OFFbeg)->caloCluster()->et()<0.7||(*Match)->caloCluster()->et()/(*OFFbeg)->caloCluster()->et()>1.3) hist2(("etaphiDifferent"+(*ii)).c_str())->Fill((*Match)->caloCluster()->eta(),(*Match)->caloCluster()->phi());

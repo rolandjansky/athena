@@ -12,8 +12,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArCablingService.h"
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -52,49 +50,49 @@ HLTCaloFEBTool::~HLTCaloFEBTool() {
 
 StatusCode HLTCaloFEBTool::init() {
 	if ( m_log->level() <= MSG::DEBUG )
-	(*m_log) << MSG::DEBUG << "Initializing" << endmsg;
+	(*m_log) << MSG::DEBUG << "Initializing" << endreq;
 
 	if ( m_tcrAlgTools.retrieve().isFailure() ) {
-    		(*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endmsg;
+    		(*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endreq;
 		return StatusCode::FAILURE;
 	} else {
 	     if ( m_log->level() <= MSG::DEBUG )
-		(*m_log) << MSG::DEBUG << "Retrieved " << m_tcrAlgTools << endmsg;
+		(*m_log) << MSG::DEBUG << "Retrieved " << m_tcrAlgTools << endreq;
 	}
 	if ( m_cablingSvc.retrieve().isFailure() ) {
-                 (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_cablingSvc << endmsg;
+                 (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_cablingSvc << endreq;
                  return StatusCode::FAILURE;
         } else {
-                 (*m_log) << MSG::INFO << "Retrieved " << m_cablingSvc << endmsg;
+                 (*m_log) << MSG::INFO << "Retrieved " << m_cablingSvc << endreq;
         }
 
         ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
         if ( detStore.retrieve().isFailure() ) {
-               (*m_log) << MSG::ERROR << "Unable to retrieve DetectorStore" << endmsg;
+               (*m_log) << MSG::ERROR << "Unable to retrieve DetectorStore" << endreq;
                 return StatusCode::FAILURE;
         }
         const LArIdManager* larMgr;
         if ( (detStore->retrieve(larMgr)).isFailure() ) {
-                (*m_log) << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
+                (*m_log) << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
                 return StatusCode::FAILURE;
         } else {
 	     if ( m_log->level() <= MSG::DEBUG )
-                (*m_log) << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
+                (*m_log) << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
         }
         m_onlineHelper = larMgr->getOnlineID();
         if (!m_onlineHelper) {
-                (*m_log) << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
+                (*m_log) << MSG::ERROR << "Could not access LArOnlineID helper" << endreq;
                 return StatusCode::FAILURE;
         } else {
 	  if ( m_log->level() <= MSG::DEBUG )
-             (*m_log) << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
+             (*m_log) << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endreq;
         }
 
         if ( toolSvc()->retrieveTool("TrigDataAccess",m_data).isFailure() ){
-                (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_data << endmsg;
+                (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_data << endreq;
                 return StatusCode::FAILURE;
         } else {
-                (*m_log) << MSG::INFO << "Retrieved " << m_data << endmsg;
+                (*m_log) << MSG::INFO << "Retrieved " << m_data << endreq;
         }
 
 	return StatusCode::SUCCESS;
@@ -193,7 +191,7 @@ StatusCode HLTCaloFEBTool::book(bool newEventsBlock, bool newLumiBlock, bool new
   }
 
   if ( m_log->level() <= MSG::DEBUG )
-      (*m_log) << MSG::DEBUG << "End of book" << endmsg;
+      (*m_log) << MSG::DEBUG << "End of book" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -203,13 +201,13 @@ StatusCode HLTCaloFEBTool::fill() {
 	if ( m_storeGate->retrieve(AllCalo,"AllCalo").isFailure() ){
   	     if ( m_log->level() <= MSG::DEBUG )
 		(*m_log) << MSG::DEBUG << "No Calo Cell Container found"
-                        << endmsg;
+                        << endreq;
 		return StatusCode::SUCCESS;
 	}
 #ifndef NDEBUG
   	if ( m_log->level() <= MSG::DEBUG ){
 	   (*m_log) << MSG::DEBUG << "Got container "; 
-	   (*m_log) << "Size : " << AllCalo->size() << endmsg;
+	   (*m_log) << "Size : " << AllCalo->size() << endreq;
 	}
 #endif
 
@@ -224,7 +222,7 @@ StatusCode HLTCaloFEBTool::fill() {
 
 #ifndef NDEBUG
         (*m_log) << MSG::VERBOSE << "Tool name : "
-                << (*itrtcr).name() << endmsg;
+                << (*itrtcr).name() << endreq;
 #endif
         phimin=-M_PI;
         phimax=M_PI;
@@ -243,7 +241,7 @@ StatusCode HLTCaloFEBTool::fill() {
         }
         if ( sc.isFailure() ) {
                 (*m_log) << MSG::ERROR << "Problem with filling the cont"
-                        << endmsg;
+                        << endreq;
         }
         } // End of loop over tools
 
@@ -305,7 +303,7 @@ StatusCode HLTCaloFEBTool::fill() {
 					 << et << " "
 					 << ex << " "
 					 << ey << " "
-					 << ez << endmsg;
+					 << ez << endreq;
 				    }
 				}
 #endif
@@ -314,7 +312,7 @@ StatusCode HLTCaloFEBTool::fill() {
 #ifndef NDEBUG
   				        if ( m_log->level() <= MSG::VERBOSE ){
 					     (*m_log) << MSG::VERBOSE << "filling created FEB " 
-					         << "with size = " << larfebmap.size() << endmsg;
+					         << "with size = " << larfebmap.size() << endreq;
 				        }
 #endif
 					LArFebEnergy* larfebenergy =
@@ -324,9 +322,9 @@ StatusCode HLTCaloFEBTool::fill() {
 					double tmpez = larfebenergy->getFebEz();
 #ifndef NDEBUG
   				        if ( m_log->level() <= MSG::VERBOSE ){
-					  (*m_log) << MSG::VERBOSE << "current ex = " << tmpex << endmsg;
-					  (*m_log) << MSG::VERBOSE << "current ey = " << tmpey << endmsg;
-					  (*m_log) << MSG::VERBOSE << "current ez = " << tmpez << endmsg;
+					  (*m_log) << MSG::VERBOSE << "current ex = " << tmpex << endreq;
+					  (*m_log) << MSG::VERBOSE << "current ey = " << tmpey << endreq;
+					  (*m_log) << MSG::VERBOSE << "current ez = " << tmpez << endreq;
 					}
 #endif
 					larfebenergy->setFebEx(
@@ -480,8 +478,8 @@ StatusCode HLTCaloFEBTool::fill() {
 #ifndef NDEBUG
         if ( m_log->level() <= MSG::DEBUG ){
 		(*m_log) << MSG::DEBUG << " Number of Offline FEBs : "
-		    << larfebmap.size() << endmsg;
-		(*m_log) << MSG::DEBUG << "COMPARISON " << endmsg;
+		    << larfebmap.size() << endreq;
+		(*m_log) << MSG::DEBUG << "COMPARISON " << endreq;
 	}
 #endif
 	//LArFebEnergyCollection m_larfebcol;
@@ -496,7 +494,7 @@ StatusCode HLTCaloFEBTool::fill() {
         if(m_useloadfullcoll){
           if(m_data->LoadFullCollections(tbegin,tend,TTEM,prepare).isFailure()){
              (*m_log) << MSG::ERROR << "Problems reading LoadFullCollection"
-                    << endmsg;
+                    << endreq;
 		return StatusCode::FAILURE;
           }
         } else {
@@ -509,7 +507,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator titem0,tbeginem0,tendem0;
 	if ( m_data->LoadCollections(tbegin,tend,0).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
         //LArFebEnergy *feb = new LArFebEnergy();
@@ -520,10 +518,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-              	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB ID = " << feb.getFebId() << endmsg;
-             	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ex = " << feb.getFebEx() << endmsg;
-        	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ey = " << feb.getFebEy() << endmsg;
-	                (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ez = " << feb.getFebEz() << endmsg;
+              	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB ID = " << feb.getFebId() << endreq;
+             	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ex = " << feb.getFebEx() << endreq;
+        	        (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ey = " << feb.getFebEy() << endreq;
+	                (*m_log) << MSG::VERBOSE << "TTEM 0 FEB Ez = " << feb.getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_em.push_back(feb);
@@ -533,7 +531,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator tendem1;
 	if ( m_data->LoadCollections(tbegin,tend,1).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
@@ -544,10 +542,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 1 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_em.push_back(feb);
@@ -556,7 +554,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator titem2,tbeginem2,tendem2;
 	if ( m_data->LoadCollections(tbegin,tend,2).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for( LArFebEnergyCollection::const_iterator tit= tbegin; tit!=tend; ++tit) {
@@ -567,10 +565,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 2 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_em.push_back(feb);
@@ -579,7 +577,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator titem3,tbeginem3,tendem3;
 	if ( m_data->LoadCollections(tbegin,tend,3).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator  tit= tbegin; tit!=tend; ++tit) {
@@ -589,10 +587,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTEM 3 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_em.push_back(feb);
@@ -601,7 +599,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator tithec0,tbeginhec0,tendhec0;
 	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator  tit = tbegin; tit!=tend; ++tit) {
@@ -611,10 +609,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "TTHEC 0 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		//m_larfebcol.push_back(feb);
@@ -623,7 +621,7 @@ StatusCode HLTCaloFEBTool::fill() {
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, FCALHAD);
 	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
@@ -633,10 +631,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 0 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_fcal.push_back(feb);
@@ -644,7 +642,7 @@ StatusCode HLTCaloFEBTool::fill() {
         m_data->RegionSelector(1,etamin,etamax,phimin,phimax, FCALHAD);
 	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
@@ -654,10 +652,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALHAD 1 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_fcal.push_back(feb);
@@ -665,7 +663,7 @@ StatusCode HLTCaloFEBTool::fill() {
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, FCALEM);
 	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
-			<< endmsg;
+			<< endreq;
 		return StatusCode::FAILURE;
 	}
 	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
@@ -675,10 +673,10 @@ StatusCode HLTCaloFEBTool::fill() {
                 feb->setFebEz((*tit)->getFebEz());*/
 #ifndef NDEBUG
         	if ( m_log->level() <= MSG::VERBOSE ){
-                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB ID = " << (*tit)->getFebId() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ex = " << (*tit)->getFebEx() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ey = " << (*tit)->getFebEy() << endmsg;
-                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ez = " << (*tit)->getFebEz() << endmsg;
+                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB ID = " << (*tit)->getFebId() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ex = " << (*tit)->getFebEx() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ey = " << (*tit)->getFebEy() << endreq;
+                	(*m_log) << MSG::VERBOSE << "FCALEM 0 FEB Ez = " << (*tit)->getFebEz() << endreq;
 		}
 #endif
 		m_larfebcol_fcal.push_back(feb);
@@ -695,27 +693,27 @@ StatusCode HLTCaloFEBTool::fill() {
         double offlinehecy = 0;
         double offlinehecz = 0;
        	if ( m_log->level() <= MSG::DEBUG )
-	(*m_log) << MSG::DEBUG << "Compare FEBs in HEC" << endmsg;
+	(*m_log) << MSG::DEBUG << "Compare FEBs in HEC" << endreq;
         doComparison(m_larfebcol_hec,&larfebmap_hec,counthec,counthec_not_found,countphec,totalhec,totalhecx,totalhecy,totalhecz, offlinehecx,offlinehecy,offlinehecz);
         hist("NHECLArFEBs")->Fill(counthec);
         hist("NHECBadLArFEBs")->Fill(countphec);
 #ifndef NDEBUG
        	if ( m_log->level() <= MSG::DEBUG ){
             float tothecene = sqrt(pow(totalhecx,2) + pow(totalhecy,2) + pow(totalhecz,2));
-	    (*m_log) << MSG::DEBUG << "HLT HEC FEBs found : " << counthec << endmsg;
-	    (*m_log) << "HEC FEBs not found : " << counthec_not_found << endmsg;
-	    (*m_log) << "HEC FEBs with problems : " << countphec << endmsg;
-	    (*m_log) << "HEC FEBs using difflimit  : " << m_difflimit << endmsg;
+	    (*m_log) << MSG::DEBUG << "HLT HEC FEBs found : " << counthec << endreq;
+	    (*m_log) << "HEC FEBs not found : " << counthec_not_found << endreq;
+	    (*m_log) << "HEC FEBs with problems : " << countphec << endreq;
+	    (*m_log) << "HEC FEBs using difflimit  : " << m_difflimit << endreq;
 
 	    (*m_log) << MSG::DEBUG << "HEC HLT FEB total energy = " << tothecene;
 	    (*m_log) << MSG::DEBUG << "; HEC HLT FEB total energy x = " << totalhecx;
 	    (*m_log) << MSG::DEBUG << "; HEC HLT FEB total energy y = " << totalhecy;
-	    (*m_log) << MSG::DEBUG << "; HEC HLT FEB total energy z = " << totalhecz << endmsg;
+	    (*m_log) << MSG::DEBUG << "; HEC HLT FEB total energy z = " << totalhecz << endreq;
             float offlinehecene = sqrt(offlinehecx*offlinehecx + offlinehecy*offlinehecy + offlinehecz*offlinehecz);
 	    (*m_log) << MSG::DEBUG << "HEC offline FEB total energy = " << offlinehecene;
 	    (*m_log) << MSG::DEBUG << "; HEC offline FEB total energy x = " << offlinehecx;
 	    (*m_log) << MSG::DEBUG << "; HEC offline FEB total energy y = " << offlinehecy;
-	    (*m_log) << MSG::DEBUG << "; HEC offline FEB total energy z = " << offlinehecz << endmsg;
+	    (*m_log) << MSG::DEBUG << "; HEC offline FEB total energy z = " << offlinehecz << endreq;
 	}
 #endif
 // now do EM 
@@ -730,26 +728,26 @@ StatusCode HLTCaloFEBTool::fill() {
         double offlineemy = 0;
         double offlineemz = 0;
        	if ( m_log->level() <= MSG::DEBUG )
-	(*m_log) << MSG::DEBUG << "Compare FEBs in EM " << endmsg;
+	(*m_log) << MSG::DEBUG << "Compare FEBs in EM " << endreq;
         doComparison(m_larfebcol_em,&larfebmap_em,countem,countem_not_found,countpem,totalem,totalemx,totalemy,totalemz,offlineemx,offlineemy,offlineemz);
         hist("NEMLArFEBs")->Fill(countem);
         hist("NEMBadLArFEBs")->Fill(countpem);
 #ifndef NDEBUG
        	if ( m_log->level() <= MSG::DEBUG ){
            float totemene = sqrt(pow(totalemx,2) + pow(totalemy,2) + pow(totalemz,2));
-	   (*m_log) << MSG::DEBUG << "HLT EM FEBs found : " << countem << endmsg;
-	   (*m_log) << "EM FEBs not found : " << countem_not_found << endmsg;
-	   (*m_log) << "EM FEBs with problems : " << countpem << endmsg;
-	   (*m_log) << "EM FEBs using difflimit  : " << m_difflimit << endmsg;
+	   (*m_log) << MSG::DEBUG << "HLT EM FEBs found : " << countem << endreq;
+	   (*m_log) << "EM FEBs not found : " << countem_not_found << endreq;
+	   (*m_log) << "EM FEBs with problems : " << countpem << endreq;
+	   (*m_log) << "EM FEBs using difflimit  : " << m_difflimit << endreq;
 	   (*m_log) << MSG::DEBUG << "EM HLT FEB total energy = " << totemene;
 	   (*m_log) << MSG::DEBUG << "; EM HLT FEB total energy x = " << totalemx;
 	   (*m_log) << MSG::DEBUG << "; EM HLT FEB total energy y = " << totalemy;
-	   (*m_log) << MSG::DEBUG << "; EM HLT FEB total energy z = " << totalemz << endmsg;
+	   (*m_log) << MSG::DEBUG << "; EM HLT FEB total energy z = " << totalemz << endreq;
            float offlineemene = sqrt(offlineemx*offlineemx + offlineemy*offlineemy + offlineemz*offlineemz);
 	   (*m_log) << MSG::DEBUG << "EM offline FEB total energy = " << offlineemene;
 	   (*m_log) << MSG::DEBUG << "; EM offline FEB total energy x = " << offlineemx;
 	   (*m_log) << MSG::DEBUG << "; EM offline FEB total energy y = " << offlineemy;
-	   (*m_log) << MSG::DEBUG << "; EM offline FEB total energy z = " << offlineemz << endmsg;
+	   (*m_log) << MSG::DEBUG << "; EM offline FEB total energy z = " << offlineemz << endreq;
 	}
 #endif
         
@@ -765,26 +763,26 @@ StatusCode HLTCaloFEBTool::fill() {
         double offlinefcaly = 0;
         double offlinefcalz = 0;
        	if ( m_log->level() <= MSG::DEBUG )
-	  (*m_log) << MSG::DEBUG << "Compare FEBs in FCAL " << endmsg;
+	  (*m_log) << MSG::DEBUG << "Compare FEBs in FCAL " << endreq;
         doComparison(m_larfebcol_fcal,&larfebmap_fcal,countfcal,countfcal_not_found,countpfcal,totalfcal,totalfcalx,totalfcaly,totalfcalz,offlinefcalx,offlinefcaly,offlinefcalz);
         hist("NFCALLArFEBs")->Fill(countfcal);
         hist("NFCALBadLArFEBs")->Fill(countpfcal);
 #ifndef NDEBUG
        	if ( m_log->level() <= MSG::DEBUG ){
            float totfcalene = sqrt(pow(totalfcalx,2) + pow(totalfcaly,2) + pow(totalfcalz,2));
-	   (*m_log) << MSG::DEBUG << "HLT FCAL FEBs found : " << countfcal << endmsg;
-	   (*m_log) << "FCAL FEBs not found : " << countfcal_not_found << endmsg;
-	   (*m_log) << "FCAL FEBs with problems : " << countpfcal << endmsg;
-	   (*m_log) << "FCAL FEBs using difflimit  : " << m_difflimit << endmsg;
+	   (*m_log) << MSG::DEBUG << "HLT FCAL FEBs found : " << countfcal << endreq;
+	   (*m_log) << "FCAL FEBs not found : " << countfcal_not_found << endreq;
+	   (*m_log) << "FCAL FEBs with problems : " << countpfcal << endreq;
+	   (*m_log) << "FCAL FEBs using difflimit  : " << m_difflimit << endreq;
 	   (*m_log) << MSG::DEBUG << "FCAL HLT FEB total energy = " << totfcalene;
 	   (*m_log) << MSG::DEBUG << "; FCAL HLT FEB total energy x = " << totalfcalx;
 	   (*m_log) << MSG::DEBUG << "; FCAL HLT FEB total energy y = " << totalfcaly;
-	   (*m_log) << MSG::DEBUG << "; FCAL HLT FEB total energy z = " << totalfcalz << endmsg;
+	   (*m_log) << MSG::DEBUG << "; FCAL HLT FEB total energy z = " << totalfcalz << endreq;
            float offlinefcalene = sqrt(offlinefcalx*offlinefcalx + offlinefcaly*offlinefcaly + offlinefcalz*offlinefcalz);
 	   (*m_log) << MSG::DEBUG << "FCAL offline FEB total energy = " << offlinefcalene;
 	   (*m_log) << MSG::DEBUG << "; FCAL offline FEB total energy x = " << offlinefcalx;
 	   (*m_log) << MSG::DEBUG << "; FCAL offline FEB total energy y = " << offlinefcaly;
-	   (*m_log) << MSG::DEBUG << "; FCAL offline FEB total energy z = " << offlinefcalz << endmsg;
+	   (*m_log) << MSG::DEBUG << "; FCAL offline FEB total energy z = " << offlinefcalz << endreq;
 	}
 #endif
         
@@ -799,10 +797,10 @@ StatusCode HLTCaloFEBTool::fill() {
 		   (*m_log) << MSG::VERBOSE << std::hex;
 		   (*m_log) << MSG::VERBOSE << larfebenergy.getFebId() << " ";
 		   (*m_log) << MSG::VERBOSE << std::dec;
-		   (*m_log) << MSG::VERBOSE << endmsg;
+		   (*m_log) << MSG::VERBOSE << endreq;
 		   (*m_log) << MSG::VERBOSE << "FEB from cell ex = " << larfebenergy.getFebEx();
 		   (*m_log) << MSG::VERBOSE << "FEB from cell ey = " << larfebenergy.getFebEy();
-		   (*m_log) << MSG::VERBOSE << "FEB from cell ez = " << larfebenergy.getFebEz() << endmsg;
+		   (*m_log) << MSG::VERBOSE << "FEB from cell ez = " << larfebenergy.getFebEz() << endreq;
 		}
                 febcellx += larfebenergy.getFebEx();
                 febcelly += larfebenergy.getFebEy();
@@ -815,7 +813,7 @@ StatusCode HLTCaloFEBTool::fill() {
           (*m_log) << MSG::DEBUG << "FEB from cell total ene = " << febcelltot;
           (*m_log) << MSG::DEBUG << "; FEB from cell Ex = " << febcellx;
           (*m_log) << MSG::DEBUG << "; FEB from cell Ey = " << febcelly;
-          (*m_log) << MSG::DEBUG << "; FEB from cell Ez = " << febcellz << endmsg;
+          (*m_log) << MSG::DEBUG << "; FEB from cell Ez = " << febcellz << endreq;
 	}
 
 #endif
@@ -858,7 +856,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                    (*m_log) << MSG::VERBOSE << "validation FEB ID = " << std::hex << (*tit)->getFebId() << std::dec ;
                    (*m_log) << MSG::VERBOSE << "FEB Ex = " << ex;
                    (*m_log) << MSG::VERBOSE << "FEB Ey = " << ey;
-                   (*m_log) << MSG::VERBOSE << "FEB Ez = " << ez << endmsg;
+                   (*m_log) << MSG::VERBOSE << "FEB Ez = " << ez << endreq;
 #endif
                 }
 		bool found = false;
@@ -931,15 +929,15 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                     (*m_log) << "Offline sigma Ex " << offFebSEx << " ";
                                     (*m_log) << "Offline sigma Ey " << offFebSEy << " ";
                                     (*m_log) << "Offline sigma Ez " << offFebSEz << " ";
-                                    (*m_log) << endmsg;
+                                    (*m_log) << endreq;
 				}
 //#endif
                                 if(febidshort == 0x38) {
 #ifndef NDEBUG
 				    if ( m_log->level() <= MSG::VERBOSE ) {
-                                       (*m_log) << MSG::VERBOSE << "This is in the C-side EM barrel" << endmsg;
-                                       (*m_log) << MSG::VERBOSE << "febeta = " << febeta << endmsg;
-                                       (*m_log) << MSG::VERBOSE << "febphi = " << febphi << endmsg;
+                                       (*m_log) << MSG::VERBOSE << "This is in the C-side EM barrel" << endreq;
+                                       (*m_log) << MSG::VERBOSE << "febeta = " << febeta << endreq;
+                                       (*m_log) << MSG::VERBOSE << "febphi = " << febphi << endreq;
 				    }
 #endif
                                     hist2("etaphiEMBCFEBLAr")->Fill(febeta,febphi);
@@ -955,9 +953,9 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                 else if(febidshort == 0x39){
 #ifndef NDEBUG
 				   if ( m_log->level() <= MSG::VERBOSE ) {
-                                      (*m_log) << MSG::VERBOSE << "This is in the A-side EM barrel" << endmsg;
-                                      (*m_log) << MSG::VERBOSE << "febeta = " << febeta << endmsg;
-                                      (*m_log) << MSG::VERBOSE << "febphi = " << febphi << endmsg;
+                                      (*m_log) << MSG::VERBOSE << "This is in the A-side EM barrel" << endreq;
+                                      (*m_log) << MSG::VERBOSE << "febeta = " << febeta << endreq;
+                                      (*m_log) << MSG::VERBOSE << "febphi = " << febphi << endreq;
 				   }
 #endif
                                    hist2("etaphiEMBAFEBLAr")->Fill(febeta,febphi);
@@ -988,7 +986,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      case 0x3a370000:
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                          (*m_log) << MSG::VERBOSE << "This is in the C-side fcal" << endmsg;
+                                          (*m_log) << MSG::VERBOSE << "This is in the C-side fcal" << endreq;
 #endif
                                         hist2("etaphiFCALCFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaFCALCFEBLAr")->Fill(febeta-offFebEta);
@@ -1026,7 +1024,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      case 0x3a848000:
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                          (*m_log) << MSG::VERBOSE << "This is in the C-side HEC " << endmsg;
+                                          (*m_log) << MSG::VERBOSE << "This is in the C-side HEC " << endreq;
 #endif
                                         hist2("etaphiHECCFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaHECCFEBLAr")->Fill(febeta-offFebEta);
@@ -1041,7 +1039,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      default: 
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                           (*m_log) << MSG::VERBOSE << "This is in the C-side EMC" << endmsg;
+                                           (*m_log) << MSG::VERBOSE << "This is in the C-side EMC" << endreq;
 #endif
                                         hist2("etaphiEMCCFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaEMCCFEBLAr")->Fill(febeta-offFebEta);
@@ -1072,7 +1070,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      case 0x3b370000:
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                           (*m_log) << MSG::VERBOSE << "This is in the A-side fcal" << endmsg;
+                                           (*m_log) << MSG::VERBOSE << "This is in the A-side fcal" << endreq;
 #endif
                                         hist2("etaphiFCALAFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaFCALAFEBLAr")->Fill(febeta-offFebEta);
@@ -1110,7 +1108,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      case 0x3b848000:
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                            (*m_log) << MSG::VERBOSE << "This is in the A-side HEC " << endmsg;
+                                            (*m_log) << MSG::VERBOSE << "This is in the A-side HEC " << endreq;
 #endif
                                         hist2("etaphiHECAFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaHECAFEBLAr")->Fill(febeta-offFebEta);
@@ -1125,7 +1123,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                                      default: 
 #ifndef NDEBUG
 				        if ( m_log->level() <= MSG::VERBOSE ) 
-                                           (*m_log) << MSG::VERBOSE << "This is in the A-side EMC" << endmsg;
+                                           (*m_log) << MSG::VERBOSE << "This is in the A-side EMC" << endreq;
 #endif
                                         hist2("etaphiEMCAFEBLAr")->Fill(febeta,febphi);
                                         //hist("deltaetaEMCAFEBLAr")->Fill(febeta-offFebEta);
