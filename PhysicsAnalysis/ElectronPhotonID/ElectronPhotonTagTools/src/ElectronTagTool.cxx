@@ -40,6 +40,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   m_loose_cut_based(""),
   m_medium_cut_based(""),
   m_tight_cut_based(""),
+  m_veryloose_likelihood(""),
   m_loose_likelihood(""),
   m_medium_likelihood(""),
   m_tight_likelihood(""),
@@ -63,6 +64,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   declareProperty("PtconeIsoCutValues",m_ptconeisocutvalues, "Cut values for ptcone isolation");
 
   /** Electron Likelihood ID Tool name */
+  declareProperty("VeryLooseLHSelector",    m_veryloose_likelihood);
   declareProperty("LooseLHSelector",    m_loose_likelihood);
   declareProperty("MediumLHSelector",    m_medium_likelihood);
   declareProperty("TightLHSelector",    m_tight_likelihood);
@@ -76,8 +78,8 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   declareProperty("LooseTrackOnlyIsolation",m_loose_trackonly_isolation);
   declareProperty("LooseIsolation",         m_loose_isolation);
   declareProperty("TightIsolation",         m_tight_isolation);
-  declareProperty("GradientLooseIsolation", m_gradient_isolation);
-  declareProperty("GradientIsolation",      m_gradient_loose_isolation);
+  declareProperty("GradientLooseIsolation", m_gradient_loose_isolation);
+  declareProperty("GradientIsolation",      m_gradient_isolation);
 
   declareInterface<ElectronTagTool>( this );
 }
@@ -86,6 +88,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
 StatusCode  ElectronTagTool::initialize() {
   ATH_MSG_DEBUG( "in initialize()" );
   /** retrieve and check the electron likelihood ID tool*/
+  CHECK(m_veryloose_likelihood.retrieve());
   CHECK(m_loose_likelihood.retrieve());
   CHECK(m_medium_likelihood.retrieve());
   CHECK(m_tight_likelihood.retrieve());
@@ -266,6 +269,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     if ( m_loose_likelihood->accept(*EleItr) )      tightness |= (1 << 1);//Likelihood Loose
     if ( m_medium_likelihood->accept(*EleItr))      tightness |= (1 << 3);//Likelihood Medium
     if ( m_tight_likelihood->accept(*EleItr))       tightness |= (1 << 5);//Likelihood Tight
+    if ( m_veryloose_likelihood->accept(*EleItr) )  tightness |= (1 << 8);//Likelihood VeryLoose
 
     
     /** We try to find the link to the primary track and after we retrieve it*/
@@ -292,8 +296,8 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     if(m_loose_trackonly_isolation->accept(**EleItr))tightness |= (1 << 24);
     if(m_loose_isolation->accept(**EleItr))          tightness |= (1 << 25);
     if(m_tight_isolation->accept(**EleItr))          tightness |= (1 << 26);
-    if(m_gradient_loose_isolation->accept(**EleItr)) tightness |= (1 << 27);
-    if(m_gradient_isolation->accept(**EleItr))       tightness |= (1 << 28);
+    if(m_gradient_isolation->accept(**EleItr))       tightness |= (1 << 27);
+    if(m_gradient_loose_isolation->accept(**EleItr)) tightness |= (1 << 28);
 
     eTagColl.insert( m_tightStr[i], tightness ); 
     

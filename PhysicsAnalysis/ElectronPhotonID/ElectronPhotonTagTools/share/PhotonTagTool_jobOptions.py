@@ -13,7 +13,8 @@ beam_energy    = af.fileinfos['beam_energy']
 conditions_tag = af.fileinfos['conditions_tag'] #useful for figuring out which mc production this is
 isFullsim = False
 if isMC: 
-    isFullsim = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']=='default' #full sim or atlfast
+    simulationFlavour = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']
+    isFullsim = simulationFlavour in ('default', 'MC12G4', 'FullG4') # is this a full sim dataset?
     
 print "EGammaCommon: isMC = ", isMC
 if isMC: 
