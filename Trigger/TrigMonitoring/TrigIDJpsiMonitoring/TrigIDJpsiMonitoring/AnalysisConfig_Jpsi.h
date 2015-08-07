@@ -417,8 +417,8 @@ namespace TrigInDetAnalysis {
         template<class TrackCollection> void getL2tracks(const TrackCollection *collection, int roi) {
 
           m_provider->msg(MSG::DEBUG) << "Starting getL2tracks ..." << endreq;
-          class TrackCollection::const_iterator trackitr = collection->begin();
-          class TrackCollection::const_iterator trackend = collection->end();
+          typename TrackCollection::const_iterator trackitr = collection->begin();
+          typename TrackCollection::const_iterator trackend = collection->end();
           for( ; trackitr != trackend; ++trackitr) {
             const TrigInDetTrack* track = dynamic_cast<TrigInDetTrack*>( *trackitr );
             if(track) {
@@ -451,7 +451,7 @@ namespace TrigInDetAnalysis {
               bool truth        = false;
               int match_barcode = -1;
       
-              m_trigTracks.push_back( new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2, 
+              m_trigTracks.push_back( new TIDA::Track(eta, phi, z0, d0, pT, chi2, 
                                                                    deta, dphi, dz0, dd0, dpT, 
                                                                    nBlayerHits, nPixelHits, nSctHits,
                                                                    nSiHits, nStrawHits, nTrHits, 
@@ -475,8 +475,8 @@ namespace TrigInDetAnalysis {
         template<class TrackCollection> void getEFtracks(const TrackCollection *collection, int roi) {
           m_provider->msg(MSG::DEBUG) << "Starting getEFtracks ..." << endreq;
     
-          class TrackCollection::const_iterator trackitr = collection->begin();
-          class TrackCollection::const_iterator trackend = collection->end();
+          typename TrackCollection::const_iterator trackitr = collection->begin();
+          typename TrackCollection::const_iterator trackend = collection->end();
           for( ; trackitr != trackend; ++trackitr) {
             const Rec::TrackParticle* track = (*trackitr);
             if(track) {
@@ -541,7 +541,7 @@ namespace TrigInDetAnalysis {
                 else                                                             trackAuthor = 0;
               }
 
-              m_trigTracks.push_back( new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+              m_trigTracks.push_back( new TIDA::Track(eta, phi, z0, d0, pT, chi2,
                                                                    deta, dphi, dz0, dd0, dpT,
                                                                    nBlayerHits, nPixelHits, nSctHits,
                                                                    nSiHits, nStrawHits, nTrHits,
@@ -598,7 +598,7 @@ namespace TrigInDetAnalysis {
         // Beamspot
         ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
         ServiceHandle<IToolSvc> m_toolSvc;
-        IBeamCondSvc* m_iOnlineBeamCondSvc;
+        //IBeamCondSvc* m_iOnlineBeamCondSvc;
 
         //ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; // pointer to beam condition service
         //Trk::VxCandidate* m_beamSpotVxCand;
@@ -637,15 +637,15 @@ namespace TrigInDetAnalysis {
         vector<int> testtrackRoIs;
         vector<int> reftrackRoIs;
         ///temp
-        TFile  *fOut;
-        TH1F   *my_hist;
-        bool   my_check, m_isMuon, m_isJpsi;
+        //TFile  *fOut;
+        //TH1F   *my_hist;
+        bool   /*my_check,*/ m_isMuon, m_isJpsi;
         unsigned int m_trigDefs;
 
         //map<int, vector<Track*> > m_trigTracks;
         map<int, int> m_trackRois;
         //map<int, double> m_phiAtCalo, m_etaAtCalo;
-        vector<TrigInDetAnalysis::Track*> m_trigTracks;
+        vector<TIDA::Track*> m_trigTracks;
 
         // SG
         string m_truthCollection;

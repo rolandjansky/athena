@@ -6,8 +6,8 @@
 
 //edits P.Wijeratne (paw@hep.ucl.ac.uk)
 
-#ifndef __TRIGJPSIMONTOOL_H
-#define __TRIGJPSIMONTOOL_H
+#ifndef TRIGIDJPSIMONITORING_TRIGJPSIMONTOOL_H
+#define TRIGIDJPSIMONITORING_TRIGJPSIMONTOOL_H
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
@@ -128,7 +128,7 @@ public:
   private :
 
   /// number of reconstructed tracks
-  int Nreco;
+  //int Nreco;
 
   /// flag to print out the matched tracks etc
   bool m_print;
@@ -141,4 +141,4 @@ public:
 };
 
 
-#endif //  __TRIGJPSIMONTOOL_H
+#endif // TRIGIDJPSIMONITORING_TRIGJPSIMONTOOL_H

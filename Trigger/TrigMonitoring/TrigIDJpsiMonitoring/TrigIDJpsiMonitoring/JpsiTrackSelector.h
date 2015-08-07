@@ -10,7 +10,7 @@
 #ifndef TrigIDJpsiMonitoring_JpsiTrackSelector_H
 #define TrigIDJpsiMonitoring_JpsiTrackSelector_H
 
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
 
@@ -95,7 +95,7 @@ class JpsiTrackSelector : public TrigTrackSelector {
         int nTgcHitsEta = probeTrack->nTgcHitsEta();
         int nCscHitsEta = probeTrack->nCscHitsEta();
 
-        TrigInDetAnalysis::JpsiTrack* jpsi = new TrigInDetAnalysis::JpsiTrack(TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+        TIDA::JpsiTrack* jpsi = new TIDA::JpsiTrack(TIDA::Track(eta, phi, z0, d0, pT, chi2,
         											       deta, dphi, dz0, dd0, dpT,
         											       nCscHitsEta, nCscHitsPhi, nTgcHitsEta, nTgcHitsPhi,
         											       nRpcHitsEta, nRpcHitsPhi, bitmap, 0,
