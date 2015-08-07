@@ -154,10 +154,10 @@ public:
   }
 
   TH1F* find( const std::string& n ) {
-    m_speaker->msg(MSG::DEBUG) << "name: " << n << endmsg;
+    m_speaker->msg(MSG::DEBUG) << "name: " << n << endreq;
     std::map<std::string, TH1F*>::iterator hmitr = m_histos.find(n);
     if ( hmitr!=m_histos.end() ) { 
-      m_speaker->msg(MSG::DEBUG) << "hmitr for " << n << ": " << hmitr->second << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "hmitr for " << n << ": " << hmitr->second << endreq;
       return hmitr->second;
     }
     return 0;
@@ -168,6 +168,7 @@ public:
   std::string m_chainName;
   double m_plusMass;
   double m_minusMass;
+  float GeV;
 
   std::map<std::string, TH1F*> m_histos;
   std::map<std::string, TProfile*> m_tphistos;
@@ -178,50 +179,50 @@ public:
 
   std::vector< std::vector<TIDA::Track*> > m_superTracks;
   
-  TProfile* m_pT_eff;
-  TProfile* m_eta_eff;	
-  TProfile* m_z0_eff;
-  TProfile* m_d0_eff;
-  TProfile* m_phi_eff;
-  TProfile* m_vert_eff;
-  TProfile* m_track_eff;
-  TProfile* m_invmass_eff;
+  TProfile* pT_eff;
+  TProfile* eta_eff;	
+  TProfile* z0_eff;
+  TProfile* d0_eff;
+  TProfile* phi_eff;
+  TProfile* vert_eff;
+  TProfile* track_eff;
+  TProfile* invmass_eff;
 
   ///temp
-  TProfile* m_pT_eff_d0cut;
-  TProfile* m_eta_eff_d0cut;	
-  TProfile* m_z0_eff_d0cut;
-  TProfile* m_d0_eff_d0cut;
-  TProfile* m_phi_eff_d0cut;
-  TProfile* m_vert_eff_d0cut;
-  TProfile* m_track_eff_d0cut;
-  TProfile* m_invmass_eff_d0cut;
+  TProfile* pT_eff_d0cut;
+  TProfile* eta_eff_d0cut;	
+  TProfile* z0_eff_d0cut;
+  TProfile* d0_eff_d0cut;
+  TProfile* phi_eff_d0cut;
+  TProfile* vert_eff_d0cut;
+  TProfile* track_eff_d0cut;
+  TProfile* invmass_eff_d0cut;
 
-  TProfile* m_pT_eff_offline;
-  TProfile* m_eta_eff_offline;	
-  TProfile* m_z0_eff_offline;
-  TProfile* m_d0_eff_offline;
-  TProfile* m_phi_eff_offline;
-  TProfile* m_vert_eff_offline;
-  TProfile* m_track_eff_offline;
-  TProfile* m_invmass_eff_offline;
+  TProfile* pT_eff_offline;
+  TProfile* eta_eff_offline;	
+  TProfile* z0_eff_offline;
+  TProfile* d0_eff_offline;
+  TProfile* phi_eff_offline;
+  TProfile* vert_eff_offline;
+  TProfile* track_eff_offline;
+  TProfile* invmass_eff_offline;
 
   ///temp
-  TProfile* m_pT_eff_d0cut_offline;
-  TProfile* m_eta_eff_d0cut_offline;	
-  TProfile* m_z0_eff_d0cut_offline;
-  TProfile* m_d0_eff_d0cut_offline;
-  TProfile* m_phi_eff_d0cut_offline;
-  TProfile* m_vert_eff_d0cut_offline;
-  TProfile* m_track_eff_d0cut_offline;
-  TProfile* m_invmass_eff_d0cut_offline;
+  TProfile* pT_eff_d0cut_offline;
+  TProfile* eta_eff_d0cut_offline;	
+  TProfile* z0_eff_d0cut_offline;
+  TProfile* d0_eff_d0cut_offline;
+  TProfile* phi_eff_d0cut_offline;
+  TProfile* vert_eff_d0cut_offline;
+  TProfile* track_eff_d0cut_offline;
+  TProfile* invmass_eff_d0cut_offline;
 
-  //TProfile* m_pT_pur;
-  //TProfile* m_eta_pur;
-  //TProfile* m_phi_pur;
-  //TProfile* m_z0_pur;
-  //TProfile* m_d0_pur;
-  //TProfile* m_dRvspT;
+  //TProfile* pT_pur;
+  //TProfile* eta_pur;
+  //TProfile* phi_pur;
+  //TProfile* z0_pur;
+  //TProfile* d0_pur;
+  //TProfile* dRvspT;
 	
   //  TH2F* h2;
   //  TH2F* h2m;
@@ -241,7 +242,7 @@ public:
   IHLTMonTool* m_speaker;
   std::vector<TIDA::Vertex*> m_vertices;
   ToolHandle<Trig::TrigDecisionTool>* m_tool;
-  const DataHandle<EventInfo> m_eventInfo;
+  const DataHandle<EventInfo> eventInfo;
   std::vector<float> *m_pOffDr,     *m_tOffDr,     *m_pOffDeta, *m_pOffDphi,
                      *m_pOffEt,     *m_pOffCharge, *m_tOffCharge;
   ///temp
