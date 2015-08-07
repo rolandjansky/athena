@@ -12,7 +12,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h" 
 
 #include "TrigInDetAnalysis/TIDDirectory.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
 
@@ -145,7 +145,7 @@ void AnalysisConfig_Jpsi::loop() {
 
       //cout << "SOME VERTEX STUFF" << endl;
 
-      vector<TrackVertex*> vertices;
+      vector<TIDA::Vertex*> vertices;
       const VxContainer* primaryVtxCollection;
       if(m_provider->evtStore()->retrieve(primaryVtxCollection, "VxPrimaryCandidate").isFailure()) {
         m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endreq;
@@ -154,7 +154,7 @@ void AnalysisConfig_Jpsi::loop() {
 	VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
 	for(; vtxitr != primaryVtxCollection->end(); ++vtxitr) {
 	  if( (*vtxitr)->vxTrackAtVertex()->size()>0 ) {
-	    vertices.push_back( new TrackVertex( (*vtxitr)->recVertex().position().x(), (*vtxitr)->recVertex().position().y(),
+	    vertices.push_back( new TIDA::Vertex( (*vtxitr)->recVertex().position().x(), (*vtxitr)->recVertex().position().y(),
 						 (*vtxitr)->recVertex().position().z(), 0,0,0, (*vtxitr)->vxTrackAtVertex()->size() ) );
 	  }
 	}  
@@ -440,8 +440,8 @@ void AnalysisConfig_Jpsi::loop() {
             int counter_cluster = -1;
             for(Trig::FeatureContainer::combination_const_iterator my_it = c; my_it != cEnd; ++my_it) {
               vector< Trig::Feature<TrigRoiDescriptor> > vecRoi = my_it->get<TrigRoiDescriptor>("");
-              vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roiItr = vecRoi.begin();
-              vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roiLast = vecRoi.end();
+              //vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roiItr = vecRoi.begin();
+              //vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roiLast = vecRoi.end();
               /*for( ; (roiItr != roiLast); ++roiItr) {
                 const HLT::TriggerElement* a = (*roiItr).te();
                 a = const_cast<HLT::TriggerElement*>(a);
@@ -621,7 +621,7 @@ void AnalysisConfig_Jpsi::loop() {
       } // end of else -> if( doTruth )
 	  
       m_provider->msg(MSG::DEBUG) << "Call m_selectorJ->tracks()" << endreq;
-      vector<TrigInDetAnalysis::Track*> probeTracks = m_selectorJ->tracks();
+      vector<TIDA::Track*> probeTracks = m_selectorJ->tracks();
       unsigned int trackSize = probeTracks.size();
       m_provider->msg(MSG::DEBUG) << "probeTracks size: " << trackSize << endreq;
       
@@ -640,7 +640,7 @@ void AnalysisConfig_Jpsi::loop() {
       for(unsigned int j=0; j< trackSize; j++) {
 
         const Rec::TrackParticle* closestProbe = 0, *closestTag = 0;
-        TrigInDetAnalysis::JpsiTrack* probe = 0;
+        TIDA::JpsiTrack* probe = 0;
         const Wrapper::MuonTrack *tag = 0;
         const CaloCluster *offClust = 0;
 
@@ -652,7 +652,7 @@ void AnalysisConfig_Jpsi::loop() {
         m_provider->msg(MSG::DEBUG) << "probeTracks[j] --> " << probeTracks[j] << endreq;
         if(probeTracks[j]) {
           m_provider->msg(MSG::DEBUG) << "Get probe ..."  << endreq;
-          probe = dynamic_cast<TrigInDetAnalysis::JpsiTrack*>(probeTracks[j]);
+          probe = dynamic_cast<TIDA::JpsiTrack*>(probeTracks[j]);
           m_provider->msg(MSG::DEBUG) << "probe: " << probe << " and *probe: " << *probe << endreq;
           m_provider->msg(MSG::DEBUG) << "Get tag ..."  << endreq;
           tag = probe->getTag();
@@ -792,12 +792,12 @@ void AnalysisConfig_Jpsi::loop() {
       }
       
       //const vector<Track*> &testtracksA = m_selectorTestA->tracks();
-      const vector<Track*> testtracksA = m_trigTracks;
+      const vector<TIDA::Track*> testtracksA = m_trigTracks;
       sizes.push_back(testtracksA.size()); 
 
       m_provider->msg(MSG::DEBUG) << "... done. Ntracks = " << testtracksA.size() << " ( " << m_testChainKey << " / " << m_refChainName << " )" << endreq;
 
-      m_analysisJ->setTrackRois(m_trackRois);
+      m_analysisJ->setTIDARois(m_trackRois);
       //m_analysisJ->setEtaAtCalo(m_etaAtCalo);
       //m_analysisJ->setPhiAtCalo(m_phiAtCalo);
 
@@ -814,7 +814,7 @@ void AnalysisConfig_Jpsi::loop() {
       m_analysis->execute(probeTracks, testtracksA, m_associator);
 
       m_provider->msg(MSG::DEBUG) << "Final clean up ..." << endreq;
-      for(vector<TrackVertex*>::const_iterator it = vertices.begin(); it != vertices.end(); it++)  delete (*it);
+      for(vector<TIDA::Vertex*>::const_iterator it = vertices.begin(); it != vertices.end(); it++)  delete (*it);
       m_analysisJ->clearOffline();
       // m_analysisJ->clearSuper();
       //m_selectorTestB->clear();

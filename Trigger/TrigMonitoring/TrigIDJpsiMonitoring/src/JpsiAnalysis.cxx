@@ -9,7 +9,7 @@
 /** @author Peter Wijeratne (paw@hep.ucl.ac.uk) **/
 /** @author Christian Gutschow (chris.g@cern.ch) **/
 
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TrigIDJpsiMonitoring/JpsiAnalysis.h"
 #include "TrigIDJpsiMonitoring/JpsiTrack.h"
@@ -443,8 +443,8 @@ bool fillMap(std::map<std::string, T*> &m_histos, const std::string &name, float
 }*/
 
 
-void JpsiAnalysis::execute(const vector<TrigInDetAnalysis::Track*>& probeTracks,
-                           const vector<TrigInDetAnalysis::Track*>& testtracks,
+void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
+                           const vector<TIDA::Track*>& testtracks,
                    	       TrackAssociator* matcher=0) {
 
   m_speaker->msg(MSG::DEBUG) << "Start of JpsiAnalysis execute ..." << endreq;
@@ -502,10 +502,10 @@ void JpsiAnalysis::execute(const vector<TrigInDetAnalysis::Track*>& probeTracks,
   bool cutflow_check_tight[] = { 1, 1, 1, 1 };
   for(unsigned int i=0; i < probeTracks.size(); i++) {
 
-    TrigInDetAnalysis::JpsiTrack* probe = 0;
+    TIDA::JpsiTrack* probe = 0;
     const Wrapper::MuonTrack *tag = 0;
     if(probeTracks[i]) {
-      probe = dynamic_cast<TrigInDetAnalysis::JpsiTrack*> (probeTracks[i]);
+      probe = dynamic_cast<TIDA::JpsiTrack*> (probeTracks[i]);
       tag   = probe->getTag();
     }
     else throw std::runtime_error("*** TrigJpsiMonTool *** Probe not casting, aborting!!! *** TrigJpsiMonTool ***");
@@ -708,8 +708,8 @@ void JpsiAnalysis::execute(const vector<TrigInDetAnalysis::Track*>& probeTracks,
     }
 
     ntracks = 0;
-    vector<TrackVertex*>::const_iterator it    = m_vertices.begin();
-    vector<TrackVertex*>::const_iterator itEnd = m_vertices.end();
+    vector<TIDA::Vertex*>::const_iterator it    = m_vertices.begin();
+    vector<TIDA::Vertex*>::const_iterator itEnd = m_vertices.end();
     for(; it != itEnd; ++it)  ntracks += (*it)->Ntracks();
 
     // this is the dilepton invariant mass
@@ -751,7 +751,7 @@ void JpsiAnalysis::execute(const vector<TrigInDetAnalysis::Track*>& probeTracks,
 
     int isEfficient = 0, isEfficient_nocut = 0;
     float tinvmass = 0, ttMass = 0.;
-    TrigInDetAnalysis::Track *matched = 0, *matched_nocut = 0;
+    TIDA::Track *matched = 0, *matched_nocut = 0;
     double matched_eta = 0., matched_phi = 0.;
     //       matched_eta_nocut = 0., matched_phi_nocut = 0.;
     //int matched_roi = -1;

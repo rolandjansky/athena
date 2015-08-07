@@ -14,21 +14,21 @@
 #include <vector>
 
 #include "TrigInDetAnalysis/Track.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TrigJPsiTools/MakeDiMuonsTool.h"
 
 #include "Particle/TrackParticle.h"
 
-namespace TrigInDetAnalysis{
+namespace TIDA{
 
-class JpsiTrack : public TrigInDetAnalysis::Track {
+class JpsiTrack : public TIDA::Track {
 
  public:
 
-  JpsiTrack(const Track& t) : Track(t) { }
+  JpsiTrack(const TIDA::Track& t) : TIDA::Track(t) { }
   
-  JpsiTrack(const Track& t, const Rec::TrackParticle* m, DiMuonTool *pair, int roi) : Track(t), m_match(m) {
+  JpsiTrack(const TIDA::Track& t, const Rec::TrackParticle* m, DiMuonTool *pair, int roi) : TIDA::Track(t), m_match(m) {
     //std::cout << "JpsiTrack constructor called." << std::endl;
     //std::cout << "pair (pointer): " << pair << std::endl;
     m_pair = pair;
