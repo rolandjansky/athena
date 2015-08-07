@@ -7,107 +7,73 @@
 // The Hits are processed here. For every hit I get the position and
 // an information on the sensor in which the interaction happened
 //
-#include <fstream>
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
 
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "InDetSimEvent/SiHitCollection.h"
+// Class header
+#include "PixelSensorSD.h"
 
-// G4Pixel 
-#include "PixelG4_SD/PixelSensorSD.h"
-
-// Geant4 Stuff
-#include "G4HCofThisEvent.hh"
-#include "G4Step.hh"
-#include "G4ThreeVector.hh"
-#include "G4SDManager.hh"
-#include "G4Geantino.hh"
-#include "G4ChargedGeantino.hh"
-
-
-// CLHEP transform
-#include "CLHEP/Geometry/Transform3D.h"    
-// Units
-#include "CLHEP/Units/SystemOfUnits.h"    
-
-#include "SimHelpers/DetectorGeometryHelper.h"
+// Athena headers
 #include "MCTruth/TrackHelper.h"
 
+// Geant4 headers
+#include "G4ChargedGeantino.hh"
+#include "G4Geantino.hh"
+#include "G4SDManager.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+
+// CLHEP headers
+#include "CLHEP/Geometry/Transform3D.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+// For make unique
+#include "CxxUtils/make_unique.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-//////////////////////////////////////////////////////////////////////////////////
-// Initialize static data 
-///////////////////////////////////////////////////////////////////////////////
-
-static FADS::SensitiveDetectorEntryT<PixelSensorSD> mdtsd("PixelSensorSD");
-
-
-
-PixelSensorSD::PixelSensorSD(G4String name) :  
-  FADS::FadsSensitiveDetector(name),
-  myHitColl(0),
-  m_isGeoModel(true), 
-  m_msg("PixelSensorSD")
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-PixelSensorSD::~PixelSensorSD(){ }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void PixelSensorSD::Initialize(G4HCofThisEvent* /*HCE*/)
+PixelSensorSD::PixelSensorSD(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_HitColl( hitCollectionName )
 {
-  if(msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "Initializing SD" << endreq; }
-  DetectorGeometryHelper DGHelp;
-  if(  DGHelp.GeometryType("Pixel") == GeoModel ) {
-    m_isGeoModel = true;
-    if(msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "Pixel Geometry is from GeoModel" << endreq; }
-  } 
-  else {
-    m_isGeoModel = false;
-    msg(MSG::ERROR) << "Pixel Geometry is from pure G4. NOT SUPPORTED!" << endreq;
-  }
-  //
-  // Create a fresh map to store the hits
-  //
-  //myHitColl = new SiHitCollection("PixelHits");
-  myHitColl = m_hitCollHelp.RetrieveNonconstCollection<SiHitCollection>("PixelHits");
-
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// Initialize from G4 - necessary to new the write handle for now
+void PixelSensorSD::Initialize(G4HCofThisEvent *)
+{
+#ifdef ATHENAHIVE
+  // Temporary fix for Hive until isValid is fixed
+  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+#else
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+#endif
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 {
-  if(msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Process Hit" << endreq; }
+  if (verboseLevel>5) G4cout << "Process Hit" << G4endl;
 
   G4double edep = aStep->GetTotalEnergyDeposit();
   edep *= CLHEP::MeV;
   if(edep==0.) {
     if(aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition() &&
-       aStep->GetTrack()->GetDefinition() != G4ChargedGeantino::ChargedGeantinoDefinition()) 
-      return false;   
+       aStep->GetTrack()->GetDefinition() != G4ChargedGeantino::ChargedGeantinoDefinition())
+      return false;
   }
 
   //use the global time. i.e. the time from the beginning of the event
-  // 
+  //
   // Get the Touchable History:
   //
   G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
 
-  if(msgLvl(MSG::VERBOSE)) {
-    for (int i=0;i<myTouch->GetHistoryDepth();i++)
-      {
-	std::string detname=myTouch->GetVolume(i)->GetLogicalVolume()->GetName();
-	int copyno=myTouch->GetVolume(i)->GetCopyNo();
-	msg(MSG::VERBOSE)
-	  << "Volume "
-	  <<detname <<" Copy Nr. "<<copyno<<endreq;
-      }
+  if(verboseLevel>5){
+    for (int i=0;i<myTouch->GetHistoryDepth();i++){
+      std::string detname=myTouch->GetVolume(i)->GetLogicalVolume()->GetName();
+      int copyno=myTouch->GetVolume(i)->GetCopyNo();
+      G4cout << "Volume " <<detname <<" Copy Nr. " << copyno << G4endl;
+    }
   }
   //
   // Get the hit coordinates. Start and End Point
@@ -115,7 +81,7 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   G4ThreeVector coord1 = aStep->GetPreStepPoint()->GetPosition();
   G4ThreeVector coord2 = aStep->GetPostStepPoint()->GetPosition();
 
-  // Calculate the local step begin and end position. 
+  // Calculate the local step begin and end position.
   // From a G4 FAQ:
   // http://geant4-hn.slac.stanford.edu:5090/HyperNews/public/get/geometry/17/1.html
   //
@@ -152,7 +118,7 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   //   G4VPhysicalVolume* TheVolume = myTouch->GetVolume();
   //
   // In the case of the TB the positioning integers won't be initialized
-  // and the identifying integer will be zero. There is no need to do 
+  // and the identifying integer will be zero. There is no need to do
   // anything else
 
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
@@ -173,13 +139,12 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     //
     // Some printout
     //
-    if(msgLvl(MSG::VERBOSE)){ 
-      msg(MSG::VERBOSE) << "In the Pixel Barrel" << endreq; 
-      msg(MSG::VERBOSE) << "----- Phi Module # " << phiMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Eta Ladder # " << etaMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Layer      # " << LayerDisk << endreq; 
+    if (verboseLevel>5){
+      G4cout << "In the Pixel Barrel" << G4endl;
+      G4cout << "----- Phi Module # " << phiMod << G4endl;
+      G4cout << "----- Eta Ladder # " << etaMod << G4endl;
+      G4cout << "----- Layer      # " << LayerDisk << G4endl;
     }
-   
 
     // Standard ATLAS EndCap
   } else if (BEcopyNo == 200) {
@@ -197,23 +162,23 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     BrlEcap = myTouch->GetVolume(3)->GetCopyNo();
     //The following is no longer necessary
     //if(BrlEcap == -2) BrlEcap = 1;
-    
+
     // Workaround for bug in cosmic setup
     if (BrlEcap == 0) {
       BrlEcap = (coord1.z() > 0) ? 2 : -2;
-    } 
+    }
 
     // Some printout
-    if(msgLvl(MSG::VERBOSE)){
-      msg(MSG::VERBOSE) << "In the Pixel EndCap" << endreq; 
-      msg(MSG::VERBOSE) << "----- PhiModule # " << phiMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Disk #      " << LayerDisk << endreq; 
-      msg(MSG::VERBOSE) << "----- Endcap #    " << BrlEcap << endreq;     
+    if (verboseLevel>5){
+      G4cout << "In the Pixel EndCap" << G4endl;
+      G4cout << "----- PhiModule # " << phiMod << G4endl;
+      G4cout << "----- Disk #      " << LayerDisk << G4endl;
+      G4cout << "----- Endcap #    " << BrlEcap << G4endl;
     }
 
     // SLHC EndCap
   } else if (BEcopyNo == 300) {
-    
+
     // Use the copy no. to get the id:
     phiMod = myTouch->GetVolume(1)->GetCopyNo();
 
@@ -226,69 +191,59 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     // Move up of one level in the tree to get the EC number:
     BrlEcap = myTouch->GetVolume(4)->GetCopyNo();
     //if(BrlEcap == -2) BrlEcap = 1;
-    
+
     // Some printout
-    if(msgLvl(MSG::VERBOSE)){
-      msg(MSG::VERBOSE) << "In the SLHC Pixel EndCap" << endreq; 
-      msg(MSG::VERBOSE) << "----- PhiModule # " << phiMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Ring/Eta #  " << etaMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Disk #      " << LayerDisk << endreq; 
-      msg(MSG::VERBOSE) << "----- Endcap #    " << BrlEcap << endreq;     
+    if (verboseLevel>5){
+      G4cout << "In the SLHC Pixel EndCap" << G4endl;
+      G4cout << "----- PhiModule # " << phiMod << G4endl;
+      G4cout << "----- Ring/Eta #  " << etaMod << G4endl;
+      G4cout << "----- Disk #      " << LayerDisk << G4endl;
+      G4cout << "----- Endcap #    " << BrlEcap << G4endl;
     }
 
-  } else if(BEcopyNo == 400) { //DBM 
+  } else if(BEcopyNo == 400) { //DBM
 
-    // Note: there is one volume (3-layers unit) contain the diamond+chip volume 
-    // so one increment is needed after 'layerDisk' 
+    // Note: there is one volume (3-layers unit) contain the diamond+chip volume
+    // so one increment is needed after 'layerDisk'
 
     // only one eta module for the DBM
     etaMod = 0;
 
     // Move up one level to get the layer number, 3 layers per telescope
-    LayerDisk = myTouch->GetVolume(1)->GetCopyNo(); 
+    LayerDisk = myTouch->GetVolume(1)->GetCopyNo();
 
     // Move up two level to get the phi module, azimuthal position of telescope
-    phiMod = myTouch->GetVolume(3)->GetCopyNo(); 
+    phiMod = myTouch->GetVolume(3)->GetCopyNo();
 
-    // Move up one level to get the DBM side, A side or C side 
-    BrlEcap = myTouch->GetVolume(4)->GetCopyNo(); 
+    // Move up one level to get the DBM side, A side or C side
+    BrlEcap = myTouch->GetVolume(4)->GetCopyNo();
 
-    // Some printout 
-    if(msgLvl(MSG::VERBOSE)){ 
-      msg(MSG::VERBOSE) << "In the DBM" << endreq; 
-      msg(MSG::VERBOSE) << "----- PhiModule # " << phiMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Ring/Eta #  " << etaMod << endreq; 
-      msg(MSG::VERBOSE) << "----- Disk #      " << LayerDisk << endreq; 
-      msg(MSG::VERBOSE) << "----- Endcap #    " << BrlEcap << endreq; 
+    // Some printout
+    if (verboseLevel>5){
+      G4cout << "In the DBM" << G4endl;
+      G4cout << "----- PhiModule # " << phiMod << G4endl;
+      G4cout << "----- Ring/Eta #  " << etaMod << G4endl;
+      G4cout << "----- Disk #      " << LayerDisk << G4endl;
+      G4cout << "----- Endcap #    " << BrlEcap << G4endl;
     }
 
   } else {
-    // Do not expect other numbers. Need to fix PixelGeoModel if this occurs. 
-    msg(MSG::ERROR) << "Unrecognized geometry in Pixel sensistive detector. Please contact maintainer of Pixel Detector Description." << endreq;
+    // Do not expect other numbers. Need to fix PixelGeoModel if this occurs.
+    G4ExceptionDescription description;
+    description << "ProcessHits: Unrecognized geometry in Pixel sensitive detector. Please contact the maintainer of the Pixel Detector Description.";
+    G4Exception("PixelSensorSD", "UnrecognizedPixelGeometry", FatalException, description);
+    abort();
   }
 
   // get the barcode from the track helper
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
-  SiHit newHit(lP1,
-	       lP2,
-	       edep,
-	       aStep->GetPreStepPoint()->GetGlobalTime(),
-	       barcode,
-	       0,BrlEcap,LayerDisk,etaMod,phiMod,side);
-  myHitColl->Insert(newHit);
+  m_HitColl->Emplace(lP1,
+                     lP2,
+                     edep,
+                     aStep->GetPreStepPoint()->GetGlobalTime(),
+                     barcode,
+                     0,BrlEcap,LayerDisk,etaMod,phiMod,side);
   return true;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void PixelSensorSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
-{
-  if (!m_allowMods) 
-    m_hitCollHelp.SetConstCollection<SiHitCollection>(myHitColl);
-
-  //m_hitCollHelp.ExportCollection<SiHitCollection>(myHitColl,m_allowMods);
-  if(msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "End of event " << endreq; }
-}
-
 
