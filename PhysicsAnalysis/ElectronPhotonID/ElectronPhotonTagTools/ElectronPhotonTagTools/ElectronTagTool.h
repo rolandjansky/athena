@@ -80,6 +80,7 @@ private:
   ToolHandle<IAsgElectronIsEMSelector> m_tight_cut_based;
 
   /** electron likelihood ID tool */
+  ToolHandle<IAsgElectronLikelihoodTool> m_veryloose_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_loose_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_medium_likelihood;
   ToolHandle<IAsgElectronLikelihoodTool> m_tight_likelihood;

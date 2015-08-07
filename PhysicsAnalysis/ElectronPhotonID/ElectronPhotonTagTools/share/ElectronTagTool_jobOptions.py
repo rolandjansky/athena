@@ -3,6 +3,10 @@ include.block ("ElectronPhotonTagTools/ElectronTagTool_jobOptions.py")
 ########### Electron LH selection options ################
 from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
 from ROOT import LikeEnum
+VeryLooseLHSelector = ConfiguredAsgElectronLikelihoodTool("VeryLooseLHSelector", LikeEnum.VeryLoose)
+ToolSvc+=VeryLooseLHSelector
+LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
+ToolSvc+=LooseLHSelector
 LooseLHSelector = ConfiguredAsgElectronLikelihoodTool("LooseLHSelector", LikeEnum.Loose)
 ToolSvc+=LooseLHSelector
 MediumLHSelector = ConfiguredAsgElectronLikelihoodTool("MediumLHSelector", LikeEnum.Medium)
@@ -56,6 +60,7 @@ ElectronTagTool = ConfiguredElectronTagTool(
      TightLHSelector     = TightLHSelector,
      MediumLHSelector    = MediumLHSelector,
      LooseLHSelector     = LooseLHSelector,
+     VeryLooseLHSelector = VeryLooseLHSelector,
      ElectronIsEMSelectorLoose  = ElectronIsEMSelectorLoose,
      ElectronIsEMSelectorMedium = ElectronIsEMSelectorMedium,
      ElectronIsEMSelectorTight  = ElectronIsEMSelectorTight,
