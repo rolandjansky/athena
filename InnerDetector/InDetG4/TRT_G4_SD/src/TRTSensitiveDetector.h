@@ -2,45 +2,45 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef TRT_G4_SD_TRTSensitiveDetector_h
+#define TRT_G4_SD_TRTSensitiveDetector_h
 
-#ifndef TRTSensitiveDetector_hh
-#define TRTSensitiveDetector_hh
+// Base class
+#include "G4VSensitiveDetector.hh"
 
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "globals.hh"
-
-#include "AthenaKernel/MsgStreamMember.h"
-
+#include "StoreGate/WriteHandle.h"
 
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 class TRTProcessingOfEndCapHits;
 class TRTOutputFile;
+
 class G4HCofThisEvent;
 class G4Step;
 class G4TouchableHistory;
 
-
-class TRTSensitiveDetector : public FADS::FadsSensitiveDetector
+class TRTSensitiveDetector : public G4VSensitiveDetector
 {
   friend class TRTProcessingOfBarrelHits;
   friend class TRTProcessingOfEndCapHits;
 
-public:
-  TRTSensitiveDetector(const std::string);
+ public:
+  TRTSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
+  ~TRTSensitiveDetector() { /* don't own any of the pointers... */ }
 
-  void Initialize(G4HCofThisEvent*);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
+  void Initialize(G4HCofThisEvent*) override final;
+  G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
 
+  /** Called by TRTRunAction::EndOfRunAction ... */
   void DeleteObjects();
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+  /** Templated method to stuff a single hit into the sensitive detector class.  This
+   could get rather tricky, but the idea is to allow fast simulations to use the very
+   same SD classes as the standard simulation. */
+  template <class... Args> void AddHit(Args&&... args){ m_HitColl->Emplace( args... ); }
 
-private:
+ private:
   void InitializeHitProcessing();
   //FIXME all class variables should have an "m_" prefix.
 
@@ -70,17 +70,14 @@ private:
   double globalTime;
 
   ///Other member variables
-  TRTUncompressedHitCollection* pUncompressedHitCollection;
+  // The hits collection
+  SG::WriteHandle<TRTUncompressedHitCollection> m_HitColl; //pUncompressedHitCollection;
 
   TRTParameters* pParameters;
 
   TRTProcessingOfBarrelHits* pProcessingOfBarrelHits;
   TRTProcessingOfEndCapHits* pProcessingOfEndCapHits;
 
-  AthenaHitsCollectionHelper m_hitCollHelp;
-
-  mutable Athena::MsgStreamMember m_msg;
-
 };
 
-#endif
+#endif //TRT_G4_SD_TRTSensitiveDetector_h

@@ -2,16 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Class header
+#include "TRTPrintingOfHits.h"
 
-#include "TRT_G4_SD/TRTPrintingOfHits.h"
+// Athena headers
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 #include "InDetSimEvent/TRTUncompressedHit.h"
+
+// STL headers
 #include <fstream>
 
-
-
-  // Called by TRTSensitiveDetector::InitializeHitProcessing
+// Called by TRTSensitiveDetector::InitializeHitProcessing
 
 TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 {
@@ -30,7 +32,7 @@ TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 }
 
 
-  // Called by TRTSensitiveDetector::DeleteObjects
+// Called by TRTSensitiveDetector::DeleteObjects
 
 TRTPrintingOfHits::~TRTPrintingOfHits()
 {
@@ -39,10 +41,10 @@ TRTPrintingOfHits::~TRTPrintingOfHits()
 }
 
 
-  // Called by TRTSensitiveDetector::ProcessHits
+// Called by TRTSensitiveDetector::ProcessHits
 
 void TRTPrintingOfHits::PrintUncompressedHit
-  (TRTUncompressedHit* pUncompressedHit)
+(TRTUncompressedHit* pUncompressedHit)
 {
   std::ofstream& output = pOutputFile->GetReference();
 
@@ -60,38 +62,38 @@ void TRTPrintingOfHits::PrintUncompressedHit
   float globalTime = pUncompressedHit->GetGlobalTime();
 
   if (!(hitID & 0x00200000))
-  {
-    int trtID, ringID, moduleID, layerID, strawID;
+    {
+      int trtID, ringID, moduleID, layerID, strawID;
 
-    strawID = hitID & mask;
-    hitID >>= shift;
-    layerID = hitID & mask;
-    hitID >>= shift;
-    moduleID = hitID & mask;
-    hitID >>= shift;
-    ringID = hitID & mask;
-    trtID = hitID >> shift;
+      strawID = hitID & mask;
+      hitID >>= shift;
+      layerID = hitID & mask;
+      hitID >>= shift;
+      moduleID = hitID & mask;
+      hitID >>= shift;
+      ringID = hitID & mask;
+      trtID = hitID >> shift;
 
-    output << "Hit: trtID=" << trtID << "  ringID=" << ringID << "  moduleID="
-           << moduleID << "  layerID=" << layerID << "  strawID=" << strawID;
-  }
+      output << "Hit: trtID=" << trtID << "  ringID=" << ringID << "  moduleID="
+             << moduleID << "  layerID=" << layerID << "  strawID=" << strawID;
+    }
   else
-  {
-    int trtID, wheelID, planeID, sectorID, strawID;
+    {
+      int trtID, wheelID, planeID, sectorID, strawID;
 
-    strawID = hitID & mask;
-    hitID >>= shift;
-    planeID = hitID & mask;
-    hitID >>= shift;
-    sectorID = hitID & mask;
-    hitID >>= shift;
-    wheelID = hitID & mask;
-    trtID = hitID >> shift;
+      strawID = hitID & mask;
+      hitID >>= shift;
+      planeID = hitID & mask;
+      hitID >>= shift;
+      sectorID = hitID & mask;
+      hitID >>= shift;
+      wheelID = hitID & mask;
+      trtID = hitID >> shift;
 
-    output << "Hit: trtID=" << trtID << "  wheelID=" << wheelID
-           << "  planeID=" << planeID << "  sectorID=" << sectorID
-           << "  strawID=" << strawID;
-  }
+      output << "Hit: trtID=" << trtID << "  wheelID=" << wheelID
+             << "  planeID=" << planeID << "  sectorID=" << sectorID
+             << "  strawID=" << strawID;
+    }
 
   output << "  trackID=" << trackID << std::endl;
 
