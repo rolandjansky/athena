@@ -19,7 +19,7 @@ StatusCode LArfSamplMC::initialize()
 {
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LArfSamplMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
       return (StatusCode::FAILURE);
   }
 

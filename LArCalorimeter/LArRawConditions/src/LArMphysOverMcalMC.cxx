@@ -20,7 +20,7 @@ StatusCode LArMphysOverMcalMC::initialize()
 
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LArPhysOverMcalMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
       return (StatusCode::FAILURE);
   }
 

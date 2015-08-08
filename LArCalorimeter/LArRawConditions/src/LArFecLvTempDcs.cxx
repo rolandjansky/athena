@@ -24,7 +24,7 @@ LArFecLvTempDcs::LArFecLvTempDcs() :
 
 void
 LArFecLvTempDcsOcem::print(MsgStream& log) const{
-	log << endmsg << " OCEM variables : "
+	log << endreq << " OCEM variables : "
 	<< " Power On (" << m_powerOn << ") "
 	<< " Power Out (" << m_powerOut << ") "
 	<< " Interlock (" << m_interlock << ") "
@@ -38,43 +38,43 @@ LArFecLvTempDcsOcem::print(MsgStream& log) const{
 	<< " On (" << m_on << ") "
 	<< " Out (" << m_out << ") "
 	<< " CAN Node State (" << m_state << ") "
-	<< endmsg;
+	<< endreq;
 }
 
 void
 LArFecLvTempDcsManifold::print(MsgStream& log) const{
-	log << endmsg << " Manifold Temperatures : ";
+	log << endreq << " Manifold Temperatures : ";
 	for(std::vector<float>::const_iterator i=m_temps.begin();
 		i != m_temps.end(); ++i)
 	log << (*i) << " ";
-	log << endmsg;
+	log << endreq;
 }
 
 void
 LArFecLvTempDcsVolts::print(MsgStream& log) const{
-	log << endmsg << " Crate Voltages : ";
+	log << endreq << " Crate Voltages : ";
 	for(std::vector<float>::const_iterator i=m_volts.begin();
 		i != m_volts.end(); ++i)
 	log << (*i) << " ";
-	log << endmsg;
+	log << endreq;
 }
 
 void
 LArFecLvTempDcsLvps::print(MsgStream& log) const{
-	log << endmsg << " LVPS : ";
+	log << endreq << " LVPS : ";
 	log << "AVG : "            << m_AVG         << " ";
 	log << "AMG : "            << m_AMG         << " ";
 	log << "PSOT : "           << m_PSOT        << " ";
 	log << "PSOTOR : "         << m_PSOTOR      << " ";
 	log << "PS_TEMPERATURE : " << m_temperature << " ";
-	log << endmsg;
+	log << endreq;
 }
 
 void
 LArFecLvTempDcs::print(MsgStream& log) const{
-	log << endmsg << " Crate ";
+	log << endreq << " Crate ";
 	log << m_crateName;
-	log << " : " << endmsg;
+	log << " : " << endreq;
 	m_OCEM.print(log);
 	m_manifold.print(log);
 	m_volts.print(log);
@@ -83,5 +83,5 @@ LArFecLvTempDcs::print(MsgStream& log) const{
 	log << "FEBMIN : " << m_febMin << " ";
 	log << "FEBMAX : " << m_febMax << " ";
 	// Still missing some variables
-	log << endmsg;
+	log << endreq;
 }

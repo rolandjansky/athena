@@ -45,7 +45,7 @@ class LArWFParamsComplete :public LArConditionsContainer<LArWFParams>
 
  private: 
 
-  static LArWFParams s_dummyParams ;
+  static LArWFParams dummyParams ;
 
 };
 

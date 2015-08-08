@@ -15,37 +15,37 @@ StatusCode LArConditionsVsCalibBase::initialize() {
   ISvcLocator* svcLoc = Gaudi::svcLocator() ;
   StatusCode sc = svcLoc->service("DetectorStore",m_detStore) ;
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not get detector store" << endmsg ;
+    log << MSG::ERROR << "Could not get detector store" << endreq ;
     return sc ;
   }
   sc = m_detStore->retrieve(m_onlineHelper,"LArOnlineID") ;
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not get online helper" << endmsg ;
+    log << MSG::ERROR << "Could not get online helper" << endreq ;
     return sc ;
   }
 
   IToolSvc* toolSvc ;
   sc = svcLoc->service("ToolSvc",toolSvc) ;
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not get ToolSvc" << endmsg ;
+    log << MSG::ERROR << "Could not get ToolSvc" << endreq ;
     return sc ;
   }
   sc = toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ;
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not get cabling service" << endmsg ; 
+    log << MSG::ERROR << "Could not get cabling service" << endreq ; 
     return sc ;
   }
 
   m_init = true ;
-  log << MSG::INFO << "successfully initialized ..." << endmsg ;
+  log << MSG::INFO << "successfully initialized ..." << endreq ;
   return StatusCode::SUCCESS ;
 }
 
 HWIdentifier LArConditionsVsCalibBase::getCalibLine(HWIdentifier ChID) const {
   MsgStream log(Athena::getMessageSvc(), "LArConditionsVsCalibBase");
-  log << MSG::VERBOSE << "getCalibLine(HWIdentifier): just entered" << endmsg ;
+  log << MSG::VERBOSE << "getCalibLine(HWIdentifier): just entered" << endreq ;
   if ( ! m_init ) {
-    log << MSG::ERROR << "getCalibLine(HWIdentifier): not initialized!" << endmsg ;
+    log << MSG::ERROR << "getCalibLine(HWIdentifier): not initialized!" << endreq ;
     return HWIdentifier(0) ;
   }
   //-------------------------------------------------------
@@ -53,34 +53,34 @@ HWIdentifier LArConditionsVsCalibBase::getCalibLine(HWIdentifier ChID) const {
   if ( first_time ) {
     // this forces loading the OnOffIdMap, which also contains readout->calib mapping
     // if not done, all the rest fails!
-    log << MSG::INFO << "getCalibLine(HWIdentifier): force loading of the OnOffIdMap" << endmsg ;
+    log << MSG::INFO << "getCalibLine(HWIdentifier): force loading of the OnOffIdMap" << endreq ;
     try {
       log << MSG::VERBOSE << "getCalibLine(HWIdentifier): dummy call to m_cablingSvc->cnvToIdentifier(ChID), ChID="
-	  << ChID.getString() << endmsg ;
+	  << ChID.getString() << endreq ;
       Identifier id = m_cablingSvc->cnvToIdentifier(ChID);
       // this VERBOSE printout avoid compilation warning "unused variable `Identifier id'"
-      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): dummy call returned Identifier ID = 0x" << MSG::hex << id << MSG::dec << endmsg ;
+      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): dummy call returned Identifier ID = 0x" << MSG::hex << id << MSG::dec << endreq ;
     } catch ( LArID_Exception & except ) {
-      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): m_cablingSvc->cnvToIdentifier(ChID) failed" << endmsg ;
+      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): m_cablingSvc->cnvToIdentifier(ChID) failed" << endreq ;
       if ( m_onlineHelper->isCalibration(ChID) ) {
-          log << MSG::VERBOSE << ChID.getString() << " is calibration line" << endmsg ;
+          log << MSG::VERBOSE << ChID.getString() << " is calibration line" << endreq ;
       } else {
-          log << MSG::VERBOSE << ChID.getString() << " isn't calibration line" << endmsg ;
+          log << MSG::VERBOSE << ChID.getString() << " isn't calibration line" << endreq ;
       }
     }
-    log << MSG::INFO << "getCalibLine(HWIdentifier): OnOffIdMap loaded (hopefully!)" << endmsg ;
+    log << MSG::INFO << "getCalibLine(HWIdentifier): OnOffIdMap loaded (hopefully!)" << endreq ;
     first_time = false ;
   }
   //-------------------------------------------------------
   if ( m_onlineHelper->isCalibration(ChID) ) {
-      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): " << ChID.getString() << " is already a calib line" << endmsg ;
+      log << MSG::VERBOSE << "getCalibLine(HWIdentifier): " << ChID.getString() << " is already a calib line" << endreq ;
     return ChID ;
   }
   const std::vector<HWIdentifier>& calibLineV = m_cablingSvc->calibSlotLine(ChID) ;
   if ( calibLineV.size() > 0 ) {
     return calibLineV[0] ; 
   } else {
-      log << MSG::WARNING << "Could not get calib line for channel " << ChID.getString() << endmsg ;
+      log << MSG::WARNING << "Could not get calib line for channel " << ChID.getString() << endreq ;
     return HWIdentifier(0) ;
   }
 }

@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -52,18 +52,18 @@ const float& LArPhysCaliTdiffComplete::Tdiff(const Identifier&  CellID, int gain
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }

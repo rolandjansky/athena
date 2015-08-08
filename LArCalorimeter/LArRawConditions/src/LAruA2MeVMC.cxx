@@ -16,7 +16,7 @@ StatusCode LAruA2MeVMC::initialize()
 {
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LAruA2MeVMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
       return (StatusCode::FAILURE);
   }
 

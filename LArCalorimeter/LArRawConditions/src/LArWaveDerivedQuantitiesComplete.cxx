@@ -7,7 +7,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -107,18 +107,18 @@ const float& LArWaveDerivedQuantitiesComplete::BaseLine(const Identifier&  CellI
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -134,18 +134,18 @@ const float& LArWaveDerivedQuantitiesComplete::MaxAmp(const Identifier&  CellID,
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -161,18 +161,18 @@ const float& LArWaveDerivedQuantitiesComplete::TMaxAmp(const Identifier&  CellID
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -187,18 +187,18 @@ const float& LArWaveDerivedQuantitiesComplete::Width(const Identifier&  CellID, 
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -214,18 +214,18 @@ const float& LArWaveDerivedQuantitiesComplete::rT0(const Identifier&  CellID, in
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -241,18 +241,18 @@ const float& LArWaveDerivedQuantitiesComplete::PosLobe(const Identifier&  CellID
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -268,18 +268,18 @@ const float& LArWaveDerivedQuantitiesComplete::Jitter(const Identifier&  CellID,
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static float empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -294,18 +294,18 @@ const unsigned& LArWaveDerivedQuantitiesComplete::Flag(const Identifier&  CellID
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       static unsigned empty = ERRORCODE ; 
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWaveDerivedQuantitiesComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     static unsigned empty = ERRORCODE ; 
     return empty; 
   }

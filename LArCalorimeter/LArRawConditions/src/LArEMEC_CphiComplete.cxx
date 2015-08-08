@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -52,13 +52,13 @@ const float& LArEMEC_CphiComplete::EMEC_Cphi(const Identifier&  CellID) const
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       std::cout << "LArEMEC_Cphi: Could not retrieve LArCablingService Tool " << std::endl;
       return dummy; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
     
   } else {
     std::cout << "LArEMEC_Cphi: Could not retrieve ToolSvc " << std::endl;

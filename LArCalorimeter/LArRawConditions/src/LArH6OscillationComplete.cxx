@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -60,18 +60,18 @@ const double& LArH6OscillationComplete::channelPhase(const Identifier&  CellID) 
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArH6OscillationComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
     
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArH6OscillationComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     return empty; 
   }
   return channelPhase(OnId);
@@ -87,18 +87,18 @@ const double& LArH6OscillationComplete::channelAmplitude(const Identifier&  Cell
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
+    LArCablingService* m_cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArH6OscillationComplete");
-      logstr << MSG::WARNING << "LArH6OscillationComplete: Could not retrieve LArCablingService Tool " << endmsg;
+      logstr << MSG::WARNING << "LArH6OscillationComplete: Could not retrieve LArCablingService Tool " << endreq;
       return empty; 
     }
-    OnId = cablingService->createSignalChannelID(CellID);  
+    OnId = m_cablingService->createSignalChannelID(CellID);  
     
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArH6OscillationComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     return empty; 
   }
   return channelAmplitude(OnId);
