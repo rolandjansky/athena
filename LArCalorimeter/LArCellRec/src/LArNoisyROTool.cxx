@@ -160,13 +160,14 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }
 
   // exclude FCAL for now
+  // And also HEC (since 08/2015 - B.Trocme)
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
   if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
   if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
+//  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
+//  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
