@@ -21,7 +21,6 @@ public:
 
   virtual StatusCode convert(HLT::Navigation*) = 0; 
   virtual StatusCode rewireNavigation(HLT::Navigation*) = 0;
-  virtual StatusCode setTrigPassBits(HLT::Navigation*) = 0;
   static const InterfaceID& interfaceID() { return IID_ITrigBStoxAODTool; }
 };
 
