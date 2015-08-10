@@ -88,6 +88,10 @@ class PixelOfflineCalibSvc : public AthService, virtual public IPixelOfflineCali
       virtual int getIBLToToverflow(Identifier* PixID) const; //{return -99; /* dummy return value */}
       virtual int getIBLToToverflow() const; //{return -99; /* dummy return value */}
       virtual void readHDC();
+
+      virtual StatusCode IOVCallBack_HDC(IOVSVC_CALLBACK_ARGS_P(I, keys));
+
+
     private:
 
       ToolHandle<IPixelRecoDbTool >  m_dbTool;
@@ -98,6 +102,7 @@ class PixelOfflineCalibSvc : public AthService, virtual public IPixelOfflineCali
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
       int m_HitDiscCnfg;
       int m_IBLToToverflowBin;
+      bool m_HDCfromCOOL;
     
       const PixelID* m_pixel_id;
     }; 

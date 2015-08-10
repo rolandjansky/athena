@@ -13,6 +13,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "StoreGate/StoreGate.h" 
@@ -26,6 +27,11 @@
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 
+// for callback
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+
+
 //================ Constructor =================================================
 
 PixelOfflineCalibSvc::PixelOfflineCalibSvc(const std::string& name, ISvcLocator* sl)
@@ -38,12 +44,14 @@ PixelOfflineCalibSvc::PixelOfflineCalibSvc(const std::string& name, ISvcLocator*
   m_sgSvc("StoreGateSvc",name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_HitDiscCnfg(-1),
-  m_IBLToToverflowBin(0)
+  m_IBLToToverflowBin(0),
+  m_HDCfromCOOL(true)
 {
   //  template for property declaration
   declareProperty("StoreGateSvc"   , m_sgSvc);
   declareProperty("PixelRecoDbTool", m_dbTool);
   declareProperty("OverrideIBLToToverflowBin", m_IBLToToverflowBin);
+  declareProperty("HDCFromCOOL", m_HDCfromCOOL);
 }
 
 //================ Destructor =================================================
@@ -105,7 +113,7 @@ StatusCode PixelOfflineCalibSvc::initialize()
   }
 
 // IBL Overflow:
-    
+  if(m_HDCfromCOOL){
     if (m_pixelCabling.retrieve().isFailure()) {
         msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCabling << endreq;
         return StatusCode::FAILURE;
@@ -126,10 +134,34 @@ StatusCode PixelOfflineCalibSvc::initialize()
         ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc);
 
     // Read HitDiscCnfg from COOL:
-    if (m_IBLParameterSvc->containsIBL()) {
-        readHDC();
-    }
+    // Need to do a callback to get updated values from PixelCabling
+    if (m_IBLParameterSvc->containsIBL()) { // Run-1 protection
     
+        std::string m_keyHDC = "/PIXEL/HitDiscCnfg";
+        const DataHandle<AthenaAttributeList> attrlist_hdc;
+        if (m_detStore->contains<AthenaAttributeList>(m_keyHDC)) {
+            sc = m_detStore->regFcn(&IPixelOfflineCalibSvc::IOVCallBack_HDC,
+                                    dynamic_cast<IPixelOfflineCalibSvc*>(this),
+                                    attrlist_hdc, m_keyHDC);
+    
+            if (!sc.isSuccess()) {
+                ATH_MSG_FATAL("Unable to register HitDiscCnfg callback");
+                return StatusCode::FAILURE;
+            }
+        }
+    }
+  }
+  
+  //Case where HDC should not be taken from COOL and pixel cabling dependence should be avoided, e.g. ITK
+  else{
+    //If ToT overflow not defined in JOs, set to 14
+    if(m_IBLToToverflowBin == 0) {
+      m_IBLToToverflowBin = 14;
+      ATH_MSG_INFO("Not reading HitDiscCnfg from COOL and no IBL ToT Overflow set - setting to  " << m_IBLToToverflowBin);
+    }
+    else ATH_MSG_INFO("Not reading HitDiscCnfg from COOL - setting IBL ToT Overflow to  " << m_IBLToToverflowBin << " from Configuration");
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -540,23 +572,23 @@ void PixelOfflineCalibSvc::readHDC() {
           nchip++;
 	  if ( HitDiscCnfg > 3 ) HitDiscCnfg = 4;
 	  HDCOccurence[HitDiscCnfg]++;
-	  msg(MSG::DEBUG) <<  " Eta = " << eta_index << " Phi = " << phi_index << " FE = " << FE_index << " HitDiscCnfg = " << HitDiscCnfg << endreq;
 	}
       }
-    }  	      
+    }  	     
+
+    // If there is no common HDC value (i.e. less than 4 ouf of 5 elements in HDCOccurence are 0), issue a warning
+    if (std::count(HDCOccurence.begin(), HDCOccurence.end(), 0) < 4) ATH_MSG_WARNING(" IBL FE-I4 chips have different values of HitDiscCnfg");
     
-    int imax = HDCOccurence.at(0);
-    for ( int ihdc = 0; ihdc < 5; ihdc++ ){	    
-      msg(MSG::INFO) << " HitDiscCnfg Occurence " << ihdc << " is " << HDCOccurence.at(ihdc) << endreq;
-      if ( HDCOccurence.at(ihdc) == nchip )m_HitDiscCnfg = ihdc;
-      if ( HDCOccurence.at(ihdc) > imax ) imax = ihdc;
-    }
+    // Now get the index for the the most frequent value
+    m_HitDiscCnfg = std::distance(HDCOccurence.begin(), std::max_element(HDCOccurence.begin(),HDCOccurence.end()));
     
-    if ( m_HitDiscCnfg == -1 ){
-      msg(MSG::WARNING) << " IBL FE-I4 chips have different values of HitDiscCnfg" << endreq; 
-      m_HitDiscCnfg = imax;
-      if ( m_HitDiscCnfg == 4 ) msg(MSG::FATAL) << " IBL FE-I4 chips have non physical values for HitDiscCnfg" << endreq;
-    }  
     msg(MSG::INFO) << " m_HitDiscCnfg = " << m_HitDiscCnfg << endreq;
 
+}
+
+// Callback to get HitDiscCnfg values from COOL
+StatusCode PixelOfflineCalibSvc::IOVCallBack_HDC(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+    ATH_MSG_INFO("Callback for key " << keys <<  " (number " << I << ")");
+    readHDC();
+    return StatusCode::SUCCESS;
 }
