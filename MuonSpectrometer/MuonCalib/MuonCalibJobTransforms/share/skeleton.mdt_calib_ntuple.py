@@ -63,6 +63,8 @@ mdtCalibNtuplelog.info( str(mdtCalibNtupleConfig) )
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 
+
+# globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')   #Fabrizio
 globalflags.DataSource.set_Value_and_Lock('data')
 if globalflags.DataSource() == 'data':
     if cosmicRun:
@@ -85,7 +87,8 @@ else:
 
 
 from AthenaCommon.AlgSequence import AlgSequence
-#from RecExConfig.RecFlags import rec
+from RecExConfig.RecFlags import rec    #Ben (avoid Run1, COMP200 selection)
+rec.projectName="calb15_um"             #Ben 
 from MuonRecExample import MuonRecStandaloneFlags
 from MuonRecExample import MuonRecStandaloneOnlySetup
 from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -126,8 +129,10 @@ muonRecFlags.dataPeriod.set_Value_and_Lock('LHC')
 muonRecFlags.useAlignmentCorrections = useAlign##### SET VIA COMMAND LINE IN THE TRF
 
 # calibration ntuple
-muonRecFlags.doCalib = True 
+muonRecFlags.doCalib = False 
+muonRecFlags.doCalibNtuple = True 
 muonRecFlags.calibNtupleOutput=NtupleFile ##### SET VIA COMMAND LINE IN THE TRF
+muonRecFlags.calibNtupleSegments = True
 
 # Switch off the T0 fit (on by default for data)
 #muonRecFlags.doSegmentT0Fit = False
@@ -158,7 +163,6 @@ if dbRTTag!='DEFAULT':
   else:
     conddb.addOverride("/MDT/RT",dbRTTag)
 
-
 include ("MuonCalibStreamCnvSvc/MuonCalibStream_jobOptions.py")
 theApp.EvtMax = EvtMax                ##### SET VIA COMMAND LINE IN THE TRF
 EventSelectorMuonCalibStream.SkipEvents=SkipEvents  ##### SET VIA COMMAND LINE IN THE TRF
@@ -168,14 +172,19 @@ svcMgr.MuonCalibStreamFileInputSvc.InputFiles = InputFiles ##### SET VIA COMMAND
 svcMgr.MuonCalibStreamDataProviderSvc.LumiBlockNumberFromCool=lumiBlockNumberFromCool
 svcMgr.MuonCalibStreamDataProviderSvc.RunNumberFromCool=runNumberFromCool
 
-
-
 print topSequence
 
-include ("BFieldAth/BFieldAth_jobOptions.py")
+# obselete
+#include ("BFieldAth/BFieldAth_jobOptions.py")
+import MagFieldServices.SetupField
 
 # lock all flags. Very important!
 muonRecFlags.lock_JobProperties()
+
+# Enable conversion of old eventInfo to xAOD eventInfo (Dongliang)
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg('EventInfoCnvAlg')
+topSequence.EventInfoCnvAlg.AODKey='MuonCalibStreamEventInfo'
 
 include ("MuonRecExample/MuonRec_jobOptions.py")
 try:
