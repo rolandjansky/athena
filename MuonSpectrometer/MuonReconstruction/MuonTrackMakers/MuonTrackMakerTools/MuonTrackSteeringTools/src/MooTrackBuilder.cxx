@@ -402,7 +402,7 @@ namespace Muon {
       } else {
         msg(MSG::DEBUG) << " doing curved fit ";
       }
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
 
     const MuPatTrack* trkCan1 = dynamic_cast<const MuPatTrack*>(&firstCandidate);
@@ -831,7 +831,7 @@ namespace Muon {
 
     if( msgLvl(MSG::DEBUG) && cleanedSegments.size() != segments->size() ) {
       msg(MSG::DEBUG) << MSG::DEBUG << " Rejected segments based on exclusion list, number of removed segments: " 
-                      << segments->size() - cleanedSegments.size() << " total " << segments->size() << endmsg;
+                      << segments->size() - cleanedSegments.size() << " total " << segments->size() << endreq;
     }
     
     std::vector<Trk::Track*>* newTracks = 0;
@@ -849,12 +849,12 @@ namespace Muon {
         if( msgLvl(MSG::DEBUG) ){
           msg(MSG::DEBUG) << MSG::DEBUG << " adding segment " << m_printer->print(**sit);
           if( msgLvl(MSG::VERBOSE) ) {
-            msg(MSG::DEBUG)  << std::endl << m_printer->print((*sit)->containedMeasurements()) << endmsg;
+            msg(MSG::DEBUG)  << std::endl << m_printer->print((*sit)->containedMeasurements()) << endreq;
             if( msgLvl(MSG::VERBOSE) && candidate.track().measurementsOnTrack() ) 
 	      msg(MSG::DEBUG)  << " track " << m_printer->print(candidate.track()) << std::endl
-			       << m_printer->print(candidate.track().measurementsOnTrack()->stdcont()) << endmsg;
+			       << m_printer->print(candidate.track().measurementsOnTrack()->stdcont()) << endreq;
           }else{
-            msg(MSG::DEBUG)  << endmsg;
+            msg(MSG::DEBUG)  << endreq;
           }
         }
         MuPatSegment* segInfo = m_candidateHandler->createSegInfo(**sit);
@@ -905,9 +905,9 @@ namespace Muon {
                       << m_printer->print(track );
       
       if( msgLvl(MSG::VERBOSE) ){
-        if( track.measurementsOnTrack() ) msg(MSG::DEBUG) << std::endl << m_printer->print( track.measurementsOnTrack()->stdcont() ) << endmsg;
+        if( track.measurementsOnTrack() ) msg(MSG::DEBUG) << std::endl << m_printer->print( track.measurementsOnTrack()->stdcont() ) << endreq;
       }else{
-        msg(MSG::DEBUG) << endmsg;
+        msg(MSG::DEBUG) << endreq;
       }
       
     }
@@ -1191,7 +1191,7 @@ namespace Muon {
     for( ;outIt!=outIt_end;++outIt ){
       if( hasPhi && outIt->first )  newStates.push_back( std::make_pair(false,outIt->second) );
       else if( hasEta && !outIt->first ) newStates.push_back( std::make_pair(false,outIt->second));
-      else if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Dropping outlier " << endmsg;
+      else if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Dropping outlier " << endreq;
     }
 
     
@@ -1410,7 +1410,7 @@ namespace Muon {
 	candidates->push_back(newCandidate);
         if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " creating new candidate " << newCandidate
 						 << std::endl << m_printer->print(newCandidate->track())
-						 << std::endl << m_printer->printStations(newCandidate->track()) << endmsg;
+						 << std::endl << m_printer->printStations(newCandidate->track()) << endreq;
       } // for( ; eit!=eit_end; ++eit )
     }else{
       //ATH_MSG_INFO("Failed extension" );

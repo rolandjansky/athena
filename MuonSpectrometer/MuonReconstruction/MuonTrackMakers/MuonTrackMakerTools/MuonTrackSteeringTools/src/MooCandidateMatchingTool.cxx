@@ -42,13 +42,11 @@
 #include <sstream>
 
 namespace { // local funcs
-#if 0
 inline double robust_acos(double x) {
   if ( x >=  1.0 ) return 0.0;
   if ( x <= -1.0 ) return M_PI;
   return std::acos(x);
 }
-#endif
 
 // limit angle difference to -pi/2 < x <= pi/2
 inline double theta_diff(double x) {
@@ -208,12 +206,12 @@ namespace Muon {
     double scaleLoose =   segmentMatchesLoose != 0.0 ? 1./((double)segmentMatchesLoose)   : 1.;
     msg(MSG::INFO) << std::fixed << std::setprecision(3);
     msg(MSG::INFO) << "Segment/segment matches: total " << std::setw(7) << m_segmentMatches
-                   << "  tight " << std::setw(7) << m_segmentMatchesTight << endmsg
-                   << " same side  " << std::setw(7) << m_sameSideOfPerigee       << " fraction " << m_sameSideOfPerigee*scale << endmsg
-                   << " other side " << std::setw(7) << m_otherSideOfPerigee      << " fraction " << m_otherSideOfPerigee*scale << endmsg
-                   << " good total " << std::setw(7) << m_goodSegmentMatches      << " fraction " << m_goodSegmentMatches*scale*sameScale << endmsg
-                   << " good loose " << std::setw(7) <<   goodSegmentMatchesLoose << " fraction " <<   goodSegmentMatchesLoose*scaleLoose*sameScale << endmsg
-                   << " good tight " << std::setw(7) << m_goodSegmentMatchesTight << " fraction " << m_goodSegmentMatchesTight*scaleTight*sameScale << endmsg;
+                   << "  tight " << std::setw(7) << m_segmentMatchesTight << endreq
+                   << " same side  " << std::setw(7) << m_sameSideOfPerigee       << " fraction " << m_sameSideOfPerigee*scale << endreq
+                   << " other side " << std::setw(7) << m_otherSideOfPerigee      << " fraction " << m_otherSideOfPerigee*scale << endreq
+                   << " good total " << std::setw(7) << m_goodSegmentMatches      << " fraction " << m_goodSegmentMatches*scale*sameScale << endreq
+                   << " good loose " << std::setw(7) <<   goodSegmentMatchesLoose << " fraction " <<   goodSegmentMatchesLoose*scaleLoose*sameScale << endreq
+                   << " good tight " << std::setw(7) << m_goodSegmentMatchesTight << " fraction " << m_goodSegmentMatchesTight*scaleTight*sameScale << endreq;
 
     int segmentTrackMatchesLoose     = m_segmentTrackMatches - m_segmentTrackMatchesTight;
     int goodSegmentTrackMatchesLoose = m_goodSegmentTrackMatches - m_goodSegmentTrackMatchesTight;
@@ -222,12 +220,12 @@ namespace Muon {
     double scaleTrackTight = m_segmentTrackMatchesTight != 0   ? 1./((double)m_segmentTrackMatchesTight) : 1.;
     double scaleTrackLoose =   segmentTrackMatchesLoose != 0.0 ? 1./((double)segmentTrackMatchesLoose)   : 1.;
     msg(MSG::INFO) << "Track/segment matches:   total " << std::setw(7) << m_segmentTrackMatches
-          << "  tight " << std::setw(7) << m_segmentTrackMatchesTight << endmsg
-          << " same side  " << std::setw(7) << m_sameSideOfPerigeeTrk         << " fraction " << m_sameSideOfPerigeeTrk*scaleTrack << endmsg
-          << " other side " << std::setw(7) << m_otherSideOfPerigeeTrk        << " fraction " << m_otherSideOfPerigeeTrk*scaleTrack << endmsg
-          << " good total " << std::setw(7) << m_goodSegmentTrackMatches      << " fraction " << m_goodSegmentTrackMatches*scaleTrack*sameScaleTrack << endmsg
-          << " good loose " << std::setw(7) <<   goodSegmentTrackMatchesLoose << " fraction " <<   goodSegmentTrackMatchesLoose*scaleTrackLoose*sameScaleTrack << endmsg
-          << " good tight " << std::setw(7) << m_goodSegmentTrackMatchesTight << " fraction " << m_goodSegmentTrackMatchesTight*scaleTrackTight*sameScaleTrack << endmsg;
+          << "  tight " << std::setw(7) << m_segmentTrackMatchesTight << endreq
+          << " same side  " << std::setw(7) << m_sameSideOfPerigeeTrk         << " fraction " << m_sameSideOfPerigeeTrk*scaleTrack << endreq
+          << " other side " << std::setw(7) << m_otherSideOfPerigeeTrk        << " fraction " << m_otherSideOfPerigeeTrk*scaleTrack << endreq
+          << " good total " << std::setw(7) << m_goodSegmentTrackMatches      << " fraction " << m_goodSegmentTrackMatches*scaleTrack*sameScaleTrack << endreq
+          << " good loose " << std::setw(7) <<   goodSegmentTrackMatchesLoose << " fraction " <<   goodSegmentTrackMatchesLoose*scaleTrackLoose*sameScaleTrack << endreq
+          << " good tight " << std::setw(7) << m_goodSegmentTrackMatchesTight << " fraction " << m_goodSegmentTrackMatchesTight*scaleTrackTight*sameScaleTrack << endreq;
     // get printing width
     unsigned int nReasons = (int)TrackSegmentMatchResult::NumberOfReasons;
     unsigned int width = 0;
@@ -236,17 +234,17 @@ namespace Muon {
       if ( w > width ) width = w;
     }
     // print it
-    msg(MSG::INFO) << " Reasons for match failures:" << endmsg;
+    msg(MSG::INFO) << " Reasons for match failures:" << endreq;
     for ( unsigned int i = 0; i < nReasons ; ++i ) {
       int cnt = m_reasonsForMatchNotOk[i];
       TrackSegmentMatchResult::Reason reason = TrackSegmentMatchResult::Reason(i);
-      if ( cnt > 0 ) msg(MSG::INFO) << "  " << std::left << std::setw(width) << TrackSegmentMatchResult::reasonString(reason) << std::right << ": " << cnt << endmsg;
+      if ( cnt > 0 ) msg(MSG::INFO) << "  " << std::left << std::setw(width) << TrackSegmentMatchResult::reasonString(reason) << std::right << ": " << cnt << endreq;
     }
-    msg(MSG::INFO) << " Reasons for match successes:" << endmsg;
+    msg(MSG::INFO) << " Reasons for match successes:" << endreq;
     for ( unsigned int i = 0; i < nReasons ; ++i ) {
       int cnt = m_reasonsForMatchOk[i];
       TrackSegmentMatchResult::Reason reason = TrackSegmentMatchResult::Reason(i);
-      if ( cnt > 0 ) msg(MSG::INFO) << "  " << std::left << std::setw(width) << TrackSegmentMatchResult::reasonString(reason) << std::right << ": " << cnt << endmsg;
+      if ( cnt > 0 ) msg(MSG::INFO) << "  " << std::left << std::setw(width) << TrackSegmentMatchResult::reasonString(reason) << std::right << ": " << cnt << endreq;
     }
 
 
@@ -521,7 +519,7 @@ namespace Muon {
             msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed";
           }
           msg(MSG::DEBUG) << " segment match between segment-on-track " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.trackChamberId)) 
-                 << " and segment " <<  MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) << endmsg;
+                 << " and segment " <<  MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) << endreq;
         }
         info.reason = TrackSegmentMatchResult::SegmentMatch;
         info.trackChamberId = closestSegment->chid;
@@ -601,7 +599,7 @@ namespace Muon {
       if ( info.localPosXDiff * info.localPosXDiff > posXCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) <<  " X position cut: "
-                 << info.localPosXDiff << " > " << std::sqrt(posXCut2) << endmsg;
+                 << info.localPosXDiff << " > " << std::sqrt(posXCut2) << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosXCut );
       } else {
@@ -617,7 +615,7 @@ namespace Muon {
       if ( info.localPosYDiff * info.localPosYDiff > posYCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y position cut: "
-                 << info.localPosYDiff << " > " << std::sqrt(posYCut2) << endmsg;
+                 << info.localPosYDiff << " > " << std::sqrt(posYCut2) << endreq;
         } 
         info.setCutFailed( TrackSegmentMatchResult::PosYCut );
       } else {
@@ -631,7 +629,7 @@ namespace Muon {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localPosXDiff / std::sqrt(info.posXTotalErr2);
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " X position pull cut: |"
-                 << pull << "| > " << cuts.posXPullCut << endmsg;
+                 << pull << "| > " << cuts.posXPullCut << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosXPullCut );
       } else {
@@ -645,7 +643,7 @@ namespace Muon {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localPosYDiff / std::sqrt(info.posYTotalErr2);
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y position pull cut: |"
-                 << pull << "| > " << cuts.posYPullCut << endmsg;
+                 << pull << "| > " << cuts.posYPullCut << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::PosYPullCut );
       } else {
@@ -664,7 +662,7 @@ namespace Muon {
       if ( info.localAngleXDiff * info.localAngleXDiff > angleXCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName(m_idHelperTool->chamberIndex(info.segmentChamberId)) <<  " X angle cut: "
-                 << info.localAngleXDiff << " > " << std::sqrt(angleXCut2) << endmsg;
+                 << info.localAngleXDiff << " > " << std::sqrt(angleXCut2) << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngXCut );
       } else {
@@ -680,7 +678,7 @@ namespace Muon {
       if ( info.localAngleYDiff * info.localAngleYDiff > angleYCut2 ) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y angle cut: "
-                 << info.localAngleYDiff << " > " << std::sqrt(angleYCut2) << endmsg;
+                 << info.localAngleYDiff << " > " << std::sqrt(angleYCut2) << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngYCut );
       } else {
@@ -694,7 +692,7 @@ namespace Muon {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localAngleXDiff / std::sqrt(info.angleXTotalErr2);
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " X angle pull cut: |"
-                 << pull << "| > " << cuts.angleXPullCut << endmsg;
+                 << pull << "| > " << cuts.angleXPullCut << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngXPullCut );
       } else {
@@ -708,7 +706,7 @@ namespace Muon {
         if (msgLvl(MSG::DEBUG)) {
           double pull = info.localAngleYDiff / std::sqrt(info.angleYTotalErr2);
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " Y angle pull cut: |"
-                 << pull << "| > " << cuts.angleYPullCut << endmsg;
+                 << pull << "| > " << cuts.angleYPullCut << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::AngYPullCut );
       } else {
@@ -724,7 +722,7 @@ namespace Muon {
       if ( info.matchChiSquared > cuts.matchChiSquaredCut ) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << MSG::DEBUG << " -> Failed " << MuonStationIndex::chName((m_idHelperTool->chamberIndex(info.segmentChamberId))) << " match chi-squared cut: "
-                 << info.matchChiSquared << " > " << cuts.matchChiSquaredCut << endmsg;
+                 << info.matchChiSquared << " > " << cuts.matchChiSquaredCut << endreq;
         }
         info.setCutFailed( TrackSegmentMatchResult::MatchChiSquaredCut );
       } else {
@@ -772,9 +770,9 @@ namespace Muon {
 
     if ( msgLvl(MSG::DEBUG) ) {
       if ( info.matchOK ) {
-        msg(MSG::DEBUG) << MSG::DEBUG << " -> Accepted because " << info.reasonString() << endmsg;
+        msg(MSG::DEBUG) << MSG::DEBUG << " -> Accepted because " << info.reasonString() << endreq;
       } else {
-        msg(MSG::DEBUG) << MSG::DEBUG << " -> Rejected because " << info.reasonString() << endmsg;
+        msg(MSG::DEBUG) << MSG::DEBUG << " -> Rejected because " << info.reasonString() << endreq;
       }
     }
 
@@ -897,7 +895,7 @@ namespace Muon {
         msg(MSG::DEBUG) << std::endl << "Closest track parameters         : " << m_printer->print(*closestPars)
                << "  distance=" << closestParsDist;
       }
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
     
     bool straightLineMatch = !m_magFieldSvc->toroidOn();
@@ -948,7 +946,7 @@ namespace Muon {
 	  int segmentSector = m_idHelperTool->sector(info.segmentChamberId);
 	  int sectorDiff = std::abs( trackSector - segmentSector );
 	  if ( sectorDiff > 1 && sectorDiff != 15 ) {
-	    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "track sector   =" << trackSector << " segment sector =" << segmentSector << " => not in neighbouring sectors " << endmsg;
+	    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "track sector   =" << trackSector << " segment sector =" << segmentSector << " => not in neighbouring sectors " << endreq;
 	    
 	    info.reason = TrackSegmentMatchResult::SegmentMatching;
 	    return;
@@ -1267,13 +1265,13 @@ namespace Muon {
 
     // if segments are on the same side of the Perigee, they are also on the same side of Calo, so can return
     if ( same ) {
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << " => Accepted" << endmsg;
+      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << " => Accepted" << endreq;
       return true;
     }
     
     // if requiring sameSideOfPerigee (stronger condition), then we are done here.
     if ( requireSameSideOfPerigee ) {
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << " => Rejected" << endmsg;
+      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << " => Rejected" << endreq;
       return false;
     }
 
@@ -1318,8 +1316,8 @@ namespace Muon {
             caloDiskA = pos1 - (dz1/dir.z()) * dir;
             // cross-check
             if ( std::abs(caloDiskA.z() - m_caloMatchZ) > 0.001 ) {
-              if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << endmsg; // finish printout before ERROR message
-              msg(MSG::DEBUG) << MSG::ERROR << "Wrong calculation of crossing calo disk: expected z=" << m_caloMatchZ << " found z=" << caloDiskA.z() << endmsg;
+              if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << endreq; // finish printout before ERROR message
+              msg(MSG::DEBUG) << MSG::ERROR << "Wrong calculation of crossing calo disk: expected z=" << m_caloMatchZ << " found z=" << caloDiskA.z() << endreq;
             }
             if (caloDiskA.perp() > m_minimumSideMatchRadius) crossesCaloDiskA = false;
           }
@@ -1337,8 +1335,8 @@ namespace Muon {
             caloDiskC = pos1 - (dz1/dir.z()) * dir;
             // cross-check
             if ( std::abs(caloDiskC.z() + m_caloMatchZ) > 0.001 ) {
-              if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << endmsg; // finish printout before ERROR message
-              msg(MSG::DEBUG) << MSG::ERROR << "Wrong calculation of crossing calo disk: expected z=" << -m_caloMatchZ << " found z=" << caloDiskC.z() << endmsg;
+              if ( msgLvl(MSG::VERBOSE) ) msg(MSG::DEBUG) << endreq; // finish printout before ERROR message
+              msg(MSG::DEBUG) << MSG::ERROR << "Wrong calculation of crossing calo disk: expected z=" << -m_caloMatchZ << " found z=" << caloDiskC.z() << endreq;
             }
             if (caloDiskC.perp() > m_minimumSideMatchRadius) crossesCaloDiskC = false;
           }
@@ -1383,7 +1381,7 @@ namespace Muon {
         msg(MSG::DEBUG) << " => Rejected";
       }
       msg(MSG::DEBUG) << std::setprecision(6)  // back to default precision
-             << endmsg; // final flush
+             << endreq; // final flush
     } // if (msgLvl(MSG::VERBOSE))
 
     return accepted;
@@ -1467,12 +1465,12 @@ namespace Muon {
     }
     // if in same chamber, then OK
     if ( chid1 == chid2 ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "in same chamber" << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "in same chamber" << endreq;
       return true;
     }
     // check in r
     if ( seg1.stIndex != seg2.stIndex ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in same station" << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in same station" << endreq;
       return false;
     }
 
@@ -1480,7 +1478,7 @@ namespace Muon {
     int secDiff = std::abs( m_idHelperTool->sector(chid1) - m_idHelperTool->sector(chid2) );
     if ( secDiff > 1 && secDiff != 15 ) {
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "sec1=" << m_idHelperTool->sector(chid1)
-                             << "sec2=" << m_idHelperTool->sector(chid2) << " => not in neighbouring phi " << endmsg;
+                             << "sec2=" << m_idHelperTool->sector(chid2) << " => not in neighbouring phi " << endreq;
       return false;
     }
 
@@ -1489,7 +1487,7 @@ namespace Muon {
       // both in endcap
       // endcap: can compare eta indices
       if ( std::abs( m_idHelperTool->stationEta(chid1) - m_idHelperTool->stationEta(chid2) ) > 1 ) {
-        if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta" << endmsg;
+        if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta" << endreq;
         return false;
       }
     } else if ( !seg1.isEndcap && !seg2.isEndcap ) {
@@ -1500,7 +1498,7 @@ namespace Muon {
       if ( exceptions.find(stationName1[2]) == std::string::npos && exceptions.find(stationName2[2]) == std::string::npos ) {
         // the normal case
         if ( std::abs( m_idHelperTool->stationEta(chid1) - m_idHelperTool->stationEta(chid2) ) > 1 ) {
-          if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta " << endmsg;
+          if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "not in neighbouring eta " << endreq;
           return false;
         }
       } else {
@@ -1524,7 +1522,7 @@ namespace Muon {
             }
             // allow some distance
             if ( distZ > 100.0 ) {
-              if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " z-position too far apart" << endmsg;
+              if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " z-position too far apart" << endreq;
               return false;
             }
           }
@@ -1532,11 +1530,11 @@ namespace Muon {
       }
     } else {
     // don't mix barrel/endcap
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "endcap/barrel mix" << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "endcap/barrel mix" << endreq;
       return false;
     }
 
-    if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Yes!" << endmsg;
+    if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Yes!" << endreq;
     return true;
   }
   
