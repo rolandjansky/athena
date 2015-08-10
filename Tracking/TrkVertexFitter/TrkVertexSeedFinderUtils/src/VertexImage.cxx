@@ -230,7 +230,7 @@ namespace Trk {
     }
     // compute average position and width of positive weights
     if (nPos <= 0) {
-      //msg(MSG::WARNING) << "XY projection of image has no positive weights" << endmsg;
+      //msg(MSG::WARNING) << "XY projection of image has no positive weights" << endreq;
       return;
     }
     // update fallback quantities to something better

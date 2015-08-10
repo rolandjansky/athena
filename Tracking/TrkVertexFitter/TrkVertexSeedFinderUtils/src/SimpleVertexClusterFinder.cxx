@@ -6,6 +6,7 @@
           SimpleVertexClusterFinder.cxx - Description in header file
 *********************************************************************/
 #include "TrkVertexSeedFinderUtils/SimpleVertexClusterFinder.h"
+#include "VxVertex/Vertex.h"
 
 namespace Trk
 {
@@ -27,13 +28,13 @@ namespace Trk
   StatusCode SimpleVertexClusterFinder::initialize() 
   { 
     //no initializiation needed
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    msg(MSG::INFO) << "Initialize successful" << endreq;
     return StatusCode::SUCCESS;
   }
   
   StatusCode SimpleVertexClusterFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    msg(MSG::INFO)  << "Finalize successful" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -43,7 +44,7 @@ namespace Trk
   // Is called from the ImagingSeedFinder tool. Also, if the m_xbins, m_ybins, m_zbins,
   // is not exactly what they were in ImagingSeedFinder (length of hist_rs is not binstot), 
   // the code WILL and should fail. 
-  std::vector<Amg::Vector3D> SimpleVertexClusterFinder::findVertexClusters( const VertexImage & image ){
+  std::vector<Trk::Vertex> SimpleVertexClusterFinder::findVertexClusters( const VertexImage & image ){
 
     // This cluster finder needs a copy of the image so it can access it throughout many sub-functions
     // Not needed for general cluster finders
@@ -52,7 +53,7 @@ namespace Trk
 
     int binstot = m_image.getNBins();
 
-    std::vector<Amg::Vector3D> vertices;    
+    std::vector<Vertex> vertices;    
 
     std::map<int,float> *binsRemaining = new std::map<int,float>();
 
@@ -84,16 +85,16 @@ namespace Trk
     for(std::vector< Cluster*>::iterator cit = clusts->begin(); cit!=clusts->end(); cit++) {
       float xbin,ybin,zbin;
       getCenter(*cit, xbin,ybin,zbin);
-      vertices.push_back( Amg::Vector3D( image.getRelPosX(xbin),
-                                         image.getRelPosY(ybin),
-                                         image.getRelPosZ(zbin) ) );
+      vertices.push_back( Vertex(Amg::Vector3D( image.getRelPosX(xbin),
+                                                image.getRelPosY(ybin),
+                                                image.getRelPosZ(zbin) ) ) );
       delete *cit;      
     }
 
     //dont need the cluster vector anymore.  all the elements have been deleted in above loop
     delete clusts;
 
-    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endmsg;
+    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endreq;
     return vertices;
 
   } //End findSimpleVertexClusterFinders

@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "xAODTracking/Vertex.h"
 
 namespace Trk
 {
@@ -26,16 +25,10 @@ namespace Trk
 
    @author matthew.scott.rudolph@cern.ch
 
-   ------------------------------------
-   Changes:
-
-   David Shope <david.richard.shope@cern.ch> (2016-04-19)
-
-   EDM Migration to xAOD - from Trk::RecVertex to xAOD::Vertex
-
    */
 
   class VertexImage;
+  class RecVertex;
 
   class IVertexImageMaker : virtual public IAlgTool {
 
@@ -48,7 +41,7 @@ namespace Trk
        static const InterfaceID& interfaceID() { return IID_IVERTEXIMAGEMAKER; };
 
        //Return a vertex image from the tracks centered around the constraint
-       virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint ) = 0;
+       virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const RecVertex * constraint ) = 0;
   };
 }
 
