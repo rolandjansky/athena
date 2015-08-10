@@ -19,38 +19,104 @@ if inputFileSummary.has_key("evt_type"):
 from JetMissingEtTagTools.JetMissingEtTagToolsConf import JetMetTagTool as ConfiguredJetMissingEtTagTool
 from AthenaCommon.BeamFlags import jobproperties
 
-CalibrationSetup="aroj"
+if rec.doHeavyIon() or  jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
 
-if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
-	CalibrationSetup="aj"
+	CalibrationSetup="aroj"
 
-from JetRec.JetRecCalibrationFinder import jrcf
-JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", CalibrationSetup, "reco", "Kt4")
-ToolSvc += JetCalibrationTool 
+	if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam':
+		CalibrationSetup="aj"
 
-if rec.doHeavyIon():
-	JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
-		JetContainer        = "antikt4HIItrEM_TowerJets",
-		UseEMScale          = False,
-		EtCut               = 40.0*GeV,
-		isSimulation        = inputIsSimulation,
-		JetCalibrationTool  = JetCalibrationTool,
-		JetCalibContainer   = "AntiKt4TopoJets_TAGcalib",
-		METContainer        = "MET_Reference_AntiKt4Topo_TAGcalib",
-		METFinalName        = "FinalClus"
-		#OutputLevel = 2,
-		)
+	from JetRec.JetRecCalibrationFinder import jrcf
+	JetCalibrationTool = jrcf.find("AntiKt", 0.4, "LCTopo", CalibrationSetup, "reco", "Kt4")
+	ToolSvc += JetCalibrationTool 
+
+	if rec.doHeavyIon():
+		JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
+			JetCalibrationTool  = JetCalibrationTool,
+			JetContainer        = "antikt4HIItrEM_TowerJets",
+			METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
+			METFinalName        = "FinalClus",
+			METJetName          = "RefJet",
+			METMuonsName        = "Muons",
+			METSoftClusName     = "SoftClus",
+			METRefTauName       = "RefTau",
+			METRefEleName       = "RefEle",
+			METRefGammaName     = "RefGamma",
+			METPVSoftTrkName    = "PVSoftTrk",
+			METFinalTrkName     = "FinalTrk",
+			JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
+			JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
+			EtCut               = 40.0*GeV,
+			EtCutSkim           = 20.0*GeV,
+			UseEMScale          = False,
+			isSimulation        = inputIsSimulation
+			#OutputLevel = 2,
+			)
+	else:
+		JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
+			JetCalibrationTool  = JetCalibrationTool,
+			JetContainer        = "AntiKt4LCTopoJets",
+			METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
+			METFinalName        = "FinalClus",
+			METJetName          = "RefJet",
+			METMuonsName        = "Muons",
+			METSoftClusName     = "SoftClus",
+			METRefTauName       = "RefTau",
+			METRefEleName       = "RefEle",
+			METRefGammaName     = "RefGamma",
+			METPVSoftTrkName    = "PVSoftTrk",
+			METFinalTrkName     = "FinalTrk",
+
+			JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
+			JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
+			EtCut               = 40.0*GeV,
+			EtCutSkim           = 20.0*GeV,
+			UseEMScale          = False,
+			isSimulation        = inputIsSimulation
+			
+			#OutputLevel = 2,
+			)
+		pass
+	pass
 else:
+
+	# ME: use EM jets for 2015 since this is calibrated
+
+	JetCalibTool = CfgMgr.JetCalibrationTool(
+		"JetCalib",
+		JetCollection = "AntiKt4EMTopo",
+		ConfigFile    = "JES_MC15Prerecommendation_April2015.config",
+		RhoKey        = "Kt4EMTopoEventShape"
+		)
+	if inputIsSimulation:
+		JetCalibTool.CalibSequence="JetArea_Residual_Origin_EtaJES_GSC"
+		JetCalibTool.IsData=False
+	else:
+		JetCalibTool.CalibSequence="JetArea_Residual_Origin_EtaJES_GSC_Insitu"
+		JetCalibTool.IsData=True
+	ToolSvc += JetCalibTool
+
 	JetMissingEtTagTool=ConfiguredJetMissingEtTagTool(
+		JetCalibrationTool  = JetCalibTool,
 		JetContainer        = "AntiKt4EMTopoJets",
-		UseEMScale          = False,
+		METContainer        = "MET_Reference_AntiKt4Topo_TAGcalibskim",
+		METFinalName        = "FinalClus",
+		METJetName          = "RefJet",
+		METMuonsName        = "Muons",
+		METSoftClusName     = "SoftClus",
+		METRefTauName       = "RefTau",
+		METRefEleName       = "RefEle",
+		METRefGammaName     = "RefGamma",
+		METPVSoftTrkName    = "PVSoftTrk",
+		METFinalTrkName     = "FinalTrk",
+		JetCalibContainer       = "AntiKt4TopoJets_TAGcalib",
+		JetCalibContainerSkim   = "AntiKt4TopoJets_TAGcalibskim",
 		EtCut               = 40.0*GeV,
-		isSimulation        = inputIsSimulation,
-		JetCalibrationTool  = JetCalibrationTool,
-		JetCalibContainer   = "AntiKt4TopoJets_TAGcalib",
-		METContainer        = "MET_Reference_AntiKt4Topo_TAGcalib",
-		METFinalName        = "FinalClus"
+		EtCutSkim           = 20.0*GeV,
+		UseEMScale          = False,
+		isSimulation        = inputIsSimulation
 		#OutputLevel = 2,
 		)
+	pass
 
 ToolSvc += JetMissingEtTagTool

@@ -11,6 +11,7 @@ Purpose : create a collection of JetMissingEtJetTag
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "AthContainers/ConstDataVector.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODParticleEvent/IParticleLink.h"
 #include "xAODJet/JetAuxContainer.h"
@@ -33,7 +34,6 @@ Purpose : create a collection of JetMissingEtJetTag
 #include <vector>
 
 
-
 using xAOD::Jet;
 using xAOD::MissingET;
 using xAOD::MissingETContainer;
@@ -53,16 +53,22 @@ JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name,
 
   /** JetMissingEt AOD Container Name */
   declareProperty("JetContainer",          m_containerName           = "AntiKt4EMTopo");
-  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4Topo_TAGcalib");
+  declareProperty("METContainer",          m_metContainerName        = "MET_Reference_AntiKt4Topo_TAGcalibskim");
   declareProperty("METFinalName",          m_metRefFinalName         = "FinalClus");
-  // declareProperty("METSoftJetName",        m_metSoftJetName          = "MET_SoftJets");
-  // declareProperty("METRefMuonInName",      m_metRefMuonInName        = "MET_RefMuons");
+  declareProperty("METJetName",            m_metRefJetName           = "RefJet");
   declareProperty("METMuonsName",          m_metMuonsName            = "Muons");
-  declareProperty("METSoftTermName",       m_metSoftTermName         = "SoftClus");
+  declareProperty("METSoftClusName",       m_metSoftClusName         = "SoftClus");
   declareProperty("METRefTauName",         m_metRefTauName           = "RefTau");
-  declareProperty("JetCalibContainer",     m_jetCalibcontainerName   = "AntiKt4TopoJets_TAGcalib");
+  declareProperty("METRefEleName",         m_metRefEleName           = "RefEle");
+  declareProperty("METRefGammaName",       m_metRefGammaName         = "RefGamma");
+  declareProperty("METPVSoftTrkName",      m_metPVSoftTrkName        = "PVSoftTrk");
+  declareProperty("METFinalTrkName",       m_metFinalTrkName         = "FinalTrk");
+
+  declareProperty("JetCalibContainer",     m_jetCalibcontainerName      = "AntiKt4TopoJets_TAGcalib");
+  declareProperty("JetCalibContainerSkim", m_jetCalibcontainerName_skim = "AntiKt4TopoJets_TAGcalibskim");
   /** selection cut of Pt */
   declareProperty("EtCut",                 m_jetPtCut                = 40.0*CLHEP::GeV);
+  declareProperty("EtCutSkim",             m_jetPtCut_skim           = 20.0*CLHEP::GeV);
 
   declareProperty("UseEMScale",            m_useEMScale              = false);
   declareProperty("isSimulation",          m_isSimulation            = false);
@@ -92,10 +98,24 @@ StatusCode JetMetTagTool::attributeSpecification(std::map<std::string,AthenaAttr
   attrMap[ MissingEtAttributeNames[EtMiss::MET_RefFinalX] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefFinalX], MissingEtAttributeGroupNames[EtMiss::MET_RefFinalX]);
   attrMap[ MissingEtAttributeNames[EtMiss::MET_RefFinalY] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefFinalY], MissingEtAttributeGroupNames[EtMiss::MET_RefFinalY]);
   attrMap[ MissingEtAttributeNames[EtMiss::SumET] ]        = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::SumET],        MissingEtAttributeGroupNames[EtMiss::SumET]);
-  attrMap[ MissingEtAttributeNames[EtMiss::MET_CellOutX] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_CellOutX], MissingEtAttributeGroupNames[EtMiss::MET_CellOutX]);
-  attrMap[ MissingEtAttributeNames[EtMiss::MET_CellOutY] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_CellOutY], MissingEtAttributeGroupNames[EtMiss::MET_CellOutY]);
-  attrMap[ MissingEtAttributeNames[EtMiss::MET_RefTauX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefTauX], MissingEtAttributeGroupNames[EtMiss::MET_RefTauX]);
-  attrMap[ MissingEtAttributeNames[EtMiss::MET_RefTauY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefTauY], MissingEtAttributeGroupNames[EtMiss::MET_RefTauY]);
+  attrMap[ MissingEtAttributeNames[EtMiss::MET_SoftClusX] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_SoftClusX], MissingEtAttributeGroupNames[EtMiss::MET_SoftClusX]);
+  attrMap[ MissingEtAttributeNames[EtMiss::MET_SoftClusY] ] = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_SoftClusY], MissingEtAttributeGroupNames[EtMiss::MET_SoftClusY]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefJetX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefJetX], MissingEtAttributeGroupNames[EtMiss::MET_RefJetX]);
+  attrMap[ MissingEtAttributeNames[EtMiss::MET_RefJetY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefJetY], MissingEtAttributeGroupNames[EtMiss::MET_RefJetY]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefTauX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefTauX], MissingEtAttributeGroupNames[EtMiss::MET_RefTauX]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefTauY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefTauY], MissingEtAttributeGroupNames[EtMiss::MET_RefTauY]);
+  attrMap[ MissingEtAttributeNames[EtMiss::MET_MuonsX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_MuonsX], MissingEtAttributeGroupNames[EtMiss::MET_MuonsX]);
+  attrMap[ MissingEtAttributeNames[EtMiss::MET_MuonsY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_MuonsY], MissingEtAttributeGroupNames[EtMiss::MET_MuonsY]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefEleX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefEleX], MissingEtAttributeGroupNames[EtMiss::MET_RefEleX]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefEleY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefEleY], MissingEtAttributeGroupNames[EtMiss::MET_RefEleY]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefGammaX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefGammaX], MissingEtAttributeGroupNames[EtMiss::MET_RefGammaX]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_RefGammaY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_RefGammaY], MissingEtAttributeGroupNames[EtMiss::MET_RefGammaY]);
+
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_PVSoftTrkX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_PVSoftTrkX], MissingEtAttributeGroupNames[EtMiss::MET_PVSoftTrkX]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_PVSoftTrkY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_PVSoftTrkY], MissingEtAttributeGroupNames[EtMiss::MET_PVSoftTrkY]);
+
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_FinalTrkX] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_FinalTrkX], MissingEtAttributeGroupNames[EtMiss::MET_FinalTrkX]);
+ attrMap[ MissingEtAttributeNames[EtMiss::MET_FinalTrkY] ]     = AthenaAttributeType("float", MissingEtAttributeUnitNames[EtMiss::MET_FinalTrkY], MissingEtAttributeGroupNames[EtMiss::MET_FinalTrkY]);
 
   return StatusCode::SUCCESS;
 }
@@ -179,8 +199,9 @@ const xAOD::JetContainer* JetMetTagTool::calibrateAndRecordShallowCopyJetCollect
     }
     const xAOD::IParticleLink originLink( *jetContainer, shallowCopyJet->index() );
     accSetOriginLink(*shallowCopyJet) = originLink;
+    
+    
   }
-  
   if( evtStore()->setConst(jetContainerShallowCopy ).isFailure() ){
     ATH_MSG_WARNING( "Failed to set jetcalibCollection (" << m_jetCalibcontainerName+"Aux." << ")const in StoreGate!"); 
     return 0;
@@ -198,7 +219,7 @@ const xAOD::JetContainer* JetMetTagTool::calibrateAndRecordShallowCopyJetCollect
 StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, const int max) {
 
   ATH_MSG_DEBUG(  "in execute() - jet" );
- 
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
   /** retrieve the AOD Jet container */
   const xAOD::JetContainer *jetContainer=0;
   StatusCode sc = evtStore()->retrieve( jetContainer, m_containerName);
@@ -214,18 +235,48 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
     ATH_MSG_WARNING(  "Unable to create calibrated jet shallow copy container" );
     return StatusCode::SUCCESS;
   }
-  // vector to store all jets that pass selection cuts
-  std::vector<const xAOD::Jet *> selectedJetsVector;
-  selectedJetsVector.reserve(jetContainerShallowCopy->size() );
 
   // determine jet scale to use
   xAOD::JetScale scale = m_useEMScale ? xAOD::JetEMScaleMomentum : xAOD::JetAssignedScaleMomentum ;
+
+  // create a new copy for MET calculation
+  ConstDataVector< xAOD::JetContainer >* selectedJets = new ConstDataVector< xAOD::JetContainer >( SG::VIEW_ELEMENTS );
+  ATH_CHECK( evtStore()->record( selectedJets, m_jetCalibcontainerName_skim ) );
+
+  for ( const xAOD::Jet *originalJet : * jetContainerShallowCopy ) {
+
+    const xAOD::JetFourMom_t &jetP4 = originalJet->jetP4(scale);
+
+    /** select and store Jets */
+    double pt = jetP4.Pt();
+
+    bool select = pt > m_jetPtCut_skim;
+
+    if (select) {
+
+      //retrieve jvt information
+      bool hasjvt = originalJet->isAvailable<float>("Jvt");
+
+      if (hasjvt) {
+
+	//apply pile up removal selection
+	float jvt = originalJet->auxdata<float>("Jvt");
+	if ( !( originalJet->pt()< 50000. && fabs(originalJet->eta())<2.4 && fabs(jvt) < 0.64 ) ) {
+	  selectedJets->push_back( originalJet );
+	}
+      }
+    }      
+  }
+  // vector to store all jets that pass selection cuts
+  std::vector<const xAOD::Jet *> selectedJetsVector;
+  selectedJetsVector.reserve(jetContainerShallowCopy->size() );
 
   /** for counting the total energy in jets */
   float jetSumEt = 0;
   /** select and store jets that pass selection cuts into 'selectedJets' vector */
   for ( const xAOD::Jet *calibratedJet : *jetContainerShallowCopy ) {
-  	const xAOD::JetFourMom_t &jetP4 = calibratedJet->jetP4(scale);
+
+    const xAOD::JetFourMom_t &jetP4 = calibratedJet->jetP4(scale);
 
     /** select and store Jets */
     double pt = jetP4.Pt();
@@ -233,14 +284,14 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
     bool select = ( pt > m_jetPtCut ) && (  looseBadTool->accept( *calibratedJet) );
 
     if (select) {
-  		ATH_MSG_DEBUG(" Selected jet with pt=" << pt);
-
-  		/** jet summed Et - to be implemented correctly */
-  		jetSumEt += pt;
+      ATH_MSG_DEBUG(" Selected jet with pt=" << pt);
+      
+      /** jet summed Et - to be implemented correctly */
+      jetSumEt += pt;
 
       selectedJetsVector.push_back(calibratedJet);
     } else {
-    	ATH_MSG_DEBUG( "Did not select jet with pt=" << jetP4.pt() );
+      ATH_MSG_DEBUG( "Did not select jet with pt=" << jetP4.pt() );
     }
   }
 
@@ -284,7 +335,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
       unsigned int pid = 0;
       
       /** isBadJet */
-      if (jet::JetCaloQualityUtils::isUgly(selectedJet))
+      if (!isUglyTool->accept(*selectedJet))
 	pid |= 1 << 0;
       if (!looseBadTool->accept(*selectedJet))
 	pid |= 1 << 2;
@@ -295,8 +346,12 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
       bool hasjvt = selectedJet->isAvailable<float>("Jvt");
       if (hasjvt) {
 	float jvt = selectedJet->auxdata<float>("Jvt");
-	if (fabs(jvt) > 0.2)
+	if (fabs(jvt) > 0.2){
 	  pid |= 1 << 6;
+	}
+	if (fabs(jvt) > 0.64){
+	  pid |= 1 << 7;
+	}
       }
       
       /** get JVF */
@@ -417,14 +472,24 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefFinalY], metfinal->mpy());
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::SumET], metfinal->sumet());
   
-  const MissingET *metSoftTerm = (*met)[m_metSoftTermName];
+  const MissingET *metSoftTerm = (*met)[m_metSoftClusName];
   if ( !metSoftTerm ) {
-    ATH_MSG_WARNING(  "No soft MissingET found in container with name " << m_metSoftTermName );
+    ATH_MSG_WARNING(  "No soft MissingET found in container with name " << m_metSoftClusName );
     return StatusCode::SUCCESS;
   } 
 
-  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_CellOutX], metSoftTerm->mpx());
-  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_CellOutY], metSoftTerm->mpy());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_SoftClusX], metSoftTerm->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_SoftClusY], metSoftTerm->mpy());
+
+  const MissingET *metRefJet = (*met)[m_metRefJetName];
+  if ( !metRefJet ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metRefJetName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefJetX], metRefJet->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefJetY], metRefJet->mpy());
+
 
   const MissingET *metRefTau = (*met)[m_metRefTauName];
   if ( !metRefTau ) {
@@ -434,6 +499,55 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& missingEtTagColl) {
 
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefTauX], metRefTau->mpx());
   missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefTauY], metRefTau->mpy());
+
+
+  const MissingET *metMuons = (*met)[m_metMuonsName];
+  if ( !metMuons ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metMuonsName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_MuonsX], metMuons->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_MuonsY], metMuons->mpy());
+
+
+  const MissingET *metRefEle = (*met)[m_metRefEleName];
+  if ( !metRefEle ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metRefEleName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefEleX], metRefEle->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefEleY], metRefEle->mpy());
+
+
+  const MissingET *metRefGamma = (*met)[m_metRefGammaName];
+  if ( !metRefGamma ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metRefGammaName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefGammaX], metRefGamma->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_RefGammaY], metRefGamma->mpy());
+
+
+  const MissingET *metPVSoftTrk = (*met)[m_metPVSoftTrkName];
+  if ( !metPVSoftTrk ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metPVSoftTrkName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_PVSoftTrkX], metPVSoftTrk->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_PVSoftTrkY], metPVSoftTrk->mpy());
+
+  const MissingET *metFinalTrk = (*met)[m_metFinalTrkName];
+  if ( !metFinalTrk ) {
+    ATH_MSG_WARNING(  "No tau MissingET found in container with name " << m_metFinalTrkName );
+    return StatusCode::SUCCESS;
+  } 
+
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_FinalTrkX], metFinalTrk->mpx());
+  missingEtTagColl.insert(MissingEtAttributeNames[EtMiss::MET_FinalTrkY], metFinalTrk->mpy());
 
 
   return StatusCode::SUCCESS;

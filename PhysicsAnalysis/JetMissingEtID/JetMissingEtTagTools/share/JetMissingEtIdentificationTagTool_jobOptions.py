@@ -5,7 +5,7 @@ include.block ("JetMissingEtTagTools/JetMissingEtTagTool_jobOptions.py")
 from JetMissingEtTagTools.JetMissingEtTagToolsConf import \
 JetMissingEtIdentificationTagTool as ConfiguredJetIdTagTool
 JetMissingEtIdentificationTagTool = ConfiguredJetIdTagTool(
-     JetContainer    = "AntiKt4TopoJets_TAGcalib",
+     JetContainer    = "AntiKt4TopoJets_TAGcalibskim",
      BadEtCut        = 20.0*GeV,
      UseEMScale      = False,
      MissingEtObject = "MET_RefFinal")
