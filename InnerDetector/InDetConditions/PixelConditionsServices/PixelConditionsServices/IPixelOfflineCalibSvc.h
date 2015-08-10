@@ -15,6 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 class StoreGateSvc; 
+class Identifier;
 
 namespace PixelCalib{
   class PixelOfflineCalibData;
@@ -81,6 +82,11 @@ class IPixelOfflineCalibSvc : virtual public IInterface
 
       virtual double getEndcapDeltaX() const =0;
       virtual double getEndcapDeltaY() const =0;
+
+      virtual int getIBLToToverflow(Identifier*) const = 0;
+      virtual int getIBLToToverflow() const = 0;
+
+    virtual StatusCode IOVCallBack_HDC(IOVSVC_CALLBACK_ARGS_P(I, keys)) = 0;
 
     }; 
 
