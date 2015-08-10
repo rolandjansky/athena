@@ -54,8 +54,8 @@ def scheduleRTTJetTests():
     topSequence= AlgSequence()
 
     if jetFlags.useTruth:
-        from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-        scheduleCopyTruthParticles(topSequence)
+        from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles        
+        tools = [ jtm.truthpartcopy, jtm.truthpartcopywz ] + scheduleCopyTruthParticles() + tools
     
     topSequence += JetAlgorithm( "JetAlgorithmTest", Tools = [jtm.tracksel, jtm.tvassoc, ]+tools )
 

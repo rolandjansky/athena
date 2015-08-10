@@ -55,10 +55,10 @@ cppToNumpyType = {
     'vector<double>' : numpy.bool ,
     }
 
-
-
-
-
+if hasattr( ROOT.vector("float"), "data") :
+    bufferFromVect = lambda v : v.data()
+else:
+    bufferFromVect = lambda v : v.begin().base
 
 def splitVarName_default( fullname ):
     res = re_bname.search(fullname)
@@ -219,7 +219,7 @@ class VarPairVector(VarPairBase):
         tname = b1.GetTypeName()
         nptype = cppToNumpyType.get( tname , None)
         if nptype is None :
-            #print "  !!! Unknown type for variable ", b1.GetName(), tname
+            print "  !!! Unknown type for variable ", b1.GetName(), tname
             self.validVariable = False
             return
         npa = numpy.ndarray
@@ -227,11 +227,11 @@ class VarPairVector(VarPairBase):
         # prepare functions which will convert to numpy array
         if self.maxVecSize==-1:
             def getarray(v):
-                return npa(v.size(),dtype=nptype,buffer=v.begin().base())
+                return npa(v.size(),dtype=nptype,buffer=bufferFromVect(v)) # begin().base
         else:
             m = self.maxVecSize
             def getarray(v):
-                return npa(min(m,v.size()),dtype=nptype,buffer=v.begin().base())
+                return npa(min(m,v.size()),dtype=nptype,buffer=bufferFromVect(v))
             
         self.getarray = getarray
 
@@ -247,6 +247,7 @@ class VarPairVector(VarPairBase):
         a1, a2 = self.getEntry(evt1, evt2)
         n = min( len(a1) , len(a2) )
         #print "comparing ",self.name, n, len(a1) , len(a2), '|| ', self.v1[0], self.v2[0], '|| ', a1[0], a2[0]
+        #print "comparing ",self.name, n, len(a1) , len(a2), '|| ', a1.shape , a2.shape
         sizematch = True
         if len(a1) != len(a2):
             sizematch = False
@@ -287,13 +288,16 @@ class VarPairVectorVector(VarPairVector):
         sizematch = True        
         if(v1.size() != v2.size() ):
             sizematch = False
-            fullDebug( self, 'differing length : '+str(v1.size()), len(v2.size()) )
+            fullDebug( self, 'differing length : '+str(v1.size()), str(v2.size()) )
         if nOuter== 0:
             return sizematch
 
         result = True
         for i in xrange(nOuter):
             a1, a2 = getarray(v1[i]),getarray(v2[i])
+            if a1.shape != a2.shape :
+                result = False
+                break
             rd = self.relDiff(a1,a2)
             result = result  and self.checkRes(evt1, rd, a1 )
 
