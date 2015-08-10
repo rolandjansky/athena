@@ -46,7 +46,8 @@ namespace Trk
     float m_weightThreshold;
     float m_mergeParam;
     float m_clusterWindowXY;
-
+    bool  m_refineZ;
+    bool  m_gaussianWindow;
   };
 }
 #endif

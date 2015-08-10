@@ -13,15 +13,20 @@ use TrkParameters          TrkParameters-*          Tracking/TrkEvent
 use GeoPrimitives          GeoPrimitives-*          DetectorDescription 
 use AtlasROOT              AtlasROOT-*              External
 use VxVertex               VxVertex-*               Tracking/TrkEvent
+use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
+use xAODTracking           xAODTracking-*           Event/xAOD
 
 private 
 use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
 use EventPrimitives        EventPrimitives-*        Event
 use TrkTrack               TrkTrack-*               Tracking/TrkEvent
 use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
-use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
 use AtlasFFTW                 AtlasFFTW-*                External
-
+use xAODTruth              xAODTruth-*		    Event/xAOD
+use InDetBeamSpotService   InDetBeamSpotService-*   InnerDetector/InDetConditions
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
+use TrkLinks               TrkLinks-*               Tracking/TrkEvent
 public
 
 library TrkVertexSeedFinderUtils *.cxx components/*.cxx

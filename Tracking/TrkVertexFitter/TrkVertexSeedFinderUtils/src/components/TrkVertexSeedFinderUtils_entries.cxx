@@ -8,6 +8,7 @@
 #include "TrkVertexSeedFinderUtils/SimpleVertexClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
+#include "TrkVertexSeedFinderUtils/ImagingSeedTuningAlg.h"
 
 using namespace Trk ;
 
@@ -20,10 +21,13 @@ DECLARE_TOOL_FACTORY( Trk2DDistanceFinder )
 DECLARE_TOOL_FACTORY( SimpleVertexClusterFinder )
 DECLARE_TOOL_FACTORY( LocalMax1DClusterFinder )
 DECLARE_TOOL_FACTORY( VertexImageMaker )
+DECLARE_ALGORITHM_FACTORY( ImagingSeedTuningAlg )
 
 /** factory entries need to have the name of the package */
+
 DECLARE_FACTORY_ENTRIES( TrkVertexSeedFinderUtils )
 {
+  DECLARE_ALGORITHM( ImagingSeedTuningAlg );
 
   DECLARE_TOOL( Trk2dDistanceSeeder );
   DECLARE_TOOL( NewtonTrkDistanceFinder );

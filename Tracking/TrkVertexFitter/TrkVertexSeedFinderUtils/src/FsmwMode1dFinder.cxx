@@ -39,6 +39,12 @@ namespace Trk
     msg(MSG::INFO)  << "Finalize successfull" << endreq;
     return StatusCode::SUCCESS;
   }
+
+#ifdef FSMWMODE1DFINDER_DEBUG
+  namespace {
+    int debug_counter=200;
+  }
+#endif
   
   double FsmwMode1dFinder::getMode(std::vector<DoubleAndWeight> DoubleAndWeights) const {
     
@@ -71,7 +77,6 @@ namespace Trk
 
     int counter=0;
     double fraction=m_firstfraction;
-
     while (!isthelast) {
 
       counter+=1;
@@ -83,23 +88,55 @@ namespace Trk
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endreq;
 #endif
     int step = (int)std::floor(fraction*(end-begin+1));
-#ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endreq;
-#endif
-    for (std::vector<DoubleAndWeight>::const_iterator i=begin;i!=(end-step+1);++i) {
-#ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endreq;
-#endif	
-      //calculate the weight the interval should be divided into
-      overallweight=0.;
-      for (std::vector<DoubleAndWeight>::const_iterator j=i;j!=i+step;j++) {
+    overallweight=0.;
+    {
+      std::vector<DoubleAndWeight>::const_iterator i=begin;
+      if (step>0) {
+        std::vector<DoubleAndWeight>::const_iterator j_end=i+step-1;
+      for (std::vector<DoubleAndWeight>::const_iterator j=i;j!=j_end;j++) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In the single interval, the component number unknown, value: " << j->first << " weight " 
 	<< j->second << endreq;
 #endif		  
 	overallweight+=j->second;
       }
-      if (((i+step-1)->first-i->first)/overallweight<last_value) {
+      }
+    }
+
+    std::vector<DoubleAndWeight>::const_iterator i_last = begin+step-1;
+
+#ifdef FSMWMODE1DFINDER_DEBUG
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endreq;
+#endif
+    for (std::vector<DoubleAndWeight>::const_iterator i=begin;i!=(end-step+1);++i, ++i_last) {
+#ifdef FSMWMODE1DFINDER_DEBUG
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endreq;
+#endif	
+
+      //calculate the weight the interval should be divided into
+      overallweight+= i_last->second;
+
+      #ifdef FSMWMODE1DFINDER_DEBUG
+      if (debug_counter>0)
+      {
+        --debug_counter;
+      double alt_overallweight=0.;
+      for (std::vector<DoubleAndWeight>::const_iterator j=i;j!=i+step;j++) {
+#ifdef FSMWMODE1DFINDER_DEBUG
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In the single interval, the component number unknown, value: " << j->first << " weight " 
+	<< j->second << endreq;
+#endif		  
+	alt_overallweight+=j->second;
+      }
+      if (std::abs(alt_overallweight - overallweight) > alt_overallweight * std::numeric_limits<double>::epsilon() * 16 ) {
+        ATH_MSG_ERROR("Weights differ: " << alt_overallweight  << " != " << overallweight);
+      }
+      }
+      #endif
+
+
+      double new_value = ((i+step-1)->first-i->first)/overallweight;
+      if (new_value<last_value) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	msg(MSG::DEBUG) << "New value: " << ((i+step-1)->first-i->first)/overallweight << " while the previous one was " << 
 		last_value << endreq;
@@ -109,12 +146,16 @@ namespace Trk
 	best_begin=i;
 	best_end=i+step-1;
       }
+      overallweight-= i->second;
+
     }
     
 #ifdef FSMWMODE1DFINDER_DEBUG
     msg(MSG::DEBUG) << "Ended a cycle with success" << endreq;
+    if (begin==best_begin && end ==best_end) {
+      ATH_MSG_ERROR( "No change at step=" << step );
+    }
 #endif
-
     //assign the new begin and end...
     begin=best_begin;
     end=best_end;

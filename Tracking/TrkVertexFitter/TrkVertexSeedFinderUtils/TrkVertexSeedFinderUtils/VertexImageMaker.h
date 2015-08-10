@@ -58,6 +58,8 @@ namespace Trk
     int    m_cutoffFreqDenominator_xy;
     int    m_cutoffFreqDenominator_z;
 
+    float  m_angularCutoffParameter;
+
     //Other members:
 
     //The one copy of the image -- used for each event to avoid reallocation and passed back to caller

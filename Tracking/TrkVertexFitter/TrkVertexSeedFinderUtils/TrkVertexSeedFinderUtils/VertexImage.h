@@ -58,6 +58,17 @@ namespace Trk {
     // Project bins within nsigma standard deviations of the mean of the image
     std::vector<float> projectRectangleOnZ( float nsigmax, float nsigmay) const;
 
+    // -----------------------------------------------
+    // Fit centroid to 2D Gaussian by projecting onto xy-plane
+    // Returned values are in bins
+    void fitCentroid(float& x, float& y, float& sigmax, float& sigmay) const;
+    // Project on z using a Gaussian window
+    // Input parameters are in bins
+    std::vector<float> projectGaussianOnZ(float x, float y, float sigmax, float sigmay) const;
+    // Project on z using a Gaussian window
+    // Parameters of the Gaussian are found by fitting the xy-projection
+    std::vector<float> projectGaussianOnZ(float scaleFactor) const;
+
   private:
 
     // The actual histogram array
