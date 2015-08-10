@@ -60,16 +60,20 @@ private:
   /** Properties */
   std::string m_containerName;
   std::string m_jetCalibcontainerName;
+  std::string m_jetCalibcontainerName_skim;
   std::string m_metContainerName;
   std::string m_metRefFinalName;
-  // std::string m_metSoftJetName;
-  // std::string m_metRefMuonName;
+  std::string m_metRefJetName;
   std::string m_metMuonsName;
-  std::string m_metSoftTermName;
+  std::string m_metSoftClusName;
   std::string m_metRefTauName;
+  std::string m_metRefEleName;
+  std::string m_metRefGammaName;
+  std::string m_metPVSoftTrkName;
+  std::string m_metFinalTrkName;
   
-
   double m_jetPtCut;
+  double m_jetPtCut_skim;
   bool   m_useEMScale; //Emergency fix for HI (W.L, 22.11.2010)
   bool   m_isSimulation;
 

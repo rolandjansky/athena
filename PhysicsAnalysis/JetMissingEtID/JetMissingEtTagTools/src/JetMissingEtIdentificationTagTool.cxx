@@ -12,7 +12,6 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "JetUtils/JetCaloQualityUtils.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowCopy.h"
@@ -25,7 +24,7 @@ Purpose : create a JetMissingEtIdentificationTag - word to encode Jet and
 #include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 
 // define some global/static selectors
-// looseBadTool, tightBadTool are defined here
+// looseBadTool, tightBadTool and isUglyTool are defined here
 #include "JetSelectorDefs.h"
 
 #include <vector>
@@ -36,7 +35,7 @@ JetMissingEtIdentificationTagTool::JetMissingEtIdentificationTagTool (const std:
   AthAlgTool( type, name, parent ){
 
   /** AOD Container Names */
-  declareProperty("JetContainer",    m_jetContainerName    = "AntiKt4TopoJets_TAGcalib");
+  declareProperty("JetContainer",    m_jetContainerName    = "AntiKt4TopoJets_TAGcalibskim");
   declareProperty("MissingEtObject", m_missingEtObjectName = "MET_RefFinal");
 
   /** Pt cut on jte - modifiable in job options */
@@ -107,7 +106,7 @@ StatusCode JetMissingEtIdentificationTagTool::execute(TagFragmentCollection& jet
     ATH_MSG_DEBUG( " Before touching signal state:" << pt );
     if ( pt < m_badjetPtCut ) continue;
 
-    if (jet::JetCaloQualityUtils::isUgly( calibratedJet ))   AnyBadJet |= 1<<0;
+    if (!isUglyTool->accept(*calibratedJet))                 AnyBadJet |= 1<<0;
     if (!looseBadTool->accept( *calibratedJet))              AnyBadJet |= 1<<2;
     if (!tightBadTool->accept( *calibratedJet))              AnyBadJet |= 1<<4;
     
