@@ -142,8 +142,6 @@ namespace InDet {
             ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
             return StatusCode::FAILURE;
         }
-        
-        m_overflowIBLToT = m_pixofflinecalibSvc->getIBLToToverflow();
 	 
 	return PixelClusteringToolBase::initialize();
     }
@@ -692,6 +690,8 @@ PixelCluster* MergedPixelsTool::makeCluster
     std::vector<Identifier>::const_iterator rdosEnd = group.end();
     std::vector<int>::const_iterator tot = totgroup.begin();    
     std::vector<int>::const_iterator lvl1= lvl1group.begin();    
+
+    if(m_IBLParameterSvc->containsIBL()) m_overflowIBLToT = m_pixofflinecalibSvc->getIBLToToverflow();
 
     // Flag to tag clusters with any ganged pixel
     bool hasGanged = false;  

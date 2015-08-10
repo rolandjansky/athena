@@ -62,8 +62,6 @@ StatusCode InDet::TotPixelClusterSplitter::initialize()
       return StatusCode::FAILURE; 
   } else  
       ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
- 
-  m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 
   return StatusCode::SUCCESS;
 }
@@ -335,8 +333,9 @@ int InDet::TotPixelClusterSplitter::chargeToToT(const Identifier & PixID, const 
   int ToT = static_cast<int>(FLT_ToT);
 
   if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(PixID) == 0 && pixelID.layer_disk(PixID) == 0 ) {
-     if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-     msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(PixID) << " layer_disque = " <<  pixelID.layer_disk(PixID) << " ToT = " << FLT_ToT << " Real ToT = " << ToT << endreq;
+    m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+    if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
+    msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(PixID) << " layer_disque = " <<  pixelID.layer_disk(PixID) << " ToT = " << FLT_ToT << " Real ToT = " << ToT << endreq;
   }
 
   return ToT;

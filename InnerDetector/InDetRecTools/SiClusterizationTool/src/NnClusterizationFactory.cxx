@@ -192,8 +192,6 @@ namespace InDet {
     } else  
         ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
 
-    m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
-
     return StatusCode::SUCCESS;
   }
   
@@ -1019,7 +1017,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   std::vector<int>  totListRecreated;
   std::vector<int>::const_iterator totRecreated = totListRecreated.begin();    
 
-
+  if( m_IBLParameterSvc->containsIBL()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
   //if (!chList.size() && totList.size()){
   //
   // Recreate both charge list and ToT list to correct for the IBL ToT overflow (and later for small hits):

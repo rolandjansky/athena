@@ -218,7 +218,7 @@ namespace InDet {
     double m_correctLorShiftBarrelWithoutTracks;
     double m_correctLorShiftBarrelWithTracks;
     ServiceHandle<IBLParameterSvc>       m_IBLParameterSvc;
-    int                                  m_overflowIBLToT;                                                                                          
+    mutable int                                  m_overflowIBLToT;                                                                                          
     ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
     
    };

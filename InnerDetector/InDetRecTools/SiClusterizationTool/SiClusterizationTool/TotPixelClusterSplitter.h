@@ -93,7 +93,7 @@ namespace InDet
       /** Indicates whether or not to consider long pixels. */
       bool m_doLongPixels;
       ServiceHandle<IBLParameterSvc>       m_IBLParameterSvc;
-      int                                  m_overflowIBLToT;                                                                                          
+      mutable int                                  m_overflowIBLToT;                                                                                          
       ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
   };
 

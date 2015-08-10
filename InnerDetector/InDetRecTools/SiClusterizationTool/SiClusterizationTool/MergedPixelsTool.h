@@ -151,7 +151,7 @@ namespace InDet {
         mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
         mutable unsigned int                                m_splitProdClusters;    //!< statistics output
         mutable unsigned int                                m_largeClusters;        //!< statistics output
-        int                                                 m_overflowIBLToT;                                                                                          
+        mutable int                                                 m_overflowIBLToT;                                                                                          
         ServiceHandle<IPixelOfflineCalibSvc>                m_pixofflinecalibSvc;
         //ServiceHandle< StoreGateSvc >                       m_detStore;
         //const PixelID*                                      m_idHelper;
