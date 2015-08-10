@@ -127,7 +127,7 @@ void LooperKiller::ParseProperties() {
     theProperties["PrintSteps"]="100";
   }
   if (theProperties.find("VerboseLevel")==theProperties.end()) {
-    theProperties["VerboseLevel"]="4";
+    theProperties["VerboseLevel"]="1";
   }
   if (theProperties.find("AbortEvent")==theProperties.end()) {
     theProperties["AbortEvent"]="1";
