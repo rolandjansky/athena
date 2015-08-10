@@ -62,14 +62,17 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         proc_peek = open(card_loc,'r')
         for l in proc_peek.readlines():
             # Look for an output line 
-            if 'output' not in l.split('#')[0]: continue
-            # See if the first character of the last argument of the line is a dash
-            if l.split('#')[0].split()[-1][0]=='-': continue
-            # If it isn't, use that for the directory
-            if 'output'==l.strip().split()[0]:
-                thedir = l.split('#')[0].split()[-1]
+            if 'output' not in l.split('#')[0].split(): continue
+            # Check how many things before the options start
+            tmplist = l.split('#')[0].split(' -')[0]
+            # if two things, second is the directory
+            if len(tmplist.split())==2: thedir = tmplist.split()[1]
+            # if three things, third is the directory (second is the format)
+            elif len(tmplist.split())==3: thedir = tmplist.split()[2]
+            # See if we got a directory
+            if ''!=thedir:
                 mglog.info('Saw that you asked for a special output directory: '+str(thedir))
-                break
+            break
         proc_peek.close()
 
     mglog.info('Started process generation at '+str(time.asctime()))
@@ -89,28 +92,62 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     return thedir
 
 
-def get_default_runcard(isNLO=False):
+#def get_default_runcard(isNLO=False):
+#    # Get the run card from the installation
+#    if isNLO:
+#        mglog.info('Fetching default NLO run_card.dat')
+#        if os.access(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        else:
+#            raise RuntimeError('Cannot find default NLO run_card.dat!')
+#    else:
+#        mglog.info('Fetching default LO run_card.dat')
+#        if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
+#            shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
+#            return 'run_card.SM.dat'
+#        else:
+#            raise RuntimeError('Cannot find default LO run_card.dat!')
+
+
+
+def get_default_runcard(proc_dir='PROC_mssm_0'):
+    try:
+        from __main__ import opts
+        if opts.config_only:
+            mglog.info('Athena running on config only mode: grabbing run card the old way, as there will be no proc dir')
+            mglog.info('Fetching default LO run_card.dat')
+            if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
+                shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
+                return 'run_card.SM.dat'
+            elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
+                shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
+                return 'run_card.SM.dat'
+            else:
+                raise RuntimeError('Cannot find default LO run_card.dat!')
+    except:
+        pass
+
     # Get the run card from the installation
-    if isNLO:
-        mglog.info('Fetching default NLO run_card.dat')
-        if os.access(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat','run_card.SM.dat')
-            return 'run_card.SM.dat'
-        else:
-            raise RuntimeError('Cannot find default NLO run_card.dat!')
+    run_card_loc=proc_dir+'/Cards/run_card.dat'
+    mglog.info('Fetching default run_card.dat from '+str(run_card_loc))
+    if os.access(run_card_loc,os.R_OK):
+        shutil.copy(run_card_loc,'run_card.SM.dat')
+        return 'run_card.SM.dat'
     else:
-        mglog.info('Fetching default LO run_card.dat')
-        if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
-            return 'run_card.SM.dat'
-        elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
-            shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
+        run_card_loc=proc_dir+'/Cards/run_card_default.dat'
+        mglog.info('Fetching default run_card.dat from '+str(run_card_loc))
+        if os.access(run_card_loc,os.R_OK):
+            shutil.copy(run_card_loc,'run_card.SM.dat')
             return 'run_card.SM.dat'
         else:
-            raise RuntimeError('Cannot find default LO run_card.dat!')
-
-
-def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None):
+            raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card_loc)
+    
+    
+def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -123,7 +160,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     if is_gen_from_gridpack(grid_pack):
         if gridpack_dir and nevents and random_seed:
             mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-            generate_from_gridpack(gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir)
+            generate_from_gridpack(gridpack_dir=gridpack_dir,nevents=nevents,random_seed=random_seed,card_check=proc_dir,param_card=param_card_loc)
             return
         else:
             mglog.info('Detected gridpack mode for generating events but asssuming old configuration (using sepatate generate_from_gridpack() call)')
@@ -292,6 +329,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
 
 
+    origLHAPATH=os.environ['LHAPATH']
+    origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
 
 
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
@@ -299,7 +338,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
     else:
         LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
-    os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
+
+    if isNLO:
+        os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
         
     mglog.info('Path to LHAPDF install dir:%s'%LHAPATH)
     mglog.info('Path to LHAPDF data dir: %s'%LHADATAPATH)
@@ -323,6 +364,11 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.error('Failed to get lhapdf-config from MadGraphControl')
                 return 1
             lhapdfconfig = os.getcwd()+'/lhapdf-config'
+
+        mglog.info('lhapdf-config --version:      %s'%str(subprocess.Popen([lhapdfconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --libdir:       %s'%str(subprocess.Popen([lhapdfconfig, '--libdir'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
 
         if not isNLO:
@@ -428,7 +474,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     athenaMP = False
     if 'ATHENA_PROC_NUMBER' in os.environ:
-        njobs = os.environ['ATHENA_PROC_NUMBER']
+        njobs = int(os.environ['ATHENA_PROC_NUMBER'])
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
         athenaMP = True
@@ -565,7 +611,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
             
         
-        mygenerate = subprocess.Popen(['bin/generate_events'],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        mygenerate = subprocess.Popen(['bin/generate_events','--name='+str(run_name)],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         mygenerate.wait()
 
 
@@ -620,13 +666,35 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
+
+    if madspin_card_loc:
+        if os.path.exists('Events/'+run_name+'_decayed_1'):
+            if not isNLO:
+                shutil.move('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz')
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
+            else:
+                shutil.move('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz')
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz'))
+
+        else:
+            mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
+            raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
+        
     os.chdir(currdir)
+
+    #reset LHAPDF paths
+    mglog.info('Restoring original LHAPDF env variables:')
+    os.environ['LHAPATH']=origLHAPATH
+    os.environ['LHAPDF_DATA_PATH']=origLHAPDF_DATA_PATH
+    mglog.info('LHAPATH=%s'%os.environ['LHAPATH'])
+    mglog.info('LHAPDF_DATA_PATH=%s'%os.environ['LHAPDF_DATA_PATH'])
+
 
     mglog.info('Finished at '+str(time.asctime()))
     return 0
 
 
-def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None):
+def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None):
 
     isNLO=False
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
@@ -640,6 +708,10 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             isNLO=True
             break
     proccard.close()
+
+    if param_card is not None:
+        shutil.copy( param_card , gridpack_dir+'/Cards' )
+        mglog.info( 'Moved param card into place: '+str(param_card) )
 
     # Work in progress...
     #if card_check:
@@ -827,6 +899,47 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     return 0
 
 
+def add_lifetimes(process_dir=None,threshold=None):
+    """ Add lifetimes to the generated LHE file.  Should be
+    called after generate_events is called.
+    """
+    try:
+        from __main__ import opts
+        if opts.config_only:
+            mglog.info('Athena running on config only mode: not executing MadGraph')
+            return
+    except:
+        pass
+
+    from glob import glob
+    if process_dir==None:
+        from glob import glob
+        if len(glob('*PROC*'))<1:
+            mglog.error('Process directory could not be found!')
+        else:
+            process_dir = glob('*PROC*')[-1]
+    me_exec=process_dir+'/bin/madevent'
+    if len(glob(process_dir+'/Events/*'))<1:
+        mglog.error('Process dir %s does not contain events?'%process_dir)
+    run = glob(process_dir+'/Events/*')[0].split('/')[-1]
+
+    # Note : This slightly clunky implementation is needed for the time being
+    # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
+
+    tof_c = open('time_of_flight_exec_card','w')
+    tof_c.write('add_time_of_flight '+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
+    tof_c.close()
+
+    mglog.info('Started adding time of flight info '+str(time.asctime()))
+
+    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE)
+    generate.wait()
+
+    mglog.info('Finished adding time of flight information at '+str(time.asctime()))
+
+    return True
+
+
 def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF._00001.events.tar.gz',lhe_version=None):
     try:
         from __main__ import opts
@@ -847,6 +960,9 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
             break
     proccard.close()
 
+    # Clean up in case a link or file was already there
+    if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
+
     mglog.info('Unzipping generated events.')
     if not isNLO:
         unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'])
@@ -854,7 +970,7 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     else:
         unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/events.lhe.gz'])
         unzip.wait()
-
+ 
     mglog.info('Putting a copy in place for the transform.')
     if not isNLO:
         orig_input = open(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe','r')
@@ -1049,6 +1165,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
             if masses['1000022']<xqcut*4.: xqcut = masses['1000022']*0.22
         elif 'C1N2'==gentype:
             if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+        elif 'Stau'==gentype:
+            if masses['1000015']<xqcut*4.: xqcut = masses['1000015']*0.25
         else:
             if 'G' in gentype or 'ALL' in gentype:
                 if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
@@ -1080,7 +1198,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
 def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',masses=None,\
                              nevts=None, njets=1, syst_mod=None,\
                              SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
+                             writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",\
+                             lhaid=10042,madspin_card=None):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1110,7 +1229,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         if 1==thedir:
             mglog.error('Error in process generation!')
             return -1,''
-        mglog.info('Using process directory '+thedir)
+        mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
         # Grab the param card and move the new masses into place
@@ -1156,7 +1275,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generateing events from gridpack')
-            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed):
+            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
             thedir=gridpackDirName
@@ -1164,7 +1283,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
-        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack):
+        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
 
@@ -1174,7 +1293,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         mglog.error('Error arranging output dataset!')
         return -1
 
-    if not keepOutput:
+    if not keepOutput and thedir is not None:
         mglog.info('Removing process directory...')
         shutil.rmtree(thedir,ignore_errors=True)
 
@@ -1184,7 +1303,8 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042):
+                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
+                       madspin_card=None,decays={}):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1208,7 +1328,23 @@ def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direc
 
     if not SLHAonly:
         # Generate the new process!
-        full_proc = """
+        if 'import model' in process:
+            mglog.info('Assuming that you have specified the model in your process string already')
+            full_proc = ''
+            for l in process.split('\n'):
+                if 'import model' in l:
+                    full_proc += l+'\n'
+                    break
+            full_proc+=helpful_definitions()
+            for l in process.split('\n'):
+                if 'import model' not in l:
+                    full_proc += l+'\n'
+            full_proc+="""
+# Output processes to MadEvent directory
+output -f
+"""
+        else:
+            full_proc = """
 import model mssm
 """+helpful_definitions()+"""
 # Specify process(es) to run
@@ -1221,11 +1357,11 @@ output -f
         if 1==thedir:
             mglog.error('Error in process generation!')
             return -1,''
-        mglog.info('Using process directory '+thedir)
+        mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
         # Grab the param card and move the new masses into place
-        build_param_card(param_card_old='param_card.SM.SG.dat',param_card_new='LH.dat',masses=masses)
+        build_param_card(param_card_old='param_card.SM.SG.dat',param_card_new='LH.dat',masses=masses,decays=decays)
 
         mglog.info('Running MSSMCalc')
         runMSSMCalc = subprocess.Popen([ os.environ['MADPATH']+'/Calculators/mssm/MSSMCalc'])
@@ -1243,7 +1379,7 @@ output -f
             if not os.access(str_param_card,os.R_OK):
                 mglog.info('Could not get param card '+str_param_card)
         else:
-            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses)
+            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses,decays=decays)
 
     if SLHAonly:
         mglog.info('Not running generation - only setting up SLHA file')
@@ -1258,7 +1394,7 @@ output -f
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generateing events from gridpack')
-            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed):
+            if generate_from_gridpack(run_name='Test',gridpack_dir=gridpackDirName,nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
                 mglog.error('Error generating events!')
                 return -1
             thedir=gridpackDirName
@@ -1266,7 +1402,7 @@ output -f
             mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
             return -1
     else:
-        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack):
+        if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
             mglog.error('Error generating events!')
             return -1
 
@@ -1276,7 +1412,7 @@ output -f
         mglog.error('Error arranging output dataset!')
         return -1
 
-    if not keepOutput:
+    if not keepOutput and thedir is not None:
         mglog.info('Removing process directory...')
         shutil.rmtree(thedir,ignore_errors=True)
 
@@ -1284,53 +1420,140 @@ output -f
     return [xqcut,the_spot]
 
 
-def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={},extras={}):
-    """Build a new param_card.dat from an existing one."""
+def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses={},decays={},extras={},params={}):
+    """Build a new param_card.dat from an existing one.
+    Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
+    Eventually params will replace the other arguments, but we need to keep them for backward compatibility for now."""
     # Grab the old param card and move it into place
     paramcard = subprocess.Popen(['get_files','-data',param_card_old])
     paramcard.wait()
     if not os.access(param_card_old,os.R_OK):
         mglog.info('Could not get param card '+param_card_old)
     if os.access(param_card_new,os.R_OK):
-        mglog.error('Old param card in the current directory. Dont want to clobber it. Please move it first.')
+        mglog.error('Old param card at'+str(param_card_new)+' in the current directory. Dont want to clobber it. Please move it first.')
         return -1
+
+    #ensure all blocknames and paramnames are upper case
+    for blockName in params:
+       params[blockName.upper()] = params.pop(blockName)
+       for paramName in params[blockName.upper()]:
+          params[blockName.upper()][paramName.upper()] = params[blockName.upper()].pop(paramName)
+
     oldcard = open(param_card_old,'r')
     newcard = open(param_card_new,'w')
-    edit = False
+    decayEdit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
+    doneParams = {} #tracks which params have been done
     for line in oldcard:
         if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
                     and len(line.strip().split()) > 1: 
-            if edit and blockName == 'DECAY': edit = False # Start a new DECAY block
+            if decayEdit and blockName == 'DECAY': decayEdit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
             blockName = line.strip().upper().split()[pos]
+        if decayEdit: continue #skipping these lines because we are in an edit of the DECAY BR
+
         akey = None
-        if blockName in ['MASS','BSM'] and len(line.strip().split()) > 0:
+        if blockName != 'DECAY' and len(line.strip().split()) > 0:
             akey = line.strip().split()[0]
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
-        if   akey != None and blockName == 'MASS'  and masses.has_key(akey):
+        if akey==None:
+           newcard.write(line)
+           continue
+
+        if akey != None and blockName == 'MASS'  and akey in masses:
             newcard.write('   %s    %s  # \n'%(akey,str(masses[akey])))
             mglog.info('   %s    %s  #'%(akey,str(masses[akey])))
-            edit = False
-        elif akey != None and blockName == 'BSM'   and extras.has_key(akey):
+            decayEdit = False
+            # Error checking
+            if 'MASS' in params:
+                mglog.error('Conflicting use of mass and params')
+                return -1
+            continue
+        elif akey != None and blockName == 'BSM'   and akey in extras:
             newcard.write('   %s    %s  # \n'%(akey,str(extras[akey])))
             mglog.info('   %s    %s  #'%(akey,str(extras[akey])))
-            edit = False
-        elif akey != None and blockName == 'DECAY' and decays.has_key(akey):
+            decayEdit = False
+            # Error checking
+            if 'BSM' in params:
+                mglog.error('Conflicting use of extras for BSM and params')
+                return -1
+            continue
+        elif akey != None and blockName == 'DECAY' and akey in decays:
             for newline in decays[akey].splitlines():
                 newcard.write(newline+'\n')
                 mglog.info(newline)
-            edit = True
-        elif not edit:
-            newcard.write(line)
-            #mglog.info(line)
+            decayEdit = True
+            # Error checking
+            if 'DECAY' in params:
+                mglog.error('Conflicting use of decay and params')
+                return -1
+            continue
+
+        #check if we have params for this block 
+        if not params.has_key(blockName):
+           newcard.write(line)
+           continue
+        blockParams = params[blockName]
+
+        # look for a string key, which would follow a # 
+        stringkey = None
+        if '#' in line: #ignores comment lines
+           stringkey = line.strip()[line.strip().find('#')+1:].strip()
+           if len(stringkey.split()) > 0: stringkey = stringkey.split()[0].upper()
+
+        if not akey in blockParams and not (stringkey != None and stringkey in blockParams):
+           newcard.write(line)
+           continue
+
+        if akey in blockParams and (stringkey != None and stringkey in blockParams):
+           mglog.error('Conflicting use of numeric and string keys %s and %s' % (akey,stringkey))
+           return -1
+        theParam = blockParams.get(akey,blockParams[stringkey])
+        if not blockName in doneParams: doneParams[blockName] = {}
+        if akey in blockParams: doneParams[blockName][akey]=True
+        elif stringkey != None and stringkey in blockParams: doneParams[blockName][stringkey]=True
+
+        #do special case of DECAY block
+        if blockName=="DECAY":
+           if theParam.splitlines()[0].split()[0]=="DECAY":
+               #specifying the full decay block
+               for newline in theParam.splitlines():
+                    newcard.write(newline+'\n')
+                    mglog.info(newline)
+               decayEdit = True
+           else: #just updating the total width
+              newcard.write('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+              mglog.info('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+        # second special case of QNUMBERS
+        elif blockName=='QNUMBERS':
+           #specifying the full QNUMBERS block
+           for newline in theParam.splitlines():
+                newcard.write(newline+'\n')
+                mglog.info(newline)
+           decayEdit = True
+        else: #just updating the parameter
+           newcard.write('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+           mglog.info('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+        # Done editing the line!
+
+    #check that all specified parameters have been updated (helps to catch typos)
+    for blockName in params:
+       if not blockName in doneParams:
+          mglog.error('Did not find any of the parameters for block %s in param_card' % blockName)
+          return -1
+       for paramName in params[blockName]:
+          if not paramName in doneParams[blockName]:
+            mglog.error('Was not able to replace parameter %s in param_card' % paramName)
+            return -1
+
+    # Close up and return
     oldcard.close()
     newcard.close()
     return param_card_new
 
 def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
-                   xqcut=500.,nevts=60000,rand_seed=1234,beamEnergy=4000.,
+                   xqcut=0.,nevts=60000,rand_seed=1234,beamEnergy=4000.,
                    scalefact=1.,alpsfact=1.,extras={}):
     """Build a new run_card.dat from an existing one.
     Extras is a dictionary of keys (no spaces needed) and
