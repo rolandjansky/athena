@@ -21,7 +21,6 @@ from MuonCalibJobTransforms.MDTCalibNtupleConfig import StandaloneArg
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import CalibNtupleDoSimArg 
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import DoSegmentT0FitArg
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import DoCSCArg
-from MuonCalibJobTransforms.MDTCalibNtupleConfig import RawTgcArg
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import LumiBlockNumberFromCool
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import RunNumberFromCool
 from MuonCalibJobTransforms.MDTCalibNtupleConfig import CosmicRun
@@ -59,7 +58,6 @@ class MDTCalibNtupleJobTransform( JobTransform ):
         self.add( DBReleaseArg(), default='NONE' )
 
         self.add( DoCSCArg(), default='False' )
-        self.add( RawTgcArg(), default='False' )
 
         self.add( LumiBlockNumberFromCool(), default='False' )
         self.add( RunNumberFromCool(), default='False' )

@@ -29,8 +29,7 @@ moore      = runArgs.moore
 mboy       = runArgs.mboy
 standalone = runArgs.standalone
 doCSC      = runArgs.doCSC
-rawTgc     = runArgs.rawTgc
-cosmicRun  = runArgs.cosmicRun
+cosmicRun = runArgs.cosmicRun
 doSegmentT0Fit = runArgs.doSegmentT0Fit or cosmicRun
 lumiBlockNumberFromCool = runArgs.lumiBlockNumberFromCool
 runNumberFromCool = runArgs.runNumberFromCool
@@ -65,7 +64,7 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 
 
-globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')   #Fabrizio
+# globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')   #Fabrizio
 globalflags.DataSource.set_Value_and_Lock('data')
 if globalflags.DataSource() == 'data':
     if cosmicRun:
@@ -116,8 +115,7 @@ from AtlasGeoModel import GeoModelInit
 # Run Moore
 muonRecFlags.doMoore = moore #### SET VIA COMMAND LINE IN THE TRF
 # Run Muonboy
-#muonRecFlags.doMuonboy = (mboy or standalone) #### SET VIA COMMAND LINE IN THE TRF
-muonRecFlags.doMuonboy = mboy
+muonRecFlags.doMuonboy = (mboy or standalone) #### SET VIA COMMAND LINE IN THE TRF
 #NOTE: In 17.2 the 3rd chain cannot run w/o muonboy.
 #turn on/off track reconstruction
 muonRecFlags.doSegmentsOnly = segOnly #### SET VIA COMMAND LINE IN THE TRF
@@ -135,8 +133,6 @@ muonRecFlags.doCalib = False
 muonRecFlags.doCalibNtuple = True 
 muonRecFlags.calibNtupleOutput=NtupleFile ##### SET VIA COMMAND LINE IN THE TRF
 muonRecFlags.calibNtupleSegments = True
-muonRecFlags.calibNtupleTracks = True
-muonRecFlags.calibNtupleRawTGC = rawTgc ##### SET VIA COMMAND LINE IN THE TRF
 
 # Switch off the T0 fit (on by default for data)
 #muonRecFlags.doSegmentT0Fit = False
@@ -150,30 +146,22 @@ if muonRecFlags.doRPCs:
 if muonRecFlags.doTGCs:
        DetFlags.makeRIO.TGC_setOn()
 
-#Set up new cabling. 
-from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
-#svcMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", false , false)
-#svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
-svcMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=False, ForcedUse=False, doCalStreamInit=True)
-#svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
-print 'skeleton: setting doCalStreamInit true'
-
 include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
    
 # to alter DB options
 #overwriting the tag
 if dbT0Tag!='DEFAULT':
   if dbT0Sql!='DEFAULT':
-    conddb.blockFolder("/MDT/T0BLOB")
-    conddb.addFolder(dbT0Sql,"/MDT/T0BLOB <tag>"+dbT0Tag+"</tag>",True)
+    conddb.blockFolder("/MDT/T0")
+    conddb.addFolder(dbT0Sql,"/MDT/T0 <tag>"+dbT0Tag+"</tag>",True)
   else:
-    conddb.addOverride("/MDT/T0BLOB",dbT0Tag)
+    conddb.addOverride("/MDT/T0",dbT0Tag)
 if dbRTTag!='DEFAULT':
   if dbRTSql!='DEFAULT':
-    conddb.blockFolder("/MDT/RTBLOB")
-    conddb.addFolder(dbRTSql,"/MDT/RTBLOB <tag>"+dbRTTag+"</tag>",True)
+    conddb.blockFolder("/MDT/RT")
+    conddb.addFolder(dbRTSql,"/MDT/RT <tag>"+dbRTTag+"</tag>",True)
   else:
-    conddb.addOverride("/MDT/RTBLOB",dbRTTag)
+    conddb.addOverride("/MDT/RT",dbRTTag)
 
 include ("MuonCalibStreamCnvSvc/MuonCalibStream_jobOptions.py")
 theApp.EvtMax = EvtMax                ##### SET VIA COMMAND LINE IN THE TRF
@@ -209,8 +197,8 @@ except AttributeError:
 svcMgr += CfgMgr.MessageSvc( Format = "% F%50W%S%7W%R%T %0W%M",
                                  defaultLimit=1000000, OutputLevel =INFO)
 
-#if not mboy and not segOnly and hasattr(topSequence.MuonCalibExtraTreeAlg, "Track2MELocation"):
-#        topSequence.MuonCalibExtraTreeAlg.Track2MELocation=""
+if not mboy and not segOnly and hasattr(topSequence.MuonCalibExtraTreeAlg, "Track2MELocation"):
+        topSequence.MuonCalibExtraTreeAlg.Track2MELocation=""
   
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.txt")
