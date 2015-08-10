@@ -34,14 +34,13 @@ Purpose : create a collection of JetMissingEtJetTag
 #include <vector>
 
 
-// define some global/static selectors
-// veryLooseBadTool, looseBadTool, etc... are defined here
-#include "JetSelectorDefs.h"
-
-
 using xAOD::Jet;
 using xAOD::MissingET;
 using xAOD::MissingETContainer;
+
+// define some global/static selectors
+// veryLooseBadTool, looseBadTool, etc... are defined here
+#include "JetSelectorDefs.h"
 
 /** the constructor */
 JetMetTagTool::JetMetTagTool (const std::string& type, const std::string& name, 
