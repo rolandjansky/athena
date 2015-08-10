@@ -207,15 +207,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             return 1
 
     # Check if process is NLO or LO
-    isNLO=False
-    proc_card_loc=proc_dir+'/Cards/proc_card_mg5.dat'
-    proccard = open(proc_card_loc,'r')
-    for line in proccard:
-        if 'generate' in line and '[QCD]' in line:
-            mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
-            isNLO=True
-            break
-    proccard.close()
+    isNLO=is_NLO_run(proc_dir=proc_dir)
            
     if grid_pack:
         #Running in gridpack mode
@@ -306,27 +298,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         mglog.error('Issued exception '+str(e.args)+' '+str(e))
         mglog.error('Working from '+str(os.getcwd()))
         return 1
-
-
-
-
-    # Not sure we need this...
-    if not isNLO:
-        config_card=proc_dir+'/Cards/me5_configuration.txt'
-    else:
-        config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
-    oldcard = open(config_card,'r')
-    newcard = open(config_card+'.tmp','w')  
-    for line in oldcard:
-        if 'output_dependencies = ' in line:                                                
-            newcard.write('output_dependencies = internal \n')
-            mglog.info('Setting output_dependencies = internal in %s'%(config_card))
-        else:
-            newcard.write(line)
-    oldcard.close()
-    newcard.close()
-    shutil.move(config_card+'.tmp',config_card)
-
 
 
     origLHAPATH=os.environ['LHAPATH']
@@ -696,18 +667,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
 def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None):
 
-    isNLO=False
+    isNLO=is_NLO_run(proc_dir=gridpack_dir)
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
-
-    #Check if process is NLO or LO
-    proc_card_loc=gridpack_dir+'/Cards/proc_card_mg5.dat'
-    proccard = open(proc_card_loc,'r')
-    for line in proccard:
-        if 'generate' in line and '[QCD]' in line:
-            mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
-            isNLO=True
-            break
-    proccard.close()
 
     if param_card is not None:
         shutil.copy( param_card , gridpack_dir+'/Cards' )
@@ -859,8 +820,9 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
         mglog.info( sorted( os.listdir( gridpack_dir+'/Events/' ) ) )
     
-        mglog.info('Removing %s/Events/%s directory from gridpack generation.'%(gridpack_dir,run_name))
-        shutil.rmtree(gridpack_dir+'/Events/'+run_name)
+        if os.access(gridpack_dir+'/Events/'+run_name, os.F_OK):
+            mglog.info('Removing %s/Events/%s directory from gridpack generation.'%(gridpack_dir,run_name))
+            shutil.rmtree(gridpack_dir+'/Events/'+run_name)
     
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
         mglog.info( sorted( os.listdir( gridpack_dir+'/Events/' ) ) )
@@ -868,7 +830,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info('Copying make_opts from Template')   
         shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',gridpack_dir+'/Source/')   
        
-        generate = subprocess.Popen([gridpack_dir+'/bin/generate_events','--parton','--nocompile','--only_generation','-f'],stdin=subprocess.PIPE)
+        generate = subprocess.Popen([gridpack_dir+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name=%s'%run_name],stdin=subprocess.PIPE)
         generate.wait()
 
         mglog.info('Copying generated events to %s.'%currdir)
@@ -950,15 +912,7 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
         pass
 
 
-    isNLO=False
-    proc_card_loc=proc_dir+'/Cards/proc_card_mg5.dat'
-    proccard = open(proc_card_loc,'r')
-    for line in proccard:
-        if 'generate' in line and '[QCD]' in line:
-            mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
-            isNLO=True
-            break
-    proccard.close()
+    isNLO=is_NLO_run(proc_dir=proc_dir)
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
@@ -1625,3 +1579,17 @@ def is_gen_from_gridpack(grid_pack=None):
 
     return False
 
+def is_NLO_run(proc_dir='PROC_mssm_0'):
+    isNLO=False
+    proc_card_loc=proc_dir+'/Cards/proc_card_mg5.dat'
+    proccard = open(proc_card_loc,'r')
+    for line in proccard:
+        #This is probably better but needs checking:
+        #m = re.search('\[.*QCD.*\]', name)
+        #if m and m.group():       
+        if 'generate' in line and ('[QCD]' in line or '[real=QCD]' in line):
+            mglog.info('Found NLO generation from this line in proc_card.dat: %s'%(line.strip()))
+            isNLO=True
+            break
+    proccard.close()
+    return isNLO
