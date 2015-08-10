@@ -64,12 +64,6 @@
 #include "CLHEP/Random/RandFlat.h"
 
 
-//FADS classes
-#include "FadsActions/FadsRunAction.h"
-#include "FadsActions/FadsEventAction.h"
-#include "FadsActions/FadsSteppingAction.h"
-#include "FadsActions/FadsTrackingAction.h"
-#include "FadsActions/FadsStackingAction.h"
 #include "FadsPhysics/PhysicsListCatalog.h"
 
 // using namespace std;
@@ -490,8 +484,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
     if( rand < 0.5) process = processIter_elast->second;
   }
 
-  ATH_MSG_VERBOSE ( " [ g4sim ] Computing " << process->GetProcessName() << "  " << process->GetProcessSubType() 
-		    << " process with current particle" );
+  ATH_MSG_VERBOSE ( " [ g4sim ] Computing " << process->GetProcessName() << " process with current particle" );
 
   // do the G4VProcess (actually a G4HadronicProcess) ------------------------------------
   //process->SetVerboseLevel(10);
