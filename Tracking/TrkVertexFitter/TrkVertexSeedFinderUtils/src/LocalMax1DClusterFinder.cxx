@@ -21,9 +21,11 @@ namespace Trk
 
   LocalMax1DClusterFinder::LocalMax1DClusterFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_weightThreshold( 0.02 ) ,
-    m_mergeParam( 0.5 ),
-    m_clusterWindowXY( 3 )
+    m_weightThreshold( 1500.0 ) ,
+    m_mergeParam( 0.95 ),
+    m_clusterWindowXY( 0.34 ),
+    m_refineZ( true ),
+    m_gaussianWindow( true )
   {   
     //threshold to consider a local max for seeding
     declareProperty("weightThreshold", m_weightThreshold );
@@ -31,6 +33,10 @@ namespace Trk
     declareProperty("mergeParameter",m_mergeParam);
     //window in xy bin space within which clusters are formed
     declareProperty("clusterWindowXY", m_clusterWindowXY );
+    //do quadratic refinement of peak positions
+    declareProperty("refineZ", m_refineZ);
+    //use gaussian window for z projection
+    declareProperty("gaussianWindow", m_gaussianWindow);
     declareInterface<IVertexClusterFinder>(this);
   }
   
@@ -53,7 +59,15 @@ namespace Trk
   // Find vertex clusters of input image
   std::vector<Trk::Vertex> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
 
-    std::vector<float> zproj = image.projectRectangleOnZ( m_clusterWindowXY, m_clusterWindowXY);
+    std::vector<float> zproj;
+
+    if (m_gaussianWindow) {
+      zproj = image.projectGaussianOnZ( m_clusterWindowXY );
+    } else {
+      zproj = image.projectRectangleOnZ( m_clusterWindowXY, m_clusterWindowXY);
+    }
+
+    //for (size_t i = 0; i < zproj.size(); i++) ATH_MSG_ALWAYS(i << " : " << image.getRelPosZ(i)<< " : " << zproj[i]);
 
     // vector to store local maxima
     std::vector<Projection> vmax;  
@@ -113,7 +127,61 @@ namespace Trk
     float x = image.getRelPosX( ((float) image.getNBinsX())/2. );
     float y = image.getRelPosY( ((float) image.getNBinsY())/2. );
     for(auto & m : vmax) {
-      vertices.push_back( Vertex(Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) ) );
+      if (!m_refineZ || zproj[m.first] <= 0) {
+          vertices.push_back( Vertex(Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) ) );
+      } else {
+	  float z;
+	  float z2 = image.getRelPosZ(m.first);
+	  // handle edge cases (max at first or last z bin)
+	  if (m.first == 0) {
+	    float z3 = image.getRelPosZ(m.first+1);
+	    if (zproj[m.first+1] > 0 && zproj[m.first + 2] > zproj[m.first+1]) {
+	      float w3 = zproj[m.first+1]*(zproj[m.first]/(zproj[m.first]+zproj[m.first+2]));
+    	      z = (z2*zproj[m.first] + z3*w3)/(zproj[m.first]+w3);
+	    } else if (zproj[m.first+1] > 0) {
+	      z = (z2*zproj[m.first] + z3*zproj[m.first+1])/(zproj[m.first] + zproj[m.first+1]);
+	    } else {
+	      z = image.getRelPosZ(m.first);
+	    }
+	  } else if (m.first == image.getNBinsZ() - 1) {
+	    float z1 = image.getRelPosZ(m.first-1);
+	    if (zproj[m.first-1] > 0 && zproj[m.first-2] > zproj[m.first-1]) {
+	      float w1 = zproj[m.first-1]*(zproj[m.first]/(zproj[m.first]+zproj[m.first-2]));
+	      z = (z1*w1 + z2*zproj[m.first])/(w1 + zproj[m.first]);
+	    } else if (zproj[m.first-1] > 0) {
+	      z = (z1*zproj[m.first-1] + z2*zproj[m.first])/(zproj[m.first-1] + zproj[m.first]);
+	    } else {
+	      z = image.getRelPosZ(m.first);
+	    }
+	  // not at an edge, do quadratic refinement
+	  } else {  
+	    if (zproj[m.first-1] > 0 && zproj[m.first] > 0 && zproj[m.first+1] > 0 ) {
+	      float z1 = image.getRelPosZ(m.first-1);
+	      float w2 = zproj[m.first];
+	      float w1;
+	      float w3;
+	      if (m.first > 1 && zproj[m.first-2] > zproj[m.first-1]) {
+		w1 = zproj[m.first-1] * w2/(w2 + zproj[m.first-2]);
+	      } else {
+		w1 = zproj[m.first-1];
+	      }
+	      if (m.first < image.getNBinsZ() - 2 && zproj[m.first+2] > zproj[m.first+1]) {
+		w3 = zproj[m.first+1] * w2/(w2 + zproj[m.first+2]);
+	      } else {
+		w3 = zproj[m.first+1];
+	      }
+	      if ( 4 * (w2 - w1) + 2 * (w1 - w3) > 0 ) {
+		z = z2 + (z2 - z1) * (w3 - w1)/(4 * (w2 - w1) + 2 * (w1 - w3));
+	      } else {  // degenerate (linear) or concave up cases should never happen since z2 is a local maximum
+		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endreq;
+		z = image.getRelPosZ(m.first);
+	      }
+	    } else {
+	      z = image.getRelPosZ(m.first);
+	    }
+	  }
+	  vertices.push_back( Vertex(Amg::Vector3D( x, y, z ) ) );
+      }
     }
 
     msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endreq;

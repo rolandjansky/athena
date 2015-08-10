@@ -12,9 +12,9 @@ namespace Trk
 
   VertexImageMaker::VertexImageMaker(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_xbins(                   16         ) , 
-    m_ybins(                   16         ) ,
-    m_zbins(                 1024         ) ,   
+    m_xbins(                   32         ) , 
+    m_ybins(                   32         ) ,
+    m_zbins(                 2048         ) ,   
     m_xrange(                   2.0       ) ,
     m_yrange(                   2.0       ) , 
     m_zrange(                 200.0       ) ,
@@ -23,7 +23,8 @@ namespace Trk
     m_a2Window(                 0.14128   ) ,
     m_a3Window(                 0.01168   ) ,
     m_cutoffFreqDenominator_xy( 2         ) ,
-    m_cutoffFreqDenominator_z(  1         ) {
+    m_cutoffFreqDenominator_z(  1         ) ,
+    m_angularCutoffParameter(   0.75      ) {
 
     declareProperty("xbins"                   , m_xbins                    );
     declareProperty("ybins"                   , m_ybins                    );
@@ -37,6 +38,7 @@ namespace Trk
     declareProperty("a3Window"                , m_a3Window                 );
     declareProperty("cutoffFreqDenominator_xy", m_cutoffFreqDenominator_xy );
     declareProperty("cutoffFreqDenominator_z" , m_cutoffFreqDenominator_z  );
+    declareProperty("angularCutoffParameter"  , m_angularCutoffParameter   );
     declareInterface<IVertexImageMaker>(this);
   } //End constructor
 
@@ -131,7 +133,7 @@ namespace Trk
     //Method based on paper "A Fast Voxel Traversal Algorithm for Ray Tracing" by John Amanatides and Andrew Woo
     // from Proceedings of EUROGRAPHICS Vol 87, 1987
 
-
+    
     //Resetting histogram
     for ( int iBin=0; iBin<m_filttot*2/*m_binstot*/; iBin++){
 	m_histRS[iBin] = 0.0;
@@ -163,6 +165,8 @@ namespace Trk
       float stcp = px / p;
       float stsp = py / p;
       float ct = pz / p;
+      float st = sqrt(stcp*stcp + stsp*stsp);  //always positive, as intended
+      float angularCutoffFactor = pow(st, m_angularCutoffParameter);
 
       //which direction we are headed in bin space
       //controls direction the bin counter moves
@@ -257,24 +261,24 @@ namespace Trk
         //so that bin doesn't get any weight, and the result is the same as if both stepped at same time
         if( tMaxX < tMaxY ) {
           if(tMaxX < tMaxZ) { //leave x bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += tMaxX - tcurr; //add the path length to the bin we are about to leave
+            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxX - tcurr)*angularCutoffFactor; //add the path length to the bin we are about to leave
             tcurr = tMaxX; //set a new current value of t
             tMaxX += tDeltaX; //set the max in x to the next time the path hits a boundary in x
             xbin += stepX; //increment the bin
           } else { //leave z bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += tMaxZ - tcurr;
+            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
             tcurr = tMaxZ;
             tMaxZ += tDeltaZ;
             zbin+=stepZ;
           }
         } else {
           if(tMaxY < tMaxZ) { //leave y bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += tMaxY - tcurr;
+            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxY - tcurr)*angularCutoffFactor;
             tcurr = tMaxY;
             tMaxY += tDeltaY;
             ybin+=stepY;
           } else { //leave z bin first
-            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += tMaxZ - tcurr;
+            m_histRS[m_image.getRMBin( xbin, ybin, zbin )] += (tMaxZ - tcurr)*angularCutoffFactor;
             tcurr = tMaxZ;
             tMaxZ += tDeltaZ;
             zbin+=stepZ;
