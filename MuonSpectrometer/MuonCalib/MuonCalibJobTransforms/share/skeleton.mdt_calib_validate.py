@@ -67,38 +67,41 @@ RegionSelectionSvc.Region = runArgs.selectChamber
 
 MdtValidationAlg.SiteName=CalibSite
 if (CalibSite == "MP"):
-        # MPI
-        MdtValidationAlg.ConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/atlas_muoncalib_mpi"
-        MdtValidationAlg.WorkingSchema = "atlas_muoncalib_mpi"
+# MPI
+  MdtValidationAlg.ConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/atlas_muoncalib_mpi"
+  MdtValidationAlg.WorkingSchema = "atlas_muoncalib_mpi"
 elif (CalibSite == "MP_NEW"):
-        # MPI        
-	MdtValidationAlg.ConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/ATLAS_MUONCALIB_READER"
-	MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_MPI_META"
-	MdtValidationAlg.WriterConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/ATLAS_MUONCALIB_WRITER"
+# MPI        
+  MdtValidationAlg.ConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/ATLAS_MUONCALIB_READER"
+  MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_MPI_META"
+  MdtValidationAlg.WriterConnectionString = "oracle://oracle01.mppmu.mpg.de/ATLMPI.mppmu.mpg.de/ATLAS_MUONCALIB_WRITER"
 elif (CalibSite == "MI"):
-        # Michigan
-        MdtValidationAlg.ConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/atlas_muoncalib_mich"
-        MdtValidationAlg.WorkingSchema = "atlas_muoncalib_mich"
+# Michigan
+  MdtValidationAlg.ConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/atlas_muoncalib_mich"
+  MdtValidationAlg.WorkingSchema = "atlas_muoncalib_mich"
 elif (CalibSite == "MI_NEW"):
-        # Michigan        
-	MdtValidationAlg.ConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_READER"
-	MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_UM_META"
-	MdtValidationAlg.WriterConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_WRITER"
+# Michigan        
+  MdtValidationAlg.ConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_READER"
+  MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_UMICH"
+  MdtValidationAlg.WriterConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_WRITER"
 elif (CalibSite == "RM"):
-        # ROMA
-        MdtValidationAlg.ConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/atlas_muoncalib_rome"
-        MdtValidationAlg.WorkingSchema = "atlas_muoncalib_rome"
+# ROMA
+  MdtValidationAlg.ConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/atlas_muoncalib_rome"
+  MdtValidationAlg.WorkingSchema = "atlas_muoncalib_rome"
 elif (CalibSite == "RM_NEW"):
-        # ROMA
-	MdtValidationAlg.ConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/ATLAS_MUONCALIB_READER"
-	MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_RM_META"
-	MdtValidationAlg.WriterConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/ATLAS_MUONCALIB_WRITER" 
+# ROMA
+  MdtValidationAlg.ConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/ATLAS_MUONCALIB_READER"
+  MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_RM_META"
+  MdtValidationAlg.WriterConnectionString = "oracle://atlas-oracle-01.roma1.infn.it/atlrome.roma1.infn.it/ATLAS_MUONCALIB_WRITER" 
 
 MdtValidationAlg.GetLimits = 0
 MdtValidationAlg.MinSlope = 1.
 MdtValidationAlg.MaxSlope = 5
-MdtValidationAlg.MinT0 = 190
-MdtValidationAlg.MaxT0 = 850
+#  Run2 Values
+MdtValidationAlg.MinT0 = -100
+MdtValidationAlg.MaxT0 = 400
+#MdtValidationAlg.MinT0 = 190
+#MdtValidationAlg.MaxT0 = 850
 MdtValidationAlg.HeadId = runArgs.headId 
 #MdtValidationAlg.GetLimits = runArgs.getLimits
 
