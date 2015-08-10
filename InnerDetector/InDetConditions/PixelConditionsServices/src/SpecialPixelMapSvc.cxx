@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "SpecialPixelMapSvc.h"
 
 // Athena
@@ -34,10 +35,6 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
-//Includes related to determining presence of ITK
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
 
 static bool isIBL(false);
 
@@ -54,7 +51,6 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_outputFolder(""),
   m_outputLongFolder(""),
   m_IBLParameterSvc("IBLParameterSvc",name),
-  m_geoModelSvc("GeoModelSvc",name),
   m_registerCallback(true),
   m_verbosePixelID(true),
   m_binaryPixelStatus(true),
@@ -72,8 +68,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_fileListFileDir("filelistdir"),
   m_killingModule(0.),
   m_pixelID(0),
-  m_pixman(0), 
-  m_dummy(0) 
+  m_pixman(0)
 {
   declareProperty("DBFolders", m_condAttrListCollectionKeys, "list of database folders to be accessed"); 
   declareProperty("SpecialPixelMapKeys", m_specialPixelMapKeys, "StoreGate keys at which pixel maps are to be stored"); 
@@ -85,8 +80,6 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("DataSource", m_dataSource, "source of pixel map data used in create(): Textfiles, Database or None");
   declareProperty("OutputFolder", m_outputFolder, "Name of output folder");
   declareProperty("OutputLongFolder", m_outputLongFolder, "Name of output folder for long maps");
-  declareProperty("IBLParameterService", m_IBLParameterSvc);
-  declareProperty("GeoModelService", m_geoModelSvc);
   declareProperty("ModuleIDsForPrinting", m_moduleIDsForPrinting, "IDs or IDhash(IBL) of modules that printed in print()");
   declareProperty("RegisterCallback", m_registerCallback, "switch registration of callback on/off");
   declareProperty("PrintVerbosePixelID",m_verbosePixelID, "print (chip/column/row) (\"verbose\") or unsigned int");
@@ -108,8 +101,6 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("KillingModules", m_killingModule, "Probability of Killing module");
   declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1");
   declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
-  declareProperty("MakingDummyMaps", m_dummy, "Making dummy run2 maps from Run1 Pixel maps");
-
 }
 
 
@@ -141,12 +132,12 @@ StatusCode SpecialPixelMapSvc::initialize()
     return StatusCode::FAILURE;
   }
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endmsg;
+    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endreq;
   }
   else {
-    bool useSpecialPixelMap=true;
-    m_IBLParameterSvc->setBoolParameters(useSpecialPixelMap,"EnableSpecialPixels");
-    if (!useSpecialPixelMap) return StatusCode::SUCCESS; //to prevent error during initialization
+    bool m_useSpecialPixelMap=true;
+    m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
+    if (!m_useSpecialPixelMap) return StatusCode::SUCCESS; //to prevent error during initialization
   }
   
   ModuleSpecialPixelMap::m_markSpecialRegions = m_markSpecialRegions;
@@ -176,14 +167,8 @@ StatusCode SpecialPixelMapSvc::initialize()
   }
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd();
-  // 
-  // determine if ITK is present
-  if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-    return (StatusCode::FAILURE);
-  }
-  if(m_geoModelSvc->geoConfig()!=GeoModel::GEO_RUN1 && m_geoModelSvc->geoConfig()!=GeoModel::GEO_TESTBEAM)isIBL=true; 
-  if(!isIBL)isIBL = m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN1 && m_pixelID->wafer_hash_max()==2048; // second chance !
+  if(m_pixelID->wafer_hash_max()>1744)isIBL = true;
+  
   m_chips.clear(); 
   ATH_MSG_DEBUG( "ModuleHashMax: "<<m_pixelID->wafer_hash_max()<<" isIBL "<<isIBL );
   // Check all detector elements in the present geometry setup 
@@ -244,16 +229,17 @@ StatusCode SpecialPixelMapSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
+
+
 StatusCode SpecialPixelMapSvc::finalize(){
   ATH_MSG_DEBUG( "Finalizing SpecialPixelMapSvc" );
   return Service::finalize(); 
 }
 
 
+
 StatusCode SpecialPixelMapSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
   StatusCode sc = StatusCode::SUCCESS;
-
-  //
   std::list<std::string>::const_iterator key; 
 
   for(key=keys.begin(); key != keys.end(); ++key){ 
@@ -900,53 +886,49 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 			   << " until " << range.stop().run() << " " << range.stop().event() );
 	}
 	
-  const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
-  unsigned int idhash; 
-  if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
-  else if(isIBL){ 
-    if(m_dummy || IdentifierHash(moduleID)>m_pixelID->wafer_hash_max()){
-      //	    continue (useful to transport the old DB to new DB with IBL!;
-      int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-      unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
-      if(component==0)layer +=1; // shift layer
-      unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-      int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-      Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-      idhash =  m_pixelID->wafer_hash(id);
-    }
-    else{
-      idhash = IdentifierHash(moduleID);
-    }
-  }
-  else {
-    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-    unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
-    unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-    int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-    Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-    idhash =  m_pixelID->wafer_hash(id);
-  }
-  if( idhash < m_pixelID->wafer_hash_max()){
+	const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
+	unsigned int idhash; 
+	if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
+	else if(isIBL){ 
+	  if(range.start().run()<222222){
+	    //	    continue;
+	    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+	    unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
+	    if(component==0)layer +=1; // shift layer
+	    unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+	    int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+	    Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+	    idhash =  m_pixelID->wafer_hash(id);
+	  }
+	  else{
+	    idhash = IdentifierHash(moduleID);
+	  }
+	}
+	else {
+	  int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+	  unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
+	  unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+	  int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+	  Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+	  idhash =  m_pixelID->wafer_hash(id);
+	}
+	if( idhash < m_pixelID->wafer_hash_max()){
+	
+	  coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
+	  ++attribute;
+	  if( (*attribute).specification().typeName() == "blob" ){
 
-    coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
-    ++attribute;
-    if( (*attribute).specification().typeName() == "blob" ){
+	    const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
+	  }
+	  else{
 
-      const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
-      delete (*spm)[idhash];
-      (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
-    }
-    else{
-
-      const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
-      delete (*spm)[idhash];
-      (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
-    }
-  }
-  else{
-    ATH_MSG_FATAL( "Module hashID out of range: " << idhash );
-    return StatusCode::FAILURE;
-  }
+	    const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
+	  }
+	}
       }
     }
   }
@@ -1129,10 +1111,6 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
             else{
               (*spm)[idhash] = new ModuleSpecialPixelMap((mydir+filename).c_str(), getChips(idhash) );
             }
-	  }
-	  else{
-	    ATH_MSG_FATAL( "Reading file: Module hashID out of range: " << idhash );
-	    return StatusCode::FAILURE;
 	  }
         }
 	//

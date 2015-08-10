@@ -21,38 +21,48 @@ using namespace std;
 
 // Constructor
 PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name, 
-    ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator),
-  m_pixel_id(0),
-  m_storeGate("StoreGateSvc",name),
-  m_detStore("DetectorStore",name),
-  m_IBLParameterSvc("IBLParameterSvc",name),
-  m_module_errors(0),
-  m_moduleROD_errors(0),
-  m_event_read(0),
-  m_FE_errors(0),
-  m_module_isread(0),
-  m_ibl_is_present(true),
-  m_dbm_is_present(true),
-  m_ServiceRecords(),
-  m_max_hashes(0),
-  m_readESD(false)
+						    ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator),
+										 m_pixel_id(0),
+										 m_storeGate("StoreGateSvc",name),
+										 m_detStore("DetectorStore",name),
+                                         m_IBLParameterSvc("IBLParameterSvc",name),
+										 m_module_errors(0),
+										 m_moduleROD_errors(0),
+										 m_event_read(0),
+										 m_FE_errors(0),
+										 m_module_isread(0),
+                                         m_ServiceRecords(),
+                                         m_readESD(false)
 { 
   declareProperty("ReadingESD",m_readESD,"Get summary of BS errors from StoreGate, if available"); 
-  resetCounts();
 }
 
 //Initialize
-StatusCode PixelByteStreamErrorsSvc::initialize() {
-  CHECK(AthService::initialize());
+StatusCode PixelByteStreamErrorsSvc::initialize(){
+  StatusCode sc(StatusCode::FAILURE);
+  //m_log.setLevel(outputLevel());
+  if (AthService::initialize() == sc) return   msg(MSG::ERROR)<<"Service failed to initialize"<<endreq, sc;
 
   // Get a StoreGateSvc
-  CHECK(m_storeGate.retrieve()); 
-
+  if (m_storeGate.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_storeGate << endreq;
+    return StatusCode::FAILURE;
+  } 
+  else
+    msg(MSG::INFO) << "Retrieved service " << m_storeGate << endreq;
   // Get a detector store
-  CHECK(m_detStore.retrieve());
+  if (m_detStore.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_detStore << endreq;
+    return StatusCode::FAILURE;
+  }
+  else
+   msg(MSG::INFO) << "Retrieved service " << m_detStore << endreq ;
   
-  // Pixel ID
-  CHECK(m_detStore->retrieve(m_pixel_id,"PixelID"));
+  sc = m_detStore->retrieve( m_pixel_id, "PixelID" );
+  if( !sc.isSuccess() ){
+    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
+    return StatusCode::FAILURE;
+  }
 
   m_max_hashes = m_pixel_id->wafer_hash_max();
 
@@ -62,28 +72,41 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
   m_FE_errors = (unsigned int*) calloc(m_max_hashes, sizeof(unsigned int));
   m_module_isread = (bool*) calloc(m_max_hashes, sizeof(bool));
   // before reading first event, set all modules as active
-  for (unsigned int i=0; i<m_max_hashes; i++) { m_module_isread[i]=true; }
+  for (unsigned int i=0; i<m_max_hashes; i++) m_module_isread[i]=true; 
 
   IIncidentSvc* incsvc;
+  sc = service("IncidentSvc", incsvc);
   int priority = 100;
-  if (service("IncidentSvc",incsvc).isSuccess()) {
+  if( sc.isSuccess() ) {
     incsvc->addListener( this, "BeginEvent", priority);
   }
 
+
+
+
   // Get IBLParameterSvc
-  CHECK(m_IBLParameterSvc.retrieve());
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
   // Check if IBL is present or not
   m_ibl_is_present = m_IBLParameterSvc->containsIBL();
   m_dbm_is_present = m_IBLParameterSvc->containsDBM();
 
+
   resetCounts();
   resetPixelCounts();
   reset();
-  return StatusCode::SUCCESS;
+  if (sc == StatusCode::SUCCESS)
+    msg(MSG::INFO) << "PixelByteStreamErrorsSvc successfully initialized" << endreq;
+  return sc;
 }
 
 //Finalize
-StatusCode PixelByteStreamErrorsSvc::finalize() {
+StatusCode
+PixelByteStreamErrorsSvc::finalize(){
+  StatusCode sc(StatusCode::SUCCESS);
+
   if (m_module_errors != NULL){
     free(m_module_errors);
     m_module_errors = NULL;
@@ -99,25 +122,30 @@ StatusCode PixelByteStreamErrorsSvc::finalize() {
     unsigned int mbadfe=0;
     for (unsigned int i=0; i<m_max_hashes; i++) {
       if (m_event_read[i]==0) {
-        ATH_MSG_DEBUG("Disabled module HashId " << i);
-        continue;
+	msg(MSG::DEBUG) << "Disabled module HashId " << i << endreq;
+	continue;
       }
       if (m_FE_errors[i]!=0) {
-        ATH_MSG_DEBUG("Disabled FEs module HashId " << i << " FE mask=" << std::hex << m_FE_errors[i] << std::dec);
-        mbadfe++;
+	msg(MSG::DEBUG) << "Disabled FEs module HashId " << i 
+	      << " FE mask=" << std::hex << m_FE_errors[i] << std::dec << endreq;
+	mbadfe++;
       }
       if (m_event_read[i]>mxevent) {
-        missing += ( (m_event_read[i]-mxevent)*mdread );
-        mxevent = m_event_read[i];
+	missing += ( (m_event_read[i]-mxevent)*mdread );
+	mxevent = m_event_read[i];
       } else if ( m_event_read[i]<mxevent ) {
-        missing += mxevent-m_event_read[i];
+	missing += mxevent-m_event_read[i];
       }
       mdread++;
     }
-    ATH_MSG_INFO("Found in data " << mdread << " modules out of " << m_max_hashes);
-    ATH_MSG_INFO("Found " << mxevent << " events with pixel data and " << missing << " missing module fragments");
-    ATH_MSG_INFO("Found " << mbadfe << " modules with disabled FE");
-
+    msg(MSG::INFO) << "Found in data " << mdread 
+	  << " modules out of " << m_max_hashes << endreq;
+    msg(MSG::INFO) << "Found " << mxevent
+	  << " events with pixel data and " << missing 
+	  << " missing module fragments" << endreq; 
+    msg(MSG::INFO) << "Found " 
+	  << mbadfe
+	  << " modules with disabled FE" << endreq;
     if (m_event_read != NULL){
       free(m_event_read);
       m_event_read = NULL;
@@ -130,33 +158,38 @@ StatusCode PixelByteStreamErrorsSvc::finalize() {
       free(m_FE_errors);
       m_FE_errors = NULL;
     }
-    ATH_MSG_INFO(" --------------------------------------------- ");
+    msg(MSG::INFO) << " --------------------------------------------- " << endreq;
   }
 
-  ATH_MSG_INFO(" --- Summary from PixelByteStreamErrorsSvc --- ");
-  ATH_MSG_INFO(" - Number of invalid Identifiers Errors: " << m_numInvalidIdentifiers);
-  ATH_MSG_INFO(" - Number of Preamble Errors: " << m_numPreambleErrors);
-  ATH_MSG_INFO(" - Number of TimeOut Errors: " << m_numTimeOutErrors);
-  ATH_MSG_INFO(" - Number of LVL1ID Errors: " << m_numLVL1IDErrors);
-  ATH_MSG_INFO(" - Number of BCID Errors: " << m_numBCIDErrors);
-  ATH_MSG_INFO(" - Number of Flagged Errors: " << m_numFlaggedErrors);
-  ATH_MSG_INFO(" - Number of Trailer Errors: " << m_numTrailerErrors);
-  ATH_MSG_INFO(" - Number of Disabled FE Errors: " << m_numDisabledFEErrors);
-  ATH_MSG_INFO(" - Number of ROD Errors: " << m_numRODErrors);
-  ATH_MSG_INFO(" - Number of links masked by PPC: " << m_numLinkMaskedByPPC);
-  ATH_MSG_INFO(" - Number of header/trailer limit errors: " << m_numLimitError);
-  ATH_MSG_INFO(" - Number of Unknown word Errors: " << m_numDecodingErrors);
-  ATH_MSG_INFO(" --------------------------------------------- ");
-
-  return StatusCode::SUCCESS;
+  msg(MSG::INFO) << " --- Summary from PixelByteStreamErrorsSvc --- " << endreq;
+  msg(MSG::INFO) << " - Number of invalid Identifiers Errors: " << m_numInvalidIdentifiers << endreq;
+  msg(MSG::INFO) << " - Number of Preamble Errors: " << m_numPreambleErrors << endreq;
+  msg(MSG::INFO) << " - Number of TimeOut Errors: " << m_numTimeOutErrors << endreq;
+  msg(MSG::INFO) << " - Number of LVL1ID Errors: " << m_numLVL1IDErrors << endreq;
+  msg(MSG::INFO) << " - Number of BCID Errors: " << m_numBCIDErrors << endreq;
+  msg(MSG::INFO) << " - Number of Flagged Errors: " << m_numFlaggedErrors << endreq;
+  msg(MSG::INFO) << " - Number of Trailer Errors: " << m_numTrailerErrors << endreq;
+  msg(MSG::INFO) << " - Number of Disabled FE Errors: " << m_numDisabledFEErrors << endreq;
+  msg(MSG::INFO) << " - Number of ROD Errors: " << m_numRODErrors << endreq;
+  msg(MSG::INFO) << " - Number of links masked by PPC: " << m_numLinkMaskedByPPC << endreq;
+  msg(MSG::INFO) << " - Number of header/trailer limit errors: " << m_numLimitError << endreq;
+  msg(MSG::INFO) << " - Number of Unknown word Errors: " << m_numDecodingErrors << endreq;
+  msg(MSG::INFO) << " --------------------------------------------- " << endreq;
+  
+  
+  return sc;
 }
 
 
-void PixelByteStreamErrorsSvc::handle(const Incident&) {
+void
+PixelByteStreamErrorsSvc::handle(const Incident&) {
   reset();
   if ( m_readESD && m_storeGate->contains<InDetBSErrContainer>("PixelByteStreamErrs") ) {
-    if (readData().isFailure()) {
-      ATH_MSG_ERROR("PixelByteStreamErrs container is registered in SG, but cannot be retrieved");
+    StatusCode sc = readData();
+    if ( sc.isFailure() ) {
+      msg(MSG::ERROR) 
+	    << "PixelByteStreamErrs container is registered in SG, but cannot be retrieved"
+	    << endreq;
     }
   } else if ( !m_readESD ) {
     recordData();
@@ -164,7 +197,10 @@ void PixelByteStreamErrorsSvc::handle(const Incident&) {
   return;
 }
 
-StatusCode PixelByteStreamErrorsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+
+StatusCode 
+PixelByteStreamErrorsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
   if ( IID_IPixelByteStreamErrorsSvc == riid ) {
     *ppvInterface =  dynamic_cast<IPixelByteStreamErrorsSvc*>(this);
   } else {
@@ -191,24 +227,24 @@ PixelByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::
 }
 */
 
-bool PixelByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
-  Identifier dehashedId = m_pixel_id->wafer_id(elementIdHash);
+bool 
+PixelByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 
-  if (m_ibl_is_present || m_dbm_is_present) {
-    // If module is IBL of DBM, return isActive
-    if ((m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
-        || m_pixel_id->is_dbm(dehashedId)) {
-      return isActive(elementIdHash);
+    Identifier dehashedId = m_pixel_id->wafer_id(elementIdHash);
+
+    if (m_ibl_is_present || m_dbm_is_present) {
+        // If module is IBL of DBM, return isActive
+        if ((m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
+                || m_pixel_id->is_dbm(dehashedId)) {
+            return isActive(elementIdHash);
+        }
     }
-  }
 
-  int errorcode = m_module_errors[elementIdHash];
-  if ((errorcode & 0xFFF1F00F) == 0) { // Mask FE errors
-    return isActive(elementIdHash);
-  }
-  else {
-    return false;
-  }
+    int errorcode = m_module_errors[elementIdHash];
+    if ((errorcode & 0xFFF1F00F) == 0) // Mask FE errors
+        return isActive(elementIdHash);
+    else
+        return false;
 }
 
 
@@ -227,7 +263,10 @@ PixelByteStreamErrorsSvc::filled() const{
 }
 */
 
-void PixelByteStreamErrorsSvc::resetCounts() {
+
+
+void 
+PixelByteStreamErrorsSvc::resetCounts() {
   m_numTimeOutErrors=0;
   m_numBCIDErrors=0;
   m_numLVL1IDErrors=0;
@@ -242,19 +281,23 @@ void PixelByteStreamErrorsSvc::resetCounts() {
   m_numLimitError=0;
 
   // Also reset FE-I4B service records
-  for (int i = 0; i < 32; ++i) { m_ServiceRecords[i]=0; }
+  for (int i = 0; i < 32; ++i) m_ServiceRecords[i] = 0;
+
 }
 
   
-void PixelByteStreamErrorsSvc::resetPixelCounts() {
+void 
+PixelByteStreamErrorsSvc::resetPixelCounts() {
   for (unsigned int i=0; i<m_max_hashes; i++) {
     m_event_read[i]=0;
     m_FE_errors[i]=0;
   }
 }
 
-int PixelByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
-  switch(errorType) {
+int 
+PixelByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
+  switch(errorType)
+    {
     case TimeOut:
       return m_numTimeOutErrors;
     case BCID:
@@ -283,6 +326,7 @@ int PixelByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
   return 0;
 }
 
+
 void PixelByteStreamErrorsSvc::reset(){
   for (unsigned int i=0; i<m_max_hashes; i++) {
     m_module_errors[i]=0;
@@ -297,20 +341,22 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
   const InDetBSErrContainer* errCont;
   sc = m_storeGate->retrieve(errCont,"PixelByteStreamErrs");
   if (sc.isFailure() ){
-    ATH_MSG_ERROR("Failed to retrieve BS error container from SG");
+    msg(MSG::ERROR) << "Failed to retrieve BS error container from SG"<<endreq;
     return sc;
   }
-  for (const auto* elt : *errCont) {
-    IdentifierHash myHash=elt->first;
+  std::vector<std::pair<IdentifierHash, int>* >::const_iterator it=errCont->begin();
+  std::vector<std::pair<IdentifierHash, int>* >::const_iterator itEnd=errCont->end();
+  for (; it != itEnd; ++it) { 
+    IdentifierHash myHash=(*it)->first;
     if ( myHash<m_max_hashes )
-      setModuleErrors(myHash,elt->second);
+      setModuleErrors(myHash,(*it)->second);
     else if ( myHash<2*m_max_hashes ){
       myHash-=m_max_hashes;
       m_module_isread[static_cast<unsigned int>(myHash)]=false;
     }
     else{
       myHash-=2*m_max_hashes;
-      setModuleRODErrors(myHash,elt->second);
+      setModuleRODErrors(myHash,(*it)->second);
     }
   }
   for (unsigned int i=0; i<m_max_hashes; i++) {
@@ -321,12 +367,28 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
 
 // record the data to Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::recordData() {
-  InDetBSErrContainer* cont = new InDetBSErrContainer();
-  StatusCode sc = m_storeGate->overwrite(cont,"PixelByteStreamErrs");
-  if (sc.isFailure() ){
-    ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
-    return sc;
+
+  StatusCode sc(StatusCode::SUCCESS);
+  bool recorded = m_storeGate->contains<InDetBSErrContainer>("PixelByteStreamErrs"); // check if already recorded (by a previous HLT call for example)
+
+  InDetBSErrContainer* cont;
+  if (!recorded){ // create a new object
+    cont = new InDetBSErrContainer();
+    sc = m_storeGate->record(cont,"PixelByteStreamErrs");
+    if (sc.isFailure() ){
+      msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endreq;
+      return sc;
+    }
   }
+  else{ // already recorded, retrieve object and modify
+    sc = m_storeGate->retrieve(cont,"PixelByteStreamErrs");
+    if (sc.isFailure() ){
+      msg(MSG::ERROR) <<"Failed to retrieve BSErrors from SG, but contains() returns true"<<endreq;
+      return sc;
+    }
+    cont->clear(); // delete and fill anew
+  }
+
   for (unsigned int i=0; i<m_max_hashes; i++) {
     if (m_module_errors[i] != 0){
       std::pair<IdentifierHash, int>* err = new std::pair<IdentifierHash, int>(std::make_pair((IdentifierHash)i, m_module_errors[i]));
