@@ -216,6 +216,10 @@ private:
     TH1F_LW* m_jet_tracks_eta;
     /** @brief To monitor phi of tracks in a jet. */
     TH1F_LW* m_jet_tracks_phi;
+    /** @brief To monitor d0 of tracks in a jet. */
+    TH1F_LW* m_jet_tracks_d0;
+    /** @brief To monitor z0 of tracks in a jet. */
+    TH1F_LW* m_jet_tracks_z0;
     /** @brief To monitor number of b layer hits in a jet. */
     TH1F_LW* m_jet_tracks_BLayerHits;
     /** @brief To monitor number of pixel hits in a jet. */

@@ -260,6 +260,9 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_shift, m_jet_tracks_pt = TH1F_LW::create("jet_tracks_pt","pT of tracks in a jet",100,0.,100.));
     registerHist(*m_monGr_shift, m_jet_tracks_eta = TH1F_LW::create("jet_tracks_eta","#eta of tracks in a jet",100,-2.5,2.5));
     registerHist(*m_monGr_shift, m_jet_tracks_phi = TH1F_LW::create("jet_tracks_phi","#varphi of tracks in a jet",100,-TMath::Pi(),TMath::Pi()));
+    registerHist(*m_monGr_shift, m_jet_tracks_d0 = TH1F_LW::create("jet_tracks_d0","d0 of tracks in a jet",100,-5.,5.));
+    registerHist(*m_monGr_shift, m_jet_tracks_z0 = TH1F_LW::create("jet_tracks_z0","z0 of tracks in a jet",100,-300.,300.));
+			      
     registerHist(*m_monGr_shift, m_jet_tracks_BLayerHits = TH1F_LW::create("jet_tracks_hits_BLayer","# of BLayer hits per track in a jet",5,0.,5.));
     registerHist(*m_monGr_shift, m_jet_tracks_PixelHits = TH1F_LW::create("jet_tracks_hits_Pixel","# of Pixel hits per track in a jet",10,0.,10.));
     registerHist(*m_monGr_shift, m_jet_tracks_SCTHits = TH1F_LW::create("jet_tracks_hits_SCT","# of SCT hits per track in a jet",15,0.,15.));
@@ -815,6 +818,9 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
       m_jet_tracks_pt->Fill(trackPart->pt()/1000.);
       m_jet_tracks_eta->Fill(trackPart->eta());
       m_jet_tracks_phi->Fill(trackPart->phi());
+      m_jet_tracks_d0->Fill(trackPart->d0());
+      m_jet_tracks_z0->Fill(trackPart->z0());
+
 
       if (trackPart->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits)) { m_jet_tracks_BLayerHits->Fill((float) nBLayerHits); }
       if (trackPart->summaryValue(nPixHits, xAOD::numberOfPixelHits))     { m_jet_tracks_PixelHits->Fill((float)  nPixHits); }
