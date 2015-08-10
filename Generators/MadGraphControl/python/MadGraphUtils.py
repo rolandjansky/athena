@@ -115,17 +115,39 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
 
 def get_default_runcard(proc_dir='PROC_mssm_0'):
+    try:
+        from __main__ import opts
+        if opts.config_only:
+            mglog.info('Athena running on config only mode: grabbing run card the old way, as there will be no proc dir')
+            mglog.info('Fetching default LO run_card.dat')
+            if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
+                shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
+                return 'run_card.SM.dat'
+            elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
+                shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
+                return 'run_card.SM.dat'
+            else:
+                raise RuntimeError('Cannot find default LO run_card.dat!')
+    except:
+        pass
+
     # Get the run card from the installation
     run_card_loc=proc_dir+'/Cards/run_card.dat'
-    mglog.info('Fetching default run_card.dat')
+    mglog.info('Fetching default run_card.dat from '+str(run_card_loc))
     if os.access(run_card_loc,os.R_OK):
         shutil.copy(run_card_loc,'run_card.SM.dat')
         return 'run_card.SM.dat'
     else:
-        raise RuntimeError('Cannot find default run_card.dat! I was looking here: %s'%run_card_loc)
+        run_card_loc=proc_dir+'/Cards/run_card_default.dat'
+        mglog.info('Fetching default run_card.dat from '+str(run_card_loc))
+        if os.access(run_card_loc,os.R_OK):
+            shutil.copy(run_card_loc,'run_card.SM.dat')
+            return 'run_card.SM.dat'
+        else:
+            raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card_loc)
     
     
-def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None):
+def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -1207,7 +1229,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         if 1==thedir:
             mglog.error('Error in process generation!')
             return -1,''
-        mglog.info('Using process directory '+thedir)
+        mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
         # Grab the param card and move the new masses into place
@@ -1271,7 +1293,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         mglog.error('Error arranging output dataset!')
         return -1
 
-    if not keepOutput:
+    if not keepOutput and thedir is not None:
         mglog.info('Removing process directory...')
         shutil.rmtree(thedir,ignore_errors=True)
 
@@ -1335,7 +1357,7 @@ output -f
         if 1==thedir:
             mglog.error('Error in process generation!')
             return -1,''
-        mglog.info('Using process directory '+thedir)
+        mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
         # Grab the param card and move the new masses into place
@@ -1390,7 +1412,7 @@ output -f
         mglog.error('Error arranging output dataset!')
         return -1
 
-    if not keepOutput:
+    if not keepOutput and thedir is not None:
         mglog.info('Removing process directory...')
         shutil.rmtree(thedir,ignore_errors=True)
 
@@ -1419,16 +1441,16 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
 
     oldcard = open(param_card_old,'r')
     newcard = open(param_card_new,'w')
-    edit = False #only becomes true in a DECAY block when specifying the BR
+    decayEdit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
     doneParams = {} #tracks which params have been done
     for line in oldcard:
         if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
                     and len(line.strip().split()) > 1: 
-            if edit and blockName == 'DECAY': edit = False # Start a new DECAY block
+            if decayEdit and blockName == 'DECAY': decayEdit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
             blockName = line.strip().upper().split()[pos]
-        if edit: continue #skipping these lines because we are in an edit of the DECAY BR
+        if decayEdit: continue #skipping these lines because we are in an edit of the DECAY BR
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
@@ -1442,7 +1464,7 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
         if akey != None and blockName == 'MASS'  and akey in masses:
             newcard.write('   %s    %s  # \n'%(akey,str(masses[akey])))
             mglog.info('   %s    %s  #'%(akey,str(masses[akey])))
-            edit = False
+            decayEdit = False
             # Error checking
             if 'MASS' in params:
                 mglog.error('Conflicting use of mass and params')
@@ -1451,7 +1473,7 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
         elif akey != None and blockName == 'BSM'   and akey in extras:
             newcard.write('   %s    %s  # \n'%(akey,str(extras[akey])))
             mglog.info('   %s    %s  #'%(akey,str(extras[akey])))
-            edit = False
+            decayEdit = False
             # Error checking
             if 'BSM' in params:
                 mglog.error('Conflicting use of extras for BSM and params')
@@ -1461,7 +1483,7 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
             for newline in decays[akey].splitlines():
                 newcard.write(newline+'\n')
                 mglog.info(newline)
-            edit = True
+            decayEdit = True
             # Error checking
             if 'DECAY' in params:
                 mglog.error('Conflicting use of decay and params')
@@ -1497,12 +1519,19 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
            if theParam.splitlines()[0].split()[0]=="DECAY":
                #specifying the full decay block
                for newline in theParam.splitlines():
-                        newcard.write(newline+'\n')
-                        mglog.info(newline)
-               edit = True
+                    newcard.write(newline+'\n')
+                    mglog.info(newline)
+               decayEdit = True
            else: #just updating the total width
               newcard.write('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
               mglog.info('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+        # second special case of QNUMBERS
+        elif blockName=='QNUMBERS':
+           #specifying the full QNUMBERS block
+           for newline in theParam.splitlines():
+                newcard.write(newline+'\n')
+                mglog.info(newline)
+           decayEdit = True
         else: #just updating the parameter
            newcard.write('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
            mglog.info('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
@@ -1524,7 +1553,7 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
     return param_card_new
 
 def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
-                   xqcut=500.,nevts=60000,rand_seed=1234,beamEnergy=4000.,
+                   xqcut=0.,nevts=60000,rand_seed=1234,beamEnergy=4000.,
                    scalefact=1.,alpsfact=1.,extras={}):
     """Build a new run_card.dat from an existing one.
     Extras is a dictionary of keys (no spaces needed) and
