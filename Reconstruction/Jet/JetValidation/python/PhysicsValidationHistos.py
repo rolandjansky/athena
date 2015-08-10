@@ -70,7 +70,6 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
             jhm.GhostTrackCount,
 
             # jet moments
-            jhm.GarbageABC,
             jhm.KtDR,
             jhm.Tau1,
             jhm.Tau2,
