@@ -44,6 +44,8 @@ make_fragment DataLinkDict.h
 #			Note: this can be given as "-s=<dir name> <file1> <file2> ..."
 #     selectionfile	Name of selection file (typically just selection.xml)
 #			This file must be put in the include dir, i.e. ../<package>
+#     extraselection    List of additional files to be included into
+#                       the selection.xml file.
 #     extralibfiles	gives the optional additional C++ files to be
 #			compiled in the generated library 
 #     navigables        Provdes a list of class names for which the Navigable
@@ -91,7 +93,9 @@ make_fragment DataLinkDict.h
 set GCCXML_USER_FLAGS "" target-darwin&target-x86_64 " -m64"
 
 # MN: this gets rid of the 'register' specification warnings from CLHEP in gcc48
-macro genreflex_options ""   ROOT_GE_6_00 " -Wno-deprecated "
+# MN: make genreflex warnings fatal for gccxml but not for ROOT6
+macro genreflex_options " --fail_on_warnings "   \
+   ROOT_GE_6_00 " -Wno-deprecated "
 # MN: and this prevents deprecated hash_map warning (from Gaudi) in gcc48
 macro_append genreflex_options " -D_GLIBCXX_PERMIT_BACKWARD_HASH "
 
@@ -117,6 +121,8 @@ pattern lcgdict \
 # macro reflex_dict<dict>_reset_stamp " $(<dict>Dictstamps) " ; \
   macro reflex_dict<dict>_clean_target " <dict>Dictclean " ; \
   macro reflex_dict<dict>_selection_file " ../<package>/<selectionfile> " ; \ 
+  macro reflex_dict<dict>_extra_selection " <extraselection> " ; \
+  macro reflex_dict<dict>_package " <package> " ; \
   macro reflex_dict<dict>_navigables " <navigables> " ; \ 
   macro reflex_dict<dict>_data_links " <dataLinks> " ; \ 
   macro reflex_dict<dict>_element_links " <elementLinks> " ; \ 
@@ -126,7 +132,7 @@ pattern lcgdict \
          ROOT_GE_6_00 " --multiDict -l$(dict_dir)/<dict>/<dict>Dict.$(shlibsuffix) " ; \
   macro reflex_dict<dict>_options " <options>  --select=$(dict_dir)/<dict>_selection.xml  -DNDEBUG $(reflex_dict<dict>_opt_rootmap) $(reflex_dict<dict>_opt_pcm) " ; \
 # reflex_dict_options_cppflags comes in from AtlasPolicy
-  macro_append reflex_dict<dict>_options " --fail_on_warnings $(reflex_dict_options_cppflags) " ; \
+  macro_append reflex_dict<dict>_options " $(reflex_dict_options_cppflags) " ; \
   macro_append reflex_dict<dict>_options "" \
                x86_64&&32          " --gccxmlopt=--gccxml-cxxflags --gccxmlopt=-m32" ; \
 #  macro_append reflex_dict<dict>_options " --no_membertypedefs " ; \

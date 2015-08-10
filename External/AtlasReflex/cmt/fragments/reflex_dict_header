@@ -45,6 +45,13 @@ ${dict_dir}/${CONSTITUENT}DictBegin.stamp ::   $(reflex_dict${dictionary}_select
 	        $(cmtexe) expand model "<DataLink_selection.xml class=$${class_name}/>" >> ${dict_dir}/${dictionary}_selection.xml ; \
 	    done ; \
 	fi 
+	@if test ! -z ${reflex_dict${dictionary}_extra_selection} ; then \
+            package=$(reflex_dict${dictionary}_package) ; \
+            sel_list="$(reflex_dict${dictionary}_extra_selection)" ; \
+	    for sel_name in $${sel_list} ; do  \
+                cat ../$${package}/$${sel_name} >> ${dict_dir}/${dictionary}_selection.xml ; \
+	    done ; \
+	fi 
 	@echo "</lcgdict>" >> ${dict_dir}/${dictionary}_selection.xml 
 	@touch ${dict_dir}/${CONSTITUENT}DictBegin.stamp
 
