@@ -134,12 +134,10 @@ class HLTSimulationGetter(Configured):
         topSequence = AlgSequence()
 
         #scheduling eventinfo
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if not hasattr(svcMgr, 'HltEventLoopMgr'):
-            from RecExConfig.ObjKeyStore import objKeyStore
-            if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
-                from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-                topSequence += xAODMaker__EventInfoCnvAlg()
+        from RecExConfig.ObjKeyStore import objKeyStore
+        if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
+            from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+            topSequence += xAODMaker__EventInfoCnvAlg()
 	        
 
         log.info("Loading RegionSelector")
@@ -153,9 +151,9 @@ class HLTSimulationGetter(Configured):
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
-            from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
-            FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=INFO)
-            topSequence += FTKMerger
+            from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+            theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
+            ServiceMgr += theFTK_DataProviderSvc
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
