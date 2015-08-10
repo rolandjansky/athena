@@ -598,8 +598,8 @@ namespace Muon {
                 double thetaSeg = fabs((*segments[iseg]).segment->globalPosition().theta());
 		
                 // only select segments in barrel/endcap overlap 
-                if ( (0.75 > thetaSeg && thetaSeg > 0.65) ||
-                  (2.60 > thetaSeg && thetaSeg > 2.40) )  mySegColVec[lit].push_back(segments[iseg]);  
+                if ( (0.74159 > thetaSeg && thetaSeg > 0.51159) ||
+                  (2.63 > thetaSeg && thetaSeg > 2.40) )  mySegColVec[lit].push_back(segments[iseg]);  
 	       
               }
             }
