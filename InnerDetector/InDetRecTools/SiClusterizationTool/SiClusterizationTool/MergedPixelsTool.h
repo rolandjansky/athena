@@ -31,7 +31,9 @@
 
 class IIncidentSvc;
 class PixelID;
+//class StoreGateSvc;
 class IBLParameterSvc;
+class IPixelOfflineCalibSvc;
 
 namespace InDetDD {
     class SiDetectorElement;
@@ -149,7 +151,10 @@ namespace InDet {
         mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
         mutable unsigned int                                m_splitProdClusters;    //!< statistics output
         mutable unsigned int                                m_largeClusters;        //!< statistics output
-                                                                                          
+        mutable int                                                 m_overflowIBLToT;                                                                                          
+        ServiceHandle<IPixelOfflineCalibSvc>                m_pixofflinecalibSvc;
+        //ServiceHandle< StoreGateSvc >                       m_detStore;
+        //const PixelID*                                      m_idHelper;
     };
 
 }

@@ -14,8 +14,11 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
+#include "InDetIdentifier/PixelID.h"
 
+class IBLParameterSvc;
 class IPixelCalibSvc;
+class IPixelOfflineCalibSvc;
 template <class T> class ServiceHandle;
 
 namespace InDet
@@ -75,7 +78,7 @@ namespace InDet
             5 : long inter-ganged pixel
       */
       int pixelType(const int PhiIdx, const int EtaIdx) const;
-      int chargeToToT(const Identifier & PixID, const float Charge) const;
+      int chargeToToT(const Identifier & PixID, const PixelID& pixelID, const float Charge) const;
 
       enum SplitType { PhiSplit = 0, EtaSplit = 1, NoSplit = 2 };
 
@@ -89,6 +92,9 @@ namespace InDet
 
       /** Indicates whether or not to consider long pixels. */
       bool m_doLongPixels;
+      ServiceHandle<IBLParameterSvc>       m_IBLParameterSvc;
+      mutable int                                  m_overflowIBLToT;                                                                                          
+      ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
   };
 
   inline void TotPixelClusterSplitter::setMinPixels(unsigned int minPix)
