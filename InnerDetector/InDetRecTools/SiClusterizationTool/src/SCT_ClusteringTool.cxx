@@ -75,7 +75,7 @@ namespace InDet{
 
     if (m_timeBinStr.empty()) return StatusCode::SUCCESS;
     if (m_timeBinStr.size() != 3) {
-      msg(MSG::ERROR) << "Time bine string must only contain 3 bins" << endreq;
+      msg(MSG::ERROR) << "Time bin string must only contain 3 bins" << endreq;
       return StatusCode::FAILURE;
     }
     std::transform(m_timeBinStr.begin(), m_timeBinStr.end(), m_timeBinStr.begin(), ::toupper);
@@ -101,7 +101,7 @@ namespace InDet{
 
   bool SCT_ClusteringTool::testTimeBins(int timeBin) const {
     // Convert the given timebin to a bit set and test each bit
-    // if bit is -1 (i.e. X) it always passes, other wise require exact match of 0/1
+    // if bit is -1 (i.e. X) it always passes, otherwise require exact match of 0/1
     // N.B bitset has opposite order to the bit pattern we define
 
     bool pass(true);
@@ -113,17 +113,11 @@ namespace InDet{
   }
 
   StatusCode  SCT_ClusteringTool::initialize(){
-    msg(MSG::INFO) << "Initialize clustering tool" << endreq;
-    static const StatusCode fail(StatusCode::FAILURE);
-
     if (m_checkBadChannels){
-      msg(MSG::INFO) << "Clustering has been asked to look at bad channel info" << endreq;
-      if (m_conditionsSvc.retrieve().isFailure()){
-         msg(MSG::ERROR) << "The SCT conditions summary service could not be retrieved"<< endreq;
-         return StatusCode::FAILURE;      
-      }
+      ATH_MSG_INFO( "Clustering has been asked to look at bad channel info" );
+      ATH_CHECK(m_conditionsSvc.retrieve());
     }
-    
+    ATH_CHECK(m_clusterMaker.retrieve());
     if (decodeTimeBins().isFailure()) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
@@ -134,7 +128,7 @@ namespace InDet{
                const SCT_ChannelStatusAlg* /*status */,
                const bool /*CTBBadChannels */) const
   {
-    if (msgLvl(MSG::INFO)) msg() << "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,InDetDD::SiDetectorManager& manager,SCT_ID& idHelper)" << endreq;
+    ATH_MSG_ERROR( "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,InDetDD::SiDetectorManager& manager,SCT_ID& idHelper)");
     return clusterize(collection, manager, idHelper);
   }
   
@@ -228,15 +222,14 @@ namespace InDet{
   {
     ATH_MSG_VERBOSE ("SCT_ClusteringTool::clusterize()");
 
-    SCT_ClusterCollection* nullResult(0);
+    SCT_ClusterCollection* nullResult(nullptr);
     if (collection.empty()) return (msg(MSG::DEBUG) << "Empty RDO collection"<< endreq), nullResult;
 
     // Make a copy of the collection for sorting (no need to sort if theres only one RDO)
     std::vector<const SCT_RDORawData*> collectionCopy(collection.begin(),collection.end());
     if (collection.size() not_eq 1) std::sort(collectionCopy.begin(),collectionCopy.end(),strip_less_than());
+    const auto & sortedCollection(collectionCopy);
 
-    std::vector<const SCT_RDORawData*>::const_iterator pRdo(collectionCopy.begin());
-    std::vector<const SCT_RDORawData*>::const_iterator end(collectionCopy.end());
     // Vector of identifiers in a cluster (most likely is that there is one strip in the cluster)
     IdVec_t currentVector;
     // Vector of clusters to make the cluster collection (most likely equal to collection size)
@@ -244,15 +237,15 @@ namespace InDet{
     idGroups.reserve(collection.size());
     
     unsigned int previousStrip(0); // Should be ok?
-    for(; pRdo != end; ++pRdo){
-      const SCT_RDORawData* pRawData = *pRdo;
+    for(const auto & pRdo:sortedCollection){
+      const SCT_RDORawData* pRawData = pRdo;
       Identifier            firstStripId(pRawData->identify());
       unsigned int          nStrips(pRawData->getGroupSize());
       int                   thisStrip(idHelper.strip(firstStripId));
 
       // Flushes the vector every time a non-adjacent strip is found
       if (not adjacent(thisStrip, previousStrip) and not(currentVector.empty())){
-	// Add this group to existing groups (and flush)
+	      // Add this group to existing groups (and flush)
         idGroups.push_back(currentVector); 
         currentVector.clear(); 
       }
@@ -260,25 +253,25 @@ namespace InDet{
       // Only use clusters with certain time bit patterns if m_timeBinStr set
       bool passTiming(true);
       if (!m_timeBinStr.empty()) {
-	const SCT3_RawData* pRawData3 = dynamic_cast<const SCT3_RawData*>(pRawData);
-	if (pRawData3) passTiming = testTimeBins(pRawData3->getTimeBin());
-	else  msg(MSG::ERROR)<<"Casting into SCT3_RawData failed. This is probably caused by use of an old RDO file."<<endreq;
+	      const SCT3_RawData* pRawData3 = dynamic_cast<const SCT3_RawData*>(pRawData);
+	      if (pRawData3) passTiming = testTimeBins(pRawData3->getTimeBin());
+	      else  ATH_MSG_ERROR( "Casting into SCT3_RawData failed. This is probably caused by use of an old RDO file.");
       }
 
       // Now we are either (a) pushing more contiguous strips onto an existing vector
       //                or (b) pushing a new set of ids onto an empty vector
       
       if (passTiming) {
-	if (not m_checkBadChannels){
-	  addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
-	} else {
-	  addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
-	}
+	      if (not m_checkBadChannels){
+	        addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
+	      } else {
+	        addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
+	      }
       }
 
       if (not currentVector.empty()) {
-	// Gives the last strip number in the cluster
-	previousStrip = idHelper.strip(currentVector.back());
+	      // Gives the last strip number in the cluster
+	      previousStrip = idHelper.strip(currentVector.back());
       }
     } 
 
@@ -304,20 +297,17 @@ namespace InDet{
 
     int clusterNumber(0);
     // All strips are assumed to be the same width.
-    std::vector<IdVec_t>::iterator  pGroup(idGroups.begin());
-    std::vector<IdVec_t>::iterator  lastGroup(idGroups.end());
-    for (; pGroup!= lastGroup; ++pGroup){
-      const IdVec_t& stripGroup(*pGroup);
-      const int      nStrips(pGroup->size());
+    for (const auto & group: idGroups){
+      const IdVec_t& stripGroup(group);
+      const int      nStrips(group.size());
 
       if (nStrips == 0) continue;
 
-      DimensionAndPosition    clusterDim = clusterDimensions(idHelper.strip(pGroup->front()), idHelper.strip(pGroup->back()), element, idHelper);
+      DimensionAndPosition    clusterDim = clusterDimensions(idHelper.strip(group.front()), idHelper.strip(group.back()), element, idHelper);
       Amg::Vector2D localPos(clusterDim.centre.xPhi(),clusterDim.centre.xEta()); 
       // Since clusterId is arbitary (it only needs to be unique) just use ID of first strip
-      //const Identifier clusterId = element->identifierOfPosition(clusterDim.centre);
-      const Identifier clusterId(pGroup->front());
-      if (!clusterId.is_valid() && msgLvl(MSG::VERBOSE)) msg() << clusterId << " is invalid." << endreq;
+      const Identifier clusterId(group.front());
+      if (!clusterId.is_valid()) ATH_MSG_VERBOSE( clusterId << " is invalid." );
 
       // Find length of strip at centre
       const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(clusterDim.centre));

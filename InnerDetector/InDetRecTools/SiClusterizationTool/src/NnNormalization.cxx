@@ -6,6 +6,7 @@
 #include "SiClusterizationTool/NnNormalization.h"
 #include "SiClusterizationToolNormalizationException.h"
 #include <cmath>
+#include <limits>
 
 inline bool 
 roughlyEqual(const double d, const double target, const double tolerance=0.001){
@@ -32,7 +33,9 @@ double norm_pitch(const double input,const bool addIBL){
   if (!addIBL){
     if (roughlyEqual(input,0.4)) return -0.5;
     if (roughlyEqual(input,0.6)) return +0.5;
-    throw SiClusterizationToolNormalizationException();
+    //sroe, changed in response to ATLASRECTS-1827
+    return std::numeric_limits<double>::quiet_NaN();
+    //throw SiClusterizationToolNormalizationException();
     //return -1; //never reached!
   } else {
     return (input-0.37)*10.;
@@ -43,7 +46,8 @@ double back_pitch(const double input,const bool addIBL){
   if (!addIBL){
     if (roughlyEqual(input,-0.5)) return 0.4;
     if (roughlyEqual(input,0.5))  return 0.6;
-    throw SiClusterizationToolNormalizationException();
+    return std::numeric_limits<double>::quiet_NaN();
+    //throw SiClusterizationToolNormalizationException();
     //return 0; //never reached!
   } else {
     return input*0.10+0.37;

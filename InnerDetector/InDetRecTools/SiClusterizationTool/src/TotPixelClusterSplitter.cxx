@@ -12,7 +12,9 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
+#include "PixelGeoModel/IBLParameterSvc.h" 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type,
   const std::string & name,
@@ -21,7 +23,10 @@ InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type
   m_calibSvc("PixelCalibSvc", name),
   m_minPixels(3),
   m_maxPixels(25),
-  m_doLongPixels(true)
+  m_doLongPixels(true),
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_overflowIBLToT(0),
+  m_offlineCalibSvc("PixelOfflineCalibSvc", name)
 {
   declareInterface<IPixelClusterSplitter>(this);
   declareProperty("PixelCalibSvc", m_calibSvc);
@@ -40,6 +45,24 @@ StatusCode InDet::TotPixelClusterSplitter::initialize()
     ATH_MSG_WARNING("Charge splitting will be WRONG.");
     return sc;
   }
+  
+  if ( !m_offlineCalibSvc.empty() ) {
+    StatusCode sc = m_offlineCalibSvc.retrieve();
+    if (sc.isFailure() || !m_offlineCalibSvc ) {
+      ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
+      return StatusCode::RECOVERABLE;
+    }
+    else{
+      ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
+    }
+  }
+
+  if (m_IBLParameterSvc.retrieve().isFailure()) { 
+      ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
+      return StatusCode::FAILURE; 
+  } else  
+      ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+
   return StatusCode::SUCCESS;
 }
 
@@ -214,7 +237,19 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
 
   const std::vector<int> OrigTots = OrigCluster.totList();
   const int Lvl1a = OrigCluster.LVL1A();
+  
+  const AtlasDetectorID* aid = Element->getIdHelper();
+  if (aid==0)
+  {
+    ATH_MSG_ERROR("Could not get ATLASDetectorID");
+  }
+  const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
+  if (!pixelIDp){
+    ATH_MSG_ERROR("Could not get PixelID pointer");
+  } 
+  const PixelID& pixelID = *pixelIDp;
 
+  
   for (unsigned int i = 0; i < NumPixels; i++)
   {
     Idx = (CellIds[i].*IndexFunc)() - LowIdx;
@@ -235,7 +270,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
       for (int j = 0; j < 2; j++)
       {
         SplitRdos[j].push_back(Rdos[i]);
-        Totgroups[j].push_back(chargeToToT(Rdos[i], Charges[i]/2.));
+        Totgroups[j].push_back(chargeToToT(Rdos[i], pixelID, Charges[i]/2.));
         Lvl1groups[j].push_back(Lvl1a);
       }
     }
@@ -283,7 +318,7 @@ int InDet::TotPixelClusterSplitter::pixelType(const int PhiIdx, const int EtaIdx
   }
 }
 
-int InDet::TotPixelClusterSplitter::chargeToToT(const Identifier & PixID, const float Charge) const
+int InDet::TotPixelClusterSplitter::chargeToToT(const Identifier & PixID, const PixelID& pixelID, const float Charge) const
 {
   float FLT_ToT;
   float A = m_calibSvc->getQ2TotA(PixID);
@@ -293,8 +328,15 @@ int InDet::TotPixelClusterSplitter::chargeToToT(const Identifier & PixID, const 
     float C = m_calibSvc->getQ2TotC(PixID);
     FLT_ToT = A*(Charge + E)/(Charge + C);
   }
-  else FLT_ToT = 0.;
-
+  else FLT_ToT = 0.;	
+  
   int ToT = static_cast<int>(FLT_ToT);
+
+  if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(PixID) == 0 && pixelID.layer_disk(PixID) == 0 ) {
+    m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+    if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
+    msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(PixID) << " layer_disque = " <<  pixelID.layer_disk(PixID) << " ToT = " << FLT_ToT << " Real ToT = " << ToT << endreq;
+  }
+
   return ToT;
 }

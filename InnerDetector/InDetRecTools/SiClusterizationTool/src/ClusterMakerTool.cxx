@@ -52,6 +52,7 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_IBLParameterSvc("IBLParameterSvc",n), 
   m_calibSvc("PixelCalibSvc", n),
+  m_overflowIBLToT(0),
   m_offlineCalibSvc("PixelOfflineCalibSvc", n)
 { 
   declareInterface<ClusterMakerTool>(this);
@@ -178,6 +179,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     }
     issueError=false;
   }
+  
+  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
+
+  const AtlasDetectorID* aid = element->getIdHelper();
+  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
@@ -188,6 +194,10 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
       float charge;
+      if( m_IBLParameterSvc->containsIBL() && pid->barrel_ec(pixid) == 0 && pid->layer_disk(pixid) == 0 ) {
+	if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
+	msg(MSG::DEBUG) << "barrel_ec = " << pid->barrel_ec(pixid) << " layer_disque = " <<  pid->layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
+      }
       float A = m_calibSvc->getQ2TotA(pixid);
       if ( A>0. && (ToT/A)<1. ) {
 				float E = m_calibSvc->getQ2TotE(pixid);
@@ -219,8 +229,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   double eta = fabs(globalPos.eta());
   double zPitch = width.z()/colRow.y();
   
-  const AtlasDetectorID* aid = element->getIdHelper();
-  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
+  //const AtlasDetectorID* aid = element->getIdHelper();
+  //const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if (not pid){
   	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
   	delete errorMatrix;errorMatrix=nullptr;
@@ -334,6 +344,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
 
+  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
+
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design){
@@ -352,6 +364,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   for (int i=0; i<nRDO; i++) {
      Identifier pixid=rdoList[i];
      int ToT=totList[i];
+     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
+       if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
+       msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
+     }
+     
      float charge = ToT;
      if (m_calibrateCharge){
        float A = m_calibSvc->getQ2TotA(pixid);
