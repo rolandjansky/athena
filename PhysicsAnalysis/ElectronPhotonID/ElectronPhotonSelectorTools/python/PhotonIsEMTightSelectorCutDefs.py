@@ -27,5 +27,5 @@ def PhotonIsEMTightSelectorConfigDC14(theTool) :
     #
     # PHOTON tight cuts, with updated using *DC14*
     #
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150408/PhotonIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
 
