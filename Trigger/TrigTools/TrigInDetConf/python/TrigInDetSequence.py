@@ -133,7 +133,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       #raise Exception
 
-    print 'algseq from generate ', algseq  
+    log.info('%s ' % algseq)  
 
     self.__sequence__.append(algseq)
     pass
@@ -180,8 +180,13 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
       if self.__signature__=="bjet":
         ftfname = "TrigFastTrackFinder_%sVtx"; ftf2name = ""; 
-        cnvname = "InDetTrigTrackingxAODCnv_%sPrmVtx_FTF";  cnv2name = ""
+        cnvname = "InDetTrigTrackingxAODCnv_%sPrmVtx_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%s_FTF"
         roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
+      elif self.__signature__=="muon":
+        ftfname = "TrigFastTrackFinder_%s";  ftf2name = "TrigFastTrackFinder_%sIso"; 
+        cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
+        roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
+
         
 
 
@@ -189,7 +194,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       algos = list()
 
-      if not (sequenceFlavour == "FTF" and self.__signature__=="beamSpot"):
+      if True:    #not (sequenceFlavour == "FTF" and self.__signature__=="beamSpot"):
         algos += [("IDTrigRoiUpdater", roiupdater)]
 
       algos += dataprep
@@ -236,23 +241,30 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       algos = [("InDetTrigTrackingxAODCnv",""),
                ]
       fullseq.append(algos)
+
     elif sequenceType=="L2StarxAOD":
       algos = [("InDetTrigTrackingxAODCnv",""),
                ]
       fullseq.append(algos)
+
+    elif sequenceType=="TRTdata":
+      algos = [("IDTrigRoiUpdater", "IDTrigRoiUpdater_HIP"),
+               ("TRTDriftCircleMaker",""),]
+      fullseq.append(algos)
+
     else:
       pass
 
     log.info("Full sequence has %d items" % len(fullseq) )
-    print fullseq
-    log.info("generate python now")
+    #print fullseq
+    #log.info("generate python now")
 
     for i in fullseq:
       #print i
-      print 'next item ', i
+      #print 'next item ', i
       if self.__step__:
         self.__signature__ = self.__step__.pop()
       self.generatePyCode(i)
-      print self.__sequence__
+      #print self.__sequence__
 
 
