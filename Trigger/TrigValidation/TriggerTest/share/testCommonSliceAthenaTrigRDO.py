@@ -40,7 +40,6 @@ rec.doWriteTAG=False
 rec.doAOD=False 
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
-rec.doCBNT=False 
 #rec.doTruth=True
 rec.doTruth.set_Value_and_Lock(False)
 
@@ -57,8 +56,6 @@ else:
 # set trigger menu
 TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
-#(should be set correctly for default) TriggerFlags.useL1CaloCalibration = False
-#TriggerFlags.triggerMenuSetup = 'default' 
 if  ('menu' in dir()):
     TriggerFlags.triggerMenuSetup=menu 
 
