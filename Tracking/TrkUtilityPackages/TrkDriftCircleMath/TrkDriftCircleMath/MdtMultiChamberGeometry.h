@@ -37,8 +37,6 @@ namespace TrkDriftCircleMath {
 
     virtual void print() const;
 
-    virtual double tubeRadius() const;
-
     double stationTheta() const;
     
     const MdtStationId& stationId() const { return m_chambers.at(0).stationId(); }
@@ -50,7 +48,7 @@ namespace TrkDriftCircleMath {
     std::vector<MdtChamberGeometry>  m_chambers;
     mutable std::vector<LocPos>      m_allTubes;
     mutable DCVec                    m_crossedTubes;
-    bool 														 m_validGeometry;
+    bool                             m_validGeometry;
   };
 
   inline double MdtMultiChamberGeometry::stationTheta() const {
@@ -63,10 +61,6 @@ namespace TrkDriftCircleMath {
     return theta/m_chambers.size();
   }
 
-  inline double MdtMultiChamberGeometry::tubeRadius() const {
-    if( m_chambers.empty() ) return 14.6;
-    return m_chambers.front().tubeRadius();
-  }
 
 }
 

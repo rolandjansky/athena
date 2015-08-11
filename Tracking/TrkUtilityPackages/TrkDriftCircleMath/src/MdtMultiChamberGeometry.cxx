@@ -7,15 +7,14 @@
 
 #include <iostream>
 #include <iterator>
-#include <algorithm>
 
 namespace TrkDriftCircleMath {
   
-  MdtMultiChamberGeometry::MdtMultiChamberGeometry():
+  MdtMultiChamberGeometry::MdtMultiChamberGeometry() :
     m_chambers{},
-		m_allTubes{},
-		m_crossedTubes{},
-		m_validGeometry{}
+    m_allTubes{},
+    m_crossedTubes{},
+    m_validGeometry{}
   {
     m_crossedTubes.reserve(30);
   }
@@ -28,8 +27,8 @@ namespace TrkDriftCircleMath {
     m_validGeometry = true;
     for(; it!=it_end;++it ){
       if( !it->validGeometry() ){
-				m_validGeometry = false;
-				break;
+	      m_validGeometry = false;
+	      break;
       }
     }
     m_crossedTubes.reserve(60);
