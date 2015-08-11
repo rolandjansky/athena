@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 790007 2016-12-15 17:46:55Z ssnyder $
+// $Id: PyROOTInspector.cxx 670666 2015-05-28 16:09:29Z mnowak $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -15,8 +15,6 @@
 #include "TDataMember.h"
 #include "TDataType.h"
 #include "TVirtualCollectionProxy.h"
-
-#include "Utility.h"
 
 // PyROOT includes
 #include <TPython.h>
@@ -35,6 +33,66 @@
 #define Py_False ( (PyObject*)(void*)&_Py_ZeroStruct )
 #endif
 
+#define ObjectProxy_ASVOIDPTR(o) (TPython::ObjectProxy_AsVoidPtr(o))
+#define ObjectProxy_GETCLASS(o) (((PyROOT::ObjectProxy*)(o))->ObjectIsA())
+
+namespace PyROOT {
+
+class PyRootClass {
+public:
+  PyHeapTypeObject fType;      // placeholder, in a single block with the TClassRef
+  TClassRef fClass;
+
+private:
+  PyRootClass() : fType() {}
+};
+
+inline
+void throw_py_exception (bool display = true)
+{
+  if (display) {
+    // fetch error
+    PyObject* pytype = 0, *pyvalue = 0, *pytrace = 0;
+    PyErr_Fetch (&pytype, &pyvalue, &pytrace);
+    Py_XINCREF  (pytype);
+    Py_XINCREF  (pyvalue);
+    Py_XINCREF  (pytrace);
+    // restore...
+    PyErr_Restore (pytype, pyvalue, pytrace);
+    // and print
+    PyErr_Print();
+  }
+  throw PyROOT::TPyException();
+}
+
+class ObjectProxy {
+public:
+  enum EFlags { kNone = 0x0, kIsOwner = 0x0001, kIsReference = 0x0002 };
+
+  TClass* ObjectIsA() const
+  {
+    return ((PyRootClass*)ob_type)->fClass.GetClass(); // may return null
+  }
+
+  void* GetObject() const
+  {
+    if ( fObject && ( fFlags & kIsReference ) )
+      return *(reinterpret_cast< void** >( const_cast< void* >( fObject ) ));
+    else
+      return const_cast< void* >( fObject );        // may be null
+  }
+
+  void HoldOn() { fFlags |= kIsOwner; }
+  void Release() { fFlags &= ~kIsOwner; }
+
+  PyObject_HEAD
+  void*     fObject;
+  int       fFlags;
+};
+
+R__EXTERN PyTypeObject ObjectProxy_Type;
+
+} // namespace PyROOT
 
 // ------------------------------------
 #include "RootUtils/PyROOTInspector.h"
@@ -148,7 +206,7 @@ recurse_pyinspect(PyObject *pyobj,
     return;
   }
 
-  TClass *tcls = RootUtils::objectIsA(pyobj);
+  TClass *tcls = ObjectProxy_GETCLASS(pyobj);
   if (0 == tcls ||
       (tcls->IsTObject() && strcmp(tcls->GetName(), "TLorentzVector") != 0))
   {
@@ -161,7 +219,7 @@ recurse_pyinspect(PyObject *pyobj,
     Py_DECREF(val);
     return;
   }
-  void *obj = TPython::ObjectProxy_AsVoidPtr(pyobj);
+  void *obj = ObjectProxy_ASVOIDPTR(pyobj);
 
   if (!strcmp(tcls->GetName(), "string")) {
     std::string *str = (std::string*)obj;
@@ -215,8 +273,7 @@ recurse_pyinspect(PyObject *pyobj,
   }
 
   TList *members = tcls->GetListOfDataMembers();
-  // members can be null for STL containers in root 6.08.
-  const Int_t nmembers = members ? members->GetEntries() : 0;
+  const Int_t nmembers = members->GetEntries();
 
 #if PYROOT_INSPECTOR_DBG
   std::cerr << "==[" << tcls->GetName() << "]== (#mbrs:"
@@ -239,8 +296,8 @@ recurse_pyinspect(PyObject *pyobj,
     // something completely different, so that didn't work.
     // Rewriting in terms of iteration avoids this.
     // .. except that it mysteriously fails (sometimes) for TileCellVec.
-    Py_ssize_t nelems = PySequence_Size(pyobj);
     if (strcmp(tcls->GetName(), "TileCellVec") == 0) {
+      const Py_ssize_t nelems = PySequence_Size(pyobj);
       for (Py_ssize_t i = 0; i < nelems; ++i) {
         PyObject *pyidx = PyLong_FromLong(i);
         PyObject *itr = PySequence_GetItem(pyobj, i);
@@ -255,11 +312,7 @@ recurse_pyinspect(PyObject *pyobj,
       PyObject* iter = PyObject_GetIter(pyobj);
       size_t i = 0;
       if (iter) {
-        PyObject* item = nullptr;
-        // Sometimes iterator comparison doesn't work correctly in pyroot.
-        // So protect against overrunning by also counting
-        // the number of elements.
-        while (nelems-- && (item = PyIter_Next(iter))) {
+        while (PyObject* item = PyIter_Next(iter)) {
           PyObject *pyidx = PyLong_FromLong(i++);
           PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
           recurse_pyinspect(item, itr_name, pystack, persistentOnly);
@@ -356,12 +409,12 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
     return pyobj;
   }
 
-  TClass *tcls = RootUtils::objectIsA(pyobj);
+  TClass *tcls = ObjectProxy_GETCLASS(pyobj);
   if (0 == tcls) {
     Py_INCREF(Py_None);
     return Py_None;
   }
-  void *obj = TPython::ObjectProxy_AsVoidPtr(pyobj);
+  void *obj = ObjectProxy_ASVOIDPTR(pyobj);
 
   if (!strcmp(tcls->GetName(), "string")) {
     std::string *str = (std::string*)obj;

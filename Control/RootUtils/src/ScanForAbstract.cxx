@@ -22,17 +22,6 @@
 #include <cassert>
 
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,5,0)
-using ROOT::TInitBehavior;
-using ROOT::TDefaultInitBehavior;
-using ROOT::DefineBehavior;
-#else
-using ROOT::Internal::TInitBehavior;
-using ROOT::Internal::TDefaultInitBehavior;
-using ROOT::Internal::DefineBehavior;
-#endif
-
-
 //****************************************************************************
 // This is the class creation hook.
 //
@@ -45,19 +34,22 @@ namespace {
  * @brief Class creation hook.
  */
 class SFAInitBehavior
-  : public TDefaultInitBehavior
+  : public ROOT::TDefaultInitBehavior
 {
 public:
   virtual TClass *CreateClass(const char *cname, Version_t id,
-                              const std::type_info &info, TVirtualIsAProxy *isa,
+                              const type_info &info, TVirtualIsAProxy *isa,
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+                              ShowMembersFunc_t show,
+#endif
                               const char *dfil, const char *ifil,
                               Int_t dl, Int_t il) const;
 
-  static TDefaultInitBehavior oldBehavior;
-  static TDefaultInitBehavior* oldBehaviorPtr;
+  static ROOT::TDefaultInitBehavior oldBehavior;
+  static ROOT::TDefaultInitBehavior* oldBehaviorPtr;
 };
-TDefaultInitBehavior SFAInitBehavior::oldBehavior;
-TDefaultInitBehavior* SFAInitBehavior::oldBehaviorPtr = 0;
+ROOT::TDefaultInitBehavior SFAInitBehavior::oldBehavior;
+ROOT::TDefaultInitBehavior* SFAInitBehavior::oldBehaviorPtr = 0;
 
 
 /**
@@ -66,8 +58,11 @@ TDefaultInitBehavior* SFAInitBehavior::oldBehaviorPtr = 0;
  */
 TClass *SFAInitBehavior::CreateClass(const char *cname,
                                      Version_t id,
-                                     const std::type_info &info,
+                                     const type_info &info,
                                      TVirtualIsAProxy *isa,
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+                                     ShowMembersFunc_t show,
+#endif
                                      const char *dfil,
                                      const char *ifil,
                                      Int_t dl,
@@ -75,6 +70,9 @@ TClass *SFAInitBehavior::CreateClass(const char *cname,
 {
   // Do the default root behavior.
   TClass* cl = oldBehaviorPtr->CreateClass(cname, id, info, isa,
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+                                           show,
+#endif
                                            dfil, ifil, dl, il);
 
   // Scan the new class.
@@ -181,13 +179,13 @@ void ScanForAbstract::initialize()
   // Register ourselves as a hook,
   // to be called in the future on class creation.
   SFAInitBehavior::oldBehaviorPtr = &SFAInitBehavior::oldBehavior;
-  TInitBehavior* ib =
-    const_cast<TInitBehavior*>(DefineBehavior(0,0));
-  assert (sizeof(TDefaultInitBehavior) == sizeof (SFAInitBehavior));
+  ROOT::TInitBehavior* ib =
+    const_cast<ROOT::TInitBehavior*>(ROOT::DefineBehavior(0,0));
+  assert (sizeof(ROOT::TDefaultInitBehavior) == sizeof (SFAInitBehavior));
   memcpy ((char*)&SFAInitBehavior::oldBehavior, (char*)ib,
-          sizeof(TDefaultInitBehavior));
+          sizeof(ROOT::TDefaultInitBehavior));
   static SFAInitBehavior sfaib;
-  memcpy ((char*)ib, (char*)&sfaib, sizeof(TDefaultInitBehavior));
+  memcpy ((char*)ib, (char*)&sfaib, sizeof(ROOT::TDefaultInitBehavior));
 
   // Make sure the TClass's for these are built.
   // Otherwise, CreateClass can get called while global dtors are running.

@@ -20,7 +20,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TBranch.h"
-#include "RootUtils/TBranchElementClang.h"
+#include "TBranchElement.h"
 #include "TLeaf.h"
 #include "TLeafObject.h"
 #include "TROOT.h"
@@ -171,8 +171,6 @@ Bool_t TreeNotifier::Notify()
         PyErr_Clear();
     }
   }
-
-  if (m_chain) m_chain->Notify();
   return true;
 }
 
@@ -370,7 +368,7 @@ void checkEnable (TBranch* branch)
     }
 
     Long64_t local_entry = tree->LoadTree (entry);
-    (void)branch->GetEntry (local_entry);
+    branch->GetEntry (local_entry);
   }
 }
 
