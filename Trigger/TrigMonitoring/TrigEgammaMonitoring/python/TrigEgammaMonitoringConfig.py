@@ -13,7 +13,7 @@ def HLTEgammaMonitoringTool():
   HLTEgammaNavMon = HLTEgammaNavMonTool(name = 'HLTEgammaNavMon', histoPathBase = "/Trigger/HLT")
   HLTEgammaNavMon.signatures = hltmonList.monitoring_egamma
   HLTEgammaNavMon.categories = ['primary_single_ele' , 'primary_single_ele_cutbased' , 'primary_double_ele' , 'primary_double_ele_cutbased' , 'monitoring_ele_idperf' , 'monitoring_ele_idperf_cutbased' , 'monitoring_Zee' , 'monitoring_Jpsiee' , 'primary_single_pho' , 'primary_double_pho', 'primary_single_ele_iso', 'primary_single_ele_cutbased_iso']
-  HLTEgammaNavMon.sigsPerCategory = [4, 4, 3, 3, 4, 4, 2, 2, 4, 3, 5, 5]
+  HLTEgammaNavMon.sigsPerCategory = [4, 4, 3, 3, 4, 4, 2, 2, 7, 3, 5, 5]
   #HLTEgammaNavMon.signatures = ['e5_NoCut','e5_medium1','e10_loose','e20_loose_IdScan']
   #HLTEgammaNavMon.signatures +=['e5_NoCut_cosmic','e10_loose_cosmic','e10_medium_cosmic']
   #HLTEgammaNavMon.doExtrapol=False
@@ -27,7 +27,7 @@ def HLTEgammaMonitoringTool():
   #HLTEgammaNavSigTEMon.signatures = ['e28_tight_iloose']
   HLTEgammaNavSigTEMon.signatures = hltmonList.monitoring_egamma
   HLTEgammaNavSigTEMon.categories = ['primary_single_ele' , 'primary_single_ele_cutbased' , 'primary_double_ele' , 'primary_double_ele_cutbased' , 'monitoring_ele_idperf' , 'monitoring_ele_idperf_cutbased' , 'monitoring_Zee' , 'monitoring_Jpsiee' , 'primary_single_pho' , 'primary_double_pho', 'primary_single_ele_iso', 'primary_single_ele_cutbased_iso']
-  HLTEgammaNavSigTEMon.sigsPerCategory = [4, 4, 3, 3, 4, 4, 2, 2, 4, 3, 5, 5]
+  HLTEgammaNavSigTEMon.sigsPerCategory = [4, 4, 3, 3, 4, 4, 2, 2, 7, 3, 5, 5]
   #HLTEgammaNavSigTEMon.signatures +=['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA']
   #HLTEgammaNavSigTEMon.signatures += ['e24vh_medium1']
   #HLTEgammaNavSigTEMon.signatures +=['e24vhi_medium1']
@@ -80,8 +80,9 @@ def TrigEgammaMonitoringTool():
   from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
 
   probelist1 = hltmonList.primary_single_pho + hltmonList.primary_single_ele + hltmonList.primary_single_ele_cutbased + hltmonList.monitoring_ele_idperf + hltmonList.monitoring_ele_idperf_cutbased
+  probelist1 += ['L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI']
   probelist2 = hltmonList.primary_single_ele + hltmonList.primary_single_ele_cutbased + hltmonList.monitoring_ele_idperf + hltmonList.monitoring_ele_idperf_cutbased + hltmonList.monitoring_Zee + hltmonList.monitoring_Jpsiee
-  probelist2 += ['e24_tight_iloose_HLTCalo_L1EM20VH', 'e24_lhtight_iloose_L2EFCalo_L1EM20VH', 'e24_lhmedium_cutd0dphideta_iloose_L1EM20VH', 'e24_lhmedium_nod0_iloose_L1EM20VH', 'e24_lhmedium_nodeta_iloose_L1EM20VH', 'e24_lhmedium_nodphires_iloose_L1EM20VH']
+  probelist2 += ['e24_tight_iloose_HLTCalo_L1EM20VH', 'e24_lhtight_iloose_L2EFCalo_L1EM20VH', 'e24_lhmedium_cutd0dphideta_iloose_L1EM20VH', 'e24_lhmedium_nod0_iloose_L1EM20VH', 'e24_lhmedium_nodeta_iloose_L1EM20VH', 'e24_lhmedium_nodphires_iloose_L1EM20VH', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI']
   probelistJPsi = ['e5_loose','e5_lhloose','e5_vloose','e5_lhvloose']
 
   basePath = '/HLT/Egamma/'
