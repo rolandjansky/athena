@@ -89,6 +89,7 @@ if memFreeze:
 
 # formatting of log output
 MessageSvc.debugLimit = 20000000
+MessageSvc.infoLimit  = 20000000
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 
 #get rid of messages and increase speed
