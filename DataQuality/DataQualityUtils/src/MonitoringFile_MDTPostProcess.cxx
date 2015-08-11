@@ -519,9 +519,11 @@ namespace dqutils {
 	  TDirectory* dirChamb = mf.GetDirectory(chamber_Area+ecap_fullStr+"/Chambers/"+dirName);
 	  if(!dirChamb) continue;
 	  if(dirName=="BML6A13"||dirName=="BML6C13") continue;//These chambers do not exist
-	  if(dirName(0,2)=="EE" && dirName(4,1) == "A"){// All EE C chambers are installed. Only 3, 5(1), 11, 13 exist on A
+
+	  /*if(dirName(0,2)=="EE" && dirName(4,1) == "A"){// All EE C chambers are installed. Only 3, 5(1), 11, 13 exist on A
 	    if(!(dirName(3,4)=="1A05" || dirName(5,2) == "03" || dirName(5,2)=="11" || dirName(5,2)=="13")) continue;
-	  }
+	  }*/ //They exist now!
+
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////
 	  //////Dead Noisy Tube Calculations
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -732,8 +734,13 @@ namespace dqutils {
 	      yAxis += dirName(2,1);
 	    }
 	    //BML[45][AC]13-->BML[56][AC]13
-	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 )
+	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
 	      xAxis = dirName(0,1) + dirName(4,1) + returnString( TString(dirName(3,1)).Atoi() + 1 );
+	    }
+            //BML1[AC]14-->BML4[AC]13
+	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
+	      xAxis = dirName(0,1) + dirName(4,1) + returnString( 4 );
+	    }
 	    double tubeLength = 4.9615;
 // 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 // 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
@@ -1416,9 +1423,9 @@ namespace dqutils {
 	  
 	  if(dir_Overview){
  	    dir_Overview->cd();
- 	    sumt0->SetAxisRange(300,1000,"y");
+ 	    sumt0->SetAxisRange(0,300,"y");
  	    sumtdrift->SetAxisRange(0,1200,"y");
- 	    sumtmax->SetAxisRange(500,2200,"y");
+ 	    sumtmax->SetAxisRange(0,1500,"y");
 	    MDTFinalizeWriteTH1FChar(sumt0);
 	    MDTFinalizeWriteTH1FChar(sumtdrift);
 	    MDTFinalizeWriteTH1FChar(sumtmax);
@@ -1743,14 +1750,14 @@ namespace dqutils {
     t0 = tmax = 0;
     t0err = tmaxerr = 0;
     double up = h->GetBinCenter(h->GetMaximumBin()+1);
-    if( up > 1200 ) up = 1000;
+    if( up > 200 ) up = 200;
     double down = up + 650;
-    if( up < 300 ) up = 300;
+    if( up < 50 ) up = 50;
     double parESD0 = h->GetBinContent(h->GetMinimumBin()); 
     double parESD1 = up;
     double parESD2 = 20;
     double parESD3 = h->GetBinContent(h->GetMaximumBin()) - h->GetBinContent(h->GetMinimumBin());  
-    TF1 func1("func1", &fittzero,(Double_t)(up-300),(Double_t)(up), 4);
+    TF1 func1("func1", &fittzero,(Double_t)(0.),(Double_t)(up), 4);
     func1.SetParameters(parESD0, parESD1, parESD2, parESD3);
     func1.SetLineColor(kBlue+2);
     if(h->GetEntries()>100){

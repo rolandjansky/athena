@@ -177,7 +177,9 @@ def DQPostProcess( outFileName, isIncremental=False ):
                  (mf.SCTPostProcess,
                   ['masaki.endo@cern.ch']),
                  (mf.MuonTrkPhys,
-                  ['austin.basye@cern.ch', 'rcyooper@uw.edu'])
+                  ['austin.basye@cern.ch', 'rcyooper@uw.edu']),
+                 (mf.MuonTrackPostProcess,
+                  ['baojia.tong@cern.ch', 'alex.tuna@cern.ch'])
                ]
 
     for funcinfo in funclist:
