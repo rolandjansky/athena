@@ -47,10 +47,10 @@ namespace iGeant4 {
        static const InterfaceID& interfaceID() { return IID_ITransportTool; }
 
        /** Processes ISF particle */
-       virtual StatusCode process(const ISF::ISFParticle& isp) const = 0;
+       virtual StatusCode process(const ISF::ISFParticle& isp) = 0;
 
        /** Processes vector of ISF particles */
-       virtual StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles) const = 0;
+       virtual StatusCode processVector(const std::vector<const ISF::ISFParticle*>& ispVector) = 0;
   };
 
 } // end of namespace
