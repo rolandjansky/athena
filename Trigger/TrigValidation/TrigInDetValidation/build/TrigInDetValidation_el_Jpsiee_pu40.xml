@@ -34,7 +34,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_Jpsiee_pu40-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
              </arg>
            </action>
 

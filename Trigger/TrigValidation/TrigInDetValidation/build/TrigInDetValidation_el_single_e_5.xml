@@ -32,7 +32,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_single_e_5-reference.root EF_e24vh_medium1_IDTrkNoCut_IDT_TrigFastTrackFinder_eGamma EF_e24vh_medium1_IDTrkNoCut_IDT_InDetTrigParticleCreation_Electron_EFID -d EF-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_single_e_5-reference.root EF_e24vh_medium1_IDTrkNoCut_IDT_TrigFastTrackFinder_eGamma EF_e24vh_medium1_IDTrkNoCut_IDT_InDetTrigParticleCreation_Electron_IDTrig -d EF-plots </argvalue>
              </arg>
            </action>
 
@@ -45,7 +45,7 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-electron-merge.root data-el_single_e_5-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_EFID HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
+               <argvalue>data-electron-merge.root data-el_single_e_5-reference.root HLT_e5_loose_idperf_TrigFastTrackFinder_eGamma  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots </argvalue>
              </arg>
            </action>
 
