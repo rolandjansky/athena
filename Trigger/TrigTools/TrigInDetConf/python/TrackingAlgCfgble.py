@@ -6,6 +6,8 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
   def __init__(self, name="TrigTrackFinder_Muon", type="muon"):
     remap  = {
       "muon"     : "Muon",
+      "muonCore" : "MuonCore",
+      "muonIso"  : "MuonIso",
       "electron" : "eGamma",
       "tau"      : "Tau",
       "tauCore"  : "TauCore",
