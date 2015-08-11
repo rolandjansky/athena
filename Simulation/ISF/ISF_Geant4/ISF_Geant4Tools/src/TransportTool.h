@@ -73,16 +73,16 @@ namespace iGeant4
     virtual StatusCode finalize();
 
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    StatusCode process(const ISF::ISFParticle& isp) const;
+    StatusCode process(const ISF::ISFParticle& isp);
 
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
-    StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles) const;
+    StatusCode processVector(const std::vector<const ISF::ISFParticle*>& particles);
 
     /** Converts ISF::ISFParticle to G4Event */
-    G4Event* ISF_to_G4Event(const ISF::ISFParticle& isp) const;
+    G4Event* ISF_to_G4Event(const ISF::ISFParticle& isp);
 
     /** Converts vector of ISF::ISFParticles to G4Event */
-    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp) const;
+    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp);
 
   private:
     G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
@@ -90,6 +90,9 @@ namespace iGeant4
     G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
 
     void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
+
+    /** Tests whether the given ISFParticle is within the Geant4 world volume */
+    bool isInsideG4WorldVolume(const ISF::ISFParticle& isp);
 
     HepMC::GenEvent* genEvent() const;
 
@@ -125,6 +128,8 @@ namespace iGeant4
     bool   m_quasiStableParticlesIncluded; //<! will quasi-stable
                                            //particles be included in
                                            //simulation
+
+    G4VSolid *m_worldSolid;                // the Geant4 world volume solid
   };
 
 

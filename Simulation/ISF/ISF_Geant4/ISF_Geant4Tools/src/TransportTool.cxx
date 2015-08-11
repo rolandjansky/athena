@@ -53,6 +53,7 @@
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
 #include "G4ParticleTable.hh"
+#include "G4TransportationManager.hh"
 
 
 //________________________________________________________________________
@@ -68,7 +69,8 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
     m_sdActivateUserAction("iGeant4::SDActivateUserAction/SDActivateUserAction"),
     m_storeGate(0),
     m_mcEventCollectionName("TruthEvent"),
-    m_quasiStableParticlesIncluded(false)
+    m_quasiStableParticlesIncluded(false),
+    m_worldSolid(0)
     //, m_particleBroker("ISF_ParticleParticleBroker",n)
     //, m_particleHelper("ISF::ParticleHelper/ParticleHelper")
     //, m_configTool("PyAthena::Tool/G4ConfigTool")
@@ -267,7 +269,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp) const
+StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 {
 
   static PreEventActionManager *preEvent=PreEventActionManager::
@@ -309,9 +311,9 @@ StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp) const
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVector& particles) const
+StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVector& ispVector) 
 {
-  ATH_MSG_DEBUG("processing vector of "<<particles.size()<<" particles");
+  ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
 
   static PreEventActionManager *preEvent=PreEventActionManager::GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
@@ -320,7 +322,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
 
-  G4Event* inputEvent=ISF_to_G4Event(particles);
+  G4Event* inputEvent = ISF_to_G4Event(ispVector);
   if (inputEvent) {
     bool abort = p_runMgr->ProcessEvent(inputEvent);
 
@@ -350,18 +352,21 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 }
 
 //________________________________________________________________________
-G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVector& particles) const
+G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVector& ispVector)
 {
 
-  G4Event * g4evt=new G4Event();
-
-  ISF::ConstISFParticleVector::const_iterator partIt    = particles.begin();
-  ISF::ConstISFParticleVector::const_iterator partItEnd = particles.end();
+  G4Event * g4evt = new G4Event();
 
   int n_pp=0;
-  for ( ; partIt != partItEnd; partIt++) {
+  for ( const ISF::ISFParticle *ispPtr: ispVector ) {
 
-    const ISF::ISFParticle& isp = (**partIt);
+    const ISF::ISFParticle &isp = *ispPtr;
+
+    if ( !isInsideG4WorldVolume(isp) ) {
+        ATH_MSG_WARNING("Unable to convert ISFParticle to G4PrimaryParticle!");
+        ATH_MSG_WARNING(" ISFParticle outside Geant4 world volume: " << isp );
+        continue;
+    }
 
     addPrimaryVertex(g4evt,isp);
 
@@ -378,17 +383,13 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVec
 }
 
 //________________________________________________________________________
-G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) const
+G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp)
 {
-  G4Event * g4evt=new G4Event();
 
-  addPrimaryVertex(g4evt,isp);
-
-  EventInformation *eventInfo=new EventInformation();
-  eventInfo->SetNrOfPrimaryParticles(1);
-  eventInfo->SetNrOfPrimaryVertices(1); // special case for ISF batches of particles
-  eventInfo->SetHepMCEvent(genEvent());
-  g4evt->SetUserInformation(eventInfo);
+  // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
+  // (minimizing code duplication)
+  ISF::ConstISFParticleVector ispVector(1, &isp);
+  G4Event *g4evt = ISF_to_G4Event( ispVector );
 
   return g4evt;
 }
@@ -410,7 +411,7 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const HepMC::Gen
   }
 
   if(particle_definition==0) {
-    ATH_MSG_ERROR("ISF_to_G4Event article conversion failed. ISF_Particle PDG code = " << gp.pdg_id() <<
+    ATH_MSG_ERROR("ISF_to_G4Event particle conversion failed. ISF_Particle PDG code = " << gp.pdg_id() <<
                   "\n This usually indicates a problem with the evgen step.\n" <<
                   "Please report this to the Generators group, mentioning the release and generator used for evgen and the PDG code above." );
     return 0;
@@ -626,4 +627,22 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
 
   return mcEvent;
 
+}
+
+//________________________________________________________________________
+bool iGeant4::G4TransportTool::isInsideG4WorldVolume(const ISF::ISFParticle& isp) {
+
+  // retrieve world solid (volume)
+  if (!m_worldSolid) {
+    // NB: assuming that the pointers are all valid
+    // (simulation is really sick otherwise)
+    m_worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
+  }
+
+  const Amg::Vector3D &pos = isp.position();
+  const G4ThreeVector g4Pos( pos.x(), pos.y(), pos.z() );
+  EInside insideStatus     = m_worldSolid->Inside( g4Pos );
+
+  bool insideWorld = insideStatus != kOutside;
+  return insideWorld;
 }
