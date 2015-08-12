@@ -32,7 +32,7 @@
 
 #include "TrigInterfaces/AlgoConfig.h"
 
-
+#include "StoreGate/StoreGateSvc.h"
 
 using namespace HLT;
 
@@ -52,7 +52,8 @@ Lvl2ConverterFromPersistency::Lvl2ConverterFromPersistency(const std::string& na
 ErrorCode Lvl2ConverterFromPersistency::hltInitialize()
 {
   if ( m_tmpNavigation.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("failed to get navigation, can not retrieve navigation tool: "<< m_tmpNavigation);
+    (*m_log) << MSG::FATAL << "failed to get navigation, can not retrieve navigation tool: "
+	     << m_tmpNavigation << endreq;
     return  HLT::BAD_JOB_SETUP;
   }
   return HLT::OK;
@@ -67,35 +68,50 @@ ErrorCode Lvl2ConverterFromPersistency::hltFinalize()
 
 ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChain*>& chains)
 {
+  // some debug output
+  if (m_logLvl <= MSG::DEBUG) {
+    (*m_log) << MSG::DEBUG << "executing" << endreq;
+  }
+
   if (!m_config) {
-    ATH_MSG_ERROR("No AlgoConfig pointer");
+       (*m_log) << MSG::ERROR
+             << "No AlgoConfig pointer"
+             << endreq;
     return HLT::ERROR;
   }
 
+
+  
+
   const HLTResult* constL2Result;
-  StatusCode sc = evtStore()->retrieve(constL2Result, m_l2Name);
+  StatusCode sc = m_storeGate->retrieve(constL2Result, m_l2Name);
 
   if(sc.isFailure()){
-    ATH_MSG_ERROR("No HLTResult with name " << m_l2Name << " found in StoreGate");
+    (*m_log) << MSG::ERROR
+             << "No HLTResult with name " << m_l2Name << " found in StoreGate"
+             << endreq;
     return HLT::NO_HLT_RESULT;
   }
 
 
 
   const HLTResult* constEFResult;
-  sc = evtStore()->retrieve(constEFResult, m_efName);
+  sc = m_storeGate->retrieve(constEFResult, m_efName);
 
   if(sc.isFailure()){
-    ATH_MSG_ERROR("No HLTResult with name " << m_efName << " found in StoreGate");
+    (*m_log) << MSG::ERROR
+             << "No HLTResult with name " << m_efName << " found in StoreGate"
+             << endreq;
     return HLT::NO_HLT_RESULT;
   }
 
-  ATH_MSG_VERBOSE("L2 and EF results retrieved from SG");
+  if(m_logLvl<=MSG::VERBOSE)
+    (*m_log) << MSG::VERBOSE << "L2 and EF results retrieved from SG" << endreq;
 
   
   // update hltAccessTool with new HLTResult_L2 and retrieve chains from this level:
   if (!m_hltTool->updateResult(*constL2Result, m_config)) {
-    ATH_MSG_DEBUG("L2Result errorus, HLTResultAccessTool can't digest it");
+    (*m_log) << MSG::DEBUG << "L2Result errorus, HLTResultAccessTool can't digest it" << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_3, HLT::SteeringInternalReason::WRONG_HLT_RESULT);
   }
   const std::vector<Chain>& l2Chains = m_hltTool->getChains();
@@ -103,7 +119,7 @@ ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChai
   /*
   // update hltAccessTool with new HLTResult_EF and retireve chains from this level:
   if (!m_hltTool->updateResult(*constEFResult, m_config)) {
-  ATH_MSG_ERROR("L2Result errorus, HLTResultAccessTool can't digest it");
+  (*m_log) << MSG::ERROR << "L2Result errorus, HLTResultAccessTool can't digest it" << endreq;
   return HLT::WRONG_HLT_RESULT;
   }
   //  const std::vector<Chain>& efChains = m_hltTool->getChains();
@@ -113,7 +129,7 @@ ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChai
   ErrorCode ec;
   ec = activateChains(chains, l2Chains);
   if ( ec != HLT::OK ) {
-    ATH_MSG_ERROR("Failed to activate chains");
+    (*m_log) << MSG::ERROR << "Failed to activate chains" << endreq;
     return ec;
   }
 
@@ -122,7 +138,7 @@ ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChai
 
   ec = deserializeNavigation(m_tmpNavigation.operator*(), *constL2Result);
   if ( ec != HLT::OK) {
-    ATH_MSG_ERROR("Failed to deserialize L2 navigation");
+    (*m_log) << MSG::ERROR << "Failed to deserialize L2 navigation" << endreq;
     return ec;
   }
 
@@ -131,14 +147,14 @@ ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChai
   // Deserialize EF navigation
   ec = deserializeNavigation(*m_config->getNavigation(), *constEFResult);
   if ( ec != HLT::OK) {
-    ATH_MSG_ERROR("Failed to deserialize EF navigation");
+    (*m_log) << MSG::ERROR << "Failed to deserialize EF navigation" << endreq;
     return ec;
   }
 
 
   // now is the trick
   if ( ! m_config->getNavigation()->propagateDeactivation(m_tmpNavigation.operator->()) ) {
-    ATH_MSG_ERROR("Failed to propagate deactivation from Lvl2");
+    (*m_log) << MSG::ERROR << "Failed to propagate deactivation from Lvl2" << endreq;
     return HLT::NAV_ERROR;  
   }
   // once the L2 Navigatio is use it can be reset
@@ -150,8 +166,8 @@ ErrorCode Lvl2ConverterFromPersistency::hltExecute(std::vector<HLT::SteeringChai
   m_config->setLvl1Id(constL2Result->getLvl1Id());
 
   // remove old EFResult from SG
-  if ( evtStore()->remove(constEFResult).isFailure() ) {
-    ATH_MSG_ERROR("Failed to remove old result from SG");
+  if ( m_storeGate->remove(constEFResult).isFailure() ) {
+    (*m_log) << MSG::ERROR << "Failed to remove old result from SG" << endreq; 
     return HLT::ERROR;
   }
 

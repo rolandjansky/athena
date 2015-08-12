@@ -10,16 +10,15 @@
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigNavigation/Navigation.h"
-//#include "TrigSteeringEvent/TrigOperationalInfo.h"
+#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
+#include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "TrigSteeringEvent/ScoutingInfo.h"
 #include "eformat/SourceIdentifier.h"
 
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
-#include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 using namespace HLT;
 
@@ -51,7 +50,9 @@ ResultBuilder::~ResultBuilder()
 
 StatusCode ResultBuilder::initialize()
 {
-  CHECK(decodeErrorStreamTagsProperty());
+  ATH_MSG_DEBUG("initializing " << name());
+
+  CHECK(decodeErrorStreamaTagsProperty());
   CHECK(m_streamingStrategy.retrieve());
 
   return StatusCode::SUCCESS;
@@ -300,25 +301,13 @@ struct StreamTagCollectionHelper {
 
 ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& activeChains) {
    // record express stream PS decisions in new TrigOperationalInfo object
-   xAOD::TrigCompositeContainer* streamContainer=0;
-   xAOD::TrigComposite* streamInfo=0;
-   xAOD::TrigCompositeAuxContainer aux;
-
-   //   TrigOperationalInfo* streamOPI = 0;
+   TrigOperationalInfo* streamOPI = 0;
    if(m_config->getHLTLevel() == HLT::EF || m_config->getHLTLevel() == HLT::HLT) {
-     std::string key;
-     // streamOPI = new TrigOperationalInfo();
-     // m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
-     //                                          streamOPI, HLT::Navigation::ObjectCreatedByNew, key, 
-     //                                          "EXPRESS_OPI"+m_config->getInstance() );
-     streamContainer = new xAOD::TrigCompositeContainer();
-     streamContainer->setStore(&aux);
-     streamInfo = new xAOD::TrigComposite();
-     streamContainer->push_back(streamInfo);
-     streamInfo->setName("Express_stream");
-     m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
-					      streamContainer, HLT::Navigation::ObjectCreatedByNew, key, 
-					      "Express_stream"+m_config->getInstance() );
+      streamOPI = new TrigOperationalInfo();
+      std::string key;
+      m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
+                                               streamOPI, HLT::Navigation::ObjectCreatedByNew, key, 
+                                               "EXPRESS_OPI"+m_config->getInstance() );
    }
 
    // the Chain's StreamTags
@@ -350,8 +339,6 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       typedef std::map<std::string, StreamTagCollectionHelper> StreamTagCollectionHelperMap;
       StreamTagCollectionHelperMap collectionHelper;
       StreamTagCollectionHelperMap::iterator strIt;
-
-      //      std::vector<int> es_chain_counters; // chain_counters of chains which sent the event to the express stream
 
       if ( m_uniqueStreams.size() == 0 ) { // it means no debug stream
          // list of all StreamTags
@@ -391,17 +378,11 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
                         }
                      }
                      
-                     // if(streamOPI && chain_stream.getType() == "express") {
-                     //    streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
+                     if(streamOPI && chain_stream.getType() == "express") {
+                        streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
                         
-                     //    ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
-                     // }
-		     if (streamInfo && chain_stream.getType() == "express") {
-		       //chid = chain->getChainCounter();
-		       streamInfo->setDetail(chain->getChainName(), chain_stream.prescaleFactor());
-		       //		       es_chain_counters.push_back(chid);
-		       ATH_MSG_VERBOSE("Set express stream prescale to 1 for: " << chain->getChainName());
-		     }
+                        ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
+                     }
                   }
                }
             }
@@ -504,7 +485,7 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
              it != triggerTypeBits.end(); ++it ) {
          msg() << MSG::DEBUG << " 0x" << MSG::hex  << *it;
       }
-      msg() << MSG::DEBUG << MSG::dec << endmsg;
+      msg() << MSG::DEBUG << MSG::dec << endreq;
    }
 
 
@@ -676,7 +657,7 @@ ErrorCode ResultBuilder::getPEBInfo() {
 }
  */
 
-StatusCode ResultBuilder::decodeErrorStreamTagsProperty() {
+StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
    std::stringstream ss;
    std::vector<std::string>::const_iterator it;
    for ( it = m_errorStreamTagsProperty.begin(); it != m_errorStreamTagsProperty.end(); ++it ){
@@ -718,24 +699,4 @@ StatusCode ResultBuilder::decodeErrorStreamTagsProperty() {
    }
 
    return StatusCode::SUCCESS;
-}
-
-std::vector<TriggerInfo::StreamTag> ResultBuilder::getErrorStreamTags() const 
-{ 
-  std::vector<TriggerInfo::StreamTag> streamTags;
-
-  // Default error stream
-  streamTags.push_back(TriggerInfo::StreamTag( m_defaultStreamTagForErrors,"debug", false));	
-        
-  // Additional configured debug streams
-  for (auto& kv : m_errorStreamTags) {
-    streamTags.push_back(kv.second);    
-  }
-
-  // make a unique list of all streams
-  std::sort(streamTags.begin(), streamTags.end(), lessThan_StreamTag);
-  std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(streamTags.begin(), streamTags.end(), equal_StreamTag);
-  streamTags.erase(new_end, streamTags.end());   
-  
-  return streamTags;
 }

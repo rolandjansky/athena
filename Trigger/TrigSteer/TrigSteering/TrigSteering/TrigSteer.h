@@ -32,6 +32,7 @@
 
 #include "TrigConfHLTData/HLTSequence.h"
 
+//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -41,13 +42,14 @@
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h"
 #include "GaudiKernel/SmartIF.h"
-#include "EventInfo/TriggerInfo.h"
+
 #include "AthenaKernel/Timeout.h"
 
 class StatusCode;
 class ITrigTimerSvc;
 class TrigTimer;
 class IIncidentSvc;
+class StoreGateSvc;
 class IROBDataProviderSvc;
 class ICoreDumpSvc;
 
@@ -126,9 +128,13 @@ namespace HLT {
          The HLT::Sequence objects have pointers to the algorithm objects.
       */
       StatusCode initialize(); //!< Gaudi initialize
+
       StatusCode start();    //!< Gaudi start
+      //    StatusCode beginRun(); //!< Gaudi beginRun
       StatusCode endRun();   //!< Gaudi endRun
       StatusCode stop();     //!< Gaudi stop
+
+      /** Undo everything that was done in initialize(), i.e. free memory */
       StatusCode finalize(); //!< Gaudi finalize
 
       /**
@@ -152,7 +158,6 @@ namespace HLT {
 
       const std::vector<const HLT::SteeringChain*> getActiveChains() const;     //<! get all active chains (used in monitoring)
       const std::vector<const HLT::SteeringChain*> getConfiguredChains() const; //<! get all configured chains (used in monitoring)
-      std::vector<TriggerInfo::StreamTag> getErrorStreamTags() const;           //<! get all configured debug streams (name,type)
 
       int stepForEB() const { return m_stepForEB;}; //!< get the step counting at EB for the merged system
 
@@ -197,6 +202,8 @@ namespace HLT {
       std::vector<unsigned int> m_producedTEsHLT;    //!< map of TEid which should be produced at this trigger level
       std::string producedFirstAtLevel(unsigned int id); //!< helper to tell at which trigger level given ID will first be created 
 
+      //std::vector<uint32_t> m_requestScheduledRobIDs;  //!< list of scheduled rob IDs to request in preparation stage
+
       // -----------------
       // properties:
       bool m_doTiming;                //!< flag for timing monitoring
@@ -210,6 +217,11 @@ namespace HLT {
       std::string m_lvlTopoConverterName;   //!< Topological trigger conversion
       std::string m_hltLevel;         //!< JO for trigger LVL [L2/EF/HLT]
 
+      MsgStream* m_log;               //!< MsgStream used within all non-Gaudi classes of this package
+      unsigned int m_logLvl;          //!< MsgStream level
+      //    bool m_prescaleBeforeExecution; //!< do prescaling of chains before execution if true (true is default)
+      //    bool m_calculatePrescaledChains;//!< calculate chains suppressed by prescales (true is default) 
+      //    bool m_ignorePrescales;         //!< ignore prescales even though they are set (false by default)
       float m_softEventTimeout;//!< Soft event timeout in seconds (0=disabled by default)
       float m_hardEventTimeout;//!< Hard event timeout in seconds (0=disabled by default)
       unsigned int m_doOperationalInfo;  //!< level of operational information collected by steering
@@ -221,11 +233,13 @@ namespace HLT {
       bool m_enableRerun;                 //!< directive to enable rerun on prescaled chains
       int  m_stepForEB;                   //!< step of the EB in the merged L2EF system
       int  m_strategyEB;                  //!< directive to decide the EB strategy in the merged L2EF system
-      bool m_auditChains;                 //!< call auditor hooks for chain execution
+
       // -----------------
       // Services & tools
+      /** TrigConfiguration Service, which reads in the configured chains & sequences */
+      //    ServiceHandle<TrigConf::IHLTConfigSvc> m_configSvc; //!< TrigConfiguration Service
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;            //!< TrigConfiguration Service
-      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;    //!< TrigConfiguration Service of L1Topo
+      ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc; //!< TrigConfiguration Service of L1Topo
       ServiceHandle<IROBDataProviderSvc>      m_robDataProvider;      //!< ROB data provider (for ROB pre-fetching)
       SmartIF <ITrigROBDataProviderSvc_RTT>   m_trigROBDataProvider;  //!< Trig ROB data provider (for Event Building)
 
@@ -239,6 +253,7 @@ namespace HLT {
       ToolHandleArray< IMonitorToolBase > m_monTools;     //!< Monitoring tools
       ToolHandleArray< IMonitorToolBase > m_opiTools;     //!< OPI Monitoring tools (they are run before result is built and therfore can add some info to it)
       ServiceHandle<IIncidentSvc> m_incSvc;               //!< IncidentSvc
+      ServiceHandle<StoreGateSvc> m_storeGate;            //!< StoreGateSvc
       ServiceHandle<ICoreDumpSvc> m_coreDumpSvc;          //!< CoreDumpSvc
       ToolHandle<IExecutionOrderStrategy> m_executionOrderStrategy; //!< Tool altering order of chains execution
       ToolHandle<IEventInfoAccessTool> m_EventInfoTool;   //!< Tool  to modify EventInfo after execution
@@ -246,20 +261,22 @@ namespace HLT {
       // ----------------
       // Timings measurements instrumentation
       ServiceHandle<ITrigTimerSvc> m_timerSvc; //!< service for all timing measurements
-      TrigTimer* m_timerTotal{0};                 //!< total time of execution
-      TrigTimer* m_timerTotalAccepted{0};         //!< total time of events which were acceptde
-      TrigTimer* m_timerTotalRejected{0};         //!< total time of events which were rejected
-      TrigTimer* m_timerLvlConverter{0};          //!< time of trigger level converter tool
-      TrigTimer* m_timerChains{0};                //!< time of chain execution
-      TrigTimer* m_timerTotalRerun{0};            //!<time spent on re-running chains
-      TrigTimer* m_timerResultBuilder{0};         //!< time of ResultBuilder tool execution
-      TrigTimer* m_timerMonitoring{0};            //!< total time of monitoring tool(s) execution
-      TrigTimer* m_timerMonitoringSave{0};        //!< total time of monitoring tool(s) execution
-      TrigTimer* m_timerExec{0};                  //!< total time of execute() function - not monitored
-      TrigTimer* m_timerCallEB{0};                //!< time untill call of EB in the merged system 
+      TrigTimer* m_timerTotal;                 //!< total time of execution
+      TrigTimer* m_timerTotalAccepted;         //!< total time of events which were acceptde
+      TrigTimer* m_timerTotalRejected;         //!< total time of events which were rejected
+      TrigTimer* m_timerLvlConverter;          //!< time of trigger level converter tool
+      TrigTimer* m_timerChains;                //!< time of chain execution
+      TrigTimer* m_timerTotalRerun;            //!<time spent on re-running chains
+      TrigTimer* m_timerResultBuilder;         //!< time of ResultBuilder tool execution
+      TrigTimer* m_timerMonitoring;            //!< total time of monitoring tool(s) execution
+      TrigTimer* m_timerMonitoringSave;        //!< total time of monitoring tool(s) execution
+      TrigTimer* m_timerExec;                  //!< total time of execute() function - not monitored
+      TrigTimer* m_timerCallEB;                //!< time untill call of EB in the merged system 
 
       AbortingCookTimer m_abortTimer;   //!< Timer for hard event timeout (abort)
       IncidentTimer m_incidentTimer;    //!< Timer for soft event timeout (fire incident)
+
+      //    LvlTopoConverter* m_lvlTopoCnvTool;
    };
 } // end namespace
 

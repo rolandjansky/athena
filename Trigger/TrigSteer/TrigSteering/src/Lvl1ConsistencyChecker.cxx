@@ -3,8 +3,8 @@
 */
 
 #include <algorithm>
-#include <map>
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -20,143 +20,137 @@
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
-#include "TrigT1Result/RoIBResult.h"
-
 #include "boost/foreach.hpp"
+
 
 #include <TH1I.h>
 
-// Helper
-namespace {
-  template<class T>
-  bool contains(const std::vector<T>& vec, const T& val) 
-  {
-    return std::find(vec.begin(), vec.end(), val) != vec.end();
-  }
-}
-
-
 Lvl1ConsistencyChecker::Lvl1ConsistencyChecker(const std::string& name, const std::string& type,
-                                               const IInterface* parent) 
-  : AthAlgTool(name, type, parent)
-{
+		       const IInterface* parent) 
+  : AthAlgTool(name, type, parent),
+    m_histogram(0),
+    m_log(0) {
   declareProperty("printErrorMessages", m_printErrorMessages=true, "print detailed error reports");
   declareProperty("returnFailure", m_returnFailure=false, "in case of inconsitency return FAILURE");
-  declareProperty("maxTOBs", m_returnFailure=false, "in case of inconsitency return FAILURE");
-  declareProperty("thresholdsToCheck", m_thresholdsToCheck, "trigger threshold types to check");
 
   declareInterface<Lvl1ConsistencyChecker>( this );
 } 
 
-StatusCode Lvl1ConsistencyChecker::start() {
 
-  // create set of threshold names
-  std::set<std::string> threshold_names;
-  for ( const auto & item : m_configuredItems ) {
-    for ( const auto & thr : item.second.thresholds ) {
-      threshold_names.insert(thr.second.name);
-    }
-  }
-  
-  // now book the histogram
-  m_hist = new TH1I("ThresholdItemMisses", "Thresholds missing for items", 
-                    threshold_names.size(), 0, threshold_names.size());
-
-  // label x axis
-  uint bin = 1;
-  for ( const std::string & thrName : threshold_names ) {
-    m_hist->GetXaxis()->SetBinLabel(bin++, thrName.c_str());
-  }
-
-  m_histAll = (TH1I*)m_hist->Clone("ThresholdItemMissesAll");
-  m_histAll->SetTitle("Thresholds missing for items (incl. overflows)");
-
-  ITHistSvc* histSvc(0);
-  CHECK(service("THistSvc", histSvc));
-
-  std::string bookname = "/EXPERT/"+name()+"/";
-  replace(bookname.begin(), bookname.end(), '.', '/');
-
-  CHECK(histSvc->regHist( bookname+m_hist->GetName(), m_hist) );
-  CHECK(histSvc->regHist( bookname+m_histAll->GetName(), m_histAll) );
-
+StatusCode Lvl1ConsistencyChecker::initialize() {
+  m_log = new MsgStream(msgSvc(), name());
   return StatusCode::SUCCESS;
 }
 
-StatusCode Lvl1ConsistencyChecker::updateConfig(const TrigConf::ILVL1ConfigSvc* config) {
-  m_configuredItems.clear();
 
-  const TrigConf::ItemContainer& lvl1Items = config->ctpConfig()->menu().items();
-  
-  for( const TrigConf::TriggerItem * confItem : lvl1Items ) {
-    Item item;
-    item.name = confItem->name();
-    makeItemRoIMap( confItem->topNode(), item);
-    m_configuredItems[TrigConf::HLTUtils::string2hash(item.name)] = item;
-  }
+StatusCode Lvl1ConsistencyChecker::start() {
+   // make monitoring histogram 
+   // count number of thresholds used 
 
-  if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Configured for checking items & thresholds");
-    for ( const auto & item : m_configuredItems ) {
-      ATH_MSG_DEBUG("Item: " << item.second.name << " " << item.first); 
+   // create set of threshold names
+   std::set<std::string> threshold_names;
+   for ( const auto & item : m_configuredItems ) {
       for ( const auto & thr : item.second.thresholds ) {
-        ATH_MSG_DEBUG("Threshold: " << thr.second.name << " type: " << thr.second.type
-                      << " multiplicity: " << unsigned(thr.second.multiplicity) << " " << thr.first); 
+         threshold_names.insert(thr.second.name);
       }
-    }
-  }
+   }
+  
+   // now book the histogram
+   m_histogram = new TH1I("ThresholdItemMisses", 
+                          "Thresholds missing for items",
+                          threshold_names.size(), 0, threshold_names.size());
+
+   // name x axis
+   uint bin = 1;
+   for ( const std::string & thrName : threshold_names ) {
+      m_histogram->GetXaxis()->SetBinLabel(bin++, thrName.c_str());
+   }
+
+
+   ITHistSvc *histSvc;
+   if (service("THistSvc", histSvc).isFailure()) {
+      ATH_MSG_WARNING("Could not get the THistSvc");
+      return StatusCode::RECOVERABLE;
+   }
+
+   std::string bookname = "/EXPERT/"+name()+"/"+m_histogram->GetName();
+   replace(bookname.begin(), bookname.end(), '.', '/');
+
+   if ( histSvc->regHist( bookname, m_histogram).isFailure() ) {
+      ATH_MSG_WARNING("Could not register histogram in the THistSvc");
+      return StatusCode::RECOVERABLE;
+   }
+   ATH_MSG_DEBUG("Booked monitoring histogram");
+
+   return StatusCode::SUCCESS;
+}
+
+StatusCode Lvl1ConsistencyChecker::updateConfig(const TrigConf::ILVL1ConfigSvc* config) {
+   m_configuredItems.clear();
+
+   const TrigConf::ItemContainer& lvl1Items = config->ctpConfig()->menu().items();
+  
+   for( const TrigConf::TriggerItem * confItem : lvl1Items ) {
+      Item item;
+      item.name = confItem->name();
+      makeItemRoIMap( confItem->topNode(), item);
+      m_configuredItems[TrigConf::HLTUtils::string2hash(item.name)] = item;
+   }
+
+   if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("Configured for checking items & thresholds");
+      for ( const auto & item : m_configuredItems ) {
+         ATH_MSG_DEBUG("Item: " << item.second.name << " " << item.first); 
+         for ( const auto & thr : item.second.thresholds ) {
+            ATH_MSG_DEBUG("Threshold: " << thr.second.name << " multiplicity: " << unsigned(thr.second.multiplicity) << " " << thr.first); 
+         }
+      }
+   }
    
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
 HLT::ErrorCode
 Lvl1ConsistencyChecker::check(const std::vector<const LVL1CTP::Lvl1Item*>& items,
-                              const HLT::Navigation* nav,
-                              const std::vector<std::string>& ignoreThresholds)
-{
-  std::vector<ThresholdId> errors;
+                              const HLT::Navigation* nav) {
+   unsigned error_count(0);
+   ATH_MSG_DEBUG("Executing check");
 
-  for ( const LVL1CTP::Lvl1Item* item : items ){
-    if ( ! item->isPassedAfterVeto() ) // we do not need to check items which did not pass
-      continue;
+   std::vector<const LVL1CTP::Lvl1Item*>::const_iterator i;
 
-    uint32_t id = item->hashId();
-    auto cIt = m_configuredItems.find(id);
-    if ( cIt == m_configuredItems.end() ) {
-      ATH_MSG_WARNING("Item which is passed to the checker was not known from configuration, id: " << item->hashId() << " " << item->name());
-      continue;
-    }
+   for ( const LVL1CTP::Lvl1Item* item : items ){
+      if ( ! item->isPassedAfterVeto() ) // we do not need to check items which did not pass
+         continue;
 
-    // now check if all thresholds (TEs) are present
-    for ( const auto & thr : cIt->second.thresholds ) {
-         
-      unsigned found = nav->countAllOfType(thr.first, false);
-
-      if ( found < thr.second.multiplicity ) { // here we have a problem
-        if (!contains(errors, thr.first)) {    // only fill histogram once per missing threshold
-          errors.push_back(thr.first);
-          
-          // Fill all missing thresholds
-          m_histAll->Fill(thr.second.name.c_str(), 1.0);
-          // Fill all except ignored thresholds (e.g. overflows)
-          if ( !contains(ignoreThresholds, thr.second.type) ) {
-            m_hist->Fill(thr.second.name.c_str(), 1.0);
-          }
-        }
-        if (m_printErrorMessages ) {          // report problem for all items
-          ATH_MSG_WARNING("Item " << cIt->second.name << " required: " 
-                          << unsigned(thr.second.multiplicity) << " of: " << thr.second.name << " while got: " << found);
-        }        
+      uint32_t id = item->hashId();
+      items_iterator cIt = m_configuredItems.find(id);
+      if ( cIt == m_configuredItems.end() ) {
+         ATH_MSG_WARNING("Item which is passed to the checker was not known from configuration, id: " << item->hashId() << " " << item->name());
+         continue;
       }
-    }
-  }
 
-  if ( !errors.empty() && m_returnFailure) {
-    return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::MISSING_FEATURE, 
-                          HLT::SteeringInternalReason::NO_LVL1_ITEMS );
-  }
-  return HLT::OK;
+      // now check if all thresholds (TEs) are present
+      for ( const auto & thr : cIt->second.thresholds ) {
+         
+         unsigned found = nav->countAllOfType(thr.first, false);
+
+         if ( found < thr.second.multiplicity ) { // here we have probem
+            error_count++;
+            lock_histogram_operation<TH1I>(m_histogram)->Fill(thr.second.name.c_str(), 1.);
+            if (m_printErrorMessages ) {
+               (*m_log) << MSG::WARNING << "Item " << cIt->second.name << " required: " 
+                        << unsigned(thr.second.multiplicity) << " of: " << thr.second.name << " while got: " << found << endreq;
+            }
+         }
+      }
+   }
+
+   if ( error_count && m_returnFailure) {
+      return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::MISSING_FEATURE, 
+                            HLT::SteeringInternalReason::NO_LVL1_ITEMS );
+   }
+   return HLT::OK;
 }
 
 
@@ -167,29 +161,32 @@ Lvl1ConsistencyChecker::check(const std::vector<const LVL1CTP::Lvl1Item*>& items
 //Note that it only can deal with AND'd thresholds, not OR'd or NOT for RoI items such as in forward jet items
 //items not used in the L2 will also not be checked correctly as the TE used for the lookup is 0 for all
 void Lvl1ConsistencyChecker::makeItemRoIMap(const TrigConf::TriggerItemNode *node, Lvl1ConsistencyChecker::Item& item) {
-  if (!node) return;
-  if (node->isThreshold() && node->triggerThreshold()) {
-    if ( contains(m_thresholdsToCheck, node->triggerThreshold()->type()) ) {
-      Threshold t;
-      t.name = node->triggerThreshold()->name();
-      t.type = node->triggerThreshold()->type();
-      t.multiplicity = node->multiplicity();
-      item.addThreshold(t); 
-    }
-    //    ATH_MSG_DEBUG(" found threshold: " << node->triggerThreshold()->name() <<" with multiplicity:" << node->multiplicity(); 
-    //	     << " for item:" << item.name);
+   if (!node) return;
+   if (node->isThreshold() && node->triggerThreshold()) {
+      const std::string& tName = node->triggerThreshold()->name();
+      if ( thresholdToCheck(tName) ) {
+         unsigned int multiplicity=node->multiplicity();
+         Threshold t;
+         t.name = tName;
+         t.multiplicity = multiplicity;    
+         item.addThreshold(t); 
+      }
+      //    (*m_log) << MSG::DEBUG << " found threshold: " << tName <<" with multiplicity:" << multiplicity 
+      //	     << " for item:" << item.name  <<endreq;
 
-  }
-  if (node->type()==TrigConf::TriggerItemNode::AND) {
-    for(TrigConf::TriggerItemNode* child : node->children()) {
-      makeItemRoIMap(child,item); 
-    }
-  }
+   }
+   if (node->type()==TrigConf::TriggerItemNode::AND) {
+      for(TrigConf::TriggerItemNode* child : node->children()) {
+         makeItemRoIMap(child,item); 
+      }
+   }
 }
 
 void Lvl1ConsistencyChecker::Item::addThreshold(const Threshold& t) {
+
+
   uint32_t id = TrigConf::HLTUtils::string2hash(t.name);
-  auto ti = thresholds.find(id);
+  thresholds_iterator ti = thresholds.find(id);
   if ( ti != thresholds.end() )
     thresholds[id].multiplicity += t.multiplicity;
   else
@@ -197,4 +194,15 @@ void Lvl1ConsistencyChecker::Item::addThreshold(const Threshold& t) {
 }
 
 
-
+bool Lvl1ConsistencyChecker::thresholdToCheck(const std::string& name) {
+  if (  name.find("MU")    == 0
+	|| name.find("EM") == 0
+	|| name.find("HA") == 0
+	|| name.find("J")  == 0 
+	|| name.find("TE") == 0 
+	|| name.find("XE") == 0 
+	|| name.find("XS") == 0  ) {
+    return true;
+  }
+  return false;
+}

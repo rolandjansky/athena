@@ -104,7 +104,8 @@ ErrorCode Lvl1FromFile::hltInitialize()
 
   m_file.open(m_fileName.c_str(), std::ios::in);
   if (!m_file.is_open()) {
-    ATH_MSG_FATAL("Could not find Lvl1 result file: "<< m_fileName);
+    (*m_log) << MSG::FATAL << "Could not find Lvl1 result file: "
+	     << m_fileName << endreq;
     return HLT::ERROR;
   }
 
@@ -263,7 +264,7 @@ ErrorCode Lvl1FromFile::hltExecute(std::vector<HLT::SteeringChain*>& chains)
     // create initial leaf in Navigation:
 
     
-    ATH_MSG_DEBUG("Simulated Lvl1 event, rois: " << roistr  << " chains: " << chainstr);
+    (*m_log) << MSG::DEBUG << "Simulated Lvl1 event, rois: " << roistr  << " chains: " << chainstr << endreq;
     
     activate(chainstr, chains);
 

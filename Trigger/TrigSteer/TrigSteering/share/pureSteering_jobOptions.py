@@ -1,10 +1,15 @@
-from AthenaCommon.Logging import logging
-log = logging.getLogger( 'PureSteeringJob' )
 
-svcMgr.MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
-svcMgr.MessageSvc.OutputLevel = DEBUG
-svcMgr.MessageSvc.defaultLimit = 0
-svcMgr.StoreGateSvc.Dump = True  #true will dump data store contents
+MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
+MessageSvc.OutputLevel = DEBUG
+MessageSvc.defaultLimit=10000
+### Some more debug from StoreGate ###
+StoreGateSvc = Service( "StoreGateSvc" )
+StoreGateSvc.Dump = True  #true will dump data store contents
+
+
+### for (python) messaging ###
+from AthenaCommon.Logging import logging  # loads logger
+log = logging.getLogger( 'PureSteeringJob' )
 
 
 # Some global settings (typically, you *only* want to
@@ -13,26 +18,63 @@ if "repeat" not in dir():
     repeat = 1
 theApp.EvtMax = 7*repeat
 
+
+# This Athena job consists of algorithms that loop over events;
+# here, the (default) top sequence is used:
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+
 ### Add xAOD::EventInfo
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-job += xAODMaker__EventInfoCnvAlg()
-
+job+=xAODMaker__EventInfoCnvAlg()
 
 ### Create the Menu ###
 #######################
 
-if not "useRerunMenu" in dir(): useRerunMenu = False
-if not "useErrorHandlingMenu" in dir(): useErrorHandlingMenu = False
-if not "useTopoMenu" in dir(): useTopoMenu = False
-if not "usePrescaleMenu" in dir(): usePrescaleMenu = False
-if not "useMultiSeedingMenu" in dir(): useMultiSeedingMenu = False
-if not "useMenuWithAcceptInput" in dir(): useMenuWithAcceptInput = False
-if not "useBusyEventSetup" in dir(): useBusyEventSetup = False
+  
+MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
+MessageSvc.OutputLevel = DEBUG 
+MessageSvc.defaultLimit=100000
+### Some more debug from StoreGate ###
+StoreGateSvc = Service( "StoreGateSvc" )
+StoreGateSvc.Dump = True  #true will dump data store contents
 
-# Default L1 RoIs if not set otherwise below
+
+### for (python) messaging ###
+from AthenaCommon.Logging import logging  # loads logger
+log = logging.getLogger( 'PureSteeringJob' )
+
+
+# Some global settings (typically, you *only* want to
+# do this in the final options file, never in a fragment):
+if "repeat" not in dir(): 
+    repeat = 1
+theApp.EvtMax = 7*repeat
+
+
+# This Athena job consists of algorithms that loop over events;
+# here, the (default) top sequence is used:
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+
+### Create the Menu ###
+#######################
+if "useTopoMenu" in dir() and useTopoMenu == True:
+    include("TrigSteering/pureTopoSteering_menu.py")
+else:
+    include("TrigSteering/pureSteering_menu.py")
+
+# GEOMETRY AND MUON CABLING CONFIG
+from AthenaCommon.DetFlags import DetFlags; 
+DetFlags.detdescr.Muon_setOn();
+from AtlasGeoModel import SetGeometryVersion;
+from AtlasGeoModel import GeoModelInit
+import MuonCnvExample.MuonCablingConfig
+
+
+#include("./pureSteering_menu.py")
+# generate default L1 file
 
 RoIs = """EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6; MU6; J50
 EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6,MU20; J50,J65,J90,J200
@@ -44,12 +86,12 @@ MU6, MU6
 J50,J65,J90; J50,J65,J90,J200; J50,J65,J90
 MU6
 """
-    
-if useTopoMenu:
-    include("TrigSteering/pureTopoSteering_menu.py")
-
-elif usePrescaleMenu:
+if "usePrescaleMenu" not in dir():
+    usePrescaleMenu=False
+if (usePrescaleMenu):
     include("TrigSteering/pureSteering_menu_with_prescales.py")
+    # generate input file
+    
     RoIs = """EM15i,EM25i; EM15i
 EM15i,EM25i; EM15i
 EM15i,EM25i; EM15i
@@ -59,8 +101,13 @@ EM15i,EM25i; EM15i
 EM15i,EM25i; EM15i
 """
 
-elif useErrorHandlingMenu:
+
+if "useErrorHandlingMenu" not in dir():
+    useErrorHandlingMenu=False
+if (useErrorHandlingMenu):
     include("TrigSteering/pureSteering_menu_with_errors.py")
+    # generate input file
+    
     RoIs = """EM25i,EM25i;
 EM15i,EM15i;
 EM15i,EM25i;
@@ -70,8 +117,12 @@ EM15i,EM25i;
 EM12i,EM3;
 """
 
-elif useRerunMenu:
+
+if "useRerunMenu" not in dir():
+    useRerunMenu=False
+if useRerunMenu:
     include("TrigSteering/pureSteering_menu_with_rerun.py")
+    
     RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_EM3
 EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
 EM15i,EM25i;*L1_EM15i;L1_EM3
@@ -81,8 +132,11 @@ EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
 EM15i,EM25i;*L1_EM25i!;L1_EM3
 """
 
-elif useMultiSeedingMenu:
+if "useMultiSeedingMenu" not in dir():
+    useMultiSeedingMenu=False
+if useMultiSeedingMenu:
     include("TrigSteering/pureSteering_menu_with_multi_seeding.py")
+    
     RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_MU6
 EM15i,EM25i;*L1_EM15i!;L1_EM25i!;L1_MU6
 EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_MU6
@@ -92,8 +146,12 @@ EM15i,EM25i;*L1_EM25i!;L1_MU6!
 EM15i,EM25i;*L1_MU6!
 """
 
-elif useMenuWithAcceptInput:
-    include("TrigSteering/pureSteering_menu_with_acceptInput.py")    
+if "useMenuWithAcceptInput" not in dir():
+    useMenuWithAcceptInput=False
+if (useMenuWithAcceptInput):
+    include("TrigSteering/pureSteering_menu_with_acceptInput.py")
+    # generate input file
+    
     RoIs = """EM15i,EM25i
 EM15i,EM25i
 EM15i,EM25i
@@ -103,17 +161,6 @@ EM15i,EM25i
 EM15i,EM25i
 """
 
-else:
-    include("TrigSteering/pureSteering_menu.py")
-
-
-# GEOMETRY AND MUON CABLING CONFIG
-from AthenaCommon.DetFlags import DetFlags; 
-DetFlags.detdescr.Muon_setOn();
-from AtlasGeoModel import SetGeometryVersion;
-from AtlasGeoModel import GeoModelInit
-import MuonCnvExample.MuonCablingConfig
-
     
 roifile=open("Lvl1Results.txt", "w")
 for i in xrange(0,repeat):
@@ -122,13 +169,17 @@ roifile.write("\n")
 roifile.close()
 
 
+if "useBusyEventSetup" not in dir():
+    useBusyEventSetup=False
+
+
 ###    Setup  TrigConfigSvc      ###
 ####################################
 from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
 log.info("setting up TrigConfigSvc:")
 svc = SetupTrigConfigSvc()
 svc.hltXmlFile = 'pureSteering_menu.xml'
-svc.l1XmlFile  = 'l1menu.xml'
+svc.l1XmlFile  = 'l1.xml'
 
 try:
     svc.SetStates( 'xml' )
@@ -139,12 +190,11 @@ try:
 except:
     log.warning( 'failed to activate TrigConfigSvc ...')
 
-svcMgr.TrigConfigSvc.OutputLevel=DEBUG
-svcMgr.HLTConfigSvc.OutputLevel=DEBUG
-svcMgr.LVL1ConfigSvc.OutputLevel=DEBUG
+ServiceMgr.TrigConfigSvc.OutputLevel=DEBUG
+ServiceMgr.HLTConfigSvc.OutputLevel=DEBUG
+ServiceMgr.LVL1ConfigSvc.OutputLevel=DEBUG
 
-runMergedSteering=True
-if "runL2EFSteering" in dir():
+if "runMergedSteering" not in dir():
     runMergedSteering=False
 
 if runMergedSteering:
