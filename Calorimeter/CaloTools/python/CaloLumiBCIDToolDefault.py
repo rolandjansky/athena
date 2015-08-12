@@ -17,8 +17,13 @@ def CaloLumiBCIDToolDefault(name='CaloLumiBCIDToolDefault'):
       from IOVDbSvc.CondDB import conddb
       #conddb.addFolder("","/LAR/ElecCalibOfl/LArPileupShape<db>sqlite://;schema=/afs/cern.ch/user/g/gunal/public/DB/bcid/shape.db;dbname=COMP200</db><key>LArShape32</key><tag>LARElecCalibOflLArPileupShape-mc</tag>")
       #conddb.addFolder("","/LAR/ElecCalibOfl/LArPileupAverage<db>sqlite://;schema=/afs/cern.ch/user/g/gunal/public/DB/bcid/LArPileupAverage-data.db;dbname=COMP200</db><tag>LARElecCalibOflLArPileupAverage-data11-00</tag>")
-      conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>")
-      conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupAverage")
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      if athenaCommonFlags.isOnline:
+         conddb.addFolder("LAR_ONL","/LAR/LArPileup/LArPileupShape<key>LArShape32</key>")
+         conddb.addFolder("LAR_ONL","/LAR/LArPileup/LArPileupAverage")
+      else:
+         conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>")
+         conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/LArPileupAverage")
       theTool = CaloLumiBCIDTool(name,isMC=False,LumiTool=theLumiTool,keyShape="LArShape32")
     else:
       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
