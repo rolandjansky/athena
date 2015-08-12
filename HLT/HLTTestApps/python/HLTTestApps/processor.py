@@ -176,14 +176,17 @@ class Processor:
         
         event.check()
 
-        # update number of read events
+        # update number of events read
         processed += 1
         
         # modify the event if the user has requested.
         for k in self.config.event_modifiers:
-          logging.debug1('---> Applying plugin %s <' % k.__module__)
-          event = k(event)
-          logging.debug1('---> Finished applying plugin %s <' % k.__module__)
+          if event:
+            logging.debug1('---> Applying plugin %s <' % k.__module__)
+            event = k(event)
+            logging.debug1('---> Finished applying plugin %s <' % k.__module__)
+          else:
+            break
           
         if not event:
           if keep_processing(self.number_of_events, processed, total, skipped): 
@@ -594,4 +597,4 @@ if __name__ == '__main__':
   for test in separate_tests:
     _test_in_subprocesss(test, headmsg, spawnmsg)
       
-  print "\n%s Successfully run multiple tests in separate processes\n" % headmsg
+  print "\n%s Successfully ran multiple tests in separate processes\n" % headmsg

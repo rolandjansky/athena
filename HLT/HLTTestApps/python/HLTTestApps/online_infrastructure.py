@@ -157,30 +157,37 @@ class AutoFinIInfoRegister(IInfoRegister):
     # TrigMonTHistSvc needs the ITHistRegister to finalize, so we need to 
     # finalize it now, because there will be no ITHistRegister later on
     finalize_THistSvc()
-    logging.debug("Deleting AutoFinIInfoRegister")
+    logging.debug("Automatically deleting AutoFinIInfoRegister")
     if self.need is FinalizeNeedEnum.NEED_FINWORKER:
-      logging.debug("Calling IInfoRegister::finalizeWorker")
+      logging.debug("Automatically calling IInfoRegister::finalizeWorker")
       self.finalizeWorker(self.finalizeWorker_ptree)
     if self.need is FinalizeNeedEnum.NEED_FIN :
-      logging.debug("Calling IInfoRegister::finalize")
+      logging.debug("Automatically calling IInfoRegister::finalize")
       self.finalize(self.finalize_ptree)
+  def _logged_transition(self, t, tname, args):
+    logging.info("Calling IInfoRegister.%s" % tname)
+    ret = t(self, *args)
+    logging.info("IInfoRegister.%s: %s" % (tname, "success" if ret else "failure"))
+    return ret
+  def configure(self, *args):
+    return self._logged_transition(IInfoRegister.configure, "configure", args)
   def prepareForRun(self, *args):
-    ret = IInfoRegister.prepareForRun(self, *args)
+    ret = self._logged_transition(IInfoRegister.prepareForRun, "prepareForRun", args)
     if ret:
       self.need = FinalizeNeedEnum.NEED_FIN
     return ret
   def prepareWorker(self, *args):
-    ret = IInfoRegister.prepareWorker(self, *args)
+    ret = self._logged_transition(IInfoRegister.prepareWorker, "prepareWorker", args)
     if ret:
       self.need = FinalizeNeedEnum.NEED_FINWORKER
     return ret
   def finalizeWorker(self, *args):
-    ret = IInfoRegister.finalizeWorker(self, *args)
+    ret = self._logged_transition(IInfoRegister.finalizeWorker, "finalizeWorker", args)
     if ret:
       self.need = FinalizeNeedEnum.NEED_FIN
     return ret
   def finalize(self, *args):
-    ret = IInfoRegister.finalize(self, *args)
+    ret = self._logged_transition(IInfoRegister.finalize, "finalize", args)
     if ret:
       self.need = FinalizeNeedEnum.NONEED
     return ret

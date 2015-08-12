@@ -53,12 +53,17 @@ def diverse_optcheck(option_spec, kwargs):
   if kwargs['leak-check']:
     allowed = option_spec['leak-check']['allowed']
     if kwargs['leak-check'].lower() not in allowed:
-      raise BadOptionSet, 'Allowed values for leak-check are %s' % allowed
+      raise BadOptionSet, 'Allowed values for leak-check are %s' % str(allowed)
 
   if kwargs['delete-check']:
     allowed = option_spec['delete-check']['allowed']
     if not kwargs['delete-check'].lower() in allowed:
-      raise BadOptionSet, 'Allowed values for delete are %s' % allowed
+      raise BadOptionSet, 'Allowed values for delete are %s' % str(allowed)
+  
+  if kwargs['debug']:
+    allowed = option_spec['debug']['allowed']
+    if not kwargs['debug'] in allowed:
+      raise BadOptionSet, 'Allowed values for debug are %s' % str(allowed)
 
   if kwargs['use-compression']:
     # check compression level meaningful
@@ -130,8 +135,11 @@ def oh_optcheck(option_spec, kwargs):
 
 def db_optcheck(option_spec, kwargs, extra):
   if kwargs['use-database']:
+    if extra:
+      logging.error("use-database specified simultaneously to job options. "
+                    "The latter will be ignored.")
+      raise BadOptionSet, "Cannot configure from both DB and JobOptions"
     check_db_type(option_spec, kwargs)
-    check_frontier(kwargs)
     check_smkey(kwargs)
     check_hltpskey(kwargs)
   elif not extra:
@@ -162,10 +170,6 @@ def check_db_type(option_spec, kwargs):
     raise BadOptionSet, ('Unknown db-type "%s". Allowed values are %s' % 
                          (kwargs['db-type'], 
                           option_spec['db-type']['allowed']))
-def check_frontier(kwargs):
-  if kwargs['use-frontier'] and kwargs['db-type'] not in ['Coral', None]:
-    raise BadOptionSet, ("Option --use-frontier can only be used with "
-                         "--db-type Coral")    
 def check_smkey(kwargs):
   if kwargs['db-smkey'] != None and not check_smkey_aux(kwargs['db-smkey']):
     raise BadOptionSet, ("db-smkey not correct. Please check the " + 
@@ -269,7 +273,8 @@ def get_arg_list_from_option_dict(d):
   # Then flatten the list out. For instance, if we had 
   # 'd={'a': 1, 'b': 2, 'extra': 3}' this method will return the list
   # '['--a', '1', '--b', '2', '3']
-  l = [(str(v),) if k == 'extra' else (('--%s' % k), str(v)) 
+  l = [(str(v),) if k == 'extra' else ['--%s' % k] + ([] if v is True 
+                                                         else [str(v)]) 
        for k, v in d.iteritems()]
   return [x for sublist in l for x in sublist]
 
@@ -355,8 +360,8 @@ class option_consistency_tests(option_tests_base):
   def _check_opt_allowed(self, optn, optv=None):
     # leave the value argument empty for flags
     kwargs, extra = self.parser.parse(self._get_required_args() + 
-                                      ["--%s" % optn, 'True' if optv is None 
-                                                             else str(optv)])
+                                      ["--%s" % optn] + ([] if optv is None
+                                                            else [str(optv)]))
     self._check_arg_set(kwargs)
     d = dict(self.required.items() + [(optn,True if optv is None else optv)])
     self._check_arg_values(kwargs, d)
@@ -380,6 +385,30 @@ class option_consistency_tests(option_tests_base):
     return get_arg_list_from_option_dict(self.required)
 
 class option_diverse_specific_tests(option_consistency_tests):
+  def test_leak_check_allowed(self):
+    opt = 'leak-check'
+    for value in self.option_spec[opt]['allowed']:
+      self._check_opt_allowed(opt, value)
+  def test_leak_check_disallowed(self):
+    disallowed = ('afga', 'star', 0, 123, -.321, self)
+    for value in disallowed:
+      self._check_opt_disallowed('leak-check', value)
+  def test_delete_check_allowed(self):
+    opt = 'delete-check'
+    for value in self.option_spec[opt]['allowed']:
+      self._check_opt_allowed(opt, value)
+  def test_delete_check_disallowed(self):
+    disallowed = ('afga', 'star', 0, 123, -.321, self)
+    for value in disallowed:
+      self._check_opt_disallowed('delete-check', value)
+  def test_debug_allowed(self):
+    opt = 'debug'
+    for value in self.option_spec[opt]['allowed']:
+      self._check_opt_allowed(opt, value)
+  def test_debug_disallowed(self):
+    disallowed = ('afga', 'star', 0, 123, -.321, self)
+    for value in disallowed:
+      self._check_opt_disallowed('debug', value)   
   def test_oh_display_requires_oh(self):
     self._check_opt_disallowed('oh-display')
   def test_user_ipc_requires_oh(self):
@@ -430,9 +459,12 @@ class option_diverse_specific_tests(option_consistency_tests):
   def test_db_options_no_usedb_disallowed(self):
     disallowed = [('db-type', 'Coral'), ('db-server', 'mehhh'), 
                   ('db-smkey', 84930), ('db-hltpskey', 40000), 
-                  ('db-extra', {'a':'b'}), ('use-frontier',)]
+                  ('db-extra', {'a':'b'})]
     for args in disallowed:
       self._check_opt_disallowed(*args)
+  def test_db_and_job_options_disallowed(self):
+    assert "extra" in self.required
+    self._check_opt_disallowed('use-database')
 
 class option_save_output_tests(option_consistency_tests):
   def setUp(self):
@@ -522,12 +554,6 @@ class option_database_tests(option_consistency_tests):
             [(1, 123), (100, 22), (444, 123)], [(1,1),(2,2),(3,1),(44,555)]]
     for x in good:
       self._check_opt_allowed('db-hltpskey', x)
-  def test_use_frontier_disallowed_without_coral(self):
-    for t in self.option_spec['db-type']['allowed']:
-      if t not in ["Coral", None]:
-        kwds, extra = self.parser.parse(self._get_required_args() + 
-                                        ["--db-type", t, "--use-frontier"])
-        self.assertRaises(BadOptionSet, self.option_spec.optcheck, kwds, extra)
 
 if __name__ == '__main__':
   from HLTTestApps import test_main
