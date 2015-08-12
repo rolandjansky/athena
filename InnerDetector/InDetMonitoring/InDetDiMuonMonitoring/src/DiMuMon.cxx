@@ -518,10 +518,10 @@ StatusCode DiMuMon::fillHistograms()
 StatusCode DiMuMon::procHistograms()
 {
 
-  //  if (isEndOfEventsBlock || isEndOfLumiBlock){
+  if (endOfLowStat || endOfLumiBlock){
     //do nothing
-  //  }
-   if(m_doFits) {
+  }
+   if(endOfRun && m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
      for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
        std::map<std::string, TH2D*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
