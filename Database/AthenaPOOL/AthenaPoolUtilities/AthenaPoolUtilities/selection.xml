@@ -6,6 +6,14 @@
   <class name="AthenaAttributeSpecification" />
   <class name="AthenaAttributeType" />
 
+  <!-- MN: adding coral::Attribute classes for ROOT6 -->
+  <class name="coral::Attribute" />
+  <!-- Selected via an iterator typedef from the patterns below.
+       <class name="coral::AttributeList" / -->
+  <class name="coral::AttributeList::iterator" />
+  <class name="coral::AttributeListSpecification" />
+  <class name="coral::AttributeSpecification" />
+
   <class name="CondMultChanCollImpl" id="1F1A18E0-CAFF-4AE4-84CC-2DC822C42AAA" >
     <field name="m_attrListColl" transient="true" />
     <!-- write out the IOVs
@@ -18,10 +26,12 @@
   <class name="IOVTime" />
   <class name="std::vector<IOVRange>" />
   <class pattern="*iterator<const*IOVRange*>"/>
-  <class name="CondAttrListCollection" />
+  <!-- Selected via iterator typedef by the patterns below.
+  <class name="CondAttrListCollection" /> -->
   <class name="std::vector<CondAttrListCollection*>" />
   <class name="std::map<unsigned int, coral::AttributeList>" />
-  <class name="std::pair<unsigned int, coral::AttributeList>" />
+  <!-- Selected via an iterator typedef matching the pattern below.
+  <class name="std::pair<unsigned int, coral::AttributeList>" /> -->
   <class pattern="*iterator<*CondAttrListCollection*"/>
   <class pattern="*iterator<const*AttributeList*"/>
   <class pattern="*iterator<*pair<const*,const*"/>

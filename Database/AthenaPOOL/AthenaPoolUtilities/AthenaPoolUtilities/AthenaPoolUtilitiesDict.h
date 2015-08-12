@@ -14,6 +14,12 @@
 #ifndef ATHENAPOOLUTILITIES_ATHENAPOOLUTILITIESDICT_H
 # define ATHENAPOOLUTILITIES_ATHENAPOOLUTILITIESDICT_H
 
+#ifdef __REFLEX__
+#include "CoralBase/VersionInfo.h"
+#undef CORAL240AS
+#include "CoralBase/AttributeList.h"
+#endif
+
 #include "AthenaPoolUtilities/CondMultChanCollImpl.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/CondAttrListCollAddress.h"
