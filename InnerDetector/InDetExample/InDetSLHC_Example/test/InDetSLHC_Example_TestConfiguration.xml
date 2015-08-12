@@ -277,7 +277,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecoLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --inputRDOFile=SLHCtest.LOIVF.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOIVF.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-02-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --outputAODFile=SLHCtest.LOIVF.AOD.pool.root --preExec 'r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True)' 'BTaggingFlags.CalibrationTag="BTagCalibALL-07-09"'
+	      Reco_tf.py --inputRDOFile=SLHCtest.LOIVF.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOIVF.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-02-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --outputAODFile=SLHCtest.LOIVF.AOD.pool.root --preExec 'r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True)' 'BTaggingFlags.CalibrationTag="BTagCalibRUN12-08-05"'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
