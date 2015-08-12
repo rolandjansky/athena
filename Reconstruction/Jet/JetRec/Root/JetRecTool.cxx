@@ -54,15 +54,10 @@ xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
 
 JetRecTool::JetRecTool(std::string myname)
 : AsgTool(myname), m_intool(""),
-#ifdef XAOD_STANDALONE
   m_hpjr(""),
-#else
-  m_hpjr("JetPseudojetRetriever/jpjr"),
-#endif
   m_finder(""), m_groomer(""),
   m_trigger(false),
   m_shallowCopy(true),
-  m_warnIfDuplicate(true),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),
   m_inputtype(xAOD::JetInput::Uncategorized),
@@ -79,8 +74,6 @@ JetRecTool::JetRecTool(std::string myname)
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
   declareProperty("ShallowCopy", m_shallowCopy =true);
-  declareProperty("WarnIfDuplicate", m_warnIfDuplicate =true);
-  declareProperty("Overwrite", m_overwrite=false);
 }
 
 //**********************************************************************
@@ -118,18 +111,15 @@ StatusCode JetRecTool::initialize() {
   m_shallowCopy &= m_incoll != m_outcoll; // m_shallowCopy is false for update mode
 
   // Retrieve or create pseudojet retrieval tool.
-  if ( !m_hpjr.empty() ) {
+  if ( m_hpjr.empty() ) {
+    m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
+  } else {
     if ( m_hpjr.retrieve().isSuccess() ) {
       m_ppjr = &*m_hpjr;
     } else {
-      ATH_MSG_ERROR("Unable to retrieve requested pseudojet retriever: " << m_hpjr.name());
-    }
-  } else {
-#ifdef XAOD_STANDALONE
-      m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
-#else
       m_ppjr = nullptr;
-#endif 
+      ATH_MSG_ERROR("Unable to retrive requested pseudojet retriever: " << m_hpjr.name());
+    }
   }
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
@@ -254,8 +244,6 @@ StatusCode JetRecTool::initialize() {
   m_modclock.Reset();
   m_conclock.Reset();
   m_nevt = 0;
-
-  ATH_MSG_INFO("Timing detail: " << m_timer);
   return rstat;
 }
 
@@ -375,17 +363,6 @@ const JetContainer* JetRecTool::build() const {
   int naction = 0;
   ++m_nevt;
 
-  if ( m_outcoll.size() ) {
-    ATH_MSG_DEBUG("Checking output container.");
-    if ( m_outcoll != m_incoll && !m_overwrite) {
-      if(evtStore()->contains<JetContainer>(m_outcoll) ) {
-        if ( m_warnIfDuplicate ) {ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);}
-        m_totclock.Stop();
-        return 0;
-      }
-    }
-  }
-
   // Retrieve jet inputs.
   PseudoJetVector psjs;
   if ( m_pjgetters.size() ) {
@@ -418,22 +395,16 @@ const JetContainer* JetRecTool::build() const {
   const JetContainer* pjetsin = 0;
   if ( m_groom || m_copy ) {
     m_inpclock.Start(false);
-
-    if(!m_trigger) { // reco case : get input from evt store
-      if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
-        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-      }
-      if ( pjetsin==0 && !m_intool.empty() ) {
-        ATH_MSG_DEBUG("Excuting input tool.");
-        if ( m_intool->execute() ) {
-          ATH_MSG_WARNING("Input tool execution failed.");
-        }
-        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-      }
-    } else { // trigger case : assume setInputJetContainer was called, use m_trigInputJetsForGrooming
-      pjetsin = m_trigInputJetsForGrooming;
+    if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
+      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
     }
-
+    if ( pjetsin==0 && !m_intool.empty() ) {
+      ATH_MSG_DEBUG("Excuting input tool.");
+      if ( m_intool->execute() ) {
+        ATH_MSG_WARNING("Input tool execution failed.");
+      }
+      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
+    }
     if ( pjetsin == 0 ) {
       ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll);
       m_totclock.Stop();
@@ -452,6 +423,12 @@ const JetContainer* JetRecTool::build() const {
   if ( m_outcoll.size() ) {
     m_actclock.Start(false);
     ATH_MSG_DEBUG("Creating output container.");
+    if ( (m_outcoll != m_incoll) && evtStore()->contains<JetContainer>(m_outcoll) ) {
+      ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);
+      m_totclock.Stop();
+      m_actclock.Stop();
+      return 0;
+    }
 
     if ( m_shallowCopy ) {
       ATH_MSG_DEBUG("Shallow-copying jets.");
@@ -579,7 +556,7 @@ int JetRecTool::execute() const {
 
 template <typename TAux>
 int JetRecTool::record(const xAOD::JetContainer* pjets) const {
-  bool overwrite = (m_outcoll == m_incoll) || (m_overwrite && m_incoll.size()==0);
+  bool overwrite = m_outcoll == m_incoll;
   TAux* pjetsaux =
     dynamic_cast<TAux*>(pjets->getStore());
     ATH_MSG_DEBUG("Check Aux store: " << pjets << " ... " << &pjets->auxbase() << " ... " << pjetsaux );
@@ -701,7 +678,3 @@ int JetRecTool::outputContainerNames(std::vector<std::string>& connames) {
 }
 
 //**********************************************************************
- 
- void JetRecTool::setInputJetContainer(const xAOD::JetContainer* cont) {
-   m_trigInputJetsForGrooming = cont; 
- }

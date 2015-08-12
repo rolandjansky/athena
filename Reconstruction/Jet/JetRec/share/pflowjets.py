@@ -10,8 +10,7 @@
 # Input stream
 #--------------------------------------------------------------
 #infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
-#infile = "/afs/cern.ch/user/d/dadams/pubdata/r20.1.4.3test_AOD.pool.root"
-infile = "/data/hodgkinson/scratchFiles/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.merge.AOD.e3668_s2832_r7968_p2686/AOD.08774215._000159.pool.root.1"
+infile = "/afs/cern.ch/user/d/dadams/pubdata/r20.1.4.3test_AOD.pool.root"
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [infile]
@@ -105,24 +104,14 @@ if doLCPFlowJets and findJets:
 
 # Add neutral pflow builder.
 # LC-scale neutral pflow.
-
-from eflowRec.eflowRecFlags import jobproperties
-
-if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
-  useChargedWeights = True
-else:
-  useChargedWeights = False
-
 from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 jtm += PFlowPseudoJetGetter(
   "lcnpflowget",
   Label = "LCPFlow",
   OutputContainer = "PseudoJetLCNPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter_LC,
   InputIsEM = False,
   CalibratePFO = False,
-  UseChargedWeights = useChargedWeights,
   SkipNegativeEnergy = True,
   UseNeutral = True,
   UseCharged = False

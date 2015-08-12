@@ -18,7 +18,7 @@
 #include "AsgTools/ToolHandle.h"
 
 class JetTrimmer
-: public asg::AsgTool,
+: virtual public asg::AsgTool,
   virtual public IJetGroomer {
 ASG_TOOL_CLASS(JetTrimmer, IJetGroomer)
 

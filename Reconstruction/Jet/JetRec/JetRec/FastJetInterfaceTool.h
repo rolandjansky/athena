@@ -372,15 +372,15 @@ private:
   static std::string m_invalidKeyReference;
 
   /*! @brief Map of jet algorithm keywords and @c fastjet tags */
-  static FastJetInterface::algomap_t     s_knownAlgorithms;
+  static FastJetInterface::algomap_t     knownAlgorithms;
   /*! @brief Map of jet clustering strategy keywords and @c fastjet tags */
-  static FastJetInterface::strategymap_t s_knownStrategies;
+  static FastJetInterface::strategymap_t knownStrategies;
   /*! @brief Map of recombination scheme keywords and @c fastjet tags */
-  static FastJetInterface::schememap_t   s_knownRecombinationSchemes;
+  static FastJetInterface::schememap_t   knownRecombinationSchemes;
   /*! @brief Map of split merge scale keywords and @c fastjet tags */
-  static FastJetInterface::splitMergeScaleMap_t s_knownSplitMergeScales;
+  static FastJetInterface::splitMergeScaleMap_t knownSplitMergeScales;
   /*! @brief Map of jet area keywords and @c fastjet tags */
-  static FastJetInterface::areamap_t     s_knownAreas;
+  static FastJetInterface::areamap_t     knownAreas;
 
   /*! @brief Execution failure counter */
   unsigned int m_failedExecCtr;
@@ -426,9 +426,9 @@ protected:
   (FastJetInterfaceTool::*EXTRACTOR)(FastJetInterface::fjetlist_t& outJets);
 
   /*! @brief Pointer to processor */
-  PROCESSOR m_processor;
+  PROCESSOR f_processor;
   /*! @brief Pointer to extractor */
-  EXTRACTOR m_extractor;
+  EXTRACTOR f_extractor;
 
   /*! @brief Processor implementation: cluster sequence without area 
    *           calculation

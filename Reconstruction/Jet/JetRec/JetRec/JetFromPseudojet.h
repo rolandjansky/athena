@@ -1,4 +1,4 @@
-// JetFromPseudojet.h -*- C++ -*-
+// JetFromPseudojet.h -*- C++ -*- 
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -20,7 +20,7 @@
 #include "xAODJet/JetContainer.h"
 
 class JetFromPseudojet
-: public asg::AsgTool,
+: virtual public asg::AsgTool,
   virtual public IJetFromPseudojet {
 ASG_TOOL_CLASS(JetFromPseudojet, IJetFromPseudojet)
 
@@ -50,8 +50,7 @@ public:
   // Dump to log.
   void print() const;
 
-
-protected:
+private:
 
   // Method use by the above add(...) to do most of the work.
   xAOD::Jet* addjet(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
@@ -64,7 +63,7 @@ private:  //data
 
   // Job options.
   std::vector<std::string> m_atts;    // List of jet attributes.
-
+  
   bool m_doArea;
   bool m_doFourVecArea;
 };
