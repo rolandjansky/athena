@@ -25,7 +25,7 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'msgsvc-type', 
               'joboptionsvc-type', 'interactive', 'show-includes', 
               'use-database', 'db-type', 'db-server', 'db-smkey', 'db-hltpskey',
-              'db-extra', 'use-frontier', 'sor-time', 'detector-mask', 
+              'db-extra', 'sor-time', 'detector-mask', 
               'ros2rob', 'leak-check-execute', 'leak-check', 'delete-check',
               'no-ers-signal-handlers', 'oh-monitoring', 'oh-display', 
               'user-ipc', 'info-service', 'histogram-include',
@@ -258,7 +258,7 @@ common['event-modifier'] = \
    'arg': True,
    'default': [], 
    'group': 'Data',
-   'description': 'If set, this should be a list of python modules that should contain at least one function called "modify", that takes exactly one argument (the event to be modified) and returns the modified event.  If more than one python module is set, they will be called in sequence. The modifier can return something that evaluates to False, to indicate that the event should be skipped. To disable all default plugins provide an empty list []'}
+   'description': 'If set, this should be a list of python modules containing at least one of the following functions: "modify" or "modify_general". The former takes exactly one argument: the event to be modified. The latter takes keyword arguments: currently, the event to be modified and the current configuration, under the keywords "event" and "configuration", respectively. Both functions must return, either a valid event, or something evaluating to False, to indicate that the event should be skipped. For each provided module, if it contains the function "modify_general", that function is called ("modify" is not called in this case, even in present). Otherwise, the function "modify" is called. If several modifiers are provided, they are called in sequence, until either one of them returns something that evaluates to False or until all of them have been processed.'}
 common['max-result-size'] = \
   {'short': '', 
    'arg': True, 
@@ -271,21 +271,21 @@ common['leak-check-execute'] = \
    'default': None, 
    'group': 'Run mode',
    'description': 'Perform leak checking during execute. Equivalent to: --leak-check="execute".'}
-checkallowed = ['all', 'initialize', 'start', 'beginrun', 'execute', 'finalize',
-               'endrun', 'stop' ]
+checkallowed = ('all', 'initialize', 'start', 'beginrun', 'execute', 'finalize',
+               'endrun', 'stop' )
 common['leak-check'] = \
   {'short': '', 
    'arg': True,
    'default' : None, 
    'group': 'Run mode',
-   'description': 'Perform leak checking during the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --leak-check="<stage>" Example: --leak-check="all"',
+   'description': 'Perform leak checking during the stage you specify %s. Syntax: --leak-check="<stage>" Example: --leak-check="all"' % str(checkallowed),
    'allowed': checkallowed}
 common['delete-check'] = \
   {'short': '', 
    'arg': True,
   'default' : None, 
   'group': 'Run mode',
-  'description': 'Perform double delete checking at the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --delete-check="<stage>" Example: --delete-check="all"',
+  'description': 'Perform double delete checking at the stage you specify %s. Syntax: --delete-check="<stage>" Example: --delete-check="all"' % str(checkallowed),
   'allowed': checkallowed}
 common['perfmon'] = \
   {'short': 'H', 
@@ -293,12 +293,15 @@ common['perfmon'] = \
    'default': None, 
    'group': 'Run mode',
    'description': 'Enables performance monitoring toolkit'}
+debugallowed = ('configure', 'connect', 'prepareForRun', 'run', 'stop', 
+                'disconnect', 'unconfigure')
 common['debug'] = \
   {'short': 'd', 
    'arg': True, 
    'default': '',
    'group': 'Run mode',
-   'description': 'Attaches GDB just before the stage you specify (configure, connect, prepareForRun, run, stop, disconnect, unconfigure)'}
+   'description': 'Attaches GDB just before the stage you specify %s.' % str(debugallowed),
+   'allowed': debugallowed}
 common['appmgrdll'] = \
   {'short': 'N', 
    'arg': True, 
@@ -374,12 +377,6 @@ common['db-server'] = \
    'default': None,
    'group': 'Database',
    'description': 'The meaning of this parameter depends on the value of db-type. When db-type is "Coral", db-server identifies an entry for DB lookup. Otherwise, it should contain the name of the server (e.g. "ATLAS_CONFIG"). ' + usedb_warn}
-common['use-frontier'] = \
-  {'short': 'u',
-   'arg': False,
-   'default': None,
-   'group': 'Database',
-   'description': 'Use frontier to connect to the database'}
 common['db-smkey'] = \
   {'short': 'X',
    'arg': True,

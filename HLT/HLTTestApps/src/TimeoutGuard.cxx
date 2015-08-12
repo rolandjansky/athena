@@ -54,7 +54,7 @@ struct HLTTestApps::TimeoutGuard::Watchdog {
       }
 
       processor->timeOutReached(empty_ptree);
-      boost::format msg1("Reached %f%% (%d ms) of the total timeout value (%d ms). Asking HLT to wrap-up event processing...");
+      boost::format msg1("Reached \"soft timeout\" - %f%% (%d ms) of the total timeout value (%d ms). Asking HLT to wrap-up event processing...");
       msg1 % (100.0*warn_time_ms/timeout_ms) % warn_time_ms % timeout_ms;
       ers::warning(HLTTESTAPPS_UNCLASSIFIED(msg1.str()));
 
@@ -64,9 +64,13 @@ struct HLTTestApps::TimeoutGuard::Watchdog {
         continue;
       }
       
-      boost::format msg2("Reached the timeout value (%d ms)");
+      boost::format msg2("Reached the \"hard timeout\" value (%d ms)");
       msg2 % timeout_ms;
       ers::error(HLTTESTAPPS_UNCLASSIFIED(msg2.str()));
+
+      // Got hard timeout, need to wait for reset before continuing
+      guard.m_condition.wait(lock, reset_pred);
+      guard.m_reset = false;
     }
 
   }

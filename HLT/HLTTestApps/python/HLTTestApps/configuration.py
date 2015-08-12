@@ -15,6 +15,7 @@ from eformat import EventStorage as ES
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil as CoolUtil
 from CoolConvUtilities import AtlCoolLib
 from PyCool import cool
+from contextlib import contextmanager
 from ast import literal_eval
 from os import path, sep
 from re import match
@@ -309,7 +310,17 @@ class configuration(dict):
     self.event_modifiers = []
     for mod in self['event-modifier']:
       m = __import__(mod, globals(), locals(), ['*'])
-      self.event_modifiers.append(m.modify)
+      
+      if "modify_general" in dir(m):
+        # m=m to capture m when the function is created (not when it is called)
+        # otherwise, when it was called, m would always be the last imported 
+        # module
+        modify = lambda event, m=m: m.modify_general(configuration=self, 
+                                                     event=event)
+      else:
+        modify = m.modify
+         
+      self.event_modifiers.append(modify)
       process_additional_plugins('pre')
       process_additional_plugins('post')
       
@@ -440,19 +451,26 @@ class configuration(dict):
     payload = sor.payload()
     
     return {k: payload[k] for k in payload}
+  
+  @contextmanager
+  def make_dbextra_rw_context(self):
+    self['db-extra-rw'] = self['db-extra'].copy() # shallow copy is enough
+    try:
+      yield
+    finally:
+      del self['db-extra-rw']
     
-      
   def __get_db_config_ptrees(self):
-    ipt, atpt, dbpt, l1pt = (ptree(), ptree(), self.__get_trigdb_ptree(), 
-                             self.__get_lvl1conf_ptree()) 
-    ipt['hltPrescaleKey'] = self['db-hltpskey']
-    # by now, all the db-extra parameters that are recognized and have a 
-    # dedicated ptree slot should have been removed
-    additionalp = 'additionalConnectionParameters.additionalConnectionParameter'
-    if self['use-frontier']:
-      ipt.add(additionalp, "usefrontier=1")
-    for k, v in self['db-extra'].items():
-      ipt.add(additionalp, "%s=%s" % (k,v))
+    with self.make_dbextra_rw_context():
+      ipt, atpt, dbpt, l1pt = (ptree(), ptree(), self.__get_trigdb_ptree(), 
+                               self.__get_lvl1conf_ptree()) 
+      ipt['hltPrescaleKey'] = self['db-hltpskey']
+      # by now, all the db-extra-rw parameters that are recognized and have a 
+      # dedicated ptree slot should have been removed
+      others = 'additionalConnectionParameters.additionalConnectionParameter'
+      for k, v in self['db-extra-rw'].items():
+        ipt.add(others, "%s=%s" % (k,v))
+  
     self.__add_precommands_ptree(ipt)
     self.__add_postcommands_ptree(ipt)
     self.__add_log_levels(atpt)
@@ -464,15 +482,15 @@ class configuration(dict):
     dbpt['Type'] = self['db-type']
     dbpt['Server'] = self['db-server']
     dbpt['SuperMasterKey'] = self['db-smkey']
-    dbpt['User'] = self['db-extra'].pop('user')
-    dbpt['Password'] = self['db-extra'].pop('password')
-    dbpt['Name'] = self['db-extra'].pop('schema')
+    dbpt['User'] = self['db-extra-rw'].pop('user')
+    dbpt['Password'] = self['db-extra-rw'].pop('password')
+    dbpt['Name'] = self['db-extra-rw'].pop('schema')
     dbpt['Alias'] = self['db-server'] if self['db-type'] == 'Coral' else ''
     return dbpt
   
   def __get_lvl1conf_ptree(self):
     l1pt = ptree()
-    l1pt['Lvl1PrescaleKey'] = str(self['db-extra'].pop('lvl1key'))
+    l1pt['Lvl1PrescaleKey'] = str(self['db-extra-rw'].pop('lvl1key'))
     return l1pt
       
   def __get_joboptions_config_ptree(self):
@@ -562,10 +580,17 @@ class configuration(dict):
 import unittest
 from datetime import datetime as dt
 from HLTTestApps import random_sub_dict
+from types import ModuleType
+import sys
 
 # this is used in other modules
 class dummy_configuration(dict):
   __getattr__ = configuration.__getattr__.__func__
+  
+def get_virtual_module(modname):
+  mod = ModuleType(modname)
+  sys.modules[modname] = mod
+  return mod
 
 class configuration_tests(unittest.TestCase):
   cli_base_args = []
@@ -665,14 +690,11 @@ class configuration_tests(unittest.TestCase):
                  "Not ready for PyROOT batch mode")  
   
   def test_event_modifier(self):
-    from types import ModuleType as module
-    from sys import modules
-    mod = module("fakeModifier")
+    mod = get_virtual_module("fakeModifier")
     mod.modify = lambda x: x+1
     mod.additional_plugin_precommand = "'prec'"
     mod.additional_plugin_postcommand = "'postc'"
-    modules[mod.__name__] = mod
-    
+        
     c = configuration(self.opt_spec,
                       self._gen_complete_args(["--event-modifier", 
                                                "['%s']" % mod.__name__]))
@@ -695,6 +717,22 @@ class configuration_tests(unittest.TestCase):
                                                   and '_run_number' not in x]    
     ensurepcommand('pre')
     ensurepcommand('post')
+  
+  def test_event_modifier_general(self):
+    mod = get_virtual_module("fakeModifierGeneral")
+    mod.modify = lambda x: self.assert_(False, 
+                                        ("%s.modify called, this should "
+                                         "not have happened") % mod.__name__)
+    mod.modify_general = lambda **kwargs: 10 * kwargs['event']
+     
+    c = configuration(self.opt_spec,
+                      self._gen_complete_args(["--event-modifier",
+                                               "['%s']" % mod.__name__]))
+
+    modified_1 = c.event_modifiers[0](1)
+    
+    self.assertEquals(modified_1, 10, "Expected to get 10 as a modified 1; "
+                                      "got %s" % modified_1)
   
   def test_run_params(self):
     pt = self._gen_complete_prepare_ptree(['--run-number', '177531'])
@@ -873,7 +911,7 @@ class configuration_tests(unittest.TestCase):
             additional_opts + 
             self.special_cli_args + 
             additional_args)
-
+    
 
 class file_based_configuration_tests(configuration_tests):
   def setUp(self):
@@ -1205,16 +1243,6 @@ class dbpy_configuration_tests(file_based_configuration_tests, pcommands_tests):
     ext = {'password': pwd}
     pt = self._gen_complete_config_ptree(['--db-extra', ext])
     self._test_ptree_value(pt, self.dbcon + ".Password", pwd)
-  def test_ptree_use_frontier(self):
-    adpath = self.hltconf + ".additionalConnectionParameters"
-    pt = self._gen_complete_config_ptree(['--use-frontier'])
-    self._test_ptree_pred(pt, adpath, 
-                          lambda pt: "usefrontier=1" in pt.values_data())
-    pt = self._gen_complete_config_ptree()
-    if adpath in pt:
-      self._test_ptree_pred(pt, adpath, 
-                            lambda pt: True not in ["usefrontier" in x 
-                                                    for x in pt.values_data()])
   def test_ptree_other_extra(self):
     special = {'user': 'asdfsdfin', 'password': 'fbgntuiw', 'schema': 'gsdfg', 
                'lvl1key': '4411'}
