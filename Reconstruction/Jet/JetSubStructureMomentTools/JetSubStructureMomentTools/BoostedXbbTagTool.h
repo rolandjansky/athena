@@ -23,8 +23,7 @@ class BoostedXbbTagTool :
                   m_boson_type,
                   m_algorithm_name,
                   m_muon_container_name;
-      int m_num_bTags;
-      std::string m_decor_prefix;
+      int m_num_bTags; 
       bool m_debug,
            m_verbose;
 };
