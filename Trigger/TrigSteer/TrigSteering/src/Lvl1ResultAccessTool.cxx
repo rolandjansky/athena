@@ -601,6 +601,10 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
 			       getBit(bitsAV, i), 
 			       item->prescaleFactor() );  
     m_items.push_back(item);
+    if(m_logLvl <= MSG::DEBUG) {
+      (*m_log) << MSG::DEBUG << "Set bits on "<< item->name() 
+	       <<" PS="<< item->prescaleFactor() <<"  BP=" <<getBit(bitsBP, i)<<" AP="<<getBit(bitsAP, i)<<" AV="<<getBit(bitsAV, i)<< endreq;
+    }
   }
 
 
