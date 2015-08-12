@@ -28,14 +28,13 @@ namespace JetSubStructureUtils {
       // standard tool constructor
       BoostedXbbTag(std::string working_point           = "medium",
 #ifdef ROOTCORE
-                    std::string recommendations_file    = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15c_77WP_20160522.dat",
+                    std::string recommendations_file    = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat",
 #else
-                    std::string recommendations_file    = "JetSubStructureUtils/data/config_13TeV_Htagging_MC15c_77WP_20160522.dat",
+                    std::string recommendations_file    = "JetSubStructureUtils/data/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat",
 #endif
                     std::string boson_type              = "Higgs",
                     std::string algorithm_name          = "AK10LCTRIMF5R20",
                     int num_bTags                       = 2,
-                    std::string decor_prefix            = "",
                     bool debug                          = false,
                     bool verbose                        = false);
 
@@ -53,26 +52,16 @@ namespace JetSubStructureUtils {
                                      const xAOD::JetInput::Type jet_input,
                                      const xAOD::JetTransform::Type jet_transform) const;
 
-      // return a vector of track jets which are btagged by the tool
-      std::vector<const xAOD::Jet*> get_bTagged_trackJets(const xAOD::Jet& jet) const;
-      // return the matched muon object (nullptr if there is not one)
-      std::vector<const xAOD::Muon*> get_matched_muons(const xAOD::Jet& jet) const;
-      TLorentzVector get_correctedJet_TLV(const xAOD::Jet& jet) const;
-      std::pair<float, float> get_mass_window(const xAOD::Jet& jet) const;
-      std::pair<float, std::string> get_D2_pivot(const xAOD::Jet& jet) const;
-
     private:
       std::string m_working_point;
       std::string m_recommendations_file;
       std::string m_boson_type;
       std::string m_algorithm_name;
       int m_num_bTags;
-      std::string m_decor_prefix;
       bool m_debug,
            m_verbose;
 
       float m_bTagCut,
-            m_bTagCutCharm,
             m_massMin,
             m_massMax;
       std::vector<float> m_D2_params;
@@ -109,16 +98,6 @@ namespace JetSubStructureUtils {
       static SG::AuxElement::ConstAccessor<float> ECF1;
       static SG::AuxElement::ConstAccessor<float> ECF2;
       static SG::AuxElement::ConstAccessor<float> ECF3;
-
-      // generic accessors used
-      static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> parent;
-
-      // generic decorations used
-      const SG::AuxElement::Decorator<int> isB;
-      const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > matchedMuonsLink;
-      const SG::AuxElement::Decorator<TLorentzVector> correctedJetDecor;
-      const SG::AuxElement::Decorator<std::pair<float, float>> massWindow;
-      const SG::AuxElement::Decorator<std::pair<float, std::string>> D2Pivot;
   };
 }
 
