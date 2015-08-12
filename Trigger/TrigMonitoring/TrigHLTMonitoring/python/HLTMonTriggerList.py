@@ -17,7 +17,9 @@ class HLTMonTriggerList:
      primary_bphys = []
      monitoring_egamma = []
      primary_single_ele = []
+     primary_single_ele_iso = []
      primary_single_ele_cutbased = []
+     primary_single_ele_cutbased_iso = []
      primary_double_ele = []
      primary_double_ele_cutbased = []
      monitoring_ele_idperf = []
@@ -57,7 +59,9 @@ class HLTMonTriggerList:
           self.monitoring_egamma = egamma.monitoring_egamma
 
           self.primary_single_ele = egamma.primary_single_ele
+          self.primary_single_ele_iso = egamma.primary_single_ele_iso
           self.primary_single_ele_cutbased = egamma.primary_single_ele_cutbased
+          self.primary_single_ele_cutbased_iso = egamma.primary_single_ele_cutbased_iso
           self.primary_double_ele = egamma.primary_double_ele
           self.primary_double_ele_cutbased = egamma.primary_double_ele_cutbased
           self.monitoring_ele_idperf = egamma.monitoring_ele_idperf
