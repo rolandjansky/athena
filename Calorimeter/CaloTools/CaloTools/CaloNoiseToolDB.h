@@ -264,11 +264,14 @@ private:
 
   CaloGain::CaloGain  m_highestGain[m_nCalos];
 
+  CaloGain::CaloGain  getHighestGain(const CaloDetDescrElement* ) const;
+
   float m_Nminbias;
   float m_lumi0;
 
 //Functions
   StatusCode initialize();
+
   StatusCode finalize();
   
 // private methods to access database

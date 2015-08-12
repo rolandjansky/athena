@@ -612,7 +612,8 @@ CaloNoiseToolDB::getNoise(const CaloDetDescrElement* caloDDE, CalorimeterNoiseTy
   if( m_Nminbias>0 )
     Nminbias=m_Nminbias;
   
-  CaloGain::CaloGain igain = m_highestGain[caloDDE->getSubCalo()];
+  //CaloGain::CaloGain igain = m_highestGain[caloDDE->getSubCalo()];
+  CaloGain::CaloGain igain = getHighestGain(caloDDE);
   if( m_gain_from_joboption>=0 &&
       (type == ICalorimeterNoiseTool::ELECTRONICNOISE ||
        type == ICalorimeterNoiseTool::PILEUPNOISE ||
@@ -672,7 +673,7 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
   case ICalorimeterNoiseTool::ELECTRONICNOISE_HIGHESTGAIN:
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
-    igain=m_highestGain[caloDDE->getSubCalo()];
+    igain=getHighestGain(caloDDE);
   case ICalorimeterNoiseTool::ELECTRONICNOISE:
     return elecNoiseRMS(caloDDE,igain,Nminbias,
 			ICaloNoiseToolStep::CELLS);
@@ -691,7 +692,7 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
   case ICalorimeterNoiseTool::TOTALNOISE_HIGHESTGAIN:
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
-    igain=m_highestGain[caloDDE->getSubCalo()];
+    igain=getHighestGain(caloDDE) ;
     //  NOTE: igain is only used for the electronics noise at the moment
   case ICalorimeterNoiseTool::TOTALNOISE:
     return totalNoiseRMS(caloDDE,igain,Nminbias,
@@ -730,7 +731,7 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, float energy, CalorimeterNoi
   case ICalorimeterNoiseTool::ELECTRONICNOISE_HIGHESTGAIN:
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
-    igain=m_highestGain[caloDDE->getSubCalo()];
+    igain=getHighestGain(caloDDE);
   case ICalorimeterNoiseTool::ELECTRONICNOISE:
     return elecNoiseRMS(caloDDE,igain,Nminbias,energy,
 			ICaloNoiseToolStep::CELLS);
@@ -739,7 +740,7 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, float energy, CalorimeterNoi
   case ICalorimeterNoiseTool::PILEUPNOISE_HIGHESTGAIN:
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
-    igain=m_highestGain[caloDDE->getSubCalo()];
+    igain=getHighestGain(caloDDE);
     //  NOTE: igain is not used at the moment for pileupnoise
   case ICalorimeterNoiseTool::PILEUPNOISE:
     return pileupNoiseRMS(caloDDE,igain,Nminbias,
@@ -749,7 +750,7 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, float energy, CalorimeterNoi
   case ICalorimeterNoiseTool::TOTALNOISE_HIGHESTGAIN:
     // overwrite iGain with highest gain for that detector and
     // continue into normal code (NO break !!)
-    igain=m_highestGain[caloDDE->getSubCalo()];
+    igain=getHighestGain(caloDDE);
     //  NOTE: igain is only used for the electronics noise at the moment
   case ICalorimeterNoiseTool::TOTALNOISE:
     return totalNoiseRMS(caloDDE,igain,Nminbias,energy,
@@ -843,7 +844,7 @@ CaloNoiseToolDB::elecNoiseRMSHighestGain(const CaloCell* caloCell,
  int i = (int)(m_calo_id->calo_cell_hash(id));
  if (i>m_ncell) return -1;
  const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
- CaloGain::CaloGain highestgain=m_highestGain[caloDDE->getSubCalo()];
+ CaloGain::CaloGain highestgain=getHighestGain(caloDDE);
  if (m_rescaleForHV && !caloDDE->is_tile())
    return m_larHVCellCorrTool->getCorrection(id) * this->getA(i,highestgain);
  else
@@ -866,7 +867,7 @@ float
 CaloNoiseToolDB::elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
 				       const int step)
 {    
-  CaloGain::CaloGain highestGain=m_highestGain[caloDDE->getSubCalo()];
+  CaloGain::CaloGain highestGain=getHighestGain(caloDDE);
   return this->elecNoiseRMS(caloDDE,highestGain,-1,step);    
 }
 
@@ -876,7 +877,7 @@ float
 CaloNoiseToolDB::elecNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
 				       const float Nminbias, const int step)
 {    
-  CaloGain::CaloGain highestGain=m_highestGain[caloDDE->getSubCalo()];
+  CaloGain::CaloGain highestGain=getHighestGain(caloDDE);
   return this->elecNoiseRMS(caloDDE,highestGain,Nminbias,step);    
 }
 
@@ -1108,9 +1109,11 @@ CaloNoiseToolDB::pileupNoiseRMS(const CaloDetDescrElement* caloDDE,
 			      const float Nminbias)
 {
   if (!m_cacheValid) this->updateCache();
-  int subcalo = caloDDE->getSubCalo();
-  if (subcalo < 0 || subcalo >= m_nCalos) return -1;
-  CaloGain::CaloGain highestGain=m_highestGain[subcalo];
+
+  
+  CaloGain::CaloGain highestGain= getHighestGain(caloDDE); 
+  if (highestGain==CaloGain::UNKNOWNGAIN) return -1;
+
   int i = (int)(caloDDE->calo_hash());
   if (i>m_ncell) return -1;
   if (m_cached==ICalorimeterNoiseTool::PILEUPNOISE && (Nminbias == m_Nminbias || Nminbias<0) && m_cacheValid) {
@@ -1192,7 +1195,7 @@ float
 CaloNoiseToolDB::totalNoiseRMSHighestGain(const CaloDetDescrElement* caloDDE, 
 					const float Nminbias)
 {
-  CaloGain::CaloGain highestGain=m_highestGain[caloDDE->getSubCalo()];
+  CaloGain::CaloGain highestGain=getHighestGain(caloDDE);
   return this->totalNoiseRMS(caloDDE,highestGain,Nminbias);
 }
 
@@ -1264,4 +1267,22 @@ float CaloNoiseToolDB::getEffectiveSigma(const CaloCell* caloCell,
   return eqnoise;
      // simple implementation for gaussian noise
   //     return this->getNoise(caloCell,type);
+}
+
+
+CaloGain::CaloGain  CaloNoiseToolDB::getHighestGain(const CaloDetDescrElement* caloDDE ) const
+{
+ CaloGain::CaloGain highestgain;
+ int subCalo = caloDDE->getSubCalo();
+ if (subCalo>=0 && subCalo < m_nCalos){
+    highestgain = m_highestGain[subCalo];
+ }
+ else
+   {
+     msg(MSG::ERROR) << "Encountered unexpected SubCalo" << subCalo << ", gain set to unknown "<< endreq;
+     highestgain=CaloGain::UNKNOWNGAIN;
+   }
+
+ return highestgain; 
+
 }
