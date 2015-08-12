@@ -611,22 +611,21 @@ StatusCode TrigSteer::execute()
 
    bool eventPassed = false;  
    bool isPhysicsAccept = false;
+
    for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
         iterChain != m_activeChains.end(); ++iterChain) {
-      // check whether the event is accepted
-      eventPassed = (*iterChain)->chainPassed() || eventPassed;
-      if (eventPassed && isPhysicsAccept) break;
-      if ( (*iterChain)->chainPassed() && !isPhysicsAccept) {
-	// and get all streams from the chain
-	for (auto chain_stream : (*iterChain)->getStreamTags()){
+     // check whether the event is accepted
+     eventPassed = (*iterChain)->chainPassed() || eventPassed;
+     if ( (*iterChain)->chainPassed()){
+       for (auto chain_stream : (*iterChain)->getStreamTags()){
 	  if ( chain_stream.getType() == "physics" ){
 	    isPhysicsAccept=true;
 	    (*m_log) << MSG::DEBUG << "FPP chain "<< (*iterChain)->getChainName()  <<" gives Physics Accepts" << endreq;
+	    break;
 	  }
-	  break;
 	}
-      }
-
+     }
+     if (isPhysicsAccept) break;
    }
 
    // run on the prescaled chains, but only if trigger decision was positive

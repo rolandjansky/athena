@@ -12,7 +12,7 @@
  * @author Ingrid Deigaard - Nikhef, The Netherlands
  *
  * File and Version Information:
- * $Id: LvlTopoConverter.cxx 641540 2015-01-25 13:39:47Z stelzer $
+ * $Id: LvlTopoConverter.cxx 680367 2015-07-04 11:59:22Z stelzer $
  **********************************************************************************/
 
 #include "TrigSteering/LvlTopoConverter.h"
@@ -34,6 +34,36 @@ LvlTopoConverter::LvlTopoConverter(const std::string& name, const std::string& t
 
 ErrorCode
 LvlTopoConverter::hltInitialize() {
+   bool success( true );
+
+   ATH_MSG_DEBUG("retrieving " << m_emtauInputProvider);
+   if( ! m_emtauInputProvider.retrieve() ) {
+      ATH_MSG_ERROR("Could not retrieve " << m_emtauInputProvider );
+      success = false;
+   }
+
+   ATH_MSG_DEBUG("retrieving " << m_jetInputProvider);
+   if( ! m_jetInputProvider.retrieve() ) {
+      ATH_MSG_ERROR("Could not retrieve " << m_jetInputProvider );
+      success = false;
+   }
+
+   ATH_MSG_DEBUG("retrieving " << m_energyInputProvider);
+   if( ! m_energyInputProvider.retrieve() ) {
+      ATH_MSG_ERROR("Could not retrieve " << m_energyInputProvider );
+      success = false;
+   }
+
+   ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
+   if( ! m_muonInputProvider.retrieve() ) {
+      ATH_MSG_ERROR("Could not retrieve " << m_muonInputProvider );
+      success = false;
+   }
+
+   if( ! success ) {
+      return HLT::ERROR;
+   }
+
    return HLT::OK;
 }
 

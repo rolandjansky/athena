@@ -333,7 +333,7 @@ HLT::ErrorCode Sequence::execute()
          if ( ec.action() > HLT::Action::CONTINUE ) {
             m_config->getMsgStream() << MSG::WARNING 
                                      << "Sequence got error back while executing algorithm: " 
-                                     << m_firstAlgo->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                     << m_nextAlgos[j]->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
          }
 
          // Check if event timeout was reached
@@ -488,7 +488,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       //test of the pretching: fill the pre-fetching list 
       if (do_prefetching_test){
 	std::string pref_name = alg->name() + "_pref";
-	m_config->getMsgStream() << MSG::DEBUG <<"Algorithm "<< te_create_alg->name() <<" requested "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<std::endl;
+	if (m_config->getMsgLvl() <=MSG::INFO) m_config->getMsgStream() << MSG::INFO <<"Forcing trigROBDataProvider_RTT.addROBData: Algorithm "<< te_create_alg->name() <<" scheduled "<<m_config->robRequestInfo()->requestScheduledRobIDs().size() <<" ROBs"<<endreq;
 	m_trigROBDataProvider->addROBData(m_config->robRequestInfo()->requestScheduledRobIDs(),pref_name);
       }
 

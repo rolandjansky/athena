@@ -34,7 +34,7 @@ job+=xAODMaker__EventInfoCnvAlg()
 
   
 MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
-MessageSvc.OutputLevel = VERBOSE
+MessageSvc.OutputLevel = DEBUG 
 MessageSvc.defaultLimit=100000
 ### Some more debug from StoreGate ###
 StoreGateSvc = Service( "StoreGateSvc" )
@@ -190,9 +190,9 @@ try:
 except:
     log.warning( 'failed to activate TrigConfigSvc ...')
 
-ServiceMgr.TrigConfigSvc.OutputLevel=VERBOSE
-ServiceMgr.HLTConfigSvc.OutputLevel=VERBOSE
-ServiceMgr.LVL1ConfigSvc.OutputLevel=VERBOSE
+ServiceMgr.TrigConfigSvc.OutputLevel=DEBUG
+ServiceMgr.HLTConfigSvc.OutputLevel=DEBUG
+ServiceMgr.LVL1ConfigSvc.OutputLevel=DEBUG
 
 if "runMergedSteering" not in dir():
     runMergedSteering=False
@@ -235,8 +235,8 @@ else:
     hltSteer_L2.doOperationalInfo=4
     hltSteer_L2.enableCoherentPrescaling=True
     hltSteer_L2.enableRobRequestPreparation=True
-    hltSteer_L2.ExecutionOrderStrategy.OutputLevel=VERBOSE
-    hltSteer_L2.OutputLevel=VERBOSE
+    hltSteer_L2.ExecutionOrderStrategy.OutputLevel=DEBUG
+    hltSteer_L2.OutputLevel=DEBUG
     hltSteer_L2.doL1TopoSimulation=False
     hltSteer_L2.ExecutionOrderStrategy.order=['th:J50', 'th:J90', 'th:J200', 'name:.*mu.*', 'name:RobRequest.*']
 
