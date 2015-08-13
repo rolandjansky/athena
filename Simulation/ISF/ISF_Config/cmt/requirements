@@ -6,7 +6,6 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 
 private
 use AtlasPolicy                 AtlasPolicy-*
-use AtlasReconstructionRunTime  AtlasReconstructionRunTime-*
 
 private
 use TestPolicy                  TestPolicy-*
