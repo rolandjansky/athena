@@ -50,6 +50,7 @@ InDetFlags.doLowBetaFinder=False # This should be False.
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs=True
+    InDetFlags.doSLHCVeryForward=True
 
 # InDetFlags.doStandardPlots=True 
 

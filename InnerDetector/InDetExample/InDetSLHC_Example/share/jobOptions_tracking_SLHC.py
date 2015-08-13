@@ -41,8 +41,7 @@ globalflags.DataSource = 'geant4'
 globalflags.InputFormat = 'pool'
 
 from AthenaCommon.GlobalFlags import jobproperties
-# jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-00-00'
-jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-03-00'
+jobproperties.Global.DetDescrVersion='ATLAS-P2-ITK-01-00-00'
 
 # --- printout
 globalflags.print_JobProperties()
@@ -52,7 +51,7 @@ from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.numberOfCollisions = 40.0  
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-ATLAS-HL-LHC-00"
+globalflags.ConditionsTag = "OFLCOND-MC12-ITK-27-00"
 
 # --- no conditions for SLHC
 if len(globalflags.ConditionsTag())!=0:
@@ -85,7 +84,7 @@ DetFlags.Print()
 
 # --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool')
+InDetFlags.doTruth       = False # (globalflags.InputFormat() == 'pool')
 
 InDetFlags.doLowBetaFinder = False
 
@@ -128,13 +127,13 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of ntuples, standard plots
-InDetFlags.doTrkNtuple      = True
+InDetFlags.doTrkNtuple      = False
 InDetFlags.doStandardPlots  = False
 InDetFlags.doSGDeletion     = False
-InDetFlags.doTrkD3PD        = True
+InDetFlags.doTrkD3PD        = False
 
-InDetFlags.doPixelTrkNtuple = True
-InDetFlags.doPixelClusterNtuple = True
+InDetFlags.doPixelTrkNtuple = False
+InDetFlags.doPixelClusterNtuple = False
 # InDetFlags.doSctTrkNtuple = True
 # InDetFlags.doSctClusterNtuple = True
 
@@ -143,17 +142,6 @@ InDetFlags.doBremRecovery = True
 InDetFlags.doCaloSeededBrem = False
 InDetFlags.doForwardTracks = True
 ###################################
-
-from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails     = 2
-TrackD3PDFlags.storeTrackPredictionAtBLayer                     = False
-TrackD3PDFlags.storeTrackSummary                                = True
-TrackD3PDFlags.storeHitTruthMatching                            = True
-TrackD3PDFlags.storeDetailedTruth                               = True
-
-from InDetRecExample.InDetKeys import InDetKeys
-InDetKeys.trkValidationNtupleName = 'myTrkValidation.root'
-InDetKeys.trkD3PDFileName = 'myInDetTrackD3PD.root'
 
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables = True
@@ -192,47 +180,25 @@ TrkDetFlags.SCT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.TRT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.MagneticFieldCallbackEnforced   = False
 TrkDetFlags.TRT_BuildStrawLayers            = False
-TrkDetFlags.MaterialFromCool                = True
-TrkDetFlags.MaterialDatabaseLocal           = False and TrkDetFlags.MaterialFromCool()
-TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-TrkDetFlags.MaterialTagBase                 = 'SLHC_LayerMat_v'
-TrkDetFlags.MaterialVersion                 = 6
+TrkDetFlags.MaterialDatabaseLocal           = False 
+TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/LayerMaterialITK'
+## MaterialVersion and MaterialSubVersion
+TrkDetFlags.MaterialVersion                 = 17
+TrkDetFlags.MaterialSubVersion=""
 # if SLHC_Flags.SLHC_Version() is '' :
 TrkDetFlags.MaterialMagicTag                = jobproperties.Global.DetDescrVersion()
 # else :
  # TrkDetFlags.MaterialMagicTag                = SLHC_Flags.SLHC_Version() 
 if TrkDetFlags.MaterialDatabaseLocal() is True :
    TrkDetFlags.MaterialDatabaseLocalPath    = ''
-   TrkDetFlags.MaterialDatabaseLocalName    = 'SLHC_LayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
+   TrkDetFlags.MaterialDatabaseLocalName    = "AtlasLayerMaterial-"+jobproperties.Global.DetDescrVersion()+".db"
 TrkDetFlags.MagneticFieldCallbackEnforced         = False
-TrkDetFlags.LArUseMaterialEffectsOnTrackProvider  = False
-TrkDetFlags.TileUseMaterialEffectsOnTrackProvider = False
 
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------
 
 include("InDetRecExample/InDetRec_all.py")
-
-########################################################################
-# Lines below add the "nHoles" info in the TrkValidation ntuple
-########################################################################
-from TrkValTools.TrkValToolsConf import Trk__TrackSummaryNtupleTool
-InDetTrackSummaryNtupleTool = Trk__TrackSummaryNtupleTool(name="InDetTrackSummaryNtupleTool")
-ToolSvc += InDetTrackSummaryNtupleTool
-if InDetFlags.doPrintConfigurables():
-   print InDetTrackSummaryNtupleTool
-
-from TrkValAlgs.TrkValAlgsConf import Trk__TrackValidationNtupleWriter
-TrkValNtupleWriter = Trk__TrackValidationNtupleWriter(name = 'InDetValNtupleWriter',
-ValidationNtupleTools = [ InDetTrackInfoNtupleTool, InDetPerigeeNtupleTool, InDetMeastsNtupleTool, InDetTrackSummaryNtupleTool ],
-NtupleFileName = 'TRKVAL',
-NtupleDirectoryName = 'Validation',
-DoTruth = InDetFlags.doTruth(),
-TruthToTrackTool = TruthToTrackTool,
-TrackSelectorTool = TrkValTrackSelectorTool)
-#########################################################################
-
 
 #--------------------------------------------------------------
 # Event related parameters and input files
