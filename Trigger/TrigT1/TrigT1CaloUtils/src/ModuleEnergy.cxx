@@ -22,7 +22,7 @@
 
 namespace LVL1 {
 
-ModuleEnergy::ModuleEnergy(const xAOD::JetElementMap_t* JEContainer, unsigned int crate,
+ModuleEnergy::ModuleEnergy(const std::map<int, xAOD::JetElement *>* JEContainer, unsigned int crate,
                            unsigned int module, int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks, int slice):
   m_jetElementThresholdEtSum(JEThresholdEtSum),
   m_jetElementThresholdEtMiss(JEThresholdEtMiss),
@@ -48,7 +48,7 @@ ModuleEnergy::ModuleEnergy(const xAOD::JetElementMap_t* JEContainer, unsigned in
     std::vector<unsigned int> keys = get.jeKeys(crate, module);
     std::vector<unsigned int>::const_iterator it = keys.begin();
     for (; it != keys.end(); it++) {
-      xAOD::JetElementMap_t::const_iterator test=JEContainer->find(*it);
+      std::map<int, xAOD::JetElement*>::const_iterator test=JEContainer->find(*it);
       if (test != JEContainer->end()) {
 	/** Check JE not masked in TE trigger */
 	double eta = test->second->eta();
@@ -148,30 +148,30 @@ ModuleEnergy::~ModuleEnergy(){
 }
 
 /** return crate number */
-unsigned int ModuleEnergy::crate() const {
+unsigned int ModuleEnergy::crate(){
   return m_crate;
 }
 /** return module number */
-unsigned int ModuleEnergy::module() const {
+unsigned int ModuleEnergy::module(){
   return m_module;
 }
 
 /** return Et, Ex, Ey sums of contained JEs (up to 32 JEs) */
-unsigned int ModuleEnergy::et() const {
+unsigned int ModuleEnergy::et(){
   return m_Et;
 }
-unsigned int ModuleEnergy::ex() const {
+unsigned int ModuleEnergy::ex(){
   return m_Ex;
 }
-unsigned int ModuleEnergy::ey() const {
+unsigned int ModuleEnergy::ey(){
   return m_Ey;
 }
 
 /** return signs of Ex and Ey for this module */
-int ModuleEnergy::signX() const {
+int ModuleEnergy::signX() {
   return m_signX;
 }
-int ModuleEnergy::signY() const {
+int ModuleEnergy::signY() {
   return m_signY;
 }
 
@@ -179,8 +179,8 @@ int ModuleEnergy::signY() const {
 void ModuleEnergy::getSinCos(double eta, double phi, int& cosPhi, int& sinPhi) {
     
   /** Different phi granularities in central and forward calorimeters */
-  unsigned int SinCos[8]    = {401,1187,1928,2594,3161,3607,3913,4070};
-  unsigned int fwdSinCos[4] = {794,2261,3384,3992};
+  unsigned int m_SinCos[8]    = {401,1187,1928,2594,3161,3607,3913,4070};
+  unsigned int m_fwdSinCos[4] = {794,2261,3384,3992};
 
   /** Each module spans 1 quadrant in phi. Hence want phi position relative to module edge */
   float modPhi = fmod(phi, M_PI/2.);
@@ -189,24 +189,24 @@ void ModuleEnergy::getSinCos(double eta, double phi, int& cosPhi, int& sinPhi) {
   if (fabs(eta) < 3.2) {
     int phiBin = (int)(modPhi*16/M_PI);
     if (m_crate > 0) {                  /// Even quadrants, modPhi measured from horizontal
-       cosPhi = SinCos[phiBin];
-       sinPhi = SinCos[7-phiBin];
+       cosPhi = m_SinCos[phiBin];
+       sinPhi = m_SinCos[7-phiBin];
     }
     else {                              /// Odd quadrants, modPhi measured from vertical
-       cosPhi = SinCos[7-phiBin];
-       sinPhi = SinCos[phiBin];
+       cosPhi = m_SinCos[7-phiBin];
+       sinPhi = m_SinCos[phiBin];
     }
   }
   /// Forward calorimeters
   else {
     int phiBin = (int)(modPhi*8/M_PI);
     if (m_crate > 0) {
-       cosPhi = fwdSinCos[phiBin];
-       sinPhi = fwdSinCos[3-phiBin];
+       cosPhi = m_fwdSinCos[phiBin];
+       sinPhi = m_fwdSinCos[3-phiBin];
     }
     else {
-       cosPhi = fwdSinCos[3-phiBin];
-       sinPhi = fwdSinCos[phiBin];
+       cosPhi = m_fwdSinCos[3-phiBin];
+       sinPhi = m_fwdSinCos[phiBin];
     }
   }
 

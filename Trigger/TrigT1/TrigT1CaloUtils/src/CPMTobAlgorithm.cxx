@@ -51,7 +51,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
-LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer,
+LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const std::map<int, xAOD::CPMTower *>* ttContainer,
                                 ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice ):
   m_configSvc(config),
   m_Core(0),
@@ -65,8 +65,8 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMT
   m_HadIsol(0),
   m_EtMax(false),
   m_EMThresh(false),
-  m_TauThresh(false)
-  //m_debug(false)
+  m_TauThresh(false),
+  m_debug(false)
 {
   /** RoI coordinates are centre of window, while key classes are designed
       for TT coordinates - differ by 0.5* TT_size. Using wrong coordinate
@@ -110,7 +110,7 @@ LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMT
     for (int phiOffset = -1; phiOffset <= 2; phiOffset++) {
       double tempPhi = m_refPhi + phiOffset*M_PI/32;
       int key = get.ttKey(tempPhi, tempEta);
-      xAOD::CPMTowerMap_t::const_iterator tt = ttContainer->find(key);
+      std::map<int, xAOD::CPMTower*>::const_iterator tt = ttContainer->find(key);
       if (tt != ttContainer->end() && fabs(tempEta) < m_maxEta) {
         // Get the TT ET values once here, rather than repeat function calls
         int emTT = 0;
@@ -240,18 +240,12 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   unsigned int clusMask    = ( (1<<m_emLUT_ClusterNBits)-1 )<<m_emLUT_ClusterFirstBit;
   unsigned int emIsolMask  = ( (1<<m_emLUT_EMIsolNBits) -1 )<<m_emLUT_EMIsolFirstBit;
   unsigned int hadIsolMask = ( (1<<m_emLUT_HadVetoNBits)-1 )<<m_emLUT_HadVetoFirstBit;
-
-  // If cluster overflows, set all threshold bits
-  if (m_EMClus >= clusMask) {
-    m_EMIsolWord = 0x1F;
-    return;
-  }
   
   // For consistency with LUT filling and menu parameters, convert ET sums to 100 MeV units
   int clus    = (( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask ) * 10)/scale;
   int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
   int hadVeto = (( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask ) * 10)/scale;
- 
+  
   /** Disable isolation by default, then set cut if defined and in range.
     * Expect parameters to be on 100 MeV scale whatever the digit scale, so need to rescale if
       digit scale differs.
@@ -329,13 +323,7 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   // Define cluster and isolation values with appropriate scales and range for isolation LUT
   unsigned int clusMask    = ( (1<<m_tauLUT_ClusterNBits)-1 )<<m_tauLUT_ClusterFirstBit;
   unsigned int emIsolMask  = ( (1<<m_tauLUT_EMIsolNBits) -1 )<<m_tauLUT_EMIsolFirstBit;
-
-  // If cluster overflows, set all threshold bits
-  if (m_TauClus >= clusMask) {
-     m_TauIsolWord = 0x1F;
-     return;
-  }
-                 
+  
   // Convert to 100 MeV units to match parameters
   int clus    = (( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask ) * 10)/scale;
   int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;

@@ -19,7 +19,7 @@
 
 namespace LVL1 {
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, float etaMaxXE, float etaMaxTE, bool restricted):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, float etaMax, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -34,19 +34,13 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   if (m_crate > 1) return;
 
   /** Added for restricted eta triggers in Run 2 */
-  int moduleMinXE = 0;
-  if (etaMaxXE <= 2.41) moduleMinXE = 1;
-  if (etaMaxXE <= 1.61) moduleMinXE = 2;
-  if (etaMaxXE <= 0.81) moduleMinXE = 3;
-  int moduleMaxXE = 7 - moduleMinXE;
+  int moduleMin = 0;
+  if (etaMax <= 2.41) moduleMin = 1;
+  if (etaMax <= 1.61) moduleMin = 2;
+  if (etaMax <= 0.81) moduleMin = 3;
+  int moduleMax = 7 - moduleMin;
 
-  int moduleMinTE = 0;
-  if (etaMaxTE <= 2.41) moduleMinTE = 1;
-  if (etaMaxTE <= 1.61) moduleMinTE = 2;
-  if (etaMaxTE <= 0.81) moduleMinTE = 3;
-  int moduleMaxTE = 7 - moduleMinTE;
-
-  if (moduleMinXE > 0 || moduleMinTE > 0) m_restricted = true;
+  if (moduleMin > 0) m_restricted = true;
 
   /** Summing within a crate proceeds as follows: <br>
          unsigned 14 bit Ex, Ey, Et sums are formed for each half crate<br>
@@ -61,20 +55,17 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   DataVector<ModuleEnergy>::const_iterator it = JEMs->begin();
   for ( ; it != JEMs->end(); it++) {
     int moduleInQuad = (*it)->module() % 8;
-    if ((*it)->crate() == m_crate) {
+    if ((*it)->crate() == m_crate && moduleInQuad >= moduleMin && moduleInQuad <= moduleMax) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
-      if (moduleInQuad >= moduleMinTE && moduleInQuad <= moduleMaxTE) {
-        eT[quad] += (*it)->et();
-        if ( (*it)->et() >= m_jemEtSaturation ) m_overflowT = 1;
-      }
-      if (moduleInQuad >= moduleMinXE && moduleInQuad <= moduleMaxXE) {
-        eX[quad] += (*it)->ex();
-        eY[quad] += (*it)->ey();
-        if ( (*it)->ex() >= m_jemEtSaturation ) m_overflowX = 1;
-        if ( (*it)->ey() >= m_jemEtSaturation ) m_overflowY = 1;
-      } 
-    }  // Right crate?
-  }   // Loop over JEMs
+      eT[quad] += (*it)->et();
+      eX[quad] += (*it)->ex();
+      eY[quad] += (*it)->ey();
+      /** Check for saturation of inputs */
+      if ( (*it)->et() >= m_jemEtSaturation ) m_overflowT = 1;
+      if ( (*it)->ex() >= m_jemEtSaturation ) m_overflowX = 1;
+      if ( (*it)->ey() >= m_jemEtSaturation ) m_overflowY = 1;
+    }
+  }
   
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
@@ -109,7 +100,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   
 }
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, float etaMaxXE, float etaMaxTE, bool restricted):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, float etaMax, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -124,19 +115,13 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   if (m_crate > 1) return;
 
   /** Added for restricted eta triggers in Run 2 */
-  int moduleMinXE = 0;
-  if (etaMaxXE <= 2.41) moduleMinXE = 1;
-  if (etaMaxXE <= 1.61) moduleMinXE = 2;
-  if (etaMaxXE <= 0.81) moduleMinXE = 3;
-  int moduleMaxXE = 7 - moduleMinXE;
-
-  int moduleMinTE = 0;
-  if (etaMaxTE <= 2.41) moduleMinTE = 1;
-  if (etaMaxTE <= 1.61) moduleMinTE = 2;
-  if (etaMaxTE <= 0.81) moduleMinTE = 3;
-  int moduleMaxTE = 7 - moduleMinTE;
-
-  if (moduleMinXE > 0 || moduleMinTE > 0) m_restricted = true;
+  int moduleMin = 0;
+  if (etaMax <= 2.41) moduleMin = 1;
+  if (etaMax <= 1.61) moduleMin = 2;
+  if (etaMax <= 0.81) moduleMin = 3;
+  int moduleMax = 7 - moduleMin;
+  
+  if (moduleMin > 0) m_restricted = true;
 
   /** Summing within a crate proceeds as follows: <br>
          unsigned 14 bit Ex, Ey, Et sums are formed for each half crate<br>
@@ -151,19 +136,15 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   DataVector<EnergyCMXData>::const_iterator it = JEMs->begin();
   for ( ; it != JEMs->end(); it++) {
     int moduleInQuad = (*it)->module() % 8;
-    if ((unsigned int)(*it)->crate() == m_crate) {
+    if ((unsigned int)(*it)->crate() == m_crate && moduleInQuad >= moduleMin && moduleInQuad <= moduleMax) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
-
-      if (moduleInQuad >= moduleMinTE && moduleInQuad <= moduleMaxTE) {
-        eT[quad] += (*it)->Et();
-        if ( (*it)->Et() >= m_jemEtSaturation ) m_overflowT = 1;
-      }
-      if (moduleInQuad >= moduleMinXE && moduleInQuad <= moduleMaxXE) {
-        eX[quad] += (*it)->Ex();
-        eY[quad] += (*it)->Ey();
-        if ( (*it)->Ex() >= m_jemEtSaturation ) m_overflowX = 1;
-        if ( (*it)->Ey() >= m_jemEtSaturation ) m_overflowY = 1;
-      } 
+      eT[quad] += (*it)->Et();
+      eX[quad] += (*it)->Ex();
+      eY[quad] += (*it)->Ey();
+      /** Check for saturation of inputs */
+      if ( (*it)->Et() >= m_jemEtSaturation ) m_overflowT = 1;
+      if ( (*it)->Ex() >= m_jemEtSaturation ) m_overflowX = 1;
+      if ( (*it)->Ey() >= m_jemEtSaturation ) m_overflowY = 1;
     }
   }
   
@@ -236,57 +217,57 @@ CrateEnergy::~CrateEnergy(){
 }
 
 /** return crate number */
-unsigned int CrateEnergy::crate() const {
+unsigned int CrateEnergy::crate(){
   return m_crate;
 }
 
 /** return crate Et */
-int CrateEnergy::et() const {
+int CrateEnergy::et() {
   return m_crateEt;
 }
 
 /** return crate Ex */
-int CrateEnergy::ex() const {
+int CrateEnergy::ex() {
   return m_crateEx;
 }
 
 /** return crate Ey */
-int CrateEnergy::ey() const {
+int CrateEnergy::ey() {
   return m_crateEy;
 }
 
 /** return Et overflow bit */
-unsigned int CrateEnergy::etOverflow() const {
+unsigned int CrateEnergy::etOverflow() {
   return m_overflowT;
 }
 
 /** return Ex overflow bit */
-unsigned int CrateEnergy::exOverflow() const {
+unsigned int CrateEnergy::exOverflow() {
   return m_overflowX;
 }
 
 /** return Ey overflow bit */
-unsigned int CrateEnergy::eyOverflow() const {
+unsigned int CrateEnergy::eyOverflow() {
   return m_overflowY;
 }
 
 /** Full or Restricted eta range */
-bool CrateEnergy::restricted() const {
+bool CrateEnergy::restricted() {
   return m_restricted;
 }
 
 /** return crate Ex in 15-bit twos-complement format (hardware format) */
-unsigned int CrateEnergy::exTC() const {
+unsigned int CrateEnergy::exTC() {
   return encodeTC(m_crateEx);
 }
 
 /** return crate Ey in 15-bit twos-complement format (hardware format) */
-unsigned int CrateEnergy::eyTC() const {
+unsigned int CrateEnergy::eyTC() {
   return encodeTC(m_crateEy);
 }
 
 /** encode int as 15-bit twos-complement format (hardware Ex/Ey format) */
-unsigned int CrateEnergy::encodeTC(int input) const {
+unsigned int CrateEnergy::encodeTC(int input) {
   unsigned int value;
 
   if (input > 0) {
@@ -301,13 +282,13 @@ unsigned int CrateEnergy::encodeTC(int input) const {
 }
 
 /** decode 15-bit twos-complement format (hardware Ex/Ey format) as int */
-int CrateEnergy::decodeTC(unsigned int input) const {
+int CrateEnergy::decodeTC(unsigned int input) {
 
   int mask = (1<<m_sumBitsTC) - 1;
   int value = input&mask;
 
   if ((value >> (m_sumBitsTC - 1))) {
-    value += (~0U) << m_sumBitsTC;
+    value += (-1) << m_sumBitsTC;
   }
 
   return value;

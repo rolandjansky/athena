@@ -38,7 +38,7 @@ const int CPAlgorithm::m_maxIsol = 0x3F;
 const double CPAlgorithm::m_maxEta = 2.5;
 
 
-LVL1::CPAlgorithm::CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttContainer,
+LVL1::CPAlgorithm::CPAlgorithm( double eta, double phi, const std::map<int, CPMTower *>* ttContainer,
                                 ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice):
   m_configSvc(config),
   m_Core(0),
@@ -48,8 +48,8 @@ LVL1::CPAlgorithm::CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttC
   m_HadCore(0),
   m_HadIsol(0),
   m_EtMax(false),
-  m_Hits(0)
-  //m_debug(false)
+  m_Hits(0),
+  m_debug(false)
 {
   /** RoI coordinates are centre of window, while key classes are designed
       for TT coordinates - differ by 0.5* TT_size. Using wrong coordinate
@@ -94,7 +94,7 @@ LVL1::CPAlgorithm::CPAlgorithm( double eta, double phi, const CPMTowerMap_t* ttC
     for (int phiOffset = -1; phiOffset <= 2; phiOffset++) {
       double tempPhi = m_refPhi + phiOffset*M_PI/32;
       int key = get.ttKey(tempPhi, tempEta);
-      CPMTowerMap_t::const_iterator tt = ttContainer->find(key);
+      std::map<int, CPMTower*>::const_iterator tt = ttContainer->find(key);
       if (tt != ttContainer->end() && fabs(tempEta) < m_maxEta) {
         // Get the TT ET values once here, rather than repeat function calls
         int emTT = 0;
@@ -294,58 +294,58 @@ bool LVL1::CPAlgorithm::tauAlgorithm(){
 // Public accessor methods follow
 
 /** Returns RoI Core ET */
-int LVL1::CPAlgorithm::Core() const {
+int LVL1::CPAlgorithm::Core() {
   return m_Core;
 }
 
 /** Returns EM cluster ET, limited to 8 bits */
-int LVL1::CPAlgorithm::EMClus() const {
+int LVL1::CPAlgorithm::EMClus() {
   return ( (m_EMClus < m_maxClus) ? m_EMClus : m_maxClus );
 }
 
 /** Returns Tau cluster ET, limited to 8 bits */
-int LVL1::CPAlgorithm::TauClus() const {
+int LVL1::CPAlgorithm::TauClus() {
   return ( (m_TauClus < m_maxClus) ? m_TauClus : m_maxClus );
 }
 
 /** Returns EM isolation ET, limited to 6 bits */
-int LVL1::CPAlgorithm::EMIsol() const {
+int LVL1::CPAlgorithm::EMIsol() {
   return ( (m_EMIsol < m_maxIsol) ? m_EMIsol : m_maxIsol );
 }
 
 /** Returns Had isolation ET, limited to 6 bits */
-int LVL1::CPAlgorithm::HadIsol() const {
+int LVL1::CPAlgorithm::HadIsol() {
   return ( (m_HadIsol < m_maxIsol) ? m_HadIsol : m_maxIsol );
 }
 
 /** Returns Had veto ET (inner isolation sum), limited to 6 bits */
-int LVL1::CPAlgorithm::HadVeto() const {
+int LVL1::CPAlgorithm::HadVeto() {
   return ( (m_HadCore < m_maxIsol) ? m_HadCore : m_maxIsol );
 }
 
 /** Does this window pass the local ET maximum condition */
-bool LVL1::CPAlgorithm::isEtMax() const {
+bool LVL1::CPAlgorithm::isEtMax() {
   return m_EtMax;
 }
 
 /** Returns eta coordinate of RoI */
-double LVL1::CPAlgorithm::eta() const {
+double LVL1::CPAlgorithm::eta() {
   return m_eta;
 }
 
 /** Returns phi coordinate of RoI, using standard ATLAS convention */
-double LVL1::CPAlgorithm::phi() const {
+double LVL1::CPAlgorithm::phi() {
   return ( (m_phi <= M_PI) ? m_phi : m_phi - 2.*M_PI);
 }
 
 /** Returns hitword for this window */
-unsigned int LVL1::CPAlgorithm::Hits() const {
+unsigned int LVL1::CPAlgorithm::Hits() {
   return m_Hits;
 }
 
 
 /** Returns RoI word for this window */
-unsigned int LVL1::CPAlgorithm::RoIWord() const {
+unsigned int LVL1::CPAlgorithm::RoIWord() {
   unsigned int roiWord = (TrigT1CaloDefs::cpRoIType<<30);
   
   CoordToHardware convertor;
@@ -357,7 +357,7 @@ unsigned int LVL1::CPAlgorithm::RoIWord() const {
   return roiWord;
 }
 
-EmTauROI* LVL1::CPAlgorithm::produceExternal() const {
+EmTauROI* LVL1::CPAlgorithm::produceExternal(){
   
   L1DataDef def;
   std::vector<unsigned int> algorithmType(TrigT1CaloDefs::numOfCPThresholds);

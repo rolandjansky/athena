@@ -35,28 +35,28 @@ System CMM logic is done in EnergyTrigger*/
 class CrateEnergy {
 
 public:
-  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
-  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, float etaMax = 5., bool restricted = false);
+  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, float etaMax = 5., bool restricted = false);
   CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
               unsigned int eyTC, unsigned int overflowT, unsigned int overflowX,
 	      unsigned int overflowY, bool restricted = false);
   ~CrateEnergy();
 
 public:
-  unsigned int crate() const;
+  unsigned int crate();
   /** return et, ex, ey sums */
-  int et() const;
-  int ex() const;
-  int ey() const;
+  int et();
+  int ex();
+  int ey();
   /** 15 bit twos-complement format */
-  unsigned int exTC() const;
-  unsigned int eyTC() const;
+  unsigned int exTC();
+  unsigned int eyTC();
   /** Overflow bits */
-  unsigned int exOverflow() const;
-  unsigned int eyOverflow() const;
-  unsigned int etOverflow() const;
+  unsigned int exOverflow();
+  unsigned int eyOverflow();
+  unsigned int etOverflow();
   /** Full or restricted eta range? */
-  bool restricted() const;
+  bool restricted();
 private:
   unsigned int m_crate;
   unsigned int m_crateEt;
@@ -72,8 +72,8 @@ private:
   static const unsigned int m_jemEtSaturation=4032;
 
 private:
-  unsigned int encodeTC(int input) const;
-  int decodeTC(unsigned int input) const;
+  unsigned int encodeTC(int input);
+  int decodeTC(unsigned int input);
 
 };
 
