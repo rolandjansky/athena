@@ -11,7 +11,6 @@ use CLIDSvc              CLIDSvc-*                  Control
 
 # use AthenaPoolUtilities  AthenaPoolUtilities-*	    Database/AthenaPOOL
 use AthenaPoolCnvSvc	 AthenaPoolCnvSvc-*	    Database/AthenaPOOL
-use AthAllocators        AthAllocators-*            Control
 use DataModelAthenaPool	 DataModelAthenaPool-*      Control
 use EventCommonTPCnv     EventCommonTPCnv-*         Event
 
@@ -23,12 +22,12 @@ use MissingETEvent       MissingETEvent-*	    Reconstruction
 
 use ParticleEventTPCnv   ParticleEventTPCnv-*       PhysicsAnalysis/AnalysisCommon
 use TrkEventTPCnv        TrkEventTPCnv-*            Tracking/TrkEventCnv
-use RecEvent		 RecEvent-*		    Reconstruction
 # use  AtlasCLHEP                 AtlasCLHEP-*                    External
 
 private
-use AthenaKernel         AthenaKernel-*             Control
 use AtlasReflex		 AtlasReflex-*		    External
+use AthenaKernel         AthenaKernel-*             Control
+use AthAllocators        AthAllocators-*            Control
 use RootConversions      RootConversions-*          Database/AthenaPOOL
 end_private
 

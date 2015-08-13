@@ -21,9 +21,6 @@
 // RecTPCnv includes
 #include "RecTPCnv/Muon_p1.h"
 
-#include "AthAllocators/ArenaHandle.h"
-#include "AthAllocators/ArenaHeapAllocator.h"
-
 #include "muonEvent/CaloEnergy.h"
 
 
@@ -61,9 +58,6 @@ class MuonCnvARA_p1 : public T_AthenaPoolTPCnvBase<Analysis::Muon, Muon_p1>
   /////////////////////////////////////////////////////////////////// 
   // Protected method: 
   /////////////////////////////////////////////////////////////////// 
-private: 
-
-  SG::ArenaHandle<CaloEnergy, SG::ArenaHeapAllocator> m_handle;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

@@ -30,8 +30,6 @@
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_p1.h"
 #include "RecTPCnv/MuonSpShowerContainerCnv_p1.h"
 
-#include "RecTPCnv/RecoTimingObjCnv_p1.h"
-
 // DECLARE_TPCNV_FACTORY(MuonContainerCnvARA_p1,
 //                       Analysis::MuonContainer,
 //                       MuonContainer_p1,
@@ -134,7 +132,3 @@ DECLARE_TPCNV_FACTORY(MuonSpShowerContainerCnv_p1,
                       MuonSpShowerContainer_p1,
                       Athena::TPCnvVers::Current)
                       
-DECLARE_TPCNV_FACTORY(RecoTimingObjCnv_p1,
-                      RecoTimingObj,
-                      RecoTimingObj_p1,
-                      Athena::TPCnvVers::Current)

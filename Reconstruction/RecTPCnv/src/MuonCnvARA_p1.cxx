@@ -34,6 +34,9 @@
 #include "RecTPCnv/DepositInCaloCnv_p1.h"
 #include "RecTPCnv/MuonCnvARA_p1.h"
 
+#include "AthAllocators/ArenaHandle.h"
+#include "AthAllocators/ArenaHeapAllocator.h"
+
 typedef ElementLinkCnv_p1<ElementLink<Rec::TrackParticleContainer> > TrackLinkCnv_t;
 typedef ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > ClusterLinkCnv_t;
 
@@ -142,8 +145,8 @@ void MuonCnvARA_p1::persToTrans( const Muon_p1* pers,
    unsigned short tag    = static_cast<unsigned short>(pers->m_caloEnergyLoss.m_fsrCandidateEnergy);
    float fsrEnergy       = pers->m_caloEnergyLoss.m_fsrCandidateEnergy;
 
-   // xxx
-   CaloEnergy * caloEnergy  = new (m_handle.allocate()) CaloEnergy(deltaE, sigma, sigmaM, sigmaP, elossT, caloLR, tag) ;
+   SG::ArenaHandle<CaloEnergy, SG::ArenaHeapAllocator> handle;
+   CaloEnergy * caloEnergy  = new (handle.allocate()) CaloEnergy(deltaE, sigma, sigmaM, sigmaP, elossT, caloLR, tag) ;
    caloEnergy->set_fsrCandidateEnergy ( fsrEnergy );
    std::vector<DepositInCalo> deposits;
    deposits.reserve( pers->m_caloEnergyLoss.m_deposits.size() );

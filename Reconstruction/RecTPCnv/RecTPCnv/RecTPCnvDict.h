@@ -58,11 +58,15 @@
 #include "RecTPCnv/MuonSpShower_p1.h"
 #include "RecTPCnv/MuonSpShowerContainer_p1.h"
 
-#include "RecEvent/RecoTimingObj.h"
-#include "RecTPCnv/RecoTimingObj_p1.h"
-
 extern "C" {
   void caloenergy_cnv_p2_register_streamer();
 }
+
+class CaloEnergyCnv_p2_register_streamer
+{
+public:
+  static
+  void reg() { caloenergy_cnv_p2_register_streamer(); }
+};
 
 #endif //RECTPCNV_RECTPCNVCNVDICT_H
