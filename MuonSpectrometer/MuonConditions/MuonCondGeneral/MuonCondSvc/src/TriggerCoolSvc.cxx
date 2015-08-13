@@ -112,7 +112,12 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
 
     std::vector<char> sbuf(size);
 
-    if (sbuf.size()>= size) fread(&sbuf[0],size,1,f);
+    if (sbuf.size()>= size) {
+       size_t readbytes = 0;
+       readbytes = fread(&sbuf[0],size,1,f);
+       if(readbytes == 0)
+         m_log << MSG::ERROR << "Empty file read!" << size << endreq;
+    }
     
     fclose (f);
     
@@ -234,7 +239,10 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
     fseek (f, 0L, SEEK_SET);
     m_log << MSG::INFO << "Input file size is " << size << endreq;
     std::vector<char> sbuf(size);
-    fread(&sbuf[0],size,1,f);
+    size_t readbytes = 0;
+    readbytes = fread(&sbuf[0],size,1,f);
+    if(readbytes == 0)
+      m_log << MSG::ERROR << "Empty file read!" << size << endreq;
     fclose (f);
     
     std::string sdata_Th0(sbuf.begin(),sbuf.begin()+size);

@@ -194,14 +194,17 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
     }
     if (i==toSkip) {
       // region number
-      if (sizeof(header)>=sizeof(pch)) strcpy(header, pch);
-      
-      if (sizeof(header)>=sizeof(pch)+1) strcat(header, ",");
+      if (strlen(header)+strlen(pch) <= sizeof(header)) strcpy(header, pch);
+      else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+      if (strlen(header)+1 <= sizeof(header)) strcat(header, ",");
+      else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
     }
     if (i==toSkip+1) {
       // number of rt points
-      if (sizeof(header)>=sizeof(pch))  strcat(header, pch);
-      if (sizeof(header)>=sizeof(pch)+1) strcat(header, " ");
+      if (strlen(header)+strlen(pch) <= sizeof(header))  strcat(header, pch);
+      else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+      if (strlen(header)+1 <= sizeof(header)) strcat(header, " ");
+      else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
     }
     pch = strtok (NULL, " ");
     i++;
@@ -212,7 +215,7 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
 
   if (f != NULL)   {
     log << MSG::INFO << "Input file size is " << size << endreq;
-    char pack[1000];
+    char pack[1000]={""};
     while(!feof(f))
       {
 	float rad; float sigma; float time;
@@ -222,8 +225,10 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
 	if (ret!=0){
 	  char * xmlt0;
 	  asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
-	  if (sizeof(pack)>=sizeof(xmlt0)) strcpy(pack,xmlt0);
-	  if (sizeof(header)>=sizeof(pack)) strcat(header,pack);
+	  if (strlen(pack)+strlen(xmlt0) <= sizeof(pack) ) strcpy(pack,xmlt0);
+	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	  if (strlen(header)+strlen(pack) <= sizeof(header) ) strcat(header,pack);
+	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
 	}
       }
 
@@ -342,6 +347,10 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
   log << MSG::INFO << "PutFile for file " << filename << " folder " <<
     folder << " chan " << chan << " technology " << tech << endreq;
   FILE* f = fopen (filename.c_str(),"rb");
+  if(!f){
+    log << MSG::ERROR << "Cannot open file or empty" << filename << endreq;
+    return StatusCode::FAILURE;
+  }
   fseek (f, 0L, SEEK_END);
   int size = ftell (f);
   fseek (f, 0L, SEEK_SET);
@@ -349,7 +358,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
   std::string sdata;
   if (size!=0)   {
     log << MSG::INFO << "Input file size is " << size << endreq;
-    char pack[1000];
+    char pack[1000]={""};
     while(!feof(f)){
       
       char line[300];
@@ -366,9 +375,11 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
 	  if (i<11) {
 	    //printf ("%s\n",pch);
 	    //name=pch;
-	    if (sizeof(pack)>=sizeof(pch)) strcpy(pack,pch);
-	    if (sizeof(pack)>=sizeof(pch)+1)strcat(pack, ",");
-	    if (pack != NULL) {
+	    if (strlen(pack)+strlen(pch) <= sizeof(pack) ) strcpy(pack,pch);
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack)+1 <= sizeof(pack) ) strcat(pack, ",");
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack) != 0) {
 	      sdata += pack;
 	    }
 	  }
@@ -402,6 +413,10 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
    // transform to a string
   
   FILE* f = fopen (filename.c_str(),"rb");
+  if(!f){
+    log << MSG::ERROR << "Cannot open file or empty" << filename << endreq;
+    return StatusCode::FAILURE;
+  }
   fseek (f, 0L, SEEK_END);
   int size = ftell (f);
   fseek (f, 0L, SEEK_SET);
@@ -426,38 +441,46 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
       char * pch;
       printf ("Splitting string \"%s\" in tokens:\n",line);
       pch = strtok (line,",");
-      char pack[1000];
+      char pack[1000]={""};
       while (pch != NULL)
 	{
 	  if (i==1) {
 	    printf ("%s\n",pch);
 	    //name=pch;
-	    if (sizeof(pack)>=sizeof(pch)) strcpy(pack,pch);
-	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
+	    if (strlen(pack)+strlen(pch) <= sizeof(pack)) strcpy(pack,pch);
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack)+1 <= sizeof(pack)) strcat(pack, ",");
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
 	  }
 	   if (i==4) {
 	    printf ("%s\n",pch);
 	    //mlayer=pch;
-	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
-	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
+	    if (strlen(pack)+strlen(pch) <= sizeof(pack)) strcat(pack,pch);
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack)+1 <= sizeof(pack)) strcat(pack, ",");
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
 	  }
 	   if (i==5) {
 	    printf ("%s\n",pch);
 	    //layer=pch;
-	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
-	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
+	    if (strlen(pack)+strlen(pch) <= sizeof(pack)) strcat(pack,pch);
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack)+1 <= sizeof(pack)) strcat(pack, ",");
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
 	  }
 	    if (i==6) {
 	    printf ("%s\n",pch);
 	    //tube=pch;
-	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
-	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
+	    if (strlen(pack)+strlen(pch) <= sizeof(pack)) strcat(pack,pch);
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	    if (strlen(pack)+1 <= sizeof(pack)) strcat(pack, ",");
+	    else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
 	  }
-	    i++;
+	  i++;
 	  pch = strtok (NULL, " ,");
 	}
       
-      if (sizeof(pack)!=0) sdata += pack;
+      if (strlen(pack)!=0) sdata += pack;
       std::cout<< sdata<< std::endl;
 
     }
@@ -493,18 +516,17 @@ StatusCode MdtCoolStrSvc::getFile(const std::string& folder, const int chan,
   if (file!="") rfile=file;
 
   FILE* f = fopen (rfile.c_str(),"wb");
-  if (f!=NULL) {
-    int size=data.size();
-    fwrite(data.c_str(),size,1,f);
-    log << MSG::INFO << "getFile: written data of length " << size <<
-    " into file " << rfile << endreq;
-    fclose (f);
-  } else {
-    log << MSG::ERROR << "Failed to open file " << rfile << " for write" <<
-      endreq;
-    fclose (f);
+  if(!f){
+    log << MSG::ERROR << "Cannot open file or empty" << rfile << endreq;
     return StatusCode::FAILURE;
   }
+
+  int size=data.size();
+  fwrite(data.c_str(),size,1,f);
+  log << MSG::INFO << "getFile: written data of length " << size <<
+  " into file " << rfile << endreq;
+  fclose (f);
+
   return StatusCode::SUCCESS;
 }
 

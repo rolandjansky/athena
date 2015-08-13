@@ -44,16 +44,31 @@ using namespace std;
 namespace MuonCalib {
   CscCoolStrSvc::CscCoolStrSvc(const string& name, ISvcLocator* svc) :
     AthService(name,svc),
-    m_log(msgSvc(),name),  
+    p_detstore(nullptr),
+    m_log(msgSvc(),name), 
+    m_cscId(nullptr),
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
     m_dbCache(0),
+    m_rmsCondData(nullptr),
+    m_slopeCondData(nullptr),
+    m_noiseCondData(nullptr),
+    m_f001CondData(nullptr),
+    m_pedestalCondData(nullptr),
+    m_t0PhaseCondData(nullptr),
+    m_t0BaseCondData(nullptr),
+    m_statusCondData(nullptr),
     m_debug(false),
     m_verbose(false),
     m_numFailedRequests(0),
     m_maxChamberCoolChannel(32),
     m_maxLayerHash(255),
-    m_defaultChanStatusName("status")
+    m_defaultChanStatusName("status"),
+    m_accfloats(nullptr),
+    m_accInts(nullptr),
+    m_accUints(nullptr),
+    m_accBools(nullptr),
+    m_accVoid(nullptr)
   {
     //declare properties
 
@@ -78,6 +93,7 @@ namespace MuonCalib {
 
   //-------------------------------------------------------------------
   CscCoolStrSvc::~CscCoolStrSvc() {
+    if(m_dbCache != 0) m_dbCache->clear();
     delete m_dbCache;
   }
 
@@ -1497,13 +1513,14 @@ namespace MuonCalib {
     unsigned int wireLay =          ((onlineId>>9)&0x3);
     unsigned int measuresPhi =      ((onlineId >> 8)&0x1);
 
-    if(stationName > 1
-        || phi > 7
-        || eta > 1
-        || wireLay > 3
-        || measuresPhi > 1
-      )
-      return StatusCode::RECOVERABLE;
+//    according to coverity this if never becomes true (defect 11296)
+//    if(stationName > 1
+//        || phi > 7
+//        || eta > 1
+//        || wireLay > 3
+//        || measuresPhi > 1
+//      )
+//      return StatusCode::RECOVERABLE;
 
     layerHash = m_layerHashes[stationName][eta][phi][wireLay][measuresPhi];
 

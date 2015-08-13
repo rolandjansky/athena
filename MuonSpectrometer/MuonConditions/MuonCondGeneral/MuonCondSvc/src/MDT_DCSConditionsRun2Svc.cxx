@@ -62,7 +62,7 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
       else
 	{
 	  
-	  msg(MSG::INFO)<<"MDT_DCSConditionsRun2Tool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
+	  msg(MSG::DEBUG)<<"MDT_DCSConditionsRun2Tool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
 	}
       std::vector<std::string> folderNames;
       
@@ -77,10 +77,10 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
 	{
 	  ++ic;
-	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
+	  msg(MSG::DEBUG)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+	    msg(MSG::DEBUG)<<"     found in the DetStore"<<endreq;
 	    const DataHandle<CondAttrListCollection> MDTDCSData;
 	    if (detStore->regFcn(&IMDT_DCSConditionsRun2Svc::initInfo,
 				 dynamic_cast<IMDT_DCSConditionsRun2Svc *>(this),
@@ -89,7 +89,7 @@ StatusCode MDT_DCSConditionsRun2Svc::initialize()
 	      {
 		msg(MSG::WARNING)<<"Unable to register call back for initDCSInfo against folder <"<<(*ifld)<<">";
 	      }
-	    else msg(MSG::INFO)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+	    else msg(MSG::DEBUG)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
 	  }
 	  else
 	    {   
@@ -113,17 +113,17 @@ StatusCode MDT_DCSConditionsRun2Svc::finalize()
 
 StatusCode MDT_DCSConditionsRun2Svc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endreq;
+  msg(MSG::DEBUG) << "queryInterface Start" << endreq;
   if(IMDT_DCSConditionsRun2Svc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endreq;
-      msg(MSG::INFO) << "OK***************************" << endreq;
+      msg(MSG::DEBUG) << "versionMatch=true" << endreq;
+      msg(MSG::DEBUG) << "OK***************************" << endreq;
       *ppvInterface = this;      
     } else if ( IMDTConditionsSvc::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<IMDTConditionsSvc*>(this);
-      msg(MSG::INFO) << "service cast***************************" << endreq;
+      msg(MSG::DEBUG) << "service cast***************************" << endreq;
     } else {
-      msg(MSG::INFO) << "cannot find the interface!***************************" << endreq;
+      msg(MSG::DEBUG) << "cannot find the interface!***************************" << endreq;
       
       return AthService::queryInterface(riid, ppvInterface);
     }
@@ -136,8 +136,8 @@ StatusCode MDT_DCSConditionsRun2Svc::queryInterface(const InterfaceID& riid, voi
 
 StatusCode MDT_DCSConditionsRun2Svc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initDCSInfo has been called"<<endreq;
-  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
+  msg(MSG::DEBUG)<<"initDCSInfo has been called"<<endreq;
+  msg(MSG::DEBUG)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
   
   if(m_dcsInfofromCool)
     {
