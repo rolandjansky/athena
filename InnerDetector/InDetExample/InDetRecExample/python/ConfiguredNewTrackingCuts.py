@@ -433,6 +433,18 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesGapMax            = 1
       self.__useTRT                  = False
 
+    # --- setup for beamspot determination based on vertices
+    if mode == "VtxBeamSpot" :
+      self.__extension               = "VtxBeamSpot"
+      self.__seedFilterLevel         = 1
+      self.__minPT                   = 0.900 * Units.GeV
+      self.__minClusters             = 9
+      self.__maxPixelHoles           = 0
+      self.__radMax                  = 320. * Units.mm
+      self.__nHolesMax               = 2
+      self.__nHolesGapMax            = 1
+      self.__useTRT                  = False
+
   # --- changes for cosmics
     if mode == "Cosmics":
       self.__minPT            = 0.500 * Units.GeV

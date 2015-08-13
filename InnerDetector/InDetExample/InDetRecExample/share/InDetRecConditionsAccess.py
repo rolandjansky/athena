@@ -154,6 +154,19 @@ if DetFlags.haveRIO.SCT_on():
             SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
     except:
         pass
+    
+    try:
+        if InDetFlags.ForceCoolVectorPayload():
+            SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+    except:
+        pass
+        
+    try:
+        if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
+            print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+            SCTConfigurationFolderPath=''
+    except:
+        pass
     # Load folders that have to exist for both MC and Data
     SCTChipConfigurationPath=SCTConfigurationFolderPath+'Chip'
     SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
