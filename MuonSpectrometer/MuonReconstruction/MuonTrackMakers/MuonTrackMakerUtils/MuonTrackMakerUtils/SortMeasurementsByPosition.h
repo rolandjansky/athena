@@ -12,6 +12,7 @@
 #include <iostream>
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "CxxUtils/fpcompare.h"
 
 namespace Muon {
 
@@ -48,7 +49,7 @@ namespace Muon {
   public:
     SortTSOSByDistanceToPars(const Trk::TrackParameters* pars) : m_distToPars(pars), m_dummyPosition(0.,0.,0.) {}
     double operator()(const std::pair<bool,const Trk::TrackStateOnSurface*>& tsos1, const std::pair<bool,const Trk::TrackStateOnSurface*>& tsos2){
-      return m_distToPars( position(*tsos1.second) ) < m_distToPars( position(*tsos2.second) );
+      return CxxUtils::fpcompare::less (m_distToPars( position(*tsos1.second) ), m_distToPars( position(*tsos2.second) ));
     }
   private:
     Amg::Vector3D position( const Trk::TrackStateOnSurface& tsos ) {
