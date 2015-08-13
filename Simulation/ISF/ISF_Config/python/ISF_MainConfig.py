@@ -181,15 +181,13 @@ def getInput_geantinos(name="ISF_Input_geantinos", **kwargs):
 
 ############## Simulator: GenericSimulator ###############
 def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
-    kwargs.setdefault("InputHardScatterCollection", "BeamTruthEvent")
-    kwargs.setdefault("OutputHardScatterTruthCollection", "TruthEvent")
-    kwargs.setdefault("InputConverter", "ISF_InputConverter")
-    kwargs.setdefault("ParticleBroker", "ISF_ParticleBrokerSvc")
-    kwargs.setdefault("TruthRecordService", ISF_Flags.TruthService.get_Value())
-    kwargs.setdefault("SimHitService", "ISF_SimHitService")
-    kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
-    kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
-    kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
+    kwargs.setdefault("ParticleBroker"          , "ISF_ParticleBrokerSvc"              ) #ISF_Flags.ParticleBroker.get_Value() )
+    kwargs.setdefault("TruthRecordService"      , ISF_Flags.TruthService.get_Value()   )
+    kwargs.setdefault("SimHitService"           , "ISF_SimHitService"                  )
+    kwargs.setdefault("MemoryMonitoringTool"    , "ISF_MemoryMonitor"                  )
+    kwargs.setdefault("DoCPUMonitoring"         , ISF_Flags.DoTimeMonitoring()         )
+    kwargs.setdefault("DoMemoryMonitoring"      , ISF_Flags.DoMemoryMonitoring()       )
+    kwargs.setdefault("ValidationOutput"        , ISF_Flags.ValidationMode()           )
 
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
@@ -234,27 +232,6 @@ def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
 def getKernel_FullG4(name="ISF_Kernel_FullG4", **kwargs):
     return getKernel_GenericG4Only(name, **kwargs)
 
-############## Simulator: FullG4_longLived ###############
-def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector'  ] )
-    kwargs.setdefault("InputConverter"              ,   'ISF_LongLivedInputConverter'          )
-    return getKernel_GenericG4Only(name, **kwargs)
-
-############## Simulator: FullG4_IDOnly ###############
-def getKernel_FullG4_IDOnly(name="ISF_Kernel_FullG4_IDOnly", **kwargs):
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    return getKernel_GenericG4Only(name, **kwargs)
-
-############## Simulator: FullG4_IDCalo ###############
-def getKernel_FullG4_IDCalo(name="ISF_Kernel_FullG4_IDCalo", **kwargs):
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    return getKernel_GenericG4Only(name, **kwargs)
-
 ############## Simulator: PassBackG4 ###############
 def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
     kwargs.setdefault("ParticleBroker"              , "ISF_ParticleBrokerSvcNoOrdering"  )
@@ -271,25 +248,30 @@ def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
     kwargs.setdefault("EventFilterTools"            , [ 'ISF_CosmicEventFilter']   )
     return getKernel_FullG4(name, **kwargs)
 
-############## Simulator: MC12G4 ###############
-def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
-    # Legacy only
-    return getKernel_FullG4(name, **kwargs)
-
 ############## Simulator: MC12G4_longLived ###############
 def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_LongLived(name, **kwargs)
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]  )
+    kwargs.setdefault("ParticleBroker"              ,   'ISF_LongLivedParticleBrokerSvc'       )
+    return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: MC12G4 ###############
+def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
+    return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: MC12G4_IDOnly ###############
 def getKernel_MC12G4_IDOnly(name="ISF_Kernel_MC12G4_IDOnly", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_IDOnly(name, **kwargs)
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: MC12G4_IDCalo ###############
 def getKernel_MC12G4_IDCalo(name="ISF_Kernel_MC12G4_IDCalo", **kwargs):
-    # Legacy only
-    return getKernel_FullG4_IDCalo(name, **kwargs)
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: ATLFASTII ###############
 def getKernel_ATLFASTII(name="ISF_Kernel_ATLFASTII", **kwargs):
@@ -347,9 +329,6 @@ def getKernel_Fatras_newExtrapolation_IDOnly(name="ISF_Kernel_Fatras_newExtrapol
 
 ############## Simulator: ATLFASTIIF fast pileup ###############
 def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
-    kwargs.setdefault("InputPileupCollection", "GEN_EVENT_PU")
-    kwargs.setdefault("OutputPileupTruthCollection", "TruthEvent_PU")
-
     kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultParticleKillerSelector' ]    )
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
@@ -362,6 +341,7 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
                                                        'ISF_DefaultFastCaloSimSelector' ]       )
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultFatrasSelector' ]            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]    )
+
     # set the simFlags accordingly
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_PileUp"
@@ -435,7 +415,7 @@ def getKernel_FatrasGammaCones_FastCalo(name="ISF_Kernel_FatrasGammaCones_FastCa
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_WithinEta5FastCaloSimSelector'   ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector'   ] )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector'   ] )
-    return getKernel_GenericSimulatorNoG4(name, **kwargs)
+    return getKernel_GenericSimulator(name, **kwargs)
 
 ############## Simulator: G4BHadronsOnly_FastCalo ###############
 def getKernel_G4BHadronsOnly_FastCalo(name="ISF_Kernel_G4BHadronsOnly_FastCalo", **kwargs):
@@ -553,14 +533,12 @@ def getKernel_G4JPsiLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4JPsiLepton
 def getKernel_G4ZLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsCone_FatrasID_FastCalo", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsPositionConeGeant4Selector' ,
-                                                        'ISF_DefaultParticleKillerSelector' ] )
+                                                        'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsDirectionConeGeant4Selector' ,
-                                                        'ISF_EtaGreater5ParticleKillerSimSelector', # Fatras might get upset if this is not used
                                                         'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsPositionConeGeant4Selector' ,
-                                                        'ISF_MuonFatrasSelector',
                                                         'ISF_WithinEta5FastCaloSimSelector',
                                                         'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_SubDetStickyGeant4SimSelector',
@@ -572,13 +550,11 @@ def getKernel_G4ZLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsCone_
 ############## Simulator: G4ZLeptonsConeSticky_FatrasID_FastCalo ###############
 def getKernel_G4ZLeptonsConeSticky_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsConeSticky_FatrasID_FastCalo", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_GlobalStickyGeant4SimSelector',
-                                                        'ISF_DefaultParticleKillerSelector' ] )
+                                                        'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_GlobalStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsDirectionConeGeant4Selector' ,
-                                                        'ISF_EtaGreater5ParticleKillerSimSelector', # Fatras might get upset if this is not used
                                                         'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_GlobalStickyGeant4SimSelector',
-                                                        'ISF_MuonFatrasSelector',
                                                         'ISF_WithinEta5FastCaloSimSelector',
                                                         'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_GlobalStickyGeant4SimSelector',
@@ -602,20 +578,6 @@ def getKernel_G4ZDecayProducts_FatrasID_FastCalo (name="ISF_Kernel_G4ZDecayProdu
     kwargs.setdefault("MSSimulationSelectors"       , GlobalStickyG4ZDecayProductsSelector + [ 'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulator(name, **kwargs)
-
-
-############## Simulator: ParametricSimulation ###############
-def getKernel_ParametricSimulation(name="ISF_Kernel_ParametricSimulation", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
-    # set the simFlags accordingly (TODO: is this even needed?)
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "ParametricSimulation"
-    return getKernel_GenericSimulatorNoG4(name, **kwargs)
-
 
 # This does not work yet: if the ISF_Flags are set via a preExec it mixes
 #       up the initialization order and simulators do not get configured

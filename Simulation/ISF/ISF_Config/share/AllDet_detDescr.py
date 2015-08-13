@@ -6,7 +6,7 @@ include.block("RecExCond/AllDet_detDescr.py")
 include.block("RecExCommon/AllDet_detDescr.py")
 
 from AthenaCommon.Resilience import protectedInclude
-from AthenaCommon.DetFlags import DetFlags
+
 if DetFlags.detdescr.any_on():
     from AtlasGeoModel import SetGeometryVersion
     from AtlasGeoModel import GeoModelInit
@@ -16,16 +16,14 @@ if DetFlags.detdescr.any_on():
     if DetFlags.detdescr.ID_on():
         protectedInclude("InDetBeamSpotService/BeamCondSvc.py" )
 
-    import os
-    if "AthSimulationBase" not in os.environ.get("CMTEXTRATAGS",""):
-        if DetFlags.detdescr.LAr_on():
-            protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
+    if DetFlags.detdescr.LAr_on():
+        include( "LArDetDescr/LArDetDescr_joboptions.py" )
 
-        if DetFlags.detdescr.Tile_on():
-            protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
+    if DetFlags.detdescr.Tile_on():
+        protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
 
-        if DetFlags.detdescr.Muon_on():
-             protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
+    if DetFlags.detdescr.Muon_on():
+        protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
 
     # MagneticField Service
     if DetFlags.detdescr.BField_on():

@@ -12,18 +12,11 @@ def configureFlagsBase():
         DetFlags.Truth_setOn() # FIXME redundant?
         DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
         DetFlags.Forward_setOff() # Forward dets are off by default
-        DetFlags.geometry.DBM_setOff()
-        DetFlags.geometry.sTGC_setOff()
-        DetFlags.geometry.Micromegas_setOff()
 
     ## Configure tasks
     DetFlags.digitize.all_setOff()
     DetFlags.makeRIO.all_setOff()
-    from G4AtlasApps.SimFlags import simFlags
-    if not (hasattr(simFlags, 'IsEventOverlayInputSim') and simFlags.IsEventOverlayInputSim()):
-        # Unless this is an Overlay input simulation job switch off
-        # the overlay DetFlags.
-        DetFlags.overlay.all_setOff()
+    #DetFlags.overlay.all_setOff() # will soon be needed
     DetFlags.pileup.all_setOff()
     DetFlags.readRDOBS.all_setOff()
     DetFlags.readRDOPool.all_setOff()
@@ -33,11 +26,6 @@ def configureFlagsBase():
     DetFlags.writeBS.all_setOff()
     DetFlags.writeRDOPool.all_setOff()
     DetFlags.writeRIOPool.all_setOff()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if "G4" in ISF_Flags.Simulator():
-        # Short-cut: if G4 is in the simulator name, then it's a pretty
-        # safe assumption that the configuration uses Geant4.
-        ISF_Flags.UsingGeant4 = True
     return
 
 ## methods for Geant4 only simulators
@@ -47,35 +35,11 @@ def configureFlagsFullG4():
     simFlags.SimulationFlavour = "FullG4"
     return
 
-def configureFlagsFullG4_LongLived():
-    configureFlagsFullG4()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "FullG4_LongLived"
-    return
-
-def configureFlagsFullG4_IDOnly():
-    configureFlagsFullG4()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "FullG4_IDOnly"
-    return
-
-def configureFlagsFullG4_IDCalo():
-    configureFlagsFullG4()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "FullG4_IDCalo"
-    return
-
 def configureFlagsPassBackG4():
     configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "PassBackG4"
     return
-
-def configureFlagsCosmicsG4():
-    configureFlagsFullG4()
-    return
-
-## Legacy Geant4 only simulators
 
 def configureFlagsMC12G4():
     configureFlagsFullG4()
@@ -84,19 +48,23 @@ def configureFlagsMC12G4():
     return
 
 def configureFlagsMC12G4_longLived():
-    configureFlagsFullG4_LongLived()
+    configureFlagsMC12G4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_longLived"
     return
 
+def configureFlagsCosmicsG4():
+    configureFlagsMC12G4()
+    return
+
 def configureFlagsMC12G4_IDOnly():
-    configureFlagsFullG4_IDOnly()
+    configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_IDOnly"
     return
 
 def configureFlagsMC12G4_IDCalo():
-    configureFlagsFullG4_IDCalo()
+    configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "MC12G4_IDCalo"
     return
@@ -106,8 +74,6 @@ def configureFlagsMC12G4_IDCalo():
 def configureFlagsATLFASTII():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    ISF_Flags.UsingGeant4 = True
     return
 
 ## methods for simulators which use Fatras + FastCaloSim
@@ -159,8 +125,6 @@ def configureFlagsFastOnly():
 ## methods for simulators which combine Geant4,  Fatras and FastCaloSim
 
 def configureFlagsMultiSimTest():
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    ISF_Flags.UsingGeant4 = True
     return
 
 def configureFlagsG4GammaCones():

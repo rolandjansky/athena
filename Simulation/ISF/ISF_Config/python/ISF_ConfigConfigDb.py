@@ -5,9 +5,51 @@ Configuration database for ISF
 KG Tan, 17/06/2012
 """
 
-from AthenaCommon.CfgGetter import addAlgorithm
+from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
+     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
+     addPropertiesToExcludeIfDefault, \
+     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
+     addTypesOnlyToSkip
 
-# Common algorithms used by jobs
+from AthenaCommon.Constants import *  # FATAL,ERROR etc.
+import AthenaCommon.SystemOfUnits as Units
+
+# Common tools, services and algorithms used by jobs
+addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc",    "ISF_G4PolyconeGeoIDSvc"   )
+addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getAFIIG4PolyconeGeoIDSvc","ISF_AFIIG4PolyconeGeoIDSvc")
+addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc_G4", "ISF_G4PolyconeGeoIDSvc_G4")
+
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIMatEffUpdator",                 "ISF_NIMatEffUpdator")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIPropagator",                    "ISF_NIPropagator")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNITimedExtrapolator",             "ISF_NITimedExtrapolator")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyFastShowerCellBuilderTool", "ISF_LegacyFastShowerCellBuilderTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPileupFastShowerCellBuilderTool", "ISF_PileupFastShowerCellBuilderTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getCaloNoiseTool",                   "ISF_FCS_CaloNoiseTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
+
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNativeFastCaloSimSvc",         "ISF_NativeFastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvc",               "ISF_FastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimPileupSvc",         "ISF_FastCaloSimPileupSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgFastCaloSimSvc", "ISF_FastHitConvFastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcBase",           "ISF_FastCaloSimSvcBase")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",     "ISF_LegacyAFIIFastCaloSimSvc")
+addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvertTool",              "ISF_FastHitConvertTool")
+addAlgorithm("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")
+
+addService("ISF_Geant4Config.ISF_iGeant4Config.getGeant4SimSvc",                        "ISF_Geant4SimSvc")
+addService("ISF_Geant4Config.ISF_iGeant4Config.getFullGeant4SimSvc",                    "ISF_FullGeant4SimSvc")
+addService("ISF_Geant4Config.ISF_iGeant4Config.getPassBackGeant4SimSvc",                "ISF_PassBackGeant4SimSvc")
+
+addService("ISF_Config.ISF_Geant4CommonConfig.getAFIIGeant4SimSvc",                     "ISF_AFIIGeant4SimSvc")
+addService("ISF_Config.ISF_Geant4CommonConfig.getLongLivedGeant4SimSvc",                "ISF_LongLivedGeant4SimSvc")
+
+addService("ISF_Example.ISF_iParticleKillerConfig.getParticleKillerSvc", "ISF_ParticleKillerSvc")
+
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_GenericGenerator",     "ISF_Input_GenericGenerator")
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_GenericFiles",         "ISF_Input_GenericFiles")
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_geantinos",            "ISF_Input_geantinos")
@@ -21,15 +63,12 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getInput_MultiParticleTest",    "ISF_Inp
 
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_GenericSimulator",    "ISF_Kernel_GenericSimulator")
 #addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FromJobProperties",   "ISF_Kernel_FromJobProperties")
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4",              "ISF_Kernel_FullG4")
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_LongLived",    "ISF_Kernel_FullG4_LongLived")
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_IDOnly",       "ISF_Kernel_FullG4_IDOnly")
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_IDCalo",       "ISF_Kernel_FullG4_IDCalo")
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4",              "ISF_Kernel_MC12G4")# Legacy only
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_longLived",    "ISF_Kernel_MC12G4_longLived")# Legacy only
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDOnly",       "ISF_Kernel_MC12G4_IDOnly")# Legacy only
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDCalo",       "ISF_Kernel_MC12G4_IDCalo")# Legacy only
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4",              "ISF_Kernel_MC12G4")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_longLived",    "ISF_Kernel_MC12G4_longLived")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_PassBackG4",          "ISF_Kernel_PassBackG4")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4",              "ISF_Kernel_FullG4")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDOnly",       "ISF_Kernel_MC12G4_IDOnly")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDCalo",       "ISF_Kernel_MC12G4_IDCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_CosmicsG4",           "ISF_Kernel_CosmicsG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII",           "ISF_Kernel_ATLFASTII")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF",          "ISF_Kernel_ATLFASTIIF")
@@ -54,4 +93,3 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZLeptonsCone_FatrasID_FastCa
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZLeptonsConeSticky_FatrasID_FastCalo", "ISF_Kernel_G4ZLeptonsConeSticky_FatrasID_FastCalo"    )
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZDecayProducts_FatrasID_FastCalo"  , "ISF_Kernel_G4ZDecayProducts_FatrasID_FastCalo"  )
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4JPsiLeptonsCone_FatrasID_FastCalo" , "ISF_Kernel_G4JPsiLeptonsCone_FatrasID_FastCalo" )
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ParametricSimulation",                 "ISF_Kernel_ParametricSimulation"                )
