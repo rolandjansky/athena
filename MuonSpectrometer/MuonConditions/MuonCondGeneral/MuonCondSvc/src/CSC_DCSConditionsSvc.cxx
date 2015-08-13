@@ -39,14 +39,14 @@ StatusCode CSC_DCSConditionsSvc::initialize()
 {
   
   msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endmsg;
+		 << PACKAGE_VERSION << endreq;
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
+    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq; 
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
+    msg(MSG::INFO) << "DetectorStore service found !" << endreq; 
     
   }
   if(m_dcsInfofromCool)
@@ -55,19 +55,19 @@ StatusCode CSC_DCSConditionsSvc::initialize()
       if ( sc.isFailure() )
 	{
 	  
-	  msg(MSG::ERROR) << "Could not retrieve CSC_DCSConditionsTool" << endmsg;
+	  msg(MSG::ERROR) << "Could not retrieve CSC_DCSConditionsTool" << endreq;
 	}
       else
 	{
 	  
-	  msg(MSG::INFO)<<"CSC_DCSConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
+	  msg(MSG::INFO)<<"CSC_DCSConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
 	}
       std::vector<std::string> folderNames;
       folderNames.push_back((m_condDataTool)->ChamberFolder());
       folderNames.push_back((m_condDataTool)->HVFolderName());
       
       
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
       //bool aFolderFound = false;
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
@@ -76,7 +76,7 @@ StatusCode CSC_DCSConditionsSvc::initialize()
 	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
+	    msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
 	    const DataHandle<CondAttrListCollection> CSCDCSData;
 	    if (detStore->regFcn(&ICSC_DCSConditionsSvc::initInfo,
 				 dynamic_cast<ICSC_DCSConditionsSvc *>(this),
@@ -85,12 +85,12 @@ StatusCode CSC_DCSConditionsSvc::initialize()
 	      {
 		msg(MSG::WARNING)<<"Unable to register call back for initDCSInfo against folder <"<<(*ifld)<<">";
 	      }
-	    else msg(MSG::INFO)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
+	    else msg(MSG::INFO)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
 	  }
 	  else
 	    {   
 	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
+			       <<" NOT found in the DetStore --- failing to init ???"<<endreq;
 	    }
 	}
     }
@@ -101,28 +101,28 @@ StatusCode CSC_DCSConditionsSvc::initialize()
 StatusCode CSC_DCSConditionsSvc::finalize()
 {
   
-  msg(MSG::INFO) << "Finalize" << endmsg;
+  msg(MSG::INFO) << "Finalize" << endreq;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode CSC_DCSConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endmsg;
+  msg(MSG::INFO) << "queryInterface Start" << endreq;
   if(ICSC_DCSConditionsSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endmsg;
-      msg(MSG::INFO) << "OK***************************" << endmsg;
+      msg(MSG::INFO) << "versionMatch=true" << endreq;
+      msg(MSG::INFO) << "OK***************************" << endreq;
       *ppvInterface = this;      
     } else if ( ICSCConditionsSvc::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<ICSCConditionsSvc*>(this);
-      msg(MSG::INFO) << "service cast***************************" << endmsg;
+      msg(MSG::INFO) << "service cast***************************" << endreq;
     } else {
-      msg(MSG::INFO) << "cannot find the interface!***************************" << endmsg;
+      msg(MSG::INFO) << "cannot find the interface!***************************" << endreq;
       
       return AthService::queryInterface(riid, ppvInterface);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
+  msg(MSG::INFO) << "queryInterface succesfull" << endreq;
   addRef(); 
   return StatusCode::SUCCESS;
 }
@@ -131,8 +131,8 @@ StatusCode CSC_DCSConditionsSvc::queryInterface(const InterfaceID& riid, void** 
 
 StatusCode CSC_DCSConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initDCSInfo has been called"<<endmsg;
-  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
+  msg(MSG::INFO)<<"initDCSInfo has been called"<<endreq;
+  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
   
   if(m_dcsInfofromCool)
     {
@@ -140,7 +140,7 @@ StatusCode CSC_DCSConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
       StatusCode sc = m_condDataTool->loadParameters(I, keys);
       if (sc.isFailure())
 	{
-	  msg(MSG::WARNING)<<"Reading DCS from COOL failed; NO CSC DCS INFO AVAILABLE"<<endmsg;
+	  msg(MSG::WARNING)<<"Reading DCS from COOL failed; NO CSC DCS INFO AVAILABLE"<<endreq;
 	}
       
     }
@@ -172,7 +172,7 @@ const std::vector<Identifier>& CSC_DCSConditionsSvc::deadStationsId() const{
   
   unsigned int size_new =m_condDataTool->deadStationsId().size();
  
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD CHAMBERS: "<<size_new <<endmsg;
+  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD CHAMBERS: "<<size_new <<endreq;
   
   return m_condDataTool->deadStationsId();
 }
@@ -185,7 +185,7 @@ const std::vector<Identifier>& CSC_DCSConditionsSvc::deadWireLayersId() const{
   
   unsigned int size_new =m_condDataTool->deadWireLayersId().size();
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD Wire Layer: "<<size_new <<endmsg;
+  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD Wire Layer: "<<size_new <<endreq;
   
   return m_condDataTool->deadWireLayersId();
   
@@ -196,7 +196,7 @@ const std::vector<std::string>& CSC_DCSConditionsSvc::deadStations() const{
   
   unsigned int size_new =m_condDataTool->deadStations().size();
  
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD CHAMBERS: "<<size_new <<endmsg;
+  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD CHAMBERS: "<<size_new <<endreq;
   
   return m_condDataTool->deadStations();
 }
@@ -209,7 +209,7 @@ const std::vector<std::string>& CSC_DCSConditionsSvc::deadWireLayers() const{
   
   unsigned int size_new =m_condDataTool->deadWireLayers().size();
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD Wire Layer: "<<size_new <<endmsg;
+  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD Wire Layer: "<<size_new <<endreq;
   
   return m_condDataTool->deadWireLayers();
   

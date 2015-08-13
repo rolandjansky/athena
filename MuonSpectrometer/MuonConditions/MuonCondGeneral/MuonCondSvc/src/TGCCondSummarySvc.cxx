@@ -51,21 +51,21 @@ TGCCondSummarySvc::initialize(){
   
   sc = m_detStore.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
+    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq;
     return sc;
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
+    msg(MSG::INFO) << "DetectorStore service found !" << endreq;
   }  
   
  
   if (m_noReports){
     sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the TGC summary"<<endmsg;
+    msg(MSG::INFO)<<"No services were selected for the TGC summary"<<endreq;
   } else {
    
     sc = m_reportingServices.retrieve();
     if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_reportingServices << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_reportingServices << endreq;
       return StatusCode::FAILURE;
     }
     
@@ -73,12 +73,12 @@ TGCCondSummarySvc::initialize(){
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator pLastSvc= m_reportingServices.end();
     for (;pSvc not_eq pLastSvc; ++pSvc){
       const std::string& svcName = pSvc->name();
-      msg(MSG::INFO)<<"Using "<< svcName << endmsg;
+      msg(MSG::INFO)<<"Using "<< svcName << endreq;
       if (m_detStore->regFcn(&ITGCConditionsSvc::initInfo,&**pSvc,
                            &TGCCondSummarySvc::update_TGC,this) != StatusCode::SUCCESS){ 
-        msg(MSG::WARNING)<<"Unable to register call back for "<<svcName<<endmsg; 
+        msg(MSG::WARNING)<<"Unable to register call back for "<<svcName<<endreq; 
       } else {
-        msg(MSG::INFO)<<"initInfo registered for call-back for "<<svcName<<endmsg;
+        msg(MSG::INFO)<<"initInfo registered for call-back for "<<svcName<<endreq;
       }
     }
   }   
@@ -90,7 +90,7 @@ TGCCondSummarySvc::initialize(){
 //Finalize
 StatusCode
 TGCCondSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the TGCCondSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
+  msg(MSG::INFO)<<"Thank-you for using the TGCCondSummarySvc, version "<<PACKAGE_VERSION<<endreq;
   //Code
   return StatusCode::SUCCESS;
 }
@@ -111,14 +111,14 @@ TGCCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 
 StatusCode TGCCondSummarySvc::update_TGC(IOVSVC_CALLBACK_ARGS){
 
-  msg(MSG::INFO)<<"Register Call Back for TGC System"<<endmsg;
+  msg(MSG::INFO)<<"Register Call Back for TGC System"<<endreq;
 
    return StatusCode::SUCCESS;
 }
 
 StatusCode TGCCondSummarySvc::initInfo(IOVSVC_CALLBACK_ARGS){
 
-  msg(MSG::INFO)<<"Not to be called just dummy"<<endmsg;
+  msg(MSG::INFO)<<"Not to be called just dummy"<<endreq;
    return StatusCode::SUCCESS;
 }
 
@@ -137,7 +137,7 @@ bool TGCCondSummarySvc::isGoodChamber(const Identifier & Id){
   	   (*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),Id,Compare);
         if(found) counter++;
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service are not available "<<(*svc) <<endmsg;
+	msg(MSG::INFO)<<" Dead Stations from the service are not available "<<(*svc) <<endreq;
 	
       }
     }
@@ -163,7 +163,7 @@ const std::vector<Identifier>& TGCCondSummarySvc::deadStationsId(){
       if ((*svc)->deadStationsId().size()!=0){
 	return (*svc)->deadStationsId();
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endreq;
       }
     }
     

@@ -50,24 +50,24 @@ StatusCode MuonAlignmentDbSvc::queryInterface(const InterfaceID& riid, void** pp
   ///
 StatusCode MuonAlignmentDbSvc::initialize(){
 
-  MsgStream log(msgSvc(), name());
+  MsgStream log(messageService(), name());
   StatusCode sc ;
 
-  log << MSG::INFO << "in initialize()" << endmsg;
+  log << MSG::INFO << "in initialize()" << endreq;
 
 
   IToolSvc* p_toolSvc;
   sc = service("ToolSvc", p_toolSvc);
 
-  log << MSG::INFO<<"Trying to locate the Tool"<<endmsg;
+  log << MSG::INFO<<"Trying to locate the Tool"<<endreq;
   sc = p_toolSvc->retrieveTool(m_dbToolType, m_dbToolName, m_dbTool);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Could not find tool " << m_dbToolName << ". Exiting."
-	  << endmsg;
+	  << endreq;
       return sc;
     } else {
       log << MSG::INFO << "Database tool \"" << m_dbToolName << "\" retrieved."
-	  << endmsg;
+	  << endreq;
     }
 
 
@@ -77,8 +77,8 @@ StatusCode MuonAlignmentDbSvc::initialize(){
 
 
 StatusCode MuonAlignmentDbSvc::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in finalize()" << endmsg;
+   MsgStream log(messageService(), name());
+   log << MSG::DEBUG << "in finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 

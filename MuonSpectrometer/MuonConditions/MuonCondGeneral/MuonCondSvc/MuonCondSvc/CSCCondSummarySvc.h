@@ -72,8 +72,8 @@ public:
  ServiceHandleArray<ICSCConditionsSvc> m_reportingServices; //!< list of services to be used
  
   
- std::vector<Identifier> m_emptyId;
- std::vector<std::string> m_empty;
+ std::vector<Identifier> emptyId;
+ std::vector<std::string> empty;
  const CscIdHelper * m_cscHelper;
  
  ServiceHandle<StoreGateSvc> m_detStore;

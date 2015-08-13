@@ -52,23 +52,23 @@ StatusCode MuonDetectorStatusDbSvc::queryInterface(const InterfaceID& riid, void
   ///
 StatusCode MuonDetectorStatusDbSvc::initialize(){
 
-  MsgStream log(msgSvc(), name());
+  MsgStream log(messageService(), name());
   StatusCode sc ;
 
-  log << MSG::DEBUG << "in initialize()" << endmsg;
+  log << MSG::DEBUG << "in initialize()" << endreq;
 
 
   // initialize the pointer to the detector store
   /*  sc = service("DetectorStore", m_detStore);
   if (sc.isFailure())   {
-    log << MSG::ERROR << "Can't locate the DetectorStore" << endmsg; 
+    log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
     return sc;
   }
 
   // retrieve the Mdt Id Helper
   sc = m_detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure())   {
-    log << MSG::ERROR << "Can't retrieve MdtIdHelper from the detector store" << endmsg; 
+    log << MSG::ERROR << "Can't retrieve MdtIdHelper from the detector store" << endreq; 
     return sc;
   }
 
@@ -80,11 +80,11 @@ StatusCode MuonDetectorStatusDbSvc::initialize(){
   sc = p_toolSvc->retrieveTool(m_dbToolType, m_dbToolName, m_dbTool);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Could not find tool " << m_dbToolName << ". Exiting."
-	  << endmsg;
+	  << endreq;
       return sc;
     } else {
       log << MSG::INFO << "Database tool \"" << m_dbToolName << "\" retrieved."
-	  << endmsg;
+	  << endreq;
     }
 
 
@@ -97,12 +97,12 @@ StatusCode MuonDetectorStatusDbSvc::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I
 {
   StatusCode sc=StatusCode::SUCCESS;
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "LoadParameters has been triggered for the following keys " << endmsg;                                    
+  log << MSG::INFO << "LoadParameters has been triggered for the following keys " << endreq;                                    
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     log << MSG::INFO << *itr << " I="<<I<<" ";
   }
-  log << MSG::INFO << endmsg;
+  log << MSG::INFO << endreq;
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     if(*itr==m_tubeStatusDataLocation) {
@@ -117,9 +117,9 @@ StatusCode MuonDetectorStatusDbSvc::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I
 
 StatusCode MuonDetectorStatusDbSvc::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 { 
-  MsgStream log(msgSvc(), name());
+  MsgStream log(messageService(), name());
   StatusCode sc=StatusCode::SUCCESS;
-  log << MSG::DEBUG << "In loadParameters " <<endmsg;  
+  log << MSG::DEBUG << "In loadParameters " <<endreq;  
   sc=m_detStore->retrieve(m_tubeStatusData, m_tubeStatusDataLocation);
 
   return sc;
@@ -127,8 +127,8 @@ StatusCode MuonDetectorStatusDbSvc::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,keys
 
 */
 StatusCode MuonDetectorStatusDbSvc::finalize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in finalize()" << endmsg;
+   MsgStream log(messageService(), name());
+   log << MSG::DEBUG << "in finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 
