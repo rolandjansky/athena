@@ -19,7 +19,7 @@
 
 namespace LVL1 {
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, float etaMax):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, float etaMax, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -27,7 +27,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   m_overflowT(0),
   m_overflowX(0),
   m_overflowY(0),
-  m_restricted(false),
+  m_restricted(restricted),
   m_debug(false)
   {
   /** Check crate in range */
@@ -100,7 +100,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   
 }
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, float etaMax):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, float etaMax, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -108,7 +108,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   m_overflowT(0),
   m_overflowX(0),
   m_overflowY(0),
-  m_restricted(false),
+  m_restricted(restricted),
   m_debug(false)
   {
   /** Check crate in range */
@@ -136,7 +136,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   DataVector<EnergyCMXData>::const_iterator it = JEMs->begin();
   for ( ; it != JEMs->end(); it++) {
     int moduleInQuad = (*it)->module() % 8;
-    if ((*it)->crate() == m_crate && moduleInQuad >= moduleMin && moduleInQuad <= moduleMax) {
+    if ((unsigned int)(*it)->crate() == m_crate && moduleInQuad >= moduleMin && moduleInQuad <= moduleMax) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
       eT[quad] += (*it)->Et();
       eX[quad] += (*it)->Ex();
@@ -183,7 +183,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
 
 CrateEnergy::CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
              unsigned int eyTC, unsigned int overflowT, unsigned int overflowX,
-	     unsigned int overflowY) :
+	     unsigned int overflowY, bool restricted) :
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -191,7 +191,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
   m_overflowT(0),
   m_overflowX(0),
   m_overflowY(0),
-  m_restricted(false),
+  m_restricted(restricted),
   m_debug(false)
 {
   /** Check crate in range */

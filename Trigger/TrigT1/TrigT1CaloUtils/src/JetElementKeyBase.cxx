@@ -153,13 +153,13 @@ BinAndCoord* JetElementKeyBase::calculateTriggerBin(ICoordinate* iCoord){
 // these methods are only applicable if running in Athena
 
 /** returns key of passed tower */
-unsigned int JetElementKeyBase::jeKey( const TriggerTower& tower) {
+unsigned int JetElementKeyBase::jeKey( const xAOD::TriggerTower& tower) {
   if (m_debug) std::cout << "JetElementKeyBase: returning key for coords ("<<tower.phi()<<","<<tower.eta()<<")"<<std::endl;
   return key(tower.phi(), tower.eta());
 }
 
 /** returns the key of the passed tower */
-unsigned int JetElementKeyBase::jeKey( const JetElement& jetElement){
+unsigned int JetElementKeyBase::jeKey( const xAOD::JetElement& jetElement){
   if (m_debug) std::cout << "JetElementKeyBase: returning key for coords ("<<jetElement.phi()<<","<<jetElement.eta()<<")"<<std::endl;
   return key(jetElement.phi(), jetElement.eta());
 }

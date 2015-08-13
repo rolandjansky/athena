@@ -47,9 +47,11 @@ JetEnergyModuleKey::~JetEnergyModuleKey(){
 }
 
 /** returns trigger tower key of passed Coordinate */
-unsigned int JetEnergyModuleKey::jemKey(const JetElement* jetElement) {
+unsigned int JetEnergyModuleKey::jemKey(const xAOD::JetElement* jetElement) {
   return key(jetElement->phi(), jetElement->eta());
 }
+
+
 
 /** returns trigger tower key of passed crate+module */
 unsigned int JetEnergyModuleKey::jemKey(unsigned int crate, unsigned int module) {
@@ -138,8 +140,9 @@ unsigned int LVL1::JetEnergyModuleKey::row(const Coordinate& coord) const{
 
 /** returns the phi row of a coord within the JEM that contains it.
 Used in energy trigger (JEM) */
-unsigned int LVL1::JetEnergyModuleKey::row(const JetElement* JE) const{
-  return row(JE->coord() );
+unsigned int LVL1::JetEnergyModuleKey::row(const xAOD::JetElement* JE) const{
+  Coordinate coord(JE->phi(), JE->eta());
+  return row( coord );
 }
 
 

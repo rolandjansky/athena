@@ -25,7 +25,7 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "xAODTrigL1Calo/CPMTower.h"
-#include "TrigT1CaloEvent/CPMTobRoI.h"
+#include "xAODTrigL1Calo/CPMTobRoI.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 
 namespace TrigConf {
@@ -84,8 +84,8 @@ public:
   /** Create CPMTobRoIs and return pointers to them.
       Will return a null pointer if object does not pass hypothesis.
       It is the user's responsibility to check */
-  CPMTobRoI* EMCPMTobRoI();
-  CPMTobRoI* TauCPMTobRoI();
+  xAOD::CPMTobRoI* EMCPMTobRoI();
+  xAOD::CPMTobRoI* TauCPMTobRoI();
     
 private: //atribs
   double m_refEta;
@@ -141,7 +141,7 @@ private:  // methods
   void testEtMax(const std::vector<unsigned int>& cores);
   void emAlgorithm();
   void tauAlgorithm();
-  CPMTobRoI* createTobRoI(int type);
+  xAOD::CPMTobRoI* createTobRoI(int type);
 
 };
 
