@@ -15,6 +15,7 @@ CREATED:  Jul 2007
 
 PURPOSE:  Persistent rapresentation of MissingEtCalo class
 ********************************************************************/
+#include "MissingETEvent/MissingET.h"
 #include "RecTPCnv/MissingET_p1.h"
 #include <vector>
 

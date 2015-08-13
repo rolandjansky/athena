@@ -29,15 +29,15 @@ namespace MissingETHandlers
 
 void
 MissingETCompositionCnv_p2::transToPers(const MissingETComposition* transObj, MissingETComposition_p2* persObj, MsgStream &reporter ) {
-    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers()" << endmsg;
+    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers()" << endreq;
     navCnv.transToPers( transObj, &persObj->m_nav, reporter );
-    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers() done ..." << endmsg;
+    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toPers() done ..." << endreq;
 }
 
 void
 MissingETCompositionCnv_p2::persToTrans(const MissingETComposition_p2* persObj, MissingETComposition* transObj, MsgStream &reporter ) {
-    // reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endmsg;
+    // reporter << MSG::DEBUG << "MissingETCompositionCnv toTrans()" << endreq;
     navCnv.persToTrans( &(persObj->m_nav), transObj, reporter );
-    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toTrans() done ..." << endmsg;
+    // reporter << MSG::DEBUG << "MissingETCompositionCnv_p2 toTrans() done ..." << endreq;
 }
 

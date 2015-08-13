@@ -42,14 +42,18 @@ void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,
 				        MissingEtTruth* trans, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingEtTruth from persistent state..."  << endmsg;
+//   msg << MSG::DEBUG << "Loading MissingEtTruth from persistent state..."  << endreq;
 
   trans->m_exTruth      = pers->m_exTruth;
   trans->m_eyTruth      = pers->m_eyTruth;
   trans->m_etSumTruth   = pers->m_etSumTruth;
   
-  // use the MissingET converter to convert from pers to trans 
-  metCnv.persToTrans(&pers->m_met, trans, msg);
+   if( &pers->m_met != 0)
+  {
+    // use the MissingET converter to convert from pers to trans 
+    metCnv.persToTrans(&pers->m_met, trans, msg);
+      
+  }  
   
     // for (unsigned int vi=0;vi<trans->m_exTruth.size();++vi)
     //      std::cout<<"IN  EtTruth ex: "<<trans->m_exTruth[vi]<<"\tey: "<<trans->m_eyTruth[vi]<<"\tet: "<<trans->m_etSumTruth[vi]<<std::endl;
@@ -61,7 +65,7 @@ void MissingEtTruthCnv_p1::transToPers( const MissingEtTruth* trans,
 				        MissingEtTruth_p1* pers, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingEtTruth..."    << endmsg;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingEtTruth..."    << endreq;
 
   pers->m_exTruth     = trans->m_exTruth;
   pers->m_eyTruth     = trans->m_eyTruth;

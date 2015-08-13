@@ -42,16 +42,18 @@ void MissingEtCaloCnv_p1::persToTrans(  const MissingEtCalo_p1* pers,
 				        MissingEtCalo* trans, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingEtCalo from persistent state..."   << endmsg;
+//   msg << MSG::DEBUG << "Loading MissingEtCalo from persistent state..."   << endreq;
 
   trans->m_exCalo      = pers->m_exCalo;  
   trans->m_eyCalo      = pers->m_eyCalo; 
   trans->m_etSumCalo   = pers->m_etSumCalo; 
   trans->m_nCellsCalo  = pers->m_nCellsCalo;
   
+  if( &pers->m_met != 0)
   {
     // use the MissingET converter to convert from pers to trans 
     metCnv.persToTrans(&pers->m_met, trans, msg);
+      
   } 
   
     // for (unsigned int vi=0;vi<trans->m_exCalo.size();++vi)
@@ -64,7 +66,7 @@ void MissingEtCaloCnv_p1::transToPers(  const MissingEtCalo* trans,
 				        MissingEtCalo_p1* pers, 
 				        MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingEtCalo..."  << endmsg;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingEtCalo..."  << endreq;
 
   pers->m_exCalo     = trans->m_exCalo;  
   pers->m_eyCalo     = trans->m_eyCalo; 

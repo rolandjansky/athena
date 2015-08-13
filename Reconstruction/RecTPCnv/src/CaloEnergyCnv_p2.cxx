@@ -51,7 +51,7 @@ void CaloEnergyCnv_p2::persToTrans( const CaloEnergy_p2* pers,
 				    MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading CaloEnergy from persistent state..."
-//       << endmsg;
+//       << endreq;
 
       /// energy loss in calorimeter
   energyLossCnv.persToTrans( &pers->m_energyLoss,
@@ -79,7 +79,7 @@ void CaloEnergyCnv_p2::persToTrans( const CaloEnergy_p2* pers,
   trans->m_etCore = pers->m_etCore;
 
 //   msg << MSG::DEBUG << "Loaded CaloEnergy from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
 
   return;
 }
@@ -89,7 +89,7 @@ void CaloEnergyCnv_p2::transToPers( const CaloEnergy* trans,
 				    MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of CaloEnergy..."
-//       << endmsg;
+//       << endreq;
 
   energyLossCnv.transToPers ( trans, &pers->m_energyLoss,  msg );
 
@@ -114,7 +114,7 @@ void CaloEnergyCnv_p2::transToPers( const CaloEnergy* trans,
   pers->m_etCore = trans->m_etCore;
 
 //   msg << MSG::DEBUG << "Created persistent state of CaloEnergy [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 

@@ -18,6 +18,7 @@ CREATED:  Jul 2007
 PURPOSE:  Persistent rapresentation of MissingET class
 ********************************************************************/
 
+#include "MissingETEvent/MissingEtRegions.h"
 #include "RecTPCnv/MissingEtRegions_p1.h"
 
 // forward declarations

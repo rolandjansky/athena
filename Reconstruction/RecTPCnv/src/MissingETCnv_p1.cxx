@@ -40,7 +40,7 @@ void MissingETCnv_p1::persToTrans(  const MissingET_p1* pers,
 				    MissingET* trans, 
 				    MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Loading MissingET from persistent state..."  << endmsg;
+//   msg << MSG::DEBUG << "Loading MissingET from persistent state..."  << endreq;
 
   trans->m_ex      = pers->m_ex;
   trans->m_ey      = pers->m_ey;
@@ -49,11 +49,13 @@ void MissingETCnv_p1::persToTrans(  const MissingET_p1* pers,
   
   delete trans->m_regions;
   trans->m_regions = 0;
+  if( &pers->m_regions != 0 )
   {
     // use the region converter to convert from pers to trans 
     MissingEtRegions *theReg = new MissingEtRegions();
     regCnv.persToTrans(&pers->m_regions, theReg, msg);
     trans->m_regions = theReg;
+          
   }
 	
     // std::cout<<"IN  source: "<<trans->m_source;
@@ -68,7 +70,7 @@ void MissingETCnv_p1::transToPers(  const MissingET* trans,
 				    MissingET_p1* pers, 
 				    MsgStream& msg ) 
 {
-//   msg << MSG::DEBUG << "Creating persistent state of MissingET..."    << endmsg;
+//   msg << MSG::DEBUG << "Creating persistent state of MissingET..."    << endreq;
 
   pers->m_ex     = trans->m_ex;	
   pers->m_ey     = trans->m_ey;	

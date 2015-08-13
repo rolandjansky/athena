@@ -38,6 +38,7 @@
 
 #include "RecTPCnv/Muon_p1.h"
 #include "RecTPCnv/MuonContainer_p1.h"
+#include "RecTPCnv/MuonContainerCnvARA_p1.h"
 
 #include "RecTPCnv/MissingET_p1.h"
 #include "RecTPCnv/MissingET_p2.h"
