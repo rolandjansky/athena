@@ -21,22 +21,12 @@
 #include <iostream>
 #include <vector>
 
-#ifndef  TRIGGERSPACE
 // running in Athena
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElement.h"
 #include "TrigT1CaloUtils/JetElementKey.h"
 #include "TrigT1CaloUtils/KeyUtilities.h"
 #include "TrigT1CaloUtils/BinAndCoord.h"
 #include "TrigT1Interfaces/Coordinate.h"
-
-#else
-// running in TRIGGERSPACE/
-#include "JetElement.h"
-#include "BinAndCoord.h"
-#include "Coordinate.h"
-#include "KeyUtilities.h"
-
-#endif
 
 namespace LVL1 {
 
@@ -63,7 +53,7 @@ public:
   
 
   /** returns the key of the passed Coordinate */
-  unsigned int jemKey(const JetElement* jetElement);
+  unsigned int jemKey(const xAOD::JetElement* jetElement);
   /** calculates key from crate and module index */
   unsigned int jemKey(unsigned int crate, unsigned int module);
   /** calculates keys of all JetElements in given crate and module */
@@ -75,7 +65,7 @@ public:
   unsigned int row(const Coordinate& coord) const;
   /** returns the phi row of a coord within the JEM that contains it.
   Used in energy trigger (JEM) */
-  unsigned int row(const JetElement* jetElement) const;
+  unsigned int row(const xAOD::JetElement* jetElement) const;
   /** returns the phi coord of the row of the JEM at the coordinates passed*/
   double rowPhiCoord(unsigned int row, const Coordinate& jemCoord);
   /** height */

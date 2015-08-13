@@ -26,8 +26,8 @@
 
 #ifndef  TRIGGERSPACE
 // running in Athena
-#include "TrigT1CaloEvent/TriggerTower.h"
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/JetElement.h"
 #include "TrigT1CaloUtils/KeyUtilities.h"
 #include "TrigT1CaloUtils/BinAndCoord.h"
 #include "TrigT1Interfaces/Coordinate.h"
@@ -66,9 +66,9 @@ public:
 #ifndef  TRIGGERSPACE
 // only applicable if running in Athena
   /** returns key of passed tower*/
-  virtual unsigned int jeKey( const TriggerTower& tower) ;
+  virtual unsigned int jeKey( const xAOD::TriggerTower& tower) ;
   /** returns key of passed jetelement*/
-  virtual unsigned int jeKey( const JetElement& jetElement) ;
+  virtual unsigned int jeKey( const xAOD::JetElement& jetElement) ;
 #endif
   /** returns the key of the passed coords */
   virtual unsigned int jeKey( const double phi, const double eta);

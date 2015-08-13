@@ -21,7 +21,7 @@
 #include <map>
 #include <vector>
 //#include "GaudiKernel/ServiceHandle.h"
-#include "TrigT1CaloEvent/JetElement.h"
+#include "xAODTrigL1Calo/JetElement.h"
 #include "TrigT1CaloUtils/JetElementKey.h"
 #include "TrigT1CaloUtils/JetEnergyModuleKey.h"
 #include "TrigT1Interfaces/Coordinate.h"
@@ -46,7 +46,7 @@ The ModuleEnergy:<br>
 class ModuleEnergy {
 public: 
   
-  ModuleEnergy(const std::map<int, JetElement *>* JEContainer,  unsigned int crate, unsigned int module,
+  ModuleEnergy(const std::map<int, xAOD::JetElement *>* JEContainer,  unsigned int crate, unsigned int module,
                int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks = 0, int slice = -1);
 
   ModuleEnergy(unsigned int crate, unsigned int module, unsigned int et,

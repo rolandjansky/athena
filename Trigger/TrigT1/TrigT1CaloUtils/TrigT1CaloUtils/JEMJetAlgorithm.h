@@ -25,7 +25,7 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "TrigT1CaloEvent/JetInput.h"
-#include "TrigT1CaloEvent/JEMTobRoI.h"
+#include "xAODTrigL1Calo/JEMTobRoI.h"
 
 /**LVL1 namespace.
 This belongs to the TrigT1Calo  simulation.
@@ -64,7 +64,7 @@ public:
   /** Create JEMTobRoI and return pointers to it.
       Will return a null pointer if object does not pass hypothesis.
       It is the user's responsibility to check */
-  JEMTobRoI* jemTobRoI();
+  xAOD::JEMTobRoI* jemTobRoI();
   
 private: //atribs
   double m_refEta;

@@ -298,7 +298,7 @@ double LVL1::JEMJetAlgorithm::phi() {
 /** Returns a JEMTobRoI object, provided the TOB conditions were met.
     If not will return a null pointer - user's responsibility to check */
 
-JEMTobRoI* LVL1::JEMJetAlgorithm::jemTobRoI() { 
+xAOD::JEMTobRoI* LVL1::JEMJetAlgorithm::jemTobRoI() { 
   
   if (isRoI()) {
     
@@ -324,10 +324,10 @@ JEMTobRoI* LVL1::JEMJetAlgorithm::jemTobRoI() {
     unsigned int frame = ((col&2)<<1) + (row>>1);
     unsigned int lc = (col&1) + (row&1)*2;
     */
-    
-    JEMTobRoI*  pointer = new JEMTobRoI(crate, jem, frame, lc, ETLarge(), ETSmall());
-    return pointer;
-
+    xAOD::JEMTobRoI* roi = new xAOD::JEMTobRoI();
+    roi->makePrivateStore();
+    roi->initialize(crate, jem, frame, lc, ETLarge(), ETSmall());
+    return roi;
   }
   
   return 0;

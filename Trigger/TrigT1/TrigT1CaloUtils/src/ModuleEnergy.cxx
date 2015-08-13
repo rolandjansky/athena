@@ -22,7 +22,7 @@
 
 namespace LVL1 {
 
-ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsigned int crate,
+ModuleEnergy::ModuleEnergy(const std::map<int, xAOD::JetElement *>* JEContainer, unsigned int crate,
                            unsigned int module, int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks, int slice):
   m_jetElementThresholdEtSum(JEThresholdEtSum),
   m_jetElementThresholdEtMiss(JEThresholdEtMiss),
@@ -48,7 +48,7 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
     std::vector<unsigned int> keys = get.jeKeys(crate, module);
     std::vector<unsigned int>::const_iterator it = keys.begin();
     for (; it != keys.end(); it++) {
-      std::map<int, JetElement*>::const_iterator test=JEContainer->find(*it);
+      std::map<int, xAOD::JetElement*>::const_iterator test=JEContainer->find(*it);
       if (test != JEContainer->end()) {
 	/** Check JE not masked in TE trigger */
 	double eta = test->second->eta();
@@ -62,8 +62,8 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
           else {
             /** Get ET for requested time slice */
             int jetElementET;
-            if (slice < 0) jetElementET = test->second->energy();
-            else           jetElementET = test->second->sliceEnergy(slice);
+            if (slice < 0) jetElementET = test->second->et();
+            else           jetElementET = test->second->sliceET(slice);
             /** Test against ETmiss algorithm threshold */
             if (jetElementET > m_jetElementThresholdEtMiss) {
               /** Get sin, cos factors for this JetElement */

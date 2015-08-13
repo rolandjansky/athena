@@ -181,13 +181,18 @@ void LVL1::CPMTobAlgorithm::setRoICoord(double eta, double phi) {
   // Get centre of tower at eta+1, phi+1, i.e. opposite corner of RoI core
   double dEta = keyLL.dEta(lowerLeft);
   double dPhi = keyLL.dPhi(lowerLeft);  
-  TriggerTowerKey keyUR(phi+dPhi,eta+dEta);
+
+  TriggerTowerKey keyUR(phi+dPhi, eta + dEta); 
   Coordinate upperRight = keyUR.coord();
 
   // CoordinateRange object will compute centre, correcting for wrap-around
   CoordinateRange roi(lowerLeft.phi(),upperRight.phi(),lowerLeft.eta(),upperRight.eta());
   m_eta = roi.eta();
   m_phi = roi.phi();
+
+  // Range check (shouldn't be needed, but floating point precision errors possible)
+  if       (m_eta > 2.5) m_eta = 2.5;
+  else if (m_eta < -2.5) m_eta = -2.5;
 }
 
 /** Form all 2x2 clusters within window and test centre is a local ET maximum */
@@ -466,10 +471,9 @@ double LVL1::CPMTobAlgorithm::phi() {
 }
 
 /** Returns CPMTobRoI for EM hypothesis, provided EM Tob conditions passed */
-CPMTobRoI* LVL1::CPMTobAlgorithm::EMCPMTobRoI() {
-  
+xAOD::CPMTobRoI* LVL1::CPMTobAlgorithm::EMCPMTobRoI() {
   if (isEMRoI()) {
-    CPMTobRoI* pointer = createTobRoI(TrigT1CaloDefs::emTobType); 
+    xAOD::CPMTobRoI* pointer = createTobRoI(TrigT1CaloDefs::emTobType); 
     return pointer;
   }
   
@@ -478,9 +482,9 @@ CPMTobRoI* LVL1::CPMTobAlgorithm::EMCPMTobRoI() {
 }
 
 /** Returns CPMTobRoI for TAU hypothesis, provided TAU Tob conditions passed */
-CPMTobRoI* LVL1::CPMTobAlgorithm::TauCPMTobRoI() {
+xAOD::CPMTobRoI* LVL1::CPMTobAlgorithm::TauCPMTobRoI() {
   
-  CPMTobRoI* pointer = 0;
+  xAOD::CPMTobRoI* pointer = 0;
   
   if (isTauRoI()) pointer = createTobRoI(TrigT1CaloDefs::tauTobType);
   
@@ -492,9 +496,9 @@ CPMTobRoI* LVL1::CPMTobAlgorithm::TauCPMTobRoI() {
     This function does not check whether a valid RoI exists - that is left
     to the calling functions (but as this is a private method that should
     be enough) */
-CPMTobRoI* LVL1::CPMTobAlgorithm::createTobRoI(int type) {
+xAOD::CPMTobRoI* LVL1::CPMTobAlgorithm::createTobRoI(int type) {
   
-  CPMTobRoI* pointer = 0;
+  xAOD::CPMTobRoI* pointer = 0;
   
   int et = 0;
   int isol = 0;
@@ -510,7 +514,11 @@ CPMTobRoI* LVL1::CPMTobAlgorithm::createTobRoI(int type) {
   else return pointer;
   
   // Need to calculate hardware coordinate
-  Coordinate coord(m_phi, m_eta);
+  // Object coordinate is RoI centre, but this works better if use reference tower coord
+  float eta = m_eta - 0.05;
+  float phi = m_phi - M_PI/64;
+  if (phi < 0) phi += 2*M_PI; 
+  Coordinate coord(phi, eta);
   CoordToHardware convertor;
   
   int crate = convertor.cpCrate(coord);
@@ -529,7 +537,9 @@ CPMTobRoI* LVL1::CPMTobAlgorithm::createTobRoI(int type) {
   int location = (iSide << 2) + ((iPhi&1) << 1) + (iEta&1);
   */
   
-  pointer = new CPMTobRoI(crate, module, chip, location, type, et, isol);
+  pointer = new xAOD::CPMTobRoI;
+  pointer->makePrivateStore();
+  pointer->initialize(crate, module, chip, location, type, et, isol);
   
   return pointer;
   
