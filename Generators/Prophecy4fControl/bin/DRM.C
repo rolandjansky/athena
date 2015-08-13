@@ -19,25 +19,25 @@ int main(int argc, char*argv[]){
     std::cout<<"               --debug [Enable debug mode]"<<std::endl;
     exit(0);
   }
-  std::string Powheg, Prophecy, Out;
-  bool Debug=false;
+  std::string m_Powheg, m_Prophecy, m_Out;
+  bool m_Debug=false;
   for(int a=1; a<argc; a++){
     if(!strcmp(argv[a],"--inPowheg")){
-      Powheg = argv[a+1];
+      m_Powheg = argv[a+1];
     }
     else if(!strcmp(argv[a],"--inProphecy")){
-      Prophecy = argv[a+1];
+      m_Prophecy = argv[a+1];
     }
     else if(!strcmp(argv[a],"--outLHE")){
-      Out = argv[a+1];
+      m_Out = argv[a+1];
     }
     else if(!strcmp(argv[a],"--debug")){
-      Debug=true;
+      m_Debug=true;
     }
   }
 
   DRM Run;
-  Run.SetIO(Powheg,Prophecy,Out,Debug);
+  Run.SetIO(m_Powheg,m_Prophecy,m_Out,m_Debug);
   Run.Merge();
 
   return 0;
@@ -115,7 +115,7 @@ void DRM::Merge(){
     }
     WriteLHE.hepeup = ReadH.hepeup;
 
-    double P4_Z[5][2] = {{0}};
+    double P4_Z[5][2];
     double P4_l[5][5];
     long ID_l[4] = {-999, -999, -999, -999};
     double Pph[5] = {-999., -999., -999., -999., -999.};
@@ -170,8 +170,8 @@ void DRM::Merge(){
 	  
 	  sum_daughter+=daughter;
 	  
-	  if( std::abs(Read4f.hepeup.idup(j))==m_ElectronID ||
-	      std::abs(Read4f.hepeup.idup(j))==m_MuonID      ){
+	  if( abs(Read4f.hepeup.idup(j))==m_ElectronID ||
+	      abs(Read4f.hepeup.idup(j))==m_MuonID      ){
 	    
 	    ID_l[j]    = Read4f.hepeup.idup(j);
 	    P4_l[0][j] = daughter.Px();
@@ -180,7 +180,7 @@ void DRM::Merge(){
 	    P4_l[3][j] = daughter.E();
 	    
 	  }		
-	  else if( std::abs(Read4f.hepeup.idup(j))==m_PhotonID ){
+	  else if( abs(Read4f.hepeup.idup(j))==m_PhotonID ){
 	    Pph[0] = daughter.Px();
 	    Pph[1] = daughter.Py();
 	    Pph[2] = daughter.Pz();
@@ -190,8 +190,8 @@ void DRM::Merge(){
 	}			
 	
 	for(int n=0; n<4; n++){
-	  if( std::abs(ID_l[n])==m_ElectronID ||
-	      std::abs(ID_l[n])==m_MuonID  ) {
+	  if( abs(ID_l[n])==m_ElectronID ||
+	      abs(ID_l[n])==m_MuonID  ) {
 	    
 	    P4_Z[n][0] = P4_l[n][0] + P4_l[n][1];
 	    P4_Z[n][1] = P4_l[n][2] + P4_l[n][3];
@@ -274,7 +274,7 @@ void DRM::Merge(){
 bool DRM::IsPHevent(TLorentzVector higgs,
 		    TLorentzVector sum_daugh_rest_init){
 
-  if( std::abs(higgs.M()-sum_daugh_rest_init.M())>m_DeltaM ){
+  if( abs(higgs.M()-sum_daugh_rest_init.M())>m_DeltaM ){
     std::cout << "POWHEG event with Higgs off-mass shell: "
 	      << higgs.M() << " GeV" <<std::endl;
     return true;
@@ -286,26 +286,26 @@ bool DRM::IsPHevent(TLorentzVector higgs,
 std::pair<double,double> DRM::SetParticleMass(long *ID){
   
   double mass1=0.0, mass2=0.0;
-  std::pair<double,double> Pmass;
+  std::pair<double,double> m_Pmass;
 
   int NP=4;
   for(int idx=0; idx<NP; idx++){
     long id = ID[idx];
-    if( std::abs(id)==m_NeutrinoEl ||
-	std::abs(id)==m_NeutrinoMu ||
-	std::abs(id)==m_NeutrinoTau ){
+    if( abs(id)==m_NeutrinoEl ||
+	abs(id)==m_NeutrinoMu ||
+	abs(id)==m_NeutrinoTau ){
       mass1 = 0.0;
       mass2 = 0.0;
     }
-    else if( std::abs(id)==m_ElectronID ){
+    else if( abs(id)==m_ElectronID ){
       if(idx==0) mass1 = m_ElectronMass;
       if(idx==2) mass2 = m_ElectronMass;
     }
-    else if( std::abs(id)==m_MuonID ){
+    else if( abs(id)==m_MuonID ){
       if(idx==0) mass1 = m_MuonMass;
       if(idx==2) mass2 = m_MuonMass;
     }
-    else if( std::abs(id)==m_TauID ){
+    else if( abs(id)==m_TauID ){
       if (idx==0) mass1 = m_TauMass;
       if (idx==2) mass2 = m_TauMass;
     }
@@ -314,10 +314,10 @@ std::pair<double,double> DRM::SetParticleMass(long *ID){
       mass2 = 0.0;
     }
   }
-  Pmass.first=mass1;
-  Pmass.second=mass2;
+  m_Pmass.first=mass1;
+  m_Pmass.second=mass2;
   
-  return Pmass;
+  return m_Pmass;
   
 }
 
