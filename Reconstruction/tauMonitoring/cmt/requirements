@@ -8,12 +8,13 @@ use AtlasPolicy          AtlasPolicy-*
 use AthenaMonitoring     AthenaMonitoring-*    Control
 use AtlasROOT            AtlasROOT-*           External
 use GaudiInterface 	 GaudiInterface-*      External
-use TrigDecisionTool     TrigDecisionTool-*    Trigger/TrigAnalysis
+#use TrigDecisionTool     TrigDecisionTool-*    Trigger/TrigAnalysis
 use xAODTau             xAODTau-*              Event/xAOD
 	
 private
 use xAODEventInfo        xAODEventInfo-*       Event/xAOD
 use xAODTracking             xAODTracking-*              Event/xAOD
+use TrigDecisionTool     TrigDecisionTool-*    Trigger/TrigAnalysis
 
 public
 library tauMonitoring *.cxx components/*.cxx

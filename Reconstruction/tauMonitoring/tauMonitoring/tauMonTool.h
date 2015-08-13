@@ -17,7 +17,6 @@
 #include "TH2.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "xAODTau/TauDefs.h"
 #include "xAODTau/TauJet.h"
 
@@ -44,11 +43,10 @@ protected:
 
 	//global plots
 	struct s_basicPlots {
-		TH1* h_ntaus_vs_LB[6];
-		int  h_ntausLB[6];
+		TH1* h_ntaus_vs_LB;
+		int  h_ntausLB;
 		TH1* h_ntaus;
 
-		TH1* h_author; //not used in 2012
 		TH1* h_eta;
 		TH1* h_phi;
 		TH1* h_et;
@@ -93,7 +91,6 @@ protected:
 		TH1* h_eleBDTMedium;
 		TH1* h_eleBDTTight;
 		TH1* h_BDTJetScore;
-		TH1* h_BDTEleScore;
 		TH1* h_BDTJetScoreSigTrans;
 		TH1* h_BDTJetScoreBkgTrans;
 
@@ -140,7 +137,6 @@ protected:
 		TH1* h_nStrip;
 		TH1* h_trkAvgDist;
 		TH1* h_dRmax;
-		//TH1* h_cellBasedEnergyRing[7];
 
 		TH2* h_centFrac_vs_LB;
 		TH2* h_isolFrac_vs_LB;
@@ -148,7 +144,6 @@ protected:
 
 	struct s_kinFolder {
 		TH1* h_ntaus;
-		TH1* h_author; //not used in 2012
 		TH1* h_eta;
 		TH1* h_phi;
 		TH1* h_et;
@@ -195,11 +190,12 @@ protected:
 
 private:
 	StoreGateSvc* m_storeGate;
-	ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+
+        bool m_Trigged, m_doLS ;
         std::vector< std::vector< std::string > > m_trigItems ;
 
 	StatusCode bookBasicPlots(s_basicPlots& trigPlots, MonGroup &aGroup, std::string preffix);
-	void fillBasicPlots(s_basicPlots& someBasicPlots, std::vector<int> author, const xAOD::TauJet* tau);
+	void fillBasicPlots(s_basicPlots& someBasicPlots, const xAOD::TauJet* tau);
 
 	StatusCode bookHistos(s_mainFolder& mainFolder, std::string folderName, Interval_t interval);
 	StatusCode bookKinHistos(s_kinFolder& folder,  MonGroup &aGroup);
@@ -212,7 +208,7 @@ private:
 	StatusCode bookPhysicsHistograms();
 	//StatusCode bookOldHistograms();
 
-	StatusCode fillHistograms(s_mainFolder& mainFolder, std::vector<int> author, const xAOD::TauJet* tau);
+	StatusCode fillHistograms(s_mainFolder& mainFolder, const xAOD::TauJet* tau);
 	StatusCode fillHistogramsTauTrig(s_mainFolder& mainFolder, const xAOD::TauJet* tau);
 	StatusCode fillHistogramsLowStat(s_mainFolder& mainFolder, const xAOD::TauJet* tau);
 
