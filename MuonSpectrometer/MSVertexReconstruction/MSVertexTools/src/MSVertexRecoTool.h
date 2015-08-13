@@ -62,14 +62,14 @@ namespace Muon {
   private:
     //add tool handles, private variables, etc here
     ToolHandle <Trk::IExtrapolator> m_extrapolator;
-    std::string m_xAODContainerName;
+    std::string xAODContainerName;
     const MdtIdHelper* m_mdtIdHelper;
     const RpcIdHelper* m_rpcIdHelper;
     const TgcIdHelper* m_tgcIdHelper;
     float m_BarrelTrackletUncert;
     float m_EndcapTrackletUncert;
     float m_TrackPhiAngle;
-    float m_VxChi2ProbCUT;
+    float VxChi2ProbCUT;
     float m_VxPlaneDist;
     float m_VertexMaxRadialPlane;
     float m_VertexMinRadialPlane;
@@ -79,7 +79,7 @@ namespace Muon {
     unsigned int m_maxGlobalTracklets;
     unsigned int m_maxClusterTracklets;
     float m_MaxTollDist;
-    float m_PI;
+    float PI;
     bool m_doSystematics;
 
     CLHEP::HepRandomEngine* m_rndmEngine;

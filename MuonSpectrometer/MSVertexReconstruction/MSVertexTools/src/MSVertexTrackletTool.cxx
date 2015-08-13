@@ -27,7 +27,7 @@
   3 == BMS  10 == BOG   |   17 == EML
   4 == BOL  52 == BIM   |   18 == EMS
   5 == BOS  53 == BME   |   20 == EOL
-  6 == BEE  54 == BMG
+  6 == BEE
 
 */
 
@@ -37,7 +37,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  const MdtIdHelper* MSVertexTrackletTool::s_mdtCompareIdHelper;
+  const MdtIdHelper* MSVertexTrackletTool::mdtCompareIdHelper;
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -46,16 +46,7 @@ namespace Muon {
   MSVertexTrackletTool::MSVertexTrackletTool (const std::string& type, const std::string& name,
 					      const IInterface* parent)
     : 
-    AthAlgTool(type, name, parent),
-    m_mdtIdHelper(0),
-    m_DeltaAlphaCut(0),
-    m_nMDT(0),
-    m_PI(3.1415927),
-    m_BIL(28.4366),
-    m_BML(62.8267),
-    m_BMS(53.1259),
-    m_BOL(29.7554)
-  {
+    AthAlgTool(type, name, parent) {
     declareInterface<IMSVertexTrackletTool>(this);    
 
     declareProperty("xAODTrackParticleContainer",m_TPContainer = "MSonlyTracklets");
@@ -88,15 +79,15 @@ namespace Muon {
       ATH_MSG_ERROR("Failed to retrieve the mdtIdHelper");
       return StatusCode::FAILURE;
     }
-    s_mdtCompareIdHelper = m_mdtIdHelper;
+    mdtCompareIdHelper = m_mdtIdHelper;
 
     //CONSTANTS
-    m_PI = 3.1415927;
+    PI = 3.1415927;
     //Delta Alpha Constants -- p = k/(delta_alpha)
-    m_BIL = 28.4366;//MeV*mrad
-    m_BML = 62.8267;//MeV*mrad
-    m_BMS = 53.1259;//MeV*mrad
-    m_BOL = 29.7554;//MeV*mrad
+    k_BIL = 28.4366;//MeV*mrad
+    k_BML = 62.8267;//MeV*mrad
+    k_BMS = 53.1259;//MeV*mrad
+    k_BOL = 29.7554;//MeV*mrad
 
     return StatusCode::SUCCESS;
   }
@@ -125,9 +116,9 @@ namespace Muon {
 
     //sort the MDT hits into chambers & MLs
     std::vector<std::vector<Muon::MdtPrepData*> > SortedMdt;
-    m_nMDT = SortMDThits(SortedMdt);   
+    nMDT = SortMDThits(SortedMdt);   
 
-    if (m_nMDT<=0) {
+    if (nMDT<=0) {
 
       //record TrackParticle container in StoreGate
       xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
@@ -147,7 +138,7 @@ namespace Muon {
     }
 
     if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << m_nMDT << " MDT hits are selected and sorted" << endmsg;
+      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endreq;
 
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
@@ -155,11 +146,9 @@ namespace Muon {
        ( )( )(3)( )     ( )(3)( )( )     ( )( )( )( )     ( )( )(3)( )     ( )(2)(3)( )   
       ( )(2)( )( )     ( )(2)( )( )     ( )(2)(3)( )     ( )(1)(2)( )     ( )(1)( )( )    
        (1)( )( )( )     (1)( )( )( )     (1)( )( )( )     ( )( )( )( )     ( )( )( )( )   
-     Barrel selection criteria: |z_mdt1 - z_mdt2| < 50 mm, |z_mdt1 - z_mdt3| < 80 mm
-     Endcap selection criteria: |r_mdt1 - r_mdt2| < 50 mm, |r_mdt1 - r_mdt3| < 80 mm
+     Barrel selection criteria: |z_mdt1 - z_mdt2| < 100 mm, |z_mdt1 - z_mdt3| < 160 mm
+     Endcap selection criteria: |r_mdt1 - r_mdt2| < 100 mm, |r_mdt1 - r_mdt3| < 160 mm
     */
-    double d12_max = 50.; double d13_max = 80.;
-
     static double errorCutOff = 0.001;
     std::vector<TrackletSegment> segs[6][2][16];//single ML segment array (indicies [station type][ML][sector])
     std::vector<std::vector<Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
@@ -172,7 +161,7 @@ namespace Muon {
       int stEta = m_mdtIdHelper->stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
       if(stName == 1 && fabs(stEta) >= 7) continue; //ignore hits from BIS7/8
-      if(stName == 53 || stName == 54) continue; //ignore hits from BME and BMG
+      if(stName == 53) continue; //ignore hits from BME
 
       //convert to the hardware sector [1-16]
       int sector = 2*(m_mdtIdHelper->stationPhi((*mdt1)->identify()));
@@ -200,12 +189,12 @@ namespace Muon {
 	  //select the correct combinations
 	  int tl2 = m_mdtIdHelper->tubeLayer((*mdt2)->identify());	  
 	  if(mdt1 == mdt2 || (tl2 - tl1) > 1 || (tl2 - tl1) < 0 ) continue; 
-	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d12_max && (stName <= 11 || stName == 52)) continue;
+	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > 100 && (stName <= 11 || stName == 52)) continue;
 	  //if chamber is endcap, use distance in r
 	  if( (stName > 11 && stName <=21) || stName == 49 ) {
 	    float mdt1R = (*mdt1)->globalPosition().perp();
 	    float mdt2R = (*mdt2)->globalPosition().perp();
-	    if(fabs(mdt1R-mdt2R) > d12_max) continue;
+	    if(fabs(mdt1R-mdt2R) > 100) continue;
 	  }
 	  if( (tl2-tl1) == 0 && (m_mdtIdHelper->tube((*mdt2)->identify()) - m_mdtIdHelper->tube((*mdt1)->identify())) < 0) continue;	
 	  //find the third hit
@@ -223,12 +212,12 @@ namespace Muon {
 	    if(mdt1 == mdt3 || mdt2 == mdt3) continue;
 	    if( (tl3-tl2) > 1 || (tl3-tl2) < 0 || (tl3-tl1) <= 0) continue;
 	    if( (tl3-tl2) == 0 && (m_mdtIdHelper->tube((*mdt3)->identify()) - m_mdtIdHelper->tube((*mdt2)->identify())) < 0) continue;
-	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d13_max && (stName <= 11 || stName == 52) ) continue;
+	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > 160 && (stName <= 11 || stName == 52) ) continue;
 	    //if chamber is endcap, use distance in r
 	    if( (stName > 11 && stName <=21) || stName == 49 ) {
 	      float mdt1R = (*mdt1)->globalPosition().perp();
 	      float mdt3R = (*mdt3)->globalPosition().perp();
-	      if(fabs(mdt1R-mdt3R) > d13_max) continue;
+	      if(fabs(mdt1R-mdt3R) > 160) continue;
 	    }
 	    //store and fit the good combinations
 	    std::vector<Muon::MdtPrepData*> mdts;
@@ -275,15 +264,15 @@ namespace Muon {
 	for(unsigned int i1=0; i1<CleanSegs[st][0][sector].size(); ++i1) {	
 	  //Set the delta alpha cut depending on station type
 	  int stName = CleanSegs[st][0][sector].at(i1).mdtChamber();
-	  if( stName == 0) m_DeltaAlphaCut = m_BIL/750.0;
-	  else if(stName == 2) m_DeltaAlphaCut = m_BML/750.0;
-	  else if(stName == 3) m_DeltaAlphaCut = m_BMS/750.0;
-	  else if(stName == 4) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 7) m_DeltaAlphaCut = m_BIL/750.0;
-	  else if(stName == 8) m_DeltaAlphaCut = m_BML/750.0;
-	  else if(stName == 9) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 10) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 52) m_DeltaAlphaCut = m_BIL/750.0;
+	  if( stName == 0) m_DeltaAlphaCut = k_BIL/750.0;
+	  else if(stName == 2) m_DeltaAlphaCut = k_BML/750.0;
+	  else if(stName == 3) m_DeltaAlphaCut = k_BMS/750.0;
+	  else if(stName == 4) m_DeltaAlphaCut = k_BOL/750.0;
+	  else if(stName == 7) m_DeltaAlphaCut = k_BIL/750.0;
+	  else if(stName == 8) m_DeltaAlphaCut = k_BML/750.0;
+	  else if(stName == 9) m_DeltaAlphaCut = k_BOL/750.0;
+	  else if(stName == 10) m_DeltaAlphaCut = k_BOL/750.0;
+	  else if(stName == 52) m_DeltaAlphaCut = k_BIL/750.0;
 	  else if(stName <= 11) m_DeltaAlphaCut = 0.02;
 	  else m_DeltaAlphaCut = m_EndcapDeltaAlphaCut;
 	  //loop on ML2 segments from same sector
@@ -451,11 +440,11 @@ namespace Muon {
     const Muon::MdtPrepDataContainer* mdtTES = 0;
     if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
       if (msgLvl(MSG::DEBUG)) 
-	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endmsg;
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endreq;
       return 0;
     } else {
       if (msgLvl(MSG::DEBUG)) 
-	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles retrieved" << endmsg;
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles retrieved" << endreq;
     }
 
     Muon::MdtPrepDataContainer::const_iterator MDTItr = mdtTES->begin();
@@ -477,8 +466,8 @@ namespace Muon {
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
       if(stName == 1 && fabs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
 
-      // Doesn't consider hits belonging to BME or BMG chambers
-      if(stName == 53 || stName == 54) continue;
+      // Doesn't consider hits belonging to BME chamber
+      if(stName == 53) continue;
 
       // sort per multi layer
       std::vector<Muon::MdtPrepData*> hitsML1;
@@ -544,9 +533,9 @@ namespace Muon {
 
   bool MSVertexTrackletTool::mdtComp(const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2) {
     //mdts sorted by layer and tube number
-    if(s_mdtCompareIdHelper->tubeLayer(mprd1->identify()) > s_mdtCompareIdHelper->tubeLayer(mprd2->identify())) return false;
-    if(s_mdtCompareIdHelper->tubeLayer(mprd1->identify()) < s_mdtCompareIdHelper->tubeLayer(mprd2->identify())) return true;
-    if(s_mdtCompareIdHelper->tube(mprd1->identify()) < s_mdtCompareIdHelper->tube(mprd2->identify())) return true;
+    if(mdtCompareIdHelper->tubeLayer(mprd1->identify()) > mdtCompareIdHelper->tubeLayer(mprd2->identify())) return false;
+    if(mdtCompareIdHelper->tubeLayer(mprd1->identify()) < mdtCompareIdHelper->tubeLayer(mprd2->identify())) return true;
+    if(mdtCompareIdHelper->tube(mprd1->identify()) < mdtCompareIdHelper->tube(mprd2->identify())) return true;
     return false;
   }
 
@@ -717,7 +706,7 @@ namespace Muon {
       
       //Find the initial parameters of the fit
       float alpha = atan2(SeedParams.at(i_p).first,1.0);
-      if(alpha < 0) alpha += m_PI;
+      if(alpha < 0) alpha += PI;
       float dalpha = 0;
       float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*cos(alpha);
       float dd = 0;
@@ -1042,16 +1031,15 @@ namespace Muon {
   float MSVertexTrackletTool::TrackMomentum(int chamber,float deltaAlpha) {
     float pTot = 100000.;
     //p = k/delta_alpha 
-    if(chamber == 0) pTot = m_BIL/fabs(deltaAlpha);
-    else if(chamber == 2) pTot = m_BML/fabs(deltaAlpha);
-    else if(chamber == 3) pTot = m_BMS/fabs(deltaAlpha);
-    else if(chamber == 54) pTot = m_BMS/fabs(deltaAlpha);
-    else if(chamber == 4) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 7) pTot = m_BIL/fabs(deltaAlpha);
-    else if(chamber == 8) pTot = m_BML/fabs(deltaAlpha);
-    else if(chamber == 9) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 10) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 52) pTot = m_BIL/fabs(deltaAlpha);
+    if(chamber == 0) pTot = k_BIL/fabs(deltaAlpha);
+    else if(chamber == 2) pTot = k_BML/fabs(deltaAlpha);
+    else if(chamber == 3) pTot = k_BMS/fabs(deltaAlpha);
+    else if(chamber == 4) pTot = k_BOL/fabs(deltaAlpha);
+    else if(chamber == 7) pTot = k_BIL/fabs(deltaAlpha);
+    else if(chamber == 8) pTot = k_BML/fabs(deltaAlpha);
+    else if(chamber == 9) pTot = k_BOL/fabs(deltaAlpha);
+    else if(chamber == 10) pTot = k_BOL/fabs(deltaAlpha);
+    else if(chamber == 52) pTot = k_BIL/fabs(deltaAlpha);
     if(pTot > 10000.) pTot = 100000.;
     
     return pTot;
@@ -1065,17 +1053,16 @@ namespace Muon {
     //uncertainty on 1/p
     int ChType = ml1.mdtChamber();
     float dalpha = sqrt(sq(ml1.alphaError())+sq(ml2.alphaError()));
-    float pErr = dalpha/m_BML;
-    if(ChType == 0) pErr = dalpha/m_BIL;
-    else if(ChType == 2) pErr = dalpha/m_BML;
-    else if(ChType == 3) pErr = dalpha/m_BMS;
-    else if(ChType == 54) pErr = dalpha/m_BMS;
-    else if(ChType == 4) pErr = dalpha/m_BOL;
-    else if(ChType == 7) pErr = dalpha/m_BIL;
-    else if(ChType == 8) pErr = dalpha/m_BML;
-    else if(ChType == 9) pErr = dalpha/m_BOL;
-    else if(ChType == 10) pErr = dalpha/m_BOL;
-    else if(ChType == 52) pErr = dalpha/m_BIL;
+    float pErr = dalpha/k_BML;
+    if(ChType == 0) pErr = dalpha/k_BIL;
+    else if(ChType == 2) pErr = dalpha/k_BML;
+    else if(ChType == 3) pErr = dalpha/k_BMS;
+    else if(ChType == 4) pErr = dalpha/k_BOL;
+    else if(ChType == 7) pErr = dalpha/k_BIL;
+    else if(ChType == 8) pErr = dalpha/k_BML;
+    else if(ChType == 9) pErr = dalpha/k_BOL;
+    else if(ChType == 10) pErr = dalpha/k_BOL;
+    else if(ChType == 52) pErr = dalpha/k_BIL;
     
     return pErr;
   }
@@ -1088,17 +1075,16 @@ namespace Muon {
     //uncertainty in 1/p
     int ChType = ml1.mdtChamber();
     float dalpha = fabs(ml1.alphaError());
-    float pErr = dalpha/m_BML;
-    if(ChType == 0) pErr = dalpha/m_BIL;
-    else if(ChType == 2) pErr = dalpha/m_BML;
-    else if(ChType == 3) pErr = dalpha/m_BMS;
-    else if(ChType == 54) pErr = dalpha/m_BMS;
-    else if(ChType == 4) pErr = dalpha/m_BOL;
-    else if(ChType == 7) pErr = dalpha/m_BIL;
-    else if(ChType == 8) pErr = dalpha/m_BML;
-    else if(ChType == 9) pErr = dalpha/m_BOL;
-    else if(ChType == 10) pErr = dalpha/m_BOL;
-    else if(ChType == 52) pErr = dalpha/m_BIL;
+    float pErr = dalpha/k_BML;
+    if(ChType == 0) pErr = dalpha/k_BIL;
+    else if(ChType == 2) pErr = dalpha/k_BML;
+    else if(ChType == 3) pErr = dalpha/k_BMS;
+    else if(ChType == 4) pErr = dalpha/k_BOL;
+    else if(ChType == 7) pErr = dalpha/k_BIL;
+    else if(ChType == 8) pErr = dalpha/k_BML;
+    else if(ChType == 9) pErr = dalpha/k_BOL;
+    else if(ChType == 10) pErr = dalpha/k_BOL;
+    else if(ChType == 52) pErr = dalpha/k_BIL;
     
     return pErr;
   }

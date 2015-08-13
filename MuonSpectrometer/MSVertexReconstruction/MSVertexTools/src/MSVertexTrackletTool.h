@@ -37,7 +37,7 @@ namespace Muon {
     //tool handles & private data members
 
     const MdtIdHelper* m_mdtIdHelper;
-    static const MdtIdHelper* s_mdtCompareIdHelper;
+    static const MdtIdHelper* mdtCompareIdHelper;
 
     std::string m_TPContainer;
     float m_SeedResidual;
@@ -46,17 +46,17 @@ namespace Muon {
     float m_maxDeltabCut;
     float m_EndcapDeltaAlphaCut;
     float m_DeltaAlphaCut;
-    //float m_DeltabCut; //this variable is not used right now
-    //float m_TrackPhiAngle; //this variable is not used right now
+    float m_DeltabCut;
+    float m_TrackPhiAngle;
 
     bool m_tightTrackletRequirement;
 
-    int m_nMDT;
-    float m_PI;
-    float m_BIL;
-    float m_BML;
-    float m_BMS;
-    float m_BOL;
+    int nMDT;
+    float PI;
+    float k_BIL;
+    float k_BML;
+    float k_BMS;
+    float k_BOL;
 
 
   public:
