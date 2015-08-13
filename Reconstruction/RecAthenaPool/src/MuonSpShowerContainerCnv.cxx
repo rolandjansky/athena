@@ -20,7 +20,7 @@ MuonSpShowerContainerCnv::createPersistent( Rec::MuonSpShowerContainer* transCon
     MuonSpShowerContainerCnv_p1 cnv;
     MuonSpShowerContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-    msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+    msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
     return persObj; 
 }
 
@@ -41,8 +41,8 @@ MuonSpShowerContainerCnv::createTransient()
 
     } else if ( compareClassGuid(p1_guid) ) {
 
-    // using unique_ptr ensures deletion of the persistent object
-        std::unique_ptr<MuonSpShowerContainer_p1> persObj( poolReadObject<MuonSpShowerContainer_p1>() );
+    // using auto_ptr ensures deletion of the persistent object
+        std::auto_ptr<MuonSpShowerContainer_p1> persObj( poolReadObject<MuonSpShowerContainer_p1>() );
         MuonSpShowerContainerCnv_p1 cnv;
         transObj = cnv.createTransient( persObj.get(), msg );
     } else {

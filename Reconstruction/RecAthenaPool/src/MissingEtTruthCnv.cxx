@@ -28,7 +28,7 @@ MissingEtTruthCnv::createPersistent( MissingEtTruth* transCont )
   MissingEtTruthCnv_p3 cnv;
   MissingEtTruth_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
   return persObj; 
 }
 
@@ -45,22 +45,22 @@ MissingEtTruth* MissingEtTruthCnv::createTransient()
 
   if (  compareClassGuid(p3_guid)) {
 	
-    // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr<MissingEtTruth_p3> persObj( poolReadObject<MissingEtTruth_p3>() );
+    // using auto_ptr ensures deletion of the persistent object
+    std::auto_ptr<MissingEtTruth_p3> persObj( poolReadObject<MissingEtTruth_p3>() );
     MissingEtTruthCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 	
   } else if (  compareClassGuid(p2_guid)) {
 	
-    // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr<MissingEtTruth_p2> persObj( poolReadObject<MissingEtTruth_p2>() );
+    // using auto_ptr ensures deletion of the persistent object
+    std::auto_ptr<MissingEtTruth_p2> persObj( poolReadObject<MissingEtTruth_p2>() );
     MissingEtTruthCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 	
   } else if (  compareClassGuid(p1_guid)) {
 	
-    // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr<MissingEtTruth_p1> persObj( poolReadObject<MissingEtTruth_p1>() );
+    // using auto_ptr ensures deletion of the persistent object
+    std::auto_ptr<MissingEtTruth_p1> persObj( poolReadObject<MissingEtTruth_p1>() );
     MissingEtTruthCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 	
