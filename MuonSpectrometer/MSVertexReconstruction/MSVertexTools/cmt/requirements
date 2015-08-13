@@ -18,7 +18,6 @@ use xAODTracking		  xAODTracking-*		Event/xAOD
 use GaudiInterface		  GaudiInterface-*		External
 use AtlasCLHEP                    AtlasCLHEP-*                  External
 use Identifier     		  Identifier-*        		DetectorDescription
-use GeoAdaptors                   GeoAdaptors-*                 DetectorDescription/GeoModel
 use GeoPrimitives                 GeoPrimitives-*               DetectorDescription
 use EventPrimitives               EventPrimitives-*             Event
 use MuonIdHelpers                 MuonIdHelpers-*               MuonSpectrometer
@@ -27,6 +26,8 @@ use MSVertexUtils                 MSVertexUtils-*               MuonSpectrometer
 use MSVertexToolInterfaces        MSVertexToolInterfaces-*      MuonSpectrometer/MSVertexReconstruction
 use TrkParameters                 TrkParameters-*               Tracking/TrkEvent
 use TrkExInterfaces               TrkExInterfaces-*             Tracking/TrkExtrapolation
+
+use MuonPrepRawData     MuonPrepRawData-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
 # ============================================================================================
 public

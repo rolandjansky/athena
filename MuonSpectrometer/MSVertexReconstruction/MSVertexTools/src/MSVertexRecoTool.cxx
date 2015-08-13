@@ -11,6 +11,11 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+
 #define MAXPLANES 100
 
 /*

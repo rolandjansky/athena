@@ -10,7 +10,6 @@
 #include "MSVertexToolInterfaces/IMSVertexTrackletTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoAdaptors/GeoMuonHits.h"
 #include "Identifier/Identifier.h"
 #include "MSVertexUtils/TrackletSegment.h"
 #include "MSVertexUtils/Tracklet.h"

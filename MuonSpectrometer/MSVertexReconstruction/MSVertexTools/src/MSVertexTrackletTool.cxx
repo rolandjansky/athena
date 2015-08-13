@@ -10,18 +10,24 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+
 /*
   Tracklet reconstruction tool
   See documentation at https://cds.cern.ch/record/1455664 and https://cds.cern.ch/record/1520894
 
   station name reference:
          Barrel         |           Endcap
-  0 == BIL   6 == BEE   |   13 == EIL  21 == EOS
-  1 == BIS   7 == BIR   |   14 == EEL  49 == EIS
-  2 == BML   8 == BMF   |   15 == EES
-  3 == BMS   9 == BOF   |   17 == EML
-  4 == BOL  10 == BOG   |   18 == EMS
-  5 == BOS  52 == BIM   |   20 == EOL
+  0 == BIL   7 == BIR   |   13 == EIL  21 == EOS
+  1 == BIS   8 == BMF   |   14 == EEL  49 == EIS
+  2 == BML   9 == BOF   |   15 == EES
+  3 == BMS  10 == BOG   |   17 == EML
+  4 == BOL  52 == BIM   |   18 == EMS
+  5 == BOS  53 == BME   |   20 == EOL
+  6 == BEE
 
 */
 
@@ -154,7 +160,9 @@ namespace Muon {
       int stName = m_mdtIdHelper->stationName((*mdt1)->identify());
       int stEta = m_mdtIdHelper->stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
-      if(stName == 1 && fabs(stEta) >= 7) continue;//ignore hits from BIS7/8
+      if(stName == 1 && fabs(stEta) >= 7) continue; //ignore hits from BIS7/8
+      if(stName == 53) continue; //ignore hits from BME
+
       //convert to the hardware sector [1-16]
       int sector = 2*(m_mdtIdHelper->stationPhi((*mdt1)->identify()));
       if(stName == 0 || stName == 2 || stName == 4 || stName == 13 || stName == 17 || stName == 20) sector -= 1;
@@ -457,6 +465,9 @@ namespace Muon {
 
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
       if(stName == 1 && fabs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
+
+      // Doesn't consider hits belonging to BME chamber
+      if(stName == 53) continue;
 
       // sort per multi layer
       std::vector<Muon::MdtPrepData*> hitsML1;

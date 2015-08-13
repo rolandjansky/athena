@@ -12,7 +12,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "GeoAdaptors/GeoMuonHits.h"
 #include "Identifier/Identifier.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
