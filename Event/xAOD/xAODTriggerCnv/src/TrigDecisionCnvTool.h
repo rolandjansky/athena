@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: TrigDecisionCnvTool.h 689387 2015-08-14 12:10:51Z stelzer $
 #ifndef XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 #define XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 
@@ -37,8 +37,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 688265 $
-    * $Date: 2015-08-08 18:31:45 +0200 (Sat, 08 Aug 2015) $
+    * $Revision: 689387 $
+    * $Date: 2015-08-14 14:10:51 +0200 (Fri, 14 Aug 2015) $
     */
    class TrigDecisionCnvTool : public AthAlgTool,
                                public virtual ITrigDecisionCnvTool {

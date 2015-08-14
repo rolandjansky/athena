@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvAlg.cxx 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: TrigDecisionCnvAlg.cxx 689387 2015-08-14 12:10:51Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: TrigDecisionCnvTool.cxx 689387 2015-08-14 12:10:51Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -27,22 +27,22 @@ namespace xAODMaker {
  
       const static unsigned int requireDecision          = 0x1;
       // ... otherwise ignore the decision
-      //const static unsigned int passedThrough            = 0x1 << 1;
+      const static unsigned int passedThrough            = 0x1 << 1;
       // ... otherwise ignore the passedThrough requirement
-      //const static unsigned int allowResurrectedDecision = 0x1 << 2;
+      const static unsigned int allowResurrectedDecision = 0x1 << 2;
       // ... otherwise require that it wasn't resurrected
       //
       const static unsigned int enforceLogicalFlow       = 0x1 << 5;
       // ... otherwise we only care about this trigger level
-      //const static unsigned int eventAccepted            = 0x1 << 6;
+      const static unsigned int eventAccepted            = 0x1 << 6;
       // ... an event was written out (useful for trigger rates)
       //
-      //const static unsigned int ignoreIOV = 0x1 << 15;
-      //const static unsigned int alsoDeactivateTEs = 0x1 << 16;
-      //const static unsigned int ignoreFDR = 0x1 << 17;
+      const static unsigned int ignoreIOV = 0x1 << 15;
+      const static unsigned int alsoDeactivateTEs = 0x1 << 16;
+      const static unsigned int ignoreFDR = 0x1 << 17;
       //
       const static unsigned int Physics = requireDecision | enforceLogicalFlow;
-      //const static unsigned int fullChain = enforceLogicalFlow;
+      const static unsigned int fullChain = enforceLogicalFlow;
       // Bit location placeholders for isPassedBit()
       const static unsigned int EF_passedRaw              =0x1;
       const static unsigned int EF_passThrough            =0x1 << 1;
@@ -52,11 +52,11 @@ namespace xAODMaker {
       const static unsigned int L2_passThrough            =0x1 << 9;
       const static unsigned int L2_prescaled              =0x1 << 10;
       const static unsigned int L2_resurrected            =0x1 << 11;
-      //const static unsigned int L1_isPassedAfterPrescale  = 0x1 << 16;
-      //const static unsigned int L1_isPassedBeforePrescale = 0x1 << 17;
-      //const static unsigned int L1_isPassedAfterVeto      = 0x1 << 18;
-      //const static unsigned int EF_error                  = 0x1 << 19;
-      //const static unsigned int L2_error                  = 0x1 << 20;
+      const static unsigned int L1_isPassedAfterPrescale  = 0x1 << 16;
+      const static unsigned int L1_isPassedBeforePrescale = 0x1 << 17;
+      const static unsigned int L1_isPassedAfterVeto      = 0x1 << 18;
+      const static unsigned int EF_error                  = 0x1 << 19;
+      const static unsigned int L2_error                  = 0x1 << 20;
    }
 
    /// The range in which we copy the trigger decision for the chains
@@ -77,8 +77,6 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ITrigDecisionCnvTool >( this );
-
-      declareProperty ("TrigDecisionTool", m_tdt);
    }
 
    StatusCode TrigDecisionCnvTool::initialize() {

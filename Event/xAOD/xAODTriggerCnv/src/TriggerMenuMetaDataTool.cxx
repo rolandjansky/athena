@@ -2,58 +2,104 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenuMetaDataTool.cxx 683395 2015-07-16 11:11:56Z krasznaa $
+// $Id: TriggerMenuMetaDataTool.cxx 656102 2015-03-23 12:32:37Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
 
+// Gaudi/Athena include(s):
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/Incident.h"
+#include "AthenaKernel/errorcheck.h"
+
 // Local include(s):
-#include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
+#include "TriggerMenuMetaDataTool.h"
 
 namespace xAODMaker {
 
-   TriggerMenuMetaDataTool::TriggerMenuMetaDataTool( const std::string& name )
-      : asg::AsgMetadataTool( name ),
-        m_menu(), m_menuAux(), m_beginFileIncidentSeen( false ) {
+   /// Name of the incident sent around for metadata writing
+   static const char* METADATASTOP = "MetaDataStop";
+
+   TriggerMenuMetaDataTool::TriggerMenuMetaDataTool( const std::string& type,
+                                                     const std::string& name,
+                                                     const IInterface* parent )
+      : AthAlgTool( type, name, parent ),
+        m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
+        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name ),
+        m_menu(), m_menuAux() {
+
+      declareProperty( "InputMetaStore", m_inputMetaStore );
+      declareProperty( "OutputMetaStore", m_outputMetaStore );
 
       declareProperty( "InputKey", m_inputKey = "TriggerMenu" );
       declareProperty( "OutputKey", m_outputKey = "TriggerMenu" );
 
-#ifdef ASGTOOL_ATHENA
       declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+      declareInterface< ::IIncidentListener >( this );
    }
 
    StatusCode TriggerMenuMetaDataTool::initialize() {
 
       // Greet the user:
-      ATH_MSG_DEBUG( "Initialising TriggerMenuMetaDataTool" );
+      ATH_MSG_DEBUG( "Initialising - Package version: " << PACKAGE_VERSION );
+      ATH_MSG_DEBUG( "  InputMetaStore  = " << m_inputMetaStore );
+      ATH_MSG_DEBUG( "  OutputMetaStore = " << m_outputMetaStore );
       ATH_MSG_DEBUG( "  InputKey  = " << m_inputKey );
       ATH_MSG_DEBUG( "  OutputKey = " << m_outputKey );
 
-      // Reset the internal variable(s):
-      m_menu.reset(); m_menuAux.reset();
-      m_beginFileIncidentSeen = false;
+      // Connect to the metadata stores:
+      ATH_CHECK( m_inputMetaStore.retrieve() );
+      ATH_CHECK( m_outputMetaStore.retrieve() );
+
+      // Make the tool listen to certain incidents:
+      ServiceHandle< ::IIncidentSvc > incSvc( "IncidentSvc", name() );
+      ATH_CHECK( incSvc.retrieve() );
+      incSvc->addListener( this, IncidentType::BeginInputFile );
+      incSvc->addListener( this, METADATASTOP, 70 );
 
       // Retrun gracefully:
       return StatusCode::SUCCESS;
    }
 
-   StatusCode TriggerMenuMetaDataTool::beginInputFile() {
+   void TriggerMenuMetaDataTool::handle( const Incident& inc ) {
 
-      // Whatever happens, we've seen the first BeginInputFile incident now.
-      m_beginFileIncidentSeen = true;
+      // Some debugging information:
+      ATH_MSG_DEBUG( "Received incident: " << inc.type() );
+
+      if( inc.type() == IncidentType::BeginInputFile ) {
+         if( collectMetaData().isFailure() ) {
+            REPORT_ERROR( MSG::FATAL )
+               << "Failed to collect metadata from the input file";
+            throw std::runtime_error( "Failed to collect trigger configuration "
+                                      "metadata from the input" );
+         }
+      } else if( inc.type() == METADATASTOP ) {
+         if( writeMetaData().isFailure() ) {
+            REPORT_ERROR( MSG::FATAL )
+               << "Failed to write metadata to the output store";
+            throw std::runtime_error( "Failed write xAOD::TriggerMenuContainer "
+                                      "to the output" );
+         }
+      } else {
+         ATH_MSG_WARNING( "Unknown incident type (" << inc.type() << ") "
+                          << "received" );
+      }
+
+      return;
+   }
+
+   StatusCode TriggerMenuMetaDataTool::collectMetaData() {
 
       // If the input file doesn't have any trigger configuration metadata,
       // then finish right away:
-      if( ! inputMetaStore()->contains< xAOD::TriggerMenuContainer >(
+      if( ! m_inputMetaStore->contains< xAOD::TriggerMenuContainer >(
                                                                 m_inputKey ) ) {
          return StatusCode::SUCCESS;
       }
 
       // Retrieve the input container:
       const xAOD::TriggerMenuContainer* input = 0;
-      ATH_CHECK( inputMetaStore()->retrieve( input, m_inputKey ) );
+      ATH_CHECK( m_inputMetaStore->retrieve( input, m_inputKey ) );
 
       // Create an output container if it doesn't exist yet:
       if( ( ! m_menu.get() ) && ( ! m_menuAux.get() ) ) {
@@ -93,25 +139,12 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode TriggerMenuMetaDataTool::beginEvent() {
-
-      // In case the BeginInputFile incident was missed in standalone mode, make
-      // sure that the metadata from the first input file is collected at this
-      // point at least.
-      if( ! m_beginFileIncidentSeen ) {
-         ATH_CHECK( beginInputFile() );
-      }
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TriggerMenuMetaDataTool::metaDataStop() {
+   StatusCode TriggerMenuMetaDataTool::writeMetaData() {
 
       // The output may already have trigger configuration metadata in it.
       // For instance from TrigConf::xAODMenuWriter. In this case let that
       // object take precedence.
-      if( outputMetaStore()->contains< xAOD::TriggerMenuContainer >(
+      if( m_outputMetaStore->contains< xAOD::TriggerMenuContainer >(
                                                                m_outputKey ) ) {
          ATH_MSG_DEBUG( "xAOD::TriggerMenuContainer already in the output" );
          return StatusCode::SUCCESS;
@@ -121,9 +154,9 @@ namespace xAODMaker {
       // processed input files.
       if( m_menu.get() && m_menuAux.get() ) {
          ATH_MSG_DEBUG( "Recording trigger configuration metadata" );
-         ATH_CHECK( outputMetaStore()->record( m_menu.release(),
+         ATH_CHECK( m_outputMetaStore->record( std::move( m_menu ),
                                                m_outputKey ) );
-         ATH_CHECK( outputMetaStore()->record( m_menuAux.release(),
+         ATH_CHECK( m_outputMetaStore->record( std::move( m_menuAux ),
                                                m_outputKey + "Aux." ) );
       }
 

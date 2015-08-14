@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
+// $Id: ITrigDecisionCnvTool.h 689388 2015-08-14 12:11:17Z stelzer $
 #ifndef XAODTRIGGERCNV_ITRIGDECISIONCNVTOOL_H
 #define XAODTRIGGERCNV_ITRIGDECISIONCNVTOOL_H
 
@@ -36,8 +36,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay@cern.ch>
     *
-    * $Revision: 688265 $
-    * $Date: 2015-08-08 18:31:45 +0200 (Sat, 08 Aug 2015) $
+    * $Revision: 689388 $
+    * $Date: 2015-08-14 14:11:17 +0200 (Fri, 14 Aug 2015) $
     */
    class ITrigDecisionCnvTool : public virtual IAlgTool {
 
