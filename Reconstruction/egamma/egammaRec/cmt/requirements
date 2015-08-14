@@ -24,7 +24,7 @@ use egammaInterfaces           egammaInterfaces-*       Reconstruction/egamma
 use xAODTracking               xAODTracking-*     Event/xAOD
 
 use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
-
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 
 apply_tag ROOTMathLibs
 end_private

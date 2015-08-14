@@ -38,7 +38,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 class IegammaBaseTool;
-class IEMAmbiguityTool;
+class IEGammaAmbiguityTool;
 class IEMTrackMatchBuilder;
 class IEMConversionBuilder;
 //C.A
@@ -116,7 +116,7 @@ class egammaBuilder : public AthAlgorithm
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
 
-  /** @brief retrieve EMAmbiguityTool **/
+  /** @brief retrieve EGammaAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
   /** @brief retrieve EMTrackMatchBuilder **/
   StatusCode RetrieveEMTrackMatchBuilder();
@@ -149,7 +149,7 @@ class egammaBuilder : public AthAlgorithm
   //
   // subalgorithm pointers cached in initialize:
   /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEMAmbiguityTool>             m_ambiguityTool;
+  ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
   /** @brief Tool to perform track matching*/
   ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
   /** @brief Tool to retrieve the conversions*/

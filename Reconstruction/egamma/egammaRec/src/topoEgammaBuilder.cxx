@@ -19,8 +19,8 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h" 
-#include "egammaInterfaces/IEMAmbiguityTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
@@ -265,7 +265,7 @@ StatusCode topoEgammaBuilder::RetrieveAmbiguityTool()
 {
   // retrieve Ambiguity tool
   if (m_ambiguityTool.empty()) {
-    ATH_MSG_ERROR("EMAmbiguityTool is empty");
+    ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
     return StatusCode::FAILURE;
   }
 
@@ -584,7 +584,9 @@ StatusCode topoEgammaBuilder::execute()
       }
 
     ATH_MSG_INFO("Running AmbiguityTool");
-    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
+    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
+                                                            egRec->vertex(),
+                                                            egRec->trackParticle());
 
     //Set author for equivalent electron.
     if (elec) {

@@ -19,7 +19,7 @@ def doSuperclusters():
 
 from egammaTools.egammaToolsFactories import \
     EMBremCollectionBuilder, EMTrackMatchBuilder,\
-    EMVertexBuilder, EMConversionBuilder, EMAmbiguityTool,\
+    EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
 
@@ -76,7 +76,7 @@ class egammaGetter ( Configured ) :
                                    TrackMatchBuilderTool = EMTrackMatchBuilder,
                                    VertexBuilder = EMVertexBuilder if doConversions() else None,
                                    ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-                                   AmbiguityTool = EMAmbiguityTool,
+                                   AmbiguityTool = EGammaAmbiguityTool,
                                    
                                    # Decoration tools
                                    egammaTools = FcnWrapper(egammaDecorationTools),

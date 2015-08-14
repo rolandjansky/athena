@@ -131,7 +131,7 @@ class clusterCorrectionVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str', 'None']
-    StoredValue='v12phiflip_noecorr'
+    StoredValue='v12phiflip_noecorrnogap'
 
 
 # add the egammaRec flags container to the top container 

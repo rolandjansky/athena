@@ -37,8 +37,8 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h" 
-#include "egammaInterfaces/IEMAmbiguityTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
@@ -249,7 +249,7 @@ StatusCode egammaBuilder::RetrieveAmbiguityTool()
 {
   // retrieve Ambiguity tool
   if (m_ambiguityTool.empty()) {
-    ATH_MSG_ERROR("EMAmbiguityTool is empty");
+    ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
     return StatusCode::FAILURE;
   }
 
@@ -495,7 +495,9 @@ StatusCode egammaBuilder::execute()
   // Run the ambiguity resolving to decide if we should create electron and/or photon
   for (const auto& egRec : *egammaRecs){
     ATH_MSG_DEBUG("Running AmbiguityTool");
-    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
+    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
+                                                            egRec->vertex(),
+                                                            egRec->trackParticle());
     
     ATH_MSG_DEBUG("...author: " << author);
     if (author == xAOD::EgammaParameters::AuthorUnknown) continue;

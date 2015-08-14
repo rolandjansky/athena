@@ -10,6 +10,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODTruth/xAODTruthHelpers.h"
 
 #include "xAODTruth/TruthParticle.h"
 // #include "xAODTruth/TruthParticleContainer.h"
@@ -222,7 +223,7 @@ void egammaTruthAssociationAlg::getNewTruthParticle(const xAOD::TruthParticle *t
 // ==========================================================================
 template<class T> bool egammaTruthAssociationAlg::decorateWithRecoLink(T* part, const DataVector<T>* container, std::string name) const
 {
-  const xAOD::TruthParticle *truth = xAOD::EgammaHelpers::getTruthParticle(part);
+  const xAOD::TruthParticle *truth = xAOD::TruthHelpers::getTruthParticle(*part);
   if (!truth)
   {
     ATH_MSG_DEBUG("No truth particle associated to " << name);
