@@ -14,5 +14,6 @@ namespace HLT {
   const static class_id_type invalid_class_id = 0;
   const static index_type invalid_index = static_cast<uint32_t>(-1);
   const static index_type invalid_sub_index = static_cast<uint16_t>(-1);
+
 }
 #endif 
