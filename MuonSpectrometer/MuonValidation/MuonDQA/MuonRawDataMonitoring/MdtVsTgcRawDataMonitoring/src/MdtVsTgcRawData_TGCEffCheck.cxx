@@ -313,144 +313,50 @@ MdtVsTgcRawDataValAlg::TGCstationname2stationindex(int stationName){
 
 // Get Eta or Phi index for the StationMap histograms from TRE variables
 int
-MdtVsTgcRawDataValAlg::getStationMapIndex(int k, int x, int l, int stationFE, int stationEta, int stationPhi){
+MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stationEta, int stationPhi){
   // Display error messages if invalid TRE variables are passed in
   if((stationFE!=0)&&(stationFE!=1)) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationFE=" << stationFE << endreq;
   if((l<0)||(l>8)) m_log << MSG::WARNING << "getStationMapIndex passed invalid layer index l=" << l << endreq;
   if(stationEta<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationEta=" << stationEta << endreq;
   if(stationPhi<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationPhi=" << stationPhi << endreq;
-  bool isStrip=false;
-  if(k==1)isStrip=true;
   int index=0;
   switch(x){
-    case 1:// Getting Eta Index
-      if(!isStrip){
-        if(l==0||l==1||l==2){
-          if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=4;
-            index=32+l;
-          }else {
-            index=4-stationEta;
-            index = 7*index + l;
-          }
-        }
-        else if(l==3||l==4||l==5||l==6){
-          if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=5;
-            index=33+l;
-          }else{
-            index=5-stationEta;
-            if(index<4)     index = 7*index+l;
-            if(index==4)index = 25+l;
-          }
-        }
-        else if(l==7){
-          if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=1;
-            index=42;
-          }else{
-            index=40;
-          }
-        }
-        else if(l==8){
-          if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=1;
-            index=43;
-          }else{
-            index=41;
-          }
-        }
-      }else{
-        if(l==0){
-          if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=4;
-            index=29;
-          }else {
-            index=4-stationEta;
-            index = 6*index + l;
-          }
-        }
-        if(l==1){
-          if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=4;
-            index=43;
-          }else {
-            index=4-stationEta;
-            index = 39+index;
-          }
-        }
-        if(l==2){
-          if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=4;
-            index=30;
-          }else{
-            index=4-stationEta;
-            index = 6*index + l-1;
-          }
-        }
-        else if(l==3||l==4||l==5||l==6){
-          if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=5;
-            index=26+l;
-          }else{
-            index=5-stationEta;
-            if(index<4)     index = 6*index+l-1;
-            if(index==4)index = 21+l;
-          }
-        }
-        else if(l==7){
-          if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=1;
-            index=37;
-          }else{
-            index=35;
-          }
-        }
-        else if(l==8){
-          if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-          if(stationFE==0){
-            index=1;
-            index=38;
-          }else{
-            index=36;
-          }
-        }
-      }
-      break;
-
-  case 3:// Getting Eta Index //use old eta bin
+   case 1:// Getting Eta Index //use old eta bin
     if(l==0||l==1||l==2){// T1
       if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=4;
-      else index=4-stationEta;
-      index+=(l*5);
+      if(stationFE==0)index=32+l;
+      else{ 
+      	index=4-stationEta;
+        index=index*7+l;
+			}
     }
     else if(l==3||l==4){// T2
       if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=5;
-      else index=5-stationEta;
-      index+=((l-3)*6)+15;
+      if(stationFE==0)index=32+l;
+      else {
+        index=5-stationEta;
+        index=index*7+l;
+        if(stationEta==1)index=25+l;
+      }
     }
     else if(l==5||l==6){// T3
       if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=5;
-      else index=5-stationEta;
-      index+=((l-5)*6)+27;
+      if(stationFE==0)index=32+l;
+      else{
+        index=5-stationEta;
+        index=index*7+l;
+        if(stationEta==1)index=25+l;
+      }
     }
     else if(l==7||l==8){// T4
       if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=1;
-      else index=1-stationEta;
-      index+=((l-7)*2)+39;
+      if(stationFE==0){
+        if(l==7){index=41;}
+        else if(l==8){index=42;}
+      }else{
+        if(l==7){index=39;}
+        else if(l==8){index=40;}
+      }
     }
     break;
   case 2:// Getting Phi Index

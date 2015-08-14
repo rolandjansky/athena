@@ -203,7 +203,7 @@ public:
                            const Muon::TgcPrepDataContainer *tgc_prepcontainer);
   void tgceffcalcfinalize();                                                               // Finalize histograms used in tgceffcalc
   // Subsidiary functions used for managing StationMap style histograms
-  int  getStationMapIndex(int k, int x, int l, int stationFE, int stationEta, int stationPhi);
+  int  getStationMapIndex(int x, int l, int stationFE, int stationEta, int stationPhi);
   void labelStationMap(TH2 *h2, int i=-1, int k=-1);
   void putBox(TH2* h2, float x1, float y1, float x2, float y2);
   void BlankPhi24(TH2 *h2, int binx);

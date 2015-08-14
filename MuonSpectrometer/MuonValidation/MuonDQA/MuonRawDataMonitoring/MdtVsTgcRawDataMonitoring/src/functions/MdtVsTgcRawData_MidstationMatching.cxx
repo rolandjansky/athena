@@ -584,8 +584,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               continue;
             }
             // Get Sector histogram indexes
-            int stationMap_EtaIndex=getStationMapIndex(k,1, l, TGCstation_StationFEFill[stationIndex], TGCstation_StationEtaFill[stationIndex], TGCstation_StationPhiFill[stationIndex]);
-            int stationMap_PhiIndex=getStationMapIndex(k,2, l, TGCstation_StationFEFill[stationIndex], TGCstation_StationEtaFill[stationIndex], TGCstation_StationPhiFill[stationIndex]);
+            int stationMap_EtaIndex=getStationMapIndex(1, l, TGCstation_StationFEFill[stationIndex], TGCstation_StationEtaFill[stationIndex], TGCstation_StationPhiFill[stationIndex]);
+            int stationMap_PhiIndex=getStationMapIndex(2, l, TGCstation_StationFEFill[stationIndex], TGCstation_StationEtaFill[stationIndex], TGCstation_StationPhiFill[stationIndex]);
             
             // Fill Sector efficiency histograms
             if(sectorhitregisteredFill[l][k]){// Hit in Sector matches extrapolated track

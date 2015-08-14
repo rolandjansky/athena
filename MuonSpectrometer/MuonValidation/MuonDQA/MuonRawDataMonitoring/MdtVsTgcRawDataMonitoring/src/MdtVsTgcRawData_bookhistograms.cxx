@@ -455,7 +455,6 @@ MdtVsTgcRawDataValAlg::labelStationMap(TH2 *h2, int ac, int ws){
         if(nChambers[l]==5)sst<<chamber1[c];
         else if(nChambers[l]==6)sst<<chamber3[c];
         else if(nChambers[l]==2)sst<<chamberE[c];
-        if(ws==0){//wire
           if(l+1>0 && l+1<=3 && c+1<5)ibin=7*c+(l+1);
           else if(l+1>3 && l+1<=7 && c+1<5)ibin=7*c+(l+1);
           else if(l+1>3 && l+1<=7 && c+1==5)ibin=25+(l+1);
@@ -470,23 +469,6 @@ MdtVsTgcRawDataValAlg::labelStationMap(TH2 *h2, int ac, int ws){
           else if(l+1==8 && c+1==2)ibin=42;
           else if(l+1==9 && c+1==1)ibin=41;
           else if(l+1==9 && c+1==2)ibin=43;
-        }else{//strip
-          if((l+1==1 ) && c+1<5)ibin=6*c+(l+1);
-          else if(l+1==2)ibin=38+c+1;
-          else if((l+1==3 ) && c+1<5)ibin=6*c+l;
-          else if(l+1>3 && l+1<=7 && c+1<5)ibin=6*c+l;
-          else if(l+1>3 && l+1<=7 && c+1==5)ibin=21+(l+1);
-          else if(l+1==1 && c+1==5)ibin=29;
-          else if(l+1==3 && c+1==5)ibin=30;
-          else if(l+1==4 && c+1==6)ibin=31;
-          else if(l+1==5 && c+1==6)ibin=32;
-          else if(l+1==6 && c+1==6)ibin=33;
-          else if(l+1==7 && c+1==6)ibin=34;
-          else if(l+1==8 && c+1==1)ibin=35;
-          else if(l+1==8 && c+1==2)ibin=37;
-          else if(l+1==9 && c+1==1)ibin=36;
-          else if(l+1==9 && c+1==2)ibin=38;
-        }
         h2->GetXaxis()->SetBinLabel(ibin, sst.str().c_str()); 
         h2->GetXaxis()->SetBit(TAxis::kLabelsVert);
         sst.str(""); 

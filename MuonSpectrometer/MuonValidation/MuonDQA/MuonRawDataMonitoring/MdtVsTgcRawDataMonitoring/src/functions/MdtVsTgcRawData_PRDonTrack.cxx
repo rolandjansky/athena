@@ -366,8 +366,8 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
             continue;
           }
           // Get Sector histogram indexes
-          int stationMap_EtaIndex=getStationMapIndex(k,1, l, TGCstation_StationFE[stationIndex], TGCstation_StationEta[stationIndex], TGCstation_StationPhi[stationIndex]);
-          int stationMap_PhiIndex=getStationMapIndex(k,2, l, TGCstation_StationFE[stationIndex], TGCstation_StationEta[stationIndex], TGCstation_StationPhi[stationIndex]);
+          int stationMap_EtaIndex=getStationMapIndex(1, l, TGCstation_StationFE[stationIndex], TGCstation_StationEta[stationIndex], TGCstation_StationPhi[stationIndex]);
+          int stationMap_PhiIndex=getStationMapIndex(2, l, TGCstation_StationFE[stationIndex], TGCstation_StationEta[stationIndex], TGCstation_StationPhi[stationIndex]);
           // Fill Sector efficiency histograms
           if(sectorhitregistered[l][k]){// Hit in Sector matches extrapolated track
             eff_stationmapbase[i][k][1]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);

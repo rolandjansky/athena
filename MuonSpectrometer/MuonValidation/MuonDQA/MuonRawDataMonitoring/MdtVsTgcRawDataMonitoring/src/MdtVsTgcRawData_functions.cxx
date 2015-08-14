@@ -170,7 +170,6 @@ void
 MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h, int ws){
   bool m_rebin=true;
   if(m_rebin){//use new bin
-    if(ws==0){//Wire
       for(int i=33; i<44;i++)BlankPhi24(h,i);
       int x1=h->GetXaxis()->GetBinLowEdge(40);
       int x2=h->GetXaxis()->GetBinUpEdge(40);
@@ -188,25 +187,26 @@ MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h, int ws){
       y2=h->GetYaxis()->GetBinUpEdge(43);
       putBox(h, x1, y1, x2, y2);
       putBox(h, x3, y1, x4, y2);
-    }else{//Strip
-      for(int i=29; i<39;i++)BlankPhi24(h,i);
-      int x1=h->GetXaxis()->GetBinLowEdge(35);
-      int x2=h->GetXaxis()->GetBinUpEdge(35);
-      int x3=h->GetXaxis()->GetBinLowEdge(36);
-      int x4=h->GetXaxis()->GetBinUpEdge(36);
-      int y1=h->GetYaxis()->GetBinLowEdge(19);
-      int y2=h->GetYaxis()->GetBinUpEdge(19);
-      putBox(h, x1, y1, x2, y2);
-      putBox(h, x3, y1, x4, y2);
-      y1=h->GetYaxis()->GetBinLowEdge(35);
-      y2=h->GetYaxis()->GetBinUpEdge(35);
-      putBox(h, x1, y1, x2, y2);
-      putBox(h, x3, y1, x4, y2);
-      y1=h->GetYaxis()->GetBinLowEdge(43);
-      y2=h->GetYaxis()->GetBinUpEdge(43);
-      putBox(h, x1, y1, x2, y2);
-      putBox(h, x3, y1, x4, y2);
-    }
+      
+      if(ws==1){//Strip
+        x1=h->GetXaxis()->GetBinLowEdge(2);
+        y1=h->GetYaxis()->GetBinLowEdge(1);				
+        x2=h->GetXaxis()->GetBinUpEdge(2); 				
+        y2=h->GetYaxis()->GetBinUpEdge(48); 				
+        putBox(h, x1, y1, x2, y2);          				
+        x1=h->GetXaxis()->GetBinLowEdge(9);			
+        x2=h->GetXaxis()->GetBinUpEdge(9); 			
+        putBox(h, x1, y1, x2, y2);          			
+        x1=h->GetXaxis()->GetBinLowEdge(16);
+        x2=h->GetXaxis()->GetBinUpEdge(16);
+        putBox(h, x1, y1, x2, y2);
+        x1=h->GetXaxis()->GetBinLowEdge(23);
+        x2=h->GetXaxis()->GetBinUpEdge(23); 			
+        putBox(h, x1, y1, x2, y2);          			
+        x1=h->GetXaxis()->GetBinLowEdge(34);
+        x2=h->GetXaxis()->GetBinUpEdge(34);
+        putBox(h, x1, y1, x2, y2);
+      }
   }else{//use old bin
     BlankPhi24(h, 5);
     BlankPhi24(h, 10);
