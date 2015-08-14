@@ -24,11 +24,12 @@ namespace robmonitor {
    */
   enum ROBHistory { 
     UNCLASSIFIED      = 0,  // ROB was requested but never arrived at processor. History unknown. 
-    RETRIEVED         = 1,  // ROB was retrieved from ROS by DataCollector
-    CACHED            = 2,  // ROB was found already in the internal cache of the ROBDataProviderSvc
-    IGNORED           = 4,  // ROB was on the "ignore" list and therefore not retrieved 
-    DISABLED          = 8,  // ROB was disabled in OKS and therefore not retrieved
-    NUM_ROBHIST_CODES = 5   // number of different history codes
+    SCHEDULED         = 1,  // ROB was scheduled before retrieveing
+    RETRIEVED         = 2,  // ROB was retrieved from ROS by DataCollector
+    CACHED            = 4,  // ROB was found already in the internal cache of the ROBDataProviderSvc
+    IGNORED           = 8,  // ROB was on the "ignore" list and therefore not retrieved 
+    DISABLED          = 16,  // ROB was disabled in OKS and therefore not retrieved
+    NUM_ROBHIST_CODES = 6   // number of different history codes
   };
 
   /**
@@ -51,6 +52,7 @@ namespace robmonitor {
     robmonitor::ROBHistory rob_history;        // History of ROB retrieval
     std::vector<uint32_t> rob_status_words;    // all status words in the ROB header
 
+
     // Accessor functions
     /** @brief ROB is unclassified */
     bool isUnclassified();
@@ -62,6 +64,8 @@ namespace robmonitor {
     bool isIgnored();
     /** @brief ROB was disabled in OKS */
     bool isDisabled();
+    /** @brief ROB was scheduled over network */
+    bool isScheduled();
     /** @brief ROB has no status words set */
     bool isStatusOk();
 
@@ -112,6 +116,8 @@ namespace robmonitor {
     unsigned ignoredROBs();
     /** @brief number of disabled ROBs in structure */
     unsigned disabledROBs();
+    /** @brief number of scheduled ROBs in structure */
+    unsigned scheduledROBs();
     /** @brief number of ROBs with no status words set in structure */
     unsigned statusOkROBs();
 
@@ -139,6 +145,9 @@ namespace robmonitor {
       os << "IGNORED";
     } else if (rhs.rob_history == robmonitor::DISABLED) {
       os << "DISABLED";
+   } else if (rhs.rob_history == robmonitor::SCHEDULED) {
+      os << "SCHEDULED";
+
     } else {
       os << "invalid code";
     }
@@ -176,6 +185,7 @@ namespace robmonitor {
     os << "\n" << prefix << prefix2 << "Retrieved    " << rhs.retrievedROBs()    ;
     os << "\n" << prefix << prefix2 << "Ignored      " << rhs.ignoredROBs()      ;
     os << "\n" << prefix << prefix2 << "Disabled     " << rhs.disabledROBs()     ;
+    os << "\n" << prefix << prefix2 << "Scheduled     " << rhs.scheduledROBs()     ;
     os << "\n" << prefix << prefix2 << "Status OK    " << rhs.statusOkROBs()     ;
     for (std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it=rhs.requested_ROBs.begin();
 	 it != rhs.requested_ROBs.end(); ++it) {

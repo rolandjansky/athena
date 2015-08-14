@@ -45,6 +45,11 @@ bool ROBDataStruct::isDisabled() {
   return ((rob_history == robmonitor::DISABLED) ? true : false);
 }
 
+bool ROBDataStruct::isScheduled() {
+  return ((rob_history == robmonitor::SCHEDULED) ? true : false);
+}
+
+
 bool ROBDataStruct::isStatusOk() {
   if (rob_status_words.size() == 0) return true;
   if ((rob_status_words.size() > 0) && (rob_status_words[0] == 0)) return true;
@@ -129,6 +134,15 @@ unsigned ROBDataMonitorStruct::disabledROBs() {
   for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isDisabled()) ++ret;
+  }     
+  return ret;
+}
+
+unsigned ROBDataMonitorStruct::scheduledROBs() {
+  ptrdiff_t ret=0;
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+        it != requested_ROBs.end(); it++ ) {
+    if ((*it).second.isScheduled()) ++ret;
   }     
   return ret;
 }

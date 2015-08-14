@@ -126,7 +126,7 @@ StatusCode MonROBDataProviderSvc::initialize()
 
   // Setup the StoreGateSvc
   if( (m_storeGateSvc.retrieve()).isFailure() ) {
-    logStream() << MSG::ERROR << "Error retrieving StoreGateSvc "+m_storeGateSvc << endreq;
+    logStream() << MSG::ERROR << "Error retrieving StoreGateSvc " << m_storeGateSvc << endreq;
     m_storeGateSvc.release().ignore();
     return StatusCode::FAILURE;
   }
@@ -401,7 +401,11 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_requestedROBsPerCall.value().lowEdge(), 
 					  m_histProp_requestedROBsPerCall.value().highEdge());
   if (m_hist_requestedROBsPerCall) {
-    m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+     m_hist_requestedROBsPerCall->SetCanExtend(TH1::kAllAxes);
+#else     
+     m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
+#endif     
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endreq;
     }
@@ -414,7 +418,11 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_receivedROBsPerCall.value().lowEdge(), 
 					  m_histProp_receivedROBsPerCall.value().highEdge());
   if (m_hist_receivedROBsPerCall) {
-    m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+     m_hist_receivedROBsPerCall->SetCanExtend(TH1::kAllAxes);
+#else
+     m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
+#endif     
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endreq;
     }
@@ -427,7 +435,11 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_timeROBretrieval.value().lowEdge(), 
 					  m_histProp_timeROBretrieval.value().highEdge());
   if (m_hist_timeROBretrieval) {
-    m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+     m_hist_timeROBretrieval->SetCanExtend(TH1::kAllAxes);
+#else
+     m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
+#endif
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endreq;
     }
