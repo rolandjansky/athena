@@ -8,21 +8,30 @@
 JetClusterMomentsTool::JetClusterMomentsTool(const std::string& name)
     : JetModifierBase(name)
 {
+    declareProperty( "DoClsPt"           , m_doClsPt           = true );
+    declareProperty( "DoClsSecondLambda" , m_doClsSecondLambda = true );
+    declareProperty( "DoClsCenterLambda" , m_doClsCenterLambda = true );
+    declareProperty( "DoClsSecondR"      , m_doClsSecondR      = true );
 }
 
 int JetClusterMomentsTool::modifyJet(xAOD::Jet& jet) const {
     // Find leading constituent cluster
     const xAOD::CaloCluster * leadingCluster = findLeadingCluster(jet);
-    if (!leadingCluster) ATH_MSG_WARNING("Jet has no CaloCluster constituents, leading cluster not found");
-    ATH_MSG_DEBUG("Leading cluster retrieving finished.");
+    if (!leadingCluster) {
+      ATH_MSG_WARNING("Jet has no CaloCluster constituents, leading cluster not found");
+      ATH_MSG_DEBUG("Leading cluster retrieving finished.");
+      return 0;
+    }
     // Collate info
-    float LeadingClusterSecondLambda = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_LAMBDA);
-    float LeadingClusterCenterLambda = getMoment(leadingCluster, xAOD::CaloCluster::CENTER_LAMBDA);
-    float LeadingClusterSecondR      = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_R);
+    float LeadingClusterPt           = (m_doClsPt           ) ? leadingCluster->          pt()                             :  0.0;
+    float LeadingClusterSecondLambda = (m_doClsSecondLambda ) ? getMoment(leadingCluster, xAOD::CaloCluster::SECOND_LAMBDA) : 0.0;
+    float LeadingClusterCenterLambda = (m_doClsCenterLambda ) ? getMoment(leadingCluster, xAOD::CaloCluster::CENTER_LAMBDA) : 0.0;
+    float LeadingClusterSecondR      = (m_doClsSecondR      ) ? getMoment(leadingCluster, xAOD::CaloCluster::SECOND_R) : 0.0;
     // Set info
-    jet.setAttribute( "LeadingClusterSecondLambda" , LeadingClusterSecondLambda );
-    jet.setAttribute( "LeadingClusterCenterLambda" , LeadingClusterCenterLambda );
-    jet.setAttribute( "LeadingClusterSecondR"      , LeadingClusterSecondR      );
+    if (m_doClsPt           ) jet.setAttribute( "LeadingClusterPt"           , LeadingClusterPt           );
+    if (m_doClsSecondLambda ) jet.setAttribute( "LeadingClusterSecondLambda" , LeadingClusterSecondLambda );
+    if (m_doClsCenterLambda ) jet.setAttribute( "LeadingClusterCenterLambda" , LeadingClusterCenterLambda );
+    if (m_doClsSecondR      ) jet.setAttribute( "LeadingClusterSecondR"      , LeadingClusterSecondR      );
     return 0;
 }
 
