@@ -1,5 +1,5 @@
 package xAODTriggerCnv
-# $Id: requirements 651874 2015-03-05 14:16:19Z krasznaa $
+# $Id: requirements 689392 2015-08-14 12:14:19Z stelzer $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -13,6 +13,8 @@ use GaudiInterface         GaudiInterface-*         External
 use xAODTrigger            xAODTrigger-*            Event/xAOD
 
 private
+
+use  EventInfo                  EventInfo-*                     Event
 
 # Base Gaudi/Athena package(s):
 use AthenaBaseComps        AthenaBaseComps-*        Control

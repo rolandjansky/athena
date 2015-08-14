@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.cxx 626742 2014-11-06 20:08:44Z lheinric $
+// $Id: TrigDecisionCnvTool.cxx 689387 2015-08-14 12:10:51Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -103,16 +103,54 @@ namespace xAODMaker {
     *          something else if not
     */
    StatusCode TrigDecisionCnvTool::convert( const TrigDec::TrigDecision* aod,
-                                            xAOD::TrigDecision* xaod ) {
+                                            xAOD::TrigDecision* xaod, const TriggerInfo * triggerInfo) {
+
+      ATH_MSG_DEBUG( "converting TrigDecision to xAOD::TrigDecision" );
 
       // Copy the trigger configuration key:
       xaod->setSMK( aod->masterKey() );
 
       // Copy the LVL1 information:
       xaod->setBGCode( aod->BGCode() );
-      xaod->setTAV( aod->getL1Result().itemsAfterVeto() );
-      xaod->setTAP( aod->getL1Result().itemsAfterPrescale() );
-      xaod->setTBP( aod->getL1Result().itemsBeforePrescale() );
+      ATH_MSG_DEBUG( "converting BGCode " << std::hex << (unsigned int) aod->BGCode() << "  (size " << sizeof(aod->BGCode()) << "|" << sizeof(xaod->bgCode()) << ")" );
+
+      if( aod->getL1Result().isConfigured() ) {
+         ATH_MSG_DEBUG( "setting L1 info from old TrigDecision");
+         xaod->setTAV( aod->getL1Result().itemsAfterVeto() );
+         xaod->setTAP( aod->getL1Result().itemsAfterPrescale() );
+         xaod->setTBP( aod->getL1Result().itemsBeforePrescale() );
+      } else if( triggerInfo != nullptr ){
+         ATH_MSG_DEBUG( "setting L1 info from TriggerInfo (l1 size " << triggerInfo->level1TriggerInfo().size() << ")" );
+         
+         uint32_t L1SIZE = triggerInfo->level1TriggerInfo().size()/3;
+         std::vector<uint32_t>::const_iterator begin, end;
+    
+         begin = triggerInfo->level1TriggerInfo().begin();
+         end = begin;
+         std::advance(end,L1SIZE);
+         std::vector<uint32_t> tbp(begin,end);
+    
+         begin = end;
+         std::advance(end,L1SIZE);
+         std::vector<uint32_t> tap(begin,end);
+    
+         begin = end;
+         std::advance(end,L1SIZE);
+         std::vector<uint32_t> tav(begin,end);
+
+         xaod->setTAV( tav );
+         xaod->setTAP( tap );
+         xaod->setTBP( tbp );
+
+         ATH_MSG_DEBUG( "TBP size = " << xaod->tbp().size() );
+         ATH_MSG_DEBUG( "TAP size = " << xaod->tap().size() );
+         ATH_MSG_DEBUG( "TAV size = " << xaod->tav().size() );
+         
+      } else {
+
+         ATH_MSG_DEBUG( "can not set L1 info as the old TrigDecision has no L1Result and there is no TriggerInfo available");
+
+      }
 
       // Copy the basic HLT information:
       xaod->setLVL2ErrorBits( aod->getL2Result().error_bits() );
