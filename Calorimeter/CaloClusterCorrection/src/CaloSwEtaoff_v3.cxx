@@ -367,9 +367,9 @@ float CaloSwEtaoff_v3::Builder::calc10 (float aeta,
     double xdiff = pars[4] * (std::cos (pars[5] * M_PI + pars[6]) -
                               std::cos (- pars[5] * M_PI + pars[6]));
     if (u > 0.9)
-      offs -= (u-0.9)/0.1 * xdiff/2;
+      offs -= (u-0.9)*(1./0.1) * xdiff/2;
     else
-      offs += (-0.9-u)/0.1 * xdiff/2;
+      offs += (-0.9-u)*(1./0.1) * xdiff/2;
   }
   return offs;
 }

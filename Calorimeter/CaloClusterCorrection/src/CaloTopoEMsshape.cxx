@@ -86,8 +86,8 @@ void CaloTopoEMsshape::makeTheCorrection(xAOD::CaloCluster* cluster,
     { 
       if (samp == CaloSampling::EMB2 || samp == CaloSampling::EME2) 
 	{
-	  qsshape = m_P0[iEtaBin]/100.*std::atan(m_P1[iEtaBin]*u)
-	    + m_P2[iEtaBin]/100.*u + m_P3[iEtaBin]/1000.*fabs(u) + m_P4[iEtaBin]/1000.;
+	  qsshape = m_P0[iEtaBin]*0.01*std::atan(m_P1[iEtaBin]*u)
+	    + m_P2[iEtaBin]*0.01*u + m_P3[iEtaBin]*1e-3*fabs(u) + m_P4[iEtaBin]*1e-3;
 	}
       else // wrong samp value
 	{

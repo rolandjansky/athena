@@ -58,7 +58,7 @@ void CaloLongWeights_v2::makeTheCorrection(CaloCluster* cluster,
   float coefs[5];
 
   //eta bin
-  int etaIndex = (int) (the_eta / 0.025);
+  int etaIndex = (int) (the_eta * (1./0.025));
 
   //samples
   unsigned int n_samples = m_energies.size();

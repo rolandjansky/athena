@@ -981,6 +981,20 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                          [time,                 801],
                          [listBadChannel,       820]],
 
+        # Same as v12phiflip_noecorr but remove also the gap correction, i.e only position corrections are applied
+        'v12phiflip_noecorrnogap' : [
+                         [layers,               100],
+                         [rfac,       'v5',     150],   
+                         [etaoff_b1,  'v5',     201],   
+                         [etaoff_e1,  'v5',     202],   
+                         [etaoff_b2,  'v5',     203],   
+                         [etaoff_e2,  'v5',     204],   
+                         [phioff_b2,  'v5data', 205],   
+                         [phioff_e2,  'v5data', 206],   
+                         [update,               300],
+                         [time,                 801],
+                         [listBadChannel,       820]],
+
         # Layer weights correction for Atlfast2 simulation
         # with ATLAS-CSC-05-00-00 geometry (14.0.0).
         'v1_atlfast' : [[layers,                    100],

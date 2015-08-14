@@ -555,18 +555,23 @@ class CaloClusterCorrSetup:
         log.debug (" making metatool %s" % metatool.getName())
         log.debug ("  specs: %s", specs)
 
-        # If we're running this to make the trigger DB, turn on
-        # NoClearProps.  But try to avoid importing trigger packages
-        # if they haven't already been read.
-        import sys
-        if sys.modules.has_key ('TriggerJobOpts.TriggerFlags'):
-            TriggerFlags = sys.modules['TriggerJobOpts.TriggerFlags']
-            if hasattr (TriggerFlags, 'TriggerFlags'):
-                TriggerFlags = TriggerFlags.TriggerFlags
-                if hasattr (TriggerFlags, 'Online'):
-                    Online = TriggerFlags.Online
-                    if Online.doDBConfig():
-                        metatool.NoClearProps = True
+        # # If we're running this to make the trigger DB, turn on
+        # # NoClearProps.  But try to avoid importing trigger packages
+        # # if they haven't already been read.
+        # import sys
+        # if sys.modules.has_key ('TriggerJobOpts.TriggerFlags'):
+        #     TriggerFlags = sys.modules['TriggerJobOpts.TriggerFlags']
+        #     if hasattr (TriggerFlags, 'TriggerFlags'):
+        #         TriggerFlags = TriggerFlags.TriggerFlags
+        #         if hasattr (TriggerFlags, 'Online'):
+        #             Online = TriggerFlags.Online
+        #             if Online.doDBConfig():
+        #                 metatool.NoClearProps = True
+
+        # Ok, clearing the properties was an interesting idea, but in the
+        # usual configuration it won't save very much, and it causes problems
+        # with trying to clone algorithms for Hive.  Just disable it for now.
+        metatool.NoClearProps = True
             
         return metatool
 

@@ -81,7 +81,7 @@ void CaloSwEta1e_g3::makeCorrection(CaloCluster* cluster)
   }
   else if (aeta > 1.8) 
   {
-    ufrac = middle_layer_granularity/6.;
+    ufrac = middle_layer_granularity*(1./6);
     corrndx = 1;
   }
   else if (aeta > 1.5) 

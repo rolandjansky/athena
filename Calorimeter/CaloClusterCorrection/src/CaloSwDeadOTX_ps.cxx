@@ -172,7 +172,7 @@ void CaloSwDeadOTX_ps::makeTheCorrection
 	
    ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endreq);
 
-   double depth_max = 20. + 3. * raw_energy/TeV ;
+   double depth_max = 20. + raw_energy*(3./TeV);
 
    if ( shower_lbary > depth_max || shower_lbary<0.) {
      shower_lbary = 15.;
@@ -180,7 +180,7 @@ void CaloSwDeadOTX_ps::makeTheCorrection
          << endreq);
    }
 
-   raw_energy = raw_energy / 1000.;
+   raw_energy = raw_energy * 1e-3;
 
 // -------------------------------------------------------------
 // Estimate the total energy lost in front of the accordion using the 

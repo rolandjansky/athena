@@ -229,7 +229,7 @@ void CaloClusterTimeTool::makeCellTimeCorrection(float pv_z,const CaloCell* cell
 
     time = cell->time();
     error=0.;
-    float e_GEV = cell->e()/(1000.) ;
+    float e_GEV = cell->e()*(1./1000.) ;
     CaloGain::CaloGain  gain= cell->gain();
     unsigned int dbGain = CaloCondUtils::getDbCaloGain(gain);
    
@@ -471,7 +471,7 @@ float CaloClusterTimeTool::pvCorr(float cellX, float cellY, float cellZ, float p
   ATH_MSG_DEBUG("inside pvCorr");
   float r_cen = sqrt(cellX*cellX + cellY*cellY + cellZ*cellZ);
   float r_pv = sqrt(cellX*cellX + cellY*cellY + (cellZ-pvZ)*(cellZ-pvZ));
-  float tOff = (r_pv-r_cen)*0.01/3.0;
+  float tOff = (r_pv-r_cen)*(0.01/3.0);
 
   return tOff;
 }
@@ -483,7 +483,8 @@ float CaloClusterTimeTool::errorCompute(float errOff[], int num, float energy){
    return 0;
  }
 
- float error = sqrt( ((errOff[0]/energy)*(errOff[0]/energy))  + errOff[1]*errOff[1] );
+ const float relerr = errOff[0]/energy;
+ float error = sqrt( relerr*relerr  + errOff[1]*errOff[1] );
 
  return error;
 }

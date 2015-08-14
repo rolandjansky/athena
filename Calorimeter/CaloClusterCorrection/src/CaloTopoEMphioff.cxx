@@ -69,7 +69,7 @@ void CaloTopoEMphioff::makeTheCorrection(xAOD::CaloCluster* cluster,
 {
   float qphioff = 0.;
   float aeta = fabs(adj_eta);
-  float eclus = cluster->e() / GeV;
+  float eclus = cluster->e() * (1./GeV);
   int iEtaBin = (int)(aeta/m_Granularity);
   // compute CaloSampling
   CaloSampling::CaloSample samp = (CaloSampling::CaloSample)elt->getSampling();

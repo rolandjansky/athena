@@ -170,7 +170,7 @@ void CaloSwDeadOTX_back::makeTheCorrection
 	
    ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endreq);
    
-   double depth_max = 20. + 3. * raw_energy/TeV ;
+   double depth_max = 20. + raw_energy*(3./TeV) ;
 
    if ( shower_lbary > depth_max   || shower_lbary < 0.) {
      shower_lbary = 15.;
@@ -179,7 +179,7 @@ void CaloSwDeadOTX_back::makeTheCorrection
    }
 
 
-   raw_energy = raw_energy / 1000.;
+   raw_energy = raw_energy * 1e-3;
 
 // -------------------------------------------------------------
 // Estimate the energy deposited in the back sampling and the 
@@ -201,7 +201,7 @@ void CaloSwDeadOTX_back::makeTheCorrection
    if (e_leak_perc < 0 ) e_leak_perc = 0.;
    if (e_leak_perc > 100.) e_leak_perc = 100.;
 
-   double e_leak_reco = e_leak_perc * (e_acc_reco)/100; 
+   double e_leak_reco = e_leak_perc * (e_acc_reco)*0.01; 
  
 // If something goes wrong keep the old energy
    if (e_leak_reco<0.) e_leak_reco= eneBackold; 

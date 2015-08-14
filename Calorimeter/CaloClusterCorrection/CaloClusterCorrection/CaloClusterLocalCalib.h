@@ -66,6 +66,10 @@ class CaloClusterLocalCalib : public CaloClusterProcessor {
   /// property: vector of valid Reco Statuses for the clusters in
   /// order to be calibrated
   std::vector<int> m_recoStatus;
+  
+  /// if set to true, negative clusters are weighted as well
+  bool m_absOpt;
+  
 
 };
 

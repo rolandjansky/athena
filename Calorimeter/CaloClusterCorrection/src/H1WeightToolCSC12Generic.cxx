@@ -107,8 +107,9 @@ double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell)
 
 
 
-  static const double mm3 = millimeter*millimeter*millimeter;
-  static const double log2 = 0.69314718056;
+  const double mm3 = millimeter*millimeter*millimeter;
+  const double log2 = 0.69314718056;
+  const double inv_log2 = 1. / log2;
   
   int dim=m_wtEMB1.size(); //FIXME: Assume same size for all m_wtXXXXX
 
@@ -121,7 +122,7 @@ double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell)
 
   int iET=0;
   if( fabs(ecell) > 0 && vol > 0 ) {
-    iET=static_cast<int>(log(fabs(ecell/GeV)/fabs(vol/mm3))/log2+26);
+    iET=static_cast<int>(log(fabs(ecell)/fabs(vol)*(mm3/GeV))*inv_log2+26);
     if(iET<0) iET=0;
     if(iET >= dim) iET = dim-1;
   } else {
@@ -248,7 +249,7 @@ double H1WeightToolCSC12Generic::jetScale(double e, double eta)
   if (nEtaBins==0) 
     return 1.0;
 
-  int ieta = static_cast<int>(fabs(eta)/0.10);
+  int ieta = static_cast<int>(fabs(eta)*(1./0.10));
   if (ieta>=nEtaBins) ieta=nEtaBins-1;
   //if(ieta > 49) ieta = 49;
   double ptlog = log(fabs(e)/(cosh(eta)*GeV));

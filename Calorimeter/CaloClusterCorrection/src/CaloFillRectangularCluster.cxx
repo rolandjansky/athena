@@ -518,9 +518,6 @@ public:
 private:
   /// The cell list.
   const CaloCellList& m_list;
-
-  /// The container from which the cells came.
-  const CaloCellContainer* m_cell_container;
 };
 
 
@@ -535,10 +532,9 @@ SamplingHelper_CaloCellList::SamplingHelper_CaloCellList
    (CaloClusterCorrection& parent,
     CaloCluster* cluster,
     const CaloCellList& list,
-    const CaloCellContainer* cell_container)
+    const CaloCellContainer* /*cell_container*/)
      : SamplingHelper (parent, cluster),
-       m_list (list),
-       m_cell_container (cell_container)
+       m_list (list)
 {
 }
 

@@ -195,7 +195,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
    // hadrons which may cause over-calibration. A energy dependent upper limit
    // on the long bary is introduced (from 20 at 0 to 23 at 1 TeV)    
 
-   double depth_max = 20. + 3. * (eacc_base+eps_base)/TeV ;
+   double depth_max = 20. + (eacc_base+eps_base)*(3./TeV) ;
    ATH_MSG_DEBUG( "Raw energy ---->> " << (eacc_base+eps_base) << endreq) ;
    ATH_MSG_DEBUG( "Bary max for this event ---->> " << depth_max
        << endreq) ;
@@ -224,7 +224,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
        e_out_perc = ooc[1] + ooc[2] * shower_lbary + ooc[3] / shower_lbary ;
    }   
 
-   double e_acc_reco=acc_corr*(eacc_base )*(1+(e_out_perc)/100);
+   double e_acc_reco=acc_corr*(eacc_base )*(1+(e_out_perc)*0.01);
 
 // -------------------------------------------------------------
 // Now estimate the longitudinal leakage
@@ -242,7 +242,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
 
    if (e_leak_perc < 0 ) e_leak_perc = 0.;
    if (e_leak_perc > 100.) e_leak_perc = 100.;
-   double e_leak_reco = e_leak_perc * (e_acc_reco)/100;
+   double e_leak_reco = e_leak_perc * (e_acc_reco)*0.01;
 
 // -------------------------------------------------------------
 // Now estimate the energy lost in front of the calorimeter
@@ -250,7 +250,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
 
  //  raw_energy = e_acc_reco ;
 
-   double raw_energy=e_acc_reco/1000;
+   double raw_energy=e_acc_reco*1e-3;
    double e_front_reco = eps_base;
 
    if (raw_energy <= 1) {
@@ -327,7 +327,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
    ATH_MSG_DEBUG( "CaloSwCalibrationHits::Final reco energy ---------------------- " << e_calo_reco << endreq);
    ATH_MSG_DEBUG( "CaloSwCalibrationHits::Front ---------------------- " <<  e_front_reco << endreq);
    ATH_MSG_DEBUG( "CaloSwCalibrationHits::Accordion ------------------ " <<  e_acc_reco << endreq);
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::out of cone ---------------- " <<  acc_corr*(eacc_base )*(e_out_perc)/100 << endreq);      
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::out of cone ---------------- " <<  acc_corr*(eacc_base )*(e_out_perc)*0.01 << endreq);      
    ATH_MSG_DEBUG( "CaloSwCalibrationHits::Leakage -------------------- " <<  e_leak_reco << endreq);
    
    

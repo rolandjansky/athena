@@ -180,7 +180,7 @@ float CaloSwPhimod_v2::Builder::calculate (int energy_ndx, bool& good) const
                           j+1,
                           m_corr.m_interp_barriers);
   }
-  double a = atan (par[2])/pi + 0.5;
+  double a = atan (par[2])*(1./pi) + 0.5;
   return 1 + m_corr.m_correction_coef * abs (par[0]) *
       (a*cos(m_nabs*m_phi + par[1]) +
        (1-a)*cos (2*m_nabs*m_phi + par[3]));

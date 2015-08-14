@@ -91,9 +91,10 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
     //}
   }
 
-  double absEClus = fabs(theCluster->e());
+  const double absEClus = fabs(theCluster->e());
 
   if ( absEClus > 0 ) {
+    const double inv_absEClus = 1. / absEClus;
     std::vector<double> weightSample(CaloCell_ID::Unknown,0);
     std::vector<double> etaSample(CaloCell_ID::Unknown,0);
     std::vector<double> phiSample(CaloCell_ID::Unknown,0);
@@ -110,7 +111,7 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
       double absE = fabs(weight*thisCell->e());
       
       if ( absE > 0 ) {
-	double lw = m_offset + log(absE/absEClus);
+	double lw = m_offset + log(absE*inv_absEClus);
 	if ( lw > 0 ) {
 
 	  ATH_MSG_VERBOSE(" add cell with eta " 
@@ -159,8 +160,9 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
     }
     
     if ( weightAll > 0 ) {
-      theCluster->setEta(etaAll/weightAll);
-      theCluster->setPhi(range.fix(phiAll/weightAll));
+      const double inv_weightAll = 1. / weightAll;
+      theCluster->setEta(etaAll * inv_weightAll);
+      theCluster->setPhi(range.fix(phiAll * inv_weightAll));
     }
     
     // std::vector<double> theEtas(CaloCell_ID::Unknown,0);

@@ -159,7 +159,6 @@ private:
   /// The StoreGate key for the container of our input cells.
   /// This is a property.
   std::string  m_cellsName;
-
 };
 
 #endif // not CALOCLUSTERCORRECTION_CALOFILLRECTANGULARCLUSTER_H
