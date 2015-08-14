@@ -31,7 +31,7 @@ class InsituDataCorrection
  public:
   InsituDataCorrection();
   InsituDataCorrection(const std::string& name);
-  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev);
+  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag);
   virtual ~InsituDataCorrection();
 
   virtual StatusCode initializeTool(const std::string& name);
@@ -46,7 +46,6 @@ class InsituDataCorrection
  private:
   TEnv * m_config;
   TString m_jetAlgo, m_calibAreaTag;
-  bool m_dev;
 
   TH2D * m_insituCorr;
   double m_insituEtaMax, m_insituPtMin, m_insituPtMax;
