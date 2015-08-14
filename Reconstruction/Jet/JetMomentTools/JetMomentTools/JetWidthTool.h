@@ -27,8 +27,7 @@ public:
   virtual int modifyJet(xAOD::Jet& jet) const;
 
   // Local method to calculate and return the width.
-  //double width(const xAOD::Jet& jet) const;
-  double width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const;
+  double width(const xAOD::Jet& jet) const;
 
 };
 
