@@ -55,19 +55,19 @@ namespace robmonitor {
 
     // Accessor functions
     /** @brief ROB is unclassified */
-    bool isUnclassified() const;
+    bool isUnclassified();
     /** @brief ROB was found in cache */
-    bool isCached() const;
+    bool isCached();
     /** @brief ROB was retrieved over network */
-    bool isRetrieved() const;
+    bool isRetrieved();
     /** @brief ROB was ignored */
-    bool isIgnored() const;
+    bool isIgnored();
     /** @brief ROB was disabled in OKS */
-    bool isDisabled() const;
+    bool isDisabled();
     /** @brief ROB was scheduled over network */
-    bool isScheduled() const;
+    bool isScheduled();
     /** @brief ROB has no status words set */
-    bool isStatusOk() const;
+    bool isStatusOk();
 
     // Extraction operators
     friend std::ostream& operator<<(std::ostream& os, const robmonitor::ROBDataStruct& rhs);
@@ -105,24 +105,24 @@ namespace robmonitor {
 
     // Accessor functions to ROB history summaries
     /** @brief number of ROBs in structure */
-    unsigned allROBs() const;
+    unsigned allROBs();
     /** @brief number of unclassified ROBs in structure */
-    unsigned unclassifiedROBs() const;
+    unsigned unclassifiedROBs();
     /** @brief number of cached ROBs in structure */
-    unsigned cachedROBs() const;
+    unsigned cachedROBs();
     /** @brief number of retrieved ROBs in structure */
-    unsigned retrievedROBs() const;
+    unsigned retrievedROBs();
     /** @brief number of ignored ROBs in structure */
-    unsigned ignoredROBs() const;
+    unsigned ignoredROBs();
     /** @brief number of disabled ROBs in structure */
-    unsigned disabledROBs() const;
+    unsigned disabledROBs();
     /** @brief number of scheduled ROBs in structure */
-    unsigned scheduledROBs() const;
+    unsigned scheduledROBs();
     /** @brief number of ROBs with no status words set in structure */
-    unsigned statusOkROBs() const;
+    unsigned statusOkROBs();
 
     /** @brief elapsed time for ROB request in [ms] */
-    float elapsedTime() const;
+    float elapsedTime();
 
     // Extraction operators
     friend std::ostream& operator<<(std::ostream& os, robmonitor::ROBDataMonitorStruct& rhs);

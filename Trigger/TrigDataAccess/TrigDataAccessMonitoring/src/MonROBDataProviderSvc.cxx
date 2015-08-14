@@ -21,7 +21,13 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <iostream>
-#include <string>
+#ifndef HAVE_NEW_IOSTREAMS
+#include <strstream>  /*gnu-specific*/
+typedef strstream __sstream;
+#else
+#include <sstream>
+typedef std::ostringstream __sstream;
+#endif
 #include <iomanip>
 #include <cassert> 
 #include <bitset>
@@ -92,25 +98,25 @@ StatusCode MonROBDataProviderSvc::initialize()
   m_msg  = new MsgStream( msgSvc(), name() );
 
   logStream() << MSG::INFO << " ---> MonROBDataProviderSvc = " << name() << " initialize "
-	      << " - package version " << PACKAGE_VERSION << endmsg ;
+	      << " - package version " << PACKAGE_VERSION << endreq ;
 
   if ( sc.isFailure() ) {
-    logStream() << MSG::ERROR << " ROBDataProviderSvc::initialize() failed." << endmsg;
+    logStream() << MSG::ERROR << " ROBDataProviderSvc::initialize() failed." << endreq;
     return sc;
   }
 
-  logStream() << MSG::INFO << " ---> MonROBDataProviderSvc              = " << name() << " special properties <---" << endmsg;
-  logStream() << MSG::INFO << " ---> Fill monitoring histograms          = " << m_doMonitoring << endmsg;
-  logStream() << MSG::INFO << "        Hist:RequestedROBsPerCall         = " << m_histProp_requestedROBsPerCall << endmsg; 
-  logStream() << MSG::INFO << "        Hist:ReceivedROBsPerCall          = " << m_histProp_receivedROBsPerCall << endmsg; 
-  logStream() << MSG::INFO << "        Hist:TimeROBretrieval             = " << m_histProp_timeROBretrieval << endmsg; 
-  logStream() << MSG::INFO << " ---> Do detailed ROB monitoring          = " << m_doDetailedROBMonitoring << endmsg;
-  logStream() << MSG::INFO << " ---> SG name for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endmsg;
+  logStream() << MSG::INFO << " ---> MonROBDataProviderSvc              = " << name() << " special properties <---" << endreq;
+  logStream() << MSG::INFO << " ---> Fill monitoring histograms          = " << m_doMonitoring << endreq;
+  logStream() << MSG::INFO << "        Hist:RequestedROBsPerCall         = " << m_histProp_requestedROBsPerCall << endreq; 
+  logStream() << MSG::INFO << "        Hist:ReceivedROBsPerCall          = " << m_histProp_receivedROBsPerCall << endreq; 
+  logStream() << MSG::INFO << "        Hist:TimeROBretrieval             = " << m_histProp_timeROBretrieval << endreq; 
+  logStream() << MSG::INFO << " ---> Do detailed ROB monitoring          = " << m_doDetailedROBMonitoring << endreq;
+  logStream() << MSG::INFO << " ---> SG name for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
 
   // register incident handler for begin run
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
   if ((incidentSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate IncidentSvc" << endmsg;
+    logStream() << MSG::ERROR << "Unable to locate IncidentSvc" << endreq;
     incidentSvc.release().ignore();
     return StatusCode::FAILURE;
   }
@@ -120,7 +126,7 @@ StatusCode MonROBDataProviderSvc::initialize()
 
   // Setup the StoreGateSvc
   if( (m_storeGateSvc.retrieve()).isFailure() ) {
-    logStream() << MSG::ERROR << "Error retrieving StoreGateSvc " << m_storeGateSvc << endmsg;
+    logStream() << MSG::ERROR << "Error retrieving StoreGateSvc " << m_storeGateSvc << endreq;
     m_storeGateSvc.release().ignore();
     return StatusCode::FAILURE;
   }
@@ -132,9 +138,9 @@ StatusCode MonROBDataProviderSvc::initialize()
 StatusCode MonROBDataProviderSvc::finalize()
 {
   StatusCode sc = ROBDataProviderSvc::finalize();
-  logStream() << MSG::DEBUG << "finalize()" << endmsg; 
+  logStream() << MSG::DEBUG << "finalize()" << endreq; 
   if ( !sc.isSuccess() ) {
-    logStream() << MSG::ERROR << " ROBDataProviderSvc::finalize() failed." << endmsg;
+    logStream() << MSG::ERROR << " ROBDataProviderSvc::finalize() failed." << endreq;
   }
 
   // delete message stream
@@ -177,14 +183,14 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       if ( p_robMonCollection ) {
 	p_robMonCollection->reserve( 10 ) ;
 	if ( (m_storeGateSvc->record(p_robMonCollection, m_ROBDataMonitorCollection_SG_Name.value(), true)).isFailure() ) { 
-	  logStream() << MSG::WARNING << " Registering ROB Monitoring collection in StoreGate failed." << endmsg;
+	  logStream() << MSG::WARNING << " Registering ROB Monitoring collection in StoreGate failed." << endreq;
 	  delete p_robMonCollection;
 	  p_robMonCollection = 0;
 	}
       }
     } else {
       if ( m_storeGateSvc->retrieve(p_robMonCollection).isFailure() ) {
-	logStream() << MSG::WARNING << " Retrieval of ROB Monitoring collection from StoreGate failed." << endmsg;
+	logStream() << MSG::WARNING << " Retrieval of ROB Monitoring collection from StoreGate failed." << endreq;
 	p_robMonCollection = 0;
       }
     }
@@ -236,7 +242,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 
       if(logLevel() <= MSG::DEBUG)
 	logStream() << MSG::DEBUG << " ---> Found   ROB Id : 0x" << MSG::hex << (*map_it).second->source_id() << MSG::dec
-		    <<" in cache "<< endmsg;
+		    <<" in cache "<< endreq;
       //* detailed monitoring
       if ( p_robMonStruct ) {
 	// check if ROB was already accessed before and set ROB history accordingly
@@ -315,7 +321,7 @@ void MonROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
 		<< ". Number of ROB Id s found/not found = " << number_ROB_found 
 		<< "/" << number_ROB_not_found
 		<< " for Lvl1 id = "<< m_currentLvl1ID 
-		<< endmsg;
+		<< endreq;
 
   //* histograms for number of requested/received ROBs
   if ( m_hist_requestedROBsPerCall ) m_hist_requestedROBsPerCall->Fill(robIds.size());
@@ -359,14 +365,14 @@ const RawEvent* MonROBDataProviderSvc::getEvent(){
 void MonROBDataProviderSvc::handle(const Incident& incident) {
   if (incident.type()!="BeginRun") return;
   if(logLevel() <= MSG::DEBUG)
-    logStream() <<MSG::DEBUG << "In BeginRun incident." << endmsg;
+    logStream() <<MSG::DEBUG << "In BeginRun incident." << endreq;
   
   // if detailed ROB monitoring is requested, check if the AlgContextSvc is running, 
   // if yes use it to obtain the calling algorithm name
   if ( m_doDetailedROBMonitoring.value() ) {
     if ( service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure() ) {
       logStream() << MSG::ERROR << "Error retrieving AlgContextSvc."  
-		  << "Calling algorithm name not available in detailed ROB monitoring" << endmsg;
+		  << "Calling algorithm name not available in detailed ROB monitoring" << endreq;
       m_algContextSvc=0;
     }
   }
@@ -377,7 +383,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
   // find histogramming service
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
   if ((rootHistSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endmsg;
+    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endreq;
     rootHistSvc.release().ignore();
     return;
   }
@@ -401,7 +407,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
      m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
 #endif     
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endmsg;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endreq;
     }
   }
 
@@ -418,7 +424,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
      m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
 #endif     
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endmsg;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endreq;
     }
   }
 
@@ -435,7 +441,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
      m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
 #endif
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endmsg;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endreq;
     }
   }
 
@@ -460,7 +466,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
       n_tmp_bin++;
     }
     if( rootHistSvc->regHist(path + m_hist_genericStatusForROB->GetName(), m_hist_genericStatusForROB).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName() << endmsg;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName() << endreq;
     }
   }
 
@@ -485,7 +491,7 @@ void MonROBDataProviderSvc::handle(const Incident& incident) {
       n_tmp_bin++;
     }
     if( rootHistSvc->regHist(path + m_hist_specificStatusForROB->GetName(), m_hist_specificStatusForROB).isFailure() ) {
-      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName() << endmsg;
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName() << endreq;
     }
   }
 
