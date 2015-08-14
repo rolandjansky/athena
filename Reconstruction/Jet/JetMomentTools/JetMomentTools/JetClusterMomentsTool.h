@@ -36,6 +36,12 @@ class JetClusterMomentsTool : public JetModifierBase {
         virtual int modifyJet(xAOD::Jet& jet) const;
 
     private:
+        // properties
+        bool m_doClsPt           ;
+        bool m_doClsSecondLambda ;
+        bool m_doClsCenterLambda ;
+        bool m_doClsSecondR      ;
+
         // Find cluster with highest energy, or return NULL if unsuccessful 
         const xAOD::CaloCluster * findLeadingCluster(xAOD::Jet& jet) const;
         // Retrieve a moment from cluster

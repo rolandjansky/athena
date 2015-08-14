@@ -13,6 +13,8 @@
 #include "JetMomentTools/JetIsolationTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
 #include "JetMomentTools/JetOriginCorrectionTool.h"
+#include "JetMomentTools/JetECPSFractionTool.h"
+#include "JetMomentTools/JetConstitFourMomTool.h"
 
 #ifndef XAOD_ANALYSIS
 #include "JetMomentTools/JetBadChanCorrTool.h"
@@ -31,6 +33,8 @@ DECLARE_TOOL_FACTORY(JetPtAssociationTool)
 DECLARE_TOOL_FACTORY(JetIsolationTool)
 DECLARE_TOOL_FACTORY(JetLArHVTool)
 DECLARE_TOOL_FACTORY(JetOriginCorrectionTool)
+DECLARE_TOOL_FACTORY(JetECPSFractionTool)
+DECLARE_TOOL_FACTORY(JetConstitFourMomTool)
 
 #ifndef XAOD_ANALYSIS
 DECLARE_TOOL_FACTORY(JetBadChanCorrTool)
@@ -50,6 +54,8 @@ DECLARE_FACTORY_ENTRIES(JetRec) {
   DECLARE_TOOL(JetIsolationTool)
   DECLARE_TOOL(JetLArHVTool)
   DECLARE_TOOL(JetOriginCorrectionTool)
+  DECLARE_TOOL(JetECPSFractionTool)
+  DECLARE_TOOL(JetConstitFourMomTool)
 
 #ifndef XAOD_ANALYSIS
   DECLARE_TOOL(JetBadChanCorrTool)

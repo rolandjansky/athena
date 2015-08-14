@@ -4,6 +4,7 @@ author P-A Delsart <delsart at in2p3 fr>
 
 private
 use xAODPFlow           xAODPFlow-*             Event/xAOD
+use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
 
 use_unless tag=AthAnalysisBase pkg=CaloDetDescr   ver="*" root=Calorimeter
 use_unless tag=AthAnalysisBase pkg=CaloEvent      ver="*" root=Calorimeter
@@ -21,13 +22,11 @@ use xAODJet             xAODJet-*               Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use_unless tag=AthAnalysisBase pkg=LArElecCalib   ver="*" root=LArCalorimeter
 
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetRec              JetRec-*                Reconstruction/Jet
 use JetUtils            JetUtils-*              Reconstruction/Jet
 use JetRecCalo          JetRecCalo-*            Reconstruction/Jet
-use JetRecTools         JetRecTools-*           Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
 
 library JetMomentTools *.cxx ../Root/*.cxx -s=components *.cxx

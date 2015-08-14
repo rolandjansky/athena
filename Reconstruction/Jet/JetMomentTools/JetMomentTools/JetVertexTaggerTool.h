@@ -61,6 +61,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetInterface/IJetUpdateJvt.h"
 
 #include <vector>
 #include <string>
@@ -71,10 +72,9 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-//class JetVertexTaggerTool : public JetModifierBase
-class JetVertexTaggerTool : public asg::AsgTool,virtual public IJetModifier
+class JetVertexTaggerTool : public asg::AsgTool,virtual public IJetModifier, virtual public IJetUpdateJvt 
 {
-    ASG_TOOL_CLASS(JetVertexTaggerTool,IJetModifier);
+  ASG_TOOL_CLASS2(JetVertexTaggerTool,IJetModifier,IJetUpdateJvt);
 
     public:
         // Constructor from tool name
@@ -88,6 +88,16 @@ class JetVertexTaggerTool : public asg::AsgTool,virtual public IJetModifier
 
 	// Finalization.
 	StatusCode finalize();
+
+	// Evaluate JVT from Rpt and JVFcorr.
+	float evaluateJvt(float rpt, float jvfcorr) const;
+
+	// Update JVT by scaling Rpt byt the ratio of the current and original jet pT values.
+	//   jet - jet for which JVT is updated
+	//   sjvt - name of the existing JVT moment (and prefix for RpT and JVFcorr).
+	//   scale - name of the jet scale holding the original pT
+	// The new value for JVT is returned.
+	float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt", std::string scale ="JetPileupScaleMomentum") const;
 
 	// Local method to return the primary and pileup track pT sums
 	// this method also allows the standard jvf to be calculated

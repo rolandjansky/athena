@@ -12,6 +12,9 @@
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "PathResolver/PathResolver.h"
 
+using std::string;
+using xAOD::JetFourMom_t;
+
 //**********************************************************************
 
 JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
@@ -173,6 +176,37 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
   return 0;
 }
+
+//**********************************************************************
+ 
+float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
+  // Look up JVT value
+  float jvt = -999.;
+  if ( jvfcorr == -1.0 ) {
+    jvt = -0.1;
+  } else {
+    float rpt_inputtojvt = std::min(rpt, (float) 1. );
+    int bin = m_jvthisto->FindBin(jvfcorr, rpt_inputtojvt);
+    jvt = m_jvthisto->GetBinContent(bin);
+    jvt = m_jvthisto->Interpolate(jvfcorr, rpt_inputtojvt);
+  }
+  return jvt;
+}  
+       
+//**********************************************************************
+ 
+float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string sjvt, std::string scale) const {
+  string sjvfcorr = sjvt + "Jvfcorr";
+  string srpt = sjvt + "Rpt";
+  JetFourMom_t p4old = jet.jetP4(scale);
+  float ptold = p4old.pt();
+  float ptnew = jet.pt();
+  float jvfcorr = jet.getAttribute<float>(sjvfcorr);
+  float rptold = jet.getAttribute<float>(srpt);
+  float rptnew = rptold*ptold/ptnew;
+  return evaluateJvt(rptnew, jvfcorr);
+}
+
 
 //**********************************************************************
 
