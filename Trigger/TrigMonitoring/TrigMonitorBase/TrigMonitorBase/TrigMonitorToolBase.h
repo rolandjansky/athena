@@ -9,7 +9,6 @@
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigMonitorBase/IExtMonitorTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -30,8 +29,7 @@ class TH1;
 
 
 
-class TrigMonitorToolBase : public extends<AthAlgTool, 
-                                           IExtMonitorTool> {
+class TrigMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBase {
  public:
 
   TrigMonitorToolBase(const std::string & type, 
@@ -51,7 +49,6 @@ class TrigMonitorToolBase : public extends<AthAlgTool,
   virtual StatusCode finalHists()     { return StatusCode::SUCCESS; }
   virtual StatusCode runStat()        { return StatusCode::SUCCESS; }
   virtual StatusCode checkHists(bool) { return StatusCode::SUCCESS; }
-  virtual void setProxy(const std::string& /*name*/, IMonitoredAlgo::IGetter* /*g*/) {}
 
   /**
    * @brief prescale execution of the tool
@@ -69,14 +66,6 @@ class TrigMonitorToolBase : public extends<AthAlgTool,
     TrigMonGroup(TrigMonitorToolBase* tool, const std::string& algo, Level l );
     StatusCode regHist(TH1* h);
     StatusCode regHist(ITrigLBNHist* h);
-    template <class T>
-    T* getHist(const std::string& hname) const {
-      T* h(0);
-      const std::string name = m_tool->level2string(m_level)+m_algo+"/"+hname;
-      if (m_tool->m_histSvc->exists(name))
-        m_tool->m_histSvc->getHist(name, h).ignore();
-      return h;
-    }
     StatusCode deregHist(TH1* h);
   private:
     TrigMonitorToolBase* m_tool;

@@ -1,48 +1,32 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigGenericMonitoringToolConfig.py')
-
-#
-# For now, we use the thread-safe monitoring tool only if needed
-# Import the correct one and alias it as "TrigGenericMonitoringTool"
-#
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-if jp.ConcurrencyFlags.NumThreads()==0:
-    from TrigMonitorBase.TrigMonitorBaseConf import \
-        TrigGenericMonitoringTool_NoMutex_IMonitoredAlgo__IGetterp_ \
-        as TrigGenericMonitoringTool
-    log.info("Using regular TrigGenericMonitoringTool")
-else:
-    from TrigMonitorBase.TrigMonitorBaseConf import \
-        TrigGenericMonitoringTool_std__mutex_ContextGetter_IMonitoredAlgo__IGetter_s_ \
-        as TrigGenericMonitoringTool
-    log.info("Using thread-safe TrigGenericMonitoringTool")
-
+from TrigMonitorBase.TrigMonitorBaseConf import TrigGenericMonitoringTool
 
 def defineHistogram(varname, type='TH1F', path='EXPERT',
                     title='Unspecified_title_for_the_histogram_is_truly_annoying,_because_this_default_is_long;unspecified_label;unspecified_label',
                     xbins=100, xmin=0, xmax=1,
-                    ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
+                    ybins=None, ymin=None, ymax=None, opt='', labels=None):
     """ Generates the histogram definition string which is digestable by TrigGenericMonitoringTool.
 
 
     Note that defaults are compleetly unreasonable. The tile is intentionally made annoying.
     For histogras types supported and allowed paths have a look at TrigGenericMonitoringTool documentation.
     """
+#     coded = path + ', ' + type + ', '\
+#             + varname + ', ' + title + ', '\
+#             + str(xbins) + ', ' + str(xmin) + ', ' + str(xmax) + ', '
+#     if ybins is not None:
+#         coded +=  str(ybins) + ', ' + str(ymin) + ', ' + str(ymax) + ', ' 
+#     if labels is not None:
+#         coded += labels+', '
+#     coded += opt
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:
         coded += ",%d, %f, %f" % (ybins, ymin, ymax)
-        if zmin is not None:
-            coded += ", %f, %f" % (zmin, zmax)
-    if ybins is None and ymin is not None:
-        coded += ", %f, %f" % (ymin, ymax)
     if labels is not None:
-        labels = labels.strip()   # remove spurious white-spaces
-        if len(labels)>0:
-            if labels[-1]!=':': labels += ':'  # C++ parser expects at least one ":"
-            coded += ",%s " % labels
+        coded += ",%s " % labels
     coded += ", %s" % opt
+    
 
     return coded
 
