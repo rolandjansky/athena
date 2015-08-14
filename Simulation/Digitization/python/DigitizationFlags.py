@@ -40,6 +40,16 @@ class rndmSeedList(JobProperty):
     allowedTypes=['list']
     StoredValue=  []
 
+    def checkForExistingSeed(self, name):
+        """Ensure that each stream is only initialized once"""
+        found = False
+        seedlist = self.get_Value()
+        for iseed in seedlist:
+            found = iseed.startswith(name+" ")
+            if found:
+                break
+        return found
+
     def addSeed( self, name, seed1, seed2 ):
         """Add seeds to internal seedlist. Seeds will be incremented by offset values
         """
@@ -50,12 +60,7 @@ class rndmSeedList(JobProperty):
         logDigitizationFlags.info("Adding Digitization random number seed '" + newseed + "'")
 
         #ensure each stream only initialized once
-        found = False
-        for iseed in seedlist:
-            found = iseed.startswith(name+" ")
-            if found:
-                break
-
+        found = self.checkForExistingSeed(name)
         if found:
             logDigitizationFlags.error ("Initialization values for random number stream " + name + " already exist!")
         else:

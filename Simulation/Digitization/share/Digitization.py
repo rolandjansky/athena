@@ -49,6 +49,11 @@ else :
     DetFlags.Truth_setOn()
     DetFlags.LVL1_setOn()
 
+checkOverlay = getattr(DetFlags, 'overlay', None)
+if checkOverlay is not None:
+    DetFlags.overlay.all_setOff()
+else:
+    logDigitization_flags.warning( 'DetFlags.overlay is not supported in this release' )
 DetFlags.simulate.all_setOff()
 DetFlags.makeRIO.all_setOff()
 DetFlags.writeBS.all_setOff()

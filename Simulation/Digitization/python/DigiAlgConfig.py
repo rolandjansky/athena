@@ -128,6 +128,82 @@ def getSplitInDetPileUpTools():
         PileUpToolsList += [ "TRTDigitizationToolPU" ]
     return PileUpToolsList
 
+def getSplitNoMergeInDetPileUpTools():
+    """ This is for testing the fast chain with full digitization in split PU mode without
+merging pileup
+    """
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelDigitizationTool" ]
+        PileUpToolsList += [ "PixelDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_DigitizationTool" ]
+        PileUpToolsList += [ "SCT_DigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTDigitizationTool" ]
+        PileUpToolsList += [ "TRTDigitizationToolSplitNoMergePU" ]
+    return PileUpToolsList
+
+def getSplitNoMergeSFInDetPileUpTools():
+    """ This is for testing the fast chain with full digitization in split PU mode without
+merging pileup
+    """
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelDigitizationTool" ]
+        PileUpToolsList += [ "PixelFastDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_DigitizationTool" ]
+        PileUpToolsList += [ "SCT_FastDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTDigitizationTool" ]
+        PileUpToolsList += [ "TRTFastDigitizationToolSplitNoMergePU" ]
+    return PileUpToolsList
+
+def getSplitNoMergeFSInDetPileUpTools():
+    """ This is for testing the fast chain with full digitization in split PU mode without
+merging pileup
+    """
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelFastDigitizationTool" ]
+        PileUpToolsList += [ "PixelDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_FastDigitizationTool" ]
+        PileUpToolsList += [ "SCT_DigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTFastDigitizationTool" ]
+        PileUpToolsList += [ "TRTDigitizationToolSplitNoMergePU" ]
+    return PileUpToolsList
+
+def getSplitNoMergeFFInDetPileUpTools():
+    """ This is for testing the fast chain with full digitization in split PU mode without
+merging pileup
+    """
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelFastDigitizationTool" ]
+        PileUpToolsList += [ "PixelFastDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_FastDigitizationTool" ]
+        PileUpToolsList += [ "SCT_FastDigitizationToolSplitNoMergePU" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTFastDigitizationTool" ]
+        PileUpToolsList += [ "TRTFastDigitizationToolSplitNoMergePU" ]
+    return PileUpToolsList
+
 def getStandardCaloPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
@@ -234,6 +310,70 @@ def getSplitPileUpToolsList():
     PileUpToolsList += [ "MergeRecoTimingObjTool" ]
     return PileUpToolsList
 
+def getSplitNoMergePileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization - non-standard
+    PileUpToolsList += getSplitNoMergeInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
+def getSplitNoMergeSFPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization - non-standard
+    PileUpToolsList += getSplitNoMergeSFInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
+def getSplitNoMergeFSPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization - non-standard
+    PileUpToolsList += getSplitNoMergeFSInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
+def getSplitNoMergeFFPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization - non-standard
+    PileUpToolsList += getSplitNoMergeFFInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
 def getStandardPileUpToolsAlg(name="StandardPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getStandardPileUpToolsList() )
     from Digitization.DigitizationFlags import digitizationFlags
@@ -283,3 +423,23 @@ def getStandardInTimeOnlyTruthPileUpToolsAlg(name="StandardInTimeOnlyTruthPileUp
     else:
         from PileUpComps.PileUpCompsConf import DigitizationAlg
         return DigitizationAlg(name, **kwargs)
+
+def getSplitNoMergePileUpToolsAlg(name="SplitNoMergePileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getSplitNoMergePileUpToolsList() )
+    from PileUpComps.PileUpCompsConf import DigitizationAlg
+    return DigitizationAlg(name, **kwargs)
+
+def getSplitNoMergeSFPileUpToolsAlg(name="SplitNoMergeSFPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getSplitNoMergeSFPileUpToolsList() )
+    from PileUpComps.PileUpCompsConf import DigitizationAlg
+    return DigitizationAlg(name, **kwargs)
+
+def getSplitNoMergeFSPileUpToolsAlg(name="SplitNoMergeFSPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getSplitNoMergeFSPileUpToolsList() )
+    from PileUpComps.PileUpCompsConf import DigitizationAlg
+    return DigitizationAlg(name, **kwargs)
+
+def getSplitNoMergeFFPileUpToolsAlg(name="SplitNoMergeFFPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getSplitNoMergeFFPileUpToolsList() )
+    from PileUpComps.PileUpCompsConf import DigitizationAlg
+    return DigitizationAlg(name, **kwargs)
