@@ -58,7 +58,7 @@ private:
   
   
   // Following used for testing only :
-  bool        m_useMeaningfullNames;      
+  //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
   
   // Timers

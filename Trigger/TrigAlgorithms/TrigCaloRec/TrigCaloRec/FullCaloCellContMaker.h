@@ -19,7 +19,7 @@
 
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 
-#include "TrigT2CaloCommon/T2GeometryTool.h"
+//#include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
 
 #include "CaloInterface/ICalorimeterNoiseTool.h"
@@ -53,9 +53,9 @@ class FullCaloCellContMaker : public IAlgToolEFCalo {
 	   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
 
 	   // properties for constant calibration
-	   double const_cal_em;
-	   double const_cal_had;
-	   bool m_useFullColl;
+	   //double const_cal_em;
+	   //double const_cal_had;
+	   //bool m_useFullColl;
 
 	   LArTT_Selector<LArCellCont>::const_iterator m_iBegin;
 	   LArTT_Selector<LArCellCont>::const_iterator m_iEnd;

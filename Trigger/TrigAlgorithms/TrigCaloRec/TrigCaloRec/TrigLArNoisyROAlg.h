@@ -61,7 +61,7 @@ private:
   
   
   // Following used for testing only :
-  bool        m_useMeaningfullNames;      
+  //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
   
   // Timers
@@ -80,7 +80,7 @@ private:
   std::map<HWIdentifier, unsigned int> m_FEB_BadChanCount;
   unsigned int m_BadChanPerFEB;
   int m_CellQualityCut;
-  unsigned int m_MinBadFEB;
+  //unsigned int m_MinBadFEB;
   xAOD::CaloClusterContainer* AllTECaloClusterContainer;
   
 };

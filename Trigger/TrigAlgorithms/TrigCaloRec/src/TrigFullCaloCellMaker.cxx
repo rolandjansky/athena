@@ -49,7 +49,9 @@ const double TrigFullCaloCellMaker::m_dphis2 = 0.0245436926;
 
 TrigFullCaloCellMaker::TrigFullCaloCellMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_tcrAlgTools(this), m_useCachedResult(false), m_cachedTE(0)
+    m_tcrAlgTools(this), 
+    pCaloCellContainer(NULL),
+    m_useCachedResult(false), m_cachedTE(0)
 {
   
    // Name of Tools to check and finalize the cell container...

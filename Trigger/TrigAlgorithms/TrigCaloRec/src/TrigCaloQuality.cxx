@@ -5,9 +5,13 @@
 #include "TrigCaloRec/TrigCaloQuality.h"
 
 
-TrigCaloQuality::TrigCaloQuality() {}
+TrigCaloQuality::TrigCaloQuality(): m_error(0),
+				    m_prescale(0),
+				    m_persistencyFlag(false) {}
 
-TrigCaloQuality::TrigCaloQuality(TrigCaloQuality & quality): m_error(quality.m_error) {}
+TrigCaloQuality::TrigCaloQuality(TrigCaloQuality & quality): m_error(quality.m_error),
+							     m_prescale(0),
+							     m_persistencyFlag(false) {}
 
 TrigCaloQuality::~TrigCaloQuality() {}
 

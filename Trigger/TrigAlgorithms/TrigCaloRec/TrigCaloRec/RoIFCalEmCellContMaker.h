@@ -19,7 +19,7 @@
 
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 
-#include "TrigT2CaloCommon/T2GeometryTool.h"
+//#include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
 
 #include "CaloInterface/ICalorimeterNoiseTool.h"
@@ -44,7 +44,7 @@ class RoIFCalEmCellContMaker : public IAlgToolEFCalo {
 
          private:
 
-           IT2GeometryTool *m_geometryTool;
+           //IT2GeometryTool *m_geometryTool;
            ITrigDataAccess *m_data;
 
            ToolHandle<ICalorimeterNoiseTool> m_noiseTool;

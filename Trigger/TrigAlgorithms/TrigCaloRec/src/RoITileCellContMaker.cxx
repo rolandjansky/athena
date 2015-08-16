@@ -29,7 +29,9 @@
 
 
 RoITileCellContMaker::RoITileCellContMaker(const std::string & type, const std::string & name,
-         const IInterface* parent): IAlgToolEFCalo(type, name, parent){
+        const IInterface* parent): IAlgToolEFCalo(type, name, parent),
+				   m_data(NULL)
+{
   declareProperty("CheckCellWithinRoI", m_CheckCellWithinRoI = false);
   declareProperty("DoTileCellsNoiseSuppression", do_TileCells_noise_suppression = 0);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
@@ -96,7 +98,10 @@ StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
   for (unsigned int iR=0;iR<m_data->TileContSize();iR++) {
 
      if (m_timersvc) (m_timer.at(2))->resume();
-     (m_data->LoadCollections(m_iBegin,m_iEnd,iR,!iR)).isFailure();
+     if((m_data->LoadCollections(m_iBegin,m_iEnd,iR,!iR)).isFailure()) {
+       ATH_MSG_DEBUG("unable to load cell collections");
+       //return StatusCode::FAILURE;
+     }
      if (m_data->report_error()) {
        m_error=m_data->report_error()+(EFTILE<<28);
        if (m_timersvc) (m_timer.at(2))->pause();
