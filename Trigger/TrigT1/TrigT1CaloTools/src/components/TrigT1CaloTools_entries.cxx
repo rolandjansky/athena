@@ -1,5 +1,4 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrigT1CaloTools/L1DatabaseOverrideForDataTool.h"
 #include "TrigT1CaloTools/L1DynamicPedestalProviderTxt.h"
 #include "TrigT1CaloTools/L1DynamicPedestalProviderRoot.h"
 #include "TrigT1CaloTools/L1EmTauTools.h"
@@ -18,9 +17,7 @@
 #include "TrigT1CaloTools/L1CPCMXTools.h"
 #include "TrigT1CaloTools/L1EnergyCMXTools.h"
 #include "TrigT1CaloTools/L1JetCMXTools.h"
-#include "TrigT1CaloTools/L1NonlinearLutDatabaseOverrideTool.h"
 
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1DatabaseOverrideForDataTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1DynamicPedestalProviderTxt )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1DynamicPedestalProviderRoot )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1EmTauTools )
@@ -39,12 +36,9 @@ DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1JEMJetTools )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1CPCMXTools )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1EnergyCMXTools )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1JetCMXTools )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1, L1NonlinearLutDatabaseOverrideTool )
-
 
 DECLARE_FACTORY_ENTRIES( TrigT1CaloTools )
 {
-	DECLARE_NAMESPACE_TOOL( LVL1, L1DatabaseOverrideForDataTool )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1DynamicPedestalProviderTxt )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1DynamicPedestalProviderRoot )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1EmTauTools )
@@ -63,6 +57,6 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloTools )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1CPCMXTools )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1EnergyCMXTools )
 	DECLARE_NAMESPACE_TOOL( LVL1, L1JetCMXTools )
-	DECLARE_NAMESPACE_TOOL( LVL1, L1NonlinearLutDatabaseOverrideTool )
+
 }
 

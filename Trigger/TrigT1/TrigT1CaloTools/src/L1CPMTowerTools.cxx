@@ -10,9 +10,6 @@
 
 namespace LVL1 {
 
-typedef std::vector<TriggerTowerMap_t::mapped_type> TriggerTowerVector_t;
-typedef std::vector<xAOD::TriggerTowerMap_t::mapped_type> xAODTriggerTowerVector_t;
-
 /** Constructor */
 
 L1CPMTowerTools::L1CPMTowerTools(const std::string& t,
@@ -58,7 +55,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<TriggerTower>* triggerTower
       towers to correct element
       Right now this is redundant, but when TT becomes a single-layer object  <br>
       we'll need this bit */
-  std::map< int, TriggerTowerVector_t > Sums;
+  std::map< int, std::vector<TriggerTower*> > Sums;
 
   // Step over all TriggerTowers, and put into map
   TTCollection::const_iterator it ;
@@ -71,16 +68,16 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<TriggerTower>* triggerTower
     // Find TriggerTowerKey for this TriggerTower
     int key = testKey.ttKey((*it)->phi(),(*it)->eta());
     // Does the map already contain an entry for this CPMTower?
-    std::map< int, TriggerTowerVector_t >::iterator mapIt=Sums.find(key);
+    std::map< int, std::vector<TriggerTower*> >::iterator mapIt=Sums.find(key);
     if (mapIt != Sums.end()) {
       // Add pointer to this tower to the list
       (mapIt->second).push_back((*it));
     }
     else {
       // New entry in map.
-      TriggerTowerVector_t vec;
+      std::vector<TriggerTower*> vec;
       vec.push_back((*it));
-      Sums.insert(std::map< int, TriggerTowerVector_t >::value_type(key,vec));
+      Sums.insert(std::map< int, std::vector<TriggerTower*> >::value_type(key,vec));
     }
   } // end of loop over towers
 
@@ -92,11 +89,11 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<TriggerTower>* triggerTower
       the same lengths. In this case, we need to be careful how we combine <br>
       them. */
 
-    for (std::map< int, TriggerTowerVector_t >::iterator mapIt = Sums.begin();
+    for (std::map< int, std::vector<TriggerTower*> >::iterator mapIt = Sums.begin();
          mapIt != Sums.end(); ++mapIt) {
 
       // Get first TT for this CPMT
-      TriggerTowerVector_t::iterator it = (mapIt->second).begin();
+      std::vector<TriggerTower*>::iterator it = (mapIt->second).begin();
       if (it != (mapIt->second).end()) {
         // Get CPMT eta, phi using first tower in vector (either tower in CPMT should do)
         double phi = (*it)->phi();
@@ -146,7 +143,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       towers to correct element
       Right now this is redundant, but when TT becomes a single-layer object  <br>
       we'll need this bit */
-  std::map< int, xAODTriggerTowerVector_t > Sums;
+  std::map< int, std::vector<xAOD::TriggerTower*> > Sums;
 
   // Step over all TriggerTowers, and put into map
   xAODTTCollection::const_iterator it ;
@@ -159,16 +156,16 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
     // Find TriggerTowerKey for this TriggerTower
     int key = testKey.ttKey((*it)->phi(),(*it)->eta());
     // Does the map already contain an entry for this CPMTower?
-    std::map< int, xAODTriggerTowerVector_t >::iterator mapIt=Sums.find(key);
+    std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt=Sums.find(key);
     if (mapIt != Sums.end()) {
       // Add pointer to this tower to the list
       (mapIt->second).push_back((*it));
     }
     else {
       // New entry in map.
-      xAODTriggerTowerVector_t vec;
+      std::vector<xAOD::TriggerTower*> vec;
       vec.push_back((*it));
-      Sums.insert(std::map< int, xAODTriggerTowerVector_t >::value_type(key,vec));
+      Sums.insert(std::map< int, std::vector<xAOD::TriggerTower*> >::value_type(key,vec));
     }
   } // end of loop over towers
 
@@ -180,7 +177,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       the same lengths. In this case, we need to be careful how we combine <br>
       them. */
 
-    for (std::map< int, xAODTriggerTowerVector_t >::iterator mapIt = Sums.begin();
+    for (std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt = Sums.begin();
          mapIt != Sums.end(); ++mapIt) {
 
       // create empty result vectors containing a single element
@@ -193,7 +190,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       int Peak = 0;
       
       // Get first TT for this CPMT
-      xAODTriggerTowerVector_t::iterator it = (mapIt->second).begin();
+      std::vector<xAOD::TriggerTower*>::iterator it = (mapIt->second).begin();
       if (it != (mapIt->second).end()) {
         // Get CPMT eta, phi using first tower in vector (either tower in CPMT should do)
         double phi = (*it)->phi();
@@ -239,7 +236,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       towers to correct element
       Right now this is redundant, but when TT becomes a single-layer object  <br>
       we'll need this bit */
-  std::map< int, xAODTriggerTowerVector_t > Sums;
+  std::map< int, std::vector<xAOD::TriggerTower*> > Sums;
 
   // Step over all TriggerTowers, and put into map
   xAODTTCollection::const_iterator it ;
@@ -252,16 +249,16 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
     // Find TriggerTowerKey for this TriggerTower
     int key = testKey.ttKey((*it)->phi(),(*it)->eta());
     // Does the map already contain an entry for this CPMTower?
-    std::map< int, xAODTriggerTowerVector_t >::iterator mapIt=Sums.find(key);
+    std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt=Sums.find(key);
     if (mapIt != Sums.end()) {
       // Add pointer to this tower to the list
       (mapIt->second).push_back((*it));
     }
     else {
       // New entry in map.
-      xAODTriggerTowerVector_t vec;
+      std::vector<xAOD::TriggerTower*> vec;
       vec.push_back((*it));
-      Sums.insert(std::map< int, xAODTriggerTowerVector_t >::value_type(key,vec));
+      Sums.insert(std::map< int, std::vector<xAOD::TriggerTower*> >::value_type(key,vec));
     }
   } // end of loop over towers
 
@@ -273,7 +270,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       the same lengths. In this case, we need to be careful how we combine <br>
       them. */
 
-    for (std::map< int, xAODTriggerTowerVector_t >::iterator mapIt = Sums.begin();
+    for (std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt = Sums.begin();
          mapIt != Sums.end(); ++mapIt) {
 
       // create empty result vectors containing a single element
@@ -286,7 +283,7 @@ void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* trigge
       int Peak = 0;
       
       // Get first TT for this CPMT
-      xAODTriggerTowerVector_t::iterator it = (mapIt->second).begin();
+      std::vector<xAOD::TriggerTower*>::iterator it = (mapIt->second).begin();
       if (it != (mapIt->second).end()) {
         // Get CPMT eta, phi using first tower in vector (either tower in CPMT should do)
         double phi = (*it)->phi();

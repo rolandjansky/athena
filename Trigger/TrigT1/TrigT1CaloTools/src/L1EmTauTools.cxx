@@ -51,7 +51,7 @@ StatusCode L1EmTauTools::finalize()
 
 /** Find list of RoIs passing at least 1 threshold */
 
-void L1EmTauTools::findRoIs(const CPMTowerMap_t* towers, DataVector<CPAlgorithm>* rois, int slice){
+void L1EmTauTools::findRoIs(const std::map<int, CPMTower*>* towers, DataVector<CPAlgorithm>* rois, int slice){
 
   // Start with an empty DataVector
   rois->clear();
@@ -63,7 +63,7 @@ void L1EmTauTools::findRoIs(const CPMTowerMap_t* towers, DataVector<CPAlgorithm>
 
   TriggerTowerKey testKey(0.0, 0.0);
   std::map<int, int> analysed;
-  CPMTowerMap_t::const_iterator cpmt = towers->begin();
+  std::map<int, CPMTower*>::const_iterator cpmt = towers->begin();
   for ( ; cpmt != towers->end(); ++cpmt) {
     double eta = (*cpmt).second->eta();
     double phi = (*cpmt).second->phi();
@@ -90,17 +90,17 @@ void L1EmTauTools::findRoIs(const CPMTowerMap_t* towers, DataVector<CPAlgorithm>
 }
 
 /** Find list of RoIs from user-supplied map of TriggerTowers */
-void L1EmTauTools::findRoIs(const TriggerTowerMap_t* tts, DataVector<CPAlgorithm>* rois, int slice){
+void L1EmTauTools::findRoIs(const std::map<int, TriggerTower*>* tts, DataVector<CPAlgorithm>* rois, int slice){
 
   /** Need a map of CPMTowers as input */
-  CPMTowerMap_t* towers = new CPMTowerMap_t;
+  std::map<int, CPMTower*>* towers = new std::map<int, CPMTower*>;
   mapTowers(tts, towers);
 
   /** Now find the RoIs in this map */
   findRoIs(towers, rois, slice);  
 
   /** Clean up CPMTowers */
-  for (CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
+  for (std::map<int, CPMTower*>::iterator it = towers->begin(); it != towers->end(); ++it) {
     delete (*it).second;
   }
   delete towers;
@@ -110,7 +110,7 @@ void L1EmTauTools::findRoIs(const TriggerTowerMap_t* tts, DataVector<CPAlgorithm
 void L1EmTauTools::findRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPAlgorithm>* rois, int slice){
 
   /** Need a map of CPMTowers as input */
-  CPMTowerMap_t* towers = new CPMTowerMap_t;
+  std::map<int, CPMTower*>* towers = new std::map<int, CPMTower*>;
   mapTowers(cpmts, towers);
 
   /** Now find the RoIs in this map */
@@ -124,21 +124,21 @@ void L1EmTauTools::findRoIs(const DataVector<CPMTower>* cpmts, DataVector<CPAlgo
 void L1EmTauTools::findRoIs(const DataVector<TriggerTower>* tts, DataVector<CPAlgorithm>* rois, int slice){
 
   /** Need a map of CPMTowers as input */
-  CPMTowerMap_t* towers = new CPMTowerMap_t;
+  std::map<int, CPMTower*>* towers = new std::map<int, CPMTower*>;
   mapTowers(tts, towers);
 
   /** Now find the RoIs in this map */
   findRoIs(towers, rois, slice);  
 
   /** Clean up CPMTowers */
-  for (CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
+  for (std::map<int, CPMTower*>::iterator it = towers->begin(); it != towers->end(); ++it) {
     delete (*it).second;
   }
   delete towers;
 }
 
 /** CPMTower map from user-supplied vector of TriggerTowers */
-void L1EmTauTools::mapTowers(const DataVector<TriggerTower>* tts, CPMTowerMap_t* towers){
+void L1EmTauTools::mapTowers(const DataVector<TriggerTower>* tts, std::map<int, CPMTower*>* towers){
 
   // Clear map before filling
   towers->clear();
@@ -153,7 +153,7 @@ void L1EmTauTools::mapTowers(const DataVector<TriggerTower>* tts, CPMTowerMap_t*
      if (fabs(TriggerTowerEta) < 2.5) {   // limit of em/tau coverage
        double TriggerTowerPhi=(*it)->phi();
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
-       CPMTowerMap_t::iterator test=towers->find( key );
+       std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
          ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
@@ -182,7 +182,7 @@ void L1EmTauTools::mapTowers(const DataVector<TriggerTower>* tts, CPMTowerMap_t*
 }
 
 /** CPMTower map from user-supplied vector of CPMTowers */
-void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* towers){
+void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, std::map<int, CPMTower*>* towers){
 
   // Clear map before filling
   towers->clear();
@@ -196,7 +196,7 @@ void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* t
      if (fabs(TriggerTowerEta) < 2.5) {   // limit of em/tau coverage
        double TriggerTowerPhi=(*it)->phi();
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
-       CPMTowerMap_t::iterator test=towers->find( key );
+       std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
          ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
@@ -208,7 +208,7 @@ void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* t
            if ((*it2) > 0) nonZero = true;
          for (std::vector<int>::iterator it2 = hadEt.begin(); it2 != hadEt.end(); ++it2)
            if ((*it2) > 0) nonZero = true;
-         if (nonZero) towers->insert(CPMTowerMap_t::value_type(key,(*it)));
+         if (nonZero) towers->insert(std::map<int, CPMTower*>::value_type(key,(*it)));
        }
      }
   }//endfor
@@ -217,13 +217,13 @@ void L1EmTauTools::mapTowers(const DataVector<CPMTower>* cpmts, CPMTowerMap_t* t
 }
 
 /** CPMTower map from user-supplied TriggerTower map */
-void L1EmTauTools::mapTowers(const TriggerTowerMap_t* tts, CPMTowerMap_t* towers){
+void L1EmTauTools::mapTowers(const std::map<int, TriggerTower*>* tts, std::map<int, CPMTower*>* towers){
 
   // Clear map before filling
   towers->clear();
   
   // Step over all TriggerTowers, and put into map
-  TriggerTowerMap_t::const_iterator it ;
+  std::map<int, TriggerTower*>::const_iterator it ;
   TriggerTowerKey testKey(0.0, 0.0);
 
   CPMTower* cpmTower;
@@ -232,7 +232,7 @@ void L1EmTauTools::mapTowers(const TriggerTowerMap_t* tts, CPMTowerMap_t* towers
      if (fabs(TriggerTowerEta) < 2.5) {   // limit of em/tau coverage
        double TriggerTowerPhi=(*it).second->phi();
        int key = testKey.ttKey(TriggerTowerPhi,TriggerTowerEta);
-       CPMTowerMap_t::iterator test=towers->find( key );
+       std::map<int, CPMTower *>::iterator test=towers->find( key );
        if (test != towers->end()){
          ATH_MSG_ERROR( "ERROR: tower already in map!" );
        }
@@ -262,7 +262,7 @@ void L1EmTauTools::mapTowers(const TriggerTowerMap_t* tts, CPMTowerMap_t* towers
 
 /** Return RoI for given coordinates */
 
-CPAlgorithm L1EmTauTools::findRoI(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice) {
+CPAlgorithm L1EmTauTools::findRoI(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice) {
 
   // Performs all processing for this location
   CPAlgorithm roi(RoIeta, RoIphi, towers, m_configSvc, slice);
@@ -273,7 +273,7 @@ CPAlgorithm L1EmTauTools::findRoI(double RoIeta, double RoIphi, const CPMTowerMa
 
 /** Form clusters for given coordinates */
 
-void L1EmTauTools::formSums(double RoIeta, double RoIphi, const CPMTowerMap_t* towers, int slice) {
+void L1EmTauTools::formSums(double RoIeta, double RoIphi, const std::map<int, CPMTower*>* towers, int slice) {
 
   // Leak prevention
   if (m_RoI != 0) delete m_RoI;
@@ -285,7 +285,7 @@ void L1EmTauTools::formSums(double RoIeta, double RoIphi, const CPMTowerMap_t* t
 
 /** Form sums for given RoI */
 
-void L1EmTauTools::formSums(uint32_t roiWord, const CPMTowerMap_t* towers, int slice) {
+void L1EmTauTools::formSums(uint32_t roiWord, const std::map<int, CPMTower*>* towers, int slice) {
 
   // Leak prevention
   if (m_RoI != 0) delete m_RoI;
