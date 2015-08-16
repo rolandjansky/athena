@@ -25,13 +25,14 @@ RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pPare
 , m_eff_medium(NULL)
 , m_eff_loose(NULL)
 , m_eff_veryloose(NULL)
+, m_pt_broad(NULL)
 {}
 
 void RecoMuonPlots::initializePlots(){
   //be very careful here, bin size is the same as the defult value
   //std::vector<HistData> hists = m_oAllPlots.retrieveBookedHistograms(); // HistData -> std::pair<TH1*, std::string>
   int xbins = 64;
-  int ybins = 64;
+  int ybins = 128;
   float xmin = -3.2;
   float xmax = 3.2;
   float ymin = -3.2;
@@ -50,10 +51,11 @@ void RecoMuonPlots::initializePlots(){
   //   }
   // }
   //now register!
-  m_eff_tight = Book2D("_Tight_eff", "Tight Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
-  m_eff_medium = Book2D("_Medium_eff", "Medium Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
-  m_eff_loose = Book2D("_Loose_eff", "Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_tight     = Book2D("_Tight_eff",          "Tight Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_medium    = Book2D("_Medium_eff",        "Medium Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_eff_loose     = Book2D("_Loose_eff",          "Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
   m_eff_veryloose = Book2D("_Veryloose_eff", "Very Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 140, 100, 1500);
 }
 
 void RecoMuonPlots::fill(const xAOD::Muon& mu){
@@ -64,6 +66,7 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu){
   m_oMuonHitSummaryPlots.fill(mu);
   m_oMuonIsolationPlots.fill(mu);
   m_oMuonParamPlots.fill(mu);
+  m_pt_broad->Fill(mu.pt()/1000);
 
   // tracking related plots
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);

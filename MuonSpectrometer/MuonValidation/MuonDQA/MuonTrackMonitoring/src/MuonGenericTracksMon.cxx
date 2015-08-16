@@ -286,46 +286,54 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
   std::vector<HistData> hists = valPlots.retrieveBookedHistograms(); // HistData -> std::pair<TH1*, std::string> 
   for (auto hist: hists) {
 
-    TString sHistName = hist.first->GetName();
+    TString sHistName  = hist.first->GetName();
     TString sHistTitle = hist.first->GetTitle();
-    // //change the axis range label, rebin the plots
-    if (sHistName.Contains(source + "_pt")){
-      hist.first->GetXaxis()->SetTitle("Track Transverse Momentum [GeV]");
-      if (sHistName.EndsWith("_pt")){//change pt binning
-        hist.first->GetXaxis()->Set(50, 0, 100);
-      }
+
+    // rebin and/or change the axis range label
+    // NB: currently unable to rebin y-axis of TH2s
+
+    if (sHistName.EndsWith("_eta_phi")){
+        hist.first->RebinX(2);
+        // hist.first->RebinY(2);
+        hist.first->GetXaxis()->SetTitle("#eta");
+        hist.first->GetYaxis()->SetTitle("#phi");
     }
-    if (sHistName.Contains(source + "_ddpt")){
-      hist.first->GetXaxis()->Set(100, -0.5, 0.5);
+    else if (sHistName.EndsWith("_eta_pt")){
+        hist.first->RebinX(2);
+        // hist.first->RebinY(2);
     }
-    //deal with all the eta and phi here
-    if (sHistName.Contains("_eta_phi")){//change 2D etaphi binning
-      hist.first->GetXaxis()->SetTitle("#eta");
-      hist.first->GetXaxis()->Set(64, -3.2, 3.2);
-      hist.first->GetYaxis()->SetTitle("#phi");
-      hist.first->GetYaxis()->Set(64, -3.2, 3.2);
+    else if (sHistName.EndsWith("_eta")){
+        hist.first->RebinX(2);
+        hist.first->GetXaxis()->SetTitle("#eta");
     }
-    else if (sHistName.Contains("_eta_pt")){//change 2D etapt binning
-      hist.first->GetXaxis()->Set(64, -3.2, 3.2);
-      hist.first->GetYaxis()->Set(50, 0, 100);
+    else if (sHistName.EndsWith("_phi")){
+        hist.first->RebinX(2);
+        hist.first->GetXaxis()->SetTitle("#phi");
     }
-    else if (sHistName.EndsWith("_eta")){//change 1D eta binning
-      hist.first->GetXaxis()->Set(64, -3.2, 3.2);
+    else if (sHistName.EndsWith("_pt")){
+        hist.first->RebinX(2);
+        hist.first->GetXaxis()->SetRangeUser(0, 100);
+        hist.first->GetXaxis()->SetTitle("p_{T} [GeV]");
     }
-    else if (sHistName.EndsWith("_phi")){//change 1D phi binning
-      hist.first->GetXaxis()->Set(64, -3.2, 3.2);
+    else if (sHistName.EndsWith("_broad")) {
+        hist.first->GetXaxis()->SetTitle("p_{T} [GeV]");
     }
-    if (sHistName.Contains(source + "_z0")){
+    else if (sHistName.EndsWith("_ddpt")){
+        hist.first->RebinX(3);
+    }
+    else if (sHistName.Contains("_z0")){
         hist.first->GetXaxis()->SetRangeUser(-50, 50);
     }
-    if (sHistName.Contains(source + "_d0")){                
+    else if (sHistName.Contains("_d0")){
         hist.first->GetXaxis()->SetRangeUser(-0.2, 0.2);
     }
-    //for ID track hits, special treatment
+
+    // for ID track hits, special treatment
     if (sHistName.Contains("HitContent")){
         hist.first->SetName(pathToHistName(m_MuonTriggerChainName) + "Tracks" + Montype + "_" + source + "_" + sHistName);
     }
-    //change histogram title
+
+    // change histogram title
     if (Montype != ""){//do this only for tracks
       if (sHistTitle.Contains("Track")) {
           sHistTitle = sHistTitle.Replace(0, 6, Montype + " Track ");

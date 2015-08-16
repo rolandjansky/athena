@@ -46,6 +46,7 @@ class RecoMuonPlots:public PlotBase {
       TH2* m_eff_medium;
       TH2* m_eff_loose;
       TH2* m_eff_veryloose;
+      TH1* m_pt_broad;
 
     private:
       void initializePlots();

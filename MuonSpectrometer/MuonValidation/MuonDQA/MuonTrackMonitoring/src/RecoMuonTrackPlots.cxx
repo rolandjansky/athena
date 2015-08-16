@@ -17,11 +17,13 @@ m_oResidualPlots_TGC_wire(this, "/TGC/", "wire"),
 m_oResidualPlots_TGC_strip(this, "/TGC/", "strip"),
 m_oResidualPlots_CSC_eta(this, "/CSC/", "eta"),
 m_oResidualPlots_CSC_phi(this, "/CSC/", "phi"),
+m_pt_broad(NULL),
 m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
 {}
 
 void RecoMuonTrackPlots::initializePlots(){
   //booking histograms
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 180, 100, 1000);
 }
 
 //when the plot function called with a Muon Container
@@ -58,6 +60,7 @@ void RecoMuonTrackPlots::fill(const xAOD::TrackParticle& muTP){
   m_oImpactPlots.fill(muTP);
   m_oTrkRecoInfoPlots.fill(muTP);
   m_oMSHitPlots.fill(muTP);
+  m_pt_broad->Fill(muTP.pt()/1000);
   
   const Trk::Track* track = muTP.track(); //@@@ NUMEROUS FPE WARNINGS!!!
   if (!track) return;

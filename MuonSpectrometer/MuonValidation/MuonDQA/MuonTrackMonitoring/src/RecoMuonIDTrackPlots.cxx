@@ -8,11 +8,13 @@ RecoMuonIDTrackPlots::RecoMuonIDTrackPlots(PlotBase* pParent, std::string sDir):
 m_oAllPlots(this, "/", "Reco Muon"),
 m_oImpactPlots(this, "/"),
 m_oTrkRecoInfoPlots(this, "/"),
-m_oIDHitPlots(this,"/")
+m_oIDHitPlots(this,"/"),
+m_pt_broad(NULL)
 {}
 
 void RecoMuonIDTrackPlots::initializePlots(){
   //booking histograms
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 180, 100, 1000);
 }
 
 //when the plot function called with a Muon Container
@@ -37,6 +39,7 @@ void RecoMuonIDTrackPlots::fill(const xAOD::TrackParticle& muTP){
   m_oImpactPlots.fill(muTP);
   m_oTrkRecoInfoPlots.fill(muTP);
   m_oIDHitPlots.fill(muTP);
+  m_pt_broad->Fill(muTP.pt()/1000);
 
 }
 

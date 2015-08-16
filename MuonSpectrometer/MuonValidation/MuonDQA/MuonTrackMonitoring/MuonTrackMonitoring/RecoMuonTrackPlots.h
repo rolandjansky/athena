@@ -45,6 +45,8 @@ class RecoMuonTrackPlots:public PlotBase {
       Muon::MuonHitResidualPlots         m_oResidualPlots_CSC_eta;
       Muon::MuonHitResidualPlots         m_oResidualPlots_CSC_phi;
       
+      TH1* m_pt_broad;
+
       ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
       ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
       ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
