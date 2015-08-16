@@ -129,7 +129,9 @@ void L1EtTools::moduleSums(const xAOD::JetElementContainer* jetelements,
                            DataVector<ModuleEnergy>* modules, int slice) {
 
   modules->clear();
-  if (!m_TEMasks) fillMaskedOutMap();
+  if (m_TEMasks) delete m_TEMasks;
+  m_TEMasks = 0;
+  //if (!m_TEMasks) fillMaskedOutMap();
   
   // Need map of JetElements as input to ModuleEnergy class creator
   std::map<int, xAOD::JetElement*>* jeContainer = new std::map<int, xAOD::JetElement*>;
@@ -153,7 +155,9 @@ void L1EtTools::moduleSums(const std::map<int, xAOD::JetElement*>* jemap,
                            DataVector<ModuleEnergy>* modules, int slice) {
 
   modules->clear();
-  if (!m_TEMasks) fillMaskedOutMap();
+  if (m_TEMasks) delete m_TEMasks;
+  m_TEMasks = 0;
+  //if (!m_TEMasks) fillMaskedOutMap();
   
   // Loop over crates, modules and create set of ModuleEnergy objects
   for (int crate = 0; crate < 2; ++crate) {
