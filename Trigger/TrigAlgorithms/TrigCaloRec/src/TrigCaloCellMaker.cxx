@@ -57,7 +57,10 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
     m_trustRoiLimits(false),
     m_createRoiForID(false),
     m_etaWidthForID(0),
-    m_phiWidthForID(0)
+    m_phiWidthForID(0),
+    m_counter(0),
+    pCaloCellContainer(NULL),
+    pTrigCaloQuality(NULL)
  {
 
    // Name of Tools to check and finalize the cell container...
@@ -275,7 +278,8 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       }
 #endif
       
-      TrigRoiDescriptor* _roi = new TrigRoiDescriptor( eta0, etamin, etamax, phi0, phimin, phimax );
+      TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
+						       eta0, etamin, etamax, phi0, phimin, phimax );
       attachFeature( outputTE, _roi, "" );
       roiDescriptor = _roi; 
     }
@@ -442,7 +446,10 @@ else {
     }
     
 
-    TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->eta(),
+    TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), 
+						     roiDescriptor->l1Id(), 
+						     roiDescriptor->roiId(),
+						     roiDescriptor->eta(),
 						     roiDescriptor->eta()-m_etaWidthForID, 
 						     roiDescriptor->eta()+m_etaWidthForID, 
 						     roiDescriptor->phi(), 

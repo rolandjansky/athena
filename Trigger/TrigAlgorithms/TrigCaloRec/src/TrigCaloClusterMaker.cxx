@@ -56,7 +56,9 @@ class ISvcLocator;
 /////////////////////////////////////////////////////////////////////
 //
 TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::FexAlgo(name, pSvcLocator)
+  : HLT::FexAlgo(name, pSvcLocator),
+    m_pCaloClusterContainer(NULL),
+    pTrigCaloQuality(NULL)
 {
 
   // Eta and Phi size of the RoI window...

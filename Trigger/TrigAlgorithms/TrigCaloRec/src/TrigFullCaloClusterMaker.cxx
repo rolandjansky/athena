@@ -58,6 +58,8 @@ class ISvcLocator;
 //
 TrigFullCaloClusterMaker::TrigFullCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator), 
+    m_pCaloClusterContainer(NULL),
+    AllTECaloClusterContainer(NULL),
     m_useCachedResult(false), m_roiEtaLimit(4.8)
 {
 

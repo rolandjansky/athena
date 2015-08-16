@@ -36,7 +36,8 @@
 FullCaloCellContMaker::FullCaloCellContMaker(const std::string & type, const std::string & name,
 //         const IInterface* parent): IAlgToolEFCalo(type, name, parent), 
 //         m_timersvc("TrigTimerSvc","FullCaloCellContMaker"){
-         const IInterface* parent): IAlgToolEFCalo(type, name, parent)
+	 const IInterface* parent): IAlgToolEFCalo(type, name, parent),
+				    m_data(NULL)
 {
 
   declareProperty("DoLArCellsNoiseSuppression",  m_do_LArCells_noise_suppression = 0);
@@ -65,8 +66,8 @@ StatusCode FullCaloCellContMaker::initialize(){
 
   if(m_do_LArCells_noise_suppression!=0 || m_do_TileCells_noise_suppression!=0 ) {
     if(m_noiseTool.retrieve().isFailure()){
-      std::cerr << "WARNING" << " Unable to find CaloNoiseTool " << endreq;
-		 
+      ATH_MSG_WARNING("Unable to find CaloNoiseTool");
+      
       return StatusCode::FAILURE;
     }
    // if ( m_do_TileCells_noise_suppression!=0 ) {

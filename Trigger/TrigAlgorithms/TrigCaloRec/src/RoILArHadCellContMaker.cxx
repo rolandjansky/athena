@@ -34,7 +34,10 @@
 
 
 RoILArHadCellContMaker::RoILArHadCellContMaker(const std::string & type, const std::string & name,
-         const IInterface* parent): IAlgToolEFCalo(type, name, parent){
+	 const IInterface* parent): IAlgToolEFCalo(type, name, parent),
+				    m_data(NULL),
+				    m_cablingSvc(NULL) 
+{
 
   declareProperty("DoLArCellsNoiseSuppression", do_LArCells_noise_suppression = 1);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
@@ -105,7 +108,10 @@ StatusCode RoILArHadCellContMaker::execute(CaloCellContainer &pCaloCellContainer
      if (m_timersvc) (m_timer.at(1))->pause();
 
      if (m_timersvc) (m_timer.at(2))->resume();
-     (m_data->LoadCollections(m_iBegin,m_iEnd,sampling,!sampling)).isFailure();
+     if((m_data->LoadCollections(m_iBegin,m_iEnd,sampling,!sampling)).isFailure()) {
+       ATH_MSG_DEBUG("unable to load cell collections");
+       //return StatusCode::FAILURE;
+     }
      if (m_data->report_error()) {
        m_error=m_data->report_error() + (EFTTHEC<<28);
        if (m_timersvc) (m_timer.at(2))->pause();

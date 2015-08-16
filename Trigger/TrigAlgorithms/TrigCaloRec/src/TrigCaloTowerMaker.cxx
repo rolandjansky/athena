@@ -57,6 +57,9 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
   , m_maxEta(2.5)
   , m_deta(0.5)
   , m_dphi(0.5)
+  , m_totalTimer(NULL)
+  , m_towerContTimer(NULL)
+  , pCaloTowerContainer(NULL)
   , m_includeFcal(false)
 {
 
@@ -120,9 +123,15 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
       return HLT::BAD_JOB_SETUP;
     } else {
       CaloTowerBuilderToolBase* mytool = dynamic_cast<CaloTowerBuilderToolBase*>(algtool);
-      msg() << MSG::DEBUG << " set towerSet for this tool " << theItem.name() << endreq;
-      mytool->setTowerSeg(theTowerSeg);
-      m_towerMakerPointers.push_back(mytool);
+      if(mytool == NULL) {
+	ATH_MSG_FATAL("dynamic cast to CaloTowerBuilderToolBase failed for" << theItem.name());
+	return HLT::BAD_JOB_SETUP;
+      }
+      else {
+	msg() << MSG::DEBUG << " set towerSet for this tool " << theItem.name() << endreq;
+	mytool->setTowerSeg(theTowerSeg);
+	m_towerMakerPointers.push_back(mytool);
+      }
     }
   }
 

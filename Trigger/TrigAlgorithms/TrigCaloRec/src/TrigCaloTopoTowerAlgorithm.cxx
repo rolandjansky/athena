@@ -44,6 +44,7 @@
 //
 TrigCaloTopoTowerAlgorithm::TrigCaloTopoTowerAlgorithm(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator)
+  , m_caloSelection(false)
   , m_ptools( this )
 {
   

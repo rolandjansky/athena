@@ -14,6 +14,7 @@ from TrigCaloRec.TrigCaloRecConf import RoIFCalEmCellContMaker
 from TrigCaloRec.TrigCaloRecConf import RoIFCalHadCellContMaker
 from TrigCaloRec.TrigCaloRecConf import FullCaloCellContMaker
 from TrigCaloRec.TrigCaloRecConf import TrigLArNoisyROAlg
+from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerHypo
 from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
 from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
 from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
@@ -24,6 +25,7 @@ from TrigCaloRec.TrigCaloCellMakerMonitoring import TrigFullCaloCellMakerValidat
 from TrigCaloRec.TrigCaloTowerMakerMonitoring import TrigCaloTowerMakerValidationMonitoring, TrigCaloTowerMakerOnlineMonitoring, TrigCaloTowerMakerCosmicMonitoring
 from TrigCaloRec.TrigCaloClusterMakerMonitoring import TrigCaloClusterMakerValidationMonitoring, TrigCaloClusterMakerOnlineMonitoring, TrigCaloClusterMakerCosmicMonitoring
 from TrigCaloRec.TrigCaloClusterMakerMonitoring import TrigFullCaloClusterMakerValidationMonitoring, TrigFullCaloClusterMakerOnlineMonitoring, TrigFullCaloClusterMakerCosmicMonitoring
+from TrigCaloRec.TrigCaloClusterMakerMonitoring import TrigL1BSTowerHypoOnlineMonitoring
 from CaloClusterCorrection.common import *
 from CaloUtils.CaloUtilsConf import *
 
@@ -1083,3 +1085,14 @@ class TrigLArNoisyROAlgConfig (TrigLArNoisyROAlg):
          super( TrigLArNoisyROAlgConfig, self ).__init__(name)
          self.BadChanPerFEB=20
          self.CellQualityCut=1000
+
+class TrigL1BSTowerHypoConfig (TrigL1BSTowerHypo):
+    __slots__ = []
+    def __init__(self, name='TrigL1BSTowerHypoConfig'):
+        super( TrigL1BSTowerHypoConfig, self ).__init__(name)
+
+        toweronline = TrigL1BSTowerHypoOnlineMonitoring()
+
+        towertime = TrigTimeHistToolConfig("TrigL1BSTower_Time")
+
+        self.AthenaMonTools = [ toweronline, towertime]
