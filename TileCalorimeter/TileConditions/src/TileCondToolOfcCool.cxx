@@ -84,8 +84,6 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
     first = false;
     NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
     NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    Phamin = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0);
-    Phamax = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1);
     NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
@@ -94,11 +92,7 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 
   }
 
-  int indpha = (int) round(phase / PHASE_STEP);
-  if (indpha < Phamin) indpha = Phamin;
-  if (indpha >= Phamax) indpha = Phamax - 1;
-
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, indpha, m_weights->w_a, m_weights->w_b
+  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, m_weights->w_a, m_weights->w_b
                                                    , m_weights->w_c, m_weights->g, m_weights->dg);
 
   m_weights->n_samples = NSamples;
@@ -122,8 +116,6 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
     first = false;
     NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
     NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    Phamin = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0);
-    Phamax = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1);
     NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
@@ -132,11 +124,7 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
 
   }
 
-  int indpha = (int) round(phase / PHASE_STEP);
-  if (indpha < Phamin) indpha = Phamin;
-  if (indpha >= Phamax) indpha = Phamax - 1;
-
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, indpha, a, b, c, g, dg);
+  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, a, b, c, g, dg);
 
   return NSamples;
 }
@@ -156,8 +144,8 @@ void TileCondToolOfcCool::getOfcParams(unsigned int drawerIdx
 
   NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
   NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-  Phamin = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0);
-  Phamax = m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1);
+  Phamin = round(m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, 0) * (1 / PHASE_PRECISION));
+  Phamax = round(m_pryOfcCool->getCalibDrawer(drawerIdx)->getPhase(0, 0, abs(NPhases) - 1) * (1 / PHASE_PRECISION));
   NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 }
 
