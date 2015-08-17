@@ -143,7 +143,9 @@ def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon import CfgGetter
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    streamName = kwargs.setdefault("RndmEngine", "PixelDigitization")
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
+        digitizationFlags.rndmSeedList.addSeed(streamName, 10513239, 492615104 )
     from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
@@ -171,18 +173,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         kwargs.setdefault("LastXing", Pixel_LastXing() )
     return CfgMgr.PixelDigitizationTool(name, **kwargs)
 
-def GenericPixelDigitizationTool(name, **kwargs):
-    # set rndm seeds
-    digitizationFlags.rndmSeedList.addSeed("PixelDigitization", 10513239, 492615104 )
-    return BasicPixelDigitizationTool(name, **kwargs)
-
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return GenericPixelDigitizationTool(name, **kwargs)
+    return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolHS(name="PixelDigitizationToolHS", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return GenericPixelDigitizationTool(name, **kwargs)
+    return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolPU(name="PixelDigitizationToolPU", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 2)
@@ -190,20 +187,34 @@ def PixelDigitizationToolPU(name="PixelDigitizationToolPU", **kwargs):
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
     return BasicPixelDigitizationTool(name, **kwargs)
 
+def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergePU", **kwargs):
+    kwargs.setdefault("EnableNoise", False)
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("InputObjectName", "PileupPixelHits")
+    kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
+    kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
+    return BasicPixelDigitizationTool(name, **kwargs)
+
+def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
+    kwargs.setdefault("EvtStore", "BkgEvent_0_SG")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    return BasicPixelDigitizationTool(name,**kwargs)
+
 def getPixelRange(name="PixelRange" , **kwargs):
     kwargs.setdefault('FirstXing', Pixel_FirstXing() )
     kwargs.setdefault('LastXing',  Pixel_LastXing() )
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset
     kwargs.setdefault('ItemList', ["SiHitCollection#PixelHits"] )
-    from AthenaCommon import CfgMgr
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 def PixelDigitizationHS(name="PixelDigitizationHS",**kwargs):
     kwargs.setdefault("DigitizationTool", "PixelDigitizationToolHS")
-    from PixelDigitization.PixelDigitizationConf import PixelDigitization
-    return PixelDigitization(name,**kwargs)
+    return CfgMgr.PixelDigitization(name,**kwargs)
 
 def PixelDigitizationPU(name="PixelDigitizationPU",**kwargs):
     kwargs.setdefault("DigitizationTool", "PixelDigitizationToolPU")
-    from PixelDigitization.PixelDigitizationConf import PixelDigitization
-    return PixelDigitization(name,**kwargs)
+    return CfgMgr.PixelDigitization(name,**kwargs)
+
+def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
+    kwargs.setdefault("DigitizationTool", "PixelOverlayDigitizationTool")
+    return CfgMgr.PixelDigitization(name,**kwargs)

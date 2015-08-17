@@ -5,6 +5,8 @@ from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationTool", "PixelDigitizationTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolHS", "PixelDigitizationToolHS")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolPU", "PixelDigitizationToolPU")
+addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolSplitNoMergePU", "PixelDigitizationToolSplitNoMergePU")
+
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationHS"  , "PixelDigitizationHS")
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationPU"  , "PixelDigitizationPU")
 addTool("PixelDigitization.PixelDigitizationConfig.getPixelRange", "PixelRange")
@@ -25,3 +27,5 @@ addTool("PixelDigitization.PixelDigitizationConfig.Ibl3DChargeTool","Ibl3DCharge
 addTool("PixelDigitization.PixelDigitizationConfig.SubChargesTool","SubChargesTool")
 addService("PixelDigitization.PixelDigitizationConfig.TimeSvc","TimeSvc")
 addService("PixelDigitization.PixelDigitizationConfig.CalibSvc","CalibSvc")
+addTool("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitizationTool", "PixelOverlayDigitizationTool")
+addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitization", "PixelOverlayDigitization")
