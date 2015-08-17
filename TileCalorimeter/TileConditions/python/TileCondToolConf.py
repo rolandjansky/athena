@@ -3,18 +3,15 @@
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
 
-import string
-
 from TileConditions.TileCondProxyConf  import *
 from AthenaCommon.Constants import INFO
 
 #=== check Athena running mode
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-isOnline = athenaCommonFlags.isOnline()
+isOnline=athenaCommonFlags.isOnline()
 
 from IOVDbSvc.CondDB import conddb
 isUsedDataBaseRun2 = (conddb.GetInstance() == 'CONDBR2')
-
 
 validRunTypes = ['PHY','LAS', 'GAPLAS','CIS','PED','CISPULSE100','CISPULSE5P2','CISLEAK100','CISLEAK5P2']
 validSources = ['COOL','FILE']
@@ -213,7 +210,7 @@ def getTileCondToolMuID(source = 'FILE', name = 'TileCondToolMuID', **kwargs):
 
 #
 #____________________________________________________________________________
-def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name = 'TileCondToolTiming', **kwargs):
+def getTileCondToolTiming(source = 'FILE', runType = 'PHY', name = 'TileCondToolTiming', **kwargs):
 
 
     if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
@@ -222,20 +219,18 @@ def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name
     #do some check for global flag here: if source='' and flag set, adopt flag
     tool = None
     if source == 'COOL':
-        sourcePrefix = 'onl' if online else 'ofl'
-
         if runType == 'PHY' or runType == 'PED':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCphy','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCphy','TileCondProxyCool_AdcOffset'))
         if runType == 'LAS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeClas','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeClas','TileCondProxyCool_AdcOffset'))
         if runType == 'GAPLAS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCgapLas','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCgapLas','TileCondProxyCool_AdcOffset'))
         if runType == 'CIS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCcis','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCcis','TileCondProxyCool_AdcOffset'))
     elif source == 'FILE':
         #=== create tool
         if runType == 'PHY' or runType == 'PED':
@@ -442,18 +437,14 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
     from TileConditions.TileConditionsConf import TileCondToolNoiseSample
     
     #do some check for global flag here: if source='' and flag set, adopt flag
+    
     tool = None
-
-    if isOnline or not isUsedDataBaseRun2: onlNoiseSampleProxy = None
-    else: onlNoiseSampleProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
-
-    if source == 'COOL': 
+    if source == 'COOL':
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
         tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample'),
-                                       ProxyOnlineNoiseSample = onlNoiseSampleProxy)
+                                       ProxyNoiseSample = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample'))
 #                                       ProxyNoiseAutoCr = getTileCondProxy('COOL','Flt','oflNoiseAcr','TileCondProxyCool_NoiseAutoCr'))
         
     else:
@@ -461,8 +452,7 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
         tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample'),
-                                       ProxyOnlineNoiseSample = None)
+                                       ProxyNoiseSample = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample'))
 #                                       ProxyNoiseAutoCr = getTileCondProxy('FILE','Flt','TileDefault.acr','TileCondProxyFile_NoiseAutoCr'))
        
     #=== set the arguments passed and return tool
@@ -578,129 +568,42 @@ def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
 
 #
 #____________________________________________________________________________
-def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', name = 'TileCondToolOfcCool', **kwargs):
+def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', name = 'TileCondToolOfcCool', **kwargs):
 
-    if not source  in validSources : raise(Exception("Invalid source: %s" % source ))
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
+    if not source  in validSources : raise(Exception("Invalid source: %s" %source ))
+    if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
     from TileConditions.TileConditionsConf import TileCondToolOfcCool
 
     #do some check for global flag here: if source='' and flag set, adopt flag
-    from AthenaCommon.GlobalFlags import globalflags
-    isMC = (globalflags.DataSource() != 'data')
 
     tool = None
     if source == 'COOL':
-        # There are OFC for OF1 only in DB used in Run2
-        if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC): return None
-
-        from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
-        
-        proxySource = GetTileOfcCoolSource(ofcType, runType)
-        if not tileCoolMgr.isSourceAvailable(proxySource):
-            AddTileOfcCoolSource(ofcType, runType)
-            
-        proxyName = 'TileCondProxyCool_' + proxySource
-
-        tool = TileCondToolOfcCool(name, ProxyOfcCool = getTileCondProxy('COOL', 'Ofc', proxySource, proxyName))
+        #=== create tool
+        if runType == 'PHY':
+            tool = TileCondToolOfcCool(name,
+                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcPhy','TileCondProxyCool_OfcPhy'),
+                                          )
+        if runType == 'LAS':
+            tool = TileCondToolOfcCool(name,
+                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcLas','TileCondProxyCool_OfcLas'),
+                                          )
+        if runType == 'CISPULSE100':
+            tool = TileCondToolOfcCool(name,
+                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcCisPl100','TileCondProxyCool_OfcCisPl100'),
+                                          )
+        if runType == 'CISPULSE5P2':
+            tool = TileCondToolOfcCool(name,
+                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcCisPl5p2','TileCondProxyCool_OfcCisPl5p2'),
+                                          )
 
     else:
-        raise(Exception("Invalid source %s" % source))
+        raise(Exception("Invalid source %s"%source))
 
         
     #=== set the arguments passed and return tool
     for n,v in kwargs.items():
         setattr(tool, n, v)
     return tool
-
-
-#
-#____________________________________________________________________________
-def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTMDB', **kwargs):
-
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
-    from TileConditions.TileConditionsConf import TileCondToolTMDB
-
-    #do some check for global flag here: if source='' and flag set, adopt flag
-    tool = None
-
-    if not isUsedDataBaseRun2: return None
-    
-    if source == 'COOL': 
-        run = string.capwords(runType)
-        #====================================================
-        #=== Connect COOL TileCondProxies to the tool
-        #====================================================
-        tool = TileCondToolTMDB(name,
-                                ProxyThreshold = getTileCondProxy('COOL', 'Flt', 'onlTmdbThreshold' + run, 'TileCondProxyCool_TmdbThreshold' + run),
-                                ProxyDelay = getTileCondProxy('COOL', 'Flt', 'onlTmdbDelay' + run, 'TileCondProxyCool_TmdbDelay' + run),
-                                ProxyTMF = getTileCondProxy('COOL', 'Flt', 'onlTmdbTmf' + run, 'TileCondProxyCool_TmdbTmf' + run),
-                                ProxyCalib = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalibPhy', 'TileCondProxyCool_TmdbCalibPhy'))
-                                
-
-
-        
-    else:
-        #========================================================
-        #=== Connect FILE TileCondProxies to the tool (default)
-        #========================================================
-        raise(Exception("Invalid source %s" % source))
-
-       
-    #=== set the arguments passed and return tool
-    for n,v in kwargs.items():
-        setattr(tool, n, v)
-    return tool
-
-
-
-#
-#____________________________________________________________________________
-def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshold', **kwargs):
-    
-    from TileConditions.TileConditionsConf import TileCondToolDspThreshold
-    
-    #do some check for global flag here: if source='' and flag set, adopt flag
-    
-    tool = None
-
-    if source == 'COOL':
-        #====================================================
-        #=== Connect COOL TileCondProxies to the tool
-        #====================================================
-
-        if not isUsedDataBaseRun2: return None
-
-        tool = TileCondToolDspThreshold(name,
-                                         ProxyDspThreshold = getTileCondProxy('COOL', 'Flt', 'oflDspThreshold', 'TileCondProxyCool_DspThreshold'))
-        
-    elif  source == 'FILE':
-        #========================================================
-        #=== Connect FILE TileCondProxies to the tool (default)
-        #========================================================
-        tool = TileCondToolDspThreshold(name,
-                                         ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', 'TileDefault.dspThreshold', 'TileCondProxyFile_DspThreshold'))
-        
-
-    else:
-        #====================================================
-        #=== guess source is file name
-        #====================================================
-
-        file_name = find_data_file(source)
-        if file_name is not None:
-            tool = TileCondToolDspThreshold(name,
-                                             ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_DspThreshold'))
-
-        else:
-            raise(Exception("Invalid source: %s" %source ))
-
-
-    #=== set the arguments passed and return tool
-    for n, v in kwargs.items():
-        setattr(tool, n, v)
-    return tool
-
-
 
 
 import os

@@ -20,7 +20,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
     __slots__ = {
         '_coolIsConfigured' : False,        
         '_coolofcIsConfigured': False,
-        '_coolof1ofcIsConfigured': False,
         '_coolcispulseIsConfigured': False,
         '_coolintegratorIsConfigured': False,
         '_coolmuidIsConfigured': False,
@@ -28,10 +27,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
         '_coolDCSIsConfigured' : False,
         '_coolacrIsConfigured' : False,
         '_coolphypulseIsConfigured' : False,
-        '_coollaspulseIsConfigured' : False,
-        '_cooltimeIsConfigured' : False,
-        '_coolonlinetimeIsConfigured' : False,
-        '_coolDspThresholdIsConfigured' : False,
         '_msg': None
         }
 
@@ -62,7 +57,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         return msg
 
     #_______________________________________________________________
-    def setupCOOL(self, defTag = "", dbConnection = "", type = "PHY"):
+    def setupCOOL(self, defTag = "", dbConnection = ""):
         """
         Call this function to read calibration constants from the COOL DB (default is reading from text files).
         Input parameters:
@@ -101,7 +96,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         
         self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
         from .TileCondToolConf import getTileCondToolTiming
-        ToolSvc += getTileCondToolTiming('COOL',type)
+        ToolSvc += getTileCondToolTiming('COOL')
         
  #       self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
  #       from .TileCondToolConf import getTileCondToolPulseShape
@@ -112,103 +107,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
         #from .TileCondToolConf import getTileCellNoiseTool
 
         return
-
-    #_______________________________________________________________
-    def setupCOOLOFC(self, defTag = "", dbConnection = "", type = "PHY", ofcType = 'OF2'):
-        """
-        Call this function to read OFCs from Online COOL folder.
-        Returns if the corresponding tool is configured successfully
-        Input parameters:
-        - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
-        - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
-        - type              Pulse type - PHY or LAS or CIS
-        - ofcType         : Optimla filtering methods - OF1 or OF2
-        """
-
-        name = 'TileCondToolOfcCool'
-        #=== prevent a second initialization
-        if ofcType == 'OF2':
-            if self._coolofcIsConfigured:
-                self._msg.info("setupCOOLOFC already called previously, ignoring this repeated call!")
-                return True
-            self._coolofcIsConfigured = True
-        elif ofcType == 'OF1':
-            if self._coolof1ofcIsConfigured:
-                self._msg.info("setupCOOLOFC for OF1 already called previously, ignoring this repeated call!")
-                return True
-            self._coolof1ofcIsConfigured = True
-            name = 'TileCondToolOfcCoolOF1'
-        else:
-            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!" % ofcType)
-            return False
-
-        #=== connect TileCondToolOfcCool to COOL
-        from AthenaCommon.AppMgr import ToolSvc
-        from .TileCondToolConf import getTileCondToolOfcCool
-        toolOfcCool = getTileCondToolOfcCool('COOL', type, ofcType, name )
-        if toolOfcCool is not None:
-            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s" % ofcType)
-            ToolSvc += toolOfcCool
-            return True
-        elif ofcType == 'OF1':
-            self._coolof1ofcIsConfigured = False
-        else:
-            self._coolofcIsConfigured = False
-        return False
-
-
-
-    #_______________________________________________________________
-    def setupCOOLTIME(self, defTag = "", dbConnection = "", type = "PHY", online = False):
-        """
-        Call this function to read Time from COOL folder.
-        Input parameters:
-        - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
-        - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
-        - type              Pulse type - PHY or LAS or CIS
-        - online          : Read time from online COOL folder always 
-        """
-
-        name = 'TileCondToolTiming'
-        #=== prevent a second initialization
-        if not online:
-            if self._cooltimeIsConfigured:
-                self._msg.info("setupCOOLTIME already called previously, ignoring this repeated call!")
-                return
-            self._cooltimeIsConfigured = True
-        else:
-            if self._coolonlinetimeIsConfigured:
-                self._msg.info("setupCOOLTIME for online already called previously, ignoring this repeated call!")
-                return
-            self._coolonlinetimeIsConfigured = True
-            name = 'TileCondToolOnlineTiming'
-
-        #=== connect TileCondToolTiming to COOL
-        from AthenaCommon.AppMgr import ToolSvc
-        
-        self._msg.info("Changing default TileCondToolTiming configuration to COOL source")
-        from .TileCondToolConf import getTileCondToolTiming
-        ToolSvc += getTileCondToolTiming('COOL', type, online, name )
-
-
-
-    #_______________________________________________________________
-    def setupCOOLPULSE(self, defTag = "", dbConnection = "", type = "PHY"):
-        """
-        Call this function to read pulse shape from from Online COOL folder.
-        Input parameters:
-        - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
-        - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
-        - type              Pulse type - PHY or LAS or CIS
-        """
-
-        if type=="CIS":
-            self.setupCOOLCISPULSE(defTag,dbConnection)
-        elif type=="LAS":
-            self.setupCOOLLASPULSE(defTag,dbConnection)
-        else:
-            self.setupCOOLPHYPULSE(defTag,dbConnection)
-            self.setupCOOLAutoCr(defTag,dbConnection)
 
     #_______________________________________________________________
     def setupCOOLCISPULSE(self, defTag = "", dbConnection = ""):
@@ -236,26 +134,27 @@ class _TileInfoConfigurator( TileInfoLoader ):
         ToolSvc += getTileCondToolPulseShape('COOL','CISLEAK5P2','TileCondToolLeak5p2Shape')
 
     #_______________________________________________________________
-    def setupCOOLLASPULSE(self, defTag = "", dbConnection = ""):
+    def setupCOOLOFC(self, defTag = "", dbConnection = ""):
         """
-        Call this function to read LAS pulse shape from from Online COOL folder.
+        Call this function to read OFCs from Online COOL folder.
         Input parameters:
         - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
         - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
         """
 
         #=== prevent a second initialization
-        if self._coollaspulseIsConfigured:
-            self._msg.info("setupCOOLLASPULSE already called previously, ignoring this repeated call!")
+        if self._coolofcIsConfigured:
+            self._msg.info("setupCOOLOFC already called previously, ignoring this repeated call!")
             return
-        self._coollaspulseIsConfigured = True
+        self._coolofcIsConfigured = True
 
         #=== connect TileCondToolOfcCool to COOL
         from AthenaCommon.AppMgr import ToolSvc
         
-        self._msg.info("Changing default TileCondToolPulseShape configuration to COOL source")
-        from .TileCondToolConf import getTileCondToolPulseShape
-        ToolSvc += getTileCondToolPulseShape('COOL','LAS','TileCondToolPulseShape')
+        self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source")
+        from .TileCondToolConf import getTileCondToolOfcCool
+        ToolSvc += getTileCondToolOfcCool('COOL')
+
 
     #_______________________________________________________________
     def setupCOOLPHYPULSE(self, defTag = "", dbConnection = ""):
@@ -408,34 +307,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
             else:
                 self._msg.info("setting up TileDCSSvc for RUN1")
                 svcMgr.TileDCSSvc.Version=1
-
-
-    #_______________________________________________________________
-    def setupCOOLDspThreshold(self, defTag = "", dbConnection = ""):
-        """
-        Call this function to read DSP thresholds from the COOL DB.
-        Input parameters:
-        - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
-        - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
-        """
-
-        #=== prevent a second initialization
-        if self._coolDspThresholdIsConfigured:
-            self._msg.info("setupCOOLDspThrehsold already called previously, ignoring this repeated call!")
-            return True
-
-        #=== connect TileCondToolMuID to COOL
-        from AthenaCommon.AppMgr import ToolSvc
-        from .TileCondToolConf import getTileCondToolDspThreshold
-        toolDspThreshold = getTileCondToolDspThreshold('COOL','TileCondToolDspThreshold')
-        if toolDspThreshold is not None:
-            self._msg.info("Changing default TileCondToolDspThreshold configuration to COOL source")
-            ToolSvc += toolDspThreshold
-            self._coolDspThresholdIsConfigured = True
-            return True
-        else:
-            return False
-
   
     #_______________________________________________________________
  
@@ -522,7 +393,6 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     #=== by default COOL is not configured
     svc._coolIsConfigured = False
     svc._coolofcIsConfigured = False
-    svc._coolof1ofcIsConfigured = False
     svc._coolcispulseIsConfigured = False
     svc._coolintegratorIsConfigured = False
     svc._coolmuidIsConfigured = False
@@ -530,8 +400,5 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
     svc._coolDCSIsConfigured = False
     svc._coolacrIsConfigured = False
     svc._coolphypulseIsConfigured = False
-    svc._coollaspulseIsConfigured = False
-    svc._cooltimeIsConfigured = False
-    svc._coolonlinetimeIsConfigured = False
-    svc._coolDspThresholdIsConfigured = False
+
     return svc 

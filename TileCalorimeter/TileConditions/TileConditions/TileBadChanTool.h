@@ -30,7 +30,7 @@
 #include <string>
 
 class TileHWID;
-class TileDetDescrManager;
+class CaloDetDescrManager;
 class IdContext;
 class TileBchDecoder;
 class TileCalibDrawerBch;
@@ -75,7 +75,7 @@ class TileBadChanTool: public AthAlgTool
   private:
     StatusCode recache(IOVSVC_CALLBACK_ARGS);
 
-    const TileDetDescrManager* m_tileMgr;
+    const CaloDetDescrManager* m_caloMgr;
     const IdContext* m_channel_context;
     ToolHandle<TileCondIdTransforms> m_tileIdTrans;
 

@@ -66,28 +66,18 @@ if athenaCommonFlags.isOnline():
 elif TileUseCOOL:
     #=== setup reading from COOL DB
     msg.info("setting up COOL for TileCal conditions data")
-    TileGapTiming=""
-    if (('TileCisRun' in dir()) and (TileCisRun) or
-        ('TileMonoRun' in dir()) and (TileMonoRun) or
-        ('TileRampRun' in dir()) and (TileRampRun)):
-        TilePulse="CIS"
-    elif ('TileLasRun' in dir()) and (TileLasRun):
-        TilePulse="LAS"
-        if ('TilePhysTiming' in dir()) and (TilePhysTiming):
-            TileGapTiming="GAP"
-    else:
-        TilePulse="PHY"
+    tileInfoConfigurator.setupCOOL()
     if not 'TileUseCOOLOFC' in dir():
+        #TileUseCOOLOFC=False; # don't read OFC from COOL, calculate them on the fly
         TileUseCOOLOFC=True; # read OFC from COOL
-    if not 'TileUseCOOLPULSE' in dir() or not TileUseCOOLOFC:
-        TileUseCOOLPULSE=True; # read pulse from COOL
-
-    tileInfoConfigurator.setupCOOL(type=(TileGapTiming+TilePulse))
     if TileUseCOOLOFC:
-        tileInfoConfigurator.setupCOOLOFC(type=TilePulse)
-    if TileUseCOOLPULSE:
-        tileInfoConfigurator.setupCOOLPULSE(type=TilePulse)
-
+        tileInfoConfigurator.setupCOOLOFC()
+    if ('TileCisRun' in dir()) and (TileCisRun and doTileFitCool):
+        tileInfoConfigurator.setupCOOLCISPULSE()
+    else:
+        tileInfoConfigurator.setupCOOLPHYPULSE()
+        tileInfoConfigurator.setupCOOLAutoCr()
+        
     if TileUseDCS:
         tileInfoConfigurator.setupCOOLDCS();
 else:

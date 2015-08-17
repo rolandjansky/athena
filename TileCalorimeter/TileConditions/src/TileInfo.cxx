@@ -142,19 +142,19 @@ TileInfo::~TileInfo()
   if (m_channel_context) delete m_channel_context;
   if (m_drawer_context) delete m_drawer_context;
 
-  int sizepart=m_decoCovaria.size();
+  int sizepart=DecoCovaria.size();
   for (int i=0; i<sizepart; ++i){
-    int sizemodu=(m_decoCovaria[i]).size();
+    int sizemodu=(DecoCovaria[i]).size();
     for (int j=0; j<sizemodu; ++j){
-      int sizegain=(m_decoCovaria[i][j]).size();
+      int sizegain=(DecoCovaria[i][j]).size();
       for (int k=0; k<sizegain; ++k){
-        if (m_decoCovaria[i][j][k]) delete (TMatrixD*)(m_decoCovaria[i][j][k]);
+        if (DecoCovaria[i][j][k]) delete (TMatrixD*)(DecoCovaria[i][j][k]);
       }
-      m_decoCovaria[i][j].clear();
+      DecoCovaria[i][j].clear();
     }
-    m_decoCovaria[i].clear();
+    DecoCovaria[i].clear();
   }
-  m_decoCovaria.clear();
+  DecoCovaria.clear();
 
 }
 
@@ -168,7 +168,7 @@ TileInfo::initialize()
   MSG::Level logLevel = log.level();
   bool debug = (logLevel <= MSG::DEBUG);
 
-  if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endmsg;
+  if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endreq;
 
   // Declare our CLID.
   IClassIDSvc* clidsvc = 0;
@@ -181,14 +181,14 @@ TileInfo::initialize()
   StatusCode sc = m_tileCablingSvc.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileCablingSvc << endmsg;
+        << "Unable to retrieve " << m_tileCablingSvc << endreq;
     return StatusCode::FAILURE;
   }
   //=== cache pointers to cabling helpers
   m_cabling  = m_tileCablingSvc->cablingService();
   if(!m_cabling){
     log << MSG::ERROR
-        << "Pointer to TileCablingService is zero: " << m_cabling << endmsg;
+        << "Pointer to TileCablingService is zero: " << m_cabling << endreq;
     return StatusCode::FAILURE;
     
   }
@@ -200,7 +200,7 @@ TileInfo::initialize()
   sc = m_tileIdTrans.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileIdTrans << endmsg;
+        << "Unable to retrieve " << m_tileIdTrans << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -208,7 +208,7 @@ TileInfo::initialize()
   sc = m_tileToolEmscale.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolEmscale << endmsg;
+        << "Unable to retrieve " << m_tileToolEmscale << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -216,7 +216,7 @@ TileInfo::initialize()
   sc = m_tileToolNoiseSample.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolNoiseSample << endmsg;
+        << "Unable to retrieve " << m_tileToolNoiseSample << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -224,7 +224,7 @@ TileInfo::initialize()
   sc = m_tileToolTiming.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolTiming << endmsg;
+        << "Unable to retrieve " << m_tileToolTiming << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -244,7 +244,7 @@ TileInfo::initialize()
   if (m_OptFilterCorrelation)
     m_OptFilterCorrelation->loadCorrelation(log);
 
-  if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endmsg;  
+  if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endreq;  
   return StatusCode::SUCCESS;
 }
 
@@ -478,7 +478,7 @@ TileInfo::DecoCovariance(int ros, int drawer, int hilo) const {
 
   int gain = (hilo) ? 0 : 1;
 
-  return m_decoCovaria[part][drawer][gain];
+  return DecoCovaria[part][drawer][gain];
 }
 
 
@@ -491,7 +491,7 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 
     //ttl1shape.resize(nsamp, 0.); // assume that resize already done in calling function
     for (int i=0; i<nsamp; ++i) {
-      int j = m_TTL1Time0Bin + (i-itrig)*m_TTL1BinsPerX+(int)(phase*(m_TTL1BinsPerX*(1./25.0)));
+      int j = m_TTL1Time0Bin + (i-itrig)*m_TTL1BinsPerX+(int)(phase*(m_TTL1BinsPerX/25.0));
       if(j<0) j = 0;
       if(j>=m_TTL1NBins) j = m_TTL1NBins-1;
       ttl1shape[i] = m_TTL1FullShape[j];
@@ -499,17 +499,17 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 #ifndef NDEBUG
     MsgStream log(msgSvc(),"TileInfo");
     if (log.level() <= MSG::DEBUG){
-      log << MSG::DEBUG << " Shaping profile at beam crossings:   nsamp = " << nsamp << ", itrig = " << itrig << endmsg;
+      log << MSG::DEBUG << " Shaping profile at beam crossings:   nsamp = " << nsamp << ", itrig = " << itrig << endreq;
       int jc = 0;
       for (int i=0; i<nsamp; i++) {
 	if(jc==0) log << MSG::DEBUG << "      bin = " << i << "   Shape factor =";
 	log << MSG::DEBUG << std::setw(8) << std::setprecision(4) << ttl1shape[i] << "  ";
 	if(++jc==5) {
-	  log << MSG::DEBUG << endmsg;
+	  log << MSG::DEBUG << endreq;
 	  jc=0;
 	}
       }
-      log << MSG::DEBUG << endmsg; 
+      log << MSG::DEBUG << endreq; 
     }
 #endif
 }
@@ -522,7 +522,7 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 void TileInfo::muRcvShape(const int nsamp, const int itrig, const double phase,std::vector<double> &murcvshape) const {
 
     for (int i=0; i<nsamp; ++i) {
-      int j = m_MuRcvTime0Bin + (i-itrig)*m_MuRcvBinsPerX+(int)(phase*(m_MuRcvBinsPerX*(1./25.0)));
+      int j = m_MuRcvTime0Bin + (i-itrig)*m_MuRcvBinsPerX+(int)(phase*(m_MuRcvBinsPerX/25.0));
       if(j<0) j = 0;
       if(j>=m_MuRcvNBins) j = m_MuRcvNBins-1;
       murcvshape[i] = m_MuRcvFullShape[j];

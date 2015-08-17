@@ -23,7 +23,7 @@ void
 TilePulseShapes::load(MsgStream &log) {
 
   bool debug = (log.level() <= MSG::DEBUG);
-  if(debug) log<<MSG::DEBUG<<"TilePulseShapes::load"<<endmsg;
+  if(debug) log<<MSG::DEBUG<<"TilePulseShapes::load"<<endreq;
 
   m_shapes = new TilePulseShapesStruct;
 
@@ -119,7 +119,7 @@ TilePulseShapes::ReadFile(MsgStream &log, std::string fname, const char *xname, 
   if(inFile.is_open()) {
     bool debug = (log.level() <= MSG::DEBUG);
     bool verbose = (log.level() <= MSG::VERBOSE);
-    if(debug) log<<MSG::DEBUG<<"Reading file '"<<fname<<"'"<<endmsg;
+    if(debug) log<<MSG::DEBUG<<"Reading file '"<<fname<<"'"<<endreq;
     std::string name;
     for(int i=0; i<nskip && !inFile.eof(); ++i) { // skip nskip lines
       if ((std::getline(inFile,name)).fail()) break;
@@ -139,11 +139,11 @@ TilePulseShapes::ReadFile(MsgStream &log, std::string fname, const char *xname, 
           log<<MSG::VERBOSE<<" i="<<(i++)
              <<" "<<xname<<"="<<xx
              <<" "<<yname<<"="<<yy
-             <<endmsg; 
+             <<endreq; 
     }
     status=true;
   } else {
-    log<<MSG::ERROR<<"Unable to open file '"<<fname<<"'"<<endmsg;
+    log<<MSG::ERROR<<"Unable to open file '"<<fname<<"'"<<endreq;
   }
   inFile.close();
   return status;

@@ -11,7 +11,7 @@
 #include "TileConditions/TileCondProxyWrapper.h"
 #include "TileConditions/ITileCondToolOfc.h"
 
-
+static bool first = true;
 //
 //____________________________________________________________________
 static const InterfaceID IID_TileCondToolOfcCool("TileCondToolOfcCool", 1, 0);
@@ -27,12 +27,11 @@ TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::str
     : AthAlgTool(type, name, parent)
     , m_pryOfcCool("TileCondProxyCool_TileCalibDrawerOfc_/TileCondProxyDefault_OfcCool", this)
     , m_weights(0)
-    , m_NPhases(0)
-    , m_NFields(0)
-    , m_Phamin(0)
-    , m_Phamax(0)
-    , m_NSamples(0)
-    , m_first(true)
+    , NPhases(0)
+    , NFields(0)
+    , Phamin(0)
+    , Phamax(0)
+    , NSamples(0)
 {
   declareInterface<TileCondToolOfcCool>(this);
   declareInterface<ITileCondToolOfc>(this);
@@ -74,29 +73,29 @@ StatusCode TileCondToolOfcCool::finalize() {
 const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
                                                                , unsigned int /* channel */
                                                                , unsigned int adc
-                                                               , float& phase
+                                                               , float phase
                                                                , bool /* of2 */) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  if (m_first) {
-    m_first = false;
-    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+  if (first) {
+    first = false;
+    NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
+    NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
+    NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
-                   << " NPhases " << m_NPhases
-                   << " NFields " << m_NFields );
+                   << " NPhases " << NPhases
+                   << " NFields " << NFields );
 
   }
 
   m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, m_weights->w_a, m_weights->w_b
                                                    , m_weights->w_c, m_weights->g, m_weights->dg);
 
-  m_weights->n_samples = m_NSamples;
+  m_weights->n_samples = NSamples;
 
   return m_weights;
 }
@@ -106,28 +105,28 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
                                        , unsigned int /* channel */
                                        , unsigned int adc
-                                       , float& phase
+                                       , float phase
                                        , float *a, float *b, float *c, float *g, float *dg) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  if (m_first) {
-    m_first = false;
-    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+  if (first) {
+    first = false;
+    NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
+    NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
+    NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
-                  << " NPhases " << m_NPhases
-                  << " NFields " << m_NFields );
+                  << " NPhases " << NPhases
+                  << " NFields " << NFields );
 
   }
 
   m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, a, b, c, g, dg);
 
-  return m_NSamples;
+  return NSamples;
 }
 
 //

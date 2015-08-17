@@ -20,7 +20,6 @@ const InterfaceID& TileCondToolOfc::interfaceID() {
 TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_ofc_phase_cache{}
     , m_tileToolPulseShape("TileCondToolPulseShape")
     , m_tileToolAutoCr("TileCondToolAutoCr")
 //  , m_tileToolNoiseSample("TileCondToolNoiseSample")
@@ -44,7 +43,7 @@ TileCondToolOfc::~TileCondToolOfc() {
 
   if (m_weights) delete m_weights;
   if (m_cache) for (int i = 0; i < MAX_ADCS * 2; i++)
-    delete m_ofc_phase_cache[i];
+    delete ofc_phase_cache[i];
 
 }
 
@@ -89,7 +88,7 @@ StatusCode TileCondToolOfc::initialize() {
 
   // Prepare cache table for all channels (array of pointers to "MAP"s)
   if (m_cache)
-    for (int i = 0; i < MAX_ADCS * 2; i++) m_ofc_phase_cache[i] = new ADCPhaseCache;
+    for (int i = 0; i < MAX_ADCS * 2; i++) ofc_phase_cache[i] = new ADCPhaseCache;
 
   //--------------------------------------------------------
   ATH_MSG_INFO( "TileCondToolOfc initialization completed. " );
@@ -106,12 +105,12 @@ StatusCode TileCondToolOfc::finalize() {
     std::map<int, TileOfcWeightsStruct*>::iterator iter;
     unsigned int cache_size = 0;
     for (int i = 0; i < MAX_ADCS * 2; i++) {
-      if (!m_ofc_phase_cache[i]) continue;
-      iter = (*m_ofc_phase_cache[i]).begin();
-      ATH_MSG_DEBUG( "TileCondToolOfc cache table size: " << (*m_ofc_phase_cache[i]).size()
+      if (!ofc_phase_cache[i]) continue;
+      iter = (*ofc_phase_cache[i]).begin();
+      ATH_MSG_DEBUG( "TileCondToolOfc cache table size: " << (*ofc_phase_cache[i]).size()
                     << " " << sizeof((*m_weights)) );
 
-      cache_size += (*m_ofc_phase_cache[i]).size() * sizeof((*m_weights));
+      cache_size += (*ofc_phase_cache[i]).size() * sizeof((*m_weights));
     }
     ATH_MSG_INFO( "TileCondToolOfc total cache size " << cache_size << " bytes" );
   }
@@ -282,7 +281,7 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
 const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerIdx
                                                            , unsigned int channel
                                                            , unsigned int adc
-                                                           , float& phase
+                                                           , float phase
                                                            , bool of2) {
 
   ATH_MSG_DEBUG( "TileCondToolOfc weights, drawerIdx:" << drawerIdx
@@ -295,18 +294,17 @@ const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerId
   unsigned int chanIdx = 0;
   if (m_cache) chanIdx = TileCalibUtils::getChanIdx(drawerIdx, channel) + MAX_ADCS * adc;
   // --- calculate on-fly if #of cached phases for this channel is too big
-  if (m_cache && ((*m_ofc_phase_cache[chanIdx]).size() < m_cache)) {
+  if (m_cache && ((*ofc_phase_cache[chanIdx]).size() < m_cache)) {
     int iphase = int(phase + (phase < 0 ? -0.5 : 0.5)); // 1 ns step
 
-    if ((*m_ofc_phase_cache[chanIdx]).find(iphase) == (*m_ofc_phase_cache[chanIdx]).end()) {
+    if ((*ofc_phase_cache[chanIdx]).find(iphase) == (*ofc_phase_cache[chanIdx]).end()) {
       CalcWeights(drawerIdx, channel, adc, float(iphase), of2);
-      (*m_ofc_phase_cache[chanIdx])[iphase] = new TileOfcWeightsStruct;
-      *((*m_ofc_phase_cache[chanIdx])[iphase]) = *m_weights;
+      (*ofc_phase_cache[chanIdx])[iphase] = new TileOfcWeightsStruct;
+      *((*ofc_phase_cache[chanIdx])[iphase]) = *m_weights;
 
     }
-    
-    phase = float(iphase);
-    return (*m_ofc_phase_cache[chanIdx])[iphase];
+
+    return (*ofc_phase_cache[chanIdx])[iphase];
   } else {
     CalcWeights(drawerIdx, channel, adc, phase, of2);
     return m_weights;

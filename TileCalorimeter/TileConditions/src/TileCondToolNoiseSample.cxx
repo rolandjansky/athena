@@ -26,14 +26,11 @@ TileCondToolNoiseSample::TileCondToolNoiseSample(const std::string& type, const 
     : AthAlgTool(type, name, parent)
   , m_tileToolEms("TileCondToolEmscale")
   , m_pryNoiseSample("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_NoiseSample", this)
-  , m_pryOnlineNoiseSample("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_NoiseSample", this)
-  , m_useOnlineNoise(false)
 //  m_pryNoiseAutoCr("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_NoiseAutoCr", this)
 {
   declareInterface<ITileCondToolNoise>(this);
   declareInterface<TileCondToolNoiseSample>(this);
   declareProperty("ProxyNoiseSample", m_pryNoiseSample);
-  declareProperty("ProxyOnlineNoiseSample", m_pryOnlineNoiseSample);
   //  declareProperty("ProxyNoiseAutoCr", m_pryNoiseAutoCr );
 }
 
@@ -53,12 +50,6 @@ StatusCode TileCondToolNoiseSample::initialize() {
 
   //=== retrieve proxy
   CHECK( m_pryNoiseSample.retrieve() );
-
-  m_useOnlineNoise = !(m_pryOnlineNoiseSample.empty());
-
-  if (m_useOnlineNoise) {
-    CHECK( m_pryOnlineNoiseSample.retrieve());
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -151,22 +142,6 @@ float TileCondToolNoiseSample::getHfnNorm(unsigned int drawerIdx, unsigned int c
 
   return ped;
 }
-
-
-float TileCondToolNoiseSample::getOnlinePedestalDifference(unsigned int drawerIdx, unsigned int channel, 
-   unsigned int adc, TileRawChannelUnit::UNIT onlineUnit) const {
-
-  float pedestalDifference(0.0);
-
-  if (m_useOnlineNoise) {
-    float pedestal = m_pryNoiseSample->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
-    float onlinePedestal = m_pryOnlineNoiseSample->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
-    pedestalDifference = m_tileToolEms->channelCalibOnl(drawerIdx, channel, adc, (onlinePedestal - pedestal), onlineUnit);
-  }
-
-  return pedestalDifference;
-}
-
 
 //
 //____________________________________________________________________

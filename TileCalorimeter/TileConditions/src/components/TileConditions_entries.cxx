@@ -18,9 +18,6 @@
 #include "TileConditions/TileDCSSvc.h"
 #include "TileConditions/TileCondDCS_Data.h"
 #include "TileConditions/TileCondToolAutoCr.h"
-#include "TileConditions/TileCondToolTMDB.h"
-#include "TileConditions/TileCondToolDspThreshold.h"
-
 
 DECLARE_SERVICE_FACTORY( TileInfoLoader )
 DECLARE_SERVICE_FACTORY( TileCablingSvc )
@@ -39,8 +36,6 @@ DECLARE_TOOL_FACTORY( TileCondToolPulseShape )
 DECLARE_TOOL_FACTORY( TileCondToolNoiseSample )
 DECLARE_TOOL_FACTORY( TileCondToolAutoCr )
 DECLARE_TOOL_FACTORY( TileCondToolNoiseRawChn )
-DECLARE_TOOL_FACTORY( TileCondToolTMDB )
-DECLARE_TOOL_FACTORY( TileCondToolDspThreshold )
 DECLARE_TOOL_FACTORY( TileCondProxyCoolFlt )
 DECLARE_TOOL_FACTORY( TileCondProxyCoolBch )
 DECLARE_TOOL_FACTORY( TileCondProxyCoolOfc )

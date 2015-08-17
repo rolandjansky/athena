@@ -4,7 +4,6 @@
 #author: nils.gollub@cern.ch
 #modifications: lukas.pribyl@cern.ch
 
-import string
 
 class TileCoolMgr:
     
@@ -61,7 +60,6 @@ class TileCoolMgr:
         elif self.isSplitMC(condId):
             if self.isMC(): return self.getFolderTwo(condId)
             else:           return self.getFolder(condId)
-        elif self.isSqlite(condId): return self.getFolder(condId)
         else: 
             self.__log.error("Cannot find out key for  \'%s\'!" % condId)
             return None
@@ -203,10 +201,6 @@ class TileCoolMgr:
         return self.__athenaCommonFlags.isOnline()
 
 
-    def isSourceAvailable(self, source):
-        return source in  self.__idDict
-
-
 #--------------------------------------------------------------------------------------------------------
 #=== create object of the user 
 #--------------------------------------------------------------------------------------------------------
@@ -234,29 +228,15 @@ tileCoolMgr.addSource('onlMuID'  , '/TILE/ONL01/MUID',  defConnStr, "", '/TILE/O
 #--- noise
 tileCoolMgr.addSource('onlNoise1gOfni', '/TILE/ONL01/NOISE/OFNI', defConnStr, "", '/TILE/ONL01/NOISE/OFNI', 'SplitMC')
 
-
 #--- status
 tileCoolMgr.addSource('onlStatAdc', '/TILE/ONL01/STATUS/ADC', defConnStr, "", '/TILE/ONL01/STATUS/ADC', 'SplitMC')
 
-#--- OFCs OF2
-tileCoolMgr.addSource('onlOfcOf2Phy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2CisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2CisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2Las',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
+#--- OFCs
+tileCoolMgr.addSource('onlOfcPhy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
+tileCoolMgr.addSource('onlOfcCisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcCisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcLas',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
 
-#--- OFCs OF1
-tileCoolMgr.addSource('onlOfcOf1Phy',      '/TILE/ONL01/FILTER/OF1/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1CisPl100', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
-
-def GetTileOfcCoolSource(ofcType, runType = 'PHY'):
-    return 'onlOfc' + string.capwords(ofcType,'/').replace('/','') + runType.lower().capitalize()
-
-def AddTileOfcCoolSource(ofcType, runType = 'PHY'):
-    ofcSource = GetTileOfcCoolSource(ofcType, runType)
-    ofcFolder = '/TILE/ONL01/FILTER/' + ofcType.upper() + '/' + runType.upper();
-    tileCoolMgr.addSource(ofcSource, ofcFolder, defConnStr, "", ofcFolder, 'SplitMC')
 
 from IOVDbSvc.CondDB import conddb
 if conddb.GetInstance() == 'CONDBR2':
@@ -277,44 +257,19 @@ if conddb.GetInstance() == 'CONDBR2':
     
     #--- noise
     tileCoolMgr.addSource('oflNoiseAdc', '/TILE/ONL01/NOISE/SAMPLE', defConnStr, "", '/TILE/OFL02/NOISE/SAMPLE', 'SplitOnline')
-    tileCoolMgr.addSource('onlNoiseAdc', '/TILE/ONL01/NOISE/SAMPLE', defConnStr, "", "", 'OfflineOnly')
     tileCoolMgr.addSource('oflNoiseAcr', '/TILE/OFL02/NOISE/AUTOCR', oflConnStr, "", "", 'OfflineOnly')
 
     #--- timing
     tileCoolMgr.addSource('oflTimeCphy', '/TILE/ONL01/TIME/CHANNELOFFSET/PHY', defConnStr, "", '/TILE/OFL02/TIME/CHANNELOFFSET/PHY', 'SplitOnline')
-    tileCoolMgr.addSource('onlTimeCphy', '/TILE/ONL01/TIME/CHANNELOFFSET/PHY', defConnStr, "", "", 'OfflineOnly')
     tileCoolMgr.addSource('oflTimeClas', '/TILE/ONL01/TIME/CHANNELOFFSET/LAS', defConnStr, "", '/TILE/OFL02/TIME/CHANNELOFFSET/LAS', 'SplitOnline')
-    tileCoolMgr.addSource('onlTimeClas', '/TILE/ONL01/TIME/CHANNELOFFSET/LAS', defConnStr, "", "", 'OfflineOnly')
     tileCoolMgr.addSource('oflTimeCgapLas', '/TILE/ONL01/TIME/CHANNELOFFSET/GAP/LAS', defConnStr, "", '/TILE/OFL02/TIME/CHANNELOFFSET/GAP/LAS', 'SplitOnline')
-    tileCoolMgr.addSource('onlTimeCgapLas', '/TILE/ONL01/TIME/CHANNELOFFSET/GAP/LAS', defConnStr, "", "", 'OfflineOnly')
     tileCoolMgr.addSource('oflTimeCcis', '/TILE/ONL01/TIME/CHANNELOFFSET/CIS', defConnStr, "", '/TILE/OFL02/TIME/CHANNELOFFSET/CIS', 'SplitOnline')
-    tileCoolMgr.addSource('onlTimeCcis', '/TILE/ONL01/TIME/CHANNELOFFSET/CIS', defConnStr, "", "", 'OfflineOnly')
 
     #--- integrator
     tileCoolMgr.addSource('oflIntGain', '/TILE/ONL01/INTEGRATOR',  defConnStr, "", '/TILE/OFL02/INTEGRATOR',   'SplitOnline')
 
     #--- status
     tileCoolMgr.addSource('oflStatAdc', '/TILE/OFL02/STATUS/ADC', oflConnStr, "", "", 'OfflineOnly')
-
-
-    #--- TMDB
-    tileCoolMgr.addSource('onlTmdbThresholdPhy', '/TILE/ONL01/TMDB/THRESHOLD/PHY', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/PHY', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbThresholdLas', '/TILE/ONL01/TMDB/THRESHOLD/LAS', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/LAS', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbThresholdCis', '/TILE/ONL01/TMDB/THRESHOLD/CIS', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/CIS', 'SplitMC')
-
-    tileCoolMgr.addSource('onlTmdbDelayPhy', '/TILE/ONL01/TMDB/DELAY/PHY', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/PHY', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbDelayLas', '/TILE/ONL01/TMDB/DELAY/LAS', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/LAS', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbDelayCis', '/TILE/ONL01/TMDB/DELAY/CIS', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/CIS', 'SplitMC')
-
-    tileCoolMgr.addSource('onlTmdbTmfPhy', '/TILE/ONL01/TMDB/TMF/PHY', defConnStr, "", '/TILE/ONL01/TMDB/TMF/PHY', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbTmfLas', '/TILE/ONL01/TMDB/TMF/LAS', defConnStr, "", '/TILE/ONL01/TMDB/TMF/LAS', 'SplitMC')
-    tileCoolMgr.addSource('onlTmdbTmfCis', '/TILE/ONL01/TMDB/TMF/CIS', defConnStr, "", '/TILE/ONL01/TMDB/TMF/CIS', 'SplitMC')
-
-    tileCoolMgr.addSource('onlTmdbCalibPhy', '/TILE/ONL01/TMDB/CALIB/PHY', defConnStr, "", '/TILE/ONL01/TMDB/CALIB/PHY', 'SplitMC')
-
-    #--- noise
-    tileCoolMgr.addSource('oflDspThreshold', '/TILE/ONL01/DSP/THRESHOLD', defConnStr, "", '/TILE/OFL02/DSP/THRESHOLD', 'SplitOnline')
-
     
 else:
 
