@@ -138,11 +138,10 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
     if chan!=48:
         schema='COOLOFL_LAR/OFLP200'
         folderPath='/LAR/NoiseOfl/CellNoise'
-        if tag=='UPD4': tag='IOVDEP-00' # change default to tag used in DC14
     else:
         schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
-        if tag=='UPD4': tag='IOVDEP-02' # change default to tag used in DC14
+    if tag=='UPD4': tag='OFLCOND-RUN12-SDR-31' # change default to tag used in MC15
 
 db = CaloCondTools.openDbConn(schema, "READONLY")
 
