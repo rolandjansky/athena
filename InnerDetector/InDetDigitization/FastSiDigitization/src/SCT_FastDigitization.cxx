@@ -12,7 +12,7 @@ SCT_FastDigitization::SCT_FastDigitization(const std::string &name, ISvcLocator 
     AthAlgorithm(name, pSvcLocator),
     m_digTool("SCT_FastDigitizationTool", this )
 {
-  declareProperty("SCT_FastDigitizationTool", m_digTool, "AthAlgTool which performs the SCT digitization");
+  declareProperty("DigitizationTool", m_digTool, "AthAlgTool which performs the SCT digitization");
 }
 
 //----------------------------------------------------------------------
@@ -24,7 +24,7 @@ StatusCode SCT_FastDigitization::initialize() {
     ATH_MSG_FATAL ( "Could not retrieve SCT Digitization Tool!" );
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO ( "Retrieved SCT Digitization Tool." );
+  ATH_MSG_VERBOSE ( "Retrieved SCT Digitization Tool." );
 
   return StatusCode::SUCCESS;
 }
@@ -35,11 +35,11 @@ StatusCode SCT_FastDigitization::initialize() {
 
 StatusCode SCT_FastDigitization::execute() {
 
-  ATH_MSG_INFO ( " SCT_FastDigitization : execute()" );
+  ATH_MSG_VERBOSE ( " SCT_FastDigitization : execute()" );
 
   StatusCode sc =  m_digTool->processAllSubEvents();
 
-  ATH_MSG_INFO ( " SCT_FastDigitization : m_digTool->processAllSubEvents()" );
+  ATH_MSG_VERBOSE ( " SCT_FastDigitization : m_digTool->processAllSubEvents()" );
 
 
   return sc;
@@ -49,8 +49,8 @@ StatusCode SCT_FastDigitization::execute() {
 // Finalize method:                                                     //
 //----------------------------------------------------------------------//
 StatusCode SCT_FastDigitization::finalize() {
-  
-  ATH_MSG_INFO ( "SCT_FastDigitization : finalize()" );
+
+  ATH_MSG_VERBOSE ( "SCT_FastDigitization : finalize()" );
 
   return StatusCode::SUCCESS;
 }

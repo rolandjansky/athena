@@ -638,7 +638,7 @@ double SiSmearedDigitizationTool::calculateSigma(CLUSTER * clusterA, CLUSTER * c
 }
 
 template<typename CLUSTER>
-ClusterInfo * SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB) {
+ClusterInfo SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB) {
   // take needed information on the first clusters
   Amg::Vector2D intersection_a = clusterA->localPosition();
   Amg::MatrixX clusterErr_a = clusterA->localCovariance();
@@ -656,9 +656,9 @@ ClusterInfo * SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA,
   double interX = 0.5*(intersection_a.x()+intersection_b.x());
   double interY = 0.5*(intersection_a.y()+intersection_b.y());
   
-  Amg::Vector2D* intersection = new Amg::Vector2D(interX, interY);
+  Amg::Vector2D intersection(interX, interY);
   
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersection = " << *intersection);
+  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: intersection = " << intersection);
 
   InDet::SiWidth siWidth_a = clusterA->width();
   InDet::SiWidth siWidth_b = clusterB->width();
@@ -669,9 +669,9 @@ ClusterInfo * SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA,
   Amg::Vector2D colRow = siWidth_a.colRow() + siWidth_b.colRow();
   Amg::Vector2D  phiRz = siWidth_a.widthPhiRZ() + siWidth_b.widthPhiRZ();
   
-  InDet::SiWidth * siWidth = new InDet::SiWidth(colRow, phiRz);  
+  InDet::SiWidth siWidth(colRow, phiRz);  
   
-  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: siWidth = " << *siWidth);
+  ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: siWidth = " << siWidth);
 
   AmgSymMatrix(2) covariance;
   covariance.setIdentity();
@@ -679,7 +679,7 @@ ClusterInfo * SiSmearedDigitizationTool::calculateNewCluster(CLUSTER * clusterA,
   covariance(Trk::locY,Trk::locY) = sigmaY*sigmaY;
   Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
 
-  return new ClusterInfo(intersection, siWidth, clusterErr);
+  return ClusterInfo( intersection, siWidth, clusterErr );
 
 }
 
@@ -726,15 +726,14 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
 	    
 	    std::vector<Identifier> rdoList;
 	    
-	    ClusterInfo * clusterInfo = calculateNewCluster((*iter).second,(*inner_iter).second);
-	    
-	    Amg::Vector2D* intersection = std::get<0>(*clusterInfo);
-	    InDet::SiWidth* siWidth = std::get<1>(*clusterInfo);
-	    Amg::MatrixX* clusterErr = std::get<2>(*clusterInfo);
+      Amg::Vector2D intersection;
+      InDet::SiWidth siWidth;
+      Amg::MatrixX *clusterErr;
+      std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
 	    
 	    const iFatras::PlanarDetElement* hitPlanarDetElement = (((*inner_iter).second)->detectorElement());
 	    
-	    std::pair<int, int> intersectionXY = hitPlanarDetElement->cellsOfPosition(*intersection);
+	    std::pair<int, int> intersectionXY = hitPlanarDetElement->cellsOfPosition(intersection);
 	    Identifier intersectionId = m_pixel_ID->pixel_id(hitPlanarDetElement->identify(), intersectionXY.first, intersectionXY.second);
 	    rdoList.push_back(intersectionId);
 	    
@@ -742,12 +741,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Planar_detElement_RIO_map * clu
 	    
 	    InDetDD::SiCellId currentCellId = InDetDD::SiCellId(m_pixel_ID->phi_index(intersectionId) , m_pixel_ID->eta_index(intersectionId));
 	    
-	    if (!currentCellId.isValid()) continue;
+	    if ( !currentCellId.isValid() ) {
+        delete clusterErr;
+        continue;
+      }
 	    
 	    iFatras::PlanarCluster* planarCluster = new iFatras::PlanarCluster(intersectionId,
-									       *intersection,
+									       intersection,
 									       rdoList,
-									       *siWidth,   
+									       siWidth,   
 									       hitPlanarDetElement,
 									       clusterErr);
 	    
@@ -824,16 +826,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
 	  if( dist <= m_nSigma * sigma) {
 	    
 	    std::vector<Identifier> rdoList;
-	    
-	    ClusterInfo * clusterInfo = calculateNewCluster((*iter).second,(*inner_iter).second);
-	    
-	    Amg::Vector2D* intersection = std::get<0>(*clusterInfo);
-	    InDet::SiWidth* siWidth = std::get<1>(*clusterInfo);
-	    Amg::MatrixX* clusterErr = std::get<2>(*clusterInfo);
-	    
+
+      Amg::Vector2D intersection;
+      InDet::SiWidth siWidth;
+      Amg::MatrixX *clusterErr;
+      std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
+      
 	    const InDetDD::SiDetectorElement* hitSiDetElement = (((*inner_iter).second)->detectorElement());
 	    
-	    Identifier intersectionId = hitSiDetElement->identifierOfPosition(*intersection);
+	    Identifier intersectionId = hitSiDetElement->identifierOfPosition(intersection);
 	    
 	    rdoList.push_back(intersectionId);
 	    
@@ -841,12 +842,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(Pixel_detElement_RIO_map * clus
 	    
 	    InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 	    
-	    if (!currentCellId.isValid()) continue;
+	    if ( !currentCellId.isValid() ) {
+        delete clusterErr;
+        continue;
+      }
 	    
 	    InDet::PixelCluster* pixelCluster = new InDet::PixelCluster(intersectionId,
-									*intersection,
+									intersection,
 									rdoList,
-									*siWidth,					   
+									siWidth,					   
 									hitSiDetElement,
 									clusterErr);
 	    
@@ -923,16 +927,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
 	  if( dist <= m_nSigma * sigma) {
 	    
 	    std::vector<Identifier> rdoList;
-	    
-	    ClusterInfo * clusterInfo = calculateNewCluster((*iter).second,(*inner_iter).second);
-	    
-	    Amg::Vector2D* intersection = std::get<0>(*clusterInfo);
-	    InDet::SiWidth* siWidth = std::get<1>(*clusterInfo);
-	    Amg::MatrixX* clusterErr = std::get<2>(*clusterInfo);
-	    
+
+      Amg::Vector2D intersection;
+      InDet::SiWidth siWidth;
+      Amg::MatrixX *clusterErr;
+      std::tie( intersection, siWidth, clusterErr ) = calculateNewCluster( iter->second, inner_iter->second );
+      
 	    const InDetDD::SiDetectorElement* hitSiDetElement = (((*inner_iter).second)->detectorElement());
 	    
-	    Identifier intersectionId = hitSiDetElement->identifierOfPosition(*intersection);
+	    Identifier intersectionId = hitSiDetElement->identifierOfPosition(intersection);
 	    
 	    rdoList.push_back(intersectionId);
 	    
@@ -940,12 +943,15 @@ StatusCode SiSmearedDigitizationTool::mergeEvent(SCT_detElement_RIO_map * cluste
 	    
 	    InDetDD::SiCellId currentCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 	    
-	    if (!currentCellId.isValid()) continue;
-	    
+	    if ( !currentCellId.isValid() ) {
+        delete clusterErr;
+        continue;
+      }
+      
 	    InDet::SCT_Cluster* sctCluster = new InDet::SCT_Cluster(intersectionId,
-								    *intersection,
+								    intersection,
 								    rdoList,
-								    *siWidth,					   
+								    siWidth,					   
 								    hitSiDetElement,
 								    clusterErr);
 	    
@@ -1033,44 +1039,63 @@ StatusCode SiSmearedDigitizationTool::digitize()
       //const HepMcParticleLink McLink = HepMcParticleLink(trkn,hit.eventId());
       //const HepMC::GenParticle* genPart= McLink.cptr();
 
-      const InDetDD::SiDetectorElement* hitSiDetElement;
+      const InDetDD::SiDetectorElement* hitSiDetElement = 0;
       const iFatras::PlanarDetElement* hitPlanarDetElement = 0;
      
-      if(m_SmearPixel){ // Smear Pixel
-	if (!m_useCustomGeometry) {
-	  const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_pix->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
-	  ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
-	  hitSiDetElement = hitSiDetElement_temp;}
-	else {
-	  Identifier idwafer = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
-	  IdentifierHash idhash = m_pixel_ID->wafer_hash(m_pixel_ID->wafer_id(idwafer));
-	  iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
-	  if (it_map == m_detElementMap->end()) 
-	    ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
-	  else{
-	    ATH_MSG_DEBUG("Id hash " << idhash << " found in the map.");
-	    const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
-	    ATH_MSG_DEBUG("Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
-	    hitPlanarDetElement = hitPlanarDetElement_temp;
-	    ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
-	   
-	  }
-	}      
-      }
-      else{ // Smear SCT
-	int side = hit->getSide();
-	const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
-	ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side); 
-	hitSiDetElement = hitSiDetElement_temp;
-      }
+      if ( m_SmearPixel ) { // Smear Pixel
+        if ( !m_useCustomGeometry ) {
+          const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_pix->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
+          ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
+          hitSiDetElement = hitSiDetElement_temp;
+        }
+      else {
+        Identifier idwafer = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
+        IdentifierHash idhash = m_pixel_ID->wafer_hash(m_pixel_ID->wafer_id(idwafer));
+        iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
+        if (it_map == m_detElementMap->end()) 
+          ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
+        else{
+          ATH_MSG_DEBUG("Id hash " << idhash << " found in the map.");
+          const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
+          ATH_MSG_DEBUG("Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule ); 
+          hitPlanarDetElement = hitPlanarDetElement_temp;
+          ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
+         
+        }
+      }      
+    }
+    else { // Smear SCT
+      int side = hit->getSide();
+      const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
+      ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side); 
+      hitSiDetElement = hitSiDetElement_temp;
+    }
 
-      if(m_SmearPixel){ // Smear Pixel
-	if (!hitSiDetElement && !hitPlanarDetElement) {ATH_MSG_ERROR( " could not get detector element for both SiDetElement and PlanarDetElement"); continue;} 
-	else if(!hitSiDetElement && !m_useCustomGeometry) {ATH_MSG_ERROR( " could not get detector element for SiDetElement"); continue;}
-	else if(!hitPlanarDetElement && m_useCustomGeometry) {ATH_MSG_ERROR( " could not get detector element for PlanarDetElement"); continue;}
+      if ( m_SmearPixel ) { // Smear Pixel
+        if ( !hitSiDetElement && !hitPlanarDetElement ) {
+          ATH_MSG_ERROR( " could not get detector element for both SiDetElement and PlanarDetElement");
+          continue;
+        } 
+        else if ( !hitSiDetElement && !m_useCustomGeometry ) {
+          ATH_MSG_ERROR( " could not get detector element for SiDetElement");
+          continue;
+        }
+        else if( !hitPlanarDetElement && m_useCustomGeometry ) {
+          ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
+          continue;
+        }
       }
-      else
-	if (!hitSiDetElement) {ATH_MSG_ERROR( " could not get detector element for SiDetElement"); continue;}
+      else { // Smear SCT
+        if ( !hitSiDetElement ) {
+          ATH_MSG_ERROR( " could not get detector element for SiDetElement");
+          continue;
+        }
+        if ( m_useCustomGeometry && !hitPlanarDetElement ) {  // CID=24988, needed for waferID
+          ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
+          continue;
+        }
+        
+      }
      
       if (m_SmearPixel && !m_useCustomGeometry && !(hitSiDetElement->isPixel())) continue;
      
@@ -1088,7 +1113,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
 	if(m_SmearPixel){ // Smear Pixel
 	  waferID = m_pixel_ID->wafer_hash(hitPlanarDetElement->identify());
 	}else{ // Smear SCT
-	  waferID = m_sct_ID->wafer_hash(hitPlanarDetElement->identify());
+	  waferID = m_sct_ID->wafer_hash(hitPlanarDetElement->identify()); // CID=24988
 	}
      
       Amg::Vector3D localStartPosition = (Amg::Vector3D)hit->localStartPosition();
@@ -1540,16 +1565,14 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
 StatusCode SiSmearedDigitizationTool::createAndStoreRIOs() 
 {
-  if(m_useCustomGeometry){ // store Planar RIOs
+  if ( m_useCustomGeometry ) { // store Planar RIOs
       
     ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in planar createAndStoreRIOs() ---" );
     
     Planar_detElement_RIO_map::iterator i = m_planarClusterMap->begin();
     Planar_detElement_RIO_map::iterator e = m_planarClusterMap->end();
     
-    iFatras::PlanarClusterCollection* clusterCollection = 0;
-    
-    for (; i != e; i = m_planarClusterMap->upper_bound(i->first)){
+    for (; i != e; i = m_planarClusterMap->upper_bound(i->first)) {
       
       std::pair <Planar_detElement_RIO_map::iterator, Planar_detElement_RIO_map::iterator> range;
       range = m_planarClusterMap->equal_range(i->first);
@@ -1564,131 +1587,124 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
       m_detElementMap = new iFatras::IdHashDetElementCollection;
       
       //Retrieve and/or store the map with IdHash to DetElement 
-      if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
-	if((detStore()->retrieve(m_detElementMap, m_detElementMapName)).isFailure()){
-	  ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
-	  return StatusCode::FAILURE;
-	}
-	else
-	  ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
+      if ( detStore()->contains< iFatras::IdHashDetElementCollection >(m_detElementMapName) ) {
+        if ( detStore()->retrieve( m_detElementMap, m_detElementMapName ).isFailure() ) {
+          ATH_MSG_FATAL("Could not retrieve collection " << m_detElementMapName);
+          return StatusCode::FAILURE;
+        }
+        else {
+          ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
+        }
       }
       
       ATH_MSG_DEBUG("Number of elements " << m_detElementMap->size() );
 
       iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(waferID);
-      if (it_map == m_detElementMap->end()) {
-	ATH_MSG_WARNING("Id hash " << waferID << " not found in the map from id hash to planar detector element.");
-	return StatusCode::FAILURE;
+      if ( it_map == m_detElementMap->end() ) {
+        ATH_MSG_WARNING("Id hash " << waferID << " not found in the map from id hash to planar detector element.");
+        return StatusCode::FAILURE;
       }
-      else ATH_MSG_DEBUG("Id hash " << waferID << " found in the map.");
+      else {
+        ATH_MSG_DEBUG("Id hash " << waferID << " found in the map.");
+      }
       
       const iFatras::PlanarDetElement* detElement = it_map->second;
 
       // std::cout << "Noemi --> waferID = " << waferID << " planarCluster = " << *planarCluster << " detElement = " << detElement << " Surface = " << detElement->surface() << std::endl;
            
-      clusterCollection = new iFatras::PlanarClusterCollection(waferID);
+      iFatras::PlanarClusterCollection *clusterCollection = new iFatras::PlanarClusterCollection(waferID);
       clusterCollection->setIdentifier(detElement->identify());
       
-      for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
+      for ( Planar_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
 	
-	iFatras::PlanarCluster* planarCluster = const_cast<iFatras::PlanarCluster*>((*iter).second);
-	planarCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
-	clusterCollection->push_back(planarCluster);
+        iFatras::PlanarCluster* planarCluster = const_cast<iFatras::PlanarCluster*>((*iter).second);
+        planarCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
+        clusterCollection->push_back(planarCluster);
       }
       
-      if (clusterCollection) {
-	if ((m_planarClusterContainer->addCollection(clusterCollection, waferID)).isFailure()){
-	  ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
-	}
+      if ( m_planarClusterContainer->addCollection( clusterCollection, waferID ).isFailure() ) {
+        ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
       }
+
     } // end for
     
     m_planarClusterMap->clear();
       
-  } else {
-    
-    if(m_SmearPixel){ // Store Pixel RIOs
+  }
+  else if ( m_SmearPixel ) { // Store Pixel RIOs
       
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel createAndStoreRIOs() ---" );
+    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel createAndStoreRIOs() ---" );
       
-      Pixel_detElement_RIO_map::iterator i = m_pixelClusterMap->begin();
-      Pixel_detElement_RIO_map::iterator e = m_pixelClusterMap->end();
+    Pixel_detElement_RIO_map::iterator i = m_pixelClusterMap->begin();
+    Pixel_detElement_RIO_map::iterator e = m_pixelClusterMap->end();
       
-      InDet::PixelClusterCollection* clusterCollection = 0;
+    for ( ; i != e; i = m_pixelClusterMap->upper_bound(i->first) ) {
+	
+      std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range;
+      range = m_pixelClusterMap->equal_range(i->first);
       
-      for (; i != e; i = m_pixelClusterMap->upper_bound(i->first)){
-	
-	std::pair <Pixel_detElement_RIO_map::iterator, Pixel_detElement_RIO_map::iterator> range;
-	range = m_pixelClusterMap->equal_range(i->first);
-	
-	Pixel_detElement_RIO_map::iterator firstDetElem;
-	firstDetElem = range.first;
-	//const InDet::PixelCluster* pixelCluster = (firstDetElem->second);
-	
-	IdentifierHash waferID;
-	waferID = firstDetElem->first;
-	
-	const InDetDD::SiDetectorElement* detElement = m_manager_pix->getDetectorElement(waferID);
-	
-	clusterCollection = new InDet::PixelClusterCollection(waferID);
-	clusterCollection->setIdentifier(detElement->identify());
-	
-	for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-	  
-	  InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
-	  pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
-	  clusterCollection->push_back(pixelCluster);
-	  
-	}
-	
-	if (clusterCollection) {
-	  if ((m_pixelClusterContainer->addCollection(clusterCollection, waferID)).isFailure()){
-	    ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
-	  }
-	}
-      } // end for
+      Pixel_detElement_RIO_map::iterator firstDetElem;
+      firstDetElem = range.first;
+      //const InDet::PixelCluster* pixelCluster = (firstDetElem->second);
       
-      m_pixelClusterMap->clear();
+      IdentifierHash waferID;
+      waferID = firstDetElem->first;
       
-    }else{ // Store SCT RIOs
+      const InDetDD::SiDetectorElement* detElement = m_manager_pix->getDetectorElement(waferID);
       
-      ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in SCT createAndStoreRIOs() ---" );
-      
-      SCT_detElement_RIO_map::iterator i = m_sctClusterMap->begin();
-      SCT_detElement_RIO_map::iterator e = m_sctClusterMap->end();
-      
-      InDet::SCT_ClusterCollection* clusterCollection = 0;
-      
-      for (; i != e; i = m_sctClusterMap->upper_bound(i->first)){
-	std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range;
-	range = m_sctClusterMap->equal_range(i->first);
+      InDet::PixelClusterCollection *clusterCollection = new InDet::PixelClusterCollection(waferID);
+      clusterCollection->setIdentifier(detElement->identify());
 	
-	SCT_detElement_RIO_map::iterator firstDetElem;
-	firstDetElem = range.first;
-	//const InDet::SCT_Cluster* sctCluster = (firstDetElem->second);
-	IdentifierHash waferID;
-	waferID = firstDetElem->first;
-	const InDetDD::SiDetectorElement* detElement = m_manager_sct->getDetectorElement(waferID);
+      for ( Pixel_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
+        
+        InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*>((*iter).second);
+        pixelCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
+        clusterCollection->push_back(pixelCluster);
+      }
 	
-	clusterCollection = new InDet::SCT_ClusterCollection(waferID);
-	clusterCollection->setIdentifier(detElement->identify());
-	
-	
-	for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter){
-	  InDet::SCT_Cluster* sctCluster = const_cast<InDet::SCT_Cluster*>((*iter).second);
-	  sctCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
-	  clusterCollection->push_back(sctCluster);
-	}
-	
-	if (clusterCollection) {
-	  if ((m_sctClusterContainer->addCollection(clusterCollection, clusterCollection->identifyHash())).isFailure()){
-	    ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
-	  }
-	}
-      } // end for
+      if ( m_pixelClusterContainer->addCollection( clusterCollection, waferID ).isFailure() ) {
+        ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
+      }
+    } // end for
       
-      m_sctClusterMap->clear();
-    }
+    m_pixelClusterMap->clear();
+      
+  }
+  else { // Store SCT RIOs
+      
+    ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in SCT createAndStoreRIOs() ---" );
+      
+    SCT_detElement_RIO_map::iterator i = m_sctClusterMap->begin();
+    SCT_detElement_RIO_map::iterator e = m_sctClusterMap->end();
+      
+    for ( ; i != e; i = m_sctClusterMap->upper_bound(i->first) ) {
+      std::pair <SCT_detElement_RIO_map::iterator, SCT_detElement_RIO_map::iterator> range;
+      range = m_sctClusterMap->equal_range(i->first);
+      
+      SCT_detElement_RIO_map::iterator firstDetElem;
+      firstDetElem = range.first;
+      //const InDet::SCT_Cluster* sctCluster = (firstDetElem->second);
+      IdentifierHash waferID;
+      waferID = firstDetElem->first;
+      const InDetDD::SiDetectorElement* detElement = m_manager_sct->getDetectorElement(waferID);
+      
+      InDet::SCT_ClusterCollection *clusterCollection = new InDet::SCT_ClusterCollection(waferID);
+      clusterCollection->setIdentifier(detElement->identify());
+      
+      
+      for ( SCT_detElement_RIO_map::iterator iter = range.first; iter != range.second; ++iter ) {
+        InDet::SCT_Cluster* sctCluster = const_cast<InDet::SCT_Cluster*>((*iter).second);
+        sctCluster->setHashAndIndex(clusterCollection->identifyHash(),clusterCollection->size());
+        clusterCollection->push_back(sctCluster);
+      }
+	
+      if ( m_sctClusterContainer->addCollection( clusterCollection, clusterCollection->identifyHash() ).isFailure() ) {
+        ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );
+      }
+
+    } // end for
+      
+    m_sctClusterMap->clear();
   }
   
   return StatusCode::SUCCESS;

@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef SISMEAREDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
-#define SISMEAREDDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
+#define SISMEAREDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
 
@@ -43,7 +43,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 
 #include <tuple>
-typedef std::tuple < Amg::Vector2D*, InDet::SiWidth*, Amg::MatrixX*> ClusterInfo;
+typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
 
 class PixelID;
 class SCT_ID;
@@ -116,7 +116,7 @@ public:
     double calculateSigma(CLUSTER * clusterA, CLUSTER * clusterB);
   
   template<typename CLUSTER>
-    ClusterInfo * calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB);
+    ClusterInfo calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB);
 
   template<typename CLUSTER> 
     StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, TimedHitPtr<SiHit>); 
@@ -230,4 +230,4 @@ public:
    
 };
 
-#endif // SISMEAREDDIGITIZATION_PIXELDIGITIZATION_H
+#endif // SISMEAREDDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H

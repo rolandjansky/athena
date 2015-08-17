@@ -12,7 +12,7 @@ PixelFastDigitization::PixelFastDigitization(const std::string &name, ISvcLocato
     AthAlgorithm(name, pSvcLocator),
     m_digTool("PixelFastDigitizationTool", this )
 {
-  declareProperty("PixelFastDigitizationTool", m_digTool, "AthAlgTool which performs the Pixel digitization");
+  declareProperty("DigitizationTool", m_digTool, "AthAlgTool which performs the Pixel digitization");
 }
 
 //----------------------------------------------------------------------
@@ -24,7 +24,7 @@ StatusCode PixelFastDigitization::initialize() {
     ATH_MSG_FATAL ( "Could not retrieve Pixel Digitization Tool!" );
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO ( "Retrieved Pixel Digitization Tool." );
+  ATH_MSG_VERBOSE ( "Retrieved Pixel Digitization Tool." );
 
   return StatusCode::SUCCESS;
 }
@@ -35,11 +35,11 @@ StatusCode PixelFastDigitization::initialize() {
 
 StatusCode PixelFastDigitization::execute() {
 
-  ATH_MSG_INFO ( " PixelFastDigitization : execute()" );
+  ATH_MSG_VERBOSE ( " PixelFastDigitization : execute()" );
 
   StatusCode sc =  m_digTool->processAllSubEvents();
 
-  ATH_MSG_INFO ( " PixelFastDigitization : m_digTool->processAllSubEvents()" );
+  ATH_MSG_VERBOSE ( " PixelFastDigitization : m_digTool->processAllSubEvents()" );
 
 
   return sc;
@@ -49,8 +49,8 @@ StatusCode PixelFastDigitization::execute() {
 // Finalize method:                                                     //
 //----------------------------------------------------------------------//
 StatusCode PixelFastDigitization::finalize() {
-  
-  ATH_MSG_INFO ( "PixelFastDigitization : finalize()" );
+
+  ATH_MSG_VERBOSE ( "PixelFastDigitization : finalize()" );
 
   return StatusCode::SUCCESS;
 }

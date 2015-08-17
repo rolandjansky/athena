@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDIGITIZATION_PIXELFASTDIGITIZATION_H
-#define PIXELDIGITIZATION_PIXELFASTDIGITIZATION_H
+#ifndef FASTSIDIGITIZATION_PIXELFASTDIGITIZATION_H
+#define FASTSIDIGITIZATION_PIXELFASTDIGITIZATION_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -27,4 +27,4 @@ class PixelFastDigitization : public AthAlgorithm {
    ToolHandle<IPixelFastDigitizationTool> m_digTool;
 };
 
-#endif // PixelDIGITIZATION_PIXELFASTDIGITIZATION_H
+#endif // FASTSIDIGITIZATION_PIXELFASTDIGITIZATION_H

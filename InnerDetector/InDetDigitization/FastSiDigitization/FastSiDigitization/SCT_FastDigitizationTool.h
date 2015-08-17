@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_DIGITZATION_SCT_FASTDIGITZATIONTOOL_H
-#define SCT_DIGITZATION_SCT_FASTDIGITZATIONTOOL_H
+#ifndef FASTSIDIGITZATION_SCT_FASTDIGITZATIONTOOL_H
+#define FASTSIDIGITZATION_SCT_FASTDIGITZATIONTOOL_H
 /** @file SCT_FastDigitizationTool.h
  * @brief Digitize the SCT using an implementation of IPileUpTool
  * $Id: SCT_DigitizationTool.h,v 1.0 2009-09-22 18:34:42 jchapman Exp $
@@ -34,8 +34,9 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "InDetPrepRawData/SiClusterContainer.h"
 
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/HepSymMatrix_p1.h"
+
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 
@@ -56,7 +57,6 @@
 class InDetSimDataCollection;
 
 class SCT_ID;
-class PixelID;
 
 class SiChargedDiodeCollection;
 class StoreGateService;
@@ -64,48 +64,43 @@ class StoreGateService;
 namespace InDetDD
 {
   class SCT_DetectorManager;
-  class PixelDetectorManager;
 }
 
- namespace InDet {
-   class ClusterMakerTool;
-   class SCT_Cluster;
-   class SiCluster;
- }
+namespace InDet {
+  class ClusterMakerTool;
+  class SCT_Cluster;
+  class SiCluster;
+}
 
 namespace CLHEP
 {
   class HepRandomEngine;
 }
 
- namespace Trk {
-   class Surface;
- }
+namespace Trk {
+  class Surface;
+}
 
 namespace CLHEP {
   class     HepSymMatrix ;   /// CLHEP
 }
 
-class SCT_FastDigitizationTool : 
+class SCT_FastDigitizationTool :
   virtual public PileUpToolBase, virtual public ISCT_FastDigitizationTool
 {
 
-//   typedef InDet::SiClusterContainer SiClusterContainer;
-//   typedef InDet::SiClusterCollection SiClusterCollection;
-//   typedef InDet::SiCluster SiCluster;
-
 public:
-  SCT_FastDigitizationTool(const std::string& type, 
-		       const std::string& name,
-		       const IInterface* parent);
+  SCT_FastDigitizationTool(const std::string& type,
+                           const std::string& name,
+                           const IInterface* parent);
   /**
      @brief Called before processing physics events
   */
   virtual StatusCode initialize();
   StatusCode prepareEvent( unsigned int );
   StatusCode processBunchXing( int bunchXing,
-			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-			       PileUpEventInfo::SubEvent::const_iterator eSubEvents ); 
+                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
   StatusCode mergeEvent();
   StatusCode processAllSubEvents();
   StatusCode createAndStoreRIOs();
@@ -113,73 +108,59 @@ public:
 private:
 
   StatusCode digitize();
-//  StatusCode createAndStoreRDO(const boost::shared_ptr<SiChargedDiodeCollection>& chDiodeCollection);
-  /**
-     @brief Create RDOs from the SiChargedDiodeCollection for the current wafer
-     @param chDiodeCollection       list of the SiChargedDiodes on the current wafer
-  */
-
-//  void addSDO(const DiodeCollectionPtr& collection);
+  //  void addSDO(const DiodeCollectionPtr& collection);
 
 
-  std::string m_inputObjectName;     //! name of the sub event  hit collections. 
+  std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
 
-  const SCT_ID* m_sct_ID;                             //!< Handle to the ID helper
-  const PixelID* m_pix_ID;                             //!< Handle to the ID helper
+  const SCT_ID* m_sct_ID;                              //!< Handle to the ID helper
   const InDetDD::SCT_DetectorManager* m_manager;
-  const InDetDD::PixelDetectorManager* m_pixmanager;
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc;            //!< PileUp Merge service
+  int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
+  bool                      m_HardScatterSplittingSkipper;
 
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;             //!< Random number service
-  CLHEP::HepRandomEngine*           m_randomEngine;
-  std::string                m_randomEngineName;         //!< Name of the random number stream
-  TimedHitCollection<SiHit>* m_thpcsi;      
-  
+  CLHEP::HepRandomEngine       *m_randomEngine;        //!< Pointer to the random number Engine
+  std::string                   m_randomEngineName;    //!< Name of the random number stream
+
+  TimedHitCollection<SiHit>* m_thpcsi;
+
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
+  bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
+  IntegerProperty  m_vetoThisBarcode;
 
-  bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not   
-
-//  std::multimap< const InDetDD::SiDetectorElement*, const InDet::SCT_Cluster* >* m_sctClusterMap;
-
-//  typedef std::multimap<const InDetDD::SiDetectorElement*, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   SCT_detElement_RIO_map* m_sctClusterMap;
 
-  InDet::SCT_ClusterContainer*  m_sctClusterContainer;               //!< the SCT_ClusterContainer
+  std::string                   m_Sct_SiClustersName;  //!< name of the SCT_ClusterContainer
+  InDet::SCT_ClusterContainer  *m_sctClusterContainer; //!< the SCT_ClusterContainer
+  std::string                   m_prdTruthNameSCT;     //!< name of the PRD truth map
+  PRD_MultiTruthCollection     *m_sctPrdTruth;         //!< the PRD truth map for SCT measurements
 
-  std::string m_prdTruthNameSCT;
-  PRD_MultiTruthCollection*             m_sctPrdTruth;        //!< the PRD truth map for SCT measurements
-
-  bool m_sctEmulateSurfaceCharge;  //!< emulate the surface charge 
-  double m_sctTanLorentzAngleScalor; //!< scale the lorentz angle effect
-  mutable int m_siDeltaPhiRaw;
-  
-  double m_sctSmearPathLength;       //!< the 2. model parameter: smear the path 
+  double m_sctSmearPathLength;       //!< the 2. model parameter: smear the path
   bool m_sctSmearLandau;           //!< if true : landau else: gauss
-  mutable float m_siSmearRn;
+  bool m_sctEmulateSurfaceCharge;  //!< emulate the surface charge
+  double m_sctTanLorentzAngleScalor; //!< scale the lorentz angle effect
   bool m_sctAnalogStripClustering; //!< not being done in ATLAS: analog strip clustering
-
-//  bool m_pixUseClusterMaker;       //!< use the pixel cluster maker or not   
-  int m_sctErrorStrategy;         //!< error strategy for the  ClusterMaker 
+  int m_sctErrorStrategy;         //!< error strategy for the  ClusterMaker
   bool m_sctRotateEC;
-  
+
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
-  std::string                           m_Sct_SiClustersName;
-  
+
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,
-				  //const Trk::Surface& surface,
-				  double localStartX, double localStartY,
-				  double localEndX, double localEndY,
-				  double slopeYX, 
-				  double slopeZX,
-				  const Amg::Vector2D& stripCenter,
-				  int direction) const;
+                                  //const Trk::Surface& surface,
+                                  double localStartX, double localStartY,
+                                  double localEndX, double localEndY,
+                                  double slopeYX,
+                                  double slopeZX,
+                                  const Amg::Vector2D& stripCenter,
+                                  int direction) const;
 
 
-  
-  
+
+
 };
-#endif
+#endif // FASTSIDIGITZATION_SCT_FASTDIGITZATIONTOOL_H
