@@ -29,9 +29,10 @@ def usage():
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
+    print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:s:i:o:t:T:f:F:g:n:v:x:p:dcaz"
-keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero"]
+letters = "hr:l:s:i:o:t:T:f:F:g:n:v:x:p:dcazu"
+keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -60,6 +61,7 @@ nval = 0
 blobVersion = -1
 txtFile= ""
 prefix = ""
+update = False
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -92,6 +94,8 @@ for o, a in opts:
         all = True
     elif o in ("-z","--zero"):
         zero = True
+    elif o in ("-u","--update"):
+        update = True
     elif o in ("-r","--run"):
         run = int(a)
     elif o in ("-l","--lumi"):
@@ -109,6 +113,7 @@ for o, a in opts:
 if not len(outSchema): outSchema=schema
 else: schema=outSchema
 if not len(inSchema): inSchema=schema
+update = update or (inSchema==outSchema)
 
 if outfolderPath is None:
     outfolderPath=folderPath
@@ -146,7 +151,7 @@ until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
 #=== set database
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
-dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if inSchema==outSchema else 'RECREATE'))
+dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
 if tag=='UPD5':
     tag='UPD4'
     outtag='UPD4'

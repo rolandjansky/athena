@@ -21,12 +21,13 @@ def usage():
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     print "-n, --online      write additional sqlite file with online bad channel status"
-    print "-u, --upd4        write additional sqlite file with CURRENT UPD4 tag"
+    print "-p, --upd4        write additional sqlite file with CURRENT UPD4 tag"
     print "-v, --verbose     verbose mode"
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
+    print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:m:s:i:o:t:f:e:c:nuv"
-keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","online","upd4","verbose"]
+letters = "hr:l:m:s:i:o:t:f:e:c:npvu"
+keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","online","upd4","verbose","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
@@ -50,6 +51,7 @@ tag = "UPD1"
 execFile = "bch.py"
 comment = ""
 verbose = False
+update = False
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -66,8 +68,10 @@ for o, a in opts:
         outSchema = a
     elif o in ("-n","--online"):
         onlSuffix = "_onl"
-    elif o in ("-u","--upd4"):
+    elif o in ("-p","--upd4"):
         curSuffix = "_upd4"
+    elif o in ("-u","--update"):
+        update = True
     elif o in ("-r","--run"):
         run = int(a)
     elif o in ("-l","--lumi"):
@@ -94,6 +98,7 @@ if onl:
 if not len(outSchema): outSchema = schema
 else: schema = outSchema
 if not len(inSchema): inSchema = schema
+update = update or (inSchema==outSchema)
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
@@ -178,7 +183,7 @@ if len(execFile):
     #====================== Write new bad channel list =================
 
     #=== commit changes
-    dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if inSchema==outSchema else 'RECREATE'))
+    dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
     mgr.commitToDb(dbw, folderPath, folderTag, (TileBchDecoder.BitPat_onl01 if onl else TileBchDecoder.BitPat_ofl01), os.getlogin(), comment, since, until)
 else:
     dbw = None
@@ -215,7 +220,7 @@ if len(curSuffix) and not onl and "sqlite" in outSchema:
         mgr.updateFromDb(dbr, folderPath, folderTagUPD4, since, 0, 2)
 
     #=== commit changes
-    dbW = TileCalibTools.openDbConn(curSchema, 'RECREATE')
+    dbW = TileCalibTools.openDbConn(curSchema,('UPDATE' if update else 'RECREATE'))
     mgr.commitToDb(dbW, folderPath, folderTagUPD4, TileBchDecoder.BitPat_ofl01, os.getlogin(), comment, since, until)
     dbW.closeDatabase()
 
@@ -309,7 +314,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
 
     #=== commit changes
     onlSchema = outSchema.replace(".db", onlSuffix + ".db")
-    dbW = TileCalibTools.openDbConn(onlSchema, 'RECREATE')
+    dbW = TileCalibTools.openDbConn(onlSchema,('UPDATE' if update else 'RECREATE'))
     mgrOnl.commitToDb(dbW, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, os.getlogin(), comment, since, until)
     dbW.closeDatabase()
 

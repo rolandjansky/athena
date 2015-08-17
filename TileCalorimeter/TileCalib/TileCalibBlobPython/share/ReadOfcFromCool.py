@@ -111,8 +111,8 @@ log.info( "OFC for %s channel %d adc %d field %d\n" % (TileCalibUtils.getDrawerS
 #=== get OFC field for given adc, sample and phase
 for iphase in xrange(abs(nphases)):
     phase = ofc.getPhase(channel, adc, iphase)
-    msg = "phase %5d :" % phase
-    for smp in xrange(0,nsamples):
+    msg = "phase %6.1f ns :" % phase
+    for smp in xrange(0, nsamples):
         msg += " %f" % ofc.getOfc(field, channel, adc, phase, smp)
     print msg
 
