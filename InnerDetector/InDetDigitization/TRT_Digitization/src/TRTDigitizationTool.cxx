@@ -679,7 +679,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   //now merge all collections into one
   TimedHitCollList::iterator   iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end()  );
-
+  m_HardScatterSplittingSkipper = false;
   // loop on the hit collections
   while ( iColl != endColl ) {
     //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing

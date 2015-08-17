@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
 # to the TRT Digitization code.
 def TRT_FirstXing():
@@ -45,8 +46,22 @@ def BasicTRTDigitizationTool(name, **kwargs):
 
     #choose random number service
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_DigitizationTool"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_DigitizationTool", 123456, 345123 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ElectronicsNoise"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_ElectronicsNoise", 123, 345 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_Noise"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_Noise", 1234, 3456 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ThresholdFluctuations"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_ProcessStraw"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_ProcessStraw", 123456, 345678 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_PAI"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_PAI", 12345678, 34567890 )
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_FakeConditions"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_FakeConditions", 123456789, 345678901 )
+    #This last one should, however, never be changed (unless you want a different layout of noisy channels etc.):
 
-    from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing",  TRT_LastXing())
@@ -65,33 +80,19 @@ def BasicTRTDigitizationTool(name, **kwargs):
     ##        # add TRTRange to known pileuo intervals
     ##        ServiceMgr.PileUpMergeSvc.Intervals += [TRTRange]
 
-    from AthenaCommon import CfgMgr
     return CfgMgr.TRTDigitizationTool(name,**kwargs)
-
-def GenericTRTDigitizationTool(name,**kwargs):
-    #configure random generator streams
-    from Digitization.DigitizationFlags import digitizationFlags
-    digitizationFlags.rndmSeedList.addSeed( "TRT_DigitizationTool", 123456, 345123 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_ElectronicsNoise", 123, 345 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_Noise", 1234, 3456 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_ProcessStraw", 123456, 345678 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_PAI", 12345678, 34567890 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_FakeConditions", 123456789, 345678901 )
-    #This last one should, however, never be changed (unless you want a different layout of noisy channels etc.):
-    return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRTDigitizationTool(name="TRTDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "TRT_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return GenericTRTDigitizationTool(name,**kwargs)
+    return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRTDigitizationToolHS(name="TRTDigitizationToolHS",**kwargs):
     kwargs.setdefault("OutputObjectName", "TRT_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return GenericTRTDigitizationTool(name,**kwargs)
+    return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRTDigitizationToolPU(name="TRTDigitizationToolPU",**kwargs):
     kwargs.setdefault("OutputObjectName", "TRT_PU_RDOs")
@@ -99,21 +100,37 @@ def TRTDigitizationToolPU(name="TRTDigitizationToolPU",**kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return BasicTRTDigitizationTool(name,**kwargs)
 
-def TRT_SimDriftTimeTool(name="TRT_SimDriftTimeTool",**kwargs):
+def TRTDigitizationToolSplitNoMergePU(name="TRTDigitizationToolSplitNoMergePU",**kwargs):
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("DataObjectName", "PileupTRTUncompressedHits")
+    kwargs.setdefault("OutputObjectName", "TRT_PU_RDOs")
+    kwargs.setdefault("OutputSDOName", "TRT_PU_SDO_Map")
+    kwargs.setdefault("Override_noiseInSimhits", 0)
+    kwargs.setdefault("Override_noiseInUnhitStraws", 0)
+    return BasicTRTDigitizationTool(name,**kwargs)
 
+def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
+    kwargs.setdefault("EvtStore", "BkgEvent_0_SG")
+    kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+    kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    return BasicTRTDigitizationTool(name,**kwargs)
+
+def TRT_SimDriftTimeTool(name="TRT_SimDriftTimeTool",**kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault("RndServ", digitizationFlags.rndmSvc())
-    digitizationFlags.rndmSeedList.addSeed( "TRT_SimDriftTime", 1234567, 3456789 )
-
-    from AthenaCommon import CfgMgr
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed("TRT_SimDriftTime"):
+        digitizationFlags.rndmSeedList.addSeed( "TRT_SimDriftTime", 1234567, 3456789 )
     return CfgMgr.TRT_SimDriftTimeTool(name,**kwargs)
 
 def TRTDigitizationHS(name="TRTDigitizationHS",**kwargs):
     kwargs.setdefault("DigitizationTool", "TRTDigitizationToolHS")
-    from TRT_Digitization.TRT_DigitizationConf import TRTDigitization
-    return TRTDigitization(name,**kwargs)
+    return CfgMgr.TRTDigitization(name,**kwargs)
 
 def TRTDigitizationPU(name="TRTDigitizationPU",**kwargs):
     kwargs.setdefault("DigitizationTool", "TRTDigitizationToolPU")
-    from TRT_Digitization.TRT_DigitizationConf import TRTDigitization
-    return TRTDigitization(name,**kwargs)
+    return CfgMgr.TRTDigitization(name,**kwargs)
+
+def TRT_OverlayDigitization(name="TRT_OverlayDigitization",**kwargs):
+     kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
+     return CfgMgr.TRTDigitization(name,**kwargs)
