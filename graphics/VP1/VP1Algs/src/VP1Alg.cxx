@@ -22,7 +22,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
-#include <cstdint> // for uint64_t (unsigned long long)
 #include <cstdlib> //For setenv
 
 
@@ -75,12 +74,12 @@ VP1Alg::~VP1Alg()
 //____________________________________________________________________
 StatusCode VP1Alg::initialize()
 {
-  msg(MSG::INFO) << " in initialize() " << endmsg;
+  msg(MSG::INFO) << " in initialize() " << endreq;
 
   //ToolSvc
   StatusCode status = service("ToolSvc",m_toolSvc);
   if (status.isFailure()||!m_toolSvc) {
-    msg(MSG::ERROR) << " Unable to get ToolSvc!" << endmsg;
+    msg(MSG::ERROR) << " Unable to get ToolSvc!" << endreq;
     return status;
   }
 
@@ -98,13 +97,13 @@ StatusCode VP1Alg::initialize()
   status = service("IncidentSvc", incsvc, true);
 
   if(status.isFailure() || incsvc==0) {
-    msg(MSG::WARNING) << "Unable to get IncidentSvc! MF mechanism is disabled" << endmsg;
+    msg(MSG::WARNING) << "Unable to get IncidentSvc! MF mechanism is disabled" << endreq;
     return StatusCode::SUCCESS;
   }
 
   std::string endfilekey("EndTagFile");
   incsvc->addListener(this, endfilekey, 0);
-  msg(MSG::DEBUG) << "Added listener on "<<endfilekey << endmsg;
+  msg(MSG::DEBUG) << "Added listener on "<<endfilekey << endreq;
   
   //Create VP1 gui object and see if it considers settings to be valid.
   m_vp1gui = new VP1Gui(&(*evtStore()),&(*detStore()),serviceLocator(),m_toolSvc,
@@ -126,7 +125,7 @@ StatusCode VP1Alg::initialize()
 //____________________________________________________________________
 StatusCode VP1Alg::execute()
 {
-  msg(MSG::DEBUG) <<" in execute() " << endmsg;
+  msg(MSG::DEBUG) <<" in execute() " << endreq;
 
   if (!m_vp1gui)
     return StatusCode::FAILURE;
@@ -139,10 +138,10 @@ StatusCode VP1Alg::execute()
   StatusCode status = evtStore()->retrieve(evt);
   if(status.isSuccess()) {
     // Get run/event number:
-	const uint64_t eventNumber = evt->event_ID()->event_number();
+    int eventNumber = evt->event_ID()->event_number();
     int runNumber = evt->event_ID()->run_number();
     msg(MSG::DEBUG) << " Got run number = " << runNumber
-	<< ", event number = " << eventNumber << endmsg;
+	<< ", event number = " << eventNumber << endreq;
     // Get time stamp:
     unsigned time = evt->event_ID()->time_stamp();//0 means no info.
 
@@ -153,12 +152,12 @@ StatusCode VP1Alg::execute()
     if (m_noGui||m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time)) {
       return StatusCode::SUCCESS;
     } else {
-      msg(MSG::INFO) << " Ending application gracefully." << endmsg;
+      msg(MSG::INFO) << " Ending application gracefully." << endreq;
       return StatusCode::FAILURE;
     }
   };
 
-  msg(MSG::WARNING) << " Unable to retrieve EventInfo from StoreGate. Skipping" << endmsg;
+  msg(MSG::WARNING) << " Unable to retrieve EventInfo from StoreGate. Skipping" << endreq;
   return StatusCode::SUCCESS;
 
 }
@@ -166,7 +165,7 @@ StatusCode VP1Alg::execute()
 //____________________________________________________________________
 StatusCode VP1Alg::finalize()
 {
-  msg(MSG::INFO) <<" in finalize() " << endmsg;
+  msg(MSG::INFO) <<" in finalize() " << endreq;
 
   if (!m_vp1gui)
     return StatusCode::FAILURE;
@@ -181,35 +180,35 @@ StatusCode VP1Alg::finalize()
 //____________________________________________________________________
 void VP1Alg::handle(const Incident& inc)
 {
-  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" << endmsg;
+  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" << endreq;
 
   if (!m_vp1gui) {
-    msg(MSG::INFO) << "Aborting due to null VP1Gui pointer." << endmsg;
+    msg(MSG::INFO) << "Aborting due to null VP1Gui pointer." << endreq;
     return;
   }
 
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if(fileInc == 0) {
-    msg(MSG::WARNING) << " Unable to cast to file incident" << endmsg;
+    msg(MSG::WARNING) << " Unable to cast to file incident" << endreq;
     return;
   }
   else
-    msg(MSG::DEBUG) << " Casting to file incident successful" << endmsg;
+    msg(MSG::DEBUG) << " Casting to file incident successful" << endreq;
 
   // Locate the EventSelector
   ServiceHandle<IEvtSelector> pEvtSelector("EventSelector", this->name());
   StatusCode sc = pEvtSelector.retrieve();
 
   if(!sc.isSuccess() || 0 == pEvtSelector) {
-    msg(MSG::WARNING) << "Could not find EventSelector" << endmsg;
+    msg(MSG::WARNING) << "Could not find EventSelector" << endreq;
     return;
   }
   else
-    msg(MSG::DEBUG) << " Got EventSelector" << endmsg;
+    msg(MSG::DEBUG) << " Got EventSelector" << endreq;
 
   IProperty* propertyServer = dynamic_cast<IProperty*>(pEvtSelector.operator->());
   if (!propertyServer) {
-    msg(MSG::WARNING) << "Could not get propertyServer" << endmsg;
+    msg(MSG::WARNING) << "Could not get propertyServer" << endreq;
     return;
   }
 
@@ -218,11 +217,11 @@ void VP1Alg::handle(const Incident& inc)
 
   sc = propertyServer->getProperty(&inputCollections);
   if(!sc.isSuccess()) {
-    msg(MSG::INFO) << "Could not get InputCollections property" << endmsg;
+    msg(MSG::INFO) << "Could not get InputCollections property" << endreq;
     return;
   }
   else
-    msg(MSG::DEBUG) << " Got InputCollections property" << endmsg;
+    msg(MSG::DEBUG) << " Got InputCollections property" << endreq;
 
   std::vector<std::string>::const_iterator iter = inputCollections.value().begin();
   std::vector<std::string>::const_iterator last = inputCollections.value().end();
@@ -237,12 +236,12 @@ void VP1Alg::handle(const Incident& inc)
     if (strNewFileName.empty())
       return;
     if (!VP1FileUtilities::fileExistsAndReadable(strNewFileName)) {
-      msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: "<<strNewFileName<<". Ending." << endmsg;
+      msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: "<<strNewFileName<<". Ending." << endreq;
       return;
     }
 
     vect.push_back(strNewFileName);
-    msg(MSG::INFO) << " Setting next event file: " << strNewFileName<< endmsg;
+    msg(MSG::INFO) << " Setting next event file: " << strNewFileName<< endreq;
   } 
   else {
     std::vector<std::string> strNewFileNames = m_vp1gui->userRequestedFiles();
@@ -251,19 +250,19 @@ void VP1Alg::handle(const Incident& inc)
       if (strNewFileName.empty())
 	continue;
       if (!VP1FileUtilities::fileExistsAndReadable(strNewFileName)) {
-	msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: " << strNewFileName << endmsg;
+	msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: " << strNewFileName << endreq;
 	continue;
       }
       vect.push_back(strNewFileName);
-      msg(MSG::INFO) << " Setting next event file: " << strNewFileName<< endmsg;
+      msg(MSG::INFO) << " Setting next event file: " << strNewFileName<< endreq;
     }
   }
 
   StringArrayProperty newInputCollections("InputCollections", vect);
 
   if(propertyServer->setProperty(newInputCollections)!=StatusCode::SUCCESS)
-    msg(MSG::WARNING) << "Could not set new InputCollections property" << endmsg;
+    msg(MSG::WARNING) << "Could not set new InputCollections property" << endreq;
   else
-    msg(MSG::DEBUG) << " InputCollections property set" << endmsg;
+    msg(MSG::DEBUG) << " InputCollections property set" << endreq;
 }
 
