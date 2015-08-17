@@ -631,18 +631,20 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltFinalize()
   #define ACCEPT_AcceptAll             1
   #define ACCEPT_Got_RoIs              2
   #define ACCEPT_Got_Muons             3
-  #define ACCEPT_Got_TrackColl         4
-  #define ACCEPT_First_TrackColl       5
-  #define ACCEPT_Both_TrackColls       6
-  #define ACCEPT_Full_IDTracks         7
-  #define ACCEPT_Pass_OppChargeC       8
-  #define ACCEPT_MuonTracks_Added      8
-  #define ACCEPT_Muon_Vertexing        9
-  #define ACCEPT_CalcInvMass          10 
-  #define ACCEPT_MuonVtx_Part         11
-  #define ACCEPT_MuMu_Mass            12
-  #define ACCEPT_MotherVtxCreated     13
-  #define ACCEPT_BphysCollParticle    14
+  #define ACCEPT_Got_Muon1idTrack      4
+  #define ACCEPT_Got_Muon2idTrack      5
+  #define ACCEPT_Got_TrackColl         6
+  #define ACCEPT_First_TrackColl       7
+  #define ACCEPT_Both_TrackColls       8
+  #define ACCEPT_Full_IDTracks         9
+  #define ACCEPT_Pass_OppChargeC      10
+  #define ACCEPT_MuonTracks_Added     11
+  #define ACCEPT_Muon_Vertexing       12
+  #define ACCEPT_CalcInvMass          13
+  #define ACCEPT_MuonVtx_Part         14
+  #define ACCEPT_MuMu_Mass            15
+  #define ACCEPT_MotherVtxCreated     16
+  #define ACCEPT_BphysCollParticle    17
   
 /*  // more avalaible steps below               
   #define ACCEPT_BphysColl_not_Empty  24
@@ -825,33 +827,78 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
       mon_Errors.push_back( ERROR_No_CombineMuon );
       return HLT::NAV_ERROR;
     }
-    mon_Acceptance.push_back( ACCEPT_Got_Muons );
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Muon candidate1: track with "
-                          << "pt=" << pCombinedMuonFeature1->idTrack()->pt()
-                          << ", eta=" << pCombinedMuonFeature1->idTrack()->eta()
-                          << ", phi=" << pCombinedMuonFeature1->idTrack()->phi()
-                          << ", q="   << pCombinedMuonFeature1->idTrack()->charge()
-                          << ", Z0="  << pCombinedMuonFeature1->idTrack()->z0()
-                          << ", d0="  << pCombinedMuonFeature1->idTrack()->d0() // JW was a0 in old code
-                          << endreq;
-      msg() << MSG::DEBUG << "Muon candidate2: track with "
-                          << "pt=" << pCombinedMuonFeature2->idTrack()->pt()
-                          << ", eta=" << pCombinedMuonFeature2->idTrack()->eta()
-                          << ", phi=" << pCombinedMuonFeature2->idTrack()->phi()
-                          << ", q="   << pCombinedMuonFeature1->idTrack()->charge()
-                          << ", Z0=" << pCombinedMuonFeature2->idTrack()->z0()
-                          << ", d0=" << pCombinedMuonFeature2->idTrack()->d0()  // JW was a0 in old code
-                          << endreq;
-    }
+        if (pCombinedMuonFeature1->idTrack()) {
+            msg() << MSG::DEBUG << "Muon candidate1: track with "
+            << "pt=" << pCombinedMuonFeature1->idTrack()->pt()
+            << ", eta=" << pCombinedMuonFeature1->idTrack()->eta()
+            << ", phi=" << pCombinedMuonFeature1->idTrack()->phi()
+            << ", q="   << pCombinedMuonFeature1->idTrack()->charge()
+            << ", Z0="  << pCombinedMuonFeature1->idTrack()->z0()
+            << ", d0="  << pCombinedMuonFeature1->idTrack()->d0() // JW was a0 in old code
+            << endreq;
+        } else {
+            msg() << MSG::DEBUG << "Muon candidate1: track with No track!" << endreq;
+        }
+        if (pCombinedMuonFeature2->idTrack()) {
+            msg() << MSG::DEBUG << "Muon candidate2: track with "
+            << "pt=" << pCombinedMuonFeature2->idTrack()->pt()
+            << ", eta=" << pCombinedMuonFeature2->idTrack()->eta()
+            << ", phi=" << pCombinedMuonFeature2->idTrack()->phi()
+            << ", q="   << pCombinedMuonFeature1->idTrack()->charge()
+            << ", Z0=" << pCombinedMuonFeature2->idTrack()->z0()
+            << ", d0=" << pCombinedMuonFeature2->idTrack()->d0()  // JW was a0 in old code
+            << endreq;
+        } else {
+            msg() << MSG::DEBUG << "Muon candidate2: track with No track!" << endreq;
+        }
+        
+    } // if debug
+    
+    mon_Acceptance.push_back( ACCEPT_Got_Muons );
+
     muonCandidates.push_back(pCombinedMuonFeature1);
     muonCandidates.push_back(pCombinedMuonFeature2);
+    
+    if ( !pCombinedMuonFeature1->idTrack()) {
+        msg() << MSG::DEBUG << "Muon candidate1: no id track!" << endreq;
+        auto idlink = pCombinedMuonFeature1->idTrackLink();
+        msg() << MSG::DEBUG << "Muon elementlink has "<< idlink.dataID() << " " << idlink.index()
+        << " " << idlink.isValid()  << endreq;
+        if(timerSvc()) {
+            m_TotTimer->stop();
+            mon_TotalRunTime = m_TotTimer->elapsed();
+        }
+        //mon_Errors.push_back( ERROR_No_CombineMuon );
+        return HLT::OK;
+    } else {
+        mon_Acceptance.push_back( ACCEPT_Got_Muon1idTrack );
+    }
+    
+    if ( !pCombinedMuonFeature2->idTrack()) {
+        msg() << MSG::DEBUG << "Muon candidate2: no id track!" << endreq;
+        auto idlink = pCombinedMuonFeature2->idTrackLink();
+        msg() << MSG::DEBUG << "Muon elementlink has "<< idlink.dataID() << " " << idlink.index()
+        << " " << idlink.isValid()  << endreq;
+        if(timerSvc()) {
+            m_TotTimer->stop();
+            mon_TotalRunTime = m_TotTimer->elapsed();
+        }
+        //mon_Errors.push_back( ERROR_No_CombineMuon );
+        return HLT::OK;
+    } else {
+        mon_Acceptance.push_back( ACCEPT_Got_Muon2idTrack );
+    }
+
+    
+
     // monitoring muons
     mon_muon1Eta.push_back( pCombinedMuonFeature1->idTrack()->eta() );
     mon_muon1Phi.push_back( pCombinedMuonFeature1->idTrack()->phi() );
     mon_muon1Pt.push_back( pCombinedMuonFeature1->idTrack()->pt()/1000. );
     mon_muon1Z0.push_back( pCombinedMuonFeature1->idTrack()->z0() );
     mon_muon1A0.push_back( pCombinedMuonFeature1->idTrack()->d0() );
+    
     mon_muon2Eta.push_back( pCombinedMuonFeature2->idTrack()->eta() );
     mon_muon2Phi.push_back( pCombinedMuonFeature2->idTrack()->phi() );
     mon_muon2Pt.push_back( pCombinedMuonFeature2->idTrack()->pt()/1000. );
@@ -969,7 +1016,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
       m_TotTimer->stop();
       mon_TotalRunTime = m_TotTimer->elapsed();
     }
-    mon_Errors.push_back(ERROR_Charge_Check);
+    // mon_Errors.push_back(ERROR_Charge_Check);
     return HLT::OK;
   }
   mon_Acceptance.push_back( ACCEPT_Pass_OppChargeC );
@@ -981,7 +1028,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
       m_TotTimer->stop();
       mon_TotalRunTime = m_TotTimer->elapsed();
     }
-    mon_Errors.push_back(ERROR_MuMu_MassCut);
+    // mon_Errors.push_back(ERROR_MuMu_MassCut);
     return HLT::OK;
   }
   mon_Acceptance.push_back( ACCEPT_MuMu_Mass);
@@ -1477,6 +1524,7 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
             if(status.isFailure()){
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " B vertex fit failed!" << endreq;
                 delete baplusVtx;
+                delete trigPartBmumuKplus;
                 mon_Errors.push_back( ERROR_VtxFitFailed );
                 //continue;
                 vertex = false;
@@ -1494,6 +1542,7 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                     //delete mother_BplusVtx;
                     mon_Errors.push_back( ERROR_MotherVtxFitFailed );
                     //continue;
+                    delete trigPartBmumuKplus;
                     vertex = false;
                 }else{
                     if(msgLvl() <= MSG::DEBUG) {
@@ -1562,9 +1611,10 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                             msg() << MSG::DEBUG << " B rejected by mass or chi2 cuts after vertex fit!"
                             << ", chi2= " << baplusVtx->chi2()
                             << endreq;  
-                            vertex = false;
                         }
+                        vertex = false;
                         delete mother_BplusVtx;
+                        delete trigPartBmumuKplus;
                     }
                 } // end of successful fit condition "mother"
                 delete baplusVtx;
@@ -1598,6 +1648,7 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
             }else{
                 if(msgLvl() <= MSG::DEBUG)
                     msg() << MSG::DEBUG << " No B+ particle stored due cuts! " << endreq;
+                delete trigPartBmumuKplus;
             }
             
         }
@@ -1859,6 +1910,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                 if(status.isFailure()){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bd vertex fit failed!" << endreq;
                     delete baDVtx;
+                    delete trigPartBmumuBd;
                     //continue; // for performance test not continue
                     vertex = false;
                 }else{
@@ -1870,6 +1922,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                     if(mother_BdVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
                             <<" and "<<trk4<< endreq;
+                        delete trigPartBmumuBd;
                         //continue; // for performance test not continue
                         vertex = false;
                     }else{
@@ -1945,6 +1998,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                                 << ", chi2= " << baDVtx->chi2()
                                 << endreq;
                             }
+                            delete trigPartBmumuBd;
                             //continue; // for performance test not continue
                             vertex = false;
                         }
@@ -2303,6 +2357,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                 if(status.isFailure()){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bs vertex fit failed!" << endreq;
                     delete baSVtx;
+                    delete trigPartBmumuBs;
                     //continue; // for performance test not continue
                     vertex = false;
                 }else{
@@ -2315,6 +2370,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
                             <<" and "<<trk4<< endreq;
                         vertex = false;
+                        delete trigPartBmumuBs;
                         //continue; // for performance test not continue
                     }else{
                         if(msgLvl() <= MSG::DEBUG) {
@@ -2396,6 +2452,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                                 << ", chi2= " << baSVtx->chi2()
                                 << endreq;
                             }
+                            delete trigPartBmumuBs;
                             //continue; // for performance test not continue
                             vertex = false;
                         }
@@ -2403,10 +2460,10 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                     if(vertex) {
                         int index = m_VertexColl->size()-1;
                         ElementLink<TrigVertexCollection> BsVertexEL(*m_VertexColl,index);
-                        delete baSVtx;
                     } else {
                         delete mother_BsVtx;
                     }
+                    delete baSVtx;
                 } // end of successful fit condition initial vertex
                 
                 
@@ -2758,6 +2815,7 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                 if(status.isFailure()){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Lb vertex fit failed!" << endreq;
                     delete laBVtx;
+                    delete trigPartBmumuLb;
                     //continue; // for performance test not continue
                     vertex = false;
                 }else{
@@ -2769,6 +2827,7 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                     if(mother_LbVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
                             <<" and "<<trk4<< endreq;
+                        delete trigPartBmumuLb;
                         //continue; // for performance test not continue
                         vertex = false;
                     }else{
@@ -2844,6 +2903,7 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                                 << ", chi2= " << laBVtx->chi2()
                                 << endreq;
                             }
+                            delete trigPartBmumuLb;
                             //continue; // for performance test not continue
                             vertex = false;
                         }
@@ -3245,6 +3305,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                 if(status.isFailure()){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bc vertex fit failed!" << endreq;
                     delete BcVtx;
+                    delete trigPartBmumuBc;
                     //continue; // for performance test not continue
                     vertex = false;
                 }else{
@@ -3257,6 +3318,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
                             <<" and "<<trk4<<" and "<<trk5<< endreq;
                         vertex = false;
+                        delete trigPartBmumuBc;
                         //continue; // for performance test not continue
                     }else{
                         if(msgLvl() <= MSG::DEBUG) {
@@ -3343,18 +3405,19 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                                 msg() << MSG::DEBUG << " Bc rejected by mass or chi2 cuts after vertex fit!"
                                 << ", chi2= " << BcVtx->chi2()
                                 << endreq;
-                                vertex = false;
                                 //continue; // for performance test not continue
                             }
+                            delete trigPartBmumuBc;
+                            vertex = false;
                         }
                     } // end of successful fit condition "mother"
                     if(vertex) {
                         int index = m_VertexColl->size()-1;
                         ElementLink<TrigVertexCollection> BsVertexEL(*m_VertexColl,index);
-                        delete BcVtx;
                     } else {
                         delete mother_BcVtx;
                     }
+                    delete BcVtx;
                 } // end of successful fit condition initial vertex
                 
                 

@@ -1307,7 +1307,7 @@ ElementLink<xAOD::TrackParticleContainer> TrigL2BMuMuFex::remap_container(const 
 
         // do some simple matching:
         if ( fabs(tp->pt()  - el->pt()  ) > 1   ) continue;
-        if ( fabs(tp->eta() - el->eta() > 0.001)) continue;
+        if ( fabs(tp->eta() - el->eta() ) > 0.001) continue;
         double dphi = fabs(tp->phi() - el->phi());
         if (dphi > M_PI) dphi = 2*M_PI - dphi;
         if (fabs(dphi) > 0.001) continue;
@@ -1344,7 +1344,7 @@ ElementLink<xAOD::IParticleContainer> TrigL2BMuMuFex::remap_container(const Elem
         
         // do some simple matching:
         if ( fabs(tp->pt()  - el->pt()  ) > 1   ) continue;
-        if ( fabs(tp->eta() - el->eta() > 0.001)) continue;
+        if ( fabs(tp->eta() - el->eta() ) > 0.001) continue;
         double dphi = fabs(tp->phi() - el->phi());
         if (dphi > M_PI) dphi = 2*M_PI - dphi;
         if (fabs(dphi) > 0.001) continue;

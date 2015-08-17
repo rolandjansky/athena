@@ -74,8 +74,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
   private:
     
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
-    Trk::TrkVKalVrtFitter* m_VKVFitter;       
-
     
     // Cuts and properties
     bool m_oppositeCharge;
@@ -149,10 +147,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doBc_DsMuMuVertexing;
     float m_DsVtxChi2Cut;
     float m_bCVtxChi2Cut;
-    
-    // Timers
-    TrigTimer* m_TotTimer;
-    TrigTimer* m_VtxFitTimer;
     
     // Monitoring variables and containers
     //   General
@@ -267,6 +261,12 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 
     xAOD::TrigBphysContainer * mTrigBphysColl_b;
     xAOD::TrigBphysContainer * mTrigBphysColl_X;
+    
+    // Timers
+    TrigTimer* m_TotTimer;
+    TrigTimer* m_VtxFitTimer;
+    
+    Trk::TrkVKalVrtFitter* m_VKVFitter;       
     
     //Counters
     int m_lastEvent;

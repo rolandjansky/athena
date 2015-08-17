@@ -753,7 +753,17 @@ void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
             xaodObj->addTrackParticleLink(mutrkel);
             xaodObj->addTrackParticleLink(trkel);
             
+            // Find and set the IParticle link to the Muon and Track
+            // note it's the muon, and not the muon's ID track here.
+            ElementLink<xAOD::IParticleContainer> ptl1EL,ptl2EL;
+            ptl1EL.resetWithKeyAndIndex(muel.dataID(),muel.index());
+            ptl2EL.resetWithKeyAndIndex(trkel.dataID(),trkel.index());
 
+            xaodObj->addParticleLink(ptl1EL); //
+            xaodObj->addParticleLink(ptl2EL); //
+
+            
+            
             if (m_doVertexFit) {
                 std::vector<ElementLink<xAOD::TrackParticleContainer> > input = {mutrkel, trkel};
                 if (m_bphysHelperTool->vertexFit(xaodObj,input,massHypo).isFailure()) {
@@ -768,7 +778,10 @@ void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
                 if ( timerSvc() ) m_VtxFitTimer->pause();
             } // vertex fitting
             
-            if (xaodObj->fitmass() < 0) mon_Errors.push_back( ERROR_CalcInvMass_Fails );
+            if (xaodObj->fitmass() < 0) {
+              if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail to get fitMass from xAOD::TrigBphys" << endreq;
+              // mon_Errors.push_back( ERROR_CalcInvMass_Fails );
+            }
             else {
                 if ( !m_flag_stages[ ACCEPT_CalcInvMass ] ) {
                     mon_Acceptance.push_back( ACCEPT_CalcInvMass );
