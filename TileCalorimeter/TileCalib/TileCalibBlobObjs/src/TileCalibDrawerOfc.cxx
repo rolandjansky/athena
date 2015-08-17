@@ -11,29 +11,27 @@
 
 //
 //_____________________________________________________________
-TileCalibDrawerOfc* 
-TileCalibDrawerOfc::getInstance(coral::Blob&       blob,
-				uint16_t           objVersion, 
-				uint32_t           nSamples,
-				int32_t            nPhases, 
-				uint16_t           nChans,
-				uint16_t           nGains,
-				const std::string& author, 
-				const std::string& comment,
-				uint64_t           timeStamp)
+TileCalibDrawerOfc* TileCalibDrawerOfc::getInstance(coral::Blob&       blob
+                                                    , uint16_t           objVersion
+                                                    , uint32_t           nSamples
+                                                    , int32_t            nPhases
+                                                    , uint16_t           nChans
+                                                    , uint16_t           nGains
+                                                    , const std::string& author
+                                                    , const std::string& comment
+                                                    , uint64_t           timeStamp)
 {
   TileCalibDrawerOfc* calibDrawer = new TileCalibDrawerOfc(blob);
-  calibDrawer->init(objVersion,nSamples,nPhases,nChans,nGains,author,comment,timeStamp);
+  calibDrawer->init(objVersion, nSamples, nPhases, nChans, nGains, author, comment, timeStamp);
   return calibDrawer;
 }
 
 //
 //_____________________________________________________________
-const TileCalibDrawerOfc* 
-TileCalibDrawerOfc::getInstance(const coral::Blob& blob)
-{
+const TileCalibDrawerOfc* TileCalibDrawerOfc::getInstance(const coral::Blob& blob) {
+
   //=== const Blob needs to be correctly formated
-  if(blob.size()<static_cast<long>(m_hdrSize32)){
+  if(blob.size() < static_cast<long>(m_hdrSize32)) {
     throw TileCalib::InvalidBlob("TileCalibDrawerOfc::getInstance");
   }
   return (new TileCalibDrawerOfc(blob));
@@ -48,26 +46,26 @@ TileCalibDrawerOfc::TileCalibDrawerOfc(const coral::Blob& blob)
 
     //=== check for correct blob type
     if(getObjType() != getType()){
-      throw TileCalib::TypeConflict("TileCalibDrawerOfc::Ctor",getObjType(),getType());
+      throw TileCalib::TypeConflict("TileCalibDrawerOfc::Ctor", getObjType(), getType());
     }
     
     //=== check for correct object size
     unsigned int blobObjSize = getObjSizeByte();
     unsigned int thisObjSize = 0;
-    if(     getObjVersion()==1){ 
+    if(     getObjVersion() == 1){ 
       //=== set object size to base unit (4 bytes) 
-      thisObjSize=sizeof(uint32_t);
+      thisObjSize = sizeof(uint32_t);
     }
-    else if(getObjVersion()==2){ 
+    else if(getObjVersion() == 2){ 
       //=== set object size to base unit (4 bytes) 
-      thisObjSize=sizeof(uint32_t);
+      thisObjSize = sizeof(uint32_t);
     }
-    else if(getObjVersion()==3){ 
+    else if(getObjVersion() == 3){ 
       //=== set object size to base unit (4 bytes) 
-      thisObjSize=sizeof(uint32_t);
+      thisObjSize = sizeof(uint32_t);
     }
-    if(blobObjSize!=thisObjSize){
-      throw TileCalib::SizeConflict("TileCalibDrawerOfc::Ctor",thisObjSize,blobObjSize);
+    if(blobObjSize != thisObjSize){
+      throw TileCalib::SizeConflict("TileCalibDrawerOfc::Ctor", thisObjSize, blobObjSize);
     }
     
   }
@@ -75,15 +73,14 @@ TileCalibDrawerOfc::TileCalibDrawerOfc(const coral::Blob& blob)
 
 //
 //_______________________________________________________________
-void
-TileCalibDrawerOfc::init(uint16_t objVersion, 
-			 uint32_t nSamples,
-			 int32_t nPhases,
-			 uint16_t nChans,
-			 uint16_t nGains,
-			 const std::string& author, 
-			 const std::string& comment,
-			 uint64_t timeStamp)
+void TileCalibDrawerOfc::init(uint16_t objVersion
+                              , uint32_t nSamples
+                              , int32_t nPhases
+                              , uint16_t nChans
+                              , uint16_t nGains
+                              , const std::string& author
+                              , const std::string& comment
+                              , uint64_t timeStamp)
 {
   const uint16_t extraHeaderSize(2);
   uint16_t objType  = getType();
@@ -93,9 +90,9 @@ TileCalibDrawerOfc::init(uint16_t objVersion,
   //=== if nPhases<0, use one phase table for ADCs
   //=== otherwise use one table per ADC
   unsigned int nPhasesAbs = std::abs(nPhases);
-  int          nPhasesSgn = nPhases<0 ? -1 : 1;
+  int          nPhasesSgn = nPhases < 0 ? -1 : 1;
   unsigned int phasesSize = nPhasesAbs;
-  if(nPhasesSgn>0){ phasesSize *= nChans*nGains; }
+  if(nPhasesSgn > 0){ phasesSize *= nChans*nGains; }
   objCount += phasesSize;
   
   uint32_t nFields = getNFields(objVersion);
@@ -111,13 +108,13 @@ TileCalibDrawerOfc::init(uint16_t objVersion,
   int32_t* pi = reinterpret_cast<int32_t*>(++pu);
   *pi = nPhases;
   //=== initialize phase field to zero
-  for(unsigned int iPhase=0; iPhase<phasesSize; ++iPhase){
+  for(unsigned int iPhase = 0; iPhase < phasesSize; ++iPhase){
     *(++pi) = int32_t(0);
   }
   
   //=== initialize rest of blob to zero
   float* pf = reinterpret_cast<float*>(pi);
-  for(unsigned int i=0; i<blobLengthUint32-(m_hdrSize32+extraHeaderSize+phasesSize); ++i){
+  for(unsigned int i = 0; i < blobLengthUint32 - (m_hdrSize32 + extraHeaderSize+phasesSize); ++i){
     *(++pf) = float(0.); 
   }
 }
@@ -125,125 +122,36 @@ TileCalibDrawerOfc::init(uint16_t objVersion,
 
 //
 //______________________________________________________________
-/*
-unsigned int 
-TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, int phase) const
-{
-  int32_t* beg = getPhaseStartAddress(channel,adc,0);
-  int32_t* end = beg + std::abs(getNPhases());
-  int32_t* pos = std::lower_bound(beg, end, phase);
-  if(pos==end || *pos!=phase){ throw TileCalib::NoSuchPhase("TileCalibDrawerOfc::getPhaseNumber",phase); }
-  return (pos-beg);
-}
-*/
-//
-//______________________________________________________________
-void 
-TileCalibDrawerOfc::setPhases(unsigned int channel, unsigned int adc, 
-			      const std::vector<int>& phases)
-{
-  std::set<int> phaseSet(phases.begin(),phases.end());
-  if(int(phaseSet.size())!=std::abs(getNPhases())){
-    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::setPhases",phaseSet.size(),std::abs(getNPhases()));
+void TileCalibDrawerOfc::setPhases(unsigned int channel, unsigned int adc, const std::vector<float>& phases) {
+
+  std::set<int32_t> phaseSet;
+  for (const float phase : phases) {
+    phaseSet.insert((int32_t) round(phase * (1 / PHASE_PRECISION))); // Phases are stored as int(10*phase) in DB  
+  }
+
+  if(int(phaseSet.size()) != std::abs(getNPhases())){
+    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::setPhases", phaseSet.size(), std::abs(getNPhases()));
   } 
 
   unsigned int idx(0);
-  for(std::set<int>::const_iterator i=phaseSet.begin(); i!=phaseSet.end(); ++i, ++idx){
-    *(getPhaseStartAddress(channel,adc,idx)) = static_cast<int32_t>(*i);    
+  for (const int32_t phase : phaseSet) {
+    *(getPhaseStartAddress(channel, adc, idx)) = phase;
+    ++idx;
   }
+
 }
 
 //
 //______________________________________________________________
-/*
-__attribute__((always_inline)) inline int32_t* 
-TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel,
-					 unsigned int adc,
-					 unsigned int phaseIdx) const
-{
-  if(phaseIdx>=static_cast<unsigned int>(std::abs(getNPhases()))){
-    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::getPhaseStartAddress",phaseIdx,std::abs(getNPhases()));
-  }
-  //=== use only one phase table for all ADCs
-  if(getNPhases()<0){
-    channel=0;
-    adc=0;
-  }
-  //=== check for out of bounds channel, adc
-  if(channel>getNChans())
-    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::getPhaseStartAddress",channel,getNChans());
-  if(adc>getNGains())
-    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::getPhaseStartAddress",adc,getNGains());
-
-  //=== extra header
-  unsigned int offset = 2;
-  unsigned int nPhases = std::abs(getNPhases());
-  offset += channel*nPhases*getNGains() + adc*nPhases + phaseIdx;
-  return static_cast<int32_t*>(getAddress(offset));
-}
-*/
-//
-//______________________________________________________________
-/*
-float* 
-TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, 
-				       unsigned int adc, int phase) const
-{
-  //=== check default policy
-  if(channel >= getNChans()) {channel=0;}
-  if(    adc >= getNGains()) {adc    =0;}
-  
-  //=== this calculation is only valid for a blob layout according 
-  //=== to version 1 or version 2
-  uint16_t objVer = getObjVersion();  
-  if(objVer!=1 && objVer!=2 && objVer!=3){ 
-    throw TileCalib::VersionConflict("TileCalibDrawerOfc::getOfcStartAddress",
-				     objVer);
-  }
-  
-  //=== number of fields:
-  //=== for Version 1 = OFC1 we have 3 fields: ai, bi, gi
-  //=== for Version 2 = OFC2 we have 4 fields: ai, bi, gi, ci
-  //=== for Version 3 = OFC2 we have 5 fields: ai, bi, gi, ci, dgi
-  unsigned int nField = getNFields(objVer);
-  if(field>=nField){
-    throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::getOfcStartAddress",
-				     field, nField);
-  }
-  
-  //=== calculate the offset
-  //=== first get rid of ofc specific header
-  unsigned int nPhaseAbs = std::abs(getNPhases());
-  int          nPhaseSgn = getNPhases()<0 ? -1 : 1; 
-  unsigned int offset = 2;
-  if(nPhaseSgn<0) { offset += nPhaseAbs;                             }
-  else            { offset += nPhaseAbs * getNChans() * getNGains(); }
-
-  //=== add offset for requested field
-  unsigned int iPhase  = getPhaseNumber(channel,adc,phase);
-  unsigned int nGain   = getNGains();
-  unsigned int nSample = getNSamples(); 
-  unsigned int lPhase  = nSample * nField;
-  unsigned int lAdc    = lPhase * nPhaseAbs;
-  unsigned int lChan   = lAdc * nGain;
-  offset += channel*lChan + adc*lAdc + iPhase*lPhase + field*nSample;
-  
-  return static_cast<float*>(getAddress(offset));
-}
-*/
-//
-//______________________________________________________________
-void 
-TileCalibDrawerOfc::dump(std::ostream& stm) const
-{
+void TileCalibDrawerOfc::dump(std::ostream& stm) const {
   TileCalibDrawerBase::dumpHeader(stm);
   unsigned int channel = 0;
-  for(int iPhase=0; iPhase<std::abs(getNPhases()); iPhase++){
-    for(unsigned int sample=0; sample<getNSamples(); sample++){
-      for(unsigned int adc=0; adc<getNGains(); adc++){
-	int phase = getPhase(channel,adc,iPhase);
-	stm << channel<<"/"<<phase<<"/"<<sample<<"/"<<adc<<"\t";
-	for(unsigned int field=0; field<getNFields(getObjVersion()); ++field){
+  for(int iPhase = 0; iPhase < std::abs(getNPhases()); ++iPhase){
+    for(unsigned int sample = 0; sample < getNSamples(); ++sample){
+      for(unsigned int adc = 0; adc < getNGains(); ++adc){
+	float phase = getPhase(channel, adc, iPhase);
+	stm << channel << "/" << phase << "/" << sample << "/" << adc << "\t";
+	for(unsigned int field = 0; field < getNFields(getObjVersion()); ++field){
 	  stm << getOfc(field,channel, adc, phase, sample) << "\t";
 	}
 	stm << std::endl;
