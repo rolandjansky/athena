@@ -65,6 +65,10 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,mTrigBphysColl_b(NULL)
 ,mTrigBphysColl_X(NULL)
 
+,m_TotTimer(0)
+,m_VtxFitTimer(0)
+,m_VKVFitter(0)
+
 // counters
 ,m_lastEvent(-1)
 ,m_lastEventPassed(-1)
@@ -827,7 +831,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 if ( timerSvc() ) m_VtxFitTimer->pause();
                 if(!muMuVxCandidate) {
                     ATH_MSG(DEBUG) << "Failed to fit dimuon vertex" << endreq;
-                    mon_Errors.push_back(ERROR_DiMuVtxFit_Fails);
+                    // mon_Errors.push_back(ERROR_DiMuVtxFit_Fails);
                 } else {
                     
                     m_countPassedMuMuVtx++;
@@ -1887,7 +1891,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBMuMu2X(const Trk::Track* mu1, const Trk::Tra
                 
                 if( !XVxCandidate ) {
                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << decayName << endreq;
-                    mon_Errors.push_back(ERROR_XVtxFit_Fails);
+                    // mon_Errors.push_back(ERROR_XVtxFit_Fails);
                 } else {
                     (*countPassedXVtx)++;
                     
@@ -1920,7 +1924,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBMuMu2X(const Trk::Track* mu1, const Trk::Tra
                             
                             if( !XMuMuVxCandidate ) {
                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-                                mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+                                // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
                             } else {
                                 (*countPassedXMuMuVtx)++;
                                 
@@ -2033,7 +2037,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBMuMu2X(const Trk::Track* mu1, const Trk::Tra
                     
                     if( !XMuMuVxCandidate ) {
                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-                        mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+                        // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
                     } else {
                         (*countPassedXMuMuVtx)++;
                         
@@ -2155,7 +2159,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const Trk::Track* mu1, const Trk::Tr
                 
                 if( !XVxCandidate ) {
                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endreq;
-                    mon_Errors.push_back(ERROR_XVtxFit_Fails);
+                    // mon_Errors.push_back(ERROR_XVtxFit_Fails);
                 } else {
                     m_countPassedDsVtx++;
                     
@@ -2189,7 +2193,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const Trk::Track* mu1, const Trk::Tr
                             
                             if( !XMuMuVxCandidate ) {
                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-                                mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+                                // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
                             } else {
                                 m_countPassedBcVtx++;
                                 
@@ -2303,7 +2307,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const Trk::Track* mu1, const Trk::Tr
                     
                     if( !XMuMuVxCandidate ) {
                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-                        mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+                        // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
                     } else {
                         m_countPassedBcVtx++;
                         
@@ -2429,7 +2433,7 @@ TrigEFBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const Trk::Track* mu1, const T
             
             if( !bPlusVxCandidate ) {
                 ATH_MSG(DEBUG) << " Failed to fit B+ -> mu mu K+ vertex" << endreq;
-                mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
+                // mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
             } else {
                 m_countPassedBplusVtx++;
                 

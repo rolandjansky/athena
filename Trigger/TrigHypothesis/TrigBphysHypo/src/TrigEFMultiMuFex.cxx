@@ -59,6 +59,8 @@ TrigEFMultiMuFex::TrigEFMultiMuFex(const std::string & name, ISvcLocator* pSvcLo
     declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut=true);
   declareProperty("MuonAlgo", m_muonAlgo="TrigMuSuperEF");
   
+  declareMonitoredStdContainer("Errors"                 , mon_Errors                  , AutoClear);
+  declareMonitoredStdContainer("Acceptance"             , mon_Acceptance              , AutoClear);
   declareMonitoredStdContainer("pTMu1",        mon_mu1pT       , AutoClear   );
   declareMonitoredStdContainer("pTMu2",        mon_mu2pT       , AutoClear  );
   declareMonitoredStdContainer("MuMumass",     mon_MuMumass    , AutoClear  );
@@ -131,11 +133,25 @@ HLT::ErrorCode TrigEFMultiMuFex::hltFinalize()
   return HLT::OK;
 }
 
+// Define the bins for error-monitoring histogram
+#define ERROR_No_EventInfo               0
+#define ERROR_WrongNum_Input_TE          1
+#define ERROR_GetMuonFailed              2
+#define ERROR_AddTrack_Fails             3
+#define ERROR_CalcInvMass_Fails          4
+#define ERROR_BphysColl_Fails            5
+
+// Define the bins for acceptance-monitoring histogram
+#define ACCEPT_Input                  0
+#define ACCEPT_GotMuons               1
+#define ACCEPT_InvMass_Cut            2
+
 //-------------------------------------------------------------------------------------
 HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
   
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "Running TrigEFMultiMuFex::acceptInputs" << endreq;
+  mon_Acceptance.push_back( ACCEPT_Input );
 
   if ( timerSvc() )    m_BmmHypTot->start();
     
@@ -143,6 +159,7 @@ HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     if (m_expectNumberOfInputTE != inputTE.size()) {
         msg() << MSG::ERROR << "Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() << endreq;
         if ( timerSvc() )    m_BmmHypTot->stop();
+        mon_Errors.push_back( ERROR_WrongNum_Input_TE );
         return HLT::BAD_JOB_SETUP;
     } else {
         if ( msgLvl() <= MSG::DEBUG )  msg() << MSG::DEBUG << "Found Expected " << m_expectNumberOfInputTE << " inputTEs" << endreq;
@@ -151,6 +168,7 @@ HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
         msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+        mon_Errors.push_back( ERROR_No_EventInfo );
     }
   
     if (evtNumber !=  m_lastEvent) {
@@ -201,6 +219,7 @@ HLT::ErrorCode TrigEFMultiMuFex::hltExecute(HLT::TEConstVec& inputTE , HLT::Trig
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, "EFMultiMuFex" );
         if(sc != HLT::OK) {
             msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endreq;
+            mon_Errors.push_back( ERROR_BphysColl_Fails );
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
             return HLT::ERROR;
         }
@@ -223,11 +242,14 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon " << i << endreq;
         if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
             if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon " << i << ", exiting" << endreq;
+            mon_Errors.push_back( ERROR_GetMuonFailed );
             return;
         }
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF " << i << " Feature, size = " << elvmuon.size() << endreq;
         vec_elv_muons.push_back(elvmuon);
     } // loop over each roi
+    
+    mon_Acceptance.push_back( ACCEPT_GotMuons );
 
     if(msgLvl() <= MSG::DEBUG) {
         int ic(0);
@@ -314,6 +336,7 @@ void TrigEFMultiMuFex::buildDiMu (const std::vector<const xAOD::Muon*> &muons, x
                 continue;
             } else {
                 if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildDiMu: " << mass << " cut passed  "  << endreq;
+                mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
             }
 
             // create output object
@@ -381,6 +404,7 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
                     continue;
                 } else {
                     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass buildTriMu: " << mass << " cut passed  "  << endreq;
+                    mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
                 }
                 
                 // create output object

@@ -75,6 +75,8 @@ class TrigEFBMuMuFex: public HLT::ComboAlgo  {
     bool m_considerSameRoiCombinations; // look also at muon pairs within same roi
     
     //Monitored variables
+    std::vector<int>   mon_Errors;
+    std::vector<int>   mon_Acceptance;
     double mon_dEtaRoI;
     double mon_dPhiRoI;
     double mon_dEtaMuMu;

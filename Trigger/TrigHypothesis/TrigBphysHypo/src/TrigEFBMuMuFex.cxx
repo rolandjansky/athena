@@ -89,6 +89,8 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("UseCombinedMuonParameters", m_useCombinedTP     = false);
     declareProperty("ConsiderSameRoiCombinations", m_considerSameRoiCombinations = true);
     //
+    declareMonitoredStdContainer("Errors",     mon_Errors,     AutoClear);
+    declareMonitoredStdContainer("Acceptance", mon_Acceptance, AutoClear);
     declareMonitoredVariable("DeltaEtaRoIs", mon_dEtaRoI    );
     declareMonitoredVariable("DeltaPhiRoIs", mon_dPhiRoI    );
     declareMonitoredVariable("DeltaEtaMuMu", mon_dEtaMuMu   );
@@ -203,6 +205,40 @@ HLT::ErrorCode TrigEFBMuMuFex::hltFinalize()
   return HLT::OK;
 }
 
+// Define the bins for error-monitoring histogram
+#define ERROR_No_EventInfo               0
+#define ERROR_Not_2_Input_TE             1
+#define ERROR_No_RoI_1                   2
+#define ERROR_No_RoI_2                   3
+#define ERROR_MuonFeature_Fails          4
+// #define ERROR_Mu1_not_Combined           4
+// #define ERROR_Mu1_not_Standalone         5
+// #define ERROR_Mu1_Standalone_Invalid     6
+// #define ERROR_Mu2_not_Combined           7
+// #define ERROR_Mu2_not_Standalone         8
+// #define ERROR_Mu2_Standalone_Invalid     9
+// #define ERROR_MuMu_not_Both_Combined    10
+// #define ERROR_MuMu_not_Comb_Standalone  11
+// #define ERROR_AddTrack_Fails            12
+// #define ERROR_CalcInvMass_Fails         13
+// #define ERROR_CalcMother_Fails          14
+// #define ERROR_CalcMassPull_Fails        15
+#define ERROR_BphysColl_Fails           5
+
+// Define the bins for acceptance-monitoring histogram
+#define ACCEPT_Input                  0
+#define ACCEPT_Got_RoIs               1
+#define ACCEPT_Mu1                    2
+#define ACCEPT_Mu2                    3
+#define ACCEPT_MuMu                   4
+#define ACCEPT_MuMu_Unique            5
+#define ACCEPT_Opp_Charge             6
+#define ACCEPT_Dimuon_Built           7
+#define ACCEPT_InvMass_Cut            8
+// Separator                          9
+#define ACCEPT_BphysColl_not_Empty   10
+
+
 //-------------------------------------------------------------------------------------
 HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
     
@@ -230,11 +266,14 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     mon_BmassFit = -1;
     mon_Chi2 = -1.;
     if ( timerSvc() )    m_BmmHypTot->start();
+    
+    mon_Acceptance.push_back( ACCEPT_Input );
 
     
     // check the right number of inputTEs
     if (m_expectNumberOfInputTE != inputTE.size()) {
         msg() << MSG::ERROR << "Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() << endreq;
+        mon_Errors.push_back( ERROR_Not_2_Input_TE );
         if ( timerSvc() )    m_BmmHypTot->stop();
         return HLT::BAD_JOB_SETUP;
     } else {
@@ -252,14 +291,21 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         if ( getFeature(inputTE[i], vecTrigRoiDescriptor[i]) != HLT::OK ) {
             msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << endreq;
             if ( timerSvc() ) m_BmmHypTot->stop();
+            if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
+            else      mon_Errors.push_back( ERROR_No_RoI_2 );
             return HLT::NAV_ERROR;
         }
         if (vecTrigRoiDescriptor[i] == nullptr) {
             msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i << " (retrieved null pointer)" << endreq;
             if ( timerSvc() ) m_BmmHypTot->stop();
+            if ( !i ) mon_Errors.push_back( ERROR_No_RoI_1 );
+            else      mon_Errors.push_back( ERROR_No_RoI_2 );
             return HLT::NAV_ERROR;
         }
     } // for
+    
+    mon_Acceptance.push_back( ACCEPT_Got_RoIs );
+    
     const TrigRoiDescriptor* roi1(vecTrigRoiDescriptor[0]), *roi2(vecTrigRoiDescriptor[1]);
     // debug for ROI info
     if ( msgLvl() <= MSG::DEBUG ){
@@ -285,6 +331,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon " << i << endreq;
         if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[i], elvmuon)!=HLT::OK ) {
             if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon " << i << ", exiting" << endreq;
+            mon_Errors.push_back( ERROR_MuonFeature_Fails );
             return HLT::MISSING_FEATURE; // was HLT::OK
         }
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF " << i << " Feature, size = " << elvmuon.size() << endreq;
@@ -351,6 +398,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon from roi1 is neither Combined or SegmentTagged - reject" << endreq;
             continue;
         }
+        mon_Acceptance.push_back( ACCEPT_Mu1 );
         m_bphysHelperTool->addUnique(*muel, muons0,0.005,0.005,10, m_muonParticleType);
         m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, m_muonParticleType);
     } // roi1
@@ -370,7 +418,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 continue;
             }
         } // if noid
-        
+        mon_Acceptance.push_back( ACCEPT_Mu2 );
         m_bphysHelperTool->addUnique(*muel, muons1,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
         m_bphysHelperTool->addUnique(*muel, muonsAll,0.005,0.005,10, (!m_noId ? m_muonParticleType : xAOD::Muon::MuonSpectrometerTrackParticle));
     } // roi2
@@ -534,6 +582,12 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     const ElementLink< xAOD::TrackParticleContainer > & tpel1 =  mu1->trackParticleLink( m_noId ?
                                                                                         xAOD::Muon::MuonSpectrometerTrackParticle :
                                                                                         m_muonParticleType);
+    
+    mon_Acceptance.push_back( ACCEPT_MuMu );
+    if(msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG << "Track1 from muon: " << m_muonParticleType << " " << tpel0.isValid() << " " << ( tpel0.dataID() == "" ? "<empty string>" : tpel0.dataID()) << " " << tpel0.index() << endreq;
+        msg() << MSG::DEBUG << "Track2 from muon: " << (m_noId? "noid" :"id") << " " << tpel1.isValid() << " " << ( tpel1.dataID() == "" ? "<empty string>" : tpel1.dataID()) << " " << tpel1.index() << endreq;
+    } // end debug
 
     const xAOD::TrackParticle* tp0 = mu0->trackParticle(m_muonParticleType);
     const xAOD::TrackParticle* tp1 = mu1->trackParticle(m_noId ? xAOD::Muon::MuonSpectrometerTrackParticle : m_muonParticleType);
@@ -550,6 +604,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Reject tracks as failed uniqueness test: " << endreq;
         return;
     } // track uniqueness
+    mon_Acceptance.push_back( ACCEPT_MuMu_Unique );
     // opposite charge requirement
     if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Charges combination: "
         << mu0 << ": " << mu0->charge() << " " << tp0->qOverP() << " " << (trk0 ? trk0->perigeeParameters()->charge() : -99)
@@ -567,6 +622,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
             << mu0->charge() << "  " << mu1->charge() << endreq;
         return;
     }// same charge
+    mon_Acceptance.push_back( ACCEPT_Opp_Charge );
     
     // Fill monitoring histograms for muons
     mon_mu1eta = mu0->eta(); mon_mu2eta = mu1->eta();
@@ -588,6 +644,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     }
     
     if (result) {
+        mon_Acceptance.push_back( ACCEPT_Dimuon_Built );
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Including result" << endreq;
         m_resultsHolder.push_back(result);
         double massMuMu = result->mass();
@@ -595,10 +652,11 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
         mon_BmassFit = result->fitmass() * 0.001;
         mon_Chi2 = result->fitchi2();
         m_vtxpass = true; // may not be strictly true now, if vx was null (maybe use chi2 / ndf value as a test?)
-        if(m_lowerMassCut < massMuMu && ((massMuMu < m_upperMassCut) || (!m_ApplyupperMassCut) ))
+        if(m_lowerMassCut < massMuMu && ((massMuMu < m_upperMassCut) || (!m_ApplyupperMassCut) )) {
+            mon_Acceptance.push_back( ACCEPT_InvMass_Cut );
             m_PassedBsMass = true;
+        }
         
-
         
     } else {
         // no valid output
@@ -627,11 +685,13 @@ HLT::ErrorCode TrigEFBMuMuFex::hltExecute(HLT::TEConstVec&, HLT::TriggerElement*
     
     if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
         if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << xAODTrigBphysColl->size() << endreq;
+        mon_Acceptance.push_back( ACCEPT_BphysColl_not_Empty );
 
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, "EFBMuMuFex" );
         if(sc != HLT::OK) {
             msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endreq;
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
+            mon_Errors.push_back( ERROR_BphysColl_Fails );
             return HLT::ERROR;
         }
     } else {

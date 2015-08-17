@@ -5,7 +5,7 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 ERROR_labels = ' No_EventInfo : Not_2_Input_TE : No_RoI_1 : No_RoI_2 : Mu1_not_Combined : Mu1_not_Standalone : Mu1_Standalone_Invalid : Mu2_not_Combined : Mu2_not_Standalone : Mu2_Standalone_Invalid : MuMu_not_Both_Combined : MuMu_not_Comb_Standalone : AddTrack_Fails : CalcInvMass_Fails : CalcMother_Fails : CalcMassPull_Fails : BphysColl_Fails '
 ERROR_number = 17
 
-ACCEPTANCE_labels = ' Input : Got_RoIs : Mu1_Combined : Mu1_Standalone : Mu2_Combined : Mu2_Standalone : MuMu_Both_Combined : MuMu_Comb_Standalone : Mu1_IDTrack : Mu2_IDTrack : MuMu_Both_IDTracks : CombMu_IDTrack : DiMuon_Pair : vtxpass_is_TRUE : mumuIDpass_is_TRUE : Opp_Charge : InvMass_Cut : AddTrack_Test : Vertexing : CalcInvMass : CalcMother : Vertex_not_NULL : : BphysColl_not_Empty '
+ACCEPTANCE_labels = ' Input : Got_RoIs : Mu1_Combined : Mu1_Standalone : Mu2_Combined : Mu2_Standalone : MuMu_Both_Combined : MuMu_Comb_Standalone : Mu1_IDTrack : Mu2_IDTrack : MuMu_Both_IDTracks : CombMu_IDTrack : DiMuon_Pair : vtxpass_is_TRUE : mumuIDpass_is_TRUE : Opp_Charge : InvMass_Cut : AddTrack_Test : Vertexing : CalcInvMass : CalcMother : Vertex_not_NULL : SEPARATOR : BphysColl_not_Empty '
 ACCEPTANCE_number = 24
 
 class TrigL2BMuMuFexValidationMonitoring(TrigGenericMonitoringToolConfig):

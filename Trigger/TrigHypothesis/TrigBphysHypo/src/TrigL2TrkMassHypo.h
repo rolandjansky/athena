@@ -38,7 +38,6 @@ private:
     unsigned int m_countTotalRoI;
     unsigned int m_countPassedEvents;
     unsigned int m_countPassedRoIs;
-    StoreGateSvc * m_pStoreGate;
     void handle(const Incident &); 
 
     /* monitored variables */

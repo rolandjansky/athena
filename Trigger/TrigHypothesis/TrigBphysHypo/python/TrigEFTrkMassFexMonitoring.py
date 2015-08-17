@@ -5,7 +5,8 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 ERROR_labels = ' No_EventInfo : No_RoI : No_TrackColl : No_muon : Empty_TrackColl : More_TrackColl : AddTrack_Fails : Unique_AddTrack_Fails : CalcInvMass_Fails : CalcMother_Fails : CalcMassPull_Fails : BphysColl_Fails '
 ERROR_number = 11
 
-ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoI : Got_TrackColl : Full_TrackColl :  : Full_IDTracks : Mu1_Chi2_Cut : Mu1_pT_Cut : Mu1_Chi2Pt_Cut : Mu1_dEta_Cut : Mu1_dPhi_Cut : Mu1_dR_Cut : Mu2_Chi2_Cut : Mu2_pT_Cut : Mu2_Chi2Pt_Cut : Opp_Charge : InvMass_Cut : : Vertexing : CalcInvMass : : : : BphysColl_not_Empty : : Each_Mu1_Chi2_Cut : Each_Mu1_pT_Cut : Each_Mu1_Chi2Pt_Cuts : Each_Mu1_dEta_Cut : Each_Mu1_dPhi_Cut : Each_Mu1_dR_Cut : : Each_Mu2_Chi2_Cut : Each_Mu2_pT_Cut : Each_Mu2_Chi2Pt_Cuts : Each_Opp_Charge : Each_InvMass_Cut : : : : :  '
+ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoI : Got_TrackColl : Full_TrackColl : NotUsed1 : Full_IDTracks : Mu1_Chi2_Cut : Mu1_pT_Cut : Mu1_Chi2Pt_Cut : Mu1_dEta_Cut : Mu1_dPhi_Cut : Mu1_dR_Cut : Mu2_Chi2_Cut : Mu2_pT_Cut : Mu2_Chi2Pt_Cut : Opp_Charge : InvMass_Cut : NotUsed2 : Vertexing : CalcInvMass : NotUsed3 : NotUsed4 : NotUsed5 : BphysColl_not_Empty : NotUsed6 : Each_Mu1_Chi2_Cut : Each_Mu1_pT_Cut : Each_Mu1_Chi2Pt_Cuts : Each_Mu1_dEta_Cut : Each_Mu1_dPhi_Cut : Each_Mu1_dR_Cut : NotUsed7 : Each_Mu2_Chi2_Cut : Each_Mu2_pT_Cut : Each_Mu2_Chi2Pt_Cuts : Each_Opp_Charge : Each_InvMass_Cut : NotUsed8 : NotUsed9 : NotUsed10 : NotUsed11 : NotUsed12  '
+ACCEPTANCE_labels = ACCEPTANCE_labels.replace(" ","") # remove spaces which confuse histogram labelling
 ACCEPTANCE_number = 43
  
 class TrigEFTrkMassFexValidationMonitoring_RoI(TrigGenericMonitoringToolConfig):

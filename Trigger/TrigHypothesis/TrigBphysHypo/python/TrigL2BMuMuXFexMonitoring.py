@@ -5,8 +5,8 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 ERROR_labels = ' No_EventInfo : No_RoIs : No_CombineMuon : No_TrackColl : Charge_Check : MuMu_MassCut : AddMuonTrack_Fails : MuonVtxFit_Fails : CalcMuonVtxMass_Fails : MuonVtx_MassCut : AddTrack_Fails : VtxFitFailed : MotherVtxFitFailed : TooManyComb_Acc : TooManyComb_Rej'
 ERROR_number = 15
 
-ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoIs : Got_Muons : Got_TrackColl : Full_TrackColl : Full_IDTracks : Pass_OppChargeC : MuonTracks_Added : Muon_Vertexing : CalcInvMass : MuonVtx_Part : MuMu_mass : MotherVtxCreated : BphysCollParticle '
-ACCEPTANCE_number = 15
+ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoIs : Got_Muons :Got_Mu1Track : GotMu2Track : Got_TrackColl : Got_FirstTrackCol: Full_TrackColl : Full_IDTracks : Pass_OppChargeC : MuonTracks_Added : Muon_Vertexing : CalcInvMass : MuonVtx_Part : MuMu_mass : MotherVtxCreated : BphysCollParticle '
+ACCEPTANCE_number = 18
 
 class TrigL2BMuMuXFexValidationMonitoring(TrigGenericMonitoringToolConfig):
      def __init__ (self, name="L2BMuMuXFexValidation"):

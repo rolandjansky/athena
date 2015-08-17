@@ -83,6 +83,8 @@ class TrigEFMultiMuFex: public HLT::ComboAlgo  {
 
     
   //Monitored variables 
+  std::vector<int>   mon_Errors;
+  std::vector<int>   mon_Acceptance;
   std::vector<float> mon_mu1pT;
   std::vector<float> mon_mu2pT;
   std::vector<float> mon_MuMumass;

@@ -150,50 +150,50 @@ class L2BMuMuXFex_EF (TrigL2BMuMuXFex):
         # B{+/-} -> K{+/-} Mu Mu
         self.DoB_KMuMuDecay = True
         self.LowerKMuMuMassCut = 4400.
-        self.UpperKMuMuMassCut = 5900.
+        self.UpperKMuMuMassCut = 5800.
         self.LowerB_KMuMuMassCutVtxOff = 4400.
-        self.UpperB_KMuMuMassCutVtxOff = 5900.        
+        self.UpperB_KMuMuMassCutVtxOff = 5800.        
         self.LowerBVtxMassCut = 4400.
-        self.UpperBVtxMassCut = 5900.
+        self.UpperBVtxMassCut = 5800.
         self.BVtxChi2Cut = 60.
         # Bd -> K*(892) Mu Mu
         self.DoBd_KstarMuMuDecay = True
         self.LowerKstar_KaonMassCut = 650.
         self.UpperKstar_KaonMassCut = 1150.
-        self.LowerBd_KstarMuMuMassCut = 4500.
-        self.UpperBd_KstarMuMuMassCut = 6000.
-        self.LowerBd_KstarMuMuMassCutVtxOff = 4500.
-        self.UpperBd_KstarMuMuMassCutVtxOff = 6000.
+        self.LowerBd_KstarMuMuMassCut = 4600.
+        self.UpperBd_KstarMuMuMassCut = 5900.
+        self.LowerBd_KstarMuMuMassCutVtxOff = 4600.
+        self.UpperBd_KstarMuMuMassCutVtxOff = 5900.
         self.LowerKstarVtxMassCut = 700.
         self.UpperKstarVtxMassCut = 1100.
-        self.LowerBdVtxMassCut = 4500.
-        self.UpperBdVtxMassCut = 6000.
+        self.LowerBdVtxMassCut = 4600.
+        self.UpperBdVtxMassCut = 5900.
         self.KstarVtxChi2Cut = 400.
         self.BdVtxChi2Cut = 60.
         # Bs -> Phi(1020) Mu Mu
         self.DoBs_Phi1020MuMuDecay = True
-        self.LowerPhi1020_KaonMassCut = 900.#990
-        self.UpperPhi1020_KaonMassCut = 1140.#1050
+        self.LowerPhi1020_KaonMassCut = 940.#990
+        self.UpperPhi1020_KaonMassCut = 1100.#1050
         self.LowerBs_Phi1020MuMuMassCut = 4700.
-        self.UpperBs_Phi1020MuMuMassCut = 6000.
+        self.UpperBs_Phi1020MuMuMassCut = 5800.
         self.LowerBs_Phi1020MuMuMassCutVtxOff = 4700.
-        self.UpperBs_Phi1020MuMuMassCutVtxOff = 6000.
-        self.LowerPhi1020VtxMassCut = 900.#990
-        self.UpperPhi1020VtxMassCut = 1140.#1050
+        self.UpperBs_Phi1020MuMuMassCutVtxOff = 5800.
+        self.LowerPhi1020VtxMassCut = 940.#990
+        self.UpperPhi1020VtxMassCut = 1100.#1050
         self.LowerBsVtxMassCut = 4700.
-        self.UpperBsVtxMassCut = 6000.
+        self.UpperBsVtxMassCut = 5800.
         self.Phi1020VtxChi2Cut = 400.
         self.BsVtxChi2Cut = 60.
         # Lb -> L Mu Mu     
         self.DoLb_LambdaMuMuDecay = True
-        self.LowerLambda_PrPiMassCut = 1000.
-        self.UpperLambda_PrPiMassCut = 1240.
-        self.LowerLb_LambdaMuMuMassCut = 5000.
-        self.UpperLb_LambdaMuMuMassCut = 6200.
-        self.LowerLambdaVtxMassCut = 1000.
-        self.UpperLambdaVtxMassCut = 1240.
-        self.LowerLbVtxMassCut = 5000.
-        self.UpperLbVtxMassCut = 6200.
+        self.LowerLambda_PrPiMassCut = 1040.
+        self.UpperLambda_PrPiMassCut = 1200.
+        self.LowerLb_LambdaMuMuMassCut = 5100.
+        self.UpperLb_LambdaMuMuMassCut = 6100.
+        self.LowerLambdaVtxMassCut = 1040.
+        self.UpperLambdaVtxMassCut = 1200.
+        self.LowerLbVtxMassCut = 5100.
+        self.UpperLbVtxMassCut = 6100.
         self.LambdaVtxChi2Cut = 400.
         self.LbVtxChi2Cut = 60.
         #self.LbVtxDistanceCut = 0.
@@ -206,12 +206,12 @@ class L2BMuMuXFex_EF (TrigL2BMuMuXFex):
         self.DoBc_DsMuMuDecay = False
         self.LowerPhiDs_MassCut = 980.
         self.UpperPhiDs_MassCut = 1080.
-        self.LowerDs_MassCut = 1550.
-        self.UpperDs_MassCut = 2450.
-        self.LowerBc_DsMuMuMassCut = 1750.
-        self.UpperBc_DsMuMuMassCut = 7100.
+        self.LowerDs_MassCut = 1600.
+        self.UpperDs_MassCut = 2400.
+        self.LowerBc_DsMuMuMassCut = 1800.
+        self.UpperBc_DsMuMuMassCut = 7050.
         self.LowerBc_DsMuMuMassCutVtxOff = 1800.
-        self.UpperBc_DsMuMuMassCutVtxOff = 7100.
+        self.UpperBc_DsMuMuMassCutVtxOff = 7050.
         self.LowerDsVtxMassCut = 1600.
         self.UpperDsVtxMassCut = 2400.
         self.LowerBcVtxMassCut = 1800.
@@ -219,17 +219,17 @@ class L2BMuMuXFex_EF (TrigL2BMuMuXFex):
         self.DsVtxChi2Cut = 90.
         self.BcVtxChi2Cut = 120.
         # vertexing
-        #self.DoVertexFit                      = True
-        #self.DoMuMuVertexFit                  = True
-        #self.DoB_KMuMuVertexFit               = True
-        #self.DoKstar_KaonPionVertexFit        = True
-        #self.DoBd_KstarMuMuVertexFit          = True
-        #self.DoPhi1020_KaonKaonVertexFit      = True
-        #self.DoBs_Phi1020MuMuVertexFit        = True
-        #self.DoLambda_ProtonPionVertexFit     = True
-        #self.DoLb_LambdaMuMuVertexFit         = True
-        #self.DoDs_PhiPionVertexFit            = True
-        #self.DoBc_DsMuMuVertexFit             = True
+        self.DoVertexFit                      = True
+        self.DoMuMuVertexFit                  = True
+        self.DoB_KMuMuVertexFit               = True
+        self.DoKstar_KaonPionVertexFit        = True
+        self.DoBd_KstarMuMuVertexFit          = True
+        self.DoPhi1020_KaonKaonVertexFit      = True
+        self.DoBs_Phi1020MuMuVertexFit        = True
+        self.DoLambda_ProtonPionVertexFit     = True
+        self.DoLb_LambdaMuMuVertexFit         = False
+        self.DoDs_PhiPionVertexFit            = True
+        self.DoBc_DsMuMuVertexFit             = True
 
         from TrigBphysHypo.TrigL2BMuMuXFexMonitoring import TrigL2BMuMuXFexValidationMonitoring
         validation = TrigL2BMuMuXFexValidationMonitoring()
@@ -584,3 +584,16 @@ class L2BMuMuXFex_noVtx_noOS (TrigL2BMuMuXFex):
          
          
 #        self.TrigVertexFitter   = VFitTool
+
+class L2BMuMuXFex_EF_BcMuMuDs (L2BMuMuXFex_EF):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuXFex_allModes"):
+        L2BMuMuXFex_EF.__init__(self, name )
+        
+        self.DoB_KMuMuDecay = False
+        self.DoBd_KstarMuMuDecay = False
+        self.DoBs_Phi1020MuMuDecay = False
+        self.DoLb_LambdaMuMuDecay = False
+        # Bc -> Ds* Mu Mu
+        self.DoBc_DsMuMuDecay = True
+        
