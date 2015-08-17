@@ -12,7 +12,9 @@ def usage():
     print ""
     print "-h, --help      shows this help"
     print "-f, --folder=   specify folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN or /TILE/OFL02/TIME/CHANNELOFFSET/GAP/LAS"
+    print "-F, --outfolder=  specify the name of output folder if different from input folder"
     print "-t, --tag=      specify tag to use, f.i. RUN2-HLT-UPD1-00 or RUN2-UPD4-00"
+    print "-T, --outtag=     specify output tag if different from input tag"
     print "-r, --run=      specify run  number, default is 0"
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-c, --channel   if present, means that one constant per channel is expected (i.e. no gain field)"
@@ -27,9 +29,10 @@ def usage():
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
+    print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:s:i:o:t:f:g:n:v:x:p:dcaz"
-keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","folder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero"]
+letters = "hr:l:s:i:o:t:T:f:F:g:n:v:x:p:dcazu"
+keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -46,6 +49,8 @@ inSchema = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2"
 outSchema = 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'
 folderPath =  "/TILE/OFL02/TIME/CHANNELOFFSET/GAP/LAS"
 tag = "RUN2-HLT-UPD1-00"
+outfolderPath = None
+outtag = None
 readGain=True
 rosmin = 1
 all=False
@@ -56,12 +61,17 @@ nval = 0
 blobVersion = -1
 txtFile= ""
 prefix = ""
+update = False
 
 for o, a in opts:
     if o in ("-f","--folder"):
         folderPath = a
+    elif o in ("-F","--outfolder"):
+        outfolderPath = a
     elif o in ("-t","--tag"):
         tag = a
+    elif o in ("-T","--outtag"):
+        outtag = a
     elif o in ("-s","--schema"):
         schema = a
         inSchema = a
@@ -84,6 +94,8 @@ for o, a in opts:
         all = True
     elif o in ("-z","--zero"):
         zero = True
+    elif o in ("-u","--update"):
+        update = True
     elif o in ("-r","--run"):
         run = int(a)
     elif o in ("-l","--lumi"):
@@ -101,6 +113,15 @@ for o, a in opts:
 if not len(outSchema): outSchema=schema
 else: schema=outSchema
 if not len(inSchema): inSchema=schema
+update = update or (inSchema==outSchema)
+
+if outfolderPath is None:
+    outfolderPath=folderPath
+elif tag=='UPD5' and outfolderPath!=folderPath:
+    print '--tag="UPD5" option is not compatible with --outfolderPath option'
+    sys.exit(2)
+if outtag is None:
+    outtag = tag
 
 #import PyCintex
 try:
@@ -130,8 +151,21 @@ until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
 #=== set database
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
-dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if inSchema==outSchema else 'RECREATE'))
-folderTag = TileCalibTools.getFolderTag(dbr, folderPath, tag )
+dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
+if tag=='UPD5':
+    tag='UPD4'
+    outtag='UPD4'
+    outfolderPath=folderPath
+    folderTag = TileCalibTools.getFolderTag(dbr, folderPath, tag )
+    tag2=folderTag.split('-')
+    tag2[len(tag2)-1]="%02d"%(int(tag2[len(tag2)-1])+1)
+    outfolderTag="-".join(tag2)
+else:
+    folderTag = TileCalibTools.getFolderTag(dbr, folderPath, tag )
+    if outfolderPath==folderPath and outtag==tag:
+        outfolderTag = folderTag
+    else:
+        outfolderTag = TileCalibTools.getFolderTag(dbr, outfolderPath, outtag )
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 #=== initialize blob reader to read previous comments
@@ -165,7 +199,7 @@ else:
 log.info("Comment: %s" % blobReader.getComment((run,lumi)))
 log.info( "\n" )
 
-blobWriter = TileCalibTools.TileBlobWriter(dbw,folderPath,'Flt',(True if len(tag) else False))
+blobWriter = TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))
 
 #=== create default: one number per ADC
 default = PyCintex.gbl.std.vector('float')()
@@ -249,11 +283,25 @@ for ros in xrange(rosmin,5):
                     ndef+=1
                     mval-=kval
                 for n in xrange(mval):
-                    val = float(data[n])
-                    if val>-9999:
+                    coef=None
+                    strval=data[n]
+                    if strval.startswith("*"):
+                        coef=float(strval[1:])
+                        val = calibDrawer.getData(chn,adc,n)*coef
+                        log.debug("%i/%2i/%2i/%i: new data[%i] = %s  scale old value by %s" % (ros,mod,chn,adc, n, val, coef))
+                    elif strval.startswith("++") or strval.startswith("+-") :
+                        coef=float(strval[1:])
+                        val = calibDrawer.getData(chn,adc,n)+coef
+                        log.debug("%i/%2i/%2i/%i: new data[%i] = %s  shift old value by %s" % (ros,mod,chn,adc, n, val, coef))
+                    elif strval=="keep":
+                        val = -9999.9
+                    else:
+                        val = float(strval)
+                    if val>-9999 or coef is not None:
                         nvnew+=1
-                        log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
                         calibDrawer.setData(chn,adc,n,val)
+                        if coef is None:
+                            log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
                 for n in xrange(mval,kval+mval):
                     nvdef+=1
                     val = calibDrawer.getData(chn,adc,n)
@@ -271,7 +319,7 @@ if ndef: log.info("%d/%d new channels*gains/values with default values have been
 #=== commit changes
 if mval:
     blobWriter.setComment(os.getlogin(),("Update for run %i from file %s" % (run,txtFile)))
-    blobWriter.register(since, until, folderTag)
+    blobWriter.register(since, until, outfolderTag)
 else:
     log.warning("Nothing to update")
 
