@@ -1,16 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
-# include the python fragment to set up the default bphysics vertex fitter
-#include("TrigBphysHypo/TrigBphysVertexingConfig.py")
-
-from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
-from TrigBphysHypo.TrigBphysHypoConf       import TrigEFBMuMuFex 
-from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-from TrigBphysHypo import TrigBphysVertexingConfig
+from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuFex 
 
 from AthenaCommon.AppMgr import ToolSvc
-
 
 #class EFBMuMuFex_1 (TrigEFBMuMuFex):
 #    __slots__ = []
@@ -80,25 +72,6 @@ class EFBMuMuFex_Jpsi (TrigEFBMuMuFex):
         online = TrigEFBMuMuFexOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
-
-class EFBMuMuFex_Jpsi_oneTE (EFBMuMuFex_Jpsi):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_Jpsi_oneTE"):
-        EFBMuMuFex_Jpsi.__init__( self, name )
-
-        self.NumberOfInputs     = 1
-        self.UseRoIs = False
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
-        validation = TrigEFBMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
-        online = TrigEFBMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
-
-
 
 class EFBMuMuFex_Upsi (TrigEFBMuMuFex):
     __slots__ = []
@@ -214,33 +187,6 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
         online = TrigEFBMuMuFexOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
-
-class EFBMuMuFex_DiMu_legacyVtx (EFBMuMuFex_DiMu):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_DiMu_legacyVtx"):
-        EFBMuMuFex_DiMu.__init__( self, name )
-        
-        # set lecacy helper tool with 'broken' vertex fitter
-        self.TrigBphysHelperTool = ToolSvc.TrigBphysHelperUtilsToolLegacy
-        
-        
-class EFBMuMuFex_DiMu_oneTE (EFBMuMuFex_DiMu):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_DiMu_oneTE"):
-        EFBMuMuFex_DiMu.__init__( self, name )
-
-        self.NumberOfInputs     = 1
-        self.UseRoIs = False
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
-        validation = TrigEFBMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
-        online = TrigEFBMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
-
 
 class EFBMuMuFex_DiMu_DY (TrigEFBMuMuFex):
     __slots__ = []
@@ -546,28 +492,5 @@ class EFBMuMuFex_DiMu_noinvm_SS (TrigEFBMuMuFex):
         validation = TrigEFBMuMuFexValidationMonitoring()
         from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
         online = TrigEFBMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
-
-class EFBMuMuFex_passEF (TrigEFBMuMuFex):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_passEF"):
-        super( TrigEFBMuMuFex, self ).__init__( name )
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptAll = True
-
-        # L2 Bmumu cuts
-        self.LowerMassCut      = 100.
-        self.UpperMassCut      = 13000.
-        self.ApplyUpperMassCut = True
-        self.MuonAlgo          = "TrigMuSuperEF"
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
-        validation = TrigEFBMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring_passEF
-        online = TrigEFBMuMuFexOnlineMonitoring_passEF()
 
         self.AthenaMonTools = [ validation, online, time ]

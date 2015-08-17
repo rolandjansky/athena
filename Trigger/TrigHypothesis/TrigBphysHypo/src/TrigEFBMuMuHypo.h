@@ -71,8 +71,8 @@ class TrigEFBMuMuHypo: public HLT::HypoAlgo  {
   unsigned int m_countPassedLxyCut;
 
 
-  int m_mon_cutCounter;
-  double m_mon_MuMumass;
+  int mon_cutCounter;
+  double mon_MuMumass;
   
 };
 

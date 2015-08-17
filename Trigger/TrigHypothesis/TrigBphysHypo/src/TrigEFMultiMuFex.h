@@ -62,8 +62,7 @@ class TrigEFMultiMuFex: public HLT::ComboAlgo  {
     float m_lowerMassCut;
     float m_upperMassCut;
     bool m_ApplyupperMassCut;
-  bool m_checkNinputTE;
-    std::string m_muonAlgo;
+    string m_muonAlgo;
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
 
@@ -84,13 +83,13 @@ class TrigEFMultiMuFex: public HLT::ComboAlgo  {
 
     
   //Monitored variables 
-  std::vector<int>   m_mon_Errors;
-  std::vector<int>   m_mon_Acceptance;
-  std::vector<float> m_mon_mu1pT;
-  std::vector<float> m_mon_mu2pT;
-  std::vector<float> m_mon_MuMumass;
-  std::vector<float> m_mon_FitMass;
-  std::vector<float> m_mon_Chi2;
+  std::vector<int>   mon_Errors;
+  std::vector<int>   mon_Acceptance;
+  std::vector<float> mon_mu1pT;
+  std::vector<float> mon_mu2pT;
+  std::vector<float> mon_MuMumass;
+  std::vector<float> mon_FitMass;
+  std::vector<float> mon_Chi2;
     
     const double m_massMuon;
 };

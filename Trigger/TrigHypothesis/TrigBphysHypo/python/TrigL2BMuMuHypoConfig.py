@@ -9,7 +9,6 @@ class L2BMuMuHypo_1 (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 100.
@@ -33,7 +32,6 @@ class L2BMuMuHypo_Jpsi (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 2500.
@@ -50,14 +48,6 @@ class L2BMuMuHypo_Jpsi (TrigL2BMuMuHypo):
 
         self.AthenaMonTools = [ validation, online, time ]
 
-class L2BMuMuHypo_Jpsi_noSameMu (L2BMuMuHypo_Jpsi):
-    __slots__ = []
-    def __init__(self, name = "L2BMuMuHypo_Jpsi_noSameMu"):
-        L2BMuMuHypo_Jpsi.__init__( self, name )
-
-        # AcceptAll flag: if true take events regardless of cuts
-        self.AcceptSameMuon = False
-        
 class L2BMuMuHypo_Jpsi_noId (TrigL2BMuMuHypo):
     __slots__ = []
     def __init__(self, name = "L2BMuMuHypo_Jpsi_noId"):
@@ -89,7 +79,6 @@ class L2BMuMuHypo_Upsi (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 8000.
@@ -113,7 +102,6 @@ class L2BMuMuHypo_B (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 4000.
@@ -161,7 +149,6 @@ class L2BMuMuHypo_DiMu (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 1500.
@@ -277,7 +264,6 @@ class L2BMuMuHypo_DiMu_noVtx (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 1500.

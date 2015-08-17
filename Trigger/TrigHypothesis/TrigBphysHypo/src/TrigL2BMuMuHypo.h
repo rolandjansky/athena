@@ -61,8 +61,6 @@ class TrigL2BMuMuHypo: public HLT::HypoAlgo  {
 
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
-    
-    bool m_acceptSameMuon;
 
 
   //Counters
@@ -79,8 +77,8 @@ class TrigL2BMuMuHypo: public HLT::HypoAlgo  {
     //  TrigVertexCollection* m_VertexColl;
 
   /* monitored variables */
-  int m_mon_cutCounter;
-  std::vector<float> m_mon_MuMumass;
+  int mon_cutCounter;
+  std::vector<float> mon_MuMumass;
   
 };
 
