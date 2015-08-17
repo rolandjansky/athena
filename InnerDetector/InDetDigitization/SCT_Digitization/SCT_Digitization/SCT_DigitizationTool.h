@@ -151,7 +151,7 @@ private:
   bool m_useComTime;            //!< Flag to set the use of cosmics time for timing  
   bool m_barrelonly;            //!< Only the barrel layers
   bool m_randomDisabledCells;   //!< Use Random disabled cells, default no
-  bool m_onlyElementsWithHits;  //!< Process only elements with hits
+  //bool m_onlyElementsWithHits;  //!< Process only elements with hits
   bool m_createNoiseSDO;        //!< Create SDOs for strips with only noise hits (huge increase in SDO collection size)
   int  m_HardScatterSplittingMode; //!< Process all SiHit or just those from signal or background events
   bool m_HardScatterSplittingSkipper;

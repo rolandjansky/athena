@@ -622,7 +622,7 @@ class DigitizeNonHitElementsDebugPrinter
 {
 public:
   DigitizeNonHitElementsDebugPrinter(const SCT_ID* detID):
-    m_detID(detID), m_detMgr(NULL), m_msgNo(-1) {}
+    m_detID(detID), m_msgNo(-1) {}
   std::string msg(const InDetDD::SiDetectorElement* element)
   {
     std::ostringstream ost;
@@ -637,7 +637,7 @@ public:
   }
 private:
   const SCT_ID*                       m_detID; 
-  const InDetDD::SiDetectorManager*   m_detMgr;
+  //const InDetDD::SiDetectorManager*   m_detMgr;
   int                                 m_msgNo;
 };
 

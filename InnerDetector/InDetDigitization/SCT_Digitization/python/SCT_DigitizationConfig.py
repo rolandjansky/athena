@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
 # to the SCT Digitization code.
 def SCT_FirstXing():
@@ -93,7 +94,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("SmallStepLength", 5)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
-      
+
     from Digitization.DigitizationFlags import digitizationFlags
     if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("ChargeDriftModel", 1)
@@ -178,6 +179,24 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         return SCT_FrontEnd(name, **kwargs)
 
+######################################################################################
+def getPileupSCT_FrontEnd(name="PileupSCT_FrontEnd", **kwargs):
+
+    kwargs.setdefault("NoiseBarrel", 0.0)
+    kwargs.setdefault("NoiseBarrel3", 0.0)
+    kwargs.setdefault("NoiseInners", 0.0)
+    kwargs.setdefault("NoiseMiddles", 0.0)
+    kwargs.setdefault("NoiseShortMiddles", 0.0)
+    kwargs.setdefault("NoiseOuters", 0.0)
+    kwargs.setdefault("NOBarrel", 0.0)
+    kwargs.setdefault("NOBarrel3", 0.0)
+    kwargs.setdefault("NOInners", 0.0)
+    kwargs.setdefault("NOMiddles", 0.0)
+    kwargs.setdefault("NOShortMiddles", 0.0)
+    kwargs.setdefault("NOOuters", 0.0)
+    kwargs.setdefault("NoiseOn", False)
+
+    return getSCT_FrontEnd(name, **kwargs)
 
 ######################################################################################
 
@@ -206,6 +225,9 @@ def commonSCT_DigitizationConfig(name,**kwargs):
     #kwargs.setdefault("WriteSCT1_RawData", False)
 
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
+    streamName = "SCT_Digitization" # FIXME ideally random stream name would be configurable
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
+        digitizationFlags.rndmSeedList.addSeed(streamName, 49261510, 105132394 )
 
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", SCT_FirstXing())
@@ -219,17 +241,11 @@ def commonSCT_DigitizationConfig(name,**kwargs):
 
 ######################################################################################
 
-def GenericSCT_DigitizationTool(name,**kwargs):
-    from Digitization.DigitizationFlags import digitizationFlags
-    digitizationFlags.rndmSeedList.addSeed("SCT_Digitization", 49261510, 105132394 )
-    return commonSCT_DigitizationConfig(name,**kwargs)
-
-######################################################################################
 def SCT_DigitizationTool(name="SCT_DigitizationTool", **kwargs):
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return GenericSCT_DigitizationTool(name,**kwargs)
+    return commonSCT_DigitizationConfig(name,**kwargs)
 
 ######################################################################################
 
@@ -237,7 +253,7 @@ def SCT_DigitizationToolHS(name="SCT_DigitizationToolHS",**kwargs):
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return GenericSCT_DigitizationTool(name,**kwargs)
+    return commonSCT_DigitizationConfig(name,**kwargs)
 
 ######################################################################################
 
@@ -249,13 +265,34 @@ def SCT_DigitizationToolPU(name="SCT_DigitizationToolPU",**kwargs):
 
 ######################################################################################
 
+def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
+
+    kwargs.setdefault("InputObjectName", "PileupSCT_Hits")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
+    kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
+    kwargs.setdefault("OnlyHitElements", True)
+    kwargs.setdefault("FrontEnd", "PileupSCT_FrontEnd")
+
+    return commonSCT_DigitizationConfig(name,**kwargs)
+
+######################################################################################
+
+def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
+    kwargs.setdefault("EvtStore", "BkgEvent_0_SG")
+    kwargs.setdefault("OutputObjectName", "SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    return commonSCT_DigitizationConfig(name,**kwargs)
+
+######################################################################################
+
 def getSiliconRange(name="SiliconRange" , **kwargs):
     #this is the time of the xing in ns
     kwargs.setdefault('FirstXing', SCT_FirstXing() )
     kwargs.setdefault('LastXing',  SCT_LastXing()  )
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset
     kwargs.setdefault('ItemList', ["SiHitCollection#SCT_Hits"] )
-    from AthenaCommon import CfgMgr
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 ######################################################################################
@@ -269,5 +306,10 @@ def SCT_DigitizationHS(name="SCT_DigitizationHS",**kwargs):
 
 def SCT_DigitizationPU(name="SCT_DigitizationPU",**kwargs):
     kwargs.setdefault("DigitizationTool", "SCT_DigitizationToolPU")
-    from SCT_Digitization.SCT_DigitizationConf import SCT_Digitization
-    return SCT_Digitization(name,**kwargs)
+    return CfgMgr.SCT_Digitization(name,**kwargs)
+
+######################################################################################
+
+def SCT_OverlayDigitization(name="SCT_OverlayDigitization",**kwargs):
+    kwargs.setdefault("DigitizationTool", "SCT_OverlayDigitizationTool")
+    return CfgMgr.SCT_Digitization(name,**kwargs)

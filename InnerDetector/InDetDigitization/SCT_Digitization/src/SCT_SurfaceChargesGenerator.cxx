@@ -12,6 +12,7 @@
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
 // CLHEP
@@ -611,11 +612,19 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit, const ISiSurfa
       float diffusionSigma = DiffusionSigma(zReadout);
 
       for(int i=0 ; i<m_numberOfCharges; ++i) { 
-	float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
+	
+/*
+        float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
 	float xd = x1+diffusionSigma*rx;
 	float ry = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) ;
 	float yd = y1+diffusionSigma*ry;
+*/
+        float diffAmount = diffusionSigma*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+        float phi = CLHEP::RandFlat::shoot(m_rndmEngine, 2.0*CLHEP::pi);
+        float xd = x1 + cos(phi) * diffAmount;
+        float yd = y1 + sin(phi) * diffAmount;
 
+        
 	//For charge trapping with Ramo potential 
 	double stripPitch = 0.080; //mm 
 	double dstrip= y1/stripPitch; //mm 

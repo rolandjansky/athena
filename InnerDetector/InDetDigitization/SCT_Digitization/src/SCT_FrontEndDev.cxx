@@ -269,7 +269,7 @@ StatusCode SCT_FrontEndDev::prepareGainAndOffset(SiChargedDiodeCollection &colle
 	// loop over strips
 	for (; i<i_end; i++){
 	  // Need to check if strip is already setup
-	  if(!m_Analogue[1][i]>0.0){
+	  if(m_Analogue[1][i] <= 0.0){
 	    float g = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.0,S1);
 	    float o = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine,0.0,S2);
 	    
@@ -391,7 +391,7 @@ StatusCode SCT_FrontEndDev::prepareGainAndOffset(SiChargedDiodeCollection &colle
 	// loop over strips
 	for (; i<i_end; i++){
 	  // Need to check if strip is already setup
-	  if(!m_Analogue[1][i]>0.0){
+	  if(m_Analogue[1][i] <= 0.0){
 
 	    // Values depends on which chip the strip is on (complex when strip is on chip edge)
 	    int chip = i/128;
