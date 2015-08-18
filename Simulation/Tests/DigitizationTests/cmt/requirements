@@ -35,3 +35,6 @@ apply_pattern component_library
 apply_pattern declare_runtime extras="../test/DigitizationTests_TestConfiguration.xml"
 
 macro DigitizationTests_TestConfiguration "../test/DigitizationTests_TestConfiguration.xml"
+
+#scripts
+apply_pattern declare_scripts files="../scripts/Digitization_mc15test.sh"
