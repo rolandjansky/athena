@@ -42,12 +42,14 @@ namespace xAOD
     std::vector<std::vector<double> > calpz;                         ///< @brief Object constituent calo 4-vector @f$ P_{z} @f$ for overlap removal
     std::vector<std::vector<double> > cale;                          ///< @brief Object constituent calo 4-vector @f$ E @f$ for overlap removal
     std::vector<std::vector<double> > calsumpt;                      ///< @brief Object constituent calo 4-vector sumpt for overlap removal
+    std::vector<std::vector<MissingETBase::Types::bitmask_t> > calkey;                        ///< @brief Object constituent calo region key for overlap removal
     //
     std::vector<std::vector<double> > trkpx;                         ///< @brief Object constituent track 4-vector @f$ P_{x} @f$ for overlap removal
     std::vector<std::vector<double> > trkpy;                         ///< @brief Object constituent track 4-vector @f$ P_{y} @f$ for overlap removal
     std::vector<std::vector<double> > trkpz;                         ///< @brief Object constituent track 4-vector @f$ P_{z} @f$ for overlap removal
     std::vector<std::vector<double> > trke;                          ///< @brief Object constituent track 4-vector @f$ E @f$ for overlap removal
     std::vector<std::vector<double> > trksumpt;                      ///< @brief Object constituent track 4-vector sumpt for overlap removal
+    std::vector<std::vector<MissingETBase::Types::bitmask_t> > trkkey;                        ///< @brief Object constituent track region key for overlap removal
     //
     std::vector<double> jettrkpx;                                    ///< @brief Jet track 4-vector @f$ P_{x} @f$ for overlap removal
     std::vector<double> jettrkpy;                                    ///< @brief Jet track 4-vector @f$ P_{y} @f$ for overlap removal
