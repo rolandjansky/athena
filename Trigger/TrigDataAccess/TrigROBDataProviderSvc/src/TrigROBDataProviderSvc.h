@@ -149,6 +149,8 @@ protected:
     /// Pointer to AlgContextSvc 
     IAlgContextSvc*        m_algContextSvc;
 
+    /// vector of Source ids  to be ignored for the ROB map clear
+    std::vector<uint32_t>    m_l1_ROB_ids;
 
 private:
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
@@ -188,6 +190,8 @@ private:
     // flag which tells if module IDs from the L2 and EF result should be masked off
     bool m_maskL2EFModuleID;
 
+
+
     // ROS-ROB mapping
     IntegerMapProperty m_rob_ros_map ;
     BooleanProperty    m_useROSmappingForROBRetrieval ;
@@ -221,12 +225,16 @@ private:
     Histo1DProperty m_histProp_requestedROBsPerCall;
     Histo1DProperty m_histProp_receivedROBsPerCall;
     Histo1DProperty m_histProp_timeROBretrieval;
+    Histo1DProperty m_histProp_retrievedROBsPerAlgo;
+    Histo1DProperty m_histProp_ROSRequest;
 
     TH1F* m_hist_requestedROBsPerCall;
     TH1F* m_hist_receivedROBsPerCall;
+    TH1F* m_hist_retrievedROBsPerAlgo;
     TH1F* m_hist_timeROBretrieval;
     TH2F* m_hist_genericStatusForROB;
     TH2F* m_hist_specificStatusForROB;
+    TH2F* m_hist_ROSRequest;
 
     // online simulation
     BooleanProperty m_simulateOnlineDataAccess;
