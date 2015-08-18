@@ -76,12 +76,6 @@ class VertexPositionFromFile(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-class UseNewG4Config(JobProperty):
-    """Steering of ISF: use new G4 config"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class DoMemoryMonitoring(JobProperty):
     """Steering of ISF: do memory monitoring"""
     statusOn     = True
@@ -212,7 +206,6 @@ jobproperties.ISF_jobProperties.add_JobProperty(DumpStoreGate)
 jobproperties.ISF_jobProperties.add_JobProperty(RunValgrind)
 jobproperties.ISF_jobProperties.add_JobProperty(ValidationMode)
 jobproperties.ISF_jobProperties.add_JobProperty(VertexPositionFromFile)
-jobproperties.ISF_jobProperties.add_JobProperty(UseNewG4Config)
 jobproperties.ISF_jobProperties.add_JobProperty(DoMemoryMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(DoTimeMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(Input)
