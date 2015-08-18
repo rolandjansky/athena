@@ -53,29 +53,18 @@ if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
 simFlags.load_atlas_flags()
 simFlags.EventFilter.set_Off()
 
-# set the detectors on/off and steer the fast simulation flags
-if 'DetFlags' not in dir():
-    ## If you configure one det flag, you're responsible for configuring them all!
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.all_setOn()
-    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
-    DetFlags.Truth_setOn()
-    DetFlags.Forward_setOff() # Forward dets are off by default
-
 #--------------------------------------------------------------
 # Job setup
 #--------------------------------------------------------------
 theApp.EvtMax = athenaCommonFlags.EvtMax()
 
 # all det description
-include('RecExCond/AllDet_detDescr.py')
+include('ISF_Config/AllDet_detDescr.py')
+DetFlags.Print()
 
 if len(globalflags.ConditionsTag()):
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
-
-
-#include("ISF_Example/CommonISFJobOptions.py")
 
 
 #--------------------------------------------------------------
@@ -133,7 +122,7 @@ from ISF_Example.ISF_Input import ISF_Input
 #from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
 #ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
 #                                        OutputLevel=INFO)
-SimKernel = getAlgorithm('ISF_Kernel_' + ISF_Flags.Simulator())
+SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 
 #--------------------------------------------------------------

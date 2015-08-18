@@ -38,7 +38,6 @@ from ISF_Config.ISF_jobProperties import ISF_Flags
 #ISF_Flags.RunValgrind               = True    # default: False
 ISF_Flags.ValidationMode            = ValidationMode    # default: False
 #ISF_Flags.VertexPositionFromFile    = True    # default: False
-#ISF_Flags.UseNewG4Config            = True    # default: False
 ISF_Flags.DoMemoryMonitoring        = True     # default: False
 ISF_Flags.DoTimeMonitoring          = True     # default: False
 ISF_Flags.Input                     = Input          # default: 'ttbar'
